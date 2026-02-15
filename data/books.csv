@@ -1,0 +1,4 @@
+book_id,title,words_total,priority,difficulty,deadline,min_blocks_per_session
+b1,Schattenfroh,301392,4,3,,2
+b2,Introduction to the Reading of Hegel,62000,4,4,,2
+b3,Ulysses,268086,3,5,,2
