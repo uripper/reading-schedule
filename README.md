@@ -4,9 +4,11 @@ Create daily reading schedules from backlog + time budget.
 
 ## Features
 - Greedy baseline planner and MIP planner (OR-Tools optional)
-- Book/session/day constraints
-- Exact finish reporting (last session trimmed to remaining words)
-- CLI and Electron GUI
+- Book/session/day constraints and completion-aware scheduling
+- Electron GUI with tabs (Settings, Books, Schedule)
+- Calendar schedule view (not a raw table)
+- Hidden/internal book IDs (UUID fallback)
+- Help/Logs dialog for run details and warnings
 
 ## Python Setup
 ```bash
@@ -22,20 +24,18 @@ pip install -e ".[mip]"
 python -m reading_plan.cli --data data/books.csv --settings data/settings.json --output data/schedule.csv --planner mip
 ```
 
-## GUI (Electron)
+## GUI (WSL/Linux)
 ```bash
 cd electron
 npm install
-npm run start
+UI_SCALE=1.65 npm run start
 ```
 
-Notes:
-- The GUI sends JSON payloads to Python (`python -m reading_plan.gui_api`), so you no longer edit CSV by hand.
-- If Python is not on PATH, set `PYTHON_BIN` before starting Electron.
-
-## Input Model
-- Books: `book_id`, `title`, `words_total`, `priority`, `difficulty`, optional `deadline`, optional `min_blocks_per_session`
-- Settings: dates, minute budget, limits, objective weights, difficulty multiplier map
+## GUI (Install/Run On Native Windows From WSL)
+```bash
+./scripts/run_windows_gui_from_wsl.sh
+```
+This calls `scripts/install_and_run_windows.ps1`, mirrors the repo to `%LOCALAPPDATA%\\ReadingPlanOptimizer`, creates a Windows venv, installs Python deps, installs Electron deps, and launches the GUI.
 
 ## Tests
 ```bash
