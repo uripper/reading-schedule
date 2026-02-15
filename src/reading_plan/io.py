@@ -90,7 +90,7 @@ def _validate_book(book: Book) -> None:
     if (
         book.words_total <= 0
         or book.priority not in range(1, 6)
-        or book.difficulty not in range(1, 6)
+        or book.difficulty not in range(1, 11)
     ):
         raise ValueError(f"invalid values for book {book.book_id}")
     if book.min_blocks_per_session <= 0:
@@ -112,5 +112,5 @@ def _validate_settings(settings: Settings) -> None:
         )
     if sorted(settings.minutes_by_weekday.keys()) not in ([], sorted(WEEKDAYS)):
         raise ValueError("minutes_by_weekday must include Mon..Sun when provided")
-    if sorted(settings.difficulty_multiplier.keys()) != [1, 2, 3, 4, 5]:
-        raise ValueError("difficulty_multiplier must contain keys 1..5")
+    if sorted(settings.difficulty_multiplier.keys()) != list(range(1, 11)):
+        raise ValueError("difficulty_multiplier must contain keys 1..10")

@@ -1,4 +1,5 @@
 book_id,title,words_total,priority,difficulty,deadline,min_blocks_per_session
 b1,Schattenfroh,301392,4,3,,1
 b2,Introduction to the Reading of Hegel,62000,4,4,,1
-b3,Ulysses,268086,3,10,,1
+b3,Ulysses,268086,3,9,,1
+b4, The Brothers Karamazov,364153,5,1,,1
