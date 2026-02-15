@@ -16,17 +16,19 @@ def to_schedule_rows(
     assignments: dict[tuple[str, date], int],
 ) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
-    for day, idx, book, minutes, words in _iter_sessions(books, settings, assignments):
-        rows.append(
-            {
-                "date": day.isoformat(),
-                "session_index": idx,
-                "book_id": book.book_id,
-                "title": book.title,
-                "minutes": minutes,
-                "words_planned": words,
-            }
+    rows.extend(
+        {
+            "date": day.isoformat(),
+            "session_index": idx,
+            "book_id": book.book_id,
+            "title": book.title,
+            "minutes": minutes,
+            "words_planned": words,
+        }
+        for day, idx, book, minutes, words in _iter_sessions(
+            books, settings, assignments
         )
+    )
     return rows
 
 
