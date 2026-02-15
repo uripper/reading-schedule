@@ -33,7 +33,7 @@ def plan_greedy(books: list[Book], settings: Settings) -> dict[tuple[str, date],
 
         while cap > 0:
             if active := [b for b in used if remaining[b.book_id] > 0]:
-                top = max(active, key=lambda b: (b.priority, -b.difficulty, b.book_id))
+                top = min(active, key=lambda b: (b.priority, b.difficulty, b.book_id))
                 _add(assignments, top, day, 1)
                 cap -= 1
                 remaining[top.book_id] = max(0.0, remaining[top.book_id] - wpb[top.book_id])
@@ -51,7 +51,7 @@ def plan_greedy(books: list[Book], settings: Settings) -> dict[tuple[str, date],
 
 def _sort_key(book: Book, remaining: dict[str, float]) -> tuple[int, date, float, str]:
     due = book.deadline or date.max
-    return (-book.priority, due, -remaining[book.book_id], book.book_id)
+    return (book.priority, due, -remaining[book.book_id], book.book_id)
 
 
 def _next_book(
