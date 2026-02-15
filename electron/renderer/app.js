@@ -23,11 +23,10 @@ async function run() {
   try {
     setStatus("Generating plan...");
     const data = await window.plannerApi.generate(payload());
-    renderCalendar(data.schedule);
+    renderCalendar(data.schedule, state.books);
     activateTab("schedule");
-    const s = data.summary;
-    if (s.feasibility_warning) addLog(s.feasibility_warning);
-    addLog(`Status ${s.status}. Planned ${s.total_planned_minutes}/${s.total_available_minutes} minutes.`);
+    if (data.summary.feasibility_warning) addLog(data.summary.feasibility_warning);
+    addLog(`Status ${data.summary.status}. Planned ${data.summary.total_planned_minutes}/${data.summary.total_available_minutes} minutes.`);
     setStatus("Plan generated.");
   } catch (error) {
     setStatus(error.message || "Failed to generate plan", true);

@@ -15,48 +15,32 @@
       <span id="status" role="status" aria-live="polite"></span>
     </div>
   </header>
-
   <nav class="tabs" aria-label="Main Tabs">
     <button class="tab is-active" data-tab="settings">Settings</button>
     <button class="tab" data-tab="books">Books</button>
     <button class="tab" data-tab="schedule">Schedule</button>
   </nav>
-
   <main>
     <section id="tab-settings" class="panel is-active" aria-label="Settings">
-      <div id="settingsGrid" class="settings-grid"></div>
-      <label>Days Off (comma dates)
-        <input id="days_off" placeholder="2026-02-22,2026-03-01" />
-      </label>
-      <label>Difficulty Multiplier JSON
-        <textarea id="difficulty_multiplier" rows="6"></textarea>
-      </label>
+      <div class="settings-layout">
+        <article class="settings-card"><h2>Plan Window</h2><div id="windowGrid" class="settings-grid"></div></article>
+        <article class="settings-card"><h2>Daily Budget</h2><div id="budgetGrid" class="settings-grid"></div><h3>Minutes by Weekday</h3><div id="weekdayGrid" class="settings-grid"></div><h3>Days Off</h3><div class="row"><input id="dayOffPicker" type="date" /><button id="addDayOffBtn" class="btn">Add Day Off</button></div><div id="dayOffList" class="chip-list"></div></article>
+        <article class="settings-card"><h2>Optimization Weights</h2><div id="weightsGrid" class="settings-grid"></div></article>
+        <article class="settings-card"><h2>Reading Speed by Difficulty</h2><p class="hint-text">Multiplier applies to base WPM: effective WPM = base * multiplier.</p><table><thead><tr><th>Difficulty</th><th>Multiplier</th></tr></thead><tbody id="difficultyBody"></tbody></table></article>
+      </div>
     </section>
-
     <section id="tab-books" class="panel" aria-label="Books">
       <div class="row"><button id="addBookBtn" class="btn">Add Book</button></div>
-      <table>
-        <thead>
-          <tr><th>Title</th><th>Words</th><th>Priority</th><th>Difficulty</th><th>Min Blocks</th><th>Deadline</th><th></th></tr>
-        </thead>
-        <tbody id="booksBody"></tbody>
-      </table>
+      <table><thead><tr><th>Title</th><th>Estimated Words</th><th>Priority (1-5)</th><th>Difficulty (1-10)</th><th>Minimum Blocks</th><th>Deadline</th><th></th></tr></thead><tbody id="booksBody"></tbody></table>
     </section>
-
     <section id="tab-schedule" class="panel" aria-label="Schedule">
       <div id="calendarControls" class="row"></div>
       <div id="calendar" class="calendar"></div>
     </section>
   </main>
-
   <dialog id="helpDialog" class="help-dialog">
-    <h2>Help</h2>
-    <p>Fill Settings and Books, then click Generate Plan. Open Schedule tab to browse the calendar.</p>
-    <h3>Logs</h3>
-    <pre id="logOutput"></pre>
-    <div class="row"><button id="closeHelpBtn" class="btn">Close</button></div>
+    <h2>Help</h2><p>Use Settings and Books tabs, then generate and review the calendar schedule.</p><h3>Logs</h3><pre id="logOutput"></pre><div class="row"><button id="closeHelpBtn" class="btn">Close</button></div>
   </dialog>
-
   <script type="module" src="renderer/app.js"></script>
 </body>
 </html>
