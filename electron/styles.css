@@ -28,6 +28,9 @@ label { display:block; color:var(--muted); font-size:.95rem; }
 input,textarea,select { width:100%; margin-top:6px; padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--panel-2); color:var(--ink); font-size:1rem; }
 button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
 .hint-dot { display:inline-flex; justify-content:center; align-items:center; width:18px; height:18px; margin-left:6px; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--muted); cursor:help; }
+.hint-dot { position:relative; }
+.hint-dot::after { content:attr(data-tip); position:absolute; left:24px; top:50%; transform:translateY(-50%); max-width:260px; background:#0f1725; border:1px solid var(--line); border-radius:8px; color:var(--ink); padding:8px; font-size:.8rem; line-height:1.35; opacity:0; pointer-events:none; transition:opacity .14s ease; z-index:20; }
+.hint-dot:hover::after,.hint-dot:focus-visible::after { opacity:1; }
 .hint-text { margin:0 0 8px; color:var(--muted); font-size:.9rem; }
 .chip-list { display:flex; flex-wrap:wrap; gap:8px; }
 .chip-btn,.chip { border:1px solid var(--line); border-radius:8px; background:#243245; color:var(--ink); font-size:.85rem; padding:6px 8px; }
