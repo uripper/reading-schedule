@@ -4,20 +4,24 @@ let state = { dates: {}, months: [], index: 0 };
 
 function monthLabel(key) {
   if (!key) return "No Schedule";
-  return new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(new Date(`${key}-01`));
+  const [y, m] = key.split("-").map(Number);
+  return new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(new Date(y, m - 1, 1));
 }
-function dayKey(date) { return date.toISOString().slice(0, 10); }
+
+function dayKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
 
 function enrichRows(rows, books) {
   const totals = Object.fromEntries((books || []).map((b) => [b.book_id, Number(b.words_total || 0)]));
   const progress = {};
-  return [...rows]
-    .sort((a, b) => `${a.date}-${String(a.session_index).padStart(3, "0")}`.localeCompare(`${b.date}-${String(b.session_index).padStart(3, "0")}`))
-    .map((r) => {
-      progress[r.book_id] = (progress[r.book_id] || 0) + Number(r.words_planned || 0);
-      const finish = (totals[r.book_id] || 0) > 0 && progress[r.book_id] >= totals[r.book_id];
-      return { ...r, finish };
-    });
+  return [...rows].sort((a, b) => `${a.date}-${String(a.session_index).padStart(3, "0")}`.localeCompare(`${b.date}-${String(b.session_index).padStart(3, "0")}`)).map((r) => {
+    progress[r.book_id] = (progress[r.book_id] || 0) + Number(r.words_planned || 0);
+    return { ...r, finish: (totals[r.book_id] || 0) > 0 && progress[r.book_id] >= totals[r.book_id] };
+  });
 }
 
 function renderMonth() {

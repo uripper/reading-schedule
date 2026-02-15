@@ -2,25 +2,14 @@ import { el, qa } from "./dom.js";
 
 const fields = {
   window: [{ id: "start_date", label: "Start date", type: "date" }, { id: "end_date", label: "End date", type: "date" }],
-  budget: [
-    { id: "minutes_per_day", label: "Default reading minutes per day", hint: "Fallback if weekday minutes are not set." },
-    { id: "wpm_base", label: "Base reading speed (words/minute)" },
-    { id: "time_quantum_minutes", label: "Planning block size (minutes)", hint: "Smallest scheduling chunk the optimizer uses." },
-    { id: "max_sessions_per_day", label: "Maximum sessions per day" },
-    { id: "max_books_per_day", label: "Maximum different books per day" },
-    { id: "max_blocks_per_book_per_day", label: "Maximum blocks per book per day", hint: "Prevents one book from taking the full day." },
-  ],
-  weights: [
-    { id: "w_finish", label: "Finish reward", hint: "Higher means finishing books is prioritized.", step: "0.1" },
-    { id: "w_priority", label: "Priority weight", hint: "Higher means high-priority books get more time.", step: "0.1" },
-    { id: "w_switch", label: "Switch penalty", hint: "Higher means fewer book switches per day.", step: "0.1" },
-    { id: "w_smooth", label: "Difficulty smoothing", hint: "Higher means steadier day-to-day reading load.", step: "0.1" },
-  ],
+  budget: [{ id: "minutes_per_day", label: "Default reading minutes per day", hint: "Fallback if weekday minutes are not set." }, { id: "wpm_base", label: "Base reading speed (words/minute)" }, { id: "time_quantum_minutes", label: "Planning block size (minutes)", hint: "Smallest scheduling chunk the optimizer uses." }, { id: "max_sessions_per_day", label: "Maximum sessions per day" }, { id: "max_books_per_day", label: "Maximum different books per day" }, { id: "max_blocks_per_book_per_day", label: "Maximum blocks per book per day", hint: "Prevents one book from taking the full day." }],
+  weights: [{ id: "w_finish", label: "Finish reward", hint: "Higher means finishing books is prioritized.", step: "0.1" }, { id: "w_priority", label: "Priority weight", hint: "Higher means high-priority books get more time.", step: "0.1" }, { id: "w_switch", label: "Switch penalty", hint: "Higher means fewer book switches per day.", step: "0.1" }, { id: "w_smooth", label: "Difficulty smoothing", hint: "Higher means steadier day-to-day reading load.", step: "0.1" }],
 };
 const weekdays = [["Mon", "Monday"], ["Tue", "Tuesday"], ["Wed", "Wednesday"], ["Thu", "Thursday"], ["Fri", "Friday"], ["Sat", "Saturday"], ["Sun", "Sunday"]];
 let dayOffs = [];
 
-function hint(text) { return text ? ` <span class="hint-dot" title="${text}">?</span>` : ""; }
+function esc(text) { return String(text || "").replace(/"/g, "&quot;"); }
+function hint(text) { return text ? ` <span class="hint-dot" tabindex="0" role="note" data-tip="${esc(text)}">?</span>` : ""; }
 function input(field) { return `<label>${field.label}${hint(field.hint)}<input id="${field.id}" type="${field.type || "number"}" ${field.step ? `step="${field.step}"` : ""}/></label>`; }
 function renderGrid(id, defs) { el(id).innerHTML = defs.map(input).join(""); }
 

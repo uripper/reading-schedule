@@ -47,8 +47,7 @@ def build_cp_sat(
         finished[book.book_id] = model.NewBoolVar(f"f_{bi}")
         model.Add(progress >= book.words_total * finished[book.book_id])
         if book.deadline:
-            due_days = [d for d in days if d <= book.deadline]
-            if due_days:
+            if due_days := [d for d in days if d <= book.deadline]:
                 model.Add(sum(wpb[book.book_id] * x[(book.book_id, d)] for d in due_days) >= book.words_total)
 
     p_scale = int(round(settings.w_priority * 100))
@@ -56,10 +55,12 @@ def build_cp_sat(
     f_scale = int(round(settings.w_finish * 10000))
     terms: list[cp_model.LinearExpr] = []
     for book in books:
-        terms.append(p_scale * book.priority * useful_words[book.book_id])
-        terms.append(f_scale * book.priority * finished[book.book_id])
-        for day in days:
-            terms.append(-s_scale * y[(book.book_id, day)])
-
+        terms.extend(
+            (
+                p_scale * book.priority * useful_words[book.book_id],
+                f_scale * book.priority * finished[book.book_id],
+            )
+        )
+        terms.extend(-s_scale * y[(book.book_id, day)] for day in days)
     model.Maximize(sum(terms))
     return model, x, y, finished, days

@@ -60,7 +60,7 @@ def settings_from_data(data: dict[str, Any]) -> Settings:
         max_sessions_per_day=_to_int(data.get("max_sessions_per_day", 2), "max_sessions_per_day"),
         max_books_per_day=_to_int(data.get("max_books_per_day", 2), "max_books_per_day"),
         w_finish=_to_float(data.get("w_finish", 5.0), "w_finish"),
-        w_priority=_to_float(data.get("w_priority", 1.0), "w_priority"),
+        w_priority=_to_float(data.get("w_priority", 5.0), "w_priority"),
         w_switch=_to_float(data.get("w_switch", 0.0), "w_switch"),
         w_smooth=_to_float(data.get("w_smooth", 0.0), "w_smooth"),
         difficulty_multiplier=diff,

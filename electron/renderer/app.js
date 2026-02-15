@@ -5,7 +5,8 @@ import { bindHelpDialog, addLog } from "./help.js";
 import { collectSettings, fillSettings, initSettingsGrid } from "./settings.js";
 import { activateTab, bindTabs } from "./tabs.js";
 
-const state = { books: [] };
+const state = { books: [], lastResult: null, ready: false };
+let persistTimer = null;
 
 function setStatus(message, isError = false) {
   const n = el("status");
@@ -14,39 +15,54 @@ function setStatus(message, isError = false) {
   addLog(message);
 }
 
-function payload() {
+function draftData() {
   state.books = collectBooks();
-  return { planner: "mip", books: state.books, settings: collectSettings() };
+  return { books: state.books, settings: collectSettings(), last_result: state.lastResult };
+}
+
+function queuePersist() {
+  if (!state.ready) return;
+  if (persistTimer) clearTimeout(persistTimer);
+  persistTimer = setTimeout(() => window.plannerApi.saveState(draftData()).catch((e) => addLog(`Save failed: ${e.message}`)), 250);
 }
 
 async function run() {
   try {
     setStatus("Generating plan...");
-    const data = await window.plannerApi.generate(payload());
+    const payload = { planner: "mip", books: collectBooks(), settings: collectSettings() };
+    const data = await window.plannerApi.generate(payload);
+    state.books = payload.books;
+    state.lastResult = { schedule: data.schedule, summary: data.summary, created_at: new Date().toISOString() };
     renderCalendar(data.schedule, state.books);
     activateTab("schedule");
     if (data.summary.feasibility_warning) addLog(data.summary.feasibility_warning);
     addLog(`Status ${data.summary.status}. Planned ${data.summary.total_planned_minutes}/${data.summary.total_available_minutes} minutes.`);
+    await window.plannerApi.saveState(draftData());
     setStatus("Plan generated.");
   } catch (error) {
     setStatus(error.message || "Failed to generate plan", true);
   }
 }
 
-async function loadSample() {
+async function init() {
+  initSettingsGrid(); bindTabs(); bindBooksUI(); bindHelpDialog();
   try {
-    const sample = await window.plannerApi.sample();
-    fillSettings(sample.settings);
-    fillBooks(sample.books);
-    setStatus("Loaded sample data.");
+    const saved = await window.plannerApi.loadState();
+    const source = saved?.settings && saved?.books ? saved : await window.plannerApi.sample();
+    fillSettings(source.settings); fillBooks(source.books); state.books = source.books;
+    if (saved?.last_result?.schedule?.length) {
+      state.lastResult = saved.last_result;
+      renderCalendar(saved.last_result.schedule, source.books);
+      addLog("Loaded previous schedule.");
+    }
+    state.ready = true;
+    document.addEventListener("input", queuePersist);
+    document.addEventListener("change", queuePersist);
+    setStatus(saved ? "Loaded saved data." : "Loaded sample data.");
   } catch (error) {
-    setStatus(error.message || "Failed to load sample", true);
+    setStatus(error.message || "Failed to load initial data", true);
   }
+  el("runBtn").onclick = run;
 }
 
-initSettingsGrid();
-bindTabs();
-bindBooksUI();
-bindHelpDialog();
-el("runBtn").onclick = run;
-loadSample();
+init();
