@@ -35,10 +35,12 @@ function runBridge(args, payload) {
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 1200,
-    height: 860,
+    width: 1800,
+    height: 1100,
     webPreferences: { preload: path.join(__dirname, "preload.js") },
   });
+  const zoom = Number(process.env.UI_SCALE || "1.35");
+  win.webContents.setZoomFactor(Number.isFinite(zoom) ? zoom : 1.35);
   win.loadFile(path.join(__dirname, "index.html"));
 }
 
