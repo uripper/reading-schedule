@@ -1,0 +1,36 @@
+{
+  "start_date": "2026-02-16",
+  "end_date": "2026-12-31",
+  "minutes_per_day": 75,
+  "minutes_by_weekday": {
+    "Mon": 75,
+    "Tue": 75,
+    "Wed": 75,
+    "Thu": 75,
+    "Fri": 60,
+    "Sat": 45,
+    "Sun": 45
+  },
+  "days_off": [],
+  "wpm_base": 170,
+  "time_quantum_minutes": 5,
+  "max_sessions_per_day": 20,
+  "max_books_per_day": 6,
+  "w_finish": 5.0,
+  "w_priority": 1.0,
+  "w_switch": 10.0,
+  "w_smooth": 0.0,
+  "max_blocks_per_book_per_day": 12,
+  "difficulty_multiplier": {
+    "1": 1.0,
+    "2": 0.9,
+    "3": 0.8,
+    "4": 0.7,
+    "5": 0.6,
+    "6": 0.5,
+    "7": 0.4,
+    "8": 0.3,
+    "9": 0.2,
+    "10": 0.1
+  }
+}

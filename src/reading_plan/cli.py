@@ -1,0 +1,51 @@
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+from .io import load_inputs
+from .report import build_summary, format_summary
+from .schedule import to_schedule_rows, write_schedule_csv
+from .solve import solve_plan
+
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description="Reading Plan Optimizer")
+    p.add_argument("--data", default="data/books.csv", help="Path to books CSV")
+    p.add_argument("--settings", default="data/settings.json", help="Path to settings JSON")
+    p.add_argument("--output", default="data/schedule.csv", help="Output schedule CSV path")
+    p.add_argument("--planner", choices=["mip", "greedy"], default="mip", help="Planner to run")
+    p.add_argument("--print-inputs", action="store_true", help="Print parsed inputs and exit")
+    return p.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    books, settings = load_inputs(args.data, args.settings)
+    if args.print_inputs:
+        payload = {
+            "books": [b.__dict__ | {"deadline": b.deadline.isoformat() if b.deadline else None} for b in books],
+            "settings": {
+                **settings.__dict__,
+                "start_date": settings.start_date.isoformat(),
+                "end_date": settings.end_date.isoformat(),
+                "days_off": sorted(d.isoformat() for d in settings.days_off),
+            },
+        }
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        return 0
+
+    result = solve_plan(books, settings, planner=args.planner)
+    rows = to_schedule_rows(books, settings, result.assignments)
+    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+    write_schedule_csv(args.output, rows)
+
+    summary = build_summary(books, settings, result)
+    print(format_summary(summary))
+    print(f"Wrote {len(rows)} schedule rows to {args.output}")
+    return 0 if result.status in {"OPTIMAL", "FEASIBLE"} else 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

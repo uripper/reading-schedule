@@ -1,0 +1,5 @@
+# Optional dependency for MIP optimizer mode
+ortools>=9.10
+
+# Testing
+pytest>=8.0
