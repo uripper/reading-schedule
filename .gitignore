@@ -1,2 +1,5 @@
 roadmap.md
 .venv/
+.envrc
+__pycache__/
+*.pyc
