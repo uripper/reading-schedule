@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from reading_plan.budget import words_per_block
 from reading_plan.budget import day_capacity_blocks
 from reading_plan.calendar import date_range
 from reading_plan.greedy import plan_greedy
 from reading_plan.schedule import to_schedule_rows
+from reading_plan.types import Book
 from tests.helpers import demo_books, demo_settings
 
 
@@ -38,3 +40,14 @@ def test_schedule_rows_have_expected_shape():
         "minutes",
         "words_planned",
     }
+
+
+def test_schedule_trims_last_session_to_remaining_words():
+    settings = demo_settings(time_quantum_minutes=5, wpm_base=170)
+    book = Book("b1", "One", 800, 5, 2, None, 1)
+    assignments = {(book.book_id, settings.start_date): 2}
+    rows = to_schedule_rows([book], settings, assignments)
+    assert len(rows) == 1
+    assert rows[0]["words_planned"] == 800
+    assert rows[0]["minutes"] < 10
+    assert words_per_block(book, settings) * 2 > 800

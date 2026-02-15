@@ -37,7 +37,7 @@ def build_cp_sat(
     useful_words: dict[str, cp_model.IntVar] = {}
     for bi, book in enumerate(books):
         progress = sum(wpb[book.book_id] * x[(book.book_id, d)] for d in days)
-        overshoot = wpb[book.book_id] * max(0, book.min_blocks_per_session - 1)
+        overshoot = wpb[book.book_id] * max(1, book.min_blocks_per_session - 1)
         model.Add(progress <= book.words_total + overshoot)
 
         useful_words[book.book_id] = model.NewIntVar(0, book.words_total, f"u_{bi}")

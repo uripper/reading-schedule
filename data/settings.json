@@ -1,6 +1,6 @@
 {
   "start_date": "2026-02-16",
-  "end_date": "2027-02-16",
+  "end_date": "2026-12-31",
   "minutes_per_day": 75,
   "minutes_by_weekday": {
     "Mon": 75,
@@ -11,7 +11,7 @@
     "Sat": 45,
     "Sun": 45
   },
-  "days_off": ["2026-02-22"],
+  "days_off": [],
   "wpm_base": 170,
   "time_quantum_minutes": 5,
   "max_sessions_per_day": 20,

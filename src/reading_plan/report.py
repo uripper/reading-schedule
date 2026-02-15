@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import Optional, TypedDict
 
-from .budget import calendar_minutes, required_total_minutes, words_per_block
+from .budget import calendar_minutes, required_total_minutes
+from .schedule import compute_plan_totals
 from .types import Book, PlanResult, Settings
 
 
@@ -26,14 +27,7 @@ class Summary(TypedDict):
 
 
 def build_summary(books: list[Book], settings: Settings, result: PlanResult) -> Summary:
-    book_map = {b.book_id: b for b in books}
-    per_book = {b.book_id: 0 for b in books}
-    total_minutes = 0
-    for (book_id, _day), blocks in result.assignments.items():
-        book = book_map[book_id]
-        per_book[book_id] += blocks * words_per_block(book, settings)
-        total_minutes += blocks * settings.time_quantum_minutes
-
+    per_book, total_minutes = compute_plan_totals(books, settings, result.assignments)
     available = sum(calendar_minutes(settings).values())
     required = required_total_minutes(books, settings)
     progress: dict[str, BookProgress] = {
