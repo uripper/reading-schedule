@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Optional
 
-DEFAULT_DIFFICULTY_MULTIPLIER = {1: 1.00, 2: 0.90, 3: 0.80, 4: 0.70, 5: 0.60}
+DEFAULT_DIFFICULTY_MULTIPLIER = {1: 1.00, 2: 0.90, 3: 0.80, 4: 0.70, 5: 0.60, 6: 0.50, 7: 0.40, 8: 0.30, 9: 0.20, 10: 0.10}
 WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
 
