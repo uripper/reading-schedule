@@ -5,6 +5,7 @@ Create daily reading schedules from backlog + time budget.
 ## Features
 - Greedy baseline planner and MIP planner (OR-Tools optional)
 - Book/session/day constraints and completion-aware scheduling
+- Priority: `1` highest, `5` lowest
 - Electron GUI with tabs (Settings, Books, Schedule)
 - Calendar schedule view (not a raw table)
 - Hidden/internal book IDs (UUID fallback)

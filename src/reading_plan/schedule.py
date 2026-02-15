@@ -52,7 +52,7 @@ def _iter_sessions(
     remaining = {b.book_id: b.words_total for b in books}
     for day in date_range(settings.start_date, settings.end_date):
         items = [(bid, blk) for (bid, d), blk in assignments.items() if d == day and blk > 0]
-        items.sort(key=lambda x: (-book_map[x[0]].priority, x[0]))
+        items.sort(key=lambda x: (book_map[x[0]].priority, x[0]))
         idx = 0
         for book_id, blocks in items:
             book = book_map[book_id]
