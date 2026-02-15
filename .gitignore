@@ -3,3 +3,4 @@ roadmap.md
 .envrc
 __pycache__/
 *.pyc
+*.egg-info
