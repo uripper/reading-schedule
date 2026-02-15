@@ -50,7 +50,8 @@ def build_cp_sat(
             if due_days := [d for d in days if d <= book.deadline]:
                 model.Add(sum(wpb[book.book_id] * x[(book.book_id, d)] for d in due_days) >= book.words_total)
 
-    p_scale = int(round(settings.w_priority * 100))
+    w_priority = 100 - int(round(settings.w_priority * 100))
+    p_scale = w_priority
     s_scale = int(round(settings.w_switch * 100))
     f_scale = int(round(settings.w_finish * 10000))
     terms: list[cp_model.LinearExpr] = []
