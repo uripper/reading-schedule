@@ -7,6 +7,7 @@ from pathlib import Path
 from .io import load_inputs
 from .report import build_summary, format_summary
 from .schedule import to_schedule_rows, write_schedule_csv
+from .serializers import book_to_data, settings_to_data
 from .solve import solve_plan
 
 
@@ -24,15 +25,7 @@ def main() -> int:
     args = parse_args()
     books, settings = load_inputs(args.data, args.settings)
     if args.print_inputs:
-        payload = {
-            "books": [b.__dict__ | {"deadline": b.deadline.isoformat() if b.deadline else None} for b in books],
-            "settings": {
-                **settings.__dict__,
-                "start_date": settings.start_date.isoformat(),
-                "end_date": settings.end_date.isoformat(),
-                "days_off": sorted(d.isoformat() for d in settings.days_off),
-            },
-        }
+        payload = {"books": [book_to_data(b) for b in books], "settings": settings_to_data(settings)}
         print(json.dumps(payload, indent=2, sort_keys=True))
         return 0
 

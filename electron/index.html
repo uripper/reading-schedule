@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reading Plan Optimizer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>Reading Plan Optimizer</h1>
+    <div class="actions">
+      <button id="runBtn" class="btn btn-primary">Generate Plan</button>
+      <span id="status" role="status" aria-live="polite"></span>
+    </div>
+  </header>
+  <nav class="tabs" aria-label="Main Tabs">
+    <button class="tab is-active" data-tab="settings">Settings</button>
+    <button class="tab" data-tab="books">Books</button>
+    <button class="tab" data-tab="schedule">Schedule</button>
+  </nav>
+  <main>
+    <section id="tab-settings" class="panel is-active" aria-label="Settings">
+      <div id="settingsGrid" class="settings-grid"></div>
+      <label>Days Off (comma dates)
+        <input id="days_off" placeholder="2026-02-22,2026-03-01" />
+      </label>
+      <label>Difficulty Multiplier JSON
+        <textarea id="difficulty_multiplier" rows="5"></textarea>
+      </label>
+    </section>
+    <section id="tab-books" class="panel" aria-label="Books">
+      <div class="row"><button id="addBookBtn" class="btn">Add Book</button></div>
+      <table>
+        <thead>
+          <tr><th>Title</th><th>Words</th><th>Priority</th><th>Difficulty</th><th>Min Blocks</th><th>Deadline</th><th></th></tr>
+        </thead>
+        <tbody id="booksBody"></tbody>
+      </table>
+    </section>
+    <section id="tab-schedule" class="panel" aria-label="Schedule">
+      <pre id="summary"></pre>
+      <div id="calendarControls" class="row"></div>
+      <div id="calendar" class="calendar"></div>
+    </section>
+  </main>
+  <script type="module" src="renderer/app.js"></script>
+</body>
+</html>
