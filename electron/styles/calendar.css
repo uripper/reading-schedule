@@ -1,0 +1,5 @@
+.calendar { display: grid; grid-template-columns: repeat(7, minmax(170px, 1fr)); gap: 10px; }
+.day { border: 1px solid var(--line); border-radius: 10px; background: var(--panel-2); min-height: 165px; padding: 10px; }
+.day.is-muted { opacity: .45; }
+.day-date { font-weight: 700; margin-bottom: 8px; font-size: .95rem; }
+.chip.finish { border-color: var(--ok); color: var(--ok); font-weight: 700; }
