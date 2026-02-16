@@ -15,8 +15,7 @@ function dayKey(date) {
   return `${y}-${m}-${d}`;
 }
 
-function enrichRows(rows, books) {
-  const totals = Object.fromEntries((books || []).map((b) => [b.book_id, Number(b.words_total || 0)]));
+function enrichRows(rows, totals = {}) {
   const progress = {};
   return [...rows].sort((a, b) => `${a.date}-${String(a.session_index).padStart(3, "0")}`.localeCompare(`${b.date}-${String(b.session_index).padStart(3, "0")}`)).map((r) => {
     progress[r.book_id] = (progress[r.book_id] || 0) + Number(r.words_planned || 0);
@@ -46,8 +45,8 @@ function renderControls() {
   el("nextMonth").onclick = () => { state.index = Math.min(state.months.length - 1, state.index + 1); renderControls(); renderMonth(); };
 }
 
-export function renderCalendar(rows, books) {
-  const enriched = enrichRows(rows, books);
+export function renderCalendar(rows, totals) {
+  const enriched = enrichRows(rows, totals);
   state.dates = enriched.reduce((a, r) => ((a[r.date] ||= []).push(r), a), {});
   state.months = [...new Set(enriched.map((r) => r.date.slice(0, 7)))].sort();
   state.index = 0;

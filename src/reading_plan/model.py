@@ -4,7 +4,7 @@ from datetime import date
 
 from ortools.sat.python import cp_model
 
-from .budget import day_capacity_blocks, words_per_block
+from .budget import book_day_block_limit, day_capacity_blocks, words_per_block
 from .calendar import date_range
 from .types import Book, Settings
 
@@ -20,8 +20,9 @@ def build_cp_sat(
     y: dict[tuple[str, date], cp_model.IntVar] = {}
 
     for bi, book in enumerate(books):
+        per_book_cap = book_day_block_limit(book, settings)
         for di, day in enumerate(days):
-            upper = min(caps[day], settings.max_blocks_per_book_per_day)
+            upper = min(caps[day], per_book_cap)
             key = (book.book_id, day)
             x[key] = model.NewIntVar(0, upper, f"x_{bi}_{di}")
             y[key] = model.NewBoolVar(f"y_{bi}_{di}")

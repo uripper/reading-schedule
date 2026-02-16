@@ -27,6 +27,9 @@ class Book:
     difficulty: int
     deadline: Optional[date] = None
     min_blocks_per_session: int = 2
+    words_full: Optional[int] = None
+    progress_percent: float = 0.0
+    max_minutes_per_day: Optional[int] = None
 
 
 @dataclass(frozen=True)

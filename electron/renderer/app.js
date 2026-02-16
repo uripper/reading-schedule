@@ -8,6 +8,10 @@ import { activateTab, bindTabs } from "./tabs.js";
 const state = { books: [], lastResult: null, ready: false };
 let persistTimer = null;
 
+function totalsFromSummary(summary) {
+  return Object.fromEntries(Object.entries(summary?.per_book || {}).map(([id, info]) => [id, Number(info.words_total || 0)]));
+}
+
 function setStatus(message, isError = false) {
   const n = el("status");
   n.textContent = message;
@@ -33,7 +37,7 @@ async function run() {
     const data = await window.plannerApi.generate(payload);
     state.books = payload.books;
     state.lastResult = { schedule: data.schedule, summary: data.summary, created_at: new Date().toISOString() };
-    renderCalendar(data.schedule, state.books);
+    renderCalendar(data.schedule, totalsFromSummary(data.summary));
     activateTab("schedule");
     if (data.summary.feasibility_warning) addLog(data.summary.feasibility_warning);
     addLog(`Status ${data.summary.status}. Planned ${data.summary.total_planned_minutes}/${data.summary.total_available_minutes} minutes.`);
@@ -52,7 +56,7 @@ async function init() {
     fillSettings(source.settings); fillBooks(source.books); state.books = source.books;
     if (saved?.last_result?.schedule?.length) {
       state.lastResult = saved.last_result;
-      renderCalendar(saved.last_result.schedule, source.books);
+      renderCalendar(saved.last_result.schedule, totalsFromSummary(saved.last_result.summary));
       addLog("Loaded previous schedule.");
     }
     state.ready = true;

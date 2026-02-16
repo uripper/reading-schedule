@@ -7,11 +7,14 @@ def book_to_data(book: Book) -> dict[str, object]:
     return {
         "book_id": book.book_id,
         "title": book.title,
-        "words_total": book.words_total,
+        "words_total": book.words_full if book.words_full is not None else book.words_total,
         "priority": book.priority,
         "difficulty": book.difficulty,
         "deadline": book.deadline.isoformat() if book.deadline else None,
         "min_blocks_per_session": book.min_blocks_per_session,
+        "progress_percent": book.progress_percent,
+        "words_remaining": book.words_total,
+        "max_minutes_per_day": book.max_minutes_per_day,
     }
 
 

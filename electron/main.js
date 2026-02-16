@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const { spawn } = require("child_process");
 const path = require("path");
+const { searchBooks } = require("./book_lookup");
 const { readState, writeState } = require("./state_store");
 
 function root() { return path.join(__dirname, ".."); }
@@ -39,6 +40,7 @@ function userData() { return app.getPath("userData"); }
 
 ipcMain.handle("plan:sample", () => runBridge(["--sample"]));
 ipcMain.handle("plan:generate", (_event, payload) => runBridge([], payload));
+ipcMain.handle("book:search", (_event, query) => searchBooks(query));
 ipcMain.handle("state:load", () => readState(userData()));
 ipcMain.handle("state:save", (_event, payload) => writeState(userData(), payload));
 
