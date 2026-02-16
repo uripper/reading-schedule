@@ -49,7 +49,7 @@ async function run() {
 }
 
 async function init() {
-  initSettingsGrid(); bindTabs(); bindBooksUI(); bindHelpDialog();
+  initSettingsGrid(); bindTabs(); bindBooksUI(queuePersist); bindHelpDialog();
   try {
     const saved = await window.plannerApi.loadState();
     const source = saved?.settings && saved?.books ? saved : await window.plannerApi.sample();

@@ -30,8 +30,12 @@
       </div>
     </section>
     <section id="tab-books" class="panel" aria-label="Books">
-      <div class="row"><button id="addBookBtn" class="btn">Add Book</button></div>
-      <table><thead><tr><th>Title</th><th>Estimated Words</th><th>Progress %</th><th>Priority (1 highest, 5 lowest)</th><th>Difficulty (1-10)</th><th>Min Blocks</th><th>Max min/day</th><th>Deadline</th><th></th></tr></thead><tbody id="booksBody"></tbody></table>
+      <div class="row books-toolbar">
+        <button id="addBookBtn" class="btn">Add Book</button>
+        <span class="hint-text">Click a book card to edit details.</span>
+      </div>
+      <div id="booksGrid" class="books-grid" aria-live="polite"></div>
+      <p id="booksEmpty" class="books-empty">No books yet. Add your first book to start planning.</p>
     </section>
     <section id="tab-schedule" class="panel" aria-label="Schedule">
       <div id="calendarControls" class="row"></div>
@@ -40,6 +44,44 @@
   </main>
   <dialog id="helpDialog" class="help-dialog">
     <h2>Help</h2><p>Use Settings and Books tabs, then generate and review the calendar schedule.</p><h3>Logs</h3><pre id="logOutput"></pre><div class="row"><button id="closeHelpBtn" class="btn">Close</button></div>
+  </dialog>
+  <dialog id="bookDialog" class="book-dialog">
+    <form id="bookForm" class="book-form" method="dialog">
+      <h2 id="bookDialogTitle">Add Book</h2>
+      <input id="bookFormId" type="hidden" />
+      <input id="bookFormCoverUrl" type="hidden" />
+      <input id="bookFormCoverLocal" type="hidden" />
+      <input id="bookFormAuthor" type="hidden" />
+      <div class="book-form-layout">
+        <section class="book-search-panel">
+          <label for="bookSearchInput">Find Book (Open Library)</label>
+          <input id="bookSearchInput" type="text" autocomplete="off" placeholder="Search by title or author" />
+          <div id="bookSearchResults" class="book-search-results" role="listbox" aria-label="Book suggestions"></div>
+          <p id="bookLookupMeta" class="lookup-meta"></p>
+        </section>
+        <section class="book-cover-panel">
+          <img id="bookCoverPreview" alt="Book cover preview" src="" />
+        </section>
+        <section class="book-fields">
+          <div class="settings-grid">
+            <label>Title<input id="bookTitleInput" required placeholder="Book title" /></label>
+            <label>Estimated Words<input id="bookWordsInput" type="number" min="1" step="1" placeholder="e.g. 85000" /></label>
+            <label>Total Pages<input id="bookPagesTotalInput" type="number" min="1" step="1" placeholder="e.g. 300" /></label>
+            <label>Pages Read<input id="bookPagesReadInput" type="number" min="0" step="1" placeholder="e.g. 125" /></label>
+            <label>Progress %<input id="bookProgressInput" type="number" min="0" max="100" step="0.1" value="0" /></label>
+            <label>Priority (1 highest, 5 lowest)<input id="bookPriorityInput" type="number" min="1" max="5" value="3" /></label>
+            <label>Difficulty (1-10)<input id="bookDifficultyInput" type="number" min="1" max="10" value="3" /></label>
+            <label>Min Blocks<input id="bookMinBlocksInput" type="number" min="1" value="1" /></label>
+            <label>Max min/day<input id="bookMaxMinutesInput" type="number" min="1" /></label>
+            <label>Deadline<input id="bookDeadlineInput" type="date" /></label>
+          </div>
+        </section>
+      </div>
+      <div class="row">
+        <button id="cancelBookBtn" class="btn" type="button">Cancel</button>
+        <button id="saveBookBtn" class="btn btn-primary" type="submit">Save Book</button>
+      </div>
+    </form>
   </dialog>
   <script type="module" src="renderer/app.js"></script>
 </body>
