@@ -1,0 +1,51 @@
+from __future__ import annotations
+
+from typing import Any
+from uuid import uuid4
+
+from .builders_coerce import optional_int, to_float, to_int
+from .builders_shared import WORDS_PER_PAGE
+from .calendar import parse_date
+from .types import Book
+from .validate import validate_book
+
+
+def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
+    words_raw = data.get("words_total")
+    pages_raw = data.get("pages_total")
+    has_words = str(words_raw or "").strip() != ""
+    full = to_int(words_raw, "words_total") if has_words else to_int(pages_raw or 0, "pages_total") * WORDS_PER_PAGE
+
+    words_read = optional_int(data.get("words_read"), "words_read")
+    pages_read = optional_int(data.get("pages_read"), "pages_read")
+    if words_read is None and pages_read is not None:
+        words_read = pages_read * WORDS_PER_PAGE
+
+    if words_read is None:
+        progress = to_float(data.get("progress_percent", 0.0), "progress_percent")
+        if progress < 0 or progress > 100:
+            raise ValueError("progress_percent must be between 0 and 100")
+        words_read = int(round(full * progress / 100.0))
+    else:
+        progress = 0.0 if full <= 0 else round(100.0 * words_read / full, 2)
+
+    return full, max(0, full - words_read), progress
+
+
+def book_from_data(data: dict[str, Any]) -> Book:
+    words_full, words_remaining, progress = _word_stats(data)
+    deadline = parse_date(data["deadline"]) if data.get("deadline") else None
+    book = Book(
+        book_id=str(data.get("book_id") or "").strip() or str(uuid4()),
+        title=str(data["title"]).strip(),
+        words_total=words_remaining,
+        priority=to_int(data["priority"], "priority"),
+        difficulty=to_int(data["difficulty"], "difficulty"),
+        deadline=deadline,
+        min_blocks_per_session=to_int(data.get("min_blocks_per_session", 2), "min_blocks_per_session"),
+        words_full=words_full,
+        progress_percent=progress,
+        max_minutes_per_day=optional_int(data.get("max_minutes_per_day"), "max_minutes_per_day"),
+    )
+    validate_book(book)
+    return book
