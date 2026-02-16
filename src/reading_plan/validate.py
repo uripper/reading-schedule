@@ -14,6 +14,12 @@ def validate_book(book: Book) -> None:
         raise ValueError(f"difficulty must be 1..10 for {book.book_id}")
     if book.min_blocks_per_session <= 0:
         raise ValueError(f"min_blocks_per_session must be > 0 for {book.book_id}")
+    if book.words_full is not None and book.words_full < book.words_total:
+        raise ValueError(f"words_full must be >= remaining words for {book.book_id}")
+    if book.progress_percent < 0 or book.progress_percent > 100:
+        raise ValueError(f"progress_percent must be between 0 and 100 for {book.book_id}")
+    if book.max_minutes_per_day is not None and book.max_minutes_per_day <= 0:
+        raise ValueError(f"max_minutes_per_day must be > 0 for {book.book_id}")
 
 
 def validate_settings(settings: Settings) -> None:

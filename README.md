@@ -8,6 +8,9 @@ Create daily reading schedules from backlog + time budget.
 - Priority: `1` highest, `5` lowest
 - Electron GUI with tabs (Settings, Books, Schedule)
 - Calendar schedule view (not a raw table)
+- Open Library title lookup autofills estimated words
+- Per-book progress fields (`progress_percent`, `words_read`, `pages_read`)
+- Per-book hard cap field (`max_minutes_per_day`)
 - Hidden/internal book IDs (UUID fallback)
 - Help/Logs dialog for run details and warnings
 
