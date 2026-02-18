@@ -23,8 +23,10 @@ def plan_greedy(books: list[Book], settings: Settings) -> dict[tuple[str, date],
         used: list[Book] = []
 
         for book in ordered:
-            if len(used) >= daily_book_cap or cap < book.min_blocks_per_session:
+            if len(used) >= daily_book_cap:
                 break
+            if cap < book.min_blocks_per_session:
+                continue
             if remaining[book.book_id] <= 0:
                 continue
             room = _room(assignments, book.book_id, day, limits[book.book_id])

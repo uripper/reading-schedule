@@ -16,7 +16,7 @@ def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     try:
         from ortools.sat.python import cp_model
         from .model import build_cp_sat
-    except Exception:
+    except ImportError:
         note = "OR-Tools is unavailable; fell back to greedy planner."
         return PlanResult("greedy", "FEASIBLE", plan_greedy(books, settings), note=note)
 
