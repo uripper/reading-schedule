@@ -1,4 +1,5 @@
 import { bindBookLookup, syncProgressAndPages } from "../book_lookup.js";
+import { bindDialogFocus, focusFirstError } from "../a11y.js";
 import { applyLookupItem, clearForm, fillForm, parseFormBook } from "./form_state.js";
 import { getBookFormRefs } from "./form_refs.js";
 
@@ -9,6 +10,7 @@ function setSavingState(refs, busy) {
 
 export function createBookDialog(onSubmit) {
   const refs = getBookFormRefs();
+  const dialogFocus = bindDialogFocus(refs.dialog, { initialFocusSelector: "#bookTitleInput" });
   const lookupControl = bindBookLookup({
     searchInput: refs.searchInput,
     resultsEl: refs.searchResults,
@@ -16,13 +18,14 @@ export function createBookDialog(onSubmit) {
     onPick: (item) => applyLookupItem(refs, item),
   });
 
-  const close = () => refs.dialog.open && refs.dialog.close();
+  const close = () => dialogFocus.closeAndReturnFocus();
   const open = (book = null) => {
+    dialogFocus.rememberOpener();
     clearForm(refs, lookupControl);
     refs.dialogTitle.textContent = book ? "Edit Book" : "Add Book";
     if (book) fillForm(refs, book);
     refs.dialog.showModal();
-    refs.titleInput.focus();
+    dialogFocus.focusInitialTarget();
   };
 
   refs.form.addEventListener("submit", async (event) => {
@@ -33,6 +36,7 @@ export function createBookDialog(onSubmit) {
       close();
     } catch (error) {
       refs.lookupMeta.textContent = error?.message || "Could not save this book.";
+      if (!focusFirstError(refs.form)) refs.titleInput.focus();
     } finally {
       setSavingState(refs, false);
     }

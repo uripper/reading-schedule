@@ -4,8 +4,11 @@
   "private": true,
   "main": "main.js",
   "scripts": {
+    "tokens:build": "node ./scripts/build_tokens.mjs",
+    "tokens:check": "node ./scripts/check_token_usage.mjs",
+    "prestart": "npm run tokens:build",
     "start": "electron .",
-    "lint": "eslint . --ext .js,.mjs,.cjs",
+    "lint": "npm run tokens:check && eslint . --ext .js,.mjs,.cjs",
     "lint:fix": "eslint . --ext .js,.mjs,.cjs --fix"
   },
   "devDependencies": {

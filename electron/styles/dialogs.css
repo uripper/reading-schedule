@@ -1,5 +1,26 @@
-.help-dialog { width: min(1000px, 92vw); border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--ink); padding: 16px; }
-.help-dialog::backdrop { background: rgba(0, 0, 0, .6); }
+.help-dialog {
+  width: min(980px, 92vw);
+  border: 1px solid var(--app-border);
+  border-radius: var(--token-radius-lg);
+  background: var(--app-bgElevated);
+  color: var(--app-text);
+  padding: var(--token-space-4);
+  box-shadow: var(--token-elevation-md);
+}
 
-pre { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px; max-height: 45vh; overflow: auto; }
-#status { color: var(--muted); }
+.help-dialog::backdrop {
+  background: var(--app-overlay);
+}
+
+pre {
+  margin: var(--token-space-2) 0;
+  border: 1px solid var(--app-border);
+  border-radius: var(--token-radius-sm);
+  background: var(--app-surface);
+  color: var(--app-text);
+  padding: var(--token-space-2);
+  max-height: 45vh;
+  overflow: auto;
+  font-family: var(--token-typography-family-mono);
+  font-size: var(--token-typography-size-xs);
+}

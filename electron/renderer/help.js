@@ -1,4 +1,5 @@
 import { el } from "./dom.js";
+import { bindDialogFocus } from "./a11y.js";
 
 const logs = [];
 
@@ -18,11 +19,16 @@ export function addLog(message) {
 
 export function bindHelpDialog() {
   const dlg = el("helpDialog");
-  el("helpBtn").onclick = () => dlg.showModal();
-  el("closeHelpBtn").onclick = () => dlg.close();
+  const focus = bindDialogFocus(dlg, { initialFocusSelector: "#closeHelpBtn" });
+  el("helpBtn").onclick = () => {
+    focus.rememberOpener();
+    dlg.showModal();
+    focus.focusInitialTarget();
+  };
+  el("closeHelpBtn").onclick = () => focus.closeAndReturnFocus();
   dlg.addEventListener("cancel", (e) => {
     e.preventDefault();
-    dlg.close();
+    focus.closeAndReturnFocus();
   });
   renderLogs();
 }
