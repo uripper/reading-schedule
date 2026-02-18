@@ -12,7 +12,7 @@ from .solve import solve_plan
 
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Reading Plan Optimizer")
+    p = argparse.ArgumentParser(description="Bartleby")
     p.add_argument("--data", default="data/books.csv", help="Path to books CSV")
     p.add_argument("--settings", default="data/settings.json", help="Path to settings JSON")
     p.add_argument("--output", default="data/schedule.csv", help="Output schedule CSV path")

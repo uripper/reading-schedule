@@ -1,4 +1,4 @@
-# Reading Plan Optimizer
+# Bartleby
 
 Create daily reading schedules from backlog + time budget.
 

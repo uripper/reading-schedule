@@ -1,8 +1,8 @@
 // @ts-nocheck
 import { applyPreferencesToDocument, createAnnouncer } from "./a11y.js";
 import { el } from "./dom.js";
-import { bindBooksUI, collectBooks, fillBooks } from "./books.js";
-import { firstPlannedRow, renderCalendar } from "./calendar.js";
+import { bindBooksUI, collectBooks, fillBooks, getBookById, updateBookProgress } from "./books.js";
+import { configureCalendarInteractions, firstPlannedRow, renderCalendar } from "./calendar.js";
 import { addLog, bindHelpDialog } from "./help.js";
 import { initSessionsUI } from "./sessions.js";
 import { collectSettings, fillSettings, initSettingsGrid } from "./settings.js";
@@ -28,6 +28,7 @@ const state = {
   ready: false,
   preferences: { ...DEFAULT_PREFERENCES },
   featureFlags: { ...DEFAULT_FEATURE_FLAGS },
+  scheduleCompletions: {},
 };
 
 let persistTimer = null;
@@ -64,6 +65,15 @@ function normalizeFeatureFlags(raw = {}) {
     socialEnabled: Boolean(raw.socialEnabled),
     recommendationsEnabled: Boolean(raw.recommendationsEnabled),
   };
+}
+
+function normalizeScheduleCompletions(raw = {}) {
+  const out = {};
+  Object.entries(raw || {}).forEach(([key, value]) => {
+    if (!key) return;
+    out[key] = Boolean(value);
+  });
+  return out;
 }
 
 function setStatus(message, isError = false) {
@@ -117,6 +127,7 @@ function draftData() {
     sessions,
     preferences: state.preferences,
     feature_flags: state.featureFlags,
+    schedule_completions: state.scheduleCompletions,
     last_result: state.lastResult,
   };
 }
@@ -219,6 +230,7 @@ async function run() {
     const payload = { planner: "mip", books: payloadBooks, settings: collectSettings() };
     const data = await window.plannerApi.generate(payload);
 
+    state.scheduleCompletions = {};
     state.lastResult = {
       schedule: data.schedule,
       summary: data.summary,
@@ -272,6 +284,35 @@ async function init() {
   });
 
   bindExperienceSettings();
+  configureCalendarInteractions({
+    isSessionCompleted: (sessionKey) => Boolean(state.scheduleCompletions?.[sessionKey]),
+    onSessionCompletionChanged: ({ sessionKey, completed, row }) => {
+      if (completed) {
+        state.scheduleCompletions[sessionKey] = true;
+      } else {
+        delete state.scheduleCompletions[sessionKey];
+      }
+      queuePersist();
+      if (row?.title && row?.date) {
+        if (completed) {
+          setStatus(`Marked "${row.title}" complete on ${row.date}.`);
+        } else {
+          setStatus(`Marked "${row.title}" incomplete on ${row.date}.`);
+        }
+      }
+    },
+    onSessionProgressUpdated: ({ bookId, pagesRead, progressPercent }) => {
+      const updated = updateBookProgress(bookId, { pagesRead, progressPercent });
+      if (!updated) {
+        setStatus("Could not find that book to update progress.", true);
+        return null;
+      }
+      setStatus(`Updated progress for ${updated.title || "book"}.`);
+      queuePersist();
+      return updated;
+    },
+    getBookById: (bookId) => getBookById(bookId),
+  });
 
   try {
     const saved = await window.plannerApi.loadState();
@@ -287,6 +328,7 @@ async function init() {
 
     state.preferences = normalizePreferences(saved?.preferences || {});
     state.featureFlags = normalizeFeatureFlags(saved?.feature_flags || {});
+    state.scheduleCompletions = normalizeScheduleCompletions(saved?.schedule_completions || {});
     fillPreferencesUI(state.preferences, state.featureFlags);
     applyPreferencesToDocument(state.preferences);
 
