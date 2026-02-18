@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import Protocol, cast
 
 from ortools.sat.python import cp_model
 
@@ -9,10 +10,21 @@ from .calendar import date_range
 from .types import Book, Settings
 
 
+class _CpSatModelBuilder(Protocol):
+    def NewIntVar(self, lb: int, ub: int, name: str) -> cp_model.IntVar: ...
+
+    def NewBoolVar(self, name: str) -> cp_model.IntVar: ...
+
+    def Add(self, ct: object) -> object: ...
+
+    def Maximize(self, obj: object) -> None: ...
+
+
 def build_cp_sat(
     books: list[Book], settings: Settings
 ) -> tuple[cp_model.CpModel, dict[tuple[str, date], cp_model.IntVar], dict[tuple[str, date], cp_model.IntVar], dict[str, cp_model.IntVar], list[date]]:
-    model = cp_model.CpModel()
+    raw_model = cp_model.CpModel()
+    model = cast(_CpSatModelBuilder, raw_model)
     days = date_range(settings.start_date, settings.end_date)
     caps = {d: day_capacity_blocks(settings, d) for d in days}
     wpb = {b.book_id: words_per_block(b, settings) for b in books}
@@ -74,4 +86,4 @@ def build_cp_sat(
 
     model.Maximize(sum(terms))
 
-    return model, x, y, finished, days
+    return raw_model, x, y, finished, days
