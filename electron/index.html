@@ -201,10 +201,20 @@
             <label>Min Blocks<input id="bookMinBlocksInput" type="number" min="1" value="1" /></label>
             <label>Max min/day<input id="bookMaxMinutesInput" type="number" min="1" /></label>
             <label>Deadline<input id="bookDeadlineInput" type="date" /></label>
-            <label>After Book
-              <select id="bookBlockedByInput">
-                <option value="">None</option>
-              </select>
+            <label class="book-after-book-picker">After Book
+              <input
+                id="bookAfterBookInput"
+                type="text"
+                placeholder="Search by title or author"
+                autocomplete="off"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded="false"
+                aria-controls="bookAfterBookResults"
+                aria-haspopup="listbox"
+              />
+              <input id="bookBlockedByInput" type="hidden" />
+              <div id="bookAfterBookResults" class="book-search-results" role="listbox" aria-label="After book options"></div>
             </label>
           </div>
         </section>
