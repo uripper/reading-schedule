@@ -1,12 +1,72 @@
 import { qa } from "./dom.js";
 
-export function activateTab(name) {
-  qa(".tab").forEach((btn) => btn.classList.toggle("is-active", btn.dataset.tab === name));
-  qa(".panel").forEach((panel) => panel.classList.toggle("is-active", panel.id === `tab-${name}`));
+let onTabActivated = () => {};
+
+function allTabButtons() {
+  return qa(".tab[data-tab]");
 }
 
-export function bindTabs() {
-  qa(".tab").forEach((btn) => {
-    btn.onclick = () => activateTab(btn.dataset.tab);
+function desktopTabs() {
+  return qa(".tabs .tab[data-tab]");
+}
+
+function panelByName(name) {
+  return document.getElementById(`tab-${name}`);
+}
+
+function setPanelState(panel, active) {
+  panel.classList.toggle("is-active", active);
+  panel.hidden = !active;
+  panel.setAttribute("aria-hidden", active ? "false" : "true");
+}
+
+export function activateTab(name, options = {}) {
+  const { focusPanel = false } = options;
+  let activeLabel = "Reading Plan Optimizer";
+
+  allTabButtons().forEach((btn) => {
+    const active = btn.dataset.tab === name;
+    btn.classList.toggle("is-active", active);
+    if (btn.getAttribute("role") === "tab") {
+      btn.setAttribute("aria-selected", active ? "true" : "false");
+      btn.tabIndex = active ? 0 : -1;
+    }
+    if (active) activeLabel = btn.textContent?.trim() || activeLabel;
   });
+
+  qa(".panel").forEach((panel) => setPanelState(panel, panel.id === `tab-${name}`));
+  const activePanel = panelByName(name);
+  if (focusPanel && activePanel) activePanel.focus();
+  document.title = `${activeLabel} - Reading Plan Optimizer`;
+  onTabActivated(name);
+}
+
+function activateTabByIndex(tabs, index) {
+  const target = tabs[index];
+  if (!target) return;
+  target.focus();
+  activateTab(target.dataset.tab || "today");
+}
+
+function bindTabKeyboard(tabs) {
+  tabs.forEach((btn, index) => {
+    btn.addEventListener("keydown", (event) => {
+      if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      if (event.key === "Home") return activateTabByIndex(tabs, 0);
+      if (event.key === "End") return activateTabByIndex(tabs, tabs.length - 1);
+      const direction = event.key === "ArrowRight" ? 1 : -1;
+      const next = (index + direction + tabs.length) % tabs.length;
+      activateTabByIndex(tabs, next);
+    });
+  });
+}
+
+export function bindTabs(onChange = () => {}) {
+  onTabActivated = onChange;
+  allTabButtons().forEach((btn) => {
+    btn.onclick = () => activateTab(btn.dataset.tab || "today");
+  });
+
+  bindTabKeyboard(desktopTabs());
 }
