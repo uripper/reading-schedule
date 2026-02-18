@@ -1,29 +1,20 @@
 // @ts-nocheck
 import { applyPreferencesToDocument, createAnnouncer } from "./a11y.js";
-import { el } from "./dom.js";
+import { activateTab, bindTabs } from "./tabs.js";
 import { bindBooksUI, collectBooks, fillBooks, getBookById, updateBookProgress } from "./books.js";
-import { configureCalendarInteractions, firstPlannedRow, renderCalendar } from "./calendar.js";
+import { configureCalendarInteractions, renderCalendar } from "./calendar.js";
+import { el } from "./dom.js";
 import { addLog, bindHelpDialog } from "./help.js";
 import { initSessionsUI } from "./sessions.js";
 import { collectSettings, fillSettings, initSettingsGrid } from "./settings.js";
-import { activateTab, bindTabs } from "./tabs.js";
+import { bindExperienceSettings } from "./app/experience_bindings.js";
+import { collectFeatureFlagsFromUI, collectPreferencesFromUI, DEFAULT_FEATURE_FLAGS, DEFAULT_PREFERENCES, fillPreferencesUI, normalizeFeatureFlags, normalizePreferences, normalizeScheduleCompletions } from "./app/experience.js";
+import { configureAppCalendarInteractions } from "./app/calendar_interactions.js";
+import { draftData, saveStateSafe } from "./app/persistence.js";
+import { runPlanGeneration } from "./app/plan.js";
+import { activateSessionsAndStartTimer, totalsFromSummary, updateTodayDashboard } from "./app/today.js";
 
-const DEFAULT_PREFERENCES = {
-  theme: "system",
-  reduceMotion: false,
-  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
-  dailyGoalMinutes: 30,
-  reminderEnabled: false,
-  reminderTime: "20:00",
-};
-
-const DEFAULT_FEATURE_FLAGS = {
-  gamificationEnabled: false,
-  socialEnabled: false,
-  recommendationsEnabled: false,
-};
 const PERSIST_DELAY_MS = 300;
-
 const state = {
   lastResult: null,
   ready: false,
@@ -31,53 +22,9 @@ const state = {
   featureFlags: { ...DEFAULT_FEATURE_FLAGS },
   scheduleCompletions: {},
 };
-
 let persistTimer = null;
 let sessionsUI = null;
 const announce = createAnnouncer();
-
-function totalsFromSummary(summary) {
-  return Object.fromEntries(Object.entries(summary?.per_book || {}).map(([id, info]) => [id, Number(info.words_total || 0)]));
-}
-
-function normalizePreferences(raw = {}) {
-  let { theme } = DEFAULT_PREFERENCES;
-  if (["system", "light", "dark"].includes(raw.theme)) {
-    theme = raw.theme;
-  }
-  const dailyGoalMinutes = Number(raw.dailyGoalMinutes || raw.daily_goal_minutes || DEFAULT_PREFERENCES.dailyGoalMinutes);
-  let normalizedDailyGoalMinutes = DEFAULT_PREFERENCES.dailyGoalMinutes;
-  if (Number.isFinite(dailyGoalMinutes) && dailyGoalMinutes > 0) {
-    normalizedDailyGoalMinutes = Math.round(dailyGoalMinutes);
-  }
-  return {
-    theme,
-    reduceMotion: Boolean(raw.reduceMotion),
-    timezone: String(raw.timezone || DEFAULT_PREFERENCES.timezone),
-    dailyGoalMinutes: normalizedDailyGoalMinutes,
-    reminderEnabled: Boolean(raw.reminderEnabled),
-    reminderTime: String(raw.reminderTime || DEFAULT_PREFERENCES.reminderTime),
-  };
-}
-
-function normalizeFeatureFlags(raw = {}) {
-  return {
-    gamificationEnabled: Boolean(raw.gamificationEnabled),
-    socialEnabled: Boolean(raw.socialEnabled),
-    recommendationsEnabled: Boolean(raw.recommendationsEnabled),
-  };
-}
-
-function normalizeScheduleCompletions(raw = {}) {
-  const out = {};
-  Object.entries(raw || {}).forEach(([key, value]) => {
-    if (!key) {
-      return;
-    }
-    out[key] = Boolean(value);
-  });
-  return out;
-}
 
 function setStatus(message, isError = false) {
   const node = el("status");
@@ -89,64 +36,17 @@ function setStatus(message, isError = false) {
   addLog(message);
 }
 
-function collectPreferencesFromUI() {
-  return {
-    theme: el("themeSelect").value,
-    reduceMotion: el("reduceMotionToggle").checked,
-    timezone: DEFAULT_PREFERENCES.timezone,
-    dailyGoalMinutes: Number(el("dailyGoalInput").value || DEFAULT_PREFERENCES.dailyGoalMinutes),
-    reminderEnabled: el("reminderEnabledToggle").checked,
-    reminderTime: el("reminderTimeInput").value || DEFAULT_PREFERENCES.reminderTime,
-  };
-}
-
-function collectFeatureFlagsFromUI() {
-  return {
-    gamificationEnabled: el("flagGamification").checked,
-    socialEnabled: el("flagSocial").checked,
-    recommendationsEnabled: el("flagRecommendations").checked,
-  };
-}
-
-function fillPreferencesUI(preferences, featureFlags) {
-  el("themeSelect").value = preferences.theme;
-  el("reduceMotionToggle").checked = Boolean(preferences.reduceMotion);
-  el("dailyGoalInput").value = String(preferences.dailyGoalMinutes || DEFAULT_PREFERENCES.dailyGoalMinutes);
-  el("reminderEnabledToggle").checked = Boolean(preferences.reminderEnabled);
-  el("reminderTimeInput").value = preferences.reminderTime || DEFAULT_PREFERENCES.reminderTime;
-  el("flagGamification").checked = Boolean(featureFlags.gamificationEnabled);
-  el("flagSocial").checked = Boolean(featureFlags.socialEnabled);
-  el("flagRecommendations").checked = Boolean(featureFlags.recommendationsEnabled);
-}
-
-function draftData() {
-  let sessions = [];
-  if (sessionsUI) {
-    sessions = sessionsUI.getSessions();
-  }
-  return {
-    sessions,
-    books: collectBooks(),
-    settings: collectSettings(),
+async function persistDraft() {
+  const payload = draftData({
+    sessionsUI,
+    collectBooks,
+    collectSettings,
     preferences: state.preferences,
-    feature_flags: state.featureFlags,
-    schedule_completions: state.scheduleCompletions,
-    last_result: state.lastResult,
-  };
-}
-
-async function saveStateSafe() {
-  try {
-    const result = await globalThis.plannerApi.saveState(draftData());
-    if (result?.ok === false) {
-      addLog(`Save failed: ${result.error || "Unknown state persistence error"}`);
-      return false;
-    }
-    return true;
-  } catch (error) {
-    addLog(`Save failed: ${error.message || error}`);
-    return false;
-  }
+    featureFlags: state.featureFlags,
+    scheduleCompletions: state.scheduleCompletions,
+    lastResult: state.lastResult,
+  });
+  return saveStateSafe(globalThis.plannerApi, payload, addLog);
 }
 
 function queuePersist() {
@@ -157,134 +57,71 @@ function queuePersist() {
     clearTimeout(persistTimer);
   }
   persistTimer = setTimeout(() => {
-    void saveStateSafe();
+    void persistDraft();
   }, PERSIST_DELAY_MS);
+}
+
+function updateTodayView() {
+  updateTodayDashboard({
+    lastResult: state.lastResult,
+    preferences: state.preferences,
+    featureFlags: state.featureFlags,
+    sessionsUI,
+    defaultDailyGoalMinutes: DEFAULT_PREFERENCES.dailyGoalMinutes,
+  });
 }
 
 function applyExperienceSettings() {
   state.preferences = normalizePreferences(collectPreferencesFromUI());
   state.featureFlags = normalizeFeatureFlags(collectFeatureFlagsFromUI());
   applyPreferencesToDocument(state.preferences);
-  updateTodayDashboard();
+  updateTodayView();
   queuePersist();
 }
 
-function updateTodayDashboard() {
-  const summaryNode = el("todaySummary");
-  const goalText = el("todayGoalText");
-  const goalProgress = el("todayGoalProgress");
-  const goalBar = el("todayGoalBar");
-  const gamificationCard = el("gamificationCard");
-  const streakNode = el("streakText");
-
-  const next = firstPlannedRow(state.lastResult?.schedule || []);
-  if (next) {
-    summaryNode.textContent = `Next planned session: ${next.title} for ${next.minutes} minutes on ${next.date}.`;
-  } else {
-    summaryNode.textContent = "No schedule generated yet. Add books and generate a plan to get a next-session suggestion.";
-  }
-
-  let todayMinutes = 0;
-  if (sessionsUI) {
-    todayMinutes = sessionsUI.todayMinutes();
-  }
-  const goalMinutes = Math.max(1, Number(state.preferences.dailyGoalMinutes || DEFAULT_PREFERENCES.dailyGoalMinutes));
-  const pct = Math.min(100, Math.round((todayMinutes / goalMinutes) * 100));
-  goalText.textContent = `${todayMinutes} / ${goalMinutes} minutes logged today`;
-  goalProgress.setAttribute("aria-valuenow", String(pct));
-  goalBar.style.width = `${pct}%`;
-
-  const gamificationOn = Boolean(state.featureFlags.gamificationEnabled);
-  gamificationCard.hidden = !gamificationOn;
-  if (gamificationOn) {
-    let streak = 0;
-    if (sessionsUI) {
-      streak = sessionsUI.streakDays();
-    }
-    streakNode.textContent = `${streak} day streak`;
-  }
-}
-
-function bindExperienceSettings() {
-  [
-    "themeSelect",
-    "reduceMotionToggle",
-    "dailyGoalInput",
-    "reminderEnabledToggle",
-    "reminderTimeInput",
-    "flagGamification",
-    "flagSocial",
-    "flagRecommendations",
-  ].forEach((id) => {
-    const node = el(id);
-    node.addEventListener("change", applyExperienceSettings);
-  });
-}
-
-function activateSessionsAndStartTimer() {
-  const next = firstPlannedRow(state.lastResult?.schedule || []);
-  if (next?.book_id && sessionsUI) {
-    sessionsUI.selectBookById(next.book_id);
-  }
-  activateTab("sessions", { focusPanel: true });
-  if (sessionsUI) {
-    sessionsUI.startTimer();
-  }
-}
-
 async function run() {
-  try {
-    const payloadBooks = collectBooks();
-    if (!payloadBooks.length) {
-      throw new Error("Add at least one book with pages or words before generating.");
-    }
-
-    setStatus("Generating plan...");
-    const payload = { planner: "mip", books: payloadBooks, settings: collectSettings() };
-    const data = await globalThis.plannerApi.generate(payload);
-
-    state.scheduleCompletions = {};
-    state.lastResult = {
-      schedule: data.schedule,
-      summary: data.summary,
-      created_at: new Date().toISOString(),
-    };
-
-    renderCalendar(data.schedule, totalsFromSummary(data.summary));
-    activateTab("schedule", { focusPanel: true });
-
-    if (data.summary.feasibility_warning) {
-      addLog(data.summary.feasibility_warning);
-    }
-    addLog(`Status ${data.summary.status}. Planned ${data.summary.total_planned_minutes}/${data.summary.total_available_minutes} minutes.`);
-
-    updateTodayDashboard();
-    await saveStateSafe();
-    setStatus("Plan generated.");
-    announce("Plan generated and schedule updated.");
-  } catch (error) {
-    setStatus(error.message || "Failed to generate plan", true);
-    announce(error.message || "Failed to generate plan", "assertive");
-  }
+  await runPlanGeneration({
+    plannerApi: globalThis.plannerApi,
+    collectBooks,
+    collectSettings,
+    setStatus,
+    addLog,
+    announce,
+    onSuccess: async (data) => {
+      state.scheduleCompletions = {};
+      state.lastResult = {
+        schedule: data.schedule,
+        summary: data.summary,
+        created_at: new Date().toISOString(),
+      };
+      renderCalendar(data.schedule, totalsFromSummary(data.summary));
+      activateTab("schedule", { focusPanel: true });
+      updateTodayView();
+      await persistDraft();
+    },
+  });
 }
 
 async function init() {
   const skipLink = document.querySelector(".skip-link");
-  skipLink?.addEventListener("click", (event) => {
-    event.preventDefault();
-    el("mainContent").focus();
-  });
+  if (skipLink) {
+    skipLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      el("mainContent").focus();
+    });
+  }
 
   initSettingsGrid();
   bindTabs((name) => {
-    if (name === "sessions") {
-      sessionsUI?.refreshBooks();
+    if (name === "sessions" && sessionsUI) {
+      sessionsUI.refreshBooks();
     }
   });
-
   bindBooksUI(() => {
-    sessionsUI?.refreshBooks();
-    updateTodayDashboard();
+    if (sessionsUI) {
+      sessionsUI.refreshBooks();
+    }
+    updateTodayView();
     queuePersist();
   });
   bindHelpDialog();
@@ -293,62 +130,37 @@ async function init() {
     getBooks: collectBooks,
     initialSessions: [],
     onSessionsChanged: () => {
-      updateTodayDashboard();
+      updateTodayView();
       queuePersist();
     },
     announce,
     setStatus,
   });
 
-  bindExperienceSettings();
-  configureCalendarInteractions({
-    isSessionCompleted: (sessionKey) => Boolean(state.scheduleCompletions?.[sessionKey]),
-    onSessionCompletionChanged: ({ sessionKey, completed, row }) => {
-      if (completed) {
-        state.scheduleCompletions[sessionKey] = true;
-      } else {
-        delete state.scheduleCompletions[sessionKey];
-      }
-      queuePersist();
-      if (row?.title && row?.date) {
-        if (completed) {
-          setStatus(`Marked "${row.title}" complete on ${row.date}.`);
-        } else {
-          setStatus(`Marked "${row.title}" incomplete on ${row.date}.`);
-        }
-      }
-    },
-    onSessionProgressUpdated: ({ bookId, pagesRead, progressPercent }) => {
-      const updated = updateBookProgress(bookId, { pagesRead, progressPercent });
-      if (!updated) {
-        setStatus("Could not find that book to update progress.", true);
-        return null;
-      }
-      setStatus(`Updated progress for ${updated.title || "book"}.`);
-      queuePersist();
-      return updated;
-    },
-    getBookById: (bookId) => getBookById(bookId),
+  bindExperienceSettings(applyExperienceSettings);
+  configureAppCalendarInteractions({
+    configureCalendarInteractions,
+    state,
+    queuePersist,
+    setStatus,
+    updateBookProgress,
+    getBookById,
   });
 
   try {
     const saved = await globalThis.plannerApi.loadState();
-    let source;
-    if (saved?.settings && saved?.books) {
-      source = saved;
-    } else {
+    let source = saved;
+    if (!(saved?.settings && saved?.books)) {
       source = await globalThis.plannerApi.sample();
     }
 
     fillSettings(source.settings);
     fillBooks(source.books);
-
     state.preferences = normalizePreferences(saved?.preferences || {});
     state.featureFlags = normalizeFeatureFlags(saved?.feature_flags || {});
     state.scheduleCompletions = normalizeScheduleCompletions(saved?.schedule_completions || {});
     fillPreferencesUI(state.preferences, state.featureFlags);
     applyPreferencesToDocument(state.preferences);
-
     sessionsUI.setSessions(saved?.sessions || []);
 
     if (saved?.last_result?.schedule?.length) {
@@ -357,11 +169,10 @@ async function init() {
       addLog("Loaded previous schedule.");
     }
 
-    updateTodayDashboard();
+    updateTodayView();
     state.ready = true;
     document.addEventListener("input", queuePersist);
     document.addEventListener("change", queuePersist);
-
     if (saved) {
       setStatus("Loaded saved data.");
     } else {
@@ -372,7 +183,9 @@ async function init() {
   }
 
   el("runBtn").onclick = run;
-  el("startSessionFromTodayBtn").onclick = activateSessionsAndStartTimer;
+  el("startSessionFromTodayBtn").onclick = () => {
+    activateSessionsAndStartTimer(state.lastResult, sessionsUI, activateTab);
+  };
   el("viewScheduleFromTodayBtn").onclick = () => activateTab("schedule", { focusPanel: true });
 }
 

@@ -1,9 +1,8 @@
 // @ts-nocheck
-import { el } from "./dom.js";
 import { firstPlannedRow, groupRowsByDate, monthKeysFromRows, enrichRows } from "./calendar/data.js";
+import { renderCalendarControls } from "./calendar/controls.js";
 import { renderCalendarDetails } from "./calendar/details.js";
 import { renderCalendarMonth } from "./calendar/month.js";
-import { monthLabel } from "./calendar/utils.js";
 
 const state = {
   dates: {},
@@ -54,39 +53,7 @@ function renderMonth() {
 }
 
 function renderControls() {
-  const key = state.months[state.index] || "";
-  const controls = el("calendarControls");
-  const title = document.createElement("strong");
-  title.textContent = monthLabel(key);
-
-  if (!key) {
-    controls.replaceChildren(title);
-    return;
-  }
-
-  const prev = document.createElement("button");
-  prev.className = "btn";
-  prev.type = "button";
-  prev.textContent = "Prev";
-
-  const next = document.createElement("button");
-  next.className = "btn";
-  next.type = "button";
-  next.textContent = "Next";
-
-  prev.onclick = () => {
-    state.index = Math.max(0, state.index - 1);
-    renderControls();
-    renderMonth();
-  };
-
-  next.onclick = () => {
-    state.index = Math.min(state.months.length - 1, state.index + 1);
-    renderControls();
-    renderMonth();
-  };
-
-  controls.replaceChildren(prev, title, next);
+  renderCalendarControls(state, renderControls, renderMonth);
 }
 
 export { firstPlannedRow };

@@ -33,7 +33,10 @@ function renderPickerResults(refs, filteredBooks, pickerIndex, selectBook, setPi
 
     const active = pickerIndex === index;
     btn.classList.toggle("is-active", active);
-    btn.setAttribute("aria-selected", active ? "true" : "false");
+    btn.setAttribute("aria-selected", "false");
+    if (active) {
+      btn.setAttribute("aria-selected", "true");
+    }
 
     const textWrap = document.createElement("span");
     const title = document.createElement("span");
