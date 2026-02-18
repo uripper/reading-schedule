@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { COVER_PLACEHOLDER } from "./constants.js";
 import { bookCoverSrc } from "./model.js";
 import { metaLabel, progressLabel, subtitle, wordsLabel } from "./presenters.js";

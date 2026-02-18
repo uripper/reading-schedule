@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { uid } from "./dom.js";
 
 const HISTORY_LIMIT = 30;

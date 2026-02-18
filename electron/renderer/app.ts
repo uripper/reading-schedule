@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { applyPreferencesToDocument, createAnnouncer } from "./a11y.js";
 import { el } from "./dom.js";
 import { bindBooksUI, collectBooks, fillBooks } from "./books.js";

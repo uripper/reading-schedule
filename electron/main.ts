@@ -1,13 +1,14 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
-const { spawn } = require("child_process");
-const path = require("path");
-const { searchBooks, downloadCover } = require("./book_lookup");
-const { readState, writeState } = require("./state_store");
+import { spawn } from "node:child_process";
+import path from "node:path";
+import { app, BrowserWindow, ipcMain } from "electron";
 
-function root() { return path.join(__dirname, ".."); }
+import { downloadCover, searchBooks } from "./book_lookup";
+import { readState, writeState } from "./state_store";
+
+function root() { return path.join(__dirname, "..", ".."); }
 function pyEnv() { return { ...process.env, PYTHONPATH: path.join(root(), "src") }; }
 
-function runBridge(args, payload) {
+function runBridge(args: string[], payload?: unknown): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const py = process.env.PYTHON_BIN || "python";
     const proc = spawn(py, ["-m", "reading_plan.gui_api", ...args], { cwd: root(), env: pyEnv() });
@@ -40,7 +41,7 @@ function createWindow() {
   win.loadFile(path.join(__dirname, "index.html"));
 }
 
-function userData() { return app.getPath("userData"); }
+function userData(): string { return app.getPath("userData"); }
 
 ipcMain.handle("plan:sample", () => runBridge(["--sample"]));
 ipcMain.handle("plan:generate", (_event, payload) => runBridge([], payload));
@@ -49,7 +50,7 @@ ipcMain.handle("book:downloadCover", (_event, payload) => downloadCover(payload?
 ipcMain.handle("state:load", () => readState(userData()));
 ipcMain.handle("state:save", (_event, payload) => {
   const result = writeState(userData(), payload);
-  if (!result?.ok) throw new Error(result?.error || "Failed to save state");
+  if (result.ok === false) throw new Error(result.error || "Failed to save state");
   return result;
 });
 

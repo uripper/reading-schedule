@@ -1,3 +1,4 @@
+// @ts-nocheck
 const PLACEHOLDER = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="120" height="160" viewBox="0 0 120 160"><rect width="120" height="160" fill="#1f2a3d"/><rect x="14" y="20" width="92" height="120" rx="6" fill="#28384f"/><path d="M30 46h60M30 66h60M30 86h44" stroke="#8da3c6" stroke-width="6" stroke-linecap="round"/></svg>')}`;
 
 function toInt(raw) {

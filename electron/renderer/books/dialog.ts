@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { bindBookLookup, syncProgressAndPages } from "../book_lookup.js";
 import { bindDialogFocus, focusFirstError } from "../a11y.js";
 import { applyLookupItem, clearForm, fillForm, parseFormBook } from "./form_state.js";

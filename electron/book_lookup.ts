@@ -1,14 +1,19 @@
-const fs = require("fs");
-const http = require("http");
-const https = require("https");
-const path = require("path");
-const { pathToFileURL } = require("url");
+import fs from "node:fs";
+import http from "node:http";
+import https from "node:https";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const MAX_REDIRECTS = 4;
 
-function fetchRaw(url, redirects = 0) {
+type RawResponse = {
+  headers: http.IncomingHttpHeaders;
+  body: Buffer;
+};
+
+function fetchRaw(url: string, redirects = 0): Promise<RawResponse> {
   return new Promise((resolve, reject) => {
-    let client = http;
+    let client: any = http;
     if (url.startsWith("https://")) {
       client = https;
     }
@@ -26,7 +31,7 @@ function fetchRaw(url, redirects = 0) {
           reject(new Error(`Request failed (${status})`));
           return;
         }
-        const chunks = [];
+        const chunks: Buffer[] = [];
         res.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
         res.on("end", () => resolve({ headers: res.headers, body: Buffer.concat(chunks) }));
       })
@@ -34,12 +39,12 @@ function fetchRaw(url, redirects = 0) {
   });
 }
 
-async function getJson(url) {
+async function getJson(url: string): Promise<any> {
   const raw = await fetchRaw(url);
   return JSON.parse(raw.body.toString("utf8") || "{}");
 }
 
-function toItem(doc) {
+function toItem(doc: any) {
   const pages = Number(doc.number_of_pages_median || 0);
   let words = null;
   if (pages > 0) {
@@ -67,7 +72,7 @@ function toItem(doc) {
   };
 }
 
-async function searchBooks(query) {
+async function searchBooks(query: string): Promise<any[]> {
   const q = String(query || "").trim();
   if (q.length < 2) return [];
   const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=8&fields=title,author_name,first_publish_year,number_of_pages_median,cover_i,key`;
@@ -75,7 +80,7 @@ async function searchBooks(query) {
   return (json.docs || []).map(toItem).filter((x) => x.title);
 }
 
-function extensionFor(contentType, parsedUrl) {
+function extensionFor(contentType: string | undefined, parsedUrl: URL): string {
   const ct = String(contentType || "").toLowerCase();
   if (ct.includes("image/png")) return ".png";
   if (ct.includes("image/webp")) return ".webp";
@@ -89,12 +94,16 @@ function extensionFor(contentType, parsedUrl) {
   return ".jpg";
 }
 
-function safeFileBase(bookId) {
+function safeFileBase(bookId: string | undefined): string {
   const text = String(bookId || "").trim() || `cover-${Date.now()}`;
   return text.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 80) || `cover-${Date.now()}`;
 }
 
-async function downloadCover(coverUrl, bookId, userDataDir) {
+async function downloadCover(
+  coverUrl: string | undefined,
+  bookId: string | undefined,
+  userDataDir: string | undefined
+): Promise<string> {
   const rawUrl = String(coverUrl || "").trim();
   if (!rawUrl || !userDataDir) return "";
   const parsed = new URL(rawUrl);
@@ -112,4 +121,4 @@ async function downloadCover(coverUrl, bookId, userDataDir) {
   return pathToFileURL(filePath).href;
 }
 
-module.exports = { searchBooks, downloadCover };
+export { searchBooks, downloadCover };
