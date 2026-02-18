@@ -1,6 +1,8 @@
 // @ts-nocheck
 import { el } from "./dom.js";
 
+const ANNOUNCE_DELAY_MS = 30;
+
 function focusableSelector() {
   return [
     "button:not([disabled])",
@@ -13,7 +15,9 @@ function focusableSelector() {
 }
 
 export function focusFirstError(formElement) {
-  if (!(formElement instanceof HTMLElement)) return null;
+  if (!(formElement instanceof HTMLElement)) {
+    return null;
+  }
   const invalid = formElement.querySelector(":invalid");
   if (invalid instanceof HTMLElement) {
     invalid.focus();
@@ -26,13 +30,17 @@ export function createAnnouncer(regionId = "liveRegion") {
   const region = el(regionId);
   let clearTimer = null;
   return (message, politeness = "polite") => {
-    if (!region || !message) return;
-    if (clearTimer) clearTimeout(clearTimer);
+    if (!region || !message) {
+      return;
+    }
+    if (clearTimer) {
+      clearTimeout(clearTimer);
+    }
     region.setAttribute("aria-live", politeness);
     region.textContent = "";
     clearTimer = setTimeout(() => {
       region.textContent = String(message);
-    }, 30);
+    }, ANNOUNCE_DELAY_MS);
   };
 }
 
@@ -53,14 +61,14 @@ export function applyPreferencesToDocument(preferences = {}) {
 export function bindDialogFocus(dialog, { initialFocusSelector = null } = {}) {
   let opener = null;
 
-  function rememberOpener() {
+  const rememberOpener = () => {
     opener = null;
     if (document.activeElement instanceof HTMLElement) {
       opener = document.activeElement;
     }
-  }
+  };
 
-  function focusInitialTarget() {
+  const focusInitialTarget = () => {
     let direct = null;
     if (initialFocusSelector) {
       direct = dialog.querySelector(initialFocusSelector);
@@ -75,15 +83,21 @@ export function bindDialogFocus(dialog, { initialFocusSelector = null } = {}) {
       return;
     }
     const first = dialog.querySelector(focusableSelector());
-    if (first instanceof HTMLElement) first.focus();
-  }
+    if (first instanceof HTMLElement) {
+      first.focus();
+    }
+  };
 
-  function closeAndReturnFocus() {
-    if (dialog.open) dialog.close();
-  }
+  const closeAndReturnFocus = () => {
+    if (dialog.open) {
+      dialog.close();
+    }
+  };
 
   dialog.addEventListener("close", () => {
-    if (opener && opener.isConnected) opener.focus();
+    if (opener && opener.isConnected) {
+      opener.focus();
+    }
     opener = null;
   });
 
