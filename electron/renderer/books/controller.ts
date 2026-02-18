@@ -3,6 +3,7 @@ import { el } from "../dom.js";
 import { renderBookGrid } from "./card_view.js";
 import { createBookDialog } from "./dialog.js";
 import { hasSchedulableLength, normalizeBook, toPayloadBook } from "./model.js";
+import { clamp } from "./utils.js";
 
 let books = [];
 let onBooksChanged = () => {};
@@ -16,6 +17,52 @@ const refs = {
 
 function findBook(bookId) {
   return books.find((book) => book.book_id === bookId) || null;
+}
+
+export function getBookById(bookId) {
+  const book = findBook(bookId);
+  if (!book) return null;
+  return { ...book };
+}
+
+export function updateBookProgress(bookId, updates = {}) {
+  const idx = books.findIndex((book) => book.book_id === bookId);
+  if (idx < 0) return null;
+
+  const current = books[idx];
+  const next = { ...current };
+  const pagesTotal = Number(next.pages_total || 0);
+  const hasPagesTotal = Number.isFinite(pagesTotal) && pagesTotal > 0;
+
+  const pagesRaw = updates.pagesRead;
+  const pagesNum = Number(pagesRaw);
+  const hasPagesUpdate = pagesRaw !== null && pagesRaw !== undefined && pagesRaw !== "" && Number.isFinite(pagesNum);
+  if (hasPagesUpdate) {
+    if (hasPagesTotal) {
+      next.pages_read = clamp(Math.round(pagesNum), 0, pagesTotal);
+    } else {
+      next.pages_read = Math.max(0, Math.round(pagesNum));
+    }
+  }
+
+  const pctRaw = updates.progressPercent;
+  const pctNum = Number(pctRaw);
+  const hasPctUpdate = pctRaw !== null && pctRaw !== undefined && pctRaw !== "" && Number.isFinite(pctNum);
+  if (hasPctUpdate && !hasPagesUpdate) {
+    next.progress_percent = Math.round(clamp(pctNum, 0, 100) * 10) / 10;
+    if (hasPagesTotal) {
+      next.pages_read = Math.round((next.progress_percent / 100) * pagesTotal);
+    }
+  }
+
+  if (hasPagesTotal && next.pages_read !== null && next.pages_read !== undefined) {
+    next.progress_percent = Math.round(clamp((Number(next.pages_read) / pagesTotal) * 100, 0, 100) * 10) / 10;
+  }
+
+  books[idx] = normalizeBook(next);
+  render();
+  onBooksChanged();
+  return { ...books[idx] };
 }
 
 function render() {
@@ -73,7 +120,7 @@ export function bindBooksUI(onChanged = () => {}) {
   refs.grid = el("booksGrid");
   refs.empty = el("booksEmpty");
   refs.addBtn = el("addBookBtn");
-  dialog = createBookDialog(saveBook);
+  dialog = createBookDialog(saveBook, { getBooks: () => books });
   refs.addBtn.onclick = () => dialog.open();
   render();
 }

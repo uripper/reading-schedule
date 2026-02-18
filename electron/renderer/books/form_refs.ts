@@ -23,6 +23,7 @@ export function getBookFormRefs() {
     minBlocksInput: el("bookMinBlocksInput"),
     maxMinutesInput: el("bookMaxMinutesInput"),
     deadlineInput: el("bookDeadlineInput"),
+    blockedByInput: el("bookBlockedByInput"),
     coverPreview: el("bookCoverPreview"),
     saveBtn: el("saveBookBtn"),
     cancelBtn: el("cancelBookBtn"),

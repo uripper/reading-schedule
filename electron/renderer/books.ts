@@ -1,2 +1,2 @@
 // @ts-nocheck
-export { bindBooksUI, collectBooks, fillBooks } from "./books/controller.js";
+export { bindBooksUI, collectBooks, fillBooks, getBookById, updateBookProgress } from "./books/controller.js";

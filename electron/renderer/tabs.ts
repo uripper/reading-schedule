@@ -27,7 +27,7 @@ function setPanelState(panel, active) {
 
 export function activateTab(name, options = {}) {
   const { focusPanel = false } = options;
-  let activeLabel = "Reading Plan Optimizer";
+  let activeLabel = "Bartleby";
 
   allTabButtons().forEach((btn) => {
     const active = btn.dataset.tab === name;
@@ -47,7 +47,7 @@ export function activateTab(name, options = {}) {
   qa(".panel").forEach((panel) => setPanelState(panel, panel.id === `tab-${name}`));
   const activePanel = panelByName(name);
   if (focusPanel && activePanel) activePanel.focus();
-  document.title = `${activeLabel} - Reading Plan Optimizer`;
+  document.title = `${activeLabel} - Bartleby`;
   onTabActivated(name);
 }
 

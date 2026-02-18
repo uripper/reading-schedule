@@ -12,7 +12,33 @@ function setSavingState(refs, busy) {
   }
 }
 
-export function createBookDialog(onSubmit) {
+function renderBlockedByOptions(refs, books = [], currentBookId = "", selectedBookId = "") {
+  const select = refs.blockedByInput;
+  const options = [{ value: "", label: "None" }];
+  books.forEach((book) => {
+    if (!book?.book_id || book.book_id === currentBookId) return;
+    options.push({
+      value: String(book.book_id),
+      label: String(book.title || book.book_id),
+    });
+  });
+
+  const hasSelected = options.some((option) => option.value === selectedBookId);
+  if (selectedBookId && !hasSelected) {
+    options.push({ value: selectedBookId, label: `Unknown (${selectedBookId})` });
+  }
+
+  const nodes = options.map((option) => {
+    const node = document.createElement("option");
+    node.value = option.value;
+    node.textContent = option.label;
+    return node;
+  });
+  select.replaceChildren(...nodes);
+  select.value = selectedBookId || "";
+}
+
+export function createBookDialog(onSubmit, { getBooks = () => [] } = {}) {
   const refs = getBookFormRefs();
   const dialogFocus = bindDialogFocus(refs.dialog, { initialFocusSelector: "#bookTitleInput" });
   const lookupControl = bindBookLookup({
@@ -26,6 +52,7 @@ export function createBookDialog(onSubmit) {
   const open = (book = null) => {
     dialogFocus.rememberOpener();
     clearForm(refs, lookupControl);
+    renderBlockedByOptions(refs, getBooks(), book?.book_id || "", book?.blocked_by || "");
     refs.dialogTitle.textContent = "Add Book";
     if (book) {
       refs.dialogTitle.textContent = "Edit Book";
