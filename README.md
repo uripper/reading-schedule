@@ -2,35 +2,36 @@
 
 Create daily reading schedules from backlog + time budget.
 
-## Features
-- Greedy baseline planner and MIP planner (OR-Tools optional)
-- Book/session/day constraints and completion-aware scheduling
-- Priority: `1` highest, `5` lowest
-- Electron GUI with tabs (Today, Sessions, Settings, Books, Schedule)
-- Calendar schedule view (not a raw table)
-- Session timer + manual session logging with local persistence
-- Daily goal, streak widget (feature-flagged), and theme/reduced-motion preferences
-- Open Library title lookup autofills estimated words
-- Per-book progress fields (`progress_percent`, `words_read`, `pages_read`)
-- Per-book hard cap field (`max_minutes_per_day`)
-- Hidden/internal book IDs (UUID fallback)
-- Help/Logs dialog for run details and warnings
+## Current Status
+This repository now contains both:
+- `electron/`: legacy desktop app (kept operational during migration)
+- new cross-platform workspace scaffold for web + desktop + mobile:
+  - `apps/client` (React + TypeScript SPA)
+  - `apps/desktop` (Electron shell in TypeScript)
+  - `apps/mobile` (Capacitor wrapper)
+  - `packages/contracts` (Zod schemas + adapter interfaces)
+  - `packages/ui` (shared tokenized UI primitives)
+  - `services/planner-api` (FastAPI wrapper around `src/reading_plan`)
 
-## Python Setup
+## Python Planner Core
+The planner engine remains under `src/reading_plan` and is still the source of truth.
+
+### Setup
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -e .
+pip install -e ".[dev]"
 # optional MIP solver
 pip install -e ".[mip]"
 ```
 
-## CLI
+### CLI
 ```bash
 python -m reading_plan.cli --data data/books.csv --settings data/settings.json --output data/schedule.csv --planner mip
 ```
 
-## GUI (WSL/Linux)
+## Legacy Electron App (still supported)
 ```bash
 cd electron
 npm install
@@ -38,11 +39,43 @@ npm run tokens:build
 UI_SCALE=1.65 npm run start
 ```
 
-## GUI (Install/Run On Native Windows From WSL)
+## New Workspace (pnpm)
 ```bash
-./scripts/run_windows_gui_from_wsl.sh
+pnpm install
+pnpm -r typecheck
+pnpm -r test
 ```
-This calls `scripts/install_and_run_windows.ps1`, mirrors the repo to `%LOCALAPPDATA%\\ReadingPlanOptimizer`, creates a Windows venv, installs Python deps, installs Electron deps, and launches the GUI.
+
+### Client SPA
+```bash
+pnpm --filter @reading-schedule/client dev
+```
+
+### Desktop TS Shell
+```bash
+pnpm --filter @reading-schedule/desktop dev
+```
+
+Use Vite during desktop development:
+```bash
+CLIENT_DEV_URL=http://localhost:5173 pnpm --filter @reading-schedule/desktop dev
+```
+
+### Mobile Wrapper
+```bash
+pnpm --filter @reading-schedule/mobile sync
+pnpm --filter @reading-schedule/mobile open:ios
+pnpm --filter @reading-schedule/mobile open:android
+```
+
+### Planner API
+```bash
+cd services/planner-api
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+PYTHONPATH=../../src python -m planner_api
+```
 
 ## Tests
 ```bash
@@ -50,13 +83,11 @@ This calls `scripts/install_and_run_windows.ps1`, mirrors the repo to `%LOCALAPP
 cd electron && npm run lint
 ```
 
-## Design Tokens
+## Design Tokens (legacy electron)
 ```bash
 cd electron
 npm run tokens:build
 npm run tokens:check
 ```
 
-Token source is `electron/tokens/dtcg.tokens.json`. Build output is written to:
-- `electron/styles/generated/tokens.css`
-- `electron/tokens/dist/tokens.ts`
+Token source: `electron/tokens/dtcg.tokens.json`
