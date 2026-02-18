@@ -1,25 +1,31 @@
 from __future__ import annotations
 
+import math
 from datetime import date
 
 from .budget import book_day_block_limit, day_capacity_blocks, words_per_block
 from .calendar import date_range
-from .types import Book, Settings
+from .types import Book, PLAN_MODE_SPREAD_OUT, Settings
 
 
 def plan_greedy(books: list[Book], settings: Settings) -> dict[tuple[str, date], int]:
     days = date_range(settings.start_date, settings.end_date)
+    caps = {day: day_capacity_blocks(settings, day) for day in days}
     remaining = {b.book_id: float(b.words_total) for b in books}
     wpb = {b.book_id: words_per_block(b, settings) for b in books}
     limits = {b.book_id: book_day_block_limit(b, settings) for b in books}
     assignments: dict[tuple[str, date], int] = {}
     daily_book_cap = min(settings.max_books_per_day, settings.max_sessions_per_day)
 
-    for day in days:
-        cap = day_capacity_blocks(settings, day)
+    for day_index, day in enumerate(days):
+        cap = caps[day]
         if cap <= 0:
             continue
         ordered = sorted(books, key=lambda b: _sort_key(b, remaining))
+        if settings.plan_mode == PLAN_MODE_SPREAD_OUT:
+            cap = min(cap, _spread_cap_for_day(days, day_index, caps, remaining, wpb, ordered))
+        if cap <= 0:
+            continue
         used: list[Book] = []
         cap = _seed_day(ordered, used, remaining, assignments, limits, wpb, day, cap, daily_book_cap)
         _fill_day(ordered, used, remaining, assignments, limits, wpb, day, cap, daily_book_cap)
@@ -31,7 +37,7 @@ def _seed_day(ordered: list[Book], used: list[Book], remaining: dict[str, float]
     for book in ordered:
         if len(used) >= daily_book_cap:
             break
-        if cap < book.min_blocks_per_session or remaining[book.book_id] <= 0:
+        if cap < book.min_blocks_per_session or remaining[book.book_id] <= 0 or not _is_unlocked(book, remaining):
             continue
         room = _room(assignments, book.book_id, day, limits[book.book_id])
         if room < book.min_blocks_per_session:
@@ -47,6 +53,7 @@ def _fill_day(ordered: list[Book], used: list[Book], remaining: dict[str, float]
             b
             for b in used
             if remaining[b.book_id] > 0
+            and _is_unlocked(b, remaining)
             and _room(assignments, b.book_id, day, limits[b.book_id]) > 0
         ]:
             top = min(active, key=lambda b: (b.priority, b.difficulty, b.book_id))
@@ -86,6 +93,8 @@ def _next_book(
     for book in ordered:
         if book in used or remaining[book.book_id] <= 0:
             continue
+        if not _is_unlocked(book, remaining):
+            continue
         if cap >= book.min_blocks_per_session and _room(assignments, book.book_id, day, limits[book.book_id]) >= book.min_blocks_per_session:
             return book
     return None
@@ -93,3 +102,42 @@ def _next_book(
 
 def _room(assignments: dict[tuple[str, date], int], book_id: str, day: date, limit: int) -> int:
     return limit - assignments.get((book_id, day), 0)
+
+
+def _is_unlocked(book: Book, remaining: dict[str, float]) -> bool:
+    blocker = book.blocked_by
+    if not blocker:
+        return True
+    return remaining.get(blocker, 0.0) <= 0.0
+
+
+def _spread_cap_for_day(
+    days: list[date],
+    day_index: int,
+    caps: dict[date, int],
+    remaining: dict[str, float],
+    wpb: dict[str, int],
+    ordered: list[Book],
+) -> int:
+    remaining_blocks = sum(
+        int(math.ceil(words_left / wpb[book_id]))
+        for book_id, words_left in remaining.items()
+        if words_left > 0 and wpb.get(book_id, 0) > 0
+    )
+    if remaining_blocks <= 0:
+        return 0
+    active_days_left = sum(1 for day in days[day_index:] if caps[day] > 0)
+    if active_days_left <= 0:
+        return remaining_blocks
+    target = int(math.ceil(remaining_blocks / active_days_left))
+    min_seed = min(
+        (
+            book.min_blocks_per_session
+            for book in ordered
+            if remaining[book.book_id] > 0 and _is_unlocked(book, remaining)
+        ),
+        default=0,
+    )
+    if min_seed > 0:
+        target = max(target, min_seed)
+    return target

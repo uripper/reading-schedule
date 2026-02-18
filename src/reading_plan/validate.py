@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .types import Book, Settings, WEEKDAYS
+from .types import Book, PLAN_MODES, Settings, WEEKDAYS
 
 
 def validate_book(book: Book) -> None:
@@ -20,6 +20,8 @@ def validate_book(book: Book) -> None:
         raise ValueError(f"progress_percent must be between 0 and 100 for {book.book_id}")
     if book.max_minutes_per_day is not None and book.max_minutes_per_day <= 0:
         raise ValueError(f"max_minutes_per_day must be > 0 for {book.book_id}")
+    if book.blocked_by and book.blocked_by == book.book_id:
+        raise ValueError(f"book {book.book_id} cannot block itself")
 
 
 def validate_settings(settings: Settings) -> None:
@@ -35,3 +37,5 @@ def validate_settings(settings: Settings) -> None:
         raise ValueError("minutes_by_weekday must include Mon..Sun when provided")
     if sorted(settings.difficulty_multiplier.keys()) != list(range(1, 11)):
         raise ValueError("difficulty_multiplier must contain keys 1..10")
+    if settings.plan_mode not in PLAN_MODES:
+        raise ValueError(f"plan_mode must be one of: {', '.join(PLAN_MODES)}")

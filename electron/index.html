@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reading Plan Optimizer</title>
+  <title>Bartleby</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -11,8 +11,8 @@
 
   <header class="app-header">
     <div class="brand-wrap">
-      <p class="brand-eyebrow">Reading Schedule</p>
-      <h1>Reading Plan Optimizer</h1>
+      <p class="brand-eyebrow">Bartleby</p>
+      <h1>Bartleby</h1>
     </div>
     <div class="actions">
       <button id="helpBtn" class="btn">Help / Logs</button>
@@ -202,6 +202,11 @@
             <label>Min Blocks<input id="bookMinBlocksInput" type="number" min="1" value="1" /></label>
             <label>Max min/day<input id="bookMaxMinutesInput" type="number" min="1" /></label>
             <label>Deadline<input id="bookDeadlineInput" type="date" /></label>
+            <label>After Book
+              <select id="bookBlockedByInput">
+                <option value="">None</option>
+              </select>
+            </label>
           </div>
         </section>
       </div>

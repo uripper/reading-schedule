@@ -16,6 +16,9 @@ DEFAULT_DIFFICULTY_MULTIPLIER = {
     9: 0.20,
     10: 0.10}
 WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+PLAN_MODE_FINISH_SOON = "finish_soon"
+PLAN_MODE_SPREAD_OUT = "spread_out"
+PLAN_MODES = (PLAN_MODE_FINISH_SOON, PLAN_MODE_SPREAD_OUT)
 
 
 @dataclass(frozen=True)
@@ -30,6 +33,7 @@ class Book:
     words_full: Optional[int] = None
     progress_percent: float = 0.0
     max_minutes_per_day: Optional[int] = None
+    blocked_by: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -49,6 +53,7 @@ class Settings:
     w_smooth: float
     difficulty_multiplier: dict[int, float]
     max_blocks_per_book_per_day: int = 12
+    plan_mode: str = PLAN_MODE_FINISH_SOON
 
 
 @dataclass(frozen=True)
