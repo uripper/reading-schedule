@@ -7,11 +7,9 @@ import { shelfFilterMatches, SHELF_FILTER_ALL } from "./shelf.js";
 import { sortBooks } from "./sort.js";
 import { ensureBooksToolbarControls, SORT_BY_TITLE, SORT_DIRECTION_ASC, SORT_DIRECTION_DESC, updateShelfFilterOptions, updateSortDirectionButton } from "./toolbar.js";
 import { clamp } from "./utils.js";
-
 let books = [];
 let onBooksChanged = () => {};
 let dialog = null;
-
 const refs = {
   toolbar: null,
   grid: null,
@@ -26,7 +24,6 @@ const viewState = {
   sortBy: SORT_BY_TITLE,
   sortDirection: SORT_DIRECTION_ASC,
 };
-
 function parseFiniteNumber(raw) {
   if (raw === null || raw === undefined || raw === "") {
     return null;
@@ -37,7 +34,6 @@ function parseFiniteNumber(raw) {
   }
   return value;
 }
-
 function applyPagesUpdate(nextBook, pagesUpdate, hasPagesTotal, pagesTotal) {
   if (pagesUpdate === null) {
     return false;
@@ -88,20 +84,15 @@ export function updateBookProgress(bookId, updates = {}) {
   if (idx < 0) {
     return null;
   }
-
   const current = books[idx];
   const next = { ...current };
   const pagesTotal = Number(next.pages_total || 0);
   const hasPagesTotal = Number.isFinite(pagesTotal) && pagesTotal > 0;
-
   const pagesUpdate = parseFiniteNumber(updates.pagesRead);
   const hasPagesUpdate = applyPagesUpdate(next, pagesUpdate, hasPagesTotal, pagesTotal);
-
   const pctUpdate = parseFiniteNumber(updates.progressPercent);
   applyPercentUpdate(next, pctUpdate, hasPagesUpdate, hasPagesTotal, pagesTotal);
-
   reconcilePercentFromPages(next, hasPagesTotal, pagesTotal);
-
   books[idx] = normalizeBook(next);
   render();
   onBooksChanged();
@@ -116,6 +107,7 @@ function render() {
   });
   renderBookGrid({
     books: visibleBooks,
+    allBooks: books,
     grid: refs.grid,
     empty: refs.empty,
     onEdit: (bookId) => {

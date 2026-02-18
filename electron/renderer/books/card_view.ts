@@ -78,7 +78,7 @@ function bindCardEvents(grid, { onEdit, onRemove }) {
 }
 
 export function renderBookGrid({ grid, empty, books, allBooks = [], onEdit, onRemove }) {
-  const sourceBooks = books;
+  let sourceBooks = books;
   if (allBooks.length) {
     sourceBooks = allBooks;
   }
