@@ -10,6 +10,7 @@ import {
 import { db } from "../offline/db";
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8000";
+const DOES_NOT_EXIST_ERROR = 404;
 
 async function parseJsonResponse(response: Response) {
   const data = await response.json().catch(() => ({}));
@@ -38,7 +39,9 @@ export const httpAdapter: PlannerAdapter = {
   async loadState() {
     try {
       const response = await fetch(`${API_BASE}/v1/state`, { method: "GET" });
-      if (response.status === 404) return null;
+      if (response.status === DOES_NOT_EXIST_ERROR) {
+        return null;
+      }
       const data = await parseJsonResponse(response);
       const parsed = AppStateSchemaV2.parse(data);
       await db.state.clear();
@@ -79,7 +82,10 @@ export const httpAdapter: PlannerAdapter = {
   async searchBooks(query: string) {
     const response = await fetch(`${API_BASE}/v1/books/search?q=${encodeURIComponent(query)}`, { method: "GET" });
     const data = await parseJsonResponse(response);
-    return Array.isArray(data.items) ? data.items : [];
+    if (Array.isArray(data.items)) {
+      return data.items;
+    }
+    return [];
   },
 
   async downloadCover() {

@@ -3,6 +3,8 @@ import { desktopAdapter } from "./desktopAdapter";
 import { httpAdapter } from "./httpAdapter";
 
 export function getDefaultAdapter(): PlannerAdapter {
-  if (window.plannerApi) return desktopAdapter;
+  if (globalThis.plannerApi) {
+    return desktopAdapter;
+  }
   return httpAdapter;
 }
