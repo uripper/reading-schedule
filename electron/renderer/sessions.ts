@@ -2,6 +2,10 @@
 import { uid } from "./dom.js";
 
 const HISTORY_LIMIT = 30;
+const SESSION_MIN_MS = 1000;
+const MS_PER_SECOND = 1000;
+const MS_PER_MINUTE = 60000;
+const DEFAULT_PICKER_LIMIT = 8;
 
 function toInt(value, fallback = 0) {
   const n = Number(value);
@@ -13,7 +17,9 @@ function toInt(value, fallback = 0) {
 
 function isoLocalDayKey(iso) {
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "";
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
@@ -24,7 +30,9 @@ function formatTimeRange(startIso, endIso) {
   const start = new Date(startIso);
   const end = new Date(endIso);
   const format = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return "Unknown time";
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return "Unknown time";
+  }
   return `${format.format(start)} - ${new Intl.DateTimeFormat(undefined, { timeStyle: "short" }).format(end)}`;
 }
 
@@ -56,7 +64,7 @@ function normalizeSession(session = {}) {
     minutes: Math.max(1, toInt(session.minutes, 1)),
     pages_read: pagesRead,
     notes: String(session.notes || "").trim(),
-    source,
+    source: source,
     created_at: String(session.created_at || endedAt),
   };
 }
@@ -115,13 +123,17 @@ function renderSessionHistory(container, sessions, onDelete) {
 }
 
 function matchesQuery(book, query) {
-  if (!query) return true;
+  if (!query) {
+    return true;
+  }
   const search = query.toLowerCase();
   return [book.title, book.author].join(" ").toLowerCase().includes(search);
 }
 
 function clampIndex(index, length) {
-  if (length <= 0) return -1;
+  if (length <= 0) {
+    return -1;
+  }
   return ((index % length) + length) % length;
 }
 
@@ -145,7 +157,9 @@ function streakFromSessions(sessions) {
   const minuteMap = new Map();
   sessions.forEach((session) => {
     const key = isoLocalDayKey(session.ended_at);
-    if (!key) return;
+    if (!key) {
+      return;
+    }
     minuteMap.set(key, (minuteMap.get(key) || 0) + Number(session.minutes || 0));
   });
 
@@ -153,7 +167,9 @@ function streakFromSessions(sessions) {
   const cursor = new Date();
   while (true) {
     const key = isoLocalDayKey(cursor.toISOString());
-    if ((minuteMap.get(key) || 0) <= 0) break;
+    if ((minuteMap.get(key) || 0) <= 0) {
+      break;
+    }
     streak += 1;
     cursor.setDate(cursor.getDate() - 1);
   }
@@ -170,14 +186,8 @@ export function normalizeSessions(rawSessions = []) {
     .sort((a, b) => String(b.ended_at).localeCompare(String(a.ended_at)));
 }
 
-export function initSessionsUI({
-  getBooks,
-  initialSessions,
-  onSessionsChanged,
-  announce,
-  setStatus,
-}) {
-  const refs = {
+function createSessionRefs() {
+  return {
     input: document.getElementById("sessionBookInput"),
     results: document.getElementById("sessionBookResults"),
     meta: document.getElementById("sessionBookMeta"),
@@ -191,37 +201,18 @@ export function initSessionsUI({
     manualNotes: document.getElementById("manualNotesInput"),
     manualSaveBtn: document.getElementById("manualSessionBtn"),
   };
+}
 
-  let sessions = normalizeSessions(initialSessions);
+function createPickerController(refs, getBooks) {
   let filteredBooks = [];
   let pickerIndex = -1;
   let selectedBookId = "";
 
-  let timerHandle = null;
-  let timerStartedAt = null;
-  let elapsedMs = 0;
-
-  function selectedBook() {
+  const selectedBook = () => {
     return getBooks().find((book) => book.book_id === selectedBookId) || null;
-  }
+  };
 
-  function selectBook(book) {
-    if (!book) {
-      selectedBookId = "";
-      refs.input.value = "";
-      refs.meta.textContent = "";
-      return;
-    }
-    selectedBookId = book.book_id;
-    refs.input.value = book.title;
-    refs.meta.textContent = "Selected book";
-    if (book.author) {
-      refs.meta.textContent = `Selected: ${book.author}`;
-    }
-    hidePicker();
-  }
-
-  function renderPicker() {
+  const renderPicker = () => {
     refs.results.innerHTML = "";
     if (!filteredBooks.length) {
       refs.results.classList.remove("has-items");
@@ -230,7 +221,7 @@ export function initSessionsUI({
       return;
     }
 
-    const items = filteredBooks.slice(0, 8).map((book, index) => {
+    const items = filteredBooks.slice(0, DEFAULT_PICKER_LIMIT).map((book, index) => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "book-result book-result-inline";
@@ -271,16 +262,34 @@ export function initSessionsUI({
     refs.results.replaceChildren(...items);
     refs.results.classList.add("has-items");
     refs.input.setAttribute("aria-expanded", "true");
-    if (pickerIndex >= 0) refs.input.setAttribute("aria-activedescendant", optionId(pickerIndex));
-  }
+    if (pickerIndex >= 0) {
+      refs.input.setAttribute("aria-activedescendant", optionId(pickerIndex));
+    }
+  };
 
-  function hidePicker() {
+  const hidePicker = () => {
     filteredBooks = [];
     pickerIndex = -1;
     renderPicker();
-  }
+  };
 
-  function refreshPicker() {
+  const selectBook = (book) => {
+    if (!book) {
+      selectedBookId = "";
+      refs.input.value = "";
+      refs.meta.textContent = "";
+      return;
+    }
+    selectedBookId = book.book_id;
+    refs.input.value = book.title;
+    refs.meta.textContent = "Selected book";
+    if (book.author) {
+      refs.meta.textContent = `Selected: ${book.author}`;
+    }
+    hidePicker();
+  };
+
+  const refreshPicker = () => {
     const query = refs.input.value.trim().toLowerCase();
     filteredBooks = getBooks().filter((book) => matchesQuery(book, query));
     pickerIndex = -1;
@@ -288,95 +297,79 @@ export function initSessionsUI({
       pickerIndex = 0;
     }
     renderPicker();
-  }
+  };
 
-  function timerRunning() {
-    return timerStartedAt !== null;
-  }
-
-  function updateTimerLabel() {
-    let runningMs = 0;
-    if (timerRunning()) {
-      runningMs = Date.now() - timerStartedAt;
+  const onKeydown = (event) => {
+    if (event.key === "ArrowDown") {
+      if (!filteredBooks.length) {
+        refreshPicker();
+      }
+      if (!filteredBooks.length) {
+        return;
+      }
+      event.preventDefault();
+      pickerIndex = clampIndex(pickerIndex + 1, filteredBooks.length);
+      renderPicker();
+      return;
     }
-    const totalSeconds = Math.floor((elapsedMs + runningMs) / 1000);
-    refs.timerDisplay.textContent = formatTimer(totalSeconds);
-  }
+    if (event.key === "ArrowUp") {
+      if (!filteredBooks.length) {
+        return;
+      }
+      event.preventDefault();
+      pickerIndex = clampIndex(pickerIndex - 1, filteredBooks.length);
+      renderPicker();
+      return;
+    }
+    if (event.key === "Enter") {
+      if (pickerIndex < 0 || !filteredBooks.length) {
+        return;
+      }
+      event.preventDefault();
+      selectBook(filteredBooks[pickerIndex]);
+      return;
+    }
+    if (event.key === "Escape") {
+      hidePicker();
+      refs.input.blur();
+    }
+  };
 
-  function syncTimerButtons() {
-    const running = timerRunning();
-    refs.startBtn.disabled = running;
-    refs.pauseBtn.disabled = !running;
-    refs.stopBtn.disabled = !running && elapsedMs <= 0;
-  }
+  const onDocumentClick = (event) => {
+    if (!(event.target instanceof Node)) {
+      return;
+    }
+    if (event.target === refs.input || refs.results.contains(event.target)) {
+      return;
+    }
+    hidePicker();
+  };
 
-  function resetTimer() {
-    if (timerHandle) clearInterval(timerHandle);
-    timerHandle = null;
-    timerStartedAt = null;
-    elapsedMs = 0;
-    updateTimerLabel();
-    syncTimerButtons();
-  }
+  const bind = () => {
+    refs.input.addEventListener("input", refreshPicker);
+    refs.input.addEventListener("focus", refreshPicker);
+    refs.input.addEventListener("keydown", onKeydown);
+    document.addEventListener("click", onDocumentClick);
+  };
 
-  function commitSession(sessionInput) {
-    sessions = [normalizeSession(sessionInput), ...sessions]
-      .sort((a, b) => String(b.ended_at).localeCompare(String(a.ended_at)));
-    renderSessionHistory(refs.history, sessions, deleteSessionById);
-    onSessionsChanged(sessions);
-  }
-
-  function stopAndPersistTimer() {
-    const book = selectedBook();
+  const selectBookById = (bookId) => {
+    const book = getBooks().find((row) => row.book_id === bookId) || null;
     if (!book) {
-      announce("Pick a book before stopping the timer.", "assertive");
-      setStatus("Pick a book for this session.", true);
       return;
     }
-    const now = Date.now();
-    let totalMs = elapsedMs;
-    if (timerRunning()) {
-      totalMs += now - timerStartedAt;
-    }
-    if (totalMs < 1000) {
-      announce("Session was too short to save.", "assertive");
-      resetTimer();
-      return;
-    }
+    selectBook(book);
+  };
 
-    const minutes = Math.max(1, Math.round(totalMs / 60000));
-    const endedAt = new Date(now).toISOString();
-    const startedAt = new Date(now - totalMs).toISOString();
+  return {
+    selectedBook,
+    refreshPicker,
+    selectBookById,
+    bind,
+  };
+}
 
-    commitSession({
-      id: uid(),
-      book_id: book.book_id,
-      title: book.title,
-      started_at: startedAt,
-      ended_at: endedAt,
-      minutes,
-      notes: "",
-      source: "timer",
-      created_at: endedAt,
-    });
-
-    announce(`Saved ${minutes} minute session for ${book.title}.`);
-    setStatus("Session saved.");
-    resetTimer();
-  }
-
-  function deleteSessionById(sessionId) {
-    const session = sessions.find((row) => row.id === sessionId);
-    if (!session) return;
-    const confirmed = window.confirm(`Delete ${session.minutes} minute session for ${session.title}?`);
-    if (!confirmed) return;
-    sessions = sessions.filter((row) => row.id !== sessionId);
-    renderSessionHistory(refs.history, sessions, deleteSessionById);
-    onSessionsChanged(sessions);
-    announce("Session deleted.");
-  }
-
-  function saveManualSession() {
+function createManualSessionSaver(refs, selectedBook, commitSession, announce, setStatus) {
+  return () => {
     const minutes = Math.max(0, toInt(refs.manualMinutes.value, 0));
     if (minutes <= 0) {
       refs.manualMinutes.focus();
@@ -394,7 +387,7 @@ export function initSessionsUI({
 
     const now = Date.now();
     const endedAt = new Date(now).toISOString();
-    const startedAt = new Date(now - minutes * 60000).toISOString();
+    const startedAt = new Date(now - minutes * MS_PER_MINUTE).toISOString();
     const pages = refs.manualPages.value.trim();
     let pagesRead = null;
     if (pages) {
@@ -407,7 +400,7 @@ export function initSessionsUI({
       title: book.title,
       started_at: startedAt,
       ended_at: endedAt,
-      minutes,
+      minutes: minutes,
       pages_read: pagesRead,
       notes: refs.manualNotes.value.trim(),
       source: "manual",
@@ -419,64 +412,110 @@ export function initSessionsUI({
     refs.manualNotes.value = "";
     announce(`Saved manual ${minutes} minute session.`);
     setStatus("Manual session saved.");
-  }
+  };
+}
 
-  refs.input.addEventListener("input", refreshPicker);
-  refs.input.addEventListener("focus", refreshPicker);
-  refs.input.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowDown") {
-      if (!filteredBooks.length) refreshPicker();
-      if (!filteredBooks.length) return;
-      event.preventDefault();
-      pickerIndex = clampIndex(pickerIndex + 1, filteredBooks.length);
-      renderPicker();
+function createTimerController(refs, selectedBook, commitSession, announce, setStatus) {
+  let timerHandle = null;
+  let timerStartedAt = null;
+  let elapsedMs = 0;
+
+  const timerRunning = () => {
+    return timerStartedAt !== null;
+  };
+
+  const updateTimerLabel = () => {
+    let runningMs = 0;
+    if (timerRunning()) {
+      runningMs = Date.now() - timerStartedAt;
+    }
+    const totalSeconds = Math.floor((elapsedMs + runningMs) / MS_PER_SECOND);
+    refs.timerDisplay.textContent = formatTimer(totalSeconds);
+  };
+
+  const syncTimerButtons = () => {
+    const running = timerRunning();
+    refs.startBtn.disabled = running;
+    refs.pauseBtn.disabled = !running;
+    refs.stopBtn.disabled = !running && elapsedMs <= 0;
+  };
+
+  const resetTimer = () => {
+    if (timerHandle) {
+      clearInterval(timerHandle);
+    }
+    timerHandle = null;
+    timerStartedAt = null;
+    elapsedMs = 0;
+    updateTimerLabel();
+    syncTimerButtons();
+  };
+
+  const stopAndPersistTimer = () => {
+    const book = selectedBook();
+    if (!book) {
+      announce("Pick a book before stopping the timer.", "assertive");
+      setStatus("Pick a book for this session.", true);
       return;
     }
-    if (event.key === "ArrowUp") {
-      if (!filteredBooks.length) return;
-      event.preventDefault();
-      pickerIndex = clampIndex(pickerIndex - 1, filteredBooks.length);
-      renderPicker();
+    const now = Date.now();
+    let totalMs = elapsedMs;
+    if (timerRunning()) {
+      totalMs += now - timerStartedAt;
+    }
+    if (totalMs < SESSION_MIN_MS) {
+      announce("Session was too short to save.", "assertive");
+      resetTimer();
       return;
     }
-    if (event.key === "Enter") {
-      if (pickerIndex < 0 || !filteredBooks.length) return;
-      event.preventDefault();
-      selectBook(filteredBooks[pickerIndex]);
-      return;
-    }
-    if (event.key === "Escape") {
-      hidePicker();
-      refs.input.blur();
-    }
-  });
 
-  document.addEventListener("click", (event) => {
-    if (!(event.target instanceof Node)) return;
-    if (event.target === refs.input || refs.results.contains(event.target)) return;
-    hidePicker();
-  });
+    const minutes = Math.max(1, Math.round(totalMs / MS_PER_MINUTE));
+    const endedAt = new Date(now).toISOString();
+    const startedAt = new Date(now - totalMs).toISOString();
 
-  refs.startBtn.onclick = () => {
+    commitSession({
+      id: uid(),
+      book_id: book.book_id,
+      title: book.title,
+      started_at: startedAt,
+      ended_at: endedAt,
+      minutes: minutes,
+      notes: "",
+      source: "timer",
+      created_at: endedAt,
+    });
+
+    announce(`Saved ${minutes} minute session for ${book.title}.`);
+    setStatus("Session saved.");
+    resetTimer();
+  };
+
+  const startTimer = () => {
     if (!selectedBook()) {
       announce("Pick a book before starting a session.", "assertive");
       refs.input.focus();
       return;
     }
-    if (timerRunning()) return;
+    if (timerRunning()) {
+      return;
+    }
     timerStartedAt = Date.now();
-    timerHandle = setInterval(updateTimerLabel, 1000);
+    timerHandle = setInterval(updateTimerLabel, MS_PER_SECOND);
     updateTimerLabel();
     syncTimerButtons();
     setStatus("Session started.");
     announce("Session started.");
   };
 
-  refs.pauseBtn.onclick = () => {
-    if (!timerRunning()) return;
+  const pauseTimer = () => {
+    if (!timerRunning()) {
+      return;
+    }
     elapsedMs += Date.now() - timerStartedAt;
     timerStartedAt = null;
-    if (timerHandle) clearInterval(timerHandle);
+    if (timerHandle) {
+      clearInterval(timerHandle);
+    }
     timerHandle = null;
     updateTimerLabel();
     syncTimerButtons();
@@ -484,12 +523,67 @@ export function initSessionsUI({
     announce("Session paused.");
   };
 
-  refs.stopBtn.onclick = stopAndPersistTimer;
+  return {
+    updateTimerLabel,
+    syncTimerButtons,
+    startTimer,
+    pauseTimer,
+    stopAndPersistTimer,
+  };
+}
+
+export function initSessionsUI({
+  getBooks,
+  initialSessions,
+  onSessionsChanged,
+  announce,
+  setStatus,
+}) {
+  const refs = createSessionRefs();
+  let sessions = normalizeSessions(initialSessions);
+
+  const commitSession = (sessionInput) => {
+    sessions = [normalizeSession(sessionInput), ...sessions]
+      .sort((a, b) => String(b.ended_at).localeCompare(String(a.ended_at)));
+    renderSessionHistory(refs.history, sessions, deleteSessionById);
+    onSessionsChanged(sessions);
+  };
+
+  const deleteSessionById = (sessionId) => {
+    const session = sessions.find((row) => row.id === sessionId);
+    if (!session) {
+      return;
+    }
+    const confirmed = globalThis.confirm(`Delete ${session.minutes} minute session for ${session.title}?`);
+    if (!confirmed) {
+      return;
+    }
+    sessions = sessions.filter((row) => row.id !== sessionId);
+    renderSessionHistory(refs.history, sessions, deleteSessionById);
+    onSessionsChanged(sessions);
+    announce("Session deleted.");
+  };
+
+  const picker = createPickerController(refs, getBooks);
+  picker.bind();
+
+  const timer = createTimerController(refs, picker.selectedBook, commitSession, announce, setStatus);
+  const saveManualSession = createManualSessionSaver(
+    refs,
+    picker.selectedBook,
+    commitSession,
+    announce,
+    setStatus,
+  );
+
+  refs.startBtn.onclick = timer.startTimer;
+  refs.pauseBtn.onclick = timer.pauseTimer;
+  refs.stopBtn.onclick = timer.stopAndPersistTimer;
   refs.manualSaveBtn.onclick = saveManualSession;
 
   renderSessionHistory(refs.history, sessions, deleteSessionById);
-  updateTimerLabel();
-  syncTimerButtons();
+  timer.updateTimerLabel();
+  timer.syncTimerButtons();
 
   return {
     getSessions: () => [...sessions],
@@ -497,11 +591,8 @@ export function initSessionsUI({
       sessions = normalizeSessions(nextSessions);
       renderSessionHistory(refs.history, sessions, deleteSessionById);
     },
-    refreshBooks: refreshPicker,
-    selectBookById(bookId) {
-      const book = getBooks().find((row) => row.book_id === bookId) || null;
-      if (book) selectBook(book);
-    },
+    refreshBooks: picker.refreshPicker,
+    selectBookById: picker.selectBookById,
     startTimer() {
       refs.startBtn.click();
     },

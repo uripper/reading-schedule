@@ -1,3 +1,5 @@
+"""CLI entrypoint for generating Bartleby reading plans."""
+
 from __future__ import annotations
 
 import argparse
@@ -12,6 +14,7 @@ from .solve import solve_plan
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments for the planner CLI."""
     p = argparse.ArgumentParser(description="Bartleby")
     p.add_argument("--data", default="data/books.csv", help="Path to books CSV")
     p.add_argument("--settings", default="data/settings.json", help="Path to settings JSON")
@@ -22,6 +25,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    """Run the CLI workflow and return the process exit code."""
     args = parse_args()
     books, settings = load_inputs(args.data, args.settings)
     if args.print_inputs:

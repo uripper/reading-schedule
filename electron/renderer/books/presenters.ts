@@ -12,15 +12,23 @@ export function progressLabel(book) {
 }
 
 export function wordsLabel(book) {
-  if (book.words_total) return `${formatInt(book.words_total)} words`;
-  if (book.pages_total) return `${formatInt(book.pages_total * WORDS_PER_PAGE)} word estimate`;
+  if (book.words_total) {
+    return `${formatInt(book.words_total)} words`;
+  }
+  if (book.pages_total) {
+    return `${formatInt(book.pages_total * WORDS_PER_PAGE)} word estimate`;
+  }
   return "No word estimate";
 }
 
 export function metaLabel(book) {
   const bits = [`Priority ${book.priority}`, `Difficulty ${book.difficulty}`];
-  if (book.deadline) bits.push(`Due ${book.deadline}`);
-  if (book.blocked_by) bits.push(`After ${book.blocked_by}`);
+  if (book.deadline) {
+    bits.push(`Due ${book.deadline}`);
+  }
+  if (book.blocked_by) {
+    bits.push(`After ${book.blocked_by}`);
+  }
   return bits.join(" · ");
 }
 

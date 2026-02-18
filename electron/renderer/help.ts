@@ -3,6 +3,7 @@ import { el } from "./dom.js";
 import { bindDialogFocus } from "./a11y.js";
 
 const logs = [];
+const MAX_LOG_LINES = 250;
 
 function ts() {
   return new Date().toLocaleTimeString();
@@ -14,7 +15,9 @@ function renderLogs() {
 
 export function addLog(message) {
   logs.unshift(`[${ts()}] ${message}`);
-  if (logs.length > 250) logs.pop();
+  if (logs.length > MAX_LOG_LINES) {
+    logs.pop();
+  }
   renderLogs();
 }
 

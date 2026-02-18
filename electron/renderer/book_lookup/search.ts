@@ -106,15 +106,72 @@ function updateComboboxA11y(searchInput, resultsEl, hasItems, activeIndex) {
   searchInput.setAttribute("aria-activedescendant", optionId(resultsEl, activeIndex));
 }
 
+function lookupResultTarget(event) {
+  if (!(event.target instanceof HTMLElement)) {
+    return null;
+  }
+  return event.target.closest(".book-result");
+}
+
+function createLookupInputHandler({
+  searchInput,
+  metaEl,
+  state,
+  clearResults,
+  refreshResults,
+}) {
+  return () => {
+    const query = searchInput.value.trim();
+    if (state.timer) {
+      clearTimeout(state.timer);
+    }
+    if (query.length < MIN_QUERY_LENGTH) {
+      clearResults();
+      metaEl.textContent = "";
+      return;
+    }
+    state.timer = setTimeout(async () => {
+      state.token += 1;
+      const currentToken = state.token;
+      try {
+        const items = (await globalThis.plannerApi.searchBooks(query)).slice(0, RESULT_LIMIT);
+        if (currentToken !== state.token) {
+          return;
+        }
+        state.currentItems = items;
+        state.activeIndex = -1;
+        if (items.length) {
+          state.activeIndex = 0;
+        }
+        if (!items.length) {
+          clearResults();
+          metaEl.textContent = "No matches found.";
+          return;
+        }
+        refreshResults();
+        metaEl.textContent = "Select a result to fill details.";
+      } catch {
+        if (currentToken !== state.token) {
+          return;
+        }
+        clearResults();
+        metaEl.textContent = "Lookup unavailable; enter values manually.";
+      }
+    }, LOOKUP_DELAY_MS);
+  };
+}
+
 export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
   const placeholder = placeholderCoverSvg();
-  let timer = null;
-  let token = 0;
-  let currentItems = [];
-  let activeIndex = -1;
+  const state = {
+    timer: null,
+    token: 0,
+    currentItems: [],
+    activeIndex: -1,
+  };
 
   const selectItem = (index) => {
-    const item = currentItems[index];
+    const item = state.currentItems[index];
     if (!item) {
       return;
     }
@@ -125,40 +182,37 @@ export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
   };
 
   const refreshResults = () => {
-    const hasItems = currentItems.length > 0;
+    const hasItems = state.currentItems.length > 0;
     if (!hasItems) {
       resultsEl.classList.remove("has-items");
       resultsEl.innerHTML = "";
       updateComboboxA11y(searchInput, resultsEl, false, -1);
       return;
     }
-    renderResults(resultsEl, currentItems, placeholder, activeIndex);
+    renderResults(resultsEl, state.currentItems, placeholder, state.activeIndex);
     resultsEl.classList.add("has-items");
-    updateComboboxA11y(searchInput, resultsEl, true, activeIndex);
+    updateComboboxA11y(searchInput, resultsEl, true, state.activeIndex);
   };
 
   const clearResults = () => {
-    currentItems = [];
-    activeIndex = -1;
+    state.currentItems = [];
+    state.activeIndex = -1;
     refreshResults();
   };
 
   const setActiveIndex = (index) => {
-    if (!currentItems.length) {
-      activeIndex = -1;
+    if (!state.currentItems.length) {
+      state.activeIndex = -1;
       refreshResults();
       return;
     }
-    const bounded = ((index % currentItems.length) + currentItems.length) % currentItems.length;
-    activeIndex = bounded;
+    const bounded = ((index % state.currentItems.length) + state.currentItems.length) % state.currentItems.length;
+    state.activeIndex = bounded;
     refreshResults();
   };
 
   resultsEl.addEventListener("mousemove", (event) => {
-    let target = null;
-    if (event.target instanceof HTMLElement) {
-      target = event.target.closest(".book-result");
-    }
+    const target = lookupResultTarget(event);
     if (!target) {
       return;
     }
@@ -166,58 +220,32 @@ export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
   });
 
   resultsEl.addEventListener("click", (event) => {
-    let target = null;
-    if (event.target instanceof HTMLElement) {
-      target = event.target.closest(".book-result");
-    }
+    const target = lookupResultTarget(event);
     if (!target) {
       return;
     }
     selectItem(Number(target.dataset.resultIndex));
   });
 
-  searchInput.addEventListener("input", () => {
-    const q = searchInput.value.trim();
-    if (timer) {
-      clearTimeout(timer);
-    }
-    if (q.length < MIN_QUERY_LENGTH) {
-      clearResults();
-      metaEl.textContent = "";
-      return;
-    }
-    timer = setTimeout(async () => {
-      token += 1;
-      const current = token;
-      try {
-        const items = (await globalThis.plannerApi.searchBooks(q)).slice(0, RESULT_LIMIT);
-        if (current !== token) {
-          return;
-        }
-        currentItems = items;
-        activeIndex = -1;
-        if (items.length) {
-          activeIndex = 0;
-        }
-        if (!items.length) {
-          clearResults();
-          metaEl.textContent = "No matches found.";
-          return;
-        }
-        refreshResults();
-        metaEl.textContent = "Select a result to fill details.";
-      } catch {
-        if (current !== token) {
-          return;
-        }
-        clearResults();
-        metaEl.textContent = "Lookup unavailable; enter values manually.";
-      }
-    }, LOOKUP_DELAY_MS);
+  const onInput = createLookupInputHandler({
+    searchInput,
+    metaEl,
+    state,
+    clearResults,
+    refreshResults,
   });
+  searchInput.addEventListener("input", onInput);
 
   searchInput.addEventListener("keydown", (event) => {
-    handleLookupKeydown(event, currentItems, activeIndex, setActiveIndex, selectItem, clearResults, searchInput);
+    handleLookupKeydown(
+      event,
+      state.currentItems,
+      state.activeIndex,
+      setActiveIndex,
+      selectItem,
+      clearResults,
+      searchInput,
+    );
   });
 
   const onDocClick = (event) => {
