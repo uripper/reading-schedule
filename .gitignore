@@ -64,6 +64,8 @@ apps/mobile/ios/DerivedData/
 *.pid
 planner_state*.json
 data/schedule.csv
+data/books.csv
 
 # Local tooling config
 .sourcery.yaml
+roadmap.md
