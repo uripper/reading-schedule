@@ -5,3 +5,5 @@ __pycache__/
 *.pyc
 *.egg-info
 *.csv
+electron/node_modules/
+.vscode/settings.json

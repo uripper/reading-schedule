@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reading Plan Optimizer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>Reading Plan Optimizer</h1>
+    <div class="actions">
+      <button id="helpBtn" class="btn">Help / Logs</button>
+      <button id="runBtn" class="btn btn-primary">Generate Plan</button>
+      <span id="status" role="status" aria-live="polite"></span>
+    </div>
+  </header>
+  <nav class="tabs" aria-label="Main Tabs">
+    <button class="tab is-active" data-tab="settings">Settings</button>
+    <button class="tab" data-tab="books">Books</button>
+    <button class="tab" data-tab="schedule">Schedule</button>
+  </nav>
+  <main>
+    <section id="tab-settings" class="panel is-active" aria-label="Settings">
+      <div class="settings-layout">
+        <article class="settings-card"><h2>Plan Window</h2><div id="windowGrid" class="settings-grid"></div></article>
+        <article class="settings-card"><h2>Daily Budget</h2><div id="budgetGrid" class="settings-grid"></div><h3>Minutes by Weekday</h3><div id="weekdayGrid" class="settings-grid"></div><h3>Days Off</h3><div class="row"><input id="dayOffPicker" type="date" /><button id="addDayOffBtn" class="btn">Add Day Off</button></div><div id="dayOffList" class="chip-list"></div></article>
+        <article class="settings-card"><h2>Optimization Weights</h2><div id="weightsGrid" class="settings-grid"></div></article>
+        <article class="settings-card"><h2>Reading Speed by Difficulty</h2><p class="hint-text">Multiplier applies to base WPM: effective WPM = base * multiplier.</p><table><thead><tr><th>Difficulty</th><th>Multiplier</th></tr></thead><tbody id="difficultyBody"></tbody></table></article>
+      </div>
+    </section>
+    <section id="tab-books" class="panel" aria-label="Books">
+      <div class="row books-toolbar">
+        <button id="addBookBtn" class="btn">Add Book</button>
+        <span class="hint-text">Click a book card to edit details.</span>
+      </div>
+      <div id="booksGrid" class="books-grid" aria-live="polite"></div>
+      <p id="booksEmpty" class="books-empty">No books yet. Add your first book to start planning.</p>
+    </section>
+    <section id="tab-schedule" class="panel" aria-label="Schedule">
+      <div id="calendarControls" class="row"></div>
+      <div id="calendar" class="calendar"></div>
+    </section>
+  </main>
+  <dialog id="helpDialog" class="help-dialog">
+    <h2>Help</h2><p>Use Settings and Books tabs, then generate and review the calendar schedule.</p><h3>Logs</h3><pre id="logOutput"></pre><div class="row"><button id="closeHelpBtn" class="btn">Close</button></div>
+  </dialog>
+  <dialog id="bookDialog" class="book-dialog">
+    <form id="bookForm" class="book-form" method="dialog">
+      <h2 id="bookDialogTitle">Add Book</h2>
+      <input id="bookFormId" type="hidden" />
+      <input id="bookFormCoverUrl" type="hidden" />
+      <input id="bookFormCoverLocal" type="hidden" />
+      <input id="bookFormAuthor" type="hidden" />
+      <div class="book-form-layout">
+        <section class="book-search-panel">
+          <label for="bookSearchInput">Find Book (Open Library)</label>
+          <input id="bookSearchInput" type="text" autocomplete="off" placeholder="Search by title or author" />
+          <div id="bookSearchResults" class="book-search-results" role="listbox" aria-label="Book suggestions"></div>
+          <p id="bookLookupMeta" class="lookup-meta"></p>
+        </section>
+        <section class="book-cover-panel">
+          <img id="bookCoverPreview" alt="Book cover preview" src="" />
+        </section>
+        <section class="book-fields">
+          <div class="settings-grid">
+            <label>Title<input id="bookTitleInput" required placeholder="Book title" /></label>
+            <label>Estimated Words<input id="bookWordsInput" type="number" min="1" step="1" placeholder="e.g. 85000" /></label>
+            <label>Total Pages<input id="bookPagesTotalInput" type="number" min="1" step="1" placeholder="e.g. 300" /></label>
+            <label>Pages Read<input id="bookPagesReadInput" type="number" min="0" step="1" placeholder="e.g. 125" /></label>
+            <label>Progress %<input id="bookProgressInput" type="number" min="0" max="100" step="0.1" value="0" /></label>
+            <label>Priority (1 highest, 5 lowest)<input id="bookPriorityInput" type="number" min="1" max="5" value="3" /></label>
+            <label>Difficulty (1-10)<input id="bookDifficultyInput" type="number" min="1" max="10" value="3" /></label>
+            <label>Min Blocks<input id="bookMinBlocksInput" type="number" min="1" value="1" /></label>
+            <label>Max min/day<input id="bookMaxMinutesInput" type="number" min="1" /></label>
+            <label>Deadline<input id="bookDeadlineInput" type="date" /></label>
+          </div>
+        </section>
+      </div>
+      <div class="row">
+        <button id="cancelBookBtn" class="btn" type="button">Cancel</button>
+        <button id="saveBookBtn" class="btn btn-primary" type="submit">Save Book</button>
+      </div>
+    </form>
+  </dialog>
+  <script type="module" src="renderer/app.js"></script>
+</body>
+</html>

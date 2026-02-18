@@ -1,18 +1,30 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import Protocol, cast
 
 from ortools.sat.python import cp_model
 
-from .budget import day_capacity_blocks, words_per_block
+from .budget import book_day_block_limit, day_capacity_blocks, words_per_block
 from .calendar import date_range
 from .types import Book, Settings
+
+
+class _CpSatModelBuilder(Protocol):
+    def NewIntVar(self, lb: int, ub: int, name: str) -> cp_model.IntVar: ...
+
+    def NewBoolVar(self, name: str) -> cp_model.IntVar: ...
+
+    def Add(self, ct: object) -> object: ...
+
+    def Maximize(self, obj: object) -> None: ...
 
 
 def build_cp_sat(
     books: list[Book], settings: Settings
 ) -> tuple[cp_model.CpModel, dict[tuple[str, date], cp_model.IntVar], dict[tuple[str, date], cp_model.IntVar], dict[str, cp_model.IntVar], list[date]]:
-    model = cp_model.CpModel()
+    raw_model = cp_model.CpModel()
+    model = cast(_CpSatModelBuilder, raw_model)
     days = date_range(settings.start_date, settings.end_date)
     caps = {d: day_capacity_blocks(settings, d) for d in days}
     wpb = {b.book_id: words_per_block(b, settings) for b in books}
@@ -20,8 +32,9 @@ def build_cp_sat(
     y: dict[tuple[str, date], cp_model.IntVar] = {}
 
     for bi, book in enumerate(books):
+        per_book_cap = book_day_block_limit(book, settings)
         for di, day in enumerate(days):
-            upper = min(caps[day], settings.max_blocks_per_book_per_day)
+            upper = min(caps[day], per_book_cap)
             key = (book.book_id, day)
             x[key] = model.NewIntVar(0, upper, f"x_{bi}_{di}")
             y[key] = model.NewBoolVar(f"y_{bi}_{di}")
@@ -47,19 +60,30 @@ def build_cp_sat(
         finished[book.book_id] = model.NewBoolVar(f"f_{bi}")
         model.Add(progress >= book.words_total * finished[book.book_id])
         if book.deadline:
-            due_days = [d for d in days if d <= book.deadline]
-            if due_days:
+            if due_days := [d for d in days if d <= book.deadline]:
                 model.Add(sum(wpb[book.book_id] * x[(book.book_id, d)] for d in due_days) >= book.words_total)
 
-    p_scale = int(round(settings.w_priority * 100))
+    p_scale = max(1, int(round(settings.w_priority * 100)))
     s_scale = int(round(settings.w_switch * 100))
-    f_scale = int(round(settings.w_finish * 10000))
+    f_scale = max(1, int(round(settings.w_finish * 10000)))
+
+    prio_w: dict[str, int] = {}
+    for b in books:
+        pr = int(b.priority)
+        assert 1 <= pr <= 5, f"priority must be 1..5, got {b.priority} for {b.book_id}"
+        prio_w[b.book_id] = 6 - pr
+
     terms: list[cp_model.LinearExpr] = []
     for book in books:
-        terms.append(p_scale * book.priority * useful_words[book.book_id])
-        terms.append(f_scale * book.priority * finished[book.book_id])
-        for day in days:
-            terms.append(-s_scale * y[(book.book_id, day)])
+        w = prio_w[book.book_id]
+        terms.extend(
+            (
+                p_scale * w * useful_words[book.book_id],
+                f_scale * w * finished[book.book_id],
+            )
+        )
+        terms.extend(-s_scale * y[(book.book_id, day)] for day in days)
 
     model.Maximize(sum(terms))
-    return model, x, y, finished, days
+
+    return raw_model, x, y, finished, days

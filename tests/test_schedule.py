@@ -15,16 +15,19 @@ def test_greedy_respects_daily_constraints():
     assignments = plan_greedy(books, settings)
     days = date_range(settings.start_date, settings.end_date)
 
-    for day in days:
-        day_blocks = sum(v for (book_id, d), v in assignments.items() if d == day)
-        day_books = {book_id for (book_id, d), v in assignments.items() if d == day and v > 0}
-        assert day_blocks <= day_capacity_blocks(settings, day)
-        assert len(day_books) <= settings.max_books_per_day
-        assert len(day_books) <= settings.max_sessions_per_day
+    day_totals = {
+        day: (
+            sum(v for (_book_id, d), v in assignments.items() if d == day),
+            {book_id for (book_id, d), v in assignments.items() if d == day and v > 0},
+        )
+        for day in days
+    }
+    assert all(day_totals[day][0] <= day_capacity_blocks(settings, day) for day in days)
+    assert all(len(day_totals[day][1]) <= settings.max_books_per_day for day in days)
+    assert all(len(day_totals[day][1]) <= settings.max_sessions_per_day for day in days)
 
     min_blocks = {b.book_id: b.min_blocks_per_session for b in books}
-    for (book_id, _day), blocks in assignments.items():
-        assert blocks == 0 or blocks >= min_blocks[book_id]
+    assert all(blocks == 0 or blocks >= min_blocks[book_id] for (book_id, _day), blocks in assignments.items())
 
 
 def test_schedule_rows_have_expected_shape():
@@ -48,6 +51,10 @@ def test_schedule_trims_last_session_to_remaining_words():
     assignments = {(book.book_id, settings.start_date): 2}
     rows = to_schedule_rows([book], settings, assignments)
     assert len(rows) == 1
-    assert rows[0]["words_planned"] == 800
-    assert rows[0]["minutes"] < 10
-    assert words_per_block(book, settings) * 2 > 800
+    words_planned = rows[0]["words_planned"]
+    minutes = rows[0]["minutes"]
+    assert isinstance(words_planned, int)
+    assert isinstance(minutes, int)
+    assert words_planned == 800
+    assert minutes < 10
+    assert words_per_block(book, settings) > 400

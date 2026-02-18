@@ -25,7 +25,7 @@ def demo_settings(**overrides: object) -> Settings:
         max_sessions_per_day=2,
         max_books_per_day=2,
         w_finish=5.0,
-        w_priority=1.0,
+        w_priority=5.0,
         w_switch=10.0,
         w_smooth=0.0,
         difficulty_multiplier=DEFAULT_DIFFICULTY_MULTIPLIER,

@@ -24,6 +24,13 @@ def day_capacity_blocks(settings: Settings, day: date) -> int:
     return minutes // settings.time_quantum_minutes
 
 
+def book_day_block_limit(book: Book, settings: Settings) -> int:
+    limit = settings.max_blocks_per_book_per_day
+    if book.max_minutes_per_day is not None:
+        limit = min(limit, book.max_minutes_per_day // settings.time_quantum_minutes)
+    return max(0, limit)
+
+
 def words_per_minute(book: Book, settings: Settings) -> float:
     multiplier = settings.difficulty_multiplier[book.difficulty]
     return settings.wpm_base * multiplier

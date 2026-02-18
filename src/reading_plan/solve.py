@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import Protocol, SupportsInt
 
 from .greedy import plan_greedy
 from .types import Book, PlanResult, Settings
@@ -12,11 +13,28 @@ def solve_plan(books: list[Book], settings: Settings, planner: str = "mip") -> P
     return _solve_mip(books, settings)
 
 
+class _CpModelStatusModule(Protocol):
+    @property
+    def OPTIMAL(self) -> SupportsInt: ...
+
+    @property
+    def FEASIBLE(self) -> SupportsInt: ...
+
+    @property
+    def INFEASIBLE(self) -> SupportsInt: ...
+
+    @property
+    def MODEL_INVALID(self) -> SupportsInt: ...
+
+    @property
+    def UNKNOWN(self) -> SupportsInt: ...
+
+
 def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     try:
         from ortools.sat.python import cp_model
         from .model import build_cp_sat
-    except Exception:
+    except ImportError:
         note = "OR-Tools is unavailable; fell back to greedy planner."
         return PlanResult("greedy", "FEASIBLE", plan_greedy(books, settings), note=note)
 
@@ -25,9 +43,9 @@ def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     solver.parameters.random_seed = 7
     solver.parameters.num_search_workers = 1
     solver.parameters.max_time_in_seconds = 20.0
-    raw = solver.Solve(model)
+    raw = int(solver.Solve(model))
     status = _status_name(raw, cp_model)
-    if raw not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    if raw not in (int(cp_model.OPTIMAL), int(cp_model.FEASIBLE)):
         return PlanResult(planner="mip", status=status, assignments={})
 
     assignments: dict[tuple[str, date], int] = {}
@@ -43,12 +61,12 @@ def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     )
 
 
-def _status_name(raw: int, cp_model: object) -> str:
+def _status_name(raw: int, cp_model: _CpModelStatusModule) -> str:
     mapping = {
-        cp_model.OPTIMAL: "OPTIMAL",
-        cp_model.FEASIBLE: "FEASIBLE",
-        cp_model.INFEASIBLE: "INFEASIBLE",
-        cp_model.MODEL_INVALID: "MODEL_INVALID",
-        cp_model.UNKNOWN: "UNKNOWN",
+        int(cp_model.OPTIMAL): "OPTIMAL",
+        int(cp_model.FEASIBLE): "FEASIBLE",
+        int(cp_model.INFEASIBLE): "INFEASIBLE",
+        int(cp_model.MODEL_INVALID): "MODEL_INVALID",
+        int(cp_model.UNKNOWN): "UNKNOWN",
     }
     return mapping.get(raw, "UNKNOWN")
