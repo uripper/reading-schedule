@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { uid } from "../dom.js";
 import { noteFromLookup, syncProgressAndPages } from "../book_lookup.js";
 import { COVER_PLACEHOLDER } from "./constants.js";

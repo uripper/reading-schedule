@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { el } from "./dom.js";
 import { bindDialogFocus } from "./a11y.js";
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { el } from "./dom.js";
 
 function focusableSelector() {

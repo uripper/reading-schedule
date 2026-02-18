@@ -1,3 +1,4 @@
+// @ts-nocheck
 export const el = (id) => document.getElementById(id);
 export const q = (sel, root = document) => root.querySelector(sel);
 export const qa = (sel, root = document) => [...root.querySelectorAll(sel)];

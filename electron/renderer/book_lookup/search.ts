@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describeLookup, placeholderCoverSvg } from "./helpers.js";
 
 const LOOKUP_DELAY_MS = 260;

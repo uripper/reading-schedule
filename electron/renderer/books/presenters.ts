@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { WORDS_PER_PAGE } from "./constants.js";
 import { formatInt } from "./utils.js";
 
