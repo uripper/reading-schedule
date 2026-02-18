@@ -17,7 +17,11 @@ function panelByName(name) {
 function setPanelState(panel, active) {
   panel.classList.toggle("is-active", active);
   panel.hidden = !active;
-  panel.setAttribute("aria-hidden", active ? "false" : "true");
+  if (active) {
+    panel.setAttribute("aria-hidden", "false");
+  } else {
+    panel.setAttribute("aria-hidden", "true");
+  }
 }
 
 export function activateTab(name, options = {}) {
@@ -28,8 +32,13 @@ export function activateTab(name, options = {}) {
     const active = btn.dataset.tab === name;
     btn.classList.toggle("is-active", active);
     if (btn.getAttribute("role") === "tab") {
-      btn.setAttribute("aria-selected", active ? "true" : "false");
-      btn.tabIndex = active ? 0 : -1;
+      if (active) {
+        btn.setAttribute("aria-selected", "true");
+        btn.tabIndex = 0;
+      } else {
+        btn.setAttribute("aria-selected", "false");
+        btn.tabIndex = -1;
+      }
     }
     if (active) activeLabel = btn.textContent?.trim() || activeLabel;
   });
@@ -55,7 +64,10 @@ function bindTabKeyboard(tabs) {
       event.preventDefault();
       if (event.key === "Home") return activateTabByIndex(tabs, 0);
       if (event.key === "End") return activateTabByIndex(tabs, tabs.length - 1);
-      const direction = event.key === "ArrowRight" ? 1 : -1;
+      let direction = -1;
+      if (event.key === "ArrowRight") {
+        direction = 1;
+      }
       const next = (index + direction + tabs.length) % tabs.length;
       activateTabByIndex(tabs, next);
     });

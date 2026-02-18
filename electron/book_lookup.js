@@ -8,7 +8,10 @@ const MAX_REDIRECTS = 4;
 
 function fetchRaw(url, redirects = 0) {
   return new Promise((resolve, reject) => {
-    const client = url.startsWith("https://") ? https : http;
+    let client = http;
+    if (url.startsWith("https://")) {
+      client = https;
+    }
     client
       .get(url, (res) => {
         const status = Number(res.statusCode || 0);
@@ -38,17 +41,27 @@ async function getJson(url) {
 
 function toItem(doc) {
   const pages = Number(doc.number_of_pages_median || 0);
-  const words = pages > 0 ? pages * 300 : null;
-  const author = Array.isArray(doc.author_name) ? doc.author_name[0] : "";
+  let words = null;
+  if (pages > 0) {
+    words = pages * 300;
+  }
+  let author = "";
+  if (Array.isArray(doc.author_name)) {
+    author = doc.author_name[0];
+  }
   const year = doc.first_publish_year || "";
   const coverId = Number(doc.cover_i || 0);
+  let coverUrl = "";
+  if (coverId > 0) {
+    coverUrl = `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`;
+  }
   return {
     title: doc.title || "",
     author,
     year,
     pages_estimate: pages || null,
     words_estimate: words,
-    cover_url: coverId > 0 ? `https://covers.openlibrary.org/b/id/${coverId}-L.jpg` : "",
+    cover_url: coverUrl,
     openlibrary_key: doc.key || "",
     source: "Open Library",
   };
@@ -67,7 +80,12 @@ function extensionFor(contentType, parsedUrl) {
   if (ct.includes("image/png")) return ".png";
   if (ct.includes("image/webp")) return ".webp";
   const known = path.extname(parsedUrl.pathname || "").toLowerCase();
-  if ([".jpg", ".jpeg", ".png", ".webp"].includes(known)) return known === ".jpeg" ? ".jpg" : known;
+  if ([".jpg", ".jpeg", ".png", ".webp"].includes(known)) {
+    if (known === ".jpeg") {
+      return ".jpg";
+    }
+    return known;
+  }
   return ".jpg";
 }
 
