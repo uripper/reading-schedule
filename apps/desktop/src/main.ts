@@ -70,17 +70,36 @@ async function searchBooks(query: string): Promise<Array<Record<string, unknown>
     if (!response.ok) return [];
     const json = (await response.json()) as { docs?: Array<Record<string, unknown>> };
 
-    return (json.docs || []).map((doc) => ({
-      title: String(doc.title || "Untitled"),
-      author: Array.isArray(doc.author_name) ? String(doc.author_name[0] || "") : "",
-      year: doc.first_publish_year ? String(doc.first_publish_year) : "",
-      pages_estimate: typeof doc.number_of_pages_median === "number" ? Math.round(doc.number_of_pages_median) : null,
-      cover_url:
-        typeof doc.cover_i === "number"
-          ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`
-          : "",
-      source: "Open Library",
-    }));
+    return (json.docs || []).map((doc) => {
+      let author = "";
+      if (Array.isArray(doc.author_name)) {
+        author = String(doc.author_name[0] || "");
+      }
+
+      let year = "";
+      if (doc.first_publish_year) {
+        year = String(doc.first_publish_year);
+      }
+
+      let pagesEstimate: number | null = null;
+      if (typeof doc.number_of_pages_median === "number") {
+        pagesEstimate = Math.round(doc.number_of_pages_median);
+      }
+
+      let coverUrl = "";
+      if (typeof doc.cover_i === "number") {
+        coverUrl = `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
+      }
+
+      return {
+        title: String(doc.title || "Untitled"),
+        author,
+        year,
+        pages_estimate: pagesEstimate,
+        cover_url: coverUrl,
+        source: "Open Library",
+      };
+    });
   } catch {
     return [];
   }

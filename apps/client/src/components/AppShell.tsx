@@ -19,10 +19,17 @@ export function AppShell() {
           <NavLink
             key={route.to}
             to={route.to}
-            style={({ isActive }) => ({
-              background: isActive ? "rgba(63, 158, 244, 0.15)" : "transparent",
-              borderColor: isActive ? "#3f9ef4" : "#32435d",
-            })}
+            style={({ isActive }) => {
+              const linkStyle: { background: string; borderColor: string } = {
+                background: "transparent",
+                borderColor: "#32435d",
+              };
+              if (isActive) {
+                linkStyle.background = "rgba(63, 158, 244, 0.15)";
+                linkStyle.borderColor = "#3f9ef4";
+              }
+              return linkStyle;
+            }}
           >
             {route.label}
           </NavLink>
