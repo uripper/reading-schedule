@@ -1,10 +1,10 @@
 import type { PlannerAdapter } from "@reading-schedule/contracts";
 
 function requireDesktopApi(): PlannerAdapter {
-  if (!window.plannerApi) {
+  if (!globalThis.plannerApi) {
     throw new Error("Desktop planner API bridge not found.");
   }
-  return window.plannerApi;
+  return globalThis.plannerApi;
 }
 
 export const desktopAdapter: PlannerAdapter = {
