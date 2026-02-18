@@ -31,8 +31,6 @@ export function clearForm(refs, lookupControl) {
   refs.afterBookInput.value = "";
   refs.blockedByInput.value = "";
   refs.shelfSelectInput.value = "";
-  refs.shelfNewWrap.hidden = true;
-  refs.shelfNewInput.value = "";
   setCoverPreview(refs, "");
   lookupControl.clearResults();
 }
@@ -92,10 +90,7 @@ export function parseFormBook(refs) {
   }
   let shelf = refs.shelfSelectInput.value;
   if (shelf === SHELF_SELECT_CREATE_NEW) {
-    shelf = refs.shelfNewInput.value.trim();
-    if (!shelf) {
-      throw new Error("Enter a shelf name or choose Unshelved.");
-    }
+    throw new Error("Choose a shelf or create a new one from the shelf selector.");
   }
 
   return normalizeBook({
