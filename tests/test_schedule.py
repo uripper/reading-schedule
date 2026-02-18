@@ -50,4 +50,4 @@ def test_schedule_trims_last_session_to_remaining_words():
     assert len(rows) == 1
     assert rows[0]["words_planned"] == 800
     assert rows[0]["minutes"] < 10
-    assert words_per_block(book, settings) * 2 > 800
+    assert words_per_block(book, settings) > 400
