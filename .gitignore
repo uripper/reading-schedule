@@ -8,3 +8,5 @@ __pycache__/
 electron/node_modules/
 .vscode/settings.json
 .sourcery.yaml
+electron/eslint.config.mjs
+package-lock.json
