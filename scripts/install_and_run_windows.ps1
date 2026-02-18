@@ -20,7 +20,7 @@ if (-not (Test-Path ".venv\Scripts\python.exe")) { py -3 -m venv .venv }
 & .\.venv\Scripts\python.exe -m pip install -e . | Out-Null
 
 Push-Location .\electron
-npm install
+npm install --include=dev
 $env:PYTHON_BIN = (Resolve-Path ..\.venv\Scripts\python.exe).Path
 $env:UI_SCALE = "1.65"
 npm run start

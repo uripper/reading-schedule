@@ -141,7 +141,7 @@ function renderMonth() {
 
   const weekdayHeader = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((label) => {
     const head = document.createElement("span");
-    head.className = "day-event-count";
+    head.className = "calendar-weekday";
     head.textContent = label;
     return head;
   });
@@ -183,9 +183,9 @@ function renderMonth() {
 
     rows.slice(0, 2).forEach((row) => {
       const chip = document.createElement("span");
-      chip.className = "chip";
+      chip.className = "day-chip";
       if (row.finish) {
-        chip.className = "chip finish";
+        chip.className = "day-chip finish";
       }
       chip.textContent = `${row.title} - ${row.minutes}m`;
       dayButton.append(chip);
@@ -193,7 +193,7 @@ function renderMonth() {
 
     if (rows.length > 2) {
       const extra = document.createElement("span");
-      extra.className = "chip";
+      extra.className = "day-chip is-more";
       extra.textContent = `+${rows.length - 2} more`;
       dayButton.append(extra);
     }
