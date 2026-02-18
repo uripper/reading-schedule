@@ -43,6 +43,7 @@ def book_from_data(data: dict[str, Any]) -> Book:
     deadline = None
     if data.get("deadline"):
         deadline = parse_date(data["deadline"])
+    blocked_by = str(data.get("blocked_by") or data.get("blocker_book_id") or "").strip() or None
     book = Book(
         book_id=str(data.get("book_id") or "").strip() or str(uuid4()),
         title=str(data["title"]).strip(),
@@ -54,6 +55,7 @@ def book_from_data(data: dict[str, Any]) -> Book:
         words_full=words_full,
         progress_percent=progress,
         max_minutes_per_day=optional_int(data.get("max_minutes_per_day"), "max_minutes_per_day"),
+        blocked_by=blocked_by,
     )
     validate_book(book)
     return book

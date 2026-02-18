@@ -4,7 +4,7 @@ from typing import Any
 
 from .builders_coerce import to_float, to_int
 from .calendar import parse_date
-from .types import DEFAULT_DIFFICULTY_MULTIPLIER, Settings
+from .types import DEFAULT_DIFFICULTY_MULTIPLIER, PLAN_MODE_FINISH_SOON, Settings
 from .validate import validate_settings
 
 
@@ -33,6 +33,7 @@ def settings_from_data(data: dict[str, Any]) -> Settings:
         w_smooth=to_float(data.get("w_smooth", 0.0), "w_smooth"),
         difficulty_multiplier=diff,
         max_blocks_per_book_per_day=to_int(data.get("max_blocks_per_book_per_day", 12), "max_blocks_per_book_per_day"),
+        plan_mode=str(data.get("plan_mode", PLAN_MODE_FINISH_SOON) or PLAN_MODE_FINISH_SOON).strip().lower(),
     )
     validate_settings(settings)
     return settings

@@ -21,6 +21,7 @@ def book_to_data(book: Book) -> dict[str, object]:
         "progress_percent": book.progress_percent,
         "words_remaining": book.words_total,
         "max_minutes_per_day": book.max_minutes_per_day,
+        "blocked_by": book.blocked_by,
     }
 
 
@@ -40,5 +41,6 @@ def settings_to_data(settings: Settings) -> dict[str, object]:
         "w_switch": settings.w_switch,
         "w_smooth": settings.w_smooth,
         "max_blocks_per_book_per_day": settings.max_blocks_per_book_per_day,
+        "plan_mode": settings.plan_mode,
         "difficulty_multiplier": {str(k): v for k, v in settings.difficulty_multiplier.items()},
     }
