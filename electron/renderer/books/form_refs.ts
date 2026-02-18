@@ -27,8 +27,6 @@ export function getBookFormRefs() {
     afterBookResults: el("bookAfterBookResults"),
     blockedByInput: el("bookBlockedByInput"),
     shelfSelectInput: el("bookShelfSelectInput"),
-    shelfNewWrap: el("bookShelfNewWrap"),
-    shelfNewInput: el("bookShelfNewInput"),
     coverPreview: el("bookCoverPreview"),
     saveBtn: el("saveBookBtn"),
     cancelBtn: el("cancelBookBtn"),

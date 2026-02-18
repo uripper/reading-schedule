@@ -19,19 +19,6 @@ function createShelfSelectLabel() {
   return label;
 }
 
-function createShelfNewLabel() {
-  const label = document.createElement("label");
-  label.id = "bookShelfNewWrap";
-  label.className = "book-shelf-new";
-  label.hidden = true;
-  label.textContent = "New Shelf";
-  const input = document.createElement("input");
-  input.id = "bookShelfNewInput";
-  input.placeholder = "e.g. History";
-  label.append(input);
-  return label;
-}
-
 export function ensureBookFormLayoutFields() {
   const existing = document.getElementById("bookShelfSelectInput");
   if (existing) {
@@ -43,5 +30,5 @@ export function ensureBookFormLayoutFields() {
     return;
   }
 
-  grid.append(createShelfSelectLabel(), createShelfNewLabel());
+  grid.append(createShelfSelectLabel());
 }
