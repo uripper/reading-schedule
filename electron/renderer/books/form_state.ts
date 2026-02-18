@@ -10,7 +10,6 @@ const DEFAULT_PRIORITY = "3";
 const DEFAULT_DIFFICULTY = "3";
 const DEFAULT_MIN_BLOCKS = "1";
 
-
 function setCoverPreview(refs, src) {
   refs.coverPreview.src = src || COVER_PLACEHOLDER;
   refs.coverPreview.classList.toggle("is-empty", !src);
@@ -29,6 +28,7 @@ export function clearForm(refs, lookupControl) {
   refs.difficultyInput.value = DEFAULT_DIFFICULTY;
   refs.minBlocksInput.value = DEFAULT_MIN_BLOCKS;
   refs.blockedByInput.value = "";
+  refs.shelfInput.value = "";
   setCoverPreview(refs, "");
   lookupControl.clearResults();
 }
@@ -58,6 +58,7 @@ export function fillForm(refs, book) {
   }
   refs.deadlineInput.value = book.deadline || "";
   refs.blockedByInput.value = book.blocked_by || "";
+  refs.shelfInput.value = book.shelf || "";
   refs.coverUrl.value = book.cover_url || "";
   refs.coverLocal.value = book.cover_local_path || "";
   refs.author.value = book.author || "";
@@ -101,6 +102,7 @@ export function parseFormBook(refs) {
     max_minutes_per_day: refs.maxMinutesInput.value,
     deadline: refs.deadlineInput.value,
     blocked_by: refs.blockedByInput.value,
+    shelf: refs.shelfInput.value,
     cover_url: refs.coverUrl.value.trim(),
     cover_local_path: refs.coverLocal.value.trim(),
     lookup_note: refs.lookupMeta.dataset.lookupNote || "",
