@@ -1,3 +1,5 @@
+// Keep in sync with src/reading_plan/builders_shared.py::WORDS_PER_PAGE.
+// tests/test_constants_sync.py enforces this at test time.
 export const WORDS_PER_PAGE = 300;
 
 export const COVER_PLACEHOLDER = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(

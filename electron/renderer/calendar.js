@@ -25,24 +25,57 @@ function enrichRows(rows, totals = {}) {
 
 function renderMonth() {
   const key = state.months[state.index];
-  if (!key) return (el("calendar").innerHTML = "<p>No schedule yet.</p>");
+  const calendar = el("calendar");
+  if (!key) {
+    const empty = document.createElement("p");
+    empty.textContent = "No schedule yet.";
+    calendar.replaceChildren(empty);
+    return;
+  }
   const [y, m] = key.split("-").map(Number);
   const first = new Date(y, m - 1, 1), start = new Date(first);
   start.setDate(first.getDate() - ((first.getDay() + 6) % 7));
   const cells = Array.from({ length: 42 }, (_, i) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
-  el("calendar").innerHTML = cells.map((d) => {
-    const muted = d.getMonth() !== first.getMonth() ? " is-muted" : "";
-    const items = (state.dates[dayKey(d)] || []).map((r) => `<span class="chip${r.finish ? " finish" : ""}">${r.title} · ${r.minutes}m${r.finish ? " · FINISH" : ""}</span>`).join("");
-    return `<article class="day${muted}"><div class="day-date">${d.getDate()}</div>${items}</article>`;
-  }).join("");
+  const days = cells.map((d) => {
+    const day = document.createElement("article");
+    day.className = d.getMonth() !== first.getMonth() ? "day is-muted" : "day";
+    const dayDate = document.createElement("div");
+    dayDate.className = "day-date";
+    dayDate.textContent = String(d.getDate());
+    day.append(dayDate);
+    (state.dates[dayKey(d)] || []).forEach((row) => {
+      const chip = document.createElement("span");
+      chip.className = row.finish ? "chip finish" : "chip";
+      chip.textContent = `${row.title} · ${row.minutes}m${row.finish ? " · FINISH" : ""}`;
+      day.append(chip);
+    });
+    return day;
+  });
+  calendar.replaceChildren(...days);
 }
 
 function renderControls() {
   const key = state.months[state.index] || "";
-  if (!key) return (el("calendarControls").innerHTML = `<strong>${monthLabel(key)}</strong>`);
-  el("calendarControls").innerHTML = `<button class="btn" id="prevMonth">Prev</button><strong>${monthLabel(key)}</strong><button class="btn" id="nextMonth">Next</button>`;
-  el("prevMonth").onclick = () => { state.index = Math.max(0, state.index - 1); renderControls(); renderMonth(); };
-  el("nextMonth").onclick = () => { state.index = Math.min(state.months.length - 1, state.index + 1); renderControls(); renderMonth(); };
+  const controls = el("calendarControls");
+  const title = document.createElement("strong");
+  title.textContent = monthLabel(key);
+  if (!key) {
+    controls.replaceChildren(title);
+    return;
+  }
+  const prev = document.createElement("button");
+  prev.className = "btn";
+  prev.id = "prevMonth";
+  prev.type = "button";
+  prev.textContent = "Prev";
+  const next = document.createElement("button");
+  next.className = "btn";
+  next.id = "nextMonth";
+  next.type = "button";
+  next.textContent = "Next";
+  prev.onclick = () => { state.index = Math.max(0, state.index - 1); renderControls(); renderMonth(); };
+  next.onclick = () => { state.index = Math.min(state.months.length - 1, state.index + 1); renderControls(); renderMonth(); };
+  controls.replaceChildren(prev, title, next);
 }
 
 export function renderCalendar(rows, totals) {
