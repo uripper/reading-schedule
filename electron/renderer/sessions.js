@@ -4,7 +4,10 @@ const HISTORY_LIMIT = 30;
 
 function toInt(value, fallback = 0) {
   const n = Number(value);
-  return Number.isFinite(n) ? Math.round(n) : fallback;
+  if (Number.isFinite(n)) {
+    return Math.round(n);
+  }
+  return fallback;
 }
 
 function isoLocalDayKey(iso) {
@@ -33,6 +36,16 @@ function normalizeSession(session = {}) {
   const startedAtRaw = String(session.started_at || session.startedAt || "").trim();
   const endedAt = endedAtRaw || new Date().toISOString();
   const startedAt = startedAtRaw || endedAt;
+  let pagesRead = null;
+  if (session.pages_read !== null && session.pages_read !== undefined && session.pages_read !== "") {
+    pagesRead = Math.max(0, toInt(session.pages_read, 0));
+  }
+
+  let source = "timer";
+  if (session.source === "manual") {
+    source = "manual";
+  }
+
   return {
     id: String(session.id || uid()),
     book_id: String(session.book_id || ""),
@@ -40,9 +53,9 @@ function normalizeSession(session = {}) {
     started_at: startedAt,
     ended_at: endedAt,
     minutes: Math.max(1, toInt(session.minutes, 1)),
-    pages_read: session.pages_read === null || session.pages_read === undefined || session.pages_read === "" ? null : Math.max(0, toInt(session.pages_read, 0)),
+    pages_read: pagesRead,
     notes: String(session.notes || "").trim(),
-    source: session.source === "manual" ? "manual" : "timer",
+    source,
     created_at: String(session.created_at || endedAt),
   };
 }
@@ -66,12 +79,22 @@ function renderSessionHistory(container, sessions, onDelete) {
 
     const meta = document.createElement("p");
     meta.className = "session-entry-meta";
-    const pageText = session.pages_read === null ? "" : ` · ${session.pages_read} pages`;
+    let pageText = "";
+    if (session.pages_read !== null) {
+      pageText = ` · ${session.pages_read} pages`;
+    }
     meta.textContent = `${formatTimeRange(session.started_at, session.ended_at)}${pageText}`;
 
     const note = document.createElement("p");
     note.className = "session-entry-meta";
-    note.textContent = session.notes || (session.source === "manual" ? "Manual entry" : "Timer entry");
+    let noteText = session.notes;
+    if (!noteText) {
+      noteText = "Timer entry";
+      if (session.source === "manual") {
+        noteText = "Manual entry";
+      }
+    }
+    note.textContent = noteText;
 
     const actions = document.createElement("div");
     actions.className = "row";
@@ -137,7 +160,11 @@ function streakFromSessions(sessions) {
 }
 
 export function normalizeSessions(rawSessions = []) {
-  return (Array.isArray(rawSessions) ? rawSessions : [])
+  let normalizedRawSessions = [];
+  if (Array.isArray(rawSessions)) {
+    normalizedRawSessions = rawSessions;
+  }
+  return normalizedRawSessions
     .map(normalizeSession)
     .sort((a, b) => String(b.ended_at).localeCompare(String(a.ended_at)));
 }
@@ -186,7 +213,10 @@ export function initSessionsUI({
     }
     selectedBookId = book.book_id;
     refs.input.value = book.title;
-    refs.meta.textContent = book.author ? `Selected: ${book.author}` : "Selected book";
+    refs.meta.textContent = "Selected book";
+    if (book.author) {
+      refs.meta.textContent = `Selected: ${book.author}`;
+    }
     hidePicker();
   }
 
@@ -208,7 +238,11 @@ export function initSessionsUI({
       btn.setAttribute("role", "option");
       const active = pickerIndex === index;
       btn.classList.toggle("is-active", active);
-      btn.setAttribute("aria-selected", active ? "true" : "false");
+      if (active) {
+        btn.setAttribute("aria-selected", "true");
+      } else {
+        btn.setAttribute("aria-selected", "false");
+      }
 
       const textWrap = document.createElement("span");
       const title = document.createElement("span");
@@ -217,7 +251,11 @@ export function initSessionsUI({
 
       const meta = document.createElement("span");
       meta.className = "book-result-meta";
-      meta.textContent = [book.author || "", book.deadline ? `Due ${book.deadline}` : ""].filter(Boolean).join(" · ");
+      let dueLabel = "";
+      if (book.deadline) {
+        dueLabel = `Due ${book.deadline}`;
+      }
+      meta.textContent = [book.author || "", dueLabel].filter(Boolean).join(" · ");
 
       textWrap.append(title, meta);
       btn.append(textWrap);
@@ -244,7 +282,10 @@ export function initSessionsUI({
   function refreshPicker() {
     const query = refs.input.value.trim().toLowerCase();
     filteredBooks = getBooks().filter((book) => matchesQuery(book, query));
-    pickerIndex = filteredBooks.length ? 0 : -1;
+    pickerIndex = -1;
+    if (filteredBooks.length) {
+      pickerIndex = 0;
+    }
     renderPicker();
   }
 
@@ -253,7 +294,10 @@ export function initSessionsUI({
   }
 
   function updateTimerLabel() {
-    const runningMs = timerRunning() ? Date.now() - timerStartedAt : 0;
+    let runningMs = 0;
+    if (timerRunning()) {
+      runningMs = Date.now() - timerStartedAt;
+    }
     const totalSeconds = Math.floor((elapsedMs + runningMs) / 1000);
     refs.timerDisplay.textContent = formatTimer(totalSeconds);
   }
@@ -289,7 +333,10 @@ export function initSessionsUI({
       return;
     }
     const now = Date.now();
-    const totalMs = elapsedMs + (timerRunning() ? now - timerStartedAt : 0);
+    let totalMs = elapsedMs;
+    if (timerRunning()) {
+      totalMs += now - timerStartedAt;
+    }
     if (totalMs < 1000) {
       announce("Session was too short to save.", "assertive");
       resetTimer();
@@ -348,6 +395,10 @@ export function initSessionsUI({
     const endedAt = new Date(now).toISOString();
     const startedAt = new Date(now - minutes * 60000).toISOString();
     const pages = refs.manualPages.value.trim();
+    let pagesRead = null;
+    if (pages) {
+      pagesRead = Math.max(0, toInt(pages, 0));
+    }
 
     commitSession({
       id: uid(),
@@ -356,7 +407,7 @@ export function initSessionsUI({
       started_at: startedAt,
       ended_at: endedAt,
       minutes,
-      pages_read: pages ? Math.max(0, toInt(pages, 0)) : null,
+      pages_read: pagesRead,
       notes: refs.manualNotes.value.trim(),
       source: "manual",
       created_at: endedAt,

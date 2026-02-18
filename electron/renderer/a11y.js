@@ -36,22 +36,34 @@ export function createAnnouncer(regionId = "liveRegion") {
 }
 
 export function applyPreferencesToDocument(preferences = {}) {
-  const theme = ["system", "light", "dark"].includes(preferences.theme) ? preferences.theme : "system";
+  let theme = "system";
+  if (["system", "light", "dark"].includes(preferences.theme)) {
+    theme = preferences.theme;
+  }
   const reduceMotion = Boolean(preferences.reduceMotion);
   const root = document.documentElement;
   root.dataset.theme = theme;
-  root.dataset.reduceMotion = reduceMotion ? "true" : "false";
+  root.dataset.reduceMotion = "false";
+  if (reduceMotion) {
+    root.dataset.reduceMotion = "true";
+  }
 }
 
 export function bindDialogFocus(dialog, { initialFocusSelector = null } = {}) {
   let opener = null;
 
   function rememberOpener() {
-    opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    opener = null;
+    if (document.activeElement instanceof HTMLElement) {
+      opener = document.activeElement;
+    }
   }
 
   function focusInitialTarget() {
-    const direct = initialFocusSelector ? dialog.querySelector(initialFocusSelector) : null;
+    let direct = null;
+    if (initialFocusSelector) {
+      direct = dialog.querySelector(initialFocusSelector);
+    }
     if (direct instanceof HTMLElement) {
       direct.focus();
       return;

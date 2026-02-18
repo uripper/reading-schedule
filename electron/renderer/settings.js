@@ -97,8 +97,18 @@ export function fillSettings(settings) {
 
 export function collectSettings() {
   const out = {};
-  Object.values(fields).flat().forEach((f) => { const raw = el(f.id).value.trim(); out[f.id] = f.type === "date" ? raw : Number(raw || 0); });
-  out.minutes_per_day = el("minutes_per_day").value.trim() ? Number(el("minutes_per_day").value) : null;
+  Object.values(fields).flat().forEach((f) => {
+    const raw = el(f.id).value.trim();
+    if (f.type === "date") {
+      out[f.id] = raw;
+    } else {
+      out[f.id] = Number(raw || 0);
+    }
+  });
+  out.minutes_per_day = null;
+  if (el("minutes_per_day").value.trim()) {
+    out.minutes_per_day = Number(el("minutes_per_day").value);
+  }
   out.minutes_by_weekday = Object.fromEntries(weekdays.map(([k]) => [k, Number(el(`minutes_${k}`).value || 0)]));
   out.days_off = [...dayOffs];
   out.difficulty_multiplier = Object.fromEntries(Array.from({ length: 10 }, (_, i) => [String(i + 1), Number(el(`diff_${i + 1}`).value || 1)]));

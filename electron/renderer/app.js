@@ -38,13 +38,20 @@ function totalsFromSummary(summary) {
 }
 
 function normalizePreferences(raw = {}) {
-  const theme = ["system", "light", "dark"].includes(raw.theme) ? raw.theme : DEFAULT_PREFERENCES.theme;
+  let theme = DEFAULT_PREFERENCES.theme;
+  if (["system", "light", "dark"].includes(raw.theme)) {
+    theme = raw.theme;
+  }
   const dailyGoalMinutes = Number(raw.dailyGoalMinutes || raw.daily_goal_minutes || DEFAULT_PREFERENCES.dailyGoalMinutes);
+  let normalizedDailyGoalMinutes = DEFAULT_PREFERENCES.dailyGoalMinutes;
+  if (Number.isFinite(dailyGoalMinutes) && dailyGoalMinutes > 0) {
+    normalizedDailyGoalMinutes = Math.round(dailyGoalMinutes);
+  }
   return {
     theme,
     reduceMotion: Boolean(raw.reduceMotion),
     timezone: String(raw.timezone || DEFAULT_PREFERENCES.timezone),
-    dailyGoalMinutes: Number.isFinite(dailyGoalMinutes) && dailyGoalMinutes > 0 ? Math.round(dailyGoalMinutes) : DEFAULT_PREFERENCES.dailyGoalMinutes,
+    dailyGoalMinutes: normalizedDailyGoalMinutes,
     reminderEnabled: Boolean(raw.reminderEnabled),
     reminderTime: String(raw.reminderTime || DEFAULT_PREFERENCES.reminderTime),
   };
@@ -61,7 +68,10 @@ function normalizeFeatureFlags(raw = {}) {
 function setStatus(message, isError = false) {
   const node = el("status");
   node.textContent = message;
-  node.style.color = isError ? "var(--app-danger)" : "var(--app-textMuted)";
+  node.style.color = "var(--app-textMuted)";
+  if (isError) {
+    node.style.color = "var(--app-danger)";
+  }
   addLog(message);
 }
 
@@ -96,10 +106,14 @@ function fillPreferencesUI(preferences, featureFlags) {
 }
 
 function draftData() {
+  let sessions = [];
+  if (sessionsUI) {
+    sessions = sessionsUI.getSessions();
+  }
   return {
     books: collectBooks(),
     settings: collectSettings(),
-    sessions: sessionsUI ? sessionsUI.getSessions() : [],
+    sessions,
     preferences: state.preferences,
     feature_flags: state.featureFlags,
     last_result: state.lastResult,
@@ -151,7 +165,10 @@ function updateTodayDashboard() {
     summaryNode.textContent = "No schedule generated yet. Add books and generate a plan to get a next-session suggestion.";
   }
 
-  const todayMinutes = sessionsUI ? sessionsUI.todayMinutes() : 0;
+  let todayMinutes = 0;
+  if (sessionsUI) {
+    todayMinutes = sessionsUI.todayMinutes();
+  }
   const goalMinutes = Math.max(1, Number(state.preferences.dailyGoalMinutes || DEFAULT_PREFERENCES.dailyGoalMinutes));
   const pct = Math.min(100, Math.round((todayMinutes / goalMinutes) * 100));
   goalText.textContent = `${todayMinutes} / ${goalMinutes} minutes logged today`;
@@ -161,7 +178,10 @@ function updateTodayDashboard() {
   const gamificationOn = Boolean(state.featureFlags.gamificationEnabled);
   gamificationCard.hidden = !gamificationOn;
   if (gamificationOn) {
-    const streak = sessionsUI ? sessionsUI.streakDays() : 0;
+    let streak = 0;
+    if (sessionsUI) {
+      streak = sessionsUI.streakDays();
+    }
     streakNode.textContent = `${streak} day streak`;
   }
 }
@@ -254,7 +274,12 @@ async function init() {
 
   try {
     const saved = await window.plannerApi.loadState();
-    const source = saved?.settings && saved?.books ? saved : await window.plannerApi.sample();
+    let source;
+    if (saved?.settings && saved?.books) {
+      source = saved;
+    } else {
+      source = await window.plannerApi.sample();
+    }
 
     fillSettings(source.settings);
     fillBooks(source.books);
@@ -277,7 +302,11 @@ async function init() {
     document.addEventListener("input", queuePersist);
     document.addEventListener("change", queuePersist);
 
-    setStatus(saved ? "Loaded saved data." : "Loaded sample data.");
+    if (saved) {
+      setStatus("Loaded saved data.");
+    } else {
+      setStatus("Loaded sample data.");
+    }
   } catch (error) {
     setStatus(error.message || "Failed to load initial data", true);
   }

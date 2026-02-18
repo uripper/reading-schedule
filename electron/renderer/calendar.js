@@ -52,7 +52,10 @@ function renderDetails() {
   const rows = state.dates[key] || [];
 
   const title = document.createElement("h2");
-  title.textContent = key ? dateHeading(key) : "Selected Day";
+  title.textContent = "Selected Day";
+  if (key) {
+    title.textContent = dateHeading(key);
+  }
 
   if (!key) {
     const hint = document.createElement("p");
@@ -82,7 +85,11 @@ function renderDetails() {
 
     const meta = document.createElement("p");
     meta.className = "day-details-meta";
-    meta.textContent = `${row.minutes} minutes planned${row.finish ? " - expected finish" : ""}`;
+    let finishLabel = "";
+    if (row.finish) {
+      finishLabel = " - expected finish";
+    }
+    meta.textContent = `${row.minutes} minutes planned${finishLabel}`;
 
     item.append(head, meta);
     list.append(item);
@@ -148,11 +155,17 @@ function renderMonth() {
     const rows = state.dates[keyForDay] || [];
     const dayButton = document.createElement("button");
     dayButton.type = "button";
-    dayButton.className = date.getMonth() !== first.getMonth() ? "day is-muted" : "day";
+    dayButton.className = "day";
+    if (date.getMonth() !== first.getMonth()) {
+      dayButton.className = "day is-muted";
+    }
     if (state.selectedDate === keyForDay) dayButton.classList.add("is-selected");
     dayButton.dataset.calendarDay = keyForDay;
     dayButton.setAttribute("role", "gridcell");
-    dayButton.setAttribute("aria-selected", state.selectedDate === keyForDay ? "true" : "false");
+    dayButton.setAttribute("aria-selected", "false");
+    if (state.selectedDate === keyForDay) {
+      dayButton.setAttribute("aria-selected", "true");
+    }
 
     const dayDate = document.createElement("span");
     dayDate.className = "day-date";
@@ -160,13 +173,19 @@ function renderMonth() {
 
     const count = document.createElement("span");
     count.className = "day-event-count";
-    count.textContent = rows.length ? `${rows.length} planned` : "No sessions";
+    count.textContent = "No sessions";
+    if (rows.length) {
+      count.textContent = `${rows.length} planned`;
+    }
 
     dayButton.append(dayDate, count);
 
     rows.slice(0, 2).forEach((row) => {
       const chip = document.createElement("span");
-      chip.className = row.finish ? "chip finish" : "chip";
+      chip.className = "chip";
+      if (row.finish) {
+        chip.className = "chip finish";
+      }
       chip.textContent = `${row.title} - ${row.minutes}m`;
       dayButton.append(chip);
     });
