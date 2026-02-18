@@ -12,9 +12,11 @@ def generate_plan(payload: dict[str, object]) -> dict[str, object]:
     if not isinstance(books_raw, list) or not isinstance(settings_raw, dict):
         raise ValueError("payload requires books[] and settings object")
 
-    books = [book_from_data(row) for row in books_raw if isinstance(row, dict)]
-    if len(books) != len(books_raw):
-        raise ValueError("each book must be an object")
+    books = []
+    for idx, row in enumerate(books_raw):
+        if not isinstance(row, dict):
+            raise ValueError(f"book at index {idx} must be an object")
+        books.append(book_from_data(row))
 
     settings = settings_from_data(settings_raw)
     planner = str(payload.get("planner", "mip"))

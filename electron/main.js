@@ -43,7 +43,11 @@ ipcMain.handle("plan:generate", (_event, payload) => runBridge([], payload));
 ipcMain.handle("book:search", (_event, query) => searchBooks(query));
 ipcMain.handle("book:downloadCover", (_event, payload) => downloadCover(payload?.url, payload?.bookId, userData()));
 ipcMain.handle("state:load", () => readState(userData()));
-ipcMain.handle("state:save", (_event, payload) => writeState(userData(), payload));
+ipcMain.handle("state:save", (_event, payload) => {
+  const result = writeState(userData(), payload);
+  if (!result?.ok) throw new Error(result?.error || "Failed to save state");
+  return result;
+});
 
 app.whenReady().then(createWindow);
 app.on("window-all-closed", () => { if (process.platform !== "darwin") app.quit(); });

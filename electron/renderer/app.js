@@ -24,10 +24,24 @@ function draftData() {
   return { books: state.books, settings: collectSettings(), last_result: state.lastResult };
 }
 
+async function saveStateSafe() {
+  try {
+    const result = await window.plannerApi.saveState(draftData());
+    if (result?.ok === false) {
+      addLog(`Save failed: ${result.error || "Unknown state persistence error"}`);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    addLog(`Save failed: ${error.message || error}`);
+    return false;
+  }
+}
+
 function queuePersist() {
   if (!state.ready) return;
   if (persistTimer) clearTimeout(persistTimer);
-  persistTimer = setTimeout(() => window.plannerApi.saveState(draftData()).catch((e) => addLog(`Save failed: ${e.message}`)), 250);
+  persistTimer = setTimeout(() => { void saveStateSafe(); }, 250);
 }
 
 async function run() {
@@ -41,7 +55,7 @@ async function run() {
     activateTab("schedule");
     if (data.summary.feasibility_warning) addLog(data.summary.feasibility_warning);
     addLog(`Status ${data.summary.status}. Planned ${data.summary.total_planned_minutes}/${data.summary.total_available_minutes} minutes.`);
-    await window.plannerApi.saveState(draftData());
+    await saveStateSafe();
     setStatus("Plan generated.");
   } catch (error) {
     setStatus(error.message || "Failed to generate plan", true);

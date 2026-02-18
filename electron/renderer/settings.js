@@ -1,4 +1,4 @@
-import { el, qa } from "./dom.js";
+import { el } from "./dom.js";
 
 const fields = {
   window: [{ id: "start_date", label: "Start date", type: "date" }, { id: "end_date", label: "End date", type: "date" }],
@@ -8,20 +8,83 @@ const fields = {
 const weekdays = [["Mon", "Monday"], ["Tue", "Tuesday"], ["Wed", "Wednesday"], ["Thu", "Thursday"], ["Fri", "Friday"], ["Sat", "Saturday"], ["Sun", "Sunday"]];
 let dayOffs = [];
 
-function esc(text) { return String(text || "").replace(/"/g, "&quot;"); }
-function hint(text) { return text ? ` <span class="hint-dot" tabindex="0" role="note" data-tip="${esc(text)}">?</span>` : ""; }
-function input(field) { return `<label>${field.label}${hint(field.hint)}<input id="${field.id}" type="${field.type || "number"}" ${field.step ? `step="${field.step}"` : ""}/></label>`; }
-function renderGrid(id, defs) { el(id).innerHTML = defs.map(input).join(""); }
+function hintDot(text) {
+  if (!text) return null;
+  const dot = document.createElement("span");
+  dot.className = "hint-dot";
+  dot.tabIndex = 0;
+  dot.setAttribute("role", "note");
+  dot.dataset.tip = String(text);
+  dot.textContent = "?";
+  return dot;
+}
+
+function input(field) {
+  const label = document.createElement("label");
+  label.append(field.label);
+  const dot = hintDot(field.hint);
+  if (dot) {
+    label.append(" ", dot);
+  }
+  const node = document.createElement("input");
+  node.id = field.id;
+  node.type = field.type || "number";
+  if (field.step) node.step = field.step;
+  label.append(node);
+  return label;
+}
+
+function renderGrid(id, defs) {
+  el(id).replaceChildren(...defs.map(input));
+}
 
 function renderDayOffs() {
-  el("dayOffList").innerHTML = dayOffs.map((d) => `<button class="chip-btn" data-day="${d}">${d} x</button>`).join("");
-  qa("#dayOffList button").forEach((btn) => (btn.onclick = () => { dayOffs = dayOffs.filter((d) => d !== btn.dataset.day); renderDayOffs(); }));
+  const list = el("dayOffList");
+  const buttons = dayOffs.map((day) => {
+    const button = document.createElement("button");
+    button.className = "chip-btn";
+    button.type = "button";
+    button.dataset.day = day;
+    button.textContent = `${day} x`;
+    button.onclick = () => {
+      dayOffs = dayOffs.filter((value) => value !== day);
+      renderDayOffs();
+    };
+    return button;
+  });
+  list.replaceChildren(...buttons);
 }
 
 export function initSettingsGrid() {
   renderGrid("windowGrid", fields.window); renderGrid("budgetGrid", fields.budget); renderGrid("weightsGrid", fields.weights);
-  el("weekdayGrid").innerHTML = weekdays.map(([k, n]) => `<label>${n} minutes<input id="minutes_${k}" type="number" /></label>`).join("");
-  el("difficultyBody").innerHTML = Array.from({ length: 10 }, (_, i) => `<tr><td>${i + 1}</td><td><input id="diff_${i + 1}" type="number" step="0.05" min="0.05" max="2" /></td></tr>`).join("");
+  const weekdayNodes = weekdays.map(([key, name]) => {
+    const label = document.createElement("label");
+    label.append(`${name} minutes`);
+    const inputNode = document.createElement("input");
+    inputNode.id = `minutes_${key}`;
+    inputNode.type = "number";
+    label.append(inputNode);
+    return label;
+  });
+  el("weekdayGrid").replaceChildren(...weekdayNodes);
+
+  const diffRows = Array.from({ length: 10 }, (_, i) => {
+    const row = document.createElement("tr");
+    const level = i + 1;
+    const labelCell = document.createElement("td");
+    labelCell.textContent = String(level);
+    const inputCell = document.createElement("td");
+    const inputNode = document.createElement("input");
+    inputNode.id = `diff_${level}`;
+    inputNode.type = "number";
+    inputNode.step = "0.05";
+    inputNode.min = "0.05";
+    inputNode.max = "2";
+    inputCell.append(inputNode);
+    row.append(labelCell, inputCell);
+    return row;
+  });
+  el("difficultyBody").replaceChildren(...diffRows);
   el("addDayOffBtn").onclick = () => { const d = el("dayOffPicker").value; if (d && !dayOffs.includes(d)) { dayOffs = [...dayOffs, d].sort(); renderDayOffs(); } };
 }
 
