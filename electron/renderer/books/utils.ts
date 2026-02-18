@@ -21,7 +21,9 @@ export function toInt(raw, fallback = 0) {
 }
 
 export function toOptionalInt(raw) {
-  if (raw === null || raw === undefined || raw === "") return null;
+  if (raw === null || raw === undefined || raw === "") {
+    return null;
+  }
   const n = Number(raw);
   if (Number.isFinite(n)) {
     return Math.round(n);
@@ -36,6 +38,8 @@ export function toOptionalDate(raw) {
 
 export function formatInt(raw) {
   const n = Number(raw || 0);
-  if (!Number.isFinite(n) || n <= 0) return "n/a";
+  if (!Number.isFinite(n) || n <= 0) {
+    return "n/a";
+  }
   return new Intl.NumberFormat().format(Math.round(n));
 }

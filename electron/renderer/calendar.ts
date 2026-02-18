@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { el } from "./dom.js";
 
-let state = {
+const state = {
   dates: {},
   months: [],
   index: 0,
@@ -14,9 +14,15 @@ let interactionHandlers = {
   onSessionProgressUpdated: () => null,
   getBookById: () => null,
 };
+const SESSION_INDEX_PAD = 3;
+const CALENDAR_COLUMN_COUNT = 7;
+const WEEK_START_OFFSET = 6;
+const DAY_GRID_SIZE = 42;
 
 function monthLabel(key) {
-  if (!key) return "No Schedule";
+  if (!key) {
+    return "No Schedule";
+  }
   const [y, m] = key.split("-").map(Number);
   return new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(new Date(y, m - 1, 1));
 }
@@ -31,7 +37,12 @@ function dayKey(date) {
 function enrichRows(rows, totals = {}) {
   const progress = {};
   return [...rows]
-    .sort((a, b) => `${a.date}-${String(a.session_index).padStart(3, "0")}`.localeCompare(`${b.date}-${String(b.session_index).padStart(3, "0")}`))
+    .sort(
+      (a, b) =>
+        `${a.date}-${String(a.session_index).padStart(SESSION_INDEX_PAD, "0")}`.localeCompare(
+          `${b.date}-${String(b.session_index).padStart(SESSION_INDEX_PAD, "0")}`,
+        ),
+    )
     .map((row) => {
       progress[row.book_id] = (progress[row.book_id] || 0) + Number(row.words_planned || 0);
       const done = (totals[row.book_id] || 0) > 0 && progress[row.book_id] >= totals[row.book_id];
@@ -43,13 +54,15 @@ function monthCells(monthKey) {
   const [year, month] = monthKey.split("-").map(Number);
   const first = new Date(year, month - 1, 1);
   const start = new Date(first);
-  start.setDate(first.getDate() - ((first.getDay() + 6) % 7));
-  return Array.from({ length: 42 }, (_, index) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + index));
+  start.setDate(first.getDate() - ((first.getDay() + WEEK_START_OFFSET) % CALENDAR_COLUMN_COUNT));
+  return Array.from({ length: DAY_GRID_SIZE }, (_, index) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + index));
 }
 
 function dateHeading(dateKey) {
   const date = new Date(dateKey);
-  if (Number.isNaN(date.getTime())) return dateKey;
+  if (Number.isNaN(date.getTime())) {
+    return dateKey;
+  }
   return new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(date);
 }
 
@@ -59,9 +72,13 @@ function sessionKeyFor(row) {
 
 function parseOptionalNumber(value) {
   const raw = String(value ?? "").trim();
-  if (!raw) return null;
+  if (!raw) {
+    return null;
+  }
   const parsed = Number(raw);
-  if (!Number.isFinite(parsed)) return null;
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
   return parsed;
 }
 
@@ -192,14 +209,18 @@ function selectDate(dateKey, options = {}) {
   renderDetails();
   if (options.focus) {
     const button = document.querySelector(`[data-calendar-day='${dateKey}']`);
-    if (button instanceof HTMLElement) button.focus();
+    if (button instanceof HTMLElement) {
+      button.focus();
+    }
   }
 }
 
 function moveSelectionBy(delta, currentIndex) {
   const nextIndex = Math.min(state.monthCellKeys.length - 1, Math.max(0, currentIndex + delta));
   const nextKey = state.monthCellKeys[nextIndex];
-  if (!nextKey) return;
+  if (!nextKey) {
+    return;
+  }
   selectDate(nextKey, { focus: true });
 }
 
@@ -247,7 +268,9 @@ function renderMonth() {
     if (date.getMonth() !== first.getMonth()) {
       dayButton.className = "day is-muted";
     }
-    if (state.selectedDate === keyForDay) dayButton.classList.add("is-selected");
+    if (state.selectedDate === keyForDay) {
+      dayButton.classList.add("is-selected");
+    }
     dayButton.dataset.calendarDay = keyForDay;
     dayButton.setAttribute("role", "gridcell");
     dayButton.setAttribute("aria-selected", "false");
@@ -299,12 +322,12 @@ function renderMonth() {
       }
       if (event.key === "ArrowDown") {
         event.preventDefault();
-        moveSelectionBy(7, index);
+        moveSelectionBy(CALENDAR_COLUMN_COUNT, index);
         return;
       }
       if (event.key === "ArrowUp") {
         event.preventDefault();
-        moveSelectionBy(-7, index);
+        moveSelectionBy(-CALENDAR_COLUMN_COUNT, index);
         return;
       }
       if (event.key === "Home") {
@@ -362,8 +385,16 @@ function renderControls() {
 }
 
 export function firstPlannedRow(rows = []) {
-  if (!Array.isArray(rows) || !rows.length) return null;
-  return [...rows].sort((a, b) => `${a.date}-${String(a.session_index).padStart(3, "0")}`.localeCompare(`${b.date}-${String(b.session_index).padStart(3, "0")}`))[0] || null;
+  if (!Array.isArray(rows) || !rows.length) {
+    return null;
+  }
+  const sortedRows = [...rows].sort(
+    (a, b) =>
+      `${a.date}-${String(a.session_index).padStart(SESSION_INDEX_PAD, "0")}`.localeCompare(
+        `${b.date}-${String(b.session_index).padStart(SESSION_INDEX_PAD, "0")}`,
+      ),
+  );
+  return sortedRows[0] || null;
 }
 
 export function renderCalendar(rows, totals) {
@@ -382,10 +413,16 @@ export function renderCalendar(rows, totals) {
 }
 
 export function configureCalendarInteractions(handlers = {}) {
+  const resolve = (candidate, fallback) => {
+    if (typeof candidate === "function") {
+      return candidate;
+    }
+    return fallback;
+  };
   interactionHandlers = {
-    isSessionCompleted: typeof handlers.isSessionCompleted === "function" ? handlers.isSessionCompleted : () => false,
-    onSessionCompletionChanged: typeof handlers.onSessionCompletionChanged === "function" ? handlers.onSessionCompletionChanged : () => {},
-    onSessionProgressUpdated: typeof handlers.onSessionProgressUpdated === "function" ? handlers.onSessionProgressUpdated : () => null,
-    getBookById: typeof handlers.getBookById === "function" ? handlers.getBookById : () => null,
+    isSessionCompleted: resolve(handlers.isSessionCompleted, () => false),
+    onSessionCompletionChanged: resolve(handlers.onSessionCompletionChanged, () => {}),
+    onSessionProgressUpdated: resolve(handlers.onSessionProgressUpdated, () => null),
+    getBookById: resolve(handlers.getBookById, () => null),
   };
 }

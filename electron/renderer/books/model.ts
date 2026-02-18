@@ -10,7 +10,7 @@ const MIN_DIFFICULTY = 1;
 const MAX_DIFFICULTY = 10;
 const DEFAULT_MIN_BLOCKS = 1;
 
-function normalizeProgressAndPages(book, pagesTotal, pagesRead, progressRaw) {
+function normalizeProgressAndPages(pagesTotal, pagesRead, progressRaw) {
   let nextPagesRead = pagesRead;
   if (pagesTotal && nextPagesRead === null) {
     nextPagesRead = Math.round((progressRaw / 100) * pagesTotal);
@@ -31,7 +31,7 @@ export function normalizeBook(book = {}) {
   const pagesTotal = toOptionalInt(book.pages_total);
   const progressRaw = clamp(Number(book.progress_percent || 0), 0, 100);
   const pagesReadRaw = toOptionalInt(book.pages_read);
-  const { pagesRead, progress } = normalizeProgressAndPages(book, pagesTotal, pagesReadRaw, progressRaw);
+  const { pagesRead, progress } = normalizeProgressAndPages(pagesTotal, pagesReadRaw, progressRaw);
 
   return {
     book_id: String(book.book_id || "").trim() || uid(),

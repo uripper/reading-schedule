@@ -15,6 +15,50 @@ const refs = {
   addBtn: null,
 };
 
+function parseFiniteNumber(raw) {
+  if (raw === null || raw === undefined || raw === "") {
+    return null;
+  }
+  const value = Number(raw);
+  if (!Number.isFinite(value)) {
+    return null;
+  }
+  return value;
+}
+
+function applyPagesUpdate(nextBook, pagesUpdate, hasPagesTotal, pagesTotal) {
+  if (pagesUpdate === null) {
+    return false;
+  }
+  if (hasPagesTotal) {
+    nextBook.pages_read = clamp(Math.round(pagesUpdate), 0, pagesTotal);
+  } else {
+    nextBook.pages_read = Math.max(0, Math.round(pagesUpdate));
+  }
+  return true;
+}
+
+function applyPercentUpdate(nextBook, pctUpdate, hasPagesUpdate, hasPagesTotal, pagesTotal) {
+  if (pctUpdate === null || hasPagesUpdate) {
+    return;
+  }
+  nextBook.progress_percent = Math.round(clamp(pctUpdate, 0, 100) * 10) / 10;
+  if (hasPagesTotal) {
+    nextBook.pages_read = Math.round((nextBook.progress_percent / 100) * pagesTotal);
+  }
+}
+
+function reconcilePercentFromPages(nextBook, hasPagesTotal, pagesTotal) {
+  if (!hasPagesTotal) {
+    return;
+  }
+  if (nextBook.pages_read === null || nextBook.pages_read === undefined) {
+    return;
+  }
+  const pct = (Number(nextBook.pages_read) / pagesTotal) * 100;
+  nextBook.progress_percent = Math.round(clamp(pct, 0, 100) * 10) / 10;
+}
+
 function findBook(bookId) {
   return books.find((book) => book.book_id === bookId) || null;
 }
@@ -38,30 +82,13 @@ export function updateBookProgress(bookId, updates = {}) {
   const pagesTotal = Number(next.pages_total || 0);
   const hasPagesTotal = Number.isFinite(pagesTotal) && pagesTotal > 0;
 
-  const pagesRaw = updates.pagesRead;
-  const pagesNum = Number(pagesRaw);
-  const hasPagesUpdate = pagesRaw !== null && pagesRaw !== undefined && pagesRaw !== "" && Number.isFinite(pagesNum);
-  if (hasPagesUpdate) {
-    if (hasPagesTotal) {
-      next.pages_read = clamp(Math.round(pagesNum), 0, pagesTotal);
-    } else {
-      next.pages_read = Math.max(0, Math.round(pagesNum));
-    }
-  }
+  const pagesUpdate = parseFiniteNumber(updates.pagesRead);
+  const hasPagesUpdate = applyPagesUpdate(next, pagesUpdate, hasPagesTotal, pagesTotal);
 
-  const pctRaw = updates.progressPercent;
-  const pctNum = Number(pctRaw);
-  const hasPctUpdate = pctRaw !== null && pctRaw !== undefined && pctRaw !== "" && Number.isFinite(pctNum);
-  if (hasPctUpdate && !hasPagesUpdate) {
-    next.progress_percent = Math.round(clamp(pctNum, 0, 100) * 10) / 10;
-    if (hasPagesTotal) {
-      next.pages_read = Math.round((next.progress_percent / 100) * pagesTotal);
-    }
-  }
+  const pctUpdate = parseFiniteNumber(updates.progressPercent);
+  applyPercentUpdate(next, pctUpdate, hasPagesUpdate, hasPagesTotal, pagesTotal);
 
-  if (hasPagesTotal && next.pages_read !== null && next.pages_read !== undefined) {
-    next.progress_percent = Math.round(clamp((Number(next.pages_read) / pagesTotal) * 100, 0, 100) * 10) / 10;
-  }
+  reconcilePercentFromPages(next, hasPagesTotal, pagesTotal);
 
   books[idx] = normalizeBook(next);
   render();
