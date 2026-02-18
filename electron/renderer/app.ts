@@ -8,7 +8,16 @@ import { addLog, bindHelpDialog } from "./help.js";
 import { initSessionsUI } from "./sessions.js";
 import { collectSettings, fillSettings, initSettingsGrid } from "./settings.js";
 import { bindExperienceSettings } from "./app/experience_bindings.js";
-import { collectFeatureFlagsFromUI, collectPreferencesFromUI, DEFAULT_FEATURE_FLAGS, DEFAULT_PREFERENCES, fillPreferencesUI, normalizeFeatureFlags, normalizePreferences, normalizeScheduleCompletions } from "./app/experience.js";
+import {
+  collectFeatureFlagsFromUI,
+  collectPreferencesFromUI,
+  DEFAULT_FEATURE_FLAGS,
+  DEFAULT_PREFERENCES,
+  fillPreferencesUI,
+  normalizeFeatureFlags,
+  normalizePreferences,
+  normalizeScheduleCompletions,
+} from "./app/experience.js";
 import { configureAppCalendarInteractions } from "./app/calendar_interactions.js";
 import { draftData, saveStateSafe } from "./app/persistence.js";
 import { runPlanGeneration } from "./app/plan.js";
@@ -63,10 +72,10 @@ function queuePersist() {
 
 function updateTodayView() {
   updateTodayDashboard({
+    sessionsUI,
     lastResult: state.lastResult,
     preferences: state.preferences,
     featureFlags: state.featureFlags,
-    sessionsUI,
     defaultDailyGoalMinutes: DEFAULT_PREFERENCES.dailyGoalMinutes,
   });
 }
@@ -81,12 +90,12 @@ function applyExperienceSettings() {
 
 async function run() {
   await runPlanGeneration({
-    plannerApi: globalThis.plannerApi,
     collectBooks,
     collectSettings,
     setStatus,
     addLog,
     announce,
+    plannerApi: globalThis.plannerApi,
     onSuccess: async (data) => {
       state.scheduleCompletions = {};
       state.lastResult = {

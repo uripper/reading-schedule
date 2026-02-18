@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { firstPlannedRow, groupRowsByDate, monthKeysFromRows, enrichRows } from "./calendar/data.js";
+import {  groupRowsByDate, monthKeysFromRows, enrichRows } from "./calendar/data.js";
 import { renderCalendarControls } from "./calendar/controls.js";
 import { renderCalendarDetails } from "./calendar/details.js";
 import { renderCalendarMonth } from "./calendar/month.js";
@@ -56,7 +56,7 @@ function renderControls() {
   renderCalendarControls(state, renderControls, renderMonth);
 }
 
-export { firstPlannedRow };
+
 
 export function renderCalendar(rows, totals) {
   const enrichedRows = enrichRows(rows, totals);
@@ -84,3 +84,5 @@ export function configureCalendarInteractions(handlers = {}) {
     getBookById: resolveHandler(handlers.getBookById, () => null),
   };
 }
+
+export {firstPlannedRow} from "./calendar/data.js";

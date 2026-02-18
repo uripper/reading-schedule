@@ -11,6 +11,11 @@ from .model_objective import build_objective_terms
 from .types import Book, Settings
 
 
+BookDayVars = dict[tuple[str, date], cp_model.IntVar]
+FinishedVars = dict[str, cp_model.IntVar]
+BuildCpSatResult = tuple[cp_model.CpModel, BookDayVars, BookDayVars, FinishedVars, list[date]]
+
+
 class _CpSatModelBuilder(Protocol):
     def NewIntVar(self, lb: int, ub: int, name: str) -> cp_model.IntVar: ...
 
@@ -23,7 +28,7 @@ class _CpSatModelBuilder(Protocol):
 
 def build_cp_sat(
     books: list[Book], settings: Settings
-) -> tuple[cp_model.CpModel, dict[tuple[str, date], cp_model.IntVar], dict[tuple[str, date], cp_model.IntVar], dict[str, cp_model.IntVar], list[date]]:
+) -> BuildCpSatResult:
     raw_model = cp_model.CpModel()
     model = cast(_CpSatModelBuilder, raw_model)
     days = date_range(settings.start_date, settings.end_date)
