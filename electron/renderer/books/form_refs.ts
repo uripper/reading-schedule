@@ -23,6 +23,8 @@ export function getBookFormRefs() {
     minBlocksInput: el("bookMinBlocksInput"),
     maxMinutesInput: el("bookMaxMinutesInput"),
     deadlineInput: el("bookDeadlineInput"),
+    afterBookInput: el("bookAfterBookInput"),
+    afterBookResults: el("bookAfterBookResults"),
     blockedByInput: el("bookBlockedByInput"),
     shelfSelectInput: el("bookShelfSelectInput"),
     shelfNewWrap: el("bookShelfNewWrap"),

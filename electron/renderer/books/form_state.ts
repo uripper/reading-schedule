@@ -3,6 +3,7 @@ import { uid } from "../dom.js";
 import { noteFromLookup, syncProgressAndPages } from "../book_lookup.js";
 import { COVER_PLACEHOLDER } from "./constants.js";
 import { bookCoverSrc, normalizeBook } from "./model.js";
+import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";
 import { clamp, toOptionalInt } from "./utils.js";
 
 const DEFAULT_PROGRESS = "0";
@@ -27,8 +28,11 @@ export function clearForm(refs, lookupControl) {
   refs.priorityInput.value = DEFAULT_PRIORITY;
   refs.difficultyInput.value = DEFAULT_DIFFICULTY;
   refs.minBlocksInput.value = DEFAULT_MIN_BLOCKS;
+  refs.afterBookInput.value = "";
   refs.blockedByInput.value = "";
-  refs.shelfInput.value = "";
+  refs.shelfSelectInput.value = "";
+  refs.shelfNewWrap.hidden = true;
+  refs.shelfNewInput.value = "";
   setCoverPreview(refs, "");
   lookupControl.clearResults();
 }
@@ -58,7 +62,6 @@ export function fillForm(refs, book) {
   }
   refs.deadlineInput.value = book.deadline || "";
   refs.blockedByInput.value = book.blocked_by || "";
-  refs.shelfInput.value = book.shelf || "";
   refs.coverUrl.value = book.cover_url || "";
   refs.coverLocal.value = book.cover_local_path || "";
   refs.author.value = book.author || "";
@@ -87,6 +90,13 @@ export function parseFormBook(refs) {
   } else {
     pagesRead = null;
   }
+  let shelf = refs.shelfSelectInput.value;
+  if (shelf === SHELF_SELECT_CREATE_NEW) {
+    shelf = refs.shelfNewInput.value.trim();
+    if (!shelf) {
+      throw new Error("Enter a shelf name or choose Unshelved.");
+    }
+  }
 
   return normalizeBook({
     title,
@@ -102,7 +112,7 @@ export function parseFormBook(refs) {
     max_minutes_per_day: refs.maxMinutesInput.value,
     deadline: refs.deadlineInput.value,
     blocked_by: refs.blockedByInput.value,
-    shelf: refs.shelfInput.value,
+    shelf,
     cover_url: refs.coverUrl.value.trim(),
     cover_local_path: refs.coverLocal.value.trim(),
     lookup_note: refs.lookupMeta.dataset.lookupNote || "",

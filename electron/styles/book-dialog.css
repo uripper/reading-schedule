@@ -28,6 +28,12 @@
   grid-column: 1 / -1;
 }
 
+.book-after-book-picker {
+  position: relative;
+  display: grid;
+  gap: var(--token-space-1);
+}
+
 .book-search-panel {
   position: relative;
   display: grid;

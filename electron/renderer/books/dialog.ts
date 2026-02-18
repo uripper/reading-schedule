@@ -4,6 +4,8 @@ import { bindDialogFocus, focusFirstError } from "../a11y.js";
 import { applyLookupItem, clearForm, fillForm, parseFormBook } from "./form_state.js";
 import { ensureBookFormLayoutFields } from "./form_layout.js";
 import { getBookFormRefs } from "./form_refs.js";
+import { createAfterBookPicker } from "./after_book_picker.js";
+import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.js";
 
 function setSavingState(refs, busy) {
   refs.saveBtn.disabled = busy;
@@ -13,34 +15,11 @@ function setSavingState(refs, busy) {
   }
 }
 
-function renderBlockedByOptions(refs, books = [], currentBookId = "", selectedBookId = "") {
-  const select = refs.blockedByInput;
-  const options = [{ value: "", label: "None" }];
-  books.forEach((book) => {
-    if (!book?.book_id || book.book_id === currentBookId) {
-      return;
-    }
-    options.push({ value: String(book.book_id), label: String(book.title || book.book_id) });
-  });
-
-  const hasSelected = options.some((option) => option.value === selectedBookId);
-  if (selectedBookId && !hasSelected) {
-    options.push({ value: selectedBookId, label: `Unknown (${selectedBookId})` });
-  }
-
-  const nodes = options.map((option) => {
-    const node = document.createElement("option");
-    node.value = option.value;
-    node.textContent = option.label;
-    return node;
-  });
-  select.replaceChildren(...nodes);
-  select.value = selectedBookId || "";
-}
-
 export function createBookDialog(onSubmit, { getBooks = () => [] } = {}) {
   ensureBookFormLayoutFields();
   const refs = getBookFormRefs();
+  bindShelfPicker(refs);
+  const afterBookPicker = createAfterBookPicker(refs, getBooks);
   const dialogFocus = bindDialogFocus(refs.dialog, { initialFocusSelector: "#bookTitleInput" });
   const lookupControl = bindBookLookup({
     searchInput: refs.searchInput,
@@ -53,7 +32,8 @@ export function createBookDialog(onSubmit, { getBooks = () => [] } = {}) {
   const open = (book = null) => {
     dialogFocus.rememberOpener();
     clearForm(refs, lookupControl);
-    renderBlockedByOptions(refs, getBooks(), book?.book_id || "", book?.blocked_by || "");
+    afterBookPicker.openForBook(book);
+    renderShelfPicker(refs, getBooks(), book?.shelf || "");
     refs.dialogTitle.textContent = "Add Book";
     if (book) {
       refs.dialogTitle.textContent = "Edit Book";
