@@ -44,13 +44,16 @@ node_modules/
 .eslintcache
 *.tsbuildinfo
 coverage/
-dist/
 .vite/
 
 # Project build outputs
+/dist/
 electron/styles/generated/
 electron/tokens/dist/
+electron/dist/
 apps/*/dist/
+packages/*/dist/
+services/*/dist/
 apps/client/.vite/
 
 # Capacitor / mobile build outputs
@@ -70,3 +73,4 @@ data/books.csv
 .sourcery.yaml
 roadmap.md
 pnpm-lock.yaml
+.gitignore
