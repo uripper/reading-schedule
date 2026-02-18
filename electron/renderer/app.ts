@@ -40,7 +40,7 @@ function totalsFromSummary(summary) {
 }
 
 function normalizePreferences(raw = {}) {
-  let theme = DEFAULT_PREFERENCES.theme;
+  let {theme} = DEFAULT_PREFERENCES;
   if (["system", "light", "dark"].includes(raw.theme)) {
     theme = raw.theme;
   }
@@ -70,7 +70,9 @@ function normalizeFeatureFlags(raw = {}) {
 function normalizeScheduleCompletions(raw = {}) {
   const out = {};
   Object.entries(raw || {}).forEach(([key, value]) => {
-    if (!key) return;
+    if (!key) {
+      return;
+    }
     out[key] = Boolean(value);
   });
   return out;
@@ -122,9 +124,9 @@ function draftData() {
     sessions = sessionsUI.getSessions();
   }
   return {
+    sessions,
     books: collectBooks(),
     settings: collectSettings(),
-    sessions,
     preferences: state.preferences,
     feature_flags: state.featureFlags,
     schedule_completions: state.scheduleCompletions,
@@ -134,7 +136,7 @@ function draftData() {
 
 async function saveStateSafe() {
   try {
-    const result = await window.plannerApi.saveState(draftData());
+    const result = await globalThis.plannerApi.saveState(draftData());
     if (result?.ok === false) {
       addLog(`Save failed: ${result.error || "Unknown state persistence error"}`);
       return false;
@@ -147,8 +149,12 @@ async function saveStateSafe() {
 }
 
 function queuePersist() {
-  if (!state.ready) return;
-  if (persistTimer) clearTimeout(persistTimer);
+  if (!state.ready) {
+    return;
+  }
+  if (persistTimer) {
+    clearTimeout(persistTimer);
+  }
   persistTimer = setTimeout(() => {
     void saveStateSafe();
   }, 300);
@@ -228,7 +234,7 @@ async function run() {
 
     setStatus("Generating plan...");
     const payload = { planner: "mip", books: payloadBooks, settings: collectSettings() };
-    const data = await window.plannerApi.generate(payload);
+    const data = await globalThis.plannerApi.generate(payload);
 
     state.scheduleCompletions = {};
     state.lastResult = {
@@ -315,12 +321,12 @@ async function init() {
   });
 
   try {
-    const saved = await window.plannerApi.loadState();
+    const saved = await globalThis.plannerApi.loadState();
     let source;
     if (saved?.settings && saved?.books) {
       source = saved;
     } else {
-      source = await window.plannerApi.sample();
+      source = await globalThis.plannerApi.sample();
     }
 
     fillSettings(source.settings);
@@ -359,4 +365,4 @@ async function init() {
   el("viewScheduleFromTodayBtn").onclick = () => activateTab("schedule", { focusPanel: true });
 }
 
-init();
+await init();
