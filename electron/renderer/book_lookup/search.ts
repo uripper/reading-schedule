@@ -3,6 +3,46 @@ import { describeLookup, placeholderCoverSvg } from "./helpers.js";
 
 const LOOKUP_DELAY_MS = 260;
 const RESULT_LIMIT = 8;
+const MIN_QUERY_LENGTH = 2;
+
+function handleLookupKeydown(event, currentItems, activeIndex, setActiveIndex, selectItem, clearResults, searchInput) {
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    if (!currentItems.length) {
+      return;
+    }
+    if (activeIndex < 0) {
+      setActiveIndex(0);
+    } else {
+      setActiveIndex(activeIndex + 1);
+    }
+    return;
+  }
+  if (event.key === "ArrowUp") {
+    event.preventDefault();
+    if (!currentItems.length) {
+      return;
+    }
+    if (activeIndex < 0) {
+      setActiveIndex(currentItems.length - 1);
+    } else {
+      setActiveIndex(activeIndex - 1);
+    }
+    return;
+  }
+  if (event.key === "Enter") {
+    if (activeIndex < 0 || !currentItems.length) {
+      return;
+    }
+    event.preventDefault();
+    selectItem(activeIndex);
+    return;
+  }
+  if (event.key === "Escape") {
+    clearResults();
+    searchInput.blur();
+  }
+}
 
 function optionId(resultsEl, index) {
   return `${resultsEl.id || "lookup-results"}-option-${index}`;
@@ -75,7 +115,9 @@ export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
 
   const selectItem = (index) => {
     const item = currentItems[index];
-    if (!item) return;
+    if (!item) {
+      return;
+    }
     searchInput.value = item.title || "";
     metaEl.textContent = describeLookup(item);
     clearResults();
@@ -117,7 +159,9 @@ export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
     if (event.target instanceof HTMLElement) {
       target = event.target.closest(".book-result");
     }
-    if (!target) return;
+    if (!target) {
+      return;
+    }
     setActiveIndex(Number(target.dataset.resultIndex));
   });
 
@@ -126,14 +170,18 @@ export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
     if (event.target instanceof HTMLElement) {
       target = event.target.closest(".book-result");
     }
-    if (!target) return;
+    if (!target) {
+      return;
+    }
     selectItem(Number(target.dataset.resultIndex));
   });
 
   searchInput.addEventListener("input", () => {
     const q = searchInput.value.trim();
-    if (timer) clearTimeout(timer);
-    if (q.length < 2) {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    if (q.length < MIN_QUERY_LENGTH) {
       clearResults();
       metaEl.textContent = "";
       return;
@@ -142,8 +190,10 @@ export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
       token += 1;
       const current = token;
       try {
-        const items = (await window.plannerApi.searchBooks(q)).slice(0, RESULT_LIMIT);
-        if (current !== token) return;
+        const items = (await globalThis.plannerApi.searchBooks(q)).slice(0, RESULT_LIMIT);
+        if (current !== token) {
+          return;
+        }
         currentItems = items;
         activeIndex = -1;
         if (items.length) {
@@ -157,7 +207,9 @@ export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
         refreshResults();
         metaEl.textContent = "Select a result to fill details.";
       } catch {
-        if (current !== token) return;
+        if (current !== token) {
+          return;
+        }
         clearResults();
         metaEl.textContent = "Lookup unavailable; enter values manually.";
       }
@@ -165,41 +217,16 @@ export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
   });
 
   searchInput.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-      if (!currentItems.length) return;
-      if (activeIndex < 0) {
-        setActiveIndex(0);
-      } else {
-        setActiveIndex(activeIndex + 1);
-      }
-      return;
-    }
-    if (event.key === "ArrowUp") {
-      event.preventDefault();
-      if (!currentItems.length) return;
-      if (activeIndex < 0) {
-        setActiveIndex(currentItems.length - 1);
-      } else {
-        setActiveIndex(activeIndex - 1);
-      }
-      return;
-    }
-    if (event.key === "Enter") {
-      if (activeIndex < 0 || !currentItems.length) return;
-      event.preventDefault();
-      selectItem(activeIndex);
-      return;
-    }
-    if (event.key === "Escape") {
-      clearResults();
-      searchInput.blur();
-    }
+    handleLookupKeydown(event, currentItems, activeIndex, setActiveIndex, selectItem, clearResults, searchInput);
   });
 
   const onDocClick = (event) => {
-    if (!(event.target instanceof Node)) return;
-    if (event.target === searchInput || resultsEl.contains(event.target)) return;
+    if (!(event.target instanceof Node)) {
+      return;
+    }
+    if (event.target === searchInput || resultsEl.contains(event.target)) {
+      return;
+    }
     clearResults();
   };
 

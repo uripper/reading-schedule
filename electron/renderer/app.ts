@@ -22,6 +22,7 @@ const DEFAULT_FEATURE_FLAGS = {
   socialEnabled: false,
   recommendationsEnabled: false,
 };
+const PERSIST_DELAY_MS = 300;
 
 const state = {
   lastResult: null,
@@ -40,7 +41,7 @@ function totalsFromSummary(summary) {
 }
 
 function normalizePreferences(raw = {}) {
-  let {theme} = DEFAULT_PREFERENCES;
+  let { theme } = DEFAULT_PREFERENCES;
   if (["system", "light", "dark"].includes(raw.theme)) {
     theme = raw.theme;
   }
@@ -157,7 +158,7 @@ function queuePersist() {
   }
   persistTimer = setTimeout(() => {
     void saveStateSafe();
-  }, 300);
+  }, PERSIST_DELAY_MS);
 }
 
 function applyExperienceSettings() {
@@ -222,15 +223,21 @@ function bindExperienceSettings() {
 
 function activateSessionsAndStartTimer() {
   const next = firstPlannedRow(state.lastResult?.schedule || []);
-  if (next?.book_id && sessionsUI) sessionsUI.selectBookById(next.book_id);
+  if (next?.book_id && sessionsUI) {
+    sessionsUI.selectBookById(next.book_id);
+  }
   activateTab("sessions", { focusPanel: true });
-  if (sessionsUI) sessionsUI.startTimer();
+  if (sessionsUI) {
+    sessionsUI.startTimer();
+  }
 }
 
 async function run() {
   try {
     const payloadBooks = collectBooks();
-    if (!payloadBooks.length) throw new Error("Add at least one book with pages or words before generating.");
+    if (!payloadBooks.length) {
+      throw new Error("Add at least one book with pages or words before generating.");
+    }
 
     setStatus("Generating plan...");
     const payload = { planner: "mip", books: payloadBooks, settings: collectSettings() };
@@ -246,7 +253,9 @@ async function run() {
     renderCalendar(data.schedule, totalsFromSummary(data.summary));
     activateTab("schedule", { focusPanel: true });
 
-    if (data.summary.feasibility_warning) addLog(data.summary.feasibility_warning);
+    if (data.summary.feasibility_warning) {
+      addLog(data.summary.feasibility_warning);
+    }
     addLog(`Status ${data.summary.status}. Planned ${data.summary.total_planned_minutes}/${data.summary.total_available_minutes} minutes.`);
 
     updateTodayDashboard();
@@ -268,7 +277,9 @@ async function init() {
 
   initSettingsGrid();
   bindTabs((name) => {
-    if (name === "sessions") sessionsUI?.refreshBooks();
+    if (name === "sessions") {
+      sessionsUI?.refreshBooks();
+    }
   });
 
   bindBooksUI(() => {

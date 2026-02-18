@@ -37,9 +37,7 @@ def main() -> int:
     summary = build_summary(books, settings, result)
     print(format_summary(summary))
     print(f"Wrote {len(rows)} schedule rows to {args.output}")
-    if result.status in {"OPTIMAL", "FEASIBLE"}:
-        return 0
-    return 2
+    return 0 if result.status in {"OPTIMAL", "FEASIBLE"} else 2
 
 
 if __name__ == "__main__":
