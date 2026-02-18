@@ -21,38 +21,54 @@ def plan_greedy(books: list[Book], settings: Settings) -> dict[tuple[str, date],
             continue
         ordered = sorted(books, key=lambda b: _sort_key(b, remaining))
         used: list[Book] = []
-
-        for book in ordered:
-            if len(used) >= daily_book_cap:
-                break
-            if cap < book.min_blocks_per_session:
-                continue
-            if remaining[book.book_id] <= 0:
-                continue
-            room = _room(assignments, book.book_id, day, limits[book.book_id])
-            if room < book.min_blocks_per_session:
-                continue
-            _add(assignments, book, day, book.min_blocks_per_session)
-            cap -= book.min_blocks_per_session
-            remaining[book.book_id] = max(0.0, remaining[book.book_id] - book.min_blocks_per_session * wpb[book.book_id])
-            used.append(book)
-
-        while cap > 0:
-            if active := [b for b in used if remaining[b.book_id] > 0 and _room(assignments, b.book_id, day, limits[b.book_id]) > 0]:
-                top = min(active, key=lambda b: (b.priority, b.difficulty, b.book_id))
-                _add(assignments, top, day, 1)
-                cap -= 1
-                remaining[top.book_id] = max(0.0, remaining[top.book_id] - wpb[top.book_id])
-                continue
-            nxt = _next_book(ordered, used, remaining, cap, daily_book_cap, assignments, day, limits)
-            if not nxt:
-                break
-            _add(assignments, nxt, day, nxt.min_blocks_per_session)
-            cap -= nxt.min_blocks_per_session
-            remaining[nxt.book_id] = max(0.0, remaining[nxt.book_id] - nxt.min_blocks_per_session * wpb[nxt.book_id])
-            used.append(nxt)
+        cap = _seed_day(ordered, used, remaining, assignments, limits, wpb, day, cap, daily_book_cap)
+        _fill_day(ordered, used, remaining, assignments, limits, wpb, day, cap, daily_book_cap)
 
     return {k: v for k, v in assignments.items() if v > 0}
+
+
+def _seed_day(
+    ordered: list[Book], used: list[Book], remaining: dict[str, float], assignments: dict[tuple[str, date], int], limits: dict[str, int], wpb: dict[str, int], day: date, cap: int, daily_book_cap: int
+) -> int:
+    for book in ordered:
+        if len(used) >= daily_book_cap:
+            break
+        if cap < book.min_blocks_per_session or remaining[book.book_id] <= 0:
+            continue
+        room = _room(assignments, book.book_id, day, limits[book.book_id])
+        if room < book.min_blocks_per_session:
+            continue
+        cap = _assign_blocks(assignments, remaining, wpb, book, day, cap, book.min_blocks_per_session)
+        used.append(book)
+    return cap
+
+
+def _fill_day(
+    ordered: list[Book], used: list[Book], remaining: dict[str, float], assignments: dict[tuple[str, date], int], limits: dict[str, int], wpb: dict[str, int], day: date, cap: int, daily_book_cap: int
+) -> None:
+    while cap > 0:
+        if active := [
+            b
+            for b in used
+            if remaining[b.book_id] > 0
+            and _room(assignments, b.book_id, day, limits[b.book_id]) > 0
+        ]:
+            top = min(active, key=lambda b: (b.priority, b.difficulty, b.book_id))
+            cap = _assign_blocks(assignments, remaining, wpb, top, day, cap, 1)
+            continue
+        nxt = _next_book(ordered, used, remaining, cap, daily_book_cap, assignments, day, limits)
+        if not nxt:
+            return
+        cap = _assign_blocks(assignments, remaining, wpb, nxt, day, cap, nxt.min_blocks_per_session)
+        used.append(nxt)
+
+
+def _assign_blocks(
+    assignments: dict[tuple[str, date], int], remaining: dict[str, float], wpb: dict[str, int], book: Book, day: date, cap: int, blocks: int
+) -> int:
+    _add(assignments, book, day, blocks)
+    remaining[book.book_id] = max(0.0, remaining[book.book_id] - blocks * wpb[book.book_id])
+    return cap - blocks
 
 
 def _sort_key(book: Book, remaining: dict[str, float]) -> tuple[int, date, float, str]:
