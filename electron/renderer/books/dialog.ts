@@ -16,7 +16,9 @@ function renderBlockedByOptions(refs, books = [], currentBookId = "", selectedBo
   const select = refs.blockedByInput;
   const options = [{ value: "", label: "None" }];
   books.forEach((book) => {
-    if (!book?.book_id || book.book_id === currentBookId) return;
+    if (!book?.book_id || book.book_id === currentBookId) {
+      return;
+    }
     options.push({
       value: String(book.book_id),
       label: String(book.title || book.book_id),
@@ -57,7 +59,9 @@ export function createBookDialog(onSubmit, { getBooks = () => [] } = {}) {
     if (book) {
       refs.dialogTitle.textContent = "Edit Book";
     }
-    if (book) fillForm(refs, book);
+    if (book) {
+      fillForm(refs, book);
+    }
     refs.dialog.showModal();
     dialogFocus.focusInitialTarget();
   };
@@ -70,7 +74,9 @@ export function createBookDialog(onSubmit, { getBooks = () => [] } = {}) {
       close();
     } catch (error) {
       refs.lookupMeta.textContent = error?.message || "Could not save this book.";
-      if (!focusFirstError(refs.form)) refs.titleInput.focus();
+      if (!focusFirstError(refs.form)) {
+        refs.titleInput.focus();
+      }
     } finally {
       setSavingState(refs, false);
     }

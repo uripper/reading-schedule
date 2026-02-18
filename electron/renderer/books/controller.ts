@@ -21,13 +21,17 @@ function findBook(bookId) {
 
 export function getBookById(bookId) {
   const book = findBook(bookId);
-  if (!book) return null;
+  if (!book) {
+    return null;
+  }
   return { ...book };
 }
 
 export function updateBookProgress(bookId, updates = {}) {
   const idx = books.findIndex((book) => book.book_id === bookId);
-  if (idx < 0) return null;
+  if (idx < 0) {
+    return null;
+  }
 
   const current = books[idx];
   const next = { ...current };
@@ -67,16 +71,20 @@ export function updateBookProgress(bookId, updates = {}) {
 
 function render() {
   renderBookGrid({
+    books,
     grid: refs.grid,
     empty: refs.empty,
-    books,
     onEdit: (bookId) => {
       const book = findBook(bookId);
-      if (book) dialog.open(book);
+      if (book) {
+        dialog.open(book);
+      }
     },
     onRemove: (bookId) => {
       const next = books.filter((book) => book.book_id !== bookId);
-      if (next.length === books.length) return;
+      if (next.length === books.length) {
+        return;
+      }
       books = next;
       render();
       onBooksChanged();
@@ -85,9 +93,11 @@ function render() {
 }
 
 async function withDownloadedCover(book) {
-  if (!book.cover_url || book.cover_local_path) return book;
+  if (!book.cover_url || book.cover_local_path) {
+    return book;
+  }
   try {
-    const localCover = await window.plannerApi.downloadCover(book.cover_url, book.book_id);
+    const localCover = await globalThis.plannerApi.downloadCover(book.cover_url, book.book_id);
     if (localCover) {
       return { ...book, cover_local_path: localCover };
     }
@@ -100,8 +110,11 @@ async function withDownloadedCover(book) {
 async function saveBook(book) {
   const hydrated = await withDownloadedCover(book);
   const idx = books.findIndex((row) => row.book_id === hydrated.book_id);
-  if (idx >= 0) books[idx] = hydrated;
-  else books.push(hydrated);
+  if (idx >= 0) {
+    books[idx] = hydrated;
+  } else {
+    books.push(hydrated);
+  }
   render();
   onBooksChanged();
 }
