@@ -7,7 +7,7 @@ import { createSessionRefs } from "./sessions/refs.js";
 import { createTimerController } from "./sessions/timer.js";
 import { minutesForDay, streakFromSessions, todayKey } from "./sessions/utils.js";
 
-export { normalizeSessions };
+
 
 export function initSessionsUI({
   getBooks,
@@ -81,3 +81,5 @@ export function initSessionsUI({
     },
   };
 }
+
+export {normalizeSessions} from "./sessions/normalize.js";
