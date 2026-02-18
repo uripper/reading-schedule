@@ -69,3 +69,4 @@ data/books.csv
 # Local tooling config
 .sourcery.yaml
 roadmap.md
+pnpm-lock.yaml
