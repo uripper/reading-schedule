@@ -3,6 +3,14 @@
   justify-content: space-between;
 }
 
+.books-controls {
+  margin-left: auto;
+}
+
+.books-control {
+  min-width: 140px;
+}
+
 .books-grid {
   display: grid;
   gap: var(--token-space-3);

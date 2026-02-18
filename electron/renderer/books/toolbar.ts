@@ -1,21 +1,7 @@
 // @ts-nocheck
 import { q } from "../dom.js";
 import { SHELF_FILTER_ALL, SHELF_FILTER_UNSHELVED, uniqueShelves } from "./shelf.js";
-import {
-  SORT_BY_AUTHOR,
-  SORT_BY_DEADLINE,
-  SORT_BY_DIFFICULTY,
-  SORT_BY_PAGES_READ,
-  SORT_BY_PAGES_TOTAL,
-  SORT_BY_PRIORITY,
-  SORT_BY_PROGRESS,
-  SORT_BY_SHELF,
-  SORT_BY_TITLE,
-  SORT_BY_WORDS_TOTAL,
-  SORT_DIRECTION_ASC,
-  SORT_DIRECTION_DESC,
-} from "./sort.js";
-
+import { SORT_BY_AUTHOR, SORT_BY_DEADLINE, SORT_BY_DIFFICULTY, SORT_BY_PAGES_READ, SORT_BY_PAGES_TOTAL, SORT_BY_PRIORITY, SORT_BY_PROGRESS, SORT_BY_SHELF, SORT_BY_TITLE, SORT_BY_WORDS_TOTAL, SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from "./sort.js";
 const SORT_OPTIONS = [
   { value: SORT_BY_TITLE, label: "Title" },
   { value: SORT_BY_AUTHOR, label: "Author" },
@@ -65,7 +51,6 @@ export function ensureBooksToolbarControls(toolbar) {
   const wrap = findOrCreateControlWrap(toolbar);
   const shelf = createLabeledSelect("Shelf", "booksShelfFilterSelect", []);
   const sortBy = createLabeledSelect("Sort", "booksSortBySelect", SORT_OPTIONS);
-
   const sortDirectionBtn = document.createElement("button");
   sortDirectionBtn.type = "button";
   sortDirectionBtn.className = "btn";
@@ -92,7 +77,6 @@ export function updateShelfFilterOptions(shelfFilterSelect, books, selectedValue
   uniqueShelves(books).forEach((shelfName) => {
     shelfOptions.push({ value: shelfName, label: shelfName });
   });
-
   shelfFilterSelect.replaceChildren(...shelfOptions.map((option) => createOption(option.value, option.label)));
   const hasSelectedValue = shelfOptions.some((option) => option.value === selectedValue);
   shelfFilterSelect.value = SHELF_FILTER_ALL;
