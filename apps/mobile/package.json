@@ -1,0 +1,23 @@
+{
+  "name": "@reading-schedule/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build:web": "pnpm --filter @reading-schedule/client build",
+    "sync": "pnpm run build:web && cap sync",
+    "open:ios": "cap open ios",
+    "open:android": "cap open android",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "echo 'mobile test: add capacitor e2e later'",
+    "lint": "echo 'mobile lint: no-op'"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/ios": "^6.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}
