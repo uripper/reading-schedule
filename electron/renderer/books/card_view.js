@@ -78,6 +78,9 @@ function bindCardEvents(grid, { onEdit, onRemove }) {
 
 export function renderBookGrid({ grid, empty, books, onEdit, onRemove }) {
   grid.replaceChildren(...books.map(createCard));
-  empty.style.display = books.length ? "none" : "block";
+  empty.style.display = "block";
+  if (books.length) {
+    empty.style.display = "none";
+  }
   bindCardEvents(grid, { onEdit, onRemove });
 }

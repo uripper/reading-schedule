@@ -5,7 +5,10 @@ import { getBookFormRefs } from "./form_refs.js";
 
 function setSavingState(refs, busy) {
   refs.saveBtn.disabled = busy;
-  refs.saveBtn.textContent = busy ? "Saving..." : "Save Book";
+  refs.saveBtn.textContent = "Save Book";
+  if (busy) {
+    refs.saveBtn.textContent = "Saving...";
+  }
 }
 
 export function createBookDialog(onSubmit) {
@@ -22,7 +25,10 @@ export function createBookDialog(onSubmit) {
   const open = (book = null) => {
     dialogFocus.rememberOpener();
     clearForm(refs, lookupControl);
-    refs.dialogTitle.textContent = book ? "Edit Book" : "Add Book";
+    refs.dialogTitle.textContent = "Add Book";
+    if (book) {
+      refs.dialogTitle.textContent = "Edit Book";
+    }
     if (book) fillForm(refs, book);
     refs.dialog.showModal();
     dialogFocus.focusInitialTarget();

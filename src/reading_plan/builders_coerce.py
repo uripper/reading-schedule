@@ -18,4 +18,6 @@ def to_float(raw: Any, field: str) -> float:
 
 
 def optional_int(raw: Any, field: str) -> int | None:
-    return None if raw in (None, "") else to_int(raw, field)
+    if raw in (None, ""):
+        return None
+    return to_int(raw, field)

@@ -28,14 +28,26 @@ export function clearForm(refs, lookupControl) {
 export function fillForm(refs, book) {
   refs.bookId.value = book.book_id;
   refs.titleInput.value = book.title || "";
-  refs.wordsInput.value = book.words_total ? String(book.words_total) : "";
-  refs.pagesTotalInput.value = book.pages_total ? String(book.pages_total) : "";
-  refs.pagesReadInput.value = book.pages_read !== null && book.pages_read !== undefined ? String(book.pages_read) : "";
+  refs.wordsInput.value = "";
+  if (book.words_total) {
+    refs.wordsInput.value = String(book.words_total);
+  }
+  refs.pagesTotalInput.value = "";
+  if (book.pages_total) {
+    refs.pagesTotalInput.value = String(book.pages_total);
+  }
+  refs.pagesReadInput.value = "";
+  if (book.pages_read !== null && book.pages_read !== undefined) {
+    refs.pagesReadInput.value = String(book.pages_read);
+  }
   refs.progressInput.value = String(book.progress_percent ?? 0);
   refs.priorityInput.value = String(book.priority || 3);
   refs.difficultyInput.value = String(book.difficulty || 3);
   refs.minBlocksInput.value = String(book.min_blocks_per_session || 1);
-  refs.maxMinutesInput.value = book.max_minutes_per_day ? String(book.max_minutes_per_day) : "";
+  refs.maxMinutesInput.value = "";
+  if (book.max_minutes_per_day) {
+    refs.maxMinutesInput.value = String(book.max_minutes_per_day);
+  }
   refs.deadlineInput.value = book.deadline || "";
   refs.coverUrl.value = book.cover_url || "";
   refs.coverLocal.value = book.cover_local_path || "";

@@ -2,7 +2,10 @@ const PLACEHOLDER = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg
 
 function toInt(raw) {
   const n = Number(raw);
-  return Number.isFinite(n) ? Math.max(0, Math.round(n)) : 0;
+  if (Number.isFinite(n)) {
+    return Math.max(0, Math.round(n));
+  }
+  return 0;
 }
 
 export function placeholderCoverSvg() {
@@ -11,7 +14,10 @@ export function placeholderCoverSvg() {
 
 export function describeLookup(item) {
   const bits = [item.source || "", item.author || "", item.year || ""].filter(Boolean);
-  return bits.length ? `Selected from ${bits.join(" · ")}` : "Selected from lookup results.";
+  if (bits.length) {
+    return `Selected from ${bits.join(" · ")}`;
+  }
+  return "Selected from lookup results.";
 }
 
 export function noteFromLookup(item) {

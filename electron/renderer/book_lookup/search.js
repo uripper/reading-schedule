@@ -16,14 +16,20 @@ function renderResults(resultsEl, items, placeholder, activeIndex) {
     btn.dataset.resultIndex = String(index);
     btn.id = optionId(resultsEl, index);
     btn.setAttribute("role", "option");
-    btn.setAttribute("aria-selected", activeIndex === index ? "true" : "false");
+    btn.setAttribute("aria-selected", "false");
+    if (activeIndex === index) {
+      btn.setAttribute("aria-selected", "true");
+    }
     btn.classList.toggle("is-active", activeIndex === index);
 
     const thumb = document.createElement("img");
     thumb.className = "book-result-cover";
     thumb.loading = "lazy";
     thumb.src = item.cover_url || placeholder;
-    thumb.alt = item.title ? `Cover for ${item.title}` : "Book cover";
+    thumb.alt = "Book cover";
+    if (item.title) {
+      thumb.alt = `Cover for ${item.title}`;
+    }
     thumb.onerror = () => {
       thumb.onerror = null;
       thumb.src = placeholder;
@@ -35,7 +41,11 @@ function renderResults(resultsEl, items, placeholder, activeIndex) {
     title.textContent = item.title || "Untitled";
     const meta = document.createElement("span");
     meta.className = "book-result-meta";
-    meta.textContent = [item.author || "", item.year || "", item.pages_estimate ? `${item.pages_estimate} pages` : ""].filter(Boolean).join(" · ");
+    let pagesLabel = "";
+    if (item.pages_estimate) {
+      pagesLabel = `${item.pages_estimate} pages`;
+    }
+    meta.textContent = [item.author || "", item.year || "", pagesLabel].filter(Boolean).join(" · ");
 
     textWrap.append(title, meta);
     btn.append(thumb, textWrap);
@@ -44,7 +54,10 @@ function renderResults(resultsEl, items, placeholder, activeIndex) {
 }
 
 function updateComboboxA11y(searchInput, resultsEl, hasItems, activeIndex) {
-  searchInput.setAttribute("aria-expanded", hasItems ? "true" : "false");
+  searchInput.setAttribute("aria-expanded", "false");
+  if (hasItems) {
+    searchInput.setAttribute("aria-expanded", "true");
+  }
   if (!hasItems || activeIndex < 0) {
     searchInput.removeAttribute("aria-activedescendant");
     return;
@@ -99,13 +112,19 @@ export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
   };
 
   resultsEl.addEventListener("mousemove", (event) => {
-    const target = event.target instanceof HTMLElement ? event.target.closest(".book-result") : null;
+    let target = null;
+    if (event.target instanceof HTMLElement) {
+      target = event.target.closest(".book-result");
+    }
     if (!target) return;
     setActiveIndex(Number(target.dataset.resultIndex));
   });
 
   resultsEl.addEventListener("click", (event) => {
-    const target = event.target instanceof HTMLElement ? event.target.closest(".book-result") : null;
+    let target = null;
+    if (event.target instanceof HTMLElement) {
+      target = event.target.closest(".book-result");
+    }
     if (!target) return;
     selectItem(Number(target.dataset.resultIndex));
   });
@@ -125,7 +144,10 @@ export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
         const items = (await window.plannerApi.searchBooks(q)).slice(0, RESULT_LIMIT);
         if (current !== token) return;
         currentItems = items;
-        activeIndex = items.length ? 0 : -1;
+        activeIndex = -1;
+        if (items.length) {
+          activeIndex = 0;
+        }
         if (!items.length) {
           clearResults();
           metaEl.textContent = "No matches found.";
@@ -145,13 +167,21 @@ export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
     if (event.key === "ArrowDown") {
       event.preventDefault();
       if (!currentItems.length) return;
-      setActiveIndex(activeIndex < 0 ? 0 : activeIndex + 1);
+      if (activeIndex < 0) {
+        setActiveIndex(0);
+      } else {
+        setActiveIndex(activeIndex + 1);
+      }
       return;
     }
     if (event.key === "ArrowUp") {
       event.preventDefault();
       if (!currentItems.length) return;
-      setActiveIndex(activeIndex < 0 ? currentItems.length - 1 : activeIndex - 1);
+      if (activeIndex < 0) {
+        setActiveIndex(currentItems.length - 1);
+      } else {
+        setActiveIndex(activeIndex - 1);
+      }
       return;
     }
     if (event.key === "Enter") {

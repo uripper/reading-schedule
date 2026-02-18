@@ -8,7 +8,10 @@ export function normalizeBook(book = {}) {
   let pagesRead = toOptionalInt(book.pages_read);
   if (pagesTotal && pagesRead === null) pagesRead = Math.round((progressRaw / 100) * pagesTotal);
   if (pagesTotal && pagesRead !== null) pagesRead = clamp(pagesRead, 0, pagesTotal);
-  const progress = pagesTotal ? Math.round((((pagesRead || 0) / pagesTotal) * 100) * 10) / 10 : Math.round(progressRaw * 10) / 10;
+  let progress = Math.round(progressRaw * 10) / 10;
+  if (pagesTotal) {
+    progress = Math.round((((pagesRead || 0) / pagesTotal) * 100) * 10) / 10;
+  }
 
   return {
     book_id: String(book.book_id || "").trim() || uid(),

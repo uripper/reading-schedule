@@ -18,23 +18,30 @@ def search_books(query: str) -> list[dict[str, Any]]:
     except Exception:
         return []
 
-    docs = payload.get("docs", []) if isinstance(payload, dict) else []
+    docs: Any = []
+    if isinstance(payload, dict):
+        docs = payload.get("docs", [])
     out: list[dict[str, Any]] = []
     for row in docs:
         if not isinstance(row, dict):
             continue
         author_names = row.get("author_name", [])
-        author = author_names[0] if isinstance(author_names, list) and author_names else ""
+        author = ""
+        if isinstance(author_names, list) and author_names:
+            author = author_names[0]
         cover_id = row.get("cover_i")
-        cover_url = f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg" if isinstance(cover_id, int) else ""
+        cover_url = ""
+        if isinstance(cover_id, int):
+            cover_url = f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg"
+        pages_estimate = None
+        if isinstance(row.get("number_of_pages_median"), (int, float)):
+            pages_estimate = int(row["number_of_pages_median"])
         out.append(
             {
                 "title": str(row.get("title") or "Untitled"),
                 "author": str(author),
                 "year": str(row.get("first_publish_year") or ""),
-                "pages_estimate": int(row["number_of_pages_median"])
-                if isinstance(row.get("number_of_pages_median"), (int, float))
-                else None,
+                "pages_estimate": pages_estimate,
                 "cover_url": cover_url,
                 "source": "Open Library",
             }
