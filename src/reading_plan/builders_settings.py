@@ -13,11 +13,14 @@ def settings_from_data(data: dict[str, Any]) -> Settings:
     raw_diff = data.get("difficulty_multiplier", DEFAULT_DIFFICULTY_MULTIPLIER)
     diff = {int(k): float(v) for k, v in raw_diff.items()}
     minutes_per_day = data.get("minutes_per_day")
+    parsed_minutes_per_day = None
+    if minutes_per_day not in (None, ""):
+        parsed_minutes_per_day = to_int(minutes_per_day, "minutes_per_day")
 
     settings = Settings(
         start_date=parse_date(data["start_date"]),
         end_date=parse_date(data["end_date"]),
-        minutes_per_day=None if minutes_per_day in (None, "") else to_int(minutes_per_day, "minutes_per_day"),
+        minutes_per_day=parsed_minutes_per_day,
         minutes_by_weekday=by_weekday,
         days_off={parse_date(d) for d in data.get("days_off", [])},
         wpm_base=to_int(data["wpm_base"], "wpm_base"),

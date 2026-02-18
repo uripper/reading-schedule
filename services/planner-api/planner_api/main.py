@@ -78,7 +78,9 @@ def search_books_v1(q: str = Query(default="", min_length=0, max_length=120)) ->
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(_request, exc: HTTPException) -> JSONResponse:
-    message = str(exc.detail) if exc.detail else "Request failed"
+    message = "Request failed"
+    if exc.detail:
+        message = str(exc.detail)
     return _error("HTTP_ERROR", message, exc.status_code)
 
 

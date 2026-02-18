@@ -40,7 +40,10 @@ async function withDownloadedCover(book) {
   if (!book.cover_url || book.cover_local_path) return book;
   try {
     const localCover = await window.plannerApi.downloadCover(book.cover_url, book.book_id);
-    return localCover ? { ...book, cover_local_path: localCover } : book;
+    if (localCover) {
+      return { ...book, cover_local_path: localCover };
+    }
+    return book;
   } catch {
     return book;
   }

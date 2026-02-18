@@ -3,7 +3,10 @@ import { formatInt } from "./utils.js";
 
 export function progressLabel(book) {
   const pct = Number(book.progress_percent || 0);
-  const pages = book.pages_total ? `${formatInt(book.pages_read || 0)}/${formatInt(book.pages_total)} pages` : "Pages n/a";
+  let pages = "Pages n/a";
+  if (book.pages_total) {
+    pages = `${formatInt(book.pages_read || 0)}/${formatInt(book.pages_total)} pages`;
+  }
   return `${pct.toFixed(1)}% · ${pages}`;
 }
 

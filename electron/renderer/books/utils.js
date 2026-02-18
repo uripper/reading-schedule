@@ -13,13 +13,19 @@ export function clamp(value, min, max) {
 
 export function toInt(raw, fallback = 0) {
   const n = Number(raw);
-  return Number.isFinite(n) ? Math.round(n) : fallback;
+  if (Number.isFinite(n)) {
+    return Math.round(n);
+  }
+  return fallback;
 }
 
 export function toOptionalInt(raw) {
   if (raw === null || raw === undefined || raw === "") return null;
   const n = Number(raw);
-  return Number.isFinite(n) ? Math.round(n) : null;
+  if (Number.isFinite(n)) {
+    return Math.round(n);
+  }
+  return null;
 }
 
 export function toOptionalDate(raw) {
