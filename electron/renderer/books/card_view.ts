@@ -3,7 +3,7 @@ import { COVER_PLACEHOLDER } from "./constants.js";
 import { bookCoverSrc } from "./model.js";
 import { metaLabel, progressLabel, subtitle, wordsLabel } from "./presenters.js";
 
-function createCard(book) {
+function createCard(book, titleById) {
   const bookId = String(book.book_id || "");
   const title = String(book.title || "Untitled");
   const card = document.createElement("article");
@@ -42,7 +42,7 @@ function createCard(book) {
   meta.append(sub);
   const stats = document.createElement("div");
   stats.className = "book-stats";
-  [progressLabel(book), wordsLabel(book), metaLabel(book)].forEach((text) => {
+  [progressLabel(book), wordsLabel(book), metaLabel(book, titleById)].forEach((text) => {
     const span = document.createElement("span");
     span.textContent = text;
     stats.append(span);
@@ -77,8 +77,13 @@ function bindCardEvents(grid, { onEdit, onRemove }) {
   });
 }
 
-export function renderBookGrid({ grid, empty, books, onEdit, onRemove }) {
-  grid.replaceChildren(...books.map(createCard));
+export function renderBookGrid({ grid, empty, books, allBooks = [], onEdit, onRemove }) {
+  const sourceBooks = books;
+  if (allBooks.length) {
+    sourceBooks = allBooks;
+  }
+  const titleById = Object.fromEntries(sourceBooks.map((book) => [book.book_id, book.title]));
+  grid.replaceChildren(...books.map((book) => createCard(book, titleById)));
   empty.style.display = "block";
   if (books.length) {
     empty.style.display = "none";

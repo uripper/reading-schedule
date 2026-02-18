@@ -2,6 +2,7 @@
 import { bindBookLookup, syncProgressAndPages } from "../book_lookup.js";
 import { bindDialogFocus, focusFirstError } from "../a11y.js";
 import { applyLookupItem, clearForm, fillForm, parseFormBook } from "./form_state.js";
+import { ensureBookFormLayoutFields } from "./form_layout.js";
 import { getBookFormRefs } from "./form_refs.js";
 
 function setSavingState(refs, busy) {
@@ -38,6 +39,7 @@ function renderBlockedByOptions(refs, books = [], currentBookId = "", selectedBo
 }
 
 export function createBookDialog(onSubmit, { getBooks = () => [] } = {}) {
+  ensureBookFormLayoutFields();
   const refs = getBookFormRefs();
   const dialogFocus = bindDialogFocus(refs.dialog, { initialFocusSelector: "#bookTitleInput" });
   const lookupControl = bindBookLookup({

@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { uid } from "../dom.js";
 import { clamp, toInt, toOptionalDate, toOptionalInt } from "./utils.js";
+import { normalizeShelfName } from "./shelf.js";
 
 const DEFAULT_PRIORITY = 3;
 const DEFAULT_DIFFICULTY = 3;
@@ -47,6 +48,7 @@ export function normalizeBook(book = {}) {
     max_minutes_per_day: toOptionalInt(book.max_minutes_per_day),
     deadline: toOptionalDate(book.deadline),
     blocked_by: String(book.blocked_by || "").trim() || null,
+    shelf: normalizeShelfName(book.shelf),
     cover_url: String(book.cover_url || "").trim(),
     cover_local_path: String(book.cover_local_path || "").trim(),
     lookup_note: String(book.lookup_note || "").trim(),
@@ -71,6 +73,7 @@ export function toPayloadBook(book) {
     max_minutes_per_day: book.max_minutes_per_day ?? null,
     deadline: book.deadline || null,
     blocked_by: book.blocked_by || null,
+    shelf: book.shelf || "",
     author: book.author || "",
     cover_url: book.cover_url || "",
     cover_local_path: book.cover_local_path || "",

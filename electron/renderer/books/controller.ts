@@ -3,6 +3,9 @@ import { el } from "../dom.js";
 import { renderBookGrid } from "./card_view.js";
 import { createBookDialog } from "./dialog.js";
 import { hasSchedulableLength, normalizeBook, toPayloadBook } from "./model.js";
+import { shelfFilterMatches, SHELF_FILTER_ALL } from "./shelf.js";
+import { sortBooks } from "./sort.js";
+import { ensureBooksToolbarControls, SORT_BY_TITLE, SORT_DIRECTION_ASC, SORT_DIRECTION_DESC, updateShelfFilterOptions, updateSortDirectionButton } from "./toolbar.js";
 import { clamp } from "./utils.js";
 
 let books = [];
@@ -10,9 +13,18 @@ let onBooksChanged = () => {};
 let dialog = null;
 
 const refs = {
+  toolbar: null,
   grid: null,
   empty: null,
   addBtn: null,
+  shelfFilterSelect: null,
+  sortBySelect: null,
+  sortDirectionBtn: null,
+};
+const viewState = {
+  shelfFilter: SHELF_FILTER_ALL,
+  sortBy: SORT_BY_TITLE,
+  sortDirection: SORT_DIRECTION_ASC,
 };
 
 function parseFiniteNumber(raw) {
@@ -97,8 +109,13 @@ export function updateBookProgress(bookId, updates = {}) {
 }
 
 function render() {
+  updateShelfFilterOptions(refs.shelfFilterSelect, books, viewState.shelfFilter);
+  updateSortDirectionButton(refs.sortDirectionBtn, viewState.sortDirection);
+  const visibleBooks = sortBooks(books, viewState.sortBy, viewState.sortDirection).filter((book) => {
+    return shelfFilterMatches(book, viewState.shelfFilter);
+  });
   renderBookGrid({
-    books,
+    books: visibleBooks,
     grid: refs.grid,
     empty: refs.empty,
     onEdit: (bookId) => {
@@ -157,9 +174,33 @@ export function collectBooks() {
 
 export function bindBooksUI(onChanged = () => {}) {
   onBooksChanged = onChanged;
+  refs.toolbar = document.querySelector(".books-toolbar");
+  if (!(refs.toolbar instanceof HTMLElement)) {
+    return;
+  }
   refs.grid = el("booksGrid");
   refs.empty = el("booksEmpty");
   refs.addBtn = el("addBookBtn");
+  const toolbarControls = ensureBooksToolbarControls(refs.toolbar);
+  refs.shelfFilterSelect = toolbarControls.shelfFilterSelect;
+  refs.sortBySelect = toolbarControls.sortBySelect;
+  refs.sortDirectionBtn = toolbarControls.sortDirectionBtn;
+  refs.sortBySelect.addEventListener("change", () => {
+    viewState.sortBy = refs.sortBySelect.value;
+    render();
+  });
+  refs.shelfFilterSelect.addEventListener("change", () => {
+    viewState.shelfFilter = refs.shelfFilterSelect.value;
+    render();
+  });
+  refs.sortDirectionBtn.addEventListener("click", () => {
+    let nextDirection = SORT_DIRECTION_ASC;
+    if (viewState.sortDirection === SORT_DIRECTION_ASC) {
+      nextDirection = SORT_DIRECTION_DESC;
+    }
+    viewState.sortDirection = nextDirection;
+    render();
+  });
   dialog = createBookDialog(saveBook, { getBooks: () => books });
   refs.addBtn.onclick = () => dialog.open();
   render();

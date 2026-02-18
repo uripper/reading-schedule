@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { WORDS_PER_PAGE } from "./constants.js";
+import { shelfLabelForBook } from "./shelf.js";
 import { formatInt } from "./utils.js";
 
 export function progressLabel(book) {
@@ -21,14 +22,19 @@ export function wordsLabel(book) {
   return "No word estimate";
 }
 
-export function metaLabel(book) {
+export function metaLabel(book, titleById = {}) {
   const bits = [`Priority ${book.priority}`, `Difficulty ${book.difficulty}`];
   if (book.deadline) {
     bits.push(`Due ${book.deadline}`);
   }
   if (book.blocked_by) {
-    bits.push(`After ${book.blocked_by}`);
+    let blockerLabel = book.blocked_by;
+    if (titleById[book.blocked_by]) {
+      blockerLabel = titleById[book.blocked_by];
+    }
+    bits.push(`After ${blockerLabel}`);
   }
+  bits.push(`Shelf ${shelfLabelForBook(book)}`);
   return bits.join(" · ");
 }
 
