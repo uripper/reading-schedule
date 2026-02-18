@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import Protocol
 
 from .greedy import plan_greedy
 from .types import Book, PlanResult, Settings
@@ -10,6 +11,14 @@ def solve_plan(books: list[Book], settings: Settings, planner: str = "mip") -> P
     if planner == "greedy":
         return PlanResult(planner="greedy", status="FEASIBLE", assignments=plan_greedy(books, settings))
     return _solve_mip(books, settings)
+
+
+class _CpModelStatusModule(Protocol):
+    OPTIMAL: int
+    FEASIBLE: int
+    INFEASIBLE: int
+    MODEL_INVALID: int
+    UNKNOWN: int
 
 
 def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
@@ -43,7 +52,7 @@ def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     )
 
 
-def _status_name(raw: int, cp_model: object) -> str:
+def _status_name(raw: int, cp_model: _CpModelStatusModule) -> str:
     mapping = {
         cp_model.OPTIMAL: "OPTIMAL",
         cp_model.FEASIBLE: "FEASIBLE",
