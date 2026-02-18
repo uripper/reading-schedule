@@ -22,7 +22,6 @@ import { configureAppCalendarInteractions } from "./app/calendar_interactions.js
 import { draftData, saveStateSafe } from "./app/persistence.js";
 import { runPlanGeneration } from "./app/plan.js";
 import { activateSessionsAndStartTimer, totalsFromSummary, updateTodayDashboard } from "./app/today.js";
-
 const PERSIST_DELAY_MS = 300;
 const state = {
   lastResult: null,
@@ -197,5 +196,4 @@ async function init() {
   };
   el("viewScheduleFromTodayBtn").onclick = () => activateTab("schedule", { focusPanel: true });
 }
-
 await init();
