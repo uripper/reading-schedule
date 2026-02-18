@@ -8,6 +8,12 @@ let state = {
   selectedDate: "",
   monthCellKeys: [],
 };
+let interactionHandlers = {
+  isSessionCompleted: () => false,
+  onSessionCompletionChanged: () => {},
+  onSessionProgressUpdated: () => null,
+  getBookById: () => null,
+};
 
 function monthLabel(key) {
   if (!key) return "No Schedule";
@@ -47,6 +53,18 @@ function dateHeading(dateKey) {
   return new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(date);
 }
 
+function sessionKeyFor(row) {
+  return `${row.date}|${row.session_index}|${row.book_id}`;
+}
+
+function parseOptionalNumber(value) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return null;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed)) return null;
+  return parsed;
+}
+
 function renderDetails() {
   const details = el("calendarDayDetails");
   const key = state.selectedDate;
@@ -80,6 +98,7 @@ function renderDetails() {
   rows.forEach((row) => {
     const item = document.createElement("article");
     item.className = "day-details-item";
+    const sessionKey = sessionKeyFor(row);
 
     const head = document.createElement("strong");
     head.textContent = row.title || "Untitled";
@@ -92,7 +111,75 @@ function renderDetails() {
     }
     meta.textContent = `${row.minutes} minutes planned${finishLabel}`;
 
-    item.append(head, meta);
+    const completeLabel = document.createElement("label");
+    completeLabel.className = "day-complete-toggle";
+    const completeInput = document.createElement("input");
+    completeInput.type = "checkbox";
+    completeInput.checked = Boolean(interactionHandlers.isSessionCompleted(sessionKey));
+    completeLabel.append(completeInput, " Complete session");
+    item.classList.toggle("is-complete", completeInput.checked);
+
+    completeInput.onchange = () => {
+      const checked = Boolean(completeInput.checked);
+      item.classList.toggle("is-complete", checked);
+      interactionHandlers.onSessionCompletionChanged({
+        completed: checked,
+        row,
+        sessionKey,
+      });
+    };
+
+    const book = interactionHandlers.getBookById(row.book_id) || {};
+    const progressForm = document.createElement("form");
+    progressForm.className = "day-progress-form";
+
+    const pagesInput = document.createElement("input");
+    pagesInput.type = "number";
+    pagesInput.min = "0";
+    pagesInput.step = "1";
+    pagesInput.placeholder = "Pages read";
+    if (book.pages_read !== null && book.pages_read !== undefined) {
+      pagesInput.value = String(book.pages_read);
+    }
+
+    const pctInput = document.createElement("input");
+    pctInput.type = "number";
+    pctInput.min = "0";
+    pctInput.max = "100";
+    pctInput.step = "0.1";
+    pctInput.placeholder = "% complete";
+    if (book.progress_percent !== null && book.progress_percent !== undefined) {
+      pctInput.value = String(book.progress_percent);
+    }
+
+    const saveBtn = document.createElement("button");
+    saveBtn.type = "submit";
+    saveBtn.className = "btn";
+    saveBtn.textContent = "Update Progress";
+
+    progressForm.append(pagesInput, pctInput, saveBtn);
+    progressForm.onsubmit = (event) => {
+      event.preventDefault();
+      const pagesRead = parseOptionalNumber(pagesInput.value);
+      const progressPercent = parseOptionalNumber(pctInput.value);
+      if (pagesRead === null && progressPercent === null) {
+        return;
+      }
+      const updated = interactionHandlers.onSessionProgressUpdated({
+        bookId: row.book_id,
+        pagesRead,
+        progressPercent,
+        row,
+      });
+      if (updated && updated.pages_read !== null && updated.pages_read !== undefined) {
+        pagesInput.value = String(updated.pages_read);
+      }
+      if (updated && updated.progress_percent !== null && updated.progress_percent !== undefined) {
+        pctInput.value = String(updated.progress_percent);
+      }
+    };
+
+    item.append(head, meta, completeLabel, progressForm);
     list.append(item);
   });
 
@@ -292,4 +379,13 @@ export function renderCalendar(rows, totals) {
 
   renderControls();
   renderMonth();
+}
+
+export function configureCalendarInteractions(handlers = {}) {
+  interactionHandlers = {
+    isSessionCompleted: typeof handlers.isSessionCompleted === "function" ? handlers.isSessionCompleted : () => false,
+    onSessionCompletionChanged: typeof handlers.onSessionCompletionChanged === "function" ? handlers.onSessionCompletionChanged : () => {},
+    onSessionProgressUpdated: typeof handlers.onSessionProgressUpdated === "function" ? handlers.onSessionProgressUpdated : () => null,
+    getBookById: typeof handlers.getBookById === "function" ? handlers.getBookById : () => null,
+  };
 }

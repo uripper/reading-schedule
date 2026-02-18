@@ -22,6 +22,7 @@ export function clearForm(refs, lookupControl) {
   refs.priorityInput.value = "3";
   refs.difficultyInput.value = "3";
   refs.minBlocksInput.value = "1";
+  refs.blockedByInput.value = "";
   setCoverPreview(refs, "");
   lookupControl.clearResults();
 }
@@ -50,6 +51,7 @@ export function fillForm(refs, book) {
     refs.maxMinutesInput.value = String(book.max_minutes_per_day);
   }
   refs.deadlineInput.value = book.deadline || "";
+  refs.blockedByInput.value = book.blocked_by || "";
   refs.coverUrl.value = book.cover_url || "";
   refs.coverLocal.value = book.cover_local_path || "";
   refs.author.value = book.author || "";
@@ -78,6 +80,7 @@ export function parseFormBook(refs) {
     pages_total: pagesTotal, pages_read: pagesRead, progress_percent: progress, priority: refs.priorityInput.value,
     difficulty: refs.difficultyInput.value, min_blocks_per_session: refs.minBlocksInput.value,
     max_minutes_per_day: refs.maxMinutesInput.value, deadline: refs.deadlineInput.value,
+    blocked_by: refs.blockedByInput.value,
     cover_url: refs.coverUrl.value.trim(), cover_local_path: refs.coverLocal.value.trim(),
     lookup_note: refs.lookupMeta.dataset.lookupNote || "",
   });

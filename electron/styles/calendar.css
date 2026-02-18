@@ -158,9 +158,43 @@
   padding: var(--token-space-2);
 }
 
+.day-details-item.is-complete {
+  border-color: color-mix(in srgb, var(--app-success) 72%, var(--app-border));
+  background: color-mix(in srgb, var(--app-success) 14%, var(--app-surface));
+}
+
 .day-details-meta {
   color: var(--app-textMuted);
   font-size: var(--token-typography-size-xs);
+}
+
+.day-complete-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--token-space-2);
+  color: var(--app-textMuted);
+  font-size: var(--token-typography-size-sm);
+}
+
+.day-complete-toggle input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  min-height: 0;
+}
+
+.day-progress-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: var(--token-space-2);
+  align-items: end;
+}
+
+.day-progress-form input {
+  margin-top: 0;
+}
+
+.day-progress-form .btn {
+  min-height: var(--token-size-target-minimum);
 }
 
 @media (max-width: 1450px) {
@@ -196,5 +230,9 @@
 
   .day {
     min-height: 130px;
+  }
+
+  .day-progress-form {
+    grid-template-columns: 1fr;
   }
 }

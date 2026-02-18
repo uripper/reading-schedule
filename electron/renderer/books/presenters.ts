@@ -20,6 +20,7 @@ export function wordsLabel(book) {
 export function metaLabel(book) {
   const bits = [`Priority ${book.priority}`, `Difficulty ${book.difficulty}`];
   if (book.deadline) bits.push(`Due ${book.deadline}`);
+  if (book.blocked_by) bits.push(`After ${book.blocked_by}`);
   return bits.join(" · ");
 }
 
