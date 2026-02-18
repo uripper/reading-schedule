@@ -4,9 +4,14 @@
   "private": true,
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "lint": "eslint . --ext .js,.mjs,.cjs",
+    "lint:fix": "eslint . --ext .js,.mjs,.cjs --fix"
   },
   "devDependencies": {
-    "electron": "^40.4.1"
+    "@eslint/js": "^9.39.2",
+    "electron": "^40.4.1",
+    "eslint": "^10.0.0",
+    "globals": "^17.3.0"
   }
 }
