@@ -8,8 +8,7 @@ from .models import AppStateV2
 
 
 def _state_path() -> Path:
-    explicit = os.getenv("PLANNER_API_STATE_FILE", "").strip()
-    if explicit:
+    if explicit := os.getenv("PLANNER_API_STATE_FILE", "").strip():
         return Path(explicit)
 
     base = Path.home() / ".reading_schedule"
@@ -21,8 +20,6 @@ def load_state() -> AppStateV2 | None:
     try:
         return AppStateV2.model_validate_json(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
-        return None
-    except Exception:
         return None
 
 
