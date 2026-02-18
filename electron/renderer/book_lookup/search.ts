@@ -6,13 +6,7 @@ import { lookupResultTarget, renderLookupResults, updateComboboxA11y } from "./r
 
 export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
   const placeholder = placeholderCoverSvg();
-  const state = {
-    timer: null,
-    token: 0,
-    currentItems: [],
-    activeIndex: -1,
-  };
-
+  const state = { timer: null, token: 0, currentItems: [], activeIndex: -1 };
   const selectItem = (index) => {
     const item = state.currentItems[index];
     if (!item) {
@@ -23,7 +17,6 @@ export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
     clearResults();
     onPick(item);
   };
-
   const refreshResults = () => {
     const hasItems = state.currentItems.length > 0;
     if (!hasItems) {
@@ -36,13 +29,11 @@ export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
     resultsEl.classList.add("has-items");
     updateComboboxA11y(searchInput, resultsEl, true, state.activeIndex);
   };
-
   const clearResults = () => {
     state.currentItems = [];
     state.activeIndex = -1;
     refreshResults();
   };
-
   const setActiveIndex = (index) => {
     if (!state.currentItems.length) {
       state.activeIndex = -1;
@@ -56,39 +47,21 @@ export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
 
   resultsEl.addEventListener("mousemove", (event) => {
     const target = lookupResultTarget(event);
-    if (!target) {
-      return;
+    if (target) {
+      setActiveIndex(Number(target.dataset.resultIndex));
     }
-    setActiveIndex(Number(target.dataset.resultIndex));
   });
-
   resultsEl.addEventListener("click", (event) => {
     const target = lookupResultTarget(event);
-    if (!target) {
-      return;
+    if (target) {
+      selectItem(Number(target.dataset.resultIndex));
     }
-    selectItem(Number(target.dataset.resultIndex));
   });
 
-  const onInput = createLookupInputHandler({
-    searchInput,
-    metaEl,
-    state,
-    clearResults,
-    refreshResults,
-  });
+  const onInput = createLookupInputHandler({ searchInput, metaEl, state, clearResults, refreshResults });
   searchInput.addEventListener("input", onInput);
-
   searchInput.addEventListener("keydown", (event) => {
-    handleLookupKeydown(
-      event,
-      state.currentItems,
-      state.activeIndex,
-      setActiveIndex,
-      selectItem,
-      clearResults,
-      searchInput,
-    );
+    handleLookupKeydown(event, state.currentItems, state.activeIndex, setActiveIndex, selectItem, clearResults, searchInput);
   });
 
   const onDocClick = (event) => {
@@ -100,10 +73,6 @@ export function bindBookLookup({ searchInput, resultsEl, metaEl, onPick }) {
     }
     clearResults();
   };
-
   document.addEventListener("click", onDocClick);
-  return {
-    clearResults,
-    destroy: () => document.removeEventListener("click", onDocClick),
-  };
+  return { clearResults, destroy: () => document.removeEventListener("click", onDocClick) };
 }

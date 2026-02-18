@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { el } from "./dom.js";
-
 const ANNOUNCE_DELAY_MS = 30;
 
 function focusableSelector() {
@@ -60,14 +59,12 @@ export function applyPreferencesToDocument(preferences = {}) {
 
 export function bindDialogFocus(dialog, { initialFocusSelector = null } = {}) {
   let opener = null;
-
   const rememberOpener = () => {
     opener = null;
     if (document.activeElement instanceof HTMLElement) {
       opener = document.activeElement;
     }
   };
-
   const focusInitialTarget = () => {
     let direct = null;
     if (initialFocusSelector) {
@@ -87,23 +84,16 @@ export function bindDialogFocus(dialog, { initialFocusSelector = null } = {}) {
       first.focus();
     }
   };
-
   const closeAndReturnFocus = () => {
     if (dialog.open) {
       dialog.close();
     }
   };
-
   dialog.addEventListener("close", () => {
     if (opener && opener.isConnected) {
       opener.focus();
     }
     opener = null;
   });
-
-  return {
-    rememberOpener,
-    focusInitialTarget,
-    closeAndReturnFocus,
-  };
+  return { rememberOpener, focusInitialTarget, closeAndReturnFocus };
 }

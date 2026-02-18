@@ -16,17 +16,6 @@ export const DEFAULT_FEATURE_FLAGS = {
   recommendationsEnabled: false,
 };
 
-const EXPERIENCE_SETTING_IDS = [
-  "themeSelect",
-  "reduceMotionToggle",
-  "dailyGoalInput",
-  "reminderEnabledToggle",
-  "reminderTimeInput",
-  "flagGamification",
-  "flagSocial",
-  "flagRecommendations",
-];
-
 export function normalizePreferences(raw = {}) {
   let { theme } = DEFAULT_PREFERENCES;
   if (["system", "light", "dark"].includes(raw.theme)) {
@@ -96,11 +85,4 @@ export function fillPreferencesUI(preferences, featureFlags) {
   el("flagGamification").checked = Boolean(featureFlags.gamificationEnabled);
   el("flagSocial").checked = Boolean(featureFlags.socialEnabled);
   el("flagRecommendations").checked = Boolean(featureFlags.recommendationsEnabled);
-}
-
-export function bindExperienceSettings(onApplySettings) {
-  EXPERIENCE_SETTING_IDS.forEach((id) => {
-    const node = el(id);
-    node.addEventListener("change", onApplySettings);
-  });
 }

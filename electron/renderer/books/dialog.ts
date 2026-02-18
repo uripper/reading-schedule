@@ -19,10 +19,7 @@ function renderBlockedByOptions(refs, books = [], currentBookId = "", selectedBo
     if (!book?.book_id || book.book_id === currentBookId) {
       return;
     }
-    options.push({
-      value: String(book.book_id),
-      label: String(book.title || book.book_id),
-    });
+    options.push({ value: String(book.book_id), label: String(book.title || book.book_id) });
   });
 
   const hasSelected = options.some((option) => option.value === selectedBookId);
@@ -58,8 +55,6 @@ export function createBookDialog(onSubmit, { getBooks = () => [] } = {}) {
     refs.dialogTitle.textContent = "Add Book";
     if (book) {
       refs.dialogTitle.textContent = "Edit Book";
-    }
-    if (book) {
       fillForm(refs, book);
     }
     refs.dialog.showModal();
@@ -88,14 +83,9 @@ export function createBookDialog(onSubmit, { getBooks = () => [] } = {}) {
     close();
   });
 
-  const syncRefs = {
-    pagesTotalInput: refs.pagesTotalInput,
-    pagesReadInput: refs.pagesReadInput,
-    progressInput: refs.progressInput,
-  };
+  const syncRefs = { pagesTotalInput: refs.pagesTotalInput, pagesReadInput: refs.pagesReadInput, progressInput: refs.progressInput };
   refs.pagesTotalInput.addEventListener("input", () => syncProgressAndPages(syncRefs, "pages"));
   refs.pagesReadInput.addEventListener("input", () => syncProgressAndPages(syncRefs, "pages"));
   refs.progressInput.addEventListener("input", () => syncProgressAndPages(syncRefs, "progress"));
-
   return { open };
 }
