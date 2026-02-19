@@ -2,15 +2,22 @@ import type { Book } from "../books/types.js";
 import type { Session } from "../sessions/normalize.js";
 import type { PlannerResult } from "../app/types.js";
 import {
+  activeDayCount,
+  dayMinutesFromActivity,
+  streakFromDayMinutes,
+  totalMinutes,
+} from "../activity/day_minutes.js";
+import {
   averageProgress,
   completionStats,
   monthlyFinishCounts,
   plannedFinishBookIds,
   readBooksFinishedThisYear,
-  readingStats,
   statusBreakdown,
   type StatusBreakdown,
 } from "./helpers.js";
+
+const MIN_GOAL_MINUTES = 1;
 
 export type StatsSnapshot = {
   year: number;
@@ -35,21 +42,39 @@ type SnapshotInputs = {
   sessions: Session[];
   lastResult: PlannerResult | null;
   scheduleCompletions: Record<string, boolean>;
+  dailyGoalMinutes?: number;
 };
+
+function normalizedGoalMinutes(goalMinutes: number | undefined): number {
+  return Math.max(MIN_GOAL_MINUTES, Number(goalMinutes || MIN_GOAL_MINUTES));
+}
 
 export function buildStatsSnapshot({
   books,
   sessions,
   lastResult,
   scheduleCompletions,
+  dailyGoalMinutes,
 }: SnapshotInputs): StatsSnapshot {
   const year = new Date().getFullYear();
-  const reading = readingStats(sessions, year);
+  const minutesByDayThisYear = dayMinutesFromActivity({
+    sessions,
+    lastResult,
+    scheduleCompletions,
+    year,
+  });
+  const minutesByDayAllTime = dayMinutesFromActivity({
+    sessions,
+    lastResult,
+    scheduleCompletions,
+    year: null,
+  });
   const progress = averageProgress(books);
   const completion = completionStats(lastResult, scheduleCompletions, year);
   const readThisYearIds = readBooksFinishedThisYear(books, year);
   const planned = plannedFinishBookIds(lastResult, year);
   const projected = new Set([...readThisYearIds, ...planned.ids]);
+  const goalMinutes = normalizedGoalMinutes(dailyGoalMinutes);
 
   return {
     year,
@@ -59,9 +84,9 @@ export function buildStatsSnapshot({
     plannedFinishCount: planned.ids.size,
     finishedThisYearCount: readThisYearIds.size,
     projectedFinishCount: projected.size,
-    readingMinutesYear: reading.minutes,
-    activeDaysYear: reading.activeDays,
-    currentStreakDays: reading.streakDays,
+    readingMinutesYear: totalMinutes(minutesByDayThisYear),
+    activeDaysYear: activeDayCount(minutesByDayThisYear),
+    currentStreakDays: streakFromDayMinutes(minutesByDayAllTime, goalMinutes),
     scheduledSessionsToDate: completion.scheduled,
     completedSessionsToDate: completion.completed,
     completionRatePercent: completion.ratePercent,

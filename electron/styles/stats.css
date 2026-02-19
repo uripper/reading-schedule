@@ -126,25 +126,46 @@
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: var(--token-space-1);
-  align-items: end;
-  min-height: 220px;
+  align-items: stretch;
 }
 
 .month-bar-item {
   display: grid;
-  gap: 4px;
+  grid-template-rows: auto 160px auto;
+  gap: 6px;
   justify-items: center;
+}
+
+.month-bar-track {
+  width: 100%;
+  height: 160px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--token-radius-sm);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--app-surfaceMuted) 70%, transparent),
+      color-mix(in srgb, var(--app-bg) 46%, var(--app-surface))
+    );
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
 }
 
 .month-bar-fill {
   width: 100%;
-  min-height: 8px;
+  height: 0;
   border-radius: var(--token-radius-sm);
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--app-brandStrong) 92%, var(--app-surface)),
     color-mix(in srgb, var(--app-success) 84%, var(--app-brand))
   );
+  transition: height var(--token-motion-duration-base) var(--token-motion-easing-standard);
+}
+
+.month-bar-fill.is-zero {
+  opacity: 0.4;
 }
 
 .month-bar-count {

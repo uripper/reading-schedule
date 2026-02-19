@@ -8,8 +8,7 @@ import {
 } from "../books/status.js";
 import type { Book } from "../books/types.js";
 import { sessionKeyFor } from "../calendar/utils.js";
-import type { Session } from "../sessions/normalize.js";
-import { isoLocalDayKey, streakFromSessions, todayKey } from "../sessions/utils.js";
+import { todayKey } from "../sessions/utils.js";
 import type { PlannerResult } from "../app/types.js";
 
 const MONTHS_PER_YEAR = 12;
@@ -137,25 +136,6 @@ export function completionStats(
     scheduled,
     completed,
     ratePercent: Math.round(rawPercent),
-  };
-}
-
-export function readingStats(sessions: Session[], year: number): { minutes: number; activeDays: number; streakDays: number } {
-  let minutes = 0;
-  const activeDaySet = new Set<string>();
-  sessions.forEach((session) => {
-    const dayKey = isoLocalDayKey(session.ended_at);
-    const endedYear = yearFromDateKey(dayKey);
-    if (endedYear !== year) {
-      return;
-    }
-    activeDaySet.add(dayKey);
-    minutes += Number(session.minutes || 0);
-  });
-  return {
-    minutes,
-    activeDays: activeDaySet.size,
-    streakDays: streakFromSessions(sessions),
   };
 }
 
