@@ -4,7 +4,6 @@ import { activateTab } from '../tabs.js';
 import type { Book } from '../books/types.js';
 import { createPlanController } from './plan_controller.js';
 import { bindSettingsAutoPlanListeners } from './runtime_helpers.js';
-import { activateSessionsAndStartTimer } from './today.js';
 import type { PlannerResult } from './types.js';
 
 type Announce = (message: string, politeness?: string) => void;
@@ -28,9 +27,8 @@ type FinalizeInitialLoadArgs = {
 };
 
 type BindTodayActionsArgs = {
-  getLastResult: () => PlannerResult | null;
-  getScheduleCompletions: () => Record<string, boolean>;
-  getSessionsUI: () => ReturnType<typeof initSessionsUI> | null;
+  getLastResult?: () => PlannerResult | null;
+  getScheduleCompletions?: () => Record<string, boolean>;
 };
 
 export function setupSkipLink(): void {
@@ -91,14 +89,9 @@ export function finalizeInitialLoad({
   }
 }
 
-export function bindTodayActions({ getLastResult, getScheduleCompletions, getSessionsUI }: BindTodayActionsArgs): void {
+export function bindTodayActions({}: BindTodayActionsArgs): void {
   el('startSessionFromTodayBtn').onclick = () => {
-    activateSessionsAndStartTimer(
-      getLastResult(),
-      getScheduleCompletions(),
-      getSessionsUI(),
-      activateTab,
-    );
+    activateTab('stats', { focusPanel: true });
   };
   el('viewScheduleFromTodayBtn').onclick = () => {
     activateTab('schedule', { focusPanel: true });
