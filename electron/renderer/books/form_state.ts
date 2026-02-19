@@ -25,6 +25,7 @@ const DEFAULT_MIN_BLOCKS = "1";
 const DEFAULT_STATUS = BOOK_STATUS_TO_READ;
 const PROGRESS_MAX = 100;
 const PROGRESS_DECIMAL_SCALE = 10;
+const CUSTOM_COVER_NOTE = "Custom cover uploaded.";
 
 type LookupControl = {
   clearResults: () => void;
@@ -148,6 +149,7 @@ export function clearForm(refs: BookFormRefs, lookupControl: LookupControl): voi
   refs.bookId.value = "";
   refs.coverUrl.value = "";
   refs.coverLocal.value = "";
+  refs.coverUploadInput.value = "";
   refs.author.value = "";
   refs.lookupMeta.dataset.lookupNote = "";
   refs.lookupMeta.textContent = "";
@@ -247,4 +249,23 @@ export function applyLookupItem(refs: BookFormRefs, item: BookLookupItem): void 
     progressInput: refs.progressInput,
   };
   syncProgressAndPages(progressSyncRefs, "pages");
+}
+
+export function applyUploadedCover(refs: BookFormRefs, localCoverPath: string, fileName = ""): void {
+  const normalizedPath = String(localCoverPath || "").trim();
+  if (!normalizedPath) {
+    throw new Error("Could not save the uploaded cover.");
+  }
+  refs.coverLocal.value = normalizedPath;
+  refs.coverUrl.value = "";
+
+  let note = CUSTOM_COVER_NOTE;
+  const normalizedFileName = String(fileName || "").trim();
+  if (normalizedFileName) {
+    note = `${CUSTOM_COVER_NOTE} ${normalizedFileName}`;
+  }
+
+  refs.lookupMeta.dataset.lookupNote = note;
+  refs.lookupMeta.textContent = note;
+  setCoverPreview(refs, normalizedPath);
 }

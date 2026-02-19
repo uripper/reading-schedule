@@ -123,11 +123,25 @@
 }
 
 .book-cover-panel {
+  position: relative;
   border: 1px solid var(--app-border);
   border-radius: var(--token-radius-md);
   background: color-mix(in srgb, var(--app-bg) 32%, var(--app-surface));
   min-height: 300px;
   overflow: hidden;
+  cursor: pointer;
+  transition:
+    border-color var(--token-motion-duration-fast) var(--token-motion-easing-standard),
+    transform var(--token-motion-duration-fast) var(--token-motion-easing-standard);
+}
+
+.book-cover-panel:hover {
+  border-color: color-mix(in srgb, var(--app-brandStrong) 60%, var(--app-border));
+}
+
+.book-cover-panel:focus-visible {
+  outline: 3px solid var(--app-focusRing);
+  outline-offset: 2px;
 }
 
 .book-cover-panel img {
@@ -142,6 +156,22 @@
   object-fit: contain;
   padding: var(--token-space-4);
   opacity: 0.7;
+}
+
+.book-cover-upload-hint {
+  position: absolute;
+  left: var(--token-space-2);
+  right: var(--token-space-2);
+  bottom: var(--token-space-2);
+  margin: 0;
+  padding: var(--token-space-1) var(--token-space-2);
+  border: 1px solid color-mix(in srgb, var(--app-border) 68%, transparent);
+  border-radius: var(--token-radius-sm);
+  background: color-mix(in srgb, var(--app-bgElevated) 78%, transparent);
+  color: var(--app-textMuted);
+  font-size: var(--token-typography-size-xs);
+  text-align: center;
+  pointer-events: none;
 }
 
 @media (max-width: 1100px) {
