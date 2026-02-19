@@ -5,6 +5,7 @@ import type { Book } from '../books/types.js';
 import { createPlanController } from './plan_controller.js';
 import { bindSettingsAutoPlanListeners } from './runtime_helpers.js';
 import { activateSessionsAndStartTimer } from './today.js';
+import type { PlannerResult } from './types.js';
 
 type Announce = (message: string, politeness?: string) => void;
 type SetStatus = (message: string, isError?: boolean) => void;
@@ -19,7 +20,7 @@ type CreateSessionsArgs = {
 type CreatePlanControllerArgs = Parameters<typeof createPlanController>[0];
 
 type FinalizeInitialLoadArgs = {
-  saved: { last_result?: { schedule?: unknown[] } | null } | null | undefined;
+  saved: { last_result?: PlannerResult | null } | null | undefined;
   setReady: () => void;
   queuePersist: () => void;
   queueAutoPlan: () => void;
@@ -27,7 +28,7 @@ type FinalizeInitialLoadArgs = {
 };
 
 type BindTodayActionsArgs = {
-  getLastResult: () => unknown;
+  getLastResult: () => PlannerResult | null;
   getSessionsUI: () => ReturnType<typeof initSessionsUI> | null;
 };
 

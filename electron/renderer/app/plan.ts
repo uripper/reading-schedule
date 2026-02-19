@@ -15,7 +15,7 @@ type RunPlanGenerationArgs = {
 };
 
 function summaryLog(summary: PlannerSummary | null): string {
-  const status = summary?.status || 'unknown';
+  const status = summary?.status || 'not-set';
   const planned = Number(summary?.total_planned_minutes || 0);
   const available = Number(summary?.total_available_minutes || 0);
   return `Status ${status}. Planned ${planned}/${available} minutes.`;

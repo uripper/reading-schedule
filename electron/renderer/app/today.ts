@@ -23,7 +23,10 @@ function completedPlannedMinutesForToday(
   scheduleCompletions: Record<string, boolean>,
 ): number {
   const today = todayKey();
-  const rows = Array.isArray(lastResult?.schedule) ? lastResult.schedule : [];
+  let rows: PlannerScheduleRow[] = [];
+  if (Array.isArray(lastResult?.schedule)) {
+    rows = lastResult.schedule;
+  }
   return rows.reduce((totalMinutes, row) => {
     if (String(row.date || '') !== today) {
       return totalMinutes;
@@ -66,7 +69,10 @@ export function updateTodayDashboard({
     summaryNode.textContent = 'No schedule yet. Add or update books and settings to auto-build your plan.';
   }
 
-  let todayMinutes = sessionsUI ? sessionsUI.todayMinutes() : 0;
+  let todayMinutes = 0;
+  if (sessionsUI) {
+    todayMinutes = sessionsUI.todayMinutes();
+  }
   todayMinutes += completedPlannedMinutesForToday(lastResult, scheduleCompletions);
 
   const goalMinutes = Math.max(
@@ -81,7 +87,10 @@ export function updateTodayDashboard({
   const gamificationOn = Boolean(featureFlags.gamificationEnabled);
   gamificationCard.hidden = !gamificationOn;
   if (gamificationOn) {
-    const streak = sessionsUI ? sessionsUI.streakDays() : 0;
+    let streak = 0;
+    if (sessionsUI) {
+      streak = sessionsUI.streakDays();
+    }
     streakNode.textContent = `${streak} day streak`;
   }
 }

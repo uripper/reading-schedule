@@ -8,9 +8,8 @@ import {
 } from "./settings/config.js";
 import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.js";
 import { renderDifficultyRows, renderGrid, renderWeekdayGrid } from "./settings/render.js";
+import type { PlannerSettings } from "./app/types.js";
 import type { FieldDefinition } from "./settings/config.js";
-
-type SettingsRecord = Record<string, unknown>;
 
 let dayOffs: string[] = [];
 const DEFAULT_SETTINGS_SECTION = "plan-budget";
@@ -85,7 +84,7 @@ export function initSettingsGrid(): void {
   bindDayOffAddButton(() => dayOffs, setDayOffs);
 }
 
-export function fillSettings(settings: SettingsRecord = {}): void {
+export function fillSettings(settings: PlannerSettings = {}): void {
   allFieldDefinitions().forEach((field) => {
     const value = settings[field.id];
     if (field.type === "select") {
@@ -99,14 +98,14 @@ export function fillSettings(settings: SettingsRecord = {}): void {
     inputEl(field.id).value = normalizedValue;
   });
 
-  const minutesByWeekday = (settings.minutes_by_weekday as Record<string, unknown>) || {};
+  const minutesByWeekday = settings.minutes_by_weekday || {};
   weekdays.forEach(([key]) => {
     inputEl(`minutes_${key}`).value = String(minutesByWeekday[key] ?? 0);
   });
 
   setDayOffs([...(settings.days_off as string[] || [])].sort());
 
-  const difficultyMultiplier = (settings.difficulty_multiplier as Record<string, unknown>) || {};
+  const difficultyMultiplier = settings.difficulty_multiplier || {};
   numberLevels().forEach((level) => {
     const id = `diff_${level}`;
     const exactLevel = difficultyMultiplier[level];
@@ -116,8 +115,8 @@ export function fillSettings(settings: SettingsRecord = {}): void {
   });
 }
 
-export function collectSettings(): SettingsRecord {
-  const output: SettingsRecord = {};
+export function collectSettings(): PlannerSettings {
+  const output: PlannerSettings = {};
 
   allFieldDefinitions().forEach((field) => {
     const raw = fieldInputValue(field);

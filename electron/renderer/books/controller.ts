@@ -8,6 +8,7 @@ import { withUpdatedProgress } from './progress.js';
 import { hydrateBookCover, upsertBookById } from './save.js';
 import { shelfFilterMatches, SHELF_FILTER_ALL } from './shelf.js';
 import { sortBooks } from './sort.js';
+import type { PlannerScheduleRow } from '../app/types.js';
 import type { Book, BookProgressUpdates } from './types.js';
 import {
   ensureBooksToolbarControls,
@@ -19,7 +20,7 @@ import {
   updateSortDirectionButton,
 } from './toolbar.js';
 let books: Book[] = [];
-let scheduleRows: unknown[] = [];
+let scheduleRows: PlannerScheduleRow[] = [];
 let onBooksChanged = () => {};
 let dialog = null;
 const refs = {
@@ -141,7 +142,7 @@ export function fillBooks(nextBooks: Book[] = []): void {
   render();
 }
 
-export function setBookScheduleRows(rows: unknown[] = []): void {
+export function setBookScheduleRows(rows: PlannerScheduleRow[] = []): void {
   scheduleRows = [...rows];
   render();
 }
