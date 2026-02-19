@@ -4,12 +4,14 @@ export const BOOK_STATUS_TO_READ = "to_read";
 export const BOOK_STATUS_IN_PROGRESS = "in_progress";
 export const BOOK_STATUS_READ = "read";
 export const BOOK_STATUS_DROPPED = "dropped";
+export const BOOK_STATUS_FILTER_ALL = "all";
 
 export type BookStatus =
   | typeof BOOK_STATUS_TO_READ
   | typeof BOOK_STATUS_IN_PROGRESS
   | typeof BOOK_STATUS_READ
   | typeof BOOK_STATUS_DROPPED;
+export type BookStatusFilter = typeof BOOK_STATUS_FILTER_ALL | BookStatus;
 
 const BOOK_STATUSES: BookStatus[] = [
   BOOK_STATUS_TO_READ,
@@ -86,4 +88,33 @@ export function statusOptions(): Array<{ value: BookStatus; label: string }> {
   return BOOK_STATUSES.map((status) => {
     return { value: status, label: statusLabel(status) };
   });
+}
+
+export function normalizeStatusFilter(value: string | null | undefined): BookStatusFilter {
+  const raw = String(value || "").trim().toLowerCase();
+  if (raw === BOOK_STATUS_FILTER_ALL) {
+    return BOOK_STATUS_FILTER_ALL;
+  }
+  const known = normalizedStatus(raw);
+  if (known) {
+    return known;
+  }
+  return BOOK_STATUS_FILTER_ALL;
+}
+
+export function statusFilterMatches(book: Pick<Book, "status">, filterValue: BookStatusFilter): boolean {
+  if (filterValue === BOOK_STATUS_FILTER_ALL) {
+    return true;
+  }
+  return book.status === filterValue;
+}
+
+export function statusFilterOptions(): Array<{ value: BookStatusFilter; label: string }> {
+  const options: Array<{ value: BookStatusFilter; label: string }> = [
+    { value: BOOK_STATUS_FILTER_ALL, label: "All Statuses" },
+  ];
+  statusOptions().forEach((option) => {
+    options.push(option);
+  });
+  return options;
 }
