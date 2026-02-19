@@ -27,6 +27,24 @@ def test_book_builder_converts_progress_to_remaining_words() -> None:
     assert book.progress_percent == 25
 
 
+def test_book_builder_scales_pages_read_using_book_page_density() -> None:
+    """Test that pages read maps to words via per-book words/page when available."""
+    book = book_from_data(
+        {
+            "book_id": "b-pages",
+            "title": "Poetry",
+            "words_total": 6000,
+            "pages_total": 300,
+            "pages_read": 90,
+            "priority": 1,
+            "difficulty": 3,
+        }
+    )
+    assert book.words_full == 6000
+    assert book.words_total == 4200
+    assert book.progress_percent == 30
+
+
 def test_greedy_respects_per_book_max_minutes_per_day() -> None:
     """Test that greedy respects per book max minutes per day."""
     books = [Book("b1", "Hard", 30000, 1, 3, None, 1, 30000, 0.0, 15)]
