@@ -29,6 +29,7 @@ htmlcov/
 *.egg-info/
 .venv/
 venv/
+.venv*/
 env/
 build/
 site/
