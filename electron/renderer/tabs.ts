@@ -1,13 +1,11 @@
 
 import { qa } from "./dom.js";
 
-type TabName = string;
-
 type ActivateTabOptions = {
   focusPanel?: boolean;
 };
 
-let onTabActivated: (name: TabName) => void = () => {};
+let onTabActivated: (name: string) => void = () => {};
 
 function allTabButtons() {
   return qa<HTMLElement>(".tab[data-tab]");
@@ -17,7 +15,7 @@ function desktopTabs() {
   return qa<HTMLElement>(".tabs .tab[data-tab]");
 }
 
-function panelByName(name: TabName): HTMLElement | null {
+function panelByName(name: string): HTMLElement | null {
   return document.getElementById(`tab-${name}`);
 }
 
@@ -31,7 +29,7 @@ function setPanelState(panel: HTMLElement, active: boolean): void {
   }
 }
 
-export function activateTab(name: TabName, options: ActivateTabOptions = {}) {
+export function activateTab(name: string, options: ActivateTabOptions = {}) {
   const { focusPanel = false } = options;
   let activeLabel = "Bartleby";
 
@@ -95,7 +93,7 @@ function bindTabKeyboard(tabs: HTMLElement[]): void {
   });
 }
 
-export function bindTabs(onChange: (name: TabName) => void = () => {}) {
+export function bindTabs(onChange: (name: string) => void = () => {}) {
   onTabActivated = onChange;
   allTabButtons().forEach((btn) => {
     btn.onclick = () => activateTab(btn.dataset.tab || "today");
