@@ -14,15 +14,21 @@ import type { PlannerResult } from "../app/types.js";
 
 const MONTHS_PER_YEAR = 12;
 const PERCENT_MAX = 100;
+const DATE_YEAR_START_INDEX = 0;
+const DATE_YEAR_END_INDEX = 4;
+const DATE_MONTH_START_INDEX = 5;
+const DATE_MONTH_END_INDEX = 7;
+const MIN_MONTH_NUMBER = 1;
+const MONTH_NUMBER_TO_INDEX_OFFSET = 1;
 
 export type StatusBreakdown = Record<BookStatus, number>;
 
 export function yearFromDateKey(dateText: string): number | null {
   const key = String(dateText || "").trim();
-  if (key.length < 4) {
+  if (key.length < DATE_YEAR_END_INDEX) {
     return null;
   }
-  const parsed = Number(key.slice(0, 4));
+  const parsed = Number(key.slice(DATE_YEAR_START_INDEX, DATE_YEAR_END_INDEX));
   if (!Number.isInteger(parsed)) {
     return null;
   }
@@ -31,14 +37,14 @@ export function yearFromDateKey(dateText: string): number | null {
 
 export function monthIndexFromDateKey(dateText: string): number | null {
   const key = String(dateText || "").trim();
-  const parsed = Number(key.slice(5, 7));
+  const parsed = Number(key.slice(DATE_MONTH_START_INDEX, DATE_MONTH_END_INDEX));
   if (!Number.isInteger(parsed)) {
     return null;
   }
-  if (parsed < 1 || parsed > MONTHS_PER_YEAR) {
+  if (parsed < MIN_MONTH_NUMBER || parsed > MONTHS_PER_YEAR) {
     return null;
   }
-  return parsed - 1;
+  return parsed - MONTH_NUMBER_TO_INDEX_OFFSET;
 }
 
 export function statusBreakdown(books: Book[]): StatusBreakdown {
