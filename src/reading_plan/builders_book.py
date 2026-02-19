@@ -1,3 +1,5 @@
+"""Utilities for builders book."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -11,6 +13,7 @@ from .validate import validate_book
 
 
 def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
+    """Execute word stats."""
     words_raw = data.get("words_total")
     pages_raw = data.get("pages_total")
     has_words = str(words_raw or "").strip() != ""
@@ -39,6 +42,7 @@ def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
 
 
 def book_from_data(data: dict[str, Any]) -> Book:
+    """Execute book from data."""
     words_full, words_remaining, progress = _word_stats(data)
     deadline = None
     if data.get("deadline"):
