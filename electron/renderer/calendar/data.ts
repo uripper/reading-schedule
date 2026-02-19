@@ -1,25 +1,19 @@
+import type { PlannerScheduleRow } from '../app/types.js';
+import { sortRowsByDateAndSession } from './utils.js';
 
-import { sortRowsByDateAndSession } from "./utils.js";
+export type CalendarRow = PlannerScheduleRow;
 
-type CalendarRow = {
-  book_id: string;
-  date: string;
-  session_index: string | number;
-  words_planned?: number;
-  [key: string]: unknown;
-};
-
-type CalendarRowWithFinish = CalendarRow & {
+export type CalendarRowWithFinish = CalendarRow & {
   finish: boolean;
 };
 
 type RowsByDate = Record<string, CalendarRowWithFinish[]>;
 
-function todayKey() {
+function todayKey(): string {
   const now = new Date();
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
 
@@ -29,12 +23,12 @@ export function enrichRows(rows: CalendarRow[], totals: Record<string, number> =
   const sortedRows = sortRowsByDateAndSession(rows);
   const today = todayKey();
   return sortedRows.map((row) => {
-    const rowDate = String(row.date || "");
+    const rowDate = String(row.date || '');
     if (!rowDate || rowDate < today) {
       return { ...row, finish: false };
     }
 
-    const bookId = String(row.book_id || "");
+    const bookId = String(row.book_id || '');
     const plannedWords = Number(row.words_planned || 0);
     const previousProgress = Number(progressByBookId[bookId] || 0);
     const nextProgress = previousProgress + plannedWords;
@@ -72,6 +66,6 @@ export function firstPlannedRow(rows: CalendarRow[] = []): CalendarRow | null {
   }
   const sortedRows = sortRowsByDateAndSession(rows);
   const today = todayKey();
-  const upcoming = sortedRows.find((row) => String(row?.date || "") >= today);
+  const upcoming = sortedRows.find((row) => String(row.date || '') >= today);
   return upcoming || sortedRows[0] || null;
 }

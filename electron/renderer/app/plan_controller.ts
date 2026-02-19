@@ -1,15 +1,38 @@
-
-import { runPlanGeneration } from "./plan.js";
-import { mergeScheduleRows, pruneScheduleCompletions } from "./schedule_preserve.js";
+import type { Book } from '../books/types.js';
+import type { Session } from '../sessions/normalize.js';
+import { runPlanGeneration } from './plan.js';
+import { mergeScheduleRows, pruneScheduleCompletions } from './schedule_preserve.js';
+import type { PlannerApi, PlannerResult, PlannerScheduleRow, PlannerSettings, PlannerSummary } from './types.js';
 
 const AUTO_PLAN_DELAY_MS = 450;
-const DEFAULT_LAST_RESULT = { schedule: [], summary: null, created_at: "" };
+const DEFAULT_LAST_RESULT: PlannerResult = { schedule: [], summary: null, created_at: '' };
 
-function hasRows(rows) {
+type PlanControllerArgs = {
+  plannerApi: Pick<PlannerApi, 'generate'>;
+  collectBooks: () => Book[];
+  collectSettings: () => PlannerSettings;
+  setStatus: (message: string, isError?: boolean) => void;
+  addLog: (message: string) => void;
+  announce: (message: string, politeness?: 'polite' | 'assertive') => void;
+  getLastResult: () => PlannerResult | null;
+  setLastResult: (result: PlannerResult) => void;
+  getSessions: () => Session[];
+  getScheduleCompletions: () => Record<string, boolean>;
+  setScheduleCompletions: (completions: Record<string, boolean>) => void;
+  renderCalendar: (rows: PlannerScheduleRow[], totals: Record<string, number>) => void;
+  totalsFromSummary: (summary: PlannerSummary | null) => Record<string, number>;
+  setBookScheduleRows: (rows: PlannerScheduleRow[]) => void;
+  updateTodayView: () => void;
+  persistDraft: () => Promise<boolean>;
+};
+
+type PlannerRunData = Pick<PlannerResult, 'schedule' | 'summary'>;
+
+function hasRows(rows: PlannerScheduleRow[]): boolean {
   return Array.isArray(rows) && rows.length > 0;
 }
 
-function resultFromData(data) {
+function resultFromData(data: PlannerRunData): PlannerResult {
   return {
     schedule: data.schedule || [],
     summary: data.summary || null,
@@ -34,12 +57,12 @@ export function createPlanController({
   setBookScheduleRows,
   updateTodayView,
   persistDraft,
-}) {
-  let autoTimer = null;
+}: PlanControllerArgs) {
+  let autoTimer: ReturnType<typeof setTimeout> | null = null;
   let autoRunPending = false;
   let autoRunInFlight = false;
 
-  const applyPlannedData = async (data, preserveLockedDays) => {
+  const applyPlannedData = async (data: PlannerRunData, preserveLockedDays: boolean) => {
     const previousRows = getLastResult()?.schedule || [];
     let nextRows = data.schedule || [];
     if (preserveLockedDays) {
@@ -71,9 +94,9 @@ export function createPlanController({
         setStatus,
         addLog,
         announce,
-        statusGeneratingMessage: "Updating plan...",
-        statusSuccessMessage: "Plan updated.",
-        successAnnouncement: "",
+        statusGeneratingMessage: 'Updating plan...',
+        statusSuccessMessage: 'Plan updated.',
+        successAnnouncement: '',
         onSuccess: async (data) => {
           await applyPlannedData(data, true);
         },
@@ -96,7 +119,7 @@ export function createPlanController({
     }, AUTO_PLAN_DELAY_MS);
   };
 
-  const applyLoadedResult = (savedResult) => {
+  const applyLoadedResult = (savedResult: PlannerResult | null) => {
     if (!savedResult || !hasRows(savedResult.schedule)) {
       setLastResult(DEFAULT_LAST_RESULT);
       setBookScheduleRows([]);
@@ -105,7 +128,7 @@ export function createPlanController({
     setLastResult(savedResult);
     setBookScheduleRows(savedResult.schedule || []);
     renderCalendar(savedResult.schedule || [], totalsFromSummary(savedResult.summary));
-    addLog("Loaded previous schedule.");
+    addLog('Loaded previous schedule.');
   };
 
   return {

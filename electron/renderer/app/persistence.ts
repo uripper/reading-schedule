@@ -28,7 +28,10 @@ export function draftData({
   scheduleCompletions,
   lastResult,
 }: DraftDataParams): PlannerStateSnapshot {
-  const sessions = sessionsUI ? sessionsUI.getSessions() : [];
+  let sessions: Session[] = [];
+  if (sessionsUI) {
+    sessions = sessionsUI.getSessions();
+  }
 
   return {
     sessions,

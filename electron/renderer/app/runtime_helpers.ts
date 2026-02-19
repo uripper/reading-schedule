@@ -1,56 +1,50 @@
-
-import { draftData, saveStateSafe } from "./persistence.js";
-import type { FeatureFlags, Preferences } from "./experience.js";
+import type { Book } from '../books/types.js';
+import type { Session } from '../sessions/normalize.js';
+import type { FeatureFlags, Preferences } from './experience.js';
+import { draftData, saveStateSafe } from './persistence.js';
+import type { PlannerApi, PlannerResult, PlannerSettings, PlannerSummary } from './types.js';
 
 const PERSIST_DELAY_MS = 300;
 const NON_PLANNING_SETTING_IDS = new Set([
-  "themeSelect",
-  "reduceMotionToggle",
-  "dailyGoalInput",
-  "reminderEnabledToggle",
-  "reminderTimeInput",
-  "flagGamification",
-  "flagSocial",
-  "flagRecommendations",
+  'themeSelect',
+  'reduceMotionToggle',
+  'dailyGoalInput',
+  'reminderEnabledToggle',
+  'reminderTimeInput',
+  'flagGamification',
+  'flagSocial',
+  'flagRecommendations',
 ]);
-
-type SummaryBookInfo = {
-  words_total?: number;
-};
-
-type Summary = {
-  per_book?: Record<string, SummaryBookInfo>;
-};
 
 type PersistQueueState = {
   ready: boolean;
   preferences: Preferences;
   featureFlags: FeatureFlags;
   scheduleCompletions: Record<string, boolean>;
-  lastResult: unknown;
+  lastResult: PlannerResult | null;
 };
 
 type PersistQueueArgs = {
-  plannerApi: typeof globalThis.plannerApi;
+  plannerApi: Pick<PlannerApi, 'saveState'>;
   state: PersistQueueState;
-  getSessionsUI: () => { getSessions: () => unknown[] } | null;
-  collectBooks: () => unknown[];
-  collectSettings: () => unknown;
+  getSessionsUI: () => { getSessions: () => Session[] } | null;
+  collectBooks: () => Book[];
+  collectSettings: () => PlannerSettings;
   addLog: (message: string) => void;
 };
 
 export function createStatusSetter(statusNode: HTMLElement, addLog: (message: string) => void) {
   return (message: string, isError = false) => {
     statusNode.textContent = message;
-    statusNode.style.color = "var(--app-textMuted)";
+    statusNode.style.color = 'var(--app-textMuted)';
     if (isError) {
-      statusNode.style.color = "var(--app-danger)";
+      statusNode.style.color = 'var(--app-danger)';
     }
     addLog(message);
   };
 }
 
-export function totalsFromSummary(summary: Summary | null): Record<string, number> {
+export function totalsFromSummary(summary: PlannerSummary | null): Record<string, number> {
   const perBook = summary?.per_book || {};
   const pairs = Object.entries(perBook).map(([id, info]) => {
     return [id, Number(info.words_total || 0)];
@@ -99,8 +93,8 @@ export function createPersistQueue({
   };
 }
 
-function shouldAutoPlanTarget(target) {
-  const id = String(target.id || "");
+function shouldAutoPlanTarget(target: HTMLElement): boolean {
+  const id = String(target.id || '');
   if (!id) {
     return false;
   }
@@ -135,14 +129,14 @@ export function bindSettingsAutoPlanListeners(
     if (!(event.target instanceof HTMLElement)) {
       return;
     }
-    const addDayOff = event.target.closest("#addDayOffBtn");
-    const removeDayOff = event.target.closest("#dayOffList .chip-btn");
+    const addDayOff = event.target.closest('#addDayOffBtn');
+    const removeDayOff = event.target.closest('#dayOffList .chip-btn');
     if (addDayOff || removeDayOff) {
       queueAutoPlan();
     }
   };
 
-  settingsPanel.addEventListener("input", onSettingMutation);
-  settingsPanel.addEventListener("change", onSettingMutation);
-  settingsPanel.addEventListener("click", onSettingClick);
+  settingsPanel.addEventListener('input', onSettingMutation);
+  settingsPanel.addEventListener('change', onSettingMutation);
+  settingsPanel.addEventListener('click', onSettingClick);
 }

@@ -1,39 +1,41 @@
+import type { Session } from '../sessions/normalize.js';
+import type { PlannerScheduleRow } from './types.js';
 
 const SESSION_INDEX_PAD = 3;
 
-function dayKeyFromDate(date) {
+function dayKeyFromDate(date: Date): string {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
 
-function localDayKeyFromIso(iso) {
+function localDayKeyFromIso(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) {
-    return "";
+    return '';
   }
   return dayKeyFromDate(date);
 }
 
-function rowSortKey(row) {
-  const session = String(row.session_index || 0).padStart(SESSION_INDEX_PAD, "0");
-  return `${String(row.date || "")}-${session}`;
+function rowSortKey(row: PlannerScheduleRow): string {
+  const session = String(row.session_index || 0).padStart(SESSION_INDEX_PAD, '0');
+  return `${String(row.date || '')}-${session}`;
 }
 
-function sortedRows(rows = []) {
+function sortedRows(rows: PlannerScheduleRow[] = []): PlannerScheduleRow[] {
   return [...rows].sort((left, right) => {
     return rowSortKey(left).localeCompare(rowSortKey(right));
   });
 }
 
-function lockedDates(previousRows = [], sessions = []) {
-  const locked = new Set();
-  const previousDates = new Set();
+function lockedDates(previousRows: PlannerScheduleRow[] = [], sessions: Session[] = []): Set<string> {
+  const locked = new Set<string>();
+  const previousDates = new Set<string>();
   const todayKey = dayKeyFromDate(new Date());
 
   previousRows.forEach((row) => {
-    const rowDate = String(row?.date || "");
+    const rowDate = String(row.date || '');
     if (!rowDate) {
       return;
     }
@@ -44,7 +46,7 @@ function lockedDates(previousRows = [], sessions = []) {
   });
 
   sessions.forEach((session) => {
-    const endedAt = String(session?.ended_at || "");
+    const endedAt = String(session.ended_at || '');
     const key = localDayKeyFromIso(endedAt);
     if (!key) {
       return;
@@ -57,34 +59,41 @@ function lockedDates(previousRows = [], sessions = []) {
   return locked;
 }
 
-function scheduleKey(row) {
+function scheduleKey(row: PlannerScheduleRow): string {
   return `${row.date}|${row.session_index}|${row.book_id}`;
 }
 
-export function mergeScheduleRows(previousRows = [], nextRows = [], sessions = []) {
+export function mergeScheduleRows(
+  previousRows: PlannerScheduleRow[] = [],
+  nextRows: PlannerScheduleRow[] = [],
+  sessions: Session[] = [],
+): PlannerScheduleRow[] {
   const locked = lockedDates(previousRows, sessions);
   if (!locked.size) {
     return sortedRows(nextRows);
   }
 
   const keptRows = previousRows.filter((row) => {
-    return locked.has(String(row?.date || ""));
+    return locked.has(String(row.date || ''));
   });
   const newRows = nextRows.filter((row) => {
-    return !locked.has(String(row?.date || ""));
+    return !locked.has(String(row.date || ''));
   });
 
-  const mergedByKey = new Map();
+  const mergedByKey = new Map<string, PlannerScheduleRow>();
   [...keptRows, ...newRows].forEach((row) => {
     mergedByKey.set(scheduleKey(row), row);
   });
   return sortedRows([...mergedByKey.values()]);
 }
 
-export function pruneScheduleCompletions(scheduleCompletions = {}, rows = []) {
+export function pruneScheduleCompletions(
+  scheduleCompletions: Record<string, boolean> = {},
+  rows: PlannerScheduleRow[] = [],
+): Record<string, boolean> {
   const allowed = new Set(rows.map((row) => scheduleKey(row)));
-  const out = {};
-  Object.entries(scheduleCompletions || {}).forEach(([key, value]) => {
+  const out: Record<string, boolean> = {};
+  Object.entries(scheduleCompletions).forEach(([key, value]) => {
     if (!allowed.has(key)) {
       return;
     }

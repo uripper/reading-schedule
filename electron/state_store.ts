@@ -24,7 +24,14 @@ export function writeState(userDataDir: string, data: unknown): SaveResult {
     fs.writeFileSync(statePath(userDataDir), JSON.stringify(data, null, 2), 'utf8');
     return { ok: true };
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
+    let message: string;
+
+    if (error instanceof Error) {
+      message = error.message;
+    } else {
+      message = String(error);
+    }
+
     return { ok: false, error: message };
   }
 }
