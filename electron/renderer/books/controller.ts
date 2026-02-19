@@ -246,22 +246,42 @@ export function bindBooksUI(onChanged: () => void = () => {}): void {
   refs.groupBySelect = toolbarControls.groupBySelect;
   refs.sortDirectionBtn = toolbarControls.sortDirectionBtn;
 
-  refs.sortBySelect.addEventListener('change', () => {
-    viewState.sortBy = toSortBy(refs.sortBySelect.value);
+  if (!(refs.sortBySelect instanceof HTMLSelectElement)) {
+    return;
+  }
+  if (!(refs.shelfFilterSelect instanceof HTMLSelectElement)) {
+    return;
+  }
+  if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
+    return;
+  }
+  if (!(refs.sortDirectionBtn instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  const {
+    sortBySelect,
+    shelfFilterSelect,
+    groupBySelect,
+    sortDirectionBtn,
+  } = refs;
+
+  sortBySelect.addEventListener('change', () => {
+    viewState.sortBy = toSortBy(sortBySelect.value);
     render();
   });
 
-  refs.shelfFilterSelect.addEventListener('change', () => {
-    viewState.shelfFilter = refs.shelfFilterSelect.value;
+  shelfFilterSelect.addEventListener('change', () => {
+    viewState.shelfFilter = shelfFilterSelect.value;
     render();
   });
 
-  refs.groupBySelect.addEventListener('change', () => {
-    viewState.groupBy = toGroupBy(refs.groupBySelect.value);
+  groupBySelect.addEventListener('change', () => {
+    viewState.groupBy = toGroupBy(groupBySelect.value);
     render();
   });
 
-  refs.sortDirectionBtn.addEventListener('click', () => {
+  sortDirectionBtn.addEventListener('click', () => {
     let nextDirection: SortDirection = SORT_DIRECTION_ASC;
     if (viewState.sortDirection === SORT_DIRECTION_ASC) {
       nextDirection = SORT_DIRECTION_DESC;

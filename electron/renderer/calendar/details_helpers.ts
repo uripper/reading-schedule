@@ -30,6 +30,9 @@ type CalendarStateSubset = {
   totalsByBookId: Record<string, number>;
 };
 
+const DAY_DETAILS_META_CLASS = 'day-details-meta';
+const COMPLETE_ITEM_CLASS = 'is-complete';
+
 function todayDateKey(): string {
   const now = new Date();
   const year = now.getFullYear();
@@ -48,7 +51,7 @@ function sessionMetaText(row: CalendarRowWithFinish): string {
 
 function setInputValueFromBookProgress(
   inputNode: HTMLInputElement,
-  value: string | number | null | undefined,
+  value?: string | number,
 ): void {
   if (value !== null && value !== undefined) {
     inputNode.value = String(value);
@@ -61,6 +64,44 @@ function changedNumberValue(inputNode: HTMLInputElement, initialValue: string): 
     return null;
   }
   return parseOptionalNumber(currentValue);
+}
+
+function syncInputValue(inputNode: HTMLInputElement, nextValue?: number | null): string {
+  if (nextValue === null || nextValue === undefined) {
+    return String(inputNode.value ?? '').trim();
+  }
+  inputNode.value = String(nextValue);
+  return String(inputNode.value ?? '').trim();
+}
+
+function submitProgressUpdate(
+  event: SubmitEvent,
+  row: CalendarRowWithFinish,
+  pagesInput: HTMLInputElement,
+  pctInput: HTMLInputElement,
+  initialPagesValue: string,
+  initialPercentValue: string,
+  interactionHandlers: DetailInteractionHandlers,
+): { initialPagesValue: string; initialPercentValue: string } {
+  event.preventDefault();
+  const pagesRead = changedNumberValue(pagesInput, initialPagesValue);
+  const progressPercent = changedNumberValue(pctInput, initialPercentValue);
+  if (pagesRead === null && progressPercent === null) {
+    return { initialPagesValue, initialPercentValue };
+  }
+  const updated = interactionHandlers.onSessionProgressUpdated({
+    bookId: row.book_id,
+    pagesRead,
+    progressPercent,
+    row,
+  });
+  if (!updated) {
+    return { initialPagesValue, initialPercentValue };
+  }
+  return {
+    initialPagesValue: syncInputValue(pagesInput, updated.pages_read),
+    initialPercentValue: syncInputValue(pctInput, updated.progress_percent),
+  };
 }
 
 function progressFormForToday(
@@ -106,26 +147,17 @@ function progressFormForToday(
 
   progressForm.append(pagesLabel, percentLabel, saveBtn);
   progressForm.onsubmit = (event) => {
-    event.preventDefault();
-    const pagesRead = changedNumberValue(pagesInput, initialPagesValue);
-    const progressPercent = changedNumberValue(pctInput, initialPercentValue);
-    if (pagesRead === null && progressPercent === null) {
-      return;
-    }
-    const updated = interactionHandlers.onSessionProgressUpdated({
-      bookId: row.book_id,
-      pagesRead,
-      progressPercent,
+    const updatedValues = submitProgressUpdate(
+      event,
       row,
-    });
-    if (updated && updated.pages_read !== null && updated.pages_read !== undefined) {
-      pagesInput.value = String(updated.pages_read);
-      initialPagesValue = String(pagesInput.value ?? '').trim();
-    }
-    if (updated && updated.progress_percent !== null && updated.progress_percent !== undefined) {
-      pctInput.value = String(updated.progress_percent);
-      initialPercentValue = String(pctInput.value ?? '').trim();
-    }
+      pagesInput,
+      pctInput,
+      initialPagesValue,
+      initialPercentValue,
+      interactionHandlers,
+    );
+    initialPagesValue = updatedValues.initialPagesValue;
+    initialPercentValue = updatedValues.initialPercentValue;
   };
 
   return progressForm;
@@ -139,7 +171,7 @@ function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
   head.textContent = row.title || 'Untitled';
 
   const meta = document.createElement('p');
-  meta.className = 'day-details-meta';
+  meta.className = DAY_DETAILS_META_CLASS;
   meta.textContent = sessionMetaText(row);
   item.append(head, meta);
   return item;
@@ -185,9 +217,9 @@ export function completedRows(
 export function buildPastSessionItem(row: CalendarRowWithFinish): HTMLElement {
   const item = baseSessionItem(row);
   const completed = document.createElement('p');
-  completed.className = 'day-details-meta';
+  completed.className = DAY_DETAILS_META_CLASS;
   completed.textContent = 'Completed';
-  item.classList.add('is-complete');
+  item.classList.add(COMPLETE_ITEM_CLASS);
   item.append(completed);
   return item;
 }
@@ -199,7 +231,7 @@ export function buildFutureSessionItem(
 ): HTMLElement {
   const item = baseSessionItem(row);
   const estimate = document.createElement('p');
-  estimate.className = 'day-details-meta';
+  estimate.className = DAY_DETAILS_META_CLASS;
   estimate.textContent = estimateProgressLabel(row, state, interactionHandlers.getBookById);
   item.append(estimate);
   return item;
@@ -219,11 +251,11 @@ export function buildTodaySessionItem(
   completeInput.type = 'checkbox';
   completeInput.checked = Boolean(interactionHandlers.isSessionCompleted(sessionKey));
   completeLabel.append(completeInput, ' Complete session');
-  item.classList.toggle('is-complete', completeInput.checked);
+  item.classList.toggle(COMPLETE_ITEM_CLASS, completeInput.checked);
 
   completeInput.onchange = () => {
     const checked = Boolean(completeInput.checked);
-    item.classList.toggle('is-complete', checked);
+    item.classList.toggle(COMPLETE_ITEM_CLASS, checked);
     interactionHandlers.onSessionCompletionChanged({
       completed: checked,
       row,

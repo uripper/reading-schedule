@@ -152,8 +152,7 @@ function estimateSnapshotForRow(
 }
 
 function estimateLabelWithPages(snapshot: EstimateSnapshot): string {
-  const startPages = snapshot.startPages;
-  const endPages = snapshot.endPages;
+  const {startPages, endPages} = snapshot;
   if (startPages === null || endPages === null) {
     return NO_ESTIMATE_LABEL;
   }
