@@ -4,8 +4,55 @@ import { SHELF_SELECT_CREATE_NEW, uniqueShelves } from "./shelf.js";
 const UNSHELVED_VALUE = "";
 const UNSHELVED_LABEL = "Unshelved";
 const CREATE_SHELF_LABEL = "Create new shelf...";
-const CREATE_SHELF_PROMPT = "Enter a name for the new shelf:";
 const DATA_KEY_PREVIOUS_SHELF = "previousShelf";
+const DIALOG_CONFIRM_VALUE = "confirm";
+const CREATE_SHELF_PROMPT = "Enter a name for the new shelf:";
+
+function promptViaDialog(refs) {
+  return new Promise((resolve) => {
+    refs.shelfPromptInput.value = "";
+    refs.shelfPromptDialog.returnValue = "";
+    const onClose = () => {
+      refs.shelfPromptDialog.removeEventListener("close", onClose);
+      if (refs.shelfPromptDialog.returnValue !== DIALOG_CONFIRM_VALUE) {
+        resolve(null);
+        return;
+      }
+      resolve(refs.shelfPromptInput.value.trim());
+    };
+    refs.shelfPromptDialog.addEventListener("close", onClose);
+    try {
+      refs.shelfPromptDialog.showModal();
+    } catch {
+      refs.shelfPromptDialog.show();
+    }
+    refs.shelfPromptInput.focus();
+  });
+}
+
+function ensurePromptValidation(refs) {
+  refs.shelfPromptForm.addEventListener("submit", (event) => {
+    if (!(event.submitter instanceof HTMLButtonElement)) {
+      return;
+    }
+    if (event.submitter.value !== DIALOG_CONFIRM_VALUE) {
+      return;
+    }
+    if (refs.shelfPromptInput.value.trim()) {
+      return;
+    }
+    event.preventDefault();
+    refs.shelfPromptInput.focus();
+  });
+}
+
+function promptViaBrowser() {
+  const response = globalThis.prompt(CREATE_SHELF_PROMPT, "");
+  if (response === null) {
+    return null;
+  }
+  return String(response).trim();
+}
 
 function createOption(value, label) {
   const option = document.createElement("option");
@@ -100,14 +147,15 @@ function setSelectedShelf(select, selectedShelf, availableShelves) {
   rememberSelectedShelf(select);
 }
 
-function onCreateShelfSelected(select) {
+async function onCreateShelfSelected(refs) {
+  const select = refs.shelfSelectInput;
   const fallbackShelf = previousShelf(select);
-  const input = globalThis.prompt(CREATE_SHELF_PROMPT, "");
-  if (input === null) {
-    select.value = fallbackShelf;
-    return;
+  let shelfName = null;
+  try {
+    shelfName = await promptViaDialog(refs);
+  } catch {
+    shelfName = promptViaBrowser();
   }
-  const shelfName = String(input).trim();
   if (!shelfName) {
     select.value = fallbackShelf;
     return;
@@ -123,9 +171,10 @@ function onCreateShelfSelected(select) {
   rememberSelectedShelf(select);
 }
 
-function onShelfChange(select) {
+async function onShelfChange(refs) {
+  const select = refs.shelfSelectInput;
   if (select.value === SHELF_SELECT_CREATE_NEW) {
-    onCreateShelfSelected(select);
+    await onCreateShelfSelected(refs);
     return;
   }
   rememberSelectedShelf(select);
@@ -137,7 +186,8 @@ export function renderShelfPicker(refs, books = [], selectedShelf = "") {
 }
 
 export function bindShelfPicker(refs) {
-  refs.shelfSelectInput.addEventListener("change", () => {
-    onShelfChange(refs.shelfSelectInput);
+  ensurePromptValidation(refs);
+  refs.shelfSelectInput.addEventListener("change", async () => {
+    await onShelfChange(refs);
   });
 }

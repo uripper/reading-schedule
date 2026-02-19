@@ -178,7 +178,6 @@
       <input id="bookFormId" type="hidden" />
       <input id="bookFormCoverUrl" type="hidden" />
       <input id="bookFormCoverLocal" type="hidden" />
-      <input id="bookFormAuthor" type="hidden" />
       <div class="book-form-layout">
         <section class="book-search-panel">
           <label for="bookSearchInput">Find Book (Open Library)</label>
@@ -192,6 +191,7 @@
         <section class="book-fields">
           <div class="settings-grid">
             <label>Title<input id="bookTitleInput" required placeholder="Book title" /></label>
+            <label>Author<input id="bookFormAuthor" placeholder="Author name" /></label>
             <label>Estimated Words<input id="bookWordsInput" type="number" min="1" step="1" placeholder="e.g. 85000" /></label>
             <label>Total Pages<input id="bookPagesTotalInput" type="number" min="1" step="1" placeholder="e.g. 300" /></label>
             <label>Pages Read<input id="bookPagesReadInput" type="number" min="0" step="1" placeholder="e.g. 125" /></label>
@@ -222,6 +222,19 @@
       <div class="row wrap-row">
         <button id="cancelBookBtn" class="btn" type="button">Cancel</button>
         <button id="saveBookBtn" class="btn btn-primary" type="submit">Save Book</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="bookShelfPromptDialog" class="book-shelf-prompt-dialog" aria-labelledby="bookShelfPromptTitle">
+    <form id="bookShelfPromptForm" class="book-shelf-prompt-form" method="dialog">
+      <h2 id="bookShelfPromptTitle">Create New Shelf</h2>
+      <label>Shelf Name
+        <input id="bookShelfPromptInput" placeholder="e.g. History" />
+      </label>
+      <div class="row wrap-row">
+        <button id="bookShelfPromptCancelBtn" class="btn" type="submit" value="cancel">Cancel</button>
+        <button id="bookShelfPromptSaveBtn" class="btn btn-primary" type="submit" value="confirm">Create Shelf</button>
       </div>
     </form>
   </dialog>
