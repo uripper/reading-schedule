@@ -1,8 +1,8 @@
-// @ts-nocheck
 
 import { clamp } from "./utils.js";
+import type { Book, BookProgressUpdates } from "./types.js";
 
-function parseFiniteNumber(raw) {
+function parseFiniteNumber(raw: unknown): number | null {
   if (raw === null || raw === undefined || raw === "") {
     return null;
   }
@@ -13,7 +13,7 @@ function parseFiniteNumber(raw) {
   return value;
 }
 
-function applyPagesUpdate(nextBook, pagesUpdate, hasPagesTotal, pagesTotal) {
+function applyPagesUpdate(nextBook: Book, pagesUpdate: number | null, hasPagesTotal: boolean, pagesTotal: number) {
   if (pagesUpdate === null) {
     return false;
   }
@@ -25,7 +25,13 @@ function applyPagesUpdate(nextBook, pagesUpdate, hasPagesTotal, pagesTotal) {
   return true;
 }
 
-function applyPercentUpdate(nextBook, pctUpdate, hasPagesUpdate, hasPagesTotal, pagesTotal) {
+function applyPercentUpdate(
+  nextBook: Book,
+  pctUpdate: number | null,
+  hasPagesUpdate: boolean,
+  hasPagesTotal: boolean,
+  pagesTotal: number,
+) {
   if (pctUpdate === null || hasPagesUpdate) {
     return;
   }
@@ -35,7 +41,7 @@ function applyPercentUpdate(nextBook, pctUpdate, hasPagesUpdate, hasPagesTotal, 
   }
 }
 
-function reconcilePercentFromPages(nextBook, hasPagesTotal, pagesTotal) {
+function reconcilePercentFromPages(nextBook: Book, hasPagesTotal: boolean, pagesTotal: number) {
   if (!hasPagesTotal) {
     return;
   }
@@ -46,7 +52,7 @@ function reconcilePercentFromPages(nextBook, hasPagesTotal, pagesTotal) {
   nextBook.progress_percent = Math.round(clamp(pct, 0, 100) * 10) / 10;
 }
 
-export function withUpdatedProgress(book, updates = {}) {
+export function withUpdatedProgress(book: Book, updates: BookProgressUpdates = {}): Book {
   const nextBook = { ...book };
   const pagesTotal = Number(nextBook.pages_total || 0);
   const hasPagesTotal = Number.isFinite(pagesTotal) && pagesTotal > 0;

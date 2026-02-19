@@ -1,10 +1,10 @@
-// @ts-nocheck
 
 import { WORDS_PER_PAGE } from "./constants.js";
 import { shelfLabelForBook } from "./shelf.js";
 import { formatInt } from "./utils.js";
+import type { Book, BookMetaOptions } from "./types.js";
 
-export function progressLabel(book) {
+export function progressLabel(book: Book): string {
   const pct = Number(book.progress_percent || 0);
   const pagesRead = Math.max(0, Number(book.pages_read || 0));
   if (book.pages_total) {
@@ -14,7 +14,7 @@ export function progressLabel(book) {
   return `${pct.toFixed(1)}% · ${formatInt(pagesRead)} pages read`;
 }
 
-export function wordsLabel(book) {
+export function wordsLabel(book: Book): string {
   if (book.words_total) {
     return `${formatInt(book.words_total)} words`;
   }
@@ -24,7 +24,7 @@ export function wordsLabel(book) {
   return "No word estimate";
 }
 
-export function metaLabel(book, options = {}) {
+export function metaLabel(book: Book, options: BookMetaOptions = {}): string {
   const titleById = options.titleById || {};
   const finishDateByBookId = options.finishDateByBookId || {};
   const bits = [];
@@ -52,6 +52,6 @@ export function metaLabel(book, options = {}) {
   return bits.join(" · ");
 }
 
-export function subtitle(book) {
+export function subtitle(book: Book): string {
   return book.author || book.lookup_note || "No author metadata";
 }

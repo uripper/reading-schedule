@@ -1,36 +1,36 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const electronRoot = path.resolve(__dirname, "..");
-const tokenSourcePath = path.join(electronRoot, "tokens", "dtcg.tokens.json");
-const outputCssPath = path.join(electronRoot, "styles", "generated", "tokens.css");
-const outputTsPath = path.join(electronRoot, "tokens", "dist", "tokens.ts");
-const outputJsonPath = path.join(electronRoot, "tokens", "dist", "tokens.resolved.json");
+const electronRoot = path.resolve(__dirname, '..');
+const tokenSourcePath = path.join(electronRoot, 'tokens', 'dtcg.tokens.json');
+const outputCssPath = path.join(electronRoot, 'styles', 'generated', 'tokens.css');
+const outputTsPath = path.join(electronRoot, 'tokens', 'dist', 'tokens.ts');
+const outputJsonPath = path.join(electronRoot, 'tokens', 'dist', 'tokens.resolved.json');
 
 function isTokenLeaf(node) {
-  return Boolean(node && typeof node === "object" && Object.hasOwn(node, "$value"));
+  return Boolean(node && typeof node === 'object' && Object.hasOwn(node, '$value'));
 }
 
 function flattenTokens(node, pathParts = [], map = new Map()) {
-  if (!node || typeof node !== "object") return map;
+  if (!node || typeof node !== 'object') {return map;}
   if (isTokenLeaf(node)) {
-    map.set(pathParts.join("."), node.$value);
+    map.set(pathParts.join('.'), node.$value);
     return map;
   }
   for (const [key, value] of Object.entries(node)) {
-    if (key.startsWith("$")) continue;
+    if (key.startsWith('$')) {continue;}
     flattenTokens(value, [...pathParts, key], map);
   }
   return map;
 }
 
 function resolveValue(rawValue, resolver) {
-  if (typeof rawValue !== "string") return rawValue;
+  if (typeof rawValue !== 'string') {return rawValue;}
   const alias = rawValue.match(/^\{([^}]+)\}$/);
-  if (!alias) return rawValue;
+  if (!alias) {return rawValue;}
   return resolver(alias[1]);
 }
 
@@ -38,9 +38,9 @@ function createResolver(flatMap) {
   const cache = new Map();
 
   function resolve(pathKey, stack = new Set()) {
-    if (cache.has(pathKey)) return cache.get(pathKey);
+    if (cache.has(pathKey)) {return cache.get(pathKey);}
     if (stack.has(pathKey)) {
-      throw new Error(`Circular token alias detected: ${[...stack, pathKey].join(" -> ")}`);
+      throw new Error(`Circular token alias detected: ${[...stack, pathKey].join(' -> ')}`);
     }
     if (!flatMap.has(pathKey)) {
       throw new Error(`Unknown token alias: ${pathKey}`);
@@ -56,11 +56,11 @@ function createResolver(flatMap) {
 }
 
 function cssVarName(tokenPath) {
-  return `--token-${tokenPath.replace(/\./g, "-")}`;
+  return `--token-${tokenPath.replaceAll('.', '-')}`;
 }
 
 function appVarName(tokenPath) {
-  return `--app-${tokenPath.replace(/\./g, "-")}`;
+  return `--app-${tokenPath.replaceAll('.', "-")}`;
 }
 
 function writeFile(filePath, content) {

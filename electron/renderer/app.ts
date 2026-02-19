@@ -1,4 +1,3 @@
-// @ts-nocheck
 
 import { applyPreferencesToDocument, createAnnouncer } from "./a11y.js";
 import { activateTab, bindTabs } from "./tabs.js";

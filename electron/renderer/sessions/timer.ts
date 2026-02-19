@@ -63,12 +63,12 @@ export function createTimerController(refs, selectedBook, commitSession, announc
     const startedAt = new Date(now - totalMs).toISOString();
 
     commitSession({
+      minutes,
       id: uid(),
       book_id: book.book_id,
       title: book.title,
       started_at: startedAt,
       ended_at: endedAt,
-      minutes,
       notes: "",
       source: "timer",
       created_at: endedAt,

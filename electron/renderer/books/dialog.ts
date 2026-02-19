@@ -1,4 +1,3 @@
-// @ts-nocheck
 
 import { bindBookLookup, syncProgressAndPages } from "../book_lookup.js";
 import { bindDialogFocus, focusFirstError } from "../a11y.js";
@@ -7,8 +6,14 @@ import { ensureBookFormLayoutFields } from "./form_layout.js";
 import { getBookFormRefs } from "./form_refs.js";
 import { createAfterBookPicker } from "./after_book_picker.js";
 import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.js";
+import type { Book } from "./types.js";
+import type { BookFormRefs } from "./form_refs.js";
 
-function setSavingState(refs, busy) {
+type BookDialogOptions = {
+  getBooks?: () => Book[];
+};
+
+function setSavingState(refs: BookFormRefs, busy: boolean): void {
   refs.saveBtn.disabled = busy;
   refs.saveBtn.textContent = "Save Book";
   if (busy) {
@@ -16,7 +21,7 @@ function setSavingState(refs, busy) {
   }
 }
 
-export function createBookDialog(onSubmit, { getBooks = () => [] } = {}) {
+export function createBookDialog(onSubmit: (book: Book) => Promise<void> | void, { getBooks = () => [] }: BookDialogOptions = {}) {
   ensureBookFormLayoutFields();
   const refs = getBookFormRefs();
   bindShelfPicker(refs);
@@ -30,7 +35,7 @@ export function createBookDialog(onSubmit, { getBooks = () => [] } = {}) {
   });
 
   const close = () => dialogFocus.closeAndReturnFocus();
-  const open = (book = null) => {
+  const open = (book: Book | null = null) => {
     dialogFocus.rememberOpener();
     clearForm(refs, lookupControl);
     afterBookPicker.openForBook(book);
@@ -51,7 +56,11 @@ export function createBookDialog(onSubmit, { getBooks = () => [] } = {}) {
       await onSubmit(parseFormBook(refs));
       close();
     } catch (error) {
-      refs.lookupMeta.textContent = error?.message || "Could not save this book.";
+      let message = "Could not save this book.";
+      if (error instanceof Error && error.message) {
+        message = error.message;
+      }
+      refs.lookupMeta.textContent = message;
       if (!focusFirstError(refs.form)) {
         refs.titleInput.focus();
       }

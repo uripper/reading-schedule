@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { el } from '../dom.js';
 import { renderBookGrid } from './card_view.js';
 import { createBookDialog } from './dialog.js';

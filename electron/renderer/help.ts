@@ -1,9 +1,7 @@
-// @ts-nocheck
-
 import { el } from "./dom.js";
 import { bindDialogFocus } from "./a11y.js";
 
-const logs = [];
+const logs: string[] = [];
 const MAX_LOG_LINES = 250;
 
 function ts() {
@@ -11,10 +9,10 @@ function ts() {
 }
 
 function renderLogs() {
-  el("logOutput").textContent = logs.join("\n") || "No logs yet.";
+  el<HTMLElement>("logOutput").textContent = logs.join("\n") || "No logs yet.";
 }
 
-export function addLog(message) {
+export function addLog(message: string) {
   logs.unshift(`[${ts()}] ${message}`);
   if (logs.length > MAX_LOG_LINES) {
     logs.pop();
@@ -23,14 +21,14 @@ export function addLog(message) {
 }
 
 export function bindHelpDialog() {
-  const dlg = el("helpDialog");
+  const dlg = el<HTMLDialogElement>("helpDialog");
   const focus = bindDialogFocus(dlg, { initialFocusSelector: "#closeHelpBtn" });
-  el("helpBtn").onclick = () => {
+  el<HTMLButtonElement>("helpBtn").onclick = () => {
     focus.rememberOpener();
     dlg.showModal();
     focus.focusInitialTarget();
   };
-  el("closeHelpBtn").onclick = () => focus.closeAndReturnFocus();
+  el<HTMLButtonElement>("closeHelpBtn").onclick = () => focus.closeAndReturnFocus();
   dlg.addEventListener("cancel", (e) => {
     e.preventDefault();
     focus.closeAndReturnFocus();
