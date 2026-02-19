@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { uid } from "../dom.js";
 import { noteFromLookup, syncProgressAndPages } from "../book_lookup.js";
 import { COVER_PLACEHOLDER } from "./constants.js";
@@ -88,13 +88,14 @@ export function parseFormBook(refs) {
   } else {
     pagesRead = null;
   }
-  let shelf = refs.shelfSelectInput.value;
+  const shelf = refs.shelfSelectInput.value;
   if (shelf === SHELF_SELECT_CREATE_NEW) {
     throw new Error("Choose a shelf or create a new one from the shelf selector.");
   }
 
   return normalizeBook({
     title,
+    shelf,
     book_id: refs.bookId.value || uid(),
     author: refs.author.value.trim(),
     words_total: wordsTotal,
@@ -107,7 +108,6 @@ export function parseFormBook(refs) {
     max_minutes_per_day: refs.maxMinutesInput.value,
     deadline: refs.deadlineInput.value,
     blocked_by: refs.blockedByInput.value,
-    shelf,
     cover_url: refs.coverUrl.value.trim(),
     cover_local_path: refs.coverLocal.value.trim(),
     lookup_note: refs.lookupMeta.dataset.lookupNote || "",

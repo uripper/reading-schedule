@@ -175,8 +175,7 @@ async function fetchJson(url: string): Promise<SearchResponse> {
   if (status >= HTTP_STATUS_ERROR_MIN || !response.ok) {
     throw new Error(`Request failed (${status})`);
   }
-  const parsed = (await response.json()) as SearchResponse;
-  return parsed;
+  return (await response.json()) as SearchResponse;
 }
 
 function toItem(doc: SearchDoc): SearchItem {

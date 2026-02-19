@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { runPlanGeneration } from "./plan.js";
 import { mergeScheduleRows, pruneScheduleCompletions } from "./schedule_preserve.js";
 

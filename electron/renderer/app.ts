@@ -1,4 +1,5 @@
 // @ts-nocheck
+
 import { applyPreferencesToDocument, createAnnouncer } from "./a11y.js";
 import { activateTab, bindTabs } from "./tabs.js";
 import { bindBooksUI, collectBooks, fillBooks, getBookById, setBookScheduleRows, updateBookProgress } from "./books.js";
@@ -34,18 +35,19 @@ let planController = null;
 const announce = createAnnouncer();
 const setStatus = createStatusSetter(el("status"), addLog);
 const { persistDraft, queuePersist } = createPersistQueue({
-  plannerApi: globalThis.plannerApi,
   state,
-  getSessionsUI: () => sessionsUI,
   collectBooks,
   collectSettings,
   addLog,
+  plannerApi: globalThis.plannerApi,
+  getSessionsUI: () => sessionsUI,
 });
 
 function updateTodayView() {
   updateTodayDashboard({
     sessionsUI,
     lastResult: state.lastResult,
+    scheduleCompletions: state.scheduleCompletions,
     preferences: state.preferences,
     featureFlags: state.featureFlags,
     defaultDailyGoalMinutes: DEFAULT_PREFERENCES.dailyGoalMinutes,
@@ -101,12 +103,17 @@ async function init() {
     setStatus,
   });
   planController = createPlanController({
-    plannerApi: globalThis.plannerApi,
     collectBooks,
     collectSettings,
     setStatus,
     addLog,
     announce,
+    renderCalendar,
+    totalsFromSummary,
+    setBookScheduleRows,
+    updateTodayView,
+    persistDraft,
+    plannerApi: globalThis.plannerApi,
     getLastResult: () => state.lastResult,
     setLastResult: (nextResult) => {
       state.lastResult = nextResult;
@@ -116,11 +123,6 @@ async function init() {
     setScheduleCompletions: (nextCompletions) => {
       state.scheduleCompletions = nextCompletions;
     },
-    renderCalendar,
-    totalsFromSummary,
-    setBookScheduleRows,
-    updateTodayView,
-    persistDraft,
   });
 
   bindExperienceSettings(applyExperienceSettings);
@@ -131,11 +133,8 @@ async function init() {
     setStatus,
     updateBookProgress,
     getBookById,
-    onProgressUpdated: () => {
-      if (state.ready && planController) {
-        planController.queueAutoPlan();
-      }
-    },
+    onSessionCompletionUpdated: updateTodayView,
+    onProgressUpdated: updateTodayView,
   });
 
   try {

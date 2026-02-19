@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 const SESSION_INDEX_PAD = 3;
 
 function rowSortKey(row) {

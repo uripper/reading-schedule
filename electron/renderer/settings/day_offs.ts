@@ -1,4 +1,5 @@
 // @ts-nocheck
+
 import { el } from "../dom.js";
 
 export function renderDayOffs(dayOffs, setDayOffs) {

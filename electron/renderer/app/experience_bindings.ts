@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { el } from "../dom.js";
 
 const EXPERIENCE_SETTING_IDS = [

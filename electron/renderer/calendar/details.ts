@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { el } from "../dom.js";
 import { dateHeading, parseOptionalNumber, sessionKeyFor } from "./utils.js";
 
@@ -6,6 +6,14 @@ function setInputValueFromBookProgress(inputNode, value) {
   if (value !== null && value !== undefined) {
     inputNode.value = String(value);
   }
+}
+
+function changedNumberValue(inputNode, initialValue) {
+  const currentValue = String(inputNode.value ?? "").trim();
+  if (currentValue === String(initialValue)) {
+    return null;
+  }
+  return parseOptionalNumber(currentValue);
 }
 
 function buildSessionProgressForm(row, book, interactionHandlers) {
@@ -24,19 +32,32 @@ function buildSessionProgressForm(row, book, interactionHandlers) {
   pctInput.min = "0";
   pctInput.max = "100";
   pctInput.step = "0.1";
-  pctInput.placeholder = "% complete";
+  pctInput.placeholder = "Percent complete";
   setInputValueFromBookProgress(pctInput, book.progress_percent);
+
+  const pagesLabel = document.createElement("label");
+  pagesLabel.className = "day-progress-field";
+  pagesLabel.textContent = "Book Pages Read";
+  pagesLabel.append(pagesInput);
+
+  const percentLabel = document.createElement("label");
+  percentLabel.className = "day-progress-field";
+  percentLabel.textContent = "Book % Complete";
+  percentLabel.append(pctInput);
+
+  let initialPagesValue = String(pagesInput.value ?? "").trim();
+  let initialPercentValue = String(pctInput.value ?? "").trim();
 
   const saveBtn = document.createElement("button");
   saveBtn.type = "submit";
   saveBtn.className = "btn";
   saveBtn.textContent = "Update Progress";
 
-  progressForm.append(pagesInput, pctInput, saveBtn);
+  progressForm.append(pagesLabel, percentLabel, saveBtn);
   progressForm.onsubmit = (event) => {
     event.preventDefault();
-    const pagesRead = parseOptionalNumber(pagesInput.value);
-    const progressPercent = parseOptionalNumber(pctInput.value);
+    const pagesRead = changedNumberValue(pagesInput, initialPagesValue);
+    const progressPercent = changedNumberValue(pctInput, initialPercentValue);
     if (pagesRead === null && progressPercent === null) {
       return;
     }
@@ -48,9 +69,11 @@ function buildSessionProgressForm(row, book, interactionHandlers) {
     });
     if (updated && updated.pages_read !== null && updated.pages_read !== undefined) {
       pagesInput.value = String(updated.pages_read);
+      initialPagesValue = String(pagesInput.value ?? "").trim();
     }
     if (updated && updated.progress_percent !== null && updated.progress_percent !== undefined) {
       pctInput.value = String(updated.progress_percent);
+      initialPercentValue = String(pctInput.value ?? "").trim();
     }
   };
 

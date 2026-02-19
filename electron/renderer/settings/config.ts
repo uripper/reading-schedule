@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 
 const PLAN_MODE_OPTIONS = [
   { value: "finish_soon", label: "Finish ASAP" },
@@ -7,8 +7,7 @@ const PLAN_MODE_OPTIONS = [
 
 export const fields = {
   window: [
-    { id: "start_date", label: "Start date", type: "date" },
-    { id: "end_date", label: "End date", type: "date" },
+    { id: "end_date", label: "Plan until date", type: "date" },
   ],
   budget: [
     {

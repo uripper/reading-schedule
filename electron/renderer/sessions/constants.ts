@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 
 export const HISTORY_LIMIT = 30;
 export const SESSION_MIN_MS = 1000;

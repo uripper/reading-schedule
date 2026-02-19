@@ -1,3 +1,7 @@
+:root {
+  --books-group-card-width: 252px;
+}
+
 .books-toolbar {
   margin-bottom: var(--token-space-3);
   justify-content: space-between;
@@ -17,6 +21,39 @@
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 }
 
+.books-grid.is-grouped {
+  display: grid;
+  gap: var(--token-space-4);
+  grid-template-columns: 1fr;
+}
+
+.books-group {
+  display: grid;
+  gap: var(--token-space-2);
+}
+
+.books-group-heading {
+  margin: 0;
+  color: var(--app-text);
+  font-size: var(--token-typography-size-sm);
+  font-weight: var(--token-typography-weight-medium);
+  letter-spacing: 0.02em;
+}
+
+.books-group-row {
+  display: flex;
+  gap: var(--token-space-3);
+  overflow-x: auto;
+  padding-bottom: var(--token-space-1);
+  scroll-snap-type: x proximity;
+}
+
+.books-group-row .book-card {
+  flex: 0 0 var(--books-group-card-width);
+  max-width: var(--books-group-card-width);
+  scroll-snap-align: start;
+}
+
 .books-empty {
   margin-top: var(--token-space-2);
   color: var(--app-textMuted);
@@ -32,14 +69,18 @@
   transition: filter 150ms ease, opacity 150ms ease, transform 150ms ease;
 }
 
-.books-grid:hover .book-card,
-.books-grid:focus-within .book-card {
+.books-grid:not(.is-grouped):hover .book-card,
+.books-grid:not(.is-grouped):focus-within .book-card,
+.books-group-row:hover .book-card,
+.books-group-row:focus-within .book-card {
   filter: brightness(0.72);
   opacity: 0.65;
 }
 
-.books-grid:hover .book-card:hover,
-.books-grid:focus-within .book-card:focus-within {
+.books-grid:not(.is-grouped):hover .book-card:hover,
+.books-grid:not(.is-grouped):focus-within .book-card:focus-within,
+.books-group-row:hover .book-card:hover,
+.books-group-row:focus-within .book-card:focus-within {
   filter: brightness(1);
   opacity: 1;
   transform: translateY(-2px);

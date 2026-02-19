@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { el } from "../dom.js";
 import { monthLabel } from "./utils.js";
 

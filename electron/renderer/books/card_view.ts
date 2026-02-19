@@ -1,102 +1,157 @@
-// @ts-nocheck
-import { COVER_PLACEHOLDER } from "./constants.js";
-import { bookCoverSrc } from "./model.js";
-import { metaLabel, progressLabel, subtitle, wordsLabel } from "./presenters.js";
+import { COVER_PLACEHOLDER } from './constants.js';
+import { bookCoverSrc } from './model.js';
+import { metaLabel, progressLabel, subtitle, wordsLabel } from './presenters.js';
 
 function createCard(book, titleById, finishDateByBookId, showShelfMeta) {
-  const bookId = String(book.book_id || "");
-  const title = String(book.title || "Untitled");
-  const card = document.createElement("article");
-  card.className = "book-card";
+  const bookId = String(book.book_id || '');
+  const title = String(book.title || 'Untitled');
+
+  const card = document.createElement('article');
+  card.className = 'book-card';
   card.dataset.bookId = bookId;
 
-  const coverButton = document.createElement("button");
-  coverButton.className = "book-cover-btn edit-book-btn";
+  const coverButton = document.createElement('button');
+  coverButton.className = 'book-cover-btn edit-book-btn';
   coverButton.dataset.bookId = bookId;
-  coverButton.type = "button";
+  coverButton.type = 'button';
+
   const cover = bookCoverSrc(book);
   if (cover) {
-    const img = document.createElement("img");
+    const img = document.createElement('img');
     img.src = cover;
     img.alt = `Cover of ${title}`;
-    img.loading = "lazy";
-    img.dataset.fallbackCover = "1";
+    img.loading = 'lazy';
+    img.dataset.fallbackCover = '1';
     coverButton.append(img);
   } else {
-    const fallback = document.createElement("div");
-    fallback.className = "cover-fallback";
-    fallback.textContent = "No Cover";
+    const fallback = document.createElement('div');
+    fallback.className = 'cover-fallback';
+    fallback.textContent = 'No Cover';
     coverButton.append(fallback);
   }
   card.append(coverButton);
 
-  const meta = document.createElement("div");
-  meta.className = "book-meta";
-  const heading = document.createElement("h3");
-  heading.className = "book-title";
+  const meta = document.createElement('div');
+  meta.className = 'book-meta';
+
+  const heading = document.createElement('h3');
+  heading.className = 'book-title';
   heading.textContent = title;
   meta.append(heading);
-  const sub = document.createElement("p");
-  sub.className = "book-subtitle";
+
+  const sub = document.createElement('p');
+  sub.className = 'book-subtitle';
   sub.textContent = subtitle(book);
   meta.append(sub);
-  const stats = document.createElement("div");
-  stats.className = "book-stats";
+
+  const stats = document.createElement('div');
+  stats.className = 'book-stats';
   const metaText = metaLabel(book, { titleById, finishDateByBookId, showShelfMeta });
   [progressLabel(book), wordsLabel(book), metaText].forEach((text) => {
-    const span = document.createElement("span");
+    const span = document.createElement('span');
     span.textContent = text;
     stats.append(span);
   });
   meta.append(stats);
 
-  const actions = document.createElement("div");
-  actions.className = "book-actions";
-  const removeBtn = document.createElement("button");
-  removeBtn.className = "btn rm-btn remove-book-btn";
-  removeBtn.type = "button";
+  const actions = document.createElement('div');
+  actions.className = 'book-actions';
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'btn rm-btn remove-book-btn';
+  removeBtn.type = 'button';
   removeBtn.dataset.bookId = bookId;
-  removeBtn.textContent = "Remove";
+  removeBtn.textContent = 'Remove';
   actions.append(removeBtn);
   meta.append(actions);
+
   card.append(meta);
   return card;
 }
 
-function bindCardEvents(grid, { onEdit, onRemove }) {
-  grid.querySelectorAll(".edit-book-btn").forEach((btn) => {
-    btn.onclick = () => onEdit(btn.dataset.bookId || "");
+function bindCardEvents(rootNode, { onEdit, onRemove }) {
+  rootNode.querySelectorAll('.edit-book-btn').forEach((btn) => {
+    btn.onclick = () => onEdit(btn.dataset.bookId || '');
   });
-  grid.querySelectorAll(".remove-book-btn").forEach((btn) => {
-    btn.onclick = () => onRemove(btn.dataset.bookId || "");
+
+  rootNode.querySelectorAll('.remove-book-btn').forEach((btn) => {
+    btn.onclick = () => onRemove(btn.dataset.bookId || '');
   });
-  grid.querySelectorAll("img[data-fallback-cover='1']").forEach((img) => {
-    img.addEventListener("error", () => {
+
+  rootNode.querySelectorAll("img[data-fallback-cover='1']").forEach((img) => {
+    img.addEventListener('error', () => {
       img.src = COVER_PLACEHOLDER;
-      img.classList.add("is-empty");
+      img.classList.add('is-empty');
     });
   });
+}
+
+function titleByIdMap(books, allBooks) {
+  let sourceBooks = books;
+  if (allBooks.length) {
+    sourceBooks = allBooks;
+  }
+  return Object.fromEntries(sourceBooks.map((book) => [book.book_id, book.title]));
+}
+
+function createGroupSection(group, titleById, finishDateByBookId, showShelfMeta) {
+  const section = document.createElement('section');
+  section.className = 'books-group';
+  section.dataset.groupKey = String(group.key || '');
+
+  const heading = document.createElement('h3');
+  heading.className = 'books-group-heading';
+  heading.textContent = `${group.label} (${group.books.length})`;
+
+  const row = document.createElement('div');
+  row.className = 'books-group-row';
+  const cards = group.books.map((book) => {
+    return createCard(book, titleById, finishDateByBookId, showShelfMeta);
+  });
+  row.append(...cards);
+
+  section.append(heading, row);
+  return section;
+}
+
+function renderFlatBooks(grid, books, titleById, finishDateByBookId, showShelfMeta) {
+  grid.classList.remove('is-grouped');
+  const cards = books.map((book) => {
+    return createCard(book, titleById, finishDateByBookId, showShelfMeta);
+  });
+  grid.replaceChildren(...cards);
+}
+
+function renderGroupedBooks(grid, groups, titleById, finishDateByBookId, showShelfMeta) {
+  grid.classList.add('is-grouped');
+  const sections = groups.map((group) => {
+    return createGroupSection(group, titleById, finishDateByBookId, showShelfMeta);
+  });
+  grid.replaceChildren(...sections);
 }
 
 export function renderBookGrid({
   grid,
   empty,
   books,
+  groups = [],
   allBooks = [],
   finishDateByBookId = {},
   showShelfMeta = true,
   onEdit,
   onRemove,
 }) {
-  let sourceBooks = books;
-  if (allBooks.length) {
-    sourceBooks = allBooks;
+  const titleById = titleByIdMap(books, allBooks);
+
+  if (groups.length) {
+    renderGroupedBooks(grid, groups, titleById, finishDateByBookId, showShelfMeta);
+  } else {
+    renderFlatBooks(grid, books, titleById, finishDateByBookId, showShelfMeta);
   }
-  const titleById = Object.fromEntries(sourceBooks.map((book) => [book.book_id, book.title]));
-  grid.replaceChildren(...books.map((book) => createCard(book, titleById, finishDateByBookId, showShelfMeta)));
-  empty.style.display = "block";
+
+  empty.style.display = 'block';
   if (books.length) {
-    empty.style.display = "none";
+    empty.style.display = 'none';
   }
+
   bindCardEvents(grid, { onEdit, onRemove });
 }

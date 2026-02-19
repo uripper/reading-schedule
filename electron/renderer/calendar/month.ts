@@ -1,7 +1,11 @@
-// @ts-nocheck
+
 import { el } from "../dom.js";
 import { CALENDAR_COLUMN_COUNT, WEEKDAY_LABELS } from "./constants.js";
 import { dayKey, monthCells, monthLabel } from "./utils.js";
+
+function todayDayKey() {
+  return dayKey(new Date());
+}
 
 function createWeekdayHeader() {
   return WEEKDAY_LABELS.map((label) => {
@@ -12,7 +16,7 @@ function createWeekdayHeader() {
   });
 }
 
-function createDayButton(date, firstDate, keyForDay, rows, selectedDate) {
+function createDayButton(date, firstDate, keyForDay, rows, selectedDate, todayKey) {
   const dayButton = document.createElement("button");
   dayButton.type = "button";
   dayButton.className = "day";
@@ -21,6 +25,9 @@ function createDayButton(date, firstDate, keyForDay, rows, selectedDate) {
   }
   if (selectedDate === keyForDay) {
     dayButton.classList.add("is-selected");
+  }
+  if (keyForDay < todayKey) {
+    dayButton.classList.add("is-past");
   }
 
   dayButton.dataset.calendarDay = keyForDay;
@@ -123,11 +130,12 @@ export function renderCalendarMonth(state, { selectDate, moveSelectionBy, render
   grid.className = "calendar-grid";
   grid.setAttribute("role", "grid");
   grid.setAttribute("aria-label", `Schedule for ${monthLabel(monthKey)}`);
+  const todayKey = todayDayKey();
 
   cells.forEach((date, index) => {
     const keyForDay = state.monthCellKeys[index];
     const rows = state.dates[keyForDay] || [];
-    const dayButton = createDayButton(date, firstDate, keyForDay, rows, state.selectedDate);
+    const dayButton = createDayButton(date, firstDate, keyForDay, rows, state.selectedDate, todayKey);
     dayButton.onclick = () => selectDate(keyForDay);
     dayButton.onkeydown = (event) => {
       handleDayKeydown(event, index, state.monthCellKeys.length, moveSelectionBy);

@@ -4,6 +4,8 @@ import { renderCalendarControls } from "./calendar/controls.js";
 import { renderCalendarDetails } from "./calendar/details.js";
 import { renderCalendarMonth } from "./calendar/month.js";
 
+const DAYS_IN_WEEK = 7;
+
 const state = {
   dates: {},
   months: [],
@@ -59,11 +61,32 @@ function renderControls() {
 
 
 export function renderCalendar(rows, totals) {
+  const previousSelectedDate = state.selectedDate;
+  const previousMonthKey = state.months[state.index] || "";
   const enrichedRows = enrichRows(rows, totals);
   state.dates = groupRowsByDate(enrichedRows);
   state.months = monthKeysFromRows(enrichedRows);
   state.index = 0;
-  state.selectedDate = "";
+  if (previousMonthKey) {
+    const previousMonthIndex = state.months.indexOf(previousMonthKey);
+    if (previousMonthIndex >= 0) {
+      state.index = previousMonthIndex;
+    }
+  }
+
+  const previousSelectedMonth = String(previousSelectedDate || "").slice(0, DAYS_IN_WEEK);
+  if (state.index === 0 && previousSelectedMonth) {
+    const selectedMonthIndex = state.months.indexOf(previousSelectedMonth);
+    if (selectedMonthIndex >= 0) {
+      state.index = selectedMonthIndex;
+    }
+  }
+
+  if (previousSelectedDate && state.dates[previousSelectedDate]) {
+    state.selectedDate = previousSelectedDate;
+  } else {
+    state.selectedDate = "";
+  }
 
   renderControls();
   renderMonth();

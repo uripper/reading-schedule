@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 
 const LOOKUP_DELAY_MS = 260;
 const RESULT_LIMIT = 12;

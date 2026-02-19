@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { normalizeShelfName } from "./shelf.js";
 
 export const SORT_BY_TITLE = "title";

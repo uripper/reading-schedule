@@ -1,5 +1,6 @@
 // @ts-nocheck
 
+
 export function configureAppCalendarInteractions({
   configureCalendarInteractions,
   state,
@@ -7,6 +8,7 @@ export function configureAppCalendarInteractions({
   setStatus,
   updateBookProgress,
   getBookById,
+  onSessionCompletionUpdated = () => {},
   onProgressUpdated = () => {},
 }) {
   configureCalendarInteractions({
@@ -26,9 +28,14 @@ export function configureAppCalendarInteractions({
           setStatus(`Marked "${row.title}" incomplete on ${row.date}.`);
         }
       }
+      onSessionCompletionUpdated({ sessionKey, completed, row });
     },
     onSessionProgressUpdated: ({ bookId, pagesRead, progressPercent }) => {
-      const updated = updateBookProgress(bookId, { pagesRead, progressPercent });
+      const updated = updateBookProgress(
+        bookId,
+        { pagesRead, progressPercent },
+        { notifyBooksChanged: false },
+      );
       if (!updated) {
         setStatus("Could not find that book to update progress.", true);
         return null;
