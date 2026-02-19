@@ -11,6 +11,9 @@ type PlannerApi = {
   sample: () => Promise<JsonValue>;
   saveState: (payload: JsonValue) => Promise<{ ok?: boolean; error?: string }>;
   searchBooks: (query: string) => Promise<JsonValue[]>;
+  zoomIn: () => Promise<number>;
+  zoomOut: () => Promise<number>;
+  zoomReset: () => Promise<number>;
 };
 
 const plannerApi: PlannerApi = {
@@ -23,6 +26,9 @@ const plannerApi: PlannerApi = {
     ipcRenderer.invoke('book:saveUploadedCover', { dataUrl, bookId }),
   loadState: () => ipcRenderer.invoke('state:load'),
   saveState: (payload: JsonValue) => ipcRenderer.invoke('state:save', payload),
+  zoomIn: () => ipcRenderer.invoke('window:zoomIn'),
+  zoomOut: () => ipcRenderer.invoke('window:zoomOut'),
+  zoomReset: () => ipcRenderer.invoke('window:zoomReset'),
 };
 
 contextBridge.exposeInMainWorld('plannerApi', plannerApi);

@@ -2,6 +2,7 @@ import { applyPreferencesToDocument, createAnnouncer } from "./a11y.js";
 import { bindTabs } from "./tabs.js";
 import { bindBooksUI, collectAllBooks, collectBooks, fillBooks, getBookById, setBookScheduleRows, updateBookProgress } from "./books.js";
 import { configureCalendarInteractions, focusCalendarToday, renderCalendar } from "./calendar.js";
+import { bindDesktopShortcuts } from "./desktop_shortcuts.js";
 import { el } from "./dom.js";
 import { addLog, bindHelpDialog } from "./help.js";
 import { collectSettings, fillSettings, initSettingsGrid } from "./settings.js";
@@ -110,6 +111,10 @@ function handleProgressUpdated() {
 }
 async function init() {
   setupSkipLink();
+  bindDesktopShortcuts({
+    plannerApi,
+    announce,
+  });
   initSettingsGrid();
   bindTabs(handleTabChange);
   bindBooksUI(handleBooksChanged);
