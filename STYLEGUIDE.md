@@ -153,13 +153,7 @@ A PR must not merge if any of the following is true:
 
 Run all commands relevant to touched areas before merge.
 
-### Monorepo
-
-- `pnpm -r lint`
-- `pnpm -r typecheck`
-- `pnpm -r test`
-
-### Legacy Electron
+### Electron
 
 - `npm --prefix electron run lint`
 - `npm --prefix electron run typecheck`
@@ -211,11 +205,11 @@ A change is done only when all are true:
 
 ## Quick Violation Checks (Recommended)
 
-- Ternary scan: `rg -n "\?.*:.*" src electron apps packages services`
+- Ternary scan: `rg -n "\?.*:.*" src electron scripts tests`
 
-- Long file scan: `find src electron apps packages services -name "*.ts" -o -name "*.tsx" -o -name "*.py" | xargs wc -l | sort -nr`
+- Long file scan: `find src electron scripts tests -name "*.ts" -o -name "*.tsx" -o -name "*.py" | xargs wc -l | sort -nr`
 
-- Full workspace check: `pnpm -r lint && pnpm -r typecheck && pnpm -r test`
+- Full check: `npm --prefix electron run lint && npm --prefix electron run typecheck && .venv/bin/pytest -q`
 
 These checks are advisory; required validation commands are mandatory.
 
