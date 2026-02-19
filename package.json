@@ -8,6 +8,7 @@
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
+    "sonar:scan": "sonar-scanner -Dsonar.host.url=${SONAR_HOST_URL:-http://localhost:9000} -Dsonar.login=$SONAR_TOKEN",
     "dev:client": "pnpm --filter @reading-schedule/client dev",
     "dev:desktop": "npm --prefix electron run start",
     "dev:desktop:full": "npm --prefix electron run start",
