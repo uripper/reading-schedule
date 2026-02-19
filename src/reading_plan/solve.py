@@ -9,10 +9,16 @@ from .greedy import plan_greedy
 from .types import Book, PlanResult, Settings
 
 
-def solve_plan(books: list[Book], settings: Settings, planner: str = "mip") -> PlanResult:
+def solve_plan(
+    books: list[Book], settings: Settings, planner: str = "mip"
+) -> PlanResult:
     """Route planning to greedy or MIP and return a normalized plan result."""
     if planner == "greedy":
-        return PlanResult(planner="greedy", status="FEASIBLE", assignments=plan_greedy(books, settings))
+        return PlanResult(
+            planner="greedy",
+            status="FEASIBLE",
+            assignments=plan_greedy(books, settings),
+        )
     return _solve_mip(books, settings)
 
 

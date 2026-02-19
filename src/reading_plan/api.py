@@ -16,7 +16,9 @@ def _validate_blockers(books: list[Book]) -> None:
         if not book.blocked_by:
             continue
         if book.blocked_by not in by_id:
-            raise ValueError(f"book {book.book_id} is blocked by missing book_id {book.blocked_by}")
+            raise ValueError(
+                f"book {book.book_id} is blocked by missing book_id {book.blocked_by}"
+            )
 
     visiting: set[str] = set()
     visited: set[str] = set()

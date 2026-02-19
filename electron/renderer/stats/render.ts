@@ -1,0 +1,166 @@
+import {
+  BOOK_STATUS_DROPPED,
+  BOOK_STATUS_IN_PROGRESS,
+  BOOK_STATUS_READ,
+  BOOK_STATUS_TO_READ,
+  statusLabel,
+  type BookStatus,
+} from "../books/status.js";
+import { el } from "../dom.js";
+import type { StatsSnapshot } from "./model.js";
+
+const STATUS_ORDER: BookStatus[] = [
+  BOOK_STATUS_TO_READ,
+  BOOK_STATUS_IN_PROGRESS,
+  BOOK_STATUS_READ,
+  BOOK_STATUS_DROPPED,
+];
+
+function numberText(value: number): string {
+  return new Intl.NumberFormat().format(value);
+}
+
+function card(title: string, value: string, note: string): HTMLElement {
+  const node = document.createElement("article");
+  node.className = "stats-card";
+
+  const heading = document.createElement("h3");
+  heading.textContent = title;
+
+  const valueNode = document.createElement("p");
+  valueNode.className = "stats-value";
+  valueNode.textContent = value;
+
+  const noteNode = document.createElement("p");
+  noteNode.className = "stats-note";
+  noteNode.textContent = note;
+
+  node.append(heading, valueNode, noteNode);
+  return node;
+}
+
+function kpiGrid(snapshot: StatsSnapshot): HTMLElement {
+  const grid = document.createElement("div");
+  grid.className = "stats-kpi-grid";
+  grid.append(
+    card(
+      `Projected Finishes ${snapshot.year}`,
+      numberText(snapshot.projectedFinishCount),
+      `${snapshot.plannedFinishCount} planned + ${snapshot.finishedThisYearCount} already read`,
+    ),
+    card(
+      "Completion Rate",
+      `${snapshot.completionRatePercent}%`,
+      `${numberText(snapshot.completedSessionsToDate)} of ${numberText(snapshot.scheduledSessionsToDate)} sessions complete`,
+    ),
+    card(
+      `Reading Minutes ${snapshot.year}`,
+      numberText(snapshot.readingMinutesYear),
+      `${numberText(snapshot.activeDaysYear)} active days, ${snapshot.currentStreakDays} day streak`,
+    ),
+    card(
+      "Catalog Progress",
+      `${snapshot.averageProgressPercent.toFixed(1)}%`,
+      `${numberText(snapshot.booksStartedCount)} started across ${numberText(snapshot.totalBooks)} books`,
+    ),
+  );
+  return grid;
+}
+
+function statusPanel(snapshot: StatsSnapshot): HTMLElement {
+  const panel = document.createElement("article");
+  panel.className = "stats-panel";
+
+  const heading = document.createElement("h3");
+  heading.textContent = "Status Mix";
+
+  const list = document.createElement("div");
+  list.className = "status-list";
+  const total = Math.max(1, snapshot.totalBooks);
+
+  STATUS_ORDER.forEach((status) => {
+    const row = document.createElement("div");
+    row.className = "status-row";
+
+    const label = document.createElement("span");
+    label.className = "status-label";
+    label.textContent = statusLabel(status);
+
+    const barWrap = document.createElement("div");
+    barWrap.className = "status-bar-wrap";
+    const bar = document.createElement("span");
+    bar.className = `status-bar is-${status}`;
+    const count = snapshot.statusBreakdown[status];
+    const width = Math.round((count / total) * 100);
+    bar.style.width = `${width}%`;
+    barWrap.append(bar);
+
+    const countNode = document.createElement("span");
+    countNode.className = "status-count";
+    countNode.textContent = numberText(count);
+
+    row.append(label, barWrap, countNode);
+    list.append(row);
+  });
+
+  panel.append(heading, list);
+  return panel;
+}
+
+function monthPanel(snapshot: StatsSnapshot): HTMLElement {
+  const panel = document.createElement("article");
+  panel.className = "stats-panel";
+
+  const heading = document.createElement("h3");
+  heading.textContent = `Finish Timeline ${snapshot.year}`;
+
+  const bars = document.createElement("div");
+  bars.className = "month-bars";
+  const maxCount = Math.max(...snapshot.monthlyFinishes, 1);
+
+  snapshot.monthlyFinishes.forEach((count, index) => {
+    const item = document.createElement("div");
+    item.className = "month-bar-item";
+
+    const fill = document.createElement("span");
+    fill.className = "month-bar-fill";
+    const heightPercent = Math.round((count / maxCount) * 100);
+    fill.style.height = `${heightPercent}%`;
+    fill.setAttribute("title", `${count} finish`);
+
+    const countNode = document.createElement("span");
+    countNode.className = "month-bar-count";
+    countNode.textContent = String(count);
+
+    const month = document.createElement("span");
+    month.className = "month-bar-label";
+    month.textContent = new Intl.DateTimeFormat(undefined, { month: "short" }).format(
+      new Date(snapshot.year, index, 1),
+    );
+
+    item.append(fill, countNode, month);
+    bars.append(item);
+  });
+
+  panel.append(heading, bars);
+  return panel;
+}
+
+function secondaryGrid(snapshot: StatsSnapshot): HTMLElement {
+  const grid = document.createElement("div");
+  grid.className = "stats-secondary-grid";
+  grid.append(statusPanel(snapshot), monthPanel(snapshot));
+  return grid;
+}
+
+export function renderStatsDashboard(snapshot: StatsSnapshot): void {
+  const root = el("statsDashboard");
+  if (!snapshot.totalBooks) {
+    const empty = document.createElement("p");
+    empty.className = "hint-text";
+    empty.textContent = "Add books to see long-term reading stats.";
+    root.replaceChildren(empty);
+    return;
+  }
+  root.replaceChildren(kpiGrid(snapshot), secondaryGrid(snapshot));
+}

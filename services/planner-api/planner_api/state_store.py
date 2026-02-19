@@ -31,4 +31,6 @@ def save_state(state: AppStateV2) -> None:
     """Save state."""
     path = _state_path()
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(state.model_dump(mode="json"), indent=2) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(state.model_dump(mode="json"), indent=2) + "\n", encoding="utf-8"
+    )

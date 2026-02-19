@@ -57,7 +57,9 @@ def book_from_data(data: dict[str, Any]) -> Book:
     """Normalize a raw book payload into a validated planner Book model."""
     words_full, words_remaining, progress = _word_stats(data)
     deadline = parse_date(data["deadline"]) if data.get("deadline") else None
-    blocked_by = str(data.get("blocked_by") or data.get("blocker_book_id") or "").strip() or None
+    blocked_by = (
+        str(data.get("blocked_by") or data.get("blocker_book_id") or "").strip() or None
+    )
     book = Book(
         book_id=str(data.get("book_id") or "").strip() or str(uuid4()),
         title=str(data["title"]).strip(),
@@ -65,10 +67,14 @@ def book_from_data(data: dict[str, Any]) -> Book:
         priority=to_int(data["priority"], "priority"),
         difficulty=to_int(data["difficulty"], "difficulty"),
         deadline=deadline,
-        min_blocks_per_session=to_int(data.get("min_blocks_per_session", 2), "min_blocks_per_session"),
+        min_blocks_per_session=to_int(
+            data.get("min_blocks_per_session", 2), "min_blocks_per_session"
+        ),
         words_full=words_full,
         progress_percent=progress,
-        max_minutes_per_day=optional_int(data.get("max_minutes_per_day"), "max_minutes_per_day"),
+        max_minutes_per_day=optional_int(
+            data.get("max_minutes_per_day"), "max_minutes_per_day"
+        ),
         blocked_by=blocked_by,
     )
     validate_book(book)
