@@ -74,7 +74,7 @@ function applyExperienceData(args: LoadStateArgs, preferences: Preferences, feat
 
 export async function loadInitialData(args: LoadStateArgs): Promise<void> {
   try {
-    const saved = await args.plannerApi.loadState();
+    const saved = (await args.plannerApi.loadState()) as LoadedPlannerState;
     const source = await resolveInitialSource(args.plannerApi, saved);
     applyLoadedData(saved, source, args);
 

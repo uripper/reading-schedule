@@ -1,6 +1,7 @@
 import { el } from '../dom.js';
 import { initSessionsUI } from '../sessions.js';
 import { activateTab } from '../tabs.js';
+import type { Book } from '../books/types.js';
 import { createPlanController } from './plan_controller.js';
 import { bindSettingsAutoPlanListeners } from './runtime_helpers.js';
 import { activateSessionsAndStartTimer } from './today.js';
@@ -9,7 +10,7 @@ type Announce = (message: string, politeness?: string) => void;
 type SetStatus = (message: string, isError?: boolean) => void;
 
 type CreateSessionsArgs = {
-  collectBooks: () => unknown[];
+  collectBooks: () => Book[];
   onSessionsChanged: () => void;
   announce: Announce;
   setStatus: SetStatus;

@@ -38,6 +38,7 @@ const state: {
 const { plannerApi } = globalThis as typeof globalThis & { plannerApi: PlannerApi };
 let sessionsUI: ReturnType<typeof createSessionsAppUI> | null = null;
 let planController: ReturnType<typeof createAppPlanControllerInstance> | null = null;
+type SessionInputs = Parameters<ReturnType<typeof createSessionsAppUI>["setSessions"]>[0];
 const announce = createAnnouncer();
 const announceForPlanController = (message: string, politeness?: string) => {
   if (politeness === "polite" || politeness === "assertive") {
@@ -110,9 +111,9 @@ async function init() {
   bindHelpDialog();
   sessionsUI = createSessionsAppUI({
     collectBooks,
+    setStatus,
     onSessionsChanged: handleSessionsChanged,
     announce: announceForPlanController,
-    setStatus,
   });
   planController = createAppPlanControllerInstance({
     collectBooks,
@@ -136,7 +137,6 @@ async function init() {
       state.scheduleCompletions = nextCompletions;
     },
   });
-
   bindExperienceSettings(applyExperienceSettings);
   configureAppCalendarInteractions({
     configureCalendarInteractions,
@@ -159,17 +159,19 @@ async function init() {
     applyPreferencesToDocument,
     updateTodayView,
     setStatus,
-    setPreferences: (preferences) => {
-      state.preferences = preferences;
-    },
-    setFeatureFlags: (featureFlags) => {
-      state.featureFlags = featureFlags;
-    },
-    setScheduleCompletions: (scheduleCompletions) => {
-      state.scheduleCompletions = scheduleCompletions;
-    },
+    setPreferences: (preferences) => { state.preferences = preferences; },
+    setFeatureFlags: (featureFlags) => { state.featureFlags = featureFlags; },
+    setScheduleCompletions: (scheduleCompletions) => { state.scheduleCompletions = scheduleCompletions; },
     setSessions: (sessions) => {
-      sessionsUI?.setSessions(sessions);
+      let normalizedSessions: SessionInputs;
+      if (Array.isArray(sessions)) {
+        normalizedSessions = sessions.filter(
+          (session): session is NonNullable<SessionInputs>[number] => typeof session === "object" && session !== null,
+        );
+      } else {
+        normalizedSessions = [];
+      }
+      sessionsUI?.setSessions(normalizedSessions);
     },
     applyLoadedResult: (result) => {
       planController?.applyLoadedResult(result);
@@ -177,12 +179,12 @@ async function init() {
     onLoaded: (saved) => {
       finalizeInitialLoad({
         saved,
+        queuePersist,
+        setStatus,
         setReady: () => {
           state.ready = true;
         },
-        queuePersist,
         queueAutoPlan: queueAutoPlanIfReady,
-        setStatus,
       });
     },
   });
