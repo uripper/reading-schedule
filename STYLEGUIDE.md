@@ -134,6 +134,21 @@ A PR must not merge if any of the following is true:
 - If you add a new checker or rule set, wire it into a required command in this guide in the same change.
 - After changing lint/parser config, run the target command once on representative files and confirm there are no parser crashes.
 
+### SonarQube Workflow
+
+- Keep Sonar project identity consistent across tooling:
+  - `sonar-project.properties` `sonar.projectKey` must match `.vscode/settings.json` `sonarlint.connectedMode.project.projectKey`.
+- Use token-based auth with `sonar.token`; do not introduce new usage of deprecated `sonar.login` for scanner auth.
+- Keep scanner scope explicit in `sonar-project.properties`:
+  - Maintain `sonar.sources`, `sonar.exclusions`, and `sonar.typescript.tsconfigPaths` when adding new source roots or tsconfig files.
+  - Keep `sonar.python.version` aligned with the active Python version used by this repository.
+- Keep SonarQube for IDE standalone exclusions in `.vscode/settings.json` under `sonarlint.analysisExcludesStandalone` using glob patterns for generated/dependency paths.
+- After changing Sonar connected-mode settings or bindings, refresh IDE state:
+  - Run `SonarQube for IDE: Update all project bindings`.
+  - Reload the window (`Developer: Reload Window`).
+- When issue navigation in IDE is stale or broken, run a fresh scan before debugging rules:
+  - `SONAR_HOST_URL="http://localhost:9000" SONAR_TOKEN="<token>" npm run sonar:scan -- -Dsonar.projectKey=Bartleby`
+
 ## Required Validation Commands
 
 Run all commands relevant to touched areas before merge.

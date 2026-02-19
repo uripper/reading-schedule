@@ -23,7 +23,7 @@ export function BooksPage() {
   return (
     <Card title="Books">
       <label>
-        Search title
+        <span>Search title</span>
         <input value={query} onChange={(event) => setQuery(event.target.value)} />
       </label>
       <div style={{ display: "flex", gap: 8 }}>

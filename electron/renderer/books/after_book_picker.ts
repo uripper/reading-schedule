@@ -122,7 +122,7 @@ export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): A
     const availableBooks = getBooks().filter((book) => {
       return book?.book_id && book.book_id !== state.currentBookId;
     });
-    const sortedBooks = availableBooks.sort(compareBooks);
+    const sortedBooks = availableBooks.toSorted(compareBooks);
     state.options = sortedBooks;
   };
   const refreshFiltered = (clearChangedSelection: boolean): void => {
