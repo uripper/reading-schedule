@@ -2,7 +2,7 @@
 import { applyPreferencesToDocument, createAnnouncer } from "./a11y.js";
 import { activateTab, bindTabs } from "./tabs.js";
 import { bindBooksUI, collectBooks, fillBooks, getBookById, setBookScheduleRows, updateBookProgress } from "./books.js";
-import { configureCalendarInteractions, renderCalendar } from "./calendar.js";
+import { configureCalendarInteractions, focusCalendarToday, renderCalendar } from "./calendar.js";
 import { el } from "./dom.js";
 import { addLog, bindHelpDialog } from "./help.js";
 import { initSessionsUI } from "./sessions.js";
@@ -74,6 +74,9 @@ async function init() {
   bindTabs((name) => {
     if (name === "sessions" && sessionsUI) {
       sessionsUI.refreshBooks();
+    }
+    if (name === "schedule") {
+      focusCalendarToday();
     }
   });
   bindBooksUI(() => {

@@ -1,4 +1,4 @@
-import {  groupRowsByDate, monthKeysFromRows, enrichRows } from "./calendar/data.js";
+import { groupRowsByDate, monthKeysFromRows, enrichRows } from "./calendar/data.js";
 import { renderCalendarControls } from "./calendar/controls.js";
 import { renderCalendarDetails } from "./calendar/details.js";
 import { renderCalendarMonth } from "./calendar/month.js";
@@ -39,6 +39,48 @@ let interactionHandlers: CalendarHandlers = {
 
 function renderDetails() {
   renderCalendarDetails(state, interactionHandlers);
+}
+
+function todayDateKey() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function monthKeyForDateKey(dateKey: string) {
+  return dateKey.slice(0, DAYS_IN_WEEK);
+}
+
+function indexForMonth(months: string[], targetMonthKey: string) {
+  const exactIndex = months.indexOf(targetMonthKey);
+  if (exactIndex >= 0) {
+    return exactIndex;
+  }
+
+  const upcomingIndex = months.findIndex((monthKey) => {
+    return monthKey >= targetMonthKey;
+  });
+  if (upcomingIndex >= 0) {
+    return upcomingIndex;
+  }
+
+  return Math.max(0, months.length - 1);
+}
+
+function applyTodayFocus() {
+  if (!state.months.length) {
+    return;
+  }
+
+  const todayKey = todayDateKey();
+  const todayMonthKey = monthKeyForDateKey(todayKey);
+  state.index = indexForMonth(state.months, todayMonthKey);
+  state.selectedDate = "";
+  if (state.months[state.index] === todayMonthKey) {
+    state.selectedDate = todayKey;
+  }
 }
 
 function selectDate(dateKey: string, options: { focus?: boolean } = {}) {
@@ -90,20 +132,24 @@ export function renderCalendar(rows: CalendarRow[], totals: Record<string, numbe
     }
   }
 
-  const previousSelectedMonth = String(previousSelectedDate || "").slice(0, DAYS_IN_WEEK);
-  if (state.index === 0 && previousSelectedMonth) {
-    const selectedMonthIndex = state.months.indexOf(previousSelectedMonth);
-    if (selectedMonthIndex >= 0) {
-      state.index = selectedMonthIndex;
-    }
-  }
-
   if (previousSelectedDate && state.dates[previousSelectedDate]) {
     state.selectedDate = previousSelectedDate;
   } else {
     state.selectedDate = "";
   }
+  if (!previousSelectedDate) {
+    applyTodayFocus();
+  }
 
+  renderControls();
+  renderMonth();
+}
+
+export function focusCalendarToday() {
+  if (!state.months.length) {
+    return;
+  }
+  applyTodayFocus();
   renderControls();
   renderMonth();
 }
@@ -124,4 +170,4 @@ export function configureCalendarInteractions(handlers: Partial<CalendarHandlers
   };
 }
 
-export {firstPlannedRow} from "./calendar/data.js";
+export { firstPlannedRow } from "./calendar/data.js";
