@@ -12,6 +12,17 @@ from .types import Book
 from .validate import validate_book
 
 
+def _estimated_words_read_from_pages(
+    pages_read: int, words_full: int, pages_raw: Any
+) -> int:
+    """Estimate words read from pages, preferring per-book density when possible."""
+    pages_total = optional_int(pages_raw, "pages_total")
+    if pages_total is None or pages_total <= 0:
+        return pages_read * WORDS_PER_PAGE
+    bounded_pages = max(0, min(pages_read, pages_total))
+    return int(round(words_full * bounded_pages / pages_total))
+
+
 def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
     """Execute word stats."""
     words_raw = data.get("words_total")
@@ -25,7 +36,7 @@ def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
     words_read = optional_int(data.get("words_read"), "words_read")
     pages_read = optional_int(data.get("pages_read"), "pages_read")
     if words_read is None and pages_read is not None:
-        words_read = pages_read * WORDS_PER_PAGE
+        words_read = _estimated_words_read_from_pages(pages_read, full, pages_raw)
 
     if words_read is None:
         progress = to_float(data.get("progress_percent", 0.0), "progress_percent")
@@ -33,7 +44,12 @@ def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
             raise ValueError("progress_percent must be between 0 and 100")
         words_read = int(round(full * progress / 100.0))
     else:
-        progress = 0.0 if full <= 0 else round(100.0 * words_read / full, 2)
+        words_read = max(0, words_read)
+        words_read = min(words_read, full)
+        if full <= 0:
+            progress = 0.0
+        else:
+            progress = round(100.0 * words_read / full, 2)
     return full, max(0, full - words_read), progress
 
 
