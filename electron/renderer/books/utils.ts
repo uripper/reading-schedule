@@ -1,5 +1,6 @@
+type NumericLike = string | number | null | undefined;
 
-export function escapeHtml(text) {
+export function escapeHtml(text: NumericLike): string {
   return String(text || "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -8,11 +9,11 @@ export function escapeHtml(text) {
     .replaceAll("'", "&#39;");
 }
 
-export function clamp(value, min, max) {
+export function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
-export function toInt(raw, fallback = 0) {
+export function toInt(raw: NumericLike, fallback = 0): number {
   const n = Number(raw);
   if (Number.isFinite(n)) {
     return Math.round(n);
@@ -20,7 +21,7 @@ export function toInt(raw, fallback = 0) {
   return fallback;
 }
 
-export function toOptionalInt(raw) {
+export function toOptionalInt(raw: NumericLike): number | null {
   if (raw === null || raw === undefined || raw === "") {
     return null;
   }
@@ -31,12 +32,12 @@ export function toOptionalInt(raw) {
   return null;
 }
 
-export function toOptionalDate(raw) {
+export function toOptionalDate(raw: NumericLike): string | null {
   const value = String(raw || "").trim();
   return value || null;
 }
 
-export function formatInt(raw) {
+export function formatInt(raw: NumericLike): string {
   const n = Number(raw || 0);
   if (!Number.isFinite(n)) {
     return "n/a";

@@ -2,14 +2,29 @@ import { el } from '../dom.js';
 import { renderBookGrid } from './card_view.js';
 import { createBookDialog } from './dialog.js';
 import { finishDatesByBookId } from './finish_dates.js';
-import { GROUP_BY_NONE, groupBooks } from './grouping.js';
+import { GROUP_BY_NONE, GROUP_BY_AUTHOR, GROUP_BY_FINISH_DATE, GROUP_BY_SHELF, GROUP_BY_TITLE_LETTER, groupBooks } from './grouping.js';
 import { hasSchedulableLength, normalizeBook, toPayloadBook } from './model.js';
 import { withUpdatedProgress } from './progress.js';
 import { hydrateBookCover, upsertBookById } from './save.js';
 import { shelfFilterMatches, SHELF_FILTER_ALL } from './shelf.js';
-import { sortBooks } from './sort.js';
+import {
+  sortBooks,
+  SORT_BY_AUTHOR,
+  SORT_BY_DEADLINE,
+  SORT_BY_DIFFICULTY,
+  SORT_BY_ESTIMATED_FINISH,
+  SORT_BY_PAGES_READ,
+  SORT_BY_PAGES_TOTAL,
+  SORT_BY_PRIORITY,
+  SORT_BY_PROGRESS,
+  SORT_BY_SHELF,
+  SORT_BY_WORDS_TOTAL,
+  type SortBy,
+  type SortDirection,
+} from './sort.js';
 import type { PlannerScheduleRow } from '../app/types.js';
 import type { Book, BookProgressUpdates } from './types.js';
+import type { BookGroupBy } from './grouping.js';
 import {
   ensureBooksToolbarControls,
   SORT_BY_TITLE,
@@ -19,11 +34,72 @@ import {
   updateShelfFilterOptions,
   updateSortDirectionButton,
 } from './toolbar.js';
+
+type BooksControllerRefs = {
+  toolbar: HTMLElement | null;
+  grid: HTMLElement | null;
+  empty: HTMLElement | null;
+  addBtn: HTMLButtonElement | null;
+  shelfFilterSelect: HTMLSelectElement | null;
+  sortBySelect: HTMLSelectElement | null;
+  groupBySelect: HTMLSelectElement | null;
+  sortDirectionBtn: HTMLButtonElement | null;
+};
+
+type BookDialogController = {
+  open: (book?: Book | null) => void;
+};
+
+type BooksViewState = {
+  shelfFilter: string;
+  sortBy: SortBy;
+  groupBy: BookGroupBy;
+  sortDirection: SortDirection;
+};
+
+const SORT_BY_OPTIONS: SortBy[] = [
+  SORT_BY_TITLE,
+  SORT_BY_AUTHOR,
+  SORT_BY_ESTIMATED_FINISH,
+  SORT_BY_PAGES_TOTAL,
+  SORT_BY_PAGES_READ,
+  SORT_BY_WORDS_TOTAL,
+  SORT_BY_PROGRESS,
+  SORT_BY_PRIORITY,
+  SORT_BY_DIFFICULTY,
+  SORT_BY_DEADLINE,
+  SORT_BY_SHELF,
+];
+
+const GROUP_BY_OPTIONS: BookGroupBy[] = [
+  GROUP_BY_NONE,
+  GROUP_BY_SHELF,
+  GROUP_BY_FINISH_DATE,
+  GROUP_BY_TITLE_LETTER,
+  GROUP_BY_AUTHOR,
+];
+
+function toSortBy(value: string): SortBy {
+  const matched = SORT_BY_OPTIONS.find((option) => option === value);
+  if (matched) {
+    return matched;
+  }
+  return SORT_BY_TITLE;
+}
+
+function toGroupBy(value: string): BookGroupBy {
+  const matched = GROUP_BY_OPTIONS.find((option) => option === value);
+  if (matched) {
+    return matched;
+  }
+  return GROUP_BY_NONE;
+}
+
 let books: Book[] = [];
 let scheduleRows: PlannerScheduleRow[] = [];
-let onBooksChanged = () => {};
-let dialog = null;
-const refs = {
+let onBooksChanged: () => void = () => {};
+let dialog: BookDialogController | null = null;
+const refs: BooksControllerRefs = {
   toolbar: null,
   grid: null,
   empty: null,
@@ -34,7 +110,7 @@ const refs = {
   sortDirectionBtn: null,
 };
 
-const viewState = {
+const viewState: BooksViewState = {
   shelfFilter: SHELF_FILTER_ALL,
   sortBy: SORT_BY_TITLE,
   groupBy: GROUP_BY_NONE,
@@ -77,7 +153,7 @@ export function updateBookProgress(
   return { ...books[idx] };
 }
 
-function render() {
+function render(): void {
   if (!(refs.shelfFilterSelect instanceof HTMLSelectElement)) {
     return;
   }
@@ -114,7 +190,7 @@ function render() {
     empty: refs.empty,
     onEdit: (bookId) => {
       const book = findBook(bookId);
-      if (book) {
+      if (book && dialog) {
         dialog.open(book);
       }
     },
@@ -171,7 +247,7 @@ export function bindBooksUI(onChanged: () => void = () => {}): void {
   refs.sortDirectionBtn = toolbarControls.sortDirectionBtn;
 
   refs.sortBySelect.addEventListener('change', () => {
-    viewState.sortBy = refs.sortBySelect.value;
+    viewState.sortBy = toSortBy(refs.sortBySelect.value);
     render();
   });
 
@@ -181,12 +257,12 @@ export function bindBooksUI(onChanged: () => void = () => {}): void {
   });
 
   refs.groupBySelect.addEventListener('change', () => {
-    viewState.groupBy = refs.groupBySelect.value;
+    viewState.groupBy = toGroupBy(refs.groupBySelect.value);
     render();
   });
 
   refs.sortDirectionBtn.addEventListener('click', () => {
-    let nextDirection = SORT_DIRECTION_ASC;
+    let nextDirection: SortDirection = SORT_DIRECTION_ASC;
     if (viewState.sortDirection === SORT_DIRECTION_ASC) {
       nextDirection = SORT_DIRECTION_DESC;
     }
@@ -195,6 +271,10 @@ export function bindBooksUI(onChanged: () => void = () => {}): void {
   });
 
   dialog = createBookDialog(saveBook, { getBooks: () => books });
-  refs.addBtn.onclick = () => dialog.open();
+  refs.addBtn.onclick = () => {
+    if (dialog) {
+      dialog.open();
+    }
+  };
   render();
 }

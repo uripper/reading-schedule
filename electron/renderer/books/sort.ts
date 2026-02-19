@@ -1,5 +1,6 @@
 
 import { normalizeShelfName } from "./shelf.js";
+import type { Book } from "./types.js";
 
 export const SORT_BY_TITLE = "title";
 export const SORT_BY_AUTHOR = "author";
@@ -16,7 +17,25 @@ export const SORT_BY_SHELF = "shelf";
 export const SORT_DIRECTION_ASC = "asc";
 export const SORT_DIRECTION_DESC = "desc";
 
-function compareNumbers(left, right) {
+export type SortBy =
+  | typeof SORT_BY_TITLE
+  | typeof SORT_BY_AUTHOR
+  | typeof SORT_BY_PAGES_TOTAL
+  | typeof SORT_BY_PAGES_READ
+  | typeof SORT_BY_WORDS_TOTAL
+  | typeof SORT_BY_PROGRESS
+  | typeof SORT_BY_PRIORITY
+  | typeof SORT_BY_DIFFICULTY
+  | typeof SORT_BY_DEADLINE
+  | typeof SORT_BY_ESTIMATED_FINISH
+  | typeof SORT_BY_SHELF;
+
+export type SortDirection = typeof SORT_DIRECTION_ASC | typeof SORT_DIRECTION_DESC;
+
+type OptionalNumber = number | null | undefined;
+type OptionalString = string | null | undefined;
+
+function compareNumbers(left: OptionalNumber, right: OptionalNumber): number {
   const leftMissing = left === null || left === undefined;
   const rightMissing = right === null || right === undefined;
   if (leftMissing && rightMissing) {
@@ -37,7 +56,7 @@ function compareNumbers(left, right) {
   return 0;
 }
 
-function compareText(left, right) {
+function compareText(left: OptionalString, right: OptionalString): number {
   const leftText = String(left || "").trim().toLowerCase();
   const rightText = String(right || "").trim().toLowerCase();
   const leftMissing = !leftText;
@@ -54,7 +73,12 @@ function compareText(left, right) {
   return leftText.localeCompare(rightText, undefined, { sensitivity: "base" });
 }
 
-function compareBySortKey(leftBook, rightBook, sortBy, finishDateByBookId) {
+function compareBySortKey(
+  leftBook: Book,
+  rightBook: Book,
+  sortBy: SortBy,
+  finishDateByBookId: Record<string, string>,
+): number {
   if (sortBy === SORT_BY_AUTHOR) {
     return compareText(leftBook.author, rightBook.author);
   }
@@ -88,7 +112,12 @@ function compareBySortKey(leftBook, rightBook, sortBy, finishDateByBookId) {
   return compareText(leftBook.title, rightBook.title);
 }
 
-export function sortBooks(books = [], sortBy = SORT_BY_TITLE, sortDirection = SORT_DIRECTION_ASC, finishDateByBookId = {}) {
+export function sortBooks(
+  books: Book[] = [],
+  sortBy: SortBy = SORT_BY_TITLE,
+  sortDirection: SortDirection = SORT_DIRECTION_ASC,
+  finishDateByBookId: Record<string, string> = {},
+): Book[] {
   let directionSign = 1;
   if (sortDirection === SORT_DIRECTION_DESC) {
     directionSign = -1;

@@ -1,7 +1,19 @@
 
+import type { BookLookupItem } from '../app/types.js';
 
-export function handleLookupKeydown(event, currentItems, activeIndex, setActiveIndex, selectItem, clearResults, searchInput) {
-  if (event.key === "ArrowDown") {
+type SetActiveIndex = (index: number) => void;
+type SelectItem = (index: number) => void;
+
+export function handleLookupKeydown(
+  event: KeyboardEvent,
+  currentItems: readonly BookLookupItem[],
+  activeIndex: number,
+  setActiveIndex: SetActiveIndex,
+  selectItem: SelectItem,
+  clearResults: () => void,
+  searchInput: HTMLInputElement,
+): void {
+  if (event.key === 'ArrowDown') {
     event.preventDefault();
     if (!currentItems.length) {
       return;
@@ -14,7 +26,7 @@ export function handleLookupKeydown(event, currentItems, activeIndex, setActiveI
     return;
   }
 
-  if (event.key === "ArrowUp") {
+  if (event.key === 'ArrowUp') {
     event.preventDefault();
     if (!currentItems.length) {
       return;
@@ -27,7 +39,7 @@ export function handleLookupKeydown(event, currentItems, activeIndex, setActiveI
     return;
   }
 
-  if (event.key === "Enter") {
+  if (event.key === 'Enter') {
     if (activeIndex < 0 || !currentItems.length) {
       return;
     }
@@ -36,7 +48,7 @@ export function handleLookupKeydown(event, currentItems, activeIndex, setActiveI
     return;
   }
 
-  if (event.key === "Escape") {
+  if (event.key === 'Escape') {
     clearResults();
     searchInput.blur();
   }

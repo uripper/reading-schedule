@@ -23,6 +23,8 @@ import {
   SORT_DIRECTION_DESC,
 } from './sort.js';
 import type { Book } from "./types.js";
+import type { BookGroupBy } from './grouping.js';
+import type { SortDirection } from './sort.js';
 
 type OptionDefinition = {
   value: string;
@@ -115,7 +117,7 @@ export function ensureBooksToolbarControls(toolbar: HTMLElement) {
   };
 }
 
-export function updateSortDirectionButton(sortDirectionBtn: HTMLButtonElement, sortDirection: string): void {
+export function updateSortDirectionButton(sortDirectionBtn: HTMLButtonElement, sortDirection: SortDirection): void {
   sortDirectionBtn.textContent = 'Ascending';
   if (sortDirection === SORT_DIRECTION_DESC) {
     sortDirectionBtn.textContent = 'Descending';
@@ -144,11 +146,15 @@ export function updateShelfFilterOptions(
   return nextValue;
 }
 
-export function updateGroupByOptions(groupBySelect: HTMLSelectElement, selectedValue: string, shelfFilter: string): string {
+export function updateGroupByOptions(
+  groupBySelect: HTMLSelectElement,
+  selectedValue: BookGroupBy,
+  shelfFilter: string,
+): BookGroupBy {
   const options = groupOptionsForShelfFilter(shelfFilter);
   groupBySelect.replaceChildren(...options.map((option) => createOption(option.value, option.label)));
 
-  let nextValue = GROUP_BY_NONE;
+  let nextValue: BookGroupBy = GROUP_BY_NONE;
   const hasSelectedValue = options.some((option) => option.value === selectedValue);
   if (hasSelectedValue) {
     nextValue = selectedValue;

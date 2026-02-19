@@ -1,4 +1,19 @@
+import type { BookLookupItem } from '../app/types.js';
 
+type LookupState = {
+  timer: ReturnType<typeof setTimeout> | null;
+  token: number;
+  currentItems: BookLookupItem[];
+  activeIndex: number;
+};
+
+type LookupInputHandlerArgs = {
+  searchInput: HTMLInputElement;
+  metaEl: HTMLElement;
+  state: LookupState;
+  clearResults: () => void;
+  refreshResults: () => void;
+};
 
 const LOOKUP_DELAY_MS = 260;
 const RESULT_LIMIT = 12;
@@ -10,8 +25,8 @@ export function createLookupInputHandler({
   state,
   clearResults,
   refreshResults,
-}) {
-  return () => {
+}: LookupInputHandlerArgs): () => void {
+  return (): void => {
     const query = searchInput.value.trim();
     if (state.timer) {
       clearTimeout(state.timer);
