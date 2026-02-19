@@ -105,11 +105,11 @@ function render() {
   const groups = groupBooks(visibleBooks, viewState.groupBy, finishDateByBookId);
 
   renderBookGrid({
-    books: visibleBooks,
     groups,
-    allBooks: books,
     finishDateByBookId,
     showShelfMeta,
+    books: visibleBooks,
+    allBooks: books,
     grid: refs.grid,
     empty: refs.empty,
     onEdit: (bookId) => {

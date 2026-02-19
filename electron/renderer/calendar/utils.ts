@@ -60,7 +60,7 @@ export function sessionKeyFor(row: { date: string; session_index: string | numbe
   return `${row.date}|${row.session_index}|${row.book_id}`;
 }
 
-export function parseOptionalNumber(value: string | number | null | undefined): number | null {
+export function parseOptionalNumber(value?: string | number): number | null {
   const raw = String(value ?? "").trim();
   if (!raw) {
     return null;

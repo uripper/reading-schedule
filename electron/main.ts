@@ -4,7 +4,7 @@ import path from 'node:path';
 import { app, BrowserWindow, ipcMain } from 'electron';
 
 import { downloadCover, searchBooks } from './book_lookup';
-import { readState, writeState } from './state_store';
+import { readState, type JsonValue, writeState } from './state_store';
 
 const DEFAULT_UI_SCALE = 1.55;
 const PLANNER_MODULE = 'reading_plan.gui_api';
@@ -13,6 +13,12 @@ const PYTHONPATH_SEGMENT = 'src';
 type DownloadCoverPayload = {
   bookId?: string;
   url?: string;
+};
+
+type BridgeResponse = {
+  data?: JsonValue;
+  error?: string;
+  ok?: boolean;
 };
 
 function root(): string {
@@ -30,11 +36,14 @@ function appendChunk(target: string, chunk: Buffer | string): string {
   return target + chunk.toString();
 }
 
-function parseBridgeOutput(stdout: string, stderr: string): unknown {
+function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
   try {
-    const parsed = JSON.parse(stdout || '{}') as { data?: unknown; error?: string; ok?: boolean };
+    const parsed = JSON.parse(stdout || '{}') as BridgeResponse;
     if (!parsed.ok) {
       throw new Error(parsed.error || stderr || 'Planner failed');
+    }
+    if (parsed.data === undefined) {
+      return null;
     }
     return parsed.data;
   } catch {
@@ -42,7 +51,7 @@ function parseBridgeOutput(stdout: string, stderr: string): unknown {
   }
 }
 
-function runBridge(args: string[], payload?: unknown): Promise<unknown> {
+function runBridge(args: string[], payload?: JsonValue): Promise<JsonValue> {
   return new Promise((resolve, reject) => {
     const pythonBinary = process.env.PYTHON_BIN || 'python';
     const processHandle = spawn(pythonBinary, ['-m', PLANNER_MODULE, ...args], {
@@ -98,26 +107,25 @@ function userData(): string {
   return app.getPath('userData');
 }
 
-function asDownloadCoverPayload(value: unknown): DownloadCoverPayload {
-  if (!value || typeof value !== 'object') {
+function asDownloadCoverPayload(value: DownloadCoverPayload | null): DownloadCoverPayload {
+  if (!value) {
     return {};
   }
-  const payload = value as DownloadCoverPayload;
   return {
-    url: payload.url,
-    bookId: payload.bookId,
+    url: value.url,
+    bookId: value.bookId,
   };
 }
 
 ipcMain.handle('plan:sample', () => runBridge(['--sample']));
-ipcMain.handle('plan:generate', (_event, payload: unknown) => runBridge([], payload));
-ipcMain.handle('book:search', (_event, query: unknown) => searchBooks(String(query ?? '')));
-ipcMain.handle('book:downloadCover', (_event, payload: unknown) => {
+ipcMain.handle('plan:generate', (_event, payload: JsonValue) => runBridge([], payload));
+ipcMain.handle('book:search', (_event, query: string) => searchBooks(String(query || '')));
+ipcMain.handle('book:downloadCover', (_event, payload: DownloadCoverPayload | null) => {
   const request = asDownloadCoverPayload(payload);
   return downloadCover(request.url, request.bookId, userData());
 });
 ipcMain.handle('state:load', () => readState(userData()));
-ipcMain.handle('state:save', (_event, payload: unknown) => {
+ipcMain.handle('state:save', (_event, payload: JsonValue) => {
   const result = writeState(userData(), payload);
   if (result.ok === false) {
     throw new Error(result.error || 'Failed to save state');
