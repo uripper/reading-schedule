@@ -5,7 +5,7 @@ declare global {
   interface Window {
     plannerApi: PlannerApi;
   }
-  var plannerApi: PlannerApi;
+  let plannerApi: PlannerApi;
 }
 
 export {};
