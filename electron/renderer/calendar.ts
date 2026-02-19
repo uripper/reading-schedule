@@ -5,15 +5,32 @@ import { renderCalendarMonth } from "./calendar/month.js";
 
 const DAYS_IN_WEEK = 7;
 
-const state = {
-  dates: {},
-  months: [],
-  index: 0,
-  selectedDate: "",
-  monthCellKeys: [],
+type CalendarRow = {
+  title?: string;
+  date?: string;
+  book_id?: string;
 };
 
-let interactionHandlers = {
+type CalendarHandlers = {
+  isSessionCompleted: (sessionKey: string) => boolean;
+  onSessionCompletionChanged: (payload: { sessionKey: string; completed: boolean; row: CalendarRow }) => void;
+  onSessionProgressUpdated: (payload: {
+    bookId: string;
+    pagesRead?: number | null;
+    progressPercent?: number | null;
+  }) => unknown;
+  getBookById: (bookId: string) => unknown;
+};
+
+const state = {
+  dates: {} as Record<string, CalendarRow[]>,
+  months: [] as string[],
+  index: 0,
+  selectedDate: "",
+  monthCellKeys: [] as string[],
+};
+
+let interactionHandlers: CalendarHandlers = {
   isSessionCompleted: () => false,
   onSessionCompletionChanged: () => {},
   onSessionProgressUpdated: () => null,
@@ -24,7 +41,7 @@ function renderDetails() {
   renderCalendarDetails(state, interactionHandlers);
 }
 
-function selectDate(dateKey, options = {}) {
+function selectDate(dateKey: string, options: { focus?: boolean } = {}) {
   state.selectedDate = dateKey;
   renderMonth();
   renderDetails();
@@ -36,7 +53,7 @@ function selectDate(dateKey, options = {}) {
   }
 }
 
-function moveSelectionBy(delta, currentIndex) {
+function moveSelectionBy(delta: number, currentIndex: number) {
   const nextIndex = Math.min(state.monthCellKeys.length - 1, Math.max(0, currentIndex + delta));
   const nextKey = state.monthCellKeys[nextIndex];
   if (!nextKey) {
@@ -59,7 +76,7 @@ function renderControls() {
 
 
 
-export function renderCalendar(rows, totals) {
+export function renderCalendar(rows: CalendarRow[], totals: Record<string, number>) {
   const previousSelectedDate = state.selectedDate;
   const previousMonthKey = state.months[state.index] || "";
   const enrichedRows = enrichRows(rows, totals);
@@ -91,14 +108,14 @@ export function renderCalendar(rows, totals) {
   renderMonth();
 }
 
-function resolveHandler(candidate, fallback) {
+function resolveHandler<T extends (...args: never[]) => unknown>(candidate: unknown, fallback: T): T {
   if (typeof candidate === "function") {
-    return candidate;
+    return candidate as T;
   }
   return fallback;
 }
 
-export function configureCalendarInteractions(handlers = {}) {
+export function configureCalendarInteractions(handlers: Partial<CalendarHandlers> = {}) {
   interactionHandlers = {
     isSessionCompleted: resolveHandler(handlers.isSessionCompleted, () => false),
     onSessionCompletionChanged: resolveHandler(handlers.onSessionCompletionChanged, () => {}),

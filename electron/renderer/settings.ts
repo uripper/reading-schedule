@@ -1,4 +1,3 @@
-
 import { el, qa } from "./dom.js";
 import {
   DEFAULT_DIFFICULTY_MULTIPLIER,
@@ -9,51 +8,69 @@ import {
 } from "./settings/config.js";
 import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.js";
 import { renderDifficultyRows, renderGrid, renderWeekdayGrid } from "./settings/render.js";
+import type { FieldDefinition } from "./settings/config.js";
 
-let dayOffs = [];
+type SettingsRecord = Record<string, unknown>;
+
+let dayOffs: string[] = [];
 const DEFAULT_SETTINGS_SECTION = "plan-budget";
 
-function setDayOffs(nextDayOffs) {
+function inputEl(id: string): HTMLInputElement {
+  return el<HTMLInputElement>(id);
+}
+
+function selectEl(id: string): HTMLSelectElement {
+  return el<HTMLSelectElement>(id);
+}
+
+function allFieldDefinitions(): FieldDefinition[] {
+  return Object.values(fields).flat();
+}
+
+function numberLevels(): number[] {
+  return Array.from({ length: DIFFICULTY_LEVEL_COUNT }, (_, index) => index + 1);
+}
+
+function setDayOffs(nextDayOffs: string[]): void {
   dayOffs = [...nextDayOffs];
   renderDayOffs(dayOffs, setDayOffs);
 }
 
-function allFieldDefinitions() {
-  return Object.values(fields).flat();
-}
-
-function forEachDifficultyLevel(callback) {
-  Array.from({ length: DIFFICULTY_LEVEL_COUNT }, (_, index) => index + 1).forEach(callback);
-}
-
-function activateSettingsSection(nextSection) {
+function activateSettingsSection(nextSection: string): void {
   const section = String(nextSection || DEFAULT_SETTINGS_SECTION);
-  qa("[data-settings-section]").forEach((card) => {
+  qa<HTMLElement>("[data-settings-section]").forEach((card) => {
     const active = card.dataset.settingsSection === section;
     card.hidden = !active;
   });
-  qa(".settings-section-tab").forEach((button) => {
+  qa<HTMLElement>(".settings-section-tab").forEach((button) => {
     const active = button.dataset.settingsSectionTarget === section;
     button.classList.toggle("is-active", active);
+    let ariaSelected = "false";
     if (active) {
-      button.setAttribute("aria-selected", "true");
-    } else {
-      button.setAttribute("aria-selected", "false");
+      ariaSelected = "true";
     }
+    button.setAttribute("aria-selected", ariaSelected);
   });
 }
 
-function bindSettingsSectionTabs() {
-  const tabs = qa(".settings-section-tab");
+function bindSettingsSectionTabs(): void {
+  const tabs = qa<HTMLElement>(".settings-section-tab");
   tabs.forEach((button) => {
     button.addEventListener("click", () => {
-      activateSettingsSection(button.dataset.settingsSectionTarget);
+      activateSettingsSection(String(button.dataset.settingsSectionTarget || DEFAULT_SETTINGS_SECTION));
     });
   });
   activateSettingsSection(DEFAULT_SETTINGS_SECTION);
 }
 
-export function initSettingsGrid() {
+function fieldInputValue(field: FieldDefinition): string {
+  if (field.type === "select") {
+    return selectEl(field.id).value.trim();
+  }
+  return inputEl(field.id).value.trim();
+}
+
+export function initSettingsGrid(): void {
   bindSettingsSectionTabs();
   renderGrid("windowGrid", fields.window);
   renderGrid("budgetGrid", fields.budget);
@@ -63,36 +80,42 @@ export function initSettingsGrid() {
   bindDayOffAddButton(() => dayOffs, setDayOffs);
 }
 
-export function fillSettings(settings) {
+export function fillSettings(settings: SettingsRecord = {}): void {
   allFieldDefinitions().forEach((field) => {
-    const value = settings?.[field.id];
+    const value = settings[field.id];
     if (field.type === "select") {
-      el(field.id).value = value ?? DEFAULT_PLAN_MODE;
+      selectEl(field.id).value = String(value ?? DEFAULT_PLAN_MODE);
       return;
     }
-    el(field.id).value = value ?? "";
+    let normalizedValue = "";
+    if (value !== undefined && value !== null) {
+      normalizedValue = String(value);
+    }
+    inputEl(field.id).value = normalizedValue;
   });
 
+  const minutesByWeekday = (settings.minutes_by_weekday as Record<string, unknown>) || {};
   weekdays.forEach(([key]) => {
-    el(`minutes_${key}`).value = settings?.minutes_by_weekday?.[key] ?? 0;
+    inputEl(`minutes_${key}`).value = String(minutesByWeekday[key] ?? 0);
   });
 
-  setDayOffs([...(settings?.days_off || [])].sort());
+  setDayOffs([...(settings.days_off as string[] || [])].sort());
 
-  forEachDifficultyLevel((level) => {
+  const difficultyMultiplier = (settings.difficulty_multiplier as Record<string, unknown>) || {};
+  numberLevels().forEach((level) => {
     const id = `diff_${level}`;
-    const exactLevel = settings?.difficulty_multiplier?.[level];
-    const stringLevel = settings?.difficulty_multiplier?.[String(level)];
+    const exactLevel = difficultyMultiplier[level];
+    const stringLevel = difficultyMultiplier[String(level)];
     const value = exactLevel ?? stringLevel ?? DEFAULT_DIFFICULTY_MULTIPLIER;
-    el(id).value = value;
+    inputEl(id).value = String(value);
   });
 }
 
-export function collectSettings() {
-  const output = {};
+export function collectSettings(): SettingsRecord {
+  const output: SettingsRecord = {};
 
   allFieldDefinitions().forEach((field) => {
-    const raw = el(field.id).value.trim();
+    const raw = fieldInputValue(field);
     if (field.type === "date" || field.type === "select") {
       output[field.id] = raw;
       return;
@@ -100,19 +123,19 @@ export function collectSettings() {
     output[field.id] = Number(raw || 0);
   });
 
+  const minutesPerDayRaw = inputEl("minutes_per_day").value.trim();
   output.minutes_per_day = null;
-  if (el("minutes_per_day").value.trim()) {
-    output.minutes_per_day = Number(el("minutes_per_day").value);
+  if (minutesPerDayRaw) {
+    output.minutes_per_day = Number(minutesPerDayRaw);
   }
 
   output.minutes_by_weekday = Object.fromEntries(
-    weekdays.map(([key]) => [key, Number(el(`minutes_${key}`).value || 0)]),
+    weekdays.map(([key]) => [key, Number(inputEl(`minutes_${key}`).value || 0)]),
   );
   output.days_off = [...dayOffs];
   output.difficulty_multiplier = Object.fromEntries(
-    Array.from({ length: DIFFICULTY_LEVEL_COUNT }, (_, index) => {
-      const level = index + 1;
-      const value = Number(el(`diff_${level}`).value || DEFAULT_DIFFICULTY_MULTIPLIER);
+    numberLevels().map((level) => {
+      const value = Number(inputEl(`diff_${level}`).value || DEFAULT_DIFFICULTY_MULTIPLIER);
       return [String(level), value];
     }),
   );

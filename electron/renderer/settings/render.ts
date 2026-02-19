@@ -1,8 +1,9 @@
 
 import { el } from "../dom.js";
 import { DIFFICULTY_LEVEL_COUNT, weekdays } from "./config.js";
+import type { FieldDefinition } from "./config.js";
 
-function hintDot(text) {
+function hintDot(text?: string): HTMLSpanElement | null {
   if (!text) {
     return null;
   }
@@ -15,7 +16,7 @@ function hintDot(text) {
   return dot;
 }
 
-function renderFieldInput(field) {
+function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
   const label = document.createElement("label");
   label.append(field.label);
 
@@ -24,7 +25,7 @@ function renderFieldInput(field) {
     label.append(" ", dot);
   }
 
-  let node;
+  let node: HTMLInputElement | HTMLSelectElement;
   if (field.type === "select") {
     node = document.createElement("select");
     (field.options || []).forEach((option) => {
@@ -46,8 +47,8 @@ function renderFieldInput(field) {
   return label;
 }
 
-export function renderGrid(id, fieldDefinitions) {
-  el(id).replaceChildren(...fieldDefinitions.map(renderFieldInput));
+export function renderGrid(id: string, fieldDefinitions: FieldDefinition[]): void {
+  el<HTMLElement>(id).replaceChildren(...fieldDefinitions.map(renderFieldInput));
 }
 
 export function renderWeekdayGrid() {
@@ -62,7 +63,7 @@ export function renderWeekdayGrid() {
 
     return label;
   });
-  el("weekdayGrid").replaceChildren(...weekdayNodes);
+  el<HTMLElement>("weekdayGrid").replaceChildren(...weekdayNodes);
 }
 
 export function renderDifficultyRows() {
@@ -86,5 +87,5 @@ export function renderDifficultyRows() {
     return row;
   });
 
-  el("difficultyBody").replaceChildren(...diffRows);
+  el<HTMLElement>("difficultyBody").replaceChildren(...diffRows);
 }

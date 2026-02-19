@@ -10,11 +10,11 @@ type ActivateTabOptions = {
 let onTabActivated: (name: TabName) => void = () => {};
 
 function allTabButtons() {
-  return qa(".tab[data-tab]");
+  return qa<HTMLElement>(".tab[data-tab]");
 }
 
 function desktopTabs() {
-  return qa(".tabs .tab[data-tab]");
+  return qa<HTMLElement>(".tabs .tab[data-tab]");
 }
 
 function panelByName(name: TabName): HTMLElement | null {
@@ -52,7 +52,7 @@ export function activateTab(name: TabName, options: ActivateTabOptions = {}) {
     }
   });
 
-  qa(".panel").forEach((panel) => setPanelState(panel, panel.id === `tab-${name}`));
+  qa<HTMLElement>(".panel").forEach((panel) => setPanelState(panel, panel.id === `tab-${name}`));
   const activePanel = panelByName(name);
   if (focusPanel && activePanel) {activePanel.focus();}
   document.title = `${activeLabel} - Bartleby`;
