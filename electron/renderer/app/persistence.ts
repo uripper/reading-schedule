@@ -1,36 +1,20 @@
-
+import type { Book } from '../books/types.js';
+import type { Session } from '../sessions/normalize.js';
+import type { FeatureFlags, Preferences } from './experience.js';
+import type { PlannerApi, PlannerResult, PlannerSettings, PlannerStateSnapshot } from './types.js';
 
 interface SessionsUI {
-  getSessions: () => unknown[];
+  getSessions: () => Session[];
 }
 
 interface DraftDataParams {
   sessionsUI?: SessionsUI | null;
-  collectBooks: () => unknown;
-  collectSettings: () => unknown;
-  preferences: unknown;
-  featureFlags: unknown;
-  scheduleCompletions: unknown;
-  lastResult: unknown;
-}
-
-interface DraftDataPayload {
-  sessions: unknown[];
-  preferences: unknown;
-  books: unknown;
-  settings: unknown;
-  feature_flags: unknown;
-  schedule_completions: unknown;
-  last_result: unknown;
-}
-
-interface SaveStateResult {
-  ok?: boolean;
-  error?: string;
-}
-
-interface PlannerApi {
-  saveState: (payload: DraftDataPayload) => Promise<SaveStateResult>;
+  collectBooks: () => Book[];
+  collectSettings: () => PlannerSettings;
+  preferences: Preferences;
+  featureFlags: FeatureFlags;
+  scheduleCompletions: Record<string, boolean>;
+  lastResult: PlannerResult | null;
 }
 
 type AddLog = (message: string) => void;
@@ -43,11 +27,8 @@ export function draftData({
   featureFlags,
   scheduleCompletions,
   lastResult,
-}: DraftDataParams): DraftDataPayload {
-  let sessions: unknown[] = [];
-  if (sessionsUI) {
-    sessions = sessionsUI.getSessions();
-  }
+}: DraftDataParams): PlannerStateSnapshot {
+  const sessions = sessionsUI ? sessionsUI.getSessions() : [];
 
   return {
     sessions,
@@ -61,19 +42,19 @@ export function draftData({
 }
 
 export async function saveStateSafe(
-  plannerApi: PlannerApi,
-  payload: DraftDataPayload,
+  plannerApi: Pick<PlannerApi, 'saveState'>,
+  payload: PlannerStateSnapshot,
   addLog: AddLog,
 ): Promise<boolean> {
   try {
     const result = await plannerApi.saveState(payload);
-    if (result?.ok === false) {
-      addLog(`Save failed: ${result.error || "Unknown state persistence error"}`);
+    if (result.ok === false) {
+      addLog(`Save failed: ${result.error || 'Unknown state persistence error'}`);
       return false;
     }
     return true;
-  } catch (error: any) {
-    addLog(`Save failed: ${error.message || error}`);
+  } catch {
+    addLog('Save failed: unexpected state persistence error.');
     return false;
   }
 }

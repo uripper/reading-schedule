@@ -26,7 +26,13 @@ export function initSessionsUI({
   const refs = createSessionRefs();
   let sessions = normalizeSessions(initialSessions);
 
-  const commitSession = (sessionInput: (Omit<Partial<Session>, "source" | "pages_read"> & { endedAt?: string; startedAt?: string; pages_read?: number | string | null; source?: string; }) | undefined) => {
+  const commitSession = (
+    sessionInput: (
+      Omit<Partial<Session>, "source" | "pages_read"> & {
+        endedAt?: string; startedAt?: string; pages_read?: number | string | null; source?: string;
+      }
+    ) | undefined,
+  ) => {
     sessions = [normalizeSession(sessionInput), ...sessions]
       .sort((a, b) => String(b.ended_at).localeCompare(String(a.ended_at)));
     renderSessionHistory(refs.history, sessions, deleteSessionById);
@@ -71,7 +77,7 @@ export function initSessionsUI({
 
   return {
     getSessions: () => [...sessions],
-    setSessions(nextSessions: unknown[] | undefined) {
+    setSessions(nextSessions: Parameters<typeof normalizeSessions>[0]) {
       sessions = normalizeSessions(nextSessions);
       renderSessionHistory(refs.history, sessions, deleteSessionById);
     },
