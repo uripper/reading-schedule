@@ -2,12 +2,14 @@
 import { el } from "../dom.js";
 import { renderBookGrid } from "./card_view.js";
 import { createBookDialog } from "./dialog.js";
+import { finishDatesByBookId } from "./finish_dates.js";
 import { hasSchedulableLength, normalizeBook, toPayloadBook } from "./model.js";
 import { shelfFilterMatches, SHELF_FILTER_ALL } from "./shelf.js";
 import { sortBooks } from "./sort.js";
 import { ensureBooksToolbarControls, SORT_BY_TITLE, SORT_DIRECTION_ASC, SORT_DIRECTION_DESC, updateShelfFilterOptions, updateSortDirectionButton } from "./toolbar.js";
 import { clamp } from "./utils.js";
 let books = [];
+let scheduleRows = [];
 let onBooksChanged = () => {};
 let dialog = null;
 const refs = {
@@ -102,12 +104,16 @@ export function updateBookProgress(bookId, updates = {}) {
 function render() {
   updateShelfFilterOptions(refs.shelfFilterSelect, books, viewState.shelfFilter);
   updateSortDirectionButton(refs.sortDirectionBtn, viewState.sortDirection);
+  const showShelfMeta = viewState.shelfFilter === SHELF_FILTER_ALL;
+  const finishDateByBookId = finishDatesByBookId(scheduleRows);
   const visibleBooks = sortBooks(books, viewState.sortBy, viewState.sortDirection).filter((book) => {
     return shelfFilterMatches(book, viewState.shelfFilter);
   });
   renderBookGrid({
     books: visibleBooks,
     allBooks: books,
+    finishDateByBookId,
+    showShelfMeta,
     grid: refs.grid,
     empty: refs.empty,
     onEdit: (bookId) => {
@@ -157,6 +163,11 @@ async function saveBook(book) {
 
 export function fillBooks(nextBooks) {
   books = (nextBooks || []).map(normalizeBook);
+  render();
+}
+
+export function setBookScheduleRows(rows = []) {
+  scheduleRows = [...rows];
   render();
 }
 

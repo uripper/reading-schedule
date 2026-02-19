@@ -38,8 +38,9 @@ export function toOptionalDate(raw) {
 
 export function formatInt(raw) {
   const n = Number(raw || 0);
-  if (!Number.isFinite(n) || n <= 0) {
+  if (!Number.isFinite(n)) {
     return "n/a";
   }
-  return new Intl.NumberFormat().format(Math.round(n));
+  const clamped = Math.max(0, Math.round(n));
+  return new Intl.NumberFormat().format(clamped);
 }

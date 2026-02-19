@@ -5,11 +5,12 @@ import { formatInt } from "./utils.js";
 
 export function progressLabel(book) {
   const pct = Number(book.progress_percent || 0);
-  let pages = "Pages n/a";
+  const pagesRead = Math.max(0, Number(book.pages_read || 0));
   if (book.pages_total) {
-    pages = `${formatInt(book.pages_read || 0)}/${formatInt(book.pages_total)} pages`;
+    const pagesTotal = Math.max(0, Number(book.pages_total || 0));
+    return `${pct.toFixed(1)}% · ${formatInt(pagesRead)}/${formatInt(pagesTotal)} pages`;
   }
-  return `${pct.toFixed(1)}% · ${pages}`;
+  return `${pct.toFixed(1)}% · ${formatInt(pagesRead)} pages read`;
 }
 
 export function wordsLabel(book) {
@@ -22,8 +23,15 @@ export function wordsLabel(book) {
   return "No word estimate";
 }
 
-export function metaLabel(book, titleById = {}) {
-  const bits = [`Priority ${book.priority}`, `Difficulty ${book.difficulty}`];
+export function metaLabel(book, options = {}) {
+  const titleById = options.titleById || {};
+  const finishDateByBookId = options.finishDateByBookId || {};
+  const bits = [];
+
+  const finishDate = finishDateByBookId[book.book_id];
+  if (finishDate) {
+    bits.push(`Est. finish ${finishDate}`);
+  }
   if (book.deadline) {
     bits.push(`Due ${book.deadline}`);
   }
@@ -34,7 +42,12 @@ export function metaLabel(book, titleById = {}) {
     }
     bits.push(`After ${blockerLabel}`);
   }
-  bits.push(`Shelf ${shelfLabelForBook(book)}`);
+  if (options.showShelfMeta) {
+    bits.push(`Shelf ${shelfLabelForBook(book)}`);
+  }
+  if (!bits.length) {
+    return "No schedule metadata";
+  }
   return bits.join(" · ");
 }
 

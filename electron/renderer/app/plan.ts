@@ -8,14 +8,17 @@ export async function runPlanGeneration({
   addLog,
   announce,
   onSuccess,
+  statusGeneratingMessage = "Generating plan...",
+  statusSuccessMessage = "Plan generated.",
+  successAnnouncement = "Plan generated and schedule updated.",
 }) {
   try {
     const payloadBooks = collectBooks();
     if (!payloadBooks.length) {
-      throw new Error("Add at least one book with pages or words before generating.");
+      return;
     }
 
-    setStatus("Generating plan...");
+    setStatus(statusGeneratingMessage);
     const payload = {
       planner: "mip",
       books: payloadBooks,
@@ -30,8 +33,10 @@ export async function runPlanGeneration({
     }
     addLog(`Status ${data.summary.status}. Planned ${data.summary.total_planned_minutes}/${data.summary.total_available_minutes} minutes.`);
 
-    setStatus("Plan generated.");
-    announce("Plan generated and schedule updated.");
+    setStatus(statusSuccessMessage);
+    if (successAnnouncement) {
+      announce(successAnnouncement);
+    }
   } catch (error) {
     setStatus(error.message || "Failed to generate plan", true);
     announce(error.message || "Failed to generate plan", "assertive");
