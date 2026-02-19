@@ -16,7 +16,9 @@ from tests.helpers import demo_books, demo_settings
 
 
 def assert_no_large_overread(
-    books: list[Book], result_assignments: dict[tuple[str, date], int], settings: Settings
+    books: list[Book],
+    result_assignments: dict[tuple[str, date], int],
+    settings: Settings,
 ) -> None:
     """Assert each book's assigned words do not exceed allowed overshoot."""
     wpb = {book.book_id: words_per_block(book, settings) for book in books}

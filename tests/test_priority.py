@@ -24,5 +24,11 @@ def test_greedy_uses_priority_one_as_highest() -> None:
         time_quantum_minutes=15,
     )
     assignments = plan_greedy(books, settings)
-    assert any(book_id == "high" and blocks > 0 for (book_id, _day), blocks in assignments.items())
-    assert all(book_id != "low" or blocks == 0 for (book_id, _day), blocks in assignments.items())
+    assert any(
+        book_id == "high" and blocks > 0
+        for (book_id, _day), blocks in assignments.items()
+    )
+    assert all(
+        book_id != "low" or blocks == 0
+        for (book_id, _day), blocks in assignments.items()
+    )

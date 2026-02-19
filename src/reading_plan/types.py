@@ -16,7 +16,8 @@ DEFAULT_DIFFICULTY_MULTIPLIER = {
     7: 0.40,
     8: 0.30,
     9: 0.20,
-    10: 0.10}
+    10: 0.10,
+}
 WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 PLAN_MODE_FINISH_SOON = "finish_soon"
 PLAN_MODE_SPREAD_OUT = "spread_out"

@@ -32,7 +32,10 @@ def test_greedy_respects_daily_constraints() -> None:
     assert all(len(day_totals[day][1]) <= settings.max_sessions_per_day for day in days)
 
     min_blocks = {b.book_id: b.min_blocks_per_session for b in books}
-    assert all(blocks == 0 or blocks >= min_blocks[book_id] for (book_id, _day), blocks in assignments.items())
+    assert all(
+        blocks == 0 or blocks >= min_blocks[book_id]
+        for (book_id, _day), blocks in assignments.items()
+    )
 
 
 def test_schedule_rows_have_expected_shape() -> None:
@@ -82,8 +85,16 @@ def test_greedy_honors_blocker_dependency() -> None:
         Book("b2", "Second", 3750, 1, 1, None, 1, None, 0.0, None, "b1"),
     ]
     assignments = plan_greedy(books, settings)
-    b1_days = sorted(day for (book_id, day), blocks in assignments.items() if book_id == "b1" and blocks > 0)
-    b2_days = sorted(day for (book_id, day), blocks in assignments.items() if book_id == "b2" and blocks > 0)
+    b1_days = sorted(
+        day
+        for (book_id, day), blocks in assignments.items()
+        if book_id == "b1" and blocks > 0
+    )
+    b2_days = sorted(
+        day
+        for (book_id, day), blocks in assignments.items()
+        if book_id == "b2" and blocks > 0
+    )
     assert b1_days
     assert b2_days
     assert min(b2_days) >= max(b1_days)
