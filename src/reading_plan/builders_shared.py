@@ -1,3 +1,5 @@
+"""Utilities for builders shared."""
+
 from __future__ import annotations
 
 # Keep in sync with electron/renderer/books/constants.js::WORDS_PER_PAGE.

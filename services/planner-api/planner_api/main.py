@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -85,13 +85,13 @@ def search_books_v1(q: str = Query(default="", min_length=0, max_length=120)) ->
 
 
 @app.exception_handler(HTTPException)
-async def http_exception_handler(_request, exc: HTTPException) -> JSONResponse:
+async def http_exception_handler(_request: Request, exc: HTTPException) -> JSONResponse:
     """Execute http exception handler."""
     message = str(exc.detail) if exc.detail else "Request failed"
     return _error("HTTP_ERROR", message, exc.status_code)
 
 
 @app.exception_handler(Exception)
-async def unhandled_exception_handler(_request, exc: Exception) -> JSONResponse:
+async def unhandled_exception_handler(_request: Request, exc: Exception) -> JSONResponse:
     """Execute unhandled exception handler."""
     return _error("INTERNAL_ERROR", str(exc), 500)

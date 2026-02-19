@@ -1,3 +1,5 @@
+"""Utilities for builders."""
+
 from __future__ import annotations
 
 from .builders_book import book_from_data
