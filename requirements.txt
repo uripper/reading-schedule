@@ -3,6 +3,3 @@ ortools>=9.10
 
 # Testing
 pytest>=8.0
-
-fastapi
-uvicorn
