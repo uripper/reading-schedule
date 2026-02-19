@@ -18,7 +18,7 @@ def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
     pages_raw = data.get("pages_total")
     has_words = str(words_raw or "").strip() != ""
     if has_words:
-        full = to_int(words_raw, "words_total")
+        full = to_int(words_raw or 0, "words_total")
     else:
         full = to_int(pages_raw or 0, "pages_total") * WORDS_PER_PAGE
 
@@ -33,20 +33,14 @@ def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
             raise ValueError("progress_percent must be between 0 and 100")
         words_read = int(round(full * progress / 100.0))
     else:
-        if full <= 0:
-            progress = 0.0
-        else:
-            progress = round(100.0 * words_read / full, 2)
-
+        progress = 0.0 if full <= 0 else round(100.0 * words_read / full, 2)
     return full, max(0, full - words_read), progress
 
 
 def book_from_data(data: dict[str, Any]) -> Book:
     """Execute book from data."""
     words_full, words_remaining, progress = _word_stats(data)
-    deadline = None
-    if data.get("deadline"):
-        deadline = parse_date(data["deadline"])
+    deadline = parse_date(data["deadline"]) if data.get("deadline") else None
     blocked_by = str(data.get("blocked_by") or data.get("blocker_book_id") or "").strip() or None
     book = Book(
         book_id=str(data.get("book_id") or "").strip() or str(uuid4()),
