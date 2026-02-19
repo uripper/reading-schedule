@@ -39,3 +39,19 @@ test('saveUploadedCover returns empty string for invalid input', () => {
     fs.rmSync(userDataDirectory, { recursive: true, force: true });
   }
 });
+
+test('saveUploadedCover returns a new local path when replacing an existing cover', () => {
+  const { saveUploadedCover } = lookup;
+  const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), TEMP_DIRECTORY_PREFIX));
+
+  try {
+    const first = saveUploadedCover(DATA_URL_PNG_1X1, 'book-test', userDataDirectory);
+    const second = saveUploadedCover(DATA_URL_PNG_1X1, 'book-test', userDataDirectory);
+
+    assert.notEqual(first, second);
+    assert.ok(fs.existsSync(fileURLToPath(first)));
+    assert.ok(fs.existsSync(fileURLToPath(second)));
+  } finally {
+    fs.rmSync(userDataDirectory, { recursive: true, force: true });
+  }
+});

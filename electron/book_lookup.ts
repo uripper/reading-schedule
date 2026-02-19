@@ -6,6 +6,7 @@ export { searchBooks } from './book_lookup_search';
 
 const COVER_DIRECTORY_NAME = 'book_covers';
 const COVER_FILE_FALLBACK_PREFIX = 'cover';
+const COVER_FILE_VERSION_SEPARATOR = '-';
 const MAX_SAFE_FILE_BASE_LENGTH = 80;
 
 const CONTENT_TYPE_PNG = 'image/png';
@@ -77,7 +78,7 @@ function ensureCoverDirectory(userDataDir: string): string {
 }
 
 function filePathForCover(userDataDir: string, bookId: string | undefined, extension: CoverExtension): string {
-  const fileName = `${safeFileBase(bookId)}${extension}`;
+  const fileName = `${safeFileBase(bookId)}${COVER_FILE_VERSION_SEPARATOR}${Date.now()}${extension}`;
   return path.join(ensureCoverDirectory(userDataDir), fileName);
 }
 
