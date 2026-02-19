@@ -11,7 +11,7 @@ export function el<T extends HTMLElement = HTMLElement>(id: string): T {
 }
 
 export function q<T extends Element = Element>(sel: string, root: ParentNode = document): T | null {
-  return root.querySelector(sel) as T | null;
+  return root.querySelector(sel);
 }
 
 export function qa<T extends Element = Element>(sel: string, root: ParentNode = document): T[] {

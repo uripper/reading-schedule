@@ -110,6 +110,13 @@ A PR must not merge if any of the following is true:
 - `typescript:S3735` (`void` operator):
   - Do not use `void` to silence Promise-returning calls.
   - For intentional fire-and-forget behavior, attach explicit handling (`promise.catch(...)`) or await from an async boundary.
+- Additional Sonar-driven readability/reliability rules:
+  - Prefer optional chaining over manual null checks when behavior is equivalent (`obj?.prop`, `obj?.method()`).
+  - For defaulting assignments, prefer nullish assignment (`??=`) instead of verbose reassignment patterns.
+  - Do not chain mutating `.sort()` inside expressions. Use a separate statement or non-mutating `.toSorted(...)`.
+  - Always provide an explicit compare callback for alphabetical string sorts using `String.prototype.localeCompare`.
+  - Avoid implicit object-to-string coercion (`value || ""`, template literals with unknown values, `String(value)` on unknown objects) unless the value is first narrowed to `string`.
+  - Remove redundant type assertions that do not narrow or otherwise change the static type.
 
 ## Testing and Verification
 
