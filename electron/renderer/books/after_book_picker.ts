@@ -5,6 +5,7 @@ import type { BookFormRefs } from './form_refs.js';
 const NO_ACTIVE_INDEX = -1;
 const FIRST_RESULT_INDEX = 0;
 const UNKNOWN_BOOK_LABEL = "Unknown";
+const ARIA_ACTIVE_DESCENDANT_ATTR = "aria-activedescendant";
 
 type PickerState = {
   currentBookId: string;
@@ -83,7 +84,7 @@ export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): A
     if (!state.filtered.length) {
       refs.afterBookResults.classList.remove("has-items");
       refs.afterBookInput.setAttribute("aria-expanded", "false");
-      refs.afterBookInput.removeAttribute("aria-activedescendant");
+      refs.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
       return;
     }
     const items = state.filtered.map((book, index) => {
@@ -102,10 +103,10 @@ export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): A
     refs.afterBookResults.classList.add("has-items");
     refs.afterBookInput.setAttribute("aria-expanded", "true");
     if (state.activeIndex > NO_ACTIVE_INDEX) {
-      refs.afterBookInput.setAttribute("aria-activedescendant", `after-book-option-${state.activeIndex}`);
+      refs.afterBookInput.setAttribute(ARIA_ACTIVE_DESCENDANT_ATTR, `after-book-option-${state.activeIndex}`);
       return;
     }
-    refs.afterBookInput.removeAttribute("aria-activedescendant");
+    refs.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
   };
   const selectBook = (book: Book | null | undefined): void => {
     if (!book) {

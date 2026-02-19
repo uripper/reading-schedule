@@ -117,7 +117,7 @@ function progressFormForToday(
   pagesInput.min = '0';
   pagesInput.step = '1';
   pagesInput.placeholder = 'Pages read';
-  setInputValueFromBookProgress(pagesInput, book.pages_read);
+  setInputValueFromBookProgress(pagesInput, book.pages_read ?? undefined);
 
   const pctInput = document.createElement('input');
   pctInput.type = 'number';

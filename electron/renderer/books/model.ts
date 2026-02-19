@@ -11,19 +11,67 @@ const MAX_PRIORITY = 5;
 const MIN_DIFFICULTY = 1;
 const MAX_DIFFICULTY = 10;
 const DEFAULT_MIN_BLOCKS = 1;
+const PROGRESS_MAX = 100;
+const PROGRESS_SCALE = 10;
+
+function toTrimmedText(value?: string | null): string {
+  return String(value ?? "").trim();
+}
+
+function toBookId(value?: string): string {
+  const text = toTrimmedText(value);
+  if (text) {
+    return text;
+  }
+  return uid();
+}
+
+function toIntWithFallback(value: number | undefined, fallback: number): number {
+  return toInt(value ?? fallback, fallback);
+}
+
+function toClampedInt(value: number | undefined, fallback: number, minValue: number, maxValue: number): number {
+  const parsed = toIntWithFallback(value, fallback);
+  return clamp(parsed, minValue, maxValue);
+}
+
+function minBlocksPerSession(value: number | undefined): number {
+  return Math.max(DEFAULT_MIN_BLOCKS, toIntWithFallback(value, DEFAULT_MIN_BLOCKS));
+}
+
+function withDefaultNumber(value: number | undefined, fallback: number): number {
+  if (value !== undefined) {
+    return value;
+  }
+  return fallback;
+}
+
+function withDefaultString(value: string | null | undefined): string {
+  if (value) {
+    return value;
+  }
+  return "";
+}
+
+function withNullableString(value: string | null | undefined): string | null {
+  if (value) {
+    return value;
+  }
+  return null;
+}
 
 function normalizeProgressAndPages(pagesTotal: number | null, pagesRead: number | null, progressRaw: number) {
   let nextPagesRead = pagesRead;
   if (pagesTotal && nextPagesRead === null) {
-    nextPagesRead = Math.round((progressRaw / 100) * pagesTotal);
+    nextPagesRead = Math.round((progressRaw / PROGRESS_MAX) * pagesTotal);
   }
   if (pagesTotal && nextPagesRead !== null) {
     nextPagesRead = clamp(nextPagesRead, 0, pagesTotal);
   }
 
-  let progress = Math.round(progressRaw * 10) / 10;
+  let progress = Math.round(progressRaw * PROGRESS_SCALE) / PROGRESS_SCALE;
   if (pagesTotal) {
-    progress = Math.round((((nextPagesRead || 0) / pagesTotal) * 100) * 10) / 10;
+    progress = Math.round((((nextPagesRead || 0) / pagesTotal) * PROGRESS_MAX) * PROGRESS_SCALE) / PROGRESS_SCALE;
   }
   return { pagesRead: nextPagesRead, progress };
 }
@@ -31,28 +79,28 @@ function normalizeProgressAndPages(pagesTotal: number | null, pagesRead: number 
 export function normalizeBook(book: BookInput = {}): Book {
   const wordsTotal = toOptionalInt(book.words_total);
   const pagesTotal = toOptionalInt(book.pages_total);
-  const progressRaw = clamp(Number(book.progress_percent || 0), 0, 100);
+  const progressRaw = clamp(Number(book.progress_percent ?? 0), 0, PROGRESS_MAX);
   const pagesReadRaw = toOptionalInt(book.pages_read);
   const { pagesRead, progress } = normalizeProgressAndPages(pagesTotal, pagesReadRaw, progressRaw);
 
   return {
-    book_id: String(book.book_id || "").trim() || uid(),
-    title: String(book.title || "").trim(),
-    author: String(book.author || "").trim(),
+    book_id: toBookId(book.book_id),
+    title: toTrimmedText(book.title),
+    author: toTrimmedText(book.author),
     words_total: wordsTotal,
     pages_total: pagesTotal,
     pages_read: pagesRead,
     progress_percent: progress,
-    priority: clamp(toInt(book.priority || DEFAULT_PRIORITY, DEFAULT_PRIORITY), MIN_PRIORITY, MAX_PRIORITY),
-    difficulty: clamp(toInt(book.difficulty || DEFAULT_DIFFICULTY, DEFAULT_DIFFICULTY), MIN_DIFFICULTY, MAX_DIFFICULTY),
-    min_blocks_per_session: Math.max(DEFAULT_MIN_BLOCKS, toInt(book.min_blocks_per_session || DEFAULT_MIN_BLOCKS, DEFAULT_MIN_BLOCKS)),
+    priority: toClampedInt(book.priority, DEFAULT_PRIORITY, MIN_PRIORITY, MAX_PRIORITY),
+    difficulty: toClampedInt(book.difficulty, DEFAULT_DIFFICULTY, MIN_DIFFICULTY, MAX_DIFFICULTY),
+    min_blocks_per_session: minBlocksPerSession(book.min_blocks_per_session),
     max_minutes_per_day: toOptionalInt(book.max_minutes_per_day),
     deadline: toOptionalDate(book.deadline),
-    blocked_by: String(book.blocked_by || "").trim() || null,
+    blocked_by: withNullableString(toTrimmedText(book.blocked_by)),
     shelf: normalizeShelfName(book.shelf),
-    cover_url: String(book.cover_url || "").trim(),
-    cover_local_path: String(book.cover_local_path || "").trim(),
-    lookup_note: String(book.lookup_note || "").trim(),
+    cover_url: toTrimmedText(book.cover_url),
+    cover_local_path: toTrimmedText(book.cover_local_path),
+    lookup_note: toTrimmedText(book.lookup_note),
   };
 }
 
@@ -67,18 +115,18 @@ export function toPayloadBook(book: Book): Book {
     words_total: book.words_total ?? null,
     pages_total: book.pages_total ?? null,
     pages_read: book.pages_read ?? null,
-    progress_percent: book.progress_percent ?? 0,
-    priority: book.priority || DEFAULT_PRIORITY,
-    difficulty: book.difficulty || DEFAULT_DIFFICULTY,
-    min_blocks_per_session: book.min_blocks_per_session || DEFAULT_MIN_BLOCKS,
+    progress_percent: book.progress_percent,
+    priority: withDefaultNumber(book.priority, DEFAULT_PRIORITY),
+    difficulty: withDefaultNumber(book.difficulty, DEFAULT_DIFFICULTY),
+    min_blocks_per_session: withDefaultNumber(book.min_blocks_per_session, DEFAULT_MIN_BLOCKS),
     max_minutes_per_day: book.max_minutes_per_day ?? null,
-    deadline: book.deadline || null,
-    blocked_by: book.blocked_by || null,
-    shelf: book.shelf || "",
-    author: book.author || "",
-    cover_url: book.cover_url || "",
-    cover_local_path: book.cover_local_path || "",
-    lookup_note: book.lookup_note || "",
+    deadline: withNullableString(book.deadline),
+    blocked_by: withNullableString(book.blocked_by),
+    shelf: withDefaultString(book.shelf),
+    author: withDefaultString(book.author),
+    cover_url: withDefaultString(book.cover_url),
+    cover_local_path: withDefaultString(book.cover_local_path),
+    lookup_note: withDefaultString(book.lookup_note),
   };
 }
 
