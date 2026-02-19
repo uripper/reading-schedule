@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import { app, BrowserWindow, ipcMain } from 'electron';
 
-import { downloadCover, searchBooks } from './book_lookup';
+import { downloadCover, saveUploadedCover, searchBooks } from './book_lookup';
 import { readState, type JsonValue, writeState } from './state_store';
 
 const DEFAULT_UI_SCALE = 1.55;
@@ -13,6 +13,11 @@ const PYTHONPATH_SEGMENT = 'src';
 type DownloadCoverPayload = {
   bookId?: string;
   url?: string;
+};
+
+type UploadCoverPayload = {
+  bookId?: string;
+  dataUrl?: string;
 };
 
 type BridgeResponse = {
@@ -117,12 +122,26 @@ function asDownloadCoverPayload(value: DownloadCoverPayload | null): DownloadCov
   };
 }
 
+function asUploadCoverPayload(value: UploadCoverPayload | null): UploadCoverPayload {
+  if (!value) {
+    return {};
+  }
+  return {
+    dataUrl: value.dataUrl,
+    bookId: value.bookId,
+  };
+}
+
 ipcMain.handle('plan:sample', () => runBridge(['--sample']));
 ipcMain.handle('plan:generate', (_event, payload: JsonValue) => runBridge([], payload));
 ipcMain.handle('book:search', (_event, query: string) => searchBooks(String(query || '')));
 ipcMain.handle('book:downloadCover', (_event, payload: DownloadCoverPayload | null) => {
   const request = asDownloadCoverPayload(payload);
   return downloadCover(request.url, request.bookId, userData());
+});
+ipcMain.handle('book:saveUploadedCover', (_event, payload: UploadCoverPayload | null) => {
+  const request = asUploadCoverPayload(payload);
+  return saveUploadedCover(request.dataUrl, request.bookId, userData());
 });
 ipcMain.handle('state:load', () => readState(userData()));
 ipcMain.handle('state:save', (_event, payload: JsonValue) => {

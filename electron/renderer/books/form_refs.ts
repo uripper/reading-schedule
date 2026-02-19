@@ -11,6 +11,8 @@ export type BookFormRefs = {
   searchInput: HTMLInputElement;
   searchResults: HTMLElement;
   lookupMeta: HTMLElement;
+  coverPanel: HTMLElement;
+  coverUploadInput: HTMLInputElement;
   titleInput: HTMLInputElement;
   wordsInput: HTMLInputElement;
   pagesTotalInput: HTMLInputElement;
@@ -48,6 +50,8 @@ export function getBookFormRefs(): BookFormRefs {
     searchInput: el<HTMLInputElement>("bookSearchInput"),
     searchResults: el<HTMLElement>("bookSearchResults"),
     lookupMeta: el<HTMLElement>("bookLookupMeta"),
+    coverPanel: el<HTMLElement>("bookCoverPanel"),
+    coverUploadInput: el<HTMLInputElement>("bookCoverUploadInput"),
     titleInput: el<HTMLInputElement>("bookTitleInput"),
     wordsInput: el<HTMLInputElement>("bookWordsInput"),
     pagesTotalInput: el<HTMLInputElement>("bookPagesTotalInput"),

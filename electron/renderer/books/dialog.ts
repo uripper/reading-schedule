@@ -6,6 +6,7 @@ import { ensureBookFormLayoutFields } from "./form_layout.js";
 import { getBookFormRefs } from "./form_refs.js";
 import { createAfterBookPicker } from "./after_book_picker.js";
 import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.js";
+import { bindCoverUpload } from "./cover_upload.js";
 import type { Book } from "./types.js";
 import type { BookFormRefs } from "./form_refs.js";
 
@@ -25,6 +26,7 @@ export function createBookDialog(onSubmit: (book: Book) => Promise<void> | void,
   ensureBookFormLayoutFields();
   const refs = getBookFormRefs();
   bindShelfPicker(refs);
+  bindCoverUpload(refs);
   const afterBookPicker = createAfterBookPicker(refs, getBooks);
   const dialogFocus = bindDialogFocus(refs.dialog, { initialFocusSelector: "#bookTitleInput" });
   const lookupControl = bindBookLookup({

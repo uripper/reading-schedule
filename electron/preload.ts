@@ -5,6 +5,7 @@ type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 
 type PlannerApi = {
   downloadCover: (url: string | undefined, bookId: string | undefined) => Promise<string>;
+  saveUploadedCover: (dataUrl: string | undefined, bookId: string | undefined) => Promise<string>;
   generate: (payload: JsonValue) => Promise<JsonValue>;
   loadState: () => Promise<JsonValue>;
   sample: () => Promise<JsonValue>;
@@ -18,6 +19,8 @@ const plannerApi: PlannerApi = {
   searchBooks: (query: string) => ipcRenderer.invoke('book:search', query),
   downloadCover: (url: string | undefined, bookId: string | undefined) =>
     ipcRenderer.invoke('book:downloadCover', { url, bookId }),
+  saveUploadedCover: (dataUrl: string | undefined, bookId: string | undefined) =>
+    ipcRenderer.invoke('book:saveUploadedCover', { dataUrl, bookId }),
   loadState: () => ipcRenderer.invoke('state:load'),
   saveState: (payload: JsonValue) => ipcRenderer.invoke('state:save', payload),
 };

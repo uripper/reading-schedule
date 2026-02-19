@@ -199,9 +199,11 @@
           <datalist id="bookSearchResults" class="book-search-results" aria-label="Book suggestions"></datalist>
           <p id="bookLookupMeta" class="lookup-meta"></p>
         </section>
-        <section class="book-cover-panel">
+        <section id="bookCoverPanel" class="book-cover-panel" role="button" tabindex="0" aria-label="Upload custom cover">
           <img id="bookCoverPreview" alt="Book cover preview" src="" />
+          <p class="book-cover-upload-hint">Click cover to upload your own image</p>
         </section>
+        <input id="bookCoverUploadInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
         <section class="book-fields">
           <div class="settings-grid">
             <label>Title<input id="bookTitleInput" required placeholder="Book title" /></label>

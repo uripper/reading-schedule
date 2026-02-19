@@ -102,4 +102,5 @@ export type PlannerApi = {
   generate: (payload: PlanGeneratePayload) => Promise<Pick<PlannerResult, 'schedule' | 'summary'>>;
   searchBooks: (query: string) => Promise<BookLookupItem[]>;
   downloadCover: (url: string | undefined, bookId: string | undefined) => Promise<string>;
+  saveUploadedCover: (dataUrl: string | undefined, bookId: string | undefined) => Promise<string>;
 };
