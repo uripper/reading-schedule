@@ -91,6 +91,18 @@ export function fillSettings(settings: PlannerSettings = {}): void {
       let selectedValue = DEFAULT_PLAN_MODE;
       if (typeof value === "string" && value.trim()) {
         selectedValue = value;
+      } else if (typeof value === "number") {
+        if (Number.isFinite(value)) {
+          selectedValue = `${value}`;
+        }
+      } else if (typeof value === "boolean") {
+        if (value) {
+          selectedValue = "true";
+        } else {
+          selectedValue = "false";
+        }
+      } else {
+        // Keep default fallback for unsupported value types.
       }
       selectEl(field.id).value = selectedValue;
       return;
