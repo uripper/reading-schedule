@@ -7,12 +7,8 @@ from .types import Book, Settings
 
 def book_to_data(book: Book) -> dict[str, object]:
     """Execute book to data."""
-    words_total = book.words_total
-    if book.words_full is not None:
-        words_total = book.words_full
-    deadline = None
-    if book.deadline:
-        deadline = book.deadline.isoformat()
+    words_total = book.words_total if book.words_full is None else book.words_full
+    deadline = book.deadline.isoformat() if book.deadline else None
     return {
         "book_id": book.book_id,
         "title": book.title,
