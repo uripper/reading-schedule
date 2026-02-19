@@ -1,3 +1,5 @@
+"""Test cases for test io."""
+
 from __future__ import annotations
 
 import json
@@ -8,7 +10,8 @@ import pytest
 from reading_plan.io import load_inputs
 
 
-def test_load_inputs_parses_books_and_settings(tmp_path: Path):
+def test_load_inputs_parses_books_and_settings(tmp_path: Path) -> None:
+    """Test that load inputs parses books and settings."""
     books = tmp_path / "books.csv"
     books.write_text(
         "book_id,title,words_total,priority,difficulty,deadline,min_blocks_per_session\n"
@@ -37,7 +40,8 @@ def test_load_inputs_parses_books_and_settings(tmp_path: Path):
     assert len(loaded_settings.days_off) == 1
 
 
-def test_load_inputs_rejects_invalid_weekday_map(tmp_path: Path):
+def test_load_inputs_rejects_invalid_weekday_map(tmp_path: Path) -> None:
+    """Test that load inputs rejects invalid weekday map."""
     books = tmp_path / "books.csv"
     books.write_text(
         "book_id,title,words_total,priority,difficulty\n"

@@ -1,3 +1,5 @@
+"""Utilities for schedule."""
+
 from __future__ import annotations
 
 from .schedule_csv import write_schedule_csv

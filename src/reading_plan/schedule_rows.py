@@ -1,3 +1,5 @@
+"""Utilities for schedule rows."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -11,6 +13,7 @@ def to_schedule_rows(
     settings: Settings,
     assignments: dict[tuple[str, date], int],
 ) -> list[dict[str, object]]:
+    """Convert to schedule rows."""
     return [
         {
             "date": day.isoformat(),

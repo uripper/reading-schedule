@@ -1,3 +1,5 @@
+"""Utilities for gui api."""
+
 from __future__ import annotations
 
 import argparse
@@ -10,6 +12,7 @@ from .serializers import book_to_data, settings_to_data
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse args."""
     p = argparse.ArgumentParser(description="GUI bridge for Reading Plan")
     p.add_argument("--sample", action="store_true", help="Return sample payload from data files")
     p.add_argument("--data", default="data/books.csv", help="Books CSV path for --sample")
@@ -18,6 +21,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    """Run values."""
     args = parse_args()
     try:
         if args.sample:

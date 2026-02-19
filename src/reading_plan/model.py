@@ -1,3 +1,5 @@
+"""Utilities for model."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -17,18 +19,29 @@ BuildCpSatResult = tuple[cp_model.CpModel, BookDayVars, BookDayVars, FinishedVar
 
 
 class _CpSatModelBuilder(Protocol):
-    def NewIntVar(self, lb: int, ub: int, name: str) -> cp_model.IntVar: ...
+    """Protocol for the subset of CP-SAT model APIs used by the planner."""
 
-    def NewBoolVar(self, name: str) -> cp_model.IntVar: ...
+    def NewIntVar(self, lb: int, ub: int, name: str) -> cp_model.IntVar:
+        """Create a bounded integer decision variable."""
+        ...
 
-    def Add(self, ct: object) -> object: ...
+    def NewBoolVar(self, name: str) -> cp_model.IntVar:
+        """Create a boolean decision variable."""
+        ...
 
-    def Maximize(self, obj: object) -> None: ...
+    def Add(self, ct: object) -> object:
+        """Add a constraint expression to the model."""
+        ...
+
+    def Maximize(self, obj: object) -> None:
+        """Set the model objective to maximize the provided expression."""
+        ...
 
 
 def build_cp_sat(
     books: list[Book], settings: Settings
 ) -> BuildCpSatResult:
+    """Build cp sat."""
     raw_model = cp_model.CpModel()
     model = cast(_CpSatModelBuilder, raw_model)
     days = date_range(settings.start_date, settings.end_date)

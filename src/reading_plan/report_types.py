@@ -1,9 +1,13 @@
+"""Utilities for report types."""
+
 from __future__ import annotations
 
 from typing import Optional, TypedDict
 
 
 class BookProgress(TypedDict):
+    """Book-level progress values used in summary reports."""
+
     title: str
     planned_words: int
     words_total: int
@@ -11,6 +15,8 @@ class BookProgress(TypedDict):
 
 
 class Summary(TypedDict):
+    """Top-level planner summary payload."""
+
     planner: str
     status: str
     objective: Optional[int]
