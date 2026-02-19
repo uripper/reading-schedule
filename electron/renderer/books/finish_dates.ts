@@ -1,5 +1,6 @@
 
 import type { PlannerScheduleRow } from '../app/types.js';
+import type { Book } from './types.js';
 
 const SESSION_INDEX_PAD = 3;
 
@@ -14,7 +15,24 @@ function sortRows(rows: PlannerScheduleRow[] = []): PlannerScheduleRow[] {
   });
 }
 
-export function finishDatesByBookId(rows: PlannerScheduleRow[] = []): Record<string, string> {
+function withBookFinishedDates(
+  finishDateByBookId: Record<string, string>,
+  books: Book[] = [],
+): Record<string, string> {
+  const out = { ...finishDateByBookId };
+  books.forEach((book) => {
+    const bookId = String(book?.book_id || '');
+    const finishedAt = String(book?.finished_at || '');
+    if (!bookId || !finishedAt) {
+      return;
+    }
+    // For read books, explicit completion date should win over schedule estimates.
+    out[bookId] = finishedAt;
+  });
+  return out;
+}
+
+export function finishDatesByBookId(rows: PlannerScheduleRow[] = [], books: Book[] = []): Record<string, string> {
   const out: Record<string, string> = {};
   sortRows(rows).forEach((row) => {
     const bookId = String(row?.book_id || "");
@@ -24,5 +42,5 @@ export function finishDatesByBookId(rows: PlannerScheduleRow[] = []): Record<str
     }
     out[bookId] = date;
   });
-  return out;
+  return withBookFinishedDates(out, books);
 }

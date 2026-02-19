@@ -188,7 +188,7 @@ function render(): void {
   updateSortDirectionButton(refs.sortDirectionBtn, viewState.sortDirection);
 
   const showShelfMeta = viewState.shelfFilter === SHELF_FILTER_ALL;
-  const finishDateByBookId = finishDatesByBookId(scheduleRows);
+  const finishDateByBookId = finishDatesByBookId(scheduleRows, books);
 
   const visibleBooks = sortBooks(books, viewState.sortBy, viewState.sortDirection, finishDateByBookId).filter((book) => {
     if (!shelfFilterMatches(book, viewState.shelfFilter)) {
