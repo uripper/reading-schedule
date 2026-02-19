@@ -6,6 +6,7 @@ If a rule here conflicts with convenience, the rule wins.
 ## Scope
 
 Applies to all code and docs in:
+
 - `src/`
 - `electron/`
 - `apps/`
@@ -28,6 +29,7 @@ Applies to all code and docs in:
 ## Merge Blockers
 
 A PR must not merge if any of the following is true:
+
 - Any MUST rule is violated.
 - Any required lint/typecheck/test command fails.
 - Any typecheck error exists in touched areas.
@@ -42,6 +44,7 @@ A PR must not merge if any of the following is true:
 - Use early returns instead of deep nesting.
 - Keep function bodies small and extract helpers when branching grows.
 - Do not declare functions inside blocks.
+- Group all shorthand properties together at the beginning or end of object declarations.
 
 ### File and Module Design
 
@@ -71,6 +74,7 @@ A PR must not merge if any of the following is true:
 ### Runtime and Platform Safety
 
 - Prefer `globalThis` over `window` for global APIs.
+- Do not cast `globalThis` to `Window`; type only the specific global members you need.
 - Validate external input at boundaries.
 - Fail fast on invalid state with actionable messages.
 
@@ -79,6 +83,33 @@ A PR must not merge if any of the following is true:
 - Do not silently swallow exceptions.
 - `catch` blocks must either recover with context or rethrow with context.
 - User-visible errors must be actionable.
+- Use logging over console statements for most situations. Only exceptions:
+  - assert
+  - clear
+  - count
+  - group
+  - groupCollapsed
+  - groupEnd
+  - info
+  - table
+  - time
+  - timeEnd
+  - trace
+- If you can do those in logging, do them there.
+
+### Static Analysis Compliance (TypeScript)
+
+- Treat Sonar and lint violations as style violations; do not defer cleanup in touched files.
+- `typescript:S106` (`console` usage):
+  - Do not use `console.error`, `console.warn`, `console.log`, or `console.debug` in committed code.
+  - Allowed console methods are only: `assert`, `clear`, `count`, `group`, `groupCollapsed`, `groupEnd`, `info`, `table`, `time`, `timeEnd`, `trace`.
+  - Prefer user-facing recovery paths (`announce(...)`, status text updates, typed error returns) over console output in renderer code.
+- `typescript:S3499` (object literal shorthand grouping):
+  - Keep shorthand properties contiguous, grouped either at the top or bottom of each object literal.
+  - Do not interleave shorthand and non-shorthand properties.
+- `typescript:S3735` (`void` operator):
+  - Do not use `void` to silence Promise-returning calls.
+  - For intentional fire-and-forget behavior, attach explicit handling (`promise.catch(...)`) or await from an async boundary.
 
 ## Testing and Verification
 
@@ -134,12 +165,13 @@ If any required command fails, do not merge.
 - Update docs in the same PR when changing configuration formats.
 - Update docs in the same PR when changing API contracts.
 
-- Add module/function docstrings for Python entrypoints and non-obvious logic.
+- Add module, function, and class docstrings for Python entrypoints and non-obvious logic.
 - Write comments for intent and constraints, not obvious mechanics.
 
 ## Exception Process
 
 Temporary exceptions require all of the following:
+
 - A linked issue with owner and due date.
 - An inline `TODO` referencing that issue.
 - Explicit reviewer approval in the PR.
@@ -148,6 +180,7 @@ Temporary exceptions require all of the following:
 ## Definition of Done
 
 A change is done only when all are true:
+
 - No MUST rules are violated.
 - Required lint/typecheck/tests pass.
 - No new complexity or file-size violations are introduced.
