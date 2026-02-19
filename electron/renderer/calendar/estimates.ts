@@ -23,7 +23,10 @@ function projectedWordsForRow(row, state, bookId, baselineWords, totalWords) {
   const today = todayDateKey();
   const targetSortKey = rowSortKey(row);
   let plannedWords = 0;
-  const rows = Array.isArray(state?.rows) ? state.rows : [];
+  let rows = [];
+  if (Array.isArray(state?.rows)) {
+    rows = state.rows;
+  }
   rows.forEach((candidate) => {
     if (String(candidate?.book_id || "") !== bookId) {
       return;
@@ -41,7 +44,7 @@ function projectedWordsForRow(row, state, bookId, baselineWords, totalWords) {
 }
 
 function projectedPages(projectedWords, totalWords, pagesTotal) {
-  if (!(totalWords > 0) || !(pagesTotal > 0)) {
+  if (totalWords <= 0 || pagesTotal <= 0) {
     return null;
   }
   return Math.round((projectedWords / totalWords) * pagesTotal);
@@ -53,7 +56,7 @@ export function estimateProgressLabel(row, state, getBookById) {
     return "No estimate available";
   }
   const totalWords = Number(state?.totalsByBookId?.[bookId] || 0);
-  if (!(totalWords > 0)) {
+  if (totalWords <= 0) {
     return "No estimate available";
   }
 
