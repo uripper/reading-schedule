@@ -1,5 +1,40 @@
 
 
+interface SessionsUI {
+  getSessions: () => unknown[];
+}
+
+interface DraftDataParams {
+  sessionsUI?: SessionsUI | null;
+  collectBooks: () => unknown;
+  collectSettings: () => unknown;
+  preferences: unknown;
+  featureFlags: unknown;
+  scheduleCompletions: unknown;
+  lastResult: unknown;
+}
+
+interface DraftDataPayload {
+  sessions: unknown[];
+  preferences: unknown;
+  books: unknown;
+  settings: unknown;
+  feature_flags: unknown;
+  schedule_completions: unknown;
+  last_result: unknown;
+}
+
+interface SaveStateResult {
+  ok?: boolean;
+  error?: string;
+}
+
+interface PlannerApi {
+  saveState: (payload: DraftDataPayload) => Promise<SaveStateResult>;
+}
+
+type AddLog = (message: string) => void;
+
 export function draftData({
   sessionsUI,
   collectBooks,
@@ -8,8 +43,8 @@ export function draftData({
   featureFlags,
   scheduleCompletions,
   lastResult,
-}) {
-  let sessions = [];
+}: DraftDataParams): DraftDataPayload {
+  let sessions: unknown[] = [];
   if (sessionsUI) {
     sessions = sessionsUI.getSessions();
   }
@@ -25,7 +60,11 @@ export function draftData({
   };
 }
 
-export async function saveStateSafe(plannerApi, payload, addLog) {
+export async function saveStateSafe(
+  plannerApi: PlannerApi,
+  payload: DraftDataPayload,
+  addLog: AddLog,
+): Promise<boolean> {
   try {
     const result = await plannerApi.saveState(payload);
     if (result?.ok === false) {
@@ -33,7 +72,7 @@ export async function saveStateSafe(plannerApi, payload, addLog) {
       return false;
     }
     return true;
-  } catch (error) {
+  } catch (error: any) {
     addLog(`Save failed: ${error.message || error}`);
     return false;
   }
