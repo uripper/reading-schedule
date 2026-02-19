@@ -108,6 +108,13 @@ cd electron && npm run lint
 
 Run repository-wide analysis (with generated/dependency folders excluded via `sonar-project.properties`):
 
+First run on a new local SonarQube instance:
+
+```bash
+# 1) open http://localhost:9000 and complete the setup/password update flow
+# 2) create a token in My Account -> Security
+```
+
 ```bash
 SONAR_HOST_URL="https://your-sonarqube-server" SONAR_TOKEN="sqp_xxx" npm run sonar:scan
 ```

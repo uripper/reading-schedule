@@ -90,7 +90,7 @@ export function plannedFinishBookIds(
       return;
     }
     const summary = perBookSummary[bookId];
-    if (summary && summary.finished === false) {
+    if (summary?.finished === false) {
       return;
     }
     const monthIndex = monthIndexFromDateKey(dateKey);

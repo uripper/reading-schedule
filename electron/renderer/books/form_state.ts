@@ -116,9 +116,7 @@ function deriveLengthAndProgress(refs: BookFormRefs): {
     throw new Error("Enter estimated words or total pages.");
   }
   if (pagesTotal) {
-    if (pagesRead === null || pagesRead === undefined) {
-      pagesRead = Math.round((progress / PROGRESS_MAX) * pagesTotal);
-    }
+    pagesRead ??= Math.round((progress / PROGRESS_MAX) * pagesTotal);
     pagesRead = clamp(pagesRead, 0, pagesTotal);
     progress = Math.round(((pagesRead / pagesTotal) * PROGRESS_MAX) * PROGRESS_DECIMAL_SCALE) / PROGRESS_DECIMAL_SCALE;
     return {

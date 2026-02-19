@@ -89,7 +89,7 @@ export function groupRowsByDate(rows: CalendarRowWithFinish[] = []): RowsByDate 
 
 export function monthKeysFromRows(rows: CalendarRowWithFinish[] = []): string[] {
   const monthKeySet = new Set(rows.map((row) => row.date.slice(0, DAYS_IN_WEEK)));
-  return [...monthKeySet].sort();
+  return [...monthKeySet].sort((left, right) => left.localeCompare(right));
 }
 
 export function firstPlannedRow(rows: CalendarRow[] = []): CalendarRow | null {
