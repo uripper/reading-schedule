@@ -18,6 +18,7 @@ import {
   normalizeScheduleCompletions,
 } from "./app/experience.js";
 import { configureAppCalendarInteractions } from "./app/calendar_interactions.js";
+import { loadInitialData } from "./app/load_state.js";
 import { createPlanController } from "./app/plan_controller.js";
 import { bindSettingsAutoPlanListeners, createPersistQueue, createStatusSetter, totalsFromSummary } from "./app/runtime_helpers.js";
 import type { PlannerApi } from "./app/types.js";
@@ -154,50 +155,7 @@ function createAppPlanControllerInstance() {
   });
 }
 
-type InitialDataSource =
-  | {
-      settings?: Parameters<typeof fillSettings>[0];
-      books?: Parameters<typeof fillBooks>[0];
-    }
-  | null
-  | undefined;
-
-type LoadedPlannerState =
-  | (InitialDataSource & {
-      preferences?: Record<string, unknown>;
-      feature_flags?: Record<string, unknown>;
-      schedule_completions?: Record<string, boolean>;
-      sessions?: unknown[];
-      last_result?: { schedule?: unknown[] } | null;
-    })
-  | null
-  | undefined;
-
-function hasInitialSettingsAndBooks(source: InitialDataSource): boolean {
-  return Boolean(source?.settings && source?.books);
-}
-
-async function resolveInitialSource(saved: LoadedPlannerState): Promise<InitialDataSource> {
-  if (hasInitialSettingsAndBooks(saved)) {
-    return saved;
-  }
-  return (await plannerApi.sample()) as InitialDataSource;
-}
-
-function applyLoadedState(saved: LoadedPlannerState, source: InitialDataSource) {
-  fillSettings(source?.settings);
-  fillBooks(source?.books);
-  state.preferences = normalizePreferences(saved?.preferences || {});
-  state.featureFlags = normalizeFeatureFlags(saved?.feature_flags || {});
-  state.scheduleCompletions = normalizeScheduleCompletions(saved?.schedule_completions || {});
-  fillPreferencesUI(state.preferences, state.featureFlags);
-  applyPreferencesToDocument(state.preferences);
-  sessionsUI?.setSessions(saved?.sessions || []);
-  planController?.applyLoadedResult(saved?.last_result || null);
-  updateTodayView();
-}
-
-function finalizeInitialLoad(saved: LoadedPlannerState) {
+function finalizeInitialLoad(saved: { last_result?: { schedule?: unknown[] } | null } | null | undefined) {
   state.ready = true;
   document.addEventListener("input", queuePersist);
   document.addEventListener("change", queuePersist);
@@ -218,24 +176,6 @@ function finalizeInitialLoad(saved: LoadedPlannerState) {
   }
   if (!saved?.last_result?.schedule?.length) {
     planController?.queueAutoPlan();
-  }
-}
-
-function getInitialLoadErrorMessage(error: unknown): string {
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
-  return "Failed to load initial data";
-}
-
-async function loadInitialData() {
-  try {
-    const saved = (await plannerApi.loadState()) as LoadedPlannerState;
-    const source = await resolveInitialSource(saved);
-    applyLoadedState(saved, source);
-    finalizeInitialLoad(saved);
-  } catch (error) {
-    setStatus(getInitialLoadErrorMessage(error), true);
   }
 }
 
@@ -268,7 +208,34 @@ async function init() {
     onProgressUpdated: handleProgressUpdated,
   });
 
-  await loadInitialData();
+  await loadInitialData({
+    plannerApi,
+    fillSettings,
+    fillBooks,
+    normalizePreferences,
+    normalizeFeatureFlags,
+    normalizeScheduleCompletions,
+    fillPreferencesUI,
+    applyPreferencesToDocument,
+    setPreferences: (preferences) => {
+      state.preferences = preferences;
+    },
+    setFeatureFlags: (featureFlags) => {
+      state.featureFlags = featureFlags;
+    },
+    setScheduleCompletions: (scheduleCompletions) => {
+      state.scheduleCompletions = scheduleCompletions;
+    },
+    setSessions: (sessions) => {
+      sessionsUI?.setSessions(sessions);
+    },
+    applyLoadedResult: (result) => {
+      planController?.applyLoadedResult(result);
+    },
+    updateTodayView,
+    onLoaded: finalizeInitialLoad,
+    setStatus,
+  });
   bindTodayActions();
 }
 await init();
