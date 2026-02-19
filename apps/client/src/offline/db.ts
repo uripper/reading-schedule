@@ -1,12 +1,21 @@
 import Dexie, { type Table } from "dexie";
 import type { AppStateV2, Session } from "@reading-schedule/contracts";
 
-export interface QueuedMutation {
+export interface SaveStateMutation {
   id?: number;
-  kind: "save-state" | "log-session";
-  payload: unknown;
+  kind: "save-state";
+  payload: AppStateV2;
   createdAt: string;
 }
+
+export interface LogSessionMutation {
+  id?: number;
+  kind: "log-session";
+  payload: Session;
+  createdAt: string;
+}
+
+export type QueuedMutation = SaveStateMutation | LogSessionMutation;
 
 class ReadingScheduleDb extends Dexie {
   state!: Table<AppStateV2, number>;

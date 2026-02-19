@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import type { AppStateV2, GeneratePlanPayload, GeneratePlanResponse } from "@reading-schedule/contracts";
+import type { AppStateV2, BookLookupItem, GeneratePlanPayload, GeneratePlanResponse } from "@reading-schedule/contracts";
 
 const IPC = {
   generate: "planner:generate",
@@ -20,7 +20,25 @@ function statePath(): string {
   return path.join(app.getPath("userData"), "planner_state_v2.json");
 }
 
-function runPythonBridge(args: string[], payload?: unknown): Promise<unknown> {
+type PlannerBridgeResponse = {
+  ok?: boolean;
+  error?: string;
+  data?: GeneratePlanResponse;
+};
+
+type OpenLibraryDoc = {
+  title?: string;
+  author_name?: string[];
+  first_publish_year?: number;
+  number_of_pages_median?: number;
+  cover_i?: number;
+};
+
+type OpenLibraryResponse = {
+  docs?: OpenLibraryDoc[];
+};
+
+function runPythonBridge(args: string[], payload?: GeneratePlanPayload): Promise<GeneratePlanResponse> {
   return new Promise((resolve, reject) => {
     const pythonBin = process.env.PYTHON_BIN || "python";
     const proc = spawn(pythonBin, ["-m", "reading_plan.gui_api", ...args], {
@@ -44,9 +62,13 @@ function runPythonBridge(args: string[], payload?: unknown): Promise<unknown> {
     proc.on("error", reject);
     proc.on("close", () => {
       try {
-        const json = JSON.parse(stdout || "{}");
+        const json = JSON.parse(stdout || "{}") as PlannerBridgeResponse;
         if (!json.ok) {
           reject(new Error(json.error || stderr || "Planner bridge failed"));
+          return;
+        }
+        if (!json.data) {
+          reject(new Error("Planner bridge response missing data"));
           return;
         }
         resolve(json.data);
@@ -60,7 +82,7 @@ function runPythonBridge(args: string[], payload?: unknown): Promise<unknown> {
   });
 }
 
-async function searchBooks(query: string): Promise<Array<Record<string, unknown>>> {
+async function searchBooks(query: string): Promise<BookLookupItem[]> {
   const trimmed = String(query || "").trim();
   if (trimmed.length < 2) return [];
 
@@ -68,9 +90,9 @@ async function searchBooks(query: string): Promise<Array<Record<string, unknown>
     const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(trimmed)}&limit=8`;
     const response = await fetch(url);
     if (!response.ok) return [];
-    const json = (await response.json()) as { docs?: Array<Record<string, unknown>> };
+    const json = (await response.json()) as OpenLibraryResponse;
 
-    return (json.docs || []).map((doc) => {
+    return (json.docs || []).map((doc): BookLookupItem => {
       let author = "";
       if (Array.isArray(doc.author_name)) {
         author = String(doc.author_name[0] || "");
@@ -145,7 +167,7 @@ async function createWindow() {
 
 ipcMain.handle(IPC.generate, async (_event, payload: GeneratePlanPayload) => {
   const data = await runPythonBridge([], payload);
-  return data as GeneratePlanResponse;
+  return data;
 });
 
 ipcMain.handle(IPC.loadState, () => loadState());

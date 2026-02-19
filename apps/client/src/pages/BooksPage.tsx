@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Button, Card } from "@reading-schedule/ui";
+import type { BookLookupItem } from "@reading-schedule/contracts";
 import { usePlannerAdapter } from "../components/AdapterProvider";
 
 export function BooksPage() {
   const adapter = usePlannerAdapter();
   const [query, setQuery] = useState("hobbit");
-  const [results, setResults] = useState<Array<Record<string, unknown>>>([]);
+  const [results, setResults] = useState<BookLookupItem[]>([]);
   const [status, setStatus] = useState("Idle");
 
   async function runSearch() {
