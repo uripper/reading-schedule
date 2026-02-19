@@ -1,5 +1,6 @@
 
 import { uid } from "../dom.js";
+import { dayKey } from "../calendar/utils.js";
 import { noteFromLookup, syncProgressAndPages } from "../book_lookup.js";
 import { COVER_PLACEHOLDER } from "./constants.js";
 import { bookCoverSrc, normalizeBook } from "./model.js";
@@ -28,6 +29,10 @@ const PROGRESS_DECIMAL_SCALE = 10;
 type LookupControl = {
   clearResults: () => void;
 };
+
+function todayDateKey(): string {
+  return dayKey(new Date());
+}
 
 function setCoverPreview(refs: BookFormRefs, src: string): void {
   refs.coverPreview.src = src || COVER_PLACEHOLDER;
@@ -76,6 +81,24 @@ function validatedStatusSelection(refs: BookFormRefs): BookStatus {
     return BOOK_STATUS_DROPPED;
   }
   return BOOK_STATUS_TO_READ;
+}
+
+function toggleFinishedAtInput(refs: BookFormRefs, status: BookStatus): void {
+  const isRead = status === BOOK_STATUS_READ;
+  refs.finishedAtField.hidden = !isRead;
+  refs.finishedAtInput.disabled = !isRead;
+  if (!isRead) {
+    return;
+  }
+  if (refs.finishedAtInput.value) {
+    return;
+  }
+  refs.finishedAtInput.value = todayDateKey();
+}
+
+export function syncFinishedAtField(refs: BookFormRefs): void {
+  const status = validatedStatusSelection(refs);
+  toggleFinishedAtInput(refs, status);
 }
 
 function deriveLengthAndProgress(refs: BookFormRefs): {
@@ -136,6 +159,7 @@ export function clearForm(refs: BookFormRefs, lookupControl: LookupControl): voi
   refs.blockedByInput.value = "";
   refs.statusSelectInput.value = DEFAULT_STATUS;
   refs.finishedAtInput.value = "";
+  syncFinishedAtField(refs);
   refs.shelfSelectInput.value = "";
   setCoverPreview(refs, "");
   lookupControl.clearResults();
@@ -156,6 +180,7 @@ export function fillForm(refs: BookFormRefs, book: Book): void {
   refs.blockedByInput.value = fallbackText(book.blocked_by);
   refs.statusSelectInput.value = fallbackText(book.status, DEFAULT_STATUS);
   refs.finishedAtInput.value = fallbackText(book.finished_at);
+  syncFinishedAtField(refs);
   refs.coverUrl.value = fallbackText(book.cover_url);
   refs.coverLocal.value = fallbackText(book.cover_local_path);
   refs.author.value = fallbackText(book.author);

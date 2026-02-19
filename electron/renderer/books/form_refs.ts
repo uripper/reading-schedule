@@ -25,6 +25,7 @@ export type BookFormRefs = {
   afterBookResults: HTMLElement;
   blockedByInput: HTMLInputElement;
   statusSelectInput: HTMLSelectElement;
+  finishedAtField: HTMLElement;
   finishedAtInput: HTMLInputElement;
   shelfSelectInput: HTMLSelectElement;
   shelfPromptDialog: HTMLDialogElement;
@@ -61,6 +62,7 @@ export function getBookFormRefs(): BookFormRefs {
     afterBookResults: el<HTMLElement>("bookAfterBookResults"),
     blockedByInput: el<HTMLInputElement>("bookBlockedByInput"),
     statusSelectInput: el<HTMLSelectElement>("bookStatusSelectInput"),
+    finishedAtField: el<HTMLElement>("bookFinishedAtField"),
     finishedAtInput: el<HTMLInputElement>("bookFinishedAtInput"),
     shelfSelectInput: el<HTMLSelectElement>("bookShelfSelectInput"),
     shelfPromptDialog: el<HTMLDialogElement>("bookShelfPromptDialog"),
