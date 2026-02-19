@@ -1,35 +1,59 @@
+import { uid } from '../dom.js';
+import { MS_PER_MINUTE, MS_PER_SECOND, SESSION_MIN_MS } from './constants.js';
+import type { Session } from './normalize.js';
+import type { SessionRefs } from './refs.js';
+import { formatTimer } from './utils.js';
 
-import { uid } from "../dom.js";
-import { MS_PER_MINUTE, MS_PER_SECOND, SESSION_MIN_MS } from "./constants.js";
-import { formatTimer } from "./utils.js";
+type SessionBook = {
+  book_id: string;
+  title: string;
+};
 
-export function createTimerController(refs: { input: any; results?: HTMLElement | null; meta?: HTMLElement | null; timerDisplay: any; startBtn: any; pauseBtn: any; stopBtn: any; history?: HTMLElement | null; manualMinutes?: HTMLElement | null; manualPages?: HTMLElement | null; manualNotes?: HTMLElement | null; manualSaveBtn?: HTMLElement | null; }, selectedBook: { (): any; (): any; }, commitSession: { (sessionInput: any): void; (arg0: { minutes: number; id: string; book_id: any; title: any; started_at: string; ended_at: string; notes: string; source: string; created_at: string; }): void; }, announce: (arg0: string, arg1: string | undefined) => void, setStatus: (arg0: string, arg1: boolean | undefined) => void) {
-  let timerHandle: number | null | undefined = null;
+type CommitSession = (
+  sessionInput: Omit<Partial<Session>, 'source' | 'pages_read'> & {
+    endedAt?: string;
+    startedAt?: string;
+    pages_read?: number | string | null;
+    source?: string;
+  },
+) => void;
+
+type Announce = (message: string, politeness?: string) => void;
+type SetStatus = (message: string, isError?: boolean) => void;
+
+export function createTimerController(
+  refs: SessionRefs,
+  selectedBook: () => SessionBook | null,
+  commitSession: CommitSession,
+  announce: Announce,
+  setStatus: SetStatus,
+) {
+  let timerHandle: ReturnType<typeof setInterval> | null = null;
   let timerStartedAt: number | null = null;
   let elapsedMs = 0;
 
-  const timerRunning = () => {
+  const timerRunning = (): boolean => {
     return timerStartedAt !== null;
   };
 
-  const updateTimerLabel = () => {
+  const updateTimerLabel = (): void => {
     let runningMs = 0;
-    if (timerRunning()) {
+    if (timerRunning() && timerStartedAt !== null) {
       runningMs = Date.now() - timerStartedAt;
     }
     const totalSeconds = Math.floor((elapsedMs + runningMs) / MS_PER_SECOND);
     refs.timerDisplay.textContent = formatTimer(totalSeconds);
   };
 
-  const syncTimerButtons = () => {
+  const syncTimerButtons = (): void => {
     const running = timerRunning();
     refs.startBtn.disabled = running;
     refs.pauseBtn.disabled = !running;
     refs.stopBtn.disabled = !running && elapsedMs <= 0;
   };
 
-  const resetTimer = () => {
-    if (timerHandle) {
+  const resetTimer = (): void => {
+    if (timerHandle !== null) {
       clearInterval(timerHandle);
     }
     timerHandle = null;
@@ -39,21 +63,21 @@ export function createTimerController(refs: { input: any; results?: HTMLElement 
     syncTimerButtons();
   };
 
-  const stopAndPersistTimer = () => {
+  const stopAndPersistTimer = (): void => {
     const book = selectedBook();
     if (!book) {
-      announce("Pick a book before stopping the timer.", "assertive");
-      setStatus("Pick a book for this session.", true);
+      announce('Pick a book before stopping the timer.', 'assertive');
+      setStatus('Pick a book for this session.', true);
       return;
     }
 
     const now = Date.now();
     let totalMs = elapsedMs;
-    if (timerRunning()) {
+    if (timerRunning() && timerStartedAt !== null) {
       totalMs += now - timerStartedAt;
     }
     if (totalMs < SESSION_MIN_MS) {
-      announce("Session was too short to save.", "assertive");
+      announce('Session was too short to save.', 'assertive');
       resetTimer();
       return;
     }
@@ -69,19 +93,19 @@ export function createTimerController(refs: { input: any; results?: HTMLElement 
       title: book.title,
       started_at: startedAt,
       ended_at: endedAt,
-      notes: "",
-      source: "timer",
+      notes: '',
+      source: 'timer',
       created_at: endedAt,
     });
 
     announce(`Saved ${minutes} minute session for ${book.title}.`);
-    setStatus("Session saved.");
+    setStatus('Session saved.');
     resetTimer();
   };
 
-  const startTimer = () => {
+  const startTimer = (): void => {
     if (!selectedBook()) {
-      announce("Pick a book before starting a session.", "assertive");
+      announce('Pick a book before starting a session.', 'assertive');
       refs.input.focus();
       return;
     }
@@ -93,24 +117,24 @@ export function createTimerController(refs: { input: any; results?: HTMLElement 
     timerHandle = setInterval(updateTimerLabel, MS_PER_SECOND);
     updateTimerLabel();
     syncTimerButtons();
-    setStatus("Session started.");
-    announce("Session started.");
+    setStatus('Session started.');
+    announce('Session started.');
   };
 
-  const pauseTimer = () => {
-    if (!timerRunning()) {
+  const pauseTimer = (): void => {
+    if (!timerRunning() || timerStartedAt === null) {
       return;
     }
     elapsedMs += Date.now() - timerStartedAt;
     timerStartedAt = null;
-    if (timerHandle) {
+    if (timerHandle !== null) {
       clearInterval(timerHandle);
     }
     timerHandle = null;
     updateTimerLabel();
     syncTimerButtons();
-    setStatus("Session paused.");
-    announce("Session paused.");
+    setStatus('Session paused.');
+    announce('Session paused.');
   };
 
   return {

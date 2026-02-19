@@ -1,18 +1,28 @@
-type SessionsSetter = (sessions: unknown[]) => void;
-type PlanResultSetter = (result: unknown) => void;
+import type { Book } from '../books/types.js';
+
+type SettingsRecord = Record<string, unknown>;
+
+type PlanResult = {
+  schedule?: unknown[];
+  summary?: unknown;
+  created_at?: string;
+};
 
 export type LoadedPlannerState = {
-  settings?: unknown;
-  books?: unknown;
+  settings?: SettingsRecord;
+  books?: Book[];
   preferences?: unknown;
   feature_flags?: unknown;
-  schedule_completions?: unknown;
-  sessions?: Parameters<SessionsSetter>[0];
-  last_result?: Parameters<PlanResultSetter>[0];
+  schedule_completions?: Record<string, unknown>;
+  sessions?: unknown[];
+  last_result?: PlanResult | null;
 };
 
 export type PlannerApi = {
   loadState: () => Promise<LoadedPlannerState | null | undefined>;
-  sample: () => Promise<Pick<LoadedPlannerState, "settings" | "books">>;
+  sample: () => Promise<Pick<LoadedPlannerState, 'settings' | 'books'>>;
   saveState: (state: unknown) => Promise<unknown>;
+  generate: (payload: unknown) => Promise<unknown>;
+  searchBooks: (query: string) => Promise<unknown>;
+  downloadCover: (url: string | undefined, bookId: string | undefined) => Promise<string>;
 };

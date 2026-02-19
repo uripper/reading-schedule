@@ -1,7 +1,7 @@
 
 import { el } from "../dom.js";
 
-const EXPERIENCE_SETTING_IDS = [
+const EXPERIENCE_SETTING_IDS: readonly string[] = [
   "themeSelect",
   "reduceMotionToggle",
   "dailyGoalInput",
@@ -12,7 +12,11 @@ const EXPERIENCE_SETTING_IDS = [
   "flagRecommendations",
 ];
 
-export function bindExperienceSettings(onApplySettings) {
+type ExperienceSettingsApplyHandler = (event: Event) => void;
+
+export function bindExperienceSettings(
+  onApplySettings: ExperienceSettingsApplyHandler,
+): void {
   EXPERIENCE_SETTING_IDS.forEach((id) => {
     const node = el(id);
     node.addEventListener("change", onApplySettings);
