@@ -217,6 +217,8 @@ async function init() {
     normalizeScheduleCompletions,
     fillPreferencesUI,
     applyPreferencesToDocument,
+    updateTodayView,
+    setStatus,
     setPreferences: (preferences) => {
       state.preferences = preferences;
     },
@@ -232,9 +234,7 @@ async function init() {
     applyLoadedResult: (result) => {
       planController?.applyLoadedResult(result);
     },
-    updateTodayView,
     onLoaded: finalizeInitialLoad,
-    setStatus,
   });
   bindTodayActions();
 }
