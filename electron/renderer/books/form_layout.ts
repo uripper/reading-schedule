@@ -1,6 +1,7 @@
 
 
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";
+import { statusOptions } from "./status.js";
 
 function createShelfSelectLabel() {
   const label = document.createElement("label");
@@ -19,6 +20,37 @@ function createShelfSelectLabel() {
   return label;
 }
 
+function createStatusSelectLabel() {
+  const label = document.createElement("label");
+  label.textContent = "Status";
+
+  const select = document.createElement("select");
+  select.id = "bookStatusSelectInput";
+  statusOptions().forEach((optionDef) => {
+    const option = document.createElement("option");
+    option.value = optionDef.value;
+    option.textContent = optionDef.label;
+    select.append(option);
+  });
+
+  label.append(select);
+  return label;
+}
+
+function createFinishedAtLabel() {
+  const label = document.createElement("label");
+  label.id = "bookFinishedAtField";
+  label.hidden = true;
+  label.textContent = "Finish Date";
+
+  const input = document.createElement("input");
+  input.id = "bookFinishedAtInput";
+  input.type = "date";
+
+  label.append(input);
+  return label;
+}
+
 export function ensureBookFormLayoutFields() {
   const existing = document.getElementById("bookShelfSelectInput");
   if (existing) {
@@ -30,5 +62,5 @@ export function ensureBookFormLayoutFields() {
     return;
   }
 
-  grid.append(createShelfSelectLabel());
+  grid.append(createStatusSelectLabel(), createFinishedAtLabel(), createShelfSelectLabel());
 }

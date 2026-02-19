@@ -10,19 +10,21 @@ from .types import Book
 
 
 def _validate_blockers(books: list[Book]) -> None:
-    """Validate blockers."""
+    """Validate blocker references and reject cycles in dependency chains."""
     by_id = {book.book_id: book for book in books}
     for book in books:
         if not book.blocked_by:
             continue
         if book.blocked_by not in by_id:
-            raise ValueError(f"book {book.book_id} is blocked by missing book_id {book.blocked_by}")
+            raise ValueError(
+                f"book {book.book_id} is blocked by missing book_id {book.blocked_by}"
+            )
 
     visiting: set[str] = set()
     visited: set[str] = set()
 
     def walk(book_id: str) -> None:
-        """Walk values."""
+        """Traverse blocker ancestry for one book and detect cycles."""
         if book_id in visited:
             return
         if book_id in visiting:
@@ -39,7 +41,7 @@ def _validate_blockers(books: list[Book]) -> None:
 
 
 def generate_plan(payload: dict[str, object]) -> dict[str, object]:
-    """Execute generate plan."""
+    """Validate payload inputs, solve the plan, and return summary plus schedule."""
     books_raw = payload.get("books")
     settings_raw = payload.get("settings")
     if not isinstance(books_raw, list) or not isinstance(settings_raw, dict):

@@ -1,2 +1,10 @@
 
-export { bindBooksUI, collectBooks, fillBooks, getBookById, setBookScheduleRows, updateBookProgress } from "./books/controller.js";
+export {
+  bindBooksUI,
+  collectAllBooks,
+  collectBooks,
+  fillBooks,
+  getBookById,
+  setBookScheduleRows,
+  updateBookProgress,
+} from "./books/controller.js";

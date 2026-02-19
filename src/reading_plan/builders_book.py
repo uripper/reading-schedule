@@ -24,7 +24,7 @@ def _estimated_words_read_from_pages(
 
 
 def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
-    """Execute word stats."""
+    """Derive full words, remaining words, and progress from mixed input fields."""
     words_raw = data.get("words_total")
     pages_raw = data.get("pages_total")
     has_words = str(words_raw or "").strip() != ""
@@ -46,18 +46,17 @@ def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
     else:
         words_read = max(0, words_read)
         words_read = min(words_read, full)
-        if full <= 0:
-            progress = 0.0
-        else:
-            progress = round(100.0 * words_read / full, 2)
+        progress = 0.0 if full <= 0 else round(100.0 * words_read / full, 2)
     return full, max(0, full - words_read), progress
 
 
 def book_from_data(data: dict[str, Any]) -> Book:
-    """Execute book from data."""
+    """Normalize a raw book payload into a validated planner Book model."""
     words_full, words_remaining, progress = _word_stats(data)
     deadline = parse_date(data["deadline"]) if data.get("deadline") else None
-    blocked_by = str(data.get("blocked_by") or data.get("blocker_book_id") or "").strip() or None
+    blocked_by = (
+        str(data.get("blocked_by") or data.get("blocker_book_id") or "").strip() or None
+    )
     book = Book(
         book_id=str(data.get("book_id") or "").strip() or str(uuid4()),
         title=str(data["title"]).strip(),
@@ -65,10 +64,14 @@ def book_from_data(data: dict[str, Any]) -> Book:
         priority=to_int(data["priority"], "priority"),
         difficulty=to_int(data["difficulty"], "difficulty"),
         deadline=deadline,
-        min_blocks_per_session=to_int(data.get("min_blocks_per_session", 2), "min_blocks_per_session"),
+        min_blocks_per_session=to_int(
+            data.get("min_blocks_per_session", 2), "min_blocks_per_session"
+        ),
         words_full=words_full,
         progress_percent=progress,
-        max_minutes_per_day=optional_int(data.get("max_minutes_per_day"), "max_minutes_per_day"),
+        max_minutes_per_day=optional_int(
+            data.get("max_minutes_per_day"), "max_minutes_per_day"
+        ),
         blocked_by=blocked_by,
     )
     validate_book(book)

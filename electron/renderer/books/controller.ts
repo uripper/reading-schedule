@@ -8,6 +8,13 @@ import { withUpdatedProgress } from './progress.js';
 import { hydrateBookCover, upsertBookById } from './save.js';
 import { shelfFilterMatches, SHELF_FILTER_ALL } from './shelf.js';
 import {
+  BOOK_STATUS_FILTER_ALL,
+  normalizeStatusFilter,
+  schedulableBook,
+  statusFilterMatches,
+  type BookStatusFilter,
+} from './status.js';
+import {
   sortBooks,
   SORT_BY_AUTHOR,
   SORT_BY_DEADLINE,
@@ -32,6 +39,7 @@ import {
   SORT_DIRECTION_DESC,
   updateGroupByOptions,
   updateShelfFilterOptions,
+  updateStatusFilterOptions,
   updateSortDirectionButton,
 } from './toolbar.js';
 
@@ -41,6 +49,7 @@ type BooksControllerRefs = {
   empty: HTMLElement | null;
   addBtn: HTMLButtonElement | null;
   shelfFilterSelect: HTMLSelectElement | null;
+  statusFilterSelect: HTMLSelectElement | null;
   sortBySelect: HTMLSelectElement | null;
   groupBySelect: HTMLSelectElement | null;
   sortDirectionBtn: HTMLButtonElement | null;
@@ -52,6 +61,7 @@ type BookDialogController = {
 
 type BooksViewState = {
   shelfFilter: string;
+  statusFilter: BookStatusFilter;
   sortBy: SortBy;
   groupBy: BookGroupBy;
   sortDirection: SortDirection;
@@ -105,6 +115,7 @@ const refs: BooksControllerRefs = {
   empty: null,
   addBtn: null,
   shelfFilterSelect: null,
+  statusFilterSelect: null,
   sortBySelect: null,
   groupBySelect: null,
   sortDirectionBtn: null,
@@ -112,6 +123,7 @@ const refs: BooksControllerRefs = {
 
 const viewState: BooksViewState = {
   shelfFilter: SHELF_FILTER_ALL,
+  statusFilter: BOOK_STATUS_FILTER_ALL,
   sortBy: SORT_BY_TITLE,
   groupBy: GROUP_BY_NONE,
   sortDirection: SORT_DIRECTION_ASC,
@@ -160,6 +172,9 @@ function render(): void {
   if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
     return;
   }
+  if (!(refs.statusFilterSelect instanceof HTMLSelectElement)) {
+    return;
+  }
   if (!(refs.sortDirectionBtn instanceof HTMLButtonElement)) {
     return;
   }
@@ -168,14 +183,18 @@ function render(): void {
   }
 
   viewState.shelfFilter = updateShelfFilterOptions(refs.shelfFilterSelect, books, viewState.shelfFilter);
+  viewState.statusFilter = updateStatusFilterOptions(refs.statusFilterSelect, viewState.statusFilter);
   viewState.groupBy = updateGroupByOptions(refs.groupBySelect, viewState.groupBy, viewState.shelfFilter);
   updateSortDirectionButton(refs.sortDirectionBtn, viewState.sortDirection);
 
   const showShelfMeta = viewState.shelfFilter === SHELF_FILTER_ALL;
-  const finishDateByBookId = finishDatesByBookId(scheduleRows);
+  const finishDateByBookId = finishDatesByBookId(scheduleRows, books);
 
   const visibleBooks = sortBooks(books, viewState.sortBy, viewState.sortDirection, finishDateByBookId).filter((book) => {
-    return shelfFilterMatches(book, viewState.shelfFilter);
+    if (!shelfFilterMatches(book, viewState.shelfFilter)) {
+      return false;
+    }
+    return statusFilterMatches(book, viewState.statusFilter);
   });
 
   const groups = groupBooks(visibleBooks, viewState.groupBy, finishDateByBookId);
@@ -225,7 +244,13 @@ export function setBookScheduleRows(rows: PlannerScheduleRow[] = []): void {
 
 export function collectBooks() {
   return books.map(toPayloadBook).filter((book) => {
-    return book.title && hasSchedulableLength(book);
+    return book.title && hasSchedulableLength(book) && schedulableBook(book);
+  });
+}
+
+export function collectAllBooks() {
+  return books.map(toPayloadBook).filter((book) => {
+    return Boolean(book.title);
   });
 }
 
@@ -242,26 +267,31 @@ export function bindBooksUI(onChanged: () => void = () => {}): void {
 
   const toolbarControls = ensureBooksToolbarControls(refs.toolbar);
   refs.shelfFilterSelect = toolbarControls.shelfFilterSelect;
+  refs.statusFilterSelect = toolbarControls.statusFilterSelect;
   refs.sortBySelect = toolbarControls.sortBySelect;
   refs.groupBySelect = toolbarControls.groupBySelect;
   refs.sortDirectionBtn = toolbarControls.sortDirectionBtn;
 
   if (!(refs.sortBySelect instanceof HTMLSelectElement)) {
-    return;
+    throw new TypeError('Books toolbar sort-by control is missing or invalid.');
   }
   if (!(refs.shelfFilterSelect instanceof HTMLSelectElement)) {
-    return;
+    throw new TypeError('Books toolbar shelf-filter control is missing or invalid.');
+  }
+  if (!(refs.statusFilterSelect instanceof HTMLSelectElement)) {
+    throw new TypeError('Books toolbar status-filter control is missing or invalid.');
   }
   if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
-    return;
+    throw new TypeError('Books toolbar group-by control is missing or invalid.');
   }
   if (!(refs.sortDirectionBtn instanceof HTMLButtonElement)) {
-    return;
+    throw new TypeError('Books toolbar sort-direction control is missing or invalid.');
   }
 
   const {
     sortBySelect,
     shelfFilterSelect,
+    statusFilterSelect,
     groupBySelect,
     sortDirectionBtn,
   } = refs;
@@ -273,6 +303,11 @@ export function bindBooksUI(onChanged: () => void = () => {}): void {
 
   shelfFilterSelect.addEventListener('change', () => {
     viewState.shelfFilter = shelfFilterSelect.value;
+    render();
+  });
+
+  statusFilterSelect.addEventListener('change', () => {
+    viewState.statusFilter = normalizeStatusFilter(statusFilterSelect.value);
     render();
   });
 

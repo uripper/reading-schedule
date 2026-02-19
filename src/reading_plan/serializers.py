@@ -6,7 +6,7 @@ from .types import Book, Settings
 
 
 def book_to_data(book: Book) -> dict[str, object]:
-    """Execute book to data."""
+    """Serialize a Book model into a JSON-safe dictionary for UI/API use."""
     words_total = book.words_total if book.words_full is None else book.words_full
     deadline = book.deadline.isoformat() if book.deadline else None
     return {
@@ -25,7 +25,7 @@ def book_to_data(book: Book) -> dict[str, object]:
 
 
 def settings_to_data(settings: Settings) -> dict[str, object]:
-    """Execute settings to data."""
+    """Serialize Settings into a JSON-safe dictionary for UI/API use."""
     return {
         "start_date": settings.start_date.isoformat(),
         "end_date": settings.end_date.isoformat(),
@@ -42,5 +42,7 @@ def settings_to_data(settings: Settings) -> dict[str, object]:
         "w_smooth": settings.w_smooth,
         "max_blocks_per_book_per_day": settings.max_blocks_per_book_per_day,
         "plan_mode": settings.plan_mode,
-        "difficulty_multiplier": {str(k): v for k, v in settings.difficulty_multiplier.items()},
+        "difficulty_multiplier": {
+            str(k): v for k, v in settings.difficulty_multiplier.items()
+        },
     }

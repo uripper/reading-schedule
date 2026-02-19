@@ -9,10 +9,16 @@ from .greedy import plan_greedy
 from .types import Book, PlanResult, Settings
 
 
-def solve_plan(books: list[Book], settings: Settings, planner: str = "mip") -> PlanResult:
-    """Solve plan."""
+def solve_plan(
+    books: list[Book], settings: Settings, planner: str = "mip"
+) -> PlanResult:
+    """Route planning to greedy or MIP and return a normalized plan result."""
     if planner == "greedy":
-        return PlanResult(planner="greedy", status="FEASIBLE", assignments=plan_greedy(books, settings))
+        return PlanResult(
+            planner="greedy",
+            status="FEASIBLE",
+            assignments=plan_greedy(books, settings),
+        )
     return _solve_mip(books, settings)
 
 
@@ -46,7 +52,7 @@ class _CpModelStatusModule(Protocol):
 
 
 def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
-    """Solve mip."""
+    """Solve with CP-SAT, falling back to greedy when OR-Tools is unavailable."""
     try:
         from ortools.sat.python import cp_model
         from .model import build_cp_sat
@@ -78,7 +84,7 @@ def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
 
 
 def _status_name(raw: int, cp_model: _CpModelStatusModule) -> str:
-    """Execute status name."""
+    """Map CP-SAT numeric status codes to stable string names."""
     mapping = {
         int(cp_model.OPTIMAL): "OPTIMAL",
         int(cp_model.FEASIBLE): "FEASIBLE",

@@ -6,14 +6,20 @@ export { searchBooks } from './book_lookup_search';
 
 const COVER_DIRECTORY_NAME = 'book_covers';
 const COVER_FILE_FALLBACK_PREFIX = 'cover';
+const COVER_FILE_VERSION_SEPARATOR = '-';
 const MAX_SAFE_FILE_BASE_LENGTH = 80;
 
 const CONTENT_TYPE_PNG = 'image/png';
 const CONTENT_TYPE_WEBP = 'image/webp';
+const CONTENT_TYPE_JPEG = 'image/jpeg';
+const CONTENT_TYPE_JPG = 'image/jpg';
 const EXTENSION_JPG = '.jpg';
 const EXTENSION_JPEG = '.jpeg';
 const EXTENSION_PNG = '.png';
 const EXTENSION_WEBP = '.webp';
+const DATA_URL_PREFIX = 'data:';
+const DATA_URL_SEPARATOR = ',';
+const DATA_URL_BASE64_SEGMENT = ';base64';
 
 const HTTP_PROTOCOL = 'http:';
 const HTTPS_PROTOCOL = 'https:';
@@ -49,6 +55,69 @@ function safeFileBase(bookId: string | undefined): string {
 
 function isHttpProtocol(protocol: string): boolean {
   return protocol === HTTP_PROTOCOL || protocol === HTTPS_PROTOCOL;
+}
+
+function extensionForDataMime(mimeType: string): CoverExtension | null {
+  const normalizedMime = String(mimeType || '').trim().toLowerCase();
+  if (normalizedMime === CONTENT_TYPE_PNG) {
+    return EXTENSION_PNG;
+  }
+  if (normalizedMime === CONTENT_TYPE_WEBP) {
+    return EXTENSION_WEBP;
+  }
+  if (normalizedMime === CONTENT_TYPE_JPEG || normalizedMime === CONTENT_TYPE_JPG) {
+    return EXTENSION_JPG;
+  }
+  return null;
+}
+
+function ensureCoverDirectory(userDataDir: string): string {
+  const coverDirectory = path.join(userDataDir, COVER_DIRECTORY_NAME);
+  fs.mkdirSync(coverDirectory, { recursive: true });
+  return coverDirectory;
+}
+
+function filePathForCover(userDataDir: string, bookId: string | undefined, extension: CoverExtension): string {
+  const fileName = `${safeFileBase(bookId)}${COVER_FILE_VERSION_SEPARATOR}${Date.now()}${extension}`;
+  return path.join(ensureCoverDirectory(userDataDir), fileName);
+}
+
+function parseCoverDataUrl(
+  coverDataUrl: string | undefined,
+): { bytes: Uint8Array; extension: CoverExtension } | null {
+  const normalized = String(coverDataUrl || '').trim();
+  if (!normalized.startsWith(DATA_URL_PREFIX)) {
+    return null;
+  }
+
+  const separatorIndex = normalized.indexOf(DATA_URL_SEPARATOR);
+  if (separatorIndex < 0) {
+    return null;
+  }
+
+  const header = normalized.slice(DATA_URL_PREFIX.length, separatorIndex);
+  const payload = normalized.slice(separatorIndex + 1);
+  if (!header.includes(DATA_URL_BASE64_SEGMENT) || !payload) {
+    return null;
+  }
+
+  const mimeType = header.split(';')[0];
+  const extension = extensionForDataMime(mimeType);
+  if (!extension) {
+    return null;
+  }
+
+  let bytes: Uint8Array;
+  try {
+    bytes = new Uint8Array(Buffer.from(payload, 'base64'));
+  } catch {
+    return null;
+  }
+
+  if (bytes.byteLength <= 0) {
+    return null;
+  }
+  return { bytes, extension };
 }
 
 export async function downloadCover(
@@ -89,11 +158,25 @@ export async function downloadCover(
   }
 
   const extension = extensionFor(response.headers.get('content-type'), parsedUrl);
-  const coverDirectory = path.join(userDataDir, COVER_DIRECTORY_NAME);
-  fs.mkdirSync(coverDirectory, { recursive: true });
-
-  const fileName = `${safeFileBase(bookId)}${extension}`;
-  const filePath = path.join(coverDirectory, fileName);
+  const filePath = filePathForCover(userDataDir, bookId, extension);
   fs.writeFileSync(filePath, new Uint8Array(bytes));
+  return pathToFileURL(filePath).href;
+}
+
+export function saveUploadedCover(
+  coverDataUrl: string | undefined,
+  bookId: string | undefined,
+  userDataDir: string | undefined,
+): string {
+  if (!userDataDir) {
+    return '';
+  }
+  const parsed = parseCoverDataUrl(coverDataUrl);
+  if (!parsed) {
+    return '';
+  }
+
+  const filePath = filePathForCover(userDataDir, bookId, parsed.extension);
+  fs.writeFileSync(filePath, parsed.bytes);
   return pathToFileURL(filePath).href;
 }

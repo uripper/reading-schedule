@@ -1,9 +1,11 @@
 import type { PlannerApi } from './types.js';
 
-type PlannerApiGlobal = typeof globalThis & {
-  plannerApi: PlannerApi;
-};
+type PlannerApiGlobal = typeof globalThis & { plannerApi?: PlannerApi };
 
 export function getPlannerApi(): PlannerApi {
-  return (globalThis as PlannerApiGlobal).plannerApi;
+  const {plannerApi} = globalThis as PlannerApiGlobal;
+  if (!plannerApi) {
+    throw new Error('Desktop planner API bridge not found.');
+  }
+  return plannerApi;
 }

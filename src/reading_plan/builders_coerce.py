@@ -25,5 +25,5 @@ def to_float(raw: FloatInput, field: str) -> float:
 
 
 def optional_int(raw: IntInput | None, field: str) -> int | None:
-    """Execute optional int."""
+    """Parse an optional integer field, returning None for blank values."""
     return None if raw in (None, "") else to_int(raw, field)

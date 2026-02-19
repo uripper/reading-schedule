@@ -1,21 +1,10 @@
 import { el } from '../dom.js';
-import { initSessionsUI } from '../sessions.js';
 import { activateTab } from '../tabs.js';
-import type { Book } from '../books/types.js';
 import { createPlanController } from './plan_controller.js';
 import { bindSettingsAutoPlanListeners } from './runtime_helpers.js';
-import { activateSessionsAndStartTimer } from './today.js';
 import type { PlannerResult } from './types.js';
 
-type Announce = (message: string, politeness?: string) => void;
 type SetStatus = (message: string, isError?: boolean) => void;
-
-type CreateSessionsArgs = {
-  collectBooks: () => Book[];
-  onSessionsChanged: () => void;
-  announce: Announce;
-  setStatus: SetStatus;
-};
 
 type CreatePlanControllerArgs = Parameters<typeof createPlanController>[0];
 
@@ -27,12 +16,6 @@ type FinalizeInitialLoadArgs = {
   setStatus: SetStatus;
 };
 
-type BindTodayActionsArgs = {
-  getLastResult: () => PlannerResult | null;
-  getScheduleCompletions: () => Record<string, boolean>;
-  getSessionsUI: () => ReturnType<typeof initSessionsUI> | null;
-};
-
 export function setupSkipLink(): void {
   const skipLink = document.querySelector('.skip-link');
   if (!skipLink) {
@@ -41,21 +24,6 @@ export function setupSkipLink(): void {
   skipLink.addEventListener('click', (event) => {
     event.preventDefault();
     el('mainContent').focus();
-  });
-}
-
-export function createSessionsAppUI({
-  collectBooks,
-  onSessionsChanged,
-  announce,
-  setStatus,
-}: CreateSessionsArgs): ReturnType<typeof initSessionsUI> {
-  return initSessionsUI({
-    getBooks: collectBooks,
-    initialSessions: [],
-    onSessionsChanged,
-    announce,
-    setStatus,
   });
 }
 
@@ -91,14 +59,9 @@ export function finalizeInitialLoad({
   }
 }
 
-export function bindTodayActions({ getLastResult, getScheduleCompletions, getSessionsUI }: BindTodayActionsArgs): void {
+export function bindTodayActions(): void {
   el('startSessionFromTodayBtn').onclick = () => {
-    activateSessionsAndStartTimer(
-      getLastResult(),
-      getScheduleCompletions(),
-      getSessionsUI(),
-      activateTab,
-    );
+    activateTab('stats', { focusPanel: true });
   };
   el('viewScheduleFromTodayBtn').onclick = () => {
     activateTab('schedule', { focusPanel: true });

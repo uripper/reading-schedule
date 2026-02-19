@@ -11,6 +11,8 @@ export type BookFormRefs = {
   searchInput: HTMLInputElement;
   searchResults: HTMLElement;
   lookupMeta: HTMLElement;
+  coverPanel: HTMLElement;
+  coverUploadInput: HTMLInputElement;
   titleInput: HTMLInputElement;
   wordsInput: HTMLInputElement;
   pagesTotalInput: HTMLInputElement;
@@ -24,6 +26,9 @@ export type BookFormRefs = {
   afterBookInput: HTMLInputElement;
   afterBookResults: HTMLElement;
   blockedByInput: HTMLInputElement;
+  statusSelectInput: HTMLSelectElement;
+  finishedAtField: HTMLElement;
+  finishedAtInput: HTMLInputElement;
   shelfSelectInput: HTMLSelectElement;
   shelfPromptDialog: HTMLDialogElement;
   shelfPromptForm: HTMLFormElement;
@@ -45,6 +50,8 @@ export function getBookFormRefs(): BookFormRefs {
     searchInput: el<HTMLInputElement>("bookSearchInput"),
     searchResults: el<HTMLElement>("bookSearchResults"),
     lookupMeta: el<HTMLElement>("bookLookupMeta"),
+    coverPanel: el<HTMLElement>("bookCoverPanel"),
+    coverUploadInput: el<HTMLInputElement>("bookCoverUploadInput"),
     titleInput: el<HTMLInputElement>("bookTitleInput"),
     wordsInput: el<HTMLInputElement>("bookWordsInput"),
     pagesTotalInput: el<HTMLInputElement>("bookPagesTotalInput"),
@@ -58,6 +65,9 @@ export function getBookFormRefs(): BookFormRefs {
     afterBookInput: el<HTMLInputElement>("bookAfterBookInput"),
     afterBookResults: el<HTMLElement>("bookAfterBookResults"),
     blockedByInput: el<HTMLInputElement>("bookBlockedByInput"),
+    statusSelectInput: el<HTMLSelectElement>("bookStatusSelectInput"),
+    finishedAtField: el<HTMLElement>("bookFinishedAtField"),
+    finishedAtInput: el<HTMLInputElement>("bookFinishedAtInput"),
     shelfSelectInput: el<HTMLSelectElement>("bookShelfSelectInput"),
     shelfPromptDialog: el<HTMLDialogElement>("bookShelfPromptDialog"),
     shelfPromptForm: el<HTMLFormElement>("bookShelfPromptForm"),

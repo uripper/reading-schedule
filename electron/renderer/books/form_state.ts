@@ -1,9 +1,17 @@
 
 import { uid } from "../dom.js";
+import { dayKey } from "../calendar/utils.js";
 import { noteFromLookup, syncProgressAndPages } from "../book_lookup.js";
 import { COVER_PLACEHOLDER } from "./constants.js";
 import { bookCoverSrc, normalizeBook } from "./model.js";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";
+import {
+  BOOK_STATUS_DROPPED,
+  BOOK_STATUS_IN_PROGRESS,
+  BOOK_STATUS_READ,
+  BOOK_STATUS_TO_READ,
+  type BookStatus,
+} from "./status.js";
 import { clamp, toOptionalInt } from "./utils.js";
 import type { Book } from "./types.js";
 import type { BookFormRefs } from "./form_refs.js";
@@ -14,12 +22,18 @@ const DEFAULT_PROGRESS = "0";
 const DEFAULT_PRIORITY = "3";
 const DEFAULT_DIFFICULTY = "3";
 const DEFAULT_MIN_BLOCKS = "1";
+const DEFAULT_STATUS = BOOK_STATUS_TO_READ;
 const PROGRESS_MAX = 100;
 const PROGRESS_DECIMAL_SCALE = 10;
+const CUSTOM_COVER_NOTE = "Custom cover uploaded.";
 
 type LookupControl = {
   clearResults: () => void;
 };
+
+function todayDateKey(): string {
+  return dayKey(new Date());
+}
 
 function setCoverPreview(refs: BookFormRefs, src: string): void {
   refs.coverPreview.src = src || COVER_PLACEHOLDER;
@@ -54,6 +68,38 @@ function requiredTitle(refs: BookFormRefs): string {
     throw new Error("Title is required.");
   }
   return title;
+}
+
+function validatedStatusSelection(refs: BookFormRefs): BookStatus {
+  const raw = String(refs.statusSelectInput.value || "").trim();
+  if (raw === BOOK_STATUS_READ) {
+    return BOOK_STATUS_READ;
+  }
+  if (raw === BOOK_STATUS_IN_PROGRESS) {
+    return BOOK_STATUS_IN_PROGRESS;
+  }
+  if (raw === BOOK_STATUS_DROPPED) {
+    return BOOK_STATUS_DROPPED;
+  }
+  return BOOK_STATUS_TO_READ;
+}
+
+function toggleFinishedAtInput(refs: BookFormRefs, status: BookStatus): void {
+  const isRead = status === BOOK_STATUS_READ;
+  refs.finishedAtField.hidden = !isRead;
+  refs.finishedAtInput.disabled = !isRead;
+  if (!isRead) {
+    return;
+  }
+  if (refs.finishedAtInput.value) {
+    return;
+  }
+  refs.finishedAtInput.value = todayDateKey();
+}
+
+export function syncFinishedAtField(refs: BookFormRefs): void {
+  const status = validatedStatusSelection(refs);
+  toggleFinishedAtInput(refs, status);
 }
 
 function deriveLengthAndProgress(refs: BookFormRefs): {
@@ -103,6 +149,7 @@ export function clearForm(refs: BookFormRefs, lookupControl: LookupControl): voi
   refs.bookId.value = "";
   refs.coverUrl.value = "";
   refs.coverLocal.value = "";
+  refs.coverUploadInput.value = "";
   refs.author.value = "";
   refs.lookupMeta.dataset.lookupNote = "";
   refs.lookupMeta.textContent = "";
@@ -112,6 +159,9 @@ export function clearForm(refs: BookFormRefs, lookupControl: LookupControl): voi
   refs.minBlocksInput.value = DEFAULT_MIN_BLOCKS;
   refs.afterBookInput.value = "";
   refs.blockedByInput.value = "";
+  refs.statusSelectInput.value = DEFAULT_STATUS;
+  refs.finishedAtInput.value = "";
+  syncFinishedAtField(refs);
   refs.shelfSelectInput.value = "";
   setCoverPreview(refs, "");
   lookupControl.clearResults();
@@ -130,6 +180,9 @@ export function fillForm(refs: BookFormRefs, book: Book): void {
   setOptionalIntegerInputValue(refs.maxMinutesInput, book.max_minutes_per_day);
   refs.deadlineInput.value = fallbackText(book.deadline);
   refs.blockedByInput.value = fallbackText(book.blocked_by);
+  refs.statusSelectInput.value = fallbackText(book.status, DEFAULT_STATUS);
+  refs.finishedAtInput.value = fallbackText(book.finished_at);
+  syncFinishedAtField(refs);
   refs.coverUrl.value = fallbackText(book.cover_url);
   refs.coverLocal.value = fallbackText(book.cover_local_path);
   refs.author.value = fallbackText(book.author);
@@ -141,16 +194,26 @@ export function fillForm(refs: BookFormRefs, book: Book): void {
 
 export function parseFormBook(refs: BookFormRefs): Book {
   const title = requiredTitle(refs);
-  const { wordsTotal, pagesTotal, pagesRead, progress } = deriveLengthAndProgress(refs);
+  const parsed = deriveLengthAndProgress(refs);
   const shelf = validatedShelfSelection(refs);
+  const status = validatedStatusSelection(refs);
+  let {progress, pagesRead} = parsed;
+  if (status === BOOK_STATUS_READ) {
+    progress = PROGRESS_MAX;
+    if (parsed.pagesTotal) {
+      pagesRead = parsed.pagesTotal;
+    }
+  }
 
   return normalizeBook({
     title,
     shelf,
+    status,
+    finished_at: refs.finishedAtInput.value,
     book_id: refs.bookId.value || uid(),
     author: refs.author.value.trim(),
-    words_total: wordsTotal,
-    pages_total: pagesTotal,
+    words_total: parsed.wordsTotal,
+    pages_total: parsed.pagesTotal,
     pages_read: pagesRead,
     progress_percent: progress,
     priority: Number(refs.priorityInput.value || DEFAULT_PRIORITY),
@@ -186,4 +249,23 @@ export function applyLookupItem(refs: BookFormRefs, item: BookLookupItem): void 
     progressInput: refs.progressInput,
   };
   syncProgressAndPages(progressSyncRefs, "pages");
+}
+
+export function applyUploadedCover(refs: BookFormRefs, localCoverPath: string, fileName = ""): void {
+  const normalizedPath = String(localCoverPath || "").trim();
+  if (!normalizedPath) {
+    throw new Error("Could not save the uploaded cover.");
+  }
+  refs.coverLocal.value = normalizedPath;
+  refs.coverUrl.value = "";
+
+  let note = CUSTOM_COVER_NOTE;
+  const normalizedFileName = String(fileName || "").trim();
+  if (normalizedFileName) {
+    note = `${CUSTOM_COVER_NOTE} ${normalizedFileName}`;
+  }
+
+  refs.lookupMeta.dataset.lookupNote = note;
+  refs.lookupMeta.textContent = note;
+  setCoverPreview(refs, normalizedPath);
 }

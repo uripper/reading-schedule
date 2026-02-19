@@ -1,18 +1,28 @@
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, type WebContents } from 'electron';
 
-import { downloadCover, searchBooks } from './book_lookup';
+import { downloadCover, saveUploadedCover, searchBooks } from './book_lookup';
 import { readState, type JsonValue, writeState } from './state_store';
+import { findInPage, stopFindInPage, type WindowFindRequest } from './window_find';
 
 const DEFAULT_UI_SCALE = 1.55;
+const MIN_UI_SCALE = 0.7;
+const MAX_UI_SCALE = 3;
+const UI_SCALE_STEP = 0.1;
+const ZOOM_PRECISION = 100;
 const PLANNER_MODULE = 'reading_plan.gui_api';
 const PYTHONPATH_SEGMENT = 'src';
 
 type DownloadCoverPayload = {
   bookId?: string;
   url?: string;
+};
+
+type UploadCoverPayload = {
+  bookId?: string;
+  dataUrl?: string;
 };
 
 type BridgeResponse = {
@@ -84,6 +94,36 @@ function runBridge(args: string[], payload?: JsonValue): Promise<JsonValue> {
   });
 }
 
+function clampZoomFactor(value: number): number {
+  if (!Number.isFinite(value)) {
+    return DEFAULT_UI_SCALE;
+  }
+  return Math.min(MAX_UI_SCALE, Math.max(MIN_UI_SCALE, value));
+}
+
+function normalizedZoomFactor(value: number): number {
+  return Math.round(clampZoomFactor(value) * ZOOM_PRECISION) / ZOOM_PRECISION;
+}
+
+function currentZoomFactor(webContents: WebContents): number {
+  return normalizedZoomFactor(webContents.getZoomFactor());
+}
+
+function setZoomFactor(webContents: WebContents, value: number): number {
+  const nextFactor = normalizedZoomFactor(value);
+  webContents.setZoomFactor(nextFactor);
+  return nextFactor;
+}
+
+function initialZoomFactor(): number {
+  const requestedScale = Number(process.env.UI_SCALE || String(DEFAULT_UI_SCALE));
+  return normalizedZoomFactor(requestedScale);
+}
+
+function shiftZoomFactor(webContents: WebContents, delta: number): number {
+  return setZoomFactor(webContents, currentZoomFactor(webContents) + delta);
+}
+
 function createWindow(): void {
   const window = new BrowserWindow({
     width: 1800,
@@ -93,13 +133,7 @@ function createWindow(): void {
     },
   });
 
-  const requestedScale = Number(process.env.UI_SCALE || String(DEFAULT_UI_SCALE));
-  let zoomFactor = DEFAULT_UI_SCALE;
-  if (Number.isFinite(requestedScale)) {
-    zoomFactor = requestedScale;
-  }
-
-  window.webContents.setZoomFactor(zoomFactor);
+  setZoomFactor(window.webContents, initialZoomFactor());
   window.loadFile(path.join(__dirname, 'index.html'));
 }
 
@@ -117,12 +151,26 @@ function asDownloadCoverPayload(value: DownloadCoverPayload | null): DownloadCov
   };
 }
 
+function asUploadCoverPayload(value: UploadCoverPayload | null): UploadCoverPayload {
+  if (!value) {
+    return {};
+  }
+  return {
+    dataUrl: value.dataUrl,
+    bookId: value.bookId,
+  };
+}
+
 ipcMain.handle('plan:sample', () => runBridge(['--sample']));
 ipcMain.handle('plan:generate', (_event, payload: JsonValue) => runBridge([], payload));
 ipcMain.handle('book:search', (_event, query: string) => searchBooks(String(query || '')));
 ipcMain.handle('book:downloadCover', (_event, payload: DownloadCoverPayload | null) => {
   const request = asDownloadCoverPayload(payload);
   return downloadCover(request.url, request.bookId, userData());
+});
+ipcMain.handle('book:saveUploadedCover', (_event, payload: UploadCoverPayload | null) => {
+  const request = asUploadCoverPayload(payload);
+  return saveUploadedCover(request.dataUrl, request.bookId, userData());
 });
 ipcMain.handle('state:load', () => readState(userData()));
 ipcMain.handle('state:save', (_event, payload: JsonValue) => {
@@ -132,6 +180,12 @@ ipcMain.handle('state:save', (_event, payload: JsonValue) => {
   }
   return result;
 });
+ipcMain.handle('window:zoomIn', (event) => shiftZoomFactor(event.sender, UI_SCALE_STEP));
+ipcMain.handle('window:zoomOut', (event) => shiftZoomFactor(event.sender, -UI_SCALE_STEP));
+ipcMain.handle('window:zoomReset', (event) => setZoomFactor(event.sender, initialZoomFactor()));
+ipcMain.handle('window:findInPage', (event, payload: WindowFindRequest | null) =>
+  findInPage(event.sender, payload));
+ipcMain.handle('window:stopFindInPage', (event) => stopFindInPage(event.sender));
 
 app.on('ready', createWindow);
 app.on('window-all-closed', () => {

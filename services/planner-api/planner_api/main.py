@@ -11,7 +11,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .book_search import search_books
-from .models import AppStateV2, BookSearchResponse, ErrorBody, ErrorResponse, GeneratePlanPayload, GeneratePlanResponse
+from .models import (
+    AppStateV2,
+    BookSearchResponse,
+    ErrorBody,
+    ErrorResponse,
+    GeneratePlanPayload,
+    GeneratePlanResponse,
+)
 from .state_store import load_state, save_state
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -32,15 +39,19 @@ app.add_middleware(
 )
 
 
-def _error(code: str, message: str, status: int, details: Any | None = None) -> JSONResponse:
-    """Execute error."""
-    payload = ErrorResponse(error=ErrorBody(code=code, message=message, details=details)).model_dump(mode="json")
+def _error(
+    code: str, message: str, status: int, details: Any | None = None
+) -> JSONResponse:
+    """Build a standardized JSON error payload with HTTP status metadata."""
+    payload = ErrorResponse(
+        error=ErrorBody(code=code, message=message, details=details)
+    ).model_dump(mode="json")
     return JSONResponse(status_code=status, content=payload)
 
 
 @app.get("/healthz")
 def healthz() -> dict[str, str]:
-    """Execute healthz."""
+    """Return a lightweight health response for readiness checks."""
     return {"status": "ok"}
 
 
@@ -49,8 +60,10 @@ def healthz() -> dict[str, str]:
     response_model=GeneratePlanResponse,
     responses={400: {"model": ErrorResponse}, 500: {"model": ErrorResponse}},
 )
-def generate_plan_v1(payload: GeneratePlanPayload) -> GeneratePlanResponse | JSONResponse:
-    """Execute generate plan v1."""
+def generate_plan_v1(
+    payload: GeneratePlanPayload,
+) -> GeneratePlanResponse | JSONResponse:
+    """Validate request payload and return a generated reading plan response."""
     try:
         result = generate_plan(payload.model_dump(mode="python"))
         return GeneratePlanResponse.model_validate(result)
@@ -60,7 +73,9 @@ def generate_plan_v1(payload: GeneratePlanPayload) -> GeneratePlanResponse | JSO
         return _error("PLANNER_FAILURE", str(exc), 500)
 
 
-@app.get("/v1/state", response_model=AppStateV2, responses={404: {"model": ErrorResponse}})
+@app.get(
+    "/v1/state", response_model=AppStateV2, responses={404: {"model": ErrorResponse}}
+)
 def get_state_v1() -> AppStateV2:
     """Return state v1."""
     state = load_state()
@@ -69,9 +84,15 @@ def get_state_v1() -> AppStateV2:
     return state
 
 
-@app.put("/v1/state", responses={200: {"content": {"application/json": {}}}, 400: {"model": ErrorResponse}})
+@app.put(
+    "/v1/state",
+    responses={
+        200: {"content": {"application/json": {}}},
+        400: {"model": ErrorResponse},
+    },
+)
 def put_state_v1(state: AppStateV2) -> dict[str, bool]:
-    """Execute put state v1."""
+    """Persist application state after enforcing schema version compatibility."""
     if state.schemaVersion != 2:
         raise HTTPException(status_code=400, detail="schemaVersion must be 2")
     save_state(state)
@@ -79,19 +100,23 @@ def put_state_v1(state: AppStateV2) -> dict[str, bool]:
 
 
 @app.get("/v1/books/search", response_model=BookSearchResponse)
-def search_books_v1(q: str = Query(default="", min_length=0, max_length=120)) -> BookSearchResponse:
-    """Execute search books v1."""
+def search_books_v1(
+    q: str = Query(default="", min_length=0, max_length=120)
+) -> BookSearchResponse:
+    """Search external catalog data and return book lookup suggestions."""
     return BookSearchResponse(items=search_books(q))
 
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(_request: Request, exc: HTTPException) -> JSONResponse:
-    """Execute http exception handler."""
+    """Convert FastAPI HTTP exceptions into the API's standard error schema."""
     message = str(exc.detail) if exc.detail else "Request failed"
     return _error("HTTP_ERROR", message, exc.status_code)
 
 
 @app.exception_handler(Exception)
-async def unhandled_exception_handler(_request: Request, exc: Exception) -> JSONResponse:
-    """Execute unhandled exception handler."""
+async def unhandled_exception_handler(
+    _request: Request, exc: Exception
+) -> JSONResponse:
+    """Convert unexpected exceptions into a standardized internal error response."""
     return _error("INTERNAL_ERROR", str(exc), 500)

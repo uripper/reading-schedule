@@ -1,6 +1,7 @@
 import { COVER_PLACEHOLDER } from './constants.js';
 import { bookCoverSrc } from './model.js';
 import { metaLabel, progressLabel, subtitle, wordsLabel } from './presenters.js';
+import { statusLabel } from './status.js';
 import type { Book } from './types.js';
 import type { BookGroup } from './grouping.js';
 
@@ -33,6 +34,7 @@ function createCard(
   const card = document.createElement('article');
   card.className = 'book-card';
   card.dataset.bookId = bookId;
+  card.dataset.status = String(book.status || '');
 
   const coverButton = document.createElement('button');
   coverButton.className = 'book-cover-btn edit-book-btn';
@@ -61,7 +63,11 @@ function createCard(
   const heading = document.createElement('h3');
   heading.className = 'book-title';
   heading.textContent = title;
-  meta.append(heading);
+
+  const status = document.createElement('span');
+  status.className = `book-status-pill is-${book.status}`;
+  status.textContent = statusLabel(book.status);
+  meta.append(heading, status);
 
   const sub = document.createElement('p');
   sub.className = 'book-subtitle';

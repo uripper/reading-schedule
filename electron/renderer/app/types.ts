@@ -37,6 +37,7 @@ export type PlannerSummaryBook = {
   words_total?: number;
   words_planned?: number;
   minutes_planned?: number;
+  finished?: boolean;
 };
 
 export type PlannerSummary = {
@@ -94,6 +95,17 @@ export type PlannerSaveResult = {
   error?: string;
 };
 
+export type WindowFindRequest = {
+  query?: string;
+  forward?: boolean;
+  findNext?: boolean;
+};
+
+export type WindowFindResponse = {
+  matches: number;
+  activeMatchOrdinal: number;
+};
+
 export type PlannerApi = {
   loadState: () => Promise<LoadedPlannerState | null | undefined>;
   sample: () => Promise<Pick<PlannerStateSnapshot, 'settings' | 'books'>>;
@@ -101,4 +113,10 @@ export type PlannerApi = {
   generate: (payload: PlanGeneratePayload) => Promise<Pick<PlannerResult, 'schedule' | 'summary'>>;
   searchBooks: (query: string) => Promise<BookLookupItem[]>;
   downloadCover: (url: string | undefined, bookId: string | undefined) => Promise<string>;
+  saveUploadedCover: (dataUrl: string | undefined, bookId: string | undefined) => Promise<string>;
+  findInPage: (payload: WindowFindRequest) => Promise<WindowFindResponse>;
+  stopFindInPage: () => Promise<WindowFindResponse>;
+  zoomIn: () => Promise<number>;
+  zoomOut: () => Promise<number>;
+  zoomReset: () => Promise<number>;
 };

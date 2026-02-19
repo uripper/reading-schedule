@@ -29,6 +29,7 @@ htmlcov/
 *.egg-info/
 .venv/
 venv/
+.venv*/
 env/
 build/
 site/
@@ -75,3 +76,6 @@ roadmap.md
 pnpm-lock.yaml
 .gitignore
 STYLEGUIDE.md
+sonar-project.properties
+.scannerwork/.sonar_lock
+.scannerwork/report-task.txt
