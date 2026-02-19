@@ -44,7 +44,7 @@ function fileIsSupported(file: File): boolean {
 }
 
 function selectedCoverFile(refs: BookFormRefs): File | null {
-  const files = refs.coverUploadInput.files;
+  const {files} = refs.coverUploadInput;
   if (!files || files.length <= 0) {
     return null;
   }

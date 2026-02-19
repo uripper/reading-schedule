@@ -104,6 +104,20 @@ PYTHONPATH=../../src python -m planner_api
 cd electron && npm run lint
 ```
 
+## SonarQube Full Scan
+
+Run repository-wide analysis (with generated/dependency folders excluded via `sonar-project.properties`):
+
+```bash
+SONAR_HOST_URL="https://your-sonarqube-server" SONAR_TOKEN="sqp_xxx" npm run sonar:scan
+```
+
+You can also override project identity per run:
+
+```bash
+SONAR_HOST_URL="https://your-sonarqube-server" SONAR_TOKEN="sqp_xxx" npm run sonar:scan -- -Dsonar.projectKey=your-key -Dsonar.projectName="Your Project"
+```
+
 ## Design Tokens (legacy electron)
 
 ```bash
