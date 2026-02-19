@@ -58,7 +58,7 @@ function selectValue(id: string): string {
 }
 
 export function normalizePreferences(raw: PreferencesInput = {}): Preferences {
-  let theme = DEFAULT_PREFERENCES.theme;
+  let theme: Preferences["theme"] = DEFAULT_PREFERENCES.theme;
   const themeInput = String(raw.theme || "").trim();
   if (isSupportedTheme(themeInput)) {
     theme = themeInput;
@@ -101,8 +101,14 @@ export function normalizeScheduleCompletions(raw: Record<string, unknown> = {}):
 }
 
 export function collectPreferencesFromUI(): Preferences {
+  let theme: Preferences["theme"] = DEFAULT_PREFERENCES.theme;
+  const selectedTheme = selectValue("themeSelect");
+  if (isSupportedTheme(selectedTheme)) {
+    theme = selectedTheme;
+  }
+
   return {
-    theme: normalizePreferences({ theme: selectValue("themeSelect") }).theme,
+    theme,
     reduceMotion: checkboxValue("reduceMotionToggle"),
     timezone: DEFAULT_PREFERENCES.timezone,
     dailyGoalMinutes: numberInputValue("dailyGoalInput") || DEFAULT_PREFERENCES.dailyGoalMinutes,

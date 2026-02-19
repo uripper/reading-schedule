@@ -23,12 +23,14 @@ Applies to all code and docs in:
 - Do not use magic numbers.
 - Do not introduce implicit `any` in TypeScript.
 - Always perform lint checks.
+- Always run required type checks; zero type errors is mandatory.
 
 ## Merge Blockers
 
 A PR must not merge if any of the following is true:
 - Any MUST rule is violated.
 - Any required lint/typecheck/test command fails.
+- Any typecheck error exists in touched areas.
 - A behavior change is missing tests.
 - A contract/config change is missing docs.
 

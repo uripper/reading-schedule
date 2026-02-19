@@ -1,8 +1,8 @@
 
 import { el } from "../dom.js";
 
-export function renderDayOffs(dayOffs, setDayOffs) {
-  const list = el("dayOffList");
+export function renderDayOffs(dayOffs: string[], setDayOffs: (nextDayOffs: string[]) => void): void {
+  const list = el<HTMLElement>("dayOffList");
   const buttons = dayOffs.map((day) => {
     const button = document.createElement("button");
     button.className = "chip-btn";
@@ -18,9 +18,12 @@ export function renderDayOffs(dayOffs, setDayOffs) {
   list.replaceChildren(...buttons);
 }
 
-export function bindDayOffAddButton(getDayOffs, setDayOffs) {
-  el("addDayOffBtn").onclick = () => {
-    const selectedDay = el("dayOffPicker").value;
+export function bindDayOffAddButton(
+  getDayOffs: () => string[],
+  setDayOffs: (nextDayOffs: string[]) => void,
+): void {
+  el<HTMLButtonElement>("addDayOffBtn").onclick = () => {
+    const selectedDay = el<HTMLInputElement>("dayOffPicker").value;
     const existing = getDayOffs();
     if (!selectedDay || existing.includes(selectedDay)) {
       return;

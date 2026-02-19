@@ -22,6 +22,12 @@ import {
   SORT_DIRECTION_ASC,
   SORT_DIRECTION_DESC,
 } from './sort.js';
+import type { Book } from "./types.js";
+
+type OptionDefinition = {
+  value: string;
+  label: string;
+};
 
 const SORT_OPTIONS = [
   { value: SORT_BY_TITLE, label: 'Title' },
@@ -46,14 +52,14 @@ const GROUP_OPTIONS_BASE = [
 
 const GROUP_OPTION_SHELF = { value: GROUP_BY_SHELF, label: 'Shelves' };
 
-function createOption(value, label) {
+function createOption(value: string, label: string): HTMLOptionElement {
   const option = document.createElement('option');
   option.value = value;
   option.textContent = label;
   return option;
 }
 
-function createLabeledSelect(labelText, selectId, options) {
+function createLabeledSelect(labelText: string, selectId: string, options: OptionDefinition[]) {
   const label = document.createElement('label');
   label.className = 'books-control';
   label.textContent = labelText;
@@ -69,19 +75,19 @@ function createLabeledSelect(labelText, selectId, options) {
   return { label, select };
 }
 
-function createControlsWrap(toolbar) {
-  let wrap = toolbar.querySelector('.books-controls');
+function createControlsWrap(toolbar: HTMLElement): HTMLElement {
+  let wrap = toolbar.querySelector<HTMLElement>('.books-controls');
   if (wrap instanceof HTMLElement) {
     return wrap;
   }
 
-  wrap = document.createElement('div');
-  wrap.className = 'row wrap-row books-controls';
-  toolbar.append(wrap);
-  return wrap;
+  const nextWrap = document.createElement('div');
+  nextWrap.className = 'row wrap-row books-controls';
+  toolbar.append(nextWrap);
+  return nextWrap;
 }
 
-function groupOptionsForShelfFilter(shelfFilter) {
+function groupOptionsForShelfFilter(shelfFilter: string): OptionDefinition[] {
   const options = [...GROUP_OPTIONS_BASE];
   if (shelfFilter === SHELF_FILTER_ALL) {
     options.splice(1, 0, GROUP_OPTION_SHELF);
@@ -89,7 +95,7 @@ function groupOptionsForShelfFilter(shelfFilter) {
   return options;
 }
 
-export function ensureBooksToolbarControls(toolbar) {
+export function ensureBooksToolbarControls(toolbar: HTMLElement) {
   const wrap = createControlsWrap(toolbar);
   const shelf = createLabeledSelect('Shelf', 'booksShelfFilterSelect', []);
   const sortBy = createLabeledSelect('Sort', 'booksSortBySelect', SORT_OPTIONS);
@@ -109,15 +115,19 @@ export function ensureBooksToolbarControls(toolbar) {
   };
 }
 
-export function updateSortDirectionButton(sortDirectionBtn, sortDirection) {
+export function updateSortDirectionButton(sortDirectionBtn: HTMLButtonElement, sortDirection: string): void {
   sortDirectionBtn.textContent = 'Ascending';
   if (sortDirection === SORT_DIRECTION_DESC) {
     sortDirectionBtn.textContent = 'Descending';
   }
 }
 
-export function updateShelfFilterOptions(shelfFilterSelect, books, selectedValue) {
-  const shelfOptions = [{ value: SHELF_FILTER_ALL, label: 'All Shelves' }];
+export function updateShelfFilterOptions(
+  shelfFilterSelect: HTMLSelectElement,
+  books: Book[],
+  selectedValue: string,
+): string {
+  const shelfOptions: OptionDefinition[] = [{ value: SHELF_FILTER_ALL, label: 'All Shelves' }];
   shelfOptions.push({ value: SHELF_FILTER_UNSHELVED, label: 'Unshelved' });
   uniqueShelves(books).forEach((shelfName) => {
     shelfOptions.push({ value: shelfName, label: shelfName });
@@ -134,7 +144,7 @@ export function updateShelfFilterOptions(shelfFilterSelect, books, selectedValue
   return nextValue;
 }
 
-export function updateGroupByOptions(groupBySelect, selectedValue, shelfFilter) {
+export function updateGroupByOptions(groupBySelect: HTMLSelectElement, selectedValue: string, shelfFilter: string): string {
   const options = groupOptionsForShelfFilter(shelfFilter);
   groupBySelect.replaceChildren(...options.map((option) => createOption(option.value, option.label)));
 

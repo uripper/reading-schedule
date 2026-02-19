@@ -5,8 +5,10 @@ import { finishDatesByBookId } from './finish_dates.js';
 import { GROUP_BY_NONE, groupBooks } from './grouping.js';
 import { hasSchedulableLength, normalizeBook, toPayloadBook } from './model.js';
 import { withUpdatedProgress } from './progress.js';
+import { hydrateBookCover, upsertBookById } from './save.js';
 import { shelfFilterMatches, SHELF_FILTER_ALL } from './shelf.js';
 import { sortBooks } from './sort.js';
+import type { Book, BookProgressUpdates } from './types.js';
 import {
   ensureBooksToolbarControls,
   SORT_BY_TITLE,
@@ -16,12 +18,10 @@ import {
   updateShelfFilterOptions,
   updateSortDirectionButton,
 } from './toolbar.js';
-
-let books = [];
-let scheduleRows = [];
+let books: Book[] = [];
+let scheduleRows: unknown[] = [];
 let onBooksChanged = () => {};
 let dialog = null;
-
 const refs = {
   toolbar: null,
   grid: null,
@@ -39,12 +39,11 @@ const viewState = {
   groupBy: GROUP_BY_NONE,
   sortDirection: SORT_DIRECTION_ASC,
 };
-
-function findBook(bookId) {
+function findBook(bookId: string): Book | null {
   return books.find((book) => book.book_id === bookId) || null;
 }
 
-export function getBookById(bookId) {
+export function getBookById(bookId: string): Book | null {
   const book = findBook(bookId);
   if (!book) {
     return null;
@@ -52,7 +51,15 @@ export function getBookById(bookId) {
   return { ...book };
 }
 
-export function updateBookProgress(bookId, updates = {}, options = {}) {
+type UpdateBookProgressOptions = {
+  notifyBooksChanged?: boolean;
+};
+
+export function updateBookProgress(
+  bookId: string,
+  updates: BookProgressUpdates = {},
+  options: UpdateBookProgressOptions = {},
+): Book | null {
   const idx = books.findIndex((book) => book.book_id === bookId);
   if (idx < 0) {
     return null;
@@ -70,6 +77,19 @@ export function updateBookProgress(bookId, updates = {}, options = {}) {
 }
 
 function render() {
+  if (!(refs.shelfFilterSelect instanceof HTMLSelectElement)) {
+    return;
+  }
+  if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
+    return;
+  }
+  if (!(refs.sortDirectionBtn instanceof HTMLButtonElement)) {
+    return;
+  }
+  if (!(refs.grid instanceof HTMLElement) || !(refs.empty instanceof HTMLElement)) {
+    return;
+  }
+
   viewState.shelfFilter = updateShelfFilterOptions(refs.shelfFilterSelect, books, viewState.shelfFilter);
   viewState.groupBy = updateGroupByOptions(refs.groupBySelect, viewState.groupBy, viewState.shelfFilter);
   updateSortDirectionButton(refs.sortDirectionBtn, viewState.sortDirection);
@@ -109,41 +129,19 @@ function render() {
   });
 }
 
-async function withDownloadedCover(book) {
-  if (!book.cover_url || book.cover_local_path) {
-    return book;
-  }
-
-  try {
-    const localCover = await globalThis.plannerApi.downloadCover(book.cover_url, book.book_id);
-    if (localCover) {
-      return { ...book, cover_local_path: localCover };
-    }
-    return book;
-  } catch {
-    return book;
-  }
-}
-
-async function saveBook(book) {
-  const hydrated = await withDownloadedCover(book);
-  const idx = books.findIndex((row) => row.book_id === hydrated.book_id);
-  if (idx >= 0) {
-    books[idx] = hydrated;
-  } else {
-    books.push(hydrated);
-  }
-
+async function saveBook(book: Book): Promise<void> {
+  const hydrated = await hydrateBookCover(book);
+  books = upsertBookById(books, hydrated);
   render();
   onBooksChanged();
 }
 
-export function fillBooks(nextBooks) {
-  books = (nextBooks || []).map(normalizeBook);
+export function fillBooks(nextBooks: Book[] = []): void {
+  books = nextBooks.map(normalizeBook);
   render();
 }
 
-export function setBookScheduleRows(rows = []) {
+export function setBookScheduleRows(rows: unknown[] = []): void {
   scheduleRows = [...rows];
   render();
 }
@@ -154,16 +152,16 @@ export function collectBooks() {
   });
 }
 
-export function bindBooksUI(onChanged = () => {}) {
+export function bindBooksUI(onChanged: () => void = () => {}): void {
   onBooksChanged = onChanged;
   refs.toolbar = document.querySelector('.books-toolbar');
   if (!(refs.toolbar instanceof HTMLElement)) {
     return;
   }
 
-  refs.grid = el('booksGrid');
-  refs.empty = el('booksEmpty');
-  refs.addBtn = el('addBookBtn');
+  refs.grid = el<HTMLElement>('booksGrid');
+  refs.empty = el<HTMLElement>('booksEmpty');
+  refs.addBtn = el<HTMLButtonElement>('addBookBtn');
 
   const toolbarControls = ensureBooksToolbarControls(refs.toolbar);
   refs.shelfFilterSelect = toolbarControls.shelfFilterSelect;

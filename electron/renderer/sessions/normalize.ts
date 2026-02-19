@@ -2,11 +2,31 @@
 import { uid } from "../dom.js";
 import { toInt } from "./utils.js";
 
-function compareByEndedAtDesc(left, right) {
+export type Session = {
+  id: string;
+  book_id: string;
+  title: string;
+  started_at: string;
+  ended_at: string;
+  minutes: number;
+  pages_read: number | null;
+  notes: string;
+  source: "timer" | "manual";
+  created_at: string;
+};
+
+type SessionInput = Omit<Partial<Session>, "pages_read" | "source"> & {
+  endedAt?: string;
+  startedAt?: string;
+  pages_read?: number | string | null;
+  source?: string;
+};
+
+function compareByEndedAtDesc(left: Session, right: Session): number {
   return String(right.ended_at).localeCompare(String(left.ended_at));
 }
 
-export function normalizeSession(session = {}) {
+export function normalizeSession(session: SessionInput = {}): Session {
   const endedAtRaw = String(session.ended_at || session.endedAt || "").trim();
   const startedAtRaw = String(session.started_at || session.startedAt || "").trim();
   const endedAt = endedAtRaw || new Date().toISOString();
@@ -17,7 +37,7 @@ export function normalizeSession(session = {}) {
     pagesRead = Math.max(0, toInt(session.pages_read, 0));
   }
 
-  let source = "timer";
+  let source: "timer" | "manual" = "timer";
   if (session.source === "manual") {
     source = "manual";
   }
@@ -36,8 +56,8 @@ export function normalizeSession(session = {}) {
   };
 }
 
-export function normalizeSessions(rawSessions = []) {
-  let normalizedRawSessions = [];
+export function normalizeSessions(rawSessions: SessionInput[] = []): Session[] {
+  let normalizedRawSessions: SessionInput[] = [];
   if (Array.isArray(rawSessions)) {
     normalizedRawSessions = rawSessions;
   }
