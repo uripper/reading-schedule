@@ -11,6 +11,7 @@ const IPC = {
   searchBooks: "planner:search-books",
   downloadCover: "planner:download-cover",
 } as const;
+const DEV_SERVER_PING_TIMEOUT_MS = 1500;
 
 function repoRoot(): string {
   return path.resolve(__dirname, "../../..");
@@ -152,6 +153,57 @@ function clientEntry(): string {
   return path.join(repoRoot(), "apps", "client", "dist", "index.html");
 }
 
+function configuredClientDevUrl(): string | null {
+  const raw = String(process.env.CLIENT_DEV_URL || "").trim();
+  if (!raw) {
+    return null;
+  }
+  try {
+    return new URL(raw).toString();
+  } catch {
+    console.info(`Ignoring invalid CLIENT_DEV_URL: ${raw}`);
+    return null;
+  }
+}
+
+async function isDevServerReachable(url: string): Promise<boolean> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, DEV_SERVER_PING_TIMEOUT_MS);
+  try {
+    await fetch(url, {
+      method: "GET",
+      signal: controller.signal,
+    });
+    return true;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function loadClientContent(win: BrowserWindow): Promise<void> {
+  const devUrl = configuredClientDevUrl();
+  if (devUrl) {
+    const reachable = await isDevServerReachable(devUrl);
+    if (reachable) {
+      await win.loadURL(devUrl);
+      win.webContents.openDevTools({ mode: "detach" });
+      return;
+    }
+    console.info(`Dev server unavailable at ${devUrl}; loading built client.`);
+  }
+  const entry = clientEntry();
+  if (!fs.existsSync(entry)) {
+    throw new Error(
+      `Client bundle not found at ${entry}. Start the client dev server or run: pnpm --filter @reading-schedule/client build`,
+    );
+  }
+  await win.loadFile(entry);
+}
+
 async function createWindow() {
   const win = new BrowserWindow({
     width: 1480,
@@ -162,13 +214,7 @@ async function createWindow() {
       nodeIntegration: false,
     },
   });
-
-  if (process.env.CLIENT_DEV_URL) {
-    await win.loadURL(process.env.CLIENT_DEV_URL);
-    win.webContents.openDevTools({ mode: "detach" });
-  } else {
-    await win.loadFile(clientEntry());
-  }
+  await loadClientContent(win);
 }
 
 ipcMain.handle(IPC.generate, (_event, payload: GeneratePlanPayload) => {
@@ -181,7 +227,7 @@ ipcMain.handle(IPC.searchBooks, (_event, query: string) => searchBooks(query));
 ipcMain.handle(IPC.downloadCover, () => null);
 
 function openDesktopWindowOnReady(): void {
-  void createWindow().catch((error: unknown) => {
+  void createWindow().catch((error) => {
     console.info("Failed to create desktop window", error);
     app.quit();
   });
