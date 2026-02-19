@@ -46,10 +46,7 @@ def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
     else:
         words_read = max(0, words_read)
         words_read = min(words_read, full)
-        if full <= 0:
-            progress = 0.0
-        else:
-            progress = round(100.0 * words_read / full, 2)
+        progress = 0.0 if full <= 0 else round(100.0 * words_read / full, 2)
     return full, max(0, full - words_read), progress
 
 

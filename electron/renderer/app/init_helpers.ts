@@ -26,11 +26,6 @@ type FinalizeInitialLoadArgs = {
   setStatus: SetStatus;
 };
 
-type BindTodayActionsArgs = {
-  getLastResult?: () => PlannerResult | null;
-  getScheduleCompletions?: () => Record<string, boolean>;
-};
-
 export function setupSkipLink(): void {
   const skipLink = document.querySelector('.skip-link');
   if (!skipLink) {
@@ -89,7 +84,7 @@ export function finalizeInitialLoad({
   }
 }
 
-export function bindTodayActions({}: BindTodayActionsArgs): void {
+export function bindTodayActions(): void {
   el('startSessionFromTodayBtn').onclick = () => {
     activateTab('stats', { focusPanel: true });
   };

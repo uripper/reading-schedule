@@ -35,6 +35,15 @@ export function statusFromRaw(
   const raw = String(value || "").trim().toLowerCase();
   const known = normalizedStatus(raw);
   if (known) {
+    if (known === BOOK_STATUS_READ) {
+      return BOOK_STATUS_READ;
+    }
+    if (known === BOOK_STATUS_DROPPED) {
+      return BOOK_STATUS_DROPPED;
+    }
+    if (progressPercent >= 100) {
+      return BOOK_STATUS_READ;
+    }
     return known;
   }
   if (progressPercent >= 100) {

@@ -107,6 +107,7 @@ export function normalizeBook(book: BookInput = {}): Book {
   const finishedAt = finishedAtForStatus(status, book.finished_at);
 
   return {
+    status,
     book_id: toBookId(book.book_id),
     title: toTrimmedText(book.title),
     author: toTrimmedText(book.author),
@@ -121,7 +122,6 @@ export function normalizeBook(book: BookInput = {}): Book {
     deadline: toOptionalDate(book.deadline),
     blocked_by: withNullableString(toTrimmedText(book.blocked_by)),
     shelf: normalizeShelfName(book.shelf),
-    status,
     finished_at: finishedAt,
     cover_url: toTrimmedText(book.cover_url),
     cover_local_path: toTrimmedText(book.cover_local_path),
@@ -134,7 +134,9 @@ export function bookCoverSrc(book: BookInput): string {
 }
 
 export function toPayloadBook(book: Book): Book {
+  const status = statusFromRaw(book.status, Number(book.progress_percent || 0));
   return {
+    status,
     book_id: book.book_id,
     title: book.title,
     words_total: book.words_total ?? null,
@@ -148,8 +150,7 @@ export function toPayloadBook(book: Book): Book {
     deadline: withNullableString(book.deadline),
     blocked_by: withNullableString(book.blocked_by),
     shelf: withDefaultString(book.shelf),
-    status: withDefaultString(book.status),
-    finished_at: withNullableString(book.finished_at),
+    finished_at: normalizeFinishedAt(book.finished_at),
     author: withDefaultString(book.author),
     cover_url: withDefaultString(book.cover_url),
     cover_local_path: withDefaultString(book.cover_local_path),
