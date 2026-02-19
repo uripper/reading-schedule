@@ -1,4 +1,3 @@
-
 import { applyPreferencesToDocument, createAnnouncer } from "./a11y.js";
 import { activateTab, bindTabs } from "./tabs.js";
 import { bindBooksUI, collectBooks, fillBooks, getBookById, setBookScheduleRows, updateBookProgress } from "./books.js";
@@ -29,8 +28,25 @@ const state = {
   featureFlags: { ...DEFAULT_FEATURE_FLAGS },
   scheduleCompletions: {},
 };
-let sessionsUI = null;
-let planController = null;
+type LoadedPlannerState = {
+  settings?: Parameters<typeof fillSettings>[0];
+  books?: Parameters<typeof fillBooks>[0];
+  preferences?: Parameters<typeof normalizePreferences>[0];
+  feature_flags?: Parameters<typeof normalizeFeatureFlags>[0];
+  schedule_completions?: Parameters<typeof normalizeScheduleCompletions>[0];
+  sessions?: Parameters<ReturnType<typeof initSessionsUI>["setSessions"]>[0];
+  last_result?: Parameters<ReturnType<typeof createPlanController>["applyLoadedResult"]>[0];
+};
+
+type PlannerApi = {
+  loadState: () => Promise<LoadedPlannerState | null | undefined>;
+  sample: () => Promise<Pick<LoadedPlannerState, "settings" | "books">>;
+  saveState: (state: unknown) => Promise<unknown>;
+};
+
+const { plannerApi } = globalThis as typeof globalThis & { plannerApi: PlannerApi };
+let sessionsUI: ReturnType<typeof initSessionsUI> | null = null;
+let planController: ReturnType<typeof createPlanController> | null = null;
 const announce = createAnnouncer();
 const setStatus = createStatusSetter(el("status"), addLog);
 const { persistDraft, queuePersist } = createPersistQueue({
@@ -38,7 +54,7 @@ const { persistDraft, queuePersist } = createPersistQueue({
   collectBooks,
   collectSettings,
   addLog,
-  plannerApi: globalThis.plannerApi,
+  plannerApi,
   getSessionsUI: () => sessionsUI,
 });
 
@@ -115,7 +131,7 @@ async function init() {
     setBookScheduleRows,
     updateTodayView,
     persistDraft,
-    plannerApi: globalThis.plannerApi,
+    plannerApi,
     getLastResult: () => state.lastResult,
     setLastResult: (nextResult) => {
       state.lastResult = nextResult;
@@ -136,14 +152,19 @@ async function init() {
     updateBookProgress,
     getBookById,
     onSessionCompletionUpdated: updateTodayView,
-    onProgressUpdated: updateTodayView,
+    onProgressUpdated: () => {
+      updateTodayView();
+      if (state.ready && planController) {
+        planController.queueAutoPlan();
+      }
+    },
   });
 
   try {
-    const saved = await globalThis.plannerApi.loadState();
+    const saved = await plannerApi.loadState();
     let source = saved;
     if (!(saved?.settings && saved?.books)) {
-      source = await globalThis.plannerApi.sample();
+      source = await plannerApi.sample();
     }
 
     fillSettings(source.settings);
@@ -179,7 +200,11 @@ async function init() {
       planController.queueAutoPlan();
     }
   } catch (error) {
-    setStatus(error.message || "Failed to load initial data", true);
+    let message = "Failed to load initial data";
+    if (error instanceof Error && error.message) {
+      message = error.message;
+    }
+    setStatus(message, true);
   }
 
   el("startSessionFromTodayBtn").onclick = () => {
