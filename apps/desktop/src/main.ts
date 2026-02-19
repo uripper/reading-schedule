@@ -77,19 +77,25 @@ function runPythonBridge(args: string[], payload?: GeneratePlanPayload): Promise
       }
     });
 
-    if (payload !== undefined) proc.stdin.write(JSON.stringify(payload));
+    if (payload !== undefined) {
+      proc.stdin.write(JSON.stringify(payload));
+    }
     proc.stdin.end();
   });
 }
 
 async function searchBooks(query: string): Promise<BookLookupItem[]> {
   const trimmed = String(query || "").trim();
-  if (trimmed.length < 2) return [];
+  if (trimmed.length < 2) {
+    return [];
+  }
 
   try {
     const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(trimmed)}&limit=8`;
     const response = await fetch(url);
-    if (!response.ok) return [];
+    if (!response.ok) {
+      return [];
+    }
     const json = (await response.json()) as OpenLibraryResponse;
 
     return (json.docs || []).map((doc): BookLookupItem => {
@@ -114,9 +120,9 @@ async function searchBooks(query: string): Promise<BookLookupItem[]> {
       }
 
       return {
-        title: String(doc.title || "Untitled"),
         author,
         year,
+        title: String(doc.title || "Untitled"),
         pages_estimate: pagesEstimate,
         cover_url: coverUrl,
         source: "Open Library",
@@ -165,9 +171,8 @@ async function createWindow() {
   }
 }
 
-ipcMain.handle(IPC.generate, async (_event, payload: GeneratePlanPayload) => {
-  const data = await runPythonBridge([], payload);
-  return data;
+ipcMain.handle(IPC.generate, (_event, payload: GeneratePlanPayload) => {
+  return runPythonBridge([], payload);
 });
 
 ipcMain.handle(IPC.loadState, () => loadState());
@@ -175,7 +180,16 @@ ipcMain.handle(IPC.saveState, (_event, state: AppStateV2) => saveState(state));
 ipcMain.handle(IPC.searchBooks, (_event, query: string) => searchBooks(query));
 ipcMain.handle(IPC.downloadCover, () => null);
 
-app.whenReady().then(createWindow);
+function openDesktopWindowOnReady(): void {
+  void createWindow().catch((error: unknown) => {
+    console.info("Failed to create desktop window", error);
+    app.quit();
+  });
+}
+
+app.on("ready", openDesktopWindowOnReady);
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") app.quit();
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
 });
