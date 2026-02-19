@@ -1,5 +1,6 @@
 
 import { normalizeShelfName } from "./shelf.js";
+import { titleSortKey } from "./title_key.js";
 import type { Book } from "./types.js";
 
 export const SORT_BY_TITLE = "title";
@@ -73,6 +74,16 @@ function compareText(left: OptionalString, right: OptionalString): number {
   return leftText.localeCompare(rightText, undefined, { sensitivity: "base" });
 }
 
+function compareTitleText(left: OptionalString, right: OptionalString): number {
+  const leftKey = titleSortKey(left);
+  const rightKey = titleSortKey(right);
+  const byKey = compareText(leftKey, rightKey);
+  if (byKey !== 0) {
+    return byKey;
+  }
+  return compareText(left, right);
+}
+
 type SortComparator = (
   leftBook: Book,
   rightBook: Book,
@@ -80,7 +91,7 @@ type SortComparator = (
 ) => number;
 
 const compareByTitle: SortComparator = (leftBook, rightBook) => {
-  return compareText(leftBook.title, rightBook.title);
+  return compareTitleText(leftBook.title, rightBook.title);
 };
 
 const SORT_COMPARATORS: Record<SortBy, SortComparator> = {
@@ -126,6 +137,6 @@ export function sortBooks(
     if (primary !== 0) {
       return primary * directionSign;
     }
-    return compareText(leftBook.title, rightBook.title);
+    return compareTitleText(leftBook.title, rightBook.title);
   });
 }

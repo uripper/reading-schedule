@@ -1,11 +1,15 @@
-import { firstPlannedRow } from '../calendar.js';
 import { el } from '../dom.js';
-import { todayKey } from '../sessions/utils.js';
+import type { Book } from '../books/types.js';
 import type { FeatureFlags, Preferences } from './experience.js';
-import type { PlannerResult, PlannerScheduleRow } from './types.js';
+import { renderTodayScheduledBooks } from './today_books_view.js';
+import { buildTodayScheduleSnapshot, nextUncompletedPlannedRow, type TodayScheduleSnapshot } from './today_schedule.js';
+import type { PlannerResult } from './types.js';
 
 const MIN_GOAL_MINUTES = 1;
 const MAX_PERCENT = 100;
+const NO_SCHEDULE_TEXT = 'No schedule yet. Add or update books and settings to auto-build your plan.';
+const TODAY_DONE_TEXT = 'All planned sessions for today are complete.';
+const NO_INCOMPLETE_TEXT = 'No incomplete planned sessions ahead. Update books or settings to refresh your plan.';
 
 type SessionsUI = {
   todayMinutes: () => number;
@@ -14,33 +18,34 @@ type SessionsUI = {
   startTimer: () => void;
 };
 
-function scheduleKey(row: PlannerScheduleRow): string {
-  return `${row.date}|${row.session_index}|${row.book_id}`;
+function hasPlannedRows(lastResult: PlannerResult | null): boolean {
+  if (!Array.isArray(lastResult?.schedule)) {
+    return false;
+  }
+  return lastResult.schedule.length > 0;
 }
 
-function completedPlannedMinutesForToday(
+function summaryText(
   lastResult: PlannerResult | null,
-  scheduleCompletions: Record<string, boolean>,
-): number {
-  const today = todayKey();
-  let rows: PlannerScheduleRow[] = [];
-  if (Array.isArray(lastResult?.schedule)) {
-    rows = lastResult.schedule;
+  snapshot: TodayScheduleSnapshot,
+  next: ReturnType<typeof nextUncompletedPlannedRow>,
+): string {
+  if (next) {
+    return `Next planned session: ${next.title} for ${next.minutes} minutes on ${next.date}.`;
   }
-  return rows.reduce((totalMinutes, row) => {
-    if (String(row.date || '') !== today) {
-      return totalMinutes;
+  if (hasPlannedRows(lastResult)) {
+    if (snapshot.scheduledSessions && snapshot.completedSessions >= snapshot.scheduledSessions) {
+      return TODAY_DONE_TEXT;
     }
-    if (!scheduleCompletions[scheduleKey(row)]) {
-      return totalMinutes;
-    }
-    return totalMinutes + Number(row.minutes || 0);
-  }, 0);
+    return NO_INCOMPLETE_TEXT;
+  }
+  return NO_SCHEDULE_TEXT;
 }
 
 type UpdateTodayDashboardArgs = {
   lastResult: PlannerResult | null;
   scheduleCompletions: Record<string, boolean>;
+  books: Book[];
   preferences: Preferences;
   featureFlags: FeatureFlags;
   sessionsUI: SessionsUI | null;
@@ -50,6 +55,7 @@ type UpdateTodayDashboardArgs = {
 export function updateTodayDashboard({
   lastResult,
   scheduleCompletions,
+  books,
   preferences,
   featureFlags,
   sessionsUI,
@@ -62,18 +68,16 @@ export function updateTodayDashboard({
   const gamificationCard = el('gamificationCard');
   const streakNode = el('streakText');
 
-  const next = firstPlannedRow(lastResult?.schedule || []);
-  if (next) {
-    summaryNode.textContent = `Next planned session: ${next.title} for ${next.minutes} minutes on ${next.date}.`;
-  } else {
-    summaryNode.textContent = 'No schedule yet. Add or update books and settings to auto-build your plan.';
-  }
+  const snapshot = buildTodayScheduleSnapshot(lastResult, scheduleCompletions, books);
+  const next = snapshot.nextUncompletedRow;
+  summaryNode.textContent = summaryText(lastResult, snapshot, next);
+  renderTodayScheduledBooks(snapshot);
 
   let todayMinutes = 0;
   if (sessionsUI) {
     todayMinutes = sessionsUI.todayMinutes();
   }
-  todayMinutes += completedPlannedMinutesForToday(lastResult, scheduleCompletions);
+  todayMinutes += snapshot.completedPlannedMinutes;
 
   const goalMinutes = Math.max(
     MIN_GOAL_MINUTES,
@@ -97,10 +101,11 @@ export function updateTodayDashboard({
 
 export function activateSessionsAndStartTimer(
   lastResult: PlannerResult | null,
+  scheduleCompletions: Record<string, boolean>,
   sessionsUI: SessionsUI | null,
   activateTab: (name: string, options: { focusPanel: boolean }) => void,
 ): void {
-  const next = firstPlannedRow(lastResult?.schedule || []);
+  const next = nextUncompletedPlannedRow(lastResult, scheduleCompletions);
   if (next?.book_id && sessionsUI) {
     sessionsUI.selectBookById(next.book_id);
   }
