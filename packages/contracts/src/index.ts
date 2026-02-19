@@ -3,6 +3,20 @@ import { z } from "zod";
 export const ISODateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected ISO date YYYY-MM-DD");
 export const ISODateTimeSchema = z.string().datetime({ offset: true });
 
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+
+export const JsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
+  z.union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.null(),
+    z.array(JsonValueSchema),
+    z.record(z.string(), JsonValueSchema),
+  ]),
+);
+
 export const BookSchema = z.object({
   book_id: z.string().min(1),
   title: z.string().min(1),
@@ -48,7 +62,7 @@ export const ScheduleRowSchema = z.object({
   words_planned: z.number().int().min(0),
 });
 
-export const PlannerSummarySchema = z.record(z.string(), z.any());
+export const PlannerSummarySchema = z.record(z.string(), JsonValueSchema);
 
 export const SessionSchema = z.object({
   id: z.string().min(1),
@@ -89,6 +103,16 @@ export const GeneratePlanResponseSchema = z.object({
   schedule: z.array(ScheduleRowSchema),
 });
 
+export const BookLookupItemSchema = z.object({
+  title: z.string().default(""),
+  author: z.string().default(""),
+  year: z.string().default(""),
+  words_estimate: z.number().int().positive().nullable().optional(),
+  pages_estimate: z.number().int().positive().nullable().optional(),
+  cover_url: z.string().default(""),
+  source: z.string().default(""),
+});
+
 export const AppStateSchemaV2 = z.object({
   schemaVersion: z.literal(2),
   books: z.array(BookSchema),
@@ -104,7 +128,7 @@ export const ErrorResponseSchema = z.object({
   error: z.object({
     code: z.string(),
     message: z.string(),
-    details: z.unknown().optional(),
+    details: JsonValueSchema.optional(),
   }),
 });
 
@@ -115,13 +139,14 @@ export type Preferences = z.infer<typeof PreferencesSchema>;
 export type FeatureFlags = z.infer<typeof FeatureFlagsSchema>;
 export type GeneratePlanPayload = z.infer<typeof GeneratePlanPayloadSchema>;
 export type GeneratePlanResponse = z.infer<typeof GeneratePlanResponseSchema>;
+export type BookLookupItem = z.infer<typeof BookLookupItemSchema>;
 export type AppStateV2 = z.infer<typeof AppStateSchemaV2>;
 
 export interface PlannerAdapter {
   generatePlan(payload: GeneratePlanPayload): Promise<GeneratePlanResponse>;
   loadState(): Promise<AppStateV2 | null>;
   saveState(state: AppStateV2): Promise<{ ok: true }>;
-  searchBooks(query: string): Promise<Array<Record<string, unknown>>>;
+  searchBooks(query: string): Promise<BookLookupItem[]>;
   downloadCover(url: string, bookId: string): Promise<string | null>;
 }
 
