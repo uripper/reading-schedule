@@ -125,7 +125,8 @@ ipcMain.handle('state:save', (_event, payload: unknown) => {
   return result;
 });
 
-app.whenReady().then(createWindow);
+await app.whenReady();
+createWindow();
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();

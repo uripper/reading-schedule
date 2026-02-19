@@ -20,10 +20,10 @@ import { configureAppCalendarInteractions } from "./app/calendar_interactions.js
 import { bindTodayActions, createAppPlanControllerInstance, createSessionsAppUI, finalizeInitialLoad, setupSkipLink } from "./app/init_helpers.js";
 import { loadInitialData } from "./app/load_state.js";
 import { createPersistQueue, createStatusSetter, totalsFromSummary } from "./app/runtime_helpers.js";
-import type { PlannerApi } from "./app/types.js";
+import type { PlannerApi, PlannerResult } from "./app/types.js";
 import { updateTodayDashboard } from "./app/today.js";
 const state: {
-  lastResult: unknown | null;
+  lastResult: PlannerResult | null;
   ready: boolean;
   preferences: typeof DEFAULT_PREFERENCES;
   featureFlags: typeof DEFAULT_FEATURE_FLAGS;
@@ -128,7 +128,7 @@ async function init() {
     plannerApi,
     announce: announceForPlanController,
     getLastResult: () => state.lastResult,
-    setLastResult: (nextResult: unknown) => {
+    setLastResult: (nextResult: PlannerResult) => {
       state.lastResult = nextResult;
     },
     getSessions: () => sessionsUI?.getSessions() ?? [],

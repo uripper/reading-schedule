@@ -45,7 +45,7 @@ async function resolveInitialSource(
   if (hasInitialSettingsAndBooks(saved)) {
     return saved;
   }
-  return await plannerApi.sample();
+  return plannerApi.sample();
 }
 
 function loadErrorMessage(error: unknown): string {

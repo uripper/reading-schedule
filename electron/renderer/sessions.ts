@@ -11,7 +11,7 @@ type InitSessionsUIArgs = {
   getBooks: Parameters<typeof createPickerController>[1];
   initialSessions: Parameters<typeof normalizeSessions>[0];
   onSessionsChanged: (sessions: Session[]) => void;
-  announce: Parameters<typeof createTimerController>[3];
+  announce: Parameters<typeof createTimerController>[3]; //NOSONAR (this isn't a magic number)
   setStatus: Parameters<typeof createTimerController>[4];
 };
 
