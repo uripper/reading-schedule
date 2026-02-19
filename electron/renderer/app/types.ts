@@ -103,4 +103,7 @@ export type PlannerApi = {
   searchBooks: (query: string) => Promise<BookLookupItem[]>;
   downloadCover: (url: string | undefined, bookId: string | undefined) => Promise<string>;
   saveUploadedCover: (dataUrl: string | undefined, bookId: string | undefined) => Promise<string>;
+  zoomIn: () => Promise<number>;
+  zoomOut: () => Promise<number>;
+  zoomReset: () => Promise<number>;
 };

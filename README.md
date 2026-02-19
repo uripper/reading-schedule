@@ -3,20 +3,24 @@
 Create daily reading schedules from backlog + time budget.
 
 ## Current Status
+
 This repository now contains both:
-- `electron/`: legacy desktop app (kept operational during migration)
+
+- `electron/`: desktop app runtime with the current full feature set
 - new cross-platform workspace scaffold for web + desktop + mobile:
   - `apps/client` (React + TypeScript SPA)
-  - `apps/desktop` (Electron shell in TypeScript)
+  - `apps/desktop` (migration shell in TypeScript)
   - `apps/mobile` (Capacitor wrapper)
   - `packages/contracts` (Zod schemas + adapter interfaces)
   - `packages/ui` (shared tokenized UI primitives)
   - `services/planner-api` (FastAPI wrapper around `src/reading_plan`)
 
 ## Python Planner Core
+
 The planner engine remains under `src/reading_plan` and is still the source of truth.
 
 ### Setup
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate
@@ -27,11 +31,21 @@ pip install -e ".[mip]"
 ```
 
 ### CLI
+
 ```bash
 python -m reading_plan.cli --data data/books.csv --settings data/settings.json --output data/schedule.csv --planner mip
 ```
 
-## Legacy Electron App (still supported)
+## Desktop App (primary runtime)
+
+From repo root:
+
+```bash
+npm run dev:desktop
+```
+
+Directly from `electron/`:
+
 ```bash
 cd electron
 npm install
@@ -40,6 +54,7 @@ UI_SCALE=1.65 npm run start
 ```
 
 ## New Workspace (pnpm)
+
 ```bash
 pnpm install
 pnpm -r typecheck
@@ -47,21 +62,25 @@ pnpm -r test
 ```
 
 ### Client SPA
+
 ```bash
 pnpm --filter @reading-schedule/client dev
 ```
 
-### Desktop TS Shell
+### Desktop TS Shell (migration scaffold; not feature-parity with `electron/`)
+
 ```bash
-pnpm --filter @reading-schedule/desktop dev
+npm run dev:desktop:shell
 ```
 
 Use Vite during desktop development:
+
 ```bash
-CLIENT_DEV_URL=http://localhost:5173 pnpm --filter @reading-schedule/desktop dev
+CLIENT_DEV_URL=http://localhost:5173 npm run dev:desktop:shell
 ```
 
 ### Mobile Wrapper
+
 ```bash
 pnpm --filter @reading-schedule/mobile sync
 pnpm --filter @reading-schedule/mobile open:ios
@@ -69,6 +88,7 @@ pnpm --filter @reading-schedule/mobile open:android
 ```
 
 ### Planner API
+
 ```bash
 cd services/planner-api
 python -m venv .venv
@@ -78,12 +98,14 @@ PYTHONPATH=../../src python -m planner_api
 ```
 
 ## Tests
+
 ```bash
 .venv/bin/pytest -q
 cd electron && npm run lint
 ```
 
 ## Design Tokens (legacy electron)
+
 ```bash
 cd electron
 npm run tokens:build
