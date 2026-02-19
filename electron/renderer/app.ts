@@ -20,19 +20,8 @@ import {
 } from "./app/experience.js";
 import { configureAppCalendarInteractions } from "./app/calendar_interactions.js";
 import { createPlanController } from "./app/plan_controller.js";
-import { draftData, saveStateSafe } from "./app/persistence.js";
+import { bindSettingsAutoPlanListeners, createPersistQueue, createStatusSetter, totalsFromSummary } from "./app/runtime_helpers.js";
 import { activateSessionsAndStartTimer, updateTodayDashboard } from "./app/today.js";
-const PERSIST_DELAY_MS = 300;
-const NON_PLANNING_SETTING_IDS = new Set([
-  "themeSelect",
-  "reduceMotionToggle",
-  "dailyGoalInput",
-  "reminderEnabledToggle",
-  "reminderTimeInput",
-  "flagGamification",
-  "flagSocial",
-  "flagRecommendations",
-]);
 const state = {
   lastResult: null,
   ready: false,
@@ -40,45 +29,18 @@ const state = {
   featureFlags: { ...DEFAULT_FEATURE_FLAGS },
   scheduleCompletions: {},
 };
-let persistTimer = null;
 let sessionsUI = null;
 let planController = null;
 const announce = createAnnouncer();
-
-function setStatus(message, isError = false) {
-  const node = el("status");
-  node.textContent = message;
-  node.style.color = "var(--app-textMuted)";
-  if (isError) {
-    node.style.color = "var(--app-danger)";
-  }
-  addLog(message);
-}
-
-async function persistDraft() {
-  const payload = draftData({
-    sessionsUI,
-    collectBooks,
-    collectSettings,
-    preferences: state.preferences,
-    featureFlags: state.featureFlags,
-    scheduleCompletions: state.scheduleCompletions,
-    lastResult: state.lastResult,
-  });
-  return saveStateSafe(globalThis.plannerApi, payload, addLog);
-}
-
-function queuePersist() {
-  if (!state.ready) {
-    return;
-  }
-  if (persistTimer) {
-    clearTimeout(persistTimer);
-  }
-  persistTimer = setTimeout(() => {
-    void persistDraft();
-  }, PERSIST_DELAY_MS);
-}
+const setStatus = createStatusSetter(el("status"), addLog);
+const { persistDraft, queuePersist } = createPersistQueue({
+  plannerApi: globalThis.plannerApi,
+  state,
+  getSessionsUI: () => sessionsUI,
+  collectBooks,
+  collectSettings,
+  addLog,
+});
 
 function updateTodayView() {
   updateTodayDashboard({
@@ -96,20 +58,6 @@ function applyExperienceSettings() {
   applyPreferencesToDocument(state.preferences);
   updateTodayView();
   queuePersist();
-}
-
-function queueAutoPlanFromSettings(event) {
-  if (!state.ready || !planController) {
-    return;
-  }
-  if (!(event.target instanceof HTMLElement)) {
-    return;
-  }
-  const id = String(event.target.id || "");
-  if (NON_PLANNING_SETTING_IDS.has(id)) {
-    return;
-  }
-  planController.queueAutoPlan();
 }
 
 async function init() {
@@ -169,13 +117,7 @@ async function init() {
       state.scheduleCompletions = nextCompletions;
     },
     renderCalendar,
-    totalsFromSummary: (summary) => {
-      const perBook = summary?.per_book || {};
-      const pairs = Object.entries(perBook).map(([id, info]) => {
-        return [id, Number(info.words_total || 0)];
-      });
-      return Object.fromEntries(pairs);
-    },
+    totalsFromSummary,
     setBookScheduleRows,
     updateTodayView,
     persistDraft,
@@ -218,21 +160,15 @@ async function init() {
     document.addEventListener("input", queuePersist);
     document.addEventListener("change", queuePersist);
     const settingsPanel = el("tab-settings");
-    settingsPanel.addEventListener("input", queueAutoPlanFromSettings);
-    settingsPanel.addEventListener("change", queueAutoPlanFromSettings);
-    settingsPanel.addEventListener("click", (event) => {
-      if (!state.ready || !planController) {
-        return;
-      }
-      if (!(event.target instanceof HTMLElement)) {
-        return;
-      }
-      const addDayOff = event.target.closest("#addDayOffBtn");
-      const removeDayOff = event.target.closest("#dayOffList .chip-btn");
-      if (addDayOff || removeDayOff) {
+    bindSettingsAutoPlanListeners(
+      settingsPanel,
+      () => {
+        return state.ready && Boolean(planController);
+      },
+      () => {
         planController.queueAutoPlan();
-      }
-    });
+      },
+    );
     if (saved) {
       setStatus("Loaded saved data.");
     } else {

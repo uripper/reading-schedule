@@ -4,6 +4,8 @@ import https from "node:https";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+import { searchBooks } from "./book_lookup_search";
+
 const MAX_REDIRECTS = 4;
 
 type RawResponse = {
@@ -39,51 +41,14 @@ function fetchRaw(url: string, redirects = 0): Promise<RawResponse> {
   });
 }
 
-async function getJson(url: string): Promise<any> {
-  const raw = await fetchRaw(url);
-  return JSON.parse(raw.body.toString("utf8") || "{}");
-}
-
-function toItem(doc: any) {
-  const pages = Number(doc.number_of_pages_median || 0);
-  let words = null;
-  if (pages > 0) {
-    words = pages * 300;
-  }
-  let author = "";
-  if (Array.isArray(doc.author_name)) {
-    author = doc.author_name[0];
-  }
-  const year = doc.first_publish_year || "";
-  const coverId = Number(doc.cover_i || 0);
-  let coverUrl = "";
-  if (coverId > 0) {
-    coverUrl = `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`;
-  }
-  return {
-    title: doc.title || "",
-    author,
-    year,
-    pages_estimate: pages || null,
-    words_estimate: words,
-    cover_url: coverUrl,
-    openlibrary_key: doc.key || "",
-    source: "Open Library",
-  };
-}
-
-async function searchBooks(query: string): Promise<any[]> {
-  const q = String(query || "").trim();
-  if (q.length < 2) return [];
-  const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=8&fields=title,author_name,first_publish_year,number_of_pages_median,cover_i,key`;
-  const json = await getJson(url);
-  return (json.docs || []).map(toItem).filter((x) => x.title);
-}
-
 function extensionFor(contentType: string | undefined, parsedUrl: URL): string {
   const ct = String(contentType || "").toLowerCase();
-  if (ct.includes("image/png")) return ".png";
-  if (ct.includes("image/webp")) return ".webp";
+  if (ct.includes("image/png")) {
+    return ".png";
+  }
+  if (ct.includes("image/webp")) {
+    return ".webp";
+  }
   const known = path.extname(parsedUrl.pathname || "").toLowerCase();
   if ([".jpg", ".jpeg", ".png", ".webp"].includes(known)) {
     if (known === ".jpeg") {
@@ -105,12 +70,18 @@ async function downloadCover(
   userDataDir: string | undefined
 ): Promise<string> {
   const rawUrl = String(coverUrl || "").trim();
-  if (!rawUrl || !userDataDir) return "";
+  if (!rawUrl || !userDataDir) {
+    return "";
+  }
   const parsed = new URL(rawUrl);
-  if (!["http:", "https:"].includes(parsed.protocol)) return "";
+  if (!["http:", "https:"].includes(parsed.protocol)) {
+    return "";
+  }
 
   const response = await fetchRaw(parsed.toString());
-  if (!response.body?.length) return "";
+  if (!response.body?.length) {
+    return "";
+  }
 
   const ext = extensionFor(response.headers["content-type"], parsed);
   const dir = path.join(userDataDir, "book_covers");

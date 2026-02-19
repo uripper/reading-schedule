@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 const LOOKUP_DELAY_MS = 260;
-const RESULT_LIMIT = 8;
+const RESULT_LIMIT = 12;
 const MIN_QUERY_LENGTH = 2;
 
 export function createLookupInputHandler({

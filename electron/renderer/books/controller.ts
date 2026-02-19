@@ -4,10 +4,10 @@ import { renderBookGrid } from "./card_view.js";
 import { createBookDialog } from "./dialog.js";
 import { finishDatesByBookId } from "./finish_dates.js";
 import { hasSchedulableLength, normalizeBook, toPayloadBook } from "./model.js";
+import { withUpdatedProgress } from "./progress.js";
 import { shelfFilterMatches, SHELF_FILTER_ALL } from "./shelf.js";
 import { sortBooks } from "./sort.js";
 import { ensureBooksToolbarControls, SORT_BY_TITLE, SORT_DIRECTION_ASC, SORT_DIRECTION_DESC, updateShelfFilterOptions, updateSortDirectionButton } from "./toolbar.js";
-import { clamp } from "./utils.js";
 let books = [];
 let scheduleRows = [];
 let onBooksChanged = () => {};
@@ -26,48 +26,6 @@ const viewState = {
   sortBy: SORT_BY_TITLE,
   sortDirection: SORT_DIRECTION_ASC,
 };
-function parseFiniteNumber(raw) {
-  if (raw === null || raw === undefined || raw === "") {
-    return null;
-  }
-  const value = Number(raw);
-  if (!Number.isFinite(value)) {
-    return null;
-  }
-  return value;
-}
-function applyPagesUpdate(nextBook, pagesUpdate, hasPagesTotal, pagesTotal) {
-  if (pagesUpdate === null) {
-    return false;
-  }
-  if (hasPagesTotal) {
-    nextBook.pages_read = clamp(Math.round(pagesUpdate), 0, pagesTotal);
-  } else {
-    nextBook.pages_read = Math.max(0, Math.round(pagesUpdate));
-  }
-  return true;
-}
-
-function applyPercentUpdate(nextBook, pctUpdate, hasPagesUpdate, hasPagesTotal, pagesTotal) {
-  if (pctUpdate === null || hasPagesUpdate) {
-    return;
-  }
-  nextBook.progress_percent = Math.round(clamp(pctUpdate, 0, 100) * 10) / 10;
-  if (hasPagesTotal) {
-    nextBook.pages_read = Math.round((nextBook.progress_percent / 100) * pagesTotal);
-  }
-}
-
-function reconcilePercentFromPages(nextBook, hasPagesTotal, pagesTotal) {
-  if (!hasPagesTotal) {
-    return;
-  }
-  if (nextBook.pages_read === null || nextBook.pages_read === undefined) {
-    return;
-  }
-  const pct = (Number(nextBook.pages_read) / pagesTotal) * 100;
-  nextBook.progress_percent = Math.round(clamp(pct, 0, 100) * 10) / 10;
-}
 
 function findBook(bookId) {
   return books.find((book) => book.book_id === bookId) || null;
@@ -86,15 +44,7 @@ export function updateBookProgress(bookId, updates = {}) {
   if (idx < 0) {
     return null;
   }
-  const current = books[idx];
-  const next = { ...current };
-  const pagesTotal = Number(next.pages_total || 0);
-  const hasPagesTotal = Number.isFinite(pagesTotal) && pagesTotal > 0;
-  const pagesUpdate = parseFiniteNumber(updates.pagesRead);
-  const hasPagesUpdate = applyPagesUpdate(next, pagesUpdate, hasPagesTotal, pagesTotal);
-  const pctUpdate = parseFiniteNumber(updates.progressPercent);
-  applyPercentUpdate(next, pctUpdate, hasPagesUpdate, hasPagesTotal, pagesTotal);
-  reconcilePercentFromPages(next, hasPagesTotal, pagesTotal);
+  const next = withUpdatedProgress(books[idx], updates);
   books[idx] = normalizeBook(next);
   render();
   onBooksChanged();
