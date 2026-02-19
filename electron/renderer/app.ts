@@ -1,10 +1,11 @@
 import { applyPreferencesToDocument, createAnnouncer } from "./a11y.js";
 import { bindTabs } from "./tabs.js";
-import { bindBooksUI, collectBooks, fillBooks, getBookById, setBookScheduleRows, updateBookProgress } from "./books.js";
+import { bindBooksUI, collectAllBooks, collectBooks, fillBooks, getBookById, setBookScheduleRows, updateBookProgress } from "./books.js";
 import { configureCalendarInteractions, focusCalendarToday, renderCalendar } from "./calendar.js";
 import { el } from "./dom.js";
 import { addLog, bindHelpDialog } from "./help.js";
 import { collectSettings, fillSettings, initSettingsGrid } from "./settings.js";
+import { updateStatsView } from "./stats.js";
 import { bindExperienceSettings } from "./app/experience_bindings.js";
 import {
   collectFeatureFlagsFromUI,
@@ -17,26 +18,29 @@ import {
   normalizeScheduleCompletions,
 } from "./app/experience.js";
 import { configureAppCalendarInteractions } from "./app/calendar_interactions.js";
-import { bindTodayActions, createAppPlanControllerInstance, createSessionsAppUI, finalizeInitialLoad, setupSkipLink } from "./app/init_helpers.js";
+import { bindTodayActions, createAppPlanControllerInstance, finalizeInitialLoad, setupSkipLink } from "./app/init_helpers.js";
 import { loadInitialData } from "./app/load_state.js";
 import { createPersistQueue, createStatusSetter, totalsFromSummary } from "./app/runtime_helpers.js";
 import type { PlannerApi, PlannerResult } from "./app/types.js";
 import { updateTodayDashboard } from "./app/today.js";
+import type { Session } from "./sessions/normalize.js";
+import { minutesForDay, streakFromSessions, todayKey } from "./sessions/utils.js";
 const state: {
   lastResult: PlannerResult | null;
   ready: boolean;
   preferences: typeof DEFAULT_PREFERENCES;
   featureFlags: typeof DEFAULT_FEATURE_FLAGS;
   scheduleCompletions: Record<string, boolean>;
+  sessions: Session[];
 } = {
   lastResult: null,
   ready: false,
   preferences: { ...DEFAULT_PREFERENCES },
   featureFlags: { ...DEFAULT_FEATURE_FLAGS },
   scheduleCompletions: {},
+  sessions: [],
 };
 const { plannerApi } = globalThis as typeof globalThis & { plannerApi: PlannerApi };
-let sessionsUI: ReturnType<typeof createSessionsAppUI> | null = null;
 let planController: ReturnType<typeof createAppPlanControllerInstance> | null = null;
 const announce = createAnnouncer();
 const announceForPlanController = (message: string, politeness?: string) => {
@@ -49,28 +53,46 @@ const announceForPlanController = (message: string, politeness?: string) => {
 const setStatus = createStatusSetter(el("status"), addLog);
 const { persistDraft, queuePersist } = createPersistQueue({
   state,
-  collectBooks,
   collectSettings,
   addLog,
   plannerApi,
-  getSessionsUI: () => sessionsUI,
+  collectBooks: collectAllBooks,
+  getSessionsUI: () => ({ getSessions: () => state.sessions }),
 });
+function sessionSummary() {
+  return {
+    todayMinutes: () => minutesForDay(state.sessions, todayKey()),
+    streakDays: () => streakFromSessions(state.sessions),
+  };
+}
 function updateTodayView() {
   updateTodayDashboard({
-    sessionsUI,
+    sessionsUI: sessionSummary(),
     lastResult: state.lastResult,
     scheduleCompletions: state.scheduleCompletions,
-    books: collectBooks(),
+    books: collectAllBooks(),
     preferences: state.preferences,
     featureFlags: state.featureFlags,
     defaultDailyGoalMinutes: DEFAULT_PREFERENCES.dailyGoalMinutes,
   });
 }
+function updateStatsDashboardView() {
+  updateStatsView({
+    books: collectAllBooks(),
+    sessions: state.sessions,
+    lastResult: state.lastResult,
+    scheduleCompletions: state.scheduleCompletions,
+  });
+}
+function updateDashboards() {
+  updateTodayView();
+  updateStatsDashboardView();
+}
 function applyExperienceSettings() {
   state.preferences = normalizePreferences(collectPreferencesFromUI());
   state.featureFlags = normalizeFeatureFlags(collectFeatureFlagsFromUI());
   applyPreferencesToDocument(state.preferences);
-  updateTodayView();
+  updateDashboards();
   queuePersist();
 }
 function queueAutoPlanIfReady() {
@@ -79,28 +101,17 @@ function queueAutoPlanIfReady() {
   }
 }
 function handleTabChange(name: string) {
-  if (name === "sessions" && sessionsUI) {
-    sessionsUI.refreshBooks();
-  }
   if (name === "schedule") {
     focusCalendarToday();
   }
 }
 function handleBooksChanged() {
-  if (sessionsUI) {
-    sessionsUI.refreshBooks();
-  }
-  updateTodayView();
-  queuePersist();
-  queueAutoPlanIfReady();
-}
-function handleSessionsChanged() {
-  updateTodayView();
+  updateDashboards();
   queuePersist();
   queueAutoPlanIfReady();
 }
 function handleProgressUpdated() {
-  updateTodayView();
+  updateDashboards();
   queueAutoPlanIfReady();
 }
 async function init() {
@@ -109,12 +120,6 @@ async function init() {
   bindTabs(handleTabChange);
   bindBooksUI(handleBooksChanged);
   bindHelpDialog();
-  sessionsUI = createSessionsAppUI({
-    collectBooks,
-    setStatus,
-    onSessionsChanged: handleSessionsChanged,
-    announce: announceForPlanController,
-  });
   planController = createAppPlanControllerInstance({
     collectBooks,
     collectSettings,
@@ -123,15 +128,15 @@ async function init() {
     renderCalendar,
     totalsFromSummary,
     setBookScheduleRows,
-    updateTodayView,
     persistDraft,
     plannerApi,
+    updateTodayView: updateDashboards,
     announce: announceForPlanController,
     getLastResult: () => state.lastResult,
     setLastResult: (nextResult: PlannerResult) => {
       state.lastResult = nextResult;
     },
-    getSessions: () => sessionsUI?.getSessions() ?? [],
+    getSessions: () => state.sessions,
     getScheduleCompletions: () => state.scheduleCompletions,
     setScheduleCompletions: (nextCompletions: Record<string, boolean>) => {
       state.scheduleCompletions = nextCompletions;
@@ -145,7 +150,7 @@ async function init() {
     setStatus,
     updateBookProgress,
     getBookById,
-    onSessionCompletionUpdated: updateTodayView,
+    onSessionCompletionUpdated: updateDashboards,
     onProgressUpdated: handleProgressUpdated,
   });
   await loadInitialData({
@@ -157,13 +162,13 @@ async function init() {
     normalizeScheduleCompletions,
     fillPreferencesUI,
     applyPreferencesToDocument,
-    updateTodayView,
     setStatus,
+    updateTodayView: updateDashboards,
     setPreferences: (preferences) => { state.preferences = preferences; },
     setFeatureFlags: (featureFlags) => { state.featureFlags = featureFlags; },
     setScheduleCompletions: (scheduleCompletions) => { state.scheduleCompletions = scheduleCompletions; },
     setSessions: (sessions) => {
-      sessionsUI?.setSessions(sessions);
+      state.sessions = sessions;
     },
     applyLoadedResult: (result) => {
       planController?.applyLoadedResult(result);
@@ -180,10 +185,6 @@ async function init() {
       });
     },
   });
-  bindTodayActions({
-    getLastResult: () => state.lastResult,
-    getScheduleCompletions: () => state.scheduleCompletions,
-    getSessionsUI: () => sessionsUI,
-  });
+  bindTodayActions();
 }
 await init();

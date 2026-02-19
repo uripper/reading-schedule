@@ -14,8 +14,6 @@ const NO_INCOMPLETE_TEXT = 'No incomplete planned sessions ahead. Update books o
 type SessionsUI = {
   todayMinutes: () => number;
   streakDays: () => number;
-  selectBookById: (bookId: string) => void;
-  startTimer: () => void;
 };
 
 function hasPlannedRows(lastResult: PlannerResult | null): boolean {
@@ -96,21 +94,5 @@ export function updateTodayDashboard({
       streak = sessionsUI.streakDays();
     }
     streakNode.textContent = `${streak} day streak`;
-  }
-}
-
-export function activateSessionsAndStartTimer(
-  lastResult: PlannerResult | null,
-  scheduleCompletions: Record<string, boolean>,
-  sessionsUI: SessionsUI | null,
-  activateTab: (name: string, options: { focusPanel: boolean }) => void,
-): void {
-  const next = nextUncompletedPlannedRow(lastResult, scheduleCompletions);
-  if (next?.book_id && sessionsUI) {
-    sessionsUI.selectBookById(next.book_id);
-  }
-  activateTab('sessions', { focusPanel: true });
-  if (sessionsUI) {
-    sessionsUI.startTimer();
   }
 }
