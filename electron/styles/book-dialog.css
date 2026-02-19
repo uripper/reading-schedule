@@ -12,6 +12,25 @@
   background: var(--app-overlay);
 }
 
+.book-shelf-prompt-dialog {
+  width: min(380px, 92vw);
+  border: 1px solid var(--app-border);
+  border-radius: var(--token-radius-md);
+  background: var(--app-bgElevated);
+  color: var(--app-text);
+  padding: var(--token-space-3);
+  box-shadow: var(--token-elevation-md);
+}
+
+.book-shelf-prompt-dialog::backdrop {
+  background: color-mix(in srgb, var(--app-overlay) 70%, transparent);
+}
+
+.book-shelf-prompt-form {
+  display: grid;
+  gap: var(--token-space-2);
+}
+
 .book-form {
   display: grid;
   gap: var(--token-space-3);
