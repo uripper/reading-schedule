@@ -35,6 +35,7 @@ export type BookGroup = {
 const MONTH_INDEX_MIN = 1;
 const MONTH_INDEX_MAX = 12;
 const YEAR_MONTH_MULTIPLIER = 100;
+const ISO_DATE_PART_COUNT = 3;
 
 const NO_ESTIMATED_FINISH_KEY = 'finish:none';
 const NO_ESTIMATED_FINISH_LABEL = 'No estimated finish';
@@ -48,7 +49,7 @@ const TITLE_LETTER_ORDER = 1;
 
 const monthLabelFormatter = new Intl.DateTimeFormat(undefined, { month: 'long' });
 
-function normalizedText(value: string | number | null | undefined): string {
+function normalizedText(value?: string | number): string {
   return String(value || '').trim();
 }
 
@@ -57,7 +58,7 @@ function compareTextInsensitive(left: string, right: string): number {
 }
 
 function parseFinishDateParts(
-  dateText: string | null | undefined,
+  dateText?: string,
 ): { year: number; month: number; date: Date } | null {
   const raw = normalizedText(dateText);
   if (!raw) {
@@ -65,7 +66,7 @@ function parseFinishDateParts(
   }
 
   const parts = raw.split('-');
-  if (parts.length !== 3) {
+  if (parts.length !== ISO_DATE_PART_COUNT) {
     return null;
   }
 

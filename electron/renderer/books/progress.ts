@@ -2,8 +2,8 @@
 import { clamp } from "./utils.js";
 import type { Book, BookProgressUpdates } from "./types.js";
 
-function parseFiniteNumber(raw: string | number | null | undefined): number | null {
-  if (raw === null || raw === undefined || raw === "") {
+function parseFiniteNumber(raw?: string | number): number | null {
+  if (raw === undefined || raw === "") {
     return null;
   }
   const value = Number(raw);
@@ -56,9 +56,9 @@ export function withUpdatedProgress(book: Book, updates: BookProgressUpdates = {
   const nextBook = { ...book };
   const pagesTotal = Number(nextBook.pages_total || 0);
   const hasPagesTotal = Number.isFinite(pagesTotal) && pagesTotal > 0;
-  const pagesUpdate = parseFiniteNumber(updates.pagesRead);
+  const pagesUpdate = parseFiniteNumber(updates.pagesRead ?? undefined);
   const hasPagesUpdate = applyPagesUpdate(nextBook, pagesUpdate, hasPagesTotal, pagesTotal);
-  const pctUpdate = parseFiniteNumber(updates.progressPercent);
+  const pctUpdate = parseFiniteNumber(updates.progressPercent ?? undefined);
   applyPercentUpdate(nextBook, pctUpdate, hasPagesUpdate, hasPagesTotal, pagesTotal);
   reconcilePercentFromPages(nextBook, hasPagesTotal, pagesTotal);
   return nextBook;

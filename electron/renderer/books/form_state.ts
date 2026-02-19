@@ -14,6 +14,8 @@ const DEFAULT_PROGRESS = "0";
 const DEFAULT_PRIORITY = "3";
 const DEFAULT_DIFFICULTY = "3";
 const DEFAULT_MIN_BLOCKS = "1";
+const PROGRESS_MAX = 100;
+const PROGRESS_DECIMAL_SCALE = 10;
 
 type LookupControl = {
   clearResults: () => void;
@@ -22,6 +24,78 @@ type LookupControl = {
 function setCoverPreview(refs: BookFormRefs, src: string): void {
   refs.coverPreview.src = src || COVER_PLACEHOLDER;
   refs.coverPreview.classList.toggle("is-empty", !src);
+}
+
+function setOptionalIntegerInputValue(inputNode: HTMLInputElement, value: number | null | undefined): void {
+  inputNode.value = "";
+  if (value === null || value === undefined) {
+    return;
+  }
+  inputNode.value = String(value);
+}
+
+function fallbackText(value: string | null | undefined, fallback = ""): string {
+  if (value === null || value === undefined || value === "") {
+    return fallback;
+  }
+  return value;
+}
+
+function fallbackNumberText(value: number | null | undefined, fallback: string): string {
+  if (value === null || value === undefined || value === 0) {
+    return fallback;
+  }
+  return String(value);
+}
+
+function requiredTitle(refs: BookFormRefs): string {
+  const title = refs.titleInput.value.trim();
+  if (!title) {
+    throw new Error("Title is required.");
+  }
+  return title;
+}
+
+function deriveLengthAndProgress(refs: BookFormRefs): {
+  wordsTotal: number | null;
+  pagesTotal: number | null;
+  pagesRead: number | null;
+  progress: number;
+} {
+  const wordsTotal = toOptionalInt(refs.wordsInput.value);
+  const pagesTotal = toOptionalInt(refs.pagesTotalInput.value);
+  let pagesRead = toOptionalInt(refs.pagesReadInput.value);
+  let progress = clamp(Number(refs.progressInput.value || 0), 0, PROGRESS_MAX);
+  if (!wordsTotal && !pagesTotal) {
+    throw new Error("Enter estimated words or total pages.");
+  }
+  if (pagesTotal) {
+    if (pagesRead === null || pagesRead === undefined) {
+      pagesRead = Math.round((progress / PROGRESS_MAX) * pagesTotal);
+    }
+    pagesRead = clamp(pagesRead, 0, pagesTotal);
+    progress = Math.round(((pagesRead / pagesTotal) * PROGRESS_MAX) * PROGRESS_DECIMAL_SCALE) / PROGRESS_DECIMAL_SCALE;
+    return {
+      wordsTotal,
+      pagesTotal,
+      pagesRead,
+      progress,
+    };
+  }
+  return {
+    wordsTotal,
+    pagesTotal,
+    progress,
+    pagesRead: null,
+  };
+}
+
+function validatedShelfSelection(refs: BookFormRefs): string {
+  const shelf = refs.shelfSelectInput.value;
+  if (shelf === SHELF_SELECT_CREATE_NEW) {
+    throw new Error("Choose a shelf or create a new one from the shelf selector.");
+  }
+  return shelf;
 }
 
 export function clearForm(refs: BookFormRefs, lookupControl: LookupControl): void {
@@ -45,61 +119,30 @@ export function clearForm(refs: BookFormRefs, lookupControl: LookupControl): voi
 
 export function fillForm(refs: BookFormRefs, book: Book): void {
   refs.bookId.value = book.book_id;
-  refs.titleInput.value = book.title || "";
-  refs.wordsInput.value = "";
-  if (book.words_total) {
-    refs.wordsInput.value = String(book.words_total);
-  }
-  refs.pagesTotalInput.value = "";
-  if (book.pages_total) {
-    refs.pagesTotalInput.value = String(book.pages_total);
-  }
-  refs.pagesReadInput.value = "";
-  if (book.pages_read !== null && book.pages_read !== undefined) {
-    refs.pagesReadInput.value = String(book.pages_read);
-  }
-  refs.progressInput.value = String(book.progress_percent ?? DEFAULT_PROGRESS);
-  refs.priorityInput.value = String(book.priority || DEFAULT_PRIORITY);
-  refs.difficultyInput.value = String(book.difficulty || DEFAULT_DIFFICULTY);
-  refs.minBlocksInput.value = String(book.min_blocks_per_session || DEFAULT_MIN_BLOCKS);
-  refs.maxMinutesInput.value = "";
-  if (book.max_minutes_per_day) {
-    refs.maxMinutesInput.value = String(book.max_minutes_per_day);
-  }
-  refs.deadlineInput.value = book.deadline || "";
-  refs.blockedByInput.value = book.blocked_by || "";
-  refs.coverUrl.value = book.cover_url || "";
-  refs.coverLocal.value = book.cover_local_path || "";
-  refs.author.value = book.author || "";
-  refs.lookupMeta.dataset.lookupNote = book.lookup_note || "";
-  refs.lookupMeta.textContent = book.lookup_note || "";
-  refs.searchInput.value = book.title || "";
+  refs.titleInput.value = fallbackText(book.title);
+  setOptionalIntegerInputValue(refs.wordsInput, book.words_total);
+  setOptionalIntegerInputValue(refs.pagesTotalInput, book.pages_total);
+  setOptionalIntegerInputValue(refs.pagesReadInput, book.pages_read);
+  refs.progressInput.value = fallbackNumberText(book.progress_percent, DEFAULT_PROGRESS);
+  refs.priorityInput.value = fallbackNumberText(book.priority, DEFAULT_PRIORITY);
+  refs.difficultyInput.value = fallbackNumberText(book.difficulty, DEFAULT_DIFFICULTY);
+  refs.minBlocksInput.value = fallbackNumberText(book.min_blocks_per_session, DEFAULT_MIN_BLOCKS);
+  setOptionalIntegerInputValue(refs.maxMinutesInput, book.max_minutes_per_day);
+  refs.deadlineInput.value = fallbackText(book.deadline);
+  refs.blockedByInput.value = fallbackText(book.blocked_by);
+  refs.coverUrl.value = fallbackText(book.cover_url);
+  refs.coverLocal.value = fallbackText(book.cover_local_path);
+  refs.author.value = fallbackText(book.author);
+  refs.lookupMeta.dataset.lookupNote = fallbackText(book.lookup_note);
+  refs.lookupMeta.textContent = fallbackText(book.lookup_note);
+  refs.searchInput.value = fallbackText(book.title);
   setCoverPreview(refs, bookCoverSrc(book));
 }
 
 export function parseFormBook(refs: BookFormRefs): Book {
-  const title = refs.titleInput.value.trim();
-  if (!title) {
-    throw new Error("Title is required.");
-  }
-  const wordsTotal = toOptionalInt(refs.wordsInput.value);
-  const pagesTotal = toOptionalInt(refs.pagesTotalInput.value);
-  let pagesRead = toOptionalInt(refs.pagesReadInput.value);
-  let progress = clamp(Number(refs.progressInput.value || 0), 0, 100);
-  if (!wordsTotal && !pagesTotal) {
-    throw new Error("Enter estimated words or total pages.");
-  }
-  if (pagesTotal) {
-    pagesRead = pagesRead ?? Math.round((progress / 100) * pagesTotal);
-    pagesRead = clamp(pagesRead, 0, pagesTotal);
-    progress = Math.round(((pagesRead / pagesTotal) * 100) * 10) / 10;
-  } else {
-    pagesRead = null;
-  }
-  const shelf = refs.shelfSelectInput.value;
-  if (shelf === SHELF_SELECT_CREATE_NEW) {
-    throw new Error("Choose a shelf or create a new one from the shelf selector.");
-  }
+  const title = requiredTitle(refs);
+  const { wordsTotal, pagesTotal, pagesRead, progress } = deriveLengthAndProgress(refs);
+  const shelf = validatedShelfSelection(refs);
 
   return normalizeBook({
     title,
