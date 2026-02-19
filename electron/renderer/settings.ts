@@ -119,7 +119,17 @@ export function fillSettings(settings: PlannerSettings = {}): void {
     inputEl(`minutes_${key}`).value = String(minutesByWeekday[key] ?? 0);
   });
 
-  setDayOffs([...(settings.days_off as string[] || [])].sort());
+  const rawDayOffs = settings.days_off;
+  const nextDayOffs: string[] = [];
+  if (Array.isArray(rawDayOffs)) {
+    rawDayOffs.forEach((dayOff) => {
+      if (typeof dayOff === "string") {
+        nextDayOffs.push(dayOff);
+      }
+    });
+  }
+  nextDayOffs.sort((left, right) => left.localeCompare(right));
+  setDayOffs(nextDayOffs);
 
   const difficultyMultiplier = settings.difficulty_multiplier || {};
   numberLevels().forEach((level) => {

@@ -28,7 +28,7 @@ export function bindDayOffAddButton(
     if (!selectedDay || existing.includes(selectedDay)) {
       return;
     }
-    const sorted = [...existing, selectedDay].sort();
+    const sorted = [...existing, selectedDay].sort((left, right) => left.localeCompare(right));
     setDayOffs(sorted);
   };
 }
