@@ -195,8 +195,7 @@ export function parseFormBook(refs: BookFormRefs): Book {
   const parsed = deriveLengthAndProgress(refs);
   const shelf = validatedShelfSelection(refs);
   const status = validatedStatusSelection(refs);
-  let progress = parsed.progress;
-  let pagesRead = parsed.pagesRead;
+  let {progress, pagesRead} = parsed;
   if (status === BOOK_STATUS_READ) {
     progress = PROGRESS_MAX;
     if (parsed.pagesTotal) {

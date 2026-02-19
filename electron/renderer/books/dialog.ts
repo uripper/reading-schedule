@@ -1,7 +1,7 @@
 
 import { bindBookLookup, syncProgressAndPages } from "../book_lookup.js";
 import { bindDialogFocus, focusFirstError } from "../a11y.js";
-import { applyLookupItem, clearForm, fillForm, parseFormBook } from "./form_state.js";
+import { applyLookupItem, clearForm, fillForm, parseFormBook, syncFinishedAtField } from "./form_state.js";
 import { ensureBookFormLayoutFields } from "./form_layout.js";
 import { getBookFormRefs } from "./form_refs.js";
 import { createAfterBookPicker } from "./after_book_picker.js";
@@ -79,5 +79,6 @@ export function createBookDialog(onSubmit: (book: Book) => Promise<void> | void,
   refs.pagesTotalInput.addEventListener("input", () => syncProgressAndPages(syncRefs, "pages"));
   refs.pagesReadInput.addEventListener("input", () => syncProgressAndPages(syncRefs, "pages"));
   refs.progressInput.addEventListener("input", () => syncProgressAndPages(syncRefs, "progress"));
+  refs.statusSelectInput.addEventListener("change", () => syncFinishedAtField(refs));
   return { open };
 }

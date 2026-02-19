@@ -7,6 +7,7 @@ import {
   GROUP_BY_TITLE_LETTER,
 } from './grouping.js';
 import { SHELF_FILTER_ALL, SHELF_FILTER_UNSHELVED, uniqueShelves } from './shelf.js';
+import { normalizeStatusFilter, statusFilterOptions, type BookStatusFilter } from './status.js';
 import {
   SORT_BY_AUTHOR,
   SORT_BY_DEADLINE,
@@ -99,6 +100,7 @@ function groupOptionsForShelfFilter(shelfFilter: string): OptionDefinition[] {
 export function ensureBooksToolbarControls(toolbar: HTMLElement) {
   const wrap = createControlsWrap(toolbar);
   const shelf = createLabeledSelect('Shelf', 'booksShelfFilterSelect', []);
+  const status = createLabeledSelect('Status', 'booksStatusFilterSelect', []);
   const sortBy = createLabeledSelect('Sort', 'booksSortBySelect', SORT_OPTIONS);
   const groupBy = createLabeledSelect('Group By', 'booksGroupBySelect', GROUP_OPTIONS_BASE);
 
@@ -107,9 +109,10 @@ export function ensureBooksToolbarControls(toolbar: HTMLElement) {
   sortDirectionBtn.className = 'btn';
   sortDirectionBtn.id = 'booksSortDirectionBtn';
 
-  wrap.replaceChildren(shelf.label, sortBy.label, groupBy.label, sortDirectionBtn);
+  wrap.replaceChildren(shelf.label, status.label, sortBy.label, groupBy.label, sortDirectionBtn);
   return {
     shelfFilterSelect: shelf.select,
+    statusFilterSelect: status.select,
     sortBySelect: sortBy.select,
     groupBySelect: groupBy.select,
     sortDirectionBtn,
@@ -142,6 +145,23 @@ export function updateShelfFilterOptions(
     nextValue = selectedValue;
   }
   shelfFilterSelect.value = nextValue;
+  return nextValue;
+}
+
+export function updateStatusFilterOptions(
+  statusFilterSelect: HTMLSelectElement,
+  selectedValue: string,
+): BookStatusFilter {
+  const options = statusFilterOptions();
+  statusFilterSelect.replaceChildren(...options.map((option) => createOption(option.value, option.label)));
+
+  const normalized = normalizeStatusFilter(selectedValue);
+  const selected = options.find((option) => option.value === normalized);
+  let nextValue: BookStatusFilter = options[0].value;
+  if (selected) {
+    nextValue = selected.value;
+  }
+  statusFilterSelect.value = nextValue;
   return nextValue;
 }
 
