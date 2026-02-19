@@ -8,7 +8,14 @@ export function toInt(value: string | number | undefined, fallback = 0) {
   return fallback;
 }
 
-export function isoLocalDayKey(iso: string | number | Date) {
+type DateInput = string | number | Date;
+
+type SessionRecord = {
+  ended_at: DateInput;
+  minutes?: number | string | null;
+};
+
+export function isoLocalDayKey(iso: DateInput) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) {
     return "";
@@ -19,7 +26,7 @@ export function isoLocalDayKey(iso: string | number | Date) {
   return `${year}-${month}-${dayOfMonth}`;
 }
 
-export function formatTimeRange(startIso: string | number | Date, endIso: string | number | Date) {
+export function formatTimeRange(startIso: DateInput, endIso: DateInput) {
   const start = new Date(startIso);
   const end = new Date(endIso);
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
@@ -48,15 +55,15 @@ export function todayKey() {
   return isoLocalDayKey(new Date().toISOString());
 }
 
-export function minutesForDay(sessions: any[], dayKey: string) {
+export function minutesForDay(sessions: SessionRecord[], dayKey: string) {
   return sessions
-    .filter((session: { ended_at: any; }) => isoLocalDayKey(session.ended_at) === dayKey)
-    .reduce((sum: number, session: { minutes: any; }) => sum + Number(session.minutes || 0), 0);
+    .filter((session) => isoLocalDayKey(session.ended_at) === dayKey)
+    .reduce((sum, session) => sum + Number(session.minutes || 0), 0);
 }
 
-export function streakFromSessions(sessions: any[]) {
-  const minuteMap = new Map();
-  sessions.forEach((session: { ended_at: any; minutes: any; }) => {
+export function streakFromSessions(sessions: SessionRecord[]) {
+  const minuteMap = new Map<string, number>();
+  sessions.forEach((session) => {
     const key = isoLocalDayKey(session.ended_at);
     if (!key) {
       return;

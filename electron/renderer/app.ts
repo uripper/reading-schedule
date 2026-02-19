@@ -1,10 +1,9 @@
 import { applyPreferencesToDocument, createAnnouncer } from "./a11y.js";
-import { activateTab, bindTabs } from "./tabs.js";
+import { bindTabs } from "./tabs.js";
 import { bindBooksUI, collectBooks, fillBooks, getBookById, setBookScheduleRows, updateBookProgress } from "./books.js";
 import { configureCalendarInteractions, focusCalendarToday, renderCalendar } from "./calendar.js";
 import { el } from "./dom.js";
 import { addLog, bindHelpDialog } from "./help.js";
-import { initSessionsUI } from "./sessions.js";
 import { collectSettings, fillSettings, initSettingsGrid } from "./settings.js";
 import { bindExperienceSettings } from "./app/experience_bindings.js";
 import {
@@ -18,11 +17,11 @@ import {
   normalizeScheduleCompletions,
 } from "./app/experience.js";
 import { configureAppCalendarInteractions } from "./app/calendar_interactions.js";
+import { bindTodayActions, createAppPlanControllerInstance, createSessionsAppUI, finalizeInitialLoad, setupSkipLink } from "./app/init_helpers.js";
 import { loadInitialData } from "./app/load_state.js";
-import { createPlanController } from "./app/plan_controller.js";
-import { bindSettingsAutoPlanListeners, createPersistQueue, createStatusSetter, totalsFromSummary } from "./app/runtime_helpers.js";
+import { createPersistQueue, createStatusSetter, totalsFromSummary } from "./app/runtime_helpers.js";
 import type { PlannerApi } from "./app/types.js";
-import { activateSessionsAndStartTimer, updateTodayDashboard } from "./app/today.js";
+import { updateTodayDashboard } from "./app/today.js";
 const state: {
   lastResult: unknown | null;
   ready: boolean;
@@ -37,8 +36,8 @@ const state: {
   scheduleCompletions: {},
 };
 const { plannerApi } = globalThis as typeof globalThis & { plannerApi: PlannerApi };
-let sessionsUI: ReturnType<typeof initSessionsUI> | null = null;
-let planController: ReturnType<typeof createPlanController> | null = null;
+let sessionsUI: ReturnType<typeof createSessionsAppUI> | null = null;
+let planController: ReturnType<typeof createAppPlanControllerInstance> | null = null;
 const announce = createAnnouncer();
 const announceForPlanController = (message: string, politeness?: string) => {
   if (politeness === "polite" || politeness === "assertive") {
@@ -66,7 +65,6 @@ function updateTodayView() {
     defaultDailyGoalMinutes: DEFAULT_PREFERENCES.dailyGoalMinutes,
   });
 }
-
 function applyExperienceSettings() {
   state.preferences = normalizePreferences(collectPreferencesFromUI());
   state.featureFlags = normalizeFeatureFlags(collectFeatureFlagsFromUI());
@@ -74,23 +72,11 @@ function applyExperienceSettings() {
   updateTodayView();
   queuePersist();
 }
-
 function queueAutoPlanIfReady() {
   if (state.ready && planController) {
     planController.queueAutoPlan();
   }
 }
-
-function setupSkipLink() {
-  const skipLink = document.querySelector(".skip-link");
-  if (skipLink) {
-    skipLink.addEventListener("click", (event) => {
-      event.preventDefault();
-      el("mainContent").focus();
-    });
-  }
-}
-
 function handleTabChange(name: string) {
   if (name === "sessions" && sessionsUI) {
     sessionsUI.refreshBooks();
@@ -99,7 +85,6 @@ function handleTabChange(name: string) {
     focusCalendarToday();
   }
 }
-
 function handleBooksChanged() {
   if (sessionsUI) {
     sessionsUI.refreshBooks();
@@ -108,30 +93,28 @@ function handleBooksChanged() {
   queuePersist();
   queueAutoPlanIfReady();
 }
-
 function handleSessionsChanged() {
   updateTodayView();
   queuePersist();
   queueAutoPlanIfReady();
 }
-
 function handleProgressUpdated() {
   updateTodayView();
   queueAutoPlanIfReady();
 }
-
-function createSessionsAppUI() {
-  return initSessionsUI({
-    getBooks: collectBooks,
-    initialSessions: [],
+async function init() {
+  setupSkipLink();
+  initSettingsGrid();
+  bindTabs(handleTabChange);
+  bindBooksUI(handleBooksChanged);
+  bindHelpDialog();
+  sessionsUI = createSessionsAppUI({
+    collectBooks,
     onSessionsChanged: handleSessionsChanged,
     announce: announceForPlanController,
     setStatus,
   });
-}
-
-function createAppPlanControllerInstance() {
-  return createPlanController({
+  planController = createAppPlanControllerInstance({
     collectBooks,
     collectSettings,
     setStatus,
@@ -153,48 +136,6 @@ function createAppPlanControllerInstance() {
       state.scheduleCompletions = nextCompletions;
     },
   });
-}
-
-function finalizeInitialLoad(saved: { last_result?: { schedule?: unknown[] } | null } | null | undefined) {
-  state.ready = true;
-  document.addEventListener("input", queuePersist);
-  document.addEventListener("change", queuePersist);
-  const settingsPanel = el("tab-settings");
-  bindSettingsAutoPlanListeners(
-    settingsPanel,
-    () => {
-      return state.ready && Boolean(planController);
-    },
-    () => {
-      planController?.queueAutoPlan();
-    },
-  );
-  if (saved) {
-    setStatus("Loaded saved data.");
-  } else {
-    setStatus("Loaded sample data.");
-  }
-  if (!saved?.last_result?.schedule?.length) {
-    planController?.queueAutoPlan();
-  }
-}
-
-function bindTodayActions() {
-  el("startSessionFromTodayBtn").onclick = () => {
-    activateSessionsAndStartTimer(state.lastResult, sessionsUI, activateTab);
-  };
-  el("viewScheduleFromTodayBtn").onclick = () => activateTab("schedule", { focusPanel: true });
-}
-
-async function init() {
-  setupSkipLink();
-  initSettingsGrid();
-  bindTabs(handleTabChange);
-  bindBooksUI(handleBooksChanged);
-  bindHelpDialog();
-
-  sessionsUI = createSessionsAppUI();
-  planController = createAppPlanControllerInstance();
 
   bindExperienceSettings(applyExperienceSettings);
   configureAppCalendarInteractions({
@@ -207,7 +148,6 @@ async function init() {
     onSessionCompletionUpdated: updateTodayView,
     onProgressUpdated: handleProgressUpdated,
   });
-
   await loadInitialData({
     plannerApi,
     fillSettings,
@@ -234,8 +174,21 @@ async function init() {
     applyLoadedResult: (result) => {
       planController?.applyLoadedResult(result);
     },
-    onLoaded: finalizeInitialLoad,
+    onLoaded: (saved) => {
+      finalizeInitialLoad({
+        saved,
+        setReady: () => {
+          state.ready = true;
+        },
+        queuePersist,
+        queueAutoPlan: queueAutoPlanIfReady,
+        setStatus,
+      });
+    },
   });
-  bindTodayActions();
+  bindTodayActions({
+    getLastResult: () => state.lastResult,
+    getSessionsUI: () => sessionsUI,
+  });
 }
 await init();
