@@ -32,7 +32,14 @@ function emitLog(payload: LogPayload): void {
     output.error = normalizeError(payload.error);
   }
 
-  console.info("[renderer]", output);
+  if (payload.level === "error") {
+    console.groupCollapsed("[renderer][error]", payload.message);
+    console.info(output);
+    console.groupEnd();
+    return;
+  }
+
+  console.info("[renderer][info]", output);
 }
 
 export function logInfo(message: string, context?: Record<string, unknown>): void {
