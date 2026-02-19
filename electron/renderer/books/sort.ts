@@ -10,6 +10,7 @@ export const SORT_BY_PROGRESS = "progress_percent";
 export const SORT_BY_PRIORITY = "priority";
 export const SORT_BY_DIFFICULTY = "difficulty";
 export const SORT_BY_DEADLINE = "deadline";
+export const SORT_BY_ESTIMATED_FINISH = "estimated_finish";
 export const SORT_BY_SHELF = "shelf";
 
 export const SORT_DIRECTION_ASC = "asc";
@@ -39,10 +40,21 @@ function compareNumbers(left, right) {
 function compareText(left, right) {
   const leftText = String(left || "").trim().toLowerCase();
   const rightText = String(right || "").trim().toLowerCase();
+  const leftMissing = !leftText;
+  const rightMissing = !rightText;
+  if (leftMissing && rightMissing) {
+    return 0;
+  }
+  if (leftMissing) {
+    return 1;
+  }
+  if (rightMissing) {
+    return -1;
+  }
   return leftText.localeCompare(rightText, undefined, { sensitivity: "base" });
 }
 
-function compareBySortKey(leftBook, rightBook, sortBy) {
+function compareBySortKey(leftBook, rightBook, sortBy, finishDateByBookId) {
   if (sortBy === SORT_BY_AUTHOR) {
     return compareText(leftBook.author, rightBook.author);
   }
@@ -67,19 +79,22 @@ function compareBySortKey(leftBook, rightBook, sortBy) {
   if (sortBy === SORT_BY_DEADLINE) {
     return compareText(leftBook.deadline, rightBook.deadline);
   }
+  if (sortBy === SORT_BY_ESTIMATED_FINISH) {
+    return compareText(finishDateByBookId[leftBook.book_id], finishDateByBookId[rightBook.book_id]);
+  }
   if (sortBy === SORT_BY_SHELF) {
     return compareText(normalizeShelfName(leftBook.shelf), normalizeShelfName(rightBook.shelf));
   }
   return compareText(leftBook.title, rightBook.title);
 }
 
-export function sortBooks(books = [], sortBy = SORT_BY_TITLE, sortDirection = SORT_DIRECTION_ASC) {
+export function sortBooks(books = [], sortBy = SORT_BY_TITLE, sortDirection = SORT_DIRECTION_ASC, finishDateByBookId = {}) {
   let directionSign = 1;
   if (sortDirection === SORT_DIRECTION_DESC) {
     directionSign = -1;
   }
   return [...books].sort((leftBook, rightBook) => {
-    const primary = compareBySortKey(leftBook, rightBook, sortBy);
+    const primary = compareBySortKey(leftBook, rightBook, sortBy, finishDateByBookId);
     if (primary !== 0) {
       return primary * directionSign;
     }

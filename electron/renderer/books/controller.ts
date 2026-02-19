@@ -56,7 +56,7 @@ function render() {
   updateSortDirectionButton(refs.sortDirectionBtn, viewState.sortDirection);
   const showShelfMeta = viewState.shelfFilter === SHELF_FILTER_ALL;
   const finishDateByBookId = finishDatesByBookId(scheduleRows);
-  const visibleBooks = sortBooks(books, viewState.sortBy, viewState.sortDirection).filter((book) => {
+  const visibleBooks = sortBooks(books, viewState.sortBy, viewState.sortDirection, finishDateByBookId).filter((book) => {
     return shelfFilterMatches(book, viewState.shelfFilter);
   });
   renderBookGrid({
