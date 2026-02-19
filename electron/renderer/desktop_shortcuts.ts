@@ -1,72 +1,37 @@
-import type { PlannerApi } from "./app/types.js";
+import type { PlannerApi, WindowFindResponse } from "./app/types.js";
 import { el } from "./dom.js";
-
 const ZOOM_PERCENT_FACTOR = 100;
-
+const FIND_STATUS_HINT = "Type to search";
+const FIND_STATUS_NO_MATCH = "No matches";
 type ShortcutBindings = {
   announce: (message: string, politeness?: "polite" | "assertive") => void;
-  plannerApi: Pick<PlannerApi, "zoomIn" | "zoomOut" | "zoomReset">;
+  plannerApi: Pick<PlannerApi, "findInPage" | "stopFindInPage" | "zoomIn" | "zoomOut" | "zoomReset">;
 };
-
 function isCommandPressed(event: KeyboardEvent): boolean {
   return (event.ctrlKey || event.metaKey) && !event.altKey;
 }
-
 function isZoomInShortcut(event: KeyboardEvent): boolean {
   return event.key === "+" || event.key === "=" || event.code === "NumpadAdd";
 }
-
 function isZoomOutShortcut(event: KeyboardEvent): boolean {
   return event.key === "-" || event.key === "_" || event.code === "NumpadSubtract";
 }
-
 function isZoomResetShortcut(event: KeyboardEvent): boolean {
   return event.key === "0";
 }
-
 function setFindStatus(target: HTMLOutputElement, message: string): void {
   target.value = message;
   target.textContent = message;
 }
-
-function setSelectionAnchorAtBoundary(collapseToEnd: boolean): void {
-  const selection = globalThis.getSelection();
-  if (!selection || !document.body) {
-    return;
-  }
-  const range = document.createRange();
-  range.selectNodeContents(document.body);
-  range.collapse(!collapseToEnd);
-  selection.removeAllRanges();
-  selection.addRange(range);
-}
-
-function clearSelection(): void {
-  globalThis.getSelection()?.removeAllRanges();
-}
-
-function runFindQuery(query: string, backwards = false): boolean {
-  const findFn = (globalThis as Window & {
-    find?: (
-      text: string,
-      caseSensitive?: boolean,
-      backwards?: boolean,
-      wrapAround?: boolean,
-      wholeWord?: boolean,
-      searchInFrames?: boolean,
-      showDialog?: boolean,
-    ) => boolean;
-  }).find;
-  if (!query || typeof findFn !== "function") {
-    return false;
-  }
-  return findFn.call(globalThis, query, false, backwards, true, false, false, false);
-}
-
 function formatZoomAnnouncement(zoomFactor: number): string {
   return `Zoom ${Math.round(zoomFactor * ZOOM_PERCENT_FACTOR)}%`;
 }
-
+function formatFindStatus(result: WindowFindResponse): string {
+  if (result.matches <= 0) {
+    return FIND_STATUS_NO_MATCH;
+  }
+  return `${result.activeMatchOrdinal} of ${result.matches}`;
+}
 export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings): void {
   const findBar = el<HTMLElement>("findBar");
   const findInput = el<HTMLInputElement>("findInput");
@@ -74,43 +39,65 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
   const findPrevButton = el<HTMLButtonElement>("findPrevBtn");
   const findNextButton = el<HTMLButtonElement>("findNextBtn");
   const findCloseButton = el<HTMLButtonElement>("findCloseBtn");
-
   let lastQuery = "";
   let opener: HTMLElement | null = null;
-
-  const executeFind = (backwards: boolean, resetAnchor: boolean) => {
+  let requestCounter = 0;
+  const runZoomCommand = async (operation: () => Promise<number>) => {
+    try {
+      const zoomFactor = await operation();
+      announce(formatZoomAnnouncement(zoomFactor));
+    } catch (error) {
+      console.error("Zoom operation failed", error);
+      announce("Unable to update zoom level", "assertive");
+    }
+  };
+  const runFindCommand = async (direction: "next" | "prev", forceNextForSameQuery: boolean) => {
     const query = findInput.value.trim();
     if (!query) {
-      setFindStatus(findStatus, "Type to search");
       lastQuery = "";
+      setFindStatus(findStatus, FIND_STATUS_HINT);
+      const clearRequestCounter = requestCounter + 1;
+      requestCounter = clearRequestCounter;
+      try {
+        await plannerApi.stopFindInPage();
+      } catch (error) {
+        console.error("Failed to clear find highlights", error);
+        announce("Unable to clear search results", "assertive");
+      }
       return;
     }
-    if (resetAnchor || query !== lastQuery) {
-      setSelectionAnchorAtBoundary(backwards);
+    let findNext = false;
+    if (query === lastQuery && forceNextForSameQuery) {
+      findNext = true;
     }
-    const found = runFindQuery(query, backwards);
-    if (found) {
-      setFindStatus(findStatus, "");
-    } else {
-      setFindStatus(findStatus, "No matches");
+    const currentRequest = requestCounter + 1;
+    requestCounter = currentRequest;
+    try {
+      const result = await plannerApi.findInPage({
+        query,
+        forward: direction === "next",
+        findNext,
+      });
+      if (currentRequest !== requestCounter) {
+        return;
+      }
+      setFindStatus(findStatus, formatFindStatus(result));
+      lastQuery = query;
+    } catch (error) {
+      console.error("Find operation failed", error);
+      announce("Unable to search the page", "assertive");
+      setFindStatus(findStatus, "Search failed");
     }
-    lastQuery = query;
   };
-
   const openFindBar = () => {
     if (findBar.hidden && document.activeElement instanceof HTMLElement) {
       opener = document.activeElement;
     }
     findBar.hidden = false;
-    if (findInput.value.trim()) {
-      executeFind(false, true);
-    } else {
-      setFindStatus(findStatus, "Type to search");
-    }
+    setFindStatus(findStatus, FIND_STATUS_HINT);
     findInput.focus();
     findInput.select();
   };
-
   const closeFindBar = () => {
     if (findBar.hidden) {
       return;
@@ -119,29 +106,28 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
     findInput.value = "";
     lastQuery = "";
     setFindStatus(findStatus, "");
-    clearSelection();
+    const clearRequestCounter = requestCounter + 1;
+    requestCounter = clearRequestCounter;
+    void plannerApi.stopFindInPage().catch((error) => {
+      console.error("Failed to clear find highlights", error);
+      announce("Unable to clear search results", "assertive");
+    });
     if (opener && opener.isConnected) {
       opener.focus();
     }
     opener = null;
   };
-
-  const runZoomCommand = async (operation: () => Promise<number>) => {
-    try {
-      const zoomFactor = await operation();
-      announce(formatZoomAnnouncement(zoomFactor));
-    } catch {
-      announce("Unable to update zoom level", "assertive");
-    }
-  };
-
   findInput.addEventListener("input", () => {
-    executeFind(false, true);
+    void runFindCommand("next", false);
   });
   findInput.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      executeFind(event.shiftKey, false);
+      if (event.shiftKey) {
+        void runFindCommand("prev", true);
+        return;
+      }
+      void runFindCommand("next", true);
       return;
     }
     if (event.key === "Escape") {
@@ -150,15 +136,16 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
     }
   });
   findPrevButton.addEventListener("click", () => {
-    executeFind(true, false);
+    void runFindCommand("prev", true);
     findInput.focus();
   });
   findNextButton.addEventListener("click", () => {
-    executeFind(false, false);
+    void runFindCommand("next", true);
     findInput.focus();
   });
-  findCloseButton.addEventListener("click", () => closeFindBar());
-
+  findCloseButton.addEventListener("click", () => {
+    closeFindBar();
+  });
   const handleFindShortcut = (event: KeyboardEvent): boolean => {
     if (!isCommandPressed(event) || (event.key !== "f" && event.key !== "F")) {
       return false;
@@ -167,7 +154,6 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
     openFindBar();
     return true;
   };
-
   const handleZoomShortcut = (event: KeyboardEvent): boolean => {
     if (!isCommandPressed(event)) {
       return false;
@@ -189,12 +175,11 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
     }
     return false;
   };
-
   const handleFindBarEscape = (event: KeyboardEvent): boolean => {
     if (event.key !== "Escape" || findBar.hidden) {
       return false;
     }
-    const {activeElement} = document;
+    const { activeElement } = document;
     if (activeElement instanceof HTMLElement && findBar.contains(activeElement)) {
       event.preventDefault();
       closeFindBar();
@@ -202,7 +187,6 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
     }
     return false;
   };
-
   document.addEventListener("keydown", (event) => {
     if (event.defaultPrevented) {
       return;

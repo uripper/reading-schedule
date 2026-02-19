@@ -5,6 +5,7 @@ import { app, BrowserWindow, ipcMain, type WebContents } from 'electron';
 
 import { downloadCover, saveUploadedCover, searchBooks } from './book_lookup';
 import { readState, type JsonValue, writeState } from './state_store';
+import { findInPage, stopFindInPage, type WindowFindRequest } from './window_find';
 
 const DEFAULT_UI_SCALE = 1.55;
 const MIN_UI_SCALE = 0.7;
@@ -182,6 +183,9 @@ ipcMain.handle('state:save', (_event, payload: JsonValue) => {
 ipcMain.handle('window:zoomIn', (event) => shiftZoomFactor(event.sender, UI_SCALE_STEP));
 ipcMain.handle('window:zoomOut', (event) => shiftZoomFactor(event.sender, -UI_SCALE_STEP));
 ipcMain.handle('window:zoomReset', (event) => setZoomFactor(event.sender, initialZoomFactor()));
+ipcMain.handle('window:findInPage', (event, payload: WindowFindRequest | null) =>
+  findInPage(event.sender, payload));
+ipcMain.handle('window:stopFindInPage', (event) => stopFindInPage(event.sender));
 
 app.on('ready', createWindow);
 app.on('window-all-closed', () => {

@@ -426,6 +426,10 @@ select:focus-visible,
   backdrop-filter: blur(10px);
 }
 
+.find-bar[hidden] {
+  display: none;
+}
+
 .find-bar input {
   margin-top: 0;
   min-width: clamp(180px, 24vw, 320px);
