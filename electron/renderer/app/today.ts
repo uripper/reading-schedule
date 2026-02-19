@@ -5,14 +5,6 @@ import { el } from "../dom.js";
 const MIN_GOAL_MINUTES = 1;
 const MAX_PERCENT = 100;
 
-export function totalsFromSummary(summary) {
-  const perBook = summary?.per_book || {};
-  const pairs = Object.entries(perBook).map(([id, info]) => {
-    return [id, Number(info.words_total || 0)];
-  });
-  return Object.fromEntries(pairs);
-}
-
 export function updateTodayDashboard({
   lastResult,
   preferences,
