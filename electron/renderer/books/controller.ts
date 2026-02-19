@@ -7,6 +7,7 @@ import { hasSchedulableLength, normalizeBook, toPayloadBook } from './model.js';
 import { withUpdatedProgress } from './progress.js';
 import { hydrateBookCover, upsertBookById } from './save.js';
 import { shelfFilterMatches, SHELF_FILTER_ALL } from './shelf.js';
+import { schedulableBook } from './status.js';
 import {
   sortBooks,
   SORT_BY_AUTHOR,
@@ -225,7 +226,13 @@ export function setBookScheduleRows(rows: PlannerScheduleRow[] = []): void {
 
 export function collectBooks() {
   return books.map(toPayloadBook).filter((book) => {
-    return book.title && hasSchedulableLength(book);
+    return book.title && hasSchedulableLength(book) && schedulableBook(book);
+  });
+}
+
+export function collectAllBooks() {
+  return books.map(toPayloadBook).filter((book) => {
+    return Boolean(book.title);
   });
 }
 
@@ -247,16 +254,16 @@ export function bindBooksUI(onChanged: () => void = () => {}): void {
   refs.sortDirectionBtn = toolbarControls.sortDirectionBtn;
 
   if (!(refs.sortBySelect instanceof HTMLSelectElement)) {
-    return;
+    throw new Error('Books toolbar sort-by control is missing or invalid.');
   }
   if (!(refs.shelfFilterSelect instanceof HTMLSelectElement)) {
-    return;
+    throw new Error('Books toolbar shelf-filter control is missing or invalid.');
   }
   if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
-    return;
+    throw new Error('Books toolbar group-by control is missing or invalid.');
   }
   if (!(refs.sortDirectionBtn instanceof HTMLButtonElement)) {
-    return;
+    throw new Error('Books toolbar sort-direction control is missing or invalid.');
   }
 
   const {

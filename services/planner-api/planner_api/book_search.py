@@ -53,7 +53,7 @@ def _lookup_item_from_row(row: dict[str, Any]) -> dict[str, Any]:
 
 
 def search_books(query: str) -> list[dict[str, Any]]:
-    """Execute search books."""
+    """Query OpenLibrary and return normalized lookup items for autocomplete."""
     q = query.strip()
     if len(q) < 2:
         return []

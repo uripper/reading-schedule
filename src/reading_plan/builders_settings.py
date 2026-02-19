@@ -12,7 +12,7 @@ from .validate import validate_settings
 
 
 def settings_from_data(data: dict[str, Any]) -> Settings:
-    """Execute settings from data."""
+    """Normalize raw settings payload data into a validated Settings model."""
     by_weekday = {k[:3].title(): int(v) for k, v in (data.get("minutes_by_weekday") or {}).items()}
     raw_diff = data.get("difficulty_multiplier", DEFAULT_DIFFICULTY_MULTIPLIER)
     diff = {int(k): float(v) for k, v in raw_diff.items()}

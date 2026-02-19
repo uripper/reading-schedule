@@ -11,7 +11,7 @@ from .types import Book, PLAN_MODE_SPREAD_OUT, Settings
 
 
 def plan_greedy(books: list[Book], settings: Settings) -> dict[tuple[str, date], int]:
-    """Plan greedy."""
+    """Build a feasible day-by-day block allocation using greedy heuristics."""
     days = date_range(settings.start_date, settings.end_date)
     caps = {day: day_capacity_blocks(settings, day) for day in days}
     remaining = {b.book_id: float(b.words_total) for b in books}
@@ -53,7 +53,7 @@ def _seed_day(
     cap: int,
     daily_book_cap: int,
 ) -> int:
-    """Execute seed day."""
+    """Seed a day with minimum sessions for the highest-ranked unlocked books."""
     for book in ordered:
         if len(used) >= daily_book_cap:
             break
@@ -84,7 +84,7 @@ def _fill_day(
     cap: int,
     daily_book_cap: int,
 ) -> None:
-    """Execute fill day."""
+    """Fill remaining daily capacity from active books before introducing new ones."""
     while cap > 0:
         if active := [
             b
@@ -116,7 +116,7 @@ def _assign_blocks(
     cap: int,
     blocks: int,
 ) -> int:
-    """Execute assign blocks."""
+    """Assign blocks to one book/day pair and reduce remaining words and capacity."""
     key = (book.book_id, day)
     assignments[key] = assignments.get(key, 0) + blocks
     remaining[book.book_id] = max(
@@ -126,7 +126,7 @@ def _assign_blocks(
 
 
 def _sort_key(book: Book, remaining: dict[str, float]) -> tuple[int, date, float, str]:
-    """Execute sort key."""
+    """Rank books by priority, deadline, and remaining words for greedy ordering."""
     due = book.deadline or date.max
     return book.priority, due, -remaining[book.book_id], book.book_id
 
@@ -141,7 +141,7 @@ def _next_book(
     day: date,
     limits: dict[str, int],
 ) -> Book | None:
-    """Execute next book."""
+    """Select the next eligible book that can start a valid session today."""
     if len(used) >= daily_book_cap:
         return None
     for book in ordered:
@@ -161,7 +161,7 @@ def _next_book(
 def _room(
     assignments: dict[tuple[str, date], int], book_id: str, day: date, limit: int
 ) -> int:
-    """Execute room."""
+    """Return remaining per-day block capacity for a specific book."""
     return limit - assignments.get((book_id, day), 0)
 
 
@@ -179,7 +179,7 @@ def _spread_cap_for_day(
     wpb: dict[str, int],
     ordered: list[Book],
 ) -> int:
-    """Execute spread cap for day."""
+    """Compute a daily cap target that spreads remaining work across active days."""
     remaining_blocks = sum(
         int(math.ceil(words_left / wpb[book_id]))
         for book_id, words_left in remaining.items()
