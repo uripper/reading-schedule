@@ -3,7 +3,7 @@ import { COVER_PLACEHOLDER } from "./constants.js";
 import { bookCoverSrc } from "./model.js";
 import { metaLabel, progressLabel, subtitle, wordsLabel } from "./presenters.js";
 
-function createCard(book, titleById) {
+function createCard(book, titleById, finishDateByBookId, showShelfMeta) {
   const bookId = String(book.book_id || "");
   const title = String(book.title || "Untitled");
   const card = document.createElement("article");
@@ -42,7 +42,8 @@ function createCard(book, titleById) {
   meta.append(sub);
   const stats = document.createElement("div");
   stats.className = "book-stats";
-  [progressLabel(book), wordsLabel(book), metaLabel(book, titleById)].forEach((text) => {
+  const metaText = metaLabel(book, { titleById, finishDateByBookId, showShelfMeta });
+  [progressLabel(book), wordsLabel(book), metaText].forEach((text) => {
     const span = document.createElement("span");
     span.textContent = text;
     stats.append(span);
@@ -77,13 +78,22 @@ function bindCardEvents(grid, { onEdit, onRemove }) {
   });
 }
 
-export function renderBookGrid({ grid, empty, books, allBooks = [], onEdit, onRemove }) {
+export function renderBookGrid({
+  grid,
+  empty,
+  books,
+  allBooks = [],
+  finishDateByBookId = {},
+  showShelfMeta = true,
+  onEdit,
+  onRemove,
+}) {
   let sourceBooks = books;
   if (allBooks.length) {
     sourceBooks = allBooks;
   }
   const titleById = Object.fromEntries(sourceBooks.map((book) => [book.book_id, book.title]));
-  grid.replaceChildren(...books.map((book) => createCard(book, titleById)));
+  grid.replaceChildren(...books.map((book) => createCard(book, titleById, finishDateByBookId, showShelfMeta)));
   empty.style.display = "block";
   if (books.length) {
     empty.style.display = "none";

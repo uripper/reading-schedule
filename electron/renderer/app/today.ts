@@ -31,7 +31,7 @@ export function updateTodayDashboard({
   if (next) {
     summaryNode.textContent = `Next planned session: ${next.title} for ${next.minutes} minutes on ${next.date}.`;
   } else {
-    summaryNode.textContent = "No schedule generated yet. Add books and generate a plan to get a next-session suggestion.";
+    summaryNode.textContent = "No schedule yet. Add or update books and settings to auto-build your plan.";
   }
 
   let todayMinutes = 0;

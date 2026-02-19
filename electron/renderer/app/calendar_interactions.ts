@@ -7,6 +7,7 @@ export function configureAppCalendarInteractions({
   setStatus,
   updateBookProgress,
   getBookById,
+  onProgressUpdated = () => {},
 }) {
   configureCalendarInteractions({
     isSessionCompleted: (sessionKey) => Boolean(state.scheduleCompletions?.[sessionKey]),
@@ -34,6 +35,7 @@ export function configureAppCalendarInteractions({
       }
       setStatus(`Updated progress for ${updated.title || "book"}.`);
       queuePersist();
+      onProgressUpdated(updated);
       return updated;
     },
     getBookById: (bookId) => getBookById(bookId),
