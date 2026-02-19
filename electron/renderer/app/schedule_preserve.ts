@@ -29,6 +29,7 @@ function sortedRows(rows = []) {
 
 function lockedDates(previousRows = [], sessions = []) {
   const locked = new Set();
+  const previousDates = new Set();
   const todayKey = dayKeyFromDate(new Date());
 
   previousRows.forEach((row) => {
@@ -36,6 +37,7 @@ function lockedDates(previousRows = [], sessions = []) {
     if (!rowDate) {
       return;
     }
+    previousDates.add(rowDate);
     if (rowDate <= todayKey) {
       locked.add(rowDate);
     }
@@ -47,7 +49,9 @@ function lockedDates(previousRows = [], sessions = []) {
     if (!key) {
       return;
     }
-    locked.add(key);
+    if (previousDates.has(key)) {
+      locked.add(key);
+    }
   });
 
   return locked;
