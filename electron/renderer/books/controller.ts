@@ -254,16 +254,16 @@ export function bindBooksUI(onChanged: () => void = () => {}): void {
   refs.sortDirectionBtn = toolbarControls.sortDirectionBtn;
 
   if (!(refs.sortBySelect instanceof HTMLSelectElement)) {
-    throw new Error('Books toolbar sort-by control is missing or invalid.');
+    throw new TypeError('Books toolbar sort-by control is missing or invalid.');
   }
   if (!(refs.shelfFilterSelect instanceof HTMLSelectElement)) {
-    throw new Error('Books toolbar shelf-filter control is missing or invalid.');
+    throw new TypeError('Books toolbar shelf-filter control is missing or invalid.');
   }
   if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
-    throw new Error('Books toolbar group-by control is missing or invalid.');
+    throw new TypeError('Books toolbar group-by control is missing or invalid.');
   }
   if (!(refs.sortDirectionBtn instanceof HTMLButtonElement)) {
-    throw new Error('Books toolbar sort-direction control is missing or invalid.');
+    throw new TypeError('Books toolbar sort-direction control is missing or invalid.');
   }
 
   const {
