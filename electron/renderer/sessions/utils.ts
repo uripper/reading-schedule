@@ -1,6 +1,6 @@
 
 
-export function toInt(value, fallback = 0) {
+export function toInt(value: string | number | undefined, fallback = 0) {
   const parsed = Number(value);
   if (Number.isFinite(parsed)) {
     return Math.round(parsed);
@@ -8,7 +8,7 @@ export function toInt(value, fallback = 0) {
   return fallback;
 }
 
-export function isoLocalDayKey(iso) {
+export function isoLocalDayKey(iso: string | number | Date) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) {
     return "";
@@ -19,7 +19,7 @@ export function isoLocalDayKey(iso) {
   return `${year}-${month}-${dayOfMonth}`;
 }
 
-export function formatTimeRange(startIso, endIso) {
+export function formatTimeRange(startIso: string | number | Date, endIso: string | number | Date) {
   const start = new Date(startIso);
   const end = new Date(endIso);
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
@@ -30,14 +30,14 @@ export function formatTimeRange(startIso, endIso) {
   return `${startFormat.format(start)} - ${endFormat.format(end)}`;
 }
 
-export function clampIndex(index, length) {
+export function clampIndex(index: number, length: number) {
   if (length <= 0) {
     return -1;
   }
   return ((index % length) + length) % length;
 }
 
-export function formatTimer(totalSeconds) {
+export function formatTimer(totalSeconds: number) {
   const secondsPerMinute = 60;
   const minutes = Math.floor(totalSeconds / secondsPerMinute);
   const seconds = totalSeconds % secondsPerMinute;
@@ -48,15 +48,15 @@ export function todayKey() {
   return isoLocalDayKey(new Date().toISOString());
 }
 
-export function minutesForDay(sessions, dayKey) {
+export function minutesForDay(sessions: any[], dayKey: string) {
   return sessions
-    .filter((session) => isoLocalDayKey(session.ended_at) === dayKey)
-    .reduce((sum, session) => sum + Number(session.minutes || 0), 0);
+    .filter((session: { ended_at: any; }) => isoLocalDayKey(session.ended_at) === dayKey)
+    .reduce((sum: number, session: { minutes: any; }) => sum + Number(session.minutes || 0), 0);
 }
 
-export function streakFromSessions(sessions) {
+export function streakFromSessions(sessions: any[]) {
   const minuteMap = new Map();
-  sessions.forEach((session) => {
+  sessions.forEach((session: { ended_at: any; minutes: any; }) => {
     const key = isoLocalDayKey(session.ended_at);
     if (!key) {
       return;

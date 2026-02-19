@@ -43,6 +43,7 @@ export function normalizeSession(session: SessionInput = {}): Session {
   }
 
   return {
+    source,
     id: String(session.id || uid()),
     book_id: String(session.book_id || ""),
     title: String(session.title || "Untitled"),
@@ -51,7 +52,6 @@ export function normalizeSession(session: SessionInput = {}): Session {
     minutes: Math.max(1, toInt(session.minutes, 1)),
     pages_read: pagesRead,
     notes: String(session.notes || "").trim(),
-    source,
     created_at: String(session.created_at || endedAt),
   };
 }
