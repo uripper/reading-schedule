@@ -1,3 +1,5 @@
+"""Test cases for test schedule modes."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -7,7 +9,8 @@ from reading_plan.types import Book
 from tests.helpers import demo_settings
 
 
-def test_spread_mode_uses_later_days_than_finish_mode():
+def test_spread_mode_uses_later_days_than_finish_mode() -> None:
+    """Test that spread mode uses later days than finish mode."""
     books = [Book("b1", "Long", 90000, 1, 1, None, 1)]
     finish_settings = demo_settings(
         start_date=date(2026, 2, 16),

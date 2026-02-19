@@ -1,3 +1,5 @@
+"""Utilities for model objective."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -8,6 +10,7 @@ from .types import Book, PLAN_MODE_SPREAD_OUT, Settings
 
 
 def _priority_weights(books: list[Book]) -> dict[str, int]:
+    """Execute priority weights."""
     weights: dict[str, int] = {}
     for book in books:
         priority_value = int(book.priority)
@@ -25,6 +28,7 @@ def build_objective_terms(
     y: dict[tuple[str, date], cp_model.IntVar],
     x: dict[tuple[str, date], cp_model.IntVar],
 ) -> list[cp_model.LinearExpr]:
+    """Build objective terms."""
     priority_scale = max(1, int(round(settings.w_priority * 100)))
     switch_scale = int(round(settings.w_switch * 100))
     finish_scale = max(1, int(round(settings.w_finish * 10000)))
