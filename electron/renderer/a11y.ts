@@ -23,7 +23,7 @@ function focusableSelector() {
   ].join(",");
 }
 
-export function focusFirstError(formElement) {
+export function focusFirstError(formElement: unknown): HTMLElement | null {
   if (!(formElement instanceof HTMLElement)) {
     return null;
   }
@@ -55,7 +55,7 @@ export function createAnnouncer(regionId = "liveRegion") {
 
 export function applyPreferencesToDocument(preferences: PreferencesInput = {}) {
   let theme = "system";
-  if (["system", "light", "dark"].includes(preferences.theme)) {
+  if (typeof preferences.theme === "string" && ["system", "light", "dark"].includes(preferences.theme)) {
     theme = preferences.theme;
   }
   const reduceMotion = Boolean(preferences.reduceMotion);

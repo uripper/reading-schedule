@@ -7,8 +7,11 @@ const DAYS_IN_WEEK = 7;
 
 type CalendarRow = {
   title?: string;
-  date?: string;
-  book_id?: string;
+  date: string;
+  book_id: string;
+  session_index: string | number;
+  words_planned?: number;
+  [key: string]: unknown;
 };
 
 type CalendarHandlers = {
@@ -24,6 +27,8 @@ type CalendarHandlers = {
 
 const state = {
   dates: {} as Record<string, CalendarRow[]>,
+  rows: [] as CalendarRow[],
+  totalsByBookId: {} as Record<string, number>,
   months: [] as string[],
   index: 0,
   selectedDate: "",
@@ -122,6 +127,8 @@ export function renderCalendar(rows: CalendarRow[], totals: Record<string, numbe
   const previousSelectedDate = state.selectedDate;
   const previousMonthKey = state.months[state.index] || "";
   const enrichedRows = enrichRows(rows, totals);
+  state.rows = enrichedRows;
+  state.totalsByBookId = { ...totals };
   state.dates = groupRowsByDate(enrichedRows);
   state.months = monthKeysFromRows(enrichedRows);
   state.index = 0;
