@@ -1,3 +1,5 @@
+"""Utilities for book search."""
+
 from __future__ import annotations
 
 import json
@@ -7,6 +9,7 @@ from urllib.request import urlopen
 
 
 def search_books(query: str) -> list[dict[str, Any]]:
+    """Execute search books."""
     q = query.strip()
     if len(q) < 2:
         return []
@@ -18,9 +21,11 @@ def search_books(query: str) -> list[dict[str, Any]]:
     except Exception:
         return []
 
-    docs: Any = []
+    docs: list[dict[str, Any]] = []
     if isinstance(payload, dict):
-        docs = payload.get("docs", [])
+        raw_docs = payload.get("docs", [])
+        if isinstance(raw_docs, list):
+            docs = [row for row in raw_docs if isinstance(row, dict)]
     out: list[dict[str, Any]] = []
     for row in docs:
         if not isinstance(row, dict):
