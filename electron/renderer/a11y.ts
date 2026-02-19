@@ -23,7 +23,7 @@ function focusableSelector() {
   ].join(",");
 }
 
-export function focusFirstError(formElement: unknown): HTMLElement | null {
+export function focusFirstError(formElement: HTMLElement | null | undefined): HTMLElement | null {
   if (!(formElement instanceof HTMLElement)) {
     return null;
   }

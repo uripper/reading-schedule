@@ -2,7 +2,7 @@
 import { clamp } from "./utils.js";
 import type { Book, BookProgressUpdates } from "./types.js";
 
-function parseFiniteNumber(raw: unknown): number | null {
+function parseFiniteNumber(raw: string | number | null | undefined): number | null {
   if (raw === null || raw === undefined || raw === "") {
     return null;
   }

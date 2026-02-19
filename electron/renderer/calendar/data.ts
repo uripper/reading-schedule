@@ -1,6 +1,8 @@
 import type { PlannerScheduleRow } from '../app/types.js';
 import { sortRowsByDateAndSession } from './utils.js';
 
+const DAYS_IN_WEEK = 7;
+
 export type CalendarRow = PlannerScheduleRow;
 
 export type CalendarRowWithFinish = CalendarRow & {
@@ -56,7 +58,7 @@ export function groupRowsByDate(rows: CalendarRowWithFinish[] = []): RowsByDate 
 }
 
 export function monthKeysFromRows(rows: CalendarRowWithFinish[] = []): string[] {
-  const monthKeySet = new Set(rows.map((row) => row.date.slice(0, 7)));
+  const monthKeySet = new Set(rows.map((row) => row.date.slice(0, DAYS_IN_WEEK)));
   return [...monthKeySet].sort();
 }
 

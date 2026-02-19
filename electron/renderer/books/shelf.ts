@@ -7,7 +7,7 @@ export const SHELF_FILTER_UNSHELVED = "unshelved";
 export const UNSHELVED_LABEL = "Unshelved";
 export const SHELF_SELECT_CREATE_NEW = "__create_new_shelf__";
 
-export function normalizeShelfName(rawShelf: unknown): string {
+export function normalizeShelfName(rawShelf: string | null | undefined): string {
   return String(rawShelf || "").trim();
 }
 
