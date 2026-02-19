@@ -5,18 +5,26 @@ import { COVER_PLACEHOLDER } from "./constants.js";
 import { bookCoverSrc, normalizeBook } from "./model.js";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";
 import { clamp, toOptionalInt } from "./utils.js";
+import type { Book } from "./types.js";
+import type { BookFormRefs } from "./form_refs.js";
+import type { BookLookupItem } from "../app/types.js";
+import type { ProgressSyncInputs } from "../book_lookup/helpers.js";
 
 const DEFAULT_PROGRESS = "0";
 const DEFAULT_PRIORITY = "3";
 const DEFAULT_DIFFICULTY = "3";
 const DEFAULT_MIN_BLOCKS = "1";
 
-function setCoverPreview(refs, src) {
+type LookupControl = {
+  clearResults: () => void;
+};
+
+function setCoverPreview(refs: BookFormRefs, src: string): void {
   refs.coverPreview.src = src || COVER_PLACEHOLDER;
   refs.coverPreview.classList.toggle("is-empty", !src);
 }
 
-export function clearForm(refs, lookupControl) {
+export function clearForm(refs: BookFormRefs, lookupControl: LookupControl): void {
   refs.form.reset();
   refs.bookId.value = "";
   refs.coverUrl.value = "";
@@ -35,7 +43,7 @@ export function clearForm(refs, lookupControl) {
   lookupControl.clearResults();
 }
 
-export function fillForm(refs, book) {
+export function fillForm(refs: BookFormRefs, book: Book): void {
   refs.bookId.value = book.book_id;
   refs.titleInput.value = book.title || "";
   refs.wordsInput.value = "";
@@ -69,7 +77,7 @@ export function fillForm(refs, book) {
   setCoverPreview(refs, bookCoverSrc(book));
 }
 
-export function parseFormBook(refs) {
+export function parseFormBook(refs: BookFormRefs): Book {
   const title = refs.titleInput.value.trim();
   if (!title) {
     throw new Error("Title is required.");
@@ -102,10 +110,10 @@ export function parseFormBook(refs) {
     pages_total: pagesTotal,
     pages_read: pagesRead,
     progress_percent: progress,
-    priority: refs.priorityInput.value,
-    difficulty: refs.difficultyInput.value,
-    min_blocks_per_session: refs.minBlocksInput.value,
-    max_minutes_per_day: refs.maxMinutesInput.value,
+    priority: Number(refs.priorityInput.value || DEFAULT_PRIORITY),
+    difficulty: Number(refs.difficultyInput.value || DEFAULT_DIFFICULTY),
+    min_blocks_per_session: Number(refs.minBlocksInput.value || DEFAULT_MIN_BLOCKS),
+    max_minutes_per_day: toOptionalInt(refs.maxMinutesInput.value),
     deadline: refs.deadlineInput.value,
     blocked_by: refs.blockedByInput.value,
     cover_url: refs.coverUrl.value.trim(),
@@ -114,7 +122,7 @@ export function parseFormBook(refs) {
   });
 }
 
-export function applyLookupItem(refs, item) {
+export function applyLookupItem(refs: BookFormRefs, item: BookLookupItem): void {
   refs.titleInput.value = item.title || refs.titleInput.value;
   refs.searchInput.value = item.title || refs.searchInput.value;
   refs.author.value = item.author || refs.author.value;
@@ -129,5 +137,10 @@ export function applyLookupItem(refs, item) {
   refs.lookupMeta.dataset.lookupNote = noteFromLookup(item);
   refs.lookupMeta.textContent = noteFromLookup(item);
   setCoverPreview(refs, item.cover_url || "");
-  syncProgressAndPages(refs, "pages");
+  const progressSyncRefs: ProgressSyncInputs = {
+    pagesTotalInput: refs.pagesTotalInput,
+    pagesReadInput: refs.pagesReadInput,
+    progressInput: refs.progressInput,
+  };
+  syncProgressAndPages(progressSyncRefs, "pages");
 }

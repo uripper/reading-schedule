@@ -1,14 +1,25 @@
+import type { BookLookupItem } from '../app/types.js';
 
 const PLACEHOLDER_SVG = [
   '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="160" viewBox="0 0 120 160">',
   '<rect width="120" height="160" fill="#1f2a3d"/>',
   '<rect x="14" y="20" width="92" height="120" rx="6" fill="#28384f"/>',
   '<path d="M30 46h60M30 66h60M30 86h44" stroke="#8da3c6" stroke-width="6" stroke-linecap="round"/>',
-  "</svg>",
-].join("");
+  '</svg>',
+].join('');
 const PLACEHOLDER = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(PLACEHOLDER_SVG)}`;
 
-function toInt(raw) {
+type NumericLike = string | number | null | undefined;
+
+export type ProgressSyncInputs = {
+  pagesTotalInput: HTMLInputElement;
+  pagesReadInput: HTMLInputElement;
+  progressInput: HTMLInputElement;
+};
+
+type ProgressField = 'pages' | 'progress';
+
+function toInt(raw: NumericLike): number {
   const n = Number(raw);
   if (Number.isFinite(n)) {
     return Math.max(0, Math.round(n));
@@ -16,28 +27,28 @@ function toInt(raw) {
   return 0;
 }
 
-export function placeholderCoverSvg() {
+export function placeholderCoverSvg(): string {
   return PLACEHOLDER;
 }
 
-export function describeLookup(item) {
-  const bits = [item.source || "", item.author || "", item.year || ""].filter(Boolean);
+export function describeLookup(item: BookLookupItem): string {
+  const bits = [item.source || '', item.author || '', item.year || ''].filter(Boolean);
   if (bits.length) {
     return `Selected from ${bits.join(" · ")}`;
   }
-  return "Selected from lookup results.";
+  return 'Selected from lookup results.';
 }
 
-export function noteFromLookup(item) {
+export function noteFromLookup(item: BookLookupItem): string {
   return describeLookup(item);
 }
 
-export function syncProgressAndPages(form, changedField) {
+export function syncProgressAndPages(form: ProgressSyncInputs, changedField: ProgressField): void {
   const total = toInt(form.pagesTotalInput.value);
   if (total <= 0) {
     return;
   }
-  if (changedField === "pages") {
+  if (changedField === 'pages') {
     const pagesRead = Math.min(toInt(form.pagesReadInput.value), total);
     if (pagesRead !== toInt(form.pagesReadInput.value)) {
       form.pagesReadInput.value = String(pagesRead);

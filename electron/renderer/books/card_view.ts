@@ -1,8 +1,32 @@
 import { COVER_PLACEHOLDER } from './constants.js';
 import { bookCoverSrc } from './model.js';
 import { metaLabel, progressLabel, subtitle, wordsLabel } from './presenters.js';
+import type { Book } from './types.js';
+import type { BookGroup } from './grouping.js';
 
-function createCard(book, titleById, finishDateByBookId, showShelfMeta) {
+type CardHandlers = {
+  onEdit: (bookId: string) => void;
+  onRemove: (bookId: string) => void;
+};
+
+type RenderBookGridOptions = {
+  grid: HTMLElement;
+  empty: HTMLElement;
+  books: Book[];
+  groups?: BookGroup[];
+  allBooks?: Book[];
+  finishDateByBookId?: Record<string, string>;
+  showShelfMeta?: boolean;
+  onEdit: (bookId: string) => void;
+  onRemove: (bookId: string) => void;
+};
+
+function createCard(
+  book: Book,
+  titleById: Record<string, string>,
+  finishDateByBookId: Record<string, string>,
+  showShelfMeta: boolean,
+): HTMLElement {
   const bookId = String(book.book_id || '');
   const title = String(book.title || 'Untitled');
 
@@ -68,16 +92,16 @@ function createCard(book, titleById, finishDateByBookId, showShelfMeta) {
   return card;
 }
 
-function bindCardEvents(rootNode, { onEdit, onRemove }) {
-  rootNode.querySelectorAll('.edit-book-btn').forEach((btn) => {
+function bindCardEvents(rootNode: HTMLElement, { onEdit, onRemove }: CardHandlers): void {
+  rootNode.querySelectorAll<HTMLButtonElement>('.edit-book-btn').forEach((btn) => {
     btn.onclick = () => onEdit(btn.dataset.bookId || '');
   });
 
-  rootNode.querySelectorAll('.remove-book-btn').forEach((btn) => {
+  rootNode.querySelectorAll<HTMLButtonElement>('.remove-book-btn').forEach((btn) => {
     btn.onclick = () => onRemove(btn.dataset.bookId || '');
   });
 
-  rootNode.querySelectorAll("img[data-fallback-cover='1']").forEach((img) => {
+  rootNode.querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']").forEach((img) => {
     img.addEventListener('error', () => {
       img.src = COVER_PLACEHOLDER;
       img.classList.add('is-empty');
@@ -85,7 +109,7 @@ function bindCardEvents(rootNode, { onEdit, onRemove }) {
   });
 }
 
-function titleByIdMap(books, allBooks) {
+function titleByIdMap(books: Book[], allBooks: Book[]): Record<string, string> {
   let sourceBooks = books;
   if (allBooks.length) {
     sourceBooks = allBooks;
@@ -93,7 +117,12 @@ function titleByIdMap(books, allBooks) {
   return Object.fromEntries(sourceBooks.map((book) => [book.book_id, book.title]));
 }
 
-function createGroupSection(group, titleById, finishDateByBookId, showShelfMeta) {
+function createGroupSection(
+  group: BookGroup,
+  titleById: Record<string, string>,
+  finishDateByBookId: Record<string, string>,
+  showShelfMeta: boolean,
+): HTMLElement {
   const section = document.createElement('section');
   section.className = 'books-group';
   section.dataset.groupKey = String(group.key || '');
@@ -113,7 +142,13 @@ function createGroupSection(group, titleById, finishDateByBookId, showShelfMeta)
   return section;
 }
 
-function renderFlatBooks(grid, books, titleById, finishDateByBookId, showShelfMeta) {
+function renderFlatBooks(
+  grid: HTMLElement,
+  books: Book[],
+  titleById: Record<string, string>,
+  finishDateByBookId: Record<string, string>,
+  showShelfMeta: boolean,
+): void {
   grid.classList.remove('is-grouped');
   const cards = books.map((book) => {
     return createCard(book, titleById, finishDateByBookId, showShelfMeta);
@@ -121,7 +156,13 @@ function renderFlatBooks(grid, books, titleById, finishDateByBookId, showShelfMe
   grid.replaceChildren(...cards);
 }
 
-function renderGroupedBooks(grid, groups, titleById, finishDateByBookId, showShelfMeta) {
+function renderGroupedBooks(
+  grid: HTMLElement,
+  groups: BookGroup[],
+  titleById: Record<string, string>,
+  finishDateByBookId: Record<string, string>,
+  showShelfMeta: boolean,
+): void {
   grid.classList.add('is-grouped');
   const sections = groups.map((group) => {
     return createGroupSection(group, titleById, finishDateByBookId, showShelfMeta);
@@ -139,7 +180,7 @@ export function renderBookGrid({
   showShelfMeta = true,
   onEdit,
   onRemove,
-}) {
+}: RenderBookGridOptions): void {
   const titleById = titleByIdMap(books, allBooks);
 
   if (groups.length) {

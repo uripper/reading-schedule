@@ -1,11 +1,36 @@
 
 import { shelfLabelForBook } from './shelf.js';
+import type { Book } from './types.js';
 
 export const GROUP_BY_NONE = 'none';
 export const GROUP_BY_SHELF = 'shelf';
 export const GROUP_BY_FINISH_DATE = 'finish_date';
 export const GROUP_BY_TITLE_LETTER = 'title_letter';
 export const GROUP_BY_AUTHOR = 'author';
+
+export type BookGroupBy =
+  | typeof GROUP_BY_NONE
+  | typeof GROUP_BY_SHELF
+  | typeof GROUP_BY_FINISH_DATE
+  | typeof GROUP_BY_TITLE_LETTER
+  | typeof GROUP_BY_AUTHOR;
+
+type GroupMeta = {
+  key: string;
+  label: string;
+  order: number;
+  tie: string;
+};
+
+type GroupBucket = GroupMeta & {
+  books: Book[];
+};
+
+export type BookGroup = {
+  key: string;
+  label: string;
+  books: Book[];
+};
 
 const MONTH_INDEX_MIN = 1;
 const MONTH_INDEX_MAX = 12;
@@ -23,15 +48,17 @@ const TITLE_LETTER_ORDER = 1;
 
 const monthLabelFormatter = new Intl.DateTimeFormat(undefined, { month: 'long' });
 
-function normalizedText(value) {
+function normalizedText(value: string | number | null | undefined): string {
   return String(value || '').trim();
 }
 
-function compareTextInsensitive(left, right) {
+function compareTextInsensitive(left: string, right: string): number {
   return String(left || '').localeCompare(String(right || ''), undefined, { sensitivity: 'base' });
 }
 
-function parseFinishDateParts(dateText) {
+function parseFinishDateParts(
+  dateText: string | null | undefined,
+): { year: number; month: number; date: Date } | null {
   const raw = normalizedText(dateText);
   if (!raw) {
     return null;
@@ -58,7 +85,11 @@ function parseFinishDateParts(dateText) {
   };
 }
 
-function finishDateMetaForBook(book, finishDateByBookId, currentYear) {
+function finishDateMetaForBook(
+  book: Book,
+  finishDateByBookId: Record<string, string>,
+  currentYear: number,
+): GroupMeta {
   const finishDate = parseFinishDateParts(finishDateByBookId?.[book.book_id]);
   if (!finishDate) {
     return {
@@ -83,7 +114,7 @@ function finishDateMetaForBook(book, finishDateByBookId, currentYear) {
   };
 }
 
-function titleLetterMetaForBook(book) {
+function titleLetterMetaForBook(book: Book): GroupMeta {
   const title = normalizedText(book?.title).toUpperCase();
   if (!title) {
     return {
@@ -112,7 +143,7 @@ function titleLetterMetaForBook(book) {
   };
 }
 
-function authorMetaForBook(book) {
+function authorMetaForBook(book: Book): GroupMeta {
   const author = normalizedText(book?.author);
   if (!author) {
     return {
@@ -131,7 +162,7 @@ function authorMetaForBook(book) {
   };
 }
 
-function shelfMetaForBook(book) {
+function shelfMetaForBook(book: Book): GroupMeta {
   const shelfLabel = shelfLabelForBook(book);
   return {
     key: `shelf:${shelfLabel}`,
@@ -141,7 +172,12 @@ function shelfMetaForBook(book) {
   };
 }
 
-function metaForBook(book, groupBy, finishDateByBookId, currentYear) {
+function metaForBook(
+  book: Book,
+  groupBy: BookGroupBy,
+  finishDateByBookId: Record<string, string>,
+  currentYear: number,
+): GroupMeta {
   if (groupBy === GROUP_BY_SHELF) {
     return shelfMetaForBook(book);
   }
@@ -154,7 +190,7 @@ function metaForBook(book, groupBy, finishDateByBookId, currentYear) {
   return authorMetaForBook(book);
 }
 
-function compareGroups(left, right) {
+function compareGroups(left: GroupBucket, right: GroupBucket): number {
   if (left.order !== right.order) {
     return left.order - right.order;
   }
@@ -165,19 +201,31 @@ function compareGroups(left, right) {
   return compareTextInsensitive(left.label, right.label);
 }
 
-function groupedBuckets(books, groupBy, finishDateByBookId, currentYear) {
-  const buckets = new Map();
-  books.forEach((book) => {
+function groupedBuckets(
+  books: Book[],
+  groupBy: BookGroupBy,
+  finishDateByBookId: Record<string, string>,
+  currentYear: number,
+): Map<string, GroupBucket> {
+  const buckets = new Map<string, GroupBucket>();
+  books.forEach((book: Book) => {
     const meta = metaForBook(book, groupBy, finishDateByBookId, currentYear);
     if (!buckets.has(meta.key)) {
       buckets.set(meta.key, { ...meta, books: [] });
     }
-    buckets.get(meta.key).books.push(book);
+    const bucket = buckets.get(meta.key);
+    if (bucket) {
+      bucket.books.push(book);
+    }
   });
   return buckets;
 }
 
-export function groupBooks(books = [], groupBy = GROUP_BY_NONE, finishDateByBookId = {}) {
+export function groupBooks(
+  books: Book[] = [],
+  groupBy: BookGroupBy = GROUP_BY_NONE,
+  finishDateByBookId: Record<string, string> = {},
+): BookGroup[] {
   if (groupBy === GROUP_BY_NONE) {
     return [];
   }

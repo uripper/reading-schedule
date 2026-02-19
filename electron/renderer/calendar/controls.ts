@@ -2,7 +2,18 @@
 import { el } from "../dom.js";
 import { monthLabel } from "./utils.js";
 
-export function renderCalendarControls(state, renderControls, renderMonth) {
+type CalendarControlsState = {
+  months: string[];
+  index: number;
+};
+
+type RenderFn = () => void;
+
+export function renderCalendarControls(
+  state: CalendarControlsState,
+  renderControls: RenderFn,
+  renderMonth: RenderFn,
+): void {
   const key = state.months[state.index] || "";
   const controls = el("calendarControls");
   const title = document.createElement("strong");

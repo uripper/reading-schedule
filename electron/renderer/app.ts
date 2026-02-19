@@ -38,7 +38,6 @@ const state: {
 const { plannerApi } = globalThis as typeof globalThis & { plannerApi: PlannerApi };
 let sessionsUI: ReturnType<typeof createSessionsAppUI> | null = null;
 let planController: ReturnType<typeof createAppPlanControllerInstance> | null = null;
-type SessionInputs = Parameters<ReturnType<typeof createSessionsAppUI>["setSessions"]>[0];
 const announce = createAnnouncer();
 const announceForPlanController = (message: string, politeness?: string) => {
   if (politeness === "polite" || politeness === "assertive") {
@@ -163,15 +162,7 @@ async function init() {
     setFeatureFlags: (featureFlags) => { state.featureFlags = featureFlags; },
     setScheduleCompletions: (scheduleCompletions) => { state.scheduleCompletions = scheduleCompletions; },
     setSessions: (sessions) => {
-      let normalizedSessions: SessionInputs;
-      if (Array.isArray(sessions)) {
-        normalizedSessions = sessions.filter(
-          (session): session is NonNullable<SessionInputs>[number] => typeof session === "object" && session !== null,
-        );
-      } else {
-        normalizedSessions = [];
-      }
-      sessionsUI?.setSessions(normalizedSessions);
+      sessionsUI?.setSessions(sessions);
     },
     applyLoadedResult: (result) => {
       planController?.applyLoadedResult(result);

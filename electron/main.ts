@@ -133,8 +133,7 @@ ipcMain.handle('state:save', (_event, payload: JsonValue) => {
   return result;
 });
 
-await app.whenReady();
-createWindow();
+app.whenReady().then(createWindow);
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
