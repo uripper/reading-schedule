@@ -36,6 +36,8 @@ export async function runPlanGeneration({
   try {
     const payloadBooks = collectBooks();
     if (!payloadBooks.length) {
+      await onSuccess({ schedule: [], summary: null });
+      setStatus('No schedulable books to plan.');
       return;
     }
 
