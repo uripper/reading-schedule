@@ -54,7 +54,9 @@ export function activateTab(name: TabName, options: ActivateTabOptions = {}) {
 
   qa<HTMLElement>(".panel").forEach((panel) => setPanelState(panel, panel.id === `tab-${name}`));
   const activePanel = panelByName(name);
-  if (focusPanel && activePanel) {activePanel.focus();}
+  if (focusPanel && activePanel) {
+    activePanel.focus();
+  }
   document.title = `${activeLabel} - Bartleby`;
   onTabActivated(name);
 }
