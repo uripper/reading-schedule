@@ -20,7 +20,10 @@ def minutes_for_day(settings: Settings, day: date) -> int:
 
 def calendar_minutes(settings: Settings) -> dict[date, int]:
     """Build available reading minutes for every day in the planning window."""
-    return {d: minutes_for_day(settings, d) for d in date_range(settings.start_date, settings.end_date)}
+    return {
+        d: minutes_for_day(settings, d)
+        for d in date_range(settings.start_date, settings.end_date)
+    }
 
 
 def day_capacity_blocks(settings: Settings, day: date) -> int:
