@@ -42,9 +42,17 @@
         <article class="surface-card">
           <h2>Daily Goal</h2>
           <p id="todayGoalText" class="body-text">0 / 30 minutes logged today</p>
-          <progress class="progress-track" aria-label="Daily goal progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="todayGoalProgress">
+          <div
+            class="progress-track"
+            role="progressbar"
+            aria-label="Daily goal progress"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            id="todayGoalProgress"
+          >
             <span id="todayGoalBar" class="progress-bar"></span>
-          </progress>
+          </div>
         </article>
 
         <article class="surface-card today-schedule-card">

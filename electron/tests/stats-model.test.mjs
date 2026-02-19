@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { BOOK_STATUS_IN_PROGRESS, BOOK_STATUS_READ, BOOK_STATUS_TO_READ } from '../dist/renderer/books/status.js';
 import { sessionKeyFor } from '../dist/renderer/calendar/utils.js';
 import { buildStatsSnapshot } from '../dist/renderer/stats/model.js';
+import { todayKey } from '../dist/renderer/sessions/utils.js';
 
 function book(overrides) {
   return {
@@ -104,7 +105,36 @@ test('buildStatsSnapshot combines planned and already-read finishes for current 
   assert.equal(snapshot.projectedFinishCount, 2);
   assert.equal(snapshot.completedSessionsToDate, 1);
   assert.equal(snapshot.scheduledSessionsToDate, 2);
-  assert.equal(snapshot.readingMinutesYear, 30);
+  assert.equal(snapshot.readingMinutesYear, 45);
   assert.equal(snapshot.monthlyFinishes[0], 1);
   assert.equal(snapshot.monthlyFinishes[1], 1);
+});
+
+test('buildStatsSnapshot uses completed schedule rows for reading minutes and streak', () => {
+  const year = new Date().getFullYear();
+  const today = todayKey();
+  const scheduleRow = row(today, 1, 'book-1');
+  scheduleRow.minutes = 40;
+  const completions = {};
+  completions[sessionKeyFor(scheduleRow)] = true;
+
+  const snapshot = buildStatsSnapshot({
+    books: [book({ book_id: 'book-1', status: BOOK_STATUS_IN_PROGRESS, progress_percent: 10 })],
+    sessions: [],
+    scheduleCompletions: completions,
+    dailyGoalMinutes: 30,
+    lastResult: {
+      schedule: [scheduleRow],
+      created_at: `${year}-01-01T00:00:00.000Z`,
+      summary: {
+        per_book: {
+          'book-1': { finished: false },
+        },
+      },
+    },
+  });
+
+  assert.equal(snapshot.readingMinutesYear, 40);
+  assert.equal(snapshot.activeDaysYear, 1);
+  assert.equal(snapshot.currentStreakDays, 1);
 });

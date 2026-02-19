@@ -15,6 +15,10 @@ const STATUS_ORDER: BookStatus[] = [
   BOOK_STATUS_READ,
   BOOK_STATUS_DROPPED,
 ];
+const SINGLE_FINISH_COUNT = 1;
+const MIN_BAR_HEIGHT_PERCENT = 8;
+const PERCENT_SCALE = 100;
+const ZERO_COUNT = 0;
 
 function numberText(value: number): string {
   return new Intl.NumberFormat().format(value);
@@ -37,6 +41,24 @@ function card(title: string, value: string, note: string): HTMLElement {
 
   node.append(heading, valueNode, noteNode);
   return node;
+}
+
+function finishCountLabel(count: number): string {
+  if (count === SINGLE_FINISH_COUNT) {
+    return `${count} finish`;
+  }
+  return `${count} finishes`;
+}
+
+function barHeightPercent(count: number, maxCount: number): number {
+  if (count <= ZERO_COUNT) {
+    return ZERO_COUNT;
+  }
+  const scaled = Math.round((count / maxCount) * PERCENT_SCALE);
+  if (scaled < MIN_BAR_HEIGHT_PERCENT) {
+    return MIN_BAR_HEIGHT_PERCENT;
+  }
+  return scaled;
 }
 
 function kpiGrid(snapshot: StatsSnapshot): HTMLElement {
@@ -122,11 +144,18 @@ function monthPanel(snapshot: StatsSnapshot): HTMLElement {
     const item = document.createElement("div");
     item.className = "month-bar-item";
 
+    const track = document.createElement("div");
+    track.className = "month-bar-track";
+
     const fill = document.createElement("span");
     fill.className = "month-bar-fill";
-    const heightPercent = Math.round((count / maxCount) * 100);
+    const heightPercent = barHeightPercent(count, maxCount);
     fill.style.height = `${heightPercent}%`;
-    fill.setAttribute("title", `${count} finish`);
+    fill.setAttribute("title", finishCountLabel(count));
+    if (count <= ZERO_COUNT) {
+      fill.classList.add("is-zero");
+    }
+    track.append(fill);
 
     const countNode = document.createElement("span");
     countNode.className = "month-bar-count";
@@ -138,7 +167,8 @@ function monthPanel(snapshot: StatsSnapshot): HTMLElement {
       new Date(snapshot.year, index, 1),
     );
 
-    item.append(fill, countNode, month);
+    item.setAttribute("aria-label", `${month.textContent}: ${finishCountLabel(count)}`);
+    item.append(countNode, track, month);
     bars.append(item);
   });
 

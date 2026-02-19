@@ -24,7 +24,6 @@ import { createPersistQueue, createStatusSetter, totalsFromSummary } from "./app
 import type { PlannerApi, PlannerResult } from "./app/types.js";
 import { updateTodayDashboard } from "./app/today.js";
 import type { Session } from "./sessions/normalize.js";
-import { minutesForDay, streakFromSessions, todayKey } from "./sessions/utils.js";
 const state: {
   lastResult: PlannerResult | null;
   ready: boolean;
@@ -59,18 +58,12 @@ const { persistDraft, queuePersist } = createPersistQueue({
   collectBooks: collectAllBooks,
   getSessionsUI: () => ({ getSessions: () => state.sessions }),
 });
-function sessionSummary() {
-  return {
-    todayMinutes: () => minutesForDay(state.sessions, todayKey()),
-    streakDays: () => streakFromSessions(state.sessions),
-  };
-}
 function updateTodayView() {
   updateTodayDashboard({
-    sessionsUI: sessionSummary(),
     lastResult: state.lastResult,
     scheduleCompletions: state.scheduleCompletions,
     books: collectAllBooks(),
+    sessions: state.sessions,
     preferences: state.preferences,
     featureFlags: state.featureFlags,
     defaultDailyGoalMinutes: DEFAULT_PREFERENCES.dailyGoalMinutes,
@@ -82,6 +75,7 @@ function updateStatsDashboardView() {
     sessions: state.sessions,
     lastResult: state.lastResult,
     scheduleCompletions: state.scheduleCompletions,
+    dailyGoalMinutes: Number(state.preferences.dailyGoalMinutes || DEFAULT_PREFERENCES.dailyGoalMinutes),
   });
 }
 function updateDashboards() {

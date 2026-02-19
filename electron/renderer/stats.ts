@@ -9,6 +9,7 @@ type UpdateStatsArgs = {
   sessions: Session[];
   lastResult: PlannerResult | null;
   scheduleCompletions: Record<string, boolean>;
+  dailyGoalMinutes: number;
 };
 
 export function updateStatsView({
@@ -16,12 +17,14 @@ export function updateStatsView({
   sessions,
   lastResult,
   scheduleCompletions,
+  dailyGoalMinutes,
 }: UpdateStatsArgs): void {
   const snapshot = buildStatsSnapshot({
     books,
     sessions,
     lastResult,
     scheduleCompletions,
+    dailyGoalMinutes,
   });
   renderStatsDashboard(snapshot);
 }
