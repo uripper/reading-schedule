@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+const BOOK_PRIORITY_MAX = 5;
+const BOOK_PRIORITY_DEFAULT = 3;
+const BOOK_DIFFICULTY_DEFAULT = 3;
+const DAILY_GOAL_MINUTES_MAX = 600;
+const DAILY_GOAL_MINUTES_DEFAULT = 30;
+
 export const ISODateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected ISO date YYYY-MM-DD");
 export const ISODateTimeSchema = z.string().datetime({ offset: true });
 
@@ -25,8 +31,8 @@ export const BookSchema = z.object({
   pages_total: z.number().int().positive().nullable(),
   pages_read: z.number().int().min(0).nullable(),
   progress_percent: z.number().min(0).max(100).default(0),
-  priority: z.number().int().min(1).max(5).default(3),
-  difficulty: z.number().int().min(1).max(10).default(3),
+  priority: z.number().int().min(1).max(BOOK_PRIORITY_MAX).default(BOOK_PRIORITY_DEFAULT),
+  difficulty: z.number().int().min(1).max(10).default(BOOK_DIFFICULTY_DEFAULT),
   min_blocks_per_session: z.number().int().min(1).default(1),
   max_minutes_per_day: z.number().int().positive().nullable(),
   deadline: ISODateSchema.nullable(),
@@ -81,7 +87,7 @@ export const PreferencesSchema = z.object({
   theme: z.enum(["system", "light", "dark"]).default("system"),
   reduceMotion: z.boolean().default(false),
   timezone: z.string().default("UTC"),
-  dailyGoalMinutes: z.number().int().min(1).max(600).default(30),
+  dailyGoalMinutes: z.number().int().min(1).max(DAILY_GOAL_MINUTES_MAX).default(DAILY_GOAL_MINUTES_DEFAULT),
   reminderEnabled: z.boolean().default(false),
   reminderTime: z.string().regex(/^\d{2}:\d{2}$/).default("20:00"),
 });
