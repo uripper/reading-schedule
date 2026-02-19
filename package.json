@@ -4,6 +4,7 @@
   "version": "0.2.0",
   "scripts": {
     "dev:desktop": "npm --prefix electron run start",
+    "dev:windows": "bash ./scripts/run_windows_gui_from_wsl.sh",
     "build:desktop": "npm --prefix electron run build",
     "typecheck:desktop": "npm --prefix electron run typecheck",
     "lint:desktop": "npm --prefix electron run lint",
