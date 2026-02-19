@@ -1,12 +1,19 @@
 
 import { renderSessionHistory } from "./sessions/history.js";
 import { createManualSessionSaver } from "./sessions/manual.js";
-import { normalizeSession, normalizeSessions } from "./sessions/normalize.js";
+import { normalizeSession, normalizeSessions, Session } from "./sessions/normalize.js";
 import { createPickerController } from "./sessions/picker.js";
 import { createSessionRefs } from "./sessions/refs.js";
 import { createTimerController } from "./sessions/timer.js";
 import { minutesForDay, streakFromSessions, todayKey } from "./sessions/utils.js";
 
+type InitSessionsUIArgs = {
+  getBooks: Parameters<typeof createPickerController>[1];
+  initialSessions: Parameters<typeof normalizeSessions>[0];
+  onSessionsChanged: (sessions: Session[]) => void;
+  announce: Parameters<typeof createTimerController>[3];
+  setStatus: Parameters<typeof createTimerController>[4];
+};
 
 
 export function initSessionsUI({
@@ -15,18 +22,18 @@ export function initSessionsUI({
   onSessionsChanged,
   announce,
   setStatus,
-}) {
+}: InitSessionsUIArgs) {
   const refs = createSessionRefs();
   let sessions = normalizeSessions(initialSessions);
 
-  const commitSession = (sessionInput) => {
+  const commitSession = (sessionInput: (Omit<Partial<Session>, "source" | "pages_read"> & { endedAt?: string; startedAt?: string; pages_read?: number | string | null; source?: string; }) | undefined) => {
     sessions = [normalizeSession(sessionInput), ...sessions]
       .sort((a, b) => String(b.ended_at).localeCompare(String(a.ended_at)));
     renderSessionHistory(refs.history, sessions, deleteSessionById);
     onSessionsChanged(sessions);
   };
 
-  const deleteSessionById = (sessionId) => {
+  const deleteSessionById = (sessionId: string) => {
     const session = sessions.find((row) => row.id === sessionId);
     if (!session) {
       return;
@@ -64,7 +71,7 @@ export function initSessionsUI({
 
   return {
     getSessions: () => [...sessions],
-    setSessions(nextSessions) {
+    setSessions(nextSessions: unknown[] | undefined) {
       sessions = normalizeSessions(nextSessions);
       renderSessionHistory(refs.history, sessions, deleteSessionById);
     },

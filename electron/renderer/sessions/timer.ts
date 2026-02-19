@@ -3,9 +3,9 @@ import { uid } from "../dom.js";
 import { MS_PER_MINUTE, MS_PER_SECOND, SESSION_MIN_MS } from "./constants.js";
 import { formatTimer } from "./utils.js";
 
-export function createTimerController(refs, selectedBook, commitSession, announce, setStatus) {
-  let timerHandle = null;
-  let timerStartedAt = null;
+export function createTimerController(refs: { input: any; results?: HTMLElement | null; meta?: HTMLElement | null; timerDisplay: any; startBtn: any; pauseBtn: any; stopBtn: any; history?: HTMLElement | null; manualMinutes?: HTMLElement | null; manualPages?: HTMLElement | null; manualNotes?: HTMLElement | null; manualSaveBtn?: HTMLElement | null; }, selectedBook: { (): any; (): any; }, commitSession: { (sessionInput: any): void; (arg0: { minutes: number; id: string; book_id: any; title: any; started_at: string; ended_at: string; notes: string; source: string; created_at: string; }): void; }, announce: (arg0: string, arg1: string | undefined) => void, setStatus: (arg0: string, arg1: boolean | undefined) => void) {
+  let timerHandle: number | null | undefined = null;
+  let timerStartedAt: number | null = null;
   let elapsedMs = 0;
 
   const timerRunning = () => {

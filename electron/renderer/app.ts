@@ -20,6 +20,7 @@ import {
 import { configureAppCalendarInteractions } from "./app/calendar_interactions.js";
 import { createPlanController } from "./app/plan_controller.js";
 import { bindSettingsAutoPlanListeners, createPersistQueue, createStatusSetter, totalsFromSummary } from "./app/runtime_helpers.js";
+import type { PlannerApi } from "./app/types.js";
 import { activateSessionsAndStartTimer, updateTodayDashboard } from "./app/today.js";
 const state = {
   lastResult: null,
@@ -28,22 +29,6 @@ const state = {
   featureFlags: { ...DEFAULT_FEATURE_FLAGS },
   scheduleCompletions: {},
 };
-type LoadedPlannerState = {
-  settings?: Parameters<typeof fillSettings>[0];
-  books?: Parameters<typeof fillBooks>[0];
-  preferences?: Parameters<typeof normalizePreferences>[0];
-  feature_flags?: Parameters<typeof normalizeFeatureFlags>[0];
-  schedule_completions?: Parameters<typeof normalizeScheduleCompletions>[0];
-  sessions?: Parameters<ReturnType<typeof initSessionsUI>["setSessions"]>[0];
-  last_result?: Parameters<ReturnType<typeof createPlanController>["applyLoadedResult"]>[0];
-};
-
-type PlannerApi = {
-  loadState: () => Promise<LoadedPlannerState | null | undefined>;
-  sample: () => Promise<Pick<LoadedPlannerState, "settings" | "books">>;
-  saveState: (state: unknown) => Promise<unknown>;
-};
-
 const { plannerApi } = globalThis as typeof globalThis & { plannerApi: PlannerApi };
 let sessionsUI: ReturnType<typeof initSessionsUI> | null = null;
 let planController: ReturnType<typeof createPlanController> | null = null;
@@ -57,7 +42,6 @@ const { persistDraft, queuePersist } = createPersistQueue({
   plannerApi,
   getSessionsUI: () => sessionsUI,
 });
-
 function updateTodayView() {
   updateTodayDashboard({
     sessionsUI,
@@ -133,12 +117,12 @@ async function init() {
     persistDraft,
     plannerApi,
     getLastResult: () => state.lastResult,
-    setLastResult: (nextResult) => {
+    setLastResult: (nextResult: null) => {
       state.lastResult = nextResult;
     },
     getSessions: () => sessionsUI.getSessions(),
     getScheduleCompletions: () => state.scheduleCompletions,
-    setScheduleCompletions: (nextCompletions) => {
+    setScheduleCompletions: (nextCompletions: {}) => {
       state.scheduleCompletions = nextCompletions;
     },
   });

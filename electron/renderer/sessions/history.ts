@@ -2,7 +2,7 @@
 import { HISTORY_LIMIT } from "./constants.js";
 import { formatTimeRange } from "./utils.js";
 
-export function renderSessionHistory(container, sessions, onDelete) {
+export function renderSessionHistory(container: HTMLElement | null, sessions: string | any[], onDelete: { (sessionId: any): void; (sessionId: any): void; (sessionId: any): void; (sessionId: any): void; (arg0: any): any; }) {
   const rows = sessions.slice(0, HISTORY_LIMIT);
   if (!rows.length) {
     const empty = document.createElement("p");
@@ -12,7 +12,7 @@ export function renderSessionHistory(container, sessions, onDelete) {
     return;
   }
 
-  const cards = rows.map((session) => {
+  const cards = rows.map((session: { title: any; minutes: any; pages_read: null; started_at: any; ended_at: any; notes: any; source: string; id: string | undefined; }) => {
     const card = document.createElement("article");
     card.className = "session-entry";
 

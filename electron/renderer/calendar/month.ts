@@ -16,7 +16,7 @@ function createWeekdayHeader() {
   });
 }
 
-function createDayButton(date, firstDate, keyForDay, rows, selectedDate, todayKey) {
+function createDayButton(date: Date, firstDate: Date, keyForDay: string | number | undefined, rows: any[], selectedDate: any, todayKey: string | number) {
   const dayButton = document.createElement("button");
   dayButton.type = "button";
   dayButton.className = "day";
@@ -49,7 +49,7 @@ function createDayButton(date, firstDate, keyForDay, rows, selectedDate, todayKe
   }
 
   dayButton.append(dayDate, count);
-  rows.slice(0, 2).forEach((row) => {
+  rows.slice(0, 2).forEach((row: { finish: any; title: any; minutes: any; }) => {
     const chip = document.createElement("span");
     chip.className = "day-chip";
     if (row.finish) {
@@ -69,7 +69,7 @@ function createDayButton(date, firstDate, keyForDay, rows, selectedDate, todayKe
   return dayButton;
 }
 
-function handleDayKeydown(event, index, totalCellCount, moveSelectionBy) {
+function handleDayKeydown(event: KeyboardEvent, index: number, totalCellCount: number, moveSelectionBy: (arg0: number, arg1: any) => void) {
   if (event.key === "ArrowRight") {
     event.preventDefault();
     moveSelectionBy(1, index);
@@ -101,7 +101,7 @@ function handleDayKeydown(event, index, totalCellCount, moveSelectionBy) {
   }
 }
 
-export function renderCalendarMonth(state, { selectDate, moveSelectionBy, renderDetails }) {
+export function renderCalendarMonth(state: { dates: any; rows?: { [key: string]: unknown; title?: string; date: string; book_id: string; session_index: string | number; words_planned?: number; }[]; totalsByBookId?: Record<string, number>; months: any; index: any; selectedDate: any; monthCellKeys: any; }, { selectDate, moveSelectionBy, renderDetails }: { selectDate: (dateKey: string, options?: { focus?: boolean; }) => void; moveSelectionBy: (delta: number, currentIndex: number) => void; renderDetails: () => void; }) {
   const monthKey = state.months[state.index];
   const calendar = el("calendar");
   if (!monthKey) {
@@ -120,7 +120,7 @@ export function renderCalendarMonth(state, { selectDate, moveSelectionBy, render
   state.monthCellKeys = cells.map((date) => dayKey(date));
 
   if (!state.selectedDate || !state.monthCellKeys.includes(state.selectedDate)) {
-    const firstWithRows = state.monthCellKeys.find((cellKey) => {
+    const firstWithRows = state.monthCellKeys.find((cellKey: string | number) => {
       return (state.dates[cellKey] || []).length > 0;
     });
     state.selectedDate = firstWithRows || state.monthCellKeys[0] || "";

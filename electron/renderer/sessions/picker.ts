@@ -2,11 +2,11 @@
 import { DEFAULT_PICKER_LIMIT } from "./constants.js";
 import { clampIndex } from "./utils.js";
 
-function optionId(index) {
+function optionId(index: any) {
   return `session-book-option-${index}`;
 }
 
-function matchesQuery(book, query) {
+function matchesQuery(book: { title: any; author: any; }, query: string) {
   if (!query) {
     return true;
   }
@@ -14,7 +14,7 @@ function matchesQuery(book, query) {
   return [book.title, book.author].join(" ").toLowerCase().includes(search);
 }
 
-function renderPickerResults(refs, filteredBooks, pickerIndex, selectBook, setPickerIndex) {
+function renderPickerResults(refs: { results: { innerHTML: string; classList: { remove: (arg0: string) => void; add: (arg0: string) => void; }; replaceChildren: (arg0: any) => void; }; input: { setAttribute: (arg0: string, arg1: string) => void; removeAttribute: (arg0: string) => void; }; }, filteredBooks: any[], pickerIndex: number, selectBook: { (book: any): void; (arg0: any): any; }, setPickerIndex: { (index: any): void; (arg0: any): void; }) {
   refs.results.innerHTML = "";
   if (!filteredBooks.length) {
     refs.results.classList.remove("has-items");
@@ -23,7 +23,7 @@ function renderPickerResults(refs, filteredBooks, pickerIndex, selectBook, setPi
     return;
   }
 
-  const items = filteredBooks.slice(0, DEFAULT_PICKER_LIMIT).map((book, index) => {
+  const items = filteredBooks.slice(0, DEFAULT_PICKER_LIMIT).map((book: { book_id: string | undefined; title: string; deadline: any; author: any; }, index: any) => {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "book-result book-result-inline";
@@ -68,17 +68,17 @@ function renderPickerResults(refs, filteredBooks, pickerIndex, selectBook, setPi
   }
 }
 
-export function createPickerController(refs, getBooks) {
-  let filteredBooks = [];
+export function createPickerController(refs: { input: any; results: any; meta: any; timerDisplay?: HTMLElement | null; startBtn?: HTMLElement | null; pauseBtn?: HTMLElement | null; stopBtn?: HTMLElement | null; history?: HTMLElement | null; manualMinutes?: HTMLElement | null; manualPages?: HTMLElement | null; manualNotes?: HTMLElement | null; manualSaveBtn?: HTMLElement | null; }, getBooks: () => any[]) {
+  let filteredBooks: string | any[] = [];
   let pickerIndex = -1;
   let selectedBookId = "";
 
   const selectedBook = () => {
-    return getBooks().find((book) => book.book_id === selectedBookId) || null;
+    return getBooks().find((book: { book_id: string; }) => book.book_id === selectedBookId) || null;
   };
 
   const renderPicker = () => {
-    renderPickerResults(refs, filteredBooks, pickerIndex, selectBook, (index) => {
+    renderPickerResults(refs, filteredBooks, pickerIndex, selectBook, (index: number) => {
       pickerIndex = index;
       renderPicker();
     });
@@ -90,7 +90,7 @@ export function createPickerController(refs, getBooks) {
     renderPicker();
   };
 
-  const selectBook = (book) => {
+  const selectBook = (book: { book_id: string; title: any; author: any; }) => {
     if (!book) {
       selectedBookId = "";
       refs.input.value = "";
@@ -108,7 +108,7 @@ export function createPickerController(refs, getBooks) {
 
   const refreshPicker = () => {
     const query = refs.input.value.trim().toLowerCase();
-    filteredBooks = getBooks().filter((book) => matchesQuery(book, query));
+    filteredBooks = getBooks().filter((book: any) => matchesQuery(book, query));
     pickerIndex = -1;
     if (filteredBooks.length) {
       pickerIndex = 0;
@@ -116,7 +116,7 @@ export function createPickerController(refs, getBooks) {
     renderPicker();
   };
 
-  const onKeydown = (event) => {
+  const onKeydown = (event: { key: string; preventDefault: () => void; }) => {
     if (event.key === "ArrowDown") {
       if (!filteredBooks.length) {
         refreshPicker();
@@ -152,7 +152,7 @@ export function createPickerController(refs, getBooks) {
     }
   };
 
-  const onDocumentClick = (event) => {
+  const onDocumentClick = (event: { target: any; }) => {
     if (!(event.target instanceof Node)) {
       return;
     }
@@ -169,8 +169,8 @@ export function createPickerController(refs, getBooks) {
     document.addEventListener("click", onDocumentClick);
   };
 
-  const selectBookById = (bookId) => {
-    const book = getBooks().find((row) => row.book_id === bookId) || null;
+  const selectBookById = (bookId: any) => {
+    const book = getBooks().find((row: { book_id: any; }) => row.book_id === bookId) || null;
     if (!book) {
       return;
     }

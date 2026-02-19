@@ -8,18 +8,18 @@ function todayDateKey() {
   return `${year}-${month}-${day}`;
 }
 
-function rowSortKey(row) {
+function rowSortKey(row: { session_index: any; date: any; }) {
   const sessionIndex = String(row?.session_index || 0).padStart(SESSION_INDEX_PAD, "0");
   return `${String(row?.date || "")}-${sessionIndex}`;
 }
 
-function bookBaselineWords(book, totalWords) {
+function bookBaselineWords(book: { progress_percent: any; }, totalWords: number) {
   const progressPercent = Number(book?.progress_percent || 0);
   const clamped = Math.min(100, Math.max(0, progressPercent));
   return Math.round((clamped / 100) * totalWords);
 }
 
-function projectedWordsForRow(row, state, bookId, baselineWords, totalWords) {
+function projectedWordsForRow(row: any, state: { rows: any[]; }, bookId: string, baselineWords: number, totalWords: number) {
   const today = todayDateKey();
   const targetSortKey = rowSortKey(row);
   let plannedWords = 0;
@@ -27,7 +27,7 @@ function projectedWordsForRow(row, state, bookId, baselineWords, totalWords) {
   if (Array.isArray(state?.rows)) {
     rows = state.rows;
   }
-  rows.forEach((candidate) => {
+  rows.forEach((candidate: { book_id: any; date: any; words_planned: any; }) => {
     if (String(candidate?.book_id || "") !== bookId) {
       return;
     }
@@ -43,14 +43,14 @@ function projectedWordsForRow(row, state, bookId, baselineWords, totalWords) {
   return Math.min(totalWords, baselineWords + plannedWords);
 }
 
-function projectedPages(projectedWords, totalWords, pagesTotal) {
+function projectedPages(projectedWords: number, totalWords: number, pagesTotal: number) {
   if (totalWords <= 0 || pagesTotal <= 0) {
     return null;
   }
   return Math.round((projectedWords / totalWords) * pagesTotal);
 }
 
-export function estimateProgressLabel(row, state, getBookById) {
+export function estimateProgressLabel(row: { book_id: any; }, state: { totalsByBookId: { [x: string]: any; }; }, getBookById: (arg0: string) => {}) {
   const bookId = String(row?.book_id || "");
   if (!bookId) {
     return "No estimate available";

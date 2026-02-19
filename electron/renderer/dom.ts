@@ -5,7 +5,7 @@ function missingElementMessage(id: string): string {
 export function el<T extends HTMLElement = HTMLElement>(id: string): T {
   const node = document.getElementById(id);
   if (!(node instanceof HTMLElement)) {
-    throw new Error(missingElementMessage(id));
+    throw new TypeError(missingElementMessage(id));
   }
   return node as T;
 }

@@ -1,200 +1,70 @@
 import { el } from "../dom.js";
-import { estimateProgressLabel } from "./estimates.js";
-import { dateHeading, parseOptionalNumber, sessionKeyFor } from "./utils.js";
+import { dateHeading } from "./utils.js";
+import {
+  buildFutureSessionItem,
+  buildPastSessionItem,
+  buildTodaySessionItem,
+  completedRows,
+  dayMode,
+  rowsWithCompletedLast,
+} from "./details_helpers.js";
 
-function todayDateKey() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+type CalendarDayMode = "past" | "today" | "future";
+
+interface CalendarRow {
+  [key: string]: unknown;
 }
 
-function dayMode(dateKey) {
-  const today = todayDateKey();
-  if (dateKey < today) {
-    return "past";
-  }
-  if (dateKey > today) {
-    return "future";
-  }
-  return "today";
+interface CalendarState {
+  selectedDate: string;
+  dates: Record<string, CalendarRow[]>;
 }
 
-function rowsWithCompletedLast(rows, interactionHandlers) {
-  const incompleteRows = [];
-  const completedRows = [];
-  rows.forEach((row) => {
-    const complete = Boolean(interactionHandlers.isSessionCompleted(sessionKeyFor(row)));
-    if (complete) {
-      completedRows.push(row);
-      return;
-    }
-    incompleteRows.push(row);
-  });
-  return [...incompleteRows, ...completedRows];
+interface InteractionHandlers {
+  [key: string]: unknown;
 }
 
-function completedRows(rows, interactionHandlers) {
-  return rows.filter((row) => {
-    return Boolean(interactionHandlers.isSessionCompleted(sessionKeyFor(row)));
-  });
-}
-
-function setInputValueFromBookProgress(inputNode, value) {
-  if (value !== null && value !== undefined) {
-    inputNode.value = String(value);
-  }
-}
-
-function changedNumberValue(inputNode, initialValue) {
-  const currentValue = String(inputNode.value ?? "").trim();
-  if (currentValue === String(initialValue)) {
-    return null;
-  }
-  return parseOptionalNumber(currentValue);
-}
-
-function progressFormForToday(row, book, interactionHandlers) {
-  const progressForm = document.createElement("form");
-  progressForm.className = "day-progress-form";
-
-  const pagesInput = document.createElement("input");
-  pagesInput.type = "number";
-  pagesInput.min = "0";
-  pagesInput.step = "1";
-  pagesInput.placeholder = "Pages read";
-  setInputValueFromBookProgress(pagesInput, book.pages_read);
-
-  const pctInput = document.createElement("input");
-  pctInput.type = "number";
-  pctInput.min = "0";
-  pctInput.max = "100";
-  pctInput.step = "0.1";
-  pctInput.placeholder = "Percent complete";
-  setInputValueFromBookProgress(pctInput, book.progress_percent);
-
-  const pagesLabel = document.createElement("label");
-  pagesLabel.className = "day-progress-field";
-  pagesLabel.textContent = "Pages Read";
-  pagesLabel.append(pagesInput);
-
-  const percentLabel = document.createElement("label");
-  percentLabel.className = "day-progress-field";
-  percentLabel.textContent = "Complete %";
-  percentLabel.append(pctInput);
-
-  let initialPagesValue = String(pagesInput.value ?? "").trim();
-  let initialPercentValue = String(pctInput.value ?? "").trim();
-
-  const saveBtn = document.createElement("button");
-  saveBtn.type = "submit";
-  saveBtn.className = "btn";
-  saveBtn.textContent = "Update Progress";
-
-  progressForm.append(pagesLabel, percentLabel, saveBtn);
-  progressForm.onsubmit = (event) => {
-    event.preventDefault();
-    const pagesRead = changedNumberValue(pagesInput, initialPagesValue);
-    const progressPercent = changedNumberValue(pctInput, initialPercentValue);
-    if (pagesRead === null && progressPercent === null) {
-      return;
-    }
-    const updated = interactionHandlers.onSessionProgressUpdated({
-      bookId: row.book_id,
-      pagesRead,
-      progressPercent,
-      row,
-    });
-    if (updated && updated.pages_read !== null && updated.pages_read !== undefined) {
-      pagesInput.value = String(updated.pages_read);
-      initialPagesValue = String(pagesInput.value ?? "").trim();
-    }
-    if (updated && updated.progress_percent !== null && updated.progress_percent !== undefined) {
-      pctInput.value = String(updated.progress_percent);
-      initialPercentValue = String(pctInput.value ?? "").trim();
-    }
-  };
-
-  return progressForm;
-}
-
-function sessionMetaText(row) {
-  let finishLabel = "";
-  if (row.finish) {
-    finishLabel = " - expected finish";
-  }
-  return `${row.minutes} minutes planned${finishLabel}`;
-}
-
-function baseSessionItem(row) {
-  const item = document.createElement("article");
-  item.className = "day-details-item";
-  const head = document.createElement("strong");
-  head.textContent = row.title || "Untitled";
-  const meta = document.createElement("p");
-  meta.className = "day-details-meta";
-  meta.textContent = sessionMetaText(row);
-  item.append(head, meta);
-  return item;
-}
-
-function buildPastSessionItem(row) {
-  const item = baseSessionItem(row);
-  const completed = document.createElement("p");
-  completed.className = "day-details-meta";
-  completed.textContent = "Completed";
-  item.classList.add("is-complete");
-  item.append(completed);
-  return item;
-}
-
-function buildFutureSessionItem(row, state, interactionHandlers) {
-  const item = baseSessionItem(row);
-  const estimate = document.createElement("p");
-  estimate.className = "day-details-meta";
-  estimate.textContent = estimateProgressLabel(row, state, interactionHandlers.getBookById);
-  item.append(estimate);
-  return item;
-}
-
-function buildTodaySessionItem(row, interactionHandlers, rerenderDetails) {
-  const item = baseSessionItem(row);
-  const sessionKey = sessionKeyFor(row);
-
-  const completeLabel = document.createElement("label");
-  completeLabel.className = "day-complete-toggle";
-  const completeInput = document.createElement("input");
-  completeInput.type = "checkbox";
-  completeInput.checked = Boolean(interactionHandlers.isSessionCompleted(sessionKey));
-  completeLabel.append(completeInput, " Complete session");
-  item.classList.toggle("is-complete", completeInput.checked);
-
-  completeInput.onchange = () => {
-    const checked = Boolean(completeInput.checked);
-    item.classList.toggle("is-complete", checked);
-    interactionHandlers.onSessionCompletionChanged({
-      completed: checked,
-      row,
-      sessionKey,
-    });
-    rerenderDetails();
-  };
-
-  const book = interactionHandlers.getBookById(row.book_id) || {};
-  const progressForm = progressFormForToday(row, book, interactionHandlers);
-  item.append(completeLabel, progressForm);
-  return item;
-}
-
-function emptyMessageForMode(mode) {
+function emptyMessageForMode(mode: CalendarDayMode): string {
   if (mode === "past") {
     return "No completed sessions logged for this day.";
   }
   return "No sessions planned for this day.";
 }
 
-export function renderCalendarDetails(state, interactionHandlers) {
+function rowsForMode(
+  rows: CalendarRow[],
+  mode: CalendarDayMode,
+  interactionHandlers: InteractionHandlers,
+): CalendarRow[] {
+  if (mode === "past") {
+    return completedRows(rows, interactionHandlers);
+  }
+  if (mode === "today") {
+    return rowsWithCompletedLast(rows, interactionHandlers);
+  }
+  return rows;
+}
+
+function rowNodeForMode(
+  mode: CalendarDayMode,
+  row: CalendarRow,
+  state: CalendarState,
+  interactionHandlers: InteractionHandlers,
+  rerenderDetails: () => void,
+): HTMLElement {
+  if (mode === "today") {
+    return buildTodaySessionItem(row, interactionHandlers, rerenderDetails);
+  }
+  if (mode === "future") {
+    return buildFutureSessionItem(row, state, interactionHandlers);
+  }
+  return buildPastSessionItem(row);
+}
+
+export function renderCalendarDetails(
+  state: CalendarState,
+  interactionHandlers: InteractionHandlers,
+): void {
   const details = el("calendarDayDetails");
   const key = state.selectedDate;
   const rows = state.dates[key] || [];
@@ -214,15 +84,8 @@ export function renderCalendarDetails(state, interactionHandlers) {
   }
 
   const mode = dayMode(key);
-  let rowsForDisplay = rows;
-  if (mode === "past") {
-    rowsForDisplay = completedRows(rows, interactionHandlers);
-  }
-  if (mode === "today") {
-    rowsForDisplay = rowsWithCompletedLast(rowsForDisplay, interactionHandlers);
-  }
-
-  if (!rowsForDisplay.length) {
+  const rowsToRender = rowsForMode(rows, mode, interactionHandlers);
+  if (!rowsToRender.length) {
     const empty = document.createElement("p");
     empty.className = "hint-text";
     empty.textContent = emptyMessageForMode(mode);
@@ -236,16 +99,9 @@ export function renderCalendarDetails(state, interactionHandlers) {
     renderCalendarDetails(state, interactionHandlers);
   };
 
-  rowsForDisplay.forEach((row) => {
-    if (mode === "today") {
-      list.append(buildTodaySessionItem(row, interactionHandlers, rerenderDetails));
-      return;
-    }
-    if (mode === "future") {
-      list.append(buildFutureSessionItem(row, state, interactionHandlers));
-      return;
-    }
-    list.append(buildPastSessionItem(row));
+  rowsToRender.forEach((row) => {
+    const node = rowNodeForMode(mode, row, state, interactionHandlers, rerenderDetails);
+    list.append(node);
   });
 
   details.replaceChildren(title, list);
