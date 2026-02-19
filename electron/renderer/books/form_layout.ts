@@ -37,6 +37,20 @@ function createStatusSelectLabel() {
   return label;
 }
 
+function createFinishedAtLabel() {
+  const label = document.createElement("label");
+  label.id = "bookFinishedAtField";
+  label.hidden = true;
+  label.textContent = "Finish Date";
+
+  const input = document.createElement("input");
+  input.id = "bookFinishedAtInput";
+  input.type = "date";
+
+  label.append(input);
+  return label;
+}
+
 export function ensureBookFormLayoutFields() {
   const existing = document.getElementById("bookShelfSelectInput");
   if (existing) {
@@ -48,5 +62,5 @@ export function ensureBookFormLayoutFields() {
     return;
   }
 
-  grid.append(createStatusSelectLabel(), createShelfSelectLabel());
+  grid.append(createStatusSelectLabel(), createFinishedAtLabel(), createShelfSelectLabel());
 }
