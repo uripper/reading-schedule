@@ -1,10 +1,16 @@
 import type { PlannerAdapter } from "@reading-schedule/contracts";
 
+function plannerApiFromGlobalScope(): PlannerAdapter | null {
+  const scope = globalThis as typeof globalThis & { plannerApi?: PlannerAdapter };
+  return scope.plannerApi || null;
+}
+
 function requireDesktopApi(): PlannerAdapter {
-  if (!globalThis.plannerApi) {
+  const plannerApi = plannerApiFromGlobalScope();
+  if (!plannerApi) {
     throw new Error("Desktop planner API bridge not found.");
   }
-  return globalThis.plannerApi;
+  return plannerApi;
 }
 
 export const desktopAdapter: PlannerAdapter = {

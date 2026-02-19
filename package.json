@@ -9,7 +9,8 @@
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
     "dev:client": "pnpm --filter @reading-schedule/client dev",
-    "dev:desktop": "pnpm --filter @reading-schedule/desktop dev"
+    "dev:desktop": "pnpm --filter @reading-schedule/desktop dev",
+    "dev:desktop:full": "pnpm --parallel --filter @reading-schedule/client --filter @reading-schedule/desktop dev"
   },
   "devDependencies": {
     "typescript": "^5.7.3"
