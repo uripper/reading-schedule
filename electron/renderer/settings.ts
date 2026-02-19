@@ -41,6 +41,11 @@ function activateSettingsSection(nextSection: string): void {
   qa<HTMLElement>("[data-settings-section]").forEach((card) => {
     const active = card.dataset.settingsSection === section;
     card.hidden = !active;
+    if (active) {
+      card.style.display = "grid";
+    } else {
+      card.style.display = "none";
+    }
   });
   qa<HTMLElement>(".settings-section-tab").forEach((button) => {
     const active = button.dataset.settingsSectionTarget === section;

@@ -37,12 +37,12 @@ function buildSessionProgressForm(row, book, interactionHandlers) {
 
   const pagesLabel = document.createElement("label");
   pagesLabel.className = "day-progress-field";
-  pagesLabel.textContent = "Book Pages Read";
+  pagesLabel.textContent = "Pages Read";
   pagesLabel.append(pagesInput);
 
   const percentLabel = document.createElement("label");
   percentLabel.className = "day-progress-field";
-  percentLabel.textContent = "Book % Complete";
+  percentLabel.textContent = "Complete %";
   percentLabel.append(pctInput);
 
   let initialPagesValue = String(pagesInput.value ?? "").trim();
@@ -80,7 +80,7 @@ function buildSessionProgressForm(row, book, interactionHandlers) {
   return progressForm;
 }
 
-function buildSessionItem(row, interactionHandlers) {
+function buildSessionItem(row, interactionHandlers, rerenderDetails) {
   const item = document.createElement("article");
   item.className = "day-details-item";
   const sessionKey = sessionKeyFor(row);
@@ -112,12 +112,27 @@ function buildSessionItem(row, interactionHandlers) {
       row,
       sessionKey,
     });
+    rerenderDetails();
   };
 
   const book = interactionHandlers.getBookById(row.book_id) || {};
   const progressForm = buildSessionProgressForm(row, book, interactionHandlers);
   item.append(head, meta, completeLabel, progressForm);
   return item;
+}
+
+function rowsWithCompletedLast(rows, interactionHandlers) {
+  const incompleteRows = [];
+  const completedRows = [];
+  rows.forEach((row) => {
+    const complete = Boolean(interactionHandlers.isSessionCompleted(sessionKeyFor(row)));
+    if (complete) {
+      completedRows.push(row);
+      return;
+    }
+    incompleteRows.push(row);
+  });
+  return [...incompleteRows, ...completedRows];
 }
 
 export function renderCalendarDetails(state, interactionHandlers) {
@@ -149,8 +164,11 @@ export function renderCalendarDetails(state, interactionHandlers) {
 
   const list = document.createElement("div");
   list.className = "day-details-list";
-  rows.forEach((row) => {
-    list.append(buildSessionItem(row, interactionHandlers));
+  const rerenderDetails = () => {
+    renderCalendarDetails(state, interactionHandlers);
+  };
+  rowsWithCompletedLast(rows, interactionHandlers).forEach((row) => {
+    list.append(buildSessionItem(row, interactionHandlers, rerenderDetails));
   });
 
   details.replaceChildren(title, list);
