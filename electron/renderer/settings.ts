@@ -88,12 +88,28 @@ export function fillSettings(settings: PlannerSettings = {}): void {
   allFieldDefinitions().forEach((field) => {
     const value = settings[field.id];
     if (field.type === "select") {
-      selectEl(field.id).value = String(value ?? DEFAULT_PLAN_MODE);
+      let selectedValue = DEFAULT_PLAN_MODE;
+      if (typeof value === "string" && value.trim()) {
+        selectedValue = value;
+      }
+      selectEl(field.id).value = selectedValue;
       return;
     }
     let normalizedValue = "";
-    if (value !== undefined && value !== null) {
-      normalizedValue = String(value);
+    if (typeof value === "string") {
+      normalizedValue = value;
+    } else if (typeof value === "number") {
+      if (Number.isFinite(value)) {
+        normalizedValue = `${value}`;
+      }
+    } else if (typeof value === "boolean") {
+      if (value) {
+        normalizedValue = "true";
+      } else {
+        normalizedValue = "false";
+      }
+    } else {
+      // Keep default empty string for unsupported value types.
     }
     inputEl(field.id).value = normalizedValue;
   });
