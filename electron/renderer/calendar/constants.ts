@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 
 export const SESSION_INDEX_PAD = 3;
 export const CALENDAR_COLUMN_COUNT = 7;

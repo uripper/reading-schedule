@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 const NO_ACTIVE_INDEX = -1;
 const FIRST_RESULT_INDEX = 0;
 const UNKNOWN_BOOK_LABEL = "Unknown";
@@ -109,9 +109,7 @@ export function createAfterBookPicker(refs, getBooks) {
     const query = refs.afterBookInput.value.trim();
     if (clearChangedSelection) {
       const selected = selectedBook();
-      if (!query) {
-        clearSelection();
-      } else if (!selected || !labelsMatch(query, optionLabel(selected))) {
+      if (!query || !selected || !labelsMatch(query, optionLabel(selected))) {
         clearSelection();
       }
     }

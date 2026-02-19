@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 
 export function toInt(value, fallback = 0) {
   const parsed = Number(value);

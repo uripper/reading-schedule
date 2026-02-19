@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { uid } from "../dom.js";
 import { MS_PER_MINUTE } from "./constants.js";
 import { toInt } from "./utils.js";
@@ -32,12 +32,12 @@ export function createManualSessionSaver(refs, selectedBook, commitSession, anno
     }
 
     commitSession({
+      minutes,
       id: uid(),
       book_id: book.book_id,
       title: book.title,
       started_at: startedAt,
       ended_at: endedAt,
-      minutes,
       pages_read: pagesRead,
       notes: refs.manualNotes.value.trim(),
       source: "manual",

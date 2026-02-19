@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { renderSessionHistory } from "./sessions/history.js";
 import { createManualSessionSaver } from "./sessions/manual.js";
 import { normalizeSession, normalizeSessions } from "./sessions/normalize.js";

@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { CALENDAR_COLUMN_COUNT, DAY_GRID_SIZE, SESSION_INDEX_PAD, WEEK_START_OFFSET } from "./constants.js";
 
 function rowSortKey(row) {

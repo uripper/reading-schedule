@@ -1,5 +1,6 @@
 // @ts-nocheck
-import { el } from "./dom.js";
+
+import { el, qa } from "./dom.js";
 import {
   DEFAULT_DIFFICULTY_MULTIPLIER,
   DEFAULT_PLAN_MODE,
@@ -11,6 +12,7 @@ import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.js";
 import { renderDifficultyRows, renderGrid, renderWeekdayGrid } from "./settings/render.js";
 
 let dayOffs = [];
+const DEFAULT_SETTINGS_SECTION = "plan-budget";
 
 function setDayOffs(nextDayOffs) {
   dayOffs = [...nextDayOffs];
@@ -25,7 +27,35 @@ function forEachDifficultyLevel(callback) {
   Array.from({ length: DIFFICULTY_LEVEL_COUNT }, (_, index) => index + 1).forEach(callback);
 }
 
+function activateSettingsSection(nextSection) {
+  const section = String(nextSection || DEFAULT_SETTINGS_SECTION);
+  qa("[data-settings-section]").forEach((card) => {
+    const active = card.dataset.settingsSection === section;
+    card.hidden = !active;
+  });
+  qa(".settings-section-tab").forEach((button) => {
+    const active = button.dataset.settingsSectionTarget === section;
+    button.classList.toggle("is-active", active);
+    if (active) {
+      button.setAttribute("aria-selected", "true");
+    } else {
+      button.setAttribute("aria-selected", "false");
+    }
+  });
+}
+
+function bindSettingsSectionTabs() {
+  const tabs = qa(".settings-section-tab");
+  tabs.forEach((button) => {
+    button.addEventListener("click", () => {
+      activateSettingsSection(button.dataset.settingsSectionTarget);
+    });
+  });
+  activateSettingsSection(DEFAULT_SETTINGS_SECTION);
+}
+
 export function initSettingsGrid() {
+  bindSettingsSectionTabs();
   renderGrid("windowGrid", fields.window);
   renderGrid("budgetGrid", fields.budget);
   renderGrid("weightsGrid", fields.weights);

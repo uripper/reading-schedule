@@ -1,4 +1,5 @@
 // @ts-nocheck
+
 import { draftData, saveStateSafe } from "./persistence.js";
 
 const PERSIST_DELAY_MS = 300;
@@ -44,9 +45,9 @@ export function createPersistQueue({
 
   const persistDraft = async () => {
     const payload = draftData({
-      sessionsUI: getSessionsUI(),
       collectBooks,
       collectSettings,
+      sessionsUI: getSessionsUI(),
       preferences: state.preferences,
       featureFlags: state.featureFlags,
       scheduleCompletions: state.scheduleCompletions,

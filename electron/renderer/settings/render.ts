@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { el } from "../dom.js";
 import { DIFFICULTY_LEVEL_COUNT, weekdays } from "./config.js";
 

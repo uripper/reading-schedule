@@ -102,33 +102,69 @@
     </section>
 
     <section id="tab-settings" class="panel" role="tabpanel" aria-labelledby="tab-btn-settings" tabindex="-1" hidden>
-      <div class="settings-layout">
-        <article class="settings-card"><h2>Plan Window</h2><div id="windowGrid" class="settings-grid"></div></article>
-        <article class="settings-card"><h2>Daily Budget</h2><div id="budgetGrid" class="settings-grid"></div><h3>Minutes by Weekday</h3><div id="weekdayGrid" class="settings-grid"></div><h3>Days Off</h3><div class="row wrap-row"><input id="dayOffPicker" type="date" /><button id="addDayOffBtn" class="btn" type="button">Add Day Off</button></div><div id="dayOffList" class="chip-list"></div></article>
-        <article class="settings-card"><h2>Optimization Weights</h2><div id="weightsGrid" class="settings-grid"></div></article>
-        <article class="settings-card"><h2>Reading Speed by Difficulty</h2><p class="hint-text">Multiplier applies to base WPM: effective WPM = base * multiplier.</p><table><thead><tr><th scope="col">Difficulty</th><th scope="col">Multiplier</th></tr></thead><tbody id="difficultyBody"></tbody></table></article>
-        <article class="settings-card">
-          <h2>Experience</h2>
-          <div class="settings-grid">
-            <label>Theme
-              <select id="themeSelect">
-                <option value="system">System</option>
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-              </select>
-            </label>
-            <label>Daily Goal Minutes<input id="dailyGoalInput" type="number" min="1" max="600" step="1" value="30" /></label>
-            <label class="toggle-row"><input id="reduceMotionToggle" type="checkbox" /> Reduce Motion</label>
-            <label class="toggle-row"><input id="reminderEnabledToggle" type="checkbox" /> Daily Reminder</label>
-            <label>Reminder Time<input id="reminderTimeInput" type="time" value="20:00" /></label>
-          </div>
-          <h3>Feature Flags</h3>
-          <div class="settings-grid">
-            <label class="toggle-row"><input id="flagGamification" type="checkbox" /> Enable gamification</label>
-            <label class="toggle-row"><input id="flagSocial" type="checkbox" /> Enable social features</label>
-            <label class="toggle-row"><input id="flagRecommendations" type="checkbox" /> Enable recommendations</label>
-          </div>
-        </article>
+      <div class="settings-shell">
+        <nav id="settingsSectionTabs" class="settings-section-tabs" aria-label="Settings sections">
+          <button class="settings-section-tab is-active" type="button" data-settings-section-target="plan-budget">Plan & Budget</button>
+          <button class="settings-section-tab" type="button" data-settings-section-target="weights">Optimization</button>
+          <button class="settings-section-tab" type="button" data-settings-section-target="difficulty">Difficulty</button>
+          <button class="settings-section-tab" type="button" data-settings-section-target="experience">Experience</button>
+        </nav>
+        <div class="settings-layout">
+          <article class="settings-card" data-settings-section="plan-budget">
+            <h2>Plan & Budget</h2>
+            <h3>Plan Until</h3>
+            <div id="windowGrid" class="settings-grid"></div>
+            <h3>Daily Budget</h3>
+            <div id="budgetGrid" class="settings-grid"></div>
+            <h3>Minutes by Weekday</h3>
+            <div id="weekdayGrid" class="settings-grid"></div>
+            <h3>Days Off</h3>
+            <div class="row wrap-row">
+              <input id="dayOffPicker" type="date" />
+              <button id="addDayOffBtn" class="btn" type="button">Add Day Off</button>
+            </div>
+            <div id="dayOffList" class="chip-list"></div>
+          </article>
+          <article class="settings-card" data-settings-section="weights" hidden>
+            <h2>Optimization Weights</h2>
+            <div id="weightsGrid" class="settings-grid"></div>
+          </article>
+          <article class="settings-card" data-settings-section="difficulty" hidden>
+            <h2>Reading Speed by Difficulty</h2>
+            <p class="hint-text">Multiplier applies to base WPM: effective WPM = base * multiplier.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Difficulty</th>
+                  <th scope="col">Multiplier</th>
+                </tr>
+              </thead>
+              <tbody id="difficultyBody"></tbody>
+            </table>
+          </article>
+          <article class="settings-card" data-settings-section="experience" hidden>
+            <h2>Experience</h2>
+            <div class="settings-grid">
+              <label>Theme
+                <select id="themeSelect">
+                  <option value="system">System</option>
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                </select>
+              </label>
+              <label>Daily Goal Minutes<input id="dailyGoalInput" type="number" min="1" max="600" step="1" value="30" /></label>
+              <label class="toggle-row"><input id="reduceMotionToggle" type="checkbox" /> Reduce Motion</label>
+              <label class="toggle-row"><input id="reminderEnabledToggle" type="checkbox" /> Daily Reminder</label>
+              <label>Reminder Time<input id="reminderTimeInput" type="time" value="20:00" /></label>
+            </div>
+            <h3>Feature Flags</h3>
+            <div class="settings-grid">
+              <label class="toggle-row"><input id="flagGamification" type="checkbox" /> Enable gamification</label>
+              <label class="toggle-row"><input id="flagSocial" type="checkbox" /> Enable social features</label>
+              <label class="toggle-row"><input id="flagRecommendations" type="checkbox" /> Enable recommendations</label>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
 

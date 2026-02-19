@@ -78,6 +78,12 @@
   opacity: 0.55;
 }
 
+.day.is-past {
+  border-color: color-mix(in srgb, var(--app-border) 96%, transparent);
+  background: color-mix(in srgb, var(--app-surfaceMuted) 82%, var(--app-bg));
+  opacity: 0.74;
+}
+
 .day.is-selected {
   border-color: color-mix(in srgb, var(--app-brandStrong) 84%, var(--app-border));
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--app-brandStrong) 54%, transparent);
@@ -189,7 +195,14 @@
   align-items: end;
 }
 
-.day-progress-form input {
+.day-progress-field {
+  display: grid;
+  gap: var(--token-space-1);
+  color: var(--app-textMuted);
+  font-size: var(--token-typography-size-xs);
+}
+
+.day-progress-field input {
   margin-top: 0;
 }
 

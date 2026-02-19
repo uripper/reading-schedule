@@ -128,7 +128,7 @@ const tsLines = [
   "export const tokenVarByName = {",
   ...Object.keys(resolved)
     .sort()
-    .map((key) => `  \"${key}\": \"var(${cssVarName(key)})\",`),
+    .map((key) => `  "${key}": "var(${cssVarName(key)})",`),
   "} as const;",
   "",
   "export type TokenName = keyof typeof tokenVarByName;",
@@ -136,7 +136,7 @@ const tsLines = [
   "export const semanticTokenVarByName = {",
   ...semanticDark
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([name]) => `  \"${name}\": \"var(${appVarName(name)})\",`),
+    .map(([name]) => `  "${name}": "var(${appVarName(name)})",`),
   "} as const;",
   "",
   "export type SemanticTokenName = keyof typeof semanticTokenVarByName;",

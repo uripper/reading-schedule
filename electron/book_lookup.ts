@@ -1,95 +1,99 @@
-import fs from "node:fs";
-import http from "node:http";
-import https from "node:https";
-import path from "node:path";
-import { pathToFileURL } from "node:url";
+import fs from 'node:fs';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
-import { searchBooks } from "./book_lookup_search";
+export { searchBooks } from './book_lookup_search';
 
-const MAX_REDIRECTS = 4;
+const COVER_DIRECTORY_NAME = 'book_covers';
+const COVER_FILE_FALLBACK_PREFIX = 'cover';
+const MAX_SAFE_FILE_BASE_LENGTH = 80;
 
-type RawResponse = {
-  headers: http.IncomingHttpHeaders;
-  body: Buffer;
-};
+const CONTENT_TYPE_PNG = 'image/png';
+const CONTENT_TYPE_WEBP = 'image/webp';
+const EXTENSION_JPG = '.jpg';
+const EXTENSION_JPEG = '.jpeg';
+const EXTENSION_PNG = '.png';
+const EXTENSION_WEBP = '.webp';
 
-function fetchRaw(url: string, redirects = 0): Promise<RawResponse> {
-  return new Promise((resolve, reject) => {
-    let client: any = http;
-    if (url.startsWith("https://")) {
-      client = https;
-    }
-    client
-      .get(url, (res) => {
-        const status = Number(res.statusCode || 0);
-        if (status >= 300 && status < 400 && res.headers.location && redirects < MAX_REDIRECTS) {
-          const next = new URL(res.headers.location, url).toString();
-          res.resume();
-          resolve(fetchRaw(next, redirects + 1));
-          return;
-        }
-        if (status >= 400) {
-          res.resume();
-          reject(new Error(`Request failed (${status})`));
-          return;
-        }
-        const chunks: Buffer[] = [];
-        res.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
-        res.on("end", () => resolve({ headers: res.headers, body: Buffer.concat(chunks) }));
-      })
-      .on("error", reject);
-  });
-}
+const HTTP_PROTOCOL = 'http:';
+const HTTPS_PROTOCOL = 'https:';
 
-function extensionFor(contentType: string | undefined, parsedUrl: URL): string {
-  const ct = String(contentType || "").toLowerCase();
-  if (ct.includes("image/png")) {
-    return ".png";
+type CoverExtension = '.jpg' | '.png' | '.webp';
+
+function extensionFor(contentType: string | null, parsedUrl: URL): CoverExtension {
+  const normalizedContentType = String(contentType ?? '').toLowerCase();
+  if (normalizedContentType.includes(CONTENT_TYPE_PNG)) {
+    return EXTENSION_PNG;
   }
-  if (ct.includes("image/webp")) {
-    return ".webp";
+  if (normalizedContentType.includes(CONTENT_TYPE_WEBP)) {
+    return EXTENSION_WEBP;
   }
-  const known = path.extname(parsedUrl.pathname || "").toLowerCase();
-  if ([".jpg", ".jpeg", ".png", ".webp"].includes(known)) {
-    if (known === ".jpeg") {
-      return ".jpg";
-    }
-    return known;
+
+  const knownExtension = path.extname(parsedUrl.pathname || '').toLowerCase();
+  if (knownExtension === EXTENSION_PNG || knownExtension === EXTENSION_WEBP || knownExtension === EXTENSION_JPG) {
+    return knownExtension;
   }
-  return ".jpg";
+  if (knownExtension === EXTENSION_JPEG) {
+    return EXTENSION_JPG;
+  }
+  return EXTENSION_JPG;
 }
 
 function safeFileBase(bookId: string | undefined): string {
-  const text = String(bookId || "").trim() || `cover-${Date.now()}`;
-  return text.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 80) || `cover-${Date.now()}`;
+  const normalizedId = String(bookId ?? '').trim();
+  const timestampFallback = `${COVER_FILE_FALLBACK_PREFIX}-${Date.now()}`;
+  const rawValue = normalizedId || timestampFallback;
+  const safe = rawValue.replaceAll(/[^a-zA-Z0-9_-]/g, '_').slice(0, MAX_SAFE_FILE_BASE_LENGTH);
+  return safe || timestampFallback;
 }
 
-async function downloadCover(
+function isHttpProtocol(protocol: string): boolean {
+  return protocol === HTTP_PROTOCOL || protocol === HTTPS_PROTOCOL;
+}
+
+export async function downloadCover(
   coverUrl: string | undefined,
   bookId: string | undefined,
-  userDataDir: string | undefined
+  userDataDir: string | undefined,
 ): Promise<string> {
-  const rawUrl = String(coverUrl || "").trim();
-  if (!rawUrl || !userDataDir) {
-    return "";
-  }
-  const parsed = new URL(rawUrl);
-  if (!["http:", "https:"].includes(parsed.protocol)) {
-    return "";
+  const normalizedUrl = String(coverUrl ?? '').trim();
+  if (!normalizedUrl || !userDataDir) {
+    return '';
   }
 
-  const response = await fetchRaw(parsed.toString());
-  if (!response.body?.length) {
-    return "";
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(normalizedUrl);
+  } catch {
+    return '';
   }
 
-  const ext = extensionFor(response.headers["content-type"], parsed);
-  const dir = path.join(userDataDir, "book_covers");
-  fs.mkdirSync(dir, { recursive: true });
-  const fileName = `${safeFileBase(bookId)}${ext}`;
-  const filePath = path.join(dir, fileName);
-  fs.writeFileSync(filePath, response.body);
+  if (!isHttpProtocol(parsedUrl.protocol)) {
+    return '';
+  }
+
+  let response: Response;
+  try {
+    response = await globalThis.fetch(parsedUrl.toString(), { redirect: 'follow' });
+  } catch {
+    return '';
+  }
+
+  if (!response.ok) {
+    return '';
+  }
+
+  const bytes = await response.arrayBuffer();
+  if (bytes.byteLength === 0) {
+    return '';
+  }
+
+  const extension = extensionFor(response.headers.get('content-type'), parsedUrl);
+  const coverDirectory = path.join(userDataDir, COVER_DIRECTORY_NAME);
+  fs.mkdirSync(coverDirectory, { recursive: true });
+
+  const fileName = `${safeFileBase(bookId)}${extension}`;
+  const filePath = path.join(coverDirectory, fileName);
+  fs.writeFileSync(filePath, new Uint8Array(bytes));
   return pathToFileURL(filePath).href;
 }
-
-export { searchBooks, downloadCover };

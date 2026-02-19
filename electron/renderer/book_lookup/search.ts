@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { describeLookup, placeholderCoverSvg } from "./helpers.js";
 import { createLookupInputHandler } from "./input.js";
 import { handleLookupKeydown } from "./keyboard.js";

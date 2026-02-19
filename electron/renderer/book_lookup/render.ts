@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 
 function optionId(resultsEl, index) {
   return `${resultsEl.id || "lookup-results"}-option-${index}`;

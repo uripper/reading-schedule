@@ -1,12 +1,35 @@
-// @ts-nocheck
+
 import { firstPlannedRow } from "../calendar.js";
 import { el } from "../dom.js";
+import { todayKey } from "../sessions/utils.js";
 
 const MIN_GOAL_MINUTES = 1;
 const MAX_PERCENT = 100;
 
+function scheduleKey(row) {
+  return `${row.date}|${row.session_index}|${row.book_id}`;
+}
+
+function completedPlannedMinutesForToday(lastResult, scheduleCompletions) {
+  const today = todayKey();
+  let rows = [];
+  if (Array.isArray(lastResult?.schedule)) {
+    rows = lastResult.schedule;
+  }
+  return rows.reduce((totalMinutes, row) => {
+    if (String(row?.date || "") !== today) {
+      return totalMinutes;
+    }
+    if (!scheduleCompletions?.[scheduleKey(row)]) {
+      return totalMinutes;
+    }
+    return totalMinutes + Number(row?.minutes || 0);
+  }, 0);
+}
+
 export function updateTodayDashboard({
   lastResult,
+  scheduleCompletions,
   preferences,
   featureFlags,
   sessionsUI,
@@ -30,6 +53,7 @@ export function updateTodayDashboard({
   if (sessionsUI) {
     todayMinutes = sessionsUI.todayMinutes();
   }
+  todayMinutes += completedPlannedMinutesForToday(lastResult, scheduleCompletions);
 
   const goalMinutes = Math.max(
     MIN_GOAL_MINUTES,

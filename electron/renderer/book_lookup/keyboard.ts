@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 
 export function handleLookupKeydown(event, currentItems, activeIndex, setActiveIndex, selectItem, clearResults, searchInput) {
   if (event.key === "ArrowDown") {

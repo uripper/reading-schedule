@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { uid } from "../dom.js";
 import { MS_PER_MINUTE, MS_PER_SECOND, SESSION_MIN_MS } from "./constants.js";
 import { formatTimer } from "./utils.js";

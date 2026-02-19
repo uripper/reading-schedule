@@ -1,4 +1,5 @@
 // @ts-nocheck
+
 import { qa } from "./dom.js";
 
 let onTabActivated = () => {};

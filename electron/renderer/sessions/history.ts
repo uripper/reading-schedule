@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { HISTORY_LIMIT } from "./constants.js";
 import { formatTimeRange } from "./utils.js";
 

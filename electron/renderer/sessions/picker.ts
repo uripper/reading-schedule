@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { DEFAULT_PICKER_LIMIT } from "./constants.js";
 import { clampIndex } from "./utils.js";
 

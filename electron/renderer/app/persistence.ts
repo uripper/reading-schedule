@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 
 export function draftData({
   sessionsUI,
@@ -16,9 +16,9 @@ export function draftData({
 
   return {
     sessions,
+    preferences,
     books: collectBooks(),
     settings: collectSettings(),
-    preferences,
     feature_flags: featureFlags,
     schedule_completions: scheduleCompletions,
     last_result: lastResult,

@@ -1,17 +1,28 @@
 // @ts-nocheck
-import { el } from "../dom.js";
-import { renderBookGrid } from "./card_view.js";
-import { createBookDialog } from "./dialog.js";
-import { finishDatesByBookId } from "./finish_dates.js";
-import { hasSchedulableLength, normalizeBook, toPayloadBook } from "./model.js";
-import { withUpdatedProgress } from "./progress.js";
-import { shelfFilterMatches, SHELF_FILTER_ALL } from "./shelf.js";
-import { sortBooks } from "./sort.js";
-import { ensureBooksToolbarControls, SORT_BY_TITLE, SORT_DIRECTION_ASC, SORT_DIRECTION_DESC, updateShelfFilterOptions, updateSortDirectionButton } from "./toolbar.js";
+import { el } from '../dom.js';
+import { renderBookGrid } from './card_view.js';
+import { createBookDialog } from './dialog.js';
+import { finishDatesByBookId } from './finish_dates.js';
+import { GROUP_BY_NONE, groupBooks } from './grouping.js';
+import { hasSchedulableLength, normalizeBook, toPayloadBook } from './model.js';
+import { withUpdatedProgress } from './progress.js';
+import { shelfFilterMatches, SHELF_FILTER_ALL } from './shelf.js';
+import { sortBooks } from './sort.js';
+import {
+  ensureBooksToolbarControls,
+  SORT_BY_TITLE,
+  SORT_DIRECTION_ASC,
+  SORT_DIRECTION_DESC,
+  updateGroupByOptions,
+  updateShelfFilterOptions,
+  updateSortDirectionButton,
+} from './toolbar.js';
+
 let books = [];
 let scheduleRows = [];
 let onBooksChanged = () => {};
 let dialog = null;
+
 const refs = {
   toolbar: null,
   grid: null,
@@ -19,11 +30,14 @@ const refs = {
   addBtn: null,
   shelfFilterSelect: null,
   sortBySelect: null,
+  groupBySelect: null,
   sortDirectionBtn: null,
 };
+
 const viewState = {
   shelfFilter: SHELF_FILTER_ALL,
   sortBy: SORT_BY_TITLE,
+  groupBy: GROUP_BY_NONE,
   sortDirection: SORT_DIRECTION_ASC,
 };
 
@@ -39,28 +53,40 @@ export function getBookById(bookId) {
   return { ...book };
 }
 
-export function updateBookProgress(bookId, updates = {}) {
+export function updateBookProgress(bookId, updates = {}, options = {}) {
   const idx = books.findIndex((book) => book.book_id === bookId);
   if (idx < 0) {
     return null;
   }
+
   const next = withUpdatedProgress(books[idx], updates);
   books[idx] = normalizeBook(next);
   render();
-  onBooksChanged();
+
+  if (options.notifyBooksChanged !== false) {
+    onBooksChanged();
+  }
+
   return { ...books[idx] };
 }
 
 function render() {
-  updateShelfFilterOptions(refs.shelfFilterSelect, books, viewState.shelfFilter);
+  viewState.shelfFilter = updateShelfFilterOptions(refs.shelfFilterSelect, books, viewState.shelfFilter);
+  viewState.groupBy = updateGroupByOptions(refs.groupBySelect, viewState.groupBy, viewState.shelfFilter);
   updateSortDirectionButton(refs.sortDirectionBtn, viewState.sortDirection);
+
   const showShelfMeta = viewState.shelfFilter === SHELF_FILTER_ALL;
   const finishDateByBookId = finishDatesByBookId(scheduleRows);
+
   const visibleBooks = sortBooks(books, viewState.sortBy, viewState.sortDirection, finishDateByBookId).filter((book) => {
     return shelfFilterMatches(book, viewState.shelfFilter);
   });
+
+  const groups = groupBooks(visibleBooks, viewState.groupBy, finishDateByBookId);
+
   renderBookGrid({
     books: visibleBooks,
+    groups,
     allBooks: books,
     finishDateByBookId,
     showShelfMeta,
@@ -88,6 +114,7 @@ async function withDownloadedCover(book) {
   if (!book.cover_url || book.cover_local_path) {
     return book;
   }
+
   try {
     const localCover = await globalThis.plannerApi.downloadCover(book.cover_url, book.book_id);
     if (localCover) {
@@ -107,6 +134,7 @@ async function saveBook(book) {
   } else {
     books.push(hydrated);
   }
+
   render();
   onBooksChanged();
 }
@@ -122,31 +150,44 @@ export function setBookScheduleRows(rows = []) {
 }
 
 export function collectBooks() {
-  return books.map(toPayloadBook).filter((book) => book.title && hasSchedulableLength(book));
+  return books.map(toPayloadBook).filter((book) => {
+    return book.title && hasSchedulableLength(book);
+  });
 }
 
 export function bindBooksUI(onChanged = () => {}) {
   onBooksChanged = onChanged;
-  refs.toolbar = document.querySelector(".books-toolbar");
+  refs.toolbar = document.querySelector('.books-toolbar');
   if (!(refs.toolbar instanceof HTMLElement)) {
     return;
   }
-  refs.grid = el("booksGrid");
-  refs.empty = el("booksEmpty");
-  refs.addBtn = el("addBookBtn");
+
+  refs.grid = el('booksGrid');
+  refs.empty = el('booksEmpty');
+  refs.addBtn = el('addBookBtn');
+
   const toolbarControls = ensureBooksToolbarControls(refs.toolbar);
   refs.shelfFilterSelect = toolbarControls.shelfFilterSelect;
   refs.sortBySelect = toolbarControls.sortBySelect;
+  refs.groupBySelect = toolbarControls.groupBySelect;
   refs.sortDirectionBtn = toolbarControls.sortDirectionBtn;
-  refs.sortBySelect.addEventListener("change", () => {
+
+  refs.sortBySelect.addEventListener('change', () => {
     viewState.sortBy = refs.sortBySelect.value;
     render();
   });
-  refs.shelfFilterSelect.addEventListener("change", () => {
+
+  refs.shelfFilterSelect.addEventListener('change', () => {
     viewState.shelfFilter = refs.shelfFilterSelect.value;
     render();
   });
-  refs.sortDirectionBtn.addEventListener("click", () => {
+
+  refs.groupBySelect.addEventListener('change', () => {
+    viewState.groupBy = refs.groupBySelect.value;
+    render();
+  });
+
+  refs.sortDirectionBtn.addEventListener('click', () => {
     let nextDirection = SORT_DIRECTION_ASC;
     if (viewState.sortDirection === SORT_DIRECTION_ASC) {
       nextDirection = SORT_DIRECTION_DESC;
@@ -154,6 +195,7 @@ export function bindBooksUI(onChanged = () => {}) {
     viewState.sortDirection = nextDirection;
     render();
   });
+
   dialog = createBookDialog(saveBook, { getBooks: () => books });
   refs.addBtn.onclick = () => dialog.open();
   render();
