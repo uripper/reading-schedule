@@ -56,11 +56,13 @@ function readFileAsDataUrl(file: File): Promise<string> {
     const reader = new FileReader();
 
     const onLoad = () => {
-      const dataUrl = String(reader.result || "");
-      if (!dataUrl) {
+      const {result} = reader;
+      if (typeof result !== "string" || !result) {
         reject(new Error(ERROR_UPLOAD_FAILED));
         return;
       }
+
+      const dataUrl = result;
       resolve(dataUrl);
     };
 

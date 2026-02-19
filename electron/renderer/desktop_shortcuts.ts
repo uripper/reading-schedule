@@ -1,5 +1,6 @@
 import type { PlannerApi, WindowFindResponse } from "./app/types.js";
 import { el } from "./dom.js";
+import { logError } from "./logger.js";
 const ZOOM_PERCENT_FACTOR = 100;
 const FIND_STATUS_HINT = "Type to search";
 const FIND_STATUS_NO_MATCH = "No matches";
@@ -47,7 +48,7 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
       const zoomFactor = await operation();
       announce(formatZoomAnnouncement(zoomFactor));
     } catch (error) {
-      console.error("Zoom operation failed", error);
+      logError("Zoom operation failed", error);
       announce("Unable to update zoom level", "assertive");
     }
   };
@@ -61,7 +62,7 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
       try {
         await plannerApi.stopFindInPage();
       } catch (error) {
-        console.error("Failed to clear find highlights", error);
+        logError("Failed to clear find highlights", error);
         announce("Unable to clear search results", "assertive");
       }
       return;
@@ -75,8 +76,8 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
     try {
       const result = await plannerApi.findInPage({
         query,
-        forward: direction === "next",
         findNext,
+        forward: direction === "next",
       });
       if (currentRequest !== requestCounter) {
         return;
@@ -84,7 +85,7 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
       setFindStatus(findStatus, formatFindStatus(result));
       lastQuery = query;
     } catch (error) {
-      console.error("Find operation failed", error);
+      logError("Find operation failed", error);
       announce("Unable to search the page", "assertive");
       setFindStatus(findStatus, "Search failed");
     }
@@ -108,11 +109,11 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
     setFindStatus(findStatus, "");
     const clearRequestCounter = requestCounter + 1;
     requestCounter = clearRequestCounter;
-    void plannerApi.stopFindInPage().catch((error) => {
-      console.error("Failed to clear find highlights", error);
+    plannerApi.stopFindInPage().catch((error) => {
+      logError("Failed to clear find highlights", error);
       announce("Unable to clear search results", "assertive");
     });
-    if (opener && opener.isConnected) {
+    if (opener?.isConnected) {
       opener.focus();
     }
     opener = null;

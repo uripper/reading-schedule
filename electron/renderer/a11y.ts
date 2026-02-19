@@ -100,7 +100,7 @@ export function bindDialogFocus(dialog: HTMLDialogElement, { initialFocusSelecto
     }
   };
   dialog.addEventListener("close", () => {
-    if (opener && opener.isConnected) {
+    if (opener?.isConnected) {
       opener.focus();
     }
     opener = null;
