@@ -15,11 +15,11 @@
     </div>
     <div class="actions">
       <button id="helpBtn" class="btn">Help / Logs</button>
-      <span id="status" role="status" aria-live="polite"></span>
+      <output id="status" aria-live="polite"></output>
     </div>
   </header>
 
-  <nav class="tabs" aria-label="Main Tabs" role="tablist" id="primaryTabs">
+  <nav class="tabs" aria-label="Main Tabs" id="primaryTabs">
     <button id="tab-btn-today" class="tab is-active" data-tab="today" role="tab" aria-selected="true" aria-controls="tab-today" tabindex="0">Today</button>
     <button id="tab-btn-sessions" class="tab" data-tab="sessions" role="tab" aria-selected="false" aria-controls="tab-sessions" tabindex="-1">Sessions</button>
     <button id="tab-btn-settings" class="tab" data-tab="settings" role="tab" aria-selected="false" aria-controls="tab-settings" tabindex="-1">Settings</button>
@@ -42,9 +42,16 @@
         <article class="surface-card">
           <h2>Daily Goal</h2>
           <p id="todayGoalText" class="body-text">0 / 30 minutes logged today</p>
-          <div class="progress-track" role="progressbar" aria-label="Daily goal progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="todayGoalProgress">
+          <progress class="progress-track" aria-label="Daily goal progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="todayGoalProgress">
             <span id="todayGoalBar" class="progress-bar"></span>
-          </div>
+          </progress>
+        </article>
+
+        <article class="surface-card today-schedule-card">
+          <h2>Scheduled Today</h2>
+          <p id="todaySessionCounts" class="today-session-counts">No sessions scheduled for today.</p>
+          <div id="todayScheduledBooks" class="today-scheduled-books"></div>
+          <p id="todayScheduledEmpty" class="hint-text">Add books and update your plan to see today's schedule.</p>
         </article>
 
         <article id="gamificationCard" class="surface-card" hidden>
@@ -71,7 +78,7 @@
             aria-controls="sessionBookResults"
             aria-haspopup="listbox"
           />
-          <div id="sessionBookResults" class="book-search-results" role="listbox" aria-label="Books for session"></div>
+          <datalist id="sessionBookResults" class="book-search-results" aria-label="Books for session"></datalist>
           <p id="sessionBookMeta" class="lookup-meta"></p>
 
           <p id="sessionTimerDisplay" class="timer-value" aria-live="polite">00:00</p>
@@ -217,7 +224,7 @@
         <section class="book-search-panel">
           <label for="bookSearchInput">Find Book (Open Library)</label>
           <input id="bookSearchInput" type="text" autocomplete="off" placeholder="Search by title or author" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="bookSearchResults" aria-haspopup="listbox" />
-          <div id="bookSearchResults" class="book-search-results" role="listbox" aria-label="Book suggestions"></div>
+          <datalist id="bookSearchResults" class="book-search-results" aria-label="Book suggestions"></datalist>
           <p id="bookLookupMeta" class="lookup-meta"></p>
         </section>
         <section class="book-cover-panel">
@@ -249,7 +256,7 @@
                 aria-haspopup="listbox"
               />
               <input id="bookBlockedByInput" type="hidden" />
-              <div id="bookAfterBookResults" class="book-search-results" role="listbox" aria-label="After book options"></div>
+              <datalist id="bookAfterBookResults" class="book-search-results" aria-label="After book options"></datalist>
             </label>
           </div>
         </section>

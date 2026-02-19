@@ -1,4 +1,5 @@
 import type { Book } from "./types.js";
+import { getPlannerApi } from "../app/planner_api.js";
 
 export async function hydrateBookCover(book: Book): Promise<Book> {
   if (!book.cover_url || book.cover_local_path) {
@@ -6,7 +7,7 @@ export async function hydrateBookCover(book: Book): Promise<Book> {
   }
 
   try {
-    const localCover = await globalThis.plannerApi.downloadCover(book.cover_url, book.book_id);
+    const localCover = await getPlannerApi().downloadCover(book.cover_url, book.book_id);
     if (localCover) {
       return { ...book, cover_local_path: localCover };
     }

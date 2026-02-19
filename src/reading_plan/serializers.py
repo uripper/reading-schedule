@@ -1,15 +1,14 @@
+"""Utilities for serializers."""
+
 from __future__ import annotations
 
 from .types import Book, Settings
 
 
 def book_to_data(book: Book) -> dict[str, object]:
-    words_total = book.words_total
-    if book.words_full is not None:
-        words_total = book.words_full
-    deadline = None
-    if book.deadline:
-        deadline = book.deadline.isoformat()
+    """Execute book to data."""
+    words_total = book.words_total if book.words_full is None else book.words_full
+    deadline = book.deadline.isoformat() if book.deadline else None
     return {
         "book_id": book.book_id,
         "title": book.title,
@@ -26,6 +25,7 @@ def book_to_data(book: Book) -> dict[str, object]:
 
 
 def settings_to_data(settings: Settings) -> dict[str, object]:
+    """Execute settings to data."""
     return {
         "start_date": settings.start_date.isoformat(),
         "end_date": settings.end_date.isoformat(),

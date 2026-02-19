@@ -19,7 +19,6 @@ import {
   SORT_BY_SHELF,
   SORT_BY_TITLE,
   SORT_BY_WORDS_TOTAL,
-  SORT_DIRECTION_ASC,
   SORT_DIRECTION_DESC,
 } from './sort.js';
 import type { Book } from "./types.js";
@@ -78,7 +77,7 @@ function createLabeledSelect(labelText: string, selectId: string, options: Optio
 }
 
 function createControlsWrap(toolbar: HTMLElement): HTMLElement {
-  let wrap = toolbar.querySelector<HTMLElement>('.books-controls');
+  const wrap = toolbar.querySelector<HTMLElement>('.books-controls');
   if (wrap instanceof HTMLElement) {
     return wrap;
   }

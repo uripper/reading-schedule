@@ -1,9 +1,12 @@
+"""Utilities for validate."""
+
 from __future__ import annotations
 
 from .types import Book, PLAN_MODES, Settings, WEEKDAYS
 
 
 def validate_book(book: Book) -> None:
+    """Validate book."""
     if not book.book_id or not book.title:
         raise ValueError("book_id and title are required")
     if book.words_total <= 0:
@@ -25,6 +28,7 @@ def validate_book(book: Book) -> None:
 
 
 def validate_settings(settings: Settings) -> None:
+    """Validate settings."""
     if settings.end_date < settings.start_date:
         raise ValueError("end_date must be on or after start_date")
     if not settings.minutes_by_weekday and not settings.minutes_per_day:

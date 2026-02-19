@@ -1,9 +1,12 @@
+"""Utilities for report format."""
+
 from __future__ import annotations
 
 from .report_types import Summary
 
 
 def format_summary(summary: Summary) -> str:
+    """Format summary."""
     lines = [
         f"Planner: {summary['planner']} ({summary['status']})",
         f"Total planned minutes: {summary['total_planned_minutes']}",

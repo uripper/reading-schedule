@@ -1,3 +1,5 @@
+"""Test cases for test schedule."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -11,7 +13,8 @@ from reading_plan.types import Book
 from tests.helpers import demo_books, demo_settings
 
 
-def test_greedy_respects_daily_constraints():
+def test_greedy_respects_daily_constraints() -> None:
+    """Test that greedy respects daily constraints."""
     books = demo_books()
     settings = demo_settings()
     assignments = plan_greedy(books, settings)
@@ -29,10 +32,14 @@ def test_greedy_respects_daily_constraints():
     assert all(len(day_totals[day][1]) <= settings.max_sessions_per_day for day in days)
 
     min_blocks = {b.book_id: b.min_blocks_per_session for b in books}
-    assert all(blocks == 0 or blocks >= min_blocks[book_id] for (book_id, _day), blocks in assignments.items())
+    assert all(
+        blocks == 0 or blocks >= min_blocks[book_id]
+        for (book_id, _day), blocks in assignments.items()
+    )
 
 
-def test_schedule_rows_have_expected_shape():
+def test_schedule_rows_have_expected_shape() -> None:
+    """Test that schedule rows have expected shape."""
     books = demo_books()
     settings = demo_settings()
     rows = to_schedule_rows(books, settings, plan_greedy(books, settings))
@@ -47,7 +54,8 @@ def test_schedule_rows_have_expected_shape():
     }
 
 
-def test_schedule_trims_last_session_to_remaining_words():
+def test_schedule_trims_last_session_to_remaining_words() -> None:
+    """Test that schedule trims last session to remaining words."""
     settings = demo_settings(time_quantum_minutes=5, wpm_base=170)
     book = Book("b1", "One", 800, 5, 2, None, 1)
     assignments = {(book.book_id, settings.start_date): 2}
@@ -62,7 +70,8 @@ def test_schedule_trims_last_session_to_remaining_words():
     assert words_per_block(book, settings) > 400
 
 
-def test_greedy_honors_blocker_dependency():
+def test_greedy_honors_blocker_dependency() -> None:
+    """Test that greedy honors blocker dependency."""
     settings = demo_settings(
         start_date=date(2026, 2, 16),
         end_date=date(2026, 2, 20),
@@ -76,8 +85,16 @@ def test_greedy_honors_blocker_dependency():
         Book("b2", "Second", 3750, 1, 1, None, 1, None, 0.0, None, "b1"),
     ]
     assignments = plan_greedy(books, settings)
-    b1_days = sorted(day for (book_id, day), blocks in assignments.items() if book_id == "b1" and blocks > 0)
-    b2_days = sorted(day for (book_id, day), blocks in assignments.items() if book_id == "b2" and blocks > 0)
+    b1_days = sorted(
+        day
+        for (book_id, day), blocks in assignments.items()
+        if book_id == "b1" and blocks > 0
+    )
+    b2_days = sorted(
+        day
+        for (book_id, day), blocks in assignments.items()
+        if book_id == "b2" and blocks > 0
+    )
     assert b1_days
     assert b2_days
     assert min(b2_days) >= max(b1_days)

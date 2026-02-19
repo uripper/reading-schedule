@@ -5,7 +5,6 @@ declare global {
   interface Window {
     plannerApi: PlannerApi;
   }
-  const plannerApi: PlannerApi;
 }
 
 export {};

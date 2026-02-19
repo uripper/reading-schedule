@@ -1,3 +1,5 @@
+"""Command-line entrypoint for planner api."""
+
 from __future__ import annotations
 
 import uvicorn

@@ -1,3 +1,5 @@
+"""Test cases for helpers."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -6,6 +8,7 @@ from reading_plan.types import Book, DEFAULT_DIFFICULTY_MULTIPLIER, Settings
 
 
 def demo_books() -> list[Book]:
+    """Execute demo books."""
     return [
         Book("b1", "Book One", 12000, 5, 2, None, 2),
         Book("b2", "Book Two", 10000, 4, 3, None, 2),
@@ -14,6 +17,7 @@ def demo_books() -> list[Book]:
 
 
 def demo_settings(**overrides: object) -> Settings:
+    """Execute demo settings."""
     base = Settings(
         start_date=date(2026, 2, 16),
         end_date=date(2026, 2, 20),

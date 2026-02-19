@@ -1,3 +1,5 @@
+"""Utilities for solve."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -8,29 +10,43 @@ from .types import Book, PlanResult, Settings
 
 
 def solve_plan(books: list[Book], settings: Settings, planner: str = "mip") -> PlanResult:
+    """Solve plan."""
     if planner == "greedy":
         return PlanResult(planner="greedy", status="FEASIBLE", assignments=plan_greedy(books, settings))
     return _solve_mip(books, settings)
 
 
 class _CpModelStatusModule(Protocol):
-    @property
-    def OPTIMAL(self) -> SupportsInt: ...
+    """Protocol for CP-SAT status constants used by status-name mapping."""
 
     @property
-    def FEASIBLE(self) -> SupportsInt: ...
+    def OPTIMAL(self) -> SupportsInt:
+        """Return the solver constant for optimal status."""
+        ...
 
     @property
-    def INFEASIBLE(self) -> SupportsInt: ...
+    def FEASIBLE(self) -> SupportsInt:
+        """Return the solver constant for feasible status."""
+        ...
 
     @property
-    def MODEL_INVALID(self) -> SupportsInt: ...
+    def INFEASIBLE(self) -> SupportsInt:
+        """Return the solver constant for infeasible status."""
+        ...
 
     @property
-    def UNKNOWN(self) -> SupportsInt: ...
+    def MODEL_INVALID(self) -> SupportsInt:
+        """Return the solver constant for invalid model status."""
+        ...
+
+    @property
+    def UNKNOWN(self) -> SupportsInt:
+        """Return the solver constant for unknown status."""
+        ...
 
 
 def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
+    """Solve mip."""
     try:
         from ortools.sat.python import cp_model
         from .model import build_cp_sat
@@ -62,6 +78,7 @@ def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
 
 
 def _status_name(raw: int, cp_model: _CpModelStatusModule) -> str:
+    """Execute status name."""
     mapping = {
         int(cp_model.OPTIMAL): "OPTIMAL",
         int(cp_model.FEASIBLE): "FEASIBLE",

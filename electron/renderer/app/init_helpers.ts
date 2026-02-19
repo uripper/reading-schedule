@@ -29,6 +29,7 @@ type FinalizeInitialLoadArgs = {
 
 type BindTodayActionsArgs = {
   getLastResult: () => PlannerResult | null;
+  getScheduleCompletions: () => Record<string, boolean>;
   getSessionsUI: () => ReturnType<typeof initSessionsUI> | null;
 };
 
@@ -90,9 +91,14 @@ export function finalizeInitialLoad({
   }
 }
 
-export function bindTodayActions({ getLastResult, getSessionsUI }: BindTodayActionsArgs): void {
+export function bindTodayActions({ getLastResult, getScheduleCompletions, getSessionsUI }: BindTodayActionsArgs): void {
   el('startSessionFromTodayBtn').onclick = () => {
-    activateSessionsAndStartTimer(getLastResult(), getSessionsUI(), activateTab);
+    activateSessionsAndStartTimer(
+      getLastResult(),
+      getScheduleCompletions(),
+      getSessionsUI(),
+      activateTab,
+    );
   };
   el('viewScheduleFromTodayBtn').onclick = () => {
     activateTab('schedule', { focusPanel: true });

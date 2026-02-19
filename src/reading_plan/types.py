@@ -1,3 +1,5 @@
+"""Utilities for types."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -14,7 +16,8 @@ DEFAULT_DIFFICULTY_MULTIPLIER = {
     7: 0.40,
     8: 0.30,
     9: 0.20,
-    10: 0.10}
+    10: 0.10,
+}
 WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 PLAN_MODE_FINISH_SOON = "finish_soon"
 PLAN_MODE_SPREAD_OUT = "spread_out"
@@ -23,6 +26,8 @@ PLAN_MODES = (PLAN_MODE_FINISH_SOON, PLAN_MODE_SPREAD_OUT)
 
 @dataclass(frozen=True)
 class Book:
+    """A normalized book input for planning."""
+
     book_id: str
     title: str
     words_total: int
@@ -38,6 +43,8 @@ class Book:
 
 @dataclass(frozen=True)
 class Settings:
+    """Planner configuration and scheduling constraints."""
+
     start_date: date
     end_date: date
     minutes_per_day: Optional[int]
@@ -58,6 +65,8 @@ class Settings:
 
 @dataclass(frozen=True)
 class PlanResult:
+    """Solver output assignments and metadata."""
+
     planner: str
     status: str
     assignments: dict[tuple[str, date], int]

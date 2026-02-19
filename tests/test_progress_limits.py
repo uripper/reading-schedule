@@ -1,3 +1,5 @@
+"""Test cases for test progress limits."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -8,7 +10,8 @@ from reading_plan.types import Book
 from tests.helpers import demo_settings
 
 
-def test_book_builder_converts_progress_to_remaining_words():
+def test_book_builder_converts_progress_to_remaining_words() -> None:
+    """Test that book builder converts progress to remaining words."""
     book = book_from_data(
         {
             "book_id": "b1",
@@ -24,9 +27,33 @@ def test_book_builder_converts_progress_to_remaining_words():
     assert book.progress_percent == 25
 
 
-def test_greedy_respects_per_book_max_minutes_per_day():
+def test_book_builder_scales_pages_read_using_book_page_density() -> None:
+    """Test that pages read maps to words via per-book words/page when available."""
+    book = book_from_data(
+        {
+            "book_id": "b-pages",
+            "title": "Poetry",
+            "words_total": 6000,
+            "pages_total": 300,
+            "pages_read": 90,
+            "priority": 1,
+            "difficulty": 3,
+        }
+    )
+    assert book.words_full == 6000
+    assert book.words_total == 4200
+    assert book.progress_percent == 30
+
+
+def test_greedy_respects_per_book_max_minutes_per_day() -> None:
+    """Test that greedy respects per book max minutes per day."""
     books = [Book("b1", "Hard", 30000, 1, 3, None, 1, 30000, 0.0, 15)]
-    settings = demo_settings(start_date=date(2026, 2, 16), end_date=date(2026, 2, 16), minutes_per_day=75, time_quantum_minutes=5)
+    settings = demo_settings(
+        start_date=date(2026, 2, 16),
+        end_date=date(2026, 2, 16),
+        minutes_per_day=75,
+        time_quantum_minutes=5,
+    )
     assignments = plan_greedy(books, settings)
     blocks = assignments.get(("b1", settings.start_date), 0)
     assert blocks <= 3

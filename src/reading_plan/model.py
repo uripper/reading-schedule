@@ -1,3 +1,5 @@
+"""Utilities for model."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -16,74 +18,145 @@ FinishedVars = dict[str, cp_model.IntVar]
 BuildCpSatResult = tuple[cp_model.CpModel, BookDayVars, BookDayVars, FinishedVars, list[date]]
 
 
+class _CpSatConstraint(Protocol):
+    """Protocol for CP-SAT constraints supporting conditional enforcement."""
+
+    def OnlyEnforceIf(self, *literals: object) -> None:
+        """Enable this constraint only when all provided literals are true."""
+        ...
+
+
 class _CpSatModelBuilder(Protocol):
-    def NewIntVar(self, lb: int, ub: int, name: str) -> cp_model.IntVar: ...
+    """Protocol for the subset of CP-SAT model APIs used by the planner."""
 
-    def NewBoolVar(self, name: str) -> cp_model.IntVar: ...
+    def NewIntVar(self, lb: int, ub: int, name: str) -> cp_model.IntVar:
+        """Create a bounded integer decision variable."""
+        ...
 
-    def Add(self, ct: object) -> object: ...
+    def NewBoolVar(self, name: str) -> cp_model.IntVar:
+        """Create a boolean decision variable."""
+        ...
 
-    def Maximize(self, obj: object) -> None: ...
+    def Add(self, ct: object) -> _CpSatConstraint:
+        """Add a constraint expression to the model."""
+        ...
+
+    def Maximize(self, obj: object) -> None:
+        """Set the model objective to maximize the provided expression."""
+        ...
+
+
+def _create_book_day_variables(
+    model: _CpSatModelBuilder,
+    books: list[Book],
+    days: list[date],
+    caps: dict[date, int],
+    settings: Settings,
+) -> tuple[BookDayVars, BookDayVars]:
+    """Create per-book and per-day decision variables."""
+    x: BookDayVars = {}
+    y: BookDayVars = {}
+    for book_index, book in enumerate(books):
+        per_book_cap = book_day_block_limit(book, settings)
+        for day_index, day in enumerate(days):
+            upper = min(caps[day], per_book_cap)
+            key = (book.book_id, day)
+            x[key] = model.NewIntVar(0, upper, f"x_{book_index}_{day_index}")
+            y[key] = model.NewBoolVar(f"y_{book_index}_{day_index}")
+            model.Add(x[key] <= upper * y[key])
+            model.Add(x[key] >= book.min_blocks_per_session * y[key])
+    return x, y
+
+
+def _add_day_constraints(
+    model: _CpSatModelBuilder,
+    books: list[Book],
+    days: list[date],
+    x: BookDayVars,
+    y: BookDayVars,
+    caps: dict[date, int],
+    settings: Settings,
+) -> None:
+    """Apply daily capacity and session-count limits."""
+    for day in days:
+        model.Add(sum(x[(book.book_id, day)] for book in books) <= caps[day])
+        model.Add(sum(y[(book.book_id, day)] for book in books) <= settings.max_books_per_day)
+        model.Add(sum(y[(book.book_id, day)] for book in books) <= settings.max_sessions_per_day)
+
+
+def _add_dependency_constraints(
+    model: _CpSatModelBuilder,
+    books: list[Book],
+    days: list[date],
+    x: BookDayVars,
+    y: BookDayVars,
+    wpb: dict[str, int],
+    book_map: dict[str, Book],
+) -> None:
+    """Prevent a blocked book from being scheduled before its blocker is complete."""
+    for book_index, book in enumerate(books):
+        blocker_id = book.blocked_by
+        if not blocker_id:
+            continue
+        blocker = book_map[blocker_id]
+        for day_index, day in enumerate(days):
+            progressed_before = sum(
+                wpb[blocker_id] * x[(blocker_id, prev_day)]
+                for prev_day in days[:day_index]
+            )
+            blocker_done = model.NewBoolVar(f"ready_{book_index}_{day_index}")
+            at_or_above_target = model.Add(progressed_before >= blocker.words_total)
+            at_or_above_target.OnlyEnforceIf(blocker_done)
+            below_target = model.Add(progressed_before <= blocker.words_total - 1)
+            below_target.OnlyEnforceIf(blocker_done.Not())
+            model.Add(y[(book.book_id, day)] <= blocker_done)
+
+
+def _add_progress_constraints(
+    model: _CpSatModelBuilder,
+    books: list[Book],
+    days: list[date],
+    x: BookDayVars,
+    wpb: dict[str, int],
+) -> tuple[FinishedVars, dict[str, cp_model.IntVar]]:
+    """Link reading progress to completion, useful-words, and deadlines."""
+    finished: FinishedVars = {}
+    useful_words: dict[str, cp_model.IntVar] = {}
+    for book_index, book in enumerate(books):
+        progress = sum(wpb[book.book_id] * x[(book.book_id, day)] for day in days)
+        overshoot = wpb[book.book_id] * max(1, book.min_blocks_per_session - 1)
+        model.Add(progress <= book.words_total + overshoot)
+
+        useful_words[book.book_id] = model.NewIntVar(0, book.words_total, f"u_{book_index}")
+        model.Add(useful_words[book.book_id] <= progress)
+        model.Add(useful_words[book.book_id] <= book.words_total)
+
+        finished[book.book_id] = model.NewBoolVar(f"f_{book_index}")
+        model.Add(progress >= book.words_total * finished[book.book_id])
+
+        if not book.deadline:
+            continue
+        if due_days := [day for day in days if day <= book.deadline]:
+            model.Add(
+                sum(wpb[book.book_id] * x[(book.book_id, day)] for day in due_days) >= book.words_total
+            )
+    return finished, useful_words
 
 
 def build_cp_sat(
     books: list[Book], settings: Settings
 ) -> BuildCpSatResult:
+    """Build cp sat."""
     raw_model = cp_model.CpModel()
     model = cast(_CpSatModelBuilder, raw_model)
     days = date_range(settings.start_date, settings.end_date)
     caps = {d: day_capacity_blocks(settings, d) for d in days}
     wpb = {b.book_id: words_per_block(b, settings) for b in books}
     book_map = {book.book_id: book for book in books}
-    x: dict[tuple[str, date], cp_model.IntVar] = {}
-    y: dict[tuple[str, date], cp_model.IntVar] = {}
-
-    for bi, book in enumerate(books):
-        per_book_cap = book_day_block_limit(book, settings)
-        for di, day in enumerate(days):
-            upper = min(caps[day], per_book_cap)
-            key = (book.book_id, day)
-            x[key] = model.NewIntVar(0, upper, f"x_{bi}_{di}")
-            y[key] = model.NewBoolVar(f"y_{bi}_{di}")
-            model.Add(x[key] <= upper * y[key])
-            model.Add(x[key] >= book.min_blocks_per_session * y[key])
-
-    for day in days:
-        model.Add(sum(x[(b.book_id, day)] for b in books) <= caps[day])
-        model.Add(sum(y[(b.book_id, day)] for b in books) <= settings.max_books_per_day)
-        model.Add(sum(y[(b.book_id, day)] for b in books) <= settings.max_sessions_per_day)
-
-    for bi, book in enumerate(books):
-        blocker_id = book.blocked_by
-        if not blocker_id:
-            continue
-        blocker = book_map[blocker_id]
-        for di, day in enumerate(days):
-            progressed_before = sum(
-                wpb[blocker_id] * x[(blocker_id, prev_day)]
-                for prev_day in days[:di]
-            )
-            blocker_done = model.NewBoolVar(f"ready_{bi}_{di}")
-            model.Add(progressed_before >= blocker.words_total).OnlyEnforceIf(blocker_done)
-            model.Add(progressed_before <= blocker.words_total - 1).OnlyEnforceIf(blocker_done.Not())
-            model.Add(y[(book.book_id, day)] <= blocker_done)
-
-    finished: dict[str, cp_model.IntVar] = {}
-    useful_words: dict[str, cp_model.IntVar] = {}
-    for bi, book in enumerate(books):
-        progress = sum(wpb[book.book_id] * x[(book.book_id, d)] for d in days)
-        overshoot = wpb[book.book_id] * max(1, book.min_blocks_per_session - 1)
-        model.Add(progress <= book.words_total + overshoot)
-
-        useful_words[book.book_id] = model.NewIntVar(0, book.words_total, f"u_{bi}")
-        model.Add(useful_words[book.book_id] <= progress)
-        model.Add(useful_words[book.book_id] <= book.words_total)
-
-        finished[book.book_id] = model.NewBoolVar(f"f_{bi}")
-        model.Add(progress >= book.words_total * finished[book.book_id])
-        if book.deadline:
-            if due_days := [d for d in days if d <= book.deadline]:
-                model.Add(sum(wpb[book.book_id] * x[(book.book_id, d)] for d in due_days) >= book.words_total)
+    x, y = _create_book_day_variables(model, books, days, caps, settings)
+    _add_day_constraints(model, books, days, x, y, caps, settings)
+    _add_dependency_constraints(model, books, days, x, y, wpb, book_map)
+    finished, useful_words = _add_progress_constraints(model, books, days, x, wpb)
 
     terms = build_objective_terms(books, settings, days, useful_words, finished, y, x)
     model.Maximize(sum(terms))

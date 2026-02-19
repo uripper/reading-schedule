@@ -19,6 +19,47 @@ function todayKey(): string {
   return `${year}-${month}-${day}`;
 }
 
+function rowIsPlannedForTodayOrLater(rowDate: string, today: string): boolean {
+  if (!rowDate) {
+    return false;
+  }
+  return rowDate >= today;
+}
+
+function nextProgress(
+  bookId: string,
+  plannedWords: number,
+  progressByBookId: Record<string, number>,
+): number {
+  const previousProgress = Number(progressByBookId[bookId] || 0);
+  const next = previousProgress + plannedWords;
+  progressByBookId[bookId] = next;
+  return next;
+}
+
+function isFinishRow(
+  bookId: string,
+  nextBookProgress: number,
+  totals: Record<string, number>,
+  finishedByBookId: Record<string, boolean>,
+): boolean {
+  if (!bookId) {
+    return false;
+  }
+  const totalWords = Number(totals[bookId] || 0);
+  if (totalWords <= 0) {
+    return false;
+  }
+  if (finishedByBookId[bookId]) {
+    return false;
+  }
+  if (nextBookProgress < totalWords) {
+    return false;
+  }
+  finishedByBookId[bookId] = true;
+  return true;
+}
+
 export function enrichRows(rows: CalendarRow[], totals: Record<string, number> = {}): CalendarRowWithFinish[] {
   const progressByBookId: Record<string, number> = {};
   const finishedByBookId: Record<string, boolean> = {};
@@ -26,25 +67,14 @@ export function enrichRows(rows: CalendarRow[], totals: Record<string, number> =
   const today = todayKey();
   return sortedRows.map((row) => {
     const rowDate = String(row.date || '');
-    if (!rowDate || rowDate < today) {
+    if (!rowIsPlannedForTodayOrLater(rowDate, today)) {
       return { ...row, finish: false };
     }
 
     const bookId = String(row.book_id || '');
     const plannedWords = Number(row.words_planned || 0);
-    const previousProgress = Number(progressByBookId[bookId] || 0);
-    const nextProgress = previousProgress + plannedWords;
-    progressByBookId[bookId] = nextProgress;
-
-    const totalWords = Number(totals[bookId] || 0);
-    let finishesBook = false;
-    if (bookId && totalWords > 0) {
-      const alreadyFinished = Boolean(finishedByBookId[bookId]);
-      if (!alreadyFinished && nextProgress >= totalWords) {
-        finishesBook = true;
-        finishedByBookId[bookId] = true;
-      }
-    }
+    const nextBookProgress = nextProgress(bookId, plannedWords, progressByBookId);
+    const finishesBook = isFinishRow(bookId, nextBookProgress, totals, finishedByBookId);
     return { ...row, finish: finishesBook };
   });
 }

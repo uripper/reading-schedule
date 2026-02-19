@@ -1,7 +1,7 @@
 import type { PlannerAdapter } from "@reading-schedule/contracts";
 
 declare global {
-  var plannerApi: PlannerAdapter | undefined;
+  const plannerApi: PlannerAdapter | undefined;
 
   interface Window {
     plannerApi?: PlannerAdapter;

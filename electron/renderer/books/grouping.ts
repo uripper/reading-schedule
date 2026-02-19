@@ -1,5 +1,6 @@
 
 import { shelfLabelForBook } from './shelf.js';
+import { titleInitialLetter } from './title_key.js';
 import type { Book } from './types.js';
 
 export const GROUP_BY_NONE = 'none';
@@ -35,6 +36,7 @@ export type BookGroup = {
 const MONTH_INDEX_MIN = 1;
 const MONTH_INDEX_MAX = 12;
 const YEAR_MONTH_MULTIPLIER = 100;
+const ISO_DATE_PART_COUNT = 3;
 
 const NO_ESTIMATED_FINISH_KEY = 'finish:none';
 const NO_ESTIMATED_FINISH_LABEL = 'No estimated finish';
@@ -48,7 +50,7 @@ const TITLE_LETTER_ORDER = 1;
 
 const monthLabelFormatter = new Intl.DateTimeFormat(undefined, { month: 'long' });
 
-function normalizedText(value: string | number | null | undefined): string {
+function normalizedText(value?: string | number): string {
   return String(value || '').trim();
 }
 
@@ -57,7 +59,7 @@ function compareTextInsensitive(left: string, right: string): number {
 }
 
 function parseFinishDateParts(
-  dateText: string | null | undefined,
+  dateText?: string,
 ): { year: number; month: number; date: Date } | null {
   const raw = normalizedText(dateText);
   if (!raw) {
@@ -65,7 +67,7 @@ function parseFinishDateParts(
   }
 
   const parts = raw.split('-');
-  if (parts.length !== 3) {
+  if (parts.length !== ISO_DATE_PART_COUNT) {
     return null;
   }
 
@@ -107,16 +109,16 @@ function finishDateMetaForBook(
   }
 
   return {
-    key: `finish:${finishDate.year}-${String(finishDate.month).padStart(2, '0')}`,
     label,
+    key: `finish:${finishDate.year}-${String(finishDate.month).padStart(2, '0')}`,
     order: finishDate.year * YEAR_MONTH_MULTIPLIER + finishDate.month,
     tie: label,
   };
 }
 
 function titleLetterMetaForBook(book: Book): GroupMeta {
-  const title = normalizedText(book?.title).toUpperCase();
-  if (!title) {
+  const first = titleInitialLetter(book?.title);
+  if (!first) {
     return {
       key: TITLE_MISC_KEY,
       label: TITLE_MISC_LABEL,
@@ -125,7 +127,6 @@ function titleLetterMetaForBook(book: Book): GroupMeta {
     };
   }
 
-  const first = title.slice(0, MONTH_INDEX_MIN);
   if (!/^[A-Z]$/.test(first)) {
     return {
       key: TITLE_MISC_KEY,

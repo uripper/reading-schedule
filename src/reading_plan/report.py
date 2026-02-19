@@ -1,3 +1,5 @@
+"""Utilities for report."""
+
 from __future__ import annotations
 
 from .report_build import build_summary

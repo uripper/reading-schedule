@@ -1,3 +1,5 @@
+"""Utilities for report build."""
+
 from __future__ import annotations
 
 from .budget import calendar_minutes, required_total_minutes
@@ -7,6 +9,7 @@ from .types import Book, PlanResult, Settings
 
 
 def build_summary(books: list[Book], settings: Settings, result: PlanResult) -> Summary:
+    """Build summary."""
     per_book, total_minutes = compute_plan_totals(books, settings, result.assignments)
     available = sum(calendar_minutes(settings).values())
     required = required_total_minutes(books, settings)
