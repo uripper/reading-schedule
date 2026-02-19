@@ -30,20 +30,20 @@ function compareByEndedAtDesc(left: Session, right: Session): number {
   return String(right.ended_at).localeCompare(String(left.ended_at));
 }
 
-function normalizedDateValue(primary?: string, alternate?: string): string {
-  const rawValue = String(primary || alternate || "").trim();
-  if (rawValue) {
-    return rawValue;
+function normalizedDates(session: SessionInput): { endedAt: string; startedAt: string } {
+  const endedAtRaw = String(session.ended_at || session.endedAt || "").trim();
+  let endedAt = endedAtRaw;
+  if (!endedAt) {
+    endedAt = new Date().toISOString();
   }
-  return new Date().toISOString();
-}
 
-function normalizedStartedAt(primary: string | undefined, alternate: string | undefined, endedAt: string): string {
-  const rawValue = String(primary || alternate || "").trim();
-  if (rawValue) {
-    return rawValue;
+  const startedAtRaw = String(session.started_at || session.startedAt || "").trim();
+  let startedAt = startedAtRaw;
+  if (!startedAt) {
+    startedAt = endedAt;
   }
-  return endedAt;
+
+  return { endedAt, startedAt };
 }
 
 function normalizedPagesRead(value?: number | string | null): number | null {
@@ -61,8 +61,7 @@ function normalizedSource(value?: string): Session["source"] {
 }
 
 export function normalizeSession(session: SessionInput = {}): Session {
-  const endedAt = normalizedDateValue(session.ended_at, session.endedAt);
-  const startedAt = normalizedStartedAt(session.started_at, session.startedAt, endedAt);
+  const { endedAt, startedAt } = normalizedDates(session);
   const pagesRead = normalizedPagesRead(session.pages_read);
   const source = normalizedSource(session.source);
 

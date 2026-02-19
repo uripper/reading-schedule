@@ -10,7 +10,7 @@ from .models import AppStateV2
 
 
 def _state_path() -> Path:
-    """Execute state path."""
+    """Resolve the planner state file path from env override or user home."""
     if explicit := os.getenv("PLANNER_API_STATE_FILE", "").strip():
         return Path(explicit)
 

@@ -13,7 +13,7 @@ def parse_date(value: str) -> date:
 
 
 def date_range(start: date, end: date) -> list[date]:
-    """Execute date range."""
+    """Return inclusive start/end calendar days, raising on inverted ranges."""
     if end < start:
         raise ValueError("end_date must be on or after start_date")
     days = (end - start).days + 1
@@ -21,5 +21,5 @@ def date_range(start: date, end: date) -> list[date]:
 
 
 def weekday_key(day: date) -> str:
-    """Execute weekday key."""
+    """Return the planner weekday key (Mon..Sun) for a date."""
     return WEEKDAYS[day.weekday()]

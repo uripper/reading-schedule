@@ -37,6 +37,7 @@ export type PlannerSummaryBook = {
   words_total?: number;
   words_planned?: number;
   minutes_planned?: number;
+  finished?: boolean;
 };
 
 export type PlannerSummary = {

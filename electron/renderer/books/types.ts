@@ -1,3 +1,5 @@
+import type { BookStatus } from "./status.js";
+
 export type Book = {
   book_id: string;
   title: string;
@@ -13,6 +15,8 @@ export type Book = {
   deadline: string | null;
   blocked_by: string | null;
   shelf: string;
+  status: BookStatus;
+  finished_at: string | null;
   cover_url: string;
   cover_local_path: string;
   lookup_note: string;

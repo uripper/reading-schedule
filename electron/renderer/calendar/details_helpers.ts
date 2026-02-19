@@ -1,4 +1,5 @@
 import type { Book } from '../books/types.js';
+import { BOOK_STATUS_IN_PROGRESS } from '../books/status.js';
 import type { CalendarRowWithFinish } from './data.js';
 import { estimateProgressLabel } from './estimates.js';
 import { parseOptionalNumber, sessionKeyFor } from './utils.js';
@@ -280,6 +281,8 @@ export function buildTodaySessionItem(
     deadline: null,
     blocked_by: null,
     shelf: '',
+    status: BOOK_STATUS_IN_PROGRESS,
+    finished_at: null,
     cover_url: '',
     cover_local_path: '',
     lookup_note: '',

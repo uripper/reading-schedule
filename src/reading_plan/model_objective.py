@@ -10,7 +10,7 @@ from .types import Book, PLAN_MODE_SPREAD_OUT, Settings
 
 
 def _priority_weights(books: list[Book]) -> dict[str, int]:
-    """Execute priority weights."""
+    """Convert 1..5 priority values into larger-is-better objective weights."""
     weights: dict[str, int] = {}
     for book in books:
         priority_value = int(book.priority)
