@@ -1,3 +1,5 @@
+"""Test cases for test health."""
+
 from __future__ import annotations
 
 import sys
@@ -16,6 +18,7 @@ from planner_api.main import app  # noqa: E402
 
 
 def test_healthz() -> None:
+    """Test that healthz."""
     client = TestClient(app)
     response = client.get("/healthz")
     assert response.status_code == 200

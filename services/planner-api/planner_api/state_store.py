@@ -1,3 +1,5 @@
+"""Utilities for state store."""
+
 from __future__ import annotations
 
 import json
@@ -8,6 +10,7 @@ from .models import AppStateV2
 
 
 def _state_path() -> Path:
+    """Execute state path."""
     if explicit := os.getenv("PLANNER_API_STATE_FILE", "").strip():
         return Path(explicit)
 
@@ -16,6 +19,7 @@ def _state_path() -> Path:
 
 
 def load_state() -> AppStateV2 | None:
+    """Load state."""
     path = _state_path()
     try:
         return AppStateV2.model_validate_json(path.read_text(encoding="utf-8"))
@@ -24,6 +28,7 @@ def load_state() -> AppStateV2 | None:
 
 
 def save_state(state: AppStateV2) -> None:
+    """Save state."""
     path = _state_path()
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(state.model_dump(mode="json"), indent=2) + "\n", encoding="utf-8")
