@@ -1,5 +1,6 @@
 
 import { shelfLabelForBook } from './shelf.js';
+import { titleInitialLetter } from './title_key.js';
 import type { Book } from './types.js';
 
 export const GROUP_BY_NONE = 'none';
@@ -116,8 +117,8 @@ function finishDateMetaForBook(
 }
 
 function titleLetterMetaForBook(book: Book): GroupMeta {
-  const title = normalizedText(book?.title).toUpperCase();
-  if (!title) {
+  const first = titleInitialLetter(book?.title);
+  if (!first) {
     return {
       key: TITLE_MISC_KEY,
       label: TITLE_MISC_LABEL,
@@ -126,7 +127,6 @@ function titleLetterMetaForBook(book: Book): GroupMeta {
     };
   }
 
-  const first = title.slice(0, MONTH_INDEX_MIN);
   if (!/^[A-Z]$/.test(first)) {
     return {
       key: TITLE_MISC_KEY,

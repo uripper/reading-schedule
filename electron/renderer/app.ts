@@ -60,6 +60,7 @@ function updateTodayView() {
     sessionsUI,
     lastResult: state.lastResult,
     scheduleCompletions: state.scheduleCompletions,
+    books: collectBooks(),
     preferences: state.preferences,
     featureFlags: state.featureFlags,
     defaultDailyGoalMinutes: DEFAULT_PREFERENCES.dailyGoalMinutes,
@@ -181,6 +182,7 @@ async function init() {
   });
   bindTodayActions({
     getLastResult: () => state.lastResult,
+    getScheduleCompletions: () => state.scheduleCompletions,
     getSessionsUI: () => sessionsUI,
   });
 }
