@@ -90,13 +90,9 @@ export function nextUncompletedPlannedRow(
   const rows = rowsFromResult(lastResult);
   for (const row of rows) {
     const rowDate = String(row.date || '');
-    if (!rowDate || rowDate < today) {
-      continue;
+    if (rowDate && rowDate >= today && !isCompletedRow(row, scheduleCompletions)) {
+      return row;
     }
-    if (isCompletedRow(row, scheduleCompletions)) {
-      continue;
-    }
-    return row;
   }
   return null;
 }
