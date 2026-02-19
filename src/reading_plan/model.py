@@ -7,7 +7,13 @@ from ortools.sat.python import cp_model
 
 from .budget import book_day_block_limit, day_capacity_blocks, words_per_block
 from .calendar import date_range
+from .model_objective import build_objective_terms
 from .types import Book, Settings
+
+
+BookDayVars = dict[tuple[str, date], cp_model.IntVar]
+FinishedVars = dict[str, cp_model.IntVar]
+BuildCpSatResult = tuple[cp_model.CpModel, BookDayVars, BookDayVars, FinishedVars, list[date]]
 
 
 class _CpSatModelBuilder(Protocol):
@@ -22,12 +28,13 @@ class _CpSatModelBuilder(Protocol):
 
 def build_cp_sat(
     books: list[Book], settings: Settings
-) -> tuple[cp_model.CpModel, dict[tuple[str, date], cp_model.IntVar], dict[tuple[str, date], cp_model.IntVar], dict[str, cp_model.IntVar], list[date]]:
+) -> BuildCpSatResult:
     raw_model = cp_model.CpModel()
     model = cast(_CpSatModelBuilder, raw_model)
     days = date_range(settings.start_date, settings.end_date)
     caps = {d: day_capacity_blocks(settings, d) for d in days}
     wpb = {b.book_id: words_per_block(b, settings) for b in books}
+    book_map = {book.book_id: book for book in books}
     x: dict[tuple[str, date], cp_model.IntVar] = {}
     y: dict[tuple[str, date], cp_model.IntVar] = {}
 
@@ -46,6 +53,21 @@ def build_cp_sat(
         model.Add(sum(y[(b.book_id, day)] for b in books) <= settings.max_books_per_day)
         model.Add(sum(y[(b.book_id, day)] for b in books) <= settings.max_sessions_per_day)
 
+    for bi, book in enumerate(books):
+        blocker_id = book.blocked_by
+        if not blocker_id:
+            continue
+        blocker = book_map[blocker_id]
+        for di, day in enumerate(days):
+            progressed_before = sum(
+                wpb[blocker_id] * x[(blocker_id, prev_day)]
+                for prev_day in days[:di]
+            )
+            blocker_done = model.NewBoolVar(f"ready_{bi}_{di}")
+            model.Add(progressed_before >= blocker.words_total).OnlyEnforceIf(blocker_done)
+            model.Add(progressed_before <= blocker.words_total - 1).OnlyEnforceIf(blocker_done.Not())
+            model.Add(y[(book.book_id, day)] <= blocker_done)
+
     finished: dict[str, cp_model.IntVar] = {}
     useful_words: dict[str, cp_model.IntVar] = {}
     for bi, book in enumerate(books):
@@ -63,27 +85,7 @@ def build_cp_sat(
             if due_days := [d for d in days if d <= book.deadline]:
                 model.Add(sum(wpb[book.book_id] * x[(book.book_id, d)] for d in due_days) >= book.words_total)
 
-    p_scale = max(1, int(round(settings.w_priority * 100)))
-    s_scale = int(round(settings.w_switch * 100))
-    f_scale = max(1, int(round(settings.w_finish * 10000)))
-
-    prio_w: dict[str, int] = {}
-    for b in books:
-        pr = int(b.priority)
-        assert 1 <= pr <= 5, f"priority must be 1..5, got {b.priority} for {b.book_id}"
-        prio_w[b.book_id] = 6 - pr
-
-    terms: list[cp_model.LinearExpr] = []
-    for book in books:
-        w = prio_w[book.book_id]
-        terms.extend(
-            (
-                p_scale * w * useful_words[book.book_id],
-                f_scale * w * finished[book.book_id],
-            )
-        )
-        terms.extend(-s_scale * y[(book.book_id, day)] for day in days)
-
+    terms = build_objective_terms(books, settings, days, useful_words, finished, y, x)
     model.Maximize(sum(terms))
 
     return raw_model, x, y, finished, days

@@ -1,0 +1,178 @@
+/* Auto-generated from tokens/dtcg.tokens.json. Do not edit by hand. */
+:root {
+  --token-color-brand-300: #8dd0ff;
+  --token-color-brand-500: #3f9ef4;
+  --token-color-brand-700: #1566bf;
+  --token-color-danger-400: #ff7f92;
+  --token-color-danger-500: #e85f75;
+  --token-color-neutral-0: #ffffff;
+  --token-color-neutral-100: #e9eef7;
+  --token-color-neutral-200: #d6dfed;
+  --token-color-neutral-300: #b8c6dc;
+  --token-color-neutral-50: #f5f8fc;
+  --token-color-neutral-500: #70829f;
+  --token-color-neutral-700: #32435d;
+  --token-color-neutral-850: #1d2940;
+  --token-color-neutral-900: #131d2f;
+  --token-color-neutral-950: #0c1321;
+  --token-color-overlay-60: rgba(5, 10, 18, 0.6);
+  --token-color-success-400: #3ecf8e;
+  --token-color-success-500: #22b86f;
+  --token-color-warning-500: #f3ad3d;
+  --token-elevation-md: 0 10px 20px rgba(0, 0, 0, 0.25);
+  --token-elevation-sm: 0 1px 2px rgba(0, 0, 0, 0.26);
+  --token-motion-duration-base: 180ms;
+  --token-motion-duration-fast: 120ms;
+  --token-motion-duration-slow: 260ms;
+  --token-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --token-radius-lg: 16px;
+  --token-radius-md: 12px;
+  --token-radius-pill: 999px;
+  --token-radius-sm: 8px;
+  --token-semantic-dark-bg: #0c1321;
+  --token-semantic-dark-bgElevated: #131d2f;
+  --token-semantic-dark-border: #32435d;
+  --token-semantic-dark-brand: #8dd0ff;
+  --token-semantic-dark-brandStrong: #3f9ef4;
+  --token-semantic-dark-danger: #ff7f92;
+  --token-semantic-dark-focusRing: #8dd0ff;
+  --token-semantic-dark-overlay: rgba(5, 10, 18, 0.6);
+  --token-semantic-dark-success: #3ecf8e;
+  --token-semantic-dark-surface: #131d2f;
+  --token-semantic-dark-surfaceMuted: #1d2940;
+  --token-semantic-dark-text: #f5f8fc;
+  --token-semantic-dark-textMuted: #b8c6dc;
+  --token-semantic-dark-warning: #f3ad3d;
+  --token-semantic-light-bg: #f5f8fc;
+  --token-semantic-light-bgElevated: #ffffff;
+  --token-semantic-light-border: #d6dfed;
+  --token-semantic-light-brand: #1566bf;
+  --token-semantic-light-brandStrong: #3f9ef4;
+  --token-semantic-light-danger: #e85f75;
+  --token-semantic-light-focusRing: #3f9ef4;
+  --token-semantic-light-overlay: rgba(8, 15, 26, 0.35);
+  --token-semantic-light-success: #22b86f;
+  --token-semantic-light-surface: #ffffff;
+  --token-semantic-light-surfaceMuted: #e9eef7;
+  --token-semantic-light-text: #0c1321;
+  --token-semantic-light-textMuted: #32435d;
+  --token-semantic-light-warning: #f3ad3d;
+  --token-size-header-height: 72px;
+  --token-size-target-minimum: 44px;
+  --token-space-0: 0px;
+  --token-space-1: 4px;
+  --token-space-10: 40px;
+  --token-space-2: 8px;
+  --token-space-3: 12px;
+  --token-space-4: 16px;
+  --token-space-5: 20px;
+  --token-space-6: 24px;
+  --token-space-8: 32px;
+  --token-typography-family-heading: "Space Grotesk", "IBM Plex Sans", sans-serif;
+  --token-typography-family-mono: "IBM Plex Mono", "Cascadia Code", monospace;
+  --token-typography-family-sans: "IBM Plex Sans", "Segoe UI Variable", "Segoe UI", sans-serif;
+  --token-typography-lineHeight-base: 1.5;
+  --token-typography-lineHeight-tight: 1.2;
+  --token-typography-size-lg: 1.2rem;
+  --token-typography-size-md: 1rem;
+  --token-typography-size-sm: 0.875rem;
+  --token-typography-size-xl: 1.6rem;
+  --token-typography-size-xs: 0.75rem;
+  --token-typography-weight-bold: 700;
+  --token-typography-weight-medium: 500;
+  --token-typography-weight-regular: 400;
+  --app-bg: #0c1321;
+  --app-bgElevated: #131d2f;
+  --app-border: #32435d;
+  --app-brand: #8dd0ff;
+  --app-brandStrong: #3f9ef4;
+  --app-danger: #ff7f92;
+  --app-focusRing: #8dd0ff;
+  --app-overlay: rgba(5, 10, 18, 0.6);
+  --app-success: #3ecf8e;
+  --app-surface: #131d2f;
+  --app-surfaceMuted: #1d2940;
+  --app-text: #f5f8fc;
+  --app-textMuted: #b8c6dc;
+  --app-warning: #f3ad3d;
+}
+
+:root[data-theme="dark"] {
+  --app-bg: #0c1321;
+  --app-bgElevated: #131d2f;
+  --app-border: #32435d;
+  --app-brand: #8dd0ff;
+  --app-brandStrong: #3f9ef4;
+  --app-danger: #ff7f92;
+  --app-focusRing: #8dd0ff;
+  --app-overlay: rgba(5, 10, 18, 0.6);
+  --app-success: #3ecf8e;
+  --app-surface: #131d2f;
+  --app-surfaceMuted: #1d2940;
+  --app-text: #f5f8fc;
+  --app-textMuted: #b8c6dc;
+  --app-warning: #f3ad3d;
+}
+
+:root[data-theme="light"] {
+  --app-bg: #f5f8fc;
+  --app-bgElevated: #ffffff;
+  --app-border: #d6dfed;
+  --app-brand: #1566bf;
+  --app-brandStrong: #3f9ef4;
+  --app-danger: #e85f75;
+  --app-focusRing: #3f9ef4;
+  --app-overlay: rgba(8, 15, 26, 0.35);
+  --app-success: #22b86f;
+  --app-surface: #ffffff;
+  --app-surfaceMuted: #e9eef7;
+  --app-text: #0c1321;
+  --app-textMuted: #32435d;
+  --app-warning: #f3ad3d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    --app-bg: #0c1321;
+    --app-bgElevated: #131d2f;
+    --app-border: #32435d;
+    --app-brand: #8dd0ff;
+    --app-brandStrong: #3f9ef4;
+    --app-danger: #ff7f92;
+    --app-focusRing: #8dd0ff;
+    --app-overlay: rgba(5, 10, 18, 0.6);
+    --app-success: #3ecf8e;
+    --app-surface: #131d2f;
+    --app-surfaceMuted: #1d2940;
+    --app-text: #f5f8fc;
+    --app-textMuted: #b8c6dc;
+    --app-warning: #f3ad3d;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] {
+    --app-bg: #f5f8fc;
+    --app-bgElevated: #ffffff;
+    --app-border: #d6dfed;
+    --app-brand: #1566bf;
+    --app-brandStrong: #3f9ef4;
+    --app-danger: #e85f75;
+    --app-focusRing: #3f9ef4;
+    --app-overlay: rgba(8, 15, 26, 0.35);
+    --app-success: #22b86f;
+    --app-surface: #ffffff;
+    --app-surfaceMuted: #e9eef7;
+    --app-text: #0c1321;
+    --app-textMuted: #32435d;
+    --app-warning: #f3ad3d;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --token-motion-duration-fast: 0ms;
+    --token-motion-duration-base: 0ms;
+    --token-motion-duration-slow: 0ms;
+  }
+}

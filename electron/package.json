@@ -2,11 +2,22 @@
   "name": "reading-plan-gui",
   "version": "0.1.0",
   "private": true,
-  "main": "main.js",
+  "main": "dist/main.js",
   "scripts": {
-    "start": "electron ."
+    "build": "npm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/copy_static.mjs",
+    "tokens:build": "node ./scripts/build_tokens.mjs",
+    "tokens:check": "node ./scripts/check_token_usage.mjs",
+    "prestart": "npm run build",
+    "start": "electron .",
+    "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
+    "lint": "npm run tokens:check && eslint eslint.config.mjs scripts/**/*.mjs",
+    "lint:fix": "eslint eslint.config.mjs scripts/**/*.mjs --fix"
   },
   "devDependencies": {
-    "electron": "^40.4.1"
+    "@eslint/js": "^9.39.2",
+    "electron": "^40.4.1",
+    "eslint": "^9.39.2",
+    "globals": "^17.3.0",
+    "typescript": "^5.7.3"
   }
 }

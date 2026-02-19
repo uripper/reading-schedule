@@ -20,6 +20,7 @@
   "w_priority": 1.0,
   "w_switch": 10.0,
   "w_smooth": 0.0,
+  "plan_mode": "finish_soon",
   "max_blocks_per_book_per_day": 12,
   "difficulty_multiplier": {
     "1": 1.0,

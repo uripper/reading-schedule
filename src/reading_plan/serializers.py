@@ -4,17 +4,24 @@ from .types import Book, Settings
 
 
 def book_to_data(book: Book) -> dict[str, object]:
+    words_total = book.words_total
+    if book.words_full is not None:
+        words_total = book.words_full
+    deadline = None
+    if book.deadline:
+        deadline = book.deadline.isoformat()
     return {
         "book_id": book.book_id,
         "title": book.title,
-        "words_total": book.words_full if book.words_full is not None else book.words_total,
+        "words_total": words_total,
         "priority": book.priority,
         "difficulty": book.difficulty,
-        "deadline": book.deadline.isoformat() if book.deadline else None,
+        "deadline": deadline,
         "min_blocks_per_session": book.min_blocks_per_session,
         "progress_percent": book.progress_percent,
         "words_remaining": book.words_total,
         "max_minutes_per_day": book.max_minutes_per_day,
+        "blocked_by": book.blocked_by,
     }
 
 
@@ -34,5 +41,6 @@ def settings_to_data(settings: Settings) -> dict[str, object]:
         "w_switch": settings.w_switch,
         "w_smooth": settings.w_smooth,
         "max_blocks_per_book_per_day": settings.max_blocks_per_book_per_day,
+        "plan_mode": settings.plan_mode,
         "difficulty_multiplier": {str(k): v for k, v in settings.difficulty_multiplier.items()},
     }

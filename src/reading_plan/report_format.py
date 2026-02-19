@@ -17,6 +17,8 @@ def format_summary(summary: Summary) -> str:
     if summary.get("feasibility_warning"):
         lines.append(f"Warning: {summary['feasibility_warning']}")
     for book_id, info in summary["per_book"].items():
-        done = "yes" if info["finished"] else "no"
+        done = "no"
+        if info["finished"]:
+            done = "yes"
         lines.append(f"- {book_id}: {info['planned_words']}/{info['words_total']} words (finished: {done})")
     return "\n".join(lines)

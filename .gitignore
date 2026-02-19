@@ -1,9 +1,77 @@
-roadmap.md
-.venv/
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Environment / local secrets
+.env
+.env.*
+!.env.example
 .envrc
+*.local
+
+# Python
 __pycache__/
-*.pyc
-*.egg-info
-*.csv
-electron/node_modules/
-.vscode/settings.json
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+.eggs/
+*.egg-info/
+.venv/
+venv/
+env/
+build/
+site/
+pip-wheel-metadata/
+
+# Node / TypeScript
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+.parcel-cache/
+.turbo/
+.eslintcache
+*.tsbuildinfo
+coverage/
+.vite/
+
+# Project build outputs
+/dist/
+electron/styles/generated/
+electron/tokens/dist/
+electron/dist/
+apps/*/dist/
+packages/*/dist/
+services/*/dist/
+apps/client/.vite/
+
+# Capacitor / mobile build outputs
+apps/mobile/android/.gradle/
+apps/mobile/android/**/build/
+apps/mobile/ios/**/build/
+apps/mobile/ios/DerivedData/
+
+# Runtime artifacts
+*.log
+*.pid
+planner_state*.json
+data/schedule.csv
+data/books.csv
+
+# Local tooling config
+.sourcery.yaml
+roadmap.md
+pnpm-lock.yaml
+.gitignore
+STYLEGUIDE.md

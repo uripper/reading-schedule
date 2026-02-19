@@ -8,6 +8,7 @@ pytest.importorskip("ortools")
 
 from reading_plan.budget import words_per_block
 from reading_plan.solve import solve_plan
+from reading_plan.types import Book
 from tests.helpers import demo_books, demo_settings
 
 
@@ -32,3 +33,25 @@ def test_mip_finishes_book_when_last_chunk_is_sub_block():
     wpb = words_per_block(books[0], settings)
     planned = sum(v * wpb for (_bid, _), v in result.assignments.items())
     assert planned >= books[0].words_total
+
+
+def test_mip_honors_blocker_dependency():
+    books = [
+        Book("b1", "First", 7500, 1, 1, None, 1),
+        Book("b2", "Second", 3750, 1, 1, None, 1, None, 0.0, None, "b1"),
+    ]
+    settings = demo_settings(
+        start_date=date(2026, 2, 16),
+        end_date=date(2026, 2, 20),
+        minutes_per_day=30,
+        time_quantum_minutes=15,
+        max_books_per_day=2,
+        max_sessions_per_day=2,
+    )
+    result = solve_plan(books, settings, planner="mip")
+    assert result.status in {"OPTIMAL", "FEASIBLE"}
+    b1_days = sorted(day for (book_id, day), blocks in result.assignments.items() if book_id == "b1" and blocks > 0)
+    b2_days = sorted(day for (book_id, day), blocks in result.assignments.items() if book_id == "b2" and blocks > 0)
+    assert b1_days
+    assert b2_days
+    assert min(b2_days) >= max(b1_days)

@@ -1,61 +1,222 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="system" data-reduce-motion="false">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reading Plan Optimizer</title>
+  <title>Bartleby</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <a class="skip-link" href="#mainContent">Skip to main content</a>
+
   <header class="app-header">
-    <h1>Reading Plan Optimizer</h1>
+    <div class="brand-wrap">
+      <p class="brand-eyebrow">Bartleby</p>
+    </div>
     <div class="actions">
       <button id="helpBtn" class="btn">Help / Logs</button>
-      <button id="runBtn" class="btn btn-primary">Generate Plan</button>
       <span id="status" role="status" aria-live="polite"></span>
     </div>
   </header>
-  <nav class="tabs" aria-label="Main Tabs">
-    <button class="tab is-active" data-tab="settings">Settings</button>
-    <button class="tab" data-tab="books">Books</button>
-    <button class="tab" data-tab="schedule">Schedule</button>
+
+  <nav class="tabs" aria-label="Main Tabs" role="tablist" id="primaryTabs">
+    <button id="tab-btn-today" class="tab is-active" data-tab="today" role="tab" aria-selected="true" aria-controls="tab-today" tabindex="0">Today</button>
+    <button id="tab-btn-sessions" class="tab" data-tab="sessions" role="tab" aria-selected="false" aria-controls="tab-sessions" tabindex="-1">Sessions</button>
+    <button id="tab-btn-settings" class="tab" data-tab="settings" role="tab" aria-selected="false" aria-controls="tab-settings" tabindex="-1">Settings</button>
+    <button id="tab-btn-books" class="tab" data-tab="books" role="tab" aria-selected="false" aria-controls="tab-books" tabindex="-1">Books</button>
+    <button id="tab-btn-schedule" class="tab" data-tab="schedule" role="tab" aria-selected="false" aria-controls="tab-schedule" tabindex="-1">Schedule</button>
   </nav>
-  <main>
-    <section id="tab-settings" class="panel is-active" aria-label="Settings">
-      <div class="settings-layout">
-        <article class="settings-card"><h2>Plan Window</h2><div id="windowGrid" class="settings-grid"></div></article>
-        <article class="settings-card"><h2>Daily Budget</h2><div id="budgetGrid" class="settings-grid"></div><h3>Minutes by Weekday</h3><div id="weekdayGrid" class="settings-grid"></div><h3>Days Off</h3><div class="row"><input id="dayOffPicker" type="date" /><button id="addDayOffBtn" class="btn">Add Day Off</button></div><div id="dayOffList" class="chip-list"></div></article>
-        <article class="settings-card"><h2>Optimization Weights</h2><div id="weightsGrid" class="settings-grid"></div></article>
-        <article class="settings-card"><h2>Reading Speed by Difficulty</h2><p class="hint-text">Multiplier applies to base WPM: effective WPM = base * multiplier.</p><table><thead><tr><th>Difficulty</th><th>Multiplier</th></tr></thead><tbody id="difficultyBody"></tbody></table></article>
+
+  <main id="mainContent" tabindex="-1">
+    <section id="tab-today" class="panel is-active" role="tabpanel" aria-labelledby="tab-btn-today" tabindex="-1">
+      <div class="today-grid">
+        <article class="surface-card">
+          <h2>Today Focus</h2>
+          <p id="todaySummary" class="body-text">No schedule yet. Add books and configure settings to auto-build your plan.</p>
+          <div class="row wrap-row">
+            <button id="startSessionFromTodayBtn" class="btn btn-primary" type="button">Start Session</button>
+            <button id="viewScheduleFromTodayBtn" class="btn" type="button">View Schedule</button>
+          </div>
+        </article>
+
+        <article class="surface-card">
+          <h2>Daily Goal</h2>
+          <p id="todayGoalText" class="body-text">0 / 30 minutes logged today</p>
+          <div class="progress-track" role="progressbar" aria-label="Daily goal progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="todayGoalProgress">
+            <span id="todayGoalBar" class="progress-bar"></span>
+          </div>
+        </article>
+
+        <article id="gamificationCard" class="surface-card" hidden>
+          <h2>Momentum</h2>
+          <p id="streakText" class="body-text">0 day streak</p>
+          <p class="hint-text">Gamification is optional and can be disabled in settings at any time.</p>
+        </article>
       </div>
     </section>
-    <section id="tab-books" class="panel" aria-label="Books">
-      <div class="row books-toolbar">
-        <button id="addBookBtn" class="btn">Add Book</button>
+
+    <section id="tab-sessions" class="panel" role="tabpanel" aria-labelledby="tab-btn-sessions" tabindex="-1" hidden>
+      <div class="sessions-grid">
+        <article class="surface-card">
+          <h2>Timer Session</h2>
+          <label for="sessionBookInput">Book</label>
+          <input
+            id="sessionBookInput"
+            type="text"
+            placeholder="Search your books"
+            autocomplete="off"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded="false"
+            aria-controls="sessionBookResults"
+            aria-haspopup="listbox"
+          />
+          <div id="sessionBookResults" class="book-search-results" role="listbox" aria-label="Books for session"></div>
+          <p id="sessionBookMeta" class="lookup-meta"></p>
+
+          <p id="sessionTimerDisplay" class="timer-value" aria-live="polite">00:00</p>
+          <div class="row wrap-row">
+            <button id="sessionStartBtn" class="btn btn-primary" type="button">Start</button>
+            <button id="sessionPauseBtn" class="btn" type="button" disabled>Pause</button>
+            <button id="sessionStopBtn" class="btn" type="button" disabled>Stop</button>
+          </div>
+        </article>
+
+        <article class="surface-card">
+          <h2>Manual Log</h2>
+          <div class="settings-grid">
+            <label>Minutes<input id="manualMinutesInput" type="number" min="1" step="1" placeholder="e.g. 25" /></label>
+            <label>Pages Read<input id="manualPagesInput" type="number" min="0" step="1" placeholder="Optional" /></label>
+          </div>
+          <label>Notes<textarea id="manualNotesInput" rows="3" placeholder="Optional session notes"></textarea></label>
+          <div class="row">
+            <button id="manualSessionBtn" class="btn" type="button">Save Manual Session</button>
+          </div>
+        </article>
+      </div>
+
+      <article class="surface-card">
+        <h2>Session History</h2>
+        <div id="sessionHistory" class="session-history" aria-live="polite"></div>
+      </article>
+    </section>
+
+    <section id="tab-settings" class="panel" role="tabpanel" aria-labelledby="tab-btn-settings" tabindex="-1" hidden>
+      <div class="settings-shell">
+        <nav id="settingsSectionTabs" class="settings-section-tabs" aria-label="Settings sections">
+          <button class="settings-section-tab is-active" type="button" data-settings-section-target="plan-budget">Plan & Budget</button>
+          <button class="settings-section-tab" type="button" data-settings-section-target="weights">Optimization</button>
+          <button class="settings-section-tab" type="button" data-settings-section-target="difficulty">Difficulty</button>
+          <button class="settings-section-tab" type="button" data-settings-section-target="experience">Experience</button>
+        </nav>
+        <div class="settings-layout">
+          <article class="settings-card" data-settings-section="plan-budget">
+            <h2>Plan & Budget</h2>
+            <h3>Plan Until</h3>
+            <div id="windowGrid" class="settings-grid"></div>
+            <h3>Daily Budget</h3>
+            <div id="budgetGrid" class="settings-grid"></div>
+            <h3>Minutes by Weekday</h3>
+            <div id="weekdayGrid" class="settings-grid"></div>
+            <h3>Days Off</h3>
+            <div class="row wrap-row">
+              <input id="dayOffPicker" type="date" />
+              <button id="addDayOffBtn" class="btn" type="button">Add Day Off</button>
+            </div>
+            <div id="dayOffList" class="chip-list"></div>
+          </article>
+          <article class="settings-card" data-settings-section="weights" hidden>
+            <h2>Optimization Weights</h2>
+            <div id="weightsGrid" class="settings-grid"></div>
+          </article>
+          <article class="settings-card" data-settings-section="difficulty" hidden>
+            <h2>Reading Speed by Difficulty</h2>
+            <p class="hint-text">Multiplier applies to base WPM: effective WPM = base * multiplier.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Difficulty</th>
+                  <th scope="col">Multiplier</th>
+                </tr>
+              </thead>
+              <tbody id="difficultyBody"></tbody>
+            </table>
+          </article>
+          <article class="settings-card" data-settings-section="experience" hidden>
+            <h2>Experience</h2>
+            <div class="settings-grid">
+              <label>Theme
+                <select id="themeSelect">
+                  <option value="system">System</option>
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                </select>
+              </label>
+              <label>Daily Goal Minutes<input id="dailyGoalInput" type="number" min="1" max="600" step="1" value="30" /></label>
+              <label class="toggle-row"><input id="reduceMotionToggle" type="checkbox" /> Reduce Motion</label>
+              <label class="toggle-row"><input id="reminderEnabledToggle" type="checkbox" /> Daily Reminder</label>
+              <label>Reminder Time<input id="reminderTimeInput" type="time" value="20:00" /></label>
+            </div>
+            <h3>Feature Flags</h3>
+            <div class="settings-grid">
+              <label class="toggle-row"><input id="flagGamification" type="checkbox" /> Enable gamification</label>
+              <label class="toggle-row"><input id="flagSocial" type="checkbox" /> Enable social features</label>
+              <label class="toggle-row"><input id="flagRecommendations" type="checkbox" /> Enable recommendations</label>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-books" class="panel" role="tabpanel" aria-labelledby="tab-btn-books" tabindex="-1" hidden>
+      <div class="row books-toolbar wrap-row">
+        <button id="addBookBtn" class="btn" type="button">Add Book</button>
         <span class="hint-text">Click a book card to edit details.</span>
       </div>
       <div id="booksGrid" class="books-grid" aria-live="polite"></div>
       <p id="booksEmpty" class="books-empty">No books yet. Add your first book to start planning.</p>
     </section>
-    <section id="tab-schedule" class="panel" aria-label="Schedule">
-      <div id="calendarControls" class="row"></div>
-      <div id="calendar" class="calendar"></div>
+
+    <section id="tab-schedule" class="panel" role="tabpanel" aria-labelledby="tab-btn-schedule" tabindex="-1" hidden>
+      <div id="calendarControls" class="row wrap-row"></div>
+      <div class="schedule-layout">
+        <div id="calendar" class="calendar"></div>
+        <aside id="calendarDayDetails" class="day-details" aria-live="polite">
+          <h2>Selected Day</h2>
+          <p class="hint-text">Select a day in the schedule grid to view details.</p>
+        </aside>
+      </div>
     </section>
   </main>
-  <dialog id="helpDialog" class="help-dialog">
-    <h2>Help</h2><p>Use Settings and Books tabs, then generate and review the calendar schedule.</p><h3>Logs</h3><pre id="logOutput"></pre><div class="row"><button id="closeHelpBtn" class="btn">Close</button></div>
+
+  <nav class="mobile-nav" aria-label="Primary">
+    <button class="tab mobile-tab is-active" data-tab="today" type="button">Today</button>
+    <button class="tab mobile-tab" data-tab="sessions" type="button">Sessions</button>
+    <button class="tab mobile-tab" data-tab="settings" type="button">Settings</button>
+    <button class="tab mobile-tab" data-tab="books" type="button">Books</button>
+    <button class="tab mobile-tab" data-tab="schedule" type="button">Schedule</button>
+  </nav>
+
+  <div id="liveRegion" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+
+  <dialog id="helpDialog" class="help-dialog" aria-labelledby="helpDialogHeading">
+    <h2 id="helpDialogHeading">Help</h2>
+    <p>Use Settings and Books tabs and Bartleby updates the calendar plan automatically.</p>
+    <h3>Logs</h3>
+    <pre id="logOutput"></pre>
+    <div class="row"><button id="closeHelpBtn" class="btn" type="button">Close</button></div>
   </dialog>
-  <dialog id="bookDialog" class="book-dialog">
-    <form id="bookForm" class="book-form" method="dialog">
+
+  <dialog id="bookDialog" class="book-dialog" aria-labelledby="bookDialogTitle">
+    <form id="bookForm" class="book-form" method="dialog" novalidate>
       <h2 id="bookDialogTitle">Add Book</h2>
       <input id="bookFormId" type="hidden" />
       <input id="bookFormCoverUrl" type="hidden" />
       <input id="bookFormCoverLocal" type="hidden" />
-      <input id="bookFormAuthor" type="hidden" />
       <div class="book-form-layout">
         <section class="book-search-panel">
           <label for="bookSearchInput">Find Book (Open Library)</label>
-          <input id="bookSearchInput" type="text" autocomplete="off" placeholder="Search by title or author" />
+          <input id="bookSearchInput" type="text" autocomplete="off" placeholder="Search by title or author" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="bookSearchResults" aria-haspopup="listbox" />
           <div id="bookSearchResults" class="book-search-results" role="listbox" aria-label="Book suggestions"></div>
           <p id="bookLookupMeta" class="lookup-meta"></p>
         </section>
@@ -65,6 +226,7 @@
         <section class="book-fields">
           <div class="settings-grid">
             <label>Title<input id="bookTitleInput" required placeholder="Book title" /></label>
+            <label>Author<input id="bookFormAuthor" placeholder="Author name" /></label>
             <label>Estimated Words<input id="bookWordsInput" type="number" min="1" step="1" placeholder="e.g. 85000" /></label>
             <label>Total Pages<input id="bookPagesTotalInput" type="number" min="1" step="1" placeholder="e.g. 300" /></label>
             <label>Pages Read<input id="bookPagesReadInput" type="number" min="0" step="1" placeholder="e.g. 125" /></label>
@@ -74,15 +236,44 @@
             <label>Min Blocks<input id="bookMinBlocksInput" type="number" min="1" value="1" /></label>
             <label>Max min/day<input id="bookMaxMinutesInput" type="number" min="1" /></label>
             <label>Deadline<input id="bookDeadlineInput" type="date" /></label>
+            <label class="book-after-book-picker">After Book
+              <input
+                id="bookAfterBookInput"
+                type="text"
+                placeholder="Search by title or author"
+                autocomplete="off"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded="false"
+                aria-controls="bookAfterBookResults"
+                aria-haspopup="listbox"
+              />
+              <input id="bookBlockedByInput" type="hidden" />
+              <div id="bookAfterBookResults" class="book-search-results" role="listbox" aria-label="After book options"></div>
+            </label>
           </div>
         </section>
       </div>
-      <div class="row">
+      <div class="row wrap-row">
         <button id="cancelBookBtn" class="btn" type="button">Cancel</button>
         <button id="saveBookBtn" class="btn btn-primary" type="submit">Save Book</button>
       </div>
     </form>
   </dialog>
+
+  <dialog id="bookShelfPromptDialog" class="book-shelf-prompt-dialog" aria-labelledby="bookShelfPromptTitle">
+    <form id="bookShelfPromptForm" class="book-shelf-prompt-form" method="dialog">
+      <h2 id="bookShelfPromptTitle">Create New Shelf</h2>
+      <label>Shelf Name
+        <input id="bookShelfPromptInput" placeholder="e.g. History" />
+      </label>
+      <div class="row wrap-row">
+        <button id="bookShelfPromptCancelBtn" class="btn" type="submit" value="cancel">Cancel</button>
+        <button id="bookShelfPromptSaveBtn" class="btn btn-primary" type="submit" value="confirm">Create Shelf</button>
+      </div>
+    </form>
+  </dialog>
+
   <script type="module" src="renderer/app.js"></script>
 </body>
 </html>
