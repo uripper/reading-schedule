@@ -1,4 +1,3 @@
-// @ts-nocheck
 
 import { el, qa } from "./dom.js";
 import {

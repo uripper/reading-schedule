@@ -1,8 +1,22 @@
-// @ts-nocheck
+function missingElementMessage(id: string): string {
+  return `Missing required element with id "${id}"`;
+}
 
-export const el = (id) => document.getElementById(id);
-export const q = (sel, root = document) => root.querySelector(sel);
-export const qa = (sel, root = document) => [...root.querySelectorAll(sel)];
+export function el<T extends HTMLElement = HTMLElement>(id: string): T {
+  const node = document.getElementById(id);
+  if (!(node instanceof HTMLElement)) {
+    throw new Error(missingElementMessage(id));
+  }
+  return node as T;
+}
+
+export function q<T extends Element = Element>(sel: string, root: ParentNode = document): T | null {
+  return root.querySelector(sel) as T | null;
+}
+
+export function qa<T extends Element = Element>(sel: string, root: ParentNode = document): T[] {
+  return Array.from(root.querySelectorAll(sel));
+}
 
 const BASE_36 = 36;
 const MAX_ID_LENGTH = 20;

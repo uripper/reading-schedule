@@ -1,4 +1,3 @@
-// @ts-nocheck
 
 import { uid } from "../dom.js";
 import { toInt } from "./utils.js";

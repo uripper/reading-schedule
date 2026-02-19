@@ -1,6 +1,6 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,21 +16,21 @@ function walkCssFiles(dir, files = []) {
       walkCssFiles(fullPath, files);
       continue;
     }
-    if (entry.isFile() && entry.name.endsWith(".css")) files.push(fullPath);
+    if (entry.isFile() && entry.name.endsWith(".css")) {files.push(fullPath);}
   }
   return files;
 }
 
 let failures = 0;
 for (const filePath of walkCssFiles(stylesRoot)) {
-  if (ignoreFiles.has(filePath)) continue;
+  if (ignoreFiles.has(filePath)) {continue;}
   const source = fs.readFileSync(filePath, "utf8");
   const lines = source.split(/\r?\n/);
   lines.forEach((line, index) => {
     const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("/*")) return;
+    if (!trimmed || trimmed.startsWith("/*")) {return;}
     const matches = line.match(hexPattern);
-    if (!matches) return;
+    if (!matches) {return;}
     failures += 1;
     console.error(`${path.relative(electronRoot, filePath)}:${index + 1} uses raw hex color ${matches.join(", ")}`);
   });
@@ -41,4 +41,4 @@ if (failures > 0) {
   process.exit(1);
 }
 
-console.log("Token usage check passed: no raw hex colors found in style sources.");
+console.log('Token usage check passed: no raw hex colors found in style sources.');

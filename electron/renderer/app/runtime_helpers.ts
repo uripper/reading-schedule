@@ -1,6 +1,6 @@
-// @ts-nocheck
 
 import { draftData, saveStateSafe } from "./persistence.js";
+import type { FeatureFlags, Preferences } from "./experience.js";
 
 const PERSIST_DELAY_MS = 300;
 const NON_PLANNING_SETTING_IDS = new Set([
@@ -14,8 +14,33 @@ const NON_PLANNING_SETTING_IDS = new Set([
   "flagRecommendations",
 ]);
 
-export function createStatusSetter(statusNode, addLog) {
-  return (message, isError = false) => {
+type SummaryBookInfo = {
+  words_total?: number;
+};
+
+type Summary = {
+  per_book?: Record<string, SummaryBookInfo>;
+};
+
+type PersistQueueState = {
+  ready: boolean;
+  preferences: Preferences;
+  featureFlags: FeatureFlags;
+  scheduleCompletions: Record<string, boolean>;
+  lastResult: unknown;
+};
+
+type PersistQueueArgs = {
+  plannerApi: typeof globalThis.plannerApi;
+  state: PersistQueueState;
+  getSessionsUI: () => { getSessions: () => unknown[] } | null;
+  collectBooks: () => unknown[];
+  collectSettings: () => unknown;
+  addLog: (message: string) => void;
+};
+
+export function createStatusSetter(statusNode: HTMLElement, addLog: (message: string) => void) {
+  return (message: string, isError = false) => {
     statusNode.textContent = message;
     statusNode.style.color = "var(--app-textMuted)";
     if (isError) {
@@ -25,7 +50,7 @@ export function createStatusSetter(statusNode, addLog) {
   };
 }
 
-export function totalsFromSummary(summary) {
+export function totalsFromSummary(summary: Summary | null): Record<string, number> {
   const perBook = summary?.per_book || {};
   const pairs = Object.entries(perBook).map(([id, info]) => {
     return [id, Number(info.words_total || 0)];
@@ -40,8 +65,8 @@ export function createPersistQueue({
   collectBooks,
   collectSettings,
   addLog,
-}) {
-  let persistTimer = null;
+}: PersistQueueArgs) {
+  let persistTimer: ReturnType<typeof setTimeout> | null = null;
 
   const persistDraft = async () => {
     const payload = draftData({
@@ -85,8 +110,12 @@ function shouldAutoPlanTarget(target) {
   return true;
 }
 
-export function bindSettingsAutoPlanListeners(settingsPanel, isReady, queueAutoPlan) {
-  const onSettingMutation = (event) => {
+export function bindSettingsAutoPlanListeners(
+  settingsPanel: HTMLElement,
+  isReady: () => boolean,
+  queueAutoPlan: () => void,
+) {
+  const onSettingMutation = (event: Event) => {
     if (!isReady()) {
       return;
     }
@@ -99,7 +128,7 @@ export function bindSettingsAutoPlanListeners(settingsPanel, isReady, queueAutoP
     queueAutoPlan();
   };
 
-  const onSettingClick = (event) => {
+  const onSettingClick = (event: Event) => {
     if (!isReady()) {
       return;
     }

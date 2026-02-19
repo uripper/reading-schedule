@@ -1,6 +1,7 @@
-// @ts-nocheck
 
 import { SHELF_SELECT_CREATE_NEW, uniqueShelves } from "./shelf.js";
+import type { Book } from "./types.js";
+import type { BookFormRefs } from "./form_refs.js";
 
 const UNSHELVED_VALUE = "";
 const UNSHELVED_LABEL = "Unshelved";
@@ -9,7 +10,7 @@ const DATA_KEY_PREVIOUS_SHELF = "previousShelf";
 const DIALOG_CONFIRM_VALUE = "confirm";
 const CREATE_SHELF_PROMPT = "Enter a name for the new shelf:";
 
-function promptViaDialog(refs) {
+function promptViaDialog(refs: BookFormRefs): Promise<string | null> {
   return new Promise((resolve) => {
     refs.shelfPromptInput.value = "";
     refs.shelfPromptDialog.returnValue = "";
@@ -31,7 +32,7 @@ function promptViaDialog(refs) {
   });
 }
 
-function ensurePromptValidation(refs) {
+function ensurePromptValidation(refs: BookFormRefs): void {
   refs.shelfPromptForm.addEventListener("submit", (event) => {
     if (!(event.submitter instanceof HTMLButtonElement)) {
       return;
@@ -55,14 +56,14 @@ function promptViaBrowser() {
   return String(response).trim();
 }
 
-function createOption(value, label) {
+function createOption(value: string, label: string): HTMLOptionElement {
   const option = document.createElement("option");
   option.value = value;
   option.textContent = label;
   return option;
 }
 
-function shelfOptions(shelves = []) {
+function shelfOptions(shelves: string[] = []): HTMLOptionElement[] {
   const options = [createOption(UNSHELVED_VALUE, UNSHELVED_LABEL)];
   shelves.forEach((shelfName) => {
     options.push(createOption(shelfName, shelfName));
@@ -71,19 +72,19 @@ function shelfOptions(shelves = []) {
   return options;
 }
 
-function rememberSelectedShelf(select) {
+function rememberSelectedShelf(select: HTMLSelectElement): void {
   select.dataset[DATA_KEY_PREVIOUS_SHELF] = select.value;
 }
 
-function previousShelf(select) {
+function previousShelf(select: HTMLSelectElement): string {
   return String(select.dataset[DATA_KEY_PREVIOUS_SHELF] || UNSHELVED_VALUE);
 }
 
-function caseInsensitiveMatch(left, right) {
+function caseInsensitiveMatch(left: string, right: string): boolean {
   return left.localeCompare(right, undefined, { sensitivity: "base" }) === 0;
 }
 
-function existingShelfValue(select, shelfName) {
+function existingShelfValue(select: HTMLSelectElement, shelfName: string): string {
   const options = Array.from(select.options);
   for (const option of options) {
     if (!option.value || option.value === SHELF_SELECT_CREATE_NEW) {
@@ -96,8 +97,8 @@ function existingShelfValue(select, shelfName) {
   return "";
 }
 
-function collectShelfValues(select) {
-  const values = [];
+function collectShelfValues(select: HTMLSelectElement): string[] {
+  const values: string[] = [];
   const options = Array.from(select.options);
   options.forEach((option) => {
     if (!option.value || option.value === SHELF_SELECT_CREATE_NEW) {
@@ -108,7 +109,7 @@ function collectShelfValues(select) {
   return values;
 }
 
-function renderShelfOptions(select, shelves, selectedShelf) {
+function renderShelfOptions(select: HTMLSelectElement, shelves: string[], selectedShelf: string): void {
   const nodes = shelfOptions(shelves);
   select.replaceChildren(...nodes);
   if (selectedShelf) {
@@ -118,7 +119,7 @@ function renderShelfOptions(select, shelves, selectedShelf) {
   select.value = UNSHELVED_VALUE;
 }
 
-function ensureShelfOption(select, shelfName) {
+function ensureShelfOption(select: HTMLSelectElement, shelfName: string): void {
   const shelves = collectShelfValues(select);
   if (shelves.includes(shelfName)) {
     return;
@@ -130,7 +131,7 @@ function ensureShelfOption(select, shelfName) {
   renderShelfOptions(select, shelves, shelfName);
 }
 
-function setSelectedShelf(select, selectedShelf, availableShelves) {
+function setSelectedShelf(select: HTMLSelectElement, selectedShelf: string, availableShelves: string[]): void {
   const shelf = String(selectedShelf || "").trim();
   renderShelfOptions(select, availableShelves, "");
   if (!shelf) {
@@ -148,7 +149,7 @@ function setSelectedShelf(select, selectedShelf, availableShelves) {
   rememberSelectedShelf(select);
 }
 
-async function onCreateShelfSelected(refs) {
+async function onCreateShelfSelected(refs: BookFormRefs): Promise<void> {
   const select = refs.shelfSelectInput;
   const fallbackShelf = previousShelf(select);
   let shelfName = null;
@@ -172,7 +173,7 @@ async function onCreateShelfSelected(refs) {
   rememberSelectedShelf(select);
 }
 
-async function onShelfChange(refs) {
+async function onShelfChange(refs: BookFormRefs): Promise<void> {
   const select = refs.shelfSelectInput;
   if (select.value === SHELF_SELECT_CREATE_NEW) {
     await onCreateShelfSelected(refs);
@@ -181,12 +182,12 @@ async function onShelfChange(refs) {
   rememberSelectedShelf(select);
 }
 
-export function renderShelfPicker(refs, books = [], selectedShelf = "") {
+export function renderShelfPicker(refs: BookFormRefs, books: Book[] = [], selectedShelf = ""): void {
   const shelves = uniqueShelves(books);
   setSelectedShelf(refs.shelfSelectInput, selectedShelf, shelves);
 }
 
-export function bindShelfPicker(refs) {
+export function bindShelfPicker(refs: BookFormRefs): void {
   ensurePromptValidation(refs);
   refs.shelfSelectInput.addEventListener("change", async () => {
     await onShelfChange(refs);

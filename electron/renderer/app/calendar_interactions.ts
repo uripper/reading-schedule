@@ -1,5 +1,45 @@
-// @ts-nocheck
 
+
+type ScheduleRow = {
+  title?: string;
+  date?: string;
+};
+
+type CompletionUpdate = {
+  sessionKey: string;
+  completed: boolean;
+  row?: ScheduleRow;
+};
+
+type ProgressUpdateInput = {
+  bookId: string;
+  pagesRead?: number | null;
+  progressPercent?: number | null;
+};
+
+type UpdatedBook = {
+  title?: string;
+};
+
+type AppCalendarInteractionArgs = {
+  configureCalendarInteractions: (handlers: {
+    isSessionCompleted: (sessionKey: string) => boolean;
+    onSessionCompletionChanged: (payload: CompletionUpdate) => void;
+    onSessionProgressUpdated: (payload: ProgressUpdateInput) => UpdatedBook | null;
+    getBookById: (bookId: string) => unknown;
+  }) => void;
+  state: { scheduleCompletions: Record<string, boolean> };
+  queuePersist: () => void;
+  setStatus: (message: string, isError?: boolean) => void;
+  updateBookProgress: (
+    bookId: string,
+    updates: { pagesRead?: number | null; progressPercent?: number | null },
+    options: { notifyBooksChanged?: boolean },
+  ) => UpdatedBook | null;
+  getBookById: (bookId: string) => unknown;
+  onSessionCompletionUpdated?: (payload: CompletionUpdate) => void;
+  onProgressUpdated?: (book: UpdatedBook) => void;
+};
 
 export function configureAppCalendarInteractions({
   configureCalendarInteractions,
@@ -10,7 +50,7 @@ export function configureAppCalendarInteractions({
   getBookById,
   onSessionCompletionUpdated = () => {},
   onProgressUpdated = () => {},
-}) {
+}: AppCalendarInteractionArgs) {
   configureCalendarInteractions({
     isSessionCompleted: (sessionKey) => Boolean(state.scheduleCompletions?.[sessionKey]),
     onSessionCompletionChanged: ({ sessionKey, completed, row }) => {

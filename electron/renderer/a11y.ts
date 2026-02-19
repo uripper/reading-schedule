@@ -1,7 +1,16 @@
-// @ts-nocheck
 
 import { el } from "./dom.js";
 const ANNOUNCE_DELAY_MS = 30;
+type AnnouncePoliteness = "polite" | "assertive";
+
+type PreferencesInput = {
+  theme?: string;
+  reduceMotion?: boolean;
+};
+
+type DialogFocusOptions = {
+  initialFocusSelector?: string | null;
+};
 
 function focusableSelector() {
   return [
@@ -27,9 +36,9 @@ export function focusFirstError(formElement) {
 }
 
 export function createAnnouncer(regionId = "liveRegion") {
-  const region = el(regionId);
-  let clearTimer = null;
-  return (message, politeness = "polite") => {
+  const region = el<HTMLElement>(regionId);
+  let clearTimer: ReturnType<typeof setTimeout> | null = null;
+  return (message: string, politeness: AnnouncePoliteness = "polite") => {
     if (!region || !message) {
       return;
     }
@@ -44,7 +53,7 @@ export function createAnnouncer(regionId = "liveRegion") {
   };
 }
 
-export function applyPreferencesToDocument(preferences = {}) {
+export function applyPreferencesToDocument(preferences: PreferencesInput = {}) {
   let theme = "system";
   if (["system", "light", "dark"].includes(preferences.theme)) {
     theme = preferences.theme;
@@ -58,8 +67,8 @@ export function applyPreferencesToDocument(preferences = {}) {
   }
 }
 
-export function bindDialogFocus(dialog, { initialFocusSelector = null } = {}) {
-  let opener = null;
+export function bindDialogFocus(dialog: HTMLDialogElement, { initialFocusSelector = null }: DialogFocusOptions = {}) {
+  let opener: HTMLElement | null = null;
   const rememberOpener = () => {
     opener = null;
     if (document.activeElement instanceof HTMLElement) {

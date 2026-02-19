@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {  groupRowsByDate, monthKeysFromRows, enrichRows } from "./calendar/data.js";
 import { renderCalendarControls } from "./calendar/controls.js";
 import { renderCalendarDetails } from "./calendar/details.js";
