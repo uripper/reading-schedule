@@ -107,8 +107,8 @@ function finishDateMetaForBook(
   }
 
   return {
-    key: `finish:${finishDate.year}-${String(finishDate.month).padStart(2, '0')}`,
     label,
+    key: `finish:${finishDate.year}-${String(finishDate.month).padStart(2, '0')}`,
     order: finishDate.year * YEAR_MONTH_MULTIPLIER + finishDate.month,
     tie: label,
   };
