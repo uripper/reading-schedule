@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { applyPreferencesToDocument, createAnnouncer } from "./a11y.js";
 import { activateTab, bindTabs } from "./tabs.js";
-import { bindBooksUI, collectBooks, fillBooks, getBookById, updateBookProgress } from "./books.js";
+import { bindBooksUI, collectBooks, fillBooks, getBookById, setBookScheduleRows, updateBookProgress } from "./books.js";
 import { configureCalendarInteractions, renderCalendar } from "./calendar.js";
 import { el } from "./dom.js";
 import { addLog, bindHelpDialog } from "./help.js";
@@ -19,10 +19,20 @@ import {
   normalizeScheduleCompletions,
 } from "./app/experience.js";
 import { configureAppCalendarInteractions } from "./app/calendar_interactions.js";
+import { createPlanController } from "./app/plan_controller.js";
 import { draftData, saveStateSafe } from "./app/persistence.js";
-import { runPlanGeneration } from "./app/plan.js";
-import { activateSessionsAndStartTimer, totalsFromSummary, updateTodayDashboard } from "./app/today.js";
+import { activateSessionsAndStartTimer, updateTodayDashboard } from "./app/today.js";
 const PERSIST_DELAY_MS = 300;
+const NON_PLANNING_SETTING_IDS = new Set([
+  "themeSelect",
+  "reduceMotionToggle",
+  "dailyGoalInput",
+  "reminderEnabledToggle",
+  "reminderTimeInput",
+  "flagGamification",
+  "flagSocial",
+  "flagRecommendations",
+]);
 const state = {
   lastResult: null,
   ready: false,
@@ -32,6 +42,7 @@ const state = {
 };
 let persistTimer = null;
 let sessionsUI = null;
+let planController = null;
 const announce = createAnnouncer();
 
 function setStatus(message, isError = false) {
@@ -87,27 +98,18 @@ function applyExperienceSettings() {
   queuePersist();
 }
 
-async function run() {
-  await runPlanGeneration({
-    collectBooks,
-    collectSettings,
-    setStatus,
-    addLog,
-    announce,
-    plannerApi: globalThis.plannerApi,
-    onSuccess: async (data) => {
-      state.scheduleCompletions = {};
-      state.lastResult = {
-        schedule: data.schedule,
-        summary: data.summary,
-        created_at: new Date().toISOString(),
-      };
-      renderCalendar(data.schedule, totalsFromSummary(data.summary));
-      activateTab("schedule", { focusPanel: true });
-      updateTodayView();
-      await persistDraft();
-    },
-  });
+function queueAutoPlanFromSettings(event) {
+  if (!state.ready || !planController) {
+    return;
+  }
+  if (!(event.target instanceof HTMLElement)) {
+    return;
+  }
+  const id = String(event.target.id || "");
+  if (NON_PLANNING_SETTING_IDS.has(id)) {
+    return;
+  }
+  planController.queueAutoPlan();
 }
 
 async function init() {
@@ -131,6 +133,9 @@ async function init() {
     }
     updateTodayView();
     queuePersist();
+    if (state.ready && planController) {
+      planController.queueAutoPlan();
+    }
   });
   bindHelpDialog();
 
@@ -140,9 +145,40 @@ async function init() {
     onSessionsChanged: () => {
       updateTodayView();
       queuePersist();
+      if (state.ready && planController) {
+        planController.queueAutoPlan();
+      }
     },
     announce,
     setStatus,
+  });
+  planController = createPlanController({
+    plannerApi: globalThis.plannerApi,
+    collectBooks,
+    collectSettings,
+    setStatus,
+    addLog,
+    announce,
+    getLastResult: () => state.lastResult,
+    setLastResult: (nextResult) => {
+      state.lastResult = nextResult;
+    },
+    getSessions: () => sessionsUI.getSessions(),
+    getScheduleCompletions: () => state.scheduleCompletions,
+    setScheduleCompletions: (nextCompletions) => {
+      state.scheduleCompletions = nextCompletions;
+    },
+    renderCalendar,
+    totalsFromSummary: (summary) => {
+      const perBook = summary?.per_book || {};
+      const pairs = Object.entries(perBook).map(([id, info]) => {
+        return [id, Number(info.words_total || 0)];
+      });
+      return Object.fromEntries(pairs);
+    },
+    setBookScheduleRows,
+    updateTodayView,
+    persistDraft,
   });
 
   bindExperienceSettings(applyExperienceSettings);
@@ -153,6 +189,11 @@ async function init() {
     setStatus,
     updateBookProgress,
     getBookById,
+    onProgressUpdated: () => {
+      if (state.ready && planController) {
+        planController.queueAutoPlan();
+      }
+    },
   });
 
   try {
@@ -170,27 +211,40 @@ async function init() {
     fillPreferencesUI(state.preferences, state.featureFlags);
     applyPreferencesToDocument(state.preferences);
     sessionsUI.setSessions(saved?.sessions || []);
-
-    if (saved?.last_result?.schedule?.length) {
-      state.lastResult = saved.last_result;
-      renderCalendar(saved.last_result.schedule, totalsFromSummary(saved.last_result.summary));
-      addLog("Loaded previous schedule.");
-    }
+    planController.applyLoadedResult(saved?.last_result || null);
 
     updateTodayView();
     state.ready = true;
     document.addEventListener("input", queuePersist);
     document.addEventListener("change", queuePersist);
+    const settingsPanel = el("tab-settings");
+    settingsPanel.addEventListener("input", queueAutoPlanFromSettings);
+    settingsPanel.addEventListener("change", queueAutoPlanFromSettings);
+    settingsPanel.addEventListener("click", (event) => {
+      if (!state.ready || !planController) {
+        return;
+      }
+      if (!(event.target instanceof HTMLElement)) {
+        return;
+      }
+      const addDayOff = event.target.closest("#addDayOffBtn");
+      const removeDayOff = event.target.closest("#dayOffList .chip-btn");
+      if (addDayOff || removeDayOff) {
+        planController.queueAutoPlan();
+      }
+    });
     if (saved) {
       setStatus("Loaded saved data.");
     } else {
       setStatus("Loaded sample data.");
     }
+    if (!saved?.last_result?.schedule?.length) {
+      planController.queueAutoPlan();
+    }
   } catch (error) {
     setStatus(error.message || "Failed to load initial data", true);
   }
 
-  el("runBtn").onclick = run;
   el("startSessionFromTodayBtn").onclick = () => {
     activateSessionsAndStartTimer(state.lastResult, sessionsUI, activateTab);
   };
