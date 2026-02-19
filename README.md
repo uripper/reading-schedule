@@ -55,6 +55,18 @@ UI_SCALE=1.65 npm run start
 powershell -ExecutionPolicy Bypass -File scripts/install_and_run_windows.ps1 -SourcePath "C:\path\to\reading-schedule"
 ```
 
+From WSL, use:
+
+```bash
+npm run dev:windows
+```
+
+Set a specific Python launcher target:
+
+```bash
+npm run dev:windows -- 3.11
+```
+
 ## Tests
 
 ```bash
