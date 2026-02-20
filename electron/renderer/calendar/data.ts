@@ -1,5 +1,5 @@
 import type { PlannerScheduleRow } from '../app/types.js';
-import { sortRowsByDateAndSession } from './utils.js';
+import { sessionKeyFor, sortRowsByDateAndSession } from './utils.js';
 
 const DAYS_IN_WEEK = 7;
 
@@ -10,6 +10,8 @@ export type CalendarRowWithFinish = CalendarRow & {
 };
 
 type RowsByDate = Record<string, CalendarRowWithFinish[]>;
+type CompletionChecker = (sessionKey: string) => boolean;
+type ProgressUpdateChecker = (sessionKey: string) => boolean;
 
 function todayKey(): string {
   const now = new Date();
@@ -60,7 +62,12 @@ function isFinishRow(
   return true;
 }
 
-export function enrichRows(rows: CalendarRow[], totals: Record<string, number> = {}): CalendarRowWithFinish[] {
+export function enrichRows(
+  rows: CalendarRow[],
+  totals: Record<string, number> = {},
+  isSessionCompleted: CompletionChecker = () => false,
+  hasSessionProgressUpdate: ProgressUpdateChecker = () => false,
+): CalendarRowWithFinish[] {
   const progressByBookId: Record<string, number> = {};
   const finishedByBookId: Record<string, boolean> = {};
   const sortedRows = sortRowsByDateAndSession(rows);
@@ -73,8 +80,17 @@ export function enrichRows(rows: CalendarRow[], totals: Record<string, number> =
 
     const bookId = String(row.book_id || '');
     const plannedWords = Number(row.words_planned || 0);
-    const nextBookProgress = nextProgress(bookId, plannedWords, progressByBookId);
+    const sessionKey = sessionKeyFor(row);
+    const completedToday = rowDate === today && isSessionCompleted(sessionKey);
+    const explicitProgressToday = completedToday && hasSessionProgressUpdate(sessionKey);
+    const effectivePlannedWords = completedToday && explicitProgressToday
+      ? 0
+      : plannedWords;
+    const nextBookProgress = nextProgress(bookId, effectivePlannedWords, progressByBookId);
     const finishesBook = isFinishRow(bookId, nextBookProgress, totals, finishedByBookId);
+    if (completedToday) {
+      return { ...row, finish: false };
+    }
     return { ...row, finish: finishesBook };
   });
 }

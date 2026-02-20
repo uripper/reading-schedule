@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { groupRowsByDate } from '../dist/renderer/calendar/data.js';
+import { enrichRows, groupRowsByDate } from '../dist/renderer/calendar/data.js';
 import { rowsWithCompletedLast } from '../dist/renderer/calendar/details_helpers.js';
-import { sessionKeyFor } from '../dist/renderer/calendar/utils.js';
+import { dayKey, sessionKeyFor } from '../dist/renderer/calendar/utils.js';
 
 function row(overrides) {
   return {
@@ -61,4 +61,25 @@ test('rowsWithCompletedLast keeps expected-finish rows first inside incomplete a
       'book-complete-normal',
     ],
   );
+});
+
+test('enrichRows moves expected-finish forward when today row is marked complete', () => {
+  const today = dayKey(new Date());
+  const tomorrowDate = new Date(`${today}T00:00:00`);
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const tomorrow = dayKey(tomorrowDate);
+
+  const todayRow = row({ date: today, session_index: 1, book_id: 'book-1', words_planned: 100 });
+  const tomorrowRow = row({ date: tomorrow, session_index: 1, book_id: 'book-1', words_planned: 100 });
+  const totals = { 'book-1': 100 };
+
+  const enriched = enrichRows(
+    [todayRow, tomorrowRow],
+    totals,
+    (sessionKey) => sessionKey === sessionKeyFor(todayRow),
+    (sessionKey) => sessionKey === sessionKeyFor(todayRow),
+  );
+
+  assert.equal(enriched[0]?.finish, false);
+  assert.equal(enriched[1]?.finish, true);
 });

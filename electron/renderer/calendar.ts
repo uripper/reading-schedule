@@ -21,6 +21,7 @@ type ProgressUpdatePayload = {
 
 type CalendarHandlers = {
   isSessionCompleted: (sessionKey: string) => boolean;
+  hasSessionProgressUpdate: (sessionKey: string) => boolean;
   onSessionCompletionChanged: (payload: CompletionChangePayload) => void;
   onSessionProgressUpdated: (payload: ProgressUpdatePayload) => Book | null;
   getBookById: (bookId: string) => Book | null;
@@ -28,6 +29,7 @@ type CalendarHandlers = {
 
 const state = {
   dates: {} as Record<string, CalendarRowWithFinish[]>,
+  rawRows: [] as PlannerScheduleRow[],
   rows: [] as CalendarRowWithFinish[],
   totalsByBookId: {} as Record<string, number>,
   months: [] as string[],
@@ -39,6 +41,7 @@ const state = {
 
 const defaultHandlers: CalendarHandlers = {
   isSessionCompleted: () => false,
+  hasSessionProgressUpdate: () => false,
   onSessionCompletionChanged: () => {},
   onSessionProgressUpdated: () => null,
   getBookById: () => null,
@@ -46,8 +49,21 @@ const defaultHandlers: CalendarHandlers = {
 
 let interactionHandlers: CalendarHandlers = { ...defaultHandlers };
 
+function refreshDerivedRows(): void {
+  const enrichedRows = enrichRows(
+    state.rawRows,
+    state.totalsByBookId,
+    interactionHandlers.isSessionCompleted,
+    interactionHandlers.hasSessionProgressUpdate,
+  );
+  state.rows = enrichedRows;
+  state.dates = groupRowsByDate(enrichedRows);
+  state.months = monthKeysFromRows(enrichedRows);
+}
+
 function renderDetails(): void {
-  renderCalendarDetails(state, interactionHandlers);
+  refreshDerivedRows();
+  renderCalendarDetails(state, interactionHandlers, renderDetails);
 }
 
 function todayDateKey(): string {
@@ -128,11 +144,9 @@ function renderControls(): void {
 export function renderCalendar(rows: PlannerScheduleRow[], totals: Record<string, number>): void {
   const previousSelectedDate = state.selectedDate;
   const previousMonthKey = state.months[state.index] || '';
-  const enrichedRows = enrichRows(rows, totals);
-  state.rows = enrichedRows;
+  state.rawRows = [...rows];
   state.totalsByBookId = { ...totals };
-  state.dates = groupRowsByDate(enrichedRows);
-  state.months = monthKeysFromRows(enrichedRows);
+  refreshDerivedRows();
   state.index = 0;
   if (previousMonthKey) {
     const previousMonthIndex = state.months.indexOf(previousMonthKey);
@@ -167,6 +181,7 @@ export function focusCalendarToday(): void {
 export function configureCalendarInteractions(handlers: Partial<CalendarHandlers> = {}): void {
   interactionHandlers = {
     isSessionCompleted: handlers.isSessionCompleted || defaultHandlers.isSessionCompleted,
+    hasSessionProgressUpdate: handlers.hasSessionProgressUpdate || defaultHandlers.hasSessionProgressUpdate,
     onSessionCompletionChanged: handlers.onSessionCompletionChanged || defaultHandlers.onSessionCompletionChanged,
     onSessionProgressUpdated: handlers.onSessionProgressUpdated || defaultHandlers.onSessionProgressUpdated,
     getBookById: handlers.getBookById || defaultHandlers.getBookById,
