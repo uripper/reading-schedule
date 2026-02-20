@@ -51,7 +51,7 @@ function lockedDates(previousRows: PlannerScheduleRow[] = [], sessions: Session[
     if (!key) {
       return;
     }
-    if (previousDates.has(key)) {
+    if (previousDates.has(key) && key <= todayKey) {
       locked.add(key);
     }
   });

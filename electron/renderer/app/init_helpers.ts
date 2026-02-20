@@ -54,9 +54,7 @@ export function finalizeInitialLoad({
   } else {
     setStatus('Loaded sample data.');
   }
-  if (!saved?.last_result?.schedule?.length) {
-    queueAutoPlan();
-  }
+  queueAutoPlan();
 }
 
 export function bindTodayActions(): void {

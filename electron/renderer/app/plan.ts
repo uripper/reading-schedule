@@ -14,6 +14,29 @@ type RunPlanGenerationArgs = {
   successAnnouncement?: string;
 };
 
+function dayKeyFromDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function tomorrowDayKey(): string {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return dayKeyFromDate(tomorrow);
+}
+
+function normalizeEndDate(endDate: unknown, startDate: string): string | undefined {
+  if (typeof endDate !== 'string' || !endDate) {
+    return undefined;
+  }
+  if (endDate < startDate) {
+    return startDate;
+  }
+  return endDate;
+}
+
 function summaryLog(summary: PlannerSummary | null): string {
   const status = summary?.status || 'not-set';
   const planned = Number(summary?.total_planned_minutes || 0);
@@ -42,10 +65,17 @@ export async function runPlanGeneration({
     }
 
     setStatus(statusGeneratingMessage);
+    const settings = collectSettings();
+    const forcedStartDate = tomorrowDayKey();
+    const normalizedEndDate = normalizeEndDate(settings.end_date, forcedStartDate);
     const payload: PlanGeneratePayload = {
       planner: 'mip',
       books: payloadBooks,
-      settings: collectSettings(),
+      settings: {
+        ...settings,
+        start_date: forcedStartDate,
+        ...(normalizedEndDate ? { end_date: normalizedEndDate } : {}),
+      },
     };
 
     const data = await plannerApi.generate(payload);

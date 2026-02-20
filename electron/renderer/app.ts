@@ -182,10 +182,19 @@ async function init() {
     state,
     queuePersist,
     setStatus,
+    collectSettings,
+    collectAllBooks,
+    setBookScheduleRows,
+    renderCalendar,
+    totalsFromSummary,
     updateBookProgress,
     getBookById,
+    setLastResult: (nextResult: PlannerResult) => {
+      state.lastResult = nextResult;
+    },
     onSessionCompletionUpdated: handleSessionCompletionUpdated,
     onProgressUpdated: handleProgressUpdated,
+    onScheduleRowsUpdated: updateDashboards,
   });
   await loadInitialData({
     plannerApi,
