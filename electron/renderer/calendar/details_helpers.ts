@@ -264,7 +264,12 @@ export function buildFutureSessionItem(
   const item = baseSessionItem(row);
   const estimate = document.createElement('p');
   estimate.className = DAY_DETAILS_META_CLASS;
-  estimate.textContent = estimateProgressLabel(row, state, interactionHandlers.getBookById);
+  estimate.textContent = estimateProgressLabel(
+    row,
+    state,
+    interactionHandlers.getBookById,
+    interactionHandlers.isSessionCompleted,
+  );
   item.append(estimate);
   return item;
 }
