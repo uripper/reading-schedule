@@ -25,6 +25,37 @@ import { createPersistQueue, createStatusSetter, totalsFromSummary } from "./app
 import type { PlannerApi, PlannerResult } from "./app/types.js";
 import { updateTodayDashboard } from "./app/today.js";
 import type { Session } from "./sessions/normalize.js";
+
+const SPLASH_MIN_DURATION_MS = 2200;
+const SPLASH_FADE_DURATION_MS = 600;
+
+function createSplashController() {
+  const splashScreen = document.getElementById("splashScreen");
+  const startedAt = performance.now();
+
+  const finish = () => {
+    if (!(splashScreen instanceof HTMLElement)) {
+      return;
+    }
+
+    document.body.classList.add("splash-exit");
+    const removeSplash = () => {
+      splashScreen.remove();
+      document.body.classList.remove("splash-exit");
+    };
+
+    splashScreen.addEventListener("transitionend", removeSplash, { once: true });
+    globalThis.setTimeout(removeSplash, SPLASH_FADE_DURATION_MS + 120);
+  };
+
+  const completeWhenReady = () => {
+    const elapsed = performance.now() - startedAt;
+    const remaining = Math.max(0, SPLASH_MIN_DURATION_MS - elapsed);
+    globalThis.setTimeout(finish, remaining);
+  };
+
+  return { completeWhenReady };
+}
 const state: {
   lastResult: PlannerResult | null;
   ready: boolean;
@@ -186,4 +217,7 @@ async function init() {
   });
   bindTodayActions();
 }
+
+const splash = createSplashController();
 await init();
+splash.completeWhenReady();

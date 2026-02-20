@@ -87,6 +87,7 @@ function plannedWordsBeforeAndThroughRow(
     return { before: 0, through: 0 };
   }
 
+  const targetIsFuture = targetDate > today;
   const targetSortKey = rowSortKey(row);
   let before = 0;
   let through = 0;
@@ -100,6 +101,13 @@ function plannedWordsBeforeAndThroughRow(
     }
     const date = String(candidate.date || '');
     if (!date || date < today) {
+      return;
+    }
+    if (
+      targetIsFuture &&
+      date === today &&
+      isSessionCompleted(estimateSessionKey(candidate))
+    ) {
       return;
     }
     const candidateSortKey = rowSortKey(candidate);

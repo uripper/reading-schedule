@@ -24,6 +24,76 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 25% 20%, color-mix(in srgb, var(--app-brandStrong) 24%, transparent), transparent 46%),
+    radial-gradient(circle at 75% 75%, color-mix(in srgb, var(--app-success) 20%, transparent), transparent 52%),
+    var(--app-bg);
+  opacity: 1;
+  transition: opacity 560ms var(--token-motion-easing-standard);
+}
+
+.splash-inner {
+  display: grid;
+  justify-items: center;
+  gap: var(--token-space-4);
+}
+
+.splash-title {
+  margin: 0;
+  font-family: var(--token-typography-family-heading);
+  font-size: clamp(1.8rem, 5.6vw, 3.8rem);
+  letter-spacing: 0.2em;
+  font-weight: var(--token-typography-weight-bold);
+  color: color-mix(in srgb, var(--app-text) 88%, var(--app-brandStrong) 12%);
+  animation: splashTitleEnter 720ms var(--token-motion-easing-standard) both;
+}
+
+.splash-logo {
+  width: clamp(88px, 18vw, 150px);
+  height: auto;
+  filter: drop-shadow(0 14px 24px color-mix(in srgb, var(--app-brandStrong) 36%, transparent));
+  animation: splashLogoSpinZoom 1600ms 560ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+body.splash-exit .splash-screen {
+  opacity: 0;
+}
+
+@keyframes splashTitleEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes splashLogoSpinZoom {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg) scale(0.7);
+  }
+  24% {
+    opacity: 1;
+    transform: rotate(120deg) scale(0.86);
+  }
+  55% {
+    transform: rotate(280deg) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(360deg) scale(1);
+  }
+}
+
 .skip-link {
   position: absolute;
   top: calc(var(--token-space-2) * -1);
@@ -59,8 +129,16 @@ body {
 }
 
 .brand-wrap {
-  display: grid;
+  display: flex;
+  align-items: center;
   gap: var(--token-space-1);
+}
+
+.brand-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: var(--token-radius-sm);
 }
 
 .brand-eyebrow {

@@ -86,12 +86,12 @@ function submitProgressUpdate(
   initialPagesValue: string,
   initialPercentValue: string,
   interactionHandlers: DetailInteractionHandlers,
-): { initialPagesValue: string; initialPercentValue: string } {
+): { initialPagesValue: string; initialPercentValue: string; applied: boolean } {
   event.preventDefault();
   const pagesRead = changedNumberValue(pagesInput, initialPagesValue);
   const progressPercent = changedNumberValue(pctInput, initialPercentValue);
   if (pagesRead === null && progressPercent === null) {
-    return { initialPagesValue, initialPercentValue };
+    return { initialPagesValue, initialPercentValue, applied: true };
   }
   const updated = interactionHandlers.onSessionProgressUpdated({
     bookId: row.book_id,
@@ -100,11 +100,12 @@ function submitProgressUpdate(
     row,
   });
   if (!updated) {
-    return { initialPagesValue, initialPercentValue };
+    return { initialPagesValue, initialPercentValue, applied: false };
   }
   return {
     initialPagesValue: syncInputValue(pagesInput, updated.pages_read),
     initialPercentValue: syncInputValue(pctInput, updated.progress_percent),
+    applied: true,
   };
 }
 
@@ -112,6 +113,7 @@ function progressFormForToday(
   row: CalendarRowWithFinish,
   book: Book,
   interactionHandlers: DetailInteractionHandlers,
+  onProgressApplied: () => void,
 ): HTMLFormElement {
   const progressForm = document.createElement('form');
   progressForm.className = 'day-progress-form';
@@ -162,6 +164,9 @@ function progressFormForToday(
     );
     initialPagesValue = updatedValues.initialPagesValue;
     initialPercentValue = updatedValues.initialPercentValue;
+    if (updatedValues.applied) {
+      onProgressApplied();
+    }
   };
 
   return progressForm;
@@ -252,6 +257,20 @@ export function buildPastSessionItem(
     rerenderDetails();
   };
 
+  const markCompleteFromProgressUpdate = () => {
+    if (completeInput.checked) {
+      return;
+    }
+    completeInput.checked = true;
+    item.classList.add(COMPLETE_ITEM_CLASS);
+    interactionHandlers.onSessionCompletionChanged({
+      completed: true,
+      row,
+      sessionKey,
+    });
+    rerenderDetails();
+  };
+
   item.append(completeLabel, status);
   return item;
 }
@@ -301,6 +320,20 @@ export function buildTodaySessionItem(
     rerenderDetails();
   };
 
+  const markCompleteFromProgressUpdate = () => {
+    if (completeInput.checked) {
+      return;
+    }
+    completeInput.checked = true;
+    item.classList.add(COMPLETE_ITEM_CLASS);
+    interactionHandlers.onSessionCompletionChanged({
+      completed: true,
+      row,
+      sessionKey,
+    });
+    rerenderDetails();
+  };
+
   const book = interactionHandlers.getBookById(row.book_id);
   const fallbackBook: Book = {
     book_id: row.book_id,
@@ -323,6 +356,9 @@ export function buildTodaySessionItem(
     cover_local_path: '',
     lookup_note: '',
   };
-  item.append(completeLabel, progressFormForToday(row, book || fallbackBook, interactionHandlers));
+  item.append(
+    completeLabel,
+    progressFormForToday(row, book || fallbackBook, interactionHandlers, markCompleteFromProgressUpdate),
+  );
   return item;
 }
