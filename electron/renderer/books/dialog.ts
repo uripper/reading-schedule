@@ -14,6 +14,10 @@ type BookDialogOptions = {
   getBooks?: () => Book[];
 };
 
+type OpenDialogOptions = {
+  defaultShelf?: string;
+};
+
 function setSavingState(refs: BookFormRefs, busy: boolean): void {
   refs.saveBtn.disabled = busy;
   refs.saveBtn.textContent = "Save Book";
@@ -37,11 +41,15 @@ export function createBookDialog(onSubmit: (book: Book) => Promise<void> | void,
   });
 
   const close = () => dialogFocus.closeAndReturnFocus();
-  const open = (book: Book | null = null) => {
+  const open = (book: Book | null = null, options: OpenDialogOptions = {}) => {
     dialogFocus.rememberOpener();
     clearForm(refs, lookupControl);
     afterBookPicker.openForBook(book);
-    renderShelfPicker(refs, getBooks(), book?.shelf || "");
+    let selectedShelf = String(options.defaultShelf || "").trim();
+    if (book?.shelf) {
+      selectedShelf = book.shelf;
+    }
+    renderShelfPicker(refs, getBooks(), selectedShelf);
     refs.dialogTitle.textContent = "Add Book";
     if (book) {
       refs.dialogTitle.textContent = "Edit Book";

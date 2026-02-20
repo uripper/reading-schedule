@@ -6,7 +6,7 @@ import { GROUP_BY_NONE, GROUP_BY_AUTHOR, GROUP_BY_FINISH_DATE, GROUP_BY_SHELF, G
 import { hasSchedulableLength, normalizeBook, toPayloadBook } from './model.js';
 import { withUpdatedProgress } from './progress.js';
 import { hydrateBookCover, upsertBookById } from './save.js';
-import { shelfFilterMatches, SHELF_FILTER_ALL } from './shelf.js';
+import { shelfFilterMatches, SHELF_FILTER_ALL, SHELF_FILTER_UNSHELVED } from './shelf.js';
 import {
   BOOK_STATUS_FILTER_ALL,
   normalizeStatusFilter,
@@ -56,7 +56,7 @@ type BooksControllerRefs = {
 };
 
 type BookDialogController = {
-  open: (book?: Book | null) => void;
+  open: (book?: Book | null, options?: { defaultShelf?: string }) => void;
 };
 
 type BooksViewState = {
@@ -103,6 +103,13 @@ function toGroupBy(value: string): BookGroupBy {
     return matched;
   }
   return GROUP_BY_NONE;
+}
+
+function defaultShelfForAddDialog(currentShelfFilter: string): string {
+  if (currentShelfFilter === SHELF_FILTER_ALL || currentShelfFilter === SHELF_FILTER_UNSHELVED) {
+    return "";
+  }
+  return currentShelfFilter;
 }
 
 let books: Book[] = [];
@@ -328,7 +335,7 @@ export function bindBooksUI(onChanged: () => void = () => {}): void {
   dialog = createBookDialog(saveBook, { getBooks: () => books });
   refs.addBtn.onclick = () => {
     if (dialog) {
-      dialog.open();
+      dialog.open(null, { defaultShelf: defaultShelfForAddDialog(viewState.shelfFilter) });
     }
   };
   render();
