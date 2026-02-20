@@ -13,7 +13,7 @@ import {
 import type { AppCalendarInteractionArgs } from './calendar_interactions_types.js';
 import type { PlannerResult, PlannerScheduleRow } from './types.js';
 
-export { nextSessionIndexForDate, rowsWithoutSession, wordsPlannedForManualSession };
+
 
 export function configureAppCalendarInteractions({
   configureCalendarInteractions,
@@ -106,6 +106,7 @@ export function configureAppCalendarInteractions({
         return false;
       }
 
+      const DEFAULT_DIFFICULTY = 3;
       const normalizedMinutes = normalizedManualMinutes(minutes);
       const previousResult = state.lastResult || emptyPlannerResult();
       const previousRows = previousResult.schedule || [];
@@ -115,7 +116,7 @@ export function configureAppCalendarInteractions({
         minutes: normalizedMinutes,
         rows: previousRows,
         settings: collectSettings(),
-        difficulty: Number(book.difficulty || 3),
+        difficulty: Number(book.difficulty || DEFAULT_DIFFICULTY),
       });
 
       const addedRow: PlannerScheduleRow = {
@@ -177,3 +178,5 @@ export function configureAppCalendarInteractions({
     },
   });
 }
+
+export {nextSessionIndexForDate, rowsWithoutSession, wordsPlannedForManualSession} from './calendar_interactions_helpers.js';

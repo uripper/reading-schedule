@@ -4,9 +4,7 @@ import { enrichRows, groupRowsByDate, monthKeysFromRows, type CalendarRowWithFin
 import { renderCalendarControls } from './calendar/controls.js';
 import { renderCalendarDetails } from './calendar/details.js';
 import { renderCalendarMonth } from './calendar/month.js';
-
 const DAYS_IN_WEEK = 7;
-
 type CompletionChangePayload = {
   sessionKey: string;
   completed: boolean;
@@ -34,7 +32,6 @@ type ManualSessionBook = {
   bookId: string;
   title: string;
 };
-
 type CalendarHandlers = {
   isSessionCompleted: (sessionKey: string) => boolean;
   onSessionCompletionChanged: (payload: CompletionChangePayload) => void;
@@ -44,7 +41,6 @@ type CalendarHandlers = {
   onManualSessionAdded: (payload: ManualSessionPayload) => boolean;
   onSessionRemoved: (payload: RemoveSessionPayload) => boolean;
 };
-
 const state = {
   dates: {} as Record<string, CalendarRowWithFinish[]>,
   rawRows: [] as PlannerScheduleRow[],
@@ -66,9 +62,7 @@ const defaultHandlers: CalendarHandlers = {
   onManualSessionAdded: () => false,
   onSessionRemoved: () => false,
 };
-
 let interactionHandlers: CalendarHandlers = { ...defaultHandlers };
-
 function refreshDerivedRows(): void {
   const enrichedRows = enrichRows(
     state.rawRows,
@@ -79,12 +73,10 @@ function refreshDerivedRows(): void {
   state.dates = groupRowsByDate(enrichedRows);
   state.months = monthKeysFromRows(enrichedRows);
 }
-
 function renderDetails(): void {
   refreshDerivedRows();
   renderCalendarDetails(state, interactionHandlers, renderDetails);
 }
-
 function todayDateKey(): string {
   const now = new Date();
   const year = now.getFullYear();
@@ -92,11 +84,9 @@ function todayDateKey(): string {
   const day = String(now.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
-
 function monthKeyForDateKey(dateKey: string): string {
   return dateKey.slice(0, DAYS_IN_WEEK);
 }
-
 function indexForMonth(months: string[], targetMonthKey: string): number {
   const exactIndex = months.indexOf(targetMonthKey);
   if (exactIndex >= 0) {
@@ -112,7 +102,6 @@ function indexForMonth(months: string[], targetMonthKey: string): number {
 
   return Math.max(0, months.length - 1);
 }
-
 function applyTodayFocus(): void {
   if (!state.months.length) {
     return;
@@ -126,7 +115,6 @@ function applyTodayFocus(): void {
     state.selectedDate = todayKey;
   }
 }
-
 function selectDate(dateKey: string, options: { focus?: boolean } = {}): void {
   state.selectedDate = dateKey;
   state.expectedFinishHighlightDate = dateKey;
@@ -138,7 +126,6 @@ function selectDate(dateKey: string, options: { focus?: boolean } = {}): void {
     }
   }
 }
-
 function moveSelectionBy(delta: number, currentIndex: number): void {
   const nextIndex = Math.min(state.monthCellKeys.length - 1, Math.max(0, currentIndex + delta));
   const nextKey = state.monthCellKeys[nextIndex];
@@ -147,7 +134,6 @@ function moveSelectionBy(delta: number, currentIndex: number): void {
   }
   selectDate(nextKey, { focus: true });
 }
-
 function renderMonth(): void {
   renderCalendarMonth(state, {
     selectDate,
@@ -155,11 +141,9 @@ function renderMonth(): void {
     renderDetails,
   });
 }
-
 function renderControls(): void {
   renderCalendarControls(state, renderControls, renderMonth);
 }
-
 export function renderCalendar(rows: PlannerScheduleRow[], totals: Record<string, number>): void {
   const previousSelectedDate = state.selectedDate;
   const previousMonthKey = state.months[state.index] || '';
@@ -187,7 +171,6 @@ export function renderCalendar(rows: PlannerScheduleRow[], totals: Record<string
   renderControls();
   renderMonth();
 }
-
 export function focusCalendarToday(): void {
   if (!state.months.length) {
     return;
@@ -196,7 +179,6 @@ export function focusCalendarToday(): void {
   renderControls();
   renderMonth();
 }
-
 export function configureCalendarInteractions(handlers: Partial<CalendarHandlers> = {}): void {
   interactionHandlers = {
     isSessionCompleted: handlers.isSessionCompleted || defaultHandlers.isSessionCompleted,
