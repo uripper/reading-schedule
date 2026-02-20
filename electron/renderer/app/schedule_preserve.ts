@@ -63,6 +63,10 @@ function scheduleKey(row: PlannerScheduleRow): string {
   return `${row.date}|${row.session_index}|${row.book_id}`;
 }
 
+function dayBookCompletionKey(row: PlannerScheduleRow): string {
+  return `${row.date}|${row.book_id}`;
+}
+
 export function mergeScheduleRows(
   previousRows: PlannerScheduleRow[] = [],
   nextRows: PlannerScheduleRow[] = [],
@@ -91,10 +95,11 @@ export function pruneScheduleCompletions(
   scheduleCompletions: Record<string, boolean> = {},
   rows: PlannerScheduleRow[] = [],
 ): Record<string, boolean> {
-  const allowed = new Set(rows.map((row) => scheduleKey(row)));
+  const allowedSessionKeys = new Set(rows.map((row) => scheduleKey(row)));
+  const allowedDayBookKeys = new Set(rows.map((row) => dayBookCompletionKey(row)));
   const out: Record<string, boolean> = {};
   Object.entries(scheduleCompletions).forEach(([key, value]) => {
-    if (!allowed.has(key)) {
+    if (!allowedSessionKeys.has(key) && !allowedDayBookKeys.has(key)) {
       return;
     }
     out[key] = Boolean(value);
