@@ -77,7 +77,6 @@ test('enrichRows moves expected-finish forward when today row is marked complete
     [todayRow, tomorrowRow],
     totals,
     (sessionKey) => sessionKey === sessionKeyFor(todayRow),
-    (sessionKey) => sessionKey === sessionKeyFor(todayRow),
   );
 
   assert.equal(enriched[0]?.finish, false);

@@ -21,7 +21,6 @@ type ProgressUpdatePayload = {
 
 type CalendarHandlers = {
   isSessionCompleted: (sessionKey: string) => boolean;
-  hasSessionProgressUpdate: (sessionKey: string) => boolean;
   onSessionCompletionChanged: (payload: CompletionChangePayload) => void;
   onSessionProgressUpdated: (payload: ProgressUpdatePayload) => Book | null;
   getBookById: (bookId: string) => Book | null;
@@ -41,7 +40,6 @@ const state = {
 
 const defaultHandlers: CalendarHandlers = {
   isSessionCompleted: () => false,
-  hasSessionProgressUpdate: () => false,
   onSessionCompletionChanged: () => {},
   onSessionProgressUpdated: () => null,
   getBookById: () => null,
@@ -54,7 +52,6 @@ function refreshDerivedRows(): void {
     state.rawRows,
     state.totalsByBookId,
     interactionHandlers.isSessionCompleted,
-    interactionHandlers.hasSessionProgressUpdate,
   );
   state.rows = enrichedRows;
   state.dates = groupRowsByDate(enrichedRows);
@@ -181,7 +178,6 @@ export function focusCalendarToday(): void {
 export function configureCalendarInteractions(handlers: Partial<CalendarHandlers> = {}): void {
   interactionHandlers = {
     isSessionCompleted: handlers.isSessionCompleted || defaultHandlers.isSessionCompleted,
-    hasSessionProgressUpdate: handlers.hasSessionProgressUpdate || defaultHandlers.hasSessionProgressUpdate,
     onSessionCompletionChanged: handlers.onSessionCompletionChanged || defaultHandlers.onSessionCompletionChanged,
     onSessionProgressUpdated: handlers.onSessionProgressUpdated || defaultHandlers.onSessionProgressUpdated,
     getBookById: handlers.getBookById || defaultHandlers.getBookById,
