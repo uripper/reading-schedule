@@ -1,10 +1,9 @@
 import { el } from '../dom.js';
-import type { CalendarRowWithFinish } from './data.js';
+import { rowsWithFinishFirst, type CalendarRowWithFinish } from './data.js';
 import {
   buildFutureSessionItem,
   buildPastSessionItem,
   buildTodaySessionItem,
-  completedRows,
   dayMode,
   type DetailInteractionHandlers,
   rowsWithCompletedLast,
@@ -18,11 +17,12 @@ type CalendarState = {
   dates: Record<string, CalendarRowWithFinish[]>;
   rows: CalendarRowWithFinish[];
   totalsByBookId: Record<string, number>;
+  expectedFinishHighlightDate: string;
 };
 
 function emptyMessageForMode(mode: CalendarDayMode): string {
   if (mode === 'past') {
-    return 'No completed sessions logged for this day.';
+    return 'No sessions planned for this day.';
   }
   return 'No sessions planned for this day.';
 }
@@ -33,12 +33,12 @@ function rowsForMode(
   interactionHandlers: DetailInteractionHandlers,
 ): CalendarRowWithFinish[] {
   if (mode === 'past') {
-    return completedRows(rows, interactionHandlers);
+    return rowsWithCompletedLast(rows, interactionHandlers);
   }
   if (mode === 'today') {
     return rowsWithCompletedLast(rows, interactionHandlers);
   }
-  return rows;
+  return rowsWithFinishFirst(rows);
 }
 
 function rowNodeForMode(
@@ -54,7 +54,7 @@ function rowNodeForMode(
   if (mode === 'future') {
     return buildFutureSessionItem(row, state, interactionHandlers);
   }
-  return buildPastSessionItem(row);
+  return buildPastSessionItem(row, interactionHandlers, rerenderDetails);
 }
 
 export function renderCalendarDetails(
@@ -76,6 +76,7 @@ export function renderCalendarDetails(
     hint.className = 'hint-text';
     hint.textContent = 'Select a day in the schedule grid to view details.';
     details.replaceChildren(title, hint);
+    state.expectedFinishHighlightDate = '';
     return;
   }
 
@@ -86,19 +87,25 @@ export function renderCalendarDetails(
     empty.className = 'hint-text';
     empty.textContent = emptyMessageForMode(mode);
     details.replaceChildren(title, empty);
+    state.expectedFinishHighlightDate = '';
     return;
   }
 
   const list = document.createElement('div');
   list.className = 'day-details-list';
+  const animateFinishRows = state.expectedFinishHighlightDate === key;
   const rerenderDetails = () => {
     renderCalendarDetails(state, interactionHandlers);
   };
 
   rowsToRender.forEach((row) => {
     const node = rowNodeForMode(mode, row, state, interactionHandlers, rerenderDetails);
+    if (animateFinishRows && row.finish) {
+      node.classList.add('is-finish-pulse');
+    }
     list.append(node);
   });
 
   details.replaceChildren(title, list);
+  state.expectedFinishHighlightDate = '';
 }

@@ -84,6 +84,26 @@
   opacity: 0.74;
 }
 
+.day.has-finish {
+  border-color: color-mix(in srgb, var(--app-success) 76%, var(--app-border));
+  background:
+    radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--app-success) 18%, transparent),
+      transparent 54%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--app-brand) 6%, transparent),
+      transparent 36%
+    ),
+    color-mix(in srgb, var(--app-surface) 90%, transparent);
+}
+
+.day.has-finish .day-event-count {
+  color: color-mix(in srgb, var(--app-success) 78%, var(--app-text));
+}
+
 .day.is-selected {
   border-color: color-mix(in srgb, var(--app-brandStrong) 84%, var(--app-border));
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--app-brandStrong) 54%, transparent);
@@ -164,9 +184,57 @@
   padding: var(--token-space-2);
 }
 
+.day-details-item.is-finish {
+  border-color: color-mix(in srgb, var(--app-success) 74%, var(--app-border));
+  background:
+    radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--app-success) 16%, transparent),
+      transparent 56%
+    ),
+    color-mix(in srgb, var(--app-surface) 84%, transparent);
+}
+
+.day-details-item.is-finish.is-complete {
+  border-color: color-mix(in srgb, var(--app-success) 82%, var(--app-border));
+  background: color-mix(in srgb, var(--app-success) 20%, var(--app-surface));
+}
+
 .day-details-item.is-complete {
   border-color: color-mix(in srgb, var(--app-success) 72%, var(--app-border));
   background: color-mix(in srgb, var(--app-success) 14%, var(--app-surface));
+}
+
+.day-finish-badge {
+  justify-self: start;
+  padding: 2px var(--token-space-2);
+  border-radius: var(--token-radius-pill);
+  border: 1px solid color-mix(in srgb, var(--app-success) 78%, var(--app-border));
+  background: color-mix(in srgb, var(--app-success) 16%, var(--app-surface));
+  color: color-mix(in srgb, var(--app-success) 82%, var(--app-text));
+  font-size: 11px;
+  font-weight: var(--token-typography-weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@keyframes finish-card-pulse {
+  0% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--app-success) 40%, transparent);
+  }
+  45% {
+    transform: translateY(-1px) scale(1.01);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--app-success) 20%, transparent);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--app-success) 0%, transparent);
+  }
+}
+
+.day-details-item.is-finish-pulse {
+  animation: finish-card-pulse 760ms var(--token-motion-easing-standard) 1;
 }
 
 .day-details-meta {

@@ -46,8 +46,15 @@ function createDayButton(
   const dayButton = document.createElement('button');
   dayButton.type = 'button';
   dayButton.className = 'day';
+  const hasFinishRow = rows.some((row) => Boolean(row.finish));
+  if (hasFinishRow) {
+    dayButton.classList.add('has-finish');
+  }
   if (date.getMonth() !== firstDate.getMonth()) {
     dayButton.className = 'day is-muted';
+    if (hasFinishRow) {
+      dayButton.classList.add('has-finish');
+    }
   }
   if (selectedDate === keyForDay) {
     dayButton.classList.add('is-selected');

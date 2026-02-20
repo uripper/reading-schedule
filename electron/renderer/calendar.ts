@@ -34,6 +34,7 @@ const state = {
   index: 0,
   selectedDate: '',
   monthCellKeys: [] as string[],
+  expectedFinishHighlightDate: '',
 };
 
 const defaultHandlers: CalendarHandlers = {
@@ -93,8 +94,8 @@ function applyTodayFocus(): void {
 
 function selectDate(dateKey: string, options: { focus?: boolean } = {}): void {
   state.selectedDate = dateKey;
+  state.expectedFinishHighlightDate = dateKey;
   renderMonth();
-  renderDetails();
   if (options.focus) {
     const button = document.querySelector(`[data-calendar-day='${dateKey}']`);
     if (button instanceof HTMLElement) {
@@ -145,6 +146,7 @@ export function renderCalendar(rows: PlannerScheduleRow[], totals: Record<string
   } else {
     state.selectedDate = '';
   }
+  state.expectedFinishHighlightDate = '';
   if (!previousSelectedDate) {
     applyTodayFocus();
   }
