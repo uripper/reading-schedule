@@ -97,6 +97,30 @@ test('estimateProgressLabel ignores completed current-day sessions for future es
   );
 });
 
+test('estimateProgressLabel ignores completed pre-target sessions even when date is after local today', () => {
+  const today = dayKey(new Date());
+  const shiftedCurrent = plusDays(today, 1);
+  const target = plusDays(today, 2);
+  const shiftedCurrentRow = row({ date: shiftedCurrent, session_index: 1 });
+  const targetRow = row({ date: target, session_index: 1 });
+  const state = {
+    rows: [shiftedCurrentRow, targetRow],
+    totalsByBookId: { 'book-1': 4000 },
+  };
+
+  const label = estimateProgressLabel(
+    targetRow,
+    state,
+    () => book(),
+    (sessionKey) => sessionKey === `${shiftedCurrent}|1|book-1`,
+  );
+
+  assert.equal(
+    label,
+    'Estimated before session: 100 pages (25%) -> after session: 200 pages (50%)',
+  );
+});
+
 test('estimateProgressLabel uses current progress for completed current-day session', () => {
   const today = dayKey(new Date());
   const todayRow = row({ date: today, session_index: 1 });

@@ -103,15 +103,12 @@ function plannedWordsBeforeAndThroughRow(
     if (!date || date < today) {
       return;
     }
-    if (
-      targetIsFuture &&
-      date === today &&
-      isSessionCompleted(estimateSessionKey(candidate))
-    ) {
-      return;
-    }
     const candidateSortKey = rowSortKey(candidate);
     if (candidateSortKey > targetSortKey) {
+      return;
+    }
+    const completed = isSessionCompleted(estimateSessionKey(candidate));
+    if (targetIsFuture && completed) {
       return;
     }
     const plannedWords = Math.max(0, Number(candidate.words_planned || 0));
