@@ -28,7 +28,7 @@ function formatFindStatus(result: WindowFindResponse): string {
   return `${result.activeMatchOrdinal} of ${result.matches}`;
 }
 export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings): void {
-  const findBar = el<HTMLElement>("findBar");
+  const findBar = el("findBar");
   const findInput = el<HTMLInputElement>("findInput");
   const findStatus = el<HTMLOutputElement>("findStatus");
   const findPrevButton = el<HTMLButtonElement>("findPrevBtn");

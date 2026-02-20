@@ -80,7 +80,10 @@ export function enrichRows(
     const plannedWords = Number(row.words_planned || 0);
     const sessionKey = sessionKeyFor(row);
     const completedToday = rowDate === today && isSessionCompleted(sessionKey);
-    const effectivePlannedWords = completedToday ? 0 : plannedWords;
+    let effectivePlannedWords = plannedWords;
+    if (completedToday) {
+      effectivePlannedWords = 0;
+    }
     const nextBookProgress = nextProgress(bookId, effectivePlannedWords, progressByBookId);
     const finishesBook = isFinishRow(bookId, nextBookProgress, totals, finishedByBookId);
     if (completedToday) {

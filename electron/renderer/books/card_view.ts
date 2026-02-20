@@ -4,12 +4,10 @@ import { metaLabel, progressLabel, subtitle, wordsLabel } from './presenters.js'
 import { statusLabel } from './status.js';
 import type { Book } from './types.js';
 import type { BookGroup } from './grouping.js';
-
 type CardHandlers = {
   onEdit: (bookId: string) => void;
   onRemove: (bookId: string) => void;
 };
-
 type RenderBookGridOptions = {
   grid: HTMLElement;
   empty: HTMLElement;
@@ -21,7 +19,6 @@ type RenderBookGridOptions = {
   onEdit: (bookId: string) => void;
   onRemove: (bookId: string) => void;
 };
-
 function createCard(
   book: Book,
   titleById: Record<string, string>,
@@ -97,7 +94,6 @@ function createCard(
   card.append(meta);
   return card;
 }
-
 function bindCardEvents(rootNode: HTMLElement, { onEdit, onRemove }: CardHandlers): void {
   rootNode.querySelectorAll<HTMLButtonElement>('.edit-book-btn').forEach((btn) => {
     btn.onclick = () => onEdit(btn.dataset.bookId || '');
@@ -114,7 +110,6 @@ function bindCardEvents(rootNode: HTMLElement, { onEdit, onRemove }: CardHandler
     });
   });
 }
-
 function titleByIdMap(books: Book[], allBooks: Book[]): Record<string, string> {
   let sourceBooks = books;
   if (allBooks.length) {
@@ -122,7 +117,6 @@ function titleByIdMap(books: Book[], allBooks: Book[]): Record<string, string> {
   }
   return Object.fromEntries(sourceBooks.map((book) => [book.book_id, book.title]));
 }
-
 function createGroupSection(
   group: BookGroup,
   titleById: Record<string, string>,
@@ -147,7 +141,6 @@ function createGroupSection(
   section.append(heading, row);
   return section;
 }
-
 function renderFlatBooks(
   grid: HTMLElement,
   books: Book[],
@@ -161,7 +154,6 @@ function renderFlatBooks(
   });
   grid.replaceChildren(...cards);
 }
-
 function renderGroupedBooks(
   grid: HTMLElement,
   groups: BookGroup[],
@@ -175,7 +167,6 @@ function renderGroupedBooks(
   });
   grid.replaceChildren(...sections);
 }
-
 export function renderBookGrid({
   grid,
   empty,

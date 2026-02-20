@@ -4,11 +4,9 @@ from __future__ import annotations
 
 import math
 from datetime import date
-
 from .budget import book_day_block_limit, day_capacity_blocks, words_per_block
 from .calendar import date_range
 from .types import Book, PLAN_MODE_SPREAD_OUT, Settings
-
 
 def plan_greedy(books: list[Book], settings: Settings) -> dict[tuple[str, date], int]:
     """Build a feasible day-by-day block allocation using greedy heuristics."""
@@ -41,7 +39,6 @@ def plan_greedy(books: list[Book], settings: Settings) -> dict[tuple[str, date],
 
     return {k: v for k, v in assignments.items() if v > 0}
 
-
 def _seed_day(
     ordered: list[Book],
     used: list[Book],
@@ -71,7 +68,6 @@ def _seed_day(
         )
         used.append(book)
     return cap
-
 
 def _fill_day(
     ordered: list[Book],
@@ -106,7 +102,6 @@ def _fill_day(
         )
         used.append(nxt)
 
-
 def _assign_blocks(
     assignments: dict[tuple[str, date], int],
     remaining: dict[str, float],
@@ -124,12 +119,10 @@ def _assign_blocks(
     )
     return cap - blocks
 
-
 def _sort_key(book: Book, remaining: dict[str, float]) -> tuple[int, date, float, str]:
     """Rank books by priority, deadline, and remaining words for greedy ordering."""
     due = book.deadline or date.max
     return book.priority, due, -remaining[book.book_id], book.book_id
-
 
 def _next_book(
     ordered: list[Book],
@@ -157,19 +150,16 @@ def _next_book(
             return book
     return None
 
-
 def _room(
     assignments: dict[tuple[str, date], int], book_id: str, day: date, limit: int
 ) -> int:
     """Return remaining per-day block capacity for a specific book."""
     return limit - assignments.get((book_id, day), 0)
 
-
 def _is_unlocked(book: Book, remaining: dict[str, float]) -> bool:
     """Return whether unlocked."""
     blocker = book.blocked_by
     return remaining.get(blocker, 0.0) <= 0.0 if blocker else True
-
 
 def _spread_cap_for_day(
     days: list[date],

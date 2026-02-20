@@ -68,14 +68,17 @@ export async function runPlanGeneration({
     const settings = collectSettings();
     const forcedStartDate = tomorrowDayKey();
     const normalizedEndDate = normalizeEndDate(settings.end_date, forcedStartDate);
+    const payloadSettings = {
+      ...settings,
+      start_date: forcedStartDate,
+    };
+    if (normalizedEndDate) {
+      payloadSettings.end_date = normalizedEndDate;
+    }
     const payload: PlanGeneratePayload = {
       planner: 'mip',
       books: payloadBooks,
-      settings: {
-        ...settings,
-        start_date: forcedStartDate,
-        ...(normalizedEndDate ? { end_date: normalizedEndDate } : {}),
-      },
+      settings: payloadSettings,
     };
 
     const data = await plannerApi.generate(payload);

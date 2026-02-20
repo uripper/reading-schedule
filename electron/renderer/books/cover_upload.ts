@@ -124,6 +124,13 @@ async function handleCoverUploadChange(refs: BookFormRefs): Promise<void> {
 }
 
 export function bindCoverUpload(refs: BookFormRefs): void {
+  const runUploadChange = () => {
+    handleCoverUploadChange(refs).catch((error) => {
+      refs.lookupMeta.textContent = uploadErrorMessage(error);
+      clearCoverUploadInput(refs);
+    });
+  };
+
   refs.coverPanel.addEventListener("click", (event) => {
     event.preventDefault();
     triggerCoverPicker(refs);
@@ -132,6 +139,6 @@ export function bindCoverUpload(refs: BookFormRefs): void {
     onCoverPanelKeydown(event, refs);
   });
   refs.coverUploadInput.addEventListener("change", () => {
-    void handleCoverUploadChange(refs);
+    runUploadChange();
   });
 }

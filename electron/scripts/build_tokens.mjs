@@ -147,4 +147,6 @@ writeFile(outputCssPath, cssLines);
 writeFile(outputTsPath, tsLines);
 writeFile(outputJsonPath, `${JSON.stringify(resolved, null, 2)}\n`);
 
-console.log(`Built tokens: ${path.relative(electronRoot, outputCssPath)} and ${path.relative(electronRoot, outputTsPath)}`);
+process.stdout.write(
+  `Built tokens: ${path.relative(electronRoot, outputCssPath)} and ${path.relative(electronRoot, outputTsPath)}\n`,
+);

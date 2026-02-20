@@ -1,0 +1,27 @@
+import type { Book } from '../books/types.js';
+import { BOOK_STATUS_IN_PROGRESS } from '../books/status.js';
+import type { CalendarRowWithFinish } from './data.js';
+
+export function fallbackBookForRow(row: CalendarRowWithFinish): Book {
+  return {
+    book_id: row.book_id,
+    title: row.title,
+    author: '',
+    words_total: null,
+    pages_total: null,
+    pages_read: null,
+    progress_percent: 0,
+    priority: 3,
+    difficulty: 3,
+    min_blocks_per_session: 1,
+    max_minutes_per_day: null,
+    deadline: null,
+    blocked_by: null,
+    shelf: '',
+    status: BOOK_STATUS_IN_PROGRESS,
+    finished_at: null,
+    cover_url: '',
+    cover_local_path: '',
+    lookup_note: '',
+  };
+}

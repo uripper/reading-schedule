@@ -32,13 +32,17 @@ for (const filePath of walkCssFiles(stylesRoot)) {
     const matches = line.match(hexPattern);
     if (!matches) {return;}
     failures += 1;
-    console.error(`${path.relative(electronRoot, filePath)}:${index + 1} uses raw hex color ${matches.join(", ")}`);
+    process.stderr.write(
+      `${path.relative(electronRoot, filePath)}:${index + 1} uses raw hex color ${matches.join(", ")}\n`,
+    );
   });
 }
 
 if (failures > 0) {
-  console.error(`\nFound ${failures} raw hex color usage(s). Use design tokens from tokens/dtcg.tokens.json.`);
+  process.stderr.write(
+    `\nFound ${failures} raw hex color usage(s). Use design tokens from tokens/dtcg.tokens.json.\n`,
+  );
   process.exit(1);
 }
 
-console.log('Token usage check passed: no raw hex colors found in style sources.');
+process.stdout.write('Token usage check passed: no raw hex colors found in style sources.\n');
