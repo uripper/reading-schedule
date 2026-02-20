@@ -60,6 +60,7 @@ function rowNodeForMode(
 export function renderCalendarDetails(
   state: CalendarState,
   interactionHandlers: DetailInteractionHandlers,
+  onRerenderRequested: (() => void) | null = null,
 ): void {
   const details = el('calendarDayDetails');
   const key = state.selectedDate;
@@ -95,7 +96,11 @@ export function renderCalendarDetails(
   list.className = 'day-details-list';
   const animateFinishRows = state.expectedFinishHighlightDate === key;
   const rerenderDetails = () => {
-    renderCalendarDetails(state, interactionHandlers);
+    if (onRerenderRequested) {
+      onRerenderRequested();
+      return;
+    }
+    renderCalendarDetails(state, interactionHandlers, onRerenderRequested);
   };
 
   rowsToRender.forEach((row) => {

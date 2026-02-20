@@ -40,11 +40,15 @@ function dayBookCompletionKeyFromSession(sessionKey: string): string {
 type AppCalendarInteractionArgs = {
   configureCalendarInteractions: (handlers: {
     isSessionCompleted: (sessionKey: string) => boolean;
+    hasSessionProgressUpdate: (sessionKey: string) => boolean;
     onSessionCompletionChanged: (payload: CompletionUpdate) => void;
     onSessionProgressUpdated: (payload: ProgressUpdateInput) => UpdatedBook | null;
     getBookById: (bookId: string) => Book | null;
   }) => void;
-  state: { scheduleCompletions: Record<string, boolean> };
+  state: {
+    scheduleCompletions: Record<string, boolean>;
+    scheduleProgressUpdates: Record<string, boolean>;
+  };
   queuePersist: () => void;
   setStatus: (message: string, isError?: boolean) => void;
   updateBookProgress: (
@@ -78,6 +82,16 @@ export function configureAppCalendarInteractions({
       }
       return Boolean(state.scheduleCompletions?.[fallbackKey]);
     },
+    hasSessionProgressUpdate: (sessionKey) => {
+      if (state.scheduleProgressUpdates?.[sessionKey]) {
+        return true;
+      }
+      const fallbackKey = dayBookCompletionKeyFromSession(sessionKey);
+      if (!fallbackKey) {
+        return false;
+      }
+      return Boolean(state.scheduleProgressUpdates?.[fallbackKey]);
+    },
     onSessionCompletionChanged: ({ sessionKey, completed, row }) => {
       const fallbackKey = row?.date && row?.book_id ? dayBookCompletionKey(row.date, row.book_id) : '';
       if (completed) {
@@ -89,6 +103,10 @@ export function configureAppCalendarInteractions({
         delete state.scheduleCompletions[sessionKey];
         if (fallbackKey) {
           delete state.scheduleCompletions[fallbackKey];
+        }
+        delete state.scheduleProgressUpdates[sessionKey];
+        if (fallbackKey) {
+          delete state.scheduleProgressUpdates[fallbackKey];
         }
       }
       queuePersist();
@@ -116,6 +134,8 @@ export function configureAppCalendarInteractions({
         const completionKey = sessionKeyFor(row);
         state.scheduleCompletions[completionKey] = true;
         state.scheduleCompletions[dayBookCompletionKey(row.date, row.book_id)] = true;
+        state.scheduleProgressUpdates[completionKey] = true;
+        state.scheduleProgressUpdates[dayBookCompletionKey(row.date, row.book_id)] = true;
       }
       setStatus(`Updated progress for ${updated.title || "book"}.`);
       queuePersist();

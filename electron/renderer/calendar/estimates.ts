@@ -20,6 +20,7 @@ type EstimateState = {
 
 type BookGetter = (bookId: string) => Book | null;
 type CompletionChecker = (sessionKey: string) => boolean;
+type ProgressUpdateChecker = (sessionKey: string) => boolean;
 
 type EstimateSnapshot = {
   startPercent: number;
@@ -79,11 +80,16 @@ function plannedWordsBeforeAndThroughRow(
   state: EstimateState,
   bookId: string,
   isSessionCompleted: CompletionChecker,
+  hasSessionProgressUpdate: ProgressUpdateChecker,
 ): { before: number; through: number } {
   const today = todayDateKey();
   const targetDate = String(row.date || '');
   const targetSessionKey = estimateSessionKey(row);
-  if (targetDate === today && isSessionCompleted(targetSessionKey)) {
+  if (
+    targetDate === today &&
+    isSessionCompleted(targetSessionKey) &&
+    hasSessionProgressUpdate(targetSessionKey)
+  ) {
     return { before: 0, through: 0 };
   }
 
@@ -108,7 +114,8 @@ function plannedWordsBeforeAndThroughRow(
       return;
     }
     const completed = isSessionCompleted(estimateSessionKey(candidate));
-    if (targetIsFuture && completed) {
+    const explicitProgress = hasSessionProgressUpdate(estimateSessionKey(candidate));
+    if (targetIsFuture && completed && explicitProgress) {
       return;
     }
     const plannedWords = Math.max(0, Number(candidate.words_planned || 0));
@@ -139,6 +146,7 @@ function estimateSnapshotForRow(
   state: EstimateState,
   getBookById: BookGetter,
   isSessionCompleted: CompletionChecker,
+  hasSessionProgressUpdate: ProgressUpdateChecker,
 ): EstimateSnapshot | null {
   const bookId = String(row.book_id || '');
   if (!bookId) {
@@ -154,7 +162,13 @@ function estimateSnapshotForRow(
 
   const pagesTotal = Number(book?.pages_total || 0);
   const currentWordsRead = wordsReadFromBook(book, fullWords);
-  const plannedWords = plannedWordsBeforeAndThroughRow(row, state, bookId, isSessionCompleted);
+  const plannedWords = plannedWordsBeforeAndThroughRow(
+    row,
+    state,
+    bookId,
+    isSessionCompleted,
+    hasSessionProgressUpdate,
+  );
   const startWords = Math.min(fullWords, currentWordsRead + plannedWords.before);
   const endWords = Math.min(fullWords, currentWordsRead + plannedWords.through);
   const startPercent = percentFromWords(startWords, fullWords);
@@ -192,8 +206,15 @@ export function estimateProgressLabel(
   state: EstimateState,
   getBookById: BookGetter,
   isSessionCompleted: CompletionChecker = () => false,
+  hasSessionProgressUpdate: ProgressUpdateChecker = () => false,
 ): string {
-  const snapshot = estimateSnapshotForRow(row, state, getBookById, isSessionCompleted);
+  const snapshot = estimateSnapshotForRow(
+    row,
+    state,
+    getBookById,
+    isSessionCompleted,
+    hasSessionProgressUpdate,
+  );
   if (!snapshot) {
     return NO_ESTIMATE_LABEL;
   }
