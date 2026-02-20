@@ -125,9 +125,11 @@ function shiftZoomFactor(webContents: WebContents, delta: number): number {
 }
 
 function createWindow(): void {
+  const iconPath = path.join(__dirname, 'assets', 'logo.png');
   const window = new BrowserWindow({
     width: 1800,
     height: 1100,
+    icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },

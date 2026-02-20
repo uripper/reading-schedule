@@ -6,7 +6,7 @@ const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(path.join(SCRIPT_DIR, ".."));
 const DIST = path.join(ROOT, "dist");
 
-const targets = ["index.html", "styles.css", "styles"];
+const targets = ["index.html", "styles.css", "styles", "assets"];
 
 fs.mkdirSync(DIST, { recursive: true });
 for (const target of targets) {

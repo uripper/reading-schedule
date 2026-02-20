@@ -2,10 +2,12 @@
 
 import type { Book } from '../books/types.js';
 import type { CalendarRowWithFinish } from '../calendar/data.js';
+import { sessionKeyFor } from '../calendar/utils.js';
 
 type ScheduleRow = {
   title?: string;
   date?: string;
+  book_id?: string;
 };
 
 type CompletionUpdate = {
@@ -22,6 +24,18 @@ type ProgressUpdateInput = {
 };
 
 type UpdatedBook = Book;
+
+function dayBookCompletionKey(rowDate: string, bookId: string): string {
+  return `${rowDate}|${bookId}`;
+}
+
+function dayBookCompletionKeyFromSession(sessionKey: string): string {
+  const [date, , bookId] = String(sessionKey || '').split('|');
+  if (!date || !bookId) {
+    return '';
+  }
+  return dayBookCompletionKey(date, bookId);
+}
 
 type AppCalendarInteractionArgs = {
   configureCalendarInteractions: (handlers: {
@@ -54,12 +68,28 @@ export function configureAppCalendarInteractions({
   onProgressUpdated = () => {},
 }: AppCalendarInteractionArgs) {
   configureCalendarInteractions({
-    isSessionCompleted: (sessionKey) => Boolean(state.scheduleCompletions?.[sessionKey]),
+    isSessionCompleted: (sessionKey) => {
+      if (state.scheduleCompletions?.[sessionKey]) {
+        return true;
+      }
+      const fallbackKey = dayBookCompletionKeyFromSession(sessionKey);
+      if (!fallbackKey) {
+        return false;
+      }
+      return Boolean(state.scheduleCompletions?.[fallbackKey]);
+    },
     onSessionCompletionChanged: ({ sessionKey, completed, row }) => {
+      const fallbackKey = row?.date && row?.book_id ? dayBookCompletionKey(row.date, row.book_id) : '';
       if (completed) {
         state.scheduleCompletions[sessionKey] = true;
+        if (fallbackKey) {
+          state.scheduleCompletions[fallbackKey] = true;
+        }
       } else {
         delete state.scheduleCompletions[sessionKey];
+        if (fallbackKey) {
+          delete state.scheduleCompletions[fallbackKey];
+        }
       }
       queuePersist();
 
@@ -72,7 +102,7 @@ export function configureAppCalendarInteractions({
       }
       onSessionCompletionUpdated({ sessionKey, completed, row });
     },
-    onSessionProgressUpdated: ({ bookId, pagesRead, progressPercent }) => {
+    onSessionProgressUpdated: ({ bookId, pagesRead, progressPercent, row }) => {
       const updated = updateBookProgress(
         bookId,
         { pagesRead, progressPercent },
@@ -81,6 +111,11 @@ export function configureAppCalendarInteractions({
       if (!updated) {
         setStatus("Could not find that book to update progress.", true);
         return null;
+      }
+      if (row) {
+        const completionKey = sessionKeyFor(row);
+        state.scheduleCompletions[completionKey] = true;
+        state.scheduleCompletions[dayBookCompletionKey(row.date, row.book_id)] = true;
       }
       setStatus(`Updated progress for ${updated.title || "book"}.`);
       queuePersist();

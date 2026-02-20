@@ -74,7 +74,7 @@ test('estimateProgressLabel includes incomplete current-day sessions for future 
   );
 });
 
-test('estimateProgressLabel includes completed current-day sessions for future estimates', () => {
+test('estimateProgressLabel ignores completed current-day sessions for future estimates', () => {
   const today = dayKey(new Date());
   const tomorrow = plusDays(today, 1);
   const todayRow = row({ date: today, session_index: 1 });
@@ -93,7 +93,7 @@ test('estimateProgressLabel includes completed current-day sessions for future e
 
   assert.equal(
     label,
-    'Estimated before session: 200 pages (50%) -> after session: 300 pages (75%)',
+    'Estimated before session: 100 pages (25%) -> after session: 200 pages (50%)',
   );
 });
 
