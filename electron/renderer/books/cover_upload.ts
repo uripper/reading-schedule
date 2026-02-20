@@ -124,7 +124,8 @@ async function handleCoverUploadChange(refs: BookFormRefs): Promise<void> {
 }
 
 export function bindCoverUpload(refs: BookFormRefs): void {
-  refs.coverPanel.addEventListener("click", () => {
+  refs.coverPanel.addEventListener("click", (event) => {
+    event.preventDefault();
     triggerCoverPicker(refs);
   });
   refs.coverPanel.addEventListener("keydown", (event) => {
