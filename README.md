@@ -67,6 +67,20 @@ Set a specific Python launcher target:
 npm run dev:windows -- 3.11
 ```
 
+Auto-rebuild + auto-restart on changes (WSL -> Windows sync poll loop):
+
+```bash
+npm run dev:windows:hot
+```
+
+Set Python and poll interval seconds:
+
+```bash
+npm run dev:windows:hot -- 3.11 1
+```
+
+This is restart-on-change (not in-window HMR).
+
 ## Tests
 
 ```bash
