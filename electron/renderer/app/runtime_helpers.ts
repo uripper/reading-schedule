@@ -83,7 +83,9 @@ export function createPersistQueue({
       clearTimeout(persistTimer);
     }
     persistTimer = setTimeout(() => {
-      void persistDraft();
+      persistDraft().catch(() => {
+        addLog("Failed to persist draft state.");
+      });
     }, PERSIST_DELAY_MS);
   };
 

@@ -1,9 +1,8 @@
-import type { Book } from '../books/types.js';
-import { BOOK_STATUS_IN_PROGRESS } from '../books/status.js';
-import { rowsWithFinishFirst, type CalendarRowWithFinish } from './data.js';
+import type { CalendarRowWithFinish } from './data.js';
 import { estimateProgressLabel } from './estimates.js';
 import { sessionKeyFor } from './utils.js';
 import { progressFormForToday } from './details_progress_form.js';
+import { fallbackBookForRow } from './details_fallback_book.js';
 import type { CalendarStateSubset, DetailInteractionHandlers } from './details_types.js';
 
 const DAY_DETAILS_META_CLASS = 'day-details-meta';
@@ -135,30 +134,6 @@ export function buildFutureSessionItem(
   return item;
 }
 
-function fallbackBookForRow(row: CalendarRowWithFinish): Book {
-  return {
-    book_id: row.book_id,
-    title: row.title,
-    author: '',
-    words_total: null,
-    pages_total: null,
-    pages_read: null,
-    progress_percent: 0,
-    priority: 3,
-    difficulty: 3,
-    min_blocks_per_session: 1,
-    max_minutes_per_day: null,
-    deadline: null,
-    blocked_by: null,
-    shelf: '',
-    status: BOOK_STATUS_IN_PROGRESS,
-    finished_at: null,
-    cover_url: '',
-    cover_local_path: '',
-    lookup_note: '',
-  };
-}
-
 export function buildTodaySessionItem(
   row: CalendarRowWithFinish,
   interactionHandlers: DetailInteractionHandlers,
@@ -217,8 +192,4 @@ export function buildTodaySessionItem(
     removeSessionButton(row, interactionHandlers, rerenderDetails),
   );
   return item;
-}
-
-export function rowsWithFinishFirstForExport(rows: CalendarRowWithFinish[]): CalendarRowWithFinish[] {
-  return rowsWithFinishFirst(rows);
 }

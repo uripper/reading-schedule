@@ -5,7 +5,6 @@ const SESSION_INDEX_PAD = 3;
 const NO_ESTIMATE_LABEL = 'No estimate available';
 const PERCENT_SCALE = 100;
 const PERCENT_PRECISION_SCALE = 1000;
-
 type EstimateRow = {
   book_id: string;
   date: string;
@@ -20,7 +19,6 @@ type EstimateState = {
 
 type BookGetter = (bookId: string) => Book | null;
 type CompletionChecker = (sessionKey: string) => boolean;
-
 type EstimateSnapshot = {
   startPercent: number;
   endPercent: number;
@@ -28,7 +26,6 @@ type EstimateSnapshot = {
   endPages: number | null;
   changedInSession: boolean;
 };
-
 function todayDateKey(): string {
   const now = new Date();
   const year = now.getFullYear();
@@ -36,20 +33,16 @@ function todayDateKey(): string {
   const day = String(now.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
-
 function rowSortKey(row: Pick<EstimateRow, 'date' | 'session_index'>): string {
   const sessionIndex = String(row.session_index).padStart(SESSION_INDEX_PAD, '0');
   return `${row.date}-${sessionIndex}`;
 }
-
 function estimateSessionKey(row: EstimateRow): string {
   return `${row.date}|${row.session_index}|${row.book_id}`;
 }
-
 function clampPercent(progressPercent: number): number {
   return Math.min(PERCENT_SCALE, Math.max(0, progressPercent));
 }
-
 function fullWordsForBook(book: Book | null, remainingWords: number): number {
   const wordsTotal = Number(book?.words_total || 0);
   if (Number.isFinite(wordsTotal) && wordsTotal > 0) {
@@ -67,13 +60,11 @@ function fullWordsForBook(book: Book | null, remainingWords: number): number {
 
   return 0;
 }
-
 function wordsReadFromBook(book: Book | null, fullWords: number): number {
   const progressPercent = Number(book?.progress_percent || 0);
   const clamped = clampPercent(progressPercent);
   return Math.round((clamped / PERCENT_SCALE) * fullWords);
 }
-
 function plannedWordsBeforeAndThroughRow(
   row: EstimateRow,
   state: EstimateState,
@@ -119,21 +110,18 @@ function plannedWordsBeforeAndThroughRow(
   });
   return { before, through };
 }
-
 function projectedPages(projectedPercent: number, pagesTotal: number): number | null {
   if (pagesTotal <= 0) {
     return null;
   }
   return Math.round((projectedPercent / PERCENT_SCALE) * pagesTotal);
 }
-
 function percentFromWords(wordsRead: number, fullWords: number): number {
   if (fullWords <= 0) {
     return 0;
   }
   return Math.round((wordsRead / fullWords) * PERCENT_PRECISION_SCALE) / 10;
 }
-
 function estimateSnapshotForRow(
   row: EstimateRow,
   state: EstimateState,
@@ -173,7 +161,6 @@ function estimateSnapshotForRow(
     changedInSession: endPercent > startPercent,
   };
 }
-
 function estimateLabelWithPages(snapshot: EstimateSnapshot): string {
   const {startPages, endPages} = snapshot;
   if (startPages === null || endPages === null) {
@@ -184,14 +171,12 @@ function estimateLabelWithPages(snapshot: EstimateSnapshot): string {
   }
   return `Estimated before session: ${startPages} pages (${snapshot.startPercent}%) -> after session: ${endPages} pages (${snapshot.endPercent}%)`;
 }
-
 function estimateLabelWithoutPages(snapshot: EstimateSnapshot): string {
   if (!snapshot.changedInSession) {
     return `Estimated by end of this session: ${snapshot.endPercent}% complete`;
   }
   return `Estimated before session: ${snapshot.startPercent}% -> after session: ${snapshot.endPercent}%`;
 }
-
 export function estimateProgressLabel(
   row: EstimateRow,
   state: EstimateState,

@@ -115,7 +115,13 @@ export function createPlanController({
       clearTimeout(autoTimer);
     }
     autoTimer = setTimeout(() => {
-      void runAutoPlan();
+      runAutoPlan().catch((error) => {
+        if (error) {
+          addLog("Unexpected error during automatic plan refresh.");
+        }
+        addLog("Automatic plan refresh failed.");
+        setStatus("Automatic plan refresh failed.", true);
+      });
     }, AUTO_PLAN_DELAY_MS);
   };
 
