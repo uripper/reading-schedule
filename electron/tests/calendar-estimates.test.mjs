@@ -89,7 +89,6 @@ test('estimateProgressLabel ignores completed current-day sessions for future es
     state,
     () => book(),
     (sessionKey) => sessionKey === `${today}|1|book-1`,
-    (sessionKey) => sessionKey === `${today}|1|book-1`,
   );
 
   assert.equal(
@@ -114,7 +113,6 @@ test('estimateProgressLabel ignores completed pre-target sessions even when date
     state,
     () => book(),
     (sessionKey) => sessionKey === `${shiftedCurrent}|1|book-1`,
-    (sessionKey) => sessionKey === `${shiftedCurrent}|1|book-1`,
   );
 
   assert.equal(
@@ -136,35 +134,10 @@ test('estimateProgressLabel uses current progress for completed current-day sess
     state,
     () => book({ progress_percent: 40 }),
     (sessionKey) => sessionKey === `${today}|1|book-1`,
-    (sessionKey) => sessionKey === `${today}|1|book-1`,
   );
 
   assert.equal(
     label,
     'Estimated by end of this session: 160 pages read (40% complete)',
-  );
-});
-
-test('estimateProgressLabel treats completed current-day sessions as planned when no manual update exists', () => {
-  const today = dayKey(new Date());
-  const tomorrow = plusDays(today, 1);
-  const todayRow = row({ date: today, session_index: 1 });
-  const futureRow = row({ date: tomorrow, session_index: 1 });
-  const state = {
-    rows: [todayRow, futureRow],
-    totalsByBookId: { 'book-1': 4000 },
-  };
-
-  const label = estimateProgressLabel(
-    futureRow,
-    state,
-    () => book(),
-    (sessionKey) => sessionKey === `${today}|1|book-1`,
-    () => false,
-  );
-
-  assert.equal(
-    label,
-    'Estimated before session: 200 pages (50%) -> after session: 300 pages (75%)',
   );
 });

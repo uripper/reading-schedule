@@ -11,7 +11,6 @@ export type CalendarRowWithFinish = CalendarRow & {
 
 type RowsByDate = Record<string, CalendarRowWithFinish[]>;
 type CompletionChecker = (sessionKey: string) => boolean;
-type ProgressUpdateChecker = (sessionKey: string) => boolean;
 
 function todayKey(): string {
   const now = new Date();
@@ -66,7 +65,6 @@ export function enrichRows(
   rows: CalendarRow[],
   totals: Record<string, number> = {},
   isSessionCompleted: CompletionChecker = () => false,
-  hasSessionProgressUpdate: ProgressUpdateChecker = () => false,
 ): CalendarRowWithFinish[] {
   const progressByBookId: Record<string, number> = {};
   const finishedByBookId: Record<string, boolean> = {};
@@ -82,10 +80,7 @@ export function enrichRows(
     const plannedWords = Number(row.words_planned || 0);
     const sessionKey = sessionKeyFor(row);
     const completedToday = rowDate === today && isSessionCompleted(sessionKey);
-    const explicitProgressToday = completedToday && hasSessionProgressUpdate(sessionKey);
-    const effectivePlannedWords = completedToday && explicitProgressToday
-      ? 0
-      : plannedWords;
+    const effectivePlannedWords = completedToday ? 0 : plannedWords;
     const nextBookProgress = nextProgress(bookId, effectivePlannedWords, progressByBookId);
     const finishesBook = isFinishRow(bookId, nextBookProgress, totals, finishedByBookId);
     if (completedToday) {

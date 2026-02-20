@@ -21,7 +21,6 @@ type ProgressPayload = {
 
 export type DetailInteractionHandlers = {
   isSessionCompleted: (sessionKey: string) => boolean;
-  hasSessionProgressUpdate: (sessionKey: string) => boolean;
   onSessionCompletionChanged: (payload: CompletionPayload) => void;
   onSessionProgressUpdated: (payload: ProgressPayload) => Book | null;
   getBookById: (bookId: string) => Book | null;
@@ -289,7 +288,6 @@ export function buildFutureSessionItem(
     state,
     interactionHandlers.getBookById,
     interactionHandlers.isSessionCompleted,
-    interactionHandlers.hasSessionProgressUpdate,
   );
   item.append(estimate);
   return item;
