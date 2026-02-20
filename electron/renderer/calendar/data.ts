@@ -79,12 +79,29 @@ export function enrichRows(rows: CalendarRow[], totals: Record<string, number> =
   });
 }
 
+export function rowsWithFinishFirst(rows: CalendarRowWithFinish[] = []): CalendarRowWithFinish[] {
+  const finishRows: CalendarRowWithFinish[] = [];
+  const otherRows: CalendarRowWithFinish[] = [];
+  rows.forEach((row) => {
+    if (row.finish) {
+      finishRows.push(row);
+      return;
+    }
+    otherRows.push(row);
+  });
+  return [...finishRows, ...otherRows];
+}
+
 export function groupRowsByDate(rows: CalendarRowWithFinish[] = []): RowsByDate {
-  return rows.reduce((accumulator, row) => {
+  const groupedRows = rows.reduce((accumulator, row) => {
     accumulator[row.date] ||= [];
     accumulator[row.date].push(row);
     return accumulator;
   }, {} as RowsByDate);
+  Object.keys(groupedRows).forEach((dateKey) => {
+    groupedRows[dateKey] = rowsWithFinishFirst(groupedRows[dateKey]);
+  });
+  return groupedRows;
 }
 
 export function monthKeysFromRows(rows: CalendarRowWithFinish[] = []): string[] {

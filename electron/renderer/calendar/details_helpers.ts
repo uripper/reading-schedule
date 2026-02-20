@@ -1,6 +1,6 @@
 import type { Book } from '../books/types.js';
 import { BOOK_STATUS_IN_PROGRESS } from '../books/status.js';
-import type { CalendarRowWithFinish } from './data.js';
+import { rowsWithFinishFirst, type CalendarRowWithFinish } from './data.js';
 import { estimateProgressLabel } from './estimates.js';
 import { parseOptionalNumber, sessionKeyFor } from './utils.js';
 
@@ -33,6 +33,9 @@ type CalendarStateSubset = {
 
 const DAY_DETAILS_META_CLASS = 'day-details-meta';
 const COMPLETE_ITEM_CLASS = 'is-complete';
+const COMPLETE_TOGGLE_LABEL = ' Complete session';
+const COMPLETED_TEXT = 'Completed';
+const NOT_COMPLETED_TEXT = 'Not completed';
 
 function todayDateKey(): string {
   const now = new Date();
@@ -167,14 +170,26 @@ function progressFormForToday(
 function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
   const item = document.createElement('article');
   item.className = 'day-details-item';
+  if (row.finish) {
+    item.classList.add('is-finish');
+  }
 
   const head = document.createElement('strong');
   head.textContent = row.title || 'Untitled';
 
+  if (row.finish) {
+    const finishBadge = document.createElement('span');
+    finishBadge.className = 'day-finish-badge';
+    finishBadge.textContent = 'Expected finish';
+    item.append(head, finishBadge);
+  } else {
+    item.append(head);
+  }
+
   const meta = document.createElement('p');
   meta.className = DAY_DETAILS_META_CLASS;
   meta.textContent = sessionMetaText(row);
-  item.append(head, meta);
+  item.append(meta);
   return item;
 }
 
@@ -203,25 +218,41 @@ export function rowsWithCompletedLast(
     }
     incompleteRows.push(row);
   });
-  return [...incompleteRows, ...completeRows];
+  return [...rowsWithFinishFirst(incompleteRows), ...rowsWithFinishFirst(completeRows)];
 }
 
-export function completedRows(
-  rows: CalendarRowWithFinish[],
+export function buildPastSessionItem(
+  row: CalendarRowWithFinish,
   interactionHandlers: DetailInteractionHandlers,
-): CalendarRowWithFinish[] {
-  return rows.filter((row) => {
-    return Boolean(interactionHandlers.isSessionCompleted(sessionKeyFor(row)));
-  });
-}
-
-export function buildPastSessionItem(row: CalendarRowWithFinish): HTMLElement {
+  rerenderDetails: () => void,
+): HTMLElement {
   const item = baseSessionItem(row);
-  const completed = document.createElement('p');
-  completed.className = DAY_DETAILS_META_CLASS;
-  completed.textContent = 'Completed';
-  item.classList.add(COMPLETE_ITEM_CLASS);
-  item.append(completed);
+  const sessionKey = sessionKeyFor(row);
+  const completeLabel = document.createElement('label');
+  completeLabel.className = 'day-complete-toggle';
+  const completeInput = document.createElement('input');
+  completeInput.type = 'checkbox';
+  completeInput.checked = Boolean(interactionHandlers.isSessionCompleted(sessionKey));
+  completeLabel.append(completeInput, COMPLETE_TOGGLE_LABEL);
+
+  const status = document.createElement('p');
+  status.className = DAY_DETAILS_META_CLASS;
+  status.textContent = completeInput.checked ? COMPLETED_TEXT : NOT_COMPLETED_TEXT;
+  item.classList.toggle(COMPLETE_ITEM_CLASS, completeInput.checked);
+
+  completeInput.onchange = () => {
+    const checked = Boolean(completeInput.checked);
+    item.classList.toggle(COMPLETE_ITEM_CLASS, checked);
+    status.textContent = checked ? COMPLETED_TEXT : NOT_COMPLETED_TEXT;
+    interactionHandlers.onSessionCompletionChanged({
+      completed: checked,
+      row,
+      sessionKey,
+    });
+    rerenderDetails();
+  };
+
+  item.append(completeLabel, status);
   return item;
 }
 
@@ -251,7 +282,7 @@ export function buildTodaySessionItem(
   const completeInput = document.createElement('input');
   completeInput.type = 'checkbox';
   completeInput.checked = Boolean(interactionHandlers.isSessionCompleted(sessionKey));
-  completeLabel.append(completeInput, ' Complete session');
+  completeLabel.append(completeInput, COMPLETE_TOGGLE_LABEL);
   item.classList.toggle(COMPLETE_ITEM_CLASS, completeInput.checked);
 
   completeInput.onchange = () => {
