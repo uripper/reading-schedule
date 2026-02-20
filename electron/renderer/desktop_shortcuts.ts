@@ -1,6 +1,12 @@
 import type { PlannerApi, WindowFindResponse } from "./app/types.js";
 import { el } from "./dom.js";
 import { logError } from "./logger.js";
+import {
+  isCommandPressed,
+  isZoomInShortcut,
+  isZoomOutShortcut,
+  isZoomResetShortcut,
+} from "./desktop_shortcuts_keys.js";
 const ZOOM_PERCENT_FACTOR = 100;
 const FIND_STATUS_HINT = "Type to search";
 const FIND_STATUS_NO_MATCH = "No matches";
@@ -8,18 +14,6 @@ type ShortcutBindings = {
   announce: (message: string, politeness?: "polite" | "assertive") => void;
   plannerApi: Pick<PlannerApi, "findInPage" | "stopFindInPage" | "zoomIn" | "zoomOut" | "zoomReset">;
 };
-function isCommandPressed(event: KeyboardEvent): boolean {
-  return (event.ctrlKey || event.metaKey) && !event.altKey;
-}
-function isZoomInShortcut(event: KeyboardEvent): boolean {
-  return event.key === "+" || event.key === "=" || event.code === "NumpadAdd";
-}
-function isZoomOutShortcut(event: KeyboardEvent): boolean {
-  return event.key === "-" || event.key === "_" || event.code === "NumpadSubtract";
-}
-function isZoomResetShortcut(event: KeyboardEvent): boolean {
-  return event.key === "0";
-}
 function setFindStatus(target: HTMLOutputElement, message: string): void {
   target.value = message;
   target.textContent = message;
@@ -90,6 +84,11 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
       setFindStatus(findStatus, "Search failed");
     }
   };
+  const runDetached = (operation: Promise<void>) => {
+    operation.catch((error) => {
+      logError("Shortcut command failed", error);
+    });
+  };
   const openFindBar = () => {
     if (findBar.hidden && document.activeElement instanceof HTMLElement) {
       opener = document.activeElement;
@@ -119,16 +118,16 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
     opener = null;
   };
   findInput.addEventListener("input", () => {
-    void runFindCommand("next", false);
+    runDetached(runFindCommand("next", false));
   });
   findInput.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
       if (event.shiftKey) {
-        void runFindCommand("prev", true);
+        runDetached(runFindCommand("prev", true));
         return;
       }
-      void runFindCommand("next", true);
+      runDetached(runFindCommand("next", true));
       return;
     }
     if (event.key === "Escape") {
@@ -137,11 +136,11 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
     }
   });
   findPrevButton.addEventListener("click", () => {
-    void runFindCommand("prev", true);
+    runDetached(runFindCommand("prev", true));
     findInput.focus();
   });
   findNextButton.addEventListener("click", () => {
-    void runFindCommand("next", true);
+    runDetached(runFindCommand("next", true));
     findInput.focus();
   });
   findCloseButton.addEventListener("click", () => {
@@ -161,17 +160,17 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
     }
     if (isZoomInShortcut(event)) {
       event.preventDefault();
-      void runZoomCommand(() => plannerApi.zoomIn());
+      runDetached(runZoomCommand(() => plannerApi.zoomIn()));
       return true;
     }
     if (isZoomOutShortcut(event)) {
       event.preventDefault();
-      void runZoomCommand(() => plannerApi.zoomOut());
+      runDetached(runZoomCommand(() => plannerApi.zoomOut()));
       return true;
     }
     if (isZoomResetShortcut(event)) {
       event.preventDefault();
-      void runZoomCommand(() => plannerApi.zoomReset());
+      runDetached(runZoomCommand(() => plannerApi.zoomReset()));
       return true;
     }
     return false;
