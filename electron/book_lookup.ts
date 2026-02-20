@@ -20,9 +20,13 @@ const EXTENSION_WEBP = '.webp';
 const DATA_URL_PREFIX = 'data:';
 const DATA_URL_SEPARATOR = ',';
 const DATA_URL_BASE64_SEGMENT = ';base64';
+const COVER_VERSION_PAD = 4;
+const COVER_VERSION_WRAP_AT = 10 ** COVER_VERSION_PAD;
 
 const HTTP_PROTOCOL = 'http:';
 const HTTPS_PROTOCOL = 'https:';
+
+let coverVersionCounter = 0;
 
 type CoverExtension = '.jpg' | '.png' | '.webp';
 
@@ -78,7 +82,9 @@ function ensureCoverDirectory(userDataDir: string): string {
 }
 
 function filePathForCover(userDataDir: string, bookId: string | undefined, extension: CoverExtension): string {
-  const fileName = `${safeFileBase(bookId)}${COVER_FILE_VERSION_SEPARATOR}${Date.now()}${extension}`;
+  const version = String(coverVersionCounter).padStart(COVER_VERSION_PAD, '0');
+  coverVersionCounter = (coverVersionCounter + 1) % COVER_VERSION_WRAP_AT;
+  const fileName = `${safeFileBase(bookId)}${COVER_FILE_VERSION_SEPARATOR}${Date.now()}${COVER_FILE_VERSION_SEPARATOR}${version}${extension}`;
   return path.join(ensureCoverDirectory(userDataDir), fileName);
 }
 
