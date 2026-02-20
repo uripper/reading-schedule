@@ -19,11 +19,30 @@ type ProgressUpdatePayload = {
   progressPercent?: number | null;
 };
 
+type ManualSessionPayload = {
+  date: string;
+  bookId: string;
+  minutes: number;
+  completed?: boolean;
+};
+
+type RemoveSessionPayload = {
+  row: CalendarRowWithFinish;
+};
+
+type ManualSessionBook = {
+  bookId: string;
+  title: string;
+};
+
 type CalendarHandlers = {
   isSessionCompleted: (sessionKey: string) => boolean;
   onSessionCompletionChanged: (payload: CompletionChangePayload) => void;
   onSessionProgressUpdated: (payload: ProgressUpdatePayload) => Book | null;
   getBookById: (bookId: string) => Book | null;
+  listSessionBooks: () => ManualSessionBook[];
+  onManualSessionAdded: (payload: ManualSessionPayload) => boolean;
+  onSessionRemoved: (payload: RemoveSessionPayload) => boolean;
 };
 
 const state = {
@@ -43,6 +62,9 @@ const defaultHandlers: CalendarHandlers = {
   onSessionCompletionChanged: () => {},
   onSessionProgressUpdated: () => null,
   getBookById: () => null,
+  listSessionBooks: () => [],
+  onManualSessionAdded: () => false,
+  onSessionRemoved: () => false,
 };
 
 let interactionHandlers: CalendarHandlers = { ...defaultHandlers };
@@ -181,6 +203,9 @@ export function configureCalendarInteractions(handlers: Partial<CalendarHandlers
     onSessionCompletionChanged: handlers.onSessionCompletionChanged || defaultHandlers.onSessionCompletionChanged,
     onSessionProgressUpdated: handlers.onSessionProgressUpdated || defaultHandlers.onSessionProgressUpdated,
     getBookById: handlers.getBookById || defaultHandlers.getBookById,
+    listSessionBooks: handlers.listSessionBooks || defaultHandlers.listSessionBooks,
+    onManualSessionAdded: handlers.onManualSessionAdded || defaultHandlers.onManualSessionAdded,
+    onSessionRemoved: handlers.onSessionRemoved || defaultHandlers.onSessionRemoved,
   };
 }
 

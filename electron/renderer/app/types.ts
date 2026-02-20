@@ -6,6 +6,7 @@ export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 
 export type PlannerSettings = {
+  start_date?: string;
   end_date?: string;
   plan_mode?: string;
   minutes_per_day?: number | null;

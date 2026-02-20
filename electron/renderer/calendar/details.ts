@@ -1,16 +1,16 @@
 import { el } from '../dom.js';
 import { rowsWithFinishFirst, type CalendarRowWithFinish } from './data.js';
 import {
+  buildManualSessionAddPanel,
   buildFutureSessionItem,
   buildPastSessionItem,
   buildTodaySessionItem,
   dayMode,
+  type DayMode,
   type DetailInteractionHandlers,
   rowsWithCompletedLast,
 } from './details_helpers.js';
 import { dateHeading } from './utils.js';
-
-type CalendarDayMode = 'past' | 'today' | 'future';
 
 type CalendarState = {
   selectedDate: string;
@@ -20,7 +20,7 @@ type CalendarState = {
   expectedFinishHighlightDate: string;
 };
 
-function emptyMessageForMode(mode: CalendarDayMode): string {
+function emptyMessageForMode(mode: DayMode): string {
   if (mode === 'past') {
     return 'No sessions planned for this day.';
   }
@@ -29,7 +29,7 @@ function emptyMessageForMode(mode: CalendarDayMode): string {
 
 function rowsForMode(
   rows: CalendarRowWithFinish[],
-  mode: CalendarDayMode,
+  mode: DayMode,
   interactionHandlers: DetailInteractionHandlers,
 ): CalendarRowWithFinish[] {
   if (mode === 'past') {
@@ -42,7 +42,7 @@ function rowsForMode(
 }
 
 function rowNodeForMode(
-  mode: CalendarDayMode,
+  mode: DayMode,
   row: CalendarRowWithFinish,
   state: CalendarState,
   interactionHandlers: DetailInteractionHandlers,
@@ -52,7 +52,7 @@ function rowNodeForMode(
     return buildTodaySessionItem(row, interactionHandlers, rerenderDetails);
   }
   if (mode === 'future') {
-    return buildFutureSessionItem(row, state, interactionHandlers);
+    return buildFutureSessionItem(row, state, interactionHandlers, rerenderDetails);
   }
   return buildPastSessionItem(row, interactionHandlers, rerenderDetails);
 }
@@ -82,19 +82,6 @@ export function renderCalendarDetails(
   }
 
   const mode = dayMode(key);
-  const rowsToRender = rowsForMode(rows, mode, interactionHandlers);
-  if (!rowsToRender.length) {
-    const empty = document.createElement('p');
-    empty.className = 'hint-text';
-    empty.textContent = emptyMessageForMode(mode);
-    details.replaceChildren(title, empty);
-    state.expectedFinishHighlightDate = '';
-    return;
-  }
-
-  const list = document.createElement('div');
-  list.className = 'day-details-list';
-  const animateFinishRows = state.expectedFinishHighlightDate === key;
   const rerenderDetails = () => {
     if (onRerenderRequested) {
       onRerenderRequested();
@@ -102,6 +89,28 @@ export function renderCalendarDetails(
     }
     renderCalendarDetails(state, interactionHandlers, onRerenderRequested);
   };
+  const rowsToRender = rowsForMode(rows, mode, interactionHandlers);
+  const firstRow = rowsToRender[0] || null;
+  const manualAddPanel = buildManualSessionAddPanel(
+    key,
+    mode,
+    interactionHandlers,
+    rerenderDetails,
+    firstRow?.book_id || '',
+    firstRow?.minutes,
+  );
+  if (!rowsToRender.length) {
+    const empty = document.createElement('p');
+    empty.className = 'hint-text';
+    empty.textContent = emptyMessageForMode(mode);
+    details.replaceChildren(title, empty, manualAddPanel);
+    state.expectedFinishHighlightDate = '';
+    return;
+  }
+
+  const list = document.createElement('div');
+  list.className = 'day-details-list';
+  const animateFinishRows = state.expectedFinishHighlightDate === key;
 
   rowsToRender.forEach((row) => {
     const node = rowNodeForMode(mode, row, state, interactionHandlers, rerenderDetails);
@@ -111,6 +120,6 @@ export function renderCalendarDetails(
     list.append(node);
   });
 
-  details.replaceChildren(title, list);
+  details.replaceChildren(title, list, manualAddPanel);
   state.expectedFinishHighlightDate = '';
 }
