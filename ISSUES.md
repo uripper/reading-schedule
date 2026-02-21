@@ -515,3 +515,119 @@ Definition of done:
 
 - Define provider abstraction and fallback order.
 - Add provider-specific tests and failure handling.
+
+## ISSUE-019: Add formats and ownership to book metadata
+
+**Type:** enhancement
+**Priority:** P3
+**Labels:** `enhancement`, `planner`, `desktop`
+
+Problem:
+
+Current book metadata focuses on title/author/pages; formats (ebook, audiobook, physical) and ownership status are not tracked. Ownership could include `owned`, `borrowed`, `wishlist`, etc...
+
+Expected:
+
+Book metadata includes format and ownership fields, which can inform scheduling and progress tracking.
+
+Definition of done:
+
+- Extend book schema to include `format` and `ownership_status`.
+- Update book loading and persistence logic.
+- Add UI elements to display and edit these fields in book details.
+- Add tests for new metadata fields and their impact on scheduling logic.
+
+## ISSUE-020: Implement session-level notes, reflections, highlights, and tagging
+
+**Type:** enhancement
+**Priority:** P3
+**Labels:** `enhancement`, `desktop`, `ux`
+
+Problem:
+
+Current session tracking is limited to minutes and pages; there is no built-in way for users to capture qualitative reflections, notes, highlights, or tags associated with a reading session.
+
+Expected:
+
+Users can add notes, reflections, highlights, and tags to each session, which are then viewable in session details and can be used for personal insights or exported (i.e. to Obsidian) for external use.
+
+Definition of done:
+
+- Extend session data model to include `notes`, `reflections`, `highlights`, and `tags`.
+- Add UI components for users to input and view this information in session details.
+- Ensure that this additional data is persisted and can be exported in session logs.
+- Add tests for session data model extensions and UI interactions.
+
+## ISSUE-021: External integrations and synchronization
+
+Type: enhancement
+Priority: P3
+Labels: enhancement, desktop, planner
+
+Problem:
+
+Bartleby currently operates in isolation. Users often split their reading workflow across trackers, devices, note tools, calendars, and audiobook apps, which creates duplicated effort and fragmented data.
+
+Expected:
+
+Bartleby supports a modular integrations system that can connect to external services for reading progress, notes, and scheduling sync. The implementation should be phased so individual integrations can ship incrementally.
+
+Definition of done:
+
+- Epic broken into scoped child issues.
+- Child issues define MVP integration path (at least one provider end-to-end).
+- Child issues cover backend sync framework, UI/auth, and at least one integration category.
+- Documentation added for integration architecture and rollout plan.
+
+## ISSUE-021: Candidate feature - Synchronization with external reading trackers (Goodreads, StoryGraph, etc...), synchronization with e-reader devices (Kindle, Kobo, etc...), and/or integration with note-taking tools (Obsidian, Notion, etc...), synchronization with calendar apps (Google Calendar, Apple Calendar, etc...), and synchronization with audiobook platforms (Audible, Libby, etc...).
+
+**Type:** enhancement
+**Priority:** P3
+**Labels:** `enhancement`, `desktop`, `planner`
+
+Problem:
+
+Many users track their reading across multiple platforms and tools, such as Goodreads for book tracking, Kindle for e-reader progress, Obsidian for note-taking, and Google Calendar for scheduling. Currently, Bartleby operates in isolation without integration points to synchronize data with these external services.
+
+Expected:
+
+Users can connect their Bartleby account with external services to synchronize reading progress, book lists, notes, and schedules. This could include:
+
+- Syncing book metadata and reading progress with Goodreads or StoryGraph.
+- Syncing reading progress with e-reader devices like Kindle or Kobo.
+- Exporting session notes and highlights to note-taking tools like Obsidian or Notion.
+- Syncing scheduled reading sessions with calendar apps like Google Calendar or Apple Calendar.
+- Syncing audiobook progress with platforms like Audible or Libby.
+- Providing a clear UI for managing these integrations and handling authentication.
+- Ensuring that data synchronization respects user privacy and security.
+- Adding tests for integration flows and error handling.
+
+Definition of done:
+
+- Define integration points and data mapping for each external service.
+- Implement authentication and synchronization logic for at least one external service.
+- Add UI components for managing integrations and displaying synchronized data.
+- Ensure that synchronization is robust and handles edge cases (e.g., conflicts, rate limits).
+- Add tests for integration functionality and error scenarios.
+
+## ISSUE-022: Add support for non-book reading materials (articles, papers, etc...)
+
+**Type:** enhancement
+**Priority:** P3
+**Labels:** `enhancement`, `desktop`, `planner`
+
+Problem:
+
+Bartleby currently focuses on books as the primary reading material, but many users also read articles, papers, essays, and other non-book formats that they may want to track and schedule.
+
+Expected:
+
+Users can add and track non-book reading materials with appropriate metadata (e.g., source, publication date) and have them integrated into the scheduling and progress tracking features.
+
+Definition of done:
+
+- Extend the book schema to accommodate non-book materials with relevant metadata fields.
+- Update the UI to allow users to specify the type of reading material and input relevant metadata.
+- Ensure that non-book materials are included in scheduling logic and progress tracking.
+- Add tests for handling non-book reading materials in the system.
+

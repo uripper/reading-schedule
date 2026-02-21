@@ -1,0 +1,63 @@
+import { statusFromRaw } from "./status.js";
+import type { Book } from "./types.js";
+
+const DEFAULT_PRIORITY = 3;
+const DEFAULT_DIFFICULTY = 3;
+const DEFAULT_MIN_BLOCKS = 1;
+
+function withDefaultNumber(value: number | undefined, fallback: number): number {
+  if (value !== undefined) {
+    return value;
+  }
+  return fallback;
+}
+
+function withDefaultString(value: string | null | undefined): string {
+  if (value) {
+    return value;
+  }
+  return "";
+}
+
+function withNullableString(value: string | null | undefined): string | null {
+  if (value) {
+    return value;
+  }
+  return null;
+}
+
+function normalizeFinishedAt(value: string | null | undefined): string | null {
+  return withNullableString(String(value ?? "").trim());
+}
+
+export function toPayloadBook(book: Book): Book {
+  const status = statusFromRaw(book.status, Number(book.progress_percent || 0));
+  return {
+    status,
+    book_id: book.book_id,
+    title: book.title,
+    words_total: book.words_total ?? null,
+    pages_total: book.pages_total ?? null,
+    pages_read: book.pages_read ?? null,
+    progress_percent: book.progress_percent,
+    priority: withDefaultNumber(book.priority, DEFAULT_PRIORITY),
+    difficulty: withDefaultNumber(book.difficulty, DEFAULT_DIFFICULTY),
+    min_blocks_per_session: withDefaultNumber(
+      book.min_blocks_per_session,
+      DEFAULT_MIN_BLOCKS,
+    ),
+    max_minutes_per_day: book.max_minutes_per_day ?? null,
+    deadline: withNullableString(book.deadline),
+    blocked_by: withNullableString(book.blocked_by),
+    shelf: withDefaultString(book.shelf),
+    finished_at: normalizeFinishedAt(book.finished_at),
+    author: withDefaultString(book.author),
+    cover_url: withDefaultString(book.cover_url),
+    cover_local_path: withDefaultString(book.cover_local_path),
+    lookup_note: withDefaultString(book.lookup_note),
+  };
+}
+
+export function hasSchedulableLength(book: Book): boolean {
+  return (book.words_total || 0) > 0 || (book.pages_total || 0) > 0;
+}

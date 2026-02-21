@@ -86,6 +86,7 @@ This is restart-on-change (not in-window HMR).
 ```bash
 .venv/bin/pytest -q
 cd electron && npm run lint
+npm run audit
 ```
 
 ## Issue Sync (Local -> GitHub)
