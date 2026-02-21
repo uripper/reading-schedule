@@ -1,10 +1,10 @@
-import type { Book } from './types.js';
+import type { Book } from "./types.js";
 
 const NO_ACTIVE_INDEX = -1;
 
 export function optionLabel(book: Book): string {
-  const title = String(book.title || 'Untitled');
-  const author = String(book.author || '').trim();
+  const title = String(book.title || "Untitled");
+  const author = String(book.author || "").trim();
   if (!author) {
     return title;
   }
@@ -12,11 +12,19 @@ export function optionLabel(book: Book): string {
 }
 
 export function compareBooks(left: Book, right: Book): number {
-  const titleCompare = String(left.title || '').localeCompare(String(right.title || ''), undefined, { sensitivity: 'base' });
+  const titleCompare = String(left.title || "").localeCompare(
+    String(right.title || ""),
+    undefined,
+    { sensitivity: "base" },
+  );
   if (titleCompare !== 0) {
     return titleCompare;
   }
-  return String(left.author || '').localeCompare(String(right.author || ''), undefined, { sensitivity: 'base' });
+  return String(left.author || "").localeCompare(
+    String(right.author || ""),
+    undefined,
+    { sensitivity: "base" },
+  );
 }
 
 export function wrapIndex(index: number, length: number): number {
@@ -37,7 +45,7 @@ export function lookupResultTarget(event: Event): HTMLElement | null {
   if (!(event.target instanceof HTMLElement)) {
     return null;
   }
-  return event.target.closest('.book-result');
+  return event.target.closest(".book-result");
 }
 
 export function labelsMatch(left: string, right: string): boolean {

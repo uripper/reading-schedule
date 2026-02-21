@@ -5,9 +5,9 @@ import {
   GROUP_BY_SHELF,
   GROUP_BY_TITLE_LETTER,
   type BookGroupBy,
-} from './grouping.js';
-import { SHELF_FILTER_ALL, SHELF_FILTER_UNSHELVED } from './shelf.js';
-import type { OpenDialogOptions } from './dialog.js';
+} from "./grouping.js";
+import { SHELF_FILTER_ALL, SHELF_FILTER_UNSHELVED } from "./shelf.js";
+import type { OpenDialogOptions } from "./dialog.js";
 import {
   SORT_BY_AUTHOR,
   SORT_BY_DEADLINE,
@@ -21,10 +21,10 @@ import {
   SORT_BY_WORDS_TOTAL,
   type SortBy,
   type SortDirection,
-} from './sort.js';
-import { SORT_BY_TITLE } from './toolbar.js';
-import type { BookStatusFilter } from './status.js';
-import type { Book } from './types.js';
+} from "./sort.js";
+import { SORT_BY_TITLE } from "./toolbar.js";
+import type { BookStatusFilter } from "./status.js";
+import type { Book } from "./types.js";
 
 export type BooksControllerRefs = {
   toolbar: HTMLElement | null;
@@ -89,8 +89,11 @@ export function toGroupBy(value: string): BookGroupBy {
 }
 
 export function defaultShelfForAddDialog(currentShelfFilter: string): string {
-  if (currentShelfFilter === SHELF_FILTER_ALL || currentShelfFilter === SHELF_FILTER_UNSHELVED) {
-    return '';
+  if (
+    currentShelfFilter === SHELF_FILTER_ALL ||
+    currentShelfFilter === SHELF_FILTER_UNSHELVED
+  ) {
+    return "";
   }
   return currentShelfFilter;
 }

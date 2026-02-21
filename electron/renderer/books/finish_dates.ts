@@ -1,6 +1,5 @@
-
-import type { PlannerScheduleRow } from '../app/types.js';
-import type { Book } from './types.js';
+import type { PlannerScheduleRow } from "../app/types.js";
+import type { Book } from "./types.js";
 
 const SESSION_INDEX_PAD = 3;
 
@@ -21,8 +20,8 @@ function withBookFinishedDates(
 ): Record<string, string> {
   const out = { ...finishDateByBookId };
   books.forEach((book) => {
-    const bookId = String(book?.book_id || '');
-    const finishedAt = String(book?.finished_at || '');
+    const bookId = String(book?.book_id || "");
+    const finishedAt = String(book?.finished_at || "");
     if (!bookId || !finishedAt) {
       return;
     }
@@ -32,7 +31,10 @@ function withBookFinishedDates(
   return out;
 }
 
-export function finishDatesByBookId(rows: PlannerScheduleRow[] = [], books: Book[] = []): Record<string, string> {
+export function finishDatesByBookId(
+  rows: PlannerScheduleRow[] = [],
+  books: Book[] = [],
+): Record<string, string> {
   const out: Record<string, string> = {};
   sortRows(rows).forEach((row) => {
     const bookId = String(row?.book_id || "");

@@ -1,5 +1,4 @@
-
-import type { BookLookupItem } from '../app/types.js';
+import type { BookLookupItem } from "../app/types.js";
 
 type SetActiveIndex = (index: number) => void;
 type SelectItem = (index: number) => void;
@@ -51,7 +50,10 @@ function handleEnter(
   selectItem(activeIndex);
 }
 
-function handleEscape(clearResults: () => void, searchInput: HTMLInputElement): void {
+function handleEscape(
+  clearResults: () => void,
+  searchInput: HTMLInputElement,
+): void {
   clearResults();
   searchInput.blur();
 }
@@ -66,16 +68,16 @@ export function handleLookupKeydown(
   searchInput: HTMLInputElement,
 ): void {
   switch (event.key) {
-    case 'ArrowDown':
+    case "ArrowDown":
       handleArrowDown(event, currentItems, activeIndex, setActiveIndex);
       return;
-    case 'ArrowUp':
+    case "ArrowUp":
       handleArrowUp(event, currentItems, activeIndex, setActiveIndex);
       return;
-    case 'Enter':
+    case "Enter":
       handleEnter(event, currentItems, activeIndex, selectItem);
       return;
-    case 'Escape':
+    case "Escape":
       handleEscape(clearResults, searchInput);
       return;
     default:

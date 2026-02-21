@@ -1,6 +1,5 @@
-
-import type { Book } from './types.js';
-import type { BookFormRefs } from './form_refs.js';
+import type { Book } from "./types.js";
+import type { BookFormRefs } from "./form_refs.js";
 import {
   compareBooks,
   labelsMatch,
@@ -8,7 +7,7 @@ import {
   matchesQuery,
   optionLabel,
   wrapIndex,
-} from './after_book_picker_helpers.js';
+} from "./after_book_picker_helpers.js";
 
 const NO_ACTIVE_INDEX = -1;
 const FIRST_RESULT_INDEX = 0;
@@ -29,7 +28,10 @@ type AfterBookPicker = {
   openForBook: (book?: Book | null) => void;
 };
 
-export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): AfterBookPicker {
+export function createAfterBookPicker(
+  refs: BookFormRefs,
+  getBooks: GetBooks,
+): AfterBookPicker {
   const state: PickerState = {
     currentBookId: "",
     selectedBookId: "",
@@ -49,7 +51,10 @@ export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): A
     if (!state.selectedBookId) {
       return null;
     }
-    return state.options.find((book) => book.book_id === state.selectedBookId) || null;
+    return (
+      state.options.find((book) => book.book_id === state.selectedBookId) ||
+      null
+    );
   };
   const render = (): void => {
     refs.afterBookResults.innerHTML = "";
@@ -75,7 +80,10 @@ export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): A
     refs.afterBookResults.classList.add("has-items");
     refs.afterBookInput.setAttribute("aria-expanded", "true");
     if (state.activeIndex > NO_ACTIVE_INDEX) {
-      refs.afterBookInput.setAttribute(ARIA_ACTIVE_DESCENDANT_ATTR, `after-book-option-${state.activeIndex}`);
+      refs.afterBookInput.setAttribute(
+        ARIA_ACTIVE_DESCENDANT_ATTR,
+        `after-book-option-${state.activeIndex}`,
+      );
       return;
     }
     refs.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
@@ -117,13 +125,19 @@ export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): A
   refs.afterBookInput.addEventListener("keydown", (event: KeyboardEvent) => {
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      state.activeIndex = wrapIndex(state.activeIndex + 1, state.filtered.length);
+      state.activeIndex = wrapIndex(
+        state.activeIndex + 1,
+        state.filtered.length,
+      );
       render();
       return;
     }
     if (event.key === "ArrowUp") {
       event.preventDefault();
-      state.activeIndex = wrapIndex(state.activeIndex - 1, state.filtered.length);
+      state.activeIndex = wrapIndex(
+        state.activeIndex - 1,
+        state.filtered.length,
+      );
       render();
       return;
     }
@@ -159,7 +173,10 @@ export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): A
     if (!(event.target instanceof Node)) {
       return;
     }
-    if (event.target === refs.afterBookInput || refs.afterBookResults.contains(event.target)) {
+    if (
+      event.target === refs.afterBookInput ||
+      refs.afterBookResults.contains(event.target)
+    ) {
       return;
     }
     clearResults();
@@ -175,7 +192,9 @@ export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): A
     if (blockedById) {
       state.selectedBookId = blockedById;
       refs.blockedByInput.value = blockedById;
-      const selected = state.options.find((item) => item.book_id === blockedById);
+      const selected = state.options.find(
+        (item) => item.book_id === blockedById,
+      );
       if (selected) {
         refs.afterBookInput.value = optionLabel(selected);
       } else {

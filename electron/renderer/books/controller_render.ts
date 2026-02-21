@@ -1,18 +1,22 @@
-import type { PlannerScheduleRow } from '../app/types.js';
-import { renderBookGrid } from './card_view.js';
-import { finishDatesByBookId } from './finish_dates.js';
-import { groupBooks } from './grouping.js';
-import { shelfFilterMatches, SHELF_FILTER_ALL } from './shelf.js';
-import { statusFilterMatches } from './status.js';
-import { sortBooks } from './sort.js';
+import type { PlannerScheduleRow } from "../app/types.js";
+import { renderBookGrid } from "./card_view.js";
+import { finishDatesByBookId } from "./finish_dates.js";
+import { groupBooks } from "./grouping.js";
+import { shelfFilterMatches, SHELF_FILTER_ALL } from "./shelf.js";
+import { statusFilterMatches } from "./status.js";
+import { sortBooks } from "./sort.js";
 import {
   updateGroupByOptions,
   updateShelfFilterOptions,
   updateStatusFilterOptions,
   updateSortDirectionButton,
-} from './toolbar.js';
-import type { Book } from './types.js';
-import type { BookDialogController, BooksControllerRefs, BooksViewState } from './controller_types.js';
+} from "./toolbar.js";
+import type { Book } from "./types.js";
+import type {
+  BookDialogController,
+  BooksControllerRefs,
+  BooksViewState,
+} from "./controller_types.js";
 
 type RenderBooksControllerArgs = {
   refs: BooksControllerRefs;
@@ -49,26 +53,49 @@ export function renderBooksController({
   if (!(refs.sortDirectionBtn instanceof HTMLButtonElement)) {
     return;
   }
-  if (!(refs.grid instanceof HTMLElement) || !(refs.empty instanceof HTMLElement)) {
+  if (
+    !(refs.grid instanceof HTMLElement) ||
+    !(refs.empty instanceof HTMLElement)
+  ) {
     return;
   }
 
-  viewState.shelfFilter = updateShelfFilterOptions(refs.shelfFilterSelect, books, viewState.shelfFilter);
-  viewState.statusFilter = updateStatusFilterOptions(refs.statusFilterSelect, viewState.statusFilter);
-  viewState.groupBy = updateGroupByOptions(refs.groupBySelect, viewState.groupBy, viewState.shelfFilter);
+  viewState.shelfFilter = updateShelfFilterOptions(
+    refs.shelfFilterSelect,
+    books,
+    viewState.shelfFilter,
+  );
+  viewState.statusFilter = updateStatusFilterOptions(
+    refs.statusFilterSelect,
+    viewState.statusFilter,
+  );
+  viewState.groupBy = updateGroupByOptions(
+    refs.groupBySelect,
+    viewState.groupBy,
+    viewState.shelfFilter,
+  );
   updateSortDirectionButton(refs.sortDirectionBtn, viewState.sortDirection);
 
   const showShelfMeta = viewState.shelfFilter === SHELF_FILTER_ALL;
   const finishDateByBookId = finishDatesByBookId(scheduleRows, books);
 
-  const visibleBooks = sortBooks(books, viewState.sortBy, viewState.sortDirection, finishDateByBookId).filter((book) => {
+  const visibleBooks = sortBooks(
+    books,
+    viewState.sortBy,
+    viewState.sortDirection,
+    finishDateByBookId,
+  ).filter((book) => {
     if (!shelfFilterMatches(book, viewState.shelfFilter)) {
       return false;
     }
     return statusFilterMatches(book, viewState.statusFilter);
   });
 
-  const groups = groupBooks(visibleBooks, viewState.groupBy, finishDateByBookId);
+  const groups = groupBooks(
+    visibleBooks,
+    viewState.groupBy,
+    finishDateByBookId,
+  );
   renderBookGrid({
     groups,
     finishDateByBookId,

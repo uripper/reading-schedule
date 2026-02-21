@@ -1,21 +1,25 @@
-import { el } from '../dom.js';
-import type { PlannerScheduleRow } from '../app/types.js';
-import { createBookDialog } from './dialog.js';
-import { GROUP_BY_NONE } from './grouping.js';
-import { hasSchedulableLength, normalizeBook, toPayloadBook } from './model.js';
-import { withUpdatedProgress } from './progress.js';
-import { hydrateBookCover, upsertBookById } from './save.js';
-import { BOOK_STATUS_FILTER_ALL, schedulableBook } from './status.js';
-import { ensureBooksToolbarControls, SORT_BY_TITLE, SORT_DIRECTION_ASC } from './toolbar.js';
-import type { Book, BookProgressUpdates } from './types.js';
-import { bindToolbarEvents } from './controller_bindings.js';
-import { renderBooksController } from './controller_render.js';
+import { el } from "../dom.js";
+import type { PlannerScheduleRow } from "../app/types.js";
+import { createBookDialog } from "./dialog.js";
+import { GROUP_BY_NONE } from "./grouping.js";
+import { hasSchedulableLength, normalizeBook, toPayloadBook } from "./model.js";
+import { withUpdatedProgress } from "./progress.js";
+import { hydrateBookCover, upsertBookById } from "./save.js";
+import { BOOK_STATUS_FILTER_ALL, schedulableBook } from "./status.js";
+import {
+  ensureBooksToolbarControls,
+  SORT_BY_TITLE,
+  SORT_DIRECTION_ASC,
+} from "./toolbar.js";
+import type { Book, BookProgressUpdates } from "./types.js";
+import { bindToolbarEvents } from "./controller_bindings.js";
+import { renderBooksController } from "./controller_render.js";
 import {
   defaultShelfForAddDialog,
   type BookDialogController,
   type BooksControllerRefs,
   type BooksViewState,
-} from './controller_types.js';
+} from "./controller_types.js";
 
 let books: Book[] = [];
 let scheduleRows: PlannerScheduleRow[] = [];
@@ -35,7 +39,7 @@ const refs: BooksControllerRefs = {
 };
 
 const viewState: BooksViewState = {
-  shelfFilter: '',
+  shelfFilter: "",
   statusFilter: BOOK_STATUS_FILTER_ALL,
   sortBy: SORT_BY_TITLE,
   groupBy: GROUP_BY_NONE,
@@ -127,14 +131,14 @@ export function collectAllBooks() {
 
 export function bindBooksUI(onChanged: () => void = () => {}): void {
   onBooksChanged = onChanged;
-  refs.toolbar = document.querySelector('.books-toolbar');
+  refs.toolbar = document.querySelector(".books-toolbar");
   if (!(refs.toolbar instanceof HTMLElement)) {
     return;
   }
 
-  refs.grid = el<HTMLElement>('booksGrid');
-  refs.empty = el<HTMLElement>('booksEmpty');
-  refs.addBtn = el<HTMLButtonElement>('addBookBtn');
+  refs.grid = el("booksGrid");
+  refs.empty = el("booksEmpty");
+  refs.addBtn = el<HTMLButtonElement>("addBookBtn");
 
   const toolbarControls = ensureBooksToolbarControls(refs.toolbar);
   refs.shelfFilterSelect = toolbarControls.shelfFilterSelect;
@@ -151,7 +155,9 @@ export function bindBooksUI(onChanged: () => void = () => {}): void {
       if (!dialog) {
         return;
       }
-      dialog.open(null, { defaultShelf: defaultShelfForAddDialog(viewState.shelfFilter) });
+      dialog.open(null, {
+        defaultShelf: defaultShelfForAddDialog(viewState.shelfFilter),
+      });
     };
   }
 
