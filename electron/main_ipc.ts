@@ -19,19 +19,22 @@ type RegisterIpcHandlersArgs = {
     bookId: string | undefined,
     userDataDir: string | undefined,
   ) => Promise<string>;
-  findInPage: (webContents: WebContents, payload: WindowFindRequest | null) => JsonValue;
+  findInPage: (
+    webContents: WebContents,
+    payload: WindowFindRequest | null,
+  ) => Promise<unknown>;
   initialZoomFactor: () => number;
-  readState: (userDataDir: string) => JsonValue;
-  runBridge: (args: string[], payload?: JsonValue) => Promise<JsonValue>;
+  readState: (userDataDir: string) => unknown;
+  runBridge: (args: string[], payload?: JsonValue) => Promise<unknown>;
   saveUploadedCover: (
     coverDataUrl: string | undefined,
     bookId: string | undefined,
     userDataDir: string | undefined,
   ) => string;
-  searchBooks: (query: string) => Promise<JsonValue>;
+  searchBooks: (query: string) => Promise<unknown>;
   setZoomFactor: (webContents: WebContents, value: number) => number;
   shiftZoomFactor: (webContents: WebContents, delta: number) => number;
-  stopFindInPage: (webContents: WebContents) => JsonValue;
+  stopFindInPage: (webContents: WebContents) => Promise<unknown>;
   userData: () => string;
   writeState: (userDataDir: string, payload: JsonValue) => { error?: string; ok: boolean };
 };

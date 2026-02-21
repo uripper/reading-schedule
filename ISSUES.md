@@ -44,6 +44,14 @@ This file is a local issue tracker extracted from `ROADMAP.md` and organized for
 | ISSUE-016 | Candidate: multi-device sync | enhancement | P3 |
 | ISSUE-017 | Candidate: localization and i18n | enhancement | P3 |
 | ISSUE-018 | Candidate: richer metadata integrations | enhancement | P3 |
+| ISSUE-019 | Add formats and ownership to book metadata | enhancement | P3 |
+| ISSUE-020 | Implement session-level notes, reflections, highlights, and tagging | enhancement | P3 |
+| ISSUE-021 | Candidate: Synchronization with external reading trackers (Goodreads, StoryGraph, etc...) | enhancement | P3 |
+| ISSUE-022 | Candidate: Synchronization with e-reader devices (Kindle, Kobo, etc...) | enhancement | P3 |
+| ISSUE-023 | Candidate: Synchronization with note-taking tools (Obsidian, Notion, etc...) | enhancement | P3 |
+| ISSUE-024 | Candidate: Synchronization with calendar apps (Google Calendar, Apple Calendar, etc...) | enhancement | P3 |
+| ISSUE-025 | Candidate: Synchronization with audiobook platforms (Audible, Libby, etc...) | enhancement | P3 |
+| ISSUE-026 | Add support for non-book reading materials (articles, papers, etc...) | enhancement | P3 |
 
 ---
 

@@ -1,0 +1,50 @@
+import path from "node:path";
+
+import { app, BrowserWindow } from "electron";
+
+import { downloadCover, saveUploadedCover, searchBooks } from "./book_lookup";
+import { runBridge } from "./main_bridge";
+import { registerIpcHandlers } from "./main_ipc";
+import { initialZoomFactor, setZoomFactor, shiftZoomFactor } from "./main_zoom";
+import { readState, writeState } from "./state_store";
+import { findInPage, stopFindInPage } from "./window_find";
+
+function createWindow(): void {
+  const iconPath = path.join(__dirname, "assets", "logo.png");
+  const window = new BrowserWindow({
+    width: 1800,
+    height: 1100,
+    icon: iconPath,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+    },
+  });
+  setZoomFactor(window.webContents, initialZoomFactor());
+  window.loadFile(path.join(__dirname, "index.html"));
+}
+
+function userData(): string {
+  return app.getPath("userData");
+}
+
+registerIpcHandlers({
+  runBridge,
+  searchBooks,
+  downloadCover,
+  saveUploadedCover,
+  readState,
+  writeState,
+  userData,
+  shiftZoomFactor,
+  setZoomFactor,
+  initialZoomFactor,
+  findInPage,
+  stopFindInPage,
+});
+
+app.on("ready", createWindow);
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});
