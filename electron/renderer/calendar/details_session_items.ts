@@ -1,45 +1,48 @@
-import type { CalendarRowWithFinish } from './data.js';
-import { estimateProgressLabel } from './estimates.js';
-import { sessionKeyFor } from './utils.js';
-import { progressFormForToday } from './details_progress_form.js';
-import { fallbackBookForRow } from './details_fallback_book.js';
-import type { CalendarStateSubset, DetailInteractionHandlers } from './details_types.js';
+import type { CalendarRowWithFinish } from "./data.js";
+import { estimateProgressLabel } from "./estimates.js";
+import { sessionKeyFor } from "./utils.js";
+import { progressFormForToday } from "./details_progress_form.js";
+import { fallbackBookForRow } from "./details_fallback_book.js";
+import type {
+  CalendarStateSubset,
+  DetailInteractionHandlers,
+} from "./details_types.js";
 
-const DAY_DETAILS_META_CLASS = 'day-details-meta';
-const COMPLETE_ITEM_CLASS = 'is-complete';
-const COMPLETE_TOGGLE_LABEL = ' Complete session';
-const COMPLETED_TEXT = 'Completed';
-const NOT_COMPLETED_TEXT = 'Not completed';
-const REMOVE_SESSION_LABEL = 'Remove session';
+const DAY_DETAILS_META_CLASS = "day-details-meta";
+const COMPLETE_ITEM_CLASS = "is-complete";
+const COMPLETE_TOGGLE_LABEL = " Complete session";
+const COMPLETED_TEXT = "Completed";
+const NOT_COMPLETED_TEXT = "Not completed";
+const REMOVE_SESSION_LABEL = "Remove session";
 
 function sessionMetaText(row: CalendarRowWithFinish): string {
-  let finishLabel = '';
+  let finishLabel = "";
   if (row.finish) {
-    finishLabel = ' - expected finish';
+    finishLabel = " - expected finish";
   }
   return `${row.minutes} minutes planned${finishLabel}`;
 }
 
 function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
-  const item = document.createElement('article');
-  item.className = 'day-details-item';
+  const item = document.createElement("article");
+  item.className = "day-details-item";
   if (row.finish) {
-    item.classList.add('is-finish');
+    item.classList.add("is-finish");
   }
 
-  const head = document.createElement('strong');
-  head.textContent = row.title || 'Untitled';
+  const head = document.createElement("strong");
+  head.textContent = row.title || "Untitled";
 
   if (row.finish) {
-    const finishBadge = document.createElement('span');
-    finishBadge.className = 'day-finish-badge';
-    finishBadge.textContent = 'Expected finish';
+    const finishBadge = document.createElement("span");
+    finishBadge.className = "day-finish-badge";
+    finishBadge.textContent = "Expected finish";
     item.append(head, finishBadge);
   } else {
     item.append(head);
   }
 
-  const meta = document.createElement('p');
+  const meta = document.createElement("p");
   meta.className = DAY_DETAILS_META_CLASS;
   meta.textContent = sessionMetaText(row);
   item.append(meta);
@@ -51,14 +54,14 @@ function removeSessionButton(
   interactionHandlers: DetailInteractionHandlers,
   rerenderDetails: () => void,
 ): HTMLButtonElement {
-  const removeButton = document.createElement('button');
-  removeButton.type = 'button';
-  removeButton.className = 'btn-session-remove';
-  removeButton.textContent = 'x';
-  removeButton.setAttribute('aria-label', REMOVE_SESSION_LABEL);
+  const removeButton = document.createElement("button");
+  removeButton.type = "button";
+  removeButton.className = "btn-session-remove";
+  removeButton.textContent = "x";
+  removeButton.setAttribute("aria-label", REMOVE_SESSION_LABEL);
   removeButton.title = REMOVE_SESSION_LABEL;
   removeButton.onclick = () => {
-    const title = String(row.title || 'this session');
+    const title = String(row.title || "this session");
     const confirmed = globalThis.confirm(`Remove ${title} from ${row.date}?`);
     if (!confirmed) {
       return;
@@ -79,14 +82,16 @@ export function buildPastSessionItem(
 ): HTMLElement {
   const item = baseSessionItem(row);
   const sessionKey = sessionKeyFor(row);
-  const completeLabel = document.createElement('label');
-  completeLabel.className = 'day-complete-toggle';
-  const completeInput = document.createElement('input');
-  completeInput.type = 'checkbox';
-  completeInput.checked = Boolean(interactionHandlers.isSessionCompleted(sessionKey));
+  const completeLabel = document.createElement("label");
+  completeLabel.className = "day-complete-toggle";
+  const completeInput = document.createElement("input");
+  completeInput.type = "checkbox";
+  completeInput.checked = Boolean(
+    interactionHandlers.isSessionCompleted(sessionKey),
+  );
   completeLabel.append(completeInput, COMPLETE_TOGGLE_LABEL);
 
-  const status = document.createElement('p');
+  const status = document.createElement("p");
   status.className = DAY_DETAILS_META_CLASS;
   if (completeInput.checked) {
     status.textContent = COMPLETED_TEXT;
@@ -111,7 +116,11 @@ export function buildPastSessionItem(
     rerenderDetails();
   };
 
-  item.append(completeLabel, status, removeSessionButton(row, interactionHandlers, rerenderDetails));
+  item.append(
+    completeLabel,
+    status,
+    removeSessionButton(row, interactionHandlers, rerenderDetails),
+  );
   return item;
 }
 
@@ -122,7 +131,7 @@ export function buildFutureSessionItem(
   rerenderDetails: () => void,
 ): HTMLElement {
   const item = baseSessionItem(row);
-  const estimate = document.createElement('p');
+  const estimate = document.createElement("p");
   estimate.className = DAY_DETAILS_META_CLASS;
   estimate.textContent = estimateProgressLabel(
     row,
@@ -130,7 +139,10 @@ export function buildFutureSessionItem(
     interactionHandlers.getBookById,
     interactionHandlers.isSessionCompleted,
   );
-  item.append(estimate, removeSessionButton(row, interactionHandlers, rerenderDetails));
+  item.append(
+    estimate,
+    removeSessionButton(row, interactionHandlers, rerenderDetails),
+  );
   return item;
 }
 
@@ -142,11 +154,13 @@ export function buildTodaySessionItem(
   const item = baseSessionItem(row);
   const sessionKey = sessionKeyFor(row);
 
-  const completeLabel = document.createElement('label');
-  completeLabel.className = 'day-complete-toggle';
-  const completeInput = document.createElement('input');
-  completeInput.type = 'checkbox';
-  completeInput.checked = Boolean(interactionHandlers.isSessionCompleted(sessionKey));
+  const completeLabel = document.createElement("label");
+  completeLabel.className = "day-complete-toggle";
+  const completeInput = document.createElement("input");
+  completeInput.type = "checkbox";
+  completeInput.checked = Boolean(
+    interactionHandlers.isSessionCompleted(sessionKey),
+  );
   completeLabel.append(completeInput, COMPLETE_TOGGLE_LABEL);
   item.classList.toggle(COMPLETE_ITEM_CLASS, completeInput.checked);
 
@@ -180,7 +194,12 @@ export function buildTodaySessionItem(
   if (!effectiveBook) {
     item.append(
       completeLabel,
-      progressFormForToday(row, fallbackBookForRow(row), interactionHandlers, markCompleteFromProgressUpdate),
+      progressFormForToday(
+        row,
+        fallbackBookForRow(row),
+        interactionHandlers,
+        markCompleteFromProgressUpdate,
+      ),
       removeSessionButton(row, interactionHandlers, rerenderDetails),
     );
     return item;
@@ -188,7 +207,12 @@ export function buildTodaySessionItem(
 
   item.append(
     completeLabel,
-    progressFormForToday(row, effectiveBook, interactionHandlers, markCompleteFromProgressUpdate),
+    progressFormForToday(
+      row,
+      effectiveBook,
+      interactionHandlers,
+      markCompleteFromProgressUpdate,
+    ),
     removeSessionButton(row, interactionHandlers, rerenderDetails),
   );
   return item;

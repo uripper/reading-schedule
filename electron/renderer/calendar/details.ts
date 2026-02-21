@@ -1,5 +1,5 @@
-import { el } from '../dom.js';
-import { rowsWithFinishFirst, type CalendarRowWithFinish } from './data.js';
+import { el } from "../dom.js";
+import { rowsWithFinishFirst, type CalendarRowWithFinish } from "./data.js";
 import {
   buildManualSessionAddPanel,
   buildFutureSessionItem,
@@ -9,8 +9,8 @@ import {
   type DayMode,
   type DetailInteractionHandlers,
   rowsWithCompletedLast,
-} from './details_helpers.js';
-import { dateHeading } from './utils.js';
+} from "./details_helpers.js";
+import { dateHeading } from "./utils.js";
 
 type CalendarState = {
   selectedDate: string;
@@ -21,10 +21,10 @@ type CalendarState = {
 };
 
 function emptyMessageForMode(mode: DayMode): string {
-  if (mode === 'past') {
-    return 'No sessions planned for this day.';
+  if (mode === "past") {
+    return "No sessions planned for this day.";
   }
-  return 'No sessions planned for this day.';
+  return "No sessions planned for this day.";
 }
 
 function rowsForMode(
@@ -32,10 +32,10 @@ function rowsForMode(
   mode: DayMode,
   interactionHandlers: DetailInteractionHandlers,
 ): CalendarRowWithFinish[] {
-  if (mode === 'past') {
+  if (mode === "past") {
     return rowsWithCompletedLast(rows, interactionHandlers);
   }
-  if (mode === 'today') {
+  if (mode === "today") {
     return rowsWithCompletedLast(rows, interactionHandlers);
   }
   return rowsWithFinishFirst(rows);
@@ -48,11 +48,16 @@ function rowNodeForMode(
   interactionHandlers: DetailInteractionHandlers,
   rerenderDetails: () => void,
 ): HTMLElement {
-  if (mode === 'today') {
+  if (mode === "today") {
     return buildTodaySessionItem(row, interactionHandlers, rerenderDetails);
   }
-  if (mode === 'future') {
-    return buildFutureSessionItem(row, state, interactionHandlers, rerenderDetails);
+  if (mode === "future") {
+    return buildFutureSessionItem(
+      row,
+      state,
+      interactionHandlers,
+      rerenderDetails,
+    );
   }
   return buildPastSessionItem(row, interactionHandlers, rerenderDetails);
 }
@@ -62,22 +67,22 @@ export function renderCalendarDetails(
   interactionHandlers: DetailInteractionHandlers,
   onRerenderRequested: (() => void) | null = null,
 ): void {
-  const details = el('calendarDayDetails');
+  const details = el("calendarDayDetails");
   const key = state.selectedDate;
   const rows = state.dates[key] || [];
 
-  const title = document.createElement('h2');
-  title.textContent = 'Selected Day';
+  const title = document.createElement("h2");
+  title.textContent = "Selected Day";
   if (key) {
     title.textContent = dateHeading(key);
   }
 
   if (!key) {
-    const hint = document.createElement('p');
-    hint.className = 'hint-text';
-    hint.textContent = 'Select a day in the schedule grid to view details.';
+    const hint = document.createElement("p");
+    hint.className = "hint-text";
+    hint.textContent = "Select a day in the schedule grid to view details.";
     details.replaceChildren(title, hint);
-    state.expectedFinishHighlightDate = '';
+    state.expectedFinishHighlightDate = "";
     return;
   }
 
@@ -96,30 +101,36 @@ export function renderCalendarDetails(
     mode,
     interactionHandlers,
     rerenderDetails,
-    firstRow?.book_id || '',
+    firstRow?.book_id || "",
     firstRow?.minutes,
   );
   if (!rowsToRender.length) {
-    const empty = document.createElement('p');
-    empty.className = 'hint-text';
+    const empty = document.createElement("p");
+    empty.className = "hint-text";
     empty.textContent = emptyMessageForMode(mode);
     details.replaceChildren(title, empty, manualAddPanel);
-    state.expectedFinishHighlightDate = '';
+    state.expectedFinishHighlightDate = "";
     return;
   }
 
-  const list = document.createElement('div');
-  list.className = 'day-details-list';
+  const list = document.createElement("div");
+  list.className = "day-details-list";
   const animateFinishRows = state.expectedFinishHighlightDate === key;
 
   rowsToRender.forEach((row) => {
-    const node = rowNodeForMode(mode, row, state, interactionHandlers, rerenderDetails);
+    const node = rowNodeForMode(
+      mode,
+      row,
+      state,
+      interactionHandlers,
+      rerenderDetails,
+    );
     if (animateFinishRows && row.finish) {
-      node.classList.add('is-finish-pulse');
+      node.classList.add("is-finish-pulse");
     }
     list.append(node);
   });
 
   details.replaceChildren(title, list, manualAddPanel);
-  state.expectedFinishHighlightDate = '';
+  state.expectedFinishHighlightDate = "";
 }

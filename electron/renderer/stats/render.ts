@@ -163,11 +163,14 @@ function monthPanel(snapshot: StatsSnapshot): HTMLElement {
 
     const month = document.createElement("span");
     month.className = "month-bar-label";
-    month.textContent = new Intl.DateTimeFormat(undefined, { month: "short" }).format(
-      new Date(snapshot.year, index, 1),
-    );
+    month.textContent = new Intl.DateTimeFormat(undefined, {
+      month: "short",
+    }).format(new Date(snapshot.year, index, 1));
 
-    item.setAttribute("aria-label", `${month.textContent}: ${finishCountLabel(count)}`);
+    item.setAttribute(
+      "aria-label",
+      `${month.textContent}: ${finishCountLabel(count)}`,
+    );
     item.append(countNode, track, month);
     bars.append(item);
   });

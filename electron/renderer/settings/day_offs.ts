@@ -1,8 +1,10 @@
-
 import { el } from "../dom.js";
 
-export function renderDayOffs(dayOffs: string[], setDayOffs: (nextDayOffs: string[]) => void): void {
-  const list = el<HTMLElement>("dayOffList");
+export function renderDayOffs(
+  dayOffs: string[],
+  setDayOffs: (nextDayOffs: string[]) => void,
+): void {
+  const list = el("dayOffList");
   const buttons = dayOffs.map((day) => {
     const button = document.createElement("button");
     button.className = "chip-btn";
@@ -28,7 +30,9 @@ export function bindDayOffAddButton(
     if (!selectedDay || existing.includes(selectedDay)) {
       return;
     }
-    const sorted = [...existing, selectedDay].sort((left, right) => left.localeCompare(right));
+    const sorted = [...existing, selectedDay].sort((left, right) =>
+      left.localeCompare(right),
+    );
     setDayOffs(sorted);
   };
 }

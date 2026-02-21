@@ -1,4 +1,3 @@
-
 import { uid } from "../dom.js";
 import { toInt } from "./utils.js";
 
@@ -30,14 +29,19 @@ function compareByEndedAtDesc(left: Session, right: Session): number {
   return String(right.ended_at).localeCompare(String(left.ended_at));
 }
 
-function normalizedDates(session: SessionInput): { endedAt: string; startedAt: string } {
+function normalizedDates(session: SessionInput): {
+  endedAt: string;
+  startedAt: string;
+} {
   const endedAtRaw = String(session.ended_at || session.endedAt || "").trim();
   let endedAt = endedAtRaw;
   if (!endedAt) {
     endedAt = new Date().toISOString();
   }
 
-  const startedAtRaw = String(session.started_at || session.startedAt || "").trim();
+  const startedAtRaw = String(
+    session.started_at || session.startedAt || "",
+  ).trim();
   let startedAt = startedAtRaw;
   if (!startedAt) {
     startedAt = endedAt;

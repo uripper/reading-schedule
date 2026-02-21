@@ -1,8 +1,8 @@
-import type { Book } from '../books/types.js';
-import { WORDS_PER_PAGE } from '../books/constants.js';
+import type { Book } from "../books/types.js";
+import { WORDS_PER_PAGE } from "../books/constants.js";
 
 const SESSION_INDEX_PAD = 3;
-const NO_ESTIMATE_LABEL = 'No estimate available';
+const NO_ESTIMATE_LABEL = "No estimate available";
 const PERCENT_SCALE = 100;
 const PERCENT_PRECISION_SCALE = 1000;
 type EstimateRow = {
@@ -29,12 +29,15 @@ type EstimateSnapshot = {
 function todayDateKey(): string {
   const now = new Date();
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
-function rowSortKey(row: Pick<EstimateRow, 'date' | 'session_index'>): string {
-  const sessionIndex = String(row.session_index).padStart(SESSION_INDEX_PAD, '0');
+function rowSortKey(row: Pick<EstimateRow, "date" | "session_index">): string {
+  const sessionIndex = String(row.session_index).padStart(
+    SESSION_INDEX_PAD,
+    "0",
+  );
   return `${row.date}-${sessionIndex}`;
 }
 function estimateSessionKey(row: EstimateRow): string {
@@ -72,7 +75,7 @@ function plannedWordsBeforeAndThroughRow(
   isSessionCompleted: CompletionChecker,
 ): { before: number; through: number } {
   const today = todayDateKey();
-  const targetDate = String(row.date || '');
+  const targetDate = String(row.date || "");
   const targetSessionKey = estimateSessionKey(row);
   if (targetDate === today && isSessionCompleted(targetSessionKey)) {
     return { before: 0, through: 0 };
@@ -87,10 +90,10 @@ function plannedWordsBeforeAndThroughRow(
     rows.push(...state.rows);
   }
   rows.forEach((candidate) => {
-    if (String(candidate.book_id || '') !== bookId) {
+    if (String(candidate.book_id || "") !== bookId) {
       return;
     }
-    const date = String(candidate.date || '');
+    const date = String(candidate.date || "");
     if (!date || date < today) {
       return;
     }
@@ -110,7 +113,10 @@ function plannedWordsBeforeAndThroughRow(
   });
   return { before, through };
 }
-function projectedPages(projectedPercent: number, pagesTotal: number): number | null {
+function projectedPages(
+  projectedPercent: number,
+  pagesTotal: number,
+): number | null {
   if (pagesTotal <= 0) {
     return null;
   }
@@ -128,7 +134,7 @@ function estimateSnapshotForRow(
   getBookById: BookGetter,
   isSessionCompleted: CompletionChecker,
 ): EstimateSnapshot | null {
-  const bookId = String(row.book_id || '');
+  const bookId = String(row.book_id || "");
   if (!bookId) {
     return null;
   }
@@ -148,7 +154,10 @@ function estimateSnapshotForRow(
     bookId,
     isSessionCompleted,
   );
-  const startWords = Math.min(fullWords, currentWordsRead + plannedWords.before);
+  const startWords = Math.min(
+    fullWords,
+    currentWordsRead + plannedWords.before,
+  );
   const endWords = Math.min(fullWords, currentWordsRead + plannedWords.through);
   const startPercent = percentFromWords(startWords, fullWords);
   const endPercent = percentFromWords(endWords, fullWords);
@@ -162,7 +171,7 @@ function estimateSnapshotForRow(
   };
 }
 function estimateLabelWithPages(snapshot: EstimateSnapshot): string {
-  const {startPages, endPages} = snapshot;
+  const { startPages, endPages } = snapshot;
   if (startPages === null || endPages === null) {
     return NO_ESTIMATE_LABEL;
   }

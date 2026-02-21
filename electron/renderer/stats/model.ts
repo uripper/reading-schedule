@@ -91,6 +91,10 @@ export function buildStatsSnapshot({
     completedSessionsToDate: completion.completed,
     completionRatePercent: completion.ratePercent,
     statusBreakdown: statusBreakdown(books),
-    monthlyFinishes: monthlyFinishCounts(readThisYearIds, books, planned.monthByBookId),
+    monthlyFinishes: monthlyFinishCounts(
+      readThisYearIds,
+      books,
+      planned.monthByBookId,
+    ),
   };
 }

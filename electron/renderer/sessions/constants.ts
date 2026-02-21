@@ -1,5 +1,3 @@
-
-
 export const HISTORY_LIMIT = 30;
 export const SESSION_MIN_MS = 1000;
 export const MS_PER_SECOND = 1000;

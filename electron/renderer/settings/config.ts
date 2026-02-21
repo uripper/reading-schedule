@@ -26,10 +26,11 @@ const PLAN_MODE_OPTIONS: SelectOption[] = [
   { value: "spread_out", label: "Spread Across Window" },
 ];
 
-export const fields: Record<"window" | "budget" | "weights", FieldDefinition[]> = {
-  window: [
-    { id: "end_date", label: "Plan until date", type: "date" },
-  ],
+export const fields: Record<
+  "window" | "budget" | "weights",
+  FieldDefinition[]
+> = {
+  window: [{ id: "end_date", label: "Plan until date", type: "date" }],
   budget: [
     {
       id: "plan_mode",
@@ -44,15 +45,27 @@ export const fields: Record<"window" | "budget" | "weights", FieldDefinition[]> 
       type: "number",
       hint: "Fallback if weekday minutes are not set.",
     },
-    { id: "wpm_base", label: "Base reading speed (words/minute)", type: "number" },
+    {
+      id: "wpm_base",
+      label: "Base reading speed (words/minute)",
+      type: "number",
+    },
     {
       id: "time_quantum_minutes",
       label: "Planning block size (minutes)",
       type: "number",
       hint: "Smallest scheduling chunk the planner uses.",
     },
-    { id: "max_sessions_per_day", label: "Maximum sessions per day", type: "number" },
-    { id: "max_books_per_day", label: "Maximum different books per day", type: "number" },
+    {
+      id: "max_sessions_per_day",
+      label: "Maximum sessions per day",
+      type: "number",
+    },
+    {
+      id: "max_books_per_day",
+      label: "Maximum different books per day",
+      type: "number",
+    },
     {
       id: "max_blocks_per_book_per_day",
       label: "Maximum blocks per book per day",

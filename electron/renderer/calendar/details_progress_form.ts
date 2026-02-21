@@ -1,7 +1,7 @@
-import type { Book } from '../books/types.js';
-import type { CalendarRowWithFinish } from './data.js';
-import { parseOptionalNumber } from './utils.js';
-import type { DetailInteractionHandlers } from './details_types.js';
+import type { Book } from "../books/types.js";
+import type { CalendarRowWithFinish } from "./data.js";
+import { parseOptionalNumber } from "./utils.js";
+import type { DetailInteractionHandlers } from "./details_types.js";
 
 function setInputValueFromBookProgress(
   inputNode: HTMLInputElement,
@@ -12,20 +12,26 @@ function setInputValueFromBookProgress(
   }
 }
 
-function changedNumberValue(inputNode: HTMLInputElement, initialValue: string): number | null {
-  const currentValue = String(inputNode.value ?? '').trim();
+function changedNumberValue(
+  inputNode: HTMLInputElement,
+  initialValue: string,
+): number | null {
+  const currentValue = String(inputNode.value ?? "").trim();
   if (currentValue === String(initialValue)) {
     return null;
   }
   return parseOptionalNumber(currentValue);
 }
 
-function syncInputValue(inputNode: HTMLInputElement, nextValue?: number | null): string {
+function syncInputValue(
+  inputNode: HTMLInputElement,
+  nextValue?: number | null,
+): string {
   if (nextValue === null || nextValue === undefined) {
-    return String(inputNode.value ?? '').trim();
+    return String(inputNode.value ?? "").trim();
   }
   inputNode.value = String(nextValue);
-  return String(inputNode.value ?? '').trim();
+  return String(inputNode.value ?? "").trim();
 }
 
 function submitProgressUpdate(
@@ -36,7 +42,11 @@ function submitProgressUpdate(
   initialPagesValue: string,
   initialPercentValue: string,
   interactionHandlers: DetailInteractionHandlers,
-): { initialPagesValue: string; initialPercentValue: string; applied: boolean } {
+): {
+  initialPagesValue: string;
+  initialPercentValue: string;
+  applied: boolean;
+} {
   event.preventDefault();
   const pagesRead = changedNumberValue(pagesInput, initialPagesValue);
   const progressPercent = changedNumberValue(pctInput, initialPercentValue);
@@ -67,41 +77,41 @@ export function progressFormForToday(
   interactionHandlers: DetailInteractionHandlers,
   onProgressApplied: () => void,
 ): HTMLFormElement {
-  const progressForm = document.createElement('form');
-  progressForm.className = 'day-progress-form';
+  const progressForm = document.createElement("form");
+  progressForm.className = "day-progress-form";
 
-  const pagesInput = document.createElement('input');
-  pagesInput.type = 'number';
-  pagesInput.min = '0';
-  pagesInput.step = '1';
-  pagesInput.placeholder = 'Pages read';
+  const pagesInput = document.createElement("input");
+  pagesInput.type = "number";
+  pagesInput.min = "0";
+  pagesInput.step = "1";
+  pagesInput.placeholder = "Pages read";
   setInputValueFromBookProgress(pagesInput, book.pages_read ?? undefined);
 
-  const pctInput = document.createElement('input');
-  pctInput.type = 'number';
-  pctInput.min = '0';
-  pctInput.max = '100';
-  pctInput.step = '0.1';
-  pctInput.placeholder = 'Percent complete';
+  const pctInput = document.createElement("input");
+  pctInput.type = "number";
+  pctInput.min = "0";
+  pctInput.max = "100";
+  pctInput.step = "0.1";
+  pctInput.placeholder = "Percent complete";
   setInputValueFromBookProgress(pctInput, book.progress_percent);
 
-  const pagesLabel = document.createElement('label');
-  pagesLabel.className = 'day-progress-field';
-  pagesLabel.textContent = 'Pages Read';
+  const pagesLabel = document.createElement("label");
+  pagesLabel.className = "day-progress-field";
+  pagesLabel.textContent = "Pages Read";
   pagesLabel.append(pagesInput);
 
-  const percentLabel = document.createElement('label');
-  percentLabel.className = 'day-progress-field';
-  percentLabel.textContent = 'Complete %';
+  const percentLabel = document.createElement("label");
+  percentLabel.className = "day-progress-field";
+  percentLabel.textContent = "Complete %";
   percentLabel.append(pctInput);
 
-  let initialPagesValue = String(pagesInput.value ?? '').trim();
-  let initialPercentValue = String(pctInput.value ?? '').trim();
+  let initialPagesValue = String(pagesInput.value ?? "").trim();
+  let initialPercentValue = String(pctInput.value ?? "").trim();
 
-  const saveBtn = document.createElement('button');
-  saveBtn.type = 'submit';
-  saveBtn.className = 'btn';
-  saveBtn.textContent = 'Update Progress';
+  const saveBtn = document.createElement("button");
+  saveBtn.type = "submit";
+  saveBtn.className = "btn";
+  saveBtn.textContent = "Update Progress";
 
   progressForm.append(pagesLabel, percentLabel, saveBtn);
   progressForm.onsubmit = (event) => {

@@ -1,4 +1,3 @@
-
 import { el } from "../dom.js";
 import { DIFFICULTY_LEVEL_COUNT, weekdays } from "./config.js";
 import type { FieldDefinition } from "./config.js";
@@ -47,8 +46,13 @@ function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
   return label;
 }
 
-export function renderGrid(id: string, fieldDefinitions: FieldDefinition[]): void {
-  el<HTMLElement>(id).replaceChildren(...fieldDefinitions.map(renderFieldInput));
+export function renderGrid(
+  id: string,
+  fieldDefinitions: FieldDefinition[],
+): void {
+  el(id).replaceChildren(
+    ...fieldDefinitions.map(renderFieldInput),
+  );
 }
 
 export function renderWeekdayGrid() {
@@ -63,29 +67,32 @@ export function renderWeekdayGrid() {
 
     return label;
   });
-  el<HTMLElement>("weekdayGrid").replaceChildren(...weekdayNodes);
+  el("weekdayGrid").replaceChildren(...weekdayNodes);
 }
 
 export function renderDifficultyRows() {
-  const diffRows = Array.from({ length: DIFFICULTY_LEVEL_COUNT }, (_, index) => {
-    const row = document.createElement("tr");
-    const level = index + 1;
+  const diffRows = Array.from(
+    { length: DIFFICULTY_LEVEL_COUNT },
+    (_, index) => {
+      const row = document.createElement("tr");
+      const level = index + 1;
 
-    const labelCell = document.createElement("td");
-    labelCell.textContent = String(level);
+      const labelCell = document.createElement("td");
+      labelCell.textContent = String(level);
 
-    const inputCell = document.createElement("td");
-    const inputNode = document.createElement("input");
-    inputNode.id = `diff_${level}`;
-    inputNode.type = "number";
-    inputNode.step = "0.05";
-    inputNode.min = "0.05";
-    inputNode.max = "2";
-    inputCell.append(inputNode);
+      const inputCell = document.createElement("td");
+      const inputNode = document.createElement("input");
+      inputNode.id = `diff_${level}`;
+      inputNode.type = "number";
+      inputNode.step = "0.05";
+      inputNode.min = "0.05";
+      inputNode.max = "2";
+      inputCell.append(inputNode);
 
-    row.append(labelCell, inputCell);
-    return row;
-  });
+      row.append(labelCell, inputCell);
+      return row;
+    },
+  );
 
-  el<HTMLElement>("difficultyBody").replaceChildren(...diffRows);
+  el("difficultyBody").replaceChildren(...diffRows);
 }

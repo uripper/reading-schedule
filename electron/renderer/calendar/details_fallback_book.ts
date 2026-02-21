@@ -1,12 +1,12 @@
-import type { Book } from '../books/types.js';
-import { BOOK_STATUS_IN_PROGRESS } from '../books/status.js';
-import type { CalendarRowWithFinish } from './data.js';
+import type { Book } from "../books/types.js";
+import { BOOK_STATUS_IN_PROGRESS } from "../books/status.js";
+import type { CalendarRowWithFinish } from "./data.js";
 
 export function fallbackBookForRow(row: CalendarRowWithFinish): Book {
   return {
     book_id: row.book_id,
     title: row.title,
-    author: '',
+    author: "",
     words_total: null,
     pages_total: null,
     pages_read: null,
@@ -17,11 +17,11 @@ export function fallbackBookForRow(row: CalendarRowWithFinish): Book {
     max_minutes_per_day: null,
     deadline: null,
     blocked_by: null,
-    shelf: '',
+    shelf: "",
     status: BOOK_STATUS_IN_PROGRESS,
     finished_at: null,
-    cover_url: '',
-    cover_local_path: '',
-    lookup_note: '',
+    cover_url: "",
+    cover_local_path: "",
+    lookup_note: "",
   };
 }

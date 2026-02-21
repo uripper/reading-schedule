@@ -1,7 +1,7 @@
-import type { Book } from '../books/types.js';
-import type { CalendarRowWithFinish } from './data.js';
+import type { Book } from "../books/types.js";
+import type { CalendarRowWithFinish } from "./data.js";
 
-export type DayMode = 'past' | 'today' | 'future';
+export type DayMode = "past" | "today" | "future";
 
 type CompletionPayload = {
   completed: boolean;
