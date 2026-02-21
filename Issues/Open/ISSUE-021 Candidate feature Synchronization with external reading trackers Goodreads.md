@@ -24,5 +24,5 @@ Definition of done:
 - Research and define integration points with at least one external reading tracker (e.g., Goodreads).
 - Implement synchronization logic for book lists and reading progress.
 - Add UI components for managing the integration and displaying synchronized data.
-- Ensure that synchronization is robust and handles edge cases (e.g., connectivity issues, data conflicts
+- Ensure that synchronization is robust and handles edge cases (e.g., connectivity issues, data conflicts between platforms).
 - Add tests for external tracker synchronization functionality and error handling.

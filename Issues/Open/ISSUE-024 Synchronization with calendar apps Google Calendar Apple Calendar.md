@@ -17,8 +17,7 @@ Users can connect their Bartleby account with calendar apps to synchronize their
 - Providing options for event details (e.g., title, description, reminders).
 - Ensuring that synchronization is secure and respects user privacy.
 - Adding UI components for managing calendar integrations and synchronization settings.
-- Ensuring that synchronization is robust and handles edge cases (e.g., connectivity issues, data
-conflicts).
+- Ensuring that synchronization is robust and handles edge cases (e.g., connectivity issues, data conflicts).
 
 Definition of done:
 

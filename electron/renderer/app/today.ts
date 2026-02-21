@@ -18,6 +18,7 @@ import { todayKey } from "../sessions/utils.js";
 
 const MIN_GOAL_MINUTES = 1;
 const MAX_PERCENT = 100;
+const MIN_PERCENT = 0;
 const NO_SCHEDULE_TEXT =
   "No schedule yet. Add or update books and settings to auto-build your plan.";
 const TODAY_DONE_TEXT = "All planned sessions for today are complete.";
@@ -61,6 +62,20 @@ type UpdateTodayDashboardArgs = {
   defaultDailyGoalMinutes: number;
 };
 
+export function goalProgressPercent(
+  todayMinutesRaw: number,
+  goalMinutesRaw: number,
+): number {
+  const goalMinutes = Math.max(
+    MIN_GOAL_MINUTES,
+    Number(goalMinutesRaw || MIN_GOAL_MINUTES),
+  );
+  const todayMinutes = Math.max(MIN_PERCENT, Number(todayMinutesRaw || MIN_PERCENT));
+  const rawPercent = Math.round((todayMinutes / goalMinutes) * MAX_PERCENT);
+  const bounded = Math.min(MAX_PERCENT, rawPercent);
+  return Math.max(MIN_PERCENT, bounded);
+}
+
 export function updateTodayDashboard({
   lastResult,
   scheduleCompletions,
@@ -98,10 +113,7 @@ export function updateTodayDashboard({
     Number(preferences.dailyGoalMinutes || defaultDailyGoalMinutes),
   );
   const todayMinutes = dayMinutesForKey(activityByDay, todayKey());
-  const pct = Math.min(
-    MAX_PERCENT,
-    Math.round((todayMinutes / goalMinutes) * MAX_PERCENT),
-  );
+  const pct = goalProgressPercent(todayMinutes, goalMinutes);
   goalText.textContent = `${todayMinutes} / ${goalMinutes} minutes logged today`;
   goalProgress.setAttribute("aria-valuenow", String(pct));
   goalBar.style.width = `${pct}%`;

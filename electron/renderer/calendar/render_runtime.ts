@@ -32,6 +32,7 @@ export function renderControls(
   state: CalendarRuntimeState,
   rerenderControls: () => void,
   rerenderMonth: () => void,
+  jumpToToday: () => void,
 ): void {
-  renderCalendarControls(state, rerenderControls, rerenderMonth);
+  renderCalendarControls(state, rerenderControls, rerenderMonth, jumpToToday);
 }

@@ -23,6 +23,11 @@
   line-height: var(--token-typography-lineHeight-tight);
 }
 
+#calendarControls .btn-calendar-today {
+  border-color: color-mix(in srgb, var(--app-brandStrong) 58%, var(--app-border));
+  background: color-mix(in srgb, var(--app-brand) 18%, var(--app-surface));
+}
+
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -82,6 +87,27 @@
   border-color: color-mix(in srgb, var(--app-border) 96%, transparent);
   background: color-mix(in srgb, var(--app-surfaceMuted) 82%, var(--app-bg));
   opacity: 0.74;
+}
+
+.day.is-today {
+  border-color: color-mix(in srgb, var(--app-focusRing) 72%, var(--app-border));
+  background:
+    radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--app-focusRing) 22%, transparent),
+      transparent 62%
+    ),
+    color-mix(in srgb, var(--app-brand) 14%, var(--app-surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--app-focusRing) 50%, transparent);
+  opacity: 1;
+}
+
+.day.is-today .day-date {
+  color: color-mix(in srgb, var(--app-focusRing) 78%, var(--app-text));
+}
+
+.day.is-today .day-event-count {
+  color: color-mix(in srgb, var(--app-focusRing) 70%, var(--app-textMuted));
 }
 
 .day.has-finish {

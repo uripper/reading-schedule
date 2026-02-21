@@ -6,6 +6,36 @@ type CalendarRow = {
   title?: string;
 };
 
+type DayStyleFlags = {
+  hasFinishRow: boolean;
+  isMuted: boolean;
+  isPast: boolean;
+  isSelected: boolean;
+  isToday: boolean;
+};
+
+export function dayStyleFlags(
+  date: Date,
+  firstDate: Date,
+  keyForDay: string,
+  selectedDate: string,
+  todayKey: string,
+  rows: CalendarRow[],
+): DayStyleFlags {
+  const hasFinishRow = rows.some((row) => Boolean(row.finish));
+  const isMuted = date.getMonth() !== firstDate.getMonth();
+  const isSelected = selectedDate === keyForDay;
+  const isPast = keyForDay < todayKey;
+  const isToday = keyForDay === todayKey;
+  return {
+    hasFinishRow,
+    isMuted,
+    isPast,
+    isSelected,
+    isToday,
+  };
+}
+
 export function createWeekdayHeader(): HTMLSpanElement[] {
   return WEEKDAY_LABELS.map((label) => {
     const head = document.createElement("span");
@@ -26,26 +56,34 @@ export function createDayButton(
   const dayButton = document.createElement("button");
   dayButton.type = "button";
   dayButton.className = "day";
-  const hasFinishRow = rows.some((row) => Boolean(row.finish));
-  if (hasFinishRow) {
+  const flags = dayStyleFlags(
+    date,
+    firstDate,
+    keyForDay,
+    selectedDate,
+    todayKey,
+    rows,
+  );
+  if (flags.hasFinishRow) {
     dayButton.classList.add("has-finish");
   }
-  if (date.getMonth() !== firstDate.getMonth()) {
-    dayButton.className = "day is-muted";
-    if (hasFinishRow) {
-      dayButton.classList.add("has-finish");
-    }
+  if (flags.isMuted) {
+    dayButton.classList.add("is-muted");
   }
-  if (selectedDate === keyForDay) {
+  if (flags.isSelected) {
     dayButton.classList.add("is-selected");
   }
-  if (keyForDay < todayKey) {
+  if (flags.isPast) {
     dayButton.classList.add("is-past");
+  }
+  if (flags.isToday) {
+    dayButton.classList.add("is-today");
+    dayButton.setAttribute("aria-current", "date");
   }
   dayButton.dataset.calendarDay = keyForDay;
   dayButton.setAttribute("role", "gridcell");
   dayButton.setAttribute("aria-selected", "false");
-  if (selectedDate === keyForDay) {
+  if (flags.isSelected) {
     dayButton.setAttribute("aria-selected", "true");
   }
   const dayDate = document.createElement("span");

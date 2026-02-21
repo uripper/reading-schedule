@@ -10,7 +10,7 @@ Session logging subsystem exists but is not fully integrated into visible app wo
 
 Expected:
 
-Either expose session tracking clearly in UI navigation or remove unused paths.
+Either expose session tracking clearly in UI navigation or remove unused paths. Likely to be included in Help/Logs.
 
 Definition of done:
 

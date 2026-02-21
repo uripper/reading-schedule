@@ -23,3 +23,7 @@ Context:
 - `electron/renderer/app/plan.ts`
 - `electron/renderer/settings/config.ts`
 - `electron/renderer/settings.ts`
+
+Blockers:
+
+- ISSUE-006 Needs to be resolved first as it currently breaks the plan if it starts today. Once that is fixed, this can be implemented to allow users to choose their preferred start date policy.

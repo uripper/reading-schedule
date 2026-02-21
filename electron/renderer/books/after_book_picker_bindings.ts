@@ -1,5 +1,9 @@
 import type { BookFormRefs } from "./form_refs.js";
-import { lookupResultTarget, wrapIndex } from "./after_book_picker_helpers.js";
+import {
+  lookupResultTarget,
+  shouldKeepPickerOpen,
+  wrapIndex,
+} from "./after_book_picker_helpers.js";
 import type { Book } from "./types.js";
 import type { PickerState } from "./after_book_picker_render.js";
 import { NO_ACTIVE_INDEX } from "./after_book_picker_render.js";
@@ -67,10 +71,11 @@ export function bindAfterBookPickerEvents({
     if (!(event.target instanceof Node)) {
       return;
     }
-    if (
-      event.target === refs.afterBookInput ||
-      refs.afterBookResults.contains(event.target)
-    ) {
+    const keepOpen = shouldKeepPickerOpen({
+      targetIsInResults: refs.afterBookResults.contains(event.target),
+      targetIsInput: event.target === refs.afterBookInput,
+    });
+    if (keepOpen) {
       return;
     }
     clearResults();

@@ -31,7 +31,12 @@ function renderMonthView(): void {
 }
 
 function renderControlsView(): void {
-  renderControls(state, renderControlsView, renderMonthView);
+  const jumpToToday = (): void => {
+    applyTodayFocus(state);
+    renderControlsView();
+    renderMonthView();
+  };
+  renderControls(state, renderControlsView, renderMonthView, jumpToToday);
 }
 
 export function renderCalendar(
