@@ -1,6 +1,5 @@
 # ISSUE-027: Epic: Personalization and ML Foundation
 
-
 **Type:** enhancement
 **Priority:** P1
 **Labels:** `enhancement`, `epic`, `ml`, `planner`, `desktop`
@@ -25,4 +24,3 @@ Context:
 - `ISSUES.md`
 - `src/reading_plan/`
 - `electron/renderer/app/`
-

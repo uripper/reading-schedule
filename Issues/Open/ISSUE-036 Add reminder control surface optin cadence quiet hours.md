@@ -1,6 +1,5 @@
 # ISSUE-036: Add reminder control surface (opt-in cadence, quiet hours, one-click disable)
 
-
 **Type:** enhancement
 **Priority:** P1
 **Labels:** `enhancement`, `ux`, `accessibility`, `privacy`, `desktop`

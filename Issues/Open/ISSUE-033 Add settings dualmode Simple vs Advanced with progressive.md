@@ -1,6 +1,5 @@
 # ISSUE-033: Add settings dual-mode (Simple vs Advanced) with progressive disclosure
 
-
 **Type:** enhancement
 **Priority:** P1
 **Labels:** `enhancement`, `ux`, `accessibility`, `desktop`
@@ -26,4 +25,3 @@ Context:
 - `electron/renderer/settings/config.ts`
 - `electron/index.html`
 - `electron/styles/`
-

@@ -1,6 +1,5 @@
 # ISSUE-028: Epic: UX Simplification and Cognitive Accessibility
 
-
 **Type:** enhancement
 **Priority:** P1
 **Labels:** `enhancement`, `epic`, `ux`, `accessibility`, `desktop`
@@ -25,4 +24,3 @@ Context:
 - `ISSUES.md`
 - `electron/renderer/`
 - `electron/styles/`
-

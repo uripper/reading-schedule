@@ -1,6 +1,5 @@
 # ISSUE-020: Implement session-level notes, reflections, highlights, and tagging
 
-
 **Type:** enhancement
 **Priority:** P3
 **Labels:** `enhancement`, `desktop`, `ux`
@@ -19,4 +18,3 @@ Definition of done:
 - Add UI components for users to input and view this information in session details.
 - Ensure that this additional data is persisted and can be exported in session logs.
 - Add tests for session data model extensions and UI interactions.
-

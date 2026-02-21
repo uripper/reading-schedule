@@ -1,6 +1,5 @@
 # ISSUE-022: Synchronization with e-reader devices (Kindle, Kobo, etc...)
 
-
 **Type:** enhancement
 **Priority:** P3
 **Labels:** `enhancement`, `desktop`, `planner`
@@ -25,4 +24,3 @@ Definition of done:
 - Add UI components for managing the e-reader connection and displaying synchronized progress.
 - Ensure that synchronization is robust and handles edge cases (e.g., connectivity issues, data conflicts).
 - Add tests for e-reader synchronization functionality and error handling.
-

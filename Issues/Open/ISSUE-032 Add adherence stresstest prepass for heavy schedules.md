@@ -1,6 +1,5 @@
 # ISSUE-032: Add adherence stress-test pre-pass for heavy schedules
 
-
 **Type:** enhancement
 **Priority:** P2
 **Labels:** `enhancement`, `ml`, `planner`, `desktop`, `testing`
@@ -26,4 +25,3 @@ Context:
 - `src/reading_plan/heuristics.py`
 - `electron/renderer/app/plan.ts`
 - `electron/tests/`
-

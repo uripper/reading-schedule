@@ -1,6 +1,5 @@
 # ISSUE-024: Synchronization with calendar apps (Google Calendar, Apple Calendar, etc...)
 
-
 **Type:** enhancement
 **Priority:** P3
 **Labels:** `enhancement`, `desktop`, `planner`
@@ -30,4 +29,3 @@ Definition of done:
 - Add UI components for managing calendar integration state (ICS export and API sync when available).
 - Ensure that synchronization is robust and handles edge cases (e.g., connectivity issues, data conflicts).
 - Add tests for calendar synchronization functionality and error handling.
-

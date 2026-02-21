@@ -1,6 +1,5 @@
 # ISSUE-012: Make plan start-date policy user-configurable
 
-
 **Type:** enhancement  
 **Priority:** P1  
 **Labels:** `enhancement`, `planner`, `desktop`
@@ -24,4 +23,3 @@ Context:
 - `electron/renderer/app/plan.ts`
 - `electron/renderer/settings/config.ts`
 - `electron/renderer/settings.ts`
-

@@ -1,6 +1,5 @@
 # ISSUE-016: Candidate feature - multi-device sync
 
-
 **Type:** enhancement  
 **Priority:** P3  
 **Labels:** `enhancement`, `desktop`, `planner`
@@ -17,4 +16,3 @@ Definition of done:
 
 - Draft architecture and conflict-resolution approach.
 - Define security/privacy requirements before implementation.
-

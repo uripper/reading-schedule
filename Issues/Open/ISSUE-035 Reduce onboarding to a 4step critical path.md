@@ -1,6 +1,5 @@
 # ISSUE-035: Reduce onboarding to a 4-step critical path
 
-
 **Type:** enhancement
 **Priority:** P1
 **Labels:** `enhancement`, `ux`, `accessibility`, `desktop`
@@ -26,4 +25,3 @@ Context:
 - `electron/index.html`
 - `electron/tests/`
 - `ROADMAP.md`
-

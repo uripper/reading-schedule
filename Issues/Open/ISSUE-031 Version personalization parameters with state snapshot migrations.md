@@ -1,6 +1,5 @@
 # ISSUE-031: Version personalization parameters with state snapshot migrations
 
-
 **Type:** tech-debt
 **Priority:** P1
 **Labels:** `tech-debt`, `ml`, `desktop`, `testing`
@@ -26,4 +25,3 @@ Context:
 - `electron/renderer/app/load_state.ts`
 - `electron/renderer/app/persistence.ts`
 - `ISSUES.md`
-

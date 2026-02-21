@@ -1,6 +1,5 @@
 # ISSUE-030: Adaptive WPM calibration v1 (EWMA + guardrails + confidence gating)
 
-
 **Type:** enhancement
 **Priority:** P1
 **Labels:** `enhancement`, `ml`, `planner`, `desktop`, `testing`
@@ -26,4 +25,3 @@ Context:
 - `src/reading_plan/domain.py`
 - `electron/renderer/app/persistence.ts`
 - `tests/`
-

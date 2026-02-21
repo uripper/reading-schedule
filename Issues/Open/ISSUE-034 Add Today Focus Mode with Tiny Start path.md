@@ -1,6 +1,5 @@
 # ISSUE-034: Add Today Focus Mode with Tiny Start path
 
-
 **Type:** enhancement
 **Priority:** P1
 **Labels:** `enhancement`, `ux`, `accessibility`, `desktop`
@@ -26,4 +25,3 @@ Context:
 - `electron/renderer/app/today_schedule.ts`
 - `electron/index.html`
 - `electron/styles/base.css`
-

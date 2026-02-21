@@ -1,6 +1,5 @@
 # ISSUE-025: Synchronization with audiobook platforms (Audible, Libby, etc...)
 
-
 **Type:** enhancement
 **Priority:** P3
 **Labels:** `enhancement`, `desktop`, `planner`
@@ -25,4 +24,3 @@ Definition of done:
 - Add UI components for managing the audiobook platform connection and displaying synchronized progress.
 - Ensure that synchronization is robust and handles edge cases (e.g., connectivity issues, data conflicts).
 - Add tests for audiobook platform synchronization functionality and error handling.
-

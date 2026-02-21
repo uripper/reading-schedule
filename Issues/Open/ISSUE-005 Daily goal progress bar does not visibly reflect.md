@@ -1,6 +1,5 @@
 # ISSUE-005: Daily goal progress bar does not visibly reflect completion
 
-
 **Type:** bug  
 **Priority:** P1  
 **Labels:** `bug`, `desktop`, `ux`
@@ -24,4 +23,3 @@ Context:
 - `electron/renderer/app/today.ts`
 - `electron/styles/base.css`
 - `electron/index.html`
-

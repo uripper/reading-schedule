@@ -1,6 +1,5 @@
 # ISSUE-029: Define event schema for sessions/completions/replans and metric derivation contract
 
-
 **Type:** tech-debt
 **Priority:** P1
 **Labels:** `tech-debt`, `ml`, `privacy`, `desktop`, `testing`
@@ -26,4 +25,3 @@ Context:
 - `electron/renderer/app/load_state.ts`
 - `electron/state_store.ts`
 - `ROADMAP.md`
-

@@ -1,6 +1,5 @@
 # ISSUE-014: Integrate or remove orphaned session logging flow
 
-
 **Type:** enhancement  
 **Priority:** P2  
 **Labels:** `enhancement`, `desktop`, `ux`
@@ -24,4 +23,3 @@ Context:
 - `electron/renderer/sessions.ts`
 - `electron/renderer/app.ts`
 - `electron/renderer/stats/model.ts`
-

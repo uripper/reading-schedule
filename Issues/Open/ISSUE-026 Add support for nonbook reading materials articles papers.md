@@ -1,6 +1,5 @@
 # ISSUE-026: Add support for non-book reading materials (articles, papers, etc...)
 
-
 **Type:** enhancement
 **Priority:** P3
 **Labels:** `enhancement`, `desktop`, `planner`
@@ -19,4 +18,3 @@ Definition of done:
 - Update the UI to allow users to specify the type of reading material and input relevant metadata.
 - Ensure that non-book materials are included in scheduling logic and progress tracking.
 - Add tests for handling non-book reading materials in the system.
-
