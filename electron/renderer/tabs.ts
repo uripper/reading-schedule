@@ -1,4 +1,3 @@
-
 import { qa } from "./dom.js";
 
 type ActivateTabOptions = {
@@ -50,7 +49,9 @@ export function activateTab(name: string, options: ActivateTabOptions = {}) {
     }
   });
 
-  qa<HTMLElement>(".panel").forEach((panel) => setPanelState(panel, panel.id === `tab-${name}`));
+  qa<HTMLElement>(".panel").forEach((panel) =>
+    setPanelState(panel, panel.id === `tab-${name}`),
+  );
   const activePanel = panelByName(name);
   if (focusPanel && activePanel) {
     activePanel.focus();

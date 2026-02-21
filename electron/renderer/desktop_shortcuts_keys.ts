@@ -3,13 +3,15 @@ export function isCommandPressed(event: KeyboardEvent): boolean {
 }
 
 export function isZoomInShortcut(event: KeyboardEvent): boolean {
-  return event.key === '+' || event.key === '=' || event.code === 'NumpadAdd';
+  return event.key === "+" || event.key === "=" || event.code === "NumpadAdd";
 }
 
 export function isZoomOutShortcut(event: KeyboardEvent): boolean {
-  return event.key === '-' || event.key === '_' || event.code === 'NumpadSubtract';
+  return (
+    event.key === "-" || event.key === "_" || event.code === "NumpadSubtract"
+  );
 }
 
 export function isZoomResetShortcut(event: KeyboardEvent): boolean {
-  return event.key === '0';
+  return event.key === "0";
 }

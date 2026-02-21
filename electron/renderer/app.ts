@@ -1,7 +1,19 @@
 import { applyPreferencesToDocument, createAnnouncer } from "./a11y.js";
 import { bindTabs } from "./tabs.js";
-import { bindBooksUI, collectAllBooks, collectBooks, fillBooks, getBookById, setBookScheduleRows, updateBookProgress } from "./books.js";
-import { configureCalendarInteractions, focusCalendarToday, renderCalendar } from "./calendar.js";
+import {
+  bindBooksUI,
+  collectAllBooks,
+  collectBooks,
+  fillBooks,
+  getBookById,
+  setBookScheduleRows,
+  updateBookProgress,
+} from "./books.js";
+import {
+  configureCalendarInteractions,
+  focusCalendarToday,
+  renderCalendar,
+} from "./calendar.js";
 import { bindDesktopShortcuts } from "./desktop_shortcuts.js";
 import { el } from "./dom.js";
 import { addLog, bindHelpDialog } from "./help.js";
@@ -19,9 +31,18 @@ import {
   normalizeScheduleCompletions,
 } from "./app/experience.js";
 import { configureAppCalendarInteractions } from "./app/calendar_interactions.js";
-import { bindTodayActions, createAppPlanControllerInstance, finalizeInitialLoad, setupSkipLink } from "./app/init_helpers.js";
+import {
+  bindTodayActions,
+  createAppPlanControllerInstance,
+  finalizeInitialLoad,
+  setupSkipLink,
+} from "./app/init_helpers.js";
 import { loadInitialData } from "./app/load_state.js";
-import { createPersistQueue, createStatusSetter, totalsFromSummary } from "./app/runtime_helpers.js";
+import {
+  createPersistQueue,
+  createStatusSetter,
+  totalsFromSummary,
+} from "./app/runtime_helpers.js";
 import { createSplashController } from "./app/splash.js";
 import type { PlannerApi, PlannerResult } from "./app/types.js";
 import { updateTodayDashboard } from "./app/today.js";
@@ -41,8 +62,11 @@ const state: {
   scheduleCompletions: {},
   sessions: [],
 };
-const { plannerApi } = globalThis as typeof globalThis & { plannerApi: PlannerApi };
-let planController: ReturnType<typeof createAppPlanControllerInstance> | null = null;
+const { plannerApi } = globalThis as typeof globalThis & {
+  plannerApi: PlannerApi;
+};
+let planController: ReturnType<typeof createAppPlanControllerInstance> | null =
+  null;
 const announce = createAnnouncer();
 const announceForPlanController = (message: string, politeness?: string) => {
   if (politeness === "polite" || politeness === "assertive") {
@@ -66,7 +90,10 @@ function updateStatsDashboardView() {
     sessions: state.sessions,
     lastResult: state.lastResult,
     scheduleCompletions: state.scheduleCompletions,
-    dailyGoalMinutes: Number(state.preferences.dailyGoalMinutes || DEFAULT_PREFERENCES.dailyGoalMinutes),
+    dailyGoalMinutes: Number(
+      state.preferences.dailyGoalMinutes ||
+        DEFAULT_PREFERENCES.dailyGoalMinutes,
+    ),
   });
 }
 function updateDashboards() {
@@ -170,9 +197,15 @@ async function init() {
     applyPreferencesToDocument,
     setStatus,
     updateTodayView: updateDashboards,
-    setPreferences: (preferences) => { state.preferences = preferences; },
-    setFeatureFlags: (featureFlags) => { state.featureFlags = featureFlags; },
-    setScheduleCompletions: (scheduleCompletions) => { state.scheduleCompletions = scheduleCompletions; },
+    setPreferences: (preferences) => {
+      state.preferences = preferences;
+    },
+    setFeatureFlags: (featureFlags) => {
+      state.featureFlags = featureFlags;
+    },
+    setScheduleCompletions: (scheduleCompletions) => {
+      state.scheduleCompletions = scheduleCompletions;
+    },
     setSessions: (sessions) => {
       state.sessions = sessions;
     },

@@ -10,7 +10,10 @@ export function el<T extends HTMLElement = HTMLElement>(id: string): T {
   return node as T;
 }
 
-export function q<T extends Element = Element>(sel: string, root: ParentNode = document): T | null {
+export function q<T extends Element = Element>(
+  sel: string,
+  root: ParentNode = document,
+): T | null {
   const node = root.querySelector(sel);
   if (node === null) {
     return null;
@@ -18,7 +21,10 @@ export function q<T extends Element = Element>(sel: string, root: ParentNode = d
   return node as T;
 }
 
-export function qa<T extends Element = Element>(sel: string, root: ParentNode = document): T[] {
+export function qa<T extends Element = Element>(
+  sel: string,
+  root: ParentNode = document,
+): T[] {
   return Array.from(root.querySelectorAll(sel));
 }
 

@@ -1,7 +1,11 @@
-import type { Book } from '../books/types.js';
-import type { CalendarRowWithFinish } from '../calendar/data.js';
-import { sessionKeyFor } from '../calendar/utils.js';
-import type { PlannerResult, PlannerScheduleRow, PlannerSettings } from './types.js';
+import type { Book } from "../books/types.js";
+import type { CalendarRowWithFinish } from "../calendar/data.js";
+import { sessionKeyFor } from "../calendar/utils.js";
+import type {
+  PlannerResult,
+  PlannerScheduleRow,
+  PlannerSettings,
+} from "./types.js";
 
 type ScheduleRow = {
   title?: string;
@@ -45,9 +49,9 @@ export function dayBookCompletionKey(rowDate: string, bookId: string): string {
 }
 
 export function dayBookCompletionKeyFromSession(sessionKey: string): string {
-  const [date, , bookId] = String(sessionKey || '').split('|');
+  const [date, , bookId] = String(sessionKey || "").split("|");
   if (!date || !bookId) {
-    return '';
+    return "";
   }
   return dayBookCompletionKey(date, bookId);
 }
@@ -65,11 +69,14 @@ function normalizeManualMinutes(minutes: number): number {
   return rounded;
 }
 
-function historicalWordsPerMinute(bookId: string, rows: PlannerScheduleRow[] = []): number | null {
+function historicalWordsPerMinute(
+  bookId: string,
+  rows: PlannerScheduleRow[] = [],
+): number | null {
   let totalWords = 0;
   let totalMinutes = 0;
   rows.forEach((row) => {
-    if (String(row.book_id || '') !== bookId) {
+    if (String(row.book_id || "") !== bookId) {
       return;
     }
     const rowMinutes = Number(row.minutes || 0);
@@ -86,7 +93,10 @@ function historicalWordsPerMinute(bookId: string, rows: PlannerScheduleRow[] = [
   return totalWords / totalMinutes;
 }
 
-function difficultyMultiplier(settings: PlannerSettings, difficulty: number): number {
+function difficultyMultiplier(
+  settings: PlannerSettings,
+  difficulty: number,
+): number {
   const multiplierByDifficulty = settings.difficulty_multiplier || {};
   const exact = multiplierByDifficulty[difficulty];
   const byKey = multiplierByDifficulty[String(difficulty)];
@@ -113,7 +123,10 @@ export function wordsPlannedForManualSession({
   const normalizedMinutes = normalizeManualMinutes(minutes);
   const historicalWpm = historicalWordsPerMinute(bookId, rows);
   if (historicalWpm !== null) {
-    return Math.max(MIN_MANUAL_WORDS, Math.round(normalizedMinutes * historicalWpm));
+    return Math.max(
+      MIN_MANUAL_WORDS,
+      Math.round(normalizedMinutes * historicalWpm),
+    );
   }
 
   const base = Number(settings.wpm_base || DEFAULT_MANUAL_WPM_BASE);
@@ -121,7 +134,8 @@ export function wordsPlannedForManualSession({
   if (Number.isFinite(base) && base > 0) {
     wpmBase = base;
   }
-  const planned = normalizedMinutes * wpmBase * difficultyMultiplier(settings, difficulty);
+  const planned =
+    normalizedMinutes * wpmBase * difficultyMultiplier(settings, difficulty);
   return Math.max(MIN_MANUAL_WORDS, Math.round(planned));
 }
 
@@ -131,7 +145,7 @@ export function nextSessionIndexForDate(
 ): number {
   let maxIndex = 0;
   rows.forEach((row) => {
-    if (String(row.date || '') !== date) {
+    if (String(row.date || "") !== date) {
       return;
     }
     const index = Number(row.session_index || 0);
@@ -146,7 +160,7 @@ export function rowsWithoutSession(
   targetSessionKey: string,
   rows: PlannerScheduleRow[] = [],
 ): PlannerScheduleRow[] {
-  const key = String(targetSessionKey || '');
+  const key = String(targetSessionKey || "");
   if (!key) {
     return [...rows];
   }
@@ -159,18 +173,20 @@ export function emptyPlannerResult(): PlannerResult {
   return {
     schedule: [],
     summary: null,
-    created_at: '',
+    created_at: "",
   };
 }
 
 export function manualSessionBooks(books: Book[] = []): ManualSessionBook[] {
   return books
     .map((book) => ({
-      bookId: String(book.book_id || ''),
-      title: String(book.title || '').trim(),
+      bookId: String(book.book_id || ""),
+      title: String(book.title || "").trim(),
     }))
     .filter((book) => book.bookId && book.title)
-    .sort((left, right) => left.title.localeCompare(right.title, undefined, { sensitivity: 'base' }));
+    .sort((left, right) =>
+      left.title.localeCompare(right.title, undefined, { sensitivity: "base" }),
+    );
 }
 
 export function normalizedManualMinutes(minutes: number): number {

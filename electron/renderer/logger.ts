@@ -42,7 +42,10 @@ function emitLog(payload: LogPayload): void {
   console.info("[renderer][info]", output);
 }
 
-export function logInfo(message: string, context?: Record<string, unknown>): void {
+export function logInfo(
+  message: string,
+  context?: Record<string, unknown>,
+): void {
   emitLog({
     level: "info",
     message,
@@ -50,7 +53,11 @@ export function logInfo(message: string, context?: Record<string, unknown>): voi
   });
 }
 
-export function logError(message: string, error?: unknown, context?: Record<string, unknown>): void {
+export function logError(
+  message: string,
+  error?: unknown,
+  context?: Record<string, unknown>,
+): void {
   emitLog({
     level: "error",
     message,

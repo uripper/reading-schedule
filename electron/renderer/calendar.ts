@@ -1,9 +1,14 @@
-import type { PlannerScheduleRow } from './app/types.js';
-import type { Book } from './books/types.js';
-import { enrichRows, groupRowsByDate, monthKeysFromRows, type CalendarRowWithFinish } from './calendar/data.js';
-import { renderCalendarControls } from './calendar/controls.js';
-import { renderCalendarDetails } from './calendar/details.js';
-import { renderCalendarMonth } from './calendar/month.js';
+import type { PlannerScheduleRow } from "./app/types.js";
+import type { Book } from "./books/types.js";
+import {
+  enrichRows,
+  groupRowsByDate,
+  monthKeysFromRows,
+  type CalendarRowWithFinish,
+} from "./calendar/data.js";
+import { renderCalendarControls } from "./calendar/controls.js";
+import { renderCalendarDetails } from "./calendar/details.js";
+import { renderCalendarMonth } from "./calendar/month.js";
 const DAYS_IN_WEEK = 7;
 type CompletionChangePayload = {
   sessionKey: string;
@@ -48,9 +53,9 @@ const state = {
   totalsByBookId: {} as Record<string, number>,
   months: [] as string[],
   index: 0,
-  selectedDate: '',
+  selectedDate: "",
   monthCellKeys: [] as string[],
-  expectedFinishHighlightDate: '',
+  expectedFinishHighlightDate: "",
 };
 
 const defaultHandlers: CalendarHandlers = {
@@ -80,8 +85,8 @@ function renderDetails(): void {
 function todayDateKey(): string {
   const now = new Date();
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 function monthKeyForDateKey(dateKey: string): string {
@@ -94,7 +99,7 @@ function indexForMonth(months: string[], targetMonthKey: string): number {
   }
 
   const upcomingIndex = months.findIndex((monthKey) => {
-    return monthKey >= targetMonthKey;
+    return Number(monthKey) >= Number(targetMonthKey);
   });
   if (upcomingIndex >= 0) {
     return upcomingIndex;
@@ -110,7 +115,7 @@ function applyTodayFocus(): void {
   const todayKey = todayDateKey();
   const todayMonthKey = monthKeyForDateKey(todayKey);
   state.index = indexForMonth(state.months, todayMonthKey);
-  state.selectedDate = '';
+  state.selectedDate = "";
   if (state.months[state.index] === todayMonthKey) {
     state.selectedDate = todayKey;
   }
@@ -127,7 +132,10 @@ function selectDate(dateKey: string, options: { focus?: boolean } = {}): void {
   }
 }
 function moveSelectionBy(delta: number, currentIndex: number): void {
-  const nextIndex = Math.min(state.monthCellKeys.length - 1, Math.max(0, currentIndex + delta));
+  const nextIndex = Math.min(
+    state.monthCellKeys.length - 1,
+    Math.max(0, currentIndex + delta),
+  );
   const nextKey = state.monthCellKeys[nextIndex];
   if (!nextKey) {
     return;
@@ -144,9 +152,12 @@ function renderMonth(): void {
 function renderControls(): void {
   renderCalendarControls(state, renderControls, renderMonth);
 }
-export function renderCalendar(rows: PlannerScheduleRow[], totals: Record<string, number>): void {
+export function renderCalendar(
+  rows: PlannerScheduleRow[],
+  totals: Record<string, number>,
+): void {
   const previousSelectedDate = state.selectedDate;
-  const previousMonthKey = state.months[state.index] || '';
+  const previousMonthKey = state.months[state.index] || "";
   state.rawRows = [...rows];
   state.totalsByBookId = { ...totals };
   refreshDerivedRows();
@@ -161,9 +172,9 @@ export function renderCalendar(rows: PlannerScheduleRow[], totals: Record<string
   if (previousSelectedDate && state.dates[previousSelectedDate]) {
     state.selectedDate = previousSelectedDate;
   } else {
-    state.selectedDate = '';
+    state.selectedDate = "";
   }
-  state.expectedFinishHighlightDate = '';
+  state.expectedFinishHighlightDate = "";
   if (!previousSelectedDate) {
     applyTodayFocus();
   }
@@ -179,16 +190,26 @@ export function focusCalendarToday(): void {
   renderControls();
   renderMonth();
 }
-export function configureCalendarInteractions(handlers: Partial<CalendarHandlers> = {}): void {
+export function configureCalendarInteractions(
+  handlers: Partial<CalendarHandlers> = {},
+): void {
   interactionHandlers = {
-    isSessionCompleted: handlers.isSessionCompleted || defaultHandlers.isSessionCompleted,
-    onSessionCompletionChanged: handlers.onSessionCompletionChanged || defaultHandlers.onSessionCompletionChanged,
-    onSessionProgressUpdated: handlers.onSessionProgressUpdated || defaultHandlers.onSessionProgressUpdated,
+    isSessionCompleted:
+      handlers.isSessionCompleted || defaultHandlers.isSessionCompleted,
+    onSessionCompletionChanged:
+      handlers.onSessionCompletionChanged ||
+      defaultHandlers.onSessionCompletionChanged,
+    onSessionProgressUpdated:
+      handlers.onSessionProgressUpdated ||
+      defaultHandlers.onSessionProgressUpdated,
     getBookById: handlers.getBookById || defaultHandlers.getBookById,
-    listSessionBooks: handlers.listSessionBooks || defaultHandlers.listSessionBooks,
-    onManualSessionAdded: handlers.onManualSessionAdded || defaultHandlers.onManualSessionAdded,
-    onSessionRemoved: handlers.onSessionRemoved || defaultHandlers.onSessionRemoved,
+    listSessionBooks:
+      handlers.listSessionBooks || defaultHandlers.listSessionBooks,
+    onManualSessionAdded:
+      handlers.onManualSessionAdded || defaultHandlers.onManualSessionAdded,
+    onSessionRemoved:
+      handlers.onSessionRemoved || defaultHandlers.onSessionRemoved,
   };
 }
 
-export { firstPlannedRow } from './calendar/data.js';
+export { firstPlannedRow } from "./calendar/data.js";

@@ -12,7 +12,10 @@ const FIND_STATUS_HINT = "Type to search";
 const FIND_STATUS_NO_MATCH = "No matches";
 type ShortcutBindings = {
   announce: (message: string, politeness?: "polite" | "assertive") => void;
-  plannerApi: Pick<PlannerApi, "findInPage" | "stopFindInPage" | "zoomIn" | "zoomOut" | "zoomReset">;
+  plannerApi: Pick<
+    PlannerApi,
+    "findInPage" | "stopFindInPage" | "zoomIn" | "zoomOut" | "zoomReset"
+  >;
 };
 function setFindStatus(target: HTMLOutputElement, message: string): void {
   target.value = message;
@@ -27,7 +30,10 @@ function formatFindStatus(result: WindowFindResponse): string {
   }
   return `${result.activeMatchOrdinal} of ${result.matches}`;
 }
-export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings): void {
+export function bindDesktopShortcuts({
+  announce,
+  plannerApi,
+}: ShortcutBindings): void {
   const findBar = el("findBar");
   const findInput = el<HTMLInputElement>("findInput");
   const findStatus = el<HTMLOutputElement>("findStatus");
@@ -46,7 +52,10 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
       announce("Unable to update zoom level", "assertive");
     }
   };
-  const runFindCommand = async (direction: "next" | "prev", forceNextForSameQuery: boolean) => {
+  const runFindCommand = async (
+    direction: "next" | "prev",
+    forceNextForSameQuery: boolean,
+  ) => {
     const query = findInput.value.trim();
     if (!query) {
       lastQuery = "";
@@ -180,7 +189,10 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
       return false;
     }
     const { activeElement } = document;
-    if (activeElement instanceof HTMLElement && findBar.contains(activeElement)) {
+    if (
+      activeElement instanceof HTMLElement &&
+      findBar.contains(activeElement)
+    ) {
       event.preventDefault();
       closeFindBar();
       return true;
@@ -191,7 +203,11 @@ export function bindDesktopShortcuts({ announce, plannerApi }: ShortcutBindings)
     if (event.defaultPrevented) {
       return;
     }
-    if (handleFindShortcut(event) || handleZoomShortcut(event) || handleFindBarEscape(event)) {
+    if (
+      handleFindShortcut(event) ||
+      handleZoomShortcut(event) ||
+      handleFindBarEscape(event)
+    ) {
       return;
     }
   });
