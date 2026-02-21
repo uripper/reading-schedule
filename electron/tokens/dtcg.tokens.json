@@ -70,7 +70,10 @@
       "slow": { "$value": "260ms", "$type": "duration" }
     },
     "easing": {
-      "standard": { "$value": "cubic-bezier(0.2, 0, 0, 1)", "$type": "cubicBezier" }
+      "standard": {
+        "$value": "cubic-bezier(0.2, 0, 0, 1)",
+        "$type": "cubicBezier"
+      }
     }
   },
   "typography": {

@@ -64,7 +64,11 @@ function baseTitleScore(titleNorm: string, queryNorm: string): number {
   }
   return score;
 }
-function tokenScore(titleNorm: string, authorNorm: string, tokens: string[]): number {
+function tokenScore(
+  titleNorm: string,
+  authorNorm: string,
+  tokens: string[],
+): number {
   let score = 0;
   tokens.forEach((token) => {
     if (titleNorm.startsWith(token)) {
@@ -102,7 +106,11 @@ function scoreDoc(doc: SearchDoc, query: string): number {
   }
   const authorNorm = normalizeSearchText(primaryAuthor(doc));
   const tokens = queryTokens(query);
-  return baseTitleScore(titleNorm, queryNorm) + tokenScore(titleNorm, authorNorm, tokens) + metadataScore(doc);
+  return (
+    baseTitleScore(titleNorm, queryNorm) +
+    tokenScore(titleNorm, authorNorm, tokens) +
+    metadataScore(doc)
+  );
 }
 function dedupeDocs(docs: SearchDoc[]): SearchDoc[] {
   const seen = new Set<string>();
@@ -129,12 +137,19 @@ function dedupeDocs(docs: SearchDoc[]): SearchDoc[] {
 function searchUrls(query: string): string[] {
   const encoded = encodeURIComponent(query);
   const base = `https://openlibrary.org/search.json?limit=${SEARCH_FETCH_LIMIT}&fields=${SEARCH_FIELDS}`;
-  return [`${base}&q=${encoded}`, `${base}&title=${encoded}`, `${base}&title=${encoded}&language=eng`];
+  return [
+    `${base}&q=${encoded}`,
+    `${base}&title=${encoded}`,
+    `${base}&title=${encoded}&language=eng`,
+  ];
 }
 async function fetchJson(url: string): Promise<SearchResponse> {
   const response = await globalThis.fetch(url, { redirect: "follow" });
   const status = Number(response.status || 0);
-  if (status >= HTTP_STATUS_REDIRECT_MIN && status < HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE) {
+  if (
+    status >= HTTP_STATUS_REDIRECT_MIN &&
+    status < HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE
+  ) {
     throw new Error(`Unexpected redirect status (${status})`);
   }
   if (status >= HTTP_STATUS_ERROR_MIN || !response.ok) {
@@ -169,7 +184,9 @@ export async function searchBooks(query: string): Promise<SearchItem[]> {
   if (normalizedQuery.length < MIN_QUERY_LENGTH) {
     return [];
   }
-  const responses = await Promise.allSettled(searchUrls(normalizedQuery).map((url) => fetchJson(url)));
+  const responses = await Promise.allSettled(
+    searchUrls(normalizedQuery).map((url) => fetchJson(url)),
+  );
   const docs: SearchDoc[] = [];
   responses.forEach((result) => {
     if (result.status !== "fulfilled" || !Array.isArray(result.value.docs)) {
@@ -185,7 +202,11 @@ export async function searchBooks(query: string): Promise<SearchItem[]> {
     if (left.score !== right.score) {
       return right.score - left.score;
     }
-    return String(left.doc.title || "").localeCompare(String(right.doc.title || ""), undefined, { sensitivity: "base" });
+    return String(left.doc.title || "").localeCompare(
+      String(right.doc.title || ""),
+      undefined,
+      { sensitivity: "base" },
+    );
   });
 
   return scored

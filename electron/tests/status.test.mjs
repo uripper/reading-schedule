@@ -1,5 +1,5 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
+import test from "node:test";
+import assert from "node:assert/strict";
 
 import {
   BOOK_STATUS_FILTER_ALL,
@@ -11,29 +11,38 @@ import {
   normalizeStatusFilter,
   statusFilterMatches,
   statusFromRaw,
-} from '../dist/renderer/books/status.js';
+} from "../dist/renderer/books/status.js";
 
-test('statusFromRaw defaults to to_read at zero progress', () => {
-  assert.equal(statusFromRaw('', 0), BOOK_STATUS_TO_READ);
+test("statusFromRaw defaults to to_read at zero progress", () => {
+  assert.equal(statusFromRaw("", 0), BOOK_STATUS_TO_READ);
 });
 
-test('statusFromRaw upgrades in_progress to read at 100 percent', () => {
+test("statusFromRaw upgrades in_progress to read at 100 percent", () => {
   assert.equal(statusFromRaw(BOOK_STATUS_IN_PROGRESS, 100), BOOK_STATUS_READ);
 });
 
-test('dropped status remains dropped at 100 percent', () => {
+test("dropped status remains dropped at 100 percent", () => {
   assert.equal(statusFromRaw(BOOK_STATUS_DROPPED, 100), BOOK_STATUS_DROPPED);
 });
 
-test('read and dropped statuses are not schedulable', () => {
+test("read and dropped statuses are not schedulable", () => {
   assert.equal(isStatusSchedulable(BOOK_STATUS_READ), false);
   assert.equal(isStatusSchedulable(BOOK_STATUS_DROPPED), false);
   assert.equal(isStatusSchedulable(BOOK_STATUS_TO_READ), true);
 });
 
-test('status filter defaults to all and matches selected status', () => {
-  assert.equal(normalizeStatusFilter(''), BOOK_STATUS_FILTER_ALL);
-  assert.equal(normalizeStatusFilter('read'), BOOK_STATUS_READ);
-  assert.equal(statusFilterMatches({ status: BOOK_STATUS_IN_PROGRESS }, BOOK_STATUS_FILTER_ALL), true);
-  assert.equal(statusFilterMatches({ status: BOOK_STATUS_IN_PROGRESS }, BOOK_STATUS_READ), false);
+test("status filter defaults to all and matches selected status", () => {
+  assert.equal(normalizeStatusFilter(""), BOOK_STATUS_FILTER_ALL);
+  assert.equal(normalizeStatusFilter("read"), BOOK_STATUS_READ);
+  assert.equal(
+    statusFilterMatches(
+      { status: BOOK_STATUS_IN_PROGRESS },
+      BOOK_STATUS_FILTER_ALL,
+    ),
+    true,
+  );
+  assert.equal(
+    statusFilterMatches({ status: BOOK_STATUS_IN_PROGRESS }, BOOK_STATUS_READ),
+    false,
+  );
 });

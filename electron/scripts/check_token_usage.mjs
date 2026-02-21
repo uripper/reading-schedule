@@ -16,21 +16,29 @@ function walkCssFiles(dir, files = []) {
       walkCssFiles(fullPath, files);
       continue;
     }
-    if (entry.isFile() && entry.name.endsWith(".css")) {files.push(fullPath);}
+    if (entry.isFile() && entry.name.endsWith(".css")) {
+      files.push(fullPath);
+    }
   }
   return files;
 }
 
 let failures = 0;
 for (const filePath of walkCssFiles(stylesRoot)) {
-  if (ignoreFiles.has(filePath)) {continue;}
+  if (ignoreFiles.has(filePath)) {
+    continue;
+  }
   const source = fs.readFileSync(filePath, "utf8");
   const lines = source.split(/\r?\n/);
   lines.forEach((line, index) => {
     const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("/*")) {return;}
+    if (!trimmed || trimmed.startsWith("/*")) {
+      return;
+    }
     const matches = line.match(hexPattern);
-    if (!matches) {return;}
+    if (!matches) {
+      return;
+    }
     failures += 1;
     process.stderr.write(
       `${path.relative(electronRoot, filePath)}:${index + 1} uses raw hex color ${matches.join(", ")}\n`,
@@ -45,4 +53,6 @@ if (failures > 0) {
   process.exit(1);
 }
 
-process.stdout.write('Token usage check passed: no raw hex colors found in style sources.\n');
+process.stdout.write(
+  "Token usage check passed: no raw hex colors found in style sources.\n",
+);

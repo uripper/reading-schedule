@@ -42,7 +42,9 @@ function asQuery(value: unknown): string {
   return value.trim();
 }
 
-function normalizeFindRequest(payload: WindowFindRequest | null | undefined): NormalizedWindowFindRequest {
+function normalizeFindRequest(
+  payload: WindowFindRequest | null | undefined,
+): NormalizedWindowFindRequest {
   return {
     query: asQuery(payload?.query),
     forward: asBoolean(payload?.forward, true),
@@ -57,7 +59,10 @@ function toFindResponse(result: FindInPageEventResult): WindowFindResponse {
   };
 }
 
-function requestFindInPage(webContents: WebContents, request: NormalizedWindowFindRequest): Promise<WindowFindResponse> {
+function requestFindInPage(
+  webContents: WebContents,
+  request: NormalizedWindowFindRequest,
+): Promise<WindowFindResponse> {
   return new Promise((resolve) => {
     let requestId = -1;
     let latestResponse = emptyFindResponse();
@@ -71,7 +76,10 @@ function requestFindInPage(webContents: WebContents, request: NormalizedWindowFi
       resolve(response);
     };
 
-    const onFoundInPage = (_event: Electron.Event, result: FindInPageEventResult) => {
+    const onFoundInPage = (
+      _event: Electron.Event,
+      result: FindInPageEventResult,
+    ) => {
       if (result.requestId !== requestId) {
         return;
       }

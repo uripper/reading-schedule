@@ -1,36 +1,56 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const electronRoot = path.resolve(__dirname, '..');
-const tokenSourcePath = path.join(electronRoot, 'tokens', 'dtcg.tokens.json');
-const outputCssPath = path.join(electronRoot, 'styles', 'generated', 'tokens.css');
-const outputTsPath = path.join(electronRoot, 'tokens', 'dist', 'tokens.ts');
-const outputJsonPath = path.join(electronRoot, 'tokens', 'dist', 'tokens.resolved.json');
+const electronRoot = path.resolve(__dirname, "..");
+const tokenSourcePath = path.join(electronRoot, "tokens", "dtcg.tokens.json");
+const outputCssPath = path.join(
+  electronRoot,
+  "styles",
+  "generated",
+  "tokens.css",
+);
+const outputTsPath = path.join(electronRoot, "tokens", "dist", "tokens.ts");
+const outputJsonPath = path.join(
+  electronRoot,
+  "tokens",
+  "dist",
+  "tokens.resolved.json",
+);
 
 function isTokenLeaf(node) {
-  return Boolean(node && typeof node === 'object' && Object.hasOwn(node, '$value'));
+  return Boolean(
+    node && typeof node === "object" && Object.hasOwn(node, "$value"),
+  );
 }
 
 function flattenTokens(node, pathParts = [], map = new Map()) {
-  if (!node || typeof node !== 'object') {return map;}
+  if (!node || typeof node !== "object") {
+    return map;
+  }
   if (isTokenLeaf(node)) {
-    map.set(pathParts.join('.'), node.$value);
+    map.set(pathParts.join("."), node.$value);
     return map;
   }
   for (const [key, value] of Object.entries(node)) {
-    if (key.startsWith('$')) {continue;}
+    if (key.startsWith("$")) {
+      continue;
+    }
     flattenTokens(value, [...pathParts, key], map);
   }
   return map;
 }
 
 function resolveValue(rawValue, resolver) {
-  if (typeof rawValue !== 'string') {return rawValue;}
+  if (typeof rawValue !== "string") {
+    return rawValue;
+  }
   const alias = rawValue.match(/^\{([^}]+)\}$/);
-  if (!alias) {return rawValue;}
+  if (!alias) {
+    return rawValue;
+  }
   return resolver(alias[1]);
 }
 
@@ -38,15 +58,21 @@ function createResolver(flatMap) {
   const cache = new Map();
 
   function resolve(pathKey, stack = new Set()) {
-    if (cache.has(pathKey)) {return cache.get(pathKey);}
+    if (cache.has(pathKey)) {
+      return cache.get(pathKey);
+    }
     if (stack.has(pathKey)) {
-      throw new Error(`Circular token alias detected: ${[...stack, pathKey].join(' -> ')}`);
+      throw new Error(
+        `Circular token alias detected: ${[...stack, pathKey].join(" -> ")}`,
+      );
     }
     if (!flatMap.has(pathKey)) {
       throw new Error(`Unknown token alias: ${pathKey}`);
     }
     stack.add(pathKey);
-    const value = resolveValue(flatMap.get(pathKey), (nextKey) => resolve(nextKey, stack));
+    const value = resolveValue(flatMap.get(pathKey), (nextKey) =>
+      resolve(nextKey, stack),
+    );
     stack.delete(pathKey);
     cache.set(pathKey, value);
     return value;
@@ -56,11 +82,11 @@ function createResolver(flatMap) {
 }
 
 function cssVarName(tokenPath) {
-  return `--token-${tokenPath.replaceAll('.', '-')}`;
+  return `--token-${tokenPath.replaceAll(".", "-")}`;
 }
 
 function appVarName(tokenPath) {
-  return `--app-${tokenPath.replaceAll('.', "-")}`;
+  return `--app-${tokenPath.replaceAll(".", "-")}`;
 }
 
 function writeFile(filePath, content) {
@@ -101,13 +127,13 @@ const cssLines = [
   ...semanticLight.map(([key, value]) => `  ${appVarName(key)}: ${value};`),
   "}",
   "",
-  '@media (prefers-color-scheme: dark) {',
+  "@media (prefers-color-scheme: dark) {",
   '  :root[data-theme="system"] {',
   ...semanticDark.map(([key, value]) => `    ${appVarName(key)}: ${value};`),
   "  }",
   "}",
   "",
-  '@media (prefers-color-scheme: light) {',
+  "@media (prefers-color-scheme: light) {",
   '  :root[data-theme="system"] {',
   ...semanticLight.map(([key, value]) => `    ${appVarName(key)}: ${value};`),
   "  }",
@@ -128,7 +154,7 @@ const tsLines = [
   "export const tokenVarByName = {",
   ...Object.keys(resolved)
     .sort()
-    .map(key => `  "${key}": "var(${cssVarName(key)})",`),
+    .map((key) => `  "${key}": "var(${cssVarName(key)})",`),
   "} as const;",
   "",
   "export type TokenName = keyof typeof tokenVarByName;",

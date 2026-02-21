@@ -10,7 +10,9 @@ from reading_plan.builders_shared import WORDS_PER_PAGE
 
 def test_words_per_page_matches_renderer_constant() -> None:
     """Test that words per page matches renderer constant."""
-    constants_dir = Path(__file__).resolve().parents[1] / "electron" / "renderer" / "books"
+    constants_dir = (
+        Path(__file__).resolve().parents[1] / "electron" / "renderer" / "books"
+    )
     constants_ts = constants_dir / "constants.ts"
     constants_js = constants_dir / "constants.js"
     constants_path = constants_ts
