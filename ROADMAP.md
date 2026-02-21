@@ -26,18 +26,6 @@ Last updated: February 20, 2026
 
 ## 2026 Delivery Plan With Deadlines
 
-### Features and bugs
-
-- [ ] Make the ability to block books from being scheduled on certain days. I.e. if a user deletes a book from the schedule on a given day, that book should not be scheduled again on that day in the future.
-- [ ] Add a "planner status" section to the UI that shows the current planner mode (MIP or greedy), any fallback events, and the last planner note/objective.
-- [ ] Add the ability for users to to adjust minutes planned for book that day (for example, if they read more or less than planned) and have that update the schedule and stats accordingly.
-- [ ] Fix daily goal progress bar to actually show how many minutes have been completed rather than remaining gray all the time.
-- [ ] Fix how buggy today is currently. Right now, today is not considered for the schedule, as it completely breaks days after it when a book is marked as "completed". It still assumes a sort of ghost session between today and tomorrow and affects the schedule. All fixes have caused the next dy to either show a gap between where the book is at (i.e. shows that it begins further ahead in the book than it actually is) or causes the schedule to think a book is completed earlier than it is (i.e. a book will be marked as completed while showing that it is projected to end the day at 89% or something similar). The schedule should be able to handle today being marked as completed without breaking the schedule for the next day or showing inaccurate projections.
-- [ ] Show how many pages and percentage a book should be at after the planned session today.
-- [ ] Have a highlight around today in the calendar so it's easier to immediately click on. A Today button may be nice as well
-- [ ] When adding a book, The After Book section messes with the UI pretty significantly. It pushes all the other fields down, instead of just being a dropdown that appears above the other elements.
-
-
 ### Milestone 1: Onboarding and Data Contracts
 
 Deadline: March 20, 2026
