@@ -16,7 +16,11 @@ from .solve import solve_plan
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments for the planner CLI."""
     p = argparse.ArgumentParser(description="Bartleby")
-    p.add_argument("--data", default="data/books.csv", help="Path to books CSV")
+    p.add_argument(
+        "--data",
+        default="data/books.sample.csv",
+        help="Path to books CSV",
+    )
     p.add_argument(
         "--settings", default="data/settings.json", help="Path to settings JSON"
     )

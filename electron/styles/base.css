@@ -457,6 +457,8 @@ main {
 }
 
 .progress-track {
+  appearance: none;
+  -webkit-appearance: none;
   width: 100%;
   height: 14px;
   border-radius: var(--token-radius-pill);
@@ -465,16 +467,27 @@ main {
   overflow: hidden;
 }
 
-.progress-bar {
-  display: block;
-  width: 0;
-  height: 100%;
+.progress-track::-webkit-progress-bar {
+  background: color-mix(in srgb, var(--app-bg) 40%, var(--app-surface));
+}
+
+.progress-track::-webkit-progress-value {
+  border-radius: var(--token-radius-pill);
   background: linear-gradient(
     90deg,
     color-mix(in srgb, var(--app-brandStrong) 86%, var(--app-bg) 14%),
     color-mix(in srgb, var(--app-success) 80%, var(--app-brand) 20%)
   );
   transition: width var(--token-motion-duration-base) var(--token-motion-easing-standard);
+}
+
+.progress-track::-moz-progress-bar {
+  border-radius: var(--token-radius-pill);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--app-brandStrong) 86%, var(--app-bg) 14%),
+    color-mix(in srgb, var(--app-success) 80%, var(--app-brand) 20%)
+  );
 }
 
 .session-history {

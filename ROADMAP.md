@@ -1,6 +1,6 @@
 # Bartleby Roadmap (Audit-Based)
 
-Last updated: February 20, 2026
+Last updated: February 21, 2026
 
 ## Codebase Baseline
 
@@ -107,9 +107,60 @@ Exit criteria:
 - Every setting exposed in the UI has working behavior and tests.
 - No placeholder toggles remain in production-facing settings.
 
-## Backlog (Post-July 2026, No Date Yet)
+### Milestone 7: Measurement, Privacy, and Calm Personalization Foundations
+
+Deadline: August 28, 2026
+
+- [ ] Define a stable local event schema for session starts/completions, replans, and manual schedule edits.
+- [ ] Add metric derivation rules for adherence and realism outcomes in planner telemetry summaries.
+- [ ] Add local-only privacy controls for export/delete of behavior history and per-feature consent gates for connectors.
+- [ ] Add reminder guardrail controls (opt-in, cadence, quiet hours, one-click disable) in settings and persistence.
+- [ ] Add adaptive WPM calibration v1 (EWMA + clamp ranges + confidence gating) without shipping advanced experimentation loops.
+
+Exit criteria:
+
+- Outcome metrics can be computed from local state without external services.
+- Reminder behavior is user-controlled and can be disabled immediately.
+- Personalization behavior is bounded, explainable, and migration-safe.
+
+## Outcome Metrics and Guardrails
+
+Metrics tracked for every milestone change:
+
+- `session_start_rate`: higher is better; percent of days with at least one started session.
+- `planned_session_completion_rate`: higher is better; percent of planned sessions completed.
+- `plan_realism_error_minutes`: lower is better; absolute difference between planned and actual minutes.
+- `weekly_active_days`: higher is better; active reading days in a rolling 7-day window.
+- `replan_recovery_rate`: higher is better; percent of missed-plan days that recover within 48 hours.
+- `schedule_churn_rate`: lower is better; percent of upcoming rows changed by each replan.
+- `reminder_opt_out_rate`: lower is better once reminders are enabled; monitor for reminder overload.
+- `auto_plan_disable_rate`: lower is better; indicates plan trust and usability.
+
+Guardrails:
+
+- Reminders are opt-in only.
+- Reminder cadence and quiet hours are user-configurable.
+- Reminder delivery can be disabled with a one-click control.
+- No forced interruption flows or non-dismissible reminder loops.
+
+## Data and Privacy Posture
+
+- Product mode is local-by-default: planning, personalization, and telemetry storage remain on-device.
+- Data minimization applies to new features: collect only fields needed for scheduling and user-visible insights.
+- Any connector/sync path must use explicit user consent before first data transfer.
+- Export and deletion expectations are mandatory: users can export state and remove stored activity/personalization data.
+- Advanced ML features remain blocked until telemetry quality and guardrails are validated locally.
+
+## Backlog (Post-August 2026, No Date Yet)
+
+Foundation expansion (after Milestone 7):
 
 - Multi-device sync.
 - Public API integrations beyond Open Library metadata lookup.
 - Mobile clients.
 - Localization and multi-language UX.
+
+Advanced experimentation (only after telemetry + guardrails readiness):
+
+- Adherence classifier for pre-plan stress testing.
+- Contextual bandit reminder optimization.

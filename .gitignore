@@ -70,6 +70,7 @@ apps/mobile/ios/DerivedData/
 planner_state*.json
 data/schedule.csv
 data/books.csv
+Issues/.sync-cache.tsv
 
 # Local tooling config
 .sourcery.yaml

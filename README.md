@@ -29,7 +29,7 @@ pip install -e ".[mip]"
 ### CLI
 
 ```bash
-python -m reading_plan.cli --data data/books.csv --settings data/settings.json --output data/schedule.csv --planner mip
+python -m reading_plan.cli --data data/books.sample.csv --settings data/settings.json --output data/schedule.csv --planner mip
 ```
 
 ## Desktop App
@@ -86,11 +86,13 @@ This is restart-on-change (not in-window HMR).
 ```bash
 .venv/bin/pytest -q
 cd electron && npm run lint
+npm run audit
 ```
 
 ## Issue Sync (Local -> GitHub)
 
-Sync local issue definitions from `ISSUES.md` into repository Issues:
+Sync local issue definitions from `Issues/Open/*.md` and `Issues/Closed/*.md`
+into repository Issues:
 
 ```bash
 npm run issues:sync
@@ -102,8 +104,18 @@ Preview without writing to GitHub:
 scripts/sync_issues.sh --dry-run --repo OWNER/REPO
 ```
 
+Sync from a custom issues root directory:
+
+```bash
+scripts/sync_issues.sh --dir path/to/Issues --repo OWNER/REPO
+```
+
 Duplicate prevention is handled by a stable marker per issue (`Sync-ID: ISSUE-XXX`).
 The script searches for that marker and updates matching issues instead of creating new ones.
+Files moved to `Issues/Closed` are synced as closed GitHub issues; files in
+`Issues/Open` are synced as open GitHub issues.
+The script keeps a local hash cache at `Issues/.sync-cache.tsv` and skips
+unchanged issues on subsequent runs.
 
 ## SonarQube Full Scan
 

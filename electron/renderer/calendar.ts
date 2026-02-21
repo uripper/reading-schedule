@@ -1,157 +1,44 @@
 import type { PlannerScheduleRow } from "./app/types.js";
-import type { Book } from "./books/types.js";
-import {
-  enrichRows,
-  groupRowsByDate,
-  monthKeysFromRows,
-  type CalendarRowWithFinish,
-} from "./calendar/data.js";
-import { renderCalendarControls } from "./calendar/controls.js";
 import { renderCalendarDetails } from "./calendar/details.js";
-import { renderCalendarMonth } from "./calendar/month.js";
-const DAYS_IN_WEEK = 7;
-type CompletionChangePayload = {
-  sessionKey: string;
-  completed: boolean;
-  row: CalendarRowWithFinish;
-};
+import { applyTodayFocus, moveSelectionBy, selectDate } from "./calendar/selection.js";
+import {
+  createCalendarRuntimeState,
+  mergeCalendarHandlers,
+  type CalendarHandlers,
+} from "./calendar/state_runtime.js";
+import { refreshDerivedRows, renderControls, renderMonth } from "./calendar/render_runtime.js";
 
-type ProgressUpdatePayload = {
-  bookId: string;
-  pagesRead?: number | null;
-  progressPercent?: number | null;
-};
+const state = createCalendarRuntimeState();
+let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});
 
-type ManualSessionPayload = {
-  date: string;
-  bookId: string;
-  minutes: number;
-  completed?: boolean;
-};
-
-type RemoveSessionPayload = {
-  row: CalendarRowWithFinish;
-};
-
-type ManualSessionBook = {
-  bookId: string;
-  title: string;
-};
-type CalendarHandlers = {
-  isSessionCompleted: (sessionKey: string) => boolean;
-  onSessionCompletionChanged: (payload: CompletionChangePayload) => void;
-  onSessionProgressUpdated: (payload: ProgressUpdatePayload) => Book | null;
-  getBookById: (bookId: string) => Book | null;
-  listSessionBooks: () => ManualSessionBook[];
-  onManualSessionAdded: (payload: ManualSessionPayload) => boolean;
-  onSessionRemoved: (payload: RemoveSessionPayload) => boolean;
-};
-const state = {
-  dates: {} as Record<string, CalendarRowWithFinish[]>,
-  rawRows: [] as PlannerScheduleRow[],
-  rows: [] as CalendarRowWithFinish[],
-  totalsByBookId: {} as Record<string, number>,
-  months: [] as string[],
-  index: 0,
-  selectedDate: "",
-  monthCellKeys: [] as string[],
-  expectedFinishHighlightDate: "",
-};
-
-const defaultHandlers: CalendarHandlers = {
-  isSessionCompleted: () => false,
-  onSessionCompletionChanged: () => {},
-  onSessionProgressUpdated: () => null,
-  getBookById: () => null,
-  listSessionBooks: () => [],
-  onManualSessionAdded: () => false,
-  onSessionRemoved: () => false,
-};
-let interactionHandlers: CalendarHandlers = { ...defaultHandlers };
-function refreshDerivedRows(): void {
-  const enrichedRows = enrichRows(
-    state.rawRows,
-    state.totalsByBookId,
-    interactionHandlers.isSessionCompleted,
-  );
-  state.rows = enrichedRows;
-  state.dates = groupRowsByDate(enrichedRows);
-  state.months = monthKeysFromRows(enrichedRows);
-}
 function renderDetails(): void {
-  refreshDerivedRows();
+  refreshDerivedRows(state, interactionHandlers.isSessionCompleted);
   renderCalendarDetails(state, interactionHandlers, renderDetails);
 }
-function todayDateKey(): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-function monthKeyForDateKey(dateKey: string): string {
-  return dateKey.slice(0, DAYS_IN_WEEK);
-}
-function indexForMonth(months: string[], targetMonthKey: string): number {
-  const exactIndex = months.indexOf(targetMonthKey);
-  if (exactIndex >= 0) {
-    return exactIndex;
-  }
 
-  const upcomingIndex = months.findIndex((monthKey) => {
-    return Number(monthKey) >= Number(targetMonthKey);
-  });
-  if (upcomingIndex >= 0) {
-    return upcomingIndex;
-  }
-
-  return Math.max(0, months.length - 1);
-}
-function applyTodayFocus(): void {
-  if (!state.months.length) {
-    return;
-  }
-
-  const todayKey = todayDateKey();
-  const todayMonthKey = monthKeyForDateKey(todayKey);
-  state.index = indexForMonth(state.months, todayMonthKey);
-  state.selectedDate = "";
-  if (state.months[state.index] === todayMonthKey) {
-    state.selectedDate = todayKey;
-  }
-}
-function selectDate(dateKey: string, options: { focus?: boolean } = {}): void {
-  state.selectedDate = dateKey;
-  state.expectedFinishHighlightDate = dateKey;
-  renderMonth();
-  if (options.focus) {
-    const button = document.querySelector(`[data-calendar-day='${dateKey}']`);
-    if (button instanceof HTMLElement) {
-      button.focus();
-    }
-  }
-}
-function moveSelectionBy(delta: number, currentIndex: number): void {
-  const nextIndex = Math.min(
-    state.monthCellKeys.length - 1,
-    Math.max(0, currentIndex + delta),
-  );
-  const nextKey = state.monthCellKeys[nextIndex];
-  if (!nextKey) {
-    return;
-  }
-  selectDate(nextKey, { focus: true });
-}
-function renderMonth(): void {
-  renderCalendarMonth(state, {
-    selectDate,
-    moveSelectionBy,
+function renderMonthView(): void {
+  renderMonth(state, {
+    selectDate: (dateKey, options) => {
+      selectDate(state, dateKey, renderMonthView, options);
+    },
+    moveSelectionBy: (delta, currentIndex) => {
+      moveSelectionBy(state, delta, currentIndex, (dateKey, options) => {
+        selectDate(state, dateKey, renderMonthView, options);
+      });
+    },
     renderDetails,
   });
 }
-function renderControls(): void {
-  renderCalendarControls(state, renderControls, renderMonth);
+
+function renderControlsView(): void {
+  const jumpToToday = (): void => {
+    applyTodayFocus(state);
+    renderControlsView();
+    renderMonthView();
+  };
+  renderControls(state, renderControlsView, renderMonthView, jumpToToday);
 }
+
 export function renderCalendar(
   rows: PlannerScheduleRow[],
   totals: Record<string, number>,
@@ -160,7 +47,7 @@ export function renderCalendar(
   const previousMonthKey = state.months[state.index] || "";
   state.rawRows = [...rows];
   state.totalsByBookId = { ...totals };
-  refreshDerivedRows();
+  refreshDerivedRows(state, interactionHandlers.isSessionCompleted);
   state.index = 0;
   if (previousMonthKey) {
     const previousMonthIndex = state.months.indexOf(previousMonthKey);
@@ -168,7 +55,6 @@ export function renderCalendar(
       state.index = previousMonthIndex;
     }
   }
-
   if (previousSelectedDate && state.dates[previousSelectedDate]) {
     state.selectedDate = previousSelectedDate;
   } else {
@@ -176,40 +62,25 @@ export function renderCalendar(
   }
   state.expectedFinishHighlightDate = "";
   if (!previousSelectedDate) {
-    applyTodayFocus();
+    applyTodayFocus(state);
   }
-
-  renderControls();
-  renderMonth();
+  renderControlsView();
+  renderMonthView();
 }
+
 export function focusCalendarToday(): void {
   if (!state.months.length) {
     return;
   }
-  applyTodayFocus();
-  renderControls();
-  renderMonth();
+  applyTodayFocus(state);
+  renderControlsView();
+  renderMonthView();
 }
+
 export function configureCalendarInteractions(
   handlers: Partial<CalendarHandlers> = {},
 ): void {
-  interactionHandlers = {
-    isSessionCompleted:
-      handlers.isSessionCompleted || defaultHandlers.isSessionCompleted,
-    onSessionCompletionChanged:
-      handlers.onSessionCompletionChanged ||
-      defaultHandlers.onSessionCompletionChanged,
-    onSessionProgressUpdated:
-      handlers.onSessionProgressUpdated ||
-      defaultHandlers.onSessionProgressUpdated,
-    getBookById: handlers.getBookById || defaultHandlers.getBookById,
-    listSessionBooks:
-      handlers.listSessionBooks || defaultHandlers.listSessionBooks,
-    onManualSessionAdded:
-      handlers.onManualSessionAdded || defaultHandlers.onManualSessionAdded,
-    onSessionRemoved:
-      handlers.onSessionRemoved || defaultHandlers.onSessionRemoved,
-  };
+  interactionHandlers = mergeCalendarHandlers(handlers);
 }
 
 export { firstPlannedRow } from "./calendar/data.js";

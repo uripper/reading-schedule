@@ -2,6 +2,11 @@ import type { Book } from "./types.js";
 
 const NO_ACTIVE_INDEX = -1;
 
+type PickerInteraction = {
+  targetIsInput: boolean;
+  targetIsInResults: boolean;
+};
+
 export function optionLabel(book: Book): string {
   const title = String(book.title || "Untitled");
   const author = String(book.author || "").trim();
@@ -50,4 +55,17 @@ export function lookupResultTarget(event: Event): HTMLElement | null {
 
 export function labelsMatch(left: string, right: string): boolean {
   return left.trim().toLowerCase() === right.trim().toLowerCase();
+}
+
+export function shouldKeepPickerOpen({
+  targetIsInput,
+  targetIsInResults,
+}: PickerInteraction): boolean {
+  if (targetIsInput) {
+    return true;
+  }
+  if (targetIsInResults) {
+    return true;
+  }
+  return false;
 }

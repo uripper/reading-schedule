@@ -1,0 +1,31 @@
+import {
+  COVER_ID_MIN,
+  SOURCE_NAME,
+  WORDS_PER_PAGE_ESTIMATE,
+  type SearchDoc,
+  type SearchItem,
+} from "./book_lookup_search_shared.js";
+import { primaryAuthor } from "./book_lookup_search_text.js";
+
+export function toItem(doc: SearchDoc): SearchItem {
+  const pages = Number(doc.number_of_pages_median || 0);
+  let words: number | null = null;
+  if (pages > 0) {
+    words = pages * WORDS_PER_PAGE_ESTIMATE;
+  }
+  const coverId = Number(doc.cover_i || 0);
+  let coverUrl = "";
+  if (coverId >= COVER_ID_MIN) {
+    coverUrl = `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`;
+  }
+  return {
+    author: primaryAuthor(doc),
+    cover_url: coverUrl,
+    openlibrary_key: String(doc.key || ""),
+    pages_estimate: pages || null,
+    source: SOURCE_NAME,
+    title: String(doc.title || ""),
+    words_estimate: words,
+    year: doc.first_publish_year || "",
+  };
+}

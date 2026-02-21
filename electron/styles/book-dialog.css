@@ -60,9 +60,15 @@
 }
 
 .book-search-results {
+  position: absolute;
+  top: calc(100% + var(--token-space-1));
+  left: 0;
+  right: 0;
+  z-index: 30;
   border: 1px solid var(--app-border);
   border-radius: var(--token-radius-md);
   background: var(--app-surface);
+  box-shadow: var(--token-elevation-sm);
   max-height: 240px;
   overflow: auto;
   display: none;

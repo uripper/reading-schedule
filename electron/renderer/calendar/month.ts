@@ -1,6 +1,7 @@
 import { el } from "../dom.js";
-import { CALENDAR_COLUMN_COUNT, WEEKDAY_LABELS } from "./constants.js";
 import { dayKey, monthCells, monthLabel } from "./utils.js";
+import { createDayButton, createWeekdayHeader } from "./month_day_button.js";
+import { handleDayKeydown } from "./month_keyboard.js";
 
 type CalendarRow = {
   title?: string;
@@ -24,119 +25,6 @@ type MonthActions = {
 
 function todayDayKey(): string {
   return dayKey(new Date());
-}
-
-function createWeekdayHeader(): HTMLSpanElement[] {
-  return WEEKDAY_LABELS.map((label) => {
-    const head = document.createElement("span");
-    head.className = "calendar-weekday";
-    head.textContent = label;
-    return head;
-  });
-}
-
-function createDayButton(
-  date: Date,
-  firstDate: Date,
-  keyForDay: string,
-  rows: CalendarRow[],
-  selectedDate: string,
-  todayKey: string,
-): HTMLButtonElement {
-  const dayButton = document.createElement("button");
-  dayButton.type = "button";
-  dayButton.className = "day";
-  const hasFinishRow = rows.some((row) => Boolean(row.finish));
-  if (hasFinishRow) {
-    dayButton.classList.add("has-finish");
-  }
-  if (date.getMonth() !== firstDate.getMonth()) {
-    dayButton.className = "day is-muted";
-    if (hasFinishRow) {
-      dayButton.classList.add("has-finish");
-    }
-  }
-  if (selectedDate === keyForDay) {
-    dayButton.classList.add("is-selected");
-  }
-  if (keyForDay < todayKey) {
-    dayButton.classList.add("is-past");
-  }
-
-  dayButton.dataset.calendarDay = keyForDay;
-  dayButton.setAttribute("role", "gridcell");
-  dayButton.setAttribute("aria-selected", "false");
-  if (selectedDate === keyForDay) {
-    dayButton.setAttribute("aria-selected", "true");
-  }
-
-  const dayDate = document.createElement("span");
-  dayDate.className = "day-date";
-  dayDate.textContent = String(date.getDate());
-
-  const count = document.createElement("span");
-  count.className = "day-event-count";
-  count.textContent = "No sessions";
-  if (rows.length) {
-    count.textContent = `${rows.length} planned`;
-  }
-
-  dayButton.append(dayDate, count);
-  rows.slice(0, 2).forEach((row) => {
-    const chip = document.createElement("span");
-    chip.className = "day-chip";
-    if (row.finish) {
-      chip.className = "day-chip finish";
-    }
-    chip.textContent = `${row.title || "Untitled"} - ${Number(row.minutes || 0)}m`;
-    dayButton.append(chip);
-  });
-
-  if (rows.length > 2) {
-    const extra = document.createElement("span");
-    extra.className = "day-chip is-more";
-    extra.textContent = `+${rows.length - 2} more`;
-    dayButton.append(extra);
-  }
-
-  return dayButton;
-}
-
-function handleDayKeydown(
-  event: KeyboardEvent,
-  index: number,
-  totalCellCount: number,
-  moveSelectionBy: (delta: number, currentIndex: number) => void,
-): void {
-  if (event.key === "ArrowRight") {
-    event.preventDefault();
-    moveSelectionBy(1, index);
-    return;
-  }
-  if (event.key === "ArrowLeft") {
-    event.preventDefault();
-    moveSelectionBy(-1, index);
-    return;
-  }
-  if (event.key === "ArrowDown") {
-    event.preventDefault();
-    moveSelectionBy(CALENDAR_COLUMN_COUNT, index);
-    return;
-  }
-  if (event.key === "ArrowUp") {
-    event.preventDefault();
-    moveSelectionBy(-CALENDAR_COLUMN_COUNT, index);
-    return;
-  }
-  if (event.key === "Home") {
-    event.preventDefault();
-    moveSelectionBy(-index, index);
-    return;
-  }
-  if (event.key === "End") {
-    event.preventDefault();
-    moveSelectionBy(totalCellCount - index - 1, index);
-  }
 }
 
 export function renderCalendarMonth(

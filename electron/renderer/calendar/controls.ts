@@ -7,11 +7,13 @@ type CalendarControlsState = {
 };
 
 type RenderFn = () => void;
+type JumpToTodayFn = () => void;
 
 export function renderCalendarControls(
   state: CalendarControlsState,
   renderControls: RenderFn,
   renderMonth: RenderFn,
+  jumpToToday: JumpToTodayFn,
 ): void {
   const key = state.months[state.index] || "";
   const controls = el("calendarControls");
@@ -27,6 +29,11 @@ export function renderCalendarControls(
   prev.className = "btn";
   prev.type = "button";
   prev.textContent = "Prev";
+
+  const today = document.createElement("button");
+  today.className = "btn btn-calendar-today";
+  today.type = "button";
+  today.textContent = "Today";
 
   const next = document.createElement("button");
   next.className = "btn";
@@ -45,5 +52,9 @@ export function renderCalendarControls(
     renderMonth();
   };
 
-  controls.replaceChildren(prev, title, next);
+  today.onclick = () => {
+    jumpToToday();
+  };
+
+  controls.replaceChildren(prev, today, title, next);
 }

@@ -205,6 +205,8 @@ A change is done only when all are true:
 
 ## Quick Violation Checks (Recommended)
 
+- Local style audit (line limits + quick static checks): `npm run audit`
+
 - Ternary scan: `rg -n "\?.*:.*" src electron scripts tests`
 
 - Long file scan: `find src electron scripts tests -name "*.ts" -o -name "*.tsx" -o -name "*.py" | xargs wc -l | sort -nr`
