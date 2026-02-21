@@ -29,7 +29,7 @@ pip install -e ".[mip]"
 ### CLI
 
 ```bash
-python -m reading_plan.cli --data data/books.csv --settings data/settings.json --output data/schedule.csv --planner mip
+python -m reading_plan.cli --data data/books.sample.csv --settings data/settings.json --output data/schedule.csv --planner mip
 ```
 
 ## Desktop App

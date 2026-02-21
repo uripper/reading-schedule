@@ -18,7 +18,9 @@ def parse_args() -> argparse.Namespace:
         "--sample", action="store_true", help="Return sample payload from data files"
     )
     p.add_argument(
-        "--data", default="data/books.csv", help="Books CSV path for --sample"
+        "--data",
+        default="data/books.sample.csv",
+        help="Books CSV path for --sample",
     )
     p.add_argument(
         "--settings",
