@@ -88,6 +88,23 @@ This is restart-on-change (not in-window HMR).
 cd electron && npm run lint
 ```
 
+## Issue Sync (Local -> GitHub)
+
+Sync local issue definitions from `ISSUES.md` into repository Issues:
+
+```bash
+npm run issues:sync
+```
+
+Preview without writing to GitHub:
+
+```bash
+scripts/sync_issues.sh --dry-run --repo OWNER/REPO
+```
+
+Duplicate prevention is handled by a stable marker per issue (`Sync-ID: ISSUE-XXX`).
+The script searches for that marker and updates matching issues instead of creating new ones.
+
 ## SonarQube Full Scan
 
 ```bash

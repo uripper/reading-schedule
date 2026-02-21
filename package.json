@@ -9,6 +9,7 @@
     "build:desktop": "npm --prefix electron run build",
     "typecheck:desktop": "npm --prefix electron run typecheck",
     "lint:desktop": "npm --prefix electron run lint",
+    "issues:sync": "bash ./scripts/sync_issues.sh",
     "test:python": ".venv/bin/pytest -q",
     "sonar:scan": "sonar-scanner -Dsonar.host.url=${SONAR_HOST_URL:-http://localhost:9000} -Dsonar.token=$SONAR_TOKEN"
   },
