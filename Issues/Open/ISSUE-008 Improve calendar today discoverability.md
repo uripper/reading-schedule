@@ -1,6 +1,5 @@
 # ISSUE-008: Improve calendar "today" discoverability
 
-
 **Type:** enhancement  
 **Priority:** P2  
 **Labels:** `enhancement`, `desktop`, `ux`
@@ -25,4 +24,3 @@ Context:
 - `electron/renderer/calendar/month.ts`
 - `electron/renderer/calendar/controls.ts`
 - `electron/styles/calendar.css`
-

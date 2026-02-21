@@ -1,6 +1,5 @@
 # ISSUE-011: Expand lint coverage to Electron TypeScript
 
-
 **Type:** tech-debt  
 **Priority:** P1  
 **Labels:** `tech-debt`, `devex`, `desktop`
@@ -25,4 +24,3 @@ Context:
 - `electron/package.json`
 - `electron/tsconfig.main.json`
 - `electron/tsconfig.renderer.json`
-

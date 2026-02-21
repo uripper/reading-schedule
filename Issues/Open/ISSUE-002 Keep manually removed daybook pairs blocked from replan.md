@@ -1,6 +1,5 @@
 # ISSUE-002: Keep manually removed day-book pairs blocked from replan
 
-
 **Type:** enhancement  
 **Priority:** P1  
 **Labels:** `enhancement`, `planner`, `desktop`
@@ -28,4 +27,3 @@ Context:
 - `electron/renderer/app/calendar_interactions.ts`
 - `electron/renderer/app/schedule_preserve.ts`
 - `electron/renderer/calendar/details_session_items.ts`
-

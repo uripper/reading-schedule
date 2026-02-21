@@ -1,6 +1,5 @@
 # ISSUE-003: Add planner status panel in UI
 
-
 **Type:** enhancement  
 **Priority:** P1  
 **Labels:** `enhancement`, `desktop`, `planner`
@@ -30,4 +29,3 @@ Context:
 - `electron/renderer/app/plan_controller.ts`
 - `electron/renderer/app/types.ts`
 - `src/reading_plan/solve.py`
-

@@ -1,6 +1,5 @@
 # ISSUE-007: Show expected pages/% after today's planned session
 
-
 **Type:** enhancement  
 **Priority:** P2  
 **Labels:** `enhancement`, `desktop`, `ux`
@@ -24,4 +23,3 @@ Context:
 - `electron/renderer/calendar/estimates.ts`
 - `electron/renderer/app/today.ts`
 - `electron/renderer/app/today_schedule.ts`
-

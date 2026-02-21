@@ -1,6 +1,5 @@
 # ISSUE-017: Candidate feature - localization and i18n
 
-
 **Type:** enhancement  
 **Priority:** P3  
 **Labels:** `enhancement`, `desktop`, `ux`
@@ -18,4 +17,3 @@ Definition of done:
 - Choose i18n framework/pattern.
 - Externalize user-visible strings.
 - Ship at least one additional locale.
-

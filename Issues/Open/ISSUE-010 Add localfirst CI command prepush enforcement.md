@@ -1,6 +1,5 @@
 # ISSUE-010: Add local-first CI command + pre-push enforcement
 
-
 **Type:** tech-debt  
 **Priority:** P1  
 **Labels:** `tech-debt`, `devex`, `testing`
@@ -23,4 +22,3 @@ Context:
 
 - `package.json`
 - `STYLEGUIDE.md`
-

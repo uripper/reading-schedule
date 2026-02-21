@@ -1,6 +1,5 @@
 # ISSUE-004: Let users edit planned minutes for a scheduled row
 
-
 **Type:** enhancement  
 **Priority:** P1  
 **Labels:** `enhancement`, `desktop`, `planner`
@@ -26,4 +25,3 @@ Context:
 - `electron/renderer/app/calendar_interactions.ts`
 - `electron/renderer/stats/model.ts`
 - `electron/renderer/app/today.ts`
-

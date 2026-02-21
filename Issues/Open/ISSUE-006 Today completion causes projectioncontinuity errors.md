@@ -1,6 +1,5 @@
 # ISSUE-006: "Today completion" causes projection/continuity errors
 
-
 **Type:** bug  
 **Priority:** P0  
 **Labels:** `bug`, `planner`, `desktop`
@@ -26,4 +25,3 @@ Context:
 - `electron/renderer/app/schedule_preserve.ts`
 - `electron/tests/calendar-estimates.test.mjs`
 - `electron/tests/today-schedule.test.mjs`
-

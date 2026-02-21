@@ -1,6 +1,5 @@
 # ISSUE-019: Add formats and ownership to book metadata
 
-
 **Type:** enhancement
 **Priority:** P3
 **Labels:** `enhancement`, `planner`, `desktop`
@@ -19,4 +18,3 @@ Definition of done:
 - Update book loading and persistence logic.
 - Add UI elements to display and edit these fields in book details.
 - Add tests for new metadata fields and their impact on scheduling logic.
-

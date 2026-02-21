@@ -1,6 +1,5 @@
 # ISSUE-013: Add state snapshot versioning + migrations
 
-
 **Type:** tech-debt  
 **Priority:** P1  
 **Labels:** `tech-debt`, `desktop`, `testing`
@@ -24,4 +23,3 @@ Context:
 - `electron/state_store.ts`
 - `electron/renderer/app/load_state.ts`
 - `electron/renderer/app/persistence.ts`
-

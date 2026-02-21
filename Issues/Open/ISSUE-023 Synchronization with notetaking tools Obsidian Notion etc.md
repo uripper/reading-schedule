@@ -1,6 +1,5 @@
 # ISSUE-023: Synchronization with note-taking tools (Obsidian, Notion, etc...)
 
-
 **Type:** enhancement
 **Priority:** P3
 **Labels:** `enhancement`, `desktop`, `ux`
@@ -26,4 +25,3 @@ Definition of done:
 - Add UI components for managing the integration and export settings.
 - Ensure that the export process is robust and handles edge cases (e.g., authentication issues, export failures).
 - Add tests for note-taking tool export functionality and error handling.
-

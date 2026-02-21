@@ -1,6 +1,5 @@
 # ISSUE-009: "After Book" picker shifts dialog layout
 
-
 **Type:** bug  
 **Priority:** P2  
 **Labels:** `bug`, `desktop`, `ux`
@@ -25,4 +24,3 @@ Context:
 - `electron/renderer/books/after_book_picker_helpers.ts`
 - `electron/styles/book-dialog.css`
 - `electron/index.html`
-

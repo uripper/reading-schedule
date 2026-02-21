@@ -1,6 +1,5 @@
 # ISSUE-001: Missing sample books file breaks sample mode
 
-
 **Type:** bug  
 **Priority:** P0  
 **Labels:** `bug`, `planner`, `desktop`
@@ -29,4 +28,3 @@ Context:
 - `src/reading_plan/gui_api.py`
 - `src/reading_plan/cli.py`
 - `README.md`
-

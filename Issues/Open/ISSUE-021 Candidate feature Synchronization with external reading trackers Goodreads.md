@@ -1,6 +1,5 @@
 # ISSUE-021: Candidate feature - Synchronization with external reading trackers (Goodreads, StoryGraph, etc...)
 
-
 **Type:** enhancement
 **Priority:** P3
 **Labels:** `enhancement`, `desktop`, `planner`
@@ -27,4 +26,3 @@ Definition of done:
 - Add UI components for managing the integration and displaying synchronized data.
 - Ensure that synchronization is robust and handles edge cases (e.g., connectivity issues, data conflicts
 - Add tests for external tracker synchronization functionality and error handling.
-
