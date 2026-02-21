@@ -1,8 +1,8 @@
-import { el } from '../dom.js';
-import { activateTab } from '../tabs.js';
-import { createPlanController } from './plan_controller.js';
-import { bindSettingsAutoPlanListeners } from './runtime_helpers.js';
-import type { PlannerResult } from './types.js';
+import { el } from "../dom.js";
+import { activateTab } from "../tabs.js";
+import { createPlanController } from "./plan_controller.js";
+import { bindSettingsAutoPlanListeners } from "./runtime_helpers.js";
+import type { PlannerResult } from "./types.js";
 
 type SetStatus = (message: string, isError?: boolean) => void;
 
@@ -17,17 +17,19 @@ type FinalizeInitialLoadArgs = {
 };
 
 export function setupSkipLink(): void {
-  const skipLink = document.querySelector('.skip-link');
+  const skipLink = document.querySelector(".skip-link");
   if (!skipLink) {
     return;
   }
-  skipLink.addEventListener('click', (event) => {
+  skipLink.addEventListener("click", (event) => {
     event.preventDefault();
-    el('mainContent').focus();
+    el("mainContent").focus();
   });
 }
 
-export function createAppPlanControllerInstance(args: CreatePlanControllerArgs): ReturnType<typeof createPlanController> {
+export function createAppPlanControllerInstance(
+  args: CreatePlanControllerArgs,
+): ReturnType<typeof createPlanController> {
   return createPlanController(args);
 }
 
@@ -39,31 +41,25 @@ export function finalizeInitialLoad({
   setStatus,
 }: FinalizeInitialLoadArgs): void {
   setReady();
-  document.addEventListener('input', queuePersist);
-  document.addEventListener('change', queuePersist);
+  document.addEventListener("input", queuePersist);
+  document.addEventListener("change", queuePersist);
 
-  const settingsPanel = el('tab-settings');
-  bindSettingsAutoPlanListeners(
-    settingsPanel,
-    () => true,
-    queueAutoPlan,
-  );
+  const settingsPanel = el("tab-settings");
+  bindSettingsAutoPlanListeners(settingsPanel, () => true, queueAutoPlan);
 
   if (saved) {
-    setStatus('Loaded saved data.');
+    setStatus("Loaded saved data.");
   } else {
-    setStatus('Loaded sample data.');
+    setStatus("Loaded sample data.");
   }
-  if (!saved?.last_result?.schedule?.length) {
-    queueAutoPlan();
-  }
+  queueAutoPlan();
 }
 
 export function bindTodayActions(): void {
-  el('startSessionFromTodayBtn').onclick = () => {
-    activateTab('stats', { focusPanel: true });
+  el("startSessionFromTodayBtn").onclick = () => {
+    activateTab("stats", { focusPanel: true });
   };
-  el('viewScheduleFromTodayBtn').onclick = () => {
-    activateTab('schedule', { focusPanel: true });
+  el("viewScheduleFromTodayBtn").onclick = () => {
+    activateTab("schedule", { focusPanel: true });
   };
 }

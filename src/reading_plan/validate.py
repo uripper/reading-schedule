@@ -20,7 +20,9 @@ def validate_book(book: Book) -> None:
     if book.words_full is not None and book.words_full < book.words_total:
         raise ValueError(f"words_full must be >= remaining words for {book.book_id}")
     if book.progress_percent < 0 or book.progress_percent > 100:
-        raise ValueError(f"progress_percent must be between 0 and 100 for {book.book_id}")
+        raise ValueError(
+            f"progress_percent must be between 0 and 100 for {book.book_id}"
+        )
     if book.max_minutes_per_day is not None and book.max_minutes_per_day <= 0:
         raise ValueError(f"max_minutes_per_day must be > 0 for {book.book_id}")
     if book.blocked_by and book.blocked_by == book.book_id:

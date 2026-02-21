@@ -1,19 +1,17 @@
 {
-  "name": "reading-schedule-monorepo",
+  "name": "reading-schedule",
   "private": true,
   "version": "0.2.0",
-  "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "build": "pnpm -r build",
-    "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
-    "lint": "pnpm -r lint",
-    "sonar:scan": "sonar-scanner -Dsonar.host.url=${SONAR_HOST_URL:-http://localhost:9000} -Dsonar.token=$SONAR_TOKEN",
-    "dev:client": "pnpm --filter @reading-schedule/client dev",
     "dev:desktop": "npm --prefix electron run start",
-    "dev:desktop:full": "npm --prefix electron run start",
-    "dev:desktop:shell": "pnpm --filter @reading-schedule/desktop dev",
-    "dev:desktop:shell:full": "pnpm --parallel --filter @reading-schedule/client --filter @reading-schedule/desktop dev"
+    "dev:windows": "bash ./scripts/run_windows_gui_from_wsl.sh",
+    "dev:windows:hot": "bash ./scripts/run_windows_gui_hot_from_wsl.sh",
+    "build:desktop": "npm --prefix electron run build",
+    "typecheck:desktop": "npm --prefix electron run typecheck",
+    "lint:desktop": "npm --prefix electron run lint",
+    "issues:sync": "bash ./scripts/sync_issues.sh",
+    "test:python": ".venv/bin/pytest -q",
+    "sonar:scan": "sonar-scanner -Dsonar.host.url=${SONAR_HOST_URL:-http://localhost:9000} -Dsonar.token=$SONAR_TOKEN"
   },
   "devDependencies": {
     "typescript": "^5.7.3"

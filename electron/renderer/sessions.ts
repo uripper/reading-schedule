@@ -1,11 +1,18 @@
-
 import { renderSessionHistory } from "./sessions/history.js";
 import { createManualSessionSaver } from "./sessions/manual.js";
-import { normalizeSession, normalizeSessions, Session } from "./sessions/normalize.js";
+import {
+  normalizeSession,
+  normalizeSessions,
+  Session,
+} from "./sessions/normalize.js";
 import { createPickerController } from "./sessions/picker.js";
 import { createSessionRefs } from "./sessions/refs.js";
 import { createTimerController } from "./sessions/timer.js";
-import { minutesForDay, streakFromSessions, todayKey } from "./sessions/utils.js";
+import {
+  minutesForDay,
+  streakFromSessions,
+  todayKey,
+} from "./sessions/utils.js";
 
 type InitSessionsUIArgs = {
   getBooks: Parameters<typeof createPickerController>[1];
@@ -14,7 +21,6 @@ type InitSessionsUIArgs = {
   announce: Parameters<typeof createTimerController>[3]; //NOSONAR (this isn't a magic number)
   setStatus: Parameters<typeof createTimerController>[4];
 };
-
 
 export function initSessionsUI({
   getBooks,
@@ -27,14 +33,18 @@ export function initSessionsUI({
   let sessions = normalizeSessions(initialSessions);
 
   const commitSession = (
-    sessionInput: (
-      Omit<Partial<Session>, "source" | "pages_read"> & {
-        endedAt?: string; startedAt?: string; pages_read?: number | string | null; source?: string;
-      }
-    ) | undefined,
+    sessionInput:
+      | (Omit<Partial<Session>, "source" | "pages_read"> & {
+          endedAt?: string;
+          startedAt?: string;
+          pages_read?: number | string | null;
+          source?: string;
+        })
+      | undefined,
   ) => {
-    sessions = [normalizeSession(sessionInput), ...sessions]
-      .sort((a, b) => String(b.ended_at).localeCompare(String(a.ended_at)));
+    sessions = [normalizeSession(sessionInput), ...sessions].sort((a, b) =>
+      String(b.ended_at).localeCompare(String(a.ended_at)),
+    );
     renderSessionHistory(refs.history, sessions, deleteSessionById);
     onSessionsChanged(sessions);
   };
@@ -44,7 +54,9 @@ export function initSessionsUI({
     if (!session) {
       return;
     }
-    const confirmed = globalThis.confirm(`Delete ${session.minutes} minute session for ${session.title}?`);
+    const confirmed = globalThis.confirm(
+      `Delete ${session.minutes} minute session for ${session.title}?`,
+    );
     if (!confirmed) {
       return;
     }
@@ -57,7 +69,13 @@ export function initSessionsUI({
   const picker = createPickerController(refs, getBooks);
   picker.bind();
 
-  const timer = createTimerController(refs, picker.selectedBook, commitSession, announce, setStatus);
+  const timer = createTimerController(
+    refs,
+    picker.selectedBook,
+    commitSession,
+    announce,
+    setStatus,
+  );
   const saveManualSession = createManualSessionSaver(
     refs,
     picker.selectedBook,
@@ -95,4 +113,4 @@ export function initSessionsUI({
   };
 }
 
-export {normalizeSessions} from "./sessions/normalize.js";
+export { normalizeSessions } from "./sessions/normalize.js";

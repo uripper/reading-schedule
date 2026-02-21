@@ -1,7 +1,12 @@
-
 import { bindBookLookup, syncProgressAndPages } from "../book_lookup.js";
 import { bindDialogFocus, focusFirstError } from "../a11y.js";
-import { applyLookupItem, clearForm, fillForm, parseFormBook, syncFinishedAtField } from "./form_state.js";
+import {
+  applyLookupItem,
+  clearForm,
+  fillForm,
+  parseFormBook,
+  syncFinishedAtField,
+} from "./form_state.js";
 import { ensureBookFormLayoutFields } from "./form_layout.js";
 import { getBookFormRefs } from "./form_refs.js";
 import { createAfterBookPicker } from "./after_book_picker.js";
@@ -14,6 +19,10 @@ type BookDialogOptions = {
   getBooks?: () => Book[];
 };
 
+export type OpenDialogOptions = {
+  defaultShelf?: string;
+};
+
 function setSavingState(refs: BookFormRefs, busy: boolean): void {
   refs.saveBtn.disabled = busy;
   refs.saveBtn.textContent = "Save Book";
@@ -22,13 +31,18 @@ function setSavingState(refs: BookFormRefs, busy: boolean): void {
   }
 }
 
-export function createBookDialog(onSubmit: (book: Book) => Promise<void> | void, { getBooks = () => [] }: BookDialogOptions = {}) {
+export function createBookDialog(
+  onSubmit: (book: Book) => Promise<void> | void,
+  { getBooks = () => [] }: BookDialogOptions = {},
+) {
   ensureBookFormLayoutFields();
   const refs = getBookFormRefs();
   bindShelfPicker(refs);
   bindCoverUpload(refs);
   const afterBookPicker = createAfterBookPicker(refs, getBooks);
-  const dialogFocus = bindDialogFocus(refs.dialog, { initialFocusSelector: "#bookTitleInput" });
+  const dialogFocus = bindDialogFocus(refs.dialog, {
+    initialFocusSelector: "#bookTitleInput",
+  });
   const lookupControl = bindBookLookup({
     searchInput: refs.searchInput,
     resultsEl: refs.searchResults,
@@ -37,11 +51,15 @@ export function createBookDialog(onSubmit: (book: Book) => Promise<void> | void,
   });
 
   const close = () => dialogFocus.closeAndReturnFocus();
-  const open = (book: Book | null = null) => {
+  const open = (book: Book | null = null, options: OpenDialogOptions = {}) => {
     dialogFocus.rememberOpener();
     clearForm(refs, lookupControl);
     afterBookPicker.openForBook(book);
-    renderShelfPicker(refs, getBooks(), book?.shelf || "");
+    let selectedShelf = String(options.defaultShelf || "").trim();
+    if (book?.shelf) {
+      selectedShelf = book.shelf;
+    }
+    renderShelfPicker(refs, getBooks(), selectedShelf);
     refs.dialogTitle.textContent = "Add Book";
     if (book) {
       refs.dialogTitle.textContent = "Edit Book";
@@ -77,10 +95,22 @@ export function createBookDialog(onSubmit: (book: Book) => Promise<void> | void,
     close();
   });
 
-  const syncRefs = { pagesTotalInput: refs.pagesTotalInput, pagesReadInput: refs.pagesReadInput, progressInput: refs.progressInput };
-  refs.pagesTotalInput.addEventListener("input", () => syncProgressAndPages(syncRefs, "pages"));
-  refs.pagesReadInput.addEventListener("input", () => syncProgressAndPages(syncRefs, "pages"));
-  refs.progressInput.addEventListener("input", () => syncProgressAndPages(syncRefs, "progress"));
-  refs.statusSelectInput.addEventListener("change", () => syncFinishedAtField(refs));
+  const syncRefs = {
+    pagesTotalInput: refs.pagesTotalInput,
+    pagesReadInput: refs.pagesReadInput,
+    progressInput: refs.progressInput,
+  };
+  refs.pagesTotalInput.addEventListener("input", () =>
+    syncProgressAndPages(syncRefs, "pages"),
+  );
+  refs.pagesReadInput.addEventListener("input", () =>
+    syncProgressAndPages(syncRefs, "pages"),
+  );
+  refs.progressInput.addEventListener("input", () =>
+    syncProgressAndPages(syncRefs, "progress"),
+  );
+  refs.statusSelectInput.addEventListener("change", () =>
+    syncFinishedAtField(refs),
+  );
   return { open };
 }

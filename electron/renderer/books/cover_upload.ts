@@ -16,7 +16,9 @@ const ERROR_UNSUPPORTED_FILE = "Use a PNG, JPG, or WEBP image.";
 const ERROR_UPLOAD_FAILED = "Could not upload this cover image.";
 
 function fileNameHasSupportedExtension(fileName: string): boolean {
-  const lowerName = String(fileName || "").trim().toLowerCase();
+  const lowerName = String(fileName || "")
+    .trim()
+    .toLowerCase();
   if (lowerName.endsWith(COVER_EXTENSION_PNG)) {
     return true;
   }
@@ -33,8 +35,14 @@ function fileNameHasSupportedExtension(fileName: string): boolean {
 }
 
 function fileIsSupported(file: File): boolean {
-  const mimeType = String(file.type || "").trim().toLowerCase();
-  if (mimeType === COVER_MIME_PNG || mimeType === COVER_MIME_JPEG || mimeType === COVER_MIME_WEBP) {
+  const mimeType = String(file.type || "")
+    .trim()
+    .toLowerCase();
+  if (
+    mimeType === COVER_MIME_PNG ||
+    mimeType === COVER_MIME_JPEG ||
+    mimeType === COVER_MIME_WEBP
+  ) {
     return true;
   }
   if (!mimeType) {
@@ -44,7 +52,7 @@ function fileIsSupported(file: File): boolean {
 }
 
 function selectedCoverFile(refs: BookFormRefs): File | null {
-  const {files} = refs.coverUploadInput;
+  const { files } = refs.coverUploadInput;
   if (!files || files.length <= 0) {
     return null;
   }
@@ -56,7 +64,7 @@ function readFileAsDataUrl(file: File): Promise<string> {
     const reader = new FileReader();
 
     const onLoad = () => {
-      const {result} = reader;
+      const { result } = reader;
       if (typeof result !== "string" || !result) {
         reject(new Error(ERROR_UPLOAD_FAILED));
         return;
@@ -109,7 +117,10 @@ async function saveSelectedCover(refs: BookFormRefs): Promise<void> {
   }
 
   const dataUrl = await readFileAsDataUrl(file);
-  const localCover = await getPlannerApi().saveUploadedCover(dataUrl, refs.bookId.value);
+  const localCover = await getPlannerApi().saveUploadedCover(
+    dataUrl,
+    refs.bookId.value,
+  );
   applyUploadedCover(refs, localCover, file.name);
 }
 
@@ -124,13 +135,21 @@ async function handleCoverUploadChange(refs: BookFormRefs): Promise<void> {
 }
 
 export function bindCoverUpload(refs: BookFormRefs): void {
-  refs.coverPanel.addEventListener("click", () => {
+  const runUploadChange = () => {
+    handleCoverUploadChange(refs).catch((error) => {
+      refs.lookupMeta.textContent = uploadErrorMessage(error);
+      clearCoverUploadInput(refs);
+    });
+  };
+
+  refs.coverPanel.addEventListener("click", (event) => {
+    event.preventDefault();
     triggerCoverPicker(refs);
   });
   refs.coverPanel.addEventListener("keydown", (event) => {
     onCoverPanelKeydown(event, refs);
   });
   refs.coverUploadInput.addEventListener("change", () => {
-    void handleCoverUploadChange(refs);
+    runUploadChange();
   });
 }

@@ -4,20 +4,16 @@ Create daily reading schedules from backlog + time budget.
 
 ## Current Status
 
-This repository now contains both:
+This repository is now focused on the Electron desktop app.
 
-- `electron/`: desktop app runtime with the current full feature set
-- new cross-platform workspace scaffold for web + desktop + mobile:
-  - `apps/client` (React + TypeScript SPA)
-  - `apps/desktop` (migration shell in TypeScript)
-  - `apps/mobile` (Capacitor wrapper)
-  - `packages/contracts` (Zod schemas + adapter interfaces)
-  - `packages/ui` (shared tokenized UI primitives)
-  - `services/planner-api` (FastAPI wrapper around `src/reading_plan`)
+- Desktop runtime: `electron/`
+- Planner engine source of truth: `src/reading_plan`
+
+Legacy cross-platform scaffold directories were removed.
 
 ## Python Planner Core
 
-The planner engine remains under `src/reading_plan` and is still the source of truth.
+The planner engine remains under `src/reading_plan`.
 
 ### Setup
 
@@ -36,7 +32,7 @@ pip install -e ".[mip]"
 python -m reading_plan.cli --data data/books.csv --settings data/settings.json --output data/schedule.csv --planner mip
 ```
 
-## Desktop App (primary runtime)
+## Desktop App
 
 From repo root:
 
@@ -53,49 +49,37 @@ npm run tokens:build
 UI_SCALE=1.65 npm run start
 ```
 
-## New Workspace (pnpm)
+## Windows Install/Run Helper
 
-```bash
-pnpm install
-pnpm -r typecheck
-pnpm -r test
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/install_and_run_windows.ps1 -SourcePath "C:\path\to\reading-schedule"
 ```
 
-### Client SPA
+From WSL, use:
 
 ```bash
-pnpm --filter @reading-schedule/client dev
+npm run dev:windows
 ```
 
-### Desktop TS Shell (migration scaffold; not feature-parity with `electron/`)
+Set a specific Python launcher target:
 
 ```bash
-npm run dev:desktop:shell
+npm run dev:windows -- 3.11
 ```
 
-Use Vite during desktop development:
+Auto-rebuild + auto-restart on changes (WSL -> Windows sync poll loop):
 
 ```bash
-CLIENT_DEV_URL=http://localhost:5173 npm run dev:desktop:shell
+npm run dev:windows:hot
 ```
 
-### Mobile Wrapper
+Set Python and poll interval seconds:
 
 ```bash
-pnpm --filter @reading-schedule/mobile sync
-pnpm --filter @reading-schedule/mobile open:ios
-pnpm --filter @reading-schedule/mobile open:android
+npm run dev:windows:hot -- 3.11 1
 ```
 
-### Planner API
-
-```bash
-cd services/planner-api
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .
-PYTHONPATH=../../src python -m planner_api
-```
+This is restart-on-change (not in-window HMR).
 
 ## Tests
 
@@ -104,28 +88,30 @@ PYTHONPATH=../../src python -m planner_api
 cd electron && npm run lint
 ```
 
-## SonarQube Full Scan
+## Issue Sync (Local -> GitHub)
 
-Run repository-wide analysis (with generated/dependency folders excluded via `sonar-project.properties`):
-
-First run on a new local SonarQube instance:
+Sync local issue definitions from `ISSUES.md` into repository Issues:
 
 ```bash
-# 1) open http://localhost:9000 and complete the setup/password update flow
-# 2) create a token in My Account -> Security
+npm run issues:sync
 ```
+
+Preview without writing to GitHub:
+
+```bash
+scripts/sync_issues.sh --dry-run --repo OWNER/REPO
+```
+
+Duplicate prevention is handled by a stable marker per issue (`Sync-ID: ISSUE-XXX`).
+The script searches for that marker and updates matching issues instead of creating new ones.
+
+## SonarQube Full Scan
 
 ```bash
 SONAR_HOST_URL="https://your-sonarqube-server" SONAR_TOKEN="sqp_xxx" npm run sonar:scan
 ```
 
-You can also override project identity per run:
-
-```bash
-SONAR_HOST_URL="https://your-sonarqube-server" SONAR_TOKEN="sqp_xxx" npm run sonar:scan -- -Dsonar.projectKey=your-key -Dsonar.projectName="Your Project"
-```
-
-## Design Tokens (legacy electron)
+## Design Tokens (Electron)
 
 ```bash
 cd electron

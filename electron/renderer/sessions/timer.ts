@@ -1,8 +1,8 @@
-import { uid } from '../dom.js';
-import { MS_PER_MINUTE, MS_PER_SECOND, SESSION_MIN_MS } from './constants.js';
-import type { Session } from './normalize.js';
-import type { SessionRefs } from './refs.js';
-import { formatTimer } from './utils.js';
+import { uid } from "../dom.js";
+import { MS_PER_MINUTE, MS_PER_SECOND, SESSION_MIN_MS } from "./constants.js";
+import type { Session } from "./normalize.js";
+import type { SessionRefs } from "./refs.js";
+import { formatTimer } from "./utils.js";
 
 type SessionBook = {
   book_id: string;
@@ -10,7 +10,7 @@ type SessionBook = {
 };
 
 type CommitSession = (
-  sessionInput: Omit<Partial<Session>, 'source' | 'pages_read'> & {
+  sessionInput: Omit<Partial<Session>, "source" | "pages_read"> & {
     endedAt?: string;
     startedAt?: string;
     pages_read?: number | string | null;
@@ -66,8 +66,8 @@ export function createTimerController(
   const stopAndPersistTimer = (): void => {
     const book = selectedBook();
     if (!book) {
-      announce('Pick a book before stopping the timer.', 'assertive');
-      setStatus('Pick a book for this session.', true);
+      announce("Pick a book before stopping the timer.", "assertive");
+      setStatus("Pick a book for this session.", true);
       return;
     }
 
@@ -77,7 +77,7 @@ export function createTimerController(
       totalMs += now - timerStartedAt;
     }
     if (totalMs < SESSION_MIN_MS) {
-      announce('Session was too short to save.', 'assertive');
+      announce("Session was too short to save.", "assertive");
       resetTimer();
       return;
     }
@@ -93,19 +93,19 @@ export function createTimerController(
       title: book.title,
       started_at: startedAt,
       ended_at: endedAt,
-      notes: '',
-      source: 'timer',
+      notes: "",
+      source: "timer",
       created_at: endedAt,
     });
 
     announce(`Saved ${minutes} minute session for ${book.title}.`);
-    setStatus('Session saved.');
+    setStatus("Session saved.");
     resetTimer();
   };
 
   const startTimer = (): void => {
     if (!selectedBook()) {
-      announce('Pick a book before starting a session.', 'assertive');
+      announce("Pick a book before starting a session.", "assertive");
       refs.input.focus();
       return;
     }
@@ -117,8 +117,8 @@ export function createTimerController(
     timerHandle = setInterval(updateTimerLabel, MS_PER_SECOND);
     updateTimerLabel();
     syncTimerButtons();
-    setStatus('Session started.');
-    announce('Session started.');
+    setStatus("Session started.");
+    announce("Session started.");
   };
 
   const pauseTimer = (): void => {
@@ -133,8 +133,8 @@ export function createTimerController(
     timerHandle = null;
     updateTimerLabel();
     syncTimerButtons();
-    setStatus('Session paused.');
-    announce('Session paused.');
+    setStatus("Session paused.");
+    announce("Session paused.");
   };
 
   return {

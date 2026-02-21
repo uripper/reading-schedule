@@ -13,7 +13,9 @@ from .types import Book, Settings
 Session = tuple[date, int, Book, int, int]
 
 
-def clip_session(book: Book, settings: Settings, blocks: int, remaining_words: int) -> tuple[int, int]:
+def clip_session(
+    book: Book, settings: Settings, blocks: int, remaining_words: int
+) -> tuple[int, int]:
     """Clip session."""
     if remaining_words <= 0:
         return 0, 0
@@ -35,7 +37,11 @@ def iter_sessions(
     book_map = {book.book_id: book for book in books}
     remaining = {book.book_id: book.words_total for book in books}
     for day in date_range(settings.start_date, settings.end_date):
-        items = [(bid, blk) for (bid, assigned_day), blk in assignments.items() if assigned_day == day and blk > 0]
+        items = [
+            (bid, blk)
+            for (bid, assigned_day), blk in assignments.items()
+            if assigned_day == day and blk > 0
+        ]
         items.sort(key=lambda row: (book_map[row[0]].priority, row[0]))
         idx = 0
         for book_id, blocks in items:

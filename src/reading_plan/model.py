@@ -15,7 +15,9 @@ from .types import Book, Settings
 
 BookDayVars = dict[tuple[str, date], cp_model.IntVar]
 FinishedVars = dict[str, cp_model.IntVar]
-BuildCpSatResult = tuple[cp_model.CpModel, BookDayVars, BookDayVars, FinishedVars, list[date]]
+BuildCpSatResult = tuple[
+    cp_model.CpModel, BookDayVars, BookDayVars, FinishedVars, list[date]
+]
 
 
 class _CpSatConstraint(Protocol):
@@ -80,8 +82,13 @@ def _add_day_constraints(
     """Apply daily capacity and session-count limits."""
     for day in days:
         model.Add(sum(x[(book.book_id, day)] for book in books) <= caps[day])
-        model.Add(sum(y[(book.book_id, day)] for book in books) <= settings.max_books_per_day)
-        model.Add(sum(y[(book.book_id, day)] for book in books) <= settings.max_sessions_per_day)
+        model.Add(
+            sum(y[(book.book_id, day)] for book in books) <= settings.max_books_per_day
+        )
+        model.Add(
+            sum(y[(book.book_id, day)] for book in books)
+            <= settings.max_sessions_per_day
+        )
 
 
 def _add_dependency_constraints(
@@ -127,7 +134,9 @@ def _add_progress_constraints(
         overshoot = wpb[book.book_id] * max(1, book.min_blocks_per_session - 1)
         model.Add(progress <= book.words_total + overshoot)
 
-        useful_words[book.book_id] = model.NewIntVar(0, book.words_total, f"u_{book_index}")
+        useful_words[book.book_id] = model.NewIntVar(
+            0, book.words_total, f"u_{book_index}"
+        )
         model.Add(useful_words[book.book_id] <= progress)
         model.Add(useful_words[book.book_id] <= book.words_total)
 
@@ -138,14 +147,13 @@ def _add_progress_constraints(
             continue
         if due_days := [day for day in days if day <= book.deadline]:
             model.Add(
-                sum(wpb[book.book_id] * x[(book.book_id, day)] for day in due_days) >= book.words_total
+                sum(wpb[book.book_id] * x[(book.book_id, day)] for day in due_days)
+                >= book.words_total
             )
     return finished, useful_words
 
 
-def build_cp_sat(
-    books: list[Book], settings: Settings
-) -> BuildCpSatResult:
+def build_cp_sat(books: list[Book], settings: Settings) -> BuildCpSatResult:
     """Build cp sat."""
     raw_model = cp_model.CpModel()
     model = cast(_CpSatModelBuilder, raw_model)

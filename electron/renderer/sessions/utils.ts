@@ -1,5 +1,3 @@
-
-
 export function toInt(value: string | number | undefined, fallback = 0) {
   const parsed = Number(value);
   if (Number.isFinite(parsed)) {
@@ -32,7 +30,10 @@ export function formatTimeRange(startIso: DateInput, endIso: DateInput) {
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
     return "Unknown time";
   }
-  const startFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });
+  const startFormat = new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
   const endFormat = new Intl.DateTimeFormat(undefined, { timeStyle: "short" });
   return `${startFormat.format(start)} - ${endFormat.format(end)}`;
 }
@@ -68,7 +69,10 @@ export function streakFromSessions(sessions: SessionRecord[]) {
     if (!key) {
       return;
     }
-    minuteMap.set(key, (minuteMap.get(key) || 0) + Number(session.minutes || 0));
+    minuteMap.set(
+      key,
+      (minuteMap.get(key) || 0) + Number(session.minutes || 0),
+    );
   });
 
   let streak = 0;

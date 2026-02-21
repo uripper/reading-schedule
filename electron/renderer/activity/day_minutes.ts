@@ -44,7 +44,11 @@ function includeDayKey(dayKey: string, year: number | null): boolean {
   return true;
 }
 
-function addMinutes(dayMinutes: DayMinutesMap, dayKey: string, minutes: number): void {
+function addMinutes(
+  dayMinutes: DayMinutesMap,
+  dayKey: string,
+  minutes: number,
+): void {
   if (!dayKey) {
     return;
   }
@@ -87,7 +91,10 @@ export function dayMinutesFromActivity({
   return minutesByDay;
 }
 
-export function dayMinutesForKey(dayMinutes: DayMinutesMap, dayKey: string): number {
+export function dayMinutesForKey(
+  dayMinutes: DayMinutesMap,
+  dayKey: string,
+): number {
   return dayMinutes.get(dayKey) || ZERO_MINUTES;
 }
 
@@ -113,7 +120,10 @@ export function streakFromDayMinutes(
   dayMinutes: DayMinutesMap,
   minimumMinutesPerDay = MIN_STREAK_MINUTES,
 ): number {
-  const goalMinutes = Math.max(MIN_STREAK_MINUTES, Number(minimumMinutesPerDay || MIN_STREAK_MINUTES));
+  const goalMinutes = Math.max(
+    MIN_STREAK_MINUTES,
+    Number(minimumMinutesPerDay || MIN_STREAK_MINUTES),
+  );
   let streakDays = ZERO_MINUTES;
   const cursor = new Date();
 

@@ -1,5 +1,3 @@
-
-
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";
 import { statusOptions } from "./status.js";
 
@@ -62,5 +60,9 @@ export function ensureBookFormLayoutFields() {
     return;
   }
 
-  grid.append(createStatusSelectLabel(), createFinishedAtLabel(), createShelfSelectLabel());
+  grid.append(
+    createStatusSelectLabel(),
+    createFinishedAtLabel(),
+    createShelfSelectLabel(),
+  );
 }

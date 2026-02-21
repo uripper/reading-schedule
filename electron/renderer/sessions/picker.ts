@@ -1,9 +1,9 @@
-import type { Book } from '../books/types.js';
-import { DEFAULT_PICKER_LIMIT } from './constants.js';
-import type { SessionRefs } from './refs.js';
-import { clampIndex } from './utils.js';
+import type { Book } from "../books/types.js";
+import { DEFAULT_PICKER_LIMIT } from "./constants.js";
+import type { SessionRefs } from "./refs.js";
+import { clampIndex } from "./utils.js";
 
-type PickerBook = Pick<Book, 'book_id' | 'title' | 'author' | 'deadline'>;
+type PickerBook = Pick<Book, "book_id" | "title" | "author" | "deadline">;
 
 function optionId(index: number): string {
   return `session-book-option-${index}`;
@@ -14,7 +14,7 @@ function matchesQuery(book: PickerBook, query: string): boolean {
     return true;
   }
   const search = query.toLowerCase();
-  return [book.title, book.author].join(' ').toLowerCase().includes(search);
+  return [book.title, book.author].join(" ").toLowerCase().includes(search);
 }
 
 function renderPickerResults(
@@ -24,73 +24,86 @@ function renderPickerResults(
   selectBook: (book: PickerBook) => void,
   setPickerIndex: (index: number) => void,
 ): void {
-  refs.results.innerHTML = '';
+  refs.results.innerHTML = "";
   if (!filteredBooks.length) {
-    refs.results.classList.remove('has-items');
-    refs.input.setAttribute('aria-expanded', 'false');
-    refs.input.removeAttribute('aria-activedescendant');
+    refs.results.classList.remove("has-items");
+    refs.input.setAttribute("aria-expanded", "false");
+    refs.input.removeAttribute("aria-activedescendant");
     return;
   }
 
-  const items = filteredBooks.slice(0, DEFAULT_PICKER_LIMIT).map((book, index) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'book-result book-result-inline';
-    btn.dataset.bookId = book.book_id;
-    btn.id = optionId(index);
-    btn.setAttribute('role', 'option');
+  const items = filteredBooks
+    .slice(0, DEFAULT_PICKER_LIMIT)
+    .map((book, index) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "book-result book-result-inline";
+      btn.dataset.bookId = book.book_id;
+      btn.id = optionId(index);
+      btn.setAttribute("role", "option");
 
-    const active = pickerIndex === index;
-    btn.classList.toggle('is-active', active);
-    btn.setAttribute('aria-selected', 'false');
-    if (active) {
-      btn.setAttribute('aria-selected', 'true');
-    }
+      const active = pickerIndex === index;
+      btn.classList.toggle("is-active", active);
+      btn.setAttribute("aria-selected", "false");
+      if (active) {
+        btn.setAttribute("aria-selected", "true");
+      }
 
-    const textWrap = document.createElement('span');
-    const title = document.createElement('span');
-    title.className = 'book-result-title';
-    title.textContent = book.title || 'Untitled';
+      const textWrap = document.createElement("span");
+      const title = document.createElement("span");
+      title.className = "book-result-title";
+      title.textContent = book.title || "Untitled";
 
-    const meta = document.createElement('span');
-    meta.className = 'book-result-meta';
-    let dueLabel = '';
-    if (book.deadline) {
-      dueLabel = `Due ${book.deadline}`;
-    }
-    meta.textContent = [book.author || '', dueLabel].filter(Boolean).join(' · ');
+      const meta = document.createElement("span");
+      meta.className = "book-result-meta";
+      let dueLabel = "";
+      if (book.deadline) {
+        dueLabel = `Due ${book.deadline}`;
+      }
+      meta.textContent = [book.author || "", dueLabel]
+        .filter(Boolean)
+        .join(" · ");
 
-    textWrap.append(title, meta);
-    btn.append(textWrap);
-    btn.onclick = () => selectBook(book);
-    btn.onmousemove = () => {
-      setPickerIndex(index);
-    };
-    return btn;
-  });
+      textWrap.append(title, meta);
+      btn.append(textWrap);
+      btn.onclick = () => selectBook(book);
+      btn.onmousemove = () => {
+        setPickerIndex(index);
+      };
+      return btn;
+    });
 
   refs.results.replaceChildren(...items);
-  refs.results.classList.add('has-items');
-  refs.input.setAttribute('aria-expanded', 'true');
+  refs.results.classList.add("has-items");
+  refs.input.setAttribute("aria-expanded", "true");
   if (pickerIndex >= 0) {
-    refs.input.setAttribute('aria-activedescendant', optionId(pickerIndex));
+    refs.input.setAttribute("aria-activedescendant", optionId(pickerIndex));
   }
 }
 
-export function createPickerController(refs: SessionRefs, getBooks: () => PickerBook[]) {
+export function createPickerController(
+  refs: SessionRefs,
+  getBooks: () => PickerBook[],
+) {
   let filteredBooks: PickerBook[] = [];
   let pickerIndex = -1;
-  let selectedBookId = '';
+  let selectedBookId = "";
 
   const selectedBook = (): PickerBook | null => {
     return getBooks().find((book) => book.book_id === selectedBookId) || null;
   };
 
   const renderPicker = (): void => {
-    renderPickerResults(refs, filteredBooks, pickerIndex, selectBook, (index) => {
-      pickerIndex = index;
-      renderPicker();
-    });
+    renderPickerResults(
+      refs,
+      filteredBooks,
+      pickerIndex,
+      selectBook,
+      (index) => {
+        pickerIndex = index;
+        renderPicker();
+      },
+    );
   };
 
   const hidePicker = (): void => {
@@ -101,14 +114,14 @@ export function createPickerController(refs: SessionRefs, getBooks: () => Picker
 
   const selectBook = (book: PickerBook | null): void => {
     if (!book) {
-      selectedBookId = '';
-      refs.input.value = '';
-      refs.meta.textContent = '';
+      selectedBookId = "";
+      refs.input.value = "";
+      refs.meta.textContent = "";
       return;
     }
     selectedBookId = book.book_id;
     refs.input.value = book.title;
-    refs.meta.textContent = 'Selected book';
+    refs.meta.textContent = "Selected book";
     if (book.author) {
       refs.meta.textContent = `Selected: ${book.author}`;
     }
@@ -126,7 +139,7 @@ export function createPickerController(refs: SessionRefs, getBooks: () => Picker
   };
 
   const onKeydown = (event: KeyboardEvent): void => {
-    if (event.key === 'ArrowDown') {
+    if (event.key === "ArrowDown") {
       if (!filteredBooks.length) {
         refreshPicker();
       }
@@ -138,7 +151,7 @@ export function createPickerController(refs: SessionRefs, getBooks: () => Picker
       renderPicker();
       return;
     }
-    if (event.key === 'ArrowUp') {
+    if (event.key === "ArrowUp") {
       if (!filteredBooks.length) {
         return;
       }
@@ -147,7 +160,7 @@ export function createPickerController(refs: SessionRefs, getBooks: () => Picker
       renderPicker();
       return;
     }
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       if (pickerIndex < 0 || !filteredBooks.length) {
         return;
       }
@@ -155,7 +168,7 @@ export function createPickerController(refs: SessionRefs, getBooks: () => Picker
       selectBook(filteredBooks[pickerIndex]);
       return;
     }
-    if (event.key === 'Escape') {
+    if (event.key === "Escape") {
       hidePicker();
       refs.input.blur();
     }
@@ -172,10 +185,10 @@ export function createPickerController(refs: SessionRefs, getBooks: () => Picker
   };
 
   const bind = (): void => {
-    refs.input.addEventListener('input', refreshPicker);
-    refs.input.addEventListener('focus', refreshPicker);
-    refs.input.addEventListener('keydown', onKeydown);
-    document.addEventListener('click', onDocumentClick);
+    refs.input.addEventListener("input", refreshPicker);
+    refs.input.addEventListener("focus", refreshPicker);
+    refs.input.addEventListener("keydown", onKeydown);
+    document.addEventListener("click", onDocumentClick);
   };
 
   const selectBookById = (bookId: string): void => {

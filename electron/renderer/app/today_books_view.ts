@@ -1,28 +1,31 @@
-import { COVER_PLACEHOLDER } from '../books/constants.js';
-import { el } from '../dom.js';
-import type { TodayBookSummary, TodayScheduleSnapshot } from './today_schedule.js';
+import { COVER_PLACEHOLDER } from "../books/constants.js";
+import { el } from "../dom.js";
+import type {
+  TodayBookSummary,
+  TodayScheduleSnapshot,
+} from "./today_schedule.js";
 
 const SINGULAR_SESSION_COUNT = 1;
 const SINGULAR_MINUTE_COUNT = 1;
 
 function sessionLabel(count: number): string {
   if (count === SINGULAR_SESSION_COUNT) {
-    return 'session';
+    return "session";
   }
-  return 'sessions';
+  return "sessions";
 }
 
 function minuteLabel(count: number): string {
   if (count === SINGULAR_MINUTE_COUNT) {
-    return 'minute';
+    return "minute";
   }
-  return 'minutes';
+  return "minutes";
 }
 
 function todaySessionCountsText(snapshot: TodayScheduleSnapshot): string {
   const scheduled = snapshot.scheduledSessions;
   if (!scheduled) {
-    return 'No sessions scheduled for today.';
+    return "No sessions scheduled for today.";
   }
   const completed = snapshot.completedSessions;
   const label = sessionLabel(scheduled);
@@ -40,51 +43,54 @@ function plannedMinutesText(summary: TodayBookSummary): string {
 }
 
 function coverFallbackText(title: string): string {
-  const trimmed = String(title || '').trim();
+  const trimmed = String(title || "").trim();
   if (!trimmed) {
-    return 'No Cover';
+    return "No Cover";
   }
   return trimmed.slice(0, SINGULAR_SESSION_COUNT).toUpperCase();
 }
 
 function createCover(summary: TodayBookSummary): HTMLElement {
-  const cover = document.createElement('div');
-  cover.className = 'today-scheduled-cover';
+  const cover = document.createElement("div");
+  cover.className = "today-scheduled-cover";
   if (summary.coverSrc) {
-    const img = document.createElement('img');
+    const img = document.createElement("img");
     img.src = summary.coverSrc;
     img.alt = `Cover of ${summary.title}`;
-    img.loading = 'lazy';
-    img.dataset.fallbackCover = '1';
+    img.loading = "lazy";
+    img.dataset.fallbackCover = "1";
     cover.append(img);
     return cover;
   }
 
-  const fallback = document.createElement('span');
+  const fallback = document.createElement("span");
   fallback.textContent = coverFallbackText(summary.title);
   cover.append(fallback);
   return cover;
 }
 
 function createBookItem(summary: TodayBookSummary): HTMLElement {
-  const item = document.createElement('article');
-  item.className = 'today-scheduled-book';
-  if (summary.completedSessions >= summary.scheduledSessions && summary.scheduledSessions > 0) {
-    item.classList.add('is-complete');
+  const item = document.createElement("article");
+  item.className = "today-scheduled-book";
+  if (
+    summary.completedSessions >= summary.scheduledSessions &&
+    summary.scheduledSessions > 0
+  ) {
+    item.classList.add("is-complete");
   }
 
-  const meta = document.createElement('div');
-  meta.className = 'today-scheduled-meta';
+  const meta = document.createElement("div");
+  meta.className = "today-scheduled-meta";
 
-  const title = document.createElement('strong');
+  const title = document.createElement("strong");
   title.textContent = summary.title;
 
-  const sessionsText = document.createElement('p');
-  sessionsText.className = 'today-scheduled-note';
+  const sessionsText = document.createElement("p");
+  sessionsText.className = "today-scheduled-note";
   sessionsText.textContent = perBookSessionText(summary);
 
-  const minutesText = document.createElement('p');
-  minutesText.className = 'today-scheduled-note';
+  const minutesText = document.createElement("p");
+  minutesText.className = "today-scheduled-note";
   minutesText.textContent = plannedMinutesText(summary);
 
   meta.append(title, sessionsText, minutesText);
@@ -93,18 +99,22 @@ function createBookItem(summary: TodayBookSummary): HTMLElement {
 }
 
 function applyCoverFallbacks(listNode: HTMLElement): void {
-  listNode.querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']").forEach((img) => {
-    img.addEventListener('error', () => {
-      img.src = COVER_PLACEHOLDER;
-      img.classList.add('is-empty');
+  listNode
+    .querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']")
+    .forEach((img) => {
+      img.addEventListener("error", () => {
+        img.src = COVER_PLACEHOLDER;
+        img.classList.add("is-empty");
+      });
     });
-  });
 }
 
-export function renderTodayScheduledBooks(snapshot: TodayScheduleSnapshot): void {
-  const countsNode = el('todaySessionCounts');
-  const listNode = el('todayScheduledBooks');
-  const emptyNode = el('todayScheduledEmpty');
+export function renderTodayScheduledBooks(
+  snapshot: TodayScheduleSnapshot,
+): void {
+  const countsNode = el("todaySessionCounts");
+  const listNode = el("todayScheduledBooks");
+  const emptyNode = el("todayScheduledEmpty");
 
   countsNode.textContent = todaySessionCountsText(snapshot);
   if (!snapshot.books.length) {

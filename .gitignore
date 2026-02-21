@@ -37,6 +37,7 @@ pip-wheel-metadata/
 
 # Node / TypeScript
 node_modules/
+package-lock.json
 .pnpm-store/
 .npm/
 .yarn/
@@ -79,3 +80,5 @@ STYLEGUIDE.md
 sonar-project.properties
 .scannerwork/.sonar_lock
 .scannerwork/report-task.txt
+.sonarlint/connectedMode.json
+.github/instructions/sonarqube_mcp.instructions.md

@@ -1,12 +1,15 @@
-import type { PlannerScheduleRow } from './app/types.js';
-import type { Book } from './books/types.js';
-import { enrichRows, groupRowsByDate, monthKeysFromRows, type CalendarRowWithFinish } from './calendar/data.js';
-import { renderCalendarControls } from './calendar/controls.js';
-import { renderCalendarDetails } from './calendar/details.js';
-import { renderCalendarMonth } from './calendar/month.js';
-
+import type { PlannerScheduleRow } from "./app/types.js";
+import type { Book } from "./books/types.js";
+import {
+  enrichRows,
+  groupRowsByDate,
+  monthKeysFromRows,
+  type CalendarRowWithFinish,
+} from "./calendar/data.js";
+import { renderCalendarControls } from "./calendar/controls.js";
+import { renderCalendarDetails } from "./calendar/details.js";
+import { renderCalendarMonth } from "./calendar/month.js";
 const DAYS_IN_WEEK = 7;
-
 type CompletionChangePayload = {
   sessionKey: string;
   completed: boolean;
@@ -19,21 +22,40 @@ type ProgressUpdatePayload = {
   progressPercent?: number | null;
 };
 
+type ManualSessionPayload = {
+  date: string;
+  bookId: string;
+  minutes: number;
+  completed?: boolean;
+};
+
+type RemoveSessionPayload = {
+  row: CalendarRowWithFinish;
+};
+
+type ManualSessionBook = {
+  bookId: string;
+  title: string;
+};
 type CalendarHandlers = {
   isSessionCompleted: (sessionKey: string) => boolean;
   onSessionCompletionChanged: (payload: CompletionChangePayload) => void;
   onSessionProgressUpdated: (payload: ProgressUpdatePayload) => Book | null;
   getBookById: (bookId: string) => Book | null;
+  listSessionBooks: () => ManualSessionBook[];
+  onManualSessionAdded: (payload: ManualSessionPayload) => boolean;
+  onSessionRemoved: (payload: RemoveSessionPayload) => boolean;
 };
-
 const state = {
   dates: {} as Record<string, CalendarRowWithFinish[]>,
+  rawRows: [] as PlannerScheduleRow[],
   rows: [] as CalendarRowWithFinish[],
   totalsByBookId: {} as Record<string, number>,
   months: [] as string[],
   index: 0,
-  selectedDate: '',
+  selectedDate: "",
   monthCellKeys: [] as string[],
+  expectedFinishHighlightDate: "",
 };
 
 const defaultHandlers: CalendarHandlers = {
@@ -41,26 +63,35 @@ const defaultHandlers: CalendarHandlers = {
   onSessionCompletionChanged: () => {},
   onSessionProgressUpdated: () => null,
   getBookById: () => null,
+  listSessionBooks: () => [],
+  onManualSessionAdded: () => false,
+  onSessionRemoved: () => false,
 };
-
 let interactionHandlers: CalendarHandlers = { ...defaultHandlers };
-
-function renderDetails(): void {
-  renderCalendarDetails(state, interactionHandlers);
+function refreshDerivedRows(): void {
+  const enrichedRows = enrichRows(
+    state.rawRows,
+    state.totalsByBookId,
+    interactionHandlers.isSessionCompleted,
+  );
+  state.rows = enrichedRows;
+  state.dates = groupRowsByDate(enrichedRows);
+  state.months = monthKeysFromRows(enrichedRows);
 }
-
+function renderDetails(): void {
+  refreshDerivedRows();
+  renderCalendarDetails(state, interactionHandlers, renderDetails);
+}
 function todayDateKey(): string {
   const now = new Date();
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
-
 function monthKeyForDateKey(dateKey: string): string {
   return dateKey.slice(0, DAYS_IN_WEEK);
 }
-
 function indexForMonth(months: string[], targetMonthKey: string): number {
   const exactIndex = months.indexOf(targetMonthKey);
   if (exactIndex >= 0) {
@@ -68,7 +99,7 @@ function indexForMonth(months: string[], targetMonthKey: string): number {
   }
 
   const upcomingIndex = months.findIndex((monthKey) => {
-    return monthKey >= targetMonthKey;
+    return Number(monthKey) >= Number(targetMonthKey);
   });
   if (upcomingIndex >= 0) {
     return upcomingIndex;
@@ -76,7 +107,6 @@ function indexForMonth(months: string[], targetMonthKey: string): number {
 
   return Math.max(0, months.length - 1);
 }
-
 function applyTodayFocus(): void {
   if (!state.months.length) {
     return;
@@ -85,16 +115,15 @@ function applyTodayFocus(): void {
   const todayKey = todayDateKey();
   const todayMonthKey = monthKeyForDateKey(todayKey);
   state.index = indexForMonth(state.months, todayMonthKey);
-  state.selectedDate = '';
+  state.selectedDate = "";
   if (state.months[state.index] === todayMonthKey) {
     state.selectedDate = todayKey;
   }
 }
-
 function selectDate(dateKey: string, options: { focus?: boolean } = {}): void {
   state.selectedDate = dateKey;
+  state.expectedFinishHighlightDate = dateKey;
   renderMonth();
-  renderDetails();
   if (options.focus) {
     const button = document.querySelector(`[data-calendar-day='${dateKey}']`);
     if (button instanceof HTMLElement) {
@@ -102,16 +131,17 @@ function selectDate(dateKey: string, options: { focus?: boolean } = {}): void {
     }
   }
 }
-
 function moveSelectionBy(delta: number, currentIndex: number): void {
-  const nextIndex = Math.min(state.monthCellKeys.length - 1, Math.max(0, currentIndex + delta));
+  const nextIndex = Math.min(
+    state.monthCellKeys.length - 1,
+    Math.max(0, currentIndex + delta),
+  );
   const nextKey = state.monthCellKeys[nextIndex];
   if (!nextKey) {
     return;
   }
   selectDate(nextKey, { focus: true });
 }
-
 function renderMonth(): void {
   renderCalendarMonth(state, {
     selectDate,
@@ -119,19 +149,18 @@ function renderMonth(): void {
     renderDetails,
   });
 }
-
 function renderControls(): void {
   renderCalendarControls(state, renderControls, renderMonth);
 }
-
-export function renderCalendar(rows: PlannerScheduleRow[], totals: Record<string, number>): void {
+export function renderCalendar(
+  rows: PlannerScheduleRow[],
+  totals: Record<string, number>,
+): void {
   const previousSelectedDate = state.selectedDate;
-  const previousMonthKey = state.months[state.index] || '';
-  const enrichedRows = enrichRows(rows, totals);
-  state.rows = enrichedRows;
+  const previousMonthKey = state.months[state.index] || "";
+  state.rawRows = [...rows];
   state.totalsByBookId = { ...totals };
-  state.dates = groupRowsByDate(enrichedRows);
-  state.months = monthKeysFromRows(enrichedRows);
+  refreshDerivedRows();
   state.index = 0;
   if (previousMonthKey) {
     const previousMonthIndex = state.months.indexOf(previousMonthKey);
@@ -143,8 +172,9 @@ export function renderCalendar(rows: PlannerScheduleRow[], totals: Record<string
   if (previousSelectedDate && state.dates[previousSelectedDate]) {
     state.selectedDate = previousSelectedDate;
   } else {
-    state.selectedDate = '';
+    state.selectedDate = "";
   }
+  state.expectedFinishHighlightDate = "";
   if (!previousSelectedDate) {
     applyTodayFocus();
   }
@@ -152,7 +182,6 @@ export function renderCalendar(rows: PlannerScheduleRow[], totals: Record<string
   renderControls();
   renderMonth();
 }
-
 export function focusCalendarToday(): void {
   if (!state.months.length) {
     return;
@@ -161,14 +190,26 @@ export function focusCalendarToday(): void {
   renderControls();
   renderMonth();
 }
-
-export function configureCalendarInteractions(handlers: Partial<CalendarHandlers> = {}): void {
+export function configureCalendarInteractions(
+  handlers: Partial<CalendarHandlers> = {},
+): void {
   interactionHandlers = {
-    isSessionCompleted: handlers.isSessionCompleted || defaultHandlers.isSessionCompleted,
-    onSessionCompletionChanged: handlers.onSessionCompletionChanged || defaultHandlers.onSessionCompletionChanged,
-    onSessionProgressUpdated: handlers.onSessionProgressUpdated || defaultHandlers.onSessionProgressUpdated,
+    isSessionCompleted:
+      handlers.isSessionCompleted || defaultHandlers.isSessionCompleted,
+    onSessionCompletionChanged:
+      handlers.onSessionCompletionChanged ||
+      defaultHandlers.onSessionCompletionChanged,
+    onSessionProgressUpdated:
+      handlers.onSessionProgressUpdated ||
+      defaultHandlers.onSessionProgressUpdated,
     getBookById: handlers.getBookById || defaultHandlers.getBookById,
+    listSessionBooks:
+      handlers.listSessionBooks || defaultHandlers.listSessionBooks,
+    onManualSessionAdded:
+      handlers.onManualSessionAdded || defaultHandlers.onManualSessionAdded,
+    onSessionRemoved:
+      handlers.onSessionRemoved || defaultHandlers.onSessionRemoved,
   };
 }
 
-export { firstPlannedRow } from './calendar/data.js';
+export { firstPlannedRow } from "./calendar/data.js";

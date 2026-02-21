@@ -24,6 +24,158 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 25% 20%, color-mix(in srgb, var(--app-brandStrong) 24%, transparent), transparent 46%),
+    radial-gradient(circle at 75% 75%, color-mix(in srgb, var(--app-success) 20%, transparent), transparent 52%),
+    var(--app-bg);
+  opacity: 1;
+  transition: opacity 560ms var(--token-motion-easing-standard);
+  perspective: 300px;
+  perspective-origin: 50% 35%;
+}
+
+.splash-inner {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--token-space-4);
+  width: 100%;
+}
+
+.splash-title {
+  margin: 0;
+  inset: 0;
+  display: grid;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.splash-title-text {
+  display: inline-block;
+  white-space: nowrap;
+  line-height: 1;
+  text-align: center;
+
+  font-family: var(--token-typography-family-heading);
+  font-size: clamp(1.8rem, 5.6vw, 3.8rem);
+  font-weight: var(--token-typography-weight-bold);
+  font-style: normal;
+  font-variation-settings: "slnt" 0;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.95) 0%,
+    rgba(223,239,255,0.88) 45%,
+    color-mix(in srgb, var(--app-brandStrong) 55%, white 45%) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  text-shadow:
+    0 0 18px color-mix(in srgb, var(--app-brandStrong) 30%, transparent),
+    0 6px 20px rgba(0, 0, 0, 0.35);
+
+  will-change: transform, opacity, filter, letter-spacing;
+  transform-origin: center center;
+  animation: splashTitleEnter 1200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.splash-title-wrap {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+}
+
+.splash-title-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -0.5rem -1.25rem;
+  z-index: 0; /* not -1 */
+  border-radius: 999px;
+  background:
+    radial-gradient(
+      ellipse at center,
+      color-mix(in srgb, var(--app-brandStrong) 20%, transparent) 0%,
+      rgba(255,255,255,0.04) 35%,
+      transparent 75%
+    );
+  filter: blur(10px);
+  opacity: 0.75;
+}
+
+.splash-logo {
+  display: block;
+  margin-inline: auto;
+  opacity: 0.82;
+  filter: blur(0.8px);
+  -webkit-mask-image: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 1) 66%,
+    rgba(0, 0, 0, 0.05) 84%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 1) 66%,
+    rgba(0, 0, 0, 0.05) 84%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  animation: splashLogoEntrance 2200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: center center;
+  backface-visibility: hidden;
+  will-change: transform, opacity, filter;
+}
+
+body.splash-exit .splash-screen {
+  opacity: 0;
+}
+
+
+@keyframes splashTitleEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    letter-spacing: 0.26em;
+    filter: blur(8px);
+  }
+  to {
+    opacity: 0.78;
+    transform: translateY(0);
+    letter-spacing: 0.2em;
+    filter: blur(0);
+  }
+}
+
+@keyframes splashLogoEntrance {
+  0% {
+    opacity: 0;
+    transform:
+      translate3d(0, 28px, 0)
+      scale(0.94);
+  }
+
+  60% {
+    opacity: 0.9;
+    transform:
+      translate3d(0, -2px, 0)
+      scale(1.045);
+  }
+
+  100% {
+    opacity: 0.82;
+    transform:
+      translate3d(0, 0, 0)
+      scale(1);
+  }
+}
+
 .skip-link {
   position: absolute;
   top: calc(var(--token-space-2) * -1);
@@ -59,8 +211,16 @@ body {
 }
 
 .brand-wrap {
-  display: grid;
+  display: flex;
+  align-items: center;
   gap: var(--token-space-1);
+}
+
+.brand-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: var(--token-radius-sm);
 }
 
 .brand-eyebrow {

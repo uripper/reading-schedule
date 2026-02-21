@@ -7,7 +7,11 @@ import {
   weekdays,
 } from "./settings/config.js";
 import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.js";
-import { renderDifficultyRows, renderGrid, renderWeekdayGrid } from "./settings/render.js";
+import {
+  renderDifficultyRows,
+  renderGrid,
+  renderWeekdayGrid,
+} from "./settings/render.js";
 import type { PlannerSettings } from "./app/types.js";
 import type { FieldDefinition } from "./settings/config.js";
 
@@ -27,7 +31,10 @@ function allFieldDefinitions(): FieldDefinition[] {
 }
 
 function numberLevels(): number[] {
-  return Array.from({ length: DIFFICULTY_LEVEL_COUNT }, (_, index) => index + 1);
+  return Array.from(
+    { length: DIFFICULTY_LEVEL_COUNT },
+    (_, index) => index + 1,
+  );
 }
 
 function setDayOffs(nextDayOffs: string[]): void {
@@ -61,7 +68,11 @@ function bindSettingsSectionTabs(): void {
   const tabs = qa<HTMLElement>(".settings-section-tab");
   tabs.forEach((button) => {
     button.addEventListener("click", () => {
-      activateSettingsSection(String(button.dataset.settingsSectionTarget || DEFAULT_SETTINGS_SECTION));
+      activateSettingsSection(
+        String(
+          button.dataset.settingsSectionTarget || DEFAULT_SETTINGS_SECTION,
+        ),
+      );
     });
   });
   activateSettingsSection(DEFAULT_SETTINGS_SECTION);
@@ -91,6 +102,18 @@ export function fillSettings(settings: PlannerSettings = {}): void {
       let selectedValue = DEFAULT_PLAN_MODE;
       if (typeof value === "string" && value.trim()) {
         selectedValue = value;
+      } else if (typeof value === "number") {
+        if (Number.isFinite(value)) {
+          selectedValue = `${value}`;
+        }
+      } else if (typeof value === "boolean") {
+        if (value) {
+          selectedValue = "true";
+        } else {
+          selectedValue = "false";
+        }
+      } else {
+        // Keep default fallback for unsupported value types.
       }
       selectEl(field.id).value = selectedValue;
       return;
@@ -119,7 +142,17 @@ export function fillSettings(settings: PlannerSettings = {}): void {
     inputEl(`minutes_${key}`).value = String(minutesByWeekday[key] ?? 0);
   });
 
-  setDayOffs([...(settings.days_off as string[] || [])].sort());
+  const rawDayOffs = settings.days_off;
+  const nextDayOffs: string[] = [];
+  if (Array.isArray(rawDayOffs)) {
+    rawDayOffs.forEach((dayOff) => {
+      if (typeof dayOff === "string") {
+        nextDayOffs.push(dayOff);
+      }
+    });
+  }
+  nextDayOffs.sort((left, right) => left.localeCompare(right));
+  setDayOffs(nextDayOffs);
 
   const difficultyMultiplier = settings.difficulty_multiplier || {};
   numberLevels().forEach((level) => {
@@ -150,12 +183,17 @@ export function collectSettings(): PlannerSettings {
   }
 
   output.minutes_by_weekday = Object.fromEntries(
-    weekdays.map(([key]) => [key, Number(inputEl(`minutes_${key}`).value || 0)]),
+    weekdays.map(([key]) => [
+      key,
+      Number(inputEl(`minutes_${key}`).value || 0),
+    ]),
   );
   output.days_off = [...dayOffs];
   output.difficulty_multiplier = Object.fromEntries(
     numberLevels().map((level) => {
-      const value = Number(inputEl(`diff_${level}`).value || DEFAULT_DIFFICULTY_MULTIPLIER);
+      const value = Number(
+        inputEl(`diff_${level}`).value || DEFAULT_DIFFICULTY_MULTIPLIER,
+      );
       return [String(level), value];
     }),
   );

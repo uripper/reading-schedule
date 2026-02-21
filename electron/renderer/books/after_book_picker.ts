@@ -1,6 +1,13 @@
-
-import type { Book } from './types.js';
-import type { BookFormRefs } from './form_refs.js';
+import type { Book } from "./types.js";
+import type { BookFormRefs } from "./form_refs.js";
+import {
+  compareBooks,
+  labelsMatch,
+  lookupResultTarget,
+  matchesQuery,
+  optionLabel,
+  wrapIndex,
+} from "./after_book_picker_helpers.js";
 
 const NO_ACTIVE_INDEX = -1;
 const FIRST_RESULT_INDEX = 0;
@@ -15,49 +22,16 @@ type PickerState = {
   activeIndex: number;
 };
 
-function optionLabel(book: Book): string {
-  const title = String(book.title || "Untitled");
-  const author = String(book.author || "").trim();
-  if (!author) {
-    return title;
-  }
-  return `${title} - ${author}`;
-}
-function compareBooks(left: Book, right: Book): number {
-  const titleCompare = String(left.title || "").localeCompare(String(right.title || ""), undefined, { sensitivity: "base" });
-  if (titleCompare !== 0) {
-    return titleCompare;
-  }
-  return String(left.author || "").localeCompare(String(right.author || ""), undefined, { sensitivity: "base" });
-}
-function wrapIndex(index: number, length: number): number {
-  if (length <= 0) {
-    return NO_ACTIVE_INDEX;
-  }
-  return ((index % length) + length) % length;
-}
-function matchesQuery(book: Book, query: string): boolean {
-  if (!query) {
-    return true;
-  }
-  return optionLabel(book).toLowerCase().includes(query.toLowerCase());
-}
-function lookupResultTarget(event: Event): HTMLElement | null {
-  if (!(event.target instanceof HTMLElement)) {
-    return null;
-  }
-  return event.target.closest(".book-result");
-}
-function labelsMatch(left: string, right: string): boolean {
-  return left.trim().toLowerCase() === right.trim().toLowerCase();
-}
 type GetBooks = () => Book[];
 
 type AfterBookPicker = {
   openForBook: (book?: Book | null) => void;
 };
 
-export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): AfterBookPicker {
+export function createAfterBookPicker(
+  refs: BookFormRefs,
+  getBooks: GetBooks,
+): AfterBookPicker {
   const state: PickerState = {
     currentBookId: "",
     selectedBookId: "",
@@ -77,7 +51,10 @@ export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): A
     if (!state.selectedBookId) {
       return null;
     }
-    return state.options.find((book) => book.book_id === state.selectedBookId) || null;
+    return (
+      state.options.find((book) => book.book_id === state.selectedBookId) ||
+      null
+    );
   };
   const render = (): void => {
     refs.afterBookResults.innerHTML = "";
@@ -103,7 +80,10 @@ export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): A
     refs.afterBookResults.classList.add("has-items");
     refs.afterBookInput.setAttribute("aria-expanded", "true");
     if (state.activeIndex > NO_ACTIVE_INDEX) {
-      refs.afterBookInput.setAttribute(ARIA_ACTIVE_DESCENDANT_ATTR, `after-book-option-${state.activeIndex}`);
+      refs.afterBookInput.setAttribute(
+        ARIA_ACTIVE_DESCENDANT_ATTR,
+        `after-book-option-${state.activeIndex}`,
+      );
       return;
     }
     refs.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
@@ -122,7 +102,7 @@ export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): A
     const availableBooks = getBooks().filter((book) => {
       return book?.book_id && book.book_id !== state.currentBookId;
     });
-    const sortedBooks = availableBooks.sort(compareBooks);
+    const sortedBooks = availableBooks.toSorted(compareBooks);
     state.options = sortedBooks;
   };
   const refreshFiltered = (clearChangedSelection: boolean): void => {
@@ -145,13 +125,19 @@ export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): A
   refs.afterBookInput.addEventListener("keydown", (event: KeyboardEvent) => {
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      state.activeIndex = wrapIndex(state.activeIndex + 1, state.filtered.length);
+      state.activeIndex = wrapIndex(
+        state.activeIndex + 1,
+        state.filtered.length,
+      );
       render();
       return;
     }
     if (event.key === "ArrowUp") {
       event.preventDefault();
-      state.activeIndex = wrapIndex(state.activeIndex - 1, state.filtered.length);
+      state.activeIndex = wrapIndex(
+        state.activeIndex - 1,
+        state.filtered.length,
+      );
       render();
       return;
     }
@@ -187,7 +173,10 @@ export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): A
     if (!(event.target instanceof Node)) {
       return;
     }
-    if (event.target === refs.afterBookInput || refs.afterBookResults.contains(event.target)) {
+    if (
+      event.target === refs.afterBookInput ||
+      refs.afterBookResults.contains(event.target)
+    ) {
       return;
     }
     clearResults();
@@ -203,7 +192,9 @@ export function createAfterBookPicker(refs: BookFormRefs, getBooks: GetBooks): A
     if (blockedById) {
       state.selectedBookId = blockedById;
       refs.blockedByInput.value = blockedById;
-      const selected = state.options.find((item) => item.book_id === blockedById);
+      const selected = state.options.find(
+        (item) => item.book_id === blockedById,
+      );
       if (selected) {
         refs.afterBookInput.value = optionLabel(selected);
       } else {

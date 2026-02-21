@@ -17,10 +17,18 @@ def parse_args() -> argparse.Namespace:
     """Parse command-line arguments for the planner CLI."""
     p = argparse.ArgumentParser(description="Bartleby")
     p.add_argument("--data", default="data/books.csv", help="Path to books CSV")
-    p.add_argument("--settings", default="data/settings.json", help="Path to settings JSON")
-    p.add_argument("--output", default="data/schedule.csv", help="Output schedule CSV path")
-    p.add_argument("--planner", choices=["mip", "greedy"], default="mip", help="Planner to run")
-    p.add_argument("--print-inputs", action="store_true", help="Print parsed inputs and exit")
+    p.add_argument(
+        "--settings", default="data/settings.json", help="Path to settings JSON"
+    )
+    p.add_argument(
+        "--output", default="data/schedule.csv", help="Output schedule CSV path"
+    )
+    p.add_argument(
+        "--planner", choices=["mip", "greedy"], default="mip", help="Planner to run"
+    )
+    p.add_argument(
+        "--print-inputs", action="store_true", help="Print parsed inputs and exit"
+    )
     return p.parse_args()
 
 
@@ -29,7 +37,10 @@ def main() -> int:
     args = parse_args()
     books, settings = load_inputs(args.data, args.settings)
     if args.print_inputs:
-        payload = {"books": [book_to_data(b) for b in books], "settings": settings_to_data(settings)}
+        payload = {
+            "books": [book_to_data(b) for b in books],
+            "settings": settings_to_data(settings),
+        }
         print(json.dumps(payload, indent=2, sort_keys=True))
         return 0
 

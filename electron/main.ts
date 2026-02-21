@@ -1,19 +1,23 @@
-import { spawn } from 'node:child_process';
-import path from 'node:path';
+import { spawn } from "node:child_process";
+import path from "node:path";
 
-import { app, BrowserWindow, ipcMain, type WebContents } from 'electron';
+import { app, BrowserWindow, ipcMain, type WebContents } from "electron";
 
-import { downloadCover, saveUploadedCover, searchBooks } from './book_lookup';
-import { readState, type JsonValue, writeState } from './state_store';
-import { findInPage, stopFindInPage, type WindowFindRequest } from './window_find';
+import { downloadCover, saveUploadedCover, searchBooks } from "./book_lookup";
+import { readState, type JsonValue, writeState } from "./state_store";
+import {
+  findInPage,
+  stopFindInPage,
+  type WindowFindRequest,
+} from "./window_find";
 
 const DEFAULT_UI_SCALE = 1.55;
 const MIN_UI_SCALE = 0.7;
 const MAX_UI_SCALE = 3;
 const UI_SCALE_STEP = 0.1;
 const ZOOM_PRECISION = 100;
-const PLANNER_MODULE = 'reading_plan.gui_api';
-const PYTHONPATH_SEGMENT = 'src';
+const PLANNER_MODULE = "reading_plan.gui_api";
+const PYTHONPATH_SEGMENT = "src";
 
 type DownloadCoverPayload = {
   bookId?: string;
@@ -32,7 +36,7 @@ type BridgeResponse = {
 };
 
 function root(): string {
-  return path.join(__dirname, '..', '..');
+  return path.join(__dirname, "..", "..");
 }
 
 function pyEnv(): NodeJS.ProcessEnv {
@@ -48,38 +52,38 @@ function appendChunk(target: string, chunk: Buffer | string): string {
 
 function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
   try {
-    const parsed = JSON.parse(stdout || '{}') as BridgeResponse;
+    const parsed = JSON.parse(stdout || "{}") as BridgeResponse;
     if (!parsed.ok) {
-      throw new Error(parsed.error || stderr || 'Planner failed');
+      throw new Error(parsed.error || stderr || "Planner failed");
     }
     if (parsed.data === undefined) {
       return null;
     }
     return parsed.data;
   } catch {
-    throw new Error(stderr || stdout || 'Invalid planner response');
+    throw new Error(stderr || stdout || "Invalid planner response");
   }
 }
 
 function runBridge(args: string[], payload?: JsonValue): Promise<JsonValue> {
   return new Promise((resolve, reject) => {
-    const pythonBinary = process.env.PYTHON_BIN || 'python';
-    const processHandle = spawn(pythonBinary, ['-m', PLANNER_MODULE, ...args], {
+    const pythonBinary = process.env.PYTHON_BIN || "python";
+    const processHandle = spawn(pythonBinary, ["-m", PLANNER_MODULE, ...args], {
       cwd: root(),
       env: pyEnv(),
     });
 
-    let stdout = '';
-    let stderr = '';
+    let stdout = "";
+    let stderr = "";
 
-    processHandle.stdout.on('data', (chunk: Buffer | string) => {
+    processHandle.stdout.on("data", (chunk: Buffer | string) => {
       stdout = appendChunk(stdout, chunk);
     });
-    processHandle.stderr.on('data', (chunk: Buffer | string) => {
+    processHandle.stderr.on("data", (chunk: Buffer | string) => {
       stderr = appendChunk(stderr, chunk);
     });
-    processHandle.on('error', reject);
-    processHandle.on('close', () => {
+    processHandle.on("error", reject);
+    processHandle.on("close", () => {
       try {
         resolve(parseBridgeOutput(stdout, stderr));
       } catch (error) {
@@ -116,7 +120,9 @@ function setZoomFactor(webContents: WebContents, value: number): number {
 }
 
 function initialZoomFactor(): number {
-  const requestedScale = Number(process.env.UI_SCALE || String(DEFAULT_UI_SCALE));
+  const requestedScale = Number(
+    process.env.UI_SCALE || String(DEFAULT_UI_SCALE),
+  );
   return normalizedZoomFactor(requestedScale);
 }
 
@@ -125,23 +131,27 @@ function shiftZoomFactor(webContents: WebContents, delta: number): number {
 }
 
 function createWindow(): void {
+  const iconPath = path.join(__dirname, "assets", "logo.png");
   const window = new BrowserWindow({
     width: 1800,
     height: 1100,
+    icon: iconPath,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, "preload.js"),
     },
   });
 
   setZoomFactor(window.webContents, initialZoomFactor());
-  window.loadFile(path.join(__dirname, 'index.html'));
+  window.loadFile(path.join(__dirname, "index.html"));
 }
 
 function userData(): string {
-  return app.getPath('userData');
+  return app.getPath("userData");
 }
 
-function asDownloadCoverPayload(value: DownloadCoverPayload | null): DownloadCoverPayload {
+function asDownloadCoverPayload(
+  value: DownloadCoverPayload | null,
+): DownloadCoverPayload {
   if (!value) {
     return {};
   }
@@ -151,7 +161,9 @@ function asDownloadCoverPayload(value: DownloadCoverPayload | null): DownloadCov
   };
 }
 
-function asUploadCoverPayload(value: UploadCoverPayload | null): UploadCoverPayload {
+function asUploadCoverPayload(
+  value: UploadCoverPayload | null,
+): UploadCoverPayload {
   if (!value) {
     return {};
   }
@@ -161,35 +173,56 @@ function asUploadCoverPayload(value: UploadCoverPayload | null): UploadCoverPayl
   };
 }
 
-ipcMain.handle('plan:sample', () => runBridge(['--sample']));
-ipcMain.handle('plan:generate', (_event, payload: JsonValue) => runBridge([], payload));
-ipcMain.handle('book:search', (_event, query: string) => searchBooks(String(query || '')));
-ipcMain.handle('book:downloadCover', (_event, payload: DownloadCoverPayload | null) => {
-  const request = asDownloadCoverPayload(payload);
-  return downloadCover(request.url, request.bookId, userData());
-});
-ipcMain.handle('book:saveUploadedCover', (_event, payload: UploadCoverPayload | null) => {
-  const request = asUploadCoverPayload(payload);
-  return saveUploadedCover(request.dataUrl, request.bookId, userData());
-});
-ipcMain.handle('state:load', () => readState(userData()));
-ipcMain.handle('state:save', (_event, payload: JsonValue) => {
+ipcMain.handle("plan:sample", () => runBridge(["--sample"]));
+ipcMain.handle("plan:generate", (_event, payload: JsonValue) =>
+  runBridge([], payload),
+);
+ipcMain.handle("book:search", (_event, query: string) =>
+  searchBooks(String(query || "")),
+);
+ipcMain.handle(
+  "book:downloadCover",
+  (_event, payload: DownloadCoverPayload | null) => {
+    const request = asDownloadCoverPayload(payload);
+    return downloadCover(request.url, request.bookId, userData());
+  },
+);
+ipcMain.handle(
+  "book:saveUploadedCover",
+  (_event, payload: UploadCoverPayload | null) => {
+    const request = asUploadCoverPayload(payload);
+    return saveUploadedCover(request.dataUrl, request.bookId, userData());
+  },
+);
+ipcMain.handle("state:load", () => readState(userData()));
+ipcMain.handle("state:save", (_event, payload: JsonValue) => {
   const result = writeState(userData(), payload);
   if (result.ok === false) {
-    throw new Error(result.error || 'Failed to save state');
+    throw new Error(result.error || "Failed to save state");
   }
   return result;
 });
-ipcMain.handle('window:zoomIn', (event) => shiftZoomFactor(event.sender, UI_SCALE_STEP));
-ipcMain.handle('window:zoomOut', (event) => shiftZoomFactor(event.sender, -UI_SCALE_STEP));
-ipcMain.handle('window:zoomReset', (event) => setZoomFactor(event.sender, initialZoomFactor()));
-ipcMain.handle('window:findInPage', (event, payload: WindowFindRequest | null) =>
-  findInPage(event.sender, payload));
-ipcMain.handle('window:stopFindInPage', (event) => stopFindInPage(event.sender));
+ipcMain.handle("window:zoomIn", (event) =>
+  shiftZoomFactor(event.sender, UI_SCALE_STEP),
+);
+ipcMain.handle("window:zoomOut", (event) =>
+  shiftZoomFactor(event.sender, -UI_SCALE_STEP),
+);
+ipcMain.handle("window:zoomReset", (event) =>
+  setZoomFactor(event.sender, initialZoomFactor()),
+);
+ipcMain.handle(
+  "window:findInPage",
+  (event, payload: WindowFindRequest | null) =>
+    findInPage(event.sender, payload),
+);
+ipcMain.handle("window:stopFindInPage", (event) =>
+  stopFindInPage(event.sender),
+);
 
-app.on('ready', createWindow);
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+app.on("ready", createWindow);
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });

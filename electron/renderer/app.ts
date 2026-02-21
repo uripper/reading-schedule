@@ -1,7 +1,19 @@
 import { applyPreferencesToDocument, createAnnouncer } from "./a11y.js";
 import { bindTabs } from "./tabs.js";
-import { bindBooksUI, collectAllBooks, collectBooks, fillBooks, getBookById, setBookScheduleRows, updateBookProgress } from "./books.js";
-import { configureCalendarInteractions, focusCalendarToday, renderCalendar } from "./calendar.js";
+import {
+  bindBooksUI,
+  collectAllBooks,
+  collectBooks,
+  fillBooks,
+  getBookById,
+  setBookScheduleRows,
+  updateBookProgress,
+} from "./books.js";
+import {
+  configureCalendarInteractions,
+  focusCalendarToday,
+  renderCalendar,
+} from "./calendar.js";
 import { bindDesktopShortcuts } from "./desktop_shortcuts.js";
 import { el } from "./dom.js";
 import { addLog, bindHelpDialog } from "./help.js";
@@ -19,9 +31,19 @@ import {
   normalizeScheduleCompletions,
 } from "./app/experience.js";
 import { configureAppCalendarInteractions } from "./app/calendar_interactions.js";
-import { bindTodayActions, createAppPlanControllerInstance, finalizeInitialLoad, setupSkipLink } from "./app/init_helpers.js";
+import {
+  bindTodayActions,
+  createAppPlanControllerInstance,
+  finalizeInitialLoad,
+  setupSkipLink,
+} from "./app/init_helpers.js";
 import { loadInitialData } from "./app/load_state.js";
-import { createPersistQueue, createStatusSetter, totalsFromSummary } from "./app/runtime_helpers.js";
+import {
+  createPersistQueue,
+  createStatusSetter,
+  totalsFromSummary,
+} from "./app/runtime_helpers.js";
+import { createSplashController } from "./app/splash.js";
 import type { PlannerApi, PlannerResult } from "./app/types.js";
 import { updateTodayDashboard } from "./app/today.js";
 import type { Session } from "./sessions/normalize.js";
@@ -40,8 +62,11 @@ const state: {
   scheduleCompletions: {},
   sessions: [],
 };
-const { plannerApi } = globalThis as typeof globalThis & { plannerApi: PlannerApi };
-let planController: ReturnType<typeof createAppPlanControllerInstance> | null = null;
+const { plannerApi } = globalThis as typeof globalThis & {
+  plannerApi: PlannerApi;
+};
+let planController: ReturnType<typeof createAppPlanControllerInstance> | null =
+  null;
 const announce = createAnnouncer();
 const announceForPlanController = (message: string, politeness?: string) => {
   if (politeness === "polite" || politeness === "assertive") {
@@ -59,7 +84,19 @@ const { persistDraft, queuePersist } = createPersistQueue({
   collectBooks: collectAllBooks,
   getSessionsUI: () => ({ getSessions: () => state.sessions }),
 });
-function updateTodayView() {
+function updateStatsDashboardView() {
+  updateStatsView({
+    books: collectAllBooks(),
+    sessions: state.sessions,
+    lastResult: state.lastResult,
+    scheduleCompletions: state.scheduleCompletions,
+    dailyGoalMinutes: Number(
+      state.preferences.dailyGoalMinutes ||
+        DEFAULT_PREFERENCES.dailyGoalMinutes,
+    ),
+  });
+}
+function updateDashboards() {
   updateTodayDashboard({
     lastResult: state.lastResult,
     scheduleCompletions: state.scheduleCompletions,
@@ -69,18 +106,6 @@ function updateTodayView() {
     featureFlags: state.featureFlags,
     defaultDailyGoalMinutes: DEFAULT_PREFERENCES.dailyGoalMinutes,
   });
-}
-function updateStatsDashboardView() {
-  updateStatsView({
-    books: collectAllBooks(),
-    sessions: state.sessions,
-    lastResult: state.lastResult,
-    scheduleCompletions: state.scheduleCompletions,
-    dailyGoalMinutes: Number(state.preferences.dailyGoalMinutes || DEFAULT_PREFERENCES.dailyGoalMinutes),
-  });
-}
-function updateDashboards() {
-  updateTodayView();
   updateStatsDashboardView();
 }
 function applyExperienceSettings() {
@@ -105,7 +130,7 @@ function handleBooksChanged() {
   queuePersist();
   queueAutoPlanIfReady();
 }
-function handleProgressUpdated() {
+function handleScheduleMutation() {
   updateDashboards();
   queueAutoPlanIfReady();
 }
@@ -147,10 +172,19 @@ async function init() {
     state,
     queuePersist,
     setStatus,
+    collectSettings,
+    collectAllBooks,
+    setBookScheduleRows,
+    renderCalendar,
+    totalsFromSummary,
     updateBookProgress,
     getBookById,
-    onSessionCompletionUpdated: updateDashboards,
-    onProgressUpdated: handleProgressUpdated,
+    setLastResult: (nextResult: PlannerResult) => {
+      state.lastResult = nextResult;
+    },
+    onSessionCompletionUpdated: handleScheduleMutation,
+    onProgressUpdated: handleScheduleMutation,
+    onScheduleRowsUpdated: updateDashboards,
   });
   await loadInitialData({
     plannerApi,
@@ -163,9 +197,15 @@ async function init() {
     applyPreferencesToDocument,
     setStatus,
     updateTodayView: updateDashboards,
-    setPreferences: (preferences) => { state.preferences = preferences; },
-    setFeatureFlags: (featureFlags) => { state.featureFlags = featureFlags; },
-    setScheduleCompletions: (scheduleCompletions) => { state.scheduleCompletions = scheduleCompletions; },
+    setPreferences: (preferences) => {
+      state.preferences = preferences;
+    },
+    setFeatureFlags: (featureFlags) => {
+      state.featureFlags = featureFlags;
+    },
+    setScheduleCompletions: (scheduleCompletions) => {
+      state.scheduleCompletions = scheduleCompletions;
+    },
     setSessions: (sessions) => {
       state.sessions = sessions;
     },
@@ -186,4 +226,7 @@ async function init() {
   });
   bindTodayActions();
 }
+
+const splash = createSplashController();
 await init();
+splash.completeWhenReady();

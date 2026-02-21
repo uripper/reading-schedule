@@ -25,7 +25,9 @@ def build_summary(books: list[Book], settings: Settings, result: PlanResult) -> 
     }
     warning = ""
     if required > available:
-        warning = f"Required minutes ({required}) exceed available minutes ({available})."
+        warning = (
+            f"Required minutes ({required}) exceed available minutes ({available})."
+        )
 
     return {
         "planner": result.planner,

@@ -36,7 +36,9 @@ export function yearFromDateKey(dateText: string): number | null {
 
 export function monthIndexFromDateKey(dateText: string): number | null {
   const key = String(dateText || "").trim();
-  const parsed = Number(key.slice(DATE_MONTH_START_INDEX, DATE_MONTH_END_INDEX));
+  const parsed = Number(
+    key.slice(DATE_MONTH_START_INDEX, DATE_MONTH_END_INDEX),
+  );
   if (!Number.isInteger(parsed)) {
     return null;
   }
@@ -59,7 +61,10 @@ export function statusBreakdown(books: Book[]): StatusBreakdown {
   return counts;
 }
 
-export function readBooksFinishedThisYear(books: Book[], year: number): Set<string> {
+export function readBooksFinishedThisYear(
+  books: Book[],
+  year: number,
+): Set<string> {
   const ids = new Set<string>();
   books.forEach((book) => {
     if (book.status !== BOOK_STATUS_READ) {
@@ -119,7 +124,7 @@ export function completionStats(
       return;
     }
     const rowDate = String(row.date || "");
-    if (!rowDate || rowDate > today) {
+    if (!rowDate || Number(rowDate) > Number(today)) {
       return;
     }
     scheduled += 1;
@@ -139,7 +144,10 @@ export function completionStats(
   };
 }
 
-export function averageProgress(books: Book[]): { startedCount: number; averagePercent: number } {
+export function averageProgress(books: Book[]): {
+  startedCount: number;
+  averagePercent: number;
+} {
   if (!books.length) {
     return { startedCount: 0, averagePercent: 0 };
   }

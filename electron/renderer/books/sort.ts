@@ -1,4 +1,3 @@
-
 import { normalizeShelfName } from "./shelf.js";
 import { titleSortKey } from "./title_key.js";
 import type { Book } from "./types.js";
@@ -31,7 +30,9 @@ export type SortBy =
   | typeof SORT_BY_ESTIMATED_FINISH
   | typeof SORT_BY_SHELF;
 
-export type SortDirection = typeof SORT_DIRECTION_ASC | typeof SORT_DIRECTION_DESC;
+export type SortDirection =
+  | typeof SORT_DIRECTION_ASC
+  | typeof SORT_DIRECTION_DESC;
 
 type OptionalNumber = number | null | undefined;
 type OptionalString = string | null | undefined;
@@ -58,8 +59,12 @@ function compareNumbers(left: OptionalNumber, right: OptionalNumber): number {
 }
 
 function compareText(left: OptionalString, right: OptionalString): number {
-  const leftText = String(left || "").trim().toLowerCase();
-  const rightText = String(right || "").trim().toLowerCase();
+  const leftText = String(left || "")
+    .trim()
+    .toLowerCase();
+  const rightText = String(right || "")
+    .trim()
+    .toLowerCase();
   const leftMissing = !leftText;
   const rightMissing = !rightText;
   if (leftMissing && rightMissing) {
@@ -96,19 +101,33 @@ const compareByTitle: SortComparator = (leftBook, rightBook) => {
 
 const SORT_COMPARATORS: Record<SortBy, SortComparator> = {
   [SORT_BY_TITLE]: compareByTitle,
-  [SORT_BY_AUTHOR]: (leftBook, rightBook) => compareText(leftBook.author, rightBook.author),
-  [SORT_BY_PAGES_TOTAL]: (leftBook, rightBook) => compareNumbers(leftBook.pages_total, rightBook.pages_total),
-  [SORT_BY_PAGES_READ]: (leftBook, rightBook) => compareNumbers(leftBook.pages_read, rightBook.pages_read),
-  [SORT_BY_WORDS_TOTAL]: (leftBook, rightBook) => compareNumbers(leftBook.words_total, rightBook.words_total),
-  [SORT_BY_PROGRESS]: (leftBook, rightBook) => compareNumbers(leftBook.progress_percent, rightBook.progress_percent),
-  [SORT_BY_PRIORITY]: (leftBook, rightBook) => compareNumbers(leftBook.priority, rightBook.priority),
-  [SORT_BY_DIFFICULTY]: (leftBook, rightBook) => compareNumbers(leftBook.difficulty, rightBook.difficulty),
-  [SORT_BY_DEADLINE]: (leftBook, rightBook) => compareText(leftBook.deadline, rightBook.deadline),
+  [SORT_BY_AUTHOR]: (leftBook, rightBook) =>
+    compareText(leftBook.author, rightBook.author),
+  [SORT_BY_PAGES_TOTAL]: (leftBook, rightBook) =>
+    compareNumbers(leftBook.pages_total, rightBook.pages_total),
+  [SORT_BY_PAGES_READ]: (leftBook, rightBook) =>
+    compareNumbers(leftBook.pages_read, rightBook.pages_read),
+  [SORT_BY_WORDS_TOTAL]: (leftBook, rightBook) =>
+    compareNumbers(leftBook.words_total, rightBook.words_total),
+  [SORT_BY_PROGRESS]: (leftBook, rightBook) =>
+    compareNumbers(leftBook.progress_percent, rightBook.progress_percent),
+  [SORT_BY_PRIORITY]: (leftBook, rightBook) =>
+    compareNumbers(leftBook.priority, rightBook.priority),
+  [SORT_BY_DIFFICULTY]: (leftBook, rightBook) =>
+    compareNumbers(leftBook.difficulty, rightBook.difficulty),
+  [SORT_BY_DEADLINE]: (leftBook, rightBook) =>
+    compareText(leftBook.deadline, rightBook.deadline),
   [SORT_BY_ESTIMATED_FINISH]: (leftBook, rightBook, finishDateByBookId) => {
-    return compareText(finishDateByBookId[leftBook.book_id], finishDateByBookId[rightBook.book_id]);
+    return compareText(
+      finishDateByBookId[leftBook.book_id],
+      finishDateByBookId[rightBook.book_id],
+    );
   },
   [SORT_BY_SHELF]: (leftBook, rightBook) => {
-    return compareText(normalizeShelfName(leftBook.shelf), normalizeShelfName(rightBook.shelf));
+    return compareText(
+      normalizeShelfName(leftBook.shelf),
+      normalizeShelfName(rightBook.shelf),
+    );
   },
 };
 
@@ -133,7 +152,12 @@ export function sortBooks(
     directionSign = -1;
   }
   return [...books].sort((leftBook, rightBook) => {
-    const primary = compareBySortKey(leftBook, rightBook, sortBy, finishDateByBookId);
+    const primary = compareBySortKey(
+      leftBook,
+      rightBook,
+      sortBy,
+      finishDateByBookId,
+    );
     if (primary !== 0) {
       return primary * directionSign;
     }

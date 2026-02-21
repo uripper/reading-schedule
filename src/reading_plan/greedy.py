@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import math
 from datetime import date
-
 from .budget import book_day_block_limit, day_capacity_blocks, words_per_block
 from .calendar import date_range
 from .types import Book, PLAN_MODE_SPREAD_OUT, Settings

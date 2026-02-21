@@ -1,12 +1,12 @@
-import { bookCoverSrc } from '../books/model.js';
-import { titleSortKey } from '../books/title_key.js';
-import type { Book } from '../books/types.js';
-import { sessionKeyFor, sortRowsByDateAndSession } from '../calendar/utils.js';
-import { todayKey } from '../sessions/utils.js';
-import type { PlannerResult, PlannerScheduleRow } from './types.js';
+import { bookCoverSrc } from "../books/model.js";
+import { titleSortKey } from "../books/title_key.js";
+import type { Book } from "../books/types.js";
+import { sessionKeyFor, sortRowsByDateAndSession } from "../calendar/utils.js";
+import { todayKey } from "../sessions/utils.js";
+import type { PlannerResult, PlannerScheduleRow } from "./types.js";
 
 const ZERO_COUNT = 0;
-const DEFAULT_TITLE = 'Untitled';
+const DEFAULT_TITLE = "Untitled";
 
 export type TodayBookSummary = {
   bookId: string;
@@ -25,7 +25,9 @@ export type TodayScheduleSnapshot = {
   books: TodayBookSummary[];
 };
 
-function rowsFromResult(lastResult: PlannerResult | null): PlannerScheduleRow[] {
+function rowsFromResult(
+  lastResult: PlannerResult | null,
+): PlannerScheduleRow[] {
   if (!Array.isArray(lastResult?.schedule)) {
     return [];
   }
@@ -42,7 +44,7 @@ function isCompletedRow(
 function booksById(books: Book[]): Map<string, Book> {
   const byId = new Map<string, Book>();
   books.forEach((book) => {
-    const bookId = String(book.book_id || '').trim();
+    const bookId = String(book.book_id || "").trim();
     if (!bookId) {
       return;
     }
@@ -54,11 +56,13 @@ function booksById(books: Book[]): Map<string, Book> {
 function compareTitle(left: string, right: string): number {
   const leftKey = titleSortKey(left);
   const rightKey = titleSortKey(right);
-  const byKey = leftKey.localeCompare(rightKey, undefined, { sensitivity: 'base' });
+  const byKey = leftKey.localeCompare(rightKey, undefined, {
+    sensitivity: "base",
+  });
   if (byKey !== ZERO_COUNT) {
     return byKey;
   }
-  return left.localeCompare(right, undefined, { sensitivity: 'base' });
+  return left.localeCompare(right, undefined, { sensitivity: "base" });
 }
 
 function createBookSummary(
@@ -66,8 +70,8 @@ function createBookSummary(
   bookById: Map<string, Book>,
 ): TodayBookSummary {
   const title = String(row.title || DEFAULT_TITLE);
-  const bookId = String(row.book_id || '').trim();
-  let coverSrc = '';
+  const bookId = String(row.book_id || "").trim();
+  let coverSrc = "";
   const matched = bookById.get(bookId);
   if (matched) {
     coverSrc = bookCoverSrc(matched);
@@ -89,8 +93,12 @@ export function nextUncompletedPlannedRow(
   const today = todayKey();
   const rows = rowsFromResult(lastResult);
   for (const row of rows) {
-    const rowDate = String(row.date || '');
-    if (rowDate && rowDate >= today && !isCompletedRow(row, scheduleCompletions)) {
+    const rowDate = String(row.date || "");
+    if (
+      rowDate &&
+      rowDate >= today &&
+      !isCompletedRow(row, scheduleCompletions)
+    ) {
       return row;
     }
   }
@@ -112,13 +120,13 @@ export function buildTodayScheduleSnapshot(
   let completedSessions = ZERO_COUNT;
 
   rowList.forEach((row) => {
-    const rowDate = String(row.date || '');
+    const rowDate = String(row.date || "");
     if (rowDate !== today) {
       return;
     }
 
     const completed = isCompletedRow(row, scheduleCompletions);
-    const bookId = String(row.book_id || '').trim();
+    const bookId = String(row.book_id || "").trim();
     let summary = summariesByBookId.get(bookId);
     if (!summary) {
       summary = createBookSummary(row, booksMap);
@@ -146,7 +154,10 @@ export function buildTodayScheduleSnapshot(
     completedPlannedMinutes,
     scheduledSessions,
     completedSessions,
-    nextUncompletedRow: nextUncompletedPlannedRow(lastResult, scheduleCompletions),
+    nextUncompletedRow: nextUncompletedPlannedRow(
+      lastResult,
+      scheduleCompletions,
+    ),
     books: booksForToday,
   };
 }

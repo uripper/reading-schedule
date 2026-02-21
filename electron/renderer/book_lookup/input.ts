@@ -1,5 +1,5 @@
-import type { BookLookupItem } from '../app/types.js';
-import { getPlannerApi } from '../app/planner_api.js';
+import type { BookLookupItem } from "../app/types.js";
+import { getPlannerApi } from "../app/planner_api.js";
 
 type LookupState = {
   timer: ReturnType<typeof setTimeout> | null;
@@ -43,7 +43,10 @@ export function createLookupInputHandler({
       state.token += 1;
       const currentToken = state.token;
       try {
-        const items = (await getPlannerApi().searchBooks(query)).slice(0, RESULT_LIMIT);
+        const items = (await getPlannerApi().searchBooks(query)).slice(
+          0,
+          RESULT_LIMIT,
+        );
         if (currentToken !== state.token) {
           return;
         }

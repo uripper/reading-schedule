@@ -1,4 +1,4 @@
-import { el } from '../dom.js';
+import { el } from "../dom.js";
 
 export type SessionRefs = {
   input: HTMLInputElement;
@@ -17,17 +17,17 @@ export type SessionRefs = {
 
 export function createSessionRefs(): SessionRefs {
   return {
-    input: el<HTMLInputElement>('sessionBookInput'),
-    results: el<HTMLElement>('sessionBookResults'),
-    meta: el<HTMLElement>('sessionBookMeta'),
-    timerDisplay: el<HTMLElement>('sessionTimerDisplay'),
-    startBtn: el<HTMLButtonElement>('sessionStartBtn'),
-    pauseBtn: el<HTMLButtonElement>('sessionPauseBtn'),
-    stopBtn: el<HTMLButtonElement>('sessionStopBtn'),
-    history: el<HTMLElement>('sessionHistory'),
-    manualMinutes: el<HTMLInputElement>('manualMinutesInput'),
-    manualPages: el<HTMLInputElement>('manualPagesInput'),
-    manualNotes: el<HTMLTextAreaElement>('manualNotesInput'),
-    manualSaveBtn: el<HTMLButtonElement>('manualSessionBtn'),
+    input: el<HTMLInputElement>("sessionBookInput"),
+    results: el("sessionBookResults"),
+    meta: el("sessionBookMeta"),
+    timerDisplay: el("sessionTimerDisplay"),
+    startBtn: el<HTMLButtonElement>("sessionStartBtn"),
+    pauseBtn: el<HTMLButtonElement>("sessionPauseBtn"),
+    stopBtn: el<HTMLButtonElement>("sessionStopBtn"),
+    history: el("sessionHistory"),
+    manualMinutes: el<HTMLInputElement>("manualMinutesInput"),
+    manualPages: el<HTMLInputElement>("manualPagesInput"),
+    manualNotes: el<HTMLTextAreaElement>("manualNotesInput"),
+    manualSaveBtn: el<HTMLButtonElement>("manualSessionBtn"),
   };
 }

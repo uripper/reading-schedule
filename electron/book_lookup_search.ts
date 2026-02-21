@@ -1,53 +1,27 @@
-const SEARCH_FIELDS = "title,title_suggest,author_name,first_publish_year,number_of_pages_median,cover_i,key,language,edition_count";
-const SEARCH_FETCH_LIMIT = 24;
-const SEARCH_OUTPUT_LIMIT = 12;
-const MIN_QUERY_LENGTH = 2;
-
-const HTTP_STATUS_REDIRECT_MIN = 300;
-const HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE = 400;
-const HTTP_STATUS_ERROR_MIN = 400;
-
-const COVER_ID_MIN = 1;
-const WORDS_PER_PAGE_ESTIMATE = 300;
-
-const SCORE_EXACT_TITLE = 700;
-const SCORE_PREFIX_TITLE = 360;
-const SCORE_CONTAINS_TITLE = 240;
-const SCORE_TOKEN_PREFIX = 40;
-const SCORE_TOKEN_CONTAINS = 20;
-const SCORE_TOKEN_AUTHOR = 12;
-const SCORE_ENGLISH_LANGUAGE = 45;
-const SCORE_HAS_PAGE_COUNT = 5;
-const SCORE_MAX_EDITION_COUNT = 20;
-
-const SOURCE_NAME = "Open Library";
-
-type SearchDoc = {
-  author_name?: string[];
-  cover_i?: number;
-  edition_count?: number;
-  first_publish_year?: number;
-  key?: string;
-  language?: string[];
-  number_of_pages_median?: number;
-  title?: string;
-};
-
-type SearchResponse = {
-  docs?: SearchDoc[];
-};
-
-type SearchItem = {
-  author: string;
-  cover_url: string;
-  openlibrary_key: string;
-  pages_estimate: number | null;
-  source: string;
-  title: string;
-  words_estimate: number | null;
-  year: number | "";
-};
-
+import {
+  COVER_ID_MIN,
+  HTTP_STATUS_ERROR_MIN,
+  HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE,
+  HTTP_STATUS_REDIRECT_MIN,
+  MIN_QUERY_LENGTH,
+  SCORE_CONTAINS_TITLE,
+  SCORE_ENGLISH_LANGUAGE,
+  SCORE_EXACT_TITLE,
+  SCORE_HAS_PAGE_COUNT,
+  SCORE_MAX_EDITION_COUNT,
+  SCORE_PREFIX_TITLE,
+  SCORE_TOKEN_AUTHOR,
+  SCORE_TOKEN_CONTAINS,
+  SCORE_TOKEN_PREFIX,
+  SEARCH_FETCH_LIMIT,
+  SEARCH_FIELDS,
+  SEARCH_OUTPUT_LIMIT,
+  SOURCE_NAME,
+  WORDS_PER_PAGE_ESTIMATE,
+  type SearchDoc,
+  type SearchItem,
+  type SearchResponse,
+} from "./book_lookup_search_shared.js";
 function normalizeSearchText(value: string): string {
   return String(value || "")
     .normalize("NFKD")
@@ -55,7 +29,6 @@ function normalizeSearchText(value: string): string {
     .toLowerCase()
     .trim();
 }
-
 function queryTokens(query: string): string[] {
   return normalizeSearchText(query).split(/\s+/).filter(Boolean);
 }
@@ -66,7 +39,6 @@ function primaryAuthor(doc: SearchDoc): string {
   }
   return String(doc.author_name[0] || "");
 }
-
 function hasEnglishLanguage(doc: SearchDoc): boolean {
   if (!Array.isArray(doc.language)) {
     return false;
@@ -79,7 +51,6 @@ function hasEnglishLanguage(doc: SearchDoc): boolean {
     return normalized === "eng" || normalized.endsWith("/eng");
   });
 }
-
 function baseTitleScore(titleNorm: string, queryNorm: string): number {
   let score = 0;
   if (titleNorm === queryNorm) {
@@ -93,8 +64,11 @@ function baseTitleScore(titleNorm: string, queryNorm: string): number {
   }
   return score;
 }
-
-function tokenScore(titleNorm: string, authorNorm: string, tokens: string[]): number {
+function tokenScore(
+  titleNorm: string,
+  authorNorm: string,
+  tokens: string[],
+): number {
   let score = 0;
   tokens.forEach((token) => {
     if (titleNorm.startsWith(token)) {
@@ -110,7 +84,6 @@ function tokenScore(titleNorm: string, authorNorm: string, tokens: string[]): nu
   });
   return score;
 }
-
 function metadataScore(doc: SearchDoc): number {
   let score = 0;
   if (hasEnglishLanguage(doc)) {
@@ -125,7 +98,6 @@ function metadataScore(doc: SearchDoc): number {
   }
   return score;
 }
-
 function scoreDoc(doc: SearchDoc, query: string): number {
   const queryNorm = normalizeSearchText(query);
   const titleNorm = normalizeSearchText(doc.title || "");
@@ -134,9 +106,12 @@ function scoreDoc(doc: SearchDoc, query: string): number {
   }
   const authorNorm = normalizeSearchText(primaryAuthor(doc));
   const tokens = queryTokens(query);
-  return baseTitleScore(titleNorm, queryNorm) + tokenScore(titleNorm, authorNorm, tokens) + metadataScore(doc);
+  return (
+    baseTitleScore(titleNorm, queryNorm) +
+    tokenScore(titleNorm, authorNorm, tokens) +
+    metadataScore(doc)
+  );
 }
-
 function dedupeDocs(docs: SearchDoc[]): SearchDoc[] {
   const seen = new Set<string>();
   const deduped: SearchDoc[] = [];
@@ -159,17 +134,22 @@ function dedupeDocs(docs: SearchDoc[]): SearchDoc[] {
   });
   return deduped;
 }
-
 function searchUrls(query: string): string[] {
   const encoded = encodeURIComponent(query);
   const base = `https://openlibrary.org/search.json?limit=${SEARCH_FETCH_LIMIT}&fields=${SEARCH_FIELDS}`;
-  return [`${base}&q=${encoded}`, `${base}&title=${encoded}`, `${base}&title=${encoded}&language=eng`];
+  return [
+    `${base}&q=${encoded}`,
+    `${base}&title=${encoded}`,
+    `${base}&title=${encoded}&language=eng`,
+  ];
 }
-
 async function fetchJson(url: string): Promise<SearchResponse> {
   const response = await globalThis.fetch(url, { redirect: "follow" });
   const status = Number(response.status || 0);
-  if (status >= HTTP_STATUS_REDIRECT_MIN && status < HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE) {
+  if (
+    status >= HTTP_STATUS_REDIRECT_MIN &&
+    status < HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE
+  ) {
     throw new Error(`Unexpected redirect status (${status})`);
   }
   if (status >= HTTP_STATUS_ERROR_MIN || !response.ok) {
@@ -177,7 +157,6 @@ async function fetchJson(url: string): Promise<SearchResponse> {
   }
   return (await response.json()) as SearchResponse;
 }
-
 function toItem(doc: SearchDoc): SearchItem {
   const pages = Number(doc.number_of_pages_median || 0);
   let words: number | null = null;
@@ -200,13 +179,14 @@ function toItem(doc: SearchDoc): SearchItem {
     year: doc.first_publish_year || "",
   };
 }
-
 export async function searchBooks(query: string): Promise<SearchItem[]> {
   const normalizedQuery = String(query || "").trim();
   if (normalizedQuery.length < MIN_QUERY_LENGTH) {
     return [];
   }
-  const responses = await Promise.allSettled(searchUrls(normalizedQuery).map((url) => fetchJson(url)));
+  const responses = await Promise.allSettled(
+    searchUrls(normalizedQuery).map((url) => fetchJson(url)),
+  );
   const docs: SearchDoc[] = [];
   responses.forEach((result) => {
     if (result.status !== "fulfilled" || !Array.isArray(result.value.docs)) {
@@ -222,7 +202,11 @@ export async function searchBooks(query: string): Promise<SearchItem[]> {
     if (left.score !== right.score) {
       return right.score - left.score;
     }
-    return String(left.doc.title || "").localeCompare(String(right.doc.title || ""), undefined, { sensitivity: "base" });
+    return String(left.doc.title || "").localeCompare(
+      String(right.doc.title || ""),
+      undefined,
+      { sensitivity: "base" },
+    );
   });
 
   return scored

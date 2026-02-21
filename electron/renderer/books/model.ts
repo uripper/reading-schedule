@@ -1,4 +1,3 @@
-
 import { uid } from "../dom.js";
 import { dayKey } from "../calendar/utils.js";
 import { clamp, toInt, toOptionalDate, toOptionalInt } from "./utils.js";
@@ -28,20 +27,34 @@ function toBookId(value?: string): string {
   return uid();
 }
 
-function toIntWithFallback(value: number | undefined, fallback: number): number {
+function toIntWithFallback(
+  value: number | undefined,
+  fallback: number,
+): number {
   return toInt(value ?? fallback, fallback);
 }
 
-function toClampedInt(value: number | undefined, fallback: number, minValue: number, maxValue: number): number {
+function toClampedInt(
+  value: number | undefined,
+  fallback: number,
+  minValue: number,
+  maxValue: number,
+): number {
   const parsed = toIntWithFallback(value, fallback);
   return clamp(parsed, minValue, maxValue);
 }
 
 function minBlocksPerSession(value: number | undefined): number {
-  return Math.max(DEFAULT_MIN_BLOCKS, toIntWithFallback(value, DEFAULT_MIN_BLOCKS));
+  return Math.max(
+    DEFAULT_MIN_BLOCKS,
+    toIntWithFallback(value, DEFAULT_MIN_BLOCKS),
+  );
 }
 
-function withDefaultNumber(value: number | undefined, fallback: number): number {
+function withDefaultNumber(
+  value: number | undefined,
+  fallback: number,
+): number {
   if (value !== undefined) {
     return value;
   }
@@ -70,7 +83,10 @@ function todayDateKey(): string {
   return dayKey(new Date());
 }
 
-function finishedAtForStatus(status: string, finishedAtRaw: string | null | undefined): string | null {
+function finishedAtForStatus(
+  status: string,
+  finishedAtRaw: string | null | undefined,
+): string | null {
   const finishedAt = normalizeFinishedAt(finishedAtRaw);
   if (status !== BOOK_STATUS_READ) {
     return null;
@@ -81,7 +97,11 @@ function finishedAtForStatus(status: string, finishedAtRaw: string | null | unde
   return todayDateKey();
 }
 
-function normalizeProgressAndPages(pagesTotal: number | null, pagesRead: number | null, progressRaw: number) {
+function normalizeProgressAndPages(
+  pagesTotal: number | null,
+  pagesRead: number | null,
+  progressRaw: number,
+) {
   let nextPagesRead = pagesRead;
   if (pagesTotal && nextPagesRead === null) {
     nextPagesRead = Math.round((progressRaw / PROGRESS_MAX) * pagesTotal);
@@ -92,7 +112,10 @@ function normalizeProgressAndPages(pagesTotal: number | null, pagesRead: number 
 
   let progress = Math.round(progressRaw * PROGRESS_SCALE) / PROGRESS_SCALE;
   if (pagesTotal) {
-    progress = Math.round((((nextPagesRead || 0) / pagesTotal) * PROGRESS_MAX) * PROGRESS_SCALE) / PROGRESS_SCALE;
+    progress =
+      Math.round(
+        ((nextPagesRead || 0) / pagesTotal) * PROGRESS_MAX * PROGRESS_SCALE,
+      ) / PROGRESS_SCALE;
   }
   return { pagesRead: nextPagesRead, progress };
 }
@@ -100,9 +123,17 @@ function normalizeProgressAndPages(pagesTotal: number | null, pagesRead: number 
 export function normalizeBook(book: BookInput = {}): Book {
   const wordsTotal = toOptionalInt(book.words_total);
   const pagesTotal = toOptionalInt(book.pages_total);
-  const progressRaw = clamp(Number(book.progress_percent ?? 0), 0, PROGRESS_MAX);
+  const progressRaw = clamp(
+    Number(book.progress_percent ?? 0),
+    0,
+    PROGRESS_MAX,
+  );
   const pagesReadRaw = toOptionalInt(book.pages_read);
-  const { pagesRead, progress } = normalizeProgressAndPages(pagesTotal, pagesReadRaw, progressRaw);
+  const { pagesRead, progress } = normalizeProgressAndPages(
+    pagesTotal,
+    pagesReadRaw,
+    progressRaw,
+  );
   const status = statusFromRaw(book.status, progress);
   const finishedAt = finishedAtForStatus(status, book.finished_at);
 
@@ -115,8 +146,18 @@ export function normalizeBook(book: BookInput = {}): Book {
     pages_total: pagesTotal,
     pages_read: pagesRead,
     progress_percent: progress,
-    priority: toClampedInt(book.priority, DEFAULT_PRIORITY, MIN_PRIORITY, MAX_PRIORITY),
-    difficulty: toClampedInt(book.difficulty, DEFAULT_DIFFICULTY, MIN_DIFFICULTY, MAX_DIFFICULTY),
+    priority: toClampedInt(
+      book.priority,
+      DEFAULT_PRIORITY,
+      MIN_PRIORITY,
+      MAX_PRIORITY,
+    ),
+    difficulty: toClampedInt(
+      book.difficulty,
+      DEFAULT_DIFFICULTY,
+      MIN_DIFFICULTY,
+      MAX_DIFFICULTY,
+    ),
     min_blocks_per_session: minBlocksPerSession(book.min_blocks_per_session),
     max_minutes_per_day: toOptionalInt(book.max_minutes_per_day),
     deadline: toOptionalDate(book.deadline),
@@ -145,7 +186,10 @@ export function toPayloadBook(book: Book): Book {
     progress_percent: book.progress_percent,
     priority: withDefaultNumber(book.priority, DEFAULT_PRIORITY),
     difficulty: withDefaultNumber(book.difficulty, DEFAULT_DIFFICULTY),
-    min_blocks_per_session: withDefaultNumber(book.min_blocks_per_session, DEFAULT_MIN_BLOCKS),
+    min_blocks_per_session: withDefaultNumber(
+      book.min_blocks_per_session,
+      DEFAULT_MIN_BLOCKS,
+    ),
     max_minutes_per_day: book.max_minutes_per_day ?? null,
     deadline: withNullableString(book.deadline),
     blocked_by: withNullableString(book.blocked_by),

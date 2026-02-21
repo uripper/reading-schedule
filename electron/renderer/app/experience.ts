@@ -64,7 +64,10 @@ export function normalizePreferences(raw: PreferencesInput = {}): Preferences {
     theme = themeInput;
   }
 
-  const dailyGoalRaw = raw.dailyGoalMinutes ?? raw.daily_goal_minutes ?? DEFAULT_PREFERENCES.dailyGoalMinutes;
+  const dailyGoalRaw =
+    raw.dailyGoalMinutes ??
+    raw.daily_goal_minutes ??
+    DEFAULT_PREFERENCES.dailyGoalMinutes;
   const dailyGoalMinutes = Number(dailyGoalRaw);
   let normalizedDailyGoalMinutes = DEFAULT_PREFERENCES.dailyGoalMinutes;
   if (Number.isFinite(dailyGoalMinutes) && dailyGoalMinutes > 0) {
@@ -81,7 +84,9 @@ export function normalizePreferences(raw: PreferencesInput = {}): Preferences {
   };
 }
 
-export function normalizeFeatureFlags(raw: FeatureFlagsInput = {}): FeatureFlags {
+export function normalizeFeatureFlags(
+  raw: FeatureFlagsInput = {},
+): FeatureFlags {
   return {
     gamificationEnabled: Boolean(raw.gamificationEnabled),
     socialEnabled: Boolean(raw.socialEnabled),
@@ -113,9 +118,12 @@ export function collectPreferencesFromUI(): Preferences {
     theme,
     reduceMotion: checkboxValue("reduceMotionToggle"),
     timezone: DEFAULT_PREFERENCES.timezone,
-    dailyGoalMinutes: numberInputValue("dailyGoalInput") || DEFAULT_PREFERENCES.dailyGoalMinutes,
+    dailyGoalMinutes:
+      numberInputValue("dailyGoalInput") ||
+      DEFAULT_PREFERENCES.dailyGoalMinutes,
     reminderEnabled: checkboxValue("reminderEnabledToggle"),
-    reminderTime: inputValue("reminderTimeInput") || DEFAULT_PREFERENCES.reminderTime,
+    reminderTime:
+      inputValue("reminderTimeInput") || DEFAULT_PREFERENCES.reminderTime,
   };
 }
 
@@ -127,13 +135,29 @@ export function collectFeatureFlagsFromUI(): FeatureFlags {
   };
 }
 
-export function fillPreferencesUI(preferences: Preferences, featureFlags: FeatureFlags): void {
+export function fillPreferencesUI(
+  preferences: Preferences,
+  featureFlags: FeatureFlags,
+): void {
   el<HTMLSelectElement>("themeSelect").value = preferences.theme;
-  el<HTMLInputElement>("reduceMotionToggle").checked = Boolean(preferences.reduceMotion);
-  el<HTMLInputElement>("dailyGoalInput").value = String(preferences.dailyGoalMinutes || DEFAULT_PREFERENCES.dailyGoalMinutes);
-  el<HTMLInputElement>("reminderEnabledToggle").checked = Boolean(preferences.reminderEnabled);
-  el<HTMLInputElement>("reminderTimeInput").value = preferences.reminderTime || DEFAULT_PREFERENCES.reminderTime;
-  el<HTMLInputElement>("flagGamification").checked = Boolean(featureFlags.gamificationEnabled);
-  el<HTMLInputElement>("flagSocial").checked = Boolean(featureFlags.socialEnabled);
-  el<HTMLInputElement>("flagRecommendations").checked = Boolean(featureFlags.recommendationsEnabled);
+  el<HTMLInputElement>("reduceMotionToggle").checked = Boolean(
+    preferences.reduceMotion,
+  );
+  el<HTMLInputElement>("dailyGoalInput").value = String(
+    preferences.dailyGoalMinutes || DEFAULT_PREFERENCES.dailyGoalMinutes,
+  );
+  el<HTMLInputElement>("reminderEnabledToggle").checked = Boolean(
+    preferences.reminderEnabled,
+  );
+  el<HTMLInputElement>("reminderTimeInput").value =
+    preferences.reminderTime || DEFAULT_PREFERENCES.reminderTime;
+  el<HTMLInputElement>("flagGamification").checked = Boolean(
+    featureFlags.gamificationEnabled,
+  );
+  el<HTMLInputElement>("flagSocial").checked = Boolean(
+    featureFlags.socialEnabled,
+  );
+  el<HTMLInputElement>("flagRecommendations").checked = Boolean(
+    featureFlags.recommendationsEnabled,
+  );
 }

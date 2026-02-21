@@ -1,4 +1,3 @@
-
 import { SHELF_SELECT_CREATE_NEW, uniqueShelves } from "./shelf.js";
 import type { Book } from "./types.js";
 import type { BookFormRefs } from "./form_refs.js";
@@ -84,7 +83,10 @@ function caseInsensitiveMatch(left: string, right: string): boolean {
   return left.localeCompare(right, undefined, { sensitivity: "base" }) === 0;
 }
 
-function existingShelfValue(select: HTMLSelectElement, shelfName: string): string {
+function existingShelfValue(
+  select: HTMLSelectElement,
+  shelfName: string,
+): string {
   const options = Array.from(select.options);
   for (const option of options) {
     if (!option.value || option.value === SHELF_SELECT_CREATE_NEW) {
@@ -109,7 +111,11 @@ function collectShelfValues(select: HTMLSelectElement): string[] {
   return values;
 }
 
-function renderShelfOptions(select: HTMLSelectElement, shelves: string[], selectedShelf: string): void {
+function renderShelfOptions(
+  select: HTMLSelectElement,
+  shelves: string[],
+  selectedShelf: string,
+): void {
   const nodes = shelfOptions(shelves);
   select.replaceChildren(...nodes);
   if (selectedShelf) {
@@ -131,7 +137,11 @@ function ensureShelfOption(select: HTMLSelectElement, shelfName: string): void {
   renderShelfOptions(select, shelves, shelfName);
 }
 
-function setSelectedShelf(select: HTMLSelectElement, selectedShelf: string, availableShelves: string[]): void {
+function setSelectedShelf(
+  select: HTMLSelectElement,
+  selectedShelf: string,
+  availableShelves: string[],
+): void {
   const shelf = String(selectedShelf || "").trim();
   renderShelfOptions(select, availableShelves, "");
   if (!shelf) {
@@ -182,7 +192,11 @@ async function onShelfChange(refs: BookFormRefs): Promise<void> {
   rememberSelectedShelf(select);
 }
 
-export function renderShelfPicker(refs: BookFormRefs, books: Book[] = [], selectedShelf = ""): void {
+export function renderShelfPicker(
+  refs: BookFormRefs,
+  books: Book[] = [],
+  selectedShelf = "",
+): void {
   const shelves = uniqueShelves(books);
   setSelectedShelf(refs.shelfSelectInput, selectedShelf, shelves);
 }
