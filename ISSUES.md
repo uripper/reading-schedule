@@ -558,7 +558,7 @@ Definition of done:
 - Ensure that this additional data is persisted and can be exported in session logs.
 - Add tests for session data model extensions and UI interactions.
 
-## ISSUE-021: Candidate feature - Synchronization with external reading trackers (Goodreads, StoryGraph, etc...), synchronization with e-reader devices (Kindle, Kobo, etc...), and/or integration with note-taking tools (Obsidian, Notion, etc...), synchronization with calendar apps (Google Calendar, Apple Calendar, etc...), and synchronization with audiobook platforms (Audible, Libby, etc...).
+## ISSUE-021: Candidate feature - Synchronization with external reading trackers (Goodreads, StoryGraph, etc...)
 
 **Type:** enhancement
 **Priority:** P3
@@ -566,30 +566,139 @@ Definition of done:
 
 Problem:
 
-Many users track their reading across multiple platforms and tools, such as Goodreads for book tracking, Kindle for e-reader progress, Obsidian for note-taking, and Google Calendar for scheduling. Currently, Bartleby operates in isolation without integration points to synchronize data with these external services.
+Many users already track their reading progress, book lists, and notes in external services like Goodreads or StoryGraph. Integrating with these platforms would allow users to synchronize their data across tools and avoid manual duplication of effort.
 
 Expected:
 
-Users can connect their Bartleby account with external services to synchronize reading progress, book lists, notes, and schedules. This could include:
+Users can connect their Bartleby account with external reading trackers to synchronize their book lists, reading progress, and notes. This could include:
 
-- Syncing book metadata and reading progress with Goodreads or StoryGraph.
-- Syncing reading progress with e-reader devices like Kindle or Kobo.
-- Exporting session notes and highlights to note-taking tools like Obsidian or Notion.
-- Syncing scheduled reading sessions with calendar apps like Google Calendar or Apple Calendar.
-- Syncing audiobook progress with platforms like Audible or Libby.
-- Providing a clear UI for managing these integrations and handling authentication.
-- Ensuring that data synchronization respects user privacy and security.
-- Adding tests for integration flows and error handling.
+- Importing book lists and metadata from external services.
+- Syncing reading progress and session notes back to those platforms.
+- Providing a clear UI for managing these integrations and synchronization settings.
+- Ensuring that synchronization is secure and respects user privacy.
+- Handling edge cases like conflicts, rate limits, and API changes gracefully.
+- Adding tests for integration functionality and error scenarios.
 
 Definition of done:
 
-- Define integration points and data mapping for each external service.
-- Implement authentication and synchronization logic for at least one external service.
-- Add UI components for managing integrations and displaying synchronized data.
-- Ensure that synchronization is robust and handles edge cases (e.g., conflicts, rate limits).
-- Add tests for integration functionality and error scenarios.
+- Research and define integration points with at least one external reading tracker (e.g., Goodreads).
+- Implement synchronization logic for book lists and reading progress.
+- Add UI components for managing the integration and displaying synchronized data.
+- Ensure that synchronization is robust and handles edge cases (e.g., connectivity issues, data conflicts
+- Add tests for external tracker synchronization functionality and error handling.
 
-## ISSUE-022: Add support for non-book reading materials (articles, papers, etc...)
+## ISSUE-022: Synchronization with e-reader devices (Kindle, Kobo, etc...)
+
+**Type:** enhancement
+**Priority:** P3
+**Labels:** `enhancement`, `desktop`, `planner`
+
+Problem:
+
+Many users read on e-reader devices like Kindle or Kobo and would benefit from having their reading progress automatically synchronized with Bartleby to keep their schedule and stats up to date without manual input.
+
+Expected:
+
+Users can connect their e-reader device to Bartleby, allowing for automatic synchronization of reading progress. This could be achieved through:
+
+- Direct integration with e-reader APIs (if available).
+- Syncing through a companion app that reads progress from the device and updates Bartleby.
+- Providing a clear UI for managing the e-reader connection and synchronization settings.
+- Ensuring that synchronization is secure and respects user privacy.
+
+Definition of done:
+
+- Research and define the best approach for e-reader synchronization.
+- Implement synchronization logic for at least one e-reader platform (e.g., Kindle).
+- Add UI components for managing the e-reader connection and displaying synchronized progress.
+- Ensure that synchronization is robust and handles edge cases (e.g., connectivity issues, data conflicts).
+- Add tests for e-reader synchronization functionality and error handling.
+
+## ISSUE-023 Synchronization with note-taking tools (Obsidian, Notion, etc...)
+
+**Type:** enhancement
+**Priority:** P3
+**Labels:** `enhancement`, `desktop`, `ux`
+
+Problem:
+
+Users often take notes, highlight passages, and reflect on their reading sessions. Integrating with popular note-taking tools like Obsidian or Notion would allow users to seamlessly export their session notes, reflections, and highlights for further organization and review.
+
+Expected:
+
+Users can connect their Bartleby account with note-taking tools to export session data. This could include:
+
+- Exporting session notes, reflections, highlights, and tags to Obsidian or Notion.
+- Providing options for export format (e.g., markdown, plain text) and organization (e.g., by book, by date).
+- Ensuring that the export process is user-friendly and can be triggered manually or set to auto-export after each session.
+- Adding UI components for managing note-taking tool integrations and export settings.
+- Ensuring that data export respects user privacy and security.
+
+Definition of done:
+
+- Define data mapping and export format for note-taking tools.
+- Implement export functionality for at least one note-taking tool (e.g., Obsidian).
+- Add UI components for managing the integration and export settings.
+- Ensure that the export process is robust and handles edge cases (e.g., authentication issues, export failures).
+- Add tests for note-taking tool export functionality and error handling.
+
+## ISSUE-024: Synchronization with calendar apps (Google Calendar, Apple Calendar, etc...)
+
+**Type:** enhancement
+**Priority:** P3
+**Labels:** `enhancement`, `desktop`, `planner`
+
+Problem:
+
+Users often schedule their reading sessions in calendar apps like Google Calendar or Apple Calendar. Integrating Bartleby with these calendar apps would allow users to have their reading schedule automatically reflected in their calendar, providing better visibility and reminders.
+
+Expected:
+
+Users can connect their Bartleby account with calendar apps to synchronize their reading schedule. This could include:
+
+- Syncing scheduled reading sessions from Bartleby to calendar apps as events.
+- Providing options for event details (e.g., title, description, reminders).
+- Ensuring that synchronization is secure and respects user privacy.
+- Adding UI components for managing calendar integrations and synchronization settings.
+- Ensuring that synchronization is robust and handles edge cases (e.g., connectivity issues, data
+conflicts).
+
+Definition of done:
+
+- Define integration points and data mapping for calendar apps.
+- Implement synchronization logic for at least one calendar platform (e.g., Google Calendar).
+- Add UI components for managing the calendar integration and displaying synchronized events.
+- Ensure that synchronization is robust and handles edge cases (e.g., connectivity issues, data conflicts).
+- Add tests for calendar synchronization functionality and error handling.
+
+## ISSUE-025: Synchronization with audiobook platforms (Audible, Libby, etc...)
+
+**Type:** enhancement
+**Priority:** P3
+**Labels:** `enhancement`, `desktop`, `planner`
+
+Problem:
+
+Many users listen to audiobooks on platforms like Audible or Libby and would benefit from having their listening progress automatically synchronized with Bartleby to keep their schedule and stats up to date without manual input.
+
+Expected:
+
+Users can connect their audiobook platform account to Bartleby, allowing for automatic synchronization of listening progress. This could be achieved through:
+
+- Direct integration with audiobook platform APIs (if available).
+- Syncing through a companion app that reads progress from the platform and updates Bartleby.
+- Providing a clear UI for managing the audiobook platform connection and synchronization settings.
+- Ensuring that synchronization is secure and respects user privacy.
+
+Definition of done:
+
+- Research and define the best approach for audiobook platform synchronization.
+- Implement synchronization logic for at least one audiobook platform (e.g., Audible).
+- Add UI components for managing the audiobook platform connection and displaying synchronized progress.
+- Ensure that synchronization is robust and handles edge cases (e.g., connectivity issues, data conflicts).
+- Add tests for audiobook platform synchronization functionality and error handling.
+
+## ISSUE-026: Add support for non-book reading materials (articles, papers, etc...)
 
 **Type:** enhancement
 **Priority:** P3

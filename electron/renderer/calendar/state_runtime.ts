@@ -1,0 +1,97 @@
+import type { PlannerScheduleRow } from "../app/types.js";
+import type { Book } from "../books/types.js";
+import type { CalendarRowWithFinish } from "./data.js";
+
+export type CompletionChangePayload = {
+  sessionKey: string;
+  completed: boolean;
+  row: CalendarRowWithFinish;
+};
+
+export type ProgressUpdatePayload = {
+  bookId: string;
+  pagesRead?: number | null;
+  progressPercent?: number | null;
+};
+
+export type ManualSessionPayload = {
+  date: string;
+  bookId: string;
+  minutes: number;
+  completed?: boolean;
+};
+
+export type RemoveSessionPayload = {
+  row: CalendarRowWithFinish;
+};
+
+export type ManualSessionBook = {
+  bookId: string;
+  title: string;
+};
+
+export type CalendarHandlers = {
+  isSessionCompleted: (sessionKey: string) => boolean;
+  onSessionCompletionChanged: (payload: CompletionChangePayload) => void;
+  onSessionProgressUpdated: (payload: ProgressUpdatePayload) => Book | null;
+  getBookById: (bookId: string) => Book | null;
+  listSessionBooks: () => ManualSessionBook[];
+  onManualSessionAdded: (payload: ManualSessionPayload) => boolean;
+  onSessionRemoved: (payload: RemoveSessionPayload) => boolean;
+};
+
+export type CalendarRuntimeState = {
+  dates: Record<string, CalendarRowWithFinish[]>;
+  rawRows: PlannerScheduleRow[];
+  rows: CalendarRowWithFinish[];
+  totalsByBookId: Record<string, number>;
+  months: string[];
+  index: number;
+  selectedDate: string;
+  monthCellKeys: string[];
+  expectedFinishHighlightDate: string;
+};
+
+export function createCalendarRuntimeState(): CalendarRuntimeState {
+  return {
+    dates: {},
+    rawRows: [],
+    rows: [],
+    totalsByBookId: {},
+    months: [],
+    index: 0,
+    selectedDate: "",
+    monthCellKeys: [],
+    expectedFinishHighlightDate: "",
+  };
+}
+
+export function defaultCalendarHandlers(): CalendarHandlers {
+  return {
+    isSessionCompleted: () => false,
+    onSessionCompletionChanged: () => {},
+    onSessionProgressUpdated: () => null,
+    getBookById: () => null,
+    listSessionBooks: () => [],
+    onManualSessionAdded: () => false,
+    onSessionRemoved: () => false,
+  };
+}
+
+export function mergeCalendarHandlers(
+  handlers: Partial<CalendarHandlers>,
+): CalendarHandlers {
+  const defaults = defaultCalendarHandlers();
+  return {
+    isSessionCompleted: handlers.isSessionCompleted || defaults.isSessionCompleted,
+    onSessionCompletionChanged:
+      handlers.onSessionCompletionChanged || defaults.onSessionCompletionChanged,
+    onSessionProgressUpdated:
+      handlers.onSessionProgressUpdated || defaults.onSessionProgressUpdated,
+    getBookById: handlers.getBookById || defaults.getBookById,
+    listSessionBooks: handlers.listSessionBooks || defaults.listSessionBooks,
+    onManualSessionAdded:
+      handlers.onManualSessionAdded || defaults.onManualSessionAdded,
+    onSessionRemoved: handlers.onSessionRemoved || defaults.onSessionRemoved,
+  };
+}
