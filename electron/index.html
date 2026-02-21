@@ -146,17 +146,13 @@
             <p id="todayGoalText" class="body-text">
               0 / 30 minutes logged today
             </p>
-            <div
+            <progress
               class="progress-track"
-              role="progressbar"
               aria-label="Daily goal progress"
-              aria-valuemin="0"
-              aria-valuemax="100"
-              aria-valuenow="0"
               id="todayGoalProgress"
-            >
-              <span id="todayGoalBar" class="progress-bar"></span>
-            </div>
+              value="0"
+              max="100"
+            ></progress>
           </article>
 
           <article class="surface-card today-schedule-card">
@@ -454,12 +450,11 @@
               aria-controls="bookSearchResults"
               aria-haspopup="listbox"
             />
-            <div
+            <datalist
               id="bookSearchResults"
               class="book-search-results"
-              role="listbox"
               aria-label="Book suggestions"
-            ></div>
+            ></datalist>
             <p id="bookLookupMeta" class="lookup-meta"></p>
           </section>
           <button
@@ -570,12 +565,11 @@
                   aria-haspopup="listbox"
                 />
                 <input id="bookBlockedByInput" type="hidden" />
-                <div
+                <datalist
                   id="bookAfterBookResults"
                   class="book-search-results"
-                  role="listbox"
                   aria-label="After book options"
-                ></div>
+                ></datalist>
               </label>
             </div>
           </section>

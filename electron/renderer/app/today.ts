@@ -87,8 +87,7 @@ export function updateTodayDashboard({
 }: UpdateTodayDashboardArgs): void {
   const summaryNode = el("todaySummary");
   const goalText = el("todayGoalText");
-  const goalProgress = el("todayGoalProgress");
-  const goalBar = el("todayGoalBar");
+  const goalProgress = el<HTMLProgressElement>("todayGoalProgress");
   const gamificationCard = el("gamificationCard");
   const streakNode = el("streakText");
 
@@ -115,8 +114,7 @@ export function updateTodayDashboard({
   const todayMinutes = dayMinutesForKey(activityByDay, todayKey());
   const pct = goalProgressPercent(todayMinutes, goalMinutes);
   goalText.textContent = `${todayMinutes} / ${goalMinutes} minutes logged today`;
-  goalProgress.setAttribute("aria-valuenow", String(pct));
-  goalBar.style.width = `${pct}%`;
+  goalProgress.value = pct;
 
   const gamificationOn = Boolean(featureFlags.gamificationEnabled);
   gamificationCard.hidden = !gamificationOn;
