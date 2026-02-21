@@ -39,7 +39,7 @@ registerIpcHandlers({
   setZoomFactor,
   initialZoomFactor,
   findInPage,
-  stopFindInPage,
+  stopFindInPage: async (webContents) => stopFindInPage(webContents),
 });
 
 app.on("ready", createWindow);

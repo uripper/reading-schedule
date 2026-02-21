@@ -22,7 +22,7 @@ type RegisterIpcHandlersArgs = {
   findInPage: (
     webContents: WebContents,
     payload: WindowFindRequest | null,
-  ) => Promise<unknown>;
+  ) => Promise<unknown> | unknown;
   initialZoomFactor: () => number;
   readState: (userDataDir: string) => unknown;
   runBridge: (args: string[], payload?: JsonValue) => Promise<unknown>;
@@ -34,9 +34,12 @@ type RegisterIpcHandlersArgs = {
   searchBooks: (query: string) => Promise<unknown>;
   setZoomFactor: (webContents: WebContents, value: number) => number;
   shiftZoomFactor: (webContents: WebContents, delta: number) => number;
-  stopFindInPage: (webContents: WebContents) => Promise<unknown>;
+  stopFindInPage: (webContents: WebContents) => Promise<unknown> | unknown;
   userData: () => string;
-  writeState: (userDataDir: string, payload: JsonValue) => { error?: string; ok: boolean };
+  writeState: (
+    userDataDir: string,
+    payload: JsonValue,
+  ) => { error?: string; ok: boolean };
 };
 
 function asDownloadCoverPayload(
@@ -117,7 +120,10 @@ export function registerIpcHandlers({
   );
   ipcMain.handle(
     "window:findInPage",
-    (event, payload: WindowFindRequest | null) => findInPage(event.sender, payload),
+    (event, payload: WindowFindRequest | null) =>
+      findInPage(event.sender, payload),
   );
-  ipcMain.handle("window:stopFindInPage", (event) => stopFindInPage(event.sender));
+  ipcMain.handle("window:stopFindInPage", (event) =>
+    stopFindInPage(event.sender),
+  );
 }
