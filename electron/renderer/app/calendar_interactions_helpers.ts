@@ -140,9 +140,20 @@ export function wordsPlannedForManualSession({
 }
 
 export function nextSessionIndexForDate(
-  date: string,
-  rows: PlannerScheduleRow[] = [],
+  dateOrRows: string | PlannerScheduleRow[],
+  rowsOrDate: PlannerScheduleRow[] | string = [],
 ): number {
+  let date = "";
+  let rows: PlannerScheduleRow[] = [];
+  if (Array.isArray(dateOrRows)) {
+    rows = dateOrRows;
+    date = String(rowsOrDate || "");
+  } else {
+    date = String(dateOrRows || "");
+    if (Array.isArray(rowsOrDate)) {
+      rows = rowsOrDate;
+    }
+  }
   let maxIndex = 0;
   rows.forEach((row) => {
     if (String(row.date || "") !== date) {
@@ -157,10 +168,20 @@ export function nextSessionIndexForDate(
 }
 
 export function rowsWithoutSession(
-  targetSessionKey: string,
-  rows: PlannerScheduleRow[] = [],
+  targetSessionKeyOrRows: string | PlannerScheduleRow[],
+  rowsOrTargetSessionKey: PlannerScheduleRow[] | string = [],
 ): PlannerScheduleRow[] {
-  const key = String(targetSessionKey || "");
+  let key = "";
+  let rows: PlannerScheduleRow[] = [];
+  if (Array.isArray(targetSessionKeyOrRows)) {
+    rows = targetSessionKeyOrRows;
+    key = String(rowsOrTargetSessionKey || "");
+  } else {
+    key = String(targetSessionKeyOrRows || "");
+    if (Array.isArray(rowsOrTargetSessionKey)) {
+      rows = rowsOrTargetSessionKey;
+    }
+  }
   if (!key) {
     return [...rows];
   }
