@@ -114,6 +114,8 @@ Duplicate prevention is handled by a stable marker per issue (`Sync-ID: ISSUE-XX
 The script searches for that marker and updates matching issues instead of creating new ones.
 Files moved to `Issues/Closed` are synced as closed GitHub issues; files in
 `Issues/Open` are synced as open GitHub issues.
+The script keeps a local hash cache at `Issues/.sync-cache.tsv` and skips
+unchanged issues on subsequent runs.
 
 ## SonarQube Full Scan
 

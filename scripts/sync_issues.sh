@@ -4,6 +4,7 @@ set -euo pipefail
 DEFAULT_ISSUES_DIR="Issues"
 OPEN_DIR_NAME="Open"
 CLOSED_DIR_NAME="Closed"
+DEFAULT_CACHE_FILE_NAME=".sync-cache.tsv"
 DEFAULT_LABEL_COLOR="BFD4F2"
 SYNC_MARKER_PREFIX="Sync-ID: "
 REPO_PLACEHOLDER="OWNER/REPO"
@@ -18,6 +19,7 @@ Usage:
 Options:
   --dir <path>       Path to issue directory root (default: Issues)
                      Expected layout: <dir>/Open/*.md and <dir>/Closed/*.md
+  --cache <path>     Path to local sync cache file (default: <dir>/.sync-cache.tsv)
   --repo <owner/repo>
                      Target repository. If omitted, current gh repo is used.
   --id <ISSUE-ID>    Sync only one issue ID (repeatable, e.g. ISSUE-006)
@@ -29,6 +31,7 @@ Behavior:
   - Existing issues are discovered by that marker (open and closed)
   - Files in Open are synced as open issues
   - Files in Closed are synced as closed issues (and open issues are closed)
+  - Unchanged issues are skipped using a local content hash cache
 USAGE_EOF
 }
 
@@ -169,7 +172,81 @@ issue_number_from_ref() {
   die "unable to parse issue number from create response: ${ref}"
 }
 
+hash_stdin() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum | awk '{print $1}'
+    return
+  fi
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 | awk '{print $1}'
+    return
+  fi
+  die "no SHA-256 utility found (expected sha256sum or shasum)"
+}
+
+cache_key() {
+  local entry_repo="$1"
+  local issue_id="$2"
+  printf '%s|%s' "$entry_repo" "$issue_id"
+}
+
+load_cache() {
+  local cache_path="$1"
+  local entry_repo
+  local issue_id
+  local content_hash
+  local entry_state
+  local issue_number
+  local key
+
+  if [[ ! -f "$cache_path" ]]; then
+    return 0
+  fi
+
+  while IFS='|' read -r entry_repo issue_id content_hash entry_state issue_number; do
+    if [[ -z "$entry_repo" ]] || [[ "$entry_repo" == \#* ]]; then
+      continue
+    fi
+    if [[ -z "$issue_id" ]] || [[ -z "$content_hash" ]]; then
+      continue
+    fi
+    key="$(cache_key "$entry_repo" "$issue_id")"
+    CACHE_HASH["$key"]="$content_hash"
+    CACHE_STATE["$key"]="$entry_state"
+    CACHE_NUMBER["$key"]="$issue_number"
+  done <"$cache_path" || true
+
+  return 0
+}
+
+save_cache() {
+  local cache_path="$1"
+  local temp_cache
+  local key
+  local entry_repo
+  local issue_id
+
+  temp_cache="$(mktemp)"
+
+  {
+    printf '# repo|issue_id|hash|state|number\n'
+    for key in "${!CACHE_HASH[@]}"; do
+      IFS='|' read -r entry_repo issue_id <<<"$key"
+      printf '%s|%s|%s|%s|%s\n' \
+        "$entry_repo" \
+        "$issue_id" \
+        "${CACHE_HASH[$key]}" \
+        "${CACHE_STATE[$key]-}" \
+        "${CACHE_NUMBER[$key]-}"
+    done | sort
+  } >"$temp_cache"
+
+  mkdir -p "$(dirname "$cache_path")"
+  mv "$temp_cache" "$cache_path"
+}
+
 issues_dir="$DEFAULT_ISSUES_DIR"
+cache_file=""
 repo=""
 dry_run=0
 declare -a requested_ids=()
@@ -184,6 +261,11 @@ while [[ $# -gt 0 ]]; do
     --repo)
       [[ $# -lt 2 ]] && die "--repo requires owner/repo"
       repo="$2"
+      shift 2
+      ;;
+    --cache)
+      [[ $# -lt 2 ]] && die "--cache requires a path"
+      cache_file="$2"
       shift 2
       ;;
     --id)
@@ -212,6 +294,10 @@ closed_dir="${issues_dir}/${CLOSED_DIR_NAME}"
 
 [[ -d "$open_dir" ]] || die "missing open directory: $open_dir"
 [[ -d "$closed_dir" ]] || die "missing closed directory: $closed_dir"
+
+if [[ -z "$cache_file" ]]; then
+  cache_file="${issues_dir}/${DEFAULT_CACHE_FILE_NAME}"
+fi
 
 mapfile -d '' -t open_files < <(find "$open_dir" -mindepth 1 -maxdepth 1 -type f -name '*.md' -print0 | LC_ALL=C sort -z)
 mapfile -d '' -t closed_files < <(find "$closed_dir" -mindepth 1 -maxdepth 1 -type f -name '*.md' -print0 | LC_ALL=C sort -z)
@@ -243,6 +329,9 @@ declare -A REQUESTED_ID_SET=()
 declare -A SEEN_REQUESTED_IDS=()
 declare -A KNOWN_LABELS=()
 declare -A ISSUE_PATHS_BY_ID=()
+declare -A CACHE_HASH=()
+declare -A CACHE_STATE=()
+declare -A CACHE_NUMBER=()
 
 declare -a issue_entries=()
 
@@ -261,6 +350,8 @@ if [[ "$dry_run" -eq 0 ]]; then
   done <<<"$existing_labels_raw"
 fi
 
+load_cache "$cache_file"
+
 for issue_file in "${open_files[@]}"; do
   issue_entries+=("open|${issue_file}")
 done
@@ -274,6 +365,7 @@ trap 'rm -rf "$temp_dir"' EXIT
 
 synced_count=0
 skipped_count=0
+unchanged_count=0
 
 for entry in "${issue_entries[@]}"; do
   target_state="${entry%%|*}"
@@ -317,6 +409,38 @@ for entry in "${issue_entries[@]}"; do
     printf '_This issue body is synced from `%s` via `scripts/sync_issues.sh`._\n\n' "$issue_file"
     printf '%s\n' "$section"
   } >"$body_file"
+
+  labels_joined=""
+  if [[ "${#labels[@]}" -gt 0 ]]; then
+    labels_joined="${labels[0]}"
+    for ((index = 1; index < ${#labels[@]}; index += 1)); do
+      labels_joined="${labels_joined},${labels[$index]}"
+    done
+  fi
+
+  content_hash="$(
+    {
+      printf 'title:%s\n' "$issue_title"
+      printf 'state:%s\n' "$target_state"
+      printf 'labels:%s\n' "$labels_joined"
+      cat "$body_file"
+    } | hash_stdin
+  )"
+
+  issue_cache_key="$(cache_key "$repo" "$issue_id")"
+  cached_hash="${CACHE_HASH[$issue_cache_key]-}"
+  cached_state="${CACHE_STATE[$issue_cache_key]-}"
+  cached_number="${CACHE_NUMBER[$issue_cache_key]-}"
+
+  if [[ -n "$cached_hash" ]] && [[ "$cached_hash" == "$content_hash" ]] && [[ "$cached_state" == "$target_state" ]] && [[ -n "$cached_number" ]]; then
+    if [[ "$dry_run" -eq 1 ]]; then
+      printf '[dry-run] would skip unchanged #%s (%s)\n' "$cached_number" "$issue_id"
+    else
+      printf 'skipped unchanged #%s (%s)\n' "$cached_number" "$issue_id"
+    fi
+    unchanged_count=$((unchanged_count + 1))
+    continue
+  fi
 
   if [[ "$dry_run" -eq 1 ]]; then
     if [[ "$target_state" == "closed" ]]; then
@@ -372,6 +496,9 @@ for entry in "${issue_entries[@]}"; do
     else
       printf 'updated #%s (%s)\n' "$existing_number" "$issue_id"
     fi
+    CACHE_HASH["$issue_cache_key"]="$content_hash"
+    CACHE_STATE["$issue_cache_key"]="$target_state"
+    CACHE_NUMBER["$issue_cache_key"]="$existing_number"
   else
     create_args=(--repo "$repo" --title "$issue_title" --body-file "$body_file")
     for label in "${labels[@]}"; do
@@ -386,6 +513,9 @@ for entry in "${issue_entries[@]}"; do
     else
       printf 'created %s (%s)\n' "$created_ref" "$issue_id"
     fi
+    CACHE_HASH["$issue_cache_key"]="$content_hash"
+    CACHE_STATE["$issue_cache_key"]="$target_state"
+    CACHE_NUMBER["$issue_cache_key"]="$created_number"
   fi
 
   synced_count=$((synced_count + 1))
@@ -399,4 +529,13 @@ if [[ "${#REQUESTED_ID_SET[@]}" -gt 0 ]]; then
   done
 fi
 
-printf 'done: synced=%d skipped=%d repo=%s\n' "$synced_count" "$skipped_count" "$repo"
+if [[ "$dry_run" -eq 0 ]]; then
+  save_cache "$cache_file"
+fi
+
+printf 'done: synced=%d unchanged=%d skipped=%d repo=%s cache=%s\n' \
+  "$synced_count" \
+  "$unchanged_count" \
+  "$skipped_count" \
+  "$repo" \
+  "$cache_file"
