@@ -23,5 +23,7 @@ def to_schedule_rows(
             "minutes": minutes,
             "words_planned": words,
         }
-        for day, idx, book, minutes, words in iter_sessions(books, settings, assignments)
+        for day, idx, book, minutes, words in iter_sessions(
+            books, settings, assignments
+        )
     ]
