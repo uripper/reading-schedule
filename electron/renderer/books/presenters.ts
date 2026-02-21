@@ -1,4 +1,3 @@
-
 import { WORDS_PER_PAGE } from "./constants.js";
 import { shelfLabelForBook } from "./shelf.js";
 import { statusLabel } from "./status.js";

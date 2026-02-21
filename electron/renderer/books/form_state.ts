@@ -1,6 +1,6 @@
-import { uid } from '../dom.js';
-import { noteFromLookup, syncProgressAndPages } from '../book_lookup.js';
-import { bookCoverSrc, normalizeBook } from './model.js';
+import { uid } from "../dom.js";
+import { noteFromLookup, syncProgressAndPages } from "../book_lookup.js";
+import { bookCoverSrc, normalizeBook } from "./model.js";
 import {
   CUSTOM_COVER_NOTE,
   DEFAULT_DIFFICULTY,
@@ -17,13 +17,13 @@ import {
   syncFinishedAtFieldState,
   validatedShelfSelection,
   validatedStatusSelection,
-} from './form_state_helpers.js';
-import { BOOK_STATUS_READ } from './status.js';
-import { toOptionalInt } from './utils.js';
-import type { Book } from './types.js';
-import type { BookFormRefs } from './form_refs.js';
-import type { BookLookupItem } from '../app/types.js';
-import type { ProgressSyncInputs } from '../book_lookup/helpers.js';
+} from "./form_state_helpers.js";
+import { BOOK_STATUS_READ } from "./status.js";
+import { toOptionalInt } from "./utils.js";
+import type { Book } from "./types.js";
+import type { BookFormRefs } from "./form_refs.js";
+import type { BookLookupItem } from "../app/types.js";
+import type { ProgressSyncInputs } from "../book_lookup/helpers.js";
 
 type LookupControl = {
   clearResults: () => void;
@@ -33,26 +33,29 @@ export function syncFinishedAtField(refs: BookFormRefs): void {
   syncFinishedAtFieldState(refs);
 }
 
-export function clearForm(refs: BookFormRefs, lookupControl: LookupControl): void {
+export function clearForm(
+  refs: BookFormRefs,
+  lookupControl: LookupControl,
+): void {
   refs.form.reset();
-  refs.bookId.value = '';
-  refs.coverUrl.value = '';
-  refs.coverLocal.value = '';
-  refs.coverUploadInput.value = '';
-  refs.author.value = '';
-  refs.lookupMeta.dataset.lookupNote = '';
-  refs.lookupMeta.textContent = '';
+  refs.bookId.value = "";
+  refs.coverUrl.value = "";
+  refs.coverLocal.value = "";
+  refs.coverUploadInput.value = "";
+  refs.author.value = "";
+  refs.lookupMeta.dataset.lookupNote = "";
+  refs.lookupMeta.textContent = "";
   refs.progressInput.value = DEFAULT_PROGRESS;
   refs.priorityInput.value = DEFAULT_PRIORITY;
   refs.difficultyInput.value = DEFAULT_DIFFICULTY;
   refs.minBlocksInput.value = DEFAULT_MIN_BLOCKS;
-  refs.afterBookInput.value = '';
-  refs.blockedByInput.value = '';
+  refs.afterBookInput.value = "";
+  refs.blockedByInput.value = "";
   refs.statusSelectInput.value = DEFAULT_STATUS;
-  refs.finishedAtInput.value = '';
+  refs.finishedAtInput.value = "";
   syncFinishedAtFieldState(refs);
-  refs.shelfSelectInput.value = '';
-  setCoverPreview(refs, '');
+  refs.shelfSelectInput.value = "";
+  setCoverPreview(refs, "");
   lookupControl.clearResults();
 }
 
@@ -62,10 +65,22 @@ export function fillForm(refs: BookFormRefs, book: Book): void {
   setOptionalIntegerInputValue(refs.wordsInput, book.words_total);
   setOptionalIntegerInputValue(refs.pagesTotalInput, book.pages_total);
   setOptionalIntegerInputValue(refs.pagesReadInput, book.pages_read);
-  refs.progressInput.value = fallbackNumberText(book.progress_percent, DEFAULT_PROGRESS);
-  refs.priorityInput.value = fallbackNumberText(book.priority, DEFAULT_PRIORITY);
-  refs.difficultyInput.value = fallbackNumberText(book.difficulty, DEFAULT_DIFFICULTY);
-  refs.minBlocksInput.value = fallbackNumberText(book.min_blocks_per_session, DEFAULT_MIN_BLOCKS);
+  refs.progressInput.value = fallbackNumberText(
+    book.progress_percent,
+    DEFAULT_PROGRESS,
+  );
+  refs.priorityInput.value = fallbackNumberText(
+    book.priority,
+    DEFAULT_PRIORITY,
+  );
+  refs.difficultyInput.value = fallbackNumberText(
+    book.difficulty,
+    DEFAULT_DIFFICULTY,
+  );
+  refs.minBlocksInput.value = fallbackNumberText(
+    book.min_blocks_per_session,
+    DEFAULT_MIN_BLOCKS,
+  );
   setOptionalIntegerInputValue(refs.maxMinutesInput, book.max_minutes_per_day);
   refs.deadlineInput.value = fallbackText(book.deadline);
   refs.blockedByInput.value = fallbackText(book.blocked_by);
@@ -108,22 +123,27 @@ export function parseFormBook(refs: BookFormRefs): Book {
     progress_percent: progress,
     priority: Number(refs.priorityInput.value || DEFAULT_PRIORITY),
     difficulty: Number(refs.difficultyInput.value || DEFAULT_DIFFICULTY),
-    min_blocks_per_session: Number(refs.minBlocksInput.value || DEFAULT_MIN_BLOCKS),
+    min_blocks_per_session: Number(
+      refs.minBlocksInput.value || DEFAULT_MIN_BLOCKS,
+    ),
     max_minutes_per_day: toOptionalInt(refs.maxMinutesInput.value),
     deadline: refs.deadlineInput.value,
     blocked_by: refs.blockedByInput.value,
     cover_url: refs.coverUrl.value.trim(),
     cover_local_path: refs.coverLocal.value.trim(),
-    lookup_note: refs.lookupMeta.dataset.lookupNote || '',
+    lookup_note: refs.lookupMeta.dataset.lookupNote || "",
   });
 }
 
-export function applyLookupItem(refs: BookFormRefs, item: BookLookupItem): void {
+export function applyLookupItem(
+  refs: BookFormRefs,
+  item: BookLookupItem,
+): void {
   refs.titleInput.value = item.title || refs.titleInput.value;
   refs.searchInput.value = item.title || refs.searchInput.value;
   refs.author.value = item.author || refs.author.value;
-  refs.coverUrl.value = item.cover_url || '';
-  refs.coverLocal.value = '';
+  refs.coverUrl.value = item.cover_url || "";
+  refs.coverLocal.value = "";
 
   if (!toOptionalInt(refs.wordsInput.value) && item.words_estimate) {
     refs.wordsInput.value = String(item.words_estimate);
@@ -134,26 +154,30 @@ export function applyLookupItem(refs: BookFormRefs, item: BookLookupItem): void 
 
   refs.lookupMeta.dataset.lookupNote = noteFromLookup(item);
   refs.lookupMeta.textContent = noteFromLookup(item);
-  setCoverPreview(refs, item.cover_url || '');
+  setCoverPreview(refs, item.cover_url || "");
 
   const progressSyncRefs: ProgressSyncInputs = {
     pagesTotalInput: refs.pagesTotalInput,
     pagesReadInput: refs.pagesReadInput,
     progressInput: refs.progressInput,
   };
-  syncProgressAndPages(progressSyncRefs, 'pages');
+  syncProgressAndPages(progressSyncRefs, "pages");
 }
 
-export function applyUploadedCover(refs: BookFormRefs, localCoverPath: string, fileName = ''): void {
-  const normalizedPath = String(localCoverPath || '').trim();
+export function applyUploadedCover(
+  refs: BookFormRefs,
+  localCoverPath: string,
+  fileName = "",
+): void {
+  const normalizedPath = String(localCoverPath || "").trim();
   if (!normalizedPath) {
-    throw new Error('Could not save the uploaded cover.');
+    throw new Error("Could not save the uploaded cover.");
   }
   refs.coverLocal.value = normalizedPath;
-  refs.coverUrl.value = '';
+  refs.coverUrl.value = "";
 
   let note = CUSTOM_COVER_NOTE;
-  const normalizedFileName = String(fileName || '').trim();
+  const normalizedFileName = String(fileName || "").trim();
   if (normalizedFileName) {
     note = `${CUSTOM_COVER_NOTE} ${normalizedFileName}`;
   }

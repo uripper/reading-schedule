@@ -7,7 +7,10 @@ export async function hydrateBookCover(book: Book): Promise<Book> {
   }
 
   try {
-    const localCover = await getPlannerApi().downloadCover(book.cover_url, book.book_id);
+    const localCover = await getPlannerApi().downloadCover(
+      book.cover_url,
+      book.book_id,
+    );
     if (localCover) {
       return { ...book, cover_local_path: localCover };
     }

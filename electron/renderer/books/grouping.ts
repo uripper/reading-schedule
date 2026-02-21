@@ -1,14 +1,13 @@
+import { shelfLabelForBook } from "./shelf.js";
+import { titleInitialLetter } from "./title_key.js";
+import type { Book } from "./types.js";
+import { finishDateMetaForBook, type GroupMeta } from "./grouping_finish.js";
 
-import { shelfLabelForBook } from './shelf.js';
-import { titleInitialLetter } from './title_key.js';
-import type { Book } from './types.js';
-import { finishDateMetaForBook, type GroupMeta } from './grouping_finish.js';
-
-export const GROUP_BY_NONE = 'none';
-export const GROUP_BY_SHELF = 'shelf';
-export const GROUP_BY_FINISH_DATE = 'finish_date';
-export const GROUP_BY_TITLE_LETTER = 'title_letter';
-export const GROUP_BY_AUTHOR = 'author';
+export const GROUP_BY_NONE = "none";
+export const GROUP_BY_SHELF = "shelf";
+export const GROUP_BY_FINISH_DATE = "finish_date";
+export const GROUP_BY_TITLE_LETTER = "title_letter";
+export const GROUP_BY_AUTHOR = "author";
 
 export type BookGroupBy =
   | typeof GROUP_BY_NONE
@@ -27,19 +26,21 @@ export type BookGroup = {
   books: Book[];
 };
 
-const UNKNOWN_AUTHOR_LABEL = 'Unknown Author';
-const TITLE_MISC_LABEL = '#';
-const TITLE_MISC_KEY = 'title:#';
+const UNKNOWN_AUTHOR_LABEL = "Unknown Author";
+const TITLE_MISC_LABEL = "#";
+const TITLE_MISC_KEY = "title:#";
 
 const TITLE_MISC_ORDER = 2;
 const TITLE_LETTER_ORDER = 1;
 
 function normalizedText(value?: string | number): string {
-  return String(value || '').trim();
+  return String(value || "").trim();
 }
 
 function compareTextInsensitive(left: string, right: string): number {
-  return String(left || '').localeCompare(String(right || ''), undefined, { sensitivity: 'base' });
+  return String(left || "").localeCompare(String(right || ""), undefined, {
+    sensitivity: "base",
+  });
 }
 
 function titleLetterMetaForBook(book: Book): GroupMeta {
@@ -158,7 +159,12 @@ export function groupBooks(
   }
 
   const currentYear = new Date().getFullYear();
-  const buckets = groupedBuckets(books, groupBy, finishDateByBookId, currentYear);
+  const buckets = groupedBuckets(
+    books,
+    groupBy,
+    finishDateByBookId,
+    currentYear,
+  );
   return [...buckets.values()].sort(compareGroups).map((bucket) => ({
     key: bucket.key,
     label: bucket.label,

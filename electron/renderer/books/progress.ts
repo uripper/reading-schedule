@@ -1,4 +1,3 @@
-
 import { clamp } from "./utils.js";
 import type { Book, BookProgressUpdates } from "./types.js";
 
@@ -13,7 +12,12 @@ function parseFiniteNumber(raw?: string | number): number | null {
   return value;
 }
 
-function applyPagesUpdate(nextBook: Book, pagesUpdate: number | null, hasPagesTotal: boolean, pagesTotal: number) {
+function applyPagesUpdate(
+  nextBook: Book,
+  pagesUpdate: number | null,
+  hasPagesTotal: boolean,
+  pagesTotal: number,
+) {
   if (pagesUpdate === null) {
     return false;
   }
@@ -37,11 +41,17 @@ function applyPercentUpdate(
   }
   nextBook.progress_percent = Math.round(clamp(pctUpdate, 0, 100) * 10) / 10;
   if (hasPagesTotal) {
-    nextBook.pages_read = Math.round((nextBook.progress_percent / 100) * pagesTotal);
+    nextBook.pages_read = Math.round(
+      (nextBook.progress_percent / 100) * pagesTotal,
+    );
   }
 }
 
-function reconcilePercentFromPages(nextBook: Book, hasPagesTotal: boolean, pagesTotal: number) {
+function reconcilePercentFromPages(
+  nextBook: Book,
+  hasPagesTotal: boolean,
+  pagesTotal: number,
+) {
   if (!hasPagesTotal) {
     return;
   }
@@ -52,14 +62,28 @@ function reconcilePercentFromPages(nextBook: Book, hasPagesTotal: boolean, pages
   nextBook.progress_percent = Math.round(clamp(pct, 0, 100) * 10) / 10;
 }
 
-export function withUpdatedProgress(book: Book, updates: BookProgressUpdates = {}): Book {
+export function withUpdatedProgress(
+  book: Book,
+  updates: BookProgressUpdates = {},
+): Book {
   const nextBook = { ...book };
   const pagesTotal = Number(nextBook.pages_total || 0);
   const hasPagesTotal = Number.isFinite(pagesTotal) && pagesTotal > 0;
   const pagesUpdate = parseFiniteNumber(updates.pagesRead ?? undefined);
-  const hasPagesUpdate = applyPagesUpdate(nextBook, pagesUpdate, hasPagesTotal, pagesTotal);
+  const hasPagesUpdate = applyPagesUpdate(
+    nextBook,
+    pagesUpdate,
+    hasPagesTotal,
+    pagesTotal,
+  );
   const pctUpdate = parseFiniteNumber(updates.progressPercent ?? undefined);
-  applyPercentUpdate(nextBook, pctUpdate, hasPagesUpdate, hasPagesTotal, pagesTotal);
+  applyPercentUpdate(
+    nextBook,
+    pctUpdate,
+    hasPagesUpdate,
+    hasPagesTotal,
+    pagesTotal,
+  );
   reconcilePercentFromPages(nextBook, hasPagesTotal, pagesTotal);
   return nextBook;
 }

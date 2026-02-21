@@ -34,7 +34,9 @@ export function statusFromRaw(
   value: string | null | undefined,
   progressPercent: number,
 ): BookStatus {
-  const raw = String(value || "").trim().toLowerCase();
+  const raw = String(value || "")
+    .trim()
+    .toLowerCase();
   const known = normalizedStatus(raw);
   if (known) {
     if (known === BOOK_STATUS_READ) {
@@ -90,8 +92,12 @@ export function statusOptions(): Array<{ value: BookStatus; label: string }> {
   });
 }
 
-export function normalizeStatusFilter(value: string | null | undefined): BookStatusFilter {
-  const raw = String(value || "").trim().toLowerCase();
+export function normalizeStatusFilter(
+  value: string | null | undefined,
+): BookStatusFilter {
+  const raw = String(value || "")
+    .trim()
+    .toLowerCase();
   if (raw === BOOK_STATUS_FILTER_ALL) {
     return BOOK_STATUS_FILTER_ALL;
   }
@@ -102,14 +108,20 @@ export function normalizeStatusFilter(value: string | null | undefined): BookSta
   return BOOK_STATUS_FILTER_ALL;
 }
 
-export function statusFilterMatches(book: Pick<Book, "status">, filterValue: BookStatusFilter): boolean {
+export function statusFilterMatches(
+  book: Pick<Book, "status">,
+  filterValue: BookStatusFilter,
+): boolean {
   if (filterValue === BOOK_STATUS_FILTER_ALL) {
     return true;
   }
   return book.status === filterValue;
 }
 
-export function statusFilterOptions(): Array<{ value: BookStatusFilter; label: string }> {
+export function statusFilterOptions(): Array<{
+  value: BookStatusFilter;
+  label: string;
+}> {
   const options: Array<{ value: BookStatusFilter; label: string }> = [
     { value: BOOK_STATUS_FILTER_ALL, label: "All Statuses" },
   ];

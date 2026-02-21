@@ -1,15 +1,17 @@
-import type { Book } from './types.js';
+import type { Book } from "./types.js";
 
 const MONTH_INDEX_MIN = 1;
 const MONTH_INDEX_MAX = 12;
 const YEAR_MONTH_MULTIPLIER = 100;
 const ISO_DATE_PART_COUNT = 3;
 
-const NO_ESTIMATED_FINISH_KEY = 'finish:none';
-const NO_ESTIMATED_FINISH_LABEL = 'No estimated finish';
+const NO_ESTIMATED_FINISH_KEY = "finish:none";
+const NO_ESTIMATED_FINISH_LABEL = "No estimated finish";
 const NO_ESTIMATED_FINISH_ORDER = Number.MAX_SAFE_INTEGER;
 
-const monthLabelFormatter = new Intl.DateTimeFormat(undefined, { month: 'long' });
+const monthLabelFormatter = new Intl.DateTimeFormat(undefined, {
+  month: "long",
+});
 
 export type GroupMeta = {
   key: string;
@@ -21,12 +23,12 @@ export type GroupMeta = {
 function parseFinishDateParts(
   dateText?: string,
 ): { year: number; month: number; date: Date } | null {
-  const raw = String(dateText || '').trim();
+  const raw = String(dateText || "").trim();
   if (!raw) {
     return null;
   }
 
-  const parts = raw.split('-');
+  const parts = raw.split("-");
   if (parts.length !== ISO_DATE_PART_COUNT) {
     return null;
   }
@@ -70,7 +72,7 @@ export function finishDateMetaForBook(
 
   return {
     label,
-    key: `finish:${finishDate.year}-${String(finishDate.month).padStart(2, '0')}`,
+    key: `finish:${finishDate.year}-${String(finishDate.month).padStart(2, "0")}`,
     order: finishDate.year * YEAR_MONTH_MULTIPLIER + finishDate.month,
     tie: label,
   };
