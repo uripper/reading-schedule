@@ -4,12 +4,11 @@ const SPLASH_MIN_DURATION_MS = 3000;
 const SPLASH_CSS_FADE_DURATION_MS = 560;
 // Buffer for cases where transitionend is delayed or not dispatched.
 const SPLASH_TRANSITION_FALLBACK_BUFFER_MS = 120;
-const SPLASH_TRANSITION_FALLBACK_MS = (
-  SPLASH_CSS_FADE_DURATION_MS + SPLASH_TRANSITION_FALLBACK_BUFFER_MS
-);
+const SPLASH_TRANSITION_FALLBACK_MS =
+  SPLASH_CSS_FADE_DURATION_MS + SPLASH_TRANSITION_FALLBACK_BUFFER_MS;
 
 export function createSplashController() {
-  const splashScreen = document.getElementById('splashScreen');
+  const splashScreen = document.getElementById("splashScreen");
   const startedAt = performance.now();
 
   const finish = () => {
@@ -17,13 +16,15 @@ export function createSplashController() {
       return;
     }
 
-    document.body.classList.add('splash-exit');
+    document.body.classList.add("splash-exit");
     const removeSplash = () => {
       splashScreen.remove();
-      document.body.classList.remove('splash-exit');
+      document.body.classList.remove("splash-exit");
     };
 
-    splashScreen.addEventListener('transitionend', removeSplash, { once: true });
+    splashScreen.addEventListener("transitionend", removeSplash, {
+      once: true,
+    });
     globalThis.setTimeout(removeSplash, SPLASH_TRANSITION_FALLBACK_MS);
   };
 

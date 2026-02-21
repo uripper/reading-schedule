@@ -1,5 +1,5 @@
-import { sortRowsByDateAndSession, sessionKeyFor } from '../calendar/utils.js';
-import { pruneScheduleCompletions } from './schedule_preserve.js';
+import { sortRowsByDateAndSession, sessionKeyFor } from "../calendar/utils.js";
+import { pruneScheduleCompletions } from "./schedule_preserve.js";
 import {
   dayBookCompletionKey,
   dayBookCompletionKeyFromSession,
@@ -9,11 +9,9 @@ import {
   normalizedManualMinutes,
   rowsWithoutSession,
   wordsPlannedForManualSession,
-} from './calendar_interactions_helpers.js';
-import type { AppCalendarInteractionArgs } from './calendar_interactions_types.js';
-import type { PlannerResult, PlannerScheduleRow } from './types.js';
-
-
+} from "./calendar_interactions_helpers.js";
+import type { AppCalendarInteractionArgs } from "./calendar_interactions_types.js";
+import type { PlannerResult, PlannerScheduleRow } from "./types.js";
 
 export function configureAppCalendarInteractions({
   configureCalendarInteractions,
@@ -44,7 +42,7 @@ export function configureAppCalendarInteractions({
       return Boolean(state.scheduleCompletions?.[fallbackKey]);
     },
     onSessionCompletionChanged: ({ sessionKey, completed, row }) => {
-      let fallbackKey = '';
+      let fallbackKey = "";
       if (row?.date && row?.book_id) {
         fallbackKey = dayBookCompletionKey(row.date, row.book_id);
       }
@@ -78,15 +76,16 @@ export function configureAppCalendarInteractions({
         { notifyBooksChanged: false },
       );
       if (!updated) {
-        setStatus('Could not find that book to update progress.', true);
+        setStatus("Could not find that book to update progress.", true);
         return null;
       }
       if (row) {
         const completionKey = sessionKeyFor(row);
         state.scheduleCompletions[completionKey] = true;
-        state.scheduleCompletions[dayBookCompletionKey(row.date, row.book_id)] = true;
+        state.scheduleCompletions[dayBookCompletionKey(row.date, row.book_id)] =
+          true;
       }
-      setStatus(`Updated progress for ${updated.title || 'book'}.`);
+      setStatus(`Updated progress for ${updated.title || "book"}.`);
       queuePersist();
       onProgressUpdated(updated);
       return updated;
@@ -94,15 +93,15 @@ export function configureAppCalendarInteractions({
     getBookById: (bookId) => getBookById(bookId),
     listSessionBooks: () => manualSessionBooks(collectAllBooks()),
     onManualSessionAdded: ({ date, bookId, minutes, completed = false }) => {
-      const normalizedDate = String(date || '').trim();
+      const normalizedDate = String(date || "").trim();
       if (!normalizedDate) {
-        setStatus('Choose a calendar day before adding a session.', true);
+        setStatus("Choose a calendar day before adding a session.", true);
         return false;
       }
 
       const book = getBookById(bookId);
       if (!book) {
-        setStatus('Could not find that book.', true);
+        setStatus("Could not find that book.", true);
         return false;
       }
 
@@ -110,7 +109,10 @@ export function configureAppCalendarInteractions({
       const normalizedMinutes = normalizedManualMinutes(minutes);
       const previousResult = state.lastResult || emptyPlannerResult();
       const previousRows = previousResult.schedule || [];
-      const sessionIndex = nextSessionIndexForDate(previousRows, normalizedDate);
+      const sessionIndex = nextSessionIndexForDate(
+        normalizedDate,
+        previousRows,
+      );
       const wordsPlanned = wordsPlannedForManualSession({
         bookId: book.book_id,
         minutes: normalizedMinutes,
@@ -123,7 +125,7 @@ export function configureAppCalendarInteractions({
         date: normalizedDate,
         session_index: sessionIndex,
         book_id: book.book_id,
-        title: book.title || 'Untitled',
+        title: book.title || "Untitled",
         minutes: normalizedMinutes,
         words_planned: wordsPlanned,
       };
@@ -141,25 +143,32 @@ export function configureAppCalendarInteractions({
 
       if (completed) {
         state.scheduleCompletions[sessionKeyFor(addedRow)] = true;
-        state.scheduleCompletions[dayBookCompletionKey(addedRow.date, addedRow.book_id)] = true;
+        state.scheduleCompletions[
+          dayBookCompletionKey(addedRow.date, addedRow.book_id)
+        ] = true;
       }
 
       queuePersist();
       onScheduleRowsUpdated();
-      setStatus(`Added ${normalizedMinutes} minute session for "${addedRow.title}" on ${normalizedDate}.`);
+      setStatus(
+        `Added ${normalizedMinutes} minute session for "${addedRow.title}" on ${normalizedDate}.`,
+      );
       return true;
     },
     onSessionRemoved: ({ row }) => {
       const previousResult = state.lastResult || emptyPlannerResult();
       const previousRows = previousResult.schedule || [];
       const targetSessionKey = sessionKeyFor(row);
-      const nextRows = rowsWithoutSession(previousRows, targetSessionKey);
+      const nextRows = rowsWithoutSession(targetSessionKey, previousRows);
       if (nextRows.length === previousRows.length) {
-        setStatus('Could not find that session to remove.', true);
+        setStatus("Could not find that session to remove.", true);
         return false;
       }
 
-      const nextCompletions = pruneScheduleCompletions(state.scheduleCompletions, nextRows);
+      const nextCompletions = pruneScheduleCompletions(
+        state.scheduleCompletions,
+        nextRows,
+      );
       state.scheduleCompletions = nextCompletions;
       const nextResult: PlannerResult = {
         schedule: sortRowsByDateAndSession(nextRows),
@@ -169,14 +178,21 @@ export function configureAppCalendarInteractions({
       state.lastResult = nextResult;
       setLastResult(nextResult);
       setBookScheduleRows(nextResult.schedule);
-      renderCalendar(nextResult.schedule, totalsFromSummary(nextResult.summary));
+      renderCalendar(
+        nextResult.schedule,
+        totalsFromSummary(nextResult.summary),
+      );
 
       queuePersist();
       onScheduleRowsUpdated();
-      setStatus(`Removed session for "${row.title || 'book'}" on ${row.date}.`);
+      setStatus(`Removed session for "${row.title || "book"}" on ${row.date}.`);
       return true;
     },
   });
 }
 
-export {nextSessionIndexForDate, rowsWithoutSession, wordsPlannedForManualSession} from './calendar_interactions_helpers.js';
+export {
+  nextSessionIndexForDate,
+  rowsWithoutSession,
+  wordsPlannedForManualSession,
+} from "./calendar_interactions_helpers.js";

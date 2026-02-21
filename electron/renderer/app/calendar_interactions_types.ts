@@ -1,4 +1,4 @@
-import type { Book } from '../books/types.js';
+import type { Book } from "../books/types.js";
 import type {
   CompletionUpdate,
   ManualSessionAddInput,
@@ -6,14 +6,21 @@ import type {
   ProgressUpdateInput,
   RemoveSessionInput,
   UpdatedBook,
-} from './calendar_interactions_helpers.js';
-import type { PlannerResult, PlannerScheduleRow, PlannerSettings, PlannerSummary } from './types.js';
+} from "./calendar_interactions_helpers.js";
+import type {
+  PlannerResult,
+  PlannerScheduleRow,
+  PlannerSettings,
+  PlannerSummary,
+} from "./types.js";
 
 export type AppCalendarInteractionArgs = {
   configureCalendarInteractions: (handlers: {
     isSessionCompleted: (sessionKey: string) => boolean;
     onSessionCompletionChanged: (payload: CompletionUpdate) => void;
-    onSessionProgressUpdated: (payload: ProgressUpdateInput) => UpdatedBook | null;
+    onSessionProgressUpdated: (
+      payload: ProgressUpdateInput,
+    ) => UpdatedBook | null;
     getBookById: (bookId: string) => Book | null;
     listSessionBooks: () => ManualSessionBook[];
     onManualSessionAdded: (payload: ManualSessionAddInput) => boolean;
@@ -28,7 +35,10 @@ export type AppCalendarInteractionArgs = {
   collectSettings: () => PlannerSettings;
   collectAllBooks: () => Book[];
   setBookScheduleRows: (rows: PlannerScheduleRow[]) => void;
-  renderCalendar: (rows: PlannerScheduleRow[], totals: Record<string, number>) => void;
+  renderCalendar: (
+    rows: PlannerScheduleRow[],
+    totals: Record<string, number>,
+  ) => void;
   totalsFromSummary: (summary: PlannerSummary | null) => Record<string, number>;
   updateBookProgress: (
     bookId: string,

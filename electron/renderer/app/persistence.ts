@@ -1,7 +1,12 @@
-import type { Book } from '../books/types.js';
-import type { Session } from '../sessions/normalize.js';
-import type { FeatureFlags, Preferences } from './experience.js';
-import type { PlannerApi, PlannerResult, PlannerSettings, PlannerStateSnapshot } from './types.js';
+import type { Book } from "../books/types.js";
+import type { Session } from "../sessions/normalize.js";
+import type { FeatureFlags, Preferences } from "./experience.js";
+import type {
+  PlannerApi,
+  PlannerResult,
+  PlannerSettings,
+  PlannerStateSnapshot,
+} from "./types.js";
 
 interface SessionsUI {
   getSessions: () => Session[];
@@ -45,19 +50,21 @@ export function draftData({
 }
 
 export async function saveStateSafe(
-  plannerApi: Pick<PlannerApi, 'saveState'>,
+  plannerApi: Pick<PlannerApi, "saveState">,
   payload: PlannerStateSnapshot,
   addLog: AddLog,
 ): Promise<boolean> {
   try {
     const result = await plannerApi.saveState(payload);
     if (result.ok === false) {
-      addLog(`Save failed: ${result.error || 'Unknown state persistence error'}`);
+      addLog(
+        `Save failed: ${result.error || "Unknown state persistence error"}`,
+      );
       return false;
     }
     return true;
   } catch {
-    addLog('Save failed: unexpected state persistence error.');
+    addLog("Save failed: unexpected state persistence error.");
     return false;
   }
 }

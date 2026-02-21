@@ -1,9 +1,12 @@
-import type { Book } from '../books/types.js';
-import type { Session } from '../sessions/normalize.js';
-import type { FeatureFlags, Preferences } from './experience.js';
+import type { Book } from "../books/types.js";
+import type { Session } from "../sessions/normalize.js";
+import type { FeatureFlags, Preferences } from "./experience.js";
 
 export type JsonPrimitive = string | number | boolean | null;
-export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+export type JsonValue =
+  | JsonPrimitive
+  | JsonValue[]
+  | { [key: string]: JsonValue };
 
 export type PlannerSettings = {
   start_date?: string;
@@ -86,7 +89,7 @@ export type LoadedPlannerState = {
 };
 
 export type PlanGeneratePayload = {
-  planner: 'mip';
+  planner: "mip";
   books: Book[];
   settings: PlannerSettings;
 };
@@ -109,12 +112,20 @@ export type WindowFindResponse = {
 
 export type PlannerApi = {
   loadState: () => Promise<LoadedPlannerState | null | undefined>;
-  sample: () => Promise<Pick<PlannerStateSnapshot, 'settings' | 'books'>>;
+  sample: () => Promise<Pick<PlannerStateSnapshot, "settings" | "books">>;
   saveState: (state: PlannerStateSnapshot) => Promise<PlannerSaveResult>;
-  generate: (payload: PlanGeneratePayload) => Promise<Pick<PlannerResult, 'schedule' | 'summary'>>;
+  generate: (
+    payload: PlanGeneratePayload,
+  ) => Promise<Pick<PlannerResult, "schedule" | "summary">>;
   searchBooks: (query: string) => Promise<BookLookupItem[]>;
-  downloadCover: (url: string | undefined, bookId: string | undefined) => Promise<string>;
-  saveUploadedCover: (dataUrl: string | undefined, bookId: string | undefined) => Promise<string>;
+  downloadCover: (
+    url: string | undefined,
+    bookId: string | undefined,
+  ) => Promise<string>;
+  saveUploadedCover: (
+    dataUrl: string | undefined,
+    bookId: string | undefined,
+  ) => Promise<string>;
   findInPage: (payload: WindowFindRequest) => Promise<WindowFindResponse>;
   stopFindInPage: () => Promise<WindowFindResponse>;
   zoomIn: () => Promise<number>;

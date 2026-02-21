@@ -125,7 +125,10 @@ export function wordsPlannedForManualSession({
   return Math.max(MIN_MANUAL_WORDS, Math.round(planned));
 }
 
-export function nextSessionIndexForDate(rows: PlannerScheduleRow[] = [], date: string): number {
+export function nextSessionIndexForDate(
+  date: string,
+  rows: PlannerScheduleRow[] = [],
+): number {
   let maxIndex = 0;
   rows.forEach((row) => {
     if (String(row.date || '') !== date) {
@@ -140,8 +143,8 @@ export function nextSessionIndexForDate(rows: PlannerScheduleRow[] = [], date: s
 }
 
 export function rowsWithoutSession(
-  rows: PlannerScheduleRow[] = [],
   targetSessionKey: string,
+  rows: PlannerScheduleRow[] = [],
 ): PlannerScheduleRow[] {
   const key = String(targetSessionKey || '');
   if (!key) {
