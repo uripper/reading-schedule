@@ -1,6 +1,12 @@
+// Keep this long enough to let the splash animations settle before removal.
 const SPLASH_MIN_DURATION_MS = 3000;
-const SPLASH_FADE_DURATION_MS = 600;
-const SPLASH_ADJUSTMENT= 120;
+// Keep in sync with .splash-screen transition duration in electron/styles/base.css.
+const SPLASH_CSS_FADE_DURATION_MS = 560;
+// Buffer for cases where transitionend is delayed or not dispatched.
+const SPLASH_TRANSITION_FALLBACK_BUFFER_MS = 120;
+const SPLASH_TRANSITION_FALLBACK_MS = (
+  SPLASH_CSS_FADE_DURATION_MS + SPLASH_TRANSITION_FALLBACK_BUFFER_MS
+);
 
 export function createSplashController() {
   const splashScreen = document.getElementById('splashScreen');
@@ -18,7 +24,7 @@ export function createSplashController() {
     };
 
     splashScreen.addEventListener('transitionend', removeSplash, { once: true });
-    globalThis.setTimeout(removeSplash, SPLASH_FADE_DURATION_MS + SPLASH_ADJUSTMENT);
+    globalThis.setTimeout(removeSplash, SPLASH_TRANSITION_FALLBACK_MS);
   };
 
   const completeWhenReady = () => {

@@ -7,6 +7,7 @@ import {
   type BookGroupBy,
 } from './grouping.js';
 import { SHELF_FILTER_ALL, SHELF_FILTER_UNSHELVED } from './shelf.js';
+import type { OpenDialogOptions } from './dialog.js';
 import {
   SORT_BY_AUTHOR,
   SORT_BY_DEADLINE,
@@ -38,7 +39,7 @@ export type BooksControllerRefs = {
 };
 
 export type BookDialogController = {
-  open: (book?: Book | null, options?: { defaultShelf?: string }) => void;
+  open: (book?: Book | null, options?: OpenDialogOptions) => void;
 };
 
 export type BooksViewState = {

@@ -128,7 +128,7 @@ const tsLines = [
   "export const tokenVarByName = {",
   ...Object.keys(resolved)
     .sort()
-    .map((key) => `  "${key}": "var(${cssVarName(key)})",`),
+    .map(key => `  "${key}": "var(${cssVarName(key)})",`),
   "} as const;",
   "",
   "export type TokenName = keyof typeof tokenVarByName;",

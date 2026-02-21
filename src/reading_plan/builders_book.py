@@ -13,7 +13,7 @@ from .validate import validate_book
 
 
 def _estimated_words_read_from_pages(
-    pages_read: int, words_full: int, pages_raw: Any
+    pages_read: int, words_full: int, pages_raw: int | None
 ) -> int:
     """Estimate words read from pages, preferring per-book density when possible."""
     pages_total = optional_int(pages_raw, "pages_total")

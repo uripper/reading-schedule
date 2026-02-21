@@ -10,6 +10,28 @@ if (-not $SourcePath) { throw "Pass -SourcePath (Windows path to project root)."
 if (-not (Test-Path $SourcePath)) { throw "Source path not found: $SourcePath" }
 if ($PollSeconds -lt 1) { throw "PollSeconds must be >= 1." }
 
+function Ensure-CommandAvailable([string]$commandName, [string]$installHint) {
+  if (Get-Command $commandName -ErrorAction SilentlyContinue) {
+    return
+  }
+  throw "Required command '$commandName' was not found. $installHint"
+}
+
+function Ensure-PythonSpecAvailable([string]$spec) {
+  try {
+    & py -$spec -V *> $null
+  } catch {
+    throw "Python launcher target '-$spec' is unavailable. Install Python and ensure 'py -$spec' works."
+  }
+  if ($LASTEXITCODE -ne 0) {
+    throw "Python launcher target '-$spec' is unavailable. Install Python and ensure 'py -$spec' works."
+  }
+}
+
+Ensure-CommandAvailable 'robocopy' "Verify robocopy.exe is available on PATH."
+Ensure-CommandAvailable 'py' "Install Python for Windows with the Python Launcher enabled."
+Ensure-PythonSpecAvailable $PythonSpec
+
 function Get-PythonMajorMinor([string]$pythonExe) {
   return (& $pythonExe -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')").Trim()
 }

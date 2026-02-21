@@ -14,7 +14,7 @@ type BookDialogOptions = {
   getBooks?: () => Book[];
 };
 
-type OpenDialogOptions = {
+export type OpenDialogOptions = {
   defaultShelf?: string;
 };
 

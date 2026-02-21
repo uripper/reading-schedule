@@ -80,3 +80,4 @@ sonar-project.properties
 .scannerwork/.sonar_lock
 .scannerwork/report-task.txt
 .sonarlint/connectedMode.json
+.github/instructions/sonarqube_mcp.instructions.md

@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
+    "@types/node": "^25.3.0",
     "electron": "^40.4.1",
     "eslint": "^9.39.2",
     "globals": "^17.3.0",
