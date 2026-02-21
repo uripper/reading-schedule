@@ -18,7 +18,7 @@ Guidance for coding agents working in this repository.
 - `electron/renderer/`: UI/runtime logic by feature area.
 - `scripts/`: style audit, issue sync, Windows helper scripts.
 - `STYLEGUIDE.md`: non-negotiable engineering rules (must follow).
-- `ISSUES.md`: issue catalog synced to GitHub with `scripts/sync_issues.sh`.
+- `Issues/`: issue catalog synced to GitHub with `scripts/sync_issues.sh` (`Open/` and `Closed/`).
 
 ## 3) Working Rules (Non-Negotiable)
 
@@ -109,4 +109,3 @@ Before handing work back:
 - Tests updated for behavior changes.
 - Docs updated for behavior/config/API/command changes.
 - Change intent is clear without reverse-engineering.
-
