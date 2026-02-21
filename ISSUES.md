@@ -558,27 +558,6 @@ Definition of done:
 - Ensure that this additional data is persisted and can be exported in session logs.
 - Add tests for session data model extensions and UI interactions.
 
-## ISSUE-021: External integrations and synchronization
-
-Type: enhancement
-Priority: P3
-Labels: enhancement, desktop, planner
-
-Problem:
-
-Bartleby currently operates in isolation. Users often split their reading workflow across trackers, devices, note tools, calendars, and audiobook apps, which creates duplicated effort and fragmented data.
-
-Expected:
-
-Bartleby supports a modular integrations system that can connect to external services for reading progress, notes, and scheduling sync. The implementation should be phased so individual integrations can ship incrementally.
-
-Definition of done:
-
-- Epic broken into scoped child issues.
-- Child issues define MVP integration path (at least one provider end-to-end).
-- Child issues cover backend sync framework, UI/auth, and at least one integration category.
-- Documentation added for integration architecture and rollout plan.
-
 ## ISSUE-021: Candidate feature - Synchronization with external reading trackers (Goodreads, StoryGraph, etc...), synchronization with e-reader devices (Kindle, Kobo, etc...), and/or integration with note-taking tools (Obsidian, Notion, etc...), synchronization with calendar apps (Google Calendar, Apple Calendar, etc...), and synchronization with audiobook platforms (Audible, Libby, etc...).
 
 **Type:** enhancement

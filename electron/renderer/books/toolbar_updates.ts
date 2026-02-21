@@ -28,9 +28,10 @@ export function updateShelfFilterOptions(
   shelfFilterSelect.replaceChildren(
     ...options.map((option) => createOption(option.value, option.label)),
   );
-  const nextValue = options.some((option) => option.value === selectedValue)
-    ? selectedValue
-    : options[0].value;
+  let nextValue = options[0].value;
+  if (options.some((option) => option.value === selectedValue)) {
+    nextValue = selectedValue;
+  }
   shelfFilterSelect.value = nextValue;
   return nextValue;
 }
@@ -45,7 +46,10 @@ export function updateStatusFilterOptions(
   );
   const normalized = normalizeStatusFilter(selectedValue);
   const selected = options.find((option) => option.value === normalized);
-  const nextValue = selected ? selected.value : options[0].value;
+  let nextValue: BookStatusFilter = options[0].value;
+  if (selected) {
+    nextValue = selected.value;
+  }
   statusFilterSelect.value = nextValue;
   return nextValue;
 }
@@ -59,9 +63,10 @@ export function updateGroupByOptions(
   groupBySelect.replaceChildren(
     ...options.map((option) => createOption(option.value, option.label)),
   );
-  const nextValue = options.some((option) => option.value === selectedValue)
-    ? selectedValue
-    : GROUP_BY_NONE;
+  let nextValue: BookGroupBy = GROUP_BY_NONE;
+  if (options.some((option) => option.value === selectedValue)) {
+    nextValue = selectedValue;
+  }
   groupBySelect.value = nextValue;
   return nextValue;
 }
