@@ -24,10 +24,10 @@ export type PlannerSettings = {
   w_smooth?: number;
   minutes_by_weekday?: Record<string, number>;
   days_off?: string[];
-  difficulty_multiplier?: Record<string, number>;
+  difficulty_multiplier?: Partial<Record<string, number>>;
 } & Record<string, JsonValue>;
 
-export type PlannerScheduleRow = {
+export interface PlannerScheduleRow {
   date: string;
   session_index: number;
   book_id: string;
@@ -35,14 +35,14 @@ export type PlannerScheduleRow = {
   minutes: number;
   words_planned: number;
   finish?: boolean;
-};
+}
 
-export type PlannerSummaryBook = {
+export interface PlannerSummaryBook {
   words_total?: number;
   words_planned?: number;
   minutes_planned?: number;
   finished?: boolean;
-};
+}
 
 export type PlannerSummary = {
   feasibility_warning?: string | null;
@@ -52,13 +52,13 @@ export type PlannerSummary = {
   per_book?: Record<string, PlannerSummaryBook>;
 } & Record<string, JsonValue>;
 
-export type PlannerResult = {
+export interface PlannerResult {
   schedule: PlannerScheduleRow[];
   summary: PlannerSummary | null;
   created_at: string;
-};
+}
 
-export type BookLookupItem = {
+export interface BookLookupItem {
   title?: string;
   author?: string;
   year?: string | number;
@@ -66,9 +66,9 @@ export type BookLookupItem = {
   cover_url?: string;
   words_estimate?: number;
   pages_estimate?: number;
-};
+}
 
-export type PlannerStateSnapshot = {
+export interface PlannerStateSnapshot {
   settings: PlannerSettings;
   books: Book[];
   preferences: Preferences;
@@ -76,9 +76,9 @@ export type PlannerStateSnapshot = {
   schedule_completions: Record<string, boolean>;
   sessions: Session[];
   last_result: PlannerResult | null;
-};
+}
 
-export type LoadedPlannerState = {
+export interface LoadedPlannerState {
   settings?: PlannerSettings;
   books?: Book[];
   preferences?: Partial<Preferences>;
@@ -86,15 +86,15 @@ export type LoadedPlannerState = {
   schedule_completions?: Record<string, boolean>;
   sessions?: Session[];
   last_result?: PlannerResult | null;
-};
+}
 
-export type PlanGeneratePayload = {
+export interface PlanGeneratePayload {
   planner: "mip";
   books: Book[];
   settings: PlannerSettings;
-};
+}
 
-export type PlannerSaveResult = {
+export interface PlannerSaveResult {
   ok?: boolean;
   error?: string;
-};
+}

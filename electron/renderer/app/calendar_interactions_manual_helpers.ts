@@ -60,10 +60,9 @@ function difficultyMultiplier(
   settings: PlannerSettings,
   difficulty: number,
 ): number {
-  const multiplierByDifficulty = settings.difficulty_multiplier;
+  const multiplierByDifficulty = settings.difficulty_multiplier ?? {};
   const exact = multiplierByDifficulty[difficulty];
-  const byKey = multiplierByDifficulty[String(difficulty)];
-  const multiplier = Number(exact ?? byKey ?? DEFAULT_DIFFICULTY_MULTIPLIER);
+  const multiplier = Number(exact ?? DEFAULT_DIFFICULTY_MULTIPLIER);
   if (!Number.isFinite(multiplier) || multiplier <= 0) {
     return DEFAULT_DIFFICULTY_MULTIPLIER;
   }
@@ -101,7 +100,7 @@ export function wordsPlannedForManualSession({
       Math.round(normalizedMinutes * historicalWpm),
     );
   }
-  const base = Number(settings.wpm_base || DEFAULT_MANUAL_WPM_BASE);
+  const base = Number(settings.wpm_base ?? DEFAULT_MANUAL_WPM_BASE);
   let wpmBase = DEFAULT_MANUAL_WPM_BASE;
   if (Number.isFinite(base) && base > 0) {
     wpmBase = base;
