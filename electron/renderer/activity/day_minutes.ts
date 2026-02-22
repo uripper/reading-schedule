@@ -118,7 +118,7 @@ export function streakFromDayMinutes(
   const cursor = new Date();
 
   // while (true) is intended, eslint is hallucinating here.
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+   
   while (true) {
     const dayKey = isoLocalDayKey(cursor.toISOString());
     const minutes = dayMinutesForKey(dayMinutes, dayKey);
