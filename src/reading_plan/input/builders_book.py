@@ -5,10 +5,10 @@ from __future__ import annotations
 from typing import Any
 from uuid import uuid4
 
-from .builders_coerce import optional_int, to_float, to_int
-from .builders_shared import WORDS_PER_PAGE
 from ..calendar import parse_date
 from ..types import Book
+from .builders_coerce import optional_int, to_float, to_int
+from .builders_shared import WORDS_PER_PAGE
 from .validate import validate_book
 
 

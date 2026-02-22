@@ -7,10 +7,10 @@ import json
 from pathlib import Path
 
 from .input.io import load_inputs
-from .reporting.report import build_summary, format_summary
-from .schedule.schedule import to_schedule_rows, write_schedule_csv
 from .input.serializers import book_to_data, settings_to_data
 from .planning.solve import solve_plan
+from .reporting.report import build_summary, format_summary
+from .schedule.schedule import to_schedule_rows, write_schedule_csv
 
 
 def parse_args() -> argparse.Namespace:

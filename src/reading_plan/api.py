@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from .input.builders import book_from_data, settings_from_data
+from .planning.solve import solve_plan
 from .reporting.report import build_summary
 from .schedule.schedule import to_schedule_rows
-from .planning.solve import solve_plan
 from .types import Book
 
 

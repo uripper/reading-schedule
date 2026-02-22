@@ -163,6 +163,7 @@ Run all commands relevant to touched areas before merge.
 
 ### Python Planner
 
+- `npm run lint:python`
 - `.venv/bin/pytest -q`
 
 If any required command fails, do not merge.
@@ -223,7 +224,7 @@ A change is done only when all are true:
 
 - Long file scan: `find src electron scripts tests -name "*.ts" -o -name "*.tsx" -o -name "*.py" | xargs wc -l | sort -nr`
 
-- Full check: `npm --prefix electron run lint && npm --prefix electron run typecheck && .venv/bin/pytest -q`
+- Full check: `npm --prefix electron run lint && npm --prefix electron run typecheck && npm run lint:python && .venv/bin/pytest -q`
 
 These checks are advisory; required validation commands are mandatory.
 

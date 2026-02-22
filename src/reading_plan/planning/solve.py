@@ -5,8 +5,8 @@ from __future__ import annotations
 from datetime import date
 from typing import Protocol, SupportsInt
 
-from .greedy import plan_greedy
 from ..types import Book, PlanResult, Settings
+from .greedy import plan_greedy
 
 
 def solve_plan(
@@ -55,6 +55,7 @@ def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     """Solve with CP-SAT, falling back to greedy when OR-Tools is unavailable."""
     try:
         from ortools.sat.python import cp_model
+
         from .model import build_cp_sat
     except ImportError:
         note = "OR-Tools is unavailable; fell back to greedy planner."

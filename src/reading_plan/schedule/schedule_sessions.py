@@ -6,8 +6,8 @@ import math
 from collections.abc import Iterator
 from datetime import date
 
-from ..planning.budget import words_per_block, words_per_minute
 from ..calendar import date_range
+from ..planning.budget import words_per_block, words_per_minute
 from ..types import Book, Settings
 
 Session = tuple[date, int, Book, int, int]

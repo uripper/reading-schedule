@@ -5,9 +5,13 @@ from __future__ import annotations
 from datetime import date
 from typing import Any
 
-from .builders_coerce import to_float, to_int
 from ..calendar import parse_date
-from ..types import DEFAULT_DIFFICULTY_MULTIPLIER, PLAN_MODE_FINISH_SOON, Settings
+from ..types import (
+    DEFAULT_DIFFICULTY_MULTIPLIER,
+    PLAN_MODE_FINISH_SOON,
+    Settings,
+)
+from .builders_coerce import to_float, to_int
 from .validate import validate_settings
 
 

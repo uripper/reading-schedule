@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from datetime import date
 
-from .schedule_sessions import iter_sessions
 from ..types import Book, Settings
+from .schedule_sessions import iter_sessions
 
 
 def compute_plan_totals(

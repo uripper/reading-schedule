@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from ..planning.budget import calendar_minutes, required_total_minutes
-from .report_types import BookProgress, Summary
 from ..schedule.schedule import compute_plan_totals
 from ..types import Book, PlanResult, Settings
+from .report_types import BookProgress, Summary
 
 
 def build_summary(books: list[Book], settings: Settings, result: PlanResult) -> Summary:

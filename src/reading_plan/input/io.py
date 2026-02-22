@@ -6,8 +6,8 @@ import csv
 import json
 from pathlib import Path
 
-from .builders import book_from_data, settings_from_data
 from ..types import Book, Settings
+from .builders import book_from_data, settings_from_data
 
 
 def load_books(path: str) -> list[Book]:

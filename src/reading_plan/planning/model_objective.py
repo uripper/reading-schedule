@@ -6,7 +6,7 @@ from datetime import date
 
 from ortools.sat.python import cp_model
 
-from ..types import Book, PLAN_MODE_SPREAD_OUT, Settings
+from ..types import PLAN_MODE_SPREAD_OUT, Book, Settings
 
 
 def _priority_weights(books: list[Book]) -> dict[str, int]:
