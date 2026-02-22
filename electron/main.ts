@@ -13,7 +13,7 @@ import { readState, writeState } from "./state_store";
 import { findInPage, stopFindInPage } from "./window_find";
 
 /**
- *
+ * Creates and initializes the main application browser window.
  */
 function createWindow(): void {
   const iconPath = path.join(__dirname, "assets", "logo.png");
@@ -30,7 +30,8 @@ function createWindow(): void {
 }
 
 /**
- *
+ * Resolves the app-specific user data directory path.
+ * @returns Absolute path for persisted app data.
  */
 function userData(): string {
   return app.getPath("userData");

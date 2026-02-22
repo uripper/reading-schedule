@@ -20,18 +20,21 @@ interface FindControllerArgs {
 }
 
 /**
- *
- * @param target
- * @param message
+ * Updates the visible and announced text for the find status output.
+ * @param target Output element showing the current find status.
+ * @param message Status message to render.
+ * @returns Nothing.
  */
 function setFindStatus(target: HTMLOutputElement, message: string): void {
   target.value = message;
   target.textContent = message;
+  return undefined;
 }
 
 /**
- *
- * @param result
+ * Converts a find response into user-facing match progress text.
+ * @param result IPC response from the find-in-page operation.
+ * @returns Human-readable find status text.
  */
 function formatFindStatus(result: WindowFindResponse): string {
   if (result.matches <= 0) {
@@ -41,16 +44,17 @@ function formatFindStatus(result: WindowFindResponse): string {
 }
 
 /**
- *
- * @param root0
- * @param root0.announce
- * @param root0.findBar
- * @param root0.findCloseButton
- * @param root0.findInput
- * @param root0.findNextButton
- * @param root0.findPrevButton
- * @param root0.findStatus
- * @param root0.plannerApi
+ * Creates handlers for find-bar lifecycle, keyboard shortcuts, and navigation.
+ * @param root0 Find controller dependencies and DOM bindings.
+ * @param root0.announce Live-region announcer for find failures.
+ * @param root0.findBar Container element for the find controls.
+ * @param root0.findCloseButton Button that closes the find bar.
+ * @param root0.findInput Text input for the query.
+ * @param root0.findNextButton Button that jumps to next match.
+ * @param root0.findPrevButton Button that jumps to previous match.
+ * @param root0.findStatus Output element used for match feedback.
+ * @param root0.plannerApi IPC bridge methods for find operations.
+ * @returns Controller object for binding and shortcut handling.
  */
 export function createFindController({
   announce,

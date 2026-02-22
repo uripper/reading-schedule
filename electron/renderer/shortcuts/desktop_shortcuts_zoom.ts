@@ -12,17 +12,19 @@ const ZOOM_PERCENT_FACTOR = 100;
 type ZoomApi = Pick<PlannerApi, "zoomIn" | "zoomOut" | "zoomReset">;
 
 /**
- *
- * @param zoomFactor
+ * Formats the current zoom factor for user-facing announcements.
+ * @param zoomFactor Browser zoom factor (for example `1` for 100%).
+ * @returns Human-readable zoom text.
  */
 function formatZoomAnnouncement(zoomFactor: number): string {
   return `Zoom ${Math.round(zoomFactor * ZOOM_PERCENT_FACTOR)}%`;
 }
 
 /**
- *
- * @param plannerApi
- * @param announce
+ * Creates a keyboard handler that routes zoom shortcuts through planner IPC.
+ * @param plannerApi Planner bridge API exposing zoom operations.
+ * @param announce Live-region announcer for zoom feedback.
+ * @returns Keyboard handler that reports whether it handled the shortcut.
  */
 export function createZoomShortcutHandler(
   plannerApi: ZoomApi,

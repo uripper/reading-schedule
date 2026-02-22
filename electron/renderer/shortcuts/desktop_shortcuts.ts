@@ -12,10 +12,10 @@ interface ShortcutBindings {
 }
 
 /**
- *
- * @param root0
- * @param root0.announce
- * @param root0.plannerApi
+ * Wires global desktop shortcut handlers for find-in-page and zoom commands.
+ * @param root0 Shortcut dependencies.
+ * @param root0.announce Live-region announcer for shortcut feedback messages.
+ * @param root0.plannerApi Bridge API for find and zoom actions.
  */
 export function bindDesktopShortcuts({
   announce,
