@@ -135,7 +135,7 @@ def _add_progress_constraints(
     return finished, useful_words
 
 
-@dataclass
+@dataclass(frozen=True)
 class ModelBuildContext:
     """Shared state used while building the planner CP-SAT model."""
 
