@@ -39,7 +39,9 @@ export interface BookFormRefs {
 }
 
 /**
+ * Resolves and returns strongly typed DOM references for the book dialog form.
  *
+ * @returns Book form references used by dialog state and event handlers.
  */
 export function getBookFormRefs(): BookFormRefs {
   return {

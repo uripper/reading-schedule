@@ -4,8 +4,10 @@ import type { Book } from "./types.js";
 const SESSION_INDEX_PAD = 3;
 
 /**
+ * Builds sortable key for schedule rows using date and padded session index.
  *
- * @param row
+ * @param row Planner schedule row.
+ * @returns Lexicographically sortable row key.
  */
 function rowSortKey(row: PlannerScheduleRow): string {
   const index = String(row.session_index || 0).padStart(SESSION_INDEX_PAD, "0");
@@ -13,8 +15,10 @@ function rowSortKey(row: PlannerScheduleRow): string {
 }
 
 /**
+ * Returns schedule rows sorted by date and session index.
  *
- * @param rows
+ * @param rows Planner schedule rows.
+ * @returns Sorted rows copy.
  */
 function sortRows(rows: PlannerScheduleRow[] = []): PlannerScheduleRow[] {
   return [...rows].sort((left, right) => {
@@ -23,9 +27,11 @@ function sortRows(rows: PlannerScheduleRow[] = []): PlannerScheduleRow[] {
 }
 
 /**
+ * Overlays explicit read completion dates onto derived finish-date map.
  *
- * @param finishDateByBookId
- * @param books
+ * @param finishDateByBookId Derived finish-date lookup map.
+ * @param books Books collection with possible `finished_at` values.
+ * @returns Finish-date map where explicit read dates take precedence.
  */
 function withBookFinishedDates(
   finishDateByBookId: Record<string, string>,
@@ -45,9 +51,11 @@ function withBookFinishedDates(
 }
 
 /**
+ * Builds estimated finish-date lookup keyed by `book_id`.
  *
- * @param rows
- * @param books
+ * @param rows Planner schedule rows.
+ * @param books Books collection used to overlay explicit read dates.
+ * @returns Finish-date map for books grid sorting/grouping.
  */
 export function finishDatesByBookId(
   rows: PlannerScheduleRow[] = [],

@@ -21,8 +21,10 @@ export interface GroupMeta {
 }
 
 /**
+ * Parses `YYYY-MM-DD` finish dates into grouping metadata parts.
  *
- * @param dateText
+ * @param dateText Finish date text.
+ * @returns Parsed year/month/date parts or `null` when invalid.
  */
 function parseFinishDateParts(
   dateText?: string,
@@ -54,10 +56,12 @@ function parseFinishDateParts(
 }
 
 /**
+ * Builds finish-date grouping metadata for one book.
  *
- * @param book
- * @param finishDateByBookId
- * @param currentYear
+ * @param book Book being grouped.
+ * @param finishDateByBookId Finish-date lookup keyed by `book_id`.
+ * @param currentYear Current calendar year for short labels.
+ * @returns Group metadata for finish date or no-estimate bucket.
  */
 export function finishDateMetaForBook(
   book: Book,
