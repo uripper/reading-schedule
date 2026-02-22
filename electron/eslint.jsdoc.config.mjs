@@ -41,7 +41,7 @@ export default baseConfig.map(config => {
   if ("rules" in next && next.rules) {
     next.rules = {
       ...keepOnlyJsdocRules(next.rules),
-      // Don't change fucker
+      // FUCK YOU DO NOT CHANGE
     };
   }
 
