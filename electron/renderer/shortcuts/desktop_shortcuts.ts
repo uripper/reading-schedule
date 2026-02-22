@@ -1,5 +1,5 @@
-import type { PlannerApi } from "./app/types.js";
-import { el } from "./dom.js";
+import type { PlannerApi } from "../app/types.js";
+import { el } from "../dom.js";
 import { createFindController } from "./desktop_shortcuts_find.js";
 import { createZoomShortcutHandler } from "./desktop_shortcuts_zoom.js";
 

@@ -1,6 +1,6 @@
-import type { PlannerApi, WindowFindResponse } from "./app/types.js";
+import type { PlannerApi, WindowFindResponse } from "../app/types.js";
 import { isCommandPressed } from "./desktop_shortcuts_keys.js";
-import { logError } from "./logger.js";
+import { logError } from "../logger.js";
 
 const FIND_STATUS_HINT = "Type to search";
 const FIND_STATUS_NO_MATCH = "No matches";

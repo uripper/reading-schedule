@@ -4,7 +4,7 @@ import {
   SOCIAL_FEATURES_AVAILABLE,
   shippedFeatureFlag,
   shippedReminderTime,
-} from "./experience_availability.js";
+} from "./availability.js";
 export type Preferences = {
   theme: "system" | "light" | "dark";
   reduceMotion: boolean;

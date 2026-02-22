@@ -1,5 +1,5 @@
-import type { PlannerApi } from "./app/types.js";
-import { logError } from "./logger.js";
+import type { PlannerApi } from "../app/types.js";
+import { logError } from "../logger.js";
 import {
   isCommandPressed,
   isZoomInShortcut,

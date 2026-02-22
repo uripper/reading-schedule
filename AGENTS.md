@@ -79,6 +79,11 @@ Helpful aggregate checks:
   - `npm run typecheck:desktop`
   - `npm run build:desktop`
 
+For broad refactors or project-wide cleanup work, run these repo-level checks by default unless the user explicitly asks you not to:
+
+- `npm run audit`
+- `npm run lint:desktop`
+
 If a required command fails, the change is not done.
 
 ## 7) Documentation and Change Scope

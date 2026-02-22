@@ -5,7 +5,7 @@ import {
   streakFromDayMinutes,
 } from "../../activity/day_minutes.js";
 import type { Book } from "../../books/types.js";
-import type { FeatureFlags, Preferences } from "../experience/experience.js";
+import type { FeatureFlags, Preferences } from "../experience/index.js";
 import { renderTodayScheduledBooks } from "./today_books_view.js";
 import {
   buildTodayScheduleSnapshot,

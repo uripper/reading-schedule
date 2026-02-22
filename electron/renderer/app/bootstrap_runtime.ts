@@ -1,4 +1,4 @@
-import { applyPreferencesToDocument, createAnnouncer } from "../a11y.js";
+import { applyPreferencesToDocument, createAnnouncer } from "../accessibility/a11y.js";
 import { collectAllBooks } from "../books.js";
 import { focusCalendarToday } from "../calendar.js";
 import { el } from "../dom.js";
@@ -8,13 +8,13 @@ import { updateStatsView } from "../stats.js";
 import {
   collectFeatureFlagsFromUI,
   collectPreferencesFromUI,
-} from "./experience/experience_ui.js";
-import { normalizeFeatureFlags, normalizePreferences } from "./experience/experience.js";
+} from "./experience/index.js";
+import { normalizeFeatureFlags, normalizePreferences } from "./experience/index.js";
 import { createDashboardRuntime } from "./dashboard_runtime.js";
-import { createInitRuntime } from "./init/init_runtime.js";
+import { createInitRuntime } from "./init/index.js";
 import { createPersistQueue, createStatusSetter } from "./runtime_helpers.js";
 import { createRuntimeState } from "./runtime_state.js";
-import { updateTodayDashboard } from "./today/today.js";
+import { updateTodayDashboard } from "./today/index.js";
 import type { PlannerApi } from "./types.js";
 
 export interface AppBootstrapContext {

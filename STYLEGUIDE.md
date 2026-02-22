@@ -51,6 +51,8 @@ A PR must not merge if any of the following is true:
 - Prefer many small focused modules over large mixed-purpose files.
 - Split by responsibility, not by arbitrary type groupings.
 - Avoid circular dependencies.
+- For feature directories (for example under `electron/renderer/app/*`), expose cross-feature APIs through a local `index.ts` barrel and prefer importing from that barrel instead of deep relative file paths.
+- Keep feature module naming predictable by role when practical (for example `model`, `ui`, `bindings`, `availability`, `schedule_completions`) instead of mixed naming styles.
 
 ### Control Flow and Readability
 

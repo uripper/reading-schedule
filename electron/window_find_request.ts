@@ -5,7 +5,7 @@ import type { Result as FindInPageEventResult } from "electron";
 import type {
   WindowFindRequest,
   WindowFindResponse,
-} from "./renderer/shared_window_find_types.js";
+} from "./renderer/shared/window_find_types.js";
 
 const EMPTY_MATCH_COUNT = 0;
 const EMPTY_ACTIVE_MATCH_ORDINAL = 0;
@@ -68,4 +68,4 @@ export function toFindResponse(
   };
 }
 
-export type { WindowFindRequest, WindowFindResponse } from "./renderer/shared_window_find_types.js";
+export type { WindowFindRequest, WindowFindResponse } from "./renderer/shared/window_find_types.js";

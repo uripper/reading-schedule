@@ -1,4 +1,4 @@
-import { el } from "./dom.js";
+import { el } from "../dom.js";
 
 const ANNOUNCE_DELAY_MS = 30;
 type AnnouncePoliteness = "polite" | "assertive";

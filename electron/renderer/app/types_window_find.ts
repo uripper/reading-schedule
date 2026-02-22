@@ -1,4 +1,4 @@
 export type {
   WindowFindRequest,
   WindowFindResponse,
-} from "../shared_window_find_types.js";
+} from "../shared/window_find_types.js";

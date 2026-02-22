@@ -1,13 +1,13 @@
 import { el } from "../../dom.js";
-import type { FeatureFlags, Preferences } from "./experience.js";
-import { DEFAULT_PREFERENCES } from "./experience.js";
+import type { FeatureFlags, Preferences } from "./model.js";
+import { DEFAULT_PREFERENCES } from "./model.js";
 import {
   RECOMMENDATIONS_AVAILABLE,
   REMINDERS_AVAILABLE,
   SOCIAL_FEATURES_AVAILABLE,
   shippedFeatureFlag,
   shippedReminderTime,
-} from "./experience_availability.js";
+} from "./availability.js";
 
 export function fillPreferencesUI(
   preferences: Preferences,

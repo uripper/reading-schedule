@@ -4,14 +4,14 @@ import {
   type FeatureFlags,
   isSupportedTheme,
   type Preferences,
-} from "./experience.js";
+} from "./model.js";
 import {
   RECOMMENDATIONS_AVAILABLE,
   REMINDERS_AVAILABLE,
   SOCIAL_FEATURES_AVAILABLE,
   shippedFeatureFlag,
   shippedReminderTime,
-} from "./experience_availability.js";
+} from "./availability.js";
 
 function numberInputValue(id: string): number {
   const raw = el<HTMLInputElement>(id).value;

@@ -10,12 +10,12 @@ import {
   configureCalendarInteractions,
   renderCalendar,
 } from "../../calendar.js";
-import { bindDesktopShortcuts } from "../../desktop_shortcuts.js";
+import { bindDesktopShortcuts } from "../../shortcuts/desktop_shortcuts.js";
 import { addLog, bindHelpDialog } from "../../help.js";
 import { collectSettings, initSettingsGrid } from "../../settings.js";
 import { bindTabs } from "../../tabs.js";
-import { configureAppCalendarInteractions } from "../calendar_interactions/calendar_interactions.js";
-import { bindExperienceSettings } from "../experience/experience_bindings.js";
+import { configureAppCalendarInteractions } from "../calendar_interactions/index.js";
+import { bindExperienceSettings } from "../experience/index.js";
 import {
   createAppPlanControllerInstance,
   setupSkipLink,

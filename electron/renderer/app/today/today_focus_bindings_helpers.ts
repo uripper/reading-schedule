@@ -1,6 +1,6 @@
 import { normalizeSession, type Session } from "../../sessions/normalize.js";
 import { sessionKeyFor } from "../../calendar/utils.js";
-import { dayBookCompletionKey } from "../calendar_interactions/calendar_interactions_helpers.js";
+import { dayBookCompletionKey } from "../calendar_interactions/index.js";
 import { TINY_START_MINUTES, type FocusSession } from "./today_focus.js";
 import type { PlannerScheduleRow } from "../types.js";
 import {
