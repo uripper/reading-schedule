@@ -20,8 +20,8 @@ export function nextRowsWithUpdatedMinutes({
   previousRows,
   row,
 }: {
-  collectSettings: () => PlannerSettings;
-  getBookById: (bookId: string) => Book | null;
+  collectSettings(): PlannerSettings;
+  getBookById(bookId: string): Book | null;
   minutes: number;
   previousRows: PlannerScheduleRow[];
   row: PlannerScheduleRow;

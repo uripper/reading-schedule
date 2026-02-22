@@ -41,7 +41,7 @@ export function createAppBootstrapContext(): AppBootstrapContext {
   const state = createRuntimeState();
   const plannerApi = plannerApiFromGlobal();
   const announce = createAnnouncer();
-  const announceForPlanController = (message: string, politeness?: string) => {
+  const announceForPlanController = (message: string, politeness?: string): void => {
     if (politeness === "polite" || politeness === "assertive") {
       announce(message, politeness);
       return;

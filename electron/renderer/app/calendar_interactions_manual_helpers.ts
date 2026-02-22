@@ -42,7 +42,7 @@ function difficultyMultiplier(
   settings: PlannerSettings,
   difficulty: number,
 ): number {
-  const multiplierByDifficulty = settings.difficulty_multiplier || {};
+  const multiplierByDifficulty = settings.difficulty_multiplier;
   const exact = multiplierByDifficulty[difficulty];
   const byKey = multiplierByDifficulty[String(difficulty)];
   const multiplier = Number(exact ?? byKey ?? DEFAULT_DIFFICULTY_MULTIPLIER);
