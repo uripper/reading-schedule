@@ -62,7 +62,8 @@ function normalizeEndDate(
   if (typeof endDate !== "string" || !endDate) {
     return undefined;
   }
-  if (endDate < startDate) {
+  const numberEndDate = Number(endDate);
+  if (numberEndDate < Number(startDate)) {
     return startDate;
   }
   return endDate;
@@ -119,9 +120,9 @@ function errorMessage(error: unknown): string {
     }
     return error.name || "Unknown error";
   }
-  const detail = trimmedStringOrEmpty(error);
-  if (detail) {
-    return detail;
+  const stringDetail = trimmedStringOrEmpty(error);
+  if (stringDetail) {
+    return stringDetail;
   }
   const messageDetail = messageFromErrorLikeObject(error);
   if (messageDetail) {
