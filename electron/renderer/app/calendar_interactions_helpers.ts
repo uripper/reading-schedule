@@ -2,45 +2,45 @@ import type { Book } from "../books/types.js";
 import type { CalendarRowWithFinish } from "../calendar/data.js";
 import type { PlannerResult } from "./types.js";
 
-type ScheduleRow = {
+interface ScheduleRow {
   title?: string;
   date?: string;
   book_id?: string;
-};
+}
 
-export type CompletionUpdate = {
+export interface CompletionUpdate {
   sessionKey: string;
   completed: boolean;
   row?: ScheduleRow;
-};
+}
 
-export type ProgressUpdateInput = {
+export interface ProgressUpdateInput {
   bookId: string;
   pagesRead?: number | null;
   progressPercent?: number | null;
   row?: CalendarRowWithFinish;
-};
+}
 
-export type ManualSessionAddInput = {
+export interface ManualSessionAddInput {
   date: string;
   bookId: string;
   minutes: number;
   completed?: boolean;
-};
+}
 
-export type RemoveSessionInput = {
+export interface RemoveSessionInput {
   row: CalendarRowWithFinish;
-};
+}
 
-export type MinutesUpdateInput = {
+export interface MinutesUpdateInput {
   minutes: number;
   row: CalendarRowWithFinish;
-};
+}
 
-export type ManualSessionBook = {
+export interface ManualSessionBook {
   bookId: string;
   title: string;
-};
+}
 
 export type UpdatedBook = Book;
 

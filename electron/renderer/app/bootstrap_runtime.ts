@@ -20,17 +20,17 @@ import { createRuntimeState } from "./runtime_state.js";
 import { updateTodayDashboard } from "./today.js";
 import type { PlannerApi } from "./types.js";
 
-export type AppBootstrapContext = {
+export interface AppBootstrapContext {
   announce: ReturnType<typeof createAnnouncer>;
-  announceForPlanController: (message: string, politeness?: string) => void;
+  announceForPlanController(message: string, politeness?: string): void;
   dashboards: ReturnType<typeof createDashboardRuntime>;
   plannerApi: PlannerApi;
-  persistDraft: () => Promise<boolean>;
-  queuePersist: () => void;
+  persistDraft(): Promise<boolean>;
+  queuePersist(): void;
   runtime: ReturnType<typeof createInitRuntime>;
-  setStatus: (message: string, isError?: boolean) => void;
+  setStatus(message: string, isError?: boolean): void;
   state: ReturnType<typeof createRuntimeState>;
-};
+}
 
 function plannerApiFromGlobal(): PlannerApi {
   const globals = globalThis as typeof globalThis & { plannerApi: PlannerApi };
