@@ -12,7 +12,8 @@ import { primaryAuthor } from "./book_lookup_search_text.js";
 
 /**
  * Converts a raw search document into the app's normalized search item shape.
- * @param doc
+ * @param doc Open Library search document.
+ * @returns Normalized planner search item.
  */
 export function toItem(doc: SearchDoc): SearchItem {
   const pages = Number(doc.number_of_pages_median || 0);

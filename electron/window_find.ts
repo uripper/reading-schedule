@@ -14,9 +14,10 @@ import {
 const FIND_RESULT_TIMEOUT_MS = 400;
 
 /**
- *
- * @param webContents
- * @param request
+ * Executes a normalized find-in-page request and resolves when results settle.
+ * @param webContents Electron webContents to run find against.
+ * @param request Normalized find payload.
+ * @returns Final find response for the request lifecycle.
  */
 async function requestFindInPage(
   webContents: WebContents,
@@ -62,8 +63,9 @@ async function requestFindInPage(
 
 /**
  * Starts or updates an in-page find operation for the provided payload.
- * @param webContents
- * @param payload
+ * @param webContents Electron webContents to run find against.
+ * @param payload Raw renderer request payload.
+ * @returns Find response containing match counts/active match.
  */
 export async function findInPage(
   webContents: WebContents,
@@ -79,7 +81,8 @@ export async function findInPage(
 
 /**
  * Stops find-in-page and returns an empty find response payload.
- * @param webContents
+ * @param webContents Electron webContents to clear find highlights on.
+ * @returns Empty find response payload.
  */
 export function stopFindInPage(webContents: WebContents): WindowFindResponse {
   webContents.stopFindInPage("clearSelection");

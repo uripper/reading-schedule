@@ -6,7 +6,8 @@ import { primaryAuthor } from "./book_lookup_search_text.js";
 
 /**
  * Removes duplicate docs by canonical key and title/author fallback.
- * @param docs
+ * @param docs Raw search docs from one or more Open Library responses.
+ * @returns Deduplicated document array preserving first-seen items.
  */
 export function dedupeDocs(docs: SearchDoc[]): SearchDoc[] {
   const seen = new Set<string>();

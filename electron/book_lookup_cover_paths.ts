@@ -29,8 +29,9 @@ let coverVersionCounter = 0;
 export type CoverExtension = ".jpg" | ".png" | ".webp";
 
 /**
- *
- * @param bookId
+ * Creates a safe filename base from a book id.
+ * @param bookId Raw book identifier.
+ * @returns Sanitized filename-safe base string.
  */
 function safeFileBase(bookId: string | undefined): string {
   const normalizedId = String(bookId ?? "").trim();
@@ -43,8 +44,9 @@ function safeFileBase(bookId: string | undefined): string {
 }
 
 /**
- *
- * @param userDataDir
+ * Ensures the cover directory exists beneath the user-data directory.
+ * @param userDataDir App user-data directory path.
+ * @returns Absolute path to the cover directory.
  */
 function ensureCoverDirectory(userDataDir: string): string {
   const coverDirectory = path.join(userDataDir, COVER_DIRECTORY_NAME);
@@ -54,8 +56,9 @@ function ensureCoverDirectory(userDataDir: string): string {
 
 /**
  * Resolves the normalized extension for a downloaded cover response.
- * @param contentType
- * @param parsedUrl
+ * @param contentType Response content-type header value.
+ * @param parsedUrl Parsed remote cover URL.
+ * @returns Normalized supported cover extension.
  */
 export function extensionFor(
   contentType: string | null,
@@ -84,7 +87,8 @@ export function extensionFor(
 
 /**
  * Returns true when the protocol is an allowed HTTP(S) protocol.
- * @param protocol
+ * @param protocol URL protocol string.
+ * @returns True for `http:` or `https:`.
  */
 export function isHttpProtocol(protocol: string): boolean {
   return protocol === HTTP_PROTOCOL || protocol === HTTPS_PROTOCOL;
@@ -92,9 +96,10 @@ export function isHttpProtocol(protocol: string): boolean {
 
 /**
  * Builds a unique absolute file path for a cover image.
- * @param userDataDir
- * @param bookId
- * @param extension
+ * @param userDataDir App user-data directory path.
+ * @param bookId Book identifier used in file naming.
+ * @param extension Target image extension.
+ * @returns Absolute destination path for the cover file.
  */
 export function filePathForCover(
   userDataDir: string,

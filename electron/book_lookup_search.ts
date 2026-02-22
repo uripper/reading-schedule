@@ -8,7 +8,8 @@ import { fetchJson, searchUrls } from "./book_lookup_search_transport.js";
 
 /**
  * Queries Open Library endpoints and returns ranked search items.
- * @param query
+ * @param query User-entered search query text.
+ * @returns Ranked search items limited to configured output size.
  */
 export async function searchBooks(query: string): Promise<SearchItem[]> {
   const normalizedQuery = String(query || "").trim();
@@ -32,8 +33,8 @@ export async function searchBooks(query: string): Promise<SearchItem[]> {
     if (left.score !== right.score) {
       return right.score - left.score;
     }
-    return String(left.doc.title || "").localeCompare(
-      String(right.doc.title || ""),
+    return String(left.doc.title ?? "").localeCompare(
+      String(right.doc.title ?? ""),
       undefined,
       { sensitivity: "base" },
     );

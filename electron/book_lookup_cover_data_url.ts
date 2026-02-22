@@ -15,8 +15,9 @@ const DATA_URL_SEPARATOR = ",";
 const DATA_URL_BASE64_SEGMENT = ";base64";
 
 /**
- *
- * @param mimeType
+ * Maps an image MIME type from a data URL to a supported file extension.
+ * @param mimeType MIME type parsed from the data URL header.
+ * @returns Supported cover extension, or null when unsupported.
  */
 function extensionForDataMime(mimeType: string): CoverExtension | null {
   const normalizedMime = String(mimeType || "").trim().toLowerCase();
@@ -34,12 +35,13 @@ function extensionForDataMime(mimeType: string): CoverExtension | null {
 
 /**
  * Parses a base64 data URL and returns image bytes with an allowed extension.
- * @param coverDataUrl
+ * @param coverDataUrl Data URL candidate for an uploaded cover image.
+ * @returns Decoded bytes and extension, or null when the payload is invalid.
  */
 export function parseCoverDataUrl(
   coverDataUrl: string | undefined,
 ): { bytes: Uint8Array; extension: CoverExtension } | null {
-  const normalized = String(coverDataUrl || "").trim();
+  const normalized = String(coverDataUrl ?? "").trim();
   if (!normalized.startsWith(DATA_URL_PREFIX)) {
     return null;
   }

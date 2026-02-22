@@ -43,11 +43,11 @@ export async function initApp(context: AppBootstrapContext): Promise<void> {
   const planController = createAppPlanControllerInstance({
     collectBooks,
     collectSettings,
-    setStatus: context.setStatus,
     addLog,
     renderCalendar,
     totalsFromSummary,
     setBookScheduleRows,
+    setStatus: context.setStatus,
     persistDraft: context.persistDraft,
     plannerApi: context.plannerApi,
     updateTodayView: context.dashboards.updateDashboards,
@@ -65,10 +65,10 @@ export async function initApp(context: AppBootstrapContext): Promise<void> {
   context.runtime.setPlanController(planController);
   bindExperienceSettings(context.dashboards.applyExperienceSettings);
   configureAppCalendarInteractions({
-    configureCalendarInteractions,
     state: context.state,
     queuePersist: context.queuePersist,
     setStatus: context.setStatus,
+    configureCalendarInteractions,
     collectSettings,
     collectAllBooks,
     setBookScheduleRows,

@@ -23,7 +23,7 @@ interface CompletionRow {
  * @returns Fallback completion key, or an empty string when row data is incomplete.
  */
 function completionFallbackKey(row: CompletionRow | null | undefined): string {
-  if (!row?.date || !row?.book_id) {
+  if (!row?.date || !row.book_id) {
     return "";
   }
   return dayBookCompletionKey(row.date, row.book_id);
@@ -42,16 +42,18 @@ function setCompletionState(
   fallbackKey: string,
   completed: boolean,
 ): void {
+  const deepScheduleCompletions = scheduleCompletions;
+
   if (completed) {
-    scheduleCompletions[sessionKey] = true;
+    deepScheduleCompletions[sessionKey] = true;
     if (fallbackKey) {
-      scheduleCompletions[fallbackKey] = true;
+      deepScheduleCompletions[fallbackKey] = true;
     }
     return;
   }
-  delete scheduleCompletions[sessionKey];
+  delete deepScheduleCompletions[sessionKey];
   if (fallbackKey) {
-    delete scheduleCompletions[fallbackKey];
+    delete deepScheduleCompletions[fallbackKey];
   }
 }
 
@@ -65,7 +67,7 @@ function completionStatusMessage(
   row: CompletionRow | null | undefined,
   completed: boolean,
 ): string {
-  if (!row?.title || !row?.date) {
+  if (!row?.title || !row.date) {
     return "";
   }
   if (completed) {
