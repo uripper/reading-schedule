@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 import sys
 
-from reading_plan.input.io import load_inputs
+from reading_plan.input.reading_io import load_inputs
 from reading_plan.input.serializers import book_to_data, settings_to_data
 from reading_plan.planning.solve import solve_plan
 from reading_plan.reporting.report import build_summary

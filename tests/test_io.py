@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from reading_plan.input.io import load_inputs
+from reading_plan.input.reading_io import load_inputs
 
 if TYPE_CHECKING:
     from pathlib import Path
