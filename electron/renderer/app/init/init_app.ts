@@ -10,7 +10,7 @@ import {
   configureCalendarInteractions,
   renderCalendar,
 } from "../../calendar.js";
-import { bindDesktopShortcuts } from "../../shortcuts/desktop_shortcuts.js";
+import { bindDesktopShortcuts } from "../../shortcuts/index.js";
 import { addLog, bindHelpDialog } from "../../help.js";
 import { collectSettings, initSettingsGrid } from "../../settings.js";
 import { bindTabs } from "../../tabs.js";

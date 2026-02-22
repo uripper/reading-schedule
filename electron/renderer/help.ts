@@ -1,5 +1,5 @@
 import { el } from "./dom.js";
-import { bindDialogFocus } from "./accessibility/a11y.js";
+import { bindDialogFocus } from "./accessibility/index.js";
 
 const logs: string[] = [];
 const MAX_LOG_LINES = 250;

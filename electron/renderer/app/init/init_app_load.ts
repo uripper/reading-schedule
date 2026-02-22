@@ -1,9 +1,12 @@
-import { applyPreferencesToDocument } from "../../accessibility/a11y.js";
+import { applyPreferencesToDocument } from "../../accessibility/index.js";
 import { fillBooks } from "../../books.js";
 import { fillSettings } from "../../settings.js";
-import { normalizeFeatureFlags, normalizePreferences } from "../experience/index.js";
-import { fillPreferencesUI } from "../experience/index.js";
-import { normalizeScheduleCompletions } from "../experience/index.js";
+import {
+  normalizeFeatureFlags,
+  normalizePreferences,
+  fillPreferencesUI,
+  normalizeScheduleCompletions,
+} from "../experience/index.js";
 import { bindTodayActions, finalizeInitialLoad } from "./init_helpers.js";
 import { loadInitialData } from "../load_state.js";
 import type { AppBootstrapContext } from "../bootstrap_runtime.js";
