@@ -26,4 +26,3 @@ Context:
 - `electron/eslint.config.mjs`
 - `electron/dist/`
 - `electron/tokens/dist/tokens.ts`
-

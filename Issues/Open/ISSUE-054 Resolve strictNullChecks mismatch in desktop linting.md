@@ -27,4 +27,3 @@ Context:
 - `electron/tsconfig.renderer.json`
 - `electron/eslint.config.mjs`
 - `/tmp/lint-desktop.log` (local run output)
-

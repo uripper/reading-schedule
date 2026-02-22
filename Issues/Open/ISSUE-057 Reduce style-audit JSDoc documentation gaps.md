@@ -25,4 +25,3 @@ Context:
 - `electron/main*.ts`
 - `electron/renderer/**/*.ts`
 - `/tmp/style-audit.log` (local run output)
-

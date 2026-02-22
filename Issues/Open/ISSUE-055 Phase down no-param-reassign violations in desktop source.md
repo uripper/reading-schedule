@@ -19,7 +19,7 @@ Definition of done:
 - Add/update regression tests where mutation behavior changes are risky.
 - Reduce `no-param-reassign` errors by at least 50% in the first pass.
 
-Hotspots from today’s run:
+Hot spots from today’s run:
 
 - `electron/renderer/books/form_state.ts`
 - `electron/renderer/app/plan_controller.ts`
@@ -34,4 +34,3 @@ Context:
 - `/tmp/lint-desktop.log` (local run output)
 - `electron/renderer/`
 - `electron/preload.ts`
-

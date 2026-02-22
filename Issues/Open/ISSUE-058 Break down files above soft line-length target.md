@@ -32,4 +32,3 @@ Context:
 
 - `/tmp/style-audit.log` (local run output)
 - `scripts/style_audit.mjs`
-
