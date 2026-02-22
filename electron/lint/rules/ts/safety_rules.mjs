@@ -46,6 +46,7 @@ export const TS_SAFETY_RULES = {
     "error",
     { ignoreStringArrays: false },
   ],
+  "@typescript-eslint/strict-boolean-expressions": "error",
   "@typescript-eslint/require-await": "error",
   "@typescript-eslint/return-await": ["error", "always"],
   "@typescript-eslint/switch-exhaustiveness-check": "error",

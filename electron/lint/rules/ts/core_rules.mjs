@@ -1,17 +1,11 @@
 const TS_CORE_DISABLED_RULES = {
   "default-param-last": "off",
-  "dot-notation": "off",
   "no-array-constructor": "off",
   "no-empty-function": "off",
-  "no-implied-eval": "off",
-  "no-loop-func": "off",
-  "no-shadow": "off",
-  "no-unused-expressions": "off",
-  "no-unused-vars": "off",
-  "no-use-before-define": "off",
   "no-useless-constructor": "off",
   "prefer-promise-reject-errors": "off",
   "require-await": "off",
+  "no-negated-condition": "off",
 };
 
 const TS_CONSISTENCY_RULES = {

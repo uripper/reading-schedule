@@ -6,7 +6,11 @@ import tseslint from "typescript-eslint";
 import { defineConfig } from "eslint/config";
 import { jsdoc } from "eslint-plugin-jsdoc";
 
-import { ALL_CODE_GLOBS, ALL_JS_GLOBS, ALL_TS_GLOBS } from "./lint/constants.mjs";
+import {
+  ALL_CODE_GLOBS,
+  ALL_JS_GLOBS,
+  ALL_TS_GLOBS,
+} from "./lint/constants.mjs";
 import { BASE_OPINIONATED_RULES } from "./lint/rules/base_opinionated_rules.mjs";
 import { TS_OPINIONATED_RULES } from "./lint/rules/ts/index.mjs";
 
@@ -32,6 +36,8 @@ const TS_TEST_RELAXED_RULES = {
 export default defineConfig([
   {
     ignores: ["dist/**", "node_modules/**", "package-lock.json", "tokens/**"],
+  },
+  {
     linterOptions: {
       reportUnusedDisableDirectives: "error",
     },
@@ -49,7 +55,11 @@ export default defineConfig([
     files: ["eslint.config.mjs", ...ALL_JS_GLOBS],
     extends: [js.configs.recommended],
   },
-  ...tseslint.configs.recommended.map((config) => ({
+  ...tseslint.configs.recommendedTypeChecked.map((config) => ({
+    ...config,
+    files: ALL_TS_GLOBS,
+  })),
+  ...tseslint.configs.stylisticTypeChecked.map((config) => ({
     ...config,
     files: ALL_TS_GLOBS,
   })),

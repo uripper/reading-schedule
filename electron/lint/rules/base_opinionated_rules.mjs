@@ -64,7 +64,6 @@ export const BASE_OPINIONATED_RULES = {
   ],
   "no-implicit-globals": "error",
   "no-lonely-if": "error",
-  "no-negated-condition": "error",
   "no-new-wrappers": "error",
   "no-script-url": "error",
   "object-shorthand": ["error", "always"],
