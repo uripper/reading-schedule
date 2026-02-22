@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, TypedDict
+from typing import TypedDict
 
 
 class BookProgress(TypedDict):
@@ -19,7 +19,7 @@ class Summary(TypedDict):
 
     planner: str
     status: str
-    objective: Optional[int]
+    objective: int | None
     note: str
     total_planned_minutes: int
     total_available_minutes: int

@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
+import sys
 
 from reading_plan.cli import parse_args as parse_cli_args
-from reading_plan.gui_api import main as gui_main
-from reading_plan.gui_api import parse_args as parse_gui_args
+from reading_plan.gui_api import (
+    main as gui_main,
+    parse_args as parse_gui_args,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -29,7 +31,9 @@ def test_gui_defaults_to_committed_sample_books_file(monkeypatch) -> None:
     assert args.settings == "data/settings.json"
 
 
-def test_gui_sample_mode_succeeds_with_default_paths(monkeypatch, capsys) -> None:
+def test_gui_sample_mode_succeeds_with_default_paths(
+    monkeypatch, capsys
+) -> None:
     """GUI sample mode should succeed on a fresh clone with default args."""
     monkeypatch.chdir(REPO_ROOT)
     monkeypatch.setattr(sys, "argv", ["reading_plan.gui_api", "--sample"])

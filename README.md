@@ -90,6 +90,7 @@ This is restart-on-change (not in-window HMR).
 ## Tests
 
 ```bash
+npm run lint:python
 .venv/bin/pytest -q
 cd electron && npm run lint
 npm run audit

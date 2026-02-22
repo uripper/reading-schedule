@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
-import math
-from collections.abc import Iterator
 from datetime import date
+import math
+from typing import TYPE_CHECKING
 
-from ..planning.budget import words_per_block, words_per_minute
-from ..calendar import date_range
-from ..types import Book, Settings
+from reading_plan.planner_types import Book
+from reading_plan.planning.budget import words_per_block, words_per_minute
+from reading_plan.reading_calendar import date_range
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from reading_plan.planner_types import Settings
 
 Session = tuple[date, int, Book, int, int]
 
@@ -24,7 +29,9 @@ def clip_session(
     words = min(max_words, remaining_words)
     if words <= 0:
         return 0, 0
-    minutes = min(max_minutes, math.ceil(words / words_per_minute(book, settings)))
+    minutes = min(
+        max_minutes, math.ceil(words / words_per_minute(book, settings))
+    )
     return minutes, words
 
 
@@ -46,7 +53,9 @@ def iter_sessions(
         idx = 0
         for book_id, blocks in items:
             book = book_map[book_id]
-            minutes, words = clip_session(book, settings, blocks, remaining[book_id])
+            minutes, words = clip_session(
+                book, settings, blocks, remaining[book_id]
+            )
             if words <= 0:
                 continue
             remaining[book_id] -= words

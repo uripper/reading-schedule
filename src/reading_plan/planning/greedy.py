@@ -1,13 +1,26 @@
 """Utilities for greedy."""
+
 from __future__ import annotations
 
-import math
 from datetime import date
-from .budget import book_day_block_limit, day_capacity_blocks, words_per_block
-from ..calendar import date_range
-from ..types import Book, PLAN_MODE_SPREAD_OUT, Settings
+import math
+from typing import TYPE_CHECKING
 
-def plan_greedy(books: list[Book], settings: Settings) -> dict[tuple[str, date], int]:
+from reading_plan.planner_types import PLAN_MODE_SPREAD_OUT
+from reading_plan.planning.budget import (
+    book_day_block_limit,
+    day_capacity_blocks,
+    words_per_block,
+)
+from reading_plan.reading_calendar import date_range
+
+if TYPE_CHECKING:
+    from reading_plan.planner_types import Book, Settings
+
+
+def plan_greedy(
+    books: list[Book], settings: Settings
+) -> dict[tuple[str, date], int]:
     """Build a feasible day-by-day block allocation using greedy heuristics."""
     days = date_range(settings.start_date, settings.end_date)
     caps = {day: day_capacity_blocks(settings, day) for day in days}
@@ -15,7 +28,9 @@ def plan_greedy(books: list[Book], settings: Settings) -> dict[tuple[str, date],
     wpb = {b.book_id: words_per_block(b, settings) for b in books}
     limits = {b.book_id: book_day_block_limit(b, settings) for b in books}
     assignments: dict[tuple[str, date], int] = {}
-    daily_book_cap = min(settings.max_books_per_day, settings.max_sessions_per_day)
+    daily_book_cap = min(
+        settings.max_books_per_day, settings.max_sessions_per_day
+    )
 
     for day_index, day in enumerate(days):
         cap = caps[day]
@@ -24,19 +39,39 @@ def plan_greedy(books: list[Book], settings: Settings) -> dict[tuple[str, date],
         ordered = sorted(books, key=lambda b: _sort_key(b, remaining))
         if settings.plan_mode == PLAN_MODE_SPREAD_OUT:
             cap = min(
-                cap, _spread_cap_for_day(days, day_index, caps, remaining, wpb, ordered)
+                cap,
+                _spread_cap_for_day(
+                    days, day_index, caps, remaining, wpb, ordered
+                ),
             )
         if cap <= 0:
             continue
         used: list[Book] = []
         cap = _seed_day(
-            ordered, used, remaining, assignments, limits, wpb, day, cap, daily_book_cap
+            ordered,
+            used,
+            remaining,
+            assignments,
+            limits,
+            wpb,
+            day,
+            cap,
+            daily_book_cap,
         )
         _fill_day(
-            ordered, used, remaining, assignments, limits, wpb, day, cap, daily_book_cap
+            ordered,
+            used,
+            remaining,
+            assignments,
+            limits,
+            wpb,
+            day,
+            cap,
+            daily_book_cap,
         )
 
     return {k: v for k, v in assignments.items() if v > 0}
+
 
 def _seed_day(
     ordered: list[Book],
@@ -49,7 +84,7 @@ def _seed_day(
     cap: int,
     daily_book_cap: int,
 ) -> int:
-    """Seed a day with minimum sessions for the highest-ranked unlocked books."""
+    """Seed a day with minimum sessions for top unlocked books."""
     for book in ordered:
         if len(used) >= daily_book_cap:
             break
@@ -63,7 +98,13 @@ def _seed_day(
         if room < book.min_blocks_per_session:
             continue
         cap = _assign_blocks(
-            assignments, remaining, wpb, book, day, cap, book.min_blocks_per_session
+            assignments,
+            remaining,
+            wpb,
+            book,
+            day,
+            cap,
+            book.min_blocks_per_session,
         )
         used.append(book)
     return cap
@@ -80,7 +121,7 @@ def _fill_day(
     cap: int,
     daily_book_cap: int,
 ) -> None:
-    """Fill remaining daily capacity from active books before introducing new ones."""
+    """Fill daily capacity from active books before introducing new ones."""
     while cap > 0:
         if active := [
             b
@@ -89,16 +130,31 @@ def _fill_day(
             and _is_unlocked(b, remaining)
             and _room(assignments, b.book_id, day, limits[b.book_id]) > 0
         ]:
-            top = min(active, key=lambda b: (b.priority, b.difficulty, b.book_id))
+            top = min(
+                active, key=lambda b: (b.priority, b.difficulty, b.book_id)
+            )
             cap = _assign_blocks(assignments, remaining, wpb, top, day, cap, 1)
             continue
         nxt = _next_book(
-            ordered, used, remaining, cap, daily_book_cap, assignments, day, limits
+            ordered,
+            used,
+            remaining,
+            cap,
+            daily_book_cap,
+            assignments,
+            day,
+            limits,
         )
         if not nxt:
             return
         cap = _assign_blocks(
-            assignments, remaining, wpb, nxt, day, cap, nxt.min_blocks_per_session
+            assignments,
+            remaining,
+            wpb,
+            nxt,
+            day,
+            cap,
+            nxt.min_blocks_per_session,
         )
         used.append(nxt)
 
@@ -112,7 +168,7 @@ def _assign_blocks(
     cap: int,
     blocks: int,
 ) -> int:
-    """Assign blocks to one book/day pair and reduce remaining words and capacity."""
+    """Assign blocks to one book/day and reduce remaining words and capacity."""
     key = (book.book_id, day)
     assignments[key] = assignments.get(key, 0) + blocks
     remaining[book.book_id] = max(
@@ -121,8 +177,10 @@ def _assign_blocks(
     return cap - blocks
 
 
-def _sort_key(book: Book, remaining: dict[str, float]) -> tuple[int, date, float, str]:
-    """Rank books by priority, deadline, and remaining words for greedy ordering."""
+def _sort_key(
+    book: Book, remaining: dict[str, float]
+) -> tuple[int, date, float, str]:
+    """Rank books by priority, deadline, and remaining words for ordering."""
     due = book.deadline or date.max
     return book.priority, due, -remaining[book.book_id], book.book_id
 
@@ -155,7 +213,10 @@ def _next_book(
 
 
 def _room(
-    assignments: dict[tuple[str, date], int], book_id: str, day: date, limit: int
+    assignments: dict[tuple[str, date], int],
+    book_id: str,
+    day: date,
+    limit: int,
 ) -> int:
     """Return remaining per-day block capacity for a specific book."""
     return limit - assignments.get((book_id, day), 0)
@@ -175,9 +236,9 @@ def _spread_cap_for_day(
     wpb: dict[str, int],
     ordered: list[Book],
 ) -> int:
-    """Compute a daily cap target that spreads remaining work across active days."""
+    """Compute a daily cap that spreads remaining work across active days."""
     remaining_blocks = sum(
-        int(math.ceil(words_left / wpb[book_id]))
+        math.ceil(words_left / wpb[book_id])
         for book_id, words_left in remaining.items()
         if words_left > 0 and wpb.get(book_id, 0) > 0
     )
@@ -186,7 +247,7 @@ def _spread_cap_for_day(
     active_days_left = sum(caps[day] > 0 for day in days[day_index:])
     if active_days_left <= 0:
         return remaining_blocks
-    target = int(math.ceil(remaining_blocks / active_days_left))
+    target = math.ceil(remaining_blocks / active_days_left)
     min_seed = min(
         (
             book.min_blocks_per_session

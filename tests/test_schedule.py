@@ -4,12 +4,11 @@ from __future__ import annotations
 
 from datetime import date
 
-from reading_plan.planning.budget import words_per_block
-from reading_plan.planning.budget import day_capacity_blocks
-from reading_plan.calendar import date_range
+from reading_plan.planner_types import Book
+from reading_plan.planning.budget import day_capacity_blocks, words_per_block
 from reading_plan.planning.greedy import plan_greedy
+from reading_plan.reading_calendar import date_range
 from reading_plan.schedule.schedule import to_schedule_rows
-from reading_plan.types import Book
 from tests.helpers import demo_books, demo_settings
 
 
@@ -23,13 +22,23 @@ def test_greedy_respects_daily_constraints() -> None:
     day_totals = {
         day: (
             sum(v for (_book_id, d), v in assignments.items() if d == day),
-            {book_id for (book_id, d), v in assignments.items() if d == day and v > 0},
+            {
+                book_id
+                for (book_id, d), v in assignments.items()
+                if d == day and v > 0
+            },
         )
         for day in days
     }
-    assert all(day_totals[day][0] <= day_capacity_blocks(settings, day) for day in days)
-    assert all(len(day_totals[day][1]) <= settings.max_books_per_day for day in days)
-    assert all(len(day_totals[day][1]) <= settings.max_sessions_per_day for day in days)
+    assert all(
+        day_totals[day][0] <= day_capacity_blocks(settings, day) for day in days
+    )
+    assert all(
+        len(day_totals[day][1]) <= settings.max_books_per_day for day in days
+    )
+    assert all(
+        len(day_totals[day][1]) <= settings.max_sessions_per_day for day in days
+    )
 
     min_blocks = {b.book_id: b.min_blocks_per_session for b in books}
     assert all(

@@ -6,16 +6,33 @@ import argparse
 import json
 import sys
 
-from .api import generate_plan
-from .input.io import load_inputs
-from .input.serializers import book_to_data, settings_to_data
+from reading_plan.api import generate_plan
+from reading_plan.input.reading_io import load_inputs
+from reading_plan.input.serializers import book_to_data, settings_to_data
+
+
+def write_payload(payload: dict[str, object]) -> None:
+    """Write JSON payload to stdout."""
+    json.dump(payload, sys.stdout)
+    sys.stdout.write("\n")
+
+
+def read_stdin_payload() -> dict[str, object]:
+    """Read and validate planner payload from stdin."""
+    payload = json.load(sys.stdin)
+    if isinstance(payload, dict):
+        return payload
+    msg = "planner payload must be a JSON object"
+    raise TypeError(msg)
 
 
 def parse_args() -> argparse.Namespace:
     """Parse args."""
     p = argparse.ArgumentParser(description="GUI bridge for Reading Plan")
     p.add_argument(
-        "--sample", action="store_true", help="Return sample payload from data files"
+        "--sample",
+        action="store_true",
+        help="Return sample payload from data files",
     )
     p.add_argument(
         "--data",
@@ -31,24 +48,31 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    """Run the GUI bridge command using either sample mode or stdin payload mode."""
+    """Run the GUI bridge in sample mode or stdin payload mode."""
     args = parse_args()
     try:
         if args.sample:
             books, settings = load_inputs(args.data, args.settings)
-            data = {
-                "books": [book_to_data(b) for b in books],
-                "settings": settings_to_data(settings),
-            }
-            print(json.dumps({"ok": True, "data": data}))
+            write_payload(
+                {
+                    "ok": True,
+                    "data": {
+                        "books": [book_to_data(b) for b in books],
+                        "settings": settings_to_data(settings),
+                    },
+                }
+            )
             return 0
 
-        payload = json.load(sys.stdin)
-        print(json.dumps({"ok": True, "data": generate_plan(payload)}))
-        return 0
-    except Exception as exc:
-        print(json.dumps({"ok": False, "error": str(exc)}))
+        payload = read_stdin_payload()
+        data = generate_plan(payload)
+        write_payload({"ok": True, "data": data})
+
+    except (FileNotFoundError, KeyError, TypeError, ValueError) as error:
+        write_payload({"ok": False, "error": str(error)})
         return 1
+    else:
+        return 0
 
 
 if __name__ == "__main__":

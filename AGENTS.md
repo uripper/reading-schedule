@@ -68,6 +68,7 @@ Run commands relevant to touched areas before finishing:
   - `npm --prefix electron run typecheck`
   - `npm --prefix electron run build`
 - Python planner:
+  - `npm run lint:python`
   - `.venv/bin/pytest -q`
 
 Helpful aggregate checks:

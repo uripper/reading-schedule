@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from .report_types import Summary
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from reading_plan.reporting.report_types import Summary
 
 
 def format_summary(summary: Summary) -> str:
@@ -24,6 +27,7 @@ def format_summary(summary: Summary) -> str:
         if info["finished"]:
             done = "yes"
         lines.append(
-            f"- {book_id}: {info['planned_words']}/{info['words_total']} words (finished: {done})"
+            f"- {book_id}: {info['planned_words']}/{info['words_total']} "
+            f"words (finished: {done})"
         )
     return "\n".join(lines)

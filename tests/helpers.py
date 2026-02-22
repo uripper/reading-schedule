@@ -4,7 +4,11 @@ from __future__ import annotations
 
 from datetime import date
 
-from reading_plan.types import Book, DEFAULT_DIFFICULTY_MULTIPLIER, Settings
+from reading_plan.planner_types import (
+    DEFAULT_DIFFICULTY_MULTIPLIER,
+    Book,
+    Settings,
+)
 
 
 def demo_books() -> list[Book]:

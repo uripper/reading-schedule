@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
-from ..types import Book, Settings
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from reading_plan.planner_types import Book, Settings
 
 
 def book_to_data(book: Book) -> dict[str, object]:
     """Serialize a Book model into a JSON-safe dictionary for UI/API use."""
-    words_total = book.words_total if book.words_full is None else book.words_full
+    words_total = (
+        book.words_total if book.words_full is None else book.words_full
+    )
     deadline = book.deadline.isoformat() if book.deadline else None
     return {
         "book_id": book.book_id,

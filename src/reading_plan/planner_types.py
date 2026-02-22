@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date
-from typing import Optional
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from datetime import date
 
 DEFAULT_DIFFICULTY_MULTIPLIER = {
     1: 1.00,
@@ -33,12 +35,12 @@ class Book:
     words_total: int
     priority: int
     difficulty: int
-    deadline: Optional[date] = None
+    deadline: date | None = None
     min_blocks_per_session: int = 2
-    words_full: Optional[int] = None
+    words_full: int | None = None
     progress_percent: float = 0.0
-    max_minutes_per_day: Optional[int] = None
-    blocked_by: Optional[str] = None
+    max_minutes_per_day: int | None = None
+    blocked_by: str | None = None
 
 
 @dataclass(frozen=True)
@@ -47,7 +49,7 @@ class Settings:
 
     start_date: date
     end_date: date
-    minutes_per_day: Optional[int]
+    minutes_per_day: int | None
     minutes_by_weekday: dict[str, int]
     days_off: set[date]
     wpm_base: int
@@ -70,5 +72,5 @@ class PlanResult:
     planner: str
     status: str
     assignments: dict[tuple[str, date], int]
-    objective: Optional[int] = None
+    objective: int | None = None
     note: str = ""

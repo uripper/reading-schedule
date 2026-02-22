@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
-from reading_plan.input.io import load_inputs
+from reading_plan.input.reading_io import load_inputs
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_load_inputs_parses_books_and_settings(tmp_path: Path) -> None:
@@ -36,7 +39,9 @@ def test_load_inputs_parses_books_and_settings(tmp_path: Path) -> None:
     assert len(loaded_books) == 2
     assert (
         loaded_books[0].deadline is not None
-        and loaded_books[0].deadline.isoformat() == "2026-02-20"
+    )
+    assert (
+        loaded_books[0].deadline.isoformat() == "2026-02-20"
     )
     assert loaded_books[1].min_blocks_per_session == 3
     assert loaded_settings.minutes_per_day == 60
@@ -47,7 +52,8 @@ def test_load_inputs_rejects_invalid_weekday_map(tmp_path: Path) -> None:
     """Test that load inputs rejects invalid weekday map."""
     books = tmp_path / "books.csv"
     books.write_text(
-        "book_id,title,words_total,priority,difficulty\n" + "b1,One,12000,5,2\n",
+        "book_id,title,words_total,priority,difficulty\n"
+         "b1,One,12000,5,2\n",
         encoding="utf-8",
     )
     settings = tmp_path / "settings.json"
