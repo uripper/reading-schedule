@@ -7,6 +7,14 @@ from typing import TYPE_CHECKING, SupportsInt
 from reading_plan.planner_types import PlanResult
 from reading_plan.planning.greedy import plan_greedy
 
+try:
+    from ortools.sat.python import cp_model
+
+    from reading_plan.planning.model import build_cp_sat
+except ImportError:
+    cp_model = None
+    build_cp_sat = None
+
 if TYPE_CHECKING:
     from datetime import date
 
@@ -28,11 +36,7 @@ def solve_plan(
 
 def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     """Solve with CP-SAT, fall back to greedy when OR-Tools is unavailable."""
-    try:
-        from ortools.sat.python import cp_model
-
-        from reading_plan.planning.model import build_cp_sat
-    except ImportError:
+    if cp_model is None or build_cp_sat is None:
         note = "OR-Tools is unavailable; fell back to greedy planner."
         return PlanResult(
             "greedy", "FEASIBLE", plan_greedy(books, settings), note=note

@@ -13,38 +13,51 @@ if TYPE_CHECKING:
     from reading_plan.planner_types import Book
 
 
-def _validate_blockers(books: list[Book]) -> None:
-    """Validate blocker references and reject cycles in dependency chains."""
-    by_id = {book.book_id: book for book in books}
+def _validate_missing_blockers(
+    books: list[Book],
+    by_id: dict[str, Book],
+) -> None:
+    """Validate blocker references point to known books."""
     for book in books:
         if not book.blocked_by:
             continue
-        if book.blocked_by not in by_id:
-            message = (
-                f"book {book.book_id} is blocked by missing book_id "
-                f"{book.blocked_by}"
-            )
-            raise ValueError(message)
+        if book.blocked_by in by_id:
+            continue
+        message = (
+            f"book {book.book_id} is blocked by missing book_id "
+            f"{book.blocked_by}"
+        )
+        raise ValueError(message)
+
+
+def _walk_blockers(
+    book_id: str,
+    by_id: dict[str, Book],
+    state: tuple[set[str], set[str]],
+) -> None:
+    """Traverse blocker ancestry for one book and detect cycles."""
+    visiting, visited = state
+    if book_id in visited:
+        return
+    if book_id in visiting:
+        msg = "blockers contain a cycle; remove circular dependencies"
+        raise ValueError(msg)
+    visiting.add(book_id)
+    if blocker := by_id[book_id].blocked_by:
+        _walk_blockers(blocker, by_id, (visiting, visited))
+    visiting.remove(book_id)
+    visited.add(book_id)
+
+
+def _validate_blockers(books: list[Book]) -> None:
+    """Validate blocker references and reject cycles in dependency chains."""
+    by_id = {book.book_id: book for book in books}
+    _validate_missing_blockers(books, by_id)
 
     visiting: set[str] = set()
     visited: set[str] = set()
-
-    def walk(book_id: str) -> None:
-        """Traverse blocker ancestry for one book and detect cycles."""
-        if book_id in visited:
-            return
-        if book_id in visiting:
-            msg = "blockers contain a cycle; remove circular dependencies"
-            raise ValueError(msg)
-        visiting.add(book_id)
-        blocker = by_id[book_id].blocked_by
-        if blocker:
-            walk(blocker)
-        visiting.remove(book_id)
-        visited.add(book_id)
-
     for book in books:
-        walk(book.book_id)
+        _walk_blockers(book.book_id, by_id, (visiting, visited))
 
 
 def generate_plan(payload: dict[str, object]) -> dict[str, object]:

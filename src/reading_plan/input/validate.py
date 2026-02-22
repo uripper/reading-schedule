@@ -9,9 +9,12 @@ from reading_plan.planner_types import PLAN_MODES, WEEKDAYS
 if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
 
+MIN_PROGRESS_PERCENT = 0
+MAX_PROGRESS_PERCENT = 100
 
-def validate_book(book: Book) -> None:
-    """Validate book."""
+
+def _validate_required_fields(book: Book) -> None:
+    """Validate required fields and core range constraints."""
     if not book.book_id or not book.title:
         msg = "book_id and title are required"
         raise ValueError(msg)
@@ -27,18 +30,36 @@ def validate_book(book: Book) -> None:
     if book.min_blocks_per_session <= 0:
         msg = f"min_blocks_per_session must be > 0 for {book.book_id}"
         raise ValueError(msg)
+
+
+def _validate_book_progress(book: Book) -> None:
+    """Validate read-progress and words consistency values."""
     if book.words_full is not None and book.words_full < book.words_total:
         msg = f"words_full must be >= remaining words for {book.book_id}"
         raise ValueError(msg)
-    if book.progress_percent < 0 or book.progress_percent > 100:
+    if (
+        book.progress_percent < MIN_PROGRESS_PERCENT
+        or book.progress_percent > MAX_PROGRESS_PERCENT
+    ):
         msg = f"progress_percent must be between 0 and 100 for {book.book_id}"
         raise ValueError(msg)
+
+
+def _validate_book_limits(book: Book) -> None:
+    """Validate optional daily limits and blocker invariants."""
     if book.max_minutes_per_day is not None and book.max_minutes_per_day <= 0:
         msg = f"max_minutes_per_day must be > 0 for {book.book_id}"
         raise ValueError(msg)
     if book.blocked_by and book.blocked_by == book.book_id:
         msg = f"book {book.book_id} cannot block itself"
         raise ValueError(msg)
+
+
+def validate_book(book: Book) -> None:
+    """Validate book."""
+    _validate_required_fields(book)
+    _validate_book_progress(book)
+    _validate_book_limits(book)
 
 
 def validate_settings(settings: Settings) -> None:
