@@ -1,17 +1,17 @@
-import { bindBookLookup, syncProgressAndPages } from "../book_lookup.js";
+import { bindBookLookup } from "../book_lookup.js";
 import { bindDialogFocus, focusFirstError } from "../a11y.js";
 import {
   applyLookupItem,
   clearForm,
   fillForm,
   parseFormBook,
-  syncFinishedAtField,
 } from "./form_state.js";
 import { ensureBookFormLayoutFields } from "./form_layout.js";
 import { getBookFormRefs } from "./form_refs.js";
 import { createAfterBookPicker } from "./after_book_picker.js";
 import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.js";
 import { bindCoverUpload } from "./cover_upload.js";
+import { bindBookDialogProgressSync } from "./dialog_progress_sync.js";
 import type { Book } from "./types.js";
 import type { BookFormRefs } from "./form_refs.js";
 
@@ -95,22 +95,6 @@ export function createBookDialog(
     close();
   });
 
-  const syncRefs = {
-    pagesTotalInput: refs.pagesTotalInput,
-    pagesReadInput: refs.pagesReadInput,
-    progressInput: refs.progressInput,
-  };
-  refs.pagesTotalInput.addEventListener("input", () =>
-    syncProgressAndPages(syncRefs, "pages"),
-  );
-  refs.pagesReadInput.addEventListener("input", () =>
-    syncProgressAndPages(syncRefs, "pages"),
-  );
-  refs.progressInput.addEventListener("input", () =>
-    syncProgressAndPages(syncRefs, "progress"),
-  );
-  refs.statusSelectInput.addEventListener("change", () =>
-    syncFinishedAtField(refs),
-  );
+  bindBookDialogProgressSync(refs);
   return { open };
 }

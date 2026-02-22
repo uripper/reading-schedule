@@ -181,8 +181,18 @@ If any required command fails, do not merge.
 - Update docs in the same PR when changing configuration formats.
 - Update docs in the same PR when changing API contracts.
 
-- Add module, function, and class docstrings for Python entrypoints and non-obvious logic.
-- Write comments for intent and constraints, not obvious mechanics.
+### Code Documentation
+
+Documentation is required in both Python and TypeScript. The following must be documented:
+
+- **Modules**: Every module must have a top-level docstring (Python) or a JSDoc block comment (TypeScript) describing its purpose and responsibility.
+- **Classes**: Every class must have a docstring or JSDoc comment explaining what it represents and its invariants.
+- **Functions**: Every non-trivial function must have a docstring or JSDoc comment describing its behavior, parameters, and return value.
+- **Hard-to-determine logic**: Any block of code whose intent is not immediately clear must have a comment explaining the why, not just the what.
+
+Write comments for intent and constraints, not obvious mechanics.
+
+Line comments must always appear on the line immediately above the code they describe. Do not write inline end-of-line comments.
 
 ## Exception Process
 

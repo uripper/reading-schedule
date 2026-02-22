@@ -1,63 +1,14 @@
 import type { Result as FindInPageEventResult, WebContents } from "electron";
+import {
+  emptyFindResponse,
+  normalizeFindRequest,
+  toFindResponse,
+  type NormalizedWindowFindRequest,
+  type WindowFindRequest,
+  type WindowFindResponse,
+} from "./window_find_request.js";
 
-const EMPTY_MATCH_COUNT = 0;
-const EMPTY_ACTIVE_MATCH_ORDINAL = 0;
 const FIND_RESULT_TIMEOUT_MS = 400;
-
-export type WindowFindRequest = {
-  query?: string;
-  forward?: boolean;
-  findNext?: boolean;
-};
-
-export type WindowFindResponse = {
-  matches: number;
-  activeMatchOrdinal: number;
-};
-
-type NormalizedWindowFindRequest = {
-  query: string;
-  forward: boolean;
-  findNext: boolean;
-};
-
-function emptyFindResponse(): WindowFindResponse {
-  return {
-    matches: EMPTY_MATCH_COUNT,
-    activeMatchOrdinal: EMPTY_ACTIVE_MATCH_ORDINAL,
-  };
-}
-
-function asBoolean(value: unknown, fallback: boolean): boolean {
-  if (typeof value !== "boolean") {
-    return fallback;
-  }
-  return value;
-}
-
-function asQuery(value: unknown): string {
-  if (typeof value !== "string") {
-    return "";
-  }
-  return value.trim();
-}
-
-function normalizeFindRequest(
-  payload: WindowFindRequest | null | undefined,
-): NormalizedWindowFindRequest {
-  return {
-    query: asQuery(payload?.query),
-    forward: asBoolean(payload?.forward, true),
-    findNext: asBoolean(payload?.findNext, false),
-  };
-}
-
-function toFindResponse(result: FindInPageEventResult): WindowFindResponse {
-  return {
-    matches: result.matches,
-    activeMatchOrdinal: result.activeMatchOrdinal,
-  };
-}
 
 function requestFindInPage(
   webContents: WebContents,
@@ -117,3 +68,5 @@ export function stopFindInPage(webContents: WebContents): WindowFindResponse {
   webContents.stopFindInPage("clearSelection");
   return emptyFindResponse();
 }
+
+export type { WindowFindRequest, WindowFindResponse } from "./window_find_request.js";

@@ -46,25 +46,70 @@ const IGNORED_DIRECTORIES = new Set([
 const SOFT_LINE_LIMIT = 100;
 const HARD_LINE_LIMIT = 200;
 const MIN_UNDER_SOFT_PERCENT = 90;
-const ENFORCED_UNDER_SOFT_PERCENT = 72.8;
 const DISALLOWED_CONSOLE_PATTERN = /\bconsole\.(error|warn|log|debug)\s*\(/g;
 function toRelative(filePath) {
   return path.relative(process.cwd(), filePath).split(path.sep).join("/");
 }
-function countLines(content) {
+function countCodeLines(content, extension) {
   if (content.length === 0) {
     return 0;
   }
+  const lines = content.split(/\r?\n/);
+  const isPython = extension === ".py";
   let count = 0;
-  for (const char of content) {
-    if (char === "\n") {
-      count += 1;
+  let inBlockComment = false;
+  let blockEndMarker = "";
+  for (const rawLine of lines) {
+    const trimmed = rawLine.trim();
+    if (trimmed.length === 0) {
+      continue;
     }
+    if (isPython) {
+      if (inBlockComment) {
+        if (trimmed.includes(blockEndMarker)) {
+          inBlockComment = false;
+          blockEndMarker = "";
+        }
+        continue;
+      }
+      if (trimmed.startsWith("#")) {
+        continue;
+      }
+      if (trimmed.startsWith('"""')) {
+        const rest = trimmed.slice(3);
+        if (!rest.includes('"""')) {
+          inBlockComment = true;
+          blockEndMarker = '"""';
+        }
+        continue;
+      }
+      if (trimmed.startsWith("'''")) {
+        const rest = trimmed.slice(3);
+        if (!rest.includes("'''")) {
+          inBlockComment = true;
+          blockEndMarker = "'''";
+        }
+        continue;
+      }
+    } else {
+      if (inBlockComment) {
+        if (trimmed.includes("*/")) {
+          inBlockComment = false;
+        }
+        continue;
+      }
+      if (trimmed.startsWith("//")) {
+        continue;
+      }
+      if (trimmed.startsWith("/*")) {
+        if (!trimmed.includes("*/")) {
+          inBlockComment = true;
+        }
+        continue;
+      }
+    }
+    count += 1;
   }
-  if (content.endsWith("\n")) {
-    return count;
-  }
-  count += 1;
   return count;
 }
 function stripLineComment(line) {
@@ -180,7 +225,7 @@ function run() {
       continue;
     }
     const content = fs.readFileSync(filePath, "utf8");
-    const lineCount = countLines(content);
+    const lineCount = countCodeLines(content, extension);
     analyzed += 1;
     if (lineCount < SOFT_LINE_LIMIT) {
       underSoft += 1;
@@ -206,11 +251,6 @@ function run() {
   process.stdout.write(
     `Files under ${SOFT_LINE_LIMIT} lines: ${underSoft}/${analyzed} (${underSoftPercent.toFixed(1)}%)\n`,
   );
-  if (underSoftPercent < MIN_UNDER_SOFT_PERCENT) {
-    process.stdout.write(
-      `Target (${MIN_UNDER_SOFT_PERCENT}%) not yet met; enforcing non-regression floor at ${ENFORCED_UNDER_SOFT_PERCENT.toFixed(1)}%.\n`,
-    );
-  }
   printSection(`Files over ${SOFT_LINE_LIMIT} lines`, overSoftLimit);
   printSection(`Files over ${HARD_LINE_LIMIT} lines`, overHardLimit);
   process.stdout.write(
@@ -229,9 +269,9 @@ function run() {
       `Files over ${HARD_LINE_LIMIT} lines: ${overHardLimit.length}`,
     );
   }
-  if (underSoftPercent < ENFORCED_UNDER_SOFT_PERCENT) {
+  if (underSoftPercent < MIN_UNDER_SOFT_PERCENT) {
     failures.push(
-      `Files under ${SOFT_LINE_LIMIT} lines below ${ENFORCED_UNDER_SOFT_PERCENT.toFixed(1)}% floor: ${underSoftPercent.toFixed(1)}%`,
+      `Files under ${SOFT_LINE_LIMIT} lines below ${MIN_UNDER_SOFT_PERCENT}%: ${underSoftPercent.toFixed(1)}%`,
     );
   }
   if (ternaryHits.length > 0) {

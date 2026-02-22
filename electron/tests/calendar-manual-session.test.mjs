@@ -6,34 +6,14 @@ import {
   rowsWithoutSession,
   wordsPlannedForManualSession,
 } from "../dist/renderer/app/calendar_interactions.js";
+import {
+  historicalPaceRowsFixture,
+  indexRowsFixture,
+  removableRowsFixture,
+} from "./calendar-manual-session.fixtures.mjs";
 
 test("nextSessionIndexForDate appends after highest index on the same day", () => {
-  const rows = [
-    {
-      date: "2026-02-20",
-      session_index: 1,
-      book_id: "a",
-      title: "A",
-      minutes: 10,
-      words_planned: 1000,
-    },
-    {
-      date: "2026-02-20",
-      session_index: 3,
-      book_id: "b",
-      title: "B",
-      minutes: 15,
-      words_planned: 1500,
-    },
-    {
-      date: "2026-02-21",
-      session_index: 2,
-      book_id: "c",
-      title: "C",
-      minutes: 12,
-      words_planned: 1200,
-    },
-  ];
+  const rows = indexRowsFixture();
 
   assert.equal(nextSessionIndexForDate(rows, "2026-02-20"), 4);
   assert.equal(nextSessionIndexForDate(rows, "2026-02-21"), 3);
@@ -41,24 +21,7 @@ test("nextSessionIndexForDate appends after highest index on the same day", () =
 });
 
 test("wordsPlannedForManualSession uses historical pace when available", () => {
-  const rows = [
-    {
-      date: "2026-02-20",
-      session_index: 1,
-      book_id: "book-1",
-      title: "Book",
-      minutes: 10,
-      words_planned: 1000,
-    },
-    {
-      date: "2026-02-21",
-      session_index: 1,
-      book_id: "book-1",
-      title: "Book",
-      minutes: 5,
-      words_planned: 600,
-    },
-  ];
+  const rows = historicalPaceRowsFixture();
 
   const words = wordsPlannedForManualSession({
     bookId: "book-1",
@@ -87,32 +50,7 @@ test("wordsPlannedForManualSession falls back to settings-based speed", () => {
 });
 
 test("rowsWithoutSession removes only the targeted row key", () => {
-  const rows = [
-    {
-      date: "2026-02-20",
-      session_index: 1,
-      book_id: "book-1",
-      title: "Book 1",
-      minutes: 10,
-      words_planned: 1000,
-    },
-    {
-      date: "2026-02-20",
-      session_index: 2,
-      book_id: "book-1",
-      title: "Book 1",
-      minutes: 12,
-      words_planned: 1200,
-    },
-    {
-      date: "2026-02-20",
-      session_index: 1,
-      book_id: "book-2",
-      title: "Book 2",
-      minutes: 9,
-      words_planned: 900,
-    },
-  ];
+  const rows = removableRowsFixture();
 
   const nextRows = rowsWithoutSession(rows, "2026-02-20|2|book-1");
 

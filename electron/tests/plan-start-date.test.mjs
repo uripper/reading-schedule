@@ -2,19 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { runPlanGeneration } from "../dist/renderer/app/plan.js";
-
-function dayKey(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function tomorrowKey() {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  return dayKey(tomorrow);
-}
+import { tomorrowKey } from "./plan-start-date-date-helpers.mjs";
 
 test("runPlanGeneration forces settings.start_date to tomorrow", async () => {
   const calls = [];
