@@ -2,17 +2,22 @@ import type { PlannerScheduleRow } from "../types.js";
 import { sessionKeyFor } from "../../calendar/utils.js";
 
 /**
- *
- * @param dateOrRows
- * @param rowsOrDate
+ * Normalizes input to extract date and rows for session index calculation.
+ * @param dateOrRows Either a date string or an array of PlannerScheduleRow.
+ * @param rowsOrDate Either an array of PlannerScheduleRow or a date string.
+ * @returns An object containing the date and rows for the specified date.
  */
 function normalizeRowsAndDate(
   dateOrRows: string | PlannerScheduleRow[],
   rowsOrDate: PlannerScheduleRow[] | string,
 ): { date: string; rows: PlannerScheduleRow[] } {
   if (Array.isArray(dateOrRows)) {
+    let date = "";
+    if (typeof rowsOrDate === "string") {
+      date = String(rowsOrDate);
+    }
     return {
-      date: String(rowsOrDate || ""),
+      date,
       rows: dateOrRows,
     };
   }
@@ -26,33 +31,45 @@ function normalizeRowsAndDate(
 }
 
 /**
- *
- * @param targetSessionKeyOrRows
- * @param rowsOrTargetSessionKey
+ * Normalizes input to extract a session key and rows for session filtering.
+ * @param targetSessionKeyOrRows Either a session key string or an array of PlannerScheduleRow.
+ * @param rowsOrTargetSessionKey Either an array of PlannerScheduleRow or a session key string.
+ * @returns An object containing the session key and rows for filtering out the specified session.
  */
 function normalizeRowsAndSessionKey(
   targetSessionKeyOrRows: string | PlannerScheduleRow[],
   rowsOrTargetSessionKey: PlannerScheduleRow[] | string,
 ): { key: string; rows: PlannerScheduleRow[] } {
+  let key = "";
   if (Array.isArray(targetSessionKeyOrRows)) {
+    if (typeof rowsOrTargetSessionKey === "string") {
+      key = rowsOrTargetSessionKey;
+    }
     return {
-      key: String(rowsOrTargetSessionKey || ""),
+      key,
       rows: targetSessionKeyOrRows,
     };
   }
   if (Array.isArray(rowsOrTargetSessionKey)) {
+    if (typeof targetSessionKeyOrRows === "string") {
+      key = targetSessionKeyOrRows;
+    }
     return {
-      key: String(targetSessionKeyOrRows || ""),
+      key,
       rows: rowsOrTargetSessionKey,
     };
   }
-  return { key: String(targetSessionKeyOrRows || ""), rows: [] };
+  if (typeof targetSessionKeyOrRows === "string") {
+    key = targetSessionKeyOrRows;
+  }
+  return { key, rows: [] };
 }
 
 /**
- *
- * @param dateOrRows
- * @param rowsOrDate
+ * Calculates the next session index for a given date.
+ * @param dateOrRows Either a date string or an array of PlannerScheduleRow.
+ * @param rowsOrDate Either an array of PlannerScheduleRow or a date string.
+ * @returns The next session index for the specified date.
  */
 export function nextSessionIndexForDate(
   dateOrRows: string | PlannerScheduleRow[],
@@ -73,9 +90,10 @@ export function nextSessionIndexForDate(
 }
 
 /**
- *
- * @param targetSessionKeyOrRows
- * @param rowsOrTargetSessionKey
+ * Filters out a specific session from the given rows.
+ * @param targetSessionKeyOrRows Either a session key string or an array of PlannerScheduleRow.
+ * @param rowsOrTargetSessionKey Either an array of PlannerScheduleRow or a session key string.
+ * @returns An array of PlannerScheduleRow excluding the specified session.
  */
 export function rowsWithoutSession(
   targetSessionKeyOrRows: string | PlannerScheduleRow[],
