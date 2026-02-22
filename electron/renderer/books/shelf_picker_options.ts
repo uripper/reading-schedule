@@ -6,9 +6,10 @@ const CREATE_SHELF_LABEL = "Create new shelf...";
 const DATA_KEY_PREVIOUS_SHELF = "previousShelf";
 
 /**
- *
- * @param value
- * @param label
+ * Creates a select option element for the shelf dropdown.
+ * @param value Option value attribute.
+ * @param label User-facing option text.
+ * @returns Configured option element.
  */
 function createOption(value: string, label: string): HTMLOptionElement {
   const option = document.createElement("option");
@@ -18,8 +19,9 @@ function createOption(value: string, label: string): HTMLOptionElement {
 }
 
 /**
- *
- * @param shelves
+ * Builds ordered shelf options including default and "create new" entries.
+ * @param shelves Existing shelf names.
+ * @returns Option elements ready to render into the shelf select.
  */
 function shelfOptions(shelves: string[]): HTMLOptionElement[] {
   const options = [createOption(UNSHELVED_VALUE, UNSHELVED_LABEL)];
@@ -31,10 +33,10 @@ function shelfOptions(shelves: string[]): HTMLOptionElement[] {
 }
 
 /**
- *
- * @param select
- * @param shelves
- * @param selectedShelf
+ * Replaces shelf select options and sets the selected value.
+ * @param select Shelf dropdown element.
+ * @param shelves Existing shelf names.
+ * @param selectedShelf Shelf value to select when available.
  */
 function renderShelfOptions(
   select: HTMLSelectElement,
@@ -50,17 +52,19 @@ function renderShelfOptions(
 }
 
 /**
- *
- * @param left
- * @param right
+ * Compares shelf names in a case-insensitive way.
+ * @param left Left shelf name.
+ * @param right Right shelf name.
+ * @returns True when names are equal ignoring case.
  */
 function caseInsensitiveMatch(left: string, right: string): boolean {
   return left.localeCompare(right, undefined, { sensitivity: "base" }) === 0;
 }
 
 /**
- *
- * @param select
+ * Collects concrete shelf values from the current dropdown options.
+ * @param select Shelf dropdown element.
+ * @returns Shelf names excluding empty and "create new" entries.
  */
 function collectShelfValues(select: HTMLSelectElement): string[] {
   const values: string[] = [];
@@ -74,25 +78,27 @@ function collectShelfValues(select: HTMLSelectElement): string[] {
 }
 
 /**
- *
- * @param select
+ * Stores the current shelf selection for later restoration.
+ * @param select Shelf dropdown element.
  */
 export function rememberSelectedShelf(select: HTMLSelectElement): void {
   select.dataset[DATA_KEY_PREVIOUS_SHELF] = select.value;
 }
 
 /**
- *
- * @param select
+ * Reads the previously remembered shelf value for the dropdown.
+ * @param select Shelf dropdown element.
+ * @returns Previously selected shelf, or unshelved when missing.
  */
 export function previousShelf(select: HTMLSelectElement): string {
   return String(select.dataset[DATA_KEY_PREVIOUS_SHELF] || UNSHELVED_VALUE);
 }
 
 /**
- *
- * @param select
- * @param shelfName
+ * Finds an existing option value matching a shelf name case-insensitively.
+ * @param select Shelf dropdown element.
+ * @param shelfName Candidate shelf name.
+ * @returns Matched option value, or empty string when not found.
  */
 export function existingShelfValue(
   select: HTMLSelectElement,
@@ -110,9 +116,9 @@ export function existingShelfValue(
 }
 
 /**
- *
- * @param select
- * @param shelfName
+ * Adds a missing shelf option and keeps options sorted alphabetically.
+ * @param select Shelf dropdown element.
+ * @param shelfName Shelf name to ensure exists in options.
  */
 export function ensureShelfOption(
   select: HTMLSelectElement,
@@ -130,10 +136,10 @@ export function ensureShelfOption(
 }
 
 /**
- *
- * @param select
- * @param selectedShelf
- * @param availableShelves
+ * Sets shelf select options and resolves/creates the selected shelf value.
+ * @param select Shelf dropdown element.
+ * @param selectedShelf Current shelf value from form or persisted state.
+ * @param availableShelves Known shelf names from the catalog.
  */
 export function setSelectedShelf(
   select: HTMLSelectElement,
