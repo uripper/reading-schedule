@@ -35,18 +35,28 @@ export function bindAfterBookPickerEvents({
   selectBook,
   state,
 }: BindingArgs): void {
-  refs.afterBookInput.addEventListener("focus", () => { refreshFiltered(false); });
-  refs.afterBookInput.addEventListener("input", () => { refreshFiltered(true); });
+  refs.afterBookInput.addEventListener("focus", () => {
+    refreshFiltered(false);
+  });
+  refs.afterBookInput.addEventListener("input", () => {
+    refreshFiltered(true);
+  });
   refs.afterBookInput.addEventListener("keydown", (event: KeyboardEvent) => {
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      state.activeIndex = wrapIndex(state.activeIndex + 1, state.filtered.length);
+      state.activeIndex = wrapIndex(
+        state.activeIndex + 1,
+        state.filtered.length,
+      );
       render();
       return;
     }
     if (event.key === "ArrowUp") {
       event.preventDefault();
-      state.activeIndex = wrapIndex(state.activeIndex - 1, state.filtered.length);
+      state.activeIndex = wrapIndex(
+        state.activeIndex - 1,
+        state.filtered.length,
+      );
       render();
       return;
     }

@@ -16,13 +16,19 @@ export function bindCardEvents(
   rootNode: HTMLElement,
   { onEdit, onRemove }: CardHandlers,
 ): void {
-  rootNode.querySelectorAll<HTMLButtonElement>(".edit-book-btn").forEach((button) => {
-    button.onclick = () => { onEdit(button.dataset.bookId || ""); };
-  });
+  rootNode
+    .querySelectorAll<HTMLButtonElement>(".edit-book-btn")
+    .forEach((button) => {
+      button.onclick = () => {
+        onEdit(button.dataset.bookId || "");
+      };
+    });
   rootNode
     .querySelectorAll<HTMLButtonElement>(".remove-book-btn")
     .forEach((button) => {
-      button.onclick = () => { onRemove(button.dataset.bookId || ""); };
+      button.onclick = () => {
+        onRemove(button.dataset.bookId || "");
+      };
     });
   rootNode
     .querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']")

@@ -16,7 +16,10 @@ function roundMinutes(value: number): number {
  * @param row
  * @param session
  */
-function rowMatchesDate(row: PlannerScheduleRow, session: FocusSession): boolean {
+function rowMatchesDate(
+  row: PlannerScheduleRow,
+  session: FocusSession,
+): boolean {
   return String(row.date || "") === session.date;
 }
 
@@ -25,7 +28,10 @@ function rowMatchesDate(row: PlannerScheduleRow, session: FocusSession): boolean
  * @param row
  * @param session
  */
-function rowMatchesBook(row: PlannerScheduleRow, session: FocusSession): boolean {
+function rowMatchesBook(
+  row: PlannerScheduleRow,
+  session: FocusSession,
+): boolean {
   if (!session.bookId) {
     return true;
   }
@@ -53,7 +59,10 @@ function rowMatchesSessionIndex(
  * @param row
  * @param session
  */
-function rowMatchesTitle(row: PlannerScheduleRow, session: FocusSession): boolean {
+function rowMatchesTitle(
+  row: PlannerScheduleRow,
+  session: FocusSession,
+): boolean {
   const rowTitle = String(row.title || "").trim();
   return rowTitle === session.title;
 }
@@ -63,7 +72,10 @@ function rowMatchesTitle(row: PlannerScheduleRow, session: FocusSession): boolea
  * @param row
  * @param session
  */
-function rowMatchesMinutes(row: PlannerScheduleRow, session: FocusSession): boolean {
+function rowMatchesMinutes(
+  row: PlannerScheduleRow,
+  session: FocusSession,
+): boolean {
   const rowMinutes = roundMinutes(Number(row.minutes || 0));
   return rowMinutes === session.minutes;
 }

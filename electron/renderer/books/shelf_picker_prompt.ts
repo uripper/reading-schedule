@@ -4,8 +4,9 @@ const DIALOG_CONFIRM_VALUE = "confirm";
 const CREATE_SHELF_PROMPT = "Enter a name for the new shelf:";
 
 /**
- *
- * @param refs
+ * Shows the shelf-name dialog and resolves with a trimmed name on confirm.
+ * @param refs Form references containing shelf prompt dialog elements.
+ * @returns Trimmed shelf name, or null when the prompt is canceled.
  */
 async function promptViaDialog(refs: BookFormRefs): Promise<string | null> {
   return await new Promise((resolve) => {
@@ -30,7 +31,8 @@ async function promptViaDialog(refs: BookFormRefs): Promise<string | null> {
 }
 
 /**
- *
+ * Fallback shelf prompt using the browser's native prompt dialog.
+ * @returns Trimmed shelf name, or null when canceled.
  */
 function promptViaBrowser(): string | null {
   const response = globalThis.prompt(CREATE_SHELF_PROMPT, "");
@@ -41,8 +43,8 @@ function promptViaBrowser(): string | null {
 }
 
 /**
- *
- * @param refs
+ * Prevents prompt confirmation when the user submits an empty shelf name.
+ * @param refs Form references containing shelf prompt dialog elements.
  */
 export function ensurePromptValidation(refs: BookFormRefs): void {
   refs.shelfPromptForm.addEventListener("submit", (event) => {
@@ -61,8 +63,9 @@ export function ensurePromptValidation(refs: BookFormRefs): void {
 }
 
 /**
- *
- * @param refs
+ * Prompts for a shelf name, preferring the custom dialog with browser fallback.
+ * @param refs Form references containing shelf prompt dialog elements.
+ * @returns Trimmed shelf name, or null when the prompt is canceled.
  */
 export async function promptForShelfName(
   refs: BookFormRefs,

@@ -3,7 +3,8 @@ import { sessionKeyFor } from "./utils.js";
 import type { DayMode, DetailInteractionHandlers } from "./details_types.js";
 
 /**
- *
+ * Creates a local date key (`YYYY-MM-DD`) for the current day.
+ * @returns Date key for "today" in local time.
  */
 function todayDateKey(): string {
   const now = new Date();
@@ -14,8 +15,9 @@ function todayDateKey(): string {
 }
 
 /**
- *
- * @param dateKey
+ * Categorizes a date relative to today for day-detail UI behavior.
+ * @param dateKey Day key in `YYYY-MM-DD` format.
+ * @returns Whether the day is in the past, today, or future.
  */
 export function dayMode(dateKey: string): DayMode {
   const today = todayDateKey();
@@ -29,9 +31,10 @@ export function dayMode(dateKey: string): DayMode {
 }
 
 /**
- *
- * @param rows
- * @param interactionHandlers
+ * Sorts rows with unfinished sessions first and completed sessions last.
+ * @param rows Rows for a single day before completion-based ordering.
+ * @param interactionHandlers Completion lookup handlers for session rows.
+ * @returns Rows grouped by completion state, with finish-priority sorting in each group.
  */
 export function rowsWithCompletedLast(
   rows: CalendarRowWithFinish[],
