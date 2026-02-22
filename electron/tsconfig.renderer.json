@@ -6,7 +6,7 @@
     "outDir": "dist/renderer",
     "rootDir": "renderer",
     "lib": ["ES2023", "DOM"],
-    "strict": false,
+    "strict": true,
     "skipLibCheck": true
   },
   "include": ["renderer/**/*.ts", "renderer/**/*.d.ts"]

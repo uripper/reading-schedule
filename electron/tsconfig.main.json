@@ -6,7 +6,7 @@
     "outDir": "dist",
     "rootDir": ".",
     "types": ["node", "electron"],
-    "strict": false,
+    "strict": true,
     "noImplicitAny": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
