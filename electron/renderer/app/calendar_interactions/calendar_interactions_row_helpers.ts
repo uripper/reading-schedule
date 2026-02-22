@@ -1,6 +1,11 @@
 import type { PlannerScheduleRow } from "../types.js";
 import { sessionKeyFor } from "../../calendar/utils.js";
 
+/**
+ *
+ * @param dateOrRows
+ * @param rowsOrDate
+ */
 function normalizeRowsAndDate(
   dateOrRows: string | PlannerScheduleRow[],
   rowsOrDate: PlannerScheduleRow[] | string,
@@ -20,6 +25,11 @@ function normalizeRowsAndDate(
   return { date: String(dateOrRows || ""), rows: [] };
 }
 
+/**
+ *
+ * @param targetSessionKeyOrRows
+ * @param rowsOrTargetSessionKey
+ */
 function normalizeRowsAndSessionKey(
   targetSessionKeyOrRows: string | PlannerScheduleRow[],
   rowsOrTargetSessionKey: PlannerScheduleRow[] | string,
@@ -39,6 +49,11 @@ function normalizeRowsAndSessionKey(
   return { key: String(targetSessionKeyOrRows || ""), rows: [] };
 }
 
+/**
+ *
+ * @param dateOrRows
+ * @param rowsOrDate
+ */
 export function nextSessionIndexForDate(
   dateOrRows: string | PlannerScheduleRow[],
   rowsOrDate: PlannerScheduleRow[] | string = [],
@@ -57,6 +72,11 @@ export function nextSessionIndexForDate(
   return maxIndex + 1;
 }
 
+/**
+ *
+ * @param targetSessionKeyOrRows
+ * @param rowsOrTargetSessionKey
+ */
 export function rowsWithoutSession(
   targetSessionKeyOrRows: string | PlannerScheduleRow[],
   rowsOrTargetSessionKey: PlannerScheduleRow[] | string = [],
