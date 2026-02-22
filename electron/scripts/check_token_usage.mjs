@@ -11,7 +11,6 @@ const hexPattern = /#[0-9a-fA-F]{3,8}\b/g;
 
 /**
  * Recursively collects CSS files under a directory.
- *
  * @param {string} dir Directory to traverse.
  * @param {string[]} files Accumulator for discovered CSS file paths.
  * @returns {string[]} Discovered CSS file paths.

@@ -9,7 +9,6 @@ const ROOT = path.resolve(path.join(SCRIPT_DIR, ".."));
 
 /**
  * Returns environment variables safe for launching Electron child process.
- *
  * @returns {NodeJS.ProcessEnv} Cleaned environment object.
  */
 function cleanedEnvironment() {
@@ -20,7 +19,6 @@ function cleanedEnvironment() {
 
 /**
  * Resolves installed Electron binary path from dependency entrypoint.
- *
  * @returns {string} Electron binary path.
  */
 function electronBinaryPath() {
