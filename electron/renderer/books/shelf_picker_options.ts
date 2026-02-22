@@ -5,6 +5,11 @@ const UNSHELVED_LABEL = "Unshelved";
 const CREATE_SHELF_LABEL = "Create new shelf...";
 const DATA_KEY_PREVIOUS_SHELF = "previousShelf";
 
+/**
+ *
+ * @param value
+ * @param label
+ */
 function createOption(value: string, label: string): HTMLOptionElement {
   const option = document.createElement("option");
   option.value = value;
@@ -12,6 +17,10 @@ function createOption(value: string, label: string): HTMLOptionElement {
   return option;
 }
 
+/**
+ *
+ * @param shelves
+ */
 function shelfOptions(shelves: string[]): HTMLOptionElement[] {
   const options = [createOption(UNSHELVED_VALUE, UNSHELVED_LABEL)];
   shelves.forEach((shelfName) => {
@@ -21,6 +30,12 @@ function shelfOptions(shelves: string[]): HTMLOptionElement[] {
   return options;
 }
 
+/**
+ *
+ * @param select
+ * @param shelves
+ * @param selectedShelf
+ */
 function renderShelfOptions(
   select: HTMLSelectElement,
   shelves: string[],
@@ -34,10 +49,19 @@ function renderShelfOptions(
   select.value = UNSHELVED_VALUE;
 }
 
+/**
+ *
+ * @param left
+ * @param right
+ */
 function caseInsensitiveMatch(left: string, right: string): boolean {
   return left.localeCompare(right, undefined, { sensitivity: "base" }) === 0;
 }
 
+/**
+ *
+ * @param select
+ */
 function collectShelfValues(select: HTMLSelectElement): string[] {
   const values: string[] = [];
   Array.from(select.options).forEach((option) => {
@@ -49,14 +73,27 @@ function collectShelfValues(select: HTMLSelectElement): string[] {
   return values;
 }
 
+/**
+ *
+ * @param select
+ */
 export function rememberSelectedShelf(select: HTMLSelectElement): void {
   select.dataset[DATA_KEY_PREVIOUS_SHELF] = select.value;
 }
 
+/**
+ *
+ * @param select
+ */
 export function previousShelf(select: HTMLSelectElement): string {
   return String(select.dataset[DATA_KEY_PREVIOUS_SHELF] || UNSHELVED_VALUE);
 }
 
+/**
+ *
+ * @param select
+ * @param shelfName
+ */
 export function existingShelfValue(
   select: HTMLSelectElement,
   shelfName: string,
@@ -72,6 +109,11 @@ export function existingShelfValue(
   return "";
 }
 
+/**
+ *
+ * @param select
+ * @param shelfName
+ */
 export function ensureShelfOption(
   select: HTMLSelectElement,
   shelfName: string,
@@ -87,6 +129,12 @@ export function ensureShelfOption(
   renderShelfOptions(select, shelves, shelfName);
 }
 
+/**
+ *
+ * @param select
+ * @param selectedShelf
+ * @param availableShelves
+ */
 export function setSelectedShelf(
   select: HTMLSelectElement,
   selectedShelf: string,

@@ -4,6 +4,10 @@ import { statusLabel } from "./status.js";
 import { formatInt } from "./utils.js";
 import type { Book, BookMetaOptions } from "./types.js";
 
+/**
+ *
+ * @param book
+ */
 export function progressLabel(book: Book): string {
   const pct = Number(book.progress_percent || 0);
   const pagesRead = Math.max(0, Number(book.pages_read || 0));
@@ -14,6 +18,10 @@ export function progressLabel(book: Book): string {
   return `${pct.toFixed(1)}% · ${formatInt(pagesRead)} pages read`;
 }
 
+/**
+ *
+ * @param book
+ */
 export function wordsLabel(book: Book): string {
   if (book.words_total) {
     return `${formatInt(book.words_total)} words`;
@@ -24,6 +32,11 @@ export function wordsLabel(book: Book): string {
   return "No word estimate";
 }
 
+/**
+ *
+ * @param book
+ * @param options
+ */
 export function metaLabel(book: Book, options: BookMetaOptions = {}): string {
   const titleById = options.titleById || {};
   const finishDateByBookId = options.finishDateByBookId || {};
@@ -53,6 +66,10 @@ export function metaLabel(book: Book, options: BookMetaOptions = {}): string {
   return bits.join(" · ");
 }
 
+/**
+ *
+ * @param book
+ */
 export function subtitle(book: Book): string {
   return book.author || book.lookup_note || "No author metadata";
 }

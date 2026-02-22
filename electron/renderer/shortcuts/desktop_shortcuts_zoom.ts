@@ -11,10 +11,19 @@ const ZOOM_PERCENT_FACTOR = 100;
 
 type ZoomApi = Pick<PlannerApi, "zoomIn" | "zoomOut" | "zoomReset">;
 
+/**
+ *
+ * @param zoomFactor
+ */
 function formatZoomAnnouncement(zoomFactor: number): string {
   return `Zoom ${Math.round(zoomFactor * ZOOM_PERCENT_FACTOR)}%`;
 }
 
+/**
+ *
+ * @param plannerApi
+ * @param announce
+ */
 export function createZoomShortcutHandler(
   plannerApi: ZoomApi,
   announce: (message: string, politeness?: "polite" | "assertive") => void,
@@ -39,17 +48,17 @@ export function createZoomShortcutHandler(
     }
     if (isZoomInShortcut(event)) {
       event.preventDefault();
-      runDetached(runZoomCommand(() => plannerApi.zoomIn()));
+      runDetached(runZoomCommand(async () => await plannerApi.zoomIn()));
       return true;
     }
     if (isZoomOutShortcut(event)) {
       event.preventDefault();
-      runDetached(runZoomCommand(() => plannerApi.zoomOut()));
+      runDetached(runZoomCommand(async () => await plannerApi.zoomOut()));
       return true;
     }
     if (isZoomResetShortcut(event)) {
       event.preventDefault();
-      runDetached(runZoomCommand(() => plannerApi.zoomReset()));
+      runDetached(runZoomCommand(async () => await plannerApi.zoomReset()));
       return true;
     }
     return false;

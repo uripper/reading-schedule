@@ -22,6 +22,10 @@ const MONTH_NUMBER_TO_INDEX_OFFSET = 1;
 
 export type StatusBreakdown = Record<BookStatus, number>;
 
+/**
+ *
+ * @param dateText
+ */
 export function yearFromDateKey(dateText: string): number | null {
   const key = String(dateText || "").trim();
   if (key.length < DATE_YEAR_END_INDEX) {
@@ -34,6 +38,10 @@ export function yearFromDateKey(dateText: string): number | null {
   return parsed;
 }
 
+/**
+ *
+ * @param dateText
+ */
 export function monthIndexFromDateKey(dateText: string): number | null {
   const key = String(dateText || "").trim();
   const parsed = Number(
@@ -48,6 +56,10 @@ export function monthIndexFromDateKey(dateText: string): number | null {
   return parsed - MONTH_NUMBER_TO_INDEX_OFFSET;
 }
 
+/**
+ *
+ * @param books
+ */
 export function statusBreakdown(books: Book[]): StatusBreakdown {
   const counts: StatusBreakdown = {
     [BOOK_STATUS_TO_READ]: 0,
@@ -61,6 +73,11 @@ export function statusBreakdown(books: Book[]): StatusBreakdown {
   return counts;
 }
 
+/**
+ *
+ * @param books
+ * @param year
+ */
 export function readBooksFinishedThisYear(
   books: Book[],
   year: number,
@@ -79,6 +96,11 @@ export function readBooksFinishedThisYear(
   return ids;
 }
 
+/**
+ *
+ * @param lastResult
+ * @param year
+ */
 export function plannedFinishBookIds(
   lastResult: PlannerResult | null,
   year: number,
@@ -108,6 +130,12 @@ export function plannedFinishBookIds(
   return { ids, monthByBookId };
 }
 
+/**
+ *
+ * @param lastResult
+ * @param scheduleCompletions
+ * @param year
+ */
 export function completionStats(
   lastResult: PlannerResult | null,
   scheduleCompletions: Record<string, boolean>,
@@ -144,6 +172,10 @@ export function completionStats(
   };
 }
 
+/**
+ *
+ * @param books
+ */
 export function averageProgress(books: Book[]): {
   startedCount: number;
   averagePercent: number;
@@ -166,6 +198,12 @@ export function averageProgress(books: Book[]): {
   };
 }
 
+/**
+ *
+ * @param readThisYearIds
+ * @param books
+ * @param plannedMonths
+ */
 export function monthlyFinishCounts(
   readThisYearIds: Set<string>,
   books: Book[],

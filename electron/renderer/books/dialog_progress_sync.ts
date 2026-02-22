@@ -2,12 +2,16 @@ import { syncProgressAndPages } from "../book_lookup.js";
 import { syncFinishedAtField } from "./form_state.js";
 import type { BookFormRefs } from "./form_refs.js";
 
-type ProgressSyncRefs = {
+interface ProgressSyncRefs {
   pagesTotalInput: HTMLInputElement;
   pagesReadInput: HTMLInputElement;
   progressInput: HTMLInputElement;
-};
+}
 
+/**
+ *
+ * @param syncRefs
+ */
 function bindProgressSyncHandlers(syncRefs: ProgressSyncRefs): void {
   syncRefs.pagesTotalInput.addEventListener("input", () => {
     syncProgressAndPages(syncRefs, "pages");
@@ -20,6 +24,10 @@ function bindProgressSyncHandlers(syncRefs: ProgressSyncRefs): void {
   });
 }
 
+/**
+ *
+ * @param refs
+ */
 export function bindBookDialogProgressSync(refs: BookFormRefs): void {
   bindProgressSyncHandlers({
     pagesTotalInput: refs.pagesTotalInput,

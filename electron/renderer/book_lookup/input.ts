@@ -1,25 +1,34 @@
 import type { BookLookupItem } from "../app/types.js";
 import { getPlannerApi } from "../app/planner_api.js";
 
-type LookupState = {
+interface LookupState {
   timer: ReturnType<typeof setTimeout> | null;
   token: number;
   currentItems: BookLookupItem[];
   activeIndex: number;
-};
+}
 
-type LookupInputHandlerArgs = {
+interface LookupInputHandlerArgs {
   searchInput: HTMLInputElement;
   metaEl: HTMLElement;
   state: LookupState;
-  clearResults: () => void;
-  refreshResults: () => void;
-};
+  clearResults(): void;
+  refreshResults(): void;
+}
 
 const LOOKUP_DELAY_MS = 260;
 const RESULT_LIMIT = 12;
 const MIN_QUERY_LENGTH = 2;
 
+/**
+ *
+ * @param root0
+ * @param root0.searchInput
+ * @param root0.metaEl
+ * @param root0.state
+ * @param root0.clearResults
+ * @param root0.refreshResults
+ */
 export function createLookupInputHandler({
   searchInput,
   metaEl,

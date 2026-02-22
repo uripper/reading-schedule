@@ -8,23 +8,27 @@ import type { PlannerResult, PlannerScheduleRow } from "../types.js";
 const ZERO_COUNT = 0;
 const DEFAULT_TITLE = "Untitled";
 
-export type TodayBookSummary = {
+export interface TodayBookSummary {
   bookId: string;
   title: string;
   coverSrc: string;
   plannedMinutes: number;
   scheduledSessions: number;
   completedSessions: number;
-};
+}
 
-export type TodayScheduleSnapshot = {
+export interface TodayScheduleSnapshot {
   nextUncompletedRow: PlannerScheduleRow | null;
   completedPlannedMinutes: number;
   scheduledSessions: number;
   completedSessions: number;
   books: TodayBookSummary[];
-};
+}
 
+/**
+ *
+ * @param lastResult
+ */
 function rowsFromResult(
   lastResult: PlannerResult | null,
 ): PlannerScheduleRow[] {
@@ -34,6 +38,11 @@ function rowsFromResult(
   return sortRowsByDateAndSession(lastResult.schedule);
 }
 
+/**
+ *
+ * @param row
+ * @param scheduleCompletions
+ */
 function isCompletedRow(
   row: PlannerScheduleRow,
   scheduleCompletions: Record<string, boolean>,
@@ -41,6 +50,10 @@ function isCompletedRow(
   return Boolean(scheduleCompletions[sessionKeyFor(row)]);
 }
 
+/**
+ *
+ * @param books
+ */
 function booksById(books: Book[]): Map<string, Book> {
   const byId = new Map<string, Book>();
   books.forEach((book) => {
@@ -53,6 +66,11 @@ function booksById(books: Book[]): Map<string, Book> {
   return byId;
 }
 
+/**
+ *
+ * @param left
+ * @param right
+ */
 function compareTitle(left: string, right: string): number {
   const leftKey = titleSortKey(left);
   const rightKey = titleSortKey(right);
@@ -65,6 +83,11 @@ function compareTitle(left: string, right: string): number {
   return left.localeCompare(right, undefined, { sensitivity: "base" });
 }
 
+/**
+ *
+ * @param row
+ * @param bookById
+ */
 function createBookSummary(
   row: PlannerScheduleRow,
   bookById: Map<string, Book>,
@@ -86,6 +109,11 @@ function createBookSummary(
   };
 }
 
+/**
+ *
+ * @param lastResult
+ * @param scheduleCompletions
+ */
 export function nextUncompletedPlannedRow(
   lastResult: PlannerResult | null,
   scheduleCompletions: Record<string, boolean>,
@@ -105,6 +133,12 @@ export function nextUncompletedPlannedRow(
   return null;
 }
 
+/**
+ *
+ * @param lastResult
+ * @param scheduleCompletions
+ * @param books
+ */
 export function buildTodayScheduleSnapshot(
   lastResult: PlannerResult | null,
   scheduleCompletions: Record<string, boolean>,

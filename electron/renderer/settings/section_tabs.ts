@@ -2,6 +2,10 @@ import { qa } from "../dom.js";
 
 const DEFAULT_SETTINGS_SECTION = "plan-budget";
 
+/**
+ *
+ * @param nextSection
+ */
 function activateSettingsSection(nextSection: string): void {
   const section = String(nextSection || DEFAULT_SETTINGS_SECTION);
   qa<HTMLElement>("[data-settings-section]").forEach((card) => {
@@ -24,6 +28,9 @@ function activateSettingsSection(nextSection: string): void {
   });
 }
 
+/**
+ *
+ */
 export function bindSettingsSectionTabs(): void {
   const tabs = qa<HTMLElement>(".settings-section-tab");
   tabs.forEach((button) => {

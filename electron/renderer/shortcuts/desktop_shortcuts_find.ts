@@ -8,8 +8,8 @@ const FIND_STATUS_FAILED = "Search failed";
 
 type FindApi = Pick<PlannerApi, "findInPage" | "stopFindInPage">;
 
-type FindControllerArgs = {
-  announce: (message: string, politeness?: "polite" | "assertive") => void;
+interface FindControllerArgs {
+  announce(message: string, politeness?: "polite" | "assertive"): void;
   findBar: HTMLElement;
   findCloseButton: HTMLButtonElement;
   findInput: HTMLInputElement;
@@ -17,13 +17,22 @@ type FindControllerArgs = {
   findPrevButton: HTMLButtonElement;
   findStatus: HTMLOutputElement;
   plannerApi: FindApi;
-};
+}
 
+/**
+ *
+ * @param target
+ * @param message
+ */
 function setFindStatus(target: HTMLOutputElement, message: string): void {
   target.value = message;
   target.textContent = message;
 }
 
+/**
+ *
+ * @param result
+ */
 function formatFindStatus(result: WindowFindResponse): string {
   if (result.matches <= 0) {
     return FIND_STATUS_NO_MATCH;
@@ -31,6 +40,18 @@ function formatFindStatus(result: WindowFindResponse): string {
   return `${result.activeMatchOrdinal} of ${result.matches}`;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.announce
+ * @param root0.findBar
+ * @param root0.findCloseButton
+ * @param root0.findInput
+ * @param root0.findNextButton
+ * @param root0.findPrevButton
+ * @param root0.findStatus
+ * @param root0.plannerApi
+ */
 export function createFindController({
   announce,
   findBar,
@@ -41,9 +62,9 @@ export function createFindController({
   findStatus,
   plannerApi,
 }: FindControllerArgs): {
-  bind: () => void;
-  handleFindBarEscape: (event: KeyboardEvent) => boolean;
-  handleFindShortcut: (event: KeyboardEvent) => boolean;
+  bind(): void;
+  handleFindBarEscape(event: KeyboardEvent): boolean;
+  handleFindShortcut(event: KeyboardEvent): boolean;
 } {
   let lastQuery = "";
   let opener: HTMLElement | null = null;

@@ -8,6 +8,11 @@ const NOOP_ASYNC = () => Promise.resolve();
 
 const DEFAULT_RESULT = { schedule: [], summary: null };
 
+/**
+ *
+ * @param calls
+ * @param result
+ */
 export function recordingGenerate(calls, result = DEFAULT_RESULT) {
   return (payload) => {
     calls.push(payload);
@@ -15,6 +20,14 @@ export function recordingGenerate(calls, result = DEFAULT_RESULT) {
   };
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.generate
+ * @param root0.collectSettings
+ * @param root0.setStatus
+ * @param root0.addLog
+ */
 export async function runPlanGenerationForTest({
   generate,
   collectSettings,

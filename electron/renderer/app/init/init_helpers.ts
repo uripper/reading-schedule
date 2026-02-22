@@ -29,7 +29,7 @@ interface BindTodayActionsArgs {
 }
 
 /**
- *
+ * Wires the skip-link element to focus the main content region.
  */
 export function setupSkipLink(): void {
   const skipLink = document.querySelector(".skip-link");
@@ -43,8 +43,9 @@ export function setupSkipLink(): void {
 }
 
 /**
- *
- * @param args
+ * Creates the app plan-controller instance from prepared dependencies.
+ * @param args Dependencies required by `createPlanController`.
+ * @returns Initialized plan-controller instance.
  */
 export function createAppPlanControllerInstance(
   args: CreatePlanControllerArgs,
@@ -53,13 +54,13 @@ export function createAppPlanControllerInstance(
 }
 
 /**
- *
- * @param root0
- * @param root0.saved
- * @param root0.setReady
- * @param root0.queuePersist
- * @param root0.queueAutoPlan
- * @param root0.setStatus
+ * Finalizes post-load wiring and kicks off auto-plan after initial state load.
+ * @param root0 Initial-load completion dependencies.
+ * @param root0.saved Loaded persisted payload, if available.
+ * @param root0.setReady Marks runtime ready state.
+ * @param root0.queuePersist Schedules persistence of form changes.
+ * @param root0.queueAutoPlan Schedules an automatic plan generation.
+ * @param root0.setStatus Sets startup status text.
  */
 export function finalizeInitialLoad({
   saved,
@@ -84,8 +85,8 @@ export function finalizeInitialLoad({
 }
 
 /**
- *
- * @param args
+ * Binds Today-section runtime actions.
+ * @param args Today action getters/setters and update callbacks.
  */
 export function bindTodayActions(args: BindTodayActionsArgs): void {
   bindTodayFocusActions(args);

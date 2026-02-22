@@ -5,12 +5,20 @@ export const SHELF_FILTER_UNSHELVED = "unshelved";
 export const UNSHELVED_LABEL = "Unshelved";
 export const SHELF_SELECT_CREATE_NEW = "__create_new_shelf__";
 
+/**
+ *
+ * @param rawShelf
+ */
 export function normalizeShelfName(
   rawShelf: string | null | undefined,
 ): string {
   return String(rawShelf || "").trim();
 }
 
+/**
+ *
+ * @param book
+ */
 export function shelfLabelForBook(
   book: Pick<Book, "shelf"> | null | undefined,
 ): string {
@@ -21,6 +29,11 @@ export function shelfLabelForBook(
   return shelf;
 }
 
+/**
+ *
+ * @param book
+ * @param filterValue
+ */
 export function shelfFilterMatches(
   book: Pick<Book, "shelf"> | null | undefined,
   filterValue: string,
@@ -35,6 +48,10 @@ export function shelfFilterMatches(
   return shelf === filterValue;
 }
 
+/**
+ *
+ * @param books
+ */
 export function uniqueShelves(
   books: Array<Pick<Book, "shelf">> = [],
 ): string[] {

@@ -1,3 +1,8 @@
+/**
+ *
+ * @param value
+ * @param fallback
+ */
 export function toInt(value: string | number | undefined, fallback = 0) {
   const parsed = Number(value);
   if (Number.isFinite(parsed)) {
@@ -8,11 +13,15 @@ export function toInt(value: string | number | undefined, fallback = 0) {
 
 type DateInput = string | number | Date;
 
-type SessionRecord = {
+interface SessionRecord {
   ended_at: DateInput;
   minutes?: number | string | null;
-};
+}
 
+/**
+ *
+ * @param iso
+ */
 export function isoLocalDayKey(iso: DateInput) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) {
@@ -24,6 +33,11 @@ export function isoLocalDayKey(iso: DateInput) {
   return `${year}-${month}-${dayOfMonth}`;
 }
 
+/**
+ *
+ * @param startIso
+ * @param endIso
+ */
 export function formatTimeRange(startIso: DateInput, endIso: DateInput) {
   const start = new Date(startIso);
   const end = new Date(endIso);
@@ -38,6 +52,11 @@ export function formatTimeRange(startIso: DateInput, endIso: DateInput) {
   return `${startFormat.format(start)} - ${endFormat.format(end)}`;
 }
 
+/**
+ *
+ * @param index
+ * @param length
+ */
 export function clampIndex(index: number, length: number) {
   if (length <= 0) {
     return -1;
@@ -45,6 +64,10 @@ export function clampIndex(index: number, length: number) {
   return ((index % length) + length) % length;
 }
 
+/**
+ *
+ * @param totalSeconds
+ */
 export function formatTimer(totalSeconds: number) {
   const secondsPerMinute = 60;
   const minutes = Math.floor(totalSeconds / secondsPerMinute);
@@ -52,16 +75,28 @@ export function formatTimer(totalSeconds: number) {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
+/**
+ *
+ */
 export function todayKey() {
   return isoLocalDayKey(new Date().toISOString());
 }
 
+/**
+ *
+ * @param sessions
+ * @param dayKey
+ */
 export function minutesForDay(sessions: SessionRecord[], dayKey: string) {
   return sessions
     .filter((session) => isoLocalDayKey(session.ended_at) === dayKey)
     .reduce((sum, session) => sum + Number(session.minutes || 0), 0);
 }
 
+/**
+ *
+ * @param sessions
+ */
 export function streakFromSessions(sessions: SessionRecord[]) {
   const minuteMap = new Map<string, number>();
   sessions.forEach((session) => {

@@ -29,7 +29,7 @@ export const SOURCE_NAME = "Open Library";
 /**
  * Raw Open Library search document as returned by the API.
  */
-export type SearchDoc = {
+export interface SearchDoc {
   author_name?: string[];
   cover_i?: number;
   edition_count?: number;
@@ -38,19 +38,19 @@ export type SearchDoc = {
   language?: string[];
   number_of_pages_median?: number;
   title?: string;
-};
+}
 
 /**
  * Minimal search response envelope used by lookup transport helpers.
  */
-export type SearchResponse = {
+export interface SearchResponse {
   docs?: SearchDoc[];
-};
+}
 
 /**
  * Normalized search item consumed by renderer book-picker UI.
  */
-export type SearchItem = {
+export interface SearchItem {
   author: string;
   cover_url: string;
   openlibrary_key: string;
@@ -59,4 +59,4 @@ export type SearchItem = {
   title: string;
   words_estimate: number | null;
   year: number | "";
-};
+}

@@ -18,12 +18,13 @@ interface DayMinutesArgs {
 }
 
 /**
- *
- * @param root0
- * @param root0.sessions
- * @param root0.lastResult
- * @param root0.scheduleCompletions
- * @param root0.year
+ * Builds per-day minutes from completed focus sessions and completed planned rows.
+ * @param root0 Activity aggregation inputs.
+ * @param root0.sessions Session history entries.
+ * @param root0.lastResult Latest planner result used for planned-row lookups.
+ * @param root0.scheduleCompletions Completion map keyed by schedule session key.
+ * @param root0.year Optional year filter; null includes all years.
+ * @returns Map of `YYYY-MM-DD` to aggregated minutes.
  */
 export function dayMinutesFromActivity({
   sessions,
@@ -58,9 +59,10 @@ export function dayMinutesFromActivity({
 }
 
 /**
- *
- * @param dayMinutes
- * @param dayKey
+ * Reads total minutes recorded for a specific day key.
+ * @param dayMinutes Day-minutes lookup map.
+ * @param dayKey Target day key (`YYYY-MM-DD`).
+ * @returns Minutes for the day, or 0 when missing.
  */
 export function dayMinutesForKey(
   dayMinutes: DayMinutesMap,
@@ -70,8 +72,9 @@ export function dayMinutesForKey(
 }
 
 /**
- *
- * @param dayMinutes
+ * Sums all minutes across the provided day-minutes map.
+ * @param dayMinutes Day-minutes lookup map.
+ * @returns Total minutes across all keys.
  */
 export function totalMinutes(dayMinutes: DayMinutesMap): number {
   let total = ZERO_MINUTES;
@@ -82,8 +85,9 @@ export function totalMinutes(dayMinutes: DayMinutesMap): number {
 }
 
 /**
- *
- * @param dayMinutes
+ * Counts days with any recorded activity minutes.
+ * @param dayMinutes Day-minutes lookup map.
+ * @returns Number of days with minutes greater than zero.
  */
 export function activeDayCount(dayMinutes: DayMinutesMap): number {
   let total = ZERO_MINUTES;
@@ -96,9 +100,11 @@ export function activeDayCount(dayMinutes: DayMinutesMap): number {
 }
 
 /**
- *
- * @param dayMinutes
- * @param minimumMinutesPerDay
+ * Computes the current backward-looking streak in days that meet the goal.
+ * Streak evaluation starts at today and walks back one day at a time.
+ * @param dayMinutes Day-minutes lookup map.
+ * @param minimumMinutesPerDay Daily threshold required to count a streak day.
+ * @returns Consecutive number of qualifying days ending today.
  */
 export function streakFromDayMinutes(
   dayMinutes: DayMinutesMap,

@@ -2,6 +2,11 @@ import type { CalendarRowWithFinish } from "./data.js";
 import type { DetailInteractionHandlers } from "./details_types.js";
 import { parseOptionalNumber } from "./utils.js";
 
+/**
+ *
+ * @param inputNode
+ * @param value
+ */
 export function setInputValueFromBookProgress(
   inputNode: HTMLInputElement,
   value?: string | number,
@@ -11,6 +16,11 @@ export function setInputValueFromBookProgress(
   }
 }
 
+/**
+ *
+ * @param inputNode
+ * @param initialValue
+ */
 function changedNumberValue(
   inputNode: HTMLInputElement,
   initialValue: string,
@@ -22,6 +32,11 @@ function changedNumberValue(
   return parseOptionalNumber(currentValue);
 }
 
+/**
+ *
+ * @param inputNode
+ * @param nextValue
+ */
 function syncInputValue(
   inputNode: HTMLInputElement,
   nextValue?: number | null,
@@ -33,6 +48,16 @@ function syncInputValue(
   return String(inputNode.value ?? "").trim();
 }
 
+/**
+ *
+ * @param event
+ * @param row
+ * @param pagesInput
+ * @param pctInput
+ * @param initialPagesValue
+ * @param initialPercentValue
+ * @param interactionHandlers
+ */
 export function submitProgressUpdate(
   event: SubmitEvent,
   row: CalendarRowWithFinish,

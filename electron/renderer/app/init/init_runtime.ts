@@ -12,12 +12,13 @@ interface InitRuntimeArgs {
 }
 
 /**
- *
- * @param root0
- * @param root0.focusCalendarToday
- * @param root0.queuePersist
- * @param root0.state
- * @param root0.updateDashboards
+ * Creates runtime handlers used by tab changes, book edits, and schedule mutations.
+ * @param root0 Runtime dependencies from bootstrap.
+ * @param root0.focusCalendarToday Focuses/selects today's calendar entry.
+ * @param root0.queuePersist Schedules persistence for changed inputs.
+ * @param root0.state Shared runtime state container.
+ * @param root0.updateDashboards Refreshes dashboard UI sections.
+ * @returns Handler object consumed by initialization and bindings.
  */
 export function createInitRuntime({
   focusCalendarToday,

@@ -15,6 +15,10 @@ const ERROR_MISSING_FILE = "Select an image file to upload.";
 const ERROR_UNSUPPORTED_FILE = "Use a PNG, JPG, or WEBP image.";
 const ERROR_UPLOAD_FAILED = "Could not upload this cover image.";
 
+/**
+ *
+ * @param fileName
+ */
 function fileNameHasSupportedExtension(fileName: string): boolean {
   const lowerName = String(fileName || "")
     .trim()
@@ -34,6 +38,10 @@ function fileNameHasSupportedExtension(fileName: string): boolean {
   return false;
 }
 
+/**
+ *
+ * @param file
+ */
 function fileIsSupported(file: File): boolean {
   const mimeType = String(file.type || "")
     .trim()
@@ -51,6 +59,10 @@ function fileIsSupported(file: File): boolean {
   return false;
 }
 
+/**
+ *
+ * @param refs
+ */
 function selectedCoverFile(refs: BookFormRefs): File | null {
   const { files } = refs.coverUploadInput;
   if (!files || files.length <= 0) {
@@ -59,8 +71,12 @@ function selectedCoverFile(refs: BookFormRefs): File | null {
   return files[0];
 }
 
-function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
+/**
+ *
+ * @param file
+ */
+async function readFileAsDataUrl(file: File): Promise<string> {
+  return await new Promise((resolve, reject) => {
     const reader = new FileReader();
 
     const onLoad = () => {
@@ -84,10 +100,19 @@ function readFileAsDataUrl(file: File): Promise<string> {
   });
 }
 
+/**
+ *
+ * @param refs
+ */
 function triggerCoverPicker(refs: BookFormRefs): void {
   refs.coverUploadInput.click();
 }
 
+/**
+ *
+ * @param event
+ * @param refs
+ */
 function onCoverPanelKeydown(event: KeyboardEvent, refs: BookFormRefs): void {
   if (event.key !== KEY_ENTER && event.key !== KEY_SPACE) {
     return;
@@ -96,6 +121,10 @@ function onCoverPanelKeydown(event: KeyboardEvent, refs: BookFormRefs): void {
   triggerCoverPicker(refs);
 }
 
+/**
+ *
+ * @param error
+ */
 function uploadErrorMessage(error: unknown): string {
   if (error instanceof Error && error.message) {
     return error.message;
@@ -103,10 +132,18 @@ function uploadErrorMessage(error: unknown): string {
   return ERROR_UPLOAD_FAILED;
 }
 
+/**
+ *
+ * @param refs
+ */
 function clearCoverUploadInput(refs: BookFormRefs): void {
   refs.coverUploadInput.value = "";
 }
 
+/**
+ *
+ * @param refs
+ */
 async function saveSelectedCover(refs: BookFormRefs): Promise<void> {
   const file = selectedCoverFile(refs);
   if (!file) {
@@ -124,6 +161,10 @@ async function saveSelectedCover(refs: BookFormRefs): Promise<void> {
   applyUploadedCover(refs, localCover, file.name);
 }
 
+/**
+ *
+ * @param refs
+ */
 async function handleCoverUploadChange(refs: BookFormRefs): Promise<void> {
   try {
     await saveSelectedCover(refs);
@@ -134,6 +175,10 @@ async function handleCoverUploadChange(refs: BookFormRefs): Promise<void> {
   }
 }
 
+/**
+ *
+ * @param refs
+ */
 export function bindCoverUpload(refs: BookFormRefs): void {
   const runUploadChange = () => {
     handleCoverUploadChange(refs).catch((error) => {

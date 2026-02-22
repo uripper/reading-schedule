@@ -25,14 +25,23 @@ import type { BookFormRefs } from "./form_refs.js";
 import type { BookLookupItem } from "../app/types.js";
 import type { ProgressSyncInputs } from "../book_lookup/helpers.js";
 
-type LookupControl = {
-  clearResults: () => void;
-};
+interface LookupControl {
+  clearResults(): void;
+}
 
+/**
+ *
+ * @param refs
+ */
 export function syncFinishedAtField(refs: BookFormRefs): void {
   syncFinishedAtFieldState(refs);
 }
 
+/**
+ *
+ * @param refs
+ * @param lookupControl
+ */
 export function clearForm(
   refs: BookFormRefs,
   lookupControl: LookupControl,
@@ -59,6 +68,11 @@ export function clearForm(
   lookupControl.clearResults();
 }
 
+/**
+ *
+ * @param refs
+ * @param book
+ */
 export function fillForm(refs: BookFormRefs, book: Book): void {
   refs.bookId.value = book.book_id;
   refs.titleInput.value = fallbackText(book.title);
@@ -96,6 +110,10 @@ export function fillForm(refs: BookFormRefs, book: Book): void {
   setCoverPreview(refs, bookCoverSrc(book));
 }
 
+/**
+ *
+ * @param refs
+ */
 export function parseFormBook(refs: BookFormRefs): Book {
   const title = requiredTitle(refs);
   const parsed = deriveLengthAndProgress(refs);
@@ -135,6 +153,11 @@ export function parseFormBook(refs: BookFormRefs): Book {
   });
 }
 
+/**
+ *
+ * @param refs
+ * @param item
+ */
 export function applyLookupItem(
   refs: BookFormRefs,
   item: BookLookupItem,
@@ -164,6 +187,12 @@ export function applyLookupItem(
   syncProgressAndPages(progressSyncRefs, "pages");
 }
 
+/**
+ *
+ * @param refs
+ * @param localCoverPath
+ * @param fileName
+ */
 export function applyUploadedCover(
   refs: BookFormRefs,
   localCoverPath: string,

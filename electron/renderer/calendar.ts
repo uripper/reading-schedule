@@ -11,11 +11,17 @@ import { refreshDerivedRows, renderControls, renderMonth } from "./calendar/rend
 const state = createCalendarRuntimeState();
 let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});
 
+/**
+ *
+ */
 function renderDetails(): void {
   refreshDerivedRows(state, interactionHandlers.isSessionCompleted);
   renderCalendarDetails(state, interactionHandlers, renderDetails);
 }
 
+/**
+ *
+ */
 function renderMonthView(): void {
   renderMonth(state, {
     selectDate: (dateKey, options) => {
@@ -30,6 +36,9 @@ function renderMonthView(): void {
   });
 }
 
+/**
+ *
+ */
 function renderControlsView(): void {
   const jumpToToday = (): void => {
     applyTodayFocus(state);
@@ -39,6 +48,11 @@ function renderControlsView(): void {
   renderControls(state, renderControlsView, renderMonthView, jumpToToday);
 }
 
+/**
+ *
+ * @param rows
+ * @param totals
+ */
 export function renderCalendar(
   rows: PlannerScheduleRow[],
   totals: Record<string, number>,
@@ -68,6 +82,9 @@ export function renderCalendar(
   renderMonthView();
 }
 
+/**
+ *
+ */
 export function focusCalendarToday(): void {
   if (!state.months.length) {
     return;
@@ -77,6 +94,10 @@ export function focusCalendarToday(): void {
   renderMonthView();
 }
 
+/**
+ *
+ * @param handlers
+ */
 export function configureCalendarInteractions(
   handlers: Partial<CalendarHandlers> = {},
 ): void {

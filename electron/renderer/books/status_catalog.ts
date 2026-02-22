@@ -19,6 +19,10 @@ const BOOK_STATUSES: BookStatus[] = [
   BOOK_STATUS_DROPPED,
 ];
 
+/**
+ *
+ * @param value
+ */
 export function normalizedStatus(value: string): BookStatus | null {
   const matched = BOOK_STATUSES.find((status) => {
     return status === value;
@@ -29,6 +33,10 @@ export function normalizedStatus(value: string): BookStatus | null {
   return matched;
 }
 
+/**
+ *
+ * @param status
+ */
 export function statusLabel(status: BookStatus): string {
   if (status === BOOK_STATUS_READ) {
     return "Read";
@@ -42,6 +50,10 @@ export function statusLabel(status: BookStatus): string {
   return "To Read";
 }
 
+/**
+ *
+ * @param status
+ */
 export function isStatusSchedulable(status: BookStatus): boolean {
   if (status === BOOK_STATUS_READ) {
     return false;
@@ -52,6 +64,9 @@ export function isStatusSchedulable(status: BookStatus): boolean {
   return true;
 }
 
+/**
+ *
+ */
 export function statusOptions(): Array<{ value: BookStatus; label: string }> {
   return BOOK_STATUSES.map((status) => {
     return { value: status, label: statusLabel(status) };

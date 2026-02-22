@@ -1,6 +1,6 @@
 import { el } from "../dom.js";
 
-export type BookFormRefs = {
+export interface BookFormRefs {
   dialog: HTMLDialogElement;
   dialogTitle: HTMLElement;
   form: HTMLFormElement;
@@ -36,8 +36,11 @@ export type BookFormRefs = {
   coverPreview: HTMLImageElement;
   saveBtn: HTMLButtonElement;
   cancelBtn: HTMLButtonElement;
-};
+}
 
+/**
+ *
+ */
 export function getBookFormRefs(): BookFormRefs {
   return {
     dialog: el<HTMLDialogElement>("bookDialog"),

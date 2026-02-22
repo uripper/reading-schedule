@@ -12,6 +12,9 @@ export type CalendarRowWithFinish = CalendarRow & {
 type RowsByDate = Record<string, CalendarRowWithFinish[]>;
 type CompletionChecker = (sessionKey: string) => boolean;
 
+/**
+ *
+ */
 function todayKey(): string {
   const now = new Date();
   const year = now.getFullYear();
@@ -20,6 +23,11 @@ function todayKey(): string {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ *
+ * @param rowDate
+ * @param today
+ */
 function rowIsPlannedForTodayOrLater(rowDate: string, today: string): boolean {
   if (!rowDate) {
     return false;
@@ -27,6 +35,12 @@ function rowIsPlannedForTodayOrLater(rowDate: string, today: string): boolean {
   return rowDate >= today;
 }
 
+/**
+ *
+ * @param bookId
+ * @param plannedWords
+ * @param progressByBookId
+ */
 function nextProgress(
   bookId: string,
   plannedWords: number,
@@ -38,6 +52,13 @@ function nextProgress(
   return next;
 }
 
+/**
+ *
+ * @param bookId
+ * @param nextBookProgress
+ * @param totals
+ * @param finishedByBookId
+ */
 function isFinishRow(
   bookId: string,
   nextBookProgress: number,
@@ -61,6 +82,12 @@ function isFinishRow(
   return true;
 }
 
+/**
+ *
+ * @param rows
+ * @param totals
+ * @param isSessionCompleted
+ */
 export function enrichRows(
   rows: CalendarRow[],
   totals: Record<string, number> = {},
@@ -102,6 +129,10 @@ export function enrichRows(
   });
 }
 
+/**
+ *
+ * @param rows
+ */
 export function rowsWithFinishFirst(
   rows: CalendarRowWithFinish[] = [],
 ): CalendarRowWithFinish[] {
@@ -117,6 +148,10 @@ export function rowsWithFinishFirst(
   return [...finishRows, ...otherRows];
 }
 
+/**
+ *
+ * @param rows
+ */
 export function groupRowsByDate(
   rows: CalendarRowWithFinish[] = [],
 ): RowsByDate {
@@ -131,6 +166,10 @@ export function groupRowsByDate(
   return groupedRows;
 }
 
+/**
+ *
+ * @param rows
+ */
 export function monthKeysFromRows(
   rows: CalendarRowWithFinish[] = [],
 ): string[] {
@@ -140,6 +179,10 @@ export function monthKeysFromRows(
   return [...monthKeySet].sort((left, right) => left.localeCompare(right));
 }
 
+/**
+ *
+ * @param rows
+ */
 export function firstPlannedRow(rows: CalendarRow[] = []): CalendarRow | null {
   if (!Array.isArray(rows) || !rows.length) {
     return null;

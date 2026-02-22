@@ -12,6 +12,9 @@ import { initialZoomFactor, setZoomFactor, shiftZoomFactor } from "./main_zoom";
 import { readState, writeState } from "./state_store";
 import { findInPage, stopFindInPage } from "./window_find";
 
+/**
+ *
+ */
 function createWindow(): void {
   const iconPath = path.join(__dirname, "assets", "logo.png");
   const window = new BrowserWindow({
@@ -26,6 +29,9 @@ function createWindow(): void {
   window.loadFile(path.join(__dirname, "index.html"));
 }
 
+/**
+ *
+ */
 function userData(): string {
   return app.getPath("userData");
 }

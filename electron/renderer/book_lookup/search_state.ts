@@ -2,20 +2,30 @@ import type { BookLookupItem } from "../app/types.js";
 import { describeLookup } from "./helpers.js";
 import { renderLookupResults, updateComboboxA11y } from "./render.js";
 
-type LookupState = {
+interface LookupState {
   currentItems: BookLookupItem[];
   activeIndex: number;
-};
+}
 
-type CreateLookupStateControllerArgs = {
+interface CreateLookupStateControllerArgs {
   searchInput: HTMLInputElement;
   resultsEl: HTMLElement;
   metaEl: HTMLElement;
-  onPick: (item: BookLookupItem) => void;
+  onPick(item: BookLookupItem): void;
   placeholder: string;
   state: LookupState;
-};
+}
 
+/**
+ *
+ * @param root0
+ * @param root0.searchInput
+ * @param root0.resultsEl
+ * @param root0.metaEl
+ * @param root0.onPick
+ * @param root0.placeholder
+ * @param root0.state
+ */
 export function createLookupStateController({
   searchInput,
   resultsEl,

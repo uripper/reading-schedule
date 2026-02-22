@@ -3,48 +3,48 @@ import type { CalendarRowWithFinish } from "./data.js";
 
 export type DayMode = "past" | "today" | "future";
 
-type CompletionPayload = {
+interface CompletionPayload {
   completed: boolean;
   row: CalendarRowWithFinish;
   sessionKey: string;
-};
+}
 
-type ProgressPayload = {
+interface ProgressPayload {
   bookId: string;
   pagesRead?: number | null;
   progressPercent?: number | null;
   row: CalendarRowWithFinish;
-};
+}
 
-type MinutesPayload = {
+interface MinutesPayload {
   minutes: number;
   row: CalendarRowWithFinish;
-};
+}
 
-export type ManualSessionBook = {
+export interface ManualSessionBook {
   bookId: string;
   title: string;
-};
+}
 
-export type ManualSessionAddPayload = {
+export interface ManualSessionAddPayload {
   date: string;
   bookId: string;
   minutes: number;
   completed?: boolean;
-};
+}
 
-export type DetailInteractionHandlers = {
-  isSessionCompleted: (sessionKey: string) => boolean;
-  onSessionCompletionChanged: (payload: CompletionPayload) => void;
-  onSessionProgressUpdated: (payload: ProgressPayload) => Book | null;
-  onSessionMinutesUpdated: (payload: MinutesPayload) => boolean;
-  getBookById: (bookId: string) => Book | null;
-  listSessionBooks: () => ManualSessionBook[];
-  onManualSessionAdded: (payload: ManualSessionAddPayload) => boolean;
-  onSessionRemoved: (payload: { row: CalendarRowWithFinish }) => boolean;
-};
+export interface DetailInteractionHandlers {
+  isSessionCompleted(sessionKey: string): boolean;
+  onSessionCompletionChanged(payload: CompletionPayload): void;
+  onSessionProgressUpdated(payload: ProgressPayload): Book | null;
+  onSessionMinutesUpdated(payload: MinutesPayload): boolean;
+  getBookById(bookId: string): Book | null;
+  listSessionBooks(): ManualSessionBook[];
+  onManualSessionAdded(payload: ManualSessionAddPayload): boolean;
+  onSessionRemoved(payload: { row: CalendarRowWithFinish }): boolean;
+}
 
-export type CalendarStateSubset = {
+export interface CalendarStateSubset {
   rows: CalendarRowWithFinish[];
   totalsByBookId: Record<string, number>;
-};
+}

@@ -18,8 +18,9 @@ interface CompletionRow {
 }
 
 /**
- *
- * @param row
+ * Builds the per-day completion fallback key for a schedule row.
+ * @param row Partial schedule row data used to derive day/book key.
+ * @returns Fallback completion key, or an empty string when row data is incomplete.
  */
 function completionFallbackKey(row: CompletionRow | null | undefined): string {
   if (!row?.date || !row?.book_id) {
@@ -29,11 +30,11 @@ function completionFallbackKey(row: CompletionRow | null | undefined): string {
 }
 
 /**
- *
- * @param scheduleCompletions
- * @param sessionKey
- * @param fallbackKey
- * @param completed
+ * Writes completion state updates for both session-level and day-book fallback keys.
+ * @param scheduleCompletions Mutable completion map keyed by completion identifiers.
+ * @param sessionKey Session-specific completion key.
+ * @param fallbackKey Day/book fallback key, if available.
+ * @param completed Whether the target session is now complete.
  */
 function setCompletionState(
   scheduleCompletions: Record<string, boolean>,
@@ -55,9 +56,10 @@ function setCompletionState(
 }
 
 /**
- *
- * @param row
- * @param completed
+ * Formats a status message for completion toggles.
+ * @param row Schedule row associated with the completion update.
+ * @param completed Whether the row is being marked complete.
+ * @returns User-facing status text, or empty string when row data is incomplete.
  */
 function completionStatusMessage(
   row: CompletionRow | null | undefined,
@@ -73,23 +75,23 @@ function completionStatusMessage(
 }
 
 /**
- *
- * @param root0
- * @param root0.configureCalendarInteractions
- * @param root0.state
- * @param root0.queuePersist
- * @param root0.setStatus
- * @param root0.collectSettings
- * @param root0.collectAllBooks
- * @param root0.setBookScheduleRows
- * @param root0.renderCalendar
- * @param root0.totalsFromSummary
- * @param root0.updateBookProgress
- * @param root0.getBookById
- * @param root0.setLastResult
- * @param root0.onSessionCompletionUpdated
- * @param root0.onProgressUpdated
- * @param root0.onScheduleRowsUpdated
+ * Wires app-level calendar interaction handlers to schedule mutation logic.
+ * @param root0 Integration callbacks and shared runtime state for calendar interactions.
+ * @param root0.configureCalendarInteractions Calendar module binder.
+ * @param root0.state Shared app runtime state.
+ * @param root0.queuePersist Persists current draft state asynchronously.
+ * @param root0.setStatus Sets user-facing status messages.
+ * @param root0.collectSettings Reads current planner settings.
+ * @param root0.collectAllBooks Reads current book collection.
+ * @param root0.setBookScheduleRows Pushes schedule rows into book state.
+ * @param root0.renderCalendar Renders calendar UI from rows/totals.
+ * @param root0.totalsFromSummary Derives totals map from planner summary.
+ * @param root0.updateBookProgress Applies a progress update to a book.
+ * @param root0.getBookById Looks up a book by id.
+ * @param root0.setLastResult Stores the latest planner result.
+ * @param root0.onSessionCompletionUpdated Hook invoked after completion toggles.
+ * @param root0.onProgressUpdated Hook invoked after progress updates.
+ * @param root0.onScheduleRowsUpdated Hook invoked after schedule row mutations.
  */
 export function configureAppCalendarInteractions({
   configureCalendarInteractions,

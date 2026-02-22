@@ -4,7 +4,7 @@ import { bindCardEvents } from "./card_events.js";
 import { renderFlatBooks, renderGroupedBooks } from "./card_group_render.js";
 import { titleByIdMap } from "./card_nodes.js";
 
-type RenderBookGridOptions = {
+interface RenderBookGridOptions {
   grid: HTMLElement;
   empty: HTMLElement;
   books: Book[];
@@ -12,10 +12,23 @@ type RenderBookGridOptions = {
   allBooks?: Book[];
   finishDateByBookId?: Record<string, string>;
   showShelfMeta?: boolean;
-  onEdit: (bookId: string) => void;
-  onRemove: (bookId: string) => void;
-};
+  onEdit(bookId: string): void;
+  onRemove(bookId: string): void;
+}
 
+/**
+ *
+ * @param root0
+ * @param root0.grid
+ * @param root0.empty
+ * @param root0.books
+ * @param root0.groups
+ * @param root0.allBooks
+ * @param root0.finishDateByBookId
+ * @param root0.showShelfMeta
+ * @param root0.onEdit
+ * @param root0.onRemove
+ */
 export function renderBookGrid({
   grid,
   empty,

@@ -4,6 +4,10 @@ import type { PlannerScheduleRow } from "./types.js";
 
 const SESSION_INDEX_PAD = 3;
 
+/**
+ *
+ * @param row
+ */
 function rowSortKey(row: PlannerScheduleRow): string {
   const session = String(row.session_index || 0).padStart(
     SESSION_INDEX_PAD,
@@ -12,12 +16,21 @@ function rowSortKey(row: PlannerScheduleRow): string {
   return `${String(row.date || "")}-${session}`;
 }
 
+/**
+ *
+ * @param rows
+ */
 function sortedRows(rows: PlannerScheduleRow[] = []): PlannerScheduleRow[] {
   return [...rows].sort((left, right) => {
     return rowSortKey(left).localeCompare(rowSortKey(right));
   });
 }
 
+/**
+ *
+ * @param previousRows
+ * @param sessions
+ */
 function lockedDates(
   previousRows: PlannerScheduleRow[] = [],
   sessions: Session[] = [],
@@ -51,14 +64,28 @@ function lockedDates(
   return locked;
 }
 
+/**
+ *
+ * @param row
+ */
 function scheduleKey(row: PlannerScheduleRow): string {
   return `${row.date}|${row.session_index}|${row.book_id}`;
 }
 
+/**
+ *
+ * @param row
+ */
 function dayBookCompletionKey(row: PlannerScheduleRow): string {
   return `${row.date}|${row.book_id}`;
 }
 
+/**
+ *
+ * @param previousRows
+ * @param nextRows
+ * @param sessions
+ */
 export function mergeScheduleRows(
   previousRows: PlannerScheduleRow[] = [],
   nextRows: PlannerScheduleRow[] = [],
@@ -83,6 +110,11 @@ export function mergeScheduleRows(
   return sortedRows([...mergedByKey.values()]);
 }
 
+/**
+ *
+ * @param scheduleCompletions
+ * @param rows
+ */
 export function pruneScheduleCompletions(
   scheduleCompletions: Record<string, boolean> = {},
   rows: PlannerScheduleRow[] = [],

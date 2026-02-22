@@ -19,7 +19,7 @@ import {
 
 const MIN_GOAL_MINUTES = 1;
 
-export type StatsSnapshot = {
+export interface StatsSnapshot {
   year: number;
   totalBooks: number;
   booksStartedCount: number;
@@ -35,20 +35,33 @@ export type StatsSnapshot = {
   completionRatePercent: number;
   statusBreakdown: StatusBreakdown;
   monthlyFinishes: number[];
-};
+}
 
-type SnapshotInputs = {
+interface SnapshotInputs {
   books: Book[];
   sessions: Session[];
   lastResult: PlannerResult | null;
   scheduleCompletions: Record<string, boolean>;
   dailyGoalMinutes?: number;
-};
+}
 
+/**
+ *
+ * @param goalMinutes
+ */
 function normalizedGoalMinutes(goalMinutes: number | undefined): number {
   return Math.max(MIN_GOAL_MINUTES, Number(goalMinutes || MIN_GOAL_MINUTES));
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.books
+ * @param root0.sessions
+ * @param root0.lastResult
+ * @param root0.scheduleCompletions
+ * @param root0.dailyGoalMinutes
+ */
 export function buildStatsSnapshot({
   books,
   sessions,

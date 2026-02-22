@@ -7,6 +7,10 @@ import {
 } from "../dist/renderer/app/schedule_preserve.js";
 import { sessionKeyFor } from "../dist/renderer/calendar/utils.js";
 
+/**
+ *
+ * @param date
+ */
 function dayKey(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -14,12 +18,21 @@ function dayKey(date) {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ *
+ * @param key
+ * @param delta
+ */
 function plusDays(key, delta) {
   const date = new Date(`${key}T00:00:00`);
   date.setDate(date.getDate() + delta);
   return dayKey(date);
 }
 
+/**
+ *
+ * @param overrides
+ */
 function row(overrides = {}) {
   return {
     date: "2026-02-20",

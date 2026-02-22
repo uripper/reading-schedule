@@ -3,6 +3,10 @@ import assert from "node:assert/strict";
 
 import { draftData } from "../dist/renderer/app/persistence.js";
 
+/**
+ *
+ * @param overrides
+ */
 function session(overrides = {}) {
   return {
     id: "session-1",

@@ -10,6 +10,10 @@ import { sessionKeyFor } from "../dist/renderer/calendar/utils.js";
 import { buildStatsSnapshot } from "../dist/renderer/stats/model.js";
 import { todayKey } from "../dist/renderer/sessions/utils.js";
 
+/**
+ *
+ * @param overrides
+ */
 function book(overrides) {
   return {
     book_id: "",
@@ -35,6 +39,12 @@ function book(overrides) {
   };
 }
 
+/**
+ *
+ * @param date
+ * @param sessionIndex
+ * @param bookId
+ */
 function row(date, sessionIndex, bookId) {
   return {
     date,

@@ -8,6 +8,7 @@ import { fetchJson, searchUrls } from "./book_lookup_search_transport.js";
 
 /**
  * Queries Open Library endpoints and returns ranked search items.
+ * @param query
  */
 export async function searchBooks(query: string): Promise<SearchItem[]> {
   const normalizedQuery = String(query || "").trim();
@@ -15,7 +16,7 @@ export async function searchBooks(query: string): Promise<SearchItem[]> {
     return [];
   }
   const responses = await Promise.allSettled(
-    searchUrls(normalizedQuery).map((url) => fetchJson(url)),
+    searchUrls(normalizedQuery).map(async (url) => await fetchJson(url)),
   );
   const docs: SearchDoc[] = [];
   responses.forEach((result) => {

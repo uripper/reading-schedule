@@ -1,12 +1,16 @@
 type LogLevel = "info" | "error";
 
-type LogPayload = {
+interface LogPayload {
   level: LogLevel;
   message: string;
   context?: Record<string, unknown>;
   error?: unknown;
-};
+}
 
+/**
+ *
+ * @param error
+ */
 function normalizeError(error: unknown): unknown {
   if (error instanceof Error) {
     return {
@@ -18,6 +22,10 @@ function normalizeError(error: unknown): unknown {
   return error;
 }
 
+/**
+ *
+ * @param payload
+ */
 function emitLog(payload: LogPayload): void {
   const output: LogPayload = {
     level: payload.level,
@@ -42,6 +50,11 @@ function emitLog(payload: LogPayload): void {
   console.info("[renderer][info]", output);
 }
 
+/**
+ *
+ * @param message
+ * @param context
+ */
 export function logInfo(
   message: string,
   context?: Record<string, unknown>,
@@ -53,6 +66,12 @@ export function logInfo(
   });
 }
 
+/**
+ *
+ * @param message
+ * @param error
+ * @param context
+ */
 export function logError(
   message: string,
   error?: unknown,

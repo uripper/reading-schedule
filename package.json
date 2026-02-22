@@ -9,6 +9,7 @@
     "build:desktop": "npm --prefix electron run build",
     "typecheck:desktop": "npm --prefix electron run typecheck",
     "lint:desktop": "npm --prefix electron run lint",
+    "lint:fix:desktop": "npm --prefix electron run lint:fix",
     "audit": "node ./scripts/style_audit.mjs",
     "issues:sync": "bash ./scripts/sync_issues.sh",
     "test:python": ".venv/bin/pytest -q",

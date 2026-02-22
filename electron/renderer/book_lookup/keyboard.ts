@@ -3,6 +3,13 @@ import type { BookLookupItem } from "../app/types.js";
 type SetActiveIndex = (index: number) => void;
 type SelectItem = (index: number) => void;
 
+/**
+ *
+ * @param event
+ * @param currentItems
+ * @param activeIndex
+ * @param setActiveIndex
+ */
 function handleArrowDown(
   event: KeyboardEvent,
   currentItems: readonly BookLookupItem[],
@@ -20,6 +27,13 @@ function handleArrowDown(
   setActiveIndex(activeIndex + 1);
 }
 
+/**
+ *
+ * @param event
+ * @param currentItems
+ * @param activeIndex
+ * @param setActiveIndex
+ */
 function handleArrowUp(
   event: KeyboardEvent,
   currentItems: readonly BookLookupItem[],
@@ -37,6 +51,13 @@ function handleArrowUp(
   setActiveIndex(activeIndex - 1);
 }
 
+/**
+ *
+ * @param event
+ * @param currentItems
+ * @param activeIndex
+ * @param selectItem
+ */
 function handleEnter(
   event: KeyboardEvent,
   currentItems: readonly BookLookupItem[],
@@ -50,6 +71,11 @@ function handleEnter(
   selectItem(activeIndex);
 }
 
+/**
+ *
+ * @param clearResults
+ * @param searchInput
+ */
 function handleEscape(
   clearResults: () => void,
   searchInput: HTMLInputElement,
@@ -58,6 +84,16 @@ function handleEscape(
   searchInput.blur();
 }
 
+/**
+ *
+ * @param event
+ * @param currentItems
+ * @param activeIndex
+ * @param setActiveIndex
+ * @param selectItem
+ * @param clearResults
+ * @param searchInput
+ */
 export function handleLookupKeydown(
   event: KeyboardEvent,
   currentItems: readonly BookLookupItem[],
@@ -79,8 +115,8 @@ export function handleLookupKeydown(
       return;
     case "Escape":
       handleEscape(clearResults, searchInput);
-      return;
+      
     default:
-      return;
+      
   }
 }

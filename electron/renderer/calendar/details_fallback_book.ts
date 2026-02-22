@@ -2,6 +2,10 @@ import type { Book } from "../books/types.js";
 import { BOOK_STATUS_IN_PROGRESS } from "../books/status.js";
 import type { CalendarRowWithFinish } from "./data.js";
 
+/**
+ *
+ * @param row
+ */
 export function fallbackBookForRow(row: CalendarRowWithFinish): Book {
   return {
     book_id: row.book_id,

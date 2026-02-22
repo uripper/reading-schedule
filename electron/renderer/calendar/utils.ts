@@ -5,11 +5,15 @@ import {
   WEEK_START_OFFSET,
 } from "./constants.js";
 
-type SortableRow = {
+interface SortableRow {
   date: string;
   session_index: string | number;
-};
+}
 
+/**
+ *
+ * @param row
+ */
 function rowSortKey(row: SortableRow): string {
   const sessionIndex = String(row.session_index).padStart(
     SESSION_INDEX_PAD,
@@ -18,6 +22,10 @@ function rowSortKey(row: SortableRow): string {
   return `${row.date}-${sessionIndex}`;
 }
 
+/**
+ *
+ * @param rows
+ */
 export function sortRowsByDateAndSession<T extends SortableRow>(
   rows: T[] = [],
 ): T[] {
@@ -26,6 +34,10 @@ export function sortRowsByDateAndSession<T extends SortableRow>(
   );
 }
 
+/**
+ *
+ * @param key
+ */
 export function monthLabel(key: string): string {
   if (!key) {
     return "No Schedule";
@@ -38,6 +50,10 @@ export function monthLabel(key: string): string {
   return formatter.format(new Date(year, month - 1, 1));
 }
 
+/**
+ *
+ * @param date
+ */
 export function dayKey(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -45,6 +61,10 @@ export function dayKey(date: Date): string {
   return `${year}-${month}-${dayOfMonth}`;
 }
 
+/**
+ *
+ * @param monthKey
+ */
 export function monthCells(monthKey: string): Date[] {
   const [year, month] = monthKey.split("-").map(Number);
   const first = new Date(year, month - 1, 1);
@@ -61,6 +81,10 @@ export function monthCells(monthKey: string): Date[] {
   });
 }
 
+/**
+ *
+ * @param dateKey
+ */
 export function dateHeading(dateKey: string): string {
   const date = new Date(dateKey);
   if (Number.isNaN(date.getTime())) {
@@ -75,6 +99,13 @@ export function dateHeading(dateKey: string): string {
   return formatter.format(date);
 }
 
+/**
+ *
+ * @param row
+ * @param row.date
+ * @param row.session_index
+ * @param row.book_id
+ */
 export function sessionKeyFor(row: {
   date: string;
   session_index: string | number;
@@ -83,6 +114,10 @@ export function sessionKeyFor(row: {
   return `${row.date}|${row.session_index}|${row.book_id}`;
 }
 
+/**
+ *
+ * @param value
+ */
 export function parseOptionalNumber(value?: string | number): number | null {
   const raw = String(value ?? "").trim();
   if (!raw) {

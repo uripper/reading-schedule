@@ -13,13 +13,17 @@ const monthLabelFormatter = new Intl.DateTimeFormat(undefined, {
   month: "long",
 });
 
-export type GroupMeta = {
+export interface GroupMeta {
   key: string;
   label: string;
   order: number;
   tie: string;
-};
+}
 
+/**
+ *
+ * @param dateText
+ */
 function parseFinishDateParts(
   dateText?: string,
 ): { year: number; month: number; date: Date } | null {
@@ -49,6 +53,12 @@ function parseFinishDateParts(
   };
 }
 
+/**
+ *
+ * @param book
+ * @param finishDateByBookId
+ * @param currentYear
+ */
 export function finishDateMetaForBook(
   book: Book,
   finishDateByBookId: Record<string, string>,

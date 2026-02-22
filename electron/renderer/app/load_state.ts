@@ -8,43 +8,52 @@ import type {
   PlannerSettings,
 } from "./types.js";
 
-type InitialDataSource = {
+interface InitialDataSource {
   settings?: PlannerSettings;
   books?: Book[];
-};
+}
 
-type LoadStateArgs = {
+interface LoadStateArgs {
   plannerApi: Pick<PlannerApi, "loadState" | "sample">;
-  fillSettings: (settings?: PlannerSettings) => void;
-  fillBooks: (books?: Book[]) => void;
-  normalizePreferences: (raw: Partial<Preferences>) => Preferences;
-  normalizeFeatureFlags: (raw: Partial<FeatureFlags>) => FeatureFlags;
-  normalizeScheduleCompletions: (
+  fillSettings(settings?: PlannerSettings): void;
+  fillBooks(books?: Book[]): void;
+  normalizePreferences(raw: Partial<Preferences>): Preferences;
+  normalizeFeatureFlags(raw: Partial<FeatureFlags>): FeatureFlags;
+  normalizeScheduleCompletions(
     raw: Record<string, boolean>,
-  ) => Record<string, boolean>;
-  fillPreferencesUI: (
+  ): Record<string, boolean>;
+  fillPreferencesUI(
     preferences: Preferences,
     featureFlags: FeatureFlags,
-  ) => void;
-  applyPreferencesToDocument: (preferences: Preferences) => void;
-  setPreferences: (preferences: Preferences) => void;
-  setFeatureFlags: (featureFlags: FeatureFlags) => void;
-  setScheduleCompletions: (
+  ): void;
+  applyPreferencesToDocument(preferences: Preferences): void;
+  setPreferences(preferences: Preferences): void;
+  setFeatureFlags(featureFlags: FeatureFlags): void;
+  setScheduleCompletions(
     scheduleCompletions: Record<string, boolean>,
-  ) => void;
-  setSessions: (sessions: Session[]) => void;
-  applyLoadedResult: (result: PlannerResult | null) => void;
-  updateTodayView: () => void;
-  onLoaded: (saved: LoadedPlannerState | null | undefined) => void;
-  setStatus: (message: string, isError?: boolean) => void;
-};
+  ): void;
+  setSessions(sessions: Session[]): void;
+  applyLoadedResult(result: PlannerResult | null): void;
+  updateTodayView(): void;
+  onLoaded(saved: LoadedPlannerState | null | undefined): void;
+  setStatus(message: string, isError?: boolean): void;
+}
 
+/**
+ *
+ * @param source
+ */
 function hasInitialSettingsAndBooks(
   source: LoadedPlannerState | null | undefined,
 ): source is InitialDataSource {
   return Boolean(source?.settings && source?.books);
 }
 
+/**
+ *
+ * @param plannerApi
+ * @param saved
+ */
 async function resolveInitialSource(
   plannerApi: Pick<PlannerApi, "sample">,
   saved: LoadedPlannerState | null | undefined,
@@ -52,9 +61,15 @@ async function resolveInitialSource(
   if (hasInitialSettingsAndBooks(saved)) {
     return saved;
   }
-  return plannerApi.sample();
+  return await plannerApi.sample();
 }
 
+/**
+ *
+ * @param saved
+ * @param source
+ * @param args
+ */
 function applyLoadedData(
   saved: LoadedPlannerState | null | undefined,
   source: InitialDataSource,
@@ -67,6 +82,11 @@ function applyLoadedData(
   );
 }
 
+/**
+ *
+ * @param saved
+ * @param args
+ */
 function applySessionAndResultData(
   saved: LoadedPlannerState | null | undefined,
   args: LoadStateArgs,
@@ -76,6 +96,12 @@ function applySessionAndResultData(
   args.updateTodayView();
 }
 
+/**
+ *
+ * @param args
+ * @param preferences
+ * @param featureFlags
+ */
 function applyExperienceData(
   args: LoadStateArgs,
   preferences: Preferences,
@@ -85,6 +111,10 @@ function applyExperienceData(
   args.applyPreferencesToDocument(preferences);
 }
 
+/**
+ *
+ * @param args
+ */
 export async function loadInitialData(args: LoadStateArgs): Promise<void> {
   try {
     const saved = await args.plannerApi.loadState();

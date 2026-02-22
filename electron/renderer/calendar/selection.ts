@@ -2,6 +2,9 @@ import type { CalendarRuntimeState } from "./state_runtime.js";
 
 const MONTH_KEY_LENGTH = 7;
 
+/**
+ *
+ */
 export function todayDateKey(): string {
   const now = new Date();
   const year = now.getFullYear();
@@ -10,10 +13,19 @@ export function todayDateKey(): string {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ *
+ * @param dateKey
+ */
 export function monthKeyForDateKey(dateKey: string): string {
   return dateKey.slice(0, MONTH_KEY_LENGTH);
 }
 
+/**
+ *
+ * @param months
+ * @param targetMonthKey
+ */
 export function indexForMonth(months: string[], targetMonthKey: string): number {
   const exactIndex = months.indexOf(targetMonthKey);
   if (exactIndex >= 0) {
@@ -28,6 +40,10 @@ export function indexForMonth(months: string[], targetMonthKey: string): number 
   return Math.max(0, months.length - 1);
 }
 
+/**
+ *
+ * @param state
+ */
 export function applyTodayFocus(state: CalendarRuntimeState): void {
   if (!state.months.length) {
     return;
@@ -41,6 +57,14 @@ export function applyTodayFocus(state: CalendarRuntimeState): void {
   }
 }
 
+/**
+ *
+ * @param state
+ * @param dateKey
+ * @param renderMonth
+ * @param options
+ * @param options.focus
+ */
 export function selectDate(
   state: CalendarRuntimeState,
   dateKey: string,
@@ -58,6 +82,13 @@ export function selectDate(
   }
 }
 
+/**
+ *
+ * @param state
+ * @param delta
+ * @param currentIndex
+ * @param selectDateWithOptions
+ */
 export function moveSelectionBy(
   state: CalendarRuntimeState,
   delta: number,

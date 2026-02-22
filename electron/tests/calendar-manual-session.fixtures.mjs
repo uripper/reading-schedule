@@ -1,3 +1,6 @@
+/**
+ *
+ */
 export function indexRowsFixture() {
   return [
     {
@@ -27,6 +30,9 @@ export function indexRowsFixture() {
   ];
 }
 
+/**
+ *
+ */
 export function historicalPaceRowsFixture() {
   return [
     {
@@ -48,6 +54,9 @@ export function historicalPaceRowsFixture() {
   ];
 }
 
+/**
+ *
+ */
 export function removableRowsFixture() {
   return [
     {

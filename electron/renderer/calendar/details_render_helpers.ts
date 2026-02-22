@@ -15,10 +15,20 @@ export type CalendarDetailsState = CalendarStateSubset & {
   expectedFinishHighlightDate: string;
 };
 
+/**
+ *
+ * @param _mode
+ */
 export function emptyMessageForMode(_mode: DayMode): string {
   return "No sessions planned for this day.";
 }
 
+/**
+ *
+ * @param rows
+ * @param mode
+ * @param interactionHandlers
+ */
 export function rowsForMode(
   rows: CalendarRowWithFinish[],
   mode: DayMode,
@@ -33,6 +43,14 @@ export function rowsForMode(
   return rowsWithFinishFirst(rows);
 }
 
+/**
+ *
+ * @param mode
+ * @param row
+ * @param state
+ * @param interactionHandlers
+ * @param rerenderDetails
+ */
 export function rowNodeForMode(
   mode: DayMode,
   row: CalendarRowWithFinish,

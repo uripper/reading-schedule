@@ -13,6 +13,12 @@ import {
 const COMPLETED_TEXT = "Completed";
 const NOT_COMPLETED_TEXT = "Not completed";
 
+/**
+ *
+ * @param row
+ * @param interactionHandlers
+ * @param rerenderDetails
+ */
 export function buildPastSessionItem(
   row: CalendarRowWithFinish,
   interactionHandlers: DetailInteractionHandlers,

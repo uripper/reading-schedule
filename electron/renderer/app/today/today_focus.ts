@@ -2,23 +2,27 @@ import type { PlannerScheduleRow } from "../types.js";
 
 export const TINY_START_MINUTES = 3;
 
-export type FocusSession = {
+export interface FocusSession {
   bookId: string;
   date: string;
   minutes: number;
   sessionIndex: number | null;
   title: string;
-};
+}
 
-export type TodayFocusState = {
+export interface TodayFocusState {
   feedback: string;
   isOpen: boolean;
   isStarted: boolean;
   session: FocusSession | null;
-};
+}
 
 const NO_SESSION_START_FEEDBACK = "No upcoming session to start right now.";
 
+/**
+ *
+ * @param row
+ */
 export function focusSessionFromRow(row: PlannerScheduleRow | null): FocusSession | null {
   if (!row) {
     return null;
@@ -32,6 +36,9 @@ export function focusSessionFromRow(row: PlannerScheduleRow | null): FocusSessio
   };
 }
 
+/**
+ *
+ */
 export function createClosedFocusState(): TodayFocusState {
   return {
     feedback: "",
@@ -41,6 +48,10 @@ export function createClosedFocusState(): TodayFocusState {
   };
 }
 
+/**
+ *
+ * @param session
+ */
 export function openFocusMode(session: FocusSession | null): TodayFocusState {
   return {
     feedback: "",
@@ -50,6 +61,10 @@ export function openFocusMode(session: FocusSession | null): TodayFocusState {
   };
 }
 
+/**
+ *
+ * @param state
+ */
 export function startFocusSession(state: TodayFocusState): TodayFocusState {
   if (!state.session) {
     return {
@@ -65,6 +80,10 @@ export function startFocusSession(state: TodayFocusState): TodayFocusState {
   };
 }
 
+/**
+ *
+ * @param state
+ */
 export function completeFocusSession(state: TodayFocusState): TodayFocusState {
   if (!state.session) {
     return {
@@ -80,6 +99,11 @@ export function completeFocusSession(state: TodayFocusState): TodayFocusState {
   };
 }
 
+/**
+ *
+ * @param state
+ * @param tinyStartMinutes
+ */
 export function completeTinyStart(
   state: TodayFocusState,
   tinyStartMinutes = TINY_START_MINUTES,
@@ -92,6 +116,10 @@ export function completeTinyStart(
   };
 }
 
+/**
+ *
+ * @param state
+ */
 export function exitFocusMode(state: TodayFocusState): TodayFocusState {
   return {
     ...state,

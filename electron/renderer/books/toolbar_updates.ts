@@ -9,6 +9,11 @@ import type { Book } from "./types.js";
 import { createOption } from "./toolbar_dom.js";
 import { groupOptionsForShelfFilter, shelfFilterOptions } from "./toolbar_options.js";
 
+/**
+ *
+ * @param sortDirectionBtn
+ * @param sortDirection
+ */
 export function updateSortDirectionButton(
   sortDirectionBtn: HTMLButtonElement,
   sortDirection: SortDirection,
@@ -19,6 +24,12 @@ export function updateSortDirectionButton(
   }
 }
 
+/**
+ *
+ * @param shelfFilterSelect
+ * @param books
+ * @param selectedValue
+ */
 export function updateShelfFilterOptions(
   shelfFilterSelect: HTMLSelectElement,
   books: Book[],
@@ -36,6 +47,11 @@ export function updateShelfFilterOptions(
   return nextValue;
 }
 
+/**
+ *
+ * @param statusFilterSelect
+ * @param selectedValue
+ */
 export function updateStatusFilterOptions(
   statusFilterSelect: HTMLSelectElement,
   selectedValue: string,
@@ -54,6 +70,12 @@ export function updateStatusFilterOptions(
   return nextValue;
 }
 
+/**
+ *
+ * @param groupBySelect
+ * @param selectedValue
+ * @param shelfFilter
+ */
 export function updateGroupByOptions(
   groupBySelect: HTMLSelectElement,
   selectedValue: BookGroupBy,

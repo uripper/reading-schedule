@@ -9,6 +9,15 @@ import {
 
 const MANUAL_ADD_TITLE = "Manual add";
 
+/**
+ *
+ * @param dateKey
+ * @param mode
+ * @param interactionHandlers
+ * @param rerenderDetails
+ * @param defaultBookId
+ * @param defaultMinutes
+ */
 export function buildManualSessionAddPanel(
   dateKey: string,
   mode: DayMode,

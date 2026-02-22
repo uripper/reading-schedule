@@ -12,6 +12,11 @@ const CLOSE_FOCUS_TEXT = "Close Focus Controls";
 const OPEN_FOCUS_TEXT = "Open Focus Controls";
 const TINY_START_NOTE = "Logged from Today Focus Tiny Start.";
 
+/**
+ *
+ * @param button
+ * @param isOpen
+ */
 export function setFocusEntryButtonState(
   button: HTMLButtonElement,
   isOpen: boolean,
@@ -27,6 +32,11 @@ export function setFocusEntryButtonState(
 
 export { findSessionRow, readFocusSessionFromDataset };
 
+/**
+ *
+ * @param currentCompletions
+ * @param row
+ */
 export function nextCompletionsWithRowMarkedComplete(
   currentCompletions: Record<string, boolean>,
   row: PlannerScheduleRow,
@@ -39,6 +49,10 @@ export function nextCompletionsWithRowMarkedComplete(
   return nextCompletions;
 }
 
+/**
+ *
+ * @param session
+ */
 export function tinyStartSessionFromFocus(
   session: FocusSession | null,
 ): Session {

@@ -26,8 +26,9 @@ import type { AppBootstrapContext } from "../bootstrap_runtime.js";
 import type { PlannerResult } from "../types.js";
 
 /**
- *
- * @param context
+ * Initializes renderer app bindings, controllers, and startup data load.
+ * @param context Bootstrap context containing APIs, state, and runtime hooks.
+ * @returns Promise that resolves after startup load/bind operations complete.
  */
 export async function initApp(context: AppBootstrapContext): Promise<void> {
   setupSkipLink();

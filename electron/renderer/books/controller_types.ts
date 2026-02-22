@@ -26,7 +26,7 @@ import { SORT_BY_TITLE } from "./toolbar.js";
 import type { BookStatusFilter } from "./status.js";
 import type { Book } from "./types.js";
 
-export type BooksControllerRefs = {
+export interface BooksControllerRefs {
   toolbar: HTMLElement | null;
   grid: HTMLElement | null;
   empty: HTMLElement | null;
@@ -36,19 +36,19 @@ export type BooksControllerRefs = {
   sortBySelect: HTMLSelectElement | null;
   groupBySelect: HTMLSelectElement | null;
   sortDirectionBtn: HTMLButtonElement | null;
-};
+}
 
-export type BookDialogController = {
-  open: (book?: Book | null, options?: OpenDialogOptions) => void;
-};
+export interface BookDialogController {
+  open(book?: Book | null, options?: OpenDialogOptions): void;
+}
 
-export type BooksViewState = {
+export interface BooksViewState {
   shelfFilter: string;
   statusFilter: BookStatusFilter;
   sortBy: SortBy;
   groupBy: BookGroupBy;
   sortDirection: SortDirection;
-};
+}
 
 const SORT_BY_OPTIONS: SortBy[] = [
   SORT_BY_TITLE,
@@ -72,6 +72,10 @@ const GROUP_BY_OPTIONS: BookGroupBy[] = [
   GROUP_BY_AUTHOR,
 ];
 
+/**
+ *
+ * @param value
+ */
 export function toSortBy(value: string): SortBy {
   const matched = SORT_BY_OPTIONS.find((option) => option === value);
   if (matched) {
@@ -80,6 +84,10 @@ export function toSortBy(value: string): SortBy {
   return SORT_BY_TITLE;
 }
 
+/**
+ *
+ * @param value
+ */
 export function toGroupBy(value: string): BookGroupBy {
   const matched = GROUP_BY_OPTIONS.find((option) => option === value);
   if (matched) {
@@ -88,6 +96,10 @@ export function toGroupBy(value: string): BookGroupBy {
   return GROUP_BY_NONE;
 }
 
+/**
+ *
+ * @param currentShelfFilter
+ */
 export function defaultShelfForAddDialog(currentShelfFilter: string): string {
   if (
     currentShelfFilter === SHELF_FILTER_ALL ||

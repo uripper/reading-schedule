@@ -3,10 +3,18 @@ const LEADING_THE_LENGTH = LEADING_THE_PREFIX.length;
 const INITIAL_INDEX = 0;
 const INITIAL_LENGTH = 1;
 
+/**
+ *
+ * @param value
+ */
 function normalizedText(value?: string | null): string {
   return String(value || "").trim();
 }
 
+/**
+ *
+ * @param value
+ */
 export function titleSortKey(value?: string | null): string {
   const title = normalizedText(value);
   if (!title) {
@@ -25,6 +33,10 @@ export function titleSortKey(value?: string | null): string {
   return withoutThe;
 }
 
+/**
+ *
+ * @param value
+ */
 export function titleInitialLetter(value?: string | null): string {
   const key = titleSortKey(value).trim();
   if (!key) {

@@ -20,10 +20,20 @@ const MIN_BAR_HEIGHT_PERCENT = 8;
 const PERCENT_SCALE = 100;
 const ZERO_COUNT = 0;
 
+/**
+ *
+ * @param value
+ */
 function numberText(value: number): string {
   return new Intl.NumberFormat().format(value);
 }
 
+/**
+ *
+ * @param title
+ * @param value
+ * @param note
+ */
 function card(title: string, value: string, note: string): HTMLElement {
   const node = document.createElement("article");
   node.className = "stats-card";
@@ -43,6 +53,10 @@ function card(title: string, value: string, note: string): HTMLElement {
   return node;
 }
 
+/**
+ *
+ * @param count
+ */
 function finishCountLabel(count: number): string {
   if (count === SINGLE_FINISH_COUNT) {
     return `${count} finish`;
@@ -50,6 +64,11 @@ function finishCountLabel(count: number): string {
   return `${count} finishes`;
 }
 
+/**
+ *
+ * @param count
+ * @param maxCount
+ */
 function barHeightPercent(count: number, maxCount: number): number {
   if (count <= ZERO_COUNT) {
     return ZERO_COUNT;
@@ -61,6 +80,10 @@ function barHeightPercent(count: number, maxCount: number): number {
   return scaled;
 }
 
+/**
+ *
+ * @param snapshot
+ */
 function kpiGrid(snapshot: StatsSnapshot): HTMLElement {
   const grid = document.createElement("div");
   grid.className = "stats-kpi-grid";
@@ -89,6 +112,10 @@ function kpiGrid(snapshot: StatsSnapshot): HTMLElement {
   return grid;
 }
 
+/**
+ *
+ * @param snapshot
+ */
 function statusPanel(snapshot: StatsSnapshot): HTMLElement {
   const panel = document.createElement("article");
   panel.className = "stats-panel";
@@ -129,6 +156,10 @@ function statusPanel(snapshot: StatsSnapshot): HTMLElement {
   return panel;
 }
 
+/**
+ *
+ * @param snapshot
+ */
 function monthPanel(snapshot: StatsSnapshot): HTMLElement {
   const panel = document.createElement("article");
   panel.className = "stats-panel";
@@ -179,6 +210,10 @@ function monthPanel(snapshot: StatsSnapshot): HTMLElement {
   return panel;
 }
 
+/**
+ *
+ * @param snapshot
+ */
 function secondaryGrid(snapshot: StatsSnapshot): HTMLElement {
   const grid = document.createElement("div");
   grid.className = "stats-secondary-grid";
@@ -186,6 +221,10 @@ function secondaryGrid(snapshot: StatsSnapshot): HTMLElement {
   return grid;
 }
 
+/**
+ *
+ * @param snapshot
+ */
 export function renderStatsDashboard(snapshot: StatsSnapshot): void {
   const root = el("statsDashboard");
   if (!snapshot.totalBooks) {

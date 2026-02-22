@@ -20,11 +20,11 @@ type GroupBucket = GroupMeta & {
   books: Book[];
 };
 
-export type BookGroup = {
+export interface BookGroup {
   key: string;
   label: string;
   books: Book[];
-};
+}
 
 const UNKNOWN_AUTHOR_LABEL = "Unknown Author";
 const TITLE_MISC_LABEL = "#";
@@ -33,16 +33,29 @@ const TITLE_MISC_KEY = "title:#";
 const TITLE_MISC_ORDER = 2;
 const TITLE_LETTER_ORDER = 1;
 
+/**
+ *
+ * @param value
+ */
 function normalizedText(value?: string | number): string {
   return String(value || "").trim();
 }
 
+/**
+ *
+ * @param left
+ * @param right
+ */
 function compareTextInsensitive(left: string, right: string): number {
   return String(left || "").localeCompare(String(right || ""), undefined, {
     sensitivity: "base",
   });
 }
 
+/**
+ *
+ * @param book
+ */
 function titleLetterMetaForBook(book: Book): GroupMeta {
   const first = titleInitialLetter(book?.title);
   if (!first) {
@@ -71,6 +84,10 @@ function titleLetterMetaForBook(book: Book): GroupMeta {
   };
 }
 
+/**
+ *
+ * @param book
+ */
 function authorMetaForBook(book: Book): GroupMeta {
   const author = normalizedText(book?.author);
   if (!author) {
@@ -90,6 +107,10 @@ function authorMetaForBook(book: Book): GroupMeta {
   };
 }
 
+/**
+ *
+ * @param book
+ */
 function shelfMetaForBook(book: Book): GroupMeta {
   const shelfLabel = shelfLabelForBook(book);
   return {
@@ -100,6 +121,13 @@ function shelfMetaForBook(book: Book): GroupMeta {
   };
 }
 
+/**
+ *
+ * @param book
+ * @param groupBy
+ * @param finishDateByBookId
+ * @param currentYear
+ */
 function metaForBook(
   book: Book,
   groupBy: BookGroupBy,
@@ -118,6 +146,11 @@ function metaForBook(
   return authorMetaForBook(book);
 }
 
+/**
+ *
+ * @param left
+ * @param right
+ */
 function compareGroups(left: GroupBucket, right: GroupBucket): number {
   if (left.order !== right.order) {
     return left.order - right.order;
@@ -129,6 +162,13 @@ function compareGroups(left: GroupBucket, right: GroupBucket): number {
   return compareTextInsensitive(left.label, right.label);
 }
 
+/**
+ *
+ * @param books
+ * @param groupBy
+ * @param finishDateByBookId
+ * @param currentYear
+ */
 function groupedBuckets(
   books: Book[],
   groupBy: BookGroupBy,
@@ -149,6 +189,12 @@ function groupedBuckets(
   return buckets;
 }
 
+/**
+ *
+ * @param books
+ * @param groupBy
+ * @param finishDateByBookId
+ */
 export function groupBooks(
   books: Book[] = [],
   groupBy: BookGroupBy = GROUP_BY_NONE,

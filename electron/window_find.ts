@@ -13,11 +13,16 @@ import {
 
 const FIND_RESULT_TIMEOUT_MS = 400;
 
-function requestFindInPage(
+/**
+ *
+ * @param webContents
+ * @param request
+ */
+async function requestFindInPage(
   webContents: WebContents,
   request: NormalizedWindowFindRequest,
 ): Promise<WindowFindResponse> {
-  return new Promise((resolve) => {
+  return await new Promise((resolve) => {
     let requestId = -1;
     let latestResponse = emptyFindResponse();
     let timer: ReturnType<typeof setTimeout> | null = null;
@@ -57,6 +62,8 @@ function requestFindInPage(
 
 /**
  * Starts or updates an in-page find operation for the provided payload.
+ * @param webContents
+ * @param payload
  */
 export async function findInPage(
   webContents: WebContents,
@@ -67,11 +74,12 @@ export async function findInPage(
     webContents.stopFindInPage("clearSelection");
     return emptyFindResponse();
   }
-  return requestFindInPage(webContents, request);
+  return await requestFindInPage(webContents, request);
 }
 
 /**
  * Stops find-in-page and returns an empty find response payload.
+ * @param webContents
  */
 export function stopFindInPage(webContents: WebContents): WindowFindResponse {
   webContents.stopFindInPage("clearSelection");

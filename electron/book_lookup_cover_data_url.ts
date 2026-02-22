@@ -14,6 +14,10 @@ const DATA_URL_PREFIX = "data:";
 const DATA_URL_SEPARATOR = ",";
 const DATA_URL_BASE64_SEGMENT = ";base64";
 
+/**
+ *
+ * @param mimeType
+ */
 function extensionForDataMime(mimeType: string): CoverExtension | null {
   const normalizedMime = String(mimeType || "").trim().toLowerCase();
   if (normalizedMime === CONTENT_TYPE_PNG) {
@@ -30,6 +34,7 @@ function extensionForDataMime(mimeType: string): CoverExtension | null {
 
 /**
  * Parses a base64 data URL and returns image bytes with an allowed extension.
+ * @param coverDataUrl
  */
 export function parseCoverDataUrl(
   coverDataUrl: string | undefined,

@@ -18,10 +18,15 @@ import type { Book } from "./types.js";
 
 type GetBooks = () => Book[];
 
-type AfterBookPicker = {
-  openForBook: (book?: Book | null) => void;
-};
+interface AfterBookPicker {
+  openForBook(book?: Book | null): void;
+}
 
+/**
+ *
+ * @param refs
+ * @param getBooks
+ */
 export function createAfterBookPicker(
   refs: BookFormRefs,
   getBooks: GetBooks,

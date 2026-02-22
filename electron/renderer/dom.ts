@@ -1,7 +1,15 @@
+/**
+ *
+ * @param id
+ */
 function missingElementMessage(id: string): string {
   return `Missing required element with id "${id}"`;
 }
 
+/**
+ *
+ * @param id
+ */
 export function el<T extends HTMLElement = HTMLElement>(id: string): T {
   const node = document.getElementById(id);
   if (!(node instanceof HTMLElement)) {
@@ -10,6 +18,11 @@ export function el<T extends HTMLElement = HTMLElement>(id: string): T {
   return node as T;
 }
 
+/**
+ *
+ * @param sel
+ * @param root
+ */
 export function q<T extends Element = Element>(
   sel: string,
   root: ParentNode = document,
@@ -21,6 +34,11 @@ export function q<T extends Element = Element>(
   return node as T;
 }
 
+/**
+ *
+ * @param sel
+ * @param root
+ */
 export function qa<T extends Element = Element>(
   sel: string,
   root: ParentNode = document,
@@ -31,6 +49,9 @@ export function qa<T extends Element = Element>(
 const BASE_36 = 36;
 const MAX_ID_LENGTH = 20;
 
+/**
+ *
+ */
 export function uid() {
   if (globalThis.crypto?.randomUUID) {
     return globalThis.crypto.randomUUID();

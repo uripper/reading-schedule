@@ -11,6 +11,11 @@ import {
   todaySessionCountsText,
 } from "./today_books_view_text.js";
 
+/**
+ * Creates the visual cover node for a today-list book item.
+ * @param summary Per-book summary containing cover/title fields.
+ * @returns Cover element with either image or text fallback.
+ */
 function createCover(summary: TodayBookSummary): HTMLElement {
   const cover = document.createElement("div");
   cover.className = "today-scheduled-cover";
@@ -30,6 +35,11 @@ function createCover(summary: TodayBookSummary): HTMLElement {
   return cover;
 }
 
+/**
+ * Creates one rendered book item for the today's schedule list.
+ * @param summary Per-book summary used to populate title, counts, and cover.
+ * @returns Article element representing one book row.
+ */
 function createBookItem(summary: TodayBookSummary): HTMLElement {
   const item = document.createElement("article");
   item.className = "today-scheduled-book";
@@ -59,6 +69,10 @@ function createBookItem(summary: TodayBookSummary): HTMLElement {
   return item;
 }
 
+/**
+ * Attaches image error handlers that swap broken covers to placeholders.
+ * @param listNode List container that may contain cover images.
+ */
 function applyCoverFallbacks(listNode: HTMLElement): void {
   listNode
     .querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']")
@@ -70,6 +84,10 @@ function applyCoverFallbacks(listNode: HTMLElement): void {
     });
 }
 
+/**
+ * Renders the today's scheduled books section.
+ * @param snapshot Today schedule snapshot driving list and empty states.
+ */
 export function renderTodayScheduledBooks(
   snapshot: TodayScheduleSnapshot,
 ): void {

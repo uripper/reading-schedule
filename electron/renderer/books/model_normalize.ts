@@ -20,6 +20,10 @@ import {
 
 const PROGRESS_MAX = 100;
 
+/**
+ *
+ * @param book
+ */
 export function normalizeBook(book: BookInput = {}): Book {
   const wordsTotal = toOptionalInt(book.words_total);
   const pagesTotal = toOptionalInt(book.pages_total);
@@ -56,6 +60,10 @@ export function normalizeBook(book: BookInput = {}): Book {
   };
 }
 
+/**
+ *
+ * @param book
+ */
 export function bookCoverSrc(book: BookInput): string {
   return book.cover_local_path || book.cover_url || "";
 }

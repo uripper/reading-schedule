@@ -7,6 +7,13 @@ import { estimateProgressLabel } from "./estimates.js";
 import { minutesFormForSession } from "./details_minutes_form.js";
 import { baseSessionItem, DAY_DETAILS_META_CLASS, removeSessionButton } from "./details_session_shared.js";
 
+/**
+ *
+ * @param row
+ * @param state
+ * @param interactionHandlers
+ * @param rerenderDetails
+ */
 export function buildFutureSessionItem(
   row: CalendarRowWithFinish,
   state: CalendarStateSubset,

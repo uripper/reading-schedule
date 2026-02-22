@@ -25,6 +25,10 @@ const NO_INCOMPLETE_TEXT =
   "No incomplete planned sessions ahead. Update books or settings to refresh your plan.";
 const FOCUS_SESSION_UPDATE_EVENT = "today-focus-session-updated";
 
+/**
+ *
+ * @param lastResult
+ */
 function hasPlannedRows(lastResult: PlannerResult | null): boolean {
   if (!Array.isArray(lastResult?.schedule)) {
     return false;
@@ -32,6 +36,12 @@ function hasPlannedRows(lastResult: PlannerResult | null): boolean {
   return lastResult.schedule.length > 0;
 }
 
+/**
+ *
+ * @param lastResult
+ * @param snapshot
+ * @param next
+ */
 function summaryText(
   lastResult: PlannerResult | null,
   snapshot: TodayScheduleSnapshot,
@@ -52,7 +62,7 @@ function summaryText(
   return NO_SCHEDULE_TEXT;
 }
 
-type UpdateTodayDashboardArgs = {
+interface UpdateTodayDashboardArgs {
   lastResult: PlannerResult | null;
   scheduleCompletions: Record<string, boolean>;
   books: Book[];
@@ -60,8 +70,13 @@ type UpdateTodayDashboardArgs = {
   preferences: Preferences;
   featureFlags: FeatureFlags;
   defaultDailyGoalMinutes: number;
-};
+}
 
+/**
+ *
+ * @param button
+ * @param nextRow
+ */
 function setFocusSessionDataset(
   button: HTMLButtonElement,
   nextRow: PlannerScheduleRow | null,
@@ -83,6 +98,11 @@ function setFocusSessionDataset(
   button.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
 }
 
+/**
+ *
+ * @param todayMinutesRaw
+ * @param goalMinutesRaw
+ */
 export function goalProgressPercent(
   todayMinutesRaw: number,
   goalMinutesRaw: number,
@@ -97,6 +117,17 @@ export function goalProgressPercent(
   return Math.max(MIN_PERCENT, bounded);
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.lastResult
+ * @param root0.scheduleCompletions
+ * @param root0.books
+ * @param root0.sessions
+ * @param root0.preferences
+ * @param root0.featureFlags
+ * @param root0.defaultDailyGoalMinutes
+ */
 export function updateTodayDashboard({
   lastResult,
   scheduleCompletions,

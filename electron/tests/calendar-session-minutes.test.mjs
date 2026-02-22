@@ -8,6 +8,10 @@ import {
   plannedMinutesSummaryText,
 } from "../dist/renderer/calendar/details_minutes_form.js";
 
+/**
+ *
+ * @param overrides
+ */
 function row(overrides = {}) {
   return {
     date: "2026-02-21",

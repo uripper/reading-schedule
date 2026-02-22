@@ -51,14 +51,25 @@ const viewState: BooksViewState = {
   sortDirection: SORT_DIRECTION_ASC,
 };
 
+/**
+ *
+ * @param nextBooks
+ */
 function setBooks(nextBooks: Book[]): void {
   books = nextBooks;
 }
 
+/**
+ *
+ * @param bookId
+ */
 function findBook(bookId: string): Book | null {
   return books.find((book) => book.book_id === bookId) || null;
 }
 
+/**
+ *
+ */
 function render(): void {
   renderBooksController({
     refs,
@@ -73,6 +84,10 @@ function render(): void {
   });
 }
 
+/**
+ *
+ * @param bookId
+ */
 export function getBookById(bookId: string): Book | null {
   const book = findBook(bookId);
   if (!book) {
@@ -81,10 +96,16 @@ export function getBookById(bookId: string): Book | null {
   return { ...book };
 }
 
-type UpdateBookProgressOptions = {
+interface UpdateBookProgressOptions {
   notifyBooksChanged?: boolean;
-};
+}
 
+/**
+ *
+ * @param bookId
+ * @param updates
+ * @param options
+ */
 export function updateBookProgress(
   bookId: string,
   updates: BookProgressUpdates = {},
@@ -105,6 +126,10 @@ export function updateBookProgress(
   return { ...books[idx] };
 }
 
+/**
+ *
+ * @param book
+ */
 async function saveBook(book: Book): Promise<void> {
   const hydrated = await hydrateBookCover(book);
   books = upsertBookById(books, hydrated);
@@ -112,16 +137,27 @@ async function saveBook(book: Book): Promise<void> {
   onBooksChanged();
 }
 
+/**
+ *
+ * @param nextBooks
+ */
 export function fillBooks(nextBooks: Book[] = []): void {
   books = nextBooks.map(normalizeBook);
   render();
 }
 
+/**
+ *
+ * @param rows
+ */
 export function setBookScheduleRows(rows: PlannerScheduleRow[] = []): void {
   scheduleRows = [...rows];
   render();
 }
 
+/**
+ *
+ */
 export function collectBooks() {
   const schedulableBooks = books.map(toPayloadBook).filter((book) => {
     return book.title && hasSchedulableLength(book) && schedulableBook(book);
@@ -129,12 +165,19 @@ export function collectBooks() {
   return clearMissingBlockedBy(schedulableBooks);
 }
 
+/**
+ *
+ */
 export function collectAllBooks() {
   return books.map(toPayloadBook).filter((book) => {
     return Boolean(book.title);
   });
 }
 
+/**
+ *
+ * @param onChanged
+ */
 export function bindBooksUI(onChanged: () => void = () => {}): void {
   onBooksChanged = onChanged;
   refs.toolbar = document.querySelector(".books-toolbar");

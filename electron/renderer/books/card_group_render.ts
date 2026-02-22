@@ -2,6 +2,11 @@ import type { BookGroup } from "./grouping.js";
 import type { Book } from "./types.js";
 import { createCardNode, type CardRenderContext } from "./card_nodes.js";
 
+/**
+ *
+ * @param group
+ * @param context
+ */
 function createGroupSection(group: BookGroup, context: CardRenderContext): HTMLElement {
   const section = document.createElement("section");
   section.className = "books-group";
@@ -16,6 +21,12 @@ function createGroupSection(group: BookGroup, context: CardRenderContext): HTMLE
   return section;
 }
 
+/**
+ *
+ * @param grid
+ * @param books
+ * @param context
+ */
 export function renderFlatBooks(
   grid: HTMLElement,
   books: Book[],
@@ -25,6 +36,12 @@ export function renderFlatBooks(
   grid.replaceChildren(...books.map((book) => createCardNode(book, context)));
 }
 
+/**
+ *
+ * @param grid
+ * @param groups
+ * @param context
+ */
 export function renderGroupedBooks(
   grid: HTMLElement,
   groups: BookGroup[],

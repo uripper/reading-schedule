@@ -7,29 +7,36 @@ import {
 } from "./estimates_math.js";
 import { plannedWordsBeforeAndThroughRow } from "./estimates_snapshot_rows.js";
 
-export type EstimateRow = {
+export interface EstimateRow {
   book_id: string;
   date: string;
   session_index: string | number;
   words_planned?: number;
-};
+}
 
-export type EstimateState = {
+export interface EstimateState {
   rows?: EstimateRow[];
   totalsByBookId?: Record<string, number>;
-};
+}
 
 export type BookGetter = (bookId: string) => Book | null;
 export type CompletionChecker = (sessionKey: string) => boolean;
 
-export type EstimateSnapshot = {
+export interface EstimateSnapshot {
   changedInSession: boolean;
   endPages: number | null;
   endPercent: number;
   startPages: number | null;
   startPercent: number;
-};
+}
 
+/**
+ *
+ * @param row
+ * @param state
+ * @param getBookById
+ * @param isSessionCompleted
+ */
 export function estimateSnapshotForRow(
   row: EstimateRow,
   state: EstimateState,

@@ -5,6 +5,10 @@ import { enrichRows, groupRowsByDate } from "../dist/renderer/calendar/data.js";
 import { rowsWithCompletedLast } from "../dist/renderer/calendar/details_helpers.js";
 import { dayKey, sessionKeyFor } from "../dist/renderer/calendar/utils.js";
 
+/**
+ *
+ * @param overrides
+ */
 function row(overrides) {
   return {
     date: "2026-02-22",

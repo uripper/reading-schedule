@@ -10,8 +10,8 @@ import type {
 
 interface DraftDataParams {
   sessions: Session[];
-  collectBooks: () => Book[];
-  collectSettings: () => PlannerSettings;
+  collectBooks(): Book[];
+  collectSettings(): PlannerSettings;
   preferences: Preferences;
   featureFlags: FeatureFlags;
   scheduleCompletions: Record<string, boolean>;
@@ -20,6 +20,17 @@ interface DraftDataParams {
 
 type AddLog = (message: string) => void;
 
+/**
+ *
+ * @param root0
+ * @param root0.sessions
+ * @param root0.collectBooks
+ * @param root0.collectSettings
+ * @param root0.preferences
+ * @param root0.featureFlags
+ * @param root0.scheduleCompletions
+ * @param root0.lastResult
+ */
 export function draftData({
   sessions,
   collectBooks,
@@ -40,6 +51,12 @@ export function draftData({
   };
 }
 
+/**
+ *
+ * @param plannerApi
+ * @param payload
+ * @param addLog
+ */
 export async function saveStateSafe(
   plannerApi: Pick<PlannerApi, "saveState">,
   payload: PlannerStateSnapshot,

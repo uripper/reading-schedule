@@ -12,6 +12,7 @@ import { primaryAuthor } from "./book_lookup_search_text.js";
 
 /**
  * Converts a raw search document into the app's normalized search item shape.
+ * @param doc
  */
 export function toItem(doc: SearchDoc): SearchItem {
   const pages = Number(doc.number_of_pages_median || 0);

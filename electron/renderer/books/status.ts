@@ -13,6 +13,11 @@ import {
   type BookStatusFilter,
 } from "./status_catalog.js";
 
+/**
+ *
+ * @param value
+ * @param progressPercent
+ */
 export function statusFromRaw(
   value: string | null | undefined,
   progressPercent: number,
@@ -42,10 +47,18 @@ export function statusFromRaw(
   return BOOK_STATUS_TO_READ;
 }
 
+/**
+ *
+ * @param book
+ */
 export function schedulableBook(book: Pick<Book, "status">): boolean {
   return isStatusSchedulable(book.status);
 }
 
+/**
+ *
+ * @param value
+ */
 export function normalizeStatusFilter(
   value: string | null | undefined,
 ): BookStatusFilter {
@@ -62,6 +75,11 @@ export function normalizeStatusFilter(
   return BOOK_STATUS_FILTER_ALL;
 }
 
+/**
+ *
+ * @param book
+ * @param filterValue
+ */
 export function statusFilterMatches(
   book: Pick<Book, "status">,
   filterValue: BookStatusFilter,
@@ -72,6 +90,9 @@ export function statusFilterMatches(
   return book.status === filterValue;
 }
 
+/**
+ *
+ */
 export function statusFilterOptions(): Array<{
   value: BookStatusFilter;
   label: string;
