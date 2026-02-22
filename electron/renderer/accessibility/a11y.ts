@@ -3,11 +3,16 @@ import { el } from "../dom.js";
 const ANNOUNCE_DELAY_MS = 30;
 type AnnouncePoliteness = "polite" | "assertive";
 
-type PreferencesInput = {
+interface PreferencesInput {
   theme?: string;
   reduceMotion?: boolean;
-};
+}
 
+/**
+ * Focuses the first invalid field within a form-like container.
+ * @param formElement Container to scan for invalid controls.
+ * @returns The focused invalid element, or null when none is found.
+ */
 export function focusFirstError(
   formElement: HTMLElement | null | undefined,
 ): HTMLElement | null {
@@ -22,11 +27,18 @@ export function focusFirstError(
   return null;
 }
 
-export function createAnnouncer(regionId = "liveRegion") {
+/**
+ * Creates an ARIA live-region announcer function for status messages.
+ * @param regionId DOM id of the live region element.
+ * @returns Function that posts a message to the live region.
+ */
+export function createAnnouncer(
+  regionId = "liveRegion",
+): (message: string, politeness?: AnnouncePoliteness) => void {
   const region = el(regionId);
   let clearTimer: ReturnType<typeof setTimeout> | null = null;
-  return (message: string, politeness: AnnouncePoliteness = "polite") => {
-    if (!region || !message) {
+  return (message: string, politeness: AnnouncePoliteness = "polite"): void => {
+    if (!message) {
       return;
     }
     if (clearTimer) {
@@ -40,7 +52,13 @@ export function createAnnouncer(regionId = "liveRegion") {
   };
 }
 
-export function applyPreferencesToDocument(preferences: PreferencesInput = {}) {
+/**
+ * Applies theme and reduced-motion preferences to document data attributes.
+ * @param preferences User preference values to apply.
+ */
+export function applyPreferencesToDocument(
+  preferences: PreferencesInput = {},
+): void {
   let theme = "system";
   if (
     typeof preferences.theme === "string" &&
