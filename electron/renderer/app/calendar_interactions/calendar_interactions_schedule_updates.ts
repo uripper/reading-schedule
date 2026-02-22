@@ -1,5 +1,5 @@
-import { sessionKeyFor, sortRowsByDateAndSession } from "../calendar/utils.js";
-import type { Book } from "../books/types.js";
+import { sessionKeyFor, sortRowsByDateAndSession } from "../../calendar/utils.js";
+import type { Book } from "../../books/types.js";
 import {
   DEFAULT_BOOK_DIFFICULTY,
   dayBookCompletionKey,
@@ -10,13 +10,13 @@ import {
   wordsPlannedForManualSession,
 } from "./calendar_interactions_helpers.js";
 import { nextRowsWithUpdatedMinutes } from "./calendar_interactions_minutes_rows.js";
-import { pruneScheduleCompletions } from "./schedule_preserve.js";
+import { pruneScheduleCompletions } from "../schedule_preserve.js";
 import type {
   PlannerResult,
   PlannerScheduleRow,
   PlannerSettings,
   PlannerSummary,
-} from "./types.js";
+} from "../types.js";
 
 interface SharedUpdateArgs {
   onScheduleRowsUpdated(): void;

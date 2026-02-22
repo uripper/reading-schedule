@@ -1,5 +1,5 @@
 import type { Book } from "../books/types.js";
-import { DEFAULT_PREFERENCES } from "./experience.js";
+import { DEFAULT_PREFERENCES } from "./experience/experience.js";
 import type { AppRuntimeState } from "./runtime_state.js";
 
 type DashboardRuntimeArgs = {

@@ -1,4 +1,4 @@
-import type { AppRuntimeState } from "./runtime_state.js";
+import type { AppRuntimeState } from "../runtime_state.js";
 
 type AutoPlanController = {
   queueAutoPlan: () => void;

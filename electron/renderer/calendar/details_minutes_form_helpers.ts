@@ -1,6 +1,6 @@
 import type { CalendarRowWithFinish } from "./data.js";
 import type { DetailInteractionHandlers } from "./details_types.js";
-import { normalizedManualMinutes } from "../app/calendar_interactions_helpers.js";
+import { normalizedManualMinutes } from "../app/calendar_interactions/calendar_interactions_helpers.js";
 import { parseOptionalNumber } from "./utils.js";
 
 const MINUTES_MIN = normalizedManualMinutes(0);

@@ -1,13 +1,13 @@
-import { applyPreferencesToDocument } from "../a11y.js";
-import { fillBooks } from "../books.js";
-import { fillSettings } from "../settings.js";
-import { normalizeFeatureFlags, normalizePreferences } from "./experience.js";
-import { fillPreferencesUI } from "./experience_fill_ui.js";
-import { normalizeScheduleCompletions } from "./experience_schedule_completions.js";
+import { applyPreferencesToDocument } from "../../a11y.js";
+import { fillBooks } from "../../books.js";
+import { fillSettings } from "../../settings.js";
+import { normalizeFeatureFlags, normalizePreferences } from "../experience/experience.js";
+import { fillPreferencesUI } from "../experience/experience_fill_ui.js";
+import { normalizeScheduleCompletions } from "../experience/experience_schedule_completions.js";
 import { bindTodayActions, finalizeInitialLoad } from "./init_helpers.js";
-import { loadInitialData } from "./load_state.js";
-import type { AppBootstrapContext } from "./bootstrap_runtime.js";
-import type { PlannerResult } from "./types.js";
+import { loadInitialData } from "../load_state.js";
+import type { AppBootstrapContext } from "../bootstrap_runtime.js";
+import type { PlannerResult } from "../types.js";
 
 interface LoadedResultController {
   applyLoadedResult(result: PlannerResult): void;

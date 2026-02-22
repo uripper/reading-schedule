@@ -1,12 +1,12 @@
-import { sessionKeyFor, sortRowsByDateAndSession } from "../calendar/utils.js";
-import type { Book } from "../books/types.js";
+import { sessionKeyFor, sortRowsByDateAndSession } from "../../calendar/utils.js";
+import type { Book } from "../../books/types.js";
 import {
   DEFAULT_BOOK_DIFFICULTY,
   normalizedManualMinutes,
   rowsWithoutSession,
   wordsPlannedForManualSession,
 } from "./calendar_interactions_helpers.js";
-import type { PlannerScheduleRow, PlannerSettings } from "./types.js";
+import type { PlannerScheduleRow, PlannerSettings } from "../types.js";
 
 export type UpdatedRowsResult = {
   normalizedMinutes: number;

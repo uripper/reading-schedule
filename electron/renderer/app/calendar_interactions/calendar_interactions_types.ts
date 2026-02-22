@@ -1,4 +1,4 @@
-import type { Book } from "../books/types.js";
+import type { Book } from "../../books/types.js";
 import type {
   CompletionUpdate,
   ManualSessionAddInput,
@@ -13,7 +13,7 @@ import type {
   PlannerScheduleRow,
   PlannerSettings,
   PlannerSummary,
-} from "./types.js";
+} from "../types.js";
 
 export type AppCalendarInteractionArgs = {
   configureCalendarInteractions: (handlers: {

@@ -1,5 +1,5 @@
-import type { PlannerScheduleRow } from "./types.js";
-import { sessionKeyFor } from "../calendar/utils.js";
+import type { PlannerScheduleRow } from "../types.js";
+import { sessionKeyFor } from "../../calendar/utils.js";
 
 function normalizeRowsAndDate(
   dateOrRows: string | PlannerScheduleRow[],

@@ -1,5 +1,5 @@
-import { COVER_PLACEHOLDER } from "../books/constants.js";
-import { el } from "../dom.js";
+import { COVER_PLACEHOLDER } from "../../books/constants.js";
+import { el } from "../../dom.js";
 import type {
   TodayBookSummary,
   TodayScheduleSnapshot,

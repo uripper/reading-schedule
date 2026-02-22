@@ -1,4 +1,4 @@
-import { el } from "../dom.js";
+import { el } from "../../dom.js";
 
 const EXPERIENCE_SETTING_IDS: readonly string[] = [
   "themeSelect",

@@ -1,4 +1,4 @@
-import { el } from "../dom.js";
+import { el } from "../../dom.js";
 import {
   DEFAULT_PREFERENCES,
   type FeatureFlags,
