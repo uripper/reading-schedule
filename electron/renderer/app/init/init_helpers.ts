@@ -9,25 +9,28 @@ type SetStatus = (message: string, isError?: boolean) => void;
 
 type CreatePlanControllerArgs = Parameters<typeof createPlanController>[0];
 
-type FinalizeInitialLoadArgs = {
+interface FinalizeInitialLoadArgs {
   saved: { last_result?: PlannerResult | null } | null | undefined;
-  setReady: () => void;
-  queuePersist: () => void;
-  queueAutoPlan: () => void;
+  setReady(): void;
+  queuePersist(): void;
+  queueAutoPlan(): void;
   setStatus: SetStatus;
-};
+}
 
-type BindTodayActionsArgs = {
-  getLastResult: () => PlannerResult | null;
-  getScheduleCompletions: () => Record<string, boolean>;
-  setScheduleCompletions: (nextCompletions: Record<string, boolean>) => void;
-  getSessions: () => Session[];
-  setSessions: (nextSessions: Session[]) => void;
-  queuePersist: () => void;
-  updateTodayView: () => void;
+interface BindTodayActionsArgs {
+  getLastResult(): PlannerResult | null;
+  getScheduleCompletions(): Record<string, boolean>;
+  setScheduleCompletions(nextCompletions: Record<string, boolean>): void;
+  getSessions(): Session[];
+  setSessions(nextSessions: Session[]): void;
+  queuePersist(): void;
+  updateTodayView(): void;
   setStatus: SetStatus;
-};
+}
 
+/**
+ *
+ */
 export function setupSkipLink(): void {
   const skipLink = document.querySelector(".skip-link");
   if (!skipLink) {
@@ -39,12 +42,25 @@ export function setupSkipLink(): void {
   });
 }
 
+/**
+ *
+ * @param args
+ */
 export function createAppPlanControllerInstance(
   args: CreatePlanControllerArgs,
 ): ReturnType<typeof createPlanController> {
   return createPlanController(args);
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.saved
+ * @param root0.setReady
+ * @param root0.queuePersist
+ * @param root0.queueAutoPlan
+ * @param root0.setStatus
+ */
 export function finalizeInitialLoad({
   saved,
   setReady,
@@ -67,6 +83,10 @@ export function finalizeInitialLoad({
   queueAutoPlan();
 }
 
+/**
+ *
+ * @param args
+ */
 export function bindTodayActions(args: BindTodayActionsArgs): void {
   bindTodayFocusActions(args);
 }

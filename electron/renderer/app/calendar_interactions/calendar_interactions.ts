@@ -17,15 +17,24 @@ interface CompletionRow {
   title?: string;
 }
 
-function completionFallbackKey(
-  row: CompletionRow | null | undefined,
-): string {
+/**
+ *
+ * @param row
+ */
+function completionFallbackKey(row: CompletionRow | null | undefined): string {
   if (!row?.date || !row?.book_id) {
     return "";
   }
   return dayBookCompletionKey(row.date, row.book_id);
 }
 
+/**
+ *
+ * @param scheduleCompletions
+ * @param sessionKey
+ * @param fallbackKey
+ * @param completed
+ */
 function setCompletionState(
   scheduleCompletions: Record<string, boolean>,
   sessionKey: string,
@@ -45,6 +54,11 @@ function setCompletionState(
   }
 }
 
+/**
+ *
+ * @param row
+ * @param completed
+ */
 function completionStatusMessage(
   row: CompletionRow | null | undefined,
   completed: boolean,
@@ -58,6 +72,25 @@ function completionStatusMessage(
   return `Marked "${row.title}" incomplete on ${row.date}.`;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.configureCalendarInteractions
+ * @param root0.state
+ * @param root0.queuePersist
+ * @param root0.setStatus
+ * @param root0.collectSettings
+ * @param root0.collectAllBooks
+ * @param root0.setBookScheduleRows
+ * @param root0.renderCalendar
+ * @param root0.totalsFromSummary
+ * @param root0.updateBookProgress
+ * @param root0.getBookById
+ * @param root0.setLastResult
+ * @param root0.onSessionCompletionUpdated
+ * @param root0.onProgressUpdated
+ * @param root0.onScheduleRowsUpdated
+ */
 export function configureAppCalendarInteractions({
   configureCalendarInteractions,
   state,
@@ -172,4 +205,8 @@ export function configureAppCalendarInteractions({
   });
 }
 
-export { nextSessionIndexForDate, rowsWithoutSession, wordsPlannedForManualSession } from "./calendar_interactions_helpers.js";
+export {
+  nextSessionIndexForDate,
+  rowsWithoutSession,
+  wordsPlannedForManualSession,
+} from "./calendar_interactions_helpers.js";

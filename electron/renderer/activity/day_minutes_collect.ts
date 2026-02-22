@@ -2,6 +2,10 @@ const DATE_YEAR_START_INDEX = 0;
 const DATE_YEAR_END_INDEX = 4;
 const ZERO_MINUTES = 0;
 
+/**
+ *
+ * @param dateText
+ */
 function yearFromDateKey(dateText: string): number | null {
   const key = String(dateText || "").trim();
   if (key.length < DATE_YEAR_END_INDEX) {
@@ -14,6 +18,11 @@ function yearFromDateKey(dateText: string): number | null {
   return parsed;
 }
 
+/**
+ *
+ * @param dayKey
+ * @param year
+ */
 export function includeDayKey(dayKey: string, year: number | null): boolean {
   if (!dayKey) {
     return false;
@@ -28,6 +37,12 @@ export function includeDayKey(dayKey: string, year: number | null): boolean {
   return true;
 }
 
+/**
+ *
+ * @param dayMinutes
+ * @param dayKey
+ * @param minutes
+ */
 export function addMinutes(
   dayMinutes: Map<string, number>,
   dayKey: string,
@@ -40,5 +55,5 @@ export function addMinutes(
   if (normalized <= ZERO_MINUTES) {
     return;
   }
-  dayMinutes.set(dayKey, (dayMinutes.get(dayKey) || ZERO_MINUTES) + normalized);
+  dayMinutes.set(dayKey, (dayMinutes.get(dayKey) ?? ZERO_MINUTES) + normalized);
 }

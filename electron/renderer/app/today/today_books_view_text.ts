@@ -6,6 +6,10 @@ import type {
 const SINGULAR_SESSION_COUNT = 1;
 const SINGULAR_MINUTE_COUNT = 1;
 
+/**
+ *
+ * @param count
+ */
 function sessionLabel(count: number): string {
   if (count === SINGULAR_SESSION_COUNT) {
     return "session";
@@ -13,6 +17,10 @@ function sessionLabel(count: number): string {
   return "sessions";
 }
 
+/**
+ *
+ * @param count
+ */
 function minuteLabel(count: number): string {
   if (count === SINGULAR_MINUTE_COUNT) {
     return "minute";
@@ -20,7 +28,13 @@ function minuteLabel(count: number): string {
   return "minutes";
 }
 
-export function todaySessionCountsText(snapshot: TodayScheduleSnapshot): string {
+/**
+ *
+ * @param snapshot
+ */
+export function todaySessionCountsText(
+  snapshot: TodayScheduleSnapshot,
+): string {
   const scheduled = snapshot.scheduledSessions;
   if (!scheduled) {
     return "No sessions scheduled for today.";
@@ -30,16 +44,28 @@ export function todaySessionCountsText(snapshot: TodayScheduleSnapshot): string 
   return `${completed} / ${scheduled} ${label} complete today`;
 }
 
+/**
+ *
+ * @param summary
+ */
 export function perBookSessionText(summary: TodayBookSummary): string {
   const label = sessionLabel(summary.scheduledSessions);
   return `${summary.completedSessions} / ${summary.scheduledSessions} ${label} complete`;
 }
 
+/**
+ *
+ * @param summary
+ */
 export function plannedMinutesText(summary: TodayBookSummary): string {
   const label = minuteLabel(summary.plannedMinutes);
   return `${summary.plannedMinutes} ${label} planned`;
 }
 
+/**
+ *
+ * @param title
+ */
 export function coverFallbackText(title: string): string {
   const trimmed = String(title || "").trim();
   if (!trimmed) {

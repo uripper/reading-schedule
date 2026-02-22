@@ -25,7 +25,7 @@ export type UpdatedRowsResult = {
  * @param root0.minutes The new planned minutes for the session.
  * @param root0.previousRows The current schedule rows before the update.
  * @param root0.row The specific schedule row that is being updated.
- * @returns An object containing the normalized minutes and the updated schedule rows, 
+ * @returns An object containing the normalized minutes and the updated schedule rows,
  * or null if the target session was not found.
  */
 export function nextRowsWithUpdatedMinutes({

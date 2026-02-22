@@ -10,13 +10,21 @@ const ZERO_MINUTES = 0;
 
 export type DayMinutesMap = Map<string, number>;
 
-type DayMinutesArgs = {
+interface DayMinutesArgs {
   sessions: Session[];
   lastResult: PlannerResult | null;
   scheduleCompletions: Record<string, boolean>;
   year: number | null;
-};
+}
 
+/**
+ *
+ * @param root0
+ * @param root0.sessions
+ * @param root0.lastResult
+ * @param root0.scheduleCompletions
+ * @param root0.year
+ */
 export function dayMinutesFromActivity({
   sessions,
   lastResult,
@@ -33,7 +41,7 @@ export function dayMinutesFromActivity({
     addMinutes(minutesByDay, dayKey, Number(session.minutes || ZERO_MINUTES));
   });
 
-  const rows = lastResult?.schedule || [];
+  const rows = lastResult?.schedule ?? [];
   rows.forEach((row) => {
     const dayKey = String(row.date || "");
     if (!includeDayKey(dayKey, year)) {
@@ -49,13 +57,22 @@ export function dayMinutesFromActivity({
   return minutesByDay;
 }
 
+/**
+ *
+ * @param dayMinutes
+ * @param dayKey
+ */
 export function dayMinutesForKey(
   dayMinutes: DayMinutesMap,
   dayKey: string,
 ): number {
-  return dayMinutes.get(dayKey) || ZERO_MINUTES;
+  return dayMinutes.get(dayKey) ?? ZERO_MINUTES;
 }
 
+/**
+ *
+ * @param dayMinutes
+ */
 export function totalMinutes(dayMinutes: DayMinutesMap): number {
   let total = ZERO_MINUTES;
   dayMinutes.forEach((minutes) => {
@@ -64,6 +81,10 @@ export function totalMinutes(dayMinutes: DayMinutesMap): number {
   return total;
 }
 
+/**
+ *
+ * @param dayMinutes
+ */
 export function activeDayCount(dayMinutes: DayMinutesMap): number {
   let total = ZERO_MINUTES;
   dayMinutes.forEach((minutes) => {
@@ -74,6 +95,11 @@ export function activeDayCount(dayMinutes: DayMinutesMap): number {
   return total;
 }
 
+/**
+ *
+ * @param dayMinutes
+ * @param minimumMinutesPerDay
+ */
 export function streakFromDayMinutes(
   dayMinutes: DayMinutesMap,
   minimumMinutesPerDay = MIN_STREAK_MINUTES,

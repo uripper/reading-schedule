@@ -25,6 +25,10 @@ import { totalsFromSummary } from "../runtime_helpers.js";
 import type { AppBootstrapContext } from "../bootstrap_runtime.js";
 import type { PlannerResult } from "../types.js";
 
+/**
+ *
+ * @param context
+ */
 export async function initApp(context: AppBootstrapContext): Promise<void> {
   setupSkipLink();
   bindDesktopShortcuts({

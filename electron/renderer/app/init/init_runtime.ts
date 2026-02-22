@@ -1,27 +1,35 @@
 import type { AppRuntimeState } from "../runtime_state.js";
 
-type AutoPlanController = {
-  queueAutoPlan: () => void;
-};
+interface AutoPlanController {
+  queueAutoPlan(): void;
+}
 
-type InitRuntimeArgs = {
-  focusCalendarToday: () => void;
-  queuePersist: () => void;
+interface InitRuntimeArgs {
+  focusCalendarToday(): void;
+  queuePersist(): void;
   state: AppRuntimeState;
-  updateDashboards: () => void;
-};
+  updateDashboards(): void;
+}
 
+/**
+ *
+ * @param root0
+ * @param root0.focusCalendarToday
+ * @param root0.queuePersist
+ * @param root0.state
+ * @param root0.updateDashboards
+ */
 export function createInitRuntime({
   focusCalendarToday,
   queuePersist,
   state,
   updateDashboards,
 }: InitRuntimeArgs): {
-  handleBooksChanged: () => void;
-  handleScheduleMutation: () => void;
-  handleTabChange: (name: string) => void;
-  queueAutoPlanIfReady: () => void;
-  setPlanController: (controller: AutoPlanController | null) => void;
+  handleBooksChanged(): void;
+  handleScheduleMutation(): void;
+  handleTabChange(name: string): void;
+  queueAutoPlanIfReady(): void;
+  setPlanController(controller: AutoPlanController | null): void;
 } {
   let planController: AutoPlanController | null = null;
   const queueAutoPlanIfReady = () => {
