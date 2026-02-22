@@ -9,10 +9,7 @@ import {
   collectFeatureFlagsFromUI,
   collectPreferencesFromUI,
 } from "./experience_ui.js";
-import {
-  normalizeFeatureFlags,
-  normalizePreferences,
-} from "./experience.js";
+import { normalizeFeatureFlags, normalizePreferences } from "./experience.js";
 import { createDashboardRuntime } from "./dashboard_runtime.js";
 import { createInitRuntime } from "./init_runtime.js";
 import { createPersistQueue, createStatusSetter } from "./runtime_helpers.js";
@@ -33,7 +30,10 @@ export interface AppBootstrapContext {
 }
 
 /**
- *
+ * Retrieves the Planner API from the global context. This function assumes that the `plannerApi`
+ * has been exposed on the global object, which is typically done in the preload script of an Electron
+ * application.
+ * @returns The Planner API instance available on the global context
  */
 function plannerApiFromGlobal(): PlannerApi {
   const globals = globalThis as typeof globalThis & { plannerApi: PlannerApi };
@@ -41,13 +41,19 @@ function plannerApiFromGlobal(): PlannerApi {
 }
 
 /**
- *
+ * Creates and initializes the application bootstrap context, which includes state management, API access,
+ * and utility functions for the application. This context is used throughout the application to manage state,
+ * interact with the Planner API, and perform various actions related to the application's functionality.
+ * @returns An initialized AppBootstrapContext object containing APIs, state, and utility functions
  */
 export function createAppBootstrapContext(): AppBootstrapContext {
   const state = createRuntimeState();
   const plannerApi = plannerApiFromGlobal();
   const announce = createAnnouncer();
-  const announceForPlanController = (message: string, politeness?: string): void => {
+  const announceForPlanController = (
+    message: string,
+    politeness?: string,
+  ): void => {
     if (politeness === "polite" || politeness === "assertive") {
       announce(message, politeness);
       return;
