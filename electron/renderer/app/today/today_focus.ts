@@ -20,8 +20,9 @@ export interface TodayFocusState {
 const NO_SESSION_START_FEEDBACK = "No upcoming session to start right now.";
 
 /**
- *
- * @param row
+ * Converts a planned row into focus-session display metadata.
+ * @param row Planned schedule row.
+ * @returns Normalized focus session, or null when row is missing.
  */
 export function focusSessionFromRow(row: PlannerScheduleRow | null): FocusSession | null {
   if (!row) {
@@ -37,7 +38,8 @@ export function focusSessionFromRow(row: PlannerScheduleRow | null): FocusSessio
 }
 
 /**
- *
+ * Creates the default closed focus-mode state.
+ * @returns Initial focus-state object.
  */
 export function createClosedFocusState(): TodayFocusState {
   return {
@@ -49,8 +51,9 @@ export function createClosedFocusState(): TodayFocusState {
 }
 
 /**
- *
- * @param session
+ * Opens focus mode with an optional scheduled session context.
+ * @param session Focus session selected from schedule metadata.
+ * @returns Open, not-started focus state.
  */
 export function openFocusMode(session: FocusSession | null): TodayFocusState {
   return {
@@ -62,8 +65,9 @@ export function openFocusMode(session: FocusSession | null): TodayFocusState {
 }
 
 /**
- *
- * @param state
+ * Transitions focus state to "started" when a session is available.
+ * @param state Current focus-mode state.
+ * @returns Updated focus state with feedback message.
  */
 export function startFocusSession(state: TodayFocusState): TodayFocusState {
   if (!state.session) {
@@ -81,8 +85,9 @@ export function startFocusSession(state: TodayFocusState): TodayFocusState {
 }
 
 /**
- *
- * @param state
+ * Marks the current focus session complete in UI state.
+ * @param state Current focus-mode state.
+ * @returns Updated focus state with completion feedback.
  */
 export function completeFocusSession(state: TodayFocusState): TodayFocusState {
   if (!state.session) {
@@ -100,9 +105,10 @@ export function completeFocusSession(state: TodayFocusState): TodayFocusState {
 }
 
 /**
- *
- * @param state
- * @param tinyStartMinutes
+ * Applies Tiny Start completion feedback and clears started state.
+ * @param state Current focus-mode state.
+ * @param tinyStartMinutes Tiny-start duration in minutes.
+ * @returns Updated focus state after tiny-start completion.
  */
 export function completeTinyStart(
   state: TodayFocusState,
@@ -117,8 +123,9 @@ export function completeTinyStart(
 }
 
 /**
- *
- * @param state
+ * Exits focus mode and resets transient focus feedback flags.
+ * @param state Current focus-mode state.
+ * @returns Closed focus state preserving no active session state.
  */
 export function exitFocusMode(state: TodayFocusState): TodayFocusState {
   return {

@@ -1,20 +1,21 @@
 import type { BookLookupItem } from "../app/types.js";
 
 /**
- *
- * @param resultsEl
- * @param index
+ * Builds a stable option id for a lookup result row.
+ * @param resultsEl Lookup results container element.
+ * @param index Result index.
+ * @returns DOM id for the option element.
  */
 function optionId(resultsEl: HTMLElement, index: number): string {
   return `${resultsEl.id || "lookup-results"}-option-${index}`;
 }
 
 /**
- *
- * @param resultsEl
- * @param items
- * @param placeholder
- * @param activeIndex
+ * Renders lookup items into interactive result buttons.
+ * @param resultsEl Lookup results container element.
+ * @param items Current lookup result items.
+ * @param placeholder Placeholder cover image URL.
+ * @param activeIndex Currently highlighted result index.
  */
 export function renderLookupResults(
   resultsEl: HTMLElement,
@@ -71,11 +72,11 @@ export function renderLookupResults(
 }
 
 /**
- *
- * @param searchInput
- * @param resultsEl
- * @param hasItems
- * @param activeIndex
+ * Synchronizes combobox accessibility attributes with lookup result state.
+ * @param searchInput Lookup search input.
+ * @param resultsEl Lookup results container element.
+ * @param hasItems Whether result list currently has any items.
+ * @param activeIndex Currently highlighted result index.
  */
 export function updateComboboxA11y(
   searchInput: HTMLInputElement,
@@ -98,8 +99,9 @@ export function updateComboboxA11y(
 }
 
 /**
- *
- * @param event
+ * Resolves the `.book-result` element associated with an event target.
+ * @param event Pointer/keyboard event originating from result list.
+ * @returns Matched result element or null.
  */
 export function lookupResultTarget(event: Event): HTMLElement | null {
   if (!(event.target instanceof HTMLElement)) {

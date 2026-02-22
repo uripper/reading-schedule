@@ -17,10 +17,11 @@ const EDIT_MINUTES_BUTTON_LABEL = "Edit planned minutes";
 const EDIT_MINUTES_BUTTON_ICON = "✎";
 
 /**
- *
- * @param row
- * @param interactionHandlers
- * @param onMinutesApplied
+ * Builds the "planned minutes" editor for a day detail session row.
+ * @param row Calendar row currently being edited.
+ * @param interactionHandlers Handlers used to persist and react to edits.
+ * @param onMinutesApplied Callback invoked after a successful save.
+ * @returns Container element with summary display and editable minutes form.
  */
 export function minutesFormForSession(
   row: CalendarRowWithFinish,

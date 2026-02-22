@@ -21,8 +21,9 @@ export type JsonValue =
 type SaveResult = { ok: true } | { ok: false; error: string };
 
 /**
- *
- * @param userDataDir
+ * Builds the absolute path for the persisted planner state file.
+ * @param userDataDir Base Electron user-data directory for this profile.
+ * @returns Absolute file path to `planner_state.json`.
  */
 function statePath(userDataDir: string): string {
   return path.join(userDataDir, FILE_NAME);
@@ -30,7 +31,8 @@ function statePath(userDataDir: string): string {
 
 /**
  * Loads persisted planner state from disk, returning null on failure.
- * @param userDataDir
+ * @param userDataDir Base Electron user-data directory for this profile.
+ * @returns Parsed JSON state or null when the file is missing/invalid.
  */
 export function readState(userDataDir: string): JsonValue | null {
   try {
@@ -43,8 +45,9 @@ export function readState(userDataDir: string): JsonValue | null {
 
 /**
  * Writes planner state to disk and returns a structured success result.
- * @param userDataDir
- * @param data
+ * @param userDataDir Base Electron user-data directory for this profile.
+ * @param data Serializable planner state payload to persist.
+ * @returns Success flag or error message suitable for user-facing status.
  */
 export function writeState(userDataDir: string, data: JsonValue): SaveResult {
   try {

@@ -14,8 +14,9 @@ export interface RenderableBooksRefs {
 }
 
 /**
- *
- * @param refs
+ * Validates render-critical DOM references for the books controller.
+ * @param refs Controller references that may still be nullable.
+ * @returns Resolved render references when all required nodes exist; otherwise `null`.
  */
 export function resolveRenderableRefs(
   refs: BooksControllerRefs,
@@ -46,10 +47,11 @@ export function resolveRenderableRefs(
 }
 
 /**
- *
- * @param books
- * @param viewState
- * @param finishDateByBookId
+ * Sorts and filters books based on current controller view options.
+ * @param books Source books to evaluate.
+ * @param viewState Active filter and sort selections.
+ * @param finishDateByBookId Planner-derived finish date lookup keyed by `book_id`.
+ * @returns Books visible in the current controller view.
  */
 export function visibleBooksForView(
   books: Book[],

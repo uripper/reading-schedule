@@ -3,8 +3,9 @@ import { DEFAULT_DIFFICULTY_MULTIPLIER, weekdays, type FieldDefinition } from ".
 import { allFieldDefinitions, inputEl, numberLevels, selectEl } from "./field_io.js";
 
 /**
- *
- * @param field
+ * Reads raw string value for a settings field from the DOM.
+ * @param field Field definition.
+ * @returns Trimmed field value text.
  */
 function fieldInputValue(field: FieldDefinition): string {
   if (field.type === "select") {
@@ -14,8 +15,9 @@ function fieldInputValue(field: FieldDefinition): string {
 }
 
 /**
- *
- * @param dayOffs
+ * Serializes settings form controls and derived values into planner settings.
+ * @param dayOffs Current day-off weekday keys.
+ * @returns Planner settings payload.
  */
 export function collectSettingsForm(dayOffs: string[]): PlannerSettings {
   const output: PlannerSettings = {};

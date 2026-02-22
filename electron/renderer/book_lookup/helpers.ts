@@ -20,8 +20,9 @@ export interface ProgressSyncInputs {
 type ProgressField = "pages" | "progress";
 
 /**
- *
- * @param raw
+ * Parses a numeric-like input into a non-negative integer.
+ * @param raw String/number-like value from form fields.
+ * @returns Rounded integer, clamped at zero for invalid or negative input.
  */
 function toInt(raw: NumericLike): number {
   const n = Number(raw);
@@ -32,15 +33,17 @@ function toInt(raw: NumericLike): number {
 }
 
 /**
- *
+ * Returns data-URL placeholder SVG used when no cover image is available.
+ * @returns Encoded placeholder image URL.
  */
 export function placeholderCoverSvg(): string {
   return PLACEHOLDER;
 }
 
 /**
- *
- * @param item
+ * Builds a user-facing description for a selected lookup result.
+ * @param item Selected lookup item.
+ * @returns Description text including source/author/year when available.
  */
 export function describeLookup(item: BookLookupItem): string {
   const bits = [item.source || "", item.author || "", item.year || ""].filter(
@@ -53,17 +56,18 @@ export function describeLookup(item: BookLookupItem): string {
 }
 
 /**
- *
- * @param item
+ * Returns note text to save alongside a picked lookup result.
+ * @param item Selected lookup item.
+ * @returns Saved note text describing the lookup source.
  */
 export function noteFromLookup(item: BookLookupItem): string {
   return describeLookup(item);
 }
 
 /**
- *
- * @param form
- * @param changedField
+ * Keeps pages-read and progress inputs in sync after one of them changes.
+ * @param form Inputs participating in pages/progress synchronization.
+ * @param changedField Field that initiated the update.
  */
 export function syncProgressAndPages(
   form: ProgressSyncInputs,

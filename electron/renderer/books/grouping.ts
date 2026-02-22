@@ -34,17 +34,19 @@ const TITLE_MISC_ORDER = 2;
 const TITLE_LETTER_ORDER = 1;
 
 /**
- *
- * @param value
+ * Normalizes optional text-like values for stable grouping keys.
+ * @param value Raw value from book metadata.
+ * @returns Trimmed string representation or empty string.
  */
 function normalizedText(value?: string | number): string {
   return String(value || "").trim();
 }
 
 /**
- *
- * @param left
- * @param right
+ * Compares text values case-insensitively for deterministic ordering.
+ * @param left Left text operand.
+ * @param right Right text operand.
+ * @returns Negative/zero/positive comparison result.
  */
 function compareTextInsensitive(left: string, right: string): number {
   return String(left || "").localeCompare(String(right || ""), undefined, {
@@ -53,8 +55,9 @@ function compareTextInsensitive(left: string, right: string): number {
 }
 
 /**
- *
- * @param book
+ * Builds title-initial group metadata for one book.
+ * @param book Book to classify.
+ * @returns Group metadata keyed by title letter or misc bucket.
  */
 function titleLetterMetaForBook(book: Book): GroupMeta {
   const first = titleInitialLetter(book?.title);
@@ -85,8 +88,9 @@ function titleLetterMetaForBook(book: Book): GroupMeta {
 }
 
 /**
- *
- * @param book
+ * Builds author group metadata for one book.
+ * @param book Book to classify.
+ * @returns Group metadata keyed by author name.
  */
 function authorMetaForBook(book: Book): GroupMeta {
   const author = normalizedText(book?.author);
@@ -108,8 +112,9 @@ function authorMetaForBook(book: Book): GroupMeta {
 }
 
 /**
- *
- * @param book
+ * Builds shelf group metadata for one book.
+ * @param book Book to classify.
+ * @returns Group metadata keyed by display shelf label.
  */
 function shelfMetaForBook(book: Book): GroupMeta {
   const shelfLabel = shelfLabelForBook(book);
@@ -122,11 +127,12 @@ function shelfMetaForBook(book: Book): GroupMeta {
 }
 
 /**
- *
- * @param book
- * @param groupBy
- * @param finishDateByBookId
- * @param currentYear
+ * Resolves grouping metadata for one book under the active grouping mode.
+ * @param book Book to classify.
+ * @param groupBy Active grouping option.
+ * @param finishDateByBookId Finish-date lookup keyed by `book_id`.
+ * @param currentYear Calendar year used for relative finish-date labels.
+ * @returns Group metadata used for bucket assignment and ordering.
  */
 function metaForBook(
   book: Book,
@@ -147,9 +153,10 @@ function metaForBook(
 }
 
 /**
- *
- * @param left
- * @param right
+ * Sorts group buckets by order, tie-break text, then visible label.
+ * @param left Left group bucket.
+ * @param right Right group bucket.
+ * @returns Negative/zero/positive comparison result.
  */
 function compareGroups(left: GroupBucket, right: GroupBucket): number {
   if (left.order !== right.order) {
@@ -163,11 +170,12 @@ function compareGroups(left: GroupBucket, right: GroupBucket): number {
 }
 
 /**
- *
- * @param books
- * @param groupBy
- * @param finishDateByBookId
- * @param currentYear
+ * Builds grouping buckets from books for the active grouping strategy.
+ * @param books Books visible in the current view.
+ * @param groupBy Active grouping option.
+ * @param finishDateByBookId Finish-date lookup keyed by `book_id`.
+ * @param currentYear Calendar year used for relative finish-date labels.
+ * @returns Buckets keyed by grouping key, each containing matching books.
  */
 function groupedBuckets(
   books: Book[],
@@ -190,10 +198,11 @@ function groupedBuckets(
 }
 
 /**
- *
- * @param books
- * @param groupBy
- * @param finishDateByBookId
+ * Groups books for card-grid rendering when grouping is enabled.
+ * @param books Books to group.
+ * @param groupBy Active grouping option.
+ * @param finishDateByBookId Finish-date lookup keyed by `book_id`.
+ * @returns Ordered groups for sectioned grid rendering.
  */
 export function groupBooks(
   books: Book[] = [],

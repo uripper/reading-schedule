@@ -7,31 +7,34 @@ interface ActivateTabOptions {
 let onTabActivated: (name: string) => void = () => {};
 
 /**
- *
+ * Returns all tab buttons across desktop/mobile navs.
+ * @returns Tab button elements.
  */
 function allTabButtons() {
   return qa<HTMLElement>(".tab[data-tab]");
 }
 
 /**
- *
+ * Returns desktop tab buttons used for keyboard roving focus.
+ * @returns Desktop tab button elements.
  */
 function desktopTabs() {
   return qa<HTMLElement>(".tabs .tab[data-tab]");
 }
 
 /**
- *
- * @param name
+ * Resolves tab panel element by tab name.
+ * @param name Tab name.
+ * @returns Matching panel element or null.
  */
 function panelByName(name: string): HTMLElement | null {
   return document.getElementById(`tab-${name}`);
 }
 
 /**
- *
- * @param panel
- * @param active
+ * Applies active/inactive classes and ARIA state for a panel.
+ * @param panel Tab panel element.
+ * @param active Whether panel is active.
  */
 function setPanelState(panel: HTMLElement, active: boolean): void {
   panel.classList.toggle("is-active", active);
@@ -44,9 +47,9 @@ function setPanelState(panel: HTMLElement, active: boolean): void {
 }
 
 /**
- *
- * @param name
- * @param options
+ * Activates a tab, updates panel visibility, and optionally focuses active panel.
+ * @param name Tab name to activate.
+ * @param options Optional activation behaviors.
  */
 export function activateTab(name: string, options: ActivateTabOptions = {}) {
   const { focusPanel = false } = options;
@@ -69,9 +72,9 @@ export function activateTab(name: string, options: ActivateTabOptions = {}) {
     }
   });
 
-  qa<HTMLElement>(".panel").forEach((panel) =>
-    { setPanelState(panel, panel.id === `tab-${name}`); },
-  );
+  qa<HTMLElement>(".panel").forEach((panel) => {
+    setPanelState(panel, panel.id === `tab-${name}`);
+  });
   const activePanel = panelByName(name);
   if (focusPanel && activePanel) {
     activePanel.focus();
@@ -81,9 +84,9 @@ export function activateTab(name: string, options: ActivateTabOptions = {}) {
 }
 
 /**
- *
- * @param tabs
- * @param index
+ * Focuses and activates tab at a given index.
+ * @param tabs Ordered tab list.
+ * @param index Target index.
  */
 function activateTabByIndex(tabs: HTMLElement[], index: number): void {
   const target = tabs[index];
@@ -91,12 +94,12 @@ function activateTabByIndex(tabs: HTMLElement[], index: number): void {
     return;
   }
   target.focus();
-  activateTab(target.dataset.tab || "today");
+  activateTab(target.dataset.tab ?? "today");
 }
 
 /**
- *
- * @param tabs
+ * Binds keyboard navigation for a tablist.
+ * @param tabs Ordered tab list.
  */
 function bindTabKeyboard(tabs: HTMLElement[]): void {
   tabs.forEach((btn, index) => {
@@ -124,13 +127,15 @@ function bindTabKeyboard(tabs: HTMLElement[]): void {
 }
 
 /**
- *
- * @param onChange
+ * Binds click/keyboard tab interactions and activation callback.
+ * @param onChange Callback invoked after tab activation.
  */
 export function bindTabs(onChange: (name: string) => void = () => {}) {
   onTabActivated = onChange;
   allTabButtons().forEach((btn) => {
-    btn.onclick = () => { activateTab(btn.dataset.tab || "today"); };
+    btn.onclick = () => {
+      activateTab(btn.dataset.tab ?? "today");
+    };
   });
 
   bindTabKeyboard(desktopTabs());

@@ -4,10 +4,10 @@ import { setUnknownSelectionLabel, type PickerState } from "./after_book_picker_
 import type { Book } from "./types.js";
 
 /**
- *
- * @param refs
- * @param state
- * @param book
+ * Initializes picker state/fields when opening the dialog for a given book.
+ * @param refs Form references for picker controls.
+ * @param state Mutable picker state.
+ * @param book Book being edited, if any.
  */
 export function initializePickerForBook(
   refs: BookFormRefs,

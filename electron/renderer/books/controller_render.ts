@@ -33,17 +33,17 @@ interface RenderBooksControllerArgs {
 }
 
 /**
- *
- * @param root0
- * @param root0.refs
- * @param root0.books
- * @param root0.scheduleRows
- * @param root0.viewState
- * @param root0.dialog
- * @param root0.onBooksChanged
- * @param root0.setBooks
- * @param root0.findBook
- * @param root0.rerender
+ * Renders toolbar-driven books content and wires row-level edit/remove actions.
+ * @param root0 Render inputs for books controller view.
+ * @param root0.refs Controller DOM references required for rendering.
+ * @param root0.books Full in-memory book list.
+ * @param root0.scheduleRows Planner schedule rows used for finish-date metadata.
+ * @param root0.viewState Active shelf/status/sort/group options.
+ * @param root0.dialog Edit dialog controller when available.
+ * @param root0.onBooksChanged Callback fired when collection mutations occur.
+ * @param root0.setBooks State updater used after remove operations.
+ * @param root0.findBook Lookup helper used before opening edit dialog.
+ * @param root0.rerender Callback to refresh the books view after state updates.
  */
 export function renderBooksController({
   refs,

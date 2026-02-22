@@ -16,8 +16,9 @@ export interface PickerState {
 }
 
 /**
- *
- * @param state
+ * Resolves currently selected book from picker state.
+ * @param state Picker state.
+ * @returns Selected book, or null when none is selected.
  */
 export function selectedBook(state: PickerState): Book | null {
   if (!state.selectedBookId) {
@@ -27,9 +28,9 @@ export function selectedBook(state: PickerState): Book | null {
 }
 
 /**
- *
- * @param refs
- * @param state
+ * Renders after-book picker result options and combobox accessibility attributes.
+ * @param refs Form references for picker controls.
+ * @param state Picker state with filtered options and active index.
  */
 export function renderAfterBookResults(
   refs: BookFormRefs,
@@ -68,9 +69,9 @@ export function renderAfterBookResults(
 }
 
 /**
- *
- * @param refs
- * @param blockedById
+ * Sets picker input label for a blocked-by id not found in available options.
+ * @param refs Form references for picker controls.
+ * @param blockedById Unknown blocked-by book id.
  */
 export function setUnknownSelectionLabel(
   refs: BookFormRefs,

@@ -30,17 +30,17 @@ interface LookupControl {
 }
 
 /**
- *
- * @param refs
+ * Synchronizes finished-date field visibility after status changes.
+ * @param refs Book form references containing status and date controls.
  */
 export function syncFinishedAtField(refs: BookFormRefs): void {
   syncFinishedAtFieldState(refs);
 }
 
 /**
- *
- * @param refs
- * @param lookupControl
+ * Resets form inputs to default add-book values and clears lookup UI state.
+ * @param refs Book form references to clear.
+ * @param lookupControl Lookup controller used to reset search results.
  */
 export function clearForm(
   refs: BookFormRefs,
@@ -69,9 +69,9 @@ export function clearForm(
 }
 
 /**
- *
- * @param refs
- * @param book
+ * Fills form controls from an existing book for edit mode.
+ * @param refs Book form references to populate.
+ * @param book Existing book record being edited.
  */
 export function fillForm(refs: BookFormRefs, book: Book): void {
   refs.bookId.value = book.book_id;
@@ -111,8 +111,9 @@ export function fillForm(refs: BookFormRefs, book: Book): void {
 }
 
 /**
- *
- * @param refs
+ * Parses current form values into a normalized `Book` payload.
+ * @param refs Book form references to read.
+ * @returns Normalized book model ready for save.
  */
 export function parseFormBook(refs: BookFormRefs): Book {
   const title = requiredTitle(refs);
@@ -154,9 +155,9 @@ export function parseFormBook(refs: BookFormRefs): Book {
 }
 
 /**
- *
- * @param refs
- * @param item
+ * Applies a selected lookup result into editable form fields.
+ * @param refs Book form references to update.
+ * @param item Lookup result chosen by the user.
  */
 export function applyLookupItem(
   refs: BookFormRefs,
@@ -188,10 +189,10 @@ export function applyLookupItem(
 }
 
 /**
- *
- * @param refs
- * @param localCoverPath
- * @param fileName
+ * Applies uploaded local cover metadata and updates preview/note fields.
+ * @param refs Book form references to update.
+ * @param localCoverPath Planner-saved local cover path.
+ * @param fileName Optional original file name for display note.
  */
 export function applyUploadedCover(
   refs: BookFormRefs,

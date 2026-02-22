@@ -23,9 +23,10 @@ interface AfterBookPicker {
 }
 
 /**
- *
- * @param refs
- * @param getBooks
+ * Creates the "blocked by" picker controller used in the book dialog.
+ * @param refs Form references for picker input/results fields.
+ * @param getBooks Callback returning the latest book list.
+ * @returns Picker API exposing `openForBook`.
  */
 export function createAfterBookPicker(
   refs: BookFormRefs,

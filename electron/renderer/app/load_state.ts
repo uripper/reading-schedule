@@ -40,8 +40,9 @@ interface LoadStateArgs {
 }
 
 /**
- *
- * @param source
+ * Checks whether loaded state already contains full bootstrapping data.
+ * @param source Saved planner state returned from persistence.
+ * @returns True when settings and books are both present.
  */
 function hasInitialSettingsAndBooks(
   source: LoadedPlannerState | null | undefined,
@@ -50,9 +51,10 @@ function hasInitialSettingsAndBooks(
 }
 
 /**
- *
- * @param plannerApi
- * @param saved
+ * Resolves initial boot source from saved state or sample fallback.
+ * @param plannerApi Planner API with sample data support.
+ * @param saved Loaded state from persistence.
+ * @returns Settings and books used to initialize the UI.
  */
 async function resolveInitialSource(
   plannerApi: Pick<PlannerApi, "sample">,
@@ -65,10 +67,10 @@ async function resolveInitialSource(
 }
 
 /**
- *
- * @param saved
- * @param source
- * @param args
+ * Applies settings, books, and completion maps to runtime state.
+ * @param saved Loaded state from persistence.
+ * @param source Initial source containing settings and books.
+ * @param args Runtime wiring for state setters and normalizers.
  */
 function applyLoadedData(
   saved: LoadedPlannerState | null | undefined,
@@ -83,9 +85,9 @@ function applyLoadedData(
 }
 
 /**
- *
- * @param saved
- * @param args
+ * Applies sessions and last result, then refreshes Today view state.
+ * @param saved Loaded state from persistence.
+ * @param args Runtime wiring for session/result setters.
  */
 function applySessionAndResultData(
   saved: LoadedPlannerState | null | undefined,
@@ -97,10 +99,10 @@ function applySessionAndResultData(
 }
 
 /**
- *
- * @param args
- * @param preferences
- * @param featureFlags
+ * Applies normalized preference data to UI controls and document styles.
+ * @param args Runtime wiring for preference/feature UI application.
+ * @param preferences Normalized user preferences.
+ * @param featureFlags Normalized feature flags.
  */
 function applyExperienceData(
   args: LoadStateArgs,
@@ -112,8 +114,10 @@ function applyExperienceData(
 }
 
 /**
- *
- * @param args
+ * Loads persisted planner state and applies it to the running UI/runtime state.
+ * Falls back to sample data when saved state is missing required bootstrap fields.
+ * @param args Runtime dependencies for loading, normalizing, and applying state.
+ * @returns Promise that resolves after load/init flow finishes.
  */
 export async function loadInitialData(args: LoadStateArgs): Promise<void> {
   try {

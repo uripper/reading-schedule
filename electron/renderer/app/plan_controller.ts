@@ -45,16 +45,18 @@ interface PlanControllerArgs {
 type PlannerRunData = Pick<PlannerResult, "schedule" | "summary">;
 
 /**
- *
- * @param rows
+ * Checks whether a schedule contains at least one row.
+ * @param rows Candidate schedule rows.
+ * @returns True when one or more rows exist.
  */
 function hasRows(rows: PlannerScheduleRow[]): boolean {
   return Array.isArray(rows) && rows.length > 0;
 }
 
 /**
- *
- * @param data
+ * Materializes a full planner result object from generation output.
+ * @param data Planner generation payload containing schedule and summary.
+ * @returns Planner result with an ISO creation timestamp.
  */
 function resultFromData(data: PlannerRunData): PlannerResult {
   return {
@@ -65,24 +67,25 @@ function resultFromData(data: PlannerRunData): PlannerResult {
 }
 
 /**
- *
- * @param root0
- * @param root0.plannerApi
- * @param root0.collectBooks
- * @param root0.collectSettings
- * @param root0.setStatus
- * @param root0.addLog
- * @param root0.announce
- * @param root0.getLastResult
- * @param root0.setLastResult
- * @param root0.getSessions
- * @param root0.getScheduleCompletions
- * @param root0.setScheduleCompletions
- * @param root0.renderCalendar
- * @param root0.totalsFromSummary
- * @param root0.setBookScheduleRows
- * @param root0.updateTodayView
- * @param root0.persistDraft
+ * Creates plan controller actions for applying, loading, and auto-refreshing schedules.
+ * @param root0 Dependencies and state accessors required by plan operations.
+ * @param root0.plannerApi Planner adapter used to generate schedules.
+ * @param root0.collectBooks Returns all books currently in the planner.
+ * @param root0.collectSettings Returns planner settings from the UI.
+ * @param root0.setStatus Publishes user-facing status messages.
+ * @param root0.addLog Appends diagnostic messages to planner logs.
+ * @param root0.announce Sends screen-reader announcements.
+ * @param root0.getLastResult Returns the last generated schedule result.
+ * @param root0.setLastResult Stores the latest planner result.
+ * @param root0.getSessions Returns normalized reading sessions.
+ * @param root0.getScheduleCompletions Returns completion state keyed by schedule row.
+ * @param root0.setScheduleCompletions Replaces completion state after schedule changes.
+ * @param root0.renderCalendar Renders schedule rows into the calendar view.
+ * @param root0.totalsFromSummary Converts summary data into calendar totals.
+ * @param root0.setBookScheduleRows Updates book-level schedule rows in runtime state.
+ * @param root0.updateTodayView Re-renders the Today panel.
+ * @param root0.persistDraft Persists current runtime state.
+ * @returns Controller methods for queueing auto-plan and applying loaded results.
  */
 export function createPlanController({
   plannerApi,

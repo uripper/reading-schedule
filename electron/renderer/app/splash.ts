@@ -8,7 +8,8 @@ const SPLASH_TRANSITION_FALLBACK_MS =
   SPLASH_CSS_FADE_DURATION_MS + SPLASH_TRANSITION_FALLBACK_BUFFER_MS;
 
 /**
- *
+ * Creates a splash controller that removes the splash screen after minimum display time.
+ * @returns Controller with a completion callback for bootstrapping flow.
  */
 export function createSplashController() {
   const splashScreen = document.getElementById("splashScreen");

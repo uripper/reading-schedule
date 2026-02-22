@@ -12,7 +12,25 @@ const keepOnlyJsdocRules = (rules = {}) => {
   );
 };
 
+/**
+ * Checks whether a value is a plain object config entry.
+ * @param {unknown} value The config entry to inspect.
+ * @returns {value is Record<string, unknown>} True when value is a plain object.
+ */
+const isConfigObject = value => {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  if (Array.isArray(value)) {
+    return false;
+  }
+  return true;
+};
+
 export default baseConfig.map(config => {
+  if (!isConfigObject(config)) {
+    return config;
+  }
   const next = { ...config };
 
   // Remove inherited configs so non-JSDoc rules don't come back in through extends.
@@ -21,7 +39,10 @@ export default baseConfig.map(config => {
   }
 
   if ("rules" in next && next.rules) {
-    next.rules = keepOnlyJsdocRules(next.rules);
+    next.rules = {
+      ...keepOnlyJsdocRules(next.rules),
+      // FUCK YOU DO NOT CHANGE
+    };
   }
 
   return next;

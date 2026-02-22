@@ -18,14 +18,14 @@ interface BindingArgs {
 }
 
 /**
- *
- * @param root0
- * @param root0.clearResults
- * @param root0.refs
- * @param root0.refreshFiltered
- * @param root0.render
- * @param root0.selectBook
- * @param root0.state
+ * Binds keyboard/mouse/document events for after-book picker interactions.
+ * @param root0 Event-binding dependencies and state hooks.
+ * @param root0.clearResults Clears currently filtered picker results.
+ * @param root0.refs Form references containing picker controls.
+ * @param root0.refreshFiltered Rebuilds filtered picker options from input text.
+ * @param root0.render Re-renders picker result UI.
+ * @param root0.selectBook Selects a book from filtered options.
+ * @param root0.state Mutable picker state.
  */
 export function bindAfterBookPickerEvents({
   clearResults,
@@ -35,18 +35,28 @@ export function bindAfterBookPickerEvents({
   selectBook,
   state,
 }: BindingArgs): void {
-  refs.afterBookInput.addEventListener("focus", () => { refreshFiltered(false); });
-  refs.afterBookInput.addEventListener("input", () => { refreshFiltered(true); });
+  refs.afterBookInput.addEventListener("focus", () => {
+    refreshFiltered(false);
+  });
+  refs.afterBookInput.addEventListener("input", () => {
+    refreshFiltered(true);
+  });
   refs.afterBookInput.addEventListener("keydown", (event: KeyboardEvent) => {
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      state.activeIndex = wrapIndex(state.activeIndex + 1, state.filtered.length);
+      state.activeIndex = wrapIndex(
+        state.activeIndex + 1,
+        state.filtered.length,
+      );
       render();
       return;
     }
     if (event.key === "ArrowUp") {
       event.preventDefault();
-      state.activeIndex = wrapIndex(state.activeIndex - 1, state.filtered.length);
+      state.activeIndex = wrapIndex(
+        state.activeIndex - 1,
+        state.filtered.length,
+      );
       render();
       return;
     }

@@ -26,8 +26,9 @@ const NO_INCOMPLETE_TEXT =
 const FOCUS_SESSION_UPDATE_EVENT = "today-focus-session-updated";
 
 /**
- *
- * @param lastResult
+ * Checks whether planner results contain any schedule rows.
+ * @param lastResult Latest planner result.
+ * @returns True when at least one planned row exists.
  */
 function hasPlannedRows(lastResult: PlannerResult | null): boolean {
   if (!Array.isArray(lastResult?.schedule)) {
@@ -37,10 +38,11 @@ function hasPlannedRows(lastResult: PlannerResult | null): boolean {
 }
 
 /**
- *
- * @param lastResult
- * @param snapshot
- * @param next
+ * Builds the Today summary sentence shown above the schedule cards.
+ * @param lastResult Latest planner result.
+ * @param snapshot Computed today schedule snapshot.
+ * @param next Next uncompleted planned row, if any.
+ * @returns User-facing summary text.
  */
 function summaryText(
   lastResult: PlannerResult | null,
@@ -73,9 +75,9 @@ interface UpdateTodayDashboardArgs {
 }
 
 /**
- *
- * @param button
- * @param nextRow
+ * Mirrors next focus session fields into data attributes for focus-mode controls.
+ * @param button Today focus entry button element.
+ * @param nextRow Next uncompleted row for today/future schedule.
  */
 function setFocusSessionDataset(
   button: HTMLButtonElement,
@@ -99,9 +101,10 @@ function setFocusSessionDataset(
 }
 
 /**
- *
- * @param todayMinutesRaw
- * @param goalMinutesRaw
+ * Computes bounded goal-completion percentage for today's minutes bar.
+ * @param todayMinutesRaw Minutes logged today.
+ * @param goalMinutesRaw Daily goal minutes.
+ * @returns Integer percent between 0 and 100.
  */
 export function goalProgressPercent(
   todayMinutesRaw: number,
@@ -118,15 +121,15 @@ export function goalProgressPercent(
 }
 
 /**
- *
- * @param root0
- * @param root0.lastResult
- * @param root0.scheduleCompletions
- * @param root0.books
- * @param root0.sessions
- * @param root0.preferences
- * @param root0.featureFlags
- * @param root0.defaultDailyGoalMinutes
+ * Re-renders Today dashboard content, progress, and focus-session metadata.
+ * @param root0 Inputs used to render Today summary, books, and progress.
+ * @param root0.lastResult Latest planner result.
+ * @param root0.scheduleCompletions Completion map keyed by session/day-book keys.
+ * @param root0.books Current book catalog.
+ * @param root0.sessions Logged reading sessions.
+ * @param root0.preferences Experience preferences.
+ * @param root0.featureFlags Feature flag state.
+ * @param root0.defaultDailyGoalMinutes Fallback goal minutes when preference is empty.
  */
 export function updateTodayDashboard({
   lastResult,

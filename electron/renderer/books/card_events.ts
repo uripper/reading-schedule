@@ -6,23 +6,29 @@ export interface CardHandlers {
 }
 
 /**
- *
- * @param rootNode
- * @param root0
- * @param root0.onEdit
- * @param root0.onRemove
+ * Wires edit/remove/fallback-cover handlers for rendered book cards.
+ * @param rootNode Root container containing card elements.
+ * @param root0 Callback handlers for card actions.
+ * @param root0.onEdit Called when edit button is clicked.
+ * @param root0.onRemove Called when remove button is clicked.
  */
 export function bindCardEvents(
   rootNode: HTMLElement,
   { onEdit, onRemove }: CardHandlers,
 ): void {
-  rootNode.querySelectorAll<HTMLButtonElement>(".edit-book-btn").forEach((button) => {
-    button.onclick = () => { onEdit(button.dataset.bookId || ""); };
-  });
+  rootNode
+    .querySelectorAll<HTMLButtonElement>(".edit-book-btn")
+    .forEach((button) => {
+      button.onclick = () => {
+        onEdit(button.dataset.bookId || "");
+      };
+    });
   rootNode
     .querySelectorAll<HTMLButtonElement>(".remove-book-btn")
     .forEach((button) => {
-      button.onclick = () => { onRemove(button.dataset.bookId || ""); };
+      button.onclick = () => {
+        onRemove(button.dataset.bookId || "");
+      };
     });
   rootNode
     .querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']")

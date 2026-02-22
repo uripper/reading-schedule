@@ -10,9 +10,10 @@ export interface CardRenderContext {
 }
 
 /**
- *
- * @param book
- * @param context
+ * Creates a full book card node including cover, metadata, and actions.
+ * @param book Book model to render.
+ * @param context Shared render context for cross-book metadata.
+ * @returns Rendered book card element.
  */
 export function createCardNode(book: Book, context: CardRenderContext): HTMLElement {
   const bookId = String(book.book_id || "");
@@ -72,9 +73,10 @@ export function createCardNode(book: Book, context: CardRenderContext): HTMLElem
 }
 
 /**
- *
- * @param books
- * @param allBooks
+ * Builds a map of book id to title, preferring full-catalog input when present.
+ * @param books Current filtered/rendered books.
+ * @param allBooks Full catalog books.
+ * @returns Book id to title map.
  */
 export function titleByIdMap(books: Book[], allBooks: Book[]): Record<string, string> {
   let sourceBooks = books;

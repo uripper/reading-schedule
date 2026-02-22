@@ -13,9 +13,9 @@ const OPEN_FOCUS_TEXT = "Open Focus Controls";
 const TINY_START_NOTE = "Logged from Today Focus Tiny Start.";
 
 /**
- *
- * @param button
- * @param isOpen
+ * Updates the focus entry button text/aria state for open or closed mode.
+ * @param button Focus entry toggle button.
+ * @param isOpen Whether focus controls are currently open.
  */
 export function setFocusEntryButtonState(
   button: HTMLButtonElement,
@@ -33,9 +33,10 @@ export function setFocusEntryButtonState(
 export { findSessionRow, readFocusSessionFromDataset };
 
 /**
- *
- * @param currentCompletions
- * @param row
+ * Returns completion state with the given row marked complete by both key styles.
+ * @param currentCompletions Existing schedule completion map.
+ * @param row Planned row being marked complete.
+ * @returns Completion map containing updated session and day-book keys.
  */
 export function nextCompletionsWithRowMarkedComplete(
   currentCompletions: Record<string, boolean>,
@@ -50,8 +51,9 @@ export function nextCompletionsWithRowMarkedComplete(
 }
 
 /**
- *
- * @param session
+ * Creates a synthetic session for a Tiny Start action from focus mode.
+ * @param session Optional focus session context for title/book attribution.
+ * @returns Normalized manual session representing the tiny-start interval.
  */
 export function tinyStartSessionFromFocus(
   session: FocusSession | null,

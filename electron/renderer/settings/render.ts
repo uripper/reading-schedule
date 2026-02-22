@@ -3,8 +3,9 @@ import { DIFFICULTY_LEVEL_COUNT, weekdays } from "./config.js";
 import type { FieldDefinition } from "./config.js";
 
 /**
- *
- * @param text
+ * Creates optional hint badge node for a field label.
+ * @param text Hint text.
+ * @returns Hint node or null when hint is empty.
  */
 function hintDot(text?: string): HTMLSpanElement | null {
   if (!text) {
@@ -20,8 +21,9 @@ function hintDot(text?: string): HTMLSpanElement | null {
 }
 
 /**
- *
- * @param field
+ * Renders a settings field as a labeled input/select control.
+ * @param field Field definition.
+ * @returns Label element containing field control.
  */
 function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
   const label = document.createElement("label");
@@ -55,9 +57,9 @@ function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
 }
 
 /**
- *
- * @param id
- * @param fieldDefinitions
+ * Renders a settings grid section from field definitions.
+ * @param id Target container id.
+ * @param fieldDefinitions Field definitions to render.
  */
 export function renderGrid(
   id: string,
@@ -69,7 +71,7 @@ export function renderGrid(
 }
 
 /**
- *
+ * Renders weekday minutes input rows.
  */
 export function renderWeekdayGrid() {
   const weekdayNodes = weekdays.map(([key, name]) => {
@@ -87,7 +89,7 @@ export function renderWeekdayGrid() {
 }
 
 /**
- *
+ * Renders difficulty multiplier table rows.
  */
 export function renderDifficultyRows() {
   const diffRows = Array.from(
