@@ -2,16 +2,16 @@ import { runPlanGeneration } from "../dist/renderer/app/plan.js";
 
 const BOOKS = [{ book_id: "book-1", title: "Book 1" }];
 
-const NOOP = () => {};
+const NOOP = () => undefined;
 
-const NOOP_ASYNC = async () => {};
+const NOOP_ASYNC = () => Promise.resolve();
 
 const DEFAULT_RESULT = { schedule: [], summary: null };
 
 export function recordingGenerate(calls, result = DEFAULT_RESULT) {
-  return async (payload) => {
+  return (payload) => {
     calls.push(payload);
-    return result;
+    return Promise.resolve(result);
   };
 }
 

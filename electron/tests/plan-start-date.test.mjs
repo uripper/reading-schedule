@@ -42,7 +42,7 @@ test("runPlanGeneration logs plan error details when generation fails", async ()
   const logs = [];
   const statuses = [];
   await runPlanGenerationForTest({
-    generate: async () => {
+    generate: () => {
       throw new Error("end_date must be on or after start_date");
     },
     collectSettings: () => ({ end_date: "1999-01-01" }),
@@ -65,7 +65,7 @@ test("runPlanGeneration logs plan error details when generation fails", async ()
 test("runPlanGeneration logs fallback error detail for unknown failures", async () => {
   const logs = [];
   await runPlanGenerationForTest({
-    generate: async () => {
+    generate: () => {
       throw {};
     },
     collectSettings: () => ({ minutes_per_day: 20 }),
