@@ -1,30 +1,21 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { runPlanGeneration } from "../dist/renderer/app/plan.js";
 import { tomorrowKey } from "./plan-start-date-date-helpers.mjs";
+import {
+  recordingGenerate,
+  runPlanGenerationForTest,
+} from "./plan-start-date-runner.mjs";
 
 test("runPlanGeneration forces settings.start_date to tomorrow", async () => {
   const calls = [];
-
-  await runPlanGeneration({
-    plannerApi: {
-      generate: async (payload) => {
-        calls.push(payload);
-        return { schedule: [], summary: null };
-      },
-    },
-    collectBooks: () => [{ book_id: "book-1", title: "Book 1" }],
+  await runPlanGenerationForTest({
+    generate: recordingGenerate(calls),
     collectSettings: () => ({
       start_date: "1999-01-01",
       end_date: "2099-01-01",
       minutes_per_day: 20,
     }),
-    setStatus: () => {},
-    addLog: () => {},
-    announce: () => {},
-    onSuccess: async () => {},
-    successAnnouncement: "",
   });
 
   assert.equal(calls.length, 1);
@@ -35,23 +26,11 @@ test("runPlanGeneration forces settings.start_date to tomorrow", async () => {
 
 test("runPlanGeneration clamps end_date to tomorrow when it is in the past", async () => {
   const calls = [];
-
-  await runPlanGeneration({
-    plannerApi: {
-      generate: async (payload) => {
-        calls.push(payload);
-        return { schedule: [], summary: null };
-      },
-    },
-    collectBooks: () => [{ book_id: "book-1", title: "Book 1" }],
+  await runPlanGenerationForTest({
+    generate: recordingGenerate(calls),
     collectSettings: () => ({
       end_date: "1999-01-01",
     }),
-    setStatus: () => {},
-    addLog: () => {},
-    announce: () => {},
-    onSuccess: async () => {},
-    successAnnouncement: "",
   });
 
   assert.equal(calls.length, 1);
@@ -62,14 +41,10 @@ test("runPlanGeneration clamps end_date to tomorrow when it is in the past", asy
 test("runPlanGeneration logs plan error details when generation fails", async () => {
   const logs = [];
   const statuses = [];
-
-  await runPlanGeneration({
-    plannerApi: {
-      generate: async () => {
-        throw new Error("end_date must be on or after start_date");
-      },
+  await runPlanGenerationForTest({
+    generate: async () => {
+      throw new Error("end_date must be on or after start_date");
     },
-    collectBooks: () => [{ book_id: "book-1", title: "Book 1" }],
     collectSettings: () => ({ end_date: "1999-01-01" }),
     setStatus: (message, isError) => {
       statuses.push({ message, isError });
@@ -77,9 +52,6 @@ test("runPlanGeneration logs plan error details when generation fails", async ()
     addLog: (message) => {
       logs.push(message);
     },
-    announce: () => {},
-    onSuccess: async () => {},
-    successAnnouncement: "",
   });
 
   assert.equal(statuses.at(-1)?.message, "Failed to generate plan");
@@ -92,22 +64,14 @@ test("runPlanGeneration logs plan error details when generation fails", async ()
 
 test("runPlanGeneration logs fallback error detail for unknown failures", async () => {
   const logs = [];
-
-  await runPlanGeneration({
-    plannerApi: {
-      generate: async () => {
-        throw {};
-      },
+  await runPlanGenerationForTest({
+    generate: async () => {
+      throw {};
     },
-    collectBooks: () => [{ book_id: "book-1", title: "Book 1" }],
     collectSettings: () => ({ minutes_per_day: 20 }),
-    setStatus: () => {},
     addLog: (message) => {
       logs.push(message);
     },
-    announce: () => {},
-    onSuccess: async () => {},
-    successAnnouncement: "",
   });
 
   assert.equal(logs.at(-1), "Plan generation error: Unknown planner error");
