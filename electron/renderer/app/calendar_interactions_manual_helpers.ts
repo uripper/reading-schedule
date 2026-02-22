@@ -4,6 +4,7 @@ const DEFAULT_MANUAL_WPM_BASE = 220;
 const DEFAULT_DIFFICULTY_MULTIPLIER = 1;
 const MIN_MANUAL_MINUTES = 1;
 const MIN_MANUAL_WORDS = 1;
+export const DEFAULT_BOOK_DIFFICULTY = 3;
 
 function normalizeManualMinutes(minutes: number): number {
   const rounded = Math.round(Number(minutes || 0));
@@ -56,7 +57,7 @@ export function wordsPlannedForManualSession({
   minutes,
   rows = [],
   settings = {},
-  difficulty = 3,
+  difficulty = DEFAULT_BOOK_DIFFICULTY,
 }: {
   bookId: string;
   minutes: number;

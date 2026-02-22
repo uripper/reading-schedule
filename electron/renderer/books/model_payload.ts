@@ -61,3 +61,24 @@ export function toPayloadBook(book: Book): Book {
 export function hasSchedulableLength(book: Book): boolean {
   return (book.words_total || 0) > 0 || (book.pages_total || 0) > 0;
 }
+
+export function clearMissingBlockedBy(books: Book[]): Book[] {
+  const schedulableIds = new Set<string>();
+  books.forEach((book) => {
+    schedulableIds.add(book.book_id);
+  });
+
+  return books.map((book) => {
+    const blockedById = String(book.blocked_by || "").trim();
+    if (!blockedById) {
+      return book;
+    }
+    if (schedulableIds.has(blockedById)) {
+      return book;
+    }
+    return {
+      ...book,
+      blocked_by: null,
+    };
+  });
+}

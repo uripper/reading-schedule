@@ -2,7 +2,12 @@ import { el } from "../dom.js";
 import type { PlannerScheduleRow } from "../app/types.js";
 import { createBookDialog } from "./dialog.js";
 import { GROUP_BY_NONE } from "./grouping.js";
-import { hasSchedulableLength, normalizeBook, toPayloadBook } from "./model.js";
+import {
+  clearMissingBlockedBy,
+  hasSchedulableLength,
+  normalizeBook,
+  toPayloadBook,
+} from "./model.js";
 import { withUpdatedProgress } from "./progress.js";
 import { hydrateBookCover, upsertBookById } from "./save.js";
 import { BOOK_STATUS_FILTER_ALL, schedulableBook } from "./status.js";
@@ -118,9 +123,10 @@ export function setBookScheduleRows(rows: PlannerScheduleRow[] = []): void {
 }
 
 export function collectBooks() {
-  return books.map(toPayloadBook).filter((book) => {
+  const schedulableBooks = books.map(toPayloadBook).filter((book) => {
     return book.title && hasSchedulableLength(book) && schedulableBook(book);
   });
+  return clearMissingBlockedBy(schedulableBooks);
 }
 
 export function collectAllBooks() {

@@ -1,29 +1,18 @@
 import type { CalendarRowWithFinish } from "./data.js";
 import type { DetailInteractionHandlers } from "./details_types.js";
+import { normalizedManualMinutes } from "../app/calendar_interactions_helpers.js";
 import { parseOptionalNumber } from "./utils.js";
 
-const MIN_PLANNED_MINUTES = 1;
+const MIN_PLANNED_MINUTES = normalizedManualMinutes(0);
+
+function inputValue(inputNode: HTMLInputElement): string {
+  return String(inputNode.value ?? "").trim();
+}
 
 function changedNumberValue(
   inputNode: HTMLInputElement,
-  initialValue: string,
 ): number | null {
-  const currentValue = String(inputNode.value ?? "").trim();
-  if (currentValue === String(initialValue)) {
-    return null;
-  }
-  return parseOptionalNumber(currentValue);
-}
-
-function normalizedMinutes(minutes: number | null): number | null {
-  if (minutes === null) {
-    return null;
-  }
-  const rounded = Math.round(minutes);
-  if (!Number.isFinite(rounded) || rounded < MIN_PLANNED_MINUTES) {
-    return null;
-  }
-  return rounded;
+  return parseOptionalNumber(inputValue(inputNode));
 }
 
 function syncInputValue(
@@ -45,15 +34,16 @@ function submitMinutesUpdate(
   interactionHandlers: DetailInteractionHandlers,
 ): { initialMinutesValue: string; applied: boolean } {
   event.preventDefault();
-  const changedMinutes = changedNumberValue(minutesInput, initialMinutesValue);
-  if (changedMinutes === null) {
-    return { initialMinutesValue, applied: true };
+  const currentMinutesValue = inputValue(minutesInput);
+  if (currentMinutesValue === initialMinutesValue) {
+    return { initialMinutesValue, applied: false };
   }
-  const nextMinutes = normalizedMinutes(changedMinutes);
-  if (nextMinutes === null) {
+  const changedMinutes = changedNumberValue(minutesInput);
+  if (changedMinutes === null) {
     minutesInput.value = initialMinutesValue;
     return { initialMinutesValue, applied: false };
   }
+  const nextMinutes = normalizedManualMinutes(changedMinutes);
   const applied = interactionHandlers.onSessionMinutesUpdated({
     minutes: nextMinutes,
     row,
@@ -78,7 +68,9 @@ export function minutesFormForSession(
   minutesInput.min = String(MIN_PLANNED_MINUTES);
   minutesInput.step = "1";
   minutesInput.placeholder = "Planned minutes";
-  minutesInput.value = String(Math.max(MIN_PLANNED_MINUTES, Number(row.minutes || 0)));
+  minutesInput.value = String(
+    Math.max(MIN_PLANNED_MINUTES, Number(row.minutes || 0)),
+  );
   const minutesLabel = document.createElement("label");
   minutesLabel.className = "day-progress-field";
   minutesLabel.textContent = "Planned Minutes";
