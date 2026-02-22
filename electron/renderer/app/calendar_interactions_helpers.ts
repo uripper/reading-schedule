@@ -49,6 +49,7 @@ export {
   dayBookCompletionKeyFromSession,
 } from "./calendar_interactions_key_helpers.js";
 export {
+  DEFAULT_BOOK_DIFFICULTY,
   normalizedManualMinutes,
   wordsPlannedForManualSession,
 } from "./calendar_interactions_manual_helpers.js";

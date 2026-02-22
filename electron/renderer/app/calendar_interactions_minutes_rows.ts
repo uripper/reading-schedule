@@ -1,13 +1,12 @@
 import { sessionKeyFor, sortRowsByDateAndSession } from "../calendar/utils.js";
 import type { Book } from "../books/types.js";
 import {
+  DEFAULT_BOOK_DIFFICULTY,
   normalizedManualMinutes,
   rowsWithoutSession,
   wordsPlannedForManualSession,
 } from "./calendar_interactions_helpers.js";
 import type { PlannerScheduleRow, PlannerSettings } from "./types.js";
-
-const DEFAULT_DIFFICULTY = 3;
 
 export type UpdatedRowsResult = {
   normalizedMinutes: number;
@@ -39,7 +38,7 @@ export function nextRowsWithUpdatedMinutes({
     minutes: normalizedMinutes,
     rows: rowsExcludingTarget,
     settings: collectSettings(),
-    difficulty: Number(book?.difficulty || DEFAULT_DIFFICULTY),
+    difficulty: Number(book?.difficulty || DEFAULT_BOOK_DIFFICULTY),
   });
   const updatedRow: PlannerScheduleRow = {
     ...row,

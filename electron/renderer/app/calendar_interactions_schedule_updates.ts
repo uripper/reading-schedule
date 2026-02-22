@@ -1,6 +1,7 @@
 import { sessionKeyFor, sortRowsByDateAndSession } from "../calendar/utils.js";
 import type { Book } from "../books/types.js";
 import {
+  DEFAULT_BOOK_DIFFICULTY,
   dayBookCompletionKey,
   emptyPlannerResult,
   nextSessionIndexForDate,
@@ -16,8 +17,6 @@ import type {
   PlannerSettings,
   PlannerSummary,
 } from "./types.js";
-
-const DEFAULT_DIFFICULTY = 3;
 
 type SharedUpdateArgs = {
   onScheduleRowsUpdated: () => void;
@@ -105,7 +104,7 @@ export function addManualSessionRow({
     minutes: normalizedMinutes,
     rows: previousRows,
     settings: collectSettings(),
-    difficulty: Number(book.difficulty || DEFAULT_DIFFICULTY),
+    difficulty: Number(book.difficulty || DEFAULT_BOOK_DIFFICULTY),
   });
   const addedRow: PlannerScheduleRow = {
     date: normalizedDate,
