@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import math
 from collections.abc import Iterator
 from datetime import date
+import math
 
 from ..calendar import date_range
 from ..planning.budget import words_per_block, words_per_minute

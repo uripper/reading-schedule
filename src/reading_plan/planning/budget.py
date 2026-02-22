@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import math
 from datetime import date
+import math
 
 from ..calendar import date_range, weekday_key
 from ..types import Book, Settings
@@ -50,14 +50,14 @@ def words_per_minute(book: Book, settings: Settings) -> float:
 
 def words_per_block(book: Book, settings: Settings) -> int:
     """Convert estimated reading speed into words per scheduling block."""
-    return int(
-        round(words_per_minute(book, settings) * settings.time_quantum_minutes)
+    return round(
+        words_per_minute(book, settings) * settings.time_quantum_minutes
     )
 
 
 def required_minutes(book: Book, settings: Settings) -> int:
     """Estimate total minutes required to finish one book."""
-    return int(math.ceil(book.words_total / words_per_minute(book, settings)))
+    return math.ceil(book.words_total / words_per_minute(book, settings))
 
 
 def required_total_minutes(books: list[Book], settings: Settings) -> int:

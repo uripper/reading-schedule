@@ -32,8 +32,9 @@ def _validate_blockers(books: list[Book]) -> None:
         if book_id in visited:
             return
         if book_id in visiting:
+            msg = "blockers contain a cycle; remove circular dependencies"
             raise ValueError(
-                "blockers contain a cycle; remove circular dependencies"
+                msg
             )
         visiting.add(book_id)
         blocker = by_id[book_id].blocked_by
@@ -51,12 +52,14 @@ def generate_plan(payload: dict[str, object]) -> dict[str, object]:
     books_raw = payload.get("books")
     settings_raw = payload.get("settings")
     if not isinstance(books_raw, list) or not isinstance(settings_raw, dict):
-        raise ValueError("payload requires books[] and settings object")
+        msg = "payload requires books[] and settings object"
+        raise TypeError(msg)
 
     books = []
     for idx, row in enumerate(books_raw):
         if not isinstance(row, dict):
-            raise ValueError(f"book at index {idx} must be an object")
+            msg = f"book at index {idx} must be an object"
+            raise TypeError(msg)
         books.append(book_from_data(row))
     _validate_blockers(books)
 

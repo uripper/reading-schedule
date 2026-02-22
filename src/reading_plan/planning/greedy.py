@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import math
 from datetime import date
+import math
 
 from ..calendar import date_range
 from ..types import PLAN_MODE_SPREAD_OUT, Book, Settings
@@ -230,7 +230,7 @@ def _spread_cap_for_day(
 ) -> int:
     """Compute a daily cap that spreads remaining work across active days."""
     remaining_blocks = sum(
-        int(math.ceil(words_left / wpb[book_id]))
+        math.ceil(words_left / wpb[book_id])
         for book_id, words_left in remaining.items()
         if words_left > 0 and wpb.get(book_id, 0) > 0
     )
@@ -239,7 +239,7 @@ def _spread_cap_for_day(
     active_days_left = sum(caps[day] > 0 for day in days[day_index:])
     if active_days_left <= 0:
         return remaining_blocks
-    target = int(math.ceil(remaining_blocks / active_days_left))
+    target = math.ceil(remaining_blocks / active_days_left)
     min_seed = min(
         (
             book.min_blocks_per_session

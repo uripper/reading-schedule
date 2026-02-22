@@ -7,13 +7,12 @@ import {
   parseFormBook,
 } from "./form_state.js";
 import { ensureBookFormLayoutFields } from "./form_layout.js";
-import { getBookFormRefs } from "./form_refs.js";
+import { getBookFormRefs, type BookFormRefs } from "./form_refs.js";
 import { createAfterBookPicker } from "./after_book_picker.js";
 import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.js";
 import { bindCoverUpload } from "./cover_upload.js";
 import { bindBookDialogProgressSync } from "./dialog_progress_sync.js";
 import type { Book } from "./types.js";
-import type { BookFormRefs } from "./form_refs.js";
 
 interface BookDialogOptions {
   getBooks?(): Book[];
