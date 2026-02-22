@@ -11,8 +11,9 @@ import { todayKey } from "../dist/renderer/sessions/utils.js";
 const CREATED_AT = "2026-01-01T00:00:00.000Z";
 
 /**
- *
- * @param schedule
+ * Builds planner result fixture with provided schedule rows.
+ * @param {Array<Record<string, unknown>>} schedule Planner schedule rows.
+ * @returns {{schedule: Array<Record<string, unknown>>, summary: null, created_at: string}} Planner result fixture.
  */
 function plannerResult(schedule) {
   return {
@@ -23,12 +24,13 @@ function plannerResult(schedule) {
 }
 
 /**
- *
- * @param date
- * @param sessionIndex
- * @param bookId
- * @param title
- * @param minutes
+ * Builds schedule row fixture for today-snapshot tests.
+ * @param {string} date Day key.
+ * @param {number} sessionIndex Session index.
+ * @param {string} bookId Book id.
+ * @param {string} title Session title.
+ * @param {number} minutes Planned minutes.
+ * @returns {Record<string, unknown>} Row fixture.
  */
 function row(date, sessionIndex, bookId, title, minutes) {
   return {

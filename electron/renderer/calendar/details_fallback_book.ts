@@ -3,8 +3,9 @@ import { BOOK_STATUS_IN_PROGRESS } from "../books/status.js";
 import type { CalendarRowWithFinish } from "./data.js";
 
 /**
- *
- * @param row
+ * Creates minimal in-progress fallback book model from calendar row data.
+ * @param row Calendar row requiring fallback book context.
+ * @returns Fallback book object for progress editing UI.
  */
 export function fallbackBookForRow(row: CalendarRowWithFinish): Book {
   return {

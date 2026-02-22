@@ -7,11 +7,12 @@ import {
 } from "./details_progress_form_helpers.js";
 
 /**
- *
- * @param row
- * @param book
- * @param interactionHandlers
- * @param onProgressApplied
+ * Builds progress update form for today's session row.
+ * @param row Calendar row being edited.
+ * @param book Current book model for defaults.
+ * @param interactionHandlers Detail interaction handlers.
+ * @param onProgressApplied Callback fired after successful apply.
+ * @returns Progress form element.
  */
 export function progressFormForToday(
   row: CalendarRowWithFinish,

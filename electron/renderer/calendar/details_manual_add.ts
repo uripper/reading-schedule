@@ -10,13 +10,14 @@ import {
 const MANUAL_ADD_TITLE = "Manual add";
 
 /**
- *
- * @param dateKey
- * @param mode
- * @param interactionHandlers
- * @param rerenderDetails
- * @param defaultBookId
- * @param defaultMinutes
+ * Builds manual-session add UI panel for the selected day.
+ * @param dateKey Selected day key.
+ * @param mode Day mode (past/today/future).
+ * @param interactionHandlers Detail interaction callbacks.
+ * @param rerenderDetails Callback to rerender details after successful add.
+ * @param defaultBookId Default selected book id.
+ * @param defaultMinutes Default minutes value.
+ * @returns Panel element containing manual add form.
  */
 export function buildManualSessionAddPanel(
   dateKey: string,

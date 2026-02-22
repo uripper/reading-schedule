@@ -8,11 +8,12 @@ import { minutesFormForSession } from "./details_minutes_form.js";
 import { baseSessionItem, DAY_DETAILS_META_CLASS, removeSessionButton } from "./details_session_shared.js";
 
 /**
- *
- * @param row
- * @param state
- * @param interactionHandlers
- * @param rerenderDetails
+ * Builds details row node for future sessions.
+ * @param row Calendar row.
+ * @param state Calendar state subset.
+ * @param interactionHandlers Detail interaction handlers.
+ * @param rerenderDetails Details rerender callback.
+ * @returns Rendered row element.
  */
 export function buildFutureSessionItem(
   row: CalendarRowWithFinish,

@@ -11,8 +11,9 @@ interface SortableRow {
 }
 
 /**
- *
- * @param row
+ * Builds sortable key from calendar row date and session index.
+ * @param row Row containing date and session index fields.
+ * @returns Lexicographically sortable row key.
  */
 function rowSortKey(row: SortableRow): string {
   const sessionIndex = String(row.session_index).padStart(
@@ -23,8 +24,9 @@ function rowSortKey(row: SortableRow): string {
 }
 
 /**
- *
- * @param rows
+ * Returns a sorted copy of rows by date then session index.
+ * @param rows Rows to sort.
+ * @returns Sorted row copy.
  */
 export function sortRowsByDateAndSession<T extends SortableRow>(
   rows: T[] = [],
@@ -35,8 +37,9 @@ export function sortRowsByDateAndSession<T extends SortableRow>(
 }
 
 /**
- *
- * @param key
+ * Formats `YYYY-MM` month keys for calendar header display.
+ * @param key Month key.
+ * @returns Human-readable month/year label.
  */
 export function monthLabel(key: string): string {
   if (!key) {
@@ -51,8 +54,9 @@ export function monthLabel(key: string): string {
 }
 
 /**
- *
- * @param date
+ * Converts Date object to local `YYYY-MM-DD` key.
+ * @param date Date to serialize.
+ * @returns Day key string.
  */
 export function dayKey(date: Date): string {
   const year = date.getFullYear();
@@ -62,8 +66,9 @@ export function dayKey(date: Date): string {
 }
 
 /**
- *
- * @param monthKey
+ * Returns the 6-week calendar grid date cells for a month key.
+ * @param monthKey Month key in `YYYY-MM` format.
+ * @returns Date cells used for calendar month rendering.
  */
 export function monthCells(monthKey: string): Date[] {
   const [year, month] = monthKey.split("-").map(Number);
@@ -82,8 +87,9 @@ export function monthCells(monthKey: string): Date[] {
 }
 
 /**
- *
- * @param dateKey
+ * Formats date key for calendar details heading.
+ * @param dateKey Day key in `YYYY-MM-DD` format.
+ * @returns Human-readable heading string.
  */
 export function dateHeading(dateKey: string): string {
   const date = new Date(dateKey);
@@ -100,11 +106,12 @@ export function dateHeading(dateKey: string): string {
 }
 
 /**
- *
- * @param row
- * @param row.date
- * @param row.session_index
- * @param row.book_id
+ * Builds stable session key from row date, index, and book id.
+ * @param row Row identity fields.
+ * @param row.date Session date key.
+ * @param row.session_index Session index within date.
+ * @param row.book_id Book id for session.
+ * @returns Session identity key.
  */
 export function sessionKeyFor(row: {
   date: string;
@@ -115,8 +122,9 @@ export function sessionKeyFor(row: {
 }
 
 /**
- *
- * @param value
+ * Parses optional numeric input and returns null for blank/invalid values.
+ * @param value Numeric-like value from UI or payload.
+ * @returns Parsed number or `null`.
  */
 export function parseOptionalNumber(value?: string | number): number | null {
   const raw = String(value ?? "").trim();

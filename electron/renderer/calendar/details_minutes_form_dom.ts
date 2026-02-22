@@ -6,8 +6,9 @@ const SAVE_MINUTES_BUTTON_LABEL = "Save minutes";
 const CANCEL_MINUTES_BUTTON_LABEL = "Cancel";
 
 /**
- *
- * @param row
+ * Builds planned-minutes numeric input prefilled from row data.
+ * @param row Calendar row being edited.
+ * @returns Minutes input element.
  */
 export function minutesInputForRow(row: CalendarRowWithFinish): HTMLInputElement {
   const minutesInput = document.createElement("input");
@@ -21,7 +22,8 @@ export function minutesInputForRow(row: CalendarRowWithFinish): HTMLInputElement
 }
 
 /**
- *
+ * Builds minutes form action row with save/cancel buttons.
+ * @returns Action container and cancel button reference.
  */
 export function minutesFormActions(): {
   actions: HTMLDivElement;

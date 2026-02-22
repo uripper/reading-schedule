@@ -1,8 +1,9 @@
 import type { ManualSessionBook } from "./details_types.js";
 
 /**
- *
- * @param defaultMinutes
+ * Returns default string value for manual minutes input field.
+ * @param defaultMinutes Optional prefilled minutes value.
+ * @returns Positive integer text with fallback of `"10"`.
  */
 export function minuteValueForManualInput(defaultMinutes?: number): string {
   const parsed = Number(defaultMinutes || 0);
@@ -13,8 +14,9 @@ export function minuteValueForManualInput(defaultMinutes?: number): string {
 }
 
 /**
- *
- * @param books
+ * Returns session books sorted alphabetically by title.
+ * @param books Available manual-session books.
+ * @returns Sorted copy of manual session books.
  */
 export function sortedManualBooks(
   books: ManualSessionBook[] = [],

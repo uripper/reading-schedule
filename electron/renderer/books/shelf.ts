@@ -7,7 +7,6 @@ export const SHELF_SELECT_CREATE_NEW = "__create_new_shelf__";
 
 /**
  * Trims raw shelf names and normalizes nullish values to empty string.
- *
  * @param rawShelf Shelf text from model or form state.
  * @returns Normalized shelf name.
  */
@@ -19,7 +18,6 @@ export function normalizeShelfName(
 
 /**
  * Returns display shelf label for a book, including unshelved fallback.
- *
  * @param book Book-like object containing optional shelf value.
  * @returns Shelf label for UI rendering.
  */
@@ -35,7 +33,6 @@ export function shelfLabelForBook(
 
 /**
  * Checks whether a book matches the active shelf filter value.
- *
  * @param book Book-like object containing optional shelf value.
  * @param filterValue Active shelf filter from toolbar.
  * @returns `true` when the book should remain visible.
@@ -56,7 +53,6 @@ export function shelfFilterMatches(
 
 /**
  * Collects unique non-empty shelf names sorted alphabetically.
- *
  * @param books Books to scan for shelf values.
  * @returns Sorted unique shelf names.
  */

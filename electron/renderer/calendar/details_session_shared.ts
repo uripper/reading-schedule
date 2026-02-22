@@ -7,8 +7,9 @@ export const COMPLETE_TOGGLE_LABEL = " Complete session";
 const REMOVE_SESSION_LABEL = "Remove session";
 
 /**
- *
- * @param row
+ * Builds common base session item node used across day modes.
+ * @param row Calendar row.
+ * @returns Base session item element.
  */
 export function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
   const item = document.createElement("article");
@@ -30,10 +31,11 @@ export function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
 }
 
 /**
- *
- * @param row
- * @param interactionHandlers
- * @param rerenderDetails
+ * Builds remove-session button with confirmation and callback wiring.
+ * @param row Calendar row.
+ * @param interactionHandlers Detail interaction handlers.
+ * @param rerenderDetails Details rerender callback.
+ * @returns Remove button element.
  */
 export function removeSessionButton(
   row: CalendarRowWithFinish,

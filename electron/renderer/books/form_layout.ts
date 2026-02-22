@@ -2,7 +2,8 @@ import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";
 import { statusOptions } from "./status.js";
 
 /**
- *
+ * Creates shelf select field with built-in create-shelf option.
+ * @returns Labeled shelf select node for form grid insertion.
  */
 function createShelfSelectLabel() {
   const label = document.createElement("label");
@@ -22,7 +23,8 @@ function createShelfSelectLabel() {
 }
 
 /**
- *
+ * Creates status select field populated from supported status options.
+ * @returns Labeled status select node for form grid insertion.
  */
 function createStatusSelectLabel() {
   const label = document.createElement("label");
@@ -42,7 +44,8 @@ function createStatusSelectLabel() {
 }
 
 /**
- *
+ * Creates finished-date field shown only for read status.
+ * @returns Labeled date input node for form grid insertion.
  */
 function createFinishedAtLabel() {
   const label = document.createElement("label");
@@ -59,7 +62,7 @@ function createFinishedAtLabel() {
 }
 
 /**
- *
+ * Ensures dynamic book form fields are present in the settings grid.
  */
 export function ensureBookFormLayoutFields() {
   const existing = document.getElementById("bookShelfSelectInput");

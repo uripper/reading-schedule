@@ -12,7 +12,7 @@ const state = createCalendarRuntimeState();
 let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});
 
 /**
- *
+ * Rerenders selected-day details using current runtime state.
  */
 function renderDetails(): void {
   refreshDerivedRows(state, interactionHandlers.isSessionCompleted);
@@ -20,7 +20,7 @@ function renderDetails(): void {
 }
 
 /**
- *
+ * Renders month grid and wires date selection/navigation callbacks.
  */
 function renderMonthView(): void {
   renderMonth(state, {
@@ -37,7 +37,7 @@ function renderMonthView(): void {
 }
 
 /**
- *
+ * Renders calendar control bar and today-jump behavior.
  */
 function renderControlsView(): void {
   const jumpToToday = (): void => {
@@ -49,9 +49,9 @@ function renderControlsView(): void {
 }
 
 /**
- *
- * @param rows
- * @param totals
+ * Renders full calendar from schedule rows and per-book totals.
+ * @param rows Planner schedule rows.
+ * @param totals Book totals keyed by `book_id`.
  */
 export function renderCalendar(
   rows: PlannerScheduleRow[],
@@ -83,7 +83,7 @@ export function renderCalendar(
 }
 
 /**
- *
+ * Moves calendar focus to today and rerenders controls/month.
  */
 export function focusCalendarToday(): void {
   if (!state.months.length) {
@@ -95,8 +95,8 @@ export function focusCalendarToday(): void {
 }
 
 /**
- *
- * @param handlers
+ * Configures interaction callbacks used by calendar details and actions.
+ * @param handlers Partial interaction handler overrides.
  */
 export function configureCalendarInteractions(
   handlers: Partial<CalendarHandlers> = {},

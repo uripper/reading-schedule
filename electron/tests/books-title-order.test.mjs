@@ -13,8 +13,9 @@ import {
 } from "../dist/renderer/books/sort.js";
 
 /**
- *
- * @param overrides
+ * Builds canonical book fixture with override support.
+ * @param {Record<string, unknown>} overrides Book field overrides.
+ * @returns {Record<string, unknown>} Book fixture object.
  */
 function baseBook(overrides) {
   return {

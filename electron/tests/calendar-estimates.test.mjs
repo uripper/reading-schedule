@@ -4,8 +4,9 @@ import assert from "node:assert/strict";
 import { estimateProgressLabel } from "../dist/renderer/calendar/estimates.js";
 
 /**
- *
- * @param date
+ * Converts Date fixture to `YYYY-MM-DD` day key.
+ * @param {Date} date Date fixture.
+ * @returns {string} Day key text.
  */
 function dayKey(date) {
   const year = date.getFullYear();
@@ -15,9 +16,10 @@ function dayKey(date) {
 }
 
 /**
- *
- * @param key
- * @param delta
+ * Offsets a day key by N days.
+ * @param {string} key Base day key.
+ * @param {number} delta Day offset.
+ * @returns {string} Shifted day key.
  */
 function plusDays(key, delta) {
   const date = new Date(`${key}T00:00:00`);
@@ -26,8 +28,9 @@ function plusDays(key, delta) {
 }
 
 /**
- *
- * @param overrides
+ * Builds calendar row fixture with override support.
+ * @param {Record<string, unknown>} overrides Row field overrides.
+ * @returns {Record<string, unknown>} Row fixture.
  */
 function row(overrides) {
   return {
@@ -40,8 +43,9 @@ function row(overrides) {
 }
 
 /**
- *
- * @param overrides
+ * Builds in-progress book fixture with override support.
+ * @param {Record<string, unknown>} overrides Book field overrides.
+ * @returns {Record<string, unknown>} Book fixture.
  */
 function book(overrides = {}) {
   return {

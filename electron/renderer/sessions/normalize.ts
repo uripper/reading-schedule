@@ -26,17 +26,19 @@ const SOURCE_MANUAL: Session["source"] = "manual";
 const UNTITLED_SESSION = "Untitled";
 
 /**
- *
- * @param left
- * @param right
+ * Compares sessions by `ended_at` descending for recent-first ordering.
+ * @param left Left session.
+ * @param right Right session.
+ * @returns Negative/zero/positive comparison result.
  */
 function compareByEndedAtDesc(left: Session, right: Session): number {
   return String(right.ended_at).localeCompare(String(left.ended_at));
 }
 
 /**
- *
- * @param session
+ * Normalizes session started/ended timestamps with sensible fallbacks.
+ * @param session Raw session input.
+ * @returns Normalized started/ended timestamp pair.
  */
 function normalizedDates(session: SessionInput): {
   endedAt: string;
@@ -60,8 +62,9 @@ function normalizedDates(session: SessionInput): {
 }
 
 /**
- *
- * @param value
+ * Normalizes optional pages-read input to non-negative integer or null.
+ * @param value Raw pages-read value.
+ * @returns Parsed pages-read value or `null`.
  */
 function normalizedPagesRead(value?: number | string | null): number | null {
   if (value === null || value === undefined || value === "") {
@@ -71,8 +74,9 @@ function normalizedPagesRead(value?: number | string | null): number | null {
 }
 
 /**
- *
- * @param value
+ * Normalizes raw source text to supported session source enum.
+ * @param value Raw source value.
+ * @returns `"manual"` when matched; otherwise `"timer"`.
  */
 function normalizedSource(value?: string): Session["source"] {
   if (value === SOURCE_MANUAL) {
@@ -82,8 +86,9 @@ function normalizedSource(value?: string): Session["source"] {
 }
 
 /**
- *
- * @param session
+ * Normalizes partial session input into canonical session model.
+ * @param session Raw session input.
+ * @returns Normalized session object.
  */
 export function normalizeSession(session: SessionInput = {}): Session {
   const { endedAt, startedAt } = normalizedDates(session);
@@ -105,8 +110,9 @@ export function normalizeSession(session: SessionInput = {}): Session {
 }
 
 /**
- *
- * @param rawSessions
+ * Normalizes and sorts session lists in recent-first order.
+ * @param rawSessions Raw session inputs.
+ * @returns Normalized sessions sorted by `ended_at` descending.
  */
 export function normalizeSessions(rawSessions: SessionInput[] = []): Session[] {
   let normalizedRawSessions: SessionInput[] = [];

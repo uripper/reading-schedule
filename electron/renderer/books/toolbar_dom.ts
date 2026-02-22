@@ -1,10 +1,11 @@
 import { GROUP_OPTIONS_BASE, SORT_OPTIONS, type OptionDefinition } from "./toolbar_options.js";
 
 /**
- *
- * @param labelText
- * @param selectId
- * @param options
+ * Creates a labeled toolbar `<select>` control from option definitions.
+ * @param labelText Visible label text.
+ * @param selectId DOM id assigned to select element.
+ * @param options Options used to populate the select.
+ * @returns Label/select pair ready for toolbar insertion.
  */
 function createLabeledSelect(
   labelText: string,
@@ -25,8 +26,9 @@ function createLabeledSelect(
 }
 
 /**
- *
- * @param toolbar
+ * Resolves or creates the toolbar controls wrapper element.
+ * @param toolbar Toolbar root element.
+ * @returns Existing or newly created controls wrapper.
  */
 function createControlsWrap(toolbar: HTMLElement): HTMLElement {
   const existing = toolbar.querySelector<HTMLElement>(".books-controls");
@@ -40,9 +42,10 @@ function createControlsWrap(toolbar: HTMLElement): HTMLElement {
 }
 
 /**
- *
- * @param value
- * @param label
+ * Creates a standard `<option>` element.
+ * @param value Option value attribute.
+ * @param label Visible option label text.
+ * @returns Configured option node.
  */
 export function createOption(value: string, label: string): HTMLOptionElement {
   const option = document.createElement("option");
@@ -52,8 +55,9 @@ export function createOption(value: string, label: string): HTMLOptionElement {
 }
 
 /**
- *
- * @param toolbar
+ * Builds and inserts books toolbar controls, returning resolved control refs.
+ * @param toolbar Toolbar root element.
+ * @returns Toolbar control references used by controller wiring.
  */
 export function ensureBooksToolbarControls(toolbar: HTMLElement): {
   groupBySelect: HTMLSelectElement;

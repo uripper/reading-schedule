@@ -21,8 +21,9 @@ const outputJsonPath = path.join(
 );
 
 /**
- *
- * @param node
+ * Checks whether a token tree node is a DTCG token leaf.
+ * @param {unknown} node Candidate token node.
+ * @returns {boolean} True when node exposes a `$value` field.
  */
 function isTokenLeaf(node) {
   return Boolean(
@@ -31,10 +32,11 @@ function isTokenLeaf(node) {
 }
 
 /**
- *
- * @param node
- * @param pathParts
- * @param map
+ * Flattens nested token objects into dotted-path token map.
+ * @param {unknown} node Current tree node.
+ * @param {string[]} pathParts Current token path segments.
+ * @param {Map<string, unknown>} map Output flat token map.
+ * @returns {Map<string, unknown>} Flattened token map.
  */
 function flattenTokens(node, pathParts = [], map = new Map()) {
   if (!node || typeof node !== "object") {
@@ -54,9 +56,10 @@ function flattenTokens(node, pathParts = [], map = new Map()) {
 }
 
 /**
- *
- * @param rawValue
- * @param resolver
+ * Resolves alias token values like `{semantic.light.bg}`.
+ * @param {unknown} rawValue Raw token value.
+ * @param {(key: string) => unknown} resolver Alias resolver callback.
+ * @returns {unknown} Resolved concrete token value.
  */
 function resolveValue(rawValue, resolver) {
   if (typeof rawValue !== "string") {
@@ -70,16 +73,18 @@ function resolveValue(rawValue, resolver) {
 }
 
 /**
- *
- * @param flatMap
+ * Creates memoized resolver for flattened token map aliases.
+ * @param {Map<string, unknown>} flatMap Flattened token map.
+ * @returns {(pathKey: string, stack?: Set<string>) => unknown} Alias resolver.
  */
 function createResolver(flatMap) {
   const cache = new Map();
 
   /**
-   *
-   * @param pathKey
-   * @param stack
+   * Resolves a single token path with circular-reference detection.
+   * @param {string} pathKey Token path key.
+   * @param {Set<string>} stack Resolution stack for cycle detection.
+   * @returns {unknown} Resolved token value.
    */
   function resolve(pathKey, stack = new Set()) {
     if (cache.has(pathKey)) {
@@ -106,25 +111,27 @@ function createResolver(flatMap) {
 }
 
 /**
- *
- * @param tokenPath
+ * Converts dotted token key into CSS custom property name.
+ * @param {string} tokenPath Token key path.
+ * @returns {string} CSS variable name.
  */
 function cssVarName(tokenPath) {
   return `--token-${tokenPath.replaceAll(".", "-")}`;
 }
 
 /**
- *
- * @param tokenPath
+ * Converts semantic token key into app-scoped CSS custom property name.
+ * @param {string} tokenPath Semantic token key path.
+ * @returns {string} App CSS variable name.
  */
 function appVarName(tokenPath) {
   return `--app-${tokenPath.replaceAll(".", "-")}`;
 }
 
 /**
- *
- * @param filePath
- * @param content
+ * Writes text file and creates parent directory when needed.
+ * @param {string} filePath Target file path.
+ * @param {string} content File content.
  */
 function writeFile(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });

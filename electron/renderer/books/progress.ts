@@ -2,8 +2,9 @@ import { clamp } from "./utils.js";
 import type { Book, BookProgressUpdates } from "./types.js";
 
 /**
- *
- * @param raw
+ * Parses numeric-like input and rejects blank/non-finite values.
+ * @param raw Raw value from progress update payload.
+ * @returns Finite number or `null` when input is invalid.
  */
 function parseFiniteNumber(raw?: string | number): number | null {
   if (raw === undefined || raw === "") {
@@ -17,11 +18,12 @@ function parseFiniteNumber(raw?: string | number): number | null {
 }
 
 /**
- *
- * @param nextBook
- * @param pagesUpdate
- * @param hasPagesTotal
- * @param pagesTotal
+ * Applies pages-read update to a mutable book copy.
+ * @param nextBook Mutable book copy being updated.
+ * @param pagesUpdate Parsed pages-read update value.
+ * @param hasPagesTotal Whether total pages is known and valid.
+ * @param pagesTotal Total pages used for clamping.
+ * @returns `true` when pages-read field was updated.
  */
 function applyPagesUpdate(
   nextBook: Book,
@@ -41,12 +43,12 @@ function applyPagesUpdate(
 }
 
 /**
- *
- * @param nextBook
- * @param pctUpdate
- * @param hasPagesUpdate
- * @param hasPagesTotal
- * @param pagesTotal
+ * Applies explicit percent update when pages-read was not directly edited.
+ * @param nextBook Mutable book copy being updated.
+ * @param pctUpdate Parsed progress-percent update value.
+ * @param hasPagesUpdate Whether pages-read was already updated.
+ * @param hasPagesTotal Whether total pages is known and valid.
+ * @param pagesTotal Total pages used to infer pages-read from percent.
  */
 function applyPercentUpdate(
   nextBook: Book,
@@ -67,10 +69,10 @@ function applyPercentUpdate(
 }
 
 /**
- *
- * @param nextBook
- * @param hasPagesTotal
- * @param pagesTotal
+ * Recomputes progress percent from pages-read when total pages is known.
+ * @param nextBook Mutable book copy being updated.
+ * @param hasPagesTotal Whether total pages is known and valid.
+ * @param pagesTotal Total pages used for percent calculation.
  */
 function reconcilePercentFromPages(
   nextBook: Book,
@@ -88,9 +90,10 @@ function reconcilePercentFromPages(
 }
 
 /**
- *
- * @param book
- * @param updates
+ * Applies progress-related updates and keeps page/percent fields consistent.
+ * @param book Source book to update.
+ * @param updates Partial progress update payload.
+ * @returns Updated book copy with reconciled progress values.
  */
 export function withUpdatedProgress(
   book: Book,

@@ -11,8 +11,8 @@ import {
 } from "./shelf_picker_options.js";
 
 /**
- *
- * @param refs
+ * Handles create-shelf flow when special picker option is selected.
+ * @param refs Book form references containing shelf controls.
  */
 async function onCreateShelfSelected(refs: BookFormRefs): Promise<void> {
   const select = refs.shelfSelectInput;
@@ -34,8 +34,8 @@ async function onCreateShelfSelected(refs: BookFormRefs): Promise<void> {
 }
 
 /**
- *
- * @param refs
+ * Handles shelf select changes and routes create-shelf behavior when needed.
+ * @param refs Book form references containing shelf controls.
  */
 async function onShelfChange(refs: BookFormRefs): Promise<void> {
   const select = refs.shelfSelectInput;
@@ -47,10 +47,10 @@ async function onShelfChange(refs: BookFormRefs): Promise<void> {
 }
 
 /**
- *
- * @param refs
- * @param books
- * @param selectedShelf
+ * Renders shelf picker options from current books and selected value.
+ * @param refs Book form references containing shelf controls.
+ * @param books Books used to derive unique shelf options.
+ * @param selectedShelf Shelf value to select after rendering.
  */
 export function renderShelfPicker(
   refs: BookFormRefs,
@@ -62,8 +62,8 @@ export function renderShelfPicker(
 }
 
 /**
- *
- * @param refs
+ * Binds shelf picker validation and change handlers.
+ * @param refs Book form references containing shelf controls.
  */
 export function bindShelfPicker(refs: BookFormRefs): void {
   ensurePromptValidation(refs);

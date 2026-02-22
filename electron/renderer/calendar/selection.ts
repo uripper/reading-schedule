@@ -3,7 +3,8 @@ import type { CalendarRuntimeState } from "./state_runtime.js";
 const MONTH_KEY_LENGTH = 7;
 
 /**
- *
+ * Returns today's local day key in `YYYY-MM-DD` format.
+ * @returns Local today key.
  */
 export function todayDateKey(): string {
   const now = new Date();
@@ -14,17 +15,19 @@ export function todayDateKey(): string {
 }
 
 /**
- *
- * @param dateKey
+ * Extracts `YYYY-MM` month key from a day key.
+ * @param dateKey Day key in `YYYY-MM-DD` format.
+ * @returns Month key in `YYYY-MM` format.
  */
 export function monthKeyForDateKey(dateKey: string): string {
   return dateKey.slice(0, MONTH_KEY_LENGTH);
 }
 
 /**
- *
- * @param months
- * @param targetMonthKey
+ * Resolves best index for target month within available month list.
+ * @param months Available month keys.
+ * @param targetMonthKey Preferred month key.
+ * @returns Matching/upcoming/fallback month index.
  */
 export function indexForMonth(months: string[], targetMonthKey: string): number {
   const exactIndex = months.indexOf(targetMonthKey);
@@ -41,8 +44,8 @@ export function indexForMonth(months: string[], targetMonthKey: string): number 
 }
 
 /**
- *
- * @param state
+ * Moves runtime state focus to today when month data is present.
+ * @param state Mutable calendar runtime state.
  */
 export function applyTodayFocus(state: CalendarRuntimeState): void {
   if (!state.months.length) {
@@ -58,12 +61,12 @@ export function applyTodayFocus(state: CalendarRuntimeState): void {
 }
 
 /**
- *
- * @param state
- * @param dateKey
- * @param renderMonth
- * @param options
- * @param options.focus
+ * Selects a date, refreshes month UI, and optionally focuses its day button.
+ * @param state Mutable calendar runtime state.
+ * @param dateKey Day key to select.
+ * @param renderMonth Callback to rerender calendar month.
+ * @param options Optional selection behavior.
+ * @param options.focus Whether to focus selected day button.
  */
 export function selectDate(
   state: CalendarRuntimeState,
@@ -83,11 +86,11 @@ export function selectDate(
 }
 
 /**
- *
- * @param state
- * @param delta
- * @param currentIndex
- * @param selectDateWithOptions
+ * Moves day-cell selection by offset and focuses resulting day.
+ * @param state Mutable calendar runtime state.
+ * @param delta Positive/negative index delta.
+ * @param currentIndex Current cell index.
+ * @param selectDateWithOptions Date selection callback with focus option.
  */
 export function moveSelectionBy(
   state: CalendarRuntimeState,

@@ -11,8 +11,9 @@ import { buildStatsSnapshot } from "../dist/renderer/stats/model.js";
 import { todayKey } from "../dist/renderer/sessions/utils.js";
 
 /**
- *
- * @param overrides
+ * Builds book fixture with override support.
+ * @param {Record<string, unknown>} overrides Book field overrides.
+ * @returns {Record<string, unknown>} Book fixture.
  */
 function book(overrides) {
   return {
@@ -40,10 +41,11 @@ function book(overrides) {
 }
 
 /**
- *
- * @param date
- * @param sessionIndex
- * @param bookId
+ * Builds schedule row fixture used by stats tests.
+ * @param {string} date Day key.
+ * @param {number} sessionIndex Session index.
+ * @param {string} bookId Book id.
+ * @returns {Record<string, unknown>} Row fixture.
  */
 function row(date, sessionIndex, bookId) {
   return {

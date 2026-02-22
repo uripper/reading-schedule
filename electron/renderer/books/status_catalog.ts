@@ -20,8 +20,9 @@ const BOOK_STATUSES: BookStatus[] = [
 ];
 
 /**
- *
- * @param value
+ * Normalizes raw status text to a supported status value.
+ * @param value Raw status text.
+ * @returns Matching status or `null` when unsupported.
  */
 export function normalizedStatus(value: string): BookStatus | null {
   const matched = BOOK_STATUSES.find((status) => {
@@ -34,8 +35,9 @@ export function normalizedStatus(value: string): BookStatus | null {
 }
 
 /**
- *
- * @param status
+ * Returns human-readable label for a book status.
+ * @param status Supported status value.
+ * @returns Display label used in UI.
  */
 export function statusLabel(status: BookStatus): string {
   if (status === BOOK_STATUS_READ) {
@@ -51,8 +53,9 @@ export function statusLabel(status: BookStatus): string {
 }
 
 /**
- *
- * @param status
+ * Indicates whether status should be considered by scheduling logic.
+ * @param status Supported status value.
+ * @returns `true` when status is schedulable.
  */
 export function isStatusSchedulable(status: BookStatus): boolean {
   if (status === BOOK_STATUS_READ) {
@@ -65,7 +68,8 @@ export function isStatusSchedulable(status: BookStatus): boolean {
 }
 
 /**
- *
+ * Returns selectable status options for form controls.
+ * @returns Status options with value/label pairs.
  */
 export function statusOptions(): Array<{ value: BookStatus; label: string }> {
   return BOOK_STATUSES.map((status) => {

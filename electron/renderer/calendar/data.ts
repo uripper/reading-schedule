@@ -13,7 +13,8 @@ type RowsByDate = Record<string, CalendarRowWithFinish[]>;
 type CompletionChecker = (sessionKey: string) => boolean;
 
 /**
- *
+ * Returns today's local day key in `YYYY-MM-DD` format.
+ * @returns Local today key.
  */
 function todayKey(): string {
   const now = new Date();
@@ -24,9 +25,10 @@ function todayKey(): string {
 }
 
 /**
- *
- * @param rowDate
- * @param today
+ * Checks whether a row date is today or in the future.
+ * @param rowDate Row day key.
+ * @param today Current day key.
+ * @returns `true` when row is today/future and should affect finish estimates.
  */
 function rowIsPlannedForTodayOrLater(rowDate: string, today: string): boolean {
   if (!rowDate) {
@@ -36,10 +38,11 @@ function rowIsPlannedForTodayOrLater(rowDate: string, today: string): boolean {
 }
 
 /**
- *
- * @param bookId
- * @param plannedWords
- * @param progressByBookId
+ * Applies planned words to per-book running progress accumulator.
+ * @param bookId Book id to update.
+ * @param plannedWords Words planned in current row.
+ * @param progressByBookId Mutable progress accumulator map.
+ * @returns Updated cumulative progress for the book.
  */
 function nextProgress(
   bookId: string,
@@ -53,11 +56,12 @@ function nextProgress(
 }
 
 /**
- *
- * @param bookId
- * @param nextBookProgress
- * @param totals
- * @param finishedByBookId
+ * Determines whether current row is the first row that finishes a book.
+ * @param bookId Book id being evaluated.
+ * @param nextBookProgress Cumulative progress after current row.
+ * @param totals Total words per book.
+ * @param finishedByBookId Mutable map tracking books already marked finished.
+ * @returns `true` when this row should receive finish badge.
  */
 function isFinishRow(
   bookId: string,
@@ -83,10 +87,11 @@ function isFinishRow(
 }
 
 /**
- *
- * @param rows
- * @param totals
- * @param isSessionCompleted
+ * Enriches rows with finish flags used by calendar row rendering.
+ * @param rows Raw schedule rows.
+ * @param totals Total words per book.
+ * @param isSessionCompleted Completion state checker by session key.
+ * @returns Rows sorted and annotated with `finish` flag.
  */
 export function enrichRows(
   rows: CalendarRow[],
@@ -130,8 +135,9 @@ export function enrichRows(
 }
 
 /**
- *
- * @param rows
+ * Returns rows reordered so finish rows appear first within a day.
+ * @param rows Rows for a single date.
+ * @returns Rows with finish rows moved to front.
  */
 export function rowsWithFinishFirst(
   rows: CalendarRowWithFinish[] = [],
@@ -149,8 +155,9 @@ export function rowsWithFinishFirst(
 }
 
 /**
- *
- * @param rows
+ * Groups enriched calendar rows by date key.
+ * @param rows Enriched rows.
+ * @returns Rows grouped by date with finish-first ordering per day.
  */
 export function groupRowsByDate(
   rows: CalendarRowWithFinish[] = [],
@@ -167,8 +174,9 @@ export function groupRowsByDate(
 }
 
 /**
- *
- * @param rows
+ * Extracts sorted unique month keys from enriched rows.
+ * @param rows Enriched rows.
+ * @returns Sorted month keys in `YYYY-MM` format.
  */
 export function monthKeysFromRows(
   rows: CalendarRowWithFinish[] = [],
@@ -180,8 +188,9 @@ export function monthKeysFromRows(
 }
 
 /**
- *
- * @param rows
+ * Returns first upcoming row, or earliest row when all are in past.
+ * @param rows Raw schedule rows.
+ * @returns Row to focus initially, or `null` when no rows exist.
  */
 export function firstPlannedRow(rows: CalendarRow[] = []): CalendarRow | null {
   if (!Array.isArray(rows) || !rows.length) {

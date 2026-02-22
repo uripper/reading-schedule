@@ -3,8 +3,9 @@ import type { EstimateSnapshot } from "./estimates_snapshot.js";
 export const NO_ESTIMATE_LABEL = "No estimate available";
 
 /**
- *
- * @param snapshot
+ * Formats estimate label including projected pages and percent.
+ * @param snapshot Estimate snapshot.
+ * @returns Formatted estimate label.
  */
 export function estimateLabelWithPages(snapshot: EstimateSnapshot): string {
   const { startPages, endPages } = snapshot;
@@ -15,8 +16,9 @@ export function estimateLabelWithPages(snapshot: EstimateSnapshot): string {
 }
 
 /**
- *
- * @param snapshot
+ * Formats estimate label when page projection is unavailable.
+ * @param snapshot Estimate snapshot.
+ * @returns Formatted estimate label.
  */
 export function estimateLabelWithoutPages(snapshot: EstimateSnapshot): string {
   return `Estimated by end of this session: ${snapshot.endPercent}% complete`;

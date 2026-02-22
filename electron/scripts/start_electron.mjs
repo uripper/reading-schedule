@@ -8,7 +8,8 @@ const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(path.join(SCRIPT_DIR, ".."));
 
 /**
- *
+ * Returns environment variables safe for launching Electron child process.
+ * @returns {NodeJS.ProcessEnv} Cleaned environment object.
  */
 function cleanedEnvironment() {
   const env = { ...process.env };
@@ -17,7 +18,8 @@ function cleanedEnvironment() {
 }
 
 /**
- *
+ * Resolves installed Electron binary path from dependency entrypoint.
+ * @returns {string} Electron binary path.
  */
 function electronBinaryPath() {
   const binary = require("electron");
@@ -28,7 +30,7 @@ function electronBinaryPath() {
 }
 
 /**
- *
+ * Spawns Electron process with inherited stdio and exit propagation.
  */
 function spawnElectron() {
   const child = spawn(electronBinaryPath(), ["."], {

@@ -9,8 +9,8 @@ interface ProgressSyncRefs {
 }
 
 /**
- *
- * @param syncRefs
+ * Binds cross-field progress synchronization handlers for dialog inputs.
+ * @param syncRefs Input refs used by progress/pages sync helper.
  */
 function bindProgressSyncHandlers(syncRefs: ProgressSyncRefs): void {
   syncRefs.pagesTotalInput.addEventListener("input", () => {
@@ -25,8 +25,8 @@ function bindProgressSyncHandlers(syncRefs: ProgressSyncRefs): void {
 }
 
 /**
- *
- * @param refs
+ * Wires progress and status-dependent field synchronization for book dialog.
+ * @param refs Book form references for the active dialog.
  */
 export function bindBookDialogProgressSync(refs: BookFormRefs): void {
   bindProgressSyncHandlers({

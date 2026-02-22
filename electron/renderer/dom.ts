@@ -1,14 +1,17 @@
 /**
- *
- * @param id
+ * Builds a consistent missing-element error message for required ids.
+ * @param id Missing element id.
+ * @returns Formatted error message.
  */
 function missingElementMessage(id: string): string {
   return `Missing required element with id "${id}"`;
 }
 
 /**
- *
- * @param id
+ * Returns required element by id or throws when not found.
+ * @param id Element id to resolve.
+ * @returns Resolved element cast to requested subtype.
+ * @throws {TypeError} Thrown when element is missing or not an HTMLElement.
  */
 export function el<T extends HTMLElement = HTMLElement>(id: string): T {
   const node = document.getElementById(id);
@@ -19,9 +22,10 @@ export function el<T extends HTMLElement = HTMLElement>(id: string): T {
 }
 
 /**
- *
- * @param sel
- * @param root
+ * Queries for a single element within a root node.
+ * @param sel Selector string.
+ * @param root Query root node.
+ * @returns Matched element or `null`.
  */
 export function q<T extends Element = Element>(
   sel: string,
@@ -35,9 +39,10 @@ export function q<T extends Element = Element>(
 }
 
 /**
- *
- * @param sel
- * @param root
+ * Queries for all matching elements within a root node.
+ * @param sel Selector string.
+ * @param root Query root node.
+ * @returns Array of matched elements.
  */
 export function qa<T extends Element = Element>(
   sel: string,
@@ -50,7 +55,8 @@ const BASE_36 = 36;
 const MAX_ID_LENGTH = 20;
 
 /**
- *
+ * Generates stable-ish unique ids for client-created entities.
+ * @returns UUID when available, otherwise timestamp/random fallback id.
  */
 export function uid() {
   if (globalThis.crypto?.randomUUID) {
