@@ -12,7 +12,8 @@ export interface AppRuntimeState {
 }
 
 /**
- *
+ * Creates the initial mutable runtime state for the planner renderer.
+ * @returns Default runtime state values before persisted data is loaded.
  */
 export function createRuntimeState(): AppRuntimeState {
   return {

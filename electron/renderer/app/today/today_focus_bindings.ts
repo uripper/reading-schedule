@@ -33,16 +33,16 @@ export interface BindTodayFocusActionsArgs {
 }
 
 /**
- *
- * @param root0
- * @param root0.getLastResult
- * @param root0.getScheduleCompletions
- * @param root0.setScheduleCompletions
- * @param root0.getSessions
- * @param root0.setSessions
- * @param root0.queuePersist
- * @param root0.updateTodayView
- * @param root0.setStatus
+ * Binds Today focus-mode UI actions (open/start/tiny-start/complete).
+ * @param root0 Focus action dependencies from runtime state and mutators.
+ * @param root0.getLastResult Returns the latest planner result.
+ * @param root0.getScheduleCompletions Returns current completion map.
+ * @param root0.setScheduleCompletions Persists updated completion map in state.
+ * @param root0.getSessions Returns normalized session history.
+ * @param root0.setSessions Replaces normalized session history.
+ * @param root0.queuePersist Queues draft persistence after state changes.
+ * @param root0.updateTodayView Re-renders the Today dashboard panel.
+ * @param root0.setStatus Publishes user-visible status messages.
  */
 export function bindTodayFocusActions({
   getLastResult,

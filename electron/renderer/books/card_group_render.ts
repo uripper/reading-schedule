@@ -3,9 +3,10 @@ import type { Book } from "./types.js";
 import { createCardNode, type CardRenderContext } from "./card_nodes.js";
 
 /**
- *
- * @param group
- * @param context
+ * Creates a grouped section of book cards with heading and row container.
+ * @param group Group metadata and grouped books.
+ * @param context Shared card render context.
+ * @returns Group section element.
  */
 function createGroupSection(group: BookGroup, context: CardRenderContext): HTMLElement {
   const section = document.createElement("section");
@@ -22,10 +23,10 @@ function createGroupSection(group: BookGroup, context: CardRenderContext): HTMLE
 }
 
 /**
- *
- * @param grid
- * @param books
- * @param context
+ * Renders books in a flat (non-grouped) card grid.
+ * @param grid Grid container element.
+ * @param books Books to render.
+ * @param context Shared card render context.
  */
 export function renderFlatBooks(
   grid: HTMLElement,
@@ -37,10 +38,10 @@ export function renderFlatBooks(
 }
 
 /**
- *
- * @param grid
- * @param groups
- * @param context
+ * Renders books grouped by section into the card grid.
+ * @param grid Grid container element.
+ * @param groups Prepared book groups.
+ * @param context Shared card render context.
  */
 export function renderGroupedBooks(
   grid: HTMLElement,

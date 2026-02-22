@@ -21,18 +21,20 @@ const PERCENT_SCALE = 100;
 const ZERO_COUNT = 0;
 
 /**
- *
- * @param value
+ * Formats numeric values using locale-aware grouping.
+ * @param value Numeric value.
+ * @returns Formatted number string.
  */
 function numberText(value: number): string {
   return new Intl.NumberFormat().format(value);
 }
 
 /**
- *
- * @param title
- * @param value
- * @param note
+ * Builds a KPI card element for the stats dashboard.
+ * @param title Card title.
+ * @param value Emphasized value text.
+ * @param note Supporting context text.
+ * @returns KPI card element.
  */
 function card(title: string, value: string, note: string): HTMLElement {
   const node = document.createElement("article");
@@ -54,8 +56,9 @@ function card(title: string, value: string, note: string): HTMLElement {
 }
 
 /**
- *
- * @param count
+ * Converts finish count to singular/plural label text.
+ * @param count Finish count.
+ * @returns Human-friendly count label.
  */
 function finishCountLabel(count: number): string {
   if (count === SINGLE_FINISH_COUNT) {
@@ -65,9 +68,10 @@ function finishCountLabel(count: number): string {
 }
 
 /**
- *
- * @param count
- * @param maxCount
+ * Computes month-bar fill height percent with minimum visible non-zero size.
+ * @param count Count for month.
+ * @param maxCount Maximum count across months.
+ * @returns Bar height percent.
  */
 function barHeightPercent(count: number, maxCount: number): number {
   if (count <= ZERO_COUNT) {
@@ -81,8 +85,9 @@ function barHeightPercent(count: number, maxCount: number): number {
 }
 
 /**
- *
- * @param snapshot
+ * Renders top-level KPI cards.
+ * @param snapshot Stats snapshot.
+ * @returns KPI grid element.
  */
 function kpiGrid(snapshot: StatsSnapshot): HTMLElement {
   const grid = document.createElement("div");
@@ -113,8 +118,9 @@ function kpiGrid(snapshot: StatsSnapshot): HTMLElement {
 }
 
 /**
- *
- * @param snapshot
+ * Renders book status distribution panel.
+ * @param snapshot Stats snapshot.
+ * @returns Status panel element.
  */
 function statusPanel(snapshot: StatsSnapshot): HTMLElement {
   const panel = document.createElement("article");
@@ -157,8 +163,9 @@ function statusPanel(snapshot: StatsSnapshot): HTMLElement {
 }
 
 /**
- *
- * @param snapshot
+ * Renders monthly finish timeline bar chart panel.
+ * @param snapshot Stats snapshot.
+ * @returns Month timeline panel element.
  */
 function monthPanel(snapshot: StatsSnapshot): HTMLElement {
   const panel = document.createElement("article");
@@ -211,8 +218,9 @@ function monthPanel(snapshot: StatsSnapshot): HTMLElement {
 }
 
 /**
- *
- * @param snapshot
+ * Renders secondary stats panels (status + monthly timeline).
+ * @param snapshot Stats snapshot.
+ * @returns Secondary panel grid element.
  */
 function secondaryGrid(snapshot: StatsSnapshot): HTMLElement {
   const grid = document.createElement("div");
@@ -222,8 +230,8 @@ function secondaryGrid(snapshot: StatsSnapshot): HTMLElement {
 }
 
 /**
- *
- * @param snapshot
+ * Replaces the stats dashboard contents using latest computed snapshot.
+ * @param snapshot Stats snapshot.
  */
 export function renderStatsDashboard(snapshot: StatsSnapshot): void {
   const root = el("statsDashboard");

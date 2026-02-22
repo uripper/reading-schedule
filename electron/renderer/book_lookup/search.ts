@@ -27,12 +27,13 @@ interface LookupBinding {
 }
 
 /**
- *
- * @param root0
- * @param root0.searchInput
- * @param root0.resultsEl
- * @param root0.metaEl
- * @param root0.onPick
+ * Binds all lookup search interactions (input, keyboard, mouse, outside click).
+ * @param root0 Lookup binding options and callbacks.
+ * @param root0.searchInput Search field element.
+ * @param root0.resultsEl Lookup results container element.
+ * @param root0.metaEl Metadata/help text element.
+ * @param root0.onPick Callback invoked when a lookup result is selected.
+ * @returns Binding handle with clear/destroy controls.
  */
 export function bindBookLookup({
   searchInput,

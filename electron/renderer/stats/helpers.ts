@@ -23,8 +23,9 @@ const MONTH_NUMBER_TO_INDEX_OFFSET = 1;
 export type StatusBreakdown = Record<BookStatus, number>;
 
 /**
- *
- * @param dateText
+ * Parses year component from a `YYYY-MM-DD` date key.
+ * @param dateText Date key text.
+ * @returns Parsed year, or null when invalid.
  */
 export function yearFromDateKey(dateText: string): number | null {
   const key = String(dateText || "").trim();
@@ -39,8 +40,9 @@ export function yearFromDateKey(dateText: string): number | null {
 }
 
 /**
- *
- * @param dateText
+ * Parses zero-based month index from a `YYYY-MM-DD` date key.
+ * @param dateText Date key text.
+ * @returns Month index in `[0, 11]`, or null when invalid.
  */
 export function monthIndexFromDateKey(dateText: string): number | null {
   const key = String(dateText || "").trim();
@@ -57,8 +59,9 @@ export function monthIndexFromDateKey(dateText: string): number | null {
 }
 
 /**
- *
- * @param books
+ * Counts books by status for dashboard status distribution.
+ * @param books Book catalog.
+ * @returns Status-to-count breakdown.
  */
 export function statusBreakdown(books: Book[]): StatusBreakdown {
   const counts: StatusBreakdown = {
@@ -74,9 +77,10 @@ export function statusBreakdown(books: Book[]): StatusBreakdown {
 }
 
 /**
- *
- * @param books
- * @param year
+ * Collects ids of books marked read and finished in the target year.
+ * @param books Book catalog.
+ * @param year Target year.
+ * @returns Set of read book ids finished that year.
  */
 export function readBooksFinishedThisYear(
   books: Book[],
@@ -97,9 +101,10 @@ export function readBooksFinishedThisYear(
 }
 
 /**
- *
- * @param lastResult
- * @param year
+ * Collects planned finish ids/months from planner output for a target year.
+ * @param lastResult Latest planner result.
+ * @param year Target year.
+ * @returns Planned finish ids and month index map keyed by book id.
  */
 export function plannedFinishBookIds(
   lastResult: PlannerResult | null,
@@ -131,10 +136,11 @@ export function plannedFinishBookIds(
 }
 
 /**
- *
- * @param lastResult
- * @param scheduleCompletions
- * @param year
+ * Computes completion-rate stats for rows scheduled through today in target year.
+ * @param lastResult Latest planner result.
+ * @param scheduleCompletions Completion map keyed by schedule row.
+ * @param year Target year.
+ * @returns Scheduled/completed counts and rounded completion rate percent.
  */
 export function completionStats(
   lastResult: PlannerResult | null,
@@ -173,8 +179,9 @@ export function completionStats(
 }
 
 /**
- *
- * @param books
+ * Computes average progress percentage and started-book count.
+ * @param books Book catalog.
+ * @returns Aggregate progress metrics.
  */
 export function averageProgress(books: Book[]): {
   startedCount: number;
@@ -199,10 +206,11 @@ export function averageProgress(books: Book[]): {
 }
 
 /**
- *
- * @param readThisYearIds
- * @param books
- * @param plannedMonths
+ * Computes monthly finish counts from planned and completed finishes.
+ * @param readThisYearIds Set of books completed in target year.
+ * @param books Book catalog.
+ * @param plannedMonths Planned finish month index by book id.
+ * @returns Array of 12 monthly finish totals.
  */
 export function monthlyFinishCounts(
   readThisYearIds: Set<string>,

@@ -46,21 +46,23 @@ interface SnapshotInputs {
 }
 
 /**
- *
- * @param goalMinutes
+ * Normalizes daily goal minutes to a minimum valid value.
+ * @param goalMinutes Optional goal minutes input.
+ * @returns Goal minutes clamped to at least 1.
  */
 function normalizedGoalMinutes(goalMinutes: number | undefined): number {
   return Math.max(MIN_GOAL_MINUTES, Number(goalMinutes || MIN_GOAL_MINUTES));
 }
 
 /**
- *
- * @param root0
- * @param root0.books
- * @param root0.sessions
- * @param root0.lastResult
- * @param root0.scheduleCompletions
- * @param root0.dailyGoalMinutes
+ * Builds a full stats snapshot used by the Stats dashboard renderer.
+ * @param root0 Snapshot input values.
+ * @param root0.books Current book catalog.
+ * @param root0.sessions Logged reading sessions.
+ * @param root0.lastResult Latest planner result.
+ * @param root0.scheduleCompletions Completion map keyed by schedule row.
+ * @param root0.dailyGoalMinutes Optional daily goal minutes.
+ * @returns Aggregated stats snapshot for rendering.
  */
 export function buildStatsSnapshot({
   books,

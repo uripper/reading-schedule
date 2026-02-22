@@ -8,8 +8,9 @@ interface PickerInteraction {
 }
 
 /**
- *
- * @param book
+ * Builds label text used for after-book picker options and input value.
+ * @param book Book record.
+ * @returns Display label combining title and author when available.
  */
 export function optionLabel(book: Book): string {
   const title = String(book.title || "Untitled");
@@ -21,9 +22,10 @@ export function optionLabel(book: Book): string {
 }
 
 /**
- *
- * @param left
- * @param right
+ * Sorts books by title then author using case-insensitive comparison.
+ * @param left Left book.
+ * @param right Right book.
+ * @returns Locale compare result.
  */
 export function compareBooks(left: Book, right: Book): number {
   const titleCompare = String(left.title || "").localeCompare(
@@ -42,9 +44,10 @@ export function compareBooks(left: Book, right: Book): number {
 }
 
 /**
- *
- * @param index
- * @param length
+ * Wraps an index into valid range for cyclic keyboard navigation.
+ * @param index Candidate index.
+ * @param length Number of available options.
+ * @returns Wrapped index, or -1 when there are no options.
  */
 export function wrapIndex(index: number, length: number): number {
   if (length <= 0) {
@@ -54,9 +57,10 @@ export function wrapIndex(index: number, length: number): number {
 }
 
 /**
- *
- * @param book
- * @param query
+ * Checks whether a book option matches the current picker query.
+ * @param book Book option.
+ * @param query Current input query.
+ * @returns True when query is empty or label includes query text.
  */
 export function matchesQuery(book: Book, query: string): boolean {
   if (!query) {
@@ -66,8 +70,9 @@ export function matchesQuery(book: Book, query: string): boolean {
 }
 
 /**
- *
- * @param event
+ * Resolves the picker result button element from an event target.
+ * @param event Mouse/keyboard event from picker UI.
+ * @returns Matched result element or null.
  */
 export function lookupResultTarget(event: Event): HTMLElement | null {
   if (!(event.target instanceof HTMLElement)) {
@@ -77,19 +82,21 @@ export function lookupResultTarget(event: Event): HTMLElement | null {
 }
 
 /**
- *
- * @param left
- * @param right
+ * Compares two labels after trimming and lowercasing.
+ * @param left Left label.
+ * @param right Right label.
+ * @returns True when labels are equivalent case-insensitively.
  */
 export function labelsMatch(left: string, right: string): boolean {
   return left.trim().toLowerCase() === right.trim().toLowerCase();
 }
 
 /**
- *
- * @param root0
- * @param root0.targetIsInput
- * @param root0.targetIsInResults
+ * Determines whether picker dropdown should remain open for a click target.
+ * @param root0 Interaction location flags.
+ * @param root0.targetIsInput True when click target is the picker input.
+ * @param root0.targetIsInResults True when click target is inside result list.
+ * @returns True when picker should stay open.
  */
 export function shouldKeepPickerOpen({
   targetIsInput,
