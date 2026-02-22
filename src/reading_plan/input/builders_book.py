@@ -5,11 +5,11 @@ from __future__ import annotations
 from typing import Any
 from uuid import uuid4
 
-from ..calendar import parse_date
-from ..types import Book
-from .builders_coerce import optional_int, to_float, to_int
-from .builders_shared import WORDS_PER_PAGE
-from .validate import validate_book
+from reading_plan.calendar import parse_date
+from reading_plan.input.builders_coerce import optional_int, to_float, to_int
+from reading_plan.input.builders_shared import WORDS_PER_PAGE
+from reading_plan.input.validate import validate_book
+from reading_plan.planner_types import Book
 
 
 def _estimated_words_read_from_pages(
@@ -20,7 +20,7 @@ def _estimated_words_read_from_pages(
     if pages_total is None or pages_total <= 0:
         return pages_read * WORDS_PER_PAGE
     bounded_pages = max(0, min(pages_read, pages_total))
-    return int(round(words_full * bounded_pages / pages_total))
+    return round(words_full * bounded_pages / pages_total)
 
 
 def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
@@ -45,8 +45,9 @@ def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
             data.get("progress_percent", 0.0), "progress_percent"
         )
         if progress < 0 or progress > 100:
-            raise ValueError("progress_percent must be between 0 and 100")
-        words_read = int(round(full * progress / 100.0))
+            msg = "progress_percent must be between 0 and 100"
+            raise ValueError(msg)
+        words_read = round(full * progress / 100.0)
     else:
         words_read = max(0, words_read)
         words_read = min(words_read, full)

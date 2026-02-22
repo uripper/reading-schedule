@@ -7,7 +7,10 @@ from pathlib import Path
 import sys
 
 from reading_plan.cli import parse_args as parse_cli_args
-from reading_plan.gui_api import main as gui_main, parse_args as parse_gui_args
+from reading_plan.gui_api import (
+    main as gui_main,
+    parse_args as parse_gui_args,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 

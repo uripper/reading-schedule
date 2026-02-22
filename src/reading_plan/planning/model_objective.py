@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
-from datetime import date
+from typing import TYPE_CHECKING
 
-from ortools.sat.python import cp_model
+from reading_plan.planner_types import PLAN_MODE_SPREAD_OUT
 
-from ..types import PLAN_MODE_SPREAD_OUT, Book, Settings
+if TYPE_CHECKING:
+    from datetime import date
+
+    from ortools.sat.python import cp_model
+
+    from reading_plan.planner_types import Book, Settings
 
 
 def _priority_weights(books: list[Book]) -> dict[str, int]:
@@ -31,10 +36,10 @@ def build_objective_terms(
     x: dict[tuple[str, date], cp_model.IntVar],
 ) -> list[cp_model.LinearExpr]:
     """Build objective terms."""
-    priority_scale = max(1, int(round(settings.w_priority * 100)))
-    switch_scale = int(round(settings.w_switch * 100))
-    finish_scale = max(1, int(round(settings.w_finish * 10000)))
-    mode_scale = max(1, int(round((settings.w_smooth + 1.0) * 10)))
+    priority_scale = max(1, round(settings.w_priority * 100))
+    switch_scale = round(settings.w_switch * 100)
+    finish_scale = max(1, round(settings.w_finish * 10000))
+    mode_scale = max(1, round((settings.w_smooth + 1.0) * 10))
 
     switch_sign = 1 if settings.plan_mode == PLAN_MODE_SPREAD_OUT else -1
     priority_weights = _priority_weights(books)
@@ -48,12 +53,12 @@ def build_objective_terms(
             )
         )
         for day_index, day in enumerate(days):
-            terms.append((switch_sign * switch_scale) * y[(book.book_id, day)])
+            terms.append((switch_sign * switch_scale) * y[book.book_id, day])
             if settings.plan_mode != PLAN_MODE_SPREAD_OUT:
                 terms.append(
                     mode_scale
                     * (len(days) - day_index)
-                    * x[(book.book_id, day)]
+                    * x[book.book_id, day]
                 )
 
     return terms

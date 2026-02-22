@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
-from datetime import date
-from typing import SupportsInt
+from typing import TYPE_CHECKING, SupportsInt
 
-from ..types import Book, PlanResult, Settings
-from .greedy import plan_greedy
+from reading_plan.planner_types import PlanResult
+from reading_plan.planning.greedy import plan_greedy
+
+if TYPE_CHECKING:
+    from datetime import date
+
+    from reading_plan.planner_types import Book, Settings
 
 
 def solve_plan(
@@ -21,12 +25,13 @@ def solve_plan(
         )
     return _solve_mip(books, settings)
 
+
 def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     """Solve with CP-SAT, fall back to greedy when OR-Tools is unavailable."""
     try:
         from ortools.sat.python import cp_model
 
-        from .model import build_cp_sat
+        from reading_plan.planning.model import build_cp_sat
     except ImportError:
         note = "OR-Tools is unavailable; fell back to greedy planner."
         return PlanResult(
@@ -47,7 +52,7 @@ def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
         "UNKNOWN": cp_model.UNKNOWN,
     }
     status = _status_name(raw, status_values)
-    if raw not in (int(cp_model.OPTIMAL), int(cp_model.FEASIBLE)):
+    if raw not in {int(cp_model.OPTIMAL), int(cp_model.FEASIBLE)}:
         return PlanResult(planner="mip", status=status, assignments={})
 
     assignments: dict[tuple[str, date], int] = {}

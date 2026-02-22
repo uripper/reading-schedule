@@ -1,62 +1,192 @@
 target-version = "py310"
 line-length = 80
+indent-width = 4
 src = ["src", "tests"]
 
-[lint]
-select = [
-  "A",   # flake8-builtins
-  "ANN", # flake8-annotations
-  "B",   # flake8-bugbear
-  "C4",  # flake8-comprehensions
-  "D",   # pydocstyle
-  "E",   # pycodestyle errors
-  "EM",  # flake8-errmsg
-  "F",   # pyflakes
-  "FA",  # flake8-future-annotations
-  "I",   # isort
-  "N",   # pep8-naming
-  "PERF",# perflint
-  "PIE", # flake8-pie
-  "PL",  # pylint (ruff subset)
-  "PT",  # flake8-pytest-style
-  "Q",   # flake8-quotes
-  "RET", # flake8-return
-  "RUF", # ruff-specific rules
-  "S",   # flake8-bandit
-  "SIM", # flake8-simplify
-  "T20", # flake8-print
-  "TRY", # tryceratops
-  "UP",  # pyupgrade
-  "W",   # pycodestyle warnings
+# Turn on newer lint/format behavior (expect occasional churn between Ruff releases).
+preview = true
+
+# Nice quality-of-life defaults.
+show-fixes = true
+respect-gitignore = true
+force-exclude = true
+
+extend-exclude = [
+  ".git",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pytest_cache",
+  ".ruff_cache",
+  ".tox",
+  ".venv",
+  "__pycache__",
+  "build",
+  "dist",
 ]
+
+[lint]
+preview = true
+
+# "Incredibly opinionated" set:
+# - strict typing + docstrings
+# - strict imports
+# - complexity / maintainability limits
+# - test style
+# - security / footguns
+# - cleanup / modernization
+select = [
+  "A",    # flake8-builtins
+  "ANN",  # flake8-annotations
+  "ARG",  # flake8-unused-arguments
+  "B",    # flake8-bugbear
+  "BLE",  # blind-except
+  "C4",   # flake8-comprehensions
+  "C90",  # mccabe complexity
+  "D",    # pydocstyle
+  "DTZ",  # timezone-aware datetime usage
+  "E",    # pycodestyle errors
+  "EM",   # flake8-errmsg
+  "ERA",  # commented-out code
+  "EXE",  # executable/shebang checks
+  "F",    # pyflakes
+  "FA",   # flake8-future-annotations
+  "FBT",  # flake8-boolean-trap
+  "G",    # logging format/style
+  "I",    # isort
+  "ICN",  # import conventions
+  "ISC",  # implicit string concat
+  "N",    # pep8-naming
+  "PERF", # perflint
+  "PIE",  # flake8-pie
+  "PL",   # pylint (ruff subset)
+  "PT",   # flake8-pytest-style
+  "PTH",  # pathlib over os.path
+  "Q",    # flake8-quotes
+  "RET",  # flake8-return
+  "RUF",  # ruff-specific rules
+  "S",    # flake8-bandit
+  "SIM",  # flake8-simplify
+  "SLF",  # private member access
+  "T20",  # print/pprint
+  "TC",   # flake8-type-checking
+  "TID",  # flake8-tidy-imports
+  "TRY",  # tryceratops
+  "UP",   # pyupgrade
+  "W",    # pycodestyle warnings
+  "YTT",  # flake8-2020
+]
+
 ignore = [
-  # Keep one docstring style on class/function declarations.
+  # Conflicting docstring styles; keep the "Google" convention and let pydocstyle decide.
   "D203",
   "D213",
+
+  # Formatter compatibility (implicit string concat can conflict with formatter output).
+  "ISC001",
 ]
+
+# Let Ruff auto-fix broadly, but keep import removals manual to avoid accidental re-export breakage.
+fixable = ["ALL"]
+unfixable = ["F401"]
+
+# Only "_" and "unused_*" count as intentionally unused.
+dummy-variable-rgx = "^(_|unused(_[a-zA-Z0-9_]+)?)$"
 
 [lint.pydocstyle]
 convention = "google"
+ignore-var-parameters = false
+
+[lint.pycodestyle]
+max-line-length = 80
+max-doc-length = 80
+
+[lint.mccabe]
+max-complexity = 8
+
+[lint.pylint]
+# Tight maintainability limits.
+max-args = 5
+max-positional-args = 3
+max-branches = 10
+max-bool-expr = 4
+max-locals = 12
+max-nested-blocks = 4
+max-public-methods = 15
+max-returns = 4
+max-statements = 40
+
+# Make "magic number" checks stricter (default already ignores str/bytes; keep ints enforced).
+allow-magic-value-types = ["str", "bytes"]
 
 [lint.flake8-annotations]
 allow-star-arg-any = false
 ignore-fully-untyped = false
+mypy-init-return = false
+suppress-dummy-args = true
+suppress-none-returning = false
+
+[lint.flake8-builtins]
+strict-checking = true
+# Uncomment if you commonly use "id" in DTOs / DB models and want to allow it:
+# ignorelist = ["id"]
 
 [lint.flake8-quotes]
 inline-quotes = "double"
+multiline-quotes = "double"
+docstring-quotes = "double"
+avoid-escape = true
+
+[lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+parametrize-names-type = "tuple"
+parametrize-values-type = "tuple"
+parametrize-values-row-type = "tuple"
+
+[lint.flake8-type-checking]
+strict = true
+quote-annotations = true
+exempt-modules = ["typing", "typing_extensions"]
+
+[lint.flake8-unused-arguments]
+ignore-variadic-names = true
+
+[lint.flake8-tidy-imports]
+ban-relative-imports = "all"
 
 [lint.isort]
 combine-as-imports = true
 force-sort-within-sections = true
+force-wrap-aliases = true
+split-on-trailing-comma = true
 
 [lint.per-file-ignores]
+# Tests can be strict on code quality, but docstrings/types/security assertions are usually too noisy.
 "tests/**/*.py" = [
-  # Keep idiomatic test assertions enabled.
-  "S101",
+  "ANN",
+  "D",
+  "S101",    # allow bare assert
+  "PLR2004", # magic values in tests are often fine
+  "SLF001",  # private access in tests is common
+  "ARG001",  # unused fixture params
+]
+
+# Allow re-export packages.
+"**/__init__.py" = [
+  "F401",
+  "D104",
+]
+
+# CLI / one-off scripts can print.
+"scripts/**/*.py" = [
+  "T20",
 ]
 
 [format]
+preview = true
 quote-style = "double"
 indent-style = "space"
 line-ending = "lf"
 docstring-code-format = true
+docstring-code-line-length = "dynamic"

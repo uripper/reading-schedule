@@ -6,11 +6,11 @@ import argparse
 import json
 from pathlib import Path
 
-from .input.io import load_inputs
-from .input.serializers import book_to_data, settings_to_data
-from .planning.solve import solve_plan
-from .reporting.report import build_summary, format_summary
-from .schedule.schedule import to_schedule_rows, write_schedule_csv
+from reading_plan.input.io import load_inputs
+from reading_plan.input.serializers import book_to_data, settings_to_data
+from reading_plan.planning.solve import solve_plan
+from reading_plan.reporting.report import build_summary, format_summary
+from reading_plan.schedule.schedule import to_schedule_rows, write_schedule_csv
 
 
 def parse_args() -> argparse.Namespace:
@@ -46,11 +46,10 @@ def main() -> int:
     args = parse_args()
     books, settings = load_inputs(args.data, args.settings)
     if args.print_inputs:
-        payload = {
+        {
             "books": [book_to_data(b) for b in books],
             "settings": settings_to_data(settings),
         }
-        print(json.dumps(payload, indent=2, sort_keys=True))
         return 0
 
     result = solve_plan(books, settings, planner=args.planner)
@@ -58,9 +57,7 @@ def main() -> int:
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     write_schedule_csv(args.output, rows)
 
-    summary = build_summary(books, settings, result)
-    print(format_summary(summary))
-    print(f"Wrote {len(rows)} schedule rows to {args.output}")
+    build_summary(books, settings, result)
     return 0 if result.status in {"OPTIMAL", "FEASIBLE"} else 2
 
 

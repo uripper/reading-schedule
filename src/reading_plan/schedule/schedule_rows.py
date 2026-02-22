@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
-from datetime import date
+from typing import TYPE_CHECKING
 
-from ..types import Book, Settings
-from .schedule_sessions import iter_sessions
+from reading_plan.schedule.schedule_sessions import iter_sessions
+
+if TYPE_CHECKING:
+    from datetime import date
+
+    from reading_plan.planner_types import Book, Settings
 
 
 def to_schedule_rows(

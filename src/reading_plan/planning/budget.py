@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
-from datetime import date
 import math
+from typing import TYPE_CHECKING
 
-from ..calendar import date_range, weekday_key
-from ..types import Book, Settings
+from reading_plan.calendar import date_range, weekday_key
+
+if TYPE_CHECKING:
+    from datetime import date
+
+    from reading_plan.planner_types import Book, Settings
 
 
 def minutes_for_day(settings: Settings, day: date) -> int:

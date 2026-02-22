@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from .report_types import Summary
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from reading_plan.reporting.report_types import Summary
 
 
 def format_summary(summary: Summary) -> str:

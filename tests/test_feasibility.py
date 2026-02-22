@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from reading_plan.planner_types import PlanResult
 from reading_plan.planning.greedy import plan_greedy
 from reading_plan.reporting.report import build_summary
-from reading_plan.types import PlanResult
 from tests.helpers import demo_books, demo_settings
 
 

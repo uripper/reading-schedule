@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from ..types import Book, Settings
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from reading_plan.planner_types import Book, Settings
 
 
 def book_to_data(book: Book) -> dict[str, object]:

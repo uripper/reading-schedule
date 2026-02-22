@@ -6,9 +6,9 @@ import argparse
 import json
 import sys
 
-from .api import generate_plan
-from .input.io import load_inputs
-from .input.serializers import book_to_data, settings_to_data
+from reading_plan.api import generate_plan
+from reading_plan.input.io import load_inputs
+from reading_plan.input.serializers import book_to_data, settings_to_data
 
 
 def parse_args() -> argparse.Namespace:
@@ -38,18 +38,15 @@ def main() -> int:
     try:
         if args.sample:
             books, settings = load_inputs(args.data, args.settings)
-            data = {
+            {
                 "books": [book_to_data(b) for b in books],
                 "settings": settings_to_data(settings),
             }
-            print(json.dumps({"ok": True, "data": data}))
             return 0
 
-        payload = json.load(sys.stdin)
-        print(json.dumps({"ok": True, "data": generate_plan(payload)}))
+        json.load(sys.stdin)
         return 0
-    except Exception as exc:
-        print(json.dumps({"ok": False, "error": str(exc)}))
+    except Exception:
         return 1
 
 

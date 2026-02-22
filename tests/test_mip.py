@@ -8,10 +8,15 @@ import pytest
 
 pytest.importorskip("ortools")
 
+from typing import TYPE_CHECKING
+
+from reading_plan.planner_types import Book
 from reading_plan.planning.budget import words_per_block
 from reading_plan.planning.solve import solve_plan
-from reading_plan.types import Book, Settings
 from tests.helpers import demo_books, demo_settings
+
+if TYPE_CHECKING:
+    from reading_plan.planner_types import Settings
 
 
 def assert_no_large_overread(

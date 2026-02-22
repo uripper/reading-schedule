@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 
-from .types import WEEKDAYS
+from reading_plan.planner_types import WEEKDAYS
+
+if TYPE_CHECKING:
+    from datetime import date
 
 
 def parse_date(value: str) -> date:

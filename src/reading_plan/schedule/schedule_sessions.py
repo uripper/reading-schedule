@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
 from datetime import date
 import math
+from typing import TYPE_CHECKING
 
-from ..calendar import date_range
-from ..planning.budget import words_per_block, words_per_minute
-from ..types import Book, Settings
+from reading_plan.calendar import date_range
+from reading_plan.planner_types import Book
+from reading_plan.planning.budget import words_per_block, words_per_minute
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from reading_plan.planner_types import Settings
 
 Session = tuple[date, int, Book, int, int]
 

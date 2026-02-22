@@ -5,14 +5,14 @@ from __future__ import annotations
 from datetime import date
 from typing import Any
 
-from ..calendar import parse_date
-from ..types import (
+from reading_plan.calendar import parse_date
+from reading_plan.input.builders_coerce import to_float, to_int
+from reading_plan.input.validate import validate_settings
+from reading_plan.planner_types import (
     DEFAULT_DIFFICULTY_MULTIPLIER,
     PLAN_MODE_FINISH_SOON,
     Settings,
 )
-from .builders_coerce import to_float, to_int
-from .validate import validate_settings
 
 
 def settings_from_data(data: dict[str, Any]) -> Settings:
@@ -28,7 +28,7 @@ def settings_from_data(data: dict[str, Any]) -> Settings:
         start_date = parse_date(data["start_date"])
     minutes_per_day = data.get("minutes_per_day")
     parsed_minutes_per_day = None
-    if minutes_per_day not in (None, ""):
+    if minutes_per_day not in {None, ""}:
         parsed_minutes_per_day = to_int(minutes_per_day, "minutes_per_day")
 
     settings = Settings(

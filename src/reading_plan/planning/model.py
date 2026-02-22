@@ -2,19 +2,27 @@
 
 from __future__ import annotations
 
-from datetime import date
+from typing import TYPE_CHECKING
 
 from ortools.sat.python import cp_model
 
-from ..calendar import date_range
-from ..types import Book, Settings
-from .budget import book_day_block_limit, day_capacity_blocks, words_per_block
-from .model_objective import build_objective_terms
-from .model_types import (
-    BookDayVars,
-    BuildCpSatResult,
-    FinishedVars,
+from reading_plan.calendar import date_range
+from reading_plan.planning.budget import (
+    book_day_block_limit,
+    day_capacity_blocks,
+    words_per_block,
 )
+from reading_plan.planning.model_objective import build_objective_terms
+
+if TYPE_CHECKING:
+    from datetime import date
+
+    from reading_plan.planner_types import Book, Settings
+    from reading_plan.planning.model_types import (
+        BookDayVars,
+        BuildCpSatResult,
+        FinishedVars,
+    )
 
 
 def _create_book_day_variables(
@@ -50,13 +58,13 @@ def _add_day_constraints(
 ) -> None:
     """Apply daily capacity and session-count limits."""
     for day in days:
-        model.Add(sum(x[(book.book_id, day)] for book in books) <= caps[day])
+        model.Add(sum(x[book.book_id, day] for book in books) <= caps[day])
         model.Add(
-            sum(y[(book.book_id, day)] for book in books)
+            sum(y[book.book_id, day] for book in books)
             <= settings.max_books_per_day
         )
         model.Add(
-            sum(y[(book.book_id, day)] for book in books)
+            sum(y[book.book_id, day] for book in books)
             <= settings.max_sessions_per_day
         )
 
@@ -78,7 +86,7 @@ def _add_dependency_constraints(
         blocker = book_map[blocker_id]
         for day_index, day in enumerate(days):
             progressed_before = sum(
-                wpb[blocker_id] * x[(blocker_id, prev_day)]
+                wpb[blocker_id] * x[blocker_id, prev_day]
                 for prev_day in days[:day_index]
             )
             blocker_done = model.NewBoolVar(f"ready_{book_index}_{day_index}")
@@ -90,7 +98,7 @@ def _add_dependency_constraints(
                 progressed_before <= blocker.words_total - 1
             )
             below_target.OnlyEnforceIf(blocker_done.Not())
-            model.Add(y[(book.book_id, day)] <= blocker_done)
+            model.Add(y[book.book_id, day] <= blocker_done)
 
 
 def _add_progress_constraints(
@@ -105,7 +113,7 @@ def _add_progress_constraints(
     useful_words: dict[str, cp_model.IntVar] = {}
     for book_index, book in enumerate(books):
         progress = sum(
-            wpb[book.book_id] * x[(book.book_id, day)] for day in days
+            wpb[book.book_id] * x[book.book_id, day] for day in days
         )
         overshoot = wpb[book.book_id] * max(1, book.min_blocks_per_session - 1)
         model.Add(progress <= book.words_total + overshoot)
@@ -124,7 +132,7 @@ def _add_progress_constraints(
         if due_days := [day for day in days if day <= book.deadline]:
             model.Add(
                 sum(
-                    wpb[book.book_id] * x[(book.book_id, day)]
+                    wpb[book.book_id] * x[book.book_id, day]
                     for day in due_days
                 )
                 >= book.words_total

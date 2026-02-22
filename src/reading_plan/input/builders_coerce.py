@@ -13,7 +13,8 @@ def to_int(raw: IntInput, field: str) -> int:
     try:
         return int(raw)
     except Exception as exc:
-        raise ValueError(f"invalid integer for {field}: {raw}") from exc
+        msg = f"invalid integer for {field}: {raw}"
+        raise ValueError(msg) from exc
 
 
 def to_float(raw: FloatInput, field: str) -> float:
@@ -21,9 +22,10 @@ def to_float(raw: FloatInput, field: str) -> float:
     try:
         return float(raw)
     except Exception as exc:
-        raise ValueError(f"invalid number for {field}: {raw}") from exc
+        msg = f"invalid number for {field}: {raw}"
+        raise ValueError(msg) from exc
 
 
 def optional_int(raw: IntInput | None, field: str) -> int | None:
     """Parse an optional integer field, returning None for blank values."""
-    return None if raw in (None, "") else to_int(raw, field)
+    return None if raw in {None, ""} else to_int(raw, field)

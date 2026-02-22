@@ -2,10 +2,17 @@
 
 from __future__ import annotations
 
-from ..planning.budget import calendar_minutes, required_total_minutes
-from ..schedule.schedule import compute_plan_totals
-from ..types import Book, PlanResult, Settings
-from .report_types import BookProgress, Summary
+from typing import TYPE_CHECKING
+
+from reading_plan.planning.budget import (
+    calendar_minutes,
+    required_total_minutes,
+)
+from reading_plan.schedule.schedule import compute_plan_totals
+
+if TYPE_CHECKING:
+    from reading_plan.planner_types import Book, PlanResult, Settings
+    from reading_plan.reporting.report_types import BookProgress, Summary
 
 
 def build_summary(

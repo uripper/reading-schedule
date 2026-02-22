@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
-from .input.builders import book_from_data, settings_from_data
-from .planning.solve import solve_plan
-from .reporting.report import build_summary
-from .schedule.schedule import to_schedule_rows
-from .types import Book
+from typing import TYPE_CHECKING
+
+from reading_plan.input.builders import book_from_data, settings_from_data
+from reading_plan.planning.solve import solve_plan
+from reading_plan.reporting.report import build_summary
+from reading_plan.schedule.schedule import to_schedule_rows
+
+if TYPE_CHECKING:
+    from reading_plan.planner_types import Book
 
 
 def _validate_blockers(books: list[Book]) -> None:
@@ -20,9 +24,7 @@ def _validate_blockers(books: list[Book]) -> None:
                 f"book {book.book_id} is blocked by missing book_id "
                 f"{book.blocked_by}"
             )
-            raise ValueError(
-                message
-            )
+            raise ValueError(message)
 
     visiting: set[str] = set()
     visited: set[str] = set()
@@ -33,9 +35,7 @@ def _validate_blockers(books: list[Book]) -> None:
             return
         if book_id in visiting:
             msg = "blockers contain a cycle; remove circular dependencies"
-            raise ValueError(
-                msg
-            )
+            raise ValueError(msg)
         visiting.add(book_id)
         blocker = by_id[book_id].blocked_by
         if blocker:
