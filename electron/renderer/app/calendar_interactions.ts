@@ -11,6 +11,53 @@ import {
 } from "./calendar_interactions_schedule_updates.js";
 import type { AppCalendarInteractionArgs } from "./calendar_interactions_types.js";
 
+type CompletionRow = {
+  date?: string;
+  book_id?: string;
+  title?: string;
+};
+
+function completionFallbackKey(
+  row: CompletionRow | null | undefined,
+): string {
+  if (!row?.date || !row?.book_id) {
+    return "";
+  }
+  return dayBookCompletionKey(row.date, row.book_id);
+}
+
+function setCompletionState(
+  scheduleCompletions: Record<string, boolean>,
+  sessionKey: string,
+  fallbackKey: string,
+  completed: boolean,
+): void {
+  if (completed) {
+    scheduleCompletions[sessionKey] = true;
+    if (fallbackKey) {
+      scheduleCompletions[fallbackKey] = true;
+    }
+    return;
+  }
+  delete scheduleCompletions[sessionKey];
+  if (fallbackKey) {
+    delete scheduleCompletions[fallbackKey];
+  }
+}
+
+function completionStatusMessage(
+  row: CompletionRow | null | undefined,
+  completed: boolean,
+): string {
+  if (!row?.title || !row?.date) {
+    return "";
+  }
+  if (completed) {
+    return `Marked "${row.title}" complete on ${row.date}.`;
+  }
+  return `Marked "${row.title}" incomplete on ${row.date}.`;
+}
+
 export function configureAppCalendarInteractions({
   configureCalendarInteractions,
   state,
@@ -40,30 +87,18 @@ export function configureAppCalendarInteractions({
       return Boolean(state.scheduleCompletions?.[fallbackKey]);
     },
     onSessionCompletionChanged: ({ sessionKey, completed, row }) => {
-      let fallbackKey = "";
-      if (row?.date && row?.book_id) {
-        fallbackKey = dayBookCompletionKey(row.date, row.book_id);
-      }
-
-      if (completed) {
-        state.scheduleCompletions[sessionKey] = true;
-        if (fallbackKey) {
-          state.scheduleCompletions[fallbackKey] = true;
-        }
-      } else {
-        delete state.scheduleCompletions[sessionKey];
-        if (fallbackKey) {
-          delete state.scheduleCompletions[fallbackKey];
-        }
-      }
+      const fallbackKey = completionFallbackKey(row);
+      setCompletionState(
+        state.scheduleCompletions,
+        sessionKey,
+        fallbackKey,
+        completed,
+      );
       queuePersist();
 
-      if (row?.title && row?.date) {
-        if (completed) {
-          setStatus(`Marked "${row.title}" complete on ${row.date}.`);
-        } else {
-          setStatus(`Marked "${row.title}" incomplete on ${row.date}.`);
-        }
+      const statusMessage = completionStatusMessage(row, completed);
+      if (statusMessage) {
+        setStatus(statusMessage);
       }
       onSessionCompletionUpdated({ sessionKey, completed, row });
     },

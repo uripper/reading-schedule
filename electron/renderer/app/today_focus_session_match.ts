@@ -7,31 +7,64 @@ function roundMinutes(value: number): number {
   return Math.max(MINUTES_MIN, Math.round(value));
 }
 
+function rowMatchesDate(row: PlannerScheduleRow, session: FocusSession): boolean {
+  return String(row.date || "") === session.date;
+}
+
+function rowMatchesBook(row: PlannerScheduleRow, session: FocusSession): boolean {
+  if (!session.bookId) {
+    return true;
+  }
+  return String(row.book_id || "") === session.bookId;
+}
+
+function rowMatchesSessionIndex(
+  row: PlannerScheduleRow,
+  session: FocusSession,
+): boolean {
+  if (session.sessionIndex === null || session.sessionIndex === undefined) {
+    return true;
+  }
+  const rowSessionIndex = Number(row.session_index || 0);
+  return rowSessionIndex === session.sessionIndex;
+}
+
+function rowMatchesTitle(row: PlannerScheduleRow, session: FocusSession): boolean {
+  const rowTitle = String(row.title || "").trim();
+  return rowTitle === session.title;
+}
+
+function rowMatchesMinutes(row: PlannerScheduleRow, session: FocusSession): boolean {
+  const rowMinutes = roundMinutes(Number(row.minutes || 0));
+  return rowMinutes === session.minutes;
+}
+
 function rowMatchesFocusSession(
   row: PlannerScheduleRow,
   session: FocusSession,
 ): boolean {
-  if (String(row.date || "") !== session.date) {
-    return false;
+  return (
+    rowMatchesDate(row, session) &&
+    rowMatchesBook(row, session) &&
+    rowMatchesSessionIndex(row, session) &&
+    rowMatchesTitle(row, session) &&
+    rowMatchesMinutes(row, session)
+  );
+}
+
+function parsedPositiveFinite(value: number): number | null {
+  if (!Number.isFinite(value) || value <= 0) {
+    return null;
   }
-  if (session.bookId && String(row.book_id || "") !== session.bookId) {
-    return false;
+  return value;
+}
+
+function sessionIndexOrNull(value: number): number | null {
+  const parsed = parsedPositiveFinite(value);
+  if (parsed === null) {
+    return null;
   }
-  if (session.sessionIndex !== null && session.sessionIndex !== undefined) {
-    const rowSessionIndex = Number(row.session_index || 0);
-    if (rowSessionIndex !== session.sessionIndex) {
-      return false;
-    }
-  }
-  const rowTitle = String(row.title || "").trim();
-  if (rowTitle !== session.title) {
-    return false;
-  }
-  const rowMinutes = roundMinutes(Number(row.minutes || 0));
-  if (rowMinutes !== session.minutes) {
-    return false;
-  }
-  return true;
+  return Math.round(parsed);
 }
 
 export function readFocusSessionFromDataset(
@@ -39,22 +72,20 @@ export function readFocusSessionFromDataset(
 ): FocusSession | null {
   const title = String(button.dataset.focusSessionTitle || "").trim();
   const date = String(button.dataset.focusSessionDate || "").trim();
-  const rawMinutes = Number(button.dataset.focusSessionMinutes || 0);
+  const parsedMinutes = parsedPositiveFinite(
+    Number(button.dataset.focusSessionMinutes || 0),
+  );
   const bookId = String(button.dataset.focusSessionBookId || "").trim();
   const rawSessionIndex = Number(button.dataset.focusSessionIndex || 0);
-  if (!title || !date || !Number.isFinite(rawMinutes) || rawMinutes <= 0) {
+  if (!title || !date || parsedMinutes === null) {
     return null;
-  }
-  let sessionIndex: number | null = null;
-  if (Number.isFinite(rawSessionIndex) && rawSessionIndex > 0) {
-    sessionIndex = Math.round(rawSessionIndex);
   }
   return {
     date,
     title,
-    sessionIndex,
+    sessionIndex: sessionIndexOrNull(rawSessionIndex),
     bookId: bookId || "",
-    minutes: roundMinutes(rawMinutes),
+    minutes: roundMinutes(parsedMinutes),
   };
 }
 

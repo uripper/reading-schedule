@@ -1,17 +1,98 @@
 import js from "@eslint/js";
-import jsdoc from "eslint-plugin-jsdoc";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import { defineConfig } from "eslint/config";
 
 const ALL_JS_GLOBS = ["**/*.js", "**/*.mjs"];
 const ALL_TS_GLOBS = ["**/*.ts"];
+const ALL_CODE_GLOBS = ["eslint.config.mjs", ...ALL_JS_GLOBS, ...ALL_TS_GLOBS];
+const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url));
 
-const DOC_DECLARATION_CONTEXTS = [
-  "ExportNamedDeclaration > TSInterfaceDeclaration",
-  "ExportNamedDeclaration > TSTypeAliasDeclaration",
-  "ExportNamedDeclaration > TSEnumDeclaration",
+const ALLOWED_CONSOLE_METHODS = [
+  "assert",
+  "clear",
+  "count",
+  "group",
+  "groupCollapsed",
+  "groupEnd",
+  "info",
+  "table",
+  "time",
+  "timeEnd",
+  "trace",
 ];
+
+const BASE_OPINIONATED_RULES = {
+  complexity: ["error", 10],
+  curly: ["error", "all"],
+  eqeqeq: ["error", "always"],
+  "max-lines": [
+    "error",
+    {
+      max: 200,
+      skipBlankLines: true,
+      skipComments: true,
+    },
+  ],
+  "max-statements-per-line": [
+    "error",
+    {
+      max: 1,
+    },
+  ],
+  "no-console": [
+    "error",
+    {
+      allow: ALLOWED_CONSOLE_METHODS,
+    },
+  ],
+  "no-else-return": [
+    "error",
+    {
+      allowElseIf: false,
+    },
+  ],
+  "no-inner-declarations": ["error", "functions"],
+  "no-multi-assign": "error",
+  "no-ternary": "error",
+  "no-void": [
+    "error",
+    {
+      allowAsStatement: false,
+    },
+  ],
+  "object-shorthand": ["error", "always"],
+  "one-var": ["error", "never"],
+  "prefer-const": "error",
+  "prefer-object-has-own": "error",
+};
+
+const TS_OPINIONATED_RULES = {
+  "@typescript-eslint/consistent-type-imports": [
+    "error",
+    {
+      prefer: "type-imports",
+      fixStyle: "inline-type-imports",
+    },
+  ],
+  "@typescript-eslint/no-explicit-any": "error",
+  "@typescript-eslint/no-unused-vars": [
+    "error",
+    {
+      argsIgnorePattern: "^_",
+      varsIgnorePattern: "^_",
+    },
+  ],
+  "@typescript-eslint/prefer-optional-chain": "error",
+  "@typescript-eslint/require-array-sort-compare": [
+    "error",
+    {
+      ignoreStringArrays: false,
+    },
+  ],
+};
 
 export default defineConfig([
   {
@@ -23,18 +104,35 @@ export default defineConfig([
     ],
   },
   {
-    files: ["eslint.config.mjs", ...ALL_JS_GLOBS],
-    extends: [js.configs.recommended],
+    files: ALL_CODE_GLOBS,
     languageOptions: {
-      sourceType: "module",
       ecmaVersion: "latest",
       globals: globals.node,
+      sourceType: "module",
     },
+    rules: BASE_OPINIONATED_RULES,
   },
-  ...tseslint.configs.recommended.map((config) => ({
+  {
+    files: ["eslint.config.mjs", ...ALL_JS_GLOBS],
+    extends: [js.configs.recommended],
+  },
+  ...tseslint.configs.recommended.map(config => ({
     ...config,
     files: ALL_TS_GLOBS,
   })),
+  {
+    files: ALL_TS_GLOBS,
+    languageOptions: {
+      parserOptions: {
+        project: ["./tsconfig.main.json", "./tsconfig.renderer.json"],
+        tsconfigRootDir: ROOT_DIR,
+      },
+    },
+  },
+  {
+    files: ALL_TS_GLOBS,
+    rules: TS_OPINIONATED_RULES,
+  },
   {
     files: ["renderer/**/*.ts"],
     languageOptions: {
@@ -42,55 +140,10 @@ export default defineConfig([
     },
   },
   {
-    files: [...ALL_TS_GLOBS, ...ALL_JS_GLOBS],
-    plugins: {
-      jsdoc,
-    },
-    settings: {
-      jsdoc: {
-        mode: "typescript",
-      },
-    },
+    files: ["tests/**/*.mjs"],
     rules: {
-      "jsdoc/check-tag-names": "error",
+      complexity: "off",
+      "max-lines": "off",
     },
-  },
-  {
-    files: ["*.ts"],
-    rules: {
-      "jsdoc/require-file-overview": [
-        "error",
-        {
-          tags: {
-            file: {
-              mustExist: true,
-              initialCommentsOnly: true,
-            },
-          },
-        },
-      ],
-      "jsdoc/require-jsdoc": [
-        "error",
-        {
-          publicOnly: {
-            cjs: true,
-            esm: true,
-            ancestorsOnly: true,
-          },
-          require: {
-            ClassDeclaration: true,
-            FunctionDeclaration: true,
-            MethodDefinition: false,
-            ArrowFunctionExpression: false,
-            FunctionExpression: false,
-          },
-          contexts: DOC_DECLARATION_CONTEXTS,
-        },
-      ],
-    },
-  },
-  {
-    files: ["**/*.test.mjs", "tests/**/*.mjs", "scripts/**/*.mjs"],
-    rules: {},
   },
 ]);

@@ -160,7 +160,10 @@ function stripPythonCommentsForLine(rawLine, state) {
       break;
     }
 
-    if (hashIndex >= 0 && (blockStart.index < 0 || hashIndex < blockStart.index)) {
+    if (
+      hashIndex >= 0 &&
+      (blockStart.index < 0 || hashIndex < blockStart.index)
+    ) {
       output += line.slice(cursor, hashIndex);
       break;
     }
@@ -489,7 +492,9 @@ function scanPythonDocumentation(relativePath, content, documentationHits) {
   const lines = content.split(/\r?\n/);
 
   if (!hasPythonModuleDoc(lines)) {
-    documentationHits.push(`${relativePath}:1 module missing top-level docstring`);
+    documentationHits.push(
+      `${relativePath}:1 module missing top-level docstring`,
+    );
   }
 
   for (let index = 0; index < lines.length; index += 1) {
@@ -598,7 +603,9 @@ function run() {
 
   const failures = [];
   if (overHardLimit.length > 0) {
-    failures.push(`Files over ${HARD_LINE_LIMIT} lines: ${overHardLimit.length}`);
+    failures.push(
+      `Files over ${HARD_LINE_LIMIT} lines: ${overHardLimit.length}`,
+    );
   }
   if (underSoftPercent < MIN_UNDER_SOFT_PERCENT) {
     failures.push(

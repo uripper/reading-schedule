@@ -4,23 +4,28 @@ import type { Book } from "../books/types.js";
 const PERCENT_SCALE = 100;
 const PERCENT_PRECISION_SCALE = 1000;
 
+function positiveFiniteNumber(value: unknown): number {
+  const parsed = Number(value || 0);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return 0;
+  }
+  return parsed;
+}
+
 export function clampPercent(progressPercent: number): number {
   return Math.min(PERCENT_SCALE, Math.max(0, progressPercent));
 }
 
 export function fullWordsForBook(book: Book | null, remainingWords: number): number {
-  const wordsTotal = Number(book?.words_total || 0);
-  if (Number.isFinite(wordsTotal) && wordsTotal > 0) {
+  const wordsTotal = positiveFiniteNumber(book?.words_total);
+  if (wordsTotal > 0) {
     return wordsTotal;
   }
-  const pagesTotal = Number(book?.pages_total || 0);
-  if (Number.isFinite(pagesTotal) && pagesTotal > 0) {
+  const pagesTotal = positiveFiniteNumber(book?.pages_total);
+  if (pagesTotal > 0) {
     return pagesTotal * WORDS_PER_PAGE;
   }
-  if (Number.isFinite(remainingWords) && remainingWords > 0) {
-    return remainingWords;
-  }
-  return 0;
+  return positiveFiniteNumber(remainingWords);
 }
 
 export function wordsReadFromBook(book: Book | null, fullWords: number): number {

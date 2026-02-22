@@ -55,30 +55,35 @@ function summaryLog(summary: PlannerSummary | null): string {
   return `Status ${status}. Planned ${planned}/${available} minutes.`;
 }
 
+function trimmedStringOrEmpty(value: unknown): string {
+  if (typeof value !== "string") {
+    return "";
+  }
+  return value.trim();
+}
+
+function messageFromErrorLikeObject(error: unknown): string {
+  if (typeof error !== "object" || error === null || !("message" in error)) {
+    return "";
+  }
+  return trimmedStringOrEmpty(error.message);
+}
+
 function errorMessage(error: unknown): string {
   if (error instanceof Error) {
-    const detail = String(error.message || "").trim();
+    const detail = trimmedStringOrEmpty(error.message);
     if (detail) {
       return detail;
     }
     return error.name || "Unknown error";
   }
-  if (typeof error === "string") {
-    const detail = error.trim();
-    if (detail) {
-      return detail;
-    }
+  const detail = trimmedStringOrEmpty(error);
+  if (detail) {
+    return detail;
   }
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof error.message === "string"
-  ) {
-    const detail = error.message.trim();
-    if (detail) {
-      return detail;
-    }
+  const messageDetail = messageFromErrorLikeObject(error);
+  if (messageDetail) {
+    return messageDetail;
   }
   return "Unknown planner error";
 }

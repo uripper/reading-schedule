@@ -23,6 +23,36 @@ function estimateSessionKey(row: EstimateRow): string {
   return `${row.date}|${row.session_index}|${row.book_id}`;
 }
 
+function eligibleSortKeyForCandidate(
+  candidate: EstimateRow,
+  state: {
+    bookId: string;
+    today: string;
+    targetSortKey: string;
+    targetIsFuture: boolean;
+    isSessionCompleted: CompletionChecker;
+  },
+): string | null {
+  if (String(candidate.book_id || "") !== state.bookId) {
+    return null;
+  }
+  const date = String(candidate.date || "");
+  if (!date || date < state.today) {
+    return null;
+  }
+  const candidateSortKey = rowSortKey(candidate);
+  if (candidateSortKey > state.targetSortKey) {
+    return null;
+  }
+  if (
+    state.targetIsFuture &&
+    state.isSessionCompleted(estimateSessionKey(candidate))
+  ) {
+    return null;
+  }
+  return candidateSortKey;
+}
+
 export function plannedWordsBeforeAndThroughRow(
   row: EstimateRow,
   state: EstimateState,
@@ -44,25 +74,19 @@ export function plannedWordsBeforeAndThroughRow(
   if (Array.isArray(state.rows)) {
     rows.push(...state.rows);
   }
+  const candidateState = {
+    bookId,
+    today,
+    targetSortKey,
+    targetIsFuture,
+    isSessionCompleted,
+  };
 
   rows.forEach((candidate) => {
-    if (String(candidate.book_id || "") !== bookId) {
+    const candidateSortKey = eligibleSortKeyForCandidate(candidate, candidateState);
+    if (candidateSortKey === null) {
       return;
     }
-
-    const date = String(candidate.date || "");
-    if (!date || date < today) {
-      return;
-    }
-
-    const candidateSortKey = rowSortKey(candidate);
-    if (candidateSortKey > targetSortKey) {
-      return;
-    }
-    if (targetIsFuture && isSessionCompleted(estimateSessionKey(candidate))) {
-      return;
-    }
-
     const plannedWords = Math.max(0, Number(candidate.words_planned || 0));
     through += plannedWords;
     if (candidateSortKey < targetSortKey) {
