@@ -58,10 +58,14 @@ export function createBookDialog(
     searchInput: refs.searchInput,
     resultsEl: refs.searchResults,
     metaEl: refs.lookupMeta,
-    onPick: (item) => { applyLookupItem(refs, item); },
+    onPick: (item) => {
+      applyLookupItem(refs, item);
+    },
   });
 
-  const close = () => { dialogFocus.closeAndReturnFocus(); };
+  const close = () => {
+    dialogFocus.closeAndReturnFocus();
+  };
   const open = (book: Book | null = null, options: OpenDialogOptions = {}) => {
     dialogFocus.rememberOpener();
     clearForm(refs, lookupControl);
@@ -100,7 +104,9 @@ export function createBookDialog(
     }
   });
 
-  refs.cancelBtn.onclick = () => { close(); };
+  refs.cancelBtn.onclick = () => {
+    close();
+  };
   refs.dialog.addEventListener("cancel", (event) => {
     event.preventDefault();
     close();

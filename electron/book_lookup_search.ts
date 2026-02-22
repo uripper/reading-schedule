@@ -32,8 +32,8 @@ export async function searchBooks(query: string): Promise<SearchItem[]> {
     if (left.score !== right.score) {
       return right.score - left.score;
     }
-    return String(left.doc.title || "").localeCompare(
-      String(right.doc.title || ""),
+    return String(left.doc.title ?? "").localeCompare(
+      String(right.doc.title ?? ""),
       undefined,
       { sensitivity: "base" },
     );
