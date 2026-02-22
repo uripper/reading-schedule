@@ -8,7 +8,7 @@ export type ReminderTimeRawValue = number | string | null | undefined;
 /**
  * Normalizes a string to a boolean or returns undefined if not recognized.
  * @param value String value to normalize.
- * @returns true/"false" or undefined if not a recognized pattern.
+ * @returns true/false or undefined if not a recognized pattern.
  */
 function normalizeStringFlag(value: string): boolean | undefined {
   const normalized = value.trim().toLowerCase();
