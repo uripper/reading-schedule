@@ -4,8 +4,10 @@ import assert from "node:assert/strict";
 import { dayStyleFlags } from "../dist/renderer/calendar/month_day_button.js";
 
 /**
+ * Creates local-midnight date fixture from `YYYY-MM-DD` text.
  *
- * @param dateText
+ * @param {string} dateText Day key text.
+ * @returns {Date} Date fixture.
  */
 function day(dateText) {
   return new Date(`${dateText}T00:00:00`);

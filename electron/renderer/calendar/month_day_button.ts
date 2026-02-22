@@ -16,13 +16,14 @@ interface DayStyleFlags {
 }
 
 /**
- *
- * @param date
- * @param firstDate
- * @param keyForDay
- * @param selectedDate
- * @param todayKey
- * @param rows
+ * Derives visual state flags for a calendar day button.
+ * @param date Cell date.
+ * @param firstDate First date of displayed month.
+ * @param keyForDay Day key for the cell.
+ * @param selectedDate Currently selected day key.
+ * @param todayKey Today's day key.
+ * @param rows Rows scheduled for the day.
+ * @returns Day-style flags used for class/aria assignment.
  */
 export function dayStyleFlags(
   date: Date,
@@ -47,7 +48,8 @@ export function dayStyleFlags(
 }
 
 /**
- *
+ * Builds weekday header labels for calendar grid.
+ * @returns Weekday header span elements.
  */
 export function createWeekdayHeader(): HTMLSpanElement[] {
   return WEEKDAY_LABELS.map((label) => {
@@ -59,13 +61,14 @@ export function createWeekdayHeader(): HTMLSpanElement[] {
 }
 
 /**
- *
- * @param date
- * @param firstDate
- * @param keyForDay
- * @param rows
- * @param selectedDate
- * @param todayKey
+ * Creates one interactive day button with row summary chips and aria state.
+ * @param date Cell date.
+ * @param firstDate First date of displayed month.
+ * @param keyForDay Day key for the cell.
+ * @param rows Rows scheduled for the day.
+ * @param selectedDate Currently selected day key.
+ * @param todayKey Today's day key.
+ * @returns Configured day button element.
  */
 export function createDayButton(
   date: Date,

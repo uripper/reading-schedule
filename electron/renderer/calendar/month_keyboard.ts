@@ -1,11 +1,11 @@
 import { CALENDAR_COLUMN_COUNT } from "./constants.js";
 
 /**
- *
- * @param event
- * @param index
- * @param totalCellCount
- * @param moveSelectionBy
+ * Handles keyboard navigation for month grid day buttons.
+ * @param event Keyboard event from day button.
+ * @param index Current day-cell index.
+ * @param totalCellCount Total number of day cells.
+ * @param moveSelectionBy Callback to move selection by cell delta.
  */
 export function handleDayKeydown(
   event: KeyboardEvent,

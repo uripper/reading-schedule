@@ -5,8 +5,9 @@ interface CalendarRow {
 }
 
 /**
- *
- * @param rowCount
+ * Returns compact planned-session summary text.
+ * @param rowCount Number of sessions on a day.
+ * @returns Summary label for day chip header.
  */
 function plannedSessionText(rowCount: number): string {
   if (!rowCount) {
@@ -16,9 +17,9 @@ function plannedSessionText(rowCount: number): string {
 }
 
 /**
- *
- * @param dayButton
- * @param rows
+ * Appends up to two visible row chips to a day button.
+ * @param dayButton Day button node to append into.
+ * @param rows Day rows to summarize.
  */
 function appendVisibleRowChips(
   dayButton: HTMLButtonElement,
@@ -36,9 +37,9 @@ function appendVisibleRowChips(
 }
 
 /**
- *
- * @param dayButton
- * @param rowCount
+ * Appends overflow chip when day contains more than two sessions.
+ * @param dayButton Day button node to append into.
+ * @param rowCount Total number of day rows.
  */
 function appendExtraRowChip(
   dayButton: HTMLButtonElement,
@@ -54,9 +55,9 @@ function appendExtraRowChip(
 }
 
 /**
- *
- * @param dayButton
- * @param rows
+ * Appends summary count and row chips to day buttons.
+ * @param dayButton Day button node to append into.
+ * @param rows Day rows to summarize.
  */
 export function appendDayButtonSummary(
   dayButton: HTMLButtonElement,

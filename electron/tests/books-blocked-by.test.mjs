@@ -4,8 +4,10 @@ import assert from "node:assert/strict";
 import { clearMissingBlockedBy } from "../dist/renderer/books/model_payload.js";
 
 /**
+ * Builds minimal test book payload.
  *
- * @param overrides
+ * @param {Record<string, unknown>} overrides Field overrides.
+ * @returns {{book_id: string, blocked_by: string|null}} Book fixture.
  */
 function book(overrides = {}) {
   return {

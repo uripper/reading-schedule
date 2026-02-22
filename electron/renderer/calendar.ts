@@ -50,7 +50,6 @@ function renderControlsView(): void {
 
 /**
  * Renders full calendar from schedule rows and per-book totals.
- *
  * @param rows Planner schedule rows.
  * @param totals Book totals keyed by `book_id`.
  */
@@ -97,7 +96,6 @@ export function focusCalendarToday(): void {
 
 /**
  * Configures interaction callbacks used by calendar details and actions.
- *
  * @param handlers Partial interaction handler overrides.
  */
 export function configureCalendarInteractions(

@@ -6,8 +6,10 @@ import { rowsWithCompletedLast } from "../dist/renderer/calendar/details_helpers
 import { dayKey, sessionKeyFor } from "../dist/renderer/calendar/utils.js";
 
 /**
+ * Builds calendar row fixture with override support.
  *
- * @param overrides
+ * @param {Record<string, unknown>} overrides Row field overrides.
+ * @returns {Record<string, unknown>} Row fixture.
  */
 function row(overrides) {
   return {

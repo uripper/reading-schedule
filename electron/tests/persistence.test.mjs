@@ -4,8 +4,10 @@ import assert from "node:assert/strict";
 import { draftData } from "../dist/renderer/app/persistence.js";
 
 /**
+ * Builds session fixture with override support.
  *
- * @param overrides
+ * @param {Record<string, unknown>} overrides Session field overrides.
+ * @returns {Record<string, unknown>} Session fixture.
  */
 function session(overrides = {}) {
   return {

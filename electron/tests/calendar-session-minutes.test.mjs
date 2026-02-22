@@ -9,8 +9,10 @@ import {
 } from "../dist/renderer/calendar/details_minutes_form.js";
 
 /**
+ * Builds schedule row fixture with override support.
  *
- * @param overrides
+ * @param {Record<string, unknown>} overrides Row field overrides.
+ * @returns {Record<string, unknown>} Row fixture.
  */
 function row(overrides = {}) {
   return {

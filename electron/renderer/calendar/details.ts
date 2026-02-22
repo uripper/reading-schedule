@@ -13,10 +13,10 @@ import {
 import { dateHeading } from "./utils.js";
 
 /**
- *
- * @param state
- * @param interactionHandlers
- * @param onRerenderRequested
+ * Renders selected-day details list and manual-add panel for current mode.
+ * @param state Calendar details render state.
+ * @param interactionHandlers Detail interaction callbacks.
+ * @param onRerenderRequested Optional rerender callback override.
  */
 export function renderCalendarDetails(
   state: CalendarDetailsState,

@@ -9,7 +9,6 @@ import type { CalendarRuntimeState } from "./state_runtime.js";
 
 /**
  * Recomputes derived calendar collections from current raw rows and handlers.
- *
  * @param state Mutable calendar runtime state.
  * @param isSessionCompleted Completion checker by session key.
  */
@@ -25,7 +24,6 @@ export function refreshDerivedRows(
 
 /**
  * Delegates month rendering with required keyboard/selection actions.
- *
  * @param state Mutable calendar runtime state.
  * @param actions Month action callbacks.
  * @param actions.moveSelectionBy Keyboard/grid movement handler.
@@ -45,7 +43,6 @@ export function renderMonth(
 
 /**
  * Delegates controls rendering for month navigation and today jump.
- *
  * @param state Mutable calendar runtime state.
  * @param rerenderControls Callback to rerender controls.
  * @param rerenderMonth Callback to rerender month grid.

@@ -24,19 +24,20 @@ interface MonthActions {
 }
 
 /**
- *
+ * Returns today's local day key for month rendering state checks.
+ * @returns Day key in `YYYY-MM-DD` format.
  */
 function todayDayKey(): string {
   return dayKey(new Date());
 }
 
 /**
- *
- * @param state
- * @param root0
- * @param root0.selectDate
- * @param root0.moveSelectionBy
- * @param root0.renderDetails
+ * Renders month grid, day buttons, and keyboard interactions.
+ * @param state Calendar render state.
+ * @param root0 Month interaction callbacks.
+ * @param root0.selectDate Date selection callback.
+ * @param root0.moveSelectionBy Keyboard/grid movement callback.
+ * @param root0.renderDetails Details rerender callback.
  */
 export function renderCalendarMonth(
   state: CalendarState,
