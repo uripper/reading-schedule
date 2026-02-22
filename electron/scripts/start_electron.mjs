@@ -28,7 +28,12 @@ function spawnElectron() {
     stdio: "inherit",
   });
   child.on("error", (error) => {
-    const message = error instanceof Error ? error.message : String(error);
+    let message = "";
+    if (error instanceof Error) {
+      message = error.message;
+    } else {
+      message = String(error);
+    }
     process.stderr.write(`${message}\n`);
     process.exitCode = 1;
   });

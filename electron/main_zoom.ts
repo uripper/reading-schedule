@@ -1,3 +1,6 @@
+/**
+ * @file Main-process zoom factor helpers for renderer web contents.
+ */
 import type { WebContents } from "electron";
 
 const DEFAULT_UI_SCALE = 1.55;
@@ -21,17 +24,26 @@ function currentZoomFactor(webContents: WebContents): number {
   return normalizedZoomFactor(webContents.getZoomFactor());
 }
 
+/**
+ * Applies and returns a normalized zoom factor for the target web contents.
+ */
 export function setZoomFactor(webContents: WebContents, value: number): number {
   const nextFactor = normalizedZoomFactor(value);
   webContents.setZoomFactor(nextFactor);
   return nextFactor;
 }
 
+/**
+ * Reads the initial zoom factor from environment or default settings.
+ */
 export function initialZoomFactor(): number {
   const requestedScale = Number(process.env.UI_SCALE || String(DEFAULT_UI_SCALE));
   return normalizedZoomFactor(requestedScale);
 }
 
+/**
+ * Moves the current zoom factor by a delta and returns the applied value.
+ */
 export function shiftZoomFactor(webContents: WebContents, delta: number): number {
   return setZoomFactor(webContents, currentZoomFactor(webContents) + delta);
 }

@@ -1,3 +1,6 @@
+/**
+ * @file Bridge that invokes the Python planner module from Electron.
+ */
 import { spawn } from "node:child_process";
 import path from "node:path";
 import type { JsonValue } from "./state_store";
@@ -41,6 +44,9 @@ function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
   }
 }
 
+/**
+ * Executes the Python planner bridge command and returns parsed JSON output.
+ */
 export function runBridge(args: string[], payload?: JsonValue): Promise<JsonValue> {
   return new Promise((resolve, reject) => {
     const pythonBinary = process.env.PYTHON_BIN || "python";

@@ -1,0 +1,102 @@
+import { applyPreferencesToDocument, createAnnouncer } from "../a11y.js";
+import { collectAllBooks } from "../books.js";
+import { focusCalendarToday } from "../calendar.js";
+import { el } from "../dom.js";
+import { addLog } from "../help.js";
+import { collectSettings } from "../settings.js";
+import { updateStatsView } from "../stats.js";
+import {
+  collectFeatureFlagsFromUI,
+  collectPreferencesFromUI,
+} from "./experience_ui.js";
+import { normalizeFeatureFlags, normalizePreferences } from "./experience.js";
+import { createDashboardRuntime } from "./dashboard_runtime.js";
+import { createInitRuntime } from "./init_runtime.js";
+import { createPersistQueue, createStatusSetter } from "./runtime_helpers.js";
+import { createRuntimeState } from "./runtime_state.js";
+import { updateTodayDashboard } from "./today.js";
+import type { PlannerApi } from "./types.js";
+
+export interface AppBootstrapContext {
+  announce: ReturnType<typeof createAnnouncer>;
+  announceForPlanController(message: string, politeness?: string): void;
+  dashboards: ReturnType<typeof createDashboardRuntime>;
+  plannerApi: PlannerApi;
+  persistDraft(): Promise<boolean>;
+  queuePersist(): void;
+  runtime: ReturnType<typeof createInitRuntime>;
+  setStatus(message: string, isError?: boolean): void;
+  state: ReturnType<typeof createRuntimeState>;
+}
+
+/**
+ * Retrieves the Planner API from the global context. This function assumes that the `plannerApi`
+ * has been exposed on the global object, which is typically done in the preload script of an Electron
+ * application.
+ * @returns The Planner API instance available on the global context
+ */
+function plannerApiFromGlobal(): PlannerApi {
+  const globals = globalThis as typeof globalThis & { plannerApi: PlannerApi };
+  return globals.plannerApi;
+}
+
+/**
+ * Creates and initializes the application bootstrap context, which includes state management, API access,
+ * and utility functions for the application. This context is used throughout the application to manage state,
+ * interact with the Planner API, and perform various actions related to the application's functionality.
+ * @returns An initialized AppBootstrapContext object containing APIs, state, and utility functions
+ */
+export function createAppBootstrapContext(): AppBootstrapContext {
+  const state = createRuntimeState();
+  const plannerApi = plannerApiFromGlobal();
+  const announce = createAnnouncer();
+  const announceForPlanController = (
+    message: string,
+    politeness?: string,
+  ): void => {
+    if (politeness === "polite" || politeness === "assertive") {
+      announce(message, politeness);
+      return;
+    }
+    announce(message);
+  };
+  const setStatus = createStatusSetter(el("status"), addLog);
+  const { persistDraft, queuePersist } = createPersistQueue({
+    state,
+    collectSettings,
+    addLog,
+    plannerApi,
+    collectBooks: collectAllBooks,
+    getSessions: () => state.sessions,
+  });
+  const dashboards = createDashboardRuntime({
+    applyPreferencesToDocument,
+    collectFeatureFlagsFromUI,
+    collectPreferencesFromUI,
+    collectAllBooks,
+    normalizeFeatureFlags,
+    normalizePreferences,
+    queuePersist,
+    state,
+    updateStatsView,
+    updateTodayDashboard,
+  });
+  const runtime = createInitRuntime({
+    focusCalendarToday,
+    queuePersist,
+    state,
+    updateDashboards: dashboards.updateDashboards,
+  });
+
+  return {
+    announce,
+    announceForPlanController,
+    dashboards,
+    plannerApi,
+    persistDraft,
+    queuePersist,
+    runtime,
+    setStatus,
+    state,
+  };
+}

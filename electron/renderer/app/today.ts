@@ -9,7 +9,6 @@ import type { FeatureFlags, Preferences } from "./experience.js";
 import { renderTodayScheduledBooks } from "./today_books_view.js";
 import {
   buildTodayScheduleSnapshot,
-  nextUncompletedPlannedRow,
   type TodayScheduleSnapshot,
 } from "./today_schedule.js";
 import type { PlannerResult, PlannerScheduleRow } from "./types.js";
@@ -36,7 +35,7 @@ function hasPlannedRows(lastResult: PlannerResult | null): boolean {
 function summaryText(
   lastResult: PlannerResult | null,
   snapshot: TodayScheduleSnapshot,
-  next: ReturnType<typeof nextUncompletedPlannedRow>,
+  next: PlannerScheduleRow | null,
 ): string {
   if (next) {
     return `Next planned session: ${next.title} for ${next.minutes} minutes on ${next.date}.`;

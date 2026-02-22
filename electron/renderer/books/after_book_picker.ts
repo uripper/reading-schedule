@@ -11,9 +11,9 @@ import {
   NO_ACTIVE_INDEX,
   renderAfterBookResults,
   selectedBook,
-  setUnknownSelectionLabel,
   type PickerState,
 } from "./after_book_picker_render.js";
+import { initializePickerForBook } from "./after_book_picker_open.js";
 import type { Book } from "./types.js";
 
 type GetBooks = () => Book[];
@@ -86,20 +86,7 @@ export function createAfterBookPicker(
   const openForBook = (book: Book | null = null): void => {
     state.currentBookId = String(book?.book_id || "");
     refreshOptions();
-    state.selectedBookId = "";
-    refs.afterBookInput.value = "";
-    refs.blockedByInput.value = "";
-    const blockedById = String(book?.blocked_by || "");
-    if (blockedById) {
-      state.selectedBookId = blockedById;
-      refs.blockedByInput.value = blockedById;
-      const selected = state.options.find((item) => item.book_id === blockedById);
-      if (selected) {
-        refs.afterBookInput.value = optionLabel(selected);
-      } else {
-        setUnknownSelectionLabel(refs, blockedById);
-      }
-    }
+    initializePickerForBook(refs, state, book);
     clearResults();
     render();
   };

@@ -1,17 +1,16 @@
+/**
+ * @file Main-process IPC registration for planner and window actions.
+ */
 import { ipcMain, type WebContents } from "electron";
 import type { JsonValue } from "./state_store";
 import type { WindowFindRequest } from "./window_find";
 import { UI_SCALE_STEP } from "./main_zoom";
-
-type DownloadCoverPayload = {
-  bookId?: string;
-  url?: string;
-};
-
-type UploadCoverPayload = {
-  bookId?: string;
-  dataUrl?: string;
-};
+import {
+  asDownloadCoverPayload,
+  asUploadCoverPayload,
+  type DownloadCoverPayload,
+  type UploadCoverPayload,
+} from "./main_ipc_payloads";
 
 type RegisterIpcHandlersArgs = {
   downloadCover: (
@@ -42,30 +41,9 @@ type RegisterIpcHandlersArgs = {
   ) => { error?: string; ok: boolean };
 };
 
-function asDownloadCoverPayload(
-  value: DownloadCoverPayload | null,
-): DownloadCoverPayload {
-  if (!value) {
-    return {};
-  }
-  return {
-    url: value.url,
-    bookId: value.bookId,
-  };
-}
-
-function asUploadCoverPayload(
-  value: UploadCoverPayload | null,
-): UploadCoverPayload {
-  if (!value) {
-    return {};
-  }
-  return {
-    dataUrl: value.dataUrl,
-    bookId: value.bookId,
-  };
-}
-
+/**
+ * Registers all main-process IPC handlers consumed by the renderer.
+ */
 export function registerIpcHandlers({
   downloadCover,
   findInPage,

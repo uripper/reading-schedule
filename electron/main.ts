@@ -1,3 +1,6 @@
+/**
+ * @file Electron main-process entry point and startup wiring.
+ */
 import path from "node:path";
 
 import { app, BrowserWindow } from "electron";

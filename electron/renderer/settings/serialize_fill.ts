@@ -2,6 +2,30 @@ import type { PlannerSettings } from "../app/types.js";
 import { DEFAULT_DIFFICULTY_MULTIPLIER, DEFAULT_PLAN_MODE, weekdays } from "./config.js";
 import { allFieldDefinitions, inputEl, numberLevels, selectEl } from "./field_io.js";
 
+function settingValueText(value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return `${value}`;
+  }
+  if (typeof value === "boolean") {
+    if (value) {
+      return "true";
+    }
+    return "false";
+  }
+  return "";
+}
+
+function selectSettingValue(value: unknown): string {
+  const normalized = settingValueText(value);
+  if (normalized) {
+    return normalized;
+  }
+  return DEFAULT_PLAN_MODE;
+}
+
 export function fillSettingsForm(
   settings: PlannerSettings,
   setDayOffs: (nextDayOffs: string[]) => void,
@@ -9,38 +33,10 @@ export function fillSettingsForm(
   allFieldDefinitions().forEach((field) => {
     const value = settings[field.id];
     if (field.type === "select") {
-      let selectedValue = DEFAULT_PLAN_MODE;
-      if (typeof value === "string" && value.trim()) {
-        selectedValue = value;
-      } else if (typeof value === "number") {
-        if (Number.isFinite(value)) {
-          selectedValue = `${value}`;
-        }
-      } else if (typeof value === "boolean") {
-        if (value) {
-          selectedValue = "true";
-        } else {
-          selectedValue = "false";
-        }
-      }
-      selectEl(field.id).value = selectedValue;
+      selectEl(field.id).value = selectSettingValue(value);
       return;
     }
-    let normalizedValue = "";
-    if (typeof value === "string") {
-      normalizedValue = value;
-    } else if (typeof value === "number") {
-      if (Number.isFinite(value)) {
-        normalizedValue = `${value}`;
-      }
-    } else if (typeof value === "boolean") {
-      if (value) {
-        normalizedValue = "true";
-      } else {
-        normalizedValue = "false";
-      }
-    }
-    inputEl(field.id).value = normalizedValue;
+    inputEl(field.id).value = settingValueText(value);
   });
   const minutesByWeekday = settings.minutes_by_weekday || {};
   weekdays.forEach(([key]) => {

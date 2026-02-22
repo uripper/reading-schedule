@@ -18,29 +18,29 @@ import type {
   PlannerSummary,
 } from "./types.js";
 
-type SharedUpdateArgs = {
-  onScheduleRowsUpdated: () => void;
-  queuePersist: () => void;
-  renderCalendar: (
+interface SharedUpdateArgs {
+  onScheduleRowsUpdated(): void;
+  queuePersist(): void;
+  renderCalendar(
     rows: PlannerScheduleRow[],
     totals: Record<string, number>,
-  ) => void;
-  setBookScheduleRows: (rows: PlannerScheduleRow[]) => void;
-  setLastResult: (result: PlannerResult) => void;
-  setStatus: (message: string, isError?: boolean) => void;
+  ): void;
+  setBookScheduleRows(rows: PlannerScheduleRow[]): void;
+  setLastResult(result: PlannerResult): void;
+  setStatus(message: string, isError?: boolean): void;
   state: {
     lastResult: PlannerResult | null;
     scheduleCompletions: Record<string, boolean>;
   };
-  totalsFromSummary: (summary: PlannerSummary | null) => Record<string, number>;
-};
+  totalsFromSummary(summary: PlannerSummary | null): Record<string, number>;
+}
 
 type AddManualSessionArgs = SharedUpdateArgs & {
   bookId: string;
-  collectSettings: () => PlannerSettings;
+  collectSettings(): PlannerSettings;
   completed?: boolean;
   date: string;
-  getBookById: (bookId: string) => Book | null;
+  getBookById(bookId: string): Book | null;
   minutes: number;
 };
 
@@ -49,8 +49,8 @@ type RemoveSessionArgs = SharedUpdateArgs & {
 };
 
 type UpdateSessionMinutesArgs = SharedUpdateArgs & {
-  collectSettings: () => PlannerSettings;
-  getBookById: (bookId: string) => Book | null;
+  collectSettings(): PlannerSettings;
+  getBookById(bookId: string): Book | null;
   minutes: number;
   row: PlannerScheduleRow;
 };

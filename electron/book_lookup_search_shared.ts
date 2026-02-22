@@ -1,3 +1,6 @@
+/**
+ * @file Shared constants and data contracts for book lookup search.
+ */
 export const SEARCH_FIELDS =
   "title,title_suggest,author_name,first_publish_year,number_of_pages_median,cover_i,key,language,edition_count";
 export const SEARCH_FETCH_LIMIT = 24;
@@ -23,6 +26,9 @@ export const SCORE_MAX_EDITION_COUNT = 20;
 
 export const SOURCE_NAME = "Open Library";
 
+/**
+ * Raw Open Library search document as returned by the API.
+ */
 export type SearchDoc = {
   author_name?: string[];
   cover_i?: number;
@@ -34,10 +40,16 @@ export type SearchDoc = {
   title?: string;
 };
 
+/**
+ * Minimal search response envelope used by lookup transport helpers.
+ */
 export type SearchResponse = {
   docs?: SearchDoc[];
 };
 
+/**
+ * Normalized search item consumed by renderer book-picker UI.
+ */
 export type SearchItem = {
   author: string;
   cover_url: string;

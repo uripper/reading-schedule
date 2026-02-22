@@ -1,8 +1,14 @@
+/**
+ * @file Search orchestration for Open Library queries.
+ */
 import { MIN_QUERY_LENGTH, SEARCH_OUTPUT_LIMIT, type SearchDoc, type SearchItem } from "./book_lookup_search_shared.js";
 import { toItem } from "./book_lookup_search_map.js";
 import { dedupeDocs, scoreDoc } from "./book_lookup_search_scoring.js";
 import { fetchJson, searchUrls } from "./book_lookup_search_transport.js";
 
+/**
+ * Queries Open Library endpoints and returns ranked search items.
+ */
 export async function searchBooks(query: string): Promise<SearchItem[]> {
   const normalizedQuery = String(query || "").trim();
   if (normalizedQuery.length < MIN_QUERY_LENGTH) {

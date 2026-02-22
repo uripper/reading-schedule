@@ -1,69 +1,19 @@
 import { el } from "../dom.js";
-import { rowsWithFinishFirst, type CalendarRowWithFinish } from "./data.js";
 import {
   buildManualSessionAddPanel,
-  buildFutureSessionItem,
-  buildPastSessionItem,
-  buildTodaySessionItem,
   dayMode,
-  type DayMode,
   type DetailInteractionHandlers,
-  rowsWithCompletedLast,
 } from "./details_helpers.js";
+import {
+  emptyMessageForMode,
+  rowNodeForMode,
+  rowsForMode,
+  type CalendarDetailsState,
+} from "./details_render_helpers.js";
 import { dateHeading } from "./utils.js";
 
-type CalendarState = {
-  selectedDate: string;
-  dates: Record<string, CalendarRowWithFinish[]>;
-  rows: CalendarRowWithFinish[];
-  totalsByBookId: Record<string, number>;
-  expectedFinishHighlightDate: string;
-};
-
-function emptyMessageForMode(mode: DayMode): string {
-  if (mode === "past") {
-    return "No sessions planned for this day.";
-  }
-  return "No sessions planned for this day.";
-}
-
-function rowsForMode(
-  rows: CalendarRowWithFinish[],
-  mode: DayMode,
-  interactionHandlers: DetailInteractionHandlers,
-): CalendarRowWithFinish[] {
-  if (mode === "past") {
-    return rowsWithCompletedLast(rows, interactionHandlers);
-  }
-  if (mode === "today") {
-    return rowsWithCompletedLast(rows, interactionHandlers);
-  }
-  return rowsWithFinishFirst(rows);
-}
-
-function rowNodeForMode(
-  mode: DayMode,
-  row: CalendarRowWithFinish,
-  state: CalendarState,
-  interactionHandlers: DetailInteractionHandlers,
-  rerenderDetails: () => void,
-): HTMLElement {
-  if (mode === "today") {
-    return buildTodaySessionItem(row, state, interactionHandlers, rerenderDetails);
-  }
-  if (mode === "future") {
-    return buildFutureSessionItem(
-      row,
-      state,
-      interactionHandlers,
-      rerenderDetails,
-    );
-  }
-  return buildPastSessionItem(row, interactionHandlers, rerenderDetails);
-}
-
 export function renderCalendarDetails(
-  state: CalendarState,
+  state: CalendarDetailsState,
   interactionHandlers: DetailInteractionHandlers,
   onRerenderRequested: (() => void) | null = null,
 ): void {

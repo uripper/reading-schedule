@@ -2,9 +2,11 @@ import type { PlannerScheduleRow } from "../app/types.js";
 import { renderBookGrid } from "./card_view.js";
 import { finishDatesByBookId } from "./finish_dates.js";
 import { groupBooks } from "./grouping.js";
-import { shelfFilterMatches, SHELF_FILTER_ALL } from "./shelf.js";
-import { statusFilterMatches } from "./status.js";
-import { sortBooks } from "./sort.js";
+import { SHELF_FILTER_ALL } from "./shelf.js";
+import {
+  resolveRenderableRefs,
+  visibleBooksForView,
+} from "./controller_render_helpers.js";
 import {
   updateGroupByOptions,
   updateShelfFilterOptions,
@@ -41,55 +43,30 @@ export function renderBooksController({
   findBook,
   rerender,
 }: RenderBooksControllerArgs): void {
-  if (!(refs.shelfFilterSelect instanceof HTMLSelectElement)) {
-    return;
-  }
-  if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
-    return;
-  }
-  if (!(refs.statusFilterSelect instanceof HTMLSelectElement)) {
-    return;
-  }
-  if (!(refs.sortDirectionBtn instanceof HTMLButtonElement)) {
-    return;
-  }
-  if (
-    !(refs.grid instanceof HTMLElement) ||
-    !(refs.empty instanceof HTMLElement)
-  ) {
+  const renderRefs = resolveRenderableRefs(refs);
+  if (!renderRefs) {
     return;
   }
 
   viewState.shelfFilter = updateShelfFilterOptions(
-    refs.shelfFilterSelect,
+    renderRefs.shelfFilterSelect,
     books,
     viewState.shelfFilter,
   );
   viewState.statusFilter = updateStatusFilterOptions(
-    refs.statusFilterSelect,
+    renderRefs.statusFilterSelect,
     viewState.statusFilter,
   );
   viewState.groupBy = updateGroupByOptions(
-    refs.groupBySelect,
+    renderRefs.groupBySelect,
     viewState.groupBy,
     viewState.shelfFilter,
   );
-  updateSortDirectionButton(refs.sortDirectionBtn, viewState.sortDirection);
+  updateSortDirectionButton(renderRefs.sortDirectionBtn, viewState.sortDirection);
 
   const showShelfMeta = viewState.shelfFilter === SHELF_FILTER_ALL;
   const finishDateByBookId = finishDatesByBookId(scheduleRows, books);
-
-  const visibleBooks = sortBooks(
-    books,
-    viewState.sortBy,
-    viewState.sortDirection,
-    finishDateByBookId,
-  ).filter((book) => {
-    if (!shelfFilterMatches(book, viewState.shelfFilter)) {
-      return false;
-    }
-    return statusFilterMatches(book, viewState.statusFilter);
-  });
+  const visibleBooks = visibleBooksForView(books, viewState, finishDateByBookId);
 
   const groups = groupBooks(
     visibleBooks,
@@ -102,8 +79,8 @@ export function renderBooksController({
     showShelfMeta,
     books: visibleBooks,
     allBooks: books,
-    grid: refs.grid,
-    empty: refs.empty,
+    grid: renderRefs.grid,
+    empty: renderRefs.empty,
     onEdit: (bookId) => {
       const book = findBook(bookId);
       if (book && dialog) {

@@ -6,7 +6,7 @@ PS_SCRIPT="$ROOT_DIR/scripts/install_and_run_windows_hot.ps1"
 WIN_ROOT="$(wslpath -w "$ROOT_DIR")"
 WIN_SCRIPT="$(wslpath -w "$PS_SCRIPT")"
 PYTHON_SPEC="${1:-3}"
-POLL_SECONDS="${2:-2}"
+POLL_SECONDS="${2:-10}"
 
 PS_PID=""
 STATUS=0

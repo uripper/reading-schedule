@@ -30,20 +30,20 @@ for (const filePath of walkCssFiles(stylesRoot)) {
   }
   const source = fs.readFileSync(filePath, "utf8");
   const lines = source.split(/\r?\n/);
-  lines.forEach((line, index) => {
+  for (const [index, line] of lines.entries()) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith("/*")) {
-      return;
+      continue;
     }
     const matches = line.match(hexPattern);
     if (!matches) {
-      return;
+      continue;
     }
     failures += 1;
     process.stderr.write(
       `${path.relative(electronRoot, filePath)}:${index + 1} uses raw hex color ${matches.join(", ")}\n`,
     );
-  });
+  }
 }
 
 if (failures > 0) {

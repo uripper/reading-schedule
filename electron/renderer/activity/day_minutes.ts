@@ -2,10 +2,9 @@ import type { PlannerResult } from "../app/types.js";
 import { sessionKeyFor } from "../calendar/utils.js";
 import type { Session } from "../sessions/normalize.js";
 import { isoLocalDayKey } from "../sessions/utils.js";
+import { addMinutes, includeDayKey } from "./day_minutes_collect.js";
 
 const MIN_STREAK_MINUTES = 1;
-const DATE_YEAR_START_INDEX = 0;
-const DATE_YEAR_END_INDEX = 4;
 const PREVIOUS_DAY_OFFSET = 1;
 const ZERO_MINUTES = 0;
 
@@ -17,47 +16,6 @@ type DayMinutesArgs = {
   scheduleCompletions: Record<string, boolean>;
   year: number | null;
 };
-
-function yearFromDateKey(dateText: string): number | null {
-  const key = String(dateText || "").trim();
-  if (key.length < DATE_YEAR_END_INDEX) {
-    return null;
-  }
-  const parsed = Number(key.slice(DATE_YEAR_START_INDEX, DATE_YEAR_END_INDEX));
-  if (!Number.isInteger(parsed)) {
-    return null;
-  }
-  return parsed;
-}
-
-function includeDayKey(dayKey: string, year: number | null): boolean {
-  if (!dayKey) {
-    return false;
-  }
-  if (year === null) {
-    return true;
-  }
-  const dayYear = yearFromDateKey(dayKey);
-  if (dayYear !== year) {
-    return false;
-  }
-  return true;
-}
-
-function addMinutes(
-  dayMinutes: DayMinutesMap,
-  dayKey: string,
-  minutes: number,
-): void {
-  if (!dayKey) {
-    return;
-  }
-  const normalized = Number(minutes || ZERO_MINUTES);
-  if (normalized <= ZERO_MINUTES) {
-    return;
-  }
-  dayMinutes.set(dayKey, (dayMinutes.get(dayKey) || ZERO_MINUTES) + normalized);
-}
 
 export function dayMinutesFromActivity({
   sessions,

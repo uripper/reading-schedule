@@ -1,4 +1,5 @@
 import { WEEKDAY_LABELS } from "./constants.js";
+import { appendDayButtonSummary } from "./month_day_button_chips.js";
 
 type CalendarRow = {
   finish?: boolean;
@@ -89,27 +90,7 @@ export function createDayButton(
   const dayDate = document.createElement("span");
   dayDate.className = "day-date";
   dayDate.textContent = String(date.getDate());
-  const count = document.createElement("span");
-  count.className = "day-event-count";
-  count.textContent = "No sessions";
-  if (rows.length) {
-    count.textContent = `${rows.length} planned`;
-  }
-  dayButton.append(dayDate, count);
-  rows.slice(0, 2).forEach((row) => {
-    const chip = document.createElement("span");
-    chip.className = "day-chip";
-    if (row.finish) {
-      chip.className = "day-chip finish";
-    }
-    chip.textContent = `${row.title || "Untitled"} - ${Number(row.minutes || 0)}m`;
-    dayButton.append(chip);
-  });
-  if (rows.length > 2) {
-    const extra = document.createElement("span");
-    extra.className = "day-chip is-more";
-    extra.textContent = `+${rows.length - 2} more`;
-    dayButton.append(extra);
-  }
+  dayButton.append(dayDate);
+  appendDayButtonSummary(dayButton, rows);
   return dayButton;
 }
