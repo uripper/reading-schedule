@@ -1,4 +1,4 @@
-/* eslint-disable max-lines */
+ 
 import js from "@eslint/js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
