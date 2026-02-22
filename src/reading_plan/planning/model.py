@@ -112,9 +112,7 @@ def _add_progress_constraints(
     finished: FinishedVars = {}
     useful_words: dict[str, cp_model.IntVar] = {}
     for book_index, book in enumerate(books):
-        progress = sum(
-            wpb[book.book_id] * x[book.book_id, day] for day in days
-        )
+        progress = sum(wpb[book.book_id] * x[book.book_id, day] for day in days)
         overshoot = wpb[book.book_id] * max(1, book.min_blocks_per_session - 1)
         model.Add(progress <= book.words_total + overshoot)
 
@@ -132,8 +130,7 @@ def _add_progress_constraints(
         if due_days := [day for day in days if day <= book.deadline]:
             model.Add(
                 sum(
-                    wpb[book.book_id] * x[book.book_id, day]
-                    for day in due_days
+                    wpb[book.book_id] * x[book.book_id, day] for day in due_days
                 )
                 >= book.words_total
             )

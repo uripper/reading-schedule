@@ -26,19 +26,13 @@ def validate_book(book: Book) -> None:
         raise ValueError(msg)
     if book.min_blocks_per_session <= 0:
         msg = f"min_blocks_per_session must be > 0 for {book.book_id}"
-        raise ValueError(
-            msg
-        )
+        raise ValueError(msg)
     if book.words_full is not None and book.words_full < book.words_total:
         msg = f"words_full must be >= remaining words for {book.book_id}"
-        raise ValueError(
-            msg
-        )
+        raise ValueError(msg)
     if book.progress_percent < 0 or book.progress_percent > 100:
         msg = f"progress_percent must be between 0 and 100 for {book.book_id}"
-        raise ValueError(
-            msg
-        )
+        raise ValueError(msg)
     if book.max_minutes_per_day is not None and book.max_minutes_per_day <= 0:
         msg = f"max_minutes_per_day must be > 0 for {book.book_id}"
         raise ValueError(msg)
@@ -60,14 +54,10 @@ def validate_settings(settings: Settings) -> None:
         raise ValueError(msg)
     if settings.max_sessions_per_day <= 0 or settings.max_books_per_day <= 0:
         msg = "max_sessions_per_day and max_books_per_day must be > 0"
-        raise ValueError(
-            msg
-        )
+        raise ValueError(msg)
     if sorted(settings.minutes_by_weekday.keys()) not in ([], sorted(WEEKDAYS)):
         msg = "minutes_by_weekday must include Mon..Sun when provided"
-        raise ValueError(
-            msg
-        )
+        raise ValueError(msg)
     if sorted(settings.difficulty_multiplier.keys()) != list(range(1, 11)):
         msg = "difficulty_multiplier must contain keys 1..10"
         raise ValueError(msg)

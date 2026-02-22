@@ -46,19 +46,15 @@ def build_objective_terms(
     terms: list[cp_model.LinearExpr] = []
     for book in books:
         weight = priority_weights[book.book_id]
-        terms.extend(
-            (
-                priority_scale * weight * useful_words[book.book_id],
-                finish_scale * weight * finished[book.book_id],
-            )
-        )
+        terms.extend((
+            priority_scale * weight * useful_words[book.book_id],
+            finish_scale * weight * finished[book.book_id],
+        ))
         for day_index, day in enumerate(days):
             terms.append((switch_sign * switch_scale) * y[book.book_id, day])
             if settings.plan_mode != PLAN_MODE_SPREAD_OUT:
                 terms.append(
-                    mode_scale
-                    * (len(days) - day_index)
-                    * x[book.book_id, day]
+                    mode_scale * (len(days) - day_index) * x[book.book_id, day]
                 )
 
     return terms

@@ -6,7 +6,6 @@ import argparse
 import json
 import sys
 
-from reading_plan.api import generate_plan
 from reading_plan.input.io import load_inputs
 from reading_plan.input.serializers import book_to_data, settings_to_data
 
@@ -46,7 +45,7 @@ def main() -> int:
 
         json.load(sys.stdin)
         return 0
-    except Exception:
+    except (FileNotFoundError, ValueError):
         return 1
 
 
