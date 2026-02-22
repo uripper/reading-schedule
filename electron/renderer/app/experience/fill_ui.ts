@@ -1,6 +1,9 @@
 import { el } from "../../dom.js";
-import type { FeatureFlags, Preferences } from "./model.js";
-import { DEFAULT_PREFERENCES } from "./model.js";
+import {
+  DEFAULT_PREFERENCES,
+  type FeatureFlags,
+  type Preferences,
+} from "./model.js";
 import {
   RECOMMENDATIONS_AVAILABLE,
   REMINDERS_AVAILABLE,
@@ -9,6 +12,11 @@ import {
   shippedReminderTime,
 } from "./availability.js";
 
+/**
+ * Fills the experience settings UI controls based on the provided preferences and feature flags.
+ * @param preferences User preferences to populate the UI with.
+ * @param featureFlags Current feature flags to determine which features are enabled in the UI.
+ */
 export function fillPreferencesUI(
   preferences: Preferences,
   featureFlags: FeatureFlags,

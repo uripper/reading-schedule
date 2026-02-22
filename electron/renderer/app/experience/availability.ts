@@ -6,6 +6,37 @@ export type FeatureFlagRawValue = boolean | number | string | null | undefined;
 export type ReminderTimeRawValue = number | string | null | undefined;
 
 /**
+ * Normalizes a string to a boolean or returns undefined if not recognized.
+ * @param value String value to normalize.
+ * @returns true/"false" or undefined if not a recognized pattern.
+ */
+function normalizeStringFlag(value: string): boolean | undefined {
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "true" || normalized === "1") {
+    return true;
+  }
+  if (normalized === "false" || normalized === "0") {
+    return false;
+  }
+  return undefined;
+}
+
+/**
+ * Normalizes a number to a boolean or returns undefined if not recognized.
+ * @param value Number value to normalize.
+ * @returns true/false or undefined if not 0/1.
+ */
+function normalizeNumberFlag(value: number): boolean | undefined {
+  if (value === 1) {
+    return true;
+  }
+  if (value === 0) {
+    return false;
+  }
+  return undefined;
+}
+
+/**
  * Normalizes persisted or user-provided flag-like values.
  * "true"/"1" and 1 map to true; "false"/"0" and 0 map to false.
  * @param rawValue Raw persisted/user flag value.
@@ -25,21 +56,16 @@ export function shippedFeatureFlag(
   }
 
   if (typeof rawValue === "string") {
-    const normalized = rawValue.trim().toLowerCase();
-    if (normalized === "true" || normalized === "1") {
-      return true;
-    }
-    if (normalized === "false" || normalized === "0") {
-      return false;
+    const result = normalizeStringFlag(rawValue);
+    if (result !== undefined) {
+      return result;
     }
   }
 
   if (typeof rawValue === "number") {
-    if (rawValue === 1) {
-      return true;
-    }
-    if (rawValue === 0) {
-      return false;
+    const result = normalizeNumberFlag(rawValue);
+    if (result !== undefined) {
+      return result;
     }
   }
 
