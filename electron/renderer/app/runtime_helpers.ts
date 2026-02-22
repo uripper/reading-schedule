@@ -1,6 +1,6 @@
 import type { Book } from "../books/types.js";
 import type { Session } from "../sessions/normalize.js";
-import type { FeatureFlags, Preferences } from "./experience.js";
+import type { FeatureFlags, Preferences } from "./experience/experience.js";
 import { draftData, saveStateSafe } from "./persistence.js";
 import type {
   PlannerApi,

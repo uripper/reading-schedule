@@ -1,6 +1,6 @@
-import type { Book } from "../books/types.js";
-import type { CalendarRowWithFinish } from "../calendar/data.js";
-import type { PlannerResult } from "./types.js";
+import type { Book } from "../../books/types.js";
+import type { CalendarRowWithFinish } from "../../calendar/data.js";
+import type { PlannerResult } from "../types.js";
 
 interface ScheduleRow {
   title?: string;

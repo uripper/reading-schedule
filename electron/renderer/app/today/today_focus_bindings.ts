@@ -1,6 +1,6 @@
-import { el } from "../dom.js";
-import type { Session } from "../sessions/normalize.js";
-import { activateTab } from "../tabs.js";
+import { el } from "../../dom.js";
+import type { Session } from "../../sessions/normalize.js";
+import { activateTab } from "../../tabs.js";
 import {
   completeTinyStart,
   createClosedFocusState,
@@ -8,7 +8,7 @@ import {
   startFocusSession,
   TINY_START_MINUTES,
 } from "./today_focus.js";
-import type { PlannerResult } from "./types.js";
+import type { PlannerResult } from "../types.js";
 import {
   findSessionRow,
   nextCompletionsWithRowMarkedComplete,

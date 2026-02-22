@@ -1,9 +1,9 @@
-import { el } from "../dom.js";
-import type { Session } from "../sessions/normalize.js";
-import { createPlanController } from "./plan_controller.js";
-import { bindSettingsAutoPlanListeners } from "./runtime_helpers.js";
-import type { PlannerResult } from "./types.js";
-import { bindTodayFocusActions } from "./today_focus_bindings.js";
+import { el } from "../../dom.js";
+import type { Session } from "../../sessions/normalize.js";
+import { createPlanController } from "../plan_controller.js";
+import { bindSettingsAutoPlanListeners } from "../runtime_helpers.js";
+import type { PlannerResult } from "../types.js";
+import { bindTodayFocusActions } from "../today/today_focus_bindings.js";
 
 type SetStatus = (message: string, isError?: boolean) => void;
 

@@ -8,13 +8,13 @@ import { updateStatsView } from "../stats.js";
 import {
   collectFeatureFlagsFromUI,
   collectPreferencesFromUI,
-} from "./experience_ui.js";
-import { normalizeFeatureFlags, normalizePreferences } from "./experience.js";
+} from "./experience/experience_ui.js";
+import { normalizeFeatureFlags, normalizePreferences } from "./experience/experience.js";
 import { createDashboardRuntime } from "./dashboard_runtime.js";
-import { createInitRuntime } from "./init_runtime.js";
+import { createInitRuntime } from "./init/init_runtime.js";
 import { createPersistQueue, createStatusSetter } from "./runtime_helpers.js";
 import { createRuntimeState } from "./runtime_state.js";
-import { updateTodayDashboard } from "./today.js";
+import { updateTodayDashboard } from "./today/today.js";
 import type { PlannerApi } from "./types.js";
 
 export interface AppBootstrapContext {

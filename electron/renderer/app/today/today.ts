@@ -1,19 +1,19 @@
-import { el } from "../dom.js";
+import { el } from "../../dom.js";
 import {
   dayMinutesForKey,
   dayMinutesFromActivity,
   streakFromDayMinutes,
-} from "../activity/day_minutes.js";
-import type { Book } from "../books/types.js";
-import type { FeatureFlags, Preferences } from "./experience.js";
+} from "../../activity/day_minutes.js";
+import type { Book } from "../../books/types.js";
+import type { FeatureFlags, Preferences } from "../experience/experience.js";
 import { renderTodayScheduledBooks } from "./today_books_view.js";
 import {
   buildTodayScheduleSnapshot,
   type TodayScheduleSnapshot,
 } from "./today_schedule.js";
-import type { PlannerResult, PlannerScheduleRow } from "./types.js";
-import type { Session } from "../sessions/normalize.js";
-import { todayKey } from "../sessions/utils.js";
+import type { PlannerResult, PlannerScheduleRow } from "../types.js";
+import type { Session } from "../../sessions/normalize.js";
+import { todayKey } from "../../sessions/utils.js";
 
 const MIN_GOAL_MINUTES = 1;
 const MAX_PERCENT = 100;

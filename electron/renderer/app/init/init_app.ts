@@ -5,25 +5,25 @@ import {
   getBookById,
   setBookScheduleRows,
   updateBookProgress,
-} from "../books.js";
+} from "../../books.js";
 import {
   configureCalendarInteractions,
   renderCalendar,
-} from "../calendar.js";
-import { bindDesktopShortcuts } from "../desktop_shortcuts.js";
-import { addLog, bindHelpDialog } from "../help.js";
-import { collectSettings, initSettingsGrid } from "../settings.js";
-import { bindTabs } from "../tabs.js";
-import { configureAppCalendarInteractions } from "./calendar_interactions.js";
-import { bindExperienceSettings } from "./experience_bindings.js";
+} from "../../calendar.js";
+import { bindDesktopShortcuts } from "../../desktop_shortcuts.js";
+import { addLog, bindHelpDialog } from "../../help.js";
+import { collectSettings, initSettingsGrid } from "../../settings.js";
+import { bindTabs } from "../../tabs.js";
+import { configureAppCalendarInteractions } from "../calendar_interactions/calendar_interactions.js";
+import { bindExperienceSettings } from "../experience/experience_bindings.js";
 import {
   createAppPlanControllerInstance,
   setupSkipLink,
 } from "./init_helpers.js";
 import { loadStateAndBindTodayActions } from "./init_app_load.js";
-import { totalsFromSummary } from "./runtime_helpers.js";
-import type { AppBootstrapContext } from "./bootstrap_runtime.js";
-import type { PlannerResult } from "./types.js";
+import { totalsFromSummary } from "../runtime_helpers.js";
+import type { AppBootstrapContext } from "../bootstrap_runtime.js";
+import type { PlannerResult } from "../types.js";
 
 export async function initApp(context: AppBootstrapContext): Promise<void> {
   setupSkipLink();
