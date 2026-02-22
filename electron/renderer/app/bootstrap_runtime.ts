@@ -1,4 +1,4 @@
-import { applyPreferencesToDocument, createAnnouncer } from "../accessibility/a11y.js";
+import { applyPreferencesToDocument, createAnnouncer } from "../accessibility/index.js";
 import { collectAllBooks } from "../books.js";
 import { focusCalendarToday } from "../calendar.js";
 import { el } from "../dom.js";
@@ -8,8 +8,9 @@ import { updateStatsView } from "../stats.js";
 import {
   collectFeatureFlagsFromUI,
   collectPreferencesFromUI,
+  normalizeFeatureFlags,
+  normalizePreferences,
 } from "./experience/index.js";
-import { normalizeFeatureFlags, normalizePreferences } from "./experience/index.js";
 import { createDashboardRuntime } from "./dashboard_runtime.js";
 import { createInitRuntime } from "./init/index.js";
 import { createPersistQueue, createStatusSetter } from "./runtime_helpers.js";

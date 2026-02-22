@@ -13,23 +13,51 @@ import {
   shippedReminderTime,
 } from "./availability.js";
 
+/**
+ * Reads a numeric input and normalizes empty or invalid values to 0.
+ * @param id Input element id.
+ * @returns Parsed number, or 0 when input is empty/invalid.
+ */
 function numberInputValue(id: string): number {
   const raw = el<HTMLInputElement>(id).value;
-  return Number(raw || 0);
+  const parsed = Number(raw);
+  if (Number.isFinite(parsed)) {
+    return parsed;
+  }
+  return 0;
 }
 
+/**
+ * Reads checkbox state as a boolean.
+ * @param id Checkbox element id.
+ * @returns Checked state.
+ */
 function checkboxValue(id: string): boolean {
   return el<HTMLInputElement>(id).checked;
 }
 
+/**
+ * Reads text-like input value.
+ * @param id Input element id.
+ * @returns Raw input value.
+ */
 function inputValue(id: string): string {
   return el<HTMLInputElement>(id).value;
 }
 
+/**
+ * Reads the current selected option value.
+ * @param id Select element id.
+ * @returns Selected option value.
+ */
 function selectValue(id: string): string {
   return el<HTMLSelectElement>(id).value;
 }
 
+/**
+ * Collect user preferences from the UI elements.
+ * @returns An object containing the user preferences.
+ */
 export function collectPreferencesFromUI(): Preferences {
   let theme: Preferences["theme"] = DEFAULT_PREFERENCES.theme;
   const selectedTheme = selectValue("themeSelect");
@@ -56,6 +84,10 @@ export function collectPreferencesFromUI(): Preferences {
   };
 }
 
+/**
+ * Collect feature flag settings from the UI elements.
+ * @returns An object containing the feature flag settings.
+ */
 export function collectFeatureFlagsFromUI(): FeatureFlags {
   return {
     gamificationEnabled: checkboxValue("flagGamification"),

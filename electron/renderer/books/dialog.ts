@@ -1,5 +1,5 @@
 import { bindBookLookup } from "../book_lookup.js";
-import { bindDialogFocus, focusFirstError } from "../accessibility/a11y.js";
+import { bindDialogFocus, focusFirstError } from "../accessibility/index.js";
 import {
   applyLookupItem,
   clearForm,
