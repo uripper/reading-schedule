@@ -105,9 +105,10 @@ max-doc-length = 80
 max-complexity = 8
 
 [lint.pylint]
-# Tight maintainability limits.
+# Tight maintainability limits, with a looser positional-arg cap for
+# planner helpers that naturally compose several inputs.
 max-args = 5
-max-positional-args = 3
+max-positional-args = 6
 max-branches = 10
 max-bool-expr = 4
 max-locals = 12

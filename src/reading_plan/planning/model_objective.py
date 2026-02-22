@@ -35,7 +35,7 @@ def _priority_weights(books: list[Book]) -> dict[str, int]:
     for book in books:
         priority_value = int(book.priority)
         if priority_min <= priority_value <= priority_max:
-            weights[book.book_id] = 6 - priority_value
+            weights[book.book_id] = (priority_max + 1) - priority_value
             continue
         msg = (
             f"priority must be {priority_min}..{priority_max}, "

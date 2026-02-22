@@ -71,6 +71,9 @@ def main() -> int:
     except (FileNotFoundError, KeyError, TypeError, ValueError) as error:
         write_payload({"ok": False, "error": str(error)})
         return 1
+    except Exception as error:  # noqa: BLE001
+        write_payload({"ok": False, "error": str(error)})
+        return 1
     else:
         return 0
 
