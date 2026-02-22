@@ -2,33 +2,59 @@ export const REMINDERS_AVAILABLE = false;
 export const SOCIAL_FEATURES_AVAILABLE = false;
 export const RECOMMENDATIONS_AVAILABLE = false;
 
+export type FeatureFlagRawValue = boolean | number | string | null | undefined;
+export type ReminderTimeRawValue = number | string | null | undefined;
+
 /**
- * Ships a feature flag that may be unavailable based on conditions such as user settings or global feature flags.
- * If the feature is unavailable, it returns false regardless of the raw value.
- * @param rawValue - The raw value to be parsed as a boolean for the feature flag.
- * @param isAvailable - A boolean indicating whether the feature is available.
- * @returns A boolean representing whether the feature flag is considered enabled in the application.
+ * Normalizes persisted or user-provided flag-like values.
+ * "true"/"1" and 1 map to true; "false"/"0" and 0 map to false.
+ * @param rawValue Raw persisted/user flag value.
+ * @param isAvailable Whether this feature is shipped/enabled.
+ * @returns Normalized feature flag value.
  */
 export function shippedFeatureFlag(
-  rawValue: unknown,
+  rawValue: FeatureFlagRawValue,
   isAvailable: boolean,
 ): boolean {
   if (!isAvailable) {
     return false;
   }
+
+  if (typeof rawValue === "boolean") {
+    return rawValue;
+  }
+
+  if (typeof rawValue === "string") {
+    const normalized = rawValue.trim().toLowerCase();
+    if (normalized === "true" || normalized === "1") {
+      return true;
+    }
+    if (normalized === "false" || normalized === "0") {
+      return false;
+    }
+  }
+
+  if (typeof rawValue === "number") {
+    if (rawValue === 1) {
+      return true;
+    }
+    if (rawValue === 0) {
+      return false;
+    }
+  }
+
   return Boolean(rawValue);
 }
 
 /**
- * Ships the reminder time setting, which may be unavailable based on feature flags or other conditions.
- * If the setting is unavailable or the value is invalid, it falls back to a default reminder time.
- * @param rawValue - The raw value to be parsed as the reminder time.
- * @param isAvailable - A boolean indicating whether the reminder time feature is available.
- * @param defaultReminderTime - The default reminder time to use if the feature is unavailable or the value is invalid.
- * @returns A string representing the reminder time to be used in the application.
+ * Returns a trimmed reminder time string, or the default when unavailable/empty.
+ * @param rawValue Raw persisted reminder-time value.
+ * @param isAvailable Whether reminders are shipped/enabled.
+ * @param defaultReminderTime Fallback reminder time.
+ * @returns Normalized reminder time string.
  */
 export function shippedReminderTime(
-  rawValue: unknown,
+  rawValue: ReminderTimeRawValue,
   isAvailable: boolean,
   defaultReminderTime: string,
 ): string {

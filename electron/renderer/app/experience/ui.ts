@@ -14,37 +14,41 @@ import {
 } from "./availability.js";
 
 /**
- * Get the numeric value from an input element.
- * @param id The ID of the input element.
- * @returns The numeric value of the input, or 0 if the input is empty or invalid.
+ * Reads a numeric input and normalizes empty or invalid values to 0.
+ * @param id Input element id.
+ * @returns Parsed number, or 0 when input is empty/invalid.
  */
 function numberInputValue(id: string): number {
   const raw = el<HTMLInputElement>(id).value;
-  return Number(raw || 0);
+  const parsed = Number(raw);
+  if (Number.isFinite(parsed)) {
+    return parsed;
+  }
+  return 0;
 }
 
 /**
- * Get the boolean value from a checkbox input element.
- * @param id The ID of the checkbox input element.
- * @returns The boolean value of the checkbox input.
+ * Reads checkbox state as a boolean.
+ * @param id Checkbox element id.
+ * @returns Checked state.
  */
 function checkboxValue(id: string): boolean {
   return el<HTMLInputElement>(id).checked;
 }
 
 /**
- * Get the string value from an input element.
- * @param id The ID of the input element.
- * @returns The string value of the input.
+ * Reads text-like input value.
+ * @param id Input element id.
+ * @returns Raw input value.
  */
 function inputValue(id: string): string {
   return el<HTMLInputElement>(id).value;
 }
 
 /**
- * Get the selected value from a select element.
- * @param id The ID of the select element.
- * @returns The selected value of the select element.
+ * Reads the current selected option value.
+ * @param id Select element id.
+ * @returns Selected option value.
  */
 function selectValue(id: string): string {
   return el<HTMLSelectElement>(id).value;
