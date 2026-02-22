@@ -16,18 +16,20 @@ export type CalendarDetailsState = CalendarStateSubset & {
 };
 
 /**
- *
- * @param _mode
+ * Returns empty-state message for day details panel by mode.
+ * @param _mode Day mode.
+ * @returns Empty-state message.
  */
 export function emptyMessageForMode(_mode: DayMode): string {
   return "No sessions planned for this day.";
 }
 
 /**
- *
- * @param rows
- * @param mode
- * @param interactionHandlers
+ * Selects row ordering strategy for details mode.
+ * @param rows Day rows.
+ * @param mode Day mode.
+ * @param interactionHandlers Detail interaction handlers.
+ * @returns Rows ordered for display.
  */
 export function rowsForMode(
   rows: CalendarRowWithFinish[],
@@ -44,12 +46,13 @@ export function rowsForMode(
 }
 
 /**
- *
- * @param mode
- * @param row
- * @param state
- * @param interactionHandlers
- * @param rerenderDetails
+ * Builds the proper row node for current day mode.
+ * @param mode Day mode.
+ * @param row Calendar row.
+ * @param state Calendar details state.
+ * @param interactionHandlers Detail interaction handlers.
+ * @param rerenderDetails Details rerender callback.
+ * @returns Rendered row element.
  */
 export function rowNodeForMode(
   mode: DayMode,

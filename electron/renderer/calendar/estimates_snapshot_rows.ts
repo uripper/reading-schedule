@@ -7,7 +7,8 @@ import type {
 const SESSION_INDEX_PAD = 3;
 
 /**
- *
+ * Returns today's local day key for estimate row filtering.
+ * @returns Day key in `YYYY-MM-DD` format.
  */
 function todayDateKey(): string {
   const now = new Date();
@@ -18,8 +19,9 @@ function todayDateKey(): string {
 }
 
 /**
- *
- * @param row
+ * Builds sortable key from estimate row date and session index.
+ * @param row Estimate row.
+ * @returns Lexicographically sortable key.
  */
 function rowSortKey(row: Pick<EstimateRow, "date" | "session_index">): string {
   const sessionIndex = String(row.session_index).padStart(SESSION_INDEX_PAD, "0");
@@ -27,22 +29,24 @@ function rowSortKey(row: Pick<EstimateRow, "date" | "session_index">): string {
 }
 
 /**
- *
- * @param row
+ * Builds stable session key for estimate completion checks.
+ * @param row Estimate row.
+ * @returns Session key.
  */
 function estimateSessionKey(row: EstimateRow): string {
   return `${row.date}|${row.session_index}|${row.book_id}`;
 }
 
 /**
- *
- * @param candidate
- * @param state
- * @param state.bookId
- * @param state.today
- * @param state.targetSortKey
- * @param state.targetIsFuture
- * @param state.isSessionCompleted
+ * Returns candidate sort key when row should contribute to estimate totals.
+ * @param candidate Candidate row.
+ * @param state Candidate-evaluation state.
+ * @param state.bookId Target book id.
+ * @param state.today Today's day key.
+ * @param state.targetSortKey Target row sort key.
+ * @param state.targetIsFuture Whether target row is in future.
+ * @param state.isSessionCompleted Completion checker.
+ * @returns Candidate sort key when eligible; otherwise `null`.
  */
 function eligibleSortKeyForCandidate(
   candidate: EstimateRow,
@@ -75,11 +79,12 @@ function eligibleSortKeyForCandidate(
 }
 
 /**
- *
- * @param row
- * @param state
- * @param bookId
- * @param isSessionCompleted
+ * Computes planned words before and through target estimate row.
+ * @param row Target estimate row.
+ * @param state Estimate state context.
+ * @param bookId Target book id.
+ * @param isSessionCompleted Completion checker.
+ * @returns Planned words before target row and through target row.
  */
 export function plannedWordsBeforeAndThroughRow(
   row: EstimateRow,

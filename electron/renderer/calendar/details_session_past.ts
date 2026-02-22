@@ -14,10 +14,11 @@ const COMPLETED_TEXT = "Completed";
 const NOT_COMPLETED_TEXT = "Not completed";
 
 /**
- *
- * @param row
- * @param interactionHandlers
- * @param rerenderDetails
+ * Builds details row node for past sessions with completion toggle.
+ * @param row Calendar row.
+ * @param interactionHandlers Detail interaction handlers.
+ * @param rerenderDetails Details rerender callback.
+ * @returns Rendered row element.
  */
 export function buildPastSessionItem(
   row: CalendarRowWithFinish,

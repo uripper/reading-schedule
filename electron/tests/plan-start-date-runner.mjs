@@ -10,7 +10,6 @@ const DEFAULT_RESULT = { schedule: [], summary: null };
 
 /**
  * Builds generate stub that records payloads and returns fixed result.
- *
  * @param {Array<unknown>} calls Call payload accumulator.
  * @param {{schedule: Array<unknown>, summary: unknown}} result Generate result.
  * @returns {(payload: unknown) => Promise<unknown>} Recording generate stub.
@@ -24,7 +23,6 @@ export function recordingGenerate(calls, result = DEFAULT_RESULT) {
 
 /**
  * Runs plan generation with deterministic test wiring.
- *
  * @param {object} root0 Dependency overrides.
  * @param {(payload: unknown) => Promise<unknown>} root0.generate Planner generate fn.
  * @param {() => Record<string, unknown>} root0.collectSettings Settings collector.

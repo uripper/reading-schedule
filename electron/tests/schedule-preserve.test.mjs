@@ -9,7 +9,6 @@ import { sessionKeyFor } from "../dist/renderer/calendar/utils.js";
 
 /**
  * Converts Date fixture to `YYYY-MM-DD` day key.
- *
  * @param {Date} date Date fixture.
  * @returns {string} Day key text.
  */
@@ -22,7 +21,6 @@ function dayKey(date) {
 
 /**
  * Offsets a day key by N days.
- *
  * @param {string} key Base day key.
  * @param {number} delta Day offset.
  * @returns {string} Shifted day key.
@@ -35,7 +33,6 @@ function plusDays(key, delta) {
 
 /**
  * Builds schedule row fixture with override support.
- *
  * @param {Record<string, unknown>} overrides Row field overrides.
  * @returns {Record<string, unknown>} Row fixture.
  */

@@ -1,6 +1,5 @@
 /**
  * Returns row fixtures used for session-index tests.
- *
  * @returns {Array<Record<string, string|number>>} Session index fixture rows.
  */
 export function indexRowsFixture() {
@@ -34,7 +33,6 @@ export function indexRowsFixture() {
 
 /**
  * Returns row fixtures used for historical pace tests.
- *
  * @returns {Array<Record<string, string|number>>} Historical pace fixture rows.
  */
 export function historicalPaceRowsFixture() {
@@ -60,7 +58,6 @@ export function historicalPaceRowsFixture() {
 
 /**
  * Returns row fixtures used for removable-session tests.
- *
  * @returns {Array<Record<string, string|number>>} Removable rows fixture.
  */
 export function removableRowsFixture() {

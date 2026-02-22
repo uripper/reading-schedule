@@ -31,11 +31,12 @@ export interface EstimateSnapshot {
 }
 
 /**
- *
- * @param row
- * @param state
- * @param getBookById
- * @param isSessionCompleted
+ * Builds estimate snapshot for target row using current progress and plan.
+ * @param row Target estimate row.
+ * @param state Estimate state context.
+ * @param getBookById Book lookup function.
+ * @param isSessionCompleted Completion checker.
+ * @returns Estimate snapshot or `null` when estimate cannot be computed.
  */
 export function estimateSnapshotForRow(
   row: EstimateRow,

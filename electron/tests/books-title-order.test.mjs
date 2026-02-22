@@ -14,7 +14,6 @@ import {
 
 /**
  * Builds canonical book fixture with override support.
- *
  * @param {Record<string, unknown>} overrides Book field overrides.
  * @returns {Record<string, unknown>} Book fixture object.
  */

@@ -3,9 +3,9 @@ import type { DetailInteractionHandlers } from "./details_types.js";
 import { parseOptionalNumber } from "./utils.js";
 
 /**
- *
- * @param inputNode
- * @param value
+ * Prefills input value from book progress value when present.
+ * @param inputNode Input element to set.
+ * @param value Optional source value.
  */
 export function setInputValueFromBookProgress(
   inputNode: HTMLInputElement,
@@ -17,9 +17,10 @@ export function setInputValueFromBookProgress(
 }
 
 /**
- *
- * @param inputNode
- * @param initialValue
+ * Parses changed numeric value from input relative to initial text.
+ * @param inputNode Input element.
+ * @param initialValue Initial value text.
+ * @returns Parsed number or `null` when unchanged/invalid.
  */
 function changedNumberValue(
   inputNode: HTMLInputElement,
@@ -33,9 +34,10 @@ function changedNumberValue(
 }
 
 /**
- *
- * @param inputNode
- * @param nextValue
+ * Syncs input element to provided numeric value when present.
+ * @param inputNode Input element.
+ * @param nextValue Optional value to write.
+ * @returns Current trimmed input value after sync.
  */
 function syncInputValue(
   inputNode: HTMLInputElement,
@@ -49,14 +51,15 @@ function syncInputValue(
 }
 
 /**
- *
- * @param event
- * @param row
- * @param pagesInput
- * @param pctInput
- * @param initialPagesValue
- * @param initialPercentValue
- * @param interactionHandlers
+ * Submits progress update and returns updated baseline form values.
+ * @param event Form submit event.
+ * @param row Calendar row being edited.
+ * @param pagesInput Pages-read input element.
+ * @param pctInput Progress-percent input element.
+ * @param initialPagesValue Previous stable pages value.
+ * @param initialPercentValue Previous stable percent value.
+ * @param interactionHandlers Detail interaction handlers.
+ * @returns Updated initial values and apply status.
  */
 export function submitProgressUpdate(
   event: SubmitEvent,

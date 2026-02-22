@@ -5,7 +5,6 @@ import { draftData } from "../dist/renderer/app/persistence.js";
 
 /**
  * Builds session fixture with override support.
- *
  * @param {Record<string, unknown>} overrides Session field overrides.
  * @returns {Record<string, unknown>} Session fixture.
  */

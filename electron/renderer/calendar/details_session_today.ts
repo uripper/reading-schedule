@@ -17,11 +17,12 @@ import { estimateProgressLabel } from "./estimates.js";
 import { sessionKeyFor } from "./utils.js";
 
 /**
- *
- * @param row
- * @param state
- * @param interactionHandlers
- * @param rerenderDetails
+ * Builds details row node for today sessions with progress and completion UX.
+ * @param row Calendar row.
+ * @param state Calendar state subset.
+ * @param interactionHandlers Detail interaction handlers.
+ * @param rerenderDetails Details rerender callback.
+ * @returns Rendered row element.
  */
 export function buildTodaySessionItem(
   row: CalendarRowWithFinish,
