@@ -70,7 +70,7 @@ test("estimateProgressLabel includes incomplete current-day sessions for future 
 
   assert.equal(
     label,
-    "Estimated before session: 200 pages (50%) -> after session: 300 pages (75%)",
+    "Estimated by end of this session: 300 pages read (75% complete)",
   );
 });
 
@@ -93,7 +93,7 @@ test("estimateProgressLabel ignores completed current-day sessions for future es
 
   assert.equal(
     label,
-    "Estimated before session: 100 pages (25%) -> after session: 200 pages (50%)",
+    "Estimated by end of this session: 200 pages read (50% complete)",
   );
 });
 
@@ -117,7 +117,7 @@ test("estimateProgressLabel ignores completed pre-target sessions even when date
 
   assert.equal(
     label,
-    "Estimated before session: 100 pages (25%) -> after session: 200 pages (50%)",
+    "Estimated by end of this session: 200 pages read (50% complete)",
   );
 });
 
@@ -159,6 +159,6 @@ test("estimateProgressLabel projects end-of-session pages for incomplete current
 
   assert.equal(
     label,
-    "Estimated before session: 100 pages (25%) -> after session: 200 pages (50%)",
+    "Estimated by end of this session: 200 pages read (50% complete)",
   );
 });

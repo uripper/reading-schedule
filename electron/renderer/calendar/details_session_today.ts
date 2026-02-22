@@ -64,33 +64,38 @@ export function buildTodaySessionItem(
     interactionHandlers.getBookById,
     interactionHandlers.isSessionCompleted,
   );
+  const includeEstimate = !interactionHandlers.isSessionCompleted(sessionKey);
   const book = interactionHandlers.getBookById(row.book_id);
   if (!book) {
+    item.append(completeLabel);
+    item.append(minutesFormForSession(row, interactionHandlers, rerenderDetails));
     item.append(
-      completeLabel,
-      minutesFormForSession(row, interactionHandlers, rerenderDetails),
       progressFormForToday(
         row,
         fallbackBookForRow(row),
         interactionHandlers,
         markCompleteFromProgressUpdate,
       ),
-      estimate,
-      removeSessionButton(row, interactionHandlers, rerenderDetails),
     );
+    if (includeEstimate) {
+      item.append(estimate);
+    }
+    item.append(removeSessionButton(row, interactionHandlers, rerenderDetails));
     return item;
   }
+  item.append(completeLabel);
+  item.append(minutesFormForSession(row, interactionHandlers, rerenderDetails));
   item.append(
-    completeLabel,
-    minutesFormForSession(row, interactionHandlers, rerenderDetails),
     progressFormForToday(
       row,
       book,
       interactionHandlers,
       markCompleteFromProgressUpdate,
     ),
-    estimate,
-    removeSessionButton(row, interactionHandlers, rerenderDetails),
   );
+  if (includeEstimate) {
+    item.append(estimate);
+  }
+  item.append(removeSessionButton(row, interactionHandlers, rerenderDetails));
   return item;
 }
