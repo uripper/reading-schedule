@@ -24,9 +24,10 @@ export interface OpenDialogOptions {
 }
 
 /**
- *
- * @param refs
- * @param busy
+ * Updates the save button state while a dialog submission is in progress.
+ * @param refs Resolved DOM references for the book dialog.
+ * @param busy True while the save action is running.
+ * @returns Nothing.
  */
 function setSavingState(refs: BookFormRefs, busy: boolean): void {
   refs.saveBtn.disabled = busy;
@@ -34,13 +35,15 @@ function setSavingState(refs: BookFormRefs, busy: boolean): void {
   if (busy) {
     refs.saveBtn.textContent = "Saving...";
   }
+  return undefined;
 }
 
 /**
- *
- * @param onSubmit
- * @param root0
- * @param root0.getBooks
+ * Creates the add/edit book dialog controller and binds its form behavior.
+ * @param onSubmit Callback invoked with the parsed form payload on submit.
+ * @param root0 Optional dialog dependencies.
+ * @param root0.getBooks Returns current books for shelf and related UI helpers.
+ * @returns Dialog API exposing the `open` function.
  */
 export function createBookDialog(
   onSubmit: (book: Book) => Promise<void> | void,
