@@ -11,11 +11,11 @@ import {
 } from "./calendar_interactions_schedule_updates.js";
 import type { AppCalendarInteractionArgs } from "./calendar_interactions_types.js";
 
-type CompletionRow = {
+interface CompletionRow {
   date?: string;
   book_id?: string;
   title?: string;
-};
+}
 
 function completionFallbackKey(
   row: CompletionRow | null | undefined,

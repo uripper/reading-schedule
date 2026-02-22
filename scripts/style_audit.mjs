@@ -48,6 +48,11 @@ const IGNORED_DIRECTORIES = new Set([
   "generated",
 ]);
 
+const IGNORED_FILES = new Set([
+  "eslint.config.mjs",
+  "style_audit.mjs",
+]);
+
 const SOFT_LINE_LIMIT = 100;
 const HARD_LINE_LIMIT = 200;
 const MIN_UNDER_SOFT_PERCENT = 90;
@@ -273,6 +278,10 @@ function collectFiles() {
           continue;
         }
         stack.push(fullPath);
+        continue;
+      }
+
+      if (IGNORED_FILES.has(entry.name)) {
         continue;
       }
 

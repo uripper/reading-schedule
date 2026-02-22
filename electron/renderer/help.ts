@@ -35,7 +35,7 @@ export function bindHelpDialog() {
     focus.focusInitialTarget();
   };
   el<HTMLButtonElement>("closeHelpBtn").onclick = () =>
-    focus.closeAndReturnFocus();
+    { focus.closeAndReturnFocus(); };
   dlg.addEventListener("cancel", (e) => {
     e.preventDefault();
     focus.closeAndReturnFocus();
