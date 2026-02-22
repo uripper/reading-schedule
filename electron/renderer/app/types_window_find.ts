@@ -1,10 +1,4 @@
-export type WindowFindRequest = {
-  query?: string;
-  forward?: boolean;
-  findNext?: boolean;
-};
-
-export type WindowFindResponse = {
-  matches: number;
-  activeMatchOrdinal: number;
-};
+export type {
+  WindowFindRequest,
+  WindowFindResponse,
+} from "../shared_window_find_types.js";

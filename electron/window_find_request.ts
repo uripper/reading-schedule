@@ -1,19 +1,18 @@
+/**
+ * @file Normalization and mapping for find-in-page IPC request payloads.
+ */
 import type { Result as FindInPageEventResult } from "electron";
+import type {
+  WindowFindRequest,
+  WindowFindResponse,
+} from "./renderer/shared_window_find_types.js";
 
 const EMPTY_MATCH_COUNT = 0;
 const EMPTY_ACTIVE_MATCH_ORDINAL = 0;
 
-export type WindowFindRequest = {
-  query?: string;
-  forward?: boolean;
-  findNext?: boolean;
-};
-
-export type WindowFindResponse = {
-  matches: number;
-  activeMatchOrdinal: number;
-};
-
+/**
+ * Canonical request shape used by the main-process find helpers.
+ */
 export type NormalizedWindowFindRequest = {
   query: string;
   forward: boolean;
@@ -34,6 +33,9 @@ function asQuery(value: unknown): string {
   return value.trim();
 }
 
+/**
+ * Creates the default empty find response returned for cleared searches.
+ */
 export function emptyFindResponse(): WindowFindResponse {
   return {
     matches: EMPTY_MATCH_COUNT,
@@ -41,6 +43,9 @@ export function emptyFindResponse(): WindowFindResponse {
   };
 }
 
+/**
+ * Coerces renderer find payload values into a safe normalized request.
+ */
 export function normalizeFindRequest(
   payload: WindowFindRequest | null | undefined,
 ): NormalizedWindowFindRequest {
@@ -51,6 +56,9 @@ export function normalizeFindRequest(
   };
 }
 
+/**
+ * Maps an Electron found-in-page event result into renderer response shape.
+ */
 export function toFindResponse(
   result: FindInPageEventResult,
 ): WindowFindResponse {
@@ -59,3 +67,5 @@ export function toFindResponse(
     activeMatchOrdinal: result.activeMatchOrdinal,
   };
 }
+
+export type { WindowFindRequest, WindowFindResponse } from "./renderer/shared_window_find_types.js";

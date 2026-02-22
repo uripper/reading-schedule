@@ -62,3 +62,12 @@ test("rowsWithoutSession removes only the targeted row key", () => {
     nextRows.some((row) => row.book_id === "book-2" && row.session_index === 1),
   );
 });
+
+test("rowsWithoutSession preserves rows when session key is not found", () => {
+  const rows = removableRowsFixture();
+
+  const nextRows = rowsWithoutSession(rows, "2026-02-20|9|missing-book");
+
+  assert.notEqual(nextRows, rows);
+  assert.deepEqual(nextRows, rows);
+});

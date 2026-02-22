@@ -1,3 +1,6 @@
+/**
+ * @file Main-process IPC registration for planner and window actions.
+ */
 import { ipcMain, type WebContents } from "electron";
 import type { JsonValue } from "./state_store";
 import type { WindowFindRequest } from "./window_find";
@@ -38,6 +41,9 @@ type RegisterIpcHandlersArgs = {
   ) => { error?: string; ok: boolean };
 };
 
+/**
+ * Registers all main-process IPC handlers consumed by the renderer.
+ */
 export function registerIpcHandlers({
   downloadCover,
   findInPage,

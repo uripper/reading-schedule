@@ -1,3 +1,6 @@
+/**
+ * @file Data URL parsing helpers for uploaded book covers.
+ */
 import type { CoverExtension } from "./book_lookup_cover_paths";
 
 const CONTENT_TYPE_PNG = "image/png";
@@ -25,6 +28,9 @@ function extensionForDataMime(mimeType: string): CoverExtension | null {
   return null;
 }
 
+/**
+ * Parses a base64 data URL and returns image bytes with an allowed extension.
+ */
 export function parseCoverDataUrl(
   coverDataUrl: string | undefined,
 ): { bytes: Uint8Array; extension: CoverExtension } | null {

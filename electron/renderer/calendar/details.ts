@@ -1,5 +1,4 @@
 import { el } from "../dom.js";
-import type { CalendarRowWithFinish } from "./data.js";
 import {
   buildManualSessionAddPanel,
   dayMode,

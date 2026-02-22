@@ -1,3 +1,6 @@
+/**
+ * @file Mapping helpers from Open Library docs to planner search items.
+ */
 import {
   COVER_ID_MIN,
   SOURCE_NAME,
@@ -7,6 +10,9 @@ import {
 } from "./book_lookup_search_shared.js";
 import { primaryAuthor } from "./book_lookup_search_text.js";
 
+/**
+ * Converts a raw search document into the app's normalized search item shape.
+ */
 export function toItem(doc: SearchDoc): SearchItem {
   const pages = Number(doc.number_of_pages_median || 0);
   let words: number | null = null;

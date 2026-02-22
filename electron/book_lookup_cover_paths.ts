@@ -1,3 +1,6 @@
+/**
+ * @file File-path and extension utilities for locally stored cover images.
+ */
 import fs from "node:fs";
 import path from "node:path";
 
@@ -20,6 +23,9 @@ const HTTPS_PROTOCOL = "https:";
 
 let coverVersionCounter = 0;
 
+/**
+ * Supported file extensions for saved cover images.
+ */
 export type CoverExtension = ".jpg" | ".png" | ".webp";
 
 function safeFileBase(bookId: string | undefined): string {
@@ -38,6 +44,9 @@ function ensureCoverDirectory(userDataDir: string): string {
   return coverDirectory;
 }
 
+/**
+ * Resolves the normalized extension for a downloaded cover response.
+ */
 export function extensionFor(
   contentType: string | null,
   parsedUrl: URL,
@@ -63,10 +72,16 @@ export function extensionFor(
   return EXTENSION_JPG;
 }
 
+/**
+ * Returns true when the protocol is an allowed HTTP(S) protocol.
+ */
 export function isHttpProtocol(protocol: string): boolean {
   return protocol === HTTP_PROTOCOL || protocol === HTTPS_PROTOCOL;
 }
 
+/**
+ * Builds a unique absolute file path for a cover image.
+ */
 export function filePathForCover(
   userDataDir: string,
   bookId: string | undefined,

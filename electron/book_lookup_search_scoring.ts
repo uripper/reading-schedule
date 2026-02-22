@@ -1,3 +1,6 @@
+/**
+ * @file Ranking helpers used to score Open Library search results.
+ */
 import type { SearchDoc } from "./book_lookup_search_shared.js";
 import {
   SCORE_CONTAINS_TITLE,
@@ -67,6 +70,9 @@ function metadataScore(doc: SearchDoc): number {
   return score;
 }
 
+/**
+ * Computes a deterministic relevance score for a search document.
+ */
 export function scoreDoc(doc: SearchDoc, query: string): number {
   const queryNorm = normalizeSearchText(query);
   const titleNorm = normalizeSearchText(doc.title || "");

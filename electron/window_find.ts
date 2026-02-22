@@ -1,3 +1,6 @@
+/**
+ * @file Main-process wrappers around Electron's find-in-page APIs.
+ */
 import type { Result as FindInPageEventResult, WebContents } from "electron";
 import {
   emptyFindResponse,
@@ -52,6 +55,9 @@ function requestFindInPage(
   });
 }
 
+/**
+ * Starts or updates an in-page find operation for the provided payload.
+ */
 export async function findInPage(
   webContents: WebContents,
   payload: WindowFindRequest | null | undefined,
@@ -64,6 +70,9 @@ export async function findInPage(
   return requestFindInPage(webContents, request);
 }
 
+/**
+ * Stops find-in-page and returns an empty find response payload.
+ */
 export function stopFindInPage(webContents: WebContents): WindowFindResponse {
   webContents.stopFindInPage("clearSelection");
   return emptyFindResponse();

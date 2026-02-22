@@ -1,3 +1,6 @@
+/**
+ * @file Preload bridge exposing a typed planner API to the renderer.
+ */
 import { contextBridge, ipcRenderer } from "electron";
 
 type JsonPrimitive = string | number | boolean | null;
