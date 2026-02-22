@@ -20,9 +20,10 @@ export interface NormalizedWindowFindRequest {
 }
 
 /**
- *
- * @param value
- * @param fallback
+ * Coerces unknown input into a boolean with a fallback default.
+ * @param value Candidate boolean input.
+ * @param fallback Default value when input is not boolean.
+ * @returns Normalized boolean value.
  */
 function asBoolean(value: unknown, fallback: boolean): boolean {
   if (typeof value !== "boolean") {
@@ -32,8 +33,9 @@ function asBoolean(value: unknown, fallback: boolean): boolean {
 }
 
 /**
- *
- * @param value
+ * Coerces unknown input into a trimmed query string.
+ * @param value Candidate query input.
+ * @returns Trimmed query string or empty string for invalid input.
  */
 function asQuery(value: unknown): string {
   if (typeof value !== "string") {
@@ -44,6 +46,7 @@ function asQuery(value: unknown): string {
 
 /**
  * Creates the default empty find response returned for cleared searches.
+ * @returns Find response with zero matches.
  */
 export function emptyFindResponse(): WindowFindResponse {
   return {
@@ -54,7 +57,8 @@ export function emptyFindResponse(): WindowFindResponse {
 
 /**
  * Coerces renderer find payload values into a safe normalized request.
- * @param payload
+ * @param payload Renderer find payload.
+ * @returns Normalized find request used by main-process APIs.
  */
 export function normalizeFindRequest(
   payload: WindowFindRequest | null | undefined,
@@ -68,7 +72,8 @@ export function normalizeFindRequest(
 
 /**
  * Maps an Electron found-in-page event result into renderer response shape.
- * @param result
+ * @param result Electron find-in-page event payload.
+ * @returns Renderer-safe find response object.
  */
 export function toFindResponse(
   result: FindInPageEventResult,

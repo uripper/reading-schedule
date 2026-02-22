@@ -14,9 +14,11 @@ import {
 } from "./status_catalog.js";
 
 /**
- *
- * @param value
- * @param progressPercent
+ * Normalizes a raw status string into an internal status value.
+ * Progress is used as a fallback signal when status text is absent/invalid.
+ * @param value Raw status value from persisted data or form input.
+ * @param progressPercent Current progress percentage for fallback logic.
+ * @returns Normalized book status.
  */
 export function statusFromRaw(
   value: string | null | undefined,
@@ -48,16 +50,18 @@ export function statusFromRaw(
 }
 
 /**
- *
- * @param book
+ * Indicates whether a book can participate in scheduling.
+ * @param book Book-like object containing status.
+ * @returns True when the status is schedulable.
  */
 export function schedulableBook(book: Pick<Book, "status">): boolean {
   return isStatusSchedulable(book.status);
 }
 
 /**
- *
- * @param value
+ * Normalizes a raw status-filter value to a known filter option.
+ * @param value Raw filter string from UI/query params.
+ * @returns Valid status filter value.
  */
 export function normalizeStatusFilter(
   value: string | null | undefined,
@@ -76,9 +80,10 @@ export function normalizeStatusFilter(
 }
 
 /**
- *
- * @param book
- * @param filterValue
+ * Checks whether a book matches the active status filter.
+ * @param book Book-like object containing status.
+ * @param filterValue Active filter value.
+ * @returns True when the book should be included.
  */
 export function statusFilterMatches(
   book: Pick<Book, "status">,
@@ -91,7 +96,8 @@ export function statusFilterMatches(
 }
 
 /**
- *
+ * Builds dropdown options for status-based filtering.
+ * @returns Status-filter options including the "all" sentinel.
  */
 export function statusFilterOptions(): Array<{
   value: BookStatusFilter;

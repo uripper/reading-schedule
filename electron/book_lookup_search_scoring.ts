@@ -21,9 +21,10 @@ import {
 } from "./book_lookup_search_text.js";
 
 /**
- *
- * @param titleNorm
- * @param queryNorm
+ * Scores title relevance against the normalized query text.
+ * @param titleNorm Normalized candidate title.
+ * @param queryNorm Normalized query text.
+ * @returns Title-only relevance score.
  */
 function baseTitleScore(titleNorm: string, queryNorm: string): number {
   let score = 0;
@@ -40,10 +41,11 @@ function baseTitleScore(titleNorm: string, queryNorm: string): number {
 }
 
 /**
- *
- * @param titleNorm
- * @param authorNorm
- * @param tokens
+ * Scores title/author matches against normalized query tokens.
+ * @param titleNorm Normalized candidate title.
+ * @param authorNorm Normalized candidate author string.
+ * @param tokens Normalized query tokens.
+ * @returns Token-based relevance score.
  */
 function tokenScore(
   titleNorm: string,
@@ -67,8 +69,9 @@ function tokenScore(
 }
 
 /**
- *
- * @param doc
+ * Scores metadata quality signals such as language/pages/editions.
+ * @param doc Open Library search document.
+ * @returns Metadata contribution to overall score.
  */
 function metadataScore(doc: SearchDoc): number {
   let score = 0;
@@ -87,8 +90,9 @@ function metadataScore(doc: SearchDoc): number {
 
 /**
  * Computes a deterministic relevance score for a search document.
- * @param doc
- * @param query
+ * @param doc Open Library search document.
+ * @param query Raw user query text.
+ * @returns Deterministic relevance score.
  */
 export function scoreDoc(doc: SearchDoc, query: string): number {
   const queryNorm = normalizeSearchText(query);

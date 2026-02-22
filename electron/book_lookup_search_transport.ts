@@ -12,7 +12,8 @@ import {
 
 /**
  * Builds prioritized Open Library query URLs for a search string.
- * @param query
+ * @param query Raw user query text.
+ * @returns Ordered list of search endpoint URLs.
  */
 export function searchUrls(query: string): string[] {
   const encoded = encodeURIComponent(query);
@@ -26,7 +27,8 @@ export function searchUrls(query: string): string[] {
 
 /**
  * Fetches and validates one Open Library JSON response payload.
- * @param url
+ * @param url Open Library API URL.
+ * @returns Parsed search response payload.
  */
 export async function fetchJson(url: string): Promise<SearchResponse> {
   const response = await globalThis.fetch(url, { redirect: "follow" });
