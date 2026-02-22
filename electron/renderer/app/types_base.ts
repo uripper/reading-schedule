@@ -1,6 +1,6 @@
 import type { Book } from "../books/types.js";
 import type { Session } from "../sessions/normalize.js";
-import type { FeatureFlags, Preferences } from "./experience/experience.js";
+import type { FeatureFlags, Preferences } from "./experience/index.js";
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =

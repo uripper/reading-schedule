@@ -1,6 +1,6 @@
 import type { PlannerResult } from "./types.js";
 import type { Session } from "../sessions/normalize.js";
-import { DEFAULT_FEATURE_FLAGS, DEFAULT_PREFERENCES } from "./experience/experience.js";
+import { DEFAULT_FEATURE_FLAGS, DEFAULT_PREFERENCES } from "./experience/index.js";
 
 export type AppRuntimeState = {
   lastResult: PlannerResult | null;
