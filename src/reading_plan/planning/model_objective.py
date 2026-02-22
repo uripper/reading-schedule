@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from reading_plan.planner_types import PLAN_MODE_SPREAD_OUT
@@ -14,6 +15,18 @@ if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
 
 
+@dataclass
+class ObjectiveContext:
+    """Container for CP-SAT objective construction inputs."""
+
+    settings: Settings
+    days: list[date]
+    useful_words: dict[str, cp_model.IntVar]
+    finished: dict[str, cp_model.IntVar]
+    active_flags: dict[tuple[str, date], cp_model.IntVar]
+    assigned_blocks: dict[tuple[str, date], cp_model.IntVar]
+
+
 def _priority_weights(books: list[Book]) -> dict[str, int]:
     """Convert 1..5 priority values into larger-is-better objective weights."""
     weights: dict[str, int] = {}
@@ -21,43 +34,48 @@ def _priority_weights(books: list[Book]) -> dict[str, int]:
     priority_max = 5
     for book in books:
         priority_value = int(book.priority)
-        assert priority_min <= priority_value <= priority_max, (
+        if priority_min <= priority_value <= priority_max:
+            weights[book.book_id] = (priority_max + 1) - priority_value
+            continue
+        msg = (
             f"priority must be {priority_min}..{priority_max}, "
             f"got {book.priority} for {book.book_id}"
         )
-        weights[book.book_id] = 6 - priority_value
+        raise ValueError(msg)
     return weights
 
 
 def build_objective_terms(
     books: list[Book],
-    settings: Settings,
-    days: list[date],
-    useful_words: dict[str, cp_model.IntVar],
-    finished: dict[str, cp_model.IntVar],
-    y: dict[tuple[str, date], cp_model.IntVar],
-    x: dict[tuple[str, date], cp_model.IntVar],
+    context: ObjectiveContext,
 ) -> list[cp_model.LinearExpr]:
     """Build objective terms."""
-    priority_scale = max(1, round(settings.w_priority * 100))
-    switch_scale = round(settings.w_switch * 100)
-    finish_scale = max(1, round(settings.w_finish * 10000))
-    mode_scale = max(1, round((settings.w_smooth + 1.0) * 10))
+    priority_scale = max(1, round(context.settings.w_priority * 100))
+    switch_scale = round(context.settings.w_switch * 100)
+    finish_scale = max(1, round(context.settings.w_finish * 10000))
+    mode_scale = max(1, round((context.settings.w_smooth + 1.0) * 10))
 
-    switch_sign = 1 if settings.plan_mode == PLAN_MODE_SPREAD_OUT else -1
+    switch_sign = (
+        1 if context.settings.plan_mode == PLAN_MODE_SPREAD_OUT else -1
+    )
     priority_weights = _priority_weights(books)
     terms: list[cp_model.LinearExpr] = []
     for book in books:
         weight = priority_weights[book.book_id]
         terms.extend((
-            priority_scale * weight * useful_words[book.book_id],
-            finish_scale * weight * finished[book.book_id],
+            priority_scale * weight * context.useful_words[book.book_id],
+            finish_scale * weight * context.finished[book.book_id],
         ))
-        for day_index, day in enumerate(days):
-            terms.append((switch_sign * switch_scale) * y[book.book_id, day])
-            if settings.plan_mode != PLAN_MODE_SPREAD_OUT:
+        for day_index, day in enumerate(context.days):
+            terms.append(
+                (switch_sign * switch_scale)
+                * context.active_flags[book.book_id, day]
+            )
+            if context.settings.plan_mode != PLAN_MODE_SPREAD_OUT:
                 terms.append(
-                    mode_scale * (len(days) - day_index) * x[book.book_id, day]
+                    mode_scale
+                    * (len(context.days) - day_index)
+                    * context.assigned_blocks[book.book_id, day]
                 )
 
     return terms

@@ -10,7 +10,7 @@ import sys
 from reading_plan.input.reading_io import load_inputs
 from reading_plan.input.serializers import book_to_data, settings_to_data
 from reading_plan.planning.solve import solve_plan
-from reading_plan.reporting.report import build_summary
+from reading_plan.reporting.report import build_summary, format_summary
 from reading_plan.schedule.schedule import to_schedule_rows, write_schedule_csv
 
 
@@ -62,7 +62,9 @@ def main() -> int:
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     write_schedule_csv(args.output, rows)
 
-    build_summary(books, settings, result)
+    summary = build_summary(books, settings, result)
+    sys.stdout.write(f"{format_summary(summary)}\n")
+    sys.stdout.write(f"Wrote {len(rows)} schedule rows to {args.output}\n")
     return 0 if result.status in {"OPTIMAL", "FEASIBLE"} else 2
 
 

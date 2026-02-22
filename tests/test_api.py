@@ -14,7 +14,7 @@ def test_generate_plan_from_json_payload() -> None:
     books = [book_to_data(b) for b in demo_books()]
     settings = settings_to_data(demo_settings())
     payload = {"planner": "greedy", "books": books, "settings": settings}
-    data = cast("dict[str, Any]", generate_plan(payload))
+    data = cast(dict[str, Any], generate_plan(payload))
     assert "summary" in data
     assert "schedule" in data
     assert data["summary"]["status"] in {"FEASIBLE", "OPTIMAL"}
@@ -27,7 +27,7 @@ def test_generate_plan_allows_missing_book_id() -> None:
     book.pop("book_id")
     settings = settings_to_data(demo_settings())
     data = cast(
-        "dict[str, Any]",
+        dict[str, Any],
         generate_plan(
             {"planner": "greedy", "books": [book], "settings": settings}
         ),
@@ -43,7 +43,7 @@ def test_generate_plan_rejects_missing_blocker() -> None:
     settings = settings_to_data(demo_settings())
     try:
         cast(
-            "dict[str, Any]",
+            dict[str, Any],
             generate_plan(
                 {"planner": "greedy", "books": books, "settings": settings}
             ),
@@ -62,7 +62,7 @@ def test_generate_plan_rejects_blocker_cycles() -> None:
     settings = settings_to_data(demo_settings())
     try:
         cast(
-            "dict[str, Any]",
+            dict[str, Any],
             generate_plan(
                 {"planner": "greedy", "books": books, "settings": settings}
             ),

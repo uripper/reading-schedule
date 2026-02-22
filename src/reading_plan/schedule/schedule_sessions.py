@@ -16,12 +16,16 @@ if TYPE_CHECKING:
     from reading_plan.planner_types import Settings
 
 Session = tuple[date, int, Book, int, int]
+SessionRequest = tuple[int, int]
 
 
 def clip_session(
-    book: Book, settings: Settings, blocks: int, remaining_words: int
+    book: Book,
+    settings: Settings,
+    request: SessionRequest,
 ) -> tuple[int, int]:
     """Clip session."""
+    blocks, remaining_words = request
     if remaining_words <= 0:
         return 0, 0
     max_minutes = blocks * settings.time_quantum_minutes
@@ -54,7 +58,9 @@ def iter_sessions(
         for book_id, blocks in items:
             book = book_map[book_id]
             minutes, words = clip_session(
-                book, settings, blocks, remaining[book_id]
+                book,
+                settings,
+                (blocks, remaining[book_id]),
             )
             if words <= 0:
                 continue

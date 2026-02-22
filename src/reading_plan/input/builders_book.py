@@ -11,6 +11,9 @@ from reading_plan.input.validate import validate_book
 from reading_plan.planner_types import Book
 from reading_plan.reading_calendar import parse_date
 
+MIN_PROGRESS_PERCENT = 0
+MAX_PROGRESS_PERCENT = 100
+
 
 def _estimated_words_read_from_pages(
     pages_read: int, words_full: int, pages_raw: int | None
@@ -27,7 +30,7 @@ def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
     """Derive full words, remaining words, and progress from mixed fields."""
     words_raw = data.get("words_total")
     pages_raw = data.get("pages_total")
-    has_words = str(words_raw or "").strip() != ""
+    has_words = bool(str(words_raw or "").strip())
     if has_words:
         full = to_int(words_raw or 0, "words_total")
     else:
@@ -44,14 +47,21 @@ def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
         progress = to_float(
             data.get("progress_percent", 0.0), "progress_percent"
         )
-        if progress < 0 or progress > 100:
+        if progress < MIN_PROGRESS_PERCENT or progress > MAX_PROGRESS_PERCENT:
             msg = "progress_percent must be between 0 and 100"
             raise ValueError(msg)
-        words_read = round(full * progress / 100.0)
+        words_read = round(full * progress / float(MAX_PROGRESS_PERCENT))
     else:
         words_read = max(0, words_read)
         words_read = min(words_read, full)
-        progress = 0.0 if full <= 0 else round(100.0 * words_read / full, 2)
+        progress = (
+            0.0
+            if full <= 0
+            else round(
+                float(MAX_PROGRESS_PERCENT) * words_read / full,
+                2,
+            )
+        )
     return full, max(0, full - words_read), progress
 
 
