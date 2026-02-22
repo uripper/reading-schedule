@@ -68,7 +68,7 @@ def main() -> int:
         data = generate_plan(payload)
         write_payload({"ok": True, "data": data})
 
-    except (FileNotFoundError, KeyError, TypeError, ValueError) as error:
+    except (KeyError, OSError, RuntimeError, TypeError, ValueError) as error:
         write_payload({"ok": False, "error": str(error)})
         return 1
     else:
