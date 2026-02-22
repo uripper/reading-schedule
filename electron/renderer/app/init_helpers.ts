@@ -1,17 +1,9 @@
 import { el } from "../dom.js";
-import { activateTab } from "../tabs.js";
+import type { Session } from "../sessions/normalize.js";
 import { createPlanController } from "./plan_controller.js";
 import { bindSettingsAutoPlanListeners } from "./runtime_helpers.js";
-import {
-  completeFocusSession,
-  completeTinyStart,
-  createClosedFocusState,
-  exitFocusMode,
-  openFocusMode,
-  startFocusSession,
-  type FocusSession,
-} from "./today_focus.js";
 import type { PlannerResult } from "./types.js";
+import { bindTodayFocusActions } from "./today_focus_bindings.js";
 
 type SetStatus = (message: string, isError?: boolean) => void;
 
@@ -22,6 +14,17 @@ type FinalizeInitialLoadArgs = {
   setReady: () => void;
   queuePersist: () => void;
   queueAutoPlan: () => void;
+  setStatus: SetStatus;
+};
+
+type BindTodayActionsArgs = {
+  getLastResult: () => PlannerResult | null;
+  getScheduleCompletions: () => Record<string, boolean>;
+  setScheduleCompletions: (nextCompletions: Record<string, boolean>) => void;
+  getSessions: () => Session[];
+  setSessions: (nextSessions: Session[]) => void;
+  queuePersist: () => void;
+  updateTodayView: () => void;
   setStatus: SetStatus;
 };
 
@@ -64,72 +67,6 @@ export function finalizeInitialLoad({
   queueAutoPlan();
 }
 
-export function bindTodayActions(): void {
-  const focusEntryButton = el<HTMLButtonElement>("startSessionFromTodayBtn");
-  const focusPanel = el("todayFocusModePanel");
-  const focusSessionText = el("todayFocusSessionText");
-  const focusSessionMeta = el("todayFocusSessionMeta");
-  const focusFeedback = el("todayFocusFeedback");
-  const focusStartButton = el<HTMLButtonElement>("todayFocusStartBtn");
-  const focusTinyStartButton = el<HTMLButtonElement>("todayFocusTinyStartBtn");
-  const focusCompleteButton = el<HTMLButtonElement>("todayFocusCompleteBtn");
-  const focusExitButton = el<HTMLButtonElement>("todayFocusExitBtn");
-
-  const readFocusSessionFromDataset = (): FocusSession | null => {
-    const title = String(focusEntryButton.dataset.focusSessionTitle || "").trim();
-    const date = String(focusEntryButton.dataset.focusSessionDate || "").trim();
-    const rawMinutes = Number(focusEntryButton.dataset.focusSessionMinutes || 0);
-    if (!title || !date || !Number.isFinite(rawMinutes) || rawMinutes <= 0) {
-      return null;
-    }
-    return {
-      date,
-      minutes: Math.max(1, Math.round(rawMinutes)),
-      title,
-    };
-  };
-
-  let focusState = createClosedFocusState();
-  const renderFocusMode = () => {
-    focusPanel.hidden = !focusState.isOpen;
-    if (!focusState.isOpen) {
-      return;
-    }
-    if (focusState.session) {
-      focusSessionText.textContent = `Next: ${focusState.session.title} (${focusState.session.minutes} minutes)`;
-      focusSessionMeta.textContent = `Scheduled for ${focusState.session.date}`;
-    } else {
-      focusSessionText.textContent = "No upcoming planned session.";
-      focusSessionMeta.textContent = "Use Tiny Start for a short reading sprint.";
-    }
-    focusStartButton.disabled = !focusState.session || focusState.isStarted;
-    focusCompleteButton.hidden = !focusState.isStarted;
-    focusFeedback.textContent = focusState.feedback;
-  };
-
-  focusEntryButton.onclick = () => {
-    focusState = openFocusMode(readFocusSessionFromDataset());
-    renderFocusMode();
-    focusStartButton.focus();
-  };
-  focusStartButton.onclick = () => {
-    focusState = startFocusSession(focusState);
-    renderFocusMode();
-  };
-  focusTinyStartButton.onclick = () => {
-    focusState = completeTinyStart(focusState);
-    renderFocusMode();
-  };
-  focusCompleteButton.onclick = () => {
-    focusState = completeFocusSession(focusState);
-    renderFocusMode();
-  };
-  focusExitButton.onclick = () => {
-    focusState = exitFocusMode(focusState);
-    renderFocusMode();
-    focusEntryButton.focus();
-  };
-  el("viewScheduleFromTodayBtn").onclick = () => {
-    activateTab("schedule", { focusPanel: true });
-  };
+export function bindTodayActions(args: BindTodayActionsArgs): void {
+  bindTodayFocusActions(args);
 }

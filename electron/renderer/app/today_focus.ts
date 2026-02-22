@@ -3,8 +3,10 @@ import type { PlannerScheduleRow } from "./types.js";
 export const TINY_START_MINUTES = 3;
 
 export type FocusSession = {
+  bookId: string;
   date: string;
   minutes: number;
+  sessionIndex: number | null;
   title: string;
 };
 
@@ -22,8 +24,10 @@ export function focusSessionFromRow(row: PlannerScheduleRow | null): FocusSessio
     return null;
   }
   return {
+    bookId: String(row.book_id || ""),
     date: String(row.date || ""),
     minutes: Math.max(1, Math.round(Number(row.minutes || 0))),
+    sessionIndex: Math.max(1, Math.round(Number(row.session_index || 1))),
     title: String(row.title || "Untitled"),
   };
 }

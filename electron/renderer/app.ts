@@ -171,7 +171,20 @@ async function init() {
       });
     },
   });
-  bindTodayActions();
+  bindTodayActions({
+    getLastResult: () => state.lastResult,
+    getScheduleCompletions: () => state.scheduleCompletions,
+    setScheduleCompletions: (nextCompletions) => {
+      state.scheduleCompletions = nextCompletions;
+    },
+    getSessions: () => state.sessions,
+    setSessions: (nextSessions) => {
+      state.sessions = nextSessions;
+    },
+    queuePersist,
+    updateTodayView: runtime.handleScheduleMutation,
+    setStatus,
+  });
 }
 
 const splash = createSplashController();
