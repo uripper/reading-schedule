@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
 
 
-@dataclass(frozen=True)
+@dataclass
 class DayState:
     """Mutable state for planning one day of greedy assignments."""
 
@@ -34,7 +34,7 @@ class DayState:
     daily_book_cap: int
 
 
-@dataclass(frozen=True)
+@dataclass
 class SpreadState:
     """Inputs for spread-mode daily capacity targeting."""
 

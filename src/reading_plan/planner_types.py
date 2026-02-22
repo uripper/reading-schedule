@@ -26,7 +26,7 @@ PLAN_MODE_SPREAD_OUT = "spread_out"
 PLAN_MODES = (PLAN_MODE_FINISH_SOON, PLAN_MODE_SPREAD_OUT)
 
 
-@dataclass(frozen=True)
+@dataclass
 class Book:
     """A normalized book input for planning."""
 
@@ -43,7 +43,7 @@ class Book:
     blocked_by: str | None = None
 
 
-@dataclass(frozen=True)
+@dataclass
 class Settings:
     """Planner configuration and scheduling constraints."""
 
@@ -65,7 +65,7 @@ class Settings:
     plan_mode: str = PLAN_MODE_FINISH_SOON
 
 
-@dataclass(frozen=True)
+@dataclass
 class PlanResult:
     """Solver output assignments and metadata."""
 

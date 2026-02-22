@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
 
 
-@dataclass(frozen=True)
+@dataclass
 class ObjectiveContext:
     """Container for CP-SAT objective construction inputs."""
 
