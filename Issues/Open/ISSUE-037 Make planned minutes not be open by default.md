@@ -1,4 +1,4 @@
-# ISSUE-036: Make changing planned minutes not be open by default
+# ISSUE-037: Make changing planned minutes not be open by default
 
 **Type:** enhancement
 **Priority:** P1
