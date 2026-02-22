@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from .builders import book_from_data, settings_from_data
-from .report import build_summary
-from .schedule import to_schedule_rows
-from .solve import solve_plan
+from .input.builders import book_from_data, settings_from_data
+from .reporting.report import build_summary
+from .schedule.schedule import to_schedule_rows
+from .planning.solve import solve_plan
 from .types import Book
 
 

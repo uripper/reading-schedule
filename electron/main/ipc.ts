@@ -4,13 +4,13 @@
 import { ipcMain, type WebContents } from "electron";
 import type { JsonValue } from "./state_store";
 import type { WindowFindRequest } from "./window_find";
-import { UI_SCALE_STEP } from "./main_zoom";
+import { UI_SCALE_STEP } from "./zoom";
 import {
   asDownloadCoverPayload,
   asUploadCoverPayload,
   type DownloadCoverPayload,
   type UploadCoverPayload,
-} from "./main_ipc_payloads";
+} from "./ipc_payloads";
 
 interface RegisterIpcHandlersArgs {
   downloadCover(
@@ -43,19 +43,19 @@ interface RegisterIpcHandlersArgs {
 
 /**
  * Registers all main-process IPC handlers consumed by the renderer.
- * @param root0
- * @param root0.downloadCover
- * @param root0.findInPage
- * @param root0.initialZoomFactor
- * @param root0.readState
- * @param root0.runBridge
- * @param root0.saveUploadedCover
- * @param root0.searchBooks
- * @param root0.setZoomFactor
- * @param root0.shiftZoomFactor
- * @param root0.stopFindInPage
- * @param root0.userData
- * @param root0.writeState
+ * @param root0 IPC dependency implementations.
+ * @param root0.downloadCover Fetches and stores a remote cover image.
+ * @param root0.findInPage Triggers in-page find on the active web contents.
+ * @param root0.initialZoomFactor Returns the configured initial zoom factor.
+ * @param root0.readState Loads persisted renderer state from disk.
+ * @param root0.runBridge Invokes the planner bridge command.
+ * @param root0.saveUploadedCover Persists a user-uploaded cover image.
+ * @param root0.searchBooks Executes remote book search by query.
+ * @param root0.setZoomFactor Applies an absolute zoom factor.
+ * @param root0.shiftZoomFactor Applies a relative zoom factor delta.
+ * @param root0.stopFindInPage Clears active in-page find highlights.
+ * @param root0.userData Returns the app user-data directory path.
+ * @param root0.writeState Persists renderer state payload to disk.
  */
 export function registerIpcHandlers({
   downloadCover,

@@ -1,7 +1,7 @@
 /**
  * @file Ranking helpers used to score Open Library search results.
  */
-import type { SearchDoc } from "./book_lookup_search_shared.js";
+import type { SearchDoc } from "./search_shared.js";
 import {
   SCORE_CONTAINS_TITLE,
   SCORE_ENGLISH_LANGUAGE,
@@ -12,13 +12,13 @@ import {
   SCORE_TOKEN_AUTHOR,
   SCORE_TOKEN_CONTAINS,
   SCORE_TOKEN_PREFIX,
-} from "./book_lookup_search_shared.js";
+} from "./search_shared.js";
 import {
   hasEnglishLanguage,
   normalizeSearchText,
   primaryAuthor,
   queryTokens,
-} from "./book_lookup_search_text.js";
+} from "./search_text.js";
 
 /**
  * Scores title relevance against the normalized query text.
@@ -109,4 +109,4 @@ export function scoreDoc(doc: SearchDoc, query: string): number {
   );
 }
 
-export { dedupeDocs } from "./book_lookup_search_dedupe.js";
+export { dedupeDocs } from "./search_dedupe.js";

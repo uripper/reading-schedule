@@ -8,10 +8,10 @@ import {
   extensionFor,
   filePathForCover,
   isHttpProtocol,
-} from "./book_lookup_cover_paths";
-import { parseCoverDataUrl } from "./book_lookup_cover_data_url";
+} from "./cover_paths";
+import { parseCoverDataUrl } from "./cover_data_url";
 
-export { searchBooks } from "./book_lookup_search";
+export { searchBooks } from "./search";
 
 /**
  * Downloads a remote cover image and stores it in the user data directory.

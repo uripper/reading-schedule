@@ -7,8 +7,8 @@ import json
 import sys
 
 from .api import generate_plan
-from .io import load_inputs
-from .serializers import book_to_data, settings_to_data
+from .input.io import load_inputs
+from .input.serializers import book_to_data, settings_to_data
 
 
 def parse_args() -> argparse.Namespace:

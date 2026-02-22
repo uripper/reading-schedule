@@ -8,7 +8,7 @@ import {
   SEARCH_FETCH_LIMIT,
   SEARCH_FIELDS,
   type SearchResponse,
-} from "./book_lookup_search_shared.js";
+} from "./search_shared.js";
 
 /**
  * Builds prioritized Open Library query URLs for a search string.

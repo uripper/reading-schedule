@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from reading_plan.builders_shared import WORDS_PER_PAGE
+from reading_plan.input.builders_shared import WORDS_PER_PAGE
 
 
 def test_words_per_page_matches_renderer_constant() -> None:

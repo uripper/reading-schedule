@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, cast
 
 from reading_plan.api import generate_plan
-from reading_plan.serializers import book_to_data, settings_to_data
+from reading_plan.input.serializers import book_to_data, settings_to_data
 from tests.helpers import demo_books, demo_settings
 
 

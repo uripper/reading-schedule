@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from reading_plan.io import load_inputs
+from reading_plan.input.io import load_inputs
 
 
 def test_load_inputs_parses_books_and_settings(tmp_path: Path) -> None:

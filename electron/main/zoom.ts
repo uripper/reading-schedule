@@ -10,8 +10,9 @@ export const UI_SCALE_STEP = 0.1;
 const ZOOM_PRECISION = 100;
 
 /**
- *
- * @param value
+ * Clamps a zoom factor to supported bounds and handles invalid numbers.
+ * @param value Candidate zoom factor.
+ * @returns Clamped zoom factor within configured limits.
  */
 function clampZoomFactor(value: number): number {
   if (!Number.isFinite(value)) {
@@ -21,16 +22,18 @@ function clampZoomFactor(value: number): number {
 }
 
 /**
- *
- * @param value
+ * Normalizes zoom factor precision after clamping.
+ * @param value Candidate zoom factor.
+ * @returns Rounded zoom factor using configured precision.
  */
 function normalizedZoomFactor(value: number): number {
   return Math.round(clampZoomFactor(value) * ZOOM_PRECISION) / ZOOM_PRECISION;
 }
 
 /**
- *
- * @param webContents
+ * Reads and normalizes the current zoom factor from web contents.
+ * @param webContents Electron web contents whose zoom is read.
+ * @returns Normalized current zoom factor.
  */
 function currentZoomFactor(webContents: WebContents): number {
   return normalizedZoomFactor(webContents.getZoomFactor());
@@ -38,8 +41,9 @@ function currentZoomFactor(webContents: WebContents): number {
 
 /**
  * Applies and returns a normalized zoom factor for the target web contents.
- * @param webContents
- * @param value
+ * @param webContents Electron web contents receiving the zoom update.
+ * @param value Requested zoom factor.
+ * @returns Applied normalized zoom factor.
  */
 export function setZoomFactor(webContents: WebContents, value: number): number {
   const nextFactor = normalizedZoomFactor(value);
@@ -49,6 +53,7 @@ export function setZoomFactor(webContents: WebContents, value: number): number {
 
 /**
  * Reads the initial zoom factor from environment or default settings.
+ * @returns Initial normalized zoom factor.
  */
 export function initialZoomFactor(): number {
   const requestedScale = Number(process.env.UI_SCALE || String(DEFAULT_UI_SCALE));
@@ -57,8 +62,9 @@ export function initialZoomFactor(): number {
 
 /**
  * Moves the current zoom factor by a delta and returns the applied value.
- * @param webContents
- * @param delta
+ * @param webContents Electron web contents receiving the zoom update.
+ * @param delta Relative zoom delta to apply.
+ * @returns Applied normalized zoom factor.
  */
 export function shiftZoomFactor(webContents: WebContents, delta: number): number {
   return setZoomFactor(webContents, currentZoomFactor(webContents) + delta);

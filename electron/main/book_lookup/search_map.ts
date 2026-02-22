@@ -7,8 +7,8 @@ import {
   WORDS_PER_PAGE_ESTIMATE,
   type SearchDoc,
   type SearchItem,
-} from "./book_lookup_search_shared.js";
-import { primaryAuthor } from "./book_lookup_search_text.js";
+} from "./search_shared.js";
+import { primaryAuthor } from "./search_text.js";
 
 /**
  * Converts a raw search document into the app's normalized search item shape.

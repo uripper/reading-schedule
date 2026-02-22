@@ -15,14 +15,16 @@ interface BridgeResponse {
 }
 
 /**
- *
+ * Resolves the repository root used by the Python bridge process.
+ * @returns Absolute path to the project root directory.
  */
 function root(): string {
   return path.join(__dirname, "..", "..");
 }
 
 /**
- *
+ * Builds environment variables for the planner subprocess.
+ * @returns Process environment including the planner PYTHONPATH.
  */
 function pyEnv(): NodeJS.ProcessEnv {
   return {
@@ -32,18 +34,20 @@ function pyEnv(): NodeJS.ProcessEnv {
 }
 
 /**
- *
- * @param target
- * @param chunk
+ * Appends a stream chunk to an accumulated output buffer.
+ * @param target Existing text buffer.
+ * @param chunk New stdout/stderr chunk from the child process.
+ * @returns Updated output buffer.
  */
 function appendChunk(target: string, chunk: Buffer | string): string {
   return target + chunk.toString();
 }
 
 /**
- *
- * @param stdout
- * @param stderr
+ * Parses planner JSON output and converts planner failures to thrown errors.
+ * @param stdout Raw stdout text from the planner subprocess.
+ * @param stderr Raw stderr text from the planner subprocess.
+ * @returns Parsed planner payload or null when no data is returned.
  */
 function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
   try {
@@ -62,8 +66,9 @@ function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
 
 /**
  * Executes the Python planner bridge command and returns parsed JSON output.
- * @param args
- * @param payload
+ * @param args Planner CLI arguments passed after the module name.
+ * @param payload Optional JSON payload written to planner stdin.
+ * @returns Parsed planner JSON response.
  */
 export async function runBridge(args: string[], payload?: JsonValue): Promise<JsonValue> {
   return await new Promise((resolve, reject) => {

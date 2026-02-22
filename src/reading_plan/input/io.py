@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 from .builders import book_from_data, settings_from_data
-from .types import Book, Settings
+from ..types import Book, Settings
 
 
 def load_books(path: str) -> list[Book]:

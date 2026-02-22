@@ -5,15 +5,15 @@ import path from "node:path";
 
 import { app, BrowserWindow } from "electron";
 
-import { downloadCover, saveUploadedCover, searchBooks } from "./book_lookup";
-import { runBridge } from "./main_bridge";
-import { registerIpcHandlers } from "./main_ipc";
-import { initialZoomFactor, setZoomFactor, shiftZoomFactor } from "./main_zoom";
-import { readState, writeState } from "./state_store";
-import { findInPage, stopFindInPage } from "./window_find";
+import { downloadCover, saveUploadedCover, searchBooks } from "./main/book_lookup";
+import { runBridge } from "./main/bridge";
+import { registerIpcHandlers } from "./main/ipc";
+import { initialZoomFactor, setZoomFactor, shiftZoomFactor } from "./main/zoom";
+import { readState, writeState } from "./main/state_store";
+import { findInPage, stopFindInPage } from "./main/window_find";
 
 /**
- *
+ * Creates and initializes the main application browser window.
  */
 function createWindow(): void {
   const iconPath = path.join(__dirname, "assets", "logo.png");
@@ -30,7 +30,8 @@ function createWindow(): void {
 }
 
 /**
- *
+ * Resolves the app-specific user data directory path.
+ * @returns Absolute path for persisted app data.
  */
 function userData(): string {
   return app.getPath("userData");
