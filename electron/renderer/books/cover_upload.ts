@@ -16,8 +16,9 @@ const ERROR_UNSUPPORTED_FILE = "Use a PNG, JPG, or WEBP image.";
 const ERROR_UPLOAD_FAILED = "Could not upload this cover image.";
 
 /**
- *
- * @param fileName
+ * Checks whether a file name ends with a supported cover image extension.
+ * @param fileName File name from upload input.
+ * @returns `true` when extension is PNG/JPG/JPEG/WEBP.
  */
 function fileNameHasSupportedExtension(fileName: string): boolean {
   const lowerName = String(fileName || "")
@@ -39,8 +40,9 @@ function fileNameHasSupportedExtension(fileName: string): boolean {
 }
 
 /**
- *
- * @param file
+ * Validates uploaded cover files by mime type or extension fallback.
+ * @param file Selected file from upload input.
+ * @returns `true` when the file can be treated as a supported image.
  */
 function fileIsSupported(file: File): boolean {
   const mimeType = String(file.type || "")
@@ -60,8 +62,9 @@ function fileIsSupported(file: File): boolean {
 }
 
 /**
- *
- * @param refs
+ * Returns the currently selected cover file from the file input.
+ * @param refs Book form references containing the upload input.
+ * @returns First selected file or `null` when none is selected.
  */
 function selectedCoverFile(refs: BookFormRefs): File | null {
   const { files } = refs.coverUploadInput;
@@ -72,8 +75,9 @@ function selectedCoverFile(refs: BookFormRefs): File | null {
 }
 
 /**
- *
- * @param file
+ * Reads a file as a data URL for planner cover upload transport.
+ * @param file Cover image file to read.
+ * @returns Data URL string produced by `FileReader`.
  */
 async function readFileAsDataUrl(file: File): Promise<string> {
   return await new Promise((resolve, reject) => {
@@ -101,17 +105,17 @@ async function readFileAsDataUrl(file: File): Promise<string> {
 }
 
 /**
- *
- * @param refs
+ * Opens the native file picker for the cover upload input.
+ * @param refs Book form references containing the upload input.
  */
 function triggerCoverPicker(refs: BookFormRefs): void {
   refs.coverUploadInput.click();
 }
 
 /**
- *
- * @param event
- * @param refs
+ * Handles keyboard activation for the cover panel trigger.
+ * @param event Keyboard event from the cover panel.
+ * @param refs Book form references containing upload controls.
  */
 function onCoverPanelKeydown(event: KeyboardEvent, refs: BookFormRefs): void {
   if (event.key !== KEY_ENTER && event.key !== KEY_SPACE) {
@@ -122,8 +126,9 @@ function onCoverPanelKeydown(event: KeyboardEvent, refs: BookFormRefs): void {
 }
 
 /**
- *
- * @param error
+ * Normalizes unknown upload failures into user-visible message text.
+ * @param error Unknown error value from upload flow.
+ * @returns Safe error message for the form metadata area.
  */
 function uploadErrorMessage(error: unknown): string {
   if (error instanceof Error && error.message) {
@@ -133,16 +138,16 @@ function uploadErrorMessage(error: unknown): string {
 }
 
 /**
- *
- * @param refs
+ * Clears file input value so selecting the same file can retrigger change.
+ * @param refs Book form references containing upload controls.
  */
 function clearCoverUploadInput(refs: BookFormRefs): void {
   refs.coverUploadInput.value = "";
 }
 
 /**
- *
- * @param refs
+ * Validates, uploads, and applies currently selected custom cover file.
+ * @param refs Book form references containing upload and metadata controls.
  */
 async function saveSelectedCover(refs: BookFormRefs): Promise<void> {
   const file = selectedCoverFile(refs);
@@ -162,8 +167,8 @@ async function saveSelectedCover(refs: BookFormRefs): Promise<void> {
 }
 
 /**
- *
- * @param refs
+ * Runs cover upload flow and reports any user-facing error message.
+ * @param refs Book form references containing upload and metadata controls.
  */
 async function handleCoverUploadChange(refs: BookFormRefs): Promise<void> {
   try {
@@ -176,8 +181,8 @@ async function handleCoverUploadChange(refs: BookFormRefs): Promise<void> {
 }
 
 /**
- *
- * @param refs
+ * Binds click, keyboard, and file-change handlers for cover upload UX.
+ * @param refs Book form references containing upload and panel controls.
  */
 export function bindCoverUpload(refs: BookFormRefs): void {
   const runUploadChange = () => {

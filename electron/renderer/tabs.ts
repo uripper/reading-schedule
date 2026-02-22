@@ -72,9 +72,9 @@ export function activateTab(name: string, options: ActivateTabOptions = {}) {
     }
   });
 
-  qa<HTMLElement>(".panel").forEach((panel) =>
-    { setPanelState(panel, panel.id === `tab-${name}`); },
-  );
+  qa<HTMLElement>(".panel").forEach((panel) => {
+    setPanelState(panel, panel.id === `tab-${name}`);
+  });
   const activePanel = panelByName(name);
   if (focusPanel && activePanel) {
     activePanel.focus();
@@ -94,7 +94,7 @@ function activateTabByIndex(tabs: HTMLElement[], index: number): void {
     return;
   }
   target.focus();
-  activateTab(target.dataset.tab || "today");
+  activateTab(target.dataset.tab ?? "today");
 }
 
 /**
@@ -133,7 +133,9 @@ function bindTabKeyboard(tabs: HTMLElement[]): void {
 export function bindTabs(onChange: (name: string) => void = () => {}) {
   onTabActivated = onChange;
   allTabButtons().forEach((btn) => {
-    btn.onclick = () => { activateTab(btn.dataset.tab || "today"); };
+    btn.onclick = () => {
+      activateTab(btn.dataset.tab ?? "today");
+    };
   });
 
   bindTabKeyboard(desktopTabs());

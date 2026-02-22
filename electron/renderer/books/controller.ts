@@ -52,23 +52,24 @@ const viewState: BooksViewState = {
 };
 
 /**
- *
- * @param nextBooks
+ * Replaces the in-memory books collection used by the books controller.
+ * @param nextBooks Books to render and edit in the current session.
  */
 function setBooks(nextBooks: Book[]): void {
   books = nextBooks;
 }
 
 /**
- *
- * @param bookId
+ * Finds a mutable in-memory book by id.
+ * @param bookId Stable `book_id` to locate.
+ * @returns Matching book instance when present; otherwise `null`.
  */
 function findBook(bookId: string): Book | null {
   return books.find((book) => book.book_id === bookId) || null;
 }
 
 /**
- *
+ * Renders the books area using current controller state and view filters.
  */
 function render(): void {
   renderBooksController({
@@ -85,8 +86,9 @@ function render(): void {
 }
 
 /**
- *
- * @param bookId
+ * Reads a book by id and returns a defensive copy for callers.
+ * @param bookId Stable `book_id` to locate.
+ * @returns Cloned book when found; otherwise `null`.
  */
 export function getBookById(bookId: string): Book | null {
   const book = findBook(bookId);
@@ -101,10 +103,11 @@ interface UpdateBookProgressOptions {
 }
 
 /**
- *
- * @param bookId
- * @param updates
- * @param options
+ * Applies progress field updates to a single book and refreshes the UI.
+ * @param bookId Stable `book_id` to update.
+ * @param updates Partial progress values to merge into the current book.
+ * @param options Behavioral flags such as change notification control.
+ * @returns Updated cloned book when found; otherwise `null`.
  */
 export function updateBookProgress(
   bookId: string,
@@ -127,8 +130,8 @@ export function updateBookProgress(
 }
 
 /**
- *
- * @param book
+ * Persists an edited book, including optional cover hydration, then rerenders.
+ * @param book Book to save into the controller collection.
  */
 async function saveBook(book: Book): Promise<void> {
   const hydrated = await hydrateBookCover(book);
@@ -138,8 +141,8 @@ async function saveBook(book: Book): Promise<void> {
 }
 
 /**
- *
- * @param nextBooks
+ * Replaces controller books from persisted payload data.
+ * @param nextBooks Raw books to normalize and render.
  */
 export function fillBooks(nextBooks: Book[] = []): void {
   books = nextBooks.map(normalizeBook);
@@ -147,8 +150,8 @@ export function fillBooks(nextBooks: Book[] = []): void {
 }
 
 /**
- *
- * @param rows
+ * Stores planner schedule rows used for finish-date and grouping metadata.
+ * @param rows Schedule rows aligned to the current reading plan.
  */
 export function setBookScheduleRows(rows: PlannerScheduleRow[] = []): void {
   scheduleRows = [...rows];
@@ -156,7 +159,8 @@ export function setBookScheduleRows(rows: PlannerScheduleRow[] = []): void {
 }
 
 /**
- *
+ * Collects books that should be sent to planner scheduling logic.
+ * @returns Normalized planner payload books that are title-complete and schedulable.
  */
 export function collectBooks() {
   const schedulableBooks = books.map(toPayloadBook).filter((book) => {
@@ -166,7 +170,8 @@ export function collectBooks() {
 }
 
 /**
- *
+ * Collects every titled book for persistence regardless of schedulable state.
+ * @returns Normalized payload books with non-empty titles.
  */
 export function collectAllBooks() {
   return books.map(toPayloadBook).filter((book) => {
@@ -175,8 +180,8 @@ export function collectAllBooks() {
 }
 
 /**
- *
- * @param onChanged
+ * Binds books toolbar, dialog, and grid events for interactive editing.
+ * @param onChanged Callback fired after persisted book list mutations.
  */
 export function bindBooksUI(onChanged: () => void = () => {}): void {
   onBooksChanged = onChanged;

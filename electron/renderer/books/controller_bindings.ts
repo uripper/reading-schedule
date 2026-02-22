@@ -9,8 +9,10 @@ import {
 } from "./controller_types.js";
 
 /**
- *
- * @param refs
+ * Validates and unwraps toolbar control references required for event binding.
+ * @param refs Controller DOM references collected during books UI setup.
+ * @returns Strongly typed toolbar controls ready for listener registration.
+ * @throws {TypeError} Thrown when any required toolbar control is missing.
  */
 function assertToolbarControls(refs: BooksControllerRefs): {
   sortBySelect: HTMLSelectElement;
@@ -59,11 +61,11 @@ interface BindToolbarEventsArgs {
 }
 
 /**
- *
- * @param root0
- * @param root0.refs
- * @param root0.viewState
- * @param root0.rerender
+ * Attaches toolbar listeners and synchronizes control changes into view state.
+ * @param root0 Event binding inputs.
+ * @param root0.refs Controller DOM references for toolbar controls.
+ * @param root0.viewState Mutable view state driving books rendering.
+ * @param root0.rerender Callback that refreshes the books view.
  */
 export function bindToolbarEvents({
   refs,

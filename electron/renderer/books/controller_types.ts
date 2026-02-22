@@ -38,10 +38,16 @@ export interface BooksControllerRefs {
   sortDirectionBtn: HTMLButtonElement | null;
 }
 
+/**
+ * Minimal API surface exposed by the add/edit book dialog controller.
+ */
 export interface BookDialogController {
   open(book?: Book | null, options?: OpenDialogOptions): void;
 }
 
+/**
+ * Mutable books screen state backed by toolbar controls.
+ */
 export interface BooksViewState {
   shelfFilter: string;
   statusFilter: BookStatusFilter;
@@ -73,8 +79,9 @@ const GROUP_BY_OPTIONS: BookGroupBy[] = [
 ];
 
 /**
- *
- * @param value
+ * Converts toolbar sort value into a supported sort option.
+ * @param value Raw value read from sort-by select control.
+ * @returns Matching sort option or title sort when value is unsupported.
  */
 export function toSortBy(value: string): SortBy {
   const matched = SORT_BY_OPTIONS.find((option) => option === value);
@@ -85,8 +92,9 @@ export function toSortBy(value: string): SortBy {
 }
 
 /**
- *
- * @param value
+ * Converts toolbar group value into a supported group option.
+ * @param value Raw value read from group-by select control.
+ * @returns Matching group option or no-group fallback when unsupported.
  */
 export function toGroupBy(value: string): BookGroupBy {
   const matched = GROUP_BY_OPTIONS.find((option) => option === value);
@@ -97,8 +105,9 @@ export function toGroupBy(value: string): BookGroupBy {
 }
 
 /**
- *
- * @param currentShelfFilter
+ * Resolves which shelf should be preselected when opening the add-book dialog.
+ * @param currentShelfFilter Currently active shelf filter in the toolbar.
+ * @returns Shelf id for new books, or empty string when filter is global/unshelved.
  */
 export function defaultShelfForAddDialog(currentShelfFilter: string): string {
   if (

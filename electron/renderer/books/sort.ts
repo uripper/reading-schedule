@@ -38,9 +38,11 @@ type OptionalNumber = number | null | undefined;
 type OptionalString = string | null | undefined;
 
 /**
+ * Compares optional numbers with missing values sorted last.
  *
- * @param left
- * @param right
+ * @param left Left numeric value.
+ * @param right Right numeric value.
+ * @returns Negative/zero/positive comparison result.
  */
 function compareNumbers(left: OptionalNumber, right: OptionalNumber): number {
   const leftMissing = left === null || left === undefined;
@@ -64,9 +66,11 @@ function compareNumbers(left: OptionalNumber, right: OptionalNumber): number {
 }
 
 /**
+ * Compares optional text values case-insensitively with blanks sorted last.
  *
- * @param left
- * @param right
+ * @param left Left text value.
+ * @param right Right text value.
+ * @returns Negative/zero/positive comparison result.
  */
 function compareText(left: OptionalString, right: OptionalString): number {
   const leftText = String(left || "")
@@ -90,9 +94,11 @@ function compareText(left: OptionalString, right: OptionalString): number {
 }
 
 /**
+ * Compares titles using normalized sort keys, then raw text as tie-breaker.
  *
- * @param left
- * @param right
+ * @param left Left title text.
+ * @param right Right title text.
+ * @returns Negative/zero/positive comparison result.
  */
 function compareTitleText(left: OptionalString, right: OptionalString): number {
   const leftKey = titleSortKey(left);
@@ -147,11 +153,13 @@ const SORT_COMPARATORS: Record<SortBy, SortComparator> = {
 };
 
 /**
+ * Compares two books using selected sort field comparator.
  *
- * @param leftBook
- * @param rightBook
- * @param sortBy
- * @param finishDateByBookId
+ * @param leftBook Left book candidate.
+ * @param rightBook Right book candidate.
+ * @param sortBy Active sort key.
+ * @param finishDateByBookId Finish-date lookup keyed by `book_id`.
+ * @returns Negative/zero/positive comparison result.
  */
 function compareBySortKey(
   leftBook: Book,
@@ -164,11 +172,13 @@ function compareBySortKey(
 }
 
 /**
+ * Returns a stably sorted copy of books for current toolbar sort controls.
  *
- * @param books
- * @param sortBy
- * @param sortDirection
- * @param finishDateByBookId
+ * @param books Books to sort.
+ * @param sortBy Active sort key.
+ * @param sortDirection Ascending or descending direction.
+ * @param finishDateByBookId Finish-date lookup keyed by `book_id`.
+ * @returns Sorted array copy suitable for rendering.
  */
 export function sortBooks(
   books: Book[] = [],
