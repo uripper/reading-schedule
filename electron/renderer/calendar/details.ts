@@ -49,7 +49,7 @@ function rowNodeForMode(
   rerenderDetails: () => void,
 ): HTMLElement {
   if (mode === "today") {
-    return buildTodaySessionItem(row, interactionHandlers, rerenderDetails);
+    return buildTodaySessionItem(row, state, interactionHandlers, rerenderDetails);
   }
   if (mode === "future") {
     return buildFutureSessionItem(

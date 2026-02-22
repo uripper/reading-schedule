@@ -141,3 +141,24 @@ test("estimateProgressLabel uses current progress for completed current-day sess
     "Estimated by end of this session: 160 pages read (40% complete)",
   );
 });
+
+test("estimateProgressLabel projects end-of-session pages for incomplete current-day session", () => {
+  const today = dayKey(new Date());
+  const todayRow = row({ date: today, session_index: 1 });
+  const state = {
+    rows: [todayRow],
+    totalsByBookId: { "book-1": 4000 },
+  };
+
+  const label = estimateProgressLabel(
+    todayRow,
+    state,
+    () => book(),
+    () => false,
+  );
+
+  assert.equal(
+    label,
+    "Estimated before session: 100 pages (25%) -> after session: 200 pages (50%)",
+  );
+});

@@ -448,6 +448,28 @@ main {
   font-size: var(--token-typography-size-xs);
 }
 
+.today-focus-mode {
+  display: grid;
+  gap: var(--token-space-2);
+  margin-top: var(--token-space-2);
+  padding: var(--token-space-3);
+  border: 1px solid color-mix(in srgb, var(--app-brandStrong) 48%, var(--app-border));
+  border-radius: var(--token-radius-sm);
+  background: color-mix(in srgb, var(--app-brand) 10%, var(--app-surface));
+}
+
+.today-focus-mode > h3 {
+  margin: 0;
+}
+
+.today-focus-mode .body-text {
+  margin: 0;
+}
+
+#todayFocusFeedback {
+  margin: 0;
+}
+
 .timer-value {
   margin: var(--token-space-2) 0;
   font-family: var(--token-typography-family-heading);

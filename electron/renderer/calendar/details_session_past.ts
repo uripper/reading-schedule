@@ -1,5 +1,6 @@
 import type { CalendarRowWithFinish } from "./data.js";
 import type { DetailInteractionHandlers } from "./details_types.js";
+import { minutesFormForSession } from "./details_minutes_form.js";
 import { sessionKeyFor } from "./utils.js";
 import {
   baseSessionItem,
@@ -53,6 +54,7 @@ export function buildPastSessionItem(
   item.append(
     completeLabel,
     status,
+    minutesFormForSession(row, interactionHandlers, rerenderDetails),
     removeSessionButton(row, interactionHandlers, rerenderDetails),
   );
   return item;

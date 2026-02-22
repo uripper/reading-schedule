@@ -14,6 +14,11 @@ export type ProgressUpdatePayload = {
   progressPercent?: number | null;
 };
 
+export type MinutesUpdatePayload = {
+  minutes: number;
+  row: CalendarRowWithFinish;
+};
+
 export type ManualSessionPayload = {
   date: string;
   bookId: string;
@@ -34,6 +39,7 @@ export type CalendarHandlers = {
   isSessionCompleted: (sessionKey: string) => boolean;
   onSessionCompletionChanged: (payload: CompletionChangePayload) => void;
   onSessionProgressUpdated: (payload: ProgressUpdatePayload) => Book | null;
+  onSessionMinutesUpdated: (payload: MinutesUpdatePayload) => boolean;
   getBookById: (bookId: string) => Book | null;
   listSessionBooks: () => ManualSessionBook[];
   onManualSessionAdded: (payload: ManualSessionPayload) => boolean;
@@ -71,6 +77,7 @@ export function defaultCalendarHandlers(): CalendarHandlers {
     isSessionCompleted: () => false,
     onSessionCompletionChanged: () => {},
     onSessionProgressUpdated: () => null,
+    onSessionMinutesUpdated: () => false,
     getBookById: () => null,
     listSessionBooks: () => [],
     onManualSessionAdded: () => false,
@@ -88,6 +95,8 @@ export function mergeCalendarHandlers(
       handlers.onSessionCompletionChanged || defaults.onSessionCompletionChanged,
     onSessionProgressUpdated:
       handlers.onSessionProgressUpdated || defaults.onSessionProgressUpdated,
+    onSessionMinutesUpdated:
+      handlers.onSessionMinutesUpdated || defaults.onSessionMinutesUpdated,
     getBookById: handlers.getBookById || defaults.getBookById,
     listSessionBooks: handlers.listSessionBooks || defaults.listSessionBooks,
     onManualSessionAdded:
