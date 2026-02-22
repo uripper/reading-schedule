@@ -16,8 +16,12 @@ def _validate_blockers(books: list[Book]) -> None:
         if not book.blocked_by:
             continue
         if book.blocked_by not in by_id:
+            message = (
+                f"book {book.book_id} is blocked by missing book_id "
+                f"{book.blocked_by}"
+            )
             raise ValueError(
-                f"book {book.book_id} is blocked by missing book_id {book.blocked_by}"
+                message
             )
 
     visiting: set[str] = set()
@@ -43,7 +47,7 @@ def _validate_blockers(books: list[Book]) -> None:
 
 
 def generate_plan(payload: dict[str, object]) -> dict[str, object]:
-    """Validate payload inputs, solve the plan, and return summary plus schedule."""
+    """Validate inputs, solve the plan, and return summary plus schedule."""
     books_raw = payload.get("books")
     settings_raw = payload.get("settings")
     if not isinstance(books_raw, list) or not isinstance(settings_raw, dict):

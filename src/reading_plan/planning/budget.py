@@ -10,7 +10,7 @@ from ..types import Book, Settings
 
 
 def minutes_for_day(settings: Settings, day: date) -> int:
-    """Return available reading minutes for one day after days-off and overrides."""
+    """Return reading minutes for one day after days-off and overrides."""
     if day in settings.days_off:
         return 0
     if settings.minutes_by_weekday:
@@ -33,7 +33,7 @@ def day_capacity_blocks(settings: Settings, day: date) -> int:
 
 
 def book_day_block_limit(book: Book, settings: Settings) -> int:
-    """Return the per-book daily block cap with optional book-level minute limits."""
+    """Return per-book daily block cap with optional book-level minute limit."""
     limit = settings.max_blocks_per_book_per_day
     if book.max_minutes_per_day is not None:
         limit = min(

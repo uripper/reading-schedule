@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import cast
 
 from ortools.sat.python import cp_model
 
@@ -15,12 +14,11 @@ from .model_types import (
     BookDayVars,
     BuildCpSatResult,
     FinishedVars,
-    _CpSatModelBuilder,
 )
 
 
 def _create_book_day_variables(
-    model: _CpSatModelBuilder,
+    model: cp_model.CpModel,
     books: list[Book],
     days: list[date],
     caps: dict[date, int],
@@ -42,7 +40,7 @@ def _create_book_day_variables(
 
 
 def _add_day_constraints(
-    model: _CpSatModelBuilder,
+    model: cp_model.CpModel,
     books: list[Book],
     days: list[date],
     x: BookDayVars,
@@ -64,7 +62,7 @@ def _add_day_constraints(
 
 
 def _add_dependency_constraints(
-    model: _CpSatModelBuilder,
+    model: cp_model.CpModel,
     books: list[Book],
     days: list[date],
     x: BookDayVars,
@@ -72,7 +70,7 @@ def _add_dependency_constraints(
     wpb: dict[str, int],
     book_map: dict[str, Book],
 ) -> None:
-    """Prevent a blocked book from being scheduled before its blocker is complete."""
+    """Prevent scheduling a blocked book before its blocker is complete."""
     for book_index, book in enumerate(books):
         blocker_id = book.blocked_by
         if not blocker_id:
@@ -96,7 +94,7 @@ def _add_dependency_constraints(
 
 
 def _add_progress_constraints(
-    model: _CpSatModelBuilder,
+    model: cp_model.CpModel,
     books: list[Book],
     days: list[date],
     x: BookDayVars,
@@ -137,7 +135,7 @@ def _add_progress_constraints(
 def build_cp_sat(books: list[Book], settings: Settings) -> BuildCpSatResult:
     """Build cp sat."""
     raw_model = cp_model.CpModel()
-    model = cast(_CpSatModelBuilder, raw_model)
+    model = raw_model
     days = date_range(settings.start_date, settings.end_date)
     caps = {d: day_capacity_blocks(settings, d) for d in days}
     wpb = {b.book_id: words_per_block(b, settings) for b in books}

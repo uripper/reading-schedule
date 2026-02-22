@@ -15,7 +15,7 @@ from .validate import validate_book
 def _estimated_words_read_from_pages(
     pages_read: int, words_full: int, pages_raw: int | None
 ) -> int:
-    """Estimate words read from pages, preferring per-book density when possible."""
+    """Estimate words read from pages using per-book density when possible."""
     pages_total = optional_int(pages_raw, "pages_total")
     if pages_total is None or pages_total <= 0:
         return pages_read * WORDS_PER_PAGE
@@ -24,7 +24,7 @@ def _estimated_words_read_from_pages(
 
 
 def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
-    """Derive full words, remaining words, and progress from mixed input fields."""
+    """Derive full words, remaining words, and progress from mixed fields."""
     words_raw = data.get("words_total")
     pages_raw = data.get("pages_total")
     has_words = str(words_raw or "").strip() != ""

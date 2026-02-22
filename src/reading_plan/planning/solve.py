@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Protocol, SupportsInt
+from typing import SupportsInt
 
 from ..types import Book, PlanResult, Settings
 from .greedy import plan_greedy
@@ -20,36 +20,6 @@ def solve_plan(
             assignments=plan_greedy(books, settings),
         )
     return _solve_mip(books, settings)
-
-
-class _CpModelStatusModule(Protocol):
-    """Protocol for CP-SAT status constants used by status-name mapping."""
-
-    @property
-    def OPTIMAL(self) -> SupportsInt:
-        """Return the solver constant for optimal status."""
-        ...
-
-    @property
-    def FEASIBLE(self) -> SupportsInt:
-        """Return the solver constant for feasible status."""
-        ...
-
-    @property
-    def INFEASIBLE(self) -> SupportsInt:
-        """Return the solver constant for infeasible status."""
-        ...
-
-    @property
-    def MODEL_INVALID(self) -> SupportsInt:
-        """Return the solver constant for invalid model status."""
-        ...
-
-    @property
-    def UNKNOWN(self) -> SupportsInt:
-        """Return the solver constant for unknown status."""
-        ...
-
 
 def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     """Solve with CP-SAT, fall back to greedy when OR-Tools is unavailable."""
@@ -69,7 +39,14 @@ def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     solver.parameters.num_search_workers = 1
     solver.parameters.max_time_in_seconds = 20.0
     raw = int(solver.Solve(model))
-    status = _status_name(raw, cp_model)
+    status_values = {
+        "OPTIMAL": cp_model.OPTIMAL,
+        "FEASIBLE": cp_model.FEASIBLE,
+        "INFEASIBLE": cp_model.INFEASIBLE,
+        "MODEL_INVALID": cp_model.MODEL_INVALID,
+        "UNKNOWN": cp_model.UNKNOWN,
+    }
+    status = _status_name(raw, status_values)
     if raw not in (int(cp_model.OPTIMAL), int(cp_model.FEASIBLE)):
         return PlanResult(planner="mip", status=status, assignments={})
 
@@ -86,13 +63,13 @@ def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     )
 
 
-def _status_name(raw: int, cp_model: _CpModelStatusModule) -> str:
+def _status_name(raw: int, status_values: dict[str, SupportsInt]) -> str:
     """Map CP-SAT numeric status codes to stable string names."""
     mapping = {
-        int(cp_model.OPTIMAL): "OPTIMAL",
-        int(cp_model.FEASIBLE): "FEASIBLE",
-        int(cp_model.INFEASIBLE): "INFEASIBLE",
-        int(cp_model.MODEL_INVALID): "MODEL_INVALID",
-        int(cp_model.UNKNOWN): "UNKNOWN",
+        int(status_values["OPTIMAL"]): "OPTIMAL",
+        int(status_values["FEASIBLE"]): "FEASIBLE",
+        int(status_values["INFEASIBLE"]): "INFEASIBLE",
+        int(status_values["MODEL_INVALID"]): "MODEL_INVALID",
+        int(status_values["UNKNOWN"]): "UNKNOWN",
     }
     return mapping.get(raw, "UNKNOWN")

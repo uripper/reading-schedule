@@ -33,7 +33,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    """Run the GUI bridge command using either sample mode or stdin payload mode."""
+    """Run the GUI bridge in sample mode or stdin payload mode."""
     args = parse_args()
     try:
         if args.sample:

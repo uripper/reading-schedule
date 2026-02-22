@@ -76,7 +76,7 @@ def _seed_day(
     cap: int,
     daily_book_cap: int,
 ) -> int:
-    """Seed a day with minimum sessions for the highest-ranked unlocked books."""
+    """Seed a day with minimum sessions for top unlocked books."""
     for book in ordered:
         if len(used) >= daily_book_cap:
             break
@@ -113,7 +113,7 @@ def _fill_day(
     cap: int,
     daily_book_cap: int,
 ) -> None:
-    """Fill remaining daily capacity from active books before introducing new ones."""
+    """Fill daily capacity from active books before introducing new ones."""
     while cap > 0:
         if active := [
             b
@@ -160,7 +160,7 @@ def _assign_blocks(
     cap: int,
     blocks: int,
 ) -> int:
-    """Assign blocks to one book/day pair and reduce remaining words and capacity."""
+    """Assign blocks to one book/day and reduce remaining words and capacity."""
     key = (book.book_id, day)
     assignments[key] = assignments.get(key, 0) + blocks
     remaining[book.book_id] = max(
@@ -172,7 +172,7 @@ def _assign_blocks(
 def _sort_key(
     book: Book, remaining: dict[str, float]
 ) -> tuple[int, date, float, str]:
-    """Rank books by priority, deadline, and remaining words for greedy ordering."""
+    """Rank books by priority, deadline, and remaining words for ordering."""
     due = book.deadline or date.max
     return book.priority, due, -remaining[book.book_id], book.book_id
 
@@ -228,7 +228,7 @@ def _spread_cap_for_day(
     wpb: dict[str, int],
     ordered: list[Book],
 ) -> int:
-    """Compute a daily cap target that spreads remaining work across active days."""
+    """Compute a daily cap that spreads remaining work across active days."""
     remaining_blocks = sum(
         int(math.ceil(words_left / wpb[book_id]))
         for book_id, words_left in remaining.items()
