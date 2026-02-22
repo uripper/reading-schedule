@@ -9,6 +9,11 @@ const stylesRoot = path.join(electronRoot, "styles");
 const ignoreFiles = new Set([path.join(stylesRoot, "generated", "tokens.css")]);
 const hexPattern = /#[0-9a-fA-F]{3,8}\b/g;
 
+/**
+ *
+ * @param dir
+ * @param files
+ */
 function walkCssFiles(dir, files = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const fullPath = path.join(dir, entry.name);

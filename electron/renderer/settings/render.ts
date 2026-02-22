@@ -2,6 +2,10 @@ import { el } from "../dom.js";
 import { DIFFICULTY_LEVEL_COUNT, weekdays } from "./config.js";
 import type { FieldDefinition } from "./config.js";
 
+/**
+ *
+ * @param text
+ */
 function hintDot(text?: string): HTMLSpanElement | null {
   if (!text) {
     return null;
@@ -15,6 +19,10 @@ function hintDot(text?: string): HTMLSpanElement | null {
   return dot;
 }
 
+/**
+ *
+ * @param field
+ */
 function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
   const label = document.createElement("label");
   label.append(field.label);
@@ -46,6 +54,11 @@ function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
   return label;
 }
 
+/**
+ *
+ * @param id
+ * @param fieldDefinitions
+ */
 export function renderGrid(
   id: string,
   fieldDefinitions: FieldDefinition[],
@@ -55,6 +68,9 @@ export function renderGrid(
   );
 }
 
+/**
+ *
+ */
 export function renderWeekdayGrid() {
   const weekdayNodes = weekdays.map(([key, name]) => {
     const label = document.createElement("label");
@@ -70,6 +86,9 @@ export function renderWeekdayGrid() {
   el("weekdayGrid").replaceChildren(...weekdayNodes);
 }
 
+/**
+ *
+ */
 export function renderDifficultyRows() {
   const diffRows = Array.from(
     { length: DIFFICULTY_LEVEL_COUNT },

@@ -20,6 +20,11 @@ import {
   queryTokens,
 } from "./book_lookup_search_text.js";
 
+/**
+ *
+ * @param titleNorm
+ * @param queryNorm
+ */
 function baseTitleScore(titleNorm: string, queryNorm: string): number {
   let score = 0;
   if (titleNorm === queryNorm) {
@@ -34,6 +39,12 @@ function baseTitleScore(titleNorm: string, queryNorm: string): number {
   return score;
 }
 
+/**
+ *
+ * @param titleNorm
+ * @param authorNorm
+ * @param tokens
+ */
 function tokenScore(
   titleNorm: string,
   authorNorm: string,
@@ -55,6 +66,10 @@ function tokenScore(
   return score;
 }
 
+/**
+ *
+ * @param doc
+ */
 function metadataScore(doc: SearchDoc): number {
   let score = 0;
   if (hasEnglishLanguage(doc)) {
@@ -72,6 +87,8 @@ function metadataScore(doc: SearchDoc): number {
 
 /**
  * Computes a deterministic relevance score for a search document.
+ * @param doc
+ * @param query
  */
 export function scoreDoc(doc: SearchDoc, query: string): number {
   const queryNorm = normalizeSearchText(query);

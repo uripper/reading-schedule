@@ -1,5 +1,10 @@
 import { el } from "../dom.js";
 
+/**
+ *
+ * @param dayOffs
+ * @param setDayOffs
+ */
 export function renderDayOffs(
   dayOffs: string[],
   setDayOffs: (nextDayOffs: string[]) => void,
@@ -20,6 +25,11 @@ export function renderDayOffs(
   list.replaceChildren(...buttons);
 }
 
+/**
+ *
+ * @param getDayOffs
+ * @param setDayOffs
+ */
 export function bindDayOffAddButton(
   getDayOffs: () => string[],
   setDayOffs: (nextDayOffs: string[]) => void,

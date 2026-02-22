@@ -6,6 +6,9 @@ import type {
 
 const SESSION_INDEX_PAD = 3;
 
+/**
+ *
+ */
 function todayDateKey(): string {
   const now = new Date();
   const year = now.getFullYear();
@@ -14,15 +17,33 @@ function todayDateKey(): string {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ *
+ * @param row
+ */
 function rowSortKey(row: Pick<EstimateRow, "date" | "session_index">): string {
   const sessionIndex = String(row.session_index).padStart(SESSION_INDEX_PAD, "0");
   return `${row.date}-${sessionIndex}`;
 }
 
+/**
+ *
+ * @param row
+ */
 function estimateSessionKey(row: EstimateRow): string {
   return `${row.date}|${row.session_index}|${row.book_id}`;
 }
 
+/**
+ *
+ * @param candidate
+ * @param state
+ * @param state.bookId
+ * @param state.today
+ * @param state.targetSortKey
+ * @param state.targetIsFuture
+ * @param state.isSessionCompleted
+ */
 function eligibleSortKeyForCandidate(
   candidate: EstimateRow,
   state: {
@@ -53,6 +74,13 @@ function eligibleSortKeyForCandidate(
   return candidateSortKey;
 }
 
+/**
+ *
+ * @param row
+ * @param state
+ * @param bookId
+ * @param isSessionCompleted
+ */
 export function plannedWordsBeforeAndThroughRow(
   row: EstimateRow,
   state: EstimateState,

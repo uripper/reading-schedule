@@ -3,12 +3,17 @@ import { metaLabel, progressLabel, subtitle, wordsLabel } from "./presenters.js"
 import { statusLabel } from "./status.js";
 import type { Book } from "./types.js";
 
-export type CardRenderContext = {
+export interface CardRenderContext {
   finishDateByBookId: Record<string, string>;
   showShelfMeta: boolean;
   titleById: Record<string, string>;
-};
+}
 
+/**
+ *
+ * @param book
+ * @param context
+ */
 export function createCardNode(book: Book, context: CardRenderContext): HTMLElement {
   const bookId = String(book.book_id || "");
   const title = String(book.title || "Untitled");
@@ -66,6 +71,11 @@ export function createCardNode(book: Book, context: CardRenderContext): HTMLElem
   return card;
 }
 
+/**
+ *
+ * @param books
+ * @param allBooks
+ */
 export function titleByIdMap(books: Book[], allBooks: Book[]): Record<string, string> {
   let sourceBooks = books;
   if (allBooks.length) {

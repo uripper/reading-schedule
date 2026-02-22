@@ -3,30 +3,41 @@ import { dayKey, monthCells, monthLabel } from "./utils.js";
 import { createDayButton, createWeekdayHeader } from "./month_day_button.js";
 import { handleDayKeydown } from "./month_keyboard.js";
 
-type CalendarRow = {
+interface CalendarRow {
   title?: string;
   minutes?: number;
   finish?: boolean;
-};
+}
 
-type CalendarState = {
+interface CalendarState {
   dates: Record<string, CalendarRow[]>;
   months: string[];
   index: number;
   selectedDate: string;
   monthCellKeys: string[];
-};
+}
 
-type MonthActions = {
-  selectDate: (dateKey: string, options?: { focus?: boolean }) => void;
-  moveSelectionBy: (delta: number, currentIndex: number) => void;
-  renderDetails: () => void;
-};
+interface MonthActions {
+  selectDate(dateKey: string, options?: { focus?: boolean }): void;
+  moveSelectionBy(delta: number, currentIndex: number): void;
+  renderDetails(): void;
+}
 
+/**
+ *
+ */
 function todayDayKey(): string {
   return dayKey(new Date());
 }
 
+/**
+ *
+ * @param state
+ * @param root0
+ * @param root0.selectDate
+ * @param root0.moveSelectionBy
+ * @param root0.renderDetails
+ */
 export function renderCalendarMonth(
   state: CalendarState,
   { selectDate, moveSelectionBy, renderDetails }: MonthActions,
@@ -75,7 +86,7 @@ export function renderCalendarMonth(
       state.selectedDate,
       todayKey,
     );
-    dayButton.onclick = () => selectDate(keyForDay);
+    dayButton.onclick = () => { selectDate(keyForDay); };
     dayButton.onkeydown = (event) => {
       handleDayKeydown(
         event,

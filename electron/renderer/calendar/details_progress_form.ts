@@ -6,6 +6,13 @@ import {
   submitProgressUpdate,
 } from "./details_progress_form_helpers.js";
 
+/**
+ *
+ * @param row
+ * @param book
+ * @param interactionHandlers
+ * @param onProgressApplied
+ */
 export function progressFormForToday(
   row: CalendarRowWithFinish,
   book: Book,

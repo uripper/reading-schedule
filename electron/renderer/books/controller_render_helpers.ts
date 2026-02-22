@@ -4,15 +4,19 @@ import { sortBooks } from "./sort.js";
 import type { Book } from "./types.js";
 import type { BooksControllerRefs, BooksViewState } from "./controller_types.js";
 
-export type RenderableBooksRefs = {
+export interface RenderableBooksRefs {
   shelfFilterSelect: HTMLSelectElement;
   groupBySelect: HTMLSelectElement;
   statusFilterSelect: HTMLSelectElement;
   sortDirectionBtn: HTMLButtonElement;
   grid: HTMLElement;
   empty: HTMLElement;
-};
+}
 
+/**
+ *
+ * @param refs
+ */
 export function resolveRenderableRefs(
   refs: BooksControllerRefs,
 ): RenderableBooksRefs | null {
@@ -41,6 +45,12 @@ export function resolveRenderableRefs(
   };
 }
 
+/**
+ *
+ * @param books
+ * @param viewState
+ * @param finishDateByBookId
+ */
 export function visibleBooksForView(
   books: Book[],
   viewState: BooksViewState,

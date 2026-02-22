@@ -7,10 +7,18 @@ const MINUTES_MIN = normalizedManualMinutes(0);
 export const MINUTES_EDITOR_OPEN_BY_DEFAULT = false;
 export type MinutesEditorAction = "edit" | "cancel" | "saved";
 
+/**
+ *
+ * @param inputNode
+ */
 function inputValue(inputNode: HTMLInputElement): string {
   return String(inputNode.value ?? "").trim();
 }
 
+/**
+ *
+ * @param rawValue
+ */
 function summaryValueFromInput(rawValue: string): number {
   const parsed = parseOptionalNumber(rawValue);
   if (parsed === null) {
@@ -19,10 +27,19 @@ function summaryValueFromInput(rawValue: string): number {
   return normalizedManualMinutes(parsed);
 }
 
+/**
+ *
+ * @param inputNode
+ */
 function changedNumberValue(inputNode: HTMLInputElement): number | null {
   return parseOptionalNumber(inputValue(inputNode));
 }
 
+/**
+ *
+ * @param inputNode
+ * @param nextValue
+ */
 function syncInputValue(
   inputNode: HTMLInputElement,
   nextValue?: number | null,
@@ -34,14 +51,25 @@ function syncInputValue(
   return String(inputNode.value ?? "").trim();
 }
 
+/**
+ *
+ */
 export function minPlannedMinutes(): number {
   return MINUTES_MIN;
 }
+/**
+ *
+ * @param minutes
+ */
 export function plannedMinutesSummaryText(minutes: number): string {
   const normalizedMinutes = normalizedManualMinutes(minutes);
   return `${normalizedMinutes} minutes`;
 }
 
+/**
+ *
+ * @param action
+ */
 export function nextMinutesEditorOpenState(
   action: MinutesEditorAction,
 ): boolean {
@@ -51,6 +79,12 @@ export function nextMinutesEditorOpenState(
   return false;
 }
 
+/**
+ *
+ * @param minutesForm
+ * @param editButton
+ * @param isOpen
+ */
 export function syncEditorVisibility(
   minutesForm: HTMLFormElement,
   editButton: HTMLButtonElement,
@@ -59,6 +93,11 @@ export function syncEditorVisibility(
   minutesForm.hidden = !isOpen;
   editButton.hidden = isOpen;
 }
+/**
+ *
+ * @param summaryNode
+ * @param minutesValue
+ */
 export function syncSummaryText(
   summaryNode: HTMLElement,
   minutesValue: string,
@@ -68,6 +107,14 @@ export function syncSummaryText(
   );
 }
 
+/**
+ *
+ * @param event
+ * @param row
+ * @param minutesInput
+ * @param initialMinutesValue
+ * @param interactionHandlers
+ */
 export function submitMinutesUpdate(
   event: SubmitEvent,
   row: CalendarRowWithFinish,

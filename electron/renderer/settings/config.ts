@@ -11,7 +11,7 @@ export type {
 
 export { fields };
 
-export const weekdays: [string, string][] = [
+export const weekdays: Array<[string, string]> = [
   ["Mon", "Monday"],
   ["Tue", "Tuesday"],
   ["Wed", "Wednesday"],

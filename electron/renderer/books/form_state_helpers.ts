@@ -21,15 +21,28 @@ export const CUSTOM_COVER_NOTE = "Custom cover uploaded.";
 const PROGRESS_MAX = 100;
 const PROGRESS_DECIMAL_SCALE = 10;
 
+/**
+ *
+ */
 function todayDateKey(): string {
   return dayKey(new Date());
 }
 
+/**
+ *
+ * @param refs
+ * @param src
+ */
 export function setCoverPreview(refs: BookFormRefs, src: string): void {
   refs.coverPreview.src = src || COVER_PLACEHOLDER;
   refs.coverPreview.classList.toggle("is-empty", !src);
 }
 
+/**
+ *
+ * @param inputNode
+ * @param value
+ */
 export function setOptionalIntegerInputValue(
   inputNode: HTMLInputElement,
   value: number | null | undefined,
@@ -41,6 +54,11 @@ export function setOptionalIntegerInputValue(
   inputNode.value = String(value);
 }
 
+/**
+ *
+ * @param value
+ * @param fallback
+ */
 export function fallbackText(
   value: string | null | undefined,
   fallback = "",
@@ -51,6 +69,11 @@ export function fallbackText(
   return value;
 }
 
+/**
+ *
+ * @param value
+ * @param fallback
+ */
 export function fallbackNumberText(
   value: number | null | undefined,
   fallback: string,
@@ -61,6 +84,10 @@ export function fallbackNumberText(
   return String(value);
 }
 
+/**
+ *
+ * @param refs
+ */
 export function requiredTitle(refs: BookFormRefs): string {
   const title = refs.titleInput.value.trim();
   if (!title) {
@@ -69,6 +96,10 @@ export function requiredTitle(refs: BookFormRefs): string {
   return title;
 }
 
+/**
+ *
+ * @param refs
+ */
 export function validatedStatusSelection(refs: BookFormRefs): BookStatus {
   const raw = String(refs.statusSelectInput.value || "").trim();
   if (raw === BOOK_STATUS_READ) {
@@ -83,6 +114,11 @@ export function validatedStatusSelection(refs: BookFormRefs): BookStatus {
   return BOOK_STATUS_TO_READ;
 }
 
+/**
+ *
+ * @param refs
+ * @param status
+ */
 function toggleFinishedAtInput(refs: BookFormRefs, status: BookStatus): void {
   const isRead = status === BOOK_STATUS_READ;
   refs.finishedAtField.hidden = !isRead;
@@ -96,11 +132,19 @@ function toggleFinishedAtInput(refs: BookFormRefs, status: BookStatus): void {
   refs.finishedAtInput.value = todayDateKey();
 }
 
+/**
+ *
+ * @param refs
+ */
 export function syncFinishedAtFieldState(refs: BookFormRefs): void {
   const status = validatedStatusSelection(refs);
   toggleFinishedAtInput(refs, status);
 }
 
+/**
+ *
+ * @param refs
+ */
 export function deriveLengthAndProgress(refs: BookFormRefs): {
   wordsTotal: number | null;
   pagesTotal: number | null;
@@ -138,6 +182,10 @@ export function deriveLengthAndProgress(refs: BookFormRefs): {
   };
 }
 
+/**
+ *
+ * @param refs
+ */
 export function validatedShelfSelection(refs: BookFormRefs): string {
   const shelf = refs.shelfSelectInput.value;
   if (shelf === SHELF_SELECT_CREATE_NEW) {

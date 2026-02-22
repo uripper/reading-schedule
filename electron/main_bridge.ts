@@ -8,16 +8,22 @@ import type { JsonValue } from "./state_store";
 const PLANNER_MODULE = "reading_plan.gui_api";
 const PYTHONPATH_SEGMENT = "src";
 
-type BridgeResponse = {
+interface BridgeResponse {
   data?: JsonValue;
   error?: string;
   ok?: boolean;
-};
+}
 
+/**
+ *
+ */
 function root(): string {
   return path.join(__dirname, "..", "..");
 }
 
+/**
+ *
+ */
 function pyEnv(): NodeJS.ProcessEnv {
   return {
     ...process.env,
@@ -25,10 +31,20 @@ function pyEnv(): NodeJS.ProcessEnv {
   };
 }
 
+/**
+ *
+ * @param target
+ * @param chunk
+ */
 function appendChunk(target: string, chunk: Buffer | string): string {
   return target + chunk.toString();
 }
 
+/**
+ *
+ * @param stdout
+ * @param stderr
+ */
 function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
   try {
     const parsed = JSON.parse(stdout || "{}") as BridgeResponse;
@@ -46,9 +62,11 @@ function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
 
 /**
  * Executes the Python planner bridge command and returns parsed JSON output.
+ * @param args
+ * @param payload
  */
-export function runBridge(args: string[], payload?: JsonValue): Promise<JsonValue> {
-  return new Promise((resolve, reject) => {
+export async function runBridge(args: string[], payload?: JsonValue): Promise<JsonValue> {
+  return await new Promise((resolve, reject) => {
     const pythonBinary = process.env.PYTHON_BIN || "python";
     const processHandle = spawn(pythonBinary, ["-m", PLANNER_MODULE, ...args], {
       cwd: root(),

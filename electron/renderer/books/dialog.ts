@@ -15,14 +15,19 @@ import { bindBookDialogProgressSync } from "./dialog_progress_sync.js";
 import type { Book } from "./types.js";
 import type { BookFormRefs } from "./form_refs.js";
 
-type BookDialogOptions = {
-  getBooks?: () => Book[];
-};
+interface BookDialogOptions {
+  getBooks?(): Book[];
+}
 
-export type OpenDialogOptions = {
+export interface OpenDialogOptions {
   defaultShelf?: string;
-};
+}
 
+/**
+ *
+ * @param refs
+ * @param busy
+ */
 function setSavingState(refs: BookFormRefs, busy: boolean): void {
   refs.saveBtn.disabled = busy;
   refs.saveBtn.textContent = "Save Book";
@@ -31,6 +36,12 @@ function setSavingState(refs: BookFormRefs, busy: boolean): void {
   }
 }
 
+/**
+ *
+ * @param onSubmit
+ * @param root0
+ * @param root0.getBooks
+ */
 export function createBookDialog(
   onSubmit: (book: Book) => Promise<void> | void,
   { getBooks = () => [] }: BookDialogOptions = {},
@@ -47,10 +58,10 @@ export function createBookDialog(
     searchInput: refs.searchInput,
     resultsEl: refs.searchResults,
     metaEl: refs.lookupMeta,
-    onPick: (item) => applyLookupItem(refs, item),
+    onPick: (item) => { applyLookupItem(refs, item); },
   });
 
-  const close = () => dialogFocus.closeAndReturnFocus();
+  const close = () => { dialogFocus.closeAndReturnFocus(); };
   const open = (book: Book | null = null, options: OpenDialogOptions = {}) => {
     dialogFocus.rememberOpener();
     clearForm(refs, lookupControl);
@@ -89,7 +100,7 @@ export function createBookDialog(
     }
   });
 
-  refs.cancelBtn.onclick = () => close();
+  refs.cancelBtn.onclick = () => { close(); };
   refs.dialog.addEventListener("cancel", (event) => {
     event.preventDefault();
     close();

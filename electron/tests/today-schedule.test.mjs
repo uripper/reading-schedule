@@ -10,6 +10,10 @@ import { todayKey } from "../dist/renderer/sessions/utils.js";
 
 const CREATED_AT = "2026-01-01T00:00:00.000Z";
 
+/**
+ *
+ * @param schedule
+ */
 function plannerResult(schedule) {
   return {
     schedule,
@@ -18,6 +22,14 @@ function plannerResult(schedule) {
   };
 }
 
+/**
+ *
+ * @param date
+ * @param sessionIndex
+ * @param bookId
+ * @param title
+ * @param minutes
+ */
 function row(date, sessionIndex, bookId, title, minutes) {
   return {
     date,

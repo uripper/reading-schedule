@@ -7,12 +7,18 @@ const require = createRequire(import.meta.url);
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(path.join(SCRIPT_DIR, ".."));
 
+/**
+ *
+ */
 function cleanedEnvironment() {
   const env = { ...process.env };
   delete env.ELECTRON_RUN_AS_NODE;
   return env;
 }
 
+/**
+ *
+ */
 function electronBinaryPath() {
   const binary = require("electron");
   if (typeof binary !== "string" || !binary) {
@@ -21,6 +27,9 @@ function electronBinaryPath() {
   return binary;
 }
 
+/**
+ *
+ */
 function spawnElectron() {
   const child = spawn(electronBinaryPath(), ["."], {
     cwd: ROOT,

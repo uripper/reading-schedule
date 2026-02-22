@@ -25,10 +25,10 @@ import {
 } from "./sort.js";
 import type { Book } from "./types.js";
 
-export type OptionDefinition = {
+export interface OptionDefinition {
   label: string;
   value: string;
-};
+}
 
 export const SORT_OPTIONS: OptionDefinition[] = [
   { value: SORT_BY_TITLE, label: "Title" },
@@ -56,6 +56,10 @@ const GROUP_OPTION_SHELF: OptionDefinition = {
   label: "Shelves",
 };
 
+/**
+ *
+ * @param shelfFilter
+ */
 export function groupOptionsForShelfFilter(
   shelfFilter: string,
 ): OptionDefinition[] {
@@ -66,6 +70,10 @@ export function groupOptionsForShelfFilter(
   return options;
 }
 
+/**
+ *
+ * @param books
+ */
 export function shelfFilterOptions(books: Book[]): OptionDefinition[] {
   const options: OptionDefinition[] = [
     { value: SHELF_FILTER_ALL, label: "All Shelves" },

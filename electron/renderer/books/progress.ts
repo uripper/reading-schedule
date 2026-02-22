@@ -1,6 +1,10 @@
 import { clamp } from "./utils.js";
 import type { Book, BookProgressUpdates } from "./types.js";
 
+/**
+ *
+ * @param raw
+ */
 function parseFiniteNumber(raw?: string | number): number | null {
   if (raw === undefined || raw === "") {
     return null;
@@ -12,6 +16,13 @@ function parseFiniteNumber(raw?: string | number): number | null {
   return value;
 }
 
+/**
+ *
+ * @param nextBook
+ * @param pagesUpdate
+ * @param hasPagesTotal
+ * @param pagesTotal
+ */
 function applyPagesUpdate(
   nextBook: Book,
   pagesUpdate: number | null,
@@ -29,6 +40,14 @@ function applyPagesUpdate(
   return true;
 }
 
+/**
+ *
+ * @param nextBook
+ * @param pctUpdate
+ * @param hasPagesUpdate
+ * @param hasPagesTotal
+ * @param pagesTotal
+ */
 function applyPercentUpdate(
   nextBook: Book,
   pctUpdate: number | null,
@@ -47,6 +66,12 @@ function applyPercentUpdate(
   }
 }
 
+/**
+ *
+ * @param nextBook
+ * @param hasPagesTotal
+ * @param pagesTotal
+ */
 function reconcilePercentFromPages(
   nextBook: Book,
   hasPagesTotal: boolean,
@@ -62,6 +87,11 @@ function reconcilePercentFromPages(
   nextBook.progress_percent = Math.round(clamp(pct, 0, 100) * 10) / 10;
 }
 
+/**
+ *
+ * @param book
+ * @param updates
+ */
 export function withUpdatedProgress(
   book: Book,
   updates: BookProgressUpdates = {},

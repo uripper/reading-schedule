@@ -21,17 +21,29 @@ const SESSION_UPDATE_EVENT = "today-focus-session-updated";
 
 type SetStatus = (message: string, isError?: boolean) => void;
 
-export type BindTodayFocusActionsArgs = {
-  getLastResult: () => PlannerResult | null;
-  getScheduleCompletions: () => Record<string, boolean>;
-  setScheduleCompletions: (nextCompletions: Record<string, boolean>) => void;
-  getSessions: () => Session[];
-  setSessions: (nextSessions: Session[]) => void;
-  queuePersist: () => void;
-  updateTodayView: () => void;
+export interface BindTodayFocusActionsArgs {
+  getLastResult(): PlannerResult | null;
+  getScheduleCompletions(): Record<string, boolean>;
+  setScheduleCompletions(nextCompletions: Record<string, boolean>): void;
+  getSessions(): Session[];
+  setSessions(nextSessions: Session[]): void;
+  queuePersist(): void;
+  updateTodayView(): void;
   setStatus: SetStatus;
-};
+}
 
+/**
+ *
+ * @param root0
+ * @param root0.getLastResult
+ * @param root0.getScheduleCompletions
+ * @param root0.setScheduleCompletions
+ * @param root0.getSessions
+ * @param root0.setSessions
+ * @param root0.queuePersist
+ * @param root0.updateTodayView
+ * @param root0.setStatus
+ */
 export function bindTodayFocusActions({
   getLastResult,
   getScheduleCompletions,

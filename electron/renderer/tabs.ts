@@ -1,23 +1,38 @@
 import { qa } from "./dom.js";
 
-type ActivateTabOptions = {
+interface ActivateTabOptions {
   focusPanel?: boolean;
-};
+}
 
 let onTabActivated: (name: string) => void = () => {};
 
+/**
+ *
+ */
 function allTabButtons() {
   return qa<HTMLElement>(".tab[data-tab]");
 }
 
+/**
+ *
+ */
 function desktopTabs() {
   return qa<HTMLElement>(".tabs .tab[data-tab]");
 }
 
+/**
+ *
+ * @param name
+ */
 function panelByName(name: string): HTMLElement | null {
   return document.getElementById(`tab-${name}`);
 }
 
+/**
+ *
+ * @param panel
+ * @param active
+ */
 function setPanelState(panel: HTMLElement, active: boolean): void {
   panel.classList.toggle("is-active", active);
   panel.hidden = !active;
@@ -28,6 +43,11 @@ function setPanelState(panel: HTMLElement, active: boolean): void {
   }
 }
 
+/**
+ *
+ * @param name
+ * @param options
+ */
 export function activateTab(name: string, options: ActivateTabOptions = {}) {
   const { focusPanel = false } = options;
   let activeLabel = "Bartleby";
@@ -50,7 +70,7 @@ export function activateTab(name: string, options: ActivateTabOptions = {}) {
   });
 
   qa<HTMLElement>(".panel").forEach((panel) =>
-    setPanelState(panel, panel.id === `tab-${name}`),
+    { setPanelState(panel, panel.id === `tab-${name}`); },
   );
   const activePanel = panelByName(name);
   if (focusPanel && activePanel) {
@@ -60,6 +80,11 @@ export function activateTab(name: string, options: ActivateTabOptions = {}) {
   onTabActivated(name);
 }
 
+/**
+ *
+ * @param tabs
+ * @param index
+ */
 function activateTabByIndex(tabs: HTMLElement[], index: number): void {
   const target = tabs[index];
   if (!target) {
@@ -69,6 +94,10 @@ function activateTabByIndex(tabs: HTMLElement[], index: number): void {
   activateTab(target.dataset.tab || "today");
 }
 
+/**
+ *
+ * @param tabs
+ */
 function bindTabKeyboard(tabs: HTMLElement[]): void {
   tabs.forEach((btn, index) => {
     btn.addEventListener("keydown", (event) => {
@@ -94,10 +123,14 @@ function bindTabKeyboard(tabs: HTMLElement[]): void {
   });
 }
 
+/**
+ *
+ * @param onChange
+ */
 export function bindTabs(onChange: (name: string) => void = () => {}) {
   onTabActivated = onChange;
   allTabButtons().forEach((btn) => {
-    btn.onclick = () => activateTab(btn.dataset.tab || "today");
+    btn.onclick = () => { activateTab(btn.dataset.tab || "today"); };
   });
 
   bindTabKeyboard(desktopTabs());

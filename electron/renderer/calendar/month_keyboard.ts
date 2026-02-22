@@ -1,5 +1,12 @@
 import { CALENDAR_COLUMN_COUNT } from "./constants.js";
 
+/**
+ *
+ * @param event
+ * @param index
+ * @param totalCellCount
+ * @param moveSelectionBy
+ */
 export function handleDayKeydown(
   event: KeyboardEvent,
   index: number,

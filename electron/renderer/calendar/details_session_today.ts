@@ -16,6 +16,13 @@ import {
 import { estimateProgressLabel } from "./estimates.js";
 import { sessionKeyFor } from "./utils.js";
 
+/**
+ *
+ * @param row
+ * @param state
+ * @param interactionHandlers
+ * @param rerenderDetails
+ */
 export function buildTodaySessionItem(
   row: CalendarRowWithFinish,
   state: CalendarStateSubset,

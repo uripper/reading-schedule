@@ -3,14 +3,28 @@ import type { PlannerResult, PlannerScheduleRow } from "../types.js";
 
 const MINUTES_MIN = 1;
 
+/**
+ *
+ * @param value
+ */
 function roundMinutes(value: number): number {
   return Math.max(MINUTES_MIN, Math.round(value));
 }
 
+/**
+ *
+ * @param row
+ * @param session
+ */
 function rowMatchesDate(row: PlannerScheduleRow, session: FocusSession): boolean {
   return String(row.date || "") === session.date;
 }
 
+/**
+ *
+ * @param row
+ * @param session
+ */
 function rowMatchesBook(row: PlannerScheduleRow, session: FocusSession): boolean {
   if (!session.bookId) {
     return true;
@@ -18,6 +32,11 @@ function rowMatchesBook(row: PlannerScheduleRow, session: FocusSession): boolean
   return String(row.book_id || "") === session.bookId;
 }
 
+/**
+ *
+ * @param row
+ * @param session
+ */
 function rowMatchesSessionIndex(
   row: PlannerScheduleRow,
   session: FocusSession,
@@ -29,16 +48,31 @@ function rowMatchesSessionIndex(
   return rowSessionIndex === session.sessionIndex;
 }
 
+/**
+ *
+ * @param row
+ * @param session
+ */
 function rowMatchesTitle(row: PlannerScheduleRow, session: FocusSession): boolean {
   const rowTitle = String(row.title || "").trim();
   return rowTitle === session.title;
 }
 
+/**
+ *
+ * @param row
+ * @param session
+ */
 function rowMatchesMinutes(row: PlannerScheduleRow, session: FocusSession): boolean {
   const rowMinutes = roundMinutes(Number(row.minutes || 0));
   return rowMinutes === session.minutes;
 }
 
+/**
+ *
+ * @param row
+ * @param session
+ */
 function rowMatchesFocusSession(
   row: PlannerScheduleRow,
   session: FocusSession,
@@ -52,6 +86,10 @@ function rowMatchesFocusSession(
   );
 }
 
+/**
+ *
+ * @param value
+ */
 function parsedPositiveFinite(value: number): number | null {
   if (!Number.isFinite(value) || value <= 0) {
     return null;
@@ -59,6 +97,10 @@ function parsedPositiveFinite(value: number): number | null {
   return value;
 }
 
+/**
+ *
+ * @param value
+ */
 function sessionIndexOrNull(value: number): number | null {
   const parsed = parsedPositiveFinite(value);
   if (parsed === null) {
@@ -67,6 +109,10 @@ function sessionIndexOrNull(value: number): number | null {
   return Math.round(parsed);
 }
 
+/**
+ *
+ * @param button
+ */
 export function readFocusSessionFromDataset(
   button: HTMLButtonElement,
 ): FocusSession | null {
@@ -89,6 +135,11 @@ export function readFocusSessionFromDataset(
   };
 }
 
+/**
+ *
+ * @param lastResult
+ * @param session
+ */
 export function findSessionRow(
   lastResult: PlannerResult | null,
   session: FocusSession | null,

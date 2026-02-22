@@ -3,8 +3,12 @@ import type { BookFormRefs } from "./form_refs.js";
 const DIALOG_CONFIRM_VALUE = "confirm";
 const CREATE_SHELF_PROMPT = "Enter a name for the new shelf:";
 
-function promptViaDialog(refs: BookFormRefs): Promise<string | null> {
-  return new Promise((resolve) => {
+/**
+ *
+ * @param refs
+ */
+async function promptViaDialog(refs: BookFormRefs): Promise<string | null> {
+  return await new Promise((resolve) => {
     refs.shelfPromptInput.value = "";
     refs.shelfPromptDialog.returnValue = "";
     const onClose = () => {
@@ -25,6 +29,9 @@ function promptViaDialog(refs: BookFormRefs): Promise<string | null> {
   });
 }
 
+/**
+ *
+ */
 function promptViaBrowser(): string | null {
   const response = globalThis.prompt(CREATE_SHELF_PROMPT, "");
   if (response === null) {
@@ -33,6 +40,10 @@ function promptViaBrowser(): string | null {
   return String(response).trim();
 }
 
+/**
+ *
+ * @param refs
+ */
 export function ensurePromptValidation(refs: BookFormRefs): void {
   refs.shelfPromptForm.addEventListener("submit", (event) => {
     if (!(event.submitter instanceof HTMLButtonElement)) {
@@ -49,6 +60,10 @@ export function ensurePromptValidation(refs: BookFormRefs): void {
   });
 }
 
+/**
+ *
+ * @param refs
+ */
 export async function promptForShelfName(
   refs: BookFormRefs,
 ): Promise<string | null> {

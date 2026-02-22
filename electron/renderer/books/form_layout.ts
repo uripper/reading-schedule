@@ -1,6 +1,9 @@
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";
 import { statusOptions } from "./status.js";
 
+/**
+ *
+ */
 function createShelfSelectLabel() {
   const label = document.createElement("label");
   label.textContent = "Bookshelf";
@@ -18,6 +21,9 @@ function createShelfSelectLabel() {
   return label;
 }
 
+/**
+ *
+ */
 function createStatusSelectLabel() {
   const label = document.createElement("label");
   label.textContent = "Status";
@@ -35,6 +41,9 @@ function createStatusSelectLabel() {
   return label;
 }
 
+/**
+ *
+ */
 function createFinishedAtLabel() {
   const label = document.createElement("label");
   label.id = "bookFinishedAtField";
@@ -49,6 +58,9 @@ function createFinishedAtLabel() {
   return label;
 }
 
+/**
+ *
+ */
 export function ensureBookFormLayoutFields() {
   const existing = document.getElementById("bookShelfSelectInput");
   if (existing) {

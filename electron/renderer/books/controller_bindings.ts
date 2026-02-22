@@ -8,6 +8,10 @@ import {
   type BooksViewState,
 } from "./controller_types.js";
 
+/**
+ *
+ * @param refs
+ */
 function assertToolbarControls(refs: BooksControllerRefs): {
   sortBySelect: HTMLSelectElement;
   shelfFilterSelect: HTMLSelectElement;
@@ -48,12 +52,19 @@ function assertToolbarControls(refs: BooksControllerRefs): {
   };
 }
 
-type BindToolbarEventsArgs = {
+interface BindToolbarEventsArgs {
   refs: BooksControllerRefs;
   viewState: BooksViewState;
-  rerender: () => void;
-};
+  rerender(): void;
+}
 
+/**
+ *
+ * @param root0
+ * @param root0.refs
+ * @param root0.viewState
+ * @param root0.rerender
+ */
 export function bindToolbarEvents({
   refs,
   viewState,

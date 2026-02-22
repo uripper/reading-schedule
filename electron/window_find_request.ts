@@ -19,6 +19,11 @@ export interface NormalizedWindowFindRequest {
   findNext: boolean;
 }
 
+/**
+ *
+ * @param value
+ * @param fallback
+ */
 function asBoolean(value: unknown, fallback: boolean): boolean {
   if (typeof value !== "boolean") {
     return fallback;
@@ -26,6 +31,10 @@ function asBoolean(value: unknown, fallback: boolean): boolean {
   return value;
 }
 
+/**
+ *
+ * @param value
+ */
 function asQuery(value: unknown): string {
   if (typeof value !== "string") {
     return "";
@@ -45,6 +54,7 @@ export function emptyFindResponse(): WindowFindResponse {
 
 /**
  * Coerces renderer find payload values into a safe normalized request.
+ * @param payload
  */
 export function normalizeFindRequest(
   payload: WindowFindRequest | null | undefined,
@@ -58,6 +68,7 @@ export function normalizeFindRequest(
 
 /**
  * Maps an Electron found-in-page event result into renderer response shape.
+ * @param result
  */
 export function toFindResponse(
   result: FindInPageEventResult,

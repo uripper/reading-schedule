@@ -7,25 +7,33 @@ import {
 } from "./render.js";
 import type { BookLookupItem } from "../app/types.js";
 
-type LookupState = {
+interface LookupState {
   timer: ReturnType<typeof setTimeout> | null;
   token: number;
   currentItems: BookLookupItem[];
   activeIndex: number;
-};
+}
 
-type BindBookLookupOptions = {
+interface BindBookLookupOptions {
   searchInput: HTMLInputElement;
   resultsEl: HTMLElement;
   metaEl: HTMLElement;
-  onPick: (item: BookLookupItem) => void;
-};
+  onPick(item: BookLookupItem): void;
+}
 
-type LookupBinding = {
-  clearResults: () => void;
-  destroy: () => void;
-};
+interface LookupBinding {
+  clearResults(): void;
+  destroy(): void;
+}
 
+/**
+ *
+ * @param root0
+ * @param root0.searchInput
+ * @param root0.resultsEl
+ * @param root0.metaEl
+ * @param root0.onPick
+ */
 export function bindBookLookup({
   searchInput,
   resultsEl,
@@ -98,6 +106,6 @@ export function bindBookLookup({
   document.addEventListener("click", onDocClick);
   return {
     clearResults,
-    destroy: () => document.removeEventListener("click", onDocClick),
+    destroy: () => { document.removeEventListener("click", onDocClick); },
   };
 }

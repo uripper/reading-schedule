@@ -1,10 +1,10 @@
-export type WindowFindRequest = {
+export interface WindowFindRequest {
   query?: string;
   forward?: boolean;
   findNext?: boolean;
-};
+}
 
-export type WindowFindResponse = {
+export interface WindowFindResponse {
   matches: number;
   activeMatchOrdinal: number;
-};
+}

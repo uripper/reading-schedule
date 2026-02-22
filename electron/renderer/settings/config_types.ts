@@ -1,14 +1,14 @@
-export type SelectOption = {
+export interface SelectOption {
   value: string;
   label: string;
-};
+}
 
-export type BaseFieldDefinition = {
+export interface BaseFieldDefinition {
   id: string;
   label: string;
   hint?: string;
   step?: string;
-};
+}
 
 export type SelectFieldDefinition = BaseFieldDefinition & {
   type: "select";

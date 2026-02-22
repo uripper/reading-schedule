@@ -3,6 +3,10 @@ import assert from "node:assert/strict";
 
 import { clearMissingBlockedBy } from "../dist/renderer/books/model_payload.js";
 
+/**
+ *
+ * @param overrides
+ */
 function book(overrides = {}) {
   return {
     book_id: "book-id",

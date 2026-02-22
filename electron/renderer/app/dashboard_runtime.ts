@@ -2,27 +2,27 @@ import type { Book } from "../books/types.js";
 import { DEFAULT_PREFERENCES } from "./experience/index.js";
 import type { AppRuntimeState } from "./runtime_state.js";
 
-type DashboardRuntimeArgs = {
-  applyPreferencesToDocument: (preferences: AppRuntimeState["preferences"]) => void;
-  collectFeatureFlagsFromUI: () => Partial<AppRuntimeState["featureFlags"]>;
-  collectPreferencesFromUI: () => Partial<AppRuntimeState["preferences"]>;
-  collectAllBooks: () => Book[];
-  normalizeFeatureFlags: (
+interface DashboardRuntimeArgs {
+  applyPreferencesToDocument(preferences: AppRuntimeState["preferences"]): void;
+  collectFeatureFlagsFromUI(): Partial<AppRuntimeState["featureFlags"]>;
+  collectPreferencesFromUI(): Partial<AppRuntimeState["preferences"]>;
+  collectAllBooks(): Book[];
+  normalizeFeatureFlags(
     flags: Partial<AppRuntimeState["featureFlags"]>,
-  ) => AppRuntimeState["featureFlags"];
-  normalizePreferences: (
+  ): AppRuntimeState["featureFlags"];
+  normalizePreferences(
     preferences: Partial<AppRuntimeState["preferences"]>,
-  ) => AppRuntimeState["preferences"];
-  queuePersist: () => void;
+  ): AppRuntimeState["preferences"];
+  queuePersist(): void;
   state: AppRuntimeState;
-  updateStatsView: (payload: {
+  updateStatsView(payload: {
     books: Book[];
     sessions: AppRuntimeState["sessions"];
     lastResult: AppRuntimeState["lastResult"];
     scheduleCompletions: AppRuntimeState["scheduleCompletions"];
     dailyGoalMinutes: number;
-  }) => void;
-  updateTodayDashboard: (payload: {
+  }): void;
+  updateTodayDashboard(payload: {
     books: Book[];
     defaultDailyGoalMinutes: number;
     featureFlags: AppRuntimeState["featureFlags"];
@@ -30,9 +30,23 @@ type DashboardRuntimeArgs = {
     preferences: AppRuntimeState["preferences"];
     scheduleCompletions: AppRuntimeState["scheduleCompletions"];
     sessions: AppRuntimeState["sessions"];
-  }) => void;
-};
+  }): void;
+}
 
+/**
+ *
+ * @param root0
+ * @param root0.applyPreferencesToDocument
+ * @param root0.collectFeatureFlagsFromUI
+ * @param root0.collectPreferencesFromUI
+ * @param root0.collectAllBooks
+ * @param root0.normalizeFeatureFlags
+ * @param root0.normalizePreferences
+ * @param root0.queuePersist
+ * @param root0.state
+ * @param root0.updateStatsView
+ * @param root0.updateTodayDashboard
+ */
 export function createDashboardRuntime({
   applyPreferencesToDocument,
   collectFeatureFlagsFromUI,
@@ -45,8 +59,8 @@ export function createDashboardRuntime({
   updateStatsView,
   updateTodayDashboard,
 }: DashboardRuntimeArgs): {
-  applyExperienceSettings: () => void;
-  updateDashboards: () => void;
+  applyExperienceSettings(): void;
+  updateDashboards(): void;
 } {
   const updateStatsDashboardView = () => {
     updateStatsView({

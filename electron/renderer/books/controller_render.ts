@@ -20,18 +20,31 @@ import type {
   BooksViewState,
 } from "./controller_types.js";
 
-type RenderBooksControllerArgs = {
+interface RenderBooksControllerArgs {
   refs: BooksControllerRefs;
   books: Book[];
   scheduleRows: PlannerScheduleRow[];
   viewState: BooksViewState;
   dialog: BookDialogController | null;
-  onBooksChanged: () => void;
-  setBooks: (nextBooks: Book[]) => void;
-  findBook: (bookId: string) => Book | null;
-  rerender: () => void;
-};
+  onBooksChanged(): void;
+  setBooks(nextBooks: Book[]): void;
+  findBook(bookId: string): Book | null;
+  rerender(): void;
+}
 
+/**
+ *
+ * @param root0
+ * @param root0.refs
+ * @param root0.books
+ * @param root0.scheduleRows
+ * @param root0.viewState
+ * @param root0.dialog
+ * @param root0.onBooksChanged
+ * @param root0.setBooks
+ * @param root0.findBook
+ * @param root0.rerender
+ */
 export function renderBooksController({
   refs,
   books,

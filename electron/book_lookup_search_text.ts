@@ -5,6 +5,7 @@ import type { SearchDoc } from "./book_lookup_search_shared.js";
 
 /**
  * Normalizes free-form text into a lowercase, punctuation-stripped form.
+ * @param value
  */
 export function normalizeSearchText(value: string): string {
   return String(value || "")
@@ -16,6 +17,7 @@ export function normalizeSearchText(value: string): string {
 
 /**
  * Splits a query string into normalized non-empty tokens.
+ * @param query
  */
 export function queryTokens(query: string): string[] {
   return normalizeSearchText(query).split(/\s+/).filter(Boolean);
@@ -23,6 +25,7 @@ export function queryTokens(query: string): string[] {
 
 /**
  * Returns the first author name from a raw search document.
+ * @param doc
  */
 export function primaryAuthor(doc: SearchDoc): string {
   if (!Array.isArray(doc.author_name) || !doc.author_name.length) {
@@ -33,6 +36,7 @@ export function primaryAuthor(doc: SearchDoc): string {
 
 /**
  * Indicates whether a search document is tagged with English language.
+ * @param doc
  */
 export function hasEnglishLanguage(doc: SearchDoc): boolean {
   if (!Array.isArray(doc.language)) {

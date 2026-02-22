@@ -20,34 +20,42 @@ const DEFAULT_LAST_RESULT: PlannerResult = {
   created_at: "",
 };
 
-type PlanControllerArgs = {
+interface PlanControllerArgs {
   plannerApi: Pick<PlannerApi, "generate">;
-  collectBooks: () => Book[];
-  collectSettings: () => PlannerSettings;
-  setStatus: (message: string, isError?: boolean) => void;
-  addLog: (message: string) => void;
-  announce: (message: string, politeness?: "polite" | "assertive") => void;
-  getLastResult: () => PlannerResult | null;
-  setLastResult: (result: PlannerResult) => void;
-  getSessions: () => Session[];
-  getScheduleCompletions: () => Record<string, boolean>;
-  setScheduleCompletions: (completions: Record<string, boolean>) => void;
-  renderCalendar: (
+  collectBooks(): Book[];
+  collectSettings(): PlannerSettings;
+  setStatus(message: string, isError?: boolean): void;
+  addLog(message: string): void;
+  announce(message: string, politeness?: "polite" | "assertive"): void;
+  getLastResult(): PlannerResult | null;
+  setLastResult(result: PlannerResult): void;
+  getSessions(): Session[];
+  getScheduleCompletions(): Record<string, boolean>;
+  setScheduleCompletions(completions: Record<string, boolean>): void;
+  renderCalendar(
     rows: PlannerScheduleRow[],
     totals: Record<string, number>,
-  ) => void;
-  totalsFromSummary: (summary: PlannerSummary | null) => Record<string, number>;
-  setBookScheduleRows: (rows: PlannerScheduleRow[]) => void;
-  updateTodayView: () => void;
-  persistDraft: () => Promise<boolean>;
-};
+  ): void;
+  totalsFromSummary(summary: PlannerSummary | null): Record<string, number>;
+  setBookScheduleRows(rows: PlannerScheduleRow[]): void;
+  updateTodayView(): void;
+  persistDraft(): Promise<boolean>;
+}
 
 type PlannerRunData = Pick<PlannerResult, "schedule" | "summary">;
 
+/**
+ *
+ * @param rows
+ */
 function hasRows(rows: PlannerScheduleRow[]): boolean {
   return Array.isArray(rows) && rows.length > 0;
 }
 
+/**
+ *
+ * @param data
+ */
 function resultFromData(data: PlannerRunData): PlannerResult {
   return {
     schedule: data.schedule || [],
@@ -56,6 +64,26 @@ function resultFromData(data: PlannerRunData): PlannerResult {
   };
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.plannerApi
+ * @param root0.collectBooks
+ * @param root0.collectSettings
+ * @param root0.setStatus
+ * @param root0.addLog
+ * @param root0.announce
+ * @param root0.getLastResult
+ * @param root0.setLastResult
+ * @param root0.getSessions
+ * @param root0.getScheduleCompletions
+ * @param root0.setScheduleCompletions
+ * @param root0.renderCalendar
+ * @param root0.totalsFromSummary
+ * @param root0.setBookScheduleRows
+ * @param root0.updateTodayView
+ * @param root0.persistDraft
+ */
 export function createPlanController({
   plannerApi,
   collectBooks,

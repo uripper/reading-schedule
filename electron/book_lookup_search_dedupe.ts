@@ -6,6 +6,7 @@ import { primaryAuthor } from "./book_lookup_search_text.js";
 
 /**
  * Removes duplicate docs by canonical key and title/author fallback.
+ * @param docs
  */
 export function dedupeDocs(docs: SearchDoc[]): SearchDoc[] {
   const seen = new Set<string>();

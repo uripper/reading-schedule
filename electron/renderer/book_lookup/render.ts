@@ -1,9 +1,21 @@
 import type { BookLookupItem } from "../app/types.js";
 
+/**
+ *
+ * @param resultsEl
+ * @param index
+ */
 function optionId(resultsEl: HTMLElement, index: number): string {
   return `${resultsEl.id || "lookup-results"}-option-${index}`;
 }
 
+/**
+ *
+ * @param resultsEl
+ * @param items
+ * @param placeholder
+ * @param activeIndex
+ */
 export function renderLookupResults(
   resultsEl: HTMLElement,
   items: readonly BookLookupItem[],
@@ -58,6 +70,13 @@ export function renderLookupResults(
   });
 }
 
+/**
+ *
+ * @param searchInput
+ * @param resultsEl
+ * @param hasItems
+ * @param activeIndex
+ */
 export function updateComboboxA11y(
   searchInput: HTMLInputElement,
   resultsEl: HTMLElement,
@@ -78,6 +97,10 @@ export function updateComboboxA11y(
   );
 }
 
+/**
+ *
+ * @param event
+ */
 export function lookupResultTarget(event: Event): HTMLElement | null {
   if (!(event.target instanceof HTMLElement)) {
     return null;

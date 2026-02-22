@@ -6,6 +6,10 @@ export const COMPLETE_ITEM_CLASS = "is-complete";
 export const COMPLETE_TOGGLE_LABEL = " Complete session";
 const REMOVE_SESSION_LABEL = "Remove session";
 
+/**
+ *
+ * @param row
+ */
 export function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
   const item = document.createElement("article");
   item.className = "day-details-item";
@@ -25,6 +29,12 @@ export function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
   return item;
 }
 
+/**
+ *
+ * @param row
+ * @param interactionHandlers
+ * @param rerenderDetails
+ */
 export function removeSessionButton(
   row: CalendarRowWithFinish,
   interactionHandlers: DetailInteractionHandlers,

@@ -15,6 +15,9 @@ export { searchBooks } from "./book_lookup_search";
 
 /**
  * Downloads a remote cover image and stores it in the user data directory.
+ * @param coverUrl
+ * @param bookId
+ * @param userDataDir
  */
 export async function downloadCover(
   coverUrl: string | undefined,
@@ -55,6 +58,9 @@ export async function downloadCover(
 
 /**
  * Persists a user-uploaded cover data URL to disk and returns a file URL.
+ * @param coverDataUrl
+ * @param bookId
+ * @param userDataDir
  */
 export function saveUploadedCover(
   coverDataUrl: string | undefined,

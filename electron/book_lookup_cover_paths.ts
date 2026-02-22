@@ -28,6 +28,10 @@ let coverVersionCounter = 0;
  */
 export type CoverExtension = ".jpg" | ".png" | ".webp";
 
+/**
+ *
+ * @param bookId
+ */
 function safeFileBase(bookId: string | undefined): string {
   const normalizedId = String(bookId ?? "").trim();
   const timestampFallback = `${COVER_FILE_FALLBACK_PREFIX}-${Date.now()}`;
@@ -38,6 +42,10 @@ function safeFileBase(bookId: string | undefined): string {
   return safe || timestampFallback;
 }
 
+/**
+ *
+ * @param userDataDir
+ */
 function ensureCoverDirectory(userDataDir: string): string {
   const coverDirectory = path.join(userDataDir, COVER_DIRECTORY_NAME);
   fs.mkdirSync(coverDirectory, { recursive: true });
@@ -46,6 +54,8 @@ function ensureCoverDirectory(userDataDir: string): string {
 
 /**
  * Resolves the normalized extension for a downloaded cover response.
+ * @param contentType
+ * @param parsedUrl
  */
 export function extensionFor(
   contentType: string | null,
@@ -74,6 +84,7 @@ export function extensionFor(
 
 /**
  * Returns true when the protocol is an allowed HTTP(S) protocol.
+ * @param protocol
  */
 export function isHttpProtocol(protocol: string): boolean {
   return protocol === HTTP_PROTOCOL || protocol === HTTPS_PROTOCOL;
@@ -81,6 +92,9 @@ export function isHttpProtocol(protocol: string): boolean {
 
 /**
  * Builds a unique absolute file path for a cover image.
+ * @param userDataDir
+ * @param bookId
+ * @param extension
  */
 export function filePathForCover(
   userDataDir: string,

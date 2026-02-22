@@ -12,6 +12,12 @@ import {
 } from "./details_render_helpers.js";
 import { dateHeading } from "./utils.js";
 
+/**
+ *
+ * @param state
+ * @param interactionHandlers
+ * @param onRerenderRequested
+ */
 export function renderCalendarDetails(
   state: CalendarDetailsState,
   interactionHandlers: DetailInteractionHandlers,

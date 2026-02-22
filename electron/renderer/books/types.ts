@@ -1,6 +1,6 @@
 import type { BookStatus } from "./status.js";
 
-export type Book = {
+export interface Book {
   book_id: string;
   title: string;
   author: string;
@@ -20,17 +20,17 @@ export type Book = {
   cover_url: string;
   cover_local_path: string;
   lookup_note: string;
-};
+}
 
 export type BookInput = Partial<Book>;
 
-export type BookProgressUpdates = {
+export interface BookProgressUpdates {
   pagesRead?: number | null;
   progressPercent?: number | null;
-};
+}
 
-export type BookMetaOptions = {
+export interface BookMetaOptions {
   titleById?: Record<string, string>;
   finishDateByBookId?: Record<string, string>;
   showShelfMeta?: boolean;
-};
+}

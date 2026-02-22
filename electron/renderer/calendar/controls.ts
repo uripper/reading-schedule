@@ -1,14 +1,21 @@
 import { el } from "../dom.js";
 import { monthLabel } from "./utils.js";
 
-type CalendarControlsState = {
+interface CalendarControlsState {
   months: string[];
   index: number;
-};
+}
 
 type RenderFn = () => void;
 type JumpToTodayFn = () => void;
 
+/**
+ *
+ * @param state
+ * @param renderControls
+ * @param renderMonth
+ * @param jumpToToday
+ */
 export function renderCalendarControls(
   state: CalendarControlsState,
   renderControls: RenderFn,

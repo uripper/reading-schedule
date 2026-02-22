@@ -20,12 +20,17 @@ export type JsonValue =
   | { [key: string]: JsonValue };
 type SaveResult = { ok: true } | { ok: false; error: string };
 
+/**
+ *
+ * @param userDataDir
+ */
 function statePath(userDataDir: string): string {
   return path.join(userDataDir, FILE_NAME);
 }
 
 /**
  * Loads persisted planner state from disk, returning null on failure.
+ * @param userDataDir
  */
 export function readState(userDataDir: string): JsonValue | null {
   try {
@@ -38,6 +43,8 @@ export function readState(userDataDir: string): JsonValue | null {
 
 /**
  * Writes planner state to disk and returns a structured success result.
+ * @param userDataDir
+ * @param data
  */
 export function writeState(userDataDir: string, data: JsonValue): SaveResult {
   try {

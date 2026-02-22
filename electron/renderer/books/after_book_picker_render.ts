@@ -7,14 +7,18 @@ export const FIRST_RESULT_INDEX = 0;
 export const UNKNOWN_BOOK_LABEL = "Unknown";
 const ARIA_ACTIVE_DESCENDANT_ATTR = "aria-activedescendant";
 
-export type PickerState = {
+export interface PickerState {
   activeIndex: number;
   currentBookId: string;
   filtered: Book[];
   options: Book[];
   selectedBookId: string;
-};
+}
 
+/**
+ *
+ * @param state
+ */
 export function selectedBook(state: PickerState): Book | null {
   if (!state.selectedBookId) {
     return null;
@@ -22,6 +26,11 @@ export function selectedBook(state: PickerState): Book | null {
   return state.options.find((book) => book.book_id === state.selectedBookId) || null;
 }
 
+/**
+ *
+ * @param refs
+ * @param state
+ */
 export function renderAfterBookResults(
   refs: BookFormRefs,
   state: PickerState,
@@ -58,6 +67,11 @@ export function renderAfterBookResults(
   refs.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
 }
 
+/**
+ *
+ * @param refs
+ * @param blockedById
+ */
 export function setUnknownSelectionLabel(
   refs: BookFormRefs,
   blockedById: string,

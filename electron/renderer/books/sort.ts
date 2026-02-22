@@ -37,6 +37,11 @@ export type SortDirection =
 type OptionalNumber = number | null | undefined;
 type OptionalString = string | null | undefined;
 
+/**
+ *
+ * @param left
+ * @param right
+ */
 function compareNumbers(left: OptionalNumber, right: OptionalNumber): number {
   const leftMissing = left === null || left === undefined;
   const rightMissing = right === null || right === undefined;
@@ -58,6 +63,11 @@ function compareNumbers(left: OptionalNumber, right: OptionalNumber): number {
   return 0;
 }
 
+/**
+ *
+ * @param left
+ * @param right
+ */
 function compareText(left: OptionalString, right: OptionalString): number {
   const leftText = String(left || "")
     .trim()
@@ -79,6 +89,11 @@ function compareText(left: OptionalString, right: OptionalString): number {
   return leftText.localeCompare(rightText, undefined, { sensitivity: "base" });
 }
 
+/**
+ *
+ * @param left
+ * @param right
+ */
 function compareTitleText(left: OptionalString, right: OptionalString): number {
   const leftKey = titleSortKey(left);
   const rightKey = titleSortKey(right);
@@ -131,6 +146,13 @@ const SORT_COMPARATORS: Record<SortBy, SortComparator> = {
   },
 };
 
+/**
+ *
+ * @param leftBook
+ * @param rightBook
+ * @param sortBy
+ * @param finishDateByBookId
+ */
 function compareBySortKey(
   leftBook: Book,
   rightBook: Book,
@@ -141,6 +163,13 @@ function compareBySortKey(
   return comparator(leftBook, rightBook, finishDateByBookId);
 }
 
+/**
+ *
+ * @param books
+ * @param sortBy
+ * @param sortDirection
+ * @param finishDateByBookId
+ */
 export function sortBooks(
   books: Book[] = [],
   sortBy: SortBy = SORT_BY_TITLE,

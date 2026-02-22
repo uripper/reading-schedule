@@ -1,9 +1,13 @@
-type CalendarRow = {
+interface CalendarRow {
   finish?: boolean;
   minutes?: number;
   title?: string;
-};
+}
 
+/**
+ *
+ * @param rowCount
+ */
 function plannedSessionText(rowCount: number): string {
   if (!rowCount) {
     return "No sessions";
@@ -11,6 +15,11 @@ function plannedSessionText(rowCount: number): string {
   return `${rowCount} planned`;
 }
 
+/**
+ *
+ * @param dayButton
+ * @param rows
+ */
 function appendVisibleRowChips(
   dayButton: HTMLButtonElement,
   rows: CalendarRow[],
@@ -26,6 +35,11 @@ function appendVisibleRowChips(
   });
 }
 
+/**
+ *
+ * @param dayButton
+ * @param rowCount
+ */
 function appendExtraRowChip(
   dayButton: HTMLButtonElement,
   rowCount: number,
@@ -39,6 +53,11 @@ function appendExtraRowChip(
   dayButton.append(extra);
 }
 
+/**
+ *
+ * @param dayButton
+ * @param rows
+ */
 export function appendDayButtonSummary(
   dayButton: HTMLButtonElement,
   rows: CalendarRow[],

@@ -21,23 +21,28 @@ const NON_PLANNING_SETTING_IDS = new Set([
   "flagRecommendations",
 ]);
 
-type PersistQueueState = {
+interface PersistQueueState {
   ready: boolean;
   preferences: Preferences;
   featureFlags: FeatureFlags;
   scheduleCompletions: Record<string, boolean>;
   lastResult: PlannerResult | null;
-};
+}
 
-type PersistQueueArgs = {
+interface PersistQueueArgs {
   plannerApi: Pick<PlannerApi, "saveState">;
   state: PersistQueueState;
-  getSessions: () => Session[];
-  collectBooks: () => Book[];
-  collectSettings: () => PlannerSettings;
-  addLog: (message: string) => void;
-};
+  getSessions(): Session[];
+  collectBooks(): Book[];
+  collectSettings(): PlannerSettings;
+  addLog(message: string): void;
+}
 
+/**
+ *
+ * @param statusNode
+ * @param addLog
+ */
 export function createStatusSetter(
   statusNode: HTMLElement,
   addLog: (message: string) => void,
@@ -52,6 +57,10 @@ export function createStatusSetter(
   };
 }
 
+/**
+ *
+ * @param summary
+ */
 export function totalsFromSummary(
   summary: PlannerSummary | null,
 ): Record<string, number> {
@@ -62,6 +71,16 @@ export function totalsFromSummary(
   return Object.fromEntries(pairs);
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.plannerApi
+ * @param root0.state
+ * @param root0.getSessions
+ * @param root0.collectBooks
+ * @param root0.collectSettings
+ * @param root0.addLog
+ */
 export function createPersistQueue({
   plannerApi,
   state,
@@ -82,7 +101,7 @@ export function createPersistQueue({
       scheduleCompletions: state.scheduleCompletions,
       lastResult: state.lastResult,
     });
-    return saveStateSafe(plannerApi, payload, addLog);
+    return await saveStateSafe(plannerApi, payload, addLog);
   };
 
   const queuePersist = () => {
@@ -105,6 +124,10 @@ export function createPersistQueue({
   };
 }
 
+/**
+ *
+ * @param target
+ */
 function shouldAutoPlanTarget(target: HTMLElement): boolean {
   const id = String(target.id || "");
   if (!id) {
@@ -116,6 +139,12 @@ function shouldAutoPlanTarget(target: HTMLElement): boolean {
   return true;
 }
 
+/**
+ *
+ * @param settingsPanel
+ * @param isReady
+ * @param queueAutoPlan
+ */
 export function bindSettingsAutoPlanListeners(
   settingsPanel: HTMLElement,
   isReady: () => boolean,

@@ -1,7 +1,7 @@
 import { uid } from "../dom.js";
 import { toInt } from "./utils.js";
 
-export type Session = {
+export interface Session {
   id: string;
   book_id: string;
   title: string;
@@ -12,7 +12,7 @@ export type Session = {
   notes: string;
   source: "timer" | "manual";
   created_at: string;
-};
+}
 
 type SessionInput = Omit<Partial<Session>, "pages_read" | "source"> & {
   endedAt?: string;
@@ -25,10 +25,19 @@ const SOURCE_TIMER: Session["source"] = "timer";
 const SOURCE_MANUAL: Session["source"] = "manual";
 const UNTITLED_SESSION = "Untitled";
 
+/**
+ *
+ * @param left
+ * @param right
+ */
 function compareByEndedAtDesc(left: Session, right: Session): number {
   return String(right.ended_at).localeCompare(String(left.ended_at));
 }
 
+/**
+ *
+ * @param session
+ */
 function normalizedDates(session: SessionInput): {
   endedAt: string;
   startedAt: string;
@@ -50,6 +59,10 @@ function normalizedDates(session: SessionInput): {
   return { endedAt, startedAt };
 }
 
+/**
+ *
+ * @param value
+ */
 function normalizedPagesRead(value?: number | string | null): number | null {
   if (value === null || value === undefined || value === "") {
     return null;
@@ -57,6 +70,10 @@ function normalizedPagesRead(value?: number | string | null): number | null {
   return Math.max(0, toInt(value, 0));
 }
 
+/**
+ *
+ * @param value
+ */
 function normalizedSource(value?: string): Session["source"] {
   if (value === SOURCE_MANUAL) {
     return SOURCE_MANUAL;
@@ -64,6 +81,10 @@ function normalizedSource(value?: string): Session["source"] {
   return SOURCE_TIMER;
 }
 
+/**
+ *
+ * @param session
+ */
 export function normalizeSession(session: SessionInput = {}): Session {
   const { endedAt, startedAt } = normalizedDates(session);
   const pagesRead = normalizedPagesRead(session.pages_read);
@@ -83,6 +104,10 @@ export function normalizeSession(session: SessionInput = {}): Session {
   };
 }
 
+/**
+ *
+ * @param rawSessions
+ */
 export function normalizeSessions(rawSessions: SessionInput[] = []): Session[] {
   let normalizedRawSessions: SessionInput[] = [];
   if (Array.isArray(rawSessions)) {

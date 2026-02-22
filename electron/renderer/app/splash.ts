@@ -7,6 +7,9 @@ const SPLASH_TRANSITION_FALLBACK_BUFFER_MS = 120;
 const SPLASH_TRANSITION_FALLBACK_MS =
   SPLASH_CSS_FADE_DURATION_MS + SPLASH_TRANSITION_FALLBACK_BUFFER_MS;
 
+/**
+ *
+ */
 export function createSplashController() {
   const splashScreen = document.getElementById("splashScreen");
   const startedAt = performance.now();

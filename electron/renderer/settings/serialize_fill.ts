@@ -2,6 +2,10 @@ import type { PlannerSettings } from "../app/types.js";
 import { DEFAULT_DIFFICULTY_MULTIPLIER, DEFAULT_PLAN_MODE, weekdays } from "./config.js";
 import { allFieldDefinitions, inputEl, numberLevels, selectEl } from "./field_io.js";
 
+/**
+ *
+ * @param value
+ */
 function settingValueText(value: unknown): string {
   if (typeof value === "string") {
     return value;
@@ -18,6 +22,10 @@ function settingValueText(value: unknown): string {
   return "";
 }
 
+/**
+ *
+ * @param value
+ */
 function selectSettingValue(value: unknown): string {
   const normalized = settingValueText(value);
   if (normalized) {
@@ -26,6 +34,11 @@ function selectSettingValue(value: unknown): string {
   return DEFAULT_PLAN_MODE;
 }
 
+/**
+ *
+ * @param settings
+ * @param setDayOffs
+ */
 export function fillSettingsForm(
   settings: PlannerSettings,
   setDayOffs: (nextDayOffs: string[]) => void,

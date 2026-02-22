@@ -16,6 +16,12 @@ import {
 const EDIT_MINUTES_BUTTON_LABEL = "Edit planned minutes";
 const EDIT_MINUTES_BUTTON_ICON = "✎";
 
+/**
+ *
+ * @param row
+ * @param interactionHandlers
+ * @param onMinutesApplied
+ */
 export function minutesFormForSession(
   row: CalendarRowWithFinish,
   interactionHandlers: DetailInteractionHandlers,

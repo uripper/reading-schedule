@@ -12,6 +12,10 @@ import {
   sortBooks,
 } from "../dist/renderer/books/sort.js";
 
+/**
+ *
+ * @param overrides
+ */
 function baseBook(overrides) {
   return {
     book_id: "",

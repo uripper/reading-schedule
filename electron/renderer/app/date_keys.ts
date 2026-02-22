@@ -1,3 +1,7 @@
+/**
+ *
+ * @param date
+ */
 export function dayKeyFromDate(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -5,6 +9,10 @@ export function dayKeyFromDate(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ *
+ * @param iso
+ */
 export function localDayKeyFromIso(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) {

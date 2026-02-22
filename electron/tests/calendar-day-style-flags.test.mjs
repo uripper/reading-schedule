@@ -3,6 +3,10 @@ import assert from "node:assert/strict";
 
 import { dayStyleFlags } from "../dist/renderer/calendar/month_day_button.js";
 
+/**
+ *
+ * @param dateText
+ */
 function day(dateText) {
   return new Date(`${dateText}T00:00:00`);
 }

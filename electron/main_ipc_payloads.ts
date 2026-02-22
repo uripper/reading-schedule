@@ -4,21 +4,22 @@
 /**
  * Payload shape accepted for remote cover download requests.
  */
-export type DownloadCoverPayload = {
+export interface DownloadCoverPayload {
   bookId?: string;
   url?: string;
-};
+}
 
 /**
  * Payload shape accepted for uploaded cover persistence requests.
  */
-export type UploadCoverPayload = {
+export interface UploadCoverPayload {
   bookId?: string;
   dataUrl?: string;
-};
+}
 
 /**
  * Normalizes unknown download payload input into a safe object.
+ * @param value
  */
 export function asDownloadCoverPayload(
   value: DownloadCoverPayload | null,
@@ -34,6 +35,7 @@ export function asDownloadCoverPayload(
 
 /**
  * Normalizes unknown upload payload input into a safe object.
+ * @param value
  */
 export function asUploadCoverPayload(
   value: UploadCoverPayload | null,

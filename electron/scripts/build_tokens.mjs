@@ -20,12 +20,22 @@ const outputJsonPath = path.join(
   "tokens.resolved.json",
 );
 
+/**
+ *
+ * @param node
+ */
 function isTokenLeaf(node) {
   return Boolean(
     node && typeof node === "object" && Object.hasOwn(node, "$value"),
   );
 }
 
+/**
+ *
+ * @param node
+ * @param pathParts
+ * @param map
+ */
 function flattenTokens(node, pathParts = [], map = new Map()) {
   if (!node || typeof node !== "object") {
     return map;
@@ -43,6 +53,11 @@ function flattenTokens(node, pathParts = [], map = new Map()) {
   return map;
 }
 
+/**
+ *
+ * @param rawValue
+ * @param resolver
+ */
 function resolveValue(rawValue, resolver) {
   if (typeof rawValue !== "string") {
     return rawValue;
@@ -54,9 +69,18 @@ function resolveValue(rawValue, resolver) {
   return resolver(alias[1]);
 }
 
+/**
+ *
+ * @param flatMap
+ */
 function createResolver(flatMap) {
   const cache = new Map();
 
+  /**
+   *
+   * @param pathKey
+   * @param stack
+   */
   function resolve(pathKey, stack = new Set()) {
     if (cache.has(pathKey)) {
       return cache.get(pathKey);
@@ -81,14 +105,27 @@ function createResolver(flatMap) {
   return resolve;
 }
 
+/**
+ *
+ * @param tokenPath
+ */
 function cssVarName(tokenPath) {
   return `--token-${tokenPath.replaceAll(".", "-")}`;
 }
 
+/**
+ *
+ * @param tokenPath
+ */
 function appVarName(tokenPath) {
   return `--app-${tokenPath.replaceAll(".", "-")}`;
 }
 
+/**
+ *
+ * @param filePath
+ * @param content
+ */
 function writeFile(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, content, "utf8");

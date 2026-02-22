@@ -3,6 +3,12 @@ import type { BookFormRefs } from "./form_refs.js";
 import { setUnknownSelectionLabel, type PickerState } from "./after_book_picker_render.js";
 import type { Book } from "./types.js";
 
+/**
+ *
+ * @param refs
+ * @param state
+ * @param book
+ */
 export function initializePickerForBook(
   refs: BookFormRefs,
   state: PickerState,

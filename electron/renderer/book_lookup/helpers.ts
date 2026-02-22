@@ -11,14 +11,18 @@ const PLACEHOLDER = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(PLACE
 
 type NumericLike = string | number | null | undefined;
 
-export type ProgressSyncInputs = {
+export interface ProgressSyncInputs {
   pagesTotalInput: HTMLInputElement;
   pagesReadInput: HTMLInputElement;
   progressInput: HTMLInputElement;
-};
+}
 
 type ProgressField = "pages" | "progress";
 
+/**
+ *
+ * @param raw
+ */
 function toInt(raw: NumericLike): number {
   const n = Number(raw);
   if (Number.isFinite(n)) {
@@ -27,10 +31,17 @@ function toInt(raw: NumericLike): number {
   return 0;
 }
 
+/**
+ *
+ */
 export function placeholderCoverSvg(): string {
   return PLACEHOLDER;
 }
 
+/**
+ *
+ * @param item
+ */
 export function describeLookup(item: BookLookupItem): string {
   const bits = [item.source || "", item.author || "", item.year || ""].filter(
     Boolean,
@@ -41,10 +52,19 @@ export function describeLookup(item: BookLookupItem): string {
   return "Selected from lookup results.";
 }
 
+/**
+ *
+ * @param item
+ */
 export function noteFromLookup(item: BookLookupItem): string {
   return describeLookup(item);
 }
 
+/**
+ *
+ * @param form
+ * @param changedField
+ */
 export function syncProgressAndPages(
   form: ProgressSyncInputs,
   changedField: ProgressField,

@@ -5,6 +5,11 @@ const DEFAULT_PRIORITY = 3;
 const DEFAULT_DIFFICULTY = 3;
 const DEFAULT_MIN_BLOCKS = 1;
 
+/**
+ *
+ * @param value
+ * @param fallback
+ */
 function withDefaultNumber(value: number | undefined, fallback: number): number {
   if (value !== undefined) {
     return value;
@@ -12,6 +17,10 @@ function withDefaultNumber(value: number | undefined, fallback: number): number 
   return fallback;
 }
 
+/**
+ *
+ * @param value
+ */
 function withDefaultString(value: string | null | undefined): string {
   if (value) {
     return value;
@@ -19,6 +28,10 @@ function withDefaultString(value: string | null | undefined): string {
   return "";
 }
 
+/**
+ *
+ * @param value
+ */
 function withNullableString(value: string | null | undefined): string | null {
   if (value) {
     return value;
@@ -26,10 +39,18 @@ function withNullableString(value: string | null | undefined): string | null {
   return null;
 }
 
+/**
+ *
+ * @param value
+ */
 function normalizeFinishedAt(value: string | null | undefined): string | null {
   return withNullableString(String(value ?? "").trim());
 }
 
+/**
+ *
+ * @param book
+ */
 export function toPayloadBook(book: Book): Book {
   const status = statusFromRaw(book.status, Number(book.progress_percent || 0));
   return {
@@ -58,10 +79,18 @@ export function toPayloadBook(book: Book): Book {
   };
 }
 
+/**
+ *
+ * @param book
+ */
 export function hasSchedulableLength(book: Book): boolean {
   return (book.words_total || 0) > 0 || (book.pages_total || 0) > 0;
 }
 
+/**
+ *
+ * @param books
+ */
 export function clearMissingBlockedBy(books: Book[]): Book[] {
   const schedulableIds = new Set<string>();
   books.forEach((book) => {

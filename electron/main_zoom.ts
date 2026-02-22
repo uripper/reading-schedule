@@ -9,6 +9,10 @@ const MAX_UI_SCALE = 3;
 export const UI_SCALE_STEP = 0.1;
 const ZOOM_PRECISION = 100;
 
+/**
+ *
+ * @param value
+ */
 function clampZoomFactor(value: number): number {
   if (!Number.isFinite(value)) {
     return DEFAULT_UI_SCALE;
@@ -16,16 +20,26 @@ function clampZoomFactor(value: number): number {
   return Math.min(MAX_UI_SCALE, Math.max(MIN_UI_SCALE, value));
 }
 
+/**
+ *
+ * @param value
+ */
 function normalizedZoomFactor(value: number): number {
   return Math.round(clampZoomFactor(value) * ZOOM_PRECISION) / ZOOM_PRECISION;
 }
 
+/**
+ *
+ * @param webContents
+ */
 function currentZoomFactor(webContents: WebContents): number {
   return normalizedZoomFactor(webContents.getZoomFactor());
 }
 
 /**
  * Applies and returns a normalized zoom factor for the target web contents.
+ * @param webContents
+ * @param value
  */
 export function setZoomFactor(webContents: WebContents, value: number): number {
   const nextFactor = normalizedZoomFactor(value);
@@ -43,6 +57,8 @@ export function initialZoomFactor(): number {
 
 /**
  * Moves the current zoom factor by a delta and returns the applied value.
+ * @param webContents
+ * @param delta
  */
 export function shiftZoomFactor(webContents: WebContents, delta: number): number {
   return setZoomFactor(webContents, currentZoomFactor(webContents) + delta);

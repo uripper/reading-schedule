@@ -8,15 +8,25 @@ import type { Book } from "./types.js";
 import type { PickerState } from "./after_book_picker_render.js";
 import { NO_ACTIVE_INDEX } from "./after_book_picker_render.js";
 
-type BindingArgs = {
-  clearResults: () => void;
+interface BindingArgs {
+  clearResults(): void;
   refs: BookFormRefs;
-  refreshFiltered: (clearChangedSelection: boolean) => void;
-  render: () => void;
-  selectBook: (book: Book | null | undefined) => void;
+  refreshFiltered(clearChangedSelection: boolean): void;
+  render(): void;
+  selectBook(book: Book | null | undefined): void;
   state: PickerState;
-};
+}
 
+/**
+ *
+ * @param root0
+ * @param root0.clearResults
+ * @param root0.refs
+ * @param root0.refreshFiltered
+ * @param root0.render
+ * @param root0.selectBook
+ * @param root0.state
+ */
 export function bindAfterBookPickerEvents({
   clearResults,
   refs,
@@ -25,8 +35,8 @@ export function bindAfterBookPickerEvents({
   selectBook,
   state,
 }: BindingArgs): void {
-  refs.afterBookInput.addEventListener("focus", () => refreshFiltered(false));
-  refs.afterBookInput.addEventListener("input", () => refreshFiltered(true));
+  refs.afterBookInput.addEventListener("focus", () => { refreshFiltered(false); });
+  refs.afterBookInput.addEventListener("input", () => { refreshFiltered(true); });
   refs.afterBookInput.addEventListener("keydown", (event: KeyboardEvent) => {
     if (event.key === "ArrowDown") {
       event.preventDefault();

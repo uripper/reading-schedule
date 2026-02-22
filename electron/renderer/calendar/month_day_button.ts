@@ -1,20 +1,29 @@
 import { WEEKDAY_LABELS } from "./constants.js";
 import { appendDayButtonSummary } from "./month_day_button_chips.js";
 
-type CalendarRow = {
+interface CalendarRow {
   finish?: boolean;
   minutes?: number;
   title?: string;
-};
+}
 
-type DayStyleFlags = {
+interface DayStyleFlags {
   hasFinishRow: boolean;
   isMuted: boolean;
   isPast: boolean;
   isSelected: boolean;
   isToday: boolean;
-};
+}
 
+/**
+ *
+ * @param date
+ * @param firstDate
+ * @param keyForDay
+ * @param selectedDate
+ * @param todayKey
+ * @param rows
+ */
 export function dayStyleFlags(
   date: Date,
   firstDate: Date,
@@ -37,6 +46,9 @@ export function dayStyleFlags(
   };
 }
 
+/**
+ *
+ */
 export function createWeekdayHeader(): HTMLSpanElement[] {
   return WEEKDAY_LABELS.map((label) => {
     const head = document.createElement("span");
@@ -46,6 +58,15 @@ export function createWeekdayHeader(): HTMLSpanElement[] {
   });
 }
 
+/**
+ *
+ * @param date
+ * @param firstDate
+ * @param keyForDay
+ * @param rows
+ * @param selectedDate
+ * @param todayKey
+ */
 export function createDayButton(
   date: Date,
   firstDate: Date,

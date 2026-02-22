@@ -2,51 +2,51 @@ import type { PlannerScheduleRow } from "../app/types.js";
 import type { Book } from "../books/types.js";
 import type { CalendarRowWithFinish } from "./data.js";
 
-export type CompletionChangePayload = {
+export interface CompletionChangePayload {
   sessionKey: string;
   completed: boolean;
   row: CalendarRowWithFinish;
-};
+}
 
-export type ProgressUpdatePayload = {
+export interface ProgressUpdatePayload {
   bookId: string;
   pagesRead?: number | null;
   progressPercent?: number | null;
-};
+}
 
-export type MinutesUpdatePayload = {
+export interface MinutesUpdatePayload {
   minutes: number;
   row: CalendarRowWithFinish;
-};
+}
 
-export type ManualSessionPayload = {
+export interface ManualSessionPayload {
   date: string;
   bookId: string;
   minutes: number;
   completed?: boolean;
-};
+}
 
-export type RemoveSessionPayload = {
+export interface RemoveSessionPayload {
   row: CalendarRowWithFinish;
-};
+}
 
-export type ManualSessionBook = {
+export interface ManualSessionBook {
   bookId: string;
   title: string;
-};
+}
 
-export type CalendarHandlers = {
-  isSessionCompleted: (sessionKey: string) => boolean;
-  onSessionCompletionChanged: (payload: CompletionChangePayload) => void;
-  onSessionProgressUpdated: (payload: ProgressUpdatePayload) => Book | null;
-  onSessionMinutesUpdated: (payload: MinutesUpdatePayload) => boolean;
-  getBookById: (bookId: string) => Book | null;
-  listSessionBooks: () => ManualSessionBook[];
-  onManualSessionAdded: (payload: ManualSessionPayload) => boolean;
-  onSessionRemoved: (payload: RemoveSessionPayload) => boolean;
-};
+export interface CalendarHandlers {
+  isSessionCompleted(sessionKey: string): boolean;
+  onSessionCompletionChanged(payload: CompletionChangePayload): void;
+  onSessionProgressUpdated(payload: ProgressUpdatePayload): Book | null;
+  onSessionMinutesUpdated(payload: MinutesUpdatePayload): boolean;
+  getBookById(bookId: string): Book | null;
+  listSessionBooks(): ManualSessionBook[];
+  onManualSessionAdded(payload: ManualSessionPayload): boolean;
+  onSessionRemoved(payload: RemoveSessionPayload): boolean;
+}
 
-export type CalendarRuntimeState = {
+export interface CalendarRuntimeState {
   dates: Record<string, CalendarRowWithFinish[]>;
   rawRows: PlannerScheduleRow[];
   rows: CalendarRowWithFinish[];
@@ -56,8 +56,11 @@ export type CalendarRuntimeState = {
   selectedDate: string;
   monthCellKeys: string[];
   expectedFinishHighlightDate: string;
-};
+}
 
+/**
+ *
+ */
 export function createCalendarRuntimeState(): CalendarRuntimeState {
   return {
     dates: {},
@@ -72,6 +75,9 @@ export function createCalendarRuntimeState(): CalendarRuntimeState {
   };
 }
 
+/**
+ *
+ */
 export function defaultCalendarHandlers(): CalendarHandlers {
   return {
     isSessionCompleted: () => false,
@@ -85,6 +91,10 @@ export function defaultCalendarHandlers(): CalendarHandlers {
   };
 }
 
+/**
+ *
+ * @param handlers
+ */
 export function mergeCalendarHandlers(
   handlers: Partial<CalendarHandlers>,
 ): CalendarHandlers {

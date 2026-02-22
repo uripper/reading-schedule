@@ -8,11 +8,18 @@ import type { PlannerSettings } from "./app/types.js";
 
 let dayOffs: string[] = [];
 
+/**
+ *
+ * @param nextDayOffs
+ */
 function setDayOffs(nextDayOffs: string[]): void {
   dayOffs = [...nextDayOffs];
   renderDayOffs(dayOffs, setDayOffs);
 }
 
+/**
+ *
+ */
 export function initSettingsGrid(): void {
   bindSettingsSectionTabs();
   renderGrid("windowGrid", fields.window);
@@ -23,10 +30,17 @@ export function initSettingsGrid(): void {
   bindDayOffAddButton(() => dayOffs, setDayOffs);
 }
 
+/**
+ *
+ * @param settings
+ */
 export function fillSettings(settings: PlannerSettings = {}): void {
   fillSettingsForm(settings, setDayOffs);
 }
 
+/**
+ *
+ */
 export function collectSettings(): PlannerSettings {
   return collectSettingsForm(dayOffs);
 }

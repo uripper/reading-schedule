@@ -14,22 +14,42 @@ export const MAX_PRIORITY = 5;
 export const MIN_DIFFICULTY = 1;
 export const MAX_DIFFICULTY = 10;
 
+/**
+ *
+ * @param value
+ * @param fallback
+ */
 function toIntWithFallback(value: number | undefined, fallback: number): number {
   return toInt(value ?? fallback, fallback);
 }
 
+/**
+ *
+ * @param value
+ */
 function normalizeFinishedAt(value: string | null | undefined): string | null {
   return withNullableString(toTrimmedText(value));
 }
 
+/**
+ *
+ */
 function todayDateKey(): string {
   return dayKey(new Date());
 }
 
+/**
+ *
+ * @param value
+ */
 export function toTrimmedText(value?: string | null): string {
   return String(value ?? "").trim();
 }
 
+/**
+ *
+ * @param value
+ */
 export function toBookId(value?: string): string {
   const text = toTrimmedText(value);
   if (text) {
@@ -38,6 +58,13 @@ export function toBookId(value?: string): string {
   return uid();
 }
 
+/**
+ *
+ * @param value
+ * @param fallback
+ * @param minValue
+ * @param maxValue
+ */
 export function toClampedInt(
   value: number | undefined,
   fallback: number,
@@ -47,10 +74,18 @@ export function toClampedInt(
   return clamp(toIntWithFallback(value, fallback), minValue, maxValue);
 }
 
+/**
+ *
+ * @param value
+ */
 export function minBlocksPerSession(value: number | undefined): number {
   return Math.max(DEFAULT_MIN_BLOCKS, toIntWithFallback(value, DEFAULT_MIN_BLOCKS));
 }
 
+/**
+ *
+ * @param value
+ */
 export function withNullableString(value: string | null | undefined): string | null {
   if (value) {
     return value;
@@ -58,6 +93,11 @@ export function withNullableString(value: string | null | undefined): string | n
   return null;
 }
 
+/**
+ *
+ * @param status
+ * @param finishedAtRaw
+ */
 export function finishedAtForStatus(
   status: string,
   finishedAtRaw: string | null | undefined,
@@ -72,6 +112,12 @@ export function finishedAtForStatus(
   return todayDateKey();
 }
 
+/**
+ *
+ * @param pagesTotal
+ * @param pagesRead
+ * @param progressRaw
+ */
 export function normalizeProgressAndPages(
   pagesTotal: number | null,
   pagesRead: number | null,

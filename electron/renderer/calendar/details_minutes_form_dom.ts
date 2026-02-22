@@ -5,6 +5,10 @@ const PLANNED_MINUTES_PLACEHOLDER = "Planned minutes";
 const SAVE_MINUTES_BUTTON_LABEL = "Save minutes";
 const CANCEL_MINUTES_BUTTON_LABEL = "Cancel";
 
+/**
+ *
+ * @param row
+ */
 export function minutesInputForRow(row: CalendarRowWithFinish): HTMLInputElement {
   const minutesInput = document.createElement("input");
   const minMinutes = minPlannedMinutes();
@@ -16,6 +20,9 @@ export function minutesInputForRow(row: CalendarRowWithFinish): HTMLInputElement
   return minutesInput;
 }
 
+/**
+ *
+ */
 export function minutesFormActions(): {
   actions: HTMLDivElement;
   cancelBtn: HTMLButtonElement;

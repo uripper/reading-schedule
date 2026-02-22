@@ -1,5 +1,11 @@
 import { GROUP_OPTIONS_BASE, SORT_OPTIONS, type OptionDefinition } from "./toolbar_options.js";
 
+/**
+ *
+ * @param labelText
+ * @param selectId
+ * @param options
+ */
 function createLabeledSelect(
   labelText: string,
   selectId: string,
@@ -18,6 +24,10 @@ function createLabeledSelect(
   return { label, select };
 }
 
+/**
+ *
+ * @param toolbar
+ */
 function createControlsWrap(toolbar: HTMLElement): HTMLElement {
   const existing = toolbar.querySelector<HTMLElement>(".books-controls");
   if (existing instanceof HTMLElement) {
@@ -29,6 +39,11 @@ function createControlsWrap(toolbar: HTMLElement): HTMLElement {
   return wrap;
 }
 
+/**
+ *
+ * @param value
+ * @param label
+ */
 export function createOption(value: string, label: string): HTMLOptionElement {
   const option = document.createElement("option");
   option.value = value;
@@ -36,6 +51,10 @@ export function createOption(value: string, label: string): HTMLOptionElement {
   return option;
 }
 
+/**
+ *
+ * @param toolbar
+ */
 export function ensureBooksToolbarControls(toolbar: HTMLElement): {
   groupBySelect: HTMLSelectElement;
   shelfFilterSelect: HTMLSelectElement;

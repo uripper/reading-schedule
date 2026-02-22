@@ -11,6 +11,13 @@ import {
   type EstimateState,
 } from "./estimates_snapshot.js";
 
+/**
+ *
+ * @param row
+ * @param state
+ * @param getBookById
+ * @param isSessionCompleted
+ */
 export function estimateProgressLabel(
   row: EstimateRow,
   state: EstimateState,

@@ -2,6 +2,9 @@ import { rowsWithFinishFirst, type CalendarRowWithFinish } from "./data.js";
 import { sessionKeyFor } from "./utils.js";
 import type { DayMode, DetailInteractionHandlers } from "./details_types.js";
 
+/**
+ *
+ */
 function todayDateKey(): string {
   const now = new Date();
   const year = now.getFullYear();
@@ -10,6 +13,10 @@ function todayDateKey(): string {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ *
+ * @param dateKey
+ */
 export function dayMode(dateKey: string): DayMode {
   const today = todayDateKey();
   if (dateKey < today) {
@@ -21,6 +28,11 @@ export function dayMode(dateKey: string): DayMode {
   return "today";
 }
 
+/**
+ *
+ * @param rows
+ * @param interactionHandlers
+ */
 export function rowsWithCompletedLast(
   rows: CalendarRowWithFinish[],
   interactionHandlers: DetailInteractionHandlers,

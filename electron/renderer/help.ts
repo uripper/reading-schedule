@@ -4,16 +4,23 @@ import { bindDialogFocus } from "./accessibility/index.js";
 const logs: string[] = [];
 const MAX_LOG_LINES = 250;
 
+/**
+ *
+ */
 function ts() {
   return new Date().toLocaleTimeString();
 }
 
+/**
+ *
+ */
 function renderLogs() {
   el("logOutput").textContent = logs.join("\n") || "No logs yet.";
 }
 
 /**
  * Adds a log message with timestamp to the logs array and renders the output.
+ * @param message
  */
 export function addLog(message: string) {
   logs.unshift(`[${ts()}] ${message}`);

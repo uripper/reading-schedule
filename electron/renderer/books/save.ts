@@ -1,6 +1,10 @@
 import type { Book } from "./types.js";
 import { getPlannerApi } from "../app/planner_api.js";
 
+/**
+ *
+ * @param book
+ */
 export async function hydrateBookCover(book: Book): Promise<Book> {
   if (!book.cover_url || book.cover_local_path) {
     return book;
@@ -20,6 +24,11 @@ export async function hydrateBookCover(book: Book): Promise<Book> {
   }
 }
 
+/**
+ *
+ * @param books
+ * @param nextBook
+ */
 export function upsertBookById(books: Book[], nextBook: Book): Book[] {
   const index = books.findIndex((row) => row.book_id === nextBook.book_id);
   if (index < 0) {
