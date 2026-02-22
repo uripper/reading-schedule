@@ -3,8 +3,9 @@ import { DEFAULT_DIFFICULTY_MULTIPLIER, DEFAULT_PLAN_MODE, weekdays } from "./co
 import { allFieldDefinitions, inputEl, numberLevels, selectEl } from "./field_io.js";
 
 /**
- *
- * @param value
+ * Normalizes arbitrary settings value to text for form controls.
+ * @param value Raw settings value.
+ * @returns String representation suitable for input/select values.
  */
 function settingValueText(value: unknown): string {
   if (typeof value === "string") {
@@ -23,8 +24,9 @@ function settingValueText(value: unknown): string {
 }
 
 /**
- *
- * @param value
+ * Resolves select-field value using fallback default when empty.
+ * @param value Raw settings value.
+ * @returns Select value text.
  */
 function selectSettingValue(value: unknown): string {
   const normalized = settingValueText(value);
@@ -35,9 +37,9 @@ function selectSettingValue(value: unknown): string {
 }
 
 /**
- *
- * @param settings
- * @param setDayOffs
+ * Populates settings form controls from planner settings payload.
+ * @param settings Planner settings payload.
+ * @param setDayOffs Setter used to update day-off chips/state.
  */
 export function fillSettingsForm(
   settings: PlannerSettings,

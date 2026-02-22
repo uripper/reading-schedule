@@ -9,8 +9,8 @@ import type { PlannerSettings } from "./app/types.js";
 let dayOffs: string[] = [];
 
 /**
- *
- * @param nextDayOffs
+ * Replaces day-off state and refreshes chip UI.
+ * @param nextDayOffs Updated day-off weekday keys.
  */
 function setDayOffs(nextDayOffs: string[]): void {
   dayOffs = [...nextDayOffs];
@@ -18,7 +18,7 @@ function setDayOffs(nextDayOffs: string[]): void {
 }
 
 /**
- *
+ * Initializes settings UI sections, grids, and day-off controls.
  */
 export function initSettingsGrid(): void {
   bindSettingsSectionTabs();
@@ -31,15 +31,16 @@ export function initSettingsGrid(): void {
 }
 
 /**
- *
- * @param settings
+ * Fills settings form controls from persisted planner settings.
+ * @param settings Planner settings snapshot.
  */
 export function fillSettings(settings: PlannerSettings = {}): void {
   fillSettingsForm(settings, setDayOffs);
 }
 
 /**
- *
+ * Collects current settings form values into planner settings payload.
+ * @returns Serialized planner settings.
  */
 export function collectSettings(): PlannerSettings {
   return collectSettingsForm(dayOffs);

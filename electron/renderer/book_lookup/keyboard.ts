@@ -117,6 +117,5 @@ export function handleLookupKeydown(
       handleEscape(clearResults, searchInput);
 
     default:
-      
   }
 }

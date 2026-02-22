@@ -3,8 +3,8 @@ import { qa } from "../dom.js";
 const DEFAULT_SETTINGS_SECTION = "plan-budget";
 
 /**
- *
- * @param nextSection
+ * Activates one settings section and updates tab selected states.
+ * @param nextSection Section id to activate.
  */
 function activateSettingsSection(nextSection: string): void {
   const section = String(nextSection || DEFAULT_SETTINGS_SECTION);
@@ -29,7 +29,7 @@ function activateSettingsSection(nextSection: string): void {
 }
 
 /**
- *
+ * Binds settings section tab click handlers and activates default section.
  */
 export function bindSettingsSectionTabs(): void {
   const tabs = qa<HTMLElement>(".settings-section-tab");

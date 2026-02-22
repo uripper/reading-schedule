@@ -1,9 +1,9 @@
 import { el } from "../dom.js";
 
 /**
- *
- * @param dayOffs
- * @param setDayOffs
+ * Renders day-off chips with remove actions.
+ * @param dayOffs Current day-off weekday keys.
+ * @param setDayOffs State setter for day-off updates.
  */
 export function renderDayOffs(
   dayOffs: string[],
@@ -26,9 +26,9 @@ export function renderDayOffs(
 }
 
 /**
- *
- * @param getDayOffs
- * @param setDayOffs
+ * Binds the "add day off" button to append a unique sorted weekday chip.
+ * @param getDayOffs Getter for current day-off values.
+ * @param setDayOffs State setter for day-off updates.
  */
 export function bindDayOffAddButton(
   getDayOffs: () => string[],

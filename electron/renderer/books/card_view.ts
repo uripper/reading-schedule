@@ -17,17 +17,17 @@ interface RenderBookGridOptions {
 }
 
 /**
- *
- * @param root0
- * @param root0.grid
- * @param root0.empty
- * @param root0.books
- * @param root0.groups
- * @param root0.allBooks
- * @param root0.finishDateByBookId
- * @param root0.showShelfMeta
- * @param root0.onEdit
- * @param root0.onRemove
+ * Renders book cards (grouped or flat) and wires edit/remove handlers.
+ * @param root0 Render options and callbacks.
+ * @param root0.grid Card grid container element.
+ * @param root0.empty Empty-state element.
+ * @param root0.books Books to render.
+ * @param root0.groups Optional grouped book structure.
+ * @param root0.allBooks Optional full book catalog for metadata lookup.
+ * @param root0.finishDateByBookId Optional finish-date lookup.
+ * @param root0.showShelfMeta Whether shelf metadata should be displayed.
+ * @param root0.onEdit Edit callback for a book id.
+ * @param root0.onRemove Remove callback for a book id.
  */
 export function renderBookGrid({
   grid,
