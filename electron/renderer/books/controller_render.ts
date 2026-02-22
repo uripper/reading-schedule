@@ -1,8 +1,10 @@
 import type { PlannerScheduleRow } from "../app/types.js";
 import { renderBookGrid } from "./card_view.js";
+import { groupsForEstimatedFinish } from "./estimated_finish_groups.js";
 import { finishDatesByBookId } from "./finish_dates.js";
-import { groupBooks } from "./grouping.js";
+import { GROUP_BY_NONE, groupBooks } from "./grouping.js";
 import { SHELF_FILTER_ALL } from "./shelf.js";
+import { SORT_BY_ESTIMATED_FINISH } from "./sort.js";
 import {
   resolveRenderableRefs,
   visibleBooksForView,
@@ -81,11 +83,13 @@ export function renderBooksController({
   const finishDateByBookId = finishDatesByBookId(scheduleRows, books);
   const visibleBooks = visibleBooksForView(books, viewState, finishDateByBookId);
 
-  const groups = groupBooks(
-    visibleBooks,
-    viewState.groupBy,
-    finishDateByBookId,
-  );
+  let groups = groupBooks(visibleBooks, viewState.groupBy, finishDateByBookId);
+  if (
+    viewState.sortBy === SORT_BY_ESTIMATED_FINISH &&
+    viewState.groupBy === GROUP_BY_NONE
+  ) {
+    groups = groupsForEstimatedFinish(visibleBooks);
+  }
   renderBookGrid({
     groups,
     finishDateByBookId,

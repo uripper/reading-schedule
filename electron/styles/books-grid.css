@@ -1,7 +1,3 @@
-:root {
-  --books-group-card-width: 252px;
-}
-
 .books-toolbar {
   margin-bottom: var(--token-space-3);
   justify-content: space-between;
@@ -41,17 +37,9 @@
 }
 
 .books-group-row {
-  display: flex;
+  display: grid;
   gap: var(--token-space-3);
-  overflow-x: auto;
-  padding-bottom: var(--token-space-1);
-  scroll-snap-type: x proximity;
-}
-
-.books-group-row .book-card {
-  flex: 0 0 var(--books-group-card-width);
-  max-width: var(--books-group-card-width);
-  scroll-snap-align: start;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 }
 
 .books-empty {

@@ -1,8 +1,64 @@
 import { WORDS_PER_PAGE } from "./constants.js";
 import { shelfLabelForBook } from "./shelf.js";
-import { statusLabel } from "./status.js";
+import {
+  BOOK_STATUS_READ,
+  isStatusSchedulable,
+  statusLabel,
+} from "./status.js";
 import { formatInt } from "./utils.js";
 import type { Book, BookMetaOptions } from "./types.js";
+
+/**
+ * Checks whether an optional numeric value is a positive finite number.
+ * @param value Numeric value that may be nullish.
+ * @returns `true` when value exists and is greater than zero.
+ */
+function hasPositiveNumber(value: number | null | undefined): boolean {
+  if (value === null || value === undefined) {
+    return false;
+  }
+  return value > 0;
+}
+
+/**
+ * Builds status-sensitive finish metadata text for one book.
+ * @param book Book to describe.
+ * @param finishDateByBookId Finish date lookup keyed by `book_id`.
+ * @returns Metadata text or `null` when no finish text should be shown.
+ */
+function finishMetaPart(
+  book: Book,
+  finishDateByBookId: Record<string, string>,
+): string | null {
+  const finishDate = finishDateByBookId[book.book_id];
+  if (!finishDate) {
+    return null;
+  }
+  if (book.status === BOOK_STATUS_READ) {
+    return `Finished ${finishDate}`;
+  }
+  if (isStatusSchedulable(book.status)) {
+    return `Est. finish ${finishDate}`;
+  }
+  return null;
+}
+
+/**
+ * Builds blocker metadata text with title resolution when available.
+ * @param book Book to describe.
+ * @param titleById Book-title lookup keyed by `book_id`.
+ * @returns Metadata text or `null` when no blocker is set.
+ */
+function blockerMetaPart(book: Book, titleById: Record<string, string>): string | null {
+  if (book.blocked_by === null || book.blocked_by === "") {
+    return null;
+  }
+  const resolvedBlocker = titleById[book.blocked_by];
+  if (resolvedBlocker !== "") {
+    return `After ${resolvedBlocker}`;
+  }
+  return `After ${book.blocked_by}`;
+}
 
 /**
  * Builds the progress line shown in each book card.
@@ -10,10 +66,10 @@ import type { Book, BookMetaOptions } from "./types.js";
  * @returns Human-readable progress summary with percent and pages.
  */
 export function progressLabel(book: Book): string {
-  const pct = Number(book.progress_percent || 0);
-  const pagesRead = Math.max(0, Number(book.pages_read || 0));
-  if (book.pages_total) {
-    const pagesTotal = Math.max(0, Number(book.pages_total || 0));
+  const pct = Number(book.progress_percent);
+  const pagesRead = Math.max(0, Number(book.pages_read ?? 0));
+  if (hasPositiveNumber(book.pages_total)) {
+    const pagesTotal = Math.max(0, Number(book.pages_total ?? 0));
     return `${pct.toFixed(1)}% · ${formatInt(pagesRead)}/${formatInt(pagesTotal)} pages`;
   }
   return `${pct.toFixed(1)}% · ${formatInt(pagesRead)} pages read`;
@@ -25,11 +81,13 @@ export function progressLabel(book: Book): string {
  * @returns Word total label or page-based estimate fallback.
  */
 export function wordsLabel(book: Book): string {
-  if (book.words_total) {
-    return `${formatInt(book.words_total)} words`;
+  const wordsTotal = book.words_total;
+  if (hasPositiveNumber(wordsTotal)) {
+    return `${formatInt(wordsTotal)} words`;
   }
-  if (book.pages_total) {
-    return `${formatInt(book.pages_total * WORDS_PER_PAGE)} word estimate`;
+  const pagesTotal = book.pages_total;
+  if (hasPositiveNumber(pagesTotal)) {
+    return `${formatInt(Number(pagesTotal) * WORDS_PER_PAGE)} word estimate`;
   }
   return "No word estimate";
 }
@@ -41,30 +99,24 @@ export function wordsLabel(book: Book): string {
  * @returns Joined metadata text for card subtitle line.
  */
 export function metaLabel(book: Book, options: BookMetaOptions = {}): string {
-  const titleById = options.titleById || {};
-  const finishDateByBookId = options.finishDateByBookId || {};
-  const bits = [];
+  const titleById = options.titleById ?? {};
+  const finishDateByBookId = options.finishDateByBookId ?? {};
+  const bits: string[] = [];
   bits.push(`Status ${statusLabel(book.status)}`);
 
-  const finishDate = finishDateByBookId[book.book_id];
-  if (finishDate) {
-    bits.push(`Est. finish ${finishDate}`);
+  const finishPart = finishMetaPart(book, finishDateByBookId);
+  if (finishPart !== null) {
+    bits.push(finishPart);
   }
-  if (book.deadline) {
+  if (book.deadline !== null && book.deadline !== "") {
     bits.push(`Due ${book.deadline}`);
   }
-  if (book.blocked_by) {
-    let blockerLabel = book.blocked_by;
-    if (titleById[book.blocked_by]) {
-      blockerLabel = titleById[book.blocked_by];
-    }
-    bits.push(`After ${blockerLabel}`);
+  const blockerPart = blockerMetaPart(book, titleById);
+  if (blockerPart !== null) {
+    bits.push(blockerPart);
   }
-  if (options.showShelfMeta) {
+  if (options.showShelfMeta === true) {
     bits.push(`Shelf ${shelfLabelForBook(book)}`);
-  }
-  if (!bits.length) {
-    return "No schedule metadata";
   }
   return bits.join(" · ");
 }
@@ -75,5 +127,11 @@ export function metaLabel(book: Book, options: BookMetaOptions = {}): string {
  * @returns Author text, lookup note, or fallback label.
  */
 export function subtitle(book: Book): string {
-  return book.author || book.lookup_note || "No author metadata";
+  if (book.author !== "") {
+    return book.author;
+  }
+  if (book.lookup_note !== "") {
+    return book.lookup_note;
+  }
+  return "No author metadata";
 }
