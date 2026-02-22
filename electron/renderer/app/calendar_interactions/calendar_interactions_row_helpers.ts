@@ -2,67 +2,59 @@ import type { PlannerScheduleRow } from "../types.js";
 import { sessionKeyFor } from "../../calendar/utils.js";
 
 /**
- * Normalizes input to extract date and rows for session index calculation.
+ * Normalizes overloaded arguments into a date string and row collection.
+ * Supports either `(date, rows)` or `(rows, date)` call order.
  * @param dateOrRows Either a date string or an array of PlannerScheduleRow.
  * @param rowsOrDate Either an array of PlannerScheduleRow or a date string.
- * @returns An object containing the date and rows for the specified date.
+ * @returns Normalized date/rows pair used by row helper functions.
  */
 function normalizeRowsAndDate(
   dateOrRows: string | PlannerScheduleRow[],
   rowsOrDate: PlannerScheduleRow[] | string,
 ): { date: string; rows: PlannerScheduleRow[] } {
+  let rows: PlannerScheduleRow[] = [];
+  let dateValue: string | PlannerScheduleRow[] = dateOrRows;
   if (Array.isArray(dateOrRows)) {
-    let date = "";
-    if (typeof rowsOrDate === "string") {
-      date = String(rowsOrDate);
+    rows = dateOrRows;
+    dateValue = rowsOrDate;
+  } else if (Array.isArray(rowsOrDate)) {
+      rows = rowsOrDate;
+    } else {
+      rows = [];
     }
-    return {
-      date,
-      rows: dateOrRows,
-    };
+  let date = "";
+  if (typeof dateValue === "string") {
+    date = dateValue;
   }
-  if (Array.isArray(rowsOrDate)) {
-    return {
-      date: String(dateOrRows || ""),
-      rows: rowsOrDate,
-    };
-  }
-  return { date: String(dateOrRows || ""), rows: [] };
+  return { date, rows };
 }
 
 /**
- * Normalizes input to extract a session key and rows for session filtering.
+ * Normalizes overloaded arguments into a session key and row collection.
+ * Supports either `(sessionKey, rows)` or `(rows, sessionKey)` call order.
  * @param targetSessionKeyOrRows Either a session key string or an array of PlannerScheduleRow.
  * @param rowsOrTargetSessionKey Either an array of PlannerScheduleRow or a session key string.
- * @returns An object containing the session key and rows for filtering out the specified session.
+ * @returns Normalized session-key/rows pair used by row helper functions.
  */
 function normalizeRowsAndSessionKey(
   targetSessionKeyOrRows: string | PlannerScheduleRow[],
   rowsOrTargetSessionKey: PlannerScheduleRow[] | string,
 ): { key: string; rows: PlannerScheduleRow[] } {
-  let key = "";
+  let rows: PlannerScheduleRow[] = [];
+  let keyValue: string | PlannerScheduleRow[] = targetSessionKeyOrRows;
   if (Array.isArray(targetSessionKeyOrRows)) {
-    if (typeof rowsOrTargetSessionKey === "string") {
-      key = rowsOrTargetSessionKey;
+    rows = targetSessionKeyOrRows;
+    keyValue = rowsOrTargetSessionKey;
+  } else if (Array.isArray(rowsOrTargetSessionKey)) {
+      rows = rowsOrTargetSessionKey;
+    } else {
+      rows = [];
     }
-    return {
-      key,
-      rows: targetSessionKeyOrRows,
-    };
+  let key = "";
+  if (typeof keyValue === "string") {
+    key = keyValue;
   }
-  if (Array.isArray(rowsOrTargetSessionKey)) {
-    if (typeof targetSessionKeyOrRows === "string") {
-      key = targetSessionKeyOrRows;
-    }
-    return {
-      key,
-      rows: rowsOrTargetSessionKey,
-    };
-  }
-  if (typeof targetSessionKeyOrRows === "string") {
-    key = targetSessionKeyOrRows;
-  }
-  return { key, rows: [] };
+  return { key, rows };
 }
 
 /**
