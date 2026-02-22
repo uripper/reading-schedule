@@ -24,7 +24,9 @@ def clip_session(
     words = min(max_words, remaining_words)
     if words <= 0:
         return 0, 0
-    minutes = min(max_minutes, math.ceil(words / words_per_minute(book, settings)))
+    minutes = min(
+        max_minutes, math.ceil(words / words_per_minute(book, settings))
+    )
     return minutes, words
 
 
@@ -46,7 +48,9 @@ def iter_sessions(
         idx = 0
         for book_id, blocks in items:
             book = book_map[book_id]
-            minutes, words = clip_session(book, settings, blocks, remaining[book_id])
+            minutes, words = clip_session(
+                book, settings, blocks, remaining[book_id]
+            )
             if words <= 0:
                 continue
             remaining[book_id] -= words

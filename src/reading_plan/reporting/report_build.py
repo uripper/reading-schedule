@@ -8,9 +8,13 @@ from ..types import Book, PlanResult, Settings
 from .report_types import BookProgress, Summary
 
 
-def build_summary(books: list[Book], settings: Settings, result: PlanResult) -> Summary:
+def build_summary(
+    books: list[Book], settings: Settings, result: PlanResult
+) -> Summary:
     """Build summary."""
-    per_book, total_minutes = compute_plan_totals(books, settings, result.assignments)
+    per_book, total_minutes = compute_plan_totals(
+        books, settings, result.assignments
+    )
     available = sum(calendar_minutes(settings).values())
     required = required_total_minutes(books, settings)
 
@@ -25,9 +29,7 @@ def build_summary(books: list[Book], settings: Settings, result: PlanResult) -> 
     }
     warning = ""
     if required > available:
-        warning = (
-            f"Required minutes ({required}) exceed available minutes ({available})."
-        )
+        warning = f"Required minutes ({required}) exceed available minutes ({available})."
 
     return {
         "planner": result.planner,

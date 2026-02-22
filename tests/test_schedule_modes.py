@@ -29,7 +29,11 @@ def test_spread_mode_uses_later_days_than_finish_mode() -> None:
     finish_assignments = plan_greedy(books, finish_settings)
     spread_assignments = plan_greedy(books, spread_settings)
 
-    finish_last_day_blocks = finish_assignments.get(("b1", finish_settings.end_date), 0)
-    spread_last_day_blocks = spread_assignments.get(("b1", spread_settings.end_date), 0)
+    finish_last_day_blocks = finish_assignments.get(
+        ("b1", finish_settings.end_date), 0
+    )
+    spread_last_day_blocks = spread_assignments.get(
+        ("b1", spread_settings.end_date), 0
+    )
     assert finish_last_day_blocks == 0
     assert spread_last_day_blocks > 0

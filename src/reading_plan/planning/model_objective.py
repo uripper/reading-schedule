@@ -14,9 +14,9 @@ def _priority_weights(books: list[Book]) -> dict[str, int]:
     weights: dict[str, int] = {}
     for book in books:
         priority_value = int(book.priority)
-        assert (
-            1 <= priority_value <= 5
-        ), f"priority must be 1..5, got {book.priority} for {book.book_id}"
+        assert 1 <= priority_value <= 5, (
+            f"priority must be 1..5, got {book.priority} for {book.book_id}"
+        )
         weights[book.book_id] = 6 - priority_value
     return weights
 
@@ -51,7 +51,9 @@ def build_objective_terms(
             terms.append((switch_sign * switch_scale) * y[(book.book_id, day)])
             if settings.plan_mode != PLAN_MODE_SPREAD_OUT:
                 terms.append(
-                    mode_scale * (len(days) - day_index) * x[(book.book_id, day)]
+                    mode_scale
+                    * (len(days) - day_index)
+                    * x[(book.book_id, day)]
                 )
 
     return terms

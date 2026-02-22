@@ -47,7 +47,8 @@ def test_load_inputs_rejects_invalid_weekday_map(tmp_path: Path) -> None:
     """Test that load inputs rejects invalid weekday map."""
     books = tmp_path / "books.csv"
     books.write_text(
-        "book_id,title,words_total,priority,difficulty\n" + "b1,One,12000,5,2\n",
+        "book_id,title,words_total,priority,difficulty\n"
+        + "b1,One,12000,5,2\n",
         encoding="utf-8",
     )
     settings = tmp_path / "settings.json"

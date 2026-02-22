@@ -16,7 +16,9 @@ def compute_plan_totals(
     """Compute plan totals."""
     per_book = {book.book_id: 0 for book in books}
     total_minutes = 0
-    for _day, _idx, book, minutes, words in iter_sessions(books, settings, assignments):
+    for _day, _idx, book, minutes, words in iter_sessions(
+        books, settings, assignments
+    ):
         per_book[book.book_id] += words
         total_minutes += minutes
     return per_book, total_minutes

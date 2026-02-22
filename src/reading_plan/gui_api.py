@@ -15,7 +15,9 @@ def parse_args() -> argparse.Namespace:
     """Parse args."""
     p = argparse.ArgumentParser(description="GUI bridge for Reading Plan")
     p.add_argument(
-        "--sample", action="store_true", help="Return sample payload from data files"
+        "--sample",
+        action="store_true",
+        help="Return sample payload from data files",
     )
     p.add_argument(
         "--data",

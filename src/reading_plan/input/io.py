@@ -26,6 +26,8 @@ def load_settings(path: str) -> Settings:
     return settings_from_data(raw)
 
 
-def load_inputs(books_path: str, settings_path: str) -> tuple[list[Book], Settings]:
+def load_inputs(
+    books_path: str, settings_path: str
+) -> tuple[list[Book], Settings]:
     """Load inputs."""
     return load_books(books_path), load_settings(settings_path)

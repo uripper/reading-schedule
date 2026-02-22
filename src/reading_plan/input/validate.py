@@ -16,9 +16,13 @@ def validate_book(book: Book) -> None:
     if book.difficulty not in range(1, 11):
         raise ValueError(f"difficulty must be 1..10 for {book.book_id}")
     if book.min_blocks_per_session <= 0:
-        raise ValueError(f"min_blocks_per_session must be > 0 for {book.book_id}")
+        raise ValueError(
+            f"min_blocks_per_session must be > 0 for {book.book_id}"
+        )
     if book.words_full is not None and book.words_full < book.words_total:
-        raise ValueError(f"words_full must be >= remaining words for {book.book_id}")
+        raise ValueError(
+            f"words_full must be >= remaining words for {book.book_id}"
+        )
     if book.progress_percent < 0 or book.progress_percent > 100:
         raise ValueError(
             f"progress_percent must be between 0 and 100 for {book.book_id}"
@@ -38,9 +42,13 @@ def validate_settings(settings: Settings) -> None:
     if settings.time_quantum_minutes <= 0:
         raise ValueError("time_quantum_minutes must be > 0")
     if settings.max_sessions_per_day <= 0 or settings.max_books_per_day <= 0:
-        raise ValueError("max_sessions_per_day and max_books_per_day must be > 0")
+        raise ValueError(
+            "max_sessions_per_day and max_books_per_day must be > 0"
+        )
     if sorted(settings.minutes_by_weekday.keys()) not in ([], sorted(WEEKDAYS)):
-        raise ValueError("minutes_by_weekday must include Mon..Sun when provided")
+        raise ValueError(
+            "minutes_by_weekday must include Mon..Sun when provided"
+        )
     if sorted(settings.difficulty_multiplier.keys()) != list(range(1, 11)):
         raise ValueError("difficulty_multiplier must contain keys 1..10")
     if settings.plan_mode not in PLAN_MODES:

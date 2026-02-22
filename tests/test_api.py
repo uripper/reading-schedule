@@ -27,7 +27,9 @@ def test_generate_plan_allows_missing_book_id() -> None:
     settings = settings_to_data(demo_settings())
     data = cast(
         dict[str, Any],
-        generate_plan({"planner": "greedy", "books": [book], "settings": settings}),
+        generate_plan(
+            {"planner": "greedy", "books": [book], "settings": settings}
+        ),
     )
     assert data["schedule"]
     assert data["schedule"][0]["book_id"]
@@ -41,7 +43,9 @@ def test_generate_plan_rejects_missing_blocker() -> None:
     try:
         cast(
             dict[str, Any],
-            generate_plan({"planner": "greedy", "books": books, "settings": settings}),
+            generate_plan(
+                {"planner": "greedy", "books": books, "settings": settings}
+            ),
         )
         raise AssertionError("expected ValueError for missing blocker")
     except ValueError as exc:
@@ -57,7 +61,9 @@ def test_generate_plan_rejects_blocker_cycles() -> None:
     try:
         cast(
             dict[str, Any],
-            generate_plan({"planner": "greedy", "books": books, "settings": settings}),
+            generate_plan(
+                {"planner": "greedy", "books": books, "settings": settings}
+            ),
         )
         raise AssertionError("expected ValueError for blocker cycle")
     except ValueError as exc:

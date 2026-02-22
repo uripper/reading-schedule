@@ -28,10 +28,15 @@ def parse_args() -> argparse.Namespace:
         "--output", default="data/schedule.csv", help="Output schedule CSV path"
     )
     p.add_argument(
-        "--planner", choices=["mip", "greedy"], default="mip", help="Planner to run"
+        "--planner",
+        choices=["mip", "greedy"],
+        default="mip",
+        help="Planner to run",
     )
     p.add_argument(
-        "--print-inputs", action="store_true", help="Print parsed inputs and exit"
+        "--print-inputs",
+        action="store_true",
+        help="Print parsed inputs and exit",
     )
     return p.parse_args()
 

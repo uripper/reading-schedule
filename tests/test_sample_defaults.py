@@ -29,7 +29,9 @@ def test_gui_defaults_to_committed_sample_books_file(monkeypatch) -> None:
     assert args.settings == "data/settings.json"
 
 
-def test_gui_sample_mode_succeeds_with_default_paths(monkeypatch, capsys) -> None:
+def test_gui_sample_mode_succeeds_with_default_paths(
+    monkeypatch, capsys
+) -> None:
     """GUI sample mode should succeed on a fresh clone with default args."""
     monkeypatch.chdir(REPO_ROOT)
     monkeypatch.setattr(sys, "argv", ["reading_plan.gui_api", "--sample"])

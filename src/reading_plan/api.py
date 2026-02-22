@@ -28,7 +28,9 @@ def _validate_blockers(books: list[Book]) -> None:
         if book_id in visited:
             return
         if book_id in visiting:
-            raise ValueError("blockers contain a cycle; remove circular dependencies")
+            raise ValueError(
+                "blockers contain a cycle; remove circular dependencies"
+            )
         visiting.add(book_id)
         blocker = by_id[book_id].blocked_by
         if blocker:

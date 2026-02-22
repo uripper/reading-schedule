@@ -22,13 +22,23 @@ def test_greedy_respects_daily_constraints() -> None:
     day_totals = {
         day: (
             sum(v for (_book_id, d), v in assignments.items() if d == day),
-            {book_id for (book_id, d), v in assignments.items() if d == day and v > 0},
+            {
+                book_id
+                for (book_id, d), v in assignments.items()
+                if d == day and v > 0
+            },
         )
         for day in days
     }
-    assert all(day_totals[day][0] <= day_capacity_blocks(settings, day) for day in days)
-    assert all(len(day_totals[day][1]) <= settings.max_books_per_day for day in days)
-    assert all(len(day_totals[day][1]) <= settings.max_sessions_per_day for day in days)
+    assert all(
+        day_totals[day][0] <= day_capacity_blocks(settings, day) for day in days
+    )
+    assert all(
+        len(day_totals[day][1]) <= settings.max_books_per_day for day in days
+    )
+    assert all(
+        len(day_totals[day][1]) <= settings.max_sessions_per_day for day in days
+    )
 
     min_blocks = {b.book_id: b.min_blocks_per_session for b in books}
     assert all(

@@ -59,7 +59,9 @@ def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
         from .model import build_cp_sat
     except ImportError:
         note = "OR-Tools is unavailable; fell back to greedy planner."
-        return PlanResult("greedy", "FEASIBLE", plan_greedy(books, settings), note=note)
+        return PlanResult(
+            "greedy", "FEASIBLE", plan_greedy(books, settings), note=note
+        )
 
     model, x, _y, _f, _days = build_cp_sat(books, settings)
     solver = cp_model.CpSolver()
