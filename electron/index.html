@@ -140,6 +140,36 @@
                 Open Schedule
               </button>
             </div>
+            <section id="todayFocusModePanel" class="today-focus-mode" hidden>
+              <h3>Focus Controls</h3>
+              <p id="todayFocusSessionText" class="body-text">
+                No upcoming planned session.
+              </p>
+              <p id="todayFocusSessionMeta" class="hint-text">
+                Use Tiny Start to log a short reading sprint.
+              </p>
+              <div class="row wrap-row">
+                <button
+                  id="todayFocusStartBtn"
+                  class="btn btn-primary"
+                  type="button"
+                >
+                  Start Planned Session
+                </button>
+                <button id="todayFocusTinyStartBtn" class="btn" type="button">
+                  Log Tiny Start (3 min)
+                </button>
+                <button
+                  id="todayFocusCompleteBtn"
+                  class="btn"
+                  type="button"
+                  hidden
+                >
+                  Mark Planned Session Complete
+                </button>
+              </div>
+              <p id="todayFocusFeedback" class="hint-text" aria-live="polite"></p>
+            </section>
           </article>
 
           <article class="surface-card">
