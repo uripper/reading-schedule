@@ -41,21 +41,21 @@ function experienceControlNode(id: string): HTMLElement | null {
  * For other input types, it will be disabled without changing the value.
  */
 function disableHiddenControl(node: HTMLElement): void {
-  const localNode = { ...node };
+  const control = node;
 
-  if (localNode instanceof HTMLInputElement) {
-    localNode.disabled = true;
-    if (localNode.type === "checkbox") {
-      localNode.checked = false;
+  if (control instanceof HTMLInputElement) {
+    control.disabled = true;
+    if (control.type === "checkbox") {
+      control.checked = false;
       return;
     }
-    if (localNode.type === "time") {
-      localNode.value = DEFAULT_REMINDER_TIME;
+    if (control.type === "time") {
+      control.value = DEFAULT_REMINDER_TIME;
     }
     return;
   }
-  if (localNode instanceof HTMLSelectElement) {
-    localNode.disabled = true;
+  if (control instanceof HTMLSelectElement) {
+    control.disabled = true;
   }
 }
 
