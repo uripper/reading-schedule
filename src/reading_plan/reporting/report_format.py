@@ -24,6 +24,7 @@ def format_summary(summary: Summary) -> str:
         if info["finished"]:
             done = "yes"
         lines.append(
-            f"- {book_id}: {info['planned_words']}/{info['words_total']} words (finished: {done})"
+            f"- {book_id}: {info['planned_words']}/{info['words_total']} "
+            f"words (finished: {done})"
         )
     return "\n".join(lines)

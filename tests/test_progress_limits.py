@@ -28,7 +28,7 @@ def test_book_builder_converts_progress_to_remaining_words() -> None:
 
 
 def test_book_builder_scales_pages_read_using_book_page_density() -> None:
-    """Test that pages read maps to words via per-book words/page when available."""
+    """Test that pages read maps to words via per-book words/page."""
     book = book_from_data(
         {
             "book_id": "b-pages",

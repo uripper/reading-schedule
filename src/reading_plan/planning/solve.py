@@ -52,7 +52,7 @@ class _CpModelStatusModule(Protocol):
 
 
 def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
-    """Solve with CP-SAT, falling back to greedy when OR-Tools is unavailable."""
+    """Solve with CP-SAT, fall back to greedy when OR-Tools is unavailable."""
     try:
         from ortools.sat.python import cp_model
 

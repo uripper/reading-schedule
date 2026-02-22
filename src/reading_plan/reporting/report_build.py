@@ -29,7 +29,10 @@ def build_summary(
     }
     warning = ""
     if required > available:
-        warning = f"Required minutes ({required}) exceed available minutes ({available})."
+        warning = (
+            f"Required minutes ({required}) exceed "
+            f"available minutes ({available})."
+        )
 
     return {
         "planner": result.planner,
