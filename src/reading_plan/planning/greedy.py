@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
 
 
-@dataclass
+@dataclass(frozen=True)
 class DayState:
     """Mutable state for planning one day of greedy assignments."""
 
