@@ -1,0 +1,80 @@
+.book-card {
+  position: relative;
+  isolation: isolate;
+}
+
+.book-meta {
+  position: relative;
+  z-index: 1;
+}
+
+.book-card.is-read-card {
+  border-color: color-mix(in srgb, var(--app-success) 38%, var(--app-border));
+  background:
+    linear-gradient(
+      130deg,
+      color-mix(in srgb, var(--app-success) 14%, transparent),
+      color-mix(in srgb, var(--app-brandStrong) 7%, transparent)
+    ),
+    color-mix(in srgb, var(--app-surfaceMuted) 86%, transparent);
+}
+
+.book-card.is-read-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.18;
+  background: linear-gradient(
+    116deg,
+    transparent 18%,
+    color-mix(in srgb, var(--app-brandStrong) 24%, transparent) 42%,
+    color-mix(in srgb, var(--app-focusRing) 22%, transparent) 56%,
+    transparent 76%
+  );
+}
+
+.book-card.is-read-card:hover::after,
+.book-card.is-read-card:focus-within::after {
+  animation: read-card-holo 1200ms var(--token-motion-easing-standard) 1;
+}
+
+@keyframes read-card-holo {
+  0% {
+    transform: translateX(-22%);
+    opacity: 0.08;
+  }
+  60% {
+    transform: translateX(24%);
+    opacity: 0.24;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 0.18;
+  }
+}
+
+.book-estimated-finish-btn {
+  justify-self: start;
+  border: 1px solid color-mix(in srgb, var(--app-brandStrong) 36%, var(--app-border));
+  border-radius: var(--token-radius-pill);
+  padding: 2px var(--token-space-2);
+  background: color-mix(in srgb, var(--app-brand) 14%, var(--app-surface));
+  color: var(--app-textMuted);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+.book-estimated-finish-btn:hover,
+.book-estimated-finish-btn:focus-visible {
+  border-color: color-mix(in srgb, var(--app-brandStrong) 56%, var(--app-border));
+  color: var(--app-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-card.is-read-card:hover::after,
+  .book-card.is-read-card:focus-within::after {
+    animation: none;
+  }
+}

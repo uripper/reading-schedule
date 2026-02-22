@@ -8,12 +8,13 @@ import {
 } from "../../books.js";
 import {
   configureCalendarInteractions,
+  focusCalendarDate,
   renderCalendar,
 } from "../../calendar.js";
 import { bindDesktopShortcuts } from "../../shortcuts/index.js";
 import { addLog, bindHelpDialog } from "../../help.js";
 import { collectSettings, initSettingsGrid } from "../../settings.js";
-import { bindTabs } from "../../tabs.js";
+import { activateTab, bindTabs } from "../../tabs.js";
 import { configureAppCalendarInteractions } from "../calendar_interactions/index.js";
 import { bindExperienceSettings } from "../experience/index.js";
 import {
@@ -38,7 +39,12 @@ export async function initApp(context: AppBootstrapContext): Promise<void> {
   });
   initSettingsGrid();
   bindTabs(context.runtime.handleTabChange);
-  bindBooksUI(context.runtime.handleBooksChanged);
+  bindBooksUI(context.runtime.handleBooksChanged, {
+    onEstimatedFinishNavigate: (dateKey) => {
+      activateTab("schedule", { focusPanel: true });
+      focusCalendarDate(dateKey);
+    },
+  });
   bindHelpDialog();
   const planController = createAppPlanControllerInstance({
     collectBooks,

@@ -2,7 +2,6 @@ import { WORDS_PER_PAGE } from "./constants.js";
 import { shelfLabelForBook } from "./shelf.js";
 import {
   BOOK_STATUS_READ,
-  isStatusSchedulable,
   statusLabel,
 } from "./status.js";
 import { formatInt } from "./utils.js";
@@ -36,9 +35,6 @@ function finishMetaPart(
   }
   if (book.status === BOOK_STATUS_READ) {
     return `Finished ${finishDate}`;
-  }
-  if (isStatusSchedulable(book.status)) {
-    return `Est. finish ${finishDate}`;
   }
   return null;
 }
@@ -93,7 +89,7 @@ export function wordsLabel(book: Book): string {
 }
 
 /**
- * Builds metadata line including status, finish estimate, due date, and blockers.
+ * Builds metadata line including status, completion date, due date, and blockers.
  * @param book Book to present.
  * @param options Optional context used to resolve titles and finish dates.
  * @returns Joined metadata text for card subtitle line.

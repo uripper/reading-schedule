@@ -1,0 +1,29 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+
+import {
+  isValidDateKey,
+  navigateToEstimatedFinishDate,
+} from "../dist/renderer/books/estimated_finish_navigation.js";
+
+test("isValidDateKey accepts valid day keys", () => {
+  assert.equal(isValidDateKey("2026-02-22"), true);
+});
+
+test("isValidDateKey rejects impossible day keys", () => {
+  assert.equal(isValidDateKey("2026-02-30"), false);
+});
+
+test("navigateToEstimatedFinishDate triggers callback only for valid keys", () => {
+  let navigatedDate = "";
+  const first = navigateToEstimatedFinishDate("2026-03-10", (dateKey) => {
+    navigatedDate = dateKey;
+  });
+  const second = navigateToEstimatedFinishDate("bad-date", () => {
+    navigatedDate = "bad";
+  });
+
+  assert.equal(first, true);
+  assert.equal(second, false);
+  assert.equal(navigatedDate, "2026-03-10");
+});

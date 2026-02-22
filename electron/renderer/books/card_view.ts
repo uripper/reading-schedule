@@ -11,6 +11,7 @@ interface RenderBookGridOptions {
   groups?: BookGroup[];
   allBooks?: Book[];
   finishDateByBookId?: Record<string, string>;
+  onEstimatedFinishNavigate(dateKey: string): void;
   showShelfMeta?: boolean;
   onEdit(bookId: string): void;
   onRemove(bookId: string): void;
@@ -36,12 +37,14 @@ export function renderBookGrid({
   groups = [],
   allBooks = [],
   finishDateByBookId = {},
+  onEstimatedFinishNavigate,
   showShelfMeta = true,
   onEdit,
   onRemove,
 }: RenderBookGridOptions): void {
   const context = {
     finishDateByBookId,
+    onEstimatedFinishNavigate,
     showShelfMeta,
     titleById: titleByIdMap(books, allBooks),
   };

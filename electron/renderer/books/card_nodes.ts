@@ -1,12 +1,74 @@
 import { bookCoverSrc } from "./model.js";
 import { metaLabel, progressLabel, subtitle, wordsLabel } from "./presenters.js";
-import { statusLabel } from "./status.js";
+import { navigateToEstimatedFinishDate } from "./estimated_finish_navigation.js";
+import { BOOK_STATUS_READ, isStatusSchedulable, statusLabel } from "./status.js";
 import type { Book } from "./types.js";
 
 export interface CardRenderContext {
   finishDateByBookId: Record<string, string>;
+  onEstimatedFinishNavigate(dateKey: string): void;
   showShelfMeta: boolean;
   titleById: Record<string, string>;
+}
+
+const CARD_CLASS = "book-card";
+const READ_CARD_CLASS = "is-read-card";
+const ESTIMATED_FINISH_BUTTON_CLASS = "book-estimated-finish-btn";
+const ESTIMATED_FINISH_ICON = "🗓";
+
+/**
+ * Builds class-name text for a card based on book status.
+ * @param status Book status value.
+ * @returns Class-name text for card root element.
+ */
+export function cardClassNameForStatus(status: Book["status"]): string {
+  if (status === BOOK_STATUS_READ) {
+    return `${CARD_CLASS} ${READ_CARD_CLASS}`;
+  }
+  return CARD_CLASS;
+}
+
+/**
+ * Resolves estimated finish date shown as interactive card control.
+ * @param book Book model to inspect.
+ * @param finishDateByBookId Finish date lookup keyed by `book_id`.
+ * @returns Estimated finish day key or `null` when not applicable.
+ */
+function estimatedFinishDate(
+  book: Book,
+  finishDateByBookId: Record<string, string>,
+): string | null {
+  if (!isStatusSchedulable(book.status)) {
+    return null;
+  }
+  const finishDate = finishDateByBookId[book.book_id];
+  if (!finishDate) {
+    return null;
+  }
+  return finishDate;
+}
+
+/**
+ * Builds interactive estimated-finish control for schedulable books.
+ * @param dateKey Estimated finish date key.
+ * @param context Shared card render context.
+ * @returns Configured button element.
+ */
+function estimatedFinishButton(
+  dateKey: string,
+  context: CardRenderContext,
+): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = ESTIMATED_FINISH_BUTTON_CLASS;
+  button.dataset.finishDate = dateKey;
+  button.setAttribute("aria-label", `Open schedule for estimated finish ${dateKey}`);
+  button.title = "Open in schedule";
+  button.textContent = `${ESTIMATED_FINISH_ICON} ${dateKey}`;
+  button.onclick = () => {
+    navigateToEstimatedFinishDate(dateKey, context.onEstimatedFinishNavigate);
+  };
+  return button;
 }
 
 /**
@@ -19,7 +81,7 @@ export function createCardNode(book: Book, context: CardRenderContext): HTMLElem
   const bookId = String(book.book_id || "");
   const title = String(book.title || "Untitled");
   const card = document.createElement("article");
-  card.className = "book-card";
+  card.className = cardClassNameForStatus(book.status);
   card.dataset.bookId = bookId;
   card.dataset.status = String(book.status || "");
   const coverButton = document.createElement("button");
@@ -48,6 +110,7 @@ export function createCardNode(book: Book, context: CardRenderContext): HTMLElem
   const status = document.createElement("span");
   status.className = `book-status-pill is-${book.status}`;
   status.textContent = statusLabel(book.status);
+  const finishDate = estimatedFinishDate(book, context.finishDateByBookId);
   const sub = document.createElement("p");
   sub.className = "book-subtitle";
   sub.textContent = subtitle(book);
@@ -67,7 +130,11 @@ export function createCardNode(book: Book, context: CardRenderContext): HTMLElem
   removeBtn.dataset.bookId = bookId;
   removeBtn.textContent = "Remove";
   actions.append(removeBtn);
-  meta.append(heading, status, sub, stats, actions);
+  meta.append(heading, status);
+  if (finishDate !== null) {
+    meta.append(estimatedFinishButton(finishDate, context));
+  }
+  meta.append(sub, stats, actions);
   card.append(coverButton, meta);
   return card;
 }

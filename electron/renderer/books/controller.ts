@@ -29,6 +29,7 @@ import {
 let books: Book[] = [];
 let scheduleRows: PlannerScheduleRow[] = [];
 let onBooksChanged: () => void = () => {};
+let onEstimatedFinishNavigate: (dateKey: string) => void = () => {};
 let dialog: BookDialogController | null = null;
 
 const refs: BooksControllerRefs = {
@@ -79,6 +80,7 @@ function render(): void {
     viewState,
     dialog,
     onBooksChanged,
+    onEstimatedFinishNavigate,
     setBooks,
     findBook,
     rerender: render,
@@ -179,12 +181,20 @@ export function collectAllBooks() {
   });
 }
 
+interface BindBooksUIOptions {
+  onEstimatedFinishNavigate?(dateKey: string): void;
+}
+
 /**
  * Binds books toolbar, dialog, and grid events for interactive editing.
  * @param onChanged Callback fired after persisted book list mutations.
  */
-export function bindBooksUI(onChanged: () => void = () => {}): void {
+export function bindBooksUI(
+  onChanged: () => void = () => {},
+  options: BindBooksUIOptions = {},
+): void {
   onBooksChanged = onChanged;
+  onEstimatedFinishNavigate = options.onEstimatedFinishNavigate || (() => {});
   refs.toolbar = document.querySelector(".books-toolbar");
   if (!(refs.toolbar instanceof HTMLElement)) {
     return;

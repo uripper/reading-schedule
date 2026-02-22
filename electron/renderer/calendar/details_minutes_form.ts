@@ -6,6 +6,7 @@ import {
 } from "./details_minutes_form_dom.js";
 import {
   MINUTES_EDITOR_OPEN_BY_DEFAULT,
+  minutesSummaryVisible,
   nextMinutesEditorOpenState,
   plannedMinutesSummaryText,
   submitMinutesUpdate,
@@ -53,19 +54,19 @@ export function minutesFormForSession(
   let initialMinutesValue = String(minutesInput.value ?? "").trim();
   syncSummaryText(summaryValue, initialMinutesValue);
   let isEditorOpen = MINUTES_EDITOR_OPEN_BY_DEFAULT;
-  syncEditorVisibility(minutesForm, editButton, isEditorOpen);
+  syncEditorVisibility(minutesForm, summaryRow, editButton, isEditorOpen);
   minutesForm.append(minutesLabel, actions);
 
   editButton.onclick = () => {
     isEditorOpen = nextMinutesEditorOpenState("edit");
-    syncEditorVisibility(minutesForm, editButton, isEditorOpen);
+    syncEditorVisibility(minutesForm, summaryRow, editButton, isEditorOpen);
     minutesInput.focus();
     minutesInput.select();
   };
   cancelBtn.onclick = () => {
     minutesInput.value = initialMinutesValue;
     isEditorOpen = nextMinutesEditorOpenState("cancel");
-    syncEditorVisibility(minutesForm, editButton, isEditorOpen);
+    syncEditorVisibility(minutesForm, summaryRow, editButton, isEditorOpen);
     editButton.focus();
   };
   minutesForm.onsubmit = (event) => {
@@ -80,7 +81,7 @@ export function minutesFormForSession(
     if (updatedValues.applied) {
       syncSummaryText(summaryValue, initialMinutesValue);
       isEditorOpen = nextMinutesEditorOpenState("saved");
-      syncEditorVisibility(minutesForm, editButton, isEditorOpen);
+      syncEditorVisibility(minutesForm, summaryRow, editButton, isEditorOpen);
       editButton.focus();
       onMinutesApplied();
     }
@@ -91,6 +92,7 @@ export function minutesFormForSession(
 
 export {
   MINUTES_EDITOR_OPEN_BY_DEFAULT,
+  minutesSummaryVisible,
   nextMinutesEditorOpenState,
   plannedMinutesSummaryText,
 };

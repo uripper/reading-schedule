@@ -3,6 +3,8 @@
 @import "./styles/settings.css";
 @import "./styles/calendar.css";
 @import "./styles/books-grid.css";
+@import "./styles/books-effects.css";
 @import "./styles/stats.css";
+@import "./styles/stats-interactions.css";
 @import "./styles/book-dialog.css";
 @import "./styles/dialogs.css";

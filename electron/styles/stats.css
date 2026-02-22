@@ -131,7 +131,7 @@
 
 .month-bar-item {
   display: grid;
-  grid-template-rows: auto 160px auto;
+  grid-template-rows: 160px auto;
   gap: 6px;
   justify-items: center;
 }
@@ -166,11 +166,6 @@
 
 .month-bar-fill.is-zero {
   opacity: 0.4;
-}
-
-.month-bar-count {
-  font-size: 11px;
-  color: var(--app-textMuted);
 }
 
 .month-bar-label {

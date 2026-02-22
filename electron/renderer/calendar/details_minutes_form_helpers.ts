@@ -87,17 +87,29 @@ export function nextMinutesEditorOpenState(
 }
 
 /**
+ * Returns whether minutes summary row should be visible.
+ * @param isOpen Whether editor is currently open.
+ * @returns `true` when summary row should be shown.
+ */
+export function minutesSummaryVisible(isOpen: boolean): boolean {
+  return !isOpen;
+}
+
+/**
  * Applies visibility state to minutes form/edit trigger.
  * @param minutesForm Minutes edit form.
+ * @param summaryRow Summary row showing current minutes.
  * @param editButton Edit trigger button.
  * @param isOpen Whether editor is open.
  */
 export function syncEditorVisibility(
   minutesForm: HTMLFormElement,
+  summaryRow: HTMLElement,
   editButton: HTMLButtonElement,
   isOpen: boolean,
 ): void {
   minutesForm.hidden = !isOpen;
+  summaryRow.hidden = !minutesSummaryVisible(isOpen);
   editButton.hidden = isOpen;
 }
 /**

@@ -29,6 +29,7 @@ interface RenderBooksControllerArgs {
   viewState: BooksViewState;
   dialog: BookDialogController | null;
   onBooksChanged(): void;
+  onEstimatedFinishNavigate(dateKey: string): void;
   setBooks(nextBooks: Book[]): void;
   findBook(bookId: string): Book | null;
   rerender(): void;
@@ -54,6 +55,7 @@ export function renderBooksController({
   viewState,
   dialog,
   onBooksChanged,
+  onEstimatedFinishNavigate,
   setBooks,
   findBook,
   rerender,
@@ -93,6 +95,7 @@ export function renderBooksController({
   renderBookGrid({
     groups,
     finishDateByBookId,
+    onEstimatedFinishNavigate,
     showShelfMeta,
     books: visibleBooks,
     allBooks: books,
