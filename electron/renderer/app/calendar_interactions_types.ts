@@ -3,6 +3,7 @@ import type {
   CompletionUpdate,
   ManualSessionAddInput,
   ManualSessionBook,
+  MinutesUpdateInput,
   ProgressUpdateInput,
   RemoveSessionInput,
   UpdatedBook,
@@ -24,6 +25,7 @@ export type AppCalendarInteractionArgs = {
     getBookById: (bookId: string) => Book | null;
     listSessionBooks: () => ManualSessionBook[];
     onManualSessionAdded: (payload: ManualSessionAddInput) => boolean;
+    onSessionMinutesUpdated: (payload: MinutesUpdateInput) => boolean;
     onSessionRemoved: (payload: RemoveSessionInput) => boolean;
   }) => void;
   state: {

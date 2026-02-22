@@ -32,6 +32,11 @@ export type RemoveSessionInput = {
   row: CalendarRowWithFinish;
 };
 
+export type MinutesUpdateInput = {
+  minutes: number;
+  row: CalendarRowWithFinish;
+};
+
 export type ManualSessionBook = {
   bookId: string;
   title: string;

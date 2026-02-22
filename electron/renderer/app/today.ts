@@ -12,7 +12,7 @@ import {
   nextUncompletedPlannedRow,
   type TodayScheduleSnapshot,
 } from "./today_schedule.js";
-import type { PlannerResult } from "./types.js";
+import type { PlannerResult, PlannerScheduleRow } from "./types.js";
 import type { Session } from "../sessions/normalize.js";
 import { todayKey } from "../sessions/utils.js";
 
@@ -62,6 +62,21 @@ type UpdateTodayDashboardArgs = {
   defaultDailyGoalMinutes: number;
 };
 
+function setFocusSessionDataset(
+  button: HTMLButtonElement,
+  nextRow: PlannerScheduleRow | null,
+): void {
+  if (!nextRow) {
+    button.dataset.focusSessionDate = "";
+    button.dataset.focusSessionMinutes = "";
+    button.dataset.focusSessionTitle = "";
+    return;
+  }
+  button.dataset.focusSessionDate = String(nextRow.date || "");
+  button.dataset.focusSessionMinutes = String(nextRow.minutes || "");
+  button.dataset.focusSessionTitle = String(nextRow.title || "Untitled");
+}
+
 export function goalProgressPercent(
   todayMinutesRaw: number,
   goalMinutesRaw: number,
@@ -88,6 +103,7 @@ export function updateTodayDashboard({
   const summaryNode = el("todaySummary");
   const goalText = el("todayGoalText");
   const goalProgress = el<HTMLProgressElement>("todayGoalProgress");
+  const focusEntryButton = el<HTMLButtonElement>("startSessionFromTodayBtn");
   const gamificationCard = el("gamificationCard");
   const streakNode = el("streakText");
 
@@ -98,6 +114,7 @@ export function updateTodayDashboard({
   );
   const next = snapshot.nextUncompletedRow;
   summaryNode.textContent = summaryText(lastResult, snapshot, next);
+  setFocusSessionDataset(focusEntryButton, next);
   renderTodayScheduledBooks(snapshot);
 
   const activityByDay = dayMinutesFromActivity({

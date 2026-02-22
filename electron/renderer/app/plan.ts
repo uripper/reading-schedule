@@ -55,6 +55,34 @@ function summaryLog(summary: PlannerSummary | null): string {
   return `Status ${status}. Planned ${planned}/${available} minutes.`;
 }
 
+function errorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    const detail = String(error.message || "").trim();
+    if (detail) {
+      return detail;
+    }
+    return error.name || "Unknown error";
+  }
+  if (typeof error === "string") {
+    const detail = error.trim();
+    if (detail) {
+      return detail;
+    }
+  }
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    const detail = error.message.trim();
+    if (detail) {
+      return detail;
+    }
+  }
+  return "Unknown planner error";
+}
+
 export async function runPlanGeneration({
   plannerApi,
   collectBooks,
@@ -107,9 +135,10 @@ export async function runPlanGeneration({
     if (successAnnouncement) {
       announce(successAnnouncement);
     }
-  } catch {
+  } catch (error) {
     const message = "Failed to generate plan";
     setStatus(message, true);
+    addLog(`Plan generation error: ${errorMessage(error)}`);
     announce(message, "assertive");
   }
 }

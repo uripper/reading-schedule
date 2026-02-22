@@ -333,6 +333,10 @@
   align-items: end;
 }
 
+.day-minutes-form {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
 .day-progress-field {
   display: grid;
   gap: var(--token-space-1);

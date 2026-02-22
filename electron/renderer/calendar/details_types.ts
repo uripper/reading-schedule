@@ -16,6 +16,11 @@ type ProgressPayload = {
   row: CalendarRowWithFinish;
 };
 
+type MinutesPayload = {
+  minutes: number;
+  row: CalendarRowWithFinish;
+};
+
 export type ManualSessionBook = {
   bookId: string;
   title: string;
@@ -32,6 +37,7 @@ export type DetailInteractionHandlers = {
   isSessionCompleted: (sessionKey: string) => boolean;
   onSessionCompletionChanged: (payload: CompletionPayload) => void;
   onSessionProgressUpdated: (payload: ProgressPayload) => Book | null;
+  onSessionMinutesUpdated: (payload: MinutesPayload) => boolean;
   getBookById: (bookId: string) => Book | null;
   listSessionBooks: () => ManualSessionBook[];
   onManualSessionAdded: (payload: ManualSessionAddPayload) => boolean;
