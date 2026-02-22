@@ -1,10 +1,9 @@
-import { describeLookup, placeholderCoverSvg } from "./helpers.js";
+import { placeholderCoverSvg } from "./helpers.js";
 import { createLookupInputHandler } from "./input.js";
 import { handleLookupKeydown } from "./keyboard.js";
+import { createLookupStateController } from "./search_state.js";
 import {
   lookupResultTarget,
-  renderLookupResults,
-  updateComboboxA11y,
 } from "./render.js";
 import type { BookLookupItem } from "../app/types.js";
 
@@ -40,50 +39,19 @@ export function bindBookLookup({
     currentItems: [],
     activeIndex: -1,
   };
-  const selectItem = (index: number): void => {
-    const item = state.currentItems[index];
-    if (!item) {
-      return;
-    }
-    searchInput.value = item.title || "";
-    metaEl.textContent = describeLookup(item);
-    clearResults();
-    onPick(item);
-  };
-  const refreshResults = (): void => {
-    const hasItems = state.currentItems.length > 0;
-    if (!hasItems) {
-      resultsEl.classList.remove("has-items");
-      resultsEl.innerHTML = "";
-      updateComboboxA11y(searchInput, resultsEl, false, -1);
-      return;
-    }
-    renderLookupResults(
-      resultsEl,
-      state.currentItems,
-      placeholder,
-      state.activeIndex,
-    );
-    resultsEl.classList.add("has-items");
-    updateComboboxA11y(searchInput, resultsEl, true, state.activeIndex);
-  };
-  const clearResults = (): void => {
-    state.currentItems = [];
-    state.activeIndex = -1;
-    refreshResults();
-  };
-  const setActiveIndex = (index: number): void => {
-    if (!state.currentItems.length) {
-      state.activeIndex = -1;
-      refreshResults();
-      return;
-    }
-    const bounded =
-      ((index % state.currentItems.length) + state.currentItems.length) %
-      state.currentItems.length;
-    state.activeIndex = bounded;
-    refreshResults();
-  };
+  const {
+    clearResults,
+    refreshResults,
+    selectItem,
+    setActiveIndex,
+  } = createLookupStateController({
+    searchInput,
+    resultsEl,
+    metaEl,
+    onPick,
+    placeholder,
+    state,
+  });
 
   resultsEl.addEventListener("mousemove", (event: MouseEvent) => {
     const target = lookupResultTarget(event);
