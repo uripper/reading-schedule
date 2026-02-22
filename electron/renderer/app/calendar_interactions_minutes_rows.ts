@@ -13,6 +13,15 @@ export type UpdatedRowsResult = {
   rows: PlannerScheduleRow[];
 } | null;
 
+/**
+ *
+ * @param root0
+ * @param root0.collectSettings
+ * @param root0.getBookById
+ * @param root0.minutes
+ * @param root0.previousRows
+ * @param root0.row
+ */
 export function nextRowsWithUpdatedMinutes({
   collectSettings,
   getBookById,

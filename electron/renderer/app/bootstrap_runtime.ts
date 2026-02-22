@@ -32,11 +32,17 @@ export interface AppBootstrapContext {
   state: ReturnType<typeof createRuntimeState>;
 }
 
+/**
+ *
+ */
 function plannerApiFromGlobal(): PlannerApi {
   const globals = globalThis as typeof globalThis & { plannerApi: PlannerApi };
   return globals.plannerApi;
 }
 
+/**
+ *
+ */
 export function createAppBootstrapContext(): AppBootstrapContext {
   const state = createRuntimeState();
   const plannerApi = plannerApiFromGlobal();

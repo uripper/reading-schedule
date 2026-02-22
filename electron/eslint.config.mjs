@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import { defineConfig } from "eslint/config";
+import { jsdoc } from "eslint-plugin-jsdoc";
 
 const ALL_JS_GLOBS = ["**/*.js", "**/*.mjs"];
 const ALL_TS_GLOBS = ["**/*.ts"];
@@ -297,6 +298,8 @@ const TS_OPINIONATED_RULES = {
     },
   ],
 
+  
+
   // --- TS safety / correctness (type-aware) ---
   "@typescript-eslint/no-confusing-void-expression": "error",
   "@typescript-eslint/no-empty-function": [
@@ -411,6 +414,20 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  jsdoc({
+    files: ALL_JS_GLOBS,
+    config: "flat/recommended-typescript-flavor-error",
+  }),
+
+  jsdoc({
+    files: ALL_TS_GLOBS,
+    config: "flat/recommended-typescript-error",
+    rules: {
+      // Optional: if you want docs REQUIRED, not just validated when present
+      "jsdoc/require-jsdoc": "error",
+      "jsdoc/require-description": "error",
+    },
+  }),
   {
     files: ["tests/**/*.mjs", "tests/**/*.js"],
     rules: {

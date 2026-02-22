@@ -6,6 +6,10 @@ const MIN_MANUAL_MINUTES = 1;
 const MIN_MANUAL_WORDS = 1;
 export const DEFAULT_BOOK_DIFFICULTY = 3;
 
+/**
+ *
+ * @param minutes
+ */
 function normalizeManualMinutes(minutes: number): number {
   const rounded = Math.round(Number(minutes || 0));
   if (!Number.isFinite(rounded) || rounded < MIN_MANUAL_MINUTES) {
@@ -14,6 +18,11 @@ function normalizeManualMinutes(minutes: number): number {
   return rounded;
 }
 
+/**
+ *
+ * @param bookId
+ * @param rows
+ */
 function historicalWordsPerMinute(
   bookId: string,
   rows: PlannerScheduleRow[] = [],
@@ -38,6 +47,11 @@ function historicalWordsPerMinute(
   return totalWords / totalMinutes;
 }
 
+/**
+ *
+ * @param settings
+ * @param difficulty
+ */
 function difficultyMultiplier(
   settings: PlannerSettings,
   difficulty: number,
@@ -52,6 +66,15 @@ function difficultyMultiplier(
   return multiplier;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.bookId
+ * @param root0.minutes
+ * @param root0.rows
+ * @param root0.settings
+ * @param root0.difficulty
+ */
 export function wordsPlannedForManualSession({
   bookId,
   minutes,
@@ -83,6 +106,10 @@ export function wordsPlannedForManualSession({
   return Math.max(MIN_MANUAL_WORDS, Math.round(planned));
 }
 
+/**
+ *
+ * @param minutes
+ */
 export function normalizedManualMinutes(minutes: number): number {
   return normalizeManualMinutes(minutes);
 }
