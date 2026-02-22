@@ -23,12 +23,10 @@ interface FindControllerArgs {
  * Updates the visible and announced text for the find status output.
  * @param target Output element showing the current find status.
  * @param message Status message to render.
- * @returns Nothing.
  */
 function setFindStatus(target: HTMLOutputElement, message: string): void {
   target.value = message;
   target.textContent = message;
-  return undefined;
 }
 
 /**
