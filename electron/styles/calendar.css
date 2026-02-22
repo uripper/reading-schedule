@@ -333,6 +333,45 @@
   align-items: end;
 }
 
+.day-minutes-editor {
+  display: grid;
+  gap: var(--token-space-2);
+}
+
+.day-minutes-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--token-space-2);
+}
+
+.day-minutes-value {
+  color: var(--app-text);
+  font-family: var(--token-typography-family-heading);
+  font-size: var(--token-typography-size-lg);
+  line-height: var(--token-typography-lineHeight-tight);
+}
+
+.btn-minutes-edit {
+  display: grid;
+  place-items: center;
+  inline-size: var(--token-size-target-minimum);
+  block-size: var(--token-size-target-minimum);
+  padding: 0;
+  border-radius: var(--token-radius-pill);
+  border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 78%, transparent);
+  color: var(--app-textMuted);
+  font: inherit;
+  font-size: var(--token-typography-size-sm);
+  cursor: pointer;
+}
+
+.btn-minutes-edit:hover {
+  border-color: color-mix(in srgb, var(--app-brandStrong) 68%, var(--app-border));
+  color: var(--app-text);
+}
+
 .day-minutes-form {
   grid-template-columns: minmax(0, 1fr) auto;
 }

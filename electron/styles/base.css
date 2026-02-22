@@ -257,6 +257,10 @@ p {
   margin: 0;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .body-text {
   margin-bottom: var(--token-space-4);
   color: var(--app-textMuted);

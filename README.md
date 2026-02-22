@@ -81,6 +81,12 @@ npm run dev:windows:hot -- 3.11 1
 
 This is restart-on-change (not in-window HMR).
 
+## Experience Settings Status
+
+- Shipped and visible: `gamification` toggle.
+- Hidden until shipped: reminder controls, social flag, recommendations flag.
+- Session activity logging in desktop currently flows through Today/Stats state, and legacy standalone session-tab UI paths were removed.
+
 ## Tests
 
 ```bash

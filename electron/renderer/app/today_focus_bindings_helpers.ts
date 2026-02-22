@@ -56,10 +56,10 @@ export function readFocusSessionFromDataset(
   }
   return {
     date,
-    minutes: roundMinutes(rawMinutes),
     title,
-    bookId: bookId || "",
     sessionIndex,
+    bookId: bookId || "",
+    minutes: roundMinutes(rawMinutes),
   };
 }
 

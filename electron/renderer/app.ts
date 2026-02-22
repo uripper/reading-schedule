@@ -62,7 +62,7 @@ const { persistDraft, queuePersist } = createPersistQueue({
   addLog,
   plannerApi,
   collectBooks: collectAllBooks,
-  getSessionsUI: () => ({ getSessions: () => state.sessions }),
+  getSessions: () => state.sessions,
 });
 const dashboards = createDashboardRuntime({
   applyPreferencesToDocument,
@@ -181,8 +181,8 @@ async function init() {
     setSessions: (nextSessions) => {
       state.sessions = nextSessions;
     },
-    queuePersist,
     updateTodayView: runtime.handleScheduleMutation,
+    queuePersist,
     setStatus,
   });
 }

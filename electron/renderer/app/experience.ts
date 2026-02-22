@@ -1,5 +1,11 @@
 import { el } from "../dom.js";
-
+import {
+  RECOMMENDATIONS_AVAILABLE,
+  REMINDERS_AVAILABLE,
+  SOCIAL_FEATURES_AVAILABLE,
+  shippedFeatureFlag,
+  shippedReminderTime,
+} from "./experience_availability.js";
 export type Preferences = {
   theme: "system" | "light" | "dark";
   reduceMotion: boolean;
@@ -79,8 +85,15 @@ export function normalizePreferences(raw: PreferencesInput = {}): Preferences {
     reduceMotion: Boolean(raw.reduceMotion),
     timezone: String(raw.timezone || DEFAULT_PREFERENCES.timezone),
     dailyGoalMinutes: normalizedDailyGoalMinutes,
-    reminderEnabled: Boolean(raw.reminderEnabled),
-    reminderTime: String(raw.reminderTime || DEFAULT_PREFERENCES.reminderTime),
+    reminderEnabled: shippedFeatureFlag(
+      raw.reminderEnabled,
+      REMINDERS_AVAILABLE,
+    ),
+    reminderTime: shippedReminderTime(
+      raw.reminderTime,
+      REMINDERS_AVAILABLE,
+      DEFAULT_PREFERENCES.reminderTime,
+    ),
   };
 }
 
@@ -89,8 +102,14 @@ export function normalizeFeatureFlags(
 ): FeatureFlags {
   return {
     gamificationEnabled: Boolean(raw.gamificationEnabled),
-    socialEnabled: Boolean(raw.socialEnabled),
-    recommendationsEnabled: Boolean(raw.recommendationsEnabled),
+    socialEnabled: shippedFeatureFlag(
+      raw.socialEnabled,
+      SOCIAL_FEATURES_AVAILABLE,
+    ),
+    recommendationsEnabled: shippedFeatureFlag(
+      raw.recommendationsEnabled,
+      RECOMMENDATIONS_AVAILABLE,
+    ),
   };
 }
 
@@ -121,17 +140,29 @@ export function collectPreferencesFromUI(): Preferences {
     dailyGoalMinutes:
       numberInputValue("dailyGoalInput") ||
       DEFAULT_PREFERENCES.dailyGoalMinutes,
-    reminderEnabled: checkboxValue("reminderEnabledToggle"),
-    reminderTime:
-      inputValue("reminderTimeInput") || DEFAULT_PREFERENCES.reminderTime,
+    reminderEnabled: shippedFeatureFlag(
+      checkboxValue("reminderEnabledToggle"),
+      REMINDERS_AVAILABLE,
+    ),
+    reminderTime: shippedReminderTime(
+      inputValue("reminderTimeInput"),
+      REMINDERS_AVAILABLE,
+      DEFAULT_PREFERENCES.reminderTime,
+    ),
   };
 }
 
 export function collectFeatureFlagsFromUI(): FeatureFlags {
   return {
     gamificationEnabled: checkboxValue("flagGamification"),
-    socialEnabled: checkboxValue("flagSocial"),
-    recommendationsEnabled: checkboxValue("flagRecommendations"),
+    socialEnabled: shippedFeatureFlag(
+      checkboxValue("flagSocial"),
+      SOCIAL_FEATURES_AVAILABLE,
+    ),
+    recommendationsEnabled: shippedFeatureFlag(
+      checkboxValue("flagRecommendations"),
+      RECOMMENDATIONS_AVAILABLE,
+    ),
   };
 }
 
@@ -146,18 +177,24 @@ export function fillPreferencesUI(
   el<HTMLInputElement>("dailyGoalInput").value = String(
     preferences.dailyGoalMinutes || DEFAULT_PREFERENCES.dailyGoalMinutes,
   );
-  el<HTMLInputElement>("reminderEnabledToggle").checked = Boolean(
+  el<HTMLInputElement>("reminderEnabledToggle").checked = shippedFeatureFlag(
     preferences.reminderEnabled,
+    REMINDERS_AVAILABLE,
   );
-  el<HTMLInputElement>("reminderTimeInput").value =
-    preferences.reminderTime || DEFAULT_PREFERENCES.reminderTime;
+  el<HTMLInputElement>("reminderTimeInput").value = shippedReminderTime(
+    preferences.reminderTime,
+    REMINDERS_AVAILABLE,
+    DEFAULT_PREFERENCES.reminderTime,
+  );
   el<HTMLInputElement>("flagGamification").checked = Boolean(
     featureFlags.gamificationEnabled,
   );
-  el<HTMLInputElement>("flagSocial").checked = Boolean(
+  el<HTMLInputElement>("flagSocial").checked = shippedFeatureFlag(
     featureFlags.socialEnabled,
+    SOCIAL_FEATURES_AVAILABLE,
   );
-  el<HTMLInputElement>("flagRecommendations").checked = Boolean(
+  el<HTMLInputElement>("flagRecommendations").checked = shippedFeatureFlag(
     featureFlags.recommendationsEnabled,
+    RECOMMENDATIONS_AVAILABLE,
   );
 }
