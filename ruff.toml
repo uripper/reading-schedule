@@ -90,8 +90,8 @@ ignore = [
 fixable = ["ALL"]
 unfixable = ["F401"]
 
-# Only "_" and "unused_*" count as intentionally unused.
-dummy-variable-rgx = "^(_|unused(_[a-zA-Z0-9_]+)?)$"
+# Treat underscore-prefixed names and "unused_*" as intentionally unused.
+dummy-variable-rgx = "^(_[a-zA-Z0-9_]*|unused(_[a-zA-Z0-9_]+)?)$"
 
 [lint.pydocstyle]
 convention = "google"

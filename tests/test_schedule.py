@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from datetime import date
 
-from reading_plan.calendar import date_range
 from reading_plan.planner_types import Book
 from reading_plan.planning.budget import day_capacity_blocks, words_per_block
 from reading_plan.planning.greedy import plan_greedy
+from reading_plan.reading_calendar import date_range
 from reading_plan.schedule.schedule import to_schedule_rows
 from tests.helpers import demo_books, demo_settings
 

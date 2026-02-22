@@ -17,10 +17,13 @@ if TYPE_CHECKING:
 def _priority_weights(books: list[Book]) -> dict[str, int]:
     """Convert 1..5 priority values into larger-is-better objective weights."""
     weights: dict[str, int] = {}
+    priority_min = 1
+    priority_max = 5
     for book in books:
         priority_value = int(book.priority)
-        assert 1 <= priority_value <= 5, (
-            f"priority must be 1..5, got {book.priority} for {book.book_id}"
+        assert priority_min <= priority_value <= priority_max, (
+            f"priority must be {priority_min}..{priority_max}, "
+            f"got {book.priority} for {book.book_id}"
         )
         weights[book.book_id] = 6 - priority_value
     return weights

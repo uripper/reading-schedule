@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
+import sys
 
 from reading_plan.input.io import load_inputs
 from reading_plan.input.serializers import book_to_data, settings_to_data
@@ -45,10 +47,14 @@ def main() -> int:
     args = parse_args()
     books, settings = load_inputs(args.data, args.settings)
     if args.print_inputs:
-        {
-            "books": [book_to_data(b) for b in books],
-            "settings": settings_to_data(settings),
-        }
+        json.dump(
+            {
+                "books": [book_to_data(b) for b in books],
+                "settings": settings_to_data(settings),
+            },
+            sys.stdout,
+        )
+        sys.stdout.write("\n")
         return 0
 
     result = solve_plan(books, settings, planner=args.planner)

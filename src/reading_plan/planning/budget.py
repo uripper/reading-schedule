@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING
 
-from reading_plan.calendar import date_range, weekday_key
+from reading_plan.reading_calendar import date_range, weekday_key
 
 if TYPE_CHECKING:
     from datetime import date

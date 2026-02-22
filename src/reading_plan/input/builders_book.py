@@ -5,11 +5,11 @@ from __future__ import annotations
 from typing import Any
 from uuid import uuid4
 
-from reading_plan.calendar import parse_date
 from reading_plan.input.builders_coerce import optional_int, to_float, to_int
 from reading_plan.input.builders_shared import WORDS_PER_PAGE
 from reading_plan.input.validate import validate_book
 from reading_plan.planner_types import Book
+from reading_plan.reading_calendar import parse_date
 
 
 def _estimated_words_read_from_pages(

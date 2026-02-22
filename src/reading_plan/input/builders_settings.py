@@ -5,7 +5,6 @@ from __future__ import annotations
 from datetime import date
 from typing import Any
 
-from reading_plan.calendar import parse_date
 from reading_plan.input.builders_coerce import to_float, to_int
 from reading_plan.input.validate import validate_settings
 from reading_plan.planner_types import (
@@ -13,6 +12,7 @@ from reading_plan.planner_types import (
     PLAN_MODE_FINISH_SOON,
     Settings,
 )
+from reading_plan.reading_calendar import parse_date
 
 
 def settings_from_data(data: dict[str, Any]) -> Settings:

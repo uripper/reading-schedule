@@ -6,13 +6,13 @@ from datetime import date
 import math
 from typing import TYPE_CHECKING
 
-from reading_plan.calendar import date_range
 from reading_plan.planner_types import PLAN_MODE_SPREAD_OUT
 from reading_plan.planning.budget import (
     book_day_block_limit,
     day_capacity_blocks,
     words_per_block,
 )
+from reading_plan.reading_calendar import date_range
 
 if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
