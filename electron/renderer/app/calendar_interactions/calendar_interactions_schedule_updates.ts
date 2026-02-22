@@ -55,17 +55,27 @@ type UpdateSessionMinutesArgs = SharedUpdateArgs & {
   row: PlannerScheduleRow;
 };
 
+/**
+ *
+ * @param previousResult
+ * @param rows
+ */
 function nextResultWithRows(
   previousResult: PlannerResult,
   rows: PlannerScheduleRow[],
 ): PlannerResult {
   return {
     schedule: sortRowsByDateAndSession(rows),
-    summary: previousResult.summary || null,
+    summary: previousResult.summary ?? null,
     created_at: new Date().toISOString(),
   };
 }
 
+/**
+ *
+ * @param args
+ * @param nextResult
+ */
 function applyNextResult(args: SharedUpdateArgs, nextResult: PlannerResult): void {
   args.state.lastResult = nextResult;
   args.setLastResult(nextResult);
@@ -76,6 +86,16 @@ function applyNextResult(args: SharedUpdateArgs, nextResult: PlannerResult): voi
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.bookId
+ * @param root0.collectSettings
+ * @param root0.completed
+ * @param root0.date
+ * @param root0.getBookById
+ * @param root0.minutes
+ */
 export function addManualSessionRow({
   bookId,
   collectSettings,
@@ -133,6 +153,11 @@ export function addManualSessionRow({
   return true;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.row
+ */
 export function removeSessionRow({
   row,
   ...args
@@ -157,6 +182,14 @@ export function removeSessionRow({
   return true;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.collectSettings
+ * @param root0.getBookById
+ * @param root0.minutes
+ * @param root0.row
+ */
 export function updateSessionRowMinutes({
   collectSettings,
   getBookById,
