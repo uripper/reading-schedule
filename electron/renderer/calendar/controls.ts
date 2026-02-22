@@ -10,11 +10,11 @@ type RenderFn = () => void;
 type JumpToTodayFn = () => void;
 
 /**
- *
- * @param state
- * @param renderControls
- * @param renderMonth
- * @param jumpToToday
+ * Renders month navigation controls and binds prev/next/today actions.
+ * @param state Calendar controls state.
+ * @param renderControls Callback to rerender controls after index changes.
+ * @param renderMonth Callback to rerender visible month grid.
+ * @param jumpToToday Callback that jumps state focus to today.
  */
 export function renderCalendarControls(
   state: CalendarControlsState,

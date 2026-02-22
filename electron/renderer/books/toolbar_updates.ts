@@ -11,7 +11,6 @@ import { groupOptionsForShelfFilter, shelfFilterOptions } from "./toolbar_option
 
 /**
  * Updates sort direction button label from current direction state.
- *
  * @param sortDirectionBtn Sort direction toggle button.
  * @param sortDirection Active sort direction value.
  */
@@ -27,7 +26,6 @@ export function updateSortDirectionButton(
 
 /**
  * Rebuilds shelf filter options and returns the selected normalized value.
- *
  * @param shelfFilterSelect Shelf filter select element.
  * @param books Books used to derive shelf options.
  * @param selectedValue Previously selected shelf filter.
@@ -52,7 +50,6 @@ export function updateShelfFilterOptions(
 
 /**
  * Rebuilds status filter options and returns selected normalized status filter.
- *
  * @param statusFilterSelect Status filter select element.
  * @param selectedValue Previously selected status filter.
  * @returns Selected normalized status filter after options refresh.
@@ -77,7 +74,6 @@ export function updateStatusFilterOptions(
 
 /**
  * Rebuilds group-by options and returns selected normalized grouping value.
- *
  * @param groupBySelect Group-by select element.
  * @param selectedValue Previously selected group-by value.
  * @param shelfFilter Active shelf filter that affects group options.

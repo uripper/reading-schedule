@@ -59,7 +59,8 @@ export interface CalendarRuntimeState {
 }
 
 /**
- *
+ * Creates default mutable runtime state for calendar renderer.
+ * @returns Fresh calendar runtime state object.
  */
 export function createCalendarRuntimeState(): CalendarRuntimeState {
   return {
@@ -76,7 +77,8 @@ export function createCalendarRuntimeState(): CalendarRuntimeState {
 }
 
 /**
- *
+ * Returns no-op/default calendar handler implementations.
+ * @returns Handler object safe for unbound calendar usage.
  */
 export function defaultCalendarHandlers(): CalendarHandlers {
   return {
@@ -92,8 +94,9 @@ export function defaultCalendarHandlers(): CalendarHandlers {
 }
 
 /**
- *
- * @param handlers
+ * Merges partial handler overrides over default calendar handlers.
+ * @param handlers User-provided handler overrides.
+ * @returns Fully populated handlers object.
  */
 export function mergeCalendarHandlers(
   handlers: Partial<CalendarHandlers>,

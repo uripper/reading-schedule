@@ -5,22 +5,23 @@ const logs: string[] = [];
 const MAX_LOG_LINES = 250;
 
 /**
- *
+ * Returns localized current time string for help-panel logs.
+ * @returns Time string for log prefix.
  */
 function ts() {
   return new Date().toLocaleTimeString();
 }
 
 /**
- *
+ * Renders in-memory log lines into help dialog output panel.
  */
 function renderLogs() {
   el("logOutput").textContent = logs.join("\n") || "No logs yet.";
 }
 
 /**
- * Adds a log message with timestamp to the logs array and renders the output.
- * @param message
+ * Adds a log line to help dialog output with timestamp prefix.
+ * @param message Log message text to append.
  */
 export function addLog(message: string) {
   logs.unshift(`[${ts()}] ${message}`);
@@ -31,7 +32,7 @@ export function addLog(message: string) {
 }
 
 /**
- * Binds the help dialog's open and close functionality, including focus management for accessibility.
+ * Binds help dialog open/close controls with focus restoration behavior.
  */
 export function bindHelpDialog() {
   const dlg = el<HTMLDialogElement>("helpDialog");

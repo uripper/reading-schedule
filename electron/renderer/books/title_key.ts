@@ -5,7 +5,6 @@ const INITIAL_LENGTH = 1;
 
 /**
  * Trims optional title text for normalization helpers.
- *
  * @param value Raw title text.
  * @returns Trimmed title or empty string.
  */
@@ -15,7 +14,6 @@ function normalizedText(value?: string | null): string {
 
 /**
  * Produces a title sort key by removing leading "The " when present.
- *
  * @param value Raw title text.
  * @returns Sort key used for alphabetical title ordering.
  */
@@ -39,7 +37,6 @@ export function titleSortKey(value?: string | null): string {
 
 /**
  * Returns uppercase initial letter from the normalized title sort key.
- *
  * @param value Raw title text.
  * @returns Initial title letter or empty string when unavailable.
  */

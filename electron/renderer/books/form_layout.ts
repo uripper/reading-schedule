@@ -3,7 +3,6 @@ import { statusOptions } from "./status.js";
 
 /**
  * Creates shelf select field with built-in create-shelf option.
- *
  * @returns Labeled shelf select node for form grid insertion.
  */
 function createShelfSelectLabel() {
@@ -25,7 +24,6 @@ function createShelfSelectLabel() {
 
 /**
  * Creates status select field populated from supported status options.
- *
  * @returns Labeled status select node for form grid insertion.
  */
 function createStatusSelectLabel() {
@@ -47,7 +45,6 @@ function createStatusSelectLabel() {
 
 /**
  * Creates finished-date field shown only for read status.
- *
  * @returns Labeled date input node for form grid insertion.
  */
 function createFinishedAtLabel() {

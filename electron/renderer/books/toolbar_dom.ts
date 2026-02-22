@@ -2,7 +2,6 @@ import { GROUP_OPTIONS_BASE, SORT_OPTIONS, type OptionDefinition } from "./toolb
 
 /**
  * Creates a labeled toolbar `<select>` control from option definitions.
- *
  * @param labelText Visible label text.
  * @param selectId DOM id assigned to select element.
  * @param options Options used to populate the select.
@@ -28,7 +27,6 @@ function createLabeledSelect(
 
 /**
  * Resolves or creates the toolbar controls wrapper element.
- *
  * @param toolbar Toolbar root element.
  * @returns Existing or newly created controls wrapper.
  */
@@ -45,7 +43,6 @@ function createControlsWrap(toolbar: HTMLElement): HTMLElement {
 
 /**
  * Creates a standard `<option>` element.
- *
  * @param value Option value attribute.
  * @param label Visible option label text.
  * @returns Configured option node.
@@ -59,7 +56,6 @@ export function createOption(value: string, label: string): HTMLOptionElement {
 
 /**
  * Builds and inserts books toolbar controls, returning resolved control refs.
- *
  * @param toolbar Toolbar root element.
  * @returns Toolbar control references used by controller wiring.
  */

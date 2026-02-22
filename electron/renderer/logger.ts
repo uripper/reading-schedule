@@ -8,8 +8,9 @@ interface LogPayload {
 }
 
 /**
- *
- * @param error
+ * Serializes `Error` instances into plain objects for structured logging.
+ * @param error Unknown thrown value.
+ * @returns Structured error object for `Error`, otherwise original value.
  */
 function normalizeError(error: unknown): unknown {
   if (error instanceof Error) {
@@ -23,8 +24,8 @@ function normalizeError(error: unknown): unknown {
 }
 
 /**
- *
- * @param payload
+ * Emits structured renderer logs to console with consistent prefixes.
+ * @param payload Log payload containing level/message/context/error.
  */
 function emitLog(payload: LogPayload): void {
   const output: LogPayload = {
@@ -51,9 +52,9 @@ function emitLog(payload: LogPayload): void {
 }
 
 /**
- *
- * @param message
- * @param context
+ * Emits informational renderer log event.
+ * @param message Human-readable message.
+ * @param context Optional structured context fields.
  */
 export function logInfo(
   message: string,
@@ -67,10 +68,10 @@ export function logInfo(
 }
 
 /**
- *
- * @param message
- * @param error
- * @param context
+ * Emits error renderer log event.
+ * @param message Human-readable message.
+ * @param error Optional error or thrown value.
+ * @param context Optional structured context fields.
  */
 export function logError(
   message: string,
