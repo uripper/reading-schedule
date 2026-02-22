@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .types import Book, Settings
+from ..types import Book, Settings
 
 
 def book_to_data(book: Book) -> dict[str, object]:

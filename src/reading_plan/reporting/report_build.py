@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from .budget import calendar_minutes, required_total_minutes
+from ..planning.budget import calendar_minutes, required_total_minutes
 from .report_types import BookProgress, Summary
-from .schedule import compute_plan_totals
-from .types import Book, PlanResult, Settings
+from ..schedule.schedule import compute_plan_totals
+from ..types import Book, PlanResult, Settings
 
 
 def build_summary(books: list[Book], settings: Settings, result: PlanResult) -> Summary:

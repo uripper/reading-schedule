@@ -1,8 +1,8 @@
 /**
  * @file Deduplication helpers for raw Open Library search documents.
  */
-import type { SearchDoc } from "./book_lookup_search_shared.js";
-import { primaryAuthor } from "./book_lookup_search_text.js";
+import type { SearchDoc } from "./search_shared.js";
+import { primaryAuthor } from "./search_text.js";
 
 /**
  * Removes duplicate docs by canonical key and title/author fallback.

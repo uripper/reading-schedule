@@ -4,13 +4,13 @@
 import { ipcMain, type WebContents } from "electron";
 import type { JsonValue } from "./state_store";
 import type { WindowFindRequest } from "./window_find";
-import { UI_SCALE_STEP } from "./main_zoom";
+import { UI_SCALE_STEP } from "./zoom";
 import {
   asDownloadCoverPayload,
   asUploadCoverPayload,
   type DownloadCoverPayload,
   type UploadCoverPayload,
-} from "./main_ipc_payloads";
+} from "./ipc_payloads";
 
 interface RegisterIpcHandlersArgs {
   downloadCover(

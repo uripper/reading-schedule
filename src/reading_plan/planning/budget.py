@@ -5,8 +5,8 @@ from __future__ import annotations
 import math
 from datetime import date
 
-from .calendar import date_range, weekday_key
-from .types import Book, Settings
+from ..calendar import date_range, weekday_key
+from ..types import Book, Settings
 
 
 def minutes_for_day(settings: Settings, day: date) -> int:

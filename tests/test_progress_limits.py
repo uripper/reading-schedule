@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from datetime import date
 
-from reading_plan.builders import book_from_data
-from reading_plan.greedy import plan_greedy
+from reading_plan.input.builders import book_from_data
+from reading_plan.planning.greedy import plan_greedy
 from reading_plan.types import Book
 from tests.helpers import demo_settings
 

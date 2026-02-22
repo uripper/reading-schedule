@@ -6,7 +6,7 @@ from datetime import date
 from typing import Protocol, SupportsInt
 
 from .greedy import plan_greedy
-from .types import Book, PlanResult, Settings
+from ..types import Book, PlanResult, Settings
 
 
 def solve_plan(

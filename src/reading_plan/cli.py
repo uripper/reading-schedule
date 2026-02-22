@@ -6,11 +6,11 @@ import argparse
 import json
 from pathlib import Path
 
-from .io import load_inputs
-from .report import build_summary, format_summary
-from .schedule import to_schedule_rows, write_schedule_csv
-from .serializers import book_to_data, settings_to_data
-from .solve import solve_plan
+from .input.io import load_inputs
+from .reporting.report import build_summary, format_summary
+from .schedule.schedule import to_schedule_rows, write_schedule_csv
+from .input.serializers import book_to_data, settings_to_data
+from .planning.solve import solve_plan
 
 
 def parse_args() -> argparse.Namespace:

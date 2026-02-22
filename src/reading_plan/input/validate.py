@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .types import Book, PLAN_MODES, Settings, WEEKDAYS
+from ..types import Book, PLAN_MODES, Settings, WEEKDAYS
 
 
 def validate_book(book: Book) -> None:

@@ -8,7 +8,7 @@ from typing import cast
 from ortools.sat.python import cp_model
 
 from .budget import book_day_block_limit, day_capacity_blocks, words_per_block
-from .calendar import date_range
+from ..calendar import date_range
 from .model_objective import build_objective_terms
 from .model_types import (
     BuildCpSatResult,
@@ -16,7 +16,7 @@ from .model_types import (
     FinishedVars,
     _CpSatModelBuilder,
 )
-from .types import Book, Settings
+from ..types import Book, Settings
 
 
 def _create_book_day_variables(

@@ -1,7 +1,7 @@
 /**
  * @file Text normalization helpers for search matching and scoring.
  */
-import type { SearchDoc } from "./book_lookup_search_shared.js";
+import type { SearchDoc } from "./search_shared.js";
 
 /**
  * Normalizes free-form text into a lowercase, punctuation-stripped form.
