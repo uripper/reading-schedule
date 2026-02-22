@@ -13,11 +13,11 @@ const EMPTY_ACTIVE_MATCH_ORDINAL = 0;
 /**
  * Canonical request shape used by the main-process find helpers.
  */
-export type NormalizedWindowFindRequest = {
+export interface NormalizedWindowFindRequest {
   query: string;
   forward: boolean;
   findNext: boolean;
-};
+}
 
 function asBoolean(value: unknown, fallback: boolean): boolean {
   if (typeof value !== "boolean") {
