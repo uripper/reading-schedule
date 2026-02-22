@@ -24,7 +24,7 @@ export type PlannerSettings = {
   w_smooth?: number;
   minutes_by_weekday?: Record<string, number>;
   days_off?: string[];
-  difficulty_multiplier?: Partial<Record<string, number>>;
+  difficulty_multiplier?: Record<string, number>;
 } & Record<string, JsonValue>;
 
 export interface PlannerScheduleRow {
