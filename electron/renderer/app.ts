@@ -62,7 +62,7 @@ const { persistDraft, queuePersist } = createPersistQueue({
   addLog,
   plannerApi,
   collectBooks: collectAllBooks,
-  getSessionsUI: () => ({ getSessions: () => state.sessions }),
+  getSessions: () => state.sessions,
 });
 const dashboards = createDashboardRuntime({
   applyPreferencesToDocument,
@@ -171,7 +171,20 @@ async function init() {
       });
     },
   });
-  bindTodayActions();
+  bindTodayActions({
+    getLastResult: () => state.lastResult,
+    getScheduleCompletions: () => state.scheduleCompletions,
+    setScheduleCompletions: (nextCompletions) => {
+      state.scheduleCompletions = nextCompletions;
+    },
+    getSessions: () => state.sessions,
+    setSessions: (nextSessions) => {
+      state.sessions = nextSessions;
+    },
+    updateTodayView: runtime.handleScheduleMutation,
+    queuePersist,
+    setStatus,
+  });
 }
 
 const splash = createSplashController();

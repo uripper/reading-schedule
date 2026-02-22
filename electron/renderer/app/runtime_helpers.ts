@@ -32,7 +32,7 @@ type PersistQueueState = {
 type PersistQueueArgs = {
   plannerApi: Pick<PlannerApi, "saveState">;
   state: PersistQueueState;
-  getSessionsUI: () => { getSessions: () => Session[] } | null;
+  getSessions: () => Session[];
   collectBooks: () => Book[];
   collectSettings: () => PlannerSettings;
   addLog: (message: string) => void;
@@ -65,7 +65,7 @@ export function totalsFromSummary(
 export function createPersistQueue({
   plannerApi,
   state,
-  getSessionsUI,
+  getSessions,
   collectBooks,
   collectSettings,
   addLog,
@@ -76,7 +76,7 @@ export function createPersistQueue({
     const payload = draftData({
       collectBooks,
       collectSettings,
-      sessionsUI: getSessionsUI(),
+      sessions: getSessions(),
       preferences: state.preferences,
       featureFlags: state.featureFlags,
       scheduleCompletions: state.scheduleCompletions,

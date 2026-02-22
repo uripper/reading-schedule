@@ -257,6 +257,10 @@ p {
   margin: 0;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .body-text {
   margin-bottom: var(--token-space-4);
   color: var(--app-textMuted);
@@ -374,6 +378,7 @@ main {
 .today-grid,
 .sessions-grid {
   display: grid;
+  align-items: start;
   gap: var(--token-space-3);
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }

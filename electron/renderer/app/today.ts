@@ -24,6 +24,7 @@ const NO_SCHEDULE_TEXT =
 const TODAY_DONE_TEXT = "All planned sessions for today are complete.";
 const NO_INCOMPLETE_TEXT =
   "No incomplete planned sessions ahead. Update books or settings to refresh your plan.";
+const FOCUS_SESSION_UPDATE_EVENT = "today-focus-session-updated";
 
 function hasPlannedRows(lastResult: PlannerResult | null): boolean {
   if (!Array.isArray(lastResult?.schedule)) {
@@ -67,14 +68,20 @@ function setFocusSessionDataset(
   nextRow: PlannerScheduleRow | null,
 ): void {
   if (!nextRow) {
+    button.dataset.focusSessionBookId = "";
     button.dataset.focusSessionDate = "";
+    button.dataset.focusSessionIndex = "";
     button.dataset.focusSessionMinutes = "";
     button.dataset.focusSessionTitle = "";
+    button.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
     return;
   }
+  button.dataset.focusSessionBookId = String(nextRow.book_id || "");
   button.dataset.focusSessionDate = String(nextRow.date || "");
+  button.dataset.focusSessionIndex = String(nextRow.session_index || "");
   button.dataset.focusSessionMinutes = String(nextRow.minutes || "");
   button.dataset.focusSessionTitle = String(nextRow.title || "Untitled");
+  button.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
 }
 
 export function goalProgressPercent(

@@ -8,12 +8,8 @@ import type {
   PlannerStateSnapshot,
 } from "./types.js";
 
-interface SessionsUI {
-  getSessions: () => Session[];
-}
-
 interface DraftDataParams {
-  sessionsUI?: SessionsUI | null;
+  sessions: Session[];
   collectBooks: () => Book[];
   collectSettings: () => PlannerSettings;
   preferences: Preferences;
@@ -25,7 +21,7 @@ interface DraftDataParams {
 type AddLog = (message: string) => void;
 
 export function draftData({
-  sessionsUI,
+  sessions,
   collectBooks,
   collectSettings,
   preferences,
@@ -33,11 +29,6 @@ export function draftData({
   scheduleCompletions,
   lastResult,
 }: DraftDataParams): PlannerStateSnapshot {
-  let sessions: Session[] = [];
-  if (sessionsUI) {
-    sessions = sessionsUI.getSessions();
-  }
-
   return {
     sessions,
     preferences,

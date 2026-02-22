@@ -6,14 +6,6 @@ export const COMPLETE_ITEM_CLASS = "is-complete";
 export const COMPLETE_TOGGLE_LABEL = " Complete session";
 const REMOVE_SESSION_LABEL = "Remove session";
 
-function sessionMetaText(row: CalendarRowWithFinish): string {
-  let finishLabel = "";
-  if (row.finish) {
-    finishLabel = " - expected finish";
-  }
-  return `${row.minutes} minutes planned${finishLabel}`;
-}
-
 export function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
   const item = document.createElement("article");
   item.className = "day-details-item";
@@ -30,10 +22,6 @@ export function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
   } else {
     item.append(head);
   }
-  const meta = document.createElement("p");
-  meta.className = DAY_DETAILS_META_CLASS;
-  meta.textContent = sessionMetaText(row);
-  item.append(meta);
   return item;
 }
 
