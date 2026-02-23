@@ -12,14 +12,12 @@ import type {
   PlannerSettings,
   PlannerSummary,
 } from "./types.js";
-
 const AUTO_PLAN_DELAY_MS = 450;
 const DEFAULT_LAST_RESULT: PlannerResult = {
   schedule: [],
   summary: null,
   created_at: "",
 };
-
 interface PlanControllerArgs {
   plannerApi: Pick<PlannerApi, "generate">;
   collectBooks(): Book[];
@@ -31,6 +29,7 @@ interface PlanControllerArgs {
   setLastResult(result: PlannerResult): void;
   getSessions(): Session[];
   getScheduleCompletions(): Record<string, boolean>;
+  getBlockedDayBooks(): Record<string, boolean>;
   setScheduleCompletions(completions: Record<string, boolean>): void;
   renderCalendar(
     rows: PlannerScheduleRow[],
@@ -41,7 +40,6 @@ interface PlanControllerArgs {
   updateTodayView(): void;
   persistDraft(): Promise<boolean>;
 }
-
 type PlannerRunData = Pick<PlannerResult, "schedule" | "summary">;
 
 /**
@@ -52,7 +50,6 @@ type PlannerRunData = Pick<PlannerResult, "schedule" | "summary">;
 function hasRows(rows: PlannerScheduleRow[]): boolean {
   return Array.isArray(rows) && rows.length > 0;
 }
-
 /**
  * Materializes a full planner result object from generation output.
  * @param data Planner generation payload containing schedule and summary.
@@ -65,7 +62,6 @@ function resultFromData(data: PlannerRunData): PlannerResult {
     created_at: new Date().toISOString(),
   };
 }
-
 /**
  * Creates plan controller actions for applying, loading, and auto-refreshing schedules.
  * @param root0 Dependencies and state accessors required by plan operations.
@@ -98,6 +94,7 @@ export function createPlanController({
   setLastResult,
   getSessions,
   getScheduleCompletions,
+  getBlockedDayBooks,
   setScheduleCompletions,
   renderCalendar,
   totalsFromSummary,
@@ -108,7 +105,6 @@ export function createPlanController({
   let autoTimer: ReturnType<typeof setTimeout> | null = null;
   let autoRunPending = false;
   let autoRunInFlight = false;
-
   const applyPlannedData = async (
     data: PlannerRunData,
     preserveLockedDays: boolean,
@@ -116,9 +112,13 @@ export function createPlanController({
     const previousRows = getLastResult()?.schedule || [];
     let nextRows = data.schedule || [];
     if (preserveLockedDays) {
-      nextRows = mergeScheduleRows(previousRows, nextRows, getSessions());
+      nextRows = mergeScheduleRows(
+        previousRows,
+        nextRows,
+        getSessions(),
+        getBlockedDayBooks(),
+      );
     }
-
     const filteredCompletions = pruneScheduleCompletions(
       getScheduleCompletions(),
       nextRows,

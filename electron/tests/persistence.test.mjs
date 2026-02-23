@@ -45,9 +45,11 @@ test("draftData persists sessions from runtime state", () => {
       recommendationsEnabled: true,
     },
     scheduleCompletions: {},
+    blockedDayBooks: { "2026-02-22|book-2": true },
     lastResult: null,
   });
 
   assert.equal(snapshot.sessions.length, 1);
   assert.equal(snapshot.sessions[0].id, "session-1");
+  assert.equal(snapshot.blocked_day_books["2026-02-22|book-2"], true);
 });

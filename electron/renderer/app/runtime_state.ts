@@ -8,6 +8,7 @@ export interface AppRuntimeState {
   preferences: typeof DEFAULT_PREFERENCES;
   featureFlags: typeof DEFAULT_FEATURE_FLAGS;
   scheduleCompletions: Record<string, boolean>;
+  blockedDayBooks: Record<string, boolean>;
   sessions: Session[];
 }
 
@@ -22,6 +23,7 @@ export function createRuntimeState(): AppRuntimeState {
     preferences: { ...DEFAULT_PREFERENCES },
     featureFlags: { ...DEFAULT_FEATURE_FLAGS },
     scheduleCompletions: {},
+    blockedDayBooks: {},
     sessions: [],
   };
 }

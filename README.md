@@ -90,6 +90,20 @@ This is restart-on-change (not in-window HMR).
 ## Tests
 
 ```bash
+npm run ci:local
+```
+
+Install git hooks so pushes run the same checks automatically:
+
+```bash
+npm run hooks:install
+```
+
+`npm install` also runs hook setup through the root `prepare` script.
+
+Manual individual commands:
+
+```bash
 npm run lint:python
 .venv/bin/pytest -q
 cd electron && npm run lint

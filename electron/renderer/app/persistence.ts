@@ -15,6 +15,7 @@ interface DraftDataParams {
   preferences: Preferences;
   featureFlags: FeatureFlags;
   scheduleCompletions: Record<string, boolean>;
+  blockedDayBooks: Record<string, boolean>;
   lastResult: PlannerResult | null;
 }
 
@@ -39,6 +40,7 @@ export function draftData({
   preferences,
   featureFlags,
   scheduleCompletions,
+  blockedDayBooks,
   lastResult,
 }: DraftDataParams): PlannerStateSnapshot {
   return {
@@ -48,6 +50,7 @@ export function draftData({
     settings: collectSettings(),
     feature_flags: featureFlags,
     schedule_completions: scheduleCompletions,
+    blocked_day_books: blockedDayBooks,
     last_result: lastResult,
   };
 }

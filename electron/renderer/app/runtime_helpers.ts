@@ -26,6 +26,7 @@ interface PersistQueueState {
   preferences: Preferences;
   featureFlags: FeatureFlags;
   scheduleCompletions: Record<string, boolean>;
+  blockedDayBooks: Record<string, boolean>;
   lastResult: PlannerResult | null;
 }
 
@@ -102,6 +103,7 @@ export function createPersistQueue({
       preferences: state.preferences,
       featureFlags: state.featureFlags,
       scheduleCompletions: state.scheduleCompletions,
+      blockedDayBooks: state.blockedDayBooks,
       lastResult: state.lastResult,
     });
     return await saveStateSafe(plannerApi, payload, addLog);

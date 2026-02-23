@@ -60,6 +60,9 @@ export async function loadStateAndBindTodayActions(
     setScheduleCompletions: (scheduleCompletions) => {
       state.scheduleCompletions = scheduleCompletions;
     },
+    setBlockedDayBooks: (blockedDayBooks) => {
+      state.blockedDayBooks = blockedDayBooks;
+    },
     setSessions: (sessions) => {
       state.sessions = sessions;
     },

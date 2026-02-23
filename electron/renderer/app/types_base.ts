@@ -74,6 +74,7 @@ export interface PlannerStateSnapshot {
   preferences: Preferences;
   feature_flags: FeatureFlags;
   schedule_completions: Record<string, boolean>;
+  blocked_day_books: Record<string, boolean>;
   sessions: Session[];
   last_result: PlannerResult | null;
 }
@@ -84,6 +85,7 @@ export interface LoadedPlannerState {
   preferences?: Partial<Preferences>;
   feature_flags?: Partial<FeatureFlags>;
   schedule_completions?: Record<string, boolean>;
+  blocked_day_books?: Record<string, boolean>;
   sessions?: Session[];
   last_result?: PlannerResult | null;
 }

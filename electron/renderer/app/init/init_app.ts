@@ -64,6 +64,7 @@ export async function initApp(context: AppBootstrapContext): Promise<void> {
     },
     getSessions: () => context.state.sessions,
     getScheduleCompletions: () => context.state.scheduleCompletions,
+    getBlockedDayBooks: () => context.state.blockedDayBooks,
     setScheduleCompletions: (nextCompletions: Record<string, boolean>) => {
       context.state.scheduleCompletions = nextCompletions;
     },

@@ -30,6 +30,7 @@ interface SharedUpdateArgs {
   state: {
     lastResult: PlannerResult | null;
     scheduleCompletions: Record<string, boolean>;
+    blockedDayBooks: Record<string, boolean>;
   };
   totalsFromSummary(summary: PlannerSummary | null): Record<string, number>;
 }
@@ -145,6 +146,9 @@ export function addManualSessionRow({
     addedRow,
   ]);
   applyNextResult(args, nextResult);
+  delete runtimeState.blockedDayBooks[
+    dayBookCompletionKey(addedRow.date, addedRow.book_id)
+  ];
   if (completed) {
     runtimeState.scheduleCompletions[sessionKeyFor(addedRow)] = true;
     runtimeState.scheduleCompletions[
@@ -183,6 +187,8 @@ export function removeSessionRow({
     runtimeState.scheduleCompletions,
     nextRows,
   );
+  runtimeState.blockedDayBooks[dayBookCompletionKey(row.date, row.book_id)] =
+    true;
   const nextResult = nextResultWithRows(previousResult, nextRows);
   applyNextResult(args, nextResult);
   args.queuePersist();

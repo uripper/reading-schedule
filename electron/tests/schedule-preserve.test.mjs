@@ -185,3 +185,16 @@ test("mergeScheduleRows preserves today rows while still rebuilding tomorrow onw
   assert.equal(tomorrowRows.length, 1);
   assert.equal(tomorrowRows[0].words_planned, 700);
 });
+
+test("mergeScheduleRows excludes day-book pairs that were manually blocked", () => {
+  const blockedKey = "2026-02-24|book-1";
+  const nextRows = [
+    row({ date: "2026-02-24", session_index: 1, book_id: "book-1" }),
+    row({ date: "2026-02-24", session_index: 2, book_id: "book-2" }),
+  ];
+
+  const merged = mergeScheduleRows([], nextRows, [], { [blockedKey]: true });
+
+  assert.equal(merged.length, 1);
+  assert.equal(merged[0].book_id, "book-2");
+});

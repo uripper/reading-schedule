@@ -32,11 +32,30 @@ interface LoadStateArgs {
   setScheduleCompletions(
     scheduleCompletions: Record<string, boolean>,
   ): void;
+  setBlockedDayBooks(blockedDayBooks: Record<string, boolean>): void;
   setSessions(sessions: Session[]): void;
   applyLoadedResult(result: PlannerResult | null): void;
   updateTodayView(): void;
   onLoaded(saved: LoadedPlannerState | null | undefined): void;
   setStatus(message: string, isError?: boolean): void;
+}
+
+/**
+ * Normalizes persisted blocked day-book map values to strict booleans.
+ * @param raw Persisted blocked map keyed by `YYYY-MM-DD|book_id`.
+ * @returns Sanitized blocked map.
+ */
+function normalizeBlockedDayBooks(
+  raw: Record<string, string | number | boolean | null | undefined> = {},
+): Record<string, boolean> {
+  const out: Record<string, boolean> = {};
+  Object.entries(raw).forEach(([key, value]) => {
+    if (!key) {
+      return;
+    }
+    out[key] = Boolean(value);
+  });
+  return out;
 }
 
 /**
@@ -81,6 +100,9 @@ function applyLoadedData(
   args.fillBooks(source.books);
   args.setScheduleCompletions(
     args.normalizeScheduleCompletions(saved?.schedule_completions || {}),
+  );
+  args.setBlockedDayBooks(
+    normalizeBlockedDayBooks(saved?.blocked_day_books || {}),
   );
 }
 

@@ -28,6 +28,7 @@ export interface AppCalendarInteractionArgs {
   }): void;
   state: {
     scheduleCompletions: Record<string, boolean>;
+    blockedDayBooks: Record<string, boolean>;
     lastResult: PlannerResult | null;
   };
   queuePersist(): void;

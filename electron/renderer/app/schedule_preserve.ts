@@ -88,6 +88,22 @@ function dayBookCompletionKey(row: PlannerScheduleRow): string {
 }
 
 /**
+ * Removes rows whose day-book key has been manually blocked by the user.
+ * @param rows Candidate schedule rows.
+ * @param blockedDayBooks Block map keyed by `YYYY-MM-DD|book_id`.
+ * @returns Rows that are still allowed for scheduling.
+ */
+function rowsWithoutBlockedDayBooks(
+  rows: PlannerScheduleRow[],
+  blockedDayBooks: Record<string, boolean>,
+): PlannerScheduleRow[] {
+  return rows.filter((row) => {
+    const key = dayBookCompletionKey(row);
+    return !blockedDayBooks[key];
+  });
+}
+
+/**
  * Merges new plan rows with locked rows from the previous plan.
  * Locked days are preserved from `previousRows`; other days come from `nextRows`.
  * @param previousRows Previous schedule rows.
@@ -99,16 +115,18 @@ export function mergeScheduleRows(
   previousRows: PlannerScheduleRow[] = [],
   nextRows: PlannerScheduleRow[] = [],
   sessions: Session[] = [],
+  blockedDayBooks: Record<string, boolean> = {},
 ): PlannerScheduleRow[] {
+  const filteredNextRows = rowsWithoutBlockedDayBooks(nextRows, blockedDayBooks);
   const locked = lockedDates(previousRows, sessions);
   if (!locked.size) {
-    return sortedRows(nextRows);
+    return sortedRows(filteredNextRows);
   }
 
   const keptRows = previousRows.filter((row) => {
     return locked.has(String(row.date || ""));
   });
-  const newRows = nextRows.filter((row) => {
+  const newRows = filteredNextRows.filter((row) => {
     return !locked.has(String(row.date || ""));
   });
 
