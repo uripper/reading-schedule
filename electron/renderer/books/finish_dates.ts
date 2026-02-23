@@ -37,7 +37,7 @@ function withBookFinishedDates(
   const out = { ...finishDateByBookId };
   books.forEach((book) => {
     const bookId = String(book?.book_id || "");
-    const finishedAt = String(book?.finished_at || "");
+    const finishedAt = String(book?.finished_at ?? "");
     if (!bookId || !finishedAt) {
       return;
     }

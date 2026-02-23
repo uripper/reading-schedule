@@ -144,7 +144,7 @@ export function normalizeProgressAndPages(
   if (pagesTotal) {
     progress =
       Math.round(
-        ((nextPagesRead || 0) / pagesTotal) * PROGRESS_MAX * PROGRESS_SCALE,
+        ((nextPagesRead ?? 0) / pagesTotal) * PROGRESS_MAX * PROGRESS_SCALE,
       ) / PROGRESS_SCALE;
   }
   return { pagesRead: nextPagesRead, progress };

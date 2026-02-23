@@ -24,7 +24,7 @@ export function statusFromRaw(
   value: string | null | undefined,
   progressPercent: number,
 ): BookStatus {
-  const raw = String(value || "")
+  const raw = String(value ?? "")
     .trim()
     .toLowerCase();
   const known = normalizedStatus(raw);
@@ -66,7 +66,7 @@ export function schedulableBook(book: Pick<Book, "status">): boolean {
 export function normalizeStatusFilter(
   value: string | null | undefined,
 ): BookStatusFilter {
-  const raw = String(value || "")
+  const raw = String(value ?? "")
     .trim()
     .toLowerCase();
   if (raw === BOOK_STATUS_FILTER_ALL) {

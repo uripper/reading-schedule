@@ -53,7 +53,7 @@ function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
   try {
     const parsed = JSON.parse(stdout || "{}") as BridgeResponse;
     if (!parsed.ok) {
-      throw new Error(parsed.error || stderr || "Planner failed");
+      throw new Error((parsed.error ?? stderr) || "Planner failed");
     }
     if (parsed.data === undefined) {
       return null;
@@ -72,7 +72,7 @@ function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
  */
 export async function runBridge(args: string[], payload?: JsonValue): Promise<JsonValue> {
   return await new Promise((resolve, reject) => {
-    const pythonBinary = process.env.PYTHON_BIN || "python";
+    const pythonBinary = process.env.PYTHON_BIN ?? "python";
     const processHandle = spawn(pythonBinary, ["-m", PLANNER_MODULE, ...args], {
       cwd: root(),
       env: pyEnv(),

@@ -102,7 +102,7 @@ export function syncProgressAndPages(
   }
   const progress = Math.min(
     100,
-    Math.max(0, Number(progressInput.value ?? 0)),
+    Math.max(0, Number(progressInput.value)),
   );
   progressInput.value = String(Math.round(progress * 10) / 10);
   pagesReadInput.value = String(Math.round((progress / 100) * total));

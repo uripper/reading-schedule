@@ -138,13 +138,13 @@ function sessionIndexOrNull(value: number): number | null {
 export function readFocusSessionFromDataset(
   button: HTMLButtonElement,
 ): FocusSession | null {
-  const title = String(button.dataset.focusSessionTitle || "").trim();
-  const date = String(button.dataset.focusSessionDate || "").trim();
+  const title = String(button.dataset.focusSessionTitle ?? "").trim();
+  const date = String(button.dataset.focusSessionDate ?? "").trim();
   const parsedMinutes = parsedPositiveFinite(
-    Number(button.dataset.focusSessionMinutes || 0),
+    Number(button.dataset.focusSessionMinutes ?? 0),
   );
-  const bookId = String(button.dataset.focusSessionBookId || "").trim();
-  const rawSessionIndex = Number(button.dataset.focusSessionIndex || 0);
+  const bookId = String(button.dataset.focusSessionBookId ?? "").trim();
+  const rawSessionIndex = Number(button.dataset.focusSessionIndex ?? 0);
   if (!title || !date || parsedMinutes === null) {
     return null;
   }
@@ -170,7 +170,7 @@ export function findSessionRow(
   if (!session) {
     return null;
   }
-  const rows = lastResult?.schedule || [];
+  const rows = lastResult?.schedule ?? [];
   for (const row of rows) {
     if (rowMatchesFocusSession(row, session)) {
       return row;

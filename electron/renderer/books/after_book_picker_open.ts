@@ -14,12 +14,12 @@ export function initializePickerForBook(
   state: PickerState,
   book: Book | null,
 ): void {
-  state.currentBookId = String(book?.book_id || "");
+  state.currentBookId = String(book?.book_id ?? "");
   state.selectedBookId = "";
   refs.afterBookInput.value = "";
   refs.blockedByInput.value = "";
 
-  const blockedById = String(book?.blocked_by || "");
+  const blockedById = String(book?.blocked_by ?? "");
   if (!blockedById) {
     return;
   }

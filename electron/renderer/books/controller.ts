@@ -66,7 +66,7 @@ function setBooks(nextBooks: Book[]): void {
  * @returns Matching book instance when present; otherwise `null`.
  */
 function findBook(bookId: string): Book | null {
-  return books.find((book) => book.book_id === bookId) || null;
+  return books.find((book) => book.book_id === bookId) ?? null;
 }
 
 /**
@@ -195,7 +195,7 @@ export function bindBooksUI(
   options: BindBooksUIOptions = {},
 ): void {
   onBooksChanged = onChanged;
-  onEstimatedFinishNavigate = options.onEstimatedFinishNavigate || (() => {});
+  onEstimatedFinishNavigate = options.onEstimatedFinishNavigate ?? (() => {});
   refs.toolbar = document.querySelector(".books-toolbar");
   if (!(refs.toolbar instanceof HTMLElement)) {
     return;

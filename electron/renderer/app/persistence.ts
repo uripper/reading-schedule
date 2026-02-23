@@ -72,7 +72,7 @@ export async function saveStateSafe(
     const result = await plannerApi.saveState(payload);
     if (result.ok === false) {
       addLog(
-        `Save failed: ${result.error || "Unknown state persistence error"}`,
+        `Save failed: ${result.error ?? "Unknown state persistence error"}`,
       );
       return false;
     }

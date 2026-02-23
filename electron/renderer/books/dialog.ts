@@ -72,7 +72,7 @@ export function createBookDialog(
     dialogFocus.rememberOpener();
     clearForm(refs, lookupControl);
     afterBookPicker.openForBook(book);
-    let selectedShelf = String(options.defaultShelf || "").trim();
+    let selectedShelf = String(options.defaultShelf ?? "").trim();
     if (book?.shelf) {
       selectedShelf = book.shelf;
     }

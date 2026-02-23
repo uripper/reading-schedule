@@ -10,7 +10,7 @@ const PERCENT_PRECISION_SCALE = 1000;
  * @returns Positive finite number or zero.
  */
 function positiveFiniteNumber(value: unknown): number {
-  const parsed = Number(value || 0);
+  const parsed = Number(value ?? 0);
   if (!Number.isFinite(parsed) || parsed <= 0) {
     return 0;
   }
@@ -51,7 +51,7 @@ export function fullWordsForBook(book: Book | null, remainingWords: number): num
  * @returns Estimated words read.
  */
 export function wordsReadFromBook(book: Book | null, fullWords: number): number {
-  const progressPercent = Number(book?.progress_percent || 0);
+  const progressPercent = Number(book?.progress_percent ?? 0);
   const clamped = clampPercent(progressPercent);
   return Math.round((clamped / PERCENT_SCALE) * fullWords);
 }

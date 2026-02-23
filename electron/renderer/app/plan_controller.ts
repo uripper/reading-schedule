@@ -57,7 +57,7 @@ function hasRows(rows: PlannerScheduleRow[]): boolean {
 function resultFromData(data: PlannerRunData): PlannerResult {
   return {
     schedule: data.schedule || [],
-    summary: data.summary || null,
+    summary: data.summary ?? null,
     created_at: new Date().toISOString(),
   };
 }
@@ -109,7 +109,7 @@ export function createPlanController({
     data: PlannerRunData,
     preserveLockedDays: boolean,
   ) => {
-    const previousRows = getLastResult()?.schedule || [];
+    const previousRows = getLastResult()?.schedule ?? [];
     let nextRows = data.schedule || [];
     if (preserveLockedDays) {
       nextRows = mergeScheduleRows(

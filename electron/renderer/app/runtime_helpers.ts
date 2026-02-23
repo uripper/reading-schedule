@@ -67,9 +67,9 @@ export function createStatusSetter(
 export function totalsFromSummary(
   summary: PlannerSummary | null,
 ): Record<string, number> {
-  const perBook = summary?.per_book || {};
+  const perBook = summary?.per_book ?? {};
   const pairs = Object.entries(perBook).map(([id, info]) => {
-    return [id, Number(info.words_total || 0)];
+    return [id, Number(info.words_total ?? 0)];
   });
   return Object.fromEntries(pairs);
 }

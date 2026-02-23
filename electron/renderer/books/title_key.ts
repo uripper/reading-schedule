@@ -9,7 +9,7 @@ const INITIAL_LENGTH = 1;
  * @returns Trimmed title or empty string.
  */
 function normalizedText(value?: string | null): string {
-  return String(value || "").trim();
+  return String(value ?? "").trim();
 }
 
 /**

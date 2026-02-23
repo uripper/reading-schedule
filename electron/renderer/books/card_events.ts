@@ -20,14 +20,14 @@ export function bindCardEvents(
     .querySelectorAll<HTMLButtonElement>(".edit-book-btn")
     .forEach((button) => {
       button.onclick = () => {
-        onEdit(button.dataset.bookId || "");
+        onEdit(button.dataset.bookId ?? "");
       };
     });
   rootNode
     .querySelectorAll<HTMLButtonElement>(".remove-book-btn")
     .forEach((button) => {
       button.onclick = () => {
-        onRemove(button.dataset.bookId || "");
+        onRemove(button.dataset.bookId ?? "");
       };
     });
   rootNode

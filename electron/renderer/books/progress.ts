@@ -100,7 +100,7 @@ export function withUpdatedProgress(
   updates: BookProgressUpdates = {},
 ): Book {
   const nextBook = { ...book };
-  const pagesTotal = Number(nextBook.pages_total || 0);
+  const pagesTotal = Number(nextBook.pages_total ?? 0);
   const hasPagesTotal = Number.isFinite(pagesTotal) && pagesTotal > 0;
   const pagesUpdate = parseFiniteNumber(updates.pagesRead ?? undefined);
   const hasPagesUpdate = applyPagesUpdate(

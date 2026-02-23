@@ -39,7 +39,7 @@ const TITLE_LETTER_ORDER = 1;
  * @returns Trimmed string representation or empty string.
  */
 function normalizedText(value?: string | number): string {
-  return String(value || "").trim();
+  return String(value ?? "").trim();
 }
 
 /**

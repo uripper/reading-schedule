@@ -28,7 +28,7 @@ export interface GroupMeta {
 function parseFinishDateParts(
   dateText?: string,
 ): { year: number; month: number; date: Date } | null {
-  const raw = String(dateText || "").trim();
+  const raw = String(dateText ?? "").trim();
   if (!raw) {
     return null;
   }

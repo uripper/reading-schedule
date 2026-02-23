@@ -24,7 +24,7 @@ export function selectedBook(state: PickerState): Book | null {
   if (!state.selectedBookId) {
     return null;
   }
-  return state.options.find((book) => book.book_id === state.selectedBookId) || null;
+  return state.options.find((book) => book.book_id === state.selectedBookId) ?? null;
 }
 
 /**

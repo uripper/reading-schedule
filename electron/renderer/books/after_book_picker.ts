@@ -90,7 +90,7 @@ export function createAfterBookPicker(
     state,
   });
   const openForBook = (book: Book | null = null): void => {
-    state.currentBookId = String(book?.book_id || "");
+    state.currentBookId = String(book?.book_id ?? "");
     refreshOptions();
     initializePickerForBook(refs, state, book);
     clearResults();

@@ -71,10 +71,10 @@ function compareNumbers(left: OptionalNumber, right: OptionalNumber): number {
  * @returns Negative/zero/positive comparison result.
  */
 function compareText(left: OptionalString, right: OptionalString): number {
-  const leftText = String(left || "")
+  const leftText = String(left ?? "")
     .trim()
     .toLowerCase();
-  const rightText = String(right || "")
+  const rightText = String(right ?? "")
     .trim()
     .toLowerCase();
   const leftMissing = !leftText;

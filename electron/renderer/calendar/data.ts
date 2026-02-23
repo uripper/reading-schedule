@@ -199,5 +199,5 @@ export function firstPlannedRow(rows: CalendarRow[] = []): CalendarRow | null {
   const sortedRows = sortRowsByDateAndSession(rows);
   const today = todayKey();
   const upcoming = sortedRows.find((row) => String(row.date || "") >= today);
-  return upcoming || sortedRows[0] || null;
+  return (upcoming ?? sortedRows[0]) || null;
 }

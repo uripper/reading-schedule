@@ -150,7 +150,7 @@ export function parseFormBook(refs: BookFormRefs): Book {
     blocked_by: refs.blockedByInput.value,
     cover_url: refs.coverUrl.value.trim(),
     cover_local_path: refs.coverLocal.value.trim(),
-    lookup_note: refs.lookupMeta.dataset.lookupNote || "",
+    lookup_note: refs.lookupMeta.dataset.lookupNote ?? "",
   });
 }
 
@@ -163,10 +163,10 @@ export function applyLookupItem(
   refs: BookFormRefs,
   item: BookLookupItem,
 ): void {
-  refs.titleInput.value = item.title || refs.titleInput.value;
-  refs.searchInput.value = item.title || refs.searchInput.value;
-  refs.author.value = item.author || refs.author.value;
-  refs.coverUrl.value = item.cover_url || "";
+  refs.titleInput.value = item.title ?? refs.titleInput.value;
+  refs.searchInput.value = item.title ?? refs.searchInput.value;
+  refs.author.value = item.author ?? refs.author.value;
+  refs.coverUrl.value = item.cover_url ?? "";
   refs.coverLocal.value = "";
 
   if (!toOptionalInt(refs.wordsInput.value) && item.words_estimate) {
@@ -178,7 +178,7 @@ export function applyLookupItem(
 
   refs.lookupMeta.dataset.lookupNote = noteFromLookup(item);
   refs.lookupMeta.textContent = noteFromLookup(item);
-  setCoverPreview(refs, item.cover_url || "");
+  setCoverPreview(refs, item.cover_url ?? "");
 
   const progressSyncRefs: ProgressSyncInputs = {
     pagesTotalInput: refs.pagesTotalInput,

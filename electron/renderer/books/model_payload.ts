@@ -90,7 +90,7 @@ export function toPayloadBook(book: Book): Book {
  * @returns `true` when words or page totals are positive.
  */
 export function hasSchedulableLength(book: Book): boolean {
-  return (book.words_total || 0) > 0 || (book.pages_total || 0) > 0;
+  return (book.words_total ?? 0) > 0 || (book.pages_total ?? 0) > 0;
 }
 
 /**
@@ -105,7 +105,7 @@ export function clearMissingBlockedBy(books: Book[]): Book[] {
   });
 
   return books.map((book) => {
-    const blockedById = String(book.blocked_by || "").trim();
+    const blockedById = String(book.blocked_by ?? "").trim();
     if (!blockedById) {
       return book;
     }

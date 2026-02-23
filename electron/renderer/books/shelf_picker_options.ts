@@ -91,7 +91,7 @@ export function rememberSelectedShelf(select: HTMLSelectElement): void {
  * @returns Previously selected shelf, or unshelved when missing.
  */
 export function previousShelf(select: HTMLSelectElement): string {
-  return String(select.dataset[DATA_KEY_PREVIOUS_SHELF] || UNSHELVED_VALUE);
+  return String(select.dataset[DATA_KEY_PREVIOUS_SHELF] ?? UNSHELVED_VALUE);
 }
 
 /**

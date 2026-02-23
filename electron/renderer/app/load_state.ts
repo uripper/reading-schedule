@@ -99,10 +99,10 @@ function applyLoadedData(
   args.fillSettings(source.settings);
   args.fillBooks(source.books);
   args.setScheduleCompletions(
-    args.normalizeScheduleCompletions(saved?.schedule_completions || {}),
+    args.normalizeScheduleCompletions(saved?.schedule_completions ?? {}),
   );
   args.setBlockedDayBooks(
-    normalizeBlockedDayBooks(saved?.blocked_day_books || {}),
+    normalizeBlockedDayBooks(saved?.blocked_day_books ?? {}),
   );
 }
 
@@ -115,8 +115,8 @@ function applySessionAndResultData(
   saved: LoadedPlannerState | null | undefined,
   args: LoadStateArgs,
 ): void {
-  args.setSessions(saved?.sessions || []);
-  args.applyLoadedResult(saved?.last_result || null);
+  args.setSessions(saved?.sessions ?? []);
+  args.applyLoadedResult(saved?.last_result ?? null);
   args.updateTodayView();
 }
 
@@ -147,8 +147,8 @@ export async function loadInitialData(args: LoadStateArgs): Promise<void> {
     const source = await resolveInitialSource(args.plannerApi, saved);
     applyLoadedData(saved, source, args);
 
-    const preferences = args.normalizePreferences(saved?.preferences || {});
-    const featureFlags = args.normalizeFeatureFlags(saved?.feature_flags || {});
+    const preferences = args.normalizePreferences(saved?.preferences ?? {});
+    const featureFlags = args.normalizeFeatureFlags(saved?.feature_flags ?? {});
     args.setPreferences(preferences);
     args.setFeatureFlags(featureFlags);
     applyExperienceData(args, preferences, featureFlags);
