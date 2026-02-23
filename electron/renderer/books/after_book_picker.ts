@@ -87,8 +87,8 @@ export function createAfterBookPicker(
     render();
   };
   bindAfterBookPickerEvents({
-    clearResults,
     refs: formRefs,
+    clearResults,
     refreshFiltered,
     render,
     selectBook,
