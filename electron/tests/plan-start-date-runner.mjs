@@ -15,7 +15,7 @@ const DEFAULT_RESULT = { schedule: [], summary: null };
  * @returns {(payload: unknown) => Promise<unknown>} Recording generate stub.
  */
 export function recordingGenerate(calls, result = DEFAULT_RESULT) {
-  return (payload) => {
+  return payload => {
     calls.push(payload);
     return Promise.resolve(result);
   };
@@ -37,11 +37,11 @@ export async function runPlanGenerationForTest({
   addLog = NOOP,
 }) {
   await runPlanGeneration({
-    plannerApi: { generate },
-    collectBooks: () => BOOKS,
     collectSettings,
     setStatus,
     addLog,
+    plannerApi: { generate },
+    collectBooks: () => BOOKS,
     announce: NOOP,
     onSuccess: NOOP_ASYNC,
     successAnnouncement: "",
