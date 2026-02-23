@@ -1,5 +1,6 @@
 import { bookCoverSrc } from "./model.js";
 import { metaLabel, progressLabel, subtitle, wordsLabel } from "./presenters.js";
+import { bindReadCardHolo } from "./card_holo.js";
 import { navigateToEstimatedFinishDate } from "./estimated_finish_navigation.js";
 import {
   BOOK_STATUS_IN_PROGRESS,
@@ -102,6 +103,9 @@ export function createCardNode(book: Book, context: CardRenderContext): HTMLElem
     image.loading = "lazy";
     image.dataset.fallbackCover = "1";
     coverButton.append(image);
+    if (book.status === BOOK_STATUS_READ) {
+      bindReadCardHolo(coverButton);
+    }
   } else {
     const fallback = document.createElement("div");
     fallback.className = "cover-fallback";

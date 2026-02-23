@@ -13,47 +13,6 @@
   background: color-mix(in srgb, var(--app-surfaceMuted) 88%, transparent);
 }
 
-.book-cover-btn.has-cover {
-  position: relative;
-  overflow: hidden;
-}
-
-.book-card.is-read-card .book-cover-btn.has-cover::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.14;
-  background: linear-gradient(
-    116deg,
-    transparent 24%,
-    color-mix(in srgb, var(--app-brandStrong) 32%, transparent) 44%,
-    color-mix(in srgb, var(--app-focusRing) 30%, transparent) 54%,
-    transparent 74%
-  );
-  mix-blend-mode: screen;
-}
-
-.book-card.is-read-card:hover .book-cover-btn.has-cover::after,
-.book-card.is-read-card:focus-within .book-cover-btn.has-cover::after {
-  animation: read-card-holo 1200ms var(--token-motion-easing-standard) 1;
-}
-
-@keyframes read-card-holo {
-  0% {
-    transform: translateX(-24%);
-    opacity: 0.1;
-  }
-  60% {
-    transform: translateX(26%);
-    opacity: 0.3;
-  }
-  100% {
-    transform: translateX(0);
-    opacity: 0.14;
-  }
-}
-
 .book-estimated-finish-btn {
   justify-self: auto;
   border: 1px solid color-mix(in srgb, var(--app-brandStrong) 36%, var(--app-border));
@@ -70,11 +29,4 @@
 .book-estimated-finish-btn:focus-visible {
   border-color: color-mix(in srgb, var(--app-brandStrong) 56%, var(--app-border));
   color: var(--app-text);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .book-card.is-read-card:hover .book-cover-btn.has-cover::after,
-  .book-card.is-read-card:focus-within .book-cover-btn.has-cover::after {
-    animation: none;
-  }
 }
