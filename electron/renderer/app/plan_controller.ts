@@ -25,19 +25,29 @@ interface PlanControllerArgs {
   collectSettings(this: void): PlannerSettings;
   setStatus(this: void, message: string, isError?: boolean): void;
   addLog(this: void, message: string): void;
-  announce(this: void, message: string, politeness?: "polite" | "assertive"): void;
+  announce(
+    this: void,
+    message: string,
+    politeness?: "polite" | "assertive",
+  ): void;
   getLastResult(this: void): PlannerResult | null;
   setLastResult(this: void, result: PlannerResult): void;
   getSessions(this: void): Session[];
   getScheduleCompletions(this: void): Record<string, boolean>;
   getBlockedDayBooks(this: void): Record<string, boolean>;
-  setScheduleCompletions(this: void, completions: Record<string, boolean>): void;
+  setScheduleCompletions(
+    this: void,
+    completions: Record<string, boolean>,
+  ): void;
   renderCalendar(
     this: void,
     rows: PlannerScheduleRow[],
     totals: Record<string, number>,
   ): void;
-  totalsFromSummary(this: void, summary: PlannerSummary | null): Record<string, number>;
+  totalsFromSummary(
+    this: void,
+    summary: PlannerSummary | null,
+  ): Record<string, number>;
   setBookScheduleRows(this: void, rows: PlannerScheduleRow[]): void;
   updateTodayView(this: void): void;
   persistDraft(this: void): Promise<boolean>;
@@ -89,50 +99,50 @@ function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
     state,
     scheduleAutoPlan,
   } = root0;
-  const runAutoPlan = async (): Promise<void> => {
-      if (state.autoRunInFlight) {
-        state.autoRunPending = true;
-        return;
+  const self: () => Promise<void> = async (): Promise<void> => {
+    if (state.autoRunInFlight) {
+      state.autoRunPending = true;
+      return;
+    }
+    state.autoRunInFlight = true;
+    try {
+      await runPlanGeneration({
+        plannerApi,
+        collectBooks,
+        collectSettings,
+        setStatus,
+        addLog,
+        announce,
+        statusGeneratingMessage: "Updating plan...",
+        statusSuccessMessage: "Plan updated.",
+        successAnnouncement: "",
+        onSuccess: async (data: PlannerRunData): Promise<void> => {
+          await applyPlannedData({
+            preserveLockedDays: true,
+            data,
+            getLastResult,
+            getSessions,
+            getBlockedDayBooks,
+            getScheduleCompletions,
+            setScheduleCompletions,
+            setLastResult,
+            setBookScheduleRows,
+            renderCalendar,
+            totalsFromSummary,
+            updateTodayView,
+            persistDraft,
+          });
+        },
+      });
+    } finally {
+      state.autoRunInFlight = false;
+      if (state.autoRunPending) {
+        state.autoRunPending = false;
+        scheduleAutoPlan(self);
       }
-      state.autoRunInFlight = true;
-      try {
-        await runPlanGeneration({
-          plannerApi,
-          collectBooks,
-          collectSettings,
-          setStatus,
-          addLog,
-          announce,
-          statusGeneratingMessage: "Updating plan...",
-          statusSuccessMessage: "Plan updated.",
-          successAnnouncement: "",
-          onSuccess: async (data: PlannerRunData): Promise<void> => {
-            await applyPlannedData({
-              data,
-              preserveLockedDays: true,
-              getLastResult,
-              getSessions,
-              getBlockedDayBooks,
-              getScheduleCompletions,
-              setScheduleCompletions,
-              setLastResult,
-              setBookScheduleRows,
-              renderCalendar,
-              totalsFromSummary,
-              updateTodayView,
-              persistDraft,
-            });
-          },
-        });
-      } finally {
-        state.autoRunInFlight = false;
-        if (state.autoRunPending) {
-          state.autoRunPending = false;
-          scheduleAutoPlan(runAutoPlan);
-        }
-      }
-    };
-  return runAutoPlan;
+    }
+  };
+  return self;
 }
 
 /**
@@ -141,10 +151,7 @@ function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
  * @returns Auto-plan queue handler.
  */
 function createAutoPlanRunner(root0: PlanControllerArgs): AutoPlanRunner {
-  const {
-    addLog,
-    setStatus,
-  } = root0;
+  const { addLog, setStatus } = root0;
   let autoTimer: ReturnType<typeof setTimeout> | null = null;
   const state: AutoPlanState = {
     autoRunPending: false,
@@ -194,7 +201,9 @@ function createAutoPlanRunner(root0: PlanControllerArgs): AutoPlanRunner {
  * @param root0.persistDraft Persists current runtime state.
  * @returns Controller methods for queueing auto-plan and applying loaded results.
  */
-export function createPlanController(root0: PlanControllerArgs): PlanController {
+export function createPlanController(
+  root0: PlanControllerArgs,
+): PlanController {
   const autoPlanRunner = createAutoPlanRunner(root0);
   const applySavedResult = (savedResult: PlannerResult | null): void => {
     applyLoadedResult({

@@ -22,16 +22,11 @@ interface LoadStateArgs {
   normalizeScheduleCompletions(
     raw: Record<string, boolean>,
   ): Record<string, boolean>;
-  fillPreferencesUI(
-    preferences: Preferences,
-    featureFlags: FeatureFlags,
-  ): void;
+  fillPreferencesUI(preferences: Preferences, featureFlags: FeatureFlags): void;
   applyPreferencesToDocument(preferences: Preferences): void;
   setPreferences(preferences: Preferences): void;
   setFeatureFlags(featureFlags: FeatureFlags): void;
-  setScheduleCompletions(
-    scheduleCompletions: Record<string, boolean>,
-  ): void;
+  setScheduleCompletions(scheduleCompletions: Record<string, boolean>): void;
   setBlockedDayBooks(blockedDayBooks: Record<string, boolean>): void;
   setSessions(sessions: Session[]): void;
   applyLoadedResult(result: PlannerResult | null): void;
@@ -111,7 +106,12 @@ function applyLoadedData(
     args.normalizeScheduleCompletions(saved?.schedule_completions ?? {}),
   );
   args.setBlockedDayBooks(
-    normalizeBlockedDayBooks(saved?.blocked_day_books ?? {}),
+    normalizeBlockedDayBooks(
+      saved?.blocked_day_books as Record<
+        string,
+        string | number | boolean | null | undefined
+      > | undefined,
+    ),
   );
 }
 

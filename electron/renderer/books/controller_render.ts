@@ -50,7 +50,7 @@ interface RenderBooksControllerArgs {
  * @param args.rerender Callback to refresh the books view after state updates.
  */
 export function renderBooksController(args: RenderBooksControllerArgs): void {
-  const viewState = args.viewState;
+  const {viewState} = args;
   const onEstimatedFinishNavigate = (dateKey: string): void => {
     args.onEstimatedFinishNavigate(dateKey);
   };

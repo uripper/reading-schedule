@@ -70,15 +70,12 @@ function renderFocusMode(
   refs: TodayFocusDomRefs,
   focusState: TodayFocusState,
 ): void {
-  const {
-    focusEntryButton,
-    focusPanel,
-    focusSessionText,
-    focusSessionMeta,
-    focusStartButton,
-    focusCompleteButton,
-  } = refs;
-  const { focusFeedback } = refs;
+  const {focusEntryButton,
+      focusPanel,
+      focusSessionText,
+      focusSessionMeta,
+      focusStartButton,
+      focusCompleteButton, focusFeedback} = refs;
   setFocusEntryButtonState(focusEntryButton, focusState.isOpen);
   focusPanel.hidden = !focusState.isOpen;
   if (!focusState.isOpen) {
