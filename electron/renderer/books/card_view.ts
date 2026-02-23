@@ -26,6 +26,7 @@ interface RenderBookGridOptions {
  * @param root0.groups Optional grouped book structure.
  * @param root0.allBooks Optional full book catalog for metadata lookup.
  * @param root0.finishDateByBookId Optional finish-date lookup.
+ * @param root0.onEstimatedFinishNavigate
  * @param root0.showShelfMeta Whether shelf metadata should be displayed.
  * @param root0.onEdit Edit callback for a book id.
  * @param root0.onRemove Remove callback for a book id.

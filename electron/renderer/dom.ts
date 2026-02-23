@@ -58,10 +58,11 @@ const MAX_ID_LENGTH = 20;
  * Generates stable-ish unique ids for client-created entities.
  * @returns UUID when available, otherwise timestamp/random fallback id.
  */
-export function uid() {
-  if (globalThis.crypto?.randomUUID) {
+export function uid(): string {
+  try {
     return globalThis.crypto.randomUUID();
+  } catch {
+    const base = `${Date.now().toString(BASE_36)}${Math.random().toString(BASE_36).slice(2)}`;
+    return `book-${base.slice(0, MAX_ID_LENGTH)}`;
   }
-  const base = `${Date.now().toString(BASE_36)}${Math.random().toString(BASE_36).slice(2)}`;
-  return `book-${base.slice(0, MAX_ID_LENGTH)}`;
 }

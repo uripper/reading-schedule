@@ -188,6 +188,7 @@ interface BindBooksUIOptions {
 /**
  * Binds books toolbar, dialog, and grid events for interactive editing.
  * @param onChanged Callback fired after persisted book list mutations.
+ * @param options
  */
 export function bindBooksUI(
   onChanged: () => void = () => {},

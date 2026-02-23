@@ -44,17 +44,17 @@ function normalizedDates(session: SessionInput): {
   endedAt: string;
   startedAt: string;
 } {
-  const endedAtRaw = String(session.ended_at || session.endedAt || "").trim();
+  const endedAtRaw = String((session.ended_at ?? session.endedAt) ?? "").trim();
   let endedAt = endedAtRaw;
-  if (!endedAt) {
+  if (endedAt.length === 0) {
     endedAt = new Date().toISOString();
   }
 
   const startedAtRaw = String(
-    session.started_at || session.startedAt || "",
+    (session.started_at ?? session.startedAt) ?? "",
   ).trim();
   let startedAt = startedAtRaw;
-  if (!startedAt) {
+  if (startedAt.length === 0) {
     startedAt = endedAt;
   }
 
@@ -97,15 +97,15 @@ export function normalizeSession(session: SessionInput = {}): Session {
 
   return {
     source,
-    id: String(session.id || uid()),
-    book_id: String(session.book_id || ""),
-    title: String(session.title || UNTITLED_SESSION),
+    id: String(session.id ?? uid()),
+    book_id: String(session.book_id ?? ""),
+    title: String(session.title ?? UNTITLED_SESSION),
     started_at: startedAt,
     ended_at: endedAt,
     minutes: Math.max(1, toInt(session.minutes, 1)),
     pages_read: pagesRead,
-    notes: String(session.notes || "").trim(),
-    created_at: String(session.created_at || endedAt),
+    notes: String(session.notes ?? "").trim(),
+    created_at: String(session.created_at ?? endedAt),
   };
 }
 

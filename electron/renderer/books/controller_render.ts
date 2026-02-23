@@ -44,6 +44,7 @@ interface RenderBooksControllerArgs {
  * @param root0.viewState Active shelf/status/sort/group options.
  * @param root0.dialog Edit dialog controller when available.
  * @param root0.onBooksChanged Callback fired when collection mutations occur.
+ * @param root0.onEstimatedFinishNavigate
  * @param root0.setBooks State updater used after remove operations.
  * @param root0.findBook Lookup helper used before opening edit dialog.
  * @param root0.rerender Callback to refresh the books view after state updates.

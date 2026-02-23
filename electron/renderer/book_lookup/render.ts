@@ -23,13 +23,14 @@ export function renderLookupResults(
   placeholder: string,
   activeIndex: number,
 ): void {
-  resultsEl.innerHTML = "";
+  const listElement = resultsEl;
+  listElement.innerHTML = "";
   items.forEach((item: BookLookupItem, index: number) => {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "book-result";
     btn.dataset.resultIndex = String(index);
-    btn.id = optionId(resultsEl, index);
+    btn.id = optionId(listElement, index);
     btn.setAttribute("role", "option");
     btn.setAttribute("aria-selected", "false");
     if (activeIndex === index) {
@@ -40,10 +41,16 @@ export function renderLookupResults(
     const thumb = document.createElement("img");
     thumb.className = "book-result-cover";
     thumb.loading = "lazy";
-    thumb.src = item.cover_url || placeholder;
+    const coverUrl = String(item.cover_url ?? "").trim();
+    let coverSource = placeholder;
+    if (coverUrl.length > 0) {
+      coverSource = coverUrl;
+    }
+    thumb.src = coverSource;
     thumb.alt = "Book cover";
-    if (item.title) {
-      thumb.alt = `Cover for ${item.title}`;
+    const titleText = String(item.title ?? "").trim();
+    if (titleText.length > 0) {
+      thumb.alt = `Cover for ${titleText}`;
     }
     thumb.onerror = () => {
       thumb.onerror = null;
@@ -53,21 +60,39 @@ export function renderLookupResults(
     const textWrap = document.createElement("span");
     const title = document.createElement("span");
     title.className = "book-result-title";
-    title.textContent = item.title || "Untitled";
+    let titleLabel = "Untitled";
+    if (titleText.length > 0) {
+      titleLabel = titleText;
+    }
+    title.textContent = titleLabel;
 
     const meta = document.createElement("span");
     meta.className = "book-result-meta";
     let pagesLabel = "";
-    if (item.pages_estimate) {
+    if (
+      typeof item.pages_estimate === "number" &&
+      Number.isFinite(item.pages_estimate) &&
+      item.pages_estimate > 0
+    ) {
       pagesLabel = `${item.pages_estimate} pages`;
     }
-    meta.textContent = [item.author || "", item.year || "", pagesLabel]
-      .filter(Boolean)
-      .join(" · ");
+    const metaParts: string[] = [];
+    const authorText = String(item.author ?? "").trim();
+    if (authorText.length > 0) {
+      metaParts.push(authorText);
+    }
+    const yearText = String(item.year ?? "").trim();
+    if (yearText.length > 0) {
+      metaParts.push(yearText);
+    }
+    if (pagesLabel.length > 0) {
+      metaParts.push(pagesLabel);
+    }
+    meta.textContent = metaParts.join(" · ");
 
     textWrap.append(title, meta);
     btn.append(thumb, textWrap);
-    resultsEl.append(btn);
+    listElement.append(btn);
   });
 }
 

@@ -48,13 +48,13 @@ export function estimateSnapshotForRow(
   if (!bookId) {
     return null;
   }
-  const remainingWords = Number(state.totalsByBookId?.[bookId] || 0);
+  const remainingWords = Number(state.totalsByBookId?.[bookId] ?? 0);
   const book = getBookById(bookId);
   const fullWords = fullWordsForBook(book, remainingWords);
   if (fullWords <= 0) {
     return null;
   }
-  const pagesTotal = Number(book?.pages_total || 0);
+  const pagesTotal = Number(book?.pages_total ?? 0);
   const currentWordsRead = wordsReadFromBook(book, fullWords);
   const plannedWords = plannedWordsBeforeAndThroughRow(
     row,

@@ -46,10 +46,20 @@ export function placeholderCoverSvg(): string {
  * @returns Description text including source/author/year when available.
  */
 export function describeLookup(item: BookLookupItem): string {
-  const bits = [item.source || "", item.author || "", item.year || ""].filter(
-    Boolean,
-  );
-  if (bits.length) {
+  const bits: string[] = [];
+  const source = String(item.source ?? "").trim();
+  if (source.length > 0) {
+    bits.push(source);
+  }
+  const author = String(item.author ?? "").trim();
+  if (author.length > 0) {
+    bits.push(author);
+  }
+  const year = String(item.year ?? "").trim();
+  if (year.length > 0) {
+    bits.push(year);
+  }
+  if (bits.length > 0) {
     return `Selected from ${bits.join(" · ")}`;
   }
   return "Selected from lookup results.";
@@ -73,24 +83,27 @@ export function syncProgressAndPages(
   form: ProgressSyncInputs,
   changedField: ProgressField,
 ): void {
-  const total = toInt(form.pagesTotalInput.value);
+  const pagesTotalInput = form.pagesTotalInput;
+  const pagesReadInput = form.pagesReadInput;
+  const progressInput = form.progressInput;
+  const total = toInt(pagesTotalInput.value);
   if (total <= 0) {
     return;
   }
   if (changedField === "pages") {
-    const pagesRead = Math.min(toInt(form.pagesReadInput.value), total);
-    if (pagesRead !== toInt(form.pagesReadInput.value)) {
-      form.pagesReadInput.value = String(pagesRead);
+    const pagesRead = Math.min(toInt(pagesReadInput.value), total);
+    if (pagesRead !== toInt(pagesReadInput.value)) {
+      pagesReadInput.value = String(pagesRead);
     }
-    form.progressInput.value = String(
+    progressInput.value = String(
       Math.round((pagesRead / total) * 1000) / 10,
     );
     return;
   }
   const progress = Math.min(
     100,
-    Math.max(0, Number(form.progressInput.value || 0)),
+    Math.max(0, Number(progressInput.value ?? 0)),
   );
-  form.progressInput.value = String(Math.round(progress * 10) / 10);
-  form.pagesReadInput.value = String(Math.round((progress / 100) * total));
+  progressInput.value = String(Math.round(progress * 10) / 10);
+  pagesReadInput.value = String(Math.round((progress / 100) * total));
 }

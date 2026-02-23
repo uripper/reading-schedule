@@ -15,7 +15,7 @@ import { findInPage, stopFindInPage } from "./main/window_find";
 /**
  * Creates and initializes the main application browser window.
  */
-function createWindow(): void {
+async function createWindow(): Promise<void> {
   const iconPath = path.join(__dirname, "assets", "logo.png");
   const window = new BrowserWindow({
     width: 1800,
@@ -26,7 +26,7 @@ function createWindow(): void {
     },
   });
   setZoomFactor(window.webContents, initialZoomFactor());
-  window.loadFile(path.join(__dirname, "index.html"));
+  await window.loadFile(path.join(__dirname, "index.html"));
 }
 
 /**
@@ -49,10 +49,14 @@ registerIpcHandlers({
   setZoomFactor,
   initialZoomFactor,
   findInPage,
-  stopFindInPage: async (webContents) => stopFindInPage(webContents),
+  stopFindInPage,
 });
 
-app.on("ready", createWindow);
+app.on("ready", () => {
+  createWindow().catch(() => {
+    app.exit(1);
+  });
+});
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();

@@ -31,7 +31,7 @@ function appendVisibleRowChips(
     if (row.finish) {
       chip.className = "day-chip finish";
     }
-    chip.textContent = `${row.title || "Untitled"} - ${Number(row.minutes || 0)}m`;
+    chip.textContent = `${row.title ?? "Untitled"} - ${Number(row.minutes ?? 0)}m`;
     dayButton.append(chip);
   });
 }

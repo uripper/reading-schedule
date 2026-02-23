@@ -91,7 +91,7 @@ export function readBooksFinishedThisYear(
     if (book.status !== BOOK_STATUS_READ) {
       return;
     }
-    const finishedYear = yearFromDateKey(String(book.finished_at || ""));
+    const finishedYear = yearFromDateKey(String(book.finished_at ?? ""));
     if (finishedYear !== year) {
       return;
     }
@@ -112,18 +112,20 @@ export function plannedFinishBookIds(
 ): { ids: Set<string>; monthByBookId: Map<string, number> } {
   const ids = new Set<string>();
   const monthByBookId = new Map<string, number>();
-  const rows = lastResult?.schedule || [];
+  const rows = lastResult?.schedule ?? [];
   const byBookId = finishDatesByBookId(rows);
-  const perBookSummary = lastResult?.summary?.per_book || {};
+  const perBookSummary = lastResult?.summary?.per_book ?? {};
 
   Object.entries(byBookId).forEach(([bookId, dateKey]) => {
     const finishYear = yearFromDateKey(dateKey);
     if (finishYear !== year) {
       return;
     }
-    const summary = perBookSummary[bookId];
-    if (summary?.finished === false) {
-      return;
+    if (Object.hasOwn(perBookSummary, bookId)) {
+      const summary = perBookSummary[bookId];
+      if (summary.finished === false) {
+        return;
+      }
     }
     const monthIndex = monthIndexFromDateKey(dateKey);
     if (monthIndex === null) {
@@ -147,7 +149,7 @@ export function completionStats(
   scheduleCompletions: Record<string, boolean>,
   year: number,
 ): { scheduled: number; completed: number; ratePercent: number } {
-  const rows = lastResult?.schedule || [];
+  const rows = lastResult?.schedule ?? [];
   const today = todayKey();
   let scheduled = 0;
   let completed = 0;
@@ -225,7 +227,7 @@ export function monthlyFinishCounts(
     if (!readThisYearIds.has(book.book_id)) {
       return;
     }
-    const monthIndex = monthIndexFromDateKey(String(book.finished_at || ""));
+    const monthIndex = monthIndexFromDateKey(String(book.finished_at ?? ""));
     if (monthIndex === null) {
       return;
     }

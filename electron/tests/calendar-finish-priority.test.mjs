@@ -52,7 +52,7 @@ test("rowsWithCompletedLast keeps expected-finish rows first inside incomplete a
 
   const ordered = rowsWithCompletedLast(rows, {
     isSessionCompleted: (sessionKey) => completedSessionKeys.has(sessionKey),
-    onSessionCompletionChanged: () => {},
+    onSessionCompletionChanged: () => null,
     onSessionProgressUpdated: () => null,
     getBookById: () => null,
   });

@@ -2,13 +2,15 @@
  * @file Main-process wrappers around Electron's find-in-page APIs.
  */
 import type { Result as FindInPageEventResult, WebContents } from "electron";
+import type {
+  WindowFindRequest as WindowFindRequestPayload,
+  WindowFindResponse as WindowFindResponsePayload,
+} from "../renderer/shared/window_find_types.js";
 import {
   emptyFindResponse,
   normalizeFindRequest,
   toFindResponse,
   type NormalizedWindowFindRequest,
-  type WindowFindRequest,
-  type WindowFindResponse,
 } from "./window_find_request.js";
 
 const FIND_RESULT_TIMEOUT_MS = 400;
@@ -22,24 +24,29 @@ const FIND_RESULT_TIMEOUT_MS = 400;
 async function requestFindInPage(
   webContents: WebContents,
   request: NormalizedWindowFindRequest,
-): Promise<WindowFindResponse> {
+): Promise<WindowFindResponsePayload> {
   return await new Promise((resolve) => {
     let requestId = -1;
     let latestResponse = emptyFindResponse();
     let timer: ReturnType<typeof setTimeout> | null = null;
+    let onFoundInPage:
+      | ((event: Electron.Event, result: FindInPageEventResult) => void)
+      | null = null;
 
-    const finish = (response: WindowFindResponse) => {
-      webContents.removeListener("found-in-page", onFoundInPage);
+    const finish = (response: WindowFindResponsePayload): void => {
+      if (onFoundInPage !== null) {
+        webContents.removeListener("found-in-page", onFoundInPage);
+      }
       if (timer) {
         clearTimeout(timer);
       }
       resolve(response);
     };
 
-    const onFoundInPage = (
+    onFoundInPage = (
       _event: Electron.Event,
       result: FindInPageEventResult,
-    ) => {
+    ): void => {
       if (result.requestId !== requestId) {
         return;
       }
@@ -69,10 +76,10 @@ async function requestFindInPage(
  */
 export async function findInPage(
   webContents: WebContents,
-  payload: WindowFindRequest | null | undefined,
-): Promise<WindowFindResponse> {
+  payload: WindowFindRequestPayload | null | undefined,
+): Promise<WindowFindResponsePayload> {
   const request = normalizeFindRequest(payload);
-  if (!request.query) {
+  if (request.query.length === 0) {
     webContents.stopFindInPage("clearSelection");
     return emptyFindResponse();
   }
@@ -84,9 +91,14 @@ export async function findInPage(
  * @param webContents Electron webContents to clear find highlights on.
  * @returns Empty find response payload.
  */
-export function stopFindInPage(webContents: WebContents): WindowFindResponse {
+export function stopFindInPage(webContents: WebContents): WindowFindResponsePayload {
   webContents.stopFindInPage("clearSelection");
   return emptyFindResponse();
 }
 
-export type { WindowFindRequest, WindowFindResponse } from "./window_find_request.js";
+type RequestPayload = WindowFindRequestPayload;
+type ResponsePayload = WindowFindResponsePayload;
+export type {
+  RequestPayload as WindowFindRequest,
+  ResponsePayload as WindowFindResponse,
+};

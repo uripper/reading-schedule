@@ -25,28 +25,42 @@ function plannerResult(schedule) {
 
 /**
  * Builds schedule row fixture for today-snapshot tests.
- * @param {string} date Day key.
- * @param {number} sessionIndex Session index.
- * @param {string} bookId Book id.
- * @param {string} title Session title.
- * @param {number} minutes Planned minutes.
+ * @param {{
+ *   date: string,
+ *   sessionIndex: number,
+ *   bookId: string,
+ *   title: string,
+ *   minutes: number,
+ * }} args Row input values.
  * @returns {Record<string, unknown>} Row fixture.
  */
-function row(date, sessionIndex, bookId, title, minutes) {
+function row(args) {
   return {
-    date,
-    session_index: sessionIndex,
-    book_id: bookId,
-    title,
-    minutes,
-    words_planned: minutes * 100,
+    date: args.date,
+    session_index: args.sessionIndex,
+    book_id: args.bookId,
+    title: args.title,
+    minutes: args.minutes,
+    words_planned: args.minutes * 100,
   };
 }
 
 test("nextUncompletedPlannedRow skips already completed rows", () => {
   const date = todayKey();
-  const first = row(date, 1, "book-1", "The First", 15);
-  const second = row(date, 2, "book-2", "Second", 20);
+  const first = row({
+    date,
+    sessionIndex: 1,
+    bookId: "book-1",
+    title: "The First",
+    minutes: 15,
+  });
+  const second = row({
+    date,
+    sessionIndex: 2,
+    bookId: "book-2",
+    title: "Second",
+    minutes: 20,
+  });
   const completions = {};
   completions[sessionKeyFor(first)] = true;
 
@@ -59,9 +73,27 @@ test("nextUncompletedPlannedRow skips already completed rows", () => {
 
 test("buildTodayScheduleSnapshot returns per-book and overall completion counts", () => {
   const date = todayKey();
-  const first = row(date, 1, "book-1", "The Book", 10);
-  const second = row(date, 2, "book-1", "The Book", 20);
-  const third = row(date, 3, "book-2", "Another Book", 30);
+  const first = row({
+    date,
+    sessionIndex: 1,
+    bookId: "book-1",
+    title: "The Book",
+    minutes: 10,
+  });
+  const second = row({
+    date,
+    sessionIndex: 2,
+    bookId: "book-1",
+    title: "The Book",
+    minutes: 20,
+  });
+  const third = row({
+    date,
+    sessionIndex: 3,
+    bookId: "book-2",
+    title: "Another Book",
+    minutes: 30,
+  });
   const completions = {};
   completions[sessionKeyFor(first)] = true;
 

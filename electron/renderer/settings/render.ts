@@ -1,6 +1,5 @@
 import { el } from "../dom.js";
-import { DIFFICULTY_LEVEL_COUNT, weekdays } from "./config.js";
-import type { FieldDefinition } from "./config.js";
+import { DIFFICULTY_LEVEL_COUNT, weekdays, type FieldDefinition } from "./config.js";
 
 /**
  * Creates optional hint badge node for a field label.
@@ -8,14 +7,15 @@ import type { FieldDefinition } from "./config.js";
  * @returns Hint node or null when hint is empty.
  */
 function hintDot(text?: string): HTMLSpanElement | null {
-  if (!text) {
+  const normalizedText = String(text ?? "").trim();
+  if (normalizedText.length === 0) {
     return null;
   }
   const dot = document.createElement("span");
   dot.className = "hint-dot";
   dot.tabIndex = 0;
   dot.setAttribute("role", "note");
-  dot.dataset.tip = String(text);
+  dot.dataset.tip = normalizedText;
   dot.textContent = "?";
   return dot;
 }
@@ -37,7 +37,7 @@ function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
   let node: HTMLInputElement | HTMLSelectElement;
   if (field.type === "select") {
     node = document.createElement("select");
-    (field.options || []).forEach((option) => {
+    field.options.forEach((option) => {
       const optionNode = document.createElement("option");
       optionNode.value = String(option.value);
       optionNode.textContent = String(option.label);
@@ -45,8 +45,8 @@ function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
     });
   } else {
     node = document.createElement("input");
-    node.type = field.type || "number";
-    if (field.step) {
+    node.type = field.type;
+    if (typeof field.step === "string" && field.step.length > 0) {
       node.step = field.step;
     }
   }
@@ -73,7 +73,7 @@ export function renderGrid(
 /**
  * Renders weekday minutes input rows.
  */
-export function renderWeekdayGrid() {
+export function renderWeekdayGrid(): void {
   const weekdayNodes = weekdays.map(([key, name]) => {
     const label = document.createElement("label");
     label.append(`${name} minutes`);
@@ -91,7 +91,7 @@ export function renderWeekdayGrid() {
 /**
  * Renders difficulty multiplier table rows.
  */
-export function renderDifficultyRows() {
+export function renderDifficultyRows(): void {
   const diffRows = Array.from(
     { length: DIFFICULTY_LEVEL_COUNT },
     (_, index) => {

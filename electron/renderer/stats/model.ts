@@ -51,7 +51,7 @@ interface SnapshotInputs {
  * @returns Goal minutes clamped to at least 1.
  */
 function normalizedGoalMinutes(goalMinutes: number | undefined): number {
-  return Math.max(MIN_GOAL_MINUTES, Number(goalMinutes || MIN_GOAL_MINUTES));
+  return Math.max(MIN_GOAL_MINUTES, Number(goalMinutes ?? MIN_GOAL_MINUTES));
 }
 
 /**

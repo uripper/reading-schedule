@@ -30,7 +30,9 @@ export function createZoomShortcutHandler(
   plannerApi: ZoomApi,
   announce: (message: string, politeness?: "polite" | "assertive") => void,
 ): (event: KeyboardEvent) => boolean {
-  const runZoomCommand = async (operation: () => Promise<number>) => {
+  const runZoomCommand = async (
+    operation: () => Promise<number>,
+  ): Promise<void> => {
     try {
       const zoomFactor = await operation();
       announce(formatZoomAnnouncement(zoomFactor));
@@ -39,8 +41,8 @@ export function createZoomShortcutHandler(
       announce("Unable to update zoom level", "assertive");
     }
   };
-  const runDetached = (operation: Promise<void>) => {
-    operation.catch((error) => {
+  const runDetached = (operation: Promise<void>): void => {
+    operation.catch((error: unknown) => {
       logError("Shortcut command failed", error);
     });
   };

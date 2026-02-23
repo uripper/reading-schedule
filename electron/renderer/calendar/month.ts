@@ -67,7 +67,7 @@ export function renderCalendarMonth(
     const firstWithRows = state.monthCellKeys.find((cellKey) => {
       return (state.dates[cellKey] || []).length > 0;
     });
-    state.selectedDate = firstWithRows || state.monthCellKeys[0] || "";
+    state.selectedDate = (firstWithRows ?? state.monthCellKeys[0]) || "";
   }
 
   const grid = document.createElement("div");

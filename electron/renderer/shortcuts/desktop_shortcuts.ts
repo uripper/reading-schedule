@@ -4,7 +4,7 @@ import { createFindController } from "./desktop_shortcuts_find.js";
 import { createZoomShortcutHandler } from "./desktop_shortcuts_zoom.js";
 
 interface ShortcutBindings {
-  announce(message: string, politeness?: "polite" | "assertive"): void;
+  announce(this: void, message: string, politeness?: "polite" | "assertive"): void;
   plannerApi: Pick<
     PlannerApi,
     "findInPage" | "stopFindInPage" | "zoomIn" | "zoomOut" | "zoomReset"
@@ -37,12 +37,12 @@ export function bindDesktopShortcuts({
     if (event.defaultPrevented) {
       return;
     }
-    if (
-      findController.handleFindShortcut(event) ||
-      handleZoomShortcut(event) ||
-      findController.handleFindBarEscape(event)
-    ) {
-      
+    if (findController.handleFindShortcut(event)) {
+      return;
     }
+    if (handleZoomShortcut(event)) {
+      return;
+    }
+    findController.handleFindBarEscape(event);
   });
 }
