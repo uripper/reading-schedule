@@ -100,6 +100,17 @@
         Books
       </button>
       <button
+        id="tab-btn-recommendations"
+        class="tab"
+        data-tab="recommendations"
+        role="tab"
+        aria-selected="false"
+        aria-controls="tab-recommendations"
+        tabindex="-1"
+      >
+        Recommendations
+      </button>
+      <button
         id="tab-btn-schedule"
         class="tab"
         data-tab="schedule"
@@ -388,6 +399,26 @@
       </section>
 
       <section
+        id="tab-recommendations"
+        class="panel"
+        role="tabpanel"
+        aria-labelledby="tab-btn-recommendations"
+        tabindex="-1"
+        hidden
+      >
+        <article class="surface-card">
+          <h2>Recommendations</h2>
+          <p id="recommendationsSummary" class="hint-text">
+            Read books by your favorite authors to unlock recommendations.
+          </p>
+          <div id="recommendationsList" class="books-grid"></div>
+          <p id="recommendationsEmpty" class="books-empty" hidden>
+            No recommendations yet.
+          </p>
+        </article>
+      </section>
+
+      <section
         id="tab-schedule"
         class="panel"
         role="tabpanel"
@@ -420,6 +451,9 @@
       </button>
       <button class="tab mobile-tab" data-tab="books" type="button">
         Books
+      </button>
+      <button class="tab mobile-tab" data-tab="recommendations" type="button">
+        Recs
       </button>
       <button class="tab mobile-tab" data-tab="schedule" type="button">
         Schedule
