@@ -70,21 +70,22 @@ function renderFocusMode(
   refs: TodayFocusDomRefs,
   focusState: TodayFocusState,
 ): void {
-  const focusEntryButton = refs.focusEntryButton;
-  const focusPanel = refs.focusPanel;
-  const focusSessionText = refs.focusSessionText;
-  const focusSessionMeta = refs.focusSessionMeta;
-  const focusStartButton = refs.focusStartButton;
-  const focusCompleteButton = refs.focusCompleteButton;
-  const focusFeedback = refs.focusFeedback;
+  const {
+    focusEntryButton,
+    focusPanel,
+    focusSessionText,
+    focusSessionMeta,
+    focusStartButton,
+    focusCompleteButton,
+  } = refs;
+  const { focusFeedback } = refs;
   setFocusEntryButtonState(focusEntryButton, focusState.isOpen);
   focusPanel.hidden = !focusState.isOpen;
   if (!focusState.isOpen) {
     return;
   }
   if (focusState.session) {
-    focusSessionText.textContent =
-      `Next: ${focusState.session.title} (${focusState.session.minutes} minutes)`;
+    focusSessionText.textContent = `Next: ${focusState.session.title} (${focusState.session.minutes} minutes)`;
     focusSessionMeta.textContent = `Scheduled for ${focusState.session.date}`;
   } else {
     focusSessionText.textContent = "No upcoming planned session.";
@@ -146,7 +147,9 @@ export function bindTodayFocusActions(args: BindTodayFocusActionsArgs): void {
       refs.focusEntryButton.focus();
       return;
     }
-    focusState = openFocusMode(readFocusSessionFromDataset(refs.focusEntryButton));
+    focusState = openFocusMode(
+      readFocusSessionFromDataset(refs.focusEntryButton),
+    );
     render();
     refs.focusTinyStartButton.focus();
   };
@@ -176,7 +179,10 @@ export function bindTodayFocusActions(args: BindTodayFocusActionsArgs): void {
   refs.focusCompleteButton.onclick = () => {
     const row = findSessionRow(args.getLastResult(), focusState.session);
     if (!row) {
-      args.setStatus("Could not find this planned session to mark complete.", true);
+      args.setStatus(
+        "Could not find this planned session to mark complete.",
+        true,
+      );
       return;
     }
     const nextCompletions = nextCompletionsWithRowMarkedComplete(

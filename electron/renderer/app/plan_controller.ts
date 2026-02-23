@@ -89,50 +89,49 @@ function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
     state,
     scheduleAutoPlan,
   } = root0;
-  const runAutoPlan = async (): Promise<void> => {
-    if (state.autoRunInFlight) {
-      state.autoRunPending = true;
-      return;
-    }
-    state.autoRunInFlight = true;
-    try {
-      await runPlanGeneration({
-        plannerApi,
-        collectBooks,
-        collectSettings,
-        setStatus,
-        addLog,
-        announce,
-        statusGeneratingMessage: "Updating plan...",
-        statusSuccessMessage: "Plan updated.",
-        successAnnouncement: "",
-        onSuccess: async (data: PlannerRunData): Promise<void> => {
-          await applyPlannedData({
-            data,
-            preserveLockedDays: true,
-            getLastResult,
-            getSessions,
-            getBlockedDayBooks,
-            getScheduleCompletions,
-            setScheduleCompletions,
-            setLastResult,
-            setBookScheduleRows,
-            renderCalendar,
-            totalsFromSummary,
-            updateTodayView,
-            persistDraft,
-          });
-        },
-      });
-    } finally {
-      state.autoRunInFlight = false;
-      if (state.autoRunPending) {
-        state.autoRunPending = false;
-        scheduleAutoPlan(runAutoPlan);
+  return async (): Promise<void> => {
+      if (state.autoRunInFlight) {
+        state.autoRunPending = true;
+        return;
       }
-    }
-  };
-  return runAutoPlan;
+      state.autoRunInFlight = true;
+      try {
+        await runPlanGeneration({
+          plannerApi,
+          collectBooks,
+          collectSettings,
+          setStatus,
+          addLog,
+          announce,
+          statusGeneratingMessage: "Updating plan...",
+          statusSuccessMessage: "Plan updated.",
+          successAnnouncement: "",
+          onSuccess: async (data: PlannerRunData): Promise<void> => {
+            await applyPlannedData({
+              data,
+              preserveLockedDays: true,
+              getLastResult,
+              getSessions,
+              getBlockedDayBooks,
+              getScheduleCompletions,
+              setScheduleCompletions,
+              setLastResult,
+              setBookScheduleRows,
+              renderCalendar,
+              totalsFromSummary,
+              updateTodayView,
+              persistDraft,
+            });
+          },
+        });
+      } finally {
+        state.autoRunInFlight = false;
+        if (state.autoRunPending) {
+          state.autoRunPending = false;
+          scheduleAutoPlan(runAutoPlan);
+        }
+      }
+    };
 }
 
 /**
