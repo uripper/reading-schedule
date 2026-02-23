@@ -30,6 +30,7 @@ type AddLog = (message: string) => void;
  * @param root0.preferences Current experience preferences.
  * @param root0.featureFlags Current feature flag selections.
  * @param root0.scheduleCompletions Completion map keyed by day/session identity.
+ * @param root0.blockedDayBooks Manually blocked day-book keys to keep out of replans.
  * @param root0.lastResult Most recent planning result if one exists.
  * @returns Snapshot payload expected by planner state APIs.
  */

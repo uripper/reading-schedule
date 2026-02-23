@@ -41,7 +41,6 @@ interface PlanControllerArgs {
   persistDraft(): Promise<boolean>;
 }
 type PlannerRunData = Pick<PlannerResult, "schedule" | "summary">;
-
 /**
  * Checks whether a schedule contains at least one row.
  * @param rows Candidate schedule rows.
@@ -75,6 +74,7 @@ function resultFromData(data: PlannerRunData): PlannerResult {
  * @param root0.setLastResult Stores the latest planner result.
  * @param root0.getSessions Returns normalized reading sessions.
  * @param root0.getScheduleCompletions Returns completion state keyed by schedule row.
+ * @param root0.getBlockedDayBooks Returns manually blocked day-book keys.
  * @param root0.setScheduleCompletions Replaces completion state after schedule changes.
  * @param root0.renderCalendar Renders schedule rows into the calendar view.
  * @param root0.totalsFromSummary Converts summary data into calendar totals.

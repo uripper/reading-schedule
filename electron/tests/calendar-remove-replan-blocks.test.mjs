@@ -38,23 +38,28 @@ test("removeSessionRow blocks the same day-book pair from future replan merges",
     scheduleCompletions: {},
     blockedDayBooks: {},
   };
+  let updates = 0;
+  const markUpdated = () => {
+    updates += 1;
+  };
 
   const removed = removeSessionRow({
     row: removedRow,
-    onScheduleRowsUpdated: () => {},
-    queuePersist: () => {},
-    renderCalendar: () => {},
-    setBookScheduleRows: () => {},
+    onScheduleRowsUpdated: markUpdated,
+    queuePersist: markUpdated,
+    renderCalendar: markUpdated,
+    setBookScheduleRows: markUpdated,
     setLastResult: (result) => {
       state.lastResult = result;
     },
-    setStatus: () => {},
+    setStatus: markUpdated,
     state,
     totalsFromSummary: () => ({}),
   });
 
   assert.equal(removed, true);
   assert.equal(state.blockedDayBooks["2026-02-24|book-1"], true);
+  assert.ok(updates > 0);
 
   const replannedRows = [removedRow, keepRow];
   const merged = mergeScheduleRows([], replannedRows, [], state.blockedDayBooks);

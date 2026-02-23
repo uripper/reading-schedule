@@ -109,6 +109,7 @@ function rowsWithoutBlockedDayBooks(
  * @param previousRows Previous schedule rows.
  * @param nextRows Newly generated schedule rows.
  * @param sessions Recorded reading sessions used to infer locked days.
+ * @param blockedDayBooks Manually blocked day-book keys to exclude from replans.
  * @returns Sorted merged schedule rows with duplicate keys removed.
  */
 export function mergeScheduleRows(
