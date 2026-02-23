@@ -10,7 +10,7 @@ If a user removes a scheduled row for a specific day/book, replanning can add th
 
 Expected:
 
-Manual removal should optionally behave as a "do not schedule this book on this day" constraint for future replans.
+Manual removal should optionally behave as a "do not schedule this book on this day" constraint for future replans. Should be replaced by a different book if applicable, except on "Today" where it should be left blank.
 
 Definition of done:
 
