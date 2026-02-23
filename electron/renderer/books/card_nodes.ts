@@ -1,10 +1,16 @@
 import { bookCoverSrc } from "./model.js";
-import { metaLabel, progressLabel, subtitle, wordsLabel } from "./presenters.js";
+import {
+  metaLabel,
+  progressLabel,
+  subtitle,
+  wordsLabel,
+} from "./presenters.js";
 import { bindReadCardHolo } from "./card_holo.js";
 import { navigateToEstimatedFinishDate } from "./estimated_finish_navigation.js";
 import {
   BOOK_STATUS_IN_PROGRESS,
   BOOK_STATUS_READ,
+  BOOK_STATUS_TO_READ,
   statusLabel,
 } from "./status.js";
 import type { Book } from "./types.js";
@@ -44,7 +50,10 @@ function estimatedFinishDate(
   book: Book,
   finishDateByBookId: Record<string, string>,
 ): string | null {
-  if (book.status !== BOOK_STATUS_IN_PROGRESS) {
+  if (
+    book.status !== BOOK_STATUS_IN_PROGRESS &&
+    book.status !== BOOK_STATUS_TO_READ
+  ) {
     return null;
   }
   const finishDate = finishDateByBookId[book.book_id];
@@ -68,11 +77,16 @@ function estimatedFinishButton(
   button.type = "button";
   button.className = ESTIMATED_FINISH_BUTTON_CLASS;
   button.dataset.finishDate = dateKey;
-  button.setAttribute("aria-label", `Open schedule for estimated finish ${dateKey}`);
+  button.setAttribute(
+    "aria-label",
+    `Open schedule for estimated finish ${dateKey}`,
+  );
   button.title = "Open in schedule";
   button.textContent = `${ESTIMATED_FINISH_ICON} ${ESTIMATED_FINISH_LABEL} ${dateKey}`;
   button.onclick = () => {
-    navigateToEstimatedFinishDate(dateKey, context.onEstimatedFinishNavigate);
+    navigateToEstimatedFinishDate(dateKey, (nextDateKey) => {
+      context.onEstimatedFinishNavigate(nextDateKey);
+    });
   };
   return button;
 }
@@ -83,13 +97,16 @@ function estimatedFinishButton(
  * @param context Shared render context for cross-book metadata.
  * @returns Rendered book card element.
  */
-export function createCardNode(book: Book, context: CardRenderContext): HTMLElement {
+export function createCardNode(
+  book: Book,
+  context: CardRenderContext,
+): HTMLElement {
   const bookId = String(book.book_id || "");
   const title = String(book.title || "Untitled");
   const card = document.createElement("article");
   card.className = cardClassNameForStatus(book.status);
   card.dataset.bookId = bookId;
-  card.dataset.status = String(book.status || "");
+  card.dataset.status = String(book.status);
   const coverButton = document.createElement("button");
   coverButton.className = "book-cover-btn edit-book-btn";
   coverButton.dataset.bookId = bookId;
@@ -154,10 +171,15 @@ export function createCardNode(book: Book, context: CardRenderContext): HTMLElem
  * @param allBooks Full catalog books.
  * @returns Book id to title map.
  */
-export function titleByIdMap(books: Book[], allBooks: Book[]): Record<string, string> {
+export function titleByIdMap(
+  books: Book[],
+  allBooks: Book[],
+): Record<string, string> {
   let sourceBooks = books;
   if (allBooks.length) {
     sourceBooks = allBooks;
   }
-  return Object.fromEntries(sourceBooks.map((book) => [book.book_id, book.title]));
+  return Object.fromEntries(
+    sourceBooks.map((book) => [book.book_id, book.title]),
+  );
 }

@@ -1,12 +1,9 @@
 const DEFAULT_POINTER_PERCENT = "50%";
 const ACTIVE_HOLO = "1";
-const INACTIVE_HOLO = "0";
 const BG_SHIFT_FACTOR = 0.35;
 const PERCENT_SCALE = 100;
 const MIN_PERCENT = 0;
 const MAX_PERCENT = 100;
-
-const holoControllers = new Map<HTMLButtonElement, AbortController>();
 
 interface HoloPointerVars {
   pointerX: string;
@@ -53,7 +50,7 @@ function defaultVars(button: HTMLButtonElement): void {
   button.style.setProperty("--pointer-y", DEFAULT_POINTER_PERCENT);
   button.style.setProperty("--bg-shift-x", DEFAULT_POINTER_PERCENT);
   button.style.setProperty("--bg-shift-y", DEFAULT_POINTER_PERCENT);
-  button.style.setProperty("--holo-active", INACTIVE_HOLO);
+  button.style.removeProperty("--holo-active");
 }
 
 /**
@@ -95,96 +92,31 @@ export function holoVarsForPointer(
 }
 
 /**
- * Checks whether the device supports a fine primary pointer.
- * @returns `true` when pointer precision is fine.
- */
-function hasFinePointer(): boolean {
-  if (typeof globalThis.matchMedia !== "function") {
-    return false;
-  }
-  return globalThis.matchMedia("(pointer:fine)").matches;
-}
-
-/**
- * Aborts stale bindings for buttons that are no longer connected.
- */
-function pruneHoloBindings(): void {
-  holoControllers.forEach((controller, button) => {
-    if (button.isConnected) {
-      return;
-    }
-    controller.abort();
-    holoControllers.delete(button);
-  });
-}
-
-/**
- * Binds pointer listeners to a single read-cover button.
- * @param button Read-card cover button.
- */
-function bindHoloForButton(button: HTMLButtonElement): void {
-  if (holoControllers.has(button)) {
-    return;
-  }
-  const controller = new AbortController();
-  const { signal } = controller;
-  holoControllers.set(button, controller);
-  defaultVars(button);
-  const applyFromPointer = (event: PointerEvent): void => {
-    const vars = holoVarsForPointer(button.getBoundingClientRect(), event.clientX, event.clientY);
-    applyVars(button, vars);
-  };
-  button.addEventListener(
-    "pointerenter",
-    (event) => {
-      button.style.setProperty("--holo-active", ACTIVE_HOLO);
-      applyFromPointer(event);
-    },
-    { signal },
-  );
-  button.addEventListener(
-    "pointermove",
-    (event) => {
-      applyFromPointer(event);
-    },
-    { signal },
-  );
-  button.addEventListener(
-    "pointerleave",
-    () => {
-      defaultVars(button);
-    },
-    { signal },
-  );
-}
-
-/**
- * Clears active bindings and resets vars for provided buttons.
- * @param buttons Buttons to clear.
- */
-function clearBindingsForButtons(buttons: HTMLButtonElement[]): void {
-  buttons.forEach((button) => {
-    const existing = holoControllers.get(button);
-    if (!existing) {
-      return;
-    }
-    existing.abort();
-    holoControllers.delete(button);
-    defaultVars(button);
-  });
-}
-
-/**
- * Binds pointer-reactive holo behavior for read-card cover buttons.
- * @param button Read-card cover button with real cover artwork.
+ * Binds pointer-reactive holo behavior for a cover button.
+ * @param button Cover button with artwork.
  */
 export function bindReadCardHolo(button: HTMLButtonElement): void {
-  pruneHoloBindings();
-  const buttons = [button];
-  if (!hasFinePointer()) {
-    clearBindingsForButtons(buttons);
+  const activateFromPoint = (clientX: number, clientY: number): void => {
+    button.style.setProperty("--holo-active", ACTIVE_HOLO);
+    const vars = holoVarsForPointer(button.getBoundingClientRect(), clientX, clientY);
+    applyVars(button, vars);
+  };
+
+  const onPointerMove = (event: PointerEvent): void => {
+    activateFromPoint(event.clientX, event.clientY);
+  };
+  const onMouseMove = (event: MouseEvent): void => {
+    activateFromPoint(event.clientX, event.clientY);
+  };
+  const onLeave = (): void => {
     defaultVars(button);
-    return;
-  }
-  bindHoloForButton(button);
+  };
+
+  button.onpointerenter = onPointerMove;
+  button.onpointermove = onPointerMove;
+  button.onpointerleave = onLeave;
+  button.onmouseenter = onMouseMove;
+  button.onmousemove = onMouseMove;
+  button.onmouseleave = onLeave;
+  defaultVars(button);
 }
