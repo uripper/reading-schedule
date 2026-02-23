@@ -2,6 +2,7 @@
 @import "./styles/base.css";
 @import "./styles/settings.css";
 @import "./styles/calendar.css";
+@import "./styles/calendar-session-tidy.css";
 @import "./styles/books-grid.css";
 @import "./styles/books-effects.css";
 @import "./styles/stats.css";

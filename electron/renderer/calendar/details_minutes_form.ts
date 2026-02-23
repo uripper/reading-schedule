@@ -15,7 +15,7 @@ import {
 } from "./details_minutes_form_helpers.js";
 
 const EDIT_MINUTES_BUTTON_LABEL = "Edit planned minutes";
-const EDIT_MINUTES_BUTTON_ICON = "✎";
+const EDIT_MINUTES_BUTTON_TEXT = "Edit";
 
 /**
  * Builds the "planned minutes" editor for a day detail session row.
@@ -38,7 +38,7 @@ export function minutesFormForSession(
   const editButton = document.createElement("button");
   editButton.type = "button";
   editButton.className = "btn-minutes-edit";
-  editButton.textContent = EDIT_MINUTES_BUTTON_ICON;
+  editButton.textContent = EDIT_MINUTES_BUTTON_TEXT;
   editButton.setAttribute("aria-label", EDIT_MINUTES_BUTTON_LABEL);
   editButton.title = EDIT_MINUTES_BUTTON_LABEL;
   summaryRow.append(summaryValue, editButton);

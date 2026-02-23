@@ -1,7 +1,11 @@
 import { bookCoverSrc } from "./model.js";
 import { metaLabel, progressLabel, subtitle, wordsLabel } from "./presenters.js";
 import { navigateToEstimatedFinishDate } from "./estimated_finish_navigation.js";
-import { BOOK_STATUS_READ, isStatusSchedulable, statusLabel } from "./status.js";
+import {
+  BOOK_STATUS_IN_PROGRESS,
+  BOOK_STATUS_READ,
+  statusLabel,
+} from "./status.js";
 import type { Book } from "./types.js";
 
 export interface CardRenderContext {
@@ -15,6 +19,7 @@ const CARD_CLASS = "book-card";
 const READ_CARD_CLASS = "is-read-card";
 const ESTIMATED_FINISH_BUTTON_CLASS = "book-estimated-finish-btn";
 const ESTIMATED_FINISH_ICON = "🗓";
+const ESTIMATED_FINISH_LABEL = "Est. Finish";
 
 /**
  * Builds class-name text for a card based on book status.
@@ -38,7 +43,7 @@ function estimatedFinishDate(
   book: Book,
   finishDateByBookId: Record<string, string>,
 ): string | null {
-  if (!isStatusSchedulable(book.status)) {
+  if (book.status !== BOOK_STATUS_IN_PROGRESS) {
     return null;
   }
   const finishDate = finishDateByBookId[book.book_id];
@@ -64,7 +69,7 @@ function estimatedFinishButton(
   button.dataset.finishDate = dateKey;
   button.setAttribute("aria-label", `Open schedule for estimated finish ${dateKey}`);
   button.title = "Open in schedule";
-  button.textContent = `${ESTIMATED_FINISH_ICON} ${dateKey}`;
+  button.textContent = `${ESTIMATED_FINISH_ICON} ${ESTIMATED_FINISH_LABEL} ${dateKey}`;
   button.onclick = () => {
     navigateToEstimatedFinishDate(dateKey, context.onEstimatedFinishNavigate);
   };
@@ -90,6 +95,7 @@ export function createCardNode(book: Book, context: CardRenderContext): HTMLElem
   coverButton.type = "button";
   const cover = bookCoverSrc(book);
   if (cover) {
+    coverButton.classList.add("has-cover");
     const image = document.createElement("img");
     image.src = cover;
     image.alt = `Cover of ${title}`;
@@ -124,17 +130,16 @@ export function createCardNode(book: Book, context: CardRenderContext): HTMLElem
   });
   const actions = document.createElement("div");
   actions.className = "book-actions";
+  if (finishDate !== null) {
+    actions.append(estimatedFinishButton(finishDate, context));
+  }
   const removeBtn = document.createElement("button");
   removeBtn.className = "btn rm-btn remove-book-btn";
   removeBtn.type = "button";
   removeBtn.dataset.bookId = bookId;
   removeBtn.textContent = "Remove";
   actions.append(removeBtn);
-  meta.append(heading, status);
-  if (finishDate !== null) {
-    meta.append(estimatedFinishButton(finishDate, context));
-  }
-  meta.append(sub, stats, actions);
+  meta.append(heading, status, sub, stats, actions);
   card.append(coverButton, meta);
   return card;
 }

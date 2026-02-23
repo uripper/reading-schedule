@@ -154,13 +154,19 @@
 .book-actions {
   margin-top: var(--token-space-1);
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: var(--token-space-1);
+  justify-content: flex-start;
 }
 
 .book-actions .btn {
   min-height: var(--token-size-target-minimum);
   padding: var(--token-space-1) var(--token-space-2);
   font-size: var(--token-typography-size-xs);
+}
+
+.book-actions .rm-btn {
+  margin-left: auto;
 }
 
 .rm-btn {

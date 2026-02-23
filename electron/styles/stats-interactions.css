@@ -1,5 +1,5 @@
 .stats-section-heading {
-  font-size: var(--token-typography-size-md);
+  font-size: clamp(1.45rem, 2vw, 1.8rem);
 }
 
 .month-bar-track {
@@ -13,12 +13,13 @@
 
 .month-bar-value {
   position: absolute;
-  top: 8px;
+  top: 10px;
   left: 50%;
   transform: translate(-50%, -6px);
   opacity: 0;
   pointer-events: none;
-  font-size: var(--token-typography-size-xs);
+  font-size: var(--token-typography-size-sm);
+  font-weight: var(--token-typography-weight-semibold);
   color: var(--app-text);
   transition:
     opacity var(--token-motion-duration-fast) var(--token-motion-easing-standard),
