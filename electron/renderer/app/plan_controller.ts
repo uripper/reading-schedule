@@ -89,7 +89,7 @@ function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
     state,
     scheduleAutoPlan,
   } = root0;
-  return async (): Promise<void> => {
+  const runAutoPlan = async (): Promise<void> => {
       if (state.autoRunInFlight) {
         state.autoRunPending = true;
         return;
@@ -132,6 +132,7 @@ function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
         }
       }
     };
+  return runAutoPlan;
 }
 
 /**

@@ -17,8 +17,8 @@ type ScheduleMutationHandlers = Pick<
 interface SharedScheduleBindings {
   collectSettings: AppCalendarInteractionArgs["collectSettings"];
   getBookById: AppCalendarInteractionArgs["getBookById"];
-  onScheduleRowsUpdated(): void;
-  queuePersist(): void;
+  onScheduleRowsUpdated(this: void): void;
+  queuePersist(this: void): void;
   renderCalendar: AppCalendarInteractionArgs["renderCalendar"];
   setBookScheduleRows: AppCalendarInteractionArgs["setBookScheduleRows"];
   setLastResult: AppCalendarInteractionArgs["setLastResult"];

@@ -9,11 +9,7 @@ import {
   type CompletionUpdate,
   type ProgressUpdateInput,
 } from "./calendar_interactions_helpers.js";
-import {
-  addManualSessionRow,
-  removeSessionRow,
-  updateSessionRowMinutes,
-} from "./calendar_interactions_schedule_updates.js";
+import { buildScheduleMutationHandlers } from "./calendar_interactions_schedule_handlers.js";
 import type { AppCalendarInteractionArgs } from "./calendar_interactions_types.js";
 
 type CalendarInteractionHandlers = Parameters<
@@ -149,105 +145,16 @@ const handleProgressUpdated = (
 const buildCalendarHandlers = (
   args: AppCalendarInteractionArgs,
 ): CalendarInteractionHandlers => {
-  const state = args.state;
-  const onScheduleRowsUpdated = (): void => {
-    if (args.onScheduleRowsUpdated !== undefined) {
-      args.onScheduleRowsUpdated();
-    }
-  };
-  const collectSettings = (): ReturnType<AppCalendarInteractionArgs["collectSettings"]> => {
-    return args.collectSettings();
-  };
-  const getBookById = (
-    bookId: string,
-  ): ReturnType<AppCalendarInteractionArgs["getBookById"]> => {
-    return args.getBookById(bookId);
-  };
-  const queuePersist = (): void => {
-    args.queuePersist();
-  };
-  const renderCalendar = (
-    rows: Parameters<AppCalendarInteractionArgs["renderCalendar"]>[0],
-    totals: Parameters<AppCalendarInteractionArgs["renderCalendar"]>[1],
-  ): void => {
-    args.renderCalendar(rows, totals);
-  };
-  const setBookScheduleRows = (
-    rows: Parameters<AppCalendarInteractionArgs["setBookScheduleRows"]>[0],
-  ): void => {
-    args.setBookScheduleRows(rows);
-  };
-  const setLastResult = (
-    result: Parameters<AppCalendarInteractionArgs["setLastResult"]>[0],
-  ): void => {
-    args.setLastResult(result);
-  };
-  const setStatus = (
-    message: string,
-    isError?: boolean,
-  ): void => {
-    args.setStatus(message, isError);
-  };
-  const totalsFromSummary = (
-    summary: Parameters<AppCalendarInteractionArgs["totalsFromSummary"]>[0],
-  ): ReturnType<AppCalendarInteractionArgs["totalsFromSummary"]> => {
-    return args.totalsFromSummary(summary);
-  };
+  const scheduleMutationHandlers = buildScheduleMutationHandlers(args);
   return {
-    isSessionCompleted: (sessionKey) => isCompleted(state.scheduleCompletions, sessionKey),
+    isSessionCompleted: (sessionKey) => isCompleted(args.state.scheduleCompletions, sessionKey),
     onSessionCompletionChanged: (payload) => {
       handleCompletionChanged(args, payload);
     },
     onSessionProgressUpdated: (payload) => handleProgressUpdated(args, payload),
-    getBookById,
+    getBookById: (bookId) => args.getBookById(bookId),
     listSessionBooks: () => manualSessionBooks(args.collectAllBooks()),
-    onManualSessionAdded: ({ date, bookId, minutes, completed = false }) => {
-      return addManualSessionRow({
-        bookId,
-        collectSettings,
-        completed,
-        date,
-        getBookById,
-        minutes,
-        onScheduleRowsUpdated,
-        queuePersist,
-        renderCalendar,
-        setBookScheduleRows,
-        setLastResult,
-        setStatus,
-        state,
-        totalsFromSummary,
-      });
-    },
-    onSessionMinutesUpdated: ({ minutes, row }) => {
-      return updateSessionRowMinutes({
-        collectSettings,
-        getBookById,
-        minutes,
-        onScheduleRowsUpdated,
-        queuePersist,
-        renderCalendar,
-        row,
-        setBookScheduleRows,
-        setLastResult,
-        setStatus,
-        state,
-        totalsFromSummary,
-      });
-    },
-    onSessionRemoved: ({ row }) => {
-      return removeSessionRow({
-        onScheduleRowsUpdated,
-        queuePersist,
-        renderCalendar,
-        row,
-        setBookScheduleRows,
-        setLastResult,
-        setStatus,
-        state,
-        totalsFromSummary,
-      });
-    },
+    ...scheduleMutationHandlers,
   };
 };
 
