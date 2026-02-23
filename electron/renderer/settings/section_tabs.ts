@@ -7,16 +7,17 @@ const DEFAULT_SETTINGS_SECTION = "plan-budget";
  * @param nextSection Section id to activate.
  */
 function activateSettingsSection(nextSection: string): void {
-  const section = String(nextSection || DEFAULT_SETTINGS_SECTION);
-  qa<HTMLElement>("[data-settings-section]").forEach((card) => {
-    const active = card.dataset.settingsSection === section;
-    card.hidden = !active;
+  const section = String(nextSection);
+  for (const card of qa<HTMLElement>("[data-settings-section]")) {
+    const nextCard = card;
+    const active = nextCard.dataset.settingsSection === section;
+    nextCard.hidden = !active;
     if (active) {
-      card.style.display = "grid";
+      nextCard.style.display = "grid";
     } else {
-      card.style.display = "none";
+      nextCard.style.display = "none";
     }
-  });
+  }
   qa<HTMLElement>(".settings-section-tab").forEach((button) => {
     const active = button.dataset.settingsSectionTarget === section;
     button.classList.toggle("is-active", active);
@@ -35,9 +36,12 @@ export function bindSettingsSectionTabs(): void {
   const tabs = qa<HTMLElement>(".settings-section-tab");
   tabs.forEach((button) => {
     button.addEventListener("click", () => {
-      activateSettingsSection(
-        String(button.dataset.settingsSectionTarget || DEFAULT_SETTINGS_SECTION),
-      );
+      const section = button.dataset.settingsSectionTarget;
+      if (typeof section === "string" && section.length > 0) {
+        activateSettingsSection(section);
+        return;
+      }
+      activateSettingsSection(DEFAULT_SETTINGS_SECTION);
     });
   });
   activateSettingsSection(DEFAULT_SETTINGS_SECTION);
