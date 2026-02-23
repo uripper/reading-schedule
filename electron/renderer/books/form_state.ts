@@ -30,6 +30,26 @@ interface LookupControl {
 }
 
 /**
+ * Applies a positive lookup estimate to an input only when current value is missing.
+ * @param input Target numeric input to update.
+ * @param estimate Lookup-provided numeric estimate.
+ */
+function applyEstimateWhenMissing(
+  input: HTMLInputElement,
+  estimate: number | undefined,
+): void {
+  const targetInput = input;
+  const currentValue = toOptionalInt(targetInput.value);
+  if (typeof currentValue === "number" && currentValue > 0) {
+    return;
+  }
+  if (typeof estimate !== "number" || estimate <= 0) {
+    return;
+  }
+  targetInput.value = String(estimate);
+}
+
+/**
  * Synchronizes finished-date field visibility after status changes.
  * @param refs Book form references containing status and date controls.
  */
@@ -46,25 +66,26 @@ export function clearForm(
   refs: BookFormRefs,
   lookupControl: LookupControl,
 ): void {
-  refs.form.reset();
-  refs.bookId.value = "";
-  refs.coverUrl.value = "";
-  refs.coverLocal.value = "";
-  refs.coverUploadInput.value = "";
-  refs.author.value = "";
-  refs.lookupMeta.dataset.lookupNote = "";
-  refs.lookupMeta.textContent = "";
-  refs.progressInput.value = DEFAULT_PROGRESS;
-  refs.priorityInput.value = DEFAULT_PRIORITY;
-  refs.difficultyInput.value = DEFAULT_DIFFICULTY;
-  refs.minBlocksInput.value = DEFAULT_MIN_BLOCKS;
-  refs.afterBookInput.value = "";
-  refs.blockedByInput.value = "";
-  refs.statusSelectInput.value = DEFAULT_STATUS;
-  refs.finishedAtInput.value = "";
-  syncFinishedAtFieldState(refs);
-  refs.shelfSelectInput.value = "";
-  setCoverPreview(refs, "");
+  const formRefs = refs;
+  formRefs.form.reset();
+  formRefs.bookId.value = "";
+  formRefs.coverUrl.value = "";
+  formRefs.coverLocal.value = "";
+  formRefs.coverUploadInput.value = "";
+  formRefs.author.value = "";
+  formRefs.lookupMeta.dataset.lookupNote = "";
+  formRefs.lookupMeta.textContent = "";
+  formRefs.progressInput.value = DEFAULT_PROGRESS;
+  formRefs.priorityInput.value = DEFAULT_PRIORITY;
+  formRefs.difficultyInput.value = DEFAULT_DIFFICULTY;
+  formRefs.minBlocksInput.value = DEFAULT_MIN_BLOCKS;
+  formRefs.afterBookInput.value = "";
+  formRefs.blockedByInput.value = "";
+  formRefs.statusSelectInput.value = DEFAULT_STATUS;
+  formRefs.finishedAtInput.value = "";
+  syncFinishedAtFieldState(formRefs);
+  formRefs.shelfSelectInput.value = "";
+  setCoverPreview(formRefs, "");
   lookupControl.clearResults();
 }
 
@@ -74,40 +95,41 @@ export function clearForm(
  * @param book Existing book record being edited.
  */
 export function fillForm(refs: BookFormRefs, book: Book): void {
-  refs.bookId.value = book.book_id;
-  refs.titleInput.value = fallbackText(book.title);
-  setOptionalIntegerInputValue(refs.wordsInput, book.words_total);
-  setOptionalIntegerInputValue(refs.pagesTotalInput, book.pages_total);
-  setOptionalIntegerInputValue(refs.pagesReadInput, book.pages_read);
-  refs.progressInput.value = fallbackNumberText(
+  const formRefs = refs;
+  formRefs.bookId.value = book.book_id;
+  formRefs.titleInput.value = fallbackText(book.title);
+  setOptionalIntegerInputValue(formRefs.wordsInput, book.words_total);
+  setOptionalIntegerInputValue(formRefs.pagesTotalInput, book.pages_total);
+  setOptionalIntegerInputValue(formRefs.pagesReadInput, book.pages_read);
+  formRefs.progressInput.value = fallbackNumberText(
     book.progress_percent,
     DEFAULT_PROGRESS,
   );
-  refs.priorityInput.value = fallbackNumberText(
+  formRefs.priorityInput.value = fallbackNumberText(
     book.priority,
     DEFAULT_PRIORITY,
   );
-  refs.difficultyInput.value = fallbackNumberText(
+  formRefs.difficultyInput.value = fallbackNumberText(
     book.difficulty,
     DEFAULT_DIFFICULTY,
   );
-  refs.minBlocksInput.value = fallbackNumberText(
+  formRefs.minBlocksInput.value = fallbackNumberText(
     book.min_blocks_per_session,
     DEFAULT_MIN_BLOCKS,
   );
-  setOptionalIntegerInputValue(refs.maxMinutesInput, book.max_minutes_per_day);
-  refs.deadlineInput.value = fallbackText(book.deadline);
-  refs.blockedByInput.value = fallbackText(book.blocked_by);
-  refs.statusSelectInput.value = fallbackText(book.status, DEFAULT_STATUS);
-  refs.finishedAtInput.value = fallbackText(book.finished_at);
-  syncFinishedAtFieldState(refs);
-  refs.coverUrl.value = fallbackText(book.cover_url);
-  refs.coverLocal.value = fallbackText(book.cover_local_path);
-  refs.author.value = fallbackText(book.author);
-  refs.lookupMeta.dataset.lookupNote = fallbackText(book.lookup_note);
-  refs.lookupMeta.textContent = fallbackText(book.lookup_note);
-  refs.searchInput.value = fallbackText(book.title);
-  setCoverPreview(refs, bookCoverSrc(book));
+  setOptionalIntegerInputValue(formRefs.maxMinutesInput, book.max_minutes_per_day);
+  formRefs.deadlineInput.value = fallbackText(book.deadline);
+  formRefs.blockedByInput.value = fallbackText(book.blocked_by);
+  formRefs.statusSelectInput.value = fallbackText(book.status, DEFAULT_STATUS);
+  formRefs.finishedAtInput.value = fallbackText(book.finished_at);
+  syncFinishedAtFieldState(formRefs);
+  formRefs.coverUrl.value = fallbackText(book.cover_url);
+  formRefs.coverLocal.value = fallbackText(book.cover_local_path);
+  formRefs.author.value = fallbackText(book.author);
+  formRefs.lookupMeta.dataset.lookupNote = fallbackText(book.lookup_note);
+  formRefs.lookupMeta.textContent = fallbackText(book.lookup_note);
+  formRefs.searchInput.value = fallbackText(book.title);
+  setCoverPreview(formRefs, bookCoverSrc(book));
 }
 
 /**
@@ -124,7 +146,7 @@ export function parseFormBook(refs: BookFormRefs): Book {
 
   if (status === BOOK_STATUS_READ) {
     progress = 100;
-    if (parsed.pagesTotal) {
+    if (typeof parsed.pagesTotal === "number" && parsed.pagesTotal > 0) {
       pagesRead = parsed.pagesTotal;
     }
   }
@@ -163,27 +185,25 @@ export function applyLookupItem(
   refs: BookFormRefs,
   item: BookLookupItem,
 ): void {
-  refs.titleInput.value = item.title ?? refs.titleInput.value;
-  refs.searchInput.value = item.title ?? refs.searchInput.value;
-  refs.author.value = item.author ?? refs.author.value;
-  refs.coverUrl.value = item.cover_url ?? "";
-  refs.coverLocal.value = "";
+  const formRefs = refs;
+  formRefs.titleInput.value = item.title ?? formRefs.titleInput.value;
+  formRefs.searchInput.value = item.title ?? formRefs.searchInput.value;
+  formRefs.author.value = item.author ?? formRefs.author.value;
+  formRefs.coverUrl.value = item.cover_url ?? "";
+  formRefs.coverLocal.value = "";
 
-  if (!toOptionalInt(refs.wordsInput.value) && item.words_estimate) {
-    refs.wordsInput.value = String(item.words_estimate);
-  }
-  if (!toOptionalInt(refs.pagesTotalInput.value) && item.pages_estimate) {
-    refs.pagesTotalInput.value = String(item.pages_estimate);
-  }
+  applyEstimateWhenMissing(formRefs.wordsInput, item.words_estimate);
+  applyEstimateWhenMissing(formRefs.pagesTotalInput, item.pages_estimate);
 
-  refs.lookupMeta.dataset.lookupNote = noteFromLookup(item);
-  refs.lookupMeta.textContent = noteFromLookup(item);
-  setCoverPreview(refs, item.cover_url ?? "");
+  const lookupNote = noteFromLookup(item);
+  formRefs.lookupMeta.dataset.lookupNote = lookupNote;
+  formRefs.lookupMeta.textContent = lookupNote;
+  setCoverPreview(formRefs, item.cover_url ?? "");
 
   const progressSyncRefs: ProgressSyncInputs = {
-    pagesTotalInput: refs.pagesTotalInput,
-    pagesReadInput: refs.pagesReadInput,
-    progressInput: refs.progressInput,
+    pagesTotalInput: formRefs.pagesTotalInput,
+    pagesReadInput: formRefs.pagesReadInput,
+    progressInput: formRefs.progressInput,
   };
   syncProgressAndPages(progressSyncRefs, "pages");
 }
@@ -199,20 +219,21 @@ export function applyUploadedCover(
   localCoverPath: string,
   fileName = "",
 ): void {
-  const normalizedPath = String(localCoverPath || "").trim();
+  const formRefs = refs;
+  const normalizedPath = String(localCoverPath).trim();
   if (!normalizedPath) {
     throw new Error("Could not save the uploaded cover.");
   }
-  refs.coverLocal.value = normalizedPath;
-  refs.coverUrl.value = "";
+  formRefs.coverLocal.value = normalizedPath;
+  formRefs.coverUrl.value = "";
 
   let note = CUSTOM_COVER_NOTE;
-  const normalizedFileName = String(fileName || "").trim();
+  const normalizedFileName = String(fileName).trim();
   if (normalizedFileName) {
     note = `${CUSTOM_COVER_NOTE} ${normalizedFileName}`;
   }
 
-  refs.lookupMeta.dataset.lookupNote = note;
-  refs.lookupMeta.textContent = note;
-  setCoverPreview(refs, normalizedPath);
+  formRefs.lookupMeta.dataset.lookupNote = note;
+  formRefs.lookupMeta.textContent = note;
+  setCoverPreview(formRefs, normalizedPath);
 }

@@ -24,7 +24,7 @@ function withDefaultNumber(value: number | undefined, fallback: number): number 
  * @returns Original text when truthy; otherwise empty string.
  */
 function withDefaultString(value: string | null | undefined): string {
-  if (value) {
+  if (value !== null && value !== undefined && value !== "") {
     return value;
   }
   return "";
@@ -36,7 +36,7 @@ function withDefaultString(value: string | null | undefined): string {
  * @returns Original text when truthy; otherwise `null`.
  */
 function withNullableString(value: string | null | undefined): string | null {
-  if (value) {
+  if (value !== null && value !== undefined && value !== "") {
     return value;
   }
   return null;

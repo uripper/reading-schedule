@@ -12,6 +12,7 @@ import { createAfterBookPicker } from "./after_book_picker.js";
 import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.js";
 import { bindCoverUpload } from "./cover_upload.js";
 import { bindBookDialogProgressSync } from "./dialog_progress_sync.js";
+import type { BookDialogController } from "./controller_types.js";
 import type { Book } from "./types.js";
 
 interface BookDialogOptions {
@@ -26,28 +27,33 @@ export interface OpenDialogOptions {
  * Updates the save button state while a dialog submission is in progress.
  * @param refs Resolved DOM references for the book dialog.
  * @param busy True while the save action is running.
- * @returns Nothing.
  */
 function setSavingState(refs: BookFormRefs, busy: boolean): void {
-  refs.saveBtn.disabled = busy;
-  refs.saveBtn.textContent = "Save Book";
+  const saveButton = refs.saveBtn;
+  saveButton.disabled = busy;
+  saveButton.textContent = "Save Book";
   if (busy) {
-    refs.saveBtn.textContent = "Saving...";
+    saveButton.textContent = "Saving...";
   }
-  return undefined;
 }
 
 /**
  * Creates the add/edit book dialog controller and binds its form behavior.
  * @param onSubmit Callback invoked with the parsed form payload on submit.
- * @param root0 Optional dialog dependencies.
- * @param root0.getBooks Returns current books for shelf and related UI helpers.
+ * @param options Optional dialog dependencies.
+ * @param options.getBooks Returns current books for shelf and related UI helpers.
  * @returns Dialog API exposing the `open` function.
  */
 export function createBookDialog(
   onSubmit: (book: Book) => Promise<void> | void,
-  { getBooks = () => [] }: BookDialogOptions = {},
-) {
+  options: BookDialogOptions = {},
+): BookDialogController {
+  const getBooks = (): Book[] => {
+    if (options.getBooks !== undefined) {
+      return options.getBooks();
+    }
+    return [];
+  };
   ensureBookFormLayoutFields();
   const refs = getBookFormRefs();
   bindShelfPicker(refs);
@@ -65,15 +71,18 @@ export function createBookDialog(
     },
   });
 
-  const close = () => {
+  const close = (): void => {
     dialogFocus.closeAndReturnFocus();
   };
-  const open = (book: Book | null = null, options: OpenDialogOptions = {}) => {
+  const open = (
+    book: Book | null = null,
+    dialogOptions: OpenDialogOptions = {},
+  ): void => {
     dialogFocus.rememberOpener();
     clearForm(refs, lookupControl);
     afterBookPicker.openForBook(book);
-    let selectedShelf = String(options.defaultShelf ?? "").trim();
-    if (book?.shelf) {
+    let selectedShelf = String(dialogOptions.defaultShelf ?? "").trim();
+    if (book !== null && book.shelf !== "") {
       selectedShelf = book.shelf;
     }
     renderShelfPicker(refs, getBooks(), selectedShelf);
@@ -86,27 +95,29 @@ export function createBookDialog(
     dialogFocus.focusInitialTarget();
   };
 
-  refs.form.addEventListener("submit", async (event) => {
+  refs.form.addEventListener("submit", (event) => {
     event.preventDefault();
-    try {
-      setSavingState(refs, true);
-      await onSubmit(parseFormBook(refs));
-      close();
-    } catch (error) {
-      let message = "Could not save this book.";
-      if (error instanceof Error && error.message) {
-        message = error.message;
-      }
-      refs.lookupMeta.textContent = message;
-      if (!focusFirstError(refs.form)) {
-        refs.titleInput.focus();
-      }
-    } finally {
-      setSavingState(refs, false);
-    }
+    setSavingState(refs, true);
+    Promise.resolve(onSubmit(parseFormBook(refs)))
+      .then(() => {
+        close();
+      })
+      .catch((error: unknown) => {
+        let message = "Could not save this book.";
+        if (error instanceof Error && error.message) {
+          message = error.message;
+        }
+        refs.lookupMeta.textContent = message;
+        if (!focusFirstError(refs.form)) {
+          refs.titleInput.focus();
+        }
+      })
+      .finally(() => {
+        setSavingState(refs, false);
+      });
   });
 
-  refs.cancelBtn.onclick = () => {
+  refs.cancelBtn.onclick = (): void => {
     close();
   };
   refs.dialog.addEventListener("cancel", (event) => {

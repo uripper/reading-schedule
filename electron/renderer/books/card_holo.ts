@@ -96,10 +96,15 @@ export function holoVarsForPointer(
  * @param button Cover button with artwork.
  */
 export function bindReadCardHolo(button: HTMLButtonElement): void {
+  const targetButton = button;
   const activateFromPoint = (clientX: number, clientY: number): void => {
-    button.style.setProperty("--holo-active", ACTIVE_HOLO);
-    const vars = holoVarsForPointer(button.getBoundingClientRect(), clientX, clientY);
-    applyVars(button, vars);
+    targetButton.style.setProperty("--holo-active", ACTIVE_HOLO);
+    const vars = holoVarsForPointer(
+      targetButton.getBoundingClientRect(),
+      clientX,
+      clientY,
+    );
+    applyVars(targetButton, vars);
   };
 
   const onPointerMove = (event: PointerEvent): void => {
@@ -109,14 +114,14 @@ export function bindReadCardHolo(button: HTMLButtonElement): void {
     activateFromPoint(event.clientX, event.clientY);
   };
   const onLeave = (): void => {
-    defaultVars(button);
+    defaultVars(targetButton);
   };
 
-  button.onpointerenter = onPointerMove;
-  button.onpointermove = onPointerMove;
-  button.onpointerleave = onLeave;
-  button.onmouseenter = onMouseMove;
-  button.onmousemove = onMouseMove;
-  button.onmouseleave = onLeave;
-  defaultVars(button);
+  targetButton.onpointerenter = onPointerMove;
+  targetButton.onpointermove = onPointerMove;
+  targetButton.onpointerleave = onLeave;
+  targetButton.onmouseenter = onMouseMove;
+  targetButton.onmousemove = onMouseMove;
+  targetButton.onmouseleave = onLeave;
+  defaultVars(targetButton);
 }

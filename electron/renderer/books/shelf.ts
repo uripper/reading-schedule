@@ -61,7 +61,7 @@ export function uniqueShelves(
 ): string[] {
   const shelfSet = new Set<string>();
   books.forEach((book) => {
-    const shelf = normalizeShelfName(book?.shelf);
+    const shelf = normalizeShelfName(book.shelf);
     if (!shelf) {
       return;
     }

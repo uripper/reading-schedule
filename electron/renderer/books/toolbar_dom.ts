@@ -1,6 +1,19 @@
 import { GROUP_OPTIONS_BASE, SORT_OPTIONS, type OptionDefinition } from "./toolbar_options.js";
 
 /**
+ * Creates a standard `<option>` element.
+ * @param value Option value attribute.
+ * @param label Visible option label text.
+ * @returns Configured option node.
+ */
+function createOptionNode(value: string, label: string): HTMLOptionElement {
+  const option = document.createElement("option");
+  option.value = value;
+  option.textContent = label;
+  return option;
+}
+
+/**
  * Creates a labeled toolbar `<select>` control from option definitions.
  * @param labelText Visible label text.
  * @param selectId DOM id assigned to select element.
@@ -19,7 +32,7 @@ function createLabeledSelect(
   select.id = selectId;
   select.className = "books-control-select";
   options.forEach((option) => {
-    select.append(createOption(option.value, option.label));
+    select.append(createOptionNode(option.value, option.label));
   });
   label.append(select);
   return { label, select };
@@ -48,10 +61,7 @@ function createControlsWrap(toolbar: HTMLElement): HTMLElement {
  * @returns Configured option node.
  */
 export function createOption(value: string, label: string): HTMLOptionElement {
-  const option = document.createElement("option");
-  option.value = value;
-  option.textContent = label;
-  return option;
+  return createOptionNode(value, label);
 }
 
 /**

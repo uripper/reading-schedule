@@ -52,7 +52,7 @@ function appendChunk(target: string, chunk: Buffer | string): string {
 function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
   try {
     const parsed = JSON.parse(stdout || "{}") as BridgeResponse;
-    if (!parsed.ok) {
+    if (parsed.ok !== true) {
       throw new Error((parsed.error ?? stderr) || "Planner failed");
     }
     if (parsed.data === undefined) {
@@ -90,7 +90,11 @@ export async function runBridge(args: string[], payload?: JsonValue): Promise<Js
       try {
         resolve(parseBridgeOutput(stdout, stderr));
       } catch (error) {
-        reject(error);
+        if (error instanceof Error) {
+          reject(error);
+          return;
+        }
+        reject(new Error(String(error)));
       }
     });
     if (payload !== undefined) {

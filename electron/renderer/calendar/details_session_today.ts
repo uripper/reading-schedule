@@ -30,15 +30,21 @@ export function buildTodaySessionItem(
   interactionHandlers: DetailInteractionHandlers,
   rerenderDetails: () => void,
 ): HTMLElement {
+  const isSessionCompleted = (session: string): boolean => {
+    return interactionHandlers.isSessionCompleted(session);
+  };
+  const getBookById = (
+    bookId: string,
+  ): ReturnType<DetailInteractionHandlers["getBookById"]> => {
+    return interactionHandlers.getBookById(bookId);
+  };
   const item = baseSessionItem(row);
   const sessionKey = sessionKeyFor(row);
   const completeLabel = document.createElement("label");
   completeLabel.className = "day-complete-toggle";
   const completeInput = document.createElement("input");
   completeInput.type = "checkbox";
-  completeInput.checked = Boolean(
-    interactionHandlers.isSessionCompleted(sessionKey),
-  );
+  completeInput.checked = Boolean(isSessionCompleted(sessionKey));
   completeLabel.append(completeInput, COMPLETE_TOGGLE_LABEL);
   item.classList.toggle(COMPLETE_ITEM_CLASS, completeInput.checked);
   completeInput.onchange = () => {
@@ -51,7 +57,7 @@ export function buildTodaySessionItem(
     });
     rerenderDetails();
   };
-  const markCompleteFromProgressUpdate = () => {
+  const markCompleteFromProgressUpdate = (): void => {
     if (completeInput.checked) {
       return;
     }
@@ -69,28 +75,11 @@ export function buildTodaySessionItem(
   estimate.textContent = estimateProgressLabel(
     row,
     state,
-    interactionHandlers.getBookById,
-    interactionHandlers.isSessionCompleted,
+    getBookById,
+    isSessionCompleted,
   );
-  const includeEstimate = !interactionHandlers.isSessionCompleted(sessionKey);
-  const book = interactionHandlers.getBookById(row.book_id);
-  if (!book) {
-    item.append(completeLabel);
-    item.append(minutesFormForSession(row, interactionHandlers, rerenderDetails));
-    item.append(
-      progressFormForToday(
-        row,
-        fallbackBookForRow(row),
-        interactionHandlers,
-        markCompleteFromProgressUpdate,
-      ),
-    );
-    if (includeEstimate) {
-      item.append(estimate);
-    }
-    item.append(removeSessionButton(row, interactionHandlers, rerenderDetails));
-    return item;
-  }
+  const includeEstimate = !isSessionCompleted(sessionKey);
+  const book = getBookById(row.book_id) ?? fallbackBookForRow(row);
   item.append(completeLabel);
   item.append(minutesFormForSession(row, interactionHandlers, rerenderDetails));
   item.append(

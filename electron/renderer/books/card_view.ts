@@ -19,47 +19,50 @@ interface RenderBookGridOptions {
 
 /**
  * Renders book cards (grouped or flat) and wires edit/remove handlers.
- * @param root0 Render options and callbacks.
- * @param root0.grid Card grid container element.
- * @param root0.empty Empty-state element.
- * @param root0.books Books to render.
- * @param root0.groups Optional grouped book structure.
- * @param root0.allBooks Optional full book catalog for metadata lookup.
- * @param root0.finishDateByBookId Optional finish-date lookup.
- * @param root0.onEstimatedFinishNavigate
- * @param root0.showShelfMeta Whether shelf metadata should be displayed.
- * @param root0.onEdit Edit callback for a book id.
- * @param root0.onRemove Remove callback for a book id.
+ * @param args Render options and callbacks.
+ * @param args.grid Card grid container element.
+ * @param args.empty Empty-state element.
+ * @param args.books Books to render.
+ * @param args.groups Optional grouped book structure.
+ * @param args.allBooks Optional full book catalog for metadata lookup.
+ * @param args.finishDateByBookId Optional finish-date lookup.
+ * @param args.onEstimatedFinishNavigate Navigates to the selected finish date.
+ * @param args.showShelfMeta Whether shelf metadata should be displayed.
+ * @param args.onEdit Edit callback for a book id.
+ * @param args.onRemove Remove callback for a book id.
  */
-export function renderBookGrid({
-  grid,
-  empty,
-  books,
-  groups = [],
-  allBooks = [],
-  finishDateByBookId = {},
-  onEstimatedFinishNavigate,
-  showShelfMeta = true,
-  onEdit,
-  onRemove,
-}: RenderBookGridOptions): void {
+export function renderBookGrid(args: RenderBookGridOptions): void {
+  const groups = args.groups ?? [];
+  const allBooks = args.allBooks ?? [];
+  const finishDateByBookId = args.finishDateByBookId ?? {};
+  const showShelfMeta = args.showShelfMeta ?? true;
+  const onEstimatedFinishNavigate = (dateKey: string): void => {
+    args.onEstimatedFinishNavigate(dateKey);
+  };
+  const onEdit = (bookId: string): void => {
+    args.onEdit(bookId);
+  };
+  const onRemove = (bookId: string): void => {
+    args.onRemove(bookId);
+  };
   const context = {
     finishDateByBookId,
     onEstimatedFinishNavigate,
     showShelfMeta,
-    titleById: titleByIdMap(books, allBooks),
+    titleById: titleByIdMap(args.books, allBooks),
   };
 
   if (groups.length) {
-    renderGroupedBooks(grid, groups, context);
+    renderGroupedBooks(args.grid, groups, context);
   } else {
-    renderFlatBooks(grid, books, context);
+    renderFlatBooks(args.grid, args.books, context);
   }
 
-  empty.style.display = "block";
-  if (books.length) {
-    empty.style.display = "none";
+  const emptyState = args.empty;
+  emptyState.style.display = "block";
+  if (args.books.length) {
+    emptyState.style.display = "none";
   }
 
-  bindCardEvents(grid, { onEdit, onRemove });
+  bindCardEvents(args.grid, { onEdit, onRemove });
 }

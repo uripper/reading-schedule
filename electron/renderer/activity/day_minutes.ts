@@ -117,8 +117,7 @@ export function streakFromDayMinutes(
   let streakDays = ZERO_MINUTES;
   const cursor = new Date();
 
-  // while (true) is intended, eslint is hallucinating here.
-  while (true) {
+  for (;;) {
     const dayKey = isoLocalDayKey(cursor.toISOString());
     const minutes = dayMinutesForKey(dayMinutes, dayKey);
     if (minutes < goalMinutes) {

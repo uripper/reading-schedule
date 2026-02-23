@@ -3,12 +3,12 @@ import assert from "node:assert/strict";
 
 import { submitRecommendationToShelf } from "../dist/renderer/recommendations/add_to_shelf.js";
 
-test("submitRecommendationToShelf fills form values and submits once", () => {
-  let submitCount = 0;
+test("submitRecommendationToShelf fills form values and focuses shelf picker", () => {
+  let focusCount = 0;
   const target = {
-    form: {
-      requestSubmit() {
-        submitCount += 1;
+    shelfInput: {
+      focus() {
+        focusCount += 1;
       },
     },
     titleInput: { value: "" },
@@ -19,11 +19,12 @@ test("submitRecommendationToShelf fills form values and submits once", () => {
   submitRecommendationToShelf(target, {
     title: "Persuasion",
     author: "Jane Austen",
+    coverUrl: "",
     wordsTotal: 86500,
   });
 
   assert.equal(target.titleInput.value, "Persuasion");
   assert.equal(target.authorInput.value, "Jane Austen");
   assert.equal(target.wordsInput.value, "86500");
-  assert.equal(submitCount, 1);
+  assert.equal(focusCount, 1);
 });

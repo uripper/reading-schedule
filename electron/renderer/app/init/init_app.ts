@@ -27,54 +27,63 @@ import type { AppBootstrapContext } from "../bootstrap_runtime.js";
 import type { PlannerResult } from "../types.js";
 
 /**
- * Initializes renderer app bindings, controllers, and startup data load.
- * @param context Bootstrap context containing APIs, state, and runtime hooks.
- * @returns Promise that resolves after startup load/bind operations complete.
+ * Creates the app-level plan controller instance with runtime-bound callbacks.
+ * @param appContext Shared bootstrap context.
+ * @returns Plan controller instance.
  */
-export async function initApp(context: AppBootstrapContext): Promise<void> {
-  setupSkipLink();
-  bindDesktopShortcuts({
-    plannerApi: context.plannerApi,
-    announce: context.announce,
-  });
-  initSettingsGrid();
-  bindTabs(context.runtime.handleTabChange);
-  bindBooksUI(context.runtime.handleBooksChanged, {
-    onEstimatedFinishNavigate: (dateKey) => {
-      activateTab("schedule", { focusPanel: true });
-      focusCalendarDate(dateKey);
-    },
-  });
-  bindHelpDialog();
-  const planController = createAppPlanControllerInstance({
+function buildPlanController(
+  appContext: AppBootstrapContext,
+): ReturnType<typeof createAppPlanControllerInstance> {
+  const runtimeState = appContext.state;
+  return createAppPlanControllerInstance({
     collectBooks,
     collectSettings,
     addLog,
     renderCalendar,
     totalsFromSummary,
     setBookScheduleRows,
-    setStatus: context.setStatus,
-    persistDraft: context.persistDraft,
-    plannerApi: context.plannerApi,
-    updateTodayView: context.dashboards.updateDashboards,
-    announce: context.announceForPlanController,
-    getLastResult: () => context.state.lastResult,
-    setLastResult: (nextResult: PlannerResult) => {
-      context.state.lastResult = nextResult;
+    setStatus: (message: string, isError?: boolean): void => {
+      appContext.setStatus(message, isError);
     },
-    getSessions: () => context.state.sessions,
-    getScheduleCompletions: () => context.state.scheduleCompletions,
-    getBlockedDayBooks: () => context.state.blockedDayBooks,
+    persistDraft: async (): Promise<boolean> => await appContext.persistDraft(),
+    plannerApi: appContext.plannerApi,
+    updateTodayView: (): void => {
+      appContext.dashboards.updateDashboards();
+    },
+    announce: (message: string, politeness?: "polite" | "assertive"): void => {
+      appContext.announceForPlanController(message, politeness);
+    },
+    getLastResult: (): PlannerResult | null => runtimeState.lastResult,
+    setLastResult: (nextResult: PlannerResult) => {
+      runtimeState.lastResult = nextResult;
+    },
+    getSessions: (): typeof runtimeState.sessions => runtimeState.sessions,
+    getScheduleCompletions: (): Record<string, boolean> =>
+      runtimeState.scheduleCompletions,
+    getBlockedDayBooks: (): Record<string, boolean> =>
+      runtimeState.blockedDayBooks,
     setScheduleCompletions: (nextCompletions: Record<string, boolean>) => {
-      context.state.scheduleCompletions = nextCompletions;
+      runtimeState.scheduleCompletions = nextCompletions;
     },
   });
-  context.runtime.setPlanController(planController);
-  bindExperienceSettings(context.dashboards.applyExperienceSettings);
+}
+
+/**
+ * Wires calendar interaction handlers against app runtime callbacks/state.
+ * @param appContext Shared bootstrap context.
+ */
+function configureCalendarAppInteractions(
+  appContext: AppBootstrapContext,
+): void {
+  const runtimeState = appContext.state;
   configureAppCalendarInteractions({
-    state: context.state,
-    queuePersist: context.queuePersist,
-    setStatus: context.setStatus,
+    state: runtimeState,
+    queuePersist: (): void => {
+      appContext.queuePersist();
+    },
+    setStatus: (message: string, isError?: boolean): void => {
+      appContext.setStatus(message, isError);
+    },
     configureCalendarInteractions,
     collectSettings,
     collectAllBooks,
@@ -84,11 +93,50 @@ export async function initApp(context: AppBootstrapContext): Promise<void> {
     updateBookProgress,
     getBookById,
     setLastResult: (nextResult: PlannerResult) => {
-      context.state.lastResult = nextResult;
+      runtimeState.lastResult = nextResult;
     },
-    onSessionCompletionUpdated: context.runtime.handleScheduleMutation,
-    onProgressUpdated: context.runtime.handleScheduleMutation,
-    onScheduleRowsUpdated: context.dashboards.updateDashboards,
+    onSessionCompletionUpdated: (): void => {
+      appContext.runtime.handleScheduleMutation();
+    },
+    onProgressUpdated: (): void => {
+      appContext.runtime.handleScheduleMutation();
+    },
+    onScheduleRowsUpdated: (): void => {
+      appContext.dashboards.updateDashboards();
+    },
   });
-  await loadStateAndBindTodayActions(context, planController);
+}
+
+/**
+ * Initializes renderer app bindings, controllers, and startup data load.
+ * @param context Bootstrap context containing APIs, state, and runtime hooks.
+ * @returns Promise that resolves after startup load/bind operations complete.
+ */
+export async function initApp(context: AppBootstrapContext): Promise<void> {
+  const appContext = context;
+  setupSkipLink();
+  bindDesktopShortcuts({
+    plannerApi: appContext.plannerApi,
+    announce: appContext.announce,
+  });
+  initSettingsGrid();
+  bindTabs((name: string): void => {
+    appContext.runtime.handleTabChange(name);
+  });
+  bindBooksUI((): void => {
+    appContext.runtime.handleBooksChanged();
+  }, {
+    onEstimatedFinishNavigate: (dateKey) => {
+      activateTab("schedule", { focusPanel: true });
+      focusCalendarDate(dateKey);
+    },
+  });
+  bindHelpDialog();
+  const planController = buildPlanController(appContext);
+  appContext.runtime.setPlanController(planController);
+  bindExperienceSettings((): void => {
+    appContext.dashboards.applyExperienceSettings();
+  });
+  configureCalendarAppInteractions(appContext);
+  await loadStateAndBindTodayActions(appContext, planController);
 }

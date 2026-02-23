@@ -30,7 +30,11 @@ function toIntWithFallback(value: number | undefined, fallback: number): number 
  * @returns Trimmed date string or `null` when empty.
  */
 function normalizeFinishedAt(value: string | null | undefined): string | null {
-  return withNullableString(toTrimmedText(value));
+  const trimmed = String(value ?? "").trim();
+  if (trimmed === "") {
+    return null;
+  }
+  return trimmed;
 }
 
 /**
@@ -95,7 +99,7 @@ export function minBlocksPerSession(value: number | undefined): number {
  * @returns String when truthy; otherwise `null`.
  */
 export function withNullableString(value: string | null | undefined): string | null {
-  if (value) {
+  if (value !== null && value !== undefined && value !== "") {
     return value;
   }
   return null;
@@ -115,7 +119,7 @@ export function finishedAtForStatus(
   if (status !== BOOK_STATUS_READ) {
     return null;
   }
-  if (finishedAt) {
+  if (finishedAt !== null) {
     return finishedAt;
   }
   return todayDateKey();
@@ -133,18 +137,24 @@ export function normalizeProgressAndPages(
   pagesRead: number | null,
   progressRaw: number,
 ): { pagesRead: number | null; progress: number } {
-  let nextPagesRead = pagesRead;
-  if (pagesTotal && nextPagesRead === null) {
-    nextPagesRead = Math.round((progressRaw / PROGRESS_MAX) * pagesTotal);
+  let hasPagesTotal = false;
+  let totalPages = 0;
+  if (pagesTotal !== null && pagesTotal > 0) {
+    hasPagesTotal = true;
+    totalPages = pagesTotal;
   }
-  if (pagesTotal && nextPagesRead !== null) {
-    nextPagesRead = clamp(nextPagesRead, 0, pagesTotal);
+  let nextPagesRead = pagesRead;
+  if (hasPagesTotal && nextPagesRead === null) {
+    nextPagesRead = Math.round((progressRaw / PROGRESS_MAX) * totalPages);
+  }
+  if (hasPagesTotal && nextPagesRead !== null) {
+    nextPagesRead = clamp(nextPagesRead, 0, totalPages);
   }
   let progress = Math.round(progressRaw * PROGRESS_SCALE) / PROGRESS_SCALE;
-  if (pagesTotal) {
+  if (hasPagesTotal) {
     progress =
       Math.round(
-        ((nextPagesRead ?? 0) / pagesTotal) * PROGRESS_MAX * PROGRESS_SCALE,
+        ((nextPagesRead ?? 0) / totalPages) * PROGRESS_MAX * PROGRESS_SCALE,
       ) / PROGRESS_SCALE;
   }
   return { pagesRead: nextPagesRead, progress };

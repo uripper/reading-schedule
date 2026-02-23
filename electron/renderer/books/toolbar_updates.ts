@@ -18,9 +18,10 @@ export function updateSortDirectionButton(
   sortDirectionBtn: HTMLButtonElement,
   sortDirection: SortDirection,
 ): void {
-  sortDirectionBtn.textContent = "Ascending";
+  const nextSortDirectionButton = sortDirectionBtn;
+  nextSortDirectionButton.textContent = "Ascending";
   if (sortDirection === SORT_DIRECTION_DESC) {
-    sortDirectionBtn.textContent = "Descending";
+    nextSortDirectionButton.textContent = "Descending";
   }
 }
 
@@ -36,15 +37,16 @@ export function updateShelfFilterOptions(
   books: Book[],
   selectedValue: string,
 ): string {
+  const nextShelfFilterSelect = shelfFilterSelect;
   const options = shelfFilterOptions(books);
-  shelfFilterSelect.replaceChildren(
+  nextShelfFilterSelect.replaceChildren(
     ...options.map((option) => createOption(option.value, option.label)),
   );
   let nextValue = options[0].value;
   if (options.some((option) => option.value === selectedValue)) {
     nextValue = selectedValue;
   }
-  shelfFilterSelect.value = nextValue;
+  nextShelfFilterSelect.value = nextValue;
   return nextValue;
 }
 
@@ -58,8 +60,9 @@ export function updateStatusFilterOptions(
   statusFilterSelect: HTMLSelectElement,
   selectedValue: string,
 ): BookStatusFilter {
+  const nextStatusFilterSelect = statusFilterSelect;
   const options = statusFilterOptions();
-  statusFilterSelect.replaceChildren(
+  nextStatusFilterSelect.replaceChildren(
     ...options.map((option) => createOption(option.value, option.label)),
   );
   const normalized = normalizeStatusFilter(selectedValue);
@@ -68,7 +71,7 @@ export function updateStatusFilterOptions(
   if (selected) {
     nextValue = selected.value;
   }
-  statusFilterSelect.value = nextValue;
+  nextStatusFilterSelect.value = nextValue;
   return nextValue;
 }
 
@@ -84,14 +87,15 @@ export function updateGroupByOptions(
   selectedValue: BookGroupBy,
   shelfFilter: string,
 ): BookGroupBy {
+  const nextGroupBySelect = groupBySelect;
   const options = groupOptionsForShelfFilter(shelfFilter);
-  groupBySelect.replaceChildren(
+  nextGroupBySelect.replaceChildren(
     ...options.map((option) => createOption(option.value, option.label)),
   );
   let nextValue: BookGroupBy = GROUP_BY_NONE;
   if (options.some((option) => option.value === selectedValue)) {
     nextValue = selectedValue;
   }
-  groupBySelect.value = nextValue;
+  nextGroupBySelect.value = nextValue;
   return nextValue;
 }

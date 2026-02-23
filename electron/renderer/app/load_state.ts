@@ -66,7 +66,16 @@ function normalizeBlockedDayBooks(
 function hasInitialSettingsAndBooks(
   source: LoadedPlannerState | null | undefined,
 ): source is InitialDataSource {
-  return Boolean(source?.settings && source?.books);
+  if (source === null || source === undefined) {
+    return false;
+  }
+  if (source.settings === undefined) {
+    return false;
+  }
+  if (source.books === undefined) {
+    return false;
+  }
+  return true;
 }
 
 /**

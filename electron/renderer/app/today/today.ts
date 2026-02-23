@@ -83,21 +83,22 @@ function setFocusSessionDataset(
   button: HTMLButtonElement,
   nextRow: PlannerScheduleRow | null,
 ): void {
+  const targetButton = button;
   if (!nextRow) {
-    button.dataset.focusSessionBookId = "";
-    button.dataset.focusSessionDate = "";
-    button.dataset.focusSessionIndex = "";
-    button.dataset.focusSessionMinutes = "";
-    button.dataset.focusSessionTitle = "";
-    button.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
+    targetButton.dataset.focusSessionBookId = "";
+    targetButton.dataset.focusSessionDate = "";
+    targetButton.dataset.focusSessionIndex = "";
+    targetButton.dataset.focusSessionMinutes = "";
+    targetButton.dataset.focusSessionTitle = "";
+    targetButton.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
     return;
   }
-  button.dataset.focusSessionBookId = String(nextRow.book_id || "");
-  button.dataset.focusSessionDate = String(nextRow.date || "");
-  button.dataset.focusSessionIndex = String(nextRow.session_index || "");
-  button.dataset.focusSessionMinutes = String(nextRow.minutes || "");
-  button.dataset.focusSessionTitle = String(nextRow.title || "Untitled");
-  button.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
+  targetButton.dataset.focusSessionBookId = String(nextRow.book_id);
+  targetButton.dataset.focusSessionDate = String(nextRow.date);
+  targetButton.dataset.focusSessionIndex = String(nextRow.session_index);
+  targetButton.dataset.focusSessionMinutes = String(nextRow.minutes);
+  targetButton.dataset.focusSessionTitle = String(nextRow.title);
+  targetButton.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
 }
 
 /**

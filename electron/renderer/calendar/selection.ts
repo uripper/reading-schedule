@@ -48,15 +48,16 @@ export function indexForMonth(months: string[], targetMonthKey: string): number 
  * @param state Mutable calendar runtime state.
  */
 export function applyTodayFocus(state: CalendarRuntimeState): void {
-  if (!state.months.length) {
+  const calendarState = state;
+  if (!calendarState.months.length) {
     return;
   }
   const todayKey = todayDateKey();
   const todayMonthKey = monthKeyForDateKey(todayKey);
-  state.index = indexForMonth(state.months, todayMonthKey);
-  state.selectedDate = "";
-  if (state.months[state.index] === todayMonthKey) {
-    state.selectedDate = todayKey;
+  calendarState.index = indexForMonth(calendarState.months, todayMonthKey);
+  calendarState.selectedDate = "";
+  if (calendarState.months[calendarState.index] === todayMonthKey) {
+    calendarState.selectedDate = todayKey;
   }
 }
 
@@ -74,10 +75,11 @@ export function selectDate(
   renderMonth: () => void,
   options: { focus?: boolean } = {},
 ): void {
-  state.selectedDate = dateKey;
-  state.expectedFinishHighlightDate = dateKey;
+  const calendarState = state;
+  calendarState.selectedDate = dateKey;
+  calendarState.expectedFinishHighlightDate = dateKey;
   renderMonth();
-  if (options.focus) {
+  if (options.focus === true) {
     const button = document.querySelector(`[data-calendar-day='${dateKey}']`);
     if (button instanceof HTMLElement) {
       button.focus();

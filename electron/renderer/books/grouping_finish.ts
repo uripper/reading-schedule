@@ -66,7 +66,7 @@ export function finishDateMetaForBook(
   finishDateByBookId: Record<string, string>,
   currentYear: number,
 ): GroupMeta {
-  const finishDate = parseFinishDateParts(finishDateByBookId?.[book.book_id]);
+  const finishDate = parseFinishDateParts(finishDateByBookId[book.book_id]);
   if (!finishDate) {
     return {
       key: NO_ESTIMATED_FINISH_KEY,

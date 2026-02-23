@@ -49,11 +49,6 @@ export function removeSessionButton(
   removeButton.setAttribute("aria-label", REMOVE_SESSION_LABEL);
   removeButton.title = REMOVE_SESSION_LABEL;
   removeButton.onclick = () => {
-    const title = String(row.title || "this session");
-    const confirmed = globalThis.confirm(`Remove ${title} from ${row.date}?`);
-    if (!confirmed) {
-      return;
-    }
     const removed = interactionHandlers.onSessionRemoved({ row });
     if (!removed) {
       return;

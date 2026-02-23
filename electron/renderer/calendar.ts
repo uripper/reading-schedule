@@ -75,7 +75,10 @@ export function renderCalendar(
       state.index = previousMonthIndex;
     }
   }
-  if (previousSelectedDate && state.dates[previousSelectedDate]) {
+  if (
+    previousSelectedDate !== "" &&
+    previousSelectedDate in state.dates
+  ) {
     state.selectedDate = previousSelectedDate;
   } else {
     state.selectedDate = "";

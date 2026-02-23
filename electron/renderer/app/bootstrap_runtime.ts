@@ -62,7 +62,7 @@ export function createAppBootstrapContext(): AppBootstrapContext {
     announce(message);
   };
   const setStatus = createStatusSetter(el("status"), addLog);
-  const { persistDraft, queuePersist } = createPersistQueue({
+  const persistQueue = createPersistQueue({
     state,
     collectSettings,
     addLog,
@@ -70,6 +70,12 @@ export function createAppBootstrapContext(): AppBootstrapContext {
     collectBooks: collectAllBooks,
     getSessions: () => state.sessions,
   });
+  const queuePersist = (): void => {
+    persistQueue.queuePersist();
+  };
+  const persistDraft = async (): Promise<boolean> => {
+    return await persistQueue.persistDraft();
+  };
   const dashboards = createDashboardRuntime({
     applyPreferencesToDocument,
     collectFeatureFlagsFromUI,
@@ -86,7 +92,9 @@ export function createAppBootstrapContext(): AppBootstrapContext {
     focusCalendarToday,
     queuePersist,
     state,
-    updateDashboards: dashboards.updateDashboards,
+    updateDashboards: (): void => {
+      dashboards.updateDashboards();
+    },
   });
 
   return {

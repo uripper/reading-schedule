@@ -51,7 +51,7 @@ function rowMatchesSessionIndex(
   row: PlannerScheduleRow,
   session: FocusSession,
 ): boolean {
-  if (session.sessionIndex === null || session.sessionIndex === undefined) {
+  if (session.sessionIndex === null) {
     return true;
   }
   const rowSessionIndex = Number(row.session_index || 0);

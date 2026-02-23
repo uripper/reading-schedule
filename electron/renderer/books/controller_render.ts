@@ -37,59 +37,60 @@ interface RenderBooksControllerArgs {
 
 /**
  * Renders toolbar-driven books content and wires row-level edit/remove actions.
- * @param root0 Render inputs for books controller view.
- * @param root0.refs Controller DOM references required for rendering.
- * @param root0.books Full in-memory book list.
- * @param root0.scheduleRows Planner schedule rows used for finish-date metadata.
- * @param root0.viewState Active shelf/status/sort/group options.
- * @param root0.dialog Edit dialog controller when available.
- * @param root0.onBooksChanged Callback fired when collection mutations occur.
- * @param root0.onEstimatedFinishNavigate
- * @param root0.setBooks State updater used after remove operations.
- * @param root0.findBook Lookup helper used before opening edit dialog.
- * @param root0.rerender Callback to refresh the books view after state updates.
+ * @param args Render inputs for books controller view.
+ * @param args.refs Controller DOM references required for rendering.
+ * @param args.books Full in-memory book list.
+ * @param args.scheduleRows Planner schedule rows used for finish-date metadata.
+ * @param args.viewState Active shelf/status/sort/group options.
+ * @param args.dialog Edit dialog controller when available.
+ * @param args.onBooksChanged Callback fired when collection mutations occur.
+ * @param args.onEstimatedFinishNavigate Navigates to the selected finish date.
+ * @param args.setBooks State updater used after remove operations.
+ * @param args.findBook Lookup helper used before opening edit dialog.
+ * @param args.rerender Callback to refresh the books view after state updates.
  */
-export function renderBooksController({
-  refs,
-  books,
-  scheduleRows,
-  viewState,
-  dialog,
-  onBooksChanged,
-  onEstimatedFinishNavigate,
-  setBooks,
-  findBook,
-  rerender,
-}: RenderBooksControllerArgs): void {
-  const renderRefs = resolveRenderableRefs(refs);
+export function renderBooksController(args: RenderBooksControllerArgs): void {
+  const viewState = args.viewState;
+  const onEstimatedFinishNavigate = (dateKey: string): void => {
+    args.onEstimatedFinishNavigate(dateKey);
+  };
+  const renderRefs = resolveRenderableRefs(args.refs);
   if (!renderRefs) {
     return;
   }
 
-  viewState.shelfFilter = updateShelfFilterOptions(
+  const nextViewState = viewState;
+  nextViewState.shelfFilter = updateShelfFilterOptions(
     renderRefs.shelfFilterSelect,
-    books,
-    viewState.shelfFilter,
+    args.books,
+    nextViewState.shelfFilter,
   );
-  viewState.statusFilter = updateStatusFilterOptions(
+  nextViewState.statusFilter = updateStatusFilterOptions(
     renderRefs.statusFilterSelect,
-    viewState.statusFilter,
+    nextViewState.statusFilter,
   );
-  viewState.groupBy = updateGroupByOptions(
+  nextViewState.groupBy = updateGroupByOptions(
     renderRefs.groupBySelect,
-    viewState.groupBy,
-    viewState.shelfFilter,
+    nextViewState.groupBy,
+    nextViewState.shelfFilter,
   );
-  updateSortDirectionButton(renderRefs.sortDirectionBtn, viewState.sortDirection);
+  updateSortDirectionButton(
+    renderRefs.sortDirectionBtn,
+    nextViewState.sortDirection,
+  );
 
-  const showShelfMeta = viewState.shelfFilter === SHELF_FILTER_ALL;
-  const finishDateByBookId = finishDatesByBookId(scheduleRows, books);
-  const visibleBooks = visibleBooksForView(books, viewState, finishDateByBookId);
+  const showShelfMeta = nextViewState.shelfFilter === SHELF_FILTER_ALL;
+  const finishDateByBookId = finishDatesByBookId(args.scheduleRows, args.books);
+  const visibleBooks = visibleBooksForView(
+    args.books,
+    nextViewState,
+    finishDateByBookId,
+  );
 
-  let groups = groupBooks(visibleBooks, viewState.groupBy, finishDateByBookId);
+  let groups = groupBooks(visibleBooks, nextViewState.groupBy, finishDateByBookId);
   if (
-    viewState.sortBy === SORT_BY_ESTIMATED_FINISH &&
-    viewState.groupBy === GROUP_BY_NONE
+    nextViewState.sortBy === SORT_BY_ESTIMATED_FINISH &&
+    nextViewState.groupBy === GROUP_BY_NONE
   ) {
     groups = groupsForEstimatedFinish(visibleBooks);
   }
@@ -99,23 +100,23 @@ export function renderBooksController({
     onEstimatedFinishNavigate,
     showShelfMeta,
     books: visibleBooks,
-    allBooks: books,
+    allBooks: args.books,
     grid: renderRefs.grid,
     empty: renderRefs.empty,
     onEdit: (bookId) => {
-      const book = findBook(bookId);
-      if (book && dialog) {
-        dialog.open(book);
+      const book = args.findBook(bookId);
+      if (book && args.dialog) {
+        args.dialog.open(book);
       }
     },
     onRemove: (bookId) => {
-      const nextBooks = books.filter((book) => book.book_id !== bookId);
-      if (nextBooks.length === books.length) {
+      const nextBooks = args.books.filter((book) => book.book_id !== bookId);
+      if (nextBooks.length === args.books.length) {
         return;
       }
-      setBooks(nextBooks);
-      rerender();
-      onBooksChanged();
+      args.setBooks(nextBooks);
+      args.rerender();
+      args.onBooksChanged();
     },
   });
 }

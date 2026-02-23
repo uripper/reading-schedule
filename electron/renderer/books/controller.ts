@@ -28,8 +28,15 @@ import {
 
 let books: Book[] = [];
 let scheduleRows: PlannerScheduleRow[] = [];
-let onBooksChanged: () => void = () => {};
-let onEstimatedFinishNavigate: (dateKey: string) => void = () => {};
+const DEFAULT_ON_BOOKS_CHANGED = (): void => {
+  // No-op default callback.
+};
+const DEFAULT_ON_ESTIMATED_FINISH_NAVIGATE = (_dateKey: string): void => {
+  // No-op default callback.
+};
+let onBooksChanged: () => void = DEFAULT_ON_BOOKS_CHANGED;
+let onEstimatedFinishNavigate: (dateKey: string) => void =
+  DEFAULT_ON_ESTIMATED_FINISH_NAVIGATE;
 let dialog: BookDialogController | null = null;
 
 const refs: BooksControllerRefs = {
@@ -164,9 +171,14 @@ export function setBookScheduleRows(rows: PlannerScheduleRow[] = []): void {
  * Collects books that should be sent to planner scheduling logic.
  * @returns Normalized planner payload books that are title-complete and schedulable.
  */
-export function collectBooks() {
+export function collectBooks(): Book[] {
   const schedulableBooks = books.map(toPayloadBook).filter((book) => {
-    return book.title && hasSchedulableLength(book) && schedulableBook(book);
+    const normalizedTitle = book.title.trim();
+    return (
+      normalizedTitle.length > 0 &&
+      hasSchedulableLength(book) &&
+      schedulableBook(book)
+    );
   });
   return clearMissingBlockedBy(schedulableBooks);
 }
@@ -175,27 +187,34 @@ export function collectBooks() {
  * Collects every titled book for persistence regardless of schedulable state.
  * @returns Normalized payload books with non-empty titles.
  */
-export function collectAllBooks() {
+export function collectAllBooks(): Book[] {
   return books.map(toPayloadBook).filter((book) => {
-    return Boolean(book.title);
+    return book.title.trim().length > 0;
   });
 }
 
 interface BindBooksUIOptions {
-  onEstimatedFinishNavigate?(dateKey: string): void;
+  onEstimatedFinishNavigate?(this: void, dateKey: string): void;
 }
 
 /**
  * Binds books toolbar, dialog, and grid events for interactive editing.
  * @param onChanged Callback fired after persisted book list mutations.
- * @param options
+ * @param options Optional UI behavior hooks.
  */
 export function bindBooksUI(
-  onChanged: () => void = () => {},
+  onChanged: () => void = DEFAULT_ON_BOOKS_CHANGED,
   options: BindBooksUIOptions = {},
 ): void {
   onBooksChanged = onChanged;
-  onEstimatedFinishNavigate = options.onEstimatedFinishNavigate ?? (() => {});
+  const estimatedFinishNavigateHandler = options.onEstimatedFinishNavigate;
+  if (typeof estimatedFinishNavigateHandler === "function") {
+    onEstimatedFinishNavigate = (dateKey: string): void => {
+      estimatedFinishNavigateHandler(dateKey);
+    };
+  } else {
+    onEstimatedFinishNavigate = DEFAULT_ON_ESTIMATED_FINISH_NAVIGATE;
+  }
   refs.toolbar = document.querySelector(".books-toolbar");
   if (!(refs.toolbar instanceof HTMLElement)) {
     return;
@@ -215,16 +234,14 @@ export function bindBooksUI(
   bindToolbarEvents({ refs, viewState, rerender: render });
 
   dialog = createBookDialog(saveBook, { getBooks: () => books });
-  if (refs.addBtn) {
-    refs.addBtn.onclick = () => {
-      if (!dialog) {
-        return;
-      }
-      dialog.open(null, {
-        defaultShelf: defaultShelfForAddDialog(viewState.shelfFilter),
-      });
-    };
-  }
+  refs.addBtn.onclick = () => {
+    if (!dialog) {
+      return;
+    }
+    dialog.open(null, {
+      defaultShelf: defaultShelfForAddDialog(viewState.shelfFilter),
+    });
+  };
 
   render();
 }

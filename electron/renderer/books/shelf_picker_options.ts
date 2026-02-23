@@ -43,12 +43,13 @@ function renderShelfOptions(
   shelves: string[],
   selectedShelf: string,
 ): void {
-  select.replaceChildren(...shelfOptions(shelves));
+  const shelfSelect = select;
+  shelfSelect.replaceChildren(...shelfOptions(shelves));
   if (selectedShelf) {
-    select.value = selectedShelf;
+    shelfSelect.value = selectedShelf;
     return;
   }
-  select.value = UNSHELVED_VALUE;
+  shelfSelect.value = UNSHELVED_VALUE;
 }
 
 /**
@@ -82,7 +83,8 @@ function collectShelfValues(select: HTMLSelectElement): string[] {
  * @param select Shelf dropdown element.
  */
 export function rememberSelectedShelf(select: HTMLSelectElement): void {
-  select.dataset[DATA_KEY_PREVIOUS_SHELF] = select.value;
+  const shelfSelect = select;
+  shelfSelect.dataset[DATA_KEY_PREVIOUS_SHELF] = shelfSelect.value;
 }
 
 /**
@@ -146,19 +148,20 @@ export function setSelectedShelf(
   selectedShelf: string,
   availableShelves: string[],
 ): void {
+  const shelfSelect = select;
   const shelf = String(selectedShelf || "").trim();
-  renderShelfOptions(select, availableShelves, "");
+  renderShelfOptions(shelfSelect, availableShelves, "");
   if (!shelf) {
-    rememberSelectedShelf(select);
+    rememberSelectedShelf(shelfSelect);
     return;
   }
-  const existingValue = existingShelfValue(select, shelf);
+  const existingValue = existingShelfValue(shelfSelect, shelf);
   if (existingValue) {
-    select.value = existingValue;
-    rememberSelectedShelf(select);
+    shelfSelect.value = existingValue;
+    rememberSelectedShelf(shelfSelect);
     return;
   }
-  ensureShelfOption(select, shelf);
-  select.value = shelf;
-  rememberSelectedShelf(select);
+  ensureShelfOption(shelfSelect, shelf);
+  shelfSelect.value = shelf;
+  rememberSelectedShelf(shelfSelect);
 }

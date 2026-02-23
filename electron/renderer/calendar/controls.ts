@@ -22,7 +22,8 @@ export function renderCalendarControls(
   renderMonth: RenderFn,
   jumpToToday: JumpToTodayFn,
 ): void {
-  const key = state.months[state.index] || "";
+  const calendarState = state;
+  const key = calendarState.months[calendarState.index] || "";
   const controls = el("calendarControls");
   const title = document.createElement("strong");
   title.textContent = monthLabel(key);
@@ -48,13 +49,16 @@ export function renderCalendarControls(
   next.textContent = "Next";
 
   prev.onclick = () => {
-    state.index = Math.max(0, state.index - 1);
+    calendarState.index = Math.max(0, calendarState.index - 1);
     renderControls();
     renderMonth();
   };
 
   next.onclick = () => {
-    state.index = Math.min(state.months.length - 1, state.index + 1);
+    calendarState.index = Math.min(
+      calendarState.months.length - 1,
+      calendarState.index + 1,
+    );
     renderControls();
     renderMonth();
   };

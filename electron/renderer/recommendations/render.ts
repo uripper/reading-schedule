@@ -1,4 +1,5 @@
 import { el } from "../dom.js";
+import { COVER_PLACEHOLDER } from "../books/constants.js";
 import type {
   RecommendationItem,
 } from "./model.js";
@@ -28,6 +29,22 @@ function createRecommendationCard(
   const card = document.createElement("article");
   card.className = "book-card";
 
+  const cover = document.createElement("div");
+  cover.className = "book-cover";
+  const coverImage = document.createElement("img");
+  coverImage.className = "book-cover-img";
+  coverImage.loading = "lazy";
+  coverImage.alt = `Cover of ${recommendation.title}`;
+  coverImage.src = COVER_PLACEHOLDER;
+  const recommendationCoverUrl = recommendation.coverUrl.trim();
+  if (recommendationCoverUrl.length > 0) {
+    coverImage.src = recommendationCoverUrl;
+  }
+  coverImage.addEventListener("error", () => {
+    coverImage.src = COVER_PLACEHOLDER;
+  });
+  cover.append(coverImage);
+
   const title = document.createElement("h3");
   title.className = "book-title";
   title.textContent = recommendation.title;
@@ -48,7 +65,7 @@ function createRecommendationCard(
     onAddToShelf(recommendation);
   });
 
-  card.append(title, author, words, button);
+  card.append(cover, title, author, words, button);
   return card;
 }
 
@@ -68,13 +85,18 @@ function summaryText(recommendations: RecommendationItem[]): string {
   const authorList = Array.from(uniqueAuthors).sort((leftAuthor, rightAuthor) => {
     return leftAuthor.localeCompare(rightAuthor);
   });
+  if (authorList.length > 6) {
+    const firstSixAuthors = authorList.slice(0, 6).join(", ");
+    const remainingCount = authorList.length - 6;
+    return `${NON_EMPTY_SUMMARY_PREFIX} ${firstSixAuthors} + ${remainingCount} more.`;
+  }
   return `${NON_EMPTY_SUMMARY_PREFIX} ${authorList.join(", ")}.`;
 }
 
 /**
  * Renders recommendation cards for read authors and wires add-to-shelf actions.
  * @param args Render dependencies.
- * @param args.books Existing books used for deriving recommendation candidates.
+ * @param args.recommendations Existing recommendation candidates.
  * @param args.onAddToShelf Action called when user adds one recommendation.
  */
 export function renderRecommendationsPanel(args: RenderRecommendationsArgs): void {

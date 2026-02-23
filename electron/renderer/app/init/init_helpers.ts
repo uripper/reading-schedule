@@ -55,31 +55,31 @@ export function createAppPlanControllerInstance(
 
 /**
  * Finalizes post-load wiring and kicks off auto-plan after initial state load.
- * @param root0 Initial-load completion dependencies.
- * @param root0.saved Loaded persisted payload, if available.
- * @param root0.setReady Marks runtime ready state.
- * @param root0.queuePersist Schedules persistence of form changes.
- * @param root0.queueAutoPlan Schedules an automatic plan generation.
- * @param root0.setStatus Sets startup status text.
+ * @param args Initial-load completion dependencies.
+ * @param args.saved Loaded persisted payload, if available.
+ * @param args.setReady Marks runtime ready state.
+ * @param args.queuePersist Schedules persistence of form changes.
+ * @param args.queueAutoPlan Schedules an automatic plan generation.
+ * @param args.setStatus Sets startup status text.
  */
-export function finalizeInitialLoad({
-  saved,
-  setReady,
-  queuePersist,
-  queueAutoPlan,
-  setStatus,
-}: FinalizeInitialLoadArgs): void {
-  setReady();
+export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
+  const queuePersist = (): void => {
+    args.queuePersist();
+  };
+  const queueAutoPlan = (): void => {
+    args.queueAutoPlan();
+  };
+  args.setReady();
   document.addEventListener("input", queuePersist);
   document.addEventListener("change", queuePersist);
 
   const settingsPanel = el("tab-settings");
   bindSettingsAutoPlanListeners(settingsPanel, () => true, queueAutoPlan);
 
-  if (saved) {
-    setStatus("Loaded saved data.");
+  if (args.saved) {
+    args.setStatus("Loaded saved data.");
   } else {
-    setStatus("Loaded sample data.");
+    args.setStatus("Loaded sample data.");
   }
   queueAutoPlan();
 }

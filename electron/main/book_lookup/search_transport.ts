@@ -19,8 +19,8 @@ export function searchUrls(query: string): string[] {
   const encoded = encodeURIComponent(query);
   const base = `https://openlibrary.org/search.json?limit=${SEARCH_FETCH_LIMIT}&fields=${SEARCH_FIELDS}`;
   return [
-    `${base}&q=${encoded}`,
-    `${base}&title=${encoded}`,
+    `${base}&q=${encoded}&language=eng`,
+    `${base}&author=${encoded}&language=eng`,
     `${base}&title=${encoded}&language=eng`,
   ];
 }

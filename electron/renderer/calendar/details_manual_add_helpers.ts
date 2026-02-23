@@ -8,7 +8,7 @@ import type { ManualSessionBook } from "./details_types.js";
 export function minuteValueForManualInput(defaultMinutes?: number): string {
   const parsed = Number(defaultMinutes ?? 0);
   if (Number.isFinite(parsed) && parsed > 0) {
-    return `${Math.max(1, Math.round(parsed))}`;
+    return String(Math.max(1, Math.round(parsed)));
   }
   return "10";
 }

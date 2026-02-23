@@ -1,4 +1,19 @@
 const DATE_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const CALENDAR_DATE_SUFFIX = "T00:00:00";
+const MONTH_BASE = 1;
+const DAY_PAD = 2;
+
+/**
+ * Formats a Date into a local `YYYY-MM-DD` key.
+ * @param date Date value to format.
+ * @returns Local day key.
+ */
+function dayKeyFromDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + MONTH_BASE).padStart(DAY_PAD, "0");
+  const day = String(date.getDate()).padStart(DAY_PAD, "0");
+  return `${year}-${month}-${day}`;
+}
 
 /**
  * Checks whether text is a valid `YYYY-MM-DD` day key.
@@ -9,30 +24,11 @@ export function isValidDateKey(dateKey: string): boolean {
   if (!DATE_KEY_PATTERN.test(dateKey)) {
     return false;
   }
-  const [yearPart, monthPart, dayPart] = dateKey.split("-");
-  const year = Number(yearPart);
-  const month = Number(monthPart);
-  const day = Number(dayPart);
-  if (
-    Number.isNaN(year) ||
-    Number.isNaN(month) ||
-    Number.isNaN(day) ||
-    month < 1 ||
-    month > 12 ||
-    day < 1 ||
-    day > 31
-  ) {
-    return false;
-  }
-  const parsed = new Date(year, month - 1, day);
+  const parsed = new Date(`${dateKey}${CALENDAR_DATE_SUFFIX}`);
   if (Number.isNaN(parsed.getTime())) {
     return false;
   }
-  return (
-    parsed.getFullYear() === year &&
-    parsed.getMonth() === month - 1 &&
-    parsed.getDate() === day
-  );
+  return dayKeyFromDate(parsed) === dateKey;
 }
 
 /**

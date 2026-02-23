@@ -15,6 +15,14 @@ export type CalendarDetailsState = CalendarStateSubset & {
   expectedFinishHighlightDate: string;
 };
 
+interface RowNodeForModeArgs {
+  mode: DayMode;
+  row: CalendarRowWithFinish;
+  state: CalendarDetailsState;
+  interactionHandlers: DetailInteractionHandlers;
+  rerenderDetails(): void;
+}
+
 /**
  * Returns empty-state message for day details panel by mode.
  * @param _mode Day mode.
@@ -47,30 +55,39 @@ export function rowsForMode(
 
 /**
  * Builds the proper row node for current day mode.
- * @param mode Day mode.
- * @param row Calendar row.
- * @param state Calendar details state.
- * @param interactionHandlers Detail interaction handlers.
- * @param rerenderDetails Details rerender callback.
+ * @param args Row rendering payload for the active day mode.
+ * @param args.mode Day mode.
+ * @param args.row Calendar row.
+ * @param args.state Calendar details state.
+ * @param args.interactionHandlers Detail interaction handlers.
+ * @param args.rerenderDetails Details rerender callback.
  * @returns Rendered row element.
  */
 export function rowNodeForMode(
-  mode: DayMode,
-  row: CalendarRowWithFinish,
-  state: CalendarDetailsState,
-  interactionHandlers: DetailInteractionHandlers,
-  rerenderDetails: () => void,
+  args: RowNodeForModeArgs,
 ): HTMLElement {
-  if (mode === "today") {
-    return buildTodaySessionItem(row, state, interactionHandlers, rerenderDetails);
-  }
-  if (mode === "future") {
-    return buildFutureSessionItem(
-      row,
-      state,
-      interactionHandlers,
+  const rerenderDetails = (): void => {
+    args.rerenderDetails();
+  };
+  if (args.mode === "today") {
+    return buildTodaySessionItem(
+      args.row,
+      args.state,
+      args.interactionHandlers,
       rerenderDetails,
     );
   }
-  return buildPastSessionItem(row, interactionHandlers, rerenderDetails);
+  if (args.mode === "future") {
+    return buildFutureSessionItem(
+      args.row,
+      args.state,
+      args.interactionHandlers,
+      rerenderDetails,
+    );
+  }
+  return buildPastSessionItem(
+    args.row,
+    args.interactionHandlers,
+    rerenderDetails,
+  );
 }

@@ -51,7 +51,7 @@ export function minutesFormForSession(
   minutesLabel.textContent = "Planned Minutes";
   minutesLabel.append(minutesInput);
   const { actions, cancelBtn } = minutesFormActions();
-  let initialMinutesValue = String(minutesInput.value ?? "").trim();
+  let initialMinutesValue = String(minutesInput.value).trim();
   syncSummaryText(summaryValue, initialMinutesValue);
   let isEditorOpen = MINUTES_EDITOR_OPEN_BY_DEFAULT;
   syncEditorVisibility(minutesForm, summaryRow, editButton, isEditorOpen);
@@ -70,13 +70,13 @@ export function minutesFormForSession(
     editButton.focus();
   };
   minutesForm.onsubmit = (event) => {
-    const updatedValues = submitMinutesUpdate(
+    const updatedValues = submitMinutesUpdate({
       event,
       row,
       minutesInput,
       initialMinutesValue,
       interactionHandlers,
-    );
+    });
     initialMinutesValue = updatedValues.initialMinutesValue;
     if (updatedValues.applied) {
       syncSummaryText(summaryValue, initialMinutesValue);

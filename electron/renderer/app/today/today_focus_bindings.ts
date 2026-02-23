@@ -7,6 +7,7 @@ import {
   openFocusMode,
   startFocusSession,
   TINY_START_MINUTES,
+  type TodayFocusState,
 } from "./today_focus.js";
 import type { PlannerResult } from "../types.js";
 import {
@@ -21,6 +22,17 @@ const SESSION_UPDATE_EVENT = "today-focus-session-updated";
 
 type SetStatus = (message: string, isError?: boolean) => void;
 
+interface TodayFocusDomRefs {
+  focusCompleteButton: HTMLButtonElement;
+  focusEntryButton: HTMLButtonElement;
+  focusFeedback: HTMLElement;
+  focusPanel: HTMLElement;
+  focusSessionMeta: HTMLElement;
+  focusSessionText: HTMLElement;
+  focusStartButton: HTMLButtonElement;
+  focusTinyStartButton: HTMLButtonElement;
+}
+
 export interface BindTodayFocusActionsArgs {
   getLastResult(): PlannerResult | null;
   getScheduleCompletions(): Record<string, boolean>;
@@ -33,122 +45,157 @@ export interface BindTodayFocusActionsArgs {
 }
 
 /**
- * Binds Today focus-mode UI actions (open/start/tiny-start/complete).
- * @param root0 Focus action dependencies from runtime state and mutators.
- * @param root0.getLastResult Returns the latest planner result.
- * @param root0.getScheduleCompletions Returns current completion map.
- * @param root0.setScheduleCompletions Persists updated completion map in state.
- * @param root0.getSessions Returns normalized session history.
- * @param root0.setSessions Replaces normalized session history.
- * @param root0.queuePersist Queues draft persistence after state changes.
- * @param root0.updateTodayView Re-renders the Today dashboard panel.
- * @param root0.setStatus Publishes user-visible status messages.
+ * Resolves Today focus-mode DOM nodes used by focus action bindings.
+ * @returns Collected DOM references for focus UI controls.
  */
-export function bindTodayFocusActions({
-  getLastResult,
-  getScheduleCompletions,
-  setScheduleCompletions,
-  getSessions,
-  setSessions,
-  queuePersist,
-  updateTodayView,
-  setStatus,
-}: BindTodayFocusActionsArgs): void {
-  const focusEntryButton = el<HTMLButtonElement>("startSessionFromTodayBtn");
-  const focusPanel = el("todayFocusModePanel");
-  const focusSessionText = el("todayFocusSessionText");
-  const focusSessionMeta = el("todayFocusSessionMeta");
-  const focusFeedback = el("todayFocusFeedback");
-  const focusStartButton = el<HTMLButtonElement>("todayFocusStartBtn");
-  const focusTinyStartButton = el<HTMLButtonElement>("todayFocusTinyStartBtn");
-  const focusCompleteButton = el<HTMLButtonElement>("todayFocusCompleteBtn");
+function readTodayFocusDomRefs(): TodayFocusDomRefs {
+  return {
+    focusCompleteButton: el<HTMLButtonElement>("todayFocusCompleteBtn"),
+    focusEntryButton: el<HTMLButtonElement>("startSessionFromTodayBtn"),
+    focusFeedback: el("todayFocusFeedback"),
+    focusPanel: el("todayFocusModePanel"),
+    focusSessionMeta: el("todayFocusSessionMeta"),
+    focusSessionText: el("todayFocusSessionText"),
+    focusStartButton: el<HTMLButtonElement>("todayFocusStartBtn"),
+    focusTinyStartButton: el<HTMLButtonElement>("todayFocusTinyStartBtn"),
+  };
+}
 
+/**
+ * Renders Today focus controls from the current focus-state snapshot.
+ * @param refs Focus UI DOM references.
+ * @param focusState Current Today focus-mode state.
+ */
+function renderFocusMode(
+  refs: TodayFocusDomRefs,
+  focusState: TodayFocusState,
+): void {
+  const focusEntryButton = refs.focusEntryButton;
+  const focusPanel = refs.focusPanel;
+  const focusSessionText = refs.focusSessionText;
+  const focusSessionMeta = refs.focusSessionMeta;
+  const focusStartButton = refs.focusStartButton;
+  const focusCompleteButton = refs.focusCompleteButton;
+  const focusFeedback = refs.focusFeedback;
+  setFocusEntryButtonState(focusEntryButton, focusState.isOpen);
+  focusPanel.hidden = !focusState.isOpen;
+  if (!focusState.isOpen) {
+    return;
+  }
+  if (focusState.session) {
+    focusSessionText.textContent =
+      `Next: ${focusState.session.title} (${focusState.session.minutes} minutes)`;
+    focusSessionMeta.textContent = `Scheduled for ${focusState.session.date}`;
+  } else {
+    focusSessionText.textContent = "No upcoming planned session.";
+    focusSessionMeta.textContent =
+      "Use Tiny Start to log a short reading sprint.";
+  }
+  focusStartButton.hidden = !focusState.session;
+  focusStartButton.disabled = focusState.isStarted;
+  focusCompleteButton.hidden = !focusState.isStarted || !focusState.session;
+  focusFeedback.textContent = focusState.feedback;
+}
+
+/**
+ * Refreshes focus-session metadata from the Today entry button dataset.
+ * @param refs Focus UI DOM references.
+ * @param focusState Current focus-mode state.
+ * @returns Updated state with latest session metadata when applicable.
+ */
+function refreshedFocusState(
+  refs: TodayFocusDomRefs,
+  focusState: TodayFocusState,
+): TodayFocusState {
+  if (!focusState.isOpen || focusState.isStarted) {
+    return focusState;
+  }
+  return {
+    ...focusState,
+    session: readFocusSessionFromDataset(refs.focusEntryButton),
+  };
+}
+
+/**
+ * Binds Today focus-mode UI actions (open/start/tiny-start/complete).
+ * @param args Focus action dependencies from runtime state and mutators.
+ * @param args.getLastResult Returns the latest planner result.
+ * @param args.getScheduleCompletions Returns current completion map.
+ * @param args.setScheduleCompletions Persists updated completion map in state.
+ * @param args.getSessions Returns normalized session history.
+ * @param args.setSessions Replaces normalized session history.
+ * @param args.queuePersist Queues draft persistence after state changes.
+ * @param args.updateTodayView Re-renders the Today dashboard panel.
+ * @param args.setStatus Publishes user-visible status messages.
+ */
+export function bindTodayFocusActions(args: BindTodayFocusActionsArgs): void {
+  const refs = readTodayFocusDomRefs();
   let focusState = createClosedFocusState();
-  const renderFocusMode = () => {
-    setFocusEntryButtonState(focusEntryButton, focusState.isOpen);
-    focusPanel.hidden = !focusState.isOpen;
-    if (!focusState.isOpen) {
-      return;
-    }
-    if (focusState.session) {
-      focusSessionText.textContent = `Next: ${focusState.session.title} (${focusState.session.minutes} minutes)`;
-      focusSessionMeta.textContent = `Scheduled for ${focusState.session.date}`;
-    } else {
-      focusSessionText.textContent = "No upcoming planned session.";
-      focusSessionMeta.textContent = "Use Tiny Start to log a short reading sprint.";
-    }
-    focusStartButton.hidden = !focusState.session;
-    focusStartButton.disabled = focusState.isStarted;
-    focusCompleteButton.hidden = !focusState.isStarted || !focusState.session;
-    focusFeedback.textContent = focusState.feedback;
+  const render = (): void => {
+    renderFocusMode(refs, focusState);
+  };
+  const refreshFocusSession = (): void => {
+    focusState = refreshedFocusState(refs, focusState);
+    render();
   };
 
-  const refreshFocusSession = () => {
-    if (!focusState.isOpen || focusState.isStarted) {
-      return;
-    }
-    const updatedSession = readFocusSessionFromDataset(focusEntryButton);
-    focusState = {
-      ...focusState,
-      session: updatedSession,
-    };
-    renderFocusMode();
-  };
-
-  focusEntryButton.onclick = () => {
+  refs.focusEntryButton.onclick = () => {
     if (focusState.isOpen) {
       focusState = createClosedFocusState();
-      renderFocusMode();
-      focusEntryButton.focus();
+      render();
+      refs.focusEntryButton.focus();
       return;
     }
-    focusState = openFocusMode(readFocusSessionFromDataset(focusEntryButton));
-    renderFocusMode();
-    focusTinyStartButton.focus();
+    focusState = openFocusMode(readFocusSessionFromDataset(refs.focusEntryButton));
+    render();
+    refs.focusTinyStartButton.focus();
   };
-  focusEntryButton.addEventListener(SESSION_UPDATE_EVENT, refreshFocusSession);
-  focusStartButton.onclick = () => {
+  refs.focusEntryButton.addEventListener(
+    SESSION_UPDATE_EVENT,
+    refreshFocusSession,
+  );
+  refs.focusStartButton.onclick = () => {
     focusState = startFocusSession(focusState);
-    renderFocusMode();
+    render();
     if (focusState.session) {
-      setStatus(`Started "${focusState.session.title}".`);
+      args.setStatus(`Started "${focusState.session.title}".`);
       activateTab("schedule", { focusPanel: true });
     } else {
-      setStatus("No planned session available to start.", true);
+      args.setStatus("No planned session available to start.", true);
     }
   };
-  focusTinyStartButton.onclick = () => {
+  refs.focusTinyStartButton.onclick = () => {
     const tinyStartSession = tinyStartSessionFromFocus(focusState.session);
-    setSessions([tinyStartSession, ...getSessions()]);
-    queuePersist();
-    updateTodayView();
+    args.setSessions([tinyStartSession, ...args.getSessions()]);
+    args.queuePersist();
+    args.updateTodayView();
     focusState = completeTinyStart(focusState);
-    renderFocusMode();
-    setStatus(`Logged Tiny Start (${TINY_START_MINUTES} minutes).`);
+    render();
+    args.setStatus(`Logged Tiny Start (${TINY_START_MINUTES} minutes).`);
   };
-  focusCompleteButton.onclick = () => {
-    const row = findSessionRow(getLastResult(), focusState.session);
+  refs.focusCompleteButton.onclick = () => {
+    const row = findSessionRow(args.getLastResult(), focusState.session);
     if (!row) {
-      setStatus("Could not find this planned session to mark complete.", true);
+      args.setStatus("Could not find this planned session to mark complete.", true);
       return;
     }
     const nextCompletions = nextCompletionsWithRowMarkedComplete(
-      getScheduleCompletions(),
+      args.getScheduleCompletions(),
       row,
     );
-    setScheduleCompletions(nextCompletions);
-    queuePersist();
-    updateTodayView();
-    const nextSession = readFocusSessionFromDataset(focusEntryButton);
+    args.setScheduleCompletions(nextCompletions);
+    args.queuePersist();
+    args.updateTodayView();
+    const nextSession = readFocusSessionFromDataset(refs.focusEntryButton);
     focusState = {
       ...openFocusMode(nextSession),
       feedback: `Marked "${row.title || "session"}" complete.`,
     };
-    renderFocusMode();
-    setStatus(`Marked "${row.title || "session"}" complete.`);
+    render();
+    args.setStatus(`Marked "${row.title || "session"}" complete.`);
   };
   el("viewScheduleFromTodayBtn").onclick = () => {
     activateTab("schedule", { focusPanel: true });
   };
-  renderFocusMode();
+  render();
 }

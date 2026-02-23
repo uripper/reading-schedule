@@ -9,6 +9,7 @@ const AUTHOR_LIST_LOCALE = "en";
 
 export interface RecommendationItem {
   author: string;
+  coverUrl: string;
   title: string;
   wordsTotal: number;
 }
@@ -107,6 +108,7 @@ export function buildRecommendations(
       recommendationKeys.add(key);
       recommendations.push({
         author,
+        coverUrl: "",
         title: seed.title,
         wordsTotal: seed.wordsTotal,
       });

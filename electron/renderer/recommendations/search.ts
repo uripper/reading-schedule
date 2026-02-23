@@ -8,6 +8,18 @@ const MAX_PER_AUTHOR = 3;
 const DEFAULT_WORDS_TOTAL = 60000;
 const WORDS_PER_PAGE_ESTIMATE = 300;
 const AUTHOR_LOCALE = "en";
+const TITLE_MIN_LENGTH = 2;
+const TITLE_MAX_LENGTH = 90;
+const AUTHOR_MAX_LENGTH = 64;
+const AUTHOR_MAX_WORDS = 4;
+const NON_BOOK_TITLE_PATTERNS = [
+  "proceedings",
+  "journal",
+  "coloquio",
+  "conference",
+  "universidad",
+  "investigación",
+];
 
 type RecommendationSearchApi = Pick<PlannerApi, "searchBooks">;
 
@@ -28,6 +40,38 @@ function normalizedText(value: string | null | undefined): string {
  */
 function recommendationKey(title: string, author: string): string {
   return `${normalizedText(title)}|${normalizedText(author)}`;
+}
+
+/**
+ * Normalizes text for alphanumeric token comparisons.
+ * @param value Raw text value.
+ * @returns Lowercased text with punctuation collapsed to spaces.
+ */
+function normalizedAlnumText(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replaceAll(/[^\p{L}\p{N}\s]/gu, " ")
+    .toLocaleLowerCase(AUTHOR_LOCALE)
+    .trim();
+}
+
+/**
+ * Checks whether candidate title looks like a book title rather than metadata noise.
+ * @param title Candidate title.
+ * @returns True when title passes quality heuristics.
+ */
+function isPlausibleBookTitle(title: string): boolean {
+  const text = title.trim();
+  if (text.length < TITLE_MIN_LENGTH || text.length > TITLE_MAX_LENGTH) {
+    return false;
+  }
+  const normalized = normalizedText(text);
+  for (const pattern of NON_BOOK_TITLE_PATTERNS) {
+    if (normalized.includes(pattern)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /**
@@ -54,18 +98,28 @@ function wordsFromLookup(item: BookLookupItem): number {
  * @returns True when names overlap after normalization.
  */
 function authorMatches(readAuthor: string, candidateAuthor: string): boolean {
-  const readAuthorKey = normalizedText(readAuthor);
-  const candidateAuthorKey = normalizedText(candidateAuthor);
+  const readAuthorKey = normalizedAlnumText(readAuthor);
+  const candidateAuthorKey = normalizedAlnumText(candidateAuthor);
   if (readAuthorKey.length === 0 || candidateAuthorKey.length === 0) {
     return false;
   }
-  if (readAuthorKey.includes(candidateAuthorKey)) {
+  const candidateWordCount = candidateAuthorKey.split(/\s+/).filter(Boolean).length;
+  if (candidateWordCount > AUTHOR_MAX_WORDS) {
+    return false;
+  }
+  if (candidateAuthorKey.length > AUTHOR_MAX_LENGTH) {
+    return false;
+  }
+  if (readAuthorKey === candidateAuthorKey) {
     return true;
   }
-  if (candidateAuthorKey.includes(readAuthorKey)) {
+  if (candidateAuthorKey.startsWith(readAuthorKey)) {
     return true;
   }
-  return false;
+  if (readAuthorKey.startsWith(candidateAuthorKey)) {
+    return true;
+  }
+  return readAuthorKey.includes(candidateAuthorKey) && candidateAuthorKey.length >= 5;
 }
 
 /**
@@ -92,7 +146,7 @@ function normalizeLookupRecommendation(
   readAuthor: string,
 ): RecommendationItem | null {
   const title = String(item.title ?? "").trim();
-  if (title.length === 0) {
+  if (!isPlausibleBookTitle(title)) {
     return null;
   }
   const lookupAuthor = String(item.author ?? "").trim();
@@ -102,6 +156,7 @@ function normalizeLookupRecommendation(
   }
   return {
     author,
+    coverUrl: String(item.cover_url ?? "").trim(),
     title,
     wordsTotal: wordsFromLookup(item),
   };

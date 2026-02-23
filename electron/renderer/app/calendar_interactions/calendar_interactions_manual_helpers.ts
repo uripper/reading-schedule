@@ -62,7 +62,7 @@ function difficultyMultiplier(
 ): number {
   const multiplierByDifficulty = settings.difficulty_multiplier ?? {};
   const exact = multiplierByDifficulty[difficulty];
-  const multiplier = Number(exact ?? DEFAULT_DIFFICULTY_MULTIPLIER);
+  const multiplier = Number(exact);
   if (!Number.isFinite(multiplier) || multiplier <= 0) {
     return DEFAULT_DIFFICULTY_MULTIPLIER;
   }

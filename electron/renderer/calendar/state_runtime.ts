@@ -36,14 +36,14 @@ export interface ManualSessionBook {
 }
 
 export interface CalendarHandlers {
-  isSessionCompleted(sessionKey: string): boolean;
-  onSessionCompletionChanged(payload: CompletionChangePayload): void;
-  onSessionProgressUpdated(payload: ProgressUpdatePayload): Book | null;
-  onSessionMinutesUpdated(payload: MinutesUpdatePayload): boolean;
-  getBookById(bookId: string): Book | null;
-  listSessionBooks(): ManualSessionBook[];
-  onManualSessionAdded(payload: ManualSessionPayload): boolean;
-  onSessionRemoved(payload: RemoveSessionPayload): boolean;
+  isSessionCompleted(this: void, sessionKey: string): boolean;
+  onSessionCompletionChanged(this: void, payload: CompletionChangePayload): void;
+  onSessionProgressUpdated(this: void, payload: ProgressUpdatePayload): Book | null;
+  onSessionMinutesUpdated(this: void, payload: MinutesUpdatePayload): boolean;
+  getBookById(this: void, bookId: string): Book | null;
+  listSessionBooks(this: void): ManualSessionBook[];
+  onManualSessionAdded(this: void, payload: ManualSessionPayload): boolean;
+  onSessionRemoved(this: void, payload: RemoveSessionPayload): boolean;
 }
 
 export interface CalendarRuntimeState {
@@ -83,7 +83,9 @@ export function createCalendarRuntimeState(): CalendarRuntimeState {
 export function defaultCalendarHandlers(): CalendarHandlers {
   return {
     isSessionCompleted: () => false,
-    onSessionCompletionChanged: () => {},
+    onSessionCompletionChanged: (payload): void => {
+      Boolean(payload.completed);
+    },
     onSessionProgressUpdated: () => null,
     onSessionMinutesUpdated: () => false,
     getBookById: () => null,

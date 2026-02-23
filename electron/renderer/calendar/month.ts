@@ -34,40 +34,47 @@ function todayDayKey(): string {
 /**
  * Renders month grid, day buttons, and keyboard interactions.
  * @param state Calendar render state.
- * @param root0 Month interaction callbacks.
- * @param root0.selectDate Date selection callback.
- * @param root0.moveSelectionBy Keyboard/grid movement callback.
- * @param root0.renderDetails Details rerender callback.
+ * @param actions Month interaction callbacks.
+ * @param actions.selectDate Date selection callback.
+ * @param actions.moveSelectionBy Keyboard/grid movement callback.
+ * @param actions.renderDetails Details rerender callback.
  */
 export function renderCalendarMonth(
   state: CalendarState,
-  { selectDate, moveSelectionBy, renderDetails }: MonthActions,
+  actions: MonthActions,
 ): void {
-  const monthKey = state.months[state.index];
+  const calendarState = state;
+  const moveSelectionBy = (delta: number, currentIndex: number): void => {
+    actions.moveSelectionBy(delta, currentIndex);
+  };
+  const monthKey = calendarState.months[calendarState.index];
   const calendar = el("calendar");
   if (!monthKey) {
     const empty = document.createElement("p");
     empty.className = "hint-text";
     empty.textContent = "No schedule yet.";
     calendar.replaceChildren(empty);
-    state.monthCellKeys = [];
-    renderDetails();
+    calendarState.monthCellKeys = [];
+    actions.renderDetails();
     return;
   }
 
   const [year, month] = monthKey.split("-").map(Number);
   const firstDate = new Date(year, month - 1, 1);
   const cells = monthCells(monthKey);
-  state.monthCellKeys = cells.map((date) => dayKey(date));
+  calendarState.monthCellKeys = cells.map((date) => dayKey(date));
 
   if (
-    !state.selectedDate ||
-    !state.monthCellKeys.includes(state.selectedDate)
+    calendarState.selectedDate === "" ||
+    !calendarState.monthCellKeys.includes(calendarState.selectedDate)
   ) {
-    const firstWithRows = state.monthCellKeys.find((cellKey) => {
-      return (state.dates[cellKey] || []).length > 0;
+    const firstWithRows = calendarState.monthCellKeys.find((cellKey) => {
+      if (!(cellKey in calendarState.dates)) {
+        return false;
+      }
+      return calendarState.dates[cellKey].length > 0;
     });
-    state.selectedDate = (firstWithRows ?? state.monthCellKeys[0]) || "";
+    calendarState.selectedDate = firstWithRows ?? calendarState.monthCellKeys[0];
   }
 
   const grid = document.createElement("div");
@@ -77,22 +84,27 @@ export function renderCalendarMonth(
   const todayKey = todayDayKey();
 
   cells.forEach((date, index) => {
-    const keyForDay = state.monthCellKeys[index];
-    const rows = state.dates[keyForDay] || [];
-    const dayButton = createDayButton(
+    const keyForDay = calendarState.monthCellKeys[index];
+    let rows: CalendarRow[] = [];
+    if (keyForDay in calendarState.dates) {
+      rows = calendarState.dates[keyForDay];
+    }
+    const dayButton = createDayButton({
       date,
       firstDate,
       keyForDay,
       rows,
-      state.selectedDate,
+      selectedDate: calendarState.selectedDate,
       todayKey,
-    );
-    dayButton.onclick = () => { selectDate(keyForDay); };
+    });
+    dayButton.onclick = () => {
+      actions.selectDate(keyForDay);
+    };
     dayButton.onkeydown = (event) => {
       handleDayKeydown(
         event,
         index,
-        state.monthCellKeys.length,
+        calendarState.monthCellKeys.length,
         moveSelectionBy,
       );
     };
@@ -100,5 +112,5 @@ export function renderCalendarMonth(
   });
 
   calendar.replaceChildren(...createWeekdayHeader(), grid);
-  renderDetails();
+  actions.renderDetails();
 }

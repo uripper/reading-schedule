@@ -49,9 +49,10 @@ function nextProgress(
   plannedWords: number,
   progressByBookId: Record<string, number>,
 ): number {
-  const previousProgress = Number(progressByBookId[bookId] || 0);
+  const nextProgressByBookId = progressByBookId;
+  const previousProgress = Number(nextProgressByBookId[bookId] || 0);
   const next = previousProgress + plannedWords;
-  progressByBookId[bookId] = next;
+  nextProgressByBookId[bookId] = next;
   return next;
 }
 
@@ -69,6 +70,7 @@ function isFinishRow(
   totals: Record<string, number>,
   finishedByBookId: Record<string, boolean>,
 ): boolean {
+  const nextFinishedByBookId = finishedByBookId;
   if (!bookId) {
     return false;
   }
@@ -76,13 +78,13 @@ function isFinishRow(
   if (totalWords <= 0) {
     return false;
   }
-  if (finishedByBookId[bookId]) {
+  if (nextFinishedByBookId[bookId]) {
     return false;
   }
   if (nextBookProgress < totalWords) {
     return false;
   }
-  finishedByBookId[bookId] = true;
+  nextFinishedByBookId[bookId] = true;
   return true;
 }
 
@@ -163,9 +165,12 @@ export function groupRowsByDate(
   rows: CalendarRowWithFinish[] = [],
 ): RowsByDate {
   const groupedRows = rows.reduce((accumulator, row) => {
-    accumulator[row.date] ||= [];
-    accumulator[row.date].push(row);
-    return accumulator;
+    const nextAccumulator = accumulator;
+    if (!(row.date in nextAccumulator)) {
+      nextAccumulator[row.date] = [];
+    }
+    nextAccumulator[row.date].push(row);
+    return nextAccumulator;
   }, {} as RowsByDate);
   Object.keys(groupedRows).forEach((dateKey) => {
     groupedRows[dateKey] = rowsWithFinishFirst(groupedRows[dateKey]);
@@ -199,5 +204,8 @@ export function firstPlannedRow(rows: CalendarRow[] = []): CalendarRow | null {
   const sortedRows = sortRowsByDateAndSession(rows);
   const today = todayKey();
   const upcoming = sortedRows.find((row) => String(row.date || "") >= today);
-  return (upcoming ?? sortedRows[0]) || null;
+  if (upcoming) {
+    return upcoming;
+  }
+  return sortedRows[0];
 }

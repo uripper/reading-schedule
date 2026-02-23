@@ -14,22 +14,24 @@ export function initializePickerForBook(
   state: PickerState,
   book: Book | null,
 ): void {
-  state.currentBookId = String(book?.book_id ?? "");
-  state.selectedBookId = "";
-  refs.afterBookInput.value = "";
-  refs.blockedByInput.value = "";
+  const formRefs = refs;
+  const pickerState = state;
+  pickerState.currentBookId = String(book?.book_id ?? "");
+  pickerState.selectedBookId = "";
+  formRefs.afterBookInput.value = "";
+  formRefs.blockedByInput.value = "";
 
   const blockedById = String(book?.blocked_by ?? "");
   if (!blockedById) {
     return;
   }
 
-  state.selectedBookId = blockedById;
-  refs.blockedByInput.value = blockedById;
-  const selected = state.options.find((item) => item.book_id === blockedById);
+  pickerState.selectedBookId = blockedById;
+  formRefs.blockedByInput.value = blockedById;
+  const selected = pickerState.options.find((item) => item.book_id === blockedById);
   if (selected) {
-    refs.afterBookInput.value = optionLabel(selected);
+    formRefs.afterBookInput.value = optionLabel(selected);
     return;
   }
-  setUnknownSelectionLabel(refs, blockedById);
+  setUnknownSelectionLabel(formRefs, blockedById);
 }

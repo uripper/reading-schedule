@@ -60,7 +60,7 @@ function compareTextInsensitive(left: string, right: string): number {
  * @returns Group metadata keyed by title letter or misc bucket.
  */
 function titleLetterMetaForBook(book: Book): GroupMeta {
-  const first = titleInitialLetter(book?.title);
+  const first = titleInitialLetter(book.title);
   if (!first) {
     return {
       key: TITLE_MISC_KEY,
@@ -93,7 +93,7 @@ function titleLetterMetaForBook(book: Book): GroupMeta {
  * @returns Group metadata keyed by author name.
  */
 function authorMetaForBook(book: Book): GroupMeta {
-  const author = normalizedText(book?.author);
+  const author = normalizedText(book.author);
   if (!author) {
     return {
       key: `author:${UNKNOWN_AUTHOR_LABEL}`,

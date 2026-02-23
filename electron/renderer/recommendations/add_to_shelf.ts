@@ -4,7 +4,7 @@ import type { RecommendationItem } from "./model.js";
 const MIN_WORDS_TOTAL = 1;
 
 interface RecommendationFormTarget {
-  form: HTMLFormElement;
+  shelfInput: HTMLSelectElement;
   titleInput: HTMLInputElement;
   authorInput: HTMLInputElement;
   wordsInput: HTMLInputElement;
@@ -24,7 +24,7 @@ function normalizedWordsTotal(wordsTotal: number): string {
 }
 
 /**
- * Applies recommendation values to the add-book form and submits it.
+ * Applies recommendation values to the add-book form and focuses shelf selection.
  * @param target Required add-book form references.
  * @param recommendation Recommendation selected by the user.
  */
@@ -36,11 +36,11 @@ export function submitRecommendationToShelf(
   nextTarget.titleInput.value = recommendation.title;
   nextTarget.authorInput.value = recommendation.author;
   nextTarget.wordsInput.value = normalizedWordsTotal(recommendation.wordsTotal);
-  nextTarget.form.requestSubmit();
+  nextTarget.shelfInput.focus();
 }
 
 /**
- * Opens the add-book dialog, fills recommendation values, and submits to shelf.
+ * Opens the add-book dialog and prefills recommendation fields for user review.
  * @param recommendation Recommendation selected by the user.
  */
 export function addRecommendationToShelf(
@@ -50,7 +50,7 @@ export function addRecommendationToShelf(
   addButton.click();
   submitRecommendationToShelf(
     {
-      form: el<HTMLFormElement>("bookForm"),
+      shelfInput: el<HTMLSelectElement>("bookShelfSelectInput"),
       titleInput: el<HTMLInputElement>("bookTitleInput"),
       authorInput: el<HTMLInputElement>("bookFormAuthor"),
       wordsInput: el<HTMLInputElement>("bookWordsInput"),

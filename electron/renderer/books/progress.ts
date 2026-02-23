@@ -1,6 +1,20 @@
 import { clamp } from "./utils.js";
 import type { Book, BookProgressUpdates } from "./types.js";
 
+interface ProgressTotals {
+  hasPagesTotal: boolean;
+  pagesTotal: number;
+}
+
+interface PercentUpdateContext extends ProgressTotals {
+  hasPagesUpdate: boolean;
+}
+
+interface PagesUpdateResult {
+  book: Book;
+  hasPagesUpdate: boolean;
+}
+
 /**
  * Parses numeric-like input and rejects blank/non-finite values.
  * @param raw Raw value from progress update payload.
@@ -19,74 +33,74 @@ function parseFiniteNumber(raw?: string | number): number | null {
 
 /**
  * Applies pages-read update to a mutable book copy.
- * @param nextBook Mutable book copy being updated.
+ * @param book Book copy being updated.
  * @param pagesUpdate Parsed pages-read update value.
- * @param hasPagesTotal Whether total pages is known and valid.
- * @param pagesTotal Total pages used for clamping.
- * @returns `true` when pages-read field was updated.
+ * @param totals Total-page context used for clamping.
+ * @returns Updated book and whether pages-read changed.
  */
 function applyPagesUpdate(
-  nextBook: Book,
+  book: Book,
   pagesUpdate: number | null,
-  hasPagesTotal: boolean,
-  pagesTotal: number,
-) {
+  totals: ProgressTotals,
+): PagesUpdateResult {
   if (pagesUpdate === null) {
-    return false;
+    return { book, hasPagesUpdate: false };
   }
-  if (hasPagesTotal) {
-    nextBook.pages_read = clamp(Math.round(pagesUpdate), 0, pagesTotal);
-  } else {
-    nextBook.pages_read = Math.max(0, Math.round(pagesUpdate));
+  const pagesRead = Math.round(pagesUpdate);
+  if (!totals.hasPagesTotal) {
+    return {
+      book: { ...book, pages_read: Math.max(0, pagesRead) },
+      hasPagesUpdate: true,
+    };
   }
-  return true;
+  return {
+    book: { ...book, pages_read: clamp(pagesRead, 0, totals.pagesTotal) },
+    hasPagesUpdate: true,
+  };
 }
 
 /**
  * Applies explicit percent update when pages-read was not directly edited.
- * @param nextBook Mutable book copy being updated.
+ * @param book Book copy being updated.
  * @param pctUpdate Parsed progress-percent update value.
- * @param hasPagesUpdate Whether pages-read was already updated.
- * @param hasPagesTotal Whether total pages is known and valid.
- * @param pagesTotal Total pages used to infer pages-read from percent.
+ * @param context Progress update context.
+ * @returns Updated book with percent and inferred pages when applicable.
  */
 function applyPercentUpdate(
-  nextBook: Book,
+  book: Book,
   pctUpdate: number | null,
-  hasPagesUpdate: boolean,
-  hasPagesTotal: boolean,
-  pagesTotal: number,
-) {
-  if (pctUpdate === null || hasPagesUpdate) {
-    return;
+  context: PercentUpdateContext,
+): Book {
+  if (pctUpdate === null || context.hasPagesUpdate) {
+    return book;
   }
-  nextBook.progress_percent = Math.round(clamp(pctUpdate, 0, 100) * 10) / 10;
-  if (hasPagesTotal) {
-    nextBook.pages_read = Math.round(
-      (nextBook.progress_percent / 100) * pagesTotal,
-    );
+  const progressPercent = Math.round(clamp(pctUpdate, 0, 100) * 10) / 10;
+  if (!context.hasPagesTotal) {
+    return { ...book, progress_percent: progressPercent };
   }
+  const pagesRead = Math.round((progressPercent / 100) * context.pagesTotal);
+  return { ...book, progress_percent: progressPercent, pages_read: pagesRead };
 }
 
 /**
  * Recomputes progress percent from pages-read when total pages is known.
- * @param nextBook Mutable book copy being updated.
- * @param hasPagesTotal Whether total pages is known and valid.
- * @param pagesTotal Total pages used for percent calculation.
+ * @param book Book copy being updated.
+ * @param totals Total-page context used for percent calculation.
+ * @returns Updated book with recomputed progress percent.
  */
 function reconcilePercentFromPages(
-  nextBook: Book,
-  hasPagesTotal: boolean,
-  pagesTotal: number,
-) {
-  if (!hasPagesTotal) {
-    return;
+  book: Book,
+  totals: ProgressTotals,
+): Book {
+  if (!totals.hasPagesTotal) {
+    return book;
   }
-  if (nextBook.pages_read === null || nextBook.pages_read === undefined) {
-    return;
+  if (book.pages_read === null) {
+    return book;
   }
-  const pct = (Number(nextBook.pages_read) / pagesTotal) * 100;
-  nextBook.progress_percent = Math.round(clamp(pct, 0, 100) * 10) / 10;
+  const pct = (book.pages_read / totals.pagesTotal) * 100;
+  const progressPercent = Math.round(clamp(pct, 0, 100) * 10) / 10;
+  return { ...book, progress_percent: progressPercent };
 }
 
 /**
@@ -99,24 +113,25 @@ export function withUpdatedProgress(
   book: Book,
   updates: BookProgressUpdates = {},
 ): Book {
-  const nextBook = { ...book };
+  let nextBook = { ...book };
   const pagesTotal = Number(nextBook.pages_total ?? 0);
-  const hasPagesTotal = Number.isFinite(pagesTotal) && pagesTotal > 0;
-  const pagesUpdate = parseFiniteNumber(updates.pagesRead ?? undefined);
-  const hasPagesUpdate = applyPagesUpdate(
-    nextBook,
-    pagesUpdate,
-    hasPagesTotal,
+  const totals: ProgressTotals = {
+    hasPagesTotal: Number.isFinite(pagesTotal) && pagesTotal > 0,
     pagesTotal,
-  );
+  };
+  const pagesUpdate = parseFiniteNumber(updates.pagesRead ?? undefined);
+  const pagesUpdateResult = applyPagesUpdate(nextBook, pagesUpdate, totals);
+  nextBook = pagesUpdateResult.book;
   const pctUpdate = parseFiniteNumber(updates.progressPercent ?? undefined);
-  applyPercentUpdate(
+  nextBook = applyPercentUpdate(
     nextBook,
     pctUpdate,
-    hasPagesUpdate,
-    hasPagesTotal,
-    pagesTotal,
+    {
+      hasPagesUpdate: pagesUpdateResult.hasPagesUpdate,
+      hasPagesTotal: totals.hasPagesTotal,
+      pagesTotal: totals.pagesTotal,
+    },
   );
-  reconcilePercentFromPages(nextBook, hasPagesTotal, pagesTotal);
+  nextBook = reconcilePercentFromPages(nextBook, totals);
   return nextBook;
 }

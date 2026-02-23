@@ -32,6 +32,7 @@ export function createAfterBookPicker(
   refs: BookFormRefs,
   getBooks: GetBooks,
 ): AfterBookPicker {
+  const formRefs = refs;
   const state: PickerState = {
     activeIndex: NO_ACTIVE_INDEX,
     currentBookId: "",
@@ -40,7 +41,7 @@ export function createAfterBookPicker(
     selectedBookId: "",
   };
   const render = (): void => {
-    renderAfterBookResults(refs, state);
+    renderAfterBookResults(formRefs, state);
   };
   const clearResults = (): void => {
     state.filtered = [];
@@ -48,26 +49,30 @@ export function createAfterBookPicker(
   };
   const clearSelection = (): void => {
     state.selectedBookId = "";
-    refs.blockedByInput.value = "";
+    formRefs.blockedByInput.value = "";
   };
   const selectBook = (book: Book | null | undefined): void => {
     if (!book) {
       return;
     }
     state.selectedBookId = String(book.book_id || "");
-    refs.blockedByInput.value = state.selectedBookId;
-    refs.afterBookInput.value = optionLabel(book);
+    formRefs.blockedByInput.value = state.selectedBookId;
+    formRefs.afterBookInput.value = optionLabel(book);
     clearResults();
     render();
   };
   const refreshOptions = (): void => {
     const availableBooks = getBooks().filter((book) => {
-      return book?.book_id && book.book_id !== state.currentBookId;
+      const bookId = String(book.book_id || "");
+      if (bookId === "") {
+        return false;
+      }
+      return bookId !== state.currentBookId;
     });
     state.options = availableBooks.toSorted(compareBooks);
   };
   const refreshFiltered = (clearChangedSelection: boolean): void => {
-    const query = refs.afterBookInput.value.trim();
+    const query = formRefs.afterBookInput.value.trim();
     if (clearChangedSelection) {
       const current = selectedBook(state);
       if (!query || !current || !labelsMatch(query, optionLabel(current))) {
@@ -83,7 +88,7 @@ export function createAfterBookPicker(
   };
   bindAfterBookPickerEvents({
     clearResults,
-    refs,
+    refs: formRefs,
     refreshFiltered,
     render,
     selectBook,
@@ -92,7 +97,7 @@ export function createAfterBookPicker(
   const openForBook = (book: Book | null = null): void => {
     state.currentBookId = String(book?.book_id ?? "");
     refreshOptions();
-    initializePickerForBook(refs, state, book);
+    initializePickerForBook(formRefs, state, book);
     clearResults();
     render();
   };

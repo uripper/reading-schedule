@@ -48,8 +48,8 @@ export function progressFormForToday(
   percentLabel.textContent = "Complete %";
   percentLabel.append(pctInput);
 
-  let initialPagesValue = String(pagesInput.value ?? "").trim();
-  let initialPercentValue = String(pctInput.value ?? "").trim();
+  let initialPagesValue = String(pagesInput.value).trim();
+  let initialPercentValue = String(pctInput.value).trim();
 
   const saveBtn = document.createElement("button");
   saveBtn.type = "submit";
@@ -58,7 +58,7 @@ export function progressFormForToday(
 
   progressForm.append(pagesLabel, percentLabel, saveBtn);
   progressForm.onsubmit = (event) => {
-    const updatedValues = submitProgressUpdate(
+    const updatedValues = submitProgressUpdate({
       event,
       row,
       pagesInput,
@@ -66,7 +66,7 @@ export function progressFormForToday(
       initialPagesValue,
       initialPercentValue,
       interactionHandlers,
-    );
+    });
     initialPagesValue = updatedValues.initialPagesValue;
     initialPercentValue = updatedValues.initialPercentValue;
     if (updatedValues.applied) {
