@@ -1,7 +1,8 @@
 param(
   [string]$SourcePath,
   [string]$InstallPath = "$env:LOCALAPPDATA\ReadingPlanOptimizer",
-  [string]$PythonSpec = "3"
+  [string]$PythonSpec = "3",
+  [switch]$Hot
 )
 
 $ErrorActionPreference = 'Stop'
@@ -64,6 +65,10 @@ Push-Location .\electron
 npm install --include=dev
 $env:PYTHON_BIN = (Resolve-Path ..\.venv\Scripts\python.exe).Path
 $env:UI_SCALE = "1.65"
-npm run start
+if ($Hot) {
+  npm run dev
+} else {
+  npm run start
+}
 Pop-Location
 Pop-Location

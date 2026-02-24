@@ -67,19 +67,19 @@ Set a specific Python launcher target:
 npm run dev:windows -- 3.11
 ```
 
-Auto-rebuild + auto-restart on changes (WSL -> Windows sync poll loop):
+Hot reload in development mode (TypeScript watch + `electron-reloader`):
 
 ```bash
 npm run dev:windows:hot
 ```
 
-Set Python and poll interval seconds:
+Set a specific Python launcher target:
 
 ```bash
-npm run dev:windows:hot -- 3.11 1
+npm run dev:windows:hot -- 3.11
 ```
 
-This is restart-on-change (not in-window HMR).
+This uses in-process Electron hot reload rather than an external sync/restart poll loop.
 
 ## Experience Settings Status
 

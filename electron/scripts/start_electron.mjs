@@ -6,14 +6,28 @@ import { fileURLToPath } from "node:url";
 const require = createRequire(import.meta.url);
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(path.join(SCRIPT_DIR, ".."));
+const DEVELOPMENT_ENVIRONMENT = "development";
+const DEVELOPMENT_FLAG = "--development";
+
+/**
+ * Detects whether the script should launch Electron in development mode.
+ * @returns {boolean} True when development launch flag is present.
+ */
+function isDevelopmentLaunch() {
+  return process.argv.includes(DEVELOPMENT_FLAG);
+}
 
 /**
  * Returns environment variables safe for launching Electron child process.
+ * @param {boolean} developmentLaunch Whether to force development mode.
  * @returns {NodeJS.ProcessEnv} Cleaned environment object.
  */
-function cleanedEnvironment() {
+function cleanedEnvironment(developmentLaunch) {
   const env = { ...process.env };
   delete env.ELECTRON_RUN_AS_NODE;
+  if (developmentLaunch) {
+    env.NODE_ENV = DEVELOPMENT_ENVIRONMENT;
+  }
   return env;
 }
 
@@ -33,9 +47,10 @@ function electronBinaryPath() {
  * Spawns Electron process with inherited stdio and exit propagation.
  */
 function spawnElectron() {
+  const developmentLaunch = isDevelopmentLaunch();
   const child = spawn(electronBinaryPath(), ["."], {
     cwd: ROOT,
-    env: cleanedEnvironment(),
+    env: cleanedEnvironment(developmentLaunch),
     stdio: "inherit",
   });
   child.on("error", (error) => {
