@@ -1,6 +1,5 @@
 import {
   CALENDAR_COLUMN_COUNT,
-  DAY_GRID_SIZE,
   SESSION_INDEX_PAD,
   WEEK_START_OFFSET,
 } from "./constants.js";
@@ -14,6 +13,17 @@ const DATE_KEY_PART_COUNT = 3;
 const DATE_KEY_MONTH_INDEX = 1;
 const DATE_KEY_DAY_INDEX = 2;
 const MONTH_INDEX_OFFSET = 1;
+
+/**
+ * Calculates the number of weeks needed to display a month in a calendar grid.
+ * @param weekdayOffset Number of blank cells before the first day of the month (0-6).
+ * @param daysInMonth Number of days in the month (28-31).
+ * @returns Number of weeks needed to display the month.
+ */
+function weekCountNeeded(weekdayOffset: number, daysInMonth: number): number {
+  const totalCells = weekdayOffset + daysInMonth;
+  return Math.ceil(totalCells / CALENDAR_COLUMN_COUNT);
+}
 
 /**
  * Builds sortable key from calendar row date and session index.
@@ -82,7 +92,13 @@ export function monthCells(monthKey: string): Date[] {
   const weekdayOffset =
     (first.getDay() + WEEK_START_OFFSET) % CALENDAR_COLUMN_COUNT;
   start.setDate(first.getDate() - weekdayOffset);
-  return Array.from({ length: DAY_GRID_SIZE }, (_, index) => {
+
+  // Determine day_grid_size based on number of days in month
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const weekCount = weekCountNeeded(weekdayOffset, daysInMonth);
+  const dayGridSize: number = CALENDAR_COLUMN_COUNT * weekCount;
+
+  return Array.from({ length: dayGridSize }, (_, index) => {
     return new Date(
       start.getFullYear(),
       start.getMonth(),
