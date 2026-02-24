@@ -1,5 +1,5 @@
 .stats-section-heading {
-  font-size: clamp(1.45rem, 2vw, 1.8rem);
+  font-size: var(--token-typography-size-xl);
 }
 
 .month-bar-track {

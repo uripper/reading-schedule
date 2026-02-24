@@ -40,7 +40,7 @@ function card(title: string, value: string, note: string): HTMLElement {
   const node = document.createElement("article");
   node.className = "stats-card";
 
-  const heading = document.createElement("h3");
+  const heading = document.createElement("h2");
   heading.textContent = title;
 
   const valueNode = document.createElement("p");
@@ -126,7 +126,7 @@ function statusPanel(snapshot: StatsSnapshot): HTMLElement {
   const panel = document.createElement("article");
   panel.className = "stats-panel";
 
-  const heading = document.createElement("h3");
+  const heading = document.createElement("h1");
   heading.className = "stats-section-heading";
   heading.textContent = "Status Mix";
 
@@ -172,7 +172,7 @@ function monthPanel(snapshot: StatsSnapshot): HTMLElement {
   const panel = document.createElement("article");
   panel.className = "stats-panel";
 
-  const heading = document.createElement("h3");
+  const heading = document.createElement("h1");
   heading.className = "stats-section-heading";
   heading.textContent = `Finish Timeline ${snapshot.year}`;
 

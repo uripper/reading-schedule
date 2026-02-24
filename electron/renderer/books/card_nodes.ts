@@ -131,7 +131,7 @@ export function createCardNode(
   }
   const meta = document.createElement("div");
   meta.className = "book-meta";
-  const heading = document.createElement("h3");
+  const heading = document.createElement("h1");
   heading.className = "book-title";
   heading.textContent = title;
   const status = document.createElement("span");

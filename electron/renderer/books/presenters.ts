@@ -2,7 +2,6 @@ import { WORDS_PER_PAGE } from "./constants.js";
 import { shelfLabelForBook } from "./shelf.js";
 import {
   BOOK_STATUS_READ,
-  statusLabel,
 } from "./status.js";
 import { formatInt } from "./utils.js";
 import type { Book, BookMetaOptions } from "./types.js";
@@ -98,7 +97,6 @@ export function metaLabel(book: Book, options: BookMetaOptions = {}): string {
   const titleById = options.titleById ?? {};
   const finishDateByBookId = options.finishDateByBookId ?? {};
   const bits: string[] = [];
-  bits.push(`Status ${statusLabel(book.status)}`);
 
   const finishPart = finishMetaPart(book, finishDateByBookId);
   if (finishPart !== null) {
