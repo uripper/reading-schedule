@@ -1,12 +1,18 @@
 import { bookCoverSrc } from "./model.js";
 import {
+  afterBookLinkButton,
+  estimatedFinishButton,
+  type CardNavigationActions,
+} from "./card_navigation_buttons.js";
+import { scrollToBookCard } from "./card_scroll_target.js";
+import {
+  blockerMeta,
   metaLabel,
   progressLabel,
   subtitle,
   wordsLabel,
 } from "./presenters.js";
 import { bindReadCardHolo } from "./card_holo.js";
-import { navigateToEstimatedFinishDate } from "./estimated_finish_navigation.js";
 import {
   BOOK_STATUS_IN_PROGRESS,
   BOOK_STATUS_READ,
@@ -14,10 +20,8 @@ import {
   statusLabel,
 } from "./status.js";
 import type { Book } from "./types.js";
-
-export interface CardRenderContext {
+export interface CardRenderContext extends CardNavigationActions {
   finishDateByBookId: Record<string, string>;
-  onEstimatedFinishNavigate(dateKey: string): void;
   showBlockerMeta: boolean;
   showShelfMeta: boolean;
   showWordCount: boolean;
@@ -26,9 +30,6 @@ export interface CardRenderContext {
 
 const CARD_CLASS = "book-card";
 const READ_CARD_CLASS = "is-read-card";
-const ESTIMATED_FINISH_BUTTON_CLASS = "book-estimated-finish-btn";
-const ESTIMATED_FINISH_ICON = "🗓";
-const ESTIMATED_FINISH_LABEL = "Est. Finish";
 const PRE_LINE_WHITESPACE = "pre-line";
 
 /**
@@ -65,35 +66,49 @@ function estimatedFinishDate(
   }
   return finishDate;
 }
-
 /**
- * Builds interactive estimated-finish control for schedulable books.
- * @param dateKey Estimated finish date key.
- * @param context Shared card render context.
- * @returns Configured button element.
+ * Builds the stats section for one book card.
+ * @param book Book model used for progress/meta labels.
+ * @param context Shared render context for metadata options and lookups.
+ * @returns Configured stats wrapper element.
  */
-function estimatedFinishButton(
-  dateKey: string,
-  context: CardRenderContext,
-): HTMLButtonElement {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = ESTIMATED_FINISH_BUTTON_CLASS;
-  button.dataset.finishDate = dateKey;
-  button.setAttribute(
-    "aria-label",
-    `Open schedule for estimated finish ${dateKey}`,
-  );
-  button.title = "Open in schedule";
-  button.textContent = `${ESTIMATED_FINISH_ICON} ${ESTIMATED_FINISH_LABEL} ${dateKey}`;
-  button.onclick = () => {
-    navigateToEstimatedFinishDate(dateKey, (nextDateKey) => {
-      context.onEstimatedFinishNavigate(nextDateKey);
-    });
-  };
-  return button;
+function cardStatsNode(book: Book, context: CardRenderContext): HTMLDivElement {
+  const stats = document.createElement("div");
+  stats.className = "book-stats";
+  const baseMetaText = metaLabel(book, {
+    finishDateByBookId: context.finishDateByBookId,
+    showShelfMeta: context.showShelfMeta,
+    titleById: context.titleById,
+    showBlockerMeta: false,
+  });
+  let blocker: ReturnType<typeof blockerMeta> = null;
+  if (context.showBlockerMeta) {
+    blocker = blockerMeta(book, context.titleById);
+  }
+  const statLines: Array<{ text: string; preserveLineBreaks: boolean }> = [
+    { text: progressLabel(book), preserveLineBreaks: false },
+  ];
+  if (context.showWordCount) {
+    statLines.push({ text: wordsLabel(book), preserveLineBreaks: false });
+  }
+  if (baseMetaText !== "") {
+    statLines.push({ text: baseMetaText, preserveLineBreaks: true });
+  }
+  statLines.forEach((line) => {
+    const span = document.createElement("span");
+    span.textContent = line.text;
+    if (line.preserveLineBreaks) {
+      span.style.whiteSpace = PRE_LINE_WHITESPACE;
+    }
+    stats.append(span);
+  });
+  if (blocker !== null) {
+    stats.append(
+      afterBookLinkButton(blocker.label, blocker.blockerBookId, scrollToBookCard),
+    );
+  }
+  return stats;
 }
-
 /**
  * Creates a full book card node including cover, metadata, and actions.
  * @param book Book model to render.
@@ -144,26 +159,7 @@ export function createCardNode(
   const sub = document.createElement("p");
   sub.className = "book-subtitle";
   sub.textContent = subtitle(book);
-  const stats = document.createElement("div");
-  stats.className = "book-stats";
-  const metaText = metaLabel(book, context);
-  const statLines: Array<{ text: string; preserveLineBreaks: boolean }> = [
-    { text: progressLabel(book), preserveLineBreaks: false },
-  ];
-  if (context.showWordCount) {
-    statLines.push({ text: wordsLabel(book), preserveLineBreaks: false });
-  }
-  if (metaText !== "") {
-    statLines.push({ text: metaText, preserveLineBreaks: true });
-  }
-  statLines.forEach((line) => {
-    const span = document.createElement("span");
-    span.textContent = line.text;
-    if (line.preserveLineBreaks) {
-      span.style.whiteSpace = PRE_LINE_WHITESPACE;
-    }
-    stats.append(span);
-  });
+  const stats = cardStatsNode(book, context);
   const actions = document.createElement("div");
   actions.className = "book-actions";
   if (finishDate !== null) {
@@ -178,23 +174,4 @@ export function createCardNode(
   meta.append(heading, sub, status, stats, actions);
   card.append(coverButton, meta);
   return card;
-}
-
-/**
- * Builds a map of book id to title, preferring full-catalog input when present.
- * @param books Current filtered/rendered books.
- * @param allBooks Full catalog books.
- * @returns Book id to title map.
- */
-export function titleByIdMap(
-  books: Book[],
-  allBooks: Book[],
-): Record<string, string> {
-  let sourceBooks = books;
-  if (allBooks.length) {
-    sourceBooks = allBooks;
-  }
-  return Object.fromEntries(
-    sourceBooks.map((book) => [book.book_id, book.title]),
-  );
 }

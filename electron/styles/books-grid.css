@@ -152,6 +152,23 @@
   white-space: pre-line;
 }
 
+.book-after-link-btn {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--app-brand);
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.book-after-link-btn:hover,
+.book-after-link-btn:focus-visible {
+  color: color-mix(in srgb, var(--app-brand) 70%, var(--app-text));
+}
+
 .book-actions {
   margin-top: var(--token-space-1);
   display: flex;

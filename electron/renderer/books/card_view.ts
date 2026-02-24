@@ -2,7 +2,7 @@ import type { BookGroup } from "./grouping.js";
 import type { Book } from "./types.js";
 import { bindCardEvents } from "./card_events.js";
 import { renderFlatBooks, renderGroupedBooks } from "./card_group_render.js";
-import { titleByIdMap } from "./card_nodes.js";
+import { titleByIdMap } from "./title_lookup.js";
 
 interface RenderBookGridOptions {
   grid: HTMLElement;

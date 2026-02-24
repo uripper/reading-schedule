@@ -6,6 +6,11 @@ import {
 import { formatInt } from "./utils.js";
 import type { Book, BookMetaOptions } from "./types.js";
 
+export interface BlockerMeta {
+  blockerBookId: string;
+  label: string;
+}
+
 /**
  * Checks whether an optional numeric value is a positive finite number.
  * @param value Numeric value that may be nullish.
@@ -42,17 +47,39 @@ function finishMetaPart(
  * Builds blocker metadata text with title resolution when available.
  * @param book Book to describe.
  * @param titleById Book-title lookup keyed by `book_id`.
+ * @returns Blocker metadata or `null` when no blocker is set.
+ */
+export function blockerMeta(
+  book: Book,
+  titleById: Record<string, string>,
+): BlockerMeta | null {
+  const blockerBookId = String(book.blocked_by ?? "").trim();
+  if (blockerBookId === "") {
+    return null;
+  }
+  const resolvedBlocker = titleById[blockerBookId];
+  let blockerLabel = blockerBookId;
+  if (typeof resolvedBlocker === "string" && resolvedBlocker !== "") {
+    blockerLabel = resolvedBlocker;
+  }
+  return {
+    blockerBookId,
+    label: `After: ${blockerLabel}`,
+  };
+}
+
+/**
+ * Builds blocker metadata text with title resolution when available.
+ * @param book Book to describe.
+ * @param titleById Book-title lookup keyed by `book_id`.
  * @returns Metadata text or `null` when no blocker is set.
  */
 function blockerMetaPart(book: Book, titleById: Record<string, string>): string | null {
-  if (book.blocked_by === null || book.blocked_by === "") {
+  const blocker = blockerMeta(book, titleById);
+  if (blocker === null) {
     return null;
   }
-  const resolvedBlocker = titleById[book.blocked_by];
-  if (resolvedBlocker !== "") {
-    return `After: ${resolvedBlocker}`;
-  }
-  return `After: ${book.blocked_by}`;
+  return blocker.label;
 }
 
 /**
