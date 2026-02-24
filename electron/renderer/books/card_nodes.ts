@@ -175,7 +175,7 @@ export function createCardNode(
   removeBtn.dataset.bookId = bookId;
   removeBtn.textContent = "Remove";
   actions.append(removeBtn);
-  meta.append(heading, status, sub, stats, actions);
+  meta.append(heading, sub, status, stats, actions);
   card.append(coverButton, meta);
   return card;
 }
