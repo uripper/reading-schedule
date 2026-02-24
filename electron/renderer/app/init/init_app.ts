@@ -77,13 +77,6 @@ function configureCalendarAppInteractions(
 ): void {
   const runtimeState = appContext.state;
   configureAppCalendarInteractions({
-    state: runtimeState,
-    queuePersist: (): void => {
-      appContext.queuePersist();
-    },
-    setStatus: (message: string, isError?: boolean): void => {
-      appContext.setStatus(message, isError);
-    },
     configureCalendarInteractions,
     collectSettings,
     collectAllBooks,
@@ -92,6 +85,13 @@ function configureCalendarAppInteractions(
     totalsFromSummary,
     updateBookProgress,
     getBookById,
+    state: runtimeState,
+    queuePersist: (): void => {
+      appContext.queuePersist();
+    },
+    setStatus: (message: string, isError?: boolean): void => {
+      appContext.setStatus(message, isError);
+    },
     setLastResult: (nextResult: PlannerResult) => {
       runtimeState.lastResult = nextResult;
     },

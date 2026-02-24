@@ -16,7 +16,6 @@ interface ScrollSettleState {
  */
 function nowMs(): number {
   if (
-    typeof globalThis.performance !== "undefined" &&
     typeof globalThis.performance.now === "function"
   ) {
     return globalThis.performance.now();
@@ -73,8 +72,8 @@ function nextSettleState(card: HTMLElement, state: ScrollSettleState): ScrollSet
   return {
     lastTop: rect.top,
     lastLeft: rect.left,
-    stableFrames,
     startedAtMs: state.startedAtMs,
+    stableFrames,
   };
 }
 
