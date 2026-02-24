@@ -1,5 +1,6 @@
 import type { PlannerScheduleRow } from "../app/types.js";
 import { renderBookGrid } from "./card_view.js";
+import { collectSettings } from "../settings.js";
 import { groupsForEstimatedFinish } from "./estimated_finish_groups.js";
 import { finishDatesByBookId } from "./finish_dates.js";
 import { GROUP_BY_NONE, groupBooks } from "./grouping.js";
@@ -21,6 +22,19 @@ import type {
   BooksControllerRefs,
   BooksViewState,
 } from "./controller_types.js";
+
+/**
+ * Normalizes a settings value to boolean with a fallback.
+ * @param value Raw setting value.
+ * @param fallback Default value when not explicitly boolean.
+ * @returns Boolean display toggle value.
+ */
+function settingBoolean(value: unknown, fallback: boolean): boolean {
+  if (typeof value === "boolean") {
+    return value;
+  }
+  return fallback;
+}
 
 interface RenderBooksControllerArgs {
   refs: BooksControllerRefs;
@@ -79,7 +93,12 @@ export function renderBooksController(args: RenderBooksControllerArgs): void {
     nextViewState.sortDirection,
   );
 
-  const showShelfMeta = nextViewState.shelfFilter === SHELF_FILTER_ALL;
+  const settings = collectSettings();
+  const showWordCount = settingBoolean(settings.books_show_word_count, true);
+  const showBlockerMeta = settingBoolean(settings.books_show_blocker_meta, true);
+  const showShelfSetting = settingBoolean(settings.books_show_shelf_meta, true);
+  const showShelfMeta = showShelfSetting &&
+    nextViewState.shelfFilter === SHELF_FILTER_ALL;
   const finishDateByBookId = finishDatesByBookId(args.scheduleRows, args.books);
   const visibleBooks = visibleBooksForView(
     args.books,
@@ -98,7 +117,9 @@ export function renderBooksController(args: RenderBooksControllerArgs): void {
     groups,
     finishDateByBookId,
     onEstimatedFinishNavigate,
+    showBlockerMeta,
     showShelfMeta,
+    showWordCount,
     books: visibleBooks,
     allBooks: args.books,
     grid: renderRefs.grid,

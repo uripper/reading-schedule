@@ -12,7 +12,9 @@ interface RenderBookGridOptions {
   allBooks?: Book[];
   finishDateByBookId?: Record<string, string>;
   onEstimatedFinishNavigate(dateKey: string): void;
+  showBlockerMeta?: boolean;
   showShelfMeta?: boolean;
+  showWordCount?: boolean;
   onEdit(bookId: string): void;
   onRemove(bookId: string): void;
 }
@@ -35,7 +37,9 @@ export function renderBookGrid(args: RenderBookGridOptions): void {
   const groups = args.groups ?? [];
   const allBooks = args.allBooks ?? [];
   const finishDateByBookId = args.finishDateByBookId ?? {};
+  const showBlockerMeta = args.showBlockerMeta ?? true;
   const showShelfMeta = args.showShelfMeta ?? true;
+  const showWordCount = args.showWordCount ?? true;
   const onEstimatedFinishNavigate = (dateKey: string): void => {
     args.onEstimatedFinishNavigate(dateKey);
   };
@@ -48,7 +52,9 @@ export function renderBookGrid(args: RenderBookGridOptions): void {
   const context = {
     finishDateByBookId,
     onEstimatedFinishNavigate,
+    showBlockerMeta,
     showShelfMeta,
+    showWordCount,
     titleById: titleByIdMap(args.books, allBooks),
   };
 

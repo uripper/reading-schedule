@@ -18,7 +18,9 @@ import type { Book } from "./types.js";
 export interface CardRenderContext {
   finishDateByBookId: Record<string, string>;
   onEstimatedFinishNavigate(dateKey: string): void;
+  showBlockerMeta: boolean;
   showShelfMeta: boolean;
+  showWordCount: boolean;
   titleById: Record<string, string>;
 }
 
@@ -27,7 +29,7 @@ const READ_CARD_CLASS = "is-read-card";
 const ESTIMATED_FINISH_BUTTON_CLASS = "book-estimated-finish-btn";
 const ESTIMATED_FINISH_ICON = "🗓";
 const ESTIMATED_FINISH_LABEL = "Est. Finish";
-const METADATA_LINE_INDEX = 2;
+const PRE_LINE_WHITESPACE = "pre-line";
 
 /**
  * Builds class-name text for a card based on book status.
@@ -145,11 +147,20 @@ export function createCardNode(
   const stats = document.createElement("div");
   stats.className = "book-stats";
   const metaText = metaLabel(book, context);
-  [progressLabel(book), wordsLabel(book), metaText].forEach((text, index) => {
+  const statLines: Array<{ text: string; preserveLineBreaks: boolean }> = [
+    { text: progressLabel(book), preserveLineBreaks: false },
+  ];
+  if (context.showWordCount) {
+    statLines.push({ text: wordsLabel(book), preserveLineBreaks: false });
+  }
+  if (metaText !== "") {
+    statLines.push({ text: metaText, preserveLineBreaks: true });
+  }
+  statLines.forEach((line) => {
     const span = document.createElement("span");
-    span.textContent = text;
-    if (index === METADATA_LINE_INDEX) {
-      span.style.whiteSpace = "pre-line";
+    span.textContent = line.text;
+    if (line.preserveLineBreaks) {
+      span.style.whiteSpace = PRE_LINE_WHITESPACE;
     }
     stats.append(span);
   });

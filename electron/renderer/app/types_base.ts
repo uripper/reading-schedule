@@ -25,6 +25,9 @@ export type PlannerSettings = {
   minutes_by_weekday?: Record<string, number>;
   days_off?: string[];
   difficulty_multiplier?: Record<string, number>;
+  books_show_word_count?: boolean;
+  books_show_blocker_meta?: boolean;
+  books_show_shelf_meta?: boolean;
 } & Record<string, JsonValue>;
 
 export interface PlannerScheduleRow {

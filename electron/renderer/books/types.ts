@@ -33,4 +33,6 @@ export interface BookMetaOptions {
   titleById?: Record<string, string>;
   finishDateByBookId?: Record<string, string>;
   showShelfMeta?: boolean;
+  showBlockerMeta?: boolean;
+  showWordCount?: boolean;
 }

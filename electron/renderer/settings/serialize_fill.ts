@@ -37,6 +37,18 @@ function selectSettingValue(value: unknown): string {
 }
 
 /**
+ * Resolves boolean setting values with support for string payload variants.
+ * @param value Raw settings value.
+ * @returns Boolean value for checkbox controls.
+ */
+function checkboxSettingValue(value: unknown): boolean {
+  if (value === false || value === "false") {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Populates settings form controls from planner settings payload.
  * @param settings Planner settings payload.
  * @param setDayOffs Setter used to update day-off chips/state.
@@ -49,6 +61,10 @@ export function fillSettingsForm(
     const value = settings[field.id];
     if (field.type === "select") {
       selectEl(field.id).value = selectSettingValue(value);
+      return;
+    }
+    if (field.type === "checkbox") {
+      inputEl(field.id).checked = checkboxSettingValue(value);
       return;
     }
     inputEl(field.id).value = settingValueText(value);

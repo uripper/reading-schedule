@@ -79,4 +79,24 @@ export const fields: Record<FieldGroupName, FieldDefinition[]> = {
       step: "0.1",
     },
   ],
+  display: [
+    {
+      id: "books_show_word_count",
+      label: "Show word counts in Books cards",
+      type: "checkbox",
+      hint: "Toggles the words/estimate row shown under reading progress.",
+    },
+    {
+      id: "books_show_blocker_meta",
+      label: "Show blocker metadata (After: ...)",
+      type: "checkbox",
+      hint: "Shows or hides the dependency note for blocked books.",
+    },
+    {
+      id: "books_show_shelf_meta",
+      label: "Show shelf metadata (Shelf: ...)",
+      type: "checkbox",
+      hint: "Shows or hides each book's shelf label in card metadata.",
+    },
+  ],
 };

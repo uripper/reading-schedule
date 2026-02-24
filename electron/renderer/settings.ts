@@ -25,6 +25,7 @@ export function initSettingsGrid(): void {
   renderGrid("windowGrid", fields.window);
   renderGrid("budgetGrid", fields.budget);
   renderGrid("weightsGrid", fields.weights);
+  renderGrid("displayGrid", fields.display);
   renderWeekdayGrid();
   renderDifficultyRows();
   bindDayOffAddButton(() => dayOffs, setDayOffs);

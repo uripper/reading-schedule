@@ -49,6 +49,9 @@ function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
     if (typeof field.step === "string" && field.step.length > 0) {
       node.step = field.step;
     }
+    if (field.type === "checkbox") {
+      label.classList.add("toggle-row");
+    }
   }
 
   node.id = field.id;

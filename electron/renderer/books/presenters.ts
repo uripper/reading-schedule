@@ -50,9 +50,9 @@ function blockerMetaPart(book: Book, titleById: Record<string, string>): string 
   }
   const resolvedBlocker = titleById[book.blocked_by];
   if (resolvedBlocker !== "") {
-    return `After ${resolvedBlocker}`;
+    return `After: ${resolvedBlocker}`;
   }
-  return `After ${book.blocked_by}`;
+  return `After: ${book.blocked_by}`;
 }
 
 /**
@@ -103,14 +103,16 @@ export function metaLabel(book: Book, options: BookMetaOptions = {}): string {
     bits.push(finishPart);
   }
   if (book.deadline !== null && book.deadline !== "") {
-    bits.push(`Due ${book.deadline}`);
+    bits.push(`Due: ${book.deadline}`);
   }
-  const blockerPart = blockerMetaPart(book, titleById);
-  if (blockerPart !== null) {
-    bits.push(blockerPart);
+  if (options.showBlockerMeta !== false) {
+    const blockerPart = blockerMetaPart(book, titleById);
+    if (blockerPart !== null) {
+      bits.push(blockerPart);
+    }
   }
   if (options.showShelfMeta === true) {
-    bits.push(`Shelf ${shelfLabelForBook(book)}`);
+    bits.push(`Shelf: ${shelfLabelForBook(book)}`);
   }
   return bits.join("\n");
 }
