@@ -18,7 +18,8 @@ from reading_plan.reading_calendar import parse_date
 def settings_from_data(data: dict[str, Any]) -> Settings:
     """Normalize raw settings payload data into a validated Settings model."""
     by_weekday = {
-        k[:3].title(): int(v) for k, v in (data.get("minutes_by_weekday") or {}).items()
+        k[:3].title(): int(v)
+        for k, v in (data.get("minutes_by_weekday") or {}).items()
     }
     raw_diff = data.get("difficulty_multiplier", DEFAULT_DIFFICULTY_MULTIPLIER)
     diff = {int(k): float(v) for k, v in raw_diff.items()}
@@ -35,9 +36,8 @@ def settings_from_data(data: dict[str, Any]) -> Settings:
     elif minutes_per_day not in {None, ""}:
         parsed_minutes_per_day = to_int(minutes_per_day, "minutes_per_day")
     else:
-        raise ValueError(
-            "Either minutes_per_day or minutes_by_weekday must be provided."
-        )
+        msg = "minutes_per_day cannot be empty. Provide a number."
+        raise ValueError(msg)
 
     settings = Settings(
         start_date=start_date,
@@ -52,7 +52,9 @@ def settings_from_data(data: dict[str, Any]) -> Settings:
         max_sessions_per_day=to_int(
             data.get("max_sessions_per_day", 2), "max_sessions_per_day"
         ),
-        max_books_per_day=to_int(data.get("max_books_per_day", 2), "max_books_per_day"),
+        max_books_per_day=to_int(
+            data.get("max_books_per_day", 2), "max_books_per_day"
+        ),
         w_finish=to_float(data.get("w_finish", 5.0), "w_finish"),
         w_priority=to_float(data.get("w_priority", 5.0), "w_priority"),
         w_switch=to_float(data.get("w_switch", 0.0), "w_switch"),
@@ -63,7 +65,8 @@ def settings_from_data(data: dict[str, Any]) -> Settings:
             "max_blocks_per_book_per_day",
         ),
         plan_mode=str(
-            data.get("plan_mode", PLAN_MODE_FINISH_SOON) or PLAN_MODE_FINISH_SOON
+            data.get("plan_mode", PLAN_MODE_FINISH_SOON)
+            or PLAN_MODE_FINISH_SOON
         )
         .strip()
         .lower(),
