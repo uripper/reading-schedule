@@ -40,29 +40,29 @@ def _create_book_day_variables(
         for day_index, day in enumerate(context.days):
             upper = min(context.caps[day], per_book_cap)
             key = (book.book_id, day)
-            x[key] = context.model.NewIntVar(
+            x[key] = context.model.new_int_var(
                 0,
                 upper,
                 f"x_{book_index}_{day_index}",
             )
-            y[key] = context.model.NewBoolVar(f"y_{book_index}_{day_index}")
-            context.model.Add(x[key] <= upper * y[key])
-            context.model.Add(x[key] >= book.min_blocks_per_session * y[key])
+            y[key] = context.model.new_bool_var(f"y_{book_index}_{day_index}")
+            context.model.add(x[key] <= upper * y[key])
+            context.model.add(x[key] >= book.min_blocks_per_session * y[key])
     return x, y
 
 
 def _add_day_constraints(context: ModelBuildContext) -> None:
     """Apply daily capacity and session-count limits."""
     for day in context.days:
-        context.model.Add(
+        context.model.add(
             sum(context.x[book.book_id, day] for book in context.books)
             <= context.caps[day]
         )
-        context.model.Add(
+        context.model.add(
             sum(context.y[book.book_id, day] for book in context.books)
             <= context.settings.max_books_per_day
         )
-        context.model.Add(
+        context.model.add(
             sum(context.y[book.book_id, day] for book in context.books)
             <= context.settings.max_sessions_per_day
         )
@@ -80,18 +80,18 @@ def _add_dependency_constraints(context: ModelBuildContext) -> None:
                 context.wpb[blocker_id] * context.x[blocker_id, prev_day]
                 for prev_day in context.days[:day_index]
             )
-            blocker_done = context.model.NewBoolVar(
+            blocker_done = context.model.new_bool_var(
                 f"ready_{book_index}_{day_index}"
             )
-            at_or_above_target = context.model.Add(
+            at_or_above_target = context.model.add(
                 progressed_before >= blocker.words_total
             )
             at_or_above_target.OnlyEnforceIf(blocker_done)
-            below_target = context.model.Add(
+            below_target = context.model.add(
                 progressed_before <= blocker.words_total - 1
             )
             below_target.OnlyEnforceIf(blocker_done.Not())
-            context.model.Add(context.y[book.book_id, day] <= blocker_done)
+            context.model.add(context.y[book.book_id, day] <= blocker_done)
 
 
 def _add_progress_constraints(
@@ -109,23 +109,23 @@ def _add_progress_constraints(
             1,
             book.min_blocks_per_session - 1,
         )
-        context.model.Add(progress <= book.words_total + overshoot)
+        context.model.add(progress <= book.words_total + overshoot)
 
-        useful_words[book.book_id] = context.model.NewIntVar(
+        useful_words[book.book_id] = context.model.new_int_var(
             0, book.words_total, f"u_{book_index}"
         )
-        context.model.Add(useful_words[book.book_id] <= progress)
-        context.model.Add(useful_words[book.book_id] <= book.words_total)
+        context.model.add(useful_words[book.book_id] <= progress)
+        context.model.add(useful_words[book.book_id] <= book.words_total)
 
-        finished[book.book_id] = context.model.NewBoolVar(f"f_{book_index}")
-        context.model.Add(progress >= book.words_total * finished[book.book_id])
+        finished[book.book_id] = context.model.new_bool_var(f"f_{book_index}")
+        context.model.add(progress >= book.words_total * finished[book.book_id])
 
         if not book.deadline:
             continue
         if due_days := [
             day for day in context.days if day <= book.deadline
         ]:
-            context.model.Add(
+            context.model.add(
                 sum(
                     context.wpb[book.book_id] * context.x[book.book_id, day]
                     for day in due_days
@@ -185,6 +185,6 @@ def build_cp_sat(books: list[Book], settings: Settings) -> BuildCpSatResult:
             assigned_blocks=context.x,
         ),
     )
-    model.Maximize(sum(terms))
+    model.maximize(sum(terms))
 
     return raw_model, context.x, context.y, finished, days

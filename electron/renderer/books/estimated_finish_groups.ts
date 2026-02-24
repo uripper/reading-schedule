@@ -35,7 +35,7 @@ export function groupsForEstimatedFinish(books: Book[] = []): BookGroup[] {
     if (!groupedBooks.length) {
       return;
     }
-    const key = `status:${definition.label.toLowerCase().replace(/\s+/g, "_")}`;
+    const key = `status:${definition.label.toLowerCase().replaceAll(/\s+/g, "_")}`;
     groups.push({
       key,
       label: definition.label,
