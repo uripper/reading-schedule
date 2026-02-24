@@ -17,6 +17,10 @@ import { readState, writeState } from "./main/state_store";
 import { findInPage, stopFindInPage } from "./main/window_find";
 
 const DEVELOPMENT_ENVIRONMENT = "development";
+const HOT_RELOAD_IGNORED_OUTPUTS = [
+  "dist/main.js",
+  "dist/main/**",
+];
 
 /**
  * Enables main-process hot reload during development.
@@ -26,7 +30,10 @@ async function enableDevelopmentHotReload(): Promise<void> {
     return;
   }
   const reloaderModule = await import("electron-reloader");
-  reloaderModule.default(module);
+  reloaderModule.default(module, {
+    ignore: HOT_RELOAD_IGNORED_OUTPUTS,
+    watchRenderer: true,
+  });
 }
 
 /**
