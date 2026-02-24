@@ -6,9 +6,7 @@ import {
 } from "./details_minutes_form_dom.js";
 import {
   MINUTES_EDITOR_OPEN_BY_DEFAULT,
-  minutesSummaryVisible,
   nextMinutesEditorOpenState,
-  plannedMinutesSummaryText,
   submitMinutesUpdate,
   syncEditorVisibility,
   syncSummaryText,
@@ -90,9 +88,3 @@ export function minutesFormForSession(
   return minutesContainer;
 }
 
-export {
-  MINUTES_EDITOR_OPEN_BY_DEFAULT,
-  minutesSummaryVisible,
-  nextMinutesEditorOpenState,
-  plannedMinutesSummaryText,
-};

@@ -7,7 +7,7 @@ import {
   minutesSummaryVisible,
   nextMinutesEditorOpenState,
   plannedMinutesSummaryText,
-} from "../dist/renderer/calendar/details_minutes_form.js";
+} from "../dist/renderer/calendar/details_minutes_form_helpers.js";
 
 /**
  * Builds schedule row fixture with override support.

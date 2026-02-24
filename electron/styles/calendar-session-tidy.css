@@ -1,3 +1,10 @@
+.day-session-title {
+  font-size: var(--token-typography-size-lg);
+  font-weight: var(--token-typography-weight-light);
+  color: var(--app-text);
+}
+
+
 .day-details-item {
   gap: var(--token-space-1);
   padding-right: var(--token-space-2);
@@ -25,7 +32,7 @@
 }
 
 .day-minutes-value {
-  font-size: clamp(1.3rem, 2vw, 1.6rem);
+  font-size: var(--token-typography-size-medium);
   letter-spacing: 0;
 }
 

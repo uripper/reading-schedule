@@ -18,6 +18,7 @@ export function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
     item.classList.add("is-finish");
   }
   const head = document.createElement("strong");
+  head.className = "day-session-title";
   head.textContent = row.title || "Untitled";
   if (row.finish) {
     const finishBadge = document.createElement("span");

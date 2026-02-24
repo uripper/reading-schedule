@@ -149,12 +149,12 @@ export function syncSummaryText(
  * @param args.interactionHandlers Detail interaction handlers.
  * @returns Updated initial value and whether an update was applied.
  */
-export function submitMinutesUpdate(
-  args: SubmitMinutesUpdateArgs,
-): { initialMinutesValue: string; applied: boolean } {
-  const { event, row, interactionHandlers } = args;
-  const minutesInput = args.minutesInput;
-  const initialMinutesValue = args.initialMinutesValue;
+export function submitMinutesUpdate(args: SubmitMinutesUpdateArgs): {
+  initialMinutesValue: string;
+  applied: boolean;
+} {
+  const { event, row, interactionHandlers, minutesInput, initialMinutesValue } =
+    args;
   event.preventDefault();
   const currentMinutesValue = inputValue(minutesInput);
   if (currentMinutesValue === initialMinutesValue) {
