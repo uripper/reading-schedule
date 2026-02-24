@@ -112,7 +112,7 @@ export function metaLabel(book: Book, options: BookMetaOptions = {}): string {
   if (options.showShelfMeta === true) {
     bits.push(`Shelf ${shelfLabelForBook(book)}`);
   }
-  return bits.join(" · ");
+  return bits.join("\n");
 }
 
 /**

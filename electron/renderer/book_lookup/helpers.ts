@@ -83,9 +83,7 @@ export function syncProgressAndPages(
   form: ProgressSyncInputs,
   changedField: ProgressField,
 ): void {
-  const pagesTotalInput = form.pagesTotalInput;
-  const pagesReadInput = form.pagesReadInput;
-  const progressInput = form.progressInput;
+  const { pagesTotalInput, pagesReadInput, progressInput } = form;
   const total = toInt(pagesTotalInput.value);
   if (total <= 0) {
     return;
@@ -95,15 +93,10 @@ export function syncProgressAndPages(
     if (pagesRead !== toInt(pagesReadInput.value)) {
       pagesReadInput.value = String(pagesRead);
     }
-    progressInput.value = String(
-      Math.round((pagesRead / total) * 1000) / 10,
-    );
+    progressInput.value = String(Math.round((pagesRead / total) * 1000) / 10);
     return;
   }
-  const progress = Math.min(
-    100,
-    Math.max(0, Number(progressInput.value)),
-  );
+  const progress = Math.min(100, Math.max(0, Number(progressInput.value)));
   progressInput.value = String(Math.round(progress * 10) / 10);
   pagesReadInput.value = String(Math.round((progress / 100) * total));
 }

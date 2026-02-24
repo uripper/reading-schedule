@@ -27,6 +27,7 @@ const READ_CARD_CLASS = "is-read-card";
 const ESTIMATED_FINISH_BUTTON_CLASS = "book-estimated-finish-btn";
 const ESTIMATED_FINISH_ICON = "🗓";
 const ESTIMATED_FINISH_LABEL = "Est. Finish";
+const METADATA_LINE_INDEX = 2;
 
 /**
  * Builds class-name text for a card based on book status.
@@ -144,9 +145,12 @@ export function createCardNode(
   const stats = document.createElement("div");
   stats.className = "book-stats";
   const metaText = metaLabel(book, context);
-  [progressLabel(book), wordsLabel(book), metaText].forEach((text) => {
+  [progressLabel(book), wordsLabel(book), metaText].forEach((text, index) => {
     const span = document.createElement("span");
     span.textContent = text;
+    if (index === METADATA_LINE_INDEX) {
+      span.style.whiteSpace = "pre-line";
+    }
     stats.append(span);
   });
   const actions = document.createElement("div");
