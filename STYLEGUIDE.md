@@ -119,6 +119,7 @@ A PR must not merge if any of the following is true:
   - Always provide an explicit compare callback for alphabetical string sorts using `String.prototype.localeCompare`.
   - Avoid implicit object-to-string coercion (`value || ""`, template literals with unknown values, `String(value)` on unknown objects) unless the value is first narrowed to `string`.
   - Remove redundant type assertions that do not narrow or otherwise change the static type.
+  - Type assertions (`as Type`, angle-bracket assertions, and non-null assertions `!`) require an immediately preceding comment that justifies why the assertion is necessary and why narrowing could not be expressed safely otherwise.
 
 ## Testing and Verification
 
@@ -234,6 +235,7 @@ These checks are advisory; required validation commands are mandatory.
 - [ ] File size policy met (<100 lines for 90% of files, <200 for all files).
 - [ ] No ternaries introduced.
 - [ ] No magic numbers introduced.
+- [ ] Every type assertion has an immediately preceding justification comment.
 - [ ] Lint/typecheck/tests passed for touched areas.
 - [ ] Tests added/updated for behavior changes.
 - [ ] Docs updated for behavior/config/API changes.

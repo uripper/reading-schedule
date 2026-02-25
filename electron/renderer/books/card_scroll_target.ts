@@ -4,7 +4,7 @@ import {
 } from "./card_scroll_settle.js";
 
 const AFTER_TARGET_CLASS = "is-after-target";
-const AFTER_TARGET_DURATION_MS = 2800;
+const AFTER_TARGET_DURATION_MS = 1800;
 const BOOK_CARD_SELECTOR = ".book-card";
 
 let nextScrollToken = 0;
