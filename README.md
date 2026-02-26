@@ -49,6 +49,8 @@ npm run tokens:build
 UI_SCALE=1.65 npm run start
 ```
 
+Book scheduling supports per-book weekday selection in the Books dialog, with an option to apply the same scheduled days to all books on the same shelf.
+
 ## Windows Install/Run Helper
 
 ```powershell

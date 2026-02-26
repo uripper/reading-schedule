@@ -26,10 +26,11 @@ function scheduledDayInputs(refs: BookFormRefs): HTMLInputElement[] {
  * @param refs Book form references containing scheduled-day controls.
  */
 export function resetScheduledDayControls(refs: BookFormRefs): void {
-  scheduledDayInputs(refs).forEach((input) => {
+  const formRefs = refs;
+  for (const input of scheduledDayInputs(formRefs)) {
     input.checked = true;
-  });
-  refs.applyScheduledDaysToShelfInput.checked = false;
+  }
+  formRefs.applyScheduledDaysToShelfInput.checked = false;
 }
 
 /**
@@ -41,12 +42,13 @@ export function fillScheduledDayControls(
   refs: BookFormRefs,
   days: unknown,
 ): void {
+  const formRefs = refs;
   const normalized = normalizeScheduledDays(days);
   const selected = new Set<BookWeekday>(normalized);
-  scheduledDayInputs(refs).forEach((input) => {
+  for (const input of scheduledDayInputs(formRefs)) {
     input.checked = selected.has(input.value as BookWeekday);
-  });
-  refs.applyScheduledDaysToShelfInput.checked = false;
+  }
+  formRefs.applyScheduledDaysToShelfInput.checked = false;
 }
 
 /**

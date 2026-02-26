@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from reading_plan.planner_types import PLAN_MODE_SPREAD_OUT
 from reading_plan.planning.budget import (
     book_day_block_limit,
+    book_is_scheduled_for_day,
     day_capacity_blocks,
     words_per_block,
 )
@@ -107,6 +108,7 @@ def _seed_day(state: DayState) -> None:
             state.cap < book.min_blocks_per_session
             or state.remaining[book.book_id] <= 0
             or not _is_unlocked(book, state.remaining)
+            or not book_is_scheduled_for_day(book, state.day)
         ):
             continue
         room = _room(state, book.book_id)
@@ -124,6 +126,7 @@ def _fill_day(state: DayState) -> None:
             for b in state.used
             if state.remaining[b.book_id] > 0
             and _is_unlocked(b, state.remaining)
+            and book_is_scheduled_for_day(b, state.day)
             and _room(state, b.book_id) > 0
         ]:
             top = min(
@@ -164,6 +167,8 @@ def _next_book(state: DayState) -> Book | None:
     for book in state.ordered:
         if book in state.used or state.remaining[book.book_id] <= 0:
             continue
+        if not book_is_scheduled_for_day(book, state.day):
+            continue
         if not _is_unlocked(book, state.remaining):
             continue
         if (
@@ -188,6 +193,7 @@ def _is_unlocked(book: Book, remaining: dict[str, float]) -> bool:
 
 def _spread_cap_for_day(state: SpreadState) -> int:
     """Compute a daily cap that spreads remaining work across active days."""
+    day = state.days[state.day_index]
     remaining_blocks = sum(
         math.ceil(words_left / state.wpb[book_id])
         for book_id, words_left in state.remaining.items()
@@ -207,6 +213,7 @@ def _spread_cap_for_day(state: SpreadState) -> int:
             for book in state.ordered
             if state.remaining[book.book_id] > 0
             and _is_unlocked(book, state.remaining)
+            and book_is_scheduled_for_day(book, day)
         ),
         default=0,
     )

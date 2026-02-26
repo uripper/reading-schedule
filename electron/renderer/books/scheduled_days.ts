@@ -26,6 +26,29 @@ export function isBookWeekday(value: string): value is BookWeekday {
 }
 
 /**
+ * Returns stable weekday order and removes duplicates/invalid values.
+ * Defaults to all weekdays when no valid values are present.
+ * @param rawDays Candidate weekday values.
+ * @returns Ordered weekday list.
+ */
+function orderedWeekdays(rawDays: unknown[]): BookWeekday[] {
+  const seen = new Set<BookWeekday>();
+  rawDays.forEach((rawValue) => {
+    if (typeof rawValue !== "string") {
+      return;
+    }
+    const weekday = rawValue.trim();
+    if (isBookWeekday(weekday)) {
+      seen.add(weekday);
+    }
+  });
+  if (seen.size === 0) {
+    return [...BOOK_WEEKDAYS];
+  }
+  return BOOK_WEEKDAYS.filter((weekday) => seen.has(weekday));
+}
+
+/**
  * Normalizes unknown scheduled-day input to ordered weekday keys.
  * Defaults to all weekdays when input is missing or invalid.
  * @param value Raw scheduled-days input.
@@ -52,24 +75,4 @@ export function scheduledDaysMatchAll(days: readonly string[]): boolean {
     return false;
   }
   return BOOK_WEEKDAYS.every((day, index) => normalized[index] === day);
-}
-
-/**
- * Returns stable weekday order and removes duplicates/invalid values.
- * Defaults to all weekdays when no valid values are present.
- * @param rawDays Candidate weekday values.
- * @returns Ordered weekday list.
- */
-function orderedWeekdays(rawDays: unknown[]): BookWeekday[] {
-  const seen = new Set<BookWeekday>();
-  rawDays.forEach((rawValue) => {
-    const weekday = String(rawValue ?? "").trim();
-    if (isBookWeekday(weekday)) {
-      seen.add(weekday);
-    }
-  });
-  if (seen.size === 0) {
-    return [...BOOK_WEEKDAYS];
-  }
-  return BOOK_WEEKDAYS.filter((weekday) => seen.has(weekday));
 }

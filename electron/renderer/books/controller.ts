@@ -1,6 +1,6 @@
 import { el } from "../dom.js";
 import type { PlannerScheduleRow } from "../../types/types.js";
-import { createBookDialog } from "./dialog.js";
+import { createBookDialog, type BookSubmitPayload } from "./dialog.js";
 import { GROUP_BY_NONE } from "./grouping.js";
 import {
   clearMissingBlockedBy,
@@ -10,6 +10,7 @@ import {
 } from "./model.js";
 import { withUpdatedProgress } from "./progress.js";
 import { hydrateBookCover, upsertBookById } from "./save.js";
+import { applyScheduledDaysToShelfBooks } from "./save_scheduled_days.js";
 import { BOOK_STATUS_FILTER_ALL, schedulableBook } from "./status.js";
 import {
   ensureBooksToolbarControls,
@@ -140,11 +141,15 @@ export function updateBookProgress(
 
 /**
  * Persists an edited book, including optional cover hydration, then rerenders.
- * @param book Book to save into the controller collection.
+ * @param payload Book save payload including optional shelf-day propagation flag.
  */
-async function saveBook(book: Book): Promise<void> {
-  const hydrated = await hydrateBookCover(book);
-  books = upsertBookById(books, hydrated);
+async function saveBook(payload: BookSubmitPayload): Promise<void> {
+  const hydrated = await hydrateBookCover(payload.book);
+  let nextBooks = upsertBookById(books, hydrated);
+  if (payload.applyScheduledDaysToShelf) {
+    nextBooks = applyScheduledDaysToShelfBooks(nextBooks, hydrated);
+  }
+  books = nextBooks;
   render();
   onBooksChanged();
 }

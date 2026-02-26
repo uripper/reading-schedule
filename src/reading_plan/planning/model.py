@@ -9,6 +9,7 @@ from ortools.sat.python import cp_model
 
 from reading_plan.planning.budget import (
     book_day_block_limit,
+    book_is_scheduled_for_day,
     day_capacity_blocks,
     words_per_block,
 )
@@ -39,6 +40,8 @@ def _create_book_day_variables(
         per_book_cap = book_day_block_limit(book, context.settings)
         for day_index, day in enumerate(context.days):
             upper = min(context.caps[day], per_book_cap)
+            if not book_is_scheduled_for_day(book, day):
+                upper = 0
             key = (book.book_id, day)
             x[key] = context.model.new_int_var(
                 0,

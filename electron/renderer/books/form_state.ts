@@ -2,6 +2,11 @@ import { uid } from "../dom.js";
 import { noteFromLookup, syncProgressAndPages } from "../book_lookup.js";
 import { bookCoverSrc, normalizeBook } from "./model.js";
 import {
+  fillScheduledDayControls,
+  readScheduledDaySelection,
+  resetScheduledDayControls,
+} from "./form_scheduled_days.js";
+import {
   CUSTOM_COVER_NOTE,
   DEFAULT_DIFFICULTY,
   DEFAULT_MIN_BLOCKS,
@@ -85,6 +90,7 @@ export function clearForm(
   formRefs.finishedAtInput.value = "";
   syncFinishedAtFieldState(formRefs);
   formRefs.shelfSelectInput.value = "";
+  resetScheduledDayControls(formRefs);
   setCoverPreview(formRefs, "");
   lookupControl.clearResults();
 }
@@ -123,6 +129,7 @@ export function fillForm(refs: BookFormRefs, book: Book): void {
   formRefs.statusSelectInput.value = fallbackText(book.status, DEFAULT_STATUS);
   formRefs.finishedAtInput.value = fallbackText(book.finished_at);
   syncFinishedAtFieldState(formRefs);
+  fillScheduledDayControls(formRefs, book.scheduled_days);
   formRefs.coverUrl.value = fallbackText(book.cover_url);
   formRefs.coverLocal.value = fallbackText(book.cover_local_path);
   formRefs.author.value = fallbackText(book.author);
@@ -138,10 +145,13 @@ export function fillForm(refs: BookFormRefs, book: Book): void {
  * @returns Normalized book model ready for save.
  */
 export function parseFormBook(refs: BookFormRefs): Book {
-  const title = requiredTitle(refs);
   const parsed = deriveLengthAndProgress(refs);
   const shelf = validatedShelfSelection(refs);
   const status = validatedStatusSelection(refs);
+  const scheduledDays = readScheduledDaySelection(refs);
+  if (scheduledDays.length === 0) {
+    throw new Error("Select at least one scheduled day.");
+  }
   let { progress, pagesRead } = parsed;
 
   if (status === BOOK_STATUS_READ) {
@@ -152,7 +162,7 @@ export function parseFormBook(refs: BookFormRefs): Book {
   }
 
   return normalizeBook({
-    title,
+    title: requiredTitle(refs),
     shelf,
     status,
     finished_at: refs.finishedAtInput.value,
@@ -170,6 +180,7 @@ export function parseFormBook(refs: BookFormRefs): Book {
     max_minutes_per_day: toOptionalInt(refs.maxMinutesInput.value),
     deadline: refs.deadlineInput.value,
     blocked_by: refs.blockedByInput.value,
+    scheduled_days: scheduledDays,
     cover_url: refs.coverUrl.value.trim(),
     cover_local_path: refs.coverLocal.value.trim(),
     lookup_note: refs.lookupMeta.dataset.lookupNote ?? "",

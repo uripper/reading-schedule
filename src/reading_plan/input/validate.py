@@ -55,11 +55,29 @@ def _validate_book_limits(book: Book) -> None:
         raise ValueError(msg)
 
 
+def _validate_scheduled_days(book: Book) -> None:
+    """Validate book-level scheduled weekday constraints."""
+    if not book.scheduled_days:
+        msg = f"scheduled_days must include at least one day for {book.book_id}"
+        raise ValueError(msg)
+    invalid_days = sorted(
+        day for day in book.scheduled_days if day not in WEEKDAYS
+    )
+    if invalid_days:
+        invalid = ", ".join(invalid_days)
+        msg = (
+            f"scheduled_days must only include Mon..Sun for {book.book_id}: "
+            f"{invalid}"
+        )
+        raise ValueError(msg)
+
+
 def validate_book(book: Book) -> None:
     """Validate book."""
     _validate_required_fields(book)
     _validate_book_progress(book)
     _validate_book_limits(book)
+    _validate_scheduled_days(book)
 
 
 def validate_settings(settings: Settings) -> None:

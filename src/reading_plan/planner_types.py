@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -26,6 +26,11 @@ PLAN_MODE_SPREAD_OUT = "spread_out"
 PLAN_MODES = (PLAN_MODE_FINISH_SOON, PLAN_MODE_SPREAD_OUT)
 
 
+def default_scheduled_days() -> frozenset[str]:
+    """Return the default scheduled-day set containing every weekday."""
+    return frozenset(WEEKDAYS)
+
+
 @dataclass
 class Book:
     """A normalized book input for planning."""
@@ -41,6 +46,9 @@ class Book:
     progress_percent: float = 0.0
     max_minutes_per_day: int | None = None
     blocked_by: str | None = None
+    scheduled_days: frozenset[str] = field(
+        default_factory=default_scheduled_days
+    )
 
 
 @dataclass

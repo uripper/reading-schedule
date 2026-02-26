@@ -8,7 +8,7 @@ from uuid import uuid4
 from reading_plan.input.builders_coerce import optional_int, to_float, to_int
 from reading_plan.input.builders_shared import WORDS_PER_PAGE
 from reading_plan.input.validate import validate_book
-from reading_plan.planner_types import Book
+from reading_plan.planner_types import WEEKDAYS, Book
 from reading_plan.reading_calendar import parse_date
 
 MIN_PROGRESS_PERCENT = 0
@@ -65,16 +65,50 @@ def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
     return full, max(0, full - words_read), progress
 
 
+def _scheduled_day_entries(raw: object) -> list[str]:
+    """Parse raw scheduled-day payload into unvalidated weekday entries."""
+    if raw is None:
+        return list(WEEKDAYS)
+    if isinstance(raw, str):
+        text = raw.strip()
+        if not text:
+            return list(WEEKDAYS)
+        return [segment.strip() for segment in text.split(",")]
+    if isinstance(raw, (list, tuple, set, frozenset)):
+        return [str(entry).strip() for entry in raw]
+    msg = "scheduled_days must be a list or comma-separated string"
+    raise ValueError(msg)
+
+
+def _scheduled_days(data: dict[str, Any], book_id: str) -> frozenset[str]:
+    """Normalize and validate scheduled weekdays for one book payload."""
+    selected: set[str] = set()
+    for entry in _scheduled_day_entries(data.get("scheduled_days")):
+        if not entry:
+            continue
+        if entry not in WEEKDAYS:
+            msg = (
+                f"scheduled_days must only include Mon..Sun for {book_id}"
+            )
+            raise ValueError(msg)
+        selected.add(entry)
+    if not selected:
+        msg = f"scheduled_days must include at least one day for {book_id}"
+        raise ValueError(msg)
+    return frozenset(selected)
+
+
 def book_from_data(data: dict[str, Any]) -> Book:
     """Normalize a raw book payload into a validated planner Book model."""
     words_full, words_remaining, progress = _word_stats(data)
+    book_id = str(data.get("book_id") or "").strip() or str(uuid4())
     deadline = parse_date(data["deadline"]) if data.get("deadline") else None
     blocked_by = (
         str(data.get("blocked_by") or data.get("blocker_book_id") or "").strip()
         or None
     )
     book = Book(
-        book_id=str(data.get("book_id") or "").strip() or str(uuid4()),
+        book_id=book_id,
         title=str(data["title"]).strip(),
         words_total=words_remaining,
         priority=to_int(data["priority"], "priority"),
@@ -89,6 +123,7 @@ def book_from_data(data: dict[str, Any]) -> Book:
             data.get("max_minutes_per_day"), "max_minutes_per_day"
         ),
         blocked_by=blocked_by,
+        scheduled_days=_scheduled_days(data, book_id),
     )
     validate_book(book)
     return book

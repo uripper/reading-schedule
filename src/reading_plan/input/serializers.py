@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from reading_plan.planner_types import WEEKDAYS
+
 if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
 
@@ -26,6 +28,9 @@ def book_to_data(book: Book) -> dict[str, object]:
         "words_remaining": book.words_total,
         "max_minutes_per_day": book.max_minutes_per_day,
         "blocked_by": book.blocked_by,
+        "scheduled_days": [
+            day for day in WEEKDAYS if day in book.scheduled_days
+        ],
     }
 
 
