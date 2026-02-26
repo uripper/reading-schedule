@@ -1,4 +1,4 @@
-import type { BookLookupItem } from "../app/types.js";
+import type { BookLookupItem } from "../../types/types.js";
 
 const PLACEHOLDER_SVG = [
   '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="160" viewBox="0 0 120 160">',

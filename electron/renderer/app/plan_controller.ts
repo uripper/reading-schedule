@@ -12,7 +12,7 @@ import type {
   PlannerScheduleRow,
   PlannerSettings,
   PlannerSummary,
-} from "./types.js";
+} from "../../types/types.js";
 const AUTO_PLAN_DELAY_MS = 450;
 const DEFAULT_LAST_RESULT: PlannerResult = {
   schedule: [],

@@ -1,4 +1,4 @@
-import type { PlannerScheduleRow } from "../app/types.js";
+import type { PlannerScheduleRow } from "../../types/types.js";
 import type { Book } from "./types.js";
 
 const SESSION_INDEX_PAD = 3;

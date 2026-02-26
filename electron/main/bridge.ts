@@ -3,7 +3,7 @@
  */
 import { spawn } from "node:child_process";
 import path from "node:path";
-import type { JsonValue } from "./state_store";
+import type { JsonValue } from "../types/types_json";
 
 const PLANNER_MODULE = "reading_plan.gui_api";
 const PYTHONPATH_SEGMENT = "src";

@@ -1,4 +1,4 @@
-import type { PlannerResult } from "../app/types.js";
+import type { PlannerResult } from "../../types/types.js";
 import { sessionKeyFor } from "../calendar/utils.js";
 import type { Session } from "../sessions/normalize.js";
 import { isoLocalDayKey } from "../sessions/utils.js";

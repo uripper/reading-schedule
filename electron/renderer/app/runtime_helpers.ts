@@ -7,7 +7,7 @@ import type {
   PlannerResult,
   PlannerSettings,
   PlannerSummary,
-} from "./types.js";
+} from "../../types/types.js";
 
 const PERSIST_DELAY_MS = 300;
 const NON_PLANNING_SETTING_IDS = new Set([

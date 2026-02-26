@@ -1,4 +1,4 @@
-import type { PlannerResult } from "./types.js";
+import type { PlannerResult } from "../../types/types.js";
 import type { Session } from "../sessions/normalize.js";
 import { DEFAULT_FEATURE_FLAGS, DEFAULT_PREFERENCES } from "./experience/index.js";
 

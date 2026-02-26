@@ -1,4 +1,4 @@
-import type { PlannerApi } from "../app/types.js";
+import type { PlannerApi } from "../../types/types.js";
 
 export type FindApi = Pick<PlannerApi, "findInPage" | "stopFindInPage">;
 

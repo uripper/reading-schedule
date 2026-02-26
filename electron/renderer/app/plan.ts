@@ -5,7 +5,7 @@ import type {
   PlannerResult,
   PlannerSettings,
   PlannerSummary,
-} from "./types.js";
+} from "../../types/types.js";
 
 interface RunPlanGenerationArgs {
   plannerApi: Pick<PlannerApi, "generate">;

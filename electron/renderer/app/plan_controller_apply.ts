@@ -7,7 +7,7 @@ import type {
   PlannerResult,
   PlannerScheduleRow,
   PlannerSummary,
-} from "./types.js";
+} from "../../types/types.js";
 
 export type PlannerRunData = Pick<PlannerResult, "schedule" | "summary">;
 

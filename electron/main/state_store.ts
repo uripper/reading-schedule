@@ -3,21 +3,14 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import type { JsonValue } from "../types/types_json";
 
 const FILE_NAME = "planner_state.json";
 
-/**
- * JSON primitive value accepted by state persistence APIs.
- */
-export type JsonPrimitive = string | number | boolean | null;
 
 /**
  * Recursive JSON value accepted by state persistence APIs.
  */
-export type JsonValue =
-  | JsonPrimitive
-  | JsonValue[]
-  | { [key: string]: JsonValue };
 type SaveResult = { ok: true } | { ok: false; error: string };
 
 /**

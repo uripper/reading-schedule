@@ -1,6 +1,6 @@
 import type { Session } from "../sessions/normalize.js";
 import { dayKeyFromDate, localDayKeyFromIso } from "./date_keys.js";
-import type { PlannerScheduleRow } from "./types.js";
+import type { PlannerScheduleRow } from "../../types/types.js";
 
 const SESSION_INDEX_PAD = 3;
 

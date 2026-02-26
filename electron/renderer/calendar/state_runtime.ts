@@ -1,4 +1,4 @@
-import type { PlannerScheduleRow } from "../app/types.js";
+import type { PlannerScheduleRow } from "../../types/types.js";
 import type { Book } from "../books/types.js";
 import type { CalendarRowWithFinish } from "./data.js";
 

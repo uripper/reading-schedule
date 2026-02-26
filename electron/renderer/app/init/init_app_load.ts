@@ -10,7 +10,7 @@ import {
 import { bindTodayActions, finalizeInitialLoad } from "./init_helpers.js";
 import { loadInitialData } from "../load_state.js";
 import type { AppBootstrapContext } from "../bootstrap_runtime.js";
-import type { PlannerResult } from "../types.js";
+import type { PlannerResult } from "../../../types/types.js";
 
 interface LoadedResultController {
   applyLoadedResult(result: PlannerResult): void;

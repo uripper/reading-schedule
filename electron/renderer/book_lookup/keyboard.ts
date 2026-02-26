@@ -1,4 +1,4 @@
-import type { BookLookupItem } from "../app/types.js";
+import type { BookLookupItem } from "../../types/types.js";
 
 type SetActiveIndex = (index: number) => void;
 type SelectItem = (index: number) => void;

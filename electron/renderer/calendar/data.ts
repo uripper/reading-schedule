@@ -1,4 +1,4 @@
-import type { PlannerScheduleRow } from "../app/types.js";
+import type { PlannerScheduleRow } from "../../types/types.js";
 import { sessionKeyFor, sortRowsByDateAndSession } from "./utils.js";
 
 const DAYS_IN_WEEK = 7;

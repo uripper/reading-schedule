@@ -6,7 +6,7 @@ import type {
   PlannerApi,
   PlannerResult,
   PlannerSettings,
-} from "./types.js";
+} from "../../types/types.js";
 
 interface InitialDataSource {
   settings?: PlannerSettings;

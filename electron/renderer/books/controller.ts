@@ -1,5 +1,5 @@
 import { el } from "../dom.js";
-import type { PlannerScheduleRow } from "../app/types.js";
+import type { PlannerScheduleRow } from "../../types/types.js";
 import { createBookDialog } from "./dialog.js";
 import { GROUP_BY_NONE } from "./grouping.js";
 import {

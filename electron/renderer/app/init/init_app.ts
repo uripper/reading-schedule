@@ -24,7 +24,7 @@ import {
 import { loadStateAndBindTodayActions } from "./init_app_load.js";
 import { totalsFromSummary } from "../runtime_helpers.js";
 import type { AppBootstrapContext } from "../bootstrap_runtime.js";
-import type { PlannerResult } from "../types.js";
+import type { PlannerResult } from "../../../types/types.js";
 
 /**
  * Creates the app-level plan controller instance with runtime-bound callbacks.

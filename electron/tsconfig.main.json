@@ -14,5 +14,5 @@
     "resolveJsonModule": true,
     "strictNullChecks": true
   },
-  "include": ["*.ts", "main/**/*.ts"]
+  "include": ["*.ts", "main/**/*.ts", "types/**/*.ts"]
 }

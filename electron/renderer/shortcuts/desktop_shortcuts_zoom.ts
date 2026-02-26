@@ -1,4 +1,4 @@
-import type { PlannerApi } from "../app/types.js";
+import type { PlannerApi } from "../../types/types.js";
 import { logError } from "../logger.js";
 import {
   isCommandPressed,

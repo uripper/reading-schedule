@@ -1,4 +1,4 @@
-import type { PlannerScheduleRow } from "./app/types.js";
+import type { PlannerScheduleRow } from "../types/types.js";
 import { renderCalendarDetails } from "./calendar/details.js";
 import {
   applyTodayFocus,

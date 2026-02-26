@@ -1,5 +1,5 @@
-import type { BookLookupItem } from "../app/types.js";
-import type { PlannerApi } from "../app/types_api.js";
+import type { BookLookupItem } from "../../types/types.js";
+import type { PlannerApi } from "../../types/types_api.js";
 import type { Book } from "../books/types.js";
 import { buildRecommendations, deriveReadAuthors, type RecommendationItem } from "./model.js";
 

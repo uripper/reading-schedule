@@ -1,6 +1,6 @@
 import type { Book } from "../books/types.js";
 import type { Session } from "../sessions/normalize.js";
-import type { PlannerResult } from "../app/types.js";
+import type { PlannerResult } from "../../types/types.js";
 import {
   activeDayCount,
   dayMinutesFromActivity,

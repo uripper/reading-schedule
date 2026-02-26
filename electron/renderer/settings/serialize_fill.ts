@@ -1,4 +1,4 @@
-import type { PlannerSettings } from "../app/types.js";
+import type { PlannerSettings } from "../../types/types.js";
 import { DEFAULT_DIFFICULTY_MULTIPLIER, DEFAULT_PLAN_MODE, weekdays } from "./config.js";
 import { allFieldDefinitions, inputEl, numberLevels, selectEl } from "./field_io.js";
 

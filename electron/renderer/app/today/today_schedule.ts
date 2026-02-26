@@ -3,7 +3,7 @@ import { titleSortKey } from "../../books/title_key.js";
 import type { Book } from "../../books/types.js";
 import { sessionKeyFor, sortRowsByDateAndSession } from "../../calendar/utils.js";
 import { todayKey } from "../../sessions/utils.js";
-import type { PlannerResult, PlannerScheduleRow } from "../types.js";
+import type { PlannerResult, PlannerScheduleRow } from "../../../types/types.js";
 
 const ZERO_COUNT = 0;
 const DEFAULT_TITLE = "Untitled";

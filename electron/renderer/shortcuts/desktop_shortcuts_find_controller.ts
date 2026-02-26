@@ -1,8 +1,12 @@
-import type { WindowFindResponse } from "../app/types.js";
+import type { WindowFindResponse } from "../../types/types.js";
 import { logError } from "../logger.js";
 import { bindFindEvents } from "./desktop_shortcuts_find_bindings.js";
 import { isCommandPressed } from "./desktop_shortcuts_keys.js";
-import type { FindController, FindControllerArgs, FindApi } from "./desktop_shortcuts_find_types.js";
+import type {
+  FindController,
+  FindControllerArgs,
+  FindApi,
+} from "./desktop_shortcuts_find_types.js";
 
 const FIND_STATUS_HINT = "Type to search";
 const FIND_STATUS_NO_MATCH = "No matches";
@@ -40,7 +44,7 @@ const formatFindStatus = (result: WindowFindResponse): string => {
 const clearFindForEmptyQuery = async (
   context: FindControllerContext,
 ): Promise<void> => {
-  const state = context.state;
+  const { state } = context;
   state.lastQuery = "";
   setFindStatus(context.findStatus, FIND_STATUS_HINT);
   state.requestCounter += 1;
@@ -62,7 +66,7 @@ const executeFindCommand = async (
     await clearFindForEmptyQuery(context);
     return;
   }
-  const state = context.state;
+  const { state } = context;
   let findNext = false;
   if (query === state.lastQuery && forceNextForSameQuery) {
     findNext = true;
@@ -88,9 +92,7 @@ const executeFindCommand = async (
 };
 
 const openFindBar = (context: FindControllerContext): void => {
-  const findBar = context.findBar;
-  const findInput = context.findInput;
-  const state = context.state;
+  const { findBar, findInput, state } = context;
   if (findBar.hidden && document.activeElement instanceof HTMLElement) {
     state.opener = document.activeElement;
   }
@@ -101,9 +103,7 @@ const openFindBar = (context: FindControllerContext): void => {
 };
 
 const closeFindBar = (context: FindControllerContext): void => {
-  const findBar = context.findBar;
-  const findInput = context.findInput;
-  const state = context.state;
+  const { findBar, findInput, state } = context;
   if (findBar.hidden) {
     return;
   }
@@ -116,7 +116,7 @@ const closeFindBar = (context: FindControllerContext): void => {
     logError("Failed to clear find highlights", error);
     context.announce("Unable to clear search results", "assertive");
   });
-  const opener = state.opener;
+  const { opener } = state;
   if (opener?.isConnected === true) {
     opener.focus();
   }
@@ -128,7 +128,9 @@ const closeFindBar = (context: FindControllerContext): void => {
  * @param args Find controller dependencies and DOM bindings.
  * @returns Controller object for binding and shortcut handling.
  */
-export function createFindControllerImpl(args: FindControllerArgs): FindController {
+export function createFindControllerImpl(
+  args: FindControllerArgs,
+): FindController {
   const context: FindControllerContext = {
     announce(message: string, politeness?: "polite" | "assertive"): void {
       args.announce(message, politeness);
@@ -165,12 +167,15 @@ export function createFindControllerImpl(args: FindControllerArgs): FindControll
     return true;
   };
   const handleFindBarEscape = (event: KeyboardEvent): boolean => {
-    const findBar = args.findBar;
+    const { findBar } = args;
     if (event.key !== "Escape" || findBar.hidden) {
       return false;
     }
-    const activeElement = document.activeElement;
-    if (activeElement instanceof HTMLElement && findBar.contains(activeElement)) {
+    const { activeElement } = document;
+    if (
+      activeElement instanceof HTMLElement &&
+      findBar.contains(activeElement)
+    ) {
       event.preventDefault();
       closeFindBar(context);
       return true;

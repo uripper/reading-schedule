@@ -1,12 +1,10 @@
-import type { Book } from "../books/types.js";
-import type { Session } from "../sessions/normalize.js";
-import type { FeatureFlags, Preferences } from "./experience/index.js";
-
-export type JsonPrimitive = string | number | boolean | null;
-export type JsonValue =
-  | JsonPrimitive
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+import type { Book } from "../renderer/books/types.js";
+import type { Session } from "../renderer/sessions/normalize.js";
+import type {
+  FeatureFlags,
+  Preferences,
+} from "../renderer/app/experience/index.js";
+import type { JsonValue } from "./types_json.js";
 
 export type PlannerSettings = {
   start_date?: string;

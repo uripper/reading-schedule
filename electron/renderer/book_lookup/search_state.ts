@@ -1,4 +1,4 @@
-import type { BookLookupItem } from "../app/types.js";
+import type { BookLookupItem } from "../../types/types.js";
 import { describeLookup } from "./helpers.js";
 import { renderLookupResults, updateComboboxA11y } from "./render.js";
 

@@ -1,4 +1,4 @@
-import type { BookLookupItem } from "../app/types.js";
+import type { BookLookupItem } from "../../types/types.js";
 import { getPlannerApi } from "../app/planner_api.js";
 
 interface LookupState {

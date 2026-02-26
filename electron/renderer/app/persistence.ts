@@ -6,7 +6,7 @@ import type {
   PlannerResult,
   PlannerSettings,
   PlannerStateSnapshot,
-} from "./types.js";
+} from "../../types/types.js";
 
 interface DraftDataParams {
   sessions: Session[];

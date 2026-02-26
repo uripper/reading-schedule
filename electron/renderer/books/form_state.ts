@@ -22,7 +22,7 @@ import { BOOK_STATUS_READ } from "./status.js";
 import { toOptionalInt } from "./utils.js";
 import type { Book } from "./types.js";
 import type { BookFormRefs } from "./form_refs.js";
-import type { BookLookupItem } from "../app/types.js";
+import type { BookLookupItem } from "../../types/types.js";
 import type { ProgressSyncInputs } from "../book_lookup/helpers.js";
 
 interface LookupControl {

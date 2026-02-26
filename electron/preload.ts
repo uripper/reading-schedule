@@ -2,9 +2,7 @@
  * @file Preload bridge exposing a typed planner API to the renderer.
  */
 import { contextBridge, ipcRenderer } from "electron";
-
-type JsonPrimitive = string | number | boolean | null;
-type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+import type { JsonValue } from "./types/types_json";
 
 interface PlannerApi {
   /** Downloads a remote cover image and stores it for the given book id. */

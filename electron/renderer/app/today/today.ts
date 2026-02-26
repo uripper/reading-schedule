@@ -11,7 +11,7 @@ import {
   buildTodayScheduleSnapshot,
   type TodayScheduleSnapshot,
 } from "./today_schedule.js";
-import type { PlannerResult, PlannerScheduleRow } from "../types.js";
+import type { PlannerResult, PlannerScheduleRow } from "../../../types/types.js";
 import type { Session } from "../../sessions/normalize.js";
 import { todayKey } from "../../sessions/utils.js";
 

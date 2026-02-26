@@ -9,7 +9,7 @@ import {
   TINY_START_MINUTES,
   type TodayFocusState,
 } from "./today_focus.js";
-import type { PlannerResult } from "../types.js";
+import type { PlannerResult } from "../../../types/types.js";
 import {
   findSessionRow,
   nextCompletionsWithRowMarkedComplete,

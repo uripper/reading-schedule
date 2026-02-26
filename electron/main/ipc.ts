@@ -2,7 +2,7 @@
  * @file Main-process IPC registration for planner and window actions.
  */
 import { ipcMain, type WebContents } from "electron";
-import type { JsonValue } from "./state_store";
+import type { JsonValue } from "../types/types_json";
 import type { WindowFindRequest, WindowFindResponse } from "./window_find";
 import { UI_SCALE_STEP } from "./zoom";
 import {

@@ -16,7 +16,7 @@ import { createInitRuntime } from "./init/index.js";
 import { createPersistQueue, createStatusSetter } from "./runtime_helpers.js";
 import { createRuntimeState } from "./runtime_state.js";
 import { updateTodayDashboard } from "./today/index.js";
-import type { PlannerApi } from "./types.js";
+import type { PlannerApi } from "../../types/types.js";
 
 export interface AppBootstrapContext {
   announce: ReturnType<typeof createAnnouncer>;

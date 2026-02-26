@@ -1,4 +1,4 @@
-import type { PlannerScheduleRow } from "../app/types.js";
+import type { PlannerScheduleRow } from "../../types/types.js";
 import { renderBookGrid } from "./card_view.js";
 import { collectSettings } from "../settings.js";
 import { groupsForEstimatedFinish } from "./estimated_finish_groups.js";

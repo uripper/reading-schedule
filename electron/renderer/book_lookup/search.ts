@@ -5,7 +5,7 @@ import { createLookupStateController } from "./search_state.js";
 import {
   lookupResultTarget,
 } from "./render.js";
-import type { BookLookupItem } from "../app/types.js";
+import type { BookLookupItem } from "../../types/types.js";
 
 interface LookupState {
   timer: ReturnType<typeof setTimeout> | null;

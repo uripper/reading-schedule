@@ -15,7 +15,7 @@ import type {
   PlannerScheduleRow,
   PlannerSettings,
   PlannerSummary,
-} from "../types.js";
+} from "../../../types/types.js";
 
 interface SharedUpdateArgs {
   onScheduleRowsUpdated(): void;

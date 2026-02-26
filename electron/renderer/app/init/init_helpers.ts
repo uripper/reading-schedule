@@ -2,7 +2,7 @@ import { el } from "../../dom.js";
 import type { Session } from "../../sessions/normalize.js";
 import { createPlanController } from "../plan_controller.js";
 import { bindSettingsAutoPlanListeners } from "../runtime_helpers.js";
-import type { PlannerResult } from "../types.js";
+import type { PlannerResult } from "../../../types/types.js";
 import { bindTodayFocusActions } from "../today/index.js";
 
 type SetStatus = (message: string, isError?: boolean) => void;

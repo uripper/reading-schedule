@@ -13,7 +13,7 @@ import type {
   PlannerScheduleRow,
   PlannerSettings,
   PlannerSummary,
-} from "../types.js";
+} from "../../../types/types.js";
 
 export interface AppCalendarInteractionArgs {
   configureCalendarInteractions(handlers: {
