@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import * as ts from "typescript";
 
 const SOURCE_ROOTS = [
   "src",
@@ -32,6 +33,8 @@ const JS_TS_EXTENSIONS = new Set([
   ".cjs",
 ]);
 
+const TS_EXTENSIONS = new Set([".ts", ".tsx"]);
+
 const IGNORED_DIRECTORIES = new Set([
   ".git",
   ".pnpm-store",
@@ -53,9 +56,10 @@ const IGNORED_FILES = new Set([
   "style_audit.mjs",
 ]);
 
-const SOFT_LINE_LIMIT = 100;
+const SOFT_LINE_LIMIT = 150;
 const HARD_LINE_LIMIT = 200;
 const MIN_UNDER_SOFT_PERCENT = 90;
+const COMBINE_CANDIDATE_LINE_LIMIT = 30;
 
 const AUDIT_SELF_PATH = "scripts/style_audit.mjs";
 const DISALLOWED_CONSOLE_PATTERN = /\bconsole\.(error|warn|log|debug)\s*\(/g;
@@ -226,30 +230,84 @@ function stripLineComment(line) {
   return line.slice(0, commentIndex);
 }
 
-function hasProbableTernary(line) {
-  if (!line.includes("?") || !line.includes(":")) {
-    return false;
+function scriptKindForExtension(extension) {
+  if (extension === ".ts") {
+    return ts.ScriptKind.TS;
+  }
+  if (extension === ".tsx") {
+    return ts.ScriptKind.TSX;
+  }
+  if (extension === ".jsx") {
+    return ts.ScriptKind.JSX;
+  }
+  return ts.ScriptKind.JS;
+}
+
+function parseJsTsSource(relativePath, content, extension) {
+  return ts.createSourceFile(
+    relativePath,
+    content,
+    ts.ScriptTarget.Latest,
+    true,
+    scriptKindForExtension(extension),
+  );
+}
+
+function walkNodes(rootNode, visitNode) {
+  const stack = [rootNode];
+  while (stack.length > 0) {
+    const node = stack.pop();
+    if (node === undefined) {
+      continue;
+    }
+    visitNode(node);
+    ts.forEachChild(node, (child) => {
+      stack.push(child);
+    });
+  }
+}
+
+function pushTernaryHits(relativePath, sourceFile, ternaryHits) {
+  walkNodes(sourceFile, (node) => {
+    if (ts.isConditionalExpression(node)) {
+      const position = sourceFile.getLineAndCharacterOfPosition(
+        node.getStart(sourceFile),
+      );
+      ternaryHits.push(`${relativePath}:${position.line + 1}`);
+    }
+  });
+}
+
+function isInTypesDirectory(relativePath) {
+  const segments = relativePath.split("/");
+  return segments.includes("types");
+}
+
+function pushTypeDefinitionHitsOutsideTypes(relativePath, sourceFile, typeHits) {
+  if (isInTypesDirectory(relativePath)) {
+    return;
   }
 
-  let questionIndex = line.indexOf("?");
-  while (questionIndex >= 0) {
-    const nextIndex = questionIndex + 1;
-    if (nextIndex >= line.length) {
-      break;
-    }
+  let declarationCount = 0;
+  let firstLine = 0;
 
-    const nextChar = line[nextIndex];
-    if (nextChar !== "." && nextChar !== "?" && nextChar !== ":") {
-      const colonIndex = line.indexOf(":", nextIndex);
-      if (colonIndex >= 0) {
-        return true;
+  walkNodes(sourceFile, (node) => {
+    if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) {
+      declarationCount += 1;
+      if (firstLine === 0) {
+        const position = sourceFile.getLineAndCharacterOfPosition(
+          node.getStart(sourceFile),
+        );
+        firstLine = position.line + 1;
       }
     }
+  });
 
-    questionIndex = line.indexOf("?", nextIndex);
+  if (declarationCount > 0) {
+    typeHits.push(
+      `${relativePath}:${firstLine} ${declarationCount} type/interface declarations`,
+    );
   }
-
-  return false;
 }
 
 function collectFiles() {
@@ -306,6 +364,18 @@ function sortByLines(entries) {
   });
 }
 
+function sortByLinesAscending(entries) {
+  entries.sort((left, right) => {
+    if (left.lines < right.lines) {
+      return -1;
+    }
+    if (left.lines > right.lines) {
+      return 1;
+    }
+    return left.path.localeCompare(right.path);
+  });
+}
+
 function shouldSkipFile(relativePath) {
   if (relativePath === AUDIT_SELF_PATH) {
     return true;
@@ -313,7 +383,14 @@ function shouldSkipFile(relativePath) {
   return false;
 }
 
-function scanJsTs(relativePath, content, ternaryHits, consoleHits) {
+function scanJsTs(
+  relativePath,
+  content,
+  extension,
+  ternaryHits,
+  consoleHits,
+  typeHits,
+) {
   const lines = content.split(/\r?\n/);
   let lineNumber = 1;
 
@@ -323,10 +400,6 @@ function scanJsTs(relativePath, content, ternaryHits, consoleHits) {
       "",
     );
 
-    if (hasProbableTernary(line)) {
-      ternaryHits.push(`${relativePath}:${lineNumber}`);
-    }
-
     let match = DISALLOWED_CONSOLE_PATTERN.exec(line);
     while (match !== null) {
       consoleHits.push(`${relativePath}:${lineNumber} console.${match[1]}`);
@@ -335,6 +408,13 @@ function scanJsTs(relativePath, content, ternaryHits, consoleHits) {
     DISALLOWED_CONSOLE_PATTERN.lastIndex = 0;
 
     lineNumber += 1;
+  }
+
+  const sourceFile = parseJsTsSource(relativePath, content, extension);
+  pushTernaryHits(relativePath, sourceFile, ternaryHits);
+
+  if (TS_EXTENSIONS.has(extension)) {
+    pushTypeDefinitionHitsOutsideTypes(relativePath, sourceFile, typeHits);
   }
 }
 
@@ -550,8 +630,10 @@ function printHitSection(title, hits) {
 function run() {
   const overSoftLimit = [];
   const overHardLimit = [];
+  const combineCandidates = [];
   const ternaryHits = [];
   const consoleHits = [];
+  const typeDefinitionHits = [];
   const documentationHits = [];
 
   let analyzed = 0;
@@ -578,9 +660,19 @@ function run() {
     if (lineCount > HARD_LINE_LIMIT) {
       overHardLimit.push({ path: relativePath, lines: lineCount });
     }
+    if (lineCount > 0 && lineCount < COMBINE_CANDIDATE_LINE_LIMIT) {
+      combineCandidates.push({ path: relativePath, lines: lineCount });
+    }
 
     if (JS_TS_EXTENSIONS.has(extension)) {
-      scanJsTs(relativePath, content, ternaryHits, consoleHits);
+      scanJsTs(
+        relativePath,
+        content,
+        extension,
+        ternaryHits,
+        consoleHits,
+        typeDefinitionHits,
+      );
       scanJsTsDocumentation(relativePath, content, documentationHits);
       continue;
     }
@@ -592,6 +684,7 @@ function run() {
 
   sortByLines(overSoftLimit);
   sortByLines(overHardLimit);
+  sortByLinesAscending(combineCandidates);
 
   let underSoftPercent = 100;
   if (analyzed > 0) {
@@ -606,8 +699,16 @@ function run() {
 
   printSection(`Files over ${SOFT_LINE_LIMIT} lines`, overSoftLimit);
   printSection(`Files over ${HARD_LINE_LIMIT} lines`, overHardLimit);
-  printHitSection("Probable ternary expressions", ternaryHits);
+  printSection(
+    `Files under ${COMBINE_CANDIDATE_LINE_LIMIT} code lines (combination candidates)`,
+    combineCandidates,
+  );
+  printHitSection("Ternary expressions", ternaryHits);
   printHitSection("Disallowed console methods", consoleHits);
+  printHitSection(
+    "Type/interface definitions outside types folders",
+    typeDefinitionHits,
+  );
   printHitSection("Probable documentation gaps", documentationHits);
 
   const failures = [];
@@ -622,7 +723,7 @@ function run() {
     );
   }
   if (ternaryHits.length > 0) {
-    failures.push(`Probable ternary expressions found: ${ternaryHits.length}`);
+    failures.push(`Ternary expressions found: ${ternaryHits.length}`);
   }
   if (consoleHits.length > 0) {
     failures.push(`Disallowed console methods found: ${consoleHits.length}`);

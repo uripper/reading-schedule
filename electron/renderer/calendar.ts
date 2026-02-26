@@ -12,7 +12,11 @@ import {
   mergeCalendarHandlers,
   type CalendarHandlers,
 } from "./calendar/state_runtime.js";
-import { refreshDerivedRows, renderControls, renderMonth } from "./calendar/render_runtime.js";
+import {
+  refreshDerivedRows,
+  renderControls,
+  renderMonth,
+} from "./calendar/render_runtime.js";
 
 const state = createCalendarRuntimeState();
 let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});
@@ -75,10 +79,7 @@ export function renderCalendar(
       state.index = previousMonthIndex;
     }
   }
-  if (
-    previousSelectedDate !== "" &&
-    previousSelectedDate in state.dates
-  ) {
+  if (previousSelectedDate !== "" && previousSelectedDate in state.dates) {
     state.selectedDate = previousSelectedDate;
   } else {
     state.selectedDate = "";

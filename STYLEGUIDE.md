@@ -163,6 +163,7 @@ A PR must not merge if any of the following is true:
 - Keep analyzer scope aligned with real commands. Do not enable file patterns in config that are not validated in CI/local required commands.
 - Electron main-process TypeScript is enforced by `tsc` (`npm --prefix electron run typecheck`), not by ESLint parsing.
 - `electron/tsconfig.main.json` must include all main-process entry files via wildcard patterns (for example `*.ts`) instead of hand-maintained per-file include lists.
+- `npm run audit` measures code lines after removing blank/comment lines, reports files under 20 lines as combination candidates, reports `interface`/`type` declarations outside `types/` directories, and detects ternaries via AST `ConditionalExpression` nodes.
 - If you add a new checker or rule set, wire it into a required command in this guide in the same change.
 - After changing lint/parser config, run the target command once on representative files and confirm there are no parser crashes.
 - Prefer ECMAScript runtime features over TypeScript-only language features when both solve the problem and the runtime target supports the ECMAScript version.

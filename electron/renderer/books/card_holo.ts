@@ -3,6 +3,7 @@ const ACTIVE_HOLO = "1";
 const BG_SHIFT_FACTOR = 0.35;
 const PERCENT_SCALE = 100;
 const MIN_PERCENT = 0;
+const HALF_PERCENT = 50;
 const MAX_PERCENT = 100;
 
 interface HoloPointerVars {
@@ -79,10 +80,18 @@ export function holoVarsForPointer(
 ): HoloPointerVars {
   const width = Math.max(1, rect.width);
   const height = Math.max(1, rect.height);
-  const xPercent = clampedPercent(((clientX - rect.left) / width) * MAX_PERCENT);
-  const yPercent = clampedPercent(((clientY - rect.top) / height) * MAX_PERCENT);
-  const bgShiftX = clampedPercent(50 + (xPercent - 50) * BG_SHIFT_FACTOR);
-  const bgShiftY = clampedPercent(50 + (yPercent - 50) * BG_SHIFT_FACTOR);
+  const xPercent = clampedPercent(
+    ((clientX - rect.left) / width) * MAX_PERCENT,
+  );
+  const yPercent = clampedPercent(
+    ((clientY - rect.top) / height) * MAX_PERCENT,
+  );
+  const bgShiftX = clampedPercent(
+    HALF_PERCENT + (xPercent - HALF_PERCENT) * BG_SHIFT_FACTOR,
+  );
+  const bgShiftY = clampedPercent(
+    HALF_PERCENT + (yPercent - HALF_PERCENT) * BG_SHIFT_FACTOR,
+  );
   return {
     pointerX: asPercent(xPercent),
     pointerY: asPercent(yPercent),
