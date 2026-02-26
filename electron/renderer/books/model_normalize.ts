@@ -1,4 +1,5 @@
 import { normalizeShelfName } from "./shelf.js";
+import { normalizeScheduledDays } from "./scheduled_days.js";
 import { statusFromRaw } from "./status.js";
 import type { Book, BookInput } from "./types.js";
 import { clamp, toOptionalDate, toOptionalInt } from "./utils.js";
@@ -54,6 +55,7 @@ export function normalizeBook(book: BookInput = {}): Book {
     deadline: toOptionalDate(book.deadline),
     blocked_by: withNullableString(toTrimmedText(book.blocked_by)),
     shelf: normalizeShelfName(book.shelf),
+    scheduled_days: normalizeScheduledDays(book.scheduled_days),
     finished_at: finishedAtForStatus(status, book.finished_at),
     cover_url: toTrimmedText(book.cover_url),
     cover_local_path: toTrimmedText(book.cover_local_path),

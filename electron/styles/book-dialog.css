@@ -47,6 +47,45 @@
   grid-column: 1 / -1;
 }
 
+.book-scheduled-days {
+  margin: 0;
+  padding: var(--token-space-2);
+  border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
+  border-radius: var(--token-radius-md);
+  display: grid;
+  gap: var(--token-space-2);
+  min-width: 0;
+}
+
+.book-scheduled-days > legend {
+  padding: 0 var(--token-space-1);
+  color: var(--app-textMuted);
+  font-size: var(--token-typography-size-xs);
+}
+
+.book-scheduled-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--token-space-1) var(--token-space-2);
+}
+
+.book-scheduled-day {
+  display: flex;
+  align-items: center;
+  gap: var(--token-space-1);
+  font-size: var(--token-typography-size-sm);
+}
+
+.book-scheduled-day input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  min-height: 0;
+}
+
+.book-apply-days-toggle {
+  grid-column: 1 / -1;
+}
+
 .book-after-book-picker {
   position: relative;
   display: grid;
@@ -187,5 +226,9 @@
 
   .book-cover-panel {
     max-width: 280px;
+  }
+
+  .book-scheduled-days-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }

@@ -15,6 +15,7 @@ export interface Book {
   deadline: string | null;
   blocked_by: string | null;
   shelf: string;
+  scheduled_days: string[];
   status: BookStatus;
   finished_at: string | null;
   cover_url: string;

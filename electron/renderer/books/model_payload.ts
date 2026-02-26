@@ -1,4 +1,5 @@
 import { statusFromRaw } from "./status.js";
+import { normalizeScheduledDays } from "./scheduled_days.js";
 import type { Book } from "./types.js";
 
 const DEFAULT_PRIORITY = 3;
@@ -76,6 +77,7 @@ export function toPayloadBook(book: Book): Book {
     deadline: withNullableString(book.deadline),
     blocked_by: withNullableString(book.blocked_by),
     shelf: withDefaultString(book.shelf),
+    scheduled_days: normalizeScheduledDays(book.scheduled_days),
     finished_at: normalizeFinishedAt(book.finished_at),
     author: withDefaultString(book.author),
     cover_url: withDefaultString(book.cover_url),
