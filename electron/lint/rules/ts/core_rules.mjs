@@ -43,6 +43,7 @@ const TS_CONSISTENCY_RULES = {
     { accessibility: "explicit" },
   ],
   "@typescript-eslint/method-signature-style": ["error", "method"],
+  "@typescript-eslint/no-inferrable-types": "error",
 };
 
 export const TS_CORE_RULES = {
