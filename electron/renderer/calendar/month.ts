@@ -165,9 +165,9 @@ export function renderCalendarMonth(
       date,
       firstDate,
       keyForDay,
+      todayKey,
       rows: displayRows,
       selectedDate: calendarState.selectedDate,
-      todayKey,
     });
     dayButton.onclick = () => {
       actions.selectDate(keyForDay);

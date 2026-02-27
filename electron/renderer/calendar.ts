@@ -55,7 +55,7 @@ function renderFinishedBooksSummary(completedRows: CompletedBookRow[]): void {
   summary.textContent = summaryText;
   const titleNode = details.querySelector("h2");
   if (titleNode instanceof HTMLElement) {
-    titleNode.insertAdjacentElement("afterend", summary);
+    titleNode.after(summary);
     return;
   }
   details.prepend(summary);
