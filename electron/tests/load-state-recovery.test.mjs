@@ -26,26 +26,28 @@ const DEFAULT_FEATURE_FLAGS = {
  * @returns {import("../dist/types/types_app.js").LoadStateArgs} Load arguments.
  */
 function loadArgs(loadResult, statuses, logs) {
+  const noop = () => undefined;
   return {
     plannerApi: {
-      loadState: async () => loadResult,
-      sample: async () => ({ settings: { start_date: "2026-04-01" }, books: [] }),
+      loadState: () => Promise.resolve(loadResult),
+      sample: () =>
+        Promise.resolve({ settings: { start_date: "2026-04-01" }, books: [] }),
     },
-    fillSettings: () => {},
-    fillBooks: () => {},
+    fillSettings: noop,
+    fillBooks: noop,
     normalizePreferences: () => DEFAULT_PREFERENCES,
     normalizeFeatureFlags: () => DEFAULT_FEATURE_FLAGS,
     normalizeScheduleCompletions: (value) => value,
-    fillPreferencesUI: () => {},
-    applyPreferencesToDocument: () => {},
-    setPreferences: () => {},
-    setFeatureFlags: () => {},
-    setScheduleCompletions: () => {},
-    setBlockedDayBooks: () => {},
-    setSessions: () => {},
-    applyLoadedResult: () => {},
-    updateTodayView: () => {},
-    onLoaded: () => {},
+    fillPreferencesUI: noop,
+    applyPreferencesToDocument: noop,
+    setPreferences: noop,
+    setFeatureFlags: noop,
+    setScheduleCompletions: noop,
+    setBlockedDayBooks: noop,
+    setSessions: noop,
+    applyLoadedResult: noop,
+    updateTodayView: noop,
+    onLoaded: noop,
     setStatus: (message, isError = false) => {
       statuses.push({ message, isError });
     },

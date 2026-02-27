@@ -3,6 +3,7 @@
  */
 import fs from "node:fs";
 import type {
+  LoadedPlannerState,
   PlannerSaveResult,
   PlannerStateLoadResult,
 } from "../types/types.js";
@@ -16,44 +17,88 @@ import {
 import { readStateFromSqlite, writeStateToSqlite } from "./state_store_sqlite";
 
 /**
+ * Returns true when state payload contains required bootstrap fields.
+ * @param state Candidate loaded state payload.
+ * @returns True when settings and books are both present.
+ */
+function hasBootstrapState(state: LoadedPlannerState | null): boolean {
+  if (state === null) {
+    return false;
+  }
+  if (state.settings === undefined) {
+    return false;
+  }
+  if (state.books === undefined) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Returns true when persistence artifacts exist on disk.
+ * @param userDataDir Base Electron user-data directory for this profile.
+ * @returns True when at least one persistence artifact exists.
+ */
+function hasPersistedArtifacts(userDataDir: string): boolean {
+  return (
+    fs.existsSync(sqliteStatePath(userDataDir)) ||
+    fs.existsSync(jsonStatePath(userDataDir)) ||
+    fs.existsSync(jsonStateBackupPath(userDataDir))
+  );
+}
+
+/**
+ * Backfills SQLite from JSON state and decorates warnings when migration fails.
+ * @param userDataDir Base Electron user-data directory for this profile.
+ * @param jsonResult Loaded JSON state result.
+ * @returns JSON result with migration metadata applied.
+ */
+function migratedJsonResult(
+  userDataDir: string,
+  jsonResult: PlannerStateLoadResult,
+): PlannerStateLoadResult {
+  const backfill = writeStateToSqlite(
+    userDataDir,
+    jsonResult.state as unknown as JsonValue,
+  );
+  if (backfill.ok === false) {
+    return {
+      ...jsonResult,
+      warningMessage: `Loaded JSON fallback but SQLite migration failed: ${backfill.error}`,
+    };
+  }
+  if (jsonResult.source !== "json_primary") {
+    return jsonResult;
+  }
+  return {
+    ...jsonResult,
+    warningCode: "MIGRATED_JSON_TO_SQLITE",
+    warningMessage: "Migrated saved data from JSON storage to SQLite.",
+  };
+}
+
+/**
  * Loads persisted planner state from SQLite first, then JSON fallback paths.
  * @param userDataDir Base Electron user-data directory for this profile.
  * @returns Structured state load result with source and warning metadata.
  */
 export function readState(userDataDir: string): PlannerStateLoadResult {
   const sqliteResult = readStateFromSqlite(userDataDir);
+  const jsonResult = readStateFromJson(userDataDir);
+  if (jsonResult !== null) {
+    return migratedJsonResult(userDataDir, jsonResult);
+  }
+  if (
+    sqliteResult !== null &&
+    hasBootstrapState(sqliteResult.state) &&
+    sqliteResult.source !== "fresh"
+  ) {
+    return sqliteResult;
+  }
   if (sqliteResult !== null) {
     return sqliteResult;
   }
-
-  const jsonResult = readStateFromJson(userDataDir);
-  if (jsonResult !== null) {
-    const backfill = writeStateToSqlite(
-      userDataDir,
-      jsonResult.state as unknown as JsonValue,
-    );
-    if (backfill.ok === false) {
-      return {
-        ...jsonResult,
-        warningMessage: `Loaded JSON fallback but SQLite migration failed: ${backfill.error}`,
-      };
-    }
-    if (jsonResult.source === "json_primary") {
-      return {
-        ...jsonResult,
-        warningCode: "MIGRATED_JSON_TO_SQLITE",
-        warningMessage:
-          "Migrated saved data from JSON storage to SQLite durability layer.",
-      };
-    }
-    return jsonResult;
-  }
-
-  const hasPersistedArtifacts =
-    fs.existsSync(sqliteStatePath(userDataDir)) ||
-    fs.existsSync(jsonStatePath(userDataDir)) ||
-    fs.existsSync(jsonStateBackupPath(userDataDir));
-  if (hasPersistedArtifacts) {
+  if (hasPersistedArtifacts(userDataDir)) {
     return {
       state: null,
       source: "fresh",
@@ -61,7 +106,6 @@ export function readState(userDataDir: string): PlannerStateLoadResult {
       warningMessage: "Saved state was unreadable. Started with fresh data.",
     };
   }
-
   return { state: null, source: "fresh" };
 }
 
