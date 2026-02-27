@@ -8,8 +8,15 @@ import {
   startFocusSession,
   TINY_START_MINUTES,
 } from "./today_focus.js";
-
-import { findSessionRow, nextCompletionsWithRowMarkedComplete, readFocusSessionFromDataset, setFocusEntryButtonState, tinyStartSessionFromFocus } from "./today_focus_bindings_helpers.js";
+import {
+  nextCompletionsWithRowMarkedComplete,
+  setFocusEntryButtonState,
+  tinyStartSessionFromFocus,
+} from "./today_focus_bindings_helpers.js";
+import {
+  findSessionRow,
+  readFocusSessionFromDataset,
+} from "./today_focus_session_match.js";
 import type {
   BindTodayFocusActionsArgs,
   TodayFocusDomRefs,
@@ -44,12 +51,15 @@ function renderFocusMode(
   refs: TodayFocusDomRefs,
   focusState: TodayFocusState,
 ): void {
-  const {focusEntryButton,
-      focusPanel,
-      focusSessionText,
-      focusSessionMeta,
-      focusStartButton,
-      focusCompleteButton, focusFeedback} = refs;
+  const {
+    focusEntryButton,
+    focusPanel,
+    focusSessionText,
+    focusSessionMeta,
+    focusStartButton,
+    focusCompleteButton,
+    focusFeedback,
+  } = refs;
   setFocusEntryButtonState(focusEntryButton, focusState.isOpen);
   focusPanel.hidden = !focusState.isOpen;
   if (!focusState.isOpen) {

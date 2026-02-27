@@ -4,6 +4,16 @@ import type { PlannerResult } from "./types_planner.js";
 
 export type StatusBreakdown = Record<BookStatus, number>;
 
+export interface StatsTrendPoint {
+  label: string;
+  value: number;
+}
+
+export interface StatsSeries {
+  name: string;
+  points: StatsTrendPoint[];
+}
+
 export interface StatsSnapshot {
   year: number;
   totalBooks: number;
@@ -28,4 +38,8 @@ export interface SnapshotInputs {
   lastResult: PlannerResult | null;
   scheduleCompletions: Record<string, boolean>;
   dailyGoalMinutes?: number;
+}
+
+export interface BuildStatsSnapshotArgs extends SnapshotInputs {
+  year: number;
 }

@@ -77,6 +77,12 @@ export default defineConfig([
     rules: TS_OPINIONATED_RULES,
   },
   {
+    files: ["types/**/*.ts"],
+    rules: {
+      "max-lines": "off",
+    },
+  },
+  {
     files: ["renderer/**/*.ts"],
     languageOptions: {
       globals: globals.browser,

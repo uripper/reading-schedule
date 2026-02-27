@@ -3,9 +3,6 @@ import {
   dayBookCompletionKey,
   dayBookCompletionKeyFromSession,
   manualSessionBooks,
-  nextSessionIndexForDate,
-  rowsWithoutSession,
-  wordsPlannedForManualSession,
 } from "./calendar_interactions_helpers.js";
 import { buildScheduleMutationHandlers } from "./calendar_interactions_schedule_handlers.js";
 import type {
@@ -157,10 +154,4 @@ export const configureAppCalendarInteractions = (
   args: AppCalendarInteractionArgs,
 ): void => {
   args.configureCalendarInteractions(buildCalendarHandlers(args));
-};
-
-export {
-  nextSessionIndexForDate,
-  rowsWithoutSession,
-  wordsPlannedForManualSession,
 };

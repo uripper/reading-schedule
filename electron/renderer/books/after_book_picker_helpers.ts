@@ -1,5 +1,4 @@
-import type { Book } from "../../types/types_books.js";
-import type { PickerInteraction } from "../../types/types_books.js";
+import type { Book, PickerInteraction } from "../../types/types_books.js";
 
 const NO_ACTIVE_INDEX = -1;
 

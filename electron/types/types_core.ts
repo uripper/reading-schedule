@@ -1,11 +1,19 @@
 export type JsonPrimitive = string | number | boolean | null;
 
+export type JsonArray = JsonValue[];
+
+export interface JsonObject {
+  [key: string]: JsonValue;
+}
+
 export type JsonValue =
   | JsonPrimitive
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+  | JsonArray
+  | JsonObject;
 
 export type NumericLike = string | number | null | undefined;
+
+export type SessionSource = "timer" | "manual";
 
 export interface Session {
   id: string;
@@ -16,7 +24,7 @@ export interface Session {
   minutes: number;
   pages_read: number | null;
   notes: string;
-  source: "timer" | "manual";
+  source: SessionSource;
   created_at: string;
 }
 
@@ -32,4 +40,9 @@ export type DateInput = string | number | Date;
 export interface SessionRecord {
   ended_at: DateInput;
   minutes?: number | string | null;
+}
+
+export interface SessionWindow {
+  started_at: DateInput;
+  ended_at: DateInput;
 }
