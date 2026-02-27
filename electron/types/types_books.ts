@@ -1,60 +1,28 @@
-import type { bindDialogFocus } from "../renderer/accessibility/index.js";
-import type {
-  BOOK_STATUS_DROPPED,
-  BOOK_STATUS_FILTER_ALL,
-  BOOK_STATUS_IN_PROGRESS,
-  BOOK_STATUS_READ,
-  BOOK_STATUS_TO_READ,
-} from "../renderer/books/status_catalog.js";
-import type {
-  GROUP_BY_AUTHOR,
-  GROUP_BY_FINISH_DATE,
-  GROUP_BY_NONE,
-  GROUP_BY_SHELF,
-  GROUP_BY_TITLE_LETTER,
-} from "../renderer/books/grouping.js";
-import type { BOOK_WEEKDAYS } from "../renderer/books/scheduled_days.js";
-import type {
-  SORT_BY_AUTHOR,
-  SORT_BY_DEADLINE,
-  SORT_BY_DIFFICULTY,
-  SORT_BY_ESTIMATED_FINISH,
-  SORT_BY_PAGES_READ,
-  SORT_BY_PAGES_TOTAL,
-  SORT_BY_PRIORITY,
-  SORT_BY_PROGRESS,
-  SORT_BY_SHELF,
-  SORT_BY_TITLE,
-  SORT_BY_WORDS_TOTAL,
-  SORT_DIRECTION_ASC,
-  SORT_DIRECTION_DESC,
-} from "../renderer/books/sort.js";
-
 import type { NumericLike } from "./types_core.js";
 import type { PlannerScheduleRow } from "./types_planner.js";
 
 export type BookStatus =
-  | typeof BOOK_STATUS_TO_READ
-  | typeof BOOK_STATUS_IN_PROGRESS
-  | typeof BOOK_STATUS_READ
-  | typeof BOOK_STATUS_DROPPED;
+  | "to_read"
+  | "in_progress"
+  | "read"
+  | "dropped";
 
-export type BookStatusFilter = typeof BOOK_STATUS_FILTER_ALL | BookStatus;
+export type BookStatusFilter = "all" | BookStatus;
 
 export type SortBy =
-  | typeof SORT_BY_TITLE
-  | typeof SORT_BY_AUTHOR
-  | typeof SORT_BY_PAGES_TOTAL
-  | typeof SORT_BY_PAGES_READ
-  | typeof SORT_BY_WORDS_TOTAL
-  | typeof SORT_BY_PROGRESS
-  | typeof SORT_BY_PRIORITY
-  | typeof SORT_BY_DIFFICULTY
-  | typeof SORT_BY_DEADLINE
-  | typeof SORT_BY_ESTIMATED_FINISH
-  | typeof SORT_BY_SHELF;
+  | "title"
+  | "author"
+  | "pages_total"
+  | "pages_read"
+  | "words_total"
+  | "progress_percent"
+  | "priority"
+  | "difficulty"
+  | "deadline"
+  | "estimated_finish"
+  | "shelf";
 
-export type SortDirection = typeof SORT_DIRECTION_ASC | typeof SORT_DIRECTION_DESC;
+export type SortDirection = "asc" | "desc";
 
 export type OptionalNumber = number | null | undefined;
 
@@ -120,11 +88,11 @@ export interface GroupMeta {
 }
 
 export type BookGroupBy =
-  | typeof GROUP_BY_NONE
-  | typeof GROUP_BY_SHELF
-  | typeof GROUP_BY_FINISH_DATE
-  | typeof GROUP_BY_TITLE_LETTER
-  | typeof GROUP_BY_AUTHOR;
+  | "none"
+  | "shelf"
+  | "finish_date"
+  | "title_letter"
+  | "author";
 
 export type GroupBucket = GroupMeta & {
   books: Book[];
@@ -141,7 +109,20 @@ export interface BlockerMeta {
   label: string;
 }
 
-export type BookWeekday = (typeof BOOK_WEEKDAYS)[number];
+export type BookWeekday =
+  | "Mon"
+  | "Tue"
+  | "Wed"
+  | "Thu"
+  | "Fri"
+  | "Sat"
+  | "Sun";
+
+export interface DialogFocusBinding {
+  rememberOpener(): void;
+  focusInitialTarget(): void;
+  closeAndReturnFocus(): void;
+}
 
 export type SortComparator = (
   leftBook: Book,
@@ -207,7 +188,7 @@ export interface OpenDialogOptions {
 
 export interface OpenBookDialogArgs {
   refs: BookFormRefs;
-  dialogFocus: ReturnType<typeof bindDialogFocus>;
+  dialogFocus: DialogFocusBinding;
   lookupControl: LookupControl;
   afterBookPicker: AfterBookPickerControl;
   getBooks(): Book[];

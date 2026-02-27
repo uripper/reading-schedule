@@ -1,4 +1,4 @@
-import { BOOK_STATUS_READ } from "../books/status.js";
+import { BOOK_STATUS_READ } from "../books/status_catalog.js";
 import type { Book } from "../../types/types_books.js";
 import { AUTHOR_RECOMMENDATION_CATALOG } from "./catalog.js";
 import type {

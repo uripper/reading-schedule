@@ -4,7 +4,7 @@ import {
   BOOK_STATUS_READ,
   BOOK_STATUS_TO_READ,
   statusLabel,
-} from "../books/status.js";
+} from "../books/status_catalog.js";
 import { el } from "../dom.js";
 import type { BookStatus } from "../../types/types_books.js";
 import type { StatsSnapshot } from "../../types/types_stats.js";

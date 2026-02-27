@@ -121,6 +121,7 @@ export {
   BOOK_STATUS_READ,
   BOOK_STATUS_TO_READ,
   isStatusSchedulable,
+  normalizedStatus,
   statusLabel,
   statusOptions,
 };

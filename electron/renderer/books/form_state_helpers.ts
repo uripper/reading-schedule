@@ -6,7 +6,7 @@ import {
   BOOK_STATUS_IN_PROGRESS,
   BOOK_STATUS_READ,
   BOOK_STATUS_TO_READ,
-} from "./status.js";
+} from "./status_catalog.js";
 import { clamp, toOptionalInt } from "./utils.js";
 import type { BookStatus, BookFormRefs } from "../../types/types_books.js";
 

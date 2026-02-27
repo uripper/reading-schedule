@@ -11,7 +11,8 @@ import {
 import { withUpdatedProgress } from "./progress.js";
 import { hydrateBookCover, upsertBookById } from "./save.js";
 import { applyScheduledDaysToShelfBooks } from "./save_scheduled_days.js";
-import { BOOK_STATUS_FILTER_ALL, schedulableBook } from "./status.js";
+import { schedulableBook } from "./status.js";
+import { BOOK_STATUS_FILTER_ALL } from "./status_catalog.js";
 import {
   ensureBooksToolbarControls,
   SORT_BY_TITLE,

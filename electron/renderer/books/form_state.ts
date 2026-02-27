@@ -23,7 +23,7 @@ import {
   validatedShelfSelection,
   validatedStatusSelection,
 } from "./form_state_helpers.js";
-import { BOOK_STATUS_READ } from "./status.js";
+import { BOOK_STATUS_READ } from "./status_catalog.js";
 import { toOptionalInt } from "./utils.js";
 import type { BookLookupItem } from "../../types/types.js";
 import type { LookupControl, BookFormRefs, Book } from "../../types/types_books.js";

@@ -4,14 +4,15 @@
   "private": true,
   "main": "dist/main.js",
   "scripts": {
-    "build": "npm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/copy_static.mjs",
+    "clean:dist": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "npm run clean:dist && npm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/copy_static.mjs",
     "tokens:build": "node ./scripts/build_tokens.mjs",
     "tokens:check": "node ./scripts/check_token_usage.mjs",
     "prestart": "npm run build",
     "start": "node ./scripts/start_electron.mjs",
     "start:dev": "node ./scripts/start_electron.mjs --development",
     "copy:watch": "node ./scripts/watch_static.mjs",
-    "dev": "npm run tokens:build && concurrently \"tsc -p tsconfig.main.json --watch\" \"tsc -p tsconfig.renderer.json --watch\" \"npm run copy:watch\" \"npm run start:dev\"",
+    "dev": "npm run clean:dist && npm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/copy_static.mjs && concurrently \"tsc -p tsconfig.main.json --watch\" \"tsc -p tsconfig.renderer.json --watch\" \"npm run copy:watch\" \"npm run start:dev\"",
     "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
     "lint": "npm run tokens:check && eslint --ext .js,.mjs,.ts .",
     "lint:fix": "eslint --ext .js,.mjs,.ts . --fix"

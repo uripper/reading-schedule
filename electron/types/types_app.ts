@@ -1,13 +1,3 @@
-import type { createAnnouncer } from "../renderer/accessibility/index.js";
-import type { createDashboardRuntime } from "../renderer/app/dashboard_runtime.js";
-import type {
-  DEFAULT_FEATURE_FLAGS,
-  DEFAULT_PREFERENCES,
-} from "../renderer/app/experience/index.js";
-import type { createPlanController } from "../renderer/app/plan_controller.js";
-import type { createInitRuntime } from "../renderer/app/init/index.js";
-import type { createRuntimeState } from "../renderer/app/runtime_state.js";
-
 import type { Book, BookProgressUpdates } from "./types_books.js";
 import type {
   CalendarHandlers,
@@ -80,8 +70,8 @@ export interface DayMinutesArgs {
 export interface AppRuntimeState {
   lastResult: PlannerResult | null;
   ready: boolean;
-  preferences: typeof DEFAULT_PREFERENCES;
-  featureFlags: typeof DEFAULT_FEATURE_FLAGS;
+  preferences: Preferences;
+  featureFlags: FeatureFlags;
   scheduleCompletions: Record<string, boolean>;
   blockedDayBooks: Record<string, boolean>;
   sessions: Session[];
@@ -123,16 +113,34 @@ export interface PersistQueue {
   queuePersist(): void;
 }
 
+export interface DashboardRuntime {
+  applyExperienceSettings(): void;
+  updateDashboards(): void;
+}
+
+export interface InitRuntime {
+  handleBooksChanged(): void;
+  handleScheduleMutation(): void;
+  handleTabChange(name: string): void;
+  queueAutoPlanIfReady(): void;
+  setPlanController(controller: AutoPlanController | null): void;
+}
+
+export type Announcer = (
+  message: string,
+  politeness?: AnnouncePoliteness,
+) => void;
+
 export interface AppBootstrapContext {
-  announce: ReturnType<typeof createAnnouncer>;
+  announce: Announcer;
   announceForPlanController(message: string, politeness?: string): void;
-  dashboards: ReturnType<typeof createDashboardRuntime>;
+  dashboards: DashboardRuntime;
   plannerApi: PlannerApi;
   persistDraft(): Promise<boolean>;
   queuePersist(): void;
-  runtime: ReturnType<typeof createInitRuntime>;
+  runtime: InitRuntime;
   setStatus(message: string, isError?: boolean): void;
-  state: ReturnType<typeof createRuntimeState>;
+  state: AppRuntimeState;
 }
 
 export interface DashboardRuntimeArgs {
@@ -310,7 +318,7 @@ export interface LoadStateArgs {
   setStatus(message: string, isError?: boolean): void;
 }
 
-export type CreatePlanControllerArgs = Parameters<typeof createPlanController>[0];
+export type CreatePlanControllerArgs = PlanControllerArgs;
 
 export interface AutoPlanController {
   queueAutoPlan(): void;
