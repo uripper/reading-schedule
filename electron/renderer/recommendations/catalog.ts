@@ -1,5 +1,4 @@
 import type { RecommendationSeed } from "../../types/recommendations_model.js";
-export type { RecommendationSeed };
 
 const AUTHOR_KEY_AUSTEN = "jane austen";
 const AUTHOR_KEY_ORWELL = "george orwell";

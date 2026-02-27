@@ -1,6 +1,5 @@
 import type { Book } from "./types.js";
 import type { GroupMeta } from "../../types/books_types.js";
-export type { GroupMeta };
 
 const MONTH_INDEX_MIN = 1;
 const MONTH_INDEX_MAX = 12;

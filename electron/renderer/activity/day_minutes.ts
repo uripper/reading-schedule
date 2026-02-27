@@ -3,7 +3,6 @@ import { sessionKeyFor } from "../calendar/utils.js";
 import { isoLocalDayKey } from "../sessions/utils.js";
 import { addMinutes, includeDayKey } from "./day_minutes_collect.js";
 import type { DayMinutesArgs, DayMinutesMap } from "../../types/app_activity_day_minutes.js";
-export type { DayMinutesMap };
 
 const MIN_STREAK_MINUTES = 1;
 const PREVIOUS_DAY_OFFSET = 1;

@@ -2,7 +2,6 @@ import type { BookFormRefs } from "./form_refs.js";
 import { optionLabel } from "./after_book_picker_helpers.js";
 import type { Book } from "./types.js";
 import type { PickerState } from "../../types/books_types.js";
-export type { PickerState };
 
 export const NO_ACTIVE_INDEX = -1;
 export const FIRST_RESULT_INDEX = 0;

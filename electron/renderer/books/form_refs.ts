@@ -1,6 +1,5 @@
 import { el } from "../dom.js";
 import type { BookFormRefs } from "../../types/books_types.js";
-export type { BookFormRefs };
 
 /**
  * Resolves and returns strongly typed DOM references for the book dialog form.

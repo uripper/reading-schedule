@@ -1,7 +1,6 @@
 import { fullWordsForBook, percentFromWords, projectedPages, wordsReadFromBook } from "./estimates_math.js";
 import { plannedWordsBeforeAndThroughRow } from "./estimates_snapshot_rows.js";
 import type { BookGetter, CompletionChecker, EstimateRow, EstimateSnapshot, EstimateState } from "../../types/calendar_month.js";
-export type { BookGetter, CompletionChecker, EstimateRow, EstimateSnapshot, EstimateState };
 
 /**
  * Builds estimate snapshot for target row using current progress and plan.

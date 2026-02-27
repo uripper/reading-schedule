@@ -3,7 +3,6 @@ import { titleInitialLetter } from "./title_key.js";
 import type { Book } from "./types.js";
 import { finishDateMetaForBook, type GroupMeta } from "./grouping_finish.js";
 import type { BookGroup, BookGroupBy, GroupBucket } from "../../types/books_types.js";
-export type { BookGroup, BookGroupBy };
 
 export const GROUP_BY_NONE = "none";
 export const GROUP_BY_SHELF = "shelf";

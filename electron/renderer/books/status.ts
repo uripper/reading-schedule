@@ -123,4 +123,3 @@ export {
   statusOptions,
 };
 
-export type { BookStatus, BookStatusFilter };

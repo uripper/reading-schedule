@@ -1,5 +1,4 @@
 import type { DownloadCoverPayload, UploadCoverPayload } from "../types/main_ipc.js";
-export type { DownloadCoverPayload, UploadCoverPayload };
 
 /**
  * Normalizes unknown download payload input into a safe object.

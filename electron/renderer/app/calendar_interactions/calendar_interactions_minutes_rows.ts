@@ -14,7 +14,6 @@ import type {
   PlannerSettings,
 } from "../../../types/types.js";
 import type { UpdatedRowsResult } from "../../../types/app_calendar_interactions.js";
-export type { UpdatedRowsResult };
 
 /**
  * Calculates the updated schedule rows when a session's planned minutes are manually changed.

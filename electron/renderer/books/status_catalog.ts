@@ -1,5 +1,4 @@
 import type { BookStatus, BookStatusFilter } from "../../types/books_types.js";
-export type { BookStatus, BookStatusFilter };
 export const BOOK_STATUS_TO_READ = "to_read";
 export const BOOK_STATUS_IN_PROGRESS = "in_progress";
 export const BOOK_STATUS_READ = "read";

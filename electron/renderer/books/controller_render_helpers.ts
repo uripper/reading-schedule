@@ -5,7 +5,6 @@ import { normalizeTitleFilterQuery, titleMatchesNormalizedQuery } from "../title
 import type { Book } from "./types.js";
 import type { BooksControllerRefs, BooksViewState } from "./controller_types.js";
 import type { RenderableBooksRefs } from "../../types/books_types.js";
-export type { RenderableBooksRefs };
 
 /**
  * Checks whether a book title matches the active case-insensitive text filter.

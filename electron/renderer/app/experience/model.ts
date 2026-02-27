@@ -1,6 +1,5 @@
 import { RECOMMENDATIONS_AVAILABLE, REMINDERS_AVAILABLE, SOCIAL_FEATURES_AVAILABLE, shippedFeatureFlag, shippedReminderTime } from "./availability.js";
 import type { FeatureFlags, FeatureFlagsInput, Preferences, PreferencesInput } from "../../../types/app_experience.js";
-export type { FeatureFlags, Preferences };
 
 export const DEFAULT_PREFERENCES: Preferences = {
   theme: "system",

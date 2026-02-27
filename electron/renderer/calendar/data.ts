@@ -1,7 +1,6 @@
 
 import { sessionKeyFor, sortRowsByDateAndSession } from "./utils.js";
 import type { CalendarRow, CalendarRowWithFinish, CompletionChecker, RowsByDate } from "../../types/calendar_month.js";
-export type { CalendarRow, CalendarRowWithFinish };
 
 const DAYS_IN_WEEK = 7;
 

@@ -2,7 +2,6 @@ import { BOOK_STATUS_READ } from "../books/status.js";
 import type { Book } from "../books/types.js";
 import { AUTHOR_RECOMMENDATION_CATALOG, type RecommendationSeed } from "./catalog.js";
 import type { RecommendationItem } from "../../types/recommendations_model.js";
-export type { RecommendationItem };
 
 const AUTHOR_LIST_LOCALE = "en";
 

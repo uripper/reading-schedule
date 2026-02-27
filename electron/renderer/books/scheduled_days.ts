@@ -1,5 +1,4 @@
 import type { BookWeekday } from "../../types/books_types.js";
-export type { BookWeekday };
 /**
  * @file Weekday contracts and normalization helpers for per-book scheduling.
  */

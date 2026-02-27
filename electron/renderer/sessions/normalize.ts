@@ -1,7 +1,6 @@
 import { uid } from "../dom.js";
 import { toInt } from "./utils.js";
 import type { Session, SessionInput } from "../../types/core_sessions.js";
-export type { Session };
 
 const SOURCE_TIMER: Session["source"] = "timer";
 const SOURCE_MANUAL: Session["source"] = "manual";

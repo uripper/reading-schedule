@@ -10,15 +10,6 @@ import type {
   RemoveSessionInput,
   UpdatedBook,
 } from "../../../types/app_calendar_interactions.js";
-export type {
-  CompletionUpdate,
-  ManualSessionAddInput,
-  ManualSessionBook,
-  MinutesUpdateInput,
-  ProgressUpdateInput,
-  RemoveSessionInput,
-  UpdatedBook,
-};
 
 export {
   dayBookCompletionKey,

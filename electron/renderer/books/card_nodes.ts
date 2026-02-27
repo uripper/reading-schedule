@@ -6,7 +6,6 @@ import { bindReadCardHolo } from "./card_holo.js";
 import { BOOK_STATUS_IN_PROGRESS, BOOK_STATUS_READ, BOOK_STATUS_TO_READ, statusLabel } from "./status.js";
 import type { Book } from "./types.js";
 import type { CardRenderContext } from "../../types/books_types.js";
-export type { CardRenderContext };
 
 const CARD_CLASS = "book-card";
 const READ_CARD_CLASS = "is-read-card";
