@@ -63,8 +63,8 @@ const createSharedScheduleBindings = (
     setBookScheduleRows,
     setLastResult,
     setStatus,
-    state: args.state,
     totalsFromSummary,
+    state: args.state,
   };
 };
 
@@ -76,11 +76,11 @@ export const buildScheduleMutationHandlers = (
     onManualSessionAdded: ({ date, bookId, minutes, completed = false }) => {
       return addManualSessionRow({
         bookId,
-        collectSettings: bindings.collectSettings,
         completed,
         date,
-        getBookById: bindings.getBookById,
         minutes,
+        collectSettings: bindings.collectSettings,
+        getBookById: bindings.getBookById,
         onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
         queuePersist: bindings.queuePersist,
         renderCalendar: bindings.renderCalendar,
@@ -93,13 +93,13 @@ export const buildScheduleMutationHandlers = (
     },
     onSessionMinutesUpdated: ({ minutes, row }) => {
       return updateSessionRowMinutes({
+        minutes,
+        row,
         collectSettings: bindings.collectSettings,
         getBookById: bindings.getBookById,
-        minutes,
         onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
         queuePersist: bindings.queuePersist,
         renderCalendar: bindings.renderCalendar,
-        row,
         setBookScheduleRows: bindings.setBookScheduleRows,
         setLastResult: bindings.setLastResult,
         setStatus: bindings.setStatus,
@@ -109,10 +109,10 @@ export const buildScheduleMutationHandlers = (
     },
     onSessionRemoved: ({ row }) => {
       return removeSessionRow({
+        row,
         onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
         queuePersist: bindings.queuePersist,
         renderCalendar: bindings.renderCalendar,
-        row,
         setBookScheduleRows: bindings.setBookScheduleRows,
         setLastResult: bindings.setLastResult,
         setStatus: bindings.setStatus,

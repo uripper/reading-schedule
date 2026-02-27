@@ -1,8 +1,28 @@
 import { uid } from "../dom.js";
 import { noteFromLookup, syncProgressAndPages } from "../book_lookup.js";
 import { bookCoverSrc, normalizeBook } from "./model.js";
-import { fillScheduledDayControls, readScheduledDaySelection, resetScheduledDayControls } from "./form_scheduled_days.js";
-import { CUSTOM_COVER_NOTE, DEFAULT_DIFFICULTY, DEFAULT_MIN_BLOCKS, DEFAULT_PRIORITY, DEFAULT_PROGRESS, DEFAULT_STATUS, deriveLengthAndProgress, fallbackNumberText, fallbackText, requiredTitle, setCoverPreview, setOptionalIntegerInputValue, syncFinishedAtFieldState, validatedShelfSelection, validatedStatusSelection } from "./form_state_helpers.js";
+import {
+  fillScheduledDayControls,
+  readScheduledDaySelection,
+  resetScheduledDayControls,
+} from "./form_scheduled_days.js";
+import {
+  CUSTOM_COVER_NOTE,
+  DEFAULT_DIFFICULTY,
+  DEFAULT_MIN_BLOCKS,
+  DEFAULT_PRIORITY,
+  DEFAULT_PROGRESS,
+  DEFAULT_STATUS,
+  deriveLengthAndProgress,
+  fallbackNumberText,
+  fallbackText,
+  requiredTitle,
+  setCoverPreview,
+  setOptionalIntegerInputValue,
+  syncFinishedAtFieldState,
+  validatedShelfSelection,
+  validatedStatusSelection,
+} from "./form_state_helpers.js";
 import { BOOK_STATUS_READ } from "./status.js";
 import { toOptionalInt } from "./utils.js";
 import type { Book } from "./types.js";
@@ -100,7 +120,10 @@ export function fillForm(refs: BookFormRefs, book: Book): void {
     book.min_blocks_per_session,
     DEFAULT_MIN_BLOCKS,
   );
-  setOptionalIntegerInputValue(formRefs.maxMinutesInput, book.max_minutes_per_day);
+  setOptionalIntegerInputValue(
+    formRefs.maxMinutesInput,
+    book.max_minutes_per_day,
+  );
   formRefs.deadlineInput.value = fallbackText(book.deadline);
   formRefs.blockedByInput.value = fallbackText(book.blocked_by);
   formRefs.statusSelectInput.value = fallbackText(book.status, DEFAULT_STATUS);
