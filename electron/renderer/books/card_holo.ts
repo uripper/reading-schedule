@@ -1,4 +1,4 @@
-import type { HoloPointerVars } from "../../types/books_types.js";
+import type { HoloPointerVars } from "../../types/types_books.js";
 const DEFAULT_POINTER_PERCENT = "50%";
 const ACTIVE_HOLO = "1";
 const BG_SHIFT_FACTOR = 0.35;

@@ -1,7 +1,7 @@
 
 import { logError } from "../logger.js";
 import { isCommandPressed, isZoomInShortcut, isZoomOutShortcut, isZoomResetShortcut } from "./desktop_shortcuts_keys.js";
-import type { ZoomApi } from "../../types/app_runtime.js";
+import type { ZoomApi } from "../../types/types_app.js";
 
 const ZOOM_PERCENT_FACTOR = 100;
 

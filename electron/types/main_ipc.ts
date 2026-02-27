@@ -1,6 +1,6 @@
 import type { WebContents } from "electron";
 
-import type { JsonValue } from "./core_sessions.js";
+import type { JsonValue } from "./types_core.js";
 
 /**
  * Payload shape accepted for remote cover download requests.

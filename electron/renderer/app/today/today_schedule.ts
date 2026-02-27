@@ -4,7 +4,7 @@ import type { Book } from "../../books/types.js";
 import { sessionKeyFor, sortRowsByDateAndSession } from "../../calendar/utils.js";
 import { todayKey } from "../../sessions/utils.js";
 import type { PlannerResult, PlannerScheduleRow } from "../../../types/types.js";
-import type { TodayBookSummary, TodayScheduleSnapshot } from "../../../types/app_today.js";
+import type { TodayBookSummary, TodayScheduleSnapshot } from "../../../types/types_app.js";
 
 const ZERO_COUNT = 0;
 const DEFAULT_TITLE = "Untitled";

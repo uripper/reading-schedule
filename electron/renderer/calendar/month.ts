@@ -6,7 +6,7 @@ import type {
   CalendarDisplayRow,
   CalendarState,
   MonthActions,
-} from "../../types/calendar_month.js";
+} from "../../types/types_calendar.js";
 
 /**
  * Returns today's local day key for month rendering state checks.

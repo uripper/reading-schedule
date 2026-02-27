@@ -1,4 +1,4 @@
-import type { JsonValue } from "./core_sessions.js";
+import type { JsonValue } from "./types_core.js";
 
 export interface PlannerScheduleRow {
   date: string;

@@ -1,8 +1,8 @@
-import type { FeatureFlags, Preferences } from "./app_experience.js";
-import type { Book } from "./books_types.js";
-import type { BookLookupItem } from "./book_lookup_search.js";
-import type { JsonValue, Session } from "./core_sessions.js";
-import type { PlannerResult } from "./planner_result.js";
+import type { FeatureFlags, Preferences } from "./types_experience.js";
+import type { Book } from "./types_books.js";
+import type { BookLookupItem } from "./types_lookup.js";
+import type { JsonValue, Session } from "./types_core.js";
+import type { PlannerResult } from "./types_planner.js";
 
 export type PlannerSettings = {
   start_date?: string;

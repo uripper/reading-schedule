@@ -1,5 +1,5 @@
-import type { Book } from "./types.js";
-import { getPlannerApi } from "../app/planner_state.js";
+import type { Book } from "../../types/types_books.js";
+import { getPlannerApi } from "../app/planner_api.js";
 
 /**
  * Downloads remote cover art for a book when no local cover exists yet.

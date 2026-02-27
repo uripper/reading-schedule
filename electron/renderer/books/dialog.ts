@@ -2,14 +2,20 @@ import { bindBookLookup } from "../book_lookup.js";
 import { bindDialogFocus, focusFirstError } from "../accessibility/index.js";
 import { applyLookupItem, clearForm, fillForm, parseFormBook } from "./form_state.js";
 import { ensureBookFormLayoutFields } from "./form_layout.js";
-import { getBookFormRefs, type BookFormRefs } from "./form_refs.js";
+import { getBookFormRefs } from "./form_refs.js";
 import { createAfterBookPicker } from "./after_book_picker.js";
 import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.js";
 import { bindCoverUpload } from "./cover_upload.js";
 import { bindBookDialogProgressSync } from "./dialog_progress_sync.js";
-import type { BookDialogController } from "./controller_types.js";
-import type { Book } from "./types.js";
-import type { BookDialogOptions, BookSubmitPayload, OpenBookDialogArgs, OpenDialogOptions } from "../../types/books_types.js";
+import type {
+  Book,
+  BookDialogController,
+  BookDialogOptions,
+  BookFormRefs,
+  BookSubmitPayload,
+  OpenBookDialogArgs,
+  OpenDialogOptions,
+} from "../../types/types_books.js";
 
 /**
  * Updates the save button state while a dialog submission is in progress.

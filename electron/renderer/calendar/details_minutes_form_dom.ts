@@ -17,7 +17,7 @@ export function minutesInputForRow(row: CalendarRowWithFinish): HTMLInputElement
   minutesInput.min = String(minMinutes);
   minutesInput.step = "1";
   minutesInput.placeholder = PLANNED_MINUTES_PLACEHOLDER;
-  minutesInput.value = String(Math.max(minMinutes, Number(row.minutes || 0)));
+  minutesInput.value = String(Math.max(minMinutes, Number(row.minutes ?? 0)));
   return minutesInput;
 }
 

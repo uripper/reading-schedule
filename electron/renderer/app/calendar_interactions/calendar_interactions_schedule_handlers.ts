@@ -3,11 +3,11 @@ import {
   removeSessionRow,
   updateSessionRowMinutes,
 } from "./calendar_interactions_schedule_updates.js";
-import type { AppCalendarInteractionArgs } from "./calendar_interactions_types.js";
 import type {
   ScheduleMutationHandlers,
   SharedScheduleBindings,
-} from "../../../types/app_calendar_interactions.js";
+  AppCalendarInteractionArgs,
+} from "../../../types/types_app.js";
 
 const createSharedScheduleBindings = (
   args: AppCalendarInteractionArgs,

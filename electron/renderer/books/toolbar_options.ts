@@ -1,8 +1,29 @@
-import { GROUP_BY_AUTHOR, GROUP_BY_FINISH_DATE, GROUP_BY_NONE, GROUP_BY_SHELF, GROUP_BY_TITLE_LETTER } from "./grouping.js";
-import { SHELF_FILTER_ALL, SHELF_FILTER_UNSHELVED, uniqueShelves } from "./shelf.js";
-import { SORT_BY_AUTHOR, SORT_BY_DEADLINE, SORT_BY_DIFFICULTY, SORT_BY_ESTIMATED_FINISH, SORT_BY_PAGES_READ, SORT_BY_PAGES_TOTAL, SORT_BY_PRIORITY, SORT_BY_PROGRESS, SORT_BY_SHELF, SORT_BY_TITLE, SORT_BY_WORDS_TOTAL } from "./sort.js";
-import type { Book } from "./types.js";
-import type { OptionDefinition } from "../../types/books_types.js";
+import {
+  GROUP_BY_AUTHOR,
+  GROUP_BY_FINISH_DATE,
+  GROUP_BY_NONE,
+  GROUP_BY_SHELF,
+  GROUP_BY_TITLE_LETTER,
+} from "./grouping.js";
+import {
+  SHELF_FILTER_ALL,
+  SHELF_FILTER_UNSHELVED,
+  uniqueShelves,
+} from "./shelf.js";
+import {
+  SORT_BY_AUTHOR,
+  SORT_BY_DEADLINE,
+  SORT_BY_DIFFICULTY,
+  SORT_BY_ESTIMATED_FINISH,
+  SORT_BY_PAGES_READ,
+  SORT_BY_PAGES_TOTAL,
+  SORT_BY_PRIORITY,
+  SORT_BY_PROGRESS,
+  SORT_BY_SHELF,
+  SORT_BY_TITLE,
+  SORT_BY_WORDS_TOTAL,
+} from "./sort.js";
+import type { Book, OptionDefinition } from "../../types/types_books.js";
 
 export const SORT_OPTIONS: OptionDefinition[] = [
   { value: SORT_BY_TITLE, label: "Title" },

@@ -1,12 +1,18 @@
 import { applyPreferencesToDocument } from "../../accessibility/index.js";
 import { fillBooks } from "../../books.js";
 import { fillSettings } from "../../settings.js";
-import { normalizeFeatureFlags, normalizePreferences, fillPreferencesUI, normalizeScheduleCompletions } from "../experience/index.js";
+import {
+  normalizeFeatureFlags,
+  normalizePreferences,
+  fillPreferencesUI,
+  normalizeScheduleCompletions,
+} from "../experience/index.js";
 import { bindTodayActions, finalizeInitialLoad } from "./init_helpers.js";
 import { loadInitialData } from "../load_state.js";
-import type { AppBootstrapContext } from "../bootstrap_runtime.js";
-
-import type { LoadedResultController } from "../../../types/app_init_init_helpers.js";
+import type {
+  AppBootstrapContext,
+  LoadedResultController,
+} from "../../../types/types_app.js";
 
 /**
  * Loads the initial state of the application, applying it to the provided context and controller,

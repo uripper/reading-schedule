@@ -1,4 +1,4 @@
-import type { Book } from "../../books/types.js";
+import type { Book } from "../../../types/types_books.js";
 
 import type { PlannerResult } from "../../../types/types.js";
 import type {
@@ -9,7 +9,7 @@ import type {
   ProgressUpdateInput,
   RemoveSessionInput,
   UpdatedBook,
-} from "../../../types/app_calendar_interactions.js";
+} from "../../../types/types_app.js";
 
 export {
   dayBookCompletionKey,

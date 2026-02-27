@@ -6,10 +6,9 @@ import {
   BOOK_STATUS_IN_PROGRESS,
   BOOK_STATUS_READ,
   BOOK_STATUS_TO_READ,
-  type BookStatus,
 } from "./status.js";
 import { clamp, toOptionalInt } from "./utils.js";
-import type { BookFormRefs } from "./form_refs.js";
+import type { BookStatus, BookFormRefs } from "../../types/types_books.js";
 
 export const DEFAULT_PROGRESS = "0";
 export const DEFAULT_PRIORITY = "3";
@@ -114,7 +113,7 @@ export function requiredTitle(refs: BookFormRefs): string {
  * @returns Supported book status value.
  */
 export function validatedStatusSelection(refs: BookFormRefs): BookStatus {
-  const raw = String(refs.statusSelectInput.value || "").trim();
+  const raw = String(refs.statusSelectInput.value).trim();
   if (raw === BOOK_STATUS_READ) {
     return BOOK_STATUS_READ;
   }
@@ -133,8 +132,7 @@ export function validatedStatusSelection(refs: BookFormRefs): BookStatus {
  * @param status Current normalized status value.
  */
 function toggleFinishedAtInput(refs: BookFormRefs, status: BookStatus): void {
-  const finishedAtField = refs.finishedAtField;
-  const finishedAtInput = refs.finishedAtInput;
+  const {finishedAtField, finishedAtInput} = refs;
   const isRead = status === BOOK_STATUS_READ;
   finishedAtField.hidden = !isRead;
   finishedAtInput.disabled = !isRead;
@@ -171,7 +169,7 @@ export function deriveLengthAndProgress(refs: BookFormRefs): {
   const wordsTotal = toOptionalInt(refs.wordsInput.value);
   const pagesTotal = toOptionalInt(refs.pagesTotalInput.value);
   let pagesRead = toOptionalInt(refs.pagesReadInput.value);
-  let progress = clamp(Number(refs.progressInput.value || 0), 0, PROGRESS_MAX);
+  let progress = clamp(Number(refs.progressInput.value), 0, PROGRESS_MAX);
   const hasWordsTotal = wordsTotal !== null && wordsTotal > 0;
   const hasPagesTotal = pagesTotal !== null && pagesTotal > 0;
   if (!hasWordsTotal && !hasPagesTotal) {

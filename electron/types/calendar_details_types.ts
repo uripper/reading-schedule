@@ -1,5 +1,5 @@
-import type { Book } from "./books_types.js";
-import type { CalendarRowWithFinish } from "./calendar_month.js";
+import type { Book } from "./types_books.js";
+import type { CalendarRowWithFinish } from "./types_calendar.js";
 
 export interface ManualSessionBook {
   bookId: string;

@@ -2,11 +2,14 @@ import { el } from "../../dom.js";
 import { dayMinutesForKey, dayMinutesFromActivity, streakFromDayMinutes } from "../../activity/day_minutes.js";
 
 import { renderTodayScheduledBooks } from "./today_books_view.js";
-import { buildTodayScheduleSnapshot, type TodayScheduleSnapshot } from "./today_schedule.js";
+import { buildTodayScheduleSnapshot } from "./today_schedule.js";
 import type { PlannerResult, PlannerScheduleRow } from "../../../types/types.js";
 
 import { todayKey } from "../../sessions/utils.js";
-import type { UpdateTodayDashboardArgs } from "../../../types/app_today.js";
+import type {
+  TodayScheduleSnapshot,
+  UpdateTodayDashboardArgs,
+} from "../../../types/types_app.js";
 
 const MIN_GOAL_MINUTES = 1;
 const MAX_PERCENT = 100;

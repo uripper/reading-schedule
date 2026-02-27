@@ -1,7 +1,7 @@
-import type { Book } from "./books_types.js";
-import type { PlannerScheduleRow } from "./planner_result.js";
-import type { ManualSessionBook } from "./calendar_details_types.js";
-import type { CalendarRowWithFinish } from "./calendar_month.js";
+import type { Book } from "./types_books.js";
+import type { PlannerScheduleRow } from "./types_planner.js";
+import type { ManualSessionBook } from "./types_calendar.js";
+import type { CalendarRowWithFinish } from "./types_calendar.js";
 export type { ManualSessionBook };
 
 export interface CompletionChangePayload {

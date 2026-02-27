@@ -1,6 +1,6 @@
 
 
-import type { CalendarHandlers, CalendarRuntimeState, CompletionChangePayload, ManualSessionBook, ManualSessionPayload, MinutesUpdatePayload, ProgressUpdatePayload, RemoveSessionPayload } from "../../types/calendar_state_runtime.js";
+import type { CalendarHandlers, CalendarRuntimeState, CompletionChangePayload, ManualSessionBook, ManualSessionPayload, MinutesUpdatePayload, ProgressUpdatePayload, RemoveSessionPayload } from "../../types/types_calendar.js";
 
 /**
  * Creates default mutable runtime state for calendar renderer.

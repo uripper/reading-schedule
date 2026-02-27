@@ -1,9 +1,9 @@
-import type { Session } from "./core_sessions.js";
+import type { Session } from "./types_core.js";
 import type {
   PlannerResult,
   PlannerScheduleRow,
   PlannerSummary,
-} from "./planner_result.js";
+} from "./types_planner.js";
 
 export type PlannerRunData = Pick<PlannerResult, "schedule" | "summary">;
 

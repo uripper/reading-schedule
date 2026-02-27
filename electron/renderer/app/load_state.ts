@@ -2,7 +2,7 @@
 
 import type { FeatureFlags, Preferences } from "./experience/index.js";
 import type { LoadedPlannerState, PlannerApi } from "../../types/types.js";
-import type { InitialDataSource, LoadStateArgs } from "../../types/app_load_state.js";
+import type { InitialDataSource, LoadStateArgs } from "../../types/types_app.js";
 
 /**
  * Normalizes persisted blocked day-book map values to strict booleans.

@@ -1,6 +1,9 @@
-import type { BookGroup } from "./grouping.js";
-import type { Book } from "./types.js";
-import { createCardNode, type CardRenderContext } from "./card_nodes.js";
+import type {
+  Book,
+  BookGroup,
+  CardRenderContext,
+} from "../../types/types_books.js";
+import { createCardNode } from "./card_nodes.js";
 
 /**
  * Creates a grouped section of book cards with heading and row container.
@@ -8,7 +11,10 @@ import { createCardNode, type CardRenderContext } from "./card_nodes.js";
  * @param context Shared card render context.
  * @returns Group section element.
  */
-function createGroupSection(group: BookGroup, context: CardRenderContext): HTMLElement {
+function createGroupSection(
+  group: BookGroup,
+  context: CardRenderContext,
+): HTMLElement {
   const section = document.createElement("section");
   section.className = "books-group";
   section.dataset.groupKey = String(group.key || "");
@@ -49,5 +55,7 @@ export function renderGroupedBooks(
   context: CardRenderContext,
 ): void {
   grid.classList.add("is-grouped");
-  grid.replaceChildren(...groups.map((group) => createGroupSection(group, context)));
+  grid.replaceChildren(
+    ...groups.map((group) => createGroupSection(group, context)),
+  );
 }

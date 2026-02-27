@@ -1,6 +1,6 @@
 import { WEEKDAY_LABELS } from "./constants.js";
 import { appendDayButtonSummary } from "./month_day_button_chips.js";
-import type { DayStyleFlags, DayStyleFlagsArgs } from "../../types/calendar_month.js";
+import type { DayStyleFlags, DayStyleFlagsArgs } from "../../types/types_calendar.js";
 
 /**
  * Derives visual state flags for a calendar day button.

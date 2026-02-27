@@ -1,8 +1,8 @@
-import type { Book, BookProgressUpdates } from "./books_types.js";
-import type { ManualSessionBook } from "./calendar_details_types.js";
-import type { CalendarHandlers } from "./calendar_state_runtime.js";
-import type { PlannerResult, PlannerScheduleRow, PlannerSummary } from "./planner_result.js";
-import type { PlannerSettings } from "./planner_state.js";
+import type { Book, BookProgressUpdates } from "./types_books.js";
+import type { ManualSessionBook } from "./types_calendar.js";
+import type { CalendarHandlers } from "./types_calendar.js";
+import type { PlannerResult, PlannerScheduleRow, PlannerSummary } from "./types_planner.js";
+import type { PlannerSettings } from "./types_planner.js";
 
 export interface ScheduleRow {
   title?: string;

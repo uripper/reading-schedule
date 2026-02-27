@@ -3,7 +3,7 @@
 import { buildStatsSnapshot } from "./stats/model.js";
 import { renderStatsDashboard } from "./stats/render.js";
 
-import type { UpdateStatsArgs } from "../types/app_runtime.js";
+import type { UpdateStatsArgs } from "../types/types_app.js";
 
 /**
  * Computes and renders the Stats dashboard from current runtime data.

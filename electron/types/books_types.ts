@@ -149,7 +149,7 @@ export type SortComparator = (
   finishDateByBookId: Record<string, string>,
 ) => number;
 
-export type { NumericLike } from "./core_sessions.js";
+export type { NumericLike } from "./types_core.js";
 
-export type * from "./books_ui.js";
-export type * from "./books_controller.js";
+export type * from "./types_books.js";
+export type * from "./types_books.js";

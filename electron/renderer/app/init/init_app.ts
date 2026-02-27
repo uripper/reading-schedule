@@ -23,7 +23,7 @@ import {
 } from "./init_helpers.js";
 import { loadStateAndBindTodayActions } from "./init_app_load.js";
 import { totalsFromSummary } from "../runtime_helpers.js";
-import type { AppBootstrapContext } from "../bootstrap_runtime.js";
+import type { AppBootstrapContext } from "../../../types/types_app.js";
 import type { PlannerResult } from "../../../types/types.js";
 
 /**

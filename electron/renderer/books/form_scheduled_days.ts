@@ -2,9 +2,8 @@ import {
   BOOK_WEEKDAYS,
   isBookWeekday,
   normalizeScheduledDays,
-  type BookWeekday,
 } from "./scheduled_days.js";
-import type { BookFormRefs } from "./form_refs.js";
+import type { BookFormRefs, BookWeekday } from "../../types/types_books.js";
 
 const SCHEDULED_DAY_SELECTOR = 'input[type="checkbox"][data-book-weekday]';
 

@@ -1,5 +1,5 @@
 import type { CalendarRowWithFinish } from "./data.js";
-import type { DetailInteractionHandlers } from "./details_types.js";
+import type { DetailInteractionHandlers } from "../../types/types_calendar.js";
 import { minutesFormForSession } from "./details_minutes_form.js";
 import { sessionKeyFor } from "./utils.js";
 import {

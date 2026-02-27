@@ -2,7 +2,7 @@
 
 import { activeDayCount, dayMinutesFromActivity, streakFromDayMinutes, totalMinutes } from "../activity/day_minutes.js";
 import { averageProgress, completionStats, monthlyFinishCounts, plannedFinishBookIds, readBooksFinishedThisYear, statusBreakdown } from "./helpers.js";
-import type { SnapshotInputs, StatsSnapshot } from "../../types/stats_model.js";
+import type { SnapshotInputs, StatsSnapshot } from "../../types/types_stats.js";
 
 const MIN_GOAL_MINUTES = 1;
 

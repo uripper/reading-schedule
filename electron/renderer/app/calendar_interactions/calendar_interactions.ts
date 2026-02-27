@@ -6,15 +6,15 @@ import {
   nextSessionIndexForDate,
   rowsWithoutSession,
   wordsPlannedForManualSession,
-  type CompletionUpdate,
-  type ProgressUpdateInput,
 } from "./calendar_interactions_helpers.js";
 import { buildScheduleMutationHandlers } from "./calendar_interactions_schedule_handlers.js";
-import type { AppCalendarInteractionArgs } from "./calendar_interactions_types.js";
 import type {
+  AppCalendarInteractionArgs,
   CalendarInteractionHandlers,
   CompletionRow,
-} from "../../../types/app_calendar_interactions.js";
+  CompletionUpdate,
+  ProgressUpdateInput,
+} from "../../../types/types_app.js";
 
 const completionFallbackKey = (row: CompletionRow | undefined): string => {
   if (row === undefined) {

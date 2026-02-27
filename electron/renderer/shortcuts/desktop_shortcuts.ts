@@ -1,6 +1,6 @@
 
 import { createZoomShortcutHandler } from "./desktop_shortcuts_zoom.js";
-import type { ShortcutBindings } from "../../types/app_runtime.js";
+import type { ShortcutBindings } from "../../types/types_app.js";
 
 /**
  * Wires global desktop shortcut handlers for zoom commands.

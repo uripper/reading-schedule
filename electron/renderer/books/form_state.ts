@@ -25,11 +25,9 @@ import {
 } from "./form_state_helpers.js";
 import { BOOK_STATUS_READ } from "./status.js";
 import { toOptionalInt } from "./utils.js";
-import type { Book } from "./types.js";
-import type { BookFormRefs } from "./form_refs.js";
 import type { BookLookupItem } from "../../types/types.js";
-import type { ProgressSyncInputs } from "../book_lookup/helpers.js";
-import type { LookupControl } from "../../types/books_types.js";
+import type { LookupControl, BookFormRefs, Book } from "../../types/types_books.js";
+import type { ProgressSyncInputs } from "../../types/types_lookup.js";
 
 /**
  * Applies a positive lookup estimate to an input only when current value is missing.

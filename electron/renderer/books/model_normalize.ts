@@ -1,7 +1,7 @@
 import { normalizeShelfName } from "./shelf.js";
 import { normalizeScheduledDays } from "./scheduled_days.js";
 import { statusFromRaw } from "./status.js";
-import type { Book, BookInput } from "./types.js";
+import type { Book, BookInput } from "../../types/types_books.js";
 import { clamp, toOptionalDate, toOptionalInt } from "./utils.js";
 import {
   DEFAULT_DIFFICULTY,

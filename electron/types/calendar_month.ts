@@ -1,5 +1,5 @@
-import type { Book } from "./books_types.js";
-import type { PlannerScheduleRow } from "./planner_result.js";
+import type { Book } from "./types_books.js";
+import type { PlannerScheduleRow } from "./types_planner.js";
 
 export interface CalendarDisplayRow {
   book_id?: string;
@@ -117,7 +117,7 @@ export type {
   SubmitManualAddFormArgs,
   SubmitMinutesUpdateArgs,
   SubmitProgressUpdateArgs,
-} from "./calendar_details_types.js";
+} from "./types_calendar.js";
 
 export type {
   CalendarHandlers,
@@ -127,4 +127,4 @@ export type {
   MinutesUpdatePayload,
   ProgressUpdatePayload,
   RemoveSessionPayload,
-} from "./calendar_state_runtime.js";
+} from "./types_calendar.js";

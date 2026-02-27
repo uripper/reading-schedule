@@ -4,7 +4,7 @@ import type { Book } from "../books/types.js";
 import { sessionKeyFor } from "../calendar/utils.js";
 import { todayKey } from "../sessions/utils.js";
 import type { PlannerResult } from "../../types/types.js";
-import type { StatusBreakdown } from "../../types/stats_model.js";
+import type { StatusBreakdown } from "../../types/types_stats.js";
 
 const MONTHS_PER_YEAR = 12;
 const PERCENT_MAX = 100;

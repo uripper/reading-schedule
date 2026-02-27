@@ -1,8 +1,10 @@
-import { normalizeSession, type Session } from "../../sessions/normalize.js";
+import { normalizeSession } from "../../sessions/normalize.js";
 import { sessionKeyFor } from "../../calendar/utils.js";
 import { dayBookCompletionKey } from "../calendar_interactions/index.js";
-import { TINY_START_MINUTES, type FocusSession } from "./today_focus.js";
+import { TINY_START_MINUTES } from "./today_focus.js";
 import type { PlannerScheduleRow } from "../../../types/types.js";
+import type { FocusSession } from "../../../types/types_app.js";
+import type { Session } from "../../../types/types_core.js";
 import {
   findSessionRow,
   readFocusSessionFromDataset,

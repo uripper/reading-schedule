@@ -1,7 +1,6 @@
 import { optionLabel } from "./after_book_picker_helpers.js";
-import type { BookFormRefs } from "./form_refs.js";
-import { setUnknownSelectionLabel, type PickerState } from "./after_book_picker_render.js";
-import type { Book } from "./types.js";
+import type { Book, BookFormRefs, PickerState } from "../../types/types_books.js";
+import { setUnknownSelectionLabel } from "./after_book_picker_render.js";
 
 /**
  * Initializes picker state/fields when opening the dialog for a given book.

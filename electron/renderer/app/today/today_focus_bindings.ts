@@ -1,10 +1,20 @@
 import { el } from "../../dom.js";
 
 import { activateTab } from "../../tabs.js";
-import { completeTinyStart, createClosedFocusState, openFocusMode, startFocusSession, TINY_START_MINUTES, type TodayFocusState } from "./today_focus.js";
+import {
+  completeTinyStart,
+  createClosedFocusState,
+  openFocusMode,
+  startFocusSession,
+  TINY_START_MINUTES,
+} from "./today_focus.js";
 
 import { findSessionRow, nextCompletionsWithRowMarkedComplete, readFocusSessionFromDataset, setFocusEntryButtonState, tinyStartSessionFromFocus } from "./today_focus_bindings_helpers.js";
-import type { BindTodayFocusActionsArgs, TodayFocusDomRefs } from "../../../types/app_today.js";
+import type {
+  BindTodayFocusActionsArgs,
+  TodayFocusDomRefs,
+  TodayFocusState,
+} from "../../../types/types_app.js";
 
 const SESSION_UPDATE_EVENT = "today-focus-session-updated";
 

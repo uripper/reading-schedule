@@ -1,8 +1,8 @@
-import type { Book } from "./books_types.js";
-import type { Session } from "./core_sessions.js";
-import type { PlannerResult, PlannerScheduleRow } from "./planner_result.js";
-import type { FeatureFlags, Preferences } from "./app_experience.js";
-import type { SetStatus } from "./app_runtime.js";
+import type { Book } from "./types_books.js";
+import type { Session } from "./types_core.js";
+import type { PlannerResult, PlannerScheduleRow } from "./types_planner.js";
+import type { FeatureFlags, Preferences } from "./types_experience.js";
+import type { SetStatus } from "./types_app.js";
 
 export interface TodayBookSummary {
   bookId: string;

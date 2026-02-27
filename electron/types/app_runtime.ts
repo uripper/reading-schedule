@@ -7,10 +7,11 @@ import type {
 } from "../renderer/app/experience/index.js";
 import type { createRuntimeState } from "../renderer/app/runtime_state.js";
 
-import type { Book } from "./books_types.js";
-import type { PlannerApi, PlannerResult, PlannerSettings } from "./planner_state.js";
-import type { Session } from "./core_sessions.js";
-import type { FeatureFlags, Preferences } from "./app_experience.js";
+import type { Book } from "./types_books.js";
+import type { PlannerApi, PlannerSettings } from "./types_planner.js";
+import type { PlannerResult } from "./types_planner.js";
+import type { Session } from "./types_core.js";
+import type { FeatureFlags, Preferences } from "./types_experience.js";
 
 export type SetStatus = (message: string, isError?: boolean) => void;
 

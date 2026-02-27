@@ -1,7 +1,7 @@
 import type {
   TodayBookSummary,
   TodayScheduleSnapshot,
-} from "./today_schedule.js";
+} from "../../../types/types_app.js";
 
 const SINGULAR_SESSION_COUNT = 1;
 const SINGULAR_MINUTE_COUNT = 1;

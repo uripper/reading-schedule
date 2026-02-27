@@ -58,10 +58,10 @@ function eligibleSortKeyForCandidate(
     isSessionCompleted: CompletionChecker;
   },
 ): string | null {
-  if (String(candidate.book_id || "") !== state.bookId) {
+  if (String(candidate.book_id ?? "") !== state.bookId) {
     return null;
   }
-  const date = String(candidate.date || "");
+  const date = String(candidate.date ?? "");
   if (!date || date < state.today) {
     return null;
   }
@@ -93,7 +93,7 @@ export function plannedWordsBeforeAndThroughRow(
   isSessionCompleted: CompletionChecker,
 ): { before: number; through: number } {
   const today = todayDateKey();
-  const targetDate = String(row.date || "");
+  const targetDate = String(row.date ?? "");
   const targetSessionKey = estimateSessionKey(row);
   if (targetDate === today && isSessionCompleted(targetSessionKey)) {
     return { before: 0, through: 0 };

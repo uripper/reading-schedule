@@ -1,4 +1,4 @@
-import type { NumericLike } from "./core_sessions.js";
+import type { NumericLike } from "./types_core.js";
 
 export interface BookLookupItem {
   title?: string;

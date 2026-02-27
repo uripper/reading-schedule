@@ -2,10 +2,17 @@
  * @file Main-process IPC registration for planner and window actions.
  */
 import { ipcMain } from "electron";
-import type { JsonValue } from "../types/core_sessions.js";
+import type { JsonValue } from "../types/types_core.js";
 import { UI_SCALE_STEP } from "./zoom";
-import { asDownloadCoverPayload, asUploadCoverPayload, type DownloadCoverPayload, type UploadCoverPayload } from "./ipc_payloads";
-import type { RegisterIpcHandlersArgs } from "../types/main_ipc.js";
+import {
+  asDownloadCoverPayload,
+  asUploadCoverPayload,
+} from "./ipc_payloads";
+import type {
+  DownloadCoverPayload,
+  RegisterIpcHandlersArgs,
+  UploadCoverPayload,
+} from "../types/types_main.js";
 
 /**
  * Registers all main-process IPC handlers consumed by the renderer.

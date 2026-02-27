@@ -1,7 +1,7 @@
 import { rowsWithFinishFirst, type CalendarRowWithFinish } from "./data.js";
 import { buildFutureSessionItem, buildPastSessionItem, buildTodaySessionItem, rowsWithCompletedLast, type DayMode, type DetailInteractionHandlers } from "./details_helpers.js";
 
-import type { CalendarDetailsState, RowNodeForModeArgs } from "../../types/calendar_month.js";
+import type { CalendarDetailsState, RowNodeForModeArgs } from "../../types/types_calendar.js";
 
 /**
  * Returns empty-state message for day details panel by mode.

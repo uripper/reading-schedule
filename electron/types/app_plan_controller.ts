@@ -1,10 +1,11 @@
-import type { Book } from "./books_types.js";
-import type { PlannerApi, PlannerResult, PlannerSettings } from "./planner_state.js";
+import type { Book } from "./types_books.js";
+import type { PlannerApi, PlannerSettings } from "./types_planner.js";
 import type {
   PlannerScheduleRow,
+  PlannerResult,
   PlannerSummary,
-} from "./planner_result.js";
-import type { Session } from "./core_sessions.js";
+} from "./types_planner.js";
+import type { Session } from "./types_core.js";
 
 export interface RunPlanGenerationArgs {
   plannerApi: Pick<PlannerApi, "generate">;

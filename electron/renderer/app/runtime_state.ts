@@ -1,7 +1,7 @@
 
 
 import { DEFAULT_FEATURE_FLAGS, DEFAULT_PREFERENCES } from "./experience/index.js";
-import type { AppRuntimeState } from "../../types/app_runtime.js";
+import type { AppRuntimeState } from "../../types/types_app.js";
 
 /**
  * Creates the initial mutable runtime state for the planner renderer.

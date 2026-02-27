@@ -1,10 +1,19 @@
-import type { BookFormRefs } from "./form_refs.js";
 import { compareBooks, labelsMatch, matchesQuery, optionLabel } from "./after_book_picker_helpers.js";
 import { bindAfterBookPickerEvents } from "./after_book_picker_bindings.js";
-import { FIRST_RESULT_INDEX, NO_ACTIVE_INDEX, renderAfterBookResults, selectedBook, type PickerState } from "./after_book_picker_render.js";
+import {
+  FIRST_RESULT_INDEX,
+  NO_ACTIVE_INDEX,
+  renderAfterBookResults,
+  selectedBook,
+} from "./after_book_picker_render.js";
 import { initializePickerForBook } from "./after_book_picker_open.js";
-import type { Book } from "./types.js";
-import type { AfterBookPicker, GetBooks } from "../../types/books_types.js";
+import type {
+  AfterBookPicker,
+  Book,
+  BookFormRefs,
+  GetBooks,
+  PickerState,
+} from "../../types/types_books.js";
 
 /**
  * Creates the "blocked by" picker controller used in the book dialog.

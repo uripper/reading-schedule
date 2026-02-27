@@ -1,6 +1,6 @@
 import { el } from "../dom.js";
 import type { RecommendationItem } from "./model.js";
-import type { RecommendationFormTarget } from "../../types/app_experience.js";
+import type { RecommendationFormTarget } from "../../types/types_experience.js";
 
 const MIN_WORDS_TOTAL = 1;
 

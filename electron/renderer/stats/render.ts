@@ -4,10 +4,10 @@ import {
   BOOK_STATUS_READ,
   BOOK_STATUS_TO_READ,
   statusLabel,
-  type BookStatus,
 } from "../books/status.js";
 import { el } from "../dom.js";
-import type { StatsSnapshot } from "./model.js";
+import type { BookStatus } from "../../types/types_books.js";
+import type { StatsSnapshot } from "../../types/types_stats.js";
 
 const STATUS_ORDER: BookStatus[] = [
   BOOK_STATUS_TO_READ,
@@ -180,7 +180,7 @@ function monthPanel(snapshot: StatsSnapshot): HTMLElement {
   bars.className = "month-bars";
   const maxCount = Math.max(...snapshot.monthlyFinishes, 1);
 
-  snapshot.monthlyFinishes.forEach((count, index) => {
+  snapshot.monthlyFinishes.forEach((count: number, index: number) => {
     const item = document.createElement("div");
     item.className = "month-bar-item";
 

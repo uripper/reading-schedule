@@ -1,5 +1,5 @@
 import type { BookLookupItem } from "../../types/types.js";
-import type { HandleLookupKeydownArgs, SelectItem, SetActiveIndex } from "../../types/book_lookup_search.js";
+import type { HandleLookupKeydownArgs, SelectItem, SetActiveIndex } from "../../types/types_lookup.js";
 
 /**
  * Moves highlight to the next search result when ArrowDown is pressed.

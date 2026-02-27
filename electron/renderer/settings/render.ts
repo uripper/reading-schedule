@@ -1,5 +1,6 @@
 import { el } from "../dom.js";
-import { DIFFICULTY_LEVEL_COUNT, weekdays, type FieldDefinition } from "./config.js";
+import type { FieldDefinition } from "../../types/types_experience.js";
+import { DIFFICULTY_LEVEL_COUNT, weekdays } from "./config.js";
 
 /**
  * Creates optional hint badge node for a field label.

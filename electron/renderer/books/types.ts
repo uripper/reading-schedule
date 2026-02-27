@@ -1,2 +1,2 @@
 
-export type { Book, BookInput, BookMetaOptions, BookProgressUpdates } from "../../types/books_types.js";
+export type { Book, BookInput, BookMetaOptions, BookProgressUpdates } from "../../types/types_books.js";

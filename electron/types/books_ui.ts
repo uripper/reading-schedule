@@ -1,6 +1,6 @@
 import type { bindDialogFocus } from "../renderer/accessibility/index.js";
 
-import type { Book, BookGroup } from "./books_types.js";
+import type { Book, BookGroup } from "./types_books.js";
 
 export interface BookFormRefs {
   dialog: HTMLDialogElement;

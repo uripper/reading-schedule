@@ -1,7 +1,7 @@
 
 
 import type { PlannerApi, PlannerStateSnapshot } from "../../types/types.js";
-import type { AddLog, DraftDataParams } from "../../types/app_runtime.js";
+import type { AddLog, DraftDataParams } from "../../types/types_app.js";
 
 /**
  * Builds the planner snapshot payload used for durable state persistence.

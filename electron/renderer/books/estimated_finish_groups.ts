@@ -1,7 +1,14 @@
-import { BOOK_STATUS_DROPPED, BOOK_STATUS_IN_PROGRESS, BOOK_STATUS_READ, BOOK_STATUS_TO_READ } from "./status.js";
-import type { BookGroup } from "./grouping.js";
-import type { Book } from "./types.js";
-import type { StatusGroupDefinition } from "../../types/books_types.js";
+import {
+  BOOK_STATUS_DROPPED,
+  BOOK_STATUS_IN_PROGRESS,
+  BOOK_STATUS_READ,
+  BOOK_STATUS_TO_READ,
+} from "./status.js";
+import type {
+  Book,
+  BookGroup,
+  StatusGroupDefinition,
+} from "../../types/types_books.js";
 
 const STATUS_GROUPS: StatusGroupDefinition[] = [
   { label: "Dropped", statuses: [BOOK_STATUS_DROPPED] },

@@ -1,6 +1,6 @@
-import type { PlannerScheduleRow } from "./planner_result.js";
-import type { Book, BookGroupBy, BookStatusFilter, SortBy, SortDirection } from "./books_types.js";
-import type { OpenDialogOptions } from "./books_ui.js";
+import type { PlannerScheduleRow } from "./types_planner.js";
+import type { Book, BookGroupBy, BookStatusFilter, SortBy, SortDirection } from "./types_books.js";
+import type { OpenDialogOptions } from "./types_books.js";
 
 export interface UpdateBookProgressOptions {
   notifyBooksChanged?: boolean;

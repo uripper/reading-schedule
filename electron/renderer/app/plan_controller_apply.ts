@@ -1,7 +1,7 @@
 
 import { mergeScheduleRows, pruneScheduleCompletions } from "./schedule_preserve.js";
 import type { PlannerResult, PlannerScheduleRow } from "../../types/types.js";
-import type { ApplyLoadedResultArgs, ApplyPlannedDataArgs, PlannerRunData } from "../../types/app_plan_controller_apply.js";
+import type { ApplyLoadedResultArgs, ApplyPlannedDataArgs, PlannerRunData } from "../../types/types_app.js";
 
 /**
  * Checks whether a schedule contains at least one row.

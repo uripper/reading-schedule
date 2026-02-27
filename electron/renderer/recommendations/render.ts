@@ -1,7 +1,7 @@
 import { el } from "../dom.js";
 import { COVER_PLACEHOLDER } from "../books/constants.js";
 import type { RecommendationItem } from "./model.js";
-import type { RenderRecommendationsArgs } from "../../types/app_experience.js";
+import type { RenderRecommendationsArgs } from "../../types/types_experience.js";
 
 const EMPTY_SUMMARY_TEXT =
   "Read books by your favorite authors to unlock recommendations.";

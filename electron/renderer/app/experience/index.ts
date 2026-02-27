@@ -4,9 +4,8 @@ export {
   isSupportedTheme,
   normalizeFeatureFlags,
   normalizePreferences,
-  type FeatureFlags,
-  type Preferences,
 } from "./model.js";
+export type { FeatureFlags, Preferences } from "../../../types/types_experience.js";
 export {
   RECOMMENDATIONS_AVAILABLE,
   REMINDERS_AVAILABLE,

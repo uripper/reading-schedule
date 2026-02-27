@@ -3,7 +3,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import type { CoverExtension } from "../../types/main_book_lookup.js";
+import type { CoverExtension } from "../../types/types_lookup.js";
 
 const COVER_DIRECTORY_NAME = "book_covers";
 const COVER_FILE_FALLBACK_PREFIX = "cover";

@@ -1,4 +1,4 @@
-import type { ManualSessionBook } from "./details_types.js";
+import type { ManualSessionBook } from "../../types/types_calendar.js";
 import {
   normalizeTitleFilterQuery,
   titleMatchesNormalizedQuery,

@@ -1,1 +1,1 @@
-export type { BaseFieldDefinition, FieldDefinition, FieldGroupName, InputFieldDefinition, SelectFieldDefinition, SelectOption } from "../../types/app_experience.js";
+export type { BaseFieldDefinition, FieldDefinition, FieldGroupName, InputFieldDefinition, SelectFieldDefinition, SelectOption } from "../../types/types_experience.js";

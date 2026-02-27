@@ -2,7 +2,7 @@ import type { CalendarRowWithFinish } from "./data.js";
 import type {
   CalendarStateSubset,
   DetailInteractionHandlers,
-} from "./details_types.js";
+} from "../../types/types_calendar.js";
 import { estimateProgressLabel } from "./estimates.js";
 import { minutesFormForSession } from "./details_minutes_form.js";
 import { baseSessionItem, DAY_DETAILS_META_CLASS, removeSessionButton } from "./details_session_shared.js";

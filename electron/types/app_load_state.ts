@@ -1,8 +1,8 @@
-import type { Book } from "./books_types.js";
-import type { Session } from "./core_sessions.js";
-import type { PlannerResult } from "./planner_result.js";
-import type { LoadedPlannerState, PlannerApi, PlannerSettings } from "./planner_state.js";
-import type { FeatureFlags, Preferences } from "./app_experience.js";
+import type { Book } from "./types_books.js";
+import type { Session } from "./types_core.js";
+import type { PlannerResult } from "./types_planner.js";
+import type { LoadedPlannerState, PlannerApi, PlannerSettings } from "./types_planner.js";
+import type { FeatureFlags, Preferences } from "./types_experience.js";
 
 export interface InitialDataSource {
   settings?: PlannerSettings;

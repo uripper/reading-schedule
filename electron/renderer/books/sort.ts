@@ -1,7 +1,13 @@
 import { normalizeShelfName } from "./shelf.js";
 import { titleSortKey } from "./title_key.js";
-import type { Book } from "./types.js";
-import type { OptionalNumber, OptionalString, SortBy, SortComparator, SortDirection } from "../../types/books_types.js";
+import type {
+  Book,
+  OptionalNumber,
+  OptionalString,
+  SortBy,
+  SortComparator,
+  SortDirection,
+} from "../../types/types_books.js";
 
 export const SORT_BY_TITLE = "title";
 export const SORT_BY_AUTHOR = "author";

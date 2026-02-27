@@ -1,18 +1,35 @@
 import { el } from "../dom.js";
 import type { PlannerScheduleRow } from "../../types/types.js";
-import { createBookDialog, type BookSubmitPayload } from "./dialog.js";
+import { createBookDialog } from "./dialog.js";
 import { GROUP_BY_NONE } from "./grouping.js";
-import { clearMissingBlockedBy, hasSchedulableLength, normalizeBook, toPayloadBook } from "./model.js";
+import {
+  clearMissingBlockedBy,
+  hasSchedulableLength,
+  normalizeBook,
+  toPayloadBook,
+} from "./model.js";
 import { withUpdatedProgress } from "./progress.js";
 import { hydrateBookCover, upsertBookById } from "./save.js";
 import { applyScheduledDaysToShelfBooks } from "./save_scheduled_days.js";
 import { BOOK_STATUS_FILTER_ALL, schedulableBook } from "./status.js";
-import { ensureBooksToolbarControls, SORT_BY_TITLE, SORT_DIRECTION_ASC } from "./toolbar.js";
-import type { Book, BookProgressUpdates } from "./types.js";
+import {
+  ensureBooksToolbarControls,
+  SORT_BY_TITLE,
+  SORT_DIRECTION_ASC,
+} from "./toolbar.js";
 import { bindToolbarEvents } from "./controller_bindings.js";
 import { renderBooksController } from "./controller_render.js";
-import { defaultShelfForAddDialog, type BookDialogController, type BooksControllerRefs, type BooksViewState } from "./controller_types.js";
-import type { BindBooksUIOptions, UpdateBookProgressOptions } from "../../types/books_types.js";
+import { defaultShelfForAddDialog } from "./controller_types.js";
+import type {
+  BindBooksUIOptions,
+  Book,
+  BookDialogController,
+  BookSubmitPayload,
+  BooksControllerRefs,
+  BooksViewState,
+  BookProgressUpdates,
+  UpdateBookProgressOptions,
+} from "../../types/types_books.js";
 
 let books: Book[] = [];
 let scheduleRows: PlannerScheduleRow[] = [];

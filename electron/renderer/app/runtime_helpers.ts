@@ -2,7 +2,7 @@
 
 import { draftData, saveStateSafe } from "./persistence.js";
 import type { PlannerSummary } from "../../types/types.js";
-import type { PersistQueue, PersistQueueArgs } from "../../types/app_runtime.js";
+import type { PersistQueue, PersistQueueArgs } from "../../types/types_app.js";
 
 const PERSIST_DELAY_MS = 300;
 const NON_PLANNING_SETTING_IDS = new Set([

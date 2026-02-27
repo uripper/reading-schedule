@@ -1,9 +1,9 @@
 import type { createPlanController } from "../renderer/app/plan_controller.js";
 
-import type { Book } from "./books_types.js";
-import type { Session } from "./core_sessions.js";
-import type { PlannerResult } from "./planner_result.js";
-import type { AppRuntimeState, SetStatus } from "./app_runtime.js";
+import type { Book } from "./types_books.js";
+import type { Session } from "./types_core.js";
+import type { PlannerResult } from "./types_planner.js";
+import type { AppRuntimeState, SetStatus } from "./types_app.js";
 
 export type CreatePlanControllerArgs = Parameters<typeof createPlanController>[0];
 

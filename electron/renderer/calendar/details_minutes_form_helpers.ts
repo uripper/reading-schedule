@@ -2,7 +2,7 @@
 
 import { normalizedManualMinutes } from "../app/calendar_interactions/index.js";
 import { parseOptionalNumber } from "./utils.js";
-import type { MinutesEditorAction, SubmitMinutesUpdateArgs } from "../../types/calendar_month.js";
+import type { MinutesEditorAction, SubmitMinutesUpdateArgs } from "../../types/types_calendar.js";
 
 const MINUTES_MIN = normalizedManualMinutes(0);
 export const MINUTES_EDITOR_OPEN_BY_DEFAULT = false;

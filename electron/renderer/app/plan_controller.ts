@@ -1,9 +1,16 @@
 
 
 import { runPlanGeneration } from "./plan.js";
-import { applyLoadedResult, applyPlannedData, type PlannerRunData } from "./plan_controller_apply.js";
+import { applyLoadedResult, applyPlannedData } from "./plan_controller_apply.js";
 import type { PlannerResult } from "../../types/types.js";
-import type { AutoPlanRunner, AutoPlanState, PlanController, PlanControllerArgs, RunAutoPlanFactoryArgs } from "../../types/app_plan_controller.js";
+import type {
+  AutoPlanRunner,
+  AutoPlanState,
+  PlanController,
+  PlanControllerArgs,
+  PlannerRunData,
+  RunAutoPlanFactoryArgs,
+} from "../../types/types_app.js";
 
 const AUTO_PLAN_DELAY_MS = 450;
 const DEFAULT_LAST_RESULT: PlannerResult = {

@@ -1,5 +1,5 @@
-import type { FocusSession } from "./today_focus.js";
 import type { PlannerResult, PlannerScheduleRow } from "../../../types/types.js";
+import type { FocusSession } from "../../../types/types_app.js";
 
 const MINUTES_MIN = 1;
 
