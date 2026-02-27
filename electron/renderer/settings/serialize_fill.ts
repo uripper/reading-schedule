@@ -71,7 +71,7 @@ export function fillSettingsForm(
   });
   const minutesByWeekday = settings.minutes_by_weekday ?? {};
   weekdays.forEach(([key]) => {
-    inputEl(`minutes_${key}`).value = String(minutesByWeekday[key] ?? 0);
+    inputEl(`minutes_${key}`).value = String(minutesByWeekday[key]);
   });
   const rawDayOffs = settings.days_off;
   const nextDayOffs: string[] = [];

@@ -7,7 +7,6 @@ import {
 } from "./details_helpers.js";
 
 import type {
-  CalendarDetailsState,
   CalendarRowWithFinish,
   DayMode,
   DetailInteractionHandlers,

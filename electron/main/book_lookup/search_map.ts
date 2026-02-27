@@ -7,7 +7,7 @@ import {
   WORDS_PER_PAGE_ESTIMATE,
 } from "./search_shared.js";
 import { primaryAuthor } from "./search_text.js";
-import type { SearchDoc, SearchItem } from "../../types/types_lookup.js";
+import type { SearchDoc, SearchItem } from "../../types/types.js";
 
 /**
  * Converts a raw search document into the app's normalized search item shape.

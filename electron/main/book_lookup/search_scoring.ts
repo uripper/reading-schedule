@@ -12,7 +12,7 @@ import {
   SCORE_TOKEN_CONTAINS,
   SCORE_TOKEN_PREFIX,
 } from "./search_shared.js";
-import type { SearchDoc } from "../../types/types_lookup.js";
+import type { SearchDoc } from "../../types/types.js";
 import {
   hasEnglishLanguage,
   normalizeSearchText,

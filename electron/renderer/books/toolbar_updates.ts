@@ -9,7 +9,7 @@ import type {
   BookGroupBy,
   BookStatusFilter,
   SortDirection,
-} from "../../types/types_books.js";
+} from "../../types/types.js";
 import { createOption } from "./toolbar_dom.js";
 import { groupOptionsForShelfFilter, shelfFilterOptions } from "./toolbar_options.js";
 

@@ -12,7 +12,7 @@ import { loadInitialData } from "../load_state.js";
 import type {
   AppBootstrapContext,
   LoadedResultController,
-} from "../../../types/types_app.js";
+} from "../../../types/types.js";
 
 /**
  * Loads the initial state of the application, applying it to the provided context and controller,

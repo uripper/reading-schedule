@@ -5,7 +5,6 @@ export {
   normalizeFeatureFlags,
   normalizePreferences,
 } from "./model.js";
-export type { FeatureFlags, Preferences } from "../../../types/types_experience.js";
 export {
   RECOMMENDATIONS_AVAILABLE,
   REMINDERS_AVAILABLE,

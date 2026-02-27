@@ -1,4 +1,4 @@
-import type { DownloadCoverPayload, UploadCoverPayload } from "../types/types_main.js";
+import type { DownloadCoverPayload, UploadCoverPayload } from "../types/types.js";
 
 /**
  * Normalizes unknown download payload input into a safe object.
