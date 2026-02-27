@@ -1,6 +1,10 @@
 import { shelfFilterMatches } from "./shelf.js";
 import { statusFilterMatches } from "./status.js";
 import { sortBooks } from "./sort.js";
+import {
+  normalizeTitleFilterQuery,
+  titleMatchesNormalizedQuery,
+} from "../title_filter.js";
 import type { Book } from "./types.js";
 import type { BooksControllerRefs, BooksViewState } from "./controller_types.js";
 
@@ -20,12 +24,8 @@ export interface RenderableBooksRefs {
  * @returns `true` when filter is empty or title contains the filter substring.
  */
 export function matchesTitleFilter(book: Book, titleFilter: string): boolean {
-  const normalizedFilter = String(titleFilter || "").trim().toLocaleLowerCase();
-  if (normalizedFilter === "") {
-    return true;
-  }
-  const normalizedTitle = String(book.title || "").toLocaleLowerCase();
-  return normalizedTitle.includes(normalizedFilter);
+  const normalizedFilter = normalizeTitleFilterQuery(titleFilter);
+  return titleMatchesNormalizedQuery(book.title, normalizedFilter);
 }
 
 /**

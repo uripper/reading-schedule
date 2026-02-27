@@ -1,4 +1,8 @@
 import type { ManualSessionBook } from "./details_types.js";
+import {
+  normalizeTitleFilterQuery,
+  titleMatchesNormalizedQuery,
+} from "../title_filter.js";
 
 /**
  * Returns default string value for manual minutes input field.
@@ -40,12 +44,11 @@ export function booksMatchingTitleQuery(
   books: ManualSessionBook[],
   query: string,
 ): ManualSessionBook[] {
-  const normalizedQuery = String(query || "").trim().toLocaleLowerCase();
+  const normalizedQuery = normalizeTitleFilterQuery(query);
   if (normalizedQuery === "") {
     return [...books];
   }
   return books.filter((book) => {
-    const title = String(book.title || "").toLocaleLowerCase();
-    return title.includes(normalizedQuery);
+    return titleMatchesNormalizedQuery(book.title, normalizedQuery);
   });
 }
