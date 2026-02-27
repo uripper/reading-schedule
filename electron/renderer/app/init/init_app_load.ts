@@ -9,12 +9,10 @@ import {
 } from "../experience/index.js";
 import { bindTodayActions, finalizeInitialLoad } from "./init_helpers.js";
 import { loadInitialData } from "../load_state.js";
-import type { AppBootstrapContext } from "../bootstrap_runtime.js";
-import type { PlannerResult } from "../../../types/types.js";
-
-interface LoadedResultController {
-  applyLoadedResult(result: PlannerResult): void;
-}
+import type {
+  AppBootstrapContext,
+  LoadedResultController,
+} from "../../../types/types.js";
 
 /**
  * Loads the initial state of the application, applying it to the provided context and controller,

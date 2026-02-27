@@ -1,4 +1,8 @@
-import type { FieldDefinition, FieldGroupName, SelectOption } from "./config_types.js";
+import type {
+  FieldDefinition,
+  FieldGroupName,
+  SelectOption,
+} from "../../types/types_experience.js";
 
 const PLAN_MODE_OPTIONS: SelectOption[] = [
   { value: "finish_soon", label: "Finish ASAP" },

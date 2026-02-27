@@ -3,15 +3,9 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import type { JsonValue } from "../types/types_json";
+import type { SaveResult, JsonValue } from "../types/types.js";
 
 const FILE_NAME = "planner_state.json";
-
-
-/**
- * Recursive JSON value accepted by state persistence APIs.
- */
-type SaveResult = { ok: true } | { ok: false; error: string };
 
 /**
  * Builds the absolute path for the persisted planner state file.

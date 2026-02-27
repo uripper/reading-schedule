@@ -1,52 +1,7 @@
-import type { Session } from "../sessions/normalize.js";
-import {
-  mergeScheduleRows,
-  pruneScheduleCompletions,
-} from "./schedule_preserve.js";
-import type {
-  PlannerResult,
-  PlannerScheduleRow,
-  PlannerSummary,
-} from "../../types/types.js";
 
-export type PlannerRunData = Pick<PlannerResult, "schedule" | "summary">;
-
-interface ApplyPlannedDataArgs {
-  data: PlannerRunData;
-  preserveLockedDays: boolean;
-  getLastResult(this: void): PlannerResult | null;
-  getSessions(this: void): Session[];
-  getBlockedDayBooks(this: void): Record<string, boolean>;
-  getScheduleCompletions(this: void): Record<string, boolean>;
-  setScheduleCompletions(
-    this: void,
-    completions: Record<string, boolean>,
-  ): void;
-  setLastResult(this: void, result: PlannerResult): void;
-  setBookScheduleRows(this: void, rows: PlannerScheduleRow[]): void;
-  renderCalendar(
-    this: void,
-    rows: PlannerScheduleRow[],
-    totals: Record<string, number>,
-  ): void;
-  totalsFromSummary(this: void, summary: PlannerSummary | null): Record<string, number>;
-  updateTodayView(this: void): void;
-  persistDraft(this: void): Promise<boolean>;
-}
-
-interface ApplyLoadedResultArgs {
-  savedResult: PlannerResult | null;
-  defaultLastResult: PlannerResult;
-  setLastResult(this: void, result: PlannerResult): void;
-  setBookScheduleRows(this: void, rows: PlannerScheduleRow[]): void;
-  renderCalendar(
-    this: void,
-    rows: PlannerScheduleRow[],
-    totals: Record<string, number>,
-  ): void;
-  totalsFromSummary(this: void, summary: PlannerSummary | null): Record<string, number>;
-  addLog(this: void, message: string): void;
-}
+import { mergeScheduleRows, pruneScheduleCompletions } from "./schedule_preserve.js";
+import type { PlannerResult, PlannerScheduleRow } from "../../types/types.js";
+import type { ApplyLoadedResultArgs, ApplyPlannedDataArgs, PlannerRunData } from "../../types/types_app.js";
 
 /**
  * Checks whether a schedule contains at least one row.

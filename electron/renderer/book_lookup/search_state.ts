@@ -1,27 +1,7 @@
-import type { BookLookupItem } from "../../types/types.js";
+
 import { describeLookup } from "./helpers.js";
 import { renderLookupResults, updateComboboxA11y } from "./render.js";
-
-interface LookupState {
-  currentItems: BookLookupItem[];
-  activeIndex: number;
-}
-
-interface CreateLookupStateControllerArgs {
-  searchInput: HTMLInputElement;
-  resultsEl: HTMLElement;
-  metaEl: HTMLElement;
-  onPick(this: void, item: BookLookupItem): void;
-  placeholder: string;
-  state: LookupState;
-}
-
-interface LookupStateController {
-  clearResults(): void;
-  refreshResults(): void;
-  selectItem(index: number): void;
-  setActiveIndex(index: number): void;
-}
+import type { CreateLookupStateControllerArgs, LookupStateController } from "../../types/types_lookup.js";
 
 /**
  * Creates lookup state actions for rendering, clearing, selecting, and highlighting items.

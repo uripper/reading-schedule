@@ -1,3 +1,4 @@
+import type { HoloPointerVars } from "../../types/types_books.js";
 const DEFAULT_POINTER_PERCENT = "50%";
 const ACTIVE_HOLO = "1";
 const BG_SHIFT_FACTOR = 0.35;
@@ -5,13 +6,6 @@ const PERCENT_SCALE = 100;
 const MIN_PERCENT = 0;
 const HALF_PERCENT = 50;
 const MAX_PERCENT = 100;
-
-interface HoloPointerVars {
-  pointerX: string;
-  pointerY: string;
-  bgShiftX: string;
-  bgShiftY: string;
-}
 
 /**
  * Returns a percent value clamped to [0, 100].

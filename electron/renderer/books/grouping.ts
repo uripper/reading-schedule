@@ -1,30 +1,19 @@
 import { shelfLabelForBook } from "./shelf.js";
 import { titleInitialLetter } from "./title_key.js";
-import type { Book } from "./types.js";
-import { finishDateMetaForBook, type GroupMeta } from "./grouping_finish.js";
+import { finishDateMetaForBook } from "./grouping_finish.js";
+import type {
+  Book,
+  BookGroup,
+  BookGroupBy,
+  GroupBucket,
+  GroupMeta,
+} from "../../types/types_books.js";
 
 export const GROUP_BY_NONE = "none";
 export const GROUP_BY_SHELF = "shelf";
 export const GROUP_BY_FINISH_DATE = "finish_date";
 export const GROUP_BY_TITLE_LETTER = "title_letter";
 export const GROUP_BY_AUTHOR = "author";
-
-export type BookGroupBy =
-  | typeof GROUP_BY_NONE
-  | typeof GROUP_BY_SHELF
-  | typeof GROUP_BY_FINISH_DATE
-  | typeof GROUP_BY_TITLE_LETTER
-  | typeof GROUP_BY_AUTHOR;
-
-type GroupBucket = GroupMeta & {
-  books: Book[];
-};
-
-export interface BookGroup {
-  key: string;
-  label: string;
-  books: Book[];
-}
 
 const UNKNOWN_AUTHOR_LABEL = "Unknown Author";
 const TITLE_MISC_LABEL = "#";

@@ -1,9 +1,5 @@
 import { COVER_PLACEHOLDER } from "./constants.js";
-
-export interface CardHandlers {
-  onEdit(bookId: string): void;
-  onRemove(bookId: string): void;
-}
+import type { CardHandlers } from "../../types/types_books.js";
 
 /**
  * Wires edit/remove/fallback-cover handlers for rendered book cards.

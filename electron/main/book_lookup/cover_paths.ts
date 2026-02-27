@@ -3,6 +3,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import type { CoverExtension } from "../../types/types.js";
 
 const COVER_DIRECTORY_NAME = "book_covers";
 const COVER_FILE_FALLBACK_PREFIX = "cover";
@@ -22,11 +23,6 @@ const HTTP_PROTOCOL = "http:";
 const HTTPS_PROTOCOL = "https:";
 
 let coverVersionCounter = 0;
-
-/**
- * Supported file extensions for saved cover images.
- */
-export type CoverExtension = ".jpg" | ".png" | ".webp";
 
 /**
  * Creates a safe filename base from a book id.

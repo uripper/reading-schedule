@@ -1,5 +1,8 @@
-import { sessionKeyFor, sortRowsByDateAndSession } from "../../calendar/utils.js";
-import type { Book } from "../../books/types.js";
+import {
+  sessionKeyFor,
+  sortRowsByDateAndSession,
+} from "../../calendar/utils.js";
+
 import {
   dayBookCompletionKey,
   emptyPlannerResult,
@@ -13,47 +16,13 @@ import { pruneScheduleCompletions } from "../schedule_preserve.js";
 import type {
   PlannerResult,
   PlannerScheduleRow,
-  PlannerSettings,
-  PlannerSummary,
 } from "../../../types/types.js";
-
-interface SharedUpdateArgs {
-  onScheduleRowsUpdated(): void;
-  queuePersist(): void;
-  renderCalendar(
-    rows: PlannerScheduleRow[],
-    totals: Record<string, number>,
-  ): void;
-  setBookScheduleRows(rows: PlannerScheduleRow[]): void;
-  setLastResult(result: PlannerResult): void;
-  setStatus(message: string, isError?: boolean): void;
-  state: {
-    lastResult: PlannerResult | null;
-    scheduleCompletions: Record<string, boolean>;
-    blockedDayBooks: Record<string, boolean>;
-  };
-  totalsFromSummary(summary: PlannerSummary | null): Record<string, number>;
-}
-
-type AddManualSessionArgs = SharedUpdateArgs & {
-  bookId: string;
-  collectSettings(this: void): PlannerSettings;
-  completed?: boolean;
-  date: string;
-  getBookById(this: void, bookId: string): Book | null;
-  minutes: number;
-};
-
-type RemoveSessionArgs = SharedUpdateArgs & {
-  row: PlannerScheduleRow;
-};
-
-type UpdateSessionMinutesArgs = SharedUpdateArgs & {
-  collectSettings(this: void): PlannerSettings;
-  getBookById(this: void, bookId: string): Book | null;
-  minutes: number;
-  row: PlannerScheduleRow;
-};
+import type {
+  AddManualSessionArgs,
+  RemoveSessionArgs,
+  SharedUpdateArgs,
+  UpdateSessionMinutesArgs,
+} from "../../../types/types_app.js";
 
 /**
  * Builds a new planner result from replacement schedule rows while preserving
@@ -79,7 +48,10 @@ function nextResultWithRows(
  * @param args Shared callbacks and runtime state references.
  * @param nextResult Next planner result to apply.
  */
-function applyNextResult(args: SharedUpdateArgs, nextResult: PlannerResult): void {
+function applyNextResult(
+  args: SharedUpdateArgs,
+  nextResult: PlannerResult,
+): void {
   const nextState = args.state;
   nextState.lastResult = nextResult;
   args.setLastResult(nextResult);
@@ -170,10 +142,7 @@ export function addManualSessionRow({
  * @param root0.row Schedule row to remove.
  * @returns `true` when a session is removed; otherwise `false` after setting an error status.
  */
-export function removeSessionRow({
-  row,
-  ...args
-}: RemoveSessionArgs): boolean {
+export function removeSessionRow({ row, ...args }: RemoveSessionArgs): boolean {
   const runtimeState = args.state;
   const previousResult = runtimeState.lastResult ?? emptyPlannerResult();
   const previousRows = previousResult.schedule;

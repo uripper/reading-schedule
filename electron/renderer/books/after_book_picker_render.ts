@@ -1,19 +1,10 @@
-import type { BookFormRefs } from "./form_refs.js";
 import { optionLabel } from "./after_book_picker_helpers.js";
-import type { Book } from "./types.js";
+import type { Book, BookFormRefs, PickerState } from "../../types/types_books.js";
 
 export const NO_ACTIVE_INDEX = -1;
 export const FIRST_RESULT_INDEX = 0;
 export const UNKNOWN_BOOK_LABEL = "Unknown";
 const ARIA_ACTIVE_DESCENDANT_ATTR = "aria-activedescendant";
-
-export interface PickerState {
-  activeIndex: number;
-  currentBookId: string;
-  filtered: Book[];
-  options: Book[];
-  selectedBookId: string;
-}
 
 /**
  * Resolves currently selected book from picker state.

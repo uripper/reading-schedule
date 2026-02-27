@@ -1,49 +1,10 @@
-import type { Book } from "../books/types.js";
-import type { Session } from "../sessions/normalize.js";
-import type { PlannerResult } from "../../types/types.js";
-import {
-  activeDayCount,
-  dayMinutesFromActivity,
-  streakFromDayMinutes,
-  totalMinutes,
-} from "../activity/day_minutes.js";
-import {
-  averageProgress,
-  completionStats,
-  monthlyFinishCounts,
-  plannedFinishBookIds,
-  readBooksFinishedThisYear,
-  statusBreakdown,
-  type StatusBreakdown,
-} from "./helpers.js";
+
+
+import { activeDayCount, dayMinutesFromActivity, streakFromDayMinutes, totalMinutes } from "../activity/day_minutes.js";
+import { averageProgress, completionStats, monthlyFinishCounts, plannedFinishBookIds, readBooksFinishedThisYear, statusBreakdown } from "./helpers.js";
+import type { SnapshotInputs, StatsSnapshot } from "../../types/types_stats.js";
 
 const MIN_GOAL_MINUTES = 1;
-
-export interface StatsSnapshot {
-  year: number;
-  totalBooks: number;
-  booksStartedCount: number;
-  averageProgressPercent: number;
-  plannedFinishCount: number;
-  finishedThisYearCount: number;
-  projectedFinishCount: number;
-  readingMinutesYear: number;
-  activeDaysYear: number;
-  currentStreakDays: number;
-  scheduledSessionsToDate: number;
-  completedSessionsToDate: number;
-  completionRatePercent: number;
-  statusBreakdown: StatusBreakdown;
-  monthlyFinishes: number[];
-}
-
-interface SnapshotInputs {
-  books: Book[];
-  sessions: Session[];
-  lastResult: PlannerResult | null;
-  scheduleCompletions: Record<string, boolean>;
-  dailyGoalMinutes?: number;
-}
 
 /**
  * Normalizes daily goal minutes to a minimum valid value.

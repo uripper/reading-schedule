@@ -23,12 +23,7 @@ import {
   SORT_BY_TITLE,
   SORT_BY_WORDS_TOTAL,
 } from "./sort.js";
-import type { Book } from "./types.js";
-
-export interface OptionDefinition {
-  label: string;
-  value: string;
-}
+import type { Book, OptionDefinition } from "../../types/types_books.js";
 
 export const SORT_OPTIONS: OptionDefinition[] = [
   { value: SORT_BY_TITLE, label: "Title" },

@@ -5,10 +5,9 @@ import {
   COVER_ID_MIN,
   SOURCE_NAME,
   WORDS_PER_PAGE_ESTIMATE,
-  type SearchDoc,
-  type SearchItem,
 } from "./search_shared.js";
 import { primaryAuthor } from "./search_text.js";
+import type { SearchDoc, SearchItem } from "../../types/types.js";
 
 /**
  * Converts a raw search document into the app's normalized search item shape.

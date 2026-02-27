@@ -1,4 +1,4 @@
-import type { EstimateSnapshot } from "./estimates_snapshot.js";
+import type { EstimateSnapshot } from "../../types/types_calendar.js";
 
 export const NO_ESTIMATE_LABEL = "No estimate available";
 

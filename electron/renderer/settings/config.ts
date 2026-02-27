@@ -1,14 +1,5 @@
 import { fields } from "./config_fields.js";
 
-export type {
-  BaseFieldDefinition,
-  FieldDefinition,
-  FieldGroupName,
-  InputFieldDefinition,
-  SelectFieldDefinition,
-  SelectOption,
-} from "./config_types.js";
-
 export { fields };
 
 export const weekdays: Array<[string, string]> = [

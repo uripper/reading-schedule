@@ -1,4 +1,4 @@
-import type { Book } from "./types.js";
+import type { Book, GroupMeta } from "../../types/types_books.js";
 
 const MONTH_INDEX_MIN = 1;
 const MONTH_INDEX_MAX = 12;
@@ -12,13 +12,6 @@ const NO_ESTIMATED_FINISH_ORDER = Number.MAX_SAFE_INTEGER;
 const monthLabelFormatter = new Intl.DateTimeFormat(undefined, {
   month: "long",
 });
-
-export interface GroupMeta {
-  key: string;
-  label: string;
-  order: number;
-  tie: string;
-}
 
 /**
  * Parses `YYYY-MM-DD` finish dates into grouping metadata parts.

@@ -1,28 +1,6 @@
 import { WEEKDAY_LABELS } from "./constants.js";
 import { appendDayButtonSummary } from "./month_day_button_chips.js";
-
-interface CalendarRow {
-  finish?: boolean;
-  minutes?: number;
-  title?: string;
-}
-
-interface DayStyleFlags {
-  hasFinishRow: boolean;
-  isMuted: boolean;
-  isPast: boolean;
-  isSelected: boolean;
-  isToday: boolean;
-}
-
-interface DayStyleFlagsArgs {
-  date: Date;
-  firstDate: Date;
-  keyForDay: string;
-  selectedDate: string;
-  todayKey: string;
-  rows: CalendarRow[];
-}
+import type { DayStyleFlags, DayStyleFlagsArgs } from "../../types/types_calendar.js";
 
 /**
  * Derives visual state flags for a calendar day button.

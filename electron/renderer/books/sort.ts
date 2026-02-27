@@ -1,6 +1,13 @@
 import { normalizeShelfName } from "./shelf.js";
 import { titleSortKey } from "./title_key.js";
-import type { Book } from "./types.js";
+import type {
+  Book,
+  OptionalNumber,
+  OptionalString,
+  SortBy,
+  SortComparator,
+  SortDirection,
+} from "../../types/types_books.js";
 
 export const SORT_BY_TITLE = "title";
 export const SORT_BY_AUTHOR = "author";
@@ -16,26 +23,6 @@ export const SORT_BY_SHELF = "shelf";
 
 export const SORT_DIRECTION_ASC = "asc";
 export const SORT_DIRECTION_DESC = "desc";
-
-export type SortBy =
-  | typeof SORT_BY_TITLE
-  | typeof SORT_BY_AUTHOR
-  | typeof SORT_BY_PAGES_TOTAL
-  | typeof SORT_BY_PAGES_READ
-  | typeof SORT_BY_WORDS_TOTAL
-  | typeof SORT_BY_PROGRESS
-  | typeof SORT_BY_PRIORITY
-  | typeof SORT_BY_DIFFICULTY
-  | typeof SORT_BY_DEADLINE
-  | typeof SORT_BY_ESTIMATED_FINISH
-  | typeof SORT_BY_SHELF;
-
-export type SortDirection =
-  | typeof SORT_DIRECTION_ASC
-  | typeof SORT_DIRECTION_DESC;
-
-type OptionalNumber = number | null | undefined;
-type OptionalString = string | null | undefined;
 
 /**
  * Compares optional numbers with missing values sorted last.
@@ -106,12 +93,6 @@ function compareTitleText(left: OptionalString, right: OptionalString): number {
   }
   return compareText(left, right);
 }
-
-type SortComparator = (
-  leftBook: Book,
-  rightBook: Book,
-  finishDateByBookId: Record<string, string>,
-) => number;
 
 const compareByTitle: SortComparator = (leftBook, rightBook) => {
   return compareTitleText(leftBook.title, rightBook.title);

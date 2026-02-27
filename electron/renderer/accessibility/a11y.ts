@@ -1,12 +1,7 @@
 import { el } from "../dom.js";
+import type { AnnouncePoliteness, DocumentPreferencesInput } from "../../types/types_app.js";
 
 const ANNOUNCE_DELAY_MS = 30;
-type AnnouncePoliteness = "polite" | "assertive";
-
-interface PreferencesInput {
-  theme?: string;
-  reduceMotion?: boolean;
-}
 
 /**
  * Focuses the first invalid field within a form-like container.
@@ -57,7 +52,7 @@ export function createAnnouncer(
  * @param preferences User preference values to apply.
  */
 export function applyPreferencesToDocument(
-  preferences: PreferencesInput = {},
+  preferences: DocumentPreferencesInput = {},
 ): void {
   let theme = "system";
   if (

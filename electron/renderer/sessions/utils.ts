@@ -1,3 +1,4 @@
+import type { DateInput, SessionRecord } from "../../types/types_core.js";
 /**
  * Parses a value as rounded integer with fallback.
  * @param value String/number-like value.
@@ -13,13 +14,6 @@ export function toInt(
     return Math.round(parsed);
   }
   return fallback;
-}
-
-type DateInput = string | number | Date;
-
-interface SessionRecord {
-  ended_at: DateInput;
-  minutes?: number | string | null;
 }
 
 /**

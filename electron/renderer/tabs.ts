@@ -1,11 +1,5 @@
 import { qa } from "./dom.js";
-
-/**
- * Tab activation and keyboard navigation helpers for desktop/mobile tab controls.
- */
-interface ActivateTabOptions {
-  focusPanel?: boolean;
-}
+import type { ActivateTabOptions } from "../types/types_app.js";
 
 const DEFAULT_TAB_NAME = "today";
 const DEFAULT_TITLE = "Bartleby";

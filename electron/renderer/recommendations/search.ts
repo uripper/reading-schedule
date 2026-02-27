@@ -1,7 +1,11 @@
 import type { BookLookupItem } from "../../types/types.js";
-import type { PlannerApi } from "../../types/types_api.js";
-import type { Book } from "../books/types.js";
-import { buildRecommendations, deriveReadAuthors, type RecommendationItem } from "./model.js";
+
+import type { Book } from "../../types/types_books.js";
+import { buildRecommendations, deriveReadAuthors } from "./model.js";
+import type {
+  RecommendationItem,
+  RecommendationSearchApi,
+} from "../../types/types_experience.js";
 
 const MAX_AUTHORS = 8;
 const MAX_PER_AUTHOR = 3;
@@ -20,8 +24,6 @@ const NON_BOOK_TITLE_PATTERNS = [
   "universidad",
   "investigación",
 ];
-
-type RecommendationSearchApi = Pick<PlannerApi, "searchBooks">;
 
 /**
  * Normalizes text for case-insensitive recommendation comparisons.

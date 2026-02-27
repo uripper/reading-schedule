@@ -3,7 +3,6 @@ import { renderCalendarDetails } from "./calendar/details.js";
 import {
   buildCompletedBookRowsByDate,
   finishedBooksSummaryText,
-  type CompletedBookRow,
 } from "./calendar/finished_books.js";
 import {
   applyTodayFocus,
@@ -15,13 +14,13 @@ import {
 import {
   createCalendarRuntimeState,
   mergeCalendarHandlers,
-  type CalendarHandlers,
 } from "./calendar/state_runtime.js";
 import {
   refreshDerivedRows,
   renderControls,
   renderMonth,
 } from "./calendar/render_runtime.js";
+import type { CalendarHandlers, CompletedBookRow } from "../types/types_calendar.js";
 
 const state = createCalendarRuntimeState();
 let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});
@@ -55,7 +54,7 @@ function renderFinishedBooksSummary(completedRows: CompletedBookRow[]): void {
   summary.textContent = summaryText;
   const titleNode = details.querySelector("h2");
   if (titleNode instanceof HTMLElement) {
-    titleNode.insertAdjacentElement("afterend", summary);
+    titleNode.after(summary);
     return;
   }
   details.prepend(summary);

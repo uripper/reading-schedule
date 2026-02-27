@@ -1,10 +1,6 @@
-import type { PlannerApi } from "../../types/types.js";
-import { createZoomShortcutHandler } from "./desktop_shortcuts_zoom.js";
 
-interface ShortcutBindings {
-  announce(this: void, message: string, politeness?: "polite" | "assertive"): void;
-  plannerApi: Pick<PlannerApi, "zoomIn" | "zoomOut" | "zoomReset">;
-}
+import { createZoomShortcutHandler } from "./desktop_shortcuts_zoom.js";
+import type { ShortcutBindings } from "../../types/types_app.js";
 
 /**
  * Wires global desktop shortcut handlers for zoom commands.

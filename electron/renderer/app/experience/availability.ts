@@ -1,9 +1,7 @@
+import type { FeatureFlagRawValue, ReminderTimeRawValue } from "../../../types/types_experience.js";
 export const REMINDERS_AVAILABLE = false;
 export const SOCIAL_FEATURES_AVAILABLE = false;
 export const RECOMMENDATIONS_AVAILABLE = false;
-
-export type FeatureFlagRawValue = boolean | number | string | null | undefined;
-export type ReminderTimeRawValue = number | string | null | undefined;
 
 /**
  * Normalizes a string to a boolean or returns undefined if not recognized.

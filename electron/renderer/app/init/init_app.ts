@@ -23,8 +23,10 @@ import {
 } from "./init_helpers.js";
 import { loadStateAndBindTodayActions } from "./init_app_load.js";
 import { totalsFromSummary } from "../runtime_helpers.js";
-import type { AppBootstrapContext } from "../bootstrap_runtime.js";
-import type { PlannerResult } from "../../../types/types.js";
+import type {
+  AppBootstrapContext,
+  PlannerResult,
+} from "../../../types/types.js";
 
 /**
  * Creates the app-level plan controller instance with runtime-bound callbacks.
@@ -123,14 +125,17 @@ export async function initApp(context: AppBootstrapContext): Promise<void> {
   bindTabs((name: string): void => {
     appContext.runtime.handleTabChange(name);
   });
-  bindBooksUI((): void => {
-    appContext.runtime.handleBooksChanged();
-  }, {
-    onEstimatedFinishNavigate: (dateKey) => {
-      activateTab("schedule", { focusPanel: true });
-      focusCalendarDate(dateKey);
+  bindBooksUI(
+    (): void => {
+      appContext.runtime.handleBooksChanged();
     },
-  });
+    {
+      onEstimatedFinishNavigate: (dateKey) => {
+        activateTab("schedule", { focusPanel: true });
+        focusCalendarDate(dateKey);
+      },
+    },
+  );
   bindHelpDialog();
   const planController = buildPlanController(appContext);
   appContext.runtime.setPlanController(planController);

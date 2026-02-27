@@ -1,6 +1,10 @@
-import { rowsWithFinishFirst, type CalendarRowWithFinish } from "./data.js";
+import { rowsWithFinishFirst } from "./data.js";
 import { sessionKeyFor } from "./utils.js";
-import type { DayMode, DetailInteractionHandlers } from "./details_types.js";
+import type {
+  CalendarRowWithFinish,
+  DayMode,
+  DetailInteractionHandlers,
+} from "../../types/types_calendar.js";
 
 /**
  * Creates a local date key (`YYYY-MM-DD`) for the current day.

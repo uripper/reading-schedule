@@ -1,42 +1,7 @@
-import type { Book } from "../books/types.js";
-import { DEFAULT_PREFERENCES } from "./experience/index.js";
-import type { AppRuntimeState } from "./runtime_state.js";
 
-interface DashboardRuntimeArgs {
-  applyPreferencesToDocument(
-    this: void,
-    preferences: AppRuntimeState["preferences"],
-  ): void;
-  collectFeatureFlagsFromUI(this: void): Partial<AppRuntimeState["featureFlags"]>;
-  collectPreferencesFromUI(this: void): Partial<AppRuntimeState["preferences"]>;
-  collectAllBooks(this: void): Book[];
-  normalizeFeatureFlags(
-    this: void,
-    flags: Partial<AppRuntimeState["featureFlags"]>,
-  ): AppRuntimeState["featureFlags"];
-  normalizePreferences(
-    this: void,
-    preferences: Partial<AppRuntimeState["preferences"]>,
-  ): AppRuntimeState["preferences"];
-  queuePersist(this: void): void;
-  state: AppRuntimeState;
-  updateStatsView(this: void, payload: {
-    books: Book[];
-    sessions: AppRuntimeState["sessions"];
-    lastResult: AppRuntimeState["lastResult"];
-    scheduleCompletions: AppRuntimeState["scheduleCompletions"];
-    dailyGoalMinutes: number;
-  }): void;
-  updateTodayDashboard(this: void, payload: {
-    books: Book[];
-    defaultDailyGoalMinutes: number;
-    featureFlags: AppRuntimeState["featureFlags"];
-    lastResult: AppRuntimeState["lastResult"];
-    preferences: AppRuntimeState["preferences"];
-    scheduleCompletions: AppRuntimeState["scheduleCompletions"];
-    sessions: AppRuntimeState["sessions"];
-  }): void;
-}
+import { DEFAULT_PREFERENCES } from "./experience/index.js";
+
+import type { DashboardRuntimeArgs } from "../../types/types_app.js";
 
 /**
  * Creates dashboard update actions that keep Today/Stats panels in sync with UI preferences.

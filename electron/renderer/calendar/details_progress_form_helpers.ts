@@ -1,16 +1,7 @@
-import type { CalendarRowWithFinish } from "./data.js";
-import type { DetailInteractionHandlers } from "./details_types.js";
-import { parseOptionalNumber } from "./utils.js";
 
-interface SubmitProgressUpdateArgs {
-  event: SubmitEvent;
-  row: CalendarRowWithFinish;
-  pagesInput: HTMLInputElement;
-  pctInput: HTMLInputElement;
-  initialPagesValue: string;
-  initialPercentValue: string;
-  interactionHandlers: DetailInteractionHandlers;
-}
+
+import { parseOptionalNumber } from "./utils.js";
+import type { SubmitProgressUpdateArgs } from "../../types/types_calendar.js";
 
 /**
  * Prefills input value from book progress value when present.

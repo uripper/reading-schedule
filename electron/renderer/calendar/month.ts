@@ -2,30 +2,11 @@ import { el } from "../dom.js";
 import { dayKey, monthCells, monthLabel } from "./utils.js";
 import { createDayButton, createWeekdayHeader } from "./month_day_button.js";
 import { handleDayKeydown } from "./month_keyboard.js";
-
-interface CalendarRow {
-  book_id?: string;
-  date?: string;
-  session_index?: string | number;
-  title?: string;
-  minutes?: number;
-  finish?: boolean;
-}
-
-interface CalendarState {
-  dates: Record<string, CalendarRow[]>;
-  months: string[];
-  index: number;
-  selectedDate: string;
-  monthCellKeys: string[];
-}
-
-interface MonthActions {
-  completedBookRowsForDate(this: void, dateKey: string): CalendarRow[];
-  moveSelectionBy(this: void, delta: number, currentIndex: number): void;
-  renderDetails(this: void): void;
-  selectDate(this: void, dateKey: string, options?: { focus?: boolean }): void;
-}
+import type {
+  CalendarDisplayRow,
+  CalendarState,
+  MonthActions,
+} from "../../types/types_calendar.js";
 
 /**
  * Returns today's local day key for month rendering state checks.
@@ -42,10 +23,10 @@ function todayDayKey(): string {
  * @returns Combined rows for month-grid display.
  */
 export function mergeDisplayRows(
-  plannedRows: CalendarRow[],
-  completedBookRows: CalendarRow[],
-): CalendarRow[] {
-  const completedByBookId = new Map<string, CalendarRow>();
+  plannedRows: CalendarDisplayRow[],
+  completedBookRows: CalendarDisplayRow[],
+): CalendarDisplayRow[] {
+  const completedByBookId = new Map<string, CalendarDisplayRow>();
   completedBookRows.forEach((row) => {
     if (typeof row.book_id !== "string" || row.book_id === "") {
       return;
@@ -55,7 +36,7 @@ export function mergeDisplayRows(
     }
     completedByBookId.set(row.book_id, row);
   });
-  const out: CalendarRow[] = [];
+  const out: CalendarDisplayRow[] = [];
   const seenBookIds = new Set<string>();
   plannedRows.forEach((row) => {
     if (typeof row.book_id !== "string" || row.book_id === "") {
@@ -80,8 +61,8 @@ export function mergeDisplayRows(
     seenBookIds.add(bookId);
     out.push(row);
   });
-  const finishRows: CalendarRow[] = [];
-  const otherRows: CalendarRow[] = [];
+  const finishRows: CalendarDisplayRow[] = [];
+  const otherRows: CalendarDisplayRow[] = [];
   out.forEach((row) => {
     if (row.finish === true) {
       finishRows.push(row);
@@ -156,7 +137,7 @@ export function renderCalendarMonth(
   cells.forEach((date, index) => {
     const keyForDay = calendarState.monthCellKeys[index];
     const completedBookRows = actions.completedBookRowsForDate(keyForDay);
-    let rows: CalendarRow[] = [];
+    let rows: CalendarDisplayRow[] = [];
     if (keyForDay in calendarState.dates) {
       rows = calendarState.dates[keyForDay];
     }
@@ -165,9 +146,9 @@ export function renderCalendarMonth(
       date,
       firstDate,
       keyForDay,
+      todayKey,
       rows: displayRows,
       selectedDate: calendarState.selectedDate,
-      todayKey,
     });
     dayButton.onclick = () => {
       actions.selectDate(keyForDay);

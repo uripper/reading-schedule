@@ -1,4 +1,4 @@
-type NumericLike = string | number | null | undefined;
+import type { NumericLike } from "../../types/types_books.js";
 
 /**
  * Escapes text for safe HTML interpolation in renderer templates.

@@ -1,5 +1,7 @@
-import type { CalendarRowWithFinish } from "./data.js";
-import type { DetailInteractionHandlers } from "./details_types.js";
+import type {
+  CalendarRowWithFinish,
+  DetailInteractionHandlers,
+} from "../../types/types_calendar.js";
 
 export const DAY_DETAILS_META_CLASS = "day-details-meta";
 export const COMPLETE_ITEM_CLASS = "is-complete";
@@ -19,7 +21,7 @@ export function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
   }
   const head = document.createElement("strong");
   head.className = "day-session-title";
-  head.textContent = row.title || "Untitled";
+  head.textContent = row.title;
   if (row.finish) {
     const finishBadge = document.createElement("span");
     finishBadge.className = "day-finish-badge";

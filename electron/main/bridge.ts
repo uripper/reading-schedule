@@ -3,16 +3,10 @@
  */
 import { spawn } from "node:child_process";
 import path from "node:path";
-import type { JsonValue } from "../types/types_json";
+import type { BridgeResponse, JsonValue } from "../types/types.js";
 
 const PLANNER_MODULE = "reading_plan.gui_api";
 const PYTHONPATH_SEGMENT = "src";
-
-interface BridgeResponse {
-  data?: JsonValue;
-  error?: string;
-  ok?: boolean;
-}
 
 /**
  * Resolves the repository root used by the Python bridge process.

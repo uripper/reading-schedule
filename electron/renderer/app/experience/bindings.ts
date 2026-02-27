@@ -1,4 +1,5 @@
 import { el } from "../../dom.js";
+import type { ExperienceSettingsApplyHandler } from "../../../types/types_experience.js";
 
 const EXPERIENCE_SETTING_IDS: readonly string[] = [
   "themeSelect",
@@ -17,8 +18,6 @@ const HIDDEN_EXPERIENCE_CONTROL_IDS: readonly string[] = [
   "flagRecommendations",
 ];
 const DEFAULT_REMINDER_TIME = "20:00";
-
-type ExperienceSettingsApplyHandler = (event: Event) => void;
 
 /**
  * Helper to get an experience control node by ID, ensuring it's an HTMLElement.

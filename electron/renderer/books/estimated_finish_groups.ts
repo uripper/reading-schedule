@@ -4,13 +4,11 @@ import {
   BOOK_STATUS_READ,
   BOOK_STATUS_TO_READ,
 } from "./status.js";
-import type { BookGroup } from "./grouping.js";
-import type { Book } from "./types.js";
-
-interface StatusGroupDefinition {
-  label: string;
-  statuses: string[];
-}
+import type {
+  Book,
+  BookGroup,
+  StatusGroupDefinition,
+} from "../../types/types_books.js";
 
 const STATUS_GROUPS: StatusGroupDefinition[] = [
   { label: "Dropped", statuses: [BOOK_STATUS_DROPPED] },

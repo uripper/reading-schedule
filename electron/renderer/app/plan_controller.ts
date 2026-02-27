@@ -1,76 +1,23 @@
-import type { Book } from "../books/types.js";
-import type { Session } from "../sessions/normalize.js";
+
+
 import { runPlanGeneration } from "./plan.js";
-import {
-  applyLoadedResult,
-  applyPlannedData,
-  type PlannerRunData,
-} from "./plan_controller_apply.js";
+import { applyLoadedResult, applyPlannedData } from "./plan_controller_apply.js";
+import type { PlannerResult } from "../../types/types.js";
 import type {
-  PlannerApi,
-  PlannerResult,
-  PlannerScheduleRow,
-  PlannerSettings,
-  PlannerSummary,
-} from "../../types/types.js";
+  AutoPlanRunner,
+  AutoPlanState,
+  PlanController,
+  PlanControllerArgs,
+  PlannerRunData,
+  RunAutoPlanFactoryArgs,
+} from "../../types/types_app.js";
+
 const AUTO_PLAN_DELAY_MS = 450;
 const DEFAULT_LAST_RESULT: PlannerResult = {
   schedule: [],
   summary: null,
   created_at: "",
 };
-interface PlanControllerArgs {
-  plannerApi: Pick<PlannerApi, "generate">;
-  collectBooks(this: void): Book[];
-  collectSettings(this: void): PlannerSettings;
-  setStatus(this: void, message: string, isError?: boolean): void;
-  addLog(this: void, message: string): void;
-  announce(
-    this: void,
-    message: string,
-    politeness?: "polite" | "assertive",
-  ): void;
-  getLastResult(this: void): PlannerResult | null;
-  setLastResult(this: void, result: PlannerResult): void;
-  getSessions(this: void): Session[];
-  getScheduleCompletions(this: void): Record<string, boolean>;
-  getBlockedDayBooks(this: void): Record<string, boolean>;
-  setScheduleCompletions(
-    this: void,
-    completions: Record<string, boolean>,
-  ): void;
-  renderCalendar(
-    this: void,
-    rows: PlannerScheduleRow[],
-    totals: Record<string, number>,
-  ): void;
-  totalsFromSummary(
-    this: void,
-    summary: PlannerSummary | null,
-  ): Record<string, number>;
-  setBookScheduleRows(this: void, rows: PlannerScheduleRow[]): void;
-  updateTodayView(this: void): void;
-  persistDraft(this: void): Promise<boolean>;
-}
-
-interface PlanController {
-  applyLoadedResult(savedResult: PlannerResult | null): void;
-  queueAutoPlan(): void;
-}
-
-interface AutoPlanRunner {
-  queueAutoPlan(): void;
-}
-
-interface AutoPlanState {
-  autoRunPending: boolean;
-  autoRunInFlight: boolean;
-}
-
-interface RunAutoPlanFactoryArgs extends PlanControllerArgs {
-  state: AutoPlanState;
-  scheduleAutoPlan(this: void, runner: () => Promise<void>): void;
-}
 
 /**
  * Builds the auto-plan execution loop used by the debounced runner.

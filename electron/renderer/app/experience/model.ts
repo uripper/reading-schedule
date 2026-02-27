@@ -1,30 +1,5 @@
-import {
-  RECOMMENDATIONS_AVAILABLE,
-  REMINDERS_AVAILABLE,
-  SOCIAL_FEATURES_AVAILABLE,
-  shippedFeatureFlag,
-  shippedReminderTime,
-} from "./availability.js";
-export interface Preferences {
-  theme: "system" | "light" | "dark";
-  reduceMotion: boolean;
-  timezone: string;
-  dailyGoalMinutes: number;
-  reminderEnabled: boolean;
-  reminderTime: string;
-}
-
-export interface FeatureFlags {
-  gamificationEnabled: boolean;
-  socialEnabled: boolean;
-  recommendationsEnabled: boolean;
-}
-
-type PreferencesInput = Partial<Preferences> & {
-  daily_goal_minutes?: number | string;
-};
-
-type FeatureFlagsInput = Partial<FeatureFlags>;
+import { RECOMMENDATIONS_AVAILABLE, REMINDERS_AVAILABLE, SOCIAL_FEATURES_AVAILABLE, shippedFeatureFlag, shippedReminderTime } from "./availability.js";
+import type { FeatureFlags, FeatureFlagsInput, Preferences, PreferencesInput } from "../../../types/types_experience.js";
 
 export const DEFAULT_PREFERENCES: Preferences = {
   theme: "system",

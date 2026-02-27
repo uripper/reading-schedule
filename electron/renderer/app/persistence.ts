@@ -1,25 +1,7 @@
-import type { Book } from "../books/types.js";
-import type { Session } from "../sessions/normalize.js";
-import type { FeatureFlags, Preferences } from "./experience/index.js";
-import type {
-  PlannerApi,
-  PlannerResult,
-  PlannerSettings,
-  PlannerStateSnapshot,
-} from "../../types/types.js";
 
-interface DraftDataParams {
-  sessions: Session[];
-  collectBooks(): Book[];
-  collectSettings(): PlannerSettings;
-  preferences: Preferences;
-  featureFlags: FeatureFlags;
-  scheduleCompletions: Record<string, boolean>;
-  blockedDayBooks: Record<string, boolean>;
-  lastResult: PlannerResult | null;
-}
 
-type AddLog = (message: string) => void;
+import type { PlannerApi, PlannerStateSnapshot } from "../../types/types.js";
+import type { AddLog, DraftDataParams } from "../../types/types_app.js";
 
 /**
  * Builds the planner snapshot payload used for durable state persistence.

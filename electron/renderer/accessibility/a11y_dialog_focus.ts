@@ -1,6 +1,4 @@
-interface DialogFocusOptions {
-  initialFocusSelector?: string | null;
-}
+import type { DialogFocusOptions } from "../../types/types_app.js";
 
 /**
  * Returns a CSS selector string matching all interactive, focusable elements

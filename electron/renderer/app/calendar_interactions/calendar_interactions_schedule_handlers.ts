@@ -3,29 +3,11 @@ import {
   removeSessionRow,
   updateSessionRowMinutes,
 } from "./calendar_interactions_schedule_updates.js";
-import type { AppCalendarInteractionArgs } from "./calendar_interactions_types.js";
-
-type CalendarInteractionHandlers = Parameters<
-  AppCalendarInteractionArgs["configureCalendarInteractions"]
->[0];
-
-type ScheduleMutationHandlers = Pick<
-  CalendarInteractionHandlers,
-  "onManualSessionAdded" | "onSessionMinutesUpdated" | "onSessionRemoved"
->;
-
-interface SharedScheduleBindings {
-  collectSettings: AppCalendarInteractionArgs["collectSettings"];
-  getBookById: AppCalendarInteractionArgs["getBookById"];
-  onScheduleRowsUpdated(this: void): void;
-  queuePersist(this: void): void;
-  renderCalendar: AppCalendarInteractionArgs["renderCalendar"];
-  setBookScheduleRows: AppCalendarInteractionArgs["setBookScheduleRows"];
-  setLastResult: AppCalendarInteractionArgs["setLastResult"];
-  setStatus: AppCalendarInteractionArgs["setStatus"];
-  state: AppCalendarInteractionArgs["state"];
-  totalsFromSummary: AppCalendarInteractionArgs["totalsFromSummary"];
-}
+import type {
+  ScheduleMutationHandlers,
+  SharedScheduleBindings,
+  AppCalendarInteractionArgs,
+} from "../../../types/types_app.js";
 
 const createSharedScheduleBindings = (
   args: AppCalendarInteractionArgs,
@@ -35,7 +17,9 @@ const createSharedScheduleBindings = (
       args.onScheduleRowsUpdated();
     }
   };
-  const collectSettings = (): ReturnType<AppCalendarInteractionArgs["collectSettings"]> => {
+  const collectSettings = (): ReturnType<
+    AppCalendarInteractionArgs["collectSettings"]
+  > => {
     return args.collectSettings();
   };
   const getBookById = (
@@ -79,8 +63,8 @@ const createSharedScheduleBindings = (
     setBookScheduleRows,
     setLastResult,
     setStatus,
-    state: args.state,
     totalsFromSummary,
+    state: args.state,
   };
 };
 
@@ -92,11 +76,11 @@ export const buildScheduleMutationHandlers = (
     onManualSessionAdded: ({ date, bookId, minutes, completed = false }) => {
       return addManualSessionRow({
         bookId,
-        collectSettings: bindings.collectSettings,
         completed,
         date,
-        getBookById: bindings.getBookById,
         minutes,
+        collectSettings: bindings.collectSettings,
+        getBookById: bindings.getBookById,
         onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
         queuePersist: bindings.queuePersist,
         renderCalendar: bindings.renderCalendar,
@@ -109,13 +93,13 @@ export const buildScheduleMutationHandlers = (
     },
     onSessionMinutesUpdated: ({ minutes, row }) => {
       return updateSessionRowMinutes({
+        minutes,
+        row,
         collectSettings: bindings.collectSettings,
         getBookById: bindings.getBookById,
-        minutes,
         onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
         queuePersist: bindings.queuePersist,
         renderCalendar: bindings.renderCalendar,
-        row,
         setBookScheduleRows: bindings.setBookScheduleRows,
         setLastResult: bindings.setLastResult,
         setStatus: bindings.setStatus,
@@ -125,10 +109,10 @@ export const buildScheduleMutationHandlers = (
     },
     onSessionRemoved: ({ row }) => {
       return removeSessionRow({
+        row,
         onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
         queuePersist: bindings.queuePersist,
         renderCalendar: bindings.renderCalendar,
-        row,
         setBookScheduleRows: bindings.setBookScheduleRows,
         setLastResult: bindings.setLastResult,
         setStatus: bindings.setStatus,

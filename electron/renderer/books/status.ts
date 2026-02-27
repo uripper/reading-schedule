@@ -1,4 +1,8 @@
-import type { Book } from "./types.js";
+import type {
+  Book,
+  BookStatus,
+  BookStatusFilter,
+} from "../../types/types_books.js";
 import {
   BOOK_STATUS_DROPPED,
   BOOK_STATUS_FILTER_ALL,
@@ -9,8 +13,6 @@ import {
   normalizedStatus,
   statusLabel,
   statusOptions,
-  type BookStatus,
-  type BookStatusFilter,
 } from "./status_catalog.js";
 
 /**
@@ -119,8 +121,7 @@ export {
   BOOK_STATUS_READ,
   BOOK_STATUS_TO_READ,
   isStatusSchedulable,
+  normalizedStatus,
   statusLabel,
   statusOptions,
 };
-
-export type { BookStatus, BookStatusFilter };

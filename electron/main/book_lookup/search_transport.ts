@@ -7,8 +7,8 @@ import {
   HTTP_STATUS_REDIRECT_MIN,
   SEARCH_FETCH_LIMIT,
   SEARCH_FIELDS,
-  type SearchResponse,
 } from "./search_shared.js";
+import type { SearchResponse } from "../../types/types_lookup.js";
 
 /**
  * Builds prioritized Open Library query URLs for a search string.

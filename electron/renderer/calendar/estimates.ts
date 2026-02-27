@@ -5,11 +5,13 @@ import {
 } from "./estimates_labels.js";
 import {
   estimateSnapshotForRow,
-  type BookGetter,
-  type CompletionChecker,
-  type EstimateRow,
-  type EstimateState,
 } from "./estimates_snapshot.js";
+import type {
+  BookGetter,
+  CompletionChecker,
+  EstimateRow,
+  EstimateState,
+} from "../../types/types_calendar.js";
 
 /**
  * Builds end-of-session progress estimate label for a calendar row.

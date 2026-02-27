@@ -1,4 +1,4 @@
-import type { CalendarRowWithFinish } from "./data.js";
+import type { CalendarRowWithFinish } from "../../types/types_calendar.js";
 import { minPlannedMinutes } from "./details_minutes_form_helpers.js";
 
 const PLANNED_MINUTES_PLACEHOLDER = "Planned minutes";
@@ -17,7 +17,7 @@ export function minutesInputForRow(row: CalendarRowWithFinish): HTMLInputElement
   minutesInput.min = String(minMinutes);
   minutesInput.step = "1";
   minutesInput.placeholder = PLANNED_MINUTES_PLACEHOLDER;
-  minutesInput.value = String(Math.max(minMinutes, Number(row.minutes || 0)));
+  minutesInput.value = String(Math.max(minMinutes, Number(row.minutes)));
   return minutesInput;
 }
 

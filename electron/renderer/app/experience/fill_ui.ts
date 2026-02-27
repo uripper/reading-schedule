@@ -1,8 +1,7 @@
 import { el } from "../../dom.js";
+import type { FeatureFlags, Preferences } from "../../../types/types_experience.js";
 import {
   DEFAULT_PREFERENCES,
-  type FeatureFlags,
-  type Preferences,
 } from "./model.js";
 import {
   RECOMMENDATIONS_AVAILABLE,

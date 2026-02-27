@@ -2,7 +2,6 @@
  * @file Ranking helpers used to score Open Library search results.
  */
 import {
-  type SearchDoc,
   SCORE_CONTAINS_TITLE,
   SCORE_ENGLISH_LANGUAGE,
   SCORE_EXACT_TITLE,
@@ -13,6 +12,7 @@ import {
   SCORE_TOKEN_CONTAINS,
   SCORE_TOKEN_PREFIX,
 } from "./search_shared.js";
+import type { SearchDoc } from "../../types/types.js";
 import {
   hasEnglishLanguage,
   normalizeSearchText,

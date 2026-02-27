@@ -1,9 +1,5 @@
 import { COVER_PLACEHOLDER } from "../../books/constants.js";
 import { el } from "../../dom.js";
-import type {
-  TodayBookSummary,
-  TodayScheduleSnapshot,
-} from "./today_schedule.js";
 import { navigateToTodayBook } from "./today_books_navigation.js";
 import {
   coverFallbackText,
@@ -11,6 +7,10 @@ import {
   plannedMinutesText,
   todaySessionCountsText,
 } from "./today_books_view_text.js";
+import type {
+  TodayBookSummary,
+  TodayScheduleSnapshot,
+} from "../../../types/types_app.js";
 
 /**
  * Creates the visual cover node for a today-list book item.

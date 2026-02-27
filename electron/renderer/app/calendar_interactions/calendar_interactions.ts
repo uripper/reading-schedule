@@ -3,24 +3,15 @@ import {
   dayBookCompletionKey,
   dayBookCompletionKeyFromSession,
   manualSessionBooks,
-  nextSessionIndexForDate,
-  rowsWithoutSession,
-  wordsPlannedForManualSession,
-  type CompletionUpdate,
-  type ProgressUpdateInput,
 } from "./calendar_interactions_helpers.js";
 import { buildScheduleMutationHandlers } from "./calendar_interactions_schedule_handlers.js";
-import type { AppCalendarInteractionArgs } from "./calendar_interactions_types.js";
-
-type CalendarInteractionHandlers = Parameters<
-  AppCalendarInteractionArgs["configureCalendarInteractions"]
->[0];
-
-interface CompletionRow {
-  date?: string;
-  book_id?: string;
-  title?: string;
-}
+import type {
+  AppCalendarInteractionArgs,
+  CalendarInteractionHandlers,
+  CompletionRow,
+  CompletionUpdate,
+  ProgressUpdateInput,
+} from "../../../types/types_app.js";
 
 const completionFallbackKey = (row: CompletionRow | undefined): string => {
   if (row === undefined) {
@@ -147,7 +138,8 @@ const buildCalendarHandlers = (
 ): CalendarInteractionHandlers => {
   const scheduleMutationHandlers = buildScheduleMutationHandlers(args);
   return {
-    isSessionCompleted: (sessionKey) => isCompleted(args.state.scheduleCompletions, sessionKey),
+    isSessionCompleted: (sessionKey) =>
+      isCompleted(args.state.scheduleCompletions, sessionKey),
     onSessionCompletionChanged: (payload) => {
       handleCompletionChanged(args, payload);
     },
@@ -163,5 +155,3 @@ export const configureAppCalendarInteractions = (
 ): void => {
   args.configureCalendarInteractions(buildCalendarHandlers(args));
 };
-
-export { nextSessionIndexForDate, rowsWithoutSession, wordsPlannedForManualSession };

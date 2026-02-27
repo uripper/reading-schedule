@@ -2,29 +2,13 @@ import { placeholderCoverSvg } from "./helpers.js";
 import { createLookupInputHandler } from "./input.js";
 import { handleLookupKeydown } from "./keyboard.js";
 import { createLookupStateController } from "./search_state.js";
-import {
-  lookupResultTarget,
-} from "./render.js";
-import type { BookLookupItem } from "../../types/types.js";
+import { lookupResultTarget } from "./render.js";
 
-interface LookupState {
-  timer: ReturnType<typeof setTimeout> | null;
-  token: number;
-  currentItems: BookLookupItem[];
-  activeIndex: number;
-}
-
-interface BindBookLookupOptions {
-  searchInput: HTMLInputElement;
-  resultsEl: HTMLElement;
-  metaEl: HTMLElement;
-  onPick(this: void, item: BookLookupItem): void;
-}
-
-interface LookupBinding {
-  clearResults(): void;
-  destroy(): void;
-}
+import type {
+  BindBookLookupOptions,
+  LookupBinding,
+  LookupSearchState,
+} from "../../types/types_lookup.js";
 
 /**
  * Binds all lookup search interactions (input, keyboard, mouse, outside click).
@@ -37,7 +21,7 @@ interface LookupBinding {
  */
 export function bindBookLookup(options: BindBookLookupOptions): LookupBinding {
   const placeholder = placeholderCoverSvg();
-  const state: LookupState = {
+  const state: LookupSearchState = {
     timer: null,
     token: 0,
     currentItems: [],

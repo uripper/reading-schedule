@@ -1,11 +1,15 @@
-import { GROUP_BY_NONE, type BookGroupBy } from "./grouping.js";
+import { GROUP_BY_NONE } from "./grouping.js";
 import {
   normalizeStatusFilter,
   statusFilterOptions,
-  type BookStatusFilter,
 } from "./status.js";
-import { SORT_DIRECTION_DESC, type SortDirection } from "./sort.js";
-import type { Book } from "./types.js";
+import { SORT_DIRECTION_DESC } from "./sort.js";
+import type {
+  Book,
+  BookGroupBy,
+  BookStatusFilter,
+  SortDirection,
+} from "../../types/types.js";
 import { createOption } from "./toolbar_dom.js";
 import { groupOptionsForShelfFilter, shelfFilterOptions } from "./toolbar_options.js";
 

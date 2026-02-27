@@ -1,11 +1,4 @@
-type LogLevel = "info" | "error";
-
-interface LogPayload {
-  level: LogLevel;
-  message: string;
-  context?: Record<string, unknown>;
-  error?: unknown;
-}
+import type { LogPayload } from "../types/types_app.js";
 
 /**
  * Serializes `Error` instances into plain objects for structured logging.

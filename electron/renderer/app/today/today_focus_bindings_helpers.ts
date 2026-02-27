@@ -1,12 +1,10 @@
-import { normalizeSession, type Session } from "../../sessions/normalize.js";
+import { normalizeSession } from "../../sessions/normalize.js";
 import { sessionKeyFor } from "../../calendar/utils.js";
 import { dayBookCompletionKey } from "../calendar_interactions/index.js";
-import { TINY_START_MINUTES, type FocusSession } from "./today_focus.js";
+import { TINY_START_MINUTES } from "./today_focus.js";
 import type { PlannerScheduleRow } from "../../../types/types.js";
-import {
-  findSessionRow,
-  readFocusSessionFromDataset,
-} from "./today_focus_session_match.js";
+import type { FocusSession } from "../../../types/types_app.js";
+import type { Session } from "../../../types/types_core.js";
 
 const CLOSE_FOCUS_TEXT = "Close Focus Controls";
 const OPEN_FOCUS_TEXT = "Open Focus Controls";
@@ -30,8 +28,6 @@ export function setFocusEntryButtonState(
   nextButton.textContent = OPEN_FOCUS_TEXT;
   nextButton.setAttribute("aria-expanded", "false");
 }
-
-export { findSessionRow, readFocusSessionFromDataset };
 
 /**
  * Returns completion state with the given row marked complete by both key styles.

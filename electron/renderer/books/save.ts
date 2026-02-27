@@ -1,4 +1,4 @@
-import type { Book } from "./types.js";
+import type { Book } from "../../types/types_books.js";
 import { getPlannerApi } from "../app/planner_api.js";
 
 /**

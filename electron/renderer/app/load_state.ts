@@ -1,39 +1,8 @@
-import type { Book } from "../books/types.js";
-import type { Session } from "../sessions/normalize.js";
-import type { FeatureFlags, Preferences } from "./experience/index.js";
-import type {
-  LoadedPlannerState,
-  PlannerApi,
-  PlannerResult,
-  PlannerSettings,
-} from "../../types/types.js";
 
-interface InitialDataSource {
-  settings?: PlannerSettings;
-  books?: Book[];
-}
 
-interface LoadStateArgs {
-  plannerApi: Pick<PlannerApi, "loadState" | "sample">;
-  fillSettings(settings?: PlannerSettings): void;
-  fillBooks(books?: Book[]): void;
-  normalizePreferences(raw: Partial<Preferences>): Preferences;
-  normalizeFeatureFlags(raw: Partial<FeatureFlags>): FeatureFlags;
-  normalizeScheduleCompletions(
-    raw: Record<string, boolean>,
-  ): Record<string, boolean>;
-  fillPreferencesUI(preferences: Preferences, featureFlags: FeatureFlags): void;
-  applyPreferencesToDocument(preferences: Preferences): void;
-  setPreferences(preferences: Preferences): void;
-  setFeatureFlags(featureFlags: FeatureFlags): void;
-  setScheduleCompletions(scheduleCompletions: Record<string, boolean>): void;
-  setBlockedDayBooks(blockedDayBooks: Record<string, boolean>): void;
-  setSessions(sessions: Session[]): void;
-  applyLoadedResult(result: PlannerResult | null): void;
-  updateTodayView(): void;
-  onLoaded(saved: LoadedPlannerState | null | undefined): void;
-  setStatus(message: string, isError?: boolean): void;
-}
+import type { LoadedPlannerState, PlannerApi } from "../../types/types.js";
+import type { InitialDataSource, LoadStateArgs } from "../../types/types_app.js";
+import type { FeatureFlags, Preferences } from "../../types/types_experience.js";
 
 /**
  * Normalizes persisted blocked day-book map values to strict booleans.

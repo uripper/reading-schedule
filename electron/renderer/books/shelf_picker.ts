@@ -1,6 +1,5 @@
 import { SHELF_SELECT_CREATE_NEW, uniqueShelves } from "./shelf.js";
-import type { Book } from "./types.js";
-import type { BookFormRefs } from "./form_refs.js";
+import type { Book, BookFormRefs } from "../../types/types_books.js";
 import { ensurePromptValidation, promptForShelfName } from "./shelf_picker_prompt.js";
 import {
   ensureShelfOption,

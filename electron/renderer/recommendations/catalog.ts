@@ -1,7 +1,4 @@
-export interface RecommendationSeed {
-  title: string;
-  wordsTotal: number;
-}
+import type { RecommendationSeed } from "../../types/types_experience.js";
 
 const AUTHOR_KEY_AUSTEN = "jane austen";
 const AUTHOR_KEY_ORWELL = "george orwell";

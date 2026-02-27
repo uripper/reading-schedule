@@ -7,6 +7,7 @@
     "rootDir": ".",
     "lib": ["ES2023", "DOM"],
     "strict": true,
+    "noEmitOnError": true,
     "skipLibCheck": true
   },
   "include": ["renderer/**/*.ts", "renderer/**/*.d.ts", "types/**/*.ts"]

@@ -1,13 +1,8 @@
-import type { Book } from "../books/types.js";
-import type { Session } from "../sessions/normalize.js";
-import type { FeatureFlags, Preferences } from "./experience/index.js";
+
+
 import { draftData, saveStateSafe } from "./persistence.js";
-import type {
-  PlannerApi,
-  PlannerResult,
-  PlannerSettings,
-  PlannerSummary,
-} from "../../types/types.js";
+import type { PlannerSummary } from "../../types/types.js";
+import type { PersistQueue, PersistQueueArgs } from "../../types/types_app.js";
 
 const PERSIST_DELAY_MS = 300;
 const NON_PLANNING_SETTING_IDS = new Set([
@@ -20,29 +15,6 @@ const NON_PLANNING_SETTING_IDS = new Set([
   "flagSocial",
   "flagRecommendations",
 ]);
-
-interface PersistQueueState {
-  ready: boolean;
-  preferences: Preferences;
-  featureFlags: FeatureFlags;
-  scheduleCompletions: Record<string, boolean>;
-  blockedDayBooks: Record<string, boolean>;
-  lastResult: PlannerResult | null;
-}
-
-interface PersistQueueArgs {
-  plannerApi: Pick<PlannerApi, "saveState">;
-  state: PersistQueueState;
-  getSessions(this: void): Session[];
-  collectBooks(this: void): Book[];
-  collectSettings(this: void): PlannerSettings;
-  addLog(this: void, message: string): void;
-}
-
-interface PersistQueue {
-  persistDraft(): Promise<boolean>;
-  queuePersist(): void;
-}
 
 /**
  * Builds a status setter that updates UI status text and mirrors messages to logs.

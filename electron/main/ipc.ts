@@ -1,42 +1,18 @@
 /**
  * @file Main-process IPC registration for planner and window actions.
  */
-import { ipcMain, type WebContents } from "electron";
-import type { JsonValue } from "../types/types_json";
+import { ipcMain } from "electron";
 import { UI_SCALE_STEP } from "./zoom";
 import {
   asDownloadCoverPayload,
   asUploadCoverPayload,
-  type DownloadCoverPayload,
-  type UploadCoverPayload,
 } from "./ipc_payloads";
-
-interface RegisterIpcHandlersArgs {
-  downloadCover(
-    this: void,
-    coverUrl: string | undefined,
-    bookId: string | undefined,
-    userDataDir: string | undefined,
-  ): Promise<string>;
-  initialZoomFactor(this: void): number;
-  readState(this: void, userDataDir: string): unknown;
-  runBridge(this: void, args: string[], payload?: JsonValue): Promise<unknown>;
-  saveUploadedCover(
-    this: void,
-    coverDataUrl: string | undefined,
-    bookId: string | undefined,
-    userDataDir: string | undefined,
-  ): string;
-  searchBooks(this: void, query: string): Promise<unknown>;
-  setZoomFactor(this: void, webContents: WebContents, value: number): number;
-  shiftZoomFactor(this: void, webContents: WebContents, delta: number): number;
-  userData(this: void): string;
-  writeState(
-    this: void,
-    userDataDir: string,
-    payload: JsonValue,
-  ): { error?: string; ok: boolean };
-}
+import type {
+  DownloadCoverPayload,
+  RegisterIpcHandlersArgs,
+  UploadCoverPayload,
+  JsonValue,
+} from "../types/types.js";
 
 /**
  * Registers all main-process IPC handlers consumed by the renderer.
@@ -89,7 +65,7 @@ export function registerIpcHandlers({
   ipcMain.handle("state:save", (_event, payload: JsonValue) => {
     const result = writeState(userData(), payload);
     if (!result.ok) {
-      throw new Error(result.error ?? "Failed to save state");
+      throw new Error(result.error);
     }
     return result;
   });

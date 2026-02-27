@@ -1,32 +1,10 @@
 import { el } from "../../dom.js";
-import type { Session } from "../../sessions/normalize.js";
+
 import { createPlanController } from "../plan_controller.js";
 import { bindSettingsAutoPlanListeners } from "../runtime_helpers.js";
-import type { PlannerResult } from "../../../types/types.js";
+
 import { bindTodayFocusActions } from "../today/index.js";
-
-type SetStatus = (message: string, isError?: boolean) => void;
-
-type CreatePlanControllerArgs = Parameters<typeof createPlanController>[0];
-
-interface FinalizeInitialLoadArgs {
-  saved: { last_result?: PlannerResult | null } | null | undefined;
-  setReady(): void;
-  queuePersist(): void;
-  queueAutoPlan(): void;
-  setStatus: SetStatus;
-}
-
-interface BindTodayActionsArgs {
-  getLastResult(): PlannerResult | null;
-  getScheduleCompletions(): Record<string, boolean>;
-  setScheduleCompletions(nextCompletions: Record<string, boolean>): void;
-  getSessions(): Session[];
-  setSessions(nextSessions: Session[]): void;
-  queuePersist(): void;
-  updateTodayView(): void;
-  setStatus: SetStatus;
-}
+import type { BindTodayActionsArgs, CreatePlanControllerArgs, FinalizeInitialLoadArgs } from "../../../types/types_app.js";
 
 /**
  * Wires the skip-link element to focus the main content region.

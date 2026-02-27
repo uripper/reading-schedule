@@ -5,30 +5,14 @@ import { el } from "../dom.js";
 import { addLog } from "../help.js";
 import { collectSettings } from "../settings.js";
 import { updateStatsView } from "../stats.js";
-import {
-  collectFeatureFlagsFromUI,
-  collectPreferencesFromUI,
-  normalizeFeatureFlags,
-  normalizePreferences,
-} from "./experience/index.js";
+import { collectFeatureFlagsFromUI, collectPreferencesFromUI, normalizeFeatureFlags, normalizePreferences } from "./experience/index.js";
 import { createDashboardRuntime } from "./dashboard_runtime.js";
 import { createInitRuntime } from "./init/index.js";
 import { createPersistQueue, createStatusSetter } from "./runtime_helpers.js";
 import { createRuntimeState } from "./runtime_state.js";
 import { updateTodayDashboard } from "./today/index.js";
 import type { PlannerApi } from "../../types/types.js";
-
-export interface AppBootstrapContext {
-  announce: ReturnType<typeof createAnnouncer>;
-  announceForPlanController(message: string, politeness?: string): void;
-  dashboards: ReturnType<typeof createDashboardRuntime>;
-  plannerApi: PlannerApi;
-  persistDraft(): Promise<boolean>;
-  queuePersist(): void;
-  runtime: ReturnType<typeof createInitRuntime>;
-  setStatus(message: string, isError?: boolean): void;
-  state: ReturnType<typeof createRuntimeState>;
-}
+import type { AppBootstrapContext } from "../../types/types_app.js";
 
 /**
  * Retrieves the Planner API from the global context. This function assumes that the `plannerApi`

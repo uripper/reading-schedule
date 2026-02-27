@@ -1,4 +1,4 @@
-import type { Book } from "./types.js";
+import type { Book } from "../../types/types_books.js";
 
 /**
  * Builds a map of book id to title, preferring full-catalog input when present.

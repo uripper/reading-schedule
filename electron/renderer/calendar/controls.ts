@@ -1,13 +1,6 @@
 import { el } from "../dom.js";
 import { monthLabel } from "./utils.js";
-
-interface CalendarControlsState {
-  months: string[];
-  index: number;
-}
-
-type RenderFn = () => void;
-type JumpToTodayFn = () => void;
+import type { CalendarControlsState, JumpToTodayFn, RenderFn } from "../../types/types_calendar.js";
 
 /**
  * Renders month navigation controls and binds prev/next/today actions.

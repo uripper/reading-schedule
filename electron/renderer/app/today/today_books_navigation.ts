@@ -1,12 +1,8 @@
 import { scrollToBookCard } from "../../books/card_scroll_target.js";
 import { activateTab } from "../../tabs.js";
+import type { TodayBookNavigationActions } from "../../../types/types_app.js";
 
 const BOOKS_TAB_NAME = "books";
-
-export interface TodayBookNavigationActions {
-  activateBooksTab(): void;
-  scrollToBook(bookId: string): void;
-}
 
 const DEFAULT_NAVIGATION_ACTIONS: TodayBookNavigationActions = {
   activateBooksTab: (): void => {

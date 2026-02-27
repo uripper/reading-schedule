@@ -1,14 +1,10 @@
 import { el } from "../dom.js";
-import type { RecommendationItem } from "./model.js";
+import type {
+  RecommendationFormTarget,
+  RecommendationItem,
+} from "../../types/types_experience.js";
 
 const MIN_WORDS_TOTAL = 1;
-
-interface RecommendationFormTarget {
-  shelfInput: HTMLSelectElement;
-  titleInput: HTMLInputElement;
-  authorInput: HTMLInputElement;
-  wordsInput: HTMLInputElement;
-}
 
 /**
  * Normalizes recommendation word counts to a positive integer string.

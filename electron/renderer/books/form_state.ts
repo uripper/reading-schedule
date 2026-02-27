@@ -23,16 +23,11 @@ import {
   validatedShelfSelection,
   validatedStatusSelection,
 } from "./form_state_helpers.js";
-import { BOOK_STATUS_READ } from "./status.js";
+import { BOOK_STATUS_READ } from "./status_catalog.js";
 import { toOptionalInt } from "./utils.js";
-import type { Book } from "./types.js";
-import type { BookFormRefs } from "./form_refs.js";
 import type { BookLookupItem } from "../../types/types.js";
-import type { ProgressSyncInputs } from "../book_lookup/helpers.js";
-
-interface LookupControl {
-  clearResults(): void;
-}
+import type { LookupControl, BookFormRefs, Book } from "../../types/types_books.js";
+import type { ProgressSyncInputs } from "../../types/types_lookup.js";
 
 /**
  * Applies a positive lookup estimate to an input only when current value is missing.
@@ -123,7 +118,10 @@ export function fillForm(refs: BookFormRefs, book: Book): void {
     book.min_blocks_per_session,
     DEFAULT_MIN_BLOCKS,
   );
-  setOptionalIntegerInputValue(formRefs.maxMinutesInput, book.max_minutes_per_day);
+  setOptionalIntegerInputValue(
+    formRefs.maxMinutesInput,
+    book.max_minutes_per_day,
+  );
   formRefs.deadlineInput.value = fallbackText(book.deadline);
   formRefs.blockedByInput.value = fallbackText(book.blocked_by);
   formRefs.statusSelectInput.value = fallbackText(book.status, DEFAULT_STATUS);
@@ -162,9 +160,9 @@ export function parseFormBook(refs: BookFormRefs): Book {
   }
 
   return normalizeBook({
-    title: requiredTitle(refs),
     shelf,
     status,
+    title: requiredTitle(refs),
     finished_at: refs.finishedAtInput.value,
     book_id: refs.bookId.value || uid(),
     author: refs.author.value.trim(),

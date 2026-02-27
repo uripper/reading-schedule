@@ -1,21 +1,13 @@
 import { shelfFilterMatches } from "./shelf.js";
 import { statusFilterMatches } from "./status.js";
 import { sortBooks } from "./sort.js";
-import {
-  normalizeTitleFilterQuery,
-  titleMatchesNormalizedQuery,
-} from "../title_filter.js";
-import type { Book } from "./types.js";
-import type { BooksControllerRefs, BooksViewState } from "./controller_types.js";
-
-export interface RenderableBooksRefs {
-  shelfFilterSelect: HTMLSelectElement;
-  groupBySelect: HTMLSelectElement;
-  statusFilterSelect: HTMLSelectElement;
-  sortDirectionBtn: HTMLButtonElement;
-  grid: HTMLElement;
-  empty: HTMLElement;
-}
+import { normalizeTitleFilterQuery, titleMatchesNormalizedQuery } from "../title_filter.js";
+import type {
+  Book,
+  BooksControllerRefs,
+  BooksViewState,
+  RenderableBooksRefs,
+} from "../../types/types_books.js";
 
 /**
  * Checks whether a book title matches the active case-insensitive text filter.
