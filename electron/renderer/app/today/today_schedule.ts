@@ -1,6 +1,6 @@
 import { bookCoverSrc } from "../../books/model.js";
 import { titleSortKey } from "../../books/title_key.js";
-import type { Book } from "../../books/types.js";
+import type { Book } from "../../../types/types_books.js";
 import { sessionKeyFor, sortRowsByDateAndSession } from "../../calendar/utils.js";
 import { todayKey } from "../../sessions/utils.js";
 import type { PlannerResult, PlannerScheduleRow } from "../../../types/types.js";

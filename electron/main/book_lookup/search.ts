@@ -1,10 +1,11 @@
 /**
  * @file Search orchestration for Open Library queries.
  */
-import { MIN_QUERY_LENGTH, SEARCH_OUTPUT_LIMIT, type SearchDoc, type SearchItem } from "./search_shared.js";
+import { MIN_QUERY_LENGTH, SEARCH_OUTPUT_LIMIT } from "./search_shared.js";
 import { toItem } from "./search_map.js";
 import { dedupeDocs, scoreDoc } from "./search_scoring.js";
 import { fetchJson, searchUrls } from "./search_transport.js";
+import type { SearchDoc, SearchItem } from "../../types/types_lookup.js";
 
 /**
  * Queries Open Library endpoints and returns ranked search items.

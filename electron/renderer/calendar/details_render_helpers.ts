@@ -1,9 +1,16 @@
 import { rowsWithFinishFirst } from "./data.js";
-import { buildFutureSessionItem, buildPastSessionItem, buildTodaySessionItem, rowsWithCompletedLast, type DayMode, type DetailInteractionHandlers } from "./details_helpers.js";
+import {
+  buildFutureSessionItem,
+  buildPastSessionItem,
+  buildTodaySessionItem,
+  rowsWithCompletedLast,
+} from "./details_helpers.js";
 
 import type {
   CalendarDetailsState,
   CalendarRowWithFinish,
+  DayMode,
+  DetailInteractionHandlers,
   RowNodeForModeArgs,
 } from "../../types/types_calendar.js";
 

@@ -1,9 +1,8 @@
 import { finishDatesByBookId } from "../books/finish_dates.js";
 import { BOOK_STATUS_DROPPED, BOOK_STATUS_IN_PROGRESS, BOOK_STATUS_READ, BOOK_STATUS_TO_READ } from "../books/status.js";
-import type { Book } from "../books/types.js";
 import { sessionKeyFor } from "../calendar/utils.js";
 import { todayKey } from "../sessions/utils.js";
-import type { PlannerResult } from "../../types/types.js";
+import type { Book, PlannerResult } from "../../types/types.js";
 import type { StatusBreakdown } from "../../types/types_stats.js";
 
 const MONTHS_PER_YEAR = 12;

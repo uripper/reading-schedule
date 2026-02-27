@@ -2,15 +2,17 @@ import { el } from "../dom.js";
 import {
   buildManualSessionAddPanel,
   dayMode,
-  type DetailInteractionHandlers,
 } from "./details_helpers.js";
 import {
   emptyMessageForMode,
   rowNodeForMode,
   rowsForMode,
-  type CalendarDetailsState,
 } from "./details_render_helpers.js";
 import { dateHeading } from "./utils.js";
+import type {
+  CalendarDetailsState,
+  DetailInteractionHandlers,
+} from "../../types/types_calendar.js";
 
 /**
  * Renders selected-day details list and manual-add panel for current mode.

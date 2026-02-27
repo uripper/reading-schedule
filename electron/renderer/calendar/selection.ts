@@ -1,4 +1,4 @@
-import type { CalendarRuntimeState } from "./state_runtime.js";
+import type { CalendarRuntimeState } from "../../types/types_calendar.js";
 
 const MONTH_KEY_LENGTH = 7;
 

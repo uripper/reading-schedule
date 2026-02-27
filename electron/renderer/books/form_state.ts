@@ -160,9 +160,9 @@ export function parseFormBook(refs: BookFormRefs): Book {
   }
 
   return normalizeBook({
-    title: requiredTitle(refs),
     shelf,
     status,
+    title: requiredTitle(refs),
     finished_at: refs.finishedAtInput.value,
     book_id: refs.bookId.value || uid(),
     author: refs.author.value.trim(),
