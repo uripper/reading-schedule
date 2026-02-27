@@ -123,6 +123,7 @@ test("loadInitialData logs migration info for json-primary loads", async () => {
     loadArgs(
       {
         source: "json_primary",
+        sourcePath: "/tmp/planner_state.json",
         state: { settings: { start_date: "2026-05-01" }, books: [] },
         warningCode: "MIGRATED_JSON_TO_SQLITE",
       },
@@ -134,6 +135,10 @@ test("loadInitialData logs migration info for json-primary loads", async () => {
   assert.equal(statuses.length, 0);
   assert.equal(
     logs.some((entry) => entry.includes("Migrated saved data from JSON")),
+    true,
+  );
+  assert.equal(
+    logs.some((entry) => entry.includes("State load source: json_primary")),
     true,
   );
 });

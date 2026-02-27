@@ -368,6 +368,16 @@ export interface LoadStateArgs {
   addLog?(message: string): void;
 }
 
+export interface CreateLoadStateArgsInput {
+  context: AppBootstrapContext;
+  state: AppBootstrapContext["state"];
+  planController: LoadedResultController;
+  setStatus: SetStatus;
+  queuePersist(): void;
+  queueAutoPlanIfReady(): void;
+  updateTodayView(): void;
+}
+
 export type CreatePlanControllerArgs = PlanControllerArgs;
 
 export interface AutoPlanController {
@@ -392,6 +402,7 @@ export interface FinalizeInitialLoadArgs {
   queuePersist(): void;
   queueAutoPlan(): void;
   setStatus: SetStatus;
+  addLog?(message: string): void;
 }
 
 export interface BindTodayActionsArgs {

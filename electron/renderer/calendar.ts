@@ -1,4 +1,3 @@
-import type { PlannerScheduleRow } from "../types/types.js";
 import { renderCalendarDetails } from "./calendar/details.js";
 import {
   buildCompletedBookRowsByDate,
@@ -20,7 +19,11 @@ import {
   renderControls,
   renderMonth,
 } from "./calendar/render_runtime.js";
-import type { CalendarHandlers, CompletedBookRow } from "../types/types_calendar.js";
+import type {
+  PlannerScheduleRow,
+  CalendarHandlers,
+  CompletedBookRow,
+} from "../types/types.js";
 
 const state = createCalendarRuntimeState();
 let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});

@@ -14,17 +14,11 @@ import type {
   AppBootstrapContext,
   LoadedResultController,
 } from "../../../types/types.js";
-import type { LoadStateArgs, SetStatus } from "../../../types/types_app.js";
-
-interface CreateLoadStateArgsInput {
-  context: AppBootstrapContext;
-  state: AppBootstrapContext["state"];
-  planController: LoadedResultController;
-  setStatus: SetStatus;
-  queuePersist(): void;
-  queueAutoPlanIfReady(): void;
-  updateTodayView(): void;
-}
+import type {
+  CreateLoadStateArgsInput,
+  LoadStateArgs,
+  SetStatus,
+} from "../../../types/types_app.js";
 
 /**
  * Creates `loadInitialData` bindings for runtime state mutation and startup flow.
@@ -86,6 +80,9 @@ function createLoadStateArgs(
       finalizeInitialLoad({
         saved,
         loadResult,
+        addLog: (message) => {
+          args.context.addLog(message);
+        },
         queuePersist: () => {
           args.queuePersist();
         },

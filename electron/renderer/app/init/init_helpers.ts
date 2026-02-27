@@ -26,6 +26,43 @@ function shouldShowLoadedStatus(args: FinalizeInitialLoadArgs): boolean {
 }
 
 /**
+ * Returns true when loaded payload contains one or more persisted schedule rows.
+ * @param saved Loaded persisted payload from startup state load.
+ * @returns True when `last_result.schedule` exists and has rows.
+ */
+function hasSavedSchedule(
+  saved: FinalizeInitialLoadArgs["saved"],
+): boolean {
+  const rows = saved?.last_result?.schedule;
+  if (!Array.isArray(rows)) {
+    return false;
+  }
+  if (rows.length < 1) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Determines whether startup should queue an immediate auto-plan run.
+ * @param saved Loaded persisted payload from startup state load.
+ * @param loadResult Structured load metadata including source/warnings.
+ * @returns True when startup should auto-plan; false when loaded plan should be preserved.
+ */
+export function shouldAutoPlanOnStartup(
+  saved: FinalizeInitialLoadArgs["saved"],
+  loadResult: FinalizeInitialLoadArgs["loadResult"],
+): boolean {
+  if (loadResult.source === "fresh") {
+    return true;
+  }
+  if (hasSavedSchedule(saved)) {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Wires the skip-link element to focus the main content region.
  */
 export function setupSkipLink(): void {
@@ -80,7 +117,11 @@ export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
       args.setStatus("Loaded sample data.");
     }
   }
-  queueAutoPlan();
+  if (shouldAutoPlanOnStartup(args.saved, args.loadResult)) {
+    queueAutoPlan();
+    return;
+  }
+  args.addLog?.("Skipped startup auto-plan to preserve loaded schedule.");
 }
 
 /**

@@ -7,8 +7,8 @@ import type {
   LoadedPlannerState,
   PlannerSaveResult,
   PlannerStateLoadResult,
+  JsonValue,
 } from "../types/types.js";
-import type { JsonValue } from "../types/types_core.js";
 import { sqliteStatePath } from "./state_store_paths";
 
 const STATE_SCHEMA_VERSION = 1;

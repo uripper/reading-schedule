@@ -6,8 +6,8 @@ import type {
   LoadedPlannerState,
   PlannerSaveResult,
   PlannerStateLoadResult,
+  JsonValue,
 } from "../types/types.js";
-import type { JsonValue } from "../types/types_core.js";
 import { readStateFromJson, writeStateToJson } from "./state_store_json";
 import {
   jsonStateBackupPath,

@@ -2,9 +2,11 @@ import type {
   LoadedPlannerState,
   PlannerApi,
   PlannerStateLoadResult,
+  InitialDataSource,
+  LoadStateArgs,
+  FeatureFlags,
+  Preferences,
 } from "../../types/types.js";
-import type { InitialDataSource, LoadStateArgs } from "../../types/types_app.js";
-import type { FeatureFlags, Preferences } from "../../types/types_experience.js";
 import { normalizeSessions } from "../sessions/normalize.js";
 import {
   normalizeBlockedDayBooks,
