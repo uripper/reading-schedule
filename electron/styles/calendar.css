@@ -111,11 +111,11 @@
 }
 
 .day.has-finish {
-  border-color: color-mix(in srgb, var(--app-success) 76%, var(--app-border));
+  border-color: color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
   background:
     radial-gradient(
       circle at top right,
-      color-mix(in srgb, var(--app-success) 18%, transparent),
+      color-mix(in srgb, var(--app-warning) 18%, transparent),
       transparent 54%
     ),
     linear-gradient(
@@ -127,7 +127,7 @@
 }
 
 .day.has-finish .day-event-count {
-  color: color-mix(in srgb, var(--app-success) 78%, var(--app-text));
+  color: color-mix(in srgb, var(--app-warning) 84%, var(--app-text));
 }
 
 .day.is-selected {
@@ -159,9 +159,9 @@
 }
 
 .day-chip.finish {
-  border-color: color-mix(in srgb, var(--app-success) 72%, var(--app-border));
-  color: color-mix(in srgb, var(--app-success) 84%, var(--app-text));
-  background: color-mix(in srgb, var(--app-success) 12%, var(--app-surface));
+  border-color: color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
+  color: color-mix(in srgb, var(--app-warning) 88%, var(--app-text));
+  background: color-mix(in srgb, var(--app-warning) 16%, var(--app-surface));
   font-weight: var(--token-typography-weight-medium);
 }
 
@@ -194,6 +194,17 @@
   margin: 0;
   padding-bottom: var(--token-space-2);
   border-bottom: 1px solid color-mix(in srgb, var(--app-border) 80%, transparent);
+}
+
+.day-finished-summary {
+  margin: 0;
+  padding: var(--token-space-1) var(--token-space-2);
+  border-radius: var(--token-radius-sm);
+  border: 1px solid color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
+  background: color-mix(in srgb, var(--app-warning) 14%, var(--app-surface));
+  color: color-mix(in srgb, var(--app-warning) 90%, var(--app-text));
+  font-size: var(--token-typography-size-sm);
+  font-weight: var(--token-typography-weight-medium);
 }
 
 .day-details-list {
@@ -255,19 +266,19 @@
 }
 
 .day-details-item.is-finish {
-  border-color: color-mix(in srgb, var(--app-success) 74%, var(--app-border));
+  border-color: color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
   background:
     radial-gradient(
       circle at top right,
-      color-mix(in srgb, var(--app-success) 16%, transparent),
+      color-mix(in srgb, var(--app-warning) 18%, transparent),
       transparent 56%
     ),
     color-mix(in srgb, var(--app-surface) 84%, transparent);
 }
 
 .day-details-item.is-finish.is-complete {
-  border-color: color-mix(in srgb, var(--app-success) 82%, var(--app-border));
-  background: color-mix(in srgb, var(--app-success) 20%, var(--app-surface));
+  border-color: color-mix(in srgb, var(--app-warning) 82%, var(--app-border));
+  background: color-mix(in srgb, var(--app-warning) 20%, var(--app-surface));
 }
 
 .day-details-item.is-complete {
@@ -279,9 +290,9 @@
   justify-self: start;
   padding: 2px var(--token-space-2);
   border-radius: var(--token-radius-pill);
-  border: 1px solid color-mix(in srgb, var(--app-success) 78%, var(--app-border));
-  background: color-mix(in srgb, var(--app-success) 16%, var(--app-surface));
-  color: color-mix(in srgb, var(--app-success) 82%, var(--app-text));
+  border: 1px solid color-mix(in srgb, var(--app-warning) 82%, var(--app-border));
+  background: color-mix(in srgb, var(--app-warning) 18%, var(--app-surface));
+  color: color-mix(in srgb, var(--app-warning) 90%, var(--app-text));
   font-size: 11px;
   font-weight: var(--token-typography-weight-bold);
   letter-spacing: 0.04em;
@@ -291,15 +302,15 @@
 @keyframes finish-card-pulse {
   0% {
     transform: translateY(0) scale(1);
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--app-success) 40%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--app-warning) 40%, transparent);
   }
   45% {
     transform: translateY(-1px) scale(1.01);
-    box-shadow: 0 0 0 6px color-mix(in srgb, var(--app-success) 20%, transparent);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--app-warning) 20%, transparent);
   }
   100% {
     transform: translateY(0) scale(1);
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--app-success) 0%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--app-warning) 0%, transparent);
   }
 }
 

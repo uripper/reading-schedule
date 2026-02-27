@@ -1,5 +1,4 @@
 interface CalendarRow {
-  completed?: boolean;
   finish?: boolean;
   minutes?: number;
   title?: string;
@@ -23,7 +22,7 @@ function plannedSessionText(rowCount: number): string {
  * @returns Class string for chip styling.
  */
 export function chipClassNameForRow(row: CalendarRow): string {
-  if (row.finish === true || row.completed === true) {
+  if (row.finish === true) {
     return "day-chip finish";
   }
   return "day-chip";

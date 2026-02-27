@@ -3,13 +3,13 @@ import assert from "node:assert/strict";
 
 import { chipClassNameForRow } from "../dist/renderer/calendar/month_day_button_chips.js";
 
-test("chipClassNameForRow applies finish style for completed rows", () => {
+test("chipClassNameForRow does not style completed rows in month grid", () => {
   const className = chipClassNameForRow({
     completed: true,
     finish: false,
   });
 
-  assert.equal(className, "day-chip finish");
+  assert.equal(className, "day-chip");
 });
 
 test("chipClassNameForRow applies finish style for expected finish rows", () => {

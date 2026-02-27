@@ -32,6 +32,7 @@ export function refreshDerivedRows(
  * Delegates month rendering with required keyboard/selection actions.
  * @param state Mutable calendar runtime state.
  * @param actions Month action callbacks.
+ * @param actions.completedBookRowsForDate Returns synthetic rows for books completed on the given day.
  * @param actions.moveSelectionBy Keyboard/grid movement handler.
  * @param actions.renderDetails Details rerender callback.
  * @param actions.selectDate Date selection callback.
@@ -39,7 +40,15 @@ export function refreshDerivedRows(
 export function renderMonth(
   state: CalendarRuntimeState,
   actions: {
-    isSessionCompleted(sessionKey: string): boolean;
+    completedBookRowsForDate(dateKey: string): Array<{
+      book_id?: string;
+      completed?: boolean;
+      date?: string;
+      finish?: boolean;
+      minutes?: number;
+      session_index?: string | number;
+      title?: string;
+    }>;
     moveSelectionBy(delta: number, currentIndex: number): void;
     renderDetails(): void;
     selectDate(dateKey: string, options?: { focus?: boolean }): void;

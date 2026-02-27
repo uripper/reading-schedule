@@ -22,10 +22,102 @@ const state = createCalendarRuntimeState();
 let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});
 
 /**
- * Rerenders selected-day details using current runtime state.
+ * Builds synthetic month rows for books completed on a specific day.
+ * @param dateKey Target day key in `YYYY-MM-DD` format.
+ * @returns Month-grid rows for completed books missing explicit sessions.
  */
-function renderDetails(): void {
-  renderCalendarDetails(state, interactionHandlers, renderMonthView);
+function completedBookRowsForDate(dateKey: string): Array<{
+  book_id: string;
+  date: string;
+  finish: boolean;
+  minutes: number;
+  title: string;
+}> {
+  const rows: Array<{
+    book_id: string;
+    date: string;
+    finish: boolean;
+    minutes: number;
+    title: string;
+  }> = [];
+  const sessionBooks = interactionHandlers.listSessionBooks();
+  const seenBookIds = new Set<string>();
+  sessionBooks.forEach((entry) => {
+    const bookId = entry.bookId.trim();
+    if (bookId === "") {
+      return;
+    }
+    if (seenBookIds.has(bookId)) {
+      return;
+    }
+    seenBookIds.add(bookId);
+    const book = interactionHandlers.getBookById(bookId);
+    if (book === null) {
+      return;
+    }
+    const finishedAt = book.finished_at ?? "";
+    if (finishedAt !== dateKey) {
+      return;
+    }
+    const rawTitle = book.title.trim();
+    let title = "Untitled";
+    if (rawTitle !== "") {
+      title = rawTitle;
+    } else if (entry.title.trim() !== "") {
+      title = entry.title;
+    }
+    rows.push({
+      book_id: bookId,
+      date: dateKey,
+      finish: true,
+      minutes: 0,
+      title,
+    });
+  });
+  return rows;
+}
+
+/**
+ * Renders top summary line listing books finished on selected day.
+ */
+function renderFinishedBooksSummary(): void {
+  const dateKey = state.selectedDate;
+  if (dateKey === "") {
+    return;
+  }
+  const completedRows = completedBookRowsForDate(dateKey);
+  if (completedRows.length === 0) {
+    return;
+  }
+  const seenTitles = new Set<string>();
+  const finishedTitles: string[] = [];
+  completedRows.forEach((row) => {
+    const title = row.title.trim();
+    if (title === "") {
+      return;
+    }
+    if (seenTitles.has(title)) {
+      return;
+    }
+    seenTitles.add(title);
+    finishedTitles.push(title);
+  });
+  if (finishedTitles.length === 0) {
+    return;
+  }
+  const details = document.getElementById("calendarDayDetails");
+  if (!(details instanceof HTMLElement)) {
+    return;
+  }
+  const summary = document.createElement("p");
+  summary.className = "day-finished-summary";
+  summary.textContent = `Finished: ${finishedTitles.join(", ")}`;
+  const titleNode = details.querySelector("h2");
+  if (titleNode instanceof HTMLElement) {
+    titleNode.insertAdjacentElement("afterend", summary);
+    return;
+  }
+  details.prepend(summary);
 }
 
 /**
@@ -34,7 +126,7 @@ function renderDetails(): void {
 function renderMonthView(): void {
   refreshDerivedRows(state, interactionHandlers.isSessionCompleted);
   renderMonth(state, {
-    isSessionCompleted: interactionHandlers.isSessionCompleted,
+    completedBookRowsForDate,
     selectDate: (dateKey, options) => {
       selectDate(state, dateKey, renderMonthView, options);
     },
@@ -43,7 +135,10 @@ function renderMonthView(): void {
         selectDate(state, dateKey, renderMonthView, options);
       });
     },
-    renderDetails,
+    renderDetails: () => {
+      renderCalendarDetails(state, interactionHandlers, renderMonthView);
+      renderFinishedBooksSummary();
+    },
   });
 }
 

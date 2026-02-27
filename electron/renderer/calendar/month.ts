@@ -1,5 +1,5 @@
 import { el } from "../dom.js";
-import { dayKey, monthCells, monthLabel, sessionKeyFor } from "./utils.js";
+import { dayKey, monthCells, monthLabel } from "./utils.js";
 import { createDayButton, createWeekdayHeader } from "./month_day_button.js";
 import { handleDayKeydown } from "./month_keyboard.js";
 
@@ -7,7 +7,6 @@ interface CalendarRow {
   book_id?: string;
   date?: string;
   session_index?: string | number;
-  completed?: boolean;
   title?: string;
   minutes?: number;
   finish?: boolean;
@@ -22,10 +21,10 @@ interface CalendarState {
 }
 
 interface MonthActions {
-  isSessionCompleted(sessionKey: string): boolean;
-  selectDate(dateKey: string, options?: { focus?: boolean }): void;
-  moveSelectionBy(delta: number, currentIndex: number): void;
-  renderDetails(): void;
+  completedBookRowsForDate(this: void, dateKey: string): CalendarRow[];
+  moveSelectionBy(this: void, delta: number, currentIndex: number): void;
+  renderDetails(this: void): void;
+  selectDate(this: void, dateKey: string, options?: { focus?: boolean }): void;
 }
 
 /**
@@ -37,56 +36,81 @@ function todayDayKey(): string {
 }
 
 /**
- * Determines whether a row should be marked complete in month cells.
- * @param row Calendar row to inspect.
- * @param todayKey Today's date key.
- * @param isSessionCompleted Completion checker by session key.
- * @returns True when row is complete and not scheduled in the future.
+ * Adds finish rows for books completed on this date without scheduled sessions.
+ * @param plannedRows Existing scheduled rows for the date.
+ * @param completedBookRows Synthetic completed-book rows.
+ * @returns Combined rows for month-grid display.
  */
-function rowIsComplete(
-  row: CalendarRow,
-  todayKey: string,
-  isSessionCompleted: (sessionKey: string) => boolean,
-): boolean {
-  if (typeof row.date !== "string" || row.date === "") {
-    return false;
-  }
-  if (row.date > todayKey) {
-    return false;
-  }
-  if (typeof row.book_id !== "string" || row.book_id === "") {
-    return false;
-  }
-  if (row.session_index === undefined || row.session_index === null) {
-    return false;
-  }
-  return isSessionCompleted(
-    sessionKeyFor({
-      book_id: row.book_id,
-      date: row.date,
-      session_index: row.session_index,
-    }),
-  );
+export function mergeDisplayRows(
+  plannedRows: CalendarRow[],
+  completedBookRows: CalendarRow[],
+): CalendarRow[] {
+  const completedByBookId = new Map<string, CalendarRow>();
+  completedBookRows.forEach((row) => {
+    if (typeof row.book_id !== "string" || row.book_id === "") {
+      return;
+    }
+    if (completedByBookId.has(row.book_id)) {
+      return;
+    }
+    completedByBookId.set(row.book_id, row);
+  });
+  const out: CalendarRow[] = [];
+  const seenBookIds = new Set<string>();
+  plannedRows.forEach((row) => {
+    if (typeof row.book_id !== "string" || row.book_id === "") {
+      out.push(row);
+      return;
+    }
+    if (completedByBookId.has(row.book_id)) {
+      out.push({
+        ...row,
+        finish: true,
+      });
+      seenBookIds.add(row.book_id);
+      return;
+    }
+    out.push(row);
+    seenBookIds.add(row.book_id);
+  });
+  completedByBookId.forEach((row, bookId) => {
+    if (seenBookIds.has(bookId)) {
+      return;
+    }
+    seenBookIds.add(bookId);
+    out.push(row);
+  });
+  const finishRows: CalendarRow[] = [];
+  const otherRows: CalendarRow[] = [];
+  out.forEach((row) => {
+    if (row.finish === true) {
+      finishRows.push(row);
+      return;
+    }
+    otherRows.push(row);
+  });
+  return [...finishRows, ...otherRows];
 }
 
 /**
- * Adds completion metadata used by month-day cell and chip rendering.
- * @param rows Calendar rows for one day.
- * @param todayKey Today's date key.
- * @param isSessionCompleted Completion checker by session key.
- * @returns Rows copied with completion flags.
+ * Ensures selected date is within current month cell range.
+ * Defaults to first populated day, then first visible cell.
+ * @param state Mutable calendar render state.
  */
-export function rowsWithCompletionState(
-  rows: CalendarRow[],
-  todayKey: string,
-  isSessionCompleted: (sessionKey: string) => boolean,
-): CalendarRow[] {
-  return rows.map((row) => {
-    return {
-      ...row,
-      completed: rowIsComplete(row, todayKey, isSessionCompleted),
-    };
-  });
+function ensureSelectedDateInMonth(state: CalendarState): void {
+  const calendarState = state;
+  if (
+    calendarState.selectedDate === "" ||
+    !calendarState.monthCellKeys.includes(calendarState.selectedDate)
+  ) {
+    const firstWithRows = calendarState.monthCellKeys.find((cellKey) => {
+      if (!(cellKey in calendarState.dates)) {
+        return false;
+      }
+      return calendarState.dates[cellKey].length > 0;
+    });
+    calendarState.selectedDate = firstWithRows ?? calendarState.monthCellKeys[0];
+  }
 }
 
 /**
@@ -121,19 +145,7 @@ export function renderCalendarMonth(
   const firstDate = new Date(year, month - 1, 1);
   const cells = monthCells(monthKey);
   calendarState.monthCellKeys = cells.map((date) => dayKey(date));
-
-  if (
-    calendarState.selectedDate === "" ||
-    !calendarState.monthCellKeys.includes(calendarState.selectedDate)
-  ) {
-    const firstWithRows = calendarState.monthCellKeys.find((cellKey) => {
-      if (!(cellKey in calendarState.dates)) {
-        return false;
-      }
-      return calendarState.dates[cellKey].length > 0;
-    });
-    calendarState.selectedDate = firstWithRows ?? calendarState.monthCellKeys[0];
-  }
+  ensureSelectedDateInMonth(calendarState);
 
   const grid = document.createElement("div");
   grid.className = "calendar-grid";
@@ -143,20 +155,17 @@ export function renderCalendarMonth(
 
   cells.forEach((date, index) => {
     const keyForDay = calendarState.monthCellKeys[index];
+    const completedBookRows = actions.completedBookRowsForDate(keyForDay);
     let rows: CalendarRow[] = [];
     if (keyForDay in calendarState.dates) {
       rows = calendarState.dates[keyForDay];
     }
-    const rowsWithCompletion = rowsWithCompletionState(
-      rows,
-      todayKey,
-      actions.isSessionCompleted,
-    );
+    const displayRows = mergeDisplayRows(rows, completedBookRows);
     const dayButton = createDayButton({
       date,
       firstDate,
       keyForDay,
-      rows: rowsWithCompletion,
+      rows: displayRows,
       selectedDate: calendarState.selectedDate,
       todayKey,
     });
