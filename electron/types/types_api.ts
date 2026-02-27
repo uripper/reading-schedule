@@ -6,7 +6,6 @@ import type {
   PlannerSaveResult,
   PlannerStateSnapshot,
 } from "./types_base.js";
-import type { WindowFindRequest, WindowFindResponse } from "./types_window_find.js";
 
 export interface PlannerApi {
   loadState(): Promise<LoadedPlannerState | null | undefined>;
@@ -24,8 +23,6 @@ export interface PlannerApi {
     dataUrl: string | undefined,
     bookId: string | undefined,
   ): Promise<string>;
-  findInPage(payload: WindowFindRequest): Promise<WindowFindResponse>;
-  stopFindInPage(): Promise<WindowFindResponse>;
   zoomIn(): Promise<number>;
   zoomOut(): Promise<number>;
   zoomReset(): Promise<number>;

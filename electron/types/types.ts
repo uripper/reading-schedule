@@ -13,9 +13,4 @@ export type {
 
 export type { JsonPrimitive, JsonValue } from "./types_json.js";
 
-export type {
-  WindowFindRequest,
-  WindowFindResponse,
-} from "./types_window_find.js";
-
 export type { PlannerApi } from "./types_api.js";

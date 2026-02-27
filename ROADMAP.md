@@ -1,6 +1,6 @@
 # Bartleby Roadmap (Audit-Based)
 
-Last updated: February 21, 2026
+Last updated: February 27, 2026
 
 ## Codebase Baseline
 
@@ -71,7 +71,8 @@ Exit criteria:
 
 Deadline: May 29, 2026
 
-- [ ] Add JSON export/import for full app state.
+- [ ] Ship full-state JSON export/import as the first portability slice (see `ISSUE-059`).
+- [ ] Define and implement persistence backend migration plan from JSON to database, starting with local-first SQLite baseline (see `ISSUE-060`).
 - [ ] Add `state_version` to persisted snapshots.
 - [ ] Implement migration path for older snapshots.
 - [ ] Add tests for load/save/migration compatibility.
@@ -100,6 +101,7 @@ Deadline: July 31, 2026
 
 - [ ] Ship reminder behavior or remove reminder toggles from settings until implemented.
 - [ ] Ship first recommendations feature slice or remove recommendation flag from UI.
+- [ ] Fix recommendations quality and card formatting, including non-book filtering and duplicate prevention (see `ISSUE-052`).
 - [ ] Ship first social feature slice or remove social flag from UI.
 
 Exit criteria:

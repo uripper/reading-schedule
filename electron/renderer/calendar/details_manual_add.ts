@@ -6,8 +6,14 @@ import {
   minuteValueForManualInput,
   sortedManualBooks,
 } from "./details_manual_add_helpers.js";
+import {
+  initialPreferredBookId,
+  refreshBookOptions,
+} from "./details_manual_add_options.js";
 
 const MANUAL_ADD_TITLE = "Manual add";
+const TITLE_FILTER_LABEL = "Find title";
+const BOOK_SELECT_LABEL = "Book";
 
 interface BuildManualSessionAddPanelArgs {
   dateKey: string;
@@ -26,6 +32,49 @@ interface SubmitManualAddFormArgs {
   bookSelect: HTMLSelectElement;
   minutesInput: HTMLInputElement;
   completeInput: HTMLInputElement;
+}
+
+interface BookSelectionControls {
+  titleFilterLabel: HTMLLabelElement;
+  bookLabel: HTMLLabelElement;
+  bookSelect: HTMLSelectElement;
+}
+
+/**
+ * Builds title-filter and book-select controls for manual session add.
+ * @param books Sorted manual-session books available for selection.
+ * @param defaultBookId Optional default selected book id.
+ * @returns Book selection control nodes and select ref.
+ */
+function createBookSelectionControls(
+  books: ReturnType<typeof sortedManualBooks>,
+  defaultBookId: string | undefined,
+): BookSelectionControls {
+  const titleFilterLabel = document.createElement("label");
+  titleFilterLabel.className = "day-progress-field";
+  titleFilterLabel.textContent = TITLE_FILTER_LABEL;
+
+  const titleFilterInput = document.createElement("input");
+  titleFilterInput.type = "search";
+  titleFilterInput.autocomplete = "off";
+  titleFilterInput.placeholder = "Type to narrow books";
+  titleFilterLabel.append(titleFilterInput);
+
+  const bookLabel = document.createElement("label");
+  bookLabel.className = "day-progress-field";
+  bookLabel.textContent = BOOK_SELECT_LABEL;
+
+  const bookSelect = document.createElement("select");
+  bookSelect.required = true;
+  const initialBookId = initialPreferredBookId(defaultBookId, books);
+  refreshBookOptions(bookSelect, books, "", initialBookId);
+  titleFilterInput.addEventListener("input", () => {
+    const preferredBookId = String(bookSelect.value || "").trim();
+    refreshBookOptions(bookSelect, books, titleFilterInput.value, preferredBookId);
+  });
+  bookLabel.append(bookSelect);
+
+  return { titleFilterLabel, bookLabel, bookSelect };
 }
 
 /**
@@ -92,26 +141,7 @@ export function buildManualSessionAddPanel(
   const form = document.createElement("form");
   form.className = "day-manual-add-form";
 
-  const bookLabel = document.createElement("label");
-  bookLabel.className = "day-progress-field";
-  bookLabel.textContent = "Book";
-
-  const bookSelect = document.createElement("select");
-  bookSelect.required = true;
-  books.forEach((book) => {
-    const option = document.createElement("option");
-    option.value = book.bookId;
-    option.textContent = book.title;
-    bookSelect.append(option);
-  });
-  if (
-    args.defaultBookId !== undefined &&
-    args.defaultBookId !== "" &&
-    books.some((book) => book.bookId === args.defaultBookId)
-  ) {
-    bookSelect.value = args.defaultBookId;
-  }
-  bookLabel.append(bookSelect);
+  const selectionControls = createBookSelectionControls(books, args.defaultBookId);
 
   const minutesLabel = document.createElement("label");
   minutesLabel.className = "day-progress-field";
@@ -136,7 +166,11 @@ export function buildManualSessionAddPanel(
   addButton.className = "btn";
   addButton.textContent = "Add Session";
 
-  form.append(bookLabel, minutesLabel);
+  form.append(
+    selectionControls.titleFilterLabel,
+    selectionControls.bookLabel,
+    minutesLabel,
+  );
   if (args.mode !== "future") {
     form.append(completeLabel);
   }
@@ -149,7 +183,7 @@ export function buildManualSessionAddPanel(
       mode: args.mode,
       interactionHandlers: args.interactionHandlers,
       rerenderDetails,
-      bookSelect,
+      bookSelect: selectionControls.bookSelect,
       minutesInput,
       completeInput,
     });

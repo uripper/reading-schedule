@@ -15,12 +15,18 @@ import {
  * @throws {TypeError} Thrown when any required toolbar control is missing.
  */
 function assertToolbarControls(refs: BooksControllerRefs): {
+  titleFilterInput: HTMLInputElement;
   sortBySelect: HTMLSelectElement;
   shelfFilterSelect: HTMLSelectElement;
   statusFilterSelect: HTMLSelectElement;
   groupBySelect: HTMLSelectElement;
   sortDirectionBtn: HTMLButtonElement;
 } {
+  if (!(refs.titleFilterInput instanceof HTMLInputElement)) {
+    throw new TypeError(
+      "Books toolbar title-filter control is missing or invalid.",
+    );
+  }
   if (!(refs.sortBySelect instanceof HTMLSelectElement)) {
     throw new TypeError("Books toolbar sort-by control is missing or invalid.");
   }
@@ -46,6 +52,7 @@ function assertToolbarControls(refs: BooksControllerRefs): {
   }
 
   return {
+    titleFilterInput: refs.titleFilterInput,
     sortBySelect: refs.sortBySelect,
     shelfFilterSelect: refs.shelfFilterSelect,
     statusFilterSelect: refs.statusFilterSelect,
@@ -70,12 +77,20 @@ interface BindToolbarEventsArgs {
 export function bindToolbarEvents(args: BindToolbarEventsArgs): void {
   const nextViewState = args.viewState;
   const {
+    titleFilterInput,
     sortBySelect,
     shelfFilterSelect,
     statusFilterSelect,
     groupBySelect,
     sortDirectionBtn,
   } = assertToolbarControls(args.refs);
+
+  const applyTitleFilter = (): void => {
+    nextViewState.titleFilter = String(titleFilterInput.value || "");
+    args.rerender();
+  };
+  titleFilterInput.addEventListener("input", applyTitleFilter);
+  titleFilterInput.addEventListener("change", applyTitleFilter);
 
   sortBySelect.addEventListener("change", () => {
     nextViewState.sortBy = toSortBy(sortBySelect.value);

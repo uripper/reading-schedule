@@ -13,14 +13,14 @@ function day(dateText) {
 }
 
 test("dayStyleFlags marks today with selection-friendly flags", () => {
-  const flags = dayStyleFlags(
-    day("2026-02-21"),
-    day("2026-02-01"),
-    "2026-02-21",
-    "2026-02-21",
-    "2026-02-21",
-    [{ finish: false }],
-  );
+  const flags = dayStyleFlags({
+    date: day("2026-02-21"),
+    firstDate: day("2026-02-01"),
+    keyForDay: "2026-02-21",
+    selectedDate: "2026-02-21",
+    todayKey: "2026-02-21",
+    rows: [{ finish: false }],
+  });
 
   assert.equal(flags.isToday, true);
   assert.equal(flags.isPast, false);
@@ -29,14 +29,14 @@ test("dayStyleFlags marks today with selection-friendly flags", () => {
 });
 
 test("dayStyleFlags marks non-month cells as muted", () => {
-  const flags = dayStyleFlags(
-    day("2026-01-31"),
-    day("2026-02-01"),
-    "2026-01-31",
-    "2026-02-02",
-    "2026-02-21",
-    [{ finish: true }],
-  );
+  const flags = dayStyleFlags({
+    date: day("2026-01-31"),
+    firstDate: day("2026-02-01"),
+    keyForDay: "2026-01-31",
+    selectedDate: "2026-02-02",
+    todayKey: "2026-02-21",
+    rows: [{ finish: true }],
+  });
 
   assert.equal(flags.isMuted, true);
   assert.equal(flags.hasFinishRow, true);

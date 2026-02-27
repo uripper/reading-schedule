@@ -62,11 +62,14 @@ function normalizeEndDate(
   if (typeof endDate !== "string" || !endDate) {
     return undefined;
   }
-  const numberEndDate = Number(endDate);
-  if (numberEndDate < Number(startDate)) {
+  const normalizedEndDate = endDate.trim();
+  if (normalizedEndDate === "") {
+    return undefined;
+  }
+  if (normalizedEndDate < startDate) {
     return startDate;
   }
-  return endDate;
+  return normalizedEndDate;
 }
 
 /**

@@ -39,6 +39,29 @@ function createLabeledSelect(
 }
 
 /**
+ * Creates a labeled toolbar title-filter `<input>` control.
+ * @param labelText Visible label text.
+ * @param inputId DOM id assigned to input element.
+ * @returns Label/input pair ready for toolbar insertion.
+ */
+function createLabeledSearchInput(
+  labelText: string,
+  inputId: string,
+): { label: HTMLLabelElement; input: HTMLInputElement } {
+  const label = document.createElement("label");
+  label.className = "books-control books-control-search";
+  label.textContent = labelText;
+  const input = document.createElement("input");
+  input.type = "search";
+  input.id = inputId;
+  input.autocomplete = "off";
+  input.className = "books-control-input";
+  input.placeholder = "Type a title";
+  label.append(input);
+  return { label, input };
+}
+
+/**
  * Resolves or creates the toolbar controls wrapper element.
  * @param toolbar Toolbar root element.
  * @returns Existing or newly created controls wrapper.
@@ -75,8 +98,10 @@ export function ensureBooksToolbarControls(toolbar: HTMLElement): {
   sortBySelect: HTMLSelectElement;
   sortDirectionBtn: HTMLButtonElement;
   statusFilterSelect: HTMLSelectElement;
+  titleFilterInput: HTMLInputElement;
 } {
   const wrap = createControlsWrap(toolbar);
+  const titleFilter = createLabeledSearchInput("Title", "booksTitleFilterInput");
   const shelf = createLabeledSelect("Shelf", "booksShelfFilterSelect", []);
   const status = createLabeledSelect("Status", "booksStatusFilterSelect", []);
   const sortBy = createLabeledSelect("Sort", "booksSortBySelect", SORT_OPTIONS);
@@ -90,6 +115,7 @@ export function ensureBooksToolbarControls(toolbar: HTMLElement): {
   sortDirectionBtn.className = "btn";
   sortDirectionBtn.id = "booksSortDirectionBtn";
   wrap.replaceChildren(
+    titleFilter.label,
     shelf.label,
     status.label,
     sortBy.label,
@@ -97,6 +123,7 @@ export function ensureBooksToolbarControls(toolbar: HTMLElement): {
     sortDirectionBtn,
   );
   return {
+    titleFilterInput: titleFilter.input,
     shelfFilterSelect: shelf.select,
     statusFilterSelect: status.select,
     sortBySelect: sortBy.select,

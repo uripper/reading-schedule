@@ -14,7 +14,6 @@ import { runBridge } from "./main/bridge";
 import { registerIpcHandlers } from "./main/ipc";
 import { initialZoomFactor, setZoomFactor, shiftZoomFactor } from "./main/zoom";
 import { readState, writeState } from "./main/state_store";
-import { findInPage, stopFindInPage } from "./main/window_find";
 
 const DEVELOPMENT_ENVIRONMENT = "development";
 const HOT_RELOAD_IGNORED_OUTPUTS = [
@@ -80,8 +79,6 @@ registerIpcHandlers({
   shiftZoomFactor,
   setZoomFactor,
   initialZoomFactor,
-  findInPage,
-  stopFindInPage,
 });
 
 app.on("ready", () => {
