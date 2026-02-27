@@ -1,6 +1,23 @@
 export type { BookLookupItem } from "./book_lookup_search.js";
 
-export type { JsonPrimitive, JsonValue } from "./core_json.js";
+export type {
+  DateInput,
+  JsonPrimitive,
+  JsonValue,
+  NumericLike,
+  Session,
+  SessionInput,
+  SessionRecord,
+} from "./core_sessions.js";
+
+export type {
+  PlannerApi,
+  LoadedPlannerState,
+  PlanGeneratePayload,
+  PlannerSaveResult,
+  PlannerSettings,
+  PlannerStateSnapshot,
+} from "./planner_state.js";
 
 export type {
   PlannerResult,
@@ -9,13 +26,31 @@ export type {
   PlannerSummaryBook,
 } from "./planner_result.js";
 
-export type { PlannerSettings } from "./planner_settings.js";
+export type {
+  FeatureFlags,
+  Preferences,
+  RecommendationItem,
+  RecommendationSearchApi,
+} from "./app_experience.js";
 
 export type {
-  LoadedPlannerState,
-  PlanGeneratePayload,
-  PlannerSaveResult,
-  PlannerStateSnapshot,
-} from "./planner_state.js";
+  AddLog,
+  AppBootstrapContext,
+  AppRuntimeState,
+  DayMinutesArgs,
+  DayMinutesMap,
+  PersistQueue,
+  PersistQueueArgs,
+  PersistQueueState,
+  PlannerApiGlobal,
+  SetStatus,
+} from "./app_runtime.js";
 
-export type { PlannerApi } from "./planner_api.js";
+export type {
+  AutoPlanRunner,
+  AutoPlanState,
+  PlanController,
+  PlanControllerArgs,
+  RunAutoPlanFactoryArgs,
+  RunPlanGenerationArgs,
+} from "./app_plan_controller.js";

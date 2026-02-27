@@ -1,5 +1,5 @@
 import type { Book } from "./books_types.js";
-import type { AppRuntimeState } from "./app_runtime_state.js";
+import type { AppRuntimeState } from "./app_runtime.js";
 
 export interface DashboardRuntimeArgs {
   applyPreferencesToDocument(

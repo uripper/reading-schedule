@@ -3,7 +3,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import type { JsonValue } from "../types/core_json.js";
+import type { JsonValue } from "../types/core_sessions.js";
 import type { SaveResult } from "../types/main_ipc.js";
 
 const FILE_NAME = "planner_state.json";

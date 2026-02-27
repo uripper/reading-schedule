@@ -1,3 +1,12 @@
+export type JsonPrimitive = string | number | boolean | null;
+
+export type JsonValue =
+  | JsonPrimitive
+  | JsonValue[]
+  | { [key: string]: JsonValue };
+
+export type NumericLike = string | number | null | undefined;
+
 export interface Session {
   id: string;
   book_id: string;

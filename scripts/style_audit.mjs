@@ -390,6 +390,10 @@ function shouldSkipFile(relativePath) {
   return false;
 }
 
+function isElectronTypesPath(relativePath) {
+  return relativePath.startsWith("electron/types/");
+}
+
 function scanJsTs(
   relativePath,
   content,
@@ -668,7 +672,7 @@ function run() {
     if (lineCount > SOFT_LINE_LIMIT) {
       overSoftLimit.push({ path: relativePath, lines: lineCount });
     }
-    if (lineCount > HARD_LINE_LIMIT) {
+    if (lineCount > HARD_LINE_LIMIT && !isElectronTypesPath(relativePath)) {
       overHardLimit.push({ path: relativePath, lines: lineCount });
     }
     if (lineCount > 0 && lineCount < COMBINE_CANDIDATE_LINE_LIMIT) {

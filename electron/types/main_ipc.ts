@@ -1,6 +1,6 @@
 import type { WebContents } from "electron";
 
-import type { JsonValue } from "./core_json.js";
+import type { JsonValue } from "./core_sessions.js";
 
 /**
  * Payload shape accepted for remote cover download requests.
@@ -22,6 +22,12 @@ export interface UploadCoverPayload {
  * Result shape returned by state-store writes.
  */
 export type SaveResult = { ok: true } | { ok: false; error: string };
+
+export interface BridgeResponse {
+  data?: JsonValue;
+  error?: string;
+  ok?: boolean;
+}
 
 export interface RegisterIpcHandlersArgs {
   downloadCover(

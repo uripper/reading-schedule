@@ -4,17 +4,17 @@ import type {
   BOOK_STATUS_IN_PROGRESS,
   BOOK_STATUS_READ,
   BOOK_STATUS_TO_READ,
-} from "../../renderer/books/status_catalog.js";
+} from "../renderer/books/status_catalog.js";
 import type {
   GROUP_BY_AUTHOR,
   GROUP_BY_FINISH_DATE,
   GROUP_BY_NONE,
   GROUP_BY_SHELF,
   GROUP_BY_TITLE_LETTER,
-} from "../../renderer/books/grouping.js";
+} from "../renderer/books/grouping.js";
 import type {
   BOOK_WEEKDAYS,
-} from "../../renderer/books/scheduled_days.js";
+} from "../renderer/books/scheduled_days.js";
 import type {
   SORT_BY_AUTHOR,
   SORT_BY_DEADLINE,
@@ -29,7 +29,7 @@ import type {
   SORT_BY_WORDS_TOTAL,
   SORT_DIRECTION_ASC,
   SORT_DIRECTION_DESC,
-} from "../../renderer/books/sort.js";
+} from "../renderer/books/sort.js";
 
 export type BookStatus =
   | typeof BOOK_STATUS_TO_READ
@@ -149,7 +149,7 @@ export type SortComparator = (
   finishDateByBookId: Record<string, string>,
 ) => number;
 
-export type { NumericLike } from "./core_primitives.js";
+export type { NumericLike } from "./core_sessions.js";
 
 export type * from "./books_ui.js";
 export type * from "./books_controller.js";

@@ -1,5 +1,4 @@
-import type { NumericLike } from "./core_primitives.js";
-import type { PlannerApi } from "./planner_api.js";
+import type { NumericLike } from "./core_sessions.js";
 
 export interface BookLookupItem {
   title?: string;
@@ -80,7 +79,5 @@ export interface LookupStateController {
   selectItem(index: number): void;
   setActiveIndex(index: number): void;
 }
-
-export type RecommendationSearchApi = Pick<PlannerApi, "searchBooks">;
 
 export type { NumericLike };

@@ -12,7 +12,7 @@ import { createPersistQueue, createStatusSetter } from "./runtime_helpers.js";
 import { createRuntimeState } from "./runtime_state.js";
 import { updateTodayDashboard } from "./today/index.js";
 import type { PlannerApi } from "../../types/types.js";
-import type { AppBootstrapContext } from "../../types/app_bootstrap_runtime.js";
+import type { AppBootstrapContext } from "../../types/app_runtime.js";
 
 /**
  * Retrieves the Planner API from the global context. This function assumes that the `plannerApi`

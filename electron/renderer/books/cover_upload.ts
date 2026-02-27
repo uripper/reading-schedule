@@ -1,4 +1,4 @@
-import { getPlannerApi } from "../app/planner_api.js";
+import { getPlannerApi } from "../app/planner_state.js";
 import { applyUploadedCover } from "./form_state.js";
 import type { BookFormRefs } from "./form_refs.js";
 

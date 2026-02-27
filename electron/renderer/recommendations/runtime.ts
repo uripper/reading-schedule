@@ -1,6 +1,6 @@
 import { collectAllBooks } from "../books.js";
 import { el } from "../dom.js";
-import { getPlannerApi } from "../app/planner_api.js";
+import { getPlannerApi } from "../app/planner_state.js";
 import { logError } from "../logger.js";
 import { addRecommendationToShelf } from "./add_to_shelf.js";
 import { renderRecommendationsPanel } from "./render.js";

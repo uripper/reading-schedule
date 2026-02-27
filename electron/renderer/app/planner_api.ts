@@ -1,5 +1,5 @@
 import type { PlannerApi } from "../../types/types.js";
-import type { PlannerApiGlobal } from "../../types/app_planner_api.js";
+import type { PlannerApiGlobal } from "../../types/app_runtime.js";
 
 /**
  * Reads the typed planner API bridge exposed by Electron preload.
