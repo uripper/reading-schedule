@@ -16,9 +16,9 @@ export type SelectFieldDefinition = BaseFieldDefinition & {
 };
 
 export type InputFieldDefinition = BaseFieldDefinition & {
-  type: "number" | "date";
+  type: "number" | "date" | "checkbox";
 };
 
 export type FieldDefinition = SelectFieldDefinition | InputFieldDefinition;
 
-export type FieldGroupName = "window" | "budget" | "weights";
+export type FieldGroupName = "window" | "budget" | "weights" | "display";

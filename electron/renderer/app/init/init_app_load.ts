@@ -10,7 +10,7 @@ import {
 import { bindTodayActions, finalizeInitialLoad } from "./init_helpers.js";
 import { loadInitialData } from "../load_state.js";
 import type { AppBootstrapContext } from "../bootstrap_runtime.js";
-import type { PlannerResult } from "../types.js";
+import type { PlannerResult } from "../../../types/types.js";
 
 interface LoadedResultController {
   applyLoadedResult(result: PlannerResult): void;
@@ -59,6 +59,9 @@ export async function loadStateAndBindTodayActions(
     },
     setScheduleCompletions: (scheduleCompletions) => {
       state.scheduleCompletions = scheduleCompletions;
+    },
+    setBlockedDayBooks: (blockedDayBooks) => {
+      state.blockedDayBooks = blockedDayBooks;
     },
     setSessions: (sessions) => {
       state.sessions = sessions;

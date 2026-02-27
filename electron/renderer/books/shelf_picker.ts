@@ -18,7 +18,7 @@ async function onCreateShelfSelected(refs: BookFormRefs): Promise<void> {
   const select = refs.shelfSelectInput;
   const fallbackShelf = previousShelf(select);
   const shelfName = await promptForShelfName(refs);
-  if (!shelfName) {
+  if (shelfName === null || shelfName === "") {
     select.value = fallbackShelf;
     return;
   }
@@ -67,7 +67,10 @@ export function renderShelfPicker(
  */
 export function bindShelfPicker(refs: BookFormRefs): void {
   ensurePromptValidation(refs);
-  refs.shelfSelectInput.addEventListener("change", async () => {
-    await onShelfChange(refs);
+  refs.shelfSelectInput.addEventListener("change", () => {
+    onShelfChange(refs).catch(() => {
+      const select = refs.shelfSelectInput;
+      select.value = previousShelf(select);
+    });
   });
 }

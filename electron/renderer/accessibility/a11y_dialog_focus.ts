@@ -46,7 +46,7 @@ export function bindDialogFocus(
   };
   const focusInitialTarget = (): void => {
     let direct: Element | null = null;
-    if (initialFocusSelector) {
+    if (initialFocusSelector !== null && initialFocusSelector !== "") {
       direct = dialog.querySelector(initialFocusSelector);
     }
     if (direct instanceof HTMLElement) {
@@ -72,7 +72,7 @@ export function bindDialogFocus(
   };
 
   dialog.addEventListener("close", (): void => {
-    if (opener?.isConnected) {
+    if (opener?.isConnected === true) {
       opener.focus();
     }
     opener = null;

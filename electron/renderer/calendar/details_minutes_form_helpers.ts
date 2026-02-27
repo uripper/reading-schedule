@@ -7,13 +7,21 @@ const MINUTES_MIN = normalizedManualMinutes(0);
 export const MINUTES_EDITOR_OPEN_BY_DEFAULT = false;
 export type MinutesEditorAction = "edit" | "cancel" | "saved";
 
+interface SubmitMinutesUpdateArgs {
+  event: SubmitEvent;
+  row: CalendarRowWithFinish;
+  minutesInput: HTMLInputElement;
+  initialMinutesValue: string;
+  interactionHandlers: DetailInteractionHandlers;
+}
+
 /**
  * Reads trimmed value from a minutes input node.
  * @param inputNode Minutes input element.
  * @returns Trimmed input value.
  */
 function inputValue(inputNode: HTMLInputElement): string {
-  return String(inputNode.value ?? "").trim();
+  return String(inputNode.value).trim();
 }
 
 /**
@@ -48,11 +56,12 @@ function syncInputValue(
   inputNode: HTMLInputElement,
   nextValue?: number | null,
 ): string {
+  const nextInput = inputNode;
   if (nextValue === null || nextValue === undefined) {
-    return String(inputNode.value ?? "").trim();
+    return String(nextInput.value).trim();
   }
-  inputNode.value = String(nextValue);
-  return String(inputNode.value ?? "").trim();
+  nextInput.value = String(nextValue);
+  return String(nextInput.value).trim();
 }
 
 /**
@@ -87,18 +96,33 @@ export function nextMinutesEditorOpenState(
 }
 
 /**
+ * Returns whether minutes summary row should be visible.
+ * @param isOpen Whether editor is currently open.
+ * @returns `true` when summary row should be shown.
+ */
+export function minutesSummaryVisible(isOpen: boolean): boolean {
+  return !isOpen;
+}
+
+/**
  * Applies visibility state to minutes form/edit trigger.
  * @param minutesForm Minutes edit form.
+ * @param summaryRow Summary row showing current minutes.
  * @param editButton Edit trigger button.
  * @param isOpen Whether editor is open.
  */
 export function syncEditorVisibility(
   minutesForm: HTMLFormElement,
+  summaryRow: HTMLElement,
   editButton: HTMLButtonElement,
   isOpen: boolean,
 ): void {
-  minutesForm.hidden = !isOpen;
-  editButton.hidden = isOpen;
+  const nextMinutesForm = minutesForm;
+  const nextSummaryRow = summaryRow;
+  const nextEditButton = editButton;
+  nextMinutesForm.hidden = !isOpen;
+  nextSummaryRow.hidden = !minutesSummaryVisible(isOpen);
+  nextEditButton.hidden = isOpen;
 }
 /**
  * Updates planned-minutes summary text from input value.
@@ -109,27 +133,28 @@ export function syncSummaryText(
   summaryNode: HTMLElement,
   minutesValue: string,
 ): void {
-  summaryNode.textContent = plannedMinutesSummaryText(
+  const nextSummaryNode = summaryNode;
+  nextSummaryNode.textContent = plannedMinutesSummaryText(
     summaryValueFromInput(minutesValue),
   );
 }
 
 /**
  * Submits minutes update and returns updated editor state values.
- * @param event Form submit event.
- * @param row Calendar row being edited.
- * @param minutesInput Minutes input element.
- * @param initialMinutesValue Previous stable minutes value.
- * @param interactionHandlers Detail interaction handlers.
+ * @param args Form submission payload for the minutes editor.
+ * @param args.event Form submit event.
+ * @param args.row Calendar row being edited.
+ * @param args.minutesInput Minutes input element.
+ * @param args.initialMinutesValue Previous stable minutes value.
+ * @param args.interactionHandlers Detail interaction handlers.
  * @returns Updated initial value and whether an update was applied.
  */
-export function submitMinutesUpdate(
-  event: SubmitEvent,
-  row: CalendarRowWithFinish,
-  minutesInput: HTMLInputElement,
-  initialMinutesValue: string,
-  interactionHandlers: DetailInteractionHandlers,
-): { initialMinutesValue: string; applied: boolean } {
+export function submitMinutesUpdate(args: SubmitMinutesUpdateArgs): {
+  initialMinutesValue: string;
+  applied: boolean;
+} {
+  const { event, row, interactionHandlers, minutesInput, initialMinutesValue } =
+    args;
   event.preventDefault();
   const currentMinutesValue = inputValue(minutesInput);
   if (currentMinutesValue === initialMinutesValue) {

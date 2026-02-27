@@ -18,6 +18,7 @@ export function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
     item.classList.add("is-finish");
   }
   const head = document.createElement("strong");
+  head.className = "day-session-title";
   head.textContent = row.title || "Untitled";
   if (row.finish) {
     const finishBadge = document.createElement("span");
@@ -49,11 +50,6 @@ export function removeSessionButton(
   removeButton.setAttribute("aria-label", REMOVE_SESSION_LABEL);
   removeButton.title = REMOVE_SESSION_LABEL;
   removeButton.onclick = () => {
-    const title = String(row.title || "this session");
-    const confirmed = globalThis.confirm(`Remove ${title} from ${row.date}?`);
-    if (!confirmed) {
-      return;
-    }
     const removed = interactionHandlers.onSessionRemoved({ row });
     if (!removed) {
       return;

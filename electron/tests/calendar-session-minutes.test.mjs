@@ -4,9 +4,10 @@ import assert from "node:assert/strict";
 import { nextRowsWithUpdatedMinutes } from "../dist/renderer/app/calendar_interactions_minutes_rows.js";
 import {
   MINUTES_EDITOR_OPEN_BY_DEFAULT,
+  minutesSummaryVisible,
   nextMinutesEditorOpenState,
   plannedMinutesSummaryText,
-} from "../dist/renderer/calendar/details_minutes_form.js";
+} from "../dist/renderer/calendar/details_minutes_form_helpers.js";
 
 /**
  * Builds schedule row fixture with override support.
@@ -77,6 +78,11 @@ test("planned minutes editor opens only after explicit edit action", () => {
   assert.equal(openFromEdit, true);
   assert.equal(openFromCancel, false);
   assert.equal(openFromSave, false);
+});
+
+test("minutes summary visibility mirrors editor open state", () => {
+  assert.equal(minutesSummaryVisible(true), false);
+  assert.equal(minutesSummaryVisible(false), true);
 });
 
 test("plannedMinutesSummaryText renders current planned minutes", () => {

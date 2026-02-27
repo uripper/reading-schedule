@@ -2,7 +2,7 @@ import type { Book } from "./books/types.js";
 import type { Session } from "./sessions/normalize.js";
 import { buildStatsSnapshot } from "./stats/model.js";
 import { renderStatsDashboard } from "./stats/render.js";
-import type { PlannerResult } from "./app/types.js";
+import type { PlannerResult } from "../types/types.js";
 
 interface UpdateStatsArgs {
   books: Book[];

@@ -1,12 +1,22 @@
-import type { PlannerScheduleRow } from "./app/types.js";
+import type { PlannerScheduleRow } from "../types/types.js";
 import { renderCalendarDetails } from "./calendar/details.js";
-import { applyTodayFocus, moveSelectionBy, selectDate } from "./calendar/selection.js";
+import {
+  applyTodayFocus,
+  indexForMonth,
+  monthKeyForDateKey,
+  moveSelectionBy,
+  selectDate,
+} from "./calendar/selection.js";
 import {
   createCalendarRuntimeState,
   mergeCalendarHandlers,
   type CalendarHandlers,
 } from "./calendar/state_runtime.js";
-import { refreshDerivedRows, renderControls, renderMonth } from "./calendar/render_runtime.js";
+import {
+  refreshDerivedRows,
+  renderControls,
+  renderMonth,
+} from "./calendar/render_runtime.js";
 
 const state = createCalendarRuntimeState();
 let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});
@@ -69,7 +79,7 @@ export function renderCalendar(
       state.index = previousMonthIndex;
     }
   }
-  if (previousSelectedDate && state.dates[previousSelectedDate]) {
+  if (previousSelectedDate !== "" && previousSelectedDate in state.dates) {
     state.selectedDate = previousSelectedDate;
   } else {
     state.selectedDate = "";
@@ -92,6 +102,20 @@ export function focusCalendarToday(): void {
   applyTodayFocus(state);
   renderControlsView();
   renderMonthView();
+}
+
+/**
+ * Moves calendar focus to a specific day key and rerenders controls/month.
+ * @param dateKey Day key in `YYYY-MM-DD` format.
+ */
+export function focusCalendarDate(dateKey: string): void {
+  if (!state.months.length) {
+    return;
+  }
+  const monthKey = monthKeyForDateKey(dateKey);
+  state.index = indexForMonth(state.months, monthKey);
+  renderControlsView();
+  selectDate(state, dateKey, renderMonthView);
 }
 
 /**

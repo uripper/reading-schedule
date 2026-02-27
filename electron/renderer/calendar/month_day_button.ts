@@ -15,29 +15,34 @@ interface DayStyleFlags {
   isToday: boolean;
 }
 
+interface DayStyleFlagsArgs {
+  date: Date;
+  firstDate: Date;
+  keyForDay: string;
+  selectedDate: string;
+  todayKey: string;
+  rows: CalendarRow[];
+}
+
 /**
  * Derives visual state flags for a calendar day button.
- * @param date Cell date.
- * @param firstDate First date of displayed month.
- * @param keyForDay Day key for the cell.
- * @param selectedDate Currently selected day key.
- * @param todayKey Today's day key.
- * @param rows Rows scheduled for the day.
+ * @param args Day-style input values for one calendar cell.
+ * @param args.date Cell date.
+ * @param args.firstDate First date of displayed month.
+ * @param args.keyForDay Day key for the cell.
+ * @param args.selectedDate Currently selected day key.
+ * @param args.todayKey Today's day key.
+ * @param args.rows Rows scheduled for the day.
  * @returns Day-style flags used for class/aria assignment.
  */
 export function dayStyleFlags(
-  date: Date,
-  firstDate: Date,
-  keyForDay: string,
-  selectedDate: string,
-  todayKey: string,
-  rows: CalendarRow[],
+  args: DayStyleFlagsArgs,
 ): DayStyleFlags {
-  const hasFinishRow = rows.some((row) => Boolean(row.finish));
-  const isMuted = date.getMonth() !== firstDate.getMonth();
-  const isSelected = selectedDate === keyForDay;
-  const isPast = keyForDay < todayKey;
-  const isToday = keyForDay === todayKey;
+  const hasFinishRow = args.rows.some((row) => Boolean(row.finish));
+  const isMuted = args.date.getMonth() !== args.firstDate.getMonth();
+  const isSelected = args.selectedDate === args.keyForDay;
+  const isPast = args.keyForDay < args.todayKey;
+  const isToday = args.keyForDay === args.todayKey;
   return {
     hasFinishRow,
     isMuted,
@@ -62,33 +67,22 @@ export function createWeekdayHeader(): HTMLSpanElement[] {
 
 /**
  * Creates one interactive day button with row summary chips and aria state.
- * @param date Cell date.
- * @param firstDate First date of displayed month.
- * @param keyForDay Day key for the cell.
- * @param rows Rows scheduled for the day.
- * @param selectedDate Currently selected day key.
- * @param todayKey Today's day key.
+ * @param args Day-button render input values.
+ * @param args.date Cell date.
+ * @param args.firstDate First date of displayed month.
+ * @param args.keyForDay Day key for the cell.
+ * @param args.rows Rows scheduled for the day.
+ * @param args.selectedDate Currently selected day key.
+ * @param args.todayKey Today's day key.
  * @returns Configured day button element.
  */
 export function createDayButton(
-  date: Date,
-  firstDate: Date,
-  keyForDay: string,
-  rows: CalendarRow[],
-  selectedDate: string,
-  todayKey: string,
+  args: DayStyleFlagsArgs,
 ): HTMLButtonElement {
   const dayButton = document.createElement("button");
   dayButton.type = "button";
   dayButton.className = "day";
-  const flags = dayStyleFlags(
-    date,
-    firstDate,
-    keyForDay,
-    selectedDate,
-    todayKey,
-    rows,
-  );
+  const flags = dayStyleFlags(args);
   if (flags.hasFinishRow) {
     dayButton.classList.add("has-finish");
   }
@@ -105,7 +99,7 @@ export function createDayButton(
     dayButton.classList.add("is-today");
     dayButton.setAttribute("aria-current", "date");
   }
-  dayButton.dataset.calendarDay = keyForDay;
+  dayButton.dataset.calendarDay = args.keyForDay;
   dayButton.setAttribute("role", "gridcell");
   dayButton.setAttribute("aria-selected", "false");
   if (flags.isSelected) {
@@ -113,8 +107,8 @@ export function createDayButton(
   }
   const dayDate = document.createElement("span");
   dayDate.className = "day-date";
-  dayDate.textContent = String(date.getDate());
+  dayDate.textContent = String(args.date.getDate());
   dayButton.append(dayDate);
-  appendDayButtonSummary(dayButton, rows);
+  appendDayButtonSummary(dayButton, args.rows);
   return dayButton;
 }

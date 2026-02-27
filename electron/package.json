@@ -9,6 +9,9 @@
     "tokens:check": "node ./scripts/check_token_usage.mjs",
     "prestart": "npm run build",
     "start": "node ./scripts/start_electron.mjs",
+    "start:dev": "node ./scripts/start_electron.mjs --development",
+    "copy:watch": "node ./scripts/watch_static.mjs",
+    "dev": "npm run tokens:build && concurrently \"tsc -p tsconfig.main.json --watch\" \"tsc -p tsconfig.renderer.json --watch\" \"npm run copy:watch\" \"npm run start:dev\"",
     "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
     "lint": "npm run tokens:check && eslint --ext .js,.mjs,.ts .",
     "lint:fix": "eslint --ext .js,.mjs,.ts . --fix"
@@ -16,7 +19,9 @@
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@types/node": "^25.3.0",
+    "concurrently": "^9.2.1",
     "electron": "^40.4.1",
+    "electron-reloader": "^1.2.3",
     "eslint": "^9.39.2",
     "eslint-plugin-jsdoc": "^61.7.1",
     "globals": "^17.3.0",

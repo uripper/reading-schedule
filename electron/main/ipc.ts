@@ -2,8 +2,8 @@
  * @file Main-process IPC registration for planner and window actions.
  */
 import { ipcMain, type WebContents } from "electron";
-import type { JsonValue } from "./state_store";
-import type { WindowFindRequest } from "./window_find";
+import type { JsonValue } from "../types/types_json";
+import type { WindowFindRequest, WindowFindResponse } from "./window_find";
 import { UI_SCALE_STEP } from "./zoom";
 import {
   asDownloadCoverPayload,
@@ -14,28 +14,35 @@ import {
 
 interface RegisterIpcHandlersArgs {
   downloadCover(
+    this: void,
     coverUrl: string | undefined,
     bookId: string | undefined,
     userDataDir: string | undefined,
   ): Promise<string>;
   findInPage(
+    this: void,
     webContents: WebContents,
     payload: WindowFindRequest | null,
-  ): Promise<unknown> | unknown;
-  initialZoomFactor(): number;
-  readState(userDataDir: string): unknown;
-  runBridge(args: string[], payload?: JsonValue): Promise<unknown>;
+  ): Promise<WindowFindResponse> | WindowFindResponse;
+  initialZoomFactor(this: void): number;
+  readState(this: void, userDataDir: string): unknown;
+  runBridge(this: void, args: string[], payload?: JsonValue): Promise<unknown>;
   saveUploadedCover(
+    this: void,
     coverDataUrl: string | undefined,
     bookId: string | undefined,
     userDataDir: string | undefined,
   ): string;
-  searchBooks(query: string): Promise<unknown>;
-  setZoomFactor(webContents: WebContents, value: number): number;
-  shiftZoomFactor(webContents: WebContents, delta: number): number;
-  stopFindInPage(webContents: WebContents): Promise<unknown> | unknown;
-  userData(): string;
+  searchBooks(this: void, query: string): Promise<unknown>;
+  setZoomFactor(this: void, webContents: WebContents, value: number): number;
+  shiftZoomFactor(this: void, webContents: WebContents, delta: number): number;
+  stopFindInPage(
+    this: void,
+    webContents: WebContents,
+  ): Promise<WindowFindResponse> | WindowFindResponse;
+  userData(this: void): string;
   writeState(
+    this: void,
     userDataDir: string,
     payload: JsonValue,
   ): { error?: string; ok: boolean };
@@ -96,7 +103,7 @@ export function registerIpcHandlers({
   ipcMain.handle("state:save", (_event, payload: JsonValue) => {
     const result = writeState(userData(), payload);
     if (!result.ok) {
-      throw new Error(result.error || "Failed to save state");
+      throw new Error(result.error ?? "Failed to save state");
     }
     return result;
   });
@@ -111,10 +118,14 @@ export function registerIpcHandlers({
   );
   ipcMain.handle(
     "window:findInPage",
-    (event, payload: WindowFindRequest | null) =>
-      findInPage(event.sender, payload),
+    async (
+      event,
+      payload: WindowFindRequest | null,
+    ): Promise<WindowFindResponse> => await findInPage(event.sender, payload),
   );
-  ipcMain.handle("window:stopFindInPage", (event) =>
-    stopFindInPage(event.sender),
+  ipcMain.handle(
+    "window:stopFindInPage",
+    async (event): Promise<WindowFindResponse> =>
+      await stopFindInPage(event.sender),
   );
 }

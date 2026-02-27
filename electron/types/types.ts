@@ -1,7 +1,5 @@
 export type {
   BookLookupItem,
-  JsonPrimitive,
-  JsonValue,
   LoadedPlannerState,
   PlanGeneratePayload,
   PlannerResult,
@@ -12,6 +10,8 @@ export type {
   PlannerSummary,
   PlannerSummaryBook,
 } from "./types_base.js";
+
+export type { JsonPrimitive, JsonValue } from "./types_json.js";
 
 export type {
   WindowFindRequest,

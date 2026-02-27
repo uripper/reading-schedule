@@ -35,8 +35,14 @@ function todayDateKey(): string {
  * @param src URL/path to show in the preview.
  */
 export function setCoverPreview(refs: BookFormRefs, src: string): void {
-  refs.coverPreview.src = src || COVER_PLACEHOLDER;
-  refs.coverPreview.classList.toggle("is-empty", !src);
+  const preview = refs.coverPreview;
+  const hasSrc = src !== "";
+  if (hasSrc) {
+    preview.src = src;
+  } else {
+    preview.src = COVER_PLACEHOLDER;
+  }
+  preview.classList.toggle("is-empty", !hasSrc);
 }
 
 /**
@@ -48,11 +54,12 @@ export function setOptionalIntegerInputValue(
   inputNode: HTMLInputElement,
   value: number | null | undefined,
 ): void {
-  inputNode.value = "";
+  const targetInput = inputNode;
+  targetInput.value = "";
   if (value === null || value === undefined) {
     return;
   }
-  inputNode.value = String(value);
+  targetInput.value = String(value);
 }
 
 /**
@@ -126,16 +133,18 @@ export function validatedStatusSelection(refs: BookFormRefs): BookStatus {
  * @param status Current normalized status value.
  */
 function toggleFinishedAtInput(refs: BookFormRefs, status: BookStatus): void {
+  const finishedAtField = refs.finishedAtField;
+  const finishedAtInput = refs.finishedAtInput;
   const isRead = status === BOOK_STATUS_READ;
-  refs.finishedAtField.hidden = !isRead;
-  refs.finishedAtInput.disabled = !isRead;
+  finishedAtField.hidden = !isRead;
+  finishedAtInput.disabled = !isRead;
   if (!isRead) {
     return;
   }
-  if (refs.finishedAtInput.value) {
+  if (finishedAtInput.value) {
     return;
   }
-  refs.finishedAtInput.value = todayDateKey();
+  finishedAtInput.value = todayDateKey();
 }
 
 /**
@@ -163,11 +172,13 @@ export function deriveLengthAndProgress(refs: BookFormRefs): {
   const pagesTotal = toOptionalInt(refs.pagesTotalInput.value);
   let pagesRead = toOptionalInt(refs.pagesReadInput.value);
   let progress = clamp(Number(refs.progressInput.value || 0), 0, PROGRESS_MAX);
-  if (!wordsTotal && !pagesTotal) {
+  const hasWordsTotal = wordsTotal !== null && wordsTotal > 0;
+  const hasPagesTotal = pagesTotal !== null && pagesTotal > 0;
+  if (!hasWordsTotal && !hasPagesTotal) {
     throw new Error("Enter estimated words or total pages.");
   }
 
-  if (pagesTotal) {
+  if (hasPagesTotal) {
     pagesRead ??= Math.round((progress / PROGRESS_MAX) * pagesTotal);
     pagesRead = clamp(pagesRead, 0, pagesTotal);
     progress =
@@ -206,4 +217,4 @@ export function validatedShelfSelection(refs: BookFormRefs): string {
   return shelf;
 }
 
-export { BOOK_STATUS_TO_READ as DEFAULT_STATUS } from "./status.js";
+export const DEFAULT_STATUS = BOOK_STATUS_TO_READ;

@@ -3,26 +3,31 @@ import { DEFAULT_PREFERENCES } from "./experience/index.js";
 import type { AppRuntimeState } from "./runtime_state.js";
 
 interface DashboardRuntimeArgs {
-  applyPreferencesToDocument(preferences: AppRuntimeState["preferences"]): void;
-  collectFeatureFlagsFromUI(): Partial<AppRuntimeState["featureFlags"]>;
-  collectPreferencesFromUI(): Partial<AppRuntimeState["preferences"]>;
-  collectAllBooks(): Book[];
+  applyPreferencesToDocument(
+    this: void,
+    preferences: AppRuntimeState["preferences"],
+  ): void;
+  collectFeatureFlagsFromUI(this: void): Partial<AppRuntimeState["featureFlags"]>;
+  collectPreferencesFromUI(this: void): Partial<AppRuntimeState["preferences"]>;
+  collectAllBooks(this: void): Book[];
   normalizeFeatureFlags(
+    this: void,
     flags: Partial<AppRuntimeState["featureFlags"]>,
   ): AppRuntimeState["featureFlags"];
   normalizePreferences(
+    this: void,
     preferences: Partial<AppRuntimeState["preferences"]>,
   ): AppRuntimeState["preferences"];
-  queuePersist(): void;
+  queuePersist(this: void): void;
   state: AppRuntimeState;
-  updateStatsView(payload: {
+  updateStatsView(this: void, payload: {
     books: Book[];
     sessions: AppRuntimeState["sessions"];
     lastResult: AppRuntimeState["lastResult"];
     scheduleCompletions: AppRuntimeState["scheduleCompletions"];
     dailyGoalMinutes: number;
   }): void;
-  updateTodayDashboard(payload: {
+  updateTodayDashboard(this: void, payload: {
     books: Book[];
     defaultDailyGoalMinutes: number;
     featureFlags: AppRuntimeState["featureFlags"];
@@ -63,33 +68,32 @@ export function createDashboardRuntime({
   applyExperienceSettings(): void;
   updateDashboards(): void;
 } {
-  const updateStatsDashboardView = () => {
+  const runtimeState = state;
+  const updateStatsDashboardView = (): void => {
     updateStatsView({
       books: collectAllBooks(),
-      sessions: state.sessions,
-      lastResult: state.lastResult,
-      scheduleCompletions: state.scheduleCompletions,
-      dailyGoalMinutes: Number(
-        state.preferences.dailyGoalMinutes || DEFAULT_PREFERENCES.dailyGoalMinutes,
-      ),
+      sessions: runtimeState.sessions,
+      lastResult: runtimeState.lastResult,
+      scheduleCompletions: runtimeState.scheduleCompletions,
+      dailyGoalMinutes: Number(runtimeState.preferences.dailyGoalMinutes),
     });
   };
-  const updateDashboards = () => {
+  const updateDashboards = (): void => {
     updateTodayDashboard({
-      lastResult: state.lastResult,
-      scheduleCompletions: state.scheduleCompletions,
+      lastResult: runtimeState.lastResult,
+      scheduleCompletions: runtimeState.scheduleCompletions,
       books: collectAllBooks(),
-      sessions: state.sessions,
-      preferences: state.preferences,
-      featureFlags: state.featureFlags,
+      sessions: runtimeState.sessions,
+      preferences: runtimeState.preferences,
+      featureFlags: runtimeState.featureFlags,
       defaultDailyGoalMinutes: DEFAULT_PREFERENCES.dailyGoalMinutes,
     });
     updateStatsDashboardView();
   };
-  const applyExperienceSettings = () => {
-    state.preferences = normalizePreferences(collectPreferencesFromUI());
-    state.featureFlags = normalizeFeatureFlags(collectFeatureFlagsFromUI());
-    applyPreferencesToDocument(state.preferences);
+  const applyExperienceSettings = (): void => {
+    runtimeState.preferences = normalizePreferences(collectPreferencesFromUI());
+    runtimeState.featureFlags = normalizeFeatureFlags(collectFeatureFlagsFromUI());
+    applyPreferencesToDocument(runtimeState.preferences);
     updateDashboards();
     queuePersist();
   };

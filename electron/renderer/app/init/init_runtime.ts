@@ -13,19 +13,14 @@ interface InitRuntimeArgs {
 
 /**
  * Creates runtime handlers used by tab changes, book edits, and schedule mutations.
- * @param root0 Runtime dependencies from bootstrap.
- * @param root0.focusCalendarToday Focuses/selects today's calendar entry.
- * @param root0.queuePersist Schedules persistence for changed inputs.
- * @param root0.state Shared runtime state container.
- * @param root0.updateDashboards Refreshes dashboard UI sections.
+ * @param args Runtime dependencies from bootstrap.
+ * @param args.focusCalendarToday Focuses/selects today's calendar entry.
+ * @param args.queuePersist Schedules persistence for changed inputs.
+ * @param args.state Shared runtime state container.
+ * @param args.updateDashboards Refreshes dashboard UI sections.
  * @returns Handler object consumed by initialization and bindings.
  */
-export function createInitRuntime({
-  focusCalendarToday,
-  queuePersist,
-  state,
-  updateDashboards,
-}: InitRuntimeArgs): {
+export function createInitRuntime(args: InitRuntimeArgs): {
   handleBooksChanged(): void;
   handleScheduleMutation(): void;
   handleTabChange(name: string): void;
@@ -33,32 +28,33 @@ export function createInitRuntime({
   setPlanController(controller: AutoPlanController | null): void;
 } {
   let planController: AutoPlanController | null = null;
-  const queueAutoPlanIfReady = () => {
-    if (state.ready && planController) {
+  const queueAutoPlanIfReady = (): void => {
+    if (args.state.ready && planController !== null) {
       planController.queueAutoPlan();
     }
   };
-  const handleTabChange = (name: string) => {
+  const handleTabChange = (name: string): void => {
     if (name === "schedule") {
-      focusCalendarToday();
+      args.focusCalendarToday();
     }
   };
-  const handleBooksChanged = () => {
-    updateDashboards();
-    queuePersist();
+  const handleBooksChanged = (): void => {
+    args.updateDashboards();
+    args.queuePersist();
     queueAutoPlanIfReady();
   };
-  const handleScheduleMutation = () => {
-    updateDashboards();
+  const handleScheduleMutation = (): void => {
+    args.updateDashboards();
     queueAutoPlanIfReady();
+  };
+  const setPlanController = (controller: AutoPlanController | null): void => {
+    planController = controller;
   };
   return {
     handleBooksChanged,
     handleScheduleMutation,
     handleTabChange,
     queueAutoPlanIfReady,
-    setPlanController: (controller) => {
-      planController = controller;
-    },
+    setPlanController,
   };
 }

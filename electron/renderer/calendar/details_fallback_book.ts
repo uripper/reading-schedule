@@ -1,4 +1,5 @@
 import type { Book } from "../books/types.js";
+import { BOOK_WEEKDAYS } from "../books/scheduled_days.js";
 import { BOOK_STATUS_IN_PROGRESS } from "../books/status.js";
 import type { CalendarRowWithFinish } from "./data.js";
 
@@ -23,6 +24,7 @@ export function fallbackBookForRow(row: CalendarRowWithFinish): Book {
     deadline: null,
     blocked_by: null,
     shelf: "",
+    scheduled_days: [...BOOK_WEEKDAYS],
     status: BOOK_STATUS_IN_PROGRESS,
     finished_at: null,
     cover_url: "",

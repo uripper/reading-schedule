@@ -100,6 +100,17 @@
         Books
       </button>
       <button
+        id="tab-btn-recommendations"
+        class="tab"
+        data-tab="recommendations"
+        role="tab"
+        aria-selected="false"
+        aria-controls="tab-recommendations"
+        tabindex="-1"
+      >
+        Recommendations
+      </button>
+      <button
         id="tab-btn-schedule"
         class="tab"
         data-tab="schedule"
@@ -168,7 +179,11 @@
                   Mark Planned Session Complete
                 </button>
               </div>
-              <p id="todayFocusFeedback" class="hint-text" aria-live="polite"></p>
+              <p
+                id="todayFocusFeedback"
+                class="hint-text"
+                aria-live="polite"
+              ></p>
             </section>
           </article>
 
@@ -217,13 +232,6 @@
         hidden
       >
         <div class="stats-shell">
-          <article class="surface-card">
-            <h2>Reading Stats</h2>
-            <p class="stats-intro">
-              Track long-term progress, finish forecasts, and completion
-              momentum.
-            </p>
-          </article>
           <div id="statsDashboard" aria-live="polite"></div>
         </div>
       </section>
@@ -371,6 +379,8 @@
                   recommendations</label
                 >
               </div>
+              <h3>Books Display</h3>
+              <div id="displayGrid" class="settings-grid"></div>
             </article>
           </div>
         </div>
@@ -392,6 +402,26 @@
         <p id="booksEmpty" class="books-empty">
           No books yet. Add your first book to start planning.
         </p>
+      </section>
+
+      <section
+        id="tab-recommendations"
+        class="panel"
+        role="tabpanel"
+        aria-labelledby="tab-btn-recommendations"
+        tabindex="-1"
+        hidden
+      >
+        <article class="surface-card">
+          <h2>Recommendations</h2>
+          <p id="recommendationsSummary" class="hint-text">
+            Read books by your favorite authors to unlock recommendations.
+          </p>
+          <div id="recommendationsList" class="books-grid"></div>
+          <p id="recommendationsEmpty" class="books-empty" hidden>
+            No recommendations yet.
+          </p>
+        </article>
       </section>
 
       <section
@@ -427,6 +457,9 @@
       </button>
       <button class="tab mobile-tab" data-tab="books" type="button">
         Books
+      </button>
+      <button class="tab mobile-tab" data-tab="recommendations" type="button">
+        Recs
       </button>
       <button class="tab mobile-tab" data-tab="schedule" type="button">
         Schedule

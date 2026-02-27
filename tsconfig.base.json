@@ -13,6 +13,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noUncheckedIndexedAccess": true,
-    "useDefineForClassFields": true
+    "useDefineForClassFields": true,
+    "strictNullChecks": true
   }
 }

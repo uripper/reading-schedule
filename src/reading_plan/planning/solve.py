@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, SupportsInt
+from typing import TYPE_CHECKING
 
 from reading_plan.planner_types import PlanResult
 from reading_plan.planning.greedy import plan_greedy
@@ -48,12 +48,12 @@ def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     solver.parameters.num_search_workers = 1
     solver.parameters.max_time_in_seconds = 20.0
     raw = int(solver.Solve(model))
-    status_values = {
-        "OPTIMAL": cp_model.OPTIMAL,
-        "FEASIBLE": cp_model.FEASIBLE,
-        "INFEASIBLE": cp_model.INFEASIBLE,
-        "MODEL_INVALID": cp_model.MODEL_INVALID,
-        "UNKNOWN": cp_model.UNKNOWN,
+    status_values: dict[str, int] = {
+        "OPTIMAL": int(cp_model.OPTIMAL),
+        "FEASIBLE": int(cp_model.FEASIBLE),
+        "INFEASIBLE": int(cp_model.INFEASIBLE),
+        "MODEL_INVALID": int(cp_model.MODEL_INVALID),
+        "UNKNOWN": int(cp_model.UNKNOWN),
     }
     status = _status_name(raw, status_values)
     if raw not in {int(cp_model.OPTIMAL), int(cp_model.FEASIBLE)}:
@@ -72,13 +72,13 @@ def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     )
 
 
-def _status_name(raw: int, status_values: dict[str, SupportsInt]) -> str:
+def _status_name(raw: int, status_values: dict[str, int]) -> str:
     """Map CP-SAT numeric status codes to stable string names."""
     mapping = {
-        int(status_values["OPTIMAL"]): "OPTIMAL",
-        int(status_values["FEASIBLE"]): "FEASIBLE",
-        int(status_values["INFEASIBLE"]): "INFEASIBLE",
-        int(status_values["MODEL_INVALID"]): "MODEL_INVALID",
-        int(status_values["UNKNOWN"]): "UNKNOWN",
+        status_values["OPTIMAL"]: "OPTIMAL",
+        status_values["FEASIBLE"]: "FEASIBLE",
+        status_values["INFEASIBLE"]: "INFEASIBLE",
+        status_values["MODEL_INVALID"]: "MODEL_INVALID",
+        status_values["UNKNOWN"]: "UNKNOWN",
     }
     return mapping.get(raw, "UNKNOWN")

@@ -1,4 +1,4 @@
-import type { PlannerApi } from "./types.js";
+import type { PlannerApi } from "../../types/types.js";
 
 type PlannerApiGlobal = typeof globalThis & { plannerApi?: PlannerApi };
 

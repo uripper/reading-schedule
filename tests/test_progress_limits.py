@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from datetime import date
 
+import pytest
+
 from reading_plan.input.builders import book_from_data
-from reading_plan.planner_types import Book
+from reading_plan.planner_types import Book, WEEKDAYS
 from reading_plan.planning.greedy import plan_greedy
 from tests.helpers import demo_settings
 
@@ -53,3 +55,32 @@ def test_greedy_respects_per_book_max_minutes_per_day() -> None:
     assignments = plan_greedy(books, settings)
     blocks = assignments.get(("b1", settings.start_date), 0)
     assert blocks <= 3
+
+
+def test_book_builder_defaults_scheduled_days_to_all_weekdays() -> None:
+    """Test that book builder defaults scheduled days to every weekday."""
+    book = book_from_data(
+        {
+            "book_id": "b-default-days",
+            "title": "Demo",
+            "words_total": 10000,
+            "priority": 1,
+            "difficulty": 3,
+        }
+    )
+    assert book.scheduled_days == frozenset(WEEKDAYS)
+
+
+def test_book_builder_rejects_invalid_scheduled_days() -> None:
+    """Test that book builder rejects unknown weekday keys."""
+    with pytest.raises(ValueError):
+        book_from_data(
+            {
+                "book_id": "b-invalid-days",
+                "title": "Demo",
+                "words_total": 10000,
+                "priority": 1,
+                "difficulty": 3,
+                "scheduled_days": ["Mon", "Bad"],
+            }
+        )

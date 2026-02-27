@@ -1,7 +1,17 @@
-import type { BookLookupItem } from "../app/types.js";
+import type { BookLookupItem } from "../../types/types.js";
 
 type SetActiveIndex = (index: number) => void;
 type SelectItem = (index: number) => void;
+
+interface HandleLookupKeydownArgs {
+  event: KeyboardEvent;
+  currentItems: readonly BookLookupItem[];
+  activeIndex: number;
+  setActiveIndex: SetActiveIndex;
+  selectItem: SelectItem;
+  clearResults(): void;
+  searchInput: HTMLInputElement;
+}
 
 /**
  * Moves highlight to the next search result when ArrowDown is pressed.
@@ -86,23 +96,31 @@ function handleEscape(
 
 /**
  * Routes lookup keyboard events to navigation and selection handlers.
- * @param event Keyboard event from the lookup input.
- * @param currentItems Current result list shown in the lookup menu.
- * @param activeIndex Currently highlighted index, or -1 when none is active.
- * @param setActiveIndex Callback used to update highlighted result index.
- * @param selectItem Callback used to commit the selected item.
- * @param clearResults Callback that empties the current result list.
- * @param searchInput Lookup search input element.
+ * @param args Lookup keyboard event payload and state callbacks.
+ * @param args.event Keyboard event from the lookup input.
+ * @param args.currentItems Current result list shown in the lookup menu.
+ * @param args.activeIndex Currently highlighted index, or -1 when none is active.
+ * @param args.setActiveIndex Callback used to update highlighted result index.
+ * @param args.selectItem Callback used to commit the selected item.
+ * @param args.clearResults Callback that empties the current result list.
+ * @param args.searchInput Lookup search input element.
  */
-export function handleLookupKeydown(
-  event: KeyboardEvent,
-  currentItems: readonly BookLookupItem[],
-  activeIndex: number,
-  setActiveIndex: SetActiveIndex,
-  selectItem: SelectItem,
-  clearResults: () => void,
-  searchInput: HTMLInputElement,
-): void {
+export function handleLookupKeydown(args: HandleLookupKeydownArgs): void {
+  const {
+    event,
+    currentItems,
+    activeIndex,
+    searchInput,
+  } = args;
+  const setActiveIndex = (index: number): void => {
+    args.setActiveIndex(index);
+  };
+  const selectItem = (index: number): void => {
+    args.selectItem(index);
+  };
+  const clearLookupResults = (): void => {
+    args.clearResults();
+  };
   switch (event.key) {
     case "ArrowDown":
       handleArrowDown(event, currentItems, activeIndex, setActiveIndex);
@@ -114,7 +132,7 @@ export function handleLookupKeydown(
       handleEnter(event, currentItems, activeIndex, selectItem);
       return;
     case "Escape":
-      handleEscape(clearResults, searchInput);
+      handleEscape(clearLookupResults, searchInput);
 
     default:
   }

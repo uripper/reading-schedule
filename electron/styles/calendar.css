@@ -341,22 +341,22 @@
 .day-minutes-summary {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--token-space-2);
+  justify-content: flex-start;
+  gap: var(--token-space-1);
 }
 
 .day-minutes-value {
   color: var(--app-text);
   font-family: var(--token-typography-family-heading);
-  font-size: var(--token-typography-size-lg);
+  font-size: var(--token-typography-size-md);
   line-height: var(--token-typography-lineHeight-tight);
 }
 
 .btn-minutes-edit {
   display: grid;
   place-items: center;
-  inline-size: var(--token-size-target-minimum);
-  block-size: var(--token-size-target-minimum);
+  inline-size: calc(var(--token-size-target-minimum) - var(--token-space-1));
+  block-size: calc(var(--token-size-target-minimum) - var(--token-space-1));
   padding: 0;
   border-radius: var(--token-radius-pill);
   border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);

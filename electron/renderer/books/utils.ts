@@ -6,7 +6,7 @@ type NumericLike = string | number | null | undefined;
  * @returns HTML-escaped string.
  */
 export function escapeHtml(text: NumericLike): string {
-  return String(text || "")
+  return String(text ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -61,7 +61,7 @@ export function toOptionalInt(raw: NumericLike): number | null {
  * @returns Trimmed date string or `null`.
  */
 export function toOptionalDate(raw: NumericLike): string | null {
-  const value = String(raw || "").trim();
+  const value = String(raw ?? "").trim();
   return value || null;
 }
 
@@ -71,7 +71,7 @@ export function toOptionalDate(raw: NumericLike): string | null {
  * @returns Localized integer text or `"n/a"` when invalid.
  */
 export function formatInt(raw: NumericLike): string {
-  const n = Number(raw || 0);
+  const n = Number(raw ?? 0);
   if (!Number.isFinite(n)) {
     return "n/a";
   }

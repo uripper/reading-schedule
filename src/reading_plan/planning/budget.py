@@ -46,6 +46,11 @@ def book_day_block_limit(book: Book, settings: Settings) -> int:
     return max(0, limit)
 
 
+def book_is_scheduled_for_day(book: Book, day: date) -> bool:
+    """Return whether a book can be scheduled on the provided calendar day."""
+    return weekday_key(day) in book.scheduled_days
+
+
 def words_per_minute(book: Book, settings: Settings) -> float:
     """Estimate reading speed using base WPM adjusted by book difficulty."""
     multiplier = settings.difficulty_multiplier[book.difficulty]

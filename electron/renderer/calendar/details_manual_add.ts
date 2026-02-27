@@ -9,24 +9,69 @@ import {
 
 const MANUAL_ADD_TITLE = "Manual add";
 
+interface BuildManualSessionAddPanelArgs {
+  dateKey: string;
+  mode: DayMode;
+  interactionHandlers: DetailInteractionHandlers;
+  rerenderDetails(): void;
+  defaultBookId?: string;
+  defaultMinutes?: number;
+}
+
+interface SubmitManualAddFormArgs {
+  dateKey: string;
+  mode: DayMode;
+  interactionHandlers: DetailInteractionHandlers;
+  rerenderDetails(): void;
+  bookSelect: HTMLSelectElement;
+  minutesInput: HTMLInputElement;
+  completeInput: HTMLInputElement;
+}
+
+/**
+ * Validates and submits manual-add form values through interaction handlers.
+ * @param args Manual-add submission payload.
+ */
+function submitManualAddForm(args: SubmitManualAddFormArgs): void {
+  const selectedBookId = String(args.bookSelect.value || "").trim();
+  const parsedMinutes = Number(args.minutesInput.value || 0);
+  if (
+    selectedBookId === "" ||
+    !Number.isFinite(parsedMinutes) ||
+    parsedMinutes <= 0
+  ) {
+    return;
+  }
+
+  const added = args.interactionHandlers.onManualSessionAdded({
+    date: args.dateKey,
+    bookId: selectedBookId,
+    minutes: parsedMinutes,
+    completed: args.mode !== "future" && Boolean(args.completeInput.checked),
+  });
+  if (!added) {
+    return;
+  }
+  args.rerenderDetails();
+}
+
 /**
  * Builds manual-session add UI panel for the selected day.
- * @param dateKey Selected day key.
- * @param mode Day mode (past/today/future).
- * @param interactionHandlers Detail interaction callbacks.
- * @param rerenderDetails Callback to rerender details after successful add.
- * @param defaultBookId Default selected book id.
- * @param defaultMinutes Default minutes value.
+ * @param args Manual add panel dependencies.
+ * @param args.dateKey Selected day key.
+ * @param args.mode Day mode (past/today/future).
+ * @param args.interactionHandlers Detail interaction callbacks.
+ * @param args.rerenderDetails Callback to rerender details after successful add.
+ * @param args.defaultBookId Default selected book id.
+ * @param args.defaultMinutes Default minutes value.
  * @returns Panel element containing manual add form.
  */
 export function buildManualSessionAddPanel(
-  dateKey: string,
-  mode: DayMode,
-  interactionHandlers: DetailInteractionHandlers,
-  rerenderDetails: () => void,
-  defaultBookId = "",
-  defaultMinutes?: number,
+  args: BuildManualSessionAddPanelArgs,
 ): HTMLElement {
+  const rerenderDetails = (): void => {
+    args.rerenderDetails();
+  };
   const panel = document.createElement("section");
   panel.className = "day-manual-add";
 
@@ -34,7 +79,7 @@ export function buildManualSessionAddPanel(
   title.textContent = MANUAL_ADD_TITLE;
   panel.append(title);
 
-  const books = sortedManualBooks(interactionHandlers.listSessionBooks());
+  const books = sortedManualBooks(args.interactionHandlers.listSessionBooks());
   if (!books.length) {
     const hint = document.createElement("p");
     hint.className = "hint-text";
@@ -59,8 +104,12 @@ export function buildManualSessionAddPanel(
     option.textContent = book.title;
     bookSelect.append(option);
   });
-  if (defaultBookId && books.some((book) => book.bookId === defaultBookId)) {
-    bookSelect.value = defaultBookId;
+  if (
+    args.defaultBookId !== undefined &&
+    args.defaultBookId !== "" &&
+    books.some((book) => book.bookId === args.defaultBookId)
+  ) {
+    bookSelect.value = args.defaultBookId;
   }
   bookLabel.append(bookSelect);
 
@@ -73,7 +122,7 @@ export function buildManualSessionAddPanel(
   minutesInput.min = "1";
   minutesInput.step = "1";
   minutesInput.required = true;
-  minutesInput.value = minuteValueForManualInput(defaultMinutes);
+  minutesInput.value = minuteValueForManualInput(args.defaultMinutes);
   minutesLabel.append(minutesInput);
 
   const completeLabel = document.createElement("label");
@@ -88,33 +137,22 @@ export function buildManualSessionAddPanel(
   addButton.textContent = "Add Session";
 
   form.append(bookLabel, minutesLabel);
-  if (mode !== "future") {
+  if (args.mode !== "future") {
     form.append(completeLabel);
   }
   form.append(addButton);
 
   form.onsubmit = (event) => {
     event.preventDefault();
-    const selectedBookId = String(bookSelect.value || "").trim();
-    const parsedMinutes = Number(minutesInput.value || 0);
-    if (
-      !selectedBookId ||
-      !Number.isFinite(parsedMinutes) ||
-      parsedMinutes <= 0
-    ) {
-      return;
-    }
-
-    const added = interactionHandlers.onManualSessionAdded({
-      date: dateKey,
-      bookId: selectedBookId,
-      minutes: parsedMinutes,
-      completed: mode !== "future" && Boolean(completeInput.checked),
+    submitManualAddForm({
+      dateKey: args.dateKey,
+      mode: args.mode,
+      interactionHandlers: args.interactionHandlers,
+      rerenderDetails,
+      bookSelect,
+      minutesInput,
+      completeInput,
     });
-    if (!added) {
-      return;
-    }
-    rerenderDetails();
   };
 
   panel.append(form);

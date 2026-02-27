@@ -1,4 +1,4 @@
-import type { BookLookupItem } from "../app/types.js";
+import type { BookLookupItem } from "../../types/types.js";
 import { describeLookup } from "./helpers.js";
 import { renderLookupResults, updateComboboxA11y } from "./render.js";
 
@@ -11,9 +11,16 @@ interface CreateLookupStateControllerArgs {
   searchInput: HTMLInputElement;
   resultsEl: HTMLElement;
   metaEl: HTMLElement;
-  onPick(item: BookLookupItem): void;
+  onPick(this: void, item: BookLookupItem): void;
   placeholder: string;
   state: LookupState;
+}
+
+interface LookupStateController {
+  clearResults(): void;
+  refreshResults(): void;
+  selectItem(index: number): void;
+  setActiveIndex(index: number): void;
 }
 
 /**
@@ -34,54 +41,58 @@ export function createLookupStateController({
   onPick,
   placeholder,
   state,
-}: CreateLookupStateControllerArgs) {
+}: CreateLookupStateControllerArgs): LookupStateController {
+  const lookupState = state;
+  const searchField = searchInput;
+  const resultsElement = resultsEl;
+  const statusElement = metaEl;
   const refreshResults = (): void => {
-    const hasItems = state.currentItems.length > 0;
+    const hasItems = lookupState.currentItems.length > 0;
     if (!hasItems) {
-      resultsEl.classList.remove("has-items");
-      resultsEl.innerHTML = "";
-      updateComboboxA11y(searchInput, resultsEl, false, -1);
+      resultsElement.classList.remove("has-items");
+      resultsElement.innerHTML = "";
+      updateComboboxA11y(searchField, resultsElement, false, -1);
       return;
     }
 
     renderLookupResults(
-      resultsEl,
-      state.currentItems,
+      resultsElement,
+      lookupState.currentItems,
       placeholder,
-      state.activeIndex,
+      lookupState.activeIndex,
     );
-    resultsEl.classList.add("has-items");
-    updateComboboxA11y(searchInput, resultsEl, true, state.activeIndex);
+    resultsElement.classList.add("has-items");
+    updateComboboxA11y(searchField, resultsElement, true, lookupState.activeIndex);
   };
 
   const clearResults = (): void => {
-    state.currentItems = [];
-    state.activeIndex = -1;
+    lookupState.currentItems = [];
+    lookupState.activeIndex = -1;
     refreshResults();
   };
 
   const selectItem = (index: number): void => {
-    const item = state.currentItems[index];
-    if (!item) {
+    if (index < 0 || index >= lookupState.currentItems.length) {
       return;
     }
-    searchInput.value = item.title || "";
-    metaEl.textContent = describeLookup(item);
+    const item = lookupState.currentItems[index];
+    searchField.value = String(item.title ?? "");
+    statusElement.textContent = describeLookup(item);
     clearResults();
     onPick(item);
   };
 
   const setActiveIndex = (index: number): void => {
-    if (!state.currentItems.length) {
-      state.activeIndex = -1;
+    if (lookupState.currentItems.length === 0) {
+      lookupState.activeIndex = -1;
       refreshResults();
       return;
     }
 
     const bounded =
-      ((index % state.currentItems.length) + state.currentItems.length) %
-      state.currentItems.length;
-    state.activeIndex = bounded;
+      ((index % lookupState.currentItems.length) + lookupState.currentItems.length) %
+      lookupState.currentItems.length;
+    lookupState.activeIndex = bounded;
     refreshResults();
   };
 

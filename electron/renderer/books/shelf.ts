@@ -13,7 +13,7 @@ export const SHELF_SELECT_CREATE_NEW = "__create_new_shelf__";
 export function normalizeShelfName(
   rawShelf: string | null | undefined,
 ): string {
-  return String(rawShelf || "").trim();
+  return String(rawShelf ?? "").trim();
 }
 
 /**
@@ -61,7 +61,7 @@ export function uniqueShelves(
 ): string[] {
   const shelfSet = new Set<string>();
   books.forEach((book) => {
-    const shelf = normalizeShelfName(book?.shelf);
+    const shelf = normalizeShelfName(book.shelf);
     if (!shelf) {
       return;
     }

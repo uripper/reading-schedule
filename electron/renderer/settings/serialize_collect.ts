@@ -1,4 +1,4 @@
-import type { PlannerSettings } from "../app/types.js";
+import type { PlannerSettings } from "../../types/types.js";
 import { DEFAULT_DIFFICULTY_MULTIPLIER, weekdays, type FieldDefinition } from "./config.js";
 import { allFieldDefinitions, inputEl, numberLevels, selectEl } from "./field_io.js";
 
@@ -10,6 +10,12 @@ import { allFieldDefinitions, inputEl, numberLevels, selectEl } from "./field_io
 function fieldInputValue(field: FieldDefinition): string {
   if (field.type === "select") {
     return selectEl(field.id).value.trim();
+  }
+  if (field.type === "checkbox") {
+    if (inputEl(field.id).checked) {
+      return "true";
+    }
+    return "false";
   }
   return inputEl(field.id).value.trim();
 }
@@ -23,6 +29,10 @@ export function collectSettingsForm(dayOffs: string[]): PlannerSettings {
   const output: PlannerSettings = {};
   allFieldDefinitions().forEach((field) => {
     const raw = fieldInputValue(field);
+    if (field.type === "checkbox") {
+      output[field.id] = raw === "true";
+      return;
+    }
     if (field.type === "date" || field.type === "select") {
       output[field.id] = raw;
       return;

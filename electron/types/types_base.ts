@@ -1,12 +1,10 @@
-import type { Book } from "../books/types.js";
-import type { Session } from "../sessions/normalize.js";
-import type { FeatureFlags, Preferences } from "./experience/index.js";
-
-export type JsonPrimitive = string | number | boolean | null;
-export type JsonValue =
-  | JsonPrimitive
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+import type { Book } from "../renderer/books/types.js";
+import type { Session } from "../renderer/sessions/normalize.js";
+import type {
+  FeatureFlags,
+  Preferences,
+} from "../renderer/app/experience/index.js";
+import type { JsonValue } from "./types_json.js";
 
 export type PlannerSettings = {
   start_date?: string;
@@ -25,6 +23,9 @@ export type PlannerSettings = {
   minutes_by_weekday?: Record<string, number>;
   days_off?: string[];
   difficulty_multiplier?: Record<string, number>;
+  books_show_word_count?: boolean;
+  books_show_blocker_meta?: boolean;
+  books_show_shelf_meta?: boolean;
 } & Record<string, JsonValue>;
 
 export interface PlannerScheduleRow {
@@ -74,6 +75,7 @@ export interface PlannerStateSnapshot {
   preferences: Preferences;
   feature_flags: FeatureFlags;
   schedule_completions: Record<string, boolean>;
+  blocked_day_books: Record<string, boolean>;
   sessions: Session[];
   last_result: PlannerResult | null;
 }
@@ -84,6 +86,7 @@ export interface LoadedPlannerState {
   preferences?: Partial<Preferences>;
   feature_flags?: Partial<FeatureFlags>;
   schedule_completions?: Record<string, boolean>;
+  blocked_day_books?: Record<string, boolean>;
   sessions?: Session[];
   last_result?: PlannerResult | null;
 }

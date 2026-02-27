@@ -8,14 +8,14 @@ const MAX_LOG_LINES = 250;
  * Returns localized current time string for help-panel logs.
  * @returns Time string for log prefix.
  */
-function ts() {
+function ts(): string {
   return new Date().toLocaleTimeString();
 }
 
 /**
  * Renders in-memory log lines into help dialog output panel.
  */
-function renderLogs() {
+function renderLogs(): void {
   el("logOutput").textContent = logs.join("\n") || "No logs yet.";
 }
 
@@ -23,7 +23,7 @@ function renderLogs() {
  * Adds a log line to help dialog output with timestamp prefix.
  * @param message Log message text to append.
  */
-export function addLog(message: string) {
+export function addLog(message: string): void {
   logs.unshift(`[${ts()}] ${message}`);
   if (logs.length > MAX_LOG_LINES) {
     logs.pop();
@@ -34,7 +34,7 @@ export function addLog(message: string) {
 /**
  * Binds help dialog open/close controls with focus restoration behavior.
  */
-export function bindHelpDialog() {
+export function bindHelpDialog(): void {
   const dlg = el<HTMLDialogElement>("helpDialog");
   const focus = bindDialogFocus(dlg, { initialFocusSelector: "#closeHelpBtn" });
   el<HTMLButtonElement>("helpBtn").onclick = () => {
@@ -42,8 +42,9 @@ export function bindHelpDialog() {
     dlg.showModal();
     focus.focusInitialTarget();
   };
-  el<HTMLButtonElement>("closeHelpBtn").onclick = () =>
-    { focus.closeAndReturnFocus(); };
+  el<HTMLButtonElement>("closeHelpBtn").onclick = (): void => {
+    focus.closeAndReturnFocus();
+  };
   dlg.addEventListener("cancel", (e) => {
     e.preventDefault();
     focus.closeAndReturnFocus();

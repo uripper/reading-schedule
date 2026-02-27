@@ -7,7 +7,7 @@ from datetime import date
 from reading_plan.planner_types import Book
 from reading_plan.planning.budget import day_capacity_blocks, words_per_block
 from reading_plan.planning.greedy import plan_greedy
-from reading_plan.reading_calendar import date_range
+from reading_plan.reading_calendar import date_range, weekday_key
 from reading_plan.schedule.schedule import to_schedule_rows
 from tests.helpers import demo_books, demo_settings
 
@@ -107,3 +107,41 @@ def test_greedy_honors_blocker_dependency() -> None:
     assert b1_days
     assert b2_days
     assert min(b2_days) >= max(b1_days)
+
+
+def test_greedy_respects_book_scheduled_days() -> None:
+    """Test that greedy only schedules a book on its allowed weekdays."""
+    settings = demo_settings(
+        start_date=date(2026, 2, 16),
+        end_date=date(2026, 2, 22),
+        minutes_per_day=30,
+        time_quantum_minutes=15,
+        max_books_per_day=1,
+        max_sessions_per_day=1,
+    )
+    allowed_days = frozenset({"Mon", "Wed", "Fri"})
+    books = [
+        Book(
+            "b-weekdays",
+            "Weekday Book",
+            12000,
+            1,
+            3,
+            None,
+            1,
+            None,
+            0.0,
+            None,
+            None,
+            allowed_days,
+        )
+    ]
+
+    assignments = plan_greedy(books, settings)
+    planned_days = [
+        day
+        for (book_id, day), blocks in assignments.items()
+        if book_id == "b-weekdays" and blocks > 0
+    ]
+    assert planned_days
+    assert all(weekday_key(day) in allowed_days for day in planned_days)

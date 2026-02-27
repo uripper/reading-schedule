@@ -2,7 +2,7 @@ import { normalizeSession, type Session } from "../../sessions/normalize.js";
 import { sessionKeyFor } from "../../calendar/utils.js";
 import { dayBookCompletionKey } from "../calendar_interactions/index.js";
 import { TINY_START_MINUTES, type FocusSession } from "./today_focus.js";
-import type { PlannerScheduleRow } from "../types.js";
+import type { PlannerScheduleRow } from "../../../types/types.js";
 import {
   findSessionRow,
   readFocusSessionFromDataset,
@@ -21,13 +21,14 @@ export function setFocusEntryButtonState(
   button: HTMLButtonElement,
   isOpen: boolean,
 ): void {
+  const nextButton = button;
   if (isOpen) {
-    button.textContent = CLOSE_FOCUS_TEXT;
-    button.setAttribute("aria-expanded", "true");
+    nextButton.textContent = CLOSE_FOCUS_TEXT;
+    nextButton.setAttribute("aria-expanded", "true");
     return;
   }
-  button.textContent = OPEN_FOCUS_TEXT;
-  button.setAttribute("aria-expanded", "false");
+  nextButton.textContent = OPEN_FOCUS_TEXT;
+  nextButton.setAttribute("aria-expanded", "false");
 }
 
 export { findSessionRow, readFocusSessionFromDataset };
@@ -58,14 +59,24 @@ export function nextCompletionsWithRowMarkedComplete(
 export function tinyStartSessionFromFocus(
   session: FocusSession | null,
 ): Session {
+  const bookId = session?.bookId;
+  const title = session?.title;
+  let normalizedBookId = "";
+  if (typeof bookId === "string" && bookId.length > 0) {
+    normalizedBookId = bookId;
+  }
+  let normalizedTitle = "Tiny Start";
+  if (typeof title === "string" && title.length > 0) {
+    normalizedTitle = title;
+  }
   const endedAt = new Date().toISOString();
   const startedAt = new Date(
     Date.now() - TINY_START_MINUTES * 60 * 1000,
   ).toISOString();
   return normalizeSession({
     source: "manual",
-    book_id: session?.bookId || "",
-    title: session?.title || "Tiny Start",
+    book_id: normalizedBookId,
+    title: normalizedTitle,
     minutes: TINY_START_MINUTES,
     started_at: startedAt,
     ended_at: endedAt,

@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 from reading_plan.planner_types import Book
 from reading_plan.planning.budget import words_per_block
 from reading_plan.planning.solve import solve_plan
+from reading_plan.reading_calendar import weekday_key
 from tests.helpers import demo_books, demo_settings
 
 if TYPE_CHECKING:
@@ -88,3 +89,40 @@ def test_mip_honors_blocker_dependency() -> None:
     assert b1_days
     assert b2_days
     assert min(b2_days) >= max(b1_days)
+
+
+def test_mip_respects_book_scheduled_days() -> None:
+    """Test that mip only schedules a book on allowed weekdays."""
+    allowed_days = frozenset({"Tue", "Thu"})
+    books = [
+        Book(
+            "b-allowed-days",
+            "Allowed Days",
+            12000,
+            1,
+            3,
+            None,
+            1,
+            None,
+            0.0,
+            None,
+            None,
+            allowed_days,
+        )
+    ]
+    settings = demo_settings(
+        start_date=date(2026, 2, 16),
+        end_date=date(2026, 2, 27),
+        minutes_per_day=30,
+        time_quantum_minutes=15,
+    )
+    result = solve_plan(books, settings, planner="mip")
+    assert result.status in {"OPTIMAL", "FEASIBLE"}
+
+    planned_days = [
+        day
+        for (book_id, day), blocks in result.assignments.items()
+        if book_id == "b-allowed-days" and blocks > 0
+    ]
+    assert planned_days
+    assert all(weekday_key(day) in allowed_days for day in planned_days)

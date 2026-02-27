@@ -14,7 +14,7 @@ def test_generate_plan_from_json_payload() -> None:
     books = [book_to_data(b) for b in demo_books()]
     settings = settings_to_data(demo_settings())
     payload = {"planner": "greedy", "books": books, "settings": settings}
-    data = cast(dict[str, Any], generate_plan(payload))
+    data = cast(dict[str, Any], generate_plan(payload)) # type: ignore
     assert "summary" in data
     assert "schedule" in data
     assert data["summary"]["status"] in {"FEASIBLE", "OPTIMAL"}
@@ -28,9 +28,11 @@ def test_generate_plan_allows_missing_book_id() -> None:
     settings = settings_to_data(demo_settings())
     data = cast(
         dict[str, Any],
-        generate_plan(
-            {"planner": "greedy", "books": [book], "settings": settings}
-        ),
+        generate_plan({
+            "planner": "greedy",
+            "books": [book],
+            "settings": settings,
+        }),
     )
     assert data["schedule"]
     assert data["schedule"][0]["book_id"]
@@ -44,9 +46,11 @@ def test_generate_plan_rejects_missing_blocker() -> None:
     try:
         cast(
             dict[str, Any],
-            generate_plan(
-                {"planner": "greedy", "books": books, "settings": settings}
-            ),
+            generate_plan({
+                "planner": "greedy",
+                "books": books,
+                "settings": settings,
+            }),
         )
         msg = "expected ValueError for missing blocker"
         raise AssertionError(msg)
@@ -63,9 +67,11 @@ def test_generate_plan_rejects_blocker_cycles() -> None:
     try:
         cast(
             dict[str, Any],
-            generate_plan(
-                {"planner": "greedy", "books": books, "settings": settings}
-            ),
+            generate_plan({
+                "planner": "greedy",
+                "books": books,
+                "settings": settings,
+            }),
         )
         msg = "expected ValueError for blocker cycle"
         raise AssertionError(msg)

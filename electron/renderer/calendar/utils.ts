@@ -1,6 +1,5 @@
 import {
   CALENDAR_COLUMN_COUNT,
-  DAY_GRID_SIZE,
   SESSION_INDEX_PAD,
   WEEK_START_OFFSET,
 } from "./constants.js";
@@ -8,6 +7,22 @@ import {
 interface SortableRow {
   date: string;
   session_index: string | number;
+}
+
+const DATE_KEY_PART_COUNT = 3;
+const DATE_KEY_MONTH_INDEX = 1;
+const DATE_KEY_DAY_INDEX = 2;
+const MONTH_INDEX_OFFSET = 1;
+
+/**
+ * Calculates the number of weeks needed to display a month in a calendar grid.
+ * @param weekdayOffset Number of blank cells before the first day of the month (0-6).
+ * @param daysInMonth Number of days in the month (28-31).
+ * @returns Number of weeks needed to display the month.
+ */
+function weekCountNeeded(weekdayOffset: number, daysInMonth: number): number {
+  const totalCells = weekdayOffset + daysInMonth;
+  return Math.ceil(totalCells / CALENDAR_COLUMN_COUNT);
 }
 
 /**
@@ -72,12 +87,18 @@ export function dayKey(date: Date): string {
  */
 export function monthCells(monthKey: string): Date[] {
   const [year, month] = monthKey.split("-").map(Number);
-  const first = new Date(year, month - 1, 1);
+  const first = new Date(year, month - MONTH_INDEX_OFFSET, 1);
   const start = new Date(first);
   const weekdayOffset =
     (first.getDay() + WEEK_START_OFFSET) % CALENDAR_COLUMN_COUNT;
   start.setDate(first.getDate() - weekdayOffset);
-  return Array.from({ length: DAY_GRID_SIZE }, (_, index) => {
+
+  // Determine day_grid_size based on number of days in month
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const weekCount = weekCountNeeded(weekdayOffset, daysInMonth);
+  const dayGridSize: number = CALENDAR_COLUMN_COUNT * weekCount;
+
+  return Array.from({ length: dayGridSize }, (_, index) => {
     return new Date(
       start.getFullYear(),
       start.getMonth(),
@@ -87,13 +108,48 @@ export function monthCells(monthKey: string): Date[] {
 }
 
 /**
+ * Parses a day key (`YYYY-MM-DD`) into a local Date.
+ * @param dateKey Day key to parse.
+ * @returns Local Date for valid keys, otherwise null.
+ */
+function parseDayKey(dateKey: string): Date | null {
+  const parts = dateKey.split("-");
+  if (parts.length !== DATE_KEY_PART_COUNT) {
+    return null;
+  }
+  const year = Number(parts[0]);
+  const month = Number(parts[DATE_KEY_MONTH_INDEX]);
+  const day = Number(parts[DATE_KEY_DAY_INDEX]);
+  if (!Number.isInteger(year)) {
+    return null;
+  }
+  if (!Number.isInteger(month)) {
+    return null;
+  }
+  if (!Number.isInteger(day)) {
+    return null;
+  }
+  const date = new Date(year, month - MONTH_INDEX_OFFSET, day);
+  if (date.getFullYear() !== year) {
+    return null;
+  }
+  if (date.getMonth() !== month - MONTH_INDEX_OFFSET) {
+    return null;
+  }
+  if (date.getDate() !== day) {
+    return null;
+  }
+  return date;
+}
+
+/**
  * Formats date key for calendar details heading.
  * @param dateKey Day key in `YYYY-MM-DD` format.
  * @returns Human-readable heading string.
  */
 export function dateHeading(dateKey: string): string {
-  const date = new Date(dateKey);
-  if (Number.isNaN(date.getTime())) {
+  const date = parseDayKey(dateKey);
+  if (date === null) {
     return dateKey;
   }
   const formatter = new Intl.DateTimeFormat(undefined, {

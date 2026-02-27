@@ -1,4 +1,4 @@
-import type { PlannerScheduleRow } from "../types.js";
+import type { PlannerScheduleRow } from "../../../types/types.js";
 import { sessionKeyFor } from "../../calendar/utils.js";
 
 /**

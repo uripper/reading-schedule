@@ -120,7 +120,7 @@ export function plannedWordsBeforeAndThroughRow(
     if (candidateSortKey === null) {
       return;
     }
-    const plannedWords = Math.max(0, Number(candidate.words_planned || 0));
+    const plannedWords = Math.max(0, Number(candidate.words_planned ?? 0));
     through += plannedWords;
     if (candidateSortKey < targetSortKey) {
       before += plannedWords;

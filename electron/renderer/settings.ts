@@ -4,7 +4,7 @@ import { bindSettingsSectionTabs } from "./settings/section_tabs.js";
 import { fillSettingsForm } from "./settings/serialize_fill.js";
 import { collectSettingsForm } from "./settings/serialize_collect.js";
 import { renderDifficultyRows, renderGrid, renderWeekdayGrid } from "./settings/render.js";
-import type { PlannerSettings } from "./app/types.js";
+import type { PlannerSettings } from "../types/types.js";
 
 let dayOffs: string[] = [];
 
@@ -25,6 +25,7 @@ export function initSettingsGrid(): void {
   renderGrid("windowGrid", fields.window);
   renderGrid("budgetGrid", fields.budget);
   renderGrid("weightsGrid", fields.weights);
+  renderGrid("displayGrid", fields.display);
   renderWeekdayGrid();
   renderDifficultyRows();
   bindDayOffAddButton(() => dayOffs, setDayOffs);

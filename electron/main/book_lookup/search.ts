@@ -12,7 +12,7 @@ import { fetchJson, searchUrls } from "./search_transport.js";
  * @returns Ranked search items limited to configured output size.
  */
 export async function searchBooks(query: string): Promise<SearchItem[]> {
-  const normalizedQuery = String(query || "").trim();
+  const normalizedQuery = query.trim();
   if (normalizedQuery.length < MIN_QUERY_LENGTH) {
     return [];
   }
@@ -24,7 +24,9 @@ export async function searchBooks(query: string): Promise<SearchItem[]> {
     if (result.status !== "fulfilled" || !Array.isArray(result.value.docs)) {
       return;
     }
-    result.value.docs.forEach((doc) => docs.push(doc));
+    result.value.docs.forEach((doc) => {
+      docs.push(doc);
+    });
   });
   const scored = dedupeDocs(docs)
     .map((doc) => ({ doc, score: scoreDoc(doc, normalizedQuery) }))

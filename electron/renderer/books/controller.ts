@@ -1,6 +1,6 @@
 import { el } from "../dom.js";
-import type { PlannerScheduleRow } from "../app/types.js";
-import { createBookDialog } from "./dialog.js";
+import type { PlannerScheduleRow } from "../../types/types.js";
+import { createBookDialog, type BookSubmitPayload } from "./dialog.js";
 import { GROUP_BY_NONE } from "./grouping.js";
 import {
   clearMissingBlockedBy,
@@ -10,6 +10,7 @@ import {
 } from "./model.js";
 import { withUpdatedProgress } from "./progress.js";
 import { hydrateBookCover, upsertBookById } from "./save.js";
+import { applyScheduledDaysToShelfBooks } from "./save_scheduled_days.js";
 import { BOOK_STATUS_FILTER_ALL, schedulableBook } from "./status.js";
 import {
   ensureBooksToolbarControls,
@@ -28,7 +29,15 @@ import {
 
 let books: Book[] = [];
 let scheduleRows: PlannerScheduleRow[] = [];
-let onBooksChanged: () => void = () => {};
+const DEFAULT_ON_BOOKS_CHANGED = (): void => {
+  // No-op default callback.
+};
+const DEFAULT_ON_ESTIMATED_FINISH_NAVIGATE = (_dateKey: string): void => {
+  // No-op default callback.
+};
+let onBooksChanged: () => void = DEFAULT_ON_BOOKS_CHANGED;
+let onEstimatedFinishNavigate: (dateKey: string) => void =
+  DEFAULT_ON_ESTIMATED_FINISH_NAVIGATE;
 let dialog: BookDialogController | null = null;
 
 const refs: BooksControllerRefs = {
@@ -65,7 +74,7 @@ function setBooks(nextBooks: Book[]): void {
  * @returns Matching book instance when present; otherwise `null`.
  */
 function findBook(bookId: string): Book | null {
-  return books.find((book) => book.book_id === bookId) || null;
+  return books.find((book) => book.book_id === bookId) ?? null;
 }
 
 /**
@@ -79,6 +88,7 @@ function render(): void {
     viewState,
     dialog,
     onBooksChanged,
+    onEstimatedFinishNavigate,
     setBooks,
     findBook,
     rerender: render,
@@ -131,11 +141,15 @@ export function updateBookProgress(
 
 /**
  * Persists an edited book, including optional cover hydration, then rerenders.
- * @param book Book to save into the controller collection.
+ * @param payload Book save payload including optional shelf-day propagation flag.
  */
-async function saveBook(book: Book): Promise<void> {
-  const hydrated = await hydrateBookCover(book);
-  books = upsertBookById(books, hydrated);
+async function saveBook(payload: BookSubmitPayload): Promise<void> {
+  const hydrated = await hydrateBookCover(payload.book);
+  let nextBooks = upsertBookById(books, hydrated);
+  if (payload.applyScheduledDaysToShelf) {
+    nextBooks = applyScheduledDaysToShelfBooks(nextBooks, hydrated);
+  }
+  books = nextBooks;
   render();
   onBooksChanged();
 }
@@ -162,9 +176,14 @@ export function setBookScheduleRows(rows: PlannerScheduleRow[] = []): void {
  * Collects books that should be sent to planner scheduling logic.
  * @returns Normalized planner payload books that are title-complete and schedulable.
  */
-export function collectBooks() {
+export function collectBooks(): Book[] {
   const schedulableBooks = books.map(toPayloadBook).filter((book) => {
-    return book.title && hasSchedulableLength(book) && schedulableBook(book);
+    const normalizedTitle = book.title.trim();
+    return (
+      normalizedTitle.length > 0 &&
+      hasSchedulableLength(book) &&
+      schedulableBook(book)
+    );
   });
   return clearMissingBlockedBy(schedulableBooks);
 }
@@ -173,18 +192,34 @@ export function collectBooks() {
  * Collects every titled book for persistence regardless of schedulable state.
  * @returns Normalized payload books with non-empty titles.
  */
-export function collectAllBooks() {
+export function collectAllBooks(): Book[] {
   return books.map(toPayloadBook).filter((book) => {
-    return Boolean(book.title);
+    return book.title.trim().length > 0;
   });
+}
+
+interface BindBooksUIOptions {
+  onEstimatedFinishNavigate?(this: void, dateKey: string): void;
 }
 
 /**
  * Binds books toolbar, dialog, and grid events for interactive editing.
  * @param onChanged Callback fired after persisted book list mutations.
+ * @param options Optional UI behavior hooks.
  */
-export function bindBooksUI(onChanged: () => void = () => {}): void {
+export function bindBooksUI(
+  onChanged: () => void = DEFAULT_ON_BOOKS_CHANGED,
+  options: BindBooksUIOptions = {},
+): void {
   onBooksChanged = onChanged;
+  const estimatedFinishNavigateHandler = options.onEstimatedFinishNavigate;
+  if (typeof estimatedFinishNavigateHandler === "function") {
+    onEstimatedFinishNavigate = (dateKey: string): void => {
+      estimatedFinishNavigateHandler(dateKey);
+    };
+  } else {
+    onEstimatedFinishNavigate = DEFAULT_ON_ESTIMATED_FINISH_NAVIGATE;
+  }
   refs.toolbar = document.querySelector(".books-toolbar");
   if (!(refs.toolbar instanceof HTMLElement)) {
     return;
@@ -204,16 +239,14 @@ export function bindBooksUI(onChanged: () => void = () => {}): void {
   bindToolbarEvents({ refs, viewState, rerender: render });
 
   dialog = createBookDialog(saveBook, { getBooks: () => books });
-  if (refs.addBtn) {
-    refs.addBtn.onclick = () => {
-      if (!dialog) {
-        return;
-      }
-      dialog.open(null, {
-        defaultShelf: defaultShelfForAddDialog(viewState.shelfFilter),
-      });
-    };
-  }
+  refs.addBtn.onclick = () => {
+    if (!dialog) {
+      return;
+    }
+    dialog.open(null, {
+      defaultShelf: defaultShelfForAddDialog(viewState.shelfFilter),
+    });
+  };
 
   render();
 }

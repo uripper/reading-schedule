@@ -83,7 +83,7 @@ async function readFileAsDataUrl(file: File): Promise<string> {
   return await new Promise((resolve, reject) => {
     const reader = new FileReader();
 
-    const onLoad = () => {
+    const onLoad = (): void => {
       const { result } = reader;
       if (typeof result !== "string" || !result) {
         reject(new Error(ERROR_UPLOAD_FAILED));
@@ -94,7 +94,7 @@ async function readFileAsDataUrl(file: File): Promise<string> {
       resolve(dataUrl);
     };
 
-    const onError = () => {
+    const onError = (): void => {
       reject(new Error(ERROR_UPLOAD_FAILED));
     };
 
@@ -142,7 +142,8 @@ function uploadErrorMessage(error: unknown): string {
  * @param refs Book form references containing upload controls.
  */
 function clearCoverUploadInput(refs: BookFormRefs): void {
-  refs.coverUploadInput.value = "";
+  const coverUploadInput = refs.coverUploadInput;
+  coverUploadInput.value = "";
 }
 
 /**
@@ -171,10 +172,11 @@ async function saveSelectedCover(refs: BookFormRefs): Promise<void> {
  * @param refs Book form references containing upload and metadata controls.
  */
 async function handleCoverUploadChange(refs: BookFormRefs): Promise<void> {
+  const lookupMeta = refs.lookupMeta;
   try {
     await saveSelectedCover(refs);
-  } catch (error) {
-    refs.lookupMeta.textContent = uploadErrorMessage(error);
+  } catch (error: unknown) {
+    lookupMeta.textContent = uploadErrorMessage(error);
   } finally {
     clearCoverUploadInput(refs);
   }
@@ -185,9 +187,10 @@ async function handleCoverUploadChange(refs: BookFormRefs): Promise<void> {
  * @param refs Book form references containing upload and panel controls.
  */
 export function bindCoverUpload(refs: BookFormRefs): void {
-  const runUploadChange = () => {
-    handleCoverUploadChange(refs).catch((error) => {
-      refs.lookupMeta.textContent = uploadErrorMessage(error);
+  const lookupMeta = refs.lookupMeta;
+  const runUploadChange = (): void => {
+    handleCoverUploadChange(refs).catch((error: unknown) => {
+      lookupMeta.textContent = uploadErrorMessage(error);
       clearCoverUploadInput(refs);
     });
   };

@@ -1,0 +1,84 @@
+.day-session-title {
+  font-size: var(--token-typography-size-lg);
+  font-weight: var(--token-typography-weight-light);
+  color: var(--app-text);
+}
+
+
+.day-details-item {
+  gap: var(--token-space-1);
+  padding-right: var(--token-space-2);
+}
+
+.day-details-item.is-complete {
+  border-color: color-mix(in srgb, var(--app-success) 62%, var(--app-border));
+  background: color-mix(in srgb, var(--app-success) 8%, var(--app-surface));
+}
+
+.day-details-item.is-finish.is-complete {
+  border-color: color-mix(in srgb, var(--app-success) 68%, var(--app-border));
+  background:
+    radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--app-success) 8%, transparent),
+      transparent 56%
+    ),
+    color-mix(in srgb, var(--app-success) 10%, var(--app-surface));
+}
+
+.day-minutes-summary {
+  gap: var(--token-space-2);
+  align-items: baseline;
+}
+
+.day-minutes-value {
+  font-size: var(--token-typography-size-medium);
+  letter-spacing: 0;
+}
+
+.btn-minutes-edit {
+  inline-size: auto;
+  block-size: auto;
+  min-height: 30px;
+  border-radius: var(--token-radius-pill);
+  padding: 0 var(--token-space-2);
+  border-color: color-mix(in srgb, var(--app-border) 84%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 68%, transparent);
+  font-size: var(--token-typography-size-xs);
+  font-weight: var(--token-typography-weight-medium);
+  line-height: 1;
+}
+
+.day-progress-form {
+  align-items: end;
+}
+
+.day-progress-form .btn {
+  min-height: 40px;
+  padding: 0 var(--token-space-3);
+}
+
+.day-progress-field {
+  gap: 6px;
+  font-size: var(--token-typography-size-xs);
+}
+
+.day-progress-field input {
+  min-height: 40px;
+}
+
+.btn-session-remove {
+  inline-size: calc(var(--token-space-5) + 2px);
+  block-size: calc(var(--token-space-5) + 2px);
+  color: color-mix(in srgb, var(--app-danger) 58%, var(--app-textMuted));
+}
+
+.btn-session-remove:hover {
+  background: color-mix(in srgb, var(--app-danger) 10%, transparent);
+}
+
+@media (max-width: 820px) {
+  .day-minutes-value {
+    font-size: clamp(1.2rem, 7vw, 1.5rem);
+  }
+}

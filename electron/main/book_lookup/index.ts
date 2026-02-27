@@ -26,7 +26,8 @@ export async function downloadCover(
   userDataDir: string | undefined,
 ): Promise<string> {
   const normalizedUrl = String(coverUrl ?? "").trim();
-  if (!normalizedUrl || !userDataDir) {
+  const normalizedUserDataDir = String(userDataDir ?? "").trim();
+  if (normalizedUrl.length === 0 || normalizedUserDataDir.length === 0) {
     return "";
   }
   let parsedUrl: URL;
@@ -52,7 +53,7 @@ export async function downloadCover(
     return "";
   }
   const extension = extensionFor(response.headers.get("content-type"), parsedUrl);
-  const filePath = filePathForCover(userDataDir, bookId, extension);
+  const filePath = filePathForCover(normalizedUserDataDir, bookId, extension);
   fs.writeFileSync(filePath, new Uint8Array(bytes));
   return pathToFileURL(filePath).href;
 }
@@ -69,14 +70,15 @@ export function saveUploadedCover(
   bookId: string | undefined,
   userDataDir: string | undefined,
 ): string {
-  if (!userDataDir) {
+  const normalizedUserDataDir = String(userDataDir ?? "").trim();
+  if (normalizedUserDataDir.length === 0) {
     return "";
   }
   const parsed = parseCoverDataUrl(coverDataUrl);
   if (!parsed) {
     return "";
   }
-  const filePath = filePathForCover(userDataDir, bookId, parsed.extension);
+  const filePath = filePathForCover(normalizedUserDataDir, bookId, parsed.extension);
   fs.writeFileSync(filePath, parsed.bytes);
   return pathToFileURL(filePath).href;
 }

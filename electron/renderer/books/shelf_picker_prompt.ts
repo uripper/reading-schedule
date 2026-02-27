@@ -1,7 +1,6 @@
 import type { BookFormRefs } from "./form_refs.js";
 
 const DIALOG_CONFIRM_VALUE = "confirm";
-const CREATE_SHELF_PROMPT = "Enter a name for the new shelf:";
 
 /**
  * Shows the shelf-name dialog and resolves with a trimmed name on confirm.
@@ -9,37 +8,34 @@ const CREATE_SHELF_PROMPT = "Enter a name for the new shelf:";
  * @returns Trimmed shelf name, or null when the prompt is canceled.
  */
 async function promptViaDialog(refs: BookFormRefs): Promise<string | null> {
+  const dialogRefs = refs;
   return await new Promise((resolve) => {
-    refs.shelfPromptInput.value = "";
-    refs.shelfPromptDialog.returnValue = "";
-    const onClose = () => {
-      refs.shelfPromptDialog.removeEventListener("close", onClose);
-      if (refs.shelfPromptDialog.returnValue !== DIALOG_CONFIRM_VALUE) {
+    dialogRefs.shelfPromptInput.value = "";
+    dialogRefs.shelfPromptDialog.returnValue = "";
+    const onClose = (): void => {
+      dialogRefs.shelfPromptDialog.removeEventListener("close", onClose);
+      if (dialogRefs.shelfPromptDialog.returnValue !== DIALOG_CONFIRM_VALUE) {
         resolve(null);
         return;
       }
-      resolve(refs.shelfPromptInput.value.trim());
+      resolve(dialogRefs.shelfPromptInput.value.trim());
     };
-    refs.shelfPromptDialog.addEventListener("close", onClose);
+    dialogRefs.shelfPromptDialog.addEventListener("close", onClose);
     try {
-      refs.shelfPromptDialog.showModal();
+      dialogRefs.shelfPromptDialog.showModal();
     } catch {
-      refs.shelfPromptDialog.show();
+      dialogRefs.shelfPromptDialog.show();
     }
-    refs.shelfPromptInput.focus();
+    dialogRefs.shelfPromptInput.focus();
   });
 }
 
 /**
- * Fallback shelf prompt using the browser's native prompt dialog.
- * @returns Trimmed shelf name, or null when canceled.
+ * Fallback shelf prompt when dialog interactions are unavailable.
+ * @returns `null` because native prompt dialogs are disabled in this UI.
  */
 function promptViaBrowser(): string | null {
-  const response = globalThis.prompt(CREATE_SHELF_PROMPT, "");
-  if (response === null) {
-    return null;
-  }
-  return String(response).trim();
+  return null;
 }
 
 /**

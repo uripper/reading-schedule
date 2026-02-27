@@ -1,11 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
+import { groupsForEstimatedFinish } from "../dist/renderer/books/estimated_finish_groups.js";
 import { finishDatesByBookId } from "../dist/renderer/books/finish_dates.js";
 import {
   GROUP_BY_TITLE_LETTER,
   groupBooks,
 } from "../dist/renderer/books/grouping.js";
+import { metaLabel } from "../dist/renderer/books/presenters.js";
 import {
   SORT_BY_ESTIMATED_FINISH,
   SORT_BY_TITLE,
@@ -98,5 +100,37 @@ test("sortBooks by estimated finish includes finished read books in date order",
   assert.deepEqual(
     sorted.map((book) => book.book_id),
     ["book-2", "book-3", "book-1"],
+  );
+});
+
+test("metaLabel shows finished date for read books", () => {
+  const book = baseBook({
+    book_id: "book-1",
+    status: "read",
+    finished_at: "2026-01-20",
+  });
+  const finishDates = { "book-1": "2026-01-20" };
+
+  const label = metaLabel(book, { finishDateByBookId: finishDates });
+  assert.equal(label.includes("Finished 2026-01-20"), true);
+  assert.equal(label.includes("Est. finish"), false);
+});
+
+test("groupsForEstimatedFinish orders sections as dropped, read, then active", () => {
+  const sortedBooks = [
+    baseBook({ book_id: "book-1", status: "dropped", title: "Drop A" }),
+    baseBook({ book_id: "book-2", status: "read", title: "Read A" }),
+    baseBook({ book_id: "book-3", status: "in_progress", title: "IP A" }),
+    baseBook({ book_id: "book-4", status: "to_read", title: "TR A" }),
+  ];
+
+  const groups = groupsForEstimatedFinish(sortedBooks);
+  assert.deepEqual(
+    groups.map((group) => group.label),
+    ["Dropped", "Read", "In Progress / To Read"],
+  );
+  assert.deepEqual(
+    groups.map((group) => group.books.map((book) => book.book_id)),
+    [["book-1"], ["book-2"], ["book-3", "book-4"]],
   );
 });

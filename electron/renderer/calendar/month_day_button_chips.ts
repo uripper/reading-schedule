@@ -28,10 +28,10 @@ function appendVisibleRowChips(
   rows.slice(0, 2).forEach((row) => {
     const chip = document.createElement("span");
     chip.className = "day-chip";
-    if (row.finish) {
+    if (row.finish === true) {
       chip.className = "day-chip finish";
     }
-    chip.textContent = `${row.title || "Untitled"} - ${Number(row.minutes || 0)}m`;
+    chip.textContent = `${row.title ?? "Untitled"} - ${Number(row.minutes ?? 0)}m`;
     dayButton.append(chip);
   });
 }

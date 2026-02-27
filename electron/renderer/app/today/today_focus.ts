@@ -1,4 +1,4 @@
-import type { PlannerScheduleRow } from "../types.js";
+import type { PlannerScheduleRow } from "../../../types/types.js";
 
 export const TINY_START_MINUTES = 3;
 

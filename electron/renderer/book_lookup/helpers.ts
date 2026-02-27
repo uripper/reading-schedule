@@ -1,4 +1,4 @@
-import type { BookLookupItem } from "../app/types.js";
+import type { BookLookupItem } from "../../types/types.js";
 
 const PLACEHOLDER_SVG = [
   '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="160" viewBox="0 0 120 160">',
@@ -46,10 +46,20 @@ export function placeholderCoverSvg(): string {
  * @returns Description text including source/author/year when available.
  */
 export function describeLookup(item: BookLookupItem): string {
-  const bits = [item.source || "", item.author || "", item.year || ""].filter(
-    Boolean,
-  );
-  if (bits.length) {
+  const bits: string[] = [];
+  const source = String(item.source ?? "").trim();
+  if (source.length > 0) {
+    bits.push(source);
+  }
+  const author = String(item.author ?? "").trim();
+  if (author.length > 0) {
+    bits.push(author);
+  }
+  const year = String(item.year ?? "").trim();
+  if (year.length > 0) {
+    bits.push(year);
+  }
+  if (bits.length > 0) {
     return `Selected from ${bits.join(" · ")}`;
   }
   return "Selected from lookup results.";
@@ -73,24 +83,20 @@ export function syncProgressAndPages(
   form: ProgressSyncInputs,
   changedField: ProgressField,
 ): void {
-  const total = toInt(form.pagesTotalInput.value);
+  const { pagesTotalInput, pagesReadInput, progressInput } = form;
+  const total = toInt(pagesTotalInput.value);
   if (total <= 0) {
     return;
   }
   if (changedField === "pages") {
-    const pagesRead = Math.min(toInt(form.pagesReadInput.value), total);
-    if (pagesRead !== toInt(form.pagesReadInput.value)) {
-      form.pagesReadInput.value = String(pagesRead);
+    const pagesRead = Math.min(toInt(pagesReadInput.value), total);
+    if (pagesRead !== toInt(pagesReadInput.value)) {
+      pagesReadInput.value = String(pagesRead);
     }
-    form.progressInput.value = String(
-      Math.round((pagesRead / total) * 1000) / 10,
-    );
+    progressInput.value = String(Math.round((pagesRead / total) * 1000) / 10);
     return;
   }
-  const progress = Math.min(
-    100,
-    Math.max(0, Number(form.progressInput.value || 0)),
-  );
-  form.progressInput.value = String(Math.round(progress * 10) / 10);
-  form.pagesReadInput.value = String(Math.round((progress / 100) * total));
+  const progress = Math.min(100, Math.max(0, Number(progressInput.value)));
+  progressInput.value = String(Math.round(progress * 10) / 10);
+  pagesReadInput.value = String(Math.round((progress / 100) * total));
 }

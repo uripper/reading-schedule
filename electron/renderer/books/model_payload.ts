@@ -1,4 +1,5 @@
 import { statusFromRaw } from "./status.js";
+import { normalizeScheduledDays } from "./scheduled_days.js";
 import type { Book } from "./types.js";
 
 const DEFAULT_PRIORITY = 3;
@@ -24,7 +25,7 @@ function withDefaultNumber(value: number | undefined, fallback: number): number 
  * @returns Original text when truthy; otherwise empty string.
  */
 function withDefaultString(value: string | null | undefined): string {
-  if (value) {
+  if (value !== null && value !== undefined && value !== "") {
     return value;
   }
   return "";
@@ -36,7 +37,7 @@ function withDefaultString(value: string | null | undefined): string {
  * @returns Original text when truthy; otherwise `null`.
  */
 function withNullableString(value: string | null | undefined): string | null {
-  if (value) {
+  if (value !== null && value !== undefined && value !== "") {
     return value;
   }
   return null;
@@ -76,6 +77,7 @@ export function toPayloadBook(book: Book): Book {
     deadline: withNullableString(book.deadline),
     blocked_by: withNullableString(book.blocked_by),
     shelf: withDefaultString(book.shelf),
+    scheduled_days: normalizeScheduledDays(book.scheduled_days),
     finished_at: normalizeFinishedAt(book.finished_at),
     author: withDefaultString(book.author),
     cover_url: withDefaultString(book.cover_url),
@@ -90,7 +92,7 @@ export function toPayloadBook(book: Book): Book {
  * @returns `true` when words or page totals are positive.
  */
 export function hasSchedulableLength(book: Book): boolean {
-  return (book.words_total || 0) > 0 || (book.pages_total || 0) > 0;
+  return (book.words_total ?? 0) > 0 || (book.pages_total ?? 0) > 0;
 }
 
 /**
@@ -105,7 +107,7 @@ export function clearMissingBlockedBy(books: Book[]): Book[] {
   });
 
   return books.map((book) => {
-    const blockedById = String(book.blocked_by || "").trim();
+    const blockedById = String(book.blocked_by ?? "").trim();
     if (!blockedById) {
       return book;
     }

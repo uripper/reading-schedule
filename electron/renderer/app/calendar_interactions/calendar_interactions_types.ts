@@ -13,7 +13,7 @@ import type {
   PlannerScheduleRow,
   PlannerSettings,
   PlannerSummary,
-} from "../types.js";
+} from "../../../types/types.js";
 
 export interface AppCalendarInteractionArgs {
   configureCalendarInteractions(handlers: {
@@ -28,6 +28,7 @@ export interface AppCalendarInteractionArgs {
   }): void;
   state: {
     scheduleCompletions: Record<string, boolean>;
+    blockedDayBooks: Record<string, boolean>;
     lastResult: PlannerResult | null;
   };
   queuePersist(): void;

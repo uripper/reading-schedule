@@ -49,6 +49,8 @@ npm run tokens:build
 UI_SCALE=1.65 npm run start
 ```
 
+Book scheduling supports per-book weekday selection in the Books dialog, with an option to apply the same scheduled days to all books on the same shelf.
+
 ## Windows Install/Run Helper
 
 ```powershell
@@ -67,19 +69,19 @@ Set a specific Python launcher target:
 npm run dev:windows -- 3.11
 ```
 
-Auto-rebuild + auto-restart on changes (WSL -> Windows sync poll loop):
+Hot reload in development mode (TypeScript watch + `electron-reloader`):
 
 ```bash
 npm run dev:windows:hot
 ```
 
-Set Python and poll interval seconds:
+Set a specific Python launcher target:
 
 ```bash
-npm run dev:windows:hot -- 3.11 1
+npm run dev:windows:hot -- 3.11
 ```
 
-This is restart-on-change (not in-window HMR).
+This uses in-process Electron hot reload rather than an external sync/restart poll loop.
 
 ## Experience Settings Status
 
@@ -88,6 +90,20 @@ This is restart-on-change (not in-window HMR).
 - Session activity logging in desktop currently flows through Today/Stats state, and legacy standalone session-tab UI paths were removed.
 
 ## Tests
+
+```bash
+npm run ci:local
+```
+
+Install git hooks so pushes run the same checks automatically:
+
+```bash
+npm run hooks:install
+```
+
+`npm install` also runs hook setup through the root `prepare` script.
+
+Manual individual commands:
 
 ```bash
 npm run lint:python

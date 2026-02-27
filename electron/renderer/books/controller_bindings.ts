@@ -62,50 +62,47 @@ interface BindToolbarEventsArgs {
 
 /**
  * Attaches toolbar listeners and synchronizes control changes into view state.
- * @param root0 Event binding inputs.
- * @param root0.refs Controller DOM references for toolbar controls.
- * @param root0.viewState Mutable view state driving books rendering.
- * @param root0.rerender Callback that refreshes the books view.
+ * @param args Event binding inputs.
+ * @param args.refs Controller DOM references for toolbar controls.
+ * @param args.viewState Mutable view state driving books rendering.
+ * @param args.rerender Callback that refreshes the books view.
  */
-export function bindToolbarEvents({
-  refs,
-  viewState,
-  rerender,
-}: BindToolbarEventsArgs): void {
+export function bindToolbarEvents(args: BindToolbarEventsArgs): void {
+  const nextViewState = args.viewState;
   const {
     sortBySelect,
     shelfFilterSelect,
     statusFilterSelect,
     groupBySelect,
     sortDirectionBtn,
-  } = assertToolbarControls(refs);
+  } = assertToolbarControls(args.refs);
 
   sortBySelect.addEventListener("change", () => {
-    viewState.sortBy = toSortBy(sortBySelect.value);
-    rerender();
+    nextViewState.sortBy = toSortBy(sortBySelect.value);
+    args.rerender();
   });
 
   shelfFilterSelect.addEventListener("change", () => {
-    viewState.shelfFilter = shelfFilterSelect.value;
-    rerender();
+    nextViewState.shelfFilter = shelfFilterSelect.value;
+    args.rerender();
   });
 
   statusFilterSelect.addEventListener("change", () => {
-    viewState.statusFilter = normalizeStatusFilter(statusFilterSelect.value);
-    rerender();
+    nextViewState.statusFilter = normalizeStatusFilter(statusFilterSelect.value);
+    args.rerender();
   });
 
   groupBySelect.addEventListener("change", () => {
-    viewState.groupBy = toGroupBy(groupBySelect.value);
-    rerender();
+    nextViewState.groupBy = toGroupBy(groupBySelect.value);
+    args.rerender();
   });
 
   sortDirectionBtn.addEventListener("click", () => {
     let nextDirection: SortDirection = SORT_DIRECTION_ASC;
-    if (viewState.sortDirection === SORT_DIRECTION_ASC) {
+    if (nextViewState.sortDirection === SORT_DIRECTION_ASC) {
       nextDirection = SORT_DIRECTION_DESC;
     }
-    viewState.sortDirection = nextDirection;
-    rerender();
+    nextViewState.sortDirection = nextDirection;
+    args.rerender();
   });
 }

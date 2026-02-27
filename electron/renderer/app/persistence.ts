@@ -6,7 +6,7 @@ import type {
   PlannerResult,
   PlannerSettings,
   PlannerStateSnapshot,
-} from "./types.js";
+} from "../../types/types.js";
 
 interface DraftDataParams {
   sessions: Session[];
@@ -15,6 +15,7 @@ interface DraftDataParams {
   preferences: Preferences;
   featureFlags: FeatureFlags;
   scheduleCompletions: Record<string, boolean>;
+  blockedDayBooks: Record<string, boolean>;
   lastResult: PlannerResult | null;
 }
 
@@ -22,33 +23,27 @@ type AddLog = (message: string) => void;
 
 /**
  * Builds the planner snapshot payload used for durable state persistence.
- * @param root0 Current runtime values and collectors needed for serialization.
- * @param root0.sessions Current normalized reading sessions.
- * @param root0.collectBooks Returns all books currently tracked by the app.
- * @param root0.collectSettings Returns planner settings from UI controls.
- * @param root0.preferences Current experience preferences.
- * @param root0.featureFlags Current feature flag selections.
- * @param root0.scheduleCompletions Completion map keyed by day/session identity.
- * @param root0.lastResult Most recent planning result if one exists.
+ * @param args Current runtime values and collectors needed for serialization.
+ * @param args.sessions Current normalized reading sessions.
+ * @param args.collectBooks Returns all books currently tracked by the app.
+ * @param args.collectSettings Returns planner settings from UI controls.
+ * @param args.preferences Current experience preferences.
+ * @param args.featureFlags Current feature flag selections.
+ * @param args.scheduleCompletions Completion map keyed by day/session identity.
+ * @param args.blockedDayBooks Manually blocked day-book keys to keep out of replans.
+ * @param args.lastResult Most recent planning result if one exists.
  * @returns Snapshot payload expected by planner state APIs.
  */
-export function draftData({
-  sessions,
-  collectBooks,
-  collectSettings,
-  preferences,
-  featureFlags,
-  scheduleCompletions,
-  lastResult,
-}: DraftDataParams): PlannerStateSnapshot {
+export function draftData(args: DraftDataParams): PlannerStateSnapshot {
   return {
-    sessions,
-    preferences,
-    books: collectBooks(),
-    settings: collectSettings(),
-    feature_flags: featureFlags,
-    schedule_completions: scheduleCompletions,
-    last_result: lastResult,
+    sessions: args.sessions,
+    preferences: args.preferences,
+    books: args.collectBooks(),
+    settings: args.collectSettings(),
+    feature_flags: args.featureFlags,
+    schedule_completions: args.scheduleCompletions,
+    blocked_day_books: args.blockedDayBooks,
+    last_result: args.lastResult,
   };
 }
 
@@ -68,7 +63,7 @@ export async function saveStateSafe(
     const result = await plannerApi.saveState(payload);
     if (result.ok === false) {
       addLog(
-        `Save failed: ${result.error || "Unknown state persistence error"}`,
+        `Save failed: ${result.error ?? "Unknown state persistence error"}`,
       );
       return false;
     }

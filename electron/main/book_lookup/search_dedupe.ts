@@ -13,8 +13,8 @@ export function dedupeDocs(docs: SearchDoc[]): SearchDoc[] {
   const seen = new Set<string>();
   const deduped: SearchDoc[] = [];
   docs.forEach((doc) => {
-    const key = String(doc.key || "").trim();
-    if (key) {
+    const key = String(doc.key ?? "").trim();
+    if (key.length > 0) {
       if (seen.has(key)) {
         return;
       }
@@ -22,8 +22,13 @@ export function dedupeDocs(docs: SearchDoc[]): SearchDoc[] {
       deduped.push(doc);
       return;
     }
-    const fallback = `${String(doc.title || "").trim()}|${primaryAuthor(doc).trim()}`;
-    if (!fallback.trim() || seen.has(fallback)) {
+    const title = String(doc.title ?? "").trim();
+    const author = primaryAuthor(doc).trim();
+    if (title.length === 0 && author.length === 0) {
+      return;
+    }
+    const fallback = `${title}|${author}`;
+    if (seen.has(fallback)) {
       return;
     }
     seen.add(fallback);

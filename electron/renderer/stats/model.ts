@@ -1,6 +1,6 @@
 import type { Book } from "../books/types.js";
 import type { Session } from "../sessions/normalize.js";
-import type { PlannerResult } from "../app/types.js";
+import type { PlannerResult } from "../../types/types.js";
 import {
   activeDayCount,
   dayMinutesFromActivity,
@@ -51,7 +51,7 @@ interface SnapshotInputs {
  * @returns Goal minutes clamped to at least 1.
  */
 function normalizedGoalMinutes(goalMinutes: number | undefined): number {
-  return Math.max(MIN_GOAL_MINUTES, Number(goalMinutes || MIN_GOAL_MINUTES));
+  return Math.max(MIN_GOAL_MINUTES, Number(goalMinutes ?? MIN_GOAL_MINUTES));
 }
 
 /**

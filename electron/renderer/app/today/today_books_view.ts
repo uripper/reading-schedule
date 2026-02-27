@@ -78,8 +78,9 @@ function applyCoverFallbacks(listNode: HTMLElement): void {
     .querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']")
     .forEach((img) => {
       img.addEventListener("error", () => {
-        img.src = COVER_PLACEHOLDER;
-        img.classList.add("is-empty");
+        const nextImage = img;
+        nextImage.src = COVER_PLACEHOLDER;
+        nextImage.classList.add("is-empty");
       });
     });
 }

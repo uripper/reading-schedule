@@ -1,25 +1,34 @@
 import { qa } from "./dom.js";
 
+/**
+ * Tab activation and keyboard navigation helpers for desktop/mobile tab controls.
+ */
 interface ActivateTabOptions {
   focusPanel?: boolean;
 }
 
-let onTabActivated: (name: string) => void = () => {};
+const DEFAULT_TAB_NAME = "today";
+const DEFAULT_TITLE = "Bartleby";
+const TAB_PANEL_SELECTOR = ".panel";
+const TAB_BUTTON_SELECTOR = ".tab[data-tab]";
+const TAB_DESKTOP_SELECTOR = ".tabs .tab[data-tab]";
+
+let onTabActivated: ((name: string) => void) | null = null;
 
 /**
  * Returns all tab buttons across desktop/mobile navs.
  * @returns Tab button elements.
  */
-function allTabButtons() {
-  return qa<HTMLElement>(".tab[data-tab]");
+function allTabButtons(): HTMLElement[] {
+  return qa<HTMLElement>(TAB_BUTTON_SELECTOR);
 }
 
 /**
  * Returns desktop tab buttons used for keyboard roving focus.
  * @returns Desktop tab button elements.
  */
-function desktopTabs() {
-  return qa<HTMLElement>(".tabs .tab[data-tab]");
+function desktopTabs(): HTMLElement[] {
+  return qa<HTMLElement>(TAB_DESKTOP_SELECTOR);
 }
 
 /**
@@ -37,13 +46,51 @@ function panelByName(name: string): HTMLElement | null {
  * @param active Whether panel is active.
  */
 function setPanelState(panel: HTMLElement, active: boolean): void {
-  panel.classList.toggle("is-active", active);
-  panel.hidden = !active;
+  const nextPanel = panel;
+  nextPanel.classList.toggle("is-active", active);
+  nextPanel.hidden = !active;
   if (active) {
-    panel.setAttribute("aria-hidden", "false");
+    nextPanel.setAttribute("aria-hidden", "false");
   } else {
-    panel.setAttribute("aria-hidden", "true");
+    nextPanel.setAttribute("aria-hidden", "true");
   }
+}
+
+/**
+ * Applies tab-role accessibility attributes for selected/unselected state.
+ * @param button Tab button element.
+ * @param active Whether button matches the active tab.
+ */
+function setTabAriaState(button: HTMLElement, active: boolean): void {
+  const nextButton = button;
+  if (button.getAttribute("role") !== "tab") {
+    return;
+  }
+  if (active) {
+    nextButton.setAttribute("aria-selected", "true");
+    nextButton.tabIndex = 0;
+    return;
+  }
+  nextButton.setAttribute("aria-selected", "false");
+  nextButton.tabIndex = -1;
+}
+
+/**
+ * Resolves best label for the active tab button.
+ * @param currentLabel Current fallback label.
+ * @param button Candidate active tab button.
+ * @returns Next document-title label.
+ */
+function resolveActiveLabel(currentLabel: string, button: HTMLElement): string {
+  const text = button.textContent;
+  if (typeof text !== "string") {
+    return currentLabel;
+  }
+  const trimmedLabel = text.trim();
+  if (trimmedLabel.length === 0) {
+    return currentLabel;
+  }
+  return trimmedLabel;
 }
 
 /**
@@ -51,36 +98,34 @@ function setPanelState(panel: HTMLElement, active: boolean): void {
  * @param name Tab name to activate.
  * @param options Optional activation behaviors.
  */
-export function activateTab(name: string, options: ActivateTabOptions = {}) {
+export function activateTab(
+  name: string,
+  options: ActivateTabOptions = {},
+): void {
   const { focusPanel = false } = options;
-  let activeLabel = "Bartleby";
+  let activeLabel = DEFAULT_TITLE;
 
-  allTabButtons().forEach((btn) => {
+  for (const button of allTabButtons()) {
+    const btn = button;
     const active = btn.dataset.tab === name;
     btn.classList.toggle("is-active", active);
-    if (btn.getAttribute("role") === "tab") {
-      if (active) {
-        btn.setAttribute("aria-selected", "true");
-        btn.tabIndex = 0;
-      } else {
-        btn.setAttribute("aria-selected", "false");
-        btn.tabIndex = -1;
-      }
-    }
+    setTabAriaState(btn, active);
     if (active) {
-      activeLabel = btn.textContent?.trim() || activeLabel;
+      activeLabel = resolveActiveLabel(activeLabel, btn);
     }
-  });
+  }
 
-  qa<HTMLElement>(".panel").forEach((panel) => {
+  for (const panel of qa<HTMLElement>(TAB_PANEL_SELECTOR)) {
     setPanelState(panel, panel.id === `tab-${name}`);
-  });
+  }
   const activePanel = panelByName(name);
   if (focusPanel && activePanel) {
     activePanel.focus();
   }
   document.title = `${activeLabel} - Bartleby`;
-  onTabActivated(name);
+  if (onTabActivated !== null) {
+    onTabActivated(name);
+  }
 }
 
 /**
@@ -90,11 +135,8 @@ export function activateTab(name: string, options: ActivateTabOptions = {}) {
  */
 function activateTabByIndex(tabs: HTMLElement[], index: number): void {
   const target = tabs[index];
-  if (!target) {
-    return;
-  }
   target.focus();
-  activateTab(target.dataset.tab ?? "today");
+  activateTab(target.dataset.tab ?? DEFAULT_TAB_NAME);
 }
 
 /**
@@ -130,13 +172,14 @@ function bindTabKeyboard(tabs: HTMLElement[]): void {
  * Binds click/keyboard tab interactions and activation callback.
  * @param onChange Callback invoked after tab activation.
  */
-export function bindTabs(onChange: (name: string) => void = () => {}) {
+export function bindTabs(onChange: ((name: string) => void) | null = null): void {
   onTabActivated = onChange;
-  allTabButtons().forEach((btn) => {
-    btn.onclick = () => {
-      activateTab(btn.dataset.tab ?? "today");
-    };
-  });
+  for (const button of allTabButtons()) {
+    const btn = button;
+    btn.addEventListener("click", () => {
+      activateTab(btn.dataset.tab ?? DEFAULT_TAB_NAME);
+    });
+  }
 
   bindTabKeyboard(desktopTabs());
 }

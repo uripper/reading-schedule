@@ -1,4 +1,4 @@
-import type { BookLookupItem } from "../app/types.js";
+import type { BookLookupItem } from "../../types/types.js";
 import { getPlannerApi } from "../app/planner_api.js";
 
 interface LookupState {
@@ -12,8 +12,8 @@ interface LookupInputHandlerArgs {
   searchInput: HTMLInputElement;
   metaEl: HTMLElement;
   state: LookupState;
-  clearResults(): void;
-  refreshResults(): void;
+  clearResults(this: void): void;
+  refreshResults(this: void): void;
 }
 
 const LOOKUP_DELAY_MS = 260;
@@ -37,48 +37,50 @@ export function createLookupInputHandler({
   clearResults,
   refreshResults,
 }: LookupInputHandlerArgs): () => void {
+  const lookupState = state;
+  const statusElement = metaEl;
   return (): void => {
     const query = searchInput.value.trim();
-    if (state.timer) {
-      clearTimeout(state.timer);
+    if (lookupState.timer !== null) {
+      clearTimeout(lookupState.timer);
     }
 
     if (query.length < MIN_QUERY_LENGTH) {
       clearResults();
-      metaEl.textContent = "";
+      statusElement.textContent = "";
       return;
     }
 
-    state.timer = setTimeout(async () => {
-      state.token += 1;
-      const currentToken = state.token;
-      try {
-        const items = (await getPlannerApi().searchBooks(query)).slice(
-          0,
-          RESULT_LIMIT,
-        );
-        if (currentToken !== state.token) {
-          return;
-        }
-        state.currentItems = items;
-        state.activeIndex = -1;
-        if (items.length) {
-          state.activeIndex = 0;
-        }
-        if (!items.length) {
+    lookupState.timer = setTimeout((): void => {
+      lookupState.token += 1;
+      const currentToken = lookupState.token;
+      getPlannerApi()
+        .searchBooks(query)
+        .then((fetchedItems): void => {
+          const items = fetchedItems.slice(0, RESULT_LIMIT);
+          if (currentToken !== lookupState.token) {
+            return;
+          }
+          lookupState.currentItems = items;
+          lookupState.activeIndex = -1;
+          if (items.length > 0) {
+            lookupState.activeIndex = 0;
+          }
+          if (items.length === 0) {
+            clearResults();
+            statusElement.textContent = "No matches found.";
+            return;
+          }
+          refreshResults();
+          statusElement.textContent = "Select a result to fill details.";
+        })
+        .catch((): void => {
+          if (currentToken !== lookupState.token) {
+            return;
+          }
           clearResults();
-          metaEl.textContent = "No matches found.";
-          return;
-        }
-        refreshResults();
-        metaEl.textContent = "Select a result to fill details.";
-      } catch {
-        if (currentToken !== state.token) {
-          return;
-        }
-        clearResults();
-        metaEl.textContent = "Lookup unavailable; enter values manually.";
-      }
+          statusElement.textContent = "Lookup unavailable; enter values manually.";
+        });
     }, LOOKUP_DELAY_MS);
   };
 }

@@ -1,4 +1,4 @@
-import type { BookLookupItem } from "../app/types.js";
+import type { BookLookupItem } from "../../types/types.js";
 
 /**
  * Builds a stable option id for a lookup result row.
@@ -7,7 +7,89 @@ import type { BookLookupItem } from "../app/types.js";
  * @returns DOM id for the option element.
  */
 function optionId(resultsEl: HTMLElement, index: number): string {
-  return `${resultsEl.id || "lookup-results"}-option-${index}`;
+  let rootId = resultsEl.id;
+  if (rootId.length === 0) {
+    rootId = "lookup-results";
+  }
+  return `${rootId}-option-${index}`;
+}
+
+/**
+ * Builds preferred cover source URL for a lookup item.
+ * @param item Lookup result item.
+ * @param placeholder Placeholder image URL.
+ * @returns Cover source URL.
+ */
+function coverSource(item: BookLookupItem, placeholder: string): string {
+  const coverUrl = String(item.cover_url ?? "").trim();
+  if (coverUrl.length > 0) {
+    return coverUrl;
+  }
+  return placeholder;
+}
+
+/**
+ * Returns normalized title text from a lookup item.
+ * @param item Lookup result item.
+ * @returns Trimmed title text (possibly empty).
+ */
+function rawTitleText(item: BookLookupItem): string {
+  return String(item.title ?? "").trim();
+}
+
+/**
+ * Returns display title text for a lookup item.
+ * @param item Lookup result item.
+ * @returns Title label for list rendering.
+ */
+function titleLabel(item: BookLookupItem): string {
+  const titleText = rawTitleText(item);
+  if (titleText.length > 0) {
+    return titleText;
+  }
+  return "Untitled";
+}
+
+/**
+ * Returns image alt text for a lookup item cover thumbnail.
+ * @param item Lookup result item.
+ * @returns Cover alt text.
+ */
+function coverAlt(item: BookLookupItem): string {
+  const titleText = rawTitleText(item);
+  if (titleText.length > 0) {
+    return `Cover for ${titleText}`;
+  }
+  return "Book cover";
+}
+
+/**
+ * Builds metadata line text for a lookup result item.
+ * @param item Lookup result item.
+ * @returns Joined metadata text.
+ */
+function metaText(item: BookLookupItem): string {
+  let pagesLabel = "";
+  if (
+    typeof item.pages_estimate === "number" &&
+    Number.isFinite(item.pages_estimate) &&
+    item.pages_estimate > 0
+  ) {
+    pagesLabel = `${item.pages_estimate} pages`;
+  }
+  const metaParts: string[] = [];
+  const authorText = String(item.author ?? "").trim();
+  if (authorText.length > 0) {
+    metaParts.push(authorText);
+  }
+  const yearText = String(item.year ?? "").trim();
+  if (yearText.length > 0) {
+    metaParts.push(yearText);
+  }
+  if (pagesLabel.length > 0) {
+    metaParts.push(pagesLabel);
+  }
+  return metaParts.join(" · ");
 }
 
 /**
@@ -23,13 +105,14 @@ export function renderLookupResults(
   placeholder: string,
   activeIndex: number,
 ): void {
-  resultsEl.innerHTML = "";
+  const listElement = resultsEl;
+  listElement.innerHTML = "";
   items.forEach((item: BookLookupItem, index: number) => {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "book-result";
     btn.dataset.resultIndex = String(index);
-    btn.id = optionId(resultsEl, index);
+    btn.id = optionId(listElement, index);
     btn.setAttribute("role", "option");
     btn.setAttribute("aria-selected", "false");
     if (activeIndex === index) {
@@ -40,11 +123,8 @@ export function renderLookupResults(
     const thumb = document.createElement("img");
     thumb.className = "book-result-cover";
     thumb.loading = "lazy";
-    thumb.src = item.cover_url || placeholder;
-    thumb.alt = "Book cover";
-    if (item.title) {
-      thumb.alt = `Cover for ${item.title}`;
-    }
+    thumb.src = coverSource(item, placeholder);
+    thumb.alt = coverAlt(item);
     thumb.onerror = () => {
       thumb.onerror = null;
       thumb.src = placeholder;
@@ -53,21 +133,15 @@ export function renderLookupResults(
     const textWrap = document.createElement("span");
     const title = document.createElement("span");
     title.className = "book-result-title";
-    title.textContent = item.title || "Untitled";
+    title.textContent = titleLabel(item);
 
     const meta = document.createElement("span");
     meta.className = "book-result-meta";
-    let pagesLabel = "";
-    if (item.pages_estimate) {
-      pagesLabel = `${item.pages_estimate} pages`;
-    }
-    meta.textContent = [item.author || "", item.year || "", pagesLabel]
-      .filter(Boolean)
-      .join(" · ");
+    meta.textContent = metaText(item);
 
     textWrap.append(title, meta);
     btn.append(thumb, textWrap);
-    resultsEl.append(btn);
+    listElement.append(btn);
   });
 }
 

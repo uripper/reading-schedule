@@ -36,7 +36,7 @@
 
 .stats-card h3 {
   margin: 0;
-  font-size: var(--token-typography-size-xs);
+  font-size: var(--token-typography-size-sm);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -51,7 +51,7 @@
 .stats-note {
   margin: 0;
   color: var(--app-textMuted);
-  font-size: var(--token-typography-size-xs);
+  font-size: var(--token-typography-size-md);
 }
 
 .stats-secondary-grid {
@@ -72,29 +72,29 @@
 .stats-panel h3 {
   margin: 0;
   color: var(--app-text);
-  font-size: var(--token-typography-size-sm);
+  font-size: var(--token-typography-size-medium);
 }
 
 .status-list {
   display: grid;
-  gap: var(--token-space-2);
+  gap: var(--token-space-5);
 }
 
 .status-row {
   display: grid;
-  grid-template-columns: 96px minmax(0, 1fr) 36px;
-  align-items: center;
-  gap: var(--token-space-2);
+  grid-template-columns: 164px minmax(0, 1fr) 56px;
+  align-items: center;  
+  gap: var(--token-space-3);
 }
 
 .status-label,
 .status-count {
-  font-size: var(--token-typography-size-xs);
+  font-size: var(--token-typography-size-lg);
   color: var(--app-textMuted);
 }
 
 .status-bar-wrap {
-  height: 10px;
+  height: 20px;
   border-radius: var(--token-radius-pill);
   border: 1px solid var(--app-border);
   overflow: hidden;
@@ -125,20 +125,20 @@
 .month-bars {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: var(--token-space-1);
+  gap: var(--token-space-2);
   align-items: stretch;
 }
 
 .month-bar-item {
   display: grid;
-  grid-template-rows: auto 160px auto;
-  gap: 6px;
+  grid-template-rows: 220px auto;
+  gap: var(--token-space-2);
   justify-items: center;
 }
 
 .month-bar-track {
   width: 100%;
-  height: 160px;
+  height: 220px;
   border: 1px solid var(--app-border);
   border-radius: var(--token-radius-sm);
   background:
@@ -168,13 +168,8 @@
   opacity: 0.4;
 }
 
-.month-bar-count {
-  font-size: 11px;
-  color: var(--app-textMuted);
-}
-
 .month-bar-label {
-  font-size: 10px;
+  font-size: var(--token-typography-size-sm);
   color: var(--app-textMuted);
   letter-spacing: 0.02em;
 }

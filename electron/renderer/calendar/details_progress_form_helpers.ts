@@ -2,6 +2,16 @@ import type { CalendarRowWithFinish } from "./data.js";
 import type { DetailInteractionHandlers } from "./details_types.js";
 import { parseOptionalNumber } from "./utils.js";
 
+interface SubmitProgressUpdateArgs {
+  event: SubmitEvent;
+  row: CalendarRowWithFinish;
+  pagesInput: HTMLInputElement;
+  pctInput: HTMLInputElement;
+  initialPagesValue: string;
+  initialPercentValue: string;
+  interactionHandlers: DetailInteractionHandlers;
+}
+
 /**
  * Prefills input value from book progress value when present.
  * @param inputNode Input element to set.
@@ -11,8 +21,9 @@ export function setInputValueFromBookProgress(
   inputNode: HTMLInputElement,
   value?: string | number,
 ): void {
-  if (value !== null && value !== undefined) {
-    inputNode.value = String(value);
+  const targetInput = inputNode;
+  if (value !== undefined) {
+    targetInput.value = String(value);
   }
 }
 
@@ -26,7 +37,7 @@ function changedNumberValue(
   inputNode: HTMLInputElement,
   initialValue: string,
 ): number | null {
-  const currentValue = String(inputNode.value ?? "").trim();
+  const currentValue = String(inputNode.value).trim();
   if (currentValue === String(initialValue)) {
     return null;
   }
@@ -43,37 +54,42 @@ function syncInputValue(
   inputNode: HTMLInputElement,
   nextValue?: number | null,
 ): string {
+  const targetInput = inputNode;
   if (nextValue === null || nextValue === undefined) {
-    return String(inputNode.value ?? "").trim();
+    return String(targetInput.value).trim();
   }
-  inputNode.value = String(nextValue);
-  return String(inputNode.value ?? "").trim();
+  targetInput.value = String(nextValue);
+  return String(targetInput.value).trim();
 }
 
 /**
  * Submits progress update and returns updated baseline form values.
- * @param event Form submit event.
- * @param row Calendar row being edited.
- * @param pagesInput Pages-read input element.
- * @param pctInput Progress-percent input element.
- * @param initialPagesValue Previous stable pages value.
- * @param initialPercentValue Previous stable percent value.
- * @param interactionHandlers Detail interaction handlers.
+ * @param args Form submission payload for the progress editor.
+ * @param args.event Form submit event.
+ * @param args.row Calendar row being edited.
+ * @param args.pagesInput Pages-read input element.
+ * @param args.pctInput Progress-percent input element.
+ * @param args.initialPagesValue Previous stable pages value.
+ * @param args.initialPercentValue Previous stable percent value.
+ * @param args.interactionHandlers Detail interaction handlers.
  * @returns Updated initial values and apply status.
  */
 export function submitProgressUpdate(
-  event: SubmitEvent,
-  row: CalendarRowWithFinish,
-  pagesInput: HTMLInputElement,
-  pctInput: HTMLInputElement,
-  initialPagesValue: string,
-  initialPercentValue: string,
-  interactionHandlers: DetailInteractionHandlers,
+  args: SubmitProgressUpdateArgs,
 ): {
   initialPagesValue: string;
   initialPercentValue: string;
   applied: boolean;
 } {
+  const {
+    event,
+    row,
+    pagesInput,
+    pctInput,
+    initialPagesValue,
+    initialPercentValue,
+    interactionHandlers,
+  } = args;
   event.preventDefault();
   const pagesRead = changedNumberValue(pagesInput, initialPagesValue);
   const progressPercent = changedNumberValue(pctInput, initialPercentValue);

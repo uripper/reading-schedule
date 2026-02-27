@@ -24,7 +24,7 @@ export function selectedBook(state: PickerState): Book | null {
   if (!state.selectedBookId) {
     return null;
   }
-  return state.options.find((book) => book.book_id === state.selectedBookId) || null;
+  return state.options.find((book) => book.book_id === state.selectedBookId) ?? null;
 }
 
 /**
@@ -36,11 +36,12 @@ export function renderAfterBookResults(
   refs: BookFormRefs,
   state: PickerState,
 ): void {
-  refs.afterBookResults.innerHTML = "";
+  const formRefs = refs;
+  formRefs.afterBookResults.innerHTML = "";
   if (!state.filtered.length) {
-    refs.afterBookResults.classList.remove("has-items");
-    refs.afterBookInput.setAttribute("aria-expanded", "false");
-    refs.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
+    formRefs.afterBookResults.classList.remove("has-items");
+    formRefs.afterBookInput.setAttribute("aria-expanded", "false");
+    formRefs.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
     return;
   }
   const items = state.filtered.map((book, index) => {
@@ -55,17 +56,17 @@ export function renderAfterBookResults(
     button.classList.toggle("is-active", state.activeIndex === index);
     return button;
   });
-  refs.afterBookResults.replaceChildren(...items);
-  refs.afterBookResults.classList.add("has-items");
-  refs.afterBookInput.setAttribute("aria-expanded", "true");
+  formRefs.afterBookResults.replaceChildren(...items);
+  formRefs.afterBookResults.classList.add("has-items");
+  formRefs.afterBookInput.setAttribute("aria-expanded", "true");
   if (state.activeIndex > NO_ACTIVE_INDEX) {
-    refs.afterBookInput.setAttribute(
+    formRefs.afterBookInput.setAttribute(
       ARIA_ACTIVE_DESCENDANT_ATTR,
       `after-book-option-${state.activeIndex}`,
     );
     return;
   }
-  refs.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
+  formRefs.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
 }
 
 /**
@@ -77,5 +78,6 @@ export function setUnknownSelectionLabel(
   refs: BookFormRefs,
   blockedById: string,
 ): void {
-  refs.afterBookInput.value = `${UNKNOWN_BOOK_LABEL} (${blockedById})`;
+  const formRefs = refs;
+  formRefs.afterBookInput.value = `${UNKNOWN_BOOK_LABEL} (${blockedById})`;
 }

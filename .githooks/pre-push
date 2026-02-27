@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[pre-push] Running npm run ci:local"
+if npm run ci:local; then
+  echo "[pre-push] All checks passed. Proceeding with push."
+  exit 0
+fi
+
+echo "[pre-push] Checks failed. Push blocked."
+exit 1

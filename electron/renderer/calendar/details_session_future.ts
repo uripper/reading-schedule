@@ -21,14 +21,22 @@ export function buildFutureSessionItem(
   interactionHandlers: DetailInteractionHandlers,
   rerenderDetails: () => void,
 ): HTMLElement {
+  const getBookById = (
+    bookId: string,
+  ): ReturnType<DetailInteractionHandlers["getBookById"]> => {
+    return interactionHandlers.getBookById(bookId);
+  };
+  const isSessionCompleted = (sessionKey: string): boolean => {
+    return interactionHandlers.isSessionCompleted(sessionKey);
+  };
   const item = baseSessionItem(row);
   const estimate = document.createElement("p");
   estimate.className = DAY_DETAILS_META_CLASS;
   estimate.textContent = estimateProgressLabel(
     row,
     state,
-    interactionHandlers.getBookById,
-    interactionHandlers.isSessionCompleted,
+    getBookById,
+    isSessionCompleted,
   );
   item.append(
     estimate,

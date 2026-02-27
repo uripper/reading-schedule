@@ -33,10 +33,10 @@ def _validate_missing_blockers(
 def _walk_blockers(
     book_id: str,
     by_id: dict[str, Book],
-    state: tuple[set[str], set[str]],
+    visiting: set[str],
+    visited: set[str],
 ) -> None:
     """Traverse blocker ancestry for one book and detect cycles."""
-    visiting, visited = state
     if book_id in visited:
         return
     if book_id in visiting:
@@ -44,7 +44,7 @@ def _walk_blockers(
         raise ValueError(msg)
     visiting.add(book_id)
     if blocker := by_id[book_id].blocked_by:
-        _walk_blockers(blocker, by_id, (visiting, visited))
+        _walk_blockers(blocker, by_id, visiting, visited)
     visiting.remove(book_id)
     visited.add(book_id)
 
@@ -57,7 +57,7 @@ def _validate_blockers(books: list[Book]) -> None:
     visiting: set[str] = set()
     visited: set[str] = set()
     for book in books:
-        _walk_blockers(book.book_id, by_id, (visiting, visited))
+        _walk_blockers(book.book_id, by_id, visiting, visited)
 
 
 def generate_plan(payload: dict[str, object]) -> dict[str, object]:

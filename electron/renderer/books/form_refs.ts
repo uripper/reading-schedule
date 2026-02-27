@@ -30,6 +30,8 @@ export interface BookFormRefs {
   finishedAtField: HTMLElement;
   finishedAtInput: HTMLInputElement;
   shelfSelectInput: HTMLSelectElement;
+  scheduledDaysField: HTMLElement;
+  applyScheduledDaysToShelfInput: HTMLInputElement;
   shelfPromptDialog: HTMLDialogElement;
   shelfPromptForm: HTMLFormElement;
   shelfPromptInput: HTMLInputElement;
@@ -73,6 +75,10 @@ export function getBookFormRefs(): BookFormRefs {
     finishedAtField: el("bookFinishedAtField"),
     finishedAtInput: el<HTMLInputElement>("bookFinishedAtInput"),
     shelfSelectInput: el<HTMLSelectElement>("bookShelfSelectInput"),
+    scheduledDaysField: el("bookScheduledDaysField"),
+    applyScheduledDaysToShelfInput: el<HTMLInputElement>(
+      "bookApplyScheduledDaysToShelfInput",
+    ),
     shelfPromptDialog: el<HTMLDialogElement>("bookShelfPromptDialog"),
     shelfPromptForm: el<HTMLFormElement>("bookShelfPromptForm"),
     shelfPromptInput: el<HTMLInputElement>("bookShelfPromptInput"),

@@ -6,7 +6,7 @@ import type {
   PlannerApi,
   PlannerResult,
   PlannerSettings,
-} from "./types.js";
+} from "../../types/types.js";
 
 interface InitialDataSource {
   settings?: PlannerSettings;
@@ -22,21 +22,35 @@ interface LoadStateArgs {
   normalizeScheduleCompletions(
     raw: Record<string, boolean>,
   ): Record<string, boolean>;
-  fillPreferencesUI(
-    preferences: Preferences,
-    featureFlags: FeatureFlags,
-  ): void;
+  fillPreferencesUI(preferences: Preferences, featureFlags: FeatureFlags): void;
   applyPreferencesToDocument(preferences: Preferences): void;
   setPreferences(preferences: Preferences): void;
   setFeatureFlags(featureFlags: FeatureFlags): void;
-  setScheduleCompletions(
-    scheduleCompletions: Record<string, boolean>,
-  ): void;
+  setScheduleCompletions(scheduleCompletions: Record<string, boolean>): void;
+  setBlockedDayBooks(blockedDayBooks: Record<string, boolean>): void;
   setSessions(sessions: Session[]): void;
   applyLoadedResult(result: PlannerResult | null): void;
   updateTodayView(): void;
   onLoaded(saved: LoadedPlannerState | null | undefined): void;
   setStatus(message: string, isError?: boolean): void;
+}
+
+/**
+ * Normalizes persisted blocked day-book map values to strict booleans.
+ * @param raw Persisted blocked map keyed by `YYYY-MM-DD|book_id`.
+ * @returns Sanitized blocked map.
+ */
+function normalizeBlockedDayBooks(
+  raw: Record<string, string | number | boolean | null | undefined> = {},
+): Record<string, boolean> {
+  const out: Record<string, boolean> = {};
+  Object.entries(raw).forEach(([key, value]) => {
+    if (!key) {
+      return;
+    }
+    out[key] = Boolean(value);
+  });
+  return out;
 }
 
 /**
@@ -47,7 +61,16 @@ interface LoadStateArgs {
 function hasInitialSettingsAndBooks(
   source: LoadedPlannerState | null | undefined,
 ): source is InitialDataSource {
-  return Boolean(source?.settings && source?.books);
+  if (source === null || source === undefined) {
+    return false;
+  }
+  if (source.settings === undefined) {
+    return false;
+  }
+  if (source.books === undefined) {
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -80,7 +103,15 @@ function applyLoadedData(
   args.fillSettings(source.settings);
   args.fillBooks(source.books);
   args.setScheduleCompletions(
-    args.normalizeScheduleCompletions(saved?.schedule_completions || {}),
+    args.normalizeScheduleCompletions(saved?.schedule_completions ?? {}),
+  );
+  args.setBlockedDayBooks(
+    normalizeBlockedDayBooks(
+      saved?.blocked_day_books as Record<
+        string,
+        string | number | boolean | null | undefined
+      > | undefined,
+    ),
   );
 }
 
@@ -93,8 +124,8 @@ function applySessionAndResultData(
   saved: LoadedPlannerState | null | undefined,
   args: LoadStateArgs,
 ): void {
-  args.setSessions(saved?.sessions || []);
-  args.applyLoadedResult(saved?.last_result || null);
+  args.setSessions(saved?.sessions ?? []);
+  args.applyLoadedResult(saved?.last_result ?? null);
   args.updateTodayView();
 }
 
@@ -125,8 +156,8 @@ export async function loadInitialData(args: LoadStateArgs): Promise<void> {
     const source = await resolveInitialSource(args.plannerApi, saved);
     applyLoadedData(saved, source, args);
 
-    const preferences = args.normalizePreferences(saved?.preferences || {});
-    const featureFlags = args.normalizeFeatureFlags(saved?.feature_flags || {});
+    const preferences = args.normalizePreferences(saved?.preferences ?? {});
+    const featureFlags = args.normalizeFeatureFlags(saved?.feature_flags ?? {});
     args.setPreferences(preferences);
     args.setFeatureFlags(featureFlags);
     applyExperienceData(args, preferences, featureFlags);

@@ -5,7 +5,7 @@ import type {
   PlannerResult,
   PlannerSettings,
   PlannerSummary,
-} from "./types.js";
+} from "../../types/types.js";
 
 interface RunPlanGenerationArgs {
   plannerApi: Pick<PlannerApi, "generate">;
@@ -79,6 +79,22 @@ function summaryLog(summary: PlannerSummary | null): string {
   const planned = Number(summary?.total_planned_minutes ?? 0);
   const available = Number(summary?.total_available_minutes ?? 0);
   return `Status ${status}. Planned ${planned}/${available} minutes.`;
+}
+
+/**
+ * Logs planner summary details and optional feasibility warning.
+ * @param summary Planner summary payload from the generated plan.
+ * @param addLog Log sink used for planner status output.
+ */
+function logPlanSummary(
+  summary: PlannerSummary | null | undefined,
+  addLog: (message: string) => void,
+): void {
+  const feasibilityWarning = summary?.feasibility_warning;
+  if (typeof feasibilityWarning === "string" && feasibilityWarning !== "") {
+    addLog(feasibilityWarning);
+  }
+  addLog(summaryLog(summary ?? null));
 }
 
 /**
@@ -180,7 +196,7 @@ export async function runPlanGeneration({
       ...settings,
       start_date: forcedStartDate,
     };
-    if (normalizedEndDate) {
+    if (normalizedEndDate !== undefined && normalizedEndDate !== "") {
       payloadSettings.end_date = normalizedEndDate;
     }
     const payload: PlanGeneratePayload = {
@@ -191,14 +207,10 @@ export async function runPlanGeneration({
 
     const data = await plannerApi.generate(payload);
     await onSuccess(data);
-
-    if (data.summary?.feasibility_warning) {
-      addLog(data.summary.feasibility_warning);
-    }
-    addLog(summaryLog(data.summary));
+    logPlanSummary(data.summary, addLog);
 
     setStatus(statusSuccessMessage);
-    if (successAnnouncement) {
+    if (successAnnouncement !== "") {
       announce(successAnnouncement);
     }
   } catch (error) {

@@ -28,7 +28,7 @@ export interface GroupMeta {
 function parseFinishDateParts(
   dateText?: string,
 ): { year: number; month: number; date: Date } | null {
-  const raw = String(dateText || "").trim();
+  const raw = String(dateText ?? "").trim();
   if (!raw) {
     return null;
   }
@@ -66,7 +66,7 @@ export function finishDateMetaForBook(
   finishDateByBookId: Record<string, string>,
   currentYear: number,
 ): GroupMeta {
-  const finishDate = parseFinishDateParts(finishDateByBookId?.[book.book_id]);
+  const finishDate = parseFinishDateParts(finishDateByBookId[book.book_id]);
   if (!finishDate) {
     return {
       key: NO_ESTIMATED_FINISH_KEY,

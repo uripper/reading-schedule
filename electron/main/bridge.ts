@@ -3,7 +3,7 @@
  */
 import { spawn } from "node:child_process";
 import path from "node:path";
-import type { JsonValue } from "./state_store";
+import type { JsonValue } from "../types/types_json";
 
 const PLANNER_MODULE = "reading_plan.gui_api";
 const PYTHONPATH_SEGMENT = "src";
@@ -52,8 +52,8 @@ function appendChunk(target: string, chunk: Buffer | string): string {
 function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
   try {
     const parsed = JSON.parse(stdout || "{}") as BridgeResponse;
-    if (!parsed.ok) {
-      throw new Error(parsed.error || stderr || "Planner failed");
+    if (parsed.ok !== true) {
+      throw new Error((parsed.error ?? stderr) || "Planner failed");
     }
     if (parsed.data === undefined) {
       return null;
@@ -72,7 +72,7 @@ function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
  */
 export async function runBridge(args: string[], payload?: JsonValue): Promise<JsonValue> {
   return await new Promise((resolve, reject) => {
-    const pythonBinary = process.env.PYTHON_BIN || "python";
+    const pythonBinary = process.env.PYTHON_BIN ?? "python";
     const processHandle = spawn(pythonBinary, ["-m", PLANNER_MODULE, ...args], {
       cwd: root(),
       env: pyEnv(),
@@ -90,7 +90,11 @@ export async function runBridge(args: string[], payload?: JsonValue): Promise<Js
       try {
         resolve(parseBridgeOutput(stdout, stderr));
       } catch (error) {
-        reject(error);
+        if (error instanceof Error) {
+          reject(error);
+          return;
+        }
+        reject(new Error(String(error)));
       }
     });
     if (payload !== undefined) {

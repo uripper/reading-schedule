@@ -1,4 +1,4 @@
-import type { PlannerResult } from "./types.js";
+import type { PlannerResult } from "../../types/types.js";
 import type { Session } from "../sessions/normalize.js";
 import { DEFAULT_FEATURE_FLAGS, DEFAULT_PREFERENCES } from "./experience/index.js";
 
@@ -8,6 +8,7 @@ export interface AppRuntimeState {
   preferences: typeof DEFAULT_PREFERENCES;
   featureFlags: typeof DEFAULT_FEATURE_FLAGS;
   scheduleCompletions: Record<string, boolean>;
+  blockedDayBooks: Record<string, boolean>;
   sessions: Session[];
 }
 
@@ -22,6 +23,7 @@ export function createRuntimeState(): AppRuntimeState {
     preferences: { ...DEFAULT_PREFERENCES },
     featureFlags: { ...DEFAULT_FEATURE_FLAGS },
     scheduleCompletions: {},
+    blockedDayBooks: {},
     sessions: [],
   };
 }

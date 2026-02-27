@@ -40,7 +40,7 @@ function card(title: string, value: string, note: string): HTMLElement {
   const node = document.createElement("article");
   node.className = "stats-card";
 
-  const heading = document.createElement("h3");
+  const heading = document.createElement("h2");
   heading.textContent = title;
 
   const valueNode = document.createElement("p");
@@ -60,7 +60,7 @@ function card(title: string, value: string, note: string): HTMLElement {
  * @param count Finish count.
  * @returns Human-friendly count label.
  */
-function finishCountLabel(count: number): string {
+export function finishCountLabel(count: number): string {
   if (count === SINGLE_FINISH_COUNT) {
     return `${count} finish`;
   }
@@ -73,7 +73,7 @@ function finishCountLabel(count: number): string {
  * @param maxCount Maximum count across months.
  * @returns Bar height percent.
  */
-function barHeightPercent(count: number, maxCount: number): number {
+export function barHeightPercent(count: number, maxCount: number): number {
   if (count <= ZERO_COUNT) {
     return ZERO_COUNT;
   }
@@ -126,7 +126,8 @@ function statusPanel(snapshot: StatsSnapshot): HTMLElement {
   const panel = document.createElement("article");
   panel.className = "stats-panel";
 
-  const heading = document.createElement("h3");
+  const heading = document.createElement("h1");
+  heading.className = "stats-section-heading";
   heading.textContent = "Status Mix";
 
   const list = document.createElement("div");
@@ -171,7 +172,8 @@ function monthPanel(snapshot: StatsSnapshot): HTMLElement {
   const panel = document.createElement("article");
   panel.className = "stats-panel";
 
-  const heading = document.createElement("h3");
+  const heading = document.createElement("h1");
+  heading.className = "stats-section-heading";
   heading.textContent = `Finish Timeline ${snapshot.year}`;
 
   const bars = document.createElement("div");
@@ -184,6 +186,7 @@ function monthPanel(snapshot: StatsSnapshot): HTMLElement {
 
     const track = document.createElement("div");
     track.className = "month-bar-track";
+    track.tabIndex = 0;
 
     const fill = document.createElement("span");
     fill.className = "month-bar-fill";
@@ -193,11 +196,10 @@ function monthPanel(snapshot: StatsSnapshot): HTMLElement {
     if (count <= ZERO_COUNT) {
       fill.classList.add("is-zero");
     }
-    track.append(fill);
-
-    const countNode = document.createElement("span");
-    countNode.className = "month-bar-count";
-    countNode.textContent = String(count);
+    const valueLabel = document.createElement("span");
+    valueLabel.className = "month-bar-value";
+    valueLabel.textContent = finishCountLabel(count);
+    track.append(fill, valueLabel);
 
     const month = document.createElement("span");
     month.className = "month-bar-label";
@@ -209,7 +211,7 @@ function monthPanel(snapshot: StatsSnapshot): HTMLElement {
       "aria-label",
       `${month.textContent}: ${finishCountLabel(count)}`,
     );
-    item.append(countNode, track, month);
+    item.append(track, month);
     bars.append(item);
   });
 

@@ -1,0 +1,45 @@
+@keyframes book-card-after-target-pulse {
+  0% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-brand) 30%, transparent);
+  }
+  14% {
+    transform: translateY(-9px) scale(1.02);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--app-brandStrong) 42%, transparent);
+  }
+  28% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-brand) 30%, transparent);
+  }
+  44% {
+    transform: translateY(-7px) scale(1.016);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--app-brandStrong) 36%, transparent);
+  }
+  60% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-brand) 30%, transparent);
+  }
+  76% {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--app-brandStrong) 32%, transparent);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-brand) 30%, transparent);
+  }
+}
+
+.book-card.is-after-target {
+  z-index: 2;
+  border-color: color-mix(in srgb, var(--app-brandStrong) 72%, var(--app-border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-brand) 30%, transparent);
+  filter: brightness(1) !important;
+  opacity: 1 !important;
+  animation: book-card-after-target-pulse 1800ms var(--token-motion-easing-standard) 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-card.is-after-target {
+    animation: none;
+  }
+}

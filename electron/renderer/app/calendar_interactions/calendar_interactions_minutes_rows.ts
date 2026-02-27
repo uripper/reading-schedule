@@ -9,7 +9,7 @@ import {
   rowsWithoutSession,
   wordsPlannedForManualSession,
 } from "./calendar_interactions_helpers.js";
-import type { PlannerScheduleRow, PlannerSettings } from "../types.js";
+import type { PlannerScheduleRow, PlannerSettings } from "../../../types/types.js";
 
 export type UpdatedRowsResult = {
   normalizedMinutes: number;

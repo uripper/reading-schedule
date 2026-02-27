@@ -5,7 +5,7 @@ import { createLookupStateController } from "./search_state.js";
 import {
   lookupResultTarget,
 } from "./render.js";
-import type { BookLookupItem } from "../app/types.js";
+import type { BookLookupItem } from "../../types/types.js";
 
 interface LookupState {
   timer: ReturnType<typeof setTimeout> | null;
@@ -18,7 +18,7 @@ interface BindBookLookupOptions {
   searchInput: HTMLInputElement;
   resultsEl: HTMLElement;
   metaEl: HTMLElement;
-  onPick(item: BookLookupItem): void;
+  onPick(this: void, item: BookLookupItem): void;
 }
 
 interface LookupBinding {
@@ -28,19 +28,14 @@ interface LookupBinding {
 
 /**
  * Binds all lookup search interactions (input, keyboard, mouse, outside click).
- * @param root0 Lookup binding options and callbacks.
- * @param root0.searchInput Search field element.
- * @param root0.resultsEl Lookup results container element.
- * @param root0.metaEl Metadata/help text element.
- * @param root0.onPick Callback invoked when a lookup result is selected.
+ * @param options Lookup binding options and callbacks.
+ * @param options.searchInput Search field element.
+ * @param options.resultsEl Lookup results container element.
+ * @param options.metaEl Metadata/help text element.
+ * @param options.onPick Callback invoked when a lookup result is selected.
  * @returns Binding handle with clear/destroy controls.
  */
-export function bindBookLookup({
-  searchInput,
-  resultsEl,
-  metaEl,
-  onPick,
-}: BindBookLookupOptions): LookupBinding {
+export function bindBookLookup(options: BindBookLookupOptions): LookupBinding {
   const placeholder = placeholderCoverSvg();
   const state: LookupState = {
     timer: null,
@@ -48,58 +43,65 @@ export function bindBookLookup({
     currentItems: [],
     activeIndex: -1,
   };
-  const {
-    clearResults,
-    refreshResults,
-    selectItem,
-    setActiveIndex,
-  } = createLookupStateController({
-    searchInput,
-    resultsEl,
-    metaEl,
-    onPick,
+  const lookupState = createLookupStateController({
+    searchInput: options.searchInput,
+    resultsEl: options.resultsEl,
+    metaEl: options.metaEl,
+    onPick: options.onPick,
     placeholder,
     state,
   });
-
-  resultsEl.addEventListener("mousemove", (event: MouseEvent) => {
+  const clearResults = (): void => {
+    lookupState.clearResults();
+  };
+  const refreshResults = (): void => {
+    lookupState.refreshResults();
+  };
+  const setActiveIndex = (nextIndex: number): void => {
+    lookupState.setActiveIndex(nextIndex);
+  };
+  const selectItem = (nextIndex: number): void => {
+    lookupState.selectItem(nextIndex);
+  };
+  options.resultsEl.addEventListener("mousemove", (event: MouseEvent) => {
     const target = lookupResultTarget(event);
     if (target) {
       setActiveIndex(Number(target.dataset.resultIndex));
     }
   });
-  resultsEl.addEventListener("click", (event: MouseEvent) => {
+  options.resultsEl.addEventListener("click", (event: MouseEvent) => {
     const target = lookupResultTarget(event);
     if (target) {
       selectItem(Number(target.dataset.resultIndex));
     }
   });
-
   const onInput = createLookupInputHandler({
-    searchInput,
-    metaEl,
+    searchInput: options.searchInput,
+    metaEl: options.metaEl,
     state,
     clearResults,
     refreshResults,
   });
-  searchInput.addEventListener("input", onInput);
-  searchInput.addEventListener("keydown", (event: KeyboardEvent) => {
-    handleLookupKeydown(
+  options.searchInput.addEventListener("input", onInput);
+  options.searchInput.addEventListener("keydown", (event: KeyboardEvent) => {
+    handleLookupKeydown({
       event,
-      state.currentItems,
-      state.activeIndex,
+      currentItems: state.currentItems,
+      activeIndex: state.activeIndex,
       setActiveIndex,
       selectItem,
       clearResults,
-      searchInput,
-    );
+      searchInput: options.searchInput,
+    });
   });
-
   const onDocClick = (event: MouseEvent): void => {
     if (!(event.target instanceof Node)) {
       return;
     }
-    if (event.target === searchInput || resultsEl.contains(event.target)) {
+    if (
+      event.target === options.searchInput ||
+      options.resultsEl.contains(event.target)
+    ) {
       return;
     }
     clearResults();
@@ -107,6 +109,8 @@ export function bindBookLookup({
   document.addEventListener("click", onDocClick);
   return {
     clearResults,
-    destroy: () => { document.removeEventListener("click", onDocClick); },
+    destroy: (): void => {
+      document.removeEventListener("click", onDocClick);
+    },
   };
 }

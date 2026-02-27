@@ -56,7 +56,8 @@ export function setZoomFactor(webContents: WebContents, value: number): number {
  * @returns Initial normalized zoom factor.
  */
 export function initialZoomFactor(): number {
-  const requestedScale = Number(process.env.UI_SCALE || String(DEFAULT_UI_SCALE));
+  const requestedScaleRaw = process.env.UI_SCALE ?? String(DEFAULT_UI_SCALE);
+  const requestedScale = Number(requestedScaleRaw);
   return normalizedZoomFactor(requestedScale);
 }
 

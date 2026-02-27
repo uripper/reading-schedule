@@ -7,7 +7,7 @@ import type {
   PlannerResult,
   PlannerSettings,
   PlannerSummary,
-} from "./types.js";
+} from "../../types/types.js";
 
 const PERSIST_DELAY_MS = 300;
 const NON_PLANNING_SETTING_IDS = new Set([
@@ -26,16 +26,22 @@ interface PersistQueueState {
   preferences: Preferences;
   featureFlags: FeatureFlags;
   scheduleCompletions: Record<string, boolean>;
+  blockedDayBooks: Record<string, boolean>;
   lastResult: PlannerResult | null;
 }
 
 interface PersistQueueArgs {
   plannerApi: Pick<PlannerApi, "saveState">;
   state: PersistQueueState;
-  getSessions(): Session[];
-  collectBooks(): Book[];
-  collectSettings(): PlannerSettings;
-  addLog(message: string): void;
+  getSessions(this: void): Session[];
+  collectBooks(this: void): Book[];
+  collectSettings(this: void): PlannerSettings;
+  addLog(this: void, message: string): void;
+}
+
+interface PersistQueue {
+  persistDraft(): Promise<boolean>;
+  queuePersist(): void;
 }
 
 /**
@@ -47,12 +53,13 @@ interface PersistQueueArgs {
 export function createStatusSetter(
   statusNode: HTMLElement,
   addLog: (message: string) => void,
-) {
-  return (message: string, isError = false) => {
-    statusNode.textContent = message;
-    statusNode.style.color = "var(--app-textMuted)";
+) : (message: string, isError?: boolean) => void {
+  const node = statusNode;
+  return (message: string, isError = false): void => {
+    node.textContent = message;
+    node.style.color = "var(--app-textMuted)";
     if (isError) {
-      statusNode.style.color = "var(--app-danger)";
+      node.style.color = "var(--app-danger)";
     }
     addLog(message);
   };
@@ -66,11 +73,12 @@ export function createStatusSetter(
 export function totalsFromSummary(
   summary: PlannerSummary | null,
 ): Record<string, number> {
-  const perBook = summary?.per_book || {};
-  const pairs = Object.entries(perBook).map(([id, info]) => {
-    return [id, Number(info.words_total || 0)];
+  const perBook = summary?.per_book ?? {};
+  const totals: Record<string, number> = {};
+  Object.entries(perBook).forEach(([id, info]) => {
+    totals[id] = Number(info.words_total ?? 0);
   });
-  return Object.fromEntries(pairs);
+  return totals;
 }
 
 /**
@@ -91,10 +99,10 @@ export function createPersistQueue({
   collectBooks,
   collectSettings,
   addLog,
-}: PersistQueueArgs) {
+}: PersistQueueArgs): PersistQueue {
   let persistTimer: ReturnType<typeof setTimeout> | null = null;
 
-  const persistDraft = async () => {
+  const persistDraft = async (): Promise<boolean> => {
     const payload = draftData({
       collectBooks,
       collectSettings,
@@ -102,12 +110,13 @@ export function createPersistQueue({
       preferences: state.preferences,
       featureFlags: state.featureFlags,
       scheduleCompletions: state.scheduleCompletions,
+      blockedDayBooks: state.blockedDayBooks,
       lastResult: state.lastResult,
     });
     return await saveStateSafe(plannerApi, payload, addLog);
   };
 
-  const queuePersist = () => {
+  const queuePersist = (): void => {
     if (!state.ready) {
       return;
     }
@@ -153,8 +162,8 @@ export function bindSettingsAutoPlanListeners(
   settingsPanel: HTMLElement,
   isReady: () => boolean,
   queueAutoPlan: () => void,
-) {
-  const onSettingMutation = (event: Event) => {
+): void {
+  const onSettingMutation = (event: Event): void => {
     if (!isReady()) {
       return;
     }
@@ -167,7 +176,7 @@ export function bindSettingsAutoPlanListeners(
     queueAutoPlan();
   };
 
-  const onSettingClick = (event: Event) => {
+  const onSettingClick = (event: Event): void => {
     if (!isReady()) {
       return;
     }

@@ -1,4 +1,4 @@
-import type { PlannerSettings } from "../app/types.js";
+import type { PlannerSettings } from "../../types/types.js";
 import { DEFAULT_DIFFICULTY_MULTIPLIER, DEFAULT_PLAN_MODE, weekdays } from "./config.js";
 import { allFieldDefinitions, inputEl, numberLevels, selectEl } from "./field_io.js";
 
@@ -12,7 +12,7 @@ function settingValueText(value: unknown): string {
     return value;
   }
   if (typeof value === "number" && Number.isFinite(value)) {
-    return `${value}`;
+    return String(value);
   }
   if (typeof value === "boolean") {
     if (value) {
@@ -37,6 +37,18 @@ function selectSettingValue(value: unknown): string {
 }
 
 /**
+ * Resolves boolean setting values with support for string payload variants.
+ * @param value Raw settings value.
+ * @returns Boolean value for checkbox controls.
+ */
+function checkboxSettingValue(value: unknown): boolean {
+  if (value === false || value === "false") {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Populates settings form controls from planner settings payload.
  * @param settings Planner settings payload.
  * @param setDayOffs Setter used to update day-off chips/state.
@@ -51,9 +63,13 @@ export function fillSettingsForm(
       selectEl(field.id).value = selectSettingValue(value);
       return;
     }
+    if (field.type === "checkbox") {
+      inputEl(field.id).checked = checkboxSettingValue(value);
+      return;
+    }
     inputEl(field.id).value = settingValueText(value);
   });
-  const minutesByWeekday = settings.minutes_by_weekday || {};
+  const minutesByWeekday = settings.minutes_by_weekday ?? {};
   weekdays.forEach(([key]) => {
     inputEl(`minutes_${key}`).value = String(minutesByWeekday[key] ?? 0);
   });
@@ -68,12 +84,14 @@ export function fillSettingsForm(
   }
   nextDayOffs.sort((left, right) => left.localeCompare(right));
   setDayOffs(nextDayOffs);
-  const difficultyMultiplier = settings.difficulty_multiplier || {};
+  const difficultyMultiplier = settings.difficulty_multiplier ?? {};
   numberLevels().forEach((level) => {
     const id = `diff_${level}`;
-    const exactLevel = difficultyMultiplier[level];
-    const stringLevel = difficultyMultiplier[String(level)];
-    const value = exactLevel ?? stringLevel ?? DEFAULT_DIFFICULTY_MULTIPLIER;
+    const difficultyKey = String(level);
+    let value = DEFAULT_DIFFICULTY_MULTIPLIER;
+    if (Object.hasOwn(difficultyMultiplier, difficultyKey)) {
+      value = difficultyMultiplier[difficultyKey];
+    }
     inputEl(id).value = String(value);
   });
 }
