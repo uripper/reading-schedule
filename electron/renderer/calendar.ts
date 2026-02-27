@@ -66,7 +66,9 @@ function renderFinishedBooksSummary(completedRows: CompletedBookRow[]): void {
  */
 function renderMonthView(): void {
   refreshDerivedRows(state, interactionHandlers.isSessionCompleted);
-  const getBookById = (bookId: string) => {
+  const getBookById = (
+    bookId: string,
+  ): ReturnType<CalendarHandlers["getBookById"]> => {
     return interactionHandlers.getBookById(bookId);
   };
   const completedRowsByDate = buildCompletedBookRowsByDate(
