@@ -12,7 +12,7 @@ import type { BindTodayActionsArgs, CreatePlanControllerArgs, FinalizeInitialLoa
  * @returns True when generic loaded status should be displayed.
  */
 function shouldShowLoadedStatus(args: FinalizeInitialLoadArgs): boolean {
-  const warningCode = args.loadResult.warningCode;
+  const {warningCode} = args.loadResult;
   if (warningCode === "RECOVERED_FROM_BACKUP") {
     return false;
   }
