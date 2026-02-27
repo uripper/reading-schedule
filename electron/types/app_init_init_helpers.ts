@@ -3,8 +3,7 @@ import type { createPlanController } from "../renderer/app/plan_controller.js";
 import type { Book } from "./books_types.js";
 import type { Session } from "./core_sessions.js";
 import type { PlannerResult } from "./planner_result.js";
-import type { AppRuntimeState } from "./app_runtime.js";
-import type { SetStatus } from "./app_runtime.js";
+import type { AppRuntimeState, SetStatus } from "./app_runtime.js";
 
 export type CreatePlanControllerArgs = Parameters<typeof createPlanController>[0];
 
