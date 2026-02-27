@@ -1,6 +1,11 @@
 import type { PlannerScheduleRow } from "../types/types.js";
 import { renderCalendarDetails } from "./calendar/details.js";
 import {
+  buildCompletedBookRowsByDate,
+  finishedBooksSummaryText,
+  type CompletedBookRow,
+} from "./calendar/finished_books.js";
+import {
   applyTodayFocus,
   indexForMonth,
   monthKeyForDateKey,
@@ -22,96 +27,32 @@ const state = createCalendarRuntimeState();
 let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});
 
 /**
- * Builds synthetic month rows for books completed on a specific day.
- * @param dateKey Target day key in `YYYY-MM-DD` format.
- * @returns Month-grid rows for completed books missing explicit sessions.
+ * Removes any prior finished-books summary from details panel.
+ * @param details Day-details root node.
  */
-function completedBookRowsForDate(dateKey: string): Array<{
-  book_id: string;
-  date: string;
-  finish: boolean;
-  minutes: number;
-  title: string;
-}> {
-  const rows: Array<{
-    book_id: string;
-    date: string;
-    finish: boolean;
-    minutes: number;
-    title: string;
-  }> = [];
-  const sessionBooks = interactionHandlers.listSessionBooks();
-  const seenBookIds = new Set<string>();
-  sessionBooks.forEach((entry) => {
-    const bookId = entry.bookId.trim();
-    if (bookId === "") {
-      return;
-    }
-    if (seenBookIds.has(bookId)) {
-      return;
-    }
-    seenBookIds.add(bookId);
-    const book = interactionHandlers.getBookById(bookId);
-    if (book === null) {
-      return;
-    }
-    const finishedAt = book.finished_at ?? "";
-    if (finishedAt !== dateKey) {
-      return;
-    }
-    const rawTitle = book.title.trim();
-    let title = "Untitled";
-    if (rawTitle !== "") {
-      title = rawTitle;
-    } else if (entry.title.trim() !== "") {
-      title = entry.title;
-    }
-    rows.push({
-      book_id: bookId,
-      date: dateKey,
-      finish: true,
-      minutes: 0,
-      title,
-    });
+function clearFinishedBooksSummary(details: HTMLElement): void {
+  details.querySelectorAll(".day-finished-summary").forEach((node) => {
+    node.remove();
   });
-  return rows;
 }
 
 /**
  * Renders top summary line listing books finished on selected day.
+ * @param completedRows Completed-book rows for selected date.
  */
-function renderFinishedBooksSummary(): void {
-  const dateKey = state.selectedDate;
-  if (dateKey === "") {
-    return;
-  }
-  const completedRows = completedBookRowsForDate(dateKey);
-  if (completedRows.length === 0) {
-    return;
-  }
-  const seenTitles = new Set<string>();
-  const finishedTitles: string[] = [];
-  completedRows.forEach((row) => {
-    const title = row.title.trim();
-    if (title === "") {
-      return;
-    }
-    if (seenTitles.has(title)) {
-      return;
-    }
-    seenTitles.add(title);
-    finishedTitles.push(title);
-  });
-  if (finishedTitles.length === 0) {
-    return;
-  }
+function renderFinishedBooksSummary(completedRows: CompletedBookRow[]): void {
   const details = document.getElementById("calendarDayDetails");
   if (!(details instanceof HTMLElement)) {
     return;
   }
+  clearFinishedBooksSummary(details);
+  const summaryText = finishedBooksSummaryText(completedRows);
+  if (summaryText === "") {
+    return;
+  }
   const summary = document.createElement("p");
   summary.className = "day-finished-summary";
-  summary.textContent = `Finished: ${finishedTitles.join(", ")}`;
+  summary.textContent = summaryText;
   const titleNode = details.querySelector("h2");
   if (titleNode instanceof HTMLElement) {
     titleNode.insertAdjacentElement("afterend", summary);
@@ -125,6 +66,18 @@ function renderFinishedBooksSummary(): void {
  */
 function renderMonthView(): void {
   refreshDerivedRows(state, interactionHandlers.isSessionCompleted);
+  const getBookById = (
+    bookId: string,
+  ): ReturnType<CalendarHandlers["getBookById"]> => {
+    return interactionHandlers.getBookById(bookId);
+  };
+  const completedRowsByDate = buildCompletedBookRowsByDate(
+    interactionHandlers.listSessionBooks(),
+    getBookById,
+  );
+  const completedBookRowsForDate = (dateKey: string): CompletedBookRow[] => {
+    return completedRowsByDate[dateKey] ?? [];
+  };
   renderMonth(state, {
     completedBookRowsForDate,
     selectDate: (dateKey, options) => {
@@ -137,7 +90,7 @@ function renderMonthView(): void {
     },
     renderDetails: () => {
       renderCalendarDetails(state, interactionHandlers, renderMonthView);
-      renderFinishedBooksSummary();
+      renderFinishedBooksSummary(completedBookRowsForDate(state.selectedDate));
     },
   });
 }
