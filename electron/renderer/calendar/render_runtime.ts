@@ -6,7 +6,7 @@ import {
 import { buildMonthWindow } from "./month_window.js";
 import { renderCalendarControls } from "./controls.js";
 import { renderCalendarMonth } from "./month.js";
-import type { CalendarRuntimeState } from "./state_runtime.js";
+import type { CalendarRuntimeState } from "../../types/types_calendar.js";
 
 /**
  * Recomputes derived calendar collections from current raw rows and handlers.

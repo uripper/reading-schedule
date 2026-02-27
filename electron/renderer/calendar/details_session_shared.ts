@@ -1,5 +1,7 @@
-import type { CalendarRowWithFinish } from "./data.js";
-import type { DetailInteractionHandlers } from "../../types/types_calendar.js";
+import type {
+  CalendarRowWithFinish,
+  DetailInteractionHandlers,
+} from "../../types/types_calendar.js";
 
 export const DAY_DETAILS_META_CLASS = "day-details-meta";
 export const COMPLETE_ITEM_CLASS = "is-complete";

@@ -1,5 +1,7 @@
-import type { CalendarRowWithFinish } from "./data.js";
-import type { DetailInteractionHandlers } from "../../types/types_calendar.js";
+import type {
+  CalendarRowWithFinish,
+  DetailInteractionHandlers,
+} from "../../types/types_calendar.js";
 import {
   minutesFormActions,
   minutesInputForRow,
@@ -87,4 +89,3 @@ export function minutesFormForSession(
   minutesContainer.append(summaryRow, minutesForm);
   return minutesContainer;
 }
-

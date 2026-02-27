@@ -1,5 +1,5 @@
-import type { CalendarRowWithFinish } from "./data.js";
 import type {
+  CalendarRowWithFinish,
   CalendarStateSubset,
   DetailInteractionHandlers,
 } from "../../types/types_calendar.js";

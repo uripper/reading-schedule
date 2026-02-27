@@ -1,15 +1,7 @@
 import type { Book } from "../../../types/types_books.js";
 
 import type { PlannerResult } from "../../../types/types.js";
-import type {
-  CompletionUpdate,
-  ManualSessionAddInput,
-  ManualSessionBook,
-  MinutesUpdateInput,
-  ProgressUpdateInput,
-  RemoveSessionInput,
-  UpdatedBook,
-} from "../../../types/types_app.js";
+import type { ManualSessionBook } from "../../../types/types_app.js";
 
 export {
   dayBookCompletionKey,
