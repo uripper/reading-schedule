@@ -45,7 +45,7 @@ function createBookItem(summary: TodayBookSummary): HTMLElement {
   const item = document.createElement("button");
   item.type = "button";
   item.className = "today-scheduled-book";
-  item.setAttribute("aria-description", "Open this book in Books");
+  item.setAttribute("aria-label", `Open ${summary.title} in Books`);
   item.onclick = () => {
     navigateToTodayBook(summary.bookId);
   };
