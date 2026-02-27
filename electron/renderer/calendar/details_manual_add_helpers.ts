@@ -29,3 +29,23 @@ export function sortedManualBooks(
     );
   });
 }
+
+/**
+ * Filters manual-session books by case-insensitive title substring.
+ * @param books Available manual-session books.
+ * @param query User-entered title query text.
+ * @returns Books whose title contains the query text.
+ */
+export function booksMatchingTitleQuery(
+  books: ManualSessionBook[],
+  query: string,
+): ManualSessionBook[] {
+  const normalizedQuery = String(query || "").trim().toLocaleLowerCase();
+  if (normalizedQuery === "") {
+    return [...books];
+  }
+  return books.filter((book) => {
+    const title = String(book.title || "").toLocaleLowerCase();
+    return title.includes(normalizedQuery);
+  });
+}

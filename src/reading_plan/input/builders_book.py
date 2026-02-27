@@ -70,10 +70,9 @@ def _scheduled_day_entries(raw: object) -> list[str]:
     if raw is None:
         return list(WEEKDAYS)
     if isinstance(raw, str):
-        text = raw.strip()
-        if not text:
-            return list(WEEKDAYS)
-        return [segment.strip() for segment in text.split(",")]
+        if text := raw.strip():
+            return [segment.strip() for segment in text.split(",")]
+        return list(WEEKDAYS)
     if isinstance(raw, (list, tuple, set, frozenset)):
         return [str(entry).strip() for entry in raw]
     msg = "scheduled_days must be a list or comma-separated string"

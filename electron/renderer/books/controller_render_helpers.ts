@@ -14,6 +14,21 @@ export interface RenderableBooksRefs {
 }
 
 /**
+ * Checks whether a book title matches the active case-insensitive text filter.
+ * @param book Book to test.
+ * @param titleFilter Active title filter text.
+ * @returns `true` when filter is empty or title contains the filter substring.
+ */
+export function matchesTitleFilter(book: Book, titleFilter: string): boolean {
+  const normalizedFilter = String(titleFilter || "").trim().toLocaleLowerCase();
+  if (normalizedFilter === "") {
+    return true;
+  }
+  const normalizedTitle = String(book.title || "").toLocaleLowerCase();
+  return normalizedTitle.includes(normalizedFilter);
+}
+
+/**
  * Validates render-critical DOM references for the books controller.
  * @param refs Controller references that may still be nullable.
  * @returns Resolved render references when all required nodes exist; otherwise `null`.
@@ -64,6 +79,9 @@ export function visibleBooksForView(
     viewState.sortDirection,
     finishDateByBookId,
   ).filter((book) => {
+    if (!matchesTitleFilter(book, viewState.titleFilter)) {
+      return false;
+    }
     if (!shelfFilterMatches(book, viewState.shelfFilter)) {
       return false;
     }

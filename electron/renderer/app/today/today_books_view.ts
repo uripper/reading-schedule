@@ -4,6 +4,7 @@ import type {
   TodayBookSummary,
   TodayScheduleSnapshot,
 } from "./today_schedule.js";
+import { navigateToTodayBook } from "./today_books_navigation.js";
 import {
   coverFallbackText,
   perBookSessionText,
@@ -38,11 +39,16 @@ function createCover(summary: TodayBookSummary): HTMLElement {
 /**
  * Creates one rendered book item for the today's schedule list.
  * @param summary Per-book summary used to populate title, counts, and cover.
- * @returns Article element representing one book row.
+ * @returns Button element representing one book row.
  */
 function createBookItem(summary: TodayBookSummary): HTMLElement {
-  const item = document.createElement("article");
+  const item = document.createElement("button");
+  item.type = "button";
   item.className = "today-scheduled-book";
+  item.setAttribute("aria-label", `Open ${summary.title} in Books`);
+  item.onclick = () => {
+    navigateToTodayBook(summary.bookId);
+  };
   if (
     summary.completedSessions >= summary.scheduledSessions &&
     summary.scheduledSessions > 0

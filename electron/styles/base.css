@@ -404,10 +404,26 @@ main {
   grid-template-columns: 64px minmax(0, 1fr);
   gap: var(--token-space-2);
   align-items: center;
+  width: 100%;
   border: 1px solid var(--app-border);
   border-radius: var(--token-radius-sm);
   background: color-mix(in srgb, var(--app-surface) 74%, transparent);
   padding: var(--token-space-2);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.today-scheduled-book:hover {
+  border-color: color-mix(in srgb, var(--app-brandStrong) 62%, var(--app-border));
+  background: color-mix(in srgb, var(--app-brand) 12%, var(--app-surface));
+}
+
+.today-scheduled-book:focus-visible {
+  border-color: color-mix(in srgb, var(--app-focusRing) 72%, var(--app-border));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-focusRing) 44%, transparent);
+  outline: none;
 }
 
 .today-scheduled-book.is-complete {
@@ -609,43 +625,6 @@ select:focus-visible,
   font-size: var(--token-typography-size-sm);
 }
 
-.find-bar {
-  position: fixed;
-  top: calc(var(--token-size-header-height) + var(--token-space-2));
-  right: var(--token-space-4);
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  gap: var(--token-space-2);
-  max-width: min(92vw, 680px);
-  padding: var(--token-space-2);
-  border: 1px solid var(--app-border);
-  border-radius: var(--token-radius-md);
-  background: color-mix(in srgb, var(--app-bgElevated) 92%, transparent);
-  box-shadow: var(--token-elevation-sm);
-  backdrop-filter: blur(10px);
-}
-
-.find-bar[hidden] {
-  display: none;
-}
-
-.find-bar input {
-  margin-top: 0;
-  min-width: clamp(180px, 24vw, 320px);
-}
-
-.find-bar output {
-  min-width: 88px;
-  color: var(--app-textMuted);
-  font-size: var(--token-typography-size-xs);
-  text-align: center;
-}
-
-.find-bar .btn {
-  white-space: nowrap;
-}
-
 @media (max-width: 1200px) {
   .today-grid,
   .sessions-grid {
@@ -689,24 +668,6 @@ select:focus-visible,
     font-size: var(--token-typography-size-xs);
   }
 
-  .find-bar {
-    top: var(--token-space-2);
-    left: var(--token-space-2);
-    right: var(--token-space-2);
-    max-width: none;
-  }
-}
-
-@media (max-width: 560px) {
-  .find-bar {
-    flex-wrap: wrap;
-  }
-
-  .find-bar output {
-    min-width: 0;
-    flex: 1 1 100%;
-    text-align: left;
-  }
 }
 
 :root[data-reduce-motion="true"] *,

@@ -31,6 +31,7 @@ export interface BooksControllerRefs {
   grid: HTMLElement | null;
   empty: HTMLElement | null;
   addBtn: HTMLButtonElement | null;
+  titleFilterInput: HTMLInputElement | null;
   shelfFilterSelect: HTMLSelectElement | null;
   statusFilterSelect: HTMLSelectElement | null;
   sortBySelect: HTMLSelectElement | null;
@@ -49,6 +50,7 @@ export interface BookDialogController {
  * Mutable books screen state backed by toolbar controls.
  */
 export interface BooksViewState {
+  titleFilter: string;
   shelfFilter: string;
   statusFilter: BookStatusFilter;
   sortBy: SortBy;

@@ -60,10 +60,9 @@ def _validate_scheduled_days(book: Book) -> None:
     if not book.scheduled_days:
         msg = f"scheduled_days must include at least one day for {book.book_id}"
         raise ValueError(msg)
-    invalid_days = sorted(
+    if invalid_days := sorted(
         day for day in book.scheduled_days if day not in WEEKDAYS
-    )
-    if invalid_days:
+    ):
         invalid = ", ".join(invalid_days)
         msg = (
             f"scheduled_days must only include Mon..Sun for {book.book_id}: "

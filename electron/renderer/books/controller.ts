@@ -45,6 +45,7 @@ const refs: BooksControllerRefs = {
   grid: null,
   empty: null,
   addBtn: null,
+  titleFilterInput: null,
   shelfFilterSelect: null,
   statusFilterSelect: null,
   sortBySelect: null,
@@ -53,6 +54,7 @@ const refs: BooksControllerRefs = {
 };
 
 const viewState: BooksViewState = {
+  titleFilter: "",
   shelfFilter: "",
   statusFilter: BOOK_STATUS_FILTER_ALL,
   sortBy: SORT_BY_TITLE,
@@ -230,6 +232,7 @@ export function bindBooksUI(
   refs.addBtn = el<HTMLButtonElement>("addBookBtn");
 
   const toolbarControls = ensureBooksToolbarControls(refs.toolbar);
+  refs.titleFilterInput = toolbarControls.titleFilterInput;
   refs.shelfFilterSelect = toolbarControls.shelfFilterSelect;
   refs.statusFilterSelect = toolbarControls.statusFilterSelect;
   refs.sortBySelect = toolbarControls.sortBySelect;

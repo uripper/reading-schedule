@@ -15,12 +15,6 @@ interface PlannerApi {
     dataUrl: string | undefined,
     bookId: string | undefined,
   ): Promise<string>;
-  /** Runs find-in-page for the current web contents and returns match metadata. */
-  findInPage(payload: {
-    query?: string;
-    forward?: boolean;
-    findNext?: boolean;
-  }): Promise<{ matches: number; activeMatchOrdinal: number }>;
   /** Generates a plan from renderer-provided planner payload data. */
   generate(payload: JsonValue): Promise<JsonValue>;
   /** Loads persisted planner state from the main process. */
@@ -31,11 +25,6 @@ interface PlannerApi {
   saveState(payload: JsonValue): Promise<{ ok?: boolean; error?: string }>;
   /** Searches external book providers and returns raw search result rows. */
   searchBooks(query: string): Promise<JsonValue[]>;
-  /** Stops active find-in-page highlighting and returns final match metadata. */
-  stopFindInPage(): Promise<{
-    matches: number;
-    activeMatchOrdinal: number;
-  }>;
   /** Increases renderer zoom level and returns the resulting zoom factor. */
   zoomIn(): Promise<number>;
   /** Decreases renderer zoom level and returns the resulting zoom factor. */
@@ -70,27 +59,11 @@ const plannerApi: PlannerApi = {
     bookId: string | undefined,
   ): Promise<string> =>
     await invokeIpc<string>("book:saveUploadedCover", { dataUrl, bookId }),
-  findInPage: async (payload: {
-    query?: string;
-    forward?: boolean;
-    findNext?: boolean;
-  }): Promise<{ matches: number; activeMatchOrdinal: number }> =>
-    await invokeIpc<{ matches: number; activeMatchOrdinal: number }>(
-      "window:findInPage",
-      payload,
-    ),
   loadState: async (): Promise<JsonValue> => await invokeIpc<JsonValue>("state:load"),
   saveState: async (
     payload: JsonValue,
   ): Promise<{ ok?: boolean; error?: string }> =>
     await invokeIpc<{ ok?: boolean; error?: string }>("state:save", payload),
-  stopFindInPage: async (): Promise<{
-    matches: number;
-    activeMatchOrdinal: number;
-  }> =>
-    await invokeIpc<{ matches: number; activeMatchOrdinal: number }>(
-      "window:stopFindInPage",
-    ),
   zoomIn: async (): Promise<number> => await invokeIpc<number>("window:zoomIn"),
   zoomOut: async (): Promise<number> => await invokeIpc<number>("window:zoomOut"),
   zoomReset: async (): Promise<number> => await invokeIpc<number>("window:zoomReset"),
