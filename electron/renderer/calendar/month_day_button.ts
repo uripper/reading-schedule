@@ -2,6 +2,7 @@ import { WEEKDAY_LABELS } from "./constants.js";
 import { appendDayButtonSummary } from "./month_day_button_chips.js";
 
 interface CalendarRow {
+  completed?: boolean;
   finish?: boolean;
   minutes?: number;
   title?: string;
@@ -38,7 +39,12 @@ interface DayStyleFlagsArgs {
 export function dayStyleFlags(
   args: DayStyleFlagsArgs,
 ): DayStyleFlags {
-  const hasFinishRow = args.rows.some((row) => Boolean(row.finish));
+  const hasFinishRow = args.rows.some((row) => {
+    if (row.finish === true) {
+      return true;
+    }
+    return row.completed === true;
+  });
   const isMuted = args.date.getMonth() !== args.firstDate.getMonth();
   const isSelected = args.selectedDate === args.keyForDay;
   const isPast = args.keyForDay < args.todayKey;

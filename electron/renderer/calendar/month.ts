@@ -1,9 +1,13 @@
 import { el } from "../dom.js";
-import { dayKey, monthCells, monthLabel } from "./utils.js";
+import { dayKey, monthCells, monthLabel, sessionKeyFor } from "./utils.js";
 import { createDayButton, createWeekdayHeader } from "./month_day_button.js";
 import { handleDayKeydown } from "./month_keyboard.js";
 
 interface CalendarRow {
+  book_id?: string;
+  date?: string;
+  session_index?: string | number;
+  completed?: boolean;
   title?: string;
   minutes?: number;
   finish?: boolean;
@@ -18,6 +22,7 @@ interface CalendarState {
 }
 
 interface MonthActions {
+  isSessionCompleted(sessionKey: string): boolean;
   selectDate(dateKey: string, options?: { focus?: boolean }): void;
   moveSelectionBy(delta: number, currentIndex: number): void;
   renderDetails(): void;
@@ -29,6 +34,59 @@ interface MonthActions {
  */
 function todayDayKey(): string {
   return dayKey(new Date());
+}
+
+/**
+ * Determines whether a row should be marked complete in month cells.
+ * @param row Calendar row to inspect.
+ * @param todayKey Today's date key.
+ * @param isSessionCompleted Completion checker by session key.
+ * @returns True when row is complete and not scheduled in the future.
+ */
+function rowIsComplete(
+  row: CalendarRow,
+  todayKey: string,
+  isSessionCompleted: (sessionKey: string) => boolean,
+): boolean {
+  if (typeof row.date !== "string" || row.date === "") {
+    return false;
+  }
+  if (row.date > todayKey) {
+    return false;
+  }
+  if (typeof row.book_id !== "string" || row.book_id === "") {
+    return false;
+  }
+  if (row.session_index === undefined || row.session_index === null) {
+    return false;
+  }
+  return isSessionCompleted(
+    sessionKeyFor({
+      book_id: row.book_id,
+      date: row.date,
+      session_index: row.session_index,
+    }),
+  );
+}
+
+/**
+ * Adds completion metadata used by month-day cell and chip rendering.
+ * @param rows Calendar rows for one day.
+ * @param todayKey Today's date key.
+ * @param isSessionCompleted Completion checker by session key.
+ * @returns Rows copied with completion flags.
+ */
+export function rowsWithCompletionState(
+  rows: CalendarRow[],
+  todayKey: string,
+  isSessionCompleted: (sessionKey: string) => boolean,
+): CalendarRow[] {
+  return rows.map((row) => {
+    return {
+      ...row,
+      completed: rowIsComplete(row, todayKey, isSessionCompleted),
+    };
+  });
 }
 
 /**
@@ -89,11 +147,16 @@ export function renderCalendarMonth(
     if (keyForDay in calendarState.dates) {
       rows = calendarState.dates[keyForDay];
     }
+    const rowsWithCompletion = rowsWithCompletionState(
+      rows,
+      todayKey,
+      actions.isSessionCompleted,
+    );
     const dayButton = createDayButton({
       date,
       firstDate,
       keyForDay,
-      rows,
+      rows: rowsWithCompletion,
       selectedDate: calendarState.selectedDate,
       todayKey,
     });

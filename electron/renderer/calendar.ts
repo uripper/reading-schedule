@@ -25,15 +25,16 @@ let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});
  * Rerenders selected-day details using current runtime state.
  */
 function renderDetails(): void {
-  refreshDerivedRows(state, interactionHandlers.isSessionCompleted);
-  renderCalendarDetails(state, interactionHandlers, renderDetails);
+  renderCalendarDetails(state, interactionHandlers, renderMonthView);
 }
 
 /**
  * Renders month grid and wires date selection/navigation callbacks.
  */
 function renderMonthView(): void {
+  refreshDerivedRows(state, interactionHandlers.isSessionCompleted);
   renderMonth(state, {
+    isSessionCompleted: interactionHandlers.isSessionCompleted,
     selectDate: (dateKey, options) => {
       selectDate(state, dateKey, renderMonthView, options);
     },

@@ -3,6 +3,7 @@ import {
   groupRowsByDate,
   monthKeysFromRows,
 } from "./data.js";
+import { buildMonthWindow } from "./month_window.js";
 import { renderCalendarControls } from "./controls.js";
 import { renderCalendarMonth } from "./month.js";
 import type { CalendarRuntimeState } from "./state_runtime.js";
@@ -24,7 +25,7 @@ export function refreshDerivedRows(
   );
   calendarState.rows = enrichedRows;
   calendarState.dates = groupRowsByDate(enrichedRows);
-  calendarState.months = monthKeysFromRows(enrichedRows);
+  calendarState.months = buildMonthWindow(monthKeysFromRows(enrichedRows));
 }
 
 /**
@@ -38,6 +39,7 @@ export function refreshDerivedRows(
 export function renderMonth(
   state: CalendarRuntimeState,
   actions: {
+    isSessionCompleted(sessionKey: string): boolean;
     moveSelectionBy(delta: number, currentIndex: number): void;
     renderDetails(): void;
     selectDate(dateKey: string, options?: { focus?: boolean }): void;

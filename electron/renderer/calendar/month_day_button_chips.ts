@@ -1,4 +1,5 @@
 interface CalendarRow {
+  completed?: boolean;
   finish?: boolean;
   minutes?: number;
   title?: string;
@@ -17,6 +18,18 @@ function plannedSessionText(rowCount: number): string {
 }
 
 /**
+ * Resolves chip class name based on finish/completion state.
+ * @param row Day row to style.
+ * @returns Class string for chip styling.
+ */
+export function chipClassNameForRow(row: CalendarRow): string {
+  if (row.finish === true || row.completed === true) {
+    return "day-chip finish";
+  }
+  return "day-chip";
+}
+
+/**
  * Appends up to two visible row chips to a day button.
  * @param dayButton Day button node to append into.
  * @param rows Day rows to summarize.
@@ -27,10 +40,7 @@ function appendVisibleRowChips(
 ): void {
   rows.slice(0, 2).forEach((row) => {
     const chip = document.createElement("span");
-    chip.className = "day-chip";
-    if (row.finish === true) {
-      chip.className = "day-chip finish";
-    }
+    chip.className = chipClassNameForRow(row);
     chip.textContent = `${row.title ?? "Untitled"} - ${Number(row.minutes ?? 0)}m`;
     dayButton.append(chip);
   });
