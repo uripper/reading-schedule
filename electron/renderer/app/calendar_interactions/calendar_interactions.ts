@@ -83,7 +83,7 @@ const handleCompletionChanged = (
   args: AppCalendarInteractionArgs,
   payload: CompletionUpdate,
 ): void => {
-  const completionState = args.state.scheduleCompletions;
+  const completionState = { ...args.state.scheduleCompletions };
   const fallbackKey = completionFallbackKey(payload.row);
   setCompletionState(
     completionState,
@@ -91,6 +91,10 @@ const handleCompletionChanged = (
     fallbackKey,
     payload.completed,
   );
+  args.applyStateMutation({
+    type: "set_schedule_completions",
+    scheduleCompletions: completionState,
+  });
   args.queuePersist();
   const statusMessage = completionStatusMessage(payload.row, payload.completed);
   if (statusMessage !== "") {
@@ -115,11 +119,15 @@ const handleProgressUpdated = (
     return null;
   }
   if (payload.row !== undefined) {
-    const completionState = args.state.scheduleCompletions;
+    const completionState = { ...args.state.scheduleCompletions };
     completionState[sessionKeyFor(payload.row)] = true;
     completionState[
       dayBookCompletionKey(payload.row.date, payload.row.book_id)
     ] = true;
+    args.applyStateMutation({
+      type: "set_schedule_completions",
+      scheduleCompletions: completionState,
+    });
   }
   if (updatedBook.title === "") {
     args.setStatus("Updated progress for book.");

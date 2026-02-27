@@ -50,7 +50,7 @@ function lockedDates(
       return;
     }
     previousDates.add(rowDate);
-    if (rowDate <= todayKey) {
+    if (Number(rowDate) <= Number(todayKey)) {
       locked.add(rowDate);
     }
   });
@@ -61,7 +61,7 @@ function lockedDates(
     if (!key) {
       return;
     }
-    if (previousDates.has(key) && key <= todayKey) {
+    if (previousDates.has(key) && Number(key) <= Number(todayKey)) {
       locked.add(key);
     }
   });

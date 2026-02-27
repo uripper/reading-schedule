@@ -64,7 +64,7 @@ export function registerIpcHandlers({
   ipcMain.handle("state:load", () => readState(userData()));
   ipcMain.handle("state:save", (_event, payload: JsonValue) => {
     const result = writeState(userData(), payload);
-    if (!result.ok) {
+    if (result.ok === false) {
       throw new Error(result.error);
     }
     return result;

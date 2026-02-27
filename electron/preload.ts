@@ -4,11 +4,11 @@
 import { contextBridge, ipcRenderer } from "electron";
 import type {
   BookLookupItem,
-  LoadedPlannerState,
   PlanGeneratePayload,
   PlannerApi,
   PlannerResult,
   PlannerSaveResult,
+  PlannerStateLoadResult,
   PlannerStateSnapshot,
 } from "./types/types.js";
 
@@ -46,8 +46,8 @@ const plannerApi: PlannerApi = {
     bookId: string | undefined,
   ): Promise<string> =>
     await invokeIpc<string>("book:saveUploadedCover", { dataUrl, bookId }),
-  loadState: async (): Promise<LoadedPlannerState | null | undefined> =>
-    await invokeIpc<LoadedPlannerState | null | undefined>("state:load"),
+  loadState: async (): Promise<PlannerStateLoadResult> =>
+    await invokeIpc<PlannerStateLoadResult>("state:load"),
   saveState: async (
     payload: PlannerStateSnapshot,
   ): Promise<PlannerSaveResult> =>

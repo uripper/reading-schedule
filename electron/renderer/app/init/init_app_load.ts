@@ -9,10 +9,132 @@ import {
 } from "../experience/index.js";
 import { bindTodayActions, finalizeInitialLoad } from "./init_helpers.js";
 import { loadInitialData } from "../load_state.js";
+import { applyAppStateMutation } from "../state_mutations.js";
 import type {
   AppBootstrapContext,
   LoadedResultController,
 } from "../../../types/types.js";
+import type { LoadStateArgs, SetStatus } from "../../../types/types_app.js";
+
+interface CreateLoadStateArgsInput {
+  context: AppBootstrapContext;
+  state: AppBootstrapContext["state"];
+  planController: LoadedResultController;
+  setStatus: SetStatus;
+  queuePersist(): void;
+  queueAutoPlanIfReady(): void;
+  updateTodayView(): void;
+}
+
+/**
+ * Creates `loadInitialData` bindings for runtime state mutation and startup flow.
+ * @param args Bound startup/load dependencies.
+ * @returns Fully bound load-state arguments.
+ */
+function createLoadStateArgs(
+  args: CreateLoadStateArgsInput,
+): LoadStateArgs {
+  const runtimeState = args.state;
+  return {
+    fillSettings,
+    fillBooks,
+    normalizePreferences,
+    normalizeFeatureFlags,
+    normalizeScheduleCompletions,
+    fillPreferencesUI,
+    applyPreferencesToDocument,
+    setStatus: args.setStatus,
+    addLog: (message) => {
+      args.context.addLog(message);
+    },
+    plannerApi: args.context.plannerApi,
+    updateTodayView: () => {
+      args.updateTodayView();
+    },
+    setPreferences: (preferences) => {
+      runtimeState.preferences = preferences;
+    },
+    setFeatureFlags: (featureFlags) => {
+      runtimeState.featureFlags = featureFlags;
+    },
+    setScheduleCompletions: (scheduleCompletions) => {
+      applyAppStateMutation(runtimeState, {
+        type: "set_schedule_completions",
+        scheduleCompletions,
+      });
+    },
+    setBlockedDayBooks: (blockedDayBooks) => {
+      applyAppStateMutation(runtimeState, {
+        type: "set_blocked_day_books",
+        blockedDayBooks,
+      });
+    },
+    setSessions: (sessions) => {
+      applyAppStateMutation(runtimeState, { type: "set_sessions", sessions });
+    },
+    applyLoadedResult: (result) => {
+      if (result) {
+        args.planController.applyLoadedResult(result);
+      } else {
+        applyAppStateMutation(runtimeState, {
+          type: "set_last_result",
+          lastResult: null,
+        });
+      }
+    },
+    onLoaded: (saved, loadResult) => {
+      finalizeInitialLoad({
+        saved,
+        loadResult,
+        queuePersist: () => {
+          args.queuePersist();
+        },
+        setStatus: args.setStatus,
+        setReady: () => {
+          runtimeState.ready = true;
+        },
+        queueAutoPlan: () => {
+          args.queueAutoPlanIfReady();
+        },
+      });
+    },
+  };
+}
+
+/**
+ * Binds Today action handlers backed by central state mutation operations.
+ * @param state Mutable runtime state.
+ * @param handleScheduleMutation Dashboard refresh callback.
+ * @param queuePersist Persist queue callback.
+ * @param setStatus Status output callback.
+ */
+function bindTodayActionsWithState(
+  state: AppBootstrapContext["state"],
+  handleScheduleMutation: () => void,
+  queuePersist: () => void,
+  setStatus: SetStatus,
+): void {
+  bindTodayActions({
+    getLastResult: () => state.lastResult,
+    getScheduleCompletions: () => state.scheduleCompletions,
+    setScheduleCompletions: (nextCompletions) => {
+      applyAppStateMutation(state, {
+        type: "set_schedule_completions",
+        scheduleCompletions: nextCompletions,
+      });
+    },
+    getSessions: () => state.sessions,
+    setSessions: (nextSessions) => {
+      applyAppStateMutation(state, {
+        type: "set_sessions",
+        sessions: nextSessions,
+      });
+    },
+    updateTodayView: handleScheduleMutation,
+    queuePersist,
+    setStatus,
+  });
+}
 
 /**
  * Loads the initial state of the application, applying it to the provided context and controller,
@@ -38,64 +160,18 @@ export async function loadStateAndBindTodayActions(
     context.runtime,
   );
 
-  await loadInitialData({
-    fillSettings,
-    fillBooks,
-    normalizePreferences,
-    normalizeFeatureFlags,
-    normalizeScheduleCompletions,
-    fillPreferencesUI,
-    applyPreferencesToDocument,
-    setStatus,
-    plannerApi: context.plannerApi,
-    updateTodayView: updateDashboards,
-    setPreferences: (preferences) => {
-      state.preferences = preferences;
-    },
-    setFeatureFlags: (featureFlags) => {
-      state.featureFlags = featureFlags;
-    },
-    setScheduleCompletions: (scheduleCompletions) => {
-      state.scheduleCompletions = scheduleCompletions;
-    },
-    setBlockedDayBooks: (blockedDayBooks) => {
-      state.blockedDayBooks = blockedDayBooks;
-    },
-    setSessions: (sessions) => {
-      state.sessions = sessions;
-    },
-    applyLoadedResult: (result) => {
-      if (result) {
-        planController.applyLoadedResult(result);
-      } else {
-        state.lastResult = null;
-      }
-    },
-    onLoaded: (saved) => {
-      finalizeInitialLoad({
-        saved,
-        queuePersist,
+  await loadInitialData(
+    createLoadStateArgs(
+      {
+        context,
+        state,
+        planController,
         setStatus,
-        setReady: () => {
-          state.ready = true;
-        },
-        queueAutoPlan: queueAutoPlanIfReady,
-      });
-    },
-  });
-
-  bindTodayActions({
-    getLastResult: () => state.lastResult,
-    getScheduleCompletions: () => state.scheduleCompletions,
-    setScheduleCompletions: (nextCompletions) => {
-      state.scheduleCompletions = nextCompletions;
-    },
-    getSessions: () => state.sessions,
-    setSessions: (nextSessions) => {
-      state.sessions = nextSessions;
-    },
-    updateTodayView: handleScheduleMutation,
-    queuePersist,
-    setStatus,
-  });
+        queuePersist,
+        queueAutoPlanIfReady,
+        updateTodayView: updateDashboards,
+      },
+    ),
+  );
+  bindTodayActionsWithState(state, handleScheduleMutation, queuePersist, setStatus);
 }

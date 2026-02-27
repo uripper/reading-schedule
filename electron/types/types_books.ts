@@ -1,4 +1,3 @@
-import type { NumericLike } from "./types_core.js";
 import type { PlannerScheduleRow } from "./types_planner.js";
 
 export type BookStatus =
@@ -352,5 +351,3 @@ export interface RenderBooksControllerArgs {
   findBook(bookId: string): Book | null;
   rerender(): void;
 }
-
-export type { NumericLike };

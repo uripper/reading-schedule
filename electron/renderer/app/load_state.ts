@@ -1,6 +1,9 @@
 
-
-import type { LoadedPlannerState, PlannerApi } from "../../types/types.js";
+import type {
+  LoadedPlannerState,
+  PlannerApi,
+  PlannerStateLoadResult,
+} from "../../types/types.js";
 import type { InitialDataSource, LoadStateArgs } from "../../types/types_app.js";
 import type { FeatureFlags, Preferences } from "../../types/types_experience.js";
 
@@ -56,6 +59,42 @@ async function resolveInitialSource(
     return saved;
   }
   return await plannerApi.sample();
+}
+
+/**
+ * Emits recovery status/log output based on persistence load source metadata.
+ * @param loadResult Structured load result from persistence facade.
+ * @param args Runtime wiring for status/log output.
+ */
+function reportLoadRecovery(
+  loadResult: PlannerStateLoadResult,
+  args: Pick<LoadStateArgs, "setStatus" | "addLog">,
+): void {
+  if (loadResult.source === "json_backup") {
+    args.setStatus(
+      "Recovered saved data from backup copy. Recent unsaved changes may be missing.",
+      true,
+    );
+  }
+  if (loadResult.source === "sqlite_journal_replay") {
+    args.setStatus(
+      "Recovered saved data from journal replay after storage corruption.",
+      true,
+    );
+  }
+  if (
+    loadResult.source === "fresh" &&
+    loadResult.warningCode === "STATE_RESET_FRESH"
+  ) {
+    args.setStatus("Saved state was unreadable. Started with fresh data.", true);
+  }
+  const didMigrateFromJson =
+    loadResult.warningCode === "MIGRATED_JSON_TO_SQLITE" ||
+    loadResult.source === "json_primary" ||
+    loadResult.source === "json_backup";
+  if (didMigrateFromJson && typeof args.addLog === "function") {
+    args.addLog("Migrated saved data from JSON storage to SQLite.");
+  }
 }
 
 /**
@@ -121,7 +160,9 @@ function applyExperienceData(
  */
 export async function loadInitialData(args: LoadStateArgs): Promise<void> {
   try {
-    const saved = await args.plannerApi.loadState();
+    const loadResult = await args.plannerApi.loadState();
+    const saved = loadResult.state;
+    reportLoadRecovery(loadResult, args);
     const source = await resolveInitialSource(args.plannerApi, saved);
     applyLoadedData(saved, source, args);
 
@@ -131,7 +172,7 @@ export async function loadInitialData(args: LoadStateArgs): Promise<void> {
     args.setFeatureFlags(featureFlags);
     applyExperienceData(args, preferences, featureFlags);
     applySessionAndResultData(saved, args);
-    args.onLoaded(saved);
+    args.onLoaded(saved, loadResult);
   } catch {
     args.setStatus("Failed to load initial data", true);
   }

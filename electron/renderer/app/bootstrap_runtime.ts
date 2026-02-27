@@ -84,6 +84,7 @@ export function createAppBootstrapContext(): AppBootstrapContext {
   return {
     announce,
     announceForPlanController,
+    addLog,
     dashboards,
     plannerApi,
     persistDraft,

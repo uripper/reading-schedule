@@ -3,7 +3,7 @@ import {
   BOOK_STATUS_IN_PROGRESS,
   BOOK_STATUS_READ,
   BOOK_STATUS_TO_READ,
-} from "./status.js";
+} from "./status_catalog.js";
 import type {
   Book,
   BookGroup,

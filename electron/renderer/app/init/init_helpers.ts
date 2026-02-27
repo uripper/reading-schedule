@@ -7,6 +7,25 @@ import { bindTodayFocusActions } from "../today/index.js";
 import type { BindTodayActionsArgs, CreatePlanControllerArgs, FinalizeInitialLoadArgs } from "../../../types/types_app.js";
 
 /**
+ * Indicates whether startup should show generic "loaded" status text.
+ * @param args Finalize-initial-load arguments.
+ * @returns True when generic loaded status should be displayed.
+ */
+function shouldShowLoadedStatus(args: FinalizeInitialLoadArgs): boolean {
+  const warningCode = args.loadResult.warningCode;
+  if (warningCode === "RECOVERED_FROM_BACKUP") {
+    return false;
+  }
+  if (warningCode === "RECOVERED_FROM_JOURNAL") {
+    return false;
+  }
+  if (warningCode === "STATE_RESET_FRESH") {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Wires the skip-link element to focus the main content region.
  */
 export function setupSkipLink(): void {
@@ -54,10 +73,12 @@ export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
   const settingsPanel = el("tab-settings");
   bindSettingsAutoPlanListeners(settingsPanel, () => true, queueAutoPlan);
 
-  if (args.saved) {
-    args.setStatus("Loaded saved data.");
-  } else {
-    args.setStatus("Loaded sample data.");
+  if (shouldShowLoadedStatus(args)) {
+    if (args.saved) {
+      args.setStatus("Loaded saved data.");
+    } else {
+      args.setStatus("Loaded sample data.");
+    }
   }
   queueAutoPlan();
 }
