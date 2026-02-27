@@ -1,6 +1,7 @@
-
-
-import type { CalendarHandlers, CalendarRuntimeState, CompletionChangePayload, ManualSessionBook, ManualSessionPayload, MinutesUpdatePayload, ProgressUpdatePayload, RemoveSessionPayload } from "../../types/types_calendar.js";
+import type {
+  CalendarHandlers,
+  CalendarRuntimeState,
+} from "../../types/types.js";
 
 /**
  * Creates default mutable runtime state for calendar renderer.
@@ -49,9 +50,11 @@ export function mergeCalendarHandlers(
 ): CalendarHandlers {
   const defaults = defaultCalendarHandlers();
   return {
-    isSessionCompleted: handlers.isSessionCompleted ?? defaults.isSessionCompleted,
+    isSessionCompleted:
+      handlers.isSessionCompleted ?? defaults.isSessionCompleted,
     onSessionCompletionChanged:
-      handlers.onSessionCompletionChanged ?? defaults.onSessionCompletionChanged,
+      handlers.onSessionCompletionChanged ??
+      defaults.onSessionCompletionChanged,
     onSessionProgressUpdated:
       handlers.onSessionProgressUpdated ?? defaults.onSessionProgressUpdated,
     onSessionMinutesUpdated:
