@@ -1,5 +1,7 @@
 import type { Book } from "../../renderer/books/types.js";
 import type { CalendarRowWithFinish } from "../../renderer/calendar/data.js";
+import type { ManualSessionBook } from "./details.js";
+export type { ManualSessionBook };
 
 export type DayMode = "past" | "today" | "future";
 
@@ -19,11 +21,6 @@ export interface ProgressPayload {
 export interface MinutesPayload {
   minutes: number;
   row: CalendarRowWithFinish;
-}
-
-export interface ManualSessionBook {
-  bookId: string;
-  title: string;
 }
 
 export interface ManualSessionAddPayload {

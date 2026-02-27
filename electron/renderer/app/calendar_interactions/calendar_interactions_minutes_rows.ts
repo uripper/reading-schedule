@@ -1,7 +1,18 @@
-import { sessionKeyFor, sortRowsByDateAndSession } from "../../calendar/utils.js";
+import {
+  sessionKeyFor,
+  sortRowsByDateAndSession,
+} from "../../calendar/utils.js";
 import type { Book } from "../../books/types.js";
-import { DEFAULT_BOOK_DIFFICULTY, normalizedManualMinutes, rowsWithoutSession, wordsPlannedForManualSession } from "./calendar_interactions_helpers.js";
-import type { PlannerScheduleRow, PlannerSettings } from "../../../types/types.js";
+import {
+  DEFAULT_BOOK_DIFFICULTY,
+  normalizedManualMinutes,
+  rowsWithoutSession,
+  wordsPlannedForManualSession,
+} from "./calendar_interactions_helpers.js";
+import type {
+  PlannerScheduleRow,
+  PlannerSettings,
+} from "../../../types/types.js";
 import type { UpdatedRowsResult } from "../../../types/app/calendar_interactions/calendar_interactions_minutes_rows.js";
 export type { UpdatedRowsResult };
 

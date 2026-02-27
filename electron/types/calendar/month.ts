@@ -1,4 +1,4 @@
-export interface CalendarRow {
+export interface CalendarDisplayRow {
   book_id?: string;
   date?: string;
   session_index?: string | number;
@@ -8,7 +8,7 @@ export interface CalendarRow {
 }
 
 export interface CalendarState {
-  dates: Record<string, CalendarRow[]>;
+  dates: Record<string, CalendarDisplayRow[]>;
   months: string[];
   index: number;
   selectedDate: string;
@@ -16,7 +16,7 @@ export interface CalendarState {
 }
 
 export interface MonthActions {
-  completedBookRowsForDate(this: void, dateKey: string): CalendarRow[];
+  completedBookRowsForDate(this: void, dateKey: string): CalendarDisplayRow[];
   moveSelectionBy(this: void, delta: number, currentIndex: number): void;
   renderDetails(this: void): void;
   selectDate(this: void, dateKey: string, options?: { focus?: boolean }): void;

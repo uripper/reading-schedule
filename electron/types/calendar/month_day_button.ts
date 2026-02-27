@@ -1,8 +1,4 @@
-export interface CalendarRow {
-  finish?: boolean;
-  minutes?: number;
-  title?: string;
-}
+import type { CalendarDisplayRow } from "./month.js";
 
 export interface DayStyleFlags {
   hasFinishRow: boolean;
@@ -18,5 +14,5 @@ export interface DayStyleFlagsArgs {
   keyForDay: string;
   selectedDate: string;
   todayKey: string;
-  rows: CalendarRow[];
+  rows: CalendarDisplayRow[];
 }

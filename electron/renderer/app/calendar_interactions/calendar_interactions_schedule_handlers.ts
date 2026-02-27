@@ -1,6 +1,13 @@
-import { addManualSessionRow, removeSessionRow, updateSessionRowMinutes } from "./calendar_interactions_schedule_updates.js";
+import {
+  addManualSessionRow,
+  removeSessionRow,
+  updateSessionRowMinutes,
+} from "./calendar_interactions_schedule_updates.js";
 import type { AppCalendarInteractionArgs } from "./calendar_interactions_types.js";
-import type { ScheduleMutationHandlers, SharedScheduleBindings } from "../../../types/app/calendar_interactions/calendar_interactions_schedule_handlers.js";
+import type {
+  ScheduleMutationHandlers,
+  SharedScheduleBindings,
+} from "../../../types/app/calendar_interactions/calendar_interactions_schedule_handlers.js";
 
 const createSharedScheduleBindings = (
   args: AppCalendarInteractionArgs,
@@ -10,7 +17,9 @@ const createSharedScheduleBindings = (
       args.onScheduleRowsUpdated();
     }
   };
-  const collectSettings = (): ReturnType<AppCalendarInteractionArgs["collectSettings"]> => {
+  const collectSettings = (): ReturnType<
+    AppCalendarInteractionArgs["collectSettings"]
+  > => {
     return args.collectSettings();
   };
   const getBookById = (

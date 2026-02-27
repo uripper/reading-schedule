@@ -1,6 +1,8 @@
 import type { Book } from "../../renderer/books/types.js";
 import type { CalendarRowWithFinish } from "../../renderer/calendar/data.js";
 import type { PlannerScheduleRow } from "../types.js";
+import type { ManualSessionBook } from "./details.js";
+export type { ManualSessionBook };
 
 export interface CompletionChangePayload {
   sessionKey: string;
@@ -28,11 +30,6 @@ export interface ManualSessionPayload {
 
 export interface RemoveSessionPayload {
   row: CalendarRowWithFinish;
-}
-
-export interface ManualSessionBook {
-  bookId: string;
-  title: string;
 }
 
 export interface CalendarHandlers {

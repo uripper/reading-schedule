@@ -1,1 +1,1 @@
-export type NumericLike = string | number | null | undefined;
+export type { NumericLike } from "../core/primitives.js";

@@ -1,8 +1,7 @@
 import type { createPlanController } from "../../../renderer/app/plan_controller.js";
 import type { Session } from "../../../renderer/sessions/normalize.js";
 import type { PlannerResult } from "../../types.js";
-
-export type SetStatus = (message: string, isError?: boolean) => void;
+import type { SetStatus } from "../runtime.js";
 
 export type CreatePlanControllerArgs = Parameters<typeof createPlanController>[0];
 

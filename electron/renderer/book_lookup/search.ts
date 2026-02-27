@@ -4,7 +4,11 @@ import { handleLookupKeydown } from "./keyboard.js";
 import { createLookupStateController } from "./search_state.js";
 import { lookupResultTarget } from "./render.js";
 
-import type { BindBookLookupOptions, LookupBinding, LookupState } from "../../types/book_lookup/search.js";
+import type {
+  BindBookLookupOptions,
+  LookupBinding,
+  LookupSearchState,
+} from "../../types/book_lookup/search.js";
 
 /**
  * Binds all lookup search interactions (input, keyboard, mouse, outside click).
@@ -17,7 +21,7 @@ import type { BindBookLookupOptions, LookupBinding, LookupState } from "../../ty
  */
 export function bindBookLookup(options: BindBookLookupOptions): LookupBinding {
   const placeholder = placeholderCoverSvg();
-  const state: LookupState = {
+  const state: LookupSearchState = {
     timer: null,
     token: 0,
     currentItems: [],

@@ -1,6 +1,19 @@
-import type { CompletionUpdate, ManualSessionAddInput, ManualSessionBook, MinutesUpdateInput, ProgressUpdateInput, RemoveSessionInput, UpdatedBook } from "../../../renderer/app/calendar_interactions/calendar_interactions_helpers.js";
+import type {
+  CompletionUpdate,
+  ManualSessionAddInput,
+  ManualSessionBook,
+  MinutesUpdateInput,
+  ProgressUpdateInput,
+  RemoveSessionInput,
+  UpdatedBook,
+} from "../../../renderer/app/calendar_interactions/calendar_interactions_helpers.js";
 import type { Book } from "../../../renderer/books/types.js";
-import type { PlannerResult, PlannerScheduleRow, PlannerSettings, PlannerSummary } from "../../types.js";
+import type {
+  PlannerResult,
+  PlannerScheduleRow,
+  PlannerSettings,
+  PlannerSummary,
+} from "../../types.js";
 
 export interface AppCalendarInteractionArgs {
   configureCalendarInteractions(handlers: {

@@ -1,7 +1,6 @@
 import type { Session } from "../../../renderer/sessions/normalize.js";
 import type { PlannerResult } from "../../types.js";
-
-export type SetStatus = (message: string, isError?: boolean) => void;
+import type { SetStatus } from "../runtime.js";
 
 export interface TodayFocusDomRefs {
   focusCompleteButton: HTMLButtonElement;

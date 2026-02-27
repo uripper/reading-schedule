@@ -1,8 +1,20 @@
 import { sessionKeyFor } from "../../calendar/utils.js";
-import { dayBookCompletionKey, dayBookCompletionKeyFromSession, manualSessionBooks, nextSessionIndexForDate, rowsWithoutSession, wordsPlannedForManualSession, type CompletionUpdate, type ProgressUpdateInput } from "./calendar_interactions_helpers.js";
+import {
+  dayBookCompletionKey,
+  dayBookCompletionKeyFromSession,
+  manualSessionBooks,
+  nextSessionIndexForDate,
+  rowsWithoutSession,
+  wordsPlannedForManualSession,
+  type CompletionUpdate,
+  type ProgressUpdateInput,
+} from "./calendar_interactions_helpers.js";
 import { buildScheduleMutationHandlers } from "./calendar_interactions_schedule_handlers.js";
 import type { AppCalendarInteractionArgs } from "./calendar_interactions_types.js";
-import type { CalendarInteractionHandlers, CompletionRow } from "../../../types/app/calendar_interactions/calendar_interactions.js";
+import type {
+  CalendarInteractionHandlers,
+  CompletionRow,
+} from "../../../types/app/calendar_interactions/calendar_interactions.js";
 
 const completionFallbackKey = (row: CompletionRow | undefined): string => {
   if (row === undefined) {
@@ -129,7 +141,8 @@ const buildCalendarHandlers = (
 ): CalendarInteractionHandlers => {
   const scheduleMutationHandlers = buildScheduleMutationHandlers(args);
   return {
-    isSessionCompleted: (sessionKey) => isCompleted(args.state.scheduleCompletions, sessionKey),
+    isSessionCompleted: (sessionKey) =>
+      isCompleted(args.state.scheduleCompletions, sessionKey),
     onSessionCompletionChanged: (payload) => {
       handleCompletionChanged(args, payload);
     },
@@ -146,4 +159,8 @@ export const configureAppCalendarInteractions = (
   args.configureCalendarInteractions(buildCalendarHandlers(args));
 };
 
-export { nextSessionIndexForDate, rowsWithoutSession, wordsPlannedForManualSession };
+export {
+  nextSessionIndexForDate,
+  rowsWithoutSession,
+  wordsPlannedForManualSession,
+};

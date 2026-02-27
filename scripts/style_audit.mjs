@@ -60,6 +60,7 @@ const SOFT_LINE_LIMIT = 150;
 const HARD_LINE_LIMIT = 200;
 const MIN_UNDER_SOFT_PERCENT = 90;
 const COMBINE_CANDIDATE_LINE_LIMIT = 30;
+const MIN_OVER_COMBINE_CANDIDATE_PERCENT = 90;
 
 const AUDIT_SELF_PATH = "scripts/style_audit.mjs";
 const DISALLOWED_CONSOLE_PATTERN = /\bconsole\.(error|warn|log|debug)\s*\(/g;
@@ -284,6 +285,12 @@ function isInTypesDirectory(relativePath) {
 }
 
 function pushTypeDefinitionHitsOutsideTypes(relativePath, sourceFile, typeHits) {
+  if (relativePath.endsWith(".d.ts")) {
+    return;
+  }
+  if (relativePath.startsWith("electron/tokens/dist/")) {
+    return;
+  }
   if (isInTypesDirectory(relativePath)) {
     return;
   }
@@ -638,6 +645,7 @@ function run() {
 
   let analyzed = 0;
   let underSoft = 0;
+  let overCombineCandidate = 0;
 
   for (const filePath of collectFiles()) {
     const extension = path.extname(filePath);
@@ -653,6 +661,9 @@ function run() {
     analyzed += 1;
     if (lineCount < SOFT_LINE_LIMIT) {
       underSoft += 1;
+    }
+    if (lineCount > COMBINE_CANDIDATE_LINE_LIMIT) {
+      overCombineCandidate += 1;
     }
     if (lineCount > SOFT_LINE_LIMIT) {
       overSoftLimit.push({ path: relativePath, lines: lineCount });
@@ -687,14 +698,19 @@ function run() {
   sortByLinesAscending(combineCandidates);
 
   let underSoftPercent = 100;
+  let overCombineCandidatePercent = 100;
   if (analyzed > 0) {
     underSoftPercent = (underSoft / analyzed) * 100;
+    overCombineCandidatePercent = (overCombineCandidate / analyzed) * 100;
   }
 
   process.stdout.write("Style audit report\n");
   process.stdout.write(`Analyzed files: ${analyzed}\n`);
   process.stdout.write(
     `Files under ${SOFT_LINE_LIMIT} lines: ${underSoft}/${analyzed} (${underSoftPercent.toFixed(1)}%)\n`,
+  );
+  process.stdout.write(
+    `Files over ${COMBINE_CANDIDATE_LINE_LIMIT} lines: ${overCombineCandidate}/${analyzed} (${overCombineCandidatePercent.toFixed(1)}%)\n`,
   );
 
   printSection(`Files over ${SOFT_LINE_LIMIT} lines`, overSoftLimit);
@@ -720,6 +736,11 @@ function run() {
   if (underSoftPercent < MIN_UNDER_SOFT_PERCENT) {
     failures.push(
       `Files under ${SOFT_LINE_LIMIT} lines below ${MIN_UNDER_SOFT_PERCENT}%: ${underSoftPercent.toFixed(1)}%`,
+    );
+  }
+  if (overCombineCandidatePercent < MIN_OVER_COMBINE_CANDIDATE_PERCENT) {
+    failures.push(
+      `Files over ${COMBINE_CANDIDATE_LINE_LIMIT} lines below ${MIN_OVER_COMBINE_CANDIDATE_PERCENT}%: ${overCombineCandidatePercent.toFixed(1)}%`,
     );
   }
   if (ternaryHits.length > 0) {

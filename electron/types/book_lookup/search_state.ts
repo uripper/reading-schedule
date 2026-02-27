@@ -1,6 +1,6 @@
-import type { BookLookupItem } from "../types.js";
+import type { BookLookupItem } from "./search.js";
 
-export interface LookupState {
+export interface LookupRenderState {
   currentItems: BookLookupItem[];
   activeIndex: number;
 }
@@ -11,7 +11,7 @@ export interface CreateLookupStateControllerArgs {
   metaEl: HTMLElement;
   onPick(this: void, item: BookLookupItem): void;
   placeholder: string;
-  state: LookupState;
+  state: LookupRenderState;
 }
 
 export interface LookupStateController {

@@ -2,8 +2,15 @@
  * @file Preload bridge exposing a typed planner API to the renderer.
  */
 import { contextBridge, ipcRenderer } from "electron";
-import type { JsonValue } from "./types/types_json";
-import type { PlannerApi } from "./types/main/preload.js";
+import type {
+  BookLookupItem,
+  LoadedPlannerState,
+  PlanGeneratePayload,
+  PlannerApi,
+  PlannerResult,
+  PlannerSaveResult,
+  PlannerStateSnapshot,
+} from "./types/types.js";
 
 /**
  * Invokes an IPC channel and narrows the resolved payload to the expected type.
@@ -16,11 +23,19 @@ async function invokeIpc<T>(channel: string, ...args: unknown[]): Promise<T> {
 }
 
 const plannerApi: PlannerApi = {
-  sample: async (): Promise<JsonValue> => await invokeIpc<JsonValue>("plan:sample"),
-  generate: async (payload: JsonValue): Promise<JsonValue> =>
-    await invokeIpc<JsonValue>("plan:generate", payload),
-  searchBooks: async (query: string): Promise<JsonValue[]> =>
-    await invokeIpc<JsonValue[]>("book:search", query),
+  sample: async (): Promise<Pick<PlannerStateSnapshot, "settings" | "books">> =>
+    await invokeIpc<Pick<PlannerStateSnapshot, "settings" | "books">>(
+      "plan:sample",
+    ),
+  generate: async (
+    payload: PlanGeneratePayload,
+  ): Promise<Pick<PlannerResult, "schedule" | "summary">> =>
+    await invokeIpc<Pick<PlannerResult, "schedule" | "summary">>(
+      "plan:generate",
+      payload,
+    ),
+  searchBooks: async (query: string): Promise<BookLookupItem[]> =>
+    await invokeIpc<BookLookupItem[]>("book:search", query),
   downloadCover: async (
     url: string | undefined,
     bookId: string | undefined,
@@ -31,11 +46,12 @@ const plannerApi: PlannerApi = {
     bookId: string | undefined,
   ): Promise<string> =>
     await invokeIpc<string>("book:saveUploadedCover", { dataUrl, bookId }),
-  loadState: async (): Promise<JsonValue> => await invokeIpc<JsonValue>("state:load"),
+  loadState: async (): Promise<LoadedPlannerState | null | undefined> =>
+    await invokeIpc<LoadedPlannerState | null | undefined>("state:load"),
   saveState: async (
-    payload: JsonValue,
-  ): Promise<{ ok?: boolean; error?: string }> =>
-    await invokeIpc<{ ok?: boolean; error?: string }>("state:save", payload),
+    payload: PlannerStateSnapshot,
+  ): Promise<PlannerSaveResult> =>
+    await invokeIpc<PlannerSaveResult>("state:save", payload),
   zoomIn: async (): Promise<number> => await invokeIpc<number>("window:zoomIn"),
   zoomOut: async (): Promise<number> => await invokeIpc<number>("window:zoomOut"),
   zoomReset: async (): Promise<number> => await invokeIpc<number>("window:zoomReset"),

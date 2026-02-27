@@ -1,5 +1,7 @@
 import type { Book } from "../../../renderer/books/types.js";
 import type { CalendarRowWithFinish } from "../../../renderer/calendar/data.js";
+import type { ManualSessionBook } from "../../calendar/details.js";
+export type { ManualSessionBook };
 
 export interface ScheduleRow {
   title?: string;
@@ -34,11 +36,6 @@ export interface RemoveSessionInput {
 export interface MinutesUpdateInput {
   minutes: number;
   row: CalendarRowWithFinish;
-}
-
-export interface ManualSessionBook {
-  bookId: string;
-  title: string;
 }
 
 export type UpdatedBook = Book;
