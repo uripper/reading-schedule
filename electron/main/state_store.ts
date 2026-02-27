@@ -102,11 +102,16 @@ export function readState(userDataDir: string): PlannerStateLoadResult {
     return {
       state: null,
       source: "fresh",
+      sourcePath: userDataDir,
       warningCode: "STATE_RESET_FRESH",
       warningMessage: "Saved state was unreadable. Started with fresh data.",
     };
   }
-  return { state: null, source: "fresh" };
+  return {
+    state: null,
+    source: "fresh",
+    sourcePath: userDataDir,
+  };
 }
 
 /**

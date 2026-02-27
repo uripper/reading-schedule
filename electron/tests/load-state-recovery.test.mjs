@@ -23,11 +23,12 @@ const DEFAULT_FEATURE_FLAGS = {
  * @param {import("../dist/types/types.js").PlannerStateLoadResult} loadResult Structured load result fixture.
  * @param {Array<{ message: string, isError: boolean }>} statuses Captured statuses sink.
  * @param {string[]} logs Captured logs sink.
+ * @param {Partial<import("../dist/types/types_app.js").LoadStateArgs>} overrides Override hooks for targeted assertions.
  * @returns {import("../dist/types/types_app.js").LoadStateArgs} Load arguments.
  */
-function loadArgs(loadResult, statuses, logs) {
+function loadArgs(loadResult, statuses, logs, overrides = {}) {
   const noop = () => undefined;
-  return {
+  const base = {
     plannerApi: {
       loadState: () => Promise.resolve(loadResult),
       sample: () =>
@@ -55,6 +56,7 @@ function loadArgs(loadResult, statuses, logs) {
       logs.push(message);
     },
   };
+  return { ...base, ...overrides };
 }
 
 test("loadInitialData surfaces backup/journal/fresh recovery warnings", async () => {

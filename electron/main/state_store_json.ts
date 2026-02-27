@@ -14,6 +14,20 @@ import {
   jsonStateTempPath,
 } from "./state_store_paths";
 
+const UTF8_BOM = "\uFEFF";
+
+/**
+ * Removes UTF-8 BOM marker when present so JSON parsing remains robust.
+ * @param text Raw UTF-8 file text.
+ * @returns BOM-stripped JSON text.
+ */
+function stripUtf8Bom(text: string): string {
+  if (!text.startsWith(UTF8_BOM)) {
+    return text;
+  }
+  return text.slice(1);
+}
+
 /**
  * Normalizes parsed JSON payload into an object-like state payload.
  * @param value Raw parsed JSON value.
@@ -39,7 +53,7 @@ function objectState(value: unknown): LoadedPlannerState | null {
  */
 function readJsonObjectFile(filePath: string): LoadedPlannerState | null {
   try {
-    const text = fs.readFileSync(filePath, "utf8");
+    const text = stripUtf8Bom(fs.readFileSync(filePath, "utf8"));
     const parsed = JSON.parse(text) as unknown;
     return objectState(parsed);
   } catch {
@@ -87,13 +101,18 @@ export function readStateFromJson(userDataDir: string): PlannerStateLoadResult |
   const backupPath = jsonStateBackupPath(userDataDir);
   const primary = readJsonObjectFile(primaryPath);
   if (primary) {
-    return { state: primary, source: "json_primary" };
+    return {
+      state: primary,
+      source: "json_primary",
+      sourcePath: primaryPath,
+    };
   }
   const backup = readJsonObjectFile(backupPath);
   if (backup) {
     return {
       state: backup,
       source: "json_backup",
+      sourcePath: backupPath,
       warningCode: "RECOVERED_FROM_BACKUP",
       warningMessage:
         "Recovered saved data from backup copy. Recent unsaved changes may be missing.",

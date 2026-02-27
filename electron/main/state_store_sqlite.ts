@@ -112,6 +112,31 @@ function recoverStateFromJournal(
 }
 
 /**
+ * Upserts the singleton snapshot row with current schema metadata.
+ * @param database Open SQLite handle.
+ * @param payloadJson Serialized state payload.
+ * @param updatedAt ISO timestamp for snapshot update time.
+ */
+function upsertSnapshot(
+  database: DatabaseSync,
+  payloadJson: string,
+  updatedAt: string,
+): void {
+  database
+    .prepare(
+      `
+        INSERT INTO planner_state_snapshot (id, schema_version, payload_json, updated_at)
+        VALUES (1, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          schema_version = excluded.schema_version,
+          payload_json = excluded.payload_json,
+          updated_at = excluded.updated_at
+      `,
+    )
+    .run(STATE_SCHEMA_VERSION, payloadJson, updatedAt);
+}
+
+/**
  * Persists snapshot+journal records transactionally.
  * @param database Open SQLite handle.
  * @param payloadJson Serialized state JSON payload.
@@ -128,16 +153,6 @@ function writeSnapshotTransaction(
       VALUES (?, ?, ?)
     `,
   );
-  const upsertSnapshot = database.prepare(
-    `
-      INSERT INTO planner_state_snapshot (id, schema_version, payload_json, updated_at)
-      VALUES (1, ?, ?, ?)
-      ON CONFLICT(id) DO UPDATE SET
-        schema_version = excluded.schema_version,
-        payload_json = excluded.payload_json,
-        updated_at = excluded.updated_at
-    `,
-  );
   const trimJournal = database.prepare(
     `
       DELETE FROM planner_state_journal
@@ -149,7 +164,7 @@ function writeSnapshotTransaction(
   database.exec("BEGIN IMMEDIATE");
   try {
     insertJournal.run(createdAt, SAVE_OPERATION, payloadJson);
-    upsertSnapshot.run(STATE_SCHEMA_VERSION, payloadJson, createdAt);
+    upsertSnapshot(database, payloadJson, createdAt);
     trimJournal.run(JOURNAL_KEEP_ROWS);
     database.exec("COMMIT");
     return { ok: true };
@@ -160,32 +175,6 @@ function writeSnapshotTransaction(
     }
     return { ok: false, error: String(error) };
   }
-}
-
-/**
- * Rewrites snapshot table from recovered journal payload.
- * @param database Open SQLite handle.
- * @param state Recovered state payload.
- */
-function rewriteSnapshotFromRecovery(
-  database: DatabaseSync,
-  state: LoadedPlannerState,
-): void {
-  const upsertSnapshot = database.prepare(
-    `
-      INSERT INTO planner_state_snapshot (id, schema_version, payload_json, updated_at)
-      VALUES (1, ?, ?, ?)
-      ON CONFLICT(id) DO UPDATE SET
-        schema_version = excluded.schema_version,
-        payload_json = excluded.payload_json,
-        updated_at = excluded.updated_at
-    `,
-  );
-  upsertSnapshot.run(
-    STATE_SCHEMA_VERSION,
-    JSON.stringify(state),
-    new Date().toISOString(),
-  );
 }
 
 /**
@@ -205,16 +194,25 @@ export function readStateFromSqlite(
     try {
       const snapshotState = readSnapshotState(database);
       if (snapshotState) {
-        return { state: snapshotState, source: "sqlite" };
+        return {
+          state: snapshotState,
+          source: "sqlite",
+          sourcePath: databasePath,
+        };
       }
       const recoveredState = recoverStateFromJournal(database);
       if (!recoveredState) {
         return null;
       }
-      rewriteSnapshotFromRecovery(database, recoveredState);
+      upsertSnapshot(
+        database,
+        JSON.stringify(recoveredState),
+        new Date().toISOString(),
+      );
       return {
         state: recoveredState,
         source: "sqlite_journal_replay",
+        sourcePath: databasePath,
         warningCode: "RECOVERED_FROM_JOURNAL",
         warningMessage:
           "Recovered saved data from journal replay after storage corruption.",

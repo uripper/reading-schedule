@@ -100,6 +100,7 @@ export type PlannerStateLoadWarningCode =
 export interface PlannerStateLoadResult {
   state: LoadedPlannerState | null;
   source: PlannerStateLoadSource;
+  sourcePath?: string;
   warningCode?: PlannerStateLoadWarningCode;
   warningMessage?: string;
 }

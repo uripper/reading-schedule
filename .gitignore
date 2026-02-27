@@ -57,6 +57,7 @@ apps/*/dist/
 packages/*/dist/
 services/*/dist/
 apps/client/.vite/
+/.scratch/
 
 # Capacitor / mobile build outputs
 apps/mobile/android/.gradle/
