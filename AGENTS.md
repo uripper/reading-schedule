@@ -26,7 +26,7 @@ These are enforced standards from `STYLEGUIDE.md`.
 
 - Keep function complexity under 10.
 - Keep files under 200 lines (hard limit).
-- Keep at least 90% of files under 100 lines.
+- Keep at least 90% of files under 150 lines.
 - Do not use ternary operators.
 - Do not use magic numbers; extract named constants.
 - Do not introduce implicit `any` in TypeScript.

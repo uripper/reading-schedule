@@ -18,7 +18,7 @@ Applies to all code and docs in:
 ## Non-Negotiable Rules (MUST)
 
 - Keep function complexity under 10.
-- Keep files less than 100 lines in at least 90% of cases.
+- Keep files less than 150 lines in at least 90% of cases.
 - Keep files under 200 lines in 100% of cases; split files when necessary.
 - Do not use ternaries.
 - Do not use magic numbers.
@@ -221,7 +221,7 @@ If any required command fails, do not merge.
 ## PR Checklist (Copy/Paste)
 
 - [ ] Complexity < 10 for every new/modified function.
-- [ ] File size policy met (<100 lines for 90% of files, <200 for all files).
+- [ ] File size policy met (<150 lines for 90% of files, <200 for all files, >30 lines for 90% of files).
 - [ ] No ternaries introduced.
 - [ ] No magic numbers introduced.
 - [ ] TypeScript uses repo `tsconfig` settings (`strict`, `noImplicitAny`, `strictNullChecks` intact).
