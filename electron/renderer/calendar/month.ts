@@ -4,6 +4,9 @@ import { createDayButton, createWeekdayHeader } from "./month_day_button.js";
 import { handleDayKeydown } from "./month_keyboard.js";
 
 interface CalendarRow {
+  book_id?: string;
+  date?: string;
+  session_index?: string | number;
   title?: string;
   minutes?: number;
   finish?: boolean;
@@ -18,9 +21,10 @@ interface CalendarState {
 }
 
 interface MonthActions {
-  selectDate(dateKey: string, options?: { focus?: boolean }): void;
-  moveSelectionBy(delta: number, currentIndex: number): void;
-  renderDetails(): void;
+  completedBookRowsForDate(this: void, dateKey: string): CalendarRow[];
+  moveSelectionBy(this: void, delta: number, currentIndex: number): void;
+  renderDetails(this: void): void;
+  selectDate(this: void, dateKey: string, options?: { focus?: boolean }): void;
 }
 
 /**
@@ -29,6 +33,84 @@ interface MonthActions {
  */
 function todayDayKey(): string {
   return dayKey(new Date());
+}
+
+/**
+ * Adds finish rows for books completed on this date without scheduled sessions.
+ * @param plannedRows Existing scheduled rows for the date.
+ * @param completedBookRows Synthetic completed-book rows.
+ * @returns Combined rows for month-grid display.
+ */
+export function mergeDisplayRows(
+  plannedRows: CalendarRow[],
+  completedBookRows: CalendarRow[],
+): CalendarRow[] {
+  const completedByBookId = new Map<string, CalendarRow>();
+  completedBookRows.forEach((row) => {
+    if (typeof row.book_id !== "string" || row.book_id === "") {
+      return;
+    }
+    if (completedByBookId.has(row.book_id)) {
+      return;
+    }
+    completedByBookId.set(row.book_id, row);
+  });
+  const out: CalendarRow[] = [];
+  const seenBookIds = new Set<string>();
+  plannedRows.forEach((row) => {
+    if (typeof row.book_id !== "string" || row.book_id === "") {
+      out.push(row);
+      return;
+    }
+    if (completedByBookId.has(row.book_id)) {
+      out.push({
+        ...row,
+        finish: true,
+      });
+      seenBookIds.add(row.book_id);
+      return;
+    }
+    out.push(row);
+    seenBookIds.add(row.book_id);
+  });
+  completedByBookId.forEach((row, bookId) => {
+    if (seenBookIds.has(bookId)) {
+      return;
+    }
+    seenBookIds.add(bookId);
+    out.push(row);
+  });
+  const finishRows: CalendarRow[] = [];
+  const otherRows: CalendarRow[] = [];
+  out.forEach((row) => {
+    if (row.finish === true) {
+      finishRows.push(row);
+      return;
+    }
+    otherRows.push(row);
+  });
+  return [...finishRows, ...otherRows];
+}
+
+/**
+ * Ensures selected date is within current month cell range.
+ * Defaults to first populated day, then first visible cell.
+ * @param state Mutable calendar render state.
+ */
+function ensureSelectedDateInMonth(state: CalendarState): void {
+  const calendarState = state;
+  if (
+    calendarState.selectedDate === "" ||
+    !calendarState.monthCellKeys.includes(calendarState.selectedDate)
+  ) {
+    const firstWithRows = calendarState.monthCellKeys.find((cellKey) => {
+      if (!(cellKey in calendarState.dates)) {
+        return false;
+      }
+      return calendarState.dates[cellKey].length > 0;
+    });
+    calendarState.selectedDate = firstWithRows ?? calendarState.monthCellKeys[0];
+  }
 }
 
 /**
@@ -63,19 +145,7 @@ export function renderCalendarMonth(
   const firstDate = new Date(year, month - 1, 1);
   const cells = monthCells(monthKey);
   calendarState.monthCellKeys = cells.map((date) => dayKey(date));
-
-  if (
-    calendarState.selectedDate === "" ||
-    !calendarState.monthCellKeys.includes(calendarState.selectedDate)
-  ) {
-    const firstWithRows = calendarState.monthCellKeys.find((cellKey) => {
-      if (!(cellKey in calendarState.dates)) {
-        return false;
-      }
-      return calendarState.dates[cellKey].length > 0;
-    });
-    calendarState.selectedDate = firstWithRows ?? calendarState.monthCellKeys[0];
-  }
+  ensureSelectedDateInMonth(calendarState);
 
   const grid = document.createElement("div");
   grid.className = "calendar-grid";
@@ -85,15 +155,17 @@ export function renderCalendarMonth(
 
   cells.forEach((date, index) => {
     const keyForDay = calendarState.monthCellKeys[index];
+    const completedBookRows = actions.completedBookRowsForDate(keyForDay);
     let rows: CalendarRow[] = [];
     if (keyForDay in calendarState.dates) {
       rows = calendarState.dates[keyForDay];
     }
+    const displayRows = mergeDisplayRows(rows, completedBookRows);
     const dayButton = createDayButton({
       date,
       firstDate,
       keyForDay,
-      rows,
+      rows: displayRows,
       selectedDate: calendarState.selectedDate,
       todayKey,
     });

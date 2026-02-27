@@ -41,3 +41,16 @@ test("dayStyleFlags marks non-month cells as muted", () => {
   assert.equal(flags.isMuted, true);
   assert.equal(flags.hasFinishRow, true);
 });
+
+test("dayStyleFlags ignores completed-only rows in month grid", () => {
+  const flags = dayStyleFlags({
+    date: day("2026-02-20"),
+    firstDate: day("2026-02-01"),
+    keyForDay: "2026-02-20",
+    selectedDate: "2026-02-19",
+    todayKey: "2026-02-21",
+    rows: [{ completed: true, finish: false }],
+  });
+
+  assert.equal(flags.hasFinishRow, false);
+});

@@ -35,7 +35,7 @@ export function indexForMonth(months: string[], targetMonthKey: string): number 
     return exactIndex;
   }
   const upcomingIndex = months.findIndex((monthKey) => {
-    return Number(monthKey) >= Number(targetMonthKey);
+    return monthKey.localeCompare(targetMonthKey) >= 0;
   });
   if (upcomingIndex >= 0) {
     return upcomingIndex;

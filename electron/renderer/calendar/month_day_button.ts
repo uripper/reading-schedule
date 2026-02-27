@@ -38,7 +38,9 @@ interface DayStyleFlagsArgs {
 export function dayStyleFlags(
   args: DayStyleFlagsArgs,
 ): DayStyleFlags {
-  const hasFinishRow = args.rows.some((row) => Boolean(row.finish));
+  const hasFinishRow = args.rows.some((row) => {
+    return row.finish === true;
+  });
   const isMuted = args.date.getMonth() !== args.firstDate.getMonth();
   const isSelected = args.selectedDate === args.keyForDay;
   const isPast = args.keyForDay < args.todayKey;
