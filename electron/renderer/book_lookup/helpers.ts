@@ -1,5 +1,5 @@
 import type { BookLookupItem } from "../../types/types.js";
-import type { NumericLike, ProgressField, ProgressSyncInputs } from "../../types/book_lookup/helpers.js";
+import type { NumericLike, ProgressField, ProgressSyncInputs } from "../../types/book_lookup_search.js";
 export type { ProgressSyncInputs };
 
 const PLACEHOLDER_SVG = [

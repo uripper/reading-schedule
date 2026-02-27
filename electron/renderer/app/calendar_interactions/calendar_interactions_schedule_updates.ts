@@ -22,7 +22,7 @@ import type {
   RemoveSessionArgs,
   SharedUpdateArgs,
   UpdateSessionMinutesArgs,
-} from "../../../types/app/calendar_interactions/calendar_interactions_schedule_updates.js";
+} from "../../../types/app_calendar_interactions.js";
 
 /**
  * Builds a new planner result from replacement schedule rows while preserving

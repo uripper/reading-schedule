@@ -4,7 +4,7 @@ import { SHELF_FILTER_ALL, SHELF_FILTER_UNSHELVED } from "./shelf.js";
 import { SORT_BY_AUTHOR, SORT_BY_DEADLINE, SORT_BY_DIFFICULTY, SORT_BY_ESTIMATED_FINISH, SORT_BY_PAGES_READ, SORT_BY_PAGES_TOTAL, SORT_BY_PRIORITY, SORT_BY_PROGRESS, SORT_BY_SHELF, SORT_BY_WORDS_TOTAL, type SortBy } from "./sort.js";
 import { SORT_BY_TITLE } from "./toolbar.js";
 
-export type { BookDialogController, BooksControllerRefs, BooksViewState } from "../../types/books/controller_types.js";
+export type { BookDialogController, BooksControllerRefs, BooksViewState } from "../../types/books_types.js";
 
 const SORT_BY_OPTIONS: SortBy[] = [
   SORT_BY_TITLE,

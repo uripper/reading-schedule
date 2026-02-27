@@ -1,5 +1,5 @@
 import { el } from "../dom.js";
-import type { BookFormRefs } from "../../types/books/form_refs.js";
+import type { BookFormRefs } from "../../types/books_types.js";
 export type { BookFormRefs };
 
 /**

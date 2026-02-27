@@ -1,5 +1,5 @@
 import { COVER_PLACEHOLDER } from "./constants.js";
-import type { CardHandlers } from "../../types/books/card_events.js";
+import type { CardHandlers } from "../../types/books_types.js";
 export type { CardHandlers };
 
 /**

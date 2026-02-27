@@ -1,7 +1,7 @@
 
 import { describeLookup } from "./helpers.js";
 import { renderLookupResults, updateComboboxA11y } from "./render.js";
-import type { CreateLookupStateControllerArgs, LookupStateController } from "../../types/book_lookup/search_state.js";
+import type { CreateLookupStateControllerArgs, LookupStateController } from "../../types/book_lookup_search.js";
 
 /**
  * Creates lookup state actions for rendering, clearing, selecting, and highlighting items.

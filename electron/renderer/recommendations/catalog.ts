@@ -1,4 +1,4 @@
-import type { RecommendationSeed } from "../../types/recommendations/catalog.js";
+import type { RecommendationSeed } from "../../types/recommendations_model.js";
 export type { RecommendationSeed };
 
 const AUTHOR_KEY_AUSTEN = "jane austen";

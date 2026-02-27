@@ -1,6 +1,6 @@
 
 
-import type { CalendarHandlers, CalendarRuntimeState, CompletionChangePayload, ManualSessionBook, ManualSessionPayload, MinutesUpdatePayload, ProgressUpdatePayload, RemoveSessionPayload } from "../../types/calendar/state_runtime.js";
+import type { CalendarHandlers, CalendarRuntimeState, CompletionChangePayload, ManualSessionBook, ManualSessionPayload, MinutesUpdatePayload, ProgressUpdatePayload, RemoveSessionPayload } from "../../types/calendar_state_runtime.js";
 export type { CalendarHandlers, CalendarRuntimeState, CompletionChangePayload, ManualSessionBook, ManualSessionPayload, MinutesUpdatePayload, ProgressUpdatePayload, RemoveSessionPayload };
 
 /**

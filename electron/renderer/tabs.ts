@@ -1,5 +1,5 @@
 import { qa } from "./dom.js";
-import type { ActivateTabOptions } from "../types/app/tabs.js";
+import type { ActivateTabOptions } from "../types/app_runtime.js";
 
 const DEFAULT_TAB_NAME = "today";
 const DEFAULT_TITLE = "Bartleby";

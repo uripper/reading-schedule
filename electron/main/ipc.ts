@@ -2,10 +2,10 @@
  * @file Main-process IPC registration for planner and window actions.
  */
 import { ipcMain } from "electron";
-import type { JsonValue } from "../types/types_json";
+import type { JsonValue } from "../types/core_json.js";
 import { UI_SCALE_STEP } from "./zoom";
 import { asDownloadCoverPayload, asUploadCoverPayload, type DownloadCoverPayload, type UploadCoverPayload } from "./ipc_payloads";
-import type { RegisterIpcHandlersArgs } from "../types/main/ipc.js";
+import type { RegisterIpcHandlersArgs } from "../types/main_ipc.js";
 
 /**
  * Registers all main-process IPC handlers consumed by the renderer.
@@ -58,7 +58,7 @@ export function registerIpcHandlers({
   ipcMain.handle("state:save", (_event, payload: JsonValue) => {
     const result = writeState(userData(), payload);
     if (!result.ok) {
-      throw new Error(result.error ?? "Failed to save state");
+      throw new Error(result.error);
     }
     return result;
   });

@@ -1,5 +1,5 @@
 import { el } from "../dom.js";
-import type { AnnouncePoliteness, PreferencesInput } from "../../types/app/accessibility/a11y.js";
+import type { AnnouncePoliteness, DocumentPreferencesInput } from "../../types/app_runtime.js";
 
 const ANNOUNCE_DELAY_MS = 30;
 
@@ -52,7 +52,7 @@ export function createAnnouncer(
  * @param preferences User preference values to apply.
  */
 export function applyPreferencesToDocument(
-  preferences: PreferencesInput = {},
+  preferences: DocumentPreferencesInput = {},
 ): void {
   let theme = "system";
   if (

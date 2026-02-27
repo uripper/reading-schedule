@@ -9,7 +9,7 @@ import { bindCoverUpload } from "./cover_upload.js";
 import { bindBookDialogProgressSync } from "./dialog_progress_sync.js";
 import type { BookDialogController } from "./controller_types.js";
 import type { Book } from "./types.js";
-import type { BookDialogOptions, BookSubmitPayload, OpenBookDialogArgs, OpenDialogOptions } from "../../types/books/dialog.js";
+import type { BookDialogOptions, BookSubmitPayload, OpenBookDialogArgs, OpenDialogOptions } from "../../types/books_types.js";
 export type { BookSubmitPayload, OpenDialogOptions };
 
 /**

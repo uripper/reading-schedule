@@ -1,5 +1,5 @@
 import type { ManualSessionBook } from "./details_types.js";
-import type { BookFinishLookup, CompletedBookRow } from "../../types/calendar/finished_books.js";
+import type { BookFinishLookup, CompletedBookRow } from "../../types/calendar_month.js";
 export type { CompletedBookRow };
 
 /**

@@ -1,4 +1,4 @@
-import type { NumericLike } from "../../types/books/utils.js";
+import type { NumericLike } from "../../types/books_types.js";
 
 /**
  * Escapes text for safe HTML interpolation in renderer templates.

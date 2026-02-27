@@ -1,3 +1,3 @@
 
 
-export type { AppCalendarInteractionArgs } from "../../../types/app/calendar_interactions/calendar_interactions_types.js";
+export type { AppCalendarInteractionArgs } from "../../../types/app_calendar_interactions.js";

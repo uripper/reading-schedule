@@ -1,4 +1,4 @@
-import type { FeatureFlagRawValue, ReminderTimeRawValue } from "../../../types/app/experience/availability.js";
+import type { FeatureFlagRawValue, ReminderTimeRawValue } from "../../../types/app_experience.js";
 export type { FeatureFlagRawValue, ReminderTimeRawValue };
 export const REMINDERS_AVAILABLE = false;
 export const SOCIAL_FEATURES_AVAILABLE = false;

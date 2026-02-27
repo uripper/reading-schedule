@@ -12,7 +12,7 @@ import type { Book, BookProgressUpdates } from "./types.js";
 import { bindToolbarEvents } from "./controller_bindings.js";
 import { renderBooksController } from "./controller_render.js";
 import { defaultShelfForAddDialog, type BookDialogController, type BooksControllerRefs, type BooksViewState } from "./controller_types.js";
-import type { BindBooksUIOptions, UpdateBookProgressOptions } from "../../types/books/controller.js";
+import type { BindBooksUIOptions, UpdateBookProgressOptions } from "../../types/books_types.js";
 
 let books: Book[] = [];
 let scheduleRows: PlannerScheduleRow[] = [];

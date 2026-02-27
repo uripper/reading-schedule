@@ -1,4 +1,4 @@
-import type { ScrollSettleState } from "../../types/books/card_scroll_settle.js";
+import type { ScrollSettleState } from "../../types/books_types.js";
 const RAF_FALLBACK_DELAY_MS = 16;
 const SCROLL_SETTLE_DELTA_PX = 0.5;
 const SCROLL_SETTLE_MAX_WAIT_MS = 1800;

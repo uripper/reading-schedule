@@ -1,7 +1,7 @@
 
 import { DEFAULT_PREFERENCES } from "./experience/index.js";
 
-import type { DashboardRuntimeArgs } from "../../types/app/dashboard_runtime.js";
+import type { DashboardRuntimeArgs } from "../../types/app_dashboard_runtime.js";
 
 /**
  * Creates dashboard update actions that keep Today/Stats panels in sync with UI preferences.

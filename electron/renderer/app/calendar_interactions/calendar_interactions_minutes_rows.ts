@@ -13,7 +13,7 @@ import type {
   PlannerScheduleRow,
   PlannerSettings,
 } from "../../../types/types.js";
-import type { UpdatedRowsResult } from "../../../types/app/calendar_interactions/calendar_interactions_minutes_rows.js";
+import type { UpdatedRowsResult } from "../../../types/app_calendar_interactions.js";
 export type { UpdatedRowsResult };
 
 /**

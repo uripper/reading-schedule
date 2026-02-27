@@ -1,6 +1,6 @@
 
 import type { PlanGeneratePayload, PlannerSummary } from "../../types/types.js";
-import type { RunPlanGenerationArgs } from "../../types/app/plan.js";
+import type { RunPlanGenerationArgs } from "../../types/app_plan.js";
 
 /**
  * Generates a day key in the format "YYYY-MM-DD" from a Date object.

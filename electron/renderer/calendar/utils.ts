@@ -1,5 +1,5 @@
 import { CALENDAR_COLUMN_COUNT, SESSION_INDEX_PAD, WEEK_START_OFFSET } from "./constants.js";
-import type { SortableRow } from "../../types/calendar/utils.js";
+import type { SortableRow } from "../../types/calendar_month.js";
 
 const DATE_KEY_PART_COUNT = 3;
 const DATE_KEY_MONTH_INDEX = 1;

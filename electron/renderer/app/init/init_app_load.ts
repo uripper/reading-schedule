@@ -6,7 +6,7 @@ import { bindTodayActions, finalizeInitialLoad } from "./init_helpers.js";
 import { loadInitialData } from "../load_state.js";
 import type { AppBootstrapContext } from "../bootstrap_runtime.js";
 
-import type { LoadedResultController } from "../../../types/app/init/init_app_load.js";
+import type { LoadedResultController } from "../../../types/app_init_init_helpers.js";
 
 /**
  * Loads the initial state of the application, applying it to the provided context and controller,

@@ -1,3 +1,3 @@
 
 
-export type { CalendarStateSubset, DayMode, DetailInteractionHandlers, ManualSessionAddPayload, ManualSessionBook } from "../../types/calendar/details_types.js";
+export type { CalendarStateSubset, DayMode, DetailInteractionHandlers, ManualSessionAddPayload, ManualSessionBook } from "../../types/calendar_details_types.js";

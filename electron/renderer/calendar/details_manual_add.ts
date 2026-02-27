@@ -1,7 +1,7 @@
 
 import { minuteValueForManualInput, sortedManualBooks } from "./details_manual_add_helpers.js";
 import { initialPreferredBookId, refreshBookOptions } from "./details_manual_add_options.js";
-import type { BookSelectionControls, BuildManualSessionAddPanelArgs, SubmitManualAddFormArgs } from "../../types/calendar/details_manual_add.js";
+import type { BookSelectionControls, BuildManualSessionAddPanelArgs, SubmitManualAddFormArgs } from "../../types/calendar_month.js";
 
 const MANUAL_ADD_TITLE = "Manual add";
 const TITLE_FILTER_LABEL = "Find title";

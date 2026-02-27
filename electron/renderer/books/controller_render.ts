@@ -9,7 +9,7 @@ import { SORT_BY_ESTIMATED_FINISH } from "./sort.js";
 import { resolveRenderableRefs, visibleBooksForView } from "./controller_render_helpers.js";
 import { updateGroupByOptions, updateShelfFilterOptions, updateStatusFilterOptions, updateSortDirectionButton } from "./toolbar.js";
 
-import type { RenderBooksControllerArgs } from "../../types/books/controller_render.js";
+import type { RenderBooksControllerArgs } from "../../types/books_types.js";
 
 /**
  * Normalizes a settings value to boolean with a fallback.

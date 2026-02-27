@@ -6,7 +6,7 @@ import { buildTodayScheduleSnapshot, type TodayScheduleSnapshot } from "./today_
 import type { PlannerResult, PlannerScheduleRow } from "../../../types/types.js";
 
 import { todayKey } from "../../sessions/utils.js";
-import type { UpdateTodayDashboardArgs } from "../../../types/app/today/today.js";
+import type { UpdateTodayDashboardArgs } from "../../../types/app_today.js";
 
 const MIN_GOAL_MINUTES = 1;
 const MAX_PERCENT = 100;

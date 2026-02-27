@@ -1,4 +1,4 @@
-export type { SearchDoc, SearchItem, SearchResponse } from "../../types/main/book_lookup/search_shared.js";
+export type { SearchDoc, SearchItem, SearchResponse } from "../../types/main_book_lookup.js";
 /**
  * @file Shared constants and data contracts for book lookup search.
  */

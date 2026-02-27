@@ -4,7 +4,7 @@ import { sortBooks } from "./sort.js";
 import { normalizeTitleFilterQuery, titleMatchesNormalizedQuery } from "../title_filter.js";
 import type { Book } from "./types.js";
 import type { BooksControllerRefs, BooksViewState } from "./controller_types.js";
-import type { RenderableBooksRefs } from "../../types/books/controller_render_helpers.js";
+import type { RenderableBooksRefs } from "../../types/books_types.js";
 export type { RenderableBooksRefs };
 
 /**

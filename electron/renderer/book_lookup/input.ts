@@ -1,6 +1,6 @@
 
 import { getPlannerApi } from "../app/planner_api.js";
-import type { LookupInputHandlerArgs } from "../../types/book_lookup/input.js";
+import type { LookupInputHandlerArgs } from "../../types/book_lookup_search.js";
 
 const LOOKUP_DELAY_MS = 260;
 const RESULT_LIMIT = 12;

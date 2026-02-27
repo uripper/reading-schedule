@@ -14,7 +14,7 @@ import type { AppCalendarInteractionArgs } from "./calendar_interactions_types.j
 import type {
   CalendarInteractionHandlers,
   CompletionRow,
-} from "../../../types/app/calendar_interactions/calendar_interactions.js";
+} from "../../../types/app_calendar_interactions.js";
 
 const completionFallbackKey = (row: CompletionRow | undefined): string => {
   if (row === undefined) {

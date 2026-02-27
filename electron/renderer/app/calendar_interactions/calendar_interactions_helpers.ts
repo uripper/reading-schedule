@@ -9,7 +9,7 @@ import type {
   ProgressUpdateInput,
   RemoveSessionInput,
   UpdatedBook,
-} from "../../../types/app/calendar_interactions/calendar_interactions_helpers.js";
+} from "../../../types/app_calendar_interactions.js";
 export type {
   CompletionUpdate,
   ManualSessionAddInput,

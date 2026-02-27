@@ -9,7 +9,7 @@ import type { Book } from "./types.js";
 import type { BookFormRefs } from "./form_refs.js";
 import type { BookLookupItem } from "../../types/types.js";
 import type { ProgressSyncInputs } from "../book_lookup/helpers.js";
-import type { LookupControl } from "../../types/books/form_state.js";
+import type { LookupControl } from "../../types/books_types.js";
 
 /**
  * Applies a positive lookup estimate to an input only when current value is missing.

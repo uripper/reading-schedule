@@ -1,7 +1,7 @@
 
 import { mergeScheduleRows, pruneScheduleCompletions } from "./schedule_preserve.js";
 import type { PlannerResult, PlannerScheduleRow } from "../../types/types.js";
-import type { ApplyLoadedResultArgs, ApplyPlannedDataArgs, PlannerRunData } from "../../types/app/plan_controller_apply.js";
+import type { ApplyLoadedResultArgs, ApplyPlannedDataArgs, PlannerRunData } from "../../types/app_plan_controller_apply.js";
 export type { PlannerRunData };
 
 /**

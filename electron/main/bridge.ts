@@ -3,8 +3,8 @@
  */
 import { spawn } from "node:child_process";
 import path from "node:path";
-import type { JsonValue } from "../types/types_json";
-import type { BridgeResponse } from "../types/main/bridge.js";
+import type { JsonValue } from "../types/core_json.js";
+import type { BridgeResponse } from "../types/main_bridge.js";
 
 const PLANNER_MODULE = "reading_plan.gui_api";
 const PYTHONPATH_SEGMENT = "src";

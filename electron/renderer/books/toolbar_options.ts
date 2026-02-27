@@ -2,7 +2,7 @@ import { GROUP_BY_AUTHOR, GROUP_BY_FINISH_DATE, GROUP_BY_NONE, GROUP_BY_SHELF, G
 import { SHELF_FILTER_ALL, SHELF_FILTER_UNSHELVED, uniqueShelves } from "./shelf.js";
 import { SORT_BY_AUTHOR, SORT_BY_DEADLINE, SORT_BY_DIFFICULTY, SORT_BY_ESTIMATED_FINISH, SORT_BY_PAGES_READ, SORT_BY_PAGES_TOTAL, SORT_BY_PRIORITY, SORT_BY_PROGRESS, SORT_BY_SHELF, SORT_BY_TITLE, SORT_BY_WORDS_TOTAL } from "./sort.js";
 import type { Book } from "./types.js";
-import type { OptionDefinition } from "../../types/books/toolbar_options.js";
+import type { OptionDefinition } from "../../types/books_types.js";
 export type { OptionDefinition };
 
 export const SORT_OPTIONS: OptionDefinition[] = [

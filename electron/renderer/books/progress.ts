@@ -1,6 +1,6 @@
 import { clamp } from "./utils.js";
 import type { Book, BookProgressUpdates } from "./types.js";
-import type { PagesUpdateResult, PercentUpdateContext, ProgressTotals } from "../../types/books/progress.js";
+import type { PagesUpdateResult, PercentUpdateContext, ProgressTotals } from "../../types/books_types.js";
 
 /**
  * Parses numeric-like input and rejects blank/non-finite values.

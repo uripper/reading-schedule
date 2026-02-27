@@ -1,4 +1,4 @@
-import type { DownloadCoverPayload, UploadCoverPayload } from "../types/main/ipc_payloads.js";
+import type { DownloadCoverPayload, UploadCoverPayload } from "../types/main_ipc.js";
 export type { DownloadCoverPayload, UploadCoverPayload };
 
 /**
