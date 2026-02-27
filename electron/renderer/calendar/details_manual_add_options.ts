@@ -41,13 +41,14 @@ export function initialPreferredBookId(
  * @param bookSelect Manual-add select element.
  */
 function renderEmptyBookOptions(bookSelect: HTMLSelectElement): void {
+  const nextBookSelect = bookSelect;
   const option = document.createElement("option");
   option.value = EMPTY_BOOK_OPTION_VALUE;
   option.textContent = EMPTY_BOOK_OPTION_TEXT;
   option.disabled = true;
   option.selected = true;
-  bookSelect.disabled = true;
-  bookSelect.replaceChildren(option);
+  nextBookSelect.disabled = true;
+  nextBookSelect.replaceChildren(option);
 }
 
 /**
@@ -63,21 +64,22 @@ export function refreshBookOptions(
   query: string,
   preferredBookId: string,
 ): void {
+  const nextBookSelect = bookSelect;
   const filteredBooks = booksMatchingTitleQuery(books, query);
   if (filteredBooks.length === 0) {
-    renderEmptyBookOptions(bookSelect);
+    renderEmptyBookOptions(nextBookSelect);
     return;
   }
   const options = filteredBooks.map((book) => optionForBook(book));
-  bookSelect.disabled = false;
-  bookSelect.replaceChildren(...options);
+  nextBookSelect.disabled = false;
+  nextBookSelect.replaceChildren(...options);
 
   const hasPreferredBookId =
     preferredBookId !== "" &&
     filteredBooks.some((book) => book.bookId === preferredBookId);
   if (hasPreferredBookId) {
-    bookSelect.value = preferredBookId;
+    nextBookSelect.value = preferredBookId;
     return;
   }
-  bookSelect.value = filteredBooks[0].bookId;
+  nextBookSelect.value = filteredBooks[0].bookId;
 }

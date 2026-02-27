@@ -16,10 +16,10 @@ test("navigateToTodayBook activates Books and scrolls in animation frame", () =>
     };
 
     navigateToTodayBook("  book-123  ", {
-      activateBooksTab(): void {
+      activateBooksTab() {
         activateCount += 1;
       },
-      scrollToBook(bookId): void {
+      scrollToBook(bookId) {
         scrolledBookId = bookId;
       },
     });
@@ -48,10 +48,10 @@ test("navigateToTodayBook ignores blank ids", () => {
     };
 
     navigateToTodayBook("   ", {
-      activateBooksTab(): void {
+      activateBooksTab() {
         activateCount += 1;
       },
-      scrollToBook(): void {
+      scrollToBook() {
         scrollCount += 1;
       },
     });

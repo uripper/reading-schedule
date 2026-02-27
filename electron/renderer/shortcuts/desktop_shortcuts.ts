@@ -21,8 +21,6 @@ export function bindDesktopShortcuts({
     if (event.defaultPrevented) {
       return;
     }
-    if (handleZoomShortcut(event)) {
-      return;
-    }
+    handleZoomShortcut(event);
   });
 }
