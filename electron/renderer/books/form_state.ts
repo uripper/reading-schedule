@@ -1,38 +1,15 @@
 import { uid } from "../dom.js";
 import { noteFromLookup, syncProgressAndPages } from "../book_lookup.js";
 import { bookCoverSrc, normalizeBook } from "./model.js";
-import {
-  fillScheduledDayControls,
-  readScheduledDaySelection,
-  resetScheduledDayControls,
-} from "./form_scheduled_days.js";
-import {
-  CUSTOM_COVER_NOTE,
-  DEFAULT_DIFFICULTY,
-  DEFAULT_MIN_BLOCKS,
-  DEFAULT_PRIORITY,
-  DEFAULT_PROGRESS,
-  DEFAULT_STATUS,
-  deriveLengthAndProgress,
-  fallbackNumberText,
-  fallbackText,
-  requiredTitle,
-  setCoverPreview,
-  setOptionalIntegerInputValue,
-  syncFinishedAtFieldState,
-  validatedShelfSelection,
-  validatedStatusSelection,
-} from "./form_state_helpers.js";
+import { fillScheduledDayControls, readScheduledDaySelection, resetScheduledDayControls } from "./form_scheduled_days.js";
+import { CUSTOM_COVER_NOTE, DEFAULT_DIFFICULTY, DEFAULT_MIN_BLOCKS, DEFAULT_PRIORITY, DEFAULT_PROGRESS, DEFAULT_STATUS, deriveLengthAndProgress, fallbackNumberText, fallbackText, requiredTitle, setCoverPreview, setOptionalIntegerInputValue, syncFinishedAtFieldState, validatedShelfSelection, validatedStatusSelection } from "./form_state_helpers.js";
 import { BOOK_STATUS_READ } from "./status.js";
 import { toOptionalInt } from "./utils.js";
 import type { Book } from "./types.js";
 import type { BookFormRefs } from "./form_refs.js";
 import type { BookLookupItem } from "../../types/types.js";
 import type { ProgressSyncInputs } from "../book_lookup/helpers.js";
-
-interface LookupControl {
-  clearResults(): void;
-}
+import type { LookupControl } from "../../types/books/form_state.js";
 
 /**
  * Applies a positive lookup estimate to an input only when current value is missing.

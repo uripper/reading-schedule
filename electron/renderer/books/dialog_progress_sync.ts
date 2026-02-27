@@ -1,12 +1,7 @@
 import { syncProgressAndPages } from "../book_lookup.js";
 import { syncFinishedAtField } from "./form_state.js";
 import type { BookFormRefs } from "./form_refs.js";
-
-interface ProgressSyncRefs {
-  pagesTotalInput: HTMLInputElement;
-  pagesReadInput: HTMLInputElement;
-  progressInput: HTMLInputElement;
-}
+import type { ProgressSyncRefs } from "../../types/books/dialog_progress_sync.js";
 
 /**
  * Binds cross-field progress synchronization handlers for dialog inputs.

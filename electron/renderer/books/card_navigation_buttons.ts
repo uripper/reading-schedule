@@ -1,13 +1,11 @@
 import { navigateToEstimatedFinishDate } from "./estimated_finish_navigation.js";
+import type { CardNavigationActions } from "../../types/books/card_navigation_buttons.js";
+export type { CardNavigationActions };
 
 const ESTIMATED_FINISH_BUTTON_CLASS = "book-estimated-finish-btn";
 const AFTER_LINK_BUTTON_CLASS = "book-after-link-btn";
 const ESTIMATED_FINISH_ICON = "🗓";
 const ESTIMATED_FINISH_LABEL = "Est. Finish";
-
-export interface CardNavigationActions {
-  onEstimatedFinishNavigate(dateKey: string): void;
-}
 
 /**
  * Builds interactive estimated-finish control for schedulable books.

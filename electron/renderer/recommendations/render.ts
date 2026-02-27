@@ -1,8 +1,7 @@
 import { el } from "../dom.js";
 import { COVER_PLACEHOLDER } from "../books/constants.js";
-import type {
-  RecommendationItem,
-} from "./model.js";
+import type { RecommendationItem } from "./model.js";
+import type { RenderRecommendationsArgs } from "../../types/recommendations/render.js";
 
 const EMPTY_SUMMARY_TEXT =
   "Read books by your favorite authors to unlock recommendations.";
@@ -10,11 +9,6 @@ const EMPTY_SUMMARY_TEXT =
 const NON_EMPTY_SUMMARY_PREFIX = "Recommendations based on authors you've finished:";
 
 const ADD_TO_SHELF_BUTTON_TEXT = "Add to shelf";
-
-interface RenderRecommendationsArgs {
-  recommendations: RecommendationItem[];
-  onAddToShelf(recommendation: RecommendationItem): void;
-}
 
 /**
  * Creates one recommendation card with an add-to-shelf action.

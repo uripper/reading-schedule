@@ -1,20 +1,9 @@
-import {
-  sessionKeyFor,
-  sortRowsByDateAndSession,
-} from "../../calendar/utils.js";
+import { sessionKeyFor, sortRowsByDateAndSession } from "../../calendar/utils.js";
 import type { Book } from "../../books/types.js";
-import {
-  DEFAULT_BOOK_DIFFICULTY,
-  normalizedManualMinutes,
-  rowsWithoutSession,
-  wordsPlannedForManualSession,
-} from "./calendar_interactions_helpers.js";
+import { DEFAULT_BOOK_DIFFICULTY, normalizedManualMinutes, rowsWithoutSession, wordsPlannedForManualSession } from "./calendar_interactions_helpers.js";
 import type { PlannerScheduleRow, PlannerSettings } from "../../../types/types.js";
-
-export type UpdatedRowsResult = {
-  normalizedMinutes: number;
-  rows: PlannerScheduleRow[];
-} | null;
+import type { UpdatedRowsResult } from "../../../types/app/calendar_interactions/calendar_interactions_minutes_rows.js";
+export type { UpdatedRowsResult };
 
 /**
  * Calculates the updated schedule rows when a session's planned minutes are manually changed.

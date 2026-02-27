@@ -1,25 +1,7 @@
 import { uid } from "../dom.js";
 import { toInt } from "./utils.js";
-
-export interface Session {
-  id: string;
-  book_id: string;
-  title: string;
-  started_at: string;
-  ended_at: string;
-  minutes: number;
-  pages_read: number | null;
-  notes: string;
-  source: "timer" | "manual";
-  created_at: string;
-}
-
-type SessionInput = Omit<Partial<Session>, "pages_read" | "source"> & {
-  endedAt?: string;
-  startedAt?: string;
-  pages_read?: number | string | null;
-  source?: string;
-};
+import type { Session, SessionInput } from "../../types/core/sessions/normalize.js";
+export type { Session };
 
 const SOURCE_TIMER: Session["source"] = "timer";
 const SOURCE_MANUAL: Session["source"] = "manual";

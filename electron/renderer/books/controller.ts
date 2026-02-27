@@ -2,30 +2,17 @@ import { el } from "../dom.js";
 import type { PlannerScheduleRow } from "../../types/types.js";
 import { createBookDialog, type BookSubmitPayload } from "./dialog.js";
 import { GROUP_BY_NONE } from "./grouping.js";
-import {
-  clearMissingBlockedBy,
-  hasSchedulableLength,
-  normalizeBook,
-  toPayloadBook,
-} from "./model.js";
+import { clearMissingBlockedBy, hasSchedulableLength, normalizeBook, toPayloadBook } from "./model.js";
 import { withUpdatedProgress } from "./progress.js";
 import { hydrateBookCover, upsertBookById } from "./save.js";
 import { applyScheduledDaysToShelfBooks } from "./save_scheduled_days.js";
 import { BOOK_STATUS_FILTER_ALL, schedulableBook } from "./status.js";
-import {
-  ensureBooksToolbarControls,
-  SORT_BY_TITLE,
-  SORT_DIRECTION_ASC,
-} from "./toolbar.js";
+import { ensureBooksToolbarControls, SORT_BY_TITLE, SORT_DIRECTION_ASC } from "./toolbar.js";
 import type { Book, BookProgressUpdates } from "./types.js";
 import { bindToolbarEvents } from "./controller_bindings.js";
 import { renderBooksController } from "./controller_render.js";
-import {
-  defaultShelfForAddDialog,
-  type BookDialogController,
-  type BooksControllerRefs,
-  type BooksViewState,
-} from "./controller_types.js";
+import { defaultShelfForAddDialog, type BookDialogController, type BooksControllerRefs, type BooksViewState } from "./controller_types.js";
+import type { BindBooksUIOptions, UpdateBookProgressOptions } from "../../types/books/controller.js";
 
 let books: Book[] = [];
 let scheduleRows: PlannerScheduleRow[] = [];
@@ -108,10 +95,6 @@ export function getBookById(bookId: string): Book | null {
     return null;
   }
   return { ...book };
-}
-
-interface UpdateBookProgressOptions {
-  notifyBooksChanged?: boolean;
 }
 
 /**
@@ -198,10 +181,6 @@ export function collectAllBooks(): Book[] {
   return books.map(toPayloadBook).filter((book) => {
     return book.title.trim().length > 0;
   });
-}
-
-interface BindBooksUIOptions {
-  onEstimatedFinishNavigate?(this: void, dateKey: string): void;
 }
 
 /**

@@ -1,19 +1,12 @@
-import type { CalendarRowWithFinish } from "./data.js";
-import type { DetailInteractionHandlers } from "./details_types.js";
+
+
 import { normalizedManualMinutes } from "../app/calendar_interactions/index.js";
 import { parseOptionalNumber } from "./utils.js";
+import type { MinutesEditorAction, SubmitMinutesUpdateArgs } from "../../types/calendar/details_minutes_form_helpers.js";
+export type { MinutesEditorAction };
 
 const MINUTES_MIN = normalizedManualMinutes(0);
 export const MINUTES_EDITOR_OPEN_BY_DEFAULT = false;
-export type MinutesEditorAction = "edit" | "cancel" | "saved";
-
-interface SubmitMinutesUpdateArgs {
-  event: SubmitEvent;
-  row: CalendarRowWithFinish;
-  minutesInput: HTMLInputElement;
-  initialMinutesValue: string;
-  interactionHandlers: DetailInteractionHandlers;
-}
 
 /**
  * Reads trimmed value from a minutes input node.

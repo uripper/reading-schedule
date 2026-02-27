@@ -1,21 +1,8 @@
 import type { PlannerScheduleRow } from "../../../types/types.js";
+import type { FocusSession, TodayFocusState } from "../../../types/app/today/today_focus.js";
+export type { FocusSession, TodayFocusState };
 
 export const TINY_START_MINUTES = 3;
-
-export interface FocusSession {
-  bookId: string;
-  date: string;
-  minutes: number;
-  sessionIndex: number | null;
-  title: string;
-}
-
-export interface TodayFocusState {
-  feedback: string;
-  isOpen: boolean;
-  isStarted: boolean;
-  session: FocusSession | null;
-}
 
 const NO_SESSION_START_FEEDBACK = "No upcoming session to start right now.";
 

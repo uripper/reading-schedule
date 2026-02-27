@@ -1,34 +1,7 @@
-import type { Book } from "../books/types.js";
-import {
-  fullWordsForBook,
-  percentFromWords,
-  projectedPages,
-  wordsReadFromBook,
-} from "./estimates_math.js";
+import { fullWordsForBook, percentFromWords, projectedPages, wordsReadFromBook } from "./estimates_math.js";
 import { plannedWordsBeforeAndThroughRow } from "./estimates_snapshot_rows.js";
-
-export interface EstimateRow {
-  book_id: string;
-  date: string;
-  session_index: string | number;
-  words_planned?: number;
-}
-
-export interface EstimateState {
-  rows?: EstimateRow[];
-  totalsByBookId?: Record<string, number>;
-}
-
-export type BookGetter = (bookId: string) => Book | null;
-export type CompletionChecker = (sessionKey: string) => boolean;
-
-export interface EstimateSnapshot {
-  changedInSession: boolean;
-  endPages: number | null;
-  endPercent: number;
-  startPages: number | null;
-  startPercent: number;
-}
+import type { BookGetter, CompletionChecker, EstimateRow, EstimateSnapshot, EstimateState } from "../../types/calendar/estimates_snapshot.js";
+export type { BookGetter, CompletionChecker, EstimateRow, EstimateSnapshot, EstimateState };
 
 /**
  * Builds estimate snapshot for target row using current progress and plan.

@@ -1,27 +1,8 @@
 import { rowsWithFinishFirst, type CalendarRowWithFinish } from "./data.js";
-import {
-  buildFutureSessionItem,
-  buildPastSessionItem,
-  buildTodaySessionItem,
-  rowsWithCompletedLast,
-  type DayMode,
-  type DetailInteractionHandlers,
-} from "./details_helpers.js";
-import type { CalendarStateSubset } from "./details_types.js";
+import { buildFutureSessionItem, buildPastSessionItem, buildTodaySessionItem, rowsWithCompletedLast, type DayMode, type DetailInteractionHandlers } from "./details_helpers.js";
 
-export type CalendarDetailsState = CalendarStateSubset & {
-  selectedDate: string;
-  dates: Record<string, CalendarRowWithFinish[]>;
-  expectedFinishHighlightDate: string;
-};
-
-interface RowNodeForModeArgs {
-  mode: DayMode;
-  row: CalendarRowWithFinish;
-  state: CalendarDetailsState;
-  interactionHandlers: DetailInteractionHandlers;
-  rerenderDetails(): void;
-}
+import type { CalendarDetailsState, RowNodeForModeArgs } from "../../types/calendar/details_render_helpers.js";
+export type { CalendarDetailsState };
 
 /**
  * Returns empty-state message for day details panel by mode.

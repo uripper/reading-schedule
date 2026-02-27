@@ -1,31 +1,6 @@
-import type { Book } from "../books/types.js";
-import type {
-  PlanGeneratePayload,
-  PlannerApi,
-  PlannerResult,
-  PlannerSettings,
-  PlannerSummary,
-} from "../../types/types.js";
 
-interface RunPlanGenerationArgs {
-  plannerApi: Pick<PlannerApi, "generate">;
-  collectBooks(this: void): Book[];
-  collectSettings(this: void): PlannerSettings;
-  setStatus(this: void, message: string, isError?: boolean): void;
-  addLog(this: void, message: string): void;
-  announce(
-    this: void,
-    message: string,
-    politeness?: "polite" | "assertive",
-  ): void;
-  onSuccess(
-    this: void,
-    data: Pick<PlannerResult, "schedule" | "summary">,
-  ): Promise<void>;
-  statusGeneratingMessage?: string;
-  statusSuccessMessage?: string;
-  successAnnouncement?: string;
-}
+import type { PlanGeneratePayload, PlannerSummary } from "../../types/types.js";
+import type { RunPlanGenerationArgs } from "../../types/app/plan.js";
 
 /**
  * Generates a day key in the format "YYYY-MM-DD" from a Date object.

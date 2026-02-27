@@ -1,18 +1,10 @@
 import { BOOK_STATUS_READ } from "../books/status.js";
 import type { Book } from "../books/types.js";
-import {
-  AUTHOR_RECOMMENDATION_CATALOG,
-  type RecommendationSeed,
-} from "./catalog.js";
+import { AUTHOR_RECOMMENDATION_CATALOG, type RecommendationSeed } from "./catalog.js";
+import type { RecommendationItem } from "../../types/recommendations/model.js";
+export type { RecommendationItem };
 
 const AUTHOR_LIST_LOCALE = "en";
-
-export interface RecommendationItem {
-  author: string;
-  coverUrl: string;
-  title: string;
-  wordsTotal: number;
-}
 
 /**
  * Normalizes text for case-insensitive recommendation matching.

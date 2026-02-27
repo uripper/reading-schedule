@@ -1,15 +1,11 @@
 import { finishDatesByBookId } from "../books/finish_dates.js";
-import {
-  BOOK_STATUS_DROPPED,
-  BOOK_STATUS_IN_PROGRESS,
-  BOOK_STATUS_READ,
-  BOOK_STATUS_TO_READ,
-  type BookStatus,
-} from "../books/status.js";
+import { BOOK_STATUS_DROPPED, BOOK_STATUS_IN_PROGRESS, BOOK_STATUS_READ, BOOK_STATUS_TO_READ } from "../books/status.js";
 import type { Book } from "../books/types.js";
 import { sessionKeyFor } from "../calendar/utils.js";
 import { todayKey } from "../sessions/utils.js";
 import type { PlannerResult } from "../../types/types.js";
+import type { StatusBreakdown } from "../../types/stats/helpers.js";
+export type { StatusBreakdown };
 
 const MONTHS_PER_YEAR = 12;
 const PERCENT_MAX = 100;
@@ -19,8 +15,6 @@ const DATE_MONTH_START_INDEX = 5;
 const DATE_MONTH_END_INDEX = 7;
 const MIN_MONTH_NUMBER = 1;
 const MONTH_NUMBER_TO_INDEX_OFFSET = 1;
-
-export type StatusBreakdown = Record<BookStatus, number>;
 
 /**
  * Parses year component from a `YYYY-MM-DD` date key.

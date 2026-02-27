@@ -1,21 +1,13 @@
-import type { PlannerResult } from "../../types/types.js";
+
 import { sessionKeyFor } from "../calendar/utils.js";
-import type { Session } from "../sessions/normalize.js";
 import { isoLocalDayKey } from "../sessions/utils.js";
 import { addMinutes, includeDayKey } from "./day_minutes_collect.js";
+import type { DayMinutesArgs, DayMinutesMap } from "../../types/app/activity/day_minutes.js";
+export type { DayMinutesMap };
 
 const MIN_STREAK_MINUTES = 1;
 const PREVIOUS_DAY_OFFSET = 1;
 const ZERO_MINUTES = 0;
-
-export type DayMinutesMap = Map<string, number>;
-
-interface DayMinutesArgs {
-  sessions: Session[];
-  lastResult: PlannerResult | null;
-  scheduleCompletions: Record<string, boolean>;
-  year: number | null;
-}
 
 /**
  * Builds per-day minutes from completed focus sessions and completed planned rows.

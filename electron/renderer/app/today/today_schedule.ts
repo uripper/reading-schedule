@@ -4,26 +4,11 @@ import type { Book } from "../../books/types.js";
 import { sessionKeyFor, sortRowsByDateAndSession } from "../../calendar/utils.js";
 import { todayKey } from "../../sessions/utils.js";
 import type { PlannerResult, PlannerScheduleRow } from "../../../types/types.js";
+import type { TodayBookSummary, TodayScheduleSnapshot } from "../../../types/app/today/today_schedule.js";
+export type { TodayBookSummary, TodayScheduleSnapshot };
 
 const ZERO_COUNT = 0;
 const DEFAULT_TITLE = "Untitled";
-
-export interface TodayBookSummary {
-  bookId: string;
-  title: string;
-  coverSrc: string;
-  plannedMinutes: number;
-  scheduledSessions: number;
-  completedSessions: number;
-}
-
-export interface TodayScheduleSnapshot {
-  nextUncompletedRow: PlannerScheduleRow | null;
-  completedPlannedMinutes: number;
-  scheduledSessions: number;
-  completedSessions: number;
-  books: TodayBookSummary[];
-}
 
 /**
  * Returns sorted planned rows from planner result data.

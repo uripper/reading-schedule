@@ -1,3 +1,5 @@
+import type { BookWeekday } from "../../types/books/scheduled_days.js";
+export type { BookWeekday };
 /**
  * @file Weekday contracts and normalization helpers for per-book scheduling.
  */
@@ -11,8 +13,6 @@ export const BOOK_WEEKDAYS = [
   "Sat",
   "Sun",
 ] as const;
-
-export type BookWeekday = (typeof BOOK_WEEKDAYS)[number];
 
 const WEEKDAY_SET = new Set<string>(BOOK_WEEKDAYS);
 

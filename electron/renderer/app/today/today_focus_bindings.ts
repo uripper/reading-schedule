@@ -1,48 +1,13 @@
 import { el } from "../../dom.js";
-import type { Session } from "../../sessions/normalize.js";
+
 import { activateTab } from "../../tabs.js";
-import {
-  completeTinyStart,
-  createClosedFocusState,
-  openFocusMode,
-  startFocusSession,
-  TINY_START_MINUTES,
-  type TodayFocusState,
-} from "./today_focus.js";
-import type { PlannerResult } from "../../../types/types.js";
-import {
-  findSessionRow,
-  nextCompletionsWithRowMarkedComplete,
-  readFocusSessionFromDataset,
-  setFocusEntryButtonState,
-  tinyStartSessionFromFocus,
-} from "./today_focus_bindings_helpers.js";
+import { completeTinyStart, createClosedFocusState, openFocusMode, startFocusSession, TINY_START_MINUTES, type TodayFocusState } from "./today_focus.js";
+
+import { findSessionRow, nextCompletionsWithRowMarkedComplete, readFocusSessionFromDataset, setFocusEntryButtonState, tinyStartSessionFromFocus } from "./today_focus_bindings_helpers.js";
+import type { BindTodayFocusActionsArgs, TodayFocusDomRefs } from "../../../types/app/today/today_focus_bindings.js";
+export type { BindTodayFocusActionsArgs };
 
 const SESSION_UPDATE_EVENT = "today-focus-session-updated";
-
-type SetStatus = (message: string, isError?: boolean) => void;
-
-interface TodayFocusDomRefs {
-  focusCompleteButton: HTMLButtonElement;
-  focusEntryButton: HTMLButtonElement;
-  focusFeedback: HTMLElement;
-  focusPanel: HTMLElement;
-  focusSessionMeta: HTMLElement;
-  focusSessionText: HTMLElement;
-  focusStartButton: HTMLButtonElement;
-  focusTinyStartButton: HTMLButtonElement;
-}
-
-export interface BindTodayFocusActionsArgs {
-  getLastResult(): PlannerResult | null;
-  getScheduleCompletions(): Record<string, boolean>;
-  setScheduleCompletions(nextCompletions: Record<string, boolean>): void;
-  getSessions(): Session[];
-  setSessions(nextSessions: Session[]): void;
-  queuePersist(): void;
-  updateTodayView(): void;
-  setStatus: SetStatus;
-}
 
 /**
  * Resolves Today focus-mode DOM nodes used by focus action bindings.

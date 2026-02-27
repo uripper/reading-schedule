@@ -1,12 +1,7 @@
 import { el } from "../dom.js";
+import type { AnnouncePoliteness, PreferencesInput } from "../../types/app/accessibility/a11y.js";
 
 const ANNOUNCE_DELAY_MS = 30;
-type AnnouncePoliteness = "polite" | "assertive";
-
-interface PreferencesInput {
-  theme?: string;
-  reduceMotion?: boolean;
-}
 
 /**
  * Focuses the first invalid field within a form-like container.

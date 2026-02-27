@@ -1,19 +1,6 @@
 import { clamp } from "./utils.js";
 import type { Book, BookProgressUpdates } from "./types.js";
-
-interface ProgressTotals {
-  hasPagesTotal: boolean;
-  pagesTotal: number;
-}
-
-interface PercentUpdateContext extends ProgressTotals {
-  hasPagesUpdate: boolean;
-}
-
-interface PagesUpdateResult {
-  book: Book;
-  hasPagesUpdate: boolean;
-}
+import type { PagesUpdateResult, PercentUpdateContext, ProgressTotals } from "../../types/books/progress.js";
 
 /**
  * Parses numeric-like input and rejects blank/non-finite values.

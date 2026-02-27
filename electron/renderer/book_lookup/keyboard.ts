@@ -1,17 +1,5 @@
 import type { BookLookupItem } from "../../types/types.js";
-
-type SetActiveIndex = (index: number) => void;
-type SelectItem = (index: number) => void;
-
-interface HandleLookupKeydownArgs {
-  event: KeyboardEvent;
-  currentItems: readonly BookLookupItem[];
-  activeIndex: number;
-  setActiveIndex: SetActiveIndex;
-  selectItem: SelectItem;
-  clearResults(): void;
-  searchInput: HTMLInputElement;
-}
+import type { HandleLookupKeydownArgs, SelectItem, SetActiveIndex } from "../../types/book_lookup/keyboard.js";
 
 /**
  * Moves highlight to the next search result when ArrowDown is pressed.

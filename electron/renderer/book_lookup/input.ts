@@ -1,20 +1,6 @@
-import type { BookLookupItem } from "../../types/types.js";
+
 import { getPlannerApi } from "../app/planner_api.js";
-
-interface LookupState {
-  timer: ReturnType<typeof setTimeout> | null;
-  token: number;
-  currentItems: BookLookupItem[];
-  activeIndex: number;
-}
-
-interface LookupInputHandlerArgs {
-  searchInput: HTMLInputElement;
-  metaEl: HTMLElement;
-  state: LookupState;
-  clearResults(this: void): void;
-  refreshResults(this: void): void;
-}
+import type { LookupInputHandlerArgs } from "../../types/book_lookup/input.js";
 
 const LOOKUP_DELAY_MS = 260;
 const RESULT_LIMIT = 12;

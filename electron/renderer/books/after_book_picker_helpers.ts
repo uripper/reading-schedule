@@ -1,11 +1,7 @@
 import type { Book } from "./types.js";
+import type { PickerInteraction } from "../../types/books/after_book_picker_helpers.js";
 
 const NO_ACTIVE_INDEX = -1;
-
-interface PickerInteraction {
-  targetIsInput: boolean;
-  targetIsInResults: boolean;
-}
 
 /**
  * Builds label text used for after-book picker options and input value.

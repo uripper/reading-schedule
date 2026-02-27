@@ -1,16 +1,9 @@
-import type { PlannerScheduleRow } from "../../types/types.js";
+
 import { sessionKeyFor, sortRowsByDateAndSession } from "./utils.js";
+import type { CalendarRow, CalendarRowWithFinish, CompletionChecker, RowsByDate } from "../../types/calendar/data.js";
+export type { CalendarRow, CalendarRowWithFinish };
 
 const DAYS_IN_WEEK = 7;
-
-export type CalendarRow = PlannerScheduleRow;
-
-export type CalendarRowWithFinish = CalendarRow & {
-  finish: boolean;
-};
-
-type RowsByDate = Record<string, CalendarRowWithFinish[]>;
-type CompletionChecker = (sessionKey: string) => boolean;
 
 /**
  * Returns today's local day key in `YYYY-MM-DD` format.

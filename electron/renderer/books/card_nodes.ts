@@ -1,32 +1,12 @@
 import { bookCoverSrc } from "./model.js";
-import {
-  afterBookLinkButton,
-  estimatedFinishButton,
-  type CardNavigationActions,
-} from "./card_navigation_buttons.js";
+import { afterBookLinkButton, estimatedFinishButton } from "./card_navigation_buttons.js";
 import { scrollToBookCard } from "./card_scroll_target.js";
-import {
-  blockerMeta,
-  metaLabel,
-  progressLabel,
-  subtitle,
-  wordsLabel,
-} from "./presenters.js";
+import { blockerMeta, metaLabel, progressLabel, subtitle, wordsLabel } from "./presenters.js";
 import { bindReadCardHolo } from "./card_holo.js";
-import {
-  BOOK_STATUS_IN_PROGRESS,
-  BOOK_STATUS_READ,
-  BOOK_STATUS_TO_READ,
-  statusLabel,
-} from "./status.js";
+import { BOOK_STATUS_IN_PROGRESS, BOOK_STATUS_READ, BOOK_STATUS_TO_READ, statusLabel } from "./status.js";
 import type { Book } from "./types.js";
-export interface CardRenderContext extends CardNavigationActions {
-  finishDateByBookId: Record<string, string>;
-  showBlockerMeta: boolean;
-  showShelfMeta: boolean;
-  showWordCount: boolean;
-  titleById: Record<string, string>;
-}
+import type { CardRenderContext } from "../../types/books/card_nodes.js";
+export type { CardRenderContext };
 
 const CARD_CLASS = "book-card";
 const READ_CARD_CLASS = "is-read-card";

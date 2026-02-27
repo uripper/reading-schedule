@@ -1,16 +1,10 @@
+import type { BookStatus, BookStatusFilter } from "../../types/books/status_catalog.js";
+export type { BookStatus, BookStatusFilter };
 export const BOOK_STATUS_TO_READ = "to_read";
 export const BOOK_STATUS_IN_PROGRESS = "in_progress";
 export const BOOK_STATUS_READ = "read";
 export const BOOK_STATUS_DROPPED = "dropped";
 export const BOOK_STATUS_FILTER_ALL = "all";
-
-export type BookStatus =
-  | typeof BOOK_STATUS_TO_READ
-  | typeof BOOK_STATUS_IN_PROGRESS
-  | typeof BOOK_STATUS_READ
-  | typeof BOOK_STATUS_DROPPED;
-
-export type BookStatusFilter = typeof BOOK_STATUS_FILTER_ALL | BookStatus;
 
 const BOOK_STATUSES: BookStatus[] = [
   BOOK_STATUS_TO_READ,

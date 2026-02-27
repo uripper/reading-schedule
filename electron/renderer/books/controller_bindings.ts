@@ -1,12 +1,8 @@
 import { normalizeStatusFilter } from "./status.js";
 import type { SortDirection } from "./sort.js";
 import { SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from "./toolbar.js";
-import {
-  toGroupBy,
-  toSortBy,
-  type BooksControllerRefs,
-  type BooksViewState,
-} from "./controller_types.js";
+import { toGroupBy, toSortBy, type BooksControllerRefs } from "./controller_types.js";
+import type { BindToolbarEventsArgs } from "../../types/books/controller_bindings.js";
 
 /**
  * Validates and unwraps toolbar control references required for event binding.
@@ -59,12 +55,6 @@ function assertToolbarControls(refs: BooksControllerRefs): {
     groupBySelect: refs.groupBySelect,
     sortDirectionBtn: refs.sortDirectionBtn,
   };
-}
-
-interface BindToolbarEventsArgs {
-  refs: BooksControllerRefs;
-  viewState: BooksViewState;
-  rerender(): void;
 }
 
 /**

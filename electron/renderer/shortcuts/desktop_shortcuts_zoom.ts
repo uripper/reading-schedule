@@ -1,15 +1,9 @@
-import type { PlannerApi } from "../../types/types.js";
+
 import { logError } from "../logger.js";
-import {
-  isCommandPressed,
-  isZoomInShortcut,
-  isZoomOutShortcut,
-  isZoomResetShortcut,
-} from "./desktop_shortcuts_keys.js";
+import { isCommandPressed, isZoomInShortcut, isZoomOutShortcut, isZoomResetShortcut } from "./desktop_shortcuts_keys.js";
+import type { ZoomApi } from "../../types/app/shortcuts/desktop_shortcuts_zoom.js";
 
 const ZOOM_PERCENT_FACTOR = 100;
-
-type ZoomApi = Pick<PlannerApi, "zoomIn" | "zoomOut" | "zoomReset">;
 
 /**
  * Formats the current zoom factor for user-facing announcements.

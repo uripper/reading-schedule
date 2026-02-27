@@ -1,14 +1,8 @@
+import type { ScrollSettleState } from "../../types/books/card_scroll_settle.js";
 const RAF_FALLBACK_DELAY_MS = 16;
 const SCROLL_SETTLE_DELTA_PX = 0.5;
 const SCROLL_SETTLE_MAX_WAIT_MS = 1800;
 const SCROLL_SETTLE_REQUIRED_FRAMES = 3;
-
-interface ScrollSettleState {
-  lastLeft: number;
-  lastTop: number;
-  stableFrames: number;
-  startedAtMs: number;
-}
 
 /**
  * Returns a monotonic timestamp in milliseconds.

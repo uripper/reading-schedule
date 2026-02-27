@@ -1,17 +1,6 @@
 import type { ManualSessionBook } from "./details_types.js";
-
-export interface CompletedBookRow {
-  book_id: string;
-  date: string;
-  finish: boolean;
-  minutes: number;
-  title: string;
-}
-
-interface BookFinishLookup {
-  finished_at: string | null;
-  title: string;
-}
+import type { BookFinishLookup, CompletedBookRow } from "../../types/calendar/finished_books.js";
+export type { CompletedBookRow };
 
 /**
  * Resolves title text for completed-book row display.

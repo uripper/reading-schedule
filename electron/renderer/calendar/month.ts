@@ -2,30 +2,7 @@ import { el } from "../dom.js";
 import { dayKey, monthCells, monthLabel } from "./utils.js";
 import { createDayButton, createWeekdayHeader } from "./month_day_button.js";
 import { handleDayKeydown } from "./month_keyboard.js";
-
-interface CalendarRow {
-  book_id?: string;
-  date?: string;
-  session_index?: string | number;
-  title?: string;
-  minutes?: number;
-  finish?: boolean;
-}
-
-interface CalendarState {
-  dates: Record<string, CalendarRow[]>;
-  months: string[];
-  index: number;
-  selectedDate: string;
-  monthCellKeys: string[];
-}
-
-interface MonthActions {
-  completedBookRowsForDate(this: void, dateKey: string): CalendarRow[];
-  moveSelectionBy(this: void, delta: number, currentIndex: number): void;
-  renderDetails(this: void): void;
-  selectDate(this: void, dateKey: string, options?: { focus?: boolean }): void;
-}
+import type { CalendarRow, CalendarState, MonthActions } from "../../types/calendar/month.js";
 
 /**
  * Returns today's local day key for month rendering state checks.

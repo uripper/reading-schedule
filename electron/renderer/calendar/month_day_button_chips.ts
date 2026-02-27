@@ -1,8 +1,4 @@
-interface CalendarRow {
-  finish?: boolean;
-  minutes?: number;
-  title?: string;
-}
+import type { CalendarRow } from "../../types/calendar/month_day_button_chips.js";
 
 /**
  * Returns compact planned-session summary text.

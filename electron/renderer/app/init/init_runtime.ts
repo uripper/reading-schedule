@@ -1,15 +1,5 @@
-import type { AppRuntimeState } from "../runtime_state.js";
 
-interface AutoPlanController {
-  queueAutoPlan(): void;
-}
-
-interface InitRuntimeArgs {
-  focusCalendarToday(): void;
-  queuePersist(): void;
-  state: AppRuntimeState;
-  updateDashboards(): void;
-}
+import type { AutoPlanController, InitRuntimeArgs } from "../../../types/app/init/init_runtime.js";
 
 /**
  * Creates runtime handlers used by tab changes, book edits, and schedule mutations.

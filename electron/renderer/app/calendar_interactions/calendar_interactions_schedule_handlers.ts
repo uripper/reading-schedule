@@ -1,31 +1,6 @@
-import {
-  addManualSessionRow,
-  removeSessionRow,
-  updateSessionRowMinutes,
-} from "./calendar_interactions_schedule_updates.js";
+import { addManualSessionRow, removeSessionRow, updateSessionRowMinutes } from "./calendar_interactions_schedule_updates.js";
 import type { AppCalendarInteractionArgs } from "./calendar_interactions_types.js";
-
-type CalendarInteractionHandlers = Parameters<
-  AppCalendarInteractionArgs["configureCalendarInteractions"]
->[0];
-
-type ScheduleMutationHandlers = Pick<
-  CalendarInteractionHandlers,
-  "onManualSessionAdded" | "onSessionMinutesUpdated" | "onSessionRemoved"
->;
-
-interface SharedScheduleBindings {
-  collectSettings: AppCalendarInteractionArgs["collectSettings"];
-  getBookById: AppCalendarInteractionArgs["getBookById"];
-  onScheduleRowsUpdated(this: void): void;
-  queuePersist(this: void): void;
-  renderCalendar: AppCalendarInteractionArgs["renderCalendar"];
-  setBookScheduleRows: AppCalendarInteractionArgs["setBookScheduleRows"];
-  setLastResult: AppCalendarInteractionArgs["setLastResult"];
-  setStatus: AppCalendarInteractionArgs["setStatus"];
-  state: AppCalendarInteractionArgs["state"];
-  totalsFromSummary: AppCalendarInteractionArgs["totalsFromSummary"];
-}
+import type { ScheduleMutationHandlers, SharedScheduleBindings } from "../../../types/app/calendar_interactions/calendar_interactions_schedule_handlers.js";
 
 const createSharedScheduleBindings = (
   args: AppCalendarInteractionArgs,

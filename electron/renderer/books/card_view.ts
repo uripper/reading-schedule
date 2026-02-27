@@ -1,23 +1,9 @@
-import type { BookGroup } from "./grouping.js";
-import type { Book } from "./types.js";
+
+
 import { bindCardEvents } from "./card_events.js";
 import { renderFlatBooks, renderGroupedBooks } from "./card_group_render.js";
 import { titleByIdMap } from "./title_lookup.js";
-
-interface RenderBookGridOptions {
-  grid: HTMLElement;
-  empty: HTMLElement;
-  books: Book[];
-  groups?: BookGroup[];
-  allBooks?: Book[];
-  finishDateByBookId?: Record<string, string>;
-  onEstimatedFinishNavigate(dateKey: string): void;
-  showBlockerMeta?: boolean;
-  showShelfMeta?: boolean;
-  showWordCount?: boolean;
-  onEdit(bookId: string): void;
-  onRemove(bookId: string): void;
-}
+import type { RenderBookGridOptions } from "../../types/books/card_view.js";
 
 /**
  * Renders book cards (grouped or flat) and wires edit/remove handlers.

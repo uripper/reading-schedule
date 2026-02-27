@@ -1,23 +1,8 @@
-import type { BookFormRefs } from "./form_refs.js";
-import {
-  lookupResultTarget,
-  shouldKeepPickerOpen,
-  wrapIndex,
-} from "./after_book_picker_helpers.js";
-import type { Book } from "./types.js";
-import {
-  NO_ACTIVE_INDEX,
-  type PickerState,
-} from "./after_book_picker_render.js";
 
-interface BindingArgs {
-  clearResults(): void;
-  refs: BookFormRefs;
-  refreshFiltered(clearChangedSelection: boolean): void;
-  render(): void;
-  selectBook(book: Book | null | undefined): void;
-  state: PickerState;
-}
+import { lookupResultTarget, shouldKeepPickerOpen, wrapIndex } from "./after_book_picker_helpers.js";
+
+import { NO_ACTIVE_INDEX } from "./after_book_picker_render.js";
+import type { BindingArgs } from "../../types/books/after_book_picker_bindings.js";
 
 /**
  * Binds keyboard/mouse/document events for after-book picker interactions.

@@ -1,15 +1,10 @@
 import { WORDS_PER_PAGE } from "./constants.js";
 import { shelfLabelForBook } from "./shelf.js";
-import {
-  BOOK_STATUS_READ,
-} from "./status.js";
+import { BOOK_STATUS_READ } from "./status.js";
 import { formatInt } from "./utils.js";
 import type { Book, BookMetaOptions } from "./types.js";
-
-export interface BlockerMeta {
-  blockerBookId: string;
-  label: string;
-}
+import type { BlockerMeta } from "../../types/books/presenters.js";
+export type { BlockerMeta };
 
 /**
  * Checks whether an optional numeric value is a positive finite number.

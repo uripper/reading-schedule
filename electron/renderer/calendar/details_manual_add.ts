@@ -1,44 +1,11 @@
-import type {
-  DayMode,
-  DetailInteractionHandlers,
-} from "./details_types.js";
-import {
-  minuteValueForManualInput,
-  sortedManualBooks,
-} from "./details_manual_add_helpers.js";
-import {
-  initialPreferredBookId,
-  refreshBookOptions,
-} from "./details_manual_add_options.js";
+
+import { minuteValueForManualInput, sortedManualBooks } from "./details_manual_add_helpers.js";
+import { initialPreferredBookId, refreshBookOptions } from "./details_manual_add_options.js";
+import type { BookSelectionControls, BuildManualSessionAddPanelArgs, SubmitManualAddFormArgs } from "../../types/calendar/details_manual_add.js";
 
 const MANUAL_ADD_TITLE = "Manual add";
 const TITLE_FILTER_LABEL = "Find title";
 const BOOK_SELECT_LABEL = "Book";
-
-interface BuildManualSessionAddPanelArgs {
-  dateKey: string;
-  mode: DayMode;
-  interactionHandlers: DetailInteractionHandlers;
-  rerenderDetails(): void;
-  defaultBookId?: string;
-  defaultMinutes?: number;
-}
-
-interface SubmitManualAddFormArgs {
-  dateKey: string;
-  mode: DayMode;
-  interactionHandlers: DetailInteractionHandlers;
-  rerenderDetails(): void;
-  bookSelect: HTMLSelectElement;
-  minutesInput: HTMLInputElement;
-  completeInput: HTMLInputElement;
-}
-
-interface BookSelectionControls {
-  titleFilterLabel: HTMLLabelElement;
-  bookLabel: HTMLLabelElement;
-  bookSelect: HTMLSelectElement;
-}
 
 /**
  * Builds title-filter and book-select controls for manual session add.

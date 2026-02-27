@@ -1,62 +1,7 @@
-import type { PlannerScheduleRow } from "../../types/types.js";
-import type { Book } from "../books/types.js";
-import type { CalendarRowWithFinish } from "./data.js";
 
-export interface CompletionChangePayload {
-  sessionKey: string;
-  completed: boolean;
-  row: CalendarRowWithFinish;
-}
 
-export interface ProgressUpdatePayload {
-  bookId: string;
-  pagesRead?: number | null;
-  progressPercent?: number | null;
-}
-
-export interface MinutesUpdatePayload {
-  minutes: number;
-  row: CalendarRowWithFinish;
-}
-
-export interface ManualSessionPayload {
-  date: string;
-  bookId: string;
-  minutes: number;
-  completed?: boolean;
-}
-
-export interface RemoveSessionPayload {
-  row: CalendarRowWithFinish;
-}
-
-export interface ManualSessionBook {
-  bookId: string;
-  title: string;
-}
-
-export interface CalendarHandlers {
-  isSessionCompleted(this: void, sessionKey: string): boolean;
-  onSessionCompletionChanged(this: void, payload: CompletionChangePayload): void;
-  onSessionProgressUpdated(this: void, payload: ProgressUpdatePayload): Book | null;
-  onSessionMinutesUpdated(this: void, payload: MinutesUpdatePayload): boolean;
-  getBookById(this: void, bookId: string): Book | null;
-  listSessionBooks(this: void): ManualSessionBook[];
-  onManualSessionAdded(this: void, payload: ManualSessionPayload): boolean;
-  onSessionRemoved(this: void, payload: RemoveSessionPayload): boolean;
-}
-
-export interface CalendarRuntimeState {
-  dates: Record<string, CalendarRowWithFinish[]>;
-  rawRows: PlannerScheduleRow[];
-  rows: CalendarRowWithFinish[];
-  totalsByBookId: Record<string, number>;
-  months: string[];
-  index: number;
-  selectedDate: string;
-  monthCellKeys: string[];
-  expectedFinishHighlightDate: string;
-}
+import type { CalendarHandlers, CalendarRuntimeState, CompletionChangePayload, ManualSessionBook, ManualSessionPayload, MinutesUpdatePayload, ProgressUpdatePayload, RemoveSessionPayload } from "../../types/calendar/state_runtime.js";
+export type { CalendarHandlers, CalendarRuntimeState, CompletionChangePayload, ManualSessionBook, ManualSessionPayload, MinutesUpdatePayload, ProgressUpdatePayload, RemoveSessionPayload };
 
 /**
  * Creates default mutable runtime state for calendar renderer.

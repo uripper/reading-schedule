@@ -1,4 +1,6 @@
 import type { BookLookupItem } from "../../types/types.js";
+import type { NumericLike, ProgressField, ProgressSyncInputs } from "../../types/book_lookup/helpers.js";
+export type { ProgressSyncInputs };
 
 const PLACEHOLDER_SVG = [
   '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="160" viewBox="0 0 120 160">',
@@ -8,16 +10,6 @@ const PLACEHOLDER_SVG = [
   "</svg>",
 ].join("");
 const PLACEHOLDER = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(PLACEHOLDER_SVG)}`;
-
-type NumericLike = string | number | null | undefined;
-
-export interface ProgressSyncInputs {
-  pagesTotalInput: HTMLInputElement;
-  pagesReadInput: HTMLInputElement;
-  progressInput: HTMLInputElement;
-}
-
-type ProgressField = "pages" | "progress";
 
 /**
  * Parses a numeric-like input into a non-negative integer.

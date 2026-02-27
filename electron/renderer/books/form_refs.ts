@@ -1,44 +1,6 @@
 import { el } from "../dom.js";
-
-export interface BookFormRefs {
-  dialog: HTMLDialogElement;
-  dialogTitle: HTMLElement;
-  form: HTMLFormElement;
-  bookId: HTMLInputElement;
-  coverUrl: HTMLInputElement;
-  coverLocal: HTMLInputElement;
-  author: HTMLInputElement;
-  searchInput: HTMLInputElement;
-  searchResults: HTMLElement;
-  lookupMeta: HTMLElement;
-  coverPanel: HTMLElement;
-  coverUploadInput: HTMLInputElement;
-  titleInput: HTMLInputElement;
-  wordsInput: HTMLInputElement;
-  pagesTotalInput: HTMLInputElement;
-  pagesReadInput: HTMLInputElement;
-  progressInput: HTMLInputElement;
-  priorityInput: HTMLInputElement;
-  difficultyInput: HTMLInputElement;
-  minBlocksInput: HTMLInputElement;
-  maxMinutesInput: HTMLInputElement;
-  deadlineInput: HTMLInputElement;
-  afterBookInput: HTMLInputElement;
-  afterBookResults: HTMLElement;
-  blockedByInput: HTMLInputElement;
-  statusSelectInput: HTMLSelectElement;
-  finishedAtField: HTMLElement;
-  finishedAtInput: HTMLInputElement;
-  shelfSelectInput: HTMLSelectElement;
-  scheduledDaysField: HTMLElement;
-  applyScheduledDaysToShelfInput: HTMLInputElement;
-  shelfPromptDialog: HTMLDialogElement;
-  shelfPromptForm: HTMLFormElement;
-  shelfPromptInput: HTMLInputElement;
-  coverPreview: HTMLImageElement;
-  saveBtn: HTMLButtonElement;
-  cancelBtn: HTMLButtonElement;
-}
+import type { BookFormRefs } from "../../types/books/form_refs.js";
+export type { BookFormRefs };
 
 /**
  * Resolves and returns strongly typed DOM references for the book dialog form.

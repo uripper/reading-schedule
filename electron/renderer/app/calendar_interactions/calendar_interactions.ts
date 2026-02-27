@@ -1,26 +1,8 @@
 import { sessionKeyFor } from "../../calendar/utils.js";
-import {
-  dayBookCompletionKey,
-  dayBookCompletionKeyFromSession,
-  manualSessionBooks,
-  nextSessionIndexForDate,
-  rowsWithoutSession,
-  wordsPlannedForManualSession,
-  type CompletionUpdate,
-  type ProgressUpdateInput,
-} from "./calendar_interactions_helpers.js";
+import { dayBookCompletionKey, dayBookCompletionKeyFromSession, manualSessionBooks, nextSessionIndexForDate, rowsWithoutSession, wordsPlannedForManualSession, type CompletionUpdate, type ProgressUpdateInput } from "./calendar_interactions_helpers.js";
 import { buildScheduleMutationHandlers } from "./calendar_interactions_schedule_handlers.js";
 import type { AppCalendarInteractionArgs } from "./calendar_interactions_types.js";
-
-type CalendarInteractionHandlers = Parameters<
-  AppCalendarInteractionArgs["configureCalendarInteractions"]
->[0];
-
-interface CompletionRow {
-  date?: string;
-  book_id?: string;
-  title?: string;
-}
+import type { CalendarInteractionHandlers, CompletionRow } from "../../../types/app/calendar_interactions/calendar_interactions.js";
 
 const completionFallbackKey = (row: CompletionRow | undefined): string => {
   if (row === undefined) {

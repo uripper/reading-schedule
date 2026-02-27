@@ -1,59 +1,10 @@
 import { sessionKeyFor, sortRowsByDateAndSession } from "../../calendar/utils.js";
-import type { Book } from "../../books/types.js";
-import {
-  dayBookCompletionKey,
-  emptyPlannerResult,
-  nextSessionIndexForDate,
-  normalizedManualMinutes,
-  rowsWithoutSession,
-  wordsPlannedForManualSession,
-} from "./calendar_interactions_helpers.js";
+
+import { dayBookCompletionKey, emptyPlannerResult, nextSessionIndexForDate, normalizedManualMinutes, rowsWithoutSession, wordsPlannedForManualSession } from "./calendar_interactions_helpers.js";
 import { nextRowsWithUpdatedMinutes } from "./calendar_interactions_minutes_rows.js";
 import { pruneScheduleCompletions } from "../schedule_preserve.js";
-import type {
-  PlannerResult,
-  PlannerScheduleRow,
-  PlannerSettings,
-  PlannerSummary,
-} from "../../../types/types.js";
-
-interface SharedUpdateArgs {
-  onScheduleRowsUpdated(): void;
-  queuePersist(): void;
-  renderCalendar(
-    rows: PlannerScheduleRow[],
-    totals: Record<string, number>,
-  ): void;
-  setBookScheduleRows(rows: PlannerScheduleRow[]): void;
-  setLastResult(result: PlannerResult): void;
-  setStatus(message: string, isError?: boolean): void;
-  state: {
-    lastResult: PlannerResult | null;
-    scheduleCompletions: Record<string, boolean>;
-    blockedDayBooks: Record<string, boolean>;
-  };
-  totalsFromSummary(summary: PlannerSummary | null): Record<string, number>;
-}
-
-type AddManualSessionArgs = SharedUpdateArgs & {
-  bookId: string;
-  collectSettings(this: void): PlannerSettings;
-  completed?: boolean;
-  date: string;
-  getBookById(this: void, bookId: string): Book | null;
-  minutes: number;
-};
-
-type RemoveSessionArgs = SharedUpdateArgs & {
-  row: PlannerScheduleRow;
-};
-
-type UpdateSessionMinutesArgs = SharedUpdateArgs & {
-  collectSettings(this: void): PlannerSettings;
-  getBookById(this: void, bookId: string): Book | null;
-  minutes: number;
-  row: PlannerScheduleRow;
-};
+import type { PlannerResult, PlannerScheduleRow } from "../../../types/types.js";
+import type { AddManualSessionArgs, RemoveSessionArgs, SharedUpdateArgs, UpdateSessionMinutesArgs } from "../../../types/app/calendar_interactions/calendar_interactions_schedule_updates.js";
 
 /**
  * Builds a new planner result from replacement schedule rows while preserving
