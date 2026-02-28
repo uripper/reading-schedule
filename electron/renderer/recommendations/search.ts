@@ -157,8 +157,8 @@ function normalizeLookupRecommendation(
   }
   return {
     author,
-    coverUrl: String(item.cover_url ?? "").trim(),
     title,
+    coverUrl: String(item.cover_url ?? "").trim(),
     wordsTotal: wordsFromLookup(item),
   };
 }
