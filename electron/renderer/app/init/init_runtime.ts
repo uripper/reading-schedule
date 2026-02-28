@@ -20,33 +20,35 @@ export function createInitRuntime(args: InitRuntimeArgs): {
     setPlanController(controller: AutoPlanController | null): void;
 } {
     let planController: AutoPlanController | null = null;
-    const queueAutoPlanIfReady = (): void => {
+    const QUEUE_AUTO_PLAN_IF_READY = (): void => {
         if (args.state.ready && planController !== null) {
             planController.queueAutoPlan();
         }
     };
-    const handleTabChange = (name: string): void => {
+    const HANDLE_TAB_CHANGE = (name: string): void => {
         if (name === "schedule") {
             args.focusCalendarToday();
         }
     };
-    const handleBooksChanged = (): void => {
+    const HANDLE_BOOKS_CHANGED = (): void => {
         args.updateDashboards();
         args.queuePersist();
-        queueAutoPlanIfReady();
+        QUEUE_AUTO_PLAN_IF_READY();
     };
-    const handleScheduleMutation = (): void => {
+    const HANDLE_SCHEDULE_MUTATION = (): void => {
         args.updateDashboards();
-        queueAutoPlanIfReady();
+        QUEUE_AUTO_PLAN_IF_READY();
     };
-    const setPlanController = (controller: AutoPlanController | null): void => {
+    const SET_PLAN_CONTROLLER = (
+        controller: AutoPlanController | null,
+    ): void => {
         planController = controller;
     };
     return {
-        handleBooksChanged,
-        handleScheduleMutation,
-        handleTabChange,
-        queueAutoPlanIfReady,
-        setPlanController,
+        handleBooksChanged: HANDLE_BOOKS_CHANGED,
+        handleScheduleMutation: HANDLE_SCHEDULE_MUTATION,
+        handleTabChange: HANDLE_TAB_CHANGE,
+        queueAutoPlanIfReady: QUEUE_AUTO_PLAN_IF_READY,
+        setPlanController: SET_PLAN_CONTROLLER,
     };
 }

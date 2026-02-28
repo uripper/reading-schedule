@@ -30,12 +30,12 @@ function finishMetaPart(
     book: Book,
     finishDateByBookId: Record<string, string>,
 ): string | null {
-    const finishDate = finishDateByBookId[book.book_id];
-    if (!finishDate) {
+    const FINISH_DATE = finishDateByBookId[book.book_id];
+    if (!FINISH_DATE) {
         return null;
     }
     if (book.status === BOOK_STATUS_READ) {
-        return `Finished ${finishDate}`;
+        return `Finished ${FINISH_DATE}`;
     }
     return null;
 }
@@ -50,17 +50,17 @@ export function blockerMeta(
     book: Book,
     titleById: Record<string, string>,
 ): BlockerMeta | null {
-    const blockerBookId = String(book.blocked_by ?? "").trim();
-    if (blockerBookId === "") {
+    const BLOCKER_BOOK_ID = String(book.blocked_by ?? "").trim();
+    if (BLOCKER_BOOK_ID === "") {
         return null;
     }
-    const resolvedBlocker = titleById[blockerBookId];
-    let blockerLabel = blockerBookId;
-    if (typeof resolvedBlocker === "string" && resolvedBlocker !== "") {
-        blockerLabel = resolvedBlocker;
+    const RESOLVED_BLOCKER = titleById[BLOCKER_BOOK_ID];
+    let blockerLabel = BLOCKER_BOOK_ID;
+    if (typeof RESOLVED_BLOCKER === "string" && RESOLVED_BLOCKER !== "") {
+        blockerLabel = RESOLVED_BLOCKER;
     }
     return {
-        blockerBookId,
+        blockerBookId: BLOCKER_BOOK_ID,
         label: `After: ${blockerLabel}`,
     };
 }
@@ -75,11 +75,11 @@ function blockerMetaPart(
     book: Book,
     titleById: Record<string, string>,
 ): string | null {
-    const blocker = blockerMeta(book, titleById);
-    if (blocker === null) {
+    const BLOCKER = blockerMeta(book, titleById);
+    if (BLOCKER === null) {
         return null;
     }
-    return blocker.label;
+    return BLOCKER.label;
 }
 
 /**
@@ -88,13 +88,13 @@ function blockerMetaPart(
  * @returns Human-readable progress summary with percent and pages.
  */
 export function progressLabel(book: Book): string {
-    const pct = Number(book.progress_percent);
-    const pagesRead = Math.max(0, Number(book.pages_read ?? 0));
+    const PCT = Number(book.progress_percent);
+    const PAGES_READ = Math.max(0, Number(book.pages_read ?? 0));
     if (hasPositiveNumber(book.pages_total)) {
-        const pagesTotal = Math.max(0, Number(book.pages_total ?? 0));
-        return `${pct.toFixed(1)}% · ${formatInt(pagesRead)}/${formatInt(pagesTotal)} pages`;
+        const PAGES_TOTAL = Math.max(0, Number(book.pages_total ?? 0));
+        return `${PCT.toFixed(1)}% · ${formatInt(PAGES_READ)}/${formatInt(PAGES_TOTAL)} pages`;
     }
-    return `${pct.toFixed(1)}% · ${formatInt(pagesRead)} pages read`;
+    return `${PCT.toFixed(1)}% · ${formatInt(PAGES_READ)} pages read`;
 }
 
 /**
@@ -103,13 +103,13 @@ export function progressLabel(book: Book): string {
  * @returns Word total label or page-based estimate fallback.
  */
 export function wordsLabel(book: Book): string {
-    const wordsTotal = book.words_total;
-    if (hasPositiveNumber(wordsTotal)) {
-        return `${formatInt(wordsTotal)} words`;
+    const WORDS_TOTAL = book.words_total;
+    if (hasPositiveNumber(WORDS_TOTAL)) {
+        return `${formatInt(WORDS_TOTAL)} words`;
     }
-    const pagesTotal = book.pages_total;
-    if (hasPositiveNumber(pagesTotal)) {
-        return `${formatInt(Number(pagesTotal) * WORDS_PER_PAGE)} word estimate`;
+    const PAGES_TOTAL = book.pages_total;
+    if (hasPositiveNumber(PAGES_TOTAL)) {
+        return `${formatInt(Number(PAGES_TOTAL) * WORDS_PER_PAGE)} word estimate`;
     }
     return "No word estimate";
 }
@@ -121,27 +121,27 @@ export function wordsLabel(book: Book): string {
  * @returns Joined metadata text for card subtitle line.
  */
 export function metaLabel(book: Book, options: BookMetaOptions = {}): string {
-    const titleById = options.titleById ?? {};
-    const finishDateByBookId = options.finishDateByBookId ?? {};
-    const bits: string[] = [];
+    const TITLE_BY_ID = options.titleById ?? {};
+    const FINISH_DATE_BY_BOOK_ID = options.finishDateByBookId ?? {};
+    const BITS: string[] = [];
 
-    const finishPart = finishMetaPart(book, finishDateByBookId);
-    if (finishPart !== null) {
-        bits.push(finishPart);
+    const FINISH_PART = finishMetaPart(book, FINISH_DATE_BY_BOOK_ID);
+    if (FINISH_PART !== null) {
+        BITS.push(FINISH_PART);
     }
     if (book.deadline !== null && book.deadline !== "") {
-        bits.push(`Due: ${book.deadline}`);
+        BITS.push(`Due: ${book.deadline}`);
     }
     if (options.showBlockerMeta !== false) {
-        const blockerPart = blockerMetaPart(book, titleById);
-        if (blockerPart !== null) {
-            bits.push(blockerPart);
+        const BLOCKER_PART = blockerMetaPart(book, TITLE_BY_ID);
+        if (BLOCKER_PART !== null) {
+            BITS.push(BLOCKER_PART);
         }
     }
     if (options.showShelfMeta === true) {
-        bits.push(`Shelf: ${shelfLabelForBook(book)}`);
+        BITS.push(`Shelf: ${shelfLabelForBook(book)}`);
     }
-    return bits.join("\n");
+    return BITS.join("\n");
 }
 
 /**

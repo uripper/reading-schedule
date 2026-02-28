@@ -25,14 +25,14 @@ interface ProcessAuthorOptions {
  * @returns Shuffled copy of input values.
  */
 function shuffledCopy<T>(values: T[], randomFn: () => number): T[] {
-    const nextValues = [...values];
-    for (let index = nextValues.length - 1; index > 0; index -= 1) {
-        const swapIndex = Math.floor(randomFn() * (index + 1));
-        const current = nextValues[index];
-        nextValues[index] = nextValues[swapIndex];
-        nextValues[swapIndex] = current;
+    const NEXT_VALUES = [...values];
+    for (let index = NEXT_VALUES.length - 1; index > 0; index -= 1) {
+        const SWAP_INDEX = Math.floor(randomFn() * (index + 1));
+        const CURRENT = NEXT_VALUES[index];
+        NEXT_VALUES[index] = NEXT_VALUES[SWAP_INDEX];
+        NEXT_VALUES[SWAP_INDEX] = CURRENT;
     }
-    return nextValues;
+    return NEXT_VALUES;
 }
 
 /**
@@ -59,8 +59,8 @@ export function pickRandomSample<T>(
  * @returns Comma-separated preview summary.
  */
 export function sampleResultsSummary(lookupItems: BookLookupItem[]): string {
-    const sample = lookupItems.slice(0, SAMPLE_RESULTS_COUNT);
-    return sample.map((item) => `"${item.title}" by ${item.author}`).join(", ");
+    const SAMPLE = lookupItems.slice(0, SAMPLE_RESULTS_COUNT);
+    return SAMPLE.map((item) => `"${item.title}" by ${item.author}`).join(", ");
 }
 
 /**
@@ -77,38 +77,38 @@ export function processAuthorResults(options: ProcessAuthorOptions): number {
         recommendations,
     } = options;
     let addedForAuthor = 0;
-    for (const lookupItem of lookupItems) {
+    for (const LOOKUP_ITEM of lookupItems) {
         if (addedForAuthor >= MAX_PER_AUTHOR) {
             addLog(
                 `Recommendations: Reached max (${MAX_PER_AUTHOR}) for author "${author}", stopping.`,
             );
             break;
         }
-        const candidate = normalizeLookupRecommendation(lookupItem, author);
-        if (candidate === null) {
+        const CANDIDATE = normalizeLookupRecommendation(LOOKUP_ITEM, author);
+        if (CANDIDATE === null) {
             addLog(
-                `Recommendations: Filtered out "${lookupItem.title}" - failed plausibility check`,
+                `Recommendations: Filtered out "${LOOKUP_ITEM.title}" - failed plausibility check`,
             );
             continue;
         }
-        if (!authorMatches(author, candidate.author)) {
+        if (!authorMatches(author, CANDIDATE.author)) {
             addLog(
-                `Recommendations: Filtered out "${candidate.title}" by ${candidate.author} - author mismatch (expected "${author}")`,
+                `Recommendations: Filtered out "${CANDIDATE.title}" by ${CANDIDATE.author} - author mismatch (expected "${author}")`,
             );
             continue;
         }
-        const key = recommendationKey(candidate.title, candidate.author);
-        if (existingKeys.has(key) || recommendationKeys.has(key)) {
+        const KEY = recommendationKey(CANDIDATE.title, CANDIDATE.author);
+        if (existingKeys.has(KEY) || recommendationKeys.has(KEY)) {
             addLog(
-                `Recommendations: Filtered out "${candidate.title}" - already in shelf or added`,
+                `Recommendations: Filtered out "${CANDIDATE.title}" - already in shelf or added`,
             );
             continue;
         }
         addLog(
-            `Recommendations: Adding "${candidate.title}" by ${candidate.author}`,
+            `Recommendations: Adding "${CANDIDATE.title}" by ${CANDIDATE.author}`,
         );
-        recommendationKeys.add(key);
-        recommendations.push(candidate);
+        recommendationKeys.add(KEY);
+        recommendations.push(CANDIDATE);
         addedForAuthor += 1;
     }
     return addedForAuthor;

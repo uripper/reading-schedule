@@ -12,11 +12,11 @@ import { sessionKeyFor } from "./utils.js";
  * @returns Date key for "today" in local time.
  */
 function todayDateKey(): string {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    const NOW = new Date();
+    const YEAR = NOW.getFullYear();
+    const MONTH = String(NOW.getMonth() + 1).padStart(2, "0");
+    const DAY = String(NOW.getDate()).padStart(2, "0");
+    return `${YEAR}-${MONTH}-${DAY}`;
 }
 
 /**
@@ -25,15 +25,15 @@ function todayDateKey(): string {
  * @returns Whether the day is in the past, today, or future.
  */
 export function dayMode(dateKey: string): DayMode {
-    const today = todayDateKey();
-    const compared = compareDayKeys(dateKey, today);
-    if (compared === null) {
+    const TODAY = todayDateKey();
+    const COMPARED = compareDayKeys(dateKey, TODAY);
+    if (COMPARED === null) {
         return "today";
     }
-    if (compared < 0) {
+    if (COMPARED < 0) {
         return "past";
     }
-    if (compared > 0) {
+    if (COMPARED > 0) {
         return "future";
     }
     return "today";
@@ -49,20 +49,20 @@ export function rowsWithCompletedLast(
     rows: CalendarRowWithFinish[],
     interactionHandlers: DetailInteractionHandlers,
 ): CalendarRowWithFinish[] {
-    const incompleteRows: CalendarRowWithFinish[] = [];
-    const completeRows: CalendarRowWithFinish[] = [];
+    const INCOMPLETE_ROWS: CalendarRowWithFinish[] = [];
+    const COMPLETE_ROWS: CalendarRowWithFinish[] = [];
     rows.forEach((row) => {
-        const complete = Boolean(
+        const COMPLETE = Boolean(
             interactionHandlers.isSessionCompleted(sessionKeyFor(row)),
         );
-        if (complete) {
-            completeRows.push(row);
+        if (COMPLETE) {
+            COMPLETE_ROWS.push(row);
             return;
         }
-        incompleteRows.push(row);
+        INCOMPLETE_ROWS.push(row);
     });
     return [
-        ...rowsWithFinishFirst(incompleteRows),
-        ...rowsWithFinishFirst(completeRows),
+        ...rowsWithFinishFirst(INCOMPLETE_ROWS),
+        ...rowsWithFinishFirst(COMPLETE_ROWS),
     ];
 }

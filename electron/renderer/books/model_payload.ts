@@ -61,7 +61,7 @@ function normalizeFinishedAt(value: string | null | undefined): string | null {
  * @returns Payload-safe book with defaults and nullable fields normalized.
  */
 export function toPayloadBook(book: Book): Book {
-    const status = statusFromRaw(
+    const STATUS = statusFromRaw(
         book.status,
         Number(book.progress_percent || 0),
     );
@@ -86,7 +86,7 @@ export function toPayloadBook(book: Book): Book {
         progress_percent: book.progress_percent,
         scheduled_days: normalizeScheduledDays(book.scheduled_days),
         shelf: withDefaultString(book.shelf),
-        status,
+        status: STATUS,
         title: book.title,
         words_total: book.words_total ?? null,
     };
@@ -107,17 +107,17 @@ export function hasSchedulableLength(book: Book): boolean {
  * @returns Books with invalid blocking links reset to `null`.
  */
 export function clearMissingBlockedBy(books: Book[]): Book[] {
-    const schedulableIds = new Set<string>();
+    const SCHEDULABLE_IDS = new Set<string>();
     books.forEach((book) => {
-        schedulableIds.add(book.book_id);
+        SCHEDULABLE_IDS.add(book.book_id);
     });
 
     return books.map((book) => {
-        const blockedById = String(book.blocked_by ?? "").trim();
-        if (!blockedById) {
+        const BLOCKED_BY_ID = String(book.blocked_by ?? "").trim();
+        if (!BLOCKED_BY_ID) {
             return book;
         }
-        if (schedulableIds.has(blockedById)) {
+        if (SCHEDULABLE_IDS.has(BLOCKED_BY_ID)) {
             return book;
         }
         return {

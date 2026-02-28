@@ -17,10 +17,10 @@ export function focusFirstError(
     if (!(formElement instanceof HTMLElement)) {
         return null;
     }
-    const invalid = formElement.querySelector(":invalid");
-    if (invalid instanceof HTMLElement) {
-        invalid.focus();
-        return invalid;
+    const INVALID = formElement.querySelector(":invalid");
+    if (INVALID instanceof HTMLElement) {
+        INVALID.focus();
+        return INVALID;
     }
     return null;
 }
@@ -33,7 +33,7 @@ export function focusFirstError(
 export function createAnnouncer(
     regionId = "liveRegion",
 ): (message: string, politeness?: AnnouncePoliteness) => void {
-    const region = el(regionId);
+    const REGION = el(regionId);
     let clearTimer: ReturnType<typeof setTimeout> | null = null;
     return (
         message: string,
@@ -45,10 +45,10 @@ export function createAnnouncer(
         if (clearTimer) {
             clearTimeout(clearTimer);
         }
-        region.setAttribute("aria-live", politeness);
-        region.textContent = "";
+        REGION.setAttribute("aria-live", politeness);
+        REGION.textContent = "";
         clearTimer = setTimeout(() => {
-            region.textContent = String(message);
+            REGION.textContent = String(message);
         }, ANNOUNCE_DELAY_MS);
     };
 }
@@ -67,12 +67,12 @@ export function applyPreferencesToDocument(
     ) {
         theme = preferences.theme;
     }
-    const reduceMotion = Boolean(preferences.reduceMotion);
-    const root = document.documentElement;
-    root.dataset.theme = theme;
-    root.dataset.reduceMotion = "false";
-    if (reduceMotion) {
-        root.dataset.reduceMotion = "true";
+    const REDUCE_MOTION = Boolean(preferences.reduceMotion);
+    const ROOT = document.documentElement;
+    ROOT.dataset.theme = theme;
+    ROOT.dataset.reduceMotion = "false";
+    if (REDUCE_MOTION) {
+        ROOT.dataset.reduceMotion = "true";
     }
 }
 

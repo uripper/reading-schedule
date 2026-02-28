@@ -55,13 +55,13 @@ function normalizedAlnumText(value: string): string {
  * @returns True when title passes quality heuristics.
  */
 function isPlausibleBookTitle(title: string): boolean {
-    const text = title.trim();
-    if (text.length < TITLE_MIN_LENGTH || text.length > TITLE_MAX_LENGTH) {
+    const TEXT = title.trim();
+    if (TEXT.length < TITLE_MIN_LENGTH || TEXT.length > TITLE_MAX_LENGTH) {
         return false;
     }
-    const normalized = normalizedText(text);
-    for (const pattern of NON_BOOK_TITLE_PATTERNS) {
-        if (normalized.includes(pattern)) {
+    const NORMALIZED = normalizedText(TEXT);
+    for (const PATTERN of NON_BOOK_TITLE_PATTERNS) {
+        if (NORMALIZED.includes(PATTERN)) {
             return false;
         }
     }
@@ -74,13 +74,13 @@ function isPlausibleBookTitle(title: string): boolean {
  * @returns Positive words-total estimate.
  */
 function wordsFromLookup(item: BookLookupItem): number {
-    const wordsEstimate = Number(item.words_estimate ?? 0);
-    if (wordsEstimate > 0) {
-        return Math.round(wordsEstimate);
+    const WORDS_ESTIMATE = Number(item.words_estimate ?? 0);
+    if (WORDS_ESTIMATE > 0) {
+        return Math.round(WORDS_ESTIMATE);
     }
-    const pagesEstimate = Number(item.pages_estimate ?? 0);
-    if (pagesEstimate > 0) {
-        return Math.round(pagesEstimate * WORDS_PER_PAGE_ESTIMATE);
+    const PAGES_ESTIMATE = Number(item.pages_estimate ?? 0);
+    if (PAGES_ESTIMATE > 0) {
+        return Math.round(PAGES_ESTIMATE * WORDS_PER_PAGE_ESTIMATE);
     }
     return DEFAULT_WORDS_TOTAL;
 }
@@ -95,32 +95,31 @@ export function authorMatches(
     readAuthor: string,
     candidateAuthor: string,
 ): boolean {
-    const readAuthorKey = normalizedAlnumText(readAuthor);
-    const candidateAuthorKey = normalizedAlnumText(candidateAuthor);
-    if (readAuthorKey.length === 0 || candidateAuthorKey.length === 0) {
+    const READ_AUTHOR_KEY = normalizedAlnumText(readAuthor);
+    const CANDIDATE_AUTHOR_KEY = normalizedAlnumText(candidateAuthor);
+    if (READ_AUTHOR_KEY.length === 0 || CANDIDATE_AUTHOR_KEY.length === 0) {
         return false;
     }
-    const candidateWordCount = candidateAuthorKey
-        .split(/\s+/)
-        .filter(Boolean).length;
-    if (candidateWordCount > AUTHOR_MAX_WORDS) {
+    const CANDIDATE_WORD_COUNT =
+        CANDIDATE_AUTHOR_KEY.split(/\s+/).filter(Boolean).length;
+    if (CANDIDATE_WORD_COUNT > AUTHOR_MAX_WORDS) {
         return false;
     }
-    if (candidateAuthorKey.length > AUTHOR_MAX_LENGTH) {
+    if (CANDIDATE_AUTHOR_KEY.length > AUTHOR_MAX_LENGTH) {
         return false;
     }
-    if (readAuthorKey === candidateAuthorKey) {
+    if (READ_AUTHOR_KEY === CANDIDATE_AUTHOR_KEY) {
         return true;
     }
-    if (candidateAuthorKey.startsWith(readAuthorKey)) {
+    if (CANDIDATE_AUTHOR_KEY.startsWith(READ_AUTHOR_KEY)) {
         return true;
     }
-    if (readAuthorKey.startsWith(candidateAuthorKey)) {
+    if (READ_AUTHOR_KEY.startsWith(CANDIDATE_AUTHOR_KEY)) {
         return true;
     }
     return (
-        readAuthorKey.includes(candidateAuthorKey) &&
-        candidateAuthorKey.length >= AUTHOR_MIN_KEY_LENGTH
+        READ_AUTHOR_KEY.includes(CANDIDATE_AUTHOR_KEY) &&
+        CANDIDATE_AUTHOR_KEY.length >= AUTHOR_MIN_KEY_LENGTH
     );
 }
 
@@ -130,11 +129,11 @@ export function authorMatches(
  * @returns Set of normalized title-author keys.
  */
 export function addExistingBookKeys(books: Book[]): Set<string> {
-    const keys = new Set<string>();
-    for (const book of books) {
-        keys.add(recommendationKey(book.title, book.author));
+    const KEYS = new Set<string>();
+    for (const BOOK of books) {
+        KEYS.add(recommendationKey(BOOK.title, BOOK.author));
     }
-    return keys;
+    return KEYS;
 }
 
 /**
@@ -147,19 +146,19 @@ export function normalizeLookupRecommendation(
     item: BookLookupItem,
     readAuthor: string,
 ): RecommendationItem | null {
-    const title = String(item.title ?? "").trim();
-    if (!isPlausibleBookTitle(title)) {
+    const TITLE = String(item.title ?? "").trim();
+    if (!isPlausibleBookTitle(TITLE)) {
         return null;
     }
-    const lookupAuthor = String(item.author ?? "").trim();
+    const LOOKUP_AUTHOR = String(item.author ?? "").trim();
     let author = readAuthor;
-    if (lookupAuthor.length > 0) {
-        author = lookupAuthor;
+    if (LOOKUP_AUTHOR.length > 0) {
+        author = LOOKUP_AUTHOR;
     }
     return {
         author,
         coverUrl: String(item.cover_url ?? "").trim(),
-        title,
+        title: TITLE,
         wordsTotal: wordsFromLookup(item),
     };
 }

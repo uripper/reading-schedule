@@ -25,7 +25,7 @@ import {
     mergeCalendarHandlers,
 } from "./calendar/state_runtime.js";
 
-const state = createCalendarRuntimeState();
+const STATE = createCalendarRuntimeState();
 let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});
 
 /**
@@ -43,58 +43,60 @@ function clearFinishedBooksSummary(details: HTMLElement): void {
  * @param completedRows Completed-book rows for selected date.
  */
 function renderFinishedBooksSummary(completedRows: CompletedBookRow[]): void {
-    const details = document.getElementById("calendarDayDetails");
-    if (!(details instanceof HTMLElement)) {
+    const DETAILS = document.getElementById("calendarDayDetails");
+    if (!(DETAILS instanceof HTMLElement)) {
         return;
     }
-    clearFinishedBooksSummary(details);
-    const summaryText = finishedBooksSummaryText(completedRows);
-    if (summaryText === "") {
+    clearFinishedBooksSummary(DETAILS);
+    const SUMMARY_TEXT = finishedBooksSummaryText(completedRows);
+    if (SUMMARY_TEXT === "") {
         return;
     }
-    const summary = document.createElement("p");
-    summary.className = "day-finished-summary";
-    summary.textContent = summaryText;
-    const titleNode = details.querySelector("h2");
-    if (titleNode instanceof HTMLElement) {
-        titleNode.after(summary);
+    const SUMMARY = document.createElement("p");
+    SUMMARY.className = "day-finished-summary";
+    SUMMARY.textContent = SUMMARY_TEXT;
+    const TITLE_NODE = DETAILS.querySelector("h2");
+    if (TITLE_NODE instanceof HTMLElement) {
+        TITLE_NODE.after(SUMMARY);
         return;
     }
-    details.prepend(summary);
+    DETAILS.prepend(SUMMARY);
 }
 
 /**
  * Renders month grid and wires date selection/navigation callbacks.
  */
 function renderMonthView(): void {
-    refreshDerivedRows(state, interactionHandlers.isSessionCompleted);
-    const getBookById = (
+    refreshDerivedRows(STATE, interactionHandlers.isSessionCompleted);
+    const GET_BOOK_BY_ID = (
         bookId: string,
     ): ReturnType<CalendarHandlers["getBookById"]> => {
         return interactionHandlers.getBookById(bookId);
     };
-    const completedRowsByDate = buildCompletedBookRowsByDate(
+    const COMPLETED_ROWS_BY_DATE = buildCompletedBookRowsByDate(
         interactionHandlers.listSessionBooks(),
-        getBookById,
+        GET_BOOK_BY_ID,
     );
-    const completedBookRowsForDate = (dateKey: string): CompletedBookRow[] => {
-        return completedRowsByDate[dateKey] ?? [];
+    const COMPLETED_BOOK_ROWS_FOR_DATE = (
+        dateKey: string,
+    ): CompletedBookRow[] => {
+        return COMPLETED_ROWS_BY_DATE[dateKey] ?? [];
     };
-    renderMonth(state, {
-        completedBookRowsForDate,
+    renderMonth(STATE, {
+        completedBookRowsForDate: COMPLETED_BOOK_ROWS_FOR_DATE,
         moveSelectionBy: (delta, currentIndex) => {
-            moveSelectionBy(state, delta, currentIndex, (dateKey, options) => {
-                selectDate(state, dateKey, renderMonthView, options);
+            moveSelectionBy(STATE, delta, currentIndex, (dateKey, options) => {
+                selectDate(STATE, dateKey, renderMonthView, options);
             });
         },
         renderDetails: () => {
-            renderCalendarDetails(state, interactionHandlers, renderMonthView);
+            renderCalendarDetails(STATE, interactionHandlers, renderMonthView);
             renderFinishedBooksSummary(
-                completedBookRowsForDate(state.selectedDate),
+                COMPLETED_BOOK_ROWS_FOR_DATE(STATE.selectedDate),
             );
         },
         selectDate: (dateKey, options) => {
-            selectDate(state, dateKey, renderMonthView, options);
+            selectDate(STATE, dateKey, renderMonthView, options);
         },
     });
 }
@@ -103,12 +105,12 @@ function renderMonthView(): void {
  * Renders calendar control bar and today-jump behavior.
  */
 function renderControlsView(): void {
-    const jumpToToday = (): void => {
-        applyTodayFocus(state);
+    const JUMP_TO_TODAY = (): void => {
+        applyTodayFocus(STATE);
         renderControlsView();
         renderMonthView();
     };
-    renderControls(state, renderControlsView, renderMonthView, jumpToToday);
+    renderControls(STATE, renderControlsView, renderMonthView, JUMP_TO_TODAY);
 }
 
 /**
@@ -120,26 +122,29 @@ export function renderCalendar(
     rows: PlannerScheduleRow[],
     totals: Record<string, number>,
 ): void {
-    const previousSelectedDate = state.selectedDate;
-    const previousMonthKey = state.months[state.index] || "";
-    state.rawRows = [...rows];
-    state.totalsByBookId = { ...totals };
-    refreshDerivedRows(state, interactionHandlers.isSessionCompleted);
-    state.index = 0;
-    if (previousMonthKey) {
-        const previousMonthIndex = state.months.indexOf(previousMonthKey);
-        if (previousMonthIndex >= 0) {
-            state.index = previousMonthIndex;
+    const PREVIOUS_SELECTED_DATE = STATE.selectedDate;
+    const PREVIOUS_MONTH_KEY = STATE.months[STATE.index] || "";
+    STATE.rawRows = [...rows];
+    STATE.totalsByBookId = { ...totals };
+    refreshDerivedRows(STATE, interactionHandlers.isSessionCompleted);
+    STATE.index = 0;
+    if (PREVIOUS_MONTH_KEY) {
+        const PREVIOUS_MONTH_INDEX = STATE.months.indexOf(PREVIOUS_MONTH_KEY);
+        if (PREVIOUS_MONTH_INDEX >= 0) {
+            STATE.index = PREVIOUS_MONTH_INDEX;
         }
     }
-    if (previousSelectedDate !== "" && previousSelectedDate in state.dates) {
-        state.selectedDate = previousSelectedDate;
+    if (
+        PREVIOUS_SELECTED_DATE !== "" &&
+        PREVIOUS_SELECTED_DATE in STATE.dates
+    ) {
+        STATE.selectedDate = PREVIOUS_SELECTED_DATE;
     } else {
-        state.selectedDate = "";
+        STATE.selectedDate = "";
     }
-    state.expectedFinishHighlightDate = "";
-    if (!previousSelectedDate) {
-        applyTodayFocus(state);
+    STATE.expectedFinishHighlightDate = "";
+    if (!PREVIOUS_SELECTED_DATE) {
+        applyTodayFocus(STATE);
     }
     renderControlsView();
     renderMonthView();
@@ -149,10 +154,10 @@ export function renderCalendar(
  * Moves calendar focus to today and rerenders controls/month.
  */
 export function focusCalendarToday(): void {
-    if (!state.months.length) {
+    if (!STATE.months.length) {
         return;
     }
-    applyTodayFocus(state);
+    applyTodayFocus(STATE);
     renderControlsView();
     renderMonthView();
 }
@@ -162,13 +167,13 @@ export function focusCalendarToday(): void {
  * @param dateKey Day key in `YYYY-MM-DD` format.
  */
 export function focusCalendarDate(dateKey: string): void {
-    if (!state.months.length) {
+    if (!STATE.months.length) {
         return;
     }
-    const monthKey = monthKeyForDateKey(dateKey);
-    state.index = indexForMonth(state.months, monthKey);
+    const MONTH_KEY = monthKeyForDateKey(dateKey);
+    STATE.index = indexForMonth(STATE.months, MONTH_KEY);
     renderControlsView();
-    selectDate(state, dateKey, renderMonthView);
+    selectDate(STATE, dateKey, renderMonthView);
 }
 
 /**

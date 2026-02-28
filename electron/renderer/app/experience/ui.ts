@@ -15,10 +15,10 @@ import { DEFAULT_PREFERENCES, isSupportedTheme } from "./model.js";
  * @returns Parsed number, or 0 when input is empty/invalid.
  */
 function numberInputValue(id: string): number {
-    const raw = el<HTMLInputElement>(id).value;
-    const parsed = Number(raw);
-    if (Number.isFinite(parsed)) {
-        return parsed;
+    const RAW = el<HTMLInputElement>(id).value;
+    const PARSED = Number(RAW);
+    if (Number.isFinite(PARSED)) {
+        return PARSED;
     }
     return 0;
 }
@@ -56,9 +56,9 @@ function selectValue(id: string): string {
  */
 export function collectPreferencesFromUI(): Preferences {
     let theme: Preferences["theme"] = DEFAULT_PREFERENCES.theme;
-    const selectedTheme = selectValue("themeSelect");
-    if (isSupportedTheme(selectedTheme)) {
-        theme = selectedTheme;
+    const SELECTED_THEME = selectValue("themeSelect");
+    if (isSupportedTheme(SELECTED_THEME)) {
+        theme = SELECTED_THEME;
     }
 
     return {

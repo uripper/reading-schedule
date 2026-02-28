@@ -48,25 +48,25 @@ export function defaultCalendarHandlers(): CalendarHandlers {
 export function mergeCalendarHandlers(
     handlers: Partial<CalendarHandlers>,
 ): CalendarHandlers {
-    const defaults = defaultCalendarHandlers();
+    const DEFAULTS = defaultCalendarHandlers();
     return {
-        getBookById: handlers.getBookById ?? defaults.getBookById,
+        getBookById: handlers.getBookById ?? DEFAULTS.getBookById,
         isSessionCompleted:
-            handlers.isSessionCompleted ?? defaults.isSessionCompleted,
+            handlers.isSessionCompleted ?? DEFAULTS.isSessionCompleted,
         listSessionBooks:
-            handlers.listSessionBooks ?? defaults.listSessionBooks,
+            handlers.listSessionBooks ?? DEFAULTS.listSessionBooks,
         onManualSessionAdded:
-            handlers.onManualSessionAdded ?? defaults.onManualSessionAdded,
+            handlers.onManualSessionAdded ?? DEFAULTS.onManualSessionAdded,
         onSessionCompletionChanged:
             handlers.onSessionCompletionChanged ??
-            defaults.onSessionCompletionChanged,
+            DEFAULTS.onSessionCompletionChanged,
         onSessionMinutesUpdated:
             handlers.onSessionMinutesUpdated ??
-            defaults.onSessionMinutesUpdated,
+            DEFAULTS.onSessionMinutesUpdated,
         onSessionProgressUpdated:
             handlers.onSessionProgressUpdated ??
-            defaults.onSessionProgressUpdated,
+            DEFAULTS.onSessionProgressUpdated,
         onSessionRemoved:
-            handlers.onSessionRemoved ?? defaults.onSessionRemoved,
+            handlers.onSessionRemoved ?? DEFAULTS.onSessionRemoved,
     };
 }

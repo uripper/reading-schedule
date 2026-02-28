@@ -24,7 +24,7 @@ import { bindTodayActions, finalizeInitialLoad } from "./init_helpers.js";
  * @returns Fully bound load-state arguments.
  */
 function createLoadStateArgs(args: CreateLoadStateArgsInput): LoadStateArgs {
-    const runtimeState = args.state;
+    const RUNTIME_STATE = args.state;
     return {
         addLog: (message) => {
             args.context.addLog(message);
@@ -33,7 +33,7 @@ function createLoadStateArgs(args: CreateLoadStateArgsInput): LoadStateArgs {
             if (result) {
                 args.planController.applyLoadedResult(result);
             } else {
-                applyAppStateMutation(runtimeState, {
+                applyAppStateMutation(RUNTIME_STATE, {
                     lastResult: null,
                     type: "set_last_result",
                 });
@@ -60,32 +60,32 @@ function createLoadStateArgs(args: CreateLoadStateArgsInput): LoadStateArgs {
                 },
                 saved,
                 setReady: () => {
-                    runtimeState.ready = true;
+                    RUNTIME_STATE.ready = true;
                 },
                 setStatus: args.setStatus,
             });
         },
         plannerApi: args.context.plannerApi,
         setBlockedDayBooks: (blockedDayBooks) => {
-            applyAppStateMutation(runtimeState, {
+            applyAppStateMutation(RUNTIME_STATE, {
                 blockedDayBooks,
                 type: "set_blocked_day_books",
             });
         },
         setFeatureFlags: (featureFlags) => {
-            runtimeState.featureFlags = featureFlags;
+            RUNTIME_STATE.featureFlags = featureFlags;
         },
         setPreferences: (preferences) => {
-            runtimeState.preferences = preferences;
+            RUNTIME_STATE.preferences = preferences;
         },
         setScheduleCompletions: (scheduleCompletions) => {
-            applyAppStateMutation(runtimeState, {
+            applyAppStateMutation(RUNTIME_STATE, {
                 scheduleCompletions,
                 type: "set_schedule_completions",
             });
         },
         setSessions: (sessions) => {
-            applyAppStateMutation(runtimeState, {
+            applyAppStateMutation(RUNTIME_STATE, {
                 sessions,
                 type: "set_sessions",
             });
@@ -144,33 +144,32 @@ export async function loadStateAndBindTodayActions(
     planController: LoadedResultController,
 ): Promise<void> {
     const { state } = context;
-    const updateDashboards = context.dashboards.updateDashboards.bind(
+    const UPDATE_DASHBOARDS = context.dashboards.updateDashboards.bind(
         context.dashboards,
     );
-    const setStatus = context.setStatus.bind(context);
-    const queuePersist = context.queuePersist.bind(context);
-    const queueAutoPlanIfReady = context.runtime.queueAutoPlanIfReady.bind(
+    const SET_STATUS = context.setStatus.bind(context);
+    const QUEUE_PERSIST = context.queuePersist.bind(context);
+    const QUEUE_AUTO_PLAN_IF_READY = context.runtime.queueAutoPlanIfReady.bind(
         context.runtime,
     );
-    const handleScheduleMutation = context.runtime.handleScheduleMutation.bind(
-        context.runtime,
-    );
+    const HANDLE_SCHEDULE_MUTATION =
+        context.runtime.handleScheduleMutation.bind(context.runtime);
 
     await loadInitialData(
         createLoadStateArgs({
             context,
             planController,
-            queueAutoPlanIfReady,
-            queuePersist,
-            setStatus,
+            queueAutoPlanIfReady: QUEUE_AUTO_PLAN_IF_READY,
+            queuePersist: QUEUE_PERSIST,
+            setStatus: SET_STATUS,
             state,
-            updateTodayView: updateDashboards,
+            updateTodayView: UPDATE_DASHBOARDS,
         }),
     );
     bindTodayActionsWithState(
         state,
-        handleScheduleMutation,
-        queuePersist,
-        setStatus,
+        HANDLE_SCHEDULE_MUTATION,
+        QUEUE_PERSIST,
+        SET_STATUS,
     );
 }

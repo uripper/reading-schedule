@@ -8,17 +8,17 @@ import { DIFFICULTY_LEVEL_COUNT, weekdays } from "./config.js";
  * @returns Hint node or null when hint is empty.
  */
 function hintDot(text?: string): HTMLSpanElement | null {
-    const normalizedText = String(text ?? "").trim();
-    if (normalizedText.length === 0) {
+    const NORMALIZED_TEXT = String(text ?? "").trim();
+    if (NORMALIZED_TEXT.length === 0) {
         return null;
     }
-    const dot = document.createElement("span");
-    dot.className = "hint-dot";
-    dot.tabIndex = 0;
-    dot.setAttribute("role", "note");
-    dot.dataset.tip = normalizedText;
-    dot.textContent = "?";
-    return dot;
+    const DOT = document.createElement("span");
+    DOT.className = "hint-dot";
+    DOT.tabIndex = 0;
+    DOT.setAttribute("role", "note");
+    DOT.dataset.tip = NORMALIZED_TEXT;
+    DOT.textContent = "?";
+    return DOT;
 }
 
 /**
@@ -27,22 +27,22 @@ function hintDot(text?: string): HTMLSpanElement | null {
  * @returns Label element containing field control.
  */
 function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
-    const label = document.createElement("label");
-    label.append(field.label);
+    const LABEL = document.createElement("label");
+    LABEL.append(field.label);
 
-    const dot = hintDot(field.hint);
-    if (dot) {
-        label.append(" ", dot);
+    const DOT = hintDot(field.hint);
+    if (DOT) {
+        LABEL.append(" ", DOT);
     }
 
     let node: HTMLInputElement | HTMLSelectElement;
     if (field.type === "select") {
         node = document.createElement("select");
         field.options.forEach((option) => {
-            const optionNode = document.createElement("option");
-            optionNode.value = String(option.value);
-            optionNode.textContent = String(option.label);
-            node.append(optionNode);
+            const OPTION_NODE = document.createElement("option");
+            OPTION_NODE.value = String(option.value);
+            OPTION_NODE.textContent = String(option.label);
+            node.append(OPTION_NODE);
         });
     } else {
         node = document.createElement("input");
@@ -51,13 +51,13 @@ function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
             node.step = field.step;
         }
         if (field.type === "checkbox") {
-            label.classList.add("toggle-row");
+            LABEL.classList.add("toggle-row");
         }
     }
 
     node.id = field.id;
-    label.append(node);
-    return label;
+    LABEL.append(node);
+    return LABEL;
 }
 
 /**
@@ -76,46 +76,46 @@ export function renderGrid(
  * Renders weekday minutes input rows.
  */
 export function renderWeekdayGrid(): void {
-    const weekdayNodes = weekdays.map(([key, name]) => {
-        const label = document.createElement("label");
-        label.append(`${name} minutes`);
+    const WEEKDAY_NODES = weekdays.map(([key, name]) => {
+        const LABEL = document.createElement("label");
+        LABEL.append(`${name} minutes`);
 
-        const inputNode = document.createElement("input");
-        inputNode.id = `minutes_${key}`;
-        inputNode.type = "number";
-        label.append(inputNode);
+        const INPUT_NODE = document.createElement("input");
+        INPUT_NODE.id = `minutes_${key}`;
+        INPUT_NODE.type = "number";
+        LABEL.append(INPUT_NODE);
 
-        return label;
+        return LABEL;
     });
-    el("weekdayGrid").replaceChildren(...weekdayNodes);
+    el("weekdayGrid").replaceChildren(...WEEKDAY_NODES);
 }
 
 /**
  * Renders difficulty multiplier table rows.
  */
 export function renderDifficultyRows(): void {
-    const diffRows = Array.from(
+    const DIFF_ROWS = Array.from(
         { length: DIFFICULTY_LEVEL_COUNT },
         (_, index) => {
-            const row = document.createElement("tr");
-            const level = index + 1;
+            const ROW = document.createElement("tr");
+            const LEVEL = index + 1;
 
-            const labelCell = document.createElement("td");
-            labelCell.textContent = String(level);
+            const LABEL_CELL = document.createElement("td");
+            LABEL_CELL.textContent = String(LEVEL);
 
-            const inputCell = document.createElement("td");
-            const inputNode = document.createElement("input");
-            inputNode.id = `diff_${level}`;
-            inputNode.type = "number";
-            inputNode.step = "0.05";
-            inputNode.min = "0.05";
-            inputNode.max = "2";
-            inputCell.append(inputNode);
+            const INPUT_CELL = document.createElement("td");
+            const INPUT_NODE = document.createElement("input");
+            INPUT_NODE.id = `diff_${LEVEL}`;
+            INPUT_NODE.type = "number";
+            INPUT_NODE.step = "0.05";
+            INPUT_NODE.min = "0.05";
+            INPUT_NODE.max = "2";
+            INPUT_CELL.append(INPUT_NODE);
 
-            row.append(labelCell, inputCell);
-            return row;
+            ROW.append(LABEL_CELL, INPUT_CELL);
+            return ROW;
         },
     );
 
-    el("difficultyBody").replaceChildren(...diffRows);
+    el("difficultyBody").replaceChildren(...DIFF_ROWS);
 }

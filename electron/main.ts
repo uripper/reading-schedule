@@ -25,8 +25,8 @@ async function enableDevelopmentHotReload(): Promise<void> {
     if (process.env.NODE_ENV !== DEVELOPMENT_ENVIRONMENT) {
         return;
     }
-    const reloaderModule = await import("electron-reloader");
-    reloaderModule.default(module, {
+    const RELOADER_MODULE = await import("electron-reloader");
+    RELOADER_MODULE.default(module, {
         ignore: HOT_RELOAD_IGNORED_OUTPUTS,
         watchRenderer: true,
     });
@@ -36,17 +36,17 @@ async function enableDevelopmentHotReload(): Promise<void> {
  * Creates and initializes the main application browser window.
  */
 async function createWindow(): Promise<void> {
-    const iconPath = path.join(__dirname, "assets", "logo.png");
-    const window = new BrowserWindow({
+    const ICON_PATH = path.join(__dirname, "assets", "logo.png");
+    const WINDOW = new BrowserWindow({
         height: 1100,
-        icon: iconPath,
+        icon: ICON_PATH,
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
         },
         width: 1800,
     });
-    setZoomFactor(window.webContents, initialZoomFactor());
-    await window.loadFile(path.join(__dirname, "index.html"));
+    setZoomFactor(WINDOW.webContents, initialZoomFactor());
+    await WINDOW.loadFile(path.join(__dirname, "index.html"));
 }
 
 /**

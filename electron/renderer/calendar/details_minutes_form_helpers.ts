@@ -23,11 +23,11 @@ function inputValue(inputNode: HTMLInputElement): string {
  * @returns Normalized minutes used in summary label.
  */
 function summaryValueFromInput(rawValue: string): number {
-    const parsed = parseOptionalNumber(rawValue);
-    if (parsed === null) {
+    const PARSED = parseOptionalNumber(rawValue);
+    if (PARSED === null) {
         return MINUTES_MIN;
     }
-    return normalizedManualMinutes(parsed);
+    return normalizedManualMinutes(PARSED);
 }
 
 /**
@@ -49,12 +49,12 @@ function syncInputValue(
     inputNode: HTMLInputElement,
     nextValue?: number | null,
 ): string {
-    const nextInput = inputNode;
+    const NEXT_INPUT = inputNode;
     if (nextValue === null || nextValue === undefined) {
-        return String(nextInput.value).trim();
+        return String(NEXT_INPUT.value).trim();
     }
-    nextInput.value = String(nextValue);
-    return String(nextInput.value).trim();
+    NEXT_INPUT.value = String(nextValue);
+    return String(NEXT_INPUT.value).trim();
 }
 
 /**
@@ -70,8 +70,8 @@ export function minPlannedMinutes(): number {
  * @returns Formatted summary text.
  */
 export function plannedMinutesSummaryText(minutes: number): string {
-    const normalizedMinutes = normalizedManualMinutes(minutes);
-    return `${normalizedMinutes} minutes`;
+    const NORMALIZED_MINUTES = normalizedManualMinutes(minutes);
+    return `${NORMALIZED_MINUTES} minutes`;
 }
 
 /**
@@ -110,12 +110,12 @@ export function syncEditorVisibility(
     editButton: HTMLButtonElement,
     isOpen: boolean,
 ): void {
-    const nextMinutesForm = minutesForm;
-    const nextSummaryRow = summaryRow;
-    const nextEditButton = editButton;
-    nextMinutesForm.hidden = !isOpen;
-    nextSummaryRow.hidden = !minutesSummaryVisible(isOpen);
-    nextEditButton.hidden = isOpen;
+    const NEXT_MINUTES_FORM = minutesForm;
+    const NEXT_SUMMARY_ROW = summaryRow;
+    const NEXT_EDIT_BUTTON = editButton;
+    NEXT_MINUTES_FORM.hidden = !isOpen;
+    NEXT_SUMMARY_ROW.hidden = !minutesSummaryVisible(isOpen);
+    NEXT_EDIT_BUTTON.hidden = isOpen;
 }
 /**
  * Updates planned-minutes summary text from input value.
@@ -126,8 +126,8 @@ export function syncSummaryText(
     summaryNode: HTMLElement,
     minutesValue: string,
 ): void {
-    const nextSummaryNode = summaryNode;
-    nextSummaryNode.textContent = plannedMinutesSummaryText(
+    const NEXT_SUMMARY_NODE = summaryNode;
+    NEXT_SUMMARY_NODE.textContent = plannedMinutesSummaryText(
         summaryValueFromInput(minutesValue),
     );
 }
@@ -154,24 +154,24 @@ export function submitMinutesUpdate(args: SubmitMinutesUpdateArgs): {
         initialMinutesValue,
     } = args;
     event.preventDefault();
-    const currentMinutesValue = inputValue(minutesInput);
-    if (currentMinutesValue === initialMinutesValue) {
+    const CURRENT_MINUTES_VALUE = inputValue(minutesInput);
+    if (CURRENT_MINUTES_VALUE === initialMinutesValue) {
         return { applied: false, initialMinutesValue };
     }
-    const changedMinutes = changedNumberValue(minutesInput);
-    if (changedMinutes === null) {
+    const CHANGED_MINUTES = changedNumberValue(minutesInput);
+    if (CHANGED_MINUTES === null) {
         minutesInput.value = initialMinutesValue;
         return { applied: false, initialMinutesValue };
     }
-    const nextMinutes = normalizedManualMinutes(changedMinutes);
-    const applied = interactionHandlers.onSessionMinutesUpdated({
-        minutes: nextMinutes,
+    const NEXT_MINUTES = normalizedManualMinutes(CHANGED_MINUTES);
+    const APPLIED = interactionHandlers.onSessionMinutesUpdated({
+        minutes: NEXT_MINUTES,
         row,
     });
-    if (!applied) {
+    if (!APPLIED) {
         minutesInput.value = initialMinutesValue;
         return { applied: false, initialMinutesValue };
     }
-    const nextValue = syncInputValue(minutesInput, nextMinutes);
-    return { applied: true, initialMinutesValue: nextValue };
+    const NEXT_VALUE = syncInputValue(minutesInput, NEXT_MINUTES);
+    return { applied: true, initialMinutesValue: NEXT_VALUE };
 }

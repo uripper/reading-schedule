@@ -49,8 +49,8 @@ function applyNextResult(
     args: SharedUpdateArgs,
     nextResult: PlannerResult,
 ): void {
-    const nextState = args.state;
-    nextState.lastResult = nextResult;
+    const NEXT_STATE = args.state;
+    NEXT_STATE.lastResult = nextResult;
     args.setLastResult(nextResult);
     args.setBookScheduleRows(nextResult.schedule);
     args.renderCalendar(
@@ -80,62 +80,66 @@ export function addManualSessionRow({
     minutes,
     ...args
 }: AddManualSessionArgs): boolean {
-    const runtimeState = args.state;
-    const normalizedDate = String(date).trim();
-    if (!normalizedDate) {
+    const RUNTIME_STATE = args.state;
+    const NORMALIZED_DATE = String(date).trim();
+    if (!NORMALIZED_DATE) {
         args.setStatus("Choose a calendar day before adding a session.", true);
         return false;
     }
-    const book = getBookById(bookId);
-    if (!book) {
+    const BOOK = getBookById(bookId);
+    if (!BOOK) {
         args.setStatus("Could not find that book.", true);
         return false;
     }
-    const previousResult = runtimeState.lastResult ?? emptyPlannerResult();
-    const previousRows = previousResult.schedule;
-    const sessionIndex = nextSessionIndexForDate(normalizedDate, previousRows);
-    const normalizedMinutes = normalizedManualMinutes(minutes);
-    const wordsPlanned = wordsPlannedForManualSession({
-        bookId: book.book_id,
-        difficulty: Number(book.difficulty),
-        minutes: normalizedMinutes,
-        rows: previousRows,
+    const PREVIOUS_RESULT = RUNTIME_STATE.lastResult ?? emptyPlannerResult();
+    const PREVIOUS_ROWS = PREVIOUS_RESULT.schedule;
+    const SESSION_INDEX = nextSessionIndexForDate(
+        NORMALIZED_DATE,
+        PREVIOUS_ROWS,
+    );
+    const NORMALIZED_MINUTES = normalizedManualMinutes(minutes);
+    const WORDS_PLANNED = wordsPlannedForManualSession({
+        bookId: BOOK.book_id,
+        difficulty: Number(BOOK.difficulty),
+        minutes: NORMALIZED_MINUTES,
+        rows: PREVIOUS_ROWS,
         settings: collectSettings(),
     });
-    const addedRow: PlannerScheduleRow = {
-        book_id: book.book_id,
-        date: normalizedDate,
-        minutes: normalizedMinutes,
-        session_index: sessionIndex,
-        title: book.title,
-        words_planned: wordsPlanned,
+    const ADDED_ROW: PlannerScheduleRow = {
+        book_id: BOOK.book_id,
+        date: NORMALIZED_DATE,
+        minutes: NORMALIZED_MINUTES,
+        session_index: SESSION_INDEX,
+        title: BOOK.title,
+        words_planned: WORDS_PLANNED,
     };
-    const nextResult = nextResultWithRows(previousResult, [
-        ...previousRows,
-        addedRow,
+    const NEXT_RESULT = nextResultWithRows(PREVIOUS_RESULT, [
+        ...PREVIOUS_ROWS,
+        ADDED_ROW,
     ]);
-    applyNextResult(args, nextResult);
+    applyNextResult(args, NEXT_RESULT);
     args.applyStateMutation({
         blocked: false,
-        key: dayBookCompletionKey(addedRow.date, addedRow.book_id),
+        key: dayBookCompletionKey(ADDED_ROW.date, ADDED_ROW.book_id),
         type: "set_blocked_day_book",
     });
     if (completed) {
-        const nextCompletions = {
-            ...runtimeState.scheduleCompletions,
+        const NEXT_COMPLETIONS = {
+            ...RUNTIME_STATE.scheduleCompletions,
         };
-        nextCompletions[sessionKeyFor(addedRow)] = true;
-        nextCompletions[dayBookCompletionKey(addedRow.date, addedRow.book_id)] =
-            true;
+        NEXT_COMPLETIONS[sessionKeyFor(ADDED_ROW)] = true;
+        NEXT_COMPLETIONS[
+            dayBookCompletionKey(ADDED_ROW.date, ADDED_ROW.book_id)
+        ] = true;
         args.applyStateMutation({
-            scheduleCompletions: nextCompletions,
+            scheduleCompletions: NEXT_COMPLETIONS,
             type: "set_schedule_completions",
         });
     }
     args.queuePersist();
     args.onScheduleRowsUpdated();
     args.setStatus(
-        `Added ${normalizedMinutes} minute session for "${addedRow.title}" on ${normalizedDate}.`,
+        `Added ${NORMALIZED_MINUTES} minute session for "${ADDED_ROW.title}" on ${NORMALIZED_DATE}.`,
     );
     return true;
 }
@@ -148,21 +152,21 @@ export function addManualSessionRow({
  * @returns `true` when a session is removed; otherwise `false` after setting an error status.
  */
 export function removeSessionRow({ row, ...args }: RemoveSessionArgs): boolean {
-    const runtimeState = args.state;
-    const previousResult = runtimeState.lastResult ?? emptyPlannerResult();
-    const previousRows = previousResult.schedule;
-    const targetSessionKey = sessionKeyFor(row);
-    const nextRows = rowsWithoutSession(targetSessionKey, previousRows);
-    if (nextRows.length === previousRows.length) {
+    const RUNTIME_STATE = args.state;
+    const PREVIOUS_RESULT = RUNTIME_STATE.lastResult ?? emptyPlannerResult();
+    const PREVIOUS_ROWS = PREVIOUS_RESULT.schedule;
+    const TARGET_SESSION_KEY = sessionKeyFor(row);
+    const NEXT_ROWS = rowsWithoutSession(TARGET_SESSION_KEY, PREVIOUS_ROWS);
+    if (NEXT_ROWS.length === PREVIOUS_ROWS.length) {
         args.setStatus("Could not find that session to remove.", true);
         return false;
     }
-    const nextCompletions = pruneScheduleCompletions(
-        runtimeState.scheduleCompletions,
-        nextRows,
+    const NEXT_COMPLETIONS = pruneScheduleCompletions(
+        RUNTIME_STATE.scheduleCompletions,
+        NEXT_ROWS,
     );
     args.applyStateMutation({
-        scheduleCompletions: nextCompletions,
+        scheduleCompletions: NEXT_COMPLETIONS,
         type: "set_schedule_completions",
     });
     args.applyStateMutation({
@@ -170,8 +174,8 @@ export function removeSessionRow({ row, ...args }: RemoveSessionArgs): boolean {
         key: dayBookCompletionKey(row.date, row.book_id),
         type: "set_blocked_day_book",
     });
-    const nextResult = nextResultWithRows(previousResult, nextRows);
-    applyNextResult(args, nextResult);
+    const NEXT_RESULT = nextResultWithRows(PREVIOUS_RESULT, NEXT_ROWS);
+    applyNextResult(args, NEXT_RESULT);
     args.queuePersist();
     args.onScheduleRowsUpdated();
     args.setStatus(`Removed session for "${row.title}" on ${row.date}.`);
@@ -195,25 +199,25 @@ export function updateSessionRowMinutes({
     row,
     ...args
 }: UpdateSessionMinutesArgs): boolean {
-    const previousResult = args.state.lastResult ?? emptyPlannerResult();
-    const previousRows = previousResult.schedule;
-    const updatedRows = nextRowsWithUpdatedMinutes({
+    const PREVIOUS_RESULT = args.state.lastResult ?? emptyPlannerResult();
+    const PREVIOUS_ROWS = PREVIOUS_RESULT.schedule;
+    const UPDATED_ROWS = nextRowsWithUpdatedMinutes({
         collectSettings,
         getBookById,
         minutes,
-        previousRows,
+        previousRows: PREVIOUS_ROWS,
         row,
     });
-    if (!updatedRows) {
+    if (!UPDATED_ROWS) {
         args.setStatus("Could not find that session to update.", true);
         return false;
     }
-    const nextResult = nextResultWithRows(previousResult, updatedRows.rows);
-    applyNextResult(args, nextResult);
+    const NEXT_RESULT = nextResultWithRows(PREVIOUS_RESULT, UPDATED_ROWS.rows);
+    applyNextResult(args, NEXT_RESULT);
     args.queuePersist();
     args.onScheduleRowsUpdated();
     args.setStatus(
-        `Updated "${row.title}" to ${updatedRows.normalizedMinutes} planned minutes.`,
+        `Updated "${row.title}" to ${UPDATED_ROWS.normalizedMinutes} planned minutes.`,
     );
     return true;
 }

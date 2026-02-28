@@ -8,12 +8,12 @@ const NO_ACTIVE_INDEX = -1;
  * @returns Display label combining title and author when available.
  */
 export function optionLabel(book: Book): string {
-    const title = String(book.title || "Untitled");
-    const author = String(book.author || "").trim();
-    if (!author) {
-        return title;
+    const TITLE = String(book.title || "Untitled");
+    const AUTHOR = String(book.author || "").trim();
+    if (!AUTHOR) {
+        return TITLE;
     }
-    return `${title} - ${author}`;
+    return `${TITLE} - ${AUTHOR}`;
 }
 
 /**
@@ -23,13 +23,13 @@ export function optionLabel(book: Book): string {
  * @returns Locale compare result.
  */
 export function compareBooks(left: Book, right: Book): number {
-    const titleCompare = String(left.title || "").localeCompare(
+    const TITLE_COMPARE = String(left.title || "").localeCompare(
         String(right.title || ""),
         undefined,
         { sensitivity: "base" },
     );
-    if (titleCompare !== 0) {
-        return titleCompare;
+    if (TITLE_COMPARE !== 0) {
+        return TITLE_COMPARE;
     }
     return String(left.author || "").localeCompare(
         String(right.author || ""),

@@ -44,10 +44,10 @@ export async function saveStateSafe(
     addLog: AddLog,
 ): Promise<boolean> {
     try {
-        const result = await plannerApi.saveState(payload);
-        if (result.ok === false) {
+        const RESULT = await plannerApi.saveState(payload);
+        if (RESULT.ok === false) {
             addLog(
-                `Save failed: ${result.error ?? "Unknown state persistence error"}`,
+                `Save failed: ${RESULT.error ?? "Unknown state persistence error"}`,
             );
             return false;
         }

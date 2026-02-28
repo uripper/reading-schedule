@@ -9,20 +9,20 @@ export function renderDayOffs(
     dayOffs: string[],
     setDayOffs: (nextDayOffs: string[]) => void,
 ): void {
-    const list = el("dayOffList");
-    const buttons = dayOffs.map((day) => {
-        const button = document.createElement("button");
-        button.className = "chip-btn";
-        button.type = "button";
-        button.dataset.day = day;
-        button.textContent = `${day} x`;
-        button.onclick = () => {
-            const next = dayOffs.filter((value) => value !== day);
-            setDayOffs(next);
+    const LIST = el("dayOffList");
+    const BUTTONS = dayOffs.map((day) => {
+        const BUTTON = document.createElement("button");
+        BUTTON.className = "chip-btn";
+        BUTTON.type = "button";
+        BUTTON.dataset.day = day;
+        BUTTON.textContent = `${day} x`;
+        BUTTON.onclick = () => {
+            const NEXT = dayOffs.filter((value) => value !== day);
+            setDayOffs(NEXT);
         };
-        return button;
+        return BUTTON;
     });
-    list.replaceChildren(...buttons);
+    LIST.replaceChildren(...BUTTONS);
 }
 
 /**
@@ -35,14 +35,14 @@ export function bindDayOffAddButton(
     setDayOffs: (nextDayOffs: string[]) => void,
 ): void {
     el<HTMLButtonElement>("addDayOffBtn").onclick = () => {
-        const selectedDay = el<HTMLInputElement>("dayOffPicker").value;
-        const existing = getDayOffs();
-        if (!selectedDay || existing.includes(selectedDay)) {
+        const SELECTED_DAY = el<HTMLInputElement>("dayOffPicker").value;
+        const EXISTING = getDayOffs();
+        if (!SELECTED_DAY || EXISTING.includes(SELECTED_DAY)) {
             return;
         }
-        const sorted = [...existing, selectedDay].sort((left, right) =>
+        const SORTED = [...EXISTING, SELECTED_DAY].sort((left, right) =>
             left.localeCompare(right),
         );
-        setDayOffs(sorted);
+        setDayOffs(SORTED);
     };
 }

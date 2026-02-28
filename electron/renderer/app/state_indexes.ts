@@ -14,15 +14,15 @@ const COMPLETION_KEY_PART_SESSION = 3;
  * @returns Map of book id to book payload.
  */
 export function bookByIdIndex(books: Book[] = []): Map<string, Book> {
-    const byId = new Map<string, Book>();
+    const BY_ID = new Map<string, Book>();
     books.forEach((book) => {
-        const bookId = String(book.book_id || "").trim();
-        if (!bookId) {
+        const BOOK_ID = String(book.book_id || "").trim();
+        if (!BOOK_ID) {
             return;
         }
-        byId.set(bookId, book);
+        BY_ID.set(BOOK_ID, book);
     });
-    return byId;
+    return BY_ID;
 }
 
 /**
@@ -33,20 +33,20 @@ export function bookByIdIndex(books: Book[] = []): Map<string, Book> {
 export function sessionsByDayIndex(
     sessions: Session[] = [],
 ): Map<string, Session[]> {
-    const byDay = new Map<string, Session[]>();
+    const BY_DAY = new Map<string, Session[]>();
     sessions.forEach((session) => {
-        const dayKey = isoLocalDayKey(session.ended_at);
-        if (!dayKey) {
+        const DAY_KEY = isoLocalDayKey(session.ended_at);
+        if (!DAY_KEY) {
             return;
         }
-        const grouped = byDay.get(dayKey);
-        if (grouped) {
-            grouped.push(session);
+        const GROUPED = BY_DAY.get(DAY_KEY);
+        if (GROUPED) {
+            GROUPED.push(session);
             return;
         }
-        byDay.set(dayKey, [session]);
+        BY_DAY.set(DAY_KEY, [session]);
     });
-    return byDay;
+    return BY_DAY;
 }
 
 /**
@@ -57,20 +57,20 @@ export function sessionsByDayIndex(
 export function sessionsByBookIndex(
     sessions: Session[] = [],
 ): Map<string, Session[]> {
-    const byBook = new Map<string, Session[]>();
+    const BY_BOOK = new Map<string, Session[]>();
     sessions.forEach((session) => {
-        const bookId = String(session.book_id || "").trim();
-        if (!bookId) {
+        const BOOK_ID = String(session.book_id || "").trim();
+        if (!BOOK_ID) {
             return;
         }
-        const grouped = byBook.get(bookId);
-        if (grouped) {
-            grouped.push(session);
+        const GROUPED = BY_BOOK.get(BOOK_ID);
+        if (GROUPED) {
+            GROUPED.push(session);
             return;
         }
-        byBook.set(bookId, [session]);
+        BY_BOOK.set(BOOK_ID, [session]);
     });
-    return byBook;
+    return BY_BOOK;
 }
 
 /**
@@ -84,19 +84,22 @@ export function splitCompletionIndexes(
     AppDerivedIndexes,
     "completionBySessionKey" | "completionByDayBookKey"
 > {
-    const completionBySessionKey: Record<string, boolean> = {};
-    const completionByDayBookKey: Record<string, boolean> = {};
+    const COMPLETION_BY_SESSION_KEY: Record<string, boolean> = {};
+    const COMPLETION_BY_DAY_BOOK_KEY: Record<string, boolean> = {};
     Object.entries(scheduleCompletions).forEach(([key, value]) => {
-        const parts = key.split("|");
-        if (parts.length === COMPLETION_KEY_PART_SESSION) {
-            completionBySessionKey[key] = Boolean(value);
+        const PARTS = key.split("|");
+        if (PARTS.length === COMPLETION_KEY_PART_SESSION) {
+            COMPLETION_BY_SESSION_KEY[key] = Boolean(value);
             return;
         }
-        if (parts.length === COMPLETION_KEY_PART_DAY_BOOK) {
-            completionByDayBookKey[key] = Boolean(value);
+        if (PARTS.length === COMPLETION_KEY_PART_DAY_BOOK) {
+            COMPLETION_BY_DAY_BOOK_KEY[key] = Boolean(value);
         }
     });
-    return { completionByDayBookKey, completionBySessionKey };
+    return {
+        completionByDayBookKey: COMPLETION_BY_DAY_BOOK_KEY,
+        completionBySessionKey: COMPLETION_BY_SESSION_KEY,
+    };
 }
 
 /**

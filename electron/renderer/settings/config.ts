@@ -1,6 +1,6 @@
 export { fields } from "./config_fields.js";
 
-export const weekdays: Array<[string, string]> = [
+export const weekdays: [string, string][] = [
     ["Mon", "Monday"],
     ["Tue", "Tuesday"],
     ["Wed", "Wednesday"],

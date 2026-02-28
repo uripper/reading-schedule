@@ -10,9 +10,9 @@ import {
  * @returns Positive integer text with fallback of `"10"`.
  */
 export function minuteValueForManualInput(defaultMinutes?: number): string {
-    const parsed = Number(defaultMinutes ?? 0);
-    if (Number.isFinite(parsed) && parsed > 0) {
-        return String(Math.max(1, Math.round(parsed)));
+    const PARSED = Number(defaultMinutes ?? 0);
+    if (Number.isFinite(PARSED) && PARSED > 0) {
+        return String(Math.max(1, Math.round(PARSED)));
     }
     return "10";
 }
@@ -44,11 +44,11 @@ export function booksMatchingTitleQuery(
     books: ManualSessionBook[],
     query: string,
 ): ManualSessionBook[] {
-    const normalizedQuery = normalizeTitleFilterQuery(query);
-    if (normalizedQuery === "") {
+    const NORMALIZED_QUERY = normalizeTitleFilterQuery(query);
+    if (NORMALIZED_QUERY === "") {
         return [...books];
     }
     return books.filter((book) => {
-        return titleMatchesNormalizedQuery(book.title, normalizedQuery);
+        return titleMatchesNormalizedQuery(book.title, NORMALIZED_QUERY);
     });
 }

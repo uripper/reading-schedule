@@ -8,10 +8,10 @@ import { GROUP_OPTIONS_BASE, SORT_OPTIONS } from "./toolbar_options.js";
  * @returns Configured option node.
  */
 function createOptionNode(value: string, label: string): HTMLOptionElement {
-    const option = document.createElement("option");
-    option.value = value;
-    option.textContent = label;
-    return option;
+    const OPTION = document.createElement("option");
+    OPTION.value = value;
+    OPTION.textContent = label;
+    return OPTION;
 }
 
 /**
@@ -26,17 +26,17 @@ function createLabeledSelect(
     selectId: string,
     options: OptionDefinition[],
 ): { label: HTMLLabelElement; select: HTMLSelectElement } {
-    const label = document.createElement("label");
-    label.className = "books-control";
-    label.textContent = labelText;
-    const select = document.createElement("select");
-    select.id = selectId;
-    select.className = "books-control-select";
+    const LABEL = document.createElement("label");
+    LABEL.className = "books-control";
+    LABEL.textContent = labelText;
+    const SELECT = document.createElement("select");
+    SELECT.id = selectId;
+    SELECT.className = "books-control-select";
     options.forEach((option) => {
-        select.append(createOptionNode(option.value, option.label));
+        SELECT.append(createOptionNode(option.value, option.label));
     });
-    label.append(select);
-    return { label, select };
+    LABEL.append(SELECT);
+    return { label: LABEL, select: SELECT };
 }
 
 /**
@@ -49,17 +49,17 @@ function createLabeledSearchInput(
     labelText: string,
     inputId: string,
 ): { label: HTMLLabelElement; input: HTMLInputElement } {
-    const label = document.createElement("label");
-    label.className = "books-control books-control-search";
-    label.textContent = labelText;
-    const input = document.createElement("input");
-    input.type = "search";
-    input.id = inputId;
-    input.autocomplete = "off";
-    input.className = "books-control-input";
-    input.placeholder = "Type a title";
-    label.append(input);
-    return { input, label };
+    const LABEL = document.createElement("label");
+    LABEL.className = "books-control books-control-search";
+    LABEL.textContent = labelText;
+    const INPUT = document.createElement("input");
+    INPUT.type = "search";
+    INPUT.id = inputId;
+    INPUT.autocomplete = "off";
+    INPUT.className = "books-control-input";
+    INPUT.placeholder = "Type a title";
+    LABEL.append(INPUT);
+    return { input: INPUT, label: LABEL };
 }
 
 /**
@@ -68,14 +68,14 @@ function createLabeledSearchInput(
  * @returns Existing or newly created controls wrapper.
  */
 function createControlsWrap(toolbar: HTMLElement): HTMLElement {
-    const existing = toolbar.querySelector<HTMLElement>(".books-controls");
-    if (existing instanceof HTMLElement) {
-        return existing;
+    const EXISTING = toolbar.querySelector<HTMLElement>(".books-controls");
+    if (EXISTING instanceof HTMLElement) {
+        return EXISTING;
     }
-    const wrap = document.createElement("div");
-    wrap.className = "row wrap-row books-controls";
-    toolbar.append(wrap);
-    return wrap;
+    const WRAP = document.createElement("div");
+    WRAP.className = "row wrap-row books-controls";
+    toolbar.append(WRAP);
+    return WRAP;
 }
 
 /**
@@ -101,41 +101,41 @@ export function ensureBooksToolbarControls(toolbar: HTMLElement): {
     statusFilterSelect: HTMLSelectElement;
     titleFilterInput: HTMLInputElement;
 } {
-    const wrap = createControlsWrap(toolbar);
-    const titleFilter = createLabeledSearchInput(
+    const WRAP = createControlsWrap(toolbar);
+    const TITLE_FILTER = createLabeledSearchInput(
         "Title",
         "booksTitleFilterInput",
     );
-    const shelf = createLabeledSelect("Shelf", "booksShelfFilterSelect", []);
-    const status = createLabeledSelect("Status", "booksStatusFilterSelect", []);
-    const sortBy = createLabeledSelect(
+    const SHELF = createLabeledSelect("Shelf", "booksShelfFilterSelect", []);
+    const STATUS = createLabeledSelect("Status", "booksStatusFilterSelect", []);
+    const SORT_BY = createLabeledSelect(
         "Sort",
         "booksSortBySelect",
         SORT_OPTIONS,
     );
-    const groupBy = createLabeledSelect(
+    const GROUP_BY = createLabeledSelect(
         "Group By",
         "booksGroupBySelect",
         GROUP_OPTIONS_BASE,
     );
-    const sortDirectionBtn = document.createElement("button");
-    sortDirectionBtn.type = "button";
-    sortDirectionBtn.className = "btn";
-    sortDirectionBtn.id = "booksSortDirectionBtn";
-    wrap.replaceChildren(
-        titleFilter.label,
-        shelf.label,
-        status.label,
-        sortBy.label,
-        groupBy.label,
-        sortDirectionBtn,
+    const SORT_DIRECTION_BTN = document.createElement("button");
+    SORT_DIRECTION_BTN.type = "button";
+    SORT_DIRECTION_BTN.className = "btn";
+    SORT_DIRECTION_BTN.id = "booksSortDirectionBtn";
+    WRAP.replaceChildren(
+        TITLE_FILTER.label,
+        SHELF.label,
+        STATUS.label,
+        SORT_BY.label,
+        GROUP_BY.label,
+        SORT_DIRECTION_BTN,
     );
     return {
-        groupBySelect: groupBy.select,
-        shelfFilterSelect: shelf.select,
-        sortBySelect: sortBy.select,
-        sortDirectionBtn,
-        statusFilterSelect: status.select,
-        titleFilterInput: titleFilter.input,
+        groupBySelect: GROUP_BY.select,
+        shelfFilterSelect: SHELF.select,
+        sortBySelect: SORT_BY.select,
+        sortDirectionBtn: SORT_DIRECTION_BTN,
+        statusFilterSelect: STATUS.select,
+        titleFilterInput: TITLE_FILTER.input,
     };
 }

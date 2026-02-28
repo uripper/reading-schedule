@@ -46,27 +46,27 @@ export function clearForm(
     refs: BookFormRefs,
     lookupControl: LookupControl,
 ): void {
-    const formRefs = refs;
-    formRefs.form.reset();
-    formRefs.bookId.value = "";
-    formRefs.coverUrl.value = "";
-    formRefs.coverLocal.value = "";
-    formRefs.coverUploadInput.value = "";
-    formRefs.author.value = "";
-    formRefs.lookupMeta.dataset.lookupNote = "";
-    formRefs.lookupMeta.textContent = "";
-    formRefs.progressInput.value = DEFAULT_PROGRESS;
-    formRefs.priorityInput.value = DEFAULT_PRIORITY;
-    formRefs.difficultyInput.value = DEFAULT_DIFFICULTY;
-    formRefs.minBlocksInput.value = DEFAULT_MIN_BLOCKS;
-    formRefs.afterBookInput.value = "";
-    formRefs.blockedByInput.value = "";
-    formRefs.statusSelectInput.value = DEFAULT_STATUS;
-    formRefs.finishedAtInput.value = "";
-    syncFinishedAtFieldState(formRefs);
-    formRefs.shelfSelectInput.value = "";
-    resetScheduledDayControls(formRefs);
-    setCoverPreview(formRefs, "");
+    const FORM_REFS = refs;
+    FORM_REFS.form.reset();
+    FORM_REFS.bookId.value = "";
+    FORM_REFS.coverUrl.value = "";
+    FORM_REFS.coverLocal.value = "";
+    FORM_REFS.coverUploadInput.value = "";
+    FORM_REFS.author.value = "";
+    FORM_REFS.lookupMeta.dataset.lookupNote = "";
+    FORM_REFS.lookupMeta.textContent = "";
+    FORM_REFS.progressInput.value = DEFAULT_PROGRESS;
+    FORM_REFS.priorityInput.value = DEFAULT_PRIORITY;
+    FORM_REFS.difficultyInput.value = DEFAULT_DIFFICULTY;
+    FORM_REFS.minBlocksInput.value = DEFAULT_MIN_BLOCKS;
+    FORM_REFS.afterBookInput.value = "";
+    FORM_REFS.blockedByInput.value = "";
+    FORM_REFS.statusSelectInput.value = DEFAULT_STATUS;
+    FORM_REFS.finishedAtInput.value = "";
+    syncFinishedAtFieldState(FORM_REFS);
+    FORM_REFS.shelfSelectInput.value = "";
+    resetScheduledDayControls(FORM_REFS);
+    setCoverPreview(FORM_REFS, "");
     lookupControl.clearResults();
 }
 
@@ -76,48 +76,48 @@ export function clearForm(
  * @param book Existing book record being edited.
  */
 export function fillForm(refs: BookFormRefs, book: Book): void {
-    const formRefs = refs;
-    formRefs.bookId.value = book.book_id;
-    formRefs.titleInput.value = fallbackText(book.title);
-    setOptionalIntegerInputValue(formRefs.wordsInput, book.words_total);
-    setOptionalIntegerInputValue(formRefs.pagesTotalInput, book.pages_total);
-    setOptionalIntegerInputValue(formRefs.pagesReadInput, book.pages_read);
-    formRefs.progressInput.value = fallbackNumberText(
+    const FORM_REFS = refs;
+    FORM_REFS.bookId.value = book.book_id;
+    FORM_REFS.titleInput.value = fallbackText(book.title);
+    setOptionalIntegerInputValue(FORM_REFS.wordsInput, book.words_total);
+    setOptionalIntegerInputValue(FORM_REFS.pagesTotalInput, book.pages_total);
+    setOptionalIntegerInputValue(FORM_REFS.pagesReadInput, book.pages_read);
+    FORM_REFS.progressInput.value = fallbackNumberText(
         book.progress_percent,
         DEFAULT_PROGRESS,
     );
-    formRefs.priorityInput.value = fallbackNumberText(
+    FORM_REFS.priorityInput.value = fallbackNumberText(
         book.priority,
         DEFAULT_PRIORITY,
     );
-    formRefs.difficultyInput.value = fallbackNumberText(
+    FORM_REFS.difficultyInput.value = fallbackNumberText(
         book.difficulty,
         DEFAULT_DIFFICULTY,
     );
-    formRefs.minBlocksInput.value = fallbackNumberText(
+    FORM_REFS.minBlocksInput.value = fallbackNumberText(
         book.min_blocks_per_session,
         DEFAULT_MIN_BLOCKS,
     );
     setOptionalIntegerInputValue(
-        formRefs.maxMinutesInput,
+        FORM_REFS.maxMinutesInput,
         book.max_minutes_per_day,
     );
-    formRefs.deadlineInput.value = fallbackText(book.deadline);
-    formRefs.blockedByInput.value = fallbackText(book.blocked_by);
-    formRefs.statusSelectInput.value = fallbackText(
+    FORM_REFS.deadlineInput.value = fallbackText(book.deadline);
+    FORM_REFS.blockedByInput.value = fallbackText(book.blocked_by);
+    FORM_REFS.statusSelectInput.value = fallbackText(
         book.status,
         DEFAULT_STATUS,
     );
-    formRefs.finishedAtInput.value = fallbackText(book.finished_at);
-    syncFinishedAtFieldState(formRefs);
-    fillScheduledDayControls(formRefs, book.scheduled_days);
-    formRefs.coverUrl.value = fallbackText(book.cover_url);
-    formRefs.coverLocal.value = fallbackText(book.cover_local_path);
-    formRefs.author.value = fallbackText(book.author);
-    formRefs.lookupMeta.dataset.lookupNote = fallbackText(book.lookup_note);
-    formRefs.lookupMeta.textContent = fallbackText(book.lookup_note);
-    formRefs.searchInput.value = fallbackText(book.title);
-    setCoverPreview(formRefs, bookCoverSrc(book));
+    FORM_REFS.finishedAtInput.value = fallbackText(book.finished_at);
+    syncFinishedAtFieldState(FORM_REFS);
+    fillScheduledDayControls(FORM_REFS, book.scheduled_days);
+    FORM_REFS.coverUrl.value = fallbackText(book.cover_url);
+    FORM_REFS.coverLocal.value = fallbackText(book.cover_local_path);
+    FORM_REFS.author.value = fallbackText(book.author);
+    FORM_REFS.lookupMeta.dataset.lookupNote = fallbackText(book.lookup_note);
+    FORM_REFS.lookupMeta.textContent = fallbackText(book.lookup_note);
+    FORM_REFS.searchInput.value = fallbackText(book.title);
+    setCoverPreview(FORM_REFS, bookCoverSrc(book));
 }
 
 /**
@@ -126,19 +126,19 @@ export function fillForm(refs: BookFormRefs, book: Book): void {
  * @returns Normalized book model ready for save.
  */
 export function parseFormBook(refs: BookFormRefs): Book {
-    const parsed = deriveLengthAndProgress(refs);
-    const shelf = validatedShelfSelection(refs);
-    const status = validatedStatusSelection(refs);
-    const scheduledDays = readScheduledDaySelection(refs);
-    if (scheduledDays.length === 0) {
+    const PARSED = deriveLengthAndProgress(refs);
+    const SHELF = validatedShelfSelection(refs);
+    const STATUS = validatedStatusSelection(refs);
+    const SCHEDULED_DAYS = readScheduledDaySelection(refs);
+    if (SCHEDULED_DAYS.length === 0) {
         throw new Error("Select at least one scheduled day.");
     }
-    let { progress, pagesRead } = parsed;
+    let { progress, pagesRead } = PARSED;
 
-    if (status === BOOK_STATUS_READ) {
+    if (STATUS === BOOK_STATUS_READ) {
         progress = 100;
-        if (typeof parsed.pagesTotal === "number" && parsed.pagesTotal > 0) {
-            pagesRead = parsed.pagesTotal;
+        if (typeof PARSED.pagesTotal === "number" && PARSED.pagesTotal > 0) {
+            pagesRead = PARSED.pagesTotal;
         }
     }
 
@@ -157,14 +157,14 @@ export function parseFormBook(refs: BookFormRefs): Book {
             refs.minBlocksInput.value || DEFAULT_MIN_BLOCKS,
         ),
         pages_read: pagesRead,
-        pages_total: parsed.pagesTotal,
+        pages_total: PARSED.pagesTotal,
         priority: Number(refs.priorityInput.value || DEFAULT_PRIORITY),
         progress_percent: progress,
-        scheduled_days: scheduledDays,
-        shelf,
-        status,
+        scheduled_days: SCHEDULED_DAYS,
+        shelf: SHELF,
+        status: STATUS,
         title: requiredTitle(refs),
-        words_total: parsed.wordsTotal,
+        words_total: PARSED.wordsTotal,
     });
 }
 

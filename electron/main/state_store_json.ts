@@ -53,9 +53,9 @@ function objectState(value: unknown): LoadedPlannerState | null {
  */
 function readJsonObjectFile(filePath: string): LoadedPlannerState | null {
     try {
-        const text = stripUtf8Bom(fs.readFileSync(filePath, "utf8"));
-        const parsed = JSON.parse(text) as unknown;
-        return objectState(parsed);
+        const TEXT = stripUtf8Bom(fs.readFileSync(filePath, "utf8"));
+        const PARSED = JSON.parse(TEXT) as unknown;
+        return objectState(PARSED);
     } catch {
         return null;
     }
@@ -66,11 +66,11 @@ function readJsonObjectFile(filePath: string): LoadedPlannerState | null {
  * @param filePath Path to fsync.
  */
 function fsyncFile(filePath: string): void {
-    const file = fs.openSync(filePath, "r");
+    const FILE = fs.openSync(filePath, "r");
     try {
-        fs.fsyncSync(file);
+        fs.fsyncSync(FILE);
     } finally {
-        fs.closeSync(file);
+        fs.closeSync(FILE);
     }
 }
 
@@ -80,11 +80,11 @@ function fsyncFile(filePath: string): void {
  */
 function fsyncDirectory(dirPath: string): void {
     try {
-        const directory = fs.openSync(dirPath, "r");
+        const DIRECTORY = fs.openSync(dirPath, "r");
         try {
-            fs.fsyncSync(directory);
+            fs.fsyncSync(DIRECTORY);
         } finally {
-            fs.closeSync(directory);
+            fs.closeSync(DIRECTORY);
         }
     } catch {
         // Some platforms/filesystems do not support directory fsync.
@@ -99,22 +99,22 @@ function fsyncDirectory(dirPath: string): void {
 export function readStateFromJson(
     userDataDir: string,
 ): PlannerStateLoadResult | null {
-    const primaryPath = jsonStatePath(userDataDir);
-    const backupPath = jsonStateBackupPath(userDataDir);
-    const primary = readJsonObjectFile(primaryPath);
-    if (primary) {
+    const PRIMARY_PATH = jsonStatePath(userDataDir);
+    const BACKUP_PATH = jsonStateBackupPath(userDataDir);
+    const PRIMARY = readJsonObjectFile(PRIMARY_PATH);
+    if (PRIMARY) {
         return {
             source: "json_primary",
-            sourcePath: primaryPath,
-            state: primary,
+            sourcePath: PRIMARY_PATH,
+            state: PRIMARY,
         };
     }
-    const backup = readJsonObjectFile(backupPath);
-    if (backup) {
+    const BACKUP = readJsonObjectFile(BACKUP_PATH);
+    if (BACKUP) {
         return {
             source: "json_backup",
-            sourcePath: backupPath,
-            state: backup,
+            sourcePath: BACKUP_PATH,
+            state: BACKUP,
             warningCode: "RECOVERED_FROM_BACKUP",
             warningMessage:
                 "Recovered saved data from backup copy. Recent unsaved changes may be missing.",
@@ -133,26 +133,26 @@ export function writeStateToJson(
     userDataDir: string,
     data: JsonValue,
 ): PlannerSaveResult {
-    const primaryPath = jsonStatePath(userDataDir);
-    const backupPath = jsonStateBackupPath(userDataDir);
-    const tempPath = jsonStateTempPath(userDataDir);
+    const PRIMARY_PATH = jsonStatePath(userDataDir);
+    const BACKUP_PATH = jsonStateBackupPath(userDataDir);
+    const TEMP_PATH = jsonStateTempPath(userDataDir);
     try {
         fs.mkdirSync(userDataDir, { recursive: true });
-        fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), "utf8");
-        fsyncFile(tempPath);
-        if (fs.existsSync(primaryPath)) {
-            if (fs.existsSync(backupPath)) {
-                fs.unlinkSync(backupPath);
+        fs.writeFileSync(TEMP_PATH, JSON.stringify(data, null, 2), "utf8");
+        fsyncFile(TEMP_PATH);
+        if (fs.existsSync(PRIMARY_PATH)) {
+            if (fs.existsSync(BACKUP_PATH)) {
+                fs.unlinkSync(BACKUP_PATH);
             }
-            fs.renameSync(primaryPath, backupPath);
+            fs.renameSync(PRIMARY_PATH, BACKUP_PATH);
         }
-        fs.renameSync(tempPath, primaryPath);
+        fs.renameSync(TEMP_PATH, PRIMARY_PATH);
         fsyncDirectory(userDataDir);
         return { ok: true };
     } catch (error) {
-        if (fs.existsSync(tempPath)) {
+        if (fs.existsSync(TEMP_PATH)) {
             try {
-                fs.unlinkSync(tempPath);
+                fs.unlinkSync(TEMP_PATH);
             } catch {
                 // Best-effort cleanup.
             }

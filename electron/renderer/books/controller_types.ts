@@ -49,9 +49,9 @@ const GROUP_BY_OPTIONS: BookGroupBy[] = [
  * @returns Matching sort option or title sort when value is unsupported.
  */
 export function toSortBy(value: string): SortBy {
-    const matched = SORT_BY_OPTIONS.find((option) => option === value);
-    if (matched) {
-        return matched;
+    const MATCHED = SORT_BY_OPTIONS.find((option) => option === value);
+    if (MATCHED) {
+        return MATCHED;
     }
     return SORT_BY_TITLE;
 }
@@ -62,9 +62,9 @@ export function toSortBy(value: string): SortBy {
  * @returns Matching group option or no-group fallback when unsupported.
  */
 export function toGroupBy(value: string): BookGroupBy {
-    const matched = GROUP_BY_OPTIONS.find((option) => option === value);
-    if (matched) {
-        return matched;
+    const MATCHED = GROUP_BY_OPTIONS.find((option) => option === value);
+    if (MATCHED) {
+        return MATCHED;
     }
     return GROUP_BY_NONE;
 }

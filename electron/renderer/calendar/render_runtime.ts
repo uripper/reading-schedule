@@ -13,15 +13,15 @@ export function refreshDerivedRows(
     state: CalendarRuntimeState,
     isSessionCompleted: (sessionKey: string) => boolean,
 ): void {
-    const calendarState = state;
-    const enrichedRows = enrichRows(
-        calendarState.rawRows,
-        calendarState.totalsByBookId,
+    const CALENDAR_STATE = state;
+    const ENRICHED_ROWS = enrichRows(
+        CALENDAR_STATE.rawRows,
+        CALENDAR_STATE.totalsByBookId,
         isSessionCompleted,
     );
-    calendarState.rows = enrichedRows;
-    calendarState.dates = groupRowsByDate(enrichedRows);
-    calendarState.months = buildMonthWindow(monthKeysFromRows(enrichedRows));
+    CALENDAR_STATE.rows = ENRICHED_ROWS;
+    CALENDAR_STATE.dates = groupRowsByDate(ENRICHED_ROWS);
+    CALENDAR_STATE.months = buildMonthWindow(monthKeysFromRows(ENRICHED_ROWS));
 }
 
 /**

@@ -14,9 +14,9 @@ export function dayBookCompletionKey(rowDate: string, bookId: string): string {
  * @returns A day-book completion key in the format "YYYY-MM-DD|bookId" or an empty string if the input is invalid.
  */
 export function dayBookCompletionKeyFromSession(sessionKey: string): string {
-    const [date, , bookId] = String(sessionKey || "").split("|");
-    if (!date || !bookId) {
+    const [DATE, , BOOK_ID] = String(sessionKey || "").split("|");
+    if (!DATE || !BOOK_ID) {
         return "";
     }
-    return dayBookCompletionKey(date, bookId);
+    return dayBookCompletionKey(DATE, BOOK_ID);
 }

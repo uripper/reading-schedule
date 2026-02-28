@@ -14,23 +14,23 @@ const REMOVE_SESSION_LABEL = "Remove session";
  * @returns Base session item element.
  */
 export function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
-    const item = document.createElement("article");
-    item.className = "day-details-item";
+    const ITEM = document.createElement("article");
+    ITEM.className = "day-details-item";
     if (row.finish) {
-        item.classList.add("is-finish");
+        ITEM.classList.add("is-finish");
     }
-    const head = document.createElement("strong");
-    head.className = "day-session-title";
-    head.textContent = row.title;
+    const HEAD = document.createElement("strong");
+    HEAD.className = "day-session-title";
+    HEAD.textContent = row.title;
     if (row.finish) {
-        const finishBadge = document.createElement("span");
-        finishBadge.className = "day-finish-badge";
-        finishBadge.textContent = "Expected finish";
-        item.append(head, finishBadge);
+        const FINISH_BADGE = document.createElement("span");
+        FINISH_BADGE.className = "day-finish-badge";
+        FINISH_BADGE.textContent = "Expected finish";
+        ITEM.append(HEAD, FINISH_BADGE);
     } else {
-        item.append(head);
+        ITEM.append(HEAD);
     }
-    return item;
+    return ITEM;
 }
 
 /**
@@ -45,18 +45,18 @@ export function removeSessionButton(
     interactionHandlers: DetailInteractionHandlers,
     rerenderDetails: () => void,
 ): HTMLButtonElement {
-    const removeButton = document.createElement("button");
-    removeButton.type = "button";
-    removeButton.className = "btn-session-remove";
-    removeButton.textContent = "x";
-    removeButton.setAttribute("aria-label", REMOVE_SESSION_LABEL);
-    removeButton.title = REMOVE_SESSION_LABEL;
-    removeButton.onclick = () => {
-        const removed = interactionHandlers.onSessionRemoved({ row });
-        if (!removed) {
+    const REMOVE_BUTTON = document.createElement("button");
+    REMOVE_BUTTON.type = "button";
+    REMOVE_BUTTON.className = "btn-session-remove";
+    REMOVE_BUTTON.textContent = "x";
+    REMOVE_BUTTON.setAttribute("aria-label", REMOVE_SESSION_LABEL);
+    REMOVE_BUTTON.title = REMOVE_SESSION_LABEL;
+    REMOVE_BUTTON.onclick = () => {
+        const REMOVED = interactionHandlers.onSessionRemoved({ row });
+        if (!REMOVED) {
             return;
         }
         rerenderDetails();
     };
-    return removeButton;
+    return REMOVE_BUTTON;
 }

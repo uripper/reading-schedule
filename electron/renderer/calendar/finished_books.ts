@@ -11,13 +11,13 @@ import {
  * @returns Non-empty title text.
  */
 function completedBookTitle(bookTitle: string, fallbackTitle: string): string {
-    const normalizedBookTitle = bookTitle.trim();
-    if (normalizedBookTitle !== "") {
-        return normalizedBookTitle;
+    const NORMALIZED_BOOK_TITLE = bookTitle.trim();
+    if (NORMALIZED_BOOK_TITLE !== "") {
+        return NORMALIZED_BOOK_TITLE;
     }
-    const normalizedFallbackTitle = fallbackTitle.trim();
-    if (normalizedFallbackTitle !== "") {
-        return normalizedFallbackTitle;
+    const NORMALIZED_FALLBACK_TITLE = fallbackTitle.trim();
+    if (NORMALIZED_FALLBACK_TITLE !== "") {
+        return NORMALIZED_FALLBACK_TITLE;
     }
     return "Untitled";
 }
@@ -32,37 +32,37 @@ export function buildCompletedBookRowsByDate(
     sessionBooks: ManualSessionBook[],
     getBookById: (bookId: string) => BookFinishLookup | null,
 ): Record<string, CompletedBookRow[]> {
-    const rowsByDate: Record<string, CompletedBookRow[]> = {};
-    const seenBookIds = new Set<string>();
+    const ROWS_BY_DATE: Record<string, CompletedBookRow[]> = {};
+    const SEEN_BOOK_IDS = new Set<string>();
     sessionBooks.forEach((entry) => {
-        const bookId = entry.bookId.trim();
-        if (bookId === "") {
+        const BOOK_ID = entry.bookId.trim();
+        if (BOOK_ID === "") {
             return;
         }
-        if (seenBookIds.has(bookId)) {
+        if (SEEN_BOOK_IDS.has(BOOK_ID)) {
             return;
         }
-        seenBookIds.add(bookId);
-        const book = getBookById(bookId);
-        if (book === null) {
+        SEEN_BOOK_IDS.add(BOOK_ID);
+        const BOOK = getBookById(BOOK_ID);
+        if (BOOK === null) {
             return;
         }
-        const finishedAt = String(book.finished_at ?? "").trim();
-        if (finishedAt === "") {
+        const FINISHED_AT = String(BOOK.finished_at ?? "").trim();
+        if (FINISHED_AT === "") {
             return;
         }
-        if (!(finishedAt in rowsByDate)) {
-            rowsByDate[finishedAt] = [];
+        if (!(FINISHED_AT in ROWS_BY_DATE)) {
+            ROWS_BY_DATE[FINISHED_AT] = [];
         }
-        rowsByDate[finishedAt].push({
-            book_id: bookId,
-            date: finishedAt,
+        ROWS_BY_DATE[FINISHED_AT].push({
+            book_id: BOOK_ID,
+            date: FINISHED_AT,
             finish: true,
             minutes: 0,
-            title: completedBookTitle(book.title, entry.title),
+            title: completedBookTitle(BOOK.title, entry.title),
         });
     });
-    return rowsByDate;
+    return ROWS_BY_DATE;
 }
 
 /**
@@ -71,21 +71,21 @@ export function buildCompletedBookRowsByDate(
  * @returns Summary text or empty string when no titles exist.
  */
 export function finishedBooksSummaryText(rows: CompletedBookRow[]): string {
-    const seenTitles = new Set<string>();
-    const finishedTitles: string[] = [];
+    const SEEN_TITLES = new Set<string>();
+    const FINISHED_TITLES: string[] = [];
     rows.forEach((row) => {
-        const title = row.title.trim();
-        if (title === "") {
+        const TITLE = row.title.trim();
+        if (TITLE === "") {
             return;
         }
-        if (seenTitles.has(title)) {
+        if (SEEN_TITLES.has(TITLE)) {
             return;
         }
-        seenTitles.add(title);
-        finishedTitles.push(title);
+        SEEN_TITLES.add(TITLE);
+        FINISHED_TITLES.push(TITLE);
     });
-    if (finishedTitles.length === 0) {
+    if (FINISHED_TITLES.length === 0) {
         return "";
     }
-    return `Finished: ${finishedTitles.join(", ")}`;
+    return `Finished: ${FINISHED_TITLES.join(", ")}`;
 }

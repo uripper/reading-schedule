@@ -38,13 +38,13 @@ function minuteLabel(count: number): string {
 export function todaySessionCountsText(
     snapshot: TodayScheduleSnapshot,
 ): string {
-    const scheduled = snapshot.scheduledSessions;
-    if (!scheduled) {
+    const SCHEDULED = snapshot.scheduledSessions;
+    if (!SCHEDULED) {
         return "No sessions scheduled for today.";
     }
-    const completed = snapshot.completedSessions;
-    const label = sessionLabel(scheduled);
-    return `${completed} / ${scheduled} ${label} complete today`;
+    const COMPLETED = snapshot.completedSessions;
+    const LABEL = sessionLabel(SCHEDULED);
+    return `${COMPLETED} / ${SCHEDULED} ${LABEL} complete today`;
 }
 
 /**
@@ -53,8 +53,8 @@ export function todaySessionCountsText(
  * @returns Text like `1 / 3 sessions complete`.
  */
 export function perBookSessionText(summary: TodayBookSummary): string {
-    const label = sessionLabel(summary.scheduledSessions);
-    return `${summary.completedSessions} / ${summary.scheduledSessions} ${label} complete`;
+    const LABEL = sessionLabel(summary.scheduledSessions);
+    return `${summary.completedSessions} / ${summary.scheduledSessions} ${LABEL} complete`;
 }
 
 /**
@@ -63,8 +63,8 @@ export function perBookSessionText(summary: TodayBookSummary): string {
  * @returns Text like `25 minutes planned`.
  */
 export function plannedMinutesText(summary: TodayBookSummary): string {
-    const label = minuteLabel(summary.plannedMinutes);
-    return `${summary.plannedMinutes} ${label} planned`;
+    const LABEL = minuteLabel(summary.plannedMinutes);
+    return `${summary.plannedMinutes} ${LABEL} planned`;
 }
 
 /**
@@ -73,9 +73,9 @@ export function plannedMinutesText(summary: TodayBookSummary): string {
  * @returns Uppercase first character, or `No Cover` when unavailable.
  */
 export function coverFallbackText(title: string): string {
-    const trimmed = String(title || "").trim();
-    if (!trimmed) {
+    const TRIMMED = String(title || "").trim();
+    if (!TRIMMED) {
         return "No Cover";
     }
-    return trimmed.slice(0, SINGULAR_SESSION_COUNT).toUpperCase();
+    return TRIMMED.slice(0, SINGULAR_SESSION_COUNT).toUpperCase();
 }

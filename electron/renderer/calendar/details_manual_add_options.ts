@@ -10,10 +10,10 @@ const EMPTY_BOOK_OPTION_VALUE = "";
  * @returns Select option element.
  */
 function optionForBook(book: ManualSessionBook): HTMLOptionElement {
-    const option = document.createElement("option");
-    option.value = book.bookId;
-    option.textContent = book.title;
-    return option;
+    const OPTION = document.createElement("option");
+    OPTION.value = book.bookId;
+    OPTION.textContent = book.title;
+    return OPTION;
 }
 
 /**
@@ -29,8 +29,10 @@ export function initialPreferredBookId(
     if (defaultBookId === undefined || defaultBookId === "") {
         return "";
     }
-    const hasDefaultBook = books.some((book) => book.bookId === defaultBookId);
-    if (!hasDefaultBook) {
+    const HAS_DEFAULT_BOOK = books.some(
+        (book) => book.bookId === defaultBookId,
+    );
+    if (!HAS_DEFAULT_BOOK) {
         return "";
     }
     return defaultBookId;
@@ -41,14 +43,14 @@ export function initialPreferredBookId(
  * @param bookSelect Manual-add select element.
  */
 function renderEmptyBookOptions(bookSelect: HTMLSelectElement): void {
-    const nextBookSelect = bookSelect;
-    const option = document.createElement("option");
-    option.value = EMPTY_BOOK_OPTION_VALUE;
-    option.textContent = EMPTY_BOOK_OPTION_TEXT;
-    option.disabled = true;
-    option.selected = true;
-    nextBookSelect.disabled = true;
-    nextBookSelect.replaceChildren(option);
+    const NEXT_BOOK_SELECT = bookSelect;
+    const OPTION = document.createElement("option");
+    OPTION.value = EMPTY_BOOK_OPTION_VALUE;
+    OPTION.textContent = EMPTY_BOOK_OPTION_TEXT;
+    OPTION.disabled = true;
+    OPTION.selected = true;
+    NEXT_BOOK_SELECT.disabled = true;
+    NEXT_BOOK_SELECT.replaceChildren(OPTION);
 }
 
 /**
@@ -64,22 +66,22 @@ export function refreshBookOptions(
     query: string,
     preferredBookId: string,
 ): void {
-    const nextBookSelect = bookSelect;
-    const filteredBooks = booksMatchingTitleQuery(books, query);
-    if (filteredBooks.length === 0) {
-        renderEmptyBookOptions(nextBookSelect);
+    const NEXT_BOOK_SELECT = bookSelect;
+    const FILTERED_BOOKS = booksMatchingTitleQuery(books, query);
+    if (FILTERED_BOOKS.length === 0) {
+        renderEmptyBookOptions(NEXT_BOOK_SELECT);
         return;
     }
-    const options = filteredBooks.map((book) => optionForBook(book));
-    nextBookSelect.disabled = false;
-    nextBookSelect.replaceChildren(...options);
+    const OPTIONS = FILTERED_BOOKS.map((book) => optionForBook(book));
+    NEXT_BOOK_SELECT.disabled = false;
+    NEXT_BOOK_SELECT.replaceChildren(...OPTIONS);
 
-    const hasPreferredBookId =
+    const HAS_PREFERRED_BOOK_ID =
         preferredBookId !== "" &&
-        filteredBooks.some((book) => book.bookId === preferredBookId);
-    if (hasPreferredBookId) {
-        nextBookSelect.value = preferredBookId;
+        FILTERED_BOOKS.some((book) => book.bookId === preferredBookId);
+    if (HAS_PREFERRED_BOOK_ID) {
+        NEXT_BOOK_SELECT.value = preferredBookId;
         return;
     }
-    nextBookSelect.value = filteredBooks[0].bookId;
+    NEXT_BOOK_SELECT.value = FILTERED_BOOKS[0].bookId;
 }

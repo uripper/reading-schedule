@@ -18,13 +18,13 @@ const BOOK_STATUSES: BookStatus[] = [
  * @returns Matching status or `null` when unsupported.
  */
 export function normalizedStatus(value: string): BookStatus | null {
-    const matched = BOOK_STATUSES.find((status) => {
+    const MATCHED = BOOK_STATUSES.find((status) => {
         return status === value;
     });
-    if (!matched) {
+    if (!MATCHED) {
         return null;
     }
-    return matched;
+    return MATCHED;
 }
 
 /**

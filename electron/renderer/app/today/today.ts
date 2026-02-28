@@ -72,22 +72,22 @@ function setFocusSessionDataset(
     button: HTMLButtonElement,
     nextRow: PlannerScheduleRow | null,
 ): void {
-    const targetButton = button;
+    const TARGET_BUTTON = button;
     if (!nextRow) {
-        targetButton.dataset.focusSessionBookId = "";
-        targetButton.dataset.focusSessionDate = "";
-        targetButton.dataset.focusSessionIndex = "";
-        targetButton.dataset.focusSessionMinutes = "";
-        targetButton.dataset.focusSessionTitle = "";
-        targetButton.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
+        TARGET_BUTTON.dataset.focusSessionBookId = "";
+        TARGET_BUTTON.dataset.focusSessionDate = "";
+        TARGET_BUTTON.dataset.focusSessionIndex = "";
+        TARGET_BUTTON.dataset.focusSessionMinutes = "";
+        TARGET_BUTTON.dataset.focusSessionTitle = "";
+        TARGET_BUTTON.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
         return;
     }
-    targetButton.dataset.focusSessionBookId = String(nextRow.book_id);
-    targetButton.dataset.focusSessionDate = String(nextRow.date);
-    targetButton.dataset.focusSessionIndex = String(nextRow.session_index);
-    targetButton.dataset.focusSessionMinutes = String(nextRow.minutes);
-    targetButton.dataset.focusSessionTitle = String(nextRow.title);
-    targetButton.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
+    TARGET_BUTTON.dataset.focusSessionBookId = String(nextRow.book_id);
+    TARGET_BUTTON.dataset.focusSessionDate = String(nextRow.date);
+    TARGET_BUTTON.dataset.focusSessionIndex = String(nextRow.session_index);
+    TARGET_BUTTON.dataset.focusSessionMinutes = String(nextRow.minutes);
+    TARGET_BUTTON.dataset.focusSessionTitle = String(nextRow.title);
+    TARGET_BUTTON.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
 }
 
 /**
@@ -100,17 +100,19 @@ export function goalProgressPercent(
     todayMinutesRaw: number,
     goalMinutesRaw: number,
 ): number {
-    const goalMinutes = Math.max(
+    const GOAL_MINUTES = Math.max(
         MIN_GOAL_MINUTES,
         Number(goalMinutesRaw || MIN_GOAL_MINUTES),
     );
-    const todayMinutes = Math.max(
+    const TODAY_MINUTES = Math.max(
         MIN_PERCENT,
         Number(todayMinutesRaw || MIN_PERCENT),
     );
-    const rawPercent = Math.round((todayMinutes / goalMinutes) * MAX_PERCENT);
-    const bounded = Math.min(MAX_PERCENT, rawPercent);
-    return Math.max(MIN_PERCENT, bounded);
+    const RAW_PERCENT = Math.round(
+        (TODAY_MINUTES / GOAL_MINUTES) * MAX_PERCENT,
+    );
+    const BOUNDED = Math.min(MAX_PERCENT, RAW_PERCENT);
+    return Math.max(MIN_PERCENT, BOUNDED);
 }
 
 /**
@@ -133,43 +135,45 @@ export function updateTodayDashboard({
     featureFlags,
     defaultDailyGoalMinutes,
 }: UpdateTodayDashboardArgs): void {
-    const summaryNode = el("todaySummary");
-    const goalText = el("todayGoalText");
-    const goalProgress = el<HTMLProgressElement>("todayGoalProgress");
-    const focusEntryButton = el<HTMLButtonElement>("startSessionFromTodayBtn");
-    const gamificationCard = el("gamificationCard");
-    const streakNode = el("streakText");
+    const SUMMARY_NODE = el("todaySummary");
+    const GOAL_TEXT = el("todayGoalText");
+    const GOAL_PROGRESS = el<HTMLProgressElement>("todayGoalProgress");
+    const FOCUS_ENTRY_BUTTON = el<HTMLButtonElement>(
+        "startSessionFromTodayBtn",
+    );
+    const GAMIFICATION_CARD = el("gamificationCard");
+    const STREAK_NODE = el("streakText");
 
-    const snapshot = buildTodayScheduleSnapshot(
+    const SNAPSHOT = buildTodayScheduleSnapshot(
         lastResult,
         scheduleCompletions,
         books,
     );
-    const next = snapshot.nextUncompletedRow;
-    summaryNode.textContent = summaryText(lastResult, snapshot, next);
-    setFocusSessionDataset(focusEntryButton, next);
-    renderTodayScheduledBooks(snapshot);
+    const NEXT = SNAPSHOT.nextUncompletedRow;
+    SUMMARY_NODE.textContent = summaryText(lastResult, SNAPSHOT, NEXT);
+    setFocusSessionDataset(FOCUS_ENTRY_BUTTON, NEXT);
+    renderTodayScheduledBooks(SNAPSHOT);
 
-    const activityByDay = dayMinutesFromActivity({
+    const ACTIVITY_BY_DAY = dayMinutesFromActivity({
         lastResult,
         scheduleCompletions,
         sessions,
         year: null,
     });
 
-    const goalMinutes = Math.max(
+    const GOAL_MINUTES = Math.max(
         MIN_GOAL_MINUTES,
         Number(preferences.dailyGoalMinutes || defaultDailyGoalMinutes),
     );
-    const todayMinutes = dayMinutesForKey(activityByDay, todayKey());
-    const pct = goalProgressPercent(todayMinutes, goalMinutes);
-    goalText.textContent = `${todayMinutes} / ${goalMinutes} minutes logged today`;
-    goalProgress.value = pct;
+    const TODAY_MINUTES = dayMinutesForKey(ACTIVITY_BY_DAY, todayKey());
+    const PCT = goalProgressPercent(TODAY_MINUTES, GOAL_MINUTES);
+    GOAL_TEXT.textContent = `${TODAY_MINUTES} / ${GOAL_MINUTES} minutes logged today`;
+    GOAL_PROGRESS.value = PCT;
 
-    const gamificationOn = Boolean(featureFlags.gamificationEnabled);
-    gamificationCard.hidden = !gamificationOn;
-    if (gamificationOn) {
-        const streak = streakFromDayMinutes(activityByDay, goalMinutes);
-        streakNode.textContent = `${streak} day streak`;
+    const GAMIFICATION_ON = Boolean(featureFlags.gamificationEnabled);
+    GAMIFICATION_CARD.hidden = !GAMIFICATION_ON;
+    if (GAMIFICATION_ON) {
+        const STREAK = streakFromDayMinutes(ACTIVITY_BY_DAY, GOAL_MINUTES);
+        STREAK_NODE.textContent = `${STREAK} day streak`;
     }
 }

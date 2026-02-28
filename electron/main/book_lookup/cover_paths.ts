@@ -30,13 +30,14 @@ let coverVersionCounter = 0;
  * @returns Sanitized filename-safe base string.
  */
 function safeFileBase(bookId: string | undefined): string {
-    const normalizedId = String(bookId ?? "").trim();
-    const timestampFallback = `${COVER_FILE_FALLBACK_PREFIX}-${Date.now()}`;
-    const rawValue = normalizedId || timestampFallback;
-    const safe = rawValue
-        .replaceAll(/[^a-zA-Z0-9_-]/g, "_")
-        .slice(0, MAX_SAFE_FILE_BASE_LENGTH);
-    return safe || timestampFallback;
+    const NORMALIZED_ID = String(bookId ?? "").trim();
+    const TIMESTAMP_FALLBACK = `${COVER_FILE_FALLBACK_PREFIX}-${Date.now()}`;
+    const RAW_VALUE = NORMALIZED_ID || TIMESTAMP_FALLBACK;
+    const SAFE = RAW_VALUE.replaceAll(/[^a-zA-Z0-9_-]/g, "_").slice(
+        0,
+        MAX_SAFE_FILE_BASE_LENGTH,
+    );
+    return SAFE || TIMESTAMP_FALLBACK;
 }
 
 /**
@@ -45,9 +46,9 @@ function safeFileBase(bookId: string | undefined): string {
  * @returns Absolute path to the cover directory.
  */
 function ensureCoverDirectory(userDataDir: string): string {
-    const coverDirectory = path.join(userDataDir, COVER_DIRECTORY_NAME);
-    fs.mkdirSync(coverDirectory, { recursive: true });
-    return coverDirectory;
+    const COVER_DIRECTORY = path.join(userDataDir, COVER_DIRECTORY_NAME);
+    fs.mkdirSync(COVER_DIRECTORY, { recursive: true });
+    return COVER_DIRECTORY;
 }
 
 /**
@@ -60,22 +61,24 @@ export function extensionFor(
     contentType: string | null,
     parsedUrl: URL,
 ): CoverExtension {
-    const normalizedContentType = String(contentType ?? "").toLowerCase();
-    if (normalizedContentType.includes(CONTENT_TYPE_PNG)) {
+    const NORMALIZED_CONTENT_TYPE = String(contentType ?? "").toLowerCase();
+    if (NORMALIZED_CONTENT_TYPE.includes(CONTENT_TYPE_PNG)) {
         return EXTENSION_PNG;
     }
-    if (normalizedContentType.includes(CONTENT_TYPE_WEBP)) {
+    if (NORMALIZED_CONTENT_TYPE.includes(CONTENT_TYPE_WEBP)) {
         return EXTENSION_WEBP;
     }
-    const knownExtension = path.extname(parsedUrl.pathname || "").toLowerCase();
+    const KNOWN_EXTENSION = path
+        .extname(parsedUrl.pathname || "")
+        .toLowerCase();
     if (
-        knownExtension === EXTENSION_PNG ||
-        knownExtension === EXTENSION_WEBP ||
-        knownExtension === EXTENSION_JPG
+        KNOWN_EXTENSION === EXTENSION_PNG ||
+        KNOWN_EXTENSION === EXTENSION_WEBP ||
+        KNOWN_EXTENSION === EXTENSION_JPG
     ) {
-        return knownExtension;
+        return KNOWN_EXTENSION;
     }
-    if (knownExtension === EXTENSION_JPEG) {
+    if (KNOWN_EXTENSION === EXTENSION_JPEG) {
         return EXTENSION_JPG;
     }
     return EXTENSION_JPG;
@@ -102,11 +105,11 @@ export function filePathForCover(
     bookId: string | undefined,
     extension: CoverExtension,
 ): string {
-    const version = String(coverVersionCounter).padStart(
+    const VERSION = String(coverVersionCounter).padStart(
         COVER_VERSION_PAD,
         "0",
     );
     coverVersionCounter = (coverVersionCounter + 1) % COVER_VERSION_WRAP_AT;
-    const fileName = `${safeFileBase(bookId)}${COVER_FILE_VERSION_SEPARATOR}${Date.now()}${COVER_FILE_VERSION_SEPARATOR}${version}${extension}`;
-    return path.join(ensureCoverDirectory(userDataDir), fileName);
+    const FILE_NAME = `${safeFileBase(bookId)}${COVER_FILE_VERSION_SEPARATOR}${Date.now()}${COVER_FILE_VERSION_SEPARATOR}${VERSION}${extension}`;
+    return path.join(ensureCoverDirectory(userDataDir), FILE_NAME);
 }

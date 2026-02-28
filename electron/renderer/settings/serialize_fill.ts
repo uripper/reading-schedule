@@ -38,9 +38,9 @@ function settingValueText(value: unknown): string {
  * @returns Select value text.
  */
 function selectSettingValue(value: unknown): string {
-    const normalized = settingValueText(value);
-    if (normalized) {
-        return normalized;
+    const NORMALIZED = settingValueText(value);
+    if (NORMALIZED) {
+        return NORMALIZED;
     }
     return DEFAULT_PLAN_MODE;
 }
@@ -67,40 +67,40 @@ export function fillSettingsForm(
     setDayOffs: (nextDayOffs: string[]) => void,
 ): void {
     allFieldDefinitions().forEach((field) => {
-        const value = settings[field.id];
+        const VALUE = settings[field.id];
         if (field.type === "select") {
-            selectEl(field.id).value = selectSettingValue(value);
+            selectEl(field.id).value = selectSettingValue(VALUE);
             return;
         }
         if (field.type === "checkbox") {
-            inputEl(field.id).checked = checkboxSettingValue(value);
+            inputEl(field.id).checked = checkboxSettingValue(VALUE);
             return;
         }
-        inputEl(field.id).value = settingValueText(value);
+        inputEl(field.id).value = settingValueText(VALUE);
     });
-    const minutesByWeekday = settings.minutes_by_weekday ?? {};
+    const MINUTES_BY_WEEKDAY = settings.minutes_by_weekday ?? {};
     weekdays.forEach(([key]) => {
-        inputEl(`minutes_${key}`).value = String(minutesByWeekday[key]);
+        inputEl(`minutes_${key}`).value = String(MINUTES_BY_WEEKDAY[key]);
     });
-    const rawDayOffs = settings.days_off;
-    const nextDayOffs: string[] = [];
-    if (Array.isArray(rawDayOffs)) {
-        rawDayOffs.forEach((dayOff) => {
+    const RAW_DAY_OFFS = settings.days_off;
+    const NEXT_DAY_OFFS: string[] = [];
+    if (Array.isArray(RAW_DAY_OFFS)) {
+        RAW_DAY_OFFS.forEach((dayOff) => {
             if (typeof dayOff === "string") {
-                nextDayOffs.push(dayOff);
+                NEXT_DAY_OFFS.push(dayOff);
             }
         });
     }
-    nextDayOffs.sort((left, right) => left.localeCompare(right));
-    setDayOffs(nextDayOffs);
-    const difficultyMultiplier = settings.difficulty_multiplier ?? {};
+    NEXT_DAY_OFFS.sort((left, right) => left.localeCompare(right));
+    setDayOffs(NEXT_DAY_OFFS);
+    const DIFFICULTY_MULTIPLIER = settings.difficulty_multiplier ?? {};
     numberLevels().forEach((level) => {
-        const id = `diff_${level}`;
-        const difficultyKey = String(level);
+        const ID = `diff_${level}`;
+        const DIFFICULTY_KEY = String(level);
         let value = DEFAULT_DIFFICULTY_MULTIPLIER;
-        if (Object.hasOwn(difficultyMultiplier, difficultyKey)) {
-            value = difficultyMultiplier[difficultyKey];
+        if (Object.hasOwn(DIFFICULTY_MULTIPLIER, DIFFICULTY_KEY)) {
+            value = DIFFICULTY_MULTIPLIER[DIFFICULTY_KEY];
         }
-        inputEl(id).value = String(value);
+        inputEl(ID).value = String(value);
     });
 }

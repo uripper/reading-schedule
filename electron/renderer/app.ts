@@ -3,9 +3,9 @@ import { initApp } from "./app/init/index.js";
 import { createSplashController } from "./app/splash.js";
 import { initRecommendationsRuntime } from "./recommendations/runtime.js";
 
-const splash = createSplashController();
-const context = createAppBootstrapContext();
+const SPLASH = createSplashController();
+const CONTEXT = createAppBootstrapContext();
 
-await initApp(context);
+await initApp(CONTEXT);
 initRecommendationsRuntime();
-splash.completeWhenReady();
+SPLASH.completeWhenReady();

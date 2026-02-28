@@ -99,27 +99,27 @@ function handleEscape(
  */
 export function handleLookupKeydown(args: HandleLookupKeydownArgs): void {
     const { event, currentItems, activeIndex, searchInput } = args;
-    const setActiveIndex = (index: number): void => {
+    const SET_ACTIVE_INDEX = (index: number): void => {
         args.setActiveIndex(index);
     };
-    const selectItem = (index: number): void => {
+    const SELECT_ITEM = (index: number): void => {
         args.selectItem(index);
     };
-    const clearLookupResults = (): void => {
+    const CLEAR_LOOKUP_RESULTS = (): void => {
         args.clearResults();
     };
     switch (event.key) {
         case "ArrowDown":
-            handleArrowDown(event, currentItems, activeIndex, setActiveIndex);
+            handleArrowDown(event, currentItems, activeIndex, SET_ACTIVE_INDEX);
             return;
         case "ArrowUp":
-            handleArrowUp(event, currentItems, activeIndex, setActiveIndex);
+            handleArrowUp(event, currentItems, activeIndex, SET_ACTIVE_INDEX);
             return;
         case "Enter":
-            handleEnter(event, currentItems, activeIndex, selectItem);
+            handleEnter(event, currentItems, activeIndex, SELECT_ITEM);
             return;
         case "Escape":
-            handleEscape(clearLookupResults, searchInput);
+            handleEscape(CLEAR_LOOKUP_RESULTS, searchInput);
 
         default:
     }

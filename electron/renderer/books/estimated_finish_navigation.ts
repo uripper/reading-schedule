@@ -9,10 +9,10 @@ const DAY_PAD = 2;
  * @returns Local day key.
  */
 function dayKeyFromDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + MONTH_BASE).padStart(DAY_PAD, "0");
-    const day = String(date.getDate()).padStart(DAY_PAD, "0");
-    return `${year}-${month}-${day}`;
+    const YEAR = date.getFullYear();
+    const MONTH = String(date.getMonth() + MONTH_BASE).padStart(DAY_PAD, "0");
+    const DAY = String(date.getDate()).padStart(DAY_PAD, "0");
+    return `${YEAR}-${MONTH}-${DAY}`;
 }
 
 /**
@@ -24,11 +24,11 @@ export function isValidDateKey(dateKey: string): boolean {
     if (!DATE_KEY_PATTERN.test(dateKey)) {
         return false;
     }
-    const parsed = new Date(`${dateKey}${CALENDAR_DATE_SUFFIX}`);
-    if (Number.isNaN(parsed.getTime())) {
+    const PARSED = new Date(`${dateKey}${CALENDAR_DATE_SUFFIX}`);
+    if (Number.isNaN(PARSED.getTime())) {
         return false;
     }
-    return dayKeyFromDate(parsed) === dateKey;
+    return dayKeyFromDate(PARSED) === dateKey;
 }
 
 /**

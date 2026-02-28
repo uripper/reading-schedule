@@ -12,31 +12,31 @@ const SPLASH_TRANSITION_FALLBACK_MS =
  * @returns Controller with a completion callback for bootstrapping flow.
  */
 export function createSplashController(): { completeWhenReady(): void } {
-    const splashScreen = document.getElementById("splashScreen");
-    const startedAt = performance.now();
+    const SPLASH_SCREEN = document.getElementById("splashScreen");
+    const STARTED_AT = performance.now();
 
-    const finish = (): void => {
-        if (!(splashScreen instanceof HTMLElement)) {
+    const FINISH = (): void => {
+        if (!(SPLASH_SCREEN instanceof HTMLElement)) {
             return;
         }
 
         document.body.classList.add("splash-exit");
-        const removeSplash = (): void => {
-            splashScreen.remove();
+        const REMOVE_SPLASH = (): void => {
+            SPLASH_SCREEN.remove();
             document.body.classList.remove("splash-exit");
         };
 
-        splashScreen.addEventListener("transitionend", removeSplash, {
+        SPLASH_SCREEN.addEventListener("transitionend", REMOVE_SPLASH, {
             once: true,
         });
-        globalThis.setTimeout(removeSplash, SPLASH_TRANSITION_FALLBACK_MS);
+        globalThis.setTimeout(REMOVE_SPLASH, SPLASH_TRANSITION_FALLBACK_MS);
     };
 
-    const completeWhenReady = (): void => {
-        const elapsed = performance.now() - startedAt;
-        const remaining = Math.max(0, SPLASH_MIN_DURATION_MS - elapsed);
-        globalThis.setTimeout(finish, remaining);
+    const COMPLETE_WHEN_READY = (): void => {
+        const ELAPSED = performance.now() - STARTED_AT;
+        const REMAINING = Math.max(0, SPLASH_MIN_DURATION_MS - ELAPSED);
+        globalThis.setTimeout(FINISH, REMAINING);
     };
 
-    return { completeWhenReady };
+    return { completeWhenReady: COMPLETE_WHEN_READY };
 }

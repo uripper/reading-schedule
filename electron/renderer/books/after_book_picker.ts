@@ -30,80 +30,80 @@ export function createAfterBookPicker(
     refs: BookFormRefs,
     getBooks: GetBooks,
 ): AfterBookPicker {
-    const formRefs = refs;
-    const state: PickerState = {
+    const FORM_REFS = refs;
+    const STATE: PickerState = {
         activeIndex: NO_ACTIVE_INDEX,
         currentBookId: "",
         filtered: [],
         options: [],
         selectedBookId: "",
     };
-    const render = (): void => {
-        renderAfterBookResults(formRefs, state);
+    const RENDER = (): void => {
+        renderAfterBookResults(FORM_REFS, STATE);
     };
-    const clearResults = (): void => {
-        state.filtered = [];
-        state.activeIndex = NO_ACTIVE_INDEX;
+    const CLEAR_RESULTS = (): void => {
+        STATE.filtered = [];
+        STATE.activeIndex = NO_ACTIVE_INDEX;
     };
-    const clearSelection = (): void => {
-        state.selectedBookId = "";
-        formRefs.blockedByInput.value = "";
+    const CLEAR_SELECTION = (): void => {
+        STATE.selectedBookId = "";
+        FORM_REFS.blockedByInput.value = "";
     };
-    const selectBook = (book: Book | null | undefined): void => {
+    const SELECT_BOOK = (book: Book | null | undefined): void => {
         if (!book) {
             return;
         }
-        state.selectedBookId = String(book.book_id || "");
-        formRefs.blockedByInput.value = state.selectedBookId;
-        formRefs.afterBookInput.value = optionLabel(book);
-        clearResults();
-        render();
+        STATE.selectedBookId = String(book.book_id || "");
+        FORM_REFS.blockedByInput.value = STATE.selectedBookId;
+        FORM_REFS.afterBookInput.value = optionLabel(book);
+        CLEAR_RESULTS();
+        RENDER();
     };
-    const refreshOptions = (): void => {
-        const availableBooks = getBooks().filter((book) => {
-            const bookId = String(book.book_id || "");
-            if (bookId === "") {
+    const REFRESH_OPTIONS = (): void => {
+        const AVAILABLE_BOOKS = getBooks().filter((book) => {
+            const BOOK_ID = String(book.book_id || "");
+            if (BOOK_ID === "") {
                 return false;
             }
-            return bookId !== state.currentBookId;
+            return BOOK_ID !== STATE.currentBookId;
         });
-        state.options = availableBooks.toSorted(compareBooks);
+        STATE.options = AVAILABLE_BOOKS.toSorted(compareBooks);
     };
-    const refreshFiltered = (clearChangedSelection: boolean): void => {
-        const query = formRefs.afterBookInput.value.trim();
+    const REFRESH_FILTERED = (clearChangedSelection: boolean): void => {
+        const QUERY = FORM_REFS.afterBookInput.value.trim();
         if (clearChangedSelection) {
-            const current = selectedBook(state);
+            const CURRENT = selectedBook(STATE);
             if (
-                !query ||
-                !current ||
-                !labelsMatch(query, optionLabel(current))
+                !QUERY ||
+                !CURRENT ||
+                !labelsMatch(QUERY, optionLabel(CURRENT))
             ) {
-                clearSelection();
+                CLEAR_SELECTION();
             }
         }
-        state.filtered = state.options.filter((book) =>
-            matchesQuery(book, query),
+        STATE.filtered = STATE.options.filter((book) =>
+            matchesQuery(book, QUERY),
         );
-        state.activeIndex = NO_ACTIVE_INDEX;
-        if (state.filtered.length) {
-            state.activeIndex = FIRST_RESULT_INDEX;
+        STATE.activeIndex = NO_ACTIVE_INDEX;
+        if (STATE.filtered.length) {
+            STATE.activeIndex = FIRST_RESULT_INDEX;
         }
-        render();
+        RENDER();
     };
     bindAfterBookPickerEvents({
-        clearResults,
-        refreshFiltered,
-        refs: formRefs,
-        render,
-        selectBook,
-        state,
+        clearResults: CLEAR_RESULTS,
+        refreshFiltered: REFRESH_FILTERED,
+        refs: FORM_REFS,
+        render: RENDER,
+        selectBook: SELECT_BOOK,
+        state: STATE,
     });
-    const openForBook = (book: Book | null = null): void => {
-        state.currentBookId = String(book?.book_id ?? "");
-        refreshOptions();
-        initializePickerForBook(formRefs, state, book);
-        clearResults();
-        render();
+    const OPEN_FOR_BOOK = (book: Book | null = null): void => {
+        STATE.currentBookId = String(book?.book_id ?? "");
+        REFRESH_OPTIONS();
+        initializePickerForBook(FORM_REFS, STATE, book);
+        CLEAR_RESULTS();
+        RENDER();
     };
-    return { openForBook };
+    return { openForBook: OPEN_FOR_BOOK };
 }

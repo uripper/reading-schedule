@@ -16,11 +16,11 @@ export const DEFAULT_BOOK_DIFFICULTY = 3;
  * @returns normalized number of minutes to use for calculations and display
  */
 function normalizeManualMinutes(minutes: number): number {
-    const rounded = Math.round(Number(minutes || 0));
-    if (!Number.isFinite(rounded) || rounded < MIN_MANUAL_MINUTES) {
+    const ROUNDED = Math.round(Number(minutes || 0));
+    if (!Number.isFinite(ROUNDED) || ROUNDED < MIN_MANUAL_MINUTES) {
         return MIN_MANUAL_MINUTES;
     }
-    return rounded;
+    return ROUNDED;
 }
 
 /**
@@ -39,13 +39,13 @@ function historicalWordsPerMinute(
         if (String(row.book_id || "") !== bookId) {
             return;
         }
-        const rowMinutes = Number(row.minutes || 0);
-        const rowWords = Number(row.words_planned || 0);
-        if (rowMinutes <= 0 || rowWords <= 0) {
+        const ROW_MINUTES = Number(row.minutes || 0);
+        const ROW_WORDS = Number(row.words_planned || 0);
+        if (ROW_MINUTES <= 0 || ROW_WORDS <= 0) {
             return;
         }
-        totalMinutes += rowMinutes;
-        totalWords += rowWords;
+        totalMinutes += ROW_MINUTES;
+        totalWords += ROW_WORDS;
     });
     if (totalMinutes <= 0 || totalWords <= 0) {
         return null;
@@ -63,13 +63,13 @@ function difficultyMultiplier(
     settings: PlannerSettings,
     difficulty: number,
 ): number {
-    const multiplierByDifficulty = settings.difficulty_multiplier ?? {};
-    const exact = multiplierByDifficulty[difficulty];
-    const multiplier = Number(exact);
-    if (!Number.isFinite(multiplier) || multiplier <= 0) {
+    const MULTIPLIER_BY_DIFFICULTY = settings.difficulty_multiplier ?? {};
+    const EXACT = MULTIPLIER_BY_DIFFICULTY[difficulty];
+    const MULTIPLIER = Number(EXACT);
+    if (!Number.isFinite(MULTIPLIER) || MULTIPLIER <= 0) {
         return DEFAULT_DIFFICULTY_MULTIPLIER;
     }
-    return multiplier;
+    return MULTIPLIER;
 }
 
 /**
@@ -95,24 +95,24 @@ export function wordsPlannedForManualSession({
     settings?: PlannerSettings;
     difficulty?: number;
 }): number {
-    const normalizedMinutes = normalizeManualMinutes(minutes);
-    const historicalWpm = historicalWordsPerMinute(bookId, rows);
-    if (historicalWpm !== null) {
+    const NORMALIZED_MINUTES = normalizeManualMinutes(minutes);
+    const HISTORICAL_WPM = historicalWordsPerMinute(bookId, rows);
+    if (HISTORICAL_WPM !== null) {
         return Math.max(
             MIN_MANUAL_WORDS,
-            Math.round(normalizedMinutes * historicalWpm),
+            Math.round(NORMALIZED_MINUTES * HISTORICAL_WPM),
         );
     }
-    const base = Number(settings.wpm_base ?? DEFAULT_MANUAL_WPM_BASE);
+    const BASE = Number(settings.wpm_base ?? DEFAULT_MANUAL_WPM_BASE);
     let wpmBase = DEFAULT_MANUAL_WPM_BASE;
-    if (Number.isFinite(base) && base > 0) {
-        wpmBase = base;
+    if (Number.isFinite(BASE) && BASE > 0) {
+        wpmBase = BASE;
     }
-    const planned =
-        normalizedMinutes *
+    const PLANNED =
+        NORMALIZED_MINUTES *
         wpmBase *
         difficultyMultiplier(settings, difficulty);
-    return Math.max(MIN_MANUAL_WORDS, Math.round(planned));
+    return Math.max(MIN_MANUAL_WORDS, Math.round(PLANNED));
 }
 
 /**

@@ -20,14 +20,14 @@ export async function downloadCover(
     bookId: string | undefined,
     userDataDir: string | undefined,
 ): Promise<string> {
-    const normalizedUrl = String(coverUrl ?? "").trim();
-    const normalizedUserDataDir = String(userDataDir ?? "").trim();
-    if (normalizedUrl.length === 0 || normalizedUserDataDir.length === 0) {
+    const NORMALIZED_URL = String(coverUrl ?? "").trim();
+    const NORMALIZED_USER_DATA_DIR = String(userDataDir ?? "").trim();
+    if (NORMALIZED_URL.length === 0 || NORMALIZED_USER_DATA_DIR.length === 0) {
         return "";
     }
     let parsedUrl: URL;
     try {
-        parsedUrl = new URL(normalizedUrl);
+        parsedUrl = new URL(NORMALIZED_URL);
     } catch {
         return "";
     }
@@ -45,17 +45,21 @@ export async function downloadCover(
     if (!response.ok) {
         return "";
     }
-    const bytes = await response.arrayBuffer();
-    if (bytes.byteLength === 0) {
+    const BYTES = await response.arrayBuffer();
+    if (BYTES.byteLength === 0) {
         return "";
     }
-    const extension = extensionFor(
+    const EXTENSION = extensionFor(
         response.headers.get("content-type"),
         parsedUrl,
     );
-    const filePath = filePathForCover(normalizedUserDataDir, bookId, extension);
-    fs.writeFileSync(filePath, new Uint8Array(bytes));
-    return pathToFileURL(filePath).href;
+    const FILE_PATH = filePathForCover(
+        NORMALIZED_USER_DATA_DIR,
+        bookId,
+        EXTENSION,
+    );
+    fs.writeFileSync(FILE_PATH, new Uint8Array(BYTES));
+    return pathToFileURL(FILE_PATH).href;
 }
 
 /**
@@ -70,19 +74,19 @@ export function saveUploadedCover(
     bookId: string | undefined,
     userDataDir: string | undefined,
 ): string {
-    const normalizedUserDataDir = String(userDataDir ?? "").trim();
-    if (normalizedUserDataDir.length === 0) {
+    const NORMALIZED_USER_DATA_DIR = String(userDataDir ?? "").trim();
+    if (NORMALIZED_USER_DATA_DIR.length === 0) {
         return "";
     }
-    const parsed = parseCoverDataUrl(coverDataUrl);
-    if (!parsed) {
+    const PARSED = parseCoverDataUrl(coverDataUrl);
+    if (!PARSED) {
         return "";
     }
-    const filePath = filePathForCover(
-        normalizedUserDataDir,
+    const FILE_PATH = filePathForCover(
+        NORMALIZED_USER_DATA_DIR,
         bookId,
-        parsed.extension,
+        PARSED.extension,
     );
-    fs.writeFileSync(filePath, parsed.bytes);
-    return pathToFileURL(filePath).href;
+    fs.writeFileSync(FILE_PATH, PARSED.bytes);
+    return pathToFileURL(FILE_PATH).href;
 }

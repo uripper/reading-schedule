@@ -22,12 +22,12 @@ export function navigateToTodayBook(
     bookId: string,
     actions: TodayBookNavigationActions = DEFAULT_NAVIGATION_ACTIONS,
 ): void {
-    const normalizedBookId = String(bookId || "").trim();
-    if (normalizedBookId === "") {
+    const NORMALIZED_BOOK_ID = String(bookId || "").trim();
+    if (NORMALIZED_BOOK_ID === "") {
         return;
     }
     actions.activateBooksTab();
     globalThis.requestAnimationFrame(() => {
-        actions.scrollToBook(normalizedBookId);
+        actions.scrollToBook(NORMALIZED_BOOK_ID);
     });
 }

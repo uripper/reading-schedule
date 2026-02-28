@@ -10,9 +10,9 @@ export function setInputValueFromBookProgress(
     inputNode: HTMLInputElement,
     value?: string | number,
 ): void {
-    const targetInput = inputNode;
+    const TARGET_INPUT = inputNode;
     if (value !== undefined) {
-        targetInput.value = String(value);
+        TARGET_INPUT.value = String(value);
     }
 }
 
@@ -26,11 +26,11 @@ function changedNumberValue(
     inputNode: HTMLInputElement,
     initialValue: string,
 ): number | null {
-    const currentValue = String(inputNode.value).trim();
-    if (currentValue === String(initialValue)) {
+    const CURRENT_VALUE = String(inputNode.value).trim();
+    if (CURRENT_VALUE === String(initialValue)) {
         return null;
     }
-    return parseOptionalNumber(currentValue);
+    return parseOptionalNumber(CURRENT_VALUE);
 }
 
 /**
@@ -43,12 +43,12 @@ function syncInputValue(
     inputNode: HTMLInputElement,
     nextValue?: number | null,
 ): string {
-    const targetInput = inputNode;
+    const TARGET_INPUT = inputNode;
     if (nextValue === null || nextValue === undefined) {
-        return String(targetInput.value).trim();
+        return String(TARGET_INPUT.value).trim();
     }
-    targetInput.value = String(nextValue);
-    return String(targetInput.value).trim();
+    TARGET_INPUT.value = String(nextValue);
+    return String(TARGET_INPUT.value).trim();
 }
 
 /**
@@ -78,25 +78,25 @@ export function submitProgressUpdate(args: SubmitProgressUpdateArgs): {
         interactionHandlers,
     } = args;
     event.preventDefault();
-    const pagesRead = changedNumberValue(pagesInput, initialPagesValue);
-    const progressPercent = changedNumberValue(pctInput, initialPercentValue);
-    if (pagesRead === null && progressPercent === null) {
+    const PAGES_READ = changedNumberValue(pagesInput, initialPagesValue);
+    const PROGRESS_PERCENT = changedNumberValue(pctInput, initialPercentValue);
+    if (PAGES_READ === null && PROGRESS_PERCENT === null) {
         return { applied: true, initialPagesValue, initialPercentValue };
     }
 
-    const updated = interactionHandlers.onSessionProgressUpdated({
+    const UPDATED = interactionHandlers.onSessionProgressUpdated({
         bookId: row.book_id,
-        pagesRead,
-        progressPercent,
+        pagesRead: PAGES_READ,
+        progressPercent: PROGRESS_PERCENT,
         row,
     });
-    if (!updated) {
+    if (!UPDATED) {
         return { applied: false, initialPagesValue, initialPercentValue };
     }
 
     return {
         applied: true,
-        initialPagesValue: syncInputValue(pagesInput, updated.pages_read),
-        initialPercentValue: syncInputValue(pctInput, updated.progress_percent),
+        initialPagesValue: syncInputValue(pagesInput, UPDATED.pages_read),
+        initialPercentValue: syncInputValue(pctInput, UPDATED.progress_percent),
     };
 }

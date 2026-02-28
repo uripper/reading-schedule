@@ -25,11 +25,11 @@ function scheduledDayInputs(refs: BookFormRefs): HTMLInputElement[] {
  * @param refs Book form references containing scheduled-day controls.
  */
 export function resetScheduledDayControls(refs: BookFormRefs): void {
-    const formRefs = refs;
-    for (const input of scheduledDayInputs(formRefs)) {
-        input.checked = true;
+    const FORM_REFS = refs;
+    for (const INPUT of scheduledDayInputs(FORM_REFS)) {
+        INPUT.checked = true;
     }
-    formRefs.applyScheduledDaysToShelfInput.checked = false;
+    FORM_REFS.applyScheduledDaysToShelfInput.checked = false;
 }
 
 /**
@@ -41,13 +41,13 @@ export function fillScheduledDayControls(
     refs: BookFormRefs,
     days: unknown,
 ): void {
-    const formRefs = refs;
-    const normalized = normalizeScheduledDays(days);
-    const selected = new Set<BookWeekday>(normalized);
-    for (const input of scheduledDayInputs(formRefs)) {
-        input.checked = selected.has(input.value as BookWeekday);
+    const FORM_REFS = refs;
+    const NORMALIZED = normalizeScheduledDays(days);
+    const SELECTED = new Set<BookWeekday>(NORMALIZED);
+    for (const INPUT of scheduledDayInputs(FORM_REFS)) {
+        INPUT.checked = SELECTED.has(INPUT.value as BookWeekday);
     }
-    formRefs.applyScheduledDaysToShelfInput.checked = false;
+    FORM_REFS.applyScheduledDaysToShelfInput.checked = false;
 }
 
 /**
@@ -56,15 +56,15 @@ export function fillScheduledDayControls(
  * @returns Ordered weekday keys selected by the user.
  */
 export function readScheduledDaySelection(refs: BookFormRefs): BookWeekday[] {
-    const selected = new Set<BookWeekday>();
+    const SELECTED = new Set<BookWeekday>();
     scheduledDayInputs(refs).forEach((input) => {
         if (!input.checked) {
             return;
         }
-        const value = String(input.value || "").trim();
-        if (isBookWeekday(value)) {
-            selected.add(value);
+        const VALUE = String(input.value || "").trim();
+        if (isBookWeekday(VALUE)) {
+            SELECTED.add(VALUE);
         }
     });
-    return BOOK_WEEKDAYS.filter((weekday) => selected.has(weekday));
+    return BOOK_WEEKDAYS.filter((weekday) => SELECTED.has(weekday));
 }

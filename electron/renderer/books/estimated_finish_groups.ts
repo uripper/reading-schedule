@@ -25,20 +25,20 @@ const STATUS_GROUPS: StatusGroupDefinition[] = [
  * @returns Non-empty ordered status sections for grouped rendering.
  */
 export function groupsForEstimatedFinish(books: Book[] = []): BookGroup[] {
-    const groups: BookGroup[] = [];
+    const GROUPS: BookGroup[] = [];
     STATUS_GROUPS.forEach((definition) => {
-        const groupedBooks = books.filter((book) => {
+        const GROUPED_BOOKS = books.filter((book) => {
             return definition.statuses.includes(book.status);
         });
-        if (!groupedBooks.length) {
+        if (!GROUPED_BOOKS.length) {
             return;
         }
-        const key = `status:${definition.label.toLowerCase().replaceAll(/\s+/g, "_")}`;
-        groups.push({
-            books: groupedBooks,
-            key,
+        const KEY = `status:${definition.label.toLowerCase().replaceAll(/\s+/g, "_")}`;
+        GROUPS.push({
+            books: GROUPED_BOOKS,
+            key: KEY,
             label: definition.label,
         });
     });
-    return groups;
+    return GROUPS;
 }

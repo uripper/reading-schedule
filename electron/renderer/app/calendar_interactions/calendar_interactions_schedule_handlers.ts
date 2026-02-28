@@ -1,7 +1,7 @@
-import {
-    type AppCalendarInteractionArgs,
-    type ScheduleMutationHandlers,
-    type SharedScheduleBindings,
+import type {
+    AppCalendarInteractionArgs,
+    ScheduleMutationHandlers,
+    SharedScheduleBindings,
 } from "../../../types/types.js";
 import {
     addManualSessionRow,
@@ -9,52 +9,52 @@ import {
     updateSessionRowMinutes,
 } from "./calendar_interactions_schedule_updates.js";
 
-const createSharedScheduleBindings = (
+const CREATE_SHARED_SCHEDULE_BINDINGS = (
     args: AppCalendarInteractionArgs,
 ): SharedScheduleBindings => {
-    const onScheduleRowsUpdated = (): void => {
+    const ON_SCHEDULE_ROWS_UPDATED = (): void => {
         if (args.onScheduleRowsUpdated !== undefined) {
             args.onScheduleRowsUpdated();
         }
     };
-    const collectSettings = (): ReturnType<
+    const COLLECT_SETTINGS = (): ReturnType<
         AppCalendarInteractionArgs["collectSettings"]
     > => {
         return args.collectSettings();
     };
-    const getBookById = (
+    const GET_BOOK_BY_ID = (
         bookId: string,
     ): ReturnType<AppCalendarInteractionArgs["getBookById"]> => {
         return args.getBookById(bookId);
     };
-    const queuePersist = (): void => {
+    const QUEUE_PERSIST = (): void => {
         args.queuePersist();
     };
-    const renderCalendar = (
+    const RENDER_CALENDAR = (
         rows: Parameters<AppCalendarInteractionArgs["renderCalendar"]>[0],
         totals: Parameters<AppCalendarInteractionArgs["renderCalendar"]>[1],
     ): void => {
         args.renderCalendar(rows, totals);
     };
-    const setBookScheduleRows = (
+    const SET_BOOK_SCHEDULE_ROWS = (
         rows: Parameters<AppCalendarInteractionArgs["setBookScheduleRows"]>[0],
     ): void => {
         args.setBookScheduleRows(rows);
     };
-    const setLastResult = (
+    const SET_LAST_RESULT = (
         result: Parameters<AppCalendarInteractionArgs["setLastResult"]>[0],
     ): void => {
         args.setLastResult(result);
     };
-    const setStatus = (message: string, isError = false): void => {
+    const SET_STATUS = (message: string, isError = false): void => {
         args.setStatus(message, isError);
     };
-    const totalsFromSummary = (
+    const TOTALS_FROM_SUMMARY = (
         summary: Parameters<AppCalendarInteractionArgs["totalsFromSummary"]>[0],
     ): ReturnType<AppCalendarInteractionArgs["totalsFromSummary"]> => {
         return args.totalsFromSummary(summary);
     };
-    const applyStateMutation = (
+    const APPLY_STATE_MUTATION = (
         mutation: Parameters<
             AppCalendarInteractionArgs["applyStateMutation"]
         >[0],
@@ -62,24 +62,24 @@ const createSharedScheduleBindings = (
         args.applyStateMutation(mutation);
     };
     return {
-        applyStateMutation,
-        collectSettings,
-        getBookById,
-        onScheduleRowsUpdated,
-        queuePersist,
-        renderCalendar,
-        setBookScheduleRows,
-        setLastResult,
-        setStatus,
+        applyStateMutation: APPLY_STATE_MUTATION,
+        collectSettings: COLLECT_SETTINGS,
+        getBookById: GET_BOOK_BY_ID,
+        onScheduleRowsUpdated: ON_SCHEDULE_ROWS_UPDATED,
+        queuePersist: QUEUE_PERSIST,
+        renderCalendar: RENDER_CALENDAR,
+        setBookScheduleRows: SET_BOOK_SCHEDULE_ROWS,
+        setLastResult: SET_LAST_RESULT,
+        setStatus: SET_STATUS,
         state: args.state,
-        totalsFromSummary,
+        totalsFromSummary: TOTALS_FROM_SUMMARY,
     };
 };
 
 export const buildScheduleMutationHandlers = (
     args: AppCalendarInteractionArgs,
 ): ScheduleMutationHandlers => {
-    const bindings = createSharedScheduleBindings(args);
+    const BINDINGS = CREATE_SHARED_SCHEDULE_BINDINGS(args);
     return {
         onManualSessionAdded: ({
             date,
@@ -88,52 +88,52 @@ export const buildScheduleMutationHandlers = (
             completed = false,
         }) => {
             return addManualSessionRow({
-                applyStateMutation: bindings.applyStateMutation,
+                applyStateMutation: BINDINGS.applyStateMutation,
                 bookId,
-                collectSettings: bindings.collectSettings,
+                collectSettings: BINDINGS.collectSettings,
                 completed,
                 date,
-                getBookById: bindings.getBookById,
+                getBookById: BINDINGS.getBookById,
                 minutes,
-                onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
-                queuePersist: bindings.queuePersist,
-                renderCalendar: bindings.renderCalendar,
-                setBookScheduleRows: bindings.setBookScheduleRows,
-                setLastResult: bindings.setLastResult,
-                setStatus: bindings.setStatus,
-                state: bindings.state,
-                totalsFromSummary: bindings.totalsFromSummary,
+                onScheduleRowsUpdated: BINDINGS.onScheduleRowsUpdated,
+                queuePersist: BINDINGS.queuePersist,
+                renderCalendar: BINDINGS.renderCalendar,
+                setBookScheduleRows: BINDINGS.setBookScheduleRows,
+                setLastResult: BINDINGS.setLastResult,
+                setStatus: BINDINGS.setStatus,
+                state: BINDINGS.state,
+                totalsFromSummary: BINDINGS.totalsFromSummary,
             });
         },
         onSessionMinutesUpdated: ({ minutes, row }) => {
             return updateSessionRowMinutes({
-                applyStateMutation: bindings.applyStateMutation,
-                collectSettings: bindings.collectSettings,
-                getBookById: bindings.getBookById,
+                applyStateMutation: BINDINGS.applyStateMutation,
+                collectSettings: BINDINGS.collectSettings,
+                getBookById: BINDINGS.getBookById,
                 minutes,
-                onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
-                queuePersist: bindings.queuePersist,
-                renderCalendar: bindings.renderCalendar,
+                onScheduleRowsUpdated: BINDINGS.onScheduleRowsUpdated,
+                queuePersist: BINDINGS.queuePersist,
+                renderCalendar: BINDINGS.renderCalendar,
                 row,
-                setBookScheduleRows: bindings.setBookScheduleRows,
-                setLastResult: bindings.setLastResult,
-                setStatus: bindings.setStatus,
-                state: bindings.state,
-                totalsFromSummary: bindings.totalsFromSummary,
+                setBookScheduleRows: BINDINGS.setBookScheduleRows,
+                setLastResult: BINDINGS.setLastResult,
+                setStatus: BINDINGS.setStatus,
+                state: BINDINGS.state,
+                totalsFromSummary: BINDINGS.totalsFromSummary,
             });
         },
         onSessionRemoved: ({ row }) => {
             return removeSessionRow({
-                applyStateMutation: bindings.applyStateMutation,
-                onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
-                queuePersist: bindings.queuePersist,
-                renderCalendar: bindings.renderCalendar,
+                applyStateMutation: BINDINGS.applyStateMutation,
+                onScheduleRowsUpdated: BINDINGS.onScheduleRowsUpdated,
+                queuePersist: BINDINGS.queuePersist,
+                renderCalendar: BINDINGS.renderCalendar,
                 row,
-                setBookScheduleRows: bindings.setBookScheduleRows,
-                setLastResult: bindings.setLastResult,
-                setStatus: bindings.setStatus,
-                state: bindings.state,
-                totalsFromSummary: bindings.totalsFromSummary,
+                setBookScheduleRows: BINDINGS.setBookScheduleRows,
+                setLastResult: BINDINGS.setLastResult,
+                setStatus: BINDINGS.setStatus,
+                state: BINDINGS.state,
+                totalsFromSummary: BINDINGS.totalsFromSummary,
             });
         },
     };

@@ -12,12 +12,12 @@ export async function hydrateBookCover(book: Book): Promise<Book> {
     }
 
     try {
-        const localCover = await getPlannerApi().downloadCover(
+        const LOCAL_COVER = await getPlannerApi().downloadCover(
             book.cover_url,
             book.book_id,
         );
-        if (localCover) {
-            return { ...book, cover_local_path: localCover };
+        if (LOCAL_COVER) {
+            return { ...book, cover_local_path: LOCAL_COVER };
         }
         return book;
     } catch {
@@ -32,11 +32,11 @@ export async function hydrateBookCover(book: Book): Promise<Book> {
  * @returns New books array with upsert applied.
  */
 export function upsertBookById(books: Book[], nextBook: Book): Book[] {
-    const index = books.findIndex((row) => row.book_id === nextBook.book_id);
-    if (index < 0) {
+    const INDEX = books.findIndex((row) => row.book_id === nextBook.book_id);
+    if (INDEX < 0) {
         return [...books, nextBook];
     }
-    const nextBooks = [...books];
-    nextBooks[index] = nextBook;
-    return nextBooks;
+    const NEXT_BOOKS = [...books];
+    NEXT_BOOKS[INDEX] = nextBook;
+    return NEXT_BOOKS;
 }

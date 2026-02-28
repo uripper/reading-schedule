@@ -57,25 +57,25 @@ export async function applyPlannedData(
         updateTodayView,
         persistDraft,
     } = root0;
-    const previousRows = getLastResult()?.schedule ?? [];
+    const PREVIOUS_ROWS = getLastResult()?.schedule ?? [];
     let nextRows = data.schedule;
     if (preserveLockedDays) {
         nextRows = mergeScheduleRows(
-            previousRows,
+            PREVIOUS_ROWS,
             nextRows,
             getSessions(),
             getBlockedDayBooks(),
         );
     }
-    const filteredCompletions = pruneScheduleCompletions(
+    const FILTERED_COMPLETIONS = pruneScheduleCompletions(
         getScheduleCompletions(),
         nextRows,
     );
-    setScheduleCompletions(filteredCompletions);
-    const nextResult = resultFromData({ ...data, schedule: nextRows });
-    setLastResult(nextResult);
+    setScheduleCompletions(FILTERED_COMPLETIONS);
+    const NEXT_RESULT = resultFromData({ ...data, schedule: nextRows });
+    setLastResult(NEXT_RESULT);
     setBookScheduleRows(nextRows);
-    renderCalendar(nextRows, totalsFromSummary(nextResult.summary));
+    renderCalendar(nextRows, totalsFromSummary(NEXT_RESULT.summary));
     updateTodayView();
     await persistDraft();
 }

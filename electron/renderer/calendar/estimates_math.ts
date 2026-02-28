@@ -10,11 +10,11 @@ const PERCENT_PRECISION_SCALE = 1000;
  * @returns Positive finite number or zero.
  */
 function positiveFiniteNumber(value: unknown): number {
-    const parsed = Number(value ?? 0);
-    if (!Number.isFinite(parsed) || parsed <= 0) {
+    const PARSED = Number(value ?? 0);
+    if (!Number.isFinite(PARSED) || PARSED <= 0) {
         return 0;
     }
-    return parsed;
+    return PARSED;
 }
 
 /**
@@ -36,13 +36,13 @@ export function fullWordsForBook(
     book: Book | null,
     remainingWords: number,
 ): number {
-    const wordsTotal = positiveFiniteNumber(book?.words_total);
-    if (wordsTotal > 0) {
-        return wordsTotal;
+    const WORDS_TOTAL = positiveFiniteNumber(book?.words_total);
+    if (WORDS_TOTAL > 0) {
+        return WORDS_TOTAL;
     }
-    const pagesTotal = positiveFiniteNumber(book?.pages_total);
-    if (pagesTotal > 0) {
-        return pagesTotal * WORDS_PER_PAGE;
+    const PAGES_TOTAL = positiveFiniteNumber(book?.pages_total);
+    if (PAGES_TOTAL > 0) {
+        return PAGES_TOTAL * WORDS_PER_PAGE;
     }
     return positiveFiniteNumber(remainingWords);
 }
@@ -57,9 +57,9 @@ export function wordsReadFromBook(
     book: Book | null,
     fullWords: number,
 ): number {
-    const progressPercent = Number(book?.progress_percent ?? 0);
-    const clamped = clampPercent(progressPercent);
-    return Math.round((clamped / PERCENT_SCALE) * fullWords);
+    const PROGRESS_PERCENT = Number(book?.progress_percent ?? 0);
+    const CLAMPED = clampPercent(PROGRESS_PERCENT);
+    return Math.round((CLAMPED / PERCENT_SCALE) * fullWords);
 }
 
 /**

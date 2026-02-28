@@ -42,48 +42,48 @@ export function buildStatsSnapshot({
     scheduleCompletions,
     dailyGoalMinutes,
 }: SnapshotInputs): StatsSnapshot {
-    const year = new Date().getFullYear();
-    const minutesByDayThisYear = dayMinutesFromActivity({
+    const YEAR = new Date().getFullYear();
+    const MINUTES_BY_DAY_THIS_YEAR = dayMinutesFromActivity({
         lastResult,
         scheduleCompletions,
         sessions,
-        year,
+        year: YEAR,
     });
-    const minutesByDayAllTime = dayMinutesFromActivity({
+    const MINUTES_BY_DAY_ALL_TIME = dayMinutesFromActivity({
         lastResult,
         scheduleCompletions,
         sessions,
         year: null,
     });
-    const progress = averageProgress(books);
-    const completion = completionStats(lastResult, scheduleCompletions, year);
-    const readThisYearIds = readBooksFinishedThisYear(books, year);
-    const planned = plannedFinishBookIds(lastResult, year);
-    const projected = new Set([...readThisYearIds, ...planned.ids]);
-    const goalMinutes = normalizedGoalMinutes(dailyGoalMinutes);
+    const PROGRESS = averageProgress(books);
+    const COMPLETION = completionStats(lastResult, scheduleCompletions, YEAR);
+    const READ_THIS_YEAR_IDS = readBooksFinishedThisYear(books, YEAR);
+    const PLANNED = plannedFinishBookIds(lastResult, YEAR);
+    const PROJECTED = new Set([...READ_THIS_YEAR_IDS, ...PLANNED.ids]);
+    const GOAL_MINUTES = normalizedGoalMinutes(dailyGoalMinutes);
 
     return {
-        activeDaysYear: activeDayCount(minutesByDayThisYear),
-        averageProgressPercent: progress.averagePercent,
-        booksStartedCount: progress.startedCount,
-        completedSessionsToDate: completion.completed,
-        completionRatePercent: completion.ratePercent,
+        activeDaysYear: activeDayCount(MINUTES_BY_DAY_THIS_YEAR),
+        averageProgressPercent: PROGRESS.averagePercent,
+        booksStartedCount: PROGRESS.startedCount,
+        completedSessionsToDate: COMPLETION.completed,
+        completionRatePercent: COMPLETION.ratePercent,
         currentStreakDays: streakFromDayMinutes(
-            minutesByDayAllTime,
-            goalMinutes,
+            MINUTES_BY_DAY_ALL_TIME,
+            GOAL_MINUTES,
         ),
-        finishedThisYearCount: readThisYearIds.size,
+        finishedThisYearCount: READ_THIS_YEAR_IDS.size,
         monthlyFinishes: monthlyFinishCounts(
-            readThisYearIds,
+            READ_THIS_YEAR_IDS,
             books,
-            planned.monthByBookId,
+            PLANNED.monthByBookId,
         ),
-        plannedFinishCount: planned.ids.size,
-        projectedFinishCount: projected.size,
-        readingMinutesYear: totalMinutes(minutesByDayThisYear),
-        scheduledSessionsToDate: completion.scheduled,
+        plannedFinishCount: PLANNED.ids.size,
+        projectedFinishCount: PROJECTED.size,
+        readingMinutesYear: totalMinutes(MINUTES_BY_DAY_THIS_YEAR),
+        scheduledSessionsToDate: COMPLETION.scheduled,
         statusBreakdown: statusBreakdown(books),
         totalBooks: books.length,
-        year,
+        year: YEAR,
     };
 }

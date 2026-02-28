@@ -31,38 +31,43 @@ export function createDashboardRuntime({
     applyExperienceSettings(): void;
     updateDashboards(): void;
 } {
-    const runtimeState = state;
-    const updateStatsDashboardView = (): void => {
+    const RUNTIME_STATE = state;
+    const UPDATE_STATS_DASHBOARD_VIEW = (): void => {
         updateStatsView({
             books: collectAllBooks(),
-            dailyGoalMinutes: Number(runtimeState.preferences.dailyGoalMinutes),
-            lastResult: runtimeState.lastResult,
-            scheduleCompletions: runtimeState.scheduleCompletions,
-            sessions: runtimeState.sessions,
+            dailyGoalMinutes: Number(
+                RUNTIME_STATE.preferences.dailyGoalMinutes,
+            ),
+            lastResult: RUNTIME_STATE.lastResult,
+            scheduleCompletions: RUNTIME_STATE.scheduleCompletions,
+            sessions: RUNTIME_STATE.sessions,
         });
     };
-    const updateDashboards = (): void => {
+    const UPDATE_DASHBOARDS = (): void => {
         updateTodayDashboard({
             books: collectAllBooks(),
             defaultDailyGoalMinutes: DEFAULT_PREFERENCES.dailyGoalMinutes,
-            featureFlags: runtimeState.featureFlags,
-            lastResult: runtimeState.lastResult,
-            preferences: runtimeState.preferences,
-            scheduleCompletions: runtimeState.scheduleCompletions,
-            sessions: runtimeState.sessions,
+            featureFlags: RUNTIME_STATE.featureFlags,
+            lastResult: RUNTIME_STATE.lastResult,
+            preferences: RUNTIME_STATE.preferences,
+            scheduleCompletions: RUNTIME_STATE.scheduleCompletions,
+            sessions: RUNTIME_STATE.sessions,
         });
-        updateStatsDashboardView();
+        UPDATE_STATS_DASHBOARD_VIEW();
     };
-    const applyExperienceSettings = (): void => {
-        runtimeState.preferences = normalizePreferences(
+    const APPLY_EXPERIENCE_SETTINGS = (): void => {
+        RUNTIME_STATE.preferences = normalizePreferences(
             collectPreferencesFromUI(),
         );
-        runtimeState.featureFlags = normalizeFeatureFlags(
+        RUNTIME_STATE.featureFlags = normalizeFeatureFlags(
             collectFeatureFlagsFromUI(),
         );
-        applyPreferencesToDocument(runtimeState.preferences);
-        updateDashboards();
+        applyPreferencesToDocument(RUNTIME_STATE.preferences);
+        UPDATE_DASHBOARDS();
         queuePersist();
     };
-    return { applyExperienceSettings, updateDashboards };
+    return {
+        applyExperienceSettings: APPLY_EXPERIENCE_SETTINGS,
+        updateDashboards: UPDATE_DASHBOARDS,
+    };
 }

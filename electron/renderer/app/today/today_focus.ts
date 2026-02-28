@@ -105,13 +105,13 @@ export function completeTinyStart(
     state: TodayFocusState,
     tinyStartMinutes = TINY_START_MINUTES,
 ): TodayFocusState {
-    const normalizedMinutes = Math.max(
+    const NORMALIZED_MINUTES = Math.max(
         1,
         Math.round(Number(tinyStartMinutes || 0)),
     );
     return {
         ...state,
-        feedback: `Tiny Start complete: ${normalizedMinutes} minutes done.`,
+        feedback: `Tiny Start complete: ${NORMALIZED_MINUTES} minutes done.`,
         isStarted: false,
     };
 }

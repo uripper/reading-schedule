@@ -53,7 +53,7 @@ export function rowsForMode(
  * @returns Rendered row element.
  */
 export function rowNodeForMode(args: RowNodeForModeArgs): HTMLElement {
-    const rerenderDetails = (): void => {
+    const RERENDER_DETAILS = (): void => {
         args.rerenderDetails();
     };
     if (args.mode === "today") {
@@ -61,7 +61,7 @@ export function rowNodeForMode(args: RowNodeForModeArgs): HTMLElement {
             args.row,
             args.state,
             args.interactionHandlers,
-            rerenderDetails,
+            RERENDER_DETAILS,
         );
     }
     if (args.mode === "future") {
@@ -69,12 +69,12 @@ export function rowNodeForMode(args: RowNodeForModeArgs): HTMLElement {
             args.row,
             args.state,
             args.interactionHandlers,
-            rerenderDetails,
+            RERENDER_DETAILS,
         );
     }
     return buildPastSessionItem(
         args.row,
         args.interactionHandlers,
-        rerenderDetails,
+        RERENDER_DETAILS,
     );
 }

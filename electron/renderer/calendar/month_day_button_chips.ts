@@ -34,10 +34,10 @@ function appendVisibleRowChips(
     rows: CalendarDisplayRow[],
 ): void {
     rows.slice(0, 2).forEach((row) => {
-        const chip = document.createElement("span");
-        chip.className = chipClassNameForRow(row);
-        chip.textContent = `${row.title ?? "Untitled"} - ${Number(row.minutes ?? 0)}m`;
-        dayButton.append(chip);
+        const CHIP = document.createElement("span");
+        CHIP.className = chipClassNameForRow(row);
+        CHIP.textContent = `${row.title ?? "Untitled"} - ${Number(row.minutes ?? 0)}m`;
+        dayButton.append(CHIP);
     });
 }
 
@@ -53,10 +53,10 @@ function appendExtraRowChip(
     if (rowCount <= 2) {
         return;
     }
-    const extra = document.createElement("span");
-    extra.className = "day-chip is-more";
-    extra.textContent = `+${rowCount - 2} more`;
-    dayButton.append(extra);
+    const EXTRA = document.createElement("span");
+    EXTRA.className = "day-chip is-more";
+    EXTRA.textContent = `+${rowCount - 2} more`;
+    dayButton.append(EXTRA);
 }
 
 /**
@@ -68,10 +68,10 @@ export function appendDayButtonSummary(
     dayButton: HTMLButtonElement,
     rows: CalendarDisplayRow[],
 ): void {
-    const count = document.createElement("span");
-    count.className = "day-event-count";
-    count.textContent = plannedSessionText(rows.length);
-    dayButton.append(count);
+    const COUNT = document.createElement("span");
+    COUNT.className = "day-event-count";
+    COUNT.textContent = plannedSessionText(rows.length);
+    dayButton.append(COUNT);
 
     appendVisibleRowChips(dayButton, rows);
     appendExtraRowChip(dayButton, rows.length);

@@ -21,27 +21,27 @@ function normalizeError(error: unknown): unknown {
  * @param payload Log payload containing level/message/context/error.
  */
 function emitLog(payload: LogPayload): void {
-    const output: LogPayload = {
+    const OUTPUT: LogPayload = {
         level: payload.level,
         message: payload.message,
     };
 
     if (payload.context !== undefined) {
-        output.context = payload.context;
+        OUTPUT.context = payload.context;
     }
 
     if (payload.error !== undefined) {
-        output.error = normalizeError(payload.error);
+        OUTPUT.error = normalizeError(payload.error);
     }
 
     if (payload.level === "error") {
         console.groupCollapsed("[renderer][error]", payload.message);
-        console.info(output);
+        console.info(OUTPUT);
         console.groupEnd();
         return;
     }
 
-    console.info("[renderer][info]", output);
+    console.info("[renderer][info]", OUTPUT);
 }
 
 /**

@@ -59,11 +59,11 @@ const GROUP_OPTION_SHELF: OptionDefinition = {
 export function groupOptionsForShelfFilter(
     shelfFilter: string,
 ): OptionDefinition[] {
-    const options = [...GROUP_OPTIONS_BASE];
+    const OPTIONS = [...GROUP_OPTIONS_BASE];
     if (shelfFilter === SHELF_FILTER_ALL) {
-        options.splice(1, 0, GROUP_OPTION_SHELF);
+        OPTIONS.splice(1, 0, GROUP_OPTION_SHELF);
     }
-    return options;
+    return OPTIONS;
 }
 
 /**
@@ -72,12 +72,12 @@ export function groupOptionsForShelfFilter(
  * @returns Shelf filter option definitions for toolbar render.
  */
 export function shelfFilterOptions(books: Book[]): OptionDefinition[] {
-    const options: OptionDefinition[] = [
+    const OPTIONS: OptionDefinition[] = [
         { label: "All Shelves", value: SHELF_FILTER_ALL },
         { label: "Unshelved", value: SHELF_FILTER_UNSHELVED },
     ];
     uniqueShelves(books).forEach((shelfName) => {
-        options.push({ label: shelfName, value: shelfName });
+        OPTIONS.push({ label: shelfName, value: shelfName });
     });
-    return options;
+    return OPTIONS;
 }

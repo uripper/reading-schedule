@@ -12,11 +12,11 @@ export const RECOMMENDATIONS_AVAILABLE = false;
  * @returns true/false or undefined if not a recognized pattern.
  */
 function normalizeStringFlag(value: string): boolean | undefined {
-    const normalized = value.trim().toLowerCase();
-    if (normalized === "true" || normalized === "1") {
+    const NORMALIZED = value.trim().toLowerCase();
+    if (NORMALIZED === "true" || NORMALIZED === "1") {
         return true;
     }
-    if (normalized === "false" || normalized === "0") {
+    if (NORMALIZED === "false" || NORMALIZED === "0") {
         return false;
     }
     return undefined;
@@ -57,16 +57,16 @@ export function shippedFeatureFlag(
     }
 
     if (typeof rawValue === "string") {
-        const result = normalizeStringFlag(rawValue);
-        if (result !== undefined) {
-            return result;
+        const RESULT = normalizeStringFlag(rawValue);
+        if (RESULT !== undefined) {
+            return RESULT;
         }
     }
 
     if (typeof rawValue === "number") {
-        const result = normalizeNumberFlag(rawValue);
-        if (result !== undefined) {
-            return result;
+        const RESULT = normalizeNumberFlag(rawValue);
+        if (RESULT !== undefined) {
+            return RESULT;
         }
     }
 
@@ -88,9 +88,9 @@ export function shippedReminderTime(
     if (!isAvailable) {
         return defaultReminderTime;
     }
-    const value = String(rawValue ?? "").trim();
-    if (!value) {
+    const VALUE = String(rawValue ?? "").trim();
+    if (!VALUE) {
         return defaultReminderTime;
     }
-    return value;
+    return VALUE;
 }

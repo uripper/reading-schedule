@@ -22,7 +22,7 @@ async function invokeIpc<T>(channel: string, ...args: unknown[]): Promise<T> {
     return (await ipcRenderer.invoke(channel, ...args)) as T;
 }
 
-const plannerApi: PlannerApi = {
+const PLANNER_API: PlannerApi = {
     downloadCover: async (
         url: string | undefined,
         bookId: string | undefined,
@@ -65,4 +65,4 @@ const plannerApi: PlannerApi = {
         await invokeIpc<number>("window:zoomReset"),
 };
 
-contextBridge.exposeInMainWorld("plannerApi", plannerApi);
+contextBridge.exposeInMainWorld("plannerApi", PLANNER_API);

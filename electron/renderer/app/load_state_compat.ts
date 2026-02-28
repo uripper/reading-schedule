@@ -27,14 +27,14 @@ export function toSavedRecord(
 export function normalizeBlockedDayBooks(
     raw: Record<string, string | number | boolean | null | undefined> = {},
 ): Record<string, boolean> {
-    const out: Record<string, boolean> = {};
+    const OUT: Record<string, boolean> = {};
     Object.entries(raw).forEach(([key, value]) => {
         if (!key) {
             return;
         }
-        out[key] = Boolean(value);
+        OUT[key] = Boolean(value);
     });
-    return out;
+    return OUT;
 }
 
 /**
@@ -50,11 +50,11 @@ export function readRawCompletions(
     if (saved?.schedule_completions) {
         return saved.schedule_completions;
     }
-    const legacy = savedRecord.scheduleCompletions as
+    const LEGACY = savedRecord.scheduleCompletions as
         | Record<string, boolean>
         | undefined;
-    if (legacy) {
-        return legacy;
+    if (LEGACY) {
+        return LEGACY;
     }
     return {};
 }
@@ -72,11 +72,11 @@ export function readRawBlockedDayBooks(
     if (saved?.blocked_day_books) {
         return saved.blocked_day_books;
     }
-    const legacy = savedRecord.blockedDayBooks as
+    const LEGACY = savedRecord.blockedDayBooks as
         | Record<string, string | number | boolean | null | undefined>
         | undefined;
-    if (legacy) {
-        return legacy;
+    if (LEGACY) {
+        return LEGACY;
     }
     return {};
 }
@@ -131,9 +131,9 @@ export function readLoadedResult(
     if (saved?.last_result !== undefined) {
         return saved.last_result;
     }
-    const legacy = savedRecord.lastResult;
-    if (legacy !== null && typeof legacy === "object") {
-        return legacy as PlannerResult;
+    const LEGACY = savedRecord.lastResult;
+    if (LEGACY !== null && typeof LEGACY === "object") {
+        return LEGACY as PlannerResult;
     }
     return null;
 }
@@ -151,11 +151,11 @@ export function readFeatureFlags(
     if (saved?.feature_flags) {
         return saved.feature_flags;
     }
-    const legacy = savedRecord.featureFlags as
+    const LEGACY = savedRecord.featureFlags as
         | Partial<FeatureFlags>
         | undefined;
-    if (legacy) {
-        return legacy;
+    if (LEGACY) {
+        return LEGACY;
     }
     return {};
 }

@@ -12,18 +12,18 @@ export function applyScheduledDaysToShelfBooks(
     books: Book[],
     sourceBook: Book,
 ): Book[] {
-    const shelf = normalizeShelfName(sourceBook.shelf);
-    if (shelf === "") {
+    const SHELF = normalizeShelfName(sourceBook.shelf);
+    if (SHELF === "") {
         return books;
     }
-    const nextDays = normalizeScheduledDays(sourceBook.scheduled_days);
+    const NEXT_DAYS = normalizeScheduledDays(sourceBook.scheduled_days);
     return books.map((book) => {
-        if (normalizeShelfName(book.shelf) !== shelf) {
+        if (normalizeShelfName(book.shelf) !== SHELF) {
             return book;
         }
         return {
             ...book,
-            scheduled_days: [...nextDays],
+            scheduled_days: [...NEXT_DAYS],
         };
     });
 }

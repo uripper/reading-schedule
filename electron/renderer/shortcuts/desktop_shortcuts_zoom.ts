@@ -28,18 +28,18 @@ export function createZoomShortcutHandler(
     plannerApi: ZoomApi,
     announce: (message: string, politeness?: "polite" | "assertive") => void,
 ): (event: KeyboardEvent) => boolean {
-    const runZoomCommand = async (
+    const RUN_ZOOM_COMMAND = async (
         operation: () => Promise<number>,
     ): Promise<void> => {
         try {
-            const zoomFactor = await operation();
-            announce(formatZoomAnnouncement(zoomFactor));
+            const ZOOM_FACTOR = await operation();
+            announce(formatZoomAnnouncement(ZOOM_FACTOR));
         } catch (error) {
             logError("Zoom operation failed", error);
             announce("Unable to update zoom level", "assertive");
         }
     };
-    const runDetached = (operation: Promise<void>): void => {
+    const RUN_DETACHED = (operation: Promise<void>): void => {
         operation.catch((error: unknown) => {
             logError("Shortcut command failed", error);
         });
@@ -50,18 +50,22 @@ export function createZoomShortcutHandler(
         }
         if (isZoomInShortcut(event)) {
             event.preventDefault();
-            runDetached(runZoomCommand(async () => await plannerApi.zoomIn()));
+            RUN_DETACHED(
+                RUN_ZOOM_COMMAND(async () => await plannerApi.zoomIn()),
+            );
             return true;
         }
         if (isZoomOutShortcut(event)) {
             event.preventDefault();
-            runDetached(runZoomCommand(async () => await plannerApi.zoomOut()));
+            RUN_DETACHED(
+                RUN_ZOOM_COMMAND(async () => await plannerApi.zoomOut()),
+            );
             return true;
         }
         if (isZoomResetShortcut(event)) {
             event.preventDefault();
-            runDetached(
-                runZoomCommand(async () => await plannerApi.zoomReset()),
+            RUN_DETACHED(
+                RUN_ZOOM_COMMAND(async () => await plannerApi.zoomReset()),
             );
             return true;
         }

@@ -31,10 +31,10 @@ import { updateTodayDashboard } from "./today/index.js";
  * @returns The Planner API instance available on the global context
  */
 function plannerApiFromGlobal(): PlannerApi {
-    const globals = globalThis as typeof globalThis & {
+    const GLOBALS = globalThis as typeof globalThis & {
         plannerApi: PlannerApi;
     };
-    return globals.plannerApi;
+    return GLOBALS.plannerApi;
 }
 
 /**
@@ -44,65 +44,65 @@ function plannerApiFromGlobal(): PlannerApi {
  * @returns An initialized AppBootstrapContext object containing APIs, state, and utility functions
  */
 export function createAppBootstrapContext(): AppBootstrapContext {
-    const state = createRuntimeState();
-    const plannerApi = plannerApiFromGlobal();
-    const announce = createAnnouncer();
-    const announceForPlanController = (
+    const STATE = createRuntimeState();
+    const PLANNER_API = plannerApiFromGlobal();
+    const ANNOUNCE = createAnnouncer();
+    const ANNOUNCE_FOR_PLAN_CONTROLLER = (
         message: string,
         politeness?: string,
     ): void => {
         if (politeness === "polite" || politeness === "assertive") {
-            announce(message, politeness);
+            ANNOUNCE(message, politeness);
             return;
         }
-        announce(message);
+        ANNOUNCE(message);
     };
-    const setStatus = createStatusSetter(el("status"), addLog);
-    const persistQueue = createPersistQueue({
+    const SET_STATUS = createStatusSetter(el("status"), addLog);
+    const PERSIST_QUEUE = createPersistQueue({
         addLog,
         collectBooks: collectAllBooks,
         collectSettings,
-        getSessions: () => state.sessions,
-        plannerApi,
-        state,
+        getSessions: () => STATE.sessions,
+        plannerApi: PLANNER_API,
+        state: STATE,
     });
-    const queuePersist = (): void => {
-        persistQueue.queuePersist();
+    const QUEUE_PERSIST = (): void => {
+        PERSIST_QUEUE.queuePersist();
     };
-    const persistDraft = async (): Promise<boolean> => {
-        return await persistQueue.persistDraft();
+    const PERSIST_DRAFT = async (): Promise<boolean> => {
+        return await PERSIST_QUEUE.persistDraft();
     };
-    const dashboards = createDashboardRuntime({
+    const DASHBOARDS = createDashboardRuntime({
         applyPreferencesToDocument,
         collectAllBooks,
         collectFeatureFlagsFromUI,
         collectPreferencesFromUI,
         normalizeFeatureFlags,
         normalizePreferences,
-        queuePersist,
-        state,
+        queuePersist: QUEUE_PERSIST,
+        state: STATE,
         updateStatsView,
         updateTodayDashboard,
     });
-    const runtime = createInitRuntime({
+    const RUNTIME = createInitRuntime({
         focusCalendarToday,
-        queuePersist,
-        state,
+        queuePersist: QUEUE_PERSIST,
+        state: STATE,
         updateDashboards: (): void => {
-            dashboards.updateDashboards();
+            DASHBOARDS.updateDashboards();
         },
     });
 
     return {
         addLog,
-        announce,
-        announceForPlanController,
-        dashboards,
-        persistDraft,
-        plannerApi,
-        queuePersist,
-        runtime,
-        setStatus,
-        state,
+        announce: ANNOUNCE,
+        announceForPlanController: ANNOUNCE_FOR_PLAN_CONTROLLER,
+        dashboards: DASHBOARDS,
+        persistDraft: PERSIST_DRAFT,
+        plannerApi: PLANNER_API,
+        queuePersist: QUEUE_PERSIST,
+        runtime: RUNTIME,
+        setStatus: SET_STATUS,
+        state: STATE,
     };
 }

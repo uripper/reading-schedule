@@ -21,21 +21,21 @@ const OPEN_LIBRARY_LANGUAGE_ENGLISH = "eng";
  * @returns Ordered list of search endpoint URLs.
  */
 export function searchUrls(query: string, authorOnly = false): string[] {
-    const encoded = encodeURIComponent(query);
-    const base = `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}&fields=${SEARCH_FIELDS}`;
+    const ENCODED = encodeURIComponent(query);
+    const BASE = `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}&fields=${SEARCH_FIELDS}`;
     if (authorOnly) {
         // Intentionally omit `fields` in author-only mode because Open Library
         // ranking quality regresses with projected fields for these queries.
-        const authorOnlyBase = `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}`;
+        const AUTHOR_ONLY_BASE = `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}`;
         return [
-            `${authorOnlyBase}&author=${encoded}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
-            `${authorOnlyBase}&author=${encoded}`,
+            `${AUTHOR_ONLY_BASE}&author=${ENCODED}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
+            `${AUTHOR_ONLY_BASE}&author=${ENCODED}`,
         ];
     }
     return [
-        `${base}&q=${encoded}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
-        `${base}&author=${encoded}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
-        `${base}&title=${encoded}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
+        `${BASE}&q=${ENCODED}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
+        `${BASE}&author=${ENCODED}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
+        `${BASE}&title=${ENCODED}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
     ];
 }
 
@@ -45,16 +45,16 @@ export function searchUrls(query: string, authorOnly = false): string[] {
  * @returns Parsed search response payload.
  */
 export async function fetchJson(url: string): Promise<SearchResponse> {
-    const response = await globalThis.fetch(url, { redirect: "follow" });
-    const status = Number(response.status || 0);
+    const RESPONSE = await globalThis.fetch(url, { redirect: "follow" });
+    const STATUS = Number(RESPONSE.status || 0);
     if (
-        status >= HTTP_STATUS_REDIRECT_MIN &&
-        status < HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE
+        STATUS >= HTTP_STATUS_REDIRECT_MIN &&
+        STATUS < HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE
     ) {
-        throw new Error(`Unexpected redirect status (${status})`);
+        throw new Error(`Unexpected redirect status (${STATUS})`);
     }
-    if (status >= HTTP_STATUS_ERROR_MIN || !response.ok) {
-        throw new Error(`Request failed (${status})`);
+    if (STATUS >= HTTP_STATUS_ERROR_MIN || !RESPONSE.ok) {
+        throw new Error(`Request failed (${STATUS})`);
     }
-    return (await response.json()) as SearchResponse;
+    return (await RESPONSE.json()) as SearchResponse;
 }

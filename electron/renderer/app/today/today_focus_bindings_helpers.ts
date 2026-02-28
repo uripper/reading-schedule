@@ -21,14 +21,14 @@ export function setFocusEntryButtonState(
     button: HTMLButtonElement,
     isOpen: boolean,
 ): void {
-    const nextButton = button;
+    const NEXT_BUTTON = button;
     if (isOpen) {
-        nextButton.textContent = CLOSE_FOCUS_TEXT;
-        nextButton.setAttribute("aria-expanded", "true");
+        NEXT_BUTTON.textContent = CLOSE_FOCUS_TEXT;
+        NEXT_BUTTON.setAttribute("aria-expanded", "true");
         return;
     }
-    nextButton.textContent = OPEN_FOCUS_TEXT;
-    nextButton.setAttribute("aria-expanded", "false");
+    NEXT_BUTTON.textContent = OPEN_FOCUS_TEXT;
+    NEXT_BUTTON.setAttribute("aria-expanded", "false");
 }
 
 /**
@@ -41,12 +41,12 @@ export function nextCompletionsWithRowMarkedComplete(
     currentCompletions: Record<string, boolean>,
     row: PlannerScheduleRow,
 ): Record<string, boolean> {
-    const nextCompletions = {
+    const NEXT_COMPLETIONS = {
         ...currentCompletions,
     };
-    nextCompletions[sessionKeyFor(row)] = true;
-    nextCompletions[dayBookCompletionKey(row.date, row.book_id)] = true;
-    return nextCompletions;
+    NEXT_COMPLETIONS[sessionKeyFor(row)] = true;
+    NEXT_COMPLETIONS[dayBookCompletionKey(row.date, row.book_id)] = true;
+    return NEXT_COMPLETIONS;
 }
 
 /**
@@ -57,27 +57,27 @@ export function nextCompletionsWithRowMarkedComplete(
 export function tinyStartSessionFromFocus(
     session: FocusSession | null,
 ): Session {
-    const bookId = session?.bookId;
-    const title = session?.title;
+    const BOOK_ID = session?.bookId;
+    const TITLE = session?.title;
     let normalizedBookId = "";
-    if (typeof bookId === "string" && bookId.length > 0) {
-        normalizedBookId = bookId;
+    if (typeof BOOK_ID === "string" && BOOK_ID.length > 0) {
+        normalizedBookId = BOOK_ID;
     }
     let normalizedTitle = "Tiny Start";
-    if (typeof title === "string" && title.length > 0) {
-        normalizedTitle = title;
+    if (typeof TITLE === "string" && TITLE.length > 0) {
+        normalizedTitle = TITLE;
     }
-    const endedAt = new Date().toISOString();
-    const startedAt = new Date(
+    const ENDED_AT = new Date().toISOString();
+    const STARTED_AT = new Date(
         Date.now() - TINY_START_MINUTES * 60 * 1000,
     ).toISOString();
     return normalizeSession({
         book_id: normalizedBookId,
-        ended_at: endedAt,
+        ended_at: ENDED_AT,
         minutes: TINY_START_MINUTES,
         notes: TINY_START_NOTE,
         source: "manual",
-        started_at: startedAt,
+        started_at: STARTED_AT,
         title: normalizedTitle,
     });
 }

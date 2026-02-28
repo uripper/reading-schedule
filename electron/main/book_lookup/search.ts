@@ -20,20 +20,20 @@ export async function searchBooks(
     query: string,
     authorOnly = false,
 ): Promise<SearchItem[]> {
-    const normalizedQuery = query.trim();
-    if (normalizedQuery.length < MIN_QUERY_LENGTH) {
+    const NORMALIZED_QUERY = query.trim();
+    if (NORMALIZED_QUERY.length < MIN_QUERY_LENGTH) {
         return [];
     }
-    const urls = searchUrls(normalizedQuery, authorOnly);
+    const URLS = searchUrls(NORMALIZED_QUERY, authorOnly);
     console.info(
-        `[OpenLibrary] Searching (authorOnly=${authorOnly}): "${normalizedQuery}"`,
+        `[OpenLibrary] Searching (authorOnly=${authorOnly}): "${NORMALIZED_QUERY}"`,
     );
-    console.info(`[OpenLibrary] URLs: ${urls.join(" | ")}`);
-    const responses = await Promise.allSettled(
-        urls.map(async (url) => await fetchJson(url)),
+    console.info(`[OpenLibrary] URLs: ${URLS.join(" | ")}`);
+    const RESPONSES = await Promise.allSettled(
+        URLS.map(async (url) => await fetchJson(url)),
     );
-    const docs: SearchDoc[] = [];
-    responses.forEach((result) => {
+    const DOCS: SearchDoc[] = [];
+    RESPONSES.forEach((result) => {
         if (
             result.status !== "fulfilled" ||
             !Array.isArray(result.value.docs)
@@ -41,22 +41,22 @@ export async function searchBooks(
             return;
         }
         result.value.docs.forEach((doc) => {
-            docs.push(doc);
+            DOCS.push(doc);
         });
     });
     console.info(
-        `[OpenLibrary] Raw results before dedup/scoring: ${docs.length}`,
+        `[OpenLibrary] Raw results before dedup/scoring: ${DOCS.length}`,
     );
-    const scored = dedupeDocs(docs)
+    const SCORED = dedupeDocs(DOCS)
         .map((doc) => ({
             doc,
-            score: scoreDoc(doc, normalizedQuery, authorOnly),
+            score: scoreDoc(doc, NORMALIZED_QUERY, authorOnly),
         }))
         .filter((entry) => entry.score > 0);
     console.info(
-        `[OpenLibrary] After scoring: ${scored.length} with score > 0`,
+        `[OpenLibrary] After scoring: ${SCORED.length} with score > 0`,
     );
-    scored.sort((left, right) => {
+    SCORED.sort((left, right) => {
         if (left.score !== right.score) {
             return right.score - left.score;
         }
@@ -66,19 +66,18 @@ export async function searchBooks(
             { sensitivity: "base" },
         );
     });
-    const final = scored
-        .slice(0, SEARCH_OUTPUT_LIMIT)
+    const FINAL = SCORED.slice(0, SEARCH_OUTPUT_LIMIT)
         .map((entry) => toItem(entry.doc))
         .filter((item) => Boolean(item.title));
     console.info(
-        `[OpenLibrary] Final results (limit ${SEARCH_OUTPUT_LIMIT}): ${final.length}`,
+        `[OpenLibrary] Final results (limit ${SEARCH_OUTPUT_LIMIT}): ${FINAL.length}`,
     );
     if (!IS_PRODUCTION) {
-        final.forEach((item, idx) => {
+        FINAL.forEach((item, idx) => {
             console.info(
                 `  [${idx + 1}] "${item.title}" by ${item.author} (${item.words_estimate} words)`,
             );
         });
     }
-    return final;
+    return FINAL;
 }

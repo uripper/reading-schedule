@@ -25,10 +25,10 @@ function matchingAuthorTokenCount(
     authorTokens: string[],
     queryTokenList: string[],
 ): number {
-    const authorTokenSet = new Set(authorTokens);
+    const AUTHOR_TOKEN_SET = new Set(authorTokens);
     let matches = 0;
     queryTokenList.forEach((token) => {
-        if (!authorTokenSet.has(token)) {
+        if (!AUTHOR_TOKEN_SET.has(token)) {
             return;
         }
         matches += 1;
@@ -58,27 +58,27 @@ function authorMatchScore(
     if (authorNorm === queryNorm) {
         return SCORE_AUTHOR_EXACT;
     }
-    const authorTokens = normalizedTokens(authorNorm);
-    if (authorTokens.length === 0) {
+    const AUTHOR_TOKENS = normalizedTokens(authorNorm);
+    if (AUTHOR_TOKENS.length === 0) {
         return 0;
     }
-    const matchedCount = matchingAuthorTokenCount(authorTokens, tokens);
-    if (matchedCount <= 0) {
+    const MATCHED_COUNT = matchingAuthorTokenCount(AUTHOR_TOKENS, tokens);
+    if (MATCHED_COUNT <= 0) {
         return 0;
     }
     let minimumMatchedTokens = 1;
     if (tokens.length >= 2) {
         minimumMatchedTokens = 2;
     }
-    if (matchedCount < minimumMatchedTokens) {
+    if (MATCHED_COUNT < minimumMatchedTokens) {
         return 0;
     }
-    if (matchedCount >= tokens.length) {
+    if (MATCHED_COUNT >= tokens.length) {
         return (
-            SCORE_AUTHOR_ALL_TOKENS + matchedCount * SCORE_AUTHOR_PARTIAL_TOKEN
+            SCORE_AUTHOR_ALL_TOKENS + MATCHED_COUNT * SCORE_AUTHOR_PARTIAL_TOKEN
         );
     }
-    return matchedCount * SCORE_AUTHOR_PARTIAL_TOKEN;
+    return MATCHED_COUNT * SCORE_AUTHOR_PARTIAL_TOKEN;
 }
 
 /**

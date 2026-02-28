@@ -10,11 +10,11 @@ const SESSION_INDEX_PAD = 3;
  * @returns Lexicographic key used for deterministic row sorting.
  */
 function rowSortKey(row: PlannerScheduleRow): string {
-    const session = String(row.session_index || 0).padStart(
+    const SESSION = String(row.session_index || 0).padStart(
         SESSION_INDEX_PAD,
         "0",
     );
-    return `${String(row.date || "")}-${session}`;
+    return `${String(row.date || "")}-${SESSION}`;
 }
 
 /**
@@ -40,33 +40,33 @@ function lockedDates(
     previousRows: PlannerScheduleRow[] = [],
     sessions: Session[] = [],
 ): Set<string> {
-    const locked = new Set<string>();
-    const previousDates = new Set<string>();
-    const todayKey = dayKeyFromDate(new Date());
+    const LOCKED = new Set<string>();
+    const PREVIOUS_DATES = new Set<string>();
+    const TODAY_KEY = dayKeyFromDate(new Date());
 
     previousRows.forEach((row) => {
-        const rowDate = String(row.date || "");
-        if (!isValidDayKey(rowDate)) {
+        const ROW_DATE = String(row.date || "");
+        if (!isValidDayKey(ROW_DATE)) {
             return;
         }
-        previousDates.add(rowDate);
-        if (isOnOrBeforeDay(rowDate, todayKey)) {
-            locked.add(rowDate);
+        PREVIOUS_DATES.add(ROW_DATE);
+        if (isOnOrBeforeDay(ROW_DATE, TODAY_KEY)) {
+            LOCKED.add(ROW_DATE);
         }
     });
 
     sessions.forEach((session) => {
-        const endedAt = String(session.ended_at || "");
-        const key = localDayKeyFromIso(endedAt);
-        if (!isValidDayKey(key || "")) {
+        const ENDED_AT = String(session.ended_at || "");
+        const KEY = localDayKeyFromIso(ENDED_AT);
+        if (!isValidDayKey(KEY || "")) {
             return;
         }
-        if (previousDates.has(key) && isOnOrBeforeDay(key, todayKey)) {
-            locked.add(key);
+        if (PREVIOUS_DATES.has(KEY) && isOnOrBeforeDay(KEY, TODAY_KEY)) {
+            LOCKED.add(KEY);
         }
     });
 
-    return locked;
+    return LOCKED;
 }
 
 /**
@@ -98,8 +98,8 @@ function rowsWithoutBlockedDayBooks(
     blockedDayBooks: Record<string, boolean>,
 ): PlannerScheduleRow[] {
     return rows.filter((row) => {
-        const key = dayBookCompletionKey(row);
-        return !blockedDayBooks[key];
+        const KEY = dayBookCompletionKey(row);
+        return !blockedDayBooks[KEY];
     });
 }
 
@@ -118,27 +118,27 @@ export function mergeScheduleRows(
     sessions: Session[] = [],
     blockedDayBooks: Record<string, boolean> = {},
 ): PlannerScheduleRow[] {
-    const filteredNextRows = rowsWithoutBlockedDayBooks(
+    const FILTERED_NEXT_ROWS = rowsWithoutBlockedDayBooks(
         nextRows,
         blockedDayBooks,
     );
-    const locked = lockedDates(previousRows, sessions);
-    if (!locked.size) {
-        return sortedRows(filteredNextRows);
+    const LOCKED = lockedDates(previousRows, sessions);
+    if (!LOCKED.size) {
+        return sortedRows(FILTERED_NEXT_ROWS);
     }
 
-    const keptRows = previousRows.filter((row) => {
-        return locked.has(String(row.date || ""));
+    const KEPT_ROWS = previousRows.filter((row) => {
+        return LOCKED.has(String(row.date || ""));
     });
-    const newRows = filteredNextRows.filter((row) => {
-        return !locked.has(String(row.date || ""));
+    const NEW_ROWS = FILTERED_NEXT_ROWS.filter((row) => {
+        return !LOCKED.has(String(row.date || ""));
     });
 
-    const mergedByKey = new Map<string, PlannerScheduleRow>();
-    [...keptRows, ...newRows].forEach((row) => {
-        mergedByKey.set(scheduleKey(row), row);
+    const MERGED_BY_KEY = new Map<string, PlannerScheduleRow>();
+    [...KEPT_ROWS, ...NEW_ROWS].forEach((row) => {
+        MERGED_BY_KEY.set(scheduleKey(row), row);
     });
-    return sortedRows([...mergedByKey.values()]);
+    return sortedRows([...MERGED_BY_KEY.values()]);
 }
 
 /**
@@ -152,16 +152,16 @@ export function pruneScheduleCompletions(
     scheduleCompletions: Record<string, boolean> = {},
     rows: PlannerScheduleRow[] = [],
 ): Record<string, boolean> {
-    const allowedSessionKeys = new Set(rows.map((row) => scheduleKey(row)));
-    const allowedDayBookKeys = new Set(
+    const ALLOWED_SESSION_KEYS = new Set(rows.map((row) => scheduleKey(row)));
+    const ALLOWED_DAY_BOOK_KEYS = new Set(
         rows.map((row) => dayBookCompletionKey(row)),
     );
-    const out: Record<string, boolean> = {};
+    const OUT: Record<string, boolean> = {};
     Object.entries(scheduleCompletions).forEach(([key, value]) => {
-        if (!allowedSessionKeys.has(key) && !allowedDayBookKeys.has(key)) {
+        if (!ALLOWED_SESSION_KEYS.has(key) && !ALLOWED_DAY_BOOK_KEYS.has(key)) {
             return;
         }
-        out[key] = Boolean(value);
+        OUT[key] = Boolean(value);
     });
-    return out;
+    return OUT;
 }

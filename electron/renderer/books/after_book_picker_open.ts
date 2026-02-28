@@ -17,26 +17,26 @@ export function initializePickerForBook(
     state: PickerState,
     book: Book | null,
 ): void {
-    const formRefs = refs;
-    const pickerState = state;
-    pickerState.currentBookId = String(book?.book_id ?? "");
-    pickerState.selectedBookId = "";
-    formRefs.afterBookInput.value = "";
-    formRefs.blockedByInput.value = "";
+    const FORM_REFS = refs;
+    const PICKER_STATE = state;
+    PICKER_STATE.currentBookId = String(book?.book_id ?? "");
+    PICKER_STATE.selectedBookId = "";
+    FORM_REFS.afterBookInput.value = "";
+    FORM_REFS.blockedByInput.value = "";
 
-    const blockedById = String(book?.blocked_by ?? "");
-    if (!blockedById) {
+    const BLOCKED_BY_ID = String(book?.blocked_by ?? "");
+    if (!BLOCKED_BY_ID) {
         return;
     }
 
-    pickerState.selectedBookId = blockedById;
-    formRefs.blockedByInput.value = blockedById;
-    const selected = pickerState.options.find(
-        (item) => item.book_id === blockedById,
+    PICKER_STATE.selectedBookId = BLOCKED_BY_ID;
+    FORM_REFS.blockedByInput.value = BLOCKED_BY_ID;
+    const SELECTED = PICKER_STATE.options.find(
+        (item) => item.book_id === BLOCKED_BY_ID,
     );
-    if (selected) {
-        formRefs.afterBookInput.value = optionLabel(selected);
+    if (SELECTED) {
+        FORM_REFS.afterBookInput.value = optionLabel(SELECTED);
         return;
     }
-    setUnknownSelectionLabel(formRefs, blockedById);
+    setUnknownSelectionLabel(FORM_REFS, BLOCKED_BY_ID);
 }

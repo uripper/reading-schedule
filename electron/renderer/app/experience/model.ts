@@ -44,19 +44,19 @@ export function isSupportedTheme(value: string): value is Preferences["theme"] {
  */
 export function normalizePreferences(raw: PreferencesInput = {}): Preferences {
     let theme: Preferences["theme"] = DEFAULT_PREFERENCES.theme;
-    const themeInput = String(raw.theme ?? "").trim();
-    if (isSupportedTheme(themeInput)) {
-        theme = themeInput;
+    const THEME_INPUT = String(raw.theme ?? "").trim();
+    if (isSupportedTheme(THEME_INPUT)) {
+        theme = THEME_INPUT;
     }
 
-    const dailyGoalRaw =
+    const DAILY_GOAL_RAW =
         raw.dailyGoalMinutes ??
         raw.daily_goal_minutes ??
         DEFAULT_PREFERENCES.dailyGoalMinutes;
-    const dailyGoalMinutes = Number(dailyGoalRaw);
+    const DAILY_GOAL_MINUTES = Number(DAILY_GOAL_RAW);
     let normalizedDailyGoalMinutes = DEFAULT_PREFERENCES.dailyGoalMinutes;
-    if (Number.isFinite(dailyGoalMinutes) && dailyGoalMinutes > 0) {
-        normalizedDailyGoalMinutes = Math.round(dailyGoalMinutes);
+    if (Number.isFinite(DAILY_GOAL_MINUTES) && DAILY_GOAL_MINUTES > 0) {
+        normalizedDailyGoalMinutes = Math.round(DAILY_GOAL_MINUTES);
     }
 
     return {

@@ -49,8 +49,8 @@ function compareTextInsensitive(left: string, right: string): number {
  * @returns Group metadata keyed by title letter or misc bucket.
  */
 function titleLetterMetaForBook(book: Book): GroupMeta {
-    const first = titleInitialLetter(book.title);
-    if (!first) {
+    const FIRST = titleInitialLetter(book.title);
+    if (!FIRST) {
         return {
             key: TITLE_MISC_KEY,
             label: TITLE_MISC_LABEL,
@@ -59,7 +59,7 @@ function titleLetterMetaForBook(book: Book): GroupMeta {
         };
     }
 
-    if (!/^[A-Z]$/.test(first)) {
+    if (!/^[A-Z]$/.test(FIRST)) {
         return {
             key: TITLE_MISC_KEY,
             label: TITLE_MISC_LABEL,
@@ -69,10 +69,10 @@ function titleLetterMetaForBook(book: Book): GroupMeta {
     }
 
     return {
-        key: `title:${first}`,
-        label: first,
+        key: `title:${FIRST}`,
+        label: FIRST,
         order: TITLE_LETTER_ORDER,
-        tie: first,
+        tie: FIRST,
     };
 }
 
@@ -82,8 +82,8 @@ function titleLetterMetaForBook(book: Book): GroupMeta {
  * @returns Group metadata keyed by author name.
  */
 function authorMetaForBook(book: Book): GroupMeta {
-    const author = normalizedText(book.author);
-    if (!author) {
+    const AUTHOR = normalizedText(book.author);
+    if (!AUTHOR) {
         return {
             key: `author:${UNKNOWN_AUTHOR_LABEL}`,
             label: UNKNOWN_AUTHOR_LABEL,
@@ -93,10 +93,10 @@ function authorMetaForBook(book: Book): GroupMeta {
     }
 
     return {
-        key: `author:${author}`,
-        label: author,
+        key: `author:${AUTHOR}`,
+        label: AUTHOR,
         order: TITLE_LETTER_ORDER,
-        tie: author,
+        tie: AUTHOR,
     };
 }
 
@@ -106,12 +106,12 @@ function authorMetaForBook(book: Book): GroupMeta {
  * @returns Group metadata keyed by display shelf label.
  */
 function shelfMetaForBook(book: Book): GroupMeta {
-    const shelfLabel = shelfLabelForBook(book);
+    const SHELF_LABEL = shelfLabelForBook(book);
     return {
-        key: `shelf:${shelfLabel}`,
-        label: shelfLabel,
+        key: `shelf:${SHELF_LABEL}`,
+        label: SHELF_LABEL,
         order: TITLE_LETTER_ORDER,
-        tie: shelfLabel,
+        tie: SHELF_LABEL,
     };
 }
 
@@ -151,9 +151,9 @@ function compareGroups(left: GroupBucket, right: GroupBucket): number {
     if (left.order !== right.order) {
         return left.order - right.order;
     }
-    const tieCompare = compareTextInsensitive(left.tie, right.tie);
-    if (tieCompare !== 0) {
-        return tieCompare;
+    const TIE_COMPARE = compareTextInsensitive(left.tie, right.tie);
+    if (TIE_COMPARE !== 0) {
+        return TIE_COMPARE;
     }
     return compareTextInsensitive(left.label, right.label);
 }
@@ -172,23 +172,23 @@ function groupedBuckets(
     finishDateByBookId: Record<string, string>,
     currentYear: number,
 ): Map<string, GroupBucket> {
-    const buckets = new Map<string, GroupBucket>();
+    const BUCKETS = new Map<string, GroupBucket>();
     books.forEach((book: Book) => {
-        const meta = metaForBook(
+        const META = metaForBook(
             book,
             groupBy,
             finishDateByBookId,
             currentYear,
         );
-        if (!buckets.has(meta.key)) {
-            buckets.set(meta.key, { ...meta, books: [] });
+        if (!BUCKETS.has(META.key)) {
+            BUCKETS.set(META.key, { ...META, books: [] });
         }
-        const bucket = buckets.get(meta.key);
-        if (bucket) {
-            bucket.books.push(book);
+        const BUCKET = BUCKETS.get(META.key);
+        if (BUCKET) {
+            BUCKET.books.push(book);
         }
     });
-    return buckets;
+    return BUCKETS;
 }
 
 /**
@@ -207,14 +207,14 @@ export function groupBooks(
         return [];
     }
 
-    const currentYear = new Date().getFullYear();
-    const buckets = groupedBuckets(
+    const CURRENT_YEAR = new Date().getFullYear();
+    const BUCKETS = groupedBuckets(
         books,
         groupBy,
         finishDateByBookId,
-        currentYear,
+        CURRENT_YEAR,
     );
-    return [...buckets.values()].sort(compareGroups).map((bucket) => ({
+    return [...BUCKETS.values()].sort(compareGroups).map((bucket) => ({
         books: bucket.books,
         key: bucket.key,
         label: bucket.label,

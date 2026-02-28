@@ -31,15 +31,15 @@ export const SORT_DIRECTION_DESC = "desc";
  * @returns Negative/zero/positive comparison result.
  */
 function compareNumbers(left: OptionalNumber, right: OptionalNumber): number {
-    const leftMissing = left === null || left === undefined;
-    const rightMissing = right === null || right === undefined;
-    if (leftMissing && rightMissing) {
+    const LEFT_MISSING = left === null || left === undefined;
+    const RIGHT_MISSING = right === null || right === undefined;
+    if (LEFT_MISSING && RIGHT_MISSING) {
         return 0;
     }
-    if (leftMissing) {
+    if (LEFT_MISSING) {
         return 1;
     }
-    if (rightMissing) {
+    if (RIGHT_MISSING) {
         return -1;
     }
     if (left < right) {
@@ -58,24 +58,24 @@ function compareNumbers(left: OptionalNumber, right: OptionalNumber): number {
  * @returns Negative/zero/positive comparison result.
  */
 function compareText(left: OptionalString, right: OptionalString): number {
-    const leftText = String(left ?? "")
+    const LEFT_TEXT = String(left ?? "")
         .trim()
         .toLowerCase();
-    const rightText = String(right ?? "")
+    const RIGHT_TEXT = String(right ?? "")
         .trim()
         .toLowerCase();
-    const leftMissing = !leftText;
-    const rightMissing = !rightText;
-    if (leftMissing && rightMissing) {
+    const LEFT_MISSING = !LEFT_TEXT;
+    const RIGHT_MISSING = !RIGHT_TEXT;
+    if (LEFT_MISSING && RIGHT_MISSING) {
         return 0;
     }
-    if (leftMissing) {
+    if (LEFT_MISSING) {
         return 1;
     }
-    if (rightMissing) {
+    if (RIGHT_MISSING) {
         return -1;
     }
-    return leftText.localeCompare(rightText, undefined, {
+    return LEFT_TEXT.localeCompare(RIGHT_TEXT, undefined, {
         sensitivity: "base",
     });
 }
@@ -87,21 +87,21 @@ function compareText(left: OptionalString, right: OptionalString): number {
  * @returns Negative/zero/positive comparison result.
  */
 function compareTitleText(left: OptionalString, right: OptionalString): number {
-    const leftKey = titleSortKey(left);
-    const rightKey = titleSortKey(right);
-    const byKey = compareText(leftKey, rightKey);
-    if (byKey !== 0) {
-        return byKey;
+    const LEFT_KEY = titleSortKey(left);
+    const RIGHT_KEY = titleSortKey(right);
+    const BY_KEY = compareText(LEFT_KEY, RIGHT_KEY);
+    if (BY_KEY !== 0) {
+        return BY_KEY;
     }
     return compareText(left, right);
 }
 
-const compareByTitle: SortComparator = (leftBook, rightBook) => {
+const COMPARE_BY_TITLE: SortComparator = (leftBook, rightBook) => {
     return compareTitleText(leftBook.title, rightBook.title);
 };
 
 const SORT_COMPARATORS: Record<SortBy, SortComparator> = {
-    [SORT_BY_TITLE]: compareByTitle,
+    [SORT_BY_TITLE]: COMPARE_BY_TITLE,
     [SORT_BY_AUTHOR]: (leftBook, rightBook) =>
         compareText(leftBook.author, rightBook.author),
     [SORT_BY_PAGES_TOTAL]: (leftBook, rightBook) =>
@@ -146,8 +146,8 @@ function compareBySortKey(
     sortBy: SortBy,
     finishDateByBookId: Record<string, string>,
 ): number {
-    const comparator = SORT_COMPARATORS[sortBy];
-    return comparator(leftBook, rightBook, finishDateByBookId);
+    const COMPARATOR = SORT_COMPARATORS[sortBy];
+    return COMPARATOR(leftBook, rightBook, finishDateByBookId);
 }
 
 /**
@@ -169,14 +169,14 @@ export function sortBooks(
         directionSign = -1;
     }
     return [...books].sort((leftBook, rightBook) => {
-        const primary = compareBySortKey(
+        const PRIMARY = compareBySortKey(
             leftBook,
             rightBook,
             sortBy,
             finishDateByBookId,
         );
-        if (primary !== 0) {
-            return primary * directionSign;
+        if (PRIMARY !== 0) {
+            return PRIMARY * directionSign;
         }
         return compareTitleText(leftBook.title, rightBook.title);
     });

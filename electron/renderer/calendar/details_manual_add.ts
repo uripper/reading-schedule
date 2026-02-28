@@ -27,36 +27,40 @@ function createBookSelectionControls(
     books: ReturnType<typeof sortedManualBooks>,
     defaultBookId: string | undefined,
 ): BookSelectionControls {
-    const titleFilterLabel = document.createElement("label");
-    titleFilterLabel.className = DAY_PROGRESS_FIELD_CLASS;
-    titleFilterLabel.textContent = TITLE_FILTER_LABEL;
+    const TITLE_LABEL_ELEMENT = document.createElement("label");
+    TITLE_LABEL_ELEMENT.className = DAY_PROGRESS_FIELD_CLASS;
+    TITLE_LABEL_ELEMENT.textContent = TITLE_FILTER_LABEL;
 
-    const titleFilterInput = document.createElement("input");
-    titleFilterInput.type = "search";
-    titleFilterInput.autocomplete = "off";
-    titleFilterInput.placeholder = "Type to narrow books";
-    titleFilterLabel.append(titleFilterInput);
+    const TITLE_FILTER_INPUT = document.createElement("input");
+    TITLE_FILTER_INPUT.type = "search";
+    TITLE_FILTER_INPUT.autocomplete = "off";
+    TITLE_FILTER_INPUT.placeholder = "Type to narrow books";
+    TITLE_LABEL_ELEMENT.append(TITLE_FILTER_INPUT);
 
-    const bookLabel = document.createElement("label");
-    bookLabel.className = DAY_PROGRESS_FIELD_CLASS;
-    bookLabel.textContent = BOOK_SELECT_LABEL;
+    const BOOK_LABEL = document.createElement("label");
+    BOOK_LABEL.className = DAY_PROGRESS_FIELD_CLASS;
+    BOOK_LABEL.textContent = BOOK_SELECT_LABEL;
 
-    const bookSelect = document.createElement("select");
-    bookSelect.required = true;
-    const initialBookId = initialPreferredBookId(defaultBookId, books);
-    refreshBookOptions(bookSelect, books, "", initialBookId);
-    titleFilterInput.addEventListener("input", () => {
-        const preferredBookId = String(bookSelect.value || "").trim();
+    const BOOK_SELECT = document.createElement("select");
+    BOOK_SELECT.required = true;
+    const INITIAL_BOOK_ID = initialPreferredBookId(defaultBookId, books);
+    refreshBookOptions(BOOK_SELECT, books, "", INITIAL_BOOK_ID);
+    TITLE_FILTER_INPUT.addEventListener("input", () => {
+        const PREFERRED_BOOK_ID = String(BOOK_SELECT.value || "").trim();
         refreshBookOptions(
-            bookSelect,
+            BOOK_SELECT,
             books,
-            titleFilterInput.value,
-            preferredBookId,
+            TITLE_FILTER_INPUT.value,
+            PREFERRED_BOOK_ID,
         );
     });
-    bookLabel.append(bookSelect);
+    BOOK_LABEL.append(BOOK_SELECT);
 
-    return { bookLabel, bookSelect, titleFilterLabel };
+    return {
+        bookLabel: BOOK_LABEL,
+        bookSelect: BOOK_SELECT,
+        titleFilterLabel: TITLE_LABEL_ELEMENT,
+    };
 }
 
 /**
@@ -64,24 +68,24 @@ function createBookSelectionControls(
  * @param args Manual-add submission payload.
  */
 function submitManualAddForm(args: SubmitManualAddFormArgs): void {
-    const selectedBookId = String(args.bookSelect.value || "").trim();
-    const parsedMinutes = Number(args.minutesInput.value || 0);
+    const SELECTED_BOOK_ID = String(args.bookSelect.value || "").trim();
+    const PARSED_MINUTES = Number(args.minutesInput.value || 0);
     if (
-        selectedBookId === "" ||
-        !Number.isFinite(parsedMinutes) ||
-        parsedMinutes <= 0
+        SELECTED_BOOK_ID === "" ||
+        !Number.isFinite(PARSED_MINUTES) ||
+        PARSED_MINUTES <= 0
     ) {
         return;
     }
 
-    const added = args.interactionHandlers.onManualSessionAdded({
-        bookId: selectedBookId,
+    const ADDED = args.interactionHandlers.onManualSessionAdded({
+        bookId: SELECTED_BOOK_ID,
         completed:
             args.mode !== "future" && Boolean(args.completeInput.checked),
         date: args.dateKey,
-        minutes: parsedMinutes,
+        minutes: PARSED_MINUTES,
     });
-    if (!added) {
+    if (!ADDED) {
         return;
     }
     args.rerenderDetails();
@@ -101,82 +105,82 @@ function submitManualAddForm(args: SubmitManualAddFormArgs): void {
 export function buildManualSessionAddPanel(
     args: BuildManualSessionAddPanelArgs,
 ): HTMLElement {
-    const rerenderDetails = (): void => {
+    const RERENDER_DETAILS = (): void => {
         args.rerenderDetails();
     };
-    const panel = document.createElement("section");
-    panel.className = "day-manual-add";
+    const PANEL = document.createElement("section");
+    PANEL.className = "day-manual-add";
 
-    const title = document.createElement("h3");
-    title.textContent = MANUAL_ADD_TITLE;
-    panel.append(title);
+    const TITLE = document.createElement("h3");
+    TITLE.textContent = MANUAL_ADD_TITLE;
+    PANEL.append(TITLE);
 
-    const books = sortedManualBooks(
+    const BOOKS = sortedManualBooks(
         args.interactionHandlers.listSessionBooks(),
     );
-    if (!books.length) {
-        const hint = document.createElement("p");
-        hint.className = "hint-text";
-        hint.textContent =
+    if (!BOOKS.length) {
+        const HINT = document.createElement("p");
+        HINT.className = "hint-text";
+        HINT.textContent =
             "Add a book first, then you can manually add calendar sessions.";
-        panel.append(hint);
-        return panel;
+        PANEL.append(HINT);
+        return PANEL;
     }
 
-    const form = document.createElement("form");
-    form.className = "day-manual-add-form";
+    const FORM = document.createElement("form");
+    FORM.className = "day-manual-add-form";
 
-    const selectionControls = createBookSelectionControls(
-        books,
+    const SELECTION_CONTROLS = createBookSelectionControls(
+        BOOKS,
         args.defaultBookId,
     );
 
-    const minutesLabel = document.createElement("label");
-    minutesLabel.className = DAY_PROGRESS_FIELD_CLASS;
-    minutesLabel.textContent = "Minutes";
+    const MINUTES_LABEL = document.createElement("label");
+    MINUTES_LABEL.className = DAY_PROGRESS_FIELD_CLASS;
+    MINUTES_LABEL.textContent = "Minutes";
 
-    const minutesInput = document.createElement("input");
-    minutesInput.type = "number";
-    minutesInput.min = "1";
-    minutesInput.step = "1";
-    minutesInput.required = true;
-    minutesInput.value = minuteValueForManualInput(args.defaultMinutes);
-    minutesLabel.append(minutesInput);
+    const MINUTES_INPUT = document.createElement("input");
+    MINUTES_INPUT.type = "number";
+    MINUTES_INPUT.min = "1";
+    MINUTES_INPUT.step = "1";
+    MINUTES_INPUT.required = true;
+    MINUTES_INPUT.value = minuteValueForManualInput(args.defaultMinutes);
+    MINUTES_LABEL.append(MINUTES_INPUT);
 
-    const completeLabel = document.createElement("label");
-    completeLabel.className = "day-complete-toggle";
-    const completeInput = document.createElement("input");
-    completeInput.type = "checkbox";
-    completeLabel.append(completeInput, " Mark complete");
+    const COMPLETE_LABEL = document.createElement("label");
+    COMPLETE_LABEL.className = "day-complete-toggle";
+    const COMPLETE_INPUT = document.createElement("input");
+    COMPLETE_INPUT.type = "checkbox";
+    COMPLETE_LABEL.append(COMPLETE_INPUT, " Mark complete");
 
-    const addButton = document.createElement("button");
-    addButton.type = "submit";
-    addButton.className = "btn";
-    addButton.textContent = "Add Session";
+    const ADD_BUTTON = document.createElement("button");
+    ADD_BUTTON.type = "submit";
+    ADD_BUTTON.className = "btn";
+    ADD_BUTTON.textContent = "Add Session";
 
-    form.append(
-        selectionControls.titleFilterLabel,
-        selectionControls.bookLabel,
-        minutesLabel,
+    FORM.append(
+        SELECTION_CONTROLS.titleFilterLabel,
+        SELECTION_CONTROLS.bookLabel,
+        MINUTES_LABEL,
     );
     if (args.mode !== "future") {
-        form.append(completeLabel);
+        FORM.append(COMPLETE_LABEL);
     }
-    form.append(addButton);
+    FORM.append(ADD_BUTTON);
 
-    form.onsubmit = (event) => {
+    FORM.onsubmit = (event) => {
         event.preventDefault();
         submitManualAddForm({
-            bookSelect: selectionControls.bookSelect,
-            completeInput,
+            bookSelect: SELECTION_CONTROLS.bookSelect,
+            completeInput: COMPLETE_INPUT,
             dateKey: args.dateKey,
             interactionHandlers: args.interactionHandlers,
-            minutesInput,
+            minutesInput: MINUTES_INPUT,
             mode: args.mode,
-            rerenderDetails,
+            rerenderDetails: RERENDER_DETAILS,
         });
     };
 
-    panel.append(form);
-    return panel;
+    PANEL.append(FORM);
+    return PANEL;
 }

@@ -29,68 +29,78 @@ export function minutesFormForSession(
     interactionHandlers: DetailInteractionHandlers,
     onMinutesApplied: () => void,
 ): HTMLElement {
-    const minutesContainer = document.createElement("section");
-    minutesContainer.className = "day-minutes-editor";
-    const summaryRow = document.createElement("div");
-    summaryRow.className = "day-minutes-summary";
-    const summaryValue = document.createElement("strong");
-    summaryValue.className = "day-minutes-value";
-    const editButton = document.createElement("button");
-    editButton.type = "button";
-    editButton.className = "btn-minutes-edit";
-    editButton.textContent = EDIT_MINUTES_BUTTON_TEXT;
-    editButton.setAttribute("aria-label", EDIT_MINUTES_BUTTON_LABEL);
-    editButton.title = EDIT_MINUTES_BUTTON_LABEL;
-    summaryRow.append(summaryValue, editButton);
+    const MINUTES_CONTAINER = document.createElement("section");
+    MINUTES_CONTAINER.className = "day-minutes-editor";
+    const SUMMARY_ROW = document.createElement("div");
+    SUMMARY_ROW.className = "day-minutes-summary";
+    const SUMMARY_VALUE = document.createElement("strong");
+    SUMMARY_VALUE.className = "day-minutes-value";
+    const EDIT_BUTTON = document.createElement("button");
+    EDIT_BUTTON.type = "button";
+    EDIT_BUTTON.className = "btn-minutes-edit";
+    EDIT_BUTTON.textContent = EDIT_MINUTES_BUTTON_TEXT;
+    EDIT_BUTTON.setAttribute("aria-label", EDIT_MINUTES_BUTTON_LABEL);
+    EDIT_BUTTON.title = EDIT_MINUTES_BUTTON_LABEL;
+    SUMMARY_ROW.append(SUMMARY_VALUE, EDIT_BUTTON);
 
-    const minutesForm = document.createElement("form");
-    minutesForm.className = "day-progress-form day-minutes-form";
-    const minutesInput = minutesInputForRow(row);
-    const minutesLabel = document.createElement("label");
-    minutesLabel.className = "day-progress-field";
-    minutesLabel.textContent = "Planned Minutes";
-    minutesLabel.append(minutesInput);
+    const MINUTES_FORM = document.createElement("form");
+    MINUTES_FORM.className = "day-progress-form day-minutes-form";
+    const MINUTES_INPUT = minutesInputForRow(row);
+    const MINUTES_LABEL = document.createElement("label");
+    MINUTES_LABEL.className = "day-progress-field";
+    MINUTES_LABEL.textContent = "Planned Minutes";
+    MINUTES_LABEL.append(MINUTES_INPUT);
     const { actions, cancelBtn } = minutesFormActions();
-    let initialMinutesValue = String(minutesInput.value).trim();
-    syncSummaryText(summaryValue, initialMinutesValue);
+    let initialMinutesValue = String(MINUTES_INPUT.value).trim();
+    syncSummaryText(SUMMARY_VALUE, initialMinutesValue);
     let isEditorOpen = MINUTES_EDITOR_OPEN_BY_DEFAULT;
-    syncEditorVisibility(minutesForm, summaryRow, editButton, isEditorOpen);
-    minutesForm.append(minutesLabel, actions);
+    syncEditorVisibility(MINUTES_FORM, SUMMARY_ROW, EDIT_BUTTON, isEditorOpen);
+    MINUTES_FORM.append(MINUTES_LABEL, actions);
 
-    editButton.onclick = () => {
+    EDIT_BUTTON.onclick = () => {
         isEditorOpen = nextMinutesEditorOpenState("edit");
-        syncEditorVisibility(minutesForm, summaryRow, editButton, isEditorOpen);
-        minutesInput.focus();
-        minutesInput.select();
+        syncEditorVisibility(
+            MINUTES_FORM,
+            SUMMARY_ROW,
+            EDIT_BUTTON,
+            isEditorOpen,
+        );
+        MINUTES_INPUT.focus();
+        MINUTES_INPUT.select();
     };
     cancelBtn.onclick = () => {
-        minutesInput.value = initialMinutesValue;
+        MINUTES_INPUT.value = initialMinutesValue;
         isEditorOpen = nextMinutesEditorOpenState("cancel");
-        syncEditorVisibility(minutesForm, summaryRow, editButton, isEditorOpen);
-        editButton.focus();
+        syncEditorVisibility(
+            MINUTES_FORM,
+            SUMMARY_ROW,
+            EDIT_BUTTON,
+            isEditorOpen,
+        );
+        EDIT_BUTTON.focus();
     };
-    minutesForm.onsubmit = (event) => {
-        const updatedValues = submitMinutesUpdate({
+    MINUTES_FORM.onsubmit = (event) => {
+        const UPDATED_VALUES = submitMinutesUpdate({
             event,
             initialMinutesValue,
             interactionHandlers,
-            minutesInput,
+            minutesInput: MINUTES_INPUT,
             row,
         });
-        initialMinutesValue = updatedValues.initialMinutesValue;
-        if (updatedValues.applied) {
-            syncSummaryText(summaryValue, initialMinutesValue);
+        initialMinutesValue = UPDATED_VALUES.initialMinutesValue;
+        if (UPDATED_VALUES.applied) {
+            syncSummaryText(SUMMARY_VALUE, initialMinutesValue);
             isEditorOpen = nextMinutesEditorOpenState("saved");
             syncEditorVisibility(
-                minutesForm,
-                summaryRow,
-                editButton,
+                MINUTES_FORM,
+                SUMMARY_ROW,
+                EDIT_BUTTON,
                 isEditorOpen,
             );
-            editButton.focus();
+            EDIT_BUTTON.focus();
             onMinutesApplied();
         }
     };
-    minutesContainer.append(summaryRow, minutesForm);
-    return minutesContainer;
+    MINUTES_CONTAINER.append(SUMMARY_ROW, MINUTES_FORM);
+    return MINUTES_CONTAINER;
 }

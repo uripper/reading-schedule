@@ -18,12 +18,12 @@ export function updateStatsView({
     scheduleCompletions,
     dailyGoalMinutes,
 }: UpdateStatsArgs): void {
-    const snapshot = buildStatsSnapshot({
+    const SNAPSHOT = buildStatsSnapshot({
         books,
         dailyGoalMinutes,
         lastResult,
         scheduleCompletions,
         sessions,
     });
-    renderStatsDashboard(snapshot);
+    renderStatsDashboard(SNAPSHOT);
 }

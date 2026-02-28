@@ -110,36 +110,36 @@ function refreshedFocusState(
  * @param args.setStatus Publishes user-visible status messages.
  */
 export function bindTodayFocusActions(args: BindTodayFocusActionsArgs): void {
-    const refs = readTodayFocusDomRefs();
+    const REFS = readTodayFocusDomRefs();
     let focusState = createClosedFocusState();
-    const render = (): void => {
-        renderFocusMode(refs, focusState);
+    const RENDER = (): void => {
+        renderFocusMode(REFS, focusState);
     };
-    const refreshFocusSession = (): void => {
-        focusState = refreshedFocusState(refs, focusState);
-        render();
+    const REFRESH_FOCUS_SESSION = (): void => {
+        focusState = refreshedFocusState(REFS, focusState);
+        RENDER();
     };
 
-    refs.focusEntryButton.onclick = () => {
+    REFS.focusEntryButton.onclick = () => {
         if (focusState.isOpen) {
             focusState = createClosedFocusState();
-            render();
-            refs.focusEntryButton.focus();
+            RENDER();
+            REFS.focusEntryButton.focus();
             return;
         }
         focusState = openFocusMode(
-            readFocusSessionFromDataset(refs.focusEntryButton),
+            readFocusSessionFromDataset(REFS.focusEntryButton),
         );
-        render();
-        refs.focusTinyStartButton.focus();
+        RENDER();
+        REFS.focusTinyStartButton.focus();
     };
-    refs.focusEntryButton.addEventListener(
+    REFS.focusEntryButton.addEventListener(
         SESSION_UPDATE_EVENT,
-        refreshFocusSession,
+        REFRESH_FOCUS_SESSION,
     );
-    refs.focusStartButton.onclick = () => {
+    REFS.focusStartButton.onclick = () => {
         focusState = startFocusSession(focusState);
-        render();
+        RENDER();
         if (focusState.session) {
             args.setStatus(`Started "${focusState.session.title}".`);
             activateTab("schedule", { focusPanel: true });
@@ -147,41 +147,43 @@ export function bindTodayFocusActions(args: BindTodayFocusActionsArgs): void {
             args.setStatus("No planned session available to start.", true);
         }
     };
-    refs.focusTinyStartButton.onclick = () => {
-        const tinyStartSession = tinyStartSessionFromFocus(focusState.session);
-        args.setSessions([tinyStartSession, ...args.getSessions()]);
+    REFS.focusTinyStartButton.onclick = () => {
+        const TINY_START_SESSION = tinyStartSessionFromFocus(
+            focusState.session,
+        );
+        args.setSessions([TINY_START_SESSION, ...args.getSessions()]);
         args.queuePersist();
         args.updateTodayView();
         focusState = completeTinyStart(focusState);
-        render();
+        RENDER();
         args.setStatus(`Logged Tiny Start (${TINY_START_MINUTES} minutes).`);
     };
-    refs.focusCompleteButton.onclick = () => {
-        const row = findSessionRow(args.getLastResult(), focusState.session);
-        if (!row) {
+    REFS.focusCompleteButton.onclick = () => {
+        const ROW = findSessionRow(args.getLastResult(), focusState.session);
+        if (!ROW) {
             args.setStatus(
                 "Could not find this planned session to mark complete.",
                 true,
             );
             return;
         }
-        const nextCompletions = nextCompletionsWithRowMarkedComplete(
+        const NEXT_COMPLETIONS = nextCompletionsWithRowMarkedComplete(
             args.getScheduleCompletions(),
-            row,
+            ROW,
         );
-        args.setScheduleCompletions(nextCompletions);
+        args.setScheduleCompletions(NEXT_COMPLETIONS);
         args.queuePersist();
         args.updateTodayView();
-        const nextSession = readFocusSessionFromDataset(refs.focusEntryButton);
+        const NEXT_SESSION = readFocusSessionFromDataset(REFS.focusEntryButton);
         focusState = {
-            ...openFocusMode(nextSession),
-            feedback: `Marked "${row.title || "session"}" complete.`,
+            ...openFocusMode(NEXT_SESSION),
+            feedback: `Marked "${ROW.title || "session"}" complete.`,
         };
-        render();
-        args.setStatus(`Marked "${row.title || "session"}" complete.`);
+        RENDER();
+        args.setStatus(`Marked "${ROW.title || "session"}" complete.`);
     };
     el("viewScheduleFromTodayBtn").onclick = () => {
         activateTab("schedule", { focusPanel: true });
     };
-    render();
+    RENDER();
 }

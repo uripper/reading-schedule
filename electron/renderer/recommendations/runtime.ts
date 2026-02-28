@@ -15,8 +15,8 @@ async function refreshRecommendationsPanel(
     refreshToken: number,
     getRefreshToken: () => number,
 ): Promise<void> {
-    const books = collectAllBooks();
-    const recommendations = await findRecommendations(books, getPlannerApi());
+    const BOOKS = collectAllBooks();
+    const RECOMMENDATIONS = await findRecommendations(BOOKS, getPlannerApi());
     if (refreshToken !== getRefreshToken()) {
         return;
     }
@@ -24,7 +24,7 @@ async function refreshRecommendationsPanel(
         onAddToShelf: (recommendation) => {
             addRecommendationToShelf(recommendation);
         },
-        recommendations,
+        recommendations: RECOMMENDATIONS,
     });
 }
 
@@ -33,27 +33,27 @@ async function refreshRecommendationsPanel(
  */
 export function initRecommendationsRuntime(): void {
     let refreshToken = 0;
-    const nextRefreshToken = (): number => {
+    const NEXT_REFRESH_TOKEN = (): number => {
         refreshToken += 1;
         return refreshToken;
     };
-    const getRefreshToken = (): number => {
+    const GET_REFRESH_TOKEN = (): number => {
         return refreshToken;
     };
-    const queueRefresh = async (): Promise<void> => {
-        const activeToken = nextRefreshToken();
-        await refreshRecommendationsPanel(activeToken, getRefreshToken);
+    const QUEUE_REFRESH = async (): Promise<void> => {
+        const ACTIVE_TOKEN = NEXT_REFRESH_TOKEN();
+        await refreshRecommendationsPanel(ACTIVE_TOKEN, GET_REFRESH_TOKEN);
     };
-    queueRefresh().catch((error: unknown) => {
+    QUEUE_REFRESH().catch((error: unknown) => {
         logError("Failed to refresh recommendations", error);
     });
-    const booksGrid = el("booksGrid");
-    const observer = new MutationObserver(() => {
-        queueRefresh().catch((error: unknown) => {
+    const BOOKS_GRID = el("booksGrid");
+    const OBSERVER = new MutationObserver(() => {
+        QUEUE_REFRESH().catch((error: unknown) => {
             logError("Failed to refresh recommendations", error);
         });
     });
-    observer.observe(booksGrid, {
+    OBSERVER.observe(BOOKS_GRID, {
         childList: true,
         subtree: true,
     });

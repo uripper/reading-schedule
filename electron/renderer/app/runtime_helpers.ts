@@ -27,12 +27,12 @@ export function createStatusSetter(
     statusNode: HTMLElement,
     addLog: (message: string) => void,
 ): (message: string, isError?: boolean) => void {
-    const node = statusNode;
+    const NODE = statusNode;
     return (message: string, isError = false): void => {
-        node.textContent = message;
-        node.style.color = "var(--app-textMuted)";
+        NODE.textContent = message;
+        NODE.style.color = "var(--app-textMuted)";
         if (isError) {
-            node.style.color = "var(--app-danger)";
+            NODE.style.color = "var(--app-danger)";
         }
         addLog(message);
     };
@@ -46,12 +46,12 @@ export function createStatusSetter(
 export function totalsFromSummary(
     summary: PlannerSummary | null,
 ): Record<string, number> {
-    const perBook = summary?.per_book ?? {};
-    const totals: Record<string, number> = {};
-    Object.entries(perBook).forEach(([id, info]) => {
-        totals[id] = Number(info.words_total ?? 0);
+    const PER_BOOK = summary?.per_book ?? {};
+    const TOTALS: Record<string, number> = {};
+    Object.entries(PER_BOOK).forEach(([id, info]) => {
+        TOTALS[id] = Number(info.words_total ?? 0);
     });
-    return totals;
+    return TOTALS;
 }
 
 /**
@@ -75,8 +75,8 @@ export function createPersistQueue({
 }: PersistQueueArgs): PersistQueue {
     let persistTimer: ReturnType<typeof setTimeout> | null = null;
 
-    const persistDraft = async (): Promise<boolean> => {
-        const payload = draftData({
+    const PERSIST_DRAFT = async (): Promise<boolean> => {
+        const PAYLOAD = draftData({
             blockedDayBooks: state.blockedDayBooks,
             collectBooks,
             collectSettings,
@@ -86,10 +86,10 @@ export function createPersistQueue({
             scheduleCompletions: state.scheduleCompletions,
             sessions: getSessions(),
         });
-        return await saveStateSafe(plannerApi, payload, addLog);
+        return await saveStateSafe(plannerApi, PAYLOAD, addLog);
     };
 
-    const queuePersist = (): void => {
+    const QUEUE_PERSIST = (): void => {
         if (!state.ready) {
             return;
         }
@@ -97,15 +97,15 @@ export function createPersistQueue({
             clearTimeout(persistTimer);
         }
         persistTimer = setTimeout(() => {
-            persistDraft().catch(() => {
+            PERSIST_DRAFT().catch(() => {
                 addLog("Failed to persist draft state.");
             });
         }, PERSIST_DELAY_MS);
     };
 
     return {
-        persistDraft,
-        queuePersist,
+        persistDraft: PERSIST_DRAFT,
+        queuePersist: QUEUE_PERSIST,
     };
 }
 
@@ -115,11 +115,11 @@ export function createPersistQueue({
  * @returns True when the target affects planning inputs.
  */
 function shouldAutoPlanTarget(target: HTMLElement): boolean {
-    const id = String(target.id || "");
-    if (!id) {
+    const ID = String(target.id || "");
+    if (!ID) {
         return false;
     }
-    if (NON_PLANNING_SETTING_IDS.has(id)) {
+    if (NON_PLANNING_SETTING_IDS.has(ID)) {
         return false;
     }
     return true;
@@ -136,7 +136,7 @@ export function bindSettingsAutoPlanListeners(
     isReady: () => boolean,
     queueAutoPlan: () => void,
 ): void {
-    const onSettingMutation = (event: Event): void => {
+    const ON_SETTING_MUTATION = (event: Event): void => {
         if (!isReady()) {
             return;
         }
@@ -149,21 +149,21 @@ export function bindSettingsAutoPlanListeners(
         queueAutoPlan();
     };
 
-    const onSettingClick = (event: Event): void => {
+    const ON_SETTING_CLICK = (event: Event): void => {
         if (!isReady()) {
             return;
         }
         if (!(event.target instanceof HTMLElement)) {
             return;
         }
-        const addDayOff = event.target.closest("#addDayOffBtn");
-        const removeDayOff = event.target.closest("#dayOffList .chip-btn");
-        if (addDayOff || removeDayOff) {
+        const ADD_DAY_OFF = event.target.closest("#addDayOffBtn");
+        const REMOVE_DAY_OFF = event.target.closest("#dayOffList .chip-btn");
+        if (ADD_DAY_OFF || REMOVE_DAY_OFF) {
             queueAutoPlan();
         }
     };
 
-    settingsPanel.addEventListener("input", onSettingMutation);
-    settingsPanel.addEventListener("change", onSettingMutation);
-    settingsPanel.addEventListener("click", onSettingClick);
+    settingsPanel.addEventListener("input", ON_SETTING_MUTATION);
+    settingsPanel.addEventListener("change", ON_SETTING_MUTATION);
+    settingsPanel.addEventListener("click", ON_SETTING_CLICK);
 }

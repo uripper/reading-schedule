@@ -22,34 +22,34 @@ export function dayMinutesFromActivity({
     scheduleCompletions,
     year,
 }: DayMinutesArgs): DayMinutesMap {
-    const minutesByDay = new Map<string, number>();
+    const MINUTES_BY_DAY = new Map<string, number>();
 
     sessions.forEach((session) => {
-        const dayKey = isoLocalDayKey(session.ended_at);
-        if (!includeDayKey(dayKey, year)) {
+        const DAY_KEY = isoLocalDayKey(session.ended_at);
+        if (!includeDayKey(DAY_KEY, year)) {
             return;
         }
         addMinutes(
-            minutesByDay,
-            dayKey,
+            MINUTES_BY_DAY,
+            DAY_KEY,
             Number(session.minutes || ZERO_MINUTES),
         );
     });
 
-    const rows = lastResult?.schedule ?? [];
-    rows.forEach((row) => {
-        const dayKey = String(row.date);
-        if (!includeDayKey(dayKey, year)) {
+    const ROWS = lastResult?.schedule ?? [];
+    ROWS.forEach((row) => {
+        const DAY_KEY = String(row.date);
+        if (!includeDayKey(DAY_KEY, year)) {
             return;
         }
-        const completionKey = sessionKeyFor(row);
-        if (!scheduleCompletions[completionKey]) {
+        const COMPLETION_KEY = sessionKeyFor(row);
+        if (!scheduleCompletions[COMPLETION_KEY]) {
             return;
         }
-        addMinutes(minutesByDay, dayKey, Number(row.minutes));
+        addMinutes(MINUTES_BY_DAY, DAY_KEY, Number(row.minutes));
     });
 
-    return minutesByDay;
+    return MINUTES_BY_DAY;
 }
 
 /**
@@ -104,21 +104,21 @@ export function streakFromDayMinutes(
     dayMinutes: DayMinutesMap,
     minimumMinutesPerDay = MIN_STREAK_MINUTES,
 ): number {
-    const goalMinutes = Math.max(
+    const GOAL_MINUTES = Math.max(
         MIN_STREAK_MINUTES,
         Number(minimumMinutesPerDay || MIN_STREAK_MINUTES),
     );
     let streakDays = ZERO_MINUTES;
-    const cursor = new Date();
+    const CURSOR = new Date();
 
     for (;;) {
-        const dayKey = isoLocalDayKey(cursor.toISOString());
-        const minutes = dayMinutesForKey(dayMinutes, dayKey);
-        if (minutes < goalMinutes) {
+        const DAY_KEY = isoLocalDayKey(CURSOR.toISOString());
+        const MINUTES = dayMinutesForKey(dayMinutes, DAY_KEY);
+        if (MINUTES < GOAL_MINUTES) {
             break;
         }
         streakDays += 1;
-        cursor.setDate(cursor.getDate() - PREVIOUS_DAY_OFFSET);
+        CURSOR.setDate(CURSOR.getDate() - PREVIOUS_DAY_OFFSET);
     }
 
     return streakDays;

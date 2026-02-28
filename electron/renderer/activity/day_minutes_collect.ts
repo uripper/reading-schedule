@@ -8,17 +8,17 @@ const ZERO_MINUTES = 0;
  * @returns Parsed 4-digit year, or null when the key is too short/invalid.
  */
 function yearFromDateKey(dateText: string): number | null {
-    const key = String(dateText || "").trim();
-    if (key.length < DATE_YEAR_END_INDEX) {
+    const KEY = String(dateText || "").trim();
+    if (KEY.length < DATE_YEAR_END_INDEX) {
         return null;
     }
-    const parsed = Number(
-        key.slice(DATE_YEAR_START_INDEX, DATE_YEAR_END_INDEX),
+    const PARSED = Number(
+        KEY.slice(DATE_YEAR_START_INDEX, DATE_YEAR_END_INDEX),
     );
-    if (!Number.isInteger(parsed)) {
+    if (!Number.isInteger(PARSED)) {
         return null;
     }
-    return parsed;
+    return PARSED;
 }
 
 /**
@@ -34,8 +34,8 @@ export function includeDayKey(dayKey: string, year: number | null): boolean {
     if (year === null) {
         return true;
     }
-    const dayYear = yearFromDateKey(dayKey);
-    if (dayYear !== year) {
+    const DAY_YEAR = yearFromDateKey(dayKey);
+    if (DAY_YEAR !== year) {
         return false;
     }
     return true;
@@ -55,12 +55,12 @@ export function addMinutes(
     if (!dayKey) {
         return;
     }
-    const normalized = Number(minutes || ZERO_MINUTES);
-    if (normalized <= ZERO_MINUTES) {
+    const NORMALIZED = Number(minutes || ZERO_MINUTES);
+    if (NORMALIZED <= ZERO_MINUTES) {
         return;
     }
     dayMinutes.set(
         dayKey,
-        (dayMinutes.get(dayKey) ?? ZERO_MINUTES) + normalized,
+        (dayMinutes.get(dayKey) ?? ZERO_MINUTES) + NORMALIZED,
     );
 }

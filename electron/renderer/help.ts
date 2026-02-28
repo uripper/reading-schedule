@@ -1,7 +1,7 @@
 import { bindDialogFocus } from "./accessibility/index.js";
 import { el } from "./dom.js";
 
-const logs: string[] = [];
+const LOGS: string[] = [];
 const MAX_LOG_LINES = 250;
 
 /**
@@ -27,11 +27,11 @@ function renderLogs(): void {
     if (!canRenderLogs()) {
         return;
     }
-    const logOutput = document.getElementById("logOutput");
-    if (!(logOutput instanceof HTMLElement)) {
+    const LOG_OUTPUT = document.getElementById("logOutput");
+    if (!(LOG_OUTPUT instanceof HTMLElement)) {
         return;
     }
-    logOutput.textContent = logs.join("\n") || "No logs yet.";
+    LOG_OUTPUT.textContent = LOGS.join("\n") || "No logs yet.";
 }
 
 /**
@@ -39,9 +39,9 @@ function renderLogs(): void {
  * @param message Log message text to append.
  */
 export function addLog(message: string): void {
-    logs.unshift(`[${ts()}] ${message}`);
-    if (logs.length > MAX_LOG_LINES) {
-        logs.pop();
+    LOGS.unshift(`[${ts()}] ${message}`);
+    if (LOGS.length > MAX_LOG_LINES) {
+        LOGS.pop();
     }
     renderLogs();
 }
@@ -50,21 +50,21 @@ export function addLog(message: string): void {
  * Binds help dialog open/close controls with focus restoration behavior.
  */
 export function bindHelpDialog(): void {
-    const dlg = el<HTMLDialogElement>("helpDialog");
-    const focus = bindDialogFocus(dlg, {
+    const DLG = el<HTMLDialogElement>("helpDialog");
+    const FOCUS = bindDialogFocus(DLG, {
         initialFocusSelector: "#closeHelpBtn",
     });
     el<HTMLButtonElement>("helpBtn").onclick = () => {
-        focus.rememberOpener();
-        dlg.showModal();
-        focus.focusInitialTarget();
+        FOCUS.rememberOpener();
+        DLG.showModal();
+        FOCUS.focusInitialTarget();
     };
     el<HTMLButtonElement>("closeHelpBtn").onclick = (): void => {
-        focus.closeAndReturnFocus();
+        FOCUS.closeAndReturnFocus();
     };
-    dlg.addEventListener("cancel", (e) => {
+    DLG.addEventListener("cancel", (e) => {
         e.preventDefault();
-        focus.closeAndReturnFocus();
+        FOCUS.closeAndReturnFocus();
     });
     renderLogs();
 }

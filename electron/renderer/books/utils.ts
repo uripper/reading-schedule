@@ -32,9 +32,9 @@ export function clamp(value: number, min: number, max: number): number {
  * @returns Rounded integer result.
  */
 export function toInt(raw: NumericLike, fallback = 0): number {
-    const n = Number(raw);
-    if (Number.isFinite(n)) {
-        return Math.round(n);
+    const N = Number(raw);
+    if (Number.isFinite(N)) {
+        return Math.round(N);
     }
     return fallback;
 }
@@ -48,9 +48,9 @@ export function toOptionalInt(raw: NumericLike): number | null {
     if (raw === null || raw === undefined || raw === "") {
         return null;
     }
-    const n = Number(raw);
-    if (Number.isFinite(n)) {
-        return Math.round(n);
+    const N = Number(raw);
+    if (Number.isFinite(N)) {
+        return Math.round(N);
     }
     return null;
 }
@@ -61,8 +61,8 @@ export function toOptionalInt(raw: NumericLike): number | null {
  * @returns Trimmed date string or `null`.
  */
 export function toOptionalDate(raw: NumericLike): string | null {
-    const value = String(raw ?? "").trim();
-    return value || null;
+    const VALUE = String(raw ?? "").trim();
+    return VALUE || null;
 }
 
 /**
@@ -71,10 +71,10 @@ export function toOptionalDate(raw: NumericLike): string | null {
  * @returns Localized integer text or `"n/a"` when invalid.
  */
 export function formatInt(raw: NumericLike): string {
-    const n = Number(raw ?? 0);
-    if (!Number.isFinite(n)) {
+    const N = Number(raw ?? 0);
+    if (!Number.isFinite(N)) {
         return "n/a";
     }
-    const clamped = Math.max(0, Math.round(n));
-    return new Intl.NumberFormat().format(clamped);
+    const CLAMPED = Math.max(0, Math.round(N));
+    return new Intl.NumberFormat().format(CLAMPED);
 }

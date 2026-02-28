@@ -46,9 +46,9 @@ function currentZoomFactor(webContents: WebContents): number {
  * @returns Applied normalized zoom factor.
  */
 export function setZoomFactor(webContents: WebContents, value: number): number {
-    const nextFactor = normalizedZoomFactor(value);
-    webContents.setZoomFactor(nextFactor);
-    return nextFactor;
+    const NEXT_FACTOR = normalizedZoomFactor(value);
+    webContents.setZoomFactor(NEXT_FACTOR);
+    return NEXT_FACTOR;
 }
 
 /**
@@ -56,9 +56,10 @@ export function setZoomFactor(webContents: WebContents, value: number): number {
  * @returns Initial normalized zoom factor.
  */
 export function initialZoomFactor(): number {
-    const requestedScaleRaw = process.env.UI_SCALE ?? String(DEFAULT_UI_SCALE);
-    const requestedScale = Number(requestedScaleRaw);
-    return normalizedZoomFactor(requestedScale);
+    const REQUESTED_SCALE_RAW =
+        process.env.UI_SCALE ?? String(DEFAULT_UI_SCALE);
+    const REQUESTED_SCALE = Number(REQUESTED_SCALE_RAW);
+    return normalizedZoomFactor(REQUESTED_SCALE);
 }
 
 /**

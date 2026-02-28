@@ -30,71 +30,71 @@ export function buildTodaySessionItem(
     interactionHandlers: DetailInteractionHandlers,
     rerenderDetails: () => void,
 ): HTMLElement {
-    const isSessionCompleted = (session: string): boolean => {
+    const IS_SESSION_COMPLETED = (session: string): boolean => {
         return interactionHandlers.isSessionCompleted(session);
     };
-    const getBookById = (
+    const GET_BOOK_BY_ID = (
         bookId: string,
     ): ReturnType<DetailInteractionHandlers["getBookById"]> => {
         return interactionHandlers.getBookById(bookId);
     };
-    const item = baseSessionItem(row);
-    const sessionKey = sessionKeyFor(row);
-    const completeLabel = document.createElement("label");
-    completeLabel.className = "day-complete-toggle";
-    const completeInput = document.createElement("input");
-    completeInput.type = "checkbox";
-    completeInput.checked = Boolean(isSessionCompleted(sessionKey));
-    completeLabel.append(completeInput, COMPLETE_TOGGLE_LABEL);
-    item.classList.toggle(COMPLETE_ITEM_CLASS, completeInput.checked);
-    completeInput.onchange = () => {
-        const checked = Boolean(completeInput.checked);
-        item.classList.toggle(COMPLETE_ITEM_CLASS, checked);
+    const ITEM = baseSessionItem(row);
+    const SESSION_KEY = sessionKeyFor(row);
+    const COMPLETE_LABEL = document.createElement("label");
+    COMPLETE_LABEL.className = "day-complete-toggle";
+    const COMPLETE_INPUT = document.createElement("input");
+    COMPLETE_INPUT.type = "checkbox";
+    COMPLETE_INPUT.checked = Boolean(IS_SESSION_COMPLETED(SESSION_KEY));
+    COMPLETE_LABEL.append(COMPLETE_INPUT, COMPLETE_TOGGLE_LABEL);
+    ITEM.classList.toggle(COMPLETE_ITEM_CLASS, COMPLETE_INPUT.checked);
+    COMPLETE_INPUT.onchange = () => {
+        const CHECKED = Boolean(COMPLETE_INPUT.checked);
+        ITEM.classList.toggle(COMPLETE_ITEM_CLASS, CHECKED);
         interactionHandlers.onSessionCompletionChanged({
-            completed: checked,
+            completed: CHECKED,
             row,
-            sessionKey,
+            sessionKey: SESSION_KEY,
         });
         rerenderDetails();
     };
-    const markCompleteFromProgressUpdate = (): void => {
-        if (completeInput.checked) {
+    const MARK_COMPLETE_FROM_PROGRESS_UPDATE = (): void => {
+        if (COMPLETE_INPUT.checked) {
             return;
         }
-        completeInput.checked = true;
-        item.classList.add(COMPLETE_ITEM_CLASS);
+        COMPLETE_INPUT.checked = true;
+        ITEM.classList.add(COMPLETE_ITEM_CLASS);
         interactionHandlers.onSessionCompletionChanged({
             completed: true,
             row,
-            sessionKey,
+            sessionKey: SESSION_KEY,
         });
         rerenderDetails();
     };
-    const estimate = document.createElement("p");
-    estimate.className = DAY_DETAILS_META_CLASS;
-    estimate.textContent = estimateProgressLabel(
+    const ESTIMATE = document.createElement("p");
+    ESTIMATE.className = DAY_DETAILS_META_CLASS;
+    ESTIMATE.textContent = estimateProgressLabel(
         row,
         state,
-        getBookById,
-        isSessionCompleted,
+        GET_BOOK_BY_ID,
+        IS_SESSION_COMPLETED,
     );
-    const includeEstimate = !isSessionCompleted(sessionKey);
-    const book = getBookById(row.book_id) ?? fallbackBookForRow(row);
-    item.append(completeLabel);
-    item.append(
+    const INCLUDE_ESTIMATE = !IS_SESSION_COMPLETED(SESSION_KEY);
+    const BOOK = GET_BOOK_BY_ID(row.book_id) ?? fallbackBookForRow(row);
+    ITEM.append(COMPLETE_LABEL);
+    ITEM.append(
         minutesFormForSession(row, interactionHandlers, rerenderDetails),
     );
-    item.append(
+    ITEM.append(
         progressFormForToday(
             row,
-            book,
+            BOOK,
             interactionHandlers,
-            markCompleteFromProgressUpdate,
+            MARK_COMPLETE_FROM_PROGRESS_UPDATE,
         ),
     );
-    if (includeEstimate) {
-        item.append(estimate);
+    if (INCLUDE_ESTIMATE) {
+        ITEM.append(ESTIMATE);
     }
-    item.append(removeSessionButton(row, interactionHandlers, rerenderDetails));
-    return item;
+    ITEM.append(removeSessionButton(row, interactionHandlers, rerenderDetails));
+    return ITEM;
 }

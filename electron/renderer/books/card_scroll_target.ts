@@ -9,8 +9,8 @@ const BOOK_CARD_SELECTOR = ".book-card";
 
 let nextScrollToken = 0;
 
-const scrollTokenByCard = new WeakMap<HTMLElement, number>();
-const resetTimerByCard = new WeakMap<
+const SCROLL_TOKEN_BY_CARD = new WeakMap<HTMLElement, number>();
+const RESET_TIMER_BY_CARD = new WeakMap<
     HTMLElement,
     ReturnType<typeof globalThis.setTimeout>
 >();
@@ -22,9 +22,9 @@ const resetTimerByCard = new WeakMap<
  */
 function startScrollToken(card: HTMLElement): number {
     nextScrollToken += 1;
-    const token = nextScrollToken;
-    scrollTokenByCard.set(card, token);
-    return token;
+    const TOKEN = nextScrollToken;
+    SCROLL_TOKEN_BY_CARD.set(card, TOKEN);
+    return TOKEN;
 }
 
 /**
@@ -34,11 +34,11 @@ function startScrollToken(card: HTMLElement): number {
  * @returns `true` when token is still current for this card.
  */
 function isCurrentScrollToken(card: HTMLElement, token: number): boolean {
-    const currentToken = scrollTokenByCard.get(card);
-    if (currentToken === undefined) {
+    const CURRENT_TOKEN = SCROLL_TOKEN_BY_CARD.get(card);
+    if (CURRENT_TOKEN === undefined) {
         return false;
     }
-    return currentToken === token;
+    return CURRENT_TOKEN === token;
 }
 
 /**
@@ -46,12 +46,12 @@ function isCurrentScrollToken(card: HTMLElement, token: number): boolean {
  * @param card Card element whose timer should be cancelled.
  */
 function clearResetTimer(card: HTMLElement): void {
-    const timerId = resetTimerByCard.get(card);
-    if (timerId === undefined) {
+    const TIMER_ID = RESET_TIMER_BY_CARD.get(card);
+    if (TIMER_ID === undefined) {
         return;
     }
-    globalThis.clearTimeout(timerId);
-    resetTimerByCard.delete(card);
+    globalThis.clearTimeout(TIMER_ID);
+    RESET_TIMER_BY_CARD.delete(card);
 }
 
 /**
@@ -59,11 +59,11 @@ function clearResetTimer(card: HTMLElement): void {
  * @param card Card element currently marked as target.
  */
 function scheduleTargetClassReset(card: HTMLElement): void {
-    const timerId = globalThis.setTimeout(() => {
+    const TIMER_ID = globalThis.setTimeout(() => {
         card.classList.remove(AFTER_TARGET_CLASS);
-        resetTimerByCard.delete(card);
+        RESET_TIMER_BY_CARD.delete(card);
     }, AFTER_TARGET_DURATION_MS);
-    resetTimerByCard.set(card, timerId);
+    RESET_TIMER_BY_CARD.set(card, TIMER_ID);
 }
 
 /**
@@ -84,14 +84,14 @@ function highlightTargetCard(card: HTMLElement): void {
  * @returns Matched card element when present; otherwise `null`.
  */
 function bookCardById(bookId: string): HTMLElement | null {
-    const cards = Array.from(
+    const CARDS = Array.from(
         document.querySelectorAll<HTMLElement>(BOOK_CARD_SELECTOR),
     );
-    for (const card of cards) {
-        if (card.dataset.bookId !== bookId) {
+    for (const CARD of CARDS) {
+        if (CARD.dataset.bookId !== bookId) {
             continue;
         }
-        return card;
+        return CARD;
     }
     return null;
 }
@@ -101,27 +101,27 @@ function bookCardById(bookId: string): HTMLElement | null {
  * @param bookId Stable book id to find and reveal.
  */
 export function scrollToBookCard(bookId: string): void {
-    const card = bookCardById(bookId);
-    if (card === null) {
+    const CARD = bookCardById(bookId);
+    if (CARD === null) {
         return;
     }
-    const token = startScrollToken(card);
-    if (!shouldScrollCardIntoView(card)) {
-        highlightTargetCard(card);
+    const TOKEN = startScrollToken(CARD);
+    if (!shouldScrollCardIntoView(CARD)) {
+        highlightTargetCard(CARD);
         return;
     }
-    card.scrollIntoView({
+    CARD.scrollIntoView({
         behavior: "smooth",
         block: "center",
         inline: "nearest",
     });
     waitForCardScrollSettle(
-        card,
+        CARD,
         () => {
-            return isCurrentScrollToken(card, token);
+            return isCurrentScrollToken(CARD, TOKEN);
         },
         () => {
-            highlightTargetCard(card);
+            highlightTargetCard(CARD);
         },
     );
 }

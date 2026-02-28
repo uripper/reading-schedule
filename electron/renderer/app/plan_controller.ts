@@ -47,7 +47,7 @@ function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
         state,
         scheduleAutoPlan,
     } = root0;
-    const self: () => Promise<void> = async (): Promise<void> => {
+    const SELF: () => Promise<void> = async (): Promise<void> => {
         if (state.autoRunInFlight) {
             state.autoRunPending = true;
             return;
@@ -86,11 +86,11 @@ function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
             state.autoRunInFlight = false;
             if (state.autoRunPending) {
                 state.autoRunPending = false;
-                scheduleAutoPlan(self);
+                scheduleAutoPlan(SELF);
             }
         }
     };
-    return self;
+    return SELF;
 }
 
 /**
@@ -101,11 +101,11 @@ function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
 function createAutoPlanRunner(root0: PlanControllerArgs): AutoPlanRunner {
     const { addLog, setStatus } = root0;
     let autoTimer: ReturnType<typeof setTimeout> | null = null;
-    const state: AutoPlanState = {
+    const STATE: AutoPlanState = {
         autoRunInFlight: false,
         autoRunPending: false,
     };
-    const scheduleAutoPlan = (runner: () => Promise<void>): void => {
+    const SCHEDULE_AUTO_PLAN = (runner: () => Promise<void>): void => {
         if (autoTimer) {
             clearTimeout(autoTimer);
         }
@@ -116,15 +116,15 @@ function createAutoPlanRunner(root0: PlanControllerArgs): AutoPlanRunner {
             });
         }, AUTO_PLAN_DELAY_MS);
     };
-    const runAutoPlan = createRunAutoPlan({
+    const RUN_AUTO_PLAN = createRunAutoPlan({
         ...root0,
-        scheduleAutoPlan,
-        state,
+        scheduleAutoPlan: SCHEDULE_AUTO_PLAN,
+        state: STATE,
     });
-    const queueAutoPlan = (): void => {
-        scheduleAutoPlan(runAutoPlan);
+    const QUEUE_AUTO_PLAN = (): void => {
+        SCHEDULE_AUTO_PLAN(RUN_AUTO_PLAN);
     };
-    return { queueAutoPlan };
+    return { queueAutoPlan: QUEUE_AUTO_PLAN };
 }
 
 /**
@@ -152,8 +152,8 @@ function createAutoPlanRunner(root0: PlanControllerArgs): AutoPlanRunner {
 export function createPlanController(
     root0: PlanControllerArgs,
 ): PlanController {
-    const autoPlanRunner = createAutoPlanRunner(root0);
-    const applySavedResult = (savedResult: PlannerResult | null): void => {
+    const AUTO_PLAN_RUNNER = createAutoPlanRunner(root0);
+    const APPLY_SAVED_RESULT = (savedResult: PlannerResult | null): void => {
         applyLoadedResult({
             addLog: root0.addLog,
             defaultLastResult: DEFAULT_LAST_RESULT,
@@ -165,9 +165,9 @@ export function createPlanController(
         });
     };
     return {
-        applyLoadedResult: applySavedResult,
+        applyLoadedResult: APPLY_SAVED_RESULT,
         queueAutoPlan: (): void => {
-            autoPlanRunner.queueAutoPlan();
+            AUTO_PLAN_RUNNER.queueAutoPlan();
         },
     };
 }

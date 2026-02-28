@@ -20,9 +20,9 @@ const PLACEHOLDER = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(PLACE
  * @returns Rounded integer, clamped at zero for invalid or negative input.
  */
 function toInt(raw: NumericLike): number {
-    const n = Number(raw);
-    if (Number.isFinite(n)) {
-        return Math.max(0, Math.round(n));
+    const N = Number(raw);
+    if (Number.isFinite(N)) {
+        return Math.max(0, Math.round(N));
     }
     return 0;
 }
@@ -41,21 +41,21 @@ export function placeholderCoverSvg(): string {
  * @returns Description text including source/author/year when available.
  */
 export function describeLookup(item: BookLookupItem): string {
-    const bits: string[] = [];
-    const source = String(item.source ?? "").trim();
-    if (source.length > 0) {
-        bits.push(source);
+    const BITS: string[] = [];
+    const SOURCE = String(item.source ?? "").trim();
+    if (SOURCE.length > 0) {
+        BITS.push(SOURCE);
     }
-    const author = String(item.author ?? "").trim();
-    if (author.length > 0) {
-        bits.push(author);
+    const AUTHOR = String(item.author ?? "").trim();
+    if (AUTHOR.length > 0) {
+        BITS.push(AUTHOR);
     }
-    const year = String(item.year ?? "").trim();
-    if (year.length > 0) {
-        bits.push(year);
+    const YEAR = String(item.year ?? "").trim();
+    if (YEAR.length > 0) {
+        BITS.push(YEAR);
     }
-    if (bits.length > 0) {
-        return `Selected from ${bits.join(" · ")}`;
+    if (BITS.length > 0) {
+        return `Selected from ${BITS.join(" · ")}`;
     }
     return "Selected from lookup results.";
 }
@@ -79,21 +79,21 @@ export function syncProgressAndPages(
     changedField: ProgressField,
 ): void {
     const { pagesTotalInput, pagesReadInput, progressInput } = form;
-    const total = toInt(pagesTotalInput.value);
-    if (total <= 0) {
+    const TOTAL = toInt(pagesTotalInput.value);
+    if (TOTAL <= 0) {
         return;
     }
     if (changedField === "pages") {
-        const pagesRead = Math.min(toInt(pagesReadInput.value), total);
-        if (pagesRead !== toInt(pagesReadInput.value)) {
-            pagesReadInput.value = String(pagesRead);
+        const PAGES_READ = Math.min(toInt(pagesReadInput.value), TOTAL);
+        if (PAGES_READ !== toInt(pagesReadInput.value)) {
+            pagesReadInput.value = String(PAGES_READ);
         }
         progressInput.value = String(
-            Math.round((pagesRead / total) * 1000) / 10,
+            Math.round((PAGES_READ / TOTAL) * 1000) / 10,
         );
         return;
     }
-    const progress = Math.min(100, Math.max(0, Number(progressInput.value)));
-    progressInput.value = String(Math.round(progress * 10) / 10);
-    pagesReadInput.value = String(Math.round((progress / 100) * total));
+    const PROGRESS = Math.min(100, Math.max(0, Number(progressInput.value)));
+    progressInput.value = String(Math.round(PROGRESS * 10) / 10);
+    pagesReadInput.value = String(Math.round((PROGRESS / 100) * TOTAL));
 }

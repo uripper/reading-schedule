@@ -17,22 +17,22 @@ import {
  * @param refs Book form references containing shelf controls.
  */
 async function onCreateShelfSelected(refs: BookFormRefs): Promise<void> {
-    const select = refs.shelfSelectInput;
-    const fallbackShelf = previousShelf(select);
-    const shelfName = await promptForShelfName(refs);
-    if (shelfName === null || shelfName === "") {
-        select.value = fallbackShelf;
+    const SELECT = refs.shelfSelectInput;
+    const FALLBACK_SHELF = previousShelf(SELECT);
+    const SHELF_NAME = await promptForShelfName(refs);
+    if (SHELF_NAME === null || SHELF_NAME === "") {
+        SELECT.value = FALLBACK_SHELF;
         return;
     }
-    const existingValue = existingShelfValue(select, shelfName);
-    if (existingValue) {
-        select.value = existingValue;
-        rememberSelectedShelf(select);
+    const EXISTING_VALUE = existingShelfValue(SELECT, SHELF_NAME);
+    if (EXISTING_VALUE) {
+        SELECT.value = EXISTING_VALUE;
+        rememberSelectedShelf(SELECT);
         return;
     }
-    ensureShelfOption(select, shelfName);
-    select.value = shelfName;
-    rememberSelectedShelf(select);
+    ensureShelfOption(SELECT, SHELF_NAME);
+    SELECT.value = SHELF_NAME;
+    rememberSelectedShelf(SELECT);
 }
 
 /**
@@ -40,12 +40,12 @@ async function onCreateShelfSelected(refs: BookFormRefs): Promise<void> {
  * @param refs Book form references containing shelf controls.
  */
 async function onShelfChange(refs: BookFormRefs): Promise<void> {
-    const select = refs.shelfSelectInput;
-    if (select.value === SHELF_SELECT_CREATE_NEW) {
+    const SELECT = refs.shelfSelectInput;
+    if (SELECT.value === SHELF_SELECT_CREATE_NEW) {
         await onCreateShelfSelected(refs);
         return;
     }
-    rememberSelectedShelf(select);
+    rememberSelectedShelf(SELECT);
 }
 
 /**
@@ -59,8 +59,8 @@ export function renderShelfPicker(
     books: Book[] = [],
     selectedShelf = "",
 ): void {
-    const shelves = uniqueShelves(books);
-    setSelectedShelf(refs.shelfSelectInput, selectedShelf, shelves);
+    const SHELVES = uniqueShelves(books);
+    setSelectedShelf(refs.shelfSelectInput, selectedShelf, SHELVES);
 }
 
 /**
@@ -71,8 +71,8 @@ export function bindShelfPicker(refs: BookFormRefs): void {
     ensurePromptValidation(refs);
     refs.shelfSelectInput.addEventListener("change", () => {
         onShelfChange(refs).catch(() => {
-            const select = refs.shelfSelectInput;
-            select.value = previousShelf(select);
+            const SELECT = refs.shelfSelectInput;
+            SELECT.value = previousShelf(SELECT);
         });
     });
 }

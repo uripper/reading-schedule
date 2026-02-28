@@ -8,28 +8,31 @@ const DIALOG_CONFIRM_VALUE = "confirm";
  * @returns Trimmed shelf name, or null when the prompt is canceled.
  */
 async function promptViaDialog(refs: BookFormRefs): Promise<string | null> {
-    const dialogRefs = refs;
+    const DIALOG_REFS = refs;
     return await new Promise((resolve) => {
-        dialogRefs.shelfPromptInput.value = "";
-        dialogRefs.shelfPromptDialog.returnValue = "";
-        const onClose = (): void => {
-            dialogRefs.shelfPromptDialog.removeEventListener("close", onClose);
+        DIALOG_REFS.shelfPromptInput.value = "";
+        DIALOG_REFS.shelfPromptDialog.returnValue = "";
+        const ON_CLOSE = (): void => {
+            DIALOG_REFS.shelfPromptDialog.removeEventListener(
+                "close",
+                ON_CLOSE,
+            );
             if (
-                dialogRefs.shelfPromptDialog.returnValue !==
+                DIALOG_REFS.shelfPromptDialog.returnValue !==
                 DIALOG_CONFIRM_VALUE
             ) {
                 resolve(null);
                 return;
             }
-            resolve(dialogRefs.shelfPromptInput.value.trim());
+            resolve(DIALOG_REFS.shelfPromptInput.value.trim());
         };
-        dialogRefs.shelfPromptDialog.addEventListener("close", onClose);
+        DIALOG_REFS.shelfPromptDialog.addEventListener("close", ON_CLOSE);
         try {
-            dialogRefs.shelfPromptDialog.showModal();
+            DIALOG_REFS.shelfPromptDialog.showModal();
         } catch {
-            dialogRefs.shelfPromptDialog.show();
+            DIALOG_REFS.shelfPromptDialog.show();
         }
-        dialogRefs.shelfPromptInput.focus();
+        DIALOG_REFS.shelfPromptInput.focus();
     });
 }
 

@@ -45,14 +45,14 @@ function appendChunk(target: string, chunk: Buffer | string): string {
  */
 function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
     try {
-        const parsed = JSON.parse(stdout || "{}") as BridgeResponse;
-        if (parsed.ok !== true) {
-            throw new Error((parsed.error ?? stderr) || "Planner failed");
+        const PARSED = JSON.parse(stdout || "{}") as BridgeResponse;
+        if (PARSED.ok !== true) {
+            throw new Error((PARSED.error ?? stderr) || "Planner failed");
         }
-        if (parsed.data === undefined) {
+        if (PARSED.data === undefined) {
             return null;
         }
-        return parsed.data;
+        return PARSED.data;
     } catch {
         throw new Error(stderr || stdout || "Invalid planner response");
     }
@@ -69,9 +69,9 @@ export async function runBridge(
     payload?: JsonValue,
 ): Promise<JsonValue> {
     return await new Promise((resolve, reject) => {
-        const pythonBinary = process.env.PYTHON_BIN ?? "python";
-        const processHandle = spawn(
-            pythonBinary,
+        const PYTHON_BINARY = process.env.PYTHON_BIN ?? "python";
+        const PROCESS_HANDLE = spawn(
+            PYTHON_BINARY,
             ["-m", PLANNER_MODULE, ...args],
             {
                 cwd: root(),
@@ -80,14 +80,14 @@ export async function runBridge(
         );
         let stdout = "";
         let stderr = "";
-        processHandle.stdout.on("data", (chunk: Buffer | string) => {
+        PROCESS_HANDLE.stdout.on("data", (chunk: Buffer | string) => {
             stdout = appendChunk(stdout, chunk);
         });
-        processHandle.stderr.on("data", (chunk: Buffer | string) => {
+        PROCESS_HANDLE.stderr.on("data", (chunk: Buffer | string) => {
             stderr = appendChunk(stderr, chunk);
         });
-        processHandle.on("error", reject);
-        processHandle.on("close", () => {
+        PROCESS_HANDLE.on("error", reject);
+        PROCESS_HANDLE.on("close", () => {
             try {
                 resolve(parseBridgeOutput(stdout, stderr));
             } catch (error) {
@@ -99,8 +99,8 @@ export async function runBridge(
             }
         });
         if (payload !== undefined) {
-            processHandle.stdin.write(JSON.stringify(payload));
+            PROCESS_HANDLE.stdin.write(JSON.stringify(payload));
         }
-        processHandle.stdin.end();
+        PROCESS_HANDLE.stdin.end();
     });
 }

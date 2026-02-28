@@ -47,10 +47,10 @@ export function hasEnglishLanguage(doc: SearchDoc): boolean {
         return false;
     }
     return doc.language.some((code) => {
-        const normalized = String(code || "").toLowerCase();
-        if (!normalized) {
+        const NORMALIZED = String(code || "").toLowerCase();
+        if (!NORMALIZED) {
             return false;
         }
-        return normalized === "eng" || normalized.endsWith("/eng");
+        return NORMALIZED === "eng" || NORMALIZED.endsWith("/eng");
     });
 }

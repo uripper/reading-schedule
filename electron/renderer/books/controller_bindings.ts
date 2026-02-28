@@ -70,7 +70,7 @@ function assertToolbarControls(refs: BooksControllerRefs): {
  * @param args.rerender Callback that refreshes the books view.
  */
 export function bindToolbarEvents(args: BindToolbarEventsArgs): void {
-    const nextViewState = args.viewState;
+    const NEXT_VIEW_STATE = args.viewState;
     const {
         titleFilterInput,
         sortBySelect,
@@ -80,41 +80,41 @@ export function bindToolbarEvents(args: BindToolbarEventsArgs): void {
         sortDirectionBtn,
     } = assertToolbarControls(args.refs);
 
-    const applyTitleFilter = (): void => {
-        nextViewState.titleFilter = String(titleFilterInput.value || "");
+    const APPLY_TITLE_FILTER = (): void => {
+        NEXT_VIEW_STATE.titleFilter = String(titleFilterInput.value || "");
         args.rerender();
     };
-    titleFilterInput.addEventListener("input", applyTitleFilter);
-    titleFilterInput.addEventListener("change", applyTitleFilter);
+    titleFilterInput.addEventListener("input", APPLY_TITLE_FILTER);
+    titleFilterInput.addEventListener("change", APPLY_TITLE_FILTER);
 
     sortBySelect.addEventListener("change", () => {
-        nextViewState.sortBy = toSortBy(sortBySelect.value);
+        NEXT_VIEW_STATE.sortBy = toSortBy(sortBySelect.value);
         args.rerender();
     });
 
     shelfFilterSelect.addEventListener("change", () => {
-        nextViewState.shelfFilter = shelfFilterSelect.value;
+        NEXT_VIEW_STATE.shelfFilter = shelfFilterSelect.value;
         args.rerender();
     });
 
     statusFilterSelect.addEventListener("change", () => {
-        nextViewState.statusFilter = normalizeStatusFilter(
+        NEXT_VIEW_STATE.statusFilter = normalizeStatusFilter(
             statusFilterSelect.value,
         );
         args.rerender();
     });
 
     groupBySelect.addEventListener("change", () => {
-        nextViewState.groupBy = toGroupBy(groupBySelect.value);
+        NEXT_VIEW_STATE.groupBy = toGroupBy(groupBySelect.value);
         args.rerender();
     });
 
     sortDirectionBtn.addEventListener("click", () => {
         let nextDirection: SortDirection = SORT_DIRECTION_ASC;
-        if (nextViewState.sortDirection === SORT_DIRECTION_ASC) {
+        if (NEXT_VIEW_STATE.sortDirection === SORT_DIRECTION_ASC) {
             nextDirection = SORT_DIRECTION_DESC;
         }
-        nextViewState.sortDirection = nextDirection;
+        NEXT_VIEW_STATE.sortDirection = nextDirection;
         args.rerender();
     });
 }

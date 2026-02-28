@@ -57,8 +57,8 @@ function rowMatchesSessionIndex(
     if (session.sessionIndex === null) {
         return true;
     }
-    const rowSessionIndex = Number(row.session_index || 0);
-    return rowSessionIndex === session.sessionIndex;
+    const ROW_SESSION_INDEX = Number(row.session_index || 0);
+    return ROW_SESSION_INDEX === session.sessionIndex;
 }
 
 /**
@@ -71,8 +71,8 @@ function rowMatchesTitle(
     row: PlannerScheduleRow,
     session: FocusSession,
 ): boolean {
-    const rowTitle = String(row.title || "").trim();
-    return rowTitle === session.title;
+    const ROW_TITLE = String(row.title || "").trim();
+    return ROW_TITLE === session.title;
 }
 
 /**
@@ -85,8 +85,8 @@ function rowMatchesMinutes(
     row: PlannerScheduleRow,
     session: FocusSession,
 ): boolean {
-    const rowMinutes = roundMinutes(Number(row.minutes || 0));
-    return rowMinutes === session.minutes;
+    const ROW_MINUTES = roundMinutes(Number(row.minutes || 0));
+    return ROW_MINUTES === session.minutes;
 }
 
 /**
@@ -126,11 +126,11 @@ function parsedPositiveFinite(value: number): number | null {
  * @returns Rounded session index, or null when invalid.
  */
 function sessionIndexOrNull(value: number): number | null {
-    const parsed = parsedPositiveFinite(value);
-    if (parsed === null) {
+    const PARSED = parsedPositiveFinite(value);
+    if (PARSED === null) {
         return null;
     }
-    return Math.round(parsed);
+    return Math.round(PARSED);
 }
 
 /**
@@ -141,22 +141,22 @@ function sessionIndexOrNull(value: number): number | null {
 export function readFocusSessionFromDataset(
     button: HTMLButtonElement,
 ): FocusSession | null {
-    const title = String(button.dataset.focusSessionTitle ?? "").trim();
-    const date = String(button.dataset.focusSessionDate ?? "").trim();
-    const parsedMinutes = parsedPositiveFinite(
+    const TITLE = String(button.dataset.focusSessionTitle ?? "").trim();
+    const DATE = String(button.dataset.focusSessionDate ?? "").trim();
+    const PARSED_MINUTES = parsedPositiveFinite(
         Number(button.dataset.focusSessionMinutes ?? 0),
     );
-    const bookId = String(button.dataset.focusSessionBookId ?? "").trim();
-    const rawSessionIndex = Number(button.dataset.focusSessionIndex ?? 0);
-    if (!title || !date || parsedMinutes === null) {
+    const BOOK_ID = String(button.dataset.focusSessionBookId ?? "").trim();
+    const RAW_SESSION_INDEX = Number(button.dataset.focusSessionIndex ?? 0);
+    if (!TITLE || !DATE || PARSED_MINUTES === null) {
         return null;
     }
     return {
-        bookId: bookId || "",
-        date,
-        minutes: roundMinutes(parsedMinutes),
-        sessionIndex: sessionIndexOrNull(rawSessionIndex),
-        title,
+        bookId: BOOK_ID || "",
+        date: DATE,
+        minutes: roundMinutes(PARSED_MINUTES),
+        sessionIndex: sessionIndexOrNull(RAW_SESSION_INDEX),
+        title: TITLE,
     };
 }
 
@@ -173,10 +173,10 @@ export function findSessionRow(
     if (!session) {
         return null;
     }
-    const rows = lastResult?.schedule ?? [];
-    for (const row of rows) {
-        if (rowMatchesFocusSession(row, session)) {
-            return row;
+    const ROWS = lastResult?.schedule ?? [];
+    for (const ROW of ROWS) {
+        if (rowMatchesFocusSession(ROW, session)) {
+            return ROW;
         }
     }
     return null;

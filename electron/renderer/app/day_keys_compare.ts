@@ -13,24 +13,24 @@ export function isValidDayKey(dayKey: string): boolean {
     if (!DAY_KEY_PATTERN.test(dayKey)) {
         return false;
     }
-    const [year, month, day] = dayKey.split("-").map(Number);
-    if (!Number.isInteger(year)) {
+    const [YEAR, MONTH, DAY] = dayKey.split("-").map(Number);
+    if (!Number.isInteger(YEAR)) {
         return false;
     }
-    if (!Number.isInteger(month)) {
+    if (!Number.isInteger(MONTH)) {
         return false;
     }
-    if (!Number.isInteger(day)) {
+    if (!Number.isInteger(DAY)) {
         return false;
     }
-    const parsed = new Date(year, month - MONTH_INDEX_OFFSET, day);
-    if (parsed.getFullYear() !== year) {
+    const PARSED = new Date(YEAR, MONTH - MONTH_INDEX_OFFSET, DAY);
+    if (PARSED.getFullYear() !== YEAR) {
         return false;
     }
-    if (parsed.getMonth() !== month - MONTH_INDEX_OFFSET) {
+    if (PARSED.getMonth() !== MONTH - MONTH_INDEX_OFFSET) {
         return false;
     }
-    if (parsed.getDate() !== day) {
+    if (PARSED.getDate() !== DAY) {
         return false;
     }
     return true;
@@ -65,11 +65,11 @@ export function compareDayKeys(left: string, right: string): number | null {
  * @returns True when `left` is on or before `right`.
  */
 export function isOnOrBeforeDay(left: string, right: string): boolean {
-    const compared = compareDayKeys(left, right);
-    if (compared === null) {
+    const COMPARED = compareDayKeys(left, right);
+    if (COMPARED === null) {
         return false;
     }
-    return compared <= DAY_KEY_COMPARE_EQUAL;
+    return COMPARED <= DAY_KEY_COMPARE_EQUAL;
 }
 
 /**
@@ -79,9 +79,9 @@ export function isOnOrBeforeDay(left: string, right: string): boolean {
  * @returns True when `left` is on or after `right`.
  */
 export function isOnOrAfterDay(left: string, right: string): boolean {
-    const compared = compareDayKeys(left, right);
-    if (compared === null) {
+    const COMPARED = compareDayKeys(left, right);
+    if (COMPARED === null) {
         return false;
     }
-    return compared >= DAY_KEY_COMPARE_EQUAL;
+    return COMPARED >= DAY_KEY_COMPARE_EQUAL;
 }

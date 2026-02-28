@@ -19,65 +19,65 @@ import { createLookupStateController } from "./search_state.js";
  * @returns Binding handle with clear/destroy controls.
  */
 export function bindBookLookup(options: BindBookLookupOptions): LookupBinding {
-    const placeholder = placeholderCoverSvg();
-    const state: LookupSearchState = {
+    const PLACEHOLDER = placeholderCoverSvg();
+    const STATE: LookupSearchState = {
         activeIndex: -1,
         currentItems: [],
         timer: null,
         token: 0,
     };
-    const lookupState = createLookupStateController({
+    const LOOKUP_STATE = createLookupStateController({
         metaEl: options.metaEl,
         onPick: options.onPick,
-        placeholder,
+        placeholder: PLACEHOLDER,
         resultsEl: options.resultsEl,
         searchInput: options.searchInput,
-        state,
+        state: STATE,
     });
-    const clearResults = (): void => {
-        lookupState.clearResults();
+    const CLEAR_RESULTS = (): void => {
+        LOOKUP_STATE.clearResults();
     };
-    const refreshResults = (): void => {
-        lookupState.refreshResults();
+    const REFRESH_RESULTS = (): void => {
+        LOOKUP_STATE.refreshResults();
     };
-    const setActiveIndex = (nextIndex: number): void => {
-        lookupState.setActiveIndex(nextIndex);
+    const SET_ACTIVE_INDEX = (nextIndex: number): void => {
+        LOOKUP_STATE.setActiveIndex(nextIndex);
     };
-    const selectItem = (nextIndex: number): void => {
-        lookupState.selectItem(nextIndex);
+    const SELECT_ITEM = (nextIndex: number): void => {
+        LOOKUP_STATE.selectItem(nextIndex);
     };
     options.resultsEl.addEventListener("mousemove", (event: MouseEvent) => {
-        const target = lookupResultTarget(event);
-        if (target) {
-            setActiveIndex(Number(target.dataset.resultIndex));
+        const TARGET = lookupResultTarget(event);
+        if (TARGET) {
+            SET_ACTIVE_INDEX(Number(TARGET.dataset.resultIndex));
         }
     });
     options.resultsEl.addEventListener("click", (event: MouseEvent) => {
-        const target = lookupResultTarget(event);
-        if (target) {
-            selectItem(Number(target.dataset.resultIndex));
+        const TARGET = lookupResultTarget(event);
+        if (TARGET) {
+            SELECT_ITEM(Number(TARGET.dataset.resultIndex));
         }
     });
-    const onInput = createLookupInputHandler({
-        clearResults,
+    const ON_INPUT = createLookupInputHandler({
+        clearResults: CLEAR_RESULTS,
         metaEl: options.metaEl,
-        refreshResults,
+        refreshResults: REFRESH_RESULTS,
         searchInput: options.searchInput,
-        state,
+        state: STATE,
     });
-    options.searchInput.addEventListener("input", onInput);
+    options.searchInput.addEventListener("input", ON_INPUT);
     options.searchInput.addEventListener("keydown", (event: KeyboardEvent) => {
         handleLookupKeydown({
-            activeIndex: state.activeIndex,
-            clearResults,
-            currentItems: state.currentItems,
+            activeIndex: STATE.activeIndex,
+            clearResults: CLEAR_RESULTS,
+            currentItems: STATE.currentItems,
             event,
             searchInput: options.searchInput,
-            selectItem,
-            setActiveIndex,
+            selectItem: SELECT_ITEM,
+            setActiveIndex: SET_ACTIVE_INDEX,
         });
     });
-    const onDocClick = (event: MouseEvent): void => {
+    const ON_DOC_CLICK = (event: MouseEvent): void => {
         if (!(event.target instanceof Node)) {
             return;
         }
@@ -87,13 +87,13 @@ export function bindBookLookup(options: BindBookLookupOptions): LookupBinding {
         ) {
             return;
         }
-        clearResults();
+        CLEAR_RESULTS();
     };
-    document.addEventListener("click", onDocClick);
+    document.addEventListener("click", ON_DOC_CLICK);
     return {
-        clearResults,
+        clearResults: CLEAR_RESULTS,
         destroy: (): void => {
-            document.removeEventListener("click", onDocClick);
+            document.removeEventListener("click", ON_DOC_CLICK);
         },
     };
 }

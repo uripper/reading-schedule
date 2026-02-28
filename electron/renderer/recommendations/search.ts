@@ -32,37 +32,37 @@ export async function findRecommendations(
     options: RecommendationSearchOptions = {},
 ): Promise<RecommendationItem[]> {
     addLog("Recommendations: Starting search...");
-    const existingKeys = addExistingBookKeys(books);
-    const recommendationKeys = new Set<string>();
-    const recommendations: RecommendationItem[] = [];
+    const EXISTING_KEYS = addExistingBookKeys(books);
+    const RECOMMENDATION_KEYS = new Set<string>();
+    const RECOMMENDATIONS: RecommendationItem[] = [];
     let randomFn: () => number = Math.random;
-    const randomSource = options.randomFn;
-    if (typeof randomSource === "function") {
-        randomFn = (): number => randomSource();
+    const RANDOM_SOURCE = options.randomFn;
+    if (typeof RANDOM_SOURCE === "function") {
+        randomFn = (): number => RANDOM_SOURCE();
     }
-    const derivedReadAuthors = deriveReadAuthors(books);
-    const readAuthors = pickRandomSample(
-        derivedReadAuthors,
+    const DERIVED_READ_AUTHORS = deriveReadAuthors(books);
+    const READ_AUTHORS = pickRandomSample(
+        DERIVED_READ_AUTHORS,
         MAX_AUTHORS,
         randomFn,
     );
 
     addLog(
-        `Recommendations: Derived ${derivedReadAuthors.length} read authors: ${derivedReadAuthors.join(", ")}`,
+        `Recommendations: Derived ${DERIVED_READ_AUTHORS.length} read authors: ${DERIVED_READ_AUTHORS.join(", ")}`,
     );
     addLog(
-        `Recommendations: Sampled ${readAuthors.length} read authors for this run: ${readAuthors.join(", ")}`,
+        `Recommendations: Sampled ${READ_AUTHORS.length} read authors for this run: ${READ_AUTHORS.join(", ")}`,
     );
 
-    for (const author of readAuthors) {
+    for (const AUTHOR of READ_AUTHORS) {
         let lookupItems: BookLookupItem[] = [];
         addLog(
-            `Recommendations: Searching for author-only results: "${author}"`,
+            `Recommendations: Searching for author-only results: "${AUTHOR}"`,
         );
         try {
-            lookupItems = await api.searchBooks(author, true);
+            lookupItems = await api.searchBooks(AUTHOR, true);
             addLog(
-                `Recommendations: Got ${lookupItems.length} results for "${author}"`,
+                `Recommendations: Got ${lookupItems.length} results for "${AUTHOR}"`,
             );
             if (lookupItems.length > 0) {
                 addLog(
@@ -71,24 +71,24 @@ export async function findRecommendations(
             }
         } catch (error) {
             addLog(
-                `Recommendations: Search failed for "${author}": ${String(error)}`,
+                `Recommendations: Search failed for "${AUTHOR}": ${String(error)}`,
             );
             lookupItems = [];
         }
         processAuthorResults({
-            author,
-            existingKeys,
+            author: AUTHOR,
+            existingKeys: EXISTING_KEYS,
             lookupItems,
-            recommendationKeys,
-            recommendations,
+            recommendationKeys: RECOMMENDATION_KEYS,
+            recommendations: RECOMMENDATIONS,
         });
     }
 
-    if (recommendations.length > 0) {
+    if (RECOMMENDATIONS.length > 0) {
         addLog(
-            `Recommendations: Found ${recommendations.length} dynamic recommendations, using those.`,
+            `Recommendations: Found ${RECOMMENDATIONS.length} dynamic recommendations, using those.`,
         );
-        return recommendations;
+        return RECOMMENDATIONS;
     }
     addLog(
         "Recommendations: No dynamic results, falling back to static catalog.",

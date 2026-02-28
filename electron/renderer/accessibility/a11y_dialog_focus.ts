@@ -36,13 +36,13 @@ export function bindDialogFocus(
     closeAndReturnFocus(): void;
 } {
     let opener: HTMLElement | null = null;
-    const rememberOpener = (): void => {
+    const REMEMBER_OPENER = (): void => {
         opener = null;
         if (document.activeElement instanceof HTMLElement) {
             opener = document.activeElement;
         }
     };
-    const focusInitialTarget = (): void => {
+    const FOCUS_INITIAL_TARGET = (): void => {
         let direct: Element | null = null;
         if (initialFocusSelector !== null && initialFocusSelector !== "") {
             direct = dialog.querySelector(initialFocusSelector);
@@ -52,18 +52,18 @@ export function bindDialogFocus(
             return;
         }
 
-        const autoFocus = dialog.querySelector("[autofocus]");
-        if (autoFocus instanceof HTMLElement) {
-            autoFocus.focus();
+        const AUTO_FOCUS = dialog.querySelector("[autofocus]");
+        if (AUTO_FOCUS instanceof HTMLElement) {
+            AUTO_FOCUS.focus();
             return;
         }
 
-        const first = dialog.querySelector(focusableSelector());
-        if (first instanceof HTMLElement) {
-            first.focus();
+        const FIRST = dialog.querySelector(focusableSelector());
+        if (FIRST instanceof HTMLElement) {
+            FIRST.focus();
         }
     };
-    const closeAndReturnFocus = (): void => {
+    const CLOSE_AND_RETURN_FOCUS = (): void => {
         if (dialog.open) {
             dialog.close();
         }
@@ -76,5 +76,9 @@ export function bindDialogFocus(
         opener = null;
     });
 
-    return { closeAndReturnFocus, focusInitialTarget, rememberOpener };
+    return {
+        closeAndReturnFocus: CLOSE_AND_RETURN_FOCUS,
+        focusInitialTarget: FOCUS_INITIAL_TARGET,
+        rememberOpener: REMEMBER_OPENER,
+    };
 }

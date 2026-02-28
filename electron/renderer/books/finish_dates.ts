@@ -8,11 +8,11 @@ const SESSION_INDEX_PAD = 3;
  * @returns Lexicographically sortable row key.
  */
 function rowSortKey(row: PlannerScheduleRow): string {
-    const index = String(row.session_index || 0).padStart(
+    const INDEX = String(row.session_index || 0).padStart(
         SESSION_INDEX_PAD,
         "0",
     );
-    return `${String(row.date || "")}-${index}`;
+    return `${String(row.date || "")}-${INDEX}`;
 }
 
 /**
@@ -36,17 +36,17 @@ function withBookFinishedDates(
     finishDateByBookId: Record<string, string>,
     books: Book[] = [],
 ): Record<string, string> {
-    const out = { ...finishDateByBookId };
+    const OUT = { ...finishDateByBookId };
     books.forEach((book) => {
-        const bookId = String(book.book_id || "");
-        const finishedAt = String(book.finished_at ?? "");
-        if (!bookId || !finishedAt) {
+        const BOOK_ID = String(book.book_id || "");
+        const FINISHED_AT = String(book.finished_at ?? "");
+        if (!BOOK_ID || !FINISHED_AT) {
             return;
         }
         // For read books, explicit completion date should win over schedule estimates.
-        out[bookId] = finishedAt;
+        OUT[BOOK_ID] = FINISHED_AT;
     });
-    return out;
+    return OUT;
 }
 
 /**
@@ -59,14 +59,14 @@ export function finishDatesByBookId(
     rows: PlannerScheduleRow[] = [],
     books: Book[] = [],
 ): Record<string, string> {
-    const out: Record<string, string> = {};
+    const OUT: Record<string, string> = {};
     sortRows(rows).forEach((row) => {
-        const bookId = String(row.book_id || "");
-        const date = String(row.date || "");
-        if (!bookId || !date) {
+        const BOOK_ID = String(row.book_id || "");
+        const DATE = String(row.date || "");
+        if (!BOOK_ID || !DATE) {
             return;
         }
-        out[bookId] = date;
+        OUT[BOOK_ID] = DATE;
     });
-    return withBookFinishedDates(out, books);
+    return withBookFinishedDates(OUT, books);
 }

@@ -22,84 +22,85 @@ export function renderCalendarDetails(
     interactionHandlers: DetailInteractionHandlers,
     onRerenderRequested: (() => void) | null = null,
 ): void {
-    const calendarState = state;
-    const details = el("calendarDayDetails");
-    const key = calendarState.selectedDate;
+    const CALENDAR_STATE = state;
+    const DETAILS = el("calendarDayDetails");
+    const KEY = CALENDAR_STATE.selectedDate;
     let rows: CalendarDetailsState["dates"][string] = [];
-    if (key in calendarState.dates) {
-        rows = calendarState.dates[key];
+    if (KEY in CALENDAR_STATE.dates) {
+        rows = CALENDAR_STATE.dates[KEY];
     }
 
-    const title = document.createElement("h2");
-    title.textContent = "Selected Day";
-    if (key) {
-        title.textContent = dateHeading(key);
+    const TITLE = document.createElement("h2");
+    TITLE.textContent = "Selected Day";
+    if (KEY) {
+        TITLE.textContent = dateHeading(KEY);
     }
 
-    if (!key) {
-        const hint = document.createElement("p");
-        hint.className = "hint-text";
-        hint.textContent = "Select a day in the schedule grid to view details.";
-        details.replaceChildren(title, hint);
-        calendarState.expectedFinishHighlightDate = "";
+    if (!KEY) {
+        const HINT = document.createElement("p");
+        HINT.className = "hint-text";
+        HINT.textContent = "Select a day in the schedule grid to view details.";
+        DETAILS.replaceChildren(TITLE, HINT);
+        CALENDAR_STATE.expectedFinishHighlightDate = "";
         return;
     }
 
-    const mode = dayMode(key);
-    const rerenderDetails = (): void => {
+    const MODE = dayMode(KEY);
+    const RERENDER_DETAILS = (): void => {
         if (onRerenderRequested !== null) {
             onRerenderRequested();
             return;
         }
         renderCalendarDetails(
-            calendarState,
+            CALENDAR_STATE,
             interactionHandlers,
             onRerenderRequested,
         );
     };
-    const rowsToRender = rowsForMode(rows, mode, interactionHandlers);
+    const ROWS_TO_RENDER = rowsForMode(rows, MODE, interactionHandlers);
     let firstBookId = "";
     let firstMinutes: number | null = null;
-    if (rowsToRender.length > 0) {
-        const firstRow = rowsToRender[0];
-        firstBookId = firstRow.book_id;
-        firstMinutes = firstRow.minutes;
+    if (ROWS_TO_RENDER.length > 0) {
+        const FIRST_ROW = ROWS_TO_RENDER[0];
+        firstBookId = FIRST_ROW.book_id;
+        firstMinutes = FIRST_ROW.minutes;
     }
-    const manualAddPanel = buildManualSessionAddPanel({
-        dateKey: key,
+    const MANUAL_ADD_PANEL = buildManualSessionAddPanel({
+        dateKey: KEY,
         defaultBookId: firstBookId,
         defaultMinutes: firstMinutes ?? undefined,
         interactionHandlers,
-        mode,
-        rerenderDetails,
+        mode: MODE,
+        rerenderDetails: RERENDER_DETAILS,
     });
-    if (!rowsToRender.length) {
-        const empty = document.createElement("p");
-        empty.className = "hint-text";
-        empty.textContent = emptyMessageForMode(mode);
-        details.replaceChildren(title, empty, manualAddPanel);
-        calendarState.expectedFinishHighlightDate = "";
+    if (!ROWS_TO_RENDER.length) {
+        const EMPTY = document.createElement("p");
+        EMPTY.className = "hint-text";
+        EMPTY.textContent = emptyMessageForMode(MODE);
+        DETAILS.replaceChildren(TITLE, EMPTY, MANUAL_ADD_PANEL);
+        CALENDAR_STATE.expectedFinishHighlightDate = "";
         return;
     }
 
-    const list = document.createElement("div");
-    list.className = "day-details-list";
-    const animateFinishRows = calendarState.expectedFinishHighlightDate === key;
+    const LIST = document.createElement("div");
+    LIST.className = "day-details-list";
+    const ANIMATE_FINISH_ROWS =
+        CALENDAR_STATE.expectedFinishHighlightDate === KEY;
 
-    rowsToRender.forEach((row) => {
-        const node = rowNodeForMode({
+    ROWS_TO_RENDER.forEach((row) => {
+        const NODE = rowNodeForMode({
             interactionHandlers,
-            mode,
-            rerenderDetails,
+            mode: MODE,
+            rerenderDetails: RERENDER_DETAILS,
             row,
-            state: calendarState,
+            state: CALENDAR_STATE,
         });
-        if (animateFinishRows && row.finish) {
-            node.classList.add("is-finish-pulse");
+        if (ANIMATE_FINISH_ROWS && row.finish) {
+            NODE.classList.add("is-finish-pulse");
         }
-        list.append(node);
+        LIST.append(NODE);
     });
 
-    details.replaceChildren(title, list, manualAddPanel);
-    calendarState.expectedFinishHighlightDate = "";
+    DETAILS.replaceChildren(TITLE, LIST, MANUAL_ADD_PANEL);
+    CALENDAR_STATE.expectedFinishHighlightDate = "";
 }

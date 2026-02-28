@@ -49,7 +49,7 @@ let onEstimatedFinishNavigate: (dateKey: string) => void =
     DEFAULT_ON_ESTIMATED_FINISH_NAVIGATE;
 let dialog: BookDialogController | null = null;
 
-const refs: BooksControllerRefs = {
+const REFS: BooksControllerRefs = {
     addBtn: null,
     empty: null,
     grid: null,
@@ -62,7 +62,7 @@ const refs: BooksControllerRefs = {
     toolbar: null,
 };
 
-const viewState: BooksViewState = {
+const VIEW_STATE: BooksViewState = {
     groupBy: GROUP_BY_NONE,
     shelfFilter: "",
     sortBy: SORT_BY_TITLE,
@@ -99,11 +99,11 @@ function render(): void {
         findBook,
         onBooksChanged,
         onEstimatedFinishNavigate,
-        refs,
+        refs: REFS,
         rerender: render,
         scheduleRows,
         setBooks,
-        viewState,
+        viewState: VIEW_STATE,
     });
 }
 
@@ -113,11 +113,11 @@ function render(): void {
  * @returns Cloned book when found; otherwise `null`.
  */
 export function getBookById(bookId: string): Book | null {
-    const book = findBook(bookId);
-    if (!book) {
+    const BOOK = findBook(bookId);
+    if (!BOOK) {
         return null;
     }
-    return { ...book };
+    return { ...BOOK };
 }
 
 /**
@@ -132,20 +132,20 @@ export function updateBookProgress(
     updates: BookProgressUpdates = {},
     options: UpdateBookProgressOptions = {},
 ): Book | null {
-    const idx = books.findIndex((book) => book.book_id === bookId);
-    if (idx < 0) {
+    const IDX = books.findIndex((book) => book.book_id === bookId);
+    if (IDX < 0) {
         return null;
     }
 
-    const next = withUpdatedProgress(books[idx], updates);
-    books[idx] = normalizeBook(next);
+    const NEXT = withUpdatedProgress(books[IDX], updates);
+    books[IDX] = normalizeBook(NEXT);
     onBooksCommitted(books);
     render();
 
     if (options.notifyBooksChanged !== false) {
         onBooksChanged();
     }
-    return { ...books[idx] };
+    return { ...books[IDX] };
 }
 
 /**
@@ -153,10 +153,10 @@ export function updateBookProgress(
  * @param payload Book save payload including optional shelf-day propagation flag.
  */
 async function saveBook(payload: BookSubmitPayload): Promise<void> {
-    const hydrated = await hydrateBookCover(payload.book);
-    let nextBooks = upsertBookById(books, hydrated);
+    const HYDRATED = await hydrateBookCover(payload.book);
+    let nextBooks = upsertBookById(books, HYDRATED);
     if (payload.applyScheduledDaysToShelf) {
-        nextBooks = applyScheduledDaysToShelfBooks(nextBooks, hydrated);
+        nextBooks = applyScheduledDaysToShelfBooks(nextBooks, HYDRATED);
     }
     books = nextBooks;
     onBooksCommitted(books);
@@ -188,15 +188,15 @@ export function setBookScheduleRows(rows: PlannerScheduleRow[] = []): void {
  * @returns Normalized planner payload books that are title-complete and schedulable.
  */
 export function collectBooks(): Book[] {
-    const schedulableBooks = books.map(toPayloadBook).filter((book) => {
-        const normalizedTitle = book.title.trim();
+    const SCHEDULABLE_BOOKS = books.map(toPayloadBook).filter((book) => {
+        const NORMALIZED_TITLE = book.title.trim();
         return (
-            normalizedTitle.length > 0 &&
+            NORMALIZED_TITLE.length > 0 &&
             hasSchedulableLength(book) &&
             schedulableBook(book)
         );
     });
-    return clearMissingBlockedBy(schedulableBooks);
+    return clearMissingBlockedBy(SCHEDULABLE_BOOKS);
 }
 
 /**
@@ -219,40 +219,40 @@ export function bindBooksUI(
     options: BindBooksUIOptions = {},
 ): void {
     onBooksChanged = onChanged;
-    const estimatedFinishNavigateHandler = options.onEstimatedFinishNavigate;
-    if (typeof estimatedFinishNavigateHandler === "function") {
+    const ESTIMATED_FINISH_NAVIGATE_HANDLER = options.onEstimatedFinishNavigate;
+    if (typeof ESTIMATED_FINISH_NAVIGATE_HANDLER === "function") {
         onEstimatedFinishNavigate = (dateKey: string): void => {
-            estimatedFinishNavigateHandler(dateKey);
+            ESTIMATED_FINISH_NAVIGATE_HANDLER(dateKey);
         };
     } else {
         onEstimatedFinishNavigate = DEFAULT_ON_ESTIMATED_FINISH_NAVIGATE;
     }
-    refs.toolbar = document.querySelector(".books-toolbar");
-    if (!(refs.toolbar instanceof HTMLElement)) {
+    REFS.toolbar = document.querySelector(".books-toolbar");
+    if (!(REFS.toolbar instanceof HTMLElement)) {
         return;
     }
 
-    refs.grid = el("booksGrid");
-    refs.empty = el("booksEmpty");
-    refs.addBtn = el<HTMLButtonElement>("addBookBtn");
+    REFS.grid = el("booksGrid");
+    REFS.empty = el("booksEmpty");
+    REFS.addBtn = el<HTMLButtonElement>("addBookBtn");
 
-    const toolbarControls = ensureBooksToolbarControls(refs.toolbar);
-    refs.titleFilterInput = toolbarControls.titleFilterInput;
-    refs.shelfFilterSelect = toolbarControls.shelfFilterSelect;
-    refs.statusFilterSelect = toolbarControls.statusFilterSelect;
-    refs.sortBySelect = toolbarControls.sortBySelect;
-    refs.groupBySelect = toolbarControls.groupBySelect;
-    refs.sortDirectionBtn = toolbarControls.sortDirectionBtn;
+    const TOOLBAR_CONTROLS = ensureBooksToolbarControls(REFS.toolbar);
+    REFS.titleFilterInput = TOOLBAR_CONTROLS.titleFilterInput;
+    REFS.shelfFilterSelect = TOOLBAR_CONTROLS.shelfFilterSelect;
+    REFS.statusFilterSelect = TOOLBAR_CONTROLS.statusFilterSelect;
+    REFS.sortBySelect = TOOLBAR_CONTROLS.sortBySelect;
+    REFS.groupBySelect = TOOLBAR_CONTROLS.groupBySelect;
+    REFS.sortDirectionBtn = TOOLBAR_CONTROLS.sortDirectionBtn;
 
-    bindToolbarEvents({ refs, rerender: render, viewState });
+    bindToolbarEvents({ refs: REFS, rerender: render, viewState: VIEW_STATE });
 
     dialog = createBookDialog(saveBook, { getBooks: () => books });
-    refs.addBtn.onclick = () => {
+    REFS.addBtn.onclick = () => {
         if (!dialog) {
             return;
         }
         dialog.open(null, {
-            defaultShelf: defaultShelfForAddDialog(viewState.shelfFilter),
+            defaultShelf: defaultShelfForAddDialog(VIEW_STATE.shelfFilter),
         });
     };
 

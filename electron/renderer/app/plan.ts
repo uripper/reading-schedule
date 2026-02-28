@@ -10,10 +10,10 @@ import {
  * @returns A string representing the day key in "YYYY-MM-DD" format.
  */
 function dayKeyFromDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    const YEAR = date.getFullYear();
+    const MONTH = String(date.getMonth() + 1).padStart(2, "0");
+    const DAY = String(date.getDate()).padStart(2, "0");
+    return `${YEAR}-${MONTH}-${DAY}`;
 }
 
 /**
@@ -21,9 +21,9 @@ function dayKeyFromDate(date: Date): string {
  * @returns A string representing tomorrow's day key in "YYYY-MM-DD" format.
  */
 function tomorrowDayKey(): string {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return dayKeyFromDate(tomorrow);
+    const TOMORROW = new Date();
+    TOMORROW.setDate(TOMORROW.getDate() + 1);
+    return dayKeyFromDate(TOMORROW);
 }
 
 /**
@@ -39,14 +39,14 @@ function normalizeEndDate(
     if (typeof endDate !== "string" || !endDate) {
         return undefined;
     }
-    const normalizedEndDate = endDate.trim();
-    if (normalizedEndDate === "") {
+    const NORMALIZED_END_DATE = endDate.trim();
+    if (NORMALIZED_END_DATE === "") {
         return undefined;
     }
-    if (Number(normalizedEndDate) < Number(startDate)) {
+    if (Number(NORMALIZED_END_DATE) < Number(startDate)) {
         return startDate;
     }
-    return normalizedEndDate;
+    return NORMALIZED_END_DATE;
 }
 
 /**
@@ -55,10 +55,10 @@ function normalizeEndDate(
  * @returns A string containing the status and planned/available minutes.
  */
 function summaryLog(summary: PlannerSummary | null): string {
-    const status = summary?.status ?? "not-set";
-    const planned = Number(summary?.total_planned_minutes ?? 0);
-    const available = Number(summary?.total_available_minutes ?? 0);
-    return `Status ${status}. Planned ${planned}/${available} minutes.`;
+    const STATUS = summary?.status ?? "not-set";
+    const PLANNED = Number(summary?.total_planned_minutes ?? 0);
+    const AVAILABLE = Number(summary?.total_available_minutes ?? 0);
+    return `Status ${STATUS}. Planned ${PLANNED}/${AVAILABLE} minutes.`;
 }
 
 /**
@@ -70,9 +70,9 @@ function logPlanSummary(
     summary: PlannerSummary | null | undefined,
     addLog: (message: string) => void,
 ): void {
-    const feasibilityWarning = summary?.feasibility_warning;
-    if (typeof feasibilityWarning === "string" && feasibilityWarning !== "") {
-        addLog(feasibilityWarning);
+    const FEASIBILITY_WARNING = summary?.feasibility_warning;
+    if (typeof FEASIBILITY_WARNING === "string" && FEASIBILITY_WARNING !== "") {
+        addLog(FEASIBILITY_WARNING);
     }
     addLog(summaryLog(summary ?? null));
 }
@@ -110,19 +110,19 @@ function messageFromErrorLikeObject(error: unknown): string {
  */
 function errorMessage(error: unknown): string {
     if (error instanceof Error) {
-        const detail = trimmedStringOrEmpty(error.message);
-        if (detail) {
-            return detail;
+        const DETAIL = trimmedStringOrEmpty(error.message);
+        if (DETAIL) {
+            return DETAIL;
         }
         return error.name || "Unknown error";
     }
-    const stringDetail = trimmedStringOrEmpty(error);
-    if (stringDetail) {
-        return stringDetail;
+    const STRING_DETAIL = trimmedStringOrEmpty(error);
+    if (STRING_DETAIL) {
+        return STRING_DETAIL;
     }
-    const messageDetail = messageFromErrorLikeObject(error);
-    if (messageDetail) {
-        return messageDetail;
+    const MESSAGE_DETAIL = messageFromErrorLikeObject(error);
+    if (MESSAGE_DETAIL) {
+        return MESSAGE_DETAIL;
     }
     return "Unknown planner error";
 }
@@ -158,45 +158,45 @@ export async function runPlanGeneration({
     successAnnouncement = "Plan generated and schedule updated.",
 }: RunPlanGenerationArgs): Promise<void> {
     try {
-        const payloadBooks = collectBooks();
-        if (!payloadBooks.length) {
+        const PAYLOAD_BOOKS = collectBooks();
+        if (!PAYLOAD_BOOKS.length) {
             await onSuccess({ schedule: [], summary: null });
             setStatus("No schedulable books to plan.");
             return;
         }
 
         setStatus(statusGeneratingMessage);
-        const settings = collectSettings();
-        const forcedStartDate = tomorrowDayKey();
-        const normalizedEndDate = normalizeEndDate(
-            settings.end_date,
-            forcedStartDate,
+        const SETTINGS = collectSettings();
+        const FORCED_START_DATE = tomorrowDayKey();
+        const NORMALIZED_END_DATE = normalizeEndDate(
+            SETTINGS.end_date,
+            FORCED_START_DATE,
         );
-        const payloadSettings = {
-            ...settings,
-            start_date: forcedStartDate,
+        const PAYLOAD_SETTINGS = {
+            ...SETTINGS,
+            start_date: FORCED_START_DATE,
         };
-        if (normalizedEndDate !== undefined && normalizedEndDate !== "") {
-            payloadSettings.end_date = normalizedEndDate;
+        if (NORMALIZED_END_DATE !== undefined && NORMALIZED_END_DATE !== "") {
+            PAYLOAD_SETTINGS.end_date = NORMALIZED_END_DATE;
         }
-        const payload: PlanGeneratePayload = {
-            books: payloadBooks,
+        const PAYLOAD: PlanGeneratePayload = {
+            books: PAYLOAD_BOOKS,
             planner: "mip",
-            settings: payloadSettings,
+            settings: PAYLOAD_SETTINGS,
         };
 
-        const data = await plannerApi.generate(payload);
-        await onSuccess(data);
-        logPlanSummary(data.summary, addLog);
+        const DATA = await plannerApi.generate(PAYLOAD);
+        await onSuccess(DATA);
+        logPlanSummary(DATA.summary, addLog);
 
         setStatus(statusSuccessMessage);
         if (successAnnouncement !== "") {
             announce(successAnnouncement);
         }
     } catch (error) {
-        const message = "Failed to generate plan";
-        setStatus(message, true);
+        const MESSAGE = "Failed to generate plan";
+        setStatus(MESSAGE, true);
         addLog(`Plan generation error: ${errorMessage(error)}`);
-        announce(message, "assertive");
+        announce(MESSAGE, "assertive");
     }
 }

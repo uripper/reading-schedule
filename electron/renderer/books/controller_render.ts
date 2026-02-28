@@ -49,32 +49,32 @@ function settingBoolean(value: unknown, fallback: boolean): boolean {
  */
 export function renderBooksController(args: RenderBooksControllerArgs): void {
     const { viewState } = args;
-    const onEstimatedFinishNavigate = (dateKey: string): void => {
+    const ON_ESTIMATED_FINISH_NAVIGATE = (dateKey: string): void => {
         args.onEstimatedFinishNavigate(dateKey);
     };
-    const renderRefs = resolveRenderableRefs(args.refs);
-    if (!renderRefs) {
+    const RENDER_REFS = resolveRenderableRefs(args.refs);
+    if (!RENDER_REFS) {
         return;
     }
 
-    const nextViewState = viewState;
-    nextViewState.shelfFilter = updateShelfFilterOptions(
-        renderRefs.shelfFilterSelect,
+    const NEXT_VIEW_STATE = viewState;
+    NEXT_VIEW_STATE.shelfFilter = updateShelfFilterOptions(
+        RENDER_REFS.shelfFilterSelect,
         args.books,
-        nextViewState.shelfFilter,
+        NEXT_VIEW_STATE.shelfFilter,
     );
-    nextViewState.statusFilter = updateStatusFilterOptions(
-        renderRefs.statusFilterSelect,
-        nextViewState.statusFilter,
+    NEXT_VIEW_STATE.statusFilter = updateStatusFilterOptions(
+        RENDER_REFS.statusFilterSelect,
+        NEXT_VIEW_STATE.statusFilter,
     );
-    nextViewState.groupBy = updateGroupByOptions(
-        renderRefs.groupBySelect,
-        nextViewState.groupBy,
-        nextViewState.shelfFilter,
+    NEXT_VIEW_STATE.groupBy = updateGroupByOptions(
+        RENDER_REFS.groupBySelect,
+        NEXT_VIEW_STATE.groupBy,
+        NEXT_VIEW_STATE.shelfFilter,
     );
     updateSortDirectionButton(
-        renderRefs.sortDirectionBtn,
-        nextViewState.sortDirection,
+        RENDER_REFS.sortDirectionBtn,
+        NEXT_VIEW_STATE.sortDirection,
     );
 
     let {
@@ -84,35 +84,35 @@ export function renderBooksController(args: RenderBooksControllerArgs): void {
         showBlockerMeta,
         showShelfMeta,
         showWordCount,
-    } = generateBookViewSettings(nextViewState, args);
+    } = generateBookViewSettings(NEXT_VIEW_STATE, args);
     if (
-        nextViewState.sortBy === SORT_BY_ESTIMATED_FINISH &&
-        nextViewState.groupBy === GROUP_BY_NONE
+        NEXT_VIEW_STATE.sortBy === SORT_BY_ESTIMATED_FINISH &&
+        NEXT_VIEW_STATE.groupBy === GROUP_BY_NONE
     ) {
         groups = groupsForEstimatedFinish(visibleBooks);
     }
     renderBookGrid({
         allBooks: args.books,
         books: visibleBooks,
-        empty: renderRefs.empty,
+        empty: RENDER_REFS.empty,
         finishDateByBookId,
-        grid: renderRefs.grid,
+        grid: RENDER_REFS.grid,
         groups,
         onEdit: (bookId) => {
-            const book = args.findBook(bookId);
-            if (book && args.dialog) {
-                args.dialog.open(book);
+            const BOOK = args.findBook(bookId);
+            if (BOOK && args.dialog) {
+                args.dialog.open(BOOK);
             }
         },
-        onEstimatedFinishNavigate,
+        onEstimatedFinishNavigate: ON_ESTIMATED_FINISH_NAVIGATE,
         onRemove: (bookId) => {
-            const nextBooks = args.books.filter(
+            const NEXT_BOOKS = args.books.filter(
                 (book) => book.book_id !== bookId,
             );
-            if (nextBooks.length === args.books.length) {
+            if (NEXT_BOOKS.length === args.books.length) {
                 return;
             }
-            args.setBooks(nextBooks);
+            args.setBooks(NEXT_BOOKS);
             args.rerender();
             args.onBooksChanged();
         },
@@ -132,39 +132,42 @@ function generateBookViewSettings(
     nextViewState: BooksViewState,
     args: RenderBooksControllerArgs,
 ) {
-    const settings = collectSettings();
-    const showWordCount = settingBoolean(settings.books_show_word_count, true);
-    const showBlockerMeta = settingBoolean(
-        settings.books_show_blocker_meta,
+    const SETTINGS = collectSettings();
+    const SHOW_WORD_COUNT = settingBoolean(
+        SETTINGS.books_show_word_count,
         true,
     );
-    const showShelfSetting = settingBoolean(
-        settings.books_show_shelf_meta,
+    const SHOW_BLOCKER_META = settingBoolean(
+        SETTINGS.books_show_blocker_meta,
         true,
     );
-    const showShelfMeta =
-        showShelfSetting && nextViewState.shelfFilter === SHELF_FILTER_ALL;
-    const finishDateByBookId = finishDatesByBookId(
+    const SHOW_SHELF_SETTING = settingBoolean(
+        SETTINGS.books_show_shelf_meta,
+        true,
+    );
+    const SHOW_SHELF_META =
+        SHOW_SHELF_SETTING && nextViewState.shelfFilter === SHELF_FILTER_ALL;
+    const FINISH_DATE_BY_BOOK_ID = finishDatesByBookId(
         args.scheduleRows,
         args.books,
     );
-    const visibleBooks = visibleBooksForView(
+    const VISIBLE_BOOKS = visibleBooksForView(
         args.books,
         nextViewState,
-        finishDateByBookId,
+        FINISH_DATE_BY_BOOK_ID,
     );
 
-    const groups = groupBooks(
-        visibleBooks,
+    const GROUPS = groupBooks(
+        VISIBLE_BOOKS,
         nextViewState.groupBy,
-        finishDateByBookId,
+        FINISH_DATE_BY_BOOK_ID,
     );
     return {
-        groups,
-        visibleBooks,
-        finishDateByBookId,
-        showBlockerMeta,
-        showShelfMeta,
-        showWordCount,
+        finishDateByBookId: FINISH_DATE_BY_BOOK_ID,
+        groups: GROUPS,
+        showBlockerMeta: SHOW_BLOCKER_META,
+        showShelfMeta: SHOW_SHELF_META,
+        showWordCount: SHOW_WORD_COUNT,
+        visibleBooks: VISIBLE_BOOKS,
     };
 }

@@ -50,28 +50,28 @@ export function registerIpcHandlers({
     ipcMain.handle(
         "book:downloadCover",
         async (_event, payload: DownloadCoverPayload | null) => {
-            const request = asDownloadCoverPayload(payload);
-            return await downloadCover(request.url, request.bookId, userData());
+            const REQUEST = asDownloadCoverPayload(payload);
+            return await downloadCover(REQUEST.url, REQUEST.bookId, userData());
         },
     );
     ipcMain.handle(
         "book:saveUploadedCover",
         (_event, payload: UploadCoverPayload | null) => {
-            const request = asUploadCoverPayload(payload);
+            const REQUEST = asUploadCoverPayload(payload);
             return saveUploadedCover(
-                request.dataUrl,
-                request.bookId,
+                REQUEST.dataUrl,
+                REQUEST.bookId,
                 userData(),
             );
         },
     );
     ipcMain.handle("state:load", () => readState(userData()));
     ipcMain.handle("state:save", (_event, payload: JsonValue) => {
-        const result = writeState(userData(), payload);
-        if (result.ok === false) {
-            throw new Error(result.error);
+        const RESULT = writeState(userData(), payload);
+        if (RESULT.ok === false) {
+            throw new Error(RESULT.error);
         }
-        return result;
+        return RESULT;
     });
     ipcMain.handle("window:zoomIn", (event) =>
         shiftZoomFactor(event.sender, UI_SCALE_STEP),

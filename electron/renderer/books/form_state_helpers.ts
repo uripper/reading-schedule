@@ -34,14 +34,14 @@ function todayDateKey(): string {
  * @param src URL/path to show in the preview.
  */
 export function setCoverPreview(refs: BookFormRefs, src: string): void {
-    const preview = refs.coverPreview;
-    const hasSrc = src !== "";
-    if (hasSrc) {
-        preview.src = src;
+    const PREVIEW = refs.coverPreview;
+    const HAS_SRC = src !== "";
+    if (HAS_SRC) {
+        PREVIEW.src = src;
     } else {
-        preview.src = COVER_PLACEHOLDER;
+        PREVIEW.src = COVER_PLACEHOLDER;
     }
-    preview.classList.toggle("is-empty", !hasSrc);
+    PREVIEW.classList.toggle("is-empty", !HAS_SRC);
 }
 
 /**
@@ -53,12 +53,12 @@ export function setOptionalIntegerInputValue(
     inputNode: HTMLInputElement,
     value: number | null | undefined,
 ): void {
-    const targetInput = inputNode;
-    targetInput.value = "";
+    const TARGET_INPUT = inputNode;
+    TARGET_INPUT.value = "";
     if (value === null || value === undefined) {
         return;
     }
-    targetInput.value = String(value);
+    TARGET_INPUT.value = String(value);
 }
 
 /**
@@ -100,11 +100,11 @@ export function fallbackNumberText(
  * @throws {Error} Thrown when the title is blank.
  */
 export function requiredTitle(refs: BookFormRefs): string {
-    const title = refs.titleInput.value.trim();
-    if (!title) {
+    const TITLE = refs.titleInput.value.trim();
+    if (!TITLE) {
         throw new Error("Title is required.");
     }
-    return title;
+    return TITLE;
 }
 
 /**
@@ -113,14 +113,14 @@ export function requiredTitle(refs: BookFormRefs): string {
  * @returns Supported book status value.
  */
 export function validatedStatusSelection(refs: BookFormRefs): BookStatus {
-    const raw = String(refs.statusSelectInput.value).trim();
-    if (raw === BOOK_STATUS_READ) {
+    const RAW = String(refs.statusSelectInput.value).trim();
+    if (RAW === BOOK_STATUS_READ) {
         return BOOK_STATUS_READ;
     }
-    if (raw === BOOK_STATUS_IN_PROGRESS) {
+    if (RAW === BOOK_STATUS_IN_PROGRESS) {
         return BOOK_STATUS_IN_PROGRESS;
     }
-    if (raw === BOOK_STATUS_DROPPED) {
+    if (RAW === BOOK_STATUS_DROPPED) {
         return BOOK_STATUS_DROPPED;
     }
     return BOOK_STATUS_TO_READ;
@@ -133,10 +133,10 @@ export function validatedStatusSelection(refs: BookFormRefs): BookStatus {
  */
 function toggleFinishedAtInput(refs: BookFormRefs, status: BookStatus): void {
     const { finishedAtField, finishedAtInput } = refs;
-    const isRead = status === BOOK_STATUS_READ;
-    finishedAtField.hidden = !isRead;
-    finishedAtInput.disabled = !isRead;
-    if (!isRead) {
+    const IS_READ = status === BOOK_STATUS_READ;
+    finishedAtField.hidden = !IS_READ;
+    finishedAtInput.disabled = !IS_READ;
+    if (!IS_READ) {
         return;
     }
     if (finishedAtInput.value) {
@@ -150,8 +150,8 @@ function toggleFinishedAtInput(refs: BookFormRefs, status: BookStatus): void {
  * @param refs Form DOM references for the book dialog.
  */
 export function syncFinishedAtFieldState(refs: BookFormRefs): void {
-    const status = validatedStatusSelection(refs);
-    toggleFinishedAtInput(refs, status);
+    const STATUS = validatedStatusSelection(refs);
+    toggleFinishedAtInput(refs, STATUS);
 }
 
 /**
@@ -166,38 +166,38 @@ export function deriveLengthAndProgress(refs: BookFormRefs): {
     pagesRead: number | null;
     progress: number;
 } {
-    const wordsTotal = toOptionalInt(refs.wordsInput.value);
-    const pagesTotal = toOptionalInt(refs.pagesTotalInput.value);
+    const WORDS_TOTAL = toOptionalInt(refs.wordsInput.value);
+    const PAGES_TOTAL = toOptionalInt(refs.pagesTotalInput.value);
     let pagesRead = toOptionalInt(refs.pagesReadInput.value);
     let progress = clamp(Number(refs.progressInput.value), 0, PROGRESS_MAX);
-    const hasWordsTotal = wordsTotal !== null && wordsTotal > 0;
-    const hasPagesTotal = pagesTotal !== null && pagesTotal > 0;
-    if (!hasWordsTotal && !hasPagesTotal) {
+    const HAS_WORDS_TOTAL = WORDS_TOTAL !== null && WORDS_TOTAL > 0;
+    const HAS_PAGES_TOTAL = PAGES_TOTAL !== null && PAGES_TOTAL > 0;
+    if (!HAS_WORDS_TOTAL && !HAS_PAGES_TOTAL) {
         throw new Error("Enter estimated words or total pages.");
     }
 
-    if (hasPagesTotal) {
-        pagesRead ??= Math.round((progress / PROGRESS_MAX) * pagesTotal);
-        pagesRead = clamp(pagesRead, 0, pagesTotal);
+    if (HAS_PAGES_TOTAL) {
+        pagesRead ??= Math.round((progress / PROGRESS_MAX) * PAGES_TOTAL);
+        pagesRead = clamp(pagesRead, 0, PAGES_TOTAL);
         progress =
             Math.round(
-                (pagesRead / pagesTotal) *
+                (pagesRead / PAGES_TOTAL) *
                     PROGRESS_MAX *
                     PROGRESS_DECIMAL_SCALE,
             ) / PROGRESS_DECIMAL_SCALE;
         return {
             pagesRead,
-            pagesTotal,
+            pagesTotal: PAGES_TOTAL,
             progress,
-            wordsTotal,
+            wordsTotal: WORDS_TOTAL,
         };
     }
 
     return {
         pagesRead: null,
-        pagesTotal,
+        pagesTotal: PAGES_TOTAL,
         progress,
-        wordsTotal,
+        wordsTotal: WORDS_TOTAL,
     };
 }
 
@@ -208,13 +208,13 @@ export function deriveLengthAndProgress(refs: BookFormRefs): {
  * @throws {Error} Thrown when no valid shelf is selected.
  */
 export function validatedShelfSelection(refs: BookFormRefs): string {
-    const shelf = refs.shelfSelectInput.value;
-    if (shelf === SHELF_SELECT_CREATE_NEW) {
+    const SHELF = refs.shelfSelectInput.value;
+    if (SHELF === SHELF_SELECT_CREATE_NEW) {
         throw new Error(
             "Choose a shelf or create a new one from the shelf selector.",
         );
     }
-    return shelf;
+    return SHELF;
 }
 
 export const DEFAULT_STATUS = BOOK_STATUS_TO_READ;

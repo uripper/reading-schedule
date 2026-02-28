@@ -28,17 +28,17 @@ const MONTH_NUMBER_TO_INDEX_OFFSET = 1;
  * @returns Parsed year, or null when invalid.
  */
 export function yearFromDateKey(dateText: string): number | null {
-    const key = String(dateText || "").trim();
-    if (key.length < DATE_YEAR_END_INDEX) {
+    const KEY = String(dateText || "").trim();
+    if (KEY.length < DATE_YEAR_END_INDEX) {
         return null;
     }
-    const parsed = Number(
-        key.slice(DATE_YEAR_START_INDEX, DATE_YEAR_END_INDEX),
+    const PARSED = Number(
+        KEY.slice(DATE_YEAR_START_INDEX, DATE_YEAR_END_INDEX),
     );
-    if (!Number.isInteger(parsed)) {
+    if (!Number.isInteger(PARSED)) {
         return null;
     }
-    return parsed;
+    return PARSED;
 }
 
 /**
@@ -47,17 +47,17 @@ export function yearFromDateKey(dateText: string): number | null {
  * @returns Month index in `[0, 11]`, or null when invalid.
  */
 export function monthIndexFromDateKey(dateText: string): number | null {
-    const key = String(dateText || "").trim();
-    const parsed = Number(
-        key.slice(DATE_MONTH_START_INDEX, DATE_MONTH_END_INDEX),
+    const KEY = String(dateText || "").trim();
+    const PARSED = Number(
+        KEY.slice(DATE_MONTH_START_INDEX, DATE_MONTH_END_INDEX),
     );
-    if (!Number.isInteger(parsed)) {
+    if (!Number.isInteger(PARSED)) {
         return null;
     }
-    if (parsed < MIN_MONTH_NUMBER || parsed > MONTHS_PER_YEAR) {
+    if (PARSED < MIN_MONTH_NUMBER || PARSED > MONTHS_PER_YEAR) {
         return null;
     }
-    return parsed - MONTH_NUMBER_TO_INDEX_OFFSET;
+    return PARSED - MONTH_NUMBER_TO_INDEX_OFFSET;
 }
 
 /**
@@ -66,16 +66,16 @@ export function monthIndexFromDateKey(dateText: string): number | null {
  * @returns Status-to-count breakdown.
  */
 export function statusBreakdown(books: Book[]): StatusBreakdown {
-    const counts: StatusBreakdown = {
+    const COUNTS: StatusBreakdown = {
         [BOOK_STATUS_TO_READ]: 0,
         [BOOK_STATUS_IN_PROGRESS]: 0,
         [BOOK_STATUS_READ]: 0,
         [BOOK_STATUS_DROPPED]: 0,
     };
     books.forEach((book) => {
-        counts[book.status] += 1;
+        COUNTS[book.status] += 1;
     });
-    return counts;
+    return COUNTS;
 }
 
 /**
@@ -88,18 +88,18 @@ export function readBooksFinishedThisYear(
     books: Book[],
     year: number,
 ): Set<string> {
-    const ids = new Set<string>();
+    const IDS = new Set<string>();
     books.forEach((book) => {
         if (book.status !== BOOK_STATUS_READ) {
             return;
         }
-        const finishedYear = yearFromDateKey(String(book.finished_at ?? ""));
-        if (finishedYear !== year) {
+        const FINISHED_YEAR = yearFromDateKey(String(book.finished_at ?? ""));
+        if (FINISHED_YEAR !== year) {
             return;
         }
-        ids.add(book.book_id);
+        IDS.add(book.book_id);
     });
-    return ids;
+    return IDS;
 }
 
 /**
@@ -112,31 +112,31 @@ export function plannedFinishBookIds(
     lastResult: PlannerResult | null,
     year: number,
 ): { ids: Set<string>; monthByBookId: Map<string, number> } {
-    const ids = new Set<string>();
-    const monthByBookId = new Map<string, number>();
-    const rows = lastResult?.schedule ?? [];
-    const byBookId = finishDatesByBookId(rows);
-    const perBookSummary = lastResult?.summary?.per_book ?? {};
+    const IDS = new Set<string>();
+    const MONTH_BY_BOOK_ID = new Map<string, number>();
+    const ROWS = lastResult?.schedule ?? [];
+    const BY_BOOK_ID = finishDatesByBookId(ROWS);
+    const PER_BOOK_SUMMARY = lastResult?.summary?.per_book ?? {};
 
-    Object.entries(byBookId).forEach(([bookId, dateKey]) => {
-        const finishYear = yearFromDateKey(dateKey);
-        if (finishYear !== year) {
+    Object.entries(BY_BOOK_ID).forEach(([bookId, dateKey]) => {
+        const FINISH_YEAR = yearFromDateKey(dateKey);
+        if (FINISH_YEAR !== year) {
             return;
         }
-        if (Object.hasOwn(perBookSummary, bookId)) {
-            const summary = perBookSummary[bookId];
-            if (summary.finished === false) {
+        if (Object.hasOwn(PER_BOOK_SUMMARY, bookId)) {
+            const SUMMARY = PER_BOOK_SUMMARY[bookId];
+            if (SUMMARY.finished === false) {
                 return;
             }
         }
-        const monthIndex = monthIndexFromDateKey(dateKey);
-        if (monthIndex === null) {
+        const MONTH_INDEX = monthIndexFromDateKey(dateKey);
+        if (MONTH_INDEX === null) {
             return;
         }
-        ids.add(bookId);
-        monthByBookId.set(bookId, monthIndex);
+        IDS.add(bookId);
+        MONTH_BY_BOOK_ID.set(bookId, MONTH_INDEX);
     });
-    return { ids, monthByBookId };
+    return { ids: IDS, monthByBookId: MONTH_BY_BOOK_ID };
 }
 
 /**
@@ -151,18 +151,18 @@ export function completionStats(
     scheduleCompletions: Record<string, boolean>,
     year: number,
 ): { scheduled: number; completed: number; ratePercent: number } {
-    const rows = lastResult?.schedule ?? [];
-    const today = todayKey();
+    const ROWS = lastResult?.schedule ?? [];
+    const TODAY = todayKey();
     let scheduled = 0;
     let completed = 0;
 
-    rows.forEach((row) => {
-        const rowYear = yearFromDateKey(String(row.date || ""));
-        if (rowYear !== year) {
+    ROWS.forEach((row) => {
+        const ROW_YEAR = yearFromDateKey(String(row.date || ""));
+        if (ROW_YEAR !== year) {
             return;
         }
-        const rowDate = String(row.date || "");
-        if (!rowDate || Number(rowDate) > Number(today)) {
+        const ROW_DATE = String(row.date || "");
+        if (!ROW_DATE || Number(ROW_DATE) > Number(TODAY)) {
             return;
         }
         scheduled += 1;
@@ -174,10 +174,10 @@ export function completionStats(
     if (!scheduled) {
         return { completed, ratePercent: 0, scheduled };
     }
-    const rawPercent = (completed / scheduled) * PERCENT_MAX;
+    const RAW_PERCENT = (completed / scheduled) * PERCENT_MAX;
     return {
         completed,
-        ratePercent: Math.round(rawPercent),
+        ratePercent: Math.round(RAW_PERCENT),
         scheduled,
     };
 }
@@ -197,11 +197,11 @@ export function averageProgress(books: Book[]): {
     let startedCount = 0;
     let totalPercent = 0;
     books.forEach((book) => {
-        const progress = Number(book.progress_percent || 0);
-        if (progress > 0) {
+        const PROGRESS = Number(book.progress_percent || 0);
+        if (PROGRESS > 0) {
             startedCount += 1;
         }
-        totalPercent += progress;
+        totalPercent += PROGRESS;
     });
     return {
         averagePercent: Math.round((totalPercent / books.length) * 10) / 10,
@@ -221,21 +221,21 @@ export function monthlyFinishCounts(
     books: Book[],
     plannedMonths: Map<string, number>,
 ): number[] {
-    const counts = Array.from({ length: MONTHS_PER_YEAR }, () => 0);
+    const COUNTS = Array.from({ length: MONTHS_PER_YEAR }, () => 0);
     plannedMonths.forEach((monthIndex) => {
-        counts[monthIndex] += 1;
+        COUNTS[monthIndex] += 1;
     });
     books.forEach((book) => {
         if (!readThisYearIds.has(book.book_id)) {
             return;
         }
-        const monthIndex = monthIndexFromDateKey(
+        const MONTH_INDEX = monthIndexFromDateKey(
             String(book.finished_at ?? ""),
         );
-        if (monthIndex === null) {
+        if (MONTH_INDEX === null) {
             return;
         }
-        counts[monthIndex] += 1;
+        COUNTS[MONTH_INDEX] += 1;
     });
-    return counts;
+    return COUNTS;
 }

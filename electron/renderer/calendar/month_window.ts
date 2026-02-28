@@ -9,9 +9,9 @@ const MONTH_KEY_PART_COUNT = 2;
  * @returns Month key string.
  */
 function monthKeyFromDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + MONTH_INDEX_OFFSET).padStart(2, "0");
-    return `${year}-${month}`;
+    const YEAR = date.getFullYear();
+    const MONTH = String(date.getMonth() + MONTH_INDEX_OFFSET).padStart(2, "0");
+    return `${YEAR}-${MONTH}`;
 }
 
 /**
@@ -20,23 +20,23 @@ function monthKeyFromDate(date: Date): string {
  * @returns Parsed month date, or null for invalid keys.
  */
 function monthDateFromKey(monthKey: string): Date | null {
-    const parts = monthKey.split("-");
-    if (parts.length !== MONTH_KEY_PART_COUNT) {
+    const PARTS = monthKey.split("-");
+    if (PARTS.length !== MONTH_KEY_PART_COUNT) {
         return null;
     }
-    const year = Number(parts[0]);
-    const month = Number(parts[1]);
-    if (!Number.isInteger(year) || !Number.isInteger(month)) {
+    const YEAR = Number(PARTS[0]);
+    const MONTH = Number(PARTS[1]);
+    if (!Number.isInteger(YEAR) || !Number.isInteger(MONTH)) {
         return null;
     }
-    const date = new Date(year, month - MONTH_INDEX_OFFSET, 1);
-    if (date.getFullYear() !== year) {
+    const DATE = new Date(YEAR, MONTH - MONTH_INDEX_OFFSET, 1);
+    if (DATE.getFullYear() !== YEAR) {
         return null;
     }
-    if (date.getMonth() !== month - MONTH_INDEX_OFFSET) {
+    if (DATE.getMonth() !== MONTH - MONTH_INDEX_OFFSET) {
         return null;
     }
-    return date;
+    return DATE;
 }
 
 /**
@@ -72,19 +72,23 @@ function laterMonthKey(left: string, right: string): string {
  * @returns Inclusive month-key range.
  */
 function contiguousMonthRange(startKey: string, endKey: string): string[] {
-    const startDate = monthDateFromKey(startKey);
-    const endDate = monthDateFromKey(endKey);
-    if (startDate === null || endDate === null) {
+    const START_DATE = monthDateFromKey(startKey);
+    const END_DATE = monthDateFromKey(endKey);
+    if (START_DATE === null || END_DATE === null) {
         return [];
     }
-    const out: string[] = [];
-    const current = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
-    const endTime = endDate.getTime();
-    while (current.getTime() <= endTime) {
-        out.push(monthKeyFromDate(current));
-        current.setMonth(current.getMonth() + MONTH_INDEX_OFFSET);
+    const OUT: string[] = [];
+    const CURRENT = new Date(
+        START_DATE.getFullYear(),
+        START_DATE.getMonth(),
+        1,
+    );
+    const END_TIME = END_DATE.getTime();
+    while (CURRENT.getTime() <= END_TIME) {
+        OUT.push(monthKeyFromDate(CURRENT));
+        CURRENT.setMonth(CURRENT.getMonth() + MONTH_INDEX_OFFSET);
     }
-    return out;
+    return OUT;
 }
 
 /**
@@ -101,19 +105,19 @@ export function buildMonthWindow(
     if (!Array.isArray(monthKeys) || monthKeys.length === 0) {
         return [];
     }
-    const scheduleMonths = [...new Set(monthKeys)].sort((left, right) =>
+    const SCHEDULE_MONTHS = [...new Set(monthKeys)].sort((left, right) =>
         left.localeCompare(right),
     );
-    const todayMonthKey = monthKeyFromDate(now);
-    const lookbackStartDate = new Date(
+    const TODAY_MONTH_KEY = monthKeyFromDate(now);
+    const LOOKBACK_START_DATE = new Date(
         now.getFullYear(),
         now.getMonth() - LOOKBACK_MONTH_OFFSET,
         1,
     );
-    const lookbackStartKey = monthKeyFromDate(lookbackStartDate);
-    const scheduleStart = scheduleMonths[0];
-    const scheduleEnd = scheduleMonths[scheduleMonths.length - 1];
-    const rangeStart = earlierMonthKey(scheduleStart, lookbackStartKey);
-    const rangeEnd = laterMonthKey(scheduleEnd, todayMonthKey);
-    return contiguousMonthRange(rangeStart, rangeEnd);
+    const LOOKBACK_START_KEY = monthKeyFromDate(LOOKBACK_START_DATE);
+    const SCHEDULE_START = SCHEDULE_MONTHS[0];
+    const SCHEDULE_END = SCHEDULE_MONTHS[SCHEDULE_MONTHS.length - 1];
+    const RANGE_START = earlierMonthKey(SCHEDULE_START, LOOKBACK_START_KEY);
+    const RANGE_END = laterMonthKey(SCHEDULE_END, TODAY_MONTH_KEY);
+    return contiguousMonthRange(RANGE_START, RANGE_END);
 }

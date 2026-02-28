@@ -17,19 +17,19 @@ import { appendDayButtonSummary } from "./month_day_button_chips.js";
  * @returns Day-style flags used for class/aria assignment.
  */
 export function dayStyleFlags(args: DayStyleFlagsArgs): DayStyleFlags {
-    const hasFinishRow = args.rows.some((row) => {
+    const HAS_FINISH_ROW = args.rows.some((row) => {
         return row.finish === true;
     });
-    const isMuted = args.date.getMonth() !== args.firstDate.getMonth();
-    const isSelected = args.selectedDate === args.keyForDay;
-    const isPast = Number(args.keyForDay) < Number(args.todayKey);
-    const isToday = Number(args.keyForDay) === Number(args.todayKey);
+    const IS_MUTED = args.date.getMonth() !== args.firstDate.getMonth();
+    const IS_SELECTED = args.selectedDate === args.keyForDay;
+    const IS_PAST = Number(args.keyForDay) < Number(args.todayKey);
+    const IS_TODAY = Number(args.keyForDay) === Number(args.todayKey);
     return {
-        hasFinishRow,
-        isMuted,
-        isPast,
-        isSelected,
-        isToday,
+        hasFinishRow: HAS_FINISH_ROW,
+        isMuted: IS_MUTED,
+        isPast: IS_PAST,
+        isSelected: IS_SELECTED,
+        isToday: IS_TODAY,
     };
 }
 
@@ -39,10 +39,10 @@ export function dayStyleFlags(args: DayStyleFlagsArgs): DayStyleFlags {
  */
 export function createWeekdayHeader(): HTMLSpanElement[] {
     return WEEKDAY_LABELS.map((label) => {
-        const head = document.createElement("span");
-        head.className = "calendar-weekday";
-        head.textContent = label;
-        return head;
+        const HEAD = document.createElement("span");
+        HEAD.className = "calendar-weekday";
+        HEAD.textContent = label;
+        return HEAD;
     });
 }
 
@@ -58,36 +58,36 @@ export function createWeekdayHeader(): HTMLSpanElement[] {
  * @returns Configured day button element.
  */
 export function createDayButton(args: DayStyleFlagsArgs): HTMLButtonElement {
-    const dayButton = document.createElement("button");
-    dayButton.type = "button";
-    dayButton.className = "day";
-    const flags = dayStyleFlags(args);
-    if (flags.hasFinishRow) {
-        dayButton.classList.add("has-finish");
+    const DAY_BUTTON = document.createElement("button");
+    DAY_BUTTON.type = "button";
+    DAY_BUTTON.className = "day";
+    const FLAGS = dayStyleFlags(args);
+    if (FLAGS.hasFinishRow) {
+        DAY_BUTTON.classList.add("has-finish");
     }
-    if (flags.isMuted) {
-        dayButton.classList.add("is-muted");
+    if (FLAGS.isMuted) {
+        DAY_BUTTON.classList.add("is-muted");
     }
-    if (flags.isSelected) {
-        dayButton.classList.add("is-selected");
+    if (FLAGS.isSelected) {
+        DAY_BUTTON.classList.add("is-selected");
     }
-    if (flags.isPast) {
-        dayButton.classList.add("is-past");
+    if (FLAGS.isPast) {
+        DAY_BUTTON.classList.add("is-past");
     }
-    if (flags.isToday) {
-        dayButton.classList.add("is-today");
-        dayButton.setAttribute("aria-current", "date");
+    if (FLAGS.isToday) {
+        DAY_BUTTON.classList.add("is-today");
+        DAY_BUTTON.setAttribute("aria-current", "date");
     }
-    dayButton.dataset.calendarDay = args.keyForDay;
-    dayButton.setAttribute("role", "gridcell");
-    dayButton.setAttribute("aria-selected", "false");
-    if (flags.isSelected) {
-        dayButton.setAttribute("aria-selected", "true");
+    DAY_BUTTON.dataset.calendarDay = args.keyForDay;
+    DAY_BUTTON.setAttribute("role", "gridcell");
+    DAY_BUTTON.setAttribute("aria-selected", "false");
+    if (FLAGS.isSelected) {
+        DAY_BUTTON.setAttribute("aria-selected", "true");
     }
-    const dayDate = document.createElement("span");
-    dayDate.className = "day-date";
-    dayDate.textContent = String(args.date.getDate());
-    dayButton.append(dayDate);
-    appendDayButtonSummary(dayButton, args.rows);
-    return dayButton;
+    const DAY_DATE = document.createElement("span");
+    DAY_DATE.className = "day-date";
+    DAY_DATE.textContent = String(args.date.getDate());
+    DAY_BUTTON.append(DAY_DATE);
+    appendDayButtonSummary(DAY_BUTTON, args.rows);
+    return DAY_BUTTON;
 }

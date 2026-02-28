@@ -16,15 +16,15 @@ function applyEstimateWhenMissing(
     input: HTMLInputElement,
     estimate: number | undefined,
 ): void {
-    const targetInput = input;
-    const currentValue = toOptionalInt(targetInput.value);
-    if (typeof currentValue === "number" && currentValue > 0) {
+    const TARGET_INPUT = input;
+    const CURRENT_VALUE = toOptionalInt(TARGET_INPUT.value);
+    if (typeof CURRENT_VALUE === "number" && CURRENT_VALUE > 0) {
         return;
     }
     if (typeof estimate !== "number" || estimate <= 0) {
         return;
     }
-    targetInput.value = String(estimate);
+    TARGET_INPUT.value = String(estimate);
 }
 
 /**
@@ -36,27 +36,27 @@ export function applyLookupItem(
     refs: BookFormRefs,
     item: BookLookupItem,
 ): void {
-    const formRefs = refs;
-    formRefs.titleInput.value = item.title ?? formRefs.titleInput.value;
-    formRefs.searchInput.value = item.title ?? formRefs.searchInput.value;
-    formRefs.author.value = item.author ?? formRefs.author.value;
-    formRefs.coverUrl.value = item.cover_url ?? "";
-    formRefs.coverLocal.value = "";
+    const FORM_REFS = refs;
+    FORM_REFS.titleInput.value = item.title ?? FORM_REFS.titleInput.value;
+    FORM_REFS.searchInput.value = item.title ?? FORM_REFS.searchInput.value;
+    FORM_REFS.author.value = item.author ?? FORM_REFS.author.value;
+    FORM_REFS.coverUrl.value = item.cover_url ?? "";
+    FORM_REFS.coverLocal.value = "";
 
-    applyEstimateWhenMissing(formRefs.wordsInput, item.words_estimate);
-    applyEstimateWhenMissing(formRefs.pagesTotalInput, item.pages_estimate);
+    applyEstimateWhenMissing(FORM_REFS.wordsInput, item.words_estimate);
+    applyEstimateWhenMissing(FORM_REFS.pagesTotalInput, item.pages_estimate);
 
-    const lookupNote = noteFromLookup(item);
-    formRefs.lookupMeta.dataset.lookupNote = lookupNote;
-    formRefs.lookupMeta.textContent = lookupNote;
-    setCoverPreview(formRefs, item.cover_url ?? "");
+    const LOOKUP_NOTE = noteFromLookup(item);
+    FORM_REFS.lookupMeta.dataset.lookupNote = LOOKUP_NOTE;
+    FORM_REFS.lookupMeta.textContent = LOOKUP_NOTE;
+    setCoverPreview(FORM_REFS, item.cover_url ?? "");
 
-    const progressSyncRefs: ProgressSyncInputs = {
-        pagesReadInput: formRefs.pagesReadInput,
-        pagesTotalInput: formRefs.pagesTotalInput,
-        progressInput: formRefs.progressInput,
+    const PROGRESS_SYNC_REFS: ProgressSyncInputs = {
+        pagesReadInput: FORM_REFS.pagesReadInput,
+        pagesTotalInput: FORM_REFS.pagesTotalInput,
+        progressInput: FORM_REFS.progressInput,
     };
-    syncProgressAndPages(progressSyncRefs, "pages");
+    syncProgressAndPages(PROGRESS_SYNC_REFS, "pages");
 }
 
 /**
@@ -70,21 +70,21 @@ export function applyUploadedCover(
     localCoverPath: string,
     fileName = "",
 ): void {
-    const formRefs = refs;
-    const normalizedPath = String(localCoverPath).trim();
-    if (!normalizedPath) {
+    const FORM_REFS = refs;
+    const NORMALIZED_PATH = String(localCoverPath).trim();
+    if (!NORMALIZED_PATH) {
         throw new Error("Could not save the uploaded cover.");
     }
-    formRefs.coverLocal.value = normalizedPath;
-    formRefs.coverUrl.value = "";
+    FORM_REFS.coverLocal.value = NORMALIZED_PATH;
+    FORM_REFS.coverUrl.value = "";
 
     let note = CUSTOM_COVER_NOTE;
-    const normalizedFileName = String(fileName).trim();
-    if (normalizedFileName) {
-        note = `${CUSTOM_COVER_NOTE} ${normalizedFileName}`;
+    const NORMALIZED_FILE_NAME = String(fileName).trim();
+    if (NORMALIZED_FILE_NAME) {
+        note = `${CUSTOM_COVER_NOTE} ${NORMALIZED_FILE_NAME}`;
     }
 
-    formRefs.lookupMeta.dataset.lookupNote = note;
-    formRefs.lookupMeta.textContent = note;
-    setCoverPreview(formRefs, normalizedPath);
+    FORM_REFS.lookupMeta.dataset.lookupNote = note;
+    FORM_REFS.lookupMeta.textContent = note;
+    setCoverPreview(FORM_REFS, NORMALIZED_PATH);
 }

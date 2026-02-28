@@ -38,7 +38,7 @@ import {
 function buildPlanController(
     appContext: AppBootstrapContext,
 ): ReturnType<typeof createAppPlanControllerInstance> {
-    const runtimeState = appContext.state;
+    const RUNTIME_STATE = appContext.state;
     return createAppPlanControllerInstance({
         addLog,
         announce: (
@@ -50,24 +50,25 @@ function buildPlanController(
         collectBooks,
         collectSettings,
         getBlockedDayBooks: (): Record<string, boolean> =>
-            runtimeState.blockedDayBooks,
-        getLastResult: (): PlannerResult | null => runtimeState.lastResult,
+            RUNTIME_STATE.blockedDayBooks,
+        getLastResult: (): PlannerResult | null => RUNTIME_STATE.lastResult,
         getScheduleCompletions: (): Record<string, boolean> =>
-            runtimeState.scheduleCompletions,
-        getSessions: (): typeof runtimeState.sessions => runtimeState.sessions,
+            RUNTIME_STATE.scheduleCompletions,
+        getSessions: (): typeof RUNTIME_STATE.sessions =>
+            RUNTIME_STATE.sessions,
         persistDraft: async (): Promise<boolean> =>
             await appContext.persistDraft(),
         plannerApi: appContext.plannerApi,
         renderCalendar,
         setBookScheduleRows,
         setLastResult: (nextResult: PlannerResult) => {
-            applyAppStateMutation(runtimeState, {
+            applyAppStateMutation(RUNTIME_STATE, {
                 lastResult: nextResult,
                 type: "set_last_result",
             });
         },
         setScheduleCompletions: (nextCompletions: Record<string, boolean>) => {
-            applyAppStateMutation(runtimeState, {
+            applyAppStateMutation(RUNTIME_STATE, {
                 scheduleCompletions: nextCompletions,
                 type: "set_schedule_completions",
             });
@@ -89,10 +90,10 @@ function buildPlanController(
 function configureCalendarAppInteractions(
     appContext: AppBootstrapContext,
 ): void {
-    const runtimeState = appContext.state;
+    const RUNTIME_STATE = appContext.state;
     configureAppCalendarInteractions({
         applyStateMutation: (mutation) => {
-            applyAppStateMutation(runtimeState, mutation);
+            applyAppStateMutation(RUNTIME_STATE, mutation);
         },
         collectAllBooks,
         collectSettings,
@@ -113,7 +114,7 @@ function configureCalendarAppInteractions(
         renderCalendar,
         setBookScheduleRows,
         setLastResult: (nextResult: PlannerResult) => {
-            applyAppStateMutation(runtimeState, {
+            applyAppStateMutation(RUNTIME_STATE, {
                 lastResult: nextResult,
                 type: "set_last_result",
             });
@@ -121,7 +122,7 @@ function configureCalendarAppInteractions(
         setStatus: (message: string, isError?: boolean): void => {
             appContext.setStatus(message, isError);
         },
-        state: runtimeState,
+        state: RUNTIME_STATE,
         totalsFromSummary,
         updateBookProgress,
     });
@@ -133,19 +134,19 @@ function configureCalendarAppInteractions(
  * @returns Promise that resolves after startup load/bind operations complete.
  */
 export async function initApp(context: AppBootstrapContext): Promise<void> {
-    const appContext = context;
+    const APP_CONTEXT = context;
     setupSkipLink();
     bindDesktopShortcuts({
-        announce: appContext.announce,
-        plannerApi: appContext.plannerApi,
+        announce: APP_CONTEXT.announce,
+        plannerApi: APP_CONTEXT.plannerApi,
     });
     initSettingsGrid();
     bindTabs((name: string): void => {
-        appContext.runtime.handleTabChange(name);
+        APP_CONTEXT.runtime.handleTabChange(name);
     });
     bindBooksUI(
         (): void => {
-            appContext.runtime.handleBooksChanged();
+            APP_CONTEXT.runtime.handleBooksChanged();
         },
         {
             onEstimatedFinishNavigate: (dateKey) => {
@@ -155,17 +156,17 @@ export async function initApp(context: AppBootstrapContext): Promise<void> {
         },
     );
     setBookCommitHook((nextBooks) => {
-        applyAppStateMutation(appContext.state, {
+        applyAppStateMutation(APP_CONTEXT.state, {
             books: nextBooks,
             type: "set_book_index",
         });
     });
     bindHelpDialog();
-    const planController = buildPlanController(appContext);
-    appContext.runtime.setPlanController(planController);
+    const PLAN_CONTROLLER = buildPlanController(APP_CONTEXT);
+    APP_CONTEXT.runtime.setPlanController(PLAN_CONTROLLER);
     bindExperienceSettings((): void => {
-        appContext.dashboards.applyExperienceSettings();
+        APP_CONTEXT.dashboards.applyExperienceSettings();
     });
-    configureCalendarAppInteractions(appContext);
-    await loadStateAndBindTodayActions(appContext, planController);
+    configureCalendarAppInteractions(APP_CONTEXT);
+    await loadStateAndBindTodayActions(APP_CONTEXT, PLAN_CONTROLLER);
 }

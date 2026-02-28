@@ -83,9 +83,9 @@ function metadataScore(doc: SearchDoc): number {
     if (Number(doc.number_of_pages_median ?? 0) > 0) {
         score += SCORE_HAS_PAGE_COUNT;
     }
-    const editionCount = Number(doc.edition_count ?? 0);
-    if (editionCount > 0) {
-        score += Math.min(SCORE_MAX_EDITION_COUNT, editionCount);
+    const EDITION_COUNT = Number(doc.edition_count ?? 0);
+    if (EDITION_COUNT > 0) {
+        score += Math.min(SCORE_MAX_EDITION_COUNT, EDITION_COUNT);
     }
     return score;
 }
@@ -102,23 +102,23 @@ export function scoreDoc(
     query: string,
     authorOnly = false,
 ): number {
-    const queryNorm = normalizeSearchText(query);
-    const titleNorm = normalizeSearchText(doc.title ?? "");
-    if (!authorOnly && titleNorm.length === 0) {
+    const QUERY_NORM = normalizeSearchText(query);
+    const TITLE_NORM = normalizeSearchText(doc.title ?? "");
+    if (!authorOnly && TITLE_NORM.length === 0) {
         return 0;
     }
-    const tokens = queryTokens(query);
+    const TOKENS = queryTokens(query);
     if (authorOnly) {
-        const authorScore = bestAuthorOnlyScore(doc, queryNorm, tokens);
-        if (authorScore <= 0) {
+        const AUTHOR_SCORE = bestAuthorOnlyScore(doc, QUERY_NORM, TOKENS);
+        if (AUTHOR_SCORE <= 0) {
             return 0;
         }
-        return authorScore + metadataScore(doc);
+        return AUTHOR_SCORE + metadataScore(doc);
     }
-    const authorNorm = normalizeSearchText(primaryAuthor(doc));
+    const AUTHOR_NORM = normalizeSearchText(primaryAuthor(doc));
     return (
-        baseTitleScore(titleNorm, queryNorm) +
-        tokenScore(titleNorm, authorNorm, tokens) +
+        baseTitleScore(TITLE_NORM, QUERY_NORM) +
+        tokenScore(TITLE_NORM, AUTHOR_NORM, TOKENS) +
         metadataScore(doc)
     );
 }

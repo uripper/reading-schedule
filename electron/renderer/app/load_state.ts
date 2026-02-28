@@ -25,14 +25,14 @@ import {
 function normalizeBlockedDayBooks(
     raw: Record<string, string | number | boolean | null | undefined> = {},
 ): Record<string, boolean> {
-    const out: Record<string, boolean> = {};
+    const OUT: Record<string, boolean> = {};
     Object.entries(raw).forEach(([key, value]) => {
         if (!key) {
             return;
         }
-        out[key] = Boolean(value);
+        OUT[key] = Boolean(value);
     });
-    return out;
+    return OUT;
 }
 
 /**
@@ -169,12 +169,12 @@ function applyLoadedData(
     source: InitialDataSource,
     args: LoadStateArgs,
 ): void {
-    const savedRecord = toSavedRecord(saved);
+    const SAVED_RECORD = toSavedRecord(saved);
     args.fillSettings(source.settings);
     args.fillBooks(source.books);
     args.setScheduleCompletions(
         args.normalizeScheduleCompletions(
-            readRawCompletions(saved, savedRecord),
+            readRawCompletions(saved, SAVED_RECORD),
         ),
     );
     args.setBlockedDayBooks(
@@ -195,13 +195,13 @@ function applySessionAndResultData(
     saved: LoadedPlannerState | null | undefined,
     args: LoadStateArgs,
 ): void {
-    const savedRecord = toSavedRecord(saved);
-    const sessions = normalizeSessions(
-        sessionInputs(readRawSessions(saved, savedRecord)),
+    const SAVED_RECORD = toSavedRecord(saved);
+    const SESSIONS = normalizeSessions(
+        sessionInputs(readRawSessions(saved, SAVED_RECORD)),
     );
-    const loadedResult = readLoadedResult(saved, savedRecord);
-    args.setSessions(sessions);
-    args.applyLoadedResult(loadedResult);
+    const LOADED_RESULT = readLoadedResult(saved, SAVED_RECORD);
+    args.setSessions(SESSIONS);
+    args.applyLoadedResult(LOADED_RESULT);
     args.updateTodayView();
 }
 
@@ -227,21 +227,21 @@ function applyExperienceData(
  */
 export async function loadInitialData(args: LoadStateArgs): Promise<void> {
     try {
-        const loadResult = await args.plannerApi.loadState();
-        const saved = loadResult.state;
-        const savedRecord = toSavedRecord(saved);
-        reportLoadRecovery(loadResult, args);
-        const source = await resolveInitialSource(args.plannerApi, saved);
-        applyLoadedData(saved, source, args);
-        const preferences = args.normalizePreferences(saved?.preferences ?? {});
-        const featureFlags = args.normalizeFeatureFlags(
-            readFeatureFlags(saved, savedRecord),
+        const LOAD_RESULT = await args.plannerApi.loadState();
+        const SAVED = LOAD_RESULT.state;
+        const SAVED_RECORD = toSavedRecord(SAVED);
+        reportLoadRecovery(LOAD_RESULT, args);
+        const SOURCE = await resolveInitialSource(args.plannerApi, SAVED);
+        applyLoadedData(SAVED, SOURCE, args);
+        const PREFERENCES = args.normalizePreferences(SAVED?.preferences ?? {});
+        const FEATURE_FLAGS = args.normalizeFeatureFlags(
+            readFeatureFlags(SAVED, SAVED_RECORD),
         );
-        args.setPreferences(preferences);
-        args.setFeatureFlags(featureFlags);
-        applyExperienceData(args, preferences, featureFlags);
-        applySessionAndResultData(saved, args);
-        args.onLoaded(saved, loadResult);
+        args.setPreferences(PREFERENCES);
+        args.setFeatureFlags(FEATURE_FLAGS);
+        applyExperienceData(args, PREFERENCES, FEATURE_FLAGS);
+        applySessionAndResultData(SAVED, args);
+        args.onLoaded(SAVED, LOAD_RESULT);
     } catch {
         args.setStatus("Failed to load initial data", true);
     }

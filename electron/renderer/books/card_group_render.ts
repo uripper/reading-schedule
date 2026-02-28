@@ -15,17 +15,17 @@ function createGroupSection(
     group: BookGroup,
     context: CardRenderContext,
 ): HTMLElement {
-    const section = document.createElement("section");
-    section.className = "books-group";
-    section.dataset.groupKey = String(group.key || "");
-    const heading = document.createElement("h3");
-    heading.className = "books-group-heading";
-    heading.textContent = `${group.label} (${group.books.length})`;
-    const row = document.createElement("div");
-    row.className = "books-group-row";
-    row.append(...group.books.map((book) => createCardNode(book, context)));
-    section.append(heading, row);
-    return section;
+    const SECTION = document.createElement("section");
+    SECTION.className = "books-group";
+    SECTION.dataset.groupKey = String(group.key || "");
+    const HEADING = document.createElement("h3");
+    HEADING.className = "books-group-heading";
+    HEADING.textContent = `${group.label} (${group.books.length})`;
+    const ROW = document.createElement("div");
+    ROW.className = "books-group-row";
+    ROW.append(...group.books.map((book) => createCardNode(book, context)));
+    SECTION.append(HEADING, ROW);
+    return SECTION;
 }
 
 /**

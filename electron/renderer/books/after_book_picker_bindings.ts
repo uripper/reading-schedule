@@ -17,7 +17,7 @@ import { NO_ACTIVE_INDEX } from "./after_book_picker_render.js";
  * @param args.state Mutable picker state.
  */
 export function bindAfterBookPickerEvents(args: BindingArgs): void {
-    const pickerState = args.state;
+    const PICKER_STATE = args.state;
     args.refs.afterBookInput.addEventListener("focus", () => {
         args.refreshFiltered(false);
     });
@@ -29,28 +29,30 @@ export function bindAfterBookPickerEvents(args: BindingArgs): void {
         (event: KeyboardEvent) => {
             if (event.key === "ArrowDown") {
                 event.preventDefault();
-                pickerState.activeIndex = wrapIndex(
-                    pickerState.activeIndex + 1,
-                    pickerState.filtered.length,
+                PICKER_STATE.activeIndex = wrapIndex(
+                    PICKER_STATE.activeIndex + 1,
+                    PICKER_STATE.filtered.length,
                 );
                 args.render();
                 return;
             }
             if (event.key === "ArrowUp") {
                 event.preventDefault();
-                pickerState.activeIndex = wrapIndex(
-                    pickerState.activeIndex - 1,
-                    pickerState.filtered.length,
+                PICKER_STATE.activeIndex = wrapIndex(
+                    PICKER_STATE.activeIndex - 1,
+                    PICKER_STATE.filtered.length,
                 );
                 args.render();
                 return;
             }
             if (
                 event.key === "Enter" &&
-                pickerState.activeIndex > NO_ACTIVE_INDEX
+                PICKER_STATE.activeIndex > NO_ACTIVE_INDEX
             ) {
                 event.preventDefault();
-                args.selectBook(pickerState.filtered[pickerState.activeIndex]);
+                args.selectBook(
+                    PICKER_STATE.filtered[PICKER_STATE.activeIndex],
+                );
                 return;
             }
             if (event.key === "Escape") {
@@ -63,36 +65,36 @@ export function bindAfterBookPickerEvents(args: BindingArgs): void {
     args.refs.afterBookResults.addEventListener(
         "mousemove",
         (event: MouseEvent) => {
-            const target = lookupResultTarget(event);
-            if (!target) {
+            const TARGET = lookupResultTarget(event);
+            if (!TARGET) {
                 return;
             }
-            pickerState.activeIndex = Number(target.dataset.resultIndex);
+            PICKER_STATE.activeIndex = Number(TARGET.dataset.resultIndex);
             args.render();
         },
     );
     args.refs.afterBookResults.addEventListener(
         "click",
         (event: MouseEvent) => {
-            const target = lookupResultTarget(event);
-            if (!target) {
+            const TARGET = lookupResultTarget(event);
+            if (!TARGET) {
                 return;
             }
-            const resultIndex = Number(target.dataset.resultIndex);
-            args.selectBook(pickerState.filtered[resultIndex]);
+            const RESULT_INDEX = Number(TARGET.dataset.resultIndex);
+            args.selectBook(PICKER_STATE.filtered[RESULT_INDEX]);
         },
     );
     document.addEventListener("click", (event: MouseEvent) => {
         if (!(event.target instanceof Node)) {
             return;
         }
-        const keepOpen = shouldKeepPickerOpen({
+        const KEEP_OPEN = shouldKeepPickerOpen({
             targetIsInput: event.target === args.refs.afterBookInput,
             targetIsInResults: args.refs.afterBookResults.contains(
                 event.target,
             ),
         });
-        if (keepOpen) {
+        if (KEEP_OPEN) {
             return;
         }
         args.clearResults();

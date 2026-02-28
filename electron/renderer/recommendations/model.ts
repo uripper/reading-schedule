@@ -41,8 +41,8 @@ function isReadBook(book: Book): boolean {
     if (book.progress_percent >= 100) {
         return true;
     }
-    const finishedAt = String(book.finished_at ?? "").trim();
-    if (finishedAt.length > 0) {
+    const FINISHED_AT = String(book.finished_at ?? "").trim();
+    if (FINISHED_AT.length > 0) {
         return true;
     }
     return false;
@@ -54,23 +54,25 @@ function isReadBook(book: Book): boolean {
  * @returns Sorted unique author names that already have at least one read title.
  */
 export function deriveReadAuthors(books: Book[]): string[] {
-    const displayByKey = new Map<string, string>();
-    for (const book of books) {
-        if (!isReadBook(book)) {
+    const DISPLAY_BY_KEY = new Map<string, string>();
+    for (const BOOK of books) {
+        if (!isReadBook(BOOK)) {
             continue;
         }
-        const authorText = String(book.author).trim();
-        if (authorText.length === 0) {
+        const AUTHOR_TEXT = String(BOOK.author).trim();
+        if (AUTHOR_TEXT.length === 0) {
             continue;
         }
-        const key = normalizedText(authorText);
-        if (!displayByKey.has(key)) {
-            displayByKey.set(key, authorText);
+        const KEY = normalizedText(AUTHOR_TEXT);
+        if (!DISPLAY_BY_KEY.has(KEY)) {
+            DISPLAY_BY_KEY.set(KEY, AUTHOR_TEXT);
         }
     }
-    return Array.from(displayByKey.values()).sort((leftAuthor, rightAuthor) => {
-        return leftAuthor.localeCompare(rightAuthor);
-    });
+    return Array.from(DISPLAY_BY_KEY.values()).sort(
+        (leftAuthor, rightAuthor) => {
+            return leftAuthor.localeCompare(rightAuthor);
+        },
+    );
 }
 
 /**
@@ -86,32 +88,32 @@ export function buildRecommendations(
         RecommendationSeed[]
     > = AUTHOR_RECOMMENDATION_CATALOG,
 ): RecommendationItem[] {
-    const existingBookKeys = new Set<string>();
-    for (const book of books) {
-        existingBookKeys.add(recommendationKey(book.title, book.author));
+    const EXISTING_BOOK_KEYS = new Set<string>();
+    for (const BOOK of books) {
+        EXISTING_BOOK_KEYS.add(recommendationKey(BOOK.title, BOOK.author));
     }
 
-    const recommendations: RecommendationItem[] = [];
-    const recommendationKeys = new Set<string>();
-    for (const author of deriveReadAuthors(books)) {
-        const authorKey = normalizedText(author);
-        const seeds = catalog[authorKey];
-        if (!Array.isArray(seeds)) {
+    const RECOMMENDATIONS: RecommendationItem[] = [];
+    const RECOMMENDATION_KEYS = new Set<string>();
+    for (const AUTHOR of deriveReadAuthors(books)) {
+        const AUTHOR_KEY = normalizedText(AUTHOR);
+        const SEEDS = catalog[AUTHOR_KEY];
+        if (!Array.isArray(SEEDS)) {
             continue;
         }
-        for (const seed of seeds) {
-            const key = recommendationKey(seed.title, author);
-            if (existingBookKeys.has(key) || recommendationKeys.has(key)) {
+        for (const SEED of SEEDS) {
+            const KEY = recommendationKey(SEED.title, AUTHOR);
+            if (EXISTING_BOOK_KEYS.has(KEY) || RECOMMENDATION_KEYS.has(KEY)) {
                 continue;
             }
-            recommendationKeys.add(key);
-            recommendations.push({
-                author,
+            RECOMMENDATION_KEYS.add(KEY);
+            RECOMMENDATIONS.push({
+                author: AUTHOR,
                 coverUrl: "",
-                title: seed.title,
-                wordsTotal: seed.wordsTotal,
+                title: SEED.title,
+                wordsTotal: SEED.wordsTotal,
             });
         }
     }
-    return recommendations;
+    return RECOMMENDATIONS;
 }

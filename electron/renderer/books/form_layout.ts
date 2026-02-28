@@ -7,20 +7,20 @@ import { statusOptions } from "./status_catalog.js";
  * @returns Labeled shelf select node for form grid insertion.
  */
 function createShelfSelectLabel(): HTMLLabelElement {
-    const label = document.createElement("label");
-    label.textContent = "Bookshelf";
+    const LABEL = document.createElement("label");
+    LABEL.textContent = "Bookshelf";
 
-    const select = document.createElement("select");
-    select.id = "bookShelfSelectInput";
-    const unshelvedOption = document.createElement("option");
-    unshelvedOption.value = "";
-    unshelvedOption.textContent = "Unshelved";
-    const createNewOption = document.createElement("option");
-    createNewOption.value = SHELF_SELECT_CREATE_NEW;
-    createNewOption.textContent = "Create new shelf...";
-    select.append(unshelvedOption, createNewOption);
-    label.append(select);
-    return label;
+    const SELECT = document.createElement("select");
+    SELECT.id = "bookShelfSelectInput";
+    const UNSHELVED_OPTION = document.createElement("option");
+    UNSHELVED_OPTION.value = "";
+    UNSHELVED_OPTION.textContent = "Unshelved";
+    const CREATE_NEW_OPTION = document.createElement("option");
+    CREATE_NEW_OPTION.value = SHELF_SELECT_CREATE_NEW;
+    CREATE_NEW_OPTION.textContent = "Create new shelf...";
+    SELECT.append(UNSHELVED_OPTION, CREATE_NEW_OPTION);
+    LABEL.append(SELECT);
+    return LABEL;
 }
 
 /**
@@ -28,20 +28,20 @@ function createShelfSelectLabel(): HTMLLabelElement {
  * @returns Labeled status select node for form grid insertion.
  */
 function createStatusSelectLabel(): HTMLLabelElement {
-    const label = document.createElement("label");
-    label.textContent = "Status";
+    const LABEL = document.createElement("label");
+    LABEL.textContent = "Status";
 
-    const select = document.createElement("select");
-    select.id = "bookStatusSelectInput";
+    const SELECT = document.createElement("select");
+    SELECT.id = "bookStatusSelectInput";
     statusOptions().forEach((optionDef) => {
-        const option = document.createElement("option");
-        option.value = optionDef.value;
-        option.textContent = optionDef.label;
-        select.append(option);
+        const OPTION = document.createElement("option");
+        OPTION.value = optionDef.value;
+        OPTION.textContent = optionDef.label;
+        SELECT.append(OPTION);
     });
 
-    label.append(select);
-    return label;
+    LABEL.append(SELECT);
+    return LABEL;
 }
 
 /**
@@ -49,17 +49,17 @@ function createStatusSelectLabel(): HTMLLabelElement {
  * @returns Labeled date input node for form grid insertion.
  */
 function createFinishedAtLabel(): HTMLLabelElement {
-    const label = document.createElement("label");
-    label.id = "bookFinishedAtField";
-    label.hidden = true;
-    label.textContent = "Finish Date";
+    const LABEL = document.createElement("label");
+    LABEL.id = "bookFinishedAtField";
+    LABEL.hidden = true;
+    LABEL.textContent = "Finish Date";
 
-    const input = document.createElement("input");
-    input.id = "bookFinishedAtInput";
-    input.type = "date";
+    const INPUT = document.createElement("input");
+    INPUT.id = "bookFinishedAtInput";
+    INPUT.type = "date";
 
-    label.append(input);
-    return label;
+    LABEL.append(INPUT);
+    return LABEL;
 }
 
 /**
@@ -67,32 +67,32 @@ function createFinishedAtLabel(): HTMLLabelElement {
  * @returns Fieldset node for selecting per-book scheduled weekdays.
  */
 function createScheduledDaysField(): HTMLFieldSetElement {
-    const fieldset = document.createElement("fieldset");
-    fieldset.id = "bookScheduledDaysField";
-    fieldset.className = "book-scheduled-days";
+    const FIELDSET = document.createElement("fieldset");
+    FIELDSET.id = "bookScheduledDaysField";
+    FIELDSET.className = "book-scheduled-days";
 
-    const legend = document.createElement("legend");
-    legend.textContent = "Scheduled Days";
-    fieldset.append(legend);
+    const LEGEND = document.createElement("legend");
+    LEGEND.textContent = "Scheduled Days";
+    FIELDSET.append(LEGEND);
 
-    const days = document.createElement("div");
-    days.className = "book-scheduled-days-grid";
+    const DAYS = document.createElement("div");
+    DAYS.className = "book-scheduled-days-grid";
     BOOK_WEEKDAYS.forEach((weekday) => {
-        const label = document.createElement("label");
-        label.className = "book-scheduled-day";
+        const LABEL = document.createElement("label");
+        LABEL.className = "book-scheduled-day";
 
-        const input = document.createElement("input");
-        input.type = "checkbox";
-        input.value = weekday;
-        input.checked = true;
-        input.setAttribute("data-book-weekday", "1");
+        const INPUT = document.createElement("input");
+        INPUT.type = "checkbox";
+        INPUT.value = weekday;
+        INPUT.checked = true;
+        INPUT.setAttribute("data-book-weekday", "1");
 
-        label.append(input, document.createTextNode(weekday));
-        days.append(label);
+        LABEL.append(INPUT, document.createTextNode(weekday));
+        DAYS.append(LABEL);
     });
-    fieldset.append(days);
+    FIELDSET.append(DAYS);
 
-    return fieldset;
+    return FIELDSET;
 }
 
 /**
@@ -100,37 +100,37 @@ function createScheduledDaysField(): HTMLFieldSetElement {
  * @returns Labeled checkbox node for shelf-wide weekday propagation.
  */
 function createApplyScheduledDaysToShelfLabel(): HTMLLabelElement {
-    const label = document.createElement("label");
-    label.className = "toggle-row book-apply-days-toggle";
+    const LABEL = document.createElement("label");
+    LABEL.className = "toggle-row book-apply-days-toggle";
 
-    const input = document.createElement("input");
-    input.id = "bookApplyScheduledDaysToShelfInput";
-    input.type = "checkbox";
+    const INPUT = document.createElement("input");
+    INPUT.id = "bookApplyScheduledDaysToShelfInput";
+    INPUT.type = "checkbox";
 
-    const text = document.createElement("span");
-    text.textContent = "Apply scheduled days to all books on this shelf";
+    const TEXT = document.createElement("span");
+    TEXT.textContent = "Apply scheduled days to all books on this shelf";
 
-    label.append(input, text);
-    return label;
+    LABEL.append(INPUT, TEXT);
+    return LABEL;
 }
 
 /**
  * Ensures dynamic book form fields are present in the settings grid.
  */
 export function ensureBookFormLayoutFields(): void {
-    const existing = document.getElementById("bookShelfSelectInput");
-    if (existing) {
+    const EXISTING = document.getElementById("bookShelfSelectInput");
+    if (EXISTING) {
         return;
     }
 
-    const grid = document.querySelector(
+    const GRID = document.querySelector(
         "#bookForm .book-fields .settings-grid",
     );
-    if (!(grid instanceof HTMLElement)) {
+    if (!(GRID instanceof HTMLElement)) {
         return;
     }
 
-    grid.append(
+    GRID.append(
         createStatusSelectLabel(),
         createFinishedAtLabel(),
         createShelfSelectLabel(),

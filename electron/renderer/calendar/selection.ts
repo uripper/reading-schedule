@@ -7,11 +7,11 @@ const MONTH_KEY_LENGTH = 7;
  * @returns Local today key.
  */
 export function todayDateKey(): string {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    const NOW = new Date();
+    const YEAR = NOW.getFullYear();
+    const MONTH = String(NOW.getMonth() + 1).padStart(2, "0");
+    const DAY = String(NOW.getDate()).padStart(2, "0");
+    return `${YEAR}-${MONTH}-${DAY}`;
 }
 
 /**
@@ -33,15 +33,15 @@ export function indexForMonth(
     months: string[],
     targetMonthKey: string,
 ): number {
-    const exactIndex = months.indexOf(targetMonthKey);
-    if (exactIndex >= 0) {
-        return exactIndex;
+    const EXACT_INDEX = months.indexOf(targetMonthKey);
+    if (EXACT_INDEX >= 0) {
+        return EXACT_INDEX;
     }
-    const upcomingIndex = months.findIndex((monthKey) => {
+    const UPCOMING_INDEX = months.findIndex((monthKey) => {
         return monthKey.localeCompare(targetMonthKey) >= 0;
     });
-    if (upcomingIndex >= 0) {
-        return upcomingIndex;
+    if (UPCOMING_INDEX >= 0) {
+        return UPCOMING_INDEX;
     }
     return Math.max(0, months.length - 1);
 }
@@ -51,16 +51,19 @@ export function indexForMonth(
  * @param state Mutable calendar runtime state.
  */
 export function applyTodayFocus(state: CalendarRuntimeState): void {
-    const calendarState = state;
-    if (!calendarState.months.length) {
+    const CALENDAR_STATE = state;
+    if (!CALENDAR_STATE.months.length) {
         return;
     }
-    const todayKey = todayDateKey();
-    const todayMonthKey = monthKeyForDateKey(todayKey);
-    calendarState.index = indexForMonth(calendarState.months, todayMonthKey);
-    calendarState.selectedDate = "";
-    if (calendarState.months[calendarState.index] === todayMonthKey) {
-        calendarState.selectedDate = todayKey;
+    const TODAY_KEY = todayDateKey();
+    const TODAY_MONTH_KEY = monthKeyForDateKey(TODAY_KEY);
+    CALENDAR_STATE.index = indexForMonth(
+        CALENDAR_STATE.months,
+        TODAY_MONTH_KEY,
+    );
+    CALENDAR_STATE.selectedDate = "";
+    if (CALENDAR_STATE.months[CALENDAR_STATE.index] === TODAY_MONTH_KEY) {
+        CALENDAR_STATE.selectedDate = TODAY_KEY;
     }
 }
 
@@ -78,16 +81,16 @@ export function selectDate(
     renderMonth: () => void,
     options: { focus?: boolean } = {},
 ): void {
-    const calendarState = state;
-    calendarState.selectedDate = dateKey;
-    calendarState.expectedFinishHighlightDate = dateKey;
+    const CALENDAR_STATE = state;
+    CALENDAR_STATE.selectedDate = dateKey;
+    CALENDAR_STATE.expectedFinishHighlightDate = dateKey;
     renderMonth();
     if (options.focus === true) {
-        const button = document.querySelector(
+        const BUTTON = document.querySelector(
             `[data-calendar-day='${dateKey}']`,
         );
-        if (button instanceof HTMLElement) {
-            button.focus();
+        if (BUTTON instanceof HTMLElement) {
+            BUTTON.focus();
         }
     }
 }
@@ -108,13 +111,13 @@ export function moveSelectionBy(
         options?: { focus?: boolean },
     ) => void,
 ): void {
-    const nextIndex = Math.min(
+    const NEXT_INDEX = Math.min(
         state.monthCellKeys.length - 1,
         Math.max(0, currentIndex + delta),
     );
-    const nextKey = state.monthCellKeys[nextIndex];
-    if (!nextKey) {
+    const NEXT_KEY = state.monthCellKeys[NEXT_INDEX];
+    if (!NEXT_KEY) {
         return;
     }
-    selectDateWithOptions(nextKey, { focus: true });
+    selectDateWithOptions(NEXT_KEY, { focus: true });
 }

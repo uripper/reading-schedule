@@ -67,15 +67,15 @@ export function nextSessionIndexForDate(
     dateOrRows: string | PlannerScheduleRow[],
     rowsOrDate: PlannerScheduleRow[] | string = [],
 ): number {
-    const normalized = normalizeRowsAndDate(dateOrRows, rowsOrDate);
+    const NORMALIZED = normalizeRowsAndDate(dateOrRows, rowsOrDate);
     let maxIndex = 0;
-    normalized.rows.forEach((row) => {
-        if (String(row.date || "") !== normalized.date) {
+    NORMALIZED.rows.forEach((row) => {
+        if (String(row.date || "") !== NORMALIZED.date) {
             return;
         }
-        const index = Number(row.session_index || 0);
-        if (Number.isFinite(index)) {
-            maxIndex = Math.max(maxIndex, Math.floor(index));
+        const INDEX = Number(row.session_index || 0);
+        if (Number.isFinite(INDEX)) {
+            maxIndex = Math.max(maxIndex, Math.floor(INDEX));
         }
     });
     return maxIndex + 1;
@@ -91,14 +91,14 @@ export function rowsWithoutSession(
     targetSessionKeyOrRows: string | PlannerScheduleRow[],
     rowsOrTargetSessionKey: PlannerScheduleRow[] | string = [],
 ): PlannerScheduleRow[] {
-    const normalized = normalizeRowsAndSessionKey(
+    const NORMALIZED = normalizeRowsAndSessionKey(
         targetSessionKeyOrRows,
         rowsOrTargetSessionKey,
     );
-    if (!normalized.key) {
-        return [...normalized.rows];
+    if (!NORMALIZED.key) {
+        return [...NORMALIZED.rows];
     }
-    return normalized.rows.filter(
-        (row) => sessionKeyFor(row) !== normalized.key,
+    return NORMALIZED.rows.filter(
+        (row) => sessionKeyFor(row) !== NORMALIZED.key,
     );
 }

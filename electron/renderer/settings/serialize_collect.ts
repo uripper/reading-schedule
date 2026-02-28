@@ -34,38 +34,38 @@ function fieldInputValue(field: FieldDefinition): string {
  * @returns Planner settings payload.
  */
 export function collectSettingsForm(dayOffs: string[]): PlannerSettings {
-    const output: PlannerSettings = {};
+    const OUTPUT: PlannerSettings = {};
     allFieldDefinitions().forEach((field) => {
-        const raw = fieldInputValue(field);
+        const RAW = fieldInputValue(field);
         if (field.type === "checkbox") {
-            output[field.id] = raw === "true";
+            OUTPUT[field.id] = RAW === "true";
             return;
         }
         if (field.type === "date" || field.type === "select") {
-            output[field.id] = raw;
+            OUTPUT[field.id] = RAW;
             return;
         }
-        output[field.id] = Number(raw || 0);
+        OUTPUT[field.id] = Number(RAW || 0);
     });
-    const minutesPerDayRaw = inputEl("minutes_per_day").value.trim();
-    output.minutes_per_day = null;
-    if (minutesPerDayRaw) {
-        output.minutes_per_day = Number(minutesPerDayRaw);
+    const MINUTES_PER_DAY_RAW = inputEl("minutes_per_day").value.trim();
+    OUTPUT.minutes_per_day = null;
+    if (MINUTES_PER_DAY_RAW) {
+        OUTPUT.minutes_per_day = Number(MINUTES_PER_DAY_RAW);
     }
-    output.minutes_by_weekday = Object.fromEntries(
+    OUTPUT.minutes_by_weekday = Object.fromEntries(
         weekdays.map(([key]) => [
             key,
             Number(inputEl(`minutes_${key}`).value || 0),
         ]),
     );
-    output.days_off = [...dayOffs];
-    output.difficulty_multiplier = Object.fromEntries(
+    OUTPUT.days_off = [...dayOffs];
+    OUTPUT.difficulty_multiplier = Object.fromEntries(
         numberLevels().map((level) => {
-            const value = Number(
+            const VALUE = Number(
                 inputEl(`diff_${level}`).value || DEFAULT_DIFFICULTY_MULTIPLIER,
             );
-            return [String(level), value];
+            return [String(level), VALUE];
         }),
     );
-    return output;
+    return OUTPUT;
 }

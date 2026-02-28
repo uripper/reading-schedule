@@ -29,8 +29,8 @@ function shouldShowLoadedStatus(args: FinalizeInitialLoadArgs): boolean {
  * @returns True when `last_result.schedule` exists and has rows.
  */
 function hasSavedSchedule(saved: FinalizeInitialLoadArgs["saved"]): boolean {
-    const rows = saved?.last_result?.schedule;
-    return Array.isArray(rows) && rows.length > 0;
+    const ROWS = saved?.last_result?.schedule;
+    return Array.isArray(ROWS) && ROWS.length > 0;
 }
 
 /**
@@ -51,11 +51,11 @@ export function shouldAutoPlanOnStartup(
  * Wires the skip-link element to focus the main content region.
  */
 export function setupSkipLink(): void {
-    const skipLink = document.querySelector(".skip-link");
-    if (!skipLink) {
+    const SKIP_LINK = document.querySelector(".skip-link");
+    if (!SKIP_LINK) {
         return;
     }
-    skipLink.addEventListener("click", (event) => {
+    SKIP_LINK.addEventListener("click", (event) => {
         event.preventDefault();
         el("mainContent").focus();
     });
@@ -82,18 +82,18 @@ export function createAppPlanControllerInstance(
  * @param args.setStatus Sets startup status text.
  */
 export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
-    const queuePersist = (): void => {
+    const QUEUE_PERSIST = (): void => {
         args.queuePersist();
     };
-    const queueAutoPlan = (): void => {
+    const QUEUE_AUTO_PLAN = (): void => {
         args.queueAutoPlan();
     };
     args.setReady();
-    document.addEventListener("input", queuePersist);
-    document.addEventListener("change", queuePersist);
+    document.addEventListener("input", QUEUE_PERSIST);
+    document.addEventListener("change", QUEUE_PERSIST);
 
-    const settingsPanel = el("tab-settings");
-    bindSettingsAutoPlanListeners(settingsPanel, () => true, queueAutoPlan);
+    const SETTINGS_PANEL = el("tab-settings");
+    bindSettingsAutoPlanListeners(SETTINGS_PANEL, () => true, QUEUE_AUTO_PLAN);
 
     if (shouldShowLoadedStatus(args)) {
         if (args.saved) {
@@ -103,7 +103,7 @@ export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
         }
     }
     if (shouldAutoPlanOnStartup(args)) {
-        queueAutoPlan();
+        QUEUE_AUTO_PLAN();
         return;
     }
     args.addLog?.("Skipped startup auto-plan to preserve loaded schedule.");

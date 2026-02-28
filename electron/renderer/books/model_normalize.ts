@@ -27,20 +27,20 @@ const PROGRESS_MAX = 100;
  * @returns Normalized book with clamped numeric fields and consistent status data.
  */
 export function normalizeBook(book: BookInput = {}): Book {
-    const wordsTotal = toOptionalInt(book.words_total);
-    const pagesTotal = toOptionalInt(book.pages_total);
-    const progressRaw = clamp(
+    const WORDS_TOTAL = toOptionalInt(book.words_total);
+    const PAGES_TOTAL = toOptionalInt(book.pages_total);
+    const PROGRESS_RAW = clamp(
         Number(book.progress_percent ?? 0),
         0,
         PROGRESS_MAX,
     );
-    const pagesReadRaw = toOptionalInt(book.pages_read);
-    const normalized = normalizeProgressAndPages(
-        pagesTotal,
-        pagesReadRaw,
-        progressRaw,
+    const PAGES_READ_RAW = toOptionalInt(book.pages_read);
+    const NORMALIZED = normalizeProgressAndPages(
+        PAGES_TOTAL,
+        PAGES_READ_RAW,
+        PROGRESS_RAW,
     );
-    const status = statusFromRaw(book.status, normalized.progress);
+    const STATUS = statusFromRaw(book.status, NORMALIZED.progress);
 
     return {
         author: toTrimmedText(book.author),
@@ -55,26 +55,26 @@ export function normalizeBook(book: BookInput = {}): Book {
             MIN_DIFFICULTY,
             MAX_DIFFICULTY,
         ),
-        finished_at: finishedAtForStatus(status, book.finished_at),
+        finished_at: finishedAtForStatus(STATUS, book.finished_at),
         lookup_note: toTrimmedText(book.lookup_note),
         max_minutes_per_day: toOptionalInt(book.max_minutes_per_day),
         min_blocks_per_session: minBlocksPerSession(
             book.min_blocks_per_session,
         ),
-        pages_read: normalized.pagesRead,
-        pages_total: pagesTotal,
+        pages_read: NORMALIZED.pagesRead,
+        pages_total: PAGES_TOTAL,
         priority: toClampedInt(
             book.priority,
             DEFAULT_PRIORITY,
             MIN_PRIORITY,
             MAX_PRIORITY,
         ),
-        progress_percent: normalized.progress,
+        progress_percent: NORMALIZED.progress,
         scheduled_days: normalizeScheduledDays(book.scheduled_days),
         shelf: normalizeShelfName(book.shelf),
-        status,
+        status: STATUS,
         title: toTrimmedText(book.title),
-        words_total: wordsTotal,
+        words_total: WORDS_TOTAL,
     };
 }
 

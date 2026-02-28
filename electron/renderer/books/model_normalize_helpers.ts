@@ -33,11 +33,11 @@ function toIntWithFallback(
  * @returns Trimmed date string or `null` when empty.
  */
 function normalizeFinishedAt(value: string | null | undefined): string | null {
-    const trimmed = String(value ?? "").trim();
-    if (trimmed === "") {
+    const TRIMMED = String(value ?? "").trim();
+    if (TRIMMED === "") {
         return null;
     }
-    return trimmed;
+    return TRIMMED;
 }
 
 /**
@@ -63,9 +63,9 @@ export function toTrimmedText(value?: string | null): string {
  * @returns Existing trimmed id or generated uid.
  */
 export function toBookId(value?: string): string {
-    const text = toTrimmedText(value);
-    if (text) {
-        return text;
+    const TEXT = toTrimmedText(value);
+    if (TEXT) {
+        return TEXT;
     }
     return uid();
 }
@@ -123,12 +123,12 @@ export function finishedAtForStatus(
     status: string,
     finishedAtRaw: string | null | undefined,
 ): string | null {
-    const finishedAt = normalizeFinishedAt(finishedAtRaw);
+    const FINISHED_AT = normalizeFinishedAt(finishedAtRaw);
     if (status !== BOOK_STATUS_READ) {
         return null;
     }
-    if (finishedAt !== null) {
-        return finishedAt;
+    if (FINISHED_AT !== null) {
+        return FINISHED_AT;
     }
     return todayDateKey();
 }

@@ -10,29 +10,29 @@ import { primaryAuthor } from "./search_text.js";
  * @returns Deduplicated document array preserving first-seen items.
  */
 export function dedupeDocs(docs: SearchDoc[]): SearchDoc[] {
-    const seen = new Set<string>();
-    const deduped: SearchDoc[] = [];
+    const SEEN = new Set<string>();
+    const DEDUPED: SearchDoc[] = [];
     docs.forEach((doc) => {
-        const key = String(doc.key ?? "").trim();
-        if (key.length > 0) {
-            if (seen.has(key)) {
+        const KEY = String(doc.key ?? "").trim();
+        if (KEY.length > 0) {
+            if (SEEN.has(KEY)) {
                 return;
             }
-            seen.add(key);
-            deduped.push(doc);
+            SEEN.add(KEY);
+            DEDUPED.push(doc);
             return;
         }
-        const title = String(doc.title ?? "").trim();
-        const author = primaryAuthor(doc).trim();
-        if (title.length === 0 && author.length === 0) {
+        const TITLE = String(doc.title ?? "").trim();
+        const AUTHOR = primaryAuthor(doc).trim();
+        if (TITLE.length === 0 && AUTHOR.length === 0) {
             return;
         }
-        const fallback = `${title}|${author}`;
-        if (seen.has(fallback)) {
+        const FALLBACK = `${TITLE}|${AUTHOR}`;
+        if (SEEN.has(FALLBACK)) {
             return;
         }
-        seen.add(fallback);
-        deduped.push(doc);
+        SEEN.add(FALLBACK);
+        DEDUPED.push(doc);
     });
-    return deduped;
+    return DEDUPED;
 }

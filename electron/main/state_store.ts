@@ -57,14 +57,14 @@ function migratedJsonResult(
     userDataDir: string,
     jsonResult: PlannerStateLoadResult,
 ): PlannerStateLoadResult {
-    const backfill = writeStateToSqlite(
+    const BACKFILL = writeStateToSqlite(
         userDataDir,
         jsonResult.state as unknown as JsonValue,
     );
-    if (backfill.ok === false) {
+    if (BACKFILL.ok === false) {
         return {
             ...jsonResult,
-            warningMessage: `Loaded JSON fallback but SQLite migration failed: ${backfill.error}`,
+            warningMessage: `Loaded JSON fallback but SQLite migration failed: ${BACKFILL.error}`,
         };
     }
     if (jsonResult.source !== "json_primary") {
@@ -83,16 +83,16 @@ function migratedJsonResult(
  * @returns Structured state load result with source and warning metadata.
  */
 export function readState(userDataDir: string): PlannerStateLoadResult {
-    const sqliteResult = readStateFromSqlite(userDataDir);
-    if (sqliteResult !== null && hasBootstrapState(sqliteResult.state)) {
-        return sqliteResult;
+    const SQLITE_RESULT = readStateFromSqlite(userDataDir);
+    if (SQLITE_RESULT !== null && hasBootstrapState(SQLITE_RESULT.state)) {
+        return SQLITE_RESULT;
     }
-    const jsonResult = readStateFromJson(userDataDir);
-    if (jsonResult !== null) {
-        return migratedJsonResult(userDataDir, jsonResult);
+    const JSON_RESULT = readStateFromJson(userDataDir);
+    if (JSON_RESULT !== null) {
+        return migratedJsonResult(userDataDir, JSON_RESULT);
     }
-    if (sqliteResult !== null) {
-        return sqliteResult;
+    if (SQLITE_RESULT !== null) {
+        return SQLITE_RESULT;
     }
     if (hasPersistedArtifacts(userDataDir)) {
         return {
@@ -121,17 +121,17 @@ export function writeState(
     userDataDir: string,
     data: JsonValue,
 ): PlannerSaveResult {
-    const sqliteSave = writeStateToSqlite(userDataDir, data);
-    if (sqliteSave.ok === false) {
-        return sqliteSave;
+    const SQLITE_SAVE = writeStateToSqlite(userDataDir, data);
+    if (SQLITE_SAVE.ok === false) {
+        return SQLITE_SAVE;
     }
 
-    const jsonSave = writeStateToJson(userDataDir, data);
-    if (jsonSave.ok === false) {
+    const JSON_SAVE = writeStateToJson(userDataDir, data);
+    if (JSON_SAVE.ok === false) {
         return {
             ok: true,
-            warningMessage: `SQLite save succeeded but JSON compatibility write failed: ${jsonSave.error}`,
+            warningMessage: `SQLite save succeeded but JSON compatibility write failed: ${JSON_SAVE.error}`,
         };
     }
-    return sqliteSave;
+    return SQLITE_SAVE;
 }

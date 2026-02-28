@@ -19,51 +19,51 @@ export const applyAppStateMutation: ApplyAppStateMutation = (
     state: AppRuntimeState,
     mutation: AppStateMutation,
 ): void => {
-    const mutableState = state;
+    const MUTABLE_STATE = state;
     switch (mutation.type) {
         case "set_last_result": {
-            mutableState.lastResult = mutation.lastResult;
+            MUTABLE_STATE.lastResult = mutation.lastResult;
             return;
         }
         case "set_schedule_completions": {
-            mutableState.scheduleCompletions = {
+            MUTABLE_STATE.scheduleCompletions = {
                 ...mutation.scheduleCompletions,
             };
-            const split = splitCompletionIndexes(
-                mutableState.scheduleCompletions,
+            const SPLIT = splitCompletionIndexes(
+                MUTABLE_STATE.scheduleCompletions,
             );
-            mutableState.derived.completionBySessionKey =
-                split.completionBySessionKey;
-            mutableState.derived.completionByDayBookKey =
-                split.completionByDayBookKey;
+            MUTABLE_STATE.derived.completionBySessionKey =
+                SPLIT.completionBySessionKey;
+            MUTABLE_STATE.derived.completionByDayBookKey =
+                SPLIT.completionByDayBookKey;
             return;
         }
         case "set_blocked_day_books": {
-            mutableState.blockedDayBooks = { ...mutation.blockedDayBooks };
+            MUTABLE_STATE.blockedDayBooks = { ...mutation.blockedDayBooks };
             return;
         }
         case "set_blocked_day_book": {
-            const nextBlocked = { ...mutableState.blockedDayBooks };
+            const NEXT_BLOCKED = { ...MUTABLE_STATE.blockedDayBooks };
             if (mutation.blocked) {
-                nextBlocked[mutation.key] = true;
+                NEXT_BLOCKED[mutation.key] = true;
             } else {
-                delete nextBlocked[mutation.key];
+                delete NEXT_BLOCKED[mutation.key];
             }
-            mutableState.blockedDayBooks = nextBlocked;
+            MUTABLE_STATE.blockedDayBooks = NEXT_BLOCKED;
             return;
         }
         case "set_sessions": {
-            mutableState.sessions = [...mutation.sessions];
-            mutableState.derived.sessionsByDay = sessionsByDayIndex(
-                mutableState.sessions,
+            MUTABLE_STATE.sessions = [...mutation.sessions];
+            MUTABLE_STATE.derived.sessionsByDay = sessionsByDayIndex(
+                MUTABLE_STATE.sessions,
             );
-            mutableState.derived.sessionsByBook = sessionsByBookIndex(
-                mutableState.sessions,
+            MUTABLE_STATE.derived.sessionsByBook = sessionsByBookIndex(
+                MUTABLE_STATE.sessions,
             );
             return;
         }
         case "set_book_index": {
-            mutableState.derived.bookById = bookByIdIndex(mutation.books);
+            MUTABLE_STATE.derived.bookById = bookByIdIndex(mutation.books);
         }
     }
 };

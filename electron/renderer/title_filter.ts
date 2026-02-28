@@ -24,6 +24,6 @@ export function titleMatchesNormalizedQuery(
     if (normalizedQuery === "") {
         return true;
     }
-    const normalizedTitle = String(title ?? "").toLocaleLowerCase();
-    return normalizedTitle.includes(normalizedQuery);
+    const NORMALIZED_TITLE = String(title ?? "").toLocaleLowerCase();
+    return NORMALIZED_TITLE.includes(normalizedQuery);
 }

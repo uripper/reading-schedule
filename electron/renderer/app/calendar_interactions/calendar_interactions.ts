@@ -13,7 +13,7 @@ import {
 } from "./calendar_interactions_helpers.js";
 import { buildScheduleMutationHandlers } from "./calendar_interactions_schedule_handlers.js";
 
-const completionFallbackKey = (row: CompletionRow | undefined): string => {
+const COMPLETION_FALLBACK_KEY = (row: CompletionRow | undefined): string => {
     if (row === undefined) {
         return "";
     }
@@ -26,27 +26,27 @@ const completionFallbackKey = (row: CompletionRow | undefined): string => {
     return dayBookCompletionKey(row.date, row.book_id);
 };
 
-const setCompletionState = (
+const SET_COMPLETION_STATE = (
     completionStateInput: Record<string, boolean>,
     sessionKey: string,
     fallbackKey: string,
     completed: boolean,
 ): void => {
-    const completionState = completionStateInput;
+    const COMPLETION_STATE = completionStateInput;
     if (completed) {
-        completionState[sessionKey] = true;
+        COMPLETION_STATE[sessionKey] = true;
         if (fallbackKey !== "") {
-            completionState[fallbackKey] = true;
+            COMPLETION_STATE[fallbackKey] = true;
         }
         return;
     }
-    delete completionState[sessionKey];
+    delete COMPLETION_STATE[sessionKey];
     if (fallbackKey !== "") {
-        delete completionState[fallbackKey];
+        delete COMPLETION_STATE[fallbackKey];
     }
 };
 
-const completionStatusMessage = (
+const COMPLETION_STATUS_MESSAGE = (
     row: CompletionRow | undefined,
     completed: boolean,
 ): string => {
@@ -65,54 +65,54 @@ const completionStatusMessage = (
     return `Marked "${row.title}" incomplete on ${row.date}.`;
 };
 
-const isCompleted = (
+const IS_COMPLETED = (
     completionState: Record<string, boolean>,
     sessionKey: string,
 ): boolean => {
     if (completionState[sessionKey]) {
         return true;
     }
-    const fallbackKey = dayBookCompletionKeyFromSession(sessionKey);
-    if (fallbackKey === "") {
+    const FALLBACK_KEY = dayBookCompletionKeyFromSession(sessionKey);
+    if (FALLBACK_KEY === "") {
         return false;
     }
-    return completionState[fallbackKey];
+    return completionState[FALLBACK_KEY];
 };
 
-const handleCompletionChanged = (
+const HANDLE_COMPLETION_CHANGED = (
     args: AppCalendarInteractionArgs,
     payload: CompletionUpdate,
 ): void => {
-    const completionState = { ...args.state.scheduleCompletions };
-    const fallbackKey = completionFallbackKey(payload.row);
-    setCompletionState(
-        completionState,
+    const COMPLETION_STATE = { ...args.state.scheduleCompletions };
+    const FALLBACK_KEY = COMPLETION_FALLBACK_KEY(payload.row);
+    SET_COMPLETION_STATE(
+        COMPLETION_STATE,
         payload.sessionKey,
-        fallbackKey,
+        FALLBACK_KEY,
         payload.completed,
     );
     args.applyStateMutation({
-        scheduleCompletions: completionState,
+        scheduleCompletions: COMPLETION_STATE,
         type: "set_schedule_completions",
     });
     args.queuePersist();
-    const statusMessage = completionStatusMessage(
+    const STATUS_MESSAGE = COMPLETION_STATUS_MESSAGE(
         payload.row,
         payload.completed,
     );
-    if (statusMessage !== "") {
-        args.setStatus(statusMessage);
+    if (STATUS_MESSAGE !== "") {
+        args.setStatus(STATUS_MESSAGE);
     }
     if (args.onSessionCompletionUpdated !== undefined) {
         args.onSessionCompletionUpdated(payload);
     }
 };
 
-const handleProgressUpdated = (
+const HANDLE_PROGRESS_UPDATED = (
     args: AppCalendarInteractionArgs,
     payload: ProgressUpdateInput,
 ): ReturnType<AppCalendarInteractionArgs["updateBookProgress"]> => {
-    const updatedBook = args.updateBookProgress(
+    const UPDATED_BOOK = args.updateBookProgress(
         payload.bookId,
         {
             pagesRead: payload.pagesRead,
@@ -120,53 +120,53 @@ const handleProgressUpdated = (
         },
         { notifyBooksChanged: false },
     );
-    if (updatedBook === null) {
+    if (UPDATED_BOOK === null) {
         args.setStatus("Could not find that book to update progress.", true);
         return null;
     }
     if (payload.row !== undefined) {
-        const completionState = { ...args.state.scheduleCompletions };
-        completionState[sessionKeyFor(payload.row)] = true;
-        completionState[
+        const COMPLETION_STATE = { ...args.state.scheduleCompletions };
+        COMPLETION_STATE[sessionKeyFor(payload.row)] = true;
+        COMPLETION_STATE[
             dayBookCompletionKey(payload.row.date, payload.row.book_id)
         ] = true;
         args.applyStateMutation({
-            scheduleCompletions: completionState,
+            scheduleCompletions: COMPLETION_STATE,
             type: "set_schedule_completions",
         });
     }
-    if (updatedBook.title === "") {
+    if (UPDATED_BOOK.title === "") {
         args.setStatus("Updated progress for book.");
     } else {
-        args.setStatus(`Updated progress for ${updatedBook.title}.`);
+        args.setStatus(`Updated progress for ${UPDATED_BOOK.title}.`);
     }
     args.queuePersist();
     if (args.onProgressUpdated !== undefined) {
-        args.onProgressUpdated(updatedBook);
+        args.onProgressUpdated(UPDATED_BOOK);
     }
-    return updatedBook;
+    return UPDATED_BOOK;
 };
 
-const buildCalendarHandlers = (
+const BUILD_CALENDAR_HANDLERS = (
     args: AppCalendarInteractionArgs,
 ): CalendarInteractionHandlers => {
-    const scheduleMutationHandlers = buildScheduleMutationHandlers(args);
+    const SCHEDULE_MUTATION_HANDLERS = buildScheduleMutationHandlers(args);
     return {
         getBookById: (bookId) => args.getBookById(bookId),
         isSessionCompleted: (sessionKey) =>
-            isCompleted(args.state.scheduleCompletions, sessionKey),
+            IS_COMPLETED(args.state.scheduleCompletions, sessionKey),
         listSessionBooks: () => manualSessionBooks(args.collectAllBooks()),
         onSessionCompletionChanged: (payload) => {
-            handleCompletionChanged(args, payload);
+            HANDLE_COMPLETION_CHANGED(args, payload);
         },
         onSessionProgressUpdated: (payload) =>
-            handleProgressUpdated(args, payload),
-        ...scheduleMutationHandlers,
+            HANDLE_PROGRESS_UPDATED(args, payload),
+        ...SCHEDULE_MUTATION_HANDLERS,
     };
 };
 
-export const configureAppCalendarInteractions = (
+export function configureAppCalendarInteractions(
     args: AppCalendarInteractionArgs,
-): void => {
-    args.configureCalendarInteractions(buildCalendarHandlers(args));
-};
+): void {
+    args.configureCalendarInteractions(BUILD_CALENDAR_HANDLERS(args));
+}

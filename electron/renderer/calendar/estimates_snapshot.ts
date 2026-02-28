@@ -27,39 +27,39 @@ export function estimateSnapshotForRow(
     getBookById: BookGetter,
     isSessionCompleted: CompletionChecker,
 ): EstimateSnapshot | null {
-    const bookId = String(row.book_id || "");
-    if (!bookId) {
+    const BOOK_ID = String(row.book_id || "");
+    if (!BOOK_ID) {
         return null;
     }
-    const remainingWords = Number(state.totalsByBookId?.[bookId] ?? 0);
-    const book = getBookById(bookId);
-    const fullWords = fullWordsForBook(book, remainingWords);
-    if (fullWords <= 0) {
+    const REMAINING_WORDS = Number(state.totalsByBookId?.[BOOK_ID] ?? 0);
+    const BOOK = getBookById(BOOK_ID);
+    const FULL_WORDS = fullWordsForBook(BOOK, REMAINING_WORDS);
+    if (FULL_WORDS <= 0) {
         return null;
     }
-    const pagesTotal = Number(book?.pages_total ?? 0);
-    const currentWordsRead = wordsReadFromBook(book, fullWords);
-    const plannedWords = plannedWordsBeforeAndThroughRow(
+    const PAGES_TOTAL = Number(BOOK?.pages_total ?? 0);
+    const CURRENT_WORDS_READ = wordsReadFromBook(BOOK, FULL_WORDS);
+    const PLANNED_WORDS = plannedWordsBeforeAndThroughRow(
         row,
         state,
-        bookId,
+        BOOK_ID,
         isSessionCompleted,
     );
-    const startWords = Math.min(
-        fullWords,
-        currentWordsRead + plannedWords.before,
+    const START_WORDS = Math.min(
+        FULL_WORDS,
+        CURRENT_WORDS_READ + PLANNED_WORDS.before,
     );
-    const endWords = Math.min(
-        fullWords,
-        currentWordsRead + plannedWords.through,
+    const END_WORDS = Math.min(
+        FULL_WORDS,
+        CURRENT_WORDS_READ + PLANNED_WORDS.through,
     );
-    const startPercent = percentFromWords(startWords, fullWords);
-    const endPercent = percentFromWords(endWords, fullWords);
+    const START_PERCENT = percentFromWords(START_WORDS, FULL_WORDS);
+    const END_PERCENT = percentFromWords(END_WORDS, FULL_WORDS);
     return {
-        changedInSession: endPercent > startPercent,
-        endPages: projectedPages(endPercent, pagesTotal),
-        endPercent,
-        startPages: projectedPages(startPercent, pagesTotal),
-        startPercent,
+        changedInSession: END_PERCENT > START_PERCENT,
+        endPages: projectedPages(END_PERCENT, PAGES_TOTAL),
+        endPercent: END_PERCENT,
+        startPages: projectedPages(START_PERCENT, PAGES_TOTAL),
+        startPercent: START_PERCENT,
     };
 }

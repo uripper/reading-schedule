@@ -11,11 +11,14 @@ export function bindDesktopShortcuts({
     announce,
     plannerApi,
 }: ShortcutBindings): void {
-    const handleZoomShortcut = createZoomShortcutHandler(plannerApi, announce);
+    const HANDLE_ZOOM_SHORTCUT = createZoomShortcutHandler(
+        plannerApi,
+        announce,
+    );
     document.addEventListener("keydown", (event) => {
         if (event.defaultPrevented) {
             return;
         }
-        handleZoomShortcut(event);
+        HANDLE_ZOOM_SHORTCUT(event);
     });
 }

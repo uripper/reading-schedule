@@ -21,11 +21,11 @@ const SAVE_OPERATION = "save_snapshot";
  * @returns Initialized synchronous SQLite handle.
  */
 function openDatabase(databasePath: string): DatabaseSync {
-    const database = new DatabaseSync(databasePath);
-    database.exec("PRAGMA journal_mode=WAL;");
-    database.exec("PRAGMA synchronous=FULL;");
-    database.exec("PRAGMA foreign_keys=ON;");
-    database.exec(`
+    const DATABASE = new DatabaseSync(databasePath);
+    DATABASE.exec("PRAGMA journal_mode=WAL;");
+    DATABASE.exec("PRAGMA synchronous=FULL;");
+    DATABASE.exec("PRAGMA foreign_keys=ON;");
+    DATABASE.exec(`
     CREATE TABLE IF NOT EXISTS planner_state_snapshot (
       id INTEGER PRIMARY KEY CHECK(id = 1),
       schema_version INTEGER NOT NULL,
@@ -33,7 +33,7 @@ function openDatabase(databasePath: string): DatabaseSync {
       updated_at TEXT NOT NULL
     );
   `);
-    database.exec(`
+    DATABASE.exec(`
     CREATE TABLE IF NOT EXISTS planner_state_journal (
       seq INTEGER PRIMARY KEY AUTOINCREMENT,
       created_at TEXT NOT NULL,
@@ -41,7 +41,7 @@ function openDatabase(databasePath: string): DatabaseSync {
       payload_json TEXT NOT NULL
     );
   `);
-    return database;
+    return DATABASE;
 }
 
 /**
@@ -68,14 +68,14 @@ function objectState(value: unknown): LoadedPlannerState | null {
  * @returns Parsed snapshot state or null.
  */
 function readSnapshotState(database: DatabaseSync): LoadedPlannerState | null {
-    const row = database
+    const ROW = database
         .prepare("SELECT payload_json FROM planner_state_snapshot WHERE id = 1")
         .get() as { payload_json: string } | undefined;
-    if (!row) {
+    if (!ROW) {
         return null;
     }
     try {
-        return objectState(JSON.parse(row.payload_json) as unknown);
+        return objectState(JSON.parse(ROW.payload_json) as unknown);
     } catch {
         return null;
     }
@@ -89,20 +89,20 @@ function readSnapshotState(database: DatabaseSync): LoadedPlannerState | null {
 function recoverStateFromJournal(
     database: DatabaseSync,
 ): LoadedPlannerState | null {
-    const rows = database
+    const ROWS = database
         .prepare(
             "SELECT payload_json FROM planner_state_journal ORDER BY seq DESC LIMIT ?",
         )
         .all(JOURNAL_KEEP_ROWS) as Array<{ payload_json: string } | undefined>;
-    for (const row of rows) {
-        if (!row) {
+    for (const ROW of ROWS) {
+        if (!ROW) {
             continue;
         }
         try {
-            const parsed = JSON.parse(row.payload_json) as unknown;
-            const state = objectState(parsed);
-            if (state) {
-                return state;
+            const PARSED = JSON.parse(ROW.payload_json) as unknown;
+            const STATE = objectState(PARSED);
+            if (STATE) {
+                return STATE;
             }
         } catch {
             // Continue scanning older journal rows.
@@ -146,14 +146,14 @@ function writeSnapshotTransaction(
     database: DatabaseSync,
     payloadJson: string,
 ): PlannerSaveResult {
-    const createdAt = new Date().toISOString();
-    const insertJournal = database.prepare(
+    const CREATED_AT = new Date().toISOString();
+    const INSERT_JOURNAL = database.prepare(
         `
       INSERT INTO planner_state_journal (created_at, operation, payload_json)
       VALUES (?, ?, ?)
     `,
     );
-    const trimJournal = database.prepare(
+    const TRIM_JOURNAL = database.prepare(
         `
       DELETE FROM planner_state_journal
       WHERE seq NOT IN (
@@ -163,9 +163,9 @@ function writeSnapshotTransaction(
     );
     database.exec("BEGIN IMMEDIATE");
     try {
-        insertJournal.run(createdAt, SAVE_OPERATION, payloadJson);
-        upsertSnapshot(database, payloadJson, createdAt);
-        trimJournal.run(JOURNAL_KEEP_ROWS);
+        INSERT_JOURNAL.run(CREATED_AT, SAVE_OPERATION, payloadJson);
+        upsertSnapshot(database, payloadJson, CREATED_AT);
+        TRIM_JOURNAL.run(JOURNAL_KEEP_ROWS);
         database.exec("COMMIT");
         return { ok: true };
     } catch (error) {
@@ -185,40 +185,40 @@ function writeSnapshotTransaction(
 export function readStateFromSqlite(
     userDataDir: string,
 ): PlannerStateLoadResult | null {
-    const databasePath = sqliteStatePath(userDataDir);
-    if (!fs.existsSync(databasePath)) {
+    const DATABASE_PATH = sqliteStatePath(userDataDir);
+    if (!fs.existsSync(DATABASE_PATH)) {
         return null;
     }
     try {
-        const database = openDatabase(databasePath);
+        const DATABASE = openDatabase(DATABASE_PATH);
         try {
-            const snapshotState = readSnapshotState(database);
-            if (snapshotState) {
+            const SNAPSHOT_STATE = readSnapshotState(DATABASE);
+            if (SNAPSHOT_STATE) {
                 return {
                     source: "sqlite",
-                    sourcePath: databasePath,
-                    state: snapshotState,
+                    sourcePath: DATABASE_PATH,
+                    state: SNAPSHOT_STATE,
                 };
             }
-            const recoveredState = recoverStateFromJournal(database);
-            if (!recoveredState) {
+            const RECOVERED_STATE = recoverStateFromJournal(DATABASE);
+            if (!RECOVERED_STATE) {
                 return null;
             }
             upsertSnapshot(
-                database,
-                JSON.stringify(recoveredState),
+                DATABASE,
+                JSON.stringify(RECOVERED_STATE),
                 new Date().toISOString(),
             );
             return {
                 source: "sqlite_journal_replay",
-                sourcePath: databasePath,
-                state: recoveredState,
+                sourcePath: DATABASE_PATH,
+                state: RECOVERED_STATE,
                 warningCode: "RECOVERED_FROM_JOURNAL",
                 warningMessage:
                     "Recovered saved data from journal replay after storage corruption.",
             };
         } finally {
-            database.close();
+            DATABASE.close();
         }
     } catch {
         return null;
@@ -237,11 +237,11 @@ export function writeStateToSqlite(
 ): PlannerSaveResult {
     try {
         fs.mkdirSync(userDataDir, { recursive: true });
-        const database = openDatabase(sqliteStatePath(userDataDir));
+        const DATABASE = openDatabase(sqliteStatePath(userDataDir));
         try {
-            return writeSnapshotTransaction(database, JSON.stringify(data));
+            return writeSnapshotTransaction(DATABASE, JSON.stringify(data));
         } finally {
-            database.close();
+            DATABASE.close();
         }
     } catch (error) {
         if (error instanceof Error) {

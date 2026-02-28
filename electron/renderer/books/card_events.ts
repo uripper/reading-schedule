@@ -29,10 +29,10 @@ export function bindCardEvents(
     rootNode
         .querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']")
         .forEach((image) => {
-            const nextImage = image;
+            const NEXT_IMAGE = image;
             image.addEventListener("error", () => {
-                nextImage.src = COVER_PLACEHOLDER;
-                nextImage.classList.add("is-empty");
+                NEXT_IMAGE.src = COVER_PLACEHOLDER;
+                NEXT_IMAGE.classList.add("is-empty");
             });
         });
 }

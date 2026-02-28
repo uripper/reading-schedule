@@ -40,30 +40,30 @@ export function nextRowsWithUpdatedMinutes({
     previousRows: PlannerScheduleRow[];
     row: PlannerScheduleRow;
 }): UpdatedRowsResult {
-    const targetSessionKey = sessionKeyFor(row);
-    const rowsExcludingTarget = rowsWithoutSession(
-        targetSessionKey,
+    const TARGET_SESSION_KEY = sessionKeyFor(row);
+    const ROWS_EXCLUDING_TARGET = rowsWithoutSession(
+        TARGET_SESSION_KEY,
         previousRows,
     );
-    if (rowsExcludingTarget.length === previousRows.length) {
+    if (ROWS_EXCLUDING_TARGET.length === previousRows.length) {
         return null;
     }
-    const normalizedMinutes = normalizedManualMinutes(minutes);
-    const book = getBookById(row.book_id);
-    const wordsPlanned = wordsPlannedForManualSession({
+    const NORMALIZED_MINUTES = normalizedManualMinutes(minutes);
+    const BOOK = getBookById(row.book_id);
+    const WORDS_PLANNED = wordsPlannedForManualSession({
         bookId: row.book_id,
-        difficulty: Number(book?.difficulty ?? DEFAULT_BOOK_DIFFICULTY),
-        minutes: normalizedMinutes,
-        rows: rowsExcludingTarget,
+        difficulty: Number(BOOK?.difficulty ?? DEFAULT_BOOK_DIFFICULTY),
+        minutes: NORMALIZED_MINUTES,
+        rows: ROWS_EXCLUDING_TARGET,
         settings: collectSettings(),
     });
-    const updatedRow: PlannerScheduleRow = {
+    const UPDATED_ROW: PlannerScheduleRow = {
         ...row,
-        minutes: normalizedMinutes,
-        words_planned: wordsPlanned,
+        minutes: NORMALIZED_MINUTES,
+        words_planned: WORDS_PLANNED,
     };
     return {
-        normalizedMinutes,
-        rows: sortRowsByDateAndSession([...rowsExcludingTarget, updatedRow]),
+        normalizedMinutes: NORMALIZED_MINUTES,
+        rows: sortRowsByDateAndSession([...ROWS_EXCLUDING_TARGET, UPDATED_ROW]),
     };
 }

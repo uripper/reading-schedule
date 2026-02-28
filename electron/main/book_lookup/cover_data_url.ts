@@ -20,18 +20,18 @@ const DATA_URL_BASE64_SEGMENT = ";base64";
  * @returns Supported cover extension, or null when unsupported.
  */
 function extensionForDataMime(mimeType: string): CoverExtension | null {
-    const normalizedMime = String(mimeType || "")
+    const NORMALIZED_MIME = String(mimeType || "")
         .trim()
         .toLowerCase();
-    if (normalizedMime === CONTENT_TYPE_PNG) {
+    if (NORMALIZED_MIME === CONTENT_TYPE_PNG) {
         return EXTENSION_PNG;
     }
-    if (normalizedMime === CONTENT_TYPE_WEBP) {
+    if (NORMALIZED_MIME === CONTENT_TYPE_WEBP) {
         return EXTENSION_WEBP;
     }
     if (
-        normalizedMime === CONTENT_TYPE_JPEG ||
-        normalizedMime === CONTENT_TYPE_JPG
+        NORMALIZED_MIME === CONTENT_TYPE_JPEG ||
+        NORMALIZED_MIME === CONTENT_TYPE_JPG
     ) {
         return EXTENSION_JPG;
     }
@@ -46,32 +46,32 @@ function extensionForDataMime(mimeType: string): CoverExtension | null {
 export function parseCoverDataUrl(
     coverDataUrl: string | undefined,
 ): { bytes: Uint8Array; extension: CoverExtension } | null {
-    const normalized = String(coverDataUrl ?? "").trim();
-    if (!normalized.startsWith(DATA_URL_PREFIX)) {
+    const NORMALIZED = String(coverDataUrl ?? "").trim();
+    if (!NORMALIZED.startsWith(DATA_URL_PREFIX)) {
         return null;
     }
-    const separatorIndex = normalized.indexOf(DATA_URL_SEPARATOR);
-    if (separatorIndex < 0) {
+    const SEPARATOR_INDEX = NORMALIZED.indexOf(DATA_URL_SEPARATOR);
+    if (SEPARATOR_INDEX < 0) {
         return null;
     }
-    const header = normalized.slice(DATA_URL_PREFIX.length, separatorIndex);
-    const payload = normalized.slice(separatorIndex + 1);
-    if (!header.includes(DATA_URL_BASE64_SEGMENT) || !payload) {
+    const HEADER = NORMALIZED.slice(DATA_URL_PREFIX.length, SEPARATOR_INDEX);
+    const PAYLOAD = NORMALIZED.slice(SEPARATOR_INDEX + 1);
+    if (!HEADER.includes(DATA_URL_BASE64_SEGMENT) || !PAYLOAD) {
         return null;
     }
-    const mimeType = header.split(";")[0];
-    const extension = extensionForDataMime(mimeType);
-    if (!extension) {
+    const MIME_TYPE = HEADER.split(";")[0];
+    const EXTENSION = extensionForDataMime(MIME_TYPE);
+    if (!EXTENSION) {
         return null;
     }
     let bytes: Uint8Array;
     try {
-        bytes = new Uint8Array(Buffer.from(payload, "base64"));
+        bytes = new Uint8Array(Buffer.from(PAYLOAD, "base64"));
     } catch {
         return null;
     }
     if (bytes.byteLength <= 0) {
         return null;
     }
-    return { bytes, extension };
+    return { bytes, extension: EXTENSION };
 }

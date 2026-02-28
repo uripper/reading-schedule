@@ -40,13 +40,13 @@ function panelByName(name: string): HTMLElement | null {
  * @param active Whether panel is active.
  */
 function setPanelState(panel: HTMLElement, active: boolean): void {
-    const nextPanel = panel;
-    nextPanel.classList.toggle("is-active", active);
-    nextPanel.hidden = !active;
+    const NEXT_PANEL = panel;
+    NEXT_PANEL.classList.toggle("is-active", active);
+    NEXT_PANEL.hidden = !active;
     if (active) {
-        nextPanel.setAttribute("aria-hidden", "false");
+        NEXT_PANEL.setAttribute("aria-hidden", "false");
     } else {
-        nextPanel.setAttribute("aria-hidden", "true");
+        NEXT_PANEL.setAttribute("aria-hidden", "true");
     }
 }
 
@@ -56,17 +56,17 @@ function setPanelState(panel: HTMLElement, active: boolean): void {
  * @param active Whether button matches the active tab.
  */
 function setTabAriaState(button: HTMLElement, active: boolean): void {
-    const nextButton = button;
+    const NEXT_BUTTON = button;
     if (button.getAttribute("role") !== "tab") {
         return;
     }
     if (active) {
-        nextButton.setAttribute("aria-selected", "true");
-        nextButton.tabIndex = 0;
+        NEXT_BUTTON.setAttribute("aria-selected", "true");
+        NEXT_BUTTON.tabIndex = 0;
         return;
     }
-    nextButton.setAttribute("aria-selected", "false");
-    nextButton.tabIndex = -1;
+    NEXT_BUTTON.setAttribute("aria-selected", "false");
+    NEXT_BUTTON.tabIndex = -1;
 }
 
 /**
@@ -76,15 +76,15 @@ function setTabAriaState(button: HTMLElement, active: boolean): void {
  * @returns Next document-title label.
  */
 function resolveActiveLabel(currentLabel: string, button: HTMLElement): string {
-    const text = button.textContent;
-    if (typeof text !== "string") {
+    const TEXT = button.textContent;
+    if (typeof TEXT !== "string") {
         return currentLabel;
     }
-    const trimmedLabel = text.trim();
-    if (trimmedLabel.length === 0) {
+    const TRIMMED_LABEL = TEXT.trim();
+    if (TRIMMED_LABEL.length === 0) {
         return currentLabel;
     }
-    return trimmedLabel;
+    return TRIMMED_LABEL;
 }
 
 /**
@@ -99,22 +99,22 @@ export function activateTab(
     const { focusPanel = false } = options;
     let activeLabel = DEFAULT_TITLE;
 
-    for (const button of allTabButtons()) {
-        const btn = button;
-        const active = btn.dataset.tab === name;
-        btn.classList.toggle("is-active", active);
-        setTabAriaState(btn, active);
-        if (active) {
-            activeLabel = resolveActiveLabel(activeLabel, btn);
+    for (const BUTTON of allTabButtons()) {
+        const BTN = BUTTON;
+        const ACTIVE = BTN.dataset.tab === name;
+        BTN.classList.toggle("is-active", ACTIVE);
+        setTabAriaState(BTN, ACTIVE);
+        if (ACTIVE) {
+            activeLabel = resolveActiveLabel(activeLabel, BTN);
         }
     }
 
-    for (const panel of qa<HTMLElement>(TAB_PANEL_SELECTOR)) {
-        setPanelState(panel, panel.id === `tab-${name}`);
+    for (const PANEL of qa<HTMLElement>(TAB_PANEL_SELECTOR)) {
+        setPanelState(PANEL, PANEL.id === `tab-${name}`);
     }
-    const activePanel = panelByName(name);
-    if (focusPanel && activePanel) {
-        activePanel.focus();
+    const ACTIVE_PANEL = panelByName(name);
+    if (focusPanel && ACTIVE_PANEL) {
+        ACTIVE_PANEL.focus();
     }
     document.title = `${activeLabel} - Bartleby`;
     if (onTabActivated !== null) {
@@ -128,9 +128,9 @@ export function activateTab(
  * @param index Target index.
  */
 function activateTabByIndex(tabs: HTMLElement[], index: number): void {
-    const target = tabs[index];
-    target.focus();
-    activateTab(target.dataset.tab ?? DEFAULT_TAB_NAME);
+    const TARGET = tabs[index];
+    TARGET.focus();
+    activateTab(TARGET.dataset.tab ?? DEFAULT_TAB_NAME);
 }
 
 /**
@@ -158,8 +158,8 @@ function bindTabKeyboard(tabs: HTMLElement[]): void {
             if (event.key === "ArrowRight") {
                 direction = 1;
             }
-            const next = (index + direction + tabs.length) % tabs.length;
-            activateTabByIndex(tabs, next);
+            const NEXT = (index + direction + tabs.length) % tabs.length;
+            activateTabByIndex(tabs, NEXT);
         });
     });
 }
@@ -172,10 +172,10 @@ export function bindTabs(
     onChange: ((name: string) => void) | null = null,
 ): void {
     onTabActivated = onChange;
-    for (const button of allTabButtons()) {
-        const btn = button;
-        btn.addEventListener("click", () => {
-            activateTab(btn.dataset.tab ?? DEFAULT_TAB_NAME);
+    for (const BUTTON of allTabButtons()) {
+        const BTN = BUTTON;
+        BTN.addEventListener("click", () => {
+            activateTab(BTN.dataset.tab ?? DEFAULT_TAB_NAME);
         });
     }
 

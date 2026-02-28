@@ -9,9 +9,9 @@ export function toInt(
     value: string | number | undefined,
     fallback = 0,
 ): number {
-    const parsed = Number(value);
-    if (Number.isFinite(parsed)) {
-        return Math.round(parsed);
+    const PARSED = Number(value);
+    if (Number.isFinite(PARSED)) {
+        return Math.round(PARSED);
     }
     return fallback;
 }
@@ -22,14 +22,14 @@ export function toInt(
  * @returns Local day key, or empty string when invalid.
  */
 export function isoLocalDayKey(iso: DateInput): string {
-    const date = new Date(iso);
-    if (Number.isNaN(date.getTime())) {
+    const DATE = new Date(iso);
+    if (Number.isNaN(DATE.getTime())) {
         return "";
     }
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const dayOfMonth = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${dayOfMonth}`;
+    const YEAR = DATE.getFullYear();
+    const MONTH = String(DATE.getMonth() + 1).padStart(2, "0");
+    const DAY_OF_MONTH = String(DATE.getDate()).padStart(2, "0");
+    return `${YEAR}-${MONTH}-${DAY_OF_MONTH}`;
 }
 
 /**
@@ -42,19 +42,19 @@ export function formatTimeRange(
     startIso: DateInput,
     endIso: DateInput,
 ): string {
-    const start = new Date(startIso);
-    const end = new Date(endIso);
-    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    const START = new Date(startIso);
+    const END = new Date(endIso);
+    if (Number.isNaN(START.getTime()) || Number.isNaN(END.getTime())) {
         return "Unknown time";
     }
-    const startFormat = new Intl.DateTimeFormat(undefined, {
+    const START_FORMAT = new Intl.DateTimeFormat(undefined, {
         dateStyle: "medium",
         timeStyle: "short",
     });
-    const endFormat = new Intl.DateTimeFormat(undefined, {
+    const END_FORMAT = new Intl.DateTimeFormat(undefined, {
         timeStyle: "short",
     });
-    return `${startFormat.format(start)} - ${endFormat.format(end)}`;
+    return `${START_FORMAT.format(START)} - ${END_FORMAT.format(END)}`;
 }
 
 /**
@@ -76,10 +76,10 @@ export function clampIndex(index: number, length: number): number {
  * @returns Timer text.
  */
 export function formatTimer(totalSeconds: number): string {
-    const secondsPerMinute = 60;
-    const minutes = Math.floor(totalSeconds / secondsPerMinute);
-    const seconds = totalSeconds % secondsPerMinute;
-    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    const SECONDS_PER_MINUTE = 60;
+    const MINUTES = Math.floor(totalSeconds / SECONDS_PER_MINUTE);
+    const SECONDS = totalSeconds % SECONDS_PER_MINUTE;
+    return `${String(MINUTES).padStart(2, "0")}:${String(SECONDS).padStart(2, "0")}`;
 }
 
 /**
@@ -111,28 +111,28 @@ export function minutesForDay(
  * @returns Consecutive-day streak ending today.
  */
 export function streakFromSessions(sessions: SessionRecord[]): number {
-    const minuteMap = new Map<string, number>();
+    const MINUTE_MAP = new Map<string, number>();
     sessions.forEach((session) => {
-        const key = isoLocalDayKey(session.ended_at);
-        if (key.length === 0) {
+        const KEY = isoLocalDayKey(session.ended_at);
+        if (KEY.length === 0) {
             return;
         }
-        minuteMap.set(
-            key,
-            (minuteMap.get(key) ?? 0) + Number(session.minutes ?? 0),
+        MINUTE_MAP.set(
+            KEY,
+            (MINUTE_MAP.get(KEY) ?? 0) + Number(session.minutes ?? 0),
         );
     });
 
     let streak = 0;
-    const cursor = new Date();
+    const CURSOR = new Date();
     for (;;) {
-        const key = isoLocalDayKey(cursor.toISOString());
-        const minutes = minuteMap.get(key) ?? 0;
-        if (minutes <= 0) {
+        const KEY = isoLocalDayKey(CURSOR.toISOString());
+        const MINUTES = MINUTE_MAP.get(KEY) ?? 0;
+        if (MINUTES <= 0) {
             break;
         }
         streak += 1;
-        cursor.setDate(cursor.getDate() - 1);
+        CURSOR.setDate(CURSOR.getDate() - 1);
     }
 
     return streak;

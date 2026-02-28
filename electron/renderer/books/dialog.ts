@@ -28,11 +28,11 @@ import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.js";
  * @param busy True while the save action is running.
  */
 function setSavingState(refs: BookFormRefs, busy: boolean): void {
-    const saveButton = refs.saveBtn;
-    saveButton.disabled = busy;
-    saveButton.textContent = "Save Book";
+    const SAVE_BUTTON = refs.saveBtn;
+    SAVE_BUTTON.disabled = busy;
+    SAVE_BUTTON.textContent = "Save Book";
     if (busy) {
-        saveButton.textContent = "Saving...";
+        SAVE_BUTTON.textContent = "Saving...";
     }
 }
 
@@ -74,22 +74,22 @@ function saveErrorMessage(error: unknown): string {
  * @param args.dialogOptions Optional open options such as default shelf.
  */
 function openBookDialog(args: OpenBookDialogArgs): void {
-    const formRefs = args.refs;
+    const FORM_REFS = args.refs;
     const { book } = args;
     args.dialogFocus.rememberOpener();
-    clearForm(formRefs, args.lookupControl);
+    clearForm(FORM_REFS, args.lookupControl);
     args.afterBookPicker.openForBook(book);
     let selectedShelf = String(args.dialogOptions.defaultShelf ?? "").trim();
     if (book !== null && book.shelf !== "") {
         selectedShelf = book.shelf;
     }
-    renderShelfPicker(formRefs, args.getBooks(), selectedShelf);
-    formRefs.dialogTitle.textContent = "Add Book";
+    renderShelfPicker(FORM_REFS, args.getBooks(), selectedShelf);
+    FORM_REFS.dialogTitle.textContent = "Add Book";
     if (book) {
-        formRefs.dialogTitle.textContent = "Edit Book";
-        fillForm(formRefs, book);
+        FORM_REFS.dialogTitle.textContent = "Edit Book";
+        fillForm(FORM_REFS, book);
     }
-    formRefs.dialog.showModal();
+    FORM_REFS.dialog.showModal();
     args.dialogFocus.focusInitialTarget();
 }
 
@@ -104,72 +104,72 @@ export function createBookDialog(
     onSubmit: (payload: BookSubmitPayload) => Promise<void> | void,
     options: BookDialogOptions = {},
 ): BookDialogController {
-    const getBooks = booksGetter(options);
+    const GET_BOOKS = booksGetter(options);
     ensureBookFormLayoutFields();
-    const refs = getBookFormRefs();
-    bindShelfPicker(refs);
-    bindCoverUpload(refs);
-    const afterBookPicker = createAfterBookPicker(refs, getBooks);
-    const dialogFocus = bindDialogFocus(refs.dialog, {
+    const REFS = getBookFormRefs();
+    bindShelfPicker(REFS);
+    bindCoverUpload(REFS);
+    const AFTER_BOOK_PICKER = createAfterBookPicker(REFS, GET_BOOKS);
+    const DIALOG_FOCUS = bindDialogFocus(REFS.dialog, {
         initialFocusSelector: "#bookTitleInput",
     });
-    const lookupControl = bindBookLookup({
-        metaEl: refs.lookupMeta,
+    const LOOKUP_CONTROL = bindBookLookup({
+        metaEl: REFS.lookupMeta,
         onPick: (item) => {
-            applyLookupItem(refs, item);
+            applyLookupItem(REFS, item);
         },
-        resultsEl: refs.searchResults,
-        searchInput: refs.searchInput,
+        resultsEl: REFS.searchResults,
+        searchInput: REFS.searchInput,
     });
-    const close = (): void => {
-        dialogFocus.closeAndReturnFocus();
+    const CLOSE = (): void => {
+        DIALOG_FOCUS.closeAndReturnFocus();
     };
-    const open = (
+    const OPEN = (
         book: Book | null = null,
         dialogOptions: OpenDialogOptions = {},
     ): void => {
         openBookDialog({
-            afterBookPicker,
+            afterBookPicker: AFTER_BOOK_PICKER,
             book,
-            dialogFocus,
+            dialogFocus: DIALOG_FOCUS,
             dialogOptions,
-            getBooks,
-            lookupControl,
-            refs,
+            getBooks: GET_BOOKS,
+            lookupControl: LOOKUP_CONTROL,
+            refs: REFS,
         });
     };
 
-    refs.form.addEventListener("submit", (event) => {
+    REFS.form.addEventListener("submit", (event) => {
         event.preventDefault();
-        setSavingState(refs, true);
-        const payload = {
+        setSavingState(REFS, true);
+        const PAYLOAD = {
             applyScheduledDaysToShelf:
-                refs.applyScheduledDaysToShelfInput.checked,
-            book: parseFormBook(refs),
+                REFS.applyScheduledDaysToShelfInput.checked,
+            book: parseFormBook(REFS),
         };
-        Promise.resolve(onSubmit(payload))
+        Promise.resolve(onSubmit(PAYLOAD))
             .then(() => {
-                close();
+                CLOSE();
             })
             .catch((error: unknown) => {
-                refs.lookupMeta.textContent = saveErrorMessage(error);
-                if (!focusFirstError(refs.form)) {
-                    refs.titleInput.focus();
+                REFS.lookupMeta.textContent = saveErrorMessage(error);
+                if (!focusFirstError(REFS.form)) {
+                    REFS.titleInput.focus();
                 }
             })
             .finally(() => {
-                setSavingState(refs, false);
+                setSavingState(REFS, false);
             });
     });
 
-    refs.cancelBtn.onclick = (): void => {
-        close();
+    REFS.cancelBtn.onclick = (): void => {
+        CLOSE();
     };
-    refs.dialog.addEventListener("cancel", (event) => {
+    REFS.dialog.addEventListener("cancel", (event) => {
         event.preventDefault();
-        close();
+        CLOSE();
     });
 
-    bindBookDialogProgressSync(refs);
-    return { open };
+    bindBookDialogProgressSync(REFS);
+    return { open: OPEN };
 }

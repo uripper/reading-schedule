@@ -18,21 +18,21 @@ function normalizedText(value?: string | null): string {
  * @returns Sort key used for alphabetical title ordering.
  */
 export function titleSortKey(value?: string | null): string {
-    const title = normalizedText(value);
-    if (!title) {
+    const TITLE = normalizedText(value);
+    if (!TITLE) {
         return "";
     }
 
-    const lower = title.toLowerCase();
-    if (!lower.startsWith(LEADING_THE_PREFIX)) {
-        return title;
+    const LOWER = TITLE.toLowerCase();
+    if (!LOWER.startsWith(LEADING_THE_PREFIX)) {
+        return TITLE;
     }
 
-    const withoutThe = title.slice(LEADING_THE_LENGTH).trimStart();
-    if (!withoutThe) {
-        return title;
+    const WITHOUT_THE = TITLE.slice(LEADING_THE_LENGTH).trimStart();
+    if (!WITHOUT_THE) {
+        return TITLE;
     }
-    return withoutThe;
+    return WITHOUT_THE;
 }
 
 /**
@@ -41,9 +41,9 @@ export function titleSortKey(value?: string | null): string {
  * @returns Initial title letter or empty string when unavailable.
  */
 export function titleInitialLetter(value?: string | null): string {
-    const key = titleSortKey(value).trim();
-    if (!key) {
+    const KEY = titleSortKey(value).trim();
+    if (!KEY) {
         return "";
     }
-    return key.slice(INITIAL_INDEX, INITIAL_LENGTH).toUpperCase();
+    return KEY.slice(INITIAL_INDEX, INITIAL_LENGTH).toUpperCase();
 }

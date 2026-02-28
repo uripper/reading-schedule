@@ -25,27 +25,27 @@ export function buildFutureSessionItem(
     interactionHandlers: DetailInteractionHandlers,
     rerenderDetails: () => void,
 ): HTMLElement {
-    const getBookById = (
+    const GET_BOOK_BY_ID = (
         bookId: string,
     ): ReturnType<DetailInteractionHandlers["getBookById"]> => {
         return interactionHandlers.getBookById(bookId);
     };
-    const isSessionCompleted = (sessionKey: string): boolean => {
+    const IS_SESSION_COMPLETED = (sessionKey: string): boolean => {
         return interactionHandlers.isSessionCompleted(sessionKey);
     };
-    const item = baseSessionItem(row);
-    const estimate = document.createElement("p");
-    estimate.className = DAY_DETAILS_META_CLASS;
-    estimate.textContent = estimateProgressLabel(
+    const ITEM = baseSessionItem(row);
+    const ESTIMATE = document.createElement("p");
+    ESTIMATE.className = DAY_DETAILS_META_CLASS;
+    ESTIMATE.textContent = estimateProgressLabel(
         row,
         state,
-        getBookById,
-        isSessionCompleted,
+        GET_BOOK_BY_ID,
+        IS_SESSION_COMPLETED,
     );
-    item.append(
-        estimate,
+    ITEM.append(
+        ESTIMATE,
         minutesFormForSession(row, interactionHandlers, rerenderDetails),
         removeSessionButton(row, interactionHandlers, rerenderDetails),
     );
-    return item;
+    return ITEM;
 }

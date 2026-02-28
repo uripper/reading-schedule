@@ -19,8 +19,8 @@ import { statusFilterMatches } from "./status.js";
  * @returns `true` when filter is empty or title contains the filter substring.
  */
 export function matchesTitleFilter(book: Book, titleFilter: string): boolean {
-    const normalizedFilter = normalizeTitleFilterQuery(titleFilter);
-    return titleMatchesNormalizedQuery(book.title, normalizedFilter);
+    const NORMALIZED_FILTER = normalizeTitleFilterQuery(titleFilter);
+    return titleMatchesNormalizedQuery(book.title, NORMALIZED_FILTER);
 }
 
 /**
