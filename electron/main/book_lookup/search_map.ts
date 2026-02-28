@@ -31,6 +31,7 @@ export function toItem(doc: SearchDoc): SearchItem {
   if (typeof doc.first_publish_year === "number") {
     publishYear = doc.first_publish_year;
   }
+
   return {
     author: primaryAuthor(doc),
     cover_url: coverUrl,

@@ -10,7 +10,7 @@ from reading_plan.reporting.report import build_summary
 from reading_plan.schedule.schedule import to_schedule_rows
 
 if TYPE_CHECKING:
-    from reading_plan.planner_types import Book
+    from reading_plan.planner_types import Book, Settings
 
 
 def _validate_missing_blockers(
@@ -76,7 +76,7 @@ def generate_plan(payload: dict[str, object]) -> dict[str, object]:
         books.append(book_from_data(row))
     _validate_blockers(books)
 
-    settings = settings_from_data(settings_raw)
+    settings: Settings = settings_from_data(settings_raw)
     planner = str(payload.get("planner", "mip"))
     result = solve_plan(books, settings, planner=planner)
     return {
