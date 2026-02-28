@@ -2,7 +2,7 @@ import { WORDS_PER_PAGE } from "./constants.js";
 import { shelfLabelForBook } from "./shelf.js";
 import { BOOK_STATUS_READ } from "./status.js";
 import { formatInt } from "./utils.js";
-import type { BlockerMeta, Book, BookMetaOptions } from "../../types/types_books.js";
+import type { BlockerMeta, Book, BookMetaOptions } from "../../types/types.js";
 
 /**
  * Checks whether an optional numeric value is a positive finite number.

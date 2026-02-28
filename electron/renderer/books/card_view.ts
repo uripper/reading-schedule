@@ -3,7 +3,7 @@
 import { bindCardEvents } from "./card_events.js";
 import { renderFlatBooks, renderGroupedBooks } from "./card_group_render.js";
 import { titleByIdMap } from "./title_lookup.js";
-import type { RenderBookGridOptions } from "../../types/types_books.js";
+import type { RenderBookGridOptions } from "../../types/types.js";
 
 /**
  * Renders book cards (grouped or flat) and wires edit/remove handlers.

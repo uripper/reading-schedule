@@ -1,5 +1,5 @@
 import { WORDS_PER_PAGE } from "../books/constants.js";
-import type { Book } from "../../types/types_books.js";
+import type { Book } from "../../types/types.js";
 
 const PERCENT_SCALE = 100;
 const PERCENT_PRECISION_SCALE = 1000;

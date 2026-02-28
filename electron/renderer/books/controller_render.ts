@@ -1,15 +1,18 @@
 
-import { renderBookGrid } from "./card_view.js";
-import { collectSettings } from "../settings.js";
-import { groupsForEstimatedFinish } from "./estimated_finish_groups.js";
-import { finishDatesByBookId } from "./finish_dates.js";
-import { GROUP_BY_NONE, groupBooks } from "./grouping.js";
-import { SHELF_FILTER_ALL } from "./shelf.js";
-import { SORT_BY_ESTIMATED_FINISH } from "./sort.js";
-import { resolveRenderableRefs, visibleBooksForView } from "./controller_render_helpers.js";
-import { updateGroupByOptions, updateShelfFilterOptions, updateStatusFilterOptions, updateSortDirectionButton } from "./toolbar.js";
+import { collectSettings } from '../settings.js';
+import { renderBookGrid } from './card_view.js';
+import { resolveRenderableRefs, visibleBooksForView } from './controller_render_helpers.js';
+import { groupsForEstimatedFinish } from './estimated_finish_groups.js';
+import { finishDatesByBookId } from './finish_dates.js';
+import { GROUP_BY_NONE, groupBooks } from './grouping.js';
+import { SHELF_FILTER_ALL } from './shelf.js';
+import { SORT_BY_ESTIMATED_FINISH } from './sort.js';
+import {
+    updateGroupByOptions, updateShelfFilterOptions, updateSortDirectionButton,
+    updateStatusFilterOptions
+} from './toolbar.js';
 
-import type { RenderBooksControllerArgs } from "../../types/types_books.js";
+import type { RenderBooksControllerArgs } from "../../types/types.js";
 
 /**
  * Normalizes a settings value to boolean with a fallback.

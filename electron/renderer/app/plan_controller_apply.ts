@@ -1,7 +1,14 @@
-
-import { mergeScheduleRows, pruneScheduleCompletions } from "./schedule_preserve.js";
-import type { PlannerResult, PlannerScheduleRow } from "../../types/types.js";
-import type { ApplyLoadedResultArgs, ApplyPlannedDataArgs, PlannerRunData } from "../../types/types_app.js";
+import {
+  mergeScheduleRows,
+  pruneScheduleCompletions,
+} from "./schedule_preserve.js";
+import type {
+  PlannerResult,
+  PlannerScheduleRow,
+  ApplyLoadedResultArgs,
+  ApplyPlannedDataArgs,
+  PlannerRunData,
+} from "../../types/types.js";
 
 /**
  * Checks whether a schedule contains at least one row.
@@ -32,7 +39,9 @@ function resultFromData(data: PlannerRunData): PlannerResult {
  * @param root0.preserveLockedDays Whether existing manual locks should be preserved.
  * @returns Promise that resolves after state persistence completes.
  */
-export async function applyPlannedData(root0: ApplyPlannedDataArgs): Promise<void> {
+export async function applyPlannedData(
+  root0: ApplyPlannedDataArgs,
+): Promise<void> {
   const {
     data,
     preserveLockedDays,
@@ -94,9 +103,6 @@ export function applyLoadedResult(root0: ApplyLoadedResultArgs): void {
   }
   setLastResult(savedResult);
   setBookScheduleRows(savedResult.schedule);
-  renderCalendar(
-    savedResult.schedule,
-    totalsFromSummary(savedResult.summary),
-  );
+  renderCalendar(savedResult.schedule, totalsFromSummary(savedResult.summary));
   addLog("Loaded previous schedule.");
 }

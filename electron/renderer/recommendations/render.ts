@@ -3,7 +3,7 @@ import { COVER_PLACEHOLDER } from "../books/constants.js";
 import type {
   RecommendationItem,
   RenderRecommendationsArgs,
-} from "../../types/types_experience.js";
+} from "../../types/types.js";
 
 const EMPTY_SUMMARY_TEXT =
   "Read books by your favorite authors to unlock recommendations.";

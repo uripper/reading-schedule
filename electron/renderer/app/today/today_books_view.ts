@@ -10,7 +10,7 @@ import {
 import type {
   TodayBookSummary,
   TodayScheduleSnapshot,
-} from "../../../types/types_app.js";
+} from "../../../types/types.js";
 
 /**
  * Creates the visual cover node for a today-list book item.

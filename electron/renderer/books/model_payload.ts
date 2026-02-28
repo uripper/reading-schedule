@@ -1,6 +1,6 @@
 import { statusFromRaw } from "./status.js";
 import { normalizeScheduledDays } from "./scheduled_days.js";
-import type { Book } from "../../types/types_books.js";
+import type { Book } from "../../types/types.js";
 
 const DEFAULT_PRIORITY = 3;
 const DEFAULT_DIFFICULTY = 3;

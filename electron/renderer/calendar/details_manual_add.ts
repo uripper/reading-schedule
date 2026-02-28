@@ -1,7 +1,16 @@
-
-import { minuteValueForManualInput, sortedManualBooks } from "./details_manual_add_helpers.js";
-import { initialPreferredBookId, refreshBookOptions } from "./details_manual_add_options.js";
-import type { BookSelectionControls, BuildManualSessionAddPanelArgs, SubmitManualAddFormArgs } from "../../types/types_calendar.js";
+import {
+  minuteValueForManualInput,
+  sortedManualBooks,
+} from "./details_manual_add_helpers.js";
+import {
+  initialPreferredBookId,
+  refreshBookOptions,
+} from "./details_manual_add_options.js";
+import type {
+  BookSelectionControls,
+  BuildManualSessionAddPanelArgs,
+  SubmitManualAddFormArgs,
+} from "../../types/types.js";
 
 const MANUAL_ADD_TITLE = "Manual add";
 const TITLE_FILTER_LABEL = "Find title";
@@ -37,7 +46,12 @@ function createBookSelectionControls(
   refreshBookOptions(bookSelect, books, "", initialBookId);
   titleFilterInput.addEventListener("input", () => {
     const preferredBookId = String(bookSelect.value || "").trim();
-    refreshBookOptions(bookSelect, books, titleFilterInput.value, preferredBookId);
+    refreshBookOptions(
+      bookSelect,
+      books,
+      titleFilterInput.value,
+      preferredBookId,
+    );
   });
   bookLabel.append(bookSelect);
 
@@ -108,7 +122,10 @@ export function buildManualSessionAddPanel(
   const form = document.createElement("form");
   form.className = "day-manual-add-form";
 
-  const selectionControls = createBookSelectionControls(books, args.defaultBookId);
+  const selectionControls = createBookSelectionControls(
+    books,
+    args.defaultBookId,
+  );
 
   const minutesLabel = document.createElement("label");
   minutesLabel.className = "day-progress-field";

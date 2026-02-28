@@ -11,7 +11,7 @@ import type {
   CompletionChecker,
   EstimateRow,
   EstimateState,
-} from "../../types/types_calendar.js";
+} from "../../types/types.js";
 
 /**
  * Builds end-of-session progress estimate label for a calendar row.

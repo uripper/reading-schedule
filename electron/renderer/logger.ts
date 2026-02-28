@@ -1,4 +1,4 @@
-import type { LogPayload } from "../types/types_app.js";
+import type { LogPayload } from "../types/types.js";
 
 /**
  * Serializes `Error` instances into plain objects for structured logging.

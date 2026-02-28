@@ -1,6 +1,17 @@
-import { fullWordsForBook, percentFromWords, projectedPages, wordsReadFromBook } from "./estimates_math.js";
+import {
+  fullWordsForBook,
+  percentFromWords,
+  projectedPages,
+  wordsReadFromBook,
+} from "./estimates_math.js";
 import { plannedWordsBeforeAndThroughRow } from "./estimates_snapshot_rows.js";
-import type { BookGetter, CompletionChecker, EstimateRow, EstimateSnapshot, EstimateState } from "../../types/types_calendar.js";
+import type {
+  BookGetter,
+  CompletionChecker,
+  EstimateRow,
+  EstimateSnapshot,
+  EstimateState,
+} from "../../types/types.js";
 
 /**
  * Builds estimate snapshot for target row using current progress and plan.
@@ -34,7 +45,10 @@ export function estimateSnapshotForRow(
     bookId,
     isSessionCompleted,
   );
-  const startWords = Math.min(fullWords, currentWordsRead + plannedWords.before);
+  const startWords = Math.min(
+    fullWords,
+    currentWordsRead + plannedWords.before,
+  );
   const endWords = Math.min(fullWords, currentWordsRead + plannedWords.through);
   const startPercent = percentFromWords(startWords, fullWords);
   const endPercent = percentFromWords(endWords, fullWords);

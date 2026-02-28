@@ -4,7 +4,11 @@ import { createPlanController } from "../plan_controller.js";
 import { bindSettingsAutoPlanListeners } from "../runtime_helpers.js";
 
 import { bindTodayFocusActions } from "../today/index.js";
-import type { BindTodayActionsArgs, CreatePlanControllerArgs, FinalizeInitialLoadArgs } from "../../../types/types_app.js";
+import type {
+  BindTodayActionsArgs,
+  CreatePlanControllerArgs,
+  FinalizeInitialLoadArgs,
+} from "../../../types/types.js";
 
 /**
  * Wires the skip-link element to focus the main content region.

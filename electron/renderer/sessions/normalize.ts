@@ -1,6 +1,6 @@
 import { uid } from "../dom.js";
 import { toInt } from "./utils.js";
-import type { Session, SessionInput } from "../../types/types_core.js";
+import type { Session, SessionInput } from "../../types/types.js";
 
 const SOURCE_TIMER: Session["source"] = "timer";
 const SOURCE_MANUAL: Session["source"] = "manual";

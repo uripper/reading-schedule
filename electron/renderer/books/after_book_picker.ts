@@ -13,7 +13,7 @@ import type {
   BookFormRefs,
   GetBooks,
   PickerState,
-} from "../../types/types_books.js";
+} from "../../types/types.js";
 
 /**
  * Creates the "blocked by" picker controller used in the book dialog.

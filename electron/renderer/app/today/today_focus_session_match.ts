@@ -1,5 +1,8 @@
-import type { PlannerResult, PlannerScheduleRow } from "../../../types/types.js";
-import type { FocusSession } from "../../../types/types_app.js";
+import type {
+  PlannerResult,
+  PlannerScheduleRow,
+  FocusSession,
+} from "../../../types/types.js";
 
 const MINUTES_MIN = 1;
 

@@ -8,7 +8,7 @@ import type {
   BindBookLookupOptions,
   LookupBinding,
   LookupSearchState,
-} from "../../types/types_lookup.js";
+} from "../../types/types.js";
 
 /**
  * Binds all lookup search interactions (input, keyboard, mouse, outside click).

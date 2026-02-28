@@ -1,5 +1,5 @@
 import { navigateToEstimatedFinishDate } from "./estimated_finish_navigation.js";
-import type { CardNavigationActions } from "../../types/types_books.js";
+import type { CardNavigationActions } from "../../types/types.js";
 
 const ESTIMATED_FINISH_BUTTON_CLASS = "book-estimated-finish-btn";
 const AFTER_LINK_BUTTON_CLASS = "book-after-link-btn";

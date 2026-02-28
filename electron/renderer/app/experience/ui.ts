@@ -1,5 +1,5 @@
 import { el } from "../../dom.js";
-import type { FeatureFlags, Preferences } from "../../../types/types_experience.js";
+import type { FeatureFlags, Preferences } from "../../../types/types.js";
 import {
   DEFAULT_PREFERENCES,
   isSupportedTheme,

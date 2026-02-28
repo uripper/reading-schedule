@@ -1,8 +1,11 @@
-
-
-import type { LoadedPlannerState, PlannerApi } from "../../types/types.js";
-import type { InitialDataSource, LoadStateArgs } from "../../types/types_app.js";
-import type { FeatureFlags, Preferences } from "../../types/types_experience.js";
+import type {
+  LoadedPlannerState,
+  PlannerApi,
+  InitialDataSource,
+  LoadStateArgs,
+  FeatureFlags,
+  Preferences,
+} from "../../types/types.js";
 
 /**
  * Normalizes persisted blocked day-book map values to strict booleans.
@@ -76,10 +79,9 @@ function applyLoadedData(
   );
   args.setBlockedDayBooks(
     normalizeBlockedDayBooks(
-      saved?.blocked_day_books as Record<
-        string,
-        string | number | boolean | null | undefined
-      > | undefined,
+      saved?.blocked_day_books as
+        | Record<string, string | number | boolean | null | undefined>
+        | undefined,
     ),
   );
 }

@@ -1,11 +1,10 @@
-import type { BookLookupItem } from "../../types/types.js";
-
-import type { Book } from "../../types/types_books.js";
 import { buildRecommendations, deriveReadAuthors } from "./model.js";
 import type {
+  Book,
+  BookLookupItem,
   RecommendationItem,
   RecommendationSearchApi,
-} from "../../types/types_experience.js";
+} from "../../types/types.js";
 
 const MAX_AUTHORS = 8;
 const MAX_PER_AUTHOR = 3;

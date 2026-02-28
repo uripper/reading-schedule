@@ -8,7 +8,7 @@ import {
   BOOK_STATUS_TO_READ,
 } from "./status_catalog.js";
 import { clamp, toOptionalInt } from "./utils.js";
-import type { BookStatus, BookFormRefs } from "../../types/types_books.js";
+import type { BookStatus, BookFormRefs } from "../../types/types.js";
 
 export const DEFAULT_PROGRESS = "0";
 export const DEFAULT_PRIORITY = "3";

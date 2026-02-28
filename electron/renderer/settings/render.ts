@@ -1,5 +1,5 @@
 import { el } from "../dom.js";
-import type { FieldDefinition } from "../../types/types_experience.js";
+import type { FieldDefinition } from "../../types/types.js";
 import { DIFFICULTY_LEVEL_COUNT, weekdays } from "./config.js";
 
 /**

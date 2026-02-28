@@ -1,5 +1,5 @@
 import { optionLabel } from "./after_book_picker_helpers.js";
-import type { Book, BookFormRefs, PickerState } from "../../types/types_books.js";
+import type { Book, BookFormRefs, PickerState } from "../../types/types.js";
 import { setUnknownSelectionLabel } from "./after_book_picker_render.js";
 
 /**

@@ -1,10 +1,17 @@
 import { bookCoverSrc } from "../../books/model.js";
 import { titleSortKey } from "../../books/title_key.js";
-import type { Book } from "../../../types/types_books.js";
-import { sessionKeyFor, sortRowsByDateAndSession } from "../../calendar/utils.js";
+import {
+  sessionKeyFor,
+  sortRowsByDateAndSession,
+} from "../../calendar/utils.js";
 import { todayKey } from "../../sessions/utils.js";
-import type { PlannerResult, PlannerScheduleRow } from "../../../types/types.js";
-import type { TodayBookSummary, TodayScheduleSnapshot } from "../../../types/types_app.js";
+import type {
+  Book,
+  PlannerResult,
+  PlannerScheduleRow,
+  TodayBookSummary,
+  TodayScheduleSnapshot,
+} from "../../../types/types.js";
 
 const ZERO_COUNT = 0;
 const DEFAULT_TITLE = "Untitled";

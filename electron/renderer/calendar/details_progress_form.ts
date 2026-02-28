@@ -1,8 +1,8 @@
-import type { Book } from "../../types/types_books.js";
 import type {
+  Book,
   CalendarRowWithFinish,
   DetailInteractionHandlers,
-} from "../../types/types_calendar.js";
+} from "../../types/types.js";
 import {
   setInputValueFromBookProgress,
   submitProgressUpdate,

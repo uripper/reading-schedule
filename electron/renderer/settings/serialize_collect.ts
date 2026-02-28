@@ -1,7 +1,11 @@
-import type { PlannerSettings } from "../../types/types.js";
-import type { FieldDefinition } from "../../types/types_experience.js";
+import type { PlannerSettings, FieldDefinition } from "../../types/types.js";
 import { DEFAULT_DIFFICULTY_MULTIPLIER, weekdays } from "./config.js";
-import { allFieldDefinitions, inputEl, numberLevels, selectEl } from "./field_io.js";
+import {
+  allFieldDefinitions,
+  inputEl,
+  numberLevels,
+  selectEl,
+} from "./field_io.js";
 
 /**
  * Reads raw string value for a settings field from the DOM.
@@ -46,7 +50,10 @@ export function collectSettingsForm(dayOffs: string[]): PlannerSettings {
     output.minutes_per_day = Number(minutesPerDayRaw);
   }
   output.minutes_by_weekday = Object.fromEntries(
-    weekdays.map(([key]) => [key, Number(inputEl(`minutes_${key}`).value || 0)]),
+    weekdays.map(([key]) => [
+      key,
+      Number(inputEl(`minutes_${key}`).value || 0),
+    ]),
   );
   output.days_off = [...dayOffs];
   output.difficulty_multiplier = Object.fromEntries(

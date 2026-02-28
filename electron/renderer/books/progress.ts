@@ -5,7 +5,7 @@ import type {
   PagesUpdateResult,
   PercentUpdateContext,
   ProgressTotals,
-} from "../../types/types_books.js";
+} from "../../types/types.js";
 
 /**
  * Parses numeric-like input and rejects blank/non-finite values.

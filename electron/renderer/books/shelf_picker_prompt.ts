@@ -1,4 +1,4 @@
-import type { BookFormRefs } from "../../types/types_books.js";
+import type { BookFormRefs } from "../../types/types.js";
 
 const DIALOG_CONFIRM_VALUE = "confirm";
 

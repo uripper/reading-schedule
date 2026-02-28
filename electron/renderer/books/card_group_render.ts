@@ -2,7 +2,7 @@ import type {
   Book,
   BookGroup,
   CardRenderContext,
-} from "../../types/types_books.js";
+} from "../../types/types.js";
 import { createCardNode } from "./card_nodes.js";
 
 /**

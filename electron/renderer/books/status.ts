@@ -2,7 +2,7 @@ import type {
   Book,
   BookStatus,
   BookStatusFilter,
-} from "../../types/types_books.js";
+} from "../../types/types.js";
 import {
   BOOK_STATUS_DROPPED,
   BOOK_STATUS_FILTER_ALL,

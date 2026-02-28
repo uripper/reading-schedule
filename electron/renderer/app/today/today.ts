@@ -1,15 +1,19 @@
+import {
+  dayMinutesForKey,
+  dayMinutesFromActivity,
+  streakFromDayMinutes,
+} from "../../activity/day_minutes.js";
 import { el } from "../../dom.js";
-import { dayMinutesForKey, dayMinutesFromActivity, streakFromDayMinutes } from "../../activity/day_minutes.js";
-
+import { todayKey } from "../../sessions/utils.js";
 import { renderTodayScheduledBooks } from "./today_books_view.js";
 import { buildTodayScheduleSnapshot } from "./today_schedule.js";
-import type { PlannerResult, PlannerScheduleRow } from "../../../types/types.js";
 
-import { todayKey } from "../../sessions/utils.js";
 import type {
+  PlannerResult,
+  PlannerScheduleRow,
   TodayScheduleSnapshot,
   UpdateTodayDashboardArgs,
-} from "../../../types/types_app.js";
+} from "../../../types/types.js";
 
 const MIN_GOAL_MINUTES = 1;
 const MAX_PERCENT = 100;
@@ -101,7 +105,10 @@ export function goalProgressPercent(
     MIN_GOAL_MINUTES,
     Number(goalMinutesRaw || MIN_GOAL_MINUTES),
   );
-  const todayMinutes = Math.max(MIN_PERCENT, Number(todayMinutesRaw || MIN_PERCENT));
+  const todayMinutes = Math.max(
+    MIN_PERCENT,
+    Number(todayMinutesRaw || MIN_PERCENT),
+  );
   const rawPercent = Math.round((todayMinutes / goalMinutes) * MAX_PERCENT);
   const bounded = Math.min(MAX_PERCENT, rawPercent);
   return Math.max(MIN_PERCENT, bounded);

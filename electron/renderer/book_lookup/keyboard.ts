@@ -1,5 +1,9 @@
-import type { BookLookupItem } from "../../types/types.js";
-import type { HandleLookupKeydownArgs, SelectItem, SetActiveIndex } from "../../types/types_lookup.js";
+import type {
+  BookLookupItem,
+  HandleLookupKeydownArgs,
+  SelectItem,
+  SetActiveIndex,
+} from "../../types/types.js";
 
 /**
  * Moves highlight to the next search result when ArrowDown is pressed.
@@ -94,12 +98,7 @@ function handleEscape(
  * @param args.searchInput Lookup search input element.
  */
 export function handleLookupKeydown(args: HandleLookupKeydownArgs): void {
-  const {
-    event,
-    currentItems,
-    activeIndex,
-    searchInput,
-  } = args;
+  const { event, currentItems, activeIndex, searchInput } = args;
   const setActiveIndex = (index: number): void => {
     args.setActiveIndex(index);
   };

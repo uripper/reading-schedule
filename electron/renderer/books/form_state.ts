@@ -1,6 +1,5 @@
-import { uid } from "../dom.js";
 import { noteFromLookup, syncProgressAndPages } from "../book_lookup.js";
-import { bookCoverSrc, normalizeBook } from "./model.js";
+import { uid } from "../dom.js";
 import {
   fillScheduledDayControls,
   readScheduledDaySelection,
@@ -23,11 +22,17 @@ import {
   validatedShelfSelection,
   validatedStatusSelection,
 } from "./form_state_helpers.js";
+import { bookCoverSrc, normalizeBook } from "./model.js";
 import { BOOK_STATUS_READ } from "./status_catalog.js";
 import { toOptionalInt } from "./utils.js";
-import type { BookLookupItem } from "../../types/types.js";
-import type { LookupControl, BookFormRefs, Book } from "../../types/types_books.js";
-import type { ProgressSyncInputs } from "../../types/types_lookup.js";
+
+import type {
+  BookLookupItem,
+  LookupControl,
+  BookFormRefs,
+  Book,
+  ProgressSyncInputs,
+} from "../../types/types.js";
 
 /**
  * Applies a positive lookup estimate to an input only when current value is missing.

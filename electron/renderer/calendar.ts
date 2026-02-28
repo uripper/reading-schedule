@@ -1,26 +1,18 @@
-import type { PlannerScheduleRow } from "../types/types.js";
-import { renderCalendarDetails } from "./calendar/details.js";
+import { renderCalendarDetails } from './calendar/details.js';
 import {
-  buildCompletedBookRowsByDate,
-  finishedBooksSummaryText,
-} from "./calendar/finished_books.js";
+    buildCompletedBookRowsByDate, finishedBooksSummaryText
+} from './calendar/finished_books.js';
+import { refreshDerivedRows, renderControls, renderMonth } from './calendar/render_runtime.js';
 import {
-  applyTodayFocus,
-  indexForMonth,
-  monthKeyForDateKey,
-  moveSelectionBy,
-  selectDate,
-} from "./calendar/selection.js";
-import {
-  createCalendarRuntimeState,
-  mergeCalendarHandlers,
-} from "./calendar/state_runtime.js";
-import {
-  refreshDerivedRows,
-  renderControls,
-  renderMonth,
-} from "./calendar/render_runtime.js";
-import type { CalendarHandlers, CompletedBookRow } from "../types/types_calendar.js";
+    applyTodayFocus, indexForMonth, monthKeyForDateKey, moveSelectionBy, selectDate
+} from './calendar/selection.js';
+import { createCalendarRuntimeState, mergeCalendarHandlers } from './calendar/state_runtime.js';
+
+import type {
+  PlannerScheduleRow,
+  CalendarHandlers,
+  CompletedBookRow,
+} from "../types/types.js";
 
 const state = createCalendarRuntimeState();
 let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});

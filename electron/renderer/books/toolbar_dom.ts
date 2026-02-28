@@ -1,5 +1,5 @@
 import { GROUP_OPTIONS_BASE, SORT_OPTIONS } from "./toolbar_options.js";
-import type { OptionDefinition } from "../../types/types_books.js";
+import type { OptionDefinition } from "../../types/types.js";
 
 /**
  * Creates a standard `<option>` element.

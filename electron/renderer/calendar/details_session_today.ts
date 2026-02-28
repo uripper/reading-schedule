@@ -2,7 +2,7 @@ import type {
   CalendarRowWithFinish,
   CalendarStateSubset,
   DetailInteractionHandlers,
-} from "../../types/types_calendar.js";
+} from "../../types/types.js";
 import { fallbackBookForRow } from "./details_fallback_book.js";
 import { minutesFormForSession } from "./details_minutes_form.js";
 import { progressFormForToday } from "./details_progress_form.js";

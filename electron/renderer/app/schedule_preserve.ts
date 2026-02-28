@@ -1,6 +1,5 @@
 import { dayKeyFromDate, localDayKeyFromIso } from "./date_keys.js";
-import type { PlannerScheduleRow } from "../../types/types.js";
-import type { Session } from "../../types/types_core.js";
+import type { PlannerScheduleRow, Session } from "../../types/types.js";
 
 const SESSION_INDEX_PAD = 3;
 
