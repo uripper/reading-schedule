@@ -46,7 +46,7 @@ const createSharedScheduleBindings = (
   ): void => {
     args.setLastResult(result);
   };
-  const setStatus = (message: string, isError?: boolean): void => {
+  const setStatus = (message: string, isError = false): void => {
     args.setStatus(message, isError);
   };
   const totalsFromSummary = (
