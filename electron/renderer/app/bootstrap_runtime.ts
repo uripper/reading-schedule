@@ -38,6 +38,21 @@ function plannerApiFromGlobal(): PlannerApi {
 }
 
 /**
+ * Creates an announcer wrapper for plan controller with configurable politeness.
+ */
+function createPlanControllerAnnouncer(
+    announce: typeof createAnnouncer,
+): (message: string, politeness?: string) => void {
+    return (message: string, politeness?: string): void => {
+        if (politeness === "polite" || politeness === "assertive") {
+            announce(message, politeness);
+            return;
+        }
+        announce(message);
+    };
+}
+
+/**
  * Creates and initializes the application bootstrap context, which includes state management, API access,
  * and utility functions for the application. This context is used throughout the application to manage state,
  * interact with the Planner API, and perform various actions related to the application's functionality.
@@ -47,24 +62,16 @@ export function createAppBootstrapContext(): AppBootstrapContext {
     const STATE = createRuntimeState();
     const PLANNER_API = plannerApiFromGlobal();
     const ANNOUNCE = createAnnouncer();
-    const ANNOUNCE_FOR_PLAN_CONTROLLER = (
-        message: string,
-        politeness?: string,
-    ): void => {
-        if (politeness === "polite" || politeness === "assertive") {
-            ANNOUNCE(message, politeness);
-            return;
-        }
-        ANNOUNCE(message);
-    };
+    const ANNOUNCE_FOR_PLAN_CONTROLLER =
+        createPlanControllerAnnouncer(ANNOUNCE);
     const SET_STATUS = createStatusSetter(el("status"), addLog);
     const PERSIST_QUEUE = createPersistQueue({
         addLog,
+        collectBooks: collectAllBooks,
         collectSettings,
+        getSessions: () => STATE.sessions,
         plannerApi: PLANNER_API,
         state: STATE,
-        collectBooks: collectAllBooks,
-        getSessions: () => STATE.sessions,
     });
     const QUEUE_PERSIST = (): void => {
         PERSIST_QUEUE.queuePersist();
@@ -79,10 +86,10 @@ export function createAppBootstrapContext(): AppBootstrapContext {
         collectPreferencesFromUI,
         normalizeFeatureFlags,
         normalizePreferences,
+        queuePersist: QUEUE_PERSIST,
         state: STATE,
         updateStatsView,
         updateTodayDashboard,
-        queuePersist: QUEUE_PERSIST,
     });
     const RUNTIME = createInitRuntime({
         focusCalendarToday,

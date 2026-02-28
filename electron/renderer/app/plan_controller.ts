@@ -25,6 +25,34 @@ const DEFAULT_LAST_RESULT: PlannerResult = {
  * @param root0 Auto-plan dependencies and mutable in-flight/pending state.
  * @returns Async auto-plan function.
  */
+interface ExecuteAutoPlanArgs {
+    addLog: (...args: unknown[]) => void;
+    announce: (msg: string, politeness?: AnnouncePoliteness) => void;
+    collectBooks: () => Book[];
+    collectSettings: () => AppSettings;
+    onSuccess: (data: PlannerRunData) => Promise<void>;
+    plannerApi: PlannerAPI;
+    setStatus: (msg: string, isError?: boolean) => void;
+}
+
+/**
+ * Executes a single auto-plan generation and applies the result.
+ */
+async function executeAutoPlan(args: ExecuteAutoPlanArgs): Promise<void> {
+    await runPlanGeneration({
+        addLog: args.addLog,
+        announce: args.announce,
+        collectBooks: args.collectBooks,
+        collectSettings: args.collectSettings,
+        onSuccess: args.onSuccess,
+        plannerApi: args.plannerApi,
+        setStatus: args.setStatus,
+        statusGeneratingMessage: "Updating plan...",
+        statusSuccessMessage: "Plan updated.",
+        successAnnouncement: "",
+    });
+}
+
 function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
     const {
         plannerApi,
@@ -54,7 +82,7 @@ function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
         }
         state.autoRunInFlight = true;
         try {
-            await runPlanGeneration({
+            await executeAutoPlan({
                 addLog,
                 announce,
                 collectBooks,
@@ -78,9 +106,6 @@ function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
                 },
                 plannerApi,
                 setStatus,
-                statusGeneratingMessage: "Updating plan...",
-                statusSuccessMessage: "Plan updated.",
-                successAnnouncement: "",
             });
         } finally {
             state.autoRunInFlight = false;

@@ -71,6 +71,90 @@ function applyNextResult(
  * @param root0.minutes Requested session minutes before normalization.
  * @returns `true` when a session is added; otherwise `false` after setting an error status.
  */
+/**
+ * Validates date and book for manual session addition.
+ */
+function validateManualSessionInput(
+    date: string,
+    bookId: string,
+    getBookById: (id: string) => Book | null,
+    setStatus: (msg: string, isError: boolean) => void,
+): { normalizedDate: string; book: Book } | null {
+    const NORMALIZED_DATE = String(date).trim();
+    if (!NORMALIZED_DATE) {
+        setStatus("Choose a calendar day before adding a session.", true);
+        return null;
+    }
+    const BOOK = getBookById(bookId);
+    if (!BOOK) {
+        setStatus("Could not find that book.", true);
+        return null;
+    }
+    return { book: BOOK, normalizedDate: NORMALIZED_DATE };
+}
+
+interface BuildRowArgs {
+    book: Book;
+    collectSettings: () => AppSettings;
+    minutes: number;
+    normalizedDate: string;
+    previousRowsAndResult: {
+        rows: PlannerScheduleRow[];
+        result: PlannerResult;
+    };
+}
+
+/**
+ * Creates a schedule row for manual session addition and plans words.
+ */
+function buildManualSessionRowAndResult(args: BuildRowArgs): {
+    row: PlannerScheduleRow;
+    result: PlannerResult;
+} {
+    const SESSION_INDEX = nextSessionIndexForDate(
+        args.normalizedDate,
+        args.previousRowsAndResult.rows,
+    );
+    const NORMALIZED_MINUTES = normalizedManualMinutes(args.minutes);
+    const WORDS_PLANNED = wordsPlannedForManualSession({
+        bookId: args.book.book_id,
+        difficulty: Number(args.book.difficulty),
+        minutes: NORMALIZED_MINUTES,
+        rows: args.previousRowsAndResult.rows,
+        settings: args.collectSettings(),
+    });
+    const ADDED_ROW: PlannerScheduleRow = {
+        book_id: args.book.book_id,
+        date: args.normalizedDate,
+        minutes: NORMALIZED_MINUTES,
+        session_index: SESSION_INDEX,
+        title: args.book.title,
+        words_planned: WORDS_PLANNED,
+    };
+    const NEXT_RESULT = nextResultWithRows(args.previousRowsAndResult.result, [
+        ...args.previousRowsAndResult.rows,
+        ADDED_ROW,
+    ]);
+    return { result: NEXT_RESULT, row: ADDED_ROW };
+}
+
+/**
+ * Marks manual session as completed in schedule.
+ */
+function markSessionCompleted(
+    row: PlannerScheduleRow,
+    scheduleCompletions: Record<string, boolean>,
+    applyStateMutation: (mutation: AppStateMutation) => void,
+): void {
+    const NEXT_COMPLETIONS = { ...scheduleCompletions };
+    NEXT_COMPLETIONS[sessionKeyFor(row)] = true;
+    NEXT_COMPLETIONS[dayBookCompletionKey(row.date, row.book_id)] = true;
+    applyStateMutation({
+        scheduleCompletions: NEXT_COMPLETIONS,
+        type: "set_schedule_completions",
+    });
+}
+
 export function addManualSessionRow({
     bookId,
     collectSettings,
@@ -81,42 +165,28 @@ export function addManualSessionRow({
     ...args
 }: AddManualSessionArgs): boolean {
     const RUNTIME_STATE = args.state;
-    const NORMALIZED_DATE = String(date).trim();
-    if (!NORMALIZED_DATE) {
-        args.setStatus("Choose a calendar day before adding a session.", true);
-        return false;
-    }
-    const BOOK = getBookById(bookId);
-    if (!BOOK) {
-        args.setStatus("Could not find that book.", true);
+    const VALIDATED = validateManualSessionInput(
+        date,
+        bookId,
+        getBookById,
+        args.setStatus,
+    );
+    if (!VALIDATED) {
         return false;
     }
     const PREVIOUS_RESULT = RUNTIME_STATE.lastResult ?? emptyPlannerResult();
     const PREVIOUS_ROWS = PREVIOUS_RESULT.schedule;
-    const SESSION_INDEX = nextSessionIndexForDate(
-        NORMALIZED_DATE,
-        PREVIOUS_ROWS,
-    );
-    const NORMALIZED_MINUTES = normalizedManualMinutes(minutes);
-    const WORDS_PLANNED = wordsPlannedForManualSession({
-        bookId: BOOK.book_id,
-        difficulty: Number(BOOK.difficulty),
-        minutes: NORMALIZED_MINUTES,
-        rows: PREVIOUS_ROWS,
-        settings: collectSettings(),
-    });
-    const ADDED_ROW: PlannerScheduleRow = {
-        book_id: BOOK.book_id,
-        date: NORMALIZED_DATE,
-        minutes: NORMALIZED_MINUTES,
-        session_index: SESSION_INDEX,
-        title: BOOK.title,
-        words_planned: WORDS_PLANNED,
-    };
-    const NEXT_RESULT = nextResultWithRows(PREVIOUS_RESULT, [
-        ...PREVIOUS_ROWS,
-        ADDED_ROW,
-    ]);
+    const { row: ADDED_ROW, result: NEXT_RESULT } =
+        buildManualSessionRowAndResult({
+            book: VALIDATED.book,
+            collectSettings,
+            minutes,
+            normalizedDate: VALIDATED.normalizedDate,
+            previousRowsAndResult: {
+                result: PREVIOUS_RESULT,
+                rows: PREVIOUS_ROWS,
+            },
+        });
     applyNextResult(args, NEXT_RESULT);
     args.applyStateMutation({
         blocked: false,
@@ -124,22 +194,16 @@ export function addManualSessionRow({
         type: "set_blocked_day_book",
     });
     if (completed) {
-        const NEXT_COMPLETIONS = {
-            ...RUNTIME_STATE.scheduleCompletions,
-        };
-        NEXT_COMPLETIONS[sessionKeyFor(ADDED_ROW)] = true;
-        NEXT_COMPLETIONS[
-            dayBookCompletionKey(ADDED_ROW.date, ADDED_ROW.book_id)
-        ] = true;
-        args.applyStateMutation({
-            scheduleCompletions: NEXT_COMPLETIONS,
-            type: "set_schedule_completions",
-        });
+        markSessionCompleted(
+            ADDED_ROW,
+            RUNTIME_STATE.scheduleCompletions,
+            args.applyStateMutation,
+        );
     }
     args.queuePersist();
     args.onScheduleRowsUpdated();
     args.setStatus(
-        `Added ${NORMALIZED_MINUTES} minute session for "${ADDED_ROW.title}" on ${NORMALIZED_DATE}.`,
+        `Added ${ADDED_ROW.minutes} minute session for "${ADDED_ROW.title}" on ${VALIDATED.normalizedDate}.`,
     );
     return true;
 }

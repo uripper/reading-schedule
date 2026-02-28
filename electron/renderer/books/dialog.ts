@@ -100,6 +100,56 @@ function openBookDialog(args: OpenBookDialogArgs): void {
  * @param options.getBooks Returns current books for shelf and related UI helpers.
  * @returns Dialog API exposing the `open` function.
  */
+/**
+ * Binds form submission handler for book dialog.
+ */
+function bindBookDialogSubmit(
+    form: HTMLFormElement,
+    refs: BookFormRefs,
+    onSubmit: (payload: BookSubmitPayload) => Promise<void> | void,
+    onComplete: () => void,
+): void {
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        setSavingState(refs, true);
+        const PAYLOAD = {
+            applyScheduledDaysToShelf:
+                refs.applyScheduledDaysToShelfInput.checked,
+            book: parseFormBook(refs),
+        };
+        Promise.resolve(onSubmit(PAYLOAD))
+            .then(() => {
+                onComplete();
+            })
+            .catch((error: unknown) => {
+                refs.lookupMeta.textContent = saveErrorMessage(error);
+                if (!focusFirstError(refs.form)) {
+                    refs.titleInput.focus();
+                }
+            })
+            .finally(() => {
+                setSavingState(refs, false);
+            });
+    });
+}
+
+/**
+ * Binds close button handlers for book dialog.
+ */
+function bindBookDialogCloseHandlers(
+    dialog: HTMLDialogElement,
+    cancelBtn: HTMLButtonElement,
+    onClose: () => void,
+): void {
+    cancelBtn.onclick = (): void => {
+        onClose();
+    };
+    dialog.addEventListener("cancel", (event) => {
+        event.preventDefault();
+        onClose();
+    });
+}
+
 export function createBookDialog(
     onSubmit: (payload: BookSubmitPayload) => Promise<void> | void,
     options: BookDialogOptions = {},
@@ -139,37 +189,8 @@ export function createBookDialog(
         });
     };
 
-    REFS.form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        setSavingState(REFS, true);
-        const PAYLOAD = {
-            applyScheduledDaysToShelf:
-                REFS.applyScheduledDaysToShelfInput.checked,
-            book: parseFormBook(REFS),
-        };
-        Promise.resolve(onSubmit(PAYLOAD))
-            .then(() => {
-                CLOSE();
-            })
-            .catch((error: unknown) => {
-                REFS.lookupMeta.textContent = saveErrorMessage(error);
-                if (!focusFirstError(REFS.form)) {
-                    REFS.titleInput.focus();
-                }
-            })
-            .finally(() => {
-                setSavingState(REFS, false);
-            });
-    });
-
-    REFS.cancelBtn.onclick = (): void => {
-        CLOSE();
-    };
-    REFS.dialog.addEventListener("cancel", (event) => {
-        event.preventDefault();
-        CLOSE();
-    });
-
+    bindBookDialogSubmit(REFS.form, REFS, onSubmit, CLOSE);
+    bindBookDialogCloseHandlers(REFS.dialog, REFS.cancelBtn, CLOSE);
     bindBookDialogProgressSync(REFS);
     return { open: OPEN };
 }

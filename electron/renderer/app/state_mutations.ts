@@ -15,10 +15,10 @@ import {
  * @param state Mutable runtime state container.
  * @param mutation Typed mutation payload.
  */
-export const applyAppStateMutation: ApplyAppStateMutation = (
+export function applyAppStateMutation(
     state: AppRuntimeState,
     mutation: AppStateMutation,
-): void => {
+): void {
     const MUTABLE_STATE = state;
     switch (mutation.type) {
         case "set_last_result": {
@@ -64,6 +64,7 @@ export const applyAppStateMutation: ApplyAppStateMutation = (
         }
         case "set_book_index": {
             MUTABLE_STATE.derived.bookById = bookByIdIndex(mutation.books);
+            return;
         }
     }
-};
+}

@@ -47,64 +47,63 @@ function settingBoolean(value: unknown, fallback: boolean): boolean {
  * @param args.findBook Lookup helper used before opening edit dialog.
  * @param args.rerender Callback to refresh the books view after state updates.
  */
-export function renderBooksController(args: RenderBooksControllerArgs): void {
-    const { viewState } = args;
-    const ON_ESTIMATED_FINISH_NAVIGATE = (dateKey: string): void => {
-        args.onEstimatedFinishNavigate(dateKey);
-    };
-    const RENDER_REFS = resolveRenderableRefs(args.refs);
-    if (!RENDER_REFS) {
-        return;
-    }
+/**
+ * Updates all filter and sort options based on current view state.
+ */
+function updateBooksViewFilters(
+    refs: RenderableBooksRefs,
+    books: Book[],
+    viewState: BooksViewState,
+): void {
+    viewState.shelfFilter = updateShelfFilterOptions(
+        refs.shelfFilterSelect,
+        books,
+        viewState.shelfFilter,
+    );
+    viewState.statusFilter = updateStatusFilterOptions(
+        refs.statusFilterSelect,
+        viewState.statusFilter,
+    );
+    viewState.groupBy = updateGroupByOptions(
+        refs.groupBySelect,
+        viewState.groupBy,
+        viewState.shelfFilter,
+    );
+    updateSortDirectionButton(refs.sortDirectionBtn, viewState.sortDirection);
+}
 
-    const NEXT_VIEW_STATE = viewState;
-    NEXT_VIEW_STATE.shelfFilter = updateShelfFilterOptions(
-        RENDER_REFS.shelfFilterSelect,
-        args.books,
-        NEXT_VIEW_STATE.shelfFilter,
-    );
-    NEXT_VIEW_STATE.statusFilter = updateStatusFilterOptions(
-        RENDER_REFS.statusFilterSelect,
-        NEXT_VIEW_STATE.statusFilter,
-    );
-    NEXT_VIEW_STATE.groupBy = updateGroupByOptions(
-        RENDER_REFS.groupBySelect,
-        NEXT_VIEW_STATE.groupBy,
-        NEXT_VIEW_STATE.shelfFilter,
-    );
-    updateSortDirectionButton(
-        RENDER_REFS.sortDirectionBtn,
-        NEXT_VIEW_STATE.sortDirection,
-    );
+/**
+ * Builds arguments for book grid rendering with handlers.
+ */
+interface RenderBookGridParams {
+    finishDateByBookId: Record<string, string>;
+    groups: BookGroup[];
+    showBlockerMeta: boolean;
+    showShelfMeta: boolean;
+    showWordCount: boolean;
+    visibleBooks: Book[];
+}
 
-    let {
-        groups,
-        visibleBooks,
-        finishDateByBookId,
-        showBlockerMeta,
-        showShelfMeta,
-        showWordCount,
-    } = generateBookViewSettings(NEXT_VIEW_STATE, args);
-    if (
-        NEXT_VIEW_STATE.sortBy === SORT_BY_ESTIMATED_FINISH &&
-        NEXT_VIEW_STATE.groupBy === GROUP_BY_NONE
-    ) {
-        groups = groupsForEstimatedFinish(visibleBooks);
-    }
-    renderBookGrid({
+function buildRenderBookGridArgs(
+    args: RenderBooksControllerArgs,
+    params: RenderBookGridParams,
+): RenderBookGridArgs {
+    return {
         allBooks: args.books,
-        books: visibleBooks,
-        empty: RENDER_REFS.empty,
-        finishDateByBookId,
-        grid: RENDER_REFS.grid,
-        groups,
+        books: params.visibleBooks,
+        empty: args.refs.empty,
+        finishDateByBookId: params.finishDateByBookId,
+        grid: args.refs.grid,
+        groups: params.groups,
         onEdit: (bookId) => {
             const BOOK = args.findBook(bookId);
             if (BOOK && args.dialog) {
                 args.dialog.open(BOOK);
             }
         },
-        onEstimatedFinishNavigate: ON_ESTIMATED_FINISH_NAVIGATE,
+        onEstimatedFinishNavigate: (dateKey) => {
+            args.onEstimatedFinishNavigate(dateKey);
+        },
         onRemove: (bookId) => {
             const NEXT_BOOKS = args.books.filter(
                 (book) => book.book_id !== bookId,
@@ -116,10 +115,44 @@ export function renderBooksController(args: RenderBooksControllerArgs): void {
             args.rerender();
             args.onBooksChanged();
         },
+        showBlockerMeta: params.showBlockerMeta,
+        showShelfMeta: params.showShelfMeta,
+        showWordCount: params.showWordCount,
+    };
+}
+
+export function renderBooksController(args: RenderBooksControllerArgs): void {
+    const { viewState } = args;
+    const RENDER_REFS = resolveRenderableRefs(args.refs);
+    if (!RENDER_REFS) {
+        return;
+    }
+
+    updateBooksViewFilters(RENDER_REFS, args.books, viewState);
+
+    let {
+        groups,
+        visibleBooks,
+        finishDateByBookId,
+        showBlockerMeta,
+        showShelfMeta,
+        showWordCount,
+    } = generateBookViewSettings(viewState, args);
+    if (
+        viewState.sortBy === SORT_BY_ESTIMATED_FINISH &&
+        viewState.groupBy === GROUP_BY_NONE
+    ) {
+        groups = groupsForEstimatedFinish(visibleBooks);
+    }
+    const GRID_ARGS = buildRenderBookGridArgs(args, {
+        visibleBooks,
+        finishDateByBookId,
+        groups,
         showBlockerMeta,
         showShelfMeta,
         showWordCount,
     });
+    renderBookGrid(GRID_ARGS);
 }
 
 /**
