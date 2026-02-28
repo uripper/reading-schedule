@@ -77,5 +77,5 @@ export interface RenderRecommendationsArgs {
 }
 
 export interface RecommendationSearchApi {
-  searchBooks(query: string): Promise<BookLookupItem[]>;
+  searchBooks(query: string, author?: boolean): Promise<BookLookupItem[]>;
 }

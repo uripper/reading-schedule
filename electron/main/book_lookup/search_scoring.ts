@@ -19,6 +19,7 @@ import {
   primaryAuthor,
   queryTokens,
 } from "./search_text.js";
+import { bestAuthorOnlyScore } from "./search_author_scoring.js";
 
 /**
  * Scores title relevance against the normalized query text.
@@ -92,16 +93,28 @@ function metadataScore(doc: SearchDoc): number {
  * Computes a deterministic relevance score for a search document.
  * @param doc Open Library search document.
  * @param query Raw user query text.
+ * @param authorOnly Whether this score is for author-only searching.
  * @returns Deterministic relevance score.
  */
-export function scoreDoc(doc: SearchDoc, query: string): number {
+export function scoreDoc(
+  doc: SearchDoc,
+  query: string,
+  authorOnly = false,
+): number {
   const queryNorm = normalizeSearchText(query);
   const titleNorm = normalizeSearchText(doc.title ?? "");
-  if (titleNorm.length === 0) {
+  if (!authorOnly && titleNorm.length === 0) {
     return 0;
   }
-  const authorNorm = normalizeSearchText(primaryAuthor(doc));
   const tokens = queryTokens(query);
+  if (authorOnly) {
+    const authorScore = bestAuthorOnlyScore(doc, queryNorm, tokens);
+    if (authorScore <= 0) {
+      return 0;
+    }
+    return authorScore + metadataScore(doc);
+  }
+  const authorNorm = normalizeSearchText(primaryAuthor(doc));
   return (
     baseTitleScore(titleNorm, queryNorm) +
     tokenScore(titleNorm, authorNorm, tokens) +

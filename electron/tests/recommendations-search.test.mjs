@@ -36,8 +36,8 @@ function book(overrides = {}) {
 test("findRecommendations queries read authors and filters existing titles", async () => {
   const calls = [];
   const api = {
-    searchBooks(query) {
-      calls.push(query);
+    searchBooks(query, authorOnly) {
+      calls.push({ query, authorOnly });
       return Promise.resolve([
         {
           title: "Homage to Catalonia",
@@ -69,10 +69,43 @@ test("findRecommendations queries read authors and filters existing titles", asy
     api,
   );
 
-  assert.equal(calls[0], "George Orwell");
+  assert.equal(calls[0].query, "George Orwell");
+  assert.equal(calls[0].authorOnly, true);
   assert.equal(recommendations.some((item) => item.title === "Homage to Catalonia"), false);
   assert.equal(
     recommendations.some((item) => item.title === "Keep the Aspidistra Flying"),
     true,
   );
+});
+
+test("findRecommendations samples a random subset of up to five read authors", async () => {
+  const calls = [];
+  const api = {
+    searchBooks(query) {
+      calls.push(query);
+      return Promise.resolve([]);
+    },
+  };
+
+  await findRecommendations(
+    [
+      book({ title: "Book A", author: "Author A", status: "read" }),
+      book({ title: "Book B", author: "Author B", status: "read" }),
+      book({ title: "Book C", author: "Author C", status: "read" }),
+      book({ title: "Book D", author: "Author D", status: "read" }),
+      book({ title: "Book E", author: "Author E", status: "read" }),
+      book({ title: "Book F", author: "Author F", status: "read" }),
+    ],
+    api,
+    { randomFn: () => 0 },
+  );
+
+  assert.equal(calls.length, 5);
+  assert.deepEqual(calls, [
+    "Author B",
+    "Author C",
+    "Author D",
+    "Author E",
+    "Author F",
+  ]);
 });

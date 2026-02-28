@@ -13,10 +13,25 @@ function ts(): string {
 }
 
 /**
+ * Checks whether DOM APIs needed for log rendering are available.
+ * @returns True when a browser document is available.
+ */
+function canRenderLogs(): boolean {
+  return typeof document !== "undefined";
+}
+
+/**
  * Renders in-memory log lines into help dialog output panel.
  */
 function renderLogs(): void {
-  el("logOutput").textContent = logs.join("\n") || "No logs yet.";
+  if (!canRenderLogs()) {
+    return;
+  }
+  const logOutput = document.getElementById("logOutput");
+  if (!(logOutput instanceof HTMLElement)) {
+    return;
+  }
+  logOutput.textContent = logs.join("\n") || "No logs yet.";
 }
 
 /**

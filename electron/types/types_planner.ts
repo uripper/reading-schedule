@@ -119,7 +119,7 @@ export interface PlannerApi {
   generate(
     payload: PlanGeneratePayload,
   ): Promise<Pick<PlannerResult, "schedule" | "summary">>;
-  searchBooks(query: string): Promise<BookLookupItem[]>;
+  searchBooks(query: string, author?: boolean): Promise<BookLookupItem[]>;
   downloadCover(
     url: string | undefined,
     bookId: string | undefined,
