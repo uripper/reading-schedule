@@ -65,10 +65,10 @@ export function renderCalendarDetails(
     firstMinutes = firstRow.minutes;
   }
   const manualAddPanel = buildManualSessionAddPanel({
-    dateKey: key,
     mode,
     interactionHandlers,
     rerenderDetails,
+    dateKey: key,
     defaultBookId: firstBookId,
     defaultMinutes: firstMinutes ?? undefined,
   });
@@ -87,9 +87,9 @@ export function renderCalendarDetails(
 
   rowsToRender.forEach((row) => {
     const node = rowNodeForMode({
+      state: calendarState,
       mode,
       row,
-      state: calendarState,
       interactionHandlers,
       rerenderDetails,
     });
