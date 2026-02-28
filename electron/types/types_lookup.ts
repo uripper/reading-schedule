@@ -1,5 +1,3 @@
-import type { NumericLike } from "./types_core.js";
-
 export interface BookLookupItem {
   title?: string;
   author?: string;
@@ -108,4 +106,3 @@ export interface SearchItem {
   year: number | "";
 }
 
-export type { NumericLike };

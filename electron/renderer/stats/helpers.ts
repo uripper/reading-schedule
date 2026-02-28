@@ -7,8 +7,7 @@ import {
 } from "../books/status_catalog.js";
 import { sessionKeyFor } from "../calendar/utils.js";
 import { todayKey } from "../sessions/utils.js";
-import type { Book, PlannerResult } from "../../types/types.js";
-import type { StatusBreakdown } from "../../types/types_stats.js";
+import type { Book, PlannerResult, StatusBreakdown } from "../../types/types.js";
 
 const MONTHS_PER_YEAR = 12;
 const PERCENT_MAX = 100;

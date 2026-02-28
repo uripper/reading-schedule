@@ -61,9 +61,7 @@ test("pruneScheduleCompletions keeps day-book fallback keys for rows that still 
     [sessionKeyFor(droppedRow)]: true,
     [`${droppedRow.date}|${droppedRow.book_id}`]: true,
   };
-
   const pruned = pruneScheduleCompletions(completions, [keptRow]);
-
   assert.deepEqual(pruned, {
     [sessionKeyFor(keptRow)]: true,
     [`${keptRow.date}|${keptRow.book_id}`]: true,
@@ -76,9 +74,7 @@ test("pruneScheduleCompletions removes stale day-book keys when matching row no 
     [`${keepRow.date}|${keepRow.book_id}`]: true,
     "2026-02-25|book-missing": true,
   };
-
   const pruned = pruneScheduleCompletions(completions, [keepRow]);
-
   assert.deepEqual(pruned, {
     [`${keepRow.date}|${keepRow.book_id}`]: true,
   });
@@ -87,21 +83,17 @@ test("pruneScheduleCompletions removes stale day-book keys when matching row no 
 test("mergeScheduleRows preserves locked-day rows even when book is no longer in future plan", () => {
   const today = dayKey(new Date());
   const tomorrow = plusDays(today, 1);
-
   const previousRows = [
     row({ date: today, session_index: 1, book_id: "book-complete" }),
     row({ date: today, session_index: 2, book_id: "book-active" }),
     row({ date: tomorrow, session_index: 1, book_id: "book-complete" }),
     row({ date: tomorrow, session_index: 2, book_id: "book-active" }),
   ];
-
   const nextRows = [
     row({ date: tomorrow, session_index: 1, book_id: "book-active" }),
   ];
-
   const merged = mergeScheduleRows(previousRows, nextRows, []);
   const bookIds = merged.map((entry) => entry.book_id);
-
   assert.ok(
     bookIds.includes("book-complete"),
     "locked-day rows should be preserved",
@@ -116,7 +108,6 @@ test("mergeScheduleRows keeps past-day rows for books still in new schedule", ()
   const today = dayKey(new Date());
   const yesterday = plusDays(today, -1);
   const tomorrow = plusDays(today, 1);
-
   const previousRows = [
     row({
       date: yesterday,
@@ -131,7 +122,6 @@ test("mergeScheduleRows keeps past-day rows for books still in new schedule", ()
       words_planned: 500,
     }),
   ];
-
   const nextRows = [
     row({
       date: tomorrow,
@@ -140,10 +130,8 @@ test("mergeScheduleRows keeps past-day rows for books still in new schedule", ()
       words_planned: 500,
     }),
   ];
-
   const merged = mergeScheduleRows(previousRows, nextRows, []);
   const yesterdayRows = merged.filter((entry) => entry.date === yesterday);
-
   assert.equal(yesterdayRows.length, 1);
   assert.equal(yesterdayRows[0].book_id, "book-1");
 });
@@ -151,7 +139,6 @@ test("mergeScheduleRows keeps past-day rows for books still in new schedule", ()
 test("mergeScheduleRows preserves today rows while still rebuilding tomorrow onward", () => {
   const today = dayKey(new Date());
   const tomorrow = plusDays(today, 1);
-
   const previousRows = [
     row({
       date: today,
@@ -166,7 +153,6 @@ test("mergeScheduleRows preserves today rows while still rebuilding tomorrow onw
       words_planned: 500,
     }),
   ];
-
   const nextRows = [
     row({
       date: tomorrow,
@@ -175,11 +161,9 @@ test("mergeScheduleRows preserves today rows while still rebuilding tomorrow onw
       words_planned: 700,
     }),
   ];
-
   const merged = mergeScheduleRows(previousRows, nextRows, []);
   const todayRows = merged.filter((entry) => entry.date === today);
   const tomorrowRows = merged.filter((entry) => entry.date === tomorrow);
-
   assert.equal(todayRows.length, 1);
   assert.equal(todayRows[0].words_planned, 500);
   assert.equal(tomorrowRows.length, 1);
@@ -192,9 +176,16 @@ test("mergeScheduleRows excludes day-book pairs that were manually blocked", () 
     row({ date: "2026-02-24", session_index: 1, book_id: "book-1" }),
     row({ date: "2026-02-24", session_index: 2, book_id: "book-2" }),
   ];
-
   const merged = mergeScheduleRows([], nextRows, [], { [blockedKey]: true });
-
   assert.equal(merged.length, 1);
   assert.equal(merged[0].book_id, "book-2");
+});
+
+test("mergeScheduleRows does not lock malformed day keys from previous rows", () => {
+  const previousRows = [
+    row({ date: "2026-2-4", session_index: 1, book_id: "book-1" }),
+    row({ date: "2026/02/04", session_index: 2, book_id: "book-2" }),
+  ];
+  const merged = mergeScheduleRows(previousRows, [], []);
+  assert.equal(merged.length, 0);
 });

@@ -4,7 +4,65 @@ import { createPlanController } from "../plan_controller.js";
 import { bindSettingsAutoPlanListeners } from "../runtime_helpers.js";
 
 import { bindTodayFocusActions } from "../today/index.js";
-import type { BindTodayActionsArgs, CreatePlanControllerArgs, FinalizeInitialLoadArgs } from "../../../types/types_app.js";
+import type {
+  BindTodayActionsArgs,
+  CreatePlanControllerArgs,
+  FinalizeInitialLoadArgs,
+} from "../../../types/types.js";
+
+/**
+ * Indicates whether startup should show generic "loaded" status text.
+ * @param args Finalize-initial-load arguments.
+ * @returns True when generic loaded status should be displayed.
+ */
+function shouldShowLoadedStatus(args: FinalizeInitialLoadArgs): boolean {
+  const { warningCode } = args.loadResult;
+  if (warningCode === "RECOVERED_FROM_BACKUP") {
+    return false;
+  }
+  if (warningCode === "RECOVERED_FROM_JOURNAL") {
+    return false;
+  }
+  if (warningCode === "STATE_RESET_FRESH") {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Returns true when loaded payload contains one or more persisted schedule rows.
+ * @param saved Loaded persisted payload from startup state load.
+ * @returns True when `last_result.schedule` exists and has rows.
+ */
+function hasSavedSchedule(saved: FinalizeInitialLoadArgs["saved"]): boolean {
+  const rows = saved?.last_result?.schedule;
+  if (!Array.isArray(rows)) {
+    return false;
+  }
+  if (rows.length < 1) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Determines whether startup should queue an immediate auto-plan run.
+ * @param saved Loaded persisted payload from startup state load.
+ * @param loadResult Structured load metadata including source/warnings.
+ * @returns True when startup should auto-plan; false when loaded plan should be preserved.
+ */
+export function shouldAutoPlanOnStartup(
+  saved: FinalizeInitialLoadArgs["saved"],
+  loadResult: FinalizeInitialLoadArgs["loadResult"],
+): boolean {
+  if (loadResult.source === "fresh") {
+    return true;
+  }
+  if (hasSavedSchedule(saved)) {
+    return false;
+  }
+  return true;
+}
 
 /**
  * Wires the skip-link element to focus the main content region.
@@ -54,12 +112,18 @@ export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
   const settingsPanel = el("tab-settings");
   bindSettingsAutoPlanListeners(settingsPanel, () => true, queueAutoPlan);
 
-  if (args.saved) {
-    args.setStatus("Loaded saved data.");
-  } else {
-    args.setStatus("Loaded sample data.");
+  if (shouldShowLoadedStatus(args)) {
+    if (args.saved) {
+      args.setStatus("Loaded saved data.");
+    } else {
+      args.setStatus("Loaded sample data.");
+    }
   }
-  queueAutoPlan();
+  if (shouldAutoPlanOnStartup(args.saved, args.loadResult)) {
+    queueAutoPlan();
+    return;
+  }
+  args.addLog?.("Skipped startup auto-plan to preserve loaded schedule.");
 }
 
 /**

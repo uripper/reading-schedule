@@ -84,13 +84,36 @@ export interface PlanGeneratePayload {
   settings: PlannerSettings;
 }
 
+export type PlannerStateLoadSource =
+  | "sqlite"
+  | "sqlite_journal_replay"
+  | "json_primary"
+  | "json_backup"
+  | "fresh";
+
+export type PlannerStateLoadWarningCode =
+  | "RECOVERED_FROM_BACKUP"
+  | "RECOVERED_FROM_JOURNAL"
+  | "STATE_RESET_FRESH"
+  | "MIGRATED_JSON_TO_SQLITE";
+
+export interface PlannerStateLoadResult {
+  state: LoadedPlannerState | null;
+  source: PlannerStateLoadSource;
+  sourcePath?: string;
+  warningCode?: PlannerStateLoadWarningCode;
+  warningMessage?: string;
+}
+
 export interface PlannerSaveResult {
   ok?: boolean;
   error?: string;
+  warningCode?: PlannerStateLoadWarningCode;
+  warningMessage?: string;
 }
 
 export interface PlannerApi {
-  loadState(): Promise<LoadedPlannerState | null | undefined>;
+  loadState(): Promise<PlannerStateLoadResult>;
   sample(): Promise<Pick<PlannerStateSnapshot, "settings" | "books">>;
   saveState(state: PlannerStateSnapshot): Promise<PlannerSaveResult>;
   generate(

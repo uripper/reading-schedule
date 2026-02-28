@@ -7,7 +7,7 @@ import type {
   ScheduleMutationHandlers,
   SharedScheduleBindings,
   AppCalendarInteractionArgs,
-} from "../../../types/types_app.js";
+} from "../../../types/types.js";
 
 const createSharedScheduleBindings = (
   args: AppCalendarInteractionArgs,
@@ -54,7 +54,13 @@ const createSharedScheduleBindings = (
   ): ReturnType<AppCalendarInteractionArgs["totalsFromSummary"]> => {
     return args.totalsFromSummary(summary);
   };
+  const applyStateMutation = (
+    mutation: Parameters<AppCalendarInteractionArgs["applyStateMutation"]>[0],
+  ): void => {
+    args.applyStateMutation(mutation);
+  };
   return {
+    applyStateMutation,
     collectSettings,
     getBookById,
     onScheduleRowsUpdated,
@@ -82,6 +88,7 @@ export const buildScheduleMutationHandlers = (
         collectSettings: bindings.collectSettings,
         getBookById: bindings.getBookById,
         onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
+        applyStateMutation: bindings.applyStateMutation,
         queuePersist: bindings.queuePersist,
         renderCalendar: bindings.renderCalendar,
         setBookScheduleRows: bindings.setBookScheduleRows,
@@ -98,6 +105,7 @@ export const buildScheduleMutationHandlers = (
         collectSettings: bindings.collectSettings,
         getBookById: bindings.getBookById,
         onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
+        applyStateMutation: bindings.applyStateMutation,
         queuePersist: bindings.queuePersist,
         renderCalendar: bindings.renderCalendar,
         setBookScheduleRows: bindings.setBookScheduleRows,
@@ -111,6 +119,7 @@ export const buildScheduleMutationHandlers = (
       return removeSessionRow({
         row,
         onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
+        applyStateMutation: bindings.applyStateMutation,
         queuePersist: bindings.queuePersist,
         renderCalendar: bindings.renderCalendar,
         setBookScheduleRows: bindings.setBookScheduleRows,

@@ -6,8 +6,7 @@ import {
   statusLabel,
 } from "../books/status_catalog.js";
 import { el } from "../dom.js";
-import type { BookStatus } from "../../types/types_books.js";
-import type { StatsSnapshot } from "../../types/types_stats.js";
+import type { BookStatus, StatsSnapshot } from "../../types/types.js";
 
 const STATUS_ORDER: BookStatus[] = [
   BOOK_STATUS_TO_READ,

@@ -1,5 +1,5 @@
 import { el } from "../dom.js";
-import type { AnnouncePoliteness, DocumentPreferencesInput } from "../../types/types_app.js";
+import type { AnnouncePoliteness, DocumentPreferencesInput } from "../../types/types.js";
 
 const ANNOUNCE_DELAY_MS = 30;
 

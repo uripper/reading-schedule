@@ -1,6 +1,10 @@
 import type { WebContents } from "electron";
 
 import type { JsonValue } from "./types_core.js";
+import type {
+  PlannerSaveResult,
+  PlannerStateLoadResult,
+} from "./types_planner.js";
 
 export interface DownloadCoverPayload {
   bookId?: string;
@@ -12,7 +16,7 @@ export interface UploadCoverPayload {
   dataUrl?: string;
 }
 
-export type SaveResult = { ok: true } | { ok: false; error: string };
+export type SaveResult = PlannerSaveResult;
 
 export interface BridgeResponse {
   data?: JsonValue;
@@ -28,7 +32,7 @@ export interface RegisterIpcHandlersArgs {
     userDataDir: string | undefined,
   ): Promise<string>;
   initialZoomFactor(this: void): number;
-  readState(this: void, userDataDir: string): unknown;
+  readState(this: void, userDataDir: string): PlannerStateLoadResult;
   runBridge(this: void, args: string[], payload?: JsonValue): Promise<unknown>;
   saveUploadedCover(
     this: void,
@@ -40,5 +44,9 @@ export interface RegisterIpcHandlersArgs {
   setZoomFactor(this: void, webContents: WebContents, value: number): number;
   shiftZoomFactor(this: void, webContents: WebContents, delta: number): number;
   userData(this: void): string;
-  writeState(this: void, userDataDir: string, payload: JsonValue): SaveResult;
+  writeState(
+    this: void,
+    userDataDir: string,
+    payload: JsonValue,
+  ): PlannerSaveResult;
 }

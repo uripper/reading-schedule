@@ -16,13 +16,11 @@ import { pruneScheduleCompletions } from "../schedule_preserve.js";
 import type {
   PlannerResult,
   PlannerScheduleRow,
-} from "../../../types/types.js";
-import type {
   AddManualSessionArgs,
   RemoveSessionArgs,
   SharedUpdateArgs,
   UpdateSessionMinutesArgs,
-} from "../../../types/types_app.js";
+} from "../../../types/types.js";
 
 /**
  * Builds a new planner result from replacement schedule rows while preserving
@@ -118,14 +116,22 @@ export function addManualSessionRow({
     addedRow,
   ]);
   applyNextResult(args, nextResult);
-  delete runtimeState.blockedDayBooks[
-    dayBookCompletionKey(addedRow.date, addedRow.book_id)
-  ];
+  args.applyStateMutation({
+    type: "set_blocked_day_book",
+    key: dayBookCompletionKey(addedRow.date, addedRow.book_id),
+    blocked: false,
+  });
   if (completed) {
-    runtimeState.scheduleCompletions[sessionKeyFor(addedRow)] = true;
-    runtimeState.scheduleCompletions[
-      dayBookCompletionKey(addedRow.date, addedRow.book_id)
-    ] = true;
+    const nextCompletions = {
+      ...runtimeState.scheduleCompletions,
+    };
+    nextCompletions[sessionKeyFor(addedRow)] = true;
+    nextCompletions[dayBookCompletionKey(addedRow.date, addedRow.book_id)] =
+      true;
+    args.applyStateMutation({
+      type: "set_schedule_completions",
+      scheduleCompletions: nextCompletions,
+    });
   }
   args.queuePersist();
   args.onScheduleRowsUpdated();
@@ -152,12 +158,19 @@ export function removeSessionRow({ row, ...args }: RemoveSessionArgs): boolean {
     args.setStatus("Could not find that session to remove.", true);
     return false;
   }
-  runtimeState.scheduleCompletions = pruneScheduleCompletions(
+  const nextCompletions = pruneScheduleCompletions(
     runtimeState.scheduleCompletions,
     nextRows,
   );
-  runtimeState.blockedDayBooks[dayBookCompletionKey(row.date, row.book_id)] =
-    true;
+  args.applyStateMutation({
+    type: "set_schedule_completions",
+    scheduleCompletions: nextCompletions,
+  });
+  args.applyStateMutation({
+    type: "set_blocked_day_book",
+    key: dayBookCompletionKey(row.date, row.book_id),
+    blocked: true,
+  });
   const nextResult = nextResultWithRows(previousResult, nextRows);
   applyNextResult(args, nextResult);
   args.queuePersist();

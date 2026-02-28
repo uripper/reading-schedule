@@ -1,5 +1,8 @@
-import type { PlannerScheduleRow } from "../../../types/types.js";
-import type { FocusSession, TodayFocusState } from "../../../types/types_app.js";
+import type {
+  PlannerScheduleRow,
+  FocusSession,
+  TodayFocusState,
+} from "../../../types/types.js";
 
 export const TINY_START_MINUTES = 3;
 
@@ -10,7 +13,9 @@ const NO_SESSION_START_FEEDBACK = "No upcoming session to start right now.";
  * @param row Planned schedule row.
  * @returns Normalized focus session, or null when row is missing.
  */
-export function focusSessionFromRow(row: PlannerScheduleRow | null): FocusSession | null {
+export function focusSessionFromRow(
+  row: PlannerScheduleRow | null,
+): FocusSession | null {
   if (!row) {
     return null;
   }
@@ -100,7 +105,10 @@ export function completeTinyStart(
   state: TodayFocusState,
   tinyStartMinutes = TINY_START_MINUTES,
 ): TodayFocusState {
-  const normalizedMinutes = Math.max(1, Math.round(Number(tinyStartMinutes || 0)));
+  const normalizedMinutes = Math.max(
+    1,
+    Math.round(Number(tinyStartMinutes || 0)),
+  );
   return {
     ...state,
     feedback: `Tiny Start complete: ${normalizedMinutes} minutes done.`,

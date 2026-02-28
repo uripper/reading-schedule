@@ -4,6 +4,7 @@ export {
   collectBooks,
   fillBooks,
   getBookById,
+  setBookCommitHook,
   setBookScheduleRows,
   updateBookProgress,
 } from "./books/controller.js";

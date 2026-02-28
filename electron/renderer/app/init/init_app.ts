@@ -3,6 +3,7 @@ import {
   collectAllBooks,
   collectBooks,
   getBookById,
+  setBookCommitHook,
   setBookScheduleRows,
   updateBookProgress,
 } from "../../books.js";
@@ -17,6 +18,7 @@ import { collectSettings, initSettingsGrid } from "../../settings.js";
 import { activateTab, bindTabs } from "../../tabs.js";
 import { configureAppCalendarInteractions } from "../calendar_interactions/index.js";
 import { bindExperienceSettings } from "../experience/index.js";
+import { applyAppStateMutation } from "../state_mutations.js";
 import {
   createAppPlanControllerInstance,
   setupSkipLink,
@@ -57,7 +59,10 @@ function buildPlanController(
     },
     getLastResult: (): PlannerResult | null => runtimeState.lastResult,
     setLastResult: (nextResult: PlannerResult) => {
-      runtimeState.lastResult = nextResult;
+      applyAppStateMutation(runtimeState, {
+        type: "set_last_result",
+        lastResult: nextResult,
+      });
     },
     getSessions: (): typeof runtimeState.sessions => runtimeState.sessions,
     getScheduleCompletions: (): Record<string, boolean> =>
@@ -65,7 +70,10 @@ function buildPlanController(
     getBlockedDayBooks: (): Record<string, boolean> =>
       runtimeState.blockedDayBooks,
     setScheduleCompletions: (nextCompletions: Record<string, boolean>) => {
-      runtimeState.scheduleCompletions = nextCompletions;
+      applyAppStateMutation(runtimeState, {
+        type: "set_schedule_completions",
+        scheduleCompletions: nextCompletions,
+      });
     },
   });
 }
@@ -88,6 +96,9 @@ function configureCalendarAppInteractions(
     updateBookProgress,
     getBookById,
     state: runtimeState,
+    applyStateMutation: (mutation) => {
+      applyAppStateMutation(runtimeState, mutation);
+    },
     queuePersist: (): void => {
       appContext.queuePersist();
     },
@@ -95,7 +106,10 @@ function configureCalendarAppInteractions(
       appContext.setStatus(message, isError);
     },
     setLastResult: (nextResult: PlannerResult) => {
-      runtimeState.lastResult = nextResult;
+      applyAppStateMutation(runtimeState, {
+        type: "set_last_result",
+        lastResult: nextResult,
+      });
     },
     onSessionCompletionUpdated: (): void => {
       appContext.runtime.handleScheduleMutation();
@@ -136,6 +150,12 @@ export async function initApp(context: AppBootstrapContext): Promise<void> {
       },
     },
   );
+  setBookCommitHook((nextBooks) => {
+    applyAppStateMutation(appContext.state, {
+      type: "set_book_index",
+      books: nextBooks,
+    });
+  });
   bindHelpDialog();
   const planController = buildPlanController(appContext);
   appContext.runtime.setPlanController(planController);
