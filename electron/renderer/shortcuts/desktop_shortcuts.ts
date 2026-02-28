@@ -1,6 +1,5 @@
-
-import { createZoomShortcutHandler } from "./desktop_shortcuts_zoom.js";
 import type { ShortcutBindings } from "../../types/types.js";
+import { createZoomShortcutHandler } from "./desktop_shortcuts_zoom.js";
 
 /**
  * Wires global desktop shortcut handlers for zoom commands.
@@ -9,14 +8,14 @@ import type { ShortcutBindings } from "../../types/types.js";
  * @param root0.plannerApi Bridge API for zoom actions.
  */
 export function bindDesktopShortcuts({
-  announce,
-  plannerApi,
+	announce,
+	plannerApi,
 }: ShortcutBindings): void {
-  const handleZoomShortcut = createZoomShortcutHandler(plannerApi, announce);
-  document.addEventListener("keydown", (event) => {
-    if (event.defaultPrevented) {
-      return;
-    }
-    handleZoomShortcut(event);
-  });
+	const handleZoomShortcut = createZoomShortcutHandler(plannerApi, announce);
+	document.addEventListener("keydown", (event) => {
+		if (event.defaultPrevented) {
+			return;
+		}
+		handleZoomShortcut(event);
+	});
 }

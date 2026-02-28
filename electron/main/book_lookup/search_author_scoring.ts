@@ -1,11 +1,10 @@
+import type { SearchDoc } from "../../types/types.js";
 import {
-  SCORE_AUTHOR_ALL_TOKENS,
-  SCORE_AUTHOR_EXACT,
-  SCORE_AUTHOR_PARTIAL_TOKEN,
+	SCORE_AUTHOR_ALL_TOKENS,
+	SCORE_AUTHOR_EXACT,
+	SCORE_AUTHOR_PARTIAL_TOKEN,
 } from "./search_shared.js";
 import { normalizeSearchText, primaryAuthor } from "./search_text.js";
-
-import type { SearchDoc } from "../../types/types.js";
 
 /**
  * Splits normalized text into non-empty tokens.
@@ -13,7 +12,7 @@ import type { SearchDoc } from "../../types/types.js";
  * @returns Non-empty tokens.
  */
 function normalizedTokens(value: string): string[] {
-  return value.split(/\s+/).filter(Boolean);
+	return value.split(/\s+/).filter(Boolean);
 }
 
 /**
@@ -23,18 +22,18 @@ function normalizedTokens(value: string): string[] {
  * @returns Number of matched query tokens.
  */
 function matchingAuthorTokenCount(
-  authorTokens: string[],
-  queryTokenList: string[],
+	authorTokens: string[],
+	queryTokenList: string[],
 ): number {
-  const authorTokenSet = new Set(authorTokens);
-  let matches = 0;
-  queryTokenList.forEach((token) => {
-    if (!authorTokenSet.has(token)) {
-      return;
-    }
-    matches += 1;
-  });
-  return matches;
+	const authorTokenSet = new Set(authorTokens);
+	let matches = 0;
+	queryTokenList.forEach((token) => {
+		if (!authorTokenSet.has(token)) {
+			return;
+		}
+		matches += 1;
+	});
+	return matches;
 }
 
 /**
@@ -45,35 +44,39 @@ function matchingAuthorTokenCount(
  * @returns Author-match score.
  */
 function authorMatchScore(
-  authorNorm: string,
-  queryNorm: string,
-  tokens: string[],
+	authorNorm: string,
+	queryNorm: string,
+	tokens: string[],
 ): number {
-  if (authorNorm.length === 0 || queryNorm.length === 0 || tokens.length === 0) {
-    return 0;
-  }
-  if (authorNorm === queryNorm) {
-    return SCORE_AUTHOR_EXACT;
-  }
-  const authorTokens = normalizedTokens(authorNorm);
-  if (authorTokens.length === 0) {
-    return 0;
-  }
-  const matchedCount = matchingAuthorTokenCount(authorTokens, tokens);
-  if (matchedCount <= 0) {
-    return 0;
-  }
-  let minimumMatchedTokens = 1;
-  if (tokens.length >= 2) {
-    minimumMatchedTokens = 2;
-  }
-  if (matchedCount < minimumMatchedTokens) {
-    return 0;
-  }
-  if (matchedCount >= tokens.length) {
-    return SCORE_AUTHOR_ALL_TOKENS + matchedCount * SCORE_AUTHOR_PARTIAL_TOKEN;
-  }
-  return matchedCount * SCORE_AUTHOR_PARTIAL_TOKEN;
+	if (
+		authorNorm.length === 0 ||
+		queryNorm.length === 0 ||
+		tokens.length === 0
+	) {
+		return 0;
+	}
+	if (authorNorm === queryNorm) {
+		return SCORE_AUTHOR_EXACT;
+	}
+	const authorTokens = normalizedTokens(authorNorm);
+	if (authorTokens.length === 0) {
+		return 0;
+	}
+	const matchedCount = matchingAuthorTokenCount(authorTokens, tokens);
+	if (matchedCount <= 0) {
+		return 0;
+	}
+	let minimumMatchedTokens = 1;
+	if (tokens.length >= 2) {
+		minimumMatchedTokens = 2;
+	}
+	if (matchedCount < minimumMatchedTokens) {
+		return 0;
+	}
+	if (matchedCount >= tokens.length) {
+		return SCORE_AUTHOR_ALL_TOKENS + matchedCount * SCORE_AUTHOR_PARTIAL_TOKEN;
+	}
+	return matchedCount * SCORE_AUTHOR_PARTIAL_TOKEN;
 }
 
 /**
@@ -84,15 +87,15 @@ function authorMatchScore(
  * @returns Best author-only score across author names.
  */
 export function bestAuthorOnlyScore(
-  doc: SearchDoc,
-  queryNorm: string,
-  tokens: string[],
+	doc: SearchDoc,
+	queryNorm: string,
+	tokens: string[],
 ): number {
-  // Recommendations use the primary author for display/filter decisions.
-  // Keep scoring aligned to that same field to avoid surfacing mismatch-heavy docs.
-  return authorMatchScore(
-    normalizeSearchText(primaryAuthor(doc)),
-    queryNorm,
-    tokens,
-  );
+	// Recommendations use the primary author for display/filter decisions.
+	// Keep scoring aligned to that same field to avoid surfacing mismatch-heavy docs.
+	return authorMatchScore(
+		normalizeSearchText(primaryAuthor(doc)),
+		queryNorm,
+		tokens,
+	);
 }

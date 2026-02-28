@@ -4,7 +4,7 @@
  * @returns True when Ctrl (or Cmd on macOS) is active without Alt.
  */
 export function isCommandPressed(event: KeyboardEvent): boolean {
-  return (event.ctrlKey || event.metaKey) && !event.altKey;
+	return (event.ctrlKey || event.metaKey) && !event.altKey;
 }
 
 /**
@@ -13,7 +13,7 @@ export function isCommandPressed(event: KeyboardEvent): boolean {
  * @returns True when the key combo should trigger zoom-in.
  */
 export function isZoomInShortcut(event: KeyboardEvent): boolean {
-  return event.key === "+" || event.key === "=" || event.code === "NumpadAdd";
+	return event.key === "+" || event.key === "=" || event.code === "NumpadAdd";
 }
 
 /**
@@ -22,9 +22,9 @@ export function isZoomInShortcut(event: KeyboardEvent): boolean {
  * @returns True when the key combo should trigger zoom-out.
  */
 export function isZoomOutShortcut(event: KeyboardEvent): boolean {
-  return (
-    event.key === "-" || event.key === "_" || event.code === "NumpadSubtract"
-  );
+	return (
+		event.key === "-" || event.key === "_" || event.code === "NumpadSubtract"
+	);
 }
 
 /**
@@ -33,5 +33,5 @@ export function isZoomOutShortcut(event: KeyboardEvent): boolean {
  * @returns True when the key combo should reset zoom.
  */
 export function isZoomResetShortcut(event: KeyboardEvent): boolean {
-  return event.key === "0";
+	return event.key === "0";
 }

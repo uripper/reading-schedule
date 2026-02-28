@@ -1,19 +1,19 @@
+import type {
+	Book,
+	PlannerScheduleRow,
+	PlannerSettings,
+	UpdatedRowsResult,
+} from "../../../types/types.js";
 import {
-  sessionKeyFor,
-  sortRowsByDateAndSession,
+	sessionKeyFor,
+	sortRowsByDateAndSession,
 } from "../../calendar/utils.js";
 import {
-  DEFAULT_BOOK_DIFFICULTY,
-  normalizedManualMinutes,
-  rowsWithoutSession,
-  wordsPlannedForManualSession,
+	DEFAULT_BOOK_DIFFICULTY,
+	normalizedManualMinutes,
+	rowsWithoutSession,
+	wordsPlannedForManualSession,
 } from "./calendar_interactions_helpers.js";
-import type {
-  PlannerScheduleRow,
-  PlannerSettings,
-  UpdatedRowsResult,
-  Book,
-} from "../../../types/types.js";
 
 /**
  * Calculates the updated schedule rows when a session's planned minutes are manually changed.
@@ -28,42 +28,42 @@ import type {
  * or null if the target session was not found.
  */
 export function nextRowsWithUpdatedMinutes({
-  collectSettings,
-  getBookById,
-  minutes,
-  previousRows,
-  row,
+	collectSettings,
+	getBookById,
+	minutes,
+	previousRows,
+	row,
 }: {
-  collectSettings(this: void): PlannerSettings;
-  getBookById(this: void, bookId: string): Book | null;
-  minutes: number;
-  previousRows: PlannerScheduleRow[];
-  row: PlannerScheduleRow;
+	collectSettings(this: void): PlannerSettings;
+	getBookById(this: void, bookId: string): Book | null;
+	minutes: number;
+	previousRows: PlannerScheduleRow[];
+	row: PlannerScheduleRow;
 }): UpdatedRowsResult {
-  const targetSessionKey = sessionKeyFor(row);
-  const rowsExcludingTarget = rowsWithoutSession(
-    targetSessionKey,
-    previousRows,
-  );
-  if (rowsExcludingTarget.length === previousRows.length) {
-    return null;
-  }
-  const normalizedMinutes = normalizedManualMinutes(minutes);
-  const book = getBookById(row.book_id);
-  const wordsPlanned = wordsPlannedForManualSession({
-    bookId: row.book_id,
-    minutes: normalizedMinutes,
-    rows: rowsExcludingTarget,
-    settings: collectSettings(),
-    difficulty: Number(book?.difficulty ?? DEFAULT_BOOK_DIFFICULTY),
-  });
-  const updatedRow: PlannerScheduleRow = {
-    ...row,
-    minutes: normalizedMinutes,
-    words_planned: wordsPlanned,
-  };
-  return {
-    normalizedMinutes,
-    rows: sortRowsByDateAndSession([...rowsExcludingTarget, updatedRow]),
-  };
+	const targetSessionKey = sessionKeyFor(row);
+	const rowsExcludingTarget = rowsWithoutSession(
+		targetSessionKey,
+		previousRows,
+	);
+	if (rowsExcludingTarget.length === previousRows.length) {
+		return null;
+	}
+	const normalizedMinutes = normalizedManualMinutes(minutes);
+	const book = getBookById(row.book_id);
+	const wordsPlanned = wordsPlannedForManualSession({
+		bookId: row.book_id,
+		minutes: normalizedMinutes,
+		rows: rowsExcludingTarget,
+		settings: collectSettings(),
+		difficulty: Number(book?.difficulty ?? DEFAULT_BOOK_DIFFICULTY),
+	});
+	const updatedRow: PlannerScheduleRow = {
+		...row,
+		minutes: normalizedMinutes,
+		words_planned: wordsPlanned,
+	};
+	return {
+		normalizedMinutes,
+		rows: sortRowsByDateAndSession([...rowsExcludingTarget, updatedRow]),
+	};
 }

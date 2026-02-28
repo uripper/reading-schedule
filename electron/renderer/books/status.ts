@@ -1,17 +1,13 @@
-import type {
-  Book,
-  BookStatus,
-  BookStatusFilter,
-} from "../../types/types.js";
+import type { Book, BookStatus, BookStatusFilter } from "../../types/types.js";
 import {
-  BOOK_STATUS_DROPPED,
-  BOOK_STATUS_FILTER_ALL,
-  BOOK_STATUS_IN_PROGRESS,
-  BOOK_STATUS_READ,
-  BOOK_STATUS_TO_READ,
-  isStatusSchedulable,
-  normalizedStatus,
-  statusOptions,
+	BOOK_STATUS_DROPPED,
+	BOOK_STATUS_FILTER_ALL,
+	BOOK_STATUS_IN_PROGRESS,
+	BOOK_STATUS_READ,
+	BOOK_STATUS_TO_READ,
+	isStatusSchedulable,
+	normalizedStatus,
+	statusOptions,
 } from "./status_catalog.js";
 
 /**
@@ -22,32 +18,32 @@ import {
  * @returns Normalized book status.
  */
 export function statusFromRaw(
-  value: string | null | undefined,
-  progressPercent: number,
+	value: string | null | undefined,
+	progressPercent: number,
 ): BookStatus {
-  const raw = String(value ?? "")
-    .trim()
-    .toLowerCase();
-  const known = normalizedStatus(raw);
-  if (known) {
-    if (known === BOOK_STATUS_READ) {
-      return BOOK_STATUS_READ;
-    }
-    if (known === BOOK_STATUS_DROPPED) {
-      return BOOK_STATUS_DROPPED;
-    }
-    if (progressPercent >= 100) {
-      return BOOK_STATUS_READ;
-    }
-    return known;
-  }
-  if (progressPercent >= 100) {
-    return BOOK_STATUS_READ;
-  }
-  if (progressPercent > 0) {
-    return BOOK_STATUS_IN_PROGRESS;
-  }
-  return BOOK_STATUS_TO_READ;
+	const raw = String(value ?? "")
+		.trim()
+		.toLowerCase();
+	const known = normalizedStatus(raw);
+	if (known) {
+		if (known === BOOK_STATUS_READ) {
+			return BOOK_STATUS_READ;
+		}
+		if (known === BOOK_STATUS_DROPPED) {
+			return BOOK_STATUS_DROPPED;
+		}
+		if (progressPercent >= 100) {
+			return BOOK_STATUS_READ;
+		}
+		return known;
+	}
+	if (progressPercent >= 100) {
+		return BOOK_STATUS_READ;
+	}
+	if (progressPercent > 0) {
+		return BOOK_STATUS_IN_PROGRESS;
+	}
+	return BOOK_STATUS_TO_READ;
 }
 
 /**
@@ -56,7 +52,7 @@ export function statusFromRaw(
  * @returns True when the status is schedulable.
  */
 export function schedulableBook(book: Pick<Book, "status">): boolean {
-  return isStatusSchedulable(book.status);
+	return isStatusSchedulable(book.status);
 }
 
 /**
@@ -65,19 +61,19 @@ export function schedulableBook(book: Pick<Book, "status">): boolean {
  * @returns Valid status filter value.
  */
 export function normalizeStatusFilter(
-  value: string | null | undefined,
+	value: string | null | undefined,
 ): BookStatusFilter {
-  const raw = String(value ?? "")
-    .trim()
-    .toLowerCase();
-  if (raw === BOOK_STATUS_FILTER_ALL) {
-    return BOOK_STATUS_FILTER_ALL;
-  }
-  const known = normalizedStatus(raw);
-  if (known) {
-    return known;
-  }
-  return BOOK_STATUS_FILTER_ALL;
+	const raw = String(value ?? "")
+		.trim()
+		.toLowerCase();
+	if (raw === BOOK_STATUS_FILTER_ALL) {
+		return BOOK_STATUS_FILTER_ALL;
+	}
+	const known = normalizedStatus(raw);
+	if (known) {
+		return known;
+	}
+	return BOOK_STATUS_FILTER_ALL;
 }
 
 /**
@@ -87,13 +83,13 @@ export function normalizeStatusFilter(
  * @returns True when the book should be included.
  */
 export function statusFilterMatches(
-  book: Pick<Book, "status">,
-  filterValue: BookStatusFilter,
+	book: Pick<Book, "status">,
+	filterValue: BookStatusFilter,
 ): boolean {
-  if (filterValue === BOOK_STATUS_FILTER_ALL) {
-    return true;
-  }
-  return book.status === filterValue;
+	if (filterValue === BOOK_STATUS_FILTER_ALL) {
+		return true;
+	}
+	return book.status === filterValue;
 }
 
 /**
@@ -101,14 +97,14 @@ export function statusFilterMatches(
  * @returns Status-filter options including the "all" sentinel.
  */
 export function statusFilterOptions(): Array<{
-  value: BookStatusFilter;
-  label: string;
+	value: BookStatusFilter;
+	label: string;
 }> {
-  const options: Array<{ value: BookStatusFilter; label: string }> = [
-    { value: BOOK_STATUS_FILTER_ALL, label: "All Statuses" },
-  ];
-  statusOptions().forEach((option) => {
-    options.push(option);
-  });
-  return options;
+	const options: Array<{ value: BookStatusFilter; label: string }> = [
+		{ value: BOOK_STATUS_FILTER_ALL, label: "All Statuses" },
+	];
+	statusOptions().forEach((option) => {
+		options.push(option);
+	});
+	return options;
 }

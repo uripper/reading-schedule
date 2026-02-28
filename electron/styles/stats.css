@@ -1,188 +1,188 @@
 .stats-shell {
-  display: grid;
-  gap: var(--token-space-3);
+	display: grid;
+	gap: var(--token-space-3);
 }
 
 .stats-intro {
-  margin: 0;
-  color: var(--app-textMuted);
+	margin: 0;
+	color: var(--app-textMuted);
 }
 
 #statsDashboard {
-  display: grid;
-  gap: var(--token-space-3);
+	display: grid;
+	gap: var(--token-space-3);
 }
 
 .stats-kpi-grid {
-  display: grid;
-  gap: var(--token-space-3);
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+	display: grid;
+	gap: var(--token-space-3);
+	grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .stats-card {
-  display: grid;
-  gap: var(--token-space-1);
-  border: 1px solid var(--app-border);
-  border-radius: var(--token-radius-md);
-  background:
-    radial-gradient(
-      circle at top right,
-      color-mix(in srgb, var(--app-brandStrong) 28%, transparent),
-      transparent 55%
-    ),
-    color-mix(in srgb, var(--app-surfaceMuted) 80%, transparent);
-  padding: var(--token-space-3);
+	display: grid;
+	gap: var(--token-space-1);
+	border: 1px solid var(--app-border);
+	border-radius: var(--token-radius-md);
+	background:
+		radial-gradient(
+			circle at top right,
+			color-mix(in srgb, var(--app-brandStrong) 28%, transparent),
+			transparent 55%
+		),
+		color-mix(in srgb, var(--app-surfaceMuted) 80%, transparent);
+	padding: var(--token-space-3);
 }
 
 .stats-card h3 {
-  margin: 0;
-  font-size: var(--token-typography-size-sm);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+	margin: 0;
+	font-size: var(--token-typography-size-sm);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
 }
 
 .stats-value {
-  margin: 0;
-  font-family: var(--token-typography-family-heading);
-  font-size: clamp(1.8rem, 3vw, 2.2rem);
-  color: var(--app-text);
+	margin: 0;
+	font-family: var(--token-typography-family-heading);
+	font-size: clamp(1.8rem, 3vw, 2.2rem);
+	color: var(--app-text);
 }
 
 .stats-note {
-  margin: 0;
-  color: var(--app-textMuted);
-  font-size: var(--token-typography-size-md);
+	margin: 0;
+	color: var(--app-textMuted);
+	font-size: var(--token-typography-size-md);
 }
 
 .stats-secondary-grid {
-  display: grid;
-  gap: var(--token-space-3);
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+	display: grid;
+	gap: var(--token-space-3);
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .stats-panel {
-  display: grid;
-  gap: var(--token-space-2);
-  border: 1px solid var(--app-border);
-  border-radius: var(--token-radius-md);
-  background: color-mix(in srgb, var(--app-surfaceMuted) 86%, transparent);
-  padding: var(--token-space-3);
+	display: grid;
+	gap: var(--token-space-2);
+	border: 1px solid var(--app-border);
+	border-radius: var(--token-radius-md);
+	background: color-mix(in srgb, var(--app-surfaceMuted) 86%, transparent);
+	padding: var(--token-space-3);
 }
 
 .stats-panel h3 {
-  margin: 0;
-  color: var(--app-text);
-  font-size: var(--token-typography-size-medium);
+	margin: 0;
+	color: var(--app-text);
+	font-size: var(--token-typography-size-medium);
 }
 
 .status-list {
-  display: grid;
-  gap: var(--token-space-5);
+	display: grid;
+	gap: var(--token-space-5);
 }
 
 .status-row {
-  display: grid;
-  grid-template-columns: 164px minmax(0, 1fr) 56px;
-  align-items: center;  
-  gap: var(--token-space-3);
+	display: grid;
+	grid-template-columns: 164px minmax(0, 1fr) 56px;
+	align-items: center;
+	gap: var(--token-space-3);
 }
 
 .status-label,
 .status-count {
-  font-size: var(--token-typography-size-lg);
-  color: var(--app-textMuted);
+	font-size: var(--token-typography-size-lg);
+	color: var(--app-textMuted);
 }
 
 .status-bar-wrap {
-  height: 20px;
-  border-radius: var(--token-radius-pill);
-  border: 1px solid var(--app-border);
-  overflow: hidden;
-  background: color-mix(in srgb, var(--app-bg) 55%, var(--app-surface));
+	height: 20px;
+	border-radius: var(--token-radius-pill);
+	border: 1px solid var(--app-border);
+	overflow: hidden;
+	background: color-mix(in srgb, var(--app-bg) 55%, var(--app-surface));
 }
 
 .status-bar {
-  display: block;
-  height: 100%;
+	display: block;
+	height: 100%;
 }
 
 .status-bar.is-to_read {
-  background: color-mix(in srgb, var(--app-brand) 68%, var(--app-surface));
+	background: color-mix(in srgb, var(--app-brand) 68%, var(--app-surface));
 }
 
 .status-bar.is-in_progress {
-  background: color-mix(in srgb, var(--app-warning) 72%, var(--app-surface));
+	background: color-mix(in srgb, var(--app-warning) 72%, var(--app-surface));
 }
 
 .status-bar.is-read {
-  background: color-mix(in srgb, var(--app-success) 74%, var(--app-surface));
+	background: color-mix(in srgb, var(--app-success) 74%, var(--app-surface));
 }
 
 .status-bar.is-dropped {
-  background: color-mix(in srgb, var(--app-danger) 70%, var(--app-surface));
+	background: color-mix(in srgb, var(--app-danger) 70%, var(--app-surface));
 }
 
 .month-bars {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: var(--token-space-2);
-  align-items: stretch;
+	display: grid;
+	grid-template-columns: repeat(12, minmax(0, 1fr));
+	gap: var(--token-space-2);
+	align-items: stretch;
 }
 
 .month-bar-item {
-  display: grid;
-  grid-template-rows: 220px auto;
-  gap: var(--token-space-2);
-  justify-items: center;
+	display: grid;
+	grid-template-rows: 220px auto;
+	gap: var(--token-space-2);
+	justify-items: center;
 }
 
 .month-bar-track {
-  width: 100%;
-  height: 220px;
-  border: 1px solid var(--app-border);
-  border-radius: var(--token-radius-sm);
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--app-surfaceMuted) 70%, transparent),
-      color-mix(in srgb, var(--app-bg) 46%, var(--app-surface))
-    );
-  display: flex;
-  align-items: flex-end;
-  overflow: hidden;
+	width: 100%;
+	height: 220px;
+	border: 1px solid var(--app-border);
+	border-radius: var(--token-radius-sm);
+	background: linear-gradient(
+		180deg,
+		color-mix(in srgb, var(--app-surfaceMuted) 70%, transparent),
+		color-mix(in srgb, var(--app-bg) 46%, var(--app-surface))
+	);
+	display: flex;
+	align-items: flex-end;
+	overflow: hidden;
 }
 
 .month-bar-fill {
-  width: 100%;
-  height: 0;
-  border-radius: var(--token-radius-sm);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--app-brandStrong) 92%, var(--app-surface)),
-    color-mix(in srgb, var(--app-success) 84%, var(--app-brand))
-  );
-  transition: height var(--token-motion-duration-base) var(--token-motion-easing-standard);
+	width: 100%;
+	height: 0;
+	border-radius: var(--token-radius-sm);
+	background: linear-gradient(
+		180deg,
+		color-mix(in srgb, var(--app-brandStrong) 92%, var(--app-surface)),
+		color-mix(in srgb, var(--app-success) 84%, var(--app-brand))
+	);
+	transition: height var(--token-motion-duration-base)
+		var(--token-motion-easing-standard);
 }
 
 .month-bar-fill.is-zero {
-  opacity: 0.4;
+	opacity: 0.4;
 }
 
 .month-bar-label {
-  font-size: var(--token-typography-size-sm);
-  color: var(--app-textMuted);
-  letter-spacing: 0.02em;
+	font-size: var(--token-typography-size-sm);
+	color: var(--app-textMuted);
+	letter-spacing: 0.02em;
 }
 
 @media (max-width: 1280px) {
-  .stats-kpi-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+	.stats-kpi-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
 }
 
 @media (max-width: 920px) {
-  .stats-kpi-grid,
-  .stats-secondary-grid {
-    grid-template-columns: 1fr;
-  }
+	.stats-kpi-grid,
+	.stats-secondary-grid {
+		grid-template-columns: 1fr;
+	}
 }

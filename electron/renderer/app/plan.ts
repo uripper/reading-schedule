@@ -1,7 +1,7 @@
 import type {
-  PlanGeneratePayload,
-  PlannerSummary,
-  RunPlanGenerationArgs,
+	PlanGeneratePayload,
+	PlannerSummary,
+	RunPlanGenerationArgs,
 } from "../../types/types.js";
 
 /**
@@ -10,10 +10,10 @@ import type {
  * @returns A string representing the day key in "YYYY-MM-DD" format.
  */
 function dayKeyFromDate(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, "0");
+	const day = String(date.getDate()).padStart(2, "0");
+	return `${year}-${month}-${day}`;
 }
 
 /**
@@ -21,9 +21,9 @@ function dayKeyFromDate(date: Date): string {
  * @returns A string representing tomorrow's day key in "YYYY-MM-DD" format.
  */
 function tomorrowDayKey(): string {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  return dayKeyFromDate(tomorrow);
+	const tomorrow = new Date();
+	tomorrow.setDate(tomorrow.getDate() + 1);
+	return dayKeyFromDate(tomorrow);
 }
 
 /**
@@ -33,20 +33,20 @@ function tomorrowDayKey(): string {
  * @returns A normalized end date string or undefined if the input is invalid.
  */
 function normalizeEndDate(
-  endDate: unknown,
-  startDate: string,
+	endDate: unknown,
+	startDate: string,
 ): string | undefined {
-  if (typeof endDate !== "string" || !endDate) {
-    return undefined;
-  }
-  const normalizedEndDate = endDate.trim();
-  if (normalizedEndDate === "") {
-    return undefined;
-  }
-  if (Number(normalizedEndDate) < Number(startDate)) {
-    return startDate;
-  }
-  return normalizedEndDate;
+	if (typeof endDate !== "string" || !endDate) {
+		return undefined;
+	}
+	const normalizedEndDate = endDate.trim();
+	if (normalizedEndDate === "") {
+		return undefined;
+	}
+	if (Number(normalizedEndDate) < Number(startDate)) {
+		return startDate;
+	}
+	return normalizedEndDate;
 }
 
 /**
@@ -55,10 +55,10 @@ function normalizeEndDate(
  * @returns A string containing the status and planned/available minutes.
  */
 function summaryLog(summary: PlannerSummary | null): string {
-  const status = summary?.status ?? "not-set";
-  const planned = Number(summary?.total_planned_minutes ?? 0);
-  const available = Number(summary?.total_available_minutes ?? 0);
-  return `Status ${status}. Planned ${planned}/${available} minutes.`;
+	const status = summary?.status ?? "not-set";
+	const planned = Number(summary?.total_planned_minutes ?? 0);
+	const available = Number(summary?.total_available_minutes ?? 0);
+	return `Status ${status}. Planned ${planned}/${available} minutes.`;
 }
 
 /**
@@ -67,14 +67,14 @@ function summaryLog(summary: PlannerSummary | null): string {
  * @param addLog Log sink used for planner status output.
  */
 function logPlanSummary(
-  summary: PlannerSummary | null | undefined,
-  addLog: (message: string) => void,
+	summary: PlannerSummary | null | undefined,
+	addLog: (message: string) => void,
 ): void {
-  const feasibilityWarning = summary?.feasibility_warning;
-  if (typeof feasibilityWarning === "string" && feasibilityWarning !== "") {
-    addLog(feasibilityWarning);
-  }
-  addLog(summaryLog(summary ?? null));
+	const feasibilityWarning = summary?.feasibility_warning;
+	if (typeof feasibilityWarning === "string" && feasibilityWarning !== "") {
+		addLog(feasibilityWarning);
+	}
+	addLog(summaryLog(summary ?? null));
 }
 
 /**
@@ -83,10 +83,10 @@ function logPlanSummary(
  * @returns A trimmed string or an empty string if the input is invalid.
  */
 function trimmedStringOrEmpty(value: unknown): string {
-  if (typeof value !== "string") {
-    return "";
-  }
-  return value.trim();
+	if (typeof value !== "string") {
+		return "";
+	}
+	return value.trim();
 }
 
 /**
@@ -95,10 +95,10 @@ function trimmedStringOrEmpty(value: unknown): string {
  * @returns A trimmed message string or an empty string if the input is not a valid error-like object.
  */
 function messageFromErrorLikeObject(error: unknown): string {
-  if (typeof error !== "object" || error === null || !("message" in error)) {
-    return "";
-  }
-  return trimmedStringOrEmpty(error.message);
+	if (typeof error !== "object" || error === null || !("message" in error)) {
+		return "";
+	}
+	return trimmedStringOrEmpty(error.message);
 }
 
 /**
@@ -109,22 +109,22 @@ function messageFromErrorLikeObject(error: unknown): string {
  * @returns A user-friendly error message string.
  */
 function errorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    const detail = trimmedStringOrEmpty(error.message);
-    if (detail) {
-      return detail;
-    }
-    return error.name || "Unknown error";
-  }
-  const stringDetail = trimmedStringOrEmpty(error);
-  if (stringDetail) {
-    return stringDetail;
-  }
-  const messageDetail = messageFromErrorLikeObject(error);
-  if (messageDetail) {
-    return messageDetail;
-  }
-  return "Unknown planner error";
+	if (error instanceof Error) {
+		const detail = trimmedStringOrEmpty(error.message);
+		if (detail) {
+			return detail;
+		}
+		return error.name || "Unknown error";
+	}
+	const stringDetail = trimmedStringOrEmpty(error);
+	if (stringDetail) {
+		return stringDetail;
+	}
+	const messageDetail = messageFromErrorLikeObject(error);
+	if (messageDetail) {
+		return messageDetail;
+	}
+	return "Unknown planner error";
 }
 
 /**
@@ -146,57 +146,57 @@ function errorMessage(error: unknown): string {
  * Defaults to "Plan generated and schedule updated.".
  */
 export async function runPlanGeneration({
-  plannerApi,
-  collectBooks,
-  collectSettings,
-  setStatus,
-  addLog,
-  announce,
-  onSuccess,
-  statusGeneratingMessage = "Generating plan...",
-  statusSuccessMessage = "Plan generated.",
-  successAnnouncement = "Plan generated and schedule updated.",
+	plannerApi,
+	collectBooks,
+	collectSettings,
+	setStatus,
+	addLog,
+	announce,
+	onSuccess,
+	statusGeneratingMessage = "Generating plan...",
+	statusSuccessMessage = "Plan generated.",
+	successAnnouncement = "Plan generated and schedule updated.",
 }: RunPlanGenerationArgs): Promise<void> {
-  try {
-    const payloadBooks = collectBooks();
-    if (!payloadBooks.length) {
-      await onSuccess({ schedule: [], summary: null });
-      setStatus("No schedulable books to plan.");
-      return;
-    }
+	try {
+		const payloadBooks = collectBooks();
+		if (!payloadBooks.length) {
+			await onSuccess({ schedule: [], summary: null });
+			setStatus("No schedulable books to plan.");
+			return;
+		}
 
-    setStatus(statusGeneratingMessage);
-    const settings = collectSettings();
-    const forcedStartDate = tomorrowDayKey();
-    const normalizedEndDate = normalizeEndDate(
-      settings.end_date,
-      forcedStartDate,
-    );
-    const payloadSettings = {
-      ...settings,
-      start_date: forcedStartDate,
-    };
-    if (normalizedEndDate !== undefined && normalizedEndDate !== "") {
-      payloadSettings.end_date = normalizedEndDate;
-    }
-    const payload: PlanGeneratePayload = {
-      planner: "mip",
-      books: payloadBooks,
-      settings: payloadSettings,
-    };
+		setStatus(statusGeneratingMessage);
+		const settings = collectSettings();
+		const forcedStartDate = tomorrowDayKey();
+		const normalizedEndDate = normalizeEndDate(
+			settings.end_date,
+			forcedStartDate,
+		);
+		const payloadSettings = {
+			...settings,
+			start_date: forcedStartDate,
+		};
+		if (normalizedEndDate !== undefined && normalizedEndDate !== "") {
+			payloadSettings.end_date = normalizedEndDate;
+		}
+		const payload: PlanGeneratePayload = {
+			planner: "mip",
+			books: payloadBooks,
+			settings: payloadSettings,
+		};
 
-    const data = await plannerApi.generate(payload);
-    await onSuccess(data);
-    logPlanSummary(data.summary, addLog);
+		const data = await plannerApi.generate(payload);
+		await onSuccess(data);
+		logPlanSummary(data.summary, addLog);
 
-    setStatus(statusSuccessMessage);
-    if (successAnnouncement !== "") {
-      announce(successAnnouncement);
-    }
-  } catch (error) {
-    const message = "Failed to generate plan";
-    setStatus(message, true);
-    addLog(`Plan generation error: ${errorMessage(error)}`);
-    announce(message, "assertive");
-  }
+		setStatus(statusSuccessMessage);
+		if (successAnnouncement !== "") {
+			announce(successAnnouncement);
+		}
+	} catch (error) {
+		const message = "Failed to generate plan";
+		setStatus(message, true);
+		addLog(`Plan generation error: ${errorMessage(error)}`);
+		announce(message, "assertive");
+	}
 }

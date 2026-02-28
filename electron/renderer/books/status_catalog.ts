@@ -6,10 +6,10 @@ export const BOOK_STATUS_DROPPED = "dropped";
 export const BOOK_STATUS_FILTER_ALL = "all";
 
 const BOOK_STATUSES: BookStatus[] = [
-  BOOK_STATUS_TO_READ,
-  BOOK_STATUS_IN_PROGRESS,
-  BOOK_STATUS_READ,
-  BOOK_STATUS_DROPPED,
+	BOOK_STATUS_TO_READ,
+	BOOK_STATUS_IN_PROGRESS,
+	BOOK_STATUS_READ,
+	BOOK_STATUS_DROPPED,
 ];
 
 /**
@@ -18,13 +18,13 @@ const BOOK_STATUSES: BookStatus[] = [
  * @returns Matching status or `null` when unsupported.
  */
 export function normalizedStatus(value: string): BookStatus | null {
-  const matched = BOOK_STATUSES.find((status) => {
-    return status === value;
-  });
-  if (!matched) {
-    return null;
-  }
-  return matched;
+	const matched = BOOK_STATUSES.find((status) => {
+		return status === value;
+	});
+	if (!matched) {
+		return null;
+	}
+	return matched;
 }
 
 /**
@@ -33,16 +33,16 @@ export function normalizedStatus(value: string): BookStatus | null {
  * @returns Display label used in UI.
  */
 export function statusLabel(status: BookStatus): string {
-  if (status === BOOK_STATUS_READ) {
-    return "Read";
-  }
-  if (status === BOOK_STATUS_DROPPED) {
-    return "Dropped";
-  }
-  if (status === BOOK_STATUS_IN_PROGRESS) {
-    return "In Progress";
-  }
-  return "To Read";
+	if (status === BOOK_STATUS_READ) {
+		return "Read";
+	}
+	if (status === BOOK_STATUS_DROPPED) {
+		return "Dropped";
+	}
+	if (status === BOOK_STATUS_IN_PROGRESS) {
+		return "In Progress";
+	}
+	return "To Read";
 }
 
 /**
@@ -51,13 +51,13 @@ export function statusLabel(status: BookStatus): string {
  * @returns `true` when status is schedulable.
  */
 export function isStatusSchedulable(status: BookStatus): boolean {
-  if (status === BOOK_STATUS_READ) {
-    return false;
-  }
-  if (status === BOOK_STATUS_DROPPED) {
-    return false;
-  }
-  return true;
+	if (status === BOOK_STATUS_READ) {
+		return false;
+	}
+	if (status === BOOK_STATUS_DROPPED) {
+		return false;
+	}
+	return true;
 }
 
 /**
@@ -65,7 +65,7 @@ export function isStatusSchedulable(status: BookStatus): boolean {
  * @returns Status options with value/label pairs.
  */
 export function statusOptions(): Array<{ value: BookStatus; label: string }> {
-  return BOOK_STATUSES.map((status) => {
-    return { value: status, label: statusLabel(status) };
-  });
+	return BOOK_STATUSES.map((status) => {
+		return { value: status, label: statusLabel(status) };
+	});
 }

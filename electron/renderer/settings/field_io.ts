@@ -1,5 +1,5 @@
-import { el } from "../dom.js";
 import type { FieldDefinition } from "../../types/types.js";
+import { el } from "../dom.js";
 import { DIFFICULTY_LEVEL_COUNT, fields } from "./config.js";
 
 /**
@@ -8,7 +8,7 @@ import { DIFFICULTY_LEVEL_COUNT, fields } from "./config.js";
  * @returns Input element.
  */
 export function inputEl(id: string): HTMLInputElement {
-  return el<HTMLInputElement>(id);
+	return el<HTMLInputElement>(id);
 }
 
 /**
@@ -17,7 +17,7 @@ export function inputEl(id: string): HTMLInputElement {
  * @returns Select element.
  */
 export function selectEl(id: string): HTMLSelectElement {
-  return el<HTMLSelectElement>(id);
+	return el<HTMLSelectElement>(id);
 }
 
 /**
@@ -25,7 +25,7 @@ export function selectEl(id: string): HTMLSelectElement {
  * @returns Field definition list.
  */
 export function allFieldDefinitions(): FieldDefinition[] {
-  return Object.values(fields).flat();
+	return Object.values(fields).flat();
 }
 
 /**
@@ -33,5 +33,8 @@ export function allFieldDefinitions(): FieldDefinition[] {
  * @returns Sequential level numbers starting at 1.
  */
 export function numberLevels(): number[] {
-  return Array.from({ length: DIFFICULTY_LEVEL_COUNT }, (_, index) => index + 1);
+	return Array.from(
+		{ length: DIFFICULTY_LEVEL_COUNT },
+		(_, index) => index + 1,
+	);
 }

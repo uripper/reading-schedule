@@ -1,21 +1,21 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import test from "node:test";
 
 import { loadInitialData } from "../dist/renderer/app/load_state.js";
 
 const DEFAULT_PREFERENCES = {
-  theme: "system",
-  reduceMotion: false,
-  timezone: "UTC",
-  dailyGoalMinutes: 30,
-  reminderEnabled: false,
-  reminderTime: "20:00",
+	theme: "system",
+	reduceMotion: false,
+	timezone: "UTC",
+	dailyGoalMinutes: 30,
+	reminderEnabled: false,
+	reminderTime: "20:00",
 };
 
 const DEFAULT_FEATURE_FLAGS = {
-  gamificationEnabled: true,
-  socialEnabled: true,
-  recommendationsEnabled: true,
+	gamificationEnabled: true,
+	socialEnabled: true,
+	recommendationsEnabled: true,
 };
 
 /**
@@ -27,122 +27,122 @@ const DEFAULT_FEATURE_FLAGS = {
  * @returns {import("../dist/types/types_app.js").LoadStateArgs} Load arguments.
  */
 function loadArgs(loadResult, statuses, logs, overrides = {}) {
-  const noop = () => undefined;
-  const base = {
-    plannerApi: {
-      loadState: () => Promise.resolve(loadResult),
-      sample: () =>
-        Promise.resolve({ settings: { start_date: "2026-04-01" }, books: [] }),
-    },
-    fillSettings: noop,
-    fillBooks: noop,
-    normalizePreferences: () => DEFAULT_PREFERENCES,
-    normalizeFeatureFlags: () => DEFAULT_FEATURE_FLAGS,
-    normalizeScheduleCompletions: (value) => value,
-    fillPreferencesUI: noop,
-    applyPreferencesToDocument: noop,
-    setPreferences: noop,
-    setFeatureFlags: noop,
-    setScheduleCompletions: noop,
-    setBlockedDayBooks: noop,
-    setSessions: noop,
-    applyLoadedResult: noop,
-    updateTodayView: noop,
-    onLoaded: noop,
-    setStatus: (message, isError = false) => {
-      statuses.push({ message, isError });
-    },
-    addLog: (message) => {
-      logs.push(message);
-    },
-  };
-  return { ...base, ...overrides };
+	const noop = () => undefined;
+	const base = {
+		plannerApi: {
+			loadState: () => Promise.resolve(loadResult),
+			sample: () =>
+				Promise.resolve({ settings: { start_date: "2026-04-01" }, books: [] }),
+		},
+		fillSettings: noop,
+		fillBooks: noop,
+		normalizePreferences: () => DEFAULT_PREFERENCES,
+		normalizeFeatureFlags: () => DEFAULT_FEATURE_FLAGS,
+		normalizeScheduleCompletions: (value) => value,
+		fillPreferencesUI: noop,
+		applyPreferencesToDocument: noop,
+		setPreferences: noop,
+		setFeatureFlags: noop,
+		setScheduleCompletions: noop,
+		setBlockedDayBooks: noop,
+		setSessions: noop,
+		applyLoadedResult: noop,
+		updateTodayView: noop,
+		onLoaded: noop,
+		setStatus: (message, isError = false) => {
+			statuses.push({ message, isError });
+		},
+		addLog: (message) => {
+			logs.push(message);
+		},
+	};
+	return { ...base, ...overrides };
 }
 
 test("loadInitialData surfaces backup/journal/fresh recovery warnings", async () => {
-  const statuses = [];
-  const logs = [];
+	const statuses = [];
+	const logs = [];
 
-  await loadInitialData(
-    loadArgs(
-      {
-        source: "json_backup",
-        state: { settings: { start_date: "2026-04-01" }, books: [] },
-        warningCode: "RECOVERED_FROM_BACKUP",
-      },
-      statuses,
-      logs,
-    ),
-  );
-  await loadInitialData(
-    loadArgs(
-      {
-        source: "sqlite_journal_replay",
-        state: { settings: { start_date: "2026-04-02" }, books: [] },
-        warningCode: "RECOVERED_FROM_JOURNAL",
-      },
-      statuses,
-      logs,
-    ),
-  );
-  await loadInitialData(
-    loadArgs(
-      {
-        source: "fresh",
-        state: null,
-        warningCode: "STATE_RESET_FRESH",
-      },
-      statuses,
-      logs,
-    ),
-  );
+	await loadInitialData(
+		loadArgs(
+			{
+				source: "json_backup",
+				state: { settings: { start_date: "2026-04-01" }, books: [] },
+				warningCode: "RECOVERED_FROM_BACKUP",
+			},
+			statuses,
+			logs,
+		),
+	);
+	await loadInitialData(
+		loadArgs(
+			{
+				source: "sqlite_journal_replay",
+				state: { settings: { start_date: "2026-04-02" }, books: [] },
+				warningCode: "RECOVERED_FROM_JOURNAL",
+			},
+			statuses,
+			logs,
+		),
+	);
+	await loadInitialData(
+		loadArgs(
+			{
+				source: "fresh",
+				state: null,
+				warningCode: "STATE_RESET_FRESH",
+			},
+			statuses,
+			logs,
+		),
+	);
 
-  assert.equal(
-    statuses.some((entry) => entry.message.includes("backup copy")),
-    true,
-  );
-  assert.equal(
-    statuses.some((entry) => entry.message.includes("journal replay")),
-    true,
-  );
-  assert.equal(
-    statuses.some((entry) => entry.message.includes("Started with fresh data")),
-    true,
-  );
-  assert.equal(
-    logs.some((entry) => entry.includes("Migrated saved data from JSON")),
-    true,
-  );
+	assert.equal(
+		statuses.some((entry) => entry.message.includes("backup copy")),
+		true,
+	);
+	assert.equal(
+		statuses.some((entry) => entry.message.includes("journal replay")),
+		true,
+	);
+	assert.equal(
+		statuses.some((entry) => entry.message.includes("Started with fresh data")),
+		true,
+	);
+	assert.equal(
+		logs.some((entry) => entry.includes("Migrated saved data from JSON")),
+		true,
+	);
 });
 
 test("loadInitialData logs migration info for json-primary loads", async () => {
-  const statuses = [];
-  const logs = [];
+	const statuses = [];
+	const logs = [];
 
-  await loadInitialData(
-    loadArgs(
-      {
-        source: "json_primary",
-        sourcePath: "/tmp/planner_state.json",
-        state: { settings: { start_date: "2026-05-01" }, books: [] },
-        warningCode: "MIGRATED_JSON_TO_SQLITE",
-      },
-      statuses,
-      logs,
-    ),
-  );
+	await loadInitialData(
+		loadArgs(
+			{
+				source: "json_primary",
+				sourcePath: "/tmp/planner_state.json",
+				state: { settings: { start_date: "2026-05-01" }, books: [] },
+				warningCode: "MIGRATED_JSON_TO_SQLITE",
+			},
+			statuses,
+			logs,
+		),
+	);
 
-  assert.equal(statuses.length, 0);
-  assert.equal(
-    logs.some((entry) => entry.includes("Migrated saved data from JSON")),
-    true,
-  );
-  assert.equal(
-    logs.some((entry) => entry.includes("State load source: json_primary")),
-    true,
-  );
-  assert.equal(
-    logs.some((entry) => entry.includes("/tmp/planner_state.json")),
-    true,
-  );
+	assert.equal(statuses.length, 0);
+	assert.equal(
+		logs.some((entry) => entry.includes("Migrated saved data from JSON")),
+		true,
+	);
+	assert.equal(
+		logs.some((entry) => entry.includes("State load source: json_primary")),
+		true,
+	);
+	assert.equal(
+		logs.some((entry) => entry.includes("/tmp/planner_state.json")),
+		true,
+	);
 });

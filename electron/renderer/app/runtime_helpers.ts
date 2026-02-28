@@ -1,20 +1,20 @@
-import { draftData, saveStateSafe } from "./persistence.js";
 import type {
-  PlannerSummary,
-  PersistQueue,
-  PersistQueueArgs,
+	PersistQueue,
+	PersistQueueArgs,
+	PlannerSummary,
 } from "../../types/types.js";
+import { draftData, saveStateSafe } from "./persistence.js";
 
 const PERSIST_DELAY_MS = 300;
 const NON_PLANNING_SETTING_IDS = new Set([
-  "themeSelect",
-  "reduceMotionToggle",
-  "dailyGoalInput",
-  "reminderEnabledToggle",
-  "reminderTimeInput",
-  "flagGamification",
-  "flagSocial",
-  "flagRecommendations",
+	"themeSelect",
+	"reduceMotionToggle",
+	"dailyGoalInput",
+	"reminderEnabledToggle",
+	"reminderTimeInput",
+	"flagGamification",
+	"flagSocial",
+	"flagRecommendations",
 ]);
 
 /**
@@ -24,18 +24,18 @@ const NON_PLANNING_SETTING_IDS = new Set([
  * @returns Function that sets status text and applies error styling when needed.
  */
 export function createStatusSetter(
-  statusNode: HTMLElement,
-  addLog: (message: string) => void,
+	statusNode: HTMLElement,
+	addLog: (message: string) => void,
 ): (message: string, isError?: boolean) => void {
-  const node = statusNode;
-  return (message: string, isError = false): void => {
-    node.textContent = message;
-    node.style.color = "var(--app-textMuted)";
-    if (isError) {
-      node.style.color = "var(--app-danger)";
-    }
-    addLog(message);
-  };
+	const node = statusNode;
+	return (message: string, isError = false): void => {
+		node.textContent = message;
+		node.style.color = "var(--app-textMuted)";
+		if (isError) {
+			node.style.color = "var(--app-danger)";
+		}
+		addLog(message);
+	};
 }
 
 /**
@@ -44,14 +44,14 @@ export function createStatusSetter(
  * @returns Map of book id to total planned words.
  */
 export function totalsFromSummary(
-  summary: PlannerSummary | null,
+	summary: PlannerSummary | null,
 ): Record<string, number> {
-  const perBook = summary?.per_book ?? {};
-  const totals: Record<string, number> = {};
-  Object.entries(perBook).forEach(([id, info]) => {
-    totals[id] = Number(info.words_total ?? 0);
-  });
-  return totals;
+	const perBook = summary?.per_book ?? {};
+	const totals: Record<string, number> = {};
+	Object.entries(perBook).forEach(([id, info]) => {
+		totals[id] = Number(info.words_total ?? 0);
+	});
+	return totals;
 }
 
 /**
@@ -66,47 +66,47 @@ export function totalsFromSummary(
  * @returns Draft persistence functions for immediate save and queued save.
  */
 export function createPersistQueue({
-  plannerApi,
-  state,
-  getSessions,
-  collectBooks,
-  collectSettings,
-  addLog,
+	plannerApi,
+	state,
+	getSessions,
+	collectBooks,
+	collectSettings,
+	addLog,
 }: PersistQueueArgs): PersistQueue {
-  let persistTimer: ReturnType<typeof setTimeout> | null = null;
+	let persistTimer: ReturnType<typeof setTimeout> | null = null;
 
-  const persistDraft = async (): Promise<boolean> => {
-    const payload = draftData({
-      collectBooks,
-      collectSettings,
-      sessions: getSessions(),
-      preferences: state.preferences,
-      featureFlags: state.featureFlags,
-      scheduleCompletions: state.scheduleCompletions,
-      blockedDayBooks: state.blockedDayBooks,
-      lastResult: state.lastResult,
-    });
-    return await saveStateSafe(plannerApi, payload, addLog);
-  };
+	const persistDraft = async (): Promise<boolean> => {
+		const payload = draftData({
+			collectBooks,
+			collectSettings,
+			sessions: getSessions(),
+			preferences: state.preferences,
+			featureFlags: state.featureFlags,
+			scheduleCompletions: state.scheduleCompletions,
+			blockedDayBooks: state.blockedDayBooks,
+			lastResult: state.lastResult,
+		});
+		return await saveStateSafe(plannerApi, payload, addLog);
+	};
 
-  const queuePersist = (): void => {
-    if (!state.ready) {
-      return;
-    }
-    if (persistTimer) {
-      clearTimeout(persistTimer);
-    }
-    persistTimer = setTimeout(() => {
-      persistDraft().catch(() => {
-        addLog("Failed to persist draft state.");
-      });
-    }, PERSIST_DELAY_MS);
-  };
+	const queuePersist = (): void => {
+		if (!state.ready) {
+			return;
+		}
+		if (persistTimer) {
+			clearTimeout(persistTimer);
+		}
+		persistTimer = setTimeout(() => {
+			persistDraft().catch(() => {
+				addLog("Failed to persist draft state.");
+			});
+		}, PERSIST_DELAY_MS);
+	};
 
-  return {
-    persistDraft,
-    queuePersist,
-  };
+	return {
+		persistDraft,
+		queuePersist,
+	};
 }
 
 /**
@@ -115,14 +115,14 @@ export function createPersistQueue({
  * @returns True when the target affects planning inputs.
  */
 function shouldAutoPlanTarget(target: HTMLElement): boolean {
-  const id = String(target.id || "");
-  if (!id) {
-    return false;
-  }
-  if (NON_PLANNING_SETTING_IDS.has(id)) {
-    return false;
-  }
-  return true;
+	const id = String(target.id || "");
+	if (!id) {
+		return false;
+	}
+	if (NON_PLANNING_SETTING_IDS.has(id)) {
+		return false;
+	}
+	return true;
 }
 
 /**
@@ -132,38 +132,38 @@ function shouldAutoPlanTarget(target: HTMLElement): boolean {
  * @param queueAutoPlan Callback that schedules an automatic planner run.
  */
 export function bindSettingsAutoPlanListeners(
-  settingsPanel: HTMLElement,
-  isReady: () => boolean,
-  queueAutoPlan: () => void,
+	settingsPanel: HTMLElement,
+	isReady: () => boolean,
+	queueAutoPlan: () => void,
 ): void {
-  const onSettingMutation = (event: Event): void => {
-    if (!isReady()) {
-      return;
-    }
-    if (!(event.target instanceof HTMLElement)) {
-      return;
-    }
-    if (!shouldAutoPlanTarget(event.target)) {
-      return;
-    }
-    queueAutoPlan();
-  };
+	const onSettingMutation = (event: Event): void => {
+		if (!isReady()) {
+			return;
+		}
+		if (!(event.target instanceof HTMLElement)) {
+			return;
+		}
+		if (!shouldAutoPlanTarget(event.target)) {
+			return;
+		}
+		queueAutoPlan();
+	};
 
-  const onSettingClick = (event: Event): void => {
-    if (!isReady()) {
-      return;
-    }
-    if (!(event.target instanceof HTMLElement)) {
-      return;
-    }
-    const addDayOff = event.target.closest("#addDayOffBtn");
-    const removeDayOff = event.target.closest("#dayOffList .chip-btn");
-    if (addDayOff || removeDayOff) {
-      queueAutoPlan();
-    }
-  };
+	const onSettingClick = (event: Event): void => {
+		if (!isReady()) {
+			return;
+		}
+		if (!(event.target instanceof HTMLElement)) {
+			return;
+		}
+		const addDayOff = event.target.closest("#addDayOffBtn");
+		const removeDayOff = event.target.closest("#dayOffList .chip-btn");
+		if (addDayOff || removeDayOff) {
+			queueAutoPlan();
+		}
+	};
 
-  settingsPanel.addEventListener("input", onSettingMutation);
-  settingsPanel.addEventListener("change", onSettingMutation);
-  settingsPanel.addEventListener("click", onSettingClick);
+	settingsPanel.addEventListener("input", onSettingMutation);
+	settingsPanel.addEventListener("change", onSettingMutation);
+	settingsPanel.addEventListener("click", onSettingClick);
 }

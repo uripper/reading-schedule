@@ -6,10 +6,10 @@ import type { CalendarDisplayRow } from "../../types/types.js";
  * @returns Summary label for day chip header.
  */
 function plannedSessionText(rowCount: number): string {
-  if (!rowCount) {
-    return "No sessions";
-  }
-  return `${rowCount} planned`;
+	if (!rowCount) {
+		return "No sessions";
+	}
+	return `${rowCount} planned`;
 }
 
 /**
@@ -18,10 +18,10 @@ function plannedSessionText(rowCount: number): string {
  * @returns Class string for chip styling.
  */
 export function chipClassNameForRow(row: CalendarDisplayRow): string {
-  if (row.finish === true) {
-    return "day-chip finish";
-  }
-  return "day-chip";
+	if (row.finish === true) {
+		return "day-chip finish";
+	}
+	return "day-chip";
 }
 
 /**
@@ -30,15 +30,15 @@ export function chipClassNameForRow(row: CalendarDisplayRow): string {
  * @param rows Day rows to summarize.
  */
 function appendVisibleRowChips(
-  dayButton: HTMLButtonElement,
-  rows: CalendarDisplayRow[],
+	dayButton: HTMLButtonElement,
+	rows: CalendarDisplayRow[],
 ): void {
-  rows.slice(0, 2).forEach((row) => {
-    const chip = document.createElement("span");
-    chip.className = chipClassNameForRow(row);
-    chip.textContent = `${row.title ?? "Untitled"} - ${Number(row.minutes ?? 0)}m`;
-    dayButton.append(chip);
-  });
+	rows.slice(0, 2).forEach((row) => {
+		const chip = document.createElement("span");
+		chip.className = chipClassNameForRow(row);
+		chip.textContent = `${row.title ?? "Untitled"} - ${Number(row.minutes ?? 0)}m`;
+		dayButton.append(chip);
+	});
 }
 
 /**
@@ -47,16 +47,16 @@ function appendVisibleRowChips(
  * @param rowCount Total number of day rows.
  */
 function appendExtraRowChip(
-  dayButton: HTMLButtonElement,
-  rowCount: number,
+	dayButton: HTMLButtonElement,
+	rowCount: number,
 ): void {
-  if (rowCount <= 2) {
-    return;
-  }
-  const extra = document.createElement("span");
-  extra.className = "day-chip is-more";
-  extra.textContent = `+${rowCount - 2} more`;
-  dayButton.append(extra);
+	if (rowCount <= 2) {
+		return;
+	}
+	const extra = document.createElement("span");
+	extra.className = "day-chip is-more";
+	extra.textContent = `+${rowCount - 2} more`;
+	dayButton.append(extra);
 }
 
 /**
@@ -65,14 +65,14 @@ function appendExtraRowChip(
  * @param rows Day rows to summarize.
  */
 export function appendDayButtonSummary(
-  dayButton: HTMLButtonElement,
-  rows: CalendarDisplayRow[],
+	dayButton: HTMLButtonElement,
+	rows: CalendarDisplayRow[],
 ): void {
-  const count = document.createElement("span");
-  count.className = "day-event-count";
-  count.textContent = plannedSessionText(rows.length);
-  dayButton.append(count);
+	const count = document.createElement("span");
+	count.className = "day-event-count";
+	count.textContent = plannedSessionText(rows.length);
+	dayButton.append(count);
 
-  appendVisibleRowChips(dayButton, rows);
-  appendExtraRowChip(dayButton, rows.length);
+	appendVisibleRowChips(dayButton, rows);
+	appendExtraRowChip(dayButton, rows.length);
 }

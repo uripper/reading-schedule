@@ -7,11 +7,11 @@ const MONTH_KEY_LENGTH = 7;
  * @returns Local today key.
  */
 export function todayDateKey(): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+	const now = new Date();
+	const year = now.getFullYear();
+	const month = String(now.getMonth() + 1).padStart(2, "0");
+	const day = String(now.getDate()).padStart(2, "0");
+	return `${year}-${month}-${day}`;
 }
 
 /**
@@ -20,7 +20,7 @@ export function todayDateKey(): string {
  * @returns Month key in `YYYY-MM` format.
  */
 export function monthKeyForDateKey(dateKey: string): string {
-  return dateKey.slice(0, MONTH_KEY_LENGTH);
+	return dateKey.slice(0, MONTH_KEY_LENGTH);
 }
 
 /**
@@ -29,18 +29,21 @@ export function monthKeyForDateKey(dateKey: string): string {
  * @param targetMonthKey Preferred month key.
  * @returns Matching/upcoming/fallback month index.
  */
-export function indexForMonth(months: string[], targetMonthKey: string): number {
-  const exactIndex = months.indexOf(targetMonthKey);
-  if (exactIndex >= 0) {
-    return exactIndex;
-  }
-  const upcomingIndex = months.findIndex((monthKey) => {
-    return monthKey.localeCompare(targetMonthKey) >= 0;
-  });
-  if (upcomingIndex >= 0) {
-    return upcomingIndex;
-  }
-  return Math.max(0, months.length - 1);
+export function indexForMonth(
+	months: string[],
+	targetMonthKey: string,
+): number {
+	const exactIndex = months.indexOf(targetMonthKey);
+	if (exactIndex >= 0) {
+		return exactIndex;
+	}
+	const upcomingIndex = months.findIndex((monthKey) => {
+		return monthKey.localeCompare(targetMonthKey) >= 0;
+	});
+	if (upcomingIndex >= 0) {
+		return upcomingIndex;
+	}
+	return Math.max(0, months.length - 1);
 }
 
 /**
@@ -48,17 +51,17 @@ export function indexForMonth(months: string[], targetMonthKey: string): number 
  * @param state Mutable calendar runtime state.
  */
 export function applyTodayFocus(state: CalendarRuntimeState): void {
-  const calendarState = state;
-  if (!calendarState.months.length) {
-    return;
-  }
-  const todayKey = todayDateKey();
-  const todayMonthKey = monthKeyForDateKey(todayKey);
-  calendarState.index = indexForMonth(calendarState.months, todayMonthKey);
-  calendarState.selectedDate = "";
-  if (calendarState.months[calendarState.index] === todayMonthKey) {
-    calendarState.selectedDate = todayKey;
-  }
+	const calendarState = state;
+	if (!calendarState.months.length) {
+		return;
+	}
+	const todayKey = todayDateKey();
+	const todayMonthKey = monthKeyForDateKey(todayKey);
+	calendarState.index = indexForMonth(calendarState.months, todayMonthKey);
+	calendarState.selectedDate = "";
+	if (calendarState.months[calendarState.index] === todayMonthKey) {
+		calendarState.selectedDate = todayKey;
+	}
 }
 
 /**
@@ -70,21 +73,21 @@ export function applyTodayFocus(state: CalendarRuntimeState): void {
  * @param options.focus Whether to focus selected day button.
  */
 export function selectDate(
-  state: CalendarRuntimeState,
-  dateKey: string,
-  renderMonth: () => void,
-  options: { focus?: boolean } = {},
+	state: CalendarRuntimeState,
+	dateKey: string,
+	renderMonth: () => void,
+	options: { focus?: boolean } = {},
 ): void {
-  const calendarState = state;
-  calendarState.selectedDate = dateKey;
-  calendarState.expectedFinishHighlightDate = dateKey;
-  renderMonth();
-  if (options.focus === true) {
-    const button = document.querySelector(`[data-calendar-day='${dateKey}']`);
-    if (button instanceof HTMLElement) {
-      button.focus();
-    }
-  }
+	const calendarState = state;
+	calendarState.selectedDate = dateKey;
+	calendarState.expectedFinishHighlightDate = dateKey;
+	renderMonth();
+	if (options.focus === true) {
+		const button = document.querySelector(`[data-calendar-day='${dateKey}']`);
+		if (button instanceof HTMLElement) {
+			button.focus();
+		}
+	}
 }
 
 /**
@@ -95,18 +98,21 @@ export function selectDate(
  * @param selectDateWithOptions Date selection callback with focus option.
  */
 export function moveSelectionBy(
-  state: CalendarRuntimeState,
-  delta: number,
-  currentIndex: number,
-  selectDateWithOptions: (dateKey: string, options?: { focus?: boolean }) => void,
+	state: CalendarRuntimeState,
+	delta: number,
+	currentIndex: number,
+	selectDateWithOptions: (
+		dateKey: string,
+		options?: { focus?: boolean },
+	) => void,
 ): void {
-  const nextIndex = Math.min(
-    state.monthCellKeys.length - 1,
-    Math.max(0, currentIndex + delta),
-  );
-  const nextKey = state.monthCellKeys[nextIndex];
-  if (!nextKey) {
-    return;
-  }
-  selectDateWithOptions(nextKey, { focus: true });
+	const nextIndex = Math.min(
+		state.monthCellKeys.length - 1,
+		Math.max(0, currentIndex + delta),
+	);
+	const nextKey = state.monthCellKeys[nextIndex];
+	if (!nextKey) {
+		return;
+	}
+	selectDateWithOptions(nextKey, { focus: true });
 }

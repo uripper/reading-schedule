@@ -1,5 +1,5 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import test from "node:test";
 
 import { blockerMeta } from "../dist/renderer/books/presenters.js";
 
@@ -9,31 +9,31 @@ import { blockerMeta } from "../dist/renderer/books/presenters.js";
  * @returns {{book_id: string, blocked_by: string|null}} Book fixture.
  */
 function book(overrides = {}) {
-  return {
-    book_id: "book-a",
-    blocked_by: null,
-    ...overrides,
-  };
+	return {
+		book_id: "book-a",
+		blocked_by: null,
+		...overrides,
+	};
 }
 
 test("blockerMeta returns null when blocker id is missing", () => {
-  assert.equal(blockerMeta(book(), {}), null);
+	assert.equal(blockerMeta(book(), {}), null);
 });
 
 test("blockerMeta resolves blocker title while keeping blocker id", () => {
-  const result = blockerMeta(book({ blocked_by: "book-b" }), {
-    "book-b": "Powerful Python",
-  });
-  assert.deepEqual(result, {
-    blockerBookId: "book-b",
-    label: "After: Powerful Python",
-  });
+	const result = blockerMeta(book({ blocked_by: "book-b" }), {
+		"book-b": "Powerful Python",
+	});
+	assert.deepEqual(result, {
+		blockerBookId: "book-b",
+		label: "After: Powerful Python",
+	});
 });
 
 test("blockerMeta falls back to blocker id when title lookup misses", () => {
-  const result = blockerMeta(book({ blocked_by: "book-b" }), {});
-  assert.deepEqual(result, {
-    blockerBookId: "book-b",
-    label: "After: book-b",
-  });
+	const result = blockerMeta(book({ blocked_by: "book-b" }), {});
+	assert.deepEqual(result, {
+		blockerBookId: "book-b",
+		label: "After: book-b",
+	});
 });

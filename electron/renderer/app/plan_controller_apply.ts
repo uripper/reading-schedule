@@ -1,14 +1,14 @@
-import {
-  mergeScheduleRows,
-  pruneScheduleCompletions,
-} from "./schedule_preserve.js";
 import type {
-  PlannerResult,
-  PlannerScheduleRow,
-  ApplyLoadedResultArgs,
-  ApplyPlannedDataArgs,
-  PlannerRunData,
+	ApplyLoadedResultArgs,
+	ApplyPlannedDataArgs,
+	PlannerResult,
+	PlannerRunData,
+	PlannerScheduleRow,
 } from "../../types/types.js";
+import {
+	mergeScheduleRows,
+	pruneScheduleCompletions,
+} from "./schedule_preserve.js";
 
 /**
  * Checks whether a schedule contains at least one row.
@@ -16,7 +16,7 @@ import type {
  * @returns True when one or more rows exist.
  */
 function hasRows(rows: PlannerScheduleRow[]): boolean {
-  return rows.length > 0;
+	return rows.length > 0;
 }
 
 /**
@@ -25,11 +25,11 @@ function hasRows(rows: PlannerScheduleRow[]): boolean {
  * @returns Persistable planner result object.
  */
 function resultFromData(data: PlannerRunData): PlannerResult {
-  return {
-    schedule: data.schedule,
-    summary: data.summary ?? null,
-    created_at: new Date().toISOString(),
-  };
+	return {
+		schedule: data.schedule,
+		summary: data.summary ?? null,
+		created_at: new Date().toISOString(),
+	};
 }
 
 /**
@@ -40,44 +40,44 @@ function resultFromData(data: PlannerRunData): PlannerResult {
  * @returns Promise that resolves after state persistence completes.
  */
 export async function applyPlannedData(
-  root0: ApplyPlannedDataArgs,
+	root0: ApplyPlannedDataArgs,
 ): Promise<void> {
-  const {
-    data,
-    preserveLockedDays,
-    getLastResult,
-    getSessions,
-    getBlockedDayBooks,
-    getScheduleCompletions,
-    setScheduleCompletions,
-    setLastResult,
-    setBookScheduleRows,
-    renderCalendar,
-    totalsFromSummary,
-    updateTodayView,
-    persistDraft,
-  } = root0;
-  const previousRows = getLastResult()?.schedule ?? [];
-  let nextRows = data.schedule;
-  if (preserveLockedDays) {
-    nextRows = mergeScheduleRows(
-      previousRows,
-      nextRows,
-      getSessions(),
-      getBlockedDayBooks(),
-    );
-  }
-  const filteredCompletions = pruneScheduleCompletions(
-    getScheduleCompletions(),
-    nextRows,
-  );
-  setScheduleCompletions(filteredCompletions);
-  const nextResult = resultFromData({ ...data, schedule: nextRows });
-  setLastResult(nextResult);
-  setBookScheduleRows(nextRows);
-  renderCalendar(nextRows, totalsFromSummary(nextResult.summary));
-  updateTodayView();
-  await persistDraft();
+	const {
+		data,
+		preserveLockedDays,
+		getLastResult,
+		getSessions,
+		getBlockedDayBooks,
+		getScheduleCompletions,
+		setScheduleCompletions,
+		setLastResult,
+		setBookScheduleRows,
+		renderCalendar,
+		totalsFromSummary,
+		updateTodayView,
+		persistDraft,
+	} = root0;
+	const previousRows = getLastResult()?.schedule ?? [];
+	let nextRows = data.schedule;
+	if (preserveLockedDays) {
+		nextRows = mergeScheduleRows(
+			previousRows,
+			nextRows,
+			getSessions(),
+			getBlockedDayBooks(),
+		);
+	}
+	const filteredCompletions = pruneScheduleCompletions(
+		getScheduleCompletions(),
+		nextRows,
+	);
+	setScheduleCompletions(filteredCompletions);
+	const nextResult = resultFromData({ ...data, schedule: nextRows });
+	setLastResult(nextResult);
+	setBookScheduleRows(nextRows);
+	renderCalendar(nextRows, totalsFromSummary(nextResult.summary));
+	updateTodayView();
+	await persistDraft();
 }
 
 /**
@@ -87,22 +87,22 @@ export async function applyPlannedData(
  * @param root0.defaultLastResult Fallback empty planner result.
  */
 export function applyLoadedResult(root0: ApplyLoadedResultArgs): void {
-  const {
-    savedResult,
-    defaultLastResult,
-    setLastResult,
-    setBookScheduleRows,
-    renderCalendar,
-    totalsFromSummary,
-    addLog,
-  } = root0;
-  if (savedResult === null || !hasRows(savedResult.schedule)) {
-    setLastResult(defaultLastResult);
-    setBookScheduleRows([]);
-    return;
-  }
-  setLastResult(savedResult);
-  setBookScheduleRows(savedResult.schedule);
-  renderCalendar(savedResult.schedule, totalsFromSummary(savedResult.summary));
-  addLog("Loaded previous schedule.");
+	const {
+		savedResult,
+		defaultLastResult,
+		setLastResult,
+		setBookScheduleRows,
+		renderCalendar,
+		totalsFromSummary,
+		addLog,
+	} = root0;
+	if (savedResult === null || !hasRows(savedResult.schedule)) {
+		setLastResult(defaultLastResult);
+		setBookScheduleRows([]);
+		return;
+	}
+	setLastResult(savedResult);
+	setBookScheduleRows(savedResult.schedule);
+	renderCalendar(savedResult.schedule, totalsFromSummary(savedResult.summary));
+	addLog("Loaded previous schedule.");
 }

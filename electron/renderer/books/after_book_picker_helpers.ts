@@ -8,12 +8,12 @@ const NO_ACTIVE_INDEX = -1;
  * @returns Display label combining title and author when available.
  */
 export function optionLabel(book: Book): string {
-  const title = String(book.title || "Untitled");
-  const author = String(book.author || "").trim();
-  if (!author) {
-    return title;
-  }
-  return `${title} - ${author}`;
+	const title = String(book.title || "Untitled");
+	const author = String(book.author || "").trim();
+	if (!author) {
+		return title;
+	}
+	return `${title} - ${author}`;
 }
 
 /**
@@ -23,19 +23,19 @@ export function optionLabel(book: Book): string {
  * @returns Locale compare result.
  */
 export function compareBooks(left: Book, right: Book): number {
-  const titleCompare = String(left.title || "").localeCompare(
-    String(right.title || ""),
-    undefined,
-    { sensitivity: "base" },
-  );
-  if (titleCompare !== 0) {
-    return titleCompare;
-  }
-  return String(left.author || "").localeCompare(
-    String(right.author || ""),
-    undefined,
-    { sensitivity: "base" },
-  );
+	const titleCompare = String(left.title || "").localeCompare(
+		String(right.title || ""),
+		undefined,
+		{ sensitivity: "base" },
+	);
+	if (titleCompare !== 0) {
+		return titleCompare;
+	}
+	return String(left.author || "").localeCompare(
+		String(right.author || ""),
+		undefined,
+		{ sensitivity: "base" },
+	);
 }
 
 /**
@@ -45,10 +45,10 @@ export function compareBooks(left: Book, right: Book): number {
  * @returns Wrapped index, or -1 when there are no options.
  */
 export function wrapIndex(index: number, length: number): number {
-  if (length <= 0) {
-    return NO_ACTIVE_INDEX;
-  }
-  return ((index % length) + length) % length;
+	if (length <= 0) {
+		return NO_ACTIVE_INDEX;
+	}
+	return ((index % length) + length) % length;
 }
 
 /**
@@ -58,10 +58,10 @@ export function wrapIndex(index: number, length: number): number {
  * @returns True when query is empty or label includes query text.
  */
 export function matchesQuery(book: Book, query: string): boolean {
-  if (!query) {
-    return true;
-  }
-  return optionLabel(book).toLowerCase().includes(query.toLowerCase());
+	if (!query) {
+		return true;
+	}
+	return optionLabel(book).toLowerCase().includes(query.toLowerCase());
 }
 
 /**
@@ -70,10 +70,10 @@ export function matchesQuery(book: Book, query: string): boolean {
  * @returns Matched result element or null.
  */
 export function lookupResultTarget(event: Event): HTMLElement | null {
-  if (!(event.target instanceof HTMLElement)) {
-    return null;
-  }
-  return event.target.closest(".book-result");
+	if (!(event.target instanceof HTMLElement)) {
+		return null;
+	}
+	return event.target.closest(".book-result");
 }
 
 /**
@@ -83,7 +83,7 @@ export function lookupResultTarget(event: Event): HTMLElement | null {
  * @returns True when labels are equivalent case-insensitively.
  */
 export function labelsMatch(left: string, right: string): boolean {
-  return left.trim().toLowerCase() === right.trim().toLowerCase();
+	return left.trim().toLowerCase() === right.trim().toLowerCase();
 }
 
 /**
@@ -94,14 +94,14 @@ export function labelsMatch(left: string, right: string): boolean {
  * @returns True when picker should stay open.
  */
 export function shouldKeepPickerOpen({
-  targetIsInput,
-  targetIsInResults,
+	targetIsInput,
+	targetIsInResults,
 }: PickerInteraction): boolean {
-  if (targetIsInput) {
-    return true;
-  }
-  if (targetIsInResults) {
-    return true;
-  }
-  return false;
+	if (targetIsInput) {
+		return true;
+	}
+	if (targetIsInResults) {
+		return true;
+	}
+	return false;
 }

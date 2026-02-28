@@ -1,6 +1,6 @@
+import type { Session, SessionInput } from "../../types/types.js";
 import { uid } from "../dom.js";
 import { toInt } from "./utils.js";
-import type { Session, SessionInput } from "../../types/types.js";
 
 const SOURCE_TIMER: Session["source"] = "timer";
 const SOURCE_MANUAL: Session["source"] = "manual";
@@ -13,7 +13,7 @@ const UNTITLED_SESSION = "Untitled";
  * @returns Negative/zero/positive comparison result.
  */
 function compareByEndedAtDesc(left: Session, right: Session): number {
-  return String(right.ended_at).localeCompare(String(left.ended_at));
+	return String(right.ended_at).localeCompare(String(left.ended_at));
 }
 
 /**
@@ -22,24 +22,24 @@ function compareByEndedAtDesc(left: Session, right: Session): number {
  * @returns Normalized started/ended timestamp pair.
  */
 function normalizedDates(session: SessionInput): {
-  endedAt: string;
-  startedAt: string;
+	endedAt: string;
+	startedAt: string;
 } {
-  const endedAtRaw = String((session.ended_at ?? session.endedAt) ?? "").trim();
-  let endedAt = endedAtRaw;
-  if (endedAt.length === 0) {
-    endedAt = new Date().toISOString();
-  }
+	const endedAtRaw = String(session.ended_at ?? session.endedAt ?? "").trim();
+	let endedAt = endedAtRaw;
+	if (endedAt.length === 0) {
+		endedAt = new Date().toISOString();
+	}
 
-  const startedAtRaw = String(
-    (session.started_at ?? session.startedAt) ?? "",
-  ).trim();
-  let startedAt = startedAtRaw;
-  if (startedAt.length === 0) {
-    startedAt = endedAt;
-  }
+	const startedAtRaw = String(
+		session.started_at ?? session.startedAt ?? "",
+	).trim();
+	let startedAt = startedAtRaw;
+	if (startedAt.length === 0) {
+		startedAt = endedAt;
+	}
 
-  return { endedAt, startedAt };
+	return { endedAt, startedAt };
 }
 
 /**
@@ -48,10 +48,10 @@ function normalizedDates(session: SessionInput): {
  * @returns Parsed pages-read value or `null`.
  */
 function normalizedPagesRead(value?: number | string | null): number | null {
-  if (value === null || value === undefined || value === "") {
-    return null;
-  }
-  return Math.max(0, toInt(value, 0));
+	if (value === null || value === undefined || value === "") {
+		return null;
+	}
+	return Math.max(0, toInt(value, 0));
 }
 
 /**
@@ -60,10 +60,10 @@ function normalizedPagesRead(value?: number | string | null): number | null {
  * @returns `"manual"` when matched; otherwise `"timer"`.
  */
 function normalizedSource(value?: string): Session["source"] {
-  if (value === SOURCE_MANUAL) {
-    return SOURCE_MANUAL;
-  }
-  return SOURCE_TIMER;
+	if (value === SOURCE_MANUAL) {
+		return SOURCE_MANUAL;
+	}
+	return SOURCE_TIMER;
 }
 
 /**
@@ -72,22 +72,22 @@ function normalizedSource(value?: string): Session["source"] {
  * @returns Normalized session object.
  */
 export function normalizeSession(session: SessionInput = {}): Session {
-  const { endedAt, startedAt } = normalizedDates(session);
-  const pagesRead = normalizedPagesRead(session.pages_read);
-  const source = normalizedSource(session.source);
+	const { endedAt, startedAt } = normalizedDates(session);
+	const pagesRead = normalizedPagesRead(session.pages_read);
+	const source = normalizedSource(session.source);
 
-  return {
-    source,
-    id: String(session.id ?? uid()),
-    book_id: String(session.book_id ?? ""),
-    title: String(session.title ?? UNTITLED_SESSION),
-    started_at: startedAt,
-    ended_at: endedAt,
-    minutes: Math.max(1, toInt(session.minutes, 1)),
-    pages_read: pagesRead,
-    notes: String(session.notes ?? "").trim(),
-    created_at: String(session.created_at ?? endedAt),
-  };
+	return {
+		source,
+		id: String(session.id ?? uid()),
+		book_id: String(session.book_id ?? ""),
+		title: String(session.title ?? UNTITLED_SESSION),
+		started_at: startedAt,
+		ended_at: endedAt,
+		minutes: Math.max(1, toInt(session.minutes, 1)),
+		pages_read: pagesRead,
+		notes: String(session.notes ?? "").trim(),
+		created_at: String(session.created_at ?? endedAt),
+	};
 }
 
 /**
@@ -96,9 +96,9 @@ export function normalizeSession(session: SessionInput = {}): Session {
  * @returns Normalized sessions sorted by `ended_at` descending.
  */
 export function normalizeSessions(rawSessions: SessionInput[] = []): Session[] {
-  let normalizedRawSessions: SessionInput[] = [];
-  if (Array.isArray(rawSessions)) {
-    normalizedRawSessions = rawSessions;
-  }
-  return normalizedRawSessions.map(normalizeSession).sort(compareByEndedAtDesc);
+	let normalizedRawSessions: SessionInput[] = [];
+	if (Array.isArray(rawSessions)) {
+		normalizedRawSessions = rawSessions;
+	}
+	return normalizedRawSessions.map(normalizeSession).sort(compareByEndedAtDesc);
 }

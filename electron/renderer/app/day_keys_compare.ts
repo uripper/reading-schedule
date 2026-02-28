@@ -10,30 +10,30 @@ const DAY_KEY_COMPARE_LEFT_AFTER_RIGHT = 1;
  * @returns True when the key is a valid calendar day.
  */
 export function isValidDayKey(dayKey: string): boolean {
-  if (!DAY_KEY_PATTERN.test(dayKey)) {
-    return false;
-  }
-  const [year, month, day] = dayKey.split("-").map(Number);
-  if (!Number.isInteger(year)) {
-    return false;
-  }
-  if (!Number.isInteger(month)) {
-    return false;
-  }
-  if (!Number.isInteger(day)) {
-    return false;
-  }
-  const parsed = new Date(year, month - MONTH_INDEX_OFFSET, day);
-  if (parsed.getFullYear() !== year) {
-    return false;
-  }
-  if (parsed.getMonth() !== month - MONTH_INDEX_OFFSET) {
-    return false;
-  }
-  if (parsed.getDate() !== day) {
-    return false;
-  }
-  return true;
+	if (!DAY_KEY_PATTERN.test(dayKey)) {
+		return false;
+	}
+	const [year, month, day] = dayKey.split("-").map(Number);
+	if (!Number.isInteger(year)) {
+		return false;
+	}
+	if (!Number.isInteger(month)) {
+		return false;
+	}
+	if (!Number.isInteger(day)) {
+		return false;
+	}
+	const parsed = new Date(year, month - MONTH_INDEX_OFFSET, day);
+	if (parsed.getFullYear() !== year) {
+		return false;
+	}
+	if (parsed.getMonth() !== month - MONTH_INDEX_OFFSET) {
+		return false;
+	}
+	if (parsed.getDate() !== day) {
+		return false;
+	}
+	return true;
 }
 
 /**
@@ -43,19 +43,19 @@ export function isValidDayKey(dayKey: string): boolean {
  * @returns `-1` when left is earlier, `0` when equal, `1` when later, else `null`.
  */
 export function compareDayKeys(left: string, right: string): number | null {
-  if (!isValidDayKey(left)) {
-    return null;
-  }
-  if (!isValidDayKey(right)) {
-    return null;
-  }
-  if (left === right) {
-    return DAY_KEY_COMPARE_EQUAL;
-  }
-  if (left < right) {
-    return DAY_KEY_COMPARE_LEFT_BEFORE_RIGHT;
-  }
-  return DAY_KEY_COMPARE_LEFT_AFTER_RIGHT;
+	if (!isValidDayKey(left)) {
+		return null;
+	}
+	if (!isValidDayKey(right)) {
+		return null;
+	}
+	if (left === right) {
+		return DAY_KEY_COMPARE_EQUAL;
+	}
+	if (left < right) {
+		return DAY_KEY_COMPARE_LEFT_BEFORE_RIGHT;
+	}
+	return DAY_KEY_COMPARE_LEFT_AFTER_RIGHT;
 }
 
 /**
@@ -65,11 +65,11 @@ export function compareDayKeys(left: string, right: string): number | null {
  * @returns True when `left` is on or before `right`.
  */
 export function isOnOrBeforeDay(left: string, right: string): boolean {
-  const compared = compareDayKeys(left, right);
-  if (compared === null) {
-    return false;
-  }
-  return compared <= DAY_KEY_COMPARE_EQUAL;
+	const compared = compareDayKeys(left, right);
+	if (compared === null) {
+		return false;
+	}
+	return compared <= DAY_KEY_COMPARE_EQUAL;
 }
 
 /**
@@ -79,9 +79,9 @@ export function isOnOrBeforeDay(left: string, right: string): boolean {
  * @returns True when `left` is on or after `right`.
  */
 export function isOnOrAfterDay(left: string, right: string): boolean {
-  const compared = compareDayKeys(left, right);
-  if (compared === null) {
-    return false;
-  }
-  return compared >= DAY_KEY_COMPARE_EQUAL;
+	const compared = compareDayKeys(left, right);
+	if (compared === null) {
+		return false;
+	}
+	return compared >= DAY_KEY_COMPARE_EQUAL;
 }

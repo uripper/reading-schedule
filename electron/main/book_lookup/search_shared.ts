@@ -2,7 +2,7 @@
  * @file Shared constants and data contracts for book lookup search.
  */
 export const SEARCH_FIELDS =
-  "title,title_suggest,author_name,first_publish_year,number_of_pages_median,cover_i,key,language,edition_count";
+	"title,title_suggest,author_name,first_publish_year,number_of_pages_median,cover_i,key,language,edition_count";
 export const SEARCH_FETCH_LIMIT = 24;
 export const SEARCH_OUTPUT_LIMIT = 12;
 export const MIN_QUERY_LENGTH = 2;

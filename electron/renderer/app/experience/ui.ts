@@ -1,16 +1,13 @@
-import { el } from "../../dom.js";
 import type { FeatureFlags, Preferences } from "../../../types/types.js";
+import { el } from "../../dom.js";
 import {
-  DEFAULT_PREFERENCES,
-  isSupportedTheme,
-} from "./model.js";
-import {
-  RECOMMENDATIONS_AVAILABLE,
-  REMINDERS_AVAILABLE,
-  SOCIAL_FEATURES_AVAILABLE,
-  shippedFeatureFlag,
-  shippedReminderTime,
+	RECOMMENDATIONS_AVAILABLE,
+	REMINDERS_AVAILABLE,
+	SOCIAL_FEATURES_AVAILABLE,
+	shippedFeatureFlag,
+	shippedReminderTime,
 } from "./availability.js";
+import { DEFAULT_PREFERENCES, isSupportedTheme } from "./model.js";
 
 /**
  * Reads a numeric input and normalizes empty or invalid values to 0.
@@ -18,12 +15,12 @@ import {
  * @returns Parsed number, or 0 when input is empty/invalid.
  */
 function numberInputValue(id: string): number {
-  const raw = el<HTMLInputElement>(id).value;
-  const parsed = Number(raw);
-  if (Number.isFinite(parsed)) {
-    return parsed;
-  }
-  return 0;
+	const raw = el<HTMLInputElement>(id).value;
+	const parsed = Number(raw);
+	if (Number.isFinite(parsed)) {
+		return parsed;
+	}
+	return 0;
 }
 
 /**
@@ -32,7 +29,7 @@ function numberInputValue(id: string): number {
  * @returns Checked state.
  */
 function checkboxValue(id: string): boolean {
-  return el<HTMLInputElement>(id).checked;
+	return el<HTMLInputElement>(id).checked;
 }
 
 /**
@@ -41,7 +38,7 @@ function checkboxValue(id: string): boolean {
  * @returns Raw input value.
  */
 function inputValue(id: string): string {
-  return el<HTMLInputElement>(id).value;
+	return el<HTMLInputElement>(id).value;
 }
 
 /**
@@ -50,7 +47,7 @@ function inputValue(id: string): string {
  * @returns Selected option value.
  */
 function selectValue(id: string): string {
-  return el<HTMLSelectElement>(id).value;
+	return el<HTMLSelectElement>(id).value;
 }
 
 /**
@@ -58,29 +55,29 @@ function selectValue(id: string): string {
  * @returns An object containing the user preferences.
  */
 export function collectPreferencesFromUI(): Preferences {
-  let theme: Preferences["theme"] = DEFAULT_PREFERENCES.theme;
-  const selectedTheme = selectValue("themeSelect");
-  if (isSupportedTheme(selectedTheme)) {
-    theme = selectedTheme;
-  }
+	let theme: Preferences["theme"] = DEFAULT_PREFERENCES.theme;
+	const selectedTheme = selectValue("themeSelect");
+	if (isSupportedTheme(selectedTheme)) {
+		theme = selectedTheme;
+	}
 
-  return {
-    theme,
-    reduceMotion: checkboxValue("reduceMotionToggle"),
-    timezone: DEFAULT_PREFERENCES.timezone,
-    dailyGoalMinutes:
-      numberInputValue("dailyGoalInput") ||
-      DEFAULT_PREFERENCES.dailyGoalMinutes,
-    reminderEnabled: shippedFeatureFlag(
-      checkboxValue("reminderEnabledToggle"),
-      REMINDERS_AVAILABLE,
-    ),
-    reminderTime: shippedReminderTime(
-      inputValue("reminderTimeInput"),
-      REMINDERS_AVAILABLE,
-      DEFAULT_PREFERENCES.reminderTime,
-    ),
-  };
+	return {
+		theme,
+		reduceMotion: checkboxValue("reduceMotionToggle"),
+		timezone: DEFAULT_PREFERENCES.timezone,
+		dailyGoalMinutes:
+			numberInputValue("dailyGoalInput") ||
+			DEFAULT_PREFERENCES.dailyGoalMinutes,
+		reminderEnabled: shippedFeatureFlag(
+			checkboxValue("reminderEnabledToggle"),
+			REMINDERS_AVAILABLE,
+		),
+		reminderTime: shippedReminderTime(
+			inputValue("reminderTimeInput"),
+			REMINDERS_AVAILABLE,
+			DEFAULT_PREFERENCES.reminderTime,
+		),
+	};
 }
 
 /**
@@ -88,15 +85,15 @@ export function collectPreferencesFromUI(): Preferences {
  * @returns An object containing the feature flag settings.
  */
 export function collectFeatureFlagsFromUI(): FeatureFlags {
-  return {
-    gamificationEnabled: checkboxValue("flagGamification"),
-    socialEnabled: shippedFeatureFlag(
-      checkboxValue("flagSocial"),
-      SOCIAL_FEATURES_AVAILABLE,
-    ),
-    recommendationsEnabled: shippedFeatureFlag(
-      checkboxValue("flagRecommendations"),
-      RECOMMENDATIONS_AVAILABLE,
-    ),
-  };
+	return {
+		gamificationEnabled: checkboxValue("flagGamification"),
+		socialEnabled: shippedFeatureFlag(
+			checkboxValue("flagSocial"),
+			SOCIAL_FEATURES_AVAILABLE,
+		),
+		recommendationsEnabled: shippedFeatureFlag(
+			checkboxValue("flagRecommendations"),
+			RECOMMENDATIONS_AVAILABLE,
+		),
+	};
 }

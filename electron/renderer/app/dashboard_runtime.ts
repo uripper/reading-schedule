@@ -1,7 +1,5 @@
-
-import { DEFAULT_PREFERENCES } from "./experience/index.js";
-
 import type { DashboardRuntimeArgs } from "../../types/types.js";
+import { DEFAULT_PREFERENCES } from "./experience/index.js";
 
 /**
  * Creates dashboard update actions that keep Today/Stats panels in sync with UI preferences.
@@ -19,48 +17,50 @@ import type { DashboardRuntimeArgs } from "../../types/types.js";
  * @returns Dashboard action handlers for applying settings and repainting both dashboards.
  */
 export function createDashboardRuntime({
-  applyPreferencesToDocument,
-  collectFeatureFlagsFromUI,
-  collectPreferencesFromUI,
-  collectAllBooks,
-  normalizeFeatureFlags,
-  normalizePreferences,
-  queuePersist,
-  state,
-  updateStatsView,
-  updateTodayDashboard,
+	applyPreferencesToDocument,
+	collectFeatureFlagsFromUI,
+	collectPreferencesFromUI,
+	collectAllBooks,
+	normalizeFeatureFlags,
+	normalizePreferences,
+	queuePersist,
+	state,
+	updateStatsView,
+	updateTodayDashboard,
 }: DashboardRuntimeArgs): {
-  applyExperienceSettings(): void;
-  updateDashboards(): void;
+	applyExperienceSettings(): void;
+	updateDashboards(): void;
 } {
-  const runtimeState = state;
-  const updateStatsDashboardView = (): void => {
-    updateStatsView({
-      books: collectAllBooks(),
-      sessions: runtimeState.sessions,
-      lastResult: runtimeState.lastResult,
-      scheduleCompletions: runtimeState.scheduleCompletions,
-      dailyGoalMinutes: Number(runtimeState.preferences.dailyGoalMinutes),
-    });
-  };
-  const updateDashboards = (): void => {
-    updateTodayDashboard({
-      lastResult: runtimeState.lastResult,
-      scheduleCompletions: runtimeState.scheduleCompletions,
-      books: collectAllBooks(),
-      sessions: runtimeState.sessions,
-      preferences: runtimeState.preferences,
-      featureFlags: runtimeState.featureFlags,
-      defaultDailyGoalMinutes: DEFAULT_PREFERENCES.dailyGoalMinutes,
-    });
-    updateStatsDashboardView();
-  };
-  const applyExperienceSettings = (): void => {
-    runtimeState.preferences = normalizePreferences(collectPreferencesFromUI());
-    runtimeState.featureFlags = normalizeFeatureFlags(collectFeatureFlagsFromUI());
-    applyPreferencesToDocument(runtimeState.preferences);
-    updateDashboards();
-    queuePersist();
-  };
-  return { applyExperienceSettings, updateDashboards };
+	const runtimeState = state;
+	const updateStatsDashboardView = (): void => {
+		updateStatsView({
+			books: collectAllBooks(),
+			sessions: runtimeState.sessions,
+			lastResult: runtimeState.lastResult,
+			scheduleCompletions: runtimeState.scheduleCompletions,
+			dailyGoalMinutes: Number(runtimeState.preferences.dailyGoalMinutes),
+		});
+	};
+	const updateDashboards = (): void => {
+		updateTodayDashboard({
+			lastResult: runtimeState.lastResult,
+			scheduleCompletions: runtimeState.scheduleCompletions,
+			books: collectAllBooks(),
+			sessions: runtimeState.sessions,
+			preferences: runtimeState.preferences,
+			featureFlags: runtimeState.featureFlags,
+			defaultDailyGoalMinutes: DEFAULT_PREFERENCES.dailyGoalMinutes,
+		});
+		updateStatsDashboardView();
+	};
+	const applyExperienceSettings = (): void => {
+		runtimeState.preferences = normalizePreferences(collectPreferencesFromUI());
+		runtimeState.featureFlags = normalizeFeatureFlags(
+			collectFeatureFlagsFromUI(),
+		);
+		applyPreferencesToDocument(runtimeState.preferences);
+		updateDashboards();
+		queuePersist();
+	};
+	return { applyExperienceSettings, updateDashboards };
 }

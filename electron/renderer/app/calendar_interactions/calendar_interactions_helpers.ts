@@ -1,21 +1,21 @@
 import type {
-  Book,
-  PlannerResult,
-  ManualSessionBook,
+	Book,
+	ManualSessionBook,
+	PlannerResult,
 } from "../../../types/types.js";
 
 export {
-  dayBookCompletionKey,
-  dayBookCompletionKeyFromSession,
+	dayBookCompletionKey,
+	dayBookCompletionKeyFromSession,
 } from "./calendar_interactions_key_helpers.js";
 export {
-  DEFAULT_BOOK_DIFFICULTY,
-  normalizedManualMinutes,
-  wordsPlannedForManualSession,
+	DEFAULT_BOOK_DIFFICULTY,
+	normalizedManualMinutes,
+	wordsPlannedForManualSession,
 } from "./calendar_interactions_manual_helpers.js";
 export {
-  nextSessionIndexForDate,
-  rowsWithoutSession,
+	nextSessionIndexForDate,
+	rowsWithoutSession,
 } from "./calendar_interactions_row_helpers.js";
 
 /**
@@ -24,11 +24,11 @@ export {
  * @returns A `PlannerResult` with an empty schedule, null summary, and blank creation timestamp.
  */
 export function emptyPlannerResult(): PlannerResult {
-  return {
-    schedule: [],
-    summary: null,
-    created_at: "",
-  };
+	return {
+		schedule: [],
+		summary: null,
+		created_at: "",
+	};
 }
 
 /**
@@ -41,15 +41,15 @@ export function emptyPlannerResult(): PlannerResult {
  * @returns An array of `ManualSessionBook` objects, sorted by title.
  */
 export function manualSessionBooks(books: Book[] = []): ManualSessionBook[] {
-  return books
-    .map((book) => ({
-      bookId: String(book.book_id || ""),
-      title: String(book.title || "").trim(),
-    }))
-    .filter((book) => book.bookId && book.title)
-    .sort((left, right) => {
-      return left.title.localeCompare(right.title, undefined, {
-        sensitivity: "base",
-      });
-    });
+	return books
+		.map((book) => ({
+			bookId: String(book.book_id || ""),
+			title: String(book.title || "").trim(),
+		}))
+		.filter((book) => book.bookId && book.title)
+		.sort((left, right) => {
+			return left.title.localeCompare(right.title, undefined, {
+				sensitivity: "base",
+			});
+		});
 }

@@ -1,6 +1,6 @@
+import type { DayStyleFlags, DayStyleFlagsArgs } from "../../types/types.js";
 import { WEEKDAY_LABELS } from "./constants.js";
 import { appendDayButtonSummary } from "./month_day_button_chips.js";
-import type { DayStyleFlags, DayStyleFlagsArgs } from "../../types/types.js";
 
 /**
  * Derives visual state flags for a calendar day button.
@@ -14,20 +14,20 @@ import type { DayStyleFlags, DayStyleFlagsArgs } from "../../types/types.js";
  * @returns Day-style flags used for class/aria assignment.
  */
 export function dayStyleFlags(args: DayStyleFlagsArgs): DayStyleFlags {
-  const hasFinishRow = args.rows.some((row) => {
-    return row.finish === true;
-  });
-  const isMuted = args.date.getMonth() !== args.firstDate.getMonth();
-  const isSelected = args.selectedDate === args.keyForDay;
-  const isPast = Number(args.keyForDay) < Number(args.todayKey);
-  const isToday = Number(args.keyForDay) === Number(args.todayKey);
-  return {
-    hasFinishRow,
-    isMuted,
-    isPast,
-    isSelected,
-    isToday,
-  };
+	const hasFinishRow = args.rows.some((row) => {
+		return row.finish === true;
+	});
+	const isMuted = args.date.getMonth() !== args.firstDate.getMonth();
+	const isSelected = args.selectedDate === args.keyForDay;
+	const isPast = Number(args.keyForDay) < Number(args.todayKey);
+	const isToday = Number(args.keyForDay) === Number(args.todayKey);
+	return {
+		hasFinishRow,
+		isMuted,
+		isPast,
+		isSelected,
+		isToday,
+	};
 }
 
 /**
@@ -35,12 +35,12 @@ export function dayStyleFlags(args: DayStyleFlagsArgs): DayStyleFlags {
  * @returns Weekday header span elements.
  */
 export function createWeekdayHeader(): HTMLSpanElement[] {
-  return WEEKDAY_LABELS.map((label) => {
-    const head = document.createElement("span");
-    head.className = "calendar-weekday";
-    head.textContent = label;
-    return head;
-  });
+	return WEEKDAY_LABELS.map((label) => {
+		const head = document.createElement("span");
+		head.className = "calendar-weekday";
+		head.textContent = label;
+		return head;
+	});
 }
 
 /**
@@ -55,36 +55,36 @@ export function createWeekdayHeader(): HTMLSpanElement[] {
  * @returns Configured day button element.
  */
 export function createDayButton(args: DayStyleFlagsArgs): HTMLButtonElement {
-  const dayButton = document.createElement("button");
-  dayButton.type = "button";
-  dayButton.className = "day";
-  const flags = dayStyleFlags(args);
-  if (flags.hasFinishRow) {
-    dayButton.classList.add("has-finish");
-  }
-  if (flags.isMuted) {
-    dayButton.classList.add("is-muted");
-  }
-  if (flags.isSelected) {
-    dayButton.classList.add("is-selected");
-  }
-  if (flags.isPast) {
-    dayButton.classList.add("is-past");
-  }
-  if (flags.isToday) {
-    dayButton.classList.add("is-today");
-    dayButton.setAttribute("aria-current", "date");
-  }
-  dayButton.dataset.calendarDay = args.keyForDay;
-  dayButton.setAttribute("role", "gridcell");
-  dayButton.setAttribute("aria-selected", "false");
-  if (flags.isSelected) {
-    dayButton.setAttribute("aria-selected", "true");
-  }
-  const dayDate = document.createElement("span");
-  dayDate.className = "day-date";
-  dayDate.textContent = String(args.date.getDate());
-  dayButton.append(dayDate);
-  appendDayButtonSummary(dayButton, args.rows);
-  return dayButton;
+	const dayButton = document.createElement("button");
+	dayButton.type = "button";
+	dayButton.className = "day";
+	const flags = dayStyleFlags(args);
+	if (flags.hasFinishRow) {
+		dayButton.classList.add("has-finish");
+	}
+	if (flags.isMuted) {
+		dayButton.classList.add("is-muted");
+	}
+	if (flags.isSelected) {
+		dayButton.classList.add("is-selected");
+	}
+	if (flags.isPast) {
+		dayButton.classList.add("is-past");
+	}
+	if (flags.isToday) {
+		dayButton.classList.add("is-today");
+		dayButton.setAttribute("aria-current", "date");
+	}
+	dayButton.dataset.calendarDay = args.keyForDay;
+	dayButton.setAttribute("role", "gridcell");
+	dayButton.setAttribute("aria-selected", "false");
+	if (flags.isSelected) {
+		dayButton.setAttribute("aria-selected", "true");
+	}
+	const dayDate = document.createElement("span");
+	dayDate.className = "day-date";
+	dayDate.textContent = String(args.date.getDate());
+	dayButton.append(dayDate);
+	appendDayButtonSummary(dayButton, args.rows);
+	return dayButton;
 }

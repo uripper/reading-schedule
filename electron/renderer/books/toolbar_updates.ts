@@ -1,17 +1,17 @@
-import { GROUP_BY_NONE } from "./grouping.js";
-import {
-  normalizeStatusFilter,
-  statusFilterOptions,
-} from "./status.js";
-import { SORT_DIRECTION_DESC } from "./sort.js";
 import type {
-  Book,
-  BookGroupBy,
-  BookStatusFilter,
-  SortDirection,
+	Book,
+	BookGroupBy,
+	BookStatusFilter,
+	SortDirection,
 } from "../../types/types.js";
+import { GROUP_BY_NONE } from "./grouping.js";
+import { SORT_DIRECTION_DESC } from "./sort.js";
+import { normalizeStatusFilter, statusFilterOptions } from "./status.js";
 import { createOption } from "./toolbar_dom.js";
-import { groupOptionsForShelfFilter, shelfFilterOptions } from "./toolbar_options.js";
+import {
+	groupOptionsForShelfFilter,
+	shelfFilterOptions,
+} from "./toolbar_options.js";
 
 /**
  * Updates sort direction button label from current direction state.
@@ -19,14 +19,14 @@ import { groupOptionsForShelfFilter, shelfFilterOptions } from "./toolbar_option
  * @param sortDirection Active sort direction value.
  */
 export function updateSortDirectionButton(
-  sortDirectionBtn: HTMLButtonElement,
-  sortDirection: SortDirection,
+	sortDirectionBtn: HTMLButtonElement,
+	sortDirection: SortDirection,
 ): void {
-  const nextSortDirectionButton = sortDirectionBtn;
-  nextSortDirectionButton.textContent = "Ascending";
-  if (sortDirection === SORT_DIRECTION_DESC) {
-    nextSortDirectionButton.textContent = "Descending";
-  }
+	const nextSortDirectionButton = sortDirectionBtn;
+	nextSortDirectionButton.textContent = "Ascending";
+	if (sortDirection === SORT_DIRECTION_DESC) {
+		nextSortDirectionButton.textContent = "Descending";
+	}
 }
 
 /**
@@ -37,21 +37,21 @@ export function updateSortDirectionButton(
  * @returns Selected shelf filter after options refresh.
  */
 export function updateShelfFilterOptions(
-  shelfFilterSelect: HTMLSelectElement,
-  books: Book[],
-  selectedValue: string,
+	shelfFilterSelect: HTMLSelectElement,
+	books: Book[],
+	selectedValue: string,
 ): string {
-  const nextShelfFilterSelect = shelfFilterSelect;
-  const options = shelfFilterOptions(books);
-  nextShelfFilterSelect.replaceChildren(
-    ...options.map((option) => createOption(option.value, option.label)),
-  );
-  let nextValue = options[0].value;
-  if (options.some((option) => option.value === selectedValue)) {
-    nextValue = selectedValue;
-  }
-  nextShelfFilterSelect.value = nextValue;
-  return nextValue;
+	const nextShelfFilterSelect = shelfFilterSelect;
+	const options = shelfFilterOptions(books);
+	nextShelfFilterSelect.replaceChildren(
+		...options.map((option) => createOption(option.value, option.label)),
+	);
+	let nextValue = options[0].value;
+	if (options.some((option) => option.value === selectedValue)) {
+		nextValue = selectedValue;
+	}
+	nextShelfFilterSelect.value = nextValue;
+	return nextValue;
 }
 
 /**
@@ -61,22 +61,22 @@ export function updateShelfFilterOptions(
  * @returns Selected normalized status filter after options refresh.
  */
 export function updateStatusFilterOptions(
-  statusFilterSelect: HTMLSelectElement,
-  selectedValue: string,
+	statusFilterSelect: HTMLSelectElement,
+	selectedValue: string,
 ): BookStatusFilter {
-  const nextStatusFilterSelect = statusFilterSelect;
-  const options = statusFilterOptions();
-  nextStatusFilterSelect.replaceChildren(
-    ...options.map((option) => createOption(option.value, option.label)),
-  );
-  const normalized = normalizeStatusFilter(selectedValue);
-  const selected = options.find((option) => option.value === normalized);
-  let nextValue: BookStatusFilter = options[0].value;
-  if (selected) {
-    nextValue = selected.value;
-  }
-  nextStatusFilterSelect.value = nextValue;
-  return nextValue;
+	const nextStatusFilterSelect = statusFilterSelect;
+	const options = statusFilterOptions();
+	nextStatusFilterSelect.replaceChildren(
+		...options.map((option) => createOption(option.value, option.label)),
+	);
+	const normalized = normalizeStatusFilter(selectedValue);
+	const selected = options.find((option) => option.value === normalized);
+	let nextValue: BookStatusFilter = options[0].value;
+	if (selected) {
+		nextValue = selected.value;
+	}
+	nextStatusFilterSelect.value = nextValue;
+	return nextValue;
 }
 
 /**
@@ -87,19 +87,19 @@ export function updateStatusFilterOptions(
  * @returns Selected normalized group-by value after options refresh.
  */
 export function updateGroupByOptions(
-  groupBySelect: HTMLSelectElement,
-  selectedValue: BookGroupBy,
-  shelfFilter: string,
+	groupBySelect: HTMLSelectElement,
+	selectedValue: BookGroupBy,
+	shelfFilter: string,
 ): BookGroupBy {
-  const nextGroupBySelect = groupBySelect;
-  const options = groupOptionsForShelfFilter(shelfFilter);
-  nextGroupBySelect.replaceChildren(
-    ...options.map((option) => createOption(option.value, option.label)),
-  );
-  let nextValue: BookGroupBy = GROUP_BY_NONE;
-  if (options.some((option) => option.value === selectedValue)) {
-    nextValue = selectedValue;
-  }
-  nextGroupBySelect.value = nextValue;
-  return nextValue;
+	const nextGroupBySelect = groupBySelect;
+	const options = groupOptionsForShelfFilter(shelfFilter);
+	nextGroupBySelect.replaceChildren(
+		...options.map((option) => createOption(option.value, option.label)),
+	);
+	let nextValue: BookGroupBy = GROUP_BY_NONE;
+	if (options.some((option) => option.value === selectedValue)) {
+		nextValue = selectedValue;
+	}
+	nextGroupBySelect.value = nextValue;
+	return nextValue;
 }
