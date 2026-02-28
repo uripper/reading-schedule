@@ -5,11 +5,14 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
-from reading_plan.api import PlannerInputPayload, generate_plan
+from reading_plan.api import generate_plan
 from reading_plan.input.reading_io import load_inputs
 from reading_plan.input.serializers import book_to_data, settings_to_data
+
+if TYPE_CHECKING:
+    from reading_plan.api import PlannerInputPayload
 
 
 class BridgeResponse(TypedDict, total=False):
