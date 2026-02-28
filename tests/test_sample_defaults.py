@@ -6,21 +6,12 @@ import json
 from pathlib import Path
 import sys
 
-from reading_plan.cli import parse_args as parse_cli_args
 from reading_plan.gui_api import (
     main as gui_main,
     parse_args as parse_gui_args,
 )
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-
-
-def test_cli_defaults_to_committed_sample_books_file(monkeypatch) -> None:
-    """CLI should default to the committed sample books file."""
-    monkeypatch.setattr(sys, "argv", ["reading_plan.cli"])
-    args = parse_cli_args()
-    assert args.data == "data/books.sample.csv"
-    assert args.settings == "data/settings.json"
 
 
 def test_gui_defaults_to_committed_sample_books_file(monkeypatch) -> None:

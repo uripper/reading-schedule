@@ -85,3 +85,4 @@ sonar-project.properties
 .sonarlint/connectedMode.json
 .github/instructions/sonarqube_mcp.instructions.md
 .scratch/planner_state.sqlite3
+uv.lock

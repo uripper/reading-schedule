@@ -18,8 +18,8 @@ Applies to all code and docs in:
 ## Non-Negotiable Rules (MUST)
 
 - Keep function complexity under 10.
-- Keep files less than 150 lines in at least 90% of cases.
-- Keep files under 200 lines in 100% of cases; split files when necessary.
+- Keep files under 200 lines in at least 90% of cases.
+- Keep files under 300 lines in 100% of cases; split files when necessary.
 - Do not use ternaries.
 - Do not use magic numbers.
 - Do not introduce implicit `any` in TypeScript.
@@ -27,7 +27,8 @@ Applies to all code and docs in:
 - TypeScript `strict` mode is required for repository TypeScript projects unless an exception is approved.
 - `noImplicitAny` and `strictNullChecks` must remain enabled in all primary project tsconfig files.
 - Always perform lint checks.
-- Always run required type checks; zero type errors is mandatory.
+- Always run required type checks for all languages; zero type errors is mandatory.
+- Python type errors must be resolved using `ty check` before merge.
 
 ## Merge Blockers
 

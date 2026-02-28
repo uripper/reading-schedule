@@ -13,7 +13,7 @@ Guidance for coding agents working in this repository.
 
 ## 2) High-Value Paths
 
-- `src/reading_plan/`: planner/domain logic and CLI.
+- `src/reading_plan/`: planner/domain logic and API bridge.
 - `electron/main*.ts`: Electron main process entry points and IPC wiring.
 - `electron/renderer/`: UI/runtime logic by feature area.
 - `scripts/`: style audit, issue sync, Windows helper scripts.
@@ -69,6 +69,7 @@ Run commands relevant to touched areas before finishing:
   - `npm --prefix electron run build`
 - Python planner:
   - `npm run lint:python`
+  - `npm run typecheck:python`
   - `.venv/bin/pytest -q`
 
 Helpful aggregate checks:
@@ -77,6 +78,7 @@ Helpful aggregate checks:
 - Repo desktop dev entrypoint: `npm run dev:desktop`
 - Root desktop wrappers:
   - `npm run lint:desktop`
+  - `npm run typecheck:python`
   - `npm run typecheck:desktop`
   - `npm run build:desktop`
 

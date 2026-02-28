@@ -4,10 +4,26 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from reading_plan.api_types import (
+    BookData,
+    PlannerInputPayload,
+    PlannerOutputPayload,
+    ScheduleRow,
+    SettingsData,
+)
 from reading_plan.input.builders import book_from_data, settings_from_data
 from reading_plan.planning.solve import solve_plan
 from reading_plan.reporting.report import build_summary
 from reading_plan.schedule.schedule import to_schedule_rows
+
+__all__ = [
+    "BookData",
+    "PlannerInputPayload",
+    "PlannerOutputPayload",
+    "ScheduleRow",
+    "SettingsData",
+    "generate_plan",
+]
 
 if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
@@ -60,7 +76,7 @@ def _validate_blockers(books: list[Book]) -> None:
         _walk_blockers(book.book_id, by_id, visiting, visited)
 
 
-def generate_plan(payload: dict[str, object]) -> dict[str, object]:
+def generate_plan(payload: PlannerInputPayload) -> PlannerOutputPayload:
     """Validate inputs, solve the plan, and return summary plus schedule."""
     books_raw = payload.get("books")
     settings_raw = payload.get("settings")
@@ -68,7 +84,7 @@ def generate_plan(payload: dict[str, object]) -> dict[str, object]:
         msg = "payload requires books[] and settings object"
         raise TypeError(msg)
 
-    books = []
+    books: list[Book] = []
     for idx, row in enumerate(books_raw):
         if not isinstance(row, dict):
             msg = f"book at index {idx} must be an object"
