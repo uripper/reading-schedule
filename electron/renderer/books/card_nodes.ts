@@ -17,7 +17,7 @@ import {
   BOOK_STATUS_READ,
   BOOK_STATUS_TO_READ,
   statusLabel,
-} from "./status.js";
+} from "./status_catalog.js";
 
 import type { Book, CardRenderContext } from "../../types/types.js";
 
