@@ -5,13 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from reading_plan.planning.model_types import IntVarLike, LinearExprLike
 from reading_plan.planner_types import PLAN_MODE_SPREAD_OUT
 
 if TYPE_CHECKING:
     from datetime import date
 
     from reading_plan.planner_types import Book, Settings
+    from reading_plan.planning.model_types import IntVarLike, LinearExprLike
 
 
 @dataclass

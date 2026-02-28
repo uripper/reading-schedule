@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from reading_plan.api_types import BookData, SettingsData
 from reading_plan.planner_types import WEEKDAYS
 
 if TYPE_CHECKING:
+    from reading_plan.api_types import BookData, SettingsData
     from reading_plan.planner_types import Book, Settings
 
 
@@ -37,7 +37,7 @@ def book_to_data(book: Book) -> BookData:
 
 def settings_to_data(settings: Settings) -> SettingsData:
     """Serialize Settings into a JSON-safe dictionary for UI/API use."""
-    return {
+    data: SettingsData = {
         "start_date": settings.start_date.isoformat(),
         "end_date": settings.end_date.isoformat(),
         "minutes_per_day": settings.minutes_per_day,
@@ -57,3 +57,4 @@ def settings_to_data(settings: Settings) -> SettingsData:
             str(k): v for k, v in settings.difficulty_multiplier.items()
         },
     }
+    return data

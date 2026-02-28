@@ -5,21 +5,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from reading_plan.planner_types import PlanResult
+from reading_plan.planning.cp_sat_runtime import load_cp_model_module
 from reading_plan.planning.greedy import plan_greedy
-
-try:
-    from ortools.sat.python import cp_model
-
-    from reading_plan.planning.model import build_cp_sat
-
-    cp_model_unavailable = False
-except ImportError:
-    cp_model_unavailable = True
+from reading_plan.planning.model import build_cp_sat
 
 if TYPE_CHECKING:
     from datetime import date
 
     from reading_plan.planner_types import Book, Settings
+    from reading_plan.planning.model_types import BookDayVars
 
 
 def solve_plan(
@@ -37,39 +31,41 @@ def solve_plan(
 
 def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     """Solve with CP-SAT, fall back to greedy when OR-Tools is unavailable."""
-    if cp_model_unavailable:
-        note = "OR-Tools is unavailable; fell back to greedy planner."
-        return PlanResult(
-            "greedy", "FEASIBLE", plan_greedy(books, settings), note=note
-        )
+    cp_model_module = load_cp_model_module()
+    if cp_model_module is None:
+        return _fallback_to_greedy(books, settings)
 
-    model, x, _y, _f, _days = build_cp_sat(books, settings)
-    solver = cp_model.CpSolver()
+    model, x, _y, _f, _days = build_cp_sat(
+        books, settings, cp_model_module
+    )
+    solver = cp_model_module.CpSolver()
     solver.parameters.random_seed = 7
     solver.parameters.num_search_workers = 1
     solver.parameters.max_time_in_seconds = 20.0
     raw = int(solver.Solve(model))
-    status_values: dict[str, int] = {
-        "OPTIMAL": int(cp_model.OPTIMAL),
-        "FEASIBLE": int(cp_model.FEASIBLE),
-        "INFEASIBLE": int(cp_model.INFEASIBLE),
-        "MODEL_INVALID": int(cp_model.MODEL_INVALID),
-        "UNKNOWN": int(cp_model.UNKNOWN),
-    }
+    return _result_from_solver(raw, cp_model_module, solver, x)
+
+
+def _result_from_solver(
+    raw: int,
+    cp_model_module: object,
+    solver: object,
+    variables: BookDayVars,
+) -> PlanResult:
+    """Build planner result from solved model outputs and status codes."""
+    status_values = _status_values(cp_model_module)
     status = _status_name(raw, status_values)
-    if raw not in {int(cp_model.OPTIMAL), int(cp_model.FEASIBLE)}:
+    if not _is_feasible(raw, status_values):
         return PlanResult(planner="mip", status=status, assignments={})
 
-    assignments: dict[tuple[str, date], int] = {}
-    for key, var in x.items():
-        value = solver.Value(var)
-        if value > 0:
-            assignments[key] = value
+    assignments = _extract_assignments(solver, variables)
+    objective_name = "ObjectiveValue"
+    objective_fn = getattr(solver, objective_name)
     return PlanResult(
         planner="mip",
         status=status,
         assignments=assignments,
-        objective=int(solver.ObjectiveValue()),
+        objective=int(objective_fn()),
     )
 
 
@@ -83,3 +79,53 @@ def _status_name(raw: int, status_values: dict[str, int]) -> str:
         status_values["UNKNOWN"]: "UNKNOWN",
     }
     return mapping.get(raw, "UNKNOWN")
+
+
+def _fallback_to_greedy(books: list[Book], settings: Settings) -> PlanResult:
+    """Return a greedy fallback plan when CP-SAT is unavailable."""
+    note = "OR-Tools is unavailable; fell back to greedy planner."
+    return PlanResult(
+        "greedy",
+        "FEASIBLE",
+        plan_greedy(books, settings),
+        note=note,
+    )
+
+
+def _status_values(cp_model_module: object) -> dict[str, int]:
+    """Read CP-SAT status constants from the loaded module."""
+    status_values: dict[str, int] = {}
+    for name in _status_names():
+        status_values[name] = int(getattr(cp_model_module, name))
+    return status_values
+
+
+def _is_feasible(raw: int, status_values: dict[str, int]) -> bool:
+    """Check whether solver status indicates a feasible solution."""
+    return raw in {status_values["OPTIMAL"], status_values["FEASIBLE"]}
+
+
+def _extract_assignments(
+    solver: object,
+    variables: BookDayVars,
+) -> dict[tuple[str, date], int]:
+    """Extract positive assignment values from solved decision variables."""
+    value_name = "Value"
+    value_fn = getattr(solver, value_name)
+    assignments: dict[tuple[str, date], int] = {}
+    for key, variable in variables.items():
+        value = int(value_fn(variable))
+        if value > 0:
+            assignments[key] = value
+    return assignments
+
+
+def _status_names() -> tuple[str, str, str, str, str]:
+    """Return known CP-SAT status constant names."""
+    return (
+        "OPTIMAL",
+        "FEASIBLE",
+        "INFEASIBLE",
+        "MODEL_INVALID",
+        "UNKNOWN",
+    )

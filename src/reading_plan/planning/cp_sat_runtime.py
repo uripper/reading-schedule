@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from importlib import import_module
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
-from reading_plan.planning.model_types import CpModelModuleLike
+if TYPE_CHECKING:
+    from reading_plan.planning.model_types import CpModelModuleLike
 
 
 def load_cp_model_module() -> CpModelModuleLike | None:
@@ -14,4 +15,4 @@ def load_cp_model_module() -> CpModelModuleLike | None:
         module = import_module("ortools.sat.python.cp_model")
     except ImportError:
         return None
-    return cast(CpModelModuleLike, module)
+    return cast("CpModelModuleLike", module)

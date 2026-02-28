@@ -11,11 +11,6 @@ from reading_plan.planning.budget import (
     day_capacity_blocks,
     words_per_block,
 )
-from reading_plan.planning.model_types import (
-    CpModelLike,
-    CpModelModuleLike,
-    IntVarLike,
-)
 from reading_plan.planning.model_objective import (
     ObjectiveContext,
     build_objective_terms,
@@ -29,7 +24,10 @@ if TYPE_CHECKING:
     from reading_plan.planning.model_types import (
         BookDayVars,
         BuildCpSatResult,
+        CpModelLike,
+        CpModelModuleLike,
         FinishedVars,
+        IntVarLike,
     )
 
 

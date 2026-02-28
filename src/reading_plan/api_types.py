@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
-from reading_plan.reporting.report_types import Summary
+if TYPE_CHECKING:
+    from reading_plan.reporting.report_types import Summary
 
 
 class BookData(TypedDict, total=False):
@@ -29,7 +30,7 @@ class SettingsData(TypedDict, total=False):
 
     start_date: str
     end_date: str
-    minutes_per_day: int
+    minutes_per_day: int | None
     minutes_by_weekday: dict[str, int]
     days_off: list[str]
     wpm_base: int

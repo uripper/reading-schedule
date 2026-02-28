@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Mapping
+from typing import TYPE_CHECKING, Any
 
 from reading_plan.input.builders_coerce import to_float, to_int
 from reading_plan.input.validate import validate_settings
@@ -13,6 +13,9 @@ from reading_plan.planner_types import (
     Settings,
 )
 from reading_plan.reading_calendar import parse_date
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 def settings_from_data(data: Mapping[str, Any]) -> Settings:

@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from reading_plan.api_types import ScheduleRow
 from reading_plan.schedule.schedule_sessions import iter_sessions
 
 if TYPE_CHECKING:
     from datetime import date
 
+    from reading_plan.api_types import ScheduleRow
     from reading_plan.planner_types import Book, Settings
 
 
