@@ -51,7 +51,7 @@ function hasSavedSchedule(saved: FinalizeInitialLoadArgs["saved"]): boolean {
  * @param loadResult Structured load metadata including source/warnings.
  * @returns True when startup should auto-plan; false when loaded plan should be preserved.
  */
-function shouldAutoPlanOnStartup(
+export function shouldAutoPlanOnStartup(
   saved: FinalizeInitialLoadArgs["saved"],
   loadResult: FinalizeInitialLoadArgs["loadResult"],
 ): boolean {
