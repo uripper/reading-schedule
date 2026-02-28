@@ -85,7 +85,7 @@ function createScheduledDaysField(): HTMLFieldSetElement {
         INPUT.type = "checkbox";
         INPUT.value = weekday;
         INPUT.checked = true;
-        INPUT.setAttribute("data-book-weekday", "1");
+        INPUT.dataset.bookWeekday = "1";
 
         LABEL.append(INPUT, document.createTextNode(weekday));
         DAYS.append(LABEL);

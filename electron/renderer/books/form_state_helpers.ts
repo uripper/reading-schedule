@@ -217,4 +217,4 @@ export function validatedShelfSelection(refs: BookFormRefs): string {
     return SHELF;
 }
 
-export const DEFAULT_STATUS = BOOK_STATUS_TO_READ;
+export { BOOK_STATUS_TO_READ as DEFAULT_STATUS };

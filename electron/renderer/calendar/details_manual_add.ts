@@ -91,6 +91,71 @@ function submitManualAddForm(args: SubmitManualAddFormArgs): void {
     args.rerenderDetails();
 }
 
+interface ManualAddFormElements {
+    bookSelect: HTMLSelectElement;
+    completeInput: HTMLInputElement;
+    form: HTMLFormElement;
+    minutesInput: HTMLInputElement;
+}
+
+/**
+ * Builds form elements for manual session add.
+ */
+function buildManualAddFormElements(
+    books: ReturnType<typeof sortedManualBooks>,
+    defaultBookId: string | undefined,
+    defaultMinutes: number,
+    mode: string,
+): ManualAddFormElements {
+    const FORM = document.createElement("form");
+    FORM.className = "day-manual-add-form";
+
+    const SELECTION_CONTROLS = createBookSelectionControls(
+        books,
+        defaultBookId,
+    );
+
+    const MINUTES_LABEL = document.createElement("label");
+    MINUTES_LABEL.className = DAY_PROGRESS_FIELD_CLASS;
+    MINUTES_LABEL.textContent = "Minutes";
+
+    const MINUTES_INPUT = document.createElement("input");
+    MINUTES_INPUT.type = "number";
+    MINUTES_INPUT.min = "1";
+    MINUTES_INPUT.step = "1";
+    MINUTES_INPUT.required = true;
+    MINUTES_INPUT.value = minuteValueForManualInput(defaultMinutes);
+    MINUTES_LABEL.append(MINUTES_INPUT);
+
+    const COMPLETE_LABEL = document.createElement("label");
+    COMPLETE_LABEL.className = "day-complete-toggle";
+    const COMPLETE_INPUT = document.createElement("input");
+    COMPLETE_INPUT.type = "checkbox";
+    COMPLETE_LABEL.append(COMPLETE_INPUT, " Mark complete");
+
+    const ADD_BUTTON = document.createElement("button");
+    ADD_BUTTON.type = "submit";
+    ADD_BUTTON.className = "btn";
+    ADD_BUTTON.textContent = "Add Session";
+
+    FORM.append(
+        SELECTION_CONTROLS.titleFilterLabel,
+        SELECTION_CONTROLS.bookLabel,
+        MINUTES_LABEL,
+    );
+    if (mode !== "future") {
+        FORM.append(COMPLETE_LABEL);
+    }
+    FORM.append(ADD_BUTTON);
+
+    return {
+        bookSelect: SELECTION_CONTROLS.bookSelect,
+        completeInput: COMPLETE_INPUT,
+        form: FORM,
+        minutesInput: MINUTES_INPUT,
+    };
+}
+
 /**
  * Builds manual-session add UI panel for the selected day.
  * @param args Manual add panel dependencies.
@@ -105,9 +170,6 @@ function submitManualAddForm(args: SubmitManualAddFormArgs): void {
 export function buildManualSessionAddPanel(
     args: BuildManualSessionAddPanelArgs,
 ): HTMLElement {
-    const RERENDER_DETAILS = (): void => {
-        args.rerenderDetails();
-    };
     const PANEL = document.createElement("section");
     PANEL.className = "day-manual-add";
 
@@ -127,60 +189,26 @@ export function buildManualSessionAddPanel(
         return PANEL;
     }
 
-    const FORM = document.createElement("form");
-    FORM.className = "day-manual-add-form";
-
-    const SELECTION_CONTROLS = createBookSelectionControls(
+    const FORM_ELEMENTS = buildManualAddFormElements(
         BOOKS,
         args.defaultBookId,
+        args.defaultMinutes,
+        args.mode,
     );
 
-    const MINUTES_LABEL = document.createElement("label");
-    MINUTES_LABEL.className = DAY_PROGRESS_FIELD_CLASS;
-    MINUTES_LABEL.textContent = "Minutes";
-
-    const MINUTES_INPUT = document.createElement("input");
-    MINUTES_INPUT.type = "number";
-    MINUTES_INPUT.min = "1";
-    MINUTES_INPUT.step = "1";
-    MINUTES_INPUT.required = true;
-    MINUTES_INPUT.value = minuteValueForManualInput(args.defaultMinutes);
-    MINUTES_LABEL.append(MINUTES_INPUT);
-
-    const COMPLETE_LABEL = document.createElement("label");
-    COMPLETE_LABEL.className = "day-complete-toggle";
-    const COMPLETE_INPUT = document.createElement("input");
-    COMPLETE_INPUT.type = "checkbox";
-    COMPLETE_LABEL.append(COMPLETE_INPUT, " Mark complete");
-
-    const ADD_BUTTON = document.createElement("button");
-    ADD_BUTTON.type = "submit";
-    ADD_BUTTON.className = "btn";
-    ADD_BUTTON.textContent = "Add Session";
-
-    FORM.append(
-        SELECTION_CONTROLS.titleFilterLabel,
-        SELECTION_CONTROLS.bookLabel,
-        MINUTES_LABEL,
-    );
-    if (args.mode !== "future") {
-        FORM.append(COMPLETE_LABEL);
-    }
-    FORM.append(ADD_BUTTON);
-
-    FORM.onsubmit = (event) => {
+    FORM_ELEMENTS.form.onsubmit = (event) => {
         event.preventDefault();
         submitManualAddForm({
-            bookSelect: SELECTION_CONTROLS.bookSelect,
-            completeInput: COMPLETE_INPUT,
+            bookSelect: FORM_ELEMENTS.bookSelect,
+            completeInput: FORM_ELEMENTS.completeInput,
             dateKey: args.dateKey,
             interactionHandlers: args.interactionHandlers,
-            minutesInput: MINUTES_INPUT,
+            minutesInput: FORM_ELEMENTS.minutesInput,
             mode: args.mode,
-            rerenderDetails: RERENDER_DETAILS,
+            rerenderDetails: args.rerenderDetails,
         });
     };
 
-    PANEL.append(FORM);
+    PANEL.append(FORM_ELEMENTS.form);
     return PANEL;
 }

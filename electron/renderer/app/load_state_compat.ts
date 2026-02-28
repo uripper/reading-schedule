@@ -5,6 +5,8 @@ import {
     type SessionInput,
 } from "../../types/types.js";
 
+type ScalarValue = string | number | boolean | null | undefined;
+
 /**
  * Returns object-like state data for cross-shape compatibility reads.
  * @param saved Loaded state payload.
@@ -25,7 +27,7 @@ export function toSavedRecord(
  * @returns Sanitized blocked map.
  */
 export function normalizeBlockedDayBooks(
-    raw: Record<string, string | number | boolean | null | undefined> = {},
+    raw: Record<string, ScalarValue> = {},
 ): Record<string, boolean> {
     const OUT: Record<string, boolean> = {};
     Object.entries(raw).forEach(([key, value]) => {
@@ -68,12 +70,12 @@ export function readRawCompletions(
 export function readRawBlockedDayBooks(
     saved: LoadedPlannerState | null | undefined,
     savedRecord: Record<string, unknown>,
-): Record<string, string | number | boolean | null | undefined> {
+): Record<string, ScalarValue> {
     if (saved?.blocked_day_books) {
         return saved.blocked_day_books;
     }
     const LEGACY = savedRecord.blockedDayBooks as
-        | Record<string, string | number | boolean | null | undefined>
+        | Record<string, ScalarValue>
         | undefined;
     if (LEGACY) {
         return LEGACY;

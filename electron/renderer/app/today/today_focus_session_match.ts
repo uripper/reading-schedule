@@ -99,13 +99,15 @@ function rowMatchesFocusSession(
     row: PlannerScheduleRow,
     session: FocusSession,
 ): boolean {
-    return (
-        rowMatchesDate(row, session) &&
-        rowMatchesBook(row, session) &&
-        rowMatchesSessionIndex(row, session) &&
-        rowMatchesTitle(row, session) &&
-        rowMatchesMinutes(row, session)
-    );
+    const DATE_MATCHES = rowMatchesDate(row, session);
+    const BOOK_MATCHES = rowMatchesBook(row, session);
+    const SESSION_INDEX_MATCHES = rowMatchesSessionIndex(row, session);
+    if (!DATE_MATCHES || !BOOK_MATCHES || !SESSION_INDEX_MATCHES) {
+        return false;
+    }
+    const TITLE_MATCHES = rowMatchesTitle(row, session);
+    const MINUTES_MATCH = rowMatchesMinutes(row, session);
+    return TITLE_MATCHES && MINUTES_MATCH;
 }
 
 /**

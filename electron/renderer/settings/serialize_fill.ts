@@ -2,7 +2,7 @@ import { type PlannerSettings } from "../../types/types.js";
 import {
     DEFAULT_DIFFICULTY_MULTIPLIER,
     DEFAULT_PLAN_MODE,
-    weekdays,
+    WEEKDAYS,
 } from "./config.js";
 import {
     allFieldDefinitions,
@@ -79,7 +79,7 @@ export function fillSettingsForm(
         inputEl(field.id).value = settingValueText(VALUE);
     });
     const MINUTES_BY_WEEKDAY = settings.minutes_by_weekday ?? {};
-    weekdays.forEach(([key]) => {
+    WEEKDAYS.forEach(([key]) => {
         inputEl(`minutes_${key}`).value = String(MINUTES_BY_WEEKDAY[key]);
     });
     const RAW_DAY_OFFS = settings.days_off;

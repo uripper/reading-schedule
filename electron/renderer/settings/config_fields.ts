@@ -9,7 +9,7 @@ const PLAN_MODE_OPTIONS: SelectOption[] = [
     { label: "Spread Across Window", value: "spread_out" },
 ];
 
-export const fields: Record<FieldGroupName, FieldDefinition[]> = {
+export const FIELDS: Record<FieldGroupName, FieldDefinition[]> = {
     budget: [
         {
             hint: "Choose whether Bartleby front-loads reading or spreads it across the full window.",

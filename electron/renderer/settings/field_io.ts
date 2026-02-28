@@ -1,6 +1,6 @@
 import { type FieldDefinition } from "../../types/types.js";
 import { el } from "../dom.js";
-import { DIFFICULTY_LEVEL_COUNT, fields } from "./config.js";
+import { DIFFICULTY_LEVEL_COUNT, FIELDS } from "./config.js";
 
 /**
  * Returns typed input element by id.
@@ -25,7 +25,7 @@ export function selectEl(id: string): HTMLSelectElement {
  * @returns Field definition list.
  */
 export function allFieldDefinitions(): FieldDefinition[] {
-    return Object.values(fields).flat();
+    return Object.values(FIELDS).flat();
 }
 
 /**

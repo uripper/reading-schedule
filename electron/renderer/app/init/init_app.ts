@@ -73,7 +73,7 @@ function buildPlanController(
                 type: "set_schedule_completions",
             });
         },
-        setStatus: (message: string, isError?: boolean): void => {
+        setStatus: (message: string, isError = false): void => {
             appContext.setStatus(message, isError);
         },
         totalsFromSummary,
@@ -119,7 +119,7 @@ function configureCalendarAppInteractions(
                 type: "set_last_result",
             });
         },
-        setStatus: (message: string, isError?: boolean): void => {
+        setStatus: (message: string, isError = false): void => {
             appContext.setStatus(message, isError);
         },
         state: RUNTIME_STATE,

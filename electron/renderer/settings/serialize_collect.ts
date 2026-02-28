@@ -2,7 +2,7 @@ import {
     type FieldDefinition,
     type PlannerSettings,
 } from "../../types/types.js";
-import { DEFAULT_DIFFICULTY_MULTIPLIER, weekdays } from "./config.js";
+import { DEFAULT_DIFFICULTY_MULTIPLIER, WEEKDAYS } from "./config.js";
 import {
     allFieldDefinitions,
     inputEl,
@@ -53,7 +53,7 @@ export function collectSettingsForm(dayOffs: string[]): PlannerSettings {
         OUTPUT.minutes_per_day = Number(MINUTES_PER_DAY_RAW);
     }
     OUTPUT.minutes_by_weekday = Object.fromEntries(
-        weekdays.map(([key]) => [
+        WEEKDAYS.map(([key]) => [
             key,
             Number(inputEl(`minutes_${key}`).value || 0),
         ]),

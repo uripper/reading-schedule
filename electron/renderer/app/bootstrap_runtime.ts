@@ -60,11 +60,11 @@ export function createAppBootstrapContext(): AppBootstrapContext {
     const SET_STATUS = createStatusSetter(el("status"), addLog);
     const PERSIST_QUEUE = createPersistQueue({
         addLog,
-        collectBooks: collectAllBooks,
         collectSettings,
-        getSessions: () => STATE.sessions,
         plannerApi: PLANNER_API,
         state: STATE,
+        collectBooks: collectAllBooks,
+        getSessions: () => STATE.sessions,
     });
     const QUEUE_PERSIST = (): void => {
         PERSIST_QUEUE.queuePersist();
@@ -79,10 +79,10 @@ export function createAppBootstrapContext(): AppBootstrapContext {
         collectPreferencesFromUI,
         normalizeFeatureFlags,
         normalizePreferences,
-        queuePersist: QUEUE_PERSIST,
         state: STATE,
         updateStatsView,
         updateTodayDashboard,
+        queuePersist: QUEUE_PERSIST,
     });
     const RUNTIME = createInitRuntime({
         focusCalendarToday,

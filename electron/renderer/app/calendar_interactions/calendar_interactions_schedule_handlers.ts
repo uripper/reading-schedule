@@ -76,7 +76,7 @@ const CREATE_SHARED_SCHEDULE_BINDINGS = (
     };
 };
 
-export const buildScheduleMutationHandlers = (
+export const BUILD_SCHEDULE_MUTATION_HANDLERS = (
     args: AppCalendarInteractionArgs,
 ): ScheduleMutationHandlers => {
     const BINDINGS = CREATE_SHARED_SCHEDULE_BINDINGS(args);

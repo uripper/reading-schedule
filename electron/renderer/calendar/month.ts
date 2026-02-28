@@ -135,37 +135,61 @@ export function renderCalendarMonth(
     GRID.setAttribute("aria-label", `Schedule for ${monthLabel(MONTH_KEY)}`);
     const TODAY_KEY = todayDayKey();
 
-    CELLS.forEach((date, index) => {
-        const KEY_FOR_DAY = CALENDAR_STATE.monthCellKeys[index];
+    renderCalendarCells({
+        actions,
+        calendar: CALENDAR,
+        calendarState: CALENDAR_STATE,
+        cells: CELLS,
+        firstDate: FIRST_DATE,
+        grid: GRID,
+        moveSelectionBy: MOVE_SELECTION_BY,
+        todayKey: TODAY_KEY,
+    });
+}
+
+interface RenderCalendarCellsArgs {
+    actions: MonthActions;
+    calendar: HTMLElement;
+    calendarState: CalendarState;
+    cells: Date[];
+    firstDate: Date;
+    grid: HTMLDivElement;
+    moveSelectionBy: (delta: number, currentIndex: number) => void;
+    todayKey: string;
+}
+
+function renderCalendarCells(args: RenderCalendarCellsArgs): void {
+    args.cells.forEach((date, index) => {
+        const KEY_FOR_DAY = args.calendarState.monthCellKeys[index];
         const COMPLETED_BOOK_ROWS =
-            actions.completedBookRowsForDate(KEY_FOR_DAY);
+            args.actions.completedBookRowsForDate(KEY_FOR_DAY);
         let rows: CalendarDisplayRow[] = [];
-        if (KEY_FOR_DAY in CALENDAR_STATE.dates) {
-            rows = CALENDAR_STATE.dates[KEY_FOR_DAY];
+        if (KEY_FOR_DAY in args.calendarState.dates) {
+            rows = args.calendarState.dates[KEY_FOR_DAY];
         }
         const DISPLAY_ROWS = mergeDisplayRows(rows, COMPLETED_BOOK_ROWS);
         const DAY_BUTTON = createDayButton({
             date,
-            firstDate: FIRST_DATE,
+            firstDate: args.firstDate,
             keyForDay: KEY_FOR_DAY,
             rows: DISPLAY_ROWS,
-            selectedDate: CALENDAR_STATE.selectedDate,
-            todayKey: TODAY_KEY,
+            selectedDate: args.calendarState.selectedDate,
+            todayKey: args.todayKey,
         });
         DAY_BUTTON.onclick = () => {
-            actions.selectDate(KEY_FOR_DAY);
+            args.actions.selectDate(KEY_FOR_DAY);
         };
         DAY_BUTTON.onkeydown = (event) => {
             handleDayKeydown(
                 event,
                 index,
-                CALENDAR_STATE.monthCellKeys.length,
-                MOVE_SELECTION_BY,
+                args.calendarState.monthCellKeys.length,
+                args.moveSelectionBy,
             );
         };
-        GRID.append(DAY_BUTTON);
+        args.grid.append(DAY_BUTTON);
     });
 
-    CALENDAR.replaceChildren(...createWeekdayHeader(), GRID);
-    actions.renderDetails();
+    args.calendar.replaceChildren(...createWeekdayHeader(), args.grid);
+    args.actions.renderDetails();
 }

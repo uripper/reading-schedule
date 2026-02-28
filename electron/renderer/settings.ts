@@ -1,5 +1,5 @@
 import { type PlannerSettings } from "../types/types.js";
-import { fields } from "./settings/config.js";
+import { FIELDS } from "./settings/config.js";
 import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.js";
 import {
     renderDifficultyRows,
@@ -26,10 +26,10 @@ function setDayOffs(nextDayOffs: string[]): void {
  */
 export function initSettingsGrid(): void {
     bindSettingsSectionTabs();
-    renderGrid("windowGrid", fields.window);
-    renderGrid("budgetGrid", fields.budget);
-    renderGrid("weightsGrid", fields.weights);
-    renderGrid("displayGrid", fields.display);
+    renderGrid("windowGrid", FIELDS.window);
+    renderGrid("budgetGrid", FIELDS.budget);
+    renderGrid("weightsGrid", FIELDS.weights);
+    renderGrid("displayGrid", FIELDS.display);
     renderWeekdayGrid();
     renderDifficultyRows();
     bindDayOffAddButton(() => dayOffs, setDayOffs);

@@ -7,6 +7,7 @@ import { type BridgeResponse, type JsonValue } from "../types/types.js";
 
 const PLANNER_MODULE = "reading_plan.gui_api";
 const PYTHONPATH_SEGMENT = "src";
+const PYTHONPATH_KEY = "PYTHONPATH";
 
 /**
  * Resolves the repository root used by the Python bridge process.
@@ -23,7 +24,7 @@ function root(): string {
 function pyEnv(): NodeJS.ProcessEnv {
     return {
         ...process.env,
-        PYTHONPATH: path.join(root(), PYTHONPATH_SEGMENT),
+        [PYTHONPATH_KEY]: path.join(root(), PYTHONPATH_SEGMENT),
     };
 }
 

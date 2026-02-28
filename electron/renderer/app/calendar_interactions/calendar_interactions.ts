@@ -11,7 +11,7 @@ import {
     dayBookCompletionKeyFromSession,
     manualSessionBooks,
 } from "./calendar_interactions_helpers.js";
-import { buildScheduleMutationHandlers } from "./calendar_interactions_schedule_handlers.js";
+import { BUILD_SCHEDULE_MUTATION_HANDLERS } from "./calendar_interactions_schedule_handlers.js";
 
 const COMPLETION_FALLBACK_KEY = (row: CompletionRow | undefined): string => {
     if (row === undefined) {
@@ -150,7 +150,7 @@ const HANDLE_PROGRESS_UPDATED = (
 const BUILD_CALENDAR_HANDLERS = (
     args: AppCalendarInteractionArgs,
 ): CalendarInteractionHandlers => {
-    const SCHEDULE_MUTATION_HANDLERS = buildScheduleMutationHandlers(args);
+    const SCHEDULE_MUTATION_HANDLERS = BUILD_SCHEDULE_MUTATION_HANDLERS(args);
     return {
         getBookById: (bookId) => args.getBookById(bookId),
         isSessionCompleted: (sessionKey) =>
