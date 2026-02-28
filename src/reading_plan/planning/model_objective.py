@@ -5,12 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from reading_plan.planning.model_types import IntVarLike, LinearExprLike
 from reading_plan.planner_types import PLAN_MODE_SPREAD_OUT
 
 if TYPE_CHECKING:
     from datetime import date
-
-    from ortools.sat.python import cp_model
 
     from reading_plan.planner_types import Book, Settings
 
@@ -21,10 +20,10 @@ class ObjectiveContext:
 
     settings: Settings
     days: list[date]
-    useful_words: dict[str, cp_model.IntVar]
-    finished: dict[str, cp_model.IntVar]
-    active_flags: dict[tuple[str, date], cp_model.IntVar]
-    assigned_blocks: dict[tuple[str, date], cp_model.IntVar]
+    useful_words: dict[str, IntVarLike]
+    finished: dict[str, IntVarLike]
+    active_flags: dict[tuple[str, date], IntVarLike]
+    assigned_blocks: dict[tuple[str, date], IntVarLike]
 
 
 def _priority_weights(books: list[Book]) -> dict[str, int]:
@@ -48,7 +47,7 @@ def _priority_weights(books: list[Book]) -> dict[str, int]:
 def build_objective_terms(
     books: list[Book],
     context: ObjectiveContext,
-) -> list[cp_model.LinearExpr]:
+) -> list[LinearExprLike]:
     """Build objective terms."""
     priority_scale = max(1, round(context.settings.w_priority * 100))
     switch_scale = round(context.settings.w_switch * 100)
@@ -59,7 +58,7 @@ def build_objective_terms(
         1 if context.settings.plan_mode == PLAN_MODE_SPREAD_OUT else -1
     )
     priority_weights = _priority_weights(books)
-    terms: list[cp_model.LinearExpr] = []
+    terms: list[LinearExprLike] = []
     for book in books:
         weight = priority_weights[book.book_id]
         terms.extend((

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Mapping
 
 from reading_plan.input.builders_coerce import to_float, to_int
 from reading_plan.input.validate import validate_settings
@@ -15,7 +15,7 @@ from reading_plan.planner_types import (
 from reading_plan.reading_calendar import parse_date
 
 
-def settings_from_data(data: dict[str, Any]) -> Settings:
+def settings_from_data(data: Mapping[str, Any]) -> Settings:
     """Normalize raw settings payload data into a validated Settings model."""
     by_weekday = {
         k[:3].title(): int(v)

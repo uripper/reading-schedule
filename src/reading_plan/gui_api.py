@@ -8,18 +8,15 @@ import sys
 from typing import TYPE_CHECKING, TypedDict
 
 from reading_plan.api import generate_plan
+from reading_plan.api_types import PlannerInputPayload, PlannerOutputPayload
 from reading_plan.input.reading_io import load_inputs
 from reading_plan.input.serializers import book_to_data, settings_to_data
-
-if TYPE_CHECKING:
-    from reading_plan.api import PlannerInputPayload, PlannerOutputPayload
-
 
 class BridgeResponse(TypedDict, total=False):
     """Response wrapper for bridge communication."""
 
     ok: bool
-    data: PlannerOutputPayload | dict[str, object]
+    data: PlannerOutputPayload | PlannerInputPayload | dict[str, object]
     error: str
 
 

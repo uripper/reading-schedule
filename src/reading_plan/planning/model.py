@@ -5,13 +5,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ortools.sat.python import cp_model
-
 from reading_plan.planning.budget import (
     book_day_block_limit,
     book_is_scheduled_for_day,
     day_capacity_blocks,
     words_per_block,
+)
+from reading_plan.planning.model_types import (
+    CpModelLike,
+    CpModelModuleLike,
+    IntVarLike,
 )
 from reading_plan.planning.model_objective import (
     ObjectiveContext,
@@ -99,10 +102,10 @@ def _add_dependency_constraints(context: ModelBuildContext) -> None:
 
 def _add_progress_constraints(
     context: ModelBuildContext,
-) -> tuple[FinishedVars, dict[str, cp_model.IntVar]]:
+) -> tuple[FinishedVars, dict[str, IntVarLike]]:
     """Link reading progress to completion, useful-words, and deadlines."""
     finished: FinishedVars = {}
-    useful_words: dict[str, cp_model.IntVar] = {}
+    useful_words: dict[str, IntVarLike] = {}
     for book_index, book in enumerate(context.books):
         progress = sum(
             context.wpb[book.book_id] * context.x[book.book_id, day]
@@ -142,7 +145,7 @@ def _add_progress_constraints(
 class ModelBuildContext:
     """Shared state used while building the planner CP-SAT model."""
 
-    model: cp_model.CpModel
+    model: CpModelLike
     books: list[Book]
     days: list[date]
     caps: dict[date, int]
@@ -153,9 +156,13 @@ class ModelBuildContext:
     y: BookDayVars
 
 
-def build_cp_sat(books: list[Book], settings: Settings) -> BuildCpSatResult:
+def build_cp_sat(
+    books: list[Book],
+    settings: Settings,
+    cp_model_module: CpModelModuleLike,
+) -> BuildCpSatResult:
     """Build cp sat."""
-    raw_model = cp_model.CpModel()
+    raw_model = cp_model_module.CpModel()
     model = raw_model
     days = date_range(settings.start_date, settings.end_date)
     caps = {d: day_capacity_blocks(settings, d) for d in days}

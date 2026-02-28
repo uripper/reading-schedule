@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Mapping
 from uuid import uuid4
 
 from reading_plan.input.builders_coerce import optional_int, to_float, to_int
@@ -26,7 +26,7 @@ def _estimated_words_read_from_pages(
     return round(words_full * bounded_pages / pages_total)
 
 
-def _word_stats(data: dict[str, Any]) -> tuple[int, int, float]:
+def _word_stats(data: Mapping[str, Any]) -> tuple[int, int, float]:
     """Derive full words, remaining words, and progress from mixed fields."""
     words_raw = data.get("words_total")
     pages_raw = data.get("pages_total")
@@ -79,7 +79,7 @@ def _scheduled_day_entries(raw: object) -> list[str]:
     raise ValueError(msg)
 
 
-def _scheduled_days(data: dict[str, Any], book_id: str) -> frozenset[str]:
+def _scheduled_days(data: Mapping[str, Any], book_id: str) -> frozenset[str]:
     """Normalize and validate scheduled weekdays for one book payload."""
     selected: set[str] = set()
     for entry in _scheduled_day_entries(data.get("scheduled_days")):
@@ -97,7 +97,7 @@ def _scheduled_days(data: dict[str, Any], book_id: str) -> frozenset[str]:
     return frozenset(selected)
 
 
-def book_from_data(data: dict[str, Any]) -> Book:
+def book_from_data(data: Mapping[str, Any]) -> Book:
     """Normalize a raw book payload into a validated planner Book model."""
     words_full, words_remaining, progress = _word_stats(data)
     book_id = str(data.get("book_id") or "").strip() or str(uuid4())

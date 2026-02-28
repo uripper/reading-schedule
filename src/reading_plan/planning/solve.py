@@ -11,9 +11,10 @@ try:
     from ortools.sat.python import cp_model
 
     from reading_plan.planning.model import build_cp_sat
+
+    cp_model_unavailable = False
 except ImportError:
-    cp_model = None
-    build_cp_sat = None
+    cp_model_unavailable = True
 
 if TYPE_CHECKING:
     from datetime import date
@@ -36,7 +37,7 @@ def solve_plan(
 
 def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     """Solve with CP-SAT, fall back to greedy when OR-Tools is unavailable."""
-    if cp_model is None or build_cp_sat is None:
+    if cp_model_unavailable:
         note = "OR-Tools is unavailable; fell back to greedy planner."
         return PlanResult(
             "greedy", "FEASIBLE", plan_greedy(books, settings), note=note
