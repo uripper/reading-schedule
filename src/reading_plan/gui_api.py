@@ -62,15 +62,13 @@ def main() -> int:
     try:
         if args.sample:
             books, settings = load_inputs(args.data, args.settings)
-            write_payload(
-                {
-                    "ok": True,
-                    "data": {
-                        "books": [book_to_data(b) for b in books],
-                        "settings": settings_to_data(settings),
-                    },
-                }
-            )
+            write_payload({
+                "ok": True,
+                "data": {
+                    "books": [book_to_data(b) for b in books],
+                    "settings": settings_to_data(settings),
+                },
+            })
             return 0
 
         payload = read_stdin_payload()
