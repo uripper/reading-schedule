@@ -1,4 +1,4 @@
-import type { BookFormRefs } from "../../types/types.js";
+import { type BookFormRefs } from "../../types/types.js";
 import { getPlannerApi } from "../app/planner_api.js";
 import { applyUploadedCover } from "./form_state.js";
 

@@ -1,4 +1,4 @@
-import type { PlannerScheduleRow } from "./types_planner.js";
+import { type PlannerScheduleRow } from "./types_planner.js";
 
 export type BookStatus = "to_read" | "in_progress" | "read" | "dropped";
 
@@ -24,26 +24,26 @@ export type OptionalNumber = number | null | undefined;
 export type OptionalString = string | null | undefined;
 
 export interface Book {
-    book_id: string;
-    title: string;
     author: string;
-    words_total: number | null;
-    pages_total: number | null;
-    pages_read: number | null;
-    progress_percent: number;
-    priority: number;
-    difficulty: number;
-    min_blocks_per_session: number;
-    max_minutes_per_day: number | null;
-    deadline: string | null;
     blocked_by: string | null;
-    shelf: string;
-    scheduled_days: string[];
-    status: BookStatus;
-    finished_at: string | null;
-    cover_url: string;
+    book_id: string;
     cover_local_path: string;
+    cover_url: string;
+    deadline: string | null;
+    difficulty: number;
+    finished_at: string | null;
     lookup_note: string;
+    max_minutes_per_day: number | null;
+    min_blocks_per_session: number;
+    pages_read: number | null;
+    pages_total: number | null;
+    priority: number;
+    progress_percent: number;
+    scheduled_days: string[];
+    shelf: string;
+    status: BookStatus;
+    title: string;
+    words_total: number | null;
 }
 
 export type BookInput = Partial<Book>;
@@ -54,11 +54,11 @@ export interface BookProgressUpdates {
 }
 
 export interface BookMetaOptions {
-    titleById?: Record<string, string>;
     finishDateByBookId?: Record<string, string>;
-    showShelfMeta?: boolean;
     showBlockerMeta?: boolean;
+    showShelfMeta?: boolean;
     showWordCount?: boolean;
+    titleById?: Record<string, string>;
 }
 
 export interface ProgressTotals {
@@ -94,9 +94,9 @@ export type GroupBucket = GroupMeta & {
 };
 
 export interface BookGroup {
+    books: Book[];
     key: string;
     label: string;
-    books: Book[];
 }
 
 export interface BlockerMeta {
@@ -107,9 +107,9 @@ export interface BlockerMeta {
 export type BookWeekday = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
 
 export interface DialogFocusBinding {
-    rememberOpener(): void;
-    focusInitialTarget(): void;
     closeAndReturnFocus(): void;
+    focusInitialTarget(): void;
+    rememberOpener(): void;
 }
 
 export type SortComparator = (
@@ -119,43 +119,43 @@ export type SortComparator = (
 ) => number;
 
 export interface BookFormRefs {
-    dialog: HTMLDialogElement;
-    dialogTitle: HTMLElement;
-    form: HTMLFormElement;
-    bookId: HTMLInputElement;
-    coverUrl: HTMLInputElement;
-    coverLocal: HTMLInputElement;
-    author: HTMLInputElement;
-    searchInput: HTMLInputElement;
-    searchResults: HTMLElement;
-    lookupMeta: HTMLElement;
-    coverPanel: HTMLElement;
-    coverUploadInput: HTMLInputElement;
-    titleInput: HTMLInputElement;
-    wordsInput: HTMLInputElement;
-    pagesTotalInput: HTMLInputElement;
-    pagesReadInput: HTMLInputElement;
-    progressInput: HTMLInputElement;
-    priorityInput: HTMLInputElement;
-    difficultyInput: HTMLInputElement;
-    minBlocksInput: HTMLInputElement;
-    maxMinutesInput: HTMLInputElement;
-    deadlineInput: HTMLInputElement;
     afterBookInput: HTMLInputElement;
     afterBookResults: HTMLElement;
+    applyScheduledDaysToShelfInput: HTMLInputElement;
+    author: HTMLInputElement;
     blockedByInput: HTMLInputElement;
-    statusSelectInput: HTMLSelectElement;
+    bookId: HTMLInputElement;
+    cancelBtn: HTMLButtonElement;
+    coverLocal: HTMLInputElement;
+    coverPanel: HTMLElement;
+    coverPreview: HTMLImageElement;
+    coverUploadInput: HTMLInputElement;
+    coverUrl: HTMLInputElement;
+    deadlineInput: HTMLInputElement;
+    dialog: HTMLDialogElement;
+    dialogTitle: HTMLElement;
+    difficultyInput: HTMLInputElement;
     finishedAtField: HTMLElement;
     finishedAtInput: HTMLInputElement;
-    shelfSelectInput: HTMLSelectElement;
+    form: HTMLFormElement;
+    lookupMeta: HTMLElement;
+    maxMinutesInput: HTMLInputElement;
+    minBlocksInput: HTMLInputElement;
+    pagesReadInput: HTMLInputElement;
+    pagesTotalInput: HTMLInputElement;
+    priorityInput: HTMLInputElement;
+    progressInput: HTMLInputElement;
+    saveBtn: HTMLButtonElement;
     scheduledDaysField: HTMLElement;
-    applyScheduledDaysToShelfInput: HTMLInputElement;
+    searchInput: HTMLInputElement;
+    searchResults: HTMLElement;
     shelfPromptDialog: HTMLDialogElement;
     shelfPromptForm: HTMLFormElement;
     shelfPromptInput: HTMLInputElement;
-    coverPreview: HTMLImageElement;
-    saveBtn: HTMLButtonElement;
-    cancelBtn: HTMLButtonElement;
+    shelfSelectInput: HTMLSelectElement;
+    statusSelectInput: HTMLSelectElement;
+    titleInput: HTMLInputElement;
+    wordsInput: HTMLInputElement;
 }
 
 export interface BookDialogOptions {
@@ -175,23 +175,23 @@ export interface OpenDialogOptions {
 }
 
 export interface OpenBookDialogArgs {
-    refs: BookFormRefs;
-    dialogFocus: DialogFocusBinding;
-    lookupControl: LookupControl;
     afterBookPicker: AfterBookPickerControl;
-    getBooks(): Book[];
     book: Book | null;
+    dialogFocus: DialogFocusBinding;
     dialogOptions: OpenDialogOptions;
+    getBooks(): Book[];
+    lookupControl: LookupControl;
+    refs: BookFormRefs;
 }
 
 export interface BookSubmitPayload {
-    book: Book;
     applyScheduledDaysToShelf: boolean;
+    book: Book;
 }
 
 export interface ProgressSyncRefs {
-    pagesTotalInput: HTMLInputElement;
     pagesReadInput: HTMLInputElement;
+    pagesTotalInput: HTMLInputElement;
     progressInput: HTMLInputElement;
 }
 
@@ -210,8 +210,8 @@ export interface PickerState {
 
 export interface BindingArgs {
     clearResults(): void;
-    refs: BookFormRefs;
     refreshFiltered(clearChangedSelection: boolean): void;
+    refs: BookFormRefs;
     render(): void;
     selectBook(book: Book | null | undefined): void;
     state: PickerState;
@@ -229,10 +229,10 @@ export interface AfterBookPicker {
 }
 
 export interface HoloPointerVars {
-    pointerX: string;
-    pointerY: string;
     bgShiftX: string;
     bgShiftY: string;
+    pointerX: string;
+    pointerY: string;
 }
 
 export interface CardNavigationActions {
@@ -260,18 +260,18 @@ export interface ScrollSettleState {
 }
 
 export interface RenderBookGridOptions {
-    grid: HTMLElement;
-    empty: HTMLElement;
-    books: Book[];
-    groups?: BookGroup[];
     allBooks?: Book[];
+    books: Book[];
+    empty: HTMLElement;
     finishDateByBookId?: Record<string, string>;
+    grid: HTMLElement;
+    groups?: BookGroup[];
+    onEdit(bookId: string): void;
     onEstimatedFinishNavigate(dateKey: string): void;
+    onRemove(bookId: string): void;
     showBlockerMeta?: boolean;
     showShelfMeta?: boolean;
     showWordCount?: boolean;
-    onEdit(bookId: string): void;
-    onRemove(bookId: string): void;
 }
 
 export interface StatusGroupDefinition {
@@ -288,16 +288,16 @@ export interface BindBooksUIOptions {
 }
 
 export interface BooksControllerRefs {
-    toolbar: HTMLElement | null;
-    grid: HTMLElement | null;
-    empty: HTMLElement | null;
     addBtn: HTMLButtonElement | null;
-    titleFilterInput: HTMLInputElement | null;
-    shelfFilterSelect: HTMLSelectElement | null;
-    statusFilterSelect: HTMLSelectElement | null;
-    sortBySelect: HTMLSelectElement | null;
+    empty: HTMLElement | null;
+    grid: HTMLElement | null;
     groupBySelect: HTMLSelectElement | null;
+    shelfFilterSelect: HTMLSelectElement | null;
+    sortBySelect: HTMLSelectElement | null;
     sortDirectionBtn: HTMLButtonElement | null;
+    statusFilterSelect: HTMLSelectElement | null;
+    titleFilterInput: HTMLInputElement | null;
+    toolbar: HTMLElement | null;
 }
 
 export interface BookDialogController {
@@ -305,38 +305,38 @@ export interface BookDialogController {
 }
 
 export interface BooksViewState {
-    titleFilter: string;
-    shelfFilter: string;
-    statusFilter: BookStatusFilter;
-    sortBy: SortBy;
     groupBy: BookGroupBy;
+    shelfFilter: string;
+    sortBy: SortBy;
     sortDirection: SortDirection;
+    statusFilter: BookStatusFilter;
+    titleFilter: string;
 }
 
 export interface BindToolbarEventsArgs {
     refs: BooksControllerRefs;
-    viewState: BooksViewState;
     rerender(): void;
+    viewState: BooksViewState;
 }
 
 export interface RenderableBooksRefs {
-    shelfFilterSelect: HTMLSelectElement;
-    groupBySelect: HTMLSelectElement;
-    statusFilterSelect: HTMLSelectElement;
-    sortDirectionBtn: HTMLButtonElement;
-    grid: HTMLElement;
     empty: HTMLElement;
+    grid: HTMLElement;
+    groupBySelect: HTMLSelectElement;
+    shelfFilterSelect: HTMLSelectElement;
+    sortDirectionBtn: HTMLButtonElement;
+    statusFilterSelect: HTMLSelectElement;
 }
 
 export interface RenderBooksControllerArgs {
-    refs: BooksControllerRefs;
     books: Book[];
-    scheduleRows: PlannerScheduleRow[];
-    viewState: BooksViewState;
     dialog: BookDialogController | null;
+    findBook(bookId: string): Book | null;
     onBooksChanged(): void;
     onEstimatedFinishNavigate(dateKey: string): void;
-    setBooks(nextBooks: Book[]): void;
-    findBook(bookId: string): Book | null;
+    refs: BooksControllerRefs;
     rerender(): void;
+    scheduleRows: PlannerScheduleRow[];
+    setBooks(nextBooks: Book[]): void;
+    viewState: BooksViewState;
 }

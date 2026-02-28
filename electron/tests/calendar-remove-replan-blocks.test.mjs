@@ -11,11 +11,11 @@ import { mergeScheduleRows } from "../dist/renderer/app/schedule_preserve.js";
  */
 function row(overrides = {}) {
     return {
-        date: "2026-02-24",
-        session_index: 1,
         book_id: "book-1",
-        title: "Book 1",
+        date: "2026-02-24",
         minutes: 15,
+        session_index: 1,
+        title: "Book 1",
         words_planned: 1500,
         ...overrides,
     };
@@ -24,19 +24,19 @@ function row(overrides = {}) {
 test("removeSessionRow blocks the same day-book pair from future replan merges", () => {
     const removedRow = row();
     const keepRow = row({
+        book_id: "book-2",
         date: "2026-02-25",
         session_index: 1,
-        book_id: "book-2",
         title: "Book 2",
     });
     const state = {
+        blockedDayBooks: {},
         lastResult: {
+            created_at: "2026-02-23T00:00:00.000Z",
             schedule: [removedRow, keepRow],
             summary: null,
-            created_at: "2026-02-23T00:00:00.000Z",
         },
         scheduleCompletions: {},
-        blockedDayBooks: {},
     };
     let updates = 0;
     const markUpdated = () => {
@@ -44,10 +44,10 @@ test("removeSessionRow blocks the same day-book pair from future replan merges",
     };
 
     const removed = removeSessionRow({
-        row: removedRow,
         onScheduleRowsUpdated: markUpdated,
         queuePersist: markUpdated,
         renderCalendar: markUpdated,
+        row: removedRow,
         setBookScheduleRows: markUpdated,
         setLastResult: (result) => {
             state.lastResult = result;

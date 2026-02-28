@@ -1,4 +1,4 @@
-import type { RecommendationSeed } from "../../types/types.js";
+import { type RecommendationSeed } from "../../types/types.js";
 
 const AUTHOR_KEY_AUSTEN = "jane austen";
 const AUTHOR_KEY_ORWELL = "george orwell";

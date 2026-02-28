@@ -37,7 +37,7 @@ function tempDir() {
  * @param {string} directory Temporary directory path.
  */
 function cleanup(directory) {
-    fs.rmSync(directory, { recursive: true, force: true });
+    fs.rmSync(directory, { force: true, recursive: true });
 }
 
 /**
@@ -64,11 +64,11 @@ test("state recovery imports JSON input into canonical user-data targets", () =>
     const inputPath = path.join(root, "input.json");
     const userDataDir = path.join(root, "userData");
     const payload = {
-        settings: { end_date: "2026-12-31" },
         books: [{ book_id: "book-1", title: "Recovered Book" }],
-        sessions: [{ id: "s-1", book_id: "book-1", minutes: 15 }],
         last_result: { schedule: [{ date: "2026-02-27", session_index: 1 }] },
         schedule_completions: { "2026-02-27|1|book-1": true },
+        sessions: [{ book_id: "book-1", id: "s-1", minutes: 15 }],
+        settings: { end_date: "2026-12-31" },
     };
     fs.writeFileSync(inputPath, JSON.stringify(payload), "utf8");
     try {
@@ -104,11 +104,11 @@ test("state recovery replays SQLite journal when snapshot payload is invalid", (
     const inputPath = path.join(root, "input.sqlite3");
     const userDataDir = path.join(root, "userData");
     const validPayload = {
-        settings: { end_date: "2026-12-31" },
         books: [{ book_id: "book-2", title: "Journal Book" }],
-        sessions: [{ id: "s-2", book_id: "book-2", minutes: 30 }],
         last_result: { schedule: [{ date: "2026-02-28", session_index: 2 }] },
         schedule_completions: { "2026-02-28|2|book-2": true },
+        sessions: [{ book_id: "book-2", id: "s-2", minutes: 30 }],
+        settings: { end_date: "2026-12-31" },
     };
     const database = new DatabaseSync(inputPath);
     try {

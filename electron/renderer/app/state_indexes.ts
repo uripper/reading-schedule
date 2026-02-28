@@ -1,4 +1,8 @@
-import type { AppDerivedIndexes, Book, Session } from "../../types/types.js";
+import {
+    type AppDerivedIndexes,
+    type Book,
+    type Session,
+} from "../../types/types.js";
 import { isoLocalDayKey } from "../sessions/utils.js";
 
 const COMPLETION_KEY_PART_DAY_BOOK = 2;
@@ -92,7 +96,7 @@ export function splitCompletionIndexes(
             completionByDayBookKey[key] = Boolean(value);
         }
     });
-    return { completionBySessionKey, completionByDayBookKey };
+    return { completionByDayBookKey, completionBySessionKey };
 }
 
 /**
@@ -102,9 +106,9 @@ export function splitCompletionIndexes(
 export function emptyDerivedIndexes(): AppDerivedIndexes {
     return {
         bookById: new Map<string, Book>(),
-        sessionsByDay: new Map<string, Session[]>(),
-        sessionsByBook: new Map<string, Session[]>(),
-        completionBySessionKey: {},
         completionByDayBookKey: {},
+        completionBySessionKey: {},
+        sessionsByBook: new Map<string, Session[]>(),
+        sessionsByDay: new Map<string, Session[]>(),
     };
 }

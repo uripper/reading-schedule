@@ -13,16 +13,16 @@ import { isoLocalDayKey } from "../dist/renderer/sessions/utils.js";
  */
 function session(bookId, endedAt) {
     return {
-        id: `${bookId}-${endedAt}`,
         book_id: bookId,
-        title: `Title ${bookId}`,
-        started_at: endedAt,
-        ended_at: endedAt,
-        minutes: 25,
-        pages_read: 10,
-        notes: "",
-        source: "manual",
         created_at: endedAt,
+        ended_at: endedAt,
+        id: `${bookId}-${endedAt}`,
+        minutes: 25,
+        notes: "",
+        pages_read: 10,
+        source: "manual",
+        started_at: endedAt,
+        title: `Title ${bookId}`,
     };
 }
 
@@ -33,7 +33,7 @@ test("App state mutations keep derived indexes synchronized", () => {
         { book_id: "book-2", title: "Two" },
     ];
 
-    applyAppStateMutation(state, { type: "set_book_index", books });
+    applyAppStateMutation(state, { books, type: "set_book_index" });
     assert.equal(state.derived.bookById.get("book-1")?.title, "One");
 
     const sessions = [
@@ -41,7 +41,7 @@ test("App state mutations keep derived indexes synchronized", () => {
         session("book-2", "2026-02-27T16:00:00.000Z"),
         session("book-1", "2026-02-28T16:00:00.000Z"),
     ];
-    applyAppStateMutation(state, { type: "set_sessions", sessions });
+    applyAppStateMutation(state, { sessions, type: "set_sessions" });
 
     const firstDayKey = isoLocalDayKey("2026-02-27T15:00:00.000Z");
     assert.equal(state.derived.sessionsByDay.get(firstDayKey)?.length, 2);
@@ -52,8 +52,8 @@ test("App state mutations keep derived indexes synchronized", () => {
         "2026-02-27|book-1": true,
     };
     applyAppStateMutation(state, {
-        type: "set_schedule_completions",
         scheduleCompletions,
+        type: "set_schedule_completions",
     });
 
     assert.equal(
@@ -66,16 +66,16 @@ test("App state mutations keep derived indexes synchronized", () => {
     );
 
     applyAppStateMutation(state, {
-        type: "set_blocked_day_book",
-        key: "2026-02-27|book-1",
         blocked: true,
+        key: "2026-02-27|book-1",
+        type: "set_blocked_day_book",
     });
     assert.equal(state.blockedDayBooks["2026-02-27|book-1"], true);
 
     applyAppStateMutation(state, {
-        type: "set_blocked_day_book",
-        key: "2026-02-27|book-1",
         blocked: false,
+        key: "2026-02-27|book-1",
+        type: "set_blocked_day_book",
     });
     assert.equal(
         Object.hasOwn(state.blockedDayBooks, "2026-02-27|book-1"),

@@ -1,9 +1,9 @@
-import type {
-    ApplyLoadedResultArgs,
-    ApplyPlannedDataArgs,
-    PlannerResult,
-    PlannerRunData,
-    PlannerScheduleRow,
+import {
+    type ApplyLoadedResultArgs,
+    type ApplyPlannedDataArgs,
+    type PlannerResult,
+    type PlannerRunData,
+    type PlannerScheduleRow,
 } from "../../types/types.js";
 import {
     mergeScheduleRows,
@@ -26,9 +26,9 @@ function hasRows(rows: PlannerScheduleRow[]): boolean {
  */
 function resultFromData(data: PlannerRunData): PlannerResult {
     return {
+        created_at: new Date().toISOString(),
         schedule: data.schedule,
         summary: data.summary ?? null,
-        created_at: new Date().toISOString(),
     };
 }
 

@@ -21,8 +21,8 @@ test("mergeDisplayRows marks scheduled rows as finish when book completed that d
             {
                 book_id: "book-1",
                 date: "2026-02-10",
-                session_index: 1,
                 finish: false,
+                session_index: 1,
             },
         ],
         [{ book_id: "book-1", date: "2026-02-10", finish: true, minutes: 0 }],
@@ -38,14 +38,14 @@ test("mergeDisplayRows keeps finish rows first in day chip ordering", () => {
             {
                 book_id: "book-1",
                 date: "2026-02-10",
-                session_index: 1,
                 finish: false,
+                session_index: 1,
             },
             {
                 book_id: "book-3",
                 date: "2026-02-10",
-                session_index: 2,
                 finish: false,
+                session_index: 2,
             },
         ],
         [{ book_id: "book-2", date: "2026-02-10", finish: true, minutes: 0 }],

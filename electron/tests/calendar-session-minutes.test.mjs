@@ -16,11 +16,11 @@ import {
  */
 function row(overrides = {}) {
     return {
-        date: "2026-02-21",
-        session_index: 2,
         book_id: "book-1",
-        title: "Book 1",
+        date: "2026-02-21",
         minutes: 10,
+        session_index: 2,
+        title: "Book 1",
         words_planned: 900,
         ...overrides,
     };
@@ -31,8 +31,8 @@ test("nextRowsWithUpdatedMinutes updates minutes and recomputes planned words", 
     const previousRows = [
         row({
             date: "2026-02-20",
-            session_index: 1,
             minutes: 10,
+            session_index: 1,
             words_planned: 1000,
         }),
         targetRow,

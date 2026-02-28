@@ -1,14 +1,14 @@
 {
     "compilerOptions": {
-        "target": "ES2023",
+        "lib": ["ES2023", "DOM"],
         "module": "ESNext",
         "moduleResolution": "Bundler",
+        "noEmitOnError": true,
         "outDir": "dist",
         "rootDir": ".",
-        "lib": ["ES2023", "DOM"],
+        "skipLibCheck": true,
         "strict": true,
-        "noEmitOnError": true,
-        "skipLibCheck": true
+        "target": "ES2023"
     },
     "include": ["renderer/**/*.ts", "renderer/**/*.d.ts", "types/**/*.ts"]
 }

@@ -13,8 +13,8 @@ const MONTH_INDEX_OFFSET = 1;
 function parseMonth(monthKey) {
     const [yearText, monthText] = monthKey.split("-");
     return {
-        year: Number(yearText),
         month: Number(monthText),
+        year: Number(yearText),
     };
 }
 

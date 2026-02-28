@@ -1,7 +1,7 @@
-import type {
-    CompletionChecker,
-    EstimateRow,
-    EstimateState,
+import {
+    type CompletionChecker,
+    type EstimateRow,
+    type EstimateState,
 } from "../../types/types.js";
 
 const SESSION_INDEX_PAD = 3;
@@ -112,10 +112,10 @@ export function plannedWordsBeforeAndThroughRow(
     }
     const candidateState = {
         bookId,
-        today,
-        targetSortKey,
-        targetIsFuture,
         isSessionCompleted,
+        targetIsFuture,
+        targetSortKey,
+        today,
     };
 
     rows.forEach((candidate) => {

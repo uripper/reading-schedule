@@ -1,4 +1,4 @@
-import type { AppRuntimeState } from "../../types/types.js";
+import { type AppRuntimeState } from "../../types/types.js";
 import {
     DEFAULT_FEATURE_FLAGS,
     DEFAULT_PREFERENCES,
@@ -11,13 +11,13 @@ import { emptyDerivedIndexes } from "./state_indexes.js";
  */
 export function createRuntimeState(): AppRuntimeState {
     return {
-        lastResult: null,
-        ready: false,
-        preferences: { ...DEFAULT_PREFERENCES },
-        featureFlags: { ...DEFAULT_FEATURE_FLAGS },
-        scheduleCompletions: {},
         blockedDayBooks: {},
-        sessions: [],
         derived: emptyDerivedIndexes(),
+        featureFlags: { ...DEFAULT_FEATURE_FLAGS },
+        lastResult: null,
+        preferences: { ...DEFAULT_PREFERENCES },
+        ready: false,
+        scheduleCompletions: {},
+        sessions: [],
     };
 }

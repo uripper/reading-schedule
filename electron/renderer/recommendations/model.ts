@@ -1,7 +1,7 @@
-import type {
-    Book,
-    RecommendationItem,
-    RecommendationSeed,
+import {
+    type Book,
+    type RecommendationItem,
+    type RecommendationSeed,
 } from "../../types/types.js";
 import { BOOK_STATUS_READ } from "../books/status_catalog.js";
 import { AUTHOR_RECOMMENDATION_CATALOG } from "./catalog.js";

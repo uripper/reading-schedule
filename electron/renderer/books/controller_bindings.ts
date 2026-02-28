@@ -1,7 +1,7 @@
-import type {
-    BindToolbarEventsArgs,
-    BooksControllerRefs,
-    SortDirection,
+import {
+    type BindToolbarEventsArgs,
+    type BooksControllerRefs,
+    type SortDirection,
 } from "../../types/types.js";
 import { toGroupBy, toSortBy } from "./controller_types.js";
 import { normalizeStatusFilter } from "./status.js";
@@ -53,12 +53,12 @@ function assertToolbarControls(refs: BooksControllerRefs): {
     }
 
     return {
-        titleFilterInput: refs.titleFilterInput,
-        sortBySelect: refs.sortBySelect,
-        shelfFilterSelect: refs.shelfFilterSelect,
-        statusFilterSelect: refs.statusFilterSelect,
         groupBySelect: refs.groupBySelect,
+        shelfFilterSelect: refs.shelfFilterSelect,
+        sortBySelect: refs.sortBySelect,
         sortDirectionBtn: refs.sortDirectionBtn,
+        statusFilterSelect: refs.statusFilterSelect,
+        titleFilterInput: refs.titleFilterInput,
     };
 }
 

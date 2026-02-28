@@ -2,7 +2,7 @@
  * @file Ranking helpers used to score Open Library search results.
  */
 
-import type { SearchDoc } from "../../types/types.js";
+import { type SearchDoc } from "../../types/types.js";
 import { bestAuthorOnlyScore } from "./search_author_scoring.js";
 import {
     SCORE_CONTAINS_TITLE,

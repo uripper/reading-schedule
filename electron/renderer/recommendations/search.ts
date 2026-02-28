@@ -1,8 +1,8 @@
-import type {
-    Book,
-    BookLookupItem,
-    RecommendationItem,
-    RecommendationSearchApi,
+import {
+    type Book,
+    type BookLookupItem,
+    type RecommendationItem,
+    type RecommendationSearchApi,
 } from "../../types/types.js";
 import { addLog } from "../help.js";
 import { buildRecommendations, deriveReadAuthors } from "./model.js";
@@ -77,8 +77,8 @@ export async function findRecommendations(
         }
         processAuthorResults({
             author,
-            lookupItems,
             existingKeys,
+            lookupItems,
             recommendationKeys,
             recommendations,
         });

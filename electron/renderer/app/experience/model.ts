@@ -1,8 +1,8 @@
-import type {
-    FeatureFlags,
-    FeatureFlagsInput,
-    Preferences,
-    PreferencesInput,
+import {
+    type FeatureFlags,
+    type FeatureFlagsInput,
+    type Preferences,
+    type PreferencesInput,
 } from "../../../types/types.js";
 import {
     RECOMMENDATIONS_AVAILABLE,
@@ -13,18 +13,18 @@ import {
 } from "./availability.js";
 
 export const DEFAULT_PREFERENCES: Preferences = {
-    theme: "system",
-    reduceMotion: false,
-    timezone: new Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
     dailyGoalMinutes: 30,
+    reduceMotion: false,
     reminderEnabled: false,
     reminderTime: "20:00",
+    theme: "system",
+    timezone: new Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
 };
 
 export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
     gamificationEnabled: false,
-    socialEnabled: false,
     recommendationsEnabled: false,
+    socialEnabled: false,
 };
 
 /**
@@ -60,10 +60,8 @@ export function normalizePreferences(raw: PreferencesInput = {}): Preferences {
     }
 
     return {
-        theme,
-        reduceMotion: Boolean(raw.reduceMotion),
-        timezone: String(raw.timezone ?? DEFAULT_PREFERENCES.timezone),
         dailyGoalMinutes: normalizedDailyGoalMinutes,
+        reduceMotion: Boolean(raw.reduceMotion),
         reminderEnabled: shippedFeatureFlag(
             raw.reminderEnabled,
             REMINDERS_AVAILABLE,
@@ -73,6 +71,8 @@ export function normalizePreferences(raw: PreferencesInput = {}): Preferences {
             REMINDERS_AVAILABLE,
             DEFAULT_PREFERENCES.reminderTime,
         ),
+        theme,
+        timezone: String(raw.timezone ?? DEFAULT_PREFERENCES.timezone),
     };
 }
 
@@ -87,13 +87,13 @@ export function normalizeFeatureFlags(
 ): FeatureFlags {
     return {
         gamificationEnabled: Boolean(raw.gamificationEnabled),
-        socialEnabled: shippedFeatureFlag(
-            raw.socialEnabled,
-            SOCIAL_FEATURES_AVAILABLE,
-        ),
         recommendationsEnabled: shippedFeatureFlag(
             raw.recommendationsEnabled,
             RECOMMENDATIONS_AVAILABLE,
+        ),
+        socialEnabled: shippedFeatureFlag(
+            raw.socialEnabled,
+            SOCIAL_FEATURES_AVAILABLE,
         ),
     };
 }

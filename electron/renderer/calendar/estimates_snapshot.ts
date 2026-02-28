@@ -1,9 +1,9 @@
-import type {
-    BookGetter,
-    CompletionChecker,
-    EstimateRow,
-    EstimateSnapshot,
-    EstimateState,
+import {
+    type BookGetter,
+    type CompletionChecker,
+    type EstimateRow,
+    type EstimateSnapshot,
+    type EstimateState,
 } from "../../types/types.js";
 import {
     fullWordsForBook,
@@ -56,10 +56,10 @@ export function estimateSnapshotForRow(
     const startPercent = percentFromWords(startWords, fullWords);
     const endPercent = percentFromWords(endWords, fullWords);
     return {
-        startPercent,
+        changedInSession: endPercent > startPercent,
+        endPages: projectedPages(endPercent, pagesTotal),
         endPercent,
         startPages: projectedPages(startPercent, pagesTotal),
-        endPages: projectedPages(endPercent, pagesTotal),
-        changedInSession: endPercent > startPercent,
+        startPercent,
     };
 }

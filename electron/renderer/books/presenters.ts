@@ -1,4 +1,8 @@
-import type { BlockerMeta, Book, BookMetaOptions } from "../../types/types.js";
+import {
+    type BlockerMeta,
+    type Book,
+    type BookMetaOptions,
+} from "../../types/types.js";
 import { WORDS_PER_PAGE } from "./constants.js";
 import { shelfLabelForBook } from "./shelf.js";
 import { BOOK_STATUS_READ } from "./status_catalog.js";

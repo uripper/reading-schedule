@@ -21,25 +21,25 @@ import {
  */
 function baseBook(overrides) {
     return {
-        book_id: "",
-        title: "",
         author: "",
-        words_total: null,
-        pages_total: null,
-        pages_read: null,
-        progress_percent: 0,
-        priority: 3,
-        difficulty: 3,
-        min_blocks_per_session: 1,
-        max_minutes_per_day: null,
-        deadline: null,
         blocked_by: null,
+        book_id: "",
+        cover_local_path: "",
+        cover_url: "",
+        deadline: null,
+        difficulty: 3,
+        finished_at: null,
+        lookup_note: "",
+        max_minutes_per_day: null,
+        min_blocks_per_session: 1,
+        pages_read: null,
+        pages_total: null,
+        priority: 3,
+        progress_percent: 0,
         shelf: "",
         status: "to_read",
-        finished_at: null,
-        cover_url: "",
-        cover_local_path: "",
-        lookup_note: "",
+        title: "",
+        words_total: null,
         ...overrides,
     };
 }
@@ -70,13 +70,13 @@ test("finishDatesByBookId uses explicit finished_at for read books", () => {
     const books = [
         baseBook({
             book_id: "book-1",
-            status: "read",
             finished_at: "2026-01-10",
+            status: "read",
         }),
         baseBook({
             book_id: "book-2",
-            status: "read",
             finished_at: "2026-01-20",
+            status: "read",
         }),
     ];
 
@@ -90,15 +90,15 @@ test("sortBooks by estimated finish includes finished read books in date order",
         baseBook({ book_id: "book-1", title: "Anna Karenina" }),
         baseBook({
             book_id: "book-2",
-            title: "Ice",
-            status: "read",
             finished_at: "2026-01-10",
+            status: "read",
+            title: "Ice",
         }),
         baseBook({
             book_id: "book-3",
-            title: "White Noise",
-            status: "read",
             finished_at: "2026-01-20",
+            status: "read",
+            title: "White Noise",
         }),
     ];
     const rows = [{ book_id: "book-1", date: "2026-12-22", session_index: 1 }];
@@ -119,8 +119,8 @@ test("sortBooks by estimated finish includes finished read books in date order",
 test("metaLabel shows finished date for read books", () => {
     const book = baseBook({
         book_id: "book-1",
-        status: "read",
         finished_at: "2026-01-20",
+        status: "read",
     });
     const finishDates = { "book-1": "2026-01-20" };
 

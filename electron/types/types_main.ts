@@ -1,9 +1,9 @@
-import type { WebContents } from "electron";
+import { type WebContents } from "electron";
 
-import type { JsonValue } from "./types_core.js";
-import type {
-    PlannerSaveResult,
-    PlannerStateLoadResult,
+import { type JsonValue } from "./types_core.js";
+import {
+    type PlannerSaveResult,
+    type PlannerStateLoadResult,
 } from "./types_planner.js";
 
 export interface DownloadCoverPayload {

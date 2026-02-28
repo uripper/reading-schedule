@@ -41,7 +41,7 @@ function parseArgs(argv) {
             "Missing required argument: --input <path-to-json-or-sqlite>",
         );
     }
-    return { inputPath, userDataDir, force };
+    return { force, inputPath, userDataDir };
 }
 
 /**
@@ -99,7 +99,7 @@ function countEntities(state) {
     ) {
         scheduleCompletions = Object.keys(completions).length;
     }
-    return { books, sessions, scheduleRows, scheduleCompletions };
+    return { books, scheduleCompletions, scheduleRows, sessions };
 }
 
 /**
@@ -124,10 +124,10 @@ export function recoverStateFromArgs(argv) {
     const recovered = readStateFromInput(inputPath);
     writeRecoveredState(userDataDir, recovered.state);
     return {
-        sourceType: recovered.sourceType,
-        inputPath,
-        userDataDir,
         backups,
         counts: countEntities(recovered.state),
+        inputPath,
+        sourceType: recovered.sourceType,
+        userDataDir,
     };
 }

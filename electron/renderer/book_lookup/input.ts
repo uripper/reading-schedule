@@ -1,4 +1,4 @@
-import type { LookupInputHandlerArgs } from "../../types/types.js";
+import { type LookupInputHandlerArgs } from "../../types/types.js";
 import { getPlannerApi } from "../app/planner_api.js";
 
 const LOOKUP_DELAY_MS = 260;

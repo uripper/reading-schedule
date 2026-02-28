@@ -6,20 +6,20 @@ import { submitRecommendationToShelf } from "../dist/renderer/recommendations/ad
 test("submitRecommendationToShelf fills form values and focuses shelf picker", () => {
     let focusCount = 0;
     const target = {
+        authorInput: { value: "" },
         shelfInput: {
             focus() {
                 focusCount += 1;
             },
         },
         titleInput: { value: "" },
-        authorInput: { value: "" },
         wordsInput: { value: "" },
     };
 
     submitRecommendationToShelf(target, {
-        title: "Persuasion",
         author: "Jane Austen",
         coverUrl: "",
+        title: "Persuasion",
         wordsTotal: 86500,
     });
 

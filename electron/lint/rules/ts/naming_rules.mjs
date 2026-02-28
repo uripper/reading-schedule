@@ -2,38 +2,38 @@ export const TS_NAMING_CONVENTION_RULES = {
     "@typescript-eslint/naming-convention": [
         "error",
         {
-            selector: "default",
             format: ["camelCase"],
             leadingUnderscore: "allow",
+            selector: "default",
             trailingUnderscore: "forbid",
         },
         {
-            selector: "variable",
             format: ["camelCase", "UPPER_CASE", "PascalCase"],
             leadingUnderscore: "allow",
+            selector: "variable",
             trailingUnderscore: "forbid",
         },
         {
-            selector: "parameter",
             format: ["camelCase"],
             leadingUnderscore: "allow",
+            selector: "parameter",
             trailingUnderscore: "forbid",
         },
         {
-            selector: "function",
             format: ["camelCase", "PascalCase"],
+            selector: "function",
         },
         {
-            selector: "typeLike",
             format: ["PascalCase"],
+            selector: "typeLike",
         },
         {
-            selector: "enumMember",
             format: ["UPPER_CASE", "PascalCase"],
+            selector: "enumMember",
         },
         {
-            selector: "property",
             format: null,
+            selector: "property",
         },
     ],
 };

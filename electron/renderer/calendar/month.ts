@@ -1,7 +1,7 @@
-import type {
-    CalendarDisplayRow,
-    CalendarState,
-    MonthActions,
+import {
+    type CalendarDisplayRow,
+    type CalendarState,
+    type MonthActions,
 } from "../../types/types.js";
 import { el } from "../dom.js";
 import { createDayButton, createWeekdayHeader } from "./month_day_button.js";
@@ -147,9 +147,9 @@ export function renderCalendarMonth(
             date,
             firstDate,
             keyForDay,
-            todayKey,
             rows: displayRows,
             selectedDate: calendarState.selectedDate,
+            todayKey,
         });
         dayButton.onclick = () => {
             actions.selectDate(keyForDay);

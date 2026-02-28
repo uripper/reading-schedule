@@ -26,7 +26,7 @@ function tempUserDataDir() {
  * @param {string} directory Temporary directory path.
  */
 function cleanup(directory) {
-    fs.rmSync(directory, { recursive: true, force: true });
+    fs.rmSync(directory, { force: true, recursive: true });
 }
 
 test("SQLite store persists roundtrip and trims journal entries", () => {
@@ -34,11 +34,11 @@ test("SQLite store persists roundtrip and trims journal entries", () => {
     try {
         for (let index = 0; index < WRITE_COUNT; index += 1) {
             const saveResult = writeStateToSqlite(userDataDir, {
+                books: [],
+                revision: index,
                 settings: {
                     start_date: `2026-01-${String((index % 28) + 1).padStart(2, "0")}`,
                 },
-                books: [],
-                revision: index,
             });
             assert.equal(saveResult.ok, true);
         }
@@ -67,17 +67,17 @@ test("SQLite store recovers from snapshot corruption using journal replay", () =
     try {
         assert.equal(
             writeStateToSqlite(userDataDir, {
-                settings: { start_date: "2026-02-01" },
                 books: [],
                 revision: 1,
+                settings: { start_date: "2026-02-01" },
             }).ok,
             true,
         );
         assert.equal(
             writeStateToSqlite(userDataDir, {
-                settings: { start_date: "2026-02-02" },
                 books: [],
                 revision: 2,
+                settings: { start_date: "2026-02-02" },
             }).ok,
             true,
         );

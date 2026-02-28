@@ -1,4 +1,4 @@
-import type { FeatureFlags, Preferences } from "../../../types/types.js";
+import { type FeatureFlags, type Preferences } from "../../../types/types.js";
 import { el } from "../../dom.js";
 import {
     RECOMMENDATIONS_AVAILABLE,

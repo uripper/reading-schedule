@@ -1,9 +1,9 @@
-import type {
-    AppBootstrapContext,
-    CreateLoadStateArgsInput,
-    LoadedResultController,
-    LoadStateArgs,
-    SetStatus,
+import {
+    type AppBootstrapContext,
+    type CreateLoadStateArgsInput,
+    type LoadedResultController,
+    type LoadStateArgs,
+    type SetStatus,
 } from "../../../types/types.js";
 import { applyPreferencesToDocument } from "../../accessibility/index.js";
 import { fillBooks } from "../../books.js";
@@ -26,73 +26,73 @@ import { bindTodayActions, finalizeInitialLoad } from "./init_helpers.js";
 function createLoadStateArgs(args: CreateLoadStateArgsInput): LoadStateArgs {
     const runtimeState = args.state;
     return {
-        fillSettings,
-        fillBooks,
-        normalizePreferences,
-        normalizeFeatureFlags,
-        normalizeScheduleCompletions,
-        fillPreferencesUI,
-        applyPreferencesToDocument,
-        setStatus: args.setStatus,
         addLog: (message) => {
             args.context.addLog(message);
-        },
-        plannerApi: args.context.plannerApi,
-        updateTodayView: () => {
-            args.updateTodayView();
-        },
-        setPreferences: (preferences) => {
-            runtimeState.preferences = preferences;
-        },
-        setFeatureFlags: (featureFlags) => {
-            runtimeState.featureFlags = featureFlags;
-        },
-        setScheduleCompletions: (scheduleCompletions) => {
-            applyAppStateMutation(runtimeState, {
-                type: "set_schedule_completions",
-                scheduleCompletions,
-            });
-        },
-        setBlockedDayBooks: (blockedDayBooks) => {
-            applyAppStateMutation(runtimeState, {
-                type: "set_blocked_day_books",
-                blockedDayBooks,
-            });
-        },
-        setSessions: (sessions) => {
-            applyAppStateMutation(runtimeState, {
-                type: "set_sessions",
-                sessions,
-            });
         },
         applyLoadedResult: (result) => {
             if (result) {
                 args.planController.applyLoadedResult(result);
             } else {
                 applyAppStateMutation(runtimeState, {
-                    type: "set_last_result",
                     lastResult: null,
+                    type: "set_last_result",
                 });
             }
         },
+        applyPreferencesToDocument,
+        fillBooks,
+        fillPreferencesUI,
+        fillSettings,
+        normalizeFeatureFlags,
+        normalizePreferences,
+        normalizeScheduleCompletions,
         onLoaded: (saved, loadResult) => {
             finalizeInitialLoad({
-                saved,
-                loadResult,
                 addLog: (message) => {
                     args.context.addLog(message);
+                },
+                loadResult,
+                queueAutoPlan: () => {
+                    args.queueAutoPlanIfReady();
                 },
                 queuePersist: () => {
                     args.queuePersist();
                 },
-                setStatus: args.setStatus,
+                saved,
                 setReady: () => {
                     runtimeState.ready = true;
                 },
-                queueAutoPlan: () => {
-                    args.queueAutoPlanIfReady();
-                },
+                setStatus: args.setStatus,
             });
+        },
+        plannerApi: args.context.plannerApi,
+        setBlockedDayBooks: (blockedDayBooks) => {
+            applyAppStateMutation(runtimeState, {
+                blockedDayBooks,
+                type: "set_blocked_day_books",
+            });
+        },
+        setFeatureFlags: (featureFlags) => {
+            runtimeState.featureFlags = featureFlags;
+        },
+        setPreferences: (preferences) => {
+            runtimeState.preferences = preferences;
+        },
+        setScheduleCompletions: (scheduleCompletions) => {
+            applyAppStateMutation(runtimeState, {
+                scheduleCompletions,
+                type: "set_schedule_completions",
+            });
+        },
+        setSessions: (sessions) => {
+            applyAppStateMutation(runtimeState, {
+                sessions,
+                type: "set_sessions",
+            });
+        },
+        setStatus: args.setStatus,
+        updateTodayView: () => {
+            args.updateTodayView();
         },
     };
 }
@@ -113,22 +113,22 @@ function bindTodayActionsWithState(
     bindTodayActions({
         getLastResult: () => state.lastResult,
         getScheduleCompletions: () => state.scheduleCompletions,
+        getSessions: () => state.sessions,
+        queuePersist,
         setScheduleCompletions: (nextCompletions) => {
             applyAppStateMutation(state, {
-                type: "set_schedule_completions",
                 scheduleCompletions: nextCompletions,
+                type: "set_schedule_completions",
             });
         },
-        getSessions: () => state.sessions,
         setSessions: (nextSessions) => {
             applyAppStateMutation(state, {
-                type: "set_sessions",
                 sessions: nextSessions,
+                type: "set_sessions",
             });
         },
-        updateTodayView: handleScheduleMutation,
-        queuePersist,
         setStatus,
+        updateTodayView: handleScheduleMutation,
     });
 }
 
@@ -159,11 +159,11 @@ export async function loadStateAndBindTodayActions(
     await loadInitialData(
         createLoadStateArgs({
             context,
-            state,
             planController,
-            setStatus,
-            queuePersist,
             queueAutoPlanIfReady,
+            queuePersist,
+            setStatus,
+            state,
             updateTodayView: updateDashboards,
         }),
     );

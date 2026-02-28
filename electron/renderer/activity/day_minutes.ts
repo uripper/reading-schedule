@@ -1,4 +1,4 @@
-import type { DayMinutesArgs, DayMinutesMap } from "../../types/types.js";
+import { type DayMinutesArgs, type DayMinutesMap } from "../../types/types.js";
 import { sessionKeyFor } from "../calendar/utils.js";
 import { isoLocalDayKey } from "../sessions/utils.js";
 import { addMinutes, includeDayKey } from "./day_minutes_collect.js";

@@ -13,11 +13,11 @@ import {
 
 test("today focus flow supports start, complete, and exit", () => {
     const session = focusSessionFromRow({
-        date: "2026-02-21",
-        session_index: 1,
         book_id: "book-1",
-        title: "Ulysses",
+        date: "2026-02-21",
         minutes: 25,
+        session_index: 1,
+        title: "Ulysses",
         words_planned: 2500,
     });
     let state = openFocusMode(session);

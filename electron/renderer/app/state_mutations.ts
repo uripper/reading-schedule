@@ -1,7 +1,7 @@
-import type {
-    ApplyAppStateMutation,
-    AppRuntimeState,
-    AppStateMutation,
+import {
+    type ApplyAppStateMutation,
+    type AppRuntimeState,
+    type AppStateMutation,
 } from "../../types/types.js";
 import {
     bookByIdIndex,

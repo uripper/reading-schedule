@@ -10,25 +10,25 @@ import { findRecommendations } from "../dist/renderer/recommendations/search.js"
  */
 function book(overrides = {}) {
     return {
-        book_id: "book-default",
-        title: "Default Title",
         author: "",
-        words_total: 50000,
-        pages_total: null,
-        pages_read: null,
-        progress_percent: 0,
-        priority: 3,
-        difficulty: 3,
-        min_blocks_per_session: 1,
-        max_minutes_per_day: null,
-        deadline: null,
         blocked_by: null,
+        book_id: "book-default",
+        cover_local_path: "",
+        cover_url: "",
+        deadline: null,
+        difficulty: 3,
+        finished_at: null,
+        lookup_note: "",
+        max_minutes_per_day: null,
+        min_blocks_per_session: 1,
+        pages_read: null,
+        pages_total: null,
+        priority: 3,
+        progress_percent: 0,
         shelf: "",
         status: "to_read",
-        finished_at: null,
-        cover_url: "",
-        cover_local_path: "",
-        lookup_note: "",
+        title: "Default Title",
+        words_total: 50000,
         ...overrides,
     };
 }
@@ -37,16 +37,16 @@ test("findRecommendations queries read authors and filters existing titles", asy
     const calls = [];
     const api = {
         searchBooks(query, authorOnly) {
-            calls.push({ query, authorOnly });
+            calls.push({ authorOnly, query });
             return Promise.resolve([
                 {
-                    title: "Homage to Catalonia",
                     author: "George Orwell",
+                    title: "Homage to Catalonia",
                     words_estimate: 73000,
                 },
                 {
-                    title: "Keep the Aspidistra Flying",
                     author: "George Orwell",
+                    title: "Keep the Aspidistra Flying",
                     words_estimate: 89000,
                 },
             ]);
@@ -56,14 +56,14 @@ test("findRecommendations queries read authors and filters existing titles", asy
     const recommendations = await findRecommendations(
         [
             book({
-                title: "Animal Farm",
                 author: "George Orwell",
                 status: "read",
+                title: "Animal Farm",
             }),
             book({
-                title: "Homage to Catalonia",
                 author: "George Orwell",
                 status: "to_read",
+                title: "Homage to Catalonia",
             }),
         ],
         api,
@@ -94,12 +94,12 @@ test("findRecommendations samples a random subset of up to five read authors", a
 
     await findRecommendations(
         [
-            book({ title: "Book A", author: "Author A", status: "read" }),
-            book({ title: "Book B", author: "Author B", status: "read" }),
-            book({ title: "Book C", author: "Author C", status: "read" }),
-            book({ title: "Book D", author: "Author D", status: "read" }),
-            book({ title: "Book E", author: "Author E", status: "read" }),
-            book({ title: "Book F", author: "Author F", status: "read" }),
+            book({ author: "Author A", status: "read", title: "Book A" }),
+            book({ author: "Author B", status: "read", title: "Book B" }),
+            book({ author: "Author C", status: "read", title: "Book C" }),
+            book({ author: "Author D", status: "read", title: "Book D" }),
+            book({ author: "Author E", status: "read", title: "Book E" }),
+            book({ author: "Author F", status: "read", title: "Book F" }),
         ],
         api,
         { randomFn: () => 0 },

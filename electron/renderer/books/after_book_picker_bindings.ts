@@ -1,4 +1,4 @@
-import type { BindingArgs } from "../../types/types.js";
+import { type BindingArgs } from "../../types/types.js";
 import {
     lookupResultTarget,
     shouldKeepPickerOpen,
@@ -87,10 +87,10 @@ export function bindAfterBookPickerEvents(args: BindingArgs): void {
             return;
         }
         const keepOpen = shouldKeepPickerOpen({
+            targetIsInput: event.target === args.refs.afterBookInput,
             targetIsInResults: args.refs.afterBookResults.contains(
                 event.target,
             ),
-            targetIsInput: event.target === args.refs.afterBookInput,
         });
         if (keepOpen) {
             return;

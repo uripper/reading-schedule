@@ -1,7 +1,7 @@
-import type {
-    Book,
-    CalendarRowWithFinish,
-    DetailInteractionHandlers,
+import {
+    type Book,
+    type CalendarRowWithFinish,
+    type DetailInteractionHandlers,
 } from "../../types/types.js";
 import {
     setInputValueFromBookProgress,
@@ -62,12 +62,12 @@ export function progressFormForToday(
     progressForm.onsubmit = (event) => {
         const updatedValues = submitProgressUpdate({
             event,
-            row,
-            pagesInput,
-            pctInput,
             initialPagesValue,
             initialPercentValue,
             interactionHandlers,
+            pagesInput,
+            pctInput,
+            row,
         });
         initialPagesValue = updatedValues.initialPagesValue;
         initialPercentValue = updatedValues.initialPercentValue;

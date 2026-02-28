@@ -1,7 +1,7 @@
-import type {
-    FocusSession,
-    PlannerScheduleRow,
-    Session,
+import {
+    type FocusSession,
+    type PlannerScheduleRow,
+    type Session,
 } from "../../../types/types.js";
 import { sessionKeyFor } from "../../calendar/utils.js";
 import { normalizeSession } from "../../sessions/normalize.js";
@@ -72,12 +72,12 @@ export function tinyStartSessionFromFocus(
         Date.now() - TINY_START_MINUTES * 60 * 1000,
     ).toISOString();
     return normalizeSession({
-        source: "manual",
         book_id: normalizedBookId,
-        title: normalizedTitle,
-        minutes: TINY_START_MINUTES,
-        started_at: startedAt,
         ended_at: endedAt,
+        minutes: TINY_START_MINUTES,
         notes: TINY_START_NOTE,
+        source: "manual",
+        started_at: startedAt,
+        title: normalizedTitle,
     });
 }

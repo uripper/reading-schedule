@@ -37,8 +37,8 @@ export interface IdentifierLabel {
 }
 
 export interface RangeBound {
-    min: number;
     max: number;
+    min: number;
 }
 
 export interface PaginationWindow {

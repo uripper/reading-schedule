@@ -1,8 +1,8 @@
-import type {
-    FeatureFlags,
-    LoadedPlannerState,
-    PlannerResult,
-    SessionInput,
+import {
+    type FeatureFlags,
+    type LoadedPlannerState,
+    type PlannerResult,
+    type SessionInput,
 } from "../../types/types.js";
 
 /**

@@ -1,7 +1,7 @@
-import type {
-    Book,
-    PlannerResult,
-    StatusBreakdown,
+import {
+    type Book,
+    type PlannerResult,
+    type StatusBreakdown,
 } from "../../types/types.js";
 import { finishDatesByBookId } from "../books/finish_dates.js";
 import {
@@ -172,13 +172,13 @@ export function completionStats(
     });
 
     if (!scheduled) {
-        return { scheduled, completed, ratePercent: 0 };
+        return { completed, ratePercent: 0, scheduled };
     }
     const rawPercent = (completed / scheduled) * PERCENT_MAX;
     return {
-        scheduled,
         completed,
         ratePercent: Math.round(rawPercent),
+        scheduled,
     };
 }
 
@@ -192,7 +192,7 @@ export function averageProgress(books: Book[]): {
     averagePercent: number;
 } {
     if (!books.length) {
-        return { startedCount: 0, averagePercent: 0 };
+        return { averagePercent: 0, startedCount: 0 };
     }
     let startedCount = 0;
     let totalPercent = 0;
@@ -204,8 +204,8 @@ export function averageProgress(books: Book[]): {
         totalPercent += progress;
     });
     return {
-        startedCount,
         averagePercent: Math.round((totalPercent / books.length) * 10) / 10,
+        startedCount,
     };
 }
 

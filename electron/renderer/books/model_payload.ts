@@ -1,4 +1,4 @@
-import type { Book } from "../../types/types.js";
+import { type Book } from "../../types/types.js";
 import { normalizeScheduledDays } from "./scheduled_days.js";
 import { statusFromRaw } from "./status.js";
 
@@ -66,29 +66,29 @@ export function toPayloadBook(book: Book): Book {
         Number(book.progress_percent || 0),
     );
     return {
-        status,
+        author: withDefaultString(book.author),
+        blocked_by: withNullableString(book.blocked_by),
         book_id: book.book_id,
-        title: book.title,
-        words_total: book.words_total ?? null,
-        pages_total: book.pages_total ?? null,
-        pages_read: book.pages_read ?? null,
-        progress_percent: book.progress_percent,
-        priority: withDefaultNumber(book.priority, DEFAULT_PRIORITY),
+        cover_local_path: withDefaultString(book.cover_local_path),
+        cover_url: withDefaultString(book.cover_url),
+        deadline: withNullableString(book.deadline),
         difficulty: withDefaultNumber(book.difficulty, DEFAULT_DIFFICULTY),
+        finished_at: normalizeFinishedAt(book.finished_at),
+        lookup_note: withDefaultString(book.lookup_note),
+        max_minutes_per_day: book.max_minutes_per_day ?? null,
         min_blocks_per_session: withDefaultNumber(
             book.min_blocks_per_session,
             DEFAULT_MIN_BLOCKS,
         ),
-        max_minutes_per_day: book.max_minutes_per_day ?? null,
-        deadline: withNullableString(book.deadline),
-        blocked_by: withNullableString(book.blocked_by),
-        shelf: withDefaultString(book.shelf),
+        pages_read: book.pages_read ?? null,
+        pages_total: book.pages_total ?? null,
+        priority: withDefaultNumber(book.priority, DEFAULT_PRIORITY),
+        progress_percent: book.progress_percent,
         scheduled_days: normalizeScheduledDays(book.scheduled_days),
-        finished_at: normalizeFinishedAt(book.finished_at),
-        author: withDefaultString(book.author),
-        cover_url: withDefaultString(book.cover_url),
-        cover_local_path: withDefaultString(book.cover_local_path),
-        lookup_note: withDefaultString(book.lookup_note),
+        shelf: withDefaultString(book.shelf),
+        status,
+        title: book.title,
+        words_total: book.words_total ?? null,
     };
 }
 

@@ -1,8 +1,8 @@
-import type {
-    Book,
-    BookGroupBy,
-    BookStatusFilter,
-    SortDirection,
+import {
+    type Book,
+    type BookGroupBy,
+    type BookStatusFilter,
+    type SortDirection,
 } from "../../types/types.js";
 import { GROUP_BY_NONE } from "./grouping.js";
 import { SORT_DIRECTION_DESC } from "./sort.js";

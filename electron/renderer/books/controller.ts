@@ -1,13 +1,13 @@
-import type {
-    BindBooksUIOptions,
-    Book,
-    BookDialogController,
-    BookProgressUpdates,
-    BookSubmitPayload,
-    BooksControllerRefs,
-    BooksViewState,
-    PlannerScheduleRow,
-    UpdateBookProgressOptions,
+import {
+    type BindBooksUIOptions,
+    type Book,
+    type BookDialogController,
+    type BookProgressUpdates,
+    type BookSubmitPayload,
+    type BooksControllerRefs,
+    type BooksViewState,
+    type PlannerScheduleRow,
+    type UpdateBookProgressOptions,
 } from "../../types/types.js";
 import { el } from "../dom.js";
 import { bindToolbarEvents } from "./controller_bindings.js";
@@ -50,25 +50,25 @@ let onEstimatedFinishNavigate: (dateKey: string) => void =
 let dialog: BookDialogController | null = null;
 
 const refs: BooksControllerRefs = {
-    toolbar: null,
-    grid: null,
-    empty: null,
     addBtn: null,
-    titleFilterInput: null,
-    shelfFilterSelect: null,
-    statusFilterSelect: null,
-    sortBySelect: null,
+    empty: null,
+    grid: null,
     groupBySelect: null,
+    shelfFilterSelect: null,
+    sortBySelect: null,
     sortDirectionBtn: null,
+    statusFilterSelect: null,
+    titleFilterInput: null,
+    toolbar: null,
 };
 
 const viewState: BooksViewState = {
-    titleFilter: "",
-    shelfFilter: "",
-    statusFilter: BOOK_STATUS_FILTER_ALL,
-    sortBy: SORT_BY_TITLE,
     groupBy: GROUP_BY_NONE,
+    shelfFilter: "",
+    sortBy: SORT_BY_TITLE,
     sortDirection: SORT_DIRECTION_ASC,
+    statusFilter: BOOK_STATUS_FILTER_ALL,
+    titleFilter: "",
 };
 
 /**
@@ -94,16 +94,16 @@ function findBook(bookId: string): Book | null {
  */
 function render(): void {
     renderBooksController({
-        refs,
         books,
-        scheduleRows,
-        viewState,
         dialog,
+        findBook,
         onBooksChanged,
         onEstimatedFinishNavigate,
-        setBooks,
-        findBook,
+        refs,
         rerender: render,
+        scheduleRows,
+        setBooks,
+        viewState,
     });
 }
 
@@ -244,7 +244,7 @@ export function bindBooksUI(
     refs.groupBySelect = toolbarControls.groupBySelect;
     refs.sortDirectionBtn = toolbarControls.sortDirectionBtn;
 
-    bindToolbarEvents({ refs, viewState, rerender: render });
+    bindToolbarEvents({ refs, rerender: render, viewState });
 
     dialog = createBookDialog(saveBook, { getBooks: () => books });
     refs.addBtn.onclick = () => {

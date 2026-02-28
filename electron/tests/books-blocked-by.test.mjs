@@ -10,8 +10,8 @@ import { clearMissingBlockedBy } from "../dist/renderer/books/model_payload.js";
  */
 function book(overrides = {}) {
     return {
-        book_id: "book-id",
         blocked_by: null,
+        book_id: "book-id",
         ...overrides,
     };
 }
@@ -19,7 +19,7 @@ function book(overrides = {}) {
 test("clearMissingBlockedBy keeps blocker ids that are still schedulable", () => {
     const books = [
         book({ book_id: "book-a" }),
-        book({ book_id: "book-b", blocked_by: "book-a" }),
+        book({ blocked_by: "book-a", book_id: "book-b" }),
     ];
 
     const result = clearMissingBlockedBy(books);
@@ -27,7 +27,7 @@ test("clearMissingBlockedBy keeps blocker ids that are still schedulable", () =>
 });
 
 test("clearMissingBlockedBy clears blocker ids that are missing", () => {
-    const books = [book({ book_id: "book-b", blocked_by: "book-a" })];
+    const books = [book({ blocked_by: "book-a", book_id: "book-b" })];
 
     const result = clearMissingBlockedBy(books);
     assert.equal(result[0].blocked_by, null);

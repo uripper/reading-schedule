@@ -1,4 +1,4 @@
-import type { DashboardRuntimeArgs } from "../../types/types.js";
+import { type DashboardRuntimeArgs } from "../../types/types.js";
 import { DEFAULT_PREFERENCES } from "./experience/index.js";
 
 /**
@@ -35,21 +35,21 @@ export function createDashboardRuntime({
     const updateStatsDashboardView = (): void => {
         updateStatsView({
             books: collectAllBooks(),
-            sessions: runtimeState.sessions,
+            dailyGoalMinutes: Number(runtimeState.preferences.dailyGoalMinutes),
             lastResult: runtimeState.lastResult,
             scheduleCompletions: runtimeState.scheduleCompletions,
-            dailyGoalMinutes: Number(runtimeState.preferences.dailyGoalMinutes),
+            sessions: runtimeState.sessions,
         });
     };
     const updateDashboards = (): void => {
         updateTodayDashboard({
-            lastResult: runtimeState.lastResult,
-            scheduleCompletions: runtimeState.scheduleCompletions,
             books: collectAllBooks(),
-            sessions: runtimeState.sessions,
-            preferences: runtimeState.preferences,
-            featureFlags: runtimeState.featureFlags,
             defaultDailyGoalMinutes: DEFAULT_PREFERENCES.dailyGoalMinutes,
+            featureFlags: runtimeState.featureFlags,
+            lastResult: runtimeState.lastResult,
+            preferences: runtimeState.preferences,
+            scheduleCompletions: runtimeState.scheduleCompletions,
+            sessions: runtimeState.sessions,
         });
         updateStatsDashboardView();
     };

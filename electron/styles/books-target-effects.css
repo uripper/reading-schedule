@@ -44,8 +44,8 @@
         var(--app-border)
     );
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-brand) 30%, transparent);
-    filter: brightness(1) !important;
-    opacity: 1 !important;
+    opacity: 1;
+    filter: brightness(1);
     animation: book-card-after-target-pulse 1800ms
         var(--token-motion-easing-standard) 1;
 }

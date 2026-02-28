@@ -1,9 +1,9 @@
-import type {
-    AppCalendarInteractionArgs,
-    CalendarInteractionHandlers,
-    CompletionRow,
-    CompletionUpdate,
-    ProgressUpdateInput,
+import {
+    type AppCalendarInteractionArgs,
+    type CalendarInteractionHandlers,
+    type CompletionRow,
+    type CompletionUpdate,
+    type ProgressUpdateInput,
 } from "../../../types/types.js";
 import { sessionKeyFor } from "../../calendar/utils.js";
 import {
@@ -92,8 +92,8 @@ const handleCompletionChanged = (
         payload.completed,
     );
     args.applyStateMutation({
-        type: "set_schedule_completions",
         scheduleCompletions: completionState,
+        type: "set_schedule_completions",
     });
     args.queuePersist();
     const statusMessage = completionStatusMessage(
@@ -131,8 +131,8 @@ const handleProgressUpdated = (
             dayBookCompletionKey(payload.row.date, payload.row.book_id)
         ] = true;
         args.applyStateMutation({
-            type: "set_schedule_completions",
             scheduleCompletions: completionState,
+            type: "set_schedule_completions",
         });
     }
     if (updatedBook.title === "") {
@@ -152,15 +152,15 @@ const buildCalendarHandlers = (
 ): CalendarInteractionHandlers => {
     const scheduleMutationHandlers = buildScheduleMutationHandlers(args);
     return {
+        getBookById: (bookId) => args.getBookById(bookId),
         isSessionCompleted: (sessionKey) =>
             isCompleted(args.state.scheduleCompletions, sessionKey),
+        listSessionBooks: () => manualSessionBooks(args.collectAllBooks()),
         onSessionCompletionChanged: (payload) => {
             handleCompletionChanged(args, payload);
         },
         onSessionProgressUpdated: (payload) =>
             handleProgressUpdated(args, payload),
-        getBookById: (bookId) => args.getBookById(bookId),
-        listSessionBooks: () => manualSessionBooks(args.collectAllBooks()),
         ...scheduleMutationHandlers,
     };
 };

@@ -1,4 +1,4 @@
-import type { Book, GroupMeta } from "../../types/types.js";
+import { type Book, type GroupMeta } from "../../types/types.js";
 
 const MONTH_INDEX_MIN = 1;
 const MONTH_INDEX_MAX = 12;
@@ -41,9 +41,9 @@ function parseFinishDateParts(
     }
 
     return {
-        year,
-        month,
         date: new Date(year, month - MONTH_INDEX_MIN, MONTH_INDEX_MIN),
+        month,
+        year,
     };
 }
 
@@ -76,8 +76,8 @@ export function finishDateMetaForBook(
     }
 
     return {
-        label,
         key: `finish:${finishDate.year}-${String(finishDate.month).padStart(2, "0")}`,
+        label,
         order: finishDate.year * YEAR_MONTH_MULTIPLIER + finishDate.month,
         tie: label,
     };

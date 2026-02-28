@@ -3,11 +3,11 @@
  */
 import fs from "node:fs";
 import { DatabaseSync } from "node:sqlite";
-import type {
-    JsonValue,
-    LoadedPlannerState,
-    PlannerSaveResult,
-    PlannerStateLoadResult,
+import {
+    type JsonValue,
+    type LoadedPlannerState,
+    type PlannerSaveResult,
+    type PlannerStateLoadResult,
 } from "../types/types.js";
 import { sqliteStatePath } from "./state_store_paths";
 
@@ -171,9 +171,9 @@ function writeSnapshotTransaction(
     } catch (error) {
         database.exec("ROLLBACK");
         if (error instanceof Error) {
-            return { ok: false, error: error.message };
+            return { error: error.message, ok: false };
         }
-        return { ok: false, error: String(error) };
+        return { error: String(error), ok: false };
     }
 }
 
@@ -195,9 +195,9 @@ export function readStateFromSqlite(
             const snapshotState = readSnapshotState(database);
             if (snapshotState) {
                 return {
-                    state: snapshotState,
                     source: "sqlite",
                     sourcePath: databasePath,
+                    state: snapshotState,
                 };
             }
             const recoveredState = recoverStateFromJournal(database);
@@ -210,9 +210,9 @@ export function readStateFromSqlite(
                 new Date().toISOString(),
             );
             return {
-                state: recoveredState,
                 source: "sqlite_journal_replay",
                 sourcePath: databasePath,
+                state: recoveredState,
                 warningCode: "RECOVERED_FROM_JOURNAL",
                 warningMessage:
                     "Recovered saved data from journal replay after storage corruption.",
@@ -245,8 +245,8 @@ export function writeStateToSqlite(
         }
     } catch (error) {
         if (error instanceof Error) {
-            return { ok: false, error: error.message };
+            return { error: error.message, ok: false };
         }
-        return { ok: false, error: String(error) };
+        return { error: String(error), ok: false };
     }
 }

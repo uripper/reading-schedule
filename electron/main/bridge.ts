@@ -3,7 +3,7 @@
  */
 import { spawn } from "node:child_process";
 import path from "node:path";
-import type { BridgeResponse, JsonValue } from "../types/types.js";
+import { type BridgeResponse, type JsonValue } from "../types/types.js";
 
 const PLANNER_MODULE = "reading_plan.gui_api";
 const PYTHONPATH_SEGMENT = "src";

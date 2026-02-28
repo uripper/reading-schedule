@@ -13,9 +13,9 @@ import {
  */
 function headingFormatter() {
     return new Intl.DateTimeFormat(undefined, {
-        weekday: "long",
-        month: "long",
         day: "numeric",
+        month: "long",
+        weekday: "long",
         year: "numeric",
     });
 }

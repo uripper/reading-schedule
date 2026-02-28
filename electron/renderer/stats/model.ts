@@ -1,4 +1,4 @@
-import type { SnapshotInputs, StatsSnapshot } from "../../types/types.js";
+import { type SnapshotInputs, type StatsSnapshot } from "../../types/types.js";
 import {
     activeDayCount,
     dayMinutesFromActivity,
@@ -44,15 +44,15 @@ export function buildStatsSnapshot({
 }: SnapshotInputs): StatsSnapshot {
     const year = new Date().getFullYear();
     const minutesByDayThisYear = dayMinutesFromActivity({
-        sessions,
         lastResult,
         scheduleCompletions,
+        sessions,
         year,
     });
     const minutesByDayAllTime = dayMinutesFromActivity({
-        sessions,
         lastResult,
         scheduleCompletions,
+        sessions,
         year: null,
     });
     const progress = averageProgress(books);
@@ -63,27 +63,27 @@ export function buildStatsSnapshot({
     const goalMinutes = normalizedGoalMinutes(dailyGoalMinutes);
 
     return {
-        year,
-        totalBooks: books.length,
-        booksStartedCount: progress.startedCount,
-        averageProgressPercent: progress.averagePercent,
-        plannedFinishCount: planned.ids.size,
-        finishedThisYearCount: readThisYearIds.size,
-        projectedFinishCount: projected.size,
-        readingMinutesYear: totalMinutes(minutesByDayThisYear),
         activeDaysYear: activeDayCount(minutesByDayThisYear),
+        averageProgressPercent: progress.averagePercent,
+        booksStartedCount: progress.startedCount,
+        completedSessionsToDate: completion.completed,
+        completionRatePercent: completion.ratePercent,
         currentStreakDays: streakFromDayMinutes(
             minutesByDayAllTime,
             goalMinutes,
         ),
-        scheduledSessionsToDate: completion.scheduled,
-        completedSessionsToDate: completion.completed,
-        completionRatePercent: completion.ratePercent,
-        statusBreakdown: statusBreakdown(books),
+        finishedThisYearCount: readThisYearIds.size,
         monthlyFinishes: monthlyFinishCounts(
             readThisYearIds,
             books,
             planned.monthByBookId,
         ),
+        plannedFinishCount: planned.ids.size,
+        projectedFinishCount: projected.size,
+        readingMinutesYear: totalMinutes(minutesByDayThisYear),
+        scheduledSessionsToDate: completion.scheduled,
+        statusBreakdown: statusBreakdown(books),
+        totalBooks: books.length,
+        year,
     };
 }

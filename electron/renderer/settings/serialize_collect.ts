@@ -1,4 +1,7 @@
-import type { FieldDefinition, PlannerSettings } from "../../types/types.js";
+import {
+    type FieldDefinition,
+    type PlannerSettings,
+} from "../../types/types.js";
 import { DEFAULT_DIFFICULTY_MULTIPLIER, weekdays } from "./config.js";
 import {
     allFieldDefinitions,

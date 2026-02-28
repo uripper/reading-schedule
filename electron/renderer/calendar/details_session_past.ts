@@ -1,6 +1,6 @@
-import type {
-    CalendarRowWithFinish,
-    DetailInteractionHandlers,
+import {
+    type CalendarRowWithFinish,
+    type DetailInteractionHandlers,
 } from "../../types/types.js";
 import { minutesFormForSession } from "./details_minutes_form.js";
 import {

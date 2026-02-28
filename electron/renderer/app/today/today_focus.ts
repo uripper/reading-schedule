@@ -1,7 +1,7 @@
-import type {
-    FocusSession,
-    PlannerScheduleRow,
-    TodayFocusState,
+import {
+    type FocusSession,
+    type PlannerScheduleRow,
+    type TodayFocusState,
 } from "../../../types/types.js";
 
 export const TINY_START_MINUTES = 3;

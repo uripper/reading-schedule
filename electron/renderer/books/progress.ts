@@ -1,9 +1,9 @@
-import type {
-    Book,
-    BookProgressUpdates,
-    PagesUpdateResult,
-    PercentUpdateContext,
-    ProgressTotals,
+import {
+    type Book,
+    type BookProgressUpdates,
+    type PagesUpdateResult,
+    type PercentUpdateContext,
+    type ProgressTotals,
 } from "../../types/types.js";
 import { clamp } from "./utils.js";
 
@@ -73,8 +73,8 @@ function applyPercentUpdate(
     const pagesRead = Math.round((progressPercent / 100) * context.pagesTotal);
     return {
         ...book,
-        progress_percent: progressPercent,
         pages_read: pagesRead,
+        progress_percent: progressPercent,
     };
 }
 
@@ -117,8 +117,8 @@ export function withUpdatedProgress(
     nextBook = pagesUpdateResult.book;
     const pctUpdate = parseFiniteNumber(updates.progressPercent ?? undefined);
     nextBook = applyPercentUpdate(nextBook, pctUpdate, {
-        hasPagesUpdate: pagesUpdateResult.hasPagesUpdate,
         hasPagesTotal: totals.hasPagesTotal,
+        hasPagesUpdate: pagesUpdateResult.hasPagesUpdate,
         pagesTotal: totals.pagesTotal,
     });
     nextBook = reconcilePercentFromPages(nextBook, totals);

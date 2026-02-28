@@ -1,7 +1,7 @@
-import type {
-    Book,
-    BookLookupItem,
-    RecommendationItem,
+import {
+    type Book,
+    type BookLookupItem,
+    type RecommendationItem,
 } from "../../types/types.js";
 import {
     AUTHOR_LOCALE,
@@ -158,8 +158,8 @@ export function normalizeLookupRecommendation(
     }
     return {
         author,
-        title,
         coverUrl: String(item.cover_url ?? "").trim(),
+        title,
         wordsTotal: wordsFromLookup(item),
     };
 }

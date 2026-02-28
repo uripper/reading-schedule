@@ -17,8 +17,8 @@ test("normalizeFeatureFlags keeps shipped gamification flag", () => {
 test("normalizeFeatureFlags disables hidden placeholder flags", () => {
     const flags = normalizeFeatureFlags({
         gamificationEnabled: false,
-        socialEnabled: true,
         recommendationsEnabled: true,
+        socialEnabled: true,
     });
 
     assert.equal(flags.socialEnabled, false);

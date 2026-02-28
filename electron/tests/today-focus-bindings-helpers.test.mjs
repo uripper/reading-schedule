@@ -9,18 +9,18 @@ import {
 
 test("findSessionRow matches using date, id, session index, title, and minutes", () => {
     const row = {
-        date: "2026-02-22",
-        session_index: 2,
         book_id: "book-1",
-        title: "Ulysses",
+        date: "2026-02-22",
         minutes: 10,
+        session_index: 2,
+        title: "Ulysses",
         words_planned: 1000,
     };
     const matched = findSessionRow(
         {
+            created_at: "",
             schedule: [row],
             summary: null,
-            created_at: "",
         },
         {
             bookId: "book-1",
@@ -35,11 +35,11 @@ test("findSessionRow matches using date, id, session index, title, and minutes",
 
 test("nextCompletionsWithRowMarkedComplete sets session and day-book keys", () => {
     const row = {
-        date: "2026-02-22",
-        session_index: 2,
         book_id: "book-1",
-        title: "Ulysses",
+        date: "2026-02-22",
         minutes: 10,
+        session_index: 2,
+        title: "Ulysses",
         words_planned: 1000,
     };
     const completions = nextCompletionsWithRowMarkedComplete({}, row);

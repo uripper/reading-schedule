@@ -1,9 +1,9 @@
-import type {
-    Book,
-    PlannerResult,
-    PlannerScheduleRow,
-    TodayBookSummary,
-    TodayScheduleSnapshot,
+import {
+    type Book,
+    type PlannerResult,
+    type PlannerScheduleRow,
+    type TodayBookSummary,
+    type TodayScheduleSnapshot,
 } from "../../../types/types.js";
 import { bookCoverSrc } from "../../books/model.js";
 import { titleSortKey } from "../../books/title_key.js";
@@ -97,12 +97,12 @@ function createBookSummary(
         coverSrc = bookCoverSrc(matched);
     }
     return {
-        title,
         bookId,
+        completedSessions: ZERO_COUNT,
         coverSrc,
         plannedMinutes: ZERO_COUNT,
         scheduledSessions: ZERO_COUNT,
-        completedSessions: ZERO_COUNT,
+        title,
     };
 }
 
@@ -183,13 +183,13 @@ export function buildTodayScheduleSnapshot(
     });
 
     return {
+        books: booksForToday,
         completedPlannedMinutes,
-        scheduledSessions,
         completedSessions,
         nextUncompletedRow: nextUncompletedPlannedRow(
             lastResult,
             scheduleCompletions,
         ),
-        books: booksForToday,
+        scheduledSessions,
     };
 }

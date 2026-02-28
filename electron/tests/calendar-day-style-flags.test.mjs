@@ -17,9 +17,9 @@ test("dayStyleFlags marks today with selection-friendly flags", () => {
         date: day("2026-02-21"),
         firstDate: day("2026-02-01"),
         keyForDay: "2026-02-21",
+        rows: [{ finish: false }],
         selectedDate: "2026-02-21",
         todayKey: "2026-02-21",
-        rows: [{ finish: false }],
     });
 
     assert.equal(flags.isToday, true);
@@ -33,9 +33,9 @@ test("dayStyleFlags marks non-month cells as muted", () => {
         date: day("2026-01-31"),
         firstDate: day("2026-02-01"),
         keyForDay: "2026-01-31",
+        rows: [{ finish: true }],
         selectedDate: "2026-02-02",
         todayKey: "2026-02-21",
-        rows: [{ finish: true }],
     });
 
     assert.equal(flags.isMuted, true);
@@ -47,9 +47,9 @@ test("dayStyleFlags ignores completed-only rows in month grid", () => {
         date: day("2026-02-20"),
         firstDate: day("2026-02-01"),
         keyForDay: "2026-02-20",
+        rows: [{ completed: true, finish: false }],
         selectedDate: "2026-02-19",
         todayKey: "2026-02-21",
-        rows: [{ completed: true, finish: false }],
     });
 
     assert.equal(flags.hasFinishRow, false);

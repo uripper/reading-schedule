@@ -1,8 +1,8 @@
-import type {
-    AddLog,
-    DraftDataParams,
-    PlannerApi,
-    PlannerStateSnapshot,
+import {
+    type AddLog,
+    type DraftDataParams,
+    type PlannerApi,
+    type PlannerStateSnapshot,
 } from "../../types/types.js";
 
 /**
@@ -20,14 +20,14 @@ import type {
  */
 export function draftData(args: DraftDataParams): PlannerStateSnapshot {
     return {
-        sessions: args.sessions,
-        preferences: args.preferences,
-        books: args.collectBooks(),
-        settings: args.collectSettings(),
-        feature_flags: args.featureFlags,
-        schedule_completions: args.scheduleCompletions,
         blocked_day_books: args.blockedDayBooks,
+        books: args.collectBooks(),
+        feature_flags: args.featureFlags,
         last_result: args.lastResult,
+        preferences: args.preferences,
+        schedule_completions: args.scheduleCompletions,
+        sessions: args.sessions,
+        settings: args.collectSettings(),
     };
 }
 

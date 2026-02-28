@@ -1,7 +1,7 @@
-import type {
-    BookSelectionControls,
-    BuildManualSessionAddPanelArgs,
-    SubmitManualAddFormArgs,
+import {
+    type BookSelectionControls,
+    type BuildManualSessionAddPanelArgs,
+    type SubmitManualAddFormArgs,
 } from "../../types/types.js";
 import {
     minuteValueForManualInput,
@@ -56,7 +56,7 @@ function createBookSelectionControls(
     });
     bookLabel.append(bookSelect);
 
-    return { titleFilterLabel, bookLabel, bookSelect };
+    return { bookLabel, bookSelect, titleFilterLabel };
 }
 
 /**
@@ -75,11 +75,11 @@ function submitManualAddForm(args: SubmitManualAddFormArgs): void {
     }
 
     const added = args.interactionHandlers.onManualSessionAdded({
-        date: args.dateKey,
         bookId: selectedBookId,
-        minutes: parsedMinutes,
         completed:
             args.mode !== "future" && Boolean(args.completeInput.checked),
+        date: args.dateKey,
+        minutes: parsedMinutes,
     });
     if (!added) {
         return;
@@ -167,13 +167,13 @@ export function buildManualSessionAddPanel(
     form.onsubmit = (event) => {
         event.preventDefault();
         submitManualAddForm({
-            dateKey: args.dateKey,
-            mode: args.mode,
-            interactionHandlers: args.interactionHandlers,
             bookSelect: selectionControls.bookSelect,
-            rerenderDetails,
-            minutesInput,
             completeInput,
+            dateKey: args.dateKey,
+            interactionHandlers: args.interactionHandlers,
+            minutesInput,
+            mode: args.mode,
+            rerenderDetails,
         });
     };
 

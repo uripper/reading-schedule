@@ -1,4 +1,4 @@
-import type { UpdateStatsArgs } from "../types/types.js";
+import { type UpdateStatsArgs } from "../types/types.js";
 import { buildStatsSnapshot } from "./stats/model.js";
 import { renderStatsDashboard } from "./stats/render.js";
 
@@ -20,10 +20,10 @@ export function updateStatsView({
 }: UpdateStatsArgs): void {
     const snapshot = buildStatsSnapshot({
         books,
-        sessions,
+        dailyGoalMinutes,
         lastResult,
         scheduleCompletions,
-        dailyGoalMinutes,
+        sessions,
     });
     renderStatsDashboard(snapshot);
 }

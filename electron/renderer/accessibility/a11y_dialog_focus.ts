@@ -1,4 +1,4 @@
-import type { DialogFocusOptions } from "../../types/types.js";
+import { type DialogFocusOptions } from "../../types/types.js";
 
 /**
  * Returns a CSS selector string matching all interactive, focusable elements
@@ -76,5 +76,5 @@ export function bindDialogFocus(
         opener = null;
     });
 
-    return { rememberOpener, focusInitialTarget, closeAndReturnFocus };
+    return { closeAndReturnFocus, focusInitialTarget, rememberOpener };
 }

@@ -1,19 +1,19 @@
 {
     "compilerOptions": {
-        "target": "ES2023",
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
         "module": "CommonJS",
         "moduleResolution": "Node",
-        "outDir": "dist",
-        "rootDir": ".",
-        "types": ["node", "electron"],
-        "strict": true,
-        "noImplicitAny": true,
         "noEmitOnError": true,
-        "skipLibCheck": true,
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
+        "noImplicitAny": true,
+        "outDir": "dist",
         "resolveJsonModule": true,
-        "strictNullChecks": true
+        "rootDir": ".",
+        "skipLibCheck": true,
+        "strict": true,
+        "strictNullChecks": true,
+        "target": "ES2023",
+        "types": ["node", "electron"]
     },
     "include": ["*.ts", "main/**/*.ts", "types/**/*.ts"]
 }

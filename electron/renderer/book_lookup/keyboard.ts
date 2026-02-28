@@ -120,7 +120,6 @@ export function handleLookupKeydown(args: HandleLookupKeydownArgs): void {
             return;
         case "Escape":
             handleEscape(clearLookupResults, searchInput);
-            return;
 
         default:
     }

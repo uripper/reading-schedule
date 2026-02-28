@@ -1,4 +1,7 @@
-import type { AppBootstrapContext, PlannerApi } from "../../types/types.js";
+import {
+    type AppBootstrapContext,
+    type PlannerApi,
+} from "../../types/types.js";
 import {
     applyPreferencesToDocument,
     createAnnouncer,
@@ -56,12 +59,12 @@ export function createAppBootstrapContext(): AppBootstrapContext {
     };
     const setStatus = createStatusSetter(el("status"), addLog);
     const persistQueue = createPersistQueue({
-        state,
-        collectSettings,
         addLog,
-        plannerApi,
         collectBooks: collectAllBooks,
+        collectSettings,
         getSessions: () => state.sessions,
+        plannerApi,
+        state,
     });
     const queuePersist = (): void => {
         persistQueue.queuePersist();
@@ -71,9 +74,9 @@ export function createAppBootstrapContext(): AppBootstrapContext {
     };
     const dashboards = createDashboardRuntime({
         applyPreferencesToDocument,
+        collectAllBooks,
         collectFeatureFlagsFromUI,
         collectPreferencesFromUI,
-        collectAllBooks,
         normalizeFeatureFlags,
         normalizePreferences,
         queuePersist,
@@ -91,12 +94,12 @@ export function createAppBootstrapContext(): AppBootstrapContext {
     });
 
     return {
+        addLog,
         announce,
         announceForPlanController,
-        addLog,
         dashboards,
-        plannerApi,
         persistDraft,
+        plannerApi,
         queuePersist,
         runtime,
         setStatus,

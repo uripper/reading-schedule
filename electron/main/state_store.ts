@@ -2,11 +2,11 @@
  * @file Planner state persistence facade with SQLite primary + JSON compatibility fallback.
  */
 import fs from "node:fs";
-import type {
-    JsonValue,
-    LoadedPlannerState,
-    PlannerSaveResult,
-    PlannerStateLoadResult,
+import {
+    type JsonValue,
+    type LoadedPlannerState,
+    type PlannerSaveResult,
+    type PlannerStateLoadResult,
 } from "../types/types.js";
 import { readStateFromJson, writeStateToJson } from "./state_store_json";
 import {
@@ -96,18 +96,18 @@ export function readState(userDataDir: string): PlannerStateLoadResult {
     }
     if (hasPersistedArtifacts(userDataDir)) {
         return {
-            state: null,
             source: "fresh",
             sourcePath: userDataDir,
+            state: null,
             warningCode: "STATE_RESET_FRESH",
             warningMessage:
                 "Saved state was unreadable. Started with fresh data.",
         };
     }
     return {
-        state: null,
         source: "fresh",
         sourcePath: userDataDir,
+        state: null,
     };
 }
 

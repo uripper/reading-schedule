@@ -1,6 +1,6 @@
-import type {
-    TodayBookSummary,
-    TodayScheduleSnapshot,
+import {
+    type TodayBookSummary,
+    type TodayScheduleSnapshot,
 } from "../../../types/types.js";
 
 const SINGULAR_SESSION_COUNT = 1;

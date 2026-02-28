@@ -1,4 +1,4 @@
-import type { BookStatus } from "../../types/types.js";
+import { type BookStatus } from "../../types/types.js";
 export const BOOK_STATUS_TO_READ = "to_read";
 export const BOOK_STATUS_IN_PROGRESS = "in_progress";
 export const BOOK_STATUS_READ = "read";
@@ -66,6 +66,6 @@ export function isStatusSchedulable(status: BookStatus): boolean {
  */
 export function statusOptions(): Array<{ value: BookStatus; label: string }> {
     return BOOK_STATUSES.map((status) => {
-        return { value: status, label: statusLabel(status) };
+        return { label: statusLabel(status), value: status };
     });
 }

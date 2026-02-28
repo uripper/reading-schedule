@@ -1,6 +1,6 @@
-import type {
-    RecommendationFormTarget,
-    RecommendationItem,
+import {
+    type RecommendationFormTarget,
+    type RecommendationItem,
 } from "../../types/types.js";
 import { el } from "../dom.js";
 
@@ -48,9 +48,9 @@ export function addRecommendationToShelf(
     addButton.click();
     submitRecommendationToShelf(
         {
+            authorInput: el<HTMLInputElement>("bookFormAuthor"),
             shelfInput: el<HTMLSelectElement>("bookShelfSelectInput"),
             titleInput: el<HTMLInputElement>("bookTitleInput"),
-            authorInput: el<HTMLInputElement>("bookFormAuthor"),
             wordsInput: el<HTMLInputElement>("bookWordsInput"),
         },
         recommendation,

@@ -15,12 +15,12 @@
     position: absolute;
     top: 10px;
     left: 50%;
-    transform: translate(-50%, -6px);
-    opacity: 0;
-    pointer-events: none;
     font-size: var(--token-typography-size-sm);
     font-weight: var(--token-typography-weight-semibold);
     color: var(--app-text);
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -6px);
     transition:
         opacity var(--token-motion-duration-fast)
         var(--token-motion-easing-standard),

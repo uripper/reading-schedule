@@ -1,11 +1,11 @@
-import type {
-    Book,
-    BookDialogController,
-    BookDialogOptions,
-    BookFormRefs,
-    BookSubmitPayload,
-    OpenBookDialogArgs,
-    OpenDialogOptions,
+import {
+    type Book,
+    type BookDialogController,
+    type BookDialogOptions,
+    type BookFormRefs,
+    type BookSubmitPayload,
+    type OpenBookDialogArgs,
+    type OpenDialogOptions,
 } from "../../types/types.js";
 import { bindDialogFocus, focusFirstError } from "../accessibility/index.js";
 import { bindBookLookup } from "../book_lookup.js";
@@ -114,12 +114,12 @@ export function createBookDialog(
         initialFocusSelector: "#bookTitleInput",
     });
     const lookupControl = bindBookLookup({
-        searchInput: refs.searchInput,
-        resultsEl: refs.searchResults,
         metaEl: refs.lookupMeta,
         onPick: (item) => {
             applyLookupItem(refs, item);
         },
+        resultsEl: refs.searchResults,
+        searchInput: refs.searchInput,
     });
     const close = (): void => {
         dialogFocus.closeAndReturnFocus();
@@ -129,13 +129,13 @@ export function createBookDialog(
         dialogOptions: OpenDialogOptions = {},
     ): void => {
         openBookDialog({
-            refs,
-            dialogFocus,
-            lookupControl,
             afterBookPicker,
-            getBooks,
             book,
+            dialogFocus,
             dialogOptions,
+            getBooks,
+            lookupControl,
+            refs,
         });
     };
 
@@ -143,9 +143,9 @@ export function createBookDialog(
         event.preventDefault();
         setSavingState(refs, true);
         const payload = {
-            book: parseFormBook(refs),
             applyScheduledDaysToShelf:
                 refs.applyScheduledDaysToShelfInput.checked,
+            book: parseFormBook(refs),
         };
         Promise.resolve(onSubmit(payload))
             .then(() => {

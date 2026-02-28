@@ -1,4 +1,4 @@
-import type { LogPayload } from "../types/types.js";
+import { type LogPayload } from "../types/types.js";
 
 /**
  * Serializes `Error` instances into plain objects for structured logging.
@@ -8,8 +8,8 @@ import type { LogPayload } from "../types/types.js";
 function normalizeError(error: unknown): unknown {
     if (error instanceof Error) {
         return {
-            name: error.name,
             message: error.message,
+            name: error.name,
             stack: error.stack,
         };
     }
@@ -54,9 +54,9 @@ export function logInfo(
     context?: Record<string, unknown>,
 ): void {
     emitLog({
+        context,
         level: "info",
         message,
-        context,
     });
 }
 
@@ -72,9 +72,9 @@ export function logError(
     context?: Record<string, unknown>,
 ): void {
     emitLog({
-        level: "error",
-        message,
         context,
         error,
+        level: "error",
+        message,
     });
 }

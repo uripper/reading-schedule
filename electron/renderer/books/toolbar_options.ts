@@ -1,4 +1,4 @@
-import type { Book, OptionDefinition } from "../../types/types.js";
+import { type Book, type OptionDefinition } from "../../types/types.js";
 import {
     GROUP_BY_AUTHOR,
     GROUP_BY_FINISH_DATE,
@@ -26,29 +26,29 @@ import {
 } from "./sort.js";
 
 export const SORT_OPTIONS: OptionDefinition[] = [
-    { value: SORT_BY_TITLE, label: "Title" },
-    { value: SORT_BY_AUTHOR, label: "Author" },
-    { value: SORT_BY_ESTIMATED_FINISH, label: "Estimated Finish" },
-    { value: SORT_BY_PAGES_TOTAL, label: "Pages" },
-    { value: SORT_BY_PAGES_READ, label: "Pages Read" },
-    { value: SORT_BY_WORDS_TOTAL, label: "Words" },
-    { value: SORT_BY_PROGRESS, label: "Progress" },
-    { value: SORT_BY_PRIORITY, label: "Priority" },
-    { value: SORT_BY_DIFFICULTY, label: "Difficulty" },
-    { value: SORT_BY_DEADLINE, label: "Deadline" },
-    { value: SORT_BY_SHELF, label: "Shelf" },
+    { label: "Title", value: SORT_BY_TITLE },
+    { label: "Author", value: SORT_BY_AUTHOR },
+    { label: "Estimated Finish", value: SORT_BY_ESTIMATED_FINISH },
+    { label: "Pages", value: SORT_BY_PAGES_TOTAL },
+    { label: "Pages Read", value: SORT_BY_PAGES_READ },
+    { label: "Words", value: SORT_BY_WORDS_TOTAL },
+    { label: "Progress", value: SORT_BY_PROGRESS },
+    { label: "Priority", value: SORT_BY_PRIORITY },
+    { label: "Difficulty", value: SORT_BY_DIFFICULTY },
+    { label: "Deadline", value: SORT_BY_DEADLINE },
+    { label: "Shelf", value: SORT_BY_SHELF },
 ];
 
 export const GROUP_OPTIONS_BASE: OptionDefinition[] = [
-    { value: GROUP_BY_NONE, label: "None" },
-    { value: GROUP_BY_FINISH_DATE, label: "Finish Date" },
-    { value: GROUP_BY_TITLE_LETTER, label: "Title Letter" },
-    { value: GROUP_BY_AUTHOR, label: "Author" },
+    { label: "None", value: GROUP_BY_NONE },
+    { label: "Finish Date", value: GROUP_BY_FINISH_DATE },
+    { label: "Title Letter", value: GROUP_BY_TITLE_LETTER },
+    { label: "Author", value: GROUP_BY_AUTHOR },
 ];
 
 const GROUP_OPTION_SHELF: OptionDefinition = {
-    value: GROUP_BY_SHELF,
     label: "Shelves",
+    value: GROUP_BY_SHELF,
 };
 
 /**
@@ -73,11 +73,11 @@ export function groupOptionsForShelfFilter(
  */
 export function shelfFilterOptions(books: Book[]): OptionDefinition[] {
     const options: OptionDefinition[] = [
-        { value: SHELF_FILTER_ALL, label: "All Shelves" },
-        { value: SHELF_FILTER_UNSHELVED, label: "Unshelved" },
+        { label: "All Shelves", value: SHELF_FILTER_ALL },
+        { label: "Unshelved", value: SHELF_FILTER_UNSHELVED },
     ];
     uniqueShelves(books).forEach((shelfName) => {
-        options.push({ value: shelfName, label: shelfName });
+        options.push({ label: shelfName, value: shelfName });
     });
     return options;
 }

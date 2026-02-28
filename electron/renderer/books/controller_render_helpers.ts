@@ -1,8 +1,8 @@
-import type {
-    Book,
-    BooksControllerRefs,
-    BooksViewState,
-    RenderableBooksRefs,
+import {
+    type Book,
+    type BooksControllerRefs,
+    type BooksViewState,
+    type RenderableBooksRefs,
 } from "../../types/types.js";
 import {
     normalizeTitleFilterQuery,
@@ -50,12 +50,12 @@ export function resolveRenderableRefs(
         return null;
     }
     return {
-        shelfFilterSelect: refs.shelfFilterSelect,
-        groupBySelect: refs.groupBySelect,
-        statusFilterSelect: refs.statusFilterSelect,
-        sortDirectionBtn: refs.sortDirectionBtn,
-        grid: refs.grid,
         empty: refs.empty,
+        grid: refs.grid,
+        groupBySelect: refs.groupBySelect,
+        shelfFilterSelect: refs.shelfFilterSelect,
+        sortDirectionBtn: refs.sortDirectionBtn,
+        statusFilterSelect: refs.statusFilterSelect,
     };
 }
 

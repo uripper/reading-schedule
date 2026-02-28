@@ -21,10 +21,10 @@ async function refreshRecommendationsPanel(
         return;
     }
     renderRecommendationsPanel({
-        recommendations,
         onAddToShelf: (recommendation) => {
             addRecommendationToShelf(recommendation);
         },
+        recommendations,
     });
 }
 

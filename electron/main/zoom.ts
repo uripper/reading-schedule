@@ -1,7 +1,7 @@
 /**
  * @file Main-process zoom factor helpers for renderer web contents.
  */
-import type { WebContents } from "electron";
+import { type WebContents } from "electron";
 
 const DEFAULT_UI_SCALE = 1.55;
 const MIN_UI_SCALE = 0.7;

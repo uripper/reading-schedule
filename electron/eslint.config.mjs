@@ -18,9 +18,9 @@ const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url));
 
 const TEST_RELAXED_RULES = {
     complexity: "off",
+    "max-depth": "off",
     "max-lines": "off",
     "max-lines-per-function": "off",
-    "max-depth": "off",
     "max-nested-callbacks": "off",
 };
 
@@ -28,8 +28,8 @@ const TS_TEST_RELAXED_RULES = {
     ...TEST_RELAXED_RULES,
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unsafe-assignment": "off",
-    "@typescript-eslint/no-unsafe-member-access": "off",
     "@typescript-eslint/no-unsafe-call": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
     "@typescript-eslint/no-unsafe-return": "off",
 };
 
@@ -57,8 +57,8 @@ export default defineConfig([
         rules: BASE_OPINIONATED_RULES,
     },
     {
-        files: ["eslint.config.mjs", ...ALL_JS_GLOBS],
         extends: [js.configs.recommended],
+        files: ["eslint.config.mjs", ...ALL_JS_GLOBS],
     },
     ...tseslint.configs.recommendedTypeChecked.map((config) => ({
         ...config,
@@ -94,15 +94,15 @@ export default defineConfig([
         },
     },
     jsdoc({
-        files: ALL_JS_GLOBS,
         config: "flat/recommended-typescript-flavor-error",
+        files: ALL_JS_GLOBS,
     }),
     jsdoc({
-        files: ALL_TS_GLOBS,
         config: "flat/recommended-typescript-error",
+        files: ALL_TS_GLOBS,
         rules: {
-            "jsdoc/require-jsdoc": "error",
             "jsdoc/require-description": "error",
+            "jsdoc/require-jsdoc": "error",
         },
     }),
     {

@@ -38,12 +38,12 @@ async function enableDevelopmentHotReload(): Promise<void> {
 async function createWindow(): Promise<void> {
     const iconPath = path.join(__dirname, "assets", "logo.png");
     const window = new BrowserWindow({
-        width: 1800,
         height: 1100,
         icon: iconPath,
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
         },
+        width: 1800,
     });
     setZoomFactor(window.webContents, initialZoomFactor());
     await window.loadFile(path.join(__dirname, "index.html"));
@@ -66,16 +66,16 @@ async function bootstrapApplication(): Promise<void> {
 }
 
 registerIpcHandlers({
-    runBridge,
-    searchBooks,
     downloadCover,
-    saveUploadedCover,
-    readState,
-    writeState,
-    userData,
-    shiftZoomFactor,
-    setZoomFactor,
     initialZoomFactor,
+    readState,
+    runBridge,
+    saveUploadedCover,
+    searchBooks,
+    setZoomFactor,
+    shiftZoomFactor,
+    userData,
+    writeState,
 });
 
 app.on("ready", () => {

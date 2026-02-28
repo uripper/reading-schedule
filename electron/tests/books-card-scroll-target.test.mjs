@@ -17,11 +17,11 @@ function fakeClassList() {
         add(name) {
             classes.add(name);
         },
-        remove(name) {
-            classes.delete(name);
-        },
         contains(name) {
             return classes.has(name);
+        },
+        remove(name) {
+            classes.delete(name);
         },
     };
 }
@@ -42,12 +42,12 @@ function fakeCard(bookId, rectProvider) {
     return {
         classList: fakeClassList(),
         dataset: { bookId },
+        getBoundingClientRect() {
+            return rectProvider();
+        },
         scrollCalls: 0,
         scrollIntoView() {
             this.scrollCalls += 1;
-        },
-        getBoundingClientRect() {
-            return rectProvider();
         },
     };
 }
@@ -66,10 +66,10 @@ function runNextAnimationFrame(frameQueue) {
 
 test("scrollToBookCard highlights immediately when card is already visible", () => {
     const inViewRect = {
-        top: 120,
-        left: 20,
         bottom: 240,
+        left: 20,
         right: 320,
+        top: 120,
     };
     const targetCard = fakeCard("book-b", () => inViewRect);
     const firstCard = fakeCard("book-a", () => inViewRect);
@@ -119,14 +119,14 @@ test("scrollToBookCard highlights immediately when card is already visible", () 
 
 test("scrollToBookCard waits for scrolling to settle before highlighting", () => {
     const rects = [
-        { top: 1200, left: 0, bottom: 1320, right: 320 },
-        { top: 680, left: 0, bottom: 800, right: 320 },
-        { top: 420, left: 0, bottom: 540, right: 320 },
-        { top: 260, left: 0, bottom: 380, right: 320 },
-        { top: 180, left: 0, bottom: 300, right: 320 },
-        { top: 180, left: 0, bottom: 300, right: 320 },
-        { top: 180, left: 0, bottom: 300, right: 320 },
-        { top: 180, left: 0, bottom: 300, right: 320 },
+        { bottom: 1320, left: 0, right: 320, top: 1200 },
+        { bottom: 800, left: 0, right: 320, top: 680 },
+        { bottom: 540, left: 0, right: 320, top: 420 },
+        { bottom: 380, left: 0, right: 320, top: 260 },
+        { bottom: 300, left: 0, right: 320, top: 180 },
+        { bottom: 300, left: 0, right: 320, top: 180 },
+        { bottom: 300, left: 0, right: 320, top: 180 },
+        { bottom: 300, left: 0, right: 320, top: 180 },
     ];
     let rectIndex = 0;
     const targetCard = fakeCard("book-b", () => {

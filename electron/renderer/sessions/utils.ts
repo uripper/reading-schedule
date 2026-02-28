@@ -1,4 +1,4 @@
-import type { DateInput, SessionRecord } from "../../types/types.js";
+import { type DateInput, type SessionRecord } from "../../types/types.js";
 /**
  * Parses a value as rounded integer with fallback.
  * @param value String/number-like value.

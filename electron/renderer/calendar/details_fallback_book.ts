@@ -1,4 +1,4 @@
-import type { Book, CalendarRowWithFinish } from "../../types/types.js";
+import { type Book, type CalendarRowWithFinish } from "../../types/types.js";
 import { BOOK_WEEKDAYS } from "../books/scheduled_days.js";
 import { BOOK_STATUS_IN_PROGRESS } from "../books/status_catalog.js";
 
@@ -9,25 +9,25 @@ import { BOOK_STATUS_IN_PROGRESS } from "../books/status_catalog.js";
  */
 export function fallbackBookForRow(row: CalendarRowWithFinish): Book {
     return {
-        book_id: row.book_id,
-        title: row.title,
         author: "",
-        words_total: null,
-        pages_total: null,
-        pages_read: null,
-        progress_percent: 0,
-        priority: 3,
-        difficulty: 3,
-        min_blocks_per_session: 1,
-        max_minutes_per_day: null,
-        deadline: null,
         blocked_by: null,
-        shelf: "",
-        scheduled_days: [...BOOK_WEEKDAYS],
-        status: BOOK_STATUS_IN_PROGRESS,
-        finished_at: null,
-        cover_url: "",
+        book_id: row.book_id,
         cover_local_path: "",
+        cover_url: "",
+        deadline: null,
+        difficulty: 3,
+        finished_at: null,
         lookup_note: "",
+        max_minutes_per_day: null,
+        min_blocks_per_session: 1,
+        pages_read: null,
+        pages_total: null,
+        priority: 3,
+        progress_percent: 0,
+        scheduled_days: [...BOOK_WEEKDAYS],
+        shelf: "",
+        status: BOOK_STATUS_IN_PROGRESS,
+        title: row.title,
+        words_total: null,
     };
 }

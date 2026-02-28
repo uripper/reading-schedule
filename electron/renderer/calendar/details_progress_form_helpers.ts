@@ -1,4 +1,4 @@
-import type { SubmitProgressUpdateArgs } from "../../types/types.js";
+import { type SubmitProgressUpdateArgs } from "../../types/types.js";
 import { parseOptionalNumber } from "./utils.js";
 
 /**
@@ -81,7 +81,7 @@ export function submitProgressUpdate(args: SubmitProgressUpdateArgs): {
     const pagesRead = changedNumberValue(pagesInput, initialPagesValue);
     const progressPercent = changedNumberValue(pctInput, initialPercentValue);
     if (pagesRead === null && progressPercent === null) {
-        return { initialPagesValue, initialPercentValue, applied: true };
+        return { applied: true, initialPagesValue, initialPercentValue };
     }
 
     const updated = interactionHandlers.onSessionProgressUpdated({
@@ -91,12 +91,12 @@ export function submitProgressUpdate(args: SubmitProgressUpdateArgs): {
         row,
     });
     if (!updated) {
-        return { initialPagesValue, initialPercentValue, applied: false };
+        return { applied: false, initialPagesValue, initialPercentValue };
     }
 
     return {
+        applied: true,
         initialPagesValue: syncInputValue(pagesInput, updated.pages_read),
         initialPercentValue: syncInputValue(pctInput, updated.progress_percent),
-        applied: true,
     };
 }

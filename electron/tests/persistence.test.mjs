@@ -10,16 +10,16 @@ import { draftData } from "../dist/renderer/app/persistence.js";
  */
 function session(overrides = {}) {
     return {
-        id: "session-1",
         book_id: "book-1",
-        title: "Book 1",
-        started_at: "2026-02-22T10:00:00.000Z",
-        ended_at: "2026-02-22T10:25:00.000Z",
-        minutes: 25,
-        pages_read: 12,
-        notes: "note",
-        source: "manual",
         created_at: "2026-02-22T10:25:00.000Z",
+        ended_at: "2026-02-22T10:25:00.000Z",
+        id: "session-1",
+        minutes: 25,
+        notes: "note",
+        pages_read: 12,
+        source: "manual",
+        started_at: "2026-02-22T10:00:00.000Z",
+        title: "Book 1",
         ...overrides,
     };
 }
@@ -28,25 +28,25 @@ test("draftData persists sessions from runtime state", () => {
     const sessions = [session()];
 
     const snapshot = draftData({
-        sessions,
+        blockedDayBooks: { "2026-02-22|book-2": true },
         collectBooks: () => [],
         collectSettings: () => ({}),
-        preferences: {
-            theme: "system",
-            reduceMotion: false,
-            timezone: "UTC",
-            dailyGoalMinutes: 30,
-            reminderEnabled: false,
-            reminderTime: "20:00",
-        },
         featureFlags: {
             gamificationEnabled: true,
-            socialEnabled: true,
             recommendationsEnabled: true,
+            socialEnabled: true,
+        },
+        lastResult: null,
+        preferences: {
+            dailyGoalMinutes: 30,
+            reduceMotion: false,
+            reminderEnabled: false,
+            reminderTime: "20:00",
+            theme: "system",
+            timezone: "UTC",
         },
         scheduleCompletions: {},
-        blockedDayBooks: { "2026-02-22|book-2": true },
-        lastResult: null,
+        sessions,
     });
 
     assert.equal(snapshot.sessions.length, 1);

@@ -1,4 +1,4 @@
-import type { BookFormRefs, ProgressSyncRefs } from "../../types/types.js";
+import { type BookFormRefs, type ProgressSyncRefs } from "../../types/types.js";
 import { syncProgressAndPages } from "../book_lookup.js";
 import { syncFinishedAtField } from "./form_state.js";
 
@@ -24,8 +24,8 @@ function bindProgressSyncHandlers(syncRefs: ProgressSyncRefs): void {
  */
 export function bindBookDialogProgressSync(refs: BookFormRefs): void {
     bindProgressSyncHandlers({
-        pagesTotalInput: refs.pagesTotalInput,
         pagesReadInput: refs.pagesReadInput,
+        pagesTotalInput: refs.pagesTotalInput,
         progressInput: refs.progressInput,
     });
     refs.statusSelectInput.addEventListener("change", () => {

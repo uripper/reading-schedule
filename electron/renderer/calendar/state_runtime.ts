@@ -1,6 +1,6 @@
-import type {
-    CalendarHandlers,
-    CalendarRuntimeState,
+import {
+    type CalendarHandlers,
+    type CalendarRuntimeState,
 } from "../../types/types.js";
 
 /**
@@ -10,14 +10,14 @@ import type {
 export function createCalendarRuntimeState(): CalendarRuntimeState {
     return {
         dates: {},
+        expectedFinishHighlightDate: "",
+        index: 0,
+        monthCellKeys: [],
+        months: [],
         rawRows: [],
         rows: [],
-        totalsByBookId: {},
-        months: [],
-        index: 0,
         selectedDate: "",
-        monthCellKeys: [],
-        expectedFinishHighlightDate: "",
+        totalsByBookId: {},
     };
 }
 
@@ -27,15 +27,15 @@ export function createCalendarRuntimeState(): CalendarRuntimeState {
  */
 export function defaultCalendarHandlers(): CalendarHandlers {
     return {
+        getBookById: () => null,
         isSessionCompleted: () => false,
+        listSessionBooks: () => [],
+        onManualSessionAdded: () => false,
         onSessionCompletionChanged: (payload): void => {
             Boolean(payload.completed);
         },
-        onSessionProgressUpdated: () => null,
         onSessionMinutesUpdated: () => false,
-        getBookById: () => null,
-        listSessionBooks: () => [],
-        onManualSessionAdded: () => false,
+        onSessionProgressUpdated: () => null,
         onSessionRemoved: () => false,
     };
 }
@@ -50,22 +50,22 @@ export function mergeCalendarHandlers(
 ): CalendarHandlers {
     const defaults = defaultCalendarHandlers();
     return {
+        getBookById: handlers.getBookById ?? defaults.getBookById,
         isSessionCompleted:
             handlers.isSessionCompleted ?? defaults.isSessionCompleted,
-        onSessionCompletionChanged:
-            handlers.onSessionCompletionChanged ??
-            defaults.onSessionCompletionChanged,
-        onSessionProgressUpdated:
-            handlers.onSessionProgressUpdated ??
-            defaults.onSessionProgressUpdated,
-        onSessionMinutesUpdated:
-            handlers.onSessionMinutesUpdated ??
-            defaults.onSessionMinutesUpdated,
-        getBookById: handlers.getBookById ?? defaults.getBookById,
         listSessionBooks:
             handlers.listSessionBooks ?? defaults.listSessionBooks,
         onManualSessionAdded:
             handlers.onManualSessionAdded ?? defaults.onManualSessionAdded,
+        onSessionCompletionChanged:
+            handlers.onSessionCompletionChanged ??
+            defaults.onSessionCompletionChanged,
+        onSessionMinutesUpdated:
+            handlers.onSessionMinutesUpdated ??
+            defaults.onSessionMinutesUpdated,
+        onSessionProgressUpdated:
+            handlers.onSessionProgressUpdated ??
+            defaults.onSessionProgressUpdated,
         onSessionRemoved:
             handlers.onSessionRemoved ?? defaults.onSessionRemoved,
     };

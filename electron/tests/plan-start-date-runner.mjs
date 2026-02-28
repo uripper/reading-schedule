@@ -37,13 +37,13 @@ export async function runPlanGenerationForTest({
     addLog = NOOP,
 }) {
     await runPlanGeneration({
-        collectSettings,
-        setStatus,
         addLog,
-        plannerApi: { generate },
-        collectBooks: () => BOOKS,
         announce: NOOP,
+        collectBooks: () => BOOKS,
+        collectSettings,
         onSuccess: NOOP_ASYNC,
+        plannerApi: { generate },
+        setStatus,
         successAnnouncement: "",
     });
 }

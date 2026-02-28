@@ -1,9 +1,9 @@
-import type {
-    Book,
-    BookGroup,
-    BookGroupBy,
-    GroupBucket,
-    GroupMeta,
+import {
+    type Book,
+    type BookGroup,
+    type BookGroupBy,
+    type GroupBucket,
+    type GroupMeta,
 } from "../../types/types.js";
 import { finishDateMetaForBook } from "./grouping_finish.js";
 import { shelfLabelForBook } from "./shelf.js";
@@ -215,8 +215,8 @@ export function groupBooks(
         currentYear,
     );
     return [...buckets.values()].sort(compareGroups).map((bucket) => ({
+        books: bucket.books,
         key: bucket.key,
         label: bucket.label,
-        books: bucket.books,
     }));
 }

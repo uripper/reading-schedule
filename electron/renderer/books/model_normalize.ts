@@ -1,4 +1,4 @@
-import type { Book, BookInput } from "../../types/types.js";
+import { type Book, type BookInput } from "../../types/types.js";
 import {
     DEFAULT_DIFFICULTY,
     DEFAULT_PRIORITY,
@@ -43,38 +43,38 @@ export function normalizeBook(book: BookInput = {}): Book {
     const status = statusFromRaw(book.status, normalized.progress);
 
     return {
-        status,
-        book_id: toBookId(book.book_id),
-        title: toTrimmedText(book.title),
         author: toTrimmedText(book.author),
-        words_total: wordsTotal,
-        pages_total: pagesTotal,
-        pages_read: normalized.pagesRead,
-        progress_percent: normalized.progress,
-        priority: toClampedInt(
-            book.priority,
-            DEFAULT_PRIORITY,
-            MIN_PRIORITY,
-            MAX_PRIORITY,
-        ),
+        blocked_by: withNullableString(toTrimmedText(book.blocked_by)),
+        book_id: toBookId(book.book_id),
+        cover_local_path: toTrimmedText(book.cover_local_path),
+        cover_url: toTrimmedText(book.cover_url),
+        deadline: toOptionalDate(book.deadline),
         difficulty: toClampedInt(
             book.difficulty,
             DEFAULT_DIFFICULTY,
             MIN_DIFFICULTY,
             MAX_DIFFICULTY,
         ),
+        finished_at: finishedAtForStatus(status, book.finished_at),
+        lookup_note: toTrimmedText(book.lookup_note),
+        max_minutes_per_day: toOptionalInt(book.max_minutes_per_day),
         min_blocks_per_session: minBlocksPerSession(
             book.min_blocks_per_session,
         ),
-        max_minutes_per_day: toOptionalInt(book.max_minutes_per_day),
-        deadline: toOptionalDate(book.deadline),
-        blocked_by: withNullableString(toTrimmedText(book.blocked_by)),
-        shelf: normalizeShelfName(book.shelf),
+        pages_read: normalized.pagesRead,
+        pages_total: pagesTotal,
+        priority: toClampedInt(
+            book.priority,
+            DEFAULT_PRIORITY,
+            MIN_PRIORITY,
+            MAX_PRIORITY,
+        ),
+        progress_percent: normalized.progress,
         scheduled_days: normalizeScheduledDays(book.scheduled_days),
-        finished_at: finishedAtForStatus(status, book.finished_at),
-        cover_url: toTrimmedText(book.cover_url),
-        cover_local_path: toTrimmedText(book.cover_local_path),
-        lookup_note: toTrimmedText(book.lookup_note),
+        shelf: normalizeShelfName(book.shelf),
+        status,
+        title: toTrimmedText(book.title),
+        words_total: wordsTotal,
     };
 }
 

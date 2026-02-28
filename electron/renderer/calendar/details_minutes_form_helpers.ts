@@ -1,6 +1,6 @@
-import type {
-    MinutesEditorAction,
-    SubmitMinutesUpdateArgs,
+import {
+    type MinutesEditorAction,
+    type SubmitMinutesUpdateArgs,
 } from "../../types/types.js";
 import { normalizedManualMinutes } from "../app/calendar_interactions/index.js";
 import { parseOptionalNumber } from "./utils.js";
@@ -156,12 +156,12 @@ export function submitMinutesUpdate(args: SubmitMinutesUpdateArgs): {
     event.preventDefault();
     const currentMinutesValue = inputValue(minutesInput);
     if (currentMinutesValue === initialMinutesValue) {
-        return { initialMinutesValue, applied: false };
+        return { applied: false, initialMinutesValue };
     }
     const changedMinutes = changedNumberValue(minutesInput);
     if (changedMinutes === null) {
         minutesInput.value = initialMinutesValue;
-        return { initialMinutesValue, applied: false };
+        return { applied: false, initialMinutesValue };
     }
     const nextMinutes = normalizedManualMinutes(changedMinutes);
     const applied = interactionHandlers.onSessionMinutesUpdated({
@@ -170,8 +170,8 @@ export function submitMinutesUpdate(args: SubmitMinutesUpdateArgs): {
     });
     if (!applied) {
         minutesInput.value = initialMinutesValue;
-        return { initialMinutesValue, applied: false };
+        return { applied: false, initialMinutesValue };
     }
     const nextValue = syncInputValue(minutesInput, nextMinutes);
-    return { initialMinutesValue: nextValue, applied: true };
+    return { applied: true, initialMinutesValue: nextValue };
 }

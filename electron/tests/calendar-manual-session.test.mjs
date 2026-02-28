@@ -25,10 +25,10 @@ test("wordsPlannedForManualSession uses historical pace when available", () => {
 
     const words = wordsPlannedForManualSession({
         bookId: "book-1",
+        difficulty: 3,
         minutes: 15,
         rows,
-        settings: { wpm_base: 250, difficulty_multiplier: { 3: 2 } },
-        difficulty: 3,
+        settings: { difficulty_multiplier: { 3: 2 }, wpm_base: 250 },
     });
 
     assert.equal(words, 1600);
@@ -37,13 +37,13 @@ test("wordsPlannedForManualSession uses historical pace when available", () => {
 test("wordsPlannedForManualSession falls back to settings-based speed", () => {
     const words = wordsPlannedForManualSession({
         bookId: "book-1",
+        difficulty: 4,
         minutes: 12,
         rows: [],
         settings: {
-            wpm_base: 200,
             difficulty_multiplier: { 4: 0.75 },
+            wpm_base: 200,
         },
-        difficulty: 4,
     });
 
     assert.equal(words, 1800);

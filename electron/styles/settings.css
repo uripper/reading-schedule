@@ -8,26 +8,26 @@
     flex-wrap: wrap;
     gap: var(--token-space-2);
     padding: var(--token-space-2);
-    border-radius: var(--token-radius-md);
-    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
     background: color-mix(in srgb, var(--app-surfaceMuted) 82%, transparent);
+    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
+    border-radius: var(--token-radius-md);
 }
 
 .settings-section-tab {
     min-height: var(--token-size-target-minimum);
     padding: var(--token-space-2) var(--token-space-3);
-    border-radius: var(--token-radius-pill);
-    border: 1px solid var(--app-border);
-    background: var(--app-surface);
-    color: var(--app-textMuted);
     font: inherit;
     font-size: var(--token-typography-size-sm);
+    color: var(--app-textMuted);
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: var(--token-radius-pill);
 }
 
 .settings-section-tab.is-active {
     color: var(--app-text);
-    border-color: var(--app-brandStrong);
     background: color-mix(in srgb, var(--app-brand) 14%, var(--app-surface));
+    border-color: var(--app-brandStrong);
 }
 
 .settings-layout {
@@ -37,12 +37,10 @@
 
 .settings-card {
     display: grid;
-    align-content: start;
     gap: var(--token-space-3);
+    align-content: start;
+    width: 100%;
     padding: var(--token-space-4);
-    border-radius: var(--token-radius-lg);
-    border: 1px solid
-        color-mix(in srgb, var(--app-border) 88%, var(--app-brandStrong));
     background:
         linear-gradient(
             180deg,
@@ -50,22 +48,24 @@
             transparent 28%
         ),
         color-mix(in srgb, var(--app-surfaceMuted) 86%, transparent);
+    border: 1px solid
+        color-mix(in srgb, var(--app-border) 88%, var(--app-brandStrong));
+    border-radius: var(--token-radius-lg);
     box-shadow: var(--token-elevation-sm);
-    width: 100%;
 }
 
 .settings-card > h2 {
-    margin: 0;
     padding-bottom: var(--token-space-2);
+    margin: 0;
     border-bottom: 1px solid
         color-mix(in srgb, var(--app-border) 86%, transparent);
 }
 
 .settings-card > h3 {
     margin: 0;
-    color: var(--app-text);
     font-size: var(--token-typography-size-sm);
     font-weight: var(--token-typography-weight-medium);
+    color: var(--app-text);
     letter-spacing: 0.02em;
 }
 
@@ -81,25 +81,25 @@
 
 .settings-card .settings-grid > label {
     display: grid;
-    align-content: start;
     gap: var(--token-space-1);
+    align-content: start;
     margin: 0;
 }
 
 .settings-card .settings-grid > label.toggle-row {
     display: flex;
-    align-items: center;
     gap: var(--token-space-2);
+    align-items: center;
 }
 
 .settings-card .settings-grid > label.toggle-row input[type="checkbox"] {
     width: auto;
-    margin: 0;
     min-height: 0;
+    margin: 0;
 }
 
 .settings-card .settings-grid > label[hidden] {
-    display: none !important;
+    display: none;
 }
 
 .settings-card .settings-grid > label input,
@@ -109,8 +109,8 @@
 }
 
 #tab-settings .row.wrap-row {
-    align-items: flex-end;
     gap: var(--token-space-2);
+    align-items: flex-end;
 }
 
 #dayOffPicker {
@@ -120,44 +120,44 @@
 
 .lookup-meta {
     margin-top: var(--token-space-1);
-    color: var(--app-textMuted);
     font-size: var(--token-typography-size-xs);
+    color: var(--app-textMuted);
 }
 
 .hint-dot {
+    position: relative;
     display: inline-flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     width: 20px;
     height: 20px;
     margin-left: var(--token-space-1);
-    border: 1px solid var(--app-border);
-    border-radius: var(--token-radius-pill);
+    font-size: var(--token-typography-size-xs);
     color: var(--app-textMuted);
     cursor: help;
-    position: relative;
-    font-size: var(--token-typography-size-xs);
+    border: 1px solid var(--app-border);
+    border-radius: var(--token-radius-pill);
 }
 
 .hint-dot::after {
-    content: attr(data-tip);
     position: absolute;
-    left: 24px;
     top: 50%;
-    transform: translateY(-50%);
+    left: 24px;
+    z-index: 20;
     width: min(300px, 70vw);
+    padding: var(--token-space-2);
+    font-size: var(--token-typography-size-xs);
+    line-height: var(--token-typography-lineHeight-base);
+    color: var(--app-text);
+    pointer-events: none;
+    content: attr(data-tip);
+    background: var(--app-bgElevated);
     border: 1px solid var(--app-border);
     border-radius: var(--token-radius-sm);
-    background: var(--app-bgElevated);
-    color: var(--app-text);
-    padding: var(--token-space-2);
-    line-height: var(--token-typography-lineHeight-base);
-    font-size: var(--token-typography-size-xs);
     opacity: 0;
-    pointer-events: none;
+    transform: translateY(-50%);
     transition: opacity var(--token-motion-duration-fast)
         var(--token-motion-easing-standard);
-    z-index: 20;
 }
 
 .hint-dot:hover::after,
@@ -175,12 +175,12 @@
 .chip-btn {
     min-height: var(--token-size-target-minimum);
     padding: var(--token-space-1) var(--token-space-3);
-    border-radius: var(--token-radius-pill);
+    font-size: var(--token-typography-size-xs);
+    color: var(--app-text);
+    background: color-mix(in srgb, var(--app-brand) 12%, var(--app-surface));
     border: 1px solid
         color-mix(in srgb, var(--app-brandStrong) 36%, var(--app-border));
-    background: color-mix(in srgb, var(--app-brand) 12%, var(--app-surface));
-    color: var(--app-text);
-    font-size: var(--token-typography-size-xs);
+    border-radius: var(--token-radius-pill);
     transition:
         background-color var(--token-motion-duration-fast)
         var(--token-motion-easing-standard),
@@ -189,34 +189,34 @@
 }
 
 .chip-btn:hover {
-    border-color: var(--app-brandStrong);
-    background: color-mix(in srgb, var(--app-brand) 20%, var(--app-surface));
     cursor: pointer;
+    background: color-mix(in srgb, var(--app-brand) 20%, var(--app-surface));
+    border-color: var(--app-brandStrong);
 }
 
 #tab-settings table {
     width: 100%;
-    border-collapse: separate;
+    overflow: hidden;
     border-spacing: 0;
+    border-collapse: separate;
     border: 1px solid color-mix(in srgb, var(--app-border) 90%, transparent);
     border-radius: var(--token-radius-md);
-    overflow: hidden;
 }
 
 #tab-settings th,
 #tab-settings td {
-    border-bottom: 1px solid
-        color-mix(in srgb, var(--app-border) 80%, transparent);
     padding: var(--token-space-2);
     text-align: left;
+    border-bottom: 1px solid
+        color-mix(in srgb, var(--app-border) 80%, transparent);
 }
 
 #tab-settings th {
-    color: var(--app-text);
     font-size: var(--token-typography-size-xs);
     font-weight: var(--token-typography-weight-medium);
-    letter-spacing: 0.06em;
+    color: var(--app-text);
     text-transform: uppercase;
+    letter-spacing: 0.06em;
     background: color-mix(in srgb, var(--app-brand) 8%, var(--app-surface));
 }
 

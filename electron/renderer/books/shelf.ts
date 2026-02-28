@@ -1,4 +1,4 @@
-import type { Book } from "../../types/types.js";
+import { type Book } from "../../types/types.js";
 
 export const SHELF_FILTER_ALL = "all";
 export const SHELF_FILTER_UNSHELVED = "unshelved";

@@ -1,4 +1,4 @@
-import type { Book } from "../../types/types.js";
+import { type Book } from "../../types/types.js";
 import { WORDS_PER_PAGE } from "../books/constants.js";
 
 const PERCENT_SCALE = 100;

@@ -1,7 +1,7 @@
-import type {
-    BookFormRefs,
-    BookLookupItem,
-    ProgressSyncInputs,
+import {
+    type BookFormRefs,
+    type BookLookupItem,
+    type ProgressSyncInputs,
 } from "../../types/types.js";
 import { noteFromLookup, syncProgressAndPages } from "../book_lookup.js";
 import { CUSTOM_COVER_NOTE, setCoverPreview } from "./form_state_helpers.js";
@@ -52,8 +52,8 @@ export function applyLookupItem(
     setCoverPreview(formRefs, item.cover_url ?? "");
 
     const progressSyncRefs: ProgressSyncInputs = {
-        pagesTotalInput: formRefs.pagesTotalInput,
         pagesReadInput: formRefs.pagesReadInput,
+        pagesTotalInput: formRefs.pagesTotalInput,
         progressInput: formRefs.progressInput,
     };
     syncProgressAndPages(progressSyncRefs, "pages");

@@ -1,6 +1,6 @@
-import type {
-    DownloadCoverPayload,
-    UploadCoverPayload,
+import {
+    type DownloadCoverPayload,
+    type UploadCoverPayload,
 } from "../types/types.js";
 
 /**
@@ -15,8 +15,8 @@ export function asDownloadCoverPayload(
         return {};
     }
     return {
-        url: value.url,
         bookId: value.bookId,
+        url: value.url,
     };
 }
 
@@ -32,7 +32,7 @@ export function asUploadCoverPayload(
         return {};
     }
     return {
-        dataUrl: value.dataUrl,
         bookId: value.bookId,
+        dataUrl: value.dataUrl,
     };
 }

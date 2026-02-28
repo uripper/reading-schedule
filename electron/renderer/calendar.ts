@@ -1,7 +1,7 @@
-import type {
-    CalendarHandlers,
-    CompletedBookRow,
-    PlannerScheduleRow,
+import {
+    type CalendarHandlers,
+    type CompletedBookRow,
+    type PlannerScheduleRow,
 } from "../types/types.js";
 import { renderCalendarDetails } from "./calendar/details.js";
 import {
@@ -82,9 +82,6 @@ function renderMonthView(): void {
     };
     renderMonth(state, {
         completedBookRowsForDate,
-        selectDate: (dateKey, options) => {
-            selectDate(state, dateKey, renderMonthView, options);
-        },
         moveSelectionBy: (delta, currentIndex) => {
             moveSelectionBy(state, delta, currentIndex, (dateKey, options) => {
                 selectDate(state, dateKey, renderMonthView, options);
@@ -95,6 +92,9 @@ function renderMonthView(): void {
             renderFinishedBooksSummary(
                 completedBookRowsForDate(state.selectedDate),
             );
+        },
+        selectDate: (dateKey, options) => {
+            selectDate(state, dateKey, renderMonthView, options);
         },
     });
 }

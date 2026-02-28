@@ -1,7 +1,7 @@
-import type {
-    CalendarRowWithFinish,
-    DayMode,
-    DetailInteractionHandlers,
+import {
+    type CalendarRowWithFinish,
+    type DayMode,
+    type DetailInteractionHandlers,
 } from "../../types/types.js";
 import { compareDayKeys } from "../app/day_keys_compare.js";
 import { rowsWithFinishFirst } from "./data.js";

@@ -1,4 +1,4 @@
-import type { SortableRow } from "../../types/types.js";
+import { type SortableRow } from "../../types/types.js";
 import {
     CALENDAR_COLUMN_COUNT,
     SESSION_INDEX_PAD,
@@ -149,9 +149,9 @@ export function dateHeading(dateKey: string): string {
         return dateKey;
     }
     const formatter = new Intl.DateTimeFormat(undefined, {
-        weekday: "long",
-        month: "long",
         day: "numeric",
+        month: "long",
+        weekday: "long",
         year: "numeric",
     });
     return formatter.format(date);

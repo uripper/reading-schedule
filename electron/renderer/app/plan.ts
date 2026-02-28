@@ -1,7 +1,7 @@
-import type {
-    PlanGeneratePayload,
-    PlannerSummary,
-    RunPlanGenerationArgs,
+import {
+    type PlanGeneratePayload,
+    type PlannerSummary,
+    type RunPlanGenerationArgs,
 } from "../../types/types.js";
 
 /**
@@ -180,8 +180,8 @@ export async function runPlanGeneration({
             payloadSettings.end_date = normalizedEndDate;
         }
         const payload: PlanGeneratePayload = {
-            planner: "mip",
             books: payloadBooks,
+            planner: "mip",
             settings: payloadSettings,
         };
 

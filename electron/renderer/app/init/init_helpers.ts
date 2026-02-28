@@ -1,7 +1,7 @@
-import type {
-    BindTodayActionsArgs,
-    CreatePlanControllerArgs,
-    FinalizeInitialLoadArgs,
+import {
+    type BindTodayActionsArgs,
+    type CreatePlanControllerArgs,
+    type FinalizeInitialLoadArgs,
 } from "../../../types/types.js";
 import { el } from "../../dom.js";
 import { createPlanController } from "../plan_controller.js";

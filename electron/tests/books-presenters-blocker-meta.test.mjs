@@ -10,8 +10,8 @@ import { blockerMeta } from "../dist/renderer/books/presenters.js";
  */
 function book(overrides = {}) {
     return {
-        book_id: "book-a",
         blocked_by: null,
+        book_id: "book-a",
         ...overrides,
     };
 }

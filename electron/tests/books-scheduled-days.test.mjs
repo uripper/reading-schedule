@@ -12,26 +12,26 @@ import { BOOK_WEEKDAYS } from "../dist/renderer/books/scheduled_days.js";
  */
 function book(overrides = {}) {
     return {
-        book_id: "book-1",
-        title: "Book",
         author: "",
-        words_total: 1000,
-        pages_total: null,
-        pages_read: null,
-        progress_percent: 0,
-        priority: 3,
-        difficulty: 3,
-        min_blocks_per_session: 1,
-        max_minutes_per_day: null,
-        deadline: null,
         blocked_by: null,
-        shelf: "",
-        scheduled_days: [...BOOK_WEEKDAYS],
-        status: "to_read",
-        finished_at: null,
-        cover_url: "",
+        book_id: "book-1",
         cover_local_path: "",
+        cover_url: "",
+        deadline: null,
+        difficulty: 3,
+        finished_at: null,
         lookup_note: "",
+        max_minutes_per_day: null,
+        min_blocks_per_session: 1,
+        pages_read: null,
+        pages_total: null,
+        priority: 3,
+        progress_percent: 0,
+        scheduled_days: [...BOOK_WEEKDAYS],
+        shelf: "",
+        status: "to_read",
+        title: "Book",
+        words_total: 1000,
         ...overrides,
     };
 }
@@ -47,9 +47,9 @@ test("normalizeBook defaults scheduled days to all weekdays", () => {
 
 test("normalizeBook normalizes scheduled-day order and removes invalid values", () => {
     const normalized = normalizeBook({
+        scheduled_days: ["Fri", "Mon", "Fri", "BadDay"],
         title: "Ordered Days",
         words_total: 1000,
-        scheduled_days: ["Fri", "Mon", "Fri", "BadDay"],
     });
 
     assert.deepEqual(normalized.scheduled_days, ["Mon", "Fri"]);
@@ -59,13 +59,13 @@ test("applyScheduledDaysToShelfBooks updates only matching shelf books", () => {
     const nextDays = ["Mon", "Tue", "Wed", "Thu", "Fri"];
     const source = book({
         book_id: "work-1",
-        shelf: "Work",
         scheduled_days: nextDays,
+        shelf: "Work",
     });
     const books = [
         source,
-        book({ book_id: "work-2", shelf: "Work", scheduled_days: ["Sat"] }),
-        book({ book_id: "home-1", shelf: "Home", scheduled_days: ["Sat"] }),
+        book({ book_id: "work-2", scheduled_days: ["Sat"], shelf: "Work" }),
+        book({ book_id: "home-1", scheduled_days: ["Sat"], shelf: "Home" }),
     ];
 
     const result = applyScheduledDaysToShelfBooks(books, source);

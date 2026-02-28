@@ -1,7 +1,7 @@
-import type {
-    AppCalendarInteractionArgs,
-    ScheduleMutationHandlers,
-    SharedScheduleBindings,
+import {
+    type AppCalendarInteractionArgs,
+    type ScheduleMutationHandlers,
+    type SharedScheduleBindings,
 } from "../../../types/types.js";
 import {
     addManualSessionRow,
@@ -71,8 +71,8 @@ const createSharedScheduleBindings = (
         setBookScheduleRows,
         setLastResult,
         setStatus,
-        totalsFromSummary,
         state: args.state,
+        totalsFromSummary,
     };
 };
 
@@ -88,14 +88,14 @@ export const buildScheduleMutationHandlers = (
             completed = false,
         }) => {
             return addManualSessionRow({
+                applyStateMutation: bindings.applyStateMutation,
                 bookId,
+                collectSettings: bindings.collectSettings,
                 completed,
                 date,
-                minutes,
-                collectSettings: bindings.collectSettings,
                 getBookById: bindings.getBookById,
+                minutes,
                 onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
-                applyStateMutation: bindings.applyStateMutation,
                 queuePersist: bindings.queuePersist,
                 renderCalendar: bindings.renderCalendar,
                 setBookScheduleRows: bindings.setBookScheduleRows,
@@ -107,14 +107,14 @@ export const buildScheduleMutationHandlers = (
         },
         onSessionMinutesUpdated: ({ minutes, row }) => {
             return updateSessionRowMinutes({
-                minutes,
-                row,
+                applyStateMutation: bindings.applyStateMutation,
                 collectSettings: bindings.collectSettings,
                 getBookById: bindings.getBookById,
+                minutes,
                 onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
-                applyStateMutation: bindings.applyStateMutation,
                 queuePersist: bindings.queuePersist,
                 renderCalendar: bindings.renderCalendar,
+                row,
                 setBookScheduleRows: bindings.setBookScheduleRows,
                 setLastResult: bindings.setLastResult,
                 setStatus: bindings.setStatus,
@@ -124,11 +124,11 @@ export const buildScheduleMutationHandlers = (
         },
         onSessionRemoved: ({ row }) => {
             return removeSessionRow({
-                row,
-                onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
                 applyStateMutation: bindings.applyStateMutation,
+                onScheduleRowsUpdated: bindings.onScheduleRowsUpdated,
                 queuePersist: bindings.queuePersist,
                 renderCalendar: bindings.renderCalendar,
+                row,
                 setBookScheduleRows: bindings.setBookScheduleRows,
                 setLastResult: bindings.setLastResult,
                 setStatus: bindings.setStatus,

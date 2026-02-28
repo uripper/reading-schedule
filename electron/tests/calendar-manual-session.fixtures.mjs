@@ -5,27 +5,27 @@
 export function indexRowsFixture() {
     return [
         {
-            date: "2026-02-20",
-            session_index: 1,
             book_id: "a",
-            title: "A",
+            date: "2026-02-20",
             minutes: 10,
+            session_index: 1,
+            title: "A",
             words_planned: 1000,
         },
         {
-            date: "2026-02-20",
-            session_index: 3,
             book_id: "b",
-            title: "B",
+            date: "2026-02-20",
             minutes: 15,
+            session_index: 3,
+            title: "B",
             words_planned: 1500,
         },
         {
-            date: "2026-02-21",
-            session_index: 2,
             book_id: "c",
-            title: "C",
+            date: "2026-02-21",
             minutes: 12,
+            session_index: 2,
+            title: "C",
             words_planned: 1200,
         },
     ];
@@ -38,19 +38,19 @@ export function indexRowsFixture() {
 export function historicalPaceRowsFixture() {
     return [
         {
-            date: "2026-02-20",
-            session_index: 1,
             book_id: "book-1",
-            title: "Book",
+            date: "2026-02-20",
             minutes: 10,
+            session_index: 1,
+            title: "Book",
             words_planned: 1000,
         },
         {
-            date: "2026-02-21",
-            session_index: 1,
             book_id: "book-1",
-            title: "Book",
+            date: "2026-02-21",
             minutes: 5,
+            session_index: 1,
+            title: "Book",
             words_planned: 600,
         },
     ];
@@ -63,27 +63,27 @@ export function historicalPaceRowsFixture() {
 export function removableRowsFixture() {
     return [
         {
-            date: "2026-02-20",
-            session_index: 1,
             book_id: "book-1",
-            title: "Book 1",
+            date: "2026-02-20",
             minutes: 10,
+            session_index: 1,
+            title: "Book 1",
             words_planned: 1000,
         },
         {
-            date: "2026-02-20",
-            session_index: 2,
             book_id: "book-1",
-            title: "Book 1",
+            date: "2026-02-20",
             minutes: 12,
+            session_index: 2,
+            title: "Book 1",
             words_planned: 1200,
         },
         {
-            date: "2026-02-20",
-            session_index: 1,
             book_id: "book-2",
-            title: "Book 2",
+            date: "2026-02-20",
             minutes: 9,
+            session_index: 1,
+            title: "Book 2",
             words_planned: 900,
         },
     ];

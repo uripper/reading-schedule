@@ -22,15 +22,15 @@ function tempUserDataDir() {
  * @param {string} directory Temporary directory path.
  */
 function cleanup(directory) {
-    fs.rmSync(directory, { recursive: true, force: true });
+    fs.rmSync(directory, { force: true, recursive: true });
 }
 
 test("Facade reads JSON fallback once, migrates to SQLite, then reads SQLite", () => {
     const userDataDir = tempUserDataDir();
     try {
         const seed = {
-            settings: { start_date: "2026-03-01" },
             books: [{ book_id: "book-1", title: "Migrated" }],
+            settings: { start_date: "2026-03-01" },
         };
         assert.equal(writeStateToJson(userDataDir, seed).ok, true);
 
@@ -54,15 +54,15 @@ test("Facade prefers SQLite source when both SQLite and JSON are present", () =>
     try {
         assert.equal(
             writeStateToJson(userDataDir, {
-                settings: { start_date: "2026-03-01" },
                 books: [{ book_id: "book-json", title: "JSON Source" }],
+                settings: { start_date: "2026-03-01" },
             }).ok,
             true,
         );
         assert.equal(
             writeStateToSqlite(userDataDir, {
-                settings: { start_date: "2026-03-02" },
                 books: [{ book_id: "book-sqlite", title: "SQLite Source" }],
+                settings: { start_date: "2026-03-02" },
             }).ok,
             true,
         );

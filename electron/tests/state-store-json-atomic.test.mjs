@@ -27,19 +27,19 @@ function tempUserDataDir() {
  * @param {string} directory Temporary directory path.
  */
 function cleanup(directory) {
-    fs.rmSync(directory, { recursive: true, force: true });
+    fs.rmSync(directory, { force: true, recursive: true });
 }
 
 test("JSON store rotates backup and recovers from corrupted primary", () => {
     const userDataDir = tempUserDataDir();
     try {
         const firstState = {
-            settings: { start_date: "2026-01-01" },
             books: [],
+            settings: { start_date: "2026-01-01" },
         };
         const secondState = {
-            settings: { start_date: "2026-02-01" },
             books: [{ book_id: "b-1", title: "Book" }],
+            settings: { start_date: "2026-02-01" },
         };
 
         assert.equal(writeStateToJson(userDataDir, firstState).ok, true);
@@ -64,11 +64,11 @@ test("Facade emits fresh-warning when persisted JSON artifacts are unreadable", 
     const userDataDir = tempUserDataDir();
     try {
         assert.equal(
-            writeStateToJson(userDataDir, { settings: {}, books: [] }).ok,
+            writeStateToJson(userDataDir, { books: [], settings: {} }).ok,
             true,
         );
         assert.equal(
-            writeStateToJson(userDataDir, { settings: {}, books: [] }).ok,
+            writeStateToJson(userDataDir, { books: [], settings: {} }).ok,
             true,
         );
 

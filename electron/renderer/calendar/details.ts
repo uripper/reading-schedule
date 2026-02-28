@@ -1,6 +1,6 @@
-import type {
-    CalendarDetailsState,
-    DetailInteractionHandlers,
+import {
+    type CalendarDetailsState,
+    type DetailInteractionHandlers,
 } from "../../types/types.js";
 import { el } from "../dom.js";
 import { buildManualSessionAddPanel, dayMode } from "./details_helpers.js";
@@ -66,12 +66,12 @@ export function renderCalendarDetails(
         firstMinutes = firstRow.minutes;
     }
     const manualAddPanel = buildManualSessionAddPanel({
-        mode,
-        interactionHandlers,
-        rerenderDetails,
         dateKey: key,
         defaultBookId: firstBookId,
         defaultMinutes: firstMinutes ?? undefined,
+        interactionHandlers,
+        mode,
+        rerenderDetails,
     });
     if (!rowsToRender.length) {
         const empty = document.createElement("p");
@@ -88,11 +88,11 @@ export function renderCalendarDetails(
 
     rowsToRender.forEach((row) => {
         const node = rowNodeForMode({
-            state: calendarState,
-            mode,
-            row,
             interactionHandlers,
+            mode,
             rerenderDetails,
+            row,
+            state: calendarState,
         });
         if (animateFinishRows && row.finish) {
             node.classList.add("is-finish-pulse");

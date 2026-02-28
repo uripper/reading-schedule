@@ -1,4 +1,8 @@
-import type { Book, BookFormRefs, PickerState } from "../../types/types.js";
+import {
+    type Book,
+    type BookFormRefs,
+    type PickerState,
+} from "../../types/types.js";
 import { optionLabel } from "./after_book_picker_helpers.js";
 import { setUnknownSelectionLabel } from "./after_book_picker_render.js";
 

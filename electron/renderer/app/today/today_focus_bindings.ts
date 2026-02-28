@@ -1,7 +1,7 @@
-import type {
-    BindTodayFocusActionsArgs,
-    TodayFocusDomRefs,
-    TodayFocusState,
+import {
+    type BindTodayFocusActionsArgs,
+    type TodayFocusDomRefs,
+    type TodayFocusState,
 } from "../../../types/types.js";
 import { el } from "../../dom.js";
 import { activateTab } from "../../tabs.js";

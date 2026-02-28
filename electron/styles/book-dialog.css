@@ -1,10 +1,10 @@
 .book-dialog {
     width: min(1040px, 94vw);
+    padding: var(--token-space-4);
+    color: var(--app-text);
+    background: var(--app-bgElevated);
     border: 1px solid var(--app-border);
     border-radius: var(--token-radius-lg);
-    background: var(--app-bgElevated);
-    color: var(--app-text);
-    padding: var(--token-space-4);
     box-shadow: var(--token-elevation-md);
 }
 
@@ -14,11 +14,11 @@
 
 .book-shelf-prompt-dialog {
     width: min(380px, 92vw);
+    padding: var(--token-space-3);
+    color: var(--app-text);
+    background: var(--app-bgElevated);
     border: 1px solid var(--app-border);
     border-radius: var(--token-radius-md);
-    background: var(--app-bgElevated);
-    color: var(--app-text);
-    padding: var(--token-space-3);
     box-shadow: var(--token-elevation-md);
 }
 
@@ -48,19 +48,19 @@
 }
 
 .book-scheduled-days {
-    margin: 0;
-    padding: var(--token-space-2);
-    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
-    border-radius: var(--token-radius-md);
     display: grid;
     gap: var(--token-space-2);
     min-width: 0;
+    padding: var(--token-space-2);
+    margin: 0;
+    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
+    border-radius: var(--token-radius-md);
 }
 
 .book-scheduled-days > legend {
     padding: 0 var(--token-space-1);
-    color: var(--app-textMuted);
     font-size: var(--token-typography-size-xs);
+    color: var(--app-textMuted);
 }
 
 .book-scheduled-days-grid {
@@ -71,15 +71,15 @@
 
 .book-scheduled-day {
     display: flex;
-    align-items: center;
     gap: var(--token-space-1);
+    align-items: center;
     font-size: var(--token-typography-size-sm);
 }
 
 .book-scheduled-day input[type="checkbox"] {
     width: auto;
-    margin: 0;
     min-height: 0;
+    margin: 0;
 }
 
 .book-apply-days-toggle {
@@ -101,16 +101,16 @@
 .book-search-results {
     position: absolute;
     top: calc(100% + var(--token-space-1));
-    left: 0;
     right: 0;
+    left: 0;
     z-index: 30;
-    border: 1px solid var(--app-border);
-    border-radius: var(--token-radius-md);
-    background: var(--app-surface);
-    box-shadow: var(--token-elevation-sm);
+    display: none;
     max-height: 240px;
     overflow: auto;
-    display: none;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: var(--token-radius-md);
+    box-shadow: var(--token-elevation-sm);
 }
 
 .book-search-results.has-items {
@@ -118,18 +118,18 @@
 }
 
 .book-result {
-    width: 100%;
-    border: 0;
-    border-bottom: 1px solid
-        color-mix(in srgb, var(--app-border) 72%, transparent);
-    background: transparent;
-    color: var(--app-text);
-    padding: var(--token-space-2);
-    text-align: left;
     display: grid;
     grid-template-columns: 44px minmax(0, 1fr);
     gap: var(--token-space-2);
     align-items: center;
+    width: 100%;
+    padding: var(--token-space-2);
+    color: var(--app-text);
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid
+        color-mix(in srgb, var(--app-border) 72%, transparent);
 }
 
 .book-result:last-child {
@@ -139,8 +139,8 @@
 .book-result:hover,
 .book-result:focus-visible,
 .book-result.is-active {
-    background: color-mix(in srgb, var(--app-brandStrong) 14%, transparent);
     cursor: pointer;
+    background: color-mix(in srgb, var(--app-brandStrong) 14%, transparent);
 }
 
 .book-result-inline {
@@ -150,10 +150,10 @@
 .book-result-cover {
     width: 44px;
     height: 58px;
-    border-radius: var(--token-radius-sm);
-    border: 1px solid var(--app-border);
     object-fit: cover;
     background: color-mix(in srgb, var(--app-bg) 35%, var(--app-surface));
+    border: 1px solid var(--app-border);
+    border-radius: var(--token-radius-sm);
 }
 
 .book-result-title {
@@ -164,18 +164,18 @@
 }
 
 .book-result-meta {
-    color: var(--app-textMuted);
     font-size: var(--token-typography-size-xs);
+    color: var(--app-textMuted);
 }
 
 .book-cover-panel {
     position: relative;
-    border: 1px solid var(--app-border);
-    border-radius: var(--token-radius-md);
-    background: color-mix(in srgb, var(--app-bg) 32%, var(--app-surface));
     min-height: 300px;
     overflow: hidden;
     cursor: pointer;
+    background: color-mix(in srgb, var(--app-bg) 32%, var(--app-surface));
+    border: 1px solid var(--app-border);
+    border-radius: var(--token-radius-md);
     transition:
         border-color var(--token-motion-duration-fast)
         var(--token-motion-easing-standard),
@@ -205,25 +205,25 @@
 }
 
 .book-cover-panel img.is-empty {
-    object-fit: contain;
     padding: var(--token-space-4);
+    object-fit: contain;
     opacity: 0.7;
 }
 
 .book-cover-upload-hint {
     position: absolute;
-    left: var(--token-space-2);
     right: var(--token-space-2);
     bottom: var(--token-space-2);
-    margin: 0;
+    left: var(--token-space-2);
     padding: var(--token-space-1) var(--token-space-2);
-    border: 1px solid color-mix(in srgb, var(--app-border) 68%, transparent);
-    border-radius: var(--token-radius-sm);
-    background: color-mix(in srgb, var(--app-bgElevated) 78%, transparent);
-    color: var(--app-textMuted);
+    margin: 0;
     font-size: var(--token-typography-size-xs);
+    color: var(--app-textMuted);
     text-align: center;
     pointer-events: none;
+    background: color-mix(in srgb, var(--app-bgElevated) 78%, transparent);
+    border: 1px solid color-mix(in srgb, var(--app-border) 68%, transparent);
+    border-radius: var(--token-radius-sm);
 }
 
 @media (max-width: 1100px) {

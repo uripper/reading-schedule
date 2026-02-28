@@ -1,6 +1,6 @@
-import type {
-    CalendarRowWithFinish,
-    DetailInteractionHandlers,
+import {
+    type CalendarRowWithFinish,
+    type DetailInteractionHandlers,
 } from "../../types/types.js";
 import {
     minutesFormActions,
@@ -72,10 +72,10 @@ export function minutesFormForSession(
     minutesForm.onsubmit = (event) => {
         const updatedValues = submitMinutesUpdate({
             event,
-            row,
-            minutesInput,
             initialMinutesValue,
             interactionHandlers,
+            minutesInput,
+            row,
         });
         initialMinutesValue = updatedValues.initialMinutesValue;
         if (updatedValues.applied) {

@@ -1,4 +1,7 @@
-import type { RenderBooksControllerArgs } from "../../types/types.js";
+import type {
+    BooksViewState,
+    RenderBooksControllerArgs,
+} from "../../types/types.js";
 import { collectSettings } from "../settings.js";
 import { renderBookGrid } from "./card_view.js";
 import {
@@ -74,6 +77,61 @@ export function renderBooksController(args: RenderBooksControllerArgs): void {
         nextViewState.sortDirection,
     );
 
+    let {
+        groups,
+        visibleBooks,
+        finishDateByBookId,
+        showBlockerMeta,
+        showShelfMeta,
+        showWordCount,
+    } = generateBookViewSettings(nextViewState, args);
+    if (
+        nextViewState.sortBy === SORT_BY_ESTIMATED_FINISH &&
+        nextViewState.groupBy === GROUP_BY_NONE
+    ) {
+        groups = groupsForEstimatedFinish(visibleBooks);
+    }
+    renderBookGrid({
+        allBooks: args.books,
+        books: visibleBooks,
+        empty: renderRefs.empty,
+        finishDateByBookId,
+        grid: renderRefs.grid,
+        groups,
+        onEdit: (bookId) => {
+            const book = args.findBook(bookId);
+            if (book && args.dialog) {
+                args.dialog.open(book);
+            }
+        },
+        onEstimatedFinishNavigate,
+        onRemove: (bookId) => {
+            const nextBooks = args.books.filter(
+                (book) => book.book_id !== bookId,
+            );
+            if (nextBooks.length === args.books.length) {
+                return;
+            }
+            args.setBooks(nextBooks);
+            args.rerender();
+            args.onBooksChanged();
+        },
+        showBlockerMeta,
+        showShelfMeta,
+        showWordCount,
+    });
+}
+
+/**
+ * Derives book view settings and content based on active toolbar options and
+ * @param nextViewState Current shelf/status/sort/group options used for rendering.
+ * @param args Render inputs for books controller view.
+ * @returns An object containing the settings for rendering the book view.
+ */
+function generateBookViewSettings(
+    nextViewState: BooksViewState,
+    args: RenderBooksControllerArgs,
+) {
     const settings = collectSettings();
     const showWordCount = settingBoolean(settings.books_show_word_count, true);
     const showBlockerMeta = settingBoolean(
@@ -96,44 +154,17 @@ export function renderBooksController(args: RenderBooksControllerArgs): void {
         finishDateByBookId,
     );
 
-    let groups = groupBooks(
+    const groups = groupBooks(
         visibleBooks,
         nextViewState.groupBy,
         finishDateByBookId,
     );
-    if (
-        nextViewState.sortBy === SORT_BY_ESTIMATED_FINISH &&
-        nextViewState.groupBy === GROUP_BY_NONE
-    ) {
-        groups = groupsForEstimatedFinish(visibleBooks);
-    }
-    renderBookGrid({
+    return {
         groups,
+        visibleBooks,
         finishDateByBookId,
-        onEstimatedFinishNavigate,
         showBlockerMeta,
         showShelfMeta,
         showWordCount,
-        books: visibleBooks,
-        allBooks: args.books,
-        grid: renderRefs.grid,
-        empty: renderRefs.empty,
-        onEdit: (bookId) => {
-            const book = args.findBook(bookId);
-            if (book && args.dialog) {
-                args.dialog.open(book);
-            }
-        },
-        onRemove: (bookId) => {
-            const nextBooks = args.books.filter(
-                (book) => book.book_id !== bookId,
-            );
-            if (nextBooks.length === args.books.length) {
-                return;
-            }
-            args.setBooks(nextBooks);
-            args.rerender();
-            args.onBooksChanged();
-        },
-    });
+    };
 }

@@ -1,10 +1,10 @@
 .help-dialog {
     width: min(980px, 92vw);
+    padding: var(--token-space-4);
+    color: var(--app-text);
+    background: var(--app-bgElevated);
     border: 1px solid var(--app-border);
     border-radius: var(--token-radius-lg);
-    background: var(--app-bgElevated);
-    color: var(--app-text);
-    padding: var(--token-space-4);
     box-shadow: var(--token-elevation-md);
 }
 
@@ -13,14 +13,14 @@
 }
 
 pre {
-    margin: var(--token-space-2) 0;
-    border: 1px solid var(--app-border);
-    border-radius: var(--token-radius-sm);
-    background: var(--app-surface);
-    color: var(--app-text);
-    padding: var(--token-space-2);
     max-height: 45vh;
+    padding: var(--token-space-2);
+    margin: var(--token-space-2) 0;
     overflow: auto;
     font-family: var(--token-typography-family-mono);
     font-size: var(--token-typography-size-xs);
+    color: var(--app-text);
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: var(--token-radius-sm);
 }

@@ -1,4 +1,4 @@
-import type { FeatureFlags, Preferences } from "../../../types/types.js";
+import { type FeatureFlags, type Preferences } from "../../../types/types.js";
 import { el } from "../../dom.js";
 import {
     RECOMMENDATIONS_AVAILABLE,
@@ -62,12 +62,10 @@ export function collectPreferencesFromUI(): Preferences {
     }
 
     return {
-        theme,
-        reduceMotion: checkboxValue("reduceMotionToggle"),
-        timezone: DEFAULT_PREFERENCES.timezone,
         dailyGoalMinutes:
             numberInputValue("dailyGoalInput") ||
             DEFAULT_PREFERENCES.dailyGoalMinutes,
+        reduceMotion: checkboxValue("reduceMotionToggle"),
         reminderEnabled: shippedFeatureFlag(
             checkboxValue("reminderEnabledToggle"),
             REMINDERS_AVAILABLE,
@@ -77,6 +75,8 @@ export function collectPreferencesFromUI(): Preferences {
             REMINDERS_AVAILABLE,
             DEFAULT_PREFERENCES.reminderTime,
         ),
+        theme,
+        timezone: DEFAULT_PREFERENCES.timezone,
     };
 }
 
@@ -87,13 +87,13 @@ export function collectPreferencesFromUI(): Preferences {
 export function collectFeatureFlagsFromUI(): FeatureFlags {
     return {
         gamificationEnabled: checkboxValue("flagGamification"),
-        socialEnabled: shippedFeatureFlag(
-            checkboxValue("flagSocial"),
-            SOCIAL_FEATURES_AVAILABLE,
-        ),
         recommendationsEnabled: shippedFeatureFlag(
             checkboxValue("flagRecommendations"),
             RECOMMENDATIONS_AVAILABLE,
+        ),
+        socialEnabled: shippedFeatureFlag(
+            checkboxValue("flagSocial"),
+            SOCIAL_FEATURES_AVAILABLE,
         ),
     };
 }

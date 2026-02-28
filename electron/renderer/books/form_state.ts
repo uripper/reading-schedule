@@ -1,4 +1,8 @@
-import type { Book, BookFormRefs, LookupControl } from "../../types/types.js";
+import {
+    type Book,
+    type BookFormRefs,
+    type LookupControl,
+} from "../../types/types.js";
 import { uid } from "../dom.js";
 import {
     fillScheduledDayControls,
@@ -139,28 +143,28 @@ export function parseFormBook(refs: BookFormRefs): Book {
     }
 
     return normalizeBook({
-        shelf,
-        status,
-        title: requiredTitle(refs),
-        finished_at: refs.finishedAtInput.value,
-        book_id: refs.bookId.value || uid(),
         author: refs.author.value.trim(),
-        words_total: parsed.wordsTotal,
-        pages_total: parsed.pagesTotal,
-        pages_read: pagesRead,
-        progress_percent: progress,
-        priority: Number(refs.priorityInput.value || DEFAULT_PRIORITY),
+        blocked_by: refs.blockedByInput.value,
+        book_id: refs.bookId.value || uid(),
+        cover_local_path: refs.coverLocal.value.trim(),
+        cover_url: refs.coverUrl.value.trim(),
+        deadline: refs.deadlineInput.value,
         difficulty: Number(refs.difficultyInput.value || DEFAULT_DIFFICULTY),
+        finished_at: refs.finishedAtInput.value,
+        lookup_note: refs.lookupMeta.dataset.lookupNote ?? "",
+        max_minutes_per_day: toOptionalInt(refs.maxMinutesInput.value),
         min_blocks_per_session: Number(
             refs.minBlocksInput.value || DEFAULT_MIN_BLOCKS,
         ),
-        max_minutes_per_day: toOptionalInt(refs.maxMinutesInput.value),
-        deadline: refs.deadlineInput.value,
-        blocked_by: refs.blockedByInput.value,
+        pages_read: pagesRead,
+        pages_total: parsed.pagesTotal,
+        priority: Number(refs.priorityInput.value || DEFAULT_PRIORITY),
+        progress_percent: progress,
         scheduled_days: scheduledDays,
-        cover_url: refs.coverUrl.value.trim(),
-        cover_local_path: refs.coverLocal.value.trim(),
-        lookup_note: refs.lookupMeta.dataset.lookupNote ?? "",
+        shelf,
+        status,
+        title: requiredTitle(refs),
+        words_total: parsed.wordsTotal,
     });
 }
 

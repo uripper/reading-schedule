@@ -1,4 +1,4 @@
-import type { CalendarRuntimeState } from "../../types/types.js";
+import { type CalendarRuntimeState } from "../../types/types.js";
 import { renderCalendarControls } from "./controls.js";
 import { enrichRows, groupRowsByDate, monthKeysFromRows } from "./data.js";
 import { renderCalendarMonth } from "./month.js";

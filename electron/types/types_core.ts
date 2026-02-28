@@ -13,16 +13,16 @@ export type NumericLike = string | number | null | undefined;
 export type SessionSource = "timer" | "manual";
 
 export interface Session {
-    id: string;
     book_id: string;
-    title: string;
-    started_at: string;
-    ended_at: string;
-    minutes: number;
-    pages_read: number | null;
-    notes: string;
-    source: SessionSource;
     created_at: string;
+    ended_at: string;
+    id: string;
+    minutes: number;
+    notes: string;
+    pages_read: number | null;
+    source: SessionSource;
+    started_at: string;
+    title: string;
 }
 
 export type SessionInput = Omit<Partial<Session>, "pages_read" | "source"> & {
@@ -40,6 +40,6 @@ export interface SessionRecord {
 }
 
 export interface SessionWindow {
-    started_at: DateInput;
     ended_at: DateInput;
+    started_at: DateInput;
 }

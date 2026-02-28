@@ -1,4 +1,4 @@
-import type { Session, SessionInput } from "../../types/types.js";
+import { type Session, type SessionInput } from "../../types/types.js";
 import { uid } from "../dom.js";
 import { toInt } from "./utils.js";
 
@@ -77,16 +77,16 @@ export function normalizeSession(session: SessionInput = {}): Session {
     const source = normalizedSource(session.source);
 
     return {
-        source,
-        id: String(session.id ?? uid()),
         book_id: String(session.book_id ?? ""),
-        title: String(session.title ?? UNTITLED_SESSION),
-        started_at: startedAt,
-        ended_at: endedAt,
-        minutes: Math.max(1, toInt(session.minutes, 1)),
-        pages_read: pagesRead,
-        notes: String(session.notes ?? "").trim(),
         created_at: String(session.created_at ?? endedAt),
+        ended_at: endedAt,
+        id: String(session.id ?? uid()),
+        minutes: Math.max(1, toInt(session.minutes, 1)),
+        notes: String(session.notes ?? "").trim(),
+        pages_read: pagesRead,
+        source,
+        started_at: startedAt,
+        title: String(session.title ?? UNTITLED_SESSION),
     };
 }
 

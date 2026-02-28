@@ -1,6 +1,6 @@
-import type {
-    RecommendationItem,
-    RenderRecommendationsArgs,
+import {
+    type RecommendationItem,
+    type RenderRecommendationsArgs,
 } from "../../types/types.js";
 import { COVER_PLACEHOLDER } from "../books/constants.js";
 import { el } from "../dom.js";

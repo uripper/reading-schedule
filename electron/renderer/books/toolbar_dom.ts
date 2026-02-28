@@ -1,4 +1,4 @@
-import type { OptionDefinition } from "../../types/types.js";
+import { type OptionDefinition } from "../../types/types.js";
 import { GROUP_OPTIONS_BASE, SORT_OPTIONS } from "./toolbar_options.js";
 
 /**
@@ -59,7 +59,7 @@ function createLabeledSearchInput(
     input.className = "books-control-input";
     input.placeholder = "Type a title";
     label.append(input);
-    return { label, input };
+    return { input, label };
 }
 
 /**
@@ -131,11 +131,11 @@ export function ensureBooksToolbarControls(toolbar: HTMLElement): {
         sortDirectionBtn,
     );
     return {
-        titleFilterInput: titleFilter.input,
-        shelfFilterSelect: shelf.select,
-        statusFilterSelect: status.select,
-        sortBySelect: sortBy.select,
         groupBySelect: groupBy.select,
+        shelfFilterSelect: shelf.select,
+        sortBySelect: sortBy.select,
         sortDirectionBtn,
+        statusFilterSelect: status.select,
+        titleFilterInput: titleFilter.input,
     };
 }

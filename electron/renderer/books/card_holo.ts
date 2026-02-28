@@ -1,4 +1,4 @@
-import type { HoloPointerVars } from "../../types/types.js";
+import { type HoloPointerVars } from "../../types/types.js";
 
 const DEFAULT_POINTER_PERCENT = "50%";
 const ACTIVE_HOLO = "1";
@@ -88,10 +88,10 @@ export function holoVarsForPointer(
         HALF_PERCENT + (yPercent - HALF_PERCENT) * BG_SHIFT_FACTOR,
     );
     return {
-        pointerX: asPercent(xPercent),
-        pointerY: asPercent(yPercent),
         bgShiftX: asPercent(bgShiftX),
         bgShiftY: asPercent(bgShiftY),
+        pointerX: asPercent(xPercent),
+        pointerY: asPercent(yPercent),
     };
 }
 

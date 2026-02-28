@@ -1,4 +1,4 @@
-import type { BookFormRefs, BookStatus } from "../../types/types.js";
+import { type BookFormRefs, type BookStatus } from "../../types/types.js";
 import { dayKey } from "../calendar/utils.js";
 import { COVER_PLACEHOLDER } from "./constants.js";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";
@@ -186,18 +186,18 @@ export function deriveLengthAndProgress(refs: BookFormRefs): {
                     PROGRESS_DECIMAL_SCALE,
             ) / PROGRESS_DECIMAL_SCALE;
         return {
-            wordsTotal,
-            pagesTotal,
             pagesRead,
+            pagesTotal,
             progress,
+            wordsTotal,
         };
     }
 
     return {
-        wordsTotal,
+        pagesRead: null,
         pagesTotal,
         progress,
-        pagesRead: null,
+        wordsTotal,
     };
 }
 

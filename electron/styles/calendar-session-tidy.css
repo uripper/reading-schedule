@@ -10,12 +10,11 @@
 }
 
 .day-details-item.is-complete {
-    border-color: color-mix(in srgb, var(--app-success) 62%, var(--app-border));
     background: color-mix(in srgb, var(--app-success) 8%, var(--app-surface));
+    border-color: color-mix(in srgb, var(--app-success) 62%, var(--app-border));
 }
 
 .day-details-item.is-finish.is-complete {
-    border-color: color-mix(in srgb, var(--app-success) 68%, var(--app-border));
     background:
         radial-gradient(
             circle at top right,
@@ -23,6 +22,7 @@
             transparent 56%
         ),
         color-mix(in srgb, var(--app-success) 10%, var(--app-surface));
+    border-color: color-mix(in srgb, var(--app-success) 68%, var(--app-border));
 }
 
 .day-minutes-summary {
@@ -39,13 +39,13 @@
     inline-size: auto;
     block-size: auto;
     min-height: 30px;
-    border-radius: var(--token-radius-pill);
     padding: 0 var(--token-space-2);
-    border-color: color-mix(in srgb, var(--app-border) 84%, transparent);
-    background: color-mix(in srgb, var(--app-surface) 68%, transparent);
     font-size: var(--token-typography-size-xs);
     font-weight: var(--token-typography-weight-medium);
     line-height: 1;
+    background: color-mix(in srgb, var(--app-surface) 68%, transparent);
+    border-color: color-mix(in srgb, var(--app-border) 84%, transparent);
+    border-radius: var(--token-radius-pill);
 }
 
 .day-progress-form {

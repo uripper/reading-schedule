@@ -1,7 +1,7 @@
 /**
  * @file Deduplication helpers for raw Open Library search documents.
  */
-import type { SearchDoc } from "../../types/types.js";
+import { type SearchDoc } from "../../types/types.js";
 import { primaryAuthor } from "./search_text.js";
 
 /**

@@ -1,8 +1,8 @@
-import type {
-    PlannerResult,
-    PlannerScheduleRow,
-    TodayScheduleSnapshot,
-    UpdateTodayDashboardArgs,
+import {
+    type PlannerResult,
+    type PlannerScheduleRow,
+    type TodayScheduleSnapshot,
+    type UpdateTodayDashboardArgs,
 } from "../../../types/types.js";
 import {
     dayMinutesForKey,
@@ -151,9 +151,9 @@ export function updateTodayDashboard({
     renderTodayScheduledBooks(snapshot);
 
     const activityByDay = dayMinutesFromActivity({
-        sessions,
         lastResult,
         scheduleCompletions,
+        sessions,
         year: null,
     });
 

@@ -1,10 +1,10 @@
-import type {
-    AddManualSessionArgs,
-    PlannerResult,
-    PlannerScheduleRow,
-    RemoveSessionArgs,
-    SharedUpdateArgs,
-    UpdateSessionMinutesArgs,
+import {
+    type AddManualSessionArgs,
+    type PlannerResult,
+    type PlannerScheduleRow,
+    type RemoveSessionArgs,
+    type SharedUpdateArgs,
+    type UpdateSessionMinutesArgs,
 } from "../../../types/types.js";
 import {
     sessionKeyFor,
@@ -33,9 +33,9 @@ function nextResultWithRows(
     rows: PlannerScheduleRow[],
 ): PlannerResult {
     return {
+        created_at: new Date().toISOString(),
         schedule: sortRowsByDateAndSession(rows),
         summary: previousResult.summary ?? null,
-        created_at: new Date().toISOString(),
     };
 }
 
@@ -97,17 +97,17 @@ export function addManualSessionRow({
     const normalizedMinutes = normalizedManualMinutes(minutes);
     const wordsPlanned = wordsPlannedForManualSession({
         bookId: book.book_id,
+        difficulty: Number(book.difficulty),
         minutes: normalizedMinutes,
         rows: previousRows,
         settings: collectSettings(),
-        difficulty: Number(book.difficulty),
     });
     const addedRow: PlannerScheduleRow = {
-        date: normalizedDate,
-        session_index: sessionIndex,
         book_id: book.book_id,
-        title: book.title,
+        date: normalizedDate,
         minutes: normalizedMinutes,
+        session_index: sessionIndex,
+        title: book.title,
         words_planned: wordsPlanned,
     };
     const nextResult = nextResultWithRows(previousResult, [
@@ -116,9 +116,9 @@ export function addManualSessionRow({
     ]);
     applyNextResult(args, nextResult);
     args.applyStateMutation({
-        type: "set_blocked_day_book",
-        key: dayBookCompletionKey(addedRow.date, addedRow.book_id),
         blocked: false,
+        key: dayBookCompletionKey(addedRow.date, addedRow.book_id),
+        type: "set_blocked_day_book",
     });
     if (completed) {
         const nextCompletions = {
@@ -128,8 +128,8 @@ export function addManualSessionRow({
         nextCompletions[dayBookCompletionKey(addedRow.date, addedRow.book_id)] =
             true;
         args.applyStateMutation({
-            type: "set_schedule_completions",
             scheduleCompletions: nextCompletions,
+            type: "set_schedule_completions",
         });
     }
     args.queuePersist();
@@ -162,13 +162,13 @@ export function removeSessionRow({ row, ...args }: RemoveSessionArgs): boolean {
         nextRows,
     );
     args.applyStateMutation({
-        type: "set_schedule_completions",
         scheduleCompletions: nextCompletions,
+        type: "set_schedule_completions",
     });
     args.applyStateMutation({
-        type: "set_blocked_day_book",
-        key: dayBookCompletionKey(row.date, row.book_id),
         blocked: true,
+        key: dayBookCompletionKey(row.date, row.book_id),
+        type: "set_blocked_day_book",
     });
     const nextResult = nextResultWithRows(previousResult, nextRows);
     applyNextResult(args, nextResult);

@@ -2,11 +2,11 @@
  * @file Atomic JSON planner state read/write helpers with backup fallback.
  */
 import fs from "node:fs";
-import type {
-    JsonValue,
-    LoadedPlannerState,
-    PlannerSaveResult,
-    PlannerStateLoadResult,
+import {
+    type JsonValue,
+    type LoadedPlannerState,
+    type PlannerSaveResult,
+    type PlannerStateLoadResult,
 } from "../types/types.js";
 import {
     jsonStateBackupPath,
@@ -104,17 +104,17 @@ export function readStateFromJson(
     const primary = readJsonObjectFile(primaryPath);
     if (primary) {
         return {
-            state: primary,
             source: "json_primary",
             sourcePath: primaryPath,
+            state: primary,
         };
     }
     const backup = readJsonObjectFile(backupPath);
     if (backup) {
         return {
-            state: backup,
             source: "json_backup",
             sourcePath: backupPath,
+            state: backup,
             warningCode: "RECOVERED_FROM_BACKUP",
             warningMessage:
                 "Recovered saved data from backup copy. Recent unsaved changes may be missing.",
@@ -158,8 +158,8 @@ export function writeStateToJson(
             }
         }
         if (error instanceof Error) {
-            return { ok: false, error: error.message };
+            return { error: error.message, ok: false };
         }
-        return { ok: false, error: String(error) };
+        return { error: String(error), ok: false };
     }
 }

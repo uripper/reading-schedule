@@ -1,4 +1,7 @@
-import type { BookLookupItem, RecommendationItem } from "../../types/types.js";
+import {
+    type BookLookupItem,
+    type RecommendationItem,
+} from "../../types/types.js";
 import { addLog } from "../help.js";
 import { MAX_PER_AUTHOR, SAMPLE_RESULTS_COUNT } from "./search_constants.js";
 import {
@@ -9,8 +12,8 @@ import {
 
 interface ProcessAuthorOptions {
     author: string;
-    lookupItems: BookLookupItem[];
     existingKeys: Set<string>;
+    lookupItems: BookLookupItem[];
     recommendationKeys: Set<string>;
     recommendations: RecommendationItem[];
 }

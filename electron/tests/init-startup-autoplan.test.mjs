@@ -25,8 +25,8 @@ function startupArgs(scheduleLength, source) {
         saved = savedPayload(scheduleLength);
     }
     return {
-        saved,
         loadResult: loadResult(source),
+        saved,
     };
 }
 

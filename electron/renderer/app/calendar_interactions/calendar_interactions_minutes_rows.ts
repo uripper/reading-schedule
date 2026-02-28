@@ -1,8 +1,8 @@
-import type {
-    Book,
-    PlannerScheduleRow,
-    PlannerSettings,
-    UpdatedRowsResult,
+import {
+    type Book,
+    type PlannerScheduleRow,
+    type PlannerSettings,
+    type UpdatedRowsResult,
 } from "../../../types/types.js";
 import {
     sessionKeyFor,
@@ -52,10 +52,10 @@ export function nextRowsWithUpdatedMinutes({
     const book = getBookById(row.book_id);
     const wordsPlanned = wordsPlannedForManualSession({
         bookId: row.book_id,
+        difficulty: Number(book?.difficulty ?? DEFAULT_BOOK_DIFFICULTY),
         minutes: normalizedMinutes,
         rows: rowsExcludingTarget,
         settings: collectSettings(),
-        difficulty: Number(book?.difficulty ?? DEFAULT_BOOK_DIFFICULTY),
     });
     const updatedRow: PlannerScheduleRow = {
         ...row,

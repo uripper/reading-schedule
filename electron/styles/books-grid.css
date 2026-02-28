@@ -1,6 +1,6 @@
 .books-toolbar {
-    margin-bottom: var(--token-space-3);
     justify-content: space-between;
+    margin-bottom: var(--token-space-3);
 }
 
 .books-controls {
@@ -21,14 +21,14 @@
 
 .books-grid {
     display: grid;
-    gap: var(--token-space-3);
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--token-space-3);
 }
 
 .books-grid.is-grouped {
     display: grid;
-    gap: var(--token-space-4);
     grid-template-columns: 1fr;
+    gap: var(--token-space-4);
 }
 
 .books-group {
@@ -38,16 +38,16 @@
 
 .books-group-heading {
     margin: 0;
-    color: var(--app-text);
     font-size: var(--token-typography-size-sm);
     font-weight: var(--token-typography-weight-medium);
+    color: var(--app-text);
     letter-spacing: 0.02em;
 }
 
 .books-group-row {
     display: grid;
-    gap: var(--token-space-3);
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--token-space-3);
 }
 
 .books-empty {
@@ -56,12 +56,12 @@
 }
 
 .book-card {
-    overflow: hidden;
     display: flex;
     flex-direction: column;
-    border-radius: var(--token-radius-md);
-    border: 1px solid var(--app-border);
+    overflow: hidden;
     background: color-mix(in srgb, var(--app-surfaceMuted) 86%, transparent);
+    border: 1px solid var(--app-border);
+    border-radius: var(--token-radius-md);
     transition:
         filter 150ms ease,
         opacity 150ms ease,
@@ -72,42 +72,42 @@
 .books-grid:not(.is-grouped):focus-within .book-card,
 .books-group-row:hover .book-card,
 .books-group-row:focus-within .book-card {
-    filter: brightness(0.72);
     opacity: 0.65;
+    filter: brightness(0.72);
 }
 
 .books-grid:not(.is-grouped):hover .book-card:hover,
 .books-grid:not(.is-grouped):focus-within .book-card:focus-within,
 .books-group-row:hover .book-card:hover,
 .books-group-row:focus-within .book-card:focus-within {
-    filter: brightness(1);
     opacity: 1;
+    filter: brightness(1);
     transform: translateY(-2px);
 }
 
 .book-cover-btn {
-    border: 0;
     padding: 0;
     margin: 0;
-    background: color-mix(in srgb, var(--app-bg) 40%, var(--app-surface));
     cursor: pointer;
+    background: color-mix(in srgb, var(--app-bg) 40%, var(--app-surface));
+    border: 0;
 }
 
 .book-cover-btn img {
+    display: block;
     width: 100%;
     height: 300px;
     object-fit: cover;
-    display: block;
 }
 
 .book-cover-btn .cover-fallback {
     display: grid;
     place-content: center;
     height: 300px;
-    color: var(--app-textMuted);
-    text-align: center;
     padding: var(--token-space-3);
     font-size: var(--token-typography-size-sm);
+    color: var(--app-textMuted);
+    text-align: center;
 }
 
 .book-meta {
@@ -124,19 +124,19 @@
 
 .book-subtitle {
     margin: 0;
-    color: var(--app-textMuted);
     font-size: var(--token-typography-size-md);
+    color: var(--app-textMuted);
 }
 
 .book-status-pill {
     justify-self: start;
     padding: 2px 8px;
-    border-radius: var(--token-radius-pill);
-    border: 1px solid var(--app-border);
     font-size: 10px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     color: var(--app-textMuted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border: 1px solid var(--app-border);
+    border-radius: var(--token-radius-pill);
 }
 
 .book-status-pill.is-to_read {
@@ -158,21 +158,21 @@
 .book-stats {
     display: grid;
     gap: 2px;
-    color: var(--app-textMuted);
     font-size: var(--token-typography-size-xs);
+    color: var(--app-textMuted);
     white-space: pre-line;
 }
 
 .book-after-link-btn {
-    border: 0;
-    margin: 0;
     padding: 0;
-    background: transparent;
-    color: var(--app-brand);
+    margin: 0;
     font: inherit;
+    color: var(--app-brand);
     text-align: left;
     text-decoration: underline;
     cursor: pointer;
+    background: transparent;
+    border: 0;
 }
 
 .book-after-link-btn:hover,
@@ -181,11 +181,11 @@
 }
 
 .book-actions {
-    margin-top: var(--token-space-1);
     display: flex;
-    align-items: center;
     gap: var(--token-space-1);
+    align-items: center;
     justify-content: flex-start;
+    margin-top: var(--token-space-1);
 }
 
 .book-actions .btn {

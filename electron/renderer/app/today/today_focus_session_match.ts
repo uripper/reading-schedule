@@ -1,7 +1,7 @@
-import type {
-    FocusSession,
-    PlannerResult,
-    PlannerScheduleRow,
+import {
+    type FocusSession,
+    type PlannerResult,
+    type PlannerScheduleRow,
 } from "../../../types/types.js";
 
 const MINUTES_MIN = 1;
@@ -152,11 +152,11 @@ export function readFocusSessionFromDataset(
         return null;
     }
     return {
-        date,
-        title,
-        sessionIndex: sessionIndexOrNull(rawSessionIndex),
         bookId: bookId || "",
+        date,
         minutes: roundMinutes(parsedMinutes),
+        sessionIndex: sessionIndexOrNull(rawSessionIndex),
+        title,
     };
 }
 

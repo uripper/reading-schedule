@@ -5,7 +5,7 @@ import { holoVarsForPointer } from "../dist/renderer/books/card_holo.js";
 
 test("holoVarsForPointer computes centered percentages", () => {
     const vars = holoVarsForPointer(
-        { left: 10, top: 20, width: 200, height: 100 },
+        { height: 100, left: 10, top: 20, width: 200 },
         110,
         70,
     );
@@ -17,7 +17,7 @@ test("holoVarsForPointer computes centered percentages", () => {
 
 test("holoVarsForPointer clamps out-of-bounds pointer coordinates", () => {
     const vars = holoVarsForPointer(
-        { left: 100, top: 100, width: 200, height: 100 },
+        { height: 100, left: 100, top: 100, width: 200 },
         -999,
         999,
     );

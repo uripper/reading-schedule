@@ -1,4 +1,4 @@
-import type { Book, CardRenderContext } from "../../types/types.js";
+import { type Book, type CardRenderContext } from "../../types/types.js";
 import { bindReadCardHolo } from "./card_holo.js";
 import {
     afterBookLinkButton,
@@ -69,22 +69,22 @@ function cardStatsNode(book: Book, context: CardRenderContext): HTMLDivElement {
     stats.className = "book-stats";
     const baseMetaText = metaLabel(book, {
         finishDateByBookId: context.finishDateByBookId,
+        showBlockerMeta: false,
         showShelfMeta: context.showShelfMeta,
         titleById: context.titleById,
-        showBlockerMeta: false,
     });
     let blocker: ReturnType<typeof blockerMeta> = null;
     if (context.showBlockerMeta) {
         blocker = blockerMeta(book, context.titleById);
     }
     const statLines: Array<{ text: string; preserveLineBreaks: boolean }> = [
-        { text: progressLabel(book), preserveLineBreaks: false },
+        { preserveLineBreaks: false, text: progressLabel(book) },
     ];
     if (context.showWordCount) {
-        statLines.push({ text: wordsLabel(book), preserveLineBreaks: false });
+        statLines.push({ preserveLineBreaks: false, text: wordsLabel(book) });
     }
     if (baseMetaText !== "") {
-        statLines.push({ text: baseMetaText, preserveLineBreaks: true });
+        statLines.push({ preserveLineBreaks: true, text: baseMetaText });
     }
     statLines.forEach((line) => {
         const span = document.createElement("span");

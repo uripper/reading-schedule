@@ -1,11 +1,11 @@
-import type {
-    FeatureFlags,
-    InitialDataSource,
-    LoadedPlannerState,
-    LoadStateArgs,
-    PlannerApi,
-    PlannerStateLoadResult,
-    Preferences,
+import {
+    type FeatureFlags,
+    type InitialDataSource,
+    type LoadedPlannerState,
+    type LoadStateArgs,
+    type PlannerApi,
+    type PlannerStateLoadResult,
+    type Preferences,
 } from "../../types/types.js";
 import { normalizeSessions } from "../sessions/normalize.js";
 import {

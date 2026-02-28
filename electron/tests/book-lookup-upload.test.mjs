@@ -31,7 +31,7 @@ test("saveUploadedCover writes uploaded image to user data directory", () => {
         assert.equal(path.extname(filePath), ".png");
         assert.equal(path.basename(path.dirname(filePath)), COVER_DIRECTORY);
     } finally {
-        fs.rmSync(userDataDirectory, { recursive: true, force: true });
+        fs.rmSync(userDataDirectory, { force: true, recursive: true });
     }
 });
 
@@ -49,7 +49,7 @@ test("saveUploadedCover returns empty string for invalid input", () => {
         );
         assert.equal(result, "");
     } finally {
-        fs.rmSync(userDataDirectory, { recursive: true, force: true });
+        fs.rmSync(userDataDirectory, { force: true, recursive: true });
     }
 });
 
@@ -75,6 +75,6 @@ test("saveUploadedCover returns a new local path when replacing an existing cove
         assert.ok(fs.existsSync(fileURLToPath(first)));
         assert.ok(fs.existsSync(fileURLToPath(second)));
     } finally {
-        fs.rmSync(userDataDirectory, { recursive: true, force: true });
+        fs.rmSync(userDataDirectory, { force: true, recursive: true });
     }
 });

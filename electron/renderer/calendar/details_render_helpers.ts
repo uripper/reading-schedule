@@ -1,8 +1,8 @@
-import type {
-    CalendarRowWithFinish,
-    DayMode,
-    DetailInteractionHandlers,
-    RowNodeForModeArgs,
+import {
+    type CalendarRowWithFinish,
+    type DayMode,
+    type DetailInteractionHandlers,
+    type RowNodeForModeArgs,
 } from "../../types/types.js";
 import { rowsWithFinishFirst } from "./data.js";
 import {

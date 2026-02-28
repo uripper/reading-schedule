@@ -1,4 +1,8 @@
-import type { Book, BookGroup, CardRenderContext } from "../../types/types.js";
+import {
+    type Book,
+    type BookGroup,
+    type CardRenderContext,
+} from "../../types/types.js";
 import { createCardNode } from "./card_nodes.js";
 
 /**

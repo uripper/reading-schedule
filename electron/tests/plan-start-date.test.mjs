@@ -10,12 +10,12 @@ import {
 test("runPlanGeneration forces settings.start_date to tomorrow", async () => {
     const calls = [];
     await runPlanGenerationForTest({
-        generate: recordingGenerate(calls),
         collectSettings: () => ({
-            start_date: "1999-01-01",
             end_date: "2099-01-01",
             minutes_per_day: 20,
+            start_date: "1999-01-01",
         }),
+        generate: recordingGenerate(calls),
     });
 
     assert.equal(calls.length, 1);
@@ -27,10 +27,10 @@ test("runPlanGeneration forces settings.start_date to tomorrow", async () => {
 test("runPlanGeneration clamps end_date to tomorrow when it is in the past", async () => {
     const calls = [];
     await runPlanGenerationForTest({
-        generate: recordingGenerate(calls),
         collectSettings: () => ({
             end_date: "1999-01-01",
         }),
+        generate: recordingGenerate(calls),
     });
 
     assert.equal(calls.length, 1);
@@ -42,15 +42,15 @@ test("runPlanGeneration logs plan error details when generation fails", async ()
     const logs = [];
     const statuses = [];
     await runPlanGenerationForTest({
+        addLog: (message) => {
+            logs.push(message);
+        },
+        collectSettings: () => ({ end_date: "1999-01-01" }),
         generate: () => {
             throw new Error("end_date must be on or after start_date");
         },
-        collectSettings: () => ({ end_date: "1999-01-01" }),
         setStatus: (message, isError) => {
-            statuses.push({ message, isError });
-        },
-        addLog: (message) => {
-            logs.push(message);
+            statuses.push({ isError, message });
         },
     });
 
@@ -65,12 +65,12 @@ test("runPlanGeneration logs plan error details when generation fails", async ()
 test("runPlanGeneration logs fallback error detail for unknown failures", async () => {
     const logs = [];
     await runPlanGenerationForTest({
-        generate: () => {
-            throw {};
-        },
-        collectSettings: () => ({ minutes_per_day: 20 }),
         addLog: (message) => {
             logs.push(message);
+        },
+        collectSettings: () => ({ minutes_per_day: 20 }),
+        generate: () => {
+            throw {};
         },
     });
 

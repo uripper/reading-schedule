@@ -1,4 +1,4 @@
-import type { PlannerSettings } from "../types/types.js";
+import { type PlannerSettings } from "../types/types.js";
 import { fields } from "./settings/config.js";
 import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.js";
 import {

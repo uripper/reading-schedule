@@ -1,22 +1,22 @@
-import type { Book } from "./types_books.js";
-import type { PlannerScheduleRow } from "./types_planner.js";
+import { type Book } from "./types_books.js";
+import { type PlannerScheduleRow } from "./types_planner.js";
 
 export interface CalendarDisplayRow {
     book_id?: string;
     date?: string;
+    finish?: boolean;
+    minutes?: number;
     session_index?: string | number;
     title?: string;
-    minutes?: number;
     words_planned?: number;
-    finish?: boolean;
 }
 
 export interface CalendarState {
     dates: Record<string, CalendarDisplayRow[]>;
-    months: string[];
     index: number;
-    selectedDate: string;
     monthCellKeys: string[];
+    months: string[];
+    selectedDate: string;
 }
 
 export interface MonthActions {
@@ -41,8 +41,8 @@ export type CalendarRowWithFinish = CalendarRow & {
 export type RowsByDate = Record<string, CalendarRowWithFinish[]>;
 
 export interface CalendarControlsState {
-    months: string[];
     index: number;
+    months: string[];
 }
 
 export type RenderFn = () => void;
@@ -101,9 +101,9 @@ export interface DayStyleFlagsArgs {
     date: Date;
     firstDate: Date;
     keyForDay: string;
+    rows: CalendarDisplayRow[];
     selectedDate: string;
     todayKey: string;
-    rows: CalendarDisplayRow[];
 }
 
 export interface ManualSessionBook {
@@ -132,20 +132,20 @@ export interface MinutesPayload {
 }
 
 export interface ManualSessionAddPayload {
-    date: string;
     bookId: string;
-    minutes: number;
     completed?: boolean;
+    date: string;
+    minutes: number;
 }
 
 export interface DetailInteractionHandlers {
-    isSessionCompleted(sessionKey: string): boolean;
-    onSessionCompletionChanged(payload: CompletionPayload): void;
-    onSessionProgressUpdated(payload: ProgressPayload): Book | null;
-    onSessionMinutesUpdated(payload: MinutesPayload): boolean;
     getBookById(bookId: string): Book | null;
+    isSessionCompleted(sessionKey: string): boolean;
     listSessionBooks(): ManualSessionBook[];
     onManualSessionAdded(payload: ManualSessionAddPayload): boolean;
+    onSessionCompletionChanged(payload: CompletionPayload): void;
+    onSessionMinutesUpdated(payload: MinutesPayload): boolean;
+    onSessionProgressUpdated(payload: ProgressPayload): Book | null;
     onSessionRemoved(payload: { row: CalendarRowWithFinish }): boolean;
 }
 
@@ -156,47 +156,47 @@ export interface CalendarStateSubset {
 
 export interface BuildManualSessionAddPanelArgs {
     dateKey: string;
-    mode: DayMode;
-    interactionHandlers: DetailInteractionHandlers;
-    rerenderDetails(): void;
     defaultBookId?: string;
     defaultMinutes?: number;
+    interactionHandlers: DetailInteractionHandlers;
+    mode: DayMode;
+    rerenderDetails(): void;
 }
 
 export interface SubmitManualAddFormArgs {
-    dateKey: string;
-    mode: DayMode;
-    interactionHandlers: DetailInteractionHandlers;
-    rerenderDetails(): void;
     bookSelect: HTMLSelectElement;
-    minutesInput: HTMLInputElement;
     completeInput: HTMLInputElement;
+    dateKey: string;
+    interactionHandlers: DetailInteractionHandlers;
+    minutesInput: HTMLInputElement;
+    mode: DayMode;
+    rerenderDetails(): void;
 }
 
 export interface BookSelectionControls {
-    titleFilterLabel: HTMLLabelElement;
     bookLabel: HTMLLabelElement;
     bookSelect: HTMLSelectElement;
+    titleFilterLabel: HTMLLabelElement;
 }
 
 export type MinutesEditorAction = "edit" | "cancel" | "saved";
 
 export interface SubmitMinutesUpdateArgs {
     event: SubmitEvent;
-    row: CalendarRowWithFinish;
-    minutesInput: HTMLInputElement;
     initialMinutesValue: string;
     interactionHandlers: DetailInteractionHandlers;
+    minutesInput: HTMLInputElement;
+    row: CalendarRowWithFinish;
 }
 
 export interface SubmitProgressUpdateArgs {
     event: SubmitEvent;
-    row: CalendarRowWithFinish;
-    pagesInput: HTMLInputElement;
-    pctInput: HTMLInputElement;
     initialPagesValue: string;
     initialPercentValue: string;
     interactionHandlers: DetailInteractionHandlers;
+    pagesInput: HTMLInputElement;
+    pctInput: HTMLInputElement;
+    row: CalendarRowWithFinish;
 }
 
 export type CalendarDetailsState = CalendarStateSubset & {
@@ -206,11 +206,11 @@ export type CalendarDetailsState = CalendarStateSubset & {
 };
 
 export interface RowNodeForModeArgs {
+    interactionHandlers: DetailInteractionHandlers;
     mode: DayMode;
+    rerenderDetails(): void;
     row: CalendarRowWithFinish;
     state: CalendarDetailsState;
-    interactionHandlers: DetailInteractionHandlers;
-    rerenderDetails(): void;
 }
 
 export type CompletionChangePayload = CompletionPayload;
@@ -230,30 +230,30 @@ export interface RemoveSessionPayload {
 }
 
 export interface CalendarHandlers {
+    getBookById(this: void, bookId: string): Book | null;
     isSessionCompleted(this: void, sessionKey: string): boolean;
+    listSessionBooks(this: void): ManualSessionBook[];
+    onManualSessionAdded(this: void, payload: ManualSessionPayload): boolean;
     onSessionCompletionChanged(
         this: void,
         payload: CompletionChangePayload,
     ): void;
+    onSessionMinutesUpdated(this: void, payload: MinutesUpdatePayload): boolean;
     onSessionProgressUpdated(
         this: void,
         payload: ProgressUpdatePayload,
     ): Book | null;
-    onSessionMinutesUpdated(this: void, payload: MinutesUpdatePayload): boolean;
-    getBookById(this: void, bookId: string): Book | null;
-    listSessionBooks(this: void): ManualSessionBook[];
-    onManualSessionAdded(this: void, payload: ManualSessionPayload): boolean;
     onSessionRemoved(this: void, payload: RemoveSessionPayload): boolean;
 }
 
 export interface CalendarRuntimeState {
     dates: Record<string, CalendarRowWithFinish[]>;
+    expectedFinishHighlightDate: string;
+    index: number;
+    monthCellKeys: string[];
+    months: string[];
     rawRows: PlannerScheduleRow[];
     rows: CalendarRowWithFinish[];
-    totalsByBookId: Record<string, number>;
-    months: string[];
-    index: number;
     selectedDate: string;
-    monthCellKeys: string[];
-    expectedFinishHighlightDate: string;
+    totalsByBookId: Record<string, number>;
 }

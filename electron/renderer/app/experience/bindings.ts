@@ -1,4 +1,4 @@
-import type { ExperienceSettingsApplyHandler } from "../../../types/types.js";
+import { type ExperienceSettingsApplyHandler } from "../../../types/types.js";
 import { el } from "../../dom.js";
 
 const EXPERIENCE_SETTING_IDS: readonly string[] = [

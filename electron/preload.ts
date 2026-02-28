@@ -2,14 +2,14 @@
  * @file Preload bridge exposing a typed planner API to the renderer.
  */
 import { contextBridge, ipcRenderer } from "electron";
-import type {
-    BookLookupItem,
-    PlanGeneratePayload,
-    PlannerApi,
-    PlannerResult,
-    PlannerSaveResult,
-    PlannerStateLoadResult,
-    PlannerStateSnapshot,
+import {
+    type BookLookupItem,
+    type PlanGeneratePayload,
+    type PlannerApi,
+    type PlannerResult,
+    type PlannerSaveResult,
+    type PlannerStateLoadResult,
+    type PlannerStateSnapshot,
 } from "./types/types.js";
 
 /**
@@ -23,12 +23,11 @@ async function invokeIpc<T>(channel: string, ...args: unknown[]): Promise<T> {
 }
 
 const plannerApi: PlannerApi = {
-    sample: async (): Promise<
-        Pick<PlannerStateSnapshot, "settings" | "books">
-    > =>
-        await invokeIpc<Pick<PlannerStateSnapshot, "settings" | "books">>(
-            "plan:sample",
-        ),
+    downloadCover: async (
+        url: string | undefined,
+        bookId: string | undefined,
+    ): Promise<string> =>
+        await invokeIpc<string>("book:downloadCover", { bookId, url }),
     generate: async (
         payload: PlanGeneratePayload,
     ): Promise<Pick<PlannerResult, "schedule" | "summary">> =>
@@ -36,27 +35,28 @@ const plannerApi: PlannerApi = {
             "plan:generate",
             payload,
         ),
+    loadState: async (): Promise<PlannerStateLoadResult> =>
+        await invokeIpc<PlannerStateLoadResult>("state:load"),
+    sample: async (): Promise<
+        Pick<PlannerStateSnapshot, "settings" | "books">
+    > =>
+        await invokeIpc<Pick<PlannerStateSnapshot, "settings" | "books">>(
+            "plan:sample",
+        ),
+    saveState: async (
+        payload: PlannerStateSnapshot,
+    ): Promise<PlannerSaveResult> =>
+        await invokeIpc<PlannerSaveResult>("state:save", payload),
+    saveUploadedCover: async (
+        dataUrl: string | undefined,
+        bookId: string | undefined,
+    ): Promise<string> =>
+        await invokeIpc<string>("book:saveUploadedCover", { bookId, dataUrl }),
     searchBooks: async (
         query: string,
         author = false,
     ): Promise<BookLookupItem[]> =>
         await invokeIpc<BookLookupItem[]>("book:search", query, author),
-    downloadCover: async (
-        url: string | undefined,
-        bookId: string | undefined,
-    ): Promise<string> =>
-        await invokeIpc<string>("book:downloadCover", { url, bookId }),
-    saveUploadedCover: async (
-        dataUrl: string | undefined,
-        bookId: string | undefined,
-    ): Promise<string> =>
-        await invokeIpc<string>("book:saveUploadedCover", { dataUrl, bookId }),
-    loadState: async (): Promise<PlannerStateLoadResult> =>
-        await invokeIpc<PlannerStateLoadResult>("state:load"),
-    saveState: async (
-        payload: PlannerStateSnapshot,
-    ): Promise<PlannerSaveResult> =>
-        await invokeIpc<PlannerSaveResult>("state:save", payload),
     zoomIn: async (): Promise<number> =>
         await invokeIpc<number>("window:zoomIn"),
     zoomOut: async (): Promise<number> =>

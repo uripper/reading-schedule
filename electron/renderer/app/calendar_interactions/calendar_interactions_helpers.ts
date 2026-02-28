@@ -1,7 +1,7 @@
-import type {
-    Book,
-    ManualSessionBook,
-    PlannerResult,
+import {
+    type Book,
+    type ManualSessionBook,
+    type PlannerResult,
 } from "../../../types/types.js";
 
 export {
@@ -25,9 +25,9 @@ export {
  */
 export function emptyPlannerResult(): PlannerResult {
     return {
+        created_at: "",
         schedule: [],
         summary: null,
-        created_at: "",
     };
 }
 

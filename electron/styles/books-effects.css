@@ -9,35 +9,35 @@
 }
 
 .book-card.is-read-card {
-    border-color: color-mix(in srgb, rgb(212, 165, 54) 34%, var(--app-border));
     background: linear-gradient(
         180deg,
         color-mix(in srgb, rgb(212, 165, 54) 8%, var(--app-surfaceMuted)) 0%,
         color-mix(in srgb, rgb(120, 88, 24) 4%, var(--app-surfaceMuted)) 100%
     );
+    border-color: color-mix(in srgb, rgb(212, 165, 54) 34%, var(--app-border));
 }
 
 .book-estimated-finish-btn {
     justify-self: auto;
+    padding: 4px var(--token-space-2);
+    font-size: var(--token-typography-size-xs);
+    color: var(--app-textMuted);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    background: color-mix(in srgb, var(--app-brand) 14%, var(--app-surface));
     border: 1px solid
         color-mix(in srgb, var(--app-brandStrong) 36%, var(--app-border));
     border-radius: var(--token-radius-pill);
-    padding: 4px var(--token-space-2);
-    background: color-mix(in srgb, var(--app-brand) 14%, var(--app-surface));
-    color: var(--app-textMuted);
-    font-size: var(--token-typography-size-xs);
-    letter-spacing: 0.02em;
-    white-space: nowrap;
 }
 
 .book-estimated-finish-btn:hover,
 .book-estimated-finish-btn:focus-visible {
+    color: var(--app-text);
     border-color: color-mix(
         in srgb,
         var(--app-brandStrong) 56%,
         var(--app-border)
     );
-    color: var(--app-text);
 }
 
 .book-card.is-read-card .book-cover-btn.has-cover {
@@ -62,12 +62,11 @@
 }
 
 .book-card.is-read-card .book-cover-btn.has-cover::before {
-    content: "";
     position: absolute;
     inset: 0;
-    pointer-events: none;
     z-index: 1;
-    opacity: calc(var(--holo-opacity) + (var(--holo-active) * 0.16));
+    pointer-events: none;
+    content: "";
 
     background-image:
         radial-gradient(
@@ -90,19 +89,20 @@
             transparent 42%,
             hsl(30 60% 40% / 0.05) 100%
         );
+    background-repeat: no-repeat, no-repeat, no-repeat;
+    background-position:
+        center,
+        calc(100% - var(--bg-shift-x)) var(--bg-shift-y),
+        center;
 
     background-size:
         100% 100%,
         180% 180%,
         100% 100%;
-    background-position:
-        center,
-        calc(100% - var(--bg-shift-x)) var(--bg-shift-y),
-        center;
-    background-repeat: no-repeat, no-repeat, no-repeat;
 
     background-blend-mode: screen, soft-light, normal;
     mix-blend-mode: normal;
+    opacity: calc(var(--holo-opacity) + (var(--holo-active) * 0.16));
 
     filter: brightness(1.02) saturate(1.02);
     transition:
@@ -111,12 +111,11 @@
 }
 
 .book-card.is-read-card .book-cover-btn.has-cover::after {
-    content: "";
     position: absolute;
     inset: 0;
-    pointer-events: none;
     z-index: 2;
-    opacity: calc(var(--glare-opacity) + (var(--holo-active) * 0.14));
+    pointer-events: none;
+    content: "";
 
     background-image:
         radial-gradient(
@@ -133,23 +132,24 @@
             hsl(45 100% 90% / 0.04) 57%,
             transparent 70%
         );
+    background-repeat: no-repeat, no-repeat;
+    background-position:
+        center,
+        calc(100% - var(--bg-shift-x)) var(--bg-shift-y);
 
     background-size:
         100% 100%,
         170% 170%;
-    background-position:
-        center,
-        calc(100% - var(--bg-shift-x)) var(--bg-shift-y);
-    background-repeat: no-repeat, no-repeat;
-
-    background-blend-mode: screen, soft-light;
-    mix-blend-mode: soft-light;
-
-    filter: brightness(1.02) saturate(1.03);
 
     box-shadow:
         inset 0 0 0 1px color-mix(in srgb, rgb(120, 88, 24) 12%, transparent),
         inset 0 0 0 999px color-mix(in srgb, rgb(212, 165, 54) 6%, transparent);
+
+    background-blend-mode: screen, soft-light;
+    mix-blend-mode: soft-light;
+    opacity: calc(var(--glare-opacity) + (var(--holo-active) * 0.14));
+
+    filter: brightness(1.02) saturate(1.03);
 
     transition:
         opacity 180ms var(--token-motion-easing-standard),
@@ -178,8 +178,8 @@
 
     .book-card.is-read-card .book-cover-btn.has-cover::before,
     .book-card.is-read-card .book-cover-btn.has-cover::after {
+        background-position: center;
         transition: none;
         animation: none;
-        background-position: center;
     }
 }

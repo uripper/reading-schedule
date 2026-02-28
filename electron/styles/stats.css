@@ -15,15 +15,14 @@
 
 .stats-kpi-grid {
     display: grid;
-    gap: var(--token-space-3);
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--token-space-3);
 }
 
 .stats-card {
     display: grid;
     gap: var(--token-space-1);
-    border: 1px solid var(--app-border);
-    border-radius: var(--token-radius-md);
+    padding: var(--token-space-3);
     background:
         radial-gradient(
             circle at top right,
@@ -31,14 +30,15 @@
             transparent 55%
         ),
         color-mix(in srgb, var(--app-surfaceMuted) 80%, transparent);
-    padding: var(--token-space-3);
+    border: 1px solid var(--app-border);
+    border-radius: var(--token-radius-md);
 }
 
 .stats-card h3 {
     margin: 0;
     font-size: var(--token-typography-size-sm);
-    letter-spacing: 0.08em;
     text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
 
 .stats-value {
@@ -50,29 +50,29 @@
 
 .stats-note {
     margin: 0;
-    color: var(--app-textMuted);
     font-size: var(--token-typography-size-md);
+    color: var(--app-textMuted);
 }
 
 .stats-secondary-grid {
     display: grid;
-    gap: var(--token-space-3);
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--token-space-3);
 }
 
 .stats-panel {
     display: grid;
     gap: var(--token-space-2);
+    padding: var(--token-space-3);
+    background: color-mix(in srgb, var(--app-surfaceMuted) 86%, transparent);
     border: 1px solid var(--app-border);
     border-radius: var(--token-radius-md);
-    background: color-mix(in srgb, var(--app-surfaceMuted) 86%, transparent);
-    padding: var(--token-space-3);
 }
 
 .stats-panel h3 {
     margin: 0;
-    color: var(--app-text);
     font-size: var(--token-typography-size-medium);
+    color: var(--app-text);
 }
 
 .status-list {
@@ -83,8 +83,8 @@
 .status-row {
     display: grid;
     grid-template-columns: 164px minmax(0, 1fr) 56px;
-    align-items: center;
     gap: var(--token-space-3);
+    align-items: center;
 }
 
 .status-label,
@@ -95,10 +95,10 @@
 
 .status-bar-wrap {
     height: 20px;
-    border-radius: var(--token-radius-pill);
-    border: 1px solid var(--app-border);
     overflow: hidden;
     background: color-mix(in srgb, var(--app-bg) 55%, var(--app-surface));
+    border: 1px solid var(--app-border);
+    border-radius: var(--token-radius-pill);
 }
 
 .status-bar {
@@ -137,29 +137,29 @@
 }
 
 .month-bar-track {
+    display: flex;
+    align-items: flex-end;
     width: 100%;
     height: 220px;
-    border: 1px solid var(--app-border);
-    border-radius: var(--token-radius-sm);
+    overflow: hidden;
     background: linear-gradient(
         180deg,
         color-mix(in srgb, var(--app-surfaceMuted) 70%, transparent),
         color-mix(in srgb, var(--app-bg) 46%, var(--app-surface))
     );
-    display: flex;
-    align-items: flex-end;
-    overflow: hidden;
+    border: 1px solid var(--app-border);
+    border-radius: var(--token-radius-sm);
 }
 
 .month-bar-fill {
     width: 100%;
     height: 0;
-    border-radius: var(--token-radius-sm);
     background: linear-gradient(
         180deg,
         color-mix(in srgb, var(--app-brandStrong) 92%, var(--app-surface)),
         color-mix(in srgb, var(--app-success) 84%, var(--app-brand))
     );
+    border-radius: var(--token-radius-sm);
     transition: height var(--token-motion-duration-base)
         var(--token-motion-easing-standard);
 }

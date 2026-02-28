@@ -1,4 +1,4 @@
-import type { ShortcutBindings } from "../../types/types.js";
+import { type ShortcutBindings } from "../../types/types.js";
 import { createZoomShortcutHandler } from "./desktop_shortcuts_zoom.js";
 
 /**

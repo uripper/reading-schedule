@@ -1,4 +1,4 @@
-import type { ScrollSettleState } from "../../types/types.js";
+import { type ScrollSettleState } from "../../types/types.js";
 
 const RAF_FALLBACK_DELAY_MS = 16;
 const SCROLL_SETTLE_DELTA_PX = 0.5;
@@ -66,10 +66,10 @@ function nextSettleState(
         stableFrames = state.stableFrames + 1;
     }
     return {
-        lastTop: rect.top,
         lastLeft: rect.left,
-        startedAtMs: state.startedAtMs,
+        lastTop: rect.top,
         stableFrames,
+        startedAtMs: state.startedAtMs,
     };
 }
 

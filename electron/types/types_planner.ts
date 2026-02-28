@@ -1,23 +1,23 @@
-import type { Book } from "./types_books.js";
-import type { JsonValue, Session } from "./types_core.js";
-import type { FeatureFlags, Preferences } from "./types_experience.js";
-import type { BookLookupItem } from "./types_lookup.js";
+import { type Book } from "./types_books.js";
+import { type JsonValue, type Session } from "./types_core.js";
+import { type FeatureFlags, type Preferences } from "./types_experience.js";
+import { type BookLookupItem } from "./types_lookup.js";
 
 export interface PlannerScheduleRow {
-    date: string;
-    session_index: number;
     book_id: string;
-    title: string;
-    minutes: number;
-    words_planned: number;
+    date: string;
     finish?: boolean;
+    minutes: number;
+    session_index: number;
+    title: string;
+    words_planned: number;
 }
 
 export interface PlannerSummaryBook {
-    words_total?: number;
-    words_planned?: number;
-    minutes_planned?: number;
     finished?: boolean;
+    minutes_planned?: number;
+    words_planned?: number;
+    words_total?: number;
 }
 
 export type PlannerSummary = {
@@ -29,9 +29,9 @@ export type PlannerSummary = {
 } & Record<string, JsonValue>;
 
 export interface PlannerResult {
+    created_at: string;
     schedule: PlannerScheduleRow[];
     summary: PlannerSummary | null;
-    created_at: string;
 }
 
 export type PlannerSettings = {
@@ -57,30 +57,30 @@ export type PlannerSettings = {
 } & Record<string, JsonValue>;
 
 export interface PlannerStateSnapshot {
-    settings: PlannerSettings;
-    books: Book[];
-    preferences: Preferences;
-    feature_flags: FeatureFlags;
-    schedule_completions: Record<string, boolean>;
     blocked_day_books: Record<string, boolean>;
-    sessions: Session[];
+    books: Book[];
+    feature_flags: FeatureFlags;
     last_result: PlannerResult | null;
+    preferences: Preferences;
+    schedule_completions: Record<string, boolean>;
+    sessions: Session[];
+    settings: PlannerSettings;
 }
 
 export interface LoadedPlannerState {
-    settings?: PlannerSettings;
-    books?: Book[];
-    preferences?: Partial<Preferences>;
-    feature_flags?: Partial<FeatureFlags>;
-    schedule_completions?: Record<string, boolean>;
     blocked_day_books?: Record<string, boolean>;
-    sessions?: Session[];
+    books?: Book[];
+    feature_flags?: Partial<FeatureFlags>;
     last_result?: PlannerResult | null;
+    preferences?: Partial<Preferences>;
+    schedule_completions?: Record<string, boolean>;
+    sessions?: Session[];
+    settings?: PlannerSettings;
 }
 
 export interface PlanGeneratePayload {
-    planner: "mip";
     books: Book[];
+    planner: "mip";
     settings: PlannerSettings;
 }
 
@@ -98,36 +98,36 @@ export type PlannerStateLoadWarningCode =
     | "MIGRATED_JSON_TO_SQLITE";
 
 export interface PlannerStateLoadResult {
-    state: LoadedPlannerState | null;
     source: PlannerStateLoadSource;
     sourcePath?: string;
+    state: LoadedPlannerState | null;
     warningCode?: PlannerStateLoadWarningCode;
     warningMessage?: string;
 }
 
 export interface PlannerSaveResult {
-    ok?: boolean;
     error?: string;
+    ok?: boolean;
     warningCode?: PlannerStateLoadWarningCode;
     warningMessage?: string;
 }
 
 export interface PlannerApi {
-    loadState(): Promise<PlannerStateLoadResult>;
-    sample(): Promise<Pick<PlannerStateSnapshot, "settings" | "books">>;
-    saveState(state: PlannerStateSnapshot): Promise<PlannerSaveResult>;
-    generate(
-        payload: PlanGeneratePayload,
-    ): Promise<Pick<PlannerResult, "schedule" | "summary">>;
-    searchBooks(query: string, author?: boolean): Promise<BookLookupItem[]>;
     downloadCover(
         url: string | undefined,
         bookId: string | undefined,
     ): Promise<string>;
+    generate(
+        payload: PlanGeneratePayload,
+    ): Promise<Pick<PlannerResult, "schedule" | "summary">>;
+    loadState(): Promise<PlannerStateLoadResult>;
+    sample(): Promise<Pick<PlannerStateSnapshot, "settings" | "books">>;
+    saveState(state: PlannerStateSnapshot): Promise<PlannerSaveResult>;
     saveUploadedCover(
         dataUrl: string | undefined,
         bookId: string | undefined,
     ): Promise<string>;
+    searchBooks(query: string, author?: boolean): Promise<BookLookupItem[]>;
     zoomIn(): Promise<number>;
     zoomOut(): Promise<number>;
     zoomReset(): Promise<number>;

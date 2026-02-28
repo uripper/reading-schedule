@@ -1,4 +1,4 @@
-import type { ZoomApi } from "../../types/types.js";
+import { type ZoomApi } from "../../types/types.js";
 import { logError } from "../logger.js";
 import {
     isCommandPressed,

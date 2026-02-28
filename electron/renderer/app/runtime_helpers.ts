@@ -1,7 +1,7 @@
-import type {
-    PersistQueue,
-    PersistQueueArgs,
-    PlannerSummary,
+import {
+    type PersistQueue,
+    type PersistQueueArgs,
+    type PlannerSummary,
 } from "../../types/types.js";
 import { draftData, saveStateSafe } from "./persistence.js";
 
@@ -77,14 +77,14 @@ export function createPersistQueue({
 
     const persistDraft = async (): Promise<boolean> => {
         const payload = draftData({
+            blockedDayBooks: state.blockedDayBooks,
             collectBooks,
             collectSettings,
-            sessions: getSessions(),
-            preferences: state.preferences,
             featureFlags: state.featureFlags,
-            scheduleCompletions: state.scheduleCompletions,
-            blockedDayBooks: state.blockedDayBooks,
             lastResult: state.lastResult,
+            preferences: state.preferences,
+            scheduleCompletions: state.scheduleCompletions,
+            sessions: getSessions(),
         });
         return await saveStateSafe(plannerApi, payload, addLog);
     };

@@ -1,4 +1,4 @@
-import type { ActivateTabOptions } from "../types/types.js";
+import { type ActivateTabOptions } from "../types/types.js";
 import { qa } from "./dom.js";
 
 const DEFAULT_TAB_NAME = "today";

@@ -17,9 +17,9 @@ const CREATED_AT = "2026-01-01T00:00:00.000Z";
  */
 function plannerResult(schedule) {
     return {
+        created_at: CREATED_AT,
         schedule,
         summary: null,
-        created_at: CREATED_AT,
     };
 }
 
@@ -36,11 +36,11 @@ function plannerResult(schedule) {
  */
 function row(args) {
     return {
-        date: args.date,
-        session_index: args.sessionIndex,
         book_id: args.bookId,
-        title: args.title,
+        date: args.date,
         minutes: args.minutes,
+        session_index: args.sessionIndex,
+        title: args.title,
         words_planned: args.minutes * 100,
     };
 }
@@ -48,18 +48,18 @@ function row(args) {
 test("nextUncompletedPlannedRow skips already completed rows", () => {
     const date = todayKey();
     const first = row({
-        date,
-        sessionIndex: 1,
         bookId: "book-1",
-        title: "The First",
+        date,
         minutes: 15,
+        sessionIndex: 1,
+        title: "The First",
     });
     const second = row({
-        date,
-        sessionIndex: 2,
         bookId: "book-2",
-        title: "Second",
+        date,
         minutes: 20,
+        sessionIndex: 2,
+        title: "Second",
     });
     const completions = {};
     completions[sessionKeyFor(first)] = true;
@@ -74,25 +74,25 @@ test("nextUncompletedPlannedRow skips already completed rows", () => {
 test("buildTodayScheduleSnapshot returns per-book and overall completion counts", () => {
     const date = todayKey();
     const first = row({
-        date,
-        sessionIndex: 1,
         bookId: "book-1",
-        title: "The Book",
+        date,
         minutes: 10,
+        sessionIndex: 1,
+        title: "The Book",
     });
     const second = row({
-        date,
-        sessionIndex: 2,
         bookId: "book-1",
-        title: "The Book",
+        date,
         minutes: 20,
+        sessionIndex: 2,
+        title: "The Book",
     });
     const third = row({
-        date,
-        sessionIndex: 3,
         bookId: "book-2",
-        title: "Another Book",
+        date,
         minutes: 30,
+        sessionIndex: 3,
+        title: "Another Book",
     });
     const completions = {};
     completions[sessionKeyFor(first)] = true;
@@ -100,10 +100,10 @@ test("buildTodayScheduleSnapshot returns per-book and overall completion counts"
     const books = [
         {
             book_id: "book-1",
-            cover_url: "https://example.com/one.jpg",
             cover_local_path: "",
+            cover_url: "https://example.com/one.jpg",
         },
-        { book_id: "book-2", cover_url: "", cover_local_path: "/tmp/two.jpg" },
+        { book_id: "book-2", cover_local_path: "/tmp/two.jpg", cover_url: "" },
     ];
 
     const snapshot = buildTodayScheduleSnapshot(

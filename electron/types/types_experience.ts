@@ -1,18 +1,18 @@
-import type { BookLookupItem } from "./types_lookup.js";
+import { type BookLookupItem } from "./types_lookup.js";
 
 export interface Preferences {
-    theme: "system" | "light" | "dark";
-    reduceMotion: boolean;
-    timezone: string;
     dailyGoalMinutes: number;
+    reduceMotion: boolean;
     reminderEnabled: boolean;
     reminderTime: string;
+    theme: "system" | "light" | "dark";
+    timezone: string;
 }
 
 export interface FeatureFlags {
     gamificationEnabled: boolean;
-    socialEnabled: boolean;
     recommendationsEnabled: boolean;
+    socialEnabled: boolean;
 }
 
 export type PreferencesInput = Partial<Preferences> & {
@@ -28,14 +28,14 @@ export type ReminderTimeRawValue = number | string | null | undefined;
 export type ExperienceSettingsApplyHandler = (event: Event) => void;
 
 export interface SelectOption {
-    value: string;
     label: string;
+    value: string;
 }
 
 export interface BaseFieldDefinition {
+    hint?: string;
     id: string;
     label: string;
-    hint?: string;
     step?: string;
 }
 
@@ -65,15 +65,15 @@ export interface RecommendationItem {
 }
 
 export interface RecommendationFormTarget {
+    authorInput: HTMLInputElement;
     shelfInput: HTMLSelectElement;
     titleInput: HTMLInputElement;
-    authorInput: HTMLInputElement;
     wordsInput: HTMLInputElement;
 }
 
 export interface RenderRecommendationsArgs {
-    recommendations: RecommendationItem[];
     onAddToShelf(recommendation: RecommendationItem): void;
+    recommendations: RecommendationItem[];
 }
 
 export interface RecommendationSearchApi {

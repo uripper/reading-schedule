@@ -4,18 +4,18 @@ import test from "node:test";
 import { loadInitialData } from "../dist/renderer/app/load_state.js";
 
 const DEFAULT_PREFERENCES = {
-    theme: "system",
-    reduceMotion: false,
-    timezone: "UTC",
     dailyGoalMinutes: 30,
+    reduceMotion: false,
     reminderEnabled: false,
     reminderTime: "20:00",
+    theme: "system",
+    timezone: "UTC",
 };
 
 const DEFAULT_FEATURE_FLAGS = {
     gamificationEnabled: true,
-    socialEnabled: true,
     recommendationsEnabled: true,
+    socialEnabled: true,
 };
 
 /**
@@ -29,35 +29,35 @@ const DEFAULT_FEATURE_FLAGS = {
 function loadArgs(loadResult, statuses, logs, overrides = {}) {
     const noop = () => undefined;
     const base = {
+        addLog: (message) => {
+            logs.push(message);
+        },
+        applyLoadedResult: noop,
+        applyPreferencesToDocument: noop,
+        fillBooks: noop,
+        fillPreferencesUI: noop,
+        fillSettings: noop,
+        normalizeFeatureFlags: () => DEFAULT_FEATURE_FLAGS,
+        normalizePreferences: () => DEFAULT_PREFERENCES,
+        normalizeScheduleCompletions: (value) => value,
+        onLoaded: noop,
         plannerApi: {
             loadState: () => Promise.resolve(loadResult),
             sample: () =>
                 Promise.resolve({
-                    settings: { start_date: "2026-04-01" },
                     books: [],
+                    settings: { start_date: "2026-04-01" },
                 }),
         },
-        fillSettings: noop,
-        fillBooks: noop,
-        normalizePreferences: () => DEFAULT_PREFERENCES,
-        normalizeFeatureFlags: () => DEFAULT_FEATURE_FLAGS,
-        normalizeScheduleCompletions: (value) => value,
-        fillPreferencesUI: noop,
-        applyPreferencesToDocument: noop,
-        setPreferences: noop,
-        setFeatureFlags: noop,
-        setScheduleCompletions: noop,
         setBlockedDayBooks: noop,
+        setFeatureFlags: noop,
+        setPreferences: noop,
+        setScheduleCompletions: noop,
         setSessions: noop,
-        applyLoadedResult: noop,
-        updateTodayView: noop,
-        onLoaded: noop,
         setStatus: (message, isError = false) => {
-            statuses.push({ message, isError });
+            statuses.push({ isError, message });
         },
-        addLog: (message) => {
-            logs.push(message);
-        },
+        updateTodayView: noop,
     };
     return { ...base, ...overrides };
 }
@@ -70,7 +70,7 @@ test("loadInitialData surfaces backup/journal/fresh recovery warnings", async ()
         loadArgs(
             {
                 source: "json_backup",
-                state: { settings: { start_date: "2026-04-01" }, books: [] },
+                state: { books: [], settings: { start_date: "2026-04-01" } },
                 warningCode: "RECOVERED_FROM_BACKUP",
             },
             statuses,
@@ -81,7 +81,7 @@ test("loadInitialData surfaces backup/journal/fresh recovery warnings", async ()
         loadArgs(
             {
                 source: "sqlite_journal_replay",
-                state: { settings: { start_date: "2026-04-02" }, books: [] },
+                state: { books: [], settings: { start_date: "2026-04-02" } },
                 warningCode: "RECOVERED_FROM_JOURNAL",
             },
             statuses,
@@ -129,7 +129,7 @@ test("loadInitialData logs migration info for json-primary loads", async () => {
             {
                 source: "json_primary",
                 sourcePath: "/tmp/planner_state.json",
-                state: { settings: { start_date: "2026-05-01" }, books: [] },
+                state: { books: [], settings: { start_date: "2026-05-01" } },
                 warningCode: "MIGRATED_JSON_TO_SQLITE",
             },
             statuses,

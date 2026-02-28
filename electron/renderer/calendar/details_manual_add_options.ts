@@ -1,4 +1,4 @@
-import type { ManualSessionBook } from "../../types/types.js";
+import { type ManualSessionBook } from "../../types/types.js";
 import { booksMatchingTitleQuery } from "./details_manual_add_helpers.js";
 
 const EMPTY_BOOK_OPTION_TEXT = "No matching books";

@@ -12,5 +12,5 @@ fs.mkdirSync(DIST, { recursive: true });
 for (const target of targets) {
     const src = path.join(ROOT, target);
     const dest = path.join(DIST, target);
-    fs.cpSync(src, dest, { recursive: true, force: true });
+    fs.cpSync(src, dest, { force: true, recursive: true });
 }

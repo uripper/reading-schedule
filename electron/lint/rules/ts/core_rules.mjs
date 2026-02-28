@@ -2,10 +2,10 @@ const TS_CORE_DISABLED_RULES = {
     "default-param-last": "off",
     "no-array-constructor": "off",
     "no-empty-function": "off",
+    "no-negated-condition": "off",
     "no-useless-constructor": "off",
     "prefer-promise-reject-errors": "off",
     "require-await": "off",
-    "no-negated-condition": "off",
 };
 
 const TS_CONSISTENCY_RULES = {
@@ -14,11 +14,11 @@ const TS_CONSISTENCY_RULES = {
     "@typescript-eslint/ban-ts-comment": [
         "error",
         {
+            minimumDescriptionLength: 10,
             "ts-check": false,
             "ts-expect-error": "allow-with-description",
             "ts-ignore": true,
             "ts-nocheck": true,
-            minimumDescriptionLength: 10,
         },
     ],
     "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
@@ -28,7 +28,7 @@ const TS_CONSISTENCY_RULES = {
     ],
     "@typescript-eslint/consistent-type-imports": [
         "error",
-        { prefer: "type-imports", fixStyle: "inline-type-imports" },
+        { fixStyle: "inline-type-imports", prefer: "type-imports" },
     ],
     "@typescript-eslint/explicit-function-return-type": [
         "error",

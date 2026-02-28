@@ -1,7 +1,7 @@
-import type {
-    BindBookLookupOptions,
-    LookupBinding,
-    LookupSearchState,
+import {
+    type BindBookLookupOptions,
+    type LookupBinding,
+    type LookupSearchState,
 } from "../../types/types.js";
 import { placeholderCoverSvg } from "./helpers.js";
 import { createLookupInputHandler } from "./input.js";
@@ -21,17 +21,17 @@ import { createLookupStateController } from "./search_state.js";
 export function bindBookLookup(options: BindBookLookupOptions): LookupBinding {
     const placeholder = placeholderCoverSvg();
     const state: LookupSearchState = {
+        activeIndex: -1,
+        currentItems: [],
         timer: null,
         token: 0,
-        currentItems: [],
-        activeIndex: -1,
     };
     const lookupState = createLookupStateController({
-        searchInput: options.searchInput,
-        resultsEl: options.resultsEl,
         metaEl: options.metaEl,
         onPick: options.onPick,
         placeholder,
+        resultsEl: options.resultsEl,
+        searchInput: options.searchInput,
         state,
     });
     const clearResults = (): void => {
@@ -59,22 +59,22 @@ export function bindBookLookup(options: BindBookLookupOptions): LookupBinding {
         }
     });
     const onInput = createLookupInputHandler({
-        searchInput: options.searchInput,
-        metaEl: options.metaEl,
-        state,
         clearResults,
+        metaEl: options.metaEl,
         refreshResults,
+        searchInput: options.searchInput,
+        state,
     });
     options.searchInput.addEventListener("input", onInput);
     options.searchInput.addEventListener("keydown", (event: KeyboardEvent) => {
         handleLookupKeydown({
-            event,
-            currentItems: state.currentItems,
             activeIndex: state.activeIndex,
-            setActiveIndex,
-            selectItem,
             clearResults,
+            currentItems: state.currentItems,
+            event,
             searchInput: options.searchInput,
+            selectItem,
+            setActiveIndex,
         });
     });
     const onDocClick = (event: MouseEvent): void => {

@@ -2,7 +2,7 @@
  * @file Mapping helpers from Open Library docs to planner search items.
  */
 
-import type { SearchDoc, SearchItem } from "../../types/types.js";
+import { type SearchDoc, type SearchItem } from "../../types/types.js";
 import {
     COVER_ID_MIN,
     SOURCE_NAME,
