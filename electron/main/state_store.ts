@@ -84,16 +84,15 @@ function migratedJsonResult(
  */
 export function readState(userDataDir: string): PlannerStateLoadResult {
   const sqliteResult = readStateFromSqlite(userDataDir);
+  if (
+    sqliteResult !== null &&
+    hasBootstrapState(sqliteResult.state)
+  ) {
+    return sqliteResult;
+  }
   const jsonResult = readStateFromJson(userDataDir);
   if (jsonResult !== null) {
     return migratedJsonResult(userDataDir, jsonResult);
-  }
-  if (
-    sqliteResult !== null &&
-    hasBootstrapState(sqliteResult.state) &&
-    sqliteResult.source !== "fresh"
-  ) {
-    return sqliteResult;
   }
   if (sqliteResult !== null) {
     return sqliteResult;

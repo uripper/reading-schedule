@@ -8,7 +8,7 @@ import type {
   AppRuntimeState,
   AppStateMutation,
   ApplyAppStateMutation,
-} from "../../types/types_app.js";
+} from "../../types/types.js";
 
 /**
  * Applies runtime-state mutation operations and keeps derived indexes synchronized.

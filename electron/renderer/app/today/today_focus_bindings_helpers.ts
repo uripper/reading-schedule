@@ -2,9 +2,8 @@ import { normalizeSession } from "../../sessions/normalize.js";
 import { sessionKeyFor } from "../../calendar/utils.js";
 import { dayBookCompletionKey } from "../calendar_interactions/index.js";
 import { TINY_START_MINUTES } from "./today_focus.js";
-import type { PlannerScheduleRow } from "../../../types/types.js";
-import type { FocusSession } from "../../../types/types_app.js";
-import type { Session } from "../../../types/types_core.js";
+import type { PlannerScheduleRow, FocusSession, Session } from "../../../types/types.js";
+
 
 const CLOSE_FOCUS_TEXT = "Close Focus Controls";
 const OPEN_FOCUS_TEXT = "Open Focus Controls";

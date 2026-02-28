@@ -21,7 +21,7 @@ import type {
   BindTodayFocusActionsArgs,
   TodayFocusDomRefs,
   TodayFocusState,
-} from "../../../types/types_app.js";
+} from "../../../types/types.js";
 
 const SESSION_UPDATE_EVENT = "today-focus-session-updated";
 

@@ -13,12 +13,10 @@ import { applyAppStateMutation } from "../state_mutations.js";
 import type {
   AppBootstrapContext,
   LoadedResultController,
-} from "../../../types/types.js";
-import type {
   CreateLoadStateArgsInput,
   LoadStateArgs,
   SetStatus,
-} from "../../../types/types_app.js";
+} from "../../../types/types.js";
 
 /**
  * Creates `loadInitialData` bindings for runtime state mutation and startup flow.

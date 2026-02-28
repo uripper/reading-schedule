@@ -7,7 +7,7 @@ import type {
   ScheduleMutationHandlers,
   SharedScheduleBindings,
   AppCalendarInteractionArgs,
-} from "../../../types/types_app.js";
+} from "../../../types/types.js";
 
 const createSharedScheduleBindings = (
   args: AppCalendarInteractionArgs,

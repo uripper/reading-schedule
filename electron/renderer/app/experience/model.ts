@@ -1,5 +1,16 @@
-import { RECOMMENDATIONS_AVAILABLE, REMINDERS_AVAILABLE, SOCIAL_FEATURES_AVAILABLE, shippedFeatureFlag, shippedReminderTime } from "./availability.js";
-import type { FeatureFlags, FeatureFlagsInput, Preferences, PreferencesInput } from "../../../types/types_experience.js";
+import {
+  RECOMMENDATIONS_AVAILABLE,
+  REMINDERS_AVAILABLE,
+  SOCIAL_FEATURES_AVAILABLE,
+  shippedFeatureFlag,
+  shippedReminderTime,
+} from "./availability.js";
+import type {
+  FeatureFlags,
+  FeatureFlagsInput,
+  Preferences,
+  PreferencesInput,
+} from "../../../types/types.js";
 
 export const DEFAULT_PREFERENCES: Preferences = {
   theme: "system",

@@ -1,6 +1,6 @@
 import { dayKeyFromDate, localDayKeyFromIso } from "./date_keys.js";
-import type { PlannerScheduleRow } from "../../types/types.js";
-import type { Session } from "../../types/types_core.js";
+import { isOnOrBeforeDay, isValidDayKey } from "./day_keys_compare.js";
+import type { PlannerScheduleRow, Session } from "../../types/types.js";
 
 const SESSION_INDEX_PAD = 3;
 
@@ -46,11 +46,11 @@ function lockedDates(
 
   previousRows.forEach((row) => {
     const rowDate = String(row.date || "");
-    if (!rowDate) {
+    if (!isValidDayKey(rowDate)) {
       return;
     }
     previousDates.add(rowDate);
-    if (Number(rowDate) <= Number(todayKey)) {
+    if (isOnOrBeforeDay(rowDate, todayKey)) {
       locked.add(rowDate);
     }
   });
@@ -58,10 +58,10 @@ function lockedDates(
   sessions.forEach((session) => {
     const endedAt = String(session.ended_at || "");
     const key = localDayKeyFromIso(endedAt);
-    if (!key) {
+    if (!isValidDayKey(key || "")) {
       return;
     }
-    if (previousDates.has(key) && Number(key) <= Number(todayKey)) {
+    if (previousDates.has(key) && isOnOrBeforeDay(key, todayKey)) {
       locked.add(key);
     }
   });

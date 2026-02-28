@@ -141,4 +141,8 @@ test("loadInitialData logs migration info for json-primary loads", async () => {
     logs.some((entry) => entry.includes("State load source: json_primary")),
     true,
   );
+  assert.equal(
+    logs.some((entry) => entry.includes("/tmp/planner_state.json")),
+    true,
+  );
 });

@@ -2,7 +2,6 @@ import {
   sessionKeyFor,
   sortRowsByDateAndSession,
 } from "../../calendar/utils.js";
-import type { Book } from "../../../types/types_books.js";
 import {
   DEFAULT_BOOK_DIFFICULTY,
   normalizedManualMinutes,
@@ -10,10 +9,11 @@ import {
   wordsPlannedForManualSession,
 } from "./calendar_interactions_helpers.js";
 import type {
+  Book,
   PlannerScheduleRow,
   PlannerSettings,
-} from "../../../types/types_planner.js";
-import type { UpdatedRowsResult } from "../../../types/types_app.js";
+  UpdatedRowsResult,
+} from "../../../types/types.js";
 
 /**
  * Calculates the updated schedule rows when a session's planned minutes are manually changed.

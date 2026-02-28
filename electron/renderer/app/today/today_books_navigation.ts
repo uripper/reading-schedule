@@ -1,6 +1,6 @@
 import { scrollToBookCard } from "../../books/card_scroll_target.js";
 import { activateTab } from "../../tabs.js";
-import type { TodayBookNavigationActions } from "../../../types/types_app.js";
+import type { TodayBookNavigationActions } from "../../../types/types.js";
 
 const BOOKS_TAB_NAME = "books";
 

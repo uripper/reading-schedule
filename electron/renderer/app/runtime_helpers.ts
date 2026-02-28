@@ -1,8 +1,9 @@
-
-
 import { draftData, saveStateSafe } from "./persistence.js";
-import type { PlannerSummary } from "../../types/types.js";
-import type { PersistQueue, PersistQueueArgs } from "../../types/types_app.js";
+import type {
+  PlannerSummary,
+  PersistQueue,
+  PersistQueueArgs,
+} from "../../types/types.js";
 
 const PERSIST_DELAY_MS = 300;
 const NON_PLANNING_SETTING_IDS = new Set([
@@ -25,7 +26,7 @@ const NON_PLANNING_SETTING_IDS = new Set([
 export function createStatusSetter(
   statusNode: HTMLElement,
   addLog: (message: string) => void,
-) : (message: string, isError?: boolean) => void {
+): (message: string, isError?: boolean) => void {
   const node = statusNode;
   return (message: string, isError = false): void => {
     node.textContent = message;

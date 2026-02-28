@@ -4,7 +4,11 @@ import { createPlanController } from "../plan_controller.js";
 import { bindSettingsAutoPlanListeners } from "../runtime_helpers.js";
 
 import { bindTodayFocusActions } from "../today/index.js";
-import type { BindTodayActionsArgs, CreatePlanControllerArgs, FinalizeInitialLoadArgs } from "../../../types/types_app.js";
+import type {
+  BindTodayActionsArgs,
+  CreatePlanControllerArgs,
+  FinalizeInitialLoadArgs,
+} from "../../../types/types.js";
 
 /**
  * Indicates whether startup should show generic "loaded" status text.
@@ -12,7 +16,7 @@ import type { BindTodayActionsArgs, CreatePlanControllerArgs, FinalizeInitialLoa
  * @returns True when generic loaded status should be displayed.
  */
 function shouldShowLoadedStatus(args: FinalizeInitialLoadArgs): boolean {
-  const {warningCode} = args.loadResult;
+  const { warningCode } = args.loadResult;
   if (warningCode === "RECOVERED_FROM_BACKUP") {
     return false;
   }
@@ -30,9 +34,7 @@ function shouldShowLoadedStatus(args: FinalizeInitialLoadArgs): boolean {
  * @param saved Loaded persisted payload from startup state load.
  * @returns True when `last_result.schedule` exists and has rows.
  */
-function hasSavedSchedule(
-  saved: FinalizeInitialLoadArgs["saved"],
-): boolean {
+function hasSavedSchedule(saved: FinalizeInitialLoadArgs["saved"]): boolean {
   const rows = saved?.last_result?.schedule;
   if (!Array.isArray(rows)) {
     return false;

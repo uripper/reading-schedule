@@ -6,6 +6,7 @@ import path from "node:path";
 
 import { readState } from "../dist/main/state_store.js";
 import { writeStateToJson } from "../dist/main/state_store_json.js";
+import { writeStateToSqlite } from "../dist/main/state_store_sqlite.js";
 import { sqliteStatePath } from "../dist/main/state_store_paths.js";
 
 /**
@@ -43,6 +44,33 @@ test("Facade reads JSON fallback once, migrates to SQLite, then reads SQLite", (
     const secondRead = readState(userDataDir);
     assert.equal(secondRead.source, "sqlite");
     assert.equal(secondRead.state?.settings?.start_date, "2026-03-01");
+  } finally {
+    cleanup(userDataDir);
+  }
+});
+
+test("Facade prefers SQLite source when both SQLite and JSON are present", () => {
+  const userDataDir = tempUserDataDir();
+  try {
+    assert.equal(
+      writeStateToJson(userDataDir, {
+        settings: { start_date: "2026-03-01" },
+        books: [{ book_id: "book-json", title: "JSON Source" }],
+      }).ok,
+      true,
+    );
+    assert.equal(
+      writeStateToSqlite(userDataDir, {
+        settings: { start_date: "2026-03-02" },
+        books: [{ book_id: "book-sqlite", title: "SQLite Source" }],
+      }).ok,
+      true,
+    );
+
+    const result = readState(userDataDir);
+    assert.equal(result.source, "sqlite");
+    assert.equal(result.state?.settings?.start_date, "2026-03-02");
+    assert.equal(result.state?.books?.[0]?.book_id, "book-sqlite");
   } finally {
     cleanup(userDataDir);
   }

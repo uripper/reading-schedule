@@ -11,7 +11,7 @@ import type {
   CompletionRow,
   CompletionUpdate,
   ProgressUpdateInput,
-} from "../../../types/types_app.js";
+} from "../../../types/types.js";
 
 const completionFallbackKey = (row: CompletionRow | undefined): string => {
   if (row === undefined) {
