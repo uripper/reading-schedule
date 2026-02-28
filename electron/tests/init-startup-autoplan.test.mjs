@@ -6,7 +6,7 @@ import { shouldAutoPlanOnStartup } from "../dist/renderer/app/init/init_helpers.
 /**
  * Builds a minimal load result fixture for startup auto-plan policy checks.
  * @param {"fresh"|"sqlite"|"json_primary"} source Persistence source.
- * @returns {{ source: string }} Minimal load result.
+ * @returns {{ source: "fresh"|"sqlite"|"json_primary" }} Minimal load result.
  */
 function loadResult(source) {
   return { source };
@@ -16,7 +16,7 @@ function loadResult(source) {
  * Builds minimal startup args fixture for auto-plan policy checks.
  * @param {number|null} scheduleLength Number of saved schedule rows or null for no saved state.
  * @param {"fresh"|"sqlite"|"json_primary"} source Persistence source.
- * @returns {{ saved: null|{ last_result: { schedule: Array<{date: string}> } }, loadResult: { source: string } }}
+ * @returns {{ saved: null|{ last_result: { schedule: Array<{date: string}> } }, loadResult: { source: "fresh"|"sqlite"|"json_primary" } }}
  * Startup args with saved payload and load metadata.
  */
 function startupArgs(scheduleLength, source) {

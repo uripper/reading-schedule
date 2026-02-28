@@ -5,7 +5,7 @@ import {
   BOOK_STATUS_IN_PROGRESS,
   BOOK_STATUS_READ,
   BOOK_STATUS_TO_READ,
-} from "../dist/renderer/books/status.js";
+} from "../dist/renderer/books/status_catalog.js";
 import { sessionKeyFor } from "../dist/renderer/calendar/utils.js";
 import { buildStatsSnapshot } from "../dist/renderer/stats/model.js";
 import { todayKey } from "../dist/renderer/sessions/utils.js";

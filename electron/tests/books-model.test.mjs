@@ -6,7 +6,7 @@ import { normalizeBook } from "../dist/renderer/books/model.js";
 import {
   BOOK_STATUS_IN_PROGRESS,
   BOOK_STATUS_READ,
-} from "../dist/renderer/books/status.js";
+} from "../dist/renderer/books/status_catalog.js";
 
 test("normalizeBook keeps explicit finish date for read books", () => {
   const normalized = normalizeBook({

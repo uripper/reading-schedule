@@ -2,16 +2,18 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  normalizeStatusFilter,
+  statusFilterMatches,
+  statusFromRaw,
+} from "../dist/renderer/books/status.js";
+import {
   BOOK_STATUS_FILTER_ALL,
   BOOK_STATUS_DROPPED,
   BOOK_STATUS_IN_PROGRESS,
   BOOK_STATUS_READ,
   BOOK_STATUS_TO_READ,
   isStatusSchedulable,
-  normalizeStatusFilter,
-  statusFilterMatches,
-  statusFromRaw,
-} from "../dist/renderer/books/status.js";
+} from "../dist/renderer/books/status_catalog.js";
 
 test("statusFromRaw defaults to to_read at zero progress", () => {
   assert.equal(statusFromRaw("", 0), BOOK_STATUS_TO_READ);
