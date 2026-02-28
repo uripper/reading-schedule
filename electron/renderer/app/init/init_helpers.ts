@@ -10,23 +10,21 @@ import type {
   FinalizeInitialLoadArgs,
 } from "../../../types/types.js";
 
+const SUPPRESSED_LOADED_STATUS_WARNING_CODES = new Set<
+  FinalizeInitialLoadArgs["loadResult"]["warningCode"]
+>([
+  "RECOVERED_FROM_BACKUP",
+  "RECOVERED_FROM_JOURNAL",
+  "STATE_RESET_FRESH",
+]);
+
 /**
  * Indicates whether startup should show generic "loaded" status text.
  * @param args Finalize-initial-load arguments.
  * @returns True when generic loaded status should be displayed.
  */
 function shouldShowLoadedStatus(args: FinalizeInitialLoadArgs): boolean {
-  const { warningCode } = args.loadResult;
-  if (warningCode === "RECOVERED_FROM_BACKUP") {
-    return false;
-  }
-  if (warningCode === "RECOVERED_FROM_JOURNAL") {
-    return false;
-  }
-  if (warningCode === "STATE_RESET_FRESH") {
-    return false;
-  }
-  return true;
+  return !SUPPRESSED_LOADED_STATUS_WARNING_CODES.has(args.loadResult.warningCode);
 }
 
 /**
@@ -36,32 +34,21 @@ function shouldShowLoadedStatus(args: FinalizeInitialLoadArgs): boolean {
  */
 function hasSavedSchedule(saved: FinalizeInitialLoadArgs["saved"]): boolean {
   const rows = saved?.last_result?.schedule;
-  if (!Array.isArray(rows)) {
-    return false;
-  }
-  if (rows.length < 1) {
-    return false;
-  }
-  return true;
+  return Array.isArray(rows) && rows.length > 0;
 }
 
 /**
  * Determines whether startup should queue an immediate auto-plan run.
- * @param saved Loaded persisted payload from startup state load.
- * @param loadResult Structured load metadata including source/warnings.
+ * @param args Startup load context with saved payload and load metadata.
  * @returns True when startup should auto-plan; false when loaded plan should be preserved.
  */
 export function shouldAutoPlanOnStartup(
-  saved: FinalizeInitialLoadArgs["saved"],
-  loadResult: FinalizeInitialLoadArgs["loadResult"],
+  args: Pick<FinalizeInitialLoadArgs, "saved" | "loadResult">,
 ): boolean {
-  if (loadResult.source === "fresh") {
+  if (args.loadResult.source === "fresh") {
     return true;
   }
-  if (hasSavedSchedule(saved)) {
-    return false;
-  }
-  return true;
+  return !hasSavedSchedule(args.saved);
 }
 
 /**
@@ -119,7 +106,7 @@ export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
       args.setStatus("Loaded sample data.");
     }
   }
-  if (shouldAutoPlanOnStartup(args.saved, args.loadResult)) {
+  if (shouldAutoPlanOnStartup(args)) {
     queueAutoPlan();
     return;
   }

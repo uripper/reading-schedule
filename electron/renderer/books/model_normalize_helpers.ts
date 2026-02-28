@@ -1,6 +1,6 @@
 import { dayKey } from "../calendar/utils.js";
 import { uid } from "../dom.js";
-import { BOOK_STATUS_READ } from "./status.js";
+import { BOOK_STATUS_READ } from "./status_catalog.js";
 import { clamp, toInt } from "./utils.js";
 
 const DEFAULT_MIN_BLOCKS = 1;

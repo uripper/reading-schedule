@@ -1,5 +1,5 @@
 import { BOOK_WEEKDAYS } from "../books/scheduled_days.js";
-import { BOOK_STATUS_IN_PROGRESS } from "../books/status.js";
+import { BOOK_STATUS_IN_PROGRESS } from "../books/status_catalog.js";
 import type { Book, CalendarRowWithFinish } from "../../types/types.js";
 
 /**

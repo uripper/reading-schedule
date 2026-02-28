@@ -11,7 +11,6 @@ import {
   BOOK_STATUS_TO_READ,
   isStatusSchedulable,
   normalizedStatus,
-  statusLabel,
   statusOptions,
 } from "./status_catalog.js";
 
@@ -113,15 +112,3 @@ export function statusFilterOptions(): Array<{
   });
   return options;
 }
-
-export {
-  BOOK_STATUS_DROPPED,
-  BOOK_STATUS_FILTER_ALL,
-  BOOK_STATUS_IN_PROGRESS,
-  BOOK_STATUS_READ,
-  BOOK_STATUS_TO_READ,
-  isStatusSchedulable,
-  normalizedStatus,
-  statusLabel,
-  statusOptions,
-};

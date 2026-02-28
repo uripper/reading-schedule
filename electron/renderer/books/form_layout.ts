@@ -1,6 +1,6 @@
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";
 import { BOOK_WEEKDAYS } from "./scheduled_days.js";
-import { statusOptions } from "./status.js";
+import { statusOptions } from "./status_catalog.js";
 
 /**
  * Creates shelf select field with built-in create-shelf option.
