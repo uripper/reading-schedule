@@ -9,6 +9,7 @@ import type {
   AutoPlanState,
   PlanController,
   PlanControllerArgs,
+  PlannerResult,
   PlannerRunData,
   RunAutoPlanFactoryArgs,
 } from "../../types/types.js";

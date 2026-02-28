@@ -62,6 +62,93 @@ async function resolveInitialSource(
 }
 
 /**
+ * Logs the persistence source path used for this load operation.
+ * @param loadResult Structured load result metadata.
+ * @param addLog Optional log sink for user-visible diagnostics.
+ */
+function appendLoadSourceLog(
+  loadResult: PlannerStateLoadResult,
+  addLog: LoadStateArgs["addLog"] | undefined,
+): void {
+  if (typeof addLog !== "function") {
+    return;
+  }
+  let sourceMessage: string = loadResult.source;
+  if (
+    typeof loadResult.sourcePath === "string" &&
+    loadResult.sourcePath.length > 0
+  ) {
+    sourceMessage = `${sourceMessage} (${loadResult.sourcePath})`;
+  }
+  addLog(`State load source: ${sourceMessage}`);
+}
+
+/**
+ * Publishes recovery status messages for backup/journal/fresh reset loads.
+ * @param loadResult Structured load result metadata.
+ * @param setStatus Status sink for user-visible warnings.
+ */
+function reportRecoveryStatus(
+  loadResult: PlannerStateLoadResult,
+  setStatus: LoadStateArgs["setStatus"],
+): void {
+  if (loadResult.source === "json_backup") {
+    setStatus(
+      "Recovered saved data from backup copy. Recent unsaved changes may be missing.",
+      true,
+    );
+    return;
+  }
+  if (loadResult.source === "sqlite_journal_replay") {
+    setStatus(
+      "Recovered saved data from journal replay after storage corruption.",
+      true,
+    );
+    return;
+  }
+  if (
+    loadResult.source === "fresh" &&
+    loadResult.warningCode === "STATE_RESET_FRESH"
+  ) {
+    setStatus("Saved state was unreadable. Started with fresh data.", true);
+  }
+}
+
+/**
+ * Indicates whether current load used the JSON migration path.
+ * @param loadResult Structured load result metadata.
+ * @returns True when migration info should be logged.
+ */
+function didMigrateFromJson(loadResult: PlannerStateLoadResult): boolean {
+  if (loadResult.warningCode === "MIGRATED_JSON_TO_SQLITE") {
+    return true;
+  }
+  if (loadResult.source === "json_primary") {
+    return true;
+  }
+  if (loadResult.source === "json_backup") {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Emits recovery status/log output based on persistence load source metadata.
+ * @param loadResult Structured load result from persistence facade.
+ * @param args Runtime wiring for status/log output.
+ */
+function reportLoadRecovery(
+  loadResult: PlannerStateLoadResult,
+  args: Pick<LoadStateArgs, "setStatus" | "addLog">,
+): void {
+  appendLoadSourceLog(loadResult, args.addLog);
+  reportRecoveryStatus(loadResult, args.setStatus);
+  if (didMigrateFromJson(loadResult) && typeof args.addLog === "function") {
+    args.addLog("Migrated saved data from JSON storage to SQLite.");
+  }
+}
+
+/**
  * Applies settings, books, and completion maps to runtime state.
  * @param saved Loaded state from persistence.
  * @param source Initial source containing settings and books.
@@ -72,10 +159,11 @@ function applyLoadedData(
   source: InitialDataSource,
   args: LoadStateArgs,
 ): void {
+  const savedRecord = toSavedRecord(saved);
   args.fillSettings(source.settings);
   args.fillBooks(source.books);
   args.setScheduleCompletions(
-    args.normalizeScheduleCompletions(saved?.schedule_completions ?? {}),
+    args.normalizeScheduleCompletions(readRawCompletions(saved, savedRecord)),
   );
   args.setBlockedDayBooks(
     normalizeBlockedDayBooks(
@@ -95,8 +183,13 @@ function applySessionAndResultData(
   saved: LoadedPlannerState | null | undefined,
   args: LoadStateArgs,
 ): void {
-  args.setSessions(saved?.sessions ?? []);
-  args.applyLoadedResult(saved?.last_result ?? null);
+  const savedRecord = toSavedRecord(saved);
+  const sessions = normalizeSessions(
+    sessionInputs(readRawSessions(saved, savedRecord)),
+  );
+  const loadedResult = readLoadedResult(saved, savedRecord);
+  args.setSessions(sessions);
+  args.applyLoadedResult(loadedResult);
   args.updateTodayView();
 }
 
@@ -117,23 +210,26 @@ function applyExperienceData(
 
 /**
  * Loads persisted planner state and applies it to the running UI/runtime state.
- * Falls back to sample data when saved state is missing required bootstrap fields.
  * @param args Runtime dependencies for loading, normalizing, and applying state.
  * @returns Promise that resolves after load/init flow finishes.
  */
 export async function loadInitialData(args: LoadStateArgs): Promise<void> {
   try {
-    const saved = await args.plannerApi.loadState();
+    const loadResult = await args.plannerApi.loadState();
+    const saved = loadResult.state;
+    const savedRecord = toSavedRecord(saved);
+    reportLoadRecovery(loadResult, args);
     const source = await resolveInitialSource(args.plannerApi, saved);
     applyLoadedData(saved, source, args);
-
     const preferences = args.normalizePreferences(saved?.preferences ?? {});
-    const featureFlags = args.normalizeFeatureFlags(saved?.feature_flags ?? {});
+    const featureFlags = args.normalizeFeatureFlags(
+      readFeatureFlags(saved, savedRecord),
+    );
     args.setPreferences(preferences);
     args.setFeatureFlags(featureFlags);
     applyExperienceData(args, preferences, featureFlags);
     applySessionAndResultData(saved, args);
-    args.onLoaded(saved);
+    args.onLoaded(saved, loadResult);
   } catch {
     args.setStatus("Failed to load initial data", true);
   }

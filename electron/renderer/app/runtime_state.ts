@@ -16,5 +16,6 @@ export function createRuntimeState(): AppRuntimeState {
     scheduleCompletions: {},
     blockedDayBooks: {},
     sessions: [],
+    derived: emptyDerivedIndexes(),
   };
 }

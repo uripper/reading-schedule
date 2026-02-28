@@ -1,8 +1,6 @@
 import type { Book, BookProgressUpdates } from "./types_books.js";
 import type {
   CalendarHandlers,
-  CalendarRowWithFinish,
-  ManualSessionBook,
 } from "./types_calendar.js";
 import type { Session } from "./types_core.js";
 import type { FeatureFlags, Preferences } from "./types_experience.js";
@@ -13,6 +11,7 @@ import type {
   PlannerScheduleRow,
   PlannerSettings,
   PlannerSummary,
+  PlannerStateLoadResult,
 } from "./types_planner.js";
 
 export type SetStatus = (message: string, isError?: boolean) => void;
@@ -75,6 +74,52 @@ export interface AppRuntimeState {
   scheduleCompletions: Record<string, boolean>;
   blockedDayBooks: Record<string, boolean>;
   sessions: Session[];
+  derived: AppDerivedIndexes;
+}
+
+export interface AppDerivedIndexes {
+  bookById: Map<string, Book>;
+  sessionsByDay: Map<string, Session[]>;
+  sessionsByBook: Map<string, Session[]>;
+  completionBySessionKey: Record<string, boolean>;
+  completionByDayBookKey: Record<string, boolean>;
+}
+
+export type AppStateMutation =
+  | {
+      type: "set_last_result";
+      lastResult: PlannerResult | null;
+    }
+  | {
+      type: "set_schedule_completions";
+      scheduleCompletions: Record<string, boolean>;
+    }
+  | {
+      type: "set_blocked_day_books";
+      blockedDayBooks: Record<string, boolean>;
+    }
+  | {
+      type: "set_blocked_day_book";
+      key: string;
+      blocked: boolean;
+    }
+  | {
+      type: "set_sessions";
+      sessions: Session[];
+    }
+  | {
+      type: "set_book_index";
+      books: Book[];
+    };
+
+export type ApplyAppStateMutation = (
+  state: AppRuntimeState,
+  mutation: AppStateMutation,
+) => void;
+
+export interface AppStateMutationBindings {
+  applyStateMutation(this: void, mutation: AppStateMutation): void;
+  getState(this: void): AppRuntimeState;
 }
 
 export interface DraftDataParams {
@@ -134,6 +179,7 @@ export type Announcer = (
 export interface AppBootstrapContext {
   announce: Announcer;
   announceForPlanController(message: string, politeness?: string): void;
+  addLog(message: string): void;
   dashboards: DashboardRuntime;
   plannerApi: PlannerApi;
   persistDraft(): Promise<boolean>;
@@ -314,8 +360,22 @@ export interface LoadStateArgs {
   setSessions(sessions: Session[]): void;
   applyLoadedResult(result: PlannerResult | null): void;
   updateTodayView(): void;
-  onLoaded(saved: LoadedPlannerState | null | undefined): void;
+  onLoaded(
+    saved: LoadedPlannerState | null | undefined,
+    loadResult: PlannerStateLoadResult,
+  ): void;
   setStatus(message: string, isError?: boolean): void;
+  addLog?(message: string): void;
+}
+
+export interface CreateLoadStateArgsInput {
+  context: AppBootstrapContext;
+  state: AppBootstrapContext["state"];
+  planController: LoadedResultController;
+  setStatus: SetStatus;
+  queuePersist(): void;
+  queueAutoPlanIfReady(): void;
+  updateTodayView(): void;
 }
 
 export type CreatePlanControllerArgs = PlanControllerArgs;
@@ -337,10 +397,12 @@ export interface LoadedResultController {
 
 export interface FinalizeInitialLoadArgs {
   saved: { last_result?: PlannerResult | null } | null | undefined;
+  loadResult: PlannerStateLoadResult;
   setReady(): void;
   queuePersist(): void;
   queueAutoPlan(): void;
   setStatus: SetStatus;
+  addLog?(message: string): void;
 }
 
 export interface BindTodayActionsArgs {
@@ -476,6 +538,7 @@ export interface AppCalendarInteractionArgs {
     lastResult: PlannerResult | null;
   };
   queuePersist(): void;
+  applyStateMutation(mutation: AppStateMutation): void;
   setStatus(message: string, isError?: boolean): void;
   collectSettings(): PlannerSettings;
   collectAllBooks(): Book[];
@@ -502,6 +565,7 @@ export type ScheduleMutationHandlers = Pick<
 >;
 
 export interface SharedScheduleBindings {
+  applyStateMutation: AppCalendarInteractionArgs["applyStateMutation"];
   collectSettings: AppCalendarInteractionArgs["collectSettings"];
   getBookById: AppCalendarInteractionArgs["getBookById"];
   onScheduleRowsUpdated(this: void): void;
@@ -516,6 +580,7 @@ export interface SharedScheduleBindings {
 
 export interface SharedUpdateArgs {
   onScheduleRowsUpdated(): void;
+  applyStateMutation(mutation: AppStateMutation): void;
   queuePersist(): void;
   renderCalendar(rows: PlannerScheduleRow[], totals: Record<string, number>): void;
   setBookScheduleRows(rows: PlannerScheduleRow[]): void;
@@ -559,5 +624,3 @@ export type UpdatedRowsResult = {
   normalizedMinutes: number;
   rows: PlannerScheduleRow[];
 } | null;
-
-export type { CalendarHandlers, CalendarRowWithFinish, ManualSessionBook };

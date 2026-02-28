@@ -45,11 +45,11 @@ function lockedDates(
 
   previousRows.forEach((row) => {
     const rowDate = String(row.date || "");
-    if (!rowDate) {
+    if (!isValidDayKey(rowDate)) {
       return;
     }
     previousDates.add(rowDate);
-    if (rowDate <= todayKey) {
+    if (isOnOrBeforeDay(rowDate, todayKey)) {
       locked.add(rowDate);
     }
   });
@@ -57,10 +57,10 @@ function lockedDates(
   sessions.forEach((session) => {
     const endedAt = String(session.ended_at || "");
     const key = localDayKeyFromIso(endedAt);
-    if (!key) {
+    if (!isValidDayKey(key || "")) {
       return;
     }
-    if (previousDates.has(key) && key <= todayKey) {
+    if (previousDates.has(key) && isOnOrBeforeDay(key, todayKey)) {
       locked.add(key);
     }
   });

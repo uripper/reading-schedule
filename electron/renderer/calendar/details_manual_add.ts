@@ -15,6 +15,7 @@ import type {
 const MANUAL_ADD_TITLE = "Manual add";
 const TITLE_FILTER_LABEL = "Find title";
 const BOOK_SELECT_LABEL = "Book";
+const DAY_PROGRESS_FIELD_CLASS = "day-progress-field";
 
 /**
  * Builds title-filter and book-select controls for manual session add.
@@ -27,7 +28,7 @@ function createBookSelectionControls(
   defaultBookId: string | undefined,
 ): BookSelectionControls {
   const titleFilterLabel = document.createElement("label");
-  titleFilterLabel.className = "day-progress-field";
+  titleFilterLabel.className = DAY_PROGRESS_FIELD_CLASS;
   titleFilterLabel.textContent = TITLE_FILTER_LABEL;
 
   const titleFilterInput = document.createElement("input");
@@ -37,7 +38,7 @@ function createBookSelectionControls(
   titleFilterLabel.append(titleFilterInput);
 
   const bookLabel = document.createElement("label");
-  bookLabel.className = "day-progress-field";
+  bookLabel.className = DAY_PROGRESS_FIELD_CLASS;
   bookLabel.textContent = BOOK_SELECT_LABEL;
 
   const bookSelect = document.createElement("select");
@@ -128,7 +129,7 @@ export function buildManualSessionAddPanel(
   );
 
   const minutesLabel = document.createElement("label");
-  minutesLabel.className = "day-progress-field";
+  minutesLabel.className = DAY_PROGRESS_FIELD_CLASS;
   minutesLabel.textContent = "Minutes";
 
   const minutesInput = document.createElement("input");
@@ -166,8 +167,8 @@ export function buildManualSessionAddPanel(
       dateKey: args.dateKey,
       mode: args.mode,
       interactionHandlers: args.interactionHandlers,
-      rerenderDetails,
       bookSelect: selectionControls.bookSelect,
+      rerenderDetails,
       minutesInput,
       completeInput,
     });

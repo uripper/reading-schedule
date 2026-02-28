@@ -9,6 +9,7 @@ import {
   wordsPlannedForManualSession,
 } from "./calendar_interactions_helpers.js";
 import type {
+  Book,
   PlannerScheduleRow,
   PlannerSettings,
   UpdatedRowsResult,

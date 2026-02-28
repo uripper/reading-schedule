@@ -58,12 +58,18 @@ export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
   const settingsPanel = el("tab-settings");
   bindSettingsAutoPlanListeners(settingsPanel, () => true, queueAutoPlan);
 
-  if (args.saved) {
-    args.setStatus("Loaded saved data.");
-  } else {
-    args.setStatus("Loaded sample data.");
+  if (shouldShowLoadedStatus(args)) {
+    if (args.saved) {
+      args.setStatus("Loaded saved data.");
+    } else {
+      args.setStatus("Loaded sample data.");
+    }
   }
-  queueAutoPlan();
+  if (shouldAutoPlanOnStartup(args.saved, args.loadResult)) {
+    queueAutoPlan();
+    return;
+  }
+  args.addLog?.("Skipped startup auto-plan to preserve loaded schedule.");
 }
 
 /**

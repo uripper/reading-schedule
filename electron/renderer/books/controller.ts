@@ -31,10 +31,14 @@ let scheduleRows: PlannerScheduleRow[] = [];
 const DEFAULT_ON_BOOKS_CHANGED = (): void => {
   // No-op default callback.
 };
+const DEFAULT_ON_BOOKS_COMMITTED = (_books: Book[]): void => {
+  // No-op default callback.
+};
 const DEFAULT_ON_ESTIMATED_FINISH_NAVIGATE = (_dateKey: string): void => {
   // No-op default callback.
 };
 let onBooksChanged: () => void = DEFAULT_ON_BOOKS_CHANGED;
+let onBooksCommitted: (books: Book[]) => void = DEFAULT_ON_BOOKS_COMMITTED;
 let onEstimatedFinishNavigate: (dateKey: string) => void =
   DEFAULT_ON_ESTIMATED_FINISH_NAVIGATE;
 let dialog: BookDialogController | null = null;
@@ -67,6 +71,7 @@ const viewState: BooksViewState = {
  */
 function setBooks(nextBooks: Book[]): void {
   books = nextBooks;
+  onBooksCommitted(books);
 }
 
 /**
@@ -128,6 +133,7 @@ export function updateBookProgress(
 
   const next = withUpdatedProgress(books[idx], updates);
   books[idx] = normalizeBook(next);
+  onBooksCommitted(books);
   render();
 
   if (options.notifyBooksChanged !== false) {
@@ -147,6 +153,7 @@ async function saveBook(payload: BookSubmitPayload): Promise<void> {
     nextBooks = applyScheduledDaysToShelfBooks(nextBooks, hydrated);
   }
   books = nextBooks;
+  onBooksCommitted(books);
   render();
   onBooksChanged();
 }
@@ -157,6 +164,7 @@ async function saveBook(payload: BookSubmitPayload): Promise<void> {
  */
 export function fillBooks(nextBooks: Book[] = []): void {
   books = nextBooks.map(normalizeBook);
+  onBooksCommitted(books);
   render();
 }
 
@@ -243,4 +251,16 @@ export function bindBooksUI(
   };
 
   render();
+}
+
+/**
+ * Registers callback invoked after in-memory book collection mutations.
+ * @param hook Observer callback for committed in-memory book list.
+ */
+export function setBookCommitHook(hook?: (books: Book[]) => void): void {
+  if (typeof hook === "function") {
+    onBooksCommitted = hook;
+    return;
+  }
+  onBooksCommitted = DEFAULT_ON_BOOKS_COMMITTED;
 }
