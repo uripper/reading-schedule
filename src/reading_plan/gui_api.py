@@ -5,19 +5,28 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from typing import TypedDict
 
-from reading_plan.api import generate_plan
+from reading_plan.api import PlannerInputPayload, generate_plan
 from reading_plan.input.reading_io import load_inputs
 from reading_plan.input.serializers import book_to_data, settings_to_data
 
 
-def write_payload(payload: dict[str, object]) -> None:
+class BridgeResponse(TypedDict, total=False):
+    """Response wrapper for bridge communication."""
+
+    ok: bool
+    data: object
+    error: str
+
+
+def write_payload(payload: BridgeResponse) -> None:
     """Write JSON payload to stdout."""
     json.dump(payload, sys.stdout)
     sys.stdout.write("\n")
 
 
-def read_stdin_payload() -> dict[str, object]:
+def read_stdin_payload() -> PlannerInputPayload:
     """Read and validate planner payload from stdin."""
     payload = json.load(sys.stdin)
     if isinstance(payload, dict):

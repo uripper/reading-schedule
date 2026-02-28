@@ -18,8 +18,8 @@ Applies to all code and docs in:
 ## Non-Negotiable Rules (MUST)
 
 - Keep function complexity under 10.
-- Keep files less than 150 lines in at least 90% of cases.
-- Keep files under 200 lines in 100% of cases; split files when necessary.
+- Keep files under 200 lines in at least 90% of cases.
+- Keep files under 300 lines in 100% of cases; split files when necessary.
 - Do not use ternaries.
 - Do not use magic numbers.
 - Do not introduce implicit `any` in TypeScript.

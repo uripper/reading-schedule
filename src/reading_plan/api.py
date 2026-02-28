@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 
 from reading_plan.input.builders import book_from_data, settings_from_data
 from reading_plan.planning.solve import solve_plan
@@ -11,6 +11,26 @@ from reading_plan.schedule.schedule import to_schedule_rows
 
 if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
+
+
+class _PlannerInputRequired(TypedDict):
+    """Required fields for planner input."""
+
+    books: list[dict[str, object]]
+    settings: dict[str, object]
+
+
+class PlannerInputPayload(_PlannerInputRequired, total=False):
+    """Input payload for plan generation with optional planner selection."""
+
+    planner: str
+
+
+class PlannerOutputPayload(TypedDict):
+    """Output payload from plan generation."""
+
+    summary: object
+    schedule: list[dict[str, object]]
 
 
 def _validate_missing_blockers(
@@ -60,7 +80,7 @@ def _validate_blockers(books: list[Book]) -> None:
         _walk_blockers(book.book_id, by_id, visiting, visited)
 
 
-def generate_plan(payload: dict[str, object]) -> dict[str, object]:
+def generate_plan(payload: PlannerInputPayload) -> PlannerOutputPayload:
     """Validate inputs, solve the plan, and return summary plus schedule."""
     books_raw = payload.get("books")
     settings_raw = payload.get("settings")

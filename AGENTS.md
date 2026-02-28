@@ -13,7 +13,7 @@ Guidance for coding agents working in this repository.
 
 ## 2) High-Value Paths
 
-- `src/reading_plan/`: planner/domain logic and CLI.
+- `src/reading_plan/`: planner/domain logic and API bridge.
 - `electron/main*.ts`: Electron main process entry points and IPC wiring.
 - `electron/renderer/`: UI/runtime logic by feature area.
 - `scripts/`: style audit, issue sync, Windows helper scripts.
