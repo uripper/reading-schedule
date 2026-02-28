@@ -8,9 +8,12 @@ import type {
 const EMPTY_SUMMARY_TEXT =
   "Read books by your favorite authors to unlock recommendations.";
 
-const NON_EMPTY_SUMMARY_PREFIX = "Recommendations based on authors you've finished:";
+const NON_EMPTY_SUMMARY_PREFIX =
+  "Recommendations based on authors you've finished:";
 
 const ADD_TO_SHELF_BUTTON_TEXT = "Add to shelf";
+
+const GRID_LENGTH = 6;
 
 /**
  * Creates one recommendation card with an add-to-shelf action.
@@ -78,13 +81,15 @@ function summaryText(recommendations: RecommendationItem[]): string {
   for (const recommendation of recommendations) {
     uniqueAuthors.add(recommendation.author);
   }
-  const authorList = Array.from(uniqueAuthors).sort((leftAuthor, rightAuthor) => {
-    return leftAuthor.localeCompare(rightAuthor);
-  });
-  if (authorList.length > 6) {
-    const firstSixAuthors = authorList.slice(0, 6).join(", ");
-    const remainingCount = authorList.length - 6;
-    return `${NON_EMPTY_SUMMARY_PREFIX} ${firstSixAuthors} + ${remainingCount} more.`;
+  const authorList = Array.from(uniqueAuthors).sort(
+    (leftAuthor, rightAuthor) => {
+      return leftAuthor.localeCompare(rightAuthor);
+    },
+  );
+  if (authorList.length > GRID_LENGTH) {
+    const firstAuthors = authorList.slice(0, GRID_LENGTH).join(", ");
+    const remainingCount = authorList.length - GRID_LENGTH;
+    return `${NON_EMPTY_SUMMARY_PREFIX} ${firstAuthors} + ${remainingCount} more.`;
   }
   return `${NON_EMPTY_SUMMARY_PREFIX} ${authorList.join(", ")}.`;
 }
@@ -95,11 +100,13 @@ function summaryText(recommendations: RecommendationItem[]): string {
  * @param args.recommendations Existing recommendation candidates.
  * @param args.onAddToShelf Action called when user adds one recommendation.
  */
-export function renderRecommendationsPanel(args: RenderRecommendationsArgs): void {
+export function renderRecommendationsPanel(
+  args: RenderRecommendationsArgs,
+): void {
   const handleAddToShelf = (recommendation: RecommendationItem): void => {
     args.onAddToShelf(recommendation);
   };
-  const recommendations = args.recommendations;
+  const { recommendations } = args;
   const listNode = el("recommendationsList");
   const summaryNode = el("recommendationsSummary");
   const emptyNode = el("recommendationsEmpty");

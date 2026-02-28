@@ -3,10 +3,7 @@
  */
 import { ipcMain } from "electron";
 import { UI_SCALE_STEP } from "./zoom";
-import {
-  asDownloadCoverPayload,
-  asUploadCoverPayload,
-} from "./ipc_payloads";
+import { asDownloadCoverPayload, asUploadCoverPayload } from "./ipc_payloads";
 import type {
   DownloadCoverPayload,
   RegisterIpcHandlersArgs,
@@ -41,11 +38,14 @@ export function registerIpcHandlers({
   writeState,
 }: RegisterIpcHandlersArgs): void {
   ipcMain.handle("plan:sample", async () => await runBridge(["--sample"]));
-  ipcMain.handle("plan:generate", async (_event, payload: JsonValue) =>
-    await runBridge([], payload),
+  ipcMain.handle(
+    "plan:generate",
+    async (_event, payload: JsonValue) => await runBridge([], payload),
   );
-  ipcMain.handle("book:search", async (_event, query: string) =>
-    await searchBooks(String(query || "")),
+  ipcMain.handle(
+    "book:search",
+    async (_event, query: string, author: unknown) =>
+      await searchBooks(String(query || ""), author === true),
   );
   ipcMain.handle(
     "book:downloadCover",

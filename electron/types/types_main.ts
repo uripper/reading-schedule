@@ -40,7 +40,7 @@ export interface RegisterIpcHandlersArgs {
     bookId: string | undefined,
     userDataDir: string | undefined,
   ): string;
-  searchBooks(this: void, query: string): Promise<unknown>;
+  searchBooks(this: void, query: string, author?: boolean): Promise<unknown>;
   setZoomFactor(this: void, webContents: WebContents, value: number): number;
   shiftZoomFactor(this: void, webContents: WebContents, delta: number): number;
   userData(this: void): string;

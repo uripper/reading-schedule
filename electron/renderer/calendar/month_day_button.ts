@@ -13,16 +13,14 @@ import type { DayStyleFlags, DayStyleFlagsArgs } from "../../types/types.js";
  * @param args.rows Rows scheduled for the day.
  * @returns Day-style flags used for class/aria assignment.
  */
-export function dayStyleFlags(
-  args: DayStyleFlagsArgs,
-): DayStyleFlags {
+export function dayStyleFlags(args: DayStyleFlagsArgs): DayStyleFlags {
   const hasFinishRow = args.rows.some((row) => {
     return row.finish === true;
   });
   const isMuted = args.date.getMonth() !== args.firstDate.getMonth();
   const isSelected = args.selectedDate === args.keyForDay;
-  const isPast = args.keyForDay < args.todayKey;
-  const isToday = args.keyForDay === args.todayKey;
+  const isPast = Number(args.keyForDay) < Number(args.todayKey);
+  const isToday = Number(args.keyForDay) === Number(args.todayKey);
   return {
     hasFinishRow,
     isMuted,
@@ -56,9 +54,7 @@ export function createWeekdayHeader(): HTMLSpanElement[] {
  * @param args.todayKey Today's day key.
  * @returns Configured day button element.
  */
-export function createDayButton(
-  args: DayStyleFlagsArgs,
-): HTMLButtonElement {
+export function createDayButton(args: DayStyleFlagsArgs): HTMLButtonElement {
   const dayButton = document.createElement("button");
   dayButton.type = "button";
   dayButton.className = "day";

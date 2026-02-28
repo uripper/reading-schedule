@@ -11,18 +11,35 @@ import {
 
 import type { SearchResponse } from "../../types/types.js";
 
+const OPEN_LIBRARY_SEARCH_URL = "https://openlibrary.org/search.json";
+const OPEN_LIBRARY_LANGUAGE_ENGLISH = "eng";
+
 /**
  * Builds prioritized Open Library query URLs for a search string.
  * @param query Raw user query text.
+ * @param authorOnly Whether to search author field exclusively.
  * @returns Ordered list of search endpoint URLs.
  */
-export function searchUrls(query: string): string[] {
+export function searchUrls(
+  query: string,
+  authorOnly = false,
+): string[] {
   const encoded = encodeURIComponent(query);
-  const base = `https://openlibrary.org/search.json?limit=${SEARCH_FETCH_LIMIT}&fields=${SEARCH_FIELDS}`;
+  const base =
+    `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}&fields=${SEARCH_FIELDS}`;
+  if (authorOnly) {
+    // Intentionally omit `fields` in author-only mode because Open Library
+    // ranking quality regresses with projected fields for these queries.
+    const authorOnlyBase = `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}`;
+    return [
+      `${authorOnlyBase}&author=${encoded}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
+      `${authorOnlyBase}&author=${encoded}`,
+    ];
+  }
   return [
-    `${base}&q=${encoded}&language=eng`,
-    `${base}&author=${encoded}&language=eng`,
-    `${base}&title=${encoded}&language=eng`,
+    `${base}&q=${encoded}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
+    `${base}&author=${encoded}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
+    `${base}&title=${encoded}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
   ];
 }
 

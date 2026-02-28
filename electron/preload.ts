@@ -34,8 +34,11 @@ const plannerApi: PlannerApi = {
       "plan:generate",
       payload,
     ),
-  searchBooks: async (query: string): Promise<BookLookupItem[]> =>
-    await invokeIpc<BookLookupItem[]>("book:search", query),
+  searchBooks: async (
+    query: string,
+    author = false,
+  ): Promise<BookLookupItem[]> =>
+    await invokeIpc<BookLookupItem[]>("book:search", query, author),
   downloadCover: async (
     url: string | undefined,
     bookId: string | undefined,
@@ -53,8 +56,10 @@ const plannerApi: PlannerApi = {
   ): Promise<PlannerSaveResult> =>
     await invokeIpc<PlannerSaveResult>("state:save", payload),
   zoomIn: async (): Promise<number> => await invokeIpc<number>("window:zoomIn"),
-  zoomOut: async (): Promise<number> => await invokeIpc<number>("window:zoomOut"),
-  zoomReset: async (): Promise<number> => await invokeIpc<number>("window:zoomReset"),
+  zoomOut: async (): Promise<number> =>
+    await invokeIpc<number>("window:zoomOut"),
+  zoomReset: async (): Promise<number> =>
+    await invokeIpc<number>("window:zoomReset"),
 };
 
 contextBridge.exposeInMainWorld("plannerApi", plannerApi);

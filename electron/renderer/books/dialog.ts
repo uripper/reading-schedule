@@ -73,7 +73,7 @@ function openBookDialog(
   args: OpenBookDialogArgs,
 ): void {
   const formRefs = args.refs;
-  const book = args.book;
+  const {book} = args;
   args.dialogFocus.rememberOpener();
   clearForm(formRefs, args.lookupControl);
   args.afterBookPicker.openForBook(book);
