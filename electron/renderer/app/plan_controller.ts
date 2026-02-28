@@ -4,7 +4,6 @@ import {
   applyPlannedData,
 } from "./plan_controller_apply.js";
 import type {
-  PlannerResult,
   AutoPlanRunner,
   AutoPlanState,
   PlanController,
