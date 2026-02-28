@@ -9,7 +9,7 @@ const INITIAL_LENGTH = 1;
  * @returns Trimmed title or empty string.
  */
 function normalizedText(value?: string | null): string {
-	return String(value ?? "").trim();
+    return String(value ?? "").trim();
 }
 
 /**
@@ -18,21 +18,21 @@ function normalizedText(value?: string | null): string {
  * @returns Sort key used for alphabetical title ordering.
  */
 export function titleSortKey(value?: string | null): string {
-	const title = normalizedText(value);
-	if (!title) {
-		return "";
-	}
+    const title = normalizedText(value);
+    if (!title) {
+        return "";
+    }
 
-	const lower = title.toLowerCase();
-	if (!lower.startsWith(LEADING_THE_PREFIX)) {
-		return title;
-	}
+    const lower = title.toLowerCase();
+    if (!lower.startsWith(LEADING_THE_PREFIX)) {
+        return title;
+    }
 
-	const withoutThe = title.slice(LEADING_THE_LENGTH).trimStart();
-	if (!withoutThe) {
-		return title;
-	}
-	return withoutThe;
+    const withoutThe = title.slice(LEADING_THE_LENGTH).trimStart();
+    if (!withoutThe) {
+        return title;
+    }
+    return withoutThe;
 }
 
 /**
@@ -41,9 +41,9 @@ export function titleSortKey(value?: string | null): string {
  * @returns Initial title letter or empty string when unavailable.
  */
 export function titleInitialLetter(value?: string | null): string {
-	const key = titleSortKey(value).trim();
-	if (!key) {
-		return "";
-	}
-	return key.slice(INITIAL_INDEX, INITIAL_LENGTH).toUpperCase();
+    const key = titleSortKey(value).trim();
+    if (!key) {
+        return "";
+    }
+    return key.slice(INITIAL_INDEX, INITIAL_LENGTH).toUpperCase();
 }

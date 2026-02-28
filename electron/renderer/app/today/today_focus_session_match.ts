@@ -1,7 +1,7 @@
 import type {
-	FocusSession,
-	PlannerResult,
-	PlannerScheduleRow,
+    FocusSession,
+    PlannerResult,
+    PlannerScheduleRow,
 } from "../../../types/types.js";
 
 const MINUTES_MIN = 1;
@@ -12,7 +12,7 @@ const MINUTES_MIN = 1;
  * @returns Rounded minute value with minimum of 1.
  */
 function roundMinutes(value: number): number {
-	return Math.max(MINUTES_MIN, Math.round(value));
+    return Math.max(MINUTES_MIN, Math.round(value));
 }
 
 /**
@@ -22,10 +22,10 @@ function roundMinutes(value: number): number {
  * @returns True when row date equals focus-session date.
  */
 function rowMatchesDate(
-	row: PlannerScheduleRow,
-	session: FocusSession,
+    row: PlannerScheduleRow,
+    session: FocusSession,
 ): boolean {
-	return String(row.date || "") === session.date;
+    return String(row.date || "") === session.date;
 }
 
 /**
@@ -35,13 +35,13 @@ function rowMatchesDate(
  * @returns True when book ids match, or when focus session has no book id.
  */
 function rowMatchesBook(
-	row: PlannerScheduleRow,
-	session: FocusSession,
+    row: PlannerScheduleRow,
+    session: FocusSession,
 ): boolean {
-	if (!session.bookId) {
-		return true;
-	}
-	return String(row.book_id || "") === session.bookId;
+    if (!session.bookId) {
+        return true;
+    }
+    return String(row.book_id || "") === session.bookId;
 }
 
 /**
@@ -51,14 +51,14 @@ function rowMatchesBook(
  * @returns True when indices match, or when focus session index is unspecified.
  */
 function rowMatchesSessionIndex(
-	row: PlannerScheduleRow,
-	session: FocusSession,
+    row: PlannerScheduleRow,
+    session: FocusSession,
 ): boolean {
-	if (session.sessionIndex === null) {
-		return true;
-	}
-	const rowSessionIndex = Number(row.session_index || 0);
-	return rowSessionIndex === session.sessionIndex;
+    if (session.sessionIndex === null) {
+        return true;
+    }
+    const rowSessionIndex = Number(row.session_index || 0);
+    return rowSessionIndex === session.sessionIndex;
 }
 
 /**
@@ -68,11 +68,11 @@ function rowMatchesSessionIndex(
  * @returns True when titles match exactly after row-title trimming.
  */
 function rowMatchesTitle(
-	row: PlannerScheduleRow,
-	session: FocusSession,
+    row: PlannerScheduleRow,
+    session: FocusSession,
 ): boolean {
-	const rowTitle = String(row.title || "").trim();
-	return rowTitle === session.title;
+    const rowTitle = String(row.title || "").trim();
+    return rowTitle === session.title;
 }
 
 /**
@@ -82,11 +82,11 @@ function rowMatchesTitle(
  * @returns True when rounded minute values match.
  */
 function rowMatchesMinutes(
-	row: PlannerScheduleRow,
-	session: FocusSession,
+    row: PlannerScheduleRow,
+    session: FocusSession,
 ): boolean {
-	const rowMinutes = roundMinutes(Number(row.minutes || 0));
-	return rowMinutes === session.minutes;
+    const rowMinutes = roundMinutes(Number(row.minutes || 0));
+    return rowMinutes === session.minutes;
 }
 
 /**
@@ -96,16 +96,16 @@ function rowMatchesMinutes(
  * @returns True when date/book/index/title/minutes all match.
  */
 function rowMatchesFocusSession(
-	row: PlannerScheduleRow,
-	session: FocusSession,
+    row: PlannerScheduleRow,
+    session: FocusSession,
 ): boolean {
-	return (
-		rowMatchesDate(row, session) &&
-		rowMatchesBook(row, session) &&
-		rowMatchesSessionIndex(row, session) &&
-		rowMatchesTitle(row, session) &&
-		rowMatchesMinutes(row, session)
-	);
+    return (
+        rowMatchesDate(row, session) &&
+        rowMatchesBook(row, session) &&
+        rowMatchesSessionIndex(row, session) &&
+        rowMatchesTitle(row, session) &&
+        rowMatchesMinutes(row, session)
+    );
 }
 
 /**
@@ -114,10 +114,10 @@ function rowMatchesFocusSession(
  * @returns Parsed number or null when invalid/non-positive.
  */
 function parsedPositiveFinite(value: number): number | null {
-	if (!Number.isFinite(value) || value <= 0) {
-		return null;
-	}
-	return value;
+    if (!Number.isFinite(value) || value <= 0) {
+        return null;
+    }
+    return value;
 }
 
 /**
@@ -126,11 +126,11 @@ function parsedPositiveFinite(value: number): number | null {
  * @returns Rounded session index, or null when invalid.
  */
 function sessionIndexOrNull(value: number): number | null {
-	const parsed = parsedPositiveFinite(value);
-	if (parsed === null) {
-		return null;
-	}
-	return Math.round(parsed);
+    const parsed = parsedPositiveFinite(value);
+    if (parsed === null) {
+        return null;
+    }
+    return Math.round(parsed);
 }
 
 /**
@@ -139,25 +139,25 @@ function sessionIndexOrNull(value: number): number | null {
  * @returns Parsed focus session, or null when required fields are missing.
  */
 export function readFocusSessionFromDataset(
-	button: HTMLButtonElement,
+    button: HTMLButtonElement,
 ): FocusSession | null {
-	const title = String(button.dataset.focusSessionTitle ?? "").trim();
-	const date = String(button.dataset.focusSessionDate ?? "").trim();
-	const parsedMinutes = parsedPositiveFinite(
-		Number(button.dataset.focusSessionMinutes ?? 0),
-	);
-	const bookId = String(button.dataset.focusSessionBookId ?? "").trim();
-	const rawSessionIndex = Number(button.dataset.focusSessionIndex ?? 0);
-	if (!title || !date || parsedMinutes === null) {
-		return null;
-	}
-	return {
-		date,
-		title,
-		sessionIndex: sessionIndexOrNull(rawSessionIndex),
-		bookId: bookId || "",
-		minutes: roundMinutes(parsedMinutes),
-	};
+    const title = String(button.dataset.focusSessionTitle ?? "").trim();
+    const date = String(button.dataset.focusSessionDate ?? "").trim();
+    const parsedMinutes = parsedPositiveFinite(
+        Number(button.dataset.focusSessionMinutes ?? 0),
+    );
+    const bookId = String(button.dataset.focusSessionBookId ?? "").trim();
+    const rawSessionIndex = Number(button.dataset.focusSessionIndex ?? 0);
+    if (!title || !date || parsedMinutes === null) {
+        return null;
+    }
+    return {
+        date,
+        title,
+        sessionIndex: sessionIndexOrNull(rawSessionIndex),
+        bookId: bookId || "",
+        minutes: roundMinutes(parsedMinutes),
+    };
 }
 
 /**
@@ -167,17 +167,17 @@ export function readFocusSessionFromDataset(
  * @returns Matching schedule row, or null when none matches.
  */
 export function findSessionRow(
-	lastResult: PlannerResult | null,
-	session: FocusSession | null,
+    lastResult: PlannerResult | null,
+    session: FocusSession | null,
 ): PlannerScheduleRow | null {
-	if (!session) {
-		return null;
-	}
-	const rows = lastResult?.schedule ?? [];
-	for (const row of rows) {
-		if (rowMatchesFocusSession(row, session)) {
-			return row;
-		}
-	}
-	return null;
+    if (!session) {
+        return null;
+    }
+    const rows = lastResult?.schedule ?? [];
+    for (const row of rows) {
+        if (rowMatchesFocusSession(row, session)) {
+            return row;
+        }
+    }
+    return null;
 }

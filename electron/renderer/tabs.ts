@@ -14,7 +14,7 @@ let onTabActivated: ((name: string) => void) | null = null;
  * @returns Tab button elements.
  */
 function allTabButtons(): HTMLElement[] {
-	return qa<HTMLElement>(TAB_BUTTON_SELECTOR);
+    return qa<HTMLElement>(TAB_BUTTON_SELECTOR);
 }
 
 /**
@@ -22,7 +22,7 @@ function allTabButtons(): HTMLElement[] {
  * @returns Desktop tab button elements.
  */
 function desktopTabs(): HTMLElement[] {
-	return qa<HTMLElement>(TAB_DESKTOP_SELECTOR);
+    return qa<HTMLElement>(TAB_DESKTOP_SELECTOR);
 }
 
 /**
@@ -31,7 +31,7 @@ function desktopTabs(): HTMLElement[] {
  * @returns Matching panel element or null.
  */
 function panelByName(name: string): HTMLElement | null {
-	return document.getElementById(`tab-${name}`);
+    return document.getElementById(`tab-${name}`);
 }
 
 /**
@@ -40,14 +40,14 @@ function panelByName(name: string): HTMLElement | null {
  * @param active Whether panel is active.
  */
 function setPanelState(panel: HTMLElement, active: boolean): void {
-	const nextPanel = panel;
-	nextPanel.classList.toggle("is-active", active);
-	nextPanel.hidden = !active;
-	if (active) {
-		nextPanel.setAttribute("aria-hidden", "false");
-	} else {
-		nextPanel.setAttribute("aria-hidden", "true");
-	}
+    const nextPanel = panel;
+    nextPanel.classList.toggle("is-active", active);
+    nextPanel.hidden = !active;
+    if (active) {
+        nextPanel.setAttribute("aria-hidden", "false");
+    } else {
+        nextPanel.setAttribute("aria-hidden", "true");
+    }
 }
 
 /**
@@ -56,17 +56,17 @@ function setPanelState(panel: HTMLElement, active: boolean): void {
  * @param active Whether button matches the active tab.
  */
 function setTabAriaState(button: HTMLElement, active: boolean): void {
-	const nextButton = button;
-	if (button.getAttribute("role") !== "tab") {
-		return;
-	}
-	if (active) {
-		nextButton.setAttribute("aria-selected", "true");
-		nextButton.tabIndex = 0;
-		return;
-	}
-	nextButton.setAttribute("aria-selected", "false");
-	nextButton.tabIndex = -1;
+    const nextButton = button;
+    if (button.getAttribute("role") !== "tab") {
+        return;
+    }
+    if (active) {
+        nextButton.setAttribute("aria-selected", "true");
+        nextButton.tabIndex = 0;
+        return;
+    }
+    nextButton.setAttribute("aria-selected", "false");
+    nextButton.tabIndex = -1;
 }
 
 /**
@@ -76,15 +76,15 @@ function setTabAriaState(button: HTMLElement, active: boolean): void {
  * @returns Next document-title label.
  */
 function resolveActiveLabel(currentLabel: string, button: HTMLElement): string {
-	const text = button.textContent;
-	if (typeof text !== "string") {
-		return currentLabel;
-	}
-	const trimmedLabel = text.trim();
-	if (trimmedLabel.length === 0) {
-		return currentLabel;
-	}
-	return trimmedLabel;
+    const text = button.textContent;
+    if (typeof text !== "string") {
+        return currentLabel;
+    }
+    const trimmedLabel = text.trim();
+    if (trimmedLabel.length === 0) {
+        return currentLabel;
+    }
+    return trimmedLabel;
 }
 
 /**
@@ -93,33 +93,33 @@ function resolveActiveLabel(currentLabel: string, button: HTMLElement): string {
  * @param options Optional activation behaviors.
  */
 export function activateTab(
-	name: string,
-	options: ActivateTabOptions = {},
+    name: string,
+    options: ActivateTabOptions = {},
 ): void {
-	const { focusPanel = false } = options;
-	let activeLabel = DEFAULT_TITLE;
+    const { focusPanel = false } = options;
+    let activeLabel = DEFAULT_TITLE;
 
-	for (const button of allTabButtons()) {
-		const btn = button;
-		const active = btn.dataset.tab === name;
-		btn.classList.toggle("is-active", active);
-		setTabAriaState(btn, active);
-		if (active) {
-			activeLabel = resolveActiveLabel(activeLabel, btn);
-		}
-	}
+    for (const button of allTabButtons()) {
+        const btn = button;
+        const active = btn.dataset.tab === name;
+        btn.classList.toggle("is-active", active);
+        setTabAriaState(btn, active);
+        if (active) {
+            activeLabel = resolveActiveLabel(activeLabel, btn);
+        }
+    }
 
-	for (const panel of qa<HTMLElement>(TAB_PANEL_SELECTOR)) {
-		setPanelState(panel, panel.id === `tab-${name}`);
-	}
-	const activePanel = panelByName(name);
-	if (focusPanel && activePanel) {
-		activePanel.focus();
-	}
-	document.title = `${activeLabel} - Bartleby`;
-	if (onTabActivated !== null) {
-		onTabActivated(name);
-	}
+    for (const panel of qa<HTMLElement>(TAB_PANEL_SELECTOR)) {
+        setPanelState(panel, panel.id === `tab-${name}`);
+    }
+    const activePanel = panelByName(name);
+    if (focusPanel && activePanel) {
+        activePanel.focus();
+    }
+    document.title = `${activeLabel} - Bartleby`;
+    if (onTabActivated !== null) {
+        onTabActivated(name);
+    }
 }
 
 /**
@@ -128,9 +128,9 @@ export function activateTab(
  * @param index Target index.
  */
 function activateTabByIndex(tabs: HTMLElement[], index: number): void {
-	const target = tabs[index];
-	target.focus();
-	activateTab(target.dataset.tab ?? DEFAULT_TAB_NAME);
+    const target = tabs[index];
+    target.focus();
+    activateTab(target.dataset.tab ?? DEFAULT_TAB_NAME);
 }
 
 /**
@@ -138,28 +138,30 @@ function activateTabByIndex(tabs: HTMLElement[], index: number): void {
  * @param tabs Ordered tab list.
  */
 function bindTabKeyboard(tabs: HTMLElement[]): void {
-	tabs.forEach((btn, index) => {
-		btn.addEventListener("keydown", (event) => {
-			if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) {
-				return;
-			}
-			event.preventDefault();
-			if (event.key === "Home") {
-				activateTabByIndex(tabs, 0);
-				return;
-			}
-			if (event.key === "End") {
-				activateTabByIndex(tabs, tabs.length - 1);
-				return;
-			}
-			let direction = -1;
-			if (event.key === "ArrowRight") {
-				direction = 1;
-			}
-			const next = (index + direction + tabs.length) % tabs.length;
-			activateTabByIndex(tabs, next);
-		});
-	});
+    tabs.forEach((btn, index) => {
+        btn.addEventListener("keydown", (event) => {
+            if (
+                !["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)
+            ) {
+                return;
+            }
+            event.preventDefault();
+            if (event.key === "Home") {
+                activateTabByIndex(tabs, 0);
+                return;
+            }
+            if (event.key === "End") {
+                activateTabByIndex(tabs, tabs.length - 1);
+                return;
+            }
+            let direction = -1;
+            if (event.key === "ArrowRight") {
+                direction = 1;
+            }
+            const next = (index + direction + tabs.length) % tabs.length;
+            activateTabByIndex(tabs, next);
+        });
+    });
 }
 
 /**
@@ -167,15 +169,15 @@ function bindTabKeyboard(tabs: HTMLElement[]): void {
  * @param onChange Callback invoked after tab activation.
  */
 export function bindTabs(
-	onChange: ((name: string) => void) | null = null,
+    onChange: ((name: string) => void) | null = null,
 ): void {
-	onTabActivated = onChange;
-	for (const button of allTabButtons()) {
-		const btn = button;
-		btn.addEventListener("click", () => {
-			activateTab(btn.dataset.tab ?? DEFAULT_TAB_NAME);
-		});
-	}
+    onTabActivated = onChange;
+    for (const button of allTabButtons()) {
+        const btn = button;
+        btn.addEventListener("click", () => {
+            activateTab(btn.dataset.tab ?? DEFAULT_TAB_NAME);
+        });
+    }
 
-	bindTabKeyboard(desktopTabs());
+    bindTabKeyboard(desktopTabs());
 }

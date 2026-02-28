@@ -1,503 +1,510 @@
 .schedule-layout {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
-	gap: var(--token-space-3);
-	align-items: start;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+    gap: var(--token-space-3);
+    align-items: start;
 }
 
 #calendarControls {
-	display: flex;
-	align-items: center;
-	gap: var(--token-space-2);
-	margin-bottom: var(--token-space-3);
-	padding: var(--token-space-2);
-	border-radius: var(--token-radius-md);
-	border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
-	background: color-mix(in srgb, var(--app-surfaceMuted) 82%, transparent);
+    display: flex;
+    align-items: center;
+    gap: var(--token-space-2);
+    margin-bottom: var(--token-space-3);
+    padding: var(--token-space-2);
+    border-radius: var(--token-radius-md);
+    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
+    background: color-mix(in srgb, var(--app-surfaceMuted) 82%, transparent);
 }
 
 #calendarControls strong {
-	margin: 0 auto;
-	font-family: var(--token-typography-family-heading);
-	font-size: var(--token-typography-size-lg);
-	line-height: var(--token-typography-lineHeight-tight);
+    margin: 0 auto;
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-lg);
+    line-height: var(--token-typography-lineHeight-tight);
 }
 
 #calendarControls .btn-calendar-today {
-	border-color: color-mix(
-		in srgb,
-		var(--app-brandStrong) 58%,
-		var(--app-border)
-	);
-	background: color-mix(in srgb, var(--app-brand) 18%, var(--app-surface));
+    border-color: color-mix(
+        in srgb,
+        var(--app-brandStrong) 58%,
+        var(--app-border)
+    );
+    background: color-mix(in srgb, var(--app-brand) 18%, var(--app-surface));
 }
 
 .calendar {
-	display: grid;
-	grid-template-columns: repeat(7, minmax(0, 1fr));
-	gap: var(--token-space-2);
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: var(--token-space-2);
 }
 
 .calendar-weekday {
-	padding: 0 var(--token-space-1);
-	color: var(--app-textMuted);
-	font-size: var(--token-typography-size-xs);
-	font-weight: var(--token-typography-weight-medium);
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
+    padding: 0 var(--token-space-1);
+    color: var(--app-textMuted);
+    font-size: var(--token-typography-size-xs);
+    font-weight: var(--token-typography-weight-medium);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .calendar-grid {
-	grid-column: 1 / -1;
-	display: grid;
-	grid-template-columns: repeat(7, minmax(0, 1fr));
-	gap: var(--token-space-2);
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: var(--token-space-2);
 }
 
 .day {
-	display: grid;
-	align-content: start;
-	gap: var(--token-space-1);
-	min-height: 158px;
-	padding: var(--token-space-2);
-	border-radius: var(--token-radius-md);
-	border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
-	background:
-		linear-gradient(
-			180deg,
-			color-mix(in srgb, var(--app-brand) 6%, transparent),
-			transparent 36%
-		),
-		color-mix(in srgb, var(--app-surface) 90%, transparent);
-	color: var(--app-text);
-	text-align: left;
-	transition:
-		border-color var(--token-motion-duration-fast)
-		var(--token-motion-easing-standard),
-		background-color var(--token-motion-duration-fast)
-		var(--token-motion-easing-standard),
-		transform var(--token-motion-duration-fast)
-		var(--token-motion-easing-standard);
+    display: grid;
+    align-content: start;
+    gap: var(--token-space-1);
+    min-height: 158px;
+    padding: var(--token-space-2);
+    border-radius: var(--token-radius-md);
+    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
+    background:
+        linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--app-brand) 6%, transparent),
+            transparent 36%
+        ),
+        color-mix(in srgb, var(--app-surface) 90%, transparent);
+    color: var(--app-text);
+    text-align: left;
+    transition:
+        border-color var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard),
+        background-color var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard),
+        transform var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard);
 }
 
 .day:hover {
-	border-color: color-mix(
-		in srgb,
-		var(--app-brandStrong) 62%,
-		var(--app-border)
-	);
-	background: color-mix(in srgb, var(--app-brand) 12%, var(--app-surface));
-	transform: translateY(-1px);
+    border-color: color-mix(
+        in srgb,
+        var(--app-brandStrong) 62%,
+        var(--app-border)
+    );
+    background: color-mix(in srgb, var(--app-brand) 12%, var(--app-surface));
+    transform: translateY(-1px);
 }
 
 .day.is-muted {
-	opacity: 0.55;
+    opacity: 0.55;
 }
 
 .day.is-past {
-	border-color: color-mix(in srgb, var(--app-border) 96%, transparent);
-	background: color-mix(in srgb, var(--app-surfaceMuted) 82%, var(--app-bg));
-	opacity: 0.74;
+    border-color: color-mix(in srgb, var(--app-border) 96%, transparent);
+    background: color-mix(in srgb, var(--app-surfaceMuted) 82%, var(--app-bg));
+    opacity: 0.74;
 }
 
 .day.is-today {
-	border-color: color-mix(in srgb, var(--app-focusRing) 72%, var(--app-border));
-	background:
-		radial-gradient(
-			circle at top right,
-			color-mix(in srgb, var(--app-focusRing) 22%, transparent),
-			transparent 62%
-		),
-		color-mix(in srgb, var(--app-brand) 14%, var(--app-surface));
-	box-shadow: inset 0 0 0 1px
-		color-mix(in srgb, var(--app-focusRing) 50%, transparent);
-	opacity: 1;
+    border-color: color-mix(
+        in srgb,
+        var(--app-focusRing) 72%,
+        var(--app-border)
+    );
+    background:
+        radial-gradient(
+            circle at top right,
+            color-mix(in srgb, var(--app-focusRing) 22%, transparent),
+            transparent 62%
+        ),
+        color-mix(in srgb, var(--app-brand) 14%, var(--app-surface));
+    box-shadow: inset 0 0 0 1px
+        color-mix(in srgb, var(--app-focusRing) 50%, transparent);
+    opacity: 1;
 }
 
 .day.is-today .day-date {
-	color: color-mix(in srgb, var(--app-focusRing) 78%, var(--app-text));
+    color: color-mix(in srgb, var(--app-focusRing) 78%, var(--app-text));
 }
 
 .day.is-today .day-event-count {
-	color: color-mix(in srgb, var(--app-focusRing) 70%, var(--app-textMuted));
+    color: color-mix(in srgb, var(--app-focusRing) 70%, var(--app-textMuted));
 }
 
 .day.has-finish {
-	border-color: color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
-	background:
-		radial-gradient(
-			circle at top right,
-			color-mix(in srgb, var(--app-warning) 18%, transparent),
-			transparent 54%
-		),
-		linear-gradient(
-			180deg,
-			color-mix(in srgb, var(--app-brand) 6%, transparent),
-			transparent 36%
-		),
-		color-mix(in srgb, var(--app-surface) 90%, transparent);
+    border-color: color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
+    background:
+        radial-gradient(
+            circle at top right,
+            color-mix(in srgb, var(--app-warning) 18%, transparent),
+            transparent 54%
+        ),
+        linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--app-brand) 6%, transparent),
+            transparent 36%
+        ),
+        color-mix(in srgb, var(--app-surface) 90%, transparent);
 }
 
 .day.has-finish .day-event-count {
-	color: color-mix(in srgb, var(--app-warning) 84%, var(--app-text));
+    color: color-mix(in srgb, var(--app-warning) 84%, var(--app-text));
 }
 
 .day.is-selected {
-	border-color: color-mix(
-		in srgb,
-		var(--app-brandStrong) 84%,
-		var(--app-border)
-	);
-	box-shadow: 0 0 0 1px
-		color-mix(in srgb, var(--app-brandStrong) 54%, transparent);
+    border-color: color-mix(
+        in srgb,
+        var(--app-brandStrong) 84%,
+        var(--app-border)
+    );
+    box-shadow: 0 0 0 1px
+        color-mix(in srgb, var(--app-brandStrong) 54%, transparent);
 }
 
 .day-date {
-	font-size: var(--token-typography-size-md);
-	font-weight: var(--token-typography-weight-bold);
-	line-height: 1.2;
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-bold);
+    line-height: 1.2;
 }
 
 .day-event-count {
-	color: var(--app-textMuted);
-	font-size: var(--token-typography-size-xs);
+    color: var(--app-textMuted);
+    font-size: var(--token-typography-size-xs);
 }
 
 .day-chip {
-	border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
-	border-radius: var(--token-radius-sm);
-	padding: var(--token-space-1) var(--token-space-2);
-	font-size: var(--token-typography-size-xs);
-	color: var(--app-textMuted);
-	background: color-mix(in srgb, var(--app-surfaceMuted) 72%, transparent);
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
+    border-radius: var(--token-radius-sm);
+    padding: var(--token-space-1) var(--token-space-2);
+    font-size: var(--token-typography-size-xs);
+    color: var(--app-textMuted);
+    background: color-mix(in srgb, var(--app-surfaceMuted) 72%, transparent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .day-chip.finish {
-	border-color: color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
-	color: color-mix(in srgb, var(--app-warning) 88%, var(--app-text));
-	background: color-mix(in srgb, var(--app-warning) 16%, var(--app-surface));
-	font-weight: var(--token-typography-weight-medium);
+    border-color: color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
+    color: color-mix(in srgb, var(--app-warning) 88%, var(--app-text));
+    background: color-mix(in srgb, var(--app-warning) 16%, var(--app-surface));
+    font-weight: var(--token-typography-weight-medium);
 }
 
 .day-chip.is-more {
-	text-align: center;
-	font-weight: var(--token-typography-weight-medium);
+    text-align: center;
+    font-weight: var(--token-typography-weight-medium);
 }
 
 .day-details {
-	position: sticky;
-	top: calc(var(--token-size-header-height) + var(--token-space-4));
-	display: grid;
-	align-content: start;
-	gap: var(--token-space-3);
-	max-height: calc(100dvh - 140px);
-	overflow: auto;
-	border-radius: var(--token-radius-md);
-	border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
-	background:
-		linear-gradient(
-			180deg,
-			color-mix(in srgb, var(--app-brand) 8%, transparent),
-			transparent 26%
-		),
-		color-mix(in srgb, var(--app-surfaceMuted) 86%, transparent);
-	padding: var(--token-space-3);
+    position: sticky;
+    top: calc(var(--token-size-header-height) + var(--token-space-4));
+    display: grid;
+    align-content: start;
+    gap: var(--token-space-3);
+    max-height: calc(100dvh - 140px);
+    overflow: auto;
+    border-radius: var(--token-radius-md);
+    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
+    background:
+        linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--app-brand) 8%, transparent),
+            transparent 26%
+        ),
+        color-mix(in srgb, var(--app-surfaceMuted) 86%, transparent);
+    padding: var(--token-space-3);
 }
 
 .day-details > h2 {
-	margin: 0;
-	padding-bottom: var(--token-space-2);
-	border-bottom: 1px solid
-		color-mix(in srgb, var(--app-border) 80%, transparent);
+    margin: 0;
+    padding-bottom: var(--token-space-2);
+    border-bottom: 1px solid
+        color-mix(in srgb, var(--app-border) 80%, transparent);
 }
 
 .day-finished-summary {
-	margin: 0;
-	padding: var(--token-space-1) var(--token-space-2);
-	border-radius: var(--token-radius-sm);
-	border: 1px solid
-		color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
-	background: color-mix(in srgb, var(--app-warning) 14%, var(--app-surface));
-	color: color-mix(in srgb, var(--app-warning) 90%, var(--app-text));
-	font-size: var(--token-typography-size-sm);
-	font-weight: var(--token-typography-weight-medium);
+    margin: 0;
+    padding: var(--token-space-1) var(--token-space-2);
+    border-radius: var(--token-radius-sm);
+    border: 1px solid
+        color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
+    background: color-mix(in srgb, var(--app-warning) 14%, var(--app-surface));
+    color: color-mix(in srgb, var(--app-warning) 90%, var(--app-text));
+    font-size: var(--token-typography-size-sm);
+    font-weight: var(--token-typography-weight-medium);
 }
 
 .day-details-list {
-	display: grid;
-	gap: var(--token-space-2);
+    display: grid;
+    gap: var(--token-space-2);
 }
 
 .day-manual-add {
-	display: grid;
-	gap: var(--token-space-2);
-	border: 1px solid color-mix(in srgb, var(--app-border) 86%, transparent);
-	border-radius: var(--token-radius-sm);
-	background: color-mix(in srgb, var(--app-surface) 84%, transparent);
-	padding: var(--token-space-2);
+    display: grid;
+    gap: var(--token-space-2);
+    border: 1px solid color-mix(in srgb, var(--app-border) 86%, transparent);
+    border-radius: var(--token-radius-sm);
+    background: color-mix(in srgb, var(--app-surface) 84%, transparent);
+    padding: var(--token-space-2);
 }
 
 .day-manual-add > h3 {
-	margin: 0;
-	color: var(--app-textMuted);
-	font-size: var(--token-typography-size-sm);
-	font-weight: var(--token-typography-weight-semibold);
+    margin: 0;
+    color: var(--app-textMuted);
+    font-size: var(--token-typography-size-sm);
+    font-weight: var(--token-typography-weight-semibold);
 }
 
 .day-manual-add-form {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: var(--token-space-2);
-	align-items: start;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--token-space-2);
+    align-items: start;
 }
 
 .day-manual-add-form > * {
-	width: 100%;
+    width: 100%;
 }
 
 .day-manual-add-form .day-complete-toggle {
-	display: flex;
-	min-height: var(--token-size-target-minimum);
-	align-items: center;
+    display: flex;
+    min-height: var(--token-size-target-minimum);
+    align-items: center;
 }
 
 .day-manual-add-form .btn {
-	min-height: var(--token-size-target-minimum);
+    min-height: var(--token-size-target-minimum);
 }
 
 .day-manual-add-form .day-progress-field select,
 .day-manual-add-form .day-progress-field input {
-	width: 100%;
+    width: 100%;
 }
 
 .day-details-item {
-	position: relative;
-	display: grid;
-	gap: var(--token-space-1);
-	border: 1px solid color-mix(in srgb, var(--app-border) 86%, transparent);
-	border-radius: var(--token-radius-sm);
-	background: color-mix(in srgb, var(--app-surface) 84%, transparent);
-	padding: var(--token-space-2);
-	padding-right: calc(var(--token-space-2) + var(--token-space-6));
+    position: relative;
+    display: grid;
+    gap: var(--token-space-1);
+    border: 1px solid color-mix(in srgb, var(--app-border) 86%, transparent);
+    border-radius: var(--token-radius-sm);
+    background: color-mix(in srgb, var(--app-surface) 84%, transparent);
+    padding: var(--token-space-2);
+    padding-right: calc(var(--token-space-2) + var(--token-space-6));
 }
 
 .day-details-item.is-finish {
-	border-color: color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
-	background:
-		radial-gradient(
-			circle at top right,
-			color-mix(in srgb, var(--app-warning) 18%, transparent),
-			transparent 56%
-		),
-		color-mix(in srgb, var(--app-surface) 84%, transparent);
+    border-color: color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
+    background:
+        radial-gradient(
+            circle at top right,
+            color-mix(in srgb, var(--app-warning) 18%, transparent),
+            transparent 56%
+        ),
+        color-mix(in srgb, var(--app-surface) 84%, transparent);
 }
 
 .day-details-item.is-finish.is-complete {
-	border-color: color-mix(in srgb, var(--app-warning) 82%, var(--app-border));
-	background: color-mix(in srgb, var(--app-warning) 20%, var(--app-surface));
+    border-color: color-mix(in srgb, var(--app-warning) 82%, var(--app-border));
+    background: color-mix(in srgb, var(--app-warning) 20%, var(--app-surface));
 }
 
 .day-details-item.is-complete {
-	border-color: color-mix(in srgb, var(--app-success) 72%, var(--app-border));
-	background: color-mix(in srgb, var(--app-success) 14%, var(--app-surface));
+    border-color: color-mix(in srgb, var(--app-success) 72%, var(--app-border));
+    background: color-mix(in srgb, var(--app-success) 14%, var(--app-surface));
 }
 
 .day-finish-badge {
-	justify-self: start;
-	padding: 2px var(--token-space-2);
-	border-radius: var(--token-radius-pill);
-	border: 1px solid
-		color-mix(in srgb, var(--app-warning) 82%, var(--app-border));
-	background: color-mix(in srgb, var(--app-warning) 18%, var(--app-surface));
-	color: color-mix(in srgb, var(--app-warning) 90%, var(--app-text));
-	font-size: 11px;
-	font-weight: var(--token-typography-weight-bold);
-	letter-spacing: 0.04em;
-	text-transform: uppercase;
+    justify-self: start;
+    padding: 2px var(--token-space-2);
+    border-radius: var(--token-radius-pill);
+    border: 1px solid
+        color-mix(in srgb, var(--app-warning) 82%, var(--app-border));
+    background: color-mix(in srgb, var(--app-warning) 18%, var(--app-surface));
+    color: color-mix(in srgb, var(--app-warning) 90%, var(--app-text));
+    font-size: 11px;
+    font-weight: var(--token-typography-weight-bold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
 @keyframes finish-card-pulse {
-	0% {
-		transform: translateY(0) scale(1);
-		box-shadow: 0 0 0 0 color-mix(in srgb, var(--app-warning) 40%, transparent);
-	}
-	45% {
-		transform: translateY(-1px) scale(1.01);
-		box-shadow: 0 0 0 6px
-			color-mix(in srgb, var(--app-warning) 20%, transparent);
-	}
-	100% {
-		transform: translateY(0) scale(1);
-		box-shadow: 0 0 0 0 color-mix(in srgb, var(--app-warning) 0%, transparent);
-	}
+    0% {
+        transform: translateY(0) scale(1);
+        box-shadow: 0 0 0 0
+            color-mix(in srgb, var(--app-warning) 40%, transparent);
+    }
+    45% {
+        transform: translateY(-1px) scale(1.01);
+        box-shadow: 0 0 0 6px
+            color-mix(in srgb, var(--app-warning) 20%, transparent);
+    }
+    100% {
+        transform: translateY(0) scale(1);
+        box-shadow: 0 0 0 0
+            color-mix(in srgb, var(--app-warning) 0%, transparent);
+    }
 }
 
 .day-details-item.is-finish-pulse {
-	animation: finish-card-pulse 760ms var(--token-motion-easing-standard) 1;
+    animation: finish-card-pulse 760ms var(--token-motion-easing-standard) 1;
 }
 
 .day-details-meta {
-	color: var(--app-textMuted);
-	font-size: var(--token-typography-size-xs);
+    color: var(--app-textMuted);
+    font-size: var(--token-typography-size-xs);
 }
 
 .day-complete-toggle {
-	display: flex;
-	align-items: center;
-	gap: var(--token-space-2);
-	color: var(--app-textMuted);
-	font-size: var(--token-typography-size-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--token-space-2);
+    color: var(--app-textMuted);
+    font-size: var(--token-typography-size-sm);
 }
 
 .day-complete-toggle input[type="checkbox"] {
-	width: auto;
-	margin: 0;
-	min-height: 0;
+    width: auto;
+    margin: 0;
+    min-height: 0;
 }
 
 .day-progress-form {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
-	gap: var(--token-space-2);
-	align-items: end;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    gap: var(--token-space-2);
+    align-items: end;
 }
 
 .day-minutes-editor {
-	display: grid;
-	gap: var(--token-space-2);
+    display: grid;
+    gap: var(--token-space-2);
 }
 
 .day-minutes-summary {
-	display: flex;
-	align-items: center;
-	justify-content: flex-start;
-	gap: var(--token-space-1);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--token-space-1);
 }
 
 .day-minutes-value {
-	color: var(--app-text);
-	font-family: var(--token-typography-family-heading);
-	font-size: var(--token-typography-size-md);
-	line-height: var(--token-typography-lineHeight-tight);
+    color: var(--app-text);
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-md);
+    line-height: var(--token-typography-lineHeight-tight);
 }
 
 .btn-minutes-edit {
-	display: grid;
-	place-items: center;
-	inline-size: calc(var(--token-size-target-minimum) - var(--token-space-1));
-	block-size: calc(var(--token-size-target-minimum) - var(--token-space-1));
-	padding: 0;
-	border-radius: var(--token-radius-pill);
-	border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
-	background: color-mix(in srgb, var(--app-surface) 78%, transparent);
-	color: var(--app-textMuted);
-	font: inherit;
-	font-size: var(--token-typography-size-sm);
-	cursor: pointer;
+    display: grid;
+    place-items: center;
+    inline-size: calc(var(--token-size-target-minimum) - var(--token-space-1));
+    block-size: calc(var(--token-size-target-minimum) - var(--token-space-1));
+    padding: 0;
+    border-radius: var(--token-radius-pill);
+    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
+    background: color-mix(in srgb, var(--app-surface) 78%, transparent);
+    color: var(--app-textMuted);
+    font: inherit;
+    font-size: var(--token-typography-size-sm);
+    cursor: pointer;
 }
 
 .btn-minutes-edit:hover {
-	border-color: color-mix(
-		in srgb,
-		var(--app-brandStrong) 68%,
-		var(--app-border)
-	);
-	color: var(--app-text);
+    border-color: color-mix(
+        in srgb,
+        var(--app-brandStrong) 68%,
+        var(--app-border)
+    );
+    color: var(--app-text);
 }
 
 .day-minutes-form {
-	grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
 }
 
 .day-progress-field {
-	display: grid;
-	gap: var(--token-space-1);
-	color: var(--app-textMuted);
-	font-size: var(--token-typography-size-xs);
+    display: grid;
+    gap: var(--token-space-1);
+    color: var(--app-textMuted);
+    font-size: var(--token-typography-size-xs);
 }
 
 .day-progress-field input {
-	margin-top: 0;
+    margin-top: 0;
 }
 
 .day-progress-form .btn {
-	min-height: var(--token-size-target-minimum);
+    min-height: var(--token-size-target-minimum);
 }
 
 .btn-session-remove {
-	position: absolute;
-	top: var(--token-space-1);
-	right: var(--token-space-1);
-	display: grid;
-	place-items: center;
-	inline-size: var(--token-space-6);
-	block-size: var(--token-space-6);
-	padding: 0;
-	border-radius: var(--token-radius-pill);
-	border: 0;
-	background: transparent;
-	color: color-mix(in srgb, var(--app-danger) 68%, var(--app-textMuted));
-	font: inherit;
-	font-size: var(--token-typography-size-sm);
-	font-weight: var(--token-typography-weight-bold);
-	line-height: 1;
-	cursor: pointer;
-	transition:
-		border-color var(--token-motion-duration-fast)
-		var(--token-motion-easing-standard),
-		background-color var(--token-motion-duration-fast)
-		var(--token-motion-easing-standard),
-		color var(--token-motion-duration-fast) var(--token-motion-easing-standard);
+    position: absolute;
+    top: var(--token-space-1);
+    right: var(--token-space-1);
+    display: grid;
+    place-items: center;
+    inline-size: var(--token-space-6);
+    block-size: var(--token-space-6);
+    padding: 0;
+    border-radius: var(--token-radius-pill);
+    border: 0;
+    background: transparent;
+    color: color-mix(in srgb, var(--app-danger) 68%, var(--app-textMuted));
+    font: inherit;
+    font-size: var(--token-typography-size-sm);
+    font-weight: var(--token-typography-weight-bold);
+    line-height: 1;
+    cursor: pointer;
+    transition:
+        border-color var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard),
+        background-color var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard),
+        color var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard);
 }
 
 .btn-session-remove:hover {
-	background: color-mix(in srgb, var(--app-danger) 14%, transparent);
-	color: color-mix(in srgb, var(--app-danger) 86%, var(--app-text));
+    background: color-mix(in srgb, var(--app-danger) 14%, transparent);
+    color: color-mix(in srgb, var(--app-danger) 86%, var(--app-text));
 }
 
 .btn-session-remove:active {
-	transform: translateY(1px);
+    transform: translateY(1px);
 }
 
 @media (max-width: 1450px) {
-	.day {
-		min-height: 144px;
-	}
+    .day {
+        min-height: 144px;
+    }
 }
 
 @media (max-width: 1180px) {
-	.schedule-layout {
-		grid-template-columns: 1fr;
-	}
+    .schedule-layout {
+        grid-template-columns: 1fr;
+    }
 
-	.day-details {
-		position: static;
-		max-height: none;
-	}
+    .day-details {
+        position: static;
+        max-height: none;
+    }
 }
 
 @media (max-width: 820px) {
-	.calendar {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
+    .calendar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 
-	.calendar-weekday {
-		display: none;
-	}
+    .calendar-weekday {
+        display: none;
+    }
 
-	.calendar-grid {
-		grid-column: 1 / -1;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
+    .calendar-grid {
+        grid-column: 1 / -1;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 
-	.day {
-		min-height: 130px;
-	}
+    .day {
+        min-height: 130px;
+    }
 
-	.day-progress-form {
-		grid-template-columns: 1fr;
-	}
+    .day-progress-form {
+        grid-template-columns: 1fr;
+    }
 }

@@ -1,185 +1,185 @@
 .book-card {
-	position: relative;
-	isolation: isolate;
+    position: relative;
+    isolation: isolate;
 }
 
 .book-meta {
-	position: relative;
-	z-index: 1;
+    position: relative;
+    z-index: 1;
 }
 
 .book-card.is-read-card {
-	border-color: color-mix(in srgb, rgb(212, 165, 54) 34%, var(--app-border));
-	background: linear-gradient(
-		180deg,
-		color-mix(in srgb, rgb(212, 165, 54) 8%, var(--app-surfaceMuted)) 0%,
-		color-mix(in srgb, rgb(120, 88, 24) 4%, var(--app-surfaceMuted)) 100%
-	);
+    border-color: color-mix(in srgb, rgb(212, 165, 54) 34%, var(--app-border));
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, rgb(212, 165, 54) 8%, var(--app-surfaceMuted)) 0%,
+        color-mix(in srgb, rgb(120, 88, 24) 4%, var(--app-surfaceMuted)) 100%
+    );
 }
 
 .book-estimated-finish-btn {
-	justify-self: auto;
-	border: 1px solid
-		color-mix(in srgb, var(--app-brandStrong) 36%, var(--app-border));
-	border-radius: var(--token-radius-pill);
-	padding: 4px var(--token-space-2);
-	background: color-mix(in srgb, var(--app-brand) 14%, var(--app-surface));
-	color: var(--app-textMuted);
-	font-size: var(--token-typography-size-xs);
-	letter-spacing: 0.02em;
-	white-space: nowrap;
+    justify-self: auto;
+    border: 1px solid
+        color-mix(in srgb, var(--app-brandStrong) 36%, var(--app-border));
+    border-radius: var(--token-radius-pill);
+    padding: 4px var(--token-space-2);
+    background: color-mix(in srgb, var(--app-brand) 14%, var(--app-surface));
+    color: var(--app-textMuted);
+    font-size: var(--token-typography-size-xs);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
 }
 
 .book-estimated-finish-btn:hover,
 .book-estimated-finish-btn:focus-visible {
-	border-color: color-mix(
-		in srgb,
-		var(--app-brandStrong) 56%,
-		var(--app-border)
-	);
-	color: var(--app-text);
+    border-color: color-mix(
+        in srgb,
+        var(--app-brandStrong) 56%,
+        var(--app-border)
+    );
+    color: var(--app-text);
 }
 
 .book-card.is-read-card .book-cover-btn.has-cover {
-	position: relative;
-	overflow: hidden;
+    position: relative;
+    overflow: hidden;
 }
 
 .book-card.is-read-card .book-cover-btn.has-cover img {
-	position: relative;
-	z-index: 0;
+    position: relative;
+    z-index: 0;
 }
 
 .book-card.is-read-card .book-cover-btn.has-cover {
-	--pointer-x: 50%;
-	--pointer-y: 50%;
-	--bg-shift-x: 50%;
-	--bg-shift-y: 50%;
-	--holo-active: 0;
-	--holo-opacity: 0;
-	--glare-opacity: 0;
-	isolation: isolate;
+    --pointer-x: 50%;
+    --pointer-y: 50%;
+    --bg-shift-x: 50%;
+    --bg-shift-y: 50%;
+    --holo-active: 0;
+    --holo-opacity: 0;
+    --glare-opacity: 0;
+    isolation: isolate;
 }
 
 .book-card.is-read-card .book-cover-btn.has-cover::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	pointer-events: none;
-	z-index: 1;
-	opacity: calc(var(--holo-opacity) + (var(--holo-active) * 0.16));
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: calc(var(--holo-opacity) + (var(--holo-active) * 0.16));
 
-	background-image:
-		radial-gradient(
-			140% 140% at var(--pointer-x) var(--pointer-y),
-			hsl(46 100% 92% / 0.22) 0%,
-			hsl(43 90% 74% / 0.12) 18%,
-			transparent 52%
-		),
-		linear-gradient(
-			118deg,
-			transparent 16%,
-			hsl(35 88% 62% / 0.1) 34%,
-			hsl(46 100% 84% / 0.16) 50%,
-			hsl(35 88% 62% / 0.1) 66%,
-			transparent 84%
-		),
-		linear-gradient(
-			180deg,
-			hsl(42 70% 70% / 0.06) 0%,
-			transparent 42%,
-			hsl(30 60% 40% / 0.05) 100%
-		);
+    background-image:
+        radial-gradient(
+            140% 140% at var(--pointer-x) var(--pointer-y),
+            hsl(46 100% 92% / 0.22) 0%,
+            hsl(43 90% 74% / 0.12) 18%,
+            transparent 52%
+        ),
+        linear-gradient(
+            118deg,
+            transparent 16%,
+            hsl(35 88% 62% / 0.1) 34%,
+            hsl(46 100% 84% / 0.16) 50%,
+            hsl(35 88% 62% / 0.1) 66%,
+            transparent 84%
+        ),
+        linear-gradient(
+            180deg,
+            hsl(42 70% 70% / 0.06) 0%,
+            transparent 42%,
+            hsl(30 60% 40% / 0.05) 100%
+        );
 
-	background-size:
-		100% 100%,
-		180% 180%,
-		100% 100%;
-	background-position:
-		center,
-		calc(100% - var(--bg-shift-x)) var(--bg-shift-y),
-		center;
-	background-repeat: no-repeat, no-repeat, no-repeat;
+    background-size:
+        100% 100%,
+        180% 180%,
+        100% 100%;
+    background-position:
+        center,
+        calc(100% - var(--bg-shift-x)) var(--bg-shift-y),
+        center;
+    background-repeat: no-repeat, no-repeat, no-repeat;
 
-	background-blend-mode: screen, soft-light, normal;
-	mix-blend-mode: normal;
+    background-blend-mode: screen, soft-light, normal;
+    mix-blend-mode: normal;
 
-	filter: brightness(1.02) saturate(1.02);
-	transition:
-		opacity 180ms var(--token-motion-easing-standard),
-		filter 180ms var(--token-motion-easing-standard);
+    filter: brightness(1.02) saturate(1.02);
+    transition:
+        opacity 180ms var(--token-motion-easing-standard),
+        filter 180ms var(--token-motion-easing-standard);
 }
 
 .book-card.is-read-card .book-cover-btn.has-cover::after {
-	content: "";
-	position: absolute;
-	inset: 0;
-	pointer-events: none;
-	z-index: 2;
-	opacity: calc(var(--glare-opacity) + (var(--holo-active) * 0.14));
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    opacity: calc(var(--glare-opacity) + (var(--holo-active) * 0.14));
 
-	background-image:
-		radial-gradient(
-			80% 80% at var(--pointer-x) var(--pointer-y),
-			hsl(48 100% 88% / 0.32) 0%,
-			hsl(42 95% 74% / 0.14) 12%,
-			transparent 34%
-		),
-		linear-gradient(
-			122deg,
-			transparent 30%,
-			hsl(45 100% 90% / 0.04) 43%,
-			hsl(46 100% 84% / 0.1) 50%,
-			hsl(45 100% 90% / 0.04) 57%,
-			transparent 70%
-		);
+    background-image:
+        radial-gradient(
+            80% 80% at var(--pointer-x) var(--pointer-y),
+            hsl(48 100% 88% / 0.32) 0%,
+            hsl(42 95% 74% / 0.14) 12%,
+            transparent 34%
+        ),
+        linear-gradient(
+            122deg,
+            transparent 30%,
+            hsl(45 100% 90% / 0.04) 43%,
+            hsl(46 100% 84% / 0.1) 50%,
+            hsl(45 100% 90% / 0.04) 57%,
+            transparent 70%
+        );
 
-	background-size:
-		100% 100%,
-		170% 170%;
-	background-position:
-		center,
-		calc(100% - var(--bg-shift-x)) var(--bg-shift-y);
-	background-repeat: no-repeat, no-repeat;
+    background-size:
+        100% 100%,
+        170% 170%;
+    background-position:
+        center,
+        calc(100% - var(--bg-shift-x)) var(--bg-shift-y);
+    background-repeat: no-repeat, no-repeat;
 
-	background-blend-mode: screen, soft-light;
-	mix-blend-mode: soft-light;
+    background-blend-mode: screen, soft-light;
+    mix-blend-mode: soft-light;
 
-	filter: brightness(1.02) saturate(1.03);
+    filter: brightness(1.02) saturate(1.03);
 
-	box-shadow:
-		inset 0 0 0 1px color-mix(in srgb, rgb(120, 88, 24) 12%, transparent),
-		inset 0 0 0 999px color-mix(in srgb, rgb(212, 165, 54) 6%, transparent);
+    box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, rgb(120, 88, 24) 12%, transparent),
+        inset 0 0 0 999px color-mix(in srgb, rgb(212, 165, 54) 6%, transparent);
 
-	transition:
-		opacity 180ms var(--token-motion-easing-standard),
-		filter 180ms var(--token-motion-easing-standard);
+    transition:
+        opacity 180ms var(--token-motion-easing-standard),
+        filter 180ms var(--token-motion-easing-standard);
 }
 
 .book-card.is-read-card .book-cover-btn.has-cover:hover,
 .book-card.is-read-card .book-cover-btn.has-cover:focus-visible,
 .book-card.is-read-card .book-cover-btn.has-cover:active {
-	--holo-active: 0.2;
+    --holo-active: 0.2;
 }
 
 .book-card.is-read-card .book-cover-btn.has-cover:focus-visible {
-	outline: 2px solid color-mix(in srgb, rgb(255, 210, 95) 72%, transparent);
-	outline-offset: -2px;
+    outline: 2px solid color-mix(in srgb, rgb(255, 210, 95) 72%, transparent);
+    outline-offset: -2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.book-card.is-read-card .book-cover-btn.has-cover {
-		--holo-active: 0.35;
-		--pointer-x: 50%;
-		--pointer-y: 50%;
-		--bg-shift-x: 50%;
-		--bg-shift-y: 50%;
-	}
+    .book-card.is-read-card .book-cover-btn.has-cover {
+        --holo-active: 0.35;
+        --pointer-x: 50%;
+        --pointer-y: 50%;
+        --bg-shift-x: 50%;
+        --bg-shift-y: 50%;
+    }
 
-	.book-card.is-read-card .book-cover-btn.has-cover::before,
-	.book-card.is-read-card .book-cover-btn.has-cover::after {
-		transition: none;
-		animation: none;
-		background-position: center;
-	}
+    .book-card.is-read-card .book-cover-btn.has-cover::before,
+    .book-card.is-read-card .book-cover-btn.has-cover::after {
+        transition: none;
+        animation: none;
+        background-position: center;
+    }
 }

@@ -1,7 +1,7 @@
 import type {
-	BindBookLookupOptions,
-	LookupBinding,
-	LookupSearchState,
+    BindBookLookupOptions,
+    LookupBinding,
+    LookupSearchState,
 } from "../../types/types.js";
 import { placeholderCoverSvg } from "./helpers.js";
 import { createLookupInputHandler } from "./input.js";
@@ -19,81 +19,81 @@ import { createLookupStateController } from "./search_state.js";
  * @returns Binding handle with clear/destroy controls.
  */
 export function bindBookLookup(options: BindBookLookupOptions): LookupBinding {
-	const placeholder = placeholderCoverSvg();
-	const state: LookupSearchState = {
-		timer: null,
-		token: 0,
-		currentItems: [],
-		activeIndex: -1,
-	};
-	const lookupState = createLookupStateController({
-		searchInput: options.searchInput,
-		resultsEl: options.resultsEl,
-		metaEl: options.metaEl,
-		onPick: options.onPick,
-		placeholder,
-		state,
-	});
-	const clearResults = (): void => {
-		lookupState.clearResults();
-	};
-	const refreshResults = (): void => {
-		lookupState.refreshResults();
-	};
-	const setActiveIndex = (nextIndex: number): void => {
-		lookupState.setActiveIndex(nextIndex);
-	};
-	const selectItem = (nextIndex: number): void => {
-		lookupState.selectItem(nextIndex);
-	};
-	options.resultsEl.addEventListener("mousemove", (event: MouseEvent) => {
-		const target = lookupResultTarget(event);
-		if (target) {
-			setActiveIndex(Number(target.dataset.resultIndex));
-		}
-	});
-	options.resultsEl.addEventListener("click", (event: MouseEvent) => {
-		const target = lookupResultTarget(event);
-		if (target) {
-			selectItem(Number(target.dataset.resultIndex));
-		}
-	});
-	const onInput = createLookupInputHandler({
-		searchInput: options.searchInput,
-		metaEl: options.metaEl,
-		state,
-		clearResults,
-		refreshResults,
-	});
-	options.searchInput.addEventListener("input", onInput);
-	options.searchInput.addEventListener("keydown", (event: KeyboardEvent) => {
-		handleLookupKeydown({
-			event,
-			currentItems: state.currentItems,
-			activeIndex: state.activeIndex,
-			setActiveIndex,
-			selectItem,
-			clearResults,
-			searchInput: options.searchInput,
-		});
-	});
-	const onDocClick = (event: MouseEvent): void => {
-		if (!(event.target instanceof Node)) {
-			return;
-		}
-		if (
-			event.target === options.searchInput ||
-			options.resultsEl.contains(event.target)
-		) {
-			return;
-		}
-		clearResults();
-	};
-	document.addEventListener("click", onDocClick);
-	return {
-		clearResults,
-		destroy: (): void => {
-			document.removeEventListener("click", onDocClick);
-		},
-	};
+    const placeholder = placeholderCoverSvg();
+    const state: LookupSearchState = {
+        timer: null,
+        token: 0,
+        currentItems: [],
+        activeIndex: -1,
+    };
+    const lookupState = createLookupStateController({
+        searchInput: options.searchInput,
+        resultsEl: options.resultsEl,
+        metaEl: options.metaEl,
+        onPick: options.onPick,
+        placeholder,
+        state,
+    });
+    const clearResults = (): void => {
+        lookupState.clearResults();
+    };
+    const refreshResults = (): void => {
+        lookupState.refreshResults();
+    };
+    const setActiveIndex = (nextIndex: number): void => {
+        lookupState.setActiveIndex(nextIndex);
+    };
+    const selectItem = (nextIndex: number): void => {
+        lookupState.selectItem(nextIndex);
+    };
+    options.resultsEl.addEventListener("mousemove", (event: MouseEvent) => {
+        const target = lookupResultTarget(event);
+        if (target) {
+            setActiveIndex(Number(target.dataset.resultIndex));
+        }
+    });
+    options.resultsEl.addEventListener("click", (event: MouseEvent) => {
+        const target = lookupResultTarget(event);
+        if (target) {
+            selectItem(Number(target.dataset.resultIndex));
+        }
+    });
+    const onInput = createLookupInputHandler({
+        searchInput: options.searchInput,
+        metaEl: options.metaEl,
+        state,
+        clearResults,
+        refreshResults,
+    });
+    options.searchInput.addEventListener("input", onInput);
+    options.searchInput.addEventListener("keydown", (event: KeyboardEvent) => {
+        handleLookupKeydown({
+            event,
+            currentItems: state.currentItems,
+            activeIndex: state.activeIndex,
+            setActiveIndex,
+            selectItem,
+            clearResults,
+            searchInput: options.searchInput,
+        });
+    });
+    const onDocClick = (event: MouseEvent): void => {
+        if (!(event.target instanceof Node)) {
+            return;
+        }
+        if (
+            event.target === options.searchInput ||
+            options.resultsEl.contains(event.target)
+        ) {
+            return;
+        }
+        clearResults();
+    };
+    document.addEventListener("click", onDocClick);
+    return {
+        clearResults,
+        destroy: (): void => {
+            document.removeEventListener("click", onDocClick);
+        },
+    };
 }

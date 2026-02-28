@@ -1,13 +1,13 @@
 export { fields } from "./config_fields.js";
 
 export const weekdays: Array<[string, string]> = [
-	["Mon", "Monday"],
-	["Tue", "Tuesday"],
-	["Wed", "Wednesday"],
-	["Thu", "Thursday"],
-	["Fri", "Friday"],
-	["Sat", "Saturday"],
-	["Sun", "Sunday"],
+    ["Mon", "Monday"],
+    ["Tue", "Tuesday"],
+    ["Wed", "Wednesday"],
+    ["Thu", "Thursday"],
+    ["Fri", "Friday"],
+    ["Sat", "Saturday"],
+    ["Sun", "Sunday"],
 ];
 
 export const DIFFICULTY_LEVEL_COUNT = 10;

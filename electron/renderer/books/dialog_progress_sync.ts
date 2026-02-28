@@ -7,15 +7,15 @@ import { syncFinishedAtField } from "./form_state.js";
  * @param syncRefs Input refs used by progress/pages sync helper.
  */
 function bindProgressSyncHandlers(syncRefs: ProgressSyncRefs): void {
-	syncRefs.pagesTotalInput.addEventListener("input", () => {
-		syncProgressAndPages(syncRefs, "pages");
-	});
-	syncRefs.pagesReadInput.addEventListener("input", () => {
-		syncProgressAndPages(syncRefs, "pages");
-	});
-	syncRefs.progressInput.addEventListener("input", () => {
-		syncProgressAndPages(syncRefs, "progress");
-	});
+    syncRefs.pagesTotalInput.addEventListener("input", () => {
+        syncProgressAndPages(syncRefs, "pages");
+    });
+    syncRefs.pagesReadInput.addEventListener("input", () => {
+        syncProgressAndPages(syncRefs, "pages");
+    });
+    syncRefs.progressInput.addEventListener("input", () => {
+        syncProgressAndPages(syncRefs, "progress");
+    });
 }
 
 /**
@@ -23,12 +23,12 @@ function bindProgressSyncHandlers(syncRefs: ProgressSyncRefs): void {
  * @param refs Book form references for the active dialog.
  */
 export function bindBookDialogProgressSync(refs: BookFormRefs): void {
-	bindProgressSyncHandlers({
-		pagesTotalInput: refs.pagesTotalInput,
-		pagesReadInput: refs.pagesReadInput,
-		progressInput: refs.progressInput,
-	});
-	refs.statusSelectInput.addEventListener("change", () => {
-		syncFinishedAtField(refs);
-	});
+    bindProgressSyncHandlers({
+        pagesTotalInput: refs.pagesTotalInput,
+        pagesReadInput: refs.pagesReadInput,
+        progressInput: refs.progressInput,
+    });
+    refs.statusSelectInput.addEventListener("change", () => {
+        syncFinishedAtField(refs);
+    });
 }

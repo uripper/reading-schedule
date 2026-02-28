@@ -21,22 +21,22 @@ const ERROR_UPLOAD_FAILED = "Could not upload this cover image.";
  * @returns `true` when extension is PNG/JPG/JPEG/WEBP.
  */
 function fileNameHasSupportedExtension(fileName: string): boolean {
-	const lowerName = String(fileName || "")
-		.trim()
-		.toLowerCase();
-	if (lowerName.endsWith(COVER_EXTENSION_PNG)) {
-		return true;
-	}
-	if (lowerName.endsWith(COVER_EXTENSION_JPG)) {
-		return true;
-	}
-	if (lowerName.endsWith(COVER_EXTENSION_JPEG)) {
-		return true;
-	}
-	if (lowerName.endsWith(COVER_EXTENSION_WEBP)) {
-		return true;
-	}
-	return false;
+    const lowerName = String(fileName || "")
+        .trim()
+        .toLowerCase();
+    if (lowerName.endsWith(COVER_EXTENSION_PNG)) {
+        return true;
+    }
+    if (lowerName.endsWith(COVER_EXTENSION_JPG)) {
+        return true;
+    }
+    if (lowerName.endsWith(COVER_EXTENSION_JPEG)) {
+        return true;
+    }
+    if (lowerName.endsWith(COVER_EXTENSION_WEBP)) {
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -45,20 +45,20 @@ function fileNameHasSupportedExtension(fileName: string): boolean {
  * @returns `true` when the file can be treated as a supported image.
  */
 function fileIsSupported(file: File): boolean {
-	const mimeType = String(file.type || "")
-		.trim()
-		.toLowerCase();
-	if (
-		mimeType === COVER_MIME_PNG ||
-		mimeType === COVER_MIME_JPEG ||
-		mimeType === COVER_MIME_WEBP
-	) {
-		return true;
-	}
-	if (!mimeType) {
-		return fileNameHasSupportedExtension(file.name);
-	}
-	return false;
+    const mimeType = String(file.type || "")
+        .trim()
+        .toLowerCase();
+    if (
+        mimeType === COVER_MIME_PNG ||
+        mimeType === COVER_MIME_JPEG ||
+        mimeType === COVER_MIME_WEBP
+    ) {
+        return true;
+    }
+    if (!mimeType) {
+        return fileNameHasSupportedExtension(file.name);
+    }
+    return false;
 }
 
 /**
@@ -67,11 +67,11 @@ function fileIsSupported(file: File): boolean {
  * @returns First selected file or `null` when none is selected.
  */
 function selectedCoverFile(refs: BookFormRefs): File | null {
-	const { files } = refs.coverUploadInput;
-	if (!files || files.length <= 0) {
-		return null;
-	}
-	return files[0];
+    const { files } = refs.coverUploadInput;
+    if (!files || files.length <= 0) {
+        return null;
+    }
+    return files[0];
 }
 
 /**
@@ -80,28 +80,28 @@ function selectedCoverFile(refs: BookFormRefs): File | null {
  * @returns Data URL string produced by `FileReader`.
  */
 async function readFileAsDataUrl(file: File): Promise<string> {
-	return await new Promise((resolve, reject) => {
-		const reader = new FileReader();
+    return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
 
-		const onLoad = (): void => {
-			const { result } = reader;
-			if (typeof result !== "string" || !result) {
-				reject(new Error(ERROR_UPLOAD_FAILED));
-				return;
-			}
+        const onLoad = (): void => {
+            const { result } = reader;
+            if (typeof result !== "string" || !result) {
+                reject(new Error(ERROR_UPLOAD_FAILED));
+                return;
+            }
 
-			const dataUrl = result;
-			resolve(dataUrl);
-		};
+            const dataUrl = result;
+            resolve(dataUrl);
+        };
 
-		const onError = (): void => {
-			reject(new Error(ERROR_UPLOAD_FAILED));
-		};
+        const onError = (): void => {
+            reject(new Error(ERROR_UPLOAD_FAILED));
+        };
 
-		reader.addEventListener("load", onLoad, { once: true });
-		reader.addEventListener("error", onError, { once: true });
-		reader.readAsDataURL(file);
-	});
+        reader.addEventListener("load", onLoad, { once: true });
+        reader.addEventListener("error", onError, { once: true });
+        reader.readAsDataURL(file);
+    });
 }
 
 /**
@@ -109,7 +109,7 @@ async function readFileAsDataUrl(file: File): Promise<string> {
  * @param refs Book form references containing the upload input.
  */
 function triggerCoverPicker(refs: BookFormRefs): void {
-	refs.coverUploadInput.click();
+    refs.coverUploadInput.click();
 }
 
 /**
@@ -118,11 +118,11 @@ function triggerCoverPicker(refs: BookFormRefs): void {
  * @param refs Book form references containing upload controls.
  */
 function onCoverPanelKeydown(event: KeyboardEvent, refs: BookFormRefs): void {
-	if (event.key !== KEY_ENTER && event.key !== KEY_SPACE) {
-		return;
-	}
-	event.preventDefault();
-	triggerCoverPicker(refs);
+    if (event.key !== KEY_ENTER && event.key !== KEY_SPACE) {
+        return;
+    }
+    event.preventDefault();
+    triggerCoverPicker(refs);
 }
 
 /**
@@ -131,10 +131,10 @@ function onCoverPanelKeydown(event: KeyboardEvent, refs: BookFormRefs): void {
  * @returns Safe error message for the form metadata area.
  */
 function uploadErrorMessage(error: unknown): string {
-	if (error instanceof Error && error.message) {
-		return error.message;
-	}
-	return ERROR_UPLOAD_FAILED;
+    if (error instanceof Error && error.message) {
+        return error.message;
+    }
+    return ERROR_UPLOAD_FAILED;
 }
 
 /**
@@ -142,8 +142,8 @@ function uploadErrorMessage(error: unknown): string {
  * @param refs Book form references containing upload controls.
  */
 function clearCoverUploadInput(refs: BookFormRefs): void {
-	const { coverUploadInput } = refs;
-	coverUploadInput.value = "";
+    const { coverUploadInput } = refs;
+    coverUploadInput.value = "";
 }
 
 /**
@@ -151,20 +151,20 @@ function clearCoverUploadInput(refs: BookFormRefs): void {
  * @param refs Book form references containing upload and metadata controls.
  */
 async function saveSelectedCover(refs: BookFormRefs): Promise<void> {
-	const file = selectedCoverFile(refs);
-	if (!file) {
-		throw new Error(ERROR_MISSING_FILE);
-	}
-	if (!fileIsSupported(file)) {
-		throw new Error(ERROR_UNSUPPORTED_FILE);
-	}
+    const file = selectedCoverFile(refs);
+    if (!file) {
+        throw new Error(ERROR_MISSING_FILE);
+    }
+    if (!fileIsSupported(file)) {
+        throw new Error(ERROR_UNSUPPORTED_FILE);
+    }
 
-	const dataUrl = await readFileAsDataUrl(file);
-	const localCover = await getPlannerApi().saveUploadedCover(
-		dataUrl,
-		refs.bookId.value,
-	);
-	applyUploadedCover(refs, localCover, file.name);
+    const dataUrl = await readFileAsDataUrl(file);
+    const localCover = await getPlannerApi().saveUploadedCover(
+        dataUrl,
+        refs.bookId.value,
+    );
+    applyUploadedCover(refs, localCover, file.name);
 }
 
 /**
@@ -172,14 +172,14 @@ async function saveSelectedCover(refs: BookFormRefs): Promise<void> {
  * @param refs Book form references containing upload and metadata controls.
  */
 async function handleCoverUploadChange(refs: BookFormRefs): Promise<void> {
-	const { lookupMeta } = refs;
-	try {
-		await saveSelectedCover(refs);
-	} catch (error: unknown) {
-		lookupMeta.textContent = uploadErrorMessage(error);
-	} finally {
-		clearCoverUploadInput(refs);
-	}
+    const { lookupMeta } = refs;
+    try {
+        await saveSelectedCover(refs);
+    } catch (error: unknown) {
+        lookupMeta.textContent = uploadErrorMessage(error);
+    } finally {
+        clearCoverUploadInput(refs);
+    }
 }
 
 /**
@@ -187,22 +187,22 @@ async function handleCoverUploadChange(refs: BookFormRefs): Promise<void> {
  * @param refs Book form references containing upload and panel controls.
  */
 export function bindCoverUpload(refs: BookFormRefs): void {
-	const { lookupMeta } = refs;
-	const runUploadChange = (): void => {
-		handleCoverUploadChange(refs).catch((error: unknown) => {
-			lookupMeta.textContent = uploadErrorMessage(error);
-			clearCoverUploadInput(refs);
-		});
-	};
+    const { lookupMeta } = refs;
+    const runUploadChange = (): void => {
+        handleCoverUploadChange(refs).catch((error: unknown) => {
+            lookupMeta.textContent = uploadErrorMessage(error);
+            clearCoverUploadInput(refs);
+        });
+    };
 
-	refs.coverPanel.addEventListener("click", (event) => {
-		event.preventDefault();
-		triggerCoverPicker(refs);
-	});
-	refs.coverPanel.addEventListener("keydown", (event) => {
-		onCoverPanelKeydown(event, refs);
-	});
-	refs.coverUploadInput.addEventListener("change", () => {
-		runUploadChange();
-	});
+    refs.coverPanel.addEventListener("click", (event) => {
+        event.preventDefault();
+        triggerCoverPicker(refs);
+    });
+    refs.coverPanel.addEventListener("keydown", (event) => {
+        onCoverPanelKeydown(event, refs);
+    });
+    refs.coverUploadInput.addEventListener("change", () => {
+        runUploadChange();
+    });
 }

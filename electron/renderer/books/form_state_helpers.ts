@@ -3,10 +3,10 @@ import { dayKey } from "../calendar/utils.js";
 import { COVER_PLACEHOLDER } from "./constants.js";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";
 import {
-	BOOK_STATUS_DROPPED,
-	BOOK_STATUS_IN_PROGRESS,
-	BOOK_STATUS_READ,
-	BOOK_STATUS_TO_READ,
+    BOOK_STATUS_DROPPED,
+    BOOK_STATUS_IN_PROGRESS,
+    BOOK_STATUS_READ,
+    BOOK_STATUS_TO_READ,
 } from "./status_catalog.js";
 import { clamp, toOptionalInt } from "./utils.js";
 
@@ -25,7 +25,7 @@ const PROGRESS_DECIMAL_SCALE = 10;
  * @returns Day key in `YYYY-MM-DD` format.
  */
 function todayDateKey(): string {
-	return dayKey(new Date());
+    return dayKey(new Date());
 }
 
 /**
@@ -34,14 +34,14 @@ function todayDateKey(): string {
  * @param src URL/path to show in the preview.
  */
 export function setCoverPreview(refs: BookFormRefs, src: string): void {
-	const preview = refs.coverPreview;
-	const hasSrc = src !== "";
-	if (hasSrc) {
-		preview.src = src;
-	} else {
-		preview.src = COVER_PLACEHOLDER;
-	}
-	preview.classList.toggle("is-empty", !hasSrc);
+    const preview = refs.coverPreview;
+    const hasSrc = src !== "";
+    if (hasSrc) {
+        preview.src = src;
+    } else {
+        preview.src = COVER_PLACEHOLDER;
+    }
+    preview.classList.toggle("is-empty", !hasSrc);
 }
 
 /**
@@ -50,15 +50,15 @@ export function setCoverPreview(refs: BookFormRefs, src: string): void {
  * @param value Number to render, or empty when missing.
  */
 export function setOptionalIntegerInputValue(
-	inputNode: HTMLInputElement,
-	value: number | null | undefined,
+    inputNode: HTMLInputElement,
+    value: number | null | undefined,
 ): void {
-	const targetInput = inputNode;
-	targetInput.value = "";
-	if (value === null || value === undefined) {
-		return;
-	}
-	targetInput.value = String(value);
+    const targetInput = inputNode;
+    targetInput.value = "";
+    if (value === null || value === undefined) {
+        return;
+    }
+    targetInput.value = String(value);
 }
 
 /**
@@ -68,13 +68,13 @@ export function setOptionalIntegerInputValue(
  * @returns `value` when present; otherwise `fallback`.
  */
 export function fallbackText(
-	value: string | null | undefined,
-	fallback = "",
+    value: string | null | undefined,
+    fallback = "",
 ): string {
-	if (value === null || value === undefined || value === "") {
-		return fallback;
-	}
-	return value;
+    if (value === null || value === undefined || value === "") {
+        return fallback;
+    }
+    return value;
 }
 
 /**
@@ -84,13 +84,13 @@ export function fallbackText(
  * @returns String form of `value` or the provided fallback.
  */
 export function fallbackNumberText(
-	value: number | null | undefined,
-	fallback: string,
+    value: number | null | undefined,
+    fallback: string,
 ): string {
-	if (value === null || value === undefined || value === 0) {
-		return fallback;
-	}
-	return String(value);
+    if (value === null || value === undefined || value === 0) {
+        return fallback;
+    }
+    return String(value);
 }
 
 /**
@@ -100,11 +100,11 @@ export function fallbackNumberText(
  * @throws {Error} Thrown when the title is blank.
  */
 export function requiredTitle(refs: BookFormRefs): string {
-	const title = refs.titleInput.value.trim();
-	if (!title) {
-		throw new Error("Title is required.");
-	}
-	return title;
+    const title = refs.titleInput.value.trim();
+    if (!title) {
+        throw new Error("Title is required.");
+    }
+    return title;
 }
 
 /**
@@ -113,17 +113,17 @@ export function requiredTitle(refs: BookFormRefs): string {
  * @returns Supported book status value.
  */
 export function validatedStatusSelection(refs: BookFormRefs): BookStatus {
-	const raw = String(refs.statusSelectInput.value).trim();
-	if (raw === BOOK_STATUS_READ) {
-		return BOOK_STATUS_READ;
-	}
-	if (raw === BOOK_STATUS_IN_PROGRESS) {
-		return BOOK_STATUS_IN_PROGRESS;
-	}
-	if (raw === BOOK_STATUS_DROPPED) {
-		return BOOK_STATUS_DROPPED;
-	}
-	return BOOK_STATUS_TO_READ;
+    const raw = String(refs.statusSelectInput.value).trim();
+    if (raw === BOOK_STATUS_READ) {
+        return BOOK_STATUS_READ;
+    }
+    if (raw === BOOK_STATUS_IN_PROGRESS) {
+        return BOOK_STATUS_IN_PROGRESS;
+    }
+    if (raw === BOOK_STATUS_DROPPED) {
+        return BOOK_STATUS_DROPPED;
+    }
+    return BOOK_STATUS_TO_READ;
 }
 
 /**
@@ -132,17 +132,17 @@ export function validatedStatusSelection(refs: BookFormRefs): BookStatus {
  * @param status Current normalized status value.
  */
 function toggleFinishedAtInput(refs: BookFormRefs, status: BookStatus): void {
-	const { finishedAtField, finishedAtInput } = refs;
-	const isRead = status === BOOK_STATUS_READ;
-	finishedAtField.hidden = !isRead;
-	finishedAtInput.disabled = !isRead;
-	if (!isRead) {
-		return;
-	}
-	if (finishedAtInput.value) {
-		return;
-	}
-	finishedAtInput.value = todayDateKey();
+    const { finishedAtField, finishedAtInput } = refs;
+    const isRead = status === BOOK_STATUS_READ;
+    finishedAtField.hidden = !isRead;
+    finishedAtInput.disabled = !isRead;
+    if (!isRead) {
+        return;
+    }
+    if (finishedAtInput.value) {
+        return;
+    }
+    finishedAtInput.value = todayDateKey();
 }
 
 /**
@@ -150,8 +150,8 @@ function toggleFinishedAtInput(refs: BookFormRefs, status: BookStatus): void {
  * @param refs Form DOM references for the book dialog.
  */
 export function syncFinishedAtFieldState(refs: BookFormRefs): void {
-	const status = validatedStatusSelection(refs);
-	toggleFinishedAtInput(refs, status);
+    const status = validatedStatusSelection(refs);
+    toggleFinishedAtInput(refs, status);
 }
 
 /**
@@ -161,42 +161,44 @@ export function syncFinishedAtFieldState(refs: BookFormRefs): void {
  * @throws {Error} Thrown when neither words nor page total is provided.
  */
 export function deriveLengthAndProgress(refs: BookFormRefs): {
-	wordsTotal: number | null;
-	pagesTotal: number | null;
-	pagesRead: number | null;
-	progress: number;
+    wordsTotal: number | null;
+    pagesTotal: number | null;
+    pagesRead: number | null;
+    progress: number;
 } {
-	const wordsTotal = toOptionalInt(refs.wordsInput.value);
-	const pagesTotal = toOptionalInt(refs.pagesTotalInput.value);
-	let pagesRead = toOptionalInt(refs.pagesReadInput.value);
-	let progress = clamp(Number(refs.progressInput.value), 0, PROGRESS_MAX);
-	const hasWordsTotal = wordsTotal !== null && wordsTotal > 0;
-	const hasPagesTotal = pagesTotal !== null && pagesTotal > 0;
-	if (!hasWordsTotal && !hasPagesTotal) {
-		throw new Error("Enter estimated words or total pages.");
-	}
+    const wordsTotal = toOptionalInt(refs.wordsInput.value);
+    const pagesTotal = toOptionalInt(refs.pagesTotalInput.value);
+    let pagesRead = toOptionalInt(refs.pagesReadInput.value);
+    let progress = clamp(Number(refs.progressInput.value), 0, PROGRESS_MAX);
+    const hasWordsTotal = wordsTotal !== null && wordsTotal > 0;
+    const hasPagesTotal = pagesTotal !== null && pagesTotal > 0;
+    if (!hasWordsTotal && !hasPagesTotal) {
+        throw new Error("Enter estimated words or total pages.");
+    }
 
-	if (hasPagesTotal) {
-		pagesRead ??= Math.round((progress / PROGRESS_MAX) * pagesTotal);
-		pagesRead = clamp(pagesRead, 0, pagesTotal);
-		progress =
-			Math.round(
-				(pagesRead / pagesTotal) * PROGRESS_MAX * PROGRESS_DECIMAL_SCALE,
-			) / PROGRESS_DECIMAL_SCALE;
-		return {
-			wordsTotal,
-			pagesTotal,
-			pagesRead,
-			progress,
-		};
-	}
+    if (hasPagesTotal) {
+        pagesRead ??= Math.round((progress / PROGRESS_MAX) * pagesTotal);
+        pagesRead = clamp(pagesRead, 0, pagesTotal);
+        progress =
+            Math.round(
+                (pagesRead / pagesTotal) *
+                    PROGRESS_MAX *
+                    PROGRESS_DECIMAL_SCALE,
+            ) / PROGRESS_DECIMAL_SCALE;
+        return {
+            wordsTotal,
+            pagesTotal,
+            pagesRead,
+            progress,
+        };
+    }
 
-	return {
-		wordsTotal,
-		pagesTotal,
-		progress,
-		pagesRead: null,
-	};
+    return {
+        wordsTotal,
+        pagesTotal,
+        progress,
+        pagesRead: null,
+    };
 }
 
 /**
@@ -206,13 +208,13 @@ export function deriveLengthAndProgress(refs: BookFormRefs): {
  * @throws {Error} Thrown when no valid shelf is selected.
  */
 export function validatedShelfSelection(refs: BookFormRefs): string {
-	const shelf = refs.shelfSelectInput.value;
-	if (shelf === SHELF_SELECT_CREATE_NEW) {
-		throw new Error(
-			"Choose a shelf or create a new one from the shelf selector.",
-		);
-	}
-	return shelf;
+    const shelf = refs.shelfSelectInput.value;
+    if (shelf === SHELF_SELECT_CREATE_NEW) {
+        throw new Error(
+            "Choose a shelf or create a new one from the shelf selector.",
+        );
+    }
+    return shelf;
 }
 
 export const DEFAULT_STATUS = BOOK_STATUS_TO_READ;

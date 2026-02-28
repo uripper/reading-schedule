@@ -7,14 +7,14 @@ import type { Book } from "../../types/types.js";
  * @returns Book id to title map.
  */
 export function titleByIdMap(
-	books: Book[],
-	allBooks: Book[],
+    books: Book[],
+    allBooks: Book[],
 ): Record<string, string> {
-	let sourceBooks = books;
-	if (allBooks.length) {
-		sourceBooks = allBooks;
-	}
-	return Object.fromEntries(
-		sourceBooks.map((book) => [book.book_id, book.title]),
-	);
+    let sourceBooks = books;
+    if (allBooks.length) {
+        sourceBooks = allBooks;
+    }
+    return Object.fromEntries(
+        sourceBooks.map((book) => [book.book_id, book.title]),
+    );
 }

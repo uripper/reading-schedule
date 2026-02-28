@@ -13,7 +13,7 @@ const PYTHONPATH_SEGMENT = "src";
  * @returns Absolute path to the project root directory.
  */
 function root(): string {
-	return path.join(__dirname, "..", "..");
+    return path.join(__dirname, "..", "..");
 }
 
 /**
@@ -21,10 +21,10 @@ function root(): string {
  * @returns Process environment including the planner PYTHONPATH.
  */
 function pyEnv(): NodeJS.ProcessEnv {
-	return {
-		...process.env,
-		PYTHONPATH: path.join(root(), PYTHONPATH_SEGMENT),
-	};
+    return {
+        ...process.env,
+        PYTHONPATH: path.join(root(), PYTHONPATH_SEGMENT),
+    };
 }
 
 /**
@@ -34,7 +34,7 @@ function pyEnv(): NodeJS.ProcessEnv {
  * @returns Updated output buffer.
  */
 function appendChunk(target: string, chunk: Buffer | string): string {
-	return target + chunk.toString();
+    return target + chunk.toString();
 }
 
 /**
@@ -44,18 +44,18 @@ function appendChunk(target: string, chunk: Buffer | string): string {
  * @returns Parsed planner payload or null when no data is returned.
  */
 function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
-	try {
-		const parsed = JSON.parse(stdout || "{}") as BridgeResponse;
-		if (parsed.ok !== true) {
-			throw new Error((parsed.error ?? stderr) || "Planner failed");
-		}
-		if (parsed.data === undefined) {
-			return null;
-		}
-		return parsed.data;
-	} catch {
-		throw new Error(stderr || stdout || "Invalid planner response");
-	}
+    try {
+        const parsed = JSON.parse(stdout || "{}") as BridgeResponse;
+        if (parsed.ok !== true) {
+            throw new Error((parsed.error ?? stderr) || "Planner failed");
+        }
+        if (parsed.data === undefined) {
+            return null;
+        }
+        return parsed.data;
+    } catch {
+        throw new Error(stderr || stdout || "Invalid planner response");
+    }
 }
 
 /**
@@ -65,38 +65,42 @@ function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
  * @returns Parsed planner JSON response.
  */
 export async function runBridge(
-	args: string[],
-	payload?: JsonValue,
+    args: string[],
+    payload?: JsonValue,
 ): Promise<JsonValue> {
-	return await new Promise((resolve, reject) => {
-		const pythonBinary = process.env.PYTHON_BIN ?? "python";
-		const processHandle = spawn(pythonBinary, ["-m", PLANNER_MODULE, ...args], {
-			cwd: root(),
-			env: pyEnv(),
-		});
-		let stdout = "";
-		let stderr = "";
-		processHandle.stdout.on("data", (chunk: Buffer | string) => {
-			stdout = appendChunk(stdout, chunk);
-		});
-		processHandle.stderr.on("data", (chunk: Buffer | string) => {
-			stderr = appendChunk(stderr, chunk);
-		});
-		processHandle.on("error", reject);
-		processHandle.on("close", () => {
-			try {
-				resolve(parseBridgeOutput(stdout, stderr));
-			} catch (error) {
-				if (error instanceof Error) {
-					reject(error);
-					return;
-				}
-				reject(new Error(String(error)));
-			}
-		});
-		if (payload !== undefined) {
-			processHandle.stdin.write(JSON.stringify(payload));
-		}
-		processHandle.stdin.end();
-	});
+    return await new Promise((resolve, reject) => {
+        const pythonBinary = process.env.PYTHON_BIN ?? "python";
+        const processHandle = spawn(
+            pythonBinary,
+            ["-m", PLANNER_MODULE, ...args],
+            {
+                cwd: root(),
+                env: pyEnv(),
+            },
+        );
+        let stdout = "";
+        let stderr = "";
+        processHandle.stdout.on("data", (chunk: Buffer | string) => {
+            stdout = appendChunk(stdout, chunk);
+        });
+        processHandle.stderr.on("data", (chunk: Buffer | string) => {
+            stderr = appendChunk(stderr, chunk);
+        });
+        processHandle.on("error", reject);
+        processHandle.on("close", () => {
+            try {
+                resolve(parseBridgeOutput(stdout, stderr));
+            } catch (error) {
+                if (error instanceof Error) {
+                    reject(error);
+                    return;
+                }
+                reject(new Error(String(error)));
+            }
+        });
+        if (payload !== undefined) {
+            processHandle.stdin.write(JSON.stringify(payload));
+        }
+        processHandle.stdin.end();
+    });
 }

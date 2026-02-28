@@ -10,7 +10,7 @@ const targets = ["index.html", "styles.css", "styles", "assets"];
 
 fs.mkdirSync(DIST, { recursive: true });
 for (const target of targets) {
-	const src = path.join(ROOT, target);
-	const dest = path.join(DIST, target);
-	fs.cpSync(src, dest, { recursive: true, force: true });
+    const src = path.join(ROOT, target);
+    const dest = path.join(DIST, target);
+    fs.cpSync(src, dest, { recursive: true, force: true });
 }

@@ -13,10 +13,10 @@ export const AUTHOR_MAX_WORDS = 4;
 export const AUTHOR_MIN_KEY_LENGTH = 5;
 export const SAMPLE_RESULTS_COUNT = 3;
 export const NON_BOOK_TITLE_PATTERNS = [
-	"proceedings",
-	"journal",
-	"coloquio",
-	"conference",
-	"universidad",
-	"investigación",
+    "proceedings",
+    "journal",
+    "coloquio",
+    "conference",
+    "universidad",
+    "investigación",
 ];

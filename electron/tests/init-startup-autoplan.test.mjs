@@ -9,7 +9,7 @@ import { shouldAutoPlanOnStartup } from "../dist/renderer/app/init/init_helpers.
  * @returns {{ source: "fresh"|"sqlite"|"json_primary" }} Minimal load result.
  */
 function loadResult(source) {
-	return { source };
+    return { source };
 }
 
 /**
@@ -20,14 +20,14 @@ function loadResult(source) {
  * Startup args with saved payload and load metadata.
  */
 function startupArgs(scheduleLength, source) {
-	let saved = null;
-	if (scheduleLength !== null) {
-		saved = savedPayload(scheduleLength);
-	}
-	return {
-		saved,
-		loadResult: loadResult(source),
-	};
+    let saved = null;
+    if (scheduleLength !== null) {
+        saved = savedPayload(scheduleLength);
+    }
+    return {
+        saved,
+        loadResult: loadResult(source),
+    };
 }
 
 /**
@@ -36,25 +36,28 @@ function startupArgs(scheduleLength, source) {
  * @returns {{ last_result: { schedule: Array<{date: string}> }}} Saved payload fixture.
  */
 function savedPayload(scheduleLength) {
-	const schedule = [];
-	for (let index = 0; index < scheduleLength; index += 1) {
-		schedule.push({ date: "2026-02-27" });
-	}
-	return {
-		last_result: { schedule },
-	};
+    const schedule = [];
+    for (let index = 0; index < scheduleLength; index += 1) {
+        schedule.push({ date: "2026-02-27" });
+    }
+    return {
+        last_result: { schedule },
+    };
 }
 
 test("startup skips auto-plan when non-fresh load includes saved schedule rows", () => {
-	assert.equal(shouldAutoPlanOnStartup(startupArgs(1, "sqlite")), false);
-	assert.equal(shouldAutoPlanOnStartup(startupArgs(2, "json_primary")), false);
+    assert.equal(shouldAutoPlanOnStartup(startupArgs(1, "sqlite")), false);
+    assert.equal(
+        shouldAutoPlanOnStartup(startupArgs(2, "json_primary")),
+        false,
+    );
 });
 
 test("startup auto-plans when saved schedule is missing or empty", () => {
-	assert.equal(shouldAutoPlanOnStartup(startupArgs(null, "sqlite")), true);
-	assert.equal(shouldAutoPlanOnStartup(startupArgs(0, "sqlite")), true);
+    assert.equal(shouldAutoPlanOnStartup(startupArgs(null, "sqlite")), true);
+    assert.equal(shouldAutoPlanOnStartup(startupArgs(0, "sqlite")), true);
 });
 
 test("startup auto-plans for fresh-reset loads even when rows exist", () => {
-	assert.equal(shouldAutoPlanOnStartup(startupArgs(3, "fresh")), true);
+    assert.equal(shouldAutoPlanOnStartup(startupArgs(3, "fresh")), true);
 });

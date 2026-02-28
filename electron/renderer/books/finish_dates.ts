@@ -8,8 +8,11 @@ const SESSION_INDEX_PAD = 3;
  * @returns Lexicographically sortable row key.
  */
 function rowSortKey(row: PlannerScheduleRow): string {
-	const index = String(row.session_index || 0).padStart(SESSION_INDEX_PAD, "0");
-	return `${String(row.date || "")}-${index}`;
+    const index = String(row.session_index || 0).padStart(
+        SESSION_INDEX_PAD,
+        "0",
+    );
+    return `${String(row.date || "")}-${index}`;
 }
 
 /**
@@ -18,9 +21,9 @@ function rowSortKey(row: PlannerScheduleRow): string {
  * @returns Sorted rows copy.
  */
 function sortRows(rows: PlannerScheduleRow[] = []): PlannerScheduleRow[] {
-	return [...rows].sort((left, right) => {
-		return rowSortKey(left).localeCompare(rowSortKey(right));
-	});
+    return [...rows].sort((left, right) => {
+        return rowSortKey(left).localeCompare(rowSortKey(right));
+    });
 }
 
 /**
@@ -30,20 +33,20 @@ function sortRows(rows: PlannerScheduleRow[] = []): PlannerScheduleRow[] {
  * @returns Finish-date map where explicit read dates take precedence.
  */
 function withBookFinishedDates(
-	finishDateByBookId: Record<string, string>,
-	books: Book[] = [],
+    finishDateByBookId: Record<string, string>,
+    books: Book[] = [],
 ): Record<string, string> {
-	const out = { ...finishDateByBookId };
-	books.forEach((book) => {
-		const bookId = String(book.book_id || "");
-		const finishedAt = String(book.finished_at ?? "");
-		if (!bookId || !finishedAt) {
-			return;
-		}
-		// For read books, explicit completion date should win over schedule estimates.
-		out[bookId] = finishedAt;
-	});
-	return out;
+    const out = { ...finishDateByBookId };
+    books.forEach((book) => {
+        const bookId = String(book.book_id || "");
+        const finishedAt = String(book.finished_at ?? "");
+        if (!bookId || !finishedAt) {
+            return;
+        }
+        // For read books, explicit completion date should win over schedule estimates.
+        out[bookId] = finishedAt;
+    });
+    return out;
 }
 
 /**
@@ -53,17 +56,17 @@ function withBookFinishedDates(
  * @returns Finish-date map for books grid sorting/grouping.
  */
 export function finishDatesByBookId(
-	rows: PlannerScheduleRow[] = [],
-	books: Book[] = [],
+    rows: PlannerScheduleRow[] = [],
+    books: Book[] = [],
 ): Record<string, string> {
-	const out: Record<string, string> = {};
-	sortRows(rows).forEach((row) => {
-		const bookId = String(row.book_id || "");
-		const date = String(row.date || "");
-		if (!bookId || !date) {
-			return;
-		}
-		out[bookId] = date;
-	});
-	return withBookFinishedDates(out, books);
+    const out: Record<string, string> = {};
+    sortRows(rows).forEach((row) => {
+        const bookId = String(row.book_id || "");
+        const date = String(row.date || "");
+        if (!bookId || !date) {
+            return;
+        }
+        out[bookId] = date;
+    });
+    return withBookFinishedDates(out, books);
 }

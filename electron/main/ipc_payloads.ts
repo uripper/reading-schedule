@@ -1,6 +1,6 @@
 import type {
-	DownloadCoverPayload,
-	UploadCoverPayload,
+    DownloadCoverPayload,
+    UploadCoverPayload,
 } from "../types/types.js";
 
 /**
@@ -9,15 +9,15 @@ import type {
  * @returns Normalized download-cover payload.
  */
 export function asDownloadCoverPayload(
-	value: DownloadCoverPayload | null,
+    value: DownloadCoverPayload | null,
 ): DownloadCoverPayload {
-	if (!value) {
-		return {};
-	}
-	return {
-		url: value.url,
-		bookId: value.bookId,
-	};
+    if (!value) {
+        return {};
+    }
+    return {
+        url: value.url,
+        bookId: value.bookId,
+    };
 }
 
 /**
@@ -26,13 +26,13 @@ export function asDownloadCoverPayload(
  * @returns Normalized upload-cover payload.
  */
 export function asUploadCoverPayload(
-	value: UploadCoverPayload | null,
+    value: UploadCoverPayload | null,
 ): UploadCoverPayload {
-	if (!value) {
-		return {};
-	}
-	return {
-		dataUrl: value.dataUrl,
-		bookId: value.bookId,
-	};
+    if (!value) {
+        return {};
+    }
+    return {
+        dataUrl: value.dataUrl,
+        bookId: value.bookId,
+    };
 }

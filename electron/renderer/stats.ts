@@ -12,18 +12,18 @@ import { renderStatsDashboard } from "./stats/render.js";
  * @param root0.dailyGoalMinutes Daily goal minutes used for streak metrics.
  */
 export function updateStatsView({
-	books,
-	sessions,
-	lastResult,
-	scheduleCompletions,
-	dailyGoalMinutes,
+    books,
+    sessions,
+    lastResult,
+    scheduleCompletions,
+    dailyGoalMinutes,
 }: UpdateStatsArgs): void {
-	const snapshot = buildStatsSnapshot({
-		books,
-		sessions,
-		lastResult,
-		scheduleCompletions,
-		dailyGoalMinutes,
-	});
-	renderStatsDashboard(snapshot);
+    const snapshot = buildStatsSnapshot({
+        books,
+        sessions,
+        lastResult,
+        scheduleCompletions,
+        dailyGoalMinutes,
+    });
+    renderStatsDashboard(snapshot);
 }

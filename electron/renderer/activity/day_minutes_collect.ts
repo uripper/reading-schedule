@@ -8,15 +8,17 @@ const ZERO_MINUTES = 0;
  * @returns Parsed 4-digit year, or null when the key is too short/invalid.
  */
 function yearFromDateKey(dateText: string): number | null {
-	const key = String(dateText || "").trim();
-	if (key.length < DATE_YEAR_END_INDEX) {
-		return null;
-	}
-	const parsed = Number(key.slice(DATE_YEAR_START_INDEX, DATE_YEAR_END_INDEX));
-	if (!Number.isInteger(parsed)) {
-		return null;
-	}
-	return parsed;
+    const key = String(dateText || "").trim();
+    if (key.length < DATE_YEAR_END_INDEX) {
+        return null;
+    }
+    const parsed = Number(
+        key.slice(DATE_YEAR_START_INDEX, DATE_YEAR_END_INDEX),
+    );
+    if (!Number.isInteger(parsed)) {
+        return null;
+    }
+    return parsed;
 }
 
 /**
@@ -26,17 +28,17 @@ function yearFromDateKey(dateText: string): number | null {
  * @returns True when the key should be included in aggregation.
  */
 export function includeDayKey(dayKey: string, year: number | null): boolean {
-	if (!dayKey) {
-		return false;
-	}
-	if (year === null) {
-		return true;
-	}
-	const dayYear = yearFromDateKey(dayKey);
-	if (dayYear !== year) {
-		return false;
-	}
-	return true;
+    if (!dayKey) {
+        return false;
+    }
+    if (year === null) {
+        return true;
+    }
+    const dayYear = yearFromDateKey(dayKey);
+    if (dayYear !== year) {
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -46,16 +48,19 @@ export function includeDayKey(dayKey: string, year: number | null): boolean {
  * @param minutes Minute value to add; non-positive values are ignored.
  */
 export function addMinutes(
-	dayMinutes: Map<string, number>,
-	dayKey: string,
-	minutes: number,
+    dayMinutes: Map<string, number>,
+    dayKey: string,
+    minutes: number,
 ): void {
-	if (!dayKey) {
-		return;
-	}
-	const normalized = Number(minutes || ZERO_MINUTES);
-	if (normalized <= ZERO_MINUTES) {
-		return;
-	}
-	dayMinutes.set(dayKey, (dayMinutes.get(dayKey) ?? ZERO_MINUTES) + normalized);
+    if (!dayKey) {
+        return;
+    }
+    const normalized = Number(minutes || ZERO_MINUTES);
+    if (normalized <= ZERO_MINUTES) {
+        return;
+    }
+    dayMinutes.set(
+        dayKey,
+        (dayMinutes.get(dayKey) ?? ZERO_MINUTES) + normalized,
+    );
 }

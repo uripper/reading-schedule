@@ -27,21 +27,21 @@ export type Identifier = string;
 export type AsyncResult<T> = Promise<T>;
 
 export interface LabeledValue<T> {
-	label: string;
-	value: T;
+    label: string;
+    value: T;
 }
 
 export interface IdentifierLabel {
-	id: Identifier;
-	label: string;
+    id: Identifier;
+    label: string;
 }
 
 export interface RangeBound {
-	min: number;
-	max: number;
+    min: number;
+    max: number;
 }
 
 export interface PaginationWindow {
-	page: number;
-	pageSize: number;
+    page: number;
+    pageSize: number;
 }

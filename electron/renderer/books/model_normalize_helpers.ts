@@ -21,10 +21,10 @@ export const MAX_DIFFICULTY = 10;
  * @returns Parsed integer constrained by `toInt` fallback behavior.
  */
 function toIntWithFallback(
-	value: number | undefined,
-	fallback: number,
+    value: number | undefined,
+    fallback: number,
 ): number {
-	return toInt(value ?? fallback, fallback);
+    return toInt(value ?? fallback, fallback);
 }
 
 /**
@@ -33,11 +33,11 @@ function toIntWithFallback(
  * @returns Trimmed date string or `null` when empty.
  */
 function normalizeFinishedAt(value: string | null | undefined): string | null {
-	const trimmed = String(value ?? "").trim();
-	if (trimmed === "") {
-		return null;
-	}
-	return trimmed;
+    const trimmed = String(value ?? "").trim();
+    if (trimmed === "") {
+        return null;
+    }
+    return trimmed;
 }
 
 /**
@@ -45,7 +45,7 @@ function normalizeFinishedAt(value: string | null | undefined): string | null {
  * @returns Day key in `YYYY-MM-DD` format.
  */
 function todayDateKey(): string {
-	return dayKey(new Date());
+    return dayKey(new Date());
 }
 
 /**
@@ -54,7 +54,7 @@ function todayDateKey(): string {
  * @returns Trimmed text.
  */
 export function toTrimmedText(value?: string | null): string {
-	return String(value ?? "").trim();
+    return String(value ?? "").trim();
 }
 
 /**
@@ -63,11 +63,11 @@ export function toTrimmedText(value?: string | null): string {
  * @returns Existing trimmed id or generated uid.
  */
 export function toBookId(value?: string): string {
-	const text = toTrimmedText(value);
-	if (text) {
-		return text;
-	}
-	return uid();
+    const text = toTrimmedText(value);
+    if (text) {
+        return text;
+    }
+    return uid();
 }
 
 /**
@@ -79,12 +79,12 @@ export function toBookId(value?: string): string {
  * @returns Clamped integer value.
  */
 export function toClampedInt(
-	value: number | undefined,
-	fallback: number,
-	minValue: number,
-	maxValue: number,
+    value: number | undefined,
+    fallback: number,
+    minValue: number,
+    maxValue: number,
 ): number {
-	return clamp(toIntWithFallback(value, fallback), minValue, maxValue);
+    return clamp(toIntWithFallback(value, fallback), minValue, maxValue);
 }
 
 /**
@@ -93,10 +93,10 @@ export function toClampedInt(
  * @returns Valid minimum blocks value.
  */
 export function minBlocksPerSession(value: number | undefined): number {
-	return Math.max(
-		DEFAULT_MIN_BLOCKS,
-		toIntWithFallback(value, DEFAULT_MIN_BLOCKS),
-	);
+    return Math.max(
+        DEFAULT_MIN_BLOCKS,
+        toIntWithFallback(value, DEFAULT_MIN_BLOCKS),
+    );
 }
 
 /**
@@ -105,12 +105,12 @@ export function minBlocksPerSession(value: number | undefined): number {
  * @returns String when truthy; otherwise `null`.
  */
 export function withNullableString(
-	value: string | null | undefined,
+    value: string | null | undefined,
 ): string | null {
-	if (value !== null && value !== undefined && value !== "") {
-		return value;
-	}
-	return null;
+    if (value !== null && value !== undefined && value !== "") {
+        return value;
+    }
+    return null;
 }
 
 /**
@@ -120,17 +120,17 @@ export function withNullableString(
  * @returns `null` for non-read status, explicit date when provided, or today for read books.
  */
 export function finishedAtForStatus(
-	status: string,
-	finishedAtRaw: string | null | undefined,
+    status: string,
+    finishedAtRaw: string | null | undefined,
 ): string | null {
-	const finishedAt = normalizeFinishedAt(finishedAtRaw);
-	if (status !== BOOK_STATUS_READ) {
-		return null;
-	}
-	if (finishedAt !== null) {
-		return finishedAt;
-	}
-	return todayDateKey();
+    const finishedAt = normalizeFinishedAt(finishedAtRaw);
+    if (status !== BOOK_STATUS_READ) {
+        return null;
+    }
+    if (finishedAt !== null) {
+        return finishedAt;
+    }
+    return todayDateKey();
 }
 
 /**
@@ -141,29 +141,31 @@ export function finishedAtForStatus(
  * @returns Normalized pages read and progress percent pair.
  */
 export function normalizeProgressAndPages(
-	pagesTotal: number | null,
-	pagesRead: number | null,
-	progressRaw: number,
+    pagesTotal: number | null,
+    pagesRead: number | null,
+    progressRaw: number,
 ): { pagesRead: number | null; progress: number } {
-	let hasPagesTotal = false;
-	let totalPages = 0;
-	if (pagesTotal !== null && pagesTotal > 0) {
-		hasPagesTotal = true;
-		totalPages = pagesTotal;
-	}
-	let nextPagesRead = pagesRead;
-	if (hasPagesTotal && nextPagesRead === null) {
-		nextPagesRead = Math.round((progressRaw / PROGRESS_MAX) * totalPages);
-	}
-	if (hasPagesTotal && nextPagesRead !== null) {
-		nextPagesRead = clamp(nextPagesRead, 0, totalPages);
-	}
-	let progress = Math.round(progressRaw * PROGRESS_SCALE) / PROGRESS_SCALE;
-	if (hasPagesTotal) {
-		progress =
-			Math.round(
-				((nextPagesRead ?? 0) / totalPages) * PROGRESS_MAX * PROGRESS_SCALE,
-			) / PROGRESS_SCALE;
-	}
-	return { pagesRead: nextPagesRead, progress };
+    let hasPagesTotal = false;
+    let totalPages = 0;
+    if (pagesTotal !== null && pagesTotal > 0) {
+        hasPagesTotal = true;
+        totalPages = pagesTotal;
+    }
+    let nextPagesRead = pagesRead;
+    if (hasPagesTotal && nextPagesRead === null) {
+        nextPagesRead = Math.round((progressRaw / PROGRESS_MAX) * totalPages);
+    }
+    if (hasPagesTotal && nextPagesRead !== null) {
+        nextPagesRead = clamp(nextPagesRead, 0, totalPages);
+    }
+    let progress = Math.round(progressRaw * PROGRESS_SCALE) / PROGRESS_SCALE;
+    if (hasPagesTotal) {
+        progress =
+            Math.round(
+                ((nextPagesRead ?? 0) / totalPages) *
+                    PROGRESS_MAX *
+                    PROGRESS_SCALE,
+            ) / PROGRESS_SCALE;
+    }
+    return { pagesRead: nextPagesRead, progress };
 }

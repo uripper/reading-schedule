@@ -9,24 +9,24 @@ import { sessionKeyFor } from "../../calendar/utils.js";
  * @returns Normalized date/rows pair used by row helper functions.
  */
 function normalizeRowsAndDate(
-	dateOrRows: string | PlannerScheduleRow[],
-	rowsOrDate: PlannerScheduleRow[] | string,
+    dateOrRows: string | PlannerScheduleRow[],
+    rowsOrDate: PlannerScheduleRow[] | string,
 ): { date: string; rows: PlannerScheduleRow[] } {
-	let rows: PlannerScheduleRow[] = [];
-	let dateValue: string | PlannerScheduleRow[] = dateOrRows;
-	if (Array.isArray(dateOrRows)) {
-		rows = dateOrRows;
-		dateValue = rowsOrDate;
-	} else if (Array.isArray(rowsOrDate)) {
-		rows = rowsOrDate;
-	} else {
-		rows = [];
-	}
-	let date = "";
-	if (typeof dateValue === "string") {
-		date = dateValue;
-	}
-	return { date, rows };
+    let rows: PlannerScheduleRow[] = [];
+    let dateValue: string | PlannerScheduleRow[] = dateOrRows;
+    if (Array.isArray(dateOrRows)) {
+        rows = dateOrRows;
+        dateValue = rowsOrDate;
+    } else if (Array.isArray(rowsOrDate)) {
+        rows = rowsOrDate;
+    } else {
+        rows = [];
+    }
+    let date = "";
+    if (typeof dateValue === "string") {
+        date = dateValue;
+    }
+    return { date, rows };
 }
 
 /**
@@ -37,24 +37,24 @@ function normalizeRowsAndDate(
  * @returns Normalized session-key/rows pair used by row helper functions.
  */
 function normalizeRowsAndSessionKey(
-	targetSessionKeyOrRows: string | PlannerScheduleRow[],
-	rowsOrTargetSessionKey: PlannerScheduleRow[] | string,
+    targetSessionKeyOrRows: string | PlannerScheduleRow[],
+    rowsOrTargetSessionKey: PlannerScheduleRow[] | string,
 ): { key: string; rows: PlannerScheduleRow[] } {
-	let rows: PlannerScheduleRow[] = [];
-	let keyValue: string | PlannerScheduleRow[] = targetSessionKeyOrRows;
-	if (Array.isArray(targetSessionKeyOrRows)) {
-		rows = targetSessionKeyOrRows;
-		keyValue = rowsOrTargetSessionKey;
-	} else if (Array.isArray(rowsOrTargetSessionKey)) {
-		rows = rowsOrTargetSessionKey;
-	} else {
-		rows = [];
-	}
-	let key = "";
-	if (typeof keyValue === "string") {
-		key = keyValue;
-	}
-	return { key, rows };
+    let rows: PlannerScheduleRow[] = [];
+    let keyValue: string | PlannerScheduleRow[] = targetSessionKeyOrRows;
+    if (Array.isArray(targetSessionKeyOrRows)) {
+        rows = targetSessionKeyOrRows;
+        keyValue = rowsOrTargetSessionKey;
+    } else if (Array.isArray(rowsOrTargetSessionKey)) {
+        rows = rowsOrTargetSessionKey;
+    } else {
+        rows = [];
+    }
+    let key = "";
+    if (typeof keyValue === "string") {
+        key = keyValue;
+    }
+    return { key, rows };
 }
 
 /**
@@ -64,21 +64,21 @@ function normalizeRowsAndSessionKey(
  * @returns The next session index for the specified date.
  */
 export function nextSessionIndexForDate(
-	dateOrRows: string | PlannerScheduleRow[],
-	rowsOrDate: PlannerScheduleRow[] | string = [],
+    dateOrRows: string | PlannerScheduleRow[],
+    rowsOrDate: PlannerScheduleRow[] | string = [],
 ): number {
-	const normalized = normalizeRowsAndDate(dateOrRows, rowsOrDate);
-	let maxIndex = 0;
-	normalized.rows.forEach((row) => {
-		if (String(row.date || "") !== normalized.date) {
-			return;
-		}
-		const index = Number(row.session_index || 0);
-		if (Number.isFinite(index)) {
-			maxIndex = Math.max(maxIndex, Math.floor(index));
-		}
-	});
-	return maxIndex + 1;
+    const normalized = normalizeRowsAndDate(dateOrRows, rowsOrDate);
+    let maxIndex = 0;
+    normalized.rows.forEach((row) => {
+        if (String(row.date || "") !== normalized.date) {
+            return;
+        }
+        const index = Number(row.session_index || 0);
+        if (Number.isFinite(index)) {
+            maxIndex = Math.max(maxIndex, Math.floor(index));
+        }
+    });
+    return maxIndex + 1;
 }
 
 /**
@@ -88,15 +88,17 @@ export function nextSessionIndexForDate(
  * @returns An array of PlannerScheduleRow excluding the specified session.
  */
 export function rowsWithoutSession(
-	targetSessionKeyOrRows: string | PlannerScheduleRow[],
-	rowsOrTargetSessionKey: PlannerScheduleRow[] | string = [],
+    targetSessionKeyOrRows: string | PlannerScheduleRow[],
+    rowsOrTargetSessionKey: PlannerScheduleRow[] | string = [],
 ): PlannerScheduleRow[] {
-	const normalized = normalizeRowsAndSessionKey(
-		targetSessionKeyOrRows,
-		rowsOrTargetSessionKey,
-	);
-	if (!normalized.key) {
-		return [...normalized.rows];
-	}
-	return normalized.rows.filter((row) => sessionKeyFor(row) !== normalized.key);
+    const normalized = normalizeRowsAndSessionKey(
+        targetSessionKeyOrRows,
+        rowsOrTargetSessionKey,
+    );
+    if (!normalized.key) {
+        return [...normalized.rows];
+    }
+    return normalized.rows.filter(
+        (row) => sessionKeyFor(row) !== normalized.key,
+    );
 }

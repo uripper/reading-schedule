@@ -1,30 +1,30 @@
 import type {
-	FeatureFlags,
-	FeatureFlagsInput,
-	Preferences,
-	PreferencesInput,
+    FeatureFlags,
+    FeatureFlagsInput,
+    Preferences,
+    PreferencesInput,
 } from "../../../types/types.js";
 import {
-	RECOMMENDATIONS_AVAILABLE,
-	REMINDERS_AVAILABLE,
-	SOCIAL_FEATURES_AVAILABLE,
-	shippedFeatureFlag,
-	shippedReminderTime,
+    RECOMMENDATIONS_AVAILABLE,
+    REMINDERS_AVAILABLE,
+    SOCIAL_FEATURES_AVAILABLE,
+    shippedFeatureFlag,
+    shippedReminderTime,
 } from "./availability.js";
 
 export const DEFAULT_PREFERENCES: Preferences = {
-	theme: "system",
-	reduceMotion: false,
-	timezone: new Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
-	dailyGoalMinutes: 30,
-	reminderEnabled: false,
-	reminderTime: "20:00",
+    theme: "system",
+    reduceMotion: false,
+    timezone: new Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
+    dailyGoalMinutes: 30,
+    reminderEnabled: false,
+    reminderTime: "20:00",
 };
 
 export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
-	gamificationEnabled: false,
-	socialEnabled: false,
-	recommendationsEnabled: false,
+    gamificationEnabled: false,
+    socialEnabled: false,
+    recommendationsEnabled: false,
 };
 
 /**
@@ -33,7 +33,7 @@ export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
  * @returns True if the value is a supported theme, false otherwise.
  */
 export function isSupportedTheme(value: string): value is Preferences["theme"] {
-	return value === "system" || value === "light" || value === "dark";
+    return value === "system" || value === "light" || value === "dark";
 }
 
 /**
@@ -43,37 +43,37 @@ export function isSupportedTheme(value: string): value is Preferences["theme"] {
  * @returns A fully normalized Preferences object with all necessary fields and default values applied.
  */
 export function normalizePreferences(raw: PreferencesInput = {}): Preferences {
-	let theme: Preferences["theme"] = DEFAULT_PREFERENCES.theme;
-	const themeInput = String(raw.theme ?? "").trim();
-	if (isSupportedTheme(themeInput)) {
-		theme = themeInput;
-	}
+    let theme: Preferences["theme"] = DEFAULT_PREFERENCES.theme;
+    const themeInput = String(raw.theme ?? "").trim();
+    if (isSupportedTheme(themeInput)) {
+        theme = themeInput;
+    }
 
-	const dailyGoalRaw =
-		raw.dailyGoalMinutes ??
-		raw.daily_goal_minutes ??
-		DEFAULT_PREFERENCES.dailyGoalMinutes;
-	const dailyGoalMinutes = Number(dailyGoalRaw);
-	let normalizedDailyGoalMinutes = DEFAULT_PREFERENCES.dailyGoalMinutes;
-	if (Number.isFinite(dailyGoalMinutes) && dailyGoalMinutes > 0) {
-		normalizedDailyGoalMinutes = Math.round(dailyGoalMinutes);
-	}
+    const dailyGoalRaw =
+        raw.dailyGoalMinutes ??
+        raw.daily_goal_minutes ??
+        DEFAULT_PREFERENCES.dailyGoalMinutes;
+    const dailyGoalMinutes = Number(dailyGoalRaw);
+    let normalizedDailyGoalMinutes = DEFAULT_PREFERENCES.dailyGoalMinutes;
+    if (Number.isFinite(dailyGoalMinutes) && dailyGoalMinutes > 0) {
+        normalizedDailyGoalMinutes = Math.round(dailyGoalMinutes);
+    }
 
-	return {
-		theme,
-		reduceMotion: Boolean(raw.reduceMotion),
-		timezone: String(raw.timezone ?? DEFAULT_PREFERENCES.timezone),
-		dailyGoalMinutes: normalizedDailyGoalMinutes,
-		reminderEnabled: shippedFeatureFlag(
-			raw.reminderEnabled,
-			REMINDERS_AVAILABLE,
-		),
-		reminderTime: shippedReminderTime(
-			raw.reminderTime,
-			REMINDERS_AVAILABLE,
-			DEFAULT_PREFERENCES.reminderTime,
-		),
-	};
+    return {
+        theme,
+        reduceMotion: Boolean(raw.reduceMotion),
+        timezone: String(raw.timezone ?? DEFAULT_PREFERENCES.timezone),
+        dailyGoalMinutes: normalizedDailyGoalMinutes,
+        reminderEnabled: shippedFeatureFlag(
+            raw.reminderEnabled,
+            REMINDERS_AVAILABLE,
+        ),
+        reminderTime: shippedReminderTime(
+            raw.reminderTime,
+            REMINDERS_AVAILABLE,
+            DEFAULT_PREFERENCES.reminderTime,
+        ),
+    };
 }
 
 /**
@@ -83,17 +83,17 @@ export function normalizePreferences(raw: PreferencesInput = {}): Preferences {
  * @returns A fully normalized FeatureFlags object with all necessary fields and default values applied.
  */
 export function normalizeFeatureFlags(
-	raw: FeatureFlagsInput = {},
+    raw: FeatureFlagsInput = {},
 ): FeatureFlags {
-	return {
-		gamificationEnabled: Boolean(raw.gamificationEnabled),
-		socialEnabled: shippedFeatureFlag(
-			raw.socialEnabled,
-			SOCIAL_FEATURES_AVAILABLE,
-		),
-		recommendationsEnabled: shippedFeatureFlag(
-			raw.recommendationsEnabled,
-			RECOMMENDATIONS_AVAILABLE,
-		),
-	};
+    return {
+        gamificationEnabled: Boolean(raw.gamificationEnabled),
+        socialEnabled: shippedFeatureFlag(
+            raw.socialEnabled,
+            SOCIAL_FEATURES_AVAILABLE,
+        ),
+        recommendationsEnabled: shippedFeatureFlag(
+            raw.recommendationsEnabled,
+            RECOMMENDATIONS_AVAILABLE,
+        ),
+    };
 }

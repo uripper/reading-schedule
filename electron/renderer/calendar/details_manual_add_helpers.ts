@@ -1,7 +1,7 @@
 import type { ManualSessionBook } from "../../types/types.js";
 import {
-	normalizeTitleFilterQuery,
-	titleMatchesNormalizedQuery,
+    normalizeTitleFilterQuery,
+    titleMatchesNormalizedQuery,
 } from "../title_filter.js";
 
 /**
@@ -10,11 +10,11 @@ import {
  * @returns Positive integer text with fallback of `"10"`.
  */
 export function minuteValueForManualInput(defaultMinutes?: number): string {
-	const parsed = Number(defaultMinutes ?? 0);
-	if (Number.isFinite(parsed) && parsed > 0) {
-		return String(Math.max(1, Math.round(parsed)));
-	}
-	return "10";
+    const parsed = Number(defaultMinutes ?? 0);
+    if (Number.isFinite(parsed) && parsed > 0) {
+        return String(Math.max(1, Math.round(parsed)));
+    }
+    return "10";
 }
 
 /**
@@ -23,15 +23,15 @@ export function minuteValueForManualInput(defaultMinutes?: number): string {
  * @returns Sorted copy of manual session books.
  */
 export function sortedManualBooks(
-	books: ManualSessionBook[] = [],
+    books: ManualSessionBook[] = [],
 ): ManualSessionBook[] {
-	return [...books].sort((left, right) => {
-		return String(left.title || "").localeCompare(
-			String(right.title || ""),
-			undefined,
-			{ sensitivity: "base" },
-		);
-	});
+    return [...books].sort((left, right) => {
+        return String(left.title || "").localeCompare(
+            String(right.title || ""),
+            undefined,
+            { sensitivity: "base" },
+        );
+    });
 }
 
 /**
@@ -41,14 +41,14 @@ export function sortedManualBooks(
  * @returns Books whose title contains the query text.
  */
 export function booksMatchingTitleQuery(
-	books: ManualSessionBook[],
-	query: string,
+    books: ManualSessionBook[],
+    query: string,
 ): ManualSessionBook[] {
-	const normalizedQuery = normalizeTitleFilterQuery(query);
-	if (normalizedQuery === "") {
-		return [...books];
-	}
-	return books.filter((book) => {
-		return titleMatchesNormalizedQuery(book.title, normalizedQuery);
-	});
+    const normalizedQuery = normalizeTitleFilterQuery(query);
+    if (normalizedQuery === "") {
+        return [...books];
+    }
+    return books.filter((book) => {
+        return titleMatchesNormalizedQuery(book.title, normalizedQuery);
+    });
 }

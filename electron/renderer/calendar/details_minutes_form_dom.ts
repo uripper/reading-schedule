@@ -11,16 +11,16 @@ const CANCEL_MINUTES_BUTTON_LABEL = "Cancel";
  * @returns Minutes input element.
  */
 export function minutesInputForRow(
-	row: CalendarRowWithFinish,
+    row: CalendarRowWithFinish,
 ): HTMLInputElement {
-	const minutesInput = document.createElement("input");
-	const minMinutes = minPlannedMinutes();
-	minutesInput.type = "number";
-	minutesInput.min = String(minMinutes);
-	minutesInput.step = "1";
-	minutesInput.placeholder = PLANNED_MINUTES_PLACEHOLDER;
-	minutesInput.value = String(Math.max(minMinutes, Number(row.minutes)));
-	return minutesInput;
+    const minutesInput = document.createElement("input");
+    const minMinutes = minPlannedMinutes();
+    minutesInput.type = "number";
+    minutesInput.min = String(minMinutes);
+    minutesInput.step = "1";
+    minutesInput.placeholder = PLANNED_MINUTES_PLACEHOLDER;
+    minutesInput.value = String(Math.max(minMinutes, Number(row.minutes)));
+    return minutesInput;
 }
 
 /**
@@ -28,19 +28,19 @@ export function minutesInputForRow(
  * @returns Action container and cancel button reference.
  */
 export function minutesFormActions(): {
-	actions: HTMLDivElement;
-	cancelBtn: HTMLButtonElement;
+    actions: HTMLDivElement;
+    cancelBtn: HTMLButtonElement;
 } {
-	const saveBtn = document.createElement("button");
-	saveBtn.type = "submit";
-	saveBtn.className = "btn";
-	saveBtn.textContent = SAVE_MINUTES_BUTTON_LABEL;
-	const cancelBtn = document.createElement("button");
-	cancelBtn.type = "button";
-	cancelBtn.className = "btn";
-	cancelBtn.textContent = CANCEL_MINUTES_BUTTON_LABEL;
-	const actions = document.createElement("div");
-	actions.className = "row";
-	actions.append(saveBtn, cancelBtn);
-	return { actions, cancelBtn };
+    const saveBtn = document.createElement("button");
+    saveBtn.type = "submit";
+    saveBtn.className = "btn";
+    saveBtn.textContent = SAVE_MINUTES_BUTTON_LABEL;
+    const cancelBtn = document.createElement("button");
+    cancelBtn.type = "button";
+    cancelBtn.className = "btn";
+    cancelBtn.textContent = CANCEL_MINUTES_BUTTON_LABEL;
+    const actions = document.createElement("div");
+    actions.className = "row";
+    actions.append(saveBtn, cancelBtn);
+    return { actions, cancelBtn };
 }

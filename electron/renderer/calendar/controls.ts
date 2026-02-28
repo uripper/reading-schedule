@@ -1,7 +1,7 @@
 import type {
-	CalendarControlsState,
-	JumpToTodayFn,
-	RenderFn,
+    CalendarControlsState,
+    JumpToTodayFn,
+    RenderFn,
 } from "../../types/types.js";
 import { el } from "../dom.js";
 import { monthLabel } from "./utils.js";
@@ -14,55 +14,55 @@ import { monthLabel } from "./utils.js";
  * @param jumpToToday Callback that jumps state focus to today.
  */
 export function renderCalendarControls(
-	state: CalendarControlsState,
-	renderControls: RenderFn,
-	renderMonth: RenderFn,
-	jumpToToday: JumpToTodayFn,
+    state: CalendarControlsState,
+    renderControls: RenderFn,
+    renderMonth: RenderFn,
+    jumpToToday: JumpToTodayFn,
 ): void {
-	const calendarState = state;
-	const key = calendarState.months[calendarState.index] || "";
-	const controls = el("calendarControls");
-	const title = document.createElement("strong");
-	title.textContent = monthLabel(key);
+    const calendarState = state;
+    const key = calendarState.months[calendarState.index] || "";
+    const controls = el("calendarControls");
+    const title = document.createElement("strong");
+    title.textContent = monthLabel(key);
 
-	if (!key) {
-		controls.replaceChildren(title);
-		return;
-	}
+    if (!key) {
+        controls.replaceChildren(title);
+        return;
+    }
 
-	const prev = document.createElement("button");
-	prev.className = "btn";
-	prev.type = "button";
-	prev.textContent = "Prev";
+    const prev = document.createElement("button");
+    prev.className = "btn";
+    prev.type = "button";
+    prev.textContent = "Prev";
 
-	const today = document.createElement("button");
-	today.className = "btn btn-calendar-today";
-	today.type = "button";
-	today.textContent = "Today";
+    const today = document.createElement("button");
+    today.className = "btn btn-calendar-today";
+    today.type = "button";
+    today.textContent = "Today";
 
-	const next = document.createElement("button");
-	next.className = "btn";
-	next.type = "button";
-	next.textContent = "Next";
+    const next = document.createElement("button");
+    next.className = "btn";
+    next.type = "button";
+    next.textContent = "Next";
 
-	prev.onclick = () => {
-		calendarState.index = Math.max(0, calendarState.index - 1);
-		renderControls();
-		renderMonth();
-	};
+    prev.onclick = () => {
+        calendarState.index = Math.max(0, calendarState.index - 1);
+        renderControls();
+        renderMonth();
+    };
 
-	next.onclick = () => {
-		calendarState.index = Math.min(
-			calendarState.months.length - 1,
-			calendarState.index + 1,
-		);
-		renderControls();
-		renderMonth();
-	};
+    next.onclick = () => {
+        calendarState.index = Math.min(
+            calendarState.months.length - 1,
+            calendarState.index + 1,
+        );
+        renderControls();
+        renderMonth();
+    };
 
-	today.onclick = () => {
-		jumpToToday();
-	};
+    today.onclick = () => {
+        jumpToToday();
+    };
 
-	controls.replaceChildren(prev, today, title, next);
+    controls.replaceChildren(prev, today, title, next);
 }

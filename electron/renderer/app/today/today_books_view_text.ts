@@ -1,6 +1,6 @@
 import type {
-	TodayBookSummary,
-	TodayScheduleSnapshot,
+    TodayBookSummary,
+    TodayScheduleSnapshot,
 } from "../../../types/types.js";
 
 const SINGULAR_SESSION_COUNT = 1;
@@ -12,10 +12,10 @@ const SINGULAR_MINUTE_COUNT = 1;
  * @returns `"session"` for 1, otherwise `"sessions"`.
  */
 function sessionLabel(count: number): string {
-	if (count === SINGULAR_SESSION_COUNT) {
-		return "session";
-	}
-	return "sessions";
+    if (count === SINGULAR_SESSION_COUNT) {
+        return "session";
+    }
+    return "sessions";
 }
 
 /**
@@ -24,10 +24,10 @@ function sessionLabel(count: number): string {
  * @returns `"minute"` for 1, otherwise `"minutes"`.
  */
 function minuteLabel(count: number): string {
-	if (count === SINGULAR_MINUTE_COUNT) {
-		return "minute";
-	}
-	return "minutes";
+    if (count === SINGULAR_MINUTE_COUNT) {
+        return "minute";
+    }
+    return "minutes";
 }
 
 /**
@@ -36,15 +36,15 @@ function minuteLabel(count: number): string {
  * @returns Human-readable completion progress text.
  */
 export function todaySessionCountsText(
-	snapshot: TodayScheduleSnapshot,
+    snapshot: TodayScheduleSnapshot,
 ): string {
-	const scheduled = snapshot.scheduledSessions;
-	if (!scheduled) {
-		return "No sessions scheduled for today.";
-	}
-	const completed = snapshot.completedSessions;
-	const label = sessionLabel(scheduled);
-	return `${completed} / ${scheduled} ${label} complete today`;
+    const scheduled = snapshot.scheduledSessions;
+    if (!scheduled) {
+        return "No sessions scheduled for today.";
+    }
+    const completed = snapshot.completedSessions;
+    const label = sessionLabel(scheduled);
+    return `${completed} / ${scheduled} ${label} complete today`;
 }
 
 /**
@@ -53,8 +53,8 @@ export function todaySessionCountsText(
  * @returns Text like `1 / 3 sessions complete`.
  */
 export function perBookSessionText(summary: TodayBookSummary): string {
-	const label = sessionLabel(summary.scheduledSessions);
-	return `${summary.completedSessions} / ${summary.scheduledSessions} ${label} complete`;
+    const label = sessionLabel(summary.scheduledSessions);
+    return `${summary.completedSessions} / ${summary.scheduledSessions} ${label} complete`;
 }
 
 /**
@@ -63,8 +63,8 @@ export function perBookSessionText(summary: TodayBookSummary): string {
  * @returns Text like `25 minutes planned`.
  */
 export function plannedMinutesText(summary: TodayBookSummary): string {
-	const label = minuteLabel(summary.plannedMinutes);
-	return `${summary.plannedMinutes} ${label} planned`;
+    const label = minuteLabel(summary.plannedMinutes);
+    return `${summary.plannedMinutes} ${label} planned`;
 }
 
 /**
@@ -73,9 +73,9 @@ export function plannedMinutesText(summary: TodayBookSummary): string {
  * @returns Uppercase first character, or `No Cover` when unavailable.
  */
 export function coverFallbackText(title: string): string {
-	const trimmed = String(title || "").trim();
-	if (!trimmed) {
-		return "No Cover";
-	}
-	return trimmed.slice(0, SINGULAR_SESSION_COUNT).toUpperCase();
+    const trimmed = String(title || "").trim();
+    if (!trimmed) {
+        return "No Cover";
+    }
+    return trimmed.slice(0, SINGULAR_SESSION_COUNT).toUpperCase();
 }

@@ -1,7 +1,7 @@
 import type { AppBootstrapContext, PlannerApi } from "../../types/types.js";
 import {
-	applyPreferencesToDocument,
-	createAnnouncer,
+    applyPreferencesToDocument,
+    createAnnouncer,
 } from "../accessibility/index.js";
 import { collectAllBooks } from "../books.js";
 import { focusCalendarToday } from "../calendar.js";
@@ -11,10 +11,10 @@ import { collectSettings } from "../settings.js";
 import { updateStatsView } from "../stats.js";
 import { createDashboardRuntime } from "./dashboard_runtime.js";
 import {
-	collectFeatureFlagsFromUI,
-	collectPreferencesFromUI,
-	normalizeFeatureFlags,
-	normalizePreferences,
+    collectFeatureFlagsFromUI,
+    collectPreferencesFromUI,
+    normalizeFeatureFlags,
+    normalizePreferences,
 } from "./experience/index.js";
 import { createInitRuntime } from "./init/index.js";
 import { createPersistQueue, createStatusSetter } from "./runtime_helpers.js";
@@ -28,8 +28,10 @@ import { updateTodayDashboard } from "./today/index.js";
  * @returns The Planner API instance available on the global context
  */
 function plannerApiFromGlobal(): PlannerApi {
-	const globals = globalThis as typeof globalThis & { plannerApi: PlannerApi };
-	return globals.plannerApi;
+    const globals = globalThis as typeof globalThis & {
+        plannerApi: PlannerApi;
+    };
+    return globals.plannerApi;
 }
 
 /**
@@ -39,65 +41,65 @@ function plannerApiFromGlobal(): PlannerApi {
  * @returns An initialized AppBootstrapContext object containing APIs, state, and utility functions
  */
 export function createAppBootstrapContext(): AppBootstrapContext {
-	const state = createRuntimeState();
-	const plannerApi = plannerApiFromGlobal();
-	const announce = createAnnouncer();
-	const announceForPlanController = (
-		message: string,
-		politeness?: string,
-	): void => {
-		if (politeness === "polite" || politeness === "assertive") {
-			announce(message, politeness);
-			return;
-		}
-		announce(message);
-	};
-	const setStatus = createStatusSetter(el("status"), addLog);
-	const persistQueue = createPersistQueue({
-		state,
-		collectSettings,
-		addLog,
-		plannerApi,
-		collectBooks: collectAllBooks,
-		getSessions: () => state.sessions,
-	});
-	const queuePersist = (): void => {
-		persistQueue.queuePersist();
-	};
-	const persistDraft = async (): Promise<boolean> => {
-		return await persistQueue.persistDraft();
-	};
-	const dashboards = createDashboardRuntime({
-		applyPreferencesToDocument,
-		collectFeatureFlagsFromUI,
-		collectPreferencesFromUI,
-		collectAllBooks,
-		normalizeFeatureFlags,
-		normalizePreferences,
-		queuePersist,
-		state,
-		updateStatsView,
-		updateTodayDashboard,
-	});
-	const runtime = createInitRuntime({
-		focusCalendarToday,
-		queuePersist,
-		state,
-		updateDashboards: (): void => {
-			dashboards.updateDashboards();
-		},
-	});
+    const state = createRuntimeState();
+    const plannerApi = plannerApiFromGlobal();
+    const announce = createAnnouncer();
+    const announceForPlanController = (
+        message: string,
+        politeness?: string,
+    ): void => {
+        if (politeness === "polite" || politeness === "assertive") {
+            announce(message, politeness);
+            return;
+        }
+        announce(message);
+    };
+    const setStatus = createStatusSetter(el("status"), addLog);
+    const persistQueue = createPersistQueue({
+        state,
+        collectSettings,
+        addLog,
+        plannerApi,
+        collectBooks: collectAllBooks,
+        getSessions: () => state.sessions,
+    });
+    const queuePersist = (): void => {
+        persistQueue.queuePersist();
+    };
+    const persistDraft = async (): Promise<boolean> => {
+        return await persistQueue.persistDraft();
+    };
+    const dashboards = createDashboardRuntime({
+        applyPreferencesToDocument,
+        collectFeatureFlagsFromUI,
+        collectPreferencesFromUI,
+        collectAllBooks,
+        normalizeFeatureFlags,
+        normalizePreferences,
+        queuePersist,
+        state,
+        updateStatsView,
+        updateTodayDashboard,
+    });
+    const runtime = createInitRuntime({
+        focusCalendarToday,
+        queuePersist,
+        state,
+        updateDashboards: (): void => {
+            dashboards.updateDashboards();
+        },
+    });
 
-	return {
-		announce,
-		announceForPlanController,
-		addLog,
-		dashboards,
-		plannerApi,
-		persistDraft,
-		queuePersist,
-		runtime,
-		setStatus,
-		state,
-	};
+    return {
+        announce,
+        announceForPlanController,
+        addLog,
+        dashboards,
+        plannerApi,
+        persistDraft,
+        queuePersist,
+        runtime,
+        setStatus,
+        state,
+    };
 }

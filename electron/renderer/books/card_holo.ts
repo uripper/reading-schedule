@@ -14,17 +14,17 @@ const MAX_PERCENT = 100;
  * @returns Clamped percent.
  */
 function clampedPercent(value: number): number {
-	let normalized = MIN_PERCENT;
-	if (Number.isFinite(value)) {
-		normalized = value;
-	}
-	if (normalized < MIN_PERCENT) {
-		return MIN_PERCENT;
-	}
-	if (normalized > MAX_PERCENT) {
-		return MAX_PERCENT;
-	}
-	return normalized;
+    let normalized = MIN_PERCENT;
+    if (Number.isFinite(value)) {
+        normalized = value;
+    }
+    if (normalized < MIN_PERCENT) {
+        return MIN_PERCENT;
+    }
+    if (normalized > MAX_PERCENT) {
+        return MAX_PERCENT;
+    }
+    return normalized;
 }
 
 /**
@@ -33,8 +33,8 @@ function clampedPercent(value: number): number {
  * @returns CSS percent text.
  */
 function asPercent(value: number): string {
-	const rounded = Math.round(value * PERCENT_SCALE) / PERCENT_SCALE;
-	return `${rounded}%`;
+    const rounded = Math.round(value * PERCENT_SCALE) / PERCENT_SCALE;
+    return `${rounded}%`;
 }
 
 /**
@@ -42,11 +42,11 @@ function asPercent(value: number): string {
  * @param button Cover button.
  */
 function defaultVars(button: HTMLButtonElement): void {
-	button.style.setProperty("--pointer-x", DEFAULT_POINTER_PERCENT);
-	button.style.setProperty("--pointer-y", DEFAULT_POINTER_PERCENT);
-	button.style.setProperty("--bg-shift-x", DEFAULT_POINTER_PERCENT);
-	button.style.setProperty("--bg-shift-y", DEFAULT_POINTER_PERCENT);
-	button.style.removeProperty("--holo-active");
+    button.style.setProperty("--pointer-x", DEFAULT_POINTER_PERCENT);
+    button.style.setProperty("--pointer-y", DEFAULT_POINTER_PERCENT);
+    button.style.setProperty("--bg-shift-x", DEFAULT_POINTER_PERCENT);
+    button.style.setProperty("--bg-shift-y", DEFAULT_POINTER_PERCENT);
+    button.style.removeProperty("--holo-active");
 }
 
 /**
@@ -55,10 +55,10 @@ function defaultVars(button: HTMLButtonElement): void {
  * @param vars Computed CSS values.
  */
 function applyVars(button: HTMLButtonElement, vars: HoloPointerVars): void {
-	button.style.setProperty("--pointer-x", vars.pointerX);
-	button.style.setProperty("--pointer-y", vars.pointerY);
-	button.style.setProperty("--bg-shift-x", vars.bgShiftX);
-	button.style.setProperty("--bg-shift-y", vars.bgShiftY);
+    button.style.setProperty("--pointer-x", vars.pointerX);
+    button.style.setProperty("--pointer-y", vars.pointerY);
+    button.style.setProperty("--bg-shift-x", vars.bgShiftX);
+    button.style.setProperty("--bg-shift-y", vars.bgShiftY);
 }
 
 /**
@@ -69,30 +69,30 @@ function applyVars(button: HTMLButtonElement, vars: HoloPointerVars): void {
  * @returns CSS variable value object.
  */
 export function holoVarsForPointer(
-	rect: Pick<DOMRect, "left" | "top" | "width" | "height">,
-	clientX: number,
-	clientY: number,
+    rect: Pick<DOMRect, "left" | "top" | "width" | "height">,
+    clientX: number,
+    clientY: number,
 ): HoloPointerVars {
-	const width = Math.max(1, rect.width);
-	const height = Math.max(1, rect.height);
-	const xPercent = clampedPercent(
-		((clientX - rect.left) / width) * MAX_PERCENT,
-	);
-	const yPercent = clampedPercent(
-		((clientY - rect.top) / height) * MAX_PERCENT,
-	);
-	const bgShiftX = clampedPercent(
-		HALF_PERCENT + (xPercent - HALF_PERCENT) * BG_SHIFT_FACTOR,
-	);
-	const bgShiftY = clampedPercent(
-		HALF_PERCENT + (yPercent - HALF_PERCENT) * BG_SHIFT_FACTOR,
-	);
-	return {
-		pointerX: asPercent(xPercent),
-		pointerY: asPercent(yPercent),
-		bgShiftX: asPercent(bgShiftX),
-		bgShiftY: asPercent(bgShiftY),
-	};
+    const width = Math.max(1, rect.width);
+    const height = Math.max(1, rect.height);
+    const xPercent = clampedPercent(
+        ((clientX - rect.left) / width) * MAX_PERCENT,
+    );
+    const yPercent = clampedPercent(
+        ((clientY - rect.top) / height) * MAX_PERCENT,
+    );
+    const bgShiftX = clampedPercent(
+        HALF_PERCENT + (xPercent - HALF_PERCENT) * BG_SHIFT_FACTOR,
+    );
+    const bgShiftY = clampedPercent(
+        HALF_PERCENT + (yPercent - HALF_PERCENT) * BG_SHIFT_FACTOR,
+    );
+    return {
+        pointerX: asPercent(xPercent),
+        pointerY: asPercent(yPercent),
+        bgShiftX: asPercent(bgShiftX),
+        bgShiftY: asPercent(bgShiftY),
+    };
 }
 
 /**
@@ -100,32 +100,32 @@ export function holoVarsForPointer(
  * @param button Cover button with artwork.
  */
 export function bindReadCardHolo(button: HTMLButtonElement): void {
-	const targetButton = button;
-	const activateFromPoint = (clientX: number, clientY: number): void => {
-		targetButton.style.setProperty("--holo-active", ACTIVE_HOLO);
-		const vars = holoVarsForPointer(
-			targetButton.getBoundingClientRect(),
-			clientX,
-			clientY,
-		);
-		applyVars(targetButton, vars);
-	};
+    const targetButton = button;
+    const activateFromPoint = (clientX: number, clientY: number): void => {
+        targetButton.style.setProperty("--holo-active", ACTIVE_HOLO);
+        const vars = holoVarsForPointer(
+            targetButton.getBoundingClientRect(),
+            clientX,
+            clientY,
+        );
+        applyVars(targetButton, vars);
+    };
 
-	const onPointerMove = (event: PointerEvent): void => {
-		activateFromPoint(event.clientX, event.clientY);
-	};
-	const onMouseMove = (event: MouseEvent): void => {
-		activateFromPoint(event.clientX, event.clientY);
-	};
-	const onLeave = (): void => {
-		defaultVars(targetButton);
-	};
+    const onPointerMove = (event: PointerEvent): void => {
+        activateFromPoint(event.clientX, event.clientY);
+    };
+    const onMouseMove = (event: MouseEvent): void => {
+        activateFromPoint(event.clientX, event.clientY);
+    };
+    const onLeave = (): void => {
+        defaultVars(targetButton);
+    };
 
-	targetButton.onpointerenter = onPointerMove;
-	targetButton.onpointermove = onPointerMove;
-	targetButton.onpointerleave = onLeave;
-	targetButton.onmouseenter = onMouseMove;
-	targetButton.onmousemove = onMouseMove;
-	targetButton.onmouseleave = onLeave;
-	defaultVars(targetButton);
+    targetButton.onpointerenter = onPointerMove;
+    targetButton.onpointermove = onPointerMove;
+    targetButton.onpointerleave = onLeave;
+    targetButton.onmouseenter = onMouseMove;
+    targetButton.onmousemove = onMouseMove;
+    targetButton.onmouseleave = onLeave;
+    defaultVars(targetButton);
 }

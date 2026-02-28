@@ -7,9 +7,11 @@ import baseConfig from "./eslint.config.mjs";
  * @returns {Record<string, unknown>} A new object containing only JSDoc-related rules.
  */
 const keepOnlyJsdocRules = (rules = {}) => {
-	return Object.fromEntries(
-		Object.entries(rules).filter(([ruleName]) => ruleName.startsWith("jsdoc/")),
-	);
+    return Object.fromEntries(
+        Object.entries(rules).filter(([ruleName]) =>
+            ruleName.startsWith("jsdoc/"),
+        ),
+    );
 };
 
 /**
@@ -18,32 +20,32 @@ const keepOnlyJsdocRules = (rules = {}) => {
  * @returns {value is Record<string, unknown>} True when value is a plain object.
  */
 const isConfigObject = (value) => {
-	if (!value || typeof value !== "object") {
-		return false;
-	}
-	if (Array.isArray(value)) {
-		return false;
-	}
-	return true;
+    if (!value || typeof value !== "object") {
+        return false;
+    }
+    if (Array.isArray(value)) {
+        return false;
+    }
+    return true;
 };
 
 export default baseConfig.map((config) => {
-	if (!isConfigObject(config)) {
-		return config;
-	}
-	const next = { ...config };
+    if (!isConfigObject(config)) {
+        return config;
+    }
+    const next = { ...config };
 
-	// Remove inherited configs so non-JSDoc rules don't come back in through extends.
-	if ("extends" in next) {
-		delete next.extends;
-	}
+    // Remove inherited configs so non-JSDoc rules don't come back in through extends.
+    if ("extends" in next) {
+        delete next.extends;
+    }
 
-	if ("rules" in next && next.rules) {
-		next.rules = {
-			...keepOnlyJsdocRules(next.rules),
-			// FUCK YOU DO NOT CHANGE
-		};
-	}
+    if ("rules" in next && next.rules) {
+        next.rules = {
+            ...keepOnlyJsdocRules(next.rules),
+            // FUCK YOU DO NOT CHANGE
+        };
+    }
 
-	return next;
+    return next;
 });

@@ -1,13 +1,13 @@
 import type {
-	PlannerResult,
-	PlannerScheduleRow,
-	TodayScheduleSnapshot,
-	UpdateTodayDashboardArgs,
+    PlannerResult,
+    PlannerScheduleRow,
+    TodayScheduleSnapshot,
+    UpdateTodayDashboardArgs,
 } from "../../../types/types.js";
 import {
-	dayMinutesForKey,
-	dayMinutesFromActivity,
-	streakFromDayMinutes,
+    dayMinutesForKey,
+    dayMinutesFromActivity,
+    streakFromDayMinutes,
 } from "../../activity/day_minutes.js";
 import { el } from "../../dom.js";
 import { todayKey } from "../../sessions/utils.js";
@@ -18,10 +18,10 @@ const MIN_GOAL_MINUTES = 1;
 const MAX_PERCENT = 100;
 const MIN_PERCENT = 0;
 const NO_SCHEDULE_TEXT =
-	"No schedule yet. Add or update books and settings to auto-build your plan.";
+    "No schedule yet. Add or update books and settings to auto-build your plan.";
 const TODAY_DONE_TEXT = "All planned sessions for today are complete.";
 const NO_INCOMPLETE_TEXT =
-	"No incomplete planned sessions ahead. Update books or settings to refresh your plan.";
+    "No incomplete planned sessions ahead. Update books or settings to refresh your plan.";
 const FOCUS_SESSION_UPDATE_EVENT = "today-focus-session-updated";
 
 /**
@@ -30,10 +30,10 @@ const FOCUS_SESSION_UPDATE_EVENT = "today-focus-session-updated";
  * @returns True when at least one planned row exists.
  */
 function hasPlannedRows(lastResult: PlannerResult | null): boolean {
-	if (!Array.isArray(lastResult?.schedule)) {
-		return false;
-	}
-	return lastResult.schedule.length > 0;
+    if (!Array.isArray(lastResult?.schedule)) {
+        return false;
+    }
+    return lastResult.schedule.length > 0;
 }
 
 /**
@@ -44,23 +44,23 @@ function hasPlannedRows(lastResult: PlannerResult | null): boolean {
  * @returns User-facing summary text.
  */
 function summaryText(
-	lastResult: PlannerResult | null,
-	snapshot: TodayScheduleSnapshot,
-	next: PlannerScheduleRow | null,
+    lastResult: PlannerResult | null,
+    snapshot: TodayScheduleSnapshot,
+    next: PlannerScheduleRow | null,
 ): string {
-	if (next) {
-		return `Next planned session: ${next.title} for ${next.minutes} minutes on ${next.date}.`;
-	}
-	if (hasPlannedRows(lastResult)) {
-		if (
-			snapshot.scheduledSessions &&
-			snapshot.completedSessions >= snapshot.scheduledSessions
-		) {
-			return TODAY_DONE_TEXT;
-		}
-		return NO_INCOMPLETE_TEXT;
-	}
-	return NO_SCHEDULE_TEXT;
+    if (next) {
+        return `Next planned session: ${next.title} for ${next.minutes} minutes on ${next.date}.`;
+    }
+    if (hasPlannedRows(lastResult)) {
+        if (
+            snapshot.scheduledSessions &&
+            snapshot.completedSessions >= snapshot.scheduledSessions
+        ) {
+            return TODAY_DONE_TEXT;
+        }
+        return NO_INCOMPLETE_TEXT;
+    }
+    return NO_SCHEDULE_TEXT;
 }
 
 /**
@@ -69,25 +69,25 @@ function summaryText(
  * @param nextRow Next uncompleted row for today/future schedule.
  */
 function setFocusSessionDataset(
-	button: HTMLButtonElement,
-	nextRow: PlannerScheduleRow | null,
+    button: HTMLButtonElement,
+    nextRow: PlannerScheduleRow | null,
 ): void {
-	const targetButton = button;
-	if (!nextRow) {
-		targetButton.dataset.focusSessionBookId = "";
-		targetButton.dataset.focusSessionDate = "";
-		targetButton.dataset.focusSessionIndex = "";
-		targetButton.dataset.focusSessionMinutes = "";
-		targetButton.dataset.focusSessionTitle = "";
-		targetButton.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
-		return;
-	}
-	targetButton.dataset.focusSessionBookId = String(nextRow.book_id);
-	targetButton.dataset.focusSessionDate = String(nextRow.date);
-	targetButton.dataset.focusSessionIndex = String(nextRow.session_index);
-	targetButton.dataset.focusSessionMinutes = String(nextRow.minutes);
-	targetButton.dataset.focusSessionTitle = String(nextRow.title);
-	targetButton.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
+    const targetButton = button;
+    if (!nextRow) {
+        targetButton.dataset.focusSessionBookId = "";
+        targetButton.dataset.focusSessionDate = "";
+        targetButton.dataset.focusSessionIndex = "";
+        targetButton.dataset.focusSessionMinutes = "";
+        targetButton.dataset.focusSessionTitle = "";
+        targetButton.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
+        return;
+    }
+    targetButton.dataset.focusSessionBookId = String(nextRow.book_id);
+    targetButton.dataset.focusSessionDate = String(nextRow.date);
+    targetButton.dataset.focusSessionIndex = String(nextRow.session_index);
+    targetButton.dataset.focusSessionMinutes = String(nextRow.minutes);
+    targetButton.dataset.focusSessionTitle = String(nextRow.title);
+    targetButton.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
 }
 
 /**
@@ -97,20 +97,20 @@ function setFocusSessionDataset(
  * @returns Integer percent between 0 and 100.
  */
 export function goalProgressPercent(
-	todayMinutesRaw: number,
-	goalMinutesRaw: number,
+    todayMinutesRaw: number,
+    goalMinutesRaw: number,
 ): number {
-	const goalMinutes = Math.max(
-		MIN_GOAL_MINUTES,
-		Number(goalMinutesRaw || MIN_GOAL_MINUTES),
-	);
-	const todayMinutes = Math.max(
-		MIN_PERCENT,
-		Number(todayMinutesRaw || MIN_PERCENT),
-	);
-	const rawPercent = Math.round((todayMinutes / goalMinutes) * MAX_PERCENT);
-	const bounded = Math.min(MAX_PERCENT, rawPercent);
-	return Math.max(MIN_PERCENT, bounded);
+    const goalMinutes = Math.max(
+        MIN_GOAL_MINUTES,
+        Number(goalMinutesRaw || MIN_GOAL_MINUTES),
+    );
+    const todayMinutes = Math.max(
+        MIN_PERCENT,
+        Number(todayMinutesRaw || MIN_PERCENT),
+    );
+    const rawPercent = Math.round((todayMinutes / goalMinutes) * MAX_PERCENT);
+    const bounded = Math.min(MAX_PERCENT, rawPercent);
+    return Math.max(MIN_PERCENT, bounded);
 }
 
 /**
@@ -125,51 +125,51 @@ export function goalProgressPercent(
  * @param root0.defaultDailyGoalMinutes Fallback goal minutes when preference is empty.
  */
 export function updateTodayDashboard({
-	lastResult,
-	scheduleCompletions,
-	books,
-	sessions,
-	preferences,
-	featureFlags,
-	defaultDailyGoalMinutes,
+    lastResult,
+    scheduleCompletions,
+    books,
+    sessions,
+    preferences,
+    featureFlags,
+    defaultDailyGoalMinutes,
 }: UpdateTodayDashboardArgs): void {
-	const summaryNode = el("todaySummary");
-	const goalText = el("todayGoalText");
-	const goalProgress = el<HTMLProgressElement>("todayGoalProgress");
-	const focusEntryButton = el<HTMLButtonElement>("startSessionFromTodayBtn");
-	const gamificationCard = el("gamificationCard");
-	const streakNode = el("streakText");
+    const summaryNode = el("todaySummary");
+    const goalText = el("todayGoalText");
+    const goalProgress = el<HTMLProgressElement>("todayGoalProgress");
+    const focusEntryButton = el<HTMLButtonElement>("startSessionFromTodayBtn");
+    const gamificationCard = el("gamificationCard");
+    const streakNode = el("streakText");
 
-	const snapshot = buildTodayScheduleSnapshot(
-		lastResult,
-		scheduleCompletions,
-		books,
-	);
-	const next = snapshot.nextUncompletedRow;
-	summaryNode.textContent = summaryText(lastResult, snapshot, next);
-	setFocusSessionDataset(focusEntryButton, next);
-	renderTodayScheduledBooks(snapshot);
+    const snapshot = buildTodayScheduleSnapshot(
+        lastResult,
+        scheduleCompletions,
+        books,
+    );
+    const next = snapshot.nextUncompletedRow;
+    summaryNode.textContent = summaryText(lastResult, snapshot, next);
+    setFocusSessionDataset(focusEntryButton, next);
+    renderTodayScheduledBooks(snapshot);
 
-	const activityByDay = dayMinutesFromActivity({
-		sessions,
-		lastResult,
-		scheduleCompletions,
-		year: null,
-	});
+    const activityByDay = dayMinutesFromActivity({
+        sessions,
+        lastResult,
+        scheduleCompletions,
+        year: null,
+    });
 
-	const goalMinutes = Math.max(
-		MIN_GOAL_MINUTES,
-		Number(preferences.dailyGoalMinutes || defaultDailyGoalMinutes),
-	);
-	const todayMinutes = dayMinutesForKey(activityByDay, todayKey());
-	const pct = goalProgressPercent(todayMinutes, goalMinutes);
-	goalText.textContent = `${todayMinutes} / ${goalMinutes} minutes logged today`;
-	goalProgress.value = pct;
+    const goalMinutes = Math.max(
+        MIN_GOAL_MINUTES,
+        Number(preferences.dailyGoalMinutes || defaultDailyGoalMinutes),
+    );
+    const todayMinutes = dayMinutesForKey(activityByDay, todayKey());
+    const pct = goalProgressPercent(todayMinutes, goalMinutes);
+    goalText.textContent = `${todayMinutes} / ${goalMinutes} minutes logged today`;
+    goalProgress.value = pct;
 
-	const gamificationOn = Boolean(featureFlags.gamificationEnabled);
-	gamificationCard.hidden = !gamificationOn;
-	if (gamificationOn) {
-		const streak = streakFromDayMinutes(activityByDay, goalMinutes);
-		streakNode.textContent = `${streak} day streak`;
-	}
+    const gamificationOn = Boolean(featureFlags.gamificationEnabled);
+    gamificationCard.hidden = !gamificationOn;
+    if (gamificationOn) {
+        const streak = streakFromDayMinutes(activityByDay, goalMinutes);
+        streakNode.textContent = `${streak} day streak`;
+    }
 }

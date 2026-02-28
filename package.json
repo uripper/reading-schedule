@@ -12,9 +12,9 @@
 		"build:desktop": "npm --prefix electron run build",
 		"typecheck:python": ".venv/bin/ty check src",
 		"typecheck:desktop": "npm --prefix electron run typecheck",
-		"lint:desktop": "npm --prefix electron run lint",
+		"lint:desktop": "npx @biomejs/biome check electron",
 		"test:desktop": "npm --prefix electron run test:node",
-		"lint:desktop:fix": "npm --prefix electron run lint:fix",
+		"lint:desktop:fix": "npx @biomejs/biome check electron --write",
 		"lint:desktop:jsdoc": "npm --prefix electron run lint -- -c eslint.jsdoc.config.mjs",
 		"lint:desktop:jsdoc:fix": "npm --prefix electron run lint:fix -- -c eslint.jsdoc.config.mjs --fix",
 		"lint:python": ".venv/bin/ruff check src",
@@ -24,7 +24,10 @@
 		"audit": "node ./scripts/style_audit.mjs",
 		"issues:sync": "bash ./scripts/sync_issues.sh",
 		"test:python": ".venv/bin/pytest -q",
-		"sonar:scan": "sonar-scanner -Dsonar.host.url=${SONAR_HOST_URL:-http://localhost:9000} -Dsonar.token=$SONAR_TOKEN"
+		"sonar:scan": "sonar-scanner -Dsonar.host.url=${SONAR_HOST_URL:-http://localhost:9000} -Dsonar.token=$SONAR_TOKEN",
+    "format:typescript": "npx @biomejs/biome check electron --write",
+    "format:python": ".venv/bin/ruff check src --fix"
+
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.4",

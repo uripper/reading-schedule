@@ -1,6 +1,6 @@
 import type {
-	PlannerScheduleRow,
-	PlannerSettings,
+    PlannerScheduleRow,
+    PlannerSettings,
 } from "../../../types/types.js";
 
 const DEFAULT_MANUAL_WPM_BASE = 220;
@@ -16,11 +16,11 @@ export const DEFAULT_BOOK_DIFFICULTY = 3;
  * @returns normalized number of minutes to use for calculations and display
  */
 function normalizeManualMinutes(minutes: number): number {
-	const rounded = Math.round(Number(minutes || 0));
-	if (!Number.isFinite(rounded) || rounded < MIN_MANUAL_MINUTES) {
-		return MIN_MANUAL_MINUTES;
-	}
-	return rounded;
+    const rounded = Math.round(Number(minutes || 0));
+    if (!Number.isFinite(rounded) || rounded < MIN_MANUAL_MINUTES) {
+        return MIN_MANUAL_MINUTES;
+    }
+    return rounded;
 }
 
 /**
@@ -30,27 +30,27 @@ function normalizeManualMinutes(minutes: number): number {
  * @returns Historical words per minute or null if not enough data
  */
 function historicalWordsPerMinute(
-	bookId: string,
-	rows: PlannerScheduleRow[] = [],
+    bookId: string,
+    rows: PlannerScheduleRow[] = [],
 ): number | null {
-	let totalWords = 0;
-	let totalMinutes = 0;
-	rows.forEach((row) => {
-		if (String(row.book_id || "") !== bookId) {
-			return;
-		}
-		const rowMinutes = Number(row.minutes || 0);
-		const rowWords = Number(row.words_planned || 0);
-		if (rowMinutes <= 0 || rowWords <= 0) {
-			return;
-		}
-		totalMinutes += rowMinutes;
-		totalWords += rowWords;
-	});
-	if (totalMinutes <= 0 || totalWords <= 0) {
-		return null;
-	}
-	return totalWords / totalMinutes;
+    let totalWords = 0;
+    let totalMinutes = 0;
+    rows.forEach((row) => {
+        if (String(row.book_id || "") !== bookId) {
+            return;
+        }
+        const rowMinutes = Number(row.minutes || 0);
+        const rowWords = Number(row.words_planned || 0);
+        if (rowMinutes <= 0 || rowWords <= 0) {
+            return;
+        }
+        totalMinutes += rowMinutes;
+        totalWords += rowWords;
+    });
+    if (totalMinutes <= 0 || totalWords <= 0) {
+        return null;
+    }
+    return totalWords / totalMinutes;
 }
 
 /**
@@ -60,16 +60,16 @@ function historicalWordsPerMinute(
  * @returns Calculated difficulty multiplier
  */
 function difficultyMultiplier(
-	settings: PlannerSettings,
-	difficulty: number,
+    settings: PlannerSettings,
+    difficulty: number,
 ): number {
-	const multiplierByDifficulty = settings.difficulty_multiplier ?? {};
-	const exact = multiplierByDifficulty[difficulty];
-	const multiplier = Number(exact);
-	if (!Number.isFinite(multiplier) || multiplier <= 0) {
-		return DEFAULT_DIFFICULTY_MULTIPLIER;
-	}
-	return multiplier;
+    const multiplierByDifficulty = settings.difficulty_multiplier ?? {};
+    const exact = multiplierByDifficulty[difficulty];
+    const multiplier = Number(exact);
+    if (!Number.isFinite(multiplier) || multiplier <= 0) {
+        return DEFAULT_DIFFICULTY_MULTIPLIER;
+    }
+    return multiplier;
 }
 
 /**
@@ -83,34 +83,36 @@ function difficultyMultiplier(
  * @returns Number of words planned for the session
  */
 export function wordsPlannedForManualSession({
-	bookId,
-	minutes,
-	rows = [],
-	settings = {},
-	difficulty = DEFAULT_BOOK_DIFFICULTY,
+    bookId,
+    minutes,
+    rows = [],
+    settings = {},
+    difficulty = DEFAULT_BOOK_DIFFICULTY,
 }: {
-	bookId: string;
-	minutes: number;
-	rows?: PlannerScheduleRow[];
-	settings?: PlannerSettings;
-	difficulty?: number;
+    bookId: string;
+    minutes: number;
+    rows?: PlannerScheduleRow[];
+    settings?: PlannerSettings;
+    difficulty?: number;
 }): number {
-	const normalizedMinutes = normalizeManualMinutes(minutes);
-	const historicalWpm = historicalWordsPerMinute(bookId, rows);
-	if (historicalWpm !== null) {
-		return Math.max(
-			MIN_MANUAL_WORDS,
-			Math.round(normalizedMinutes * historicalWpm),
-		);
-	}
-	const base = Number(settings.wpm_base ?? DEFAULT_MANUAL_WPM_BASE);
-	let wpmBase = DEFAULT_MANUAL_WPM_BASE;
-	if (Number.isFinite(base) && base > 0) {
-		wpmBase = base;
-	}
-	const planned =
-		normalizedMinutes * wpmBase * difficultyMultiplier(settings, difficulty);
-	return Math.max(MIN_MANUAL_WORDS, Math.round(planned));
+    const normalizedMinutes = normalizeManualMinutes(minutes);
+    const historicalWpm = historicalWordsPerMinute(bookId, rows);
+    if (historicalWpm !== null) {
+        return Math.max(
+            MIN_MANUAL_WORDS,
+            Math.round(normalizedMinutes * historicalWpm),
+        );
+    }
+    const base = Number(settings.wpm_base ?? DEFAULT_MANUAL_WPM_BASE);
+    let wpmBase = DEFAULT_MANUAL_WPM_BASE;
+    if (Number.isFinite(base) && base > 0) {
+        wpmBase = base;
+    }
+    const planned =
+        normalizedMinutes *
+        wpmBase *
+        difficultyMultiplier(settings, difficulty);
+    return Math.max(MIN_MANUAL_WORDS, Math.round(planned));
 }
 
 /**
@@ -119,5 +121,5 @@ export function wordsPlannedForManualSession({
  * @returns Normalized number of minutes
  */
 export function normalizedManualMinutes(minutes: number): number {
-	return normalizeManualMinutes(minutes);
+    return normalizeManualMinutes(minutes);
 }

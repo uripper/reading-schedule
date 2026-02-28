@@ -12,12 +12,13 @@ const ARIA_ACTIVE_DESCENDANT_ATTR = "aria-activedescendant";
  * @returns Selected book, or null when none is selected.
  */
 export function selectedBook(state: PickerState): Book | null {
-	if (!state.selectedBookId) {
-		return null;
-	}
-	return (
-		state.options.find((book) => book.book_id === state.selectedBookId) ?? null
-	);
+    if (!state.selectedBookId) {
+        return null;
+    }
+    return (
+        state.options.find((book) => book.book_id === state.selectedBookId) ??
+        null
+    );
 }
 
 /**
@@ -26,40 +27,43 @@ export function selectedBook(state: PickerState): Book | null {
  * @param state Picker state with filtered options and active index.
  */
 export function renderAfterBookResults(
-	refs: BookFormRefs,
-	state: PickerState,
+    refs: BookFormRefs,
+    state: PickerState,
 ): void {
-	const formRefs = refs;
-	formRefs.afterBookResults.innerHTML = "";
-	if (!state.filtered.length) {
-		formRefs.afterBookResults.classList.remove("has-items");
-		formRefs.afterBookInput.setAttribute("aria-expanded", "false");
-		formRefs.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
-		return;
-	}
-	const items = state.filtered.map((book, index) => {
-		const button = document.createElement("button");
-		button.type = "button";
-		button.className = "book-result book-result-inline";
-		button.id = `after-book-option-${index}`;
-		button.dataset.resultIndex = String(index);
-		button.setAttribute("role", "option");
-		button.setAttribute("aria-selected", String(state.activeIndex === index));
-		button.textContent = optionLabel(book);
-		button.classList.toggle("is-active", state.activeIndex === index);
-		return button;
-	});
-	formRefs.afterBookResults.replaceChildren(...items);
-	formRefs.afterBookResults.classList.add("has-items");
-	formRefs.afterBookInput.setAttribute("aria-expanded", "true");
-	if (state.activeIndex > NO_ACTIVE_INDEX) {
-		formRefs.afterBookInput.setAttribute(
-			ARIA_ACTIVE_DESCENDANT_ATTR,
-			`after-book-option-${state.activeIndex}`,
-		);
-		return;
-	}
-	formRefs.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
+    const formRefs = refs;
+    formRefs.afterBookResults.innerHTML = "";
+    if (!state.filtered.length) {
+        formRefs.afterBookResults.classList.remove("has-items");
+        formRefs.afterBookInput.setAttribute("aria-expanded", "false");
+        formRefs.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
+        return;
+    }
+    const items = state.filtered.map((book, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "book-result book-result-inline";
+        button.id = `after-book-option-${index}`;
+        button.dataset.resultIndex = String(index);
+        button.setAttribute("role", "option");
+        button.setAttribute(
+            "aria-selected",
+            String(state.activeIndex === index),
+        );
+        button.textContent = optionLabel(book);
+        button.classList.toggle("is-active", state.activeIndex === index);
+        return button;
+    });
+    formRefs.afterBookResults.replaceChildren(...items);
+    formRefs.afterBookResults.classList.add("has-items");
+    formRefs.afterBookInput.setAttribute("aria-expanded", "true");
+    if (state.activeIndex > NO_ACTIVE_INDEX) {
+        formRefs.afterBookInput.setAttribute(
+            ARIA_ACTIVE_DESCENDANT_ATTR,
+            `after-book-option-${state.activeIndex}`,
+        );
+        return;
+    }
+    formRefs.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
 }
 
 /**
@@ -68,9 +72,9 @@ export function renderAfterBookResults(
  * @param blockedById Unknown blocked-by book id.
  */
 export function setUnknownSelectionLabel(
-	refs: BookFormRefs,
-	blockedById: string,
+    refs: BookFormRefs,
+    blockedById: string,
 ): void {
-	const formRefs = refs;
-	formRefs.afterBookInput.value = `${UNKNOWN_BOOK_LABEL} (${blockedById})`;
+    const formRefs = refs;
+    formRefs.afterBookInput.value = `${UNKNOWN_BOOK_LABEL} (${blockedById})`;
 }

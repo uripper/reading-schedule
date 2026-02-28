@@ -4,13 +4,13 @@ import type { BookWeekday } from "../../types/types.js";
  */
 
 export const BOOK_WEEKDAYS = [
-	"Mon",
-	"Tue",
-	"Wed",
-	"Thu",
-	"Fri",
-	"Sat",
-	"Sun",
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat",
+    "Sun",
 ] as const;
 
 const WEEKDAY_SET = new Set<string>(BOOK_WEEKDAYS);
@@ -21,7 +21,7 @@ const WEEKDAY_SET = new Set<string>(BOOK_WEEKDAYS);
  * @returns True when value is one of `Mon..Sun`.
  */
 export function isBookWeekday(value: string): value is BookWeekday {
-	return WEEKDAY_SET.has(value);
+    return WEEKDAY_SET.has(value);
 }
 
 /**
@@ -31,20 +31,20 @@ export function isBookWeekday(value: string): value is BookWeekday {
  * @returns Ordered weekday list.
  */
 function orderedWeekdays(rawDays: unknown[]): BookWeekday[] {
-	const seen = new Set<BookWeekday>();
-	rawDays.forEach((rawValue) => {
-		if (typeof rawValue !== "string") {
-			return;
-		}
-		const weekday = rawValue.trim();
-		if (isBookWeekday(weekday)) {
-			seen.add(weekday);
-		}
-	});
-	if (seen.size === 0) {
-		return [...BOOK_WEEKDAYS];
-	}
-	return BOOK_WEEKDAYS.filter((weekday) => seen.has(weekday));
+    const seen = new Set<BookWeekday>();
+    rawDays.forEach((rawValue) => {
+        if (typeof rawValue !== "string") {
+            return;
+        }
+        const weekday = rawValue.trim();
+        if (isBookWeekday(weekday)) {
+            seen.add(weekday);
+        }
+    });
+    if (seen.size === 0) {
+        return [...BOOK_WEEKDAYS];
+    }
+    return BOOK_WEEKDAYS.filter((weekday) => seen.has(weekday));
 }
 
 /**
@@ -54,13 +54,13 @@ function orderedWeekdays(rawDays: unknown[]): BookWeekday[] {
  * @returns Ordered weekday array with duplicates removed.
  */
 export function normalizeScheduledDays(value: unknown): BookWeekday[] {
-	if (Array.isArray(value)) {
-		return orderedWeekdays(value);
-	}
-	if (typeof value === "string") {
-		return orderedWeekdays(value.split(","));
-	}
-	return [...BOOK_WEEKDAYS];
+    if (Array.isArray(value)) {
+        return orderedWeekdays(value);
+    }
+    if (typeof value === "string") {
+        return orderedWeekdays(value.split(","));
+    }
+    return [...BOOK_WEEKDAYS];
 }
 
 /**
@@ -69,9 +69,9 @@ export function normalizeScheduledDays(value: unknown): BookWeekday[] {
  * @returns True when `days` contains all weekdays.
  */
 export function scheduledDaysMatchAll(days: readonly string[]): boolean {
-	const normalized = normalizeScheduledDays(days);
-	if (normalized.length !== BOOK_WEEKDAYS.length) {
-		return false;
-	}
-	return BOOK_WEEKDAYS.every((day, index) => normalized[index] === day);
+    const normalized = normalizeScheduledDays(days);
+    if (normalized.length !== BOOK_WEEKDAYS.length) {
+        return false;
+    }
+    return BOOK_WEEKDAYS.every((day, index) => normalized[index] === day);
 }

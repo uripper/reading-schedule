@@ -1,13 +1,13 @@
 import type {
-	BookGetter,
-	CompletionChecker,
-	EstimateRow,
-	EstimateState,
+    BookGetter,
+    CompletionChecker,
+    EstimateRow,
+    EstimateState,
 } from "../../types/types.js";
 import {
-	estimateLabelWithoutPages,
-	estimateLabelWithPages,
-	NO_ESTIMATE_LABEL,
+    estimateLabelWithoutPages,
+    estimateLabelWithPages,
+    NO_ESTIMATE_LABEL,
 } from "./estimates_labels.js";
 import { estimateSnapshotForRow } from "./estimates_snapshot.js";
 
@@ -20,22 +20,22 @@ import { estimateSnapshotForRow } from "./estimates_snapshot.js";
  * @returns Human-readable estimate label.
  */
 export function estimateProgressLabel(
-	row: EstimateRow,
-	state: EstimateState,
-	getBookById: BookGetter,
-	isSessionCompleted: CompletionChecker = () => false,
+    row: EstimateRow,
+    state: EstimateState,
+    getBookById: BookGetter,
+    isSessionCompleted: CompletionChecker = () => false,
 ): string {
-	const snapshot = estimateSnapshotForRow(
-		row,
-		state,
-		getBookById,
-		isSessionCompleted,
-	);
-	if (!snapshot) {
-		return NO_ESTIMATE_LABEL;
-	}
-	if (snapshot.startPages !== null && snapshot.endPages !== null) {
-		return estimateLabelWithPages(snapshot);
-	}
-	return estimateLabelWithoutPages(snapshot);
+    const snapshot = estimateSnapshotForRow(
+        row,
+        state,
+        getBookById,
+        isSessionCompleted,
+    );
+    if (!snapshot) {
+        return NO_ESTIMATE_LABEL;
+    }
+    if (snapshot.startPages !== null && snapshot.endPages !== null) {
+        return estimateLabelWithPages(snapshot);
+    }
+    return estimateLabelWithoutPages(snapshot);
 }

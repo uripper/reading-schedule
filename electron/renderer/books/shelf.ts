@@ -11,9 +11,9 @@ export const SHELF_SELECT_CREATE_NEW = "__create_new_shelf__";
  * @returns Normalized shelf name.
  */
 export function normalizeShelfName(
-	rawShelf: string | null | undefined,
+    rawShelf: string | null | undefined,
 ): string {
-	return String(rawShelf ?? "").trim();
+    return String(rawShelf ?? "").trim();
 }
 
 /**
@@ -22,13 +22,13 @@ export function normalizeShelfName(
  * @returns Shelf label for UI rendering.
  */
 export function shelfLabelForBook(
-	book: Pick<Book, "shelf"> | null | undefined,
+    book: Pick<Book, "shelf"> | null | undefined,
 ): string {
-	const shelf = normalizeShelfName(book?.shelf);
-	if (!shelf) {
-		return UNSHELVED_LABEL;
-	}
-	return shelf;
+    const shelf = normalizeShelfName(book?.shelf);
+    if (!shelf) {
+        return UNSHELVED_LABEL;
+    }
+    return shelf;
 }
 
 /**
@@ -38,17 +38,17 @@ export function shelfLabelForBook(
  * @returns `true` when the book should remain visible.
  */
 export function shelfFilterMatches(
-	book: Pick<Book, "shelf"> | null | undefined,
-	filterValue: string,
+    book: Pick<Book, "shelf"> | null | undefined,
+    filterValue: string,
 ): boolean {
-	const shelf = normalizeShelfName(book?.shelf);
-	if (filterValue === SHELF_FILTER_ALL) {
-		return true;
-	}
-	if (filterValue === SHELF_FILTER_UNSHELVED) {
-		return !shelf;
-	}
-	return shelf === filterValue;
+    const shelf = normalizeShelfName(book?.shelf);
+    if (filterValue === SHELF_FILTER_ALL) {
+        return true;
+    }
+    if (filterValue === SHELF_FILTER_UNSHELVED) {
+        return !shelf;
+    }
+    return shelf === filterValue;
 }
 
 /**
@@ -57,17 +57,17 @@ export function shelfFilterMatches(
  * @returns Sorted unique shelf names.
  */
 export function uniqueShelves(
-	books: Array<Pick<Book, "shelf">> = [],
+    books: Array<Pick<Book, "shelf">> = [],
 ): string[] {
-	const shelfSet = new Set<string>();
-	books.forEach((book) => {
-		const shelf = normalizeShelfName(book.shelf);
-		if (!shelf) {
-			return;
-		}
-		shelfSet.add(shelf);
-	});
-	return [...shelfSet].sort((left, right) => {
-		return left.localeCompare(right, undefined, { sensitivity: "base" });
-	});
+    const shelfSet = new Set<string>();
+    books.forEach((book) => {
+        const shelf = normalizeShelfName(book.shelf);
+        if (!shelf) {
+            return;
+        }
+        shelfSet.add(shelf);
+    });
+    return [...shelfSet].sort((left, right) => {
+        return left.localeCompare(right, undefined, { sensitivity: "base" });
+    });
 }

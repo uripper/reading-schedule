@@ -14,7 +14,7 @@ const DEVELOPMENT_FLAG = "--development";
  * @returns {boolean} True when development launch flag is present.
  */
 function isDevelopmentLaunch() {
-	return process.argv.includes(DEVELOPMENT_FLAG);
+    return process.argv.includes(DEVELOPMENT_FLAG);
 }
 
 /**
@@ -23,12 +23,12 @@ function isDevelopmentLaunch() {
  * @returns {NodeJS.ProcessEnv} Cleaned environment object.
  */
 function cleanedEnvironment(developmentLaunch) {
-	const env = { ...process.env };
-	delete env.ELECTRON_RUN_AS_NODE;
-	if (developmentLaunch) {
-		env.NODE_ENV = DEVELOPMENT_ENVIRONMENT;
-	}
-	return env;
+    const env = { ...process.env };
+    delete env.ELECTRON_RUN_AS_NODE;
+    if (developmentLaunch) {
+        env.NODE_ENV = DEVELOPMENT_ENVIRONMENT;
+    }
+    return env;
 }
 
 /**
@@ -36,40 +36,40 @@ function cleanedEnvironment(developmentLaunch) {
  * @returns {string} Electron binary path.
  */
 function electronBinaryPath() {
-	const binary = require("electron");
-	if (typeof binary !== "string" || !binary) {
-		throw new TypeError("Could not resolve Electron binary path.");
-	}
-	return binary;
+    const binary = require("electron");
+    if (typeof binary !== "string" || !binary) {
+        throw new TypeError("Could not resolve Electron binary path.");
+    }
+    return binary;
 }
 
 /**
  * Spawns Electron process with inherited stdio and exit propagation.
  */
 function spawnElectron() {
-	const developmentLaunch = isDevelopmentLaunch();
-	const child = spawn(electronBinaryPath(), ["."], {
-		cwd: ROOT,
-		env: cleanedEnvironment(developmentLaunch),
-		stdio: "inherit",
-	});
-	child.on("error", (error) => {
-		let message = "";
-		if (error instanceof Error) {
-			message = error.message;
-		} else {
-			message = String(error);
-		}
-		process.stderr.write(`${message}\n`);
-		process.exitCode = 1;
-	});
-	child.on("exit", (code, signal) => {
-		if (signal) {
-			process.kill(process.pid, signal);
-			return;
-		}
-		process.exitCode = Number(code || 0);
-	});
+    const developmentLaunch = isDevelopmentLaunch();
+    const child = spawn(electronBinaryPath(), ["."], {
+        cwd: ROOT,
+        env: cleanedEnvironment(developmentLaunch),
+        stdio: "inherit",
+    });
+    child.on("error", (error) => {
+        let message = "";
+        if (error instanceof Error) {
+            message = error.message;
+        } else {
+            message = String(error);
+        }
+        process.stderr.write(`${message}\n`);
+        process.exitCode = 1;
+    });
+    child.on("exit", (code, signal) => {
+        if (signal) {
+            process.kill(process.pid, signal);
+            return;
+        }
+        process.exitCode = Number(code || 0);
+    });
 }
 
 spawnElectron();

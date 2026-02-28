@@ -10,18 +10,18 @@ import { buildMonthWindow } from "./month_window.js";
  * @param isSessionCompleted Completion checker by session key.
  */
 export function refreshDerivedRows(
-	state: CalendarRuntimeState,
-	isSessionCompleted: (sessionKey: string) => boolean,
+    state: CalendarRuntimeState,
+    isSessionCompleted: (sessionKey: string) => boolean,
 ): void {
-	const calendarState = state;
-	const enrichedRows = enrichRows(
-		calendarState.rawRows,
-		calendarState.totalsByBookId,
-		isSessionCompleted,
-	);
-	calendarState.rows = enrichedRows;
-	calendarState.dates = groupRowsByDate(enrichedRows);
-	calendarState.months = buildMonthWindow(monthKeysFromRows(enrichedRows));
+    const calendarState = state;
+    const enrichedRows = enrichRows(
+        calendarState.rawRows,
+        calendarState.totalsByBookId,
+        isSessionCompleted,
+    );
+    calendarState.rows = enrichedRows;
+    calendarState.dates = groupRowsByDate(enrichedRows);
+    calendarState.months = buildMonthWindow(monthKeysFromRows(enrichedRows));
 }
 
 /**
@@ -34,23 +34,23 @@ export function refreshDerivedRows(
  * @param actions.selectDate Date selection callback.
  */
 export function renderMonth(
-	state: CalendarRuntimeState,
-	actions: {
-		completedBookRowsForDate(dateKey: string): Array<{
-			book_id?: string;
-			completed?: boolean;
-			date?: string;
-			finish?: boolean;
-			minutes?: number;
-			session_index?: string | number;
-			title?: string;
-		}>;
-		moveSelectionBy(delta: number, currentIndex: number): void;
-		renderDetails(): void;
-		selectDate(dateKey: string, options?: { focus?: boolean }): void;
-	},
+    state: CalendarRuntimeState,
+    actions: {
+        completedBookRowsForDate(dateKey: string): Array<{
+            book_id?: string;
+            completed?: boolean;
+            date?: string;
+            finish?: boolean;
+            minutes?: number;
+            session_index?: string | number;
+            title?: string;
+        }>;
+        moveSelectionBy(delta: number, currentIndex: number): void;
+        renderDetails(): void;
+        selectDate(dateKey: string, options?: { focus?: boolean }): void;
+    },
 ): void {
-	renderCalendarMonth(state, actions);
+    renderCalendarMonth(state, actions);
 }
 
 /**
@@ -61,10 +61,10 @@ export function renderMonth(
  * @param jumpToToday Callback to focus today's date.
  */
 export function renderControls(
-	state: CalendarRuntimeState,
-	rerenderControls: () => void,
-	rerenderMonth: () => void,
-	jumpToToday: () => void,
+    state: CalendarRuntimeState,
+    rerenderControls: () => void,
+    rerenderMonth: () => void,
+    jumpToToday: () => void,
 ): void {
-	renderCalendarControls(state, rerenderControls, rerenderMonth, jumpToToday);
+    renderCalendarControls(state, rerenderControls, rerenderMonth, jumpToToday);
 }

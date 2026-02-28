@@ -9,30 +9,30 @@ import { COVER_PLACEHOLDER } from "./constants.js";
  * @param handlers.onRemove Called when remove button is clicked.
  */
 export function bindCardEvents(
-	rootNode: HTMLElement,
-	handlers: CardHandlers,
+    rootNode: HTMLElement,
+    handlers: CardHandlers,
 ): void {
-	rootNode
-		.querySelectorAll<HTMLButtonElement>(".edit-book-btn")
-		.forEach((button) => {
-			button.addEventListener("click", () => {
-				handlers.onEdit(button.dataset.bookId ?? "");
-			});
-		});
-	rootNode
-		.querySelectorAll<HTMLButtonElement>(".remove-book-btn")
-		.forEach((button) => {
-			button.addEventListener("click", () => {
-				handlers.onRemove(button.dataset.bookId ?? "");
-			});
-		});
-	rootNode
-		.querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']")
-		.forEach((image) => {
-			const nextImage = image;
-			image.addEventListener("error", () => {
-				nextImage.src = COVER_PLACEHOLDER;
-				nextImage.classList.add("is-empty");
-			});
-		});
+    rootNode
+        .querySelectorAll<HTMLButtonElement>(".edit-book-btn")
+        .forEach((button) => {
+            button.addEventListener("click", () => {
+                handlers.onEdit(button.dataset.bookId ?? "");
+            });
+        });
+    rootNode
+        .querySelectorAll<HTMLButtonElement>(".remove-book-btn")
+        .forEach((button) => {
+            button.addEventListener("click", () => {
+                handlers.onRemove(button.dataset.bookId ?? "");
+            });
+        });
+    rootNode
+        .querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']")
+        .forEach((image) => {
+            const nextImage = image;
+            image.addEventListener("error", () => {
+                nextImage.src = COVER_PLACEHOLDER;
+                nextImage.classList.add("is-empty");
+            });
+        });
 }

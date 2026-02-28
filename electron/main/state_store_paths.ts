@@ -14,7 +14,7 @@ export const SQLITE_STATE_FILE_NAME = "planner_state.sqlite3";
  * @returns Absolute file path.
  */
 export function jsonStatePath(userDataDir: string): string {
-	return path.join(userDataDir, JSON_STATE_FILE_NAME);
+    return path.join(userDataDir, JSON_STATE_FILE_NAME);
 }
 
 /**
@@ -23,7 +23,7 @@ export function jsonStatePath(userDataDir: string): string {
  * @returns Absolute file path.
  */
 export function jsonStateBackupPath(userDataDir: string): string {
-	return path.join(userDataDir, JSON_STATE_BACKUP_FILE_NAME);
+    return path.join(userDataDir, JSON_STATE_BACKUP_FILE_NAME);
 }
 
 /**
@@ -32,7 +32,7 @@ export function jsonStateBackupPath(userDataDir: string): string {
  * @returns Absolute file path.
  */
 export function jsonStateTempPath(userDataDir: string): string {
-	return path.join(userDataDir, JSON_STATE_TEMP_FILE_NAME);
+    return path.join(userDataDir, JSON_STATE_TEMP_FILE_NAME);
 }
 
 /**
@@ -41,5 +41,5 @@ export function jsonStateTempPath(userDataDir: string): string {
  * @returns Absolute file path.
  */
 export function sqliteStatePath(userDataDir: string): string {
-	return path.join(userDataDir, SQLITE_STATE_FILE_NAME);
+    return path.join(userDataDir, SQLITE_STATE_FILE_NAME);
 }

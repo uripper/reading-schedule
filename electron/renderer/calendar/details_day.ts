@@ -1,7 +1,7 @@
 import type {
-	CalendarRowWithFinish,
-	DayMode,
-	DetailInteractionHandlers,
+    CalendarRowWithFinish,
+    DayMode,
+    DetailInteractionHandlers,
 } from "../../types/types.js";
 import { compareDayKeys } from "../app/day_keys_compare.js";
 import { rowsWithFinishFirst } from "./data.js";
@@ -12,11 +12,11 @@ import { sessionKeyFor } from "./utils.js";
  * @returns Date key for "today" in local time.
  */
 function todayDateKey(): string {
-	const now = new Date();
-	const year = now.getFullYear();
-	const month = String(now.getMonth() + 1).padStart(2, "0");
-	const day = String(now.getDate()).padStart(2, "0");
-	return `${year}-${month}-${day}`;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
 }
 
 /**
@@ -25,18 +25,18 @@ function todayDateKey(): string {
  * @returns Whether the day is in the past, today, or future.
  */
 export function dayMode(dateKey: string): DayMode {
-	const today = todayDateKey();
-	const compared = compareDayKeys(dateKey, today);
-	if (compared === null) {
-		return "today";
-	}
-	if (compared < 0) {
-		return "past";
-	}
-	if (compared > 0) {
-		return "future";
-	}
-	return "today";
+    const today = todayDateKey();
+    const compared = compareDayKeys(dateKey, today);
+    if (compared === null) {
+        return "today";
+    }
+    if (compared < 0) {
+        return "past";
+    }
+    if (compared > 0) {
+        return "future";
+    }
+    return "today";
 }
 
 /**
@@ -46,23 +46,23 @@ export function dayMode(dateKey: string): DayMode {
  * @returns Rows grouped by completion state, with finish-priority sorting in each group.
  */
 export function rowsWithCompletedLast(
-	rows: CalendarRowWithFinish[],
-	interactionHandlers: DetailInteractionHandlers,
+    rows: CalendarRowWithFinish[],
+    interactionHandlers: DetailInteractionHandlers,
 ): CalendarRowWithFinish[] {
-	const incompleteRows: CalendarRowWithFinish[] = [];
-	const completeRows: CalendarRowWithFinish[] = [];
-	rows.forEach((row) => {
-		const complete = Boolean(
-			interactionHandlers.isSessionCompleted(sessionKeyFor(row)),
-		);
-		if (complete) {
-			completeRows.push(row);
-			return;
-		}
-		incompleteRows.push(row);
-	});
-	return [
-		...rowsWithFinishFirst(incompleteRows),
-		...rowsWithFinishFirst(completeRows),
-	];
+    const incompleteRows: CalendarRowWithFinish[] = [];
+    const completeRows: CalendarRowWithFinish[] = [];
+    rows.forEach((row) => {
+        const complete = Boolean(
+            interactionHandlers.isSessionCompleted(sessionKeyFor(row)),
+        );
+        if (complete) {
+            completeRows.push(row);
+            return;
+        }
+        incompleteRows.push(row);
+    });
+    return [
+        ...rowsWithFinishFirst(incompleteRows),
+        ...rowsWithFinishFirst(completeRows),
+    ];
 }

@@ -9,21 +9,21 @@ import { normalizeShelfName } from "./shelf.js";
  * @returns Updated books collection with same-shelf scheduled days aligned.
  */
 export function applyScheduledDaysToShelfBooks(
-	books: Book[],
-	sourceBook: Book,
+    books: Book[],
+    sourceBook: Book,
 ): Book[] {
-	const shelf = normalizeShelfName(sourceBook.shelf);
-	if (shelf === "") {
-		return books;
-	}
-	const nextDays = normalizeScheduledDays(sourceBook.scheduled_days);
-	return books.map((book) => {
-		if (normalizeShelfName(book.shelf) !== shelf) {
-			return book;
-		}
-		return {
-			...book,
-			scheduled_days: [...nextDays],
-		};
-	});
+    const shelf = normalizeShelfName(sourceBook.shelf);
+    if (shelf === "") {
+        return books;
+    }
+    const nextDays = normalizeScheduledDays(sourceBook.scheduled_days);
+    return books.map((book) => {
+        if (normalizeShelfName(book.shelf) !== shelf) {
+            return book;
+        }
+        return {
+            ...book,
+            scheduled_days: [...nextDays],
+        };
+    });
 }

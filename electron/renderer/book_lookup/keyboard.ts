@@ -1,8 +1,8 @@
 import type {
-	BookLookupItem,
-	HandleLookupKeydownArgs,
-	SelectItem,
-	SetActiveIndex,
+    BookLookupItem,
+    HandleLookupKeydownArgs,
+    SelectItem,
+    SetActiveIndex,
 } from "../../types/types.js";
 
 /**
@@ -13,20 +13,20 @@ import type {
  * @param setActiveIndex Callback used to update highlighted result index.
  */
 function handleArrowDown(
-	event: KeyboardEvent,
-	currentItems: readonly BookLookupItem[],
-	activeIndex: number,
-	setActiveIndex: SetActiveIndex,
+    event: KeyboardEvent,
+    currentItems: readonly BookLookupItem[],
+    activeIndex: number,
+    setActiveIndex: SetActiveIndex,
 ): void {
-	event.preventDefault();
-	if (!currentItems.length) {
-		return;
-	}
-	if (activeIndex < 0) {
-		setActiveIndex(0);
-		return;
-	}
-	setActiveIndex(activeIndex + 1);
+    event.preventDefault();
+    if (!currentItems.length) {
+        return;
+    }
+    if (activeIndex < 0) {
+        setActiveIndex(0);
+        return;
+    }
+    setActiveIndex(activeIndex + 1);
 }
 
 /**
@@ -37,20 +37,20 @@ function handleArrowDown(
  * @param setActiveIndex Callback used to update highlighted result index.
  */
 function handleArrowUp(
-	event: KeyboardEvent,
-	currentItems: readonly BookLookupItem[],
-	activeIndex: number,
-	setActiveIndex: SetActiveIndex,
+    event: KeyboardEvent,
+    currentItems: readonly BookLookupItem[],
+    activeIndex: number,
+    setActiveIndex: SetActiveIndex,
 ): void {
-	event.preventDefault();
-	if (!currentItems.length) {
-		return;
-	}
-	if (activeIndex < 0) {
-		setActiveIndex(currentItems.length - 1);
-		return;
-	}
-	setActiveIndex(activeIndex - 1);
+    event.preventDefault();
+    if (!currentItems.length) {
+        return;
+    }
+    if (activeIndex < 0) {
+        setActiveIndex(currentItems.length - 1);
+        return;
+    }
+    setActiveIndex(activeIndex - 1);
 }
 
 /**
@@ -61,16 +61,16 @@ function handleArrowUp(
  * @param selectItem Callback used to commit the selected item.
  */
 function handleEnter(
-	event: KeyboardEvent,
-	currentItems: readonly BookLookupItem[],
-	activeIndex: number,
-	selectItem: SelectItem,
+    event: KeyboardEvent,
+    currentItems: readonly BookLookupItem[],
+    activeIndex: number,
+    selectItem: SelectItem,
 ): void {
-	if (activeIndex < 0 || !currentItems.length) {
-		return;
-	}
-	event.preventDefault();
-	selectItem(activeIndex);
+    if (activeIndex < 0 || !currentItems.length) {
+        return;
+    }
+    event.preventDefault();
+    selectItem(activeIndex);
 }
 
 /**
@@ -79,11 +79,11 @@ function handleEnter(
  * @param searchInput Lookup search input element.
  */
 function handleEscape(
-	clearResults: () => void,
-	searchInput: HTMLInputElement,
+    clearResults: () => void,
+    searchInput: HTMLInputElement,
 ): void {
-	clearResults();
-	searchInput.blur();
+    clearResults();
+    searchInput.blur();
 }
 
 /**
@@ -98,29 +98,30 @@ function handleEscape(
  * @param args.searchInput Lookup search input element.
  */
 export function handleLookupKeydown(args: HandleLookupKeydownArgs): void {
-	const { event, currentItems, activeIndex, searchInput } = args;
-	const setActiveIndex = (index: number): void => {
-		args.setActiveIndex(index);
-	};
-	const selectItem = (index: number): void => {
-		args.selectItem(index);
-	};
-	const clearLookupResults = (): void => {
-		args.clearResults();
-	};
-	switch (event.key) {
-		case "ArrowDown":
-			handleArrowDown(event, currentItems, activeIndex, setActiveIndex);
-			return;
-		case "ArrowUp":
-			handleArrowUp(event, currentItems, activeIndex, setActiveIndex);
-			return;
-		case "Enter":
-			handleEnter(event, currentItems, activeIndex, selectItem);
-			return;
-		case "Escape":
-			handleEscape(clearLookupResults, searchInput);
+    const { event, currentItems, activeIndex, searchInput } = args;
+    const setActiveIndex = (index: number): void => {
+        args.setActiveIndex(index);
+    };
+    const selectItem = (index: number): void => {
+        args.selectItem(index);
+    };
+    const clearLookupResults = (): void => {
+        args.clearResults();
+    };
+    switch (event.key) {
+        case "ArrowDown":
+            handleArrowDown(event, currentItems, activeIndex, setActiveIndex);
+            return;
+        case "ArrowUp":
+            handleArrowUp(event, currentItems, activeIndex, setActiveIndex);
+            return;
+        case "Enter":
+            handleEnter(event, currentItems, activeIndex, selectItem);
+            return;
+        case "Escape":
+            handleEscape(clearLookupResults, searchInput);
+            return;
 
-		default:
-	}
+        default:
+    }
 }
