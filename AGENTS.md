@@ -69,6 +69,7 @@ Run commands relevant to touched areas before finishing:
   - `npm --prefix electron run build`
 - Python planner:
   - `npm run lint:python`
+  - `npm run typecheck:python`
   - `.venv/bin/pytest -q`
 
 Helpful aggregate checks:
@@ -77,6 +78,7 @@ Helpful aggregate checks:
 - Repo desktop dev entrypoint: `npm run dev:desktop`
 - Root desktop wrappers:
   - `npm run lint:desktop`
+  - `npm run typecheck:python`
   - `npm run typecheck:desktop`
   - `npm run build:desktop`
 

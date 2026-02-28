@@ -27,7 +27,8 @@ Applies to all code and docs in:
 - TypeScript `strict` mode is required for repository TypeScript projects unless an exception is approved.
 - `noImplicitAny` and `strictNullChecks` must remain enabled in all primary project tsconfig files.
 - Always perform lint checks.
-- Always run required type checks; zero type errors is mandatory.
+- Always run required type checks for all languages; zero type errors is mandatory.
+- Python type errors must be resolved using `ty check` before merge.
 
 ## Merge Blockers
 

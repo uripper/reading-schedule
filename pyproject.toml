@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "Bartleby: Reading Plan Generator"
+name = "Bartleby-Reading_Plan_Generator"
 version = "0.1.0"
 description = "Generate daily reading schedules from backlog and time budgets"
 readme = "README.md"
@@ -17,6 +17,7 @@ dev = [
     "deptry>=0.24.0",
     "pytest>=8.0",
     "ruff>=0.6.0",
+    "ty>=0.0.19",
 ]
 
 [tool.setuptools]
