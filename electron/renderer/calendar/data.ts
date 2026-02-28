@@ -1,5 +1,5 @@
-
 import { sessionKeyFor, sortRowsByDateAndSession } from "./utils.js";
+import { isOnOrAfterDay } from "../app/day_keys_compare.js";
 import type { CalendarRow, CalendarRowWithFinish, CompletionChecker, RowsByDate } from "../../types/types.js";
 
 const DAYS_IN_WEEK = 7;
@@ -23,10 +23,7 @@ function todayKey(): string {
  * @returns `true` when row is today/future and should affect finish estimates.
  */
 function rowIsPlannedForTodayOrLater(rowDate: string, today: string): boolean {
-  if (!rowDate) {
-    return false;
-  }
-  return Number(rowDate) >= Number(today);
+  return isOnOrAfterDay(rowDate, today);
 }
 
 /**
@@ -101,7 +98,6 @@ export function enrichRows(
     if (!rowIsPlannedForTodayOrLater(rowDate, today)) {
       return { ...row, finish: false };
     }
-
     const bookId = String(row.book_id || "");
     const plannedWords = Number(row.words_planned || 0);
     const sessionKey = sessionKeyFor(row);
@@ -195,7 +191,7 @@ export function firstPlannedRow(rows: CalendarRow[] = []): CalendarRow | null {
   }
   const sortedRows = sortRowsByDateAndSession(rows);
   const today = todayKey();
-  const upcoming = sortedRows.find((row) => Number(row.date || 0) >= Number(today));
+  const upcoming = sortedRows.find((row) => rowIsPlannedForTodayOrLater(String(row.date || ""), today));
   if (upcoming) {
     return upcoming;
   }

@@ -3,7 +3,6 @@ import { buildRecommendations, deriveReadAuthors } from "./model.js";
 import { MAX_AUTHORS } from "./search_constants.js";
 import { addExistingBookKeys } from "./search_matchers.js";
 import {
-  openLibraryAuthorSearchUrl,
   pickRandomSample,
   processAuthorResults,
   sampleResultsSummary,
@@ -55,9 +54,6 @@ export async function findRecommendations(
   for (const author of readAuthors) {
     let lookupItems: BookLookupItem[] = [];
     addLog(`Recommendations: Searching for author-only results: "${author}"`);
-    addLog(
-      `Recommendations: OpenLibrary author URL: ${openLibraryAuthorSearchUrl(author)}`,
-    );
     try {
       lookupItems = await api.searchBooks(author, true);
       addLog(

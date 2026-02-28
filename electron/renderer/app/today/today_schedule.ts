@@ -4,6 +4,7 @@ import {
   sessionKeyFor,
   sortRowsByDateAndSession,
 } from "../../calendar/utils.js";
+import { isOnOrAfterDay } from "../day_keys_compare.js";
 import { todayKey } from "../../sessions/utils.js";
 import type {
   Book,
@@ -120,8 +121,7 @@ export function nextUncompletedPlannedRow(
   for (const row of rows) {
     const rowDate = String(row.date || "");
     if (
-      rowDate &&
-      Number(rowDate) >= Number(today) &&
+      isOnOrAfterDay(rowDate, today) &&
       !isCompletedRow(row, scheduleCompletions)
     ) {
       return row;

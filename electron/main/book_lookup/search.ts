@@ -9,6 +9,8 @@ import { fetchJson, searchUrls } from "./search_transport.js";
 
 import type { SearchDoc, SearchItem } from "../../types/types.js";
 
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
 /**
  * Queries Open Library endpoints and returns ranked search items.
  * @param query User-entered search query text.
@@ -64,10 +66,12 @@ export async function searchBooks(
   console.info(
     `[OpenLibrary] Final results (limit ${SEARCH_OUTPUT_LIMIT}): ${final.length}`,
   );
-  final.forEach((item, idx) => {
-    console.info(
-      `  [${idx + 1}] "${item.title}" by ${item.author} (${item.words_estimate} words)`,
-    );
-  });
+  if (!IS_PRODUCTION) {
+    final.forEach((item, idx) => {
+      console.info(
+        `  [${idx + 1}] "${item.title}" by ${item.author} (${item.words_estimate} words)`,
+      );
+    });
+  }
   return final;
 }

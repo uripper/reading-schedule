@@ -1,11 +1,5 @@
 import { addLog } from "../help.js";
 import {
-  AUTHOR_ONLY_OPENLIBRARY_LANGUAGE,
-  AUTHOR_ONLY_OPENLIBRARY_BASE_URL,
-  AUTHOR_ONLY_OPENLIBRARY_LIMIT,
-  AUTHOR_ONLY_OPENLIBRARY_QUERY_PARAM_AUTHOR,
-  AUTHOR_ONLY_OPENLIBRARY_QUERY_PARAM_LANGUAGE,
-  AUTHOR_ONLY_OPENLIBRARY_QUERY_PARAM_LIMIT,
   MAX_PER_AUTHOR,
   SAMPLE_RESULTS_COUNT,
 } from "./search_constants.js";
@@ -61,25 +55,6 @@ export function pickRandomSample<T>(
     return [];
   }
   return shuffledCopy(values, randomFn).slice(0, limit);
-}
-
-/**
- * Builds the author-only Open Library URL used by recommendations search.
- * @param author Author query text.
- * @returns Fully encoded Open Library URL.
- */
-export function openLibraryAuthorSearchUrl(author: string): string {
-  const params = new URLSearchParams();
-  params.set(
-    AUTHOR_ONLY_OPENLIBRARY_QUERY_PARAM_LIMIT,
-    String(AUTHOR_ONLY_OPENLIBRARY_LIMIT),
-  );
-  params.set(AUTHOR_ONLY_OPENLIBRARY_QUERY_PARAM_AUTHOR, author);
-  params.set(
-    AUTHOR_ONLY_OPENLIBRARY_QUERY_PARAM_LANGUAGE,
-    AUTHOR_ONLY_OPENLIBRARY_LANGUAGE,
-  );
-  return `${AUTHOR_ONLY_OPENLIBRARY_BASE_URL}?${params.toString()}`;
 }
 
 /**

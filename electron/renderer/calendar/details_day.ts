@@ -1,4 +1,5 @@
 import { rowsWithFinishFirst } from "./data.js";
+import { compareDayKeys } from "../app/day_keys_compare.js";
 import { sessionKeyFor } from "./utils.js";
 import type {
   CalendarRowWithFinish,
@@ -25,10 +26,14 @@ function todayDateKey(): string {
  */
 export function dayMode(dateKey: string): DayMode {
   const today = todayDateKey();
-  if (Number(dateKey) < Number(today)) {
+  const compared = compareDayKeys(dateKey, today);
+  if (compared === null) {
+    return "today";
+  }
+  if (compared < 0) {
     return "past";
   }
-  if (Number(dateKey) > Number(today)) {
+  if (compared > 0) {
     return "future";
   }
   return "today";
