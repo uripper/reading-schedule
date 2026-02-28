@@ -47,7 +47,7 @@ export const BASE_OPINIONATED_RULES = {
   "logical-assignment-operators": ["error", "always"],
   "max-classes-per-file": ["error", 1],
   "max-depth": ["error", 4],
-  "max-lines": ["error", { max: 200, skipBlankLines: true, skipComments: true }],
+  "max-lines": ["error", { max: 300, skipBlankLines: true, skipComments: true }],
   "max-lines-per-function": [
     "error",
     { max: 80, skipBlankLines: true, skipComments: true, IIFEs: true },

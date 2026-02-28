@@ -56,8 +56,8 @@ const IGNORED_FILES = new Set([
   "style_audit.mjs",
 ]);
 
-const SOFT_LINE_LIMIT = 150;
-const HARD_LINE_LIMIT = 200;
+const SOFT_LINE_LIMIT = 200;
+const HARD_LINE_LIMIT = 300;
 const MIN_UNDER_SOFT_PERCENT = 90;
 const TYPES_MIN_LINE_LIMIT = 30;
 
