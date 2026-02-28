@@ -11,7 +11,7 @@ import type {
   DayMode,
   DetailInteractionHandlers,
   RowNodeForModeArgs,
-} from "../../types/types_calendar.js";
+} from "../../types/types.js";
 
 /**
  * Returns empty-state message for day details panel by mode.

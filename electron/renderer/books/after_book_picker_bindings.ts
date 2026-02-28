@@ -2,7 +2,7 @@
 import { lookupResultTarget, shouldKeepPickerOpen, wrapIndex } from "./after_book_picker_helpers.js";
 
 import { NO_ACTIVE_INDEX } from "./after_book_picker_render.js";
-import type { BindingArgs } from "../../types/types_books.js";
+import type { BindingArgs } from "../../types/types.js";
 
 /**
  * Binds keyboard/mouse/document events for after-book picker interactions.

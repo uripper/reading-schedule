@@ -1,13 +1,14 @@
-import { shelfLabelForBook } from "./shelf.js";
-import { titleInitialLetter } from "./title_key.js";
-import { finishDateMetaForBook } from "./grouping_finish.js";
+import { finishDateMetaForBook } from './grouping_finish.js';
+import { shelfLabelForBook } from './shelf.js';
+import { titleInitialLetter } from './title_key.js';
+
 import type {
   Book,
   BookGroup,
   BookGroupBy,
   GroupBucket,
   GroupMeta,
-} from "../../types/types_books.js";
+} from "../../types/types.js";
 
 export const GROUP_BY_NONE = "none";
 export const GROUP_BY_SHELF = "shelf";

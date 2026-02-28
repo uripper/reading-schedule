@@ -1,8 +1,10 @@
-
-
 import { runPlanGeneration } from "./plan.js";
-import { applyLoadedResult, applyPlannedData } from "./plan_controller_apply.js";
+import {
+  applyLoadedResult,
+  applyPlannedData,
+} from "./plan_controller_apply.js";
 import type {
+  PlannerResult,
   AutoPlanRunner,
   AutoPlanState,
   PlanController,

@@ -1,7 +1,7 @@
 
 
 import { parseOptionalNumber } from "./utils.js";
-import type { SubmitProgressUpdateArgs } from "../../types/types_calendar.js";
+import type { SubmitProgressUpdateArgs } from "../../types/types.js";
 
 /**
  * Prefills input value from book progress value when present.

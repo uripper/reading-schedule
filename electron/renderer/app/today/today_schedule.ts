@@ -6,11 +6,11 @@ import {
 } from "../../calendar/utils.js";
 import { todayKey } from "../../sessions/utils.js";
 import type {
+  Book,
   PlannerResult,
   PlannerScheduleRow,
   TodayBookSummary,
   TodayScheduleSnapshot,
-  Book,
 } from "../../../types/types.js";
 
 const ZERO_COUNT = 0;

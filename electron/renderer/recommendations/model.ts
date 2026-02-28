@@ -1,10 +1,10 @@
 import { BOOK_STATUS_READ } from "../books/status_catalog.js";
-import type { Book } from "../../types/types_books.js";
 import { AUTHOR_RECOMMENDATION_CATALOG } from "./catalog.js";
 import type {
+  Book,
   RecommendationItem,
   RecommendationSeed,
-} from "../../types/types_experience.js";
+} from "../../types/types.js";
 
 const AUTHOR_LIST_LOCALE = "en";
 

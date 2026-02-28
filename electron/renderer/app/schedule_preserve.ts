@@ -1,5 +1,4 @@
 import { dayKeyFromDate, localDayKeyFromIso } from "./date_keys.js";
-import { isOnOrBeforeDay, isValidDayKey } from "./day_keys_compare.js";
 import type { PlannerScheduleRow, Session } from "../../types/types.js";
 
 const SESSION_INDEX_PAD = 3;

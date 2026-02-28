@@ -8,6 +8,7 @@ import {
   SEARCH_FETCH_LIMIT,
   SEARCH_FIELDS,
 } from "./search_shared.js";
+
 import type { SearchResponse } from "../../types/types.js";
 
 /**
@@ -33,7 +34,10 @@ export function searchUrls(query: string): string[] {
 export async function fetchJson(url: string): Promise<SearchResponse> {
   const response = await globalThis.fetch(url, { redirect: "follow" });
   const status = Number(response.status || 0);
-  if (status >= HTTP_STATUS_REDIRECT_MIN && status < HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE) {
+  if (
+    status >= HTTP_STATUS_REDIRECT_MIN &&
+    status < HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE
+  ) {
     throw new Error(`Unexpected redirect status (${status})`);
   }
   if (status >= HTTP_STATUS_ERROR_MIN || !response.ok) {

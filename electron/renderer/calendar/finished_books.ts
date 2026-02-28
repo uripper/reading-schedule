@@ -1,4 +1,4 @@
-import type { BookFinishLookup, CompletedBookRow, ManualSessionBook } from "../../types/types_calendar.js";
+import type { BookFinishLookup, CompletedBookRow, ManualSessionBook } from "../../types/types.js";
 
 /**
  * Resolves title text for completed-book row display.

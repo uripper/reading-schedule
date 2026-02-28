@@ -3,12 +3,13 @@ import {
   BOOK_STATUS_IN_PROGRESS,
   BOOK_STATUS_READ,
   BOOK_STATUS_TO_READ,
-} from "./status_catalog.js";
+} from "./status.js";
+
 import type {
   Book,
   BookGroup,
   StatusGroupDefinition,
-} from "../../types/types_books.js";
+} from "../../types/types.js";
 
 const STATUS_GROUPS: StatusGroupDefinition[] = [
   { label: "Dropped", statuses: [BOOK_STATUS_DROPPED] },

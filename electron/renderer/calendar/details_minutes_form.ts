@@ -1,7 +1,7 @@
 import type {
   CalendarRowWithFinish,
   DetailInteractionHandlers,
-} from "../../types/types_calendar.js";
+} from "../../types/types.js";
 import {
   minutesFormActions,
   minutesInputForRow,

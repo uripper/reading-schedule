@@ -84,3 +84,4 @@ sonar-project.properties
 .scannerwork/report-task.txt
 .sonarlint/connectedMode.json
 .github/instructions/sonarqube_mcp.instructions.md
+.scratch/planner_state.sqlite3

@@ -1,4 +1,4 @@
-import type { BookStatus } from "../../types/types_books.js";
+import type { BookStatus } from "../../types/types.js";
 export const BOOK_STATUS_TO_READ = "to_read";
 export const BOOK_STATUS_IN_PROGRESS = "in_progress";
 export const BOOK_STATUS_READ = "read";

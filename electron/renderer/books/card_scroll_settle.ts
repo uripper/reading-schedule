@@ -1,4 +1,4 @@
-import type { ScrollSettleState } from "../../types/types_books.js";
+import type { ScrollSettleState } from "../../types/types.js";
 const RAF_FALLBACK_DELAY_MS = 16;
 const SCROLL_SETTLE_DELTA_PX = 0.5;
 const SCROLL_SETTLE_MAX_WAIT_MS = 1800;
@@ -9,9 +9,7 @@ const SCROLL_SETTLE_REQUIRED_FRAMES = 3;
  * @returns Current timestamp in milliseconds.
  */
 function nowMs(): number {
-  if (
-    typeof globalThis.performance.now === "function"
-  ) {
+  if (typeof globalThis.performance.now === "function") {
     return globalThis.performance.now();
   }
   return Date.now();
@@ -54,7 +52,10 @@ function initialSettleState(card: HTMLElement): ScrollSettleState {
  * @param state Previous settle-state values.
  * @returns Updated settle-state.
  */
-function nextSettleState(card: HTMLElement, state: ScrollSettleState): ScrollSettleState {
+function nextSettleState(
+  card: HTMLElement,
+  state: ScrollSettleState,
+): ScrollSettleState {
   const rect = card.getBoundingClientRect();
   const deltaTop = Math.abs(rect.top - state.lastTop);
   const deltaLeft = Math.abs(rect.left - state.lastLeft);

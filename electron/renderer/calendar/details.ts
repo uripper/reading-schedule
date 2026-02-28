@@ -12,7 +12,7 @@ import { dateHeading } from "./utils.js";
 import type {
   CalendarDetailsState,
   DetailInteractionHandlers,
-} from "../../types/types_calendar.js";
+} from "../../types/types.js";
 
 /**
  * Renders selected-day details list and manual-add panel for current mode.

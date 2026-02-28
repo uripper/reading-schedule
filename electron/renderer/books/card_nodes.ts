@@ -1,10 +1,25 @@
-import { bookCoverSrc } from "./model.js";
-import { afterBookLinkButton, estimatedFinishButton } from "./card_navigation_buttons.js";
-import { scrollToBookCard } from "./card_scroll_target.js";
-import { blockerMeta, metaLabel, progressLabel, subtitle, wordsLabel } from "./presenters.js";
 import { bindReadCardHolo } from "./card_holo.js";
-import { BOOK_STATUS_IN_PROGRESS, BOOK_STATUS_READ, BOOK_STATUS_TO_READ, statusLabel } from "./status.js";
-import type { Book, CardRenderContext } from "../../types/types_books.js";
+import {
+  afterBookLinkButton,
+  estimatedFinishButton,
+} from "./card_navigation_buttons.js";
+import { scrollToBookCard } from "./card_scroll_target.js";
+import { bookCoverSrc } from "./model.js";
+import {
+  blockerMeta,
+  metaLabel,
+  progressLabel,
+  subtitle,
+  wordsLabel,
+} from "./presenters.js";
+import {
+  BOOK_STATUS_IN_PROGRESS,
+  BOOK_STATUS_READ,
+  BOOK_STATUS_TO_READ,
+  statusLabel,
+} from "./status.js";
+
+import type { Book, CardRenderContext } from "../../types/types.js";
 
 const CARD_CLASS = "book-card";
 const READ_CARD_CLASS = "is-read-card";
@@ -82,7 +97,11 @@ function cardStatsNode(book: Book, context: CardRenderContext): HTMLDivElement {
   });
   if (blocker !== null) {
     stats.append(
-      afterBookLinkButton(blocker.label, blocker.blockerBookId, scrollToBookCard),
+      afterBookLinkButton(
+        blocker.label,
+        blocker.blockerBookId,
+        scrollToBookCard,
+      ),
     );
   }
   return stats;

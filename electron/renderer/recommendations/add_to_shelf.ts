@@ -2,7 +2,7 @@ import { el } from "../dom.js";
 import type {
   RecommendationFormTarget,
   RecommendationItem,
-} from "../../types/types_experience.js";
+} from "../../types/types.js";
 
 const MIN_WORDS_TOTAL = 1;
 

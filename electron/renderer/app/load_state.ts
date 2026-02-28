@@ -1,23 +1,29 @@
 import type {
   LoadedPlannerState,
   PlannerApi,
-  PlannerStateLoadResult,
   InitialDataSource,
   LoadStateArgs,
   FeatureFlags,
   Preferences,
 } from "../../types/types.js";
-import { normalizeSessions } from "../sessions/normalize.js";
-import {
-  normalizeBlockedDayBooks,
-  readFeatureFlags,
-  readLoadedResult,
-  readRawBlockedDayBooks,
-  readRawCompletions,
-  readRawSessions,
-  sessionInputs,
-  toSavedRecord,
-} from "./load_state_compat.js";
+
+/**
+ * Normalizes persisted blocked day-book map values to strict booleans.
+ * @param raw Persisted blocked map keyed by `YYYY-MM-DD|book_id`.
+ * @returns Sanitized blocked map.
+ */
+function normalizeBlockedDayBooks(
+  raw: Record<string, string | number | boolean | null | undefined> = {},
+): Record<string, boolean> {
+  const out: Record<string, boolean> = {};
+  Object.entries(raw).forEach(([key, value]) => {
+    if (!key) {
+      return;
+    }
+    out[key] = Boolean(value);
+  });
+  return out;
+}
 
 /**
  * Checks whether loaded state already contains full bootstrapping data.
@@ -160,7 +166,11 @@ function applyLoadedData(
     args.normalizeScheduleCompletions(readRawCompletions(saved, savedRecord)),
   );
   args.setBlockedDayBooks(
-    normalizeBlockedDayBooks(readRawBlockedDayBooks(saved, savedRecord)),
+    normalizeBlockedDayBooks(
+      saved?.blocked_day_books as
+        | Record<string, string | number | boolean | null | undefined>
+        | undefined,
+    ),
   );
 }
 

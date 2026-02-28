@@ -4,7 +4,7 @@ import type {
   CalendarRowWithFinish,
   DayMode,
   DetailInteractionHandlers,
-} from "../../types/types_calendar.js";
+} from "../../types/types.js";
 
 /**
  * Creates a local date key (`YYYY-MM-DD`) for the current day.

@@ -13,6 +13,7 @@ import type {
   PlannerScheduleRow,
   PlannerSettings,
   UpdatedRowsResult,
+  Book,
 } from "../../../types/types.js";
 
 /**

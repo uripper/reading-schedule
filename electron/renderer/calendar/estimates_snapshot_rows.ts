@@ -2,7 +2,7 @@ import type {
   CompletionChecker,
   EstimateRow,
   EstimateState,
-} from "../../types/types_calendar.js";
+} from "../../types/types.js";
 
 const SESSION_INDEX_PAD = 3;
 

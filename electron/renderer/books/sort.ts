@@ -7,7 +7,7 @@ import type {
   SortBy,
   SortComparator,
   SortDirection,
-} from "../../types/types_books.js";
+} from "../../types/types.js";
 
 export const SORT_BY_TITLE = "title";
 export const SORT_BY_AUTHOR = "author";

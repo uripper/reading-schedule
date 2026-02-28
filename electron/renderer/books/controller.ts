@@ -1,27 +1,21 @@
-import { el } from "../dom.js";
-import type { PlannerScheduleRow } from "../../types/types.js";
-import { createBookDialog } from "./dialog.js";
-import { GROUP_BY_NONE } from "./grouping.js";
+import { el } from '../dom.js';
+import { bindToolbarEvents } from './controller_bindings.js';
+import { renderBooksController } from './controller_render.js';
+import { defaultShelfForAddDialog } from './controller_types.js';
+import { createBookDialog } from './dialog.js';
+import { GROUP_BY_NONE } from './grouping.js';
 import {
-  clearMissingBlockedBy,
-  hasSchedulableLength,
-  normalizeBook,
-  toPayloadBook,
-} from "./model.js";
-import { withUpdatedProgress } from "./progress.js";
-import { hydrateBookCover, upsertBookById } from "./save.js";
-import { applyScheduledDaysToShelfBooks } from "./save_scheduled_days.js";
-import { schedulableBook } from "./status.js";
-import { BOOK_STATUS_FILTER_ALL } from "./status_catalog.js";
-import {
-  ensureBooksToolbarControls,
-  SORT_BY_TITLE,
-  SORT_DIRECTION_ASC,
-} from "./toolbar.js";
-import { bindToolbarEvents } from "./controller_bindings.js";
-import { renderBooksController } from "./controller_render.js";
-import { defaultShelfForAddDialog } from "./controller_types.js";
+    clearMissingBlockedBy, hasSchedulableLength, normalizeBook, toPayloadBook
+} from './model.js';
+import { withUpdatedProgress } from './progress.js';
+import { hydrateBookCover, upsertBookById } from './save.js';
+import { applyScheduledDaysToShelfBooks } from './save_scheduled_days.js';
+import { schedulableBook } from './status.js';
+import { BOOK_STATUS_FILTER_ALL } from './status_catalog.js';
+import { ensureBooksToolbarControls, SORT_BY_TITLE, SORT_DIRECTION_ASC } from './toolbar.js';
+
 import type {
+  PlannerScheduleRow,
   BindBooksUIOptions,
   Book,
   BookDialogController,
@@ -30,7 +24,7 @@ import type {
   BooksViewState,
   BookProgressUpdates,
   UpdateBookProgressOptions,
-} from "../../types/types_books.js";
+} from "../../types/types.js";
 
 let books: Book[] = [];
 let scheduleRows: PlannerScheduleRow[] = [];

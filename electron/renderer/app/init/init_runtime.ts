@@ -1,5 +1,7 @@
-
-import type { AutoPlanController, InitRuntimeArgs } from "../../../types/types.js";
+import type {
+  AutoPlanController,
+  InitRuntimeArgs,
+} from "../../../types/types.js";
 
 /**
  * Creates runtime handlers used by tab changes, book edits, and schedule mutations.
