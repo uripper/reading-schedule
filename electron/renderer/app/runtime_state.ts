@@ -1,6 +1,7 @@
 
 
 import { DEFAULT_FEATURE_FLAGS, DEFAULT_PREFERENCES } from "./experience/index.js";
+import { emptyDerivedIndexes } from "./state_indexes.js";
 import type { AppRuntimeState } from "../../types/types.js";
 
 /**

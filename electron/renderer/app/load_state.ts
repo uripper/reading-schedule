@@ -1,11 +1,21 @@
 import type {
   LoadedPlannerState,
   PlannerApi,
+  PlannerStateLoadResult,
   InitialDataSource,
   LoadStateArgs,
   FeatureFlags,
   Preferences,
 } from "../../types/types.js";
+import { normalizeSessions } from "../sessions/normalize.js";
+import {
+  readFeatureFlags,
+  readLoadedResult,
+  readRawCompletions,
+  readRawSessions,
+  sessionInputs,
+  toSavedRecord,
+} from "./load_state_compat.js";
 
 /**
  * Normalizes persisted blocked day-book map values to strict booleans.
