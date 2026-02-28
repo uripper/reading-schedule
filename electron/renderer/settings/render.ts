@@ -1,6 +1,6 @@
 import { type FieldDefinition } from "../../types/types.js";
 import { el } from "../dom.js";
-import { DIFFICULTY_LEVEL_COUNT, weekdays } from "./config.js";
+import { DIFFICULTY_LEVEL_COUNT, WEEKDAYS } from "./config.js";
 
 /**
  * Creates optional hint badge node for a field label.
@@ -76,7 +76,7 @@ export function renderGrid(
  * Renders weekday minutes input rows.
  */
 export function renderWeekdayGrid(): void {
-    const WEEKDAY_NODES = weekdays.map(([key, name]) => {
+    const WEEKDAY_NODES = WEEKDAYS.map(([key, name]) => {
         const LABEL = document.createElement("label");
         LABEL.append(`${name} minutes`);
 

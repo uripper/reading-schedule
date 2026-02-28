@@ -14,6 +14,7 @@ export const DEFAULT_PROGRESS = "0";
 export const DEFAULT_PRIORITY = "3";
 export const DEFAULT_DIFFICULTY = "3";
 export const DEFAULT_MIN_BLOCKS = "1";
+export const DEFAULT_STATUS = BOOK_STATUS_TO_READ;
 
 export const CUSTOM_COVER_NOTE = "Custom cover uploaded.";
 
@@ -217,4 +218,4 @@ export function validatedShelfSelection(refs: BookFormRefs): string {
     return SHELF;
 }
 
-export { BOOK_STATUS_TO_READ as DEFAULT_STATUS };
+export { BOOK_STATUS_TO_READ } from "./status_catalog.js";

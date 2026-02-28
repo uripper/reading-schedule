@@ -1,7 +1,10 @@
 import {
     type AddManualSessionArgs,
+    type AppStateMutation,
+    type Book,
     type PlannerResult,
     type PlannerScheduleRow,
+    type PlannerSettings,
     type RemoveSessionArgs,
     type SharedUpdateArgs,
     type UpdateSessionMinutesArgs,
@@ -95,7 +98,7 @@ function validateManualSessionInput(
 
 interface BuildRowArgs {
     book: Book;
-    collectSettings: () => AppSettings;
+    collectSettings: () => PlannerSettings;
     minutes: number;
     normalizedDate: string;
     previousRowsAndResult: {

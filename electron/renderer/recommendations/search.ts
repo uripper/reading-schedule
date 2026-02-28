@@ -18,6 +18,38 @@ interface RecommendationSearchOptions {
     randomFn?(this: void): number;
 }
 
+function resolveRandomFn(options: RecommendationSearchOptions): () => number {
+    const RANDOM_SOURCE = options.randomFn;
+    if (typeof RANDOM_SOURCE !== "function") {
+        return Math.random;
+    }
+    return (): number => RANDOM_SOURCE();
+}
+
+async function lookupByAuthor(
+    api: RecommendationSearchApi,
+    author: string,
+): Promise<BookLookupItem[]> {
+    addLog(`Recommendations: Searching for author-only results: "${author}"`);
+    try {
+        const LOOKUP_ITEMS = await api.searchBooks(author, true);
+        addLog(
+            `Recommendations: Got ${LOOKUP_ITEMS.length} results for "${author}"`,
+        );
+        if (LOOKUP_ITEMS.length > 0) {
+            addLog(
+                `Recommendations: Sample results: ${sampleResultsSummary(LOOKUP_ITEMS)}`,
+            );
+        }
+        return LOOKUP_ITEMS;
+    } catch (error) {
+        addLog(
+            `Recommendations: Search failed for "${author}": ${String(error)}`,
+        );
+        return [];
+    }
+}
+
 /**
  * Fetches recommendations from lookup search using already-read authors in the shelf.
  * Falls back to static local recommendations when no dynamic matches are found.
@@ -35,16 +67,12 @@ export async function findRecommendations(
     const EXISTING_KEYS = addExistingBookKeys(books);
     const RECOMMENDATION_KEYS = new Set<string>();
     const RECOMMENDATIONS: RecommendationItem[] = [];
-    let randomFn: () => number = Math.random;
-    const RANDOM_SOURCE = options.randomFn;
-    if (typeof RANDOM_SOURCE === "function") {
-        randomFn = (): number => RANDOM_SOURCE();
-    }
+    const RANDOM_FN = resolveRandomFn(options);
     const DERIVED_READ_AUTHORS = deriveReadAuthors(books);
     const READ_AUTHORS = pickRandomSample(
         DERIVED_READ_AUTHORS,
         MAX_AUTHORS,
-        randomFn,
+        RANDOM_FN,
     );
 
     addLog(
@@ -55,30 +83,11 @@ export async function findRecommendations(
     );
 
     for (const AUTHOR of READ_AUTHORS) {
-        let lookupItems: BookLookupItem[] = [];
-        addLog(
-            `Recommendations: Searching for author-only results: "${AUTHOR}"`,
-        );
-        try {
-            lookupItems = await api.searchBooks(AUTHOR, true);
-            addLog(
-                `Recommendations: Got ${lookupItems.length} results for "${AUTHOR}"`,
-            );
-            if (lookupItems.length > 0) {
-                addLog(
-                    `Recommendations: Sample results: ${sampleResultsSummary(lookupItems)}`,
-                );
-            }
-        } catch (error) {
-            addLog(
-                `Recommendations: Search failed for "${AUTHOR}": ${String(error)}`,
-            );
-            lookupItems = [];
-        }
+        const LOOKUP_ITEMS = await lookupByAuthor(api, AUTHOR);
         processAuthorResults({
             author: AUTHOR,
             existingKeys: EXISTING_KEYS,
-            lookupItems,
+            lookupItems: LOOKUP_ITEMS,
             recommendationKeys: RECOMMENDATION_KEYS,
             recommendations: RECOMMENDATIONS,
         });

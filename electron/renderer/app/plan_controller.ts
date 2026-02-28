@@ -1,11 +1,17 @@
 import {
+    type AnnouncePoliteness,
     type AutoPlanRunner,
     type AutoPlanState,
+    type Book,
     type PlanController,
     type PlanControllerArgs,
+    type PlannerApi,
     type PlannerResult,
     type PlannerRunData,
+    type PlannerScheduleRow,
+    type PlannerSettings,
     type RunAutoPlanFactoryArgs,
+    type Session,
 } from "../../types/types.js";
 import { runPlanGeneration } from "./plan.js";
 import {
@@ -26,12 +32,12 @@ const DEFAULT_LAST_RESULT: PlannerResult = {
  * @returns Async auto-plan function.
  */
 interface ExecuteAutoPlanArgs {
-    addLog: (...args: unknown[]) => void;
+    addLog: (message: string) => void;
     announce: (msg: string, politeness?: AnnouncePoliteness) => void;
     collectBooks: () => Book[];
-    collectSettings: () => AppSettings;
+    collectSettings: () => PlannerSettings;
     onSuccess: (data: PlannerRunData) => Promise<void>;
-    plannerApi: PlannerAPI;
+    plannerApi: Pick<PlannerApi, "generate">;
     setStatus: (msg: string, isError?: boolean) => void;
 }
 
@@ -51,6 +57,50 @@ async function executeAutoPlan(args: ExecuteAutoPlanArgs): Promise<void> {
         statusSuccessMessage: "Plan updated.",
         successAnnouncement: "",
     });
+}
+
+/**
+ * Creates success handler for auto-plan generation.
+ */
+interface AutoPlanSuccessHandlerArgs {
+    getBlockedDayBooks: () => Record<string, boolean>;
+    getLastResult: () => PlannerResult | null;
+    getScheduleCompletions: () => Record<string, boolean>;
+    getSessions: () => Session[];
+    persistDraft: () => Promise<boolean>;
+    renderCalendar: (
+        rows: PlannerScheduleRow[],
+        totals: Record<string, number>,
+    ) => void;
+    setBookScheduleRows: (rows: PlannerScheduleRow[]) => void;
+    setLastResult: (result: PlannerResult) => void;
+    setScheduleCompletions: (completions: Record<string, boolean>) => void;
+    totalsFromSummary: (
+        summary: PlannerRunData["summary"],
+    ) => Record<string, number>;
+    updateTodayView: () => void;
+}
+
+function createAutoPlanSuccessHandler(
+    args: AutoPlanSuccessHandlerArgs,
+): (data: PlannerRunData) => Promise<void> {
+    return async (data: PlannerRunData): Promise<void> => {
+        await applyPlannedData({
+            data,
+            getBlockedDayBooks: args.getBlockedDayBooks,
+            getLastResult: args.getLastResult,
+            getScheduleCompletions: args.getScheduleCompletions,
+            getSessions: args.getSessions,
+            persistDraft: args.persistDraft,
+            preserveLockedDays: true,
+            renderCalendar: args.renderCalendar,
+            setBookScheduleRows: args.setBookScheduleRows,
+            setLastResult: args.setLastResult,
+            setScheduleCompletions: args.setScheduleCompletions,
+            totalsFromSummary: args.totalsFromSummary,
+            updateTodayView: args.updateTodayView,
+        });
+    };
 }
 
 function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
@@ -87,23 +137,19 @@ function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
                 announce,
                 collectBooks,
                 collectSettings,
-                onSuccess: async (data: PlannerRunData): Promise<void> => {
-                    await applyPlannedData({
-                        data,
-                        getBlockedDayBooks,
-                        getLastResult,
-                        getScheduleCompletions,
-                        getSessions,
-                        persistDraft,
-                        preserveLockedDays: true,
-                        renderCalendar,
-                        setBookScheduleRows,
-                        setLastResult,
-                        setScheduleCompletions,
-                        totalsFromSummary,
-                        updateTodayView,
-                    });
-                },
+                onSuccess: createAutoPlanSuccessHandler({
+                    getBlockedDayBooks,
+                    getLastResult,
+                    getScheduleCompletions,
+                    getSessions,
+                    persistDraft,
+                    renderCalendar,
+                    setBookScheduleRows,
+                    setLastResult,
+                    setScheduleCompletions,
+                    totalsFromSummary,
+                    updateTodayView,
+                }),
                 plannerApi,
                 setStatus,
             });

@@ -20,6 +20,50 @@ import {
     selectedBook,
 } from "./after_book_picker_render.js";
 
+function refreshPickerOptions(state: PickerState, getBooks: GetBooks): void {
+    const AVAILABLE_BOOKS = getBooks().filter((book) => {
+        const BOOK_ID = String(book.book_id || "");
+        if (BOOK_ID === "") {
+            return false;
+        }
+        return BOOK_ID !== state.currentBookId;
+    });
+    state.options = AVAILABLE_BOOKS.toSorted(compareBooks);
+}
+
+interface CreateRefreshFilteredArgs {
+    clearSelection: () => void;
+    refs: BookFormRefs;
+    render: () => void;
+    state: PickerState;
+}
+
+function createRefreshFiltered(
+    args: CreateRefreshFilteredArgs,
+): (clearChangedSelection: boolean) => void {
+    return (clearChangedSelection: boolean): void => {
+        const QUERY = args.refs.afterBookInput.value.trim();
+        if (clearChangedSelection) {
+            const CURRENT = selectedBook(args.state);
+            if (
+                !QUERY ||
+                !CURRENT ||
+                !labelsMatch(QUERY, optionLabel(CURRENT))
+            ) {
+                args.clearSelection();
+            }
+        }
+        args.state.filtered = args.state.options.filter((book) =>
+            matchesQuery(book, QUERY),
+        );
+        args.state.activeIndex = NO_ACTIVE_INDEX;
+        if (args.state.filtered.length) {
+            args.state.activeIndex = FIRST_RESULT_INDEX;
+        }
+        args.render();
+    };
+}
+
 /**
  * Creates the "blocked by" picker controller used in the book dialog.
  * @param refs Form references for picker input/results fields.
@@ -60,36 +104,14 @@ export function createAfterBookPicker(
         RENDER();
     };
     const REFRESH_OPTIONS = (): void => {
-        const AVAILABLE_BOOKS = getBooks().filter((book) => {
-            const BOOK_ID = String(book.book_id || "");
-            if (BOOK_ID === "") {
-                return false;
-            }
-            return BOOK_ID !== STATE.currentBookId;
-        });
-        STATE.options = AVAILABLE_BOOKS.toSorted(compareBooks);
+        refreshPickerOptions(STATE, getBooks);
     };
-    const REFRESH_FILTERED = (clearChangedSelection: boolean): void => {
-        const QUERY = FORM_REFS.afterBookInput.value.trim();
-        if (clearChangedSelection) {
-            const CURRENT = selectedBook(STATE);
-            if (
-                !QUERY ||
-                !CURRENT ||
-                !labelsMatch(QUERY, optionLabel(CURRENT))
-            ) {
-                CLEAR_SELECTION();
-            }
-        }
-        STATE.filtered = STATE.options.filter((book) =>
-            matchesQuery(book, QUERY),
-        );
-        STATE.activeIndex = NO_ACTIVE_INDEX;
-        if (STATE.filtered.length) {
-            STATE.activeIndex = FIRST_RESULT_INDEX;
-        }
-        RENDER();
-    };
+    const REFRESH_FILTERED = createRefreshFiltered({
+        clearSelection: CLEAR_SELECTION,
+        refs: FORM_REFS,
+        render: RENDER,
+        state: STATE,
+    });
     bindAfterBookPickerEvents({
         clearResults: CLEAR_RESULTS,
         refreshFiltered: REFRESH_FILTERED,

@@ -192,7 +192,7 @@ export function buildManualSessionAddPanel(
     const FORM_ELEMENTS = buildManualAddFormElements(
         BOOKS,
         args.defaultBookId,
-        args.defaultMinutes,
+        args.defaultMinutes ?? 0,
         args.mode,
     );
 

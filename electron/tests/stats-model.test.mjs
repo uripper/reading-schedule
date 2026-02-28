@@ -10,12 +10,15 @@ import { sessionKeyFor } from "../dist/renderer/calendar/utils.js";
 import { todayKey } from "../dist/renderer/sessions/utils.js";
 import { buildStatsSnapshot } from "../dist/renderer/stats/model.js";
 
+const EXPECTED_READING_MINUTES_WITH_PLANNED_AND_FINISHED = 45;
+const EXPECTED_READING_MINUTES_WITH_ONLY_SCHEDULED = 40;
+
 /**
  * Builds book fixture with override support.
  * @param {Record<string, unknown>} overrides Book field overrides.
  * @returns {Record<string, unknown>} Book fixture.
  */
-function book(overrides) {
+const book = (overrides) => {
     return {
         author: "",
         blocked_by: null,
@@ -38,7 +41,7 @@ function book(overrides) {
         words_total: 1000,
         ...overrides,
     };
-}
+};
 
 /**
  * Builds schedule row fixture used by stats tests.
@@ -47,7 +50,7 @@ function book(overrides) {
  * @param {string} bookId Book id.
  * @returns {Record<string, unknown>} Row fixture.
  */
-function row(date, sessionIndex, bookId) {
+const row = (date, sessionIndex, bookId) => {
     return {
         book_id: bookId,
         date,
@@ -56,7 +59,7 @@ function row(date, sessionIndex, bookId) {
         title: bookId,
         words_planned: 1000,
     };
-}
+};
 
 test("buildStatsSnapshot combines planned and already-read finishes for current year", () => {
     const year = new Date().getFullYear();
@@ -134,7 +137,10 @@ test("buildStatsSnapshot combines planned and already-read finishes for current 
     assert.equal(snapshot.projectedFinishCount, 2);
     assert.equal(snapshot.completedSessionsToDate, 1);
     assert.equal(snapshot.scheduledSessionsToDate, 2);
-    assert.equal(snapshot.readingMinutesYear, 45);
+    assert.equal(
+        snapshot.readingMinutesYear,
+        EXPECTED_READING_MINUTES_WITH_PLANNED_AND_FINISHED,
+    );
     assert.equal(snapshot.monthlyFinishes[0], 1);
     assert.equal(snapshot.monthlyFinishes[1], 1);
 });
@@ -169,7 +175,10 @@ test("buildStatsSnapshot uses completed schedule rows for reading minutes and st
         sessions: [],
     });
 
-    assert.equal(snapshot.readingMinutesYear, 40);
+    assert.equal(
+        snapshot.readingMinutesYear,
+        EXPECTED_READING_MINUTES_WITH_ONLY_SCHEDULED,
+    );
     assert.equal(snapshot.activeDaysYear, 1);
     assert.equal(snapshot.currentStreakDays, 1);
 });

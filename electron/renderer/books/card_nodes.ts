@@ -105,6 +105,32 @@ function cardStatsNode(book: Book, context: CardRenderContext): HTMLDivElement {
     }
     return STATS;
 }
+
+function coverButtonForBook(book: Book, title: string): HTMLButtonElement {
+    const COVER_BUTTON = document.createElement("button");
+    COVER_BUTTON.className = "book-cover-btn edit-book-btn";
+    COVER_BUTTON.dataset.bookId = String(book.book_id || "");
+    COVER_BUTTON.type = "button";
+    const COVER = bookCoverSrc(book);
+    if (COVER) {
+        COVER_BUTTON.classList.add("has-cover");
+        const IMAGE = document.createElement("img");
+        IMAGE.src = COVER;
+        IMAGE.alt = `Cover of ${title}`;
+        IMAGE.loading = "lazy";
+        IMAGE.dataset.fallbackCover = "1";
+        COVER_BUTTON.append(IMAGE);
+        if (book.status === BOOK_STATUS_READ) {
+            bindReadCardHolo(COVER_BUTTON);
+        }
+        return COVER_BUTTON;
+    }
+    const FALLBACK = document.createElement("div");
+    FALLBACK.className = "cover-fallback";
+    FALLBACK.textContent = "No Cover";
+    COVER_BUTTON.append(FALLBACK);
+    return COVER_BUTTON;
+}
 /**
  * Creates a full book card node including cover, metadata, and actions.
  * @param book Book model to render.
@@ -121,28 +147,7 @@ export function createCardNode(
     CARD.className = cardClassNameForStatus(book.status);
     CARD.dataset.bookId = BOOK_ID;
     CARD.dataset.status = String(book.status);
-    const COVER_BUTTON = document.createElement("button");
-    COVER_BUTTON.className = "book-cover-btn edit-book-btn";
-    COVER_BUTTON.dataset.bookId = BOOK_ID;
-    COVER_BUTTON.type = "button";
-    const COVER = bookCoverSrc(book);
-    if (COVER) {
-        COVER_BUTTON.classList.add("has-cover");
-        const IMAGE = document.createElement("img");
-        IMAGE.src = COVER;
-        IMAGE.alt = `Cover of ${TITLE}`;
-        IMAGE.loading = "lazy";
-        IMAGE.dataset.fallbackCover = "1";
-        COVER_BUTTON.append(IMAGE);
-        if (book.status === BOOK_STATUS_READ) {
-            bindReadCardHolo(COVER_BUTTON);
-        }
-    } else {
-        const FALLBACK = document.createElement("div");
-        FALLBACK.className = "cover-fallback";
-        FALLBACK.textContent = "No Cover";
-        COVER_BUTTON.append(FALLBACK);
-    }
+    const COVER_BUTTON = coverButtonForBook(book, TITLE);
     const META = document.createElement("div");
     META.className = "book-meta";
     const HEADING = document.createElement("h1");

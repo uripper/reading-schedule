@@ -8,6 +8,34 @@ import {
     submitProgressUpdate,
 } from "./details_progress_form_helpers.js";
 
+function progressInput(
+    placeholder: string,
+    min: string,
+    max: string | null,
+    step: string,
+): HTMLInputElement {
+    const INPUT_NODE = document.createElement("input");
+    INPUT_NODE.type = "number";
+    INPUT_NODE.min = min;
+    if (max !== null) {
+        INPUT_NODE.max = max;
+    }
+    INPUT_NODE.step = step;
+    INPUT_NODE.placeholder = placeholder;
+    return INPUT_NODE;
+}
+
+function labeledProgressField(
+    text: string,
+    inputNode: HTMLInputElement,
+): HTMLElement {
+    const LABEL = document.createElement("label");
+    LABEL.className = "day-progress-field";
+    LABEL.textContent = text;
+    LABEL.append(inputNode);
+    return LABEL;
+}
+
 /**
  * Builds progress update form for today's session row.
  * @param row Calendar row being edited.
@@ -25,30 +53,14 @@ export function progressFormForToday(
     const PROGRESS_FORM = document.createElement("form");
     PROGRESS_FORM.className = "day-progress-form";
 
-    const PAGES_INPUT = document.createElement("input");
-    PAGES_INPUT.type = "number";
-    PAGES_INPUT.min = "0";
-    PAGES_INPUT.step = "1";
-    PAGES_INPUT.placeholder = "Pages read";
+    const PAGES_INPUT = progressInput("Pages read", "0", null, "1");
     setInputValueFromBookProgress(PAGES_INPUT, book.pages_read ?? undefined);
 
-    const PCT_INPUT = document.createElement("input");
-    PCT_INPUT.type = "number";
-    PCT_INPUT.min = "0";
-    PCT_INPUT.max = "100";
-    PCT_INPUT.step = "0.1";
-    PCT_INPUT.placeholder = "Percent complete";
+    const PCT_INPUT = progressInput("Percent complete", "0", "100", "0.1");
     setInputValueFromBookProgress(PCT_INPUT, book.progress_percent);
 
-    const PAGES_LABEL = document.createElement("label");
-    PAGES_LABEL.className = "day-progress-field";
-    PAGES_LABEL.textContent = "Pages Read";
-    PAGES_LABEL.append(PAGES_INPUT);
-
-    const PERCENT_LABEL = document.createElement("label");
-    PERCENT_LABEL.className = "day-progress-field";
-    PERCENT_LABEL.textContent = "Complete %";
-    PERCENT_LABEL.append(PCT_INPUT);
+    const PAGES_LABEL = labeledProgressField("Pages Read", PAGES_INPUT);
+    const PERCENT_LABEL = labeledProgressField("Complete %", PCT_INPUT);
 
     let initialPagesValue = String(PAGES_INPUT.value).trim();
     let initialPercentValue = String(PCT_INPUT.value).trim();

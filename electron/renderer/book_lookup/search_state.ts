@@ -5,6 +5,72 @@ import {
 import { describeLookup } from "./helpers.js";
 import { renderLookupResults, updateComboboxA11y } from "./render.js";
 
+function boundedIndex(index: number, length: number): number {
+    return ((index % length) + length) % length;
+}
+
+interface LookupControllerDeps {
+    metaEl: HTMLElement;
+    onPick: CreateLookupStateControllerArgs["onPick"];
+    placeholder: string;
+    resultsEl: HTMLElement;
+    searchInput: HTMLInputElement;
+    state: CreateLookupStateControllerArgs["state"];
+}
+
+function refreshLookupResults(deps: LookupControllerDeps): void {
+    const HAS_ITEMS = deps.state.currentItems.length > 0;
+    if (!HAS_ITEMS) {
+        deps.resultsEl.classList.remove("has-items");
+        deps.resultsEl.innerHTML = "";
+        updateComboboxA11y(deps.searchInput, deps.resultsEl, false, -1);
+        return;
+    }
+    renderLookupResults(
+        deps.resultsEl,
+        deps.state.currentItems,
+        deps.placeholder,
+        deps.state.activeIndex,
+    );
+    deps.resultsEl.classList.add("has-items");
+    updateComboboxA11y(
+        deps.searchInput,
+        deps.resultsEl,
+        true,
+        deps.state.activeIndex,
+    );
+}
+
+function clearLookupResults(deps: LookupControllerDeps): void {
+    deps.state.currentItems = [];
+    deps.state.activeIndex = -1;
+    refreshLookupResults(deps);
+}
+
+function selectLookupItem(deps: LookupControllerDeps, index: number): void {
+    if (index < 0 || index >= deps.state.currentItems.length) {
+        return;
+    }
+    const ITEM = deps.state.currentItems[index];
+    deps.searchInput.value = String(ITEM.title ?? "");
+    deps.metaEl.textContent = describeLookup(ITEM);
+    clearLookupResults(deps);
+    deps.onPick(ITEM);
+}
+
+function setLookupActiveIndex(deps: LookupControllerDeps, index: number): void {
+    if (deps.state.currentItems.length === 0) {
+        deps.state.activeIndex = -1;
+        refreshLookupResults(deps);
+        return;
+    }
+    deps.state.activeIndex = boundedIndex(
+        index,
+        deps.state.currentItems.length,
+    );
+    refreshLookupResults(deps);
+}
+
 /**
  * Creates lookup state actions for rendering, clearing, selecting, and highlighting items.
  * @param root0 Lookup UI elements, callbacks, and mutable state.
@@ -24,70 +90,27 @@ export function createLookupStateController({
     placeholder,
     state,
 }: CreateLookupStateControllerArgs): LookupStateController {
-    const LOOKUP_STATE = state;
-    const SEARCH_FIELD = searchInput;
-    const RESULTS_ELEMENT = resultsEl;
-    const STATUS_ELEMENT = metaEl;
-    const REFRESH_RESULTS = (): void => {
-        const HAS_ITEMS = LOOKUP_STATE.currentItems.length > 0;
-        if (!HAS_ITEMS) {
-            RESULTS_ELEMENT.classList.remove("has-items");
-            RESULTS_ELEMENT.innerHTML = "";
-            updateComboboxA11y(SEARCH_FIELD, RESULTS_ELEMENT, false, -1);
-            return;
-        }
-
-        renderLookupResults(
-            RESULTS_ELEMENT,
-            LOOKUP_STATE.currentItems,
-            placeholder,
-            LOOKUP_STATE.activeIndex,
-        );
-        RESULTS_ELEMENT.classList.add("has-items");
-        updateComboboxA11y(
-            SEARCH_FIELD,
-            RESULTS_ELEMENT,
-            true,
-            LOOKUP_STATE.activeIndex,
-        );
-    };
-
-    const CLEAR_RESULTS = (): void => {
-        LOOKUP_STATE.currentItems = [];
-        LOOKUP_STATE.activeIndex = -1;
-        REFRESH_RESULTS();
-    };
-
-    const SELECT_ITEM = (index: number): void => {
-        if (index < 0 || index >= LOOKUP_STATE.currentItems.length) {
-            return;
-        }
-        const ITEM = LOOKUP_STATE.currentItems[index];
-        SEARCH_FIELD.value = String(ITEM.title ?? "");
-        STATUS_ELEMENT.textContent = describeLookup(ITEM);
-        CLEAR_RESULTS();
-        onPick(ITEM);
-    };
-
-    const SET_ACTIVE_INDEX = (index: number): void => {
-        if (LOOKUP_STATE.currentItems.length === 0) {
-            LOOKUP_STATE.activeIndex = -1;
-            REFRESH_RESULTS();
-            return;
-        }
-
-        const BOUNDED =
-            ((index % LOOKUP_STATE.currentItems.length) +
-                LOOKUP_STATE.currentItems.length) %
-            LOOKUP_STATE.currentItems.length;
-        LOOKUP_STATE.activeIndex = BOUNDED;
-        REFRESH_RESULTS();
+    const LOOKUP_DEPS: LookupControllerDeps = {
+        metaEl,
+        onPick,
+        placeholder,
+        resultsEl,
+        searchInput,
+        state,
     };
 
     return {
-        clearResults: CLEAR_RESULTS,
-        refreshResults: REFRESH_RESULTS,
-        selectItem: SELECT_ITEM,
-        setActiveIndex: SET_ACTIVE_INDEX,
+        clearResults: (): void => {
+            clearLookupResults(LOOKUP_DEPS);
+        },
+        refreshResults: (): void => {
+            refreshLookupResults(LOOKUP_DEPS);
+        },
+        selectItem: (index: number): void => {
+            selectLookupItem(LOOKUP_DEPS, index);
+        },
+        setActiveIndex: (index: number): void => {
+            setLookupActiveIndex(LOOKUP_DEPS, index);
+        },
     };
 }

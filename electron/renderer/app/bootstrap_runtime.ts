@@ -1,4 +1,5 @@
 import {
+    type AnnouncePoliteness,
     type AppBootstrapContext,
     type PlannerApi,
 } from "../../types/types.js";
@@ -41,9 +42,9 @@ function plannerApiFromGlobal(): PlannerApi {
  * Creates an announcer wrapper for plan controller with configurable politeness.
  */
 function createPlanControllerAnnouncer(
-    announce: typeof createAnnouncer,
-): (message: string, politeness?: string) => void {
-    return (message: string, politeness?: string): void => {
+    announce: (message: string, politeness?: AnnouncePoliteness) => void,
+): (message: string, politeness?: AnnouncePoliteness) => void {
+    return (message: string, politeness?: AnnouncePoliteness): void => {
         if (politeness === "polite" || politeness === "assertive") {
             announce(message, politeness);
             return;

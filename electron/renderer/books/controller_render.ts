@@ -1,5 +1,9 @@
 import type {
+    Book,
+    BookGroup,
     BooksViewState,
+    RenderableBooksRefs,
+    RenderBookGridOptions,
     RenderBooksControllerArgs,
 } from "../../types/types.js";
 import { collectSettings } from "../settings.js";
@@ -87,7 +91,10 @@ interface RenderBookGridParams {
 function buildRenderBookGridArgs(
     args: RenderBooksControllerArgs,
     params: RenderBookGridParams,
-): RenderBookGridArgs {
+): RenderBookGridOptions {
+    if (!args.refs.empty || !args.refs.grid) {
+        throw new Error("Missing required DOM references");
+    }
     return {
         allBooks: args.books,
         books: params.visibleBooks,
@@ -95,16 +102,16 @@ function buildRenderBookGridArgs(
         finishDateByBookId: params.finishDateByBookId,
         grid: args.refs.grid,
         groups: params.groups,
-        onEdit: (bookId) => {
+        onEdit: (bookId: string): void => {
             const BOOK = args.findBook(bookId);
             if (BOOK && args.dialog) {
                 args.dialog.open(BOOK);
             }
         },
-        onEstimatedFinishNavigate: (dateKey) => {
+        onEstimatedFinishNavigate: (dateKey: string): void => {
             args.onEstimatedFinishNavigate(dateKey);
         },
-        onRemove: (bookId) => {
+        onRemove: (bookId: string): void => {
             const NEXT_BOOKS = args.books.filter(
                 (book) => book.book_id !== bookId,
             );
@@ -145,12 +152,12 @@ export function renderBooksController(args: RenderBooksControllerArgs): void {
         groups = groupsForEstimatedFinish(visibleBooks);
     }
     const GRID_ARGS = buildRenderBookGridArgs(args, {
-        visibleBooks,
         finishDateByBookId,
         groups,
         showBlockerMeta,
         showShelfMeta,
         showWordCount,
+        visibleBooks,
     });
     renderBookGrid(GRID_ARGS);
 }

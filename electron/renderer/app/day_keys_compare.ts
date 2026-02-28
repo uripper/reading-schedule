@@ -52,7 +52,7 @@ export function compareDayKeys(left: string, right: string): number | null {
     if (left === right) {
         return DAY_KEY_COMPARE_EQUAL;
     }
-    const LEFT_GREATER = left > right;
+    const LEFT_GREATER = left.localeCompare(right) > 0;
     if (!LEFT_GREATER) {
         return DAY_KEY_COMPARE_LEFT_BEFORE_RIGHT;
     }

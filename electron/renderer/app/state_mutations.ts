@@ -1,5 +1,4 @@
 import {
-    type ApplyAppStateMutation,
     type AppRuntimeState,
     type AppStateMutation,
 } from "../../types/types.js";

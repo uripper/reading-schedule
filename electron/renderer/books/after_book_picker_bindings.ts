@@ -6,24 +6,17 @@ import {
 } from "./after_book_picker_helpers.js";
 import { NO_ACTIVE_INDEX } from "./after_book_picker_render.js";
 
-/**
- * Binds keyboard/mouse/document events for after-book picker interactions.
- * @param args Event-binding dependencies and state hooks.
- * @param args.clearResults Clears currently filtered picker results.
- * @param args.refs Form references containing picker controls.
- * @param args.refreshFiltered Rebuilds filtered picker options from input text.
- * @param args.render Re-renders picker result UI.
- * @param args.selectBook Selects a book from filtered options.
- * @param args.state Mutable picker state.
- */
-export function bindAfterBookPickerEvents(args: BindingArgs): void {
-    const PICKER_STATE = args.state;
+function bindPickerInputEvents(args: BindingArgs): void {
     args.refs.afterBookInput.addEventListener("focus", () => {
         args.refreshFiltered(false);
     });
     args.refs.afterBookInput.addEventListener("input", () => {
         args.refreshFiltered(true);
     });
+}
+
+function bindPickerKeyboardEvents(args: BindingArgs): void {
+    const PICKER_STATE = args.state;
     args.refs.afterBookInput.addEventListener(
         "keydown",
         (event: KeyboardEvent) => {
@@ -62,6 +55,9 @@ export function bindAfterBookPickerEvents(args: BindingArgs): void {
             }
         },
     );
+}
+
+function bindPickerResultsEvents(args: BindingArgs): void {
     args.refs.afterBookResults.addEventListener(
         "mousemove",
         (event: MouseEvent) => {
@@ -69,7 +65,7 @@ export function bindAfterBookPickerEvents(args: BindingArgs): void {
             if (!TARGET) {
                 return;
             }
-            PICKER_STATE.activeIndex = Number(TARGET.dataset.resultIndex);
+            args.state.activeIndex = Number(TARGET.dataset.resultIndex);
             args.render();
         },
     );
@@ -81,9 +77,12 @@ export function bindAfterBookPickerEvents(args: BindingArgs): void {
                 return;
             }
             const RESULT_INDEX = Number(TARGET.dataset.resultIndex);
-            args.selectBook(PICKER_STATE.filtered[RESULT_INDEX]);
+            args.selectBook(args.state.filtered[RESULT_INDEX]);
         },
     );
+}
+
+function bindPickerOutsideClick(args: BindingArgs): void {
     document.addEventListener("click", (event: MouseEvent) => {
         if (!(event.target instanceof Node)) {
             return;
@@ -100,4 +99,21 @@ export function bindAfterBookPickerEvents(args: BindingArgs): void {
         args.clearResults();
         args.render();
     });
+}
+
+/**
+ * Binds keyboard/mouse/document events for after-book picker interactions.
+ * @param args Event-binding dependencies and state hooks.
+ * @param args.clearResults Clears currently filtered picker results.
+ * @param args.refs Form references containing picker controls.
+ * @param args.refreshFiltered Rebuilds filtered picker options from input text.
+ * @param args.render Re-renders picker result UI.
+ * @param args.selectBook Selects a book from filtered options.
+ * @param args.state Mutable picker state.
+ */
+export function bindAfterBookPickerEvents(args: BindingArgs): void {
+    bindPickerInputEvents(args);
+    bindPickerKeyboardEvents(args);
+    bindPickerResultsEvents(args);
+    bindPickerOutsideClick(args);
 }
