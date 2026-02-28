@@ -43,7 +43,7 @@ function normalizeEndDate(
   if (normalizedEndDate === "") {
     return undefined;
   }
-  if (normalizedEndDate < startDate) {
+  if (Number(normalizedEndDate) < Number(startDate)) {
     return startDate;
   }
   return normalizedEndDate;

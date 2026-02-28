@@ -1,12 +1,24 @@
-import { renderCalendarDetails } from './calendar/details.js';
+import { renderCalendarDetails } from "./calendar/details.js";
 import {
-    buildCompletedBookRowsByDate, finishedBooksSummaryText
-} from './calendar/finished_books.js';
-import { refreshDerivedRows, renderControls, renderMonth } from './calendar/render_runtime.js';
+  buildCompletedBookRowsByDate,
+  finishedBooksSummaryText,
+} from "./calendar/finished_books.js";
 import {
-    applyTodayFocus, indexForMonth, monthKeyForDateKey, moveSelectionBy, selectDate
-} from './calendar/selection.js';
-import { createCalendarRuntimeState, mergeCalendarHandlers } from './calendar/state_runtime.js';
+  refreshDerivedRows,
+  renderControls,
+  renderMonth,
+} from "./calendar/render_runtime.js";
+import {
+  applyTodayFocus,
+  indexForMonth,
+  monthKeyForDateKey,
+  moveSelectionBy,
+  selectDate,
+} from "./calendar/selection.js";
+import {
+  createCalendarRuntimeState,
+  mergeCalendarHandlers,
+} from "./calendar/state_runtime.js";
 
 import type {
   PlannerScheduleRow,

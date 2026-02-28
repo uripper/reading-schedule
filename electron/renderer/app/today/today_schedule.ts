@@ -121,7 +121,7 @@ export function nextUncompletedPlannedRow(
     const rowDate = String(row.date || "");
     if (
       rowDate &&
-      rowDate >= today &&
+      Number(rowDate) >= Number(today) &&
       !isCompletedRow(row, scheduleCompletions)
     ) {
       return row;

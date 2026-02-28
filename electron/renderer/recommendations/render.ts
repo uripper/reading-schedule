@@ -99,7 +99,7 @@ export function renderRecommendationsPanel(args: RenderRecommendationsArgs): voi
   const handleAddToShelf = (recommendation: RecommendationItem): void => {
     args.onAddToShelf(recommendation);
   };
-  const recommendations = args.recommendations;
+  const {recommendations} = args;
   const listNode = el("recommendationsList");
   const summaryNode = el("recommendationsSummary");
   const emptyNode = el("recommendationsEmpty");

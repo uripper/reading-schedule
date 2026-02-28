@@ -143,7 +143,7 @@ function uploadErrorMessage(error: unknown): string {
  * @param refs Book form references containing upload controls.
  */
 function clearCoverUploadInput(refs: BookFormRefs): void {
-  const coverUploadInput = refs.coverUploadInput;
+  const {coverUploadInput} = refs;
   coverUploadInput.value = "";
 }
 
@@ -173,7 +173,7 @@ async function saveSelectedCover(refs: BookFormRefs): Promise<void> {
  * @param refs Book form references containing upload and metadata controls.
  */
 async function handleCoverUploadChange(refs: BookFormRefs): Promise<void> {
-  const lookupMeta = refs.lookupMeta;
+  const {lookupMeta} = refs;
   try {
     await saveSelectedCover(refs);
   } catch (error: unknown) {
@@ -188,7 +188,7 @@ async function handleCoverUploadChange(refs: BookFormRefs): Promise<void> {
  * @param refs Book form references containing upload and panel controls.
  */
 export function bindCoverUpload(refs: BookFormRefs): void {
-  const lookupMeta = refs.lookupMeta;
+  const {lookupMeta} = refs;
   const runUploadChange = (): void => {
     handleCoverUploadChange(refs).catch((error: unknown) => {
       lookupMeta.textContent = uploadErrorMessage(error);

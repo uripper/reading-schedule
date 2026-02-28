@@ -25,10 +25,10 @@ function todayDateKey(): string {
  */
 export function dayMode(dateKey: string): DayMode {
   const today = todayDateKey();
-  if (dateKey < today) {
+  if (Number(dateKey) < Number(today)) {
     return "past";
   }
-  if (dateKey > today) {
+  if (Number(dateKey) > Number(today)) {
     return "future";
   }
   return "today";

@@ -26,7 +26,7 @@ function rowIsPlannedForTodayOrLater(rowDate: string, today: string): boolean {
   if (!rowDate) {
     return false;
   }
-  return rowDate >= today;
+  return Number(rowDate) >= Number(today);
 }
 
 /**
@@ -195,7 +195,7 @@ export function firstPlannedRow(rows: CalendarRow[] = []): CalendarRow | null {
   }
   const sortedRows = sortRowsByDateAndSession(rows);
   const today = todayKey();
-  const upcoming = sortedRows.find((row) => String(row.date || "") >= today);
+  const upcoming = sortedRows.find((row) => Number(row.date || 0) >= Number(today));
   if (upcoming) {
     return upcoming;
   }
