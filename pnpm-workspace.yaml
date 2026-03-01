@@ -1,2 +1,6 @@
 packages:
   - "electron"
+
+onlyBuiltDependencies:
+  - "electron"
+  - "inotify"
