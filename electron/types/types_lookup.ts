@@ -35,7 +35,6 @@ export interface ProgressSyncInputs {
 
 export type ProgressField = "pages" | "progress";
 
-
 export type SetActiveIndex = (index: number) => void;
 
 export type SelectItem = (index: number) => void;
