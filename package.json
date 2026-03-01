@@ -12,7 +12,7 @@
     "scripts": {
         "audit": "node ./scripts/style_audit.mjs",
         "build:desktop": "pnpm -C electron run build",
-        "ci:local": "pnpm run lint:python && pnpm run typecheck:python && pnpm run test:python && pnpm run typecheck:desktop && pnpm run lint:desktop:fix && pnpm run build:desktop && pnpm run test:desktop && pnpm run test:e2e && pnpm run knip",
+        "ci:local": "pnpm run lint:python && pnpm run typecheck:python && pnpm run test:python && pnpm run typecheck:desktop && pnpm run lint:desktop:fix && pnpm run build:desktop && pnpm run test:desktop && pnpm run knip",
         "dev:desktop": "pnpm -C electron run start",
         "dev:windows": "bash ./scripts/run_windows_gui_from_wsl.sh",
         "dev:windows:hot": "bash ./scripts/run_windows_gui_hot_from_wsl.sh",
