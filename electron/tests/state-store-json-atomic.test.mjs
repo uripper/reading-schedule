@@ -87,3 +87,27 @@ test("Facade emits fresh-warning when persisted JSON artifacts are unreadable", 
         cleanup(userDataDir);
     }
 });
+
+test("Facade emits fresh-warning when persisted JSON artifacts fail schema validation", () => {
+    const userDataDir = tempUserDataDir();
+    try {
+        fs.mkdirSync(userDataDir, { recursive: true });
+        fs.writeFileSync(
+            jsonStatePath(userDataDir),
+            JSON.stringify({ books: "bad", settings: {} }),
+            "utf8",
+        );
+        fs.writeFileSync(
+            jsonStateBackupPath(userDataDir),
+            JSON.stringify({ books: "bad", settings: {} }),
+            "utf8",
+        );
+
+        const loadResult = readState(userDataDir);
+        assert.equal(loadResult.source, "fresh");
+        assert.equal(loadResult.state, null);
+        assert.equal(loadResult.warningCode, "STATE_RESET_FRESH");
+    } finally {
+        cleanup(userDataDir);
+    }
+});

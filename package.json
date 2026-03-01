@@ -3,6 +3,7 @@
         "@biomejs/biome": "2.4.4",
         "@types/node": "^25.3.0",
         "knip": "^5.85.0",
+        "type-coverage": "^2.29.7",
         "typescript": "^5.7.3"
     },
     "name": "reading-schedule",
@@ -11,7 +12,7 @@
     "scripts": {
         "audit": "node ./scripts/style_audit.mjs",
         "build:desktop": "pnpm -C electron run build",
-        "ci:local": "pnpm run lint:python && pnpm run typecheck:python && pnpm run test:python && pnpm run typecheck:desktop && pnpm run lint:desktop:fix && pnpm run build:desktop && pnpm run test:desktop",
+        "ci:local": "pnpm run lint:python && pnpm run typecheck:python && pnpm run test:python && pnpm run typecheck:desktop && pnpm run lint:desktop:fix && pnpm run build:desktop && pnpm run test:desktop && pnpm run knip",
         "dev:desktop": "pnpm -C electron run start",
         "dev:windows": "bash ./scripts/run_windows_gui_from_wsl.sh",
         "dev:windows:hot": "bash ./scripts/run_windows_gui_hot_from_wsl.sh",
@@ -38,7 +39,13 @@
         "test:desktop": "pnpm -C electron run test:node",
         "test:python": ".venv/bin/pytest -q",
         "typecheck:desktop": "pnpm -C electron run typecheck",
-        "typecheck:python": ".venv/bin/ty check src"
+        "typecheck:python": ".venv/bin/ty check src",
+        "typecov": "pnpm run typecov:main && pnpm run typecov:renderer",
+        "typecov:main": "type-coverage -p electron/tsconfig.main.json --detail --show-relative-path --cache",
+        "typecov:renderer": "type-coverage -p electron/tsconfig.renderer.json --detail --show-relative-path --cache",
+        "typecov:strict": "pnpm run typecov:strict:main && pnpm run typecov:strict:renderer",
+        "typecov:strict:main": "type-coverage -p electron/tsconfig.main.json --detail --show-relative-path --cache --strict",
+        "typecov:strict:renderer": "type-coverage -p electron/tsconfig.renderer.json --detail --show-relative-path --cache --strict"
     },
     "version": "0.2.0"
 }

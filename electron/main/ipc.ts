@@ -2,6 +2,12 @@
  * @file Main-process IPC registration for planner and window actions.
  */
 import { ipcMain } from "electron";
+import {
+    parsePlanGeneratePayload,
+    parsePlanGenerateResult,
+    parseSamplePayload,
+} from "../contracts/planner.js";
+import { parsePlannerStateSnapshot } from "../contracts/state.js";
 import type {
     DownloadCoverPayload,
     JsonValue,
@@ -37,11 +43,18 @@ export function registerIpcHandlers({
     userData,
     writeState,
 }: RegisterIpcHandlersArgs): void {
-    ipcMain.handle("plan:sample", async () => await runBridge(["--sample"]));
-    ipcMain.handle(
-        "plan:generate",
-        async (_event, payload: JsonValue) => await runBridge([], payload),
-    );
+    ipcMain.handle("plan:sample", async () => {
+        const RAW_RESPONSE = await runBridge(["--sample"]);
+        return parseSamplePayload(RAW_RESPONSE);
+    });
+    ipcMain.handle("plan:generate", async (_event, payload: unknown) => {
+        const REQUEST = parsePlanGeneratePayload(payload);
+        const RAW_RESPONSE = await runBridge(
+            [],
+            REQUEST as unknown as JsonValue,
+        );
+        return parsePlanGenerateResult(RAW_RESPONSE);
+    });
     ipcMain.handle(
         "book:search",
         async (_event, query: string, author: unknown) =>
@@ -66,8 +79,9 @@ export function registerIpcHandlers({
         },
     );
     ipcMain.handle("state:load", () => readState(userData()));
-    ipcMain.handle("state:save", (_event, payload: JsonValue) => {
-        const RESULT = writeState(userData(), payload);
+    ipcMain.handle("state:save", (_event, payload: unknown) => {
+        const SNAPSHOT = parsePlannerStateSnapshot(payload);
+        const RESULT = writeState(userData(), SNAPSHOT as unknown as JsonValue);
         if (RESULT.ok === false) {
             throw new Error(RESULT.error);
         }

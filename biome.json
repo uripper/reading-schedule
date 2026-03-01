@@ -337,7 +337,7 @@
                                         "selector": { "kind": "enumMember" }
                                     },
                                     {
-                                        "formats": ["camelCase"],
+                                        "formats": ["camelCase", "PascalCase"],
                                         "selector": { "kind": "function" }
                                     },
                                     {
