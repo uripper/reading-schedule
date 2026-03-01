@@ -15,11 +15,6 @@
     },
     "main": "dist/main.js",
     "name": "reading-plan-gui",
-    "pnpm": {
-        "onlyBuiltDependencies": [
-            "esbuild"
-        ]
-    },
     "private": true,
     "scripts": {
         "build": "pnpm run clean:dist && pnpm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/bundle_renderer.mjs && node ./scripts/copy_static.mjs",
