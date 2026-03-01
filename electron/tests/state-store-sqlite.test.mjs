@@ -127,7 +127,7 @@ test("SQLite store recovers when snapshot JSON is schema-invalid", () => {
         const database = new DatabaseSync(sqliteStatePath(userDataDir));
         try {
             database.exec(
-                "UPDATE planner_state_snapshot SET payload_json = '{\"books\":\"bad\",\"settings\":{}}' WHERE id = 1",
+                'UPDATE planner_state_snapshot SET payload_json = \'{"books":"bad","settings":{}}\' WHERE id = 1',
             );
         } finally {
             database.close();

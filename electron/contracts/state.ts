@@ -70,7 +70,7 @@ const PLAN_GENERATE_RESULT_SCHEMA = z.object({
         .nullable(),
 });
 
-const SAMPLE_PAYLOAD_SCHEMA = z.object({
+const _SAMPLE_PAYLOAD_SCHEMA = z.object({
     books: z.array(z.unknown()),
     settings: plannerSettingsSchema(),
 });
@@ -93,10 +93,7 @@ const LOADED_PLANNER_STATE_SCHEMA = z
         blocked_day_books: BOOL_RECORD_SCHEMA.optional(),
         books: z.array(z.unknown()).optional(),
         feature_flags: z.record(z.string(), z.unknown()).optional(),
-        last_result: z
-            .record(z.string(), z.unknown())
-            .nullable()
-            .optional(),
+        last_result: z.record(z.string(), z.unknown()).nullable().optional(),
         preferences: z.record(z.string(), z.unknown()).optional(),
         schedule_completions: BOOL_RECORD_SCHEMA.optional(),
         sessions: z.array(z.record(z.string(), z.unknown())).optional(),
@@ -113,7 +110,10 @@ export function parsePlannerStateSnapshot(
 export function safeParseLoadedPlannerState(input: unknown) {
     const RESULT = LOADED_PLANNER_STATE_SCHEMA.safeParse(input);
     if (RESULT.success) {
-        return { success: true as const, data: RESULT.data as LoadedPlannerState };
+        return {
+            data: RESULT.data as LoadedPlannerState,
+            success: true as const,
+        };
     }
     return RESULT;
 }
