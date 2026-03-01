@@ -10,7 +10,6 @@
             "entry": [
                 "main.ts",
                 "preload.ts",
-                "e2e/**/*.ts",
                 "renderer/app.ts",
                 "scripts/*.mjs",
                 "tests/*.mjs"
