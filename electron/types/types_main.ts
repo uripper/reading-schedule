@@ -1,9 +1,10 @@
 import { type WebContents } from "electron";
 
-import { type JsonValue } from "./types_core.js";
 import {
+    type PlanGeneratePayload,
     type PlannerSaveResult,
     type PlannerStateLoadResult,
+    type PlannerStateSnapshot,
 } from "./types_planner.js";
 
 export interface DownloadCoverPayload {
@@ -28,7 +29,7 @@ export interface RegisterIpcHandlersArgs {
     runBridge(
         this: void,
         args: string[],
-        payload?: JsonValue,
+        payload?: PlanGeneratePayload,
     ): Promise<unknown>;
     saveUploadedCover(
         this: void,
@@ -47,6 +48,6 @@ export interface RegisterIpcHandlersArgs {
     writeState(
         this: void,
         userDataDir: string,
-        payload: JsonValue,
+        payload: PlannerStateSnapshot,
     ): PlannerSaveResult;
 }

@@ -4,10 +4,10 @@
 import fs from "node:fs";
 import { safeParseLoadedPlannerState } from "../contracts/state.js";
 import {
-    type JsonValue,
     type LoadedPlannerState,
     type PlannerSaveResult,
     type PlannerStateLoadResult,
+    type PlannerStateSnapshot,
 } from "../types/types.js";
 import {
     jsonStateBackupPath,
@@ -136,7 +136,7 @@ export function readStateFromJson(
  */
 export function writeStateToJson(
     userDataDir: string,
-    data: JsonValue,
+    data: LoadedPlannerState | PlannerStateSnapshot,
 ): PlannerSaveResult {
     const PRIMARY_PATH = jsonStatePath(userDataDir);
     const BACKUP_PATH = jsonStateBackupPath(userDataDir);

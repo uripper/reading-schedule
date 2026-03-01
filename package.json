@@ -37,6 +37,7 @@
         "lint:python:fix:unsafe": ".venv/bin/ruff check --fix --unsafe-fixes src",
         "prepare": "pnpm run hooks:install",
         "test:desktop": "pnpm -C electron run test:node",
+        "test:e2e": "pnpm -C electron run test:e2e",
         "test:python": ".venv/bin/pytest -q",
         "typecheck:desktop": "pnpm -C electron run typecheck",
         "typecheck:python": ".venv/bin/ty check src",

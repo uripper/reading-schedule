@@ -4,7 +4,7 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
 import { parseBridgeResponseEnvelope } from "../contracts/planner.js";
-import { type JsonValue } from "../types/types.js";
+import { type JsonValue, type PlanGeneratePayload } from "../types/types.js";
 
 const PLANNER_MODULE = "reading_plan.gui_api";
 const PYTHONPATH_SEGMENT = "src";
@@ -75,7 +75,7 @@ function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
  */
 export async function runBridge(
     args: string[],
-    payload?: JsonValue,
+    payload?: PlanGeneratePayload,
 ): Promise<JsonValue> {
     return await new Promise((resolve, reject) => {
         const PYTHON_BINARY = process.env.PYTHON_BIN ?? "python";
