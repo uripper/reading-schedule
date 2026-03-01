@@ -176,3 +176,55 @@ def test_mip_unknown_status_falls_back_to_greedy(
     assert result.status == "FEASIBLE"
     assert result.assignments
     assert "UNKNOWN" in result.note
+
+
+def test_mip_infeasible_status_falls_back_to_greedy(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """INFEASIBLE CP-SAT status should still return greedy assignments."""
+
+    class FakeCpSolver:
+        """Minimal fake solver returning INFEASIBLE."""
+
+        class parameters:  # noqa: D106 - test fake structure
+            random_seed = 0
+            num_search_workers = 0
+            cp_model_presolve = False
+            max_time_in_seconds = 0.0
+
+        def Solve(self, _model: object) -> int:  # noqa: N802 - OR-Tools API
+            return 2_000
+
+    class FakeCpModule:
+        """Minimal fake CP-SAT module constants and solver constructor."""
+
+        OPTIMAL = 4_000
+        FEASIBLE = 3_000
+        INFEASIBLE = 2_000
+        MODEL_INVALID = 1_000
+        UNKNOWN = 4
+
+        CpSolver = FakeCpSolver
+
+    monkeypatch.setattr(
+        solve_module,
+        "load_cp_model_module",
+        lambda: FakeCpModule,
+    )
+    monkeypatch.setattr(
+        solve_module,
+        "build_cp_sat",
+        lambda _books, _settings, _cp: (object(), {}, {}, {}, []),
+    )
+    monkeypatch.setattr(
+        solve_module,
+        "plan_greedy",
+        lambda _books, _settings: {("fallback", date(2026, 1, 2)): 2},
+    )
+
+    result = solve_plan(demo_books(), demo_settings(), planner="mip")
+
+    assert result.planner == "greedy"
+    assert result.status == "FEASIBLE"
+    assert result.assignments
+    assert "INFEASIBLE" in result.note

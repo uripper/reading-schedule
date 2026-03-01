@@ -30,6 +30,18 @@ test("planner payload parser accepts valid generate payload", () => {
     assert.equal(payload.books.length, 1);
 });
 
+test("planner payload parser accepts profile planner token", () => {
+    const payload = parsePlanGeneratePayload({
+        books: [{ book_id: "book-1", title: "Sample" }],
+        planner: "mip-fast",
+        settings: {
+            start_date: "2026-01-01",
+        },
+    });
+
+    assert.equal(payload.planner, "mip-fast");
+});
+
 test("planner payload parser rejects invalid planner type", () => {
     assert.throws(
         () =>

@@ -1,6 +1,7 @@
 import {
     type PlanGeneratePayload,
     type PlannerSummary,
+    type PlannerToken,
     type RunPlanGenerationArgs,
 } from "../../types/types.js";
 import { logDebug } from "../logger.js";
@@ -28,6 +29,24 @@ function tomorrowDayKey(): string {
 }
 
 /**
+ * Maps settings solver profile to planner token accepted by the bridge.
+ * @param profileRaw Raw settings profile value.
+ * @returns Planner token for Python solve strategy selection.
+ */
+function plannerTokenFromProfile(profileRaw: unknown): PlannerToken {
+    if (profileRaw === "fast") {
+        return "mip-fast";
+    }
+    if (profileRaw === "thorough") {
+        return "mip-thorough";
+    }
+    if (profileRaw === "balanced") {
+        return "mip-balanced";
+    }
+    return "mip";
+}
+
+/**
  * Normalizes the end date by ensuring it is a valid string and not before the start date.
  * @param endDate The end date to normalize.
  * @param startDate The start date to compare against.
@@ -44,7 +63,7 @@ function normalizeEndDate(
     if (NORMALIZED_END_DATE === "") {
         return undefined;
     }
-    if (Number(NORMALIZED_END_DATE) < Number(startDate)) {
+    if (NORMALIZED_END_DATE < startDate) {
         return startDate;
     }
     return NORMALIZED_END_DATE;
@@ -183,9 +202,12 @@ export async function runPlanGeneration({
         if (NORMALIZED_END_DATE !== undefined && NORMALIZED_END_DATE !== "") {
             PAYLOAD_SETTINGS.end_date = NORMALIZED_END_DATE;
         }
+        const PLANNER_TOKEN = plannerTokenFromProfile(
+            PAYLOAD_SETTINGS.planner_solver_profile,
+        );
         const PAYLOAD: PlanGeneratePayload = {
             books: PAYLOAD_BOOKS,
-            planner: "mip",
+            planner: PLANNER_TOKEN,
             settings: PAYLOAD_SETTINGS,
         };
         logDebug("Submitting planner payload.", {

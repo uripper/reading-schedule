@@ -9,6 +9,7 @@ const WEEKDAY_SCHEMA = z.enum(WEEKDAY_KEYS);
 const MINUTES_BY_WEEKDAY_SCHEMA = z.record(WEEKDAY_SCHEMA, z.number());
 
 const DIFFICULTY_MULTIPLIER_SCHEMA = z.record(z.string(), z.number());
+const SOLVER_PROFILE_SCHEMA = z.enum(["fast", "balanced", "thorough"]);
 
 const PLANNER_SETTINGS_SCHEMA = z
     .object({
@@ -24,6 +25,7 @@ const PLANNER_SETTINGS_SCHEMA = z
         minutes_by_weekday: MINUTES_BY_WEEKDAY_SCHEMA.optional(),
         minutes_per_day: z.number().nullable().optional(),
         plan_mode: z.string().optional(),
+        planner_solver_profile: SOLVER_PROFILE_SCHEMA.optional(),
         start_date: z.string().optional(),
         time_quantum_minutes: z.number().optional(),
         w_finish: z.number().optional(),
