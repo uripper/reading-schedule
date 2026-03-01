@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { JSON_VALUE_SCHEMA } from "./shared.js";
 
-export const PLANNER_SCHEDULE_ROW_SCHEMA = z
+const PLANNER_SCHEDULE_ROW_SCHEMA = z
     .object({
         book_id: z.string(),
         date: z.string(),
@@ -22,7 +22,7 @@ const PLANNER_SUMMARY_BOOK_SCHEMA = z
     })
     .passthrough();
 
-export const PLANNER_SUMMARY_SCHEMA = z
+const PLANNER_SUMMARY_SCHEMA = z
     .object({
         feasibility_warning: z.string().nullable().optional(),
         per_book: z.record(z.string(), PLANNER_SUMMARY_BOOK_SCHEMA).optional(),
