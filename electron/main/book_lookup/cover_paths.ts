@@ -3,7 +3,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import type { CoverExtension } from "../../types/types.js";
+import { type CoverExtension } from "../../types/types.js";
 
 const COVER_DIRECTORY_NAME = "book_covers";
 const COVER_FILE_FALLBACK_PREFIX = "cover";
@@ -30,13 +30,14 @@ let coverVersionCounter = 0;
  * @returns Sanitized filename-safe base string.
  */
 function safeFileBase(bookId: string | undefined): string {
-  const normalizedId = String(bookId ?? "").trim();
-  const timestampFallback = `${COVER_FILE_FALLBACK_PREFIX}-${Date.now()}`;
-  const rawValue = normalizedId || timestampFallback;
-  const safe = rawValue
-    .replaceAll(/[^a-zA-Z0-9_-]/g, "_")
-    .slice(0, MAX_SAFE_FILE_BASE_LENGTH);
-  return safe || timestampFallback;
+    const NORMALIZED_ID = String(bookId ?? "").trim();
+    const TIMESTAMP_FALLBACK = `${COVER_FILE_FALLBACK_PREFIX}-${Date.now()}`;
+    const RAW_VALUE = NORMALIZED_ID || TIMESTAMP_FALLBACK;
+    const SAFE = RAW_VALUE.replaceAll(/[^a-zA-Z0-9_-]/g, "_").slice(
+        0,
+        MAX_SAFE_FILE_BASE_LENGTH,
+    );
+    return SAFE || TIMESTAMP_FALLBACK;
 }
 
 /**
@@ -45,9 +46,9 @@ function safeFileBase(bookId: string | undefined): string {
  * @returns Absolute path to the cover directory.
  */
 function ensureCoverDirectory(userDataDir: string): string {
-  const coverDirectory = path.join(userDataDir, COVER_DIRECTORY_NAME);
-  fs.mkdirSync(coverDirectory, { recursive: true });
-  return coverDirectory;
+    const COVER_DIRECTORY = path.join(userDataDir, COVER_DIRECTORY_NAME);
+    fs.mkdirSync(COVER_DIRECTORY, { recursive: true });
+    return COVER_DIRECTORY;
 }
 
 /**
@@ -57,28 +58,30 @@ function ensureCoverDirectory(userDataDir: string): string {
  * @returns Normalized supported cover extension.
  */
 export function extensionFor(
-  contentType: string | null,
-  parsedUrl: URL,
+    contentType: string | null,
+    parsedUrl: URL,
 ): CoverExtension {
-  const normalizedContentType = String(contentType ?? "").toLowerCase();
-  if (normalizedContentType.includes(CONTENT_TYPE_PNG)) {
-    return EXTENSION_PNG;
-  }
-  if (normalizedContentType.includes(CONTENT_TYPE_WEBP)) {
-    return EXTENSION_WEBP;
-  }
-  const knownExtension = path.extname(parsedUrl.pathname || "").toLowerCase();
-  if (
-    knownExtension === EXTENSION_PNG ||
-    knownExtension === EXTENSION_WEBP ||
-    knownExtension === EXTENSION_JPG
-  ) {
-    return knownExtension;
-  }
-  if (knownExtension === EXTENSION_JPEG) {
+    const NORMALIZED_CONTENT_TYPE = String(contentType ?? "").toLowerCase();
+    if (NORMALIZED_CONTENT_TYPE.includes(CONTENT_TYPE_PNG)) {
+        return EXTENSION_PNG;
+    }
+    if (NORMALIZED_CONTENT_TYPE.includes(CONTENT_TYPE_WEBP)) {
+        return EXTENSION_WEBP;
+    }
+    const KNOWN_EXTENSION = path
+        .extname(parsedUrl.pathname || "")
+        .toLowerCase();
+    if (
+        KNOWN_EXTENSION === EXTENSION_PNG ||
+        KNOWN_EXTENSION === EXTENSION_WEBP ||
+        KNOWN_EXTENSION === EXTENSION_JPG
+    ) {
+        return KNOWN_EXTENSION;
+    }
+    if (KNOWN_EXTENSION === EXTENSION_JPEG) {
+        return EXTENSION_JPG;
+    }
     return EXTENSION_JPG;
-  }
-  return EXTENSION_JPG;
 }
 
 /**
@@ -87,7 +90,7 @@ export function extensionFor(
  * @returns True for `http:` or `https:`.
  */
 export function isHttpProtocol(protocol: string): boolean {
-  return protocol === HTTP_PROTOCOL || protocol === HTTPS_PROTOCOL;
+    return protocol === HTTP_PROTOCOL || protocol === HTTPS_PROTOCOL;
 }
 
 /**
@@ -98,12 +101,15 @@ export function isHttpProtocol(protocol: string): boolean {
  * @returns Absolute destination path for the cover file.
  */
 export function filePathForCover(
-  userDataDir: string,
-  bookId: string | undefined,
-  extension: CoverExtension,
+    userDataDir: string,
+    bookId: string | undefined,
+    extension: CoverExtension,
 ): string {
-  const version = String(coverVersionCounter).padStart(COVER_VERSION_PAD, "0");
-  coverVersionCounter = (coverVersionCounter + 1) % COVER_VERSION_WRAP_AT;
-  const fileName = `${safeFileBase(bookId)}${COVER_FILE_VERSION_SEPARATOR}${Date.now()}${COVER_FILE_VERSION_SEPARATOR}${version}${extension}`;
-  return path.join(ensureCoverDirectory(userDataDir), fileName);
+    const VERSION = String(coverVersionCounter).padStart(
+        COVER_VERSION_PAD,
+        "0",
+    );
+    coverVersionCounter = (coverVersionCounter + 1) % COVER_VERSION_WRAP_AT;
+    const FILE_NAME = `${safeFileBase(bookId)}${COVER_FILE_VERSION_SEPARATOR}${Date.now()}${COVER_FILE_VERSION_SEPARATOR}${VERSION}${extension}`;
+    return path.join(ensureCoverDirectory(userDataDir), FILE_NAME);
 }

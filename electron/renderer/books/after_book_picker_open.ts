@@ -1,5 +1,9 @@
+import {
+    type Book,
+    type BookFormRefs,
+    type PickerState,
+} from "../../types/types.js";
 import { optionLabel } from "./after_book_picker_helpers.js";
-import type { Book, BookFormRefs, PickerState } from "../../types/types.js";
 import { setUnknownSelectionLabel } from "./after_book_picker_render.js";
 
 /**
@@ -9,28 +13,30 @@ import { setUnknownSelectionLabel } from "./after_book_picker_render.js";
  * @param book Book being edited, if any.
  */
 export function initializePickerForBook(
-  refs: BookFormRefs,
-  state: PickerState,
-  book: Book | null,
+    refs: BookFormRefs,
+    state: PickerState,
+    book: Book | null,
 ): void {
-  const formRefs = refs;
-  const pickerState = state;
-  pickerState.currentBookId = String(book?.book_id ?? "");
-  pickerState.selectedBookId = "";
-  formRefs.afterBookInput.value = "";
-  formRefs.blockedByInput.value = "";
+    const FORM_REFS = refs;
+    const PICKER_STATE = state;
+    PICKER_STATE.currentBookId = String(book?.book_id ?? "");
+    PICKER_STATE.selectedBookId = "";
+    FORM_REFS.afterBookInput.value = "";
+    FORM_REFS.blockedByInput.value = "";
 
-  const blockedById = String(book?.blocked_by ?? "");
-  if (!blockedById) {
-    return;
-  }
+    const BLOCKED_BY_ID = String(book?.blocked_by ?? "");
+    if (!BLOCKED_BY_ID) {
+        return;
+    }
 
-  pickerState.selectedBookId = blockedById;
-  formRefs.blockedByInput.value = blockedById;
-  const selected = pickerState.options.find((item) => item.book_id === blockedById);
-  if (selected) {
-    formRefs.afterBookInput.value = optionLabel(selected);
-    return;
-  }
-  setUnknownSelectionLabel(formRefs, blockedById);
+    PICKER_STATE.selectedBookId = BLOCKED_BY_ID;
+    FORM_REFS.blockedByInput.value = BLOCKED_BY_ID;
+    const SELECTED = PICKER_STATE.options.find(
+        (item) => item.book_id === BLOCKED_BY_ID,
+    );
+    if (SELECTED) {
+        FORM_REFS.afterBookInput.value = optionLabel(SELECTED);
+        return;
+    }
+    setUnknownSelectionLabel(FORM_REFS, BLOCKED_BY_ID);
 }

@@ -1,18 +1,4 @@
-import type { NumericLike } from "../../types/types.js";
-
-/**
- * Escapes text for safe HTML interpolation in renderer templates.
- * @param text Numeric-like value to escape.
- * @returns HTML-escaped string.
- */
-export function escapeHtml(text: NumericLike): string {
-  return String(text ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
+import { type NumericLike } from "../../types/types.js";
 
 /**
  * Clamps numeric value between inclusive bounds.
@@ -22,7 +8,7 @@ export function escapeHtml(text: NumericLike): string {
  * @returns Clamped value.
  */
 export function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
+    return Math.max(min, Math.min(max, value));
 }
 
 /**
@@ -32,11 +18,11 @@ export function clamp(value: number, min: number, max: number): number {
  * @returns Rounded integer result.
  */
 export function toInt(raw: NumericLike, fallback = 0): number {
-  const n = Number(raw);
-  if (Number.isFinite(n)) {
-    return Math.round(n);
-  }
-  return fallback;
+    const N = Number(raw);
+    if (Number.isFinite(N)) {
+        return Math.round(N);
+    }
+    return fallback;
 }
 
 /**
@@ -45,14 +31,14 @@ export function toInt(raw: NumericLike, fallback = 0): number {
  * @returns Rounded integer or `null`.
  */
 export function toOptionalInt(raw: NumericLike): number | null {
-  if (raw === null || raw === undefined || raw === "") {
+    if (raw === null || raw === undefined || raw === "") {
+        return null;
+    }
+    const N = Number(raw);
+    if (Number.isFinite(N)) {
+        return Math.round(N);
+    }
     return null;
-  }
-  const n = Number(raw);
-  if (Number.isFinite(n)) {
-    return Math.round(n);
-  }
-  return null;
 }
 
 /**
@@ -61,8 +47,8 @@ export function toOptionalInt(raw: NumericLike): number | null {
  * @returns Trimmed date string or `null`.
  */
 export function toOptionalDate(raw: NumericLike): string | null {
-  const value = String(raw ?? "").trim();
-  return value || null;
+    const VALUE = String(raw ?? "").trim();
+    return VALUE || null;
 }
 
 /**
@@ -71,10 +57,10 @@ export function toOptionalDate(raw: NumericLike): string | null {
  * @returns Localized integer text or `"n/a"` when invalid.
  */
 export function formatInt(raw: NumericLike): string {
-  const n = Number(raw ?? 0);
-  if (!Number.isFinite(n)) {
-    return "n/a";
-  }
-  const clamped = Math.max(0, Math.round(n));
-  return new Intl.NumberFormat().format(clamped);
+    const N = Number(raw ?? 0);
+    if (!Number.isFinite(N)) {
+        return "n/a";
+    }
+    const CLAMPED = Math.max(0, Math.round(N));
+    return new Intl.NumberFormat().format(CLAMPED);
 }

@@ -21,7 +21,7 @@ Definition of done:
 - Convert object-like `type` aliases to `interface` where required by lint policy.
 - Add explicit return types where required.
 - Normalize method signatures to the configured style.
-- Run `npm run lint:desktop` and confirm these rule families are fully resolved in touched modules.
+- Run `pnpm run lint:desktop` and confirm these rule families are fully resolved in touched modules.
 
 Starter files:
 

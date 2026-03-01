@@ -1,16 +1,16 @@
-import type {
-  CalendarRowWithFinish,
-  DetailInteractionHandlers,
+import {
+    type CalendarRowWithFinish,
+    type DetailInteractionHandlers,
 } from "../../types/types.js";
 import { minutesFormForSession } from "./details_minutes_form.js";
-import { sessionKeyFor } from "./utils.js";
 import {
-  baseSessionItem,
-  COMPLETE_ITEM_CLASS,
-  COMPLETE_TOGGLE_LABEL,
-  DAY_DETAILS_META_CLASS,
-  removeSessionButton,
+    baseSessionItem,
+    COMPLETE_ITEM_CLASS,
+    COMPLETE_TOGGLE_LABEL,
+    DAY_DETAILS_META_CLASS,
+    removeSessionButton,
 } from "./details_session_shared.js";
+import { sessionKeyFor } from "./utils.js";
 
 const COMPLETED_TEXT = "Completed";
 const NOT_COMPLETED_TEXT = "Not completed";
@@ -23,48 +23,48 @@ const NOT_COMPLETED_TEXT = "Not completed";
  * @returns Rendered row element.
  */
 export function buildPastSessionItem(
-  row: CalendarRowWithFinish,
-  interactionHandlers: DetailInteractionHandlers,
-  rerenderDetails: () => void,
+    row: CalendarRowWithFinish,
+    interactionHandlers: DetailInteractionHandlers,
+    rerenderDetails: () => void,
 ): HTMLElement {
-  const item = baseSessionItem(row);
-  const sessionKey = sessionKeyFor(row);
-  const completeLabel = document.createElement("label");
-  completeLabel.className = "day-complete-toggle";
-  const completeInput = document.createElement("input");
-  completeInput.type = "checkbox";
-  completeInput.checked = Boolean(
-    interactionHandlers.isSessionCompleted(sessionKey),
-  );
-  completeLabel.append(completeInput, COMPLETE_TOGGLE_LABEL);
-  const status = document.createElement("p");
-  status.className = DAY_DETAILS_META_CLASS;
-  if (completeInput.checked) {
-    status.textContent = COMPLETED_TEXT;
-  } else {
-    status.textContent = NOT_COMPLETED_TEXT;
-  }
-  item.classList.toggle(COMPLETE_ITEM_CLASS, completeInput.checked);
-  completeInput.onchange = () => {
-    const checked = Boolean(completeInput.checked);
-    item.classList.toggle(COMPLETE_ITEM_CLASS, checked);
-    if (checked) {
-      status.textContent = COMPLETED_TEXT;
+    const ITEM = baseSessionItem(row);
+    const SESSION_KEY = sessionKeyFor(row);
+    const COMPLETE_LABEL = document.createElement("label");
+    COMPLETE_LABEL.className = "day-complete-toggle";
+    const COMPLETE_INPUT = document.createElement("input");
+    COMPLETE_INPUT.type = "checkbox";
+    COMPLETE_INPUT.checked = Boolean(
+        interactionHandlers.isSessionCompleted(SESSION_KEY),
+    );
+    COMPLETE_LABEL.append(COMPLETE_INPUT, COMPLETE_TOGGLE_LABEL);
+    const STATUS = document.createElement("p");
+    STATUS.className = DAY_DETAILS_META_CLASS;
+    if (COMPLETE_INPUT.checked) {
+        STATUS.textContent = COMPLETED_TEXT;
     } else {
-      status.textContent = NOT_COMPLETED_TEXT;
+        STATUS.textContent = NOT_COMPLETED_TEXT;
     }
-    interactionHandlers.onSessionCompletionChanged({
-      completed: checked,
-      row,
-      sessionKey,
-    });
-    rerenderDetails();
-  };
-  item.append(
-    completeLabel,
-    status,
-    minutesFormForSession(row, interactionHandlers, rerenderDetails),
-    removeSessionButton(row, interactionHandlers, rerenderDetails),
-  );
-  return item;
+    ITEM.classList.toggle(COMPLETE_ITEM_CLASS, COMPLETE_INPUT.checked);
+    COMPLETE_INPUT.onchange = () => {
+        const CHECKED = Boolean(COMPLETE_INPUT.checked);
+        ITEM.classList.toggle(COMPLETE_ITEM_CLASS, CHECKED);
+        if (CHECKED) {
+            STATUS.textContent = COMPLETED_TEXT;
+        } else {
+            STATUS.textContent = NOT_COMPLETED_TEXT;
+        }
+        interactionHandlers.onSessionCompletionChanged({
+            completed: CHECKED,
+            row,
+            sessionKey: SESSION_KEY,
+        });
+        rerenderDetails();
+    };
+    ITEM.append(
+        COMPLETE_LABEL,
+        STATUS,
+        minutesFormForSession(row, interactionHandlers, rerenderDetails),
+        removeSessionButton(row, interactionHandlers, rerenderDetails),
+    );
+    return ITEM;
 }

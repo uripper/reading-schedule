@@ -64,28 +64,28 @@ These are enforced standards from `STYLEGUIDE.md`.
 Run commands relevant to touched areas before finishing:
 
 - Electron:
-  - `npm --prefix electron run lint`
-  - `npm --prefix electron run typecheck`
-  - `npm --prefix electron run build`
+  - `pnpm run lint:desktop`
+  - `pnpm run typecheck:desktop`
+  - `pnpm run build:desktop`
 - Python planner:
-  - `npm run lint:python`
-  - `npm run typecheck:python`
+  - `pnpm run lint:python`
+  - `pnpm run typecheck:python`
   - `.venv/bin/pytest -q`
 
 Helpful aggregate checks:
 
-- Style audit: `npm run audit`
-- Repo desktop dev entrypoint: `npm run dev:desktop`
+- Style audit: `pnpm run audit`
+- Repo desktop dev entrypoint: `pnpm run dev:desktop`
 - Root desktop wrappers:
-  - `npm run lint:desktop`
-  - `npm run typecheck:python`
-  - `npm run typecheck:desktop`
-  - `npm run build:desktop`
+  - `pnpm run lint:desktop`
+  - `pnpm run typecheck:python`
+  - `pnpm run typecheck:desktop`
+  - `pnpm run build:desktop`
 
 For broad refactors or project-wide cleanup work, run these repo-level checks by default unless the user explicitly asks you not to:
 
-- `npm run audit`
-- `npm run lint:desktop`
+- `pnpm run audit`
+- `pnpm run lint:desktop`
 
 If a required command fails, the change is not done.
 

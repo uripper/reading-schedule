@@ -1,22 +1,26 @@
-import { bindDialogFocus, focusFirstError } from '../accessibility/index.js';
-import { bindBookLookup } from '../book_lookup.js';
-import { createAfterBookPicker } from './after_book_picker.js';
-import { bindCoverUpload } from './cover_upload.js';
-import { bindBookDialogProgressSync } from './dialog_progress_sync.js';
-import { ensureBookFormLayoutFields } from './form_layout.js';
-import { getBookFormRefs } from './form_refs.js';
-import { applyLookupItem, clearForm, fillForm, parseFormBook } from './form_state.js';
-import { bindShelfPicker, renderShelfPicker } from './shelf_picker.js';
-
-import type {
-  Book,
-  BookDialogController,
-  BookDialogOptions,
-  BookFormRefs,
-  BookSubmitPayload,
-  OpenBookDialogArgs,
-  OpenDialogOptions,
+import {
+    type Book,
+    type BookDialogController,
+    type BookDialogOptions,
+    type BookFormRefs,
+    type BookSubmitPayload,
+    type OpenBookDialogArgs,
+    type OpenDialogOptions,
 } from "../../types/types.js";
+import { bindDialogFocus, focusFirstError } from "../accessibility/index.js";
+import { bindBookLookup } from "../book_lookup.js";
+import { createAfterBookPicker } from "./after_book_picker.js";
+import { bindCoverUpload } from "./cover_upload.js";
+import { bindBookDialogProgressSync } from "./dialog_progress_sync.js";
+import { ensureBookFormLayoutFields } from "./form_layout.js";
+import { getBookFormRefs } from "./form_refs.js";
+import {
+    applyLookupItem,
+    clearForm,
+    fillForm,
+    parseFormBook,
+} from "./form_state.js";
+import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.js";
 
 /**
  * Updates the save button state while a dialog submission is in progress.
@@ -24,12 +28,12 @@ import type {
  * @param busy True while the save action is running.
  */
 function setSavingState(refs: BookFormRefs, busy: boolean): void {
-  const saveButton = refs.saveBtn;
-  saveButton.disabled = busy;
-  saveButton.textContent = "Save Book";
-  if (busy) {
-    saveButton.textContent = "Saving...";
-  }
+    const SAVE_BUTTON = refs.saveBtn;
+    SAVE_BUTTON.disabled = busy;
+    SAVE_BUTTON.textContent = "Save Book";
+    if (busy) {
+        SAVE_BUTTON.textContent = "Saving...";
+    }
 }
 
 /**
@@ -38,12 +42,12 @@ function setSavingState(refs: BookFormRefs, busy: boolean): void {
  * @returns Function returning the current books collection.
  */
 function booksGetter(options: BookDialogOptions): () => Book[] {
-  return (): Book[] => {
-    if (options.getBooks !== undefined) {
-      return options.getBooks();
-    }
-    return [];
-  };
+    return (): Book[] => {
+        if (options.getBooks !== undefined) {
+            return options.getBooks();
+        }
+        return [];
+    };
 }
 
 /**
@@ -52,10 +56,10 @@ function booksGetter(options: BookDialogOptions): () => Book[] {
  * @returns User-visible save message.
  */
 function saveErrorMessage(error: unknown): string {
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
-  return "Could not save this book.";
+    if (error instanceof Error && error.message) {
+        return error.message;
+    }
+    return "Could not save this book.";
 }
 
 /**
@@ -69,26 +73,24 @@ function saveErrorMessage(error: unknown): string {
  * @param args.book Existing book in edit mode, or null for add mode.
  * @param args.dialogOptions Optional open options such as default shelf.
  */
-function openBookDialog(
-  args: OpenBookDialogArgs,
-): void {
-  const formRefs = args.refs;
-  const {book} = args;
-  args.dialogFocus.rememberOpener();
-  clearForm(formRefs, args.lookupControl);
-  args.afterBookPicker.openForBook(book);
-  let selectedShelf = String(args.dialogOptions.defaultShelf ?? "").trim();
-  if (book !== null && book.shelf !== "") {
-    selectedShelf = book.shelf;
-  }
-  renderShelfPicker(formRefs, args.getBooks(), selectedShelf);
-  formRefs.dialogTitle.textContent = "Add Book";
-  if (book) {
-    formRefs.dialogTitle.textContent = "Edit Book";
-    fillForm(formRefs, book);
-  }
-  formRefs.dialog.showModal();
-  args.dialogFocus.focusInitialTarget();
+function openBookDialog(args: OpenBookDialogArgs): void {
+    const FORM_REFS = args.refs;
+    const { book } = args;
+    args.dialogFocus.rememberOpener();
+    clearForm(FORM_REFS, args.lookupControl);
+    args.afterBookPicker.openForBook(book);
+    let selectedShelf = String(args.dialogOptions.defaultShelf ?? "").trim();
+    if (book !== null && book.shelf !== "") {
+        selectedShelf = book.shelf;
+    }
+    renderShelfPicker(FORM_REFS, args.getBooks(), selectedShelf);
+    FORM_REFS.dialogTitle.textContent = "Add Book";
+    if (book) {
+        FORM_REFS.dialogTitle.textContent = "Edit Book";
+        fillForm(FORM_REFS, book);
+    }
+    FORM_REFS.dialog.showModal();
+    args.dialogFocus.focusInitialTarget();
 }
 
 /**
@@ -98,75 +100,97 @@ function openBookDialog(
  * @param options.getBooks Returns current books for shelf and related UI helpers.
  * @returns Dialog API exposing the `open` function.
  */
-export function createBookDialog(
-  onSubmit: (payload: BookSubmitPayload) => Promise<void> | void,
-  options: BookDialogOptions = {},
-): BookDialogController {
-  const getBooks = booksGetter(options);
-  ensureBookFormLayoutFields();
-  const refs = getBookFormRefs();
-  bindShelfPicker(refs);
-  bindCoverUpload(refs);
-  const afterBookPicker = createAfterBookPicker(refs, getBooks);
-  const dialogFocus = bindDialogFocus(refs.dialog, {
-    initialFocusSelector: "#bookTitleInput",
-  });
-  const lookupControl = bindBookLookup({
-    searchInput: refs.searchInput,
-    resultsEl: refs.searchResults,
-    metaEl: refs.lookupMeta,
-    onPick: (item) => {
-      applyLookupItem(refs, item);
-    },
-  });
-  const close = (): void => {
-    dialogFocus.closeAndReturnFocus();
-  };
-  const open = (
-    book: Book | null = null,
-    dialogOptions: OpenDialogOptions = {},
-  ): void => {
-    openBookDialog({
-      refs,
-      dialogFocus,
-      lookupControl,
-      afterBookPicker,
-      getBooks,
-      book,
-      dialogOptions,
+/**
+ * Binds form submission handler for book dialog.
+ */
+function bindBookDialogSubmit(
+    form: HTMLFormElement,
+    refs: BookFormRefs,
+    onSubmit: (payload: BookSubmitPayload) => Promise<void> | void,
+    onComplete: () => void,
+): void {
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        setSavingState(refs, true);
+        const PAYLOAD = {
+            applyScheduledDaysToShelf:
+                refs.applyScheduledDaysToShelfInput.checked,
+            book: parseFormBook(refs),
+        };
+        Promise.resolve(onSubmit(PAYLOAD))
+            .then(() => {
+                onComplete();
+            })
+            .catch((error: unknown) => {
+                refs.lookupMeta.textContent = saveErrorMessage(error);
+                if (!focusFirstError(refs.form)) {
+                    refs.titleInput.focus();
+                }
+            })
+            .finally(() => {
+                setSavingState(refs, false);
+            });
     });
-  };
+}
 
-  refs.form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    setSavingState(refs, true);
-    const payload = {
-      book: parseFormBook(refs),
-      applyScheduledDaysToShelf: refs.applyScheduledDaysToShelfInput.checked,
+/**
+ * Binds close button handlers for book dialog.
+ */
+function bindBookDialogCloseHandlers(
+    dialog: HTMLDialogElement,
+    cancelBtn: HTMLButtonElement,
+    onClose: () => void,
+): void {
+    cancelBtn.onclick = (): void => {
+        onClose();
     };
-    Promise.resolve(onSubmit(payload))
-      .then(() => {
-        close();
-      })
-      .catch((error: unknown) => {
-        refs.lookupMeta.textContent = saveErrorMessage(error);
-        if (!focusFirstError(refs.form)) {
-          refs.titleInput.focus();
-        }
-      })
-      .finally(() => {
-        setSavingState(refs, false);
-      });
-  });
+    dialog.addEventListener("cancel", (event) => {
+        event.preventDefault();
+        onClose();
+    });
+}
 
-  refs.cancelBtn.onclick = (): void => {
-    close();
-  };
-  refs.dialog.addEventListener("cancel", (event) => {
-    event.preventDefault();
-    close();
-  });
+export function createBookDialog(
+    onSubmit: (payload: BookSubmitPayload) => Promise<void> | void,
+    options: BookDialogOptions = {},
+): BookDialogController {
+    const GET_BOOKS = booksGetter(options);
+    ensureBookFormLayoutFields();
+    const REFS = getBookFormRefs();
+    bindShelfPicker(REFS);
+    bindCoverUpload(REFS);
+    const AFTER_BOOK_PICKER = createAfterBookPicker(REFS, GET_BOOKS);
+    const DIALOG_FOCUS = bindDialogFocus(REFS.dialog, {
+        initialFocusSelector: "#bookTitleInput",
+    });
+    const LOOKUP_CONTROL = bindBookLookup({
+        metaEl: REFS.lookupMeta,
+        onPick: (item) => {
+            applyLookupItem(REFS, item);
+        },
+        resultsEl: REFS.searchResults,
+        searchInput: REFS.searchInput,
+    });
+    const CLOSE = (): void => {
+        DIALOG_FOCUS.closeAndReturnFocus();
+    };
+    const OPEN = (
+        book: Book | null = null,
+        dialogOptions: OpenDialogOptions = {},
+    ): void => {
+        openBookDialog({
+            afterBookPicker: AFTER_BOOK_PICKER,
+            book,
+            dialogFocus: DIALOG_FOCUS,
+            dialogOptions,
+            getBooks: GET_BOOKS,
+            lookupControl: LOOKUP_CONTROL,
+            refs: REFS,
+        });
+    };
 
-  bindBookDialogProgressSync(refs);
-  return { open };
+    bindBookDialogSubmit(REFS.form, REFS, onSubmit, CLOSE);
+    bindBookDialogCloseHandlers(REFS.dialog, REFS.cancelBtn, CLOSE);
+    bindBookDialogProgressSync(REFS);
+    return { open: OPEN };
 }

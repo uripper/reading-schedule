@@ -1,9 +1,6 @@
-
-
+import { type UpdateStatsArgs } from "../types/types.js";
 import { buildStatsSnapshot } from "./stats/model.js";
 import { renderStatsDashboard } from "./stats/render.js";
-
-import type { UpdateStatsArgs } from "../types/types.js";
 
 /**
  * Computes and renders the Stats dashboard from current runtime data.
@@ -15,18 +12,18 @@ import type { UpdateStatsArgs } from "../types/types.js";
  * @param root0.dailyGoalMinutes Daily goal minutes used for streak metrics.
  */
 export function updateStatsView({
-  books,
-  sessions,
-  lastResult,
-  scheduleCompletions,
-  dailyGoalMinutes,
-}: UpdateStatsArgs): void {
-  const snapshot = buildStatsSnapshot({
     books,
     sessions,
     lastResult,
     scheduleCompletions,
     dailyGoalMinutes,
-  });
-  renderStatsDashboard(snapshot);
+}: UpdateStatsArgs): void {
+    const SNAPSHOT = buildStatsSnapshot({
+        books,
+        dailyGoalMinutes,
+        lastResult,
+        scheduleCompletions,
+        sessions,
+    });
+    renderStatsDashboard(SNAPSHOT);
 }

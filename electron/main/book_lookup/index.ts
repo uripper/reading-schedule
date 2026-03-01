@@ -3,13 +3,8 @@
  */
 import fs from "node:fs";
 import { pathToFileURL } from "node:url";
-
-import {
-  extensionFor,
-  filePathForCover,
-  isHttpProtocol,
-} from "./cover_paths";
 import { parseCoverDataUrl } from "./cover_data_url";
+import { extensionFor, filePathForCover, isHttpProtocol } from "./cover_paths";
 
 export { searchBooks } from "./search";
 
@@ -21,41 +16,50 @@ export { searchBooks } from "./search";
  * @returns File URL for the persisted cover, or empty string when download fails.
  */
 export async function downloadCover(
-  coverUrl: string | undefined,
-  bookId: string | undefined,
-  userDataDir: string | undefined,
+    coverUrl: string | undefined,
+    bookId: string | undefined,
+    userDataDir: string | undefined,
 ): Promise<string> {
-  const normalizedUrl = String(coverUrl ?? "").trim();
-  const normalizedUserDataDir = String(userDataDir ?? "").trim();
-  if (normalizedUrl.length === 0 || normalizedUserDataDir.length === 0) {
-    return "";
-  }
-  let parsedUrl: URL;
-  try {
-    parsedUrl = new URL(normalizedUrl);
-  } catch {
-    return "";
-  }
-  if (!isHttpProtocol(parsedUrl.protocol)) {
-    return "";
-  }
-  let response: Response;
-  try {
-    response = await globalThis.fetch(parsedUrl.toString(), { redirect: "follow" });
-  } catch {
-    return "";
-  }
-  if (!response.ok) {
-    return "";
-  }
-  const bytes = await response.arrayBuffer();
-  if (bytes.byteLength === 0) {
-    return "";
-  }
-  const extension = extensionFor(response.headers.get("content-type"), parsedUrl);
-  const filePath = filePathForCover(normalizedUserDataDir, bookId, extension);
-  fs.writeFileSync(filePath, new Uint8Array(bytes));
-  return pathToFileURL(filePath).href;
+    const NORMALIZED_URL = String(coverUrl ?? "").trim();
+    const NORMALIZED_USER_DATA_DIR = String(userDataDir ?? "").trim();
+    if (NORMALIZED_URL.length === 0 || NORMALIZED_USER_DATA_DIR.length === 0) {
+        return "";
+    }
+    let parsedUrl: URL;
+    try {
+        parsedUrl = new URL(NORMALIZED_URL);
+    } catch {
+        return "";
+    }
+    if (!isHttpProtocol(parsedUrl.protocol)) {
+        return "";
+    }
+    let response: Response;
+    try {
+        response = await globalThis.fetch(parsedUrl.toString(), {
+            redirect: "follow",
+        });
+    } catch {
+        return "";
+    }
+    if (!response.ok) {
+        return "";
+    }
+    const BYTES = await response.arrayBuffer();
+    if (BYTES.byteLength === 0) {
+        return "";
+    }
+    const EXTENSION = extensionFor(
+        response.headers.get("content-type"),
+        parsedUrl,
+    );
+    const FILE_PATH = filePathForCover(
+        NORMALIZED_USER_DATA_DIR,
+        bookId,
+        EXTENSION,
+    );
+    fs.writeFileSync(FILE_PATH, new Uint8Array(BYTES));
+    return pathToFileURL(FILE_PATH).href;
 }
 
 /**
@@ -66,19 +70,23 @@ export async function downloadCover(
  * @returns File URL for the persisted cover, or empty string when parsing fails.
  */
 export function saveUploadedCover(
-  coverDataUrl: string | undefined,
-  bookId: string | undefined,
-  userDataDir: string | undefined,
+    coverDataUrl: string | undefined,
+    bookId: string | undefined,
+    userDataDir: string | undefined,
 ): string {
-  const normalizedUserDataDir = String(userDataDir ?? "").trim();
-  if (normalizedUserDataDir.length === 0) {
-    return "";
-  }
-  const parsed = parseCoverDataUrl(coverDataUrl);
-  if (!parsed) {
-    return "";
-  }
-  const filePath = filePathForCover(normalizedUserDataDir, bookId, parsed.extension);
-  fs.writeFileSync(filePath, parsed.bytes);
-  return pathToFileURL(filePath).href;
+    const NORMALIZED_USER_DATA_DIR = String(userDataDir ?? "").trim();
+    if (NORMALIZED_USER_DATA_DIR.length === 0) {
+        return "";
+    }
+    const PARSED = parseCoverDataUrl(coverDataUrl);
+    if (!PARSED) {
+        return "";
+    }
+    const FILE_PATH = filePathForCover(
+        NORMALIZED_USER_DATA_DIR,
+        bookId,
+        PARSED.extension,
+    );
+    fs.writeFileSync(FILE_PATH, PARSED.bytes);
+    return pathToFileURL(FILE_PATH).href;
 }

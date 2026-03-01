@@ -2,17 +2,17 @@
  * @file Planner state persistence facade with SQLite primary + JSON compatibility fallback.
  */
 import fs from "node:fs";
-import type {
-  LoadedPlannerState,
-  PlannerSaveResult,
-  PlannerStateLoadResult,
-  JsonValue,
+import {
+    type JsonValue,
+    type LoadedPlannerState,
+    type PlannerSaveResult,
+    type PlannerStateLoadResult,
 } from "../types/types.js";
 import { readStateFromJson, writeStateToJson } from "./state_store_json";
 import {
-  jsonStateBackupPath,
-  jsonStatePath,
-  sqliteStatePath,
+    jsonStateBackupPath,
+    jsonStatePath,
+    sqliteStatePath,
 } from "./state_store_paths";
 import { readStateFromSqlite, writeStateToSqlite } from "./state_store_sqlite";
 
@@ -22,16 +22,16 @@ import { readStateFromSqlite, writeStateToSqlite } from "./state_store_sqlite";
  * @returns True when settings and books are both present.
  */
 function hasBootstrapState(state: LoadedPlannerState | null): boolean {
-  if (state === null) {
-    return false;
-  }
-  if (state.settings === undefined) {
-    return false;
-  }
-  if (state.books === undefined) {
-    return false;
-  }
-  return true;
+    if (state === null) {
+        return false;
+    }
+    if (state.settings === undefined) {
+        return false;
+    }
+    if (state.books === undefined) {
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -40,11 +40,11 @@ function hasBootstrapState(state: LoadedPlannerState | null): boolean {
  * @returns True when at least one persistence artifact exists.
  */
 function hasPersistedArtifacts(userDataDir: string): boolean {
-  return (
-    fs.existsSync(sqliteStatePath(userDataDir)) ||
-    fs.existsSync(jsonStatePath(userDataDir)) ||
-    fs.existsSync(jsonStateBackupPath(userDataDir))
-  );
+    return (
+        fs.existsSync(sqliteStatePath(userDataDir)) ||
+        fs.existsSync(jsonStatePath(userDataDir)) ||
+        fs.existsSync(jsonStateBackupPath(userDataDir))
+    );
 }
 
 /**
@@ -54,27 +54,27 @@ function hasPersistedArtifacts(userDataDir: string): boolean {
  * @returns JSON result with migration metadata applied.
  */
 function migratedJsonResult(
-  userDataDir: string,
-  jsonResult: PlannerStateLoadResult,
+    userDataDir: string,
+    jsonResult: PlannerStateLoadResult,
 ): PlannerStateLoadResult {
-  const backfill = writeStateToSqlite(
-    userDataDir,
-    jsonResult.state as unknown as JsonValue,
-  );
-  if (backfill.ok === false) {
+    const BACKFILL = writeStateToSqlite(
+        userDataDir,
+        jsonResult.state as unknown as JsonValue,
+    );
+    if (BACKFILL.ok === false) {
+        return {
+            ...jsonResult,
+            warningMessage: `Loaded JSON fallback but SQLite migration failed: ${BACKFILL.error}`,
+        };
+    }
+    if (jsonResult.source !== "json_primary") {
+        return jsonResult;
+    }
     return {
-      ...jsonResult,
-      warningMessage: `Loaded JSON fallback but SQLite migration failed: ${backfill.error}`,
+        ...jsonResult,
+        warningCode: "MIGRATED_JSON_TO_SQLITE",
+        warningMessage: "Migrated saved data from JSON storage to SQLite.",
     };
-  }
-  if (jsonResult.source !== "json_primary") {
-    return jsonResult;
-  }
-  return {
-    ...jsonResult,
-    warningCode: "MIGRATED_JSON_TO_SQLITE",
-    warningMessage: "Migrated saved data from JSON storage to SQLite.",
-  };
 }
 
 /**
@@ -83,34 +83,32 @@ function migratedJsonResult(
  * @returns Structured state load result with source and warning metadata.
  */
 export function readState(userDataDir: string): PlannerStateLoadResult {
-  const sqliteResult = readStateFromSqlite(userDataDir);
-  if (
-    sqliteResult !== null &&
-    hasBootstrapState(sqliteResult.state)
-  ) {
-    return sqliteResult;
-  }
-  const jsonResult = readStateFromJson(userDataDir);
-  if (jsonResult !== null) {
-    return migratedJsonResult(userDataDir, jsonResult);
-  }
-  if (sqliteResult !== null) {
-    return sqliteResult;
-  }
-  if (hasPersistedArtifacts(userDataDir)) {
+    const SQLITE_RESULT = readStateFromSqlite(userDataDir);
+    if (SQLITE_RESULT !== null && hasBootstrapState(SQLITE_RESULT.state)) {
+        return SQLITE_RESULT;
+    }
+    const JSON_RESULT = readStateFromJson(userDataDir);
+    if (JSON_RESULT !== null) {
+        return migratedJsonResult(userDataDir, JSON_RESULT);
+    }
+    if (SQLITE_RESULT !== null) {
+        return SQLITE_RESULT;
+    }
+    if (hasPersistedArtifacts(userDataDir)) {
+        return {
+            source: "fresh",
+            sourcePath: userDataDir,
+            state: null,
+            warningCode: "STATE_RESET_FRESH",
+            warningMessage:
+                "Saved state was unreadable. Started with fresh data.",
+        };
+    }
     return {
-      state: null,
-      source: "fresh",
-      sourcePath: userDataDir,
-      warningCode: "STATE_RESET_FRESH",
-      warningMessage: "Saved state was unreadable. Started with fresh data.",
+        source: "fresh",
+        sourcePath: userDataDir,
+        state: null,
     };
-  }
-  return {
-    state: null,
-    source: "fresh",
-    sourcePath: userDataDir,
-  };
 }
 
 /**
@@ -120,20 +118,20 @@ export function readState(userDataDir: string): PlannerStateLoadResult {
  * @returns Structured save result.
  */
 export function writeState(
-  userDataDir: string,
-  data: JsonValue,
+    userDataDir: string,
+    data: JsonValue,
 ): PlannerSaveResult {
-  const sqliteSave = writeStateToSqlite(userDataDir, data);
-  if (sqliteSave.ok === false) {
-    return sqliteSave;
-  }
+    const SQLITE_SAVE = writeStateToSqlite(userDataDir, data);
+    if (SQLITE_SAVE.ok === false) {
+        return SQLITE_SAVE;
+    }
 
-  const jsonSave = writeStateToJson(userDataDir, data);
-  if (jsonSave.ok === false) {
-    return {
-      ok: true,
-      warningMessage: `SQLite save succeeded but JSON compatibility write failed: ${jsonSave.error}`,
-    };
-  }
-  return sqliteSave;
+    const JSON_SAVE = writeStateToJson(userDataDir, data);
+    if (JSON_SAVE.ok === false) {
+        return {
+            ok: true,
+            warningMessage: `SQLite save succeeded but JSON compatibility write failed: ${JSON_SAVE.error}`,
+        };
+    }
+    return SQLITE_SAVE;
 }

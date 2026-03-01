@@ -1,13 +1,13 @@
+import {
+    type Book,
+    type OptionalNumber,
+    type OptionalString,
+    type SortBy,
+    type SortComparator,
+    type SortDirection,
+} from "../../types/types.js";
 import { normalizeShelfName } from "./shelf.js";
 import { titleSortKey } from "./title_key.js";
-import type {
-  Book,
-  OptionalNumber,
-  OptionalString,
-  SortBy,
-  SortComparator,
-  SortDirection,
-} from "../../types/types.js";
 
 export const SORT_BY_TITLE = "title";
 export const SORT_BY_AUTHOR = "author";
@@ -31,24 +31,24 @@ export const SORT_DIRECTION_DESC = "desc";
  * @returns Negative/zero/positive comparison result.
  */
 function compareNumbers(left: OptionalNumber, right: OptionalNumber): number {
-  const leftMissing = left === null || left === undefined;
-  const rightMissing = right === null || right === undefined;
-  if (leftMissing && rightMissing) {
+    const LEFT_MISSING = left === null || left === undefined;
+    const RIGHT_MISSING = right === null || right === undefined;
+    if (LEFT_MISSING && RIGHT_MISSING) {
+        return 0;
+    }
+    if (LEFT_MISSING) {
+        return 1;
+    }
+    if (RIGHT_MISSING) {
+        return -1;
+    }
+    if (left < right) {
+        return -1;
+    }
+    if (left > right) {
+        return 1;
+    }
     return 0;
-  }
-  if (leftMissing) {
-    return 1;
-  }
-  if (rightMissing) {
-    return -1;
-  }
-  if (left < right) {
-    return -1;
-  }
-  if (left > right) {
-    return 1;
-  }
-  return 0;
 }
 
 /**
@@ -58,24 +58,26 @@ function compareNumbers(left: OptionalNumber, right: OptionalNumber): number {
  * @returns Negative/zero/positive comparison result.
  */
 function compareText(left: OptionalString, right: OptionalString): number {
-  const leftText = String(left ?? "")
-    .trim()
-    .toLowerCase();
-  const rightText = String(right ?? "")
-    .trim()
-    .toLowerCase();
-  const leftMissing = !leftText;
-  const rightMissing = !rightText;
-  if (leftMissing && rightMissing) {
-    return 0;
-  }
-  if (leftMissing) {
-    return 1;
-  }
-  if (rightMissing) {
-    return -1;
-  }
-  return leftText.localeCompare(rightText, undefined, { sensitivity: "base" });
+    const LEFT_TEXT = String(left ?? "")
+        .trim()
+        .toLowerCase();
+    const RIGHT_TEXT = String(right ?? "")
+        .trim()
+        .toLowerCase();
+    const LEFT_MISSING = !LEFT_TEXT;
+    const RIGHT_MISSING = !RIGHT_TEXT;
+    if (LEFT_MISSING && RIGHT_MISSING) {
+        return 0;
+    }
+    if (LEFT_MISSING) {
+        return 1;
+    }
+    if (RIGHT_MISSING) {
+        return -1;
+    }
+    return LEFT_TEXT.localeCompare(RIGHT_TEXT, undefined, {
+        sensitivity: "base",
+    });
 }
 
 /**
@@ -85,49 +87,49 @@ function compareText(left: OptionalString, right: OptionalString): number {
  * @returns Negative/zero/positive comparison result.
  */
 function compareTitleText(left: OptionalString, right: OptionalString): number {
-  const leftKey = titleSortKey(left);
-  const rightKey = titleSortKey(right);
-  const byKey = compareText(leftKey, rightKey);
-  if (byKey !== 0) {
-    return byKey;
-  }
-  return compareText(left, right);
+    const LEFT_KEY = titleSortKey(left);
+    const RIGHT_KEY = titleSortKey(right);
+    const BY_KEY = compareText(LEFT_KEY, RIGHT_KEY);
+    if (BY_KEY !== 0) {
+        return BY_KEY;
+    }
+    return compareText(left, right);
 }
 
-const compareByTitle: SortComparator = (leftBook, rightBook) => {
-  return compareTitleText(leftBook.title, rightBook.title);
+const COMPARE_BY_TITLE: SortComparator = (leftBook, rightBook) => {
+    return compareTitleText(leftBook.title, rightBook.title);
 };
 
 const SORT_COMPARATORS: Record<SortBy, SortComparator> = {
-  [SORT_BY_TITLE]: compareByTitle,
-  [SORT_BY_AUTHOR]: (leftBook, rightBook) =>
-    compareText(leftBook.author, rightBook.author),
-  [SORT_BY_PAGES_TOTAL]: (leftBook, rightBook) =>
-    compareNumbers(leftBook.pages_total, rightBook.pages_total),
-  [SORT_BY_PAGES_READ]: (leftBook, rightBook) =>
-    compareNumbers(leftBook.pages_read, rightBook.pages_read),
-  [SORT_BY_WORDS_TOTAL]: (leftBook, rightBook) =>
-    compareNumbers(leftBook.words_total, rightBook.words_total),
-  [SORT_BY_PROGRESS]: (leftBook, rightBook) =>
-    compareNumbers(leftBook.progress_percent, rightBook.progress_percent),
-  [SORT_BY_PRIORITY]: (leftBook, rightBook) =>
-    compareNumbers(leftBook.priority, rightBook.priority),
-  [SORT_BY_DIFFICULTY]: (leftBook, rightBook) =>
-    compareNumbers(leftBook.difficulty, rightBook.difficulty),
-  [SORT_BY_DEADLINE]: (leftBook, rightBook) =>
-    compareText(leftBook.deadline, rightBook.deadline),
-  [SORT_BY_ESTIMATED_FINISH]: (leftBook, rightBook, finishDateByBookId) => {
-    return compareText(
-      finishDateByBookId[leftBook.book_id],
-      finishDateByBookId[rightBook.book_id],
-    );
-  },
-  [SORT_BY_SHELF]: (leftBook, rightBook) => {
-    return compareText(
-      normalizeShelfName(leftBook.shelf),
-      normalizeShelfName(rightBook.shelf),
-    );
-  },
+    [SORT_BY_TITLE]: COMPARE_BY_TITLE,
+    [SORT_BY_AUTHOR]: (leftBook, rightBook) =>
+        compareText(leftBook.author, rightBook.author),
+    [SORT_BY_PAGES_TOTAL]: (leftBook, rightBook) =>
+        compareNumbers(leftBook.pages_total, rightBook.pages_total),
+    [SORT_BY_PAGES_READ]: (leftBook, rightBook) =>
+        compareNumbers(leftBook.pages_read, rightBook.pages_read),
+    [SORT_BY_WORDS_TOTAL]: (leftBook, rightBook) =>
+        compareNumbers(leftBook.words_total, rightBook.words_total),
+    [SORT_BY_PROGRESS]: (leftBook, rightBook) =>
+        compareNumbers(leftBook.progress_percent, rightBook.progress_percent),
+    [SORT_BY_PRIORITY]: (leftBook, rightBook) =>
+        compareNumbers(leftBook.priority, rightBook.priority),
+    [SORT_BY_DIFFICULTY]: (leftBook, rightBook) =>
+        compareNumbers(leftBook.difficulty, rightBook.difficulty),
+    [SORT_BY_DEADLINE]: (leftBook, rightBook) =>
+        compareText(leftBook.deadline, rightBook.deadline),
+    [SORT_BY_ESTIMATED_FINISH]: (leftBook, rightBook, finishDateByBookId) => {
+        return compareText(
+            finishDateByBookId[leftBook.book_id],
+            finishDateByBookId[rightBook.book_id],
+        );
+    },
+    [SORT_BY_SHELF]: (leftBook, rightBook) => {
+        return compareText(
+            normalizeShelfName(leftBook.shelf),
+            normalizeShelfName(rightBook.shelf),
+        );
+    },
 };
 
 /**
@@ -139,13 +141,13 @@ const SORT_COMPARATORS: Record<SortBy, SortComparator> = {
  * @returns Negative/zero/positive comparison result.
  */
 function compareBySortKey(
-  leftBook: Book,
-  rightBook: Book,
-  sortBy: SortBy,
-  finishDateByBookId: Record<string, string>,
+    leftBook: Book,
+    rightBook: Book,
+    sortBy: SortBy,
+    finishDateByBookId: Record<string, string>,
 ): number {
-  const comparator = SORT_COMPARATORS[sortBy];
-  return comparator(leftBook, rightBook, finishDateByBookId);
+    const COMPARATOR = SORT_COMPARATORS[sortBy];
+    return COMPARATOR(leftBook, rightBook, finishDateByBookId);
 }
 
 /**
@@ -157,25 +159,25 @@ function compareBySortKey(
  * @returns Sorted array copy suitable for rendering.
  */
 export function sortBooks(
-  books: Book[] = [],
-  sortBy: SortBy = SORT_BY_TITLE,
-  sortDirection: SortDirection = SORT_DIRECTION_ASC,
-  finishDateByBookId: Record<string, string> = {},
+    books: Book[] = [],
+    sortBy: SortBy = SORT_BY_TITLE,
+    sortDirection: SortDirection = SORT_DIRECTION_ASC,
+    finishDateByBookId: Record<string, string> = {},
 ): Book[] {
-  let directionSign = 1;
-  if (sortDirection === SORT_DIRECTION_DESC) {
-    directionSign = -1;
-  }
-  return [...books].sort((leftBook, rightBook) => {
-    const primary = compareBySortKey(
-      leftBook,
-      rightBook,
-      sortBy,
-      finishDateByBookId,
-    );
-    if (primary !== 0) {
-      return primary * directionSign;
+    let directionSign = 1;
+    if (sortDirection === SORT_DIRECTION_DESC) {
+        directionSign = -1;
     }
-    return compareTitleText(leftBook.title, rightBook.title);
-  });
+    return [...books].sort((leftBook, rightBook) => {
+        const PRIMARY = compareBySortKey(
+            leftBook,
+            rightBook,
+            sortBy,
+            finishDateByBookId,
+        );
+        if (PRIMARY !== 0) {
+            return PRIMARY * directionSign;
+        }
+        return compareTitleText(leftBook.title, rightBook.title);
+    });
 }

@@ -15,10 +15,10 @@ const DEFAULT_RESULT = { schedule: [], summary: null };
  * @returns {(payload: unknown) => Promise<unknown>} Recording generate stub.
  */
 export function recordingGenerate(calls, result = DEFAULT_RESULT) {
-  return payload => {
-    calls.push(payload);
-    return Promise.resolve(result);
-  };
+    return (payload) => {
+        calls.push(payload);
+        return Promise.resolve(result);
+    };
 }
 
 /**
@@ -31,19 +31,19 @@ export function recordingGenerate(calls, result = DEFAULT_RESULT) {
  * @returns {Promise<void>} Promise that resolves when generation completes.
  */
 export async function runPlanGenerationForTest({
-  generate,
-  collectSettings,
-  setStatus = NOOP,
-  addLog = NOOP,
-}) {
-  await runPlanGeneration({
+    generate,
     collectSettings,
-    setStatus,
-    addLog,
-    plannerApi: { generate },
-    collectBooks: () => BOOKS,
-    announce: NOOP,
-    onSuccess: NOOP_ASYNC,
-    successAnnouncement: "",
-  });
+    setStatus = NOOP,
+    addLog = NOOP,
+}) {
+    await runPlanGeneration({
+        addLog,
+        announce: NOOP,
+        collectBooks: () => BOOKS,
+        collectSettings,
+        onSuccess: NOOP_ASYNC,
+        plannerApi: { generate },
+        setStatus,
+        successAnnouncement: "",
+    });
 }

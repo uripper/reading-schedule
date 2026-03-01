@@ -1,25 +1,24 @@
+import { type Book, type CardRenderContext } from "../../types/types.js";
 import { bindReadCardHolo } from "./card_holo.js";
 import {
-  afterBookLinkButton,
-  estimatedFinishButton,
+    afterBookLinkButton,
+    estimatedFinishButton,
 } from "./card_navigation_buttons.js";
 import { scrollToBookCard } from "./card_scroll_target.js";
 import { bookCoverSrc } from "./model.js";
 import {
-  blockerMeta,
-  metaLabel,
-  progressLabel,
-  subtitle,
-  wordsLabel,
+    blockerMeta,
+    metaLabel,
+    progressLabel,
+    subtitle,
+    wordsLabel,
 } from "./presenters.js";
 import {
-  BOOK_STATUS_IN_PROGRESS,
-  BOOK_STATUS_READ,
-  BOOK_STATUS_TO_READ,
-  statusLabel,
+    BOOK_STATUS_IN_PROGRESS,
+    BOOK_STATUS_READ,
+    BOOK_STATUS_TO_READ,
+    statusLabel,
 } from "./status_catalog.js";
-
-import type { Book, CardRenderContext } from "../../types/types.js";
 
 const CARD_CLASS = "book-card";
 const READ_CARD_CLASS = "is-read-card";
@@ -31,10 +30,10 @@ const PRE_LINE_WHITESPACE = "pre-line";
  * @returns Class-name text for card root element.
  */
 export function cardClassNameForStatus(status: Book["status"]): string {
-  if (status === BOOK_STATUS_READ) {
-    return `${CARD_CLASS} ${READ_CARD_CLASS}`;
-  }
-  return CARD_CLASS;
+    if (status === BOOK_STATUS_READ) {
+        return `${CARD_CLASS} ${READ_CARD_CLASS}`;
+    }
+    return CARD_CLASS;
 }
 
 /**
@@ -44,20 +43,20 @@ export function cardClassNameForStatus(status: Book["status"]): string {
  * @returns Estimated finish day key or `null` when not applicable.
  */
 function estimatedFinishDate(
-  book: Book,
-  finishDateByBookId: Record<string, string>,
+    book: Book,
+    finishDateByBookId: Record<string, string>,
 ): string | null {
-  if (
-    book.status !== BOOK_STATUS_IN_PROGRESS &&
-    book.status !== BOOK_STATUS_TO_READ
-  ) {
-    return null;
-  }
-  const finishDate = finishDateByBookId[book.book_id];
-  if (!finishDate) {
-    return null;
-  }
-  return finishDate;
+    if (
+        book.status !== BOOK_STATUS_IN_PROGRESS &&
+        book.status !== BOOK_STATUS_TO_READ
+    ) {
+        return null;
+    }
+    const FINISH_DATE = finishDateByBookId[book.book_id];
+    if (!FINISH_DATE) {
+        return null;
+    }
+    return FINISH_DATE;
 }
 /**
  * Builds the stats section for one book card.
@@ -66,45 +65,71 @@ function estimatedFinishDate(
  * @returns Configured stats wrapper element.
  */
 function cardStatsNode(book: Book, context: CardRenderContext): HTMLDivElement {
-  const stats = document.createElement("div");
-  stats.className = "book-stats";
-  const baseMetaText = metaLabel(book, {
-    finishDateByBookId: context.finishDateByBookId,
-    showShelfMeta: context.showShelfMeta,
-    titleById: context.titleById,
-    showBlockerMeta: false,
-  });
-  let blocker: ReturnType<typeof blockerMeta> = null;
-  if (context.showBlockerMeta) {
-    blocker = blockerMeta(book, context.titleById);
-  }
-  const statLines: Array<{ text: string; preserveLineBreaks: boolean }> = [
-    { text: progressLabel(book), preserveLineBreaks: false },
-  ];
-  if (context.showWordCount) {
-    statLines.push({ text: wordsLabel(book), preserveLineBreaks: false });
-  }
-  if (baseMetaText !== "") {
-    statLines.push({ text: baseMetaText, preserveLineBreaks: true });
-  }
-  statLines.forEach((line) => {
-    const span = document.createElement("span");
-    span.textContent = line.text;
-    if (line.preserveLineBreaks) {
-      span.style.whiteSpace = PRE_LINE_WHITESPACE;
+    const STATS = document.createElement("div");
+    STATS.className = "book-stats";
+    const BASE_META_TEXT = metaLabel(book, {
+        finishDateByBookId: context.finishDateByBookId,
+        showBlockerMeta: false,
+        showShelfMeta: context.showShelfMeta,
+        titleById: context.titleById,
+    });
+    let blocker: ReturnType<typeof blockerMeta> = null;
+    if (context.showBlockerMeta) {
+        blocker = blockerMeta(book, context.titleById);
     }
-    stats.append(span);
-  });
-  if (blocker !== null) {
-    stats.append(
-      afterBookLinkButton(
-        blocker.label,
-        blocker.blockerBookId,
-        scrollToBookCard,
-      ),
-    );
-  }
-  return stats;
+    const STAT_LINES: Array<{ text: string; preserveLineBreaks: boolean }> = [
+        { preserveLineBreaks: false, text: progressLabel(book) },
+    ];
+    if (context.showWordCount) {
+        STAT_LINES.push({ preserveLineBreaks: false, text: wordsLabel(book) });
+    }
+    if (BASE_META_TEXT !== "") {
+        STAT_LINES.push({ preserveLineBreaks: true, text: BASE_META_TEXT });
+    }
+    STAT_LINES.forEach((line) => {
+        const SPAN = document.createElement("span");
+        SPAN.textContent = line.text;
+        if (line.preserveLineBreaks) {
+            SPAN.style.whiteSpace = PRE_LINE_WHITESPACE;
+        }
+        STATS.append(SPAN);
+    });
+    if (blocker !== null) {
+        STATS.append(
+            afterBookLinkButton(
+                blocker.label,
+                blocker.blockerBookId,
+                scrollToBookCard,
+            ),
+        );
+    }
+    return STATS;
+}
+
+function coverButtonForBook(book: Book, title: string): HTMLButtonElement {
+    const COVER_BUTTON = document.createElement("button");
+    COVER_BUTTON.className = "book-cover-btn edit-book-btn";
+    COVER_BUTTON.dataset.bookId = String(book.book_id || "");
+    COVER_BUTTON.type = "button";
+    const COVER = bookCoverSrc(book);
+    if (COVER) {
+        COVER_BUTTON.classList.add("has-cover");
+        const IMAGE = document.createElement("img");
+        IMAGE.src = COVER;
+        IMAGE.alt = `Cover of ${title}`;
+        IMAGE.loading = "lazy";
+        IMAGE.dataset.fallbackCover = "1";
+        COVER_BUTTON.append(IMAGE);
+        if (book.status === BOOK_STATUS_READ) {
+            bindReadCardHolo(COVER_BUTTON);
+        }
+        return COVER_BUTTON;
+    }
+    const FALLBACK = document.createElement("div");
+    FALLBACK.className = "cover-fallback";
+    FALLBACK.textContent = "No Cover";
+    COVER_BUTTON.append(FALLBACK);
+    return COVER_BUTTON;
 }
 /**
  * Creates a full book card node including cover, metadata, and actions.
@@ -113,62 +138,41 @@ function cardStatsNode(book: Book, context: CardRenderContext): HTMLDivElement {
  * @returns Rendered book card element.
  */
 export function createCardNode(
-  book: Book,
-  context: CardRenderContext,
+    book: Book,
+    context: CardRenderContext,
 ): HTMLElement {
-  const bookId = String(book.book_id || "");
-  const title = String(book.title || "Untitled");
-  const card = document.createElement("article");
-  card.className = cardClassNameForStatus(book.status);
-  card.dataset.bookId = bookId;
-  card.dataset.status = String(book.status);
-  const coverButton = document.createElement("button");
-  coverButton.className = "book-cover-btn edit-book-btn";
-  coverButton.dataset.bookId = bookId;
-  coverButton.type = "button";
-  const cover = bookCoverSrc(book);
-  if (cover) {
-    coverButton.classList.add("has-cover");
-    const image = document.createElement("img");
-    image.src = cover;
-    image.alt = `Cover of ${title}`;
-    image.loading = "lazy";
-    image.dataset.fallbackCover = "1";
-    coverButton.append(image);
-    if (book.status === BOOK_STATUS_READ) {
-      bindReadCardHolo(coverButton);
+    const BOOK_ID = String(book.book_id || "");
+    const TITLE = String(book.title || "Untitled");
+    const CARD = document.createElement("article");
+    CARD.className = cardClassNameForStatus(book.status);
+    CARD.dataset.bookId = BOOK_ID;
+    CARD.dataset.status = String(book.status);
+    const COVER_BUTTON = coverButtonForBook(book, TITLE);
+    const META = document.createElement("div");
+    META.className = "book-meta";
+    const HEADING = document.createElement("h1");
+    HEADING.className = "book-title";
+    HEADING.textContent = TITLE;
+    const STATUS = document.createElement("span");
+    STATUS.className = `book-status-pill is-${book.status}`;
+    STATUS.textContent = statusLabel(book.status);
+    const FINISH_DATE = estimatedFinishDate(book, context.finishDateByBookId);
+    const SUB = document.createElement("p");
+    SUB.className = "book-subtitle";
+    SUB.textContent = subtitle(book);
+    const STATS = cardStatsNode(book, context);
+    const ACTIONS = document.createElement("div");
+    ACTIONS.className = "book-actions";
+    if (FINISH_DATE !== null) {
+        ACTIONS.append(estimatedFinishButton(FINISH_DATE, context));
     }
-  } else {
-    const fallback = document.createElement("div");
-    fallback.className = "cover-fallback";
-    fallback.textContent = "No Cover";
-    coverButton.append(fallback);
-  }
-  const meta = document.createElement("div");
-  meta.className = "book-meta";
-  const heading = document.createElement("h1");
-  heading.className = "book-title";
-  heading.textContent = title;
-  const status = document.createElement("span");
-  status.className = `book-status-pill is-${book.status}`;
-  status.textContent = statusLabel(book.status);
-  const finishDate = estimatedFinishDate(book, context.finishDateByBookId);
-  const sub = document.createElement("p");
-  sub.className = "book-subtitle";
-  sub.textContent = subtitle(book);
-  const stats = cardStatsNode(book, context);
-  const actions = document.createElement("div");
-  actions.className = "book-actions";
-  if (finishDate !== null) {
-    actions.append(estimatedFinishButton(finishDate, context));
-  }
-  const removeBtn = document.createElement("button");
-  removeBtn.className = "btn rm-btn remove-book-btn";
-  removeBtn.type = "button";
-  removeBtn.dataset.bookId = bookId;
-  removeBtn.textContent = "Remove";
-  actions.append(removeBtn);
-  meta.append(heading, sub, status, stats, actions);
-  card.append(coverButton, meta);
-  return card;
+    const REMOVE_BTN = document.createElement("button");
+    REMOVE_BTN.className = "btn rm-btn remove-book-btn";
+    REMOVE_BTN.type = "button";
+    REMOVE_BTN.dataset.bookId = BOOK_ID;
+    REMOVE_BTN.textContent = "Remove";
+    ACTIONS.append(REMOVE_BTN);
+    META.append(HEADING, SUB, STATUS, STATS, ACTIONS);
+    CARD.append(COVER_BUTTON, META);
+    return CARD;
 }

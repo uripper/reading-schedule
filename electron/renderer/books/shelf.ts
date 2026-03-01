@@ -1,4 +1,4 @@
-import type { Book } from "../../types/types.js";
+import { type Book } from "../../types/types.js";
 
 export const SHELF_FILTER_ALL = "all";
 export const SHELF_FILTER_UNSHELVED = "unshelved";
@@ -11,9 +11,9 @@ export const SHELF_SELECT_CREATE_NEW = "__create_new_shelf__";
  * @returns Normalized shelf name.
  */
 export function normalizeShelfName(
-  rawShelf: string | null | undefined,
+    rawShelf: string | null | undefined,
 ): string {
-  return String(rawShelf ?? "").trim();
+    return String(rawShelf ?? "").trim();
 }
 
 /**
@@ -22,13 +22,13 @@ export function normalizeShelfName(
  * @returns Shelf label for UI rendering.
  */
 export function shelfLabelForBook(
-  book: Pick<Book, "shelf"> | null | undefined,
+    book: Pick<Book, "shelf"> | null | undefined,
 ): string {
-  const shelf = normalizeShelfName(book?.shelf);
-  if (!shelf) {
-    return UNSHELVED_LABEL;
-  }
-  return shelf;
+    const SHELF = normalizeShelfName(book?.shelf);
+    if (!SHELF) {
+        return UNSHELVED_LABEL;
+    }
+    return SHELF;
 }
 
 /**
@@ -38,17 +38,17 @@ export function shelfLabelForBook(
  * @returns `true` when the book should remain visible.
  */
 export function shelfFilterMatches(
-  book: Pick<Book, "shelf"> | null | undefined,
-  filterValue: string,
+    book: Pick<Book, "shelf"> | null | undefined,
+    filterValue: string,
 ): boolean {
-  const shelf = normalizeShelfName(book?.shelf);
-  if (filterValue === SHELF_FILTER_ALL) {
-    return true;
-  }
-  if (filterValue === SHELF_FILTER_UNSHELVED) {
-    return !shelf;
-  }
-  return shelf === filterValue;
+    const SHELF = normalizeShelfName(book?.shelf);
+    if (filterValue === SHELF_FILTER_ALL) {
+        return true;
+    }
+    if (filterValue === SHELF_FILTER_UNSHELVED) {
+        return !SHELF;
+    }
+    return SHELF === filterValue;
 }
 
 /**
@@ -56,18 +56,16 @@ export function shelfFilterMatches(
  * @param books Books to scan for shelf values.
  * @returns Sorted unique shelf names.
  */
-export function uniqueShelves(
-  books: Array<Pick<Book, "shelf">> = [],
-): string[] {
-  const shelfSet = new Set<string>();
-  books.forEach((book) => {
-    const shelf = normalizeShelfName(book.shelf);
-    if (!shelf) {
-      return;
-    }
-    shelfSet.add(shelf);
-  });
-  return [...shelfSet].sort((left, right) => {
-    return left.localeCompare(right, undefined, { sensitivity: "base" });
-  });
+export function uniqueShelves(books: Pick<Book, "shelf">[] = []): string[] {
+    const SHELF_SET = new Set<string>();
+    books.forEach((book) => {
+        const SHELF = normalizeShelfName(book.shelf);
+        if (!SHELF) {
+            return;
+        }
+        SHELF_SET.add(SHELF);
+    });
+    return [...SHELF_SET].sort((left, right) => {
+        return left.localeCompare(right, undefined, { sensitivity: "base" });
+    });
 }

@@ -1,8 +1,8 @@
-import { el } from "../dom.js";
-import type {
-  RecommendationFormTarget,
-  RecommendationItem,
+import {
+    type RecommendationFormTarget,
+    type RecommendationItem,
 } from "../../types/types.js";
+import { el } from "../dom.js";
 
 const MIN_WORDS_TOTAL = 1;
 
@@ -12,11 +12,11 @@ const MIN_WORDS_TOTAL = 1;
  * @returns Positive integer text for the add-book words field.
  */
 function normalizedWordsTotal(wordsTotal: number): string {
-  const roundedWords = Math.round(wordsTotal);
-  if (roundedWords >= MIN_WORDS_TOTAL) {
-    return String(roundedWords);
-  }
-  return String(MIN_WORDS_TOTAL);
+    const ROUNDED_WORDS = Math.round(wordsTotal);
+    if (ROUNDED_WORDS >= MIN_WORDS_TOTAL) {
+        return String(ROUNDED_WORDS);
+    }
+    return String(MIN_WORDS_TOTAL);
 }
 
 /**
@@ -25,14 +25,16 @@ function normalizedWordsTotal(wordsTotal: number): string {
  * @param recommendation Recommendation selected by the user.
  */
 export function submitRecommendationToShelf(
-  target: RecommendationFormTarget,
-  recommendation: RecommendationItem,
+    target: RecommendationFormTarget,
+    recommendation: RecommendationItem,
 ): void {
-  const nextTarget = target;
-  nextTarget.titleInput.value = recommendation.title;
-  nextTarget.authorInput.value = recommendation.author;
-  nextTarget.wordsInput.value = normalizedWordsTotal(recommendation.wordsTotal);
-  nextTarget.shelfInput.focus();
+    const NEXT_TARGET = target;
+    NEXT_TARGET.titleInput.value = recommendation.title;
+    NEXT_TARGET.authorInput.value = recommendation.author;
+    NEXT_TARGET.wordsInput.value = normalizedWordsTotal(
+        recommendation.wordsTotal,
+    );
+    NEXT_TARGET.shelfInput.focus();
 }
 
 /**
@@ -40,17 +42,17 @@ export function submitRecommendationToShelf(
  * @param recommendation Recommendation selected by the user.
  */
 export function addRecommendationToShelf(
-  recommendation: RecommendationItem,
+    recommendation: RecommendationItem,
 ): void {
-  const addButton = el<HTMLButtonElement>("addBookBtn");
-  addButton.click();
-  submitRecommendationToShelf(
-    {
-      shelfInput: el<HTMLSelectElement>("bookShelfSelectInput"),
-      titleInput: el<HTMLInputElement>("bookTitleInput"),
-      authorInput: el<HTMLInputElement>("bookFormAuthor"),
-      wordsInput: el<HTMLInputElement>("bookWordsInput"),
-    },
-    recommendation,
-  );
+    const ADD_BUTTON = el<HTMLButtonElement>("addBookBtn");
+    ADD_BUTTON.click();
+    submitRecommendationToShelf(
+        {
+            authorInput: el<HTMLInputElement>("bookFormAuthor"),
+            shelfInput: el<HTMLSelectElement>("bookShelfSelectInput"),
+            titleInput: el<HTMLInputElement>("bookTitleInput"),
+            wordsInput: el<HTMLInputElement>("bookWordsInput"),
+        },
+        recommendation,
+    );
 }

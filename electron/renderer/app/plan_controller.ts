@@ -1,23 +1,29 @@
+import {
+    type AnnouncePoliteness,
+    type AutoPlanRunner,
+    type AutoPlanState,
+    type Book,
+    type PlanController,
+    type PlanControllerArgs,
+    type PlannerApi,
+    type PlannerResult,
+    type PlannerRunData,
+    type PlannerScheduleRow,
+    type PlannerSettings,
+    type RunAutoPlanFactoryArgs,
+    type Session,
+} from "../../types/types.js";
 import { runPlanGeneration } from "./plan.js";
 import {
-  applyLoadedResult,
-  applyPlannedData,
+    applyLoadedResult,
+    applyPlannedData,
 } from "./plan_controller_apply.js";
-import type {
-  AutoPlanRunner,
-  AutoPlanState,
-  PlanController,
-  PlanControllerArgs,
-  PlannerResult,
-  PlannerRunData,
-  RunAutoPlanFactoryArgs,
-} from "../../types/types.js";
 
 const AUTO_PLAN_DELAY_MS = 450;
 const DEFAULT_LAST_RESULT: PlannerResult = {
-  schedule: [],
-  summary: null,
-  created_at: "",
+    created_at: "",
+    schedule: [],
+    summary: null,
 };
 
 /**
@@ -25,72 +31,137 @@ const DEFAULT_LAST_RESULT: PlannerResult = {
  * @param root0 Auto-plan dependencies and mutable in-flight/pending state.
  * @returns Async auto-plan function.
  */
+interface ExecuteAutoPlanArgs {
+    addLog: (message: string) => void;
+    announce: (msg: string, politeness?: AnnouncePoliteness) => void;
+    collectBooks: () => Book[];
+    collectSettings: () => PlannerSettings;
+    onSuccess: (data: PlannerRunData) => Promise<void>;
+    plannerApi: Pick<PlannerApi, "generate">;
+    setStatus: (msg: string, isError?: boolean) => void;
+}
+
+/**
+ * Executes a single auto-plan generation and applies the result.
+ */
+async function executeAutoPlan(args: ExecuteAutoPlanArgs): Promise<void> {
+    await runPlanGeneration({
+        addLog: args.addLog,
+        announce: args.announce,
+        collectBooks: args.collectBooks,
+        collectSettings: args.collectSettings,
+        onSuccess: args.onSuccess,
+        plannerApi: args.plannerApi,
+        setStatus: args.setStatus,
+        statusGeneratingMessage: "Updating plan...",
+        statusSuccessMessage: "Plan updated.",
+        successAnnouncement: "",
+    });
+}
+
+/**
+ * Creates success handler for auto-plan generation.
+ */
+interface AutoPlanSuccessHandlerArgs {
+    getBlockedDayBooks: () => Record<string, boolean>;
+    getLastResult: () => PlannerResult | null;
+    getScheduleCompletions: () => Record<string, boolean>;
+    getSessions: () => Session[];
+    persistDraft: () => Promise<boolean>;
+    renderCalendar: (
+        rows: PlannerScheduleRow[],
+        totals: Record<string, number>,
+    ) => void;
+    setBookScheduleRows: (rows: PlannerScheduleRow[]) => void;
+    setLastResult: (result: PlannerResult) => void;
+    setScheduleCompletions: (completions: Record<string, boolean>) => void;
+    totalsFromSummary: (
+        summary: PlannerRunData["summary"],
+    ) => Record<string, number>;
+    updateTodayView: () => void;
+}
+
+function createAutoPlanSuccessHandler(
+    args: AutoPlanSuccessHandlerArgs,
+): (data: PlannerRunData) => Promise<void> {
+    return async (data: PlannerRunData): Promise<void> => {
+        await applyPlannedData({
+            data,
+            getBlockedDayBooks: args.getBlockedDayBooks,
+            getLastResult: args.getLastResult,
+            getScheduleCompletions: args.getScheduleCompletions,
+            getSessions: args.getSessions,
+            persistDraft: args.persistDraft,
+            preserveLockedDays: true,
+            renderCalendar: args.renderCalendar,
+            setBookScheduleRows: args.setBookScheduleRows,
+            setLastResult: args.setLastResult,
+            setScheduleCompletions: args.setScheduleCompletions,
+            totalsFromSummary: args.totalsFromSummary,
+            updateTodayView: args.updateTodayView,
+        });
+    };
+}
+
 function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
-  const {
-    plannerApi,
-    collectBooks,
-    collectSettings,
-    setStatus,
-    addLog,
-    announce,
-    getLastResult,
-    setLastResult,
-    getSessions,
-    getScheduleCompletions,
-    getBlockedDayBooks,
-    setScheduleCompletions,
-    renderCalendar,
-    totalsFromSummary,
-    setBookScheduleRows,
-    updateTodayView,
-    persistDraft,
-    state,
-    scheduleAutoPlan,
-  } = root0;
-  const self: () => Promise<void> = async (): Promise<void> => {
-    if (state.autoRunInFlight) {
-      state.autoRunPending = true;
-      return;
-    }
-    state.autoRunInFlight = true;
-    try {
-      await runPlanGeneration({
+    const {
         plannerApi,
         collectBooks,
         collectSettings,
         setStatus,
         addLog,
         announce,
-        statusGeneratingMessage: "Updating plan...",
-        statusSuccessMessage: "Plan updated.",
-        successAnnouncement: "",
-        onSuccess: async (data: PlannerRunData): Promise<void> => {
-          await applyPlannedData({
-            preserveLockedDays: true,
-            data,
-            getLastResult,
-            getSessions,
-            getBlockedDayBooks,
-            getScheduleCompletions,
-            setScheduleCompletions,
-            setLastResult,
-            setBookScheduleRows,
-            renderCalendar,
-            totalsFromSummary,
-            updateTodayView,
-            persistDraft,
-          });
-        },
-      });
-    } finally {
-      state.autoRunInFlight = false;
-      if (state.autoRunPending) {
-        state.autoRunPending = false;
-        scheduleAutoPlan(self);
-      }
-    }
-  };
-  return self;
+        getLastResult,
+        setLastResult,
+        getSessions,
+        getScheduleCompletions,
+        getBlockedDayBooks,
+        setScheduleCompletions,
+        renderCalendar,
+        totalsFromSummary,
+        setBookScheduleRows,
+        updateTodayView,
+        persistDraft,
+        state,
+        scheduleAutoPlan,
+    } = root0;
+    const SELF: () => Promise<void> = async (): Promise<void> => {
+        if (state.autoRunInFlight) {
+            state.autoRunPending = true;
+            return;
+        }
+        state.autoRunInFlight = true;
+        try {
+            await executeAutoPlan({
+                addLog,
+                announce,
+                collectBooks,
+                collectSettings,
+                onSuccess: createAutoPlanSuccessHandler({
+                    getBlockedDayBooks,
+                    getLastResult,
+                    getScheduleCompletions,
+                    getSessions,
+                    persistDraft,
+                    renderCalendar,
+                    setBookScheduleRows,
+                    setLastResult,
+                    setScheduleCompletions,
+                    totalsFromSummary,
+                    updateTodayView,
+                }),
+                plannerApi,
+                setStatus,
+            });
+        } finally {
+            state.autoRunInFlight = false;
+            if (state.autoRunPending) {
+                state.autoRunPending = false;
+                scheduleAutoPlan(SELF);
+            }
+        }
+    };
+    return SELF;
 }
 
 /**
@@ -99,32 +170,32 @@ function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
  * @returns Auto-plan queue handler.
  */
 function createAutoPlanRunner(root0: PlanControllerArgs): AutoPlanRunner {
-  const { addLog, setStatus } = root0;
-  let autoTimer: ReturnType<typeof setTimeout> | null = null;
-  const state: AutoPlanState = {
-    autoRunPending: false,
-    autoRunInFlight: false,
-  };
-  const scheduleAutoPlan = (runner: () => Promise<void>): void => {
-    if (autoTimer) {
-      clearTimeout(autoTimer);
-    }
-    autoTimer = setTimeout((): void => {
-      runner().catch((_: unknown): void => {
-        addLog("Automatic plan refresh failed.");
-        setStatus("Automatic plan refresh failed.", true);
-      });
-    }, AUTO_PLAN_DELAY_MS);
-  };
-  const runAutoPlan = createRunAutoPlan({
-    ...root0,
-    state,
-    scheduleAutoPlan,
-  });
-  const queueAutoPlan = (): void => {
-    scheduleAutoPlan(runAutoPlan);
-  };
-  return { queueAutoPlan };
+    const { addLog, setStatus } = root0;
+    let autoTimer: ReturnType<typeof setTimeout> | null = null;
+    const STATE: AutoPlanState = {
+        autoRunInFlight: false,
+        autoRunPending: false,
+    };
+    const SCHEDULE_AUTO_PLAN = (runner: () => Promise<void>): void => {
+        if (autoTimer) {
+            clearTimeout(autoTimer);
+        }
+        autoTimer = setTimeout((): void => {
+            runner().catch((_: unknown): void => {
+                addLog("Automatic plan refresh failed.");
+                setStatus("Automatic plan refresh failed.", true);
+            });
+        }, AUTO_PLAN_DELAY_MS);
+    };
+    const RUN_AUTO_PLAN = createRunAutoPlan({
+        ...root0,
+        scheduleAutoPlan: SCHEDULE_AUTO_PLAN,
+        state: STATE,
+    });
+    const QUEUE_AUTO_PLAN = (): void => {
+        SCHEDULE_AUTO_PLAN(RUN_AUTO_PLAN);
+    };
+    return { queueAutoPlan: QUEUE_AUTO_PLAN };
 }
 
 /**
@@ -150,24 +221,24 @@ function createAutoPlanRunner(root0: PlanControllerArgs): AutoPlanRunner {
  * @returns Controller methods for queueing auto-plan and applying loaded results.
  */
 export function createPlanController(
-  root0: PlanControllerArgs,
+    root0: PlanControllerArgs,
 ): PlanController {
-  const autoPlanRunner = createAutoPlanRunner(root0);
-  const applySavedResult = (savedResult: PlannerResult | null): void => {
-    applyLoadedResult({
-      savedResult,
-      defaultLastResult: DEFAULT_LAST_RESULT,
-      setLastResult: root0.setLastResult,
-      setBookScheduleRows: root0.setBookScheduleRows,
-      renderCalendar: root0.renderCalendar,
-      totalsFromSummary: root0.totalsFromSummary,
-      addLog: root0.addLog,
-    });
-  };
-  return {
-    queueAutoPlan: (): void => {
-      autoPlanRunner.queueAutoPlan();
-    },
-    applyLoadedResult: applySavedResult,
-  };
+    const AUTO_PLAN_RUNNER = createAutoPlanRunner(root0);
+    const APPLY_SAVED_RESULT = (savedResult: PlannerResult | null): void => {
+        applyLoadedResult({
+            addLog: root0.addLog,
+            defaultLastResult: DEFAULT_LAST_RESULT,
+            renderCalendar: root0.renderCalendar,
+            savedResult,
+            setBookScheduleRows: root0.setBookScheduleRows,
+            setLastResult: root0.setLastResult,
+            totalsFromSummary: root0.totalsFromSummary,
+        });
+    };
+    return {
+        applyLoadedResult: APPLY_SAVED_RESULT,
+        queueAutoPlan: (): void => {
+            AUTO_PLAN_RUNNER.queueAutoPlan();
+        },
+    };
 }

@@ -1,4 +1,8 @@
-import type { BookFinishLookup, CompletedBookRow, ManualSessionBook } from "../../types/types.js";
+import {
+    type BookFinishLookup,
+    type CompletedBookRow,
+    type ManualSessionBook,
+} from "../../types/types.js";
 
 /**
  * Resolves title text for completed-book row display.
@@ -7,15 +11,15 @@ import type { BookFinishLookup, CompletedBookRow, ManualSessionBook } from "../.
  * @returns Non-empty title text.
  */
 function completedBookTitle(bookTitle: string, fallbackTitle: string): string {
-  const normalizedBookTitle = bookTitle.trim();
-  if (normalizedBookTitle !== "") {
-    return normalizedBookTitle;
-  }
-  const normalizedFallbackTitle = fallbackTitle.trim();
-  if (normalizedFallbackTitle !== "") {
-    return normalizedFallbackTitle;
-  }
-  return "Untitled";
+    const NORMALIZED_BOOK_TITLE = bookTitle.trim();
+    if (NORMALIZED_BOOK_TITLE !== "") {
+        return NORMALIZED_BOOK_TITLE;
+    }
+    const NORMALIZED_FALLBACK_TITLE = fallbackTitle.trim();
+    if (NORMALIZED_FALLBACK_TITLE !== "") {
+        return NORMALIZED_FALLBACK_TITLE;
+    }
+    return "Untitled";
 }
 
 /**
@@ -25,40 +29,40 @@ function completedBookTitle(bookTitle: string, fallbackTitle: string): string {
  * @returns Map of date keys to completed-book rows.
  */
 export function buildCompletedBookRowsByDate(
-  sessionBooks: ManualSessionBook[],
-  getBookById: (bookId: string) => BookFinishLookup | null,
+    sessionBooks: ManualSessionBook[],
+    getBookById: (bookId: string) => BookFinishLookup | null,
 ): Record<string, CompletedBookRow[]> {
-  const rowsByDate: Record<string, CompletedBookRow[]> = {};
-  const seenBookIds = new Set<string>();
-  sessionBooks.forEach((entry) => {
-    const bookId = entry.bookId.trim();
-    if (bookId === "") {
-      return;
-    }
-    if (seenBookIds.has(bookId)) {
-      return;
-    }
-    seenBookIds.add(bookId);
-    const book = getBookById(bookId);
-    if (book === null) {
-      return;
-    }
-    const finishedAt = String(book.finished_at ?? "").trim();
-    if (finishedAt === "") {
-      return;
-    }
-    if (!(finishedAt in rowsByDate)) {
-      rowsByDate[finishedAt] = [];
-    }
-    rowsByDate[finishedAt].push({
-      book_id: bookId,
-      date: finishedAt,
-      finish: true,
-      minutes: 0,
-      title: completedBookTitle(book.title, entry.title),
+    const ROWS_BY_DATE: Record<string, CompletedBookRow[]> = {};
+    const SEEN_BOOK_IDS = new Set<string>();
+    sessionBooks.forEach((entry) => {
+        const BOOK_ID = entry.bookId.trim();
+        if (BOOK_ID === "") {
+            return;
+        }
+        if (SEEN_BOOK_IDS.has(BOOK_ID)) {
+            return;
+        }
+        SEEN_BOOK_IDS.add(BOOK_ID);
+        const BOOK = getBookById(BOOK_ID);
+        if (BOOK === null) {
+            return;
+        }
+        const FINISHED_AT = String(BOOK.finished_at ?? "").trim();
+        if (FINISHED_AT === "") {
+            return;
+        }
+        if (!(FINISHED_AT in ROWS_BY_DATE)) {
+            ROWS_BY_DATE[FINISHED_AT] = [];
+        }
+        ROWS_BY_DATE[FINISHED_AT].push({
+            book_id: BOOK_ID,
+            date: FINISHED_AT,
+            finish: true,
+            minutes: 0,
+            title: completedBookTitle(BOOK.title, entry.title),
+        });
     });
-  });
-  return rowsByDate;
+    return ROWS_BY_DATE;
 }
 
 /**
@@ -67,21 +71,21 @@ export function buildCompletedBookRowsByDate(
  * @returns Summary text or empty string when no titles exist.
  */
 export function finishedBooksSummaryText(rows: CompletedBookRow[]): string {
-  const seenTitles = new Set<string>();
-  const finishedTitles: string[] = [];
-  rows.forEach((row) => {
-    const title = row.title.trim();
-    if (title === "") {
-      return;
+    const SEEN_TITLES = new Set<string>();
+    const FINISHED_TITLES: string[] = [];
+    rows.forEach((row) => {
+        const TITLE = row.title.trim();
+        if (TITLE === "") {
+            return;
+        }
+        if (SEEN_TITLES.has(TITLE)) {
+            return;
+        }
+        SEEN_TITLES.add(TITLE);
+        FINISHED_TITLES.push(TITLE);
+    });
+    if (FINISHED_TITLES.length === 0) {
+        return "";
     }
-    if (seenTitles.has(title)) {
-      return;
-    }
-    seenTitles.add(title);
-    finishedTitles.push(title);
-  });
-  if (finishedTitles.length === 0) {
-    return "";
-  }
-  return `Finished: ${finishedTitles.join(", ")}`;
+    return `Finished: ${FINISHED_TITLES.join(", ")}`;
 }

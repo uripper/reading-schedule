@@ -4,7 +4,7 @@
  * @returns Formatted error message.
  */
 function missingElementMessage(id: string): string {
-  return `Missing required element with id "${id}"`;
+    return `Missing required element with id "${id}"`;
 }
 
 /**
@@ -14,28 +14,11 @@ function missingElementMessage(id: string): string {
  * @throws {TypeError} Thrown when element is missing or not an HTMLElement.
  */
 export function el<T extends HTMLElement = HTMLElement>(id: string): T {
-  const node = document.getElementById(id);
-  if (!(node instanceof HTMLElement)) {
-    throw new TypeError(missingElementMessage(id));
-  }
-  return node as T;
-}
-
-/**
- * Queries for a single element within a root node.
- * @param sel Selector string.
- * @param root Query root node.
- * @returns Matched element or `null`.
- */
-export function q<T extends Element = Element>(
-  sel: string,
-  root: ParentNode = document,
-): T | null {
-  const node = root.querySelector(sel);
-  if (node === null) {
-    return null;
-  }
-  return node as T;
+    const NODE = document.getElementById(id);
+    if (!(NODE instanceof HTMLElement)) {
+        throw new TypeError(missingElementMessage(id));
+    }
+    return NODE as T;
 }
 
 /**
@@ -45,10 +28,10 @@ export function q<T extends Element = Element>(
  * @returns Array of matched elements.
  */
 export function qa<T extends Element = Element>(
-  sel: string,
-  root: ParentNode = document,
+    sel: string,
+    root: ParentNode = document,
 ): T[] {
-  return Array.from(root.querySelectorAll(sel));
+    return Array.from(root.querySelectorAll(sel));
 }
 
 const BASE_36 = 36;
@@ -59,10 +42,10 @@ const MAX_ID_LENGTH = 20;
  * @returns UUID when available, otherwise timestamp/random fallback id.
  */
 export function uid(): string {
-  try {
-    return globalThis.crypto.randomUUID();
-  } catch {
-    const base = `${Date.now().toString(BASE_36)}${Math.random().toString(BASE_36).slice(2)}`;
-    return `book-${base.slice(0, MAX_ID_LENGTH)}`;
-  }
+    try {
+        return globalThis.crypto.randomUUID();
+    } catch {
+        const BASE = `${Date.now().toString(BASE_36)}${Math.random().toString(BASE_36).slice(2)}`;
+        return `book-${BASE.slice(0, MAX_ID_LENGTH)}`;
+    }
 }

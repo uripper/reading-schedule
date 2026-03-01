@@ -6,7 +6,7 @@
 
 Problem:
 
-`npm run audit` reported 758 probable documentation gaps (missing module-level or declaration-level JSDoc). This makes the audit noisy and weakens API discoverability for contributors.
+`pnpm run audit` reported 758 probable documentation gaps (missing module-level or declaration-level JSDoc). This makes the audit noisy and weakens API discoverability for contributors.
 
 Expected:
 
@@ -16,7 +16,7 @@ Definition of done:
 
 - Define a phased scope for JSDoc cleanup (for example main process + renderer entry modules first).
 - Add missing module/declaration JSDoc for the first scope.
-- Re-run `npm run audit` and reduce documentation-gap count by a meaningful first milestone.
+- Re-run `pnpm run audit` and reduce documentation-gap count by a meaningful first milestone.
 - Document any intentional exclusions in `scripts/style_audit.mjs` or contributor docs.
 
 Context:

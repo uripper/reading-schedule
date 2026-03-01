@@ -1,38 +1,38 @@
+import { type Book, type BookFormRefs } from "../../types/types.js";
 import { SHELF_SELECT_CREATE_NEW, uniqueShelves } from "./shelf.js";
 import {
-  ensureShelfOption,
-  existingShelfValue,
-  previousShelf,
-  rememberSelectedShelf,
-  setSelectedShelf,
+    ensureShelfOption,
+    existingShelfValue,
+    previousShelf,
+    rememberSelectedShelf,
+    setSelectedShelf,
 } from "./shelf_picker_options.js";
 import {
-  ensurePromptValidation,
-  promptForShelfName,
+    ensurePromptValidation,
+    promptForShelfName,
 } from "./shelf_picker_prompt.js";
 
-import type { Book, BookFormRefs } from "../../types/types.js";
 /**
  * Handles create-shelf flow when special picker option is selected.
  * @param refs Book form references containing shelf controls.
  */
 async function onCreateShelfSelected(refs: BookFormRefs): Promise<void> {
-  const select = refs.shelfSelectInput;
-  const fallbackShelf = previousShelf(select);
-  const shelfName = await promptForShelfName(refs);
-  if (shelfName === null || shelfName === "") {
-    select.value = fallbackShelf;
-    return;
-  }
-  const existingValue = existingShelfValue(select, shelfName);
-  if (existingValue) {
-    select.value = existingValue;
-    rememberSelectedShelf(select);
-    return;
-  }
-  ensureShelfOption(select, shelfName);
-  select.value = shelfName;
-  rememberSelectedShelf(select);
+    const SELECT = refs.shelfSelectInput;
+    const FALLBACK_SHELF = previousShelf(SELECT);
+    const SHELF_NAME = await promptForShelfName(refs);
+    if (SHELF_NAME === null || SHELF_NAME === "") {
+        SELECT.value = FALLBACK_SHELF;
+        return;
+    }
+    const EXISTING_VALUE = existingShelfValue(SELECT, SHELF_NAME);
+    if (EXISTING_VALUE) {
+        SELECT.value = EXISTING_VALUE;
+        rememberSelectedShelf(SELECT);
+        return;
+    }
+    ensureShelfOption(SELECT, SHELF_NAME);
+    SELECT.value = SHELF_NAME;
+    rememberSelectedShelf(SELECT);
 }
 
 /**
@@ -40,12 +40,12 @@ async function onCreateShelfSelected(refs: BookFormRefs): Promise<void> {
  * @param refs Book form references containing shelf controls.
  */
 async function onShelfChange(refs: BookFormRefs): Promise<void> {
-  const select = refs.shelfSelectInput;
-  if (select.value === SHELF_SELECT_CREATE_NEW) {
-    await onCreateShelfSelected(refs);
-    return;
-  }
-  rememberSelectedShelf(select);
+    const SELECT = refs.shelfSelectInput;
+    if (SELECT.value === SHELF_SELECT_CREATE_NEW) {
+        await onCreateShelfSelected(refs);
+        return;
+    }
+    rememberSelectedShelf(SELECT);
 }
 
 /**
@@ -55,12 +55,12 @@ async function onShelfChange(refs: BookFormRefs): Promise<void> {
  * @param selectedShelf Shelf value to select after rendering.
  */
 export function renderShelfPicker(
-  refs: BookFormRefs,
-  books: Book[] = [],
-  selectedShelf = "",
+    refs: BookFormRefs,
+    books: Book[] = [],
+    selectedShelf = "",
 ): void {
-  const shelves = uniqueShelves(books);
-  setSelectedShelf(refs.shelfSelectInput, selectedShelf, shelves);
+    const SHELVES = uniqueShelves(books);
+    setSelectedShelf(refs.shelfSelectInput, selectedShelf, SHELVES);
 }
 
 /**
@@ -68,11 +68,11 @@ export function renderShelfPicker(
  * @param refs Book form references containing shelf controls.
  */
 export function bindShelfPicker(refs: BookFormRefs): void {
-  ensurePromptValidation(refs);
-  refs.shelfSelectInput.addEventListener("change", () => {
-    onShelfChange(refs).catch(() => {
-      const select = refs.shelfSelectInput;
-      select.value = previousShelf(select);
+    ensurePromptValidation(refs);
+    refs.shelfSelectInput.addEventListener("change", () => {
+        onShelfChange(refs).catch(() => {
+            const SELECT = refs.shelfSelectInput;
+            SELECT.value = previousShelf(SELECT);
+        });
     });
-  });
 }

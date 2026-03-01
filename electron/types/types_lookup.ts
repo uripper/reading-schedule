@@ -1,46 +1,46 @@
 export interface BookLookupItem {
-  title?: string;
-  author?: string;
-  year?: string | number;
-  source?: string;
-  cover_url?: string;
-  words_estimate?: number;
-  pages_estimate?: number;
+    author?: string;
+    cover_url?: string;
+    pages_estimate?: number;
+    source?: string;
+    title?: string;
+    words_estimate?: number;
+    year?: string | number;
 }
 
 export interface LookupSearchState {
-  timer: ReturnType<typeof setTimeout> | null;
-  token: number;
-  currentItems: BookLookupItem[];
-  activeIndex: number;
+    activeIndex: number;
+    currentItems: BookLookupItem[];
+    timer: ReturnType<typeof setTimeout> | null;
+    token: number;
 }
 
 export interface LookupBinding {
-  clearResults(): void;
-  destroy(): void;
+    clearResults(): void;
+    destroy(): void;
 }
 
 export interface BindBookLookupOptions {
-  searchInput: HTMLInputElement;
-  resultsEl: HTMLElement;
-  metaEl: HTMLElement;
-  onPick(this: void, item: BookLookupItem): void;
+    metaEl: HTMLElement;
+    onPick(this: void, item: BookLookupItem): void;
+    resultsEl: HTMLElement;
+    searchInput: HTMLInputElement;
 }
 
 export interface ProgressSyncInputs {
-  pagesTotalInput: HTMLInputElement;
-  pagesReadInput: HTMLInputElement;
-  progressInput: HTMLInputElement;
+    pagesReadInput: HTMLInputElement;
+    pagesTotalInput: HTMLInputElement;
+    progressInput: HTMLInputElement;
 }
 
 export type ProgressField = "pages" | "progress";
 
 export interface LookupInputHandlerArgs {
-  searchInput: HTMLInputElement;
-  metaEl: HTMLElement;
-  state: LookupSearchState;
-  clearResults(this: void): void;
-  refreshResults(this: void): void;
+    clearResults(this: void): void;
+    metaEl: HTMLElement;
+    refreshResults(this: void): void;
+    searchInput: HTMLInputElement;
+    state: LookupSearchState;
 }
 
 export type SetActiveIndex = (index: number) => void;
@@ -48,61 +48,60 @@ export type SetActiveIndex = (index: number) => void;
 export type SelectItem = (index: number) => void;
 
 export interface HandleLookupKeydownArgs {
-  event: KeyboardEvent;
-  currentItems: readonly BookLookupItem[];
-  activeIndex: number;
-  setActiveIndex: SetActiveIndex;
-  selectItem: SelectItem;
-  clearResults(): void;
-  searchInput: HTMLInputElement;
+    activeIndex: number;
+    clearResults(): void;
+    currentItems: readonly BookLookupItem[];
+    event: KeyboardEvent;
+    searchInput: HTMLInputElement;
+    selectItem: SelectItem;
+    setActiveIndex: SetActiveIndex;
 }
 
 export interface LookupRenderState {
-  currentItems: BookLookupItem[];
-  activeIndex: number;
+    activeIndex: number;
+    currentItems: BookLookupItem[];
 }
 
 export interface CreateLookupStateControllerArgs {
-  searchInput: HTMLInputElement;
-  resultsEl: HTMLElement;
-  metaEl: HTMLElement;
-  onPick(this: void, item: BookLookupItem): void;
-  placeholder: string;
-  state: LookupRenderState;
+    metaEl: HTMLElement;
+    onPick(this: void, item: BookLookupItem): void;
+    placeholder: string;
+    resultsEl: HTMLElement;
+    searchInput: HTMLInputElement;
+    state: LookupRenderState;
 }
 
 export interface LookupStateController {
-  clearResults(): void;
-  refreshResults(): void;
-  selectItem(index: number): void;
-  setActiveIndex(index: number): void;
+    clearResults(): void;
+    refreshResults(): void;
+    selectItem(index: number): void;
+    setActiveIndex(index: number): void;
 }
 
 export type CoverExtension = ".jpg" | ".png" | ".webp";
 
 export interface SearchDoc {
-  author_name?: string[];
-  cover_i?: number;
-  edition_count?: number;
-  first_publish_year?: number;
-  key?: string;
-  language?: string[];
-  number_of_pages_median?: number;
-  title?: string;
+    author_name?: string[];
+    cover_i?: number;
+    edition_count?: number;
+    first_publish_year?: number;
+    key?: string;
+    language?: string[];
+    number_of_pages_median?: number;
+    title?: string;
 }
 
 export interface SearchResponse {
-  docs?: SearchDoc[];
+    docs?: SearchDoc[];
 }
 
 export interface SearchItem {
-  author: string;
-  cover_url: string;
-  openlibrary_key: string;
-  pages_estimate: number | null;
-  source: string;
-  title: string;
-  words_estimate: number | null;
-  year: number | "";
+    author: string;
+    cover_url: string;
+    openlibrary_key: string;
+    pages_estimate: number | null;
+    source: string;
+    title: string;
+    words_estimate: number | null;
+    year: number | "";
 }
-

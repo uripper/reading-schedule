@@ -1,33 +1,35 @@
 .stats-section-heading {
-  font-size: var(--token-typography-size-xl);
+    font-size: var(--token-typography-size-xl);
 }
 
 .month-bar-track {
-  position: relative;
+    position: relative;
 }
 
 .month-bar-track:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--app-focusRing) 70%, transparent);
-  outline-offset: 2px;
+    outline: 2px solid color-mix(in srgb, var(--app-focusRing) 70%, transparent);
+    outline-offset: 2px;
 }
 
 .month-bar-value {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translate(-50%, -6px);
-  opacity: 0;
-  pointer-events: none;
-  font-size: var(--token-typography-size-sm);
-  font-weight: var(--token-typography-weight-semibold);
-  color: var(--app-text);
-  transition:
-    opacity var(--token-motion-duration-fast) var(--token-motion-easing-standard),
-    transform var(--token-motion-duration-fast) var(--token-motion-easing-standard);
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    font-size: var(--token-typography-size-sm);
+    font-weight: var(--token-typography-weight-semibold);
+    color: var(--app-text);
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -6px);
+    transition:
+        opacity var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard),
+        transform var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard);
 }
 
 .month-bar-track:hover .month-bar-value,
 .month-bar-track:focus-visible .month-bar-value {
-  opacity: 1;
-  transform: translate(-50%, 0);
+    opacity: 1;
+    transform: translate(-50%, 0);
 }

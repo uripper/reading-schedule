@@ -1,6 +1,6 @@
-import type {
-  CalendarHandlers,
-  CalendarRuntimeState,
+import {
+    type CalendarHandlers,
+    type CalendarRuntimeState,
 } from "../../types/types.js";
 
 /**
@@ -8,36 +8,36 @@ import type {
  * @returns Fresh calendar runtime state object.
  */
 export function createCalendarRuntimeState(): CalendarRuntimeState {
-  return {
-    dates: {},
-    rawRows: [],
-    rows: [],
-    totalsByBookId: {},
-    months: [],
-    index: 0,
-    selectedDate: "",
-    monthCellKeys: [],
-    expectedFinishHighlightDate: "",
-  };
+    return {
+        dates: {},
+        expectedFinishHighlightDate: "",
+        index: 0,
+        monthCellKeys: [],
+        months: [],
+        rawRows: [],
+        rows: [],
+        selectedDate: "",
+        totalsByBookId: {},
+    };
 }
 
 /**
  * Returns no-op/default calendar handler implementations.
  * @returns Handler object safe for unbound calendar usage.
  */
-export function defaultCalendarHandlers(): CalendarHandlers {
-  return {
-    isSessionCompleted: () => false,
-    onSessionCompletionChanged: (payload): void => {
-      Boolean(payload.completed);
-    },
-    onSessionProgressUpdated: () => null,
-    onSessionMinutesUpdated: () => false,
-    getBookById: () => null,
-    listSessionBooks: () => [],
-    onManualSessionAdded: () => false,
-    onSessionRemoved: () => false,
-  };
+function defaultCalendarHandlers(): CalendarHandlers {
+    return {
+        getBookById: () => null,
+        isSessionCompleted: () => false,
+        listSessionBooks: () => [],
+        onManualSessionAdded: () => false,
+        onSessionCompletionChanged: (payload): void => {
+            Boolean(payload.completed);
+        },
+        onSessionMinutesUpdated: () => false,
+        onSessionProgressUpdated: () => null,
+        onSessionRemoved: () => false,
+    };
 }
 
 /**
@@ -46,23 +46,27 @@ export function defaultCalendarHandlers(): CalendarHandlers {
  * @returns Fully populated handlers object.
  */
 export function mergeCalendarHandlers(
-  handlers: Partial<CalendarHandlers>,
+    handlers: Partial<CalendarHandlers>,
 ): CalendarHandlers {
-  const defaults = defaultCalendarHandlers();
-  return {
-    isSessionCompleted:
-      handlers.isSessionCompleted ?? defaults.isSessionCompleted,
-    onSessionCompletionChanged:
-      handlers.onSessionCompletionChanged ??
-      defaults.onSessionCompletionChanged,
-    onSessionProgressUpdated:
-      handlers.onSessionProgressUpdated ?? defaults.onSessionProgressUpdated,
-    onSessionMinutesUpdated:
-      handlers.onSessionMinutesUpdated ?? defaults.onSessionMinutesUpdated,
-    getBookById: handlers.getBookById ?? defaults.getBookById,
-    listSessionBooks: handlers.listSessionBooks ?? defaults.listSessionBooks,
-    onManualSessionAdded:
-      handlers.onManualSessionAdded ?? defaults.onManualSessionAdded,
-    onSessionRemoved: handlers.onSessionRemoved ?? defaults.onSessionRemoved,
-  };
+    const DEFAULTS = defaultCalendarHandlers();
+    return {
+        getBookById: handlers.getBookById ?? DEFAULTS.getBookById,
+        isSessionCompleted:
+            handlers.isSessionCompleted ?? DEFAULTS.isSessionCompleted,
+        listSessionBooks:
+            handlers.listSessionBooks ?? DEFAULTS.listSessionBooks,
+        onManualSessionAdded:
+            handlers.onManualSessionAdded ?? DEFAULTS.onManualSessionAdded,
+        onSessionCompletionChanged:
+            handlers.onSessionCompletionChanged ??
+            DEFAULTS.onSessionCompletionChanged,
+        onSessionMinutesUpdated:
+            handlers.onSessionMinutesUpdated ??
+            DEFAULTS.onSessionMinutesUpdated,
+        onSessionProgressUpdated:
+            handlers.onSessionProgressUpdated ??
+            DEFAULTS.onSessionProgressUpdated,
+        onSessionRemoved:
+            handlers.onSessionRemoved ?? DEFAULTS.onSessionRemoved,
+    };
 }

@@ -4,9 +4,11 @@
  * @returns Trimmed lowercase query text.
  */
 export function normalizeTitleFilterQuery(
-  query: string | null | undefined,
+    query: string | null | undefined,
 ): string {
-  return String(query ?? "").trim().toLocaleLowerCase();
+    return String(query ?? "")
+        .trim()
+        .toLocaleLowerCase();
 }
 
 /**
@@ -16,12 +18,12 @@ export function normalizeTitleFilterQuery(
  * @returns `true` when query is empty or title contains query substring.
  */
 export function titleMatchesNormalizedQuery(
-  title: string | null | undefined,
-  normalizedQuery: string,
+    title: string | null | undefined,
+    normalizedQuery: string,
 ): boolean {
-  if (normalizedQuery === "") {
-    return true;
-  }
-  const normalizedTitle = String(title ?? "").toLocaleLowerCase();
-  return normalizedTitle.includes(normalizedQuery);
+    if (normalizedQuery === "") {
+        return true;
+    }
+    const NORMALIZED_TITLE = String(title ?? "").toLocaleLowerCase();
+    return NORMALIZED_TITLE.includes(normalizedQuery);
 }

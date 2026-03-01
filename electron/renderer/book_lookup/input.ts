@@ -1,6 +1,5 @@
-
+import { type LookupInputHandlerArgs } from "../../types/types.js";
 import { getPlannerApi } from "../app/planner_api.js";
-import type { LookupInputHandlerArgs } from "../../types/types.js";
 
 const LOOKUP_DELAY_MS = 260;
 const RESULT_LIMIT = 12;
@@ -17,56 +16,58 @@ const MIN_QUERY_LENGTH = 2;
  * @returns Input event handler for search field changes.
  */
 export function createLookupInputHandler({
-  searchInput,
-  metaEl,
-  state,
-  clearResults,
-  refreshResults,
+    searchInput,
+    metaEl,
+    state,
+    clearResults,
+    refreshResults,
 }: LookupInputHandlerArgs): () => void {
-  const lookupState = state;
-  const statusElement = metaEl;
-  return (): void => {
-    const query = searchInput.value.trim();
-    if (lookupState.timer !== null) {
-      clearTimeout(lookupState.timer);
-    }
+    const LOOKUP_STATE = state;
+    const STATUS_ELEMENT = metaEl;
+    return (): void => {
+        const QUERY = searchInput.value.trim();
+        if (LOOKUP_STATE.timer !== null) {
+            clearTimeout(LOOKUP_STATE.timer);
+        }
 
-    if (query.length < MIN_QUERY_LENGTH) {
-      clearResults();
-      statusElement.textContent = "";
-      return;
-    }
-
-    lookupState.timer = setTimeout((): void => {
-      lookupState.token += 1;
-      const currentToken = lookupState.token;
-      getPlannerApi()
-        .searchBooks(query)
-        .then((fetchedItems): void => {
-          const items = fetchedItems.slice(0, RESULT_LIMIT);
-          if (currentToken !== lookupState.token) {
-            return;
-          }
-          lookupState.currentItems = items;
-          lookupState.activeIndex = -1;
-          if (items.length > 0) {
-            lookupState.activeIndex = 0;
-          }
-          if (items.length === 0) {
+        if (QUERY.length < MIN_QUERY_LENGTH) {
             clearResults();
-            statusElement.textContent = "No matches found.";
+            STATUS_ELEMENT.textContent = "";
             return;
-          }
-          refreshResults();
-          statusElement.textContent = "Select a result to fill details.";
-        })
-        .catch((): void => {
-          if (currentToken !== lookupState.token) {
-            return;
-          }
-          clearResults();
-          statusElement.textContent = "Lookup unavailable; enter values manually.";
-        });
-    }, LOOKUP_DELAY_MS);
-  };
+        }
+
+        LOOKUP_STATE.timer = setTimeout((): void => {
+            LOOKUP_STATE.token += 1;
+            const CURRENT_TOKEN = LOOKUP_STATE.token;
+            getPlannerApi()
+                .searchBooks(QUERY)
+                .then((fetchedItems): void => {
+                    const ITEMS = fetchedItems.slice(0, RESULT_LIMIT);
+                    if (CURRENT_TOKEN !== LOOKUP_STATE.token) {
+                        return;
+                    }
+                    LOOKUP_STATE.currentItems = ITEMS;
+                    LOOKUP_STATE.activeIndex = -1;
+                    if (ITEMS.length > 0) {
+                        LOOKUP_STATE.activeIndex = 0;
+                    }
+                    if (ITEMS.length === 0) {
+                        clearResults();
+                        STATUS_ELEMENT.textContent = "No matches found.";
+                        return;
+                    }
+                    refreshResults();
+                    STATUS_ELEMENT.textContent =
+                        "Select a result to fill details.";
+                })
+                .catch((): void => {
+                    if (CURRENT_TOKEN !== LOOKUP_STATE.token) {
+                        return;
+                    }
+                    clearResults();
+                    STATUS_ELEMENT.textContent =
+                        "Lookup unavailable; enter values manually.";
+                });
+        }, LOOKUP_DELAY_MS);
+    };
 }

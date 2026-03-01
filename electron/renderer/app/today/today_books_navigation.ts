@@ -1,16 +1,16 @@
+import { type TodayBookNavigationActions } from "../../../types/types.js";
 import { scrollToBookCard } from "../../books/card_scroll_target.js";
 import { activateTab } from "../../tabs.js";
-import type { TodayBookNavigationActions } from "../../../types/types.js";
 
 const BOOKS_TAB_NAME = "books";
 
 const DEFAULT_NAVIGATION_ACTIONS: TodayBookNavigationActions = {
-  activateBooksTab: (): void => {
-    activateTab(BOOKS_TAB_NAME, { focusPanel: true });
-  },
-  scrollToBook: (bookId: string): void => {
-    scrollToBookCard(bookId);
-  },
+    activateBooksTab: (): void => {
+        activateTab(BOOKS_TAB_NAME, { focusPanel: true });
+    },
+    scrollToBook: (bookId: string): void => {
+        scrollToBookCard(bookId);
+    },
 };
 
 /**
@@ -19,15 +19,15 @@ const DEFAULT_NAVIGATION_ACTIONS: TodayBookNavigationActions = {
  * @param actions Navigation actions used to activate the tab and scroll target.
  */
 export function navigateToTodayBook(
-  bookId: string,
-  actions: TodayBookNavigationActions = DEFAULT_NAVIGATION_ACTIONS,
+    bookId: string,
+    actions: TodayBookNavigationActions = DEFAULT_NAVIGATION_ACTIONS,
 ): void {
-  const normalizedBookId = String(bookId || "").trim();
-  if (normalizedBookId === "") {
-    return;
-  }
-  actions.activateBooksTab();
-  globalThis.requestAnimationFrame(() => {
-    actions.scrollToBook(normalizedBookId);
-  });
+    const NORMALIZED_BOOK_ID = String(bookId || "").trim();
+    if (NORMALIZED_BOOK_ID === "") {
+        return;
+    }
+    actions.activateBooksTab();
+    globalThis.requestAnimationFrame(() => {
+        actions.scrollToBook(NORMALIZED_BOOK_ID);
+    });
 }

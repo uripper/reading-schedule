@@ -94,9 +94,9 @@ def _fallback_to_greedy(books: list[Book], settings: Settings) -> PlanResult:
 
 def _status_values(cp_model_module: object) -> dict[str, int]:
     """Read CP-SAT status constants from the loaded module."""
-    status_values: dict[str, int] = {}
-    for name in _status_names():
-        status_values[name] = int(getattr(cp_model_module, name))
+    status_values: dict[str, int] = {
+        name: int(getattr(cp_model_module, name)) for name in _status_names()
+    }
     return status_values
 
 

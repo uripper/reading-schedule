@@ -1,18 +1,18 @@
+import { type BookStatus, type StatsSnapshot } from "../../types/types.js";
 import {
-  BOOK_STATUS_DROPPED,
-  BOOK_STATUS_IN_PROGRESS,
-  BOOK_STATUS_READ,
-  BOOK_STATUS_TO_READ,
-  statusLabel,
+    BOOK_STATUS_DROPPED,
+    BOOK_STATUS_IN_PROGRESS,
+    BOOK_STATUS_READ,
+    BOOK_STATUS_TO_READ,
+    statusLabel,
 } from "../books/status_catalog.js";
 import { el } from "../dom.js";
-import type { BookStatus, StatsSnapshot } from "../../types/types.js";
 
 const STATUS_ORDER: BookStatus[] = [
-  BOOK_STATUS_TO_READ,
-  BOOK_STATUS_IN_PROGRESS,
-  BOOK_STATUS_READ,
-  BOOK_STATUS_DROPPED,
+    BOOK_STATUS_TO_READ,
+    BOOK_STATUS_IN_PROGRESS,
+    BOOK_STATUS_READ,
+    BOOK_STATUS_DROPPED,
 ];
 const SINGLE_FINISH_COUNT = 1;
 const MIN_BAR_HEIGHT_PERCENT = 8;
@@ -25,7 +25,7 @@ const ZERO_COUNT = 0;
  * @returns Formatted number string.
  */
 function numberText(value: number): string {
-  return new Intl.NumberFormat().format(value);
+    return new Intl.NumberFormat().format(value);
 }
 
 /**
@@ -36,22 +36,22 @@ function numberText(value: number): string {
  * @returns KPI card element.
  */
 function card(title: string, value: string, note: string): HTMLElement {
-  const node = document.createElement("article");
-  node.className = "stats-card";
+    const NODE = document.createElement("article");
+    NODE.className = "stats-card";
 
-  const heading = document.createElement("h2");
-  heading.textContent = title;
+    const HEADING = document.createElement("h2");
+    HEADING.textContent = title;
 
-  const valueNode = document.createElement("p");
-  valueNode.className = "stats-value";
-  valueNode.textContent = value;
+    const VALUE_NODE = document.createElement("p");
+    VALUE_NODE.className = "stats-value";
+    VALUE_NODE.textContent = value;
 
-  const noteNode = document.createElement("p");
-  noteNode.className = "stats-note";
-  noteNode.textContent = note;
+    const NOTE_NODE = document.createElement("p");
+    NOTE_NODE.className = "stats-note";
+    NOTE_NODE.textContent = note;
 
-  node.append(heading, valueNode, noteNode);
-  return node;
+    NODE.append(HEADING, VALUE_NODE, NOTE_NODE);
+    return NODE;
 }
 
 /**
@@ -60,10 +60,10 @@ function card(title: string, value: string, note: string): HTMLElement {
  * @returns Human-friendly count label.
  */
 export function finishCountLabel(count: number): string {
-  if (count === SINGLE_FINISH_COUNT) {
-    return `${count} finish`;
-  }
-  return `${count} finishes`;
+    if (count === SINGLE_FINISH_COUNT) {
+        return `${count} finish`;
+    }
+    return `${count} finishes`;
 }
 
 /**
@@ -73,14 +73,14 @@ export function finishCountLabel(count: number): string {
  * @returns Bar height percent.
  */
 export function barHeightPercent(count: number, maxCount: number): number {
-  if (count <= ZERO_COUNT) {
-    return ZERO_COUNT;
-  }
-  const scaled = Math.round((count / maxCount) * PERCENT_SCALE);
-  if (scaled < MIN_BAR_HEIGHT_PERCENT) {
-    return MIN_BAR_HEIGHT_PERCENT;
-  }
-  return scaled;
+    if (count <= ZERO_COUNT) {
+        return ZERO_COUNT;
+    }
+    const SCALED = Math.round((count / maxCount) * PERCENT_SCALE);
+    if (SCALED < MIN_BAR_HEIGHT_PERCENT) {
+        return MIN_BAR_HEIGHT_PERCENT;
+    }
+    return SCALED;
 }
 
 /**
@@ -89,31 +89,31 @@ export function barHeightPercent(count: number, maxCount: number): number {
  * @returns KPI grid element.
  */
 function kpiGrid(snapshot: StatsSnapshot): HTMLElement {
-  const grid = document.createElement("div");
-  grid.className = "stats-kpi-grid";
-  grid.append(
-    card(
-      `Projected Finishes ${snapshot.year}`,
-      numberText(snapshot.projectedFinishCount),
-      `${snapshot.plannedFinishCount} planned + ${snapshot.finishedThisYearCount} already read`,
-    ),
-    card(
-      "Completion Rate",
-      `${snapshot.completionRatePercent}%`,
-      `${numberText(snapshot.completedSessionsToDate)} of ${numberText(snapshot.scheduledSessionsToDate)} sessions complete`,
-    ),
-    card(
-      `Reading Minutes ${snapshot.year}`,
-      numberText(snapshot.readingMinutesYear),
-      `${numberText(snapshot.activeDaysYear)} active days, ${snapshot.currentStreakDays} day streak`,
-    ),
-    card(
-      "Catalog Progress",
-      `${snapshot.averageProgressPercent.toFixed(1)}%`,
-      `${numberText(snapshot.booksStartedCount)} started across ${numberText(snapshot.totalBooks)} books`,
-    ),
-  );
-  return grid;
+    const GRID = document.createElement("div");
+    GRID.className = "stats-kpi-grid";
+    GRID.append(
+        card(
+            `Projected Finishes ${snapshot.year}`,
+            numberText(snapshot.projectedFinishCount),
+            `${snapshot.plannedFinishCount} planned + ${snapshot.finishedThisYearCount} already read`,
+        ),
+        card(
+            "Completion Rate",
+            `${snapshot.completionRatePercent}%`,
+            `${numberText(snapshot.completedSessionsToDate)} of ${numberText(snapshot.scheduledSessionsToDate)} sessions complete`,
+        ),
+        card(
+            `Reading Minutes ${snapshot.year}`,
+            numberText(snapshot.readingMinutesYear),
+            `${numberText(snapshot.activeDaysYear)} active days, ${snapshot.currentStreakDays} day streak`,
+        ),
+        card(
+            "Catalog Progress",
+            `${snapshot.averageProgressPercent.toFixed(1)}%`,
+            `${numberText(snapshot.booksStartedCount)} started across ${numberText(snapshot.totalBooks)} books`,
+        ),
+    );
+    return GRID;
 }
 
 /**
@@ -122,44 +122,44 @@ function kpiGrid(snapshot: StatsSnapshot): HTMLElement {
  * @returns Status panel element.
  */
 function statusPanel(snapshot: StatsSnapshot): HTMLElement {
-  const panel = document.createElement("article");
-  panel.className = "stats-panel";
+    const PANEL = document.createElement("article");
+    PANEL.className = "stats-panel";
 
-  const heading = document.createElement("h1");
-  heading.className = "stats-section-heading";
-  heading.textContent = "Status Mix";
+    const HEADING = document.createElement("h1");
+    HEADING.className = "stats-section-heading";
+    HEADING.textContent = "Status Mix";
 
-  const list = document.createElement("div");
-  list.className = "status-list";
-  const total = Math.max(1, snapshot.totalBooks);
+    const LIST = document.createElement("div");
+    LIST.className = "status-list";
+    const TOTAL = Math.max(1, snapshot.totalBooks);
 
-  STATUS_ORDER.forEach((status) => {
-    const row = document.createElement("div");
-    row.className = "status-row";
+    STATUS_ORDER.forEach((status) => {
+        const ROW = document.createElement("div");
+        ROW.className = "status-row";
 
-    const label = document.createElement("span");
-    label.className = "status-label";
-    label.textContent = statusLabel(status);
+        const LABEL = document.createElement("span");
+        LABEL.className = "status-label";
+        LABEL.textContent = statusLabel(status);
 
-    const barWrap = document.createElement("div");
-    barWrap.className = "status-bar-wrap";
-    const bar = document.createElement("span");
-    bar.className = `status-bar is-${status}`;
-    const count = snapshot.statusBreakdown[status];
-    const width = Math.round((count / total) * 100);
-    bar.style.width = `${width}%`;
-    barWrap.append(bar);
+        const BAR_WRAP = document.createElement("div");
+        BAR_WRAP.className = "status-bar-wrap";
+        const BAR = document.createElement("span");
+        BAR.className = `status-bar is-${status}`;
+        const COUNT = snapshot.statusBreakdown[status];
+        const WIDTH = Math.round((COUNT / TOTAL) * 100);
+        BAR.style.width = `${WIDTH}%`;
+        BAR_WRAP.append(BAR);
 
-    const countNode = document.createElement("span");
-    countNode.className = "status-count";
-    countNode.textContent = numberText(count);
+        const COUNT_NODE = document.createElement("span");
+        COUNT_NODE.className = "status-count";
+        COUNT_NODE.textContent = numberText(COUNT);
 
-    row.append(label, barWrap, countNode);
-    list.append(row);
-  });
+        ROW.append(LABEL, BAR_WRAP, COUNT_NODE);
+        LIST.append(ROW);
+    });
 
-  panel.append(heading, list);
-  return panel;
+    PANEL.append(HEADING, LIST);
+    return PANEL;
 }
 
 /**
@@ -168,54 +168,54 @@ function statusPanel(snapshot: StatsSnapshot): HTMLElement {
  * @returns Month timeline panel element.
  */
 function monthPanel(snapshot: StatsSnapshot): HTMLElement {
-  const panel = document.createElement("article");
-  panel.className = "stats-panel";
+    const PANEL = document.createElement("article");
+    PANEL.className = "stats-panel";
 
-  const heading = document.createElement("h1");
-  heading.className = "stats-section-heading";
-  heading.textContent = `Finish Timeline ${snapshot.year}`;
+    const HEADING = document.createElement("h1");
+    HEADING.className = "stats-section-heading";
+    HEADING.textContent = `Finish Timeline ${snapshot.year}`;
 
-  const bars = document.createElement("div");
-  bars.className = "month-bars";
-  const maxCount = Math.max(...snapshot.monthlyFinishes, 1);
+    const BARS = document.createElement("div");
+    BARS.className = "month-bars";
+    const MAX_COUNT = Math.max(...snapshot.monthlyFinishes, 1);
 
-  snapshot.monthlyFinishes.forEach((count: number, index: number) => {
-    const item = document.createElement("div");
-    item.className = "month-bar-item";
+    snapshot.monthlyFinishes.forEach((count: number, index: number) => {
+        const ITEM = document.createElement("div");
+        ITEM.className = "month-bar-item";
 
-    const track = document.createElement("div");
-    track.className = "month-bar-track";
-    track.tabIndex = 0;
+        const TRACK = document.createElement("div");
+        TRACK.className = "month-bar-track";
+        TRACK.tabIndex = 0;
 
-    const fill = document.createElement("span");
-    fill.className = "month-bar-fill";
-    const heightPercent = barHeightPercent(count, maxCount);
-    fill.style.height = `${heightPercent}%`;
-    fill.setAttribute("title", finishCountLabel(count));
-    if (count <= ZERO_COUNT) {
-      fill.classList.add("is-zero");
-    }
-    const valueLabel = document.createElement("span");
-    valueLabel.className = "month-bar-value";
-    valueLabel.textContent = finishCountLabel(count);
-    track.append(fill, valueLabel);
+        const FILL = document.createElement("span");
+        FILL.className = "month-bar-fill";
+        const HEIGHT_PERCENT = barHeightPercent(count, MAX_COUNT);
+        FILL.style.height = `${HEIGHT_PERCENT}%`;
+        FILL.setAttribute("title", finishCountLabel(count));
+        if (count <= ZERO_COUNT) {
+            FILL.classList.add("is-zero");
+        }
+        const VALUE_LABEL = document.createElement("span");
+        VALUE_LABEL.className = "month-bar-value";
+        VALUE_LABEL.textContent = finishCountLabel(count);
+        TRACK.append(FILL, VALUE_LABEL);
 
-    const month = document.createElement("span");
-    month.className = "month-bar-label";
-    month.textContent = new Intl.DateTimeFormat(undefined, {
-      month: "short",
-    }).format(new Date(snapshot.year, index, 1));
+        const MONTH = document.createElement("span");
+        MONTH.className = "month-bar-label";
+        MONTH.textContent = new Intl.DateTimeFormat(undefined, {
+            month: "short",
+        }).format(new Date(snapshot.year, index, 1));
 
-    item.setAttribute(
-      "aria-label",
-      `${month.textContent}: ${finishCountLabel(count)}`,
-    );
-    item.append(track, month);
-    bars.append(item);
-  });
+        ITEM.setAttribute(
+            "aria-label",
+            `${MONTH.textContent}: ${finishCountLabel(count)}`,
+        );
+        ITEM.append(TRACK, MONTH);
+        BARS.append(ITEM);
+    });
 
-  panel.append(heading, bars);
-  return panel;
+    PANEL.append(HEADING, BARS);
+    return PANEL;
 }
 
 /**
@@ -224,10 +224,10 @@ function monthPanel(snapshot: StatsSnapshot): HTMLElement {
  * @returns Secondary panel grid element.
  */
 function secondaryGrid(snapshot: StatsSnapshot): HTMLElement {
-  const grid = document.createElement("div");
-  grid.className = "stats-secondary-grid";
-  grid.append(statusPanel(snapshot), monthPanel(snapshot));
-  return grid;
+    const GRID = document.createElement("div");
+    GRID.className = "stats-secondary-grid";
+    GRID.append(statusPanel(snapshot), monthPanel(snapshot));
+    return GRID;
 }
 
 /**
@@ -235,13 +235,13 @@ function secondaryGrid(snapshot: StatsSnapshot): HTMLElement {
  * @param snapshot Stats snapshot.
  */
 export function renderStatsDashboard(snapshot: StatsSnapshot): void {
-  const root = el("statsDashboard");
-  if (!snapshot.totalBooks) {
-    const empty = document.createElement("p");
-    empty.className = "hint-text";
-    empty.textContent = "Add books to see long-term reading stats.";
-    root.replaceChildren(empty);
-    return;
-  }
-  root.replaceChildren(kpiGrid(snapshot), secondaryGrid(snapshot));
+    const ROOT = el("statsDashboard");
+    if (!snapshot.totalBooks) {
+        const EMPTY = document.createElement("p");
+        EMPTY.className = "hint-text";
+        EMPTY.textContent = "Add books to see long-term reading stats.";
+        ROOT.replaceChildren(EMPTY);
+        return;
+    }
+    ROOT.replaceChildren(kpiGrid(snapshot), secondaryGrid(snapshot));
 }

@@ -1,5 +1,8 @@
+import {
+    type AnnouncePoliteness,
+    type DocumentPreferencesInput,
+} from "../../types/types.js";
 import { el } from "../dom.js";
-import type { AnnouncePoliteness, DocumentPreferencesInput } from "../../types/types.js";
 
 const ANNOUNCE_DELAY_MS = 30;
 
@@ -9,17 +12,17 @@ const ANNOUNCE_DELAY_MS = 30;
  * @returns The focused invalid element, or null when none is found.
  */
 export function focusFirstError(
-  formElement: HTMLElement | null | undefined,
+    formElement: HTMLElement | null | undefined,
 ): HTMLElement | null {
-  if (!(formElement instanceof HTMLElement)) {
+    if (!(formElement instanceof HTMLElement)) {
+        return null;
+    }
+    const INVALID = formElement.querySelector(":invalid");
+    if (INVALID instanceof HTMLElement) {
+        INVALID.focus();
+        return INVALID;
+    }
     return null;
-  }
-  const invalid = formElement.querySelector(":invalid");
-  if (invalid instanceof HTMLElement) {
-    invalid.focus();
-    return invalid;
-  }
-  return null;
 }
 
 /**
@@ -28,23 +31,26 @@ export function focusFirstError(
  * @returns Function that posts a message to the live region.
  */
 export function createAnnouncer(
-  regionId = "liveRegion",
+    regionId = "liveRegion",
 ): (message: string, politeness?: AnnouncePoliteness) => void {
-  const region = el(regionId);
-  let clearTimer: ReturnType<typeof setTimeout> | null = null;
-  return (message: string, politeness: AnnouncePoliteness = "polite"): void => {
-    if (!message) {
-      return;
-    }
-    if (clearTimer) {
-      clearTimeout(clearTimer);
-    }
-    region.setAttribute("aria-live", politeness);
-    region.textContent = "";
-    clearTimer = setTimeout(() => {
-      region.textContent = String(message);
-    }, ANNOUNCE_DELAY_MS);
-  };
+    const REGION = el(regionId);
+    let clearTimer: ReturnType<typeof setTimeout> | null = null;
+    return (
+        message: string,
+        politeness: AnnouncePoliteness = "polite",
+    ): void => {
+        if (!message) {
+            return;
+        }
+        if (clearTimer) {
+            clearTimeout(clearTimer);
+        }
+        REGION.setAttribute("aria-live", politeness);
+        REGION.textContent = "";
+        clearTimer = setTimeout(() => {
+            REGION.textContent = String(message);
+        }, ANNOUNCE_DELAY_MS);
+    };
 }
 
 /**
@@ -52,22 +58,22 @@ export function createAnnouncer(
  * @param preferences User preference values to apply.
  */
 export function applyPreferencesToDocument(
-  preferences: DocumentPreferencesInput = {},
+    preferences: DocumentPreferencesInput = {},
 ): void {
-  let theme = "system";
-  if (
-    typeof preferences.theme === "string" &&
-    ["system", "light", "dark"].includes(preferences.theme)
-  ) {
-    theme = preferences.theme;
-  }
-  const reduceMotion = Boolean(preferences.reduceMotion);
-  const root = document.documentElement;
-  root.dataset.theme = theme;
-  root.dataset.reduceMotion = "false";
-  if (reduceMotion) {
-    root.dataset.reduceMotion = "true";
-  }
+    let theme = "system";
+    if (
+        typeof preferences.theme === "string" &&
+        ["system", "light", "dark"].includes(preferences.theme)
+    ) {
+        theme = preferences.theme;
+    }
+    const REDUCE_MOTION = Boolean(preferences.reduceMotion);
+    const ROOT = document.documentElement;
+    ROOT.dataset.theme = theme;
+    ROOT.dataset.reduceMotion = "false";
+    if (REDUCE_MOTION) {
+        ROOT.dataset.reduceMotion = "true";
+    }
 }
 
 export { bindDialogFocus } from "./a11y_dialog_focus.js";

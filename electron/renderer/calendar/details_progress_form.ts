@@ -1,12 +1,40 @@
-import type {
-  Book,
-  CalendarRowWithFinish,
-  DetailInteractionHandlers,
+import {
+    type Book,
+    type CalendarRowWithFinish,
+    type DetailInteractionHandlers,
 } from "../../types/types.js";
 import {
-  setInputValueFromBookProgress,
-  submitProgressUpdate,
+    setInputValueFromBookProgress,
+    submitProgressUpdate,
 } from "./details_progress_form_helpers.js";
+
+function progressInput(
+    placeholder: string,
+    min: string,
+    max: string | null,
+    step: string,
+): HTMLInputElement {
+    const INPUT_NODE = document.createElement("input");
+    INPUT_NODE.type = "number";
+    INPUT_NODE.min = min;
+    if (max !== null) {
+        INPUT_NODE.max = max;
+    }
+    INPUT_NODE.step = step;
+    INPUT_NODE.placeholder = placeholder;
+    return INPUT_NODE;
+}
+
+function labeledProgressField(
+    text: string,
+    inputNode: HTMLInputElement,
+): HTMLElement {
+    const LABEL = document.createElement("label");
+    LABEL.className = "day-progress-field";
+    LABEL.textContent = text;
+    LABEL.append(inputNode);
+    return LABEL;
+}
 
 /**
  * Builds progress update form for today's session row.
@@ -17,64 +45,48 @@ import {
  * @returns Progress form element.
  */
 export function progressFormForToday(
-  row: CalendarRowWithFinish,
-  book: Book,
-  interactionHandlers: DetailInteractionHandlers,
-  onProgressApplied: () => void,
+    row: CalendarRowWithFinish,
+    book: Book,
+    interactionHandlers: DetailInteractionHandlers,
+    onProgressApplied: () => void,
 ): HTMLFormElement {
-  const progressForm = document.createElement("form");
-  progressForm.className = "day-progress-form";
+    const PROGRESS_FORM = document.createElement("form");
+    PROGRESS_FORM.className = "day-progress-form";
 
-  const pagesInput = document.createElement("input");
-  pagesInput.type = "number";
-  pagesInput.min = "0";
-  pagesInput.step = "1";
-  pagesInput.placeholder = "Pages read";
-  setInputValueFromBookProgress(pagesInput, book.pages_read ?? undefined);
+    const PAGES_INPUT = progressInput("Pages read", "0", null, "1");
+    setInputValueFromBookProgress(PAGES_INPUT, book.pages_read ?? undefined);
 
-  const pctInput = document.createElement("input");
-  pctInput.type = "number";
-  pctInput.min = "0";
-  pctInput.max = "100";
-  pctInput.step = "0.1";
-  pctInput.placeholder = "Percent complete";
-  setInputValueFromBookProgress(pctInput, book.progress_percent);
+    const PCT_INPUT = progressInput("Percent complete", "0", "100", "0.1");
+    setInputValueFromBookProgress(PCT_INPUT, book.progress_percent);
 
-  const pagesLabel = document.createElement("label");
-  pagesLabel.className = "day-progress-field";
-  pagesLabel.textContent = "Pages Read";
-  pagesLabel.append(pagesInput);
+    const PAGES_LABEL = labeledProgressField("Pages Read", PAGES_INPUT);
+    const PERCENT_LABEL = labeledProgressField("Complete %", PCT_INPUT);
 
-  const percentLabel = document.createElement("label");
-  percentLabel.className = "day-progress-field";
-  percentLabel.textContent = "Complete %";
-  percentLabel.append(pctInput);
+    let initialPagesValue = String(PAGES_INPUT.value).trim();
+    let initialPercentValue = String(PCT_INPUT.value).trim();
 
-  let initialPagesValue = String(pagesInput.value).trim();
-  let initialPercentValue = String(pctInput.value).trim();
+    const SAVE_BTN = document.createElement("button");
+    SAVE_BTN.type = "submit";
+    SAVE_BTN.className = "btn";
+    SAVE_BTN.textContent = "Update Progress";
 
-  const saveBtn = document.createElement("button");
-  saveBtn.type = "submit";
-  saveBtn.className = "btn";
-  saveBtn.textContent = "Update Progress";
+    PROGRESS_FORM.append(PAGES_LABEL, PERCENT_LABEL, SAVE_BTN);
+    PROGRESS_FORM.onsubmit = (event) => {
+        const UPDATED_VALUES = submitProgressUpdate({
+            event,
+            initialPagesValue,
+            initialPercentValue,
+            interactionHandlers,
+            pagesInput: PAGES_INPUT,
+            pctInput: PCT_INPUT,
+            row,
+        });
+        initialPagesValue = UPDATED_VALUES.initialPagesValue;
+        initialPercentValue = UPDATED_VALUES.initialPercentValue;
+        if (UPDATED_VALUES.applied) {
+            onProgressApplied();
+        }
+    };
 
-  progressForm.append(pagesLabel, percentLabel, saveBtn);
-  progressForm.onsubmit = (event) => {
-    const updatedValues = submitProgressUpdate({
-      event,
-      row,
-      pagesInput,
-      pctInput,
-      initialPagesValue,
-      initialPercentValue,
-      interactionHandlers,
-    });
-    initialPagesValue = updatedValues.initialPagesValue;
-    initialPercentValue = updatedValues.initialPercentValue;
-    if (updatedValues.applied) {
-      onProgressApplied();
-    }
-  };
-
-  return progressForm;
+    return PROGRESS_FORM;
 }

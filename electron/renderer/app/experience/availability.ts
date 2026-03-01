@@ -1,4 +1,7 @@
-import type { FeatureFlagRawValue, ReminderTimeRawValue } from "../../../types/types.js";
+import {
+    type FeatureFlagRawValue,
+    type ReminderTimeRawValue,
+} from "../../../types/types.js";
 export const REMINDERS_AVAILABLE = false;
 export const SOCIAL_FEATURES_AVAILABLE = false;
 export const RECOMMENDATIONS_AVAILABLE = false;
@@ -9,14 +12,14 @@ export const RECOMMENDATIONS_AVAILABLE = false;
  * @returns true/false or undefined if not a recognized pattern.
  */
 function normalizeStringFlag(value: string): boolean | undefined {
-  const normalized = value.trim().toLowerCase();
-  if (normalized === "true" || normalized === "1") {
-    return true;
-  }
-  if (normalized === "false" || normalized === "0") {
-    return false;
-  }
-  return undefined;
+    const NORMALIZED = value.trim().toLowerCase();
+    if (NORMALIZED === "true" || NORMALIZED === "1") {
+        return true;
+    }
+    if (NORMALIZED === "false" || NORMALIZED === "0") {
+        return false;
+    }
+    return undefined;
 }
 
 /**
@@ -25,13 +28,13 @@ function normalizeStringFlag(value: string): boolean | undefined {
  * @returns true/false or undefined if not 0/1.
  */
 function normalizeNumberFlag(value: number): boolean | undefined {
-  if (value === 1) {
-    return true;
-  }
-  if (value === 0) {
-    return false;
-  }
-  return undefined;
+    if (value === 1) {
+        return true;
+    }
+    if (value === 0) {
+        return false;
+    }
+    return undefined;
 }
 
 /**
@@ -42,32 +45,32 @@ function normalizeNumberFlag(value: number): boolean | undefined {
  * @returns Normalized feature flag value.
  */
 export function shippedFeatureFlag(
-  rawValue: FeatureFlagRawValue,
-  isAvailable: boolean,
+    rawValue: FeatureFlagRawValue,
+    isAvailable: boolean,
 ): boolean {
-  if (!isAvailable) {
-    return false;
-  }
-
-  if (typeof rawValue === "boolean") {
-    return rawValue;
-  }
-
-  if (typeof rawValue === "string") {
-    const result = normalizeStringFlag(rawValue);
-    if (result !== undefined) {
-      return result;
+    if (!isAvailable) {
+        return false;
     }
-  }
 
-  if (typeof rawValue === "number") {
-    const result = normalizeNumberFlag(rawValue);
-    if (result !== undefined) {
-      return result;
+    if (typeof rawValue === "boolean") {
+        return rawValue;
     }
-  }
 
-  return Boolean(rawValue);
+    if (typeof rawValue === "string") {
+        const RESULT = normalizeStringFlag(rawValue);
+        if (RESULT !== undefined) {
+            return RESULT;
+        }
+    }
+
+    if (typeof rawValue === "number") {
+        const RESULT = normalizeNumberFlag(rawValue);
+        if (RESULT !== undefined) {
+            return RESULT;
+        }
+    }
+
+    return Boolean(rawValue);
 }
 
 /**
@@ -78,16 +81,16 @@ export function shippedFeatureFlag(
  * @returns Normalized reminder time string.
  */
 export function shippedReminderTime(
-  rawValue: ReminderTimeRawValue,
-  isAvailable: boolean,
-  defaultReminderTime: string,
+    rawValue: ReminderTimeRawValue,
+    isAvailable: boolean,
+    defaultReminderTime: string,
 ): string {
-  if (!isAvailable) {
-    return defaultReminderTime;
-  }
-  const value = String(rawValue ?? "").trim();
-  if (!value) {
-    return defaultReminderTime;
-  }
-  return value;
+    if (!isAvailable) {
+        return defaultReminderTime;
+    }
+    const VALUE = String(rawValue ?? "").trim();
+    if (!VALUE) {
+        return defaultReminderTime;
+    }
+    return VALUE;
 }

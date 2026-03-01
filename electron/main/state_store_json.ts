@@ -2,16 +2,16 @@
  * @file Atomic JSON planner state read/write helpers with backup fallback.
  */
 import fs from "node:fs";
-import type {
-  LoadedPlannerState,
-  PlannerSaveResult,
-  PlannerStateLoadResult,
-  JsonValue,
+import {
+    type JsonValue,
+    type LoadedPlannerState,
+    type PlannerSaveResult,
+    type PlannerStateLoadResult,
 } from "../types/types.js";
 import {
-  jsonStateBackupPath,
-  jsonStatePath,
-  jsonStateTempPath,
+    jsonStateBackupPath,
+    jsonStatePath,
+    jsonStateTempPath,
 } from "./state_store_paths";
 
 const UTF8_BOM = "\uFEFF";
@@ -22,10 +22,10 @@ const UTF8_BOM = "\uFEFF";
  * @returns BOM-stripped JSON text.
  */
 function stripUtf8Bom(text: string): string {
-  if (!text.startsWith(UTF8_BOM)) {
-    return text;
-  }
-  return text.slice(1);
+    if (!text.startsWith(UTF8_BOM)) {
+        return text;
+    }
+    return text.slice(1);
 }
 
 /**
@@ -34,16 +34,16 @@ function stripUtf8Bom(text: string): string {
  * @returns Object payload when valid, otherwise null.
  */
 function objectState(value: unknown): LoadedPlannerState | null {
-  if (value === null) {
-    return null;
-  }
-  if (Array.isArray(value)) {
-    return null;
-  }
-  if (typeof value !== "object") {
-    return null;
-  }
-  return value as LoadedPlannerState;
+    if (value === null) {
+        return null;
+    }
+    if (Array.isArray(value)) {
+        return null;
+    }
+    if (typeof value !== "object") {
+        return null;
+    }
+    return value as LoadedPlannerState;
 }
 
 /**
@@ -52,13 +52,13 @@ function objectState(value: unknown): LoadedPlannerState | null {
  * @returns Parsed object state, or null when file is missing/invalid.
  */
 function readJsonObjectFile(filePath: string): LoadedPlannerState | null {
-  try {
-    const text = stripUtf8Bom(fs.readFileSync(filePath, "utf8"));
-    const parsed = JSON.parse(text) as unknown;
-    return objectState(parsed);
-  } catch {
-    return null;
-  }
+    try {
+        const TEXT = stripUtf8Bom(fs.readFileSync(filePath, "utf8"));
+        const PARSED = JSON.parse(TEXT) as unknown;
+        return objectState(PARSED);
+    } catch {
+        return null;
+    }
 }
 
 /**
@@ -66,12 +66,12 @@ function readJsonObjectFile(filePath: string): LoadedPlannerState | null {
  * @param filePath Path to fsync.
  */
 function fsyncFile(filePath: string): void {
-  const file = fs.openSync(filePath, "r");
-  try {
-    fs.fsyncSync(file);
-  } finally {
-    fs.closeSync(file);
-  }
+    const FILE = fs.openSync(filePath, "r");
+    try {
+        fs.fsyncSync(FILE);
+    } finally {
+        fs.closeSync(FILE);
+    }
 }
 
 /**
@@ -79,16 +79,16 @@ function fsyncFile(filePath: string): void {
  * @param dirPath Directory path to fsync.
  */
 function fsyncDirectory(dirPath: string): void {
-  try {
-    const directory = fs.openSync(dirPath, "r");
     try {
-      fs.fsyncSync(directory);
-    } finally {
-      fs.closeSync(directory);
+        const DIRECTORY = fs.openSync(dirPath, "r");
+        try {
+            fs.fsyncSync(DIRECTORY);
+        } finally {
+            fs.closeSync(DIRECTORY);
+        }
+    } catch {
+        // Some platforms/filesystems do not support directory fsync.
     }
-  } catch {
-    // Some platforms/filesystems do not support directory fsync.
-  }
 }
 
 /**
@@ -96,29 +96,31 @@ function fsyncDirectory(dirPath: string): void {
  * @param userDataDir App user-data directory.
  * @returns Load result for JSON sources, or null when unreadable/missing.
  */
-export function readStateFromJson(userDataDir: string): PlannerStateLoadResult | null {
-  const primaryPath = jsonStatePath(userDataDir);
-  const backupPath = jsonStateBackupPath(userDataDir);
-  const primary = readJsonObjectFile(primaryPath);
-  if (primary) {
-    return {
-      state: primary,
-      source: "json_primary",
-      sourcePath: primaryPath,
-    };
-  }
-  const backup = readJsonObjectFile(backupPath);
-  if (backup) {
-    return {
-      state: backup,
-      source: "json_backup",
-      sourcePath: backupPath,
-      warningCode: "RECOVERED_FROM_BACKUP",
-      warningMessage:
-        "Recovered saved data from backup copy. Recent unsaved changes may be missing.",
-    };
-  }
-  return null;
+export function readStateFromJson(
+    userDataDir: string,
+): PlannerStateLoadResult | null {
+    const PRIMARY_PATH = jsonStatePath(userDataDir);
+    const BACKUP_PATH = jsonStateBackupPath(userDataDir);
+    const PRIMARY = readJsonObjectFile(PRIMARY_PATH);
+    if (PRIMARY) {
+        return {
+            source: "json_primary",
+            sourcePath: PRIMARY_PATH,
+            state: PRIMARY,
+        };
+    }
+    const BACKUP = readJsonObjectFile(BACKUP_PATH);
+    if (BACKUP) {
+        return {
+            source: "json_backup",
+            sourcePath: BACKUP_PATH,
+            state: BACKUP,
+            warningCode: "RECOVERED_FROM_BACKUP",
+            warningMessage:
+                "Recovered saved data from backup copy. Recent unsaved changes may be missing.",
+        };
+    }
+    return null;
 }
 
 /**
@@ -128,36 +130,36 @@ export function readStateFromJson(userDataDir: string): PlannerStateLoadResult |
  * @returns Save result.
  */
 export function writeStateToJson(
-  userDataDir: string,
-  data: JsonValue,
+    userDataDir: string,
+    data: JsonValue,
 ): PlannerSaveResult {
-  const primaryPath = jsonStatePath(userDataDir);
-  const backupPath = jsonStateBackupPath(userDataDir);
-  const tempPath = jsonStateTempPath(userDataDir);
-  try {
-    fs.mkdirSync(userDataDir, { recursive: true });
-    fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), "utf8");
-    fsyncFile(tempPath);
-    if (fs.existsSync(primaryPath)) {
-      if (fs.existsSync(backupPath)) {
-        fs.unlinkSync(backupPath);
-      }
-      fs.renameSync(primaryPath, backupPath);
+    const PRIMARY_PATH = jsonStatePath(userDataDir);
+    const BACKUP_PATH = jsonStateBackupPath(userDataDir);
+    const TEMP_PATH = jsonStateTempPath(userDataDir);
+    try {
+        fs.mkdirSync(userDataDir, { recursive: true });
+        fs.writeFileSync(TEMP_PATH, JSON.stringify(data, null, 2), "utf8");
+        fsyncFile(TEMP_PATH);
+        if (fs.existsSync(PRIMARY_PATH)) {
+            if (fs.existsSync(BACKUP_PATH)) {
+                fs.unlinkSync(BACKUP_PATH);
+            }
+            fs.renameSync(PRIMARY_PATH, BACKUP_PATH);
+        }
+        fs.renameSync(TEMP_PATH, PRIMARY_PATH);
+        fsyncDirectory(userDataDir);
+        return { ok: true };
+    } catch (error) {
+        if (fs.existsSync(TEMP_PATH)) {
+            try {
+                fs.unlinkSync(TEMP_PATH);
+            } catch {
+                // Best-effort cleanup.
+            }
+        }
+        if (error instanceof Error) {
+            return { error: error.message, ok: false };
+        }
+        return { error: String(error), ok: false };
     }
-    fs.renameSync(tempPath, primaryPath);
-    fsyncDirectory(userDataDir);
-    return { ok: true };
-  } catch (error) {
-    if (fs.existsSync(tempPath)) {
-      try {
-        fs.unlinkSync(tempPath);
-      } catch {
-        // Best-effort cleanup.
-      }
-    }
-    if (error instanceof Error) {
-      return { ok: false, error: error.message };
-    }
-    return { ok: false, error: String(error) };
-  }
 }

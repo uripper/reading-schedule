@@ -1,7 +1,7 @@
-import type {
-  CompletionChecker,
-  EstimateRow,
-  EstimateState,
+import {
+    type CompletionChecker,
+    type EstimateRow,
+    type EstimateState,
 } from "../../types/types.js";
 
 const SESSION_INDEX_PAD = 3;
@@ -11,11 +11,11 @@ const SESSION_INDEX_PAD = 3;
  * @returns Day key in `YYYY-MM-DD` format.
  */
 function todayDateKey(): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+    const NOW = new Date();
+    const YEAR = NOW.getFullYear();
+    const MONTH = String(NOW.getMonth() + 1).padStart(2, "0");
+    const DAY = String(NOW.getDate()).padStart(2, "0");
+    return `${YEAR}-${MONTH}-${DAY}`;
 }
 
 /**
@@ -24,8 +24,11 @@ function todayDateKey(): string {
  * @returns Lexicographically sortable key.
  */
 function rowSortKey(row: Pick<EstimateRow, "date" | "session_index">): string {
-  const sessionIndex = String(row.session_index).padStart(SESSION_INDEX_PAD, "0");
-  return `${row.date}-${sessionIndex}`;
+    const SESSION_INDEX = String(row.session_index).padStart(
+        SESSION_INDEX_PAD,
+        "0",
+    );
+    return `${row.date}-${SESSION_INDEX}`;
 }
 
 /**
@@ -34,7 +37,7 @@ function rowSortKey(row: Pick<EstimateRow, "date" | "session_index">): string {
  * @returns Session key.
  */
 function estimateSessionKey(row: EstimateRow): string {
-  return `${row.date}|${row.session_index}|${row.book_id}`;
+    return `${row.date}|${row.session_index}|${row.book_id}`;
 }
 
 /**
@@ -49,33 +52,33 @@ function estimateSessionKey(row: EstimateRow): string {
  * @returns Candidate sort key when eligible; otherwise `null`.
  */
 function eligibleSortKeyForCandidate(
-  candidate: EstimateRow,
-  state: {
-    bookId: string;
-    today: string;
-    targetSortKey: string;
-    targetIsFuture: boolean;
-    isSessionCompleted: CompletionChecker;
-  },
+    candidate: EstimateRow,
+    state: {
+        bookId: string;
+        today: string;
+        targetSortKey: string;
+        targetIsFuture: boolean;
+        isSessionCompleted: CompletionChecker;
+    },
 ): string | null {
-  if (String(candidate.book_id) !== state.bookId) {
-    return null;
-  }
-  const date = String(candidate.date);
-  if (!date || date < state.today) {
-    return null;
-  }
-  const candidateSortKey = rowSortKey(candidate);
-  if (candidateSortKey > state.targetSortKey) {
-    return null;
-  }
-  if (
-    state.targetIsFuture &&
-    state.isSessionCompleted(estimateSessionKey(candidate))
-  ) {
-    return null;
-  }
-  return candidateSortKey;
+    if (String(candidate.book_id) !== state.bookId) {
+        return null;
+    }
+    const DATE = String(candidate.date);
+    if (!DATE || DATE < state.today) {
+        return null;
+    }
+    const CANDIDATE_SORT_KEY = rowSortKey(candidate);
+    if (CANDIDATE_SORT_KEY > state.targetSortKey) {
+        return null;
+    }
+    if (
+        state.targetIsFuture &&
+        state.isSessionCompleted(estimateSessionKey(candidate))
+    ) {
+        return null;
+    }
+    return CANDIDATE_SORT_KEY;
 }
 
 /**
@@ -87,45 +90,48 @@ function eligibleSortKeyForCandidate(
  * @returns Planned words before target row and through target row.
  */
 export function plannedWordsBeforeAndThroughRow(
-  row: EstimateRow,
-  state: EstimateState,
-  bookId: string,
-  isSessionCompleted: CompletionChecker,
+    row: EstimateRow,
+    state: EstimateState,
+    bookId: string,
+    isSessionCompleted: CompletionChecker,
 ): { before: number; through: number } {
-  const today = todayDateKey();
-  const targetDate = String(row.date);
-  const targetSessionKey = estimateSessionKey(row);
-  if (targetDate === today && isSessionCompleted(targetSessionKey)) {
-    return { before: 0, through: 0 };
-  }
-
-  const targetIsFuture = targetDate > today;
-  const targetSortKey = rowSortKey(row);
-  let before = 0;
-  let through = 0;
-  const rows: EstimateRow[] = [];
-  if (Array.isArray(state.rows)) {
-    rows.push(...state.rows);
-  }
-  const candidateState = {
-    bookId,
-    today,
-    targetSortKey,
-    targetIsFuture,
-    isSessionCompleted,
-  };
-
-  rows.forEach((candidate) => {
-    const candidateSortKey = eligibleSortKeyForCandidate(candidate, candidateState);
-    if (candidateSortKey === null) {
-      return;
+    const TODAY = todayDateKey();
+    const TARGET_DATE = String(row.date);
+    const TARGET_SESSION_KEY = estimateSessionKey(row);
+    if (TARGET_DATE === TODAY && isSessionCompleted(TARGET_SESSION_KEY)) {
+        return { before: 0, through: 0 };
     }
-    const plannedWords = Math.max(0, Number(candidate.words_planned ?? 0));
-    through += plannedWords;
-    if (candidateSortKey < targetSortKey) {
-      before += plannedWords;
-    }
-  });
 
-  return { before, through };
+    const TARGET_IS_FUTURE = TARGET_DATE > TODAY;
+    const TARGET_SORT_KEY = rowSortKey(row);
+    let before = 0;
+    let through = 0;
+    const ROWS: EstimateRow[] = [];
+    if (Array.isArray(state.rows)) {
+        ROWS.push(...state.rows);
+    }
+    const CANDIDATE_STATE = {
+        bookId,
+        isSessionCompleted,
+        targetIsFuture: TARGET_IS_FUTURE,
+        targetSortKey: TARGET_SORT_KEY,
+        today: TODAY,
+    };
+
+    ROWS.forEach((candidate) => {
+        const CANDIDATE_SORT_KEY = eligibleSortKeyForCandidate(
+            candidate,
+            CANDIDATE_STATE,
+        );
+        if (CANDIDATE_SORT_KEY === null) {
+            return;
+        }
+        const PLANNED_WORDS = Math.max(0, Number(candidate.words_planned ?? 0));
+        through += PLANNED_WORDS;
+        if (CANDIDATE_SORT_KEY < TARGET_SORT_KEY) {
+            before += PLANNED_WORDS;
+        }
+    });
+
+    return { before, through };
 }

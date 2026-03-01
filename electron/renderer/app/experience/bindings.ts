@@ -1,21 +1,21 @@
+import { type ExperienceSettingsApplyHandler } from "../../../types/types.js";
 import { el } from "../../dom.js";
-import type { ExperienceSettingsApplyHandler } from "../../../types/types.js";
 
 const EXPERIENCE_SETTING_IDS: readonly string[] = [
-  "themeSelect",
-  "reduceMotionToggle",
-  "dailyGoalInput",
-  "reminderEnabledToggle",
-  "reminderTimeInput",
-  "flagGamification",
-  "flagSocial",
-  "flagRecommendations",
+    "themeSelect",
+    "reduceMotionToggle",
+    "dailyGoalInput",
+    "reminderEnabledToggle",
+    "reminderTimeInput",
+    "flagGamification",
+    "flagSocial",
+    "flagRecommendations",
 ];
 const HIDDEN_EXPERIENCE_CONTROL_IDS: readonly string[] = [
-  "reminderEnabledToggle",
-  "reminderTimeInput",
-  "flagSocial",
-  "flagRecommendations",
+    "reminderEnabledToggle",
+    "reminderTimeInput",
+    "flagSocial",
+    "flagRecommendations",
 ];
 const DEFAULT_REMINDER_TIME = "20:00";
 
@@ -25,11 +25,11 @@ const DEFAULT_REMINDER_TIME = "20:00";
  * @returns The HTMLElement if found and valid, otherwise null.
  */
 function experienceControlNode(id: string): HTMLElement | null {
-  const node = globalThis.document.getElementById(id);
-  if (node instanceof HTMLElement) {
-    return node;
-  }
-  return null;
+    const NODE = globalThis.document.getElementById(id);
+    if (NODE instanceof HTMLElement) {
+        return NODE;
+    }
+    return null;
 }
 
 /**
@@ -40,22 +40,22 @@ function experienceControlNode(id: string): HTMLElement | null {
  * For other input types, it will be disabled without changing the value.
  */
 function disableHiddenControl(node: HTMLElement): void {
-  const control = node;
+    const CONTROL = node;
 
-  if (control instanceof HTMLInputElement) {
-    control.disabled = true;
-    if (control.type === "checkbox") {
-      control.checked = false;
-      return;
+    if (CONTROL instanceof HTMLInputElement) {
+        CONTROL.disabled = true;
+        if (CONTROL.type === "checkbox") {
+            CONTROL.checked = false;
+            return;
+        }
+        if (CONTROL.type === "time") {
+            CONTROL.value = DEFAULT_REMINDER_TIME;
+        }
+        return;
     }
-    if (control.type === "time") {
-      control.value = DEFAULT_REMINDER_TIME;
+    if (CONTROL instanceof HTMLSelectElement) {
+        CONTROL.disabled = true;
     }
-    return;
-  }
-  if (control instanceof HTMLSelectElement) {
-    control.disabled = true;
-  }
 }
 
 /**
@@ -64,12 +64,12 @@ function disableHiddenControl(node: HTMLElement): void {
  * @param node The HTMLElement whose container should be hidden.
  */
 function hideControlContainer(node: HTMLElement): void {
-  let container: HTMLElement = node;
-  const labelNode = node.closest("label");
-  if (labelNode instanceof HTMLElement) {
-    container = labelNode;
-  }
-  container.hidden = true;
+    let container: HTMLElement = node;
+    const LABEL_NODE = node.closest("label");
+    if (LABEL_NODE instanceof HTMLElement) {
+        container = LABEL_NODE;
+    }
+    container.hidden = true;
 }
 
 /**
@@ -77,21 +77,21 @@ function hideControlContainer(node: HTMLElement): void {
  * @param id ID of the control element to hide and disable.
  */
 function hideUnshippedControlById(id: string): void {
-  const node = experienceControlNode(id);
-  if (!node) {
-    return;
-  }
-  disableHiddenControl(node);
-  hideControlContainer(node);
+    const NODE = experienceControlNode(id);
+    if (!NODE) {
+        return;
+    }
+    disableHiddenControl(NODE);
+    hideControlContainer(NODE);
 }
 
 /**
  * Hides and disables all unshipped experience controls.
  */
 function hideUnshippedExperienceControls(): void {
-  HIDDEN_EXPERIENCE_CONTROL_IDS.forEach((id) => {
-    hideUnshippedControlById(id);
-  });
+    HIDDEN_EXPERIENCE_CONTROL_IDS.forEach((id) => {
+        hideUnshippedControlById(id);
+    });
 }
 
 /**
@@ -99,11 +99,11 @@ function hideUnshippedExperienceControls(): void {
  * @param onApplySettings Handler function to call when settings are applied.
  */
 export function bindExperienceSettings(
-  onApplySettings: ExperienceSettingsApplyHandler,
+    onApplySettings: ExperienceSettingsApplyHandler,
 ): void {
-  hideUnshippedExperienceControls();
-  EXPERIENCE_SETTING_IDS.forEach((id) => {
-    const node = el(id);
-    node.addEventListener("change", onApplySettings);
-  });
+    hideUnshippedExperienceControls();
+    EXPERIENCE_SETTING_IDS.forEach((id) => {
+        const NODE = el(id);
+        NODE.addEventListener("change", onApplySettings);
+    });
 }

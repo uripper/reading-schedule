@@ -1,8 +1,8 @@
-import type {
-  PlannerApi,
-  PlannerStateSnapshot,
-  AddLog,
-  DraftDataParams,
+import {
+    type AddLog,
+    type DraftDataParams,
+    type PlannerApi,
+    type PlannerStateSnapshot,
 } from "../../types/types.js";
 
 /**
@@ -19,16 +19,16 @@ import type {
  * @returns Snapshot payload expected by planner state APIs.
  */
 export function draftData(args: DraftDataParams): PlannerStateSnapshot {
-  return {
-    sessions: args.sessions,
-    preferences: args.preferences,
-    books: args.collectBooks(),
-    settings: args.collectSettings(),
-    feature_flags: args.featureFlags,
-    schedule_completions: args.scheduleCompletions,
-    blocked_day_books: args.blockedDayBooks,
-    last_result: args.lastResult,
-  };
+    return {
+        blocked_day_books: args.blockedDayBooks,
+        books: args.collectBooks(),
+        feature_flags: args.featureFlags,
+        last_result: args.lastResult,
+        preferences: args.preferences,
+        schedule_completions: args.scheduleCompletions,
+        sessions: args.sessions,
+        settings: args.collectSettings(),
+    };
 }
 
 /**
@@ -39,21 +39,21 @@ export function draftData(args: DraftDataParams): PlannerStateSnapshot {
  * @returns True when save succeeds, false when save fails.
  */
 export async function saveStateSafe(
-  plannerApi: Pick<PlannerApi, "saveState">,
-  payload: PlannerStateSnapshot,
-  addLog: AddLog,
+    plannerApi: Pick<PlannerApi, "saveState">,
+    payload: PlannerStateSnapshot,
+    addLog: AddLog,
 ): Promise<boolean> {
-  try {
-    const result = await plannerApi.saveState(payload);
-    if (result.ok === false) {
-      addLog(
-        `Save failed: ${result.error ?? "Unknown state persistence error"}`,
-      );
-      return false;
+    try {
+        const RESULT = await plannerApi.saveState(payload);
+        if (RESULT.ok === false) {
+            addLog(
+                `Save failed: ${RESULT.error ?? "Unknown state persistence error"}`,
+            );
+            return false;
+        }
+        return true;
+    } catch {
+        addLog("Save failed: unexpected state persistence error.");
+        return false;
     }
-    return true;
-  } catch {
-    addLog("Save failed: unexpected state persistence error.");
-    return false;
-  }
 }

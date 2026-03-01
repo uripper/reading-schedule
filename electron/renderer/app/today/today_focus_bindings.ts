@@ -1,27 +1,26 @@
+import {
+    type BindTodayFocusActionsArgs,
+    type TodayFocusDomRefs,
+    type TodayFocusState,
+} from "../../../types/types.js";
 import { el } from "../../dom.js";
-
 import { activateTab } from "../../tabs.js";
 import {
-  completeTinyStart,
-  createClosedFocusState,
-  openFocusMode,
-  startFocusSession,
-  TINY_START_MINUTES,
+    completeTinyStart,
+    createClosedFocusState,
+    openFocusMode,
+    startFocusSession,
+    TINY_START_MINUTES,
 } from "./today_focus.js";
 import {
-  nextCompletionsWithRowMarkedComplete,
-  setFocusEntryButtonState,
-  tinyStartSessionFromFocus,
+    nextCompletionsWithRowMarkedComplete,
+    setFocusEntryButtonState,
+    tinyStartSessionFromFocus,
 } from "./today_focus_bindings_helpers.js";
 import {
-  findSessionRow,
-  readFocusSessionFromDataset,
+    findSessionRow,
+    readFocusSessionFromDataset,
 } from "./today_focus_session_match.js";
-import type {
-  BindTodayFocusActionsArgs,
-  TodayFocusDomRefs,
-  TodayFocusState,
-} from "../../../types/types.js";
 
 const SESSION_UPDATE_EVENT = "today-focus-session-updated";
 
@@ -30,16 +29,16 @@ const SESSION_UPDATE_EVENT = "today-focus-session-updated";
  * @returns Collected DOM references for focus UI controls.
  */
 function readTodayFocusDomRefs(): TodayFocusDomRefs {
-  return {
-    focusCompleteButton: el<HTMLButtonElement>("todayFocusCompleteBtn"),
-    focusEntryButton: el<HTMLButtonElement>("startSessionFromTodayBtn"),
-    focusFeedback: el("todayFocusFeedback"),
-    focusPanel: el("todayFocusModePanel"),
-    focusSessionMeta: el("todayFocusSessionMeta"),
-    focusSessionText: el("todayFocusSessionText"),
-    focusStartButton: el<HTMLButtonElement>("todayFocusStartBtn"),
-    focusTinyStartButton: el<HTMLButtonElement>("todayFocusTinyStartBtn"),
-  };
+    return {
+        focusCompleteButton: el<HTMLButtonElement>("todayFocusCompleteBtn"),
+        focusEntryButton: el<HTMLButtonElement>("startSessionFromTodayBtn"),
+        focusFeedback: el("todayFocusFeedback"),
+        focusPanel: el("todayFocusModePanel"),
+        focusSessionMeta: el("todayFocusSessionMeta"),
+        focusSessionText: el("todayFocusSessionText"),
+        focusStartButton: el<HTMLButtonElement>("todayFocusStartBtn"),
+        focusTinyStartButton: el<HTMLButtonElement>("todayFocusTinyStartBtn"),
+    };
 }
 
 /**
@@ -48,35 +47,35 @@ function readTodayFocusDomRefs(): TodayFocusDomRefs {
  * @param focusState Current Today focus-mode state.
  */
 function renderFocusMode(
-  refs: TodayFocusDomRefs,
-  focusState: TodayFocusState,
+    refs: TodayFocusDomRefs,
+    focusState: TodayFocusState,
 ): void {
-  const {
-    focusEntryButton,
-    focusPanel,
-    focusSessionText,
-    focusSessionMeta,
-    focusStartButton,
-    focusCompleteButton,
-    focusFeedback,
-  } = refs;
-  setFocusEntryButtonState(focusEntryButton, focusState.isOpen);
-  focusPanel.hidden = !focusState.isOpen;
-  if (!focusState.isOpen) {
-    return;
-  }
-  if (focusState.session) {
-    focusSessionText.textContent = `Next: ${focusState.session.title} (${focusState.session.minutes} minutes)`;
-    focusSessionMeta.textContent = `Scheduled for ${focusState.session.date}`;
-  } else {
-    focusSessionText.textContent = "No upcoming planned session.";
-    focusSessionMeta.textContent =
-      "Use Tiny Start to log a short reading sprint.";
-  }
-  focusStartButton.hidden = !focusState.session;
-  focusStartButton.disabled = focusState.isStarted;
-  focusCompleteButton.hidden = !focusState.isStarted || !focusState.session;
-  focusFeedback.textContent = focusState.feedback;
+    const {
+        focusEntryButton,
+        focusPanel,
+        focusSessionText,
+        focusSessionMeta,
+        focusStartButton,
+        focusCompleteButton,
+        focusFeedback,
+    } = refs;
+    setFocusEntryButtonState(focusEntryButton, focusState.isOpen);
+    focusPanel.hidden = !focusState.isOpen;
+    if (!focusState.isOpen) {
+        return;
+    }
+    if (focusState.session) {
+        focusSessionText.textContent = `Next: ${focusState.session.title} (${focusState.session.minutes} minutes)`;
+        focusSessionMeta.textContent = `Scheduled for ${focusState.session.date}`;
+    } else {
+        focusSessionText.textContent = "No upcoming planned session.";
+        focusSessionMeta.textContent =
+            "Use Tiny Start to log a short reading sprint.";
+    }
+    focusStartButton.hidden = !focusState.session;
+    focusStartButton.disabled = focusState.isStarted;
+    focusCompleteButton.hidden = !focusState.isStarted || !focusState.session;
+    focusFeedback.textContent = focusState.feedback;
 }
 
 /**
@@ -86,16 +85,119 @@ function renderFocusMode(
  * @returns Updated state with latest session metadata when applicable.
  */
 function refreshedFocusState(
-  refs: TodayFocusDomRefs,
-  focusState: TodayFocusState,
+    refs: TodayFocusDomRefs,
+    focusState: TodayFocusState,
 ): TodayFocusState {
-  if (!focusState.isOpen || focusState.isStarted) {
-    return focusState;
-  }
-  return {
-    ...focusState,
-    session: readFocusSessionFromDataset(refs.focusEntryButton),
-  };
+    if (!focusState.isOpen || focusState.isStarted) {
+        return focusState;
+    }
+    return {
+        ...focusState,
+        session: readFocusSessionFromDataset(refs.focusEntryButton),
+    };
+}
+
+interface FocusStateAccess {
+    get: () => TodayFocusState;
+    render: () => void;
+    set: (nextState: TodayFocusState) => void;
+}
+
+interface FocusBindingContext {
+    args: BindTodayFocusActionsArgs;
+    refs: TodayFocusDomRefs;
+    state: FocusStateAccess;
+}
+
+function bindFocusEntryButton(context: FocusBindingContext): void {
+    context.refs.focusEntryButton.onclick = () => {
+        if (context.state.get().isOpen) {
+            context.state.set(createClosedFocusState());
+            context.state.render();
+            context.refs.focusEntryButton.focus();
+            return;
+        }
+        const NEXT_STATE = openFocusMode(
+            readFocusSessionFromDataset(context.refs.focusEntryButton),
+        );
+        context.state.set(NEXT_STATE);
+        context.state.render();
+        context.refs.focusTinyStartButton.focus();
+    };
+    context.refs.focusEntryButton.addEventListener(SESSION_UPDATE_EVENT, () => {
+        const NEXT_STATE = refreshedFocusState(
+            context.refs,
+            context.state.get(),
+        );
+        context.state.set(NEXT_STATE);
+        context.state.render();
+    });
+}
+
+function bindFocusStartButton(context: FocusBindingContext): void {
+    context.refs.focusStartButton.onclick = () => {
+        context.state.set(startFocusSession(context.state.get()));
+        context.state.render();
+        const CURRENT_SESSION = context.state.get().session;
+        if (CURRENT_SESSION) {
+            context.args.setStatus(`Started "${CURRENT_SESSION.title}".`);
+            activateTab("schedule", { focusPanel: true });
+            return;
+        }
+        context.args.setStatus("No planned session available to start.", true);
+    };
+}
+
+function bindFocusTinyStartButton(context: FocusBindingContext): void {
+    context.refs.focusTinyStartButton.onclick = () => {
+        const TINY_START_SESSION = tinyStartSessionFromFocus(
+            context.state.get().session,
+        );
+        context.args.setSessions([
+            TINY_START_SESSION,
+            ...context.args.getSessions(),
+        ]);
+        context.args.queuePersist();
+        context.args.updateTodayView();
+        context.state.set(completeTinyStart(context.state.get()));
+        context.state.render();
+        context.args.setStatus(
+            `Logged Tiny Start (${TINY_START_MINUTES} minutes).`,
+        );
+    };
+}
+
+function bindFocusCompleteButton(context: FocusBindingContext): void {
+    context.refs.focusCompleteButton.onclick = () => {
+        const ROW = findSessionRow(
+            context.args.getLastResult(),
+            context.state.get().session,
+        );
+        if (!ROW) {
+            context.args.setStatus(
+                "Could not find this planned session to mark complete.",
+                true,
+            );
+            return;
+        }
+        const NEXT_COMPLETIONS = nextCompletionsWithRowMarkedComplete(
+            context.args.getScheduleCompletions(),
+            ROW,
+        );
+        context.args.setScheduleCompletions(NEXT_COMPLETIONS);
+        context.args.queuePersist();
+        context.args.updateTodayView();
+        const NEXT_SESSION = readFocusSessionFromDataset(
+            context.refs.focusEntryButton,
+        );
+        const SESSION_LABEL = ROW.title || "session";
+        context.state.set({
+            ...openFocusMode(NEXT_SESSION),
+            feedback: `Marked "${SESSION_LABEL}" complete.`,
+        });
+        context.state.render();
+        context.args.setStatus(`Marked "${SESSION_LABEL}" complete.`);
+    };
 }
 
 /**
@@ -111,78 +213,27 @@ function refreshedFocusState(
  * @param args.setStatus Publishes user-visible status messages.
  */
 export function bindTodayFocusActions(args: BindTodayFocusActionsArgs): void {
-  const refs = readTodayFocusDomRefs();
-  let focusState = createClosedFocusState();
-  const render = (): void => {
-    renderFocusMode(refs, focusState);
-  };
-  const refreshFocusSession = (): void => {
-    focusState = refreshedFocusState(refs, focusState);
-    render();
-  };
-
-  refs.focusEntryButton.onclick = () => {
-    if (focusState.isOpen) {
-      focusState = createClosedFocusState();
-      render();
-      refs.focusEntryButton.focus();
-      return;
-    }
-    focusState = openFocusMode(
-      readFocusSessionFromDataset(refs.focusEntryButton),
-    );
-    render();
-    refs.focusTinyStartButton.focus();
-  };
-  refs.focusEntryButton.addEventListener(
-    SESSION_UPDATE_EVENT,
-    refreshFocusSession,
-  );
-  refs.focusStartButton.onclick = () => {
-    focusState = startFocusSession(focusState);
-    render();
-    if (focusState.session) {
-      args.setStatus(`Started "${focusState.session.title}".`);
-      activateTab("schedule", { focusPanel: true });
-    } else {
-      args.setStatus("No planned session available to start.", true);
-    }
-  };
-  refs.focusTinyStartButton.onclick = () => {
-    const tinyStartSession = tinyStartSessionFromFocus(focusState.session);
-    args.setSessions([tinyStartSession, ...args.getSessions()]);
-    args.queuePersist();
-    args.updateTodayView();
-    focusState = completeTinyStart(focusState);
-    render();
-    args.setStatus(`Logged Tiny Start (${TINY_START_MINUTES} minutes).`);
-  };
-  refs.focusCompleteButton.onclick = () => {
-    const row = findSessionRow(args.getLastResult(), focusState.session);
-    if (!row) {
-      args.setStatus(
-        "Could not find this planned session to mark complete.",
-        true,
-      );
-      return;
-    }
-    const nextCompletions = nextCompletionsWithRowMarkedComplete(
-      args.getScheduleCompletions(),
-      row,
-    );
-    args.setScheduleCompletions(nextCompletions);
-    args.queuePersist();
-    args.updateTodayView();
-    const nextSession = readFocusSessionFromDataset(refs.focusEntryButton);
-    focusState = {
-      ...openFocusMode(nextSession),
-      feedback: `Marked "${row.title || "session"}" complete.`,
+    const REFS = readTodayFocusDomRefs();
+    let focusState = createClosedFocusState();
+    const RENDER = (): void => {
+        renderFocusMode(REFS, focusState);
     };
-    render();
-    args.setStatus(`Marked "${row.title || "session"}" complete.`);
-  };
-  el("viewScheduleFromTodayBtn").onclick = () => {
-    activateTab("schedule", { focusPanel: true });
-  };
-  render();
+    const STATE: FocusStateAccess = {
+        get: (): TodayFocusState => {
+            return focusState;
+        },
+        render: RENDER,
+        set: (nextState: TodayFocusState): void => {
+            focusState = nextState;
+        },
+    };
+    const CONTEXT: FocusBindingContext = { args, refs: REFS, state: STATE };
+    bindFocusEntryButton(CONTEXT);
+    bindFocusStartButton(CONTEXT);
+    bindFocusTinyStartButton(CONTEXT);
+    bindFocusCompleteButton(CONTEXT);
+    el("viewScheduleFromTodayBtn").onclick = () => {
+        activateTab("schedule", { focusPanel: true });
+    };
+    RENDER();
 }

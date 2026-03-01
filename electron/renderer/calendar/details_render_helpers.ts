@@ -1,17 +1,16 @@
+import {
+    type CalendarRowWithFinish,
+    type DayMode,
+    type DetailInteractionHandlers,
+    type RowNodeForModeArgs,
+} from "../../types/types.js";
 import { rowsWithFinishFirst } from "./data.js";
 import {
-  buildFutureSessionItem,
-  buildPastSessionItem,
-  buildTodaySessionItem,
-  rowsWithCompletedLast,
+    buildFutureSessionItem,
+    buildPastSessionItem,
+    buildTodaySessionItem,
+    rowsWithCompletedLast,
 } from "./details_helpers.js";
-
-import type {
-  CalendarRowWithFinish,
-  DayMode,
-  DetailInteractionHandlers,
-  RowNodeForModeArgs,
-} from "../../types/types.js";
 
 /**
  * Returns empty-state message for day details panel by mode.
@@ -19,7 +18,7 @@ import type {
  * @returns Empty-state message.
  */
 export function emptyMessageForMode(_mode: DayMode): string {
-  return "No sessions planned for this day.";
+    return "No sessions planned for this day.";
 }
 
 /**
@@ -30,17 +29,17 @@ export function emptyMessageForMode(_mode: DayMode): string {
  * @returns Rows ordered for display.
  */
 export function rowsForMode(
-  rows: CalendarRowWithFinish[],
-  mode: DayMode,
-  interactionHandlers: DetailInteractionHandlers,
+    rows: CalendarRowWithFinish[],
+    mode: DayMode,
+    interactionHandlers: DetailInteractionHandlers,
 ): CalendarRowWithFinish[] {
-  if (mode === "past") {
-    return rowsWithCompletedLast(rows, interactionHandlers);
-  }
-  if (mode === "today") {
-    return rowsWithCompletedLast(rows, interactionHandlers);
-  }
-  return rowsWithFinishFirst(rows);
+    if (mode === "past") {
+        return rowsWithCompletedLast(rows, interactionHandlers);
+    }
+    if (mode === "today") {
+        return rowsWithCompletedLast(rows, interactionHandlers);
+    }
+    return rowsWithFinishFirst(rows);
 }
 
 /**
@@ -53,31 +52,29 @@ export function rowsForMode(
  * @param args.rerenderDetails Details rerender callback.
  * @returns Rendered row element.
  */
-export function rowNodeForMode(
-  args: RowNodeForModeArgs,
-): HTMLElement {
-  const rerenderDetails = (): void => {
-    args.rerenderDetails();
-  };
-  if (args.mode === "today") {
-    return buildTodaySessionItem(
-      args.row,
-      args.state,
-      args.interactionHandlers,
-      rerenderDetails,
+export function rowNodeForMode(args: RowNodeForModeArgs): HTMLElement {
+    const RERENDER_DETAILS = (): void => {
+        args.rerenderDetails();
+    };
+    if (args.mode === "today") {
+        return buildTodaySessionItem(
+            args.row,
+            args.state,
+            args.interactionHandlers,
+            RERENDER_DETAILS,
+        );
+    }
+    if (args.mode === "future") {
+        return buildFutureSessionItem(
+            args.row,
+            args.state,
+            args.interactionHandlers,
+            RERENDER_DETAILS,
+        );
+    }
+    return buildPastSessionItem(
+        args.row,
+        args.interactionHandlers,
+        RERENDER_DETAILS,
     );
-  }
-  if (args.mode === "future") {
-    return buildFutureSessionItem(
-      args.row,
-      args.state,
-      args.interactionHandlers,
-      rerenderDetails,
-    );
-  }
-  return buildPastSessionItem(
-    args.row,
-    args.interactionHandlers,
-    rerenderDetails,
-  );
 }

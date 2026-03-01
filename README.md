@@ -31,16 +31,16 @@ pip install -e ".[mip]"
 From repo root:
 
 ```bash
-npm run dev:desktop
+pnpm dev:desktop
 ```
 
 Directly from `electron/`:
 
 ```bash
 cd electron
-npm install
-npm run tokens:build
-UI_SCALE=1.65 npm run start
+pnpm install
+pnpm run tokens:build
+UI_SCALE=1.65 pnpm run start
 ```
 
 Book scheduling supports per-book weekday selection in the Books dialog, with an option to apply the same scheduled days to all books on the same shelf.
@@ -54,25 +54,25 @@ powershell -ExecutionPolicy Bypass -File scripts/install_and_run_windows.ps1 -So
 From WSL, use:
 
 ```bash
-npm run dev:windows
+pnpm run dev:windows
 ```
 
 Set a specific Python launcher target:
 
 ```bash
-npm run dev:windows -- 3.11
+pnpm run dev:windows -- 3.11
 ```
 
 Hot reload in development mode (TypeScript watch + `electron-reloader`):
 
 ```bash
-npm run dev:windows:hot
+pnpm run dev:windows:hot
 ```
 
 Set a specific Python launcher target:
 
 ```bash
-npm run dev:windows:hot -- 3.11
+pnpm run dev:windows:hot -- 3.11
 ```
 
 This uses in-process Electron hot reload rather than an external sync/restart poll loop.
@@ -86,24 +86,24 @@ This uses in-process Electron hot reload rather than an external sync/restart po
 ## Tests
 
 ```bash
-npm run ci:local
+pnpm run ci:local
 ```
 
 Install git hooks so pushes run the same checks automatically:
 
 ```bash
-npm run hooks:install
+pnpm run hooks:install
 ```
 
-`npm install` also runs hook setup through the root `prepare` script.
+`pnpm install` also runs hook setup through the root `prepare` script.
 
 Manual individual commands:
 
 ```bash
-npm run lint:python
+pnpm run lint:python
 .venv/bin/pytest -q
-cd electron && npm run lint
-npm run audit
+cd electron && pnpm run lint
+pnpm run audit
 ```
 
 ## Issue Sync (Local -> GitHub)
@@ -112,7 +112,7 @@ Sync local issue definitions from `Issues/Open/*.md` and `Issues/Closed/*.md`
 into repository Issues:
 
 ```bash
-npm run issues:sync
+pnpm run issues:sync
 ```
 
 Preview without writing to GitHub:
@@ -134,18 +134,12 @@ Files moved to `Issues/Closed` are synced as closed GitHub issues; files in
 The script keeps a local hash cache at `Issues/.sync-cache.tsv` and skips
 unchanged issues on subsequent runs.
 
-## SonarQube Full Scan
-
-```bash
-SONAR_HOST_URL="https://your-sonarqube-server" SONAR_TOKEN="sqp_xxx" npm run sonar:scan
-```
-
 ## Design Tokens (Electron)
 
 ```bash
 cd electron
-npm run tokens:build
-npm run tokens:check
+pnpm run tokens:build
+pnpm run tokens:check
 ```
 
 Token source: `electron/tokens/dtcg.tokens.json`

@@ -19,21 +19,21 @@ const JSON_INDENT_SPACES = 2;
  * @returns {Record<string, unknown>} Parsed planner state object.
  */
 function parseState(payloadText) {
-  const parsed = JSON.parse(payloadText);
-  if (!parsed || Array.isArray(parsed) || typeof parsed !== "object") {
-    throw new TypeError("Recovered payload must be an object.");
-  }
-  const state = parsed;
-  if (!Object.hasOwn(state, "settings")) {
-    throw new TypeError("Recovered payload missing required `settings`.");
-  }
-  if (!Object.hasOwn(state, "books")) {
-    throw new TypeError("Recovered payload missing required `books`.");
-  }
-  if (!Array.isArray(state.books)) {
-    throw new TypeError("Recovered payload `books` must be an array.");
-  }
-  return state;
+    const parsed = JSON.parse(payloadText);
+    if (!parsed || Array.isArray(parsed) || typeof parsed !== "object") {
+        throw new TypeError("Recovered payload must be an object.");
+    }
+    const state = parsed;
+    if (!Object.hasOwn(state, "settings")) {
+        throw new TypeError("Recovered payload missing required `settings`.");
+    }
+    if (!Object.hasOwn(state, "books")) {
+        throw new TypeError("Recovered payload missing required `books`.");
+    }
+    if (!Array.isArray(state.books)) {
+        throw new TypeError("Recovered payload `books` must be an array.");
+    }
+    return state;
 }
 
 /**
@@ -42,37 +42,41 @@ function parseState(payloadText) {
  * @returns {Record<string, unknown>} Recovered planner state object.
  */
 function readStateFromSqlite(inputPath) {
-  const database = new DatabaseSync(inputPath);
-  try {
-    const snapshot = database
-      .prepare("SELECT payload_json FROM planner_state_snapshot WHERE id = ?")
-      .get(SNAPSHOT_ROW_ID);
-    if (snapshot && typeof snapshot.payload_json === "string") {
-      try {
-        return parseState(snapshot.payload_json);
-      } catch {
-        // Continue to journal replay.
-      }
+    const database = new DatabaseSync(inputPath);
+    try {
+        const snapshot = database
+            .prepare(
+                "SELECT payload_json FROM planner_state_snapshot WHERE id = ?",
+            )
+            .get(SNAPSHOT_ROW_ID);
+        if (snapshot && typeof snapshot.payload_json === "string") {
+            try {
+                return parseState(snapshot.payload_json);
+            } catch {
+                // Continue to journal replay.
+            }
+        }
+        const rows = database
+            .prepare(
+                "SELECT payload_json FROM planner_state_journal ORDER BY seq DESC LIMIT ?",
+            )
+            .all(JOURNAL_KEEP_ROWS);
+        for (const row of rows) {
+            if (!row || typeof row.payload_json !== "string") {
+                continue;
+            }
+            try {
+                return parseState(row.payload_json);
+            } catch {
+                // Continue scanning older rows.
+            }
+        }
+    } finally {
+        database.close();
     }
-    const rows = database
-      .prepare(
-        "SELECT payload_json FROM planner_state_journal ORDER BY seq DESC LIMIT ?",
-      )
-      .all(JOURNAL_KEEP_ROWS);
-    for (const row of rows) {
-      if (!row || typeof row.payload_json !== "string") {
-        continue;
-      }
-      try {
-        return parseState(row.payload_json);
-      } catch {
-        // Continue scanning older rows.
-      }
-    }
-  } finally {
-    database.close();
-  }
-  throw new TypeError("Could not recover a valid planner state from SQLite input.");
+    throw new TypeError(
+        "Could not recover a valid planner state from SQLite input.",
+    );
 }
 
 /**
@@ -81,16 +85,16 @@ function readStateFromSqlite(inputPath) {
  * @returns {{ sourceType: string, state: Record<string, unknown> }} Recovered state and source type.
  */
 export function readStateFromInput(inputPath) {
-  if (inputPath.endsWith(".json")) {
+    if (inputPath.endsWith(".json")) {
+        return {
+            sourceType: "json",
+            state: parseState(fs.readFileSync(inputPath, "utf8")),
+        };
+    }
     return {
-      sourceType: "json",
-      state: parseState(fs.readFileSync(inputPath, "utf8")),
+        sourceType: "sqlite",
+        state: readStateFromSqlite(inputPath),
     };
-  }
-  return {
-    sourceType: "sqlite",
-    state: readStateFromSqlite(inputPath),
-  };
 }
 
 /**
@@ -100,23 +104,23 @@ export function readStateFromInput(inputPath) {
  * @returns {string[]} Created backup file paths.
  */
 export function backupTargets(userDataDir, timestamp) {
-  const targets = [
-    path.join(userDataDir, JSON_STATE_FILE),
-    path.join(userDataDir, JSON_BACKUP_FILE),
-    path.join(userDataDir, SQLITE_STATE_FILE),
-    path.join(userDataDir, SQLITE_WAL_FILE),
-    path.join(userDataDir, SQLITE_SHM_FILE),
-  ];
-  const backups = [];
-  for (const filePath of targets) {
-    if (!fs.existsSync(filePath)) {
-      continue;
+    const targets = [
+        path.join(userDataDir, JSON_STATE_FILE),
+        path.join(userDataDir, JSON_BACKUP_FILE),
+        path.join(userDataDir, SQLITE_STATE_FILE),
+        path.join(userDataDir, SQLITE_WAL_FILE),
+        path.join(userDataDir, SQLITE_SHM_FILE),
+    ];
+    const backups = [];
+    for (const filePath of targets) {
+        if (!fs.existsSync(filePath)) {
+            continue;
+        }
+        const backupPath = `${filePath}.pre_recover_${timestamp}.bak`;
+        fs.copyFileSync(filePath, backupPath);
+        backups.push(backupPath);
     }
-    const backupPath = `${filePath}.pre_recover_${timestamp}.bak`;
-    fs.copyFileSync(filePath, backupPath);
-    backups.push(backupPath);
-  }
-  return backups;
+    return backups;
 }
 
 /**
@@ -125,17 +129,25 @@ export function backupTargets(userDataDir, timestamp) {
  * @param {Record<string, unknown>} state Recovered planner state object.
  */
 export function writeRecoveredState(userDataDir, state) {
-  fs.mkdirSync(userDataDir, { recursive: true });
-  const jsonPath = path.join(userDataDir, JSON_STATE_FILE);
-  const jsonBackupPath = path.join(userDataDir, JSON_BACKUP_FILE);
-  fs.writeFileSync(jsonBackupPath, JSON.stringify(state, null, JSON_INDENT_SPACES), "utf8");
-  fs.writeFileSync(jsonPath, JSON.stringify(state, null, JSON_INDENT_SPACES), "utf8");
-  const databasePath = path.join(userDataDir, SQLITE_STATE_FILE);
-  const database = new DatabaseSync(databasePath);
-  try {
-    database.exec("PRAGMA journal_mode=WAL;");
-    database.exec("PRAGMA synchronous=FULL;");
-    database.exec(`
+    fs.mkdirSync(userDataDir, { recursive: true });
+    const jsonPath = path.join(userDataDir, JSON_STATE_FILE);
+    const jsonBackupPath = path.join(userDataDir, JSON_BACKUP_FILE);
+    fs.writeFileSync(
+        jsonBackupPath,
+        JSON.stringify(state, null, JSON_INDENT_SPACES),
+        "utf8",
+    );
+    fs.writeFileSync(
+        jsonPath,
+        JSON.stringify(state, null, JSON_INDENT_SPACES),
+        "utf8",
+    );
+    const databasePath = path.join(userDataDir, SQLITE_STATE_FILE);
+    const database = new DatabaseSync(databasePath);
+    try {
+        database.exec("PRAGMA journal_mode=WAL;");
+        database.exec("PRAGMA synchronous=FULL;");
+        database.exec(`
       CREATE TABLE IF NOT EXISTS planner_state_snapshot (
         id INTEGER PRIMARY KEY CHECK(id = 1),
         schema_version INTEGER NOT NULL,
@@ -143,7 +155,7 @@ export function writeRecoveredState(userDataDir, state) {
         updated_at TEXT NOT NULL
       );
     `);
-    database.exec(`
+        database.exec(`
       CREATE TABLE IF NOT EXISTS planner_state_journal (
         seq INTEGER PRIMARY KEY AUTOINCREMENT,
         created_at TEXT NOT NULL,
@@ -151,17 +163,17 @@ export function writeRecoveredState(userDataDir, state) {
         payload_json TEXT NOT NULL
       );
     `);
-    const nowIso = new Date().toISOString();
-    const payload = JSON.stringify(state);
-    database.exec("BEGIN IMMEDIATE");
-    database
-      .prepare(
-        "INSERT INTO planner_state_journal (created_at, operation, payload_json) VALUES (?, ?, ?)",
-      )
-      .run(nowIso, SAVE_OPERATION, payload);
-    database
-      .prepare(
-        `
+        const nowIso = new Date().toISOString();
+        const payload = JSON.stringify(state);
+        database.exec("BEGIN IMMEDIATE");
+        database
+            .prepare(
+                "INSERT INTO planner_state_journal (created_at, operation, payload_json) VALUES (?, ?, ?)",
+            )
+            .run(nowIso, SAVE_OPERATION, payload);
+        database
+            .prepare(
+                `
           INSERT INTO planner_state_snapshot (id, schema_version, payload_json, updated_at)
           VALUES (?, ?, ?, ?)
           ON CONFLICT(id) DO UPDATE SET
@@ -169,23 +181,23 @@ export function writeRecoveredState(userDataDir, state) {
             payload_json = excluded.payload_json,
             updated_at = excluded.updated_at
         `,
-      )
-      .run(SNAPSHOT_ROW_ID, STATE_SCHEMA_VERSION, payload, nowIso);
-    database
-      .prepare(
-        `
+            )
+            .run(SNAPSHOT_ROW_ID, STATE_SCHEMA_VERSION, payload, nowIso);
+        database
+            .prepare(
+                `
           DELETE FROM planner_state_journal
           WHERE seq NOT IN (
             SELECT seq FROM planner_state_journal ORDER BY seq DESC LIMIT ?
           )
         `,
-      )
-      .run(JOURNAL_KEEP_ROWS);
-    database.exec("COMMIT");
-  } catch (error) {
-    database.exec("ROLLBACK");
-    throw error;
-  } finally {
-    database.close();
-  }
+            )
+            .run(JOURNAL_KEEP_ROWS);
+        database.exec("COMMIT");
+    } catch (error) {
+        database.exec("ROLLBACK");
+        throw error;
+    } finally {
+        database.close();
+    }
 }

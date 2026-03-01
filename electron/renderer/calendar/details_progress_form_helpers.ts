@@ -1,7 +1,5 @@
-
-
+import { type SubmitProgressUpdateArgs } from "../../types/types.js";
 import { parseOptionalNumber } from "./utils.js";
-import type { SubmitProgressUpdateArgs } from "../../types/types.js";
 
 /**
  * Prefills input value from book progress value when present.
@@ -9,13 +7,13 @@ import type { SubmitProgressUpdateArgs } from "../../types/types.js";
  * @param value Optional source value.
  */
 export function setInputValueFromBookProgress(
-  inputNode: HTMLInputElement,
-  value?: string | number,
+    inputNode: HTMLInputElement,
+    value?: string | number,
 ): void {
-  const targetInput = inputNode;
-  if (value !== undefined) {
-    targetInput.value = String(value);
-  }
+    const TARGET_INPUT = inputNode;
+    if (value !== undefined) {
+        TARGET_INPUT.value = String(value);
+    }
 }
 
 /**
@@ -25,14 +23,14 @@ export function setInputValueFromBookProgress(
  * @returns Parsed number or `null` when unchanged/invalid.
  */
 function changedNumberValue(
-  inputNode: HTMLInputElement,
-  initialValue: string,
+    inputNode: HTMLInputElement,
+    initialValue: string,
 ): number | null {
-  const currentValue = String(inputNode.value).trim();
-  if (currentValue === String(initialValue)) {
-    return null;
-  }
-  return parseOptionalNumber(currentValue);
+    const CURRENT_VALUE = String(inputNode.value).trim();
+    if (CURRENT_VALUE === String(initialValue)) {
+        return null;
+    }
+    return parseOptionalNumber(CURRENT_VALUE);
 }
 
 /**
@@ -42,15 +40,15 @@ function changedNumberValue(
  * @returns Current trimmed input value after sync.
  */
 function syncInputValue(
-  inputNode: HTMLInputElement,
-  nextValue?: number | null,
+    inputNode: HTMLInputElement,
+    nextValue?: number | null,
 ): string {
-  const targetInput = inputNode;
-  if (nextValue === null || nextValue === undefined) {
-    return String(targetInput.value).trim();
-  }
-  targetInput.value = String(nextValue);
-  return String(targetInput.value).trim();
+    const TARGET_INPUT = inputNode;
+    if (nextValue === null || nextValue === undefined) {
+        return String(TARGET_INPUT.value).trim();
+    }
+    TARGET_INPUT.value = String(nextValue);
+    return String(TARGET_INPUT.value).trim();
 }
 
 /**
@@ -65,42 +63,40 @@ function syncInputValue(
  * @param args.interactionHandlers Detail interaction handlers.
  * @returns Updated initial values and apply status.
  */
-export function submitProgressUpdate(
-  args: SubmitProgressUpdateArgs,
-): {
-  initialPagesValue: string;
-  initialPercentValue: string;
-  applied: boolean;
+export function submitProgressUpdate(args: SubmitProgressUpdateArgs): {
+    initialPagesValue: string;
+    initialPercentValue: string;
+    applied: boolean;
 } {
-  const {
-    event,
-    row,
-    pagesInput,
-    pctInput,
-    initialPagesValue,
-    initialPercentValue,
-    interactionHandlers,
-  } = args;
-  event.preventDefault();
-  const pagesRead = changedNumberValue(pagesInput, initialPagesValue);
-  const progressPercent = changedNumberValue(pctInput, initialPercentValue);
-  if (pagesRead === null && progressPercent === null) {
-    return { initialPagesValue, initialPercentValue, applied: true };
-  }
+    const {
+        event,
+        row,
+        pagesInput,
+        pctInput,
+        initialPagesValue,
+        initialPercentValue,
+        interactionHandlers,
+    } = args;
+    event.preventDefault();
+    const PAGES_READ = changedNumberValue(pagesInput, initialPagesValue);
+    const PROGRESS_PERCENT = changedNumberValue(pctInput, initialPercentValue);
+    if (PAGES_READ === null && PROGRESS_PERCENT === null) {
+        return { applied: true, initialPagesValue, initialPercentValue };
+    }
 
-  const updated = interactionHandlers.onSessionProgressUpdated({
-    bookId: row.book_id,
-    pagesRead,
-    progressPercent,
-    row,
-  });
-  if (!updated) {
-    return { initialPagesValue, initialPercentValue, applied: false };
-  }
+    const UPDATED = interactionHandlers.onSessionProgressUpdated({
+        bookId: row.book_id,
+        pagesRead: PAGES_READ,
+        progressPercent: PROGRESS_PERCENT,
+        row,
+    });
+    if (!UPDATED) {
+        return { applied: false, initialPagesValue, initialPercentValue };
+    }
 
-  return {
-    initialPagesValue: syncInputValue(pagesInput, updated.pages_read),
-    initialPercentValue: syncInputValue(pctInput, updated.progress_percent),
-    applied: true,
-  };
+    return {
+        applied: true,
+        initialPagesValue: syncInputValue(pagesInput, UPDATED.pages_read),
+        initialPercentValue: syncInputValue(pctInput, UPDATED.progress_percent),
+    };
 }
