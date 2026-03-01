@@ -83,7 +83,7 @@ def _build_progress_before_by_day(
     blocker: Book,
     blocker_index: int,
 ) -> dict[date, IntVarLike]:
-    """Build prefix-progress vars: words read before each day for one blocker."""
+    """Build prefix-progress vars: words read before daily for one blocker."""
     progress_before_by_day: dict[date, IntVarLike] = {}
     max_progress = blocker.words_total + context.wpb[blocker.book_id] * max(
         1,
@@ -109,8 +109,7 @@ def _add_dependency_constraints(context: ModelBuildContext) -> None:
     """Prevent scheduling a blocked book before its blocker is complete."""
     dependency_cache: dict[str, dict[date, IntVarLike]] = {}
     blocker_index_map = {
-        book.book_id: index
-        for index, book in enumerate(context.books)
+        book.book_id: index for index, book in enumerate(context.books)
     }
     dependent_count = 0
 

@@ -84,9 +84,7 @@ def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
         },
     )
     if status_name == UNKNOWN_STATUS_NAME:
-        LOGGER.debug(
-            "solve_mip: unknown status; using greedy fallback"
-        )
+        LOGGER.debug("solve_mip: unknown status; using greedy fallback")
         return _fallback_to_greedy_unknown(books, settings)
     return _result_from_solver(raw, cp_model_module, solver, x)
 

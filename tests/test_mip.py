@@ -156,7 +156,9 @@ def test_mip_unknown_status_falls_back_to_greedy(
 
         CpSolver = FakeCpSolver
 
-    monkeypatch.setattr(solve_module, "load_cp_model_module", lambda: FakeCpModule)
+    monkeypatch.setattr(
+        solve_module, "load_cp_model_module", lambda: FakeCpModule
+    )
     monkeypatch.setattr(
         solve_module,
         "build_cp_sat",
