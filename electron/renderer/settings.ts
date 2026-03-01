@@ -1,3 +1,4 @@
+import { parseSettings, safeParseSettings } from "../contracts/settings.js";
 import { type PlannerSettings } from "../types/types.js";
 import { FIELDS } from "./settings/config.js";
 import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.js";
@@ -40,7 +41,12 @@ export function initSettingsGrid(): void {
  * @param settings Planner settings snapshot.
  */
 export function fillSettings(settings: PlannerSettings = {}): void {
-    fillSettingsForm(settings, setDayOffs);
+    const RESULT = safeParseSettings(settings);
+    if (!RESULT.success) {
+        fillSettingsForm({}, setDayOffs);
+        return;
+    }
+    fillSettingsForm(RESULT.data, setDayOffs);
 }
 
 /**
@@ -48,5 +54,6 @@ export function fillSettings(settings: PlannerSettings = {}): void {
  * @returns Serialized planner settings.
  */
 export function collectSettings(): PlannerSettings {
-    return collectSettingsForm(dayOffs);
+    const RAW_SETTINGS = collectSettingsForm(dayOffs);
+    return parseSettings(RAW_SETTINGS);
 }

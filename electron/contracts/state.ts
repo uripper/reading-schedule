@@ -1,0 +1,119 @@
+import { z } from "zod";
+import {
+    type LoadedPlannerState,
+    type PlannerStateSnapshot,
+} from "../types/types.js";
+import { plannerSettingsSchema } from "./settings.js";
+import { JsonValueSchema } from "./shared.js";
+
+const BOOL_RECORD_SCHEMA = z.record(z.string(), z.boolean());
+
+const FEATURE_FLAGS_SCHEMA = z.object({
+    gamificationEnabled: z.boolean(),
+    recommendationsEnabled: z.boolean(),
+    socialEnabled: z.boolean(),
+});
+
+const PREFERENCES_SCHEMA = z.object({
+    dailyGoalMinutes: z.number(),
+    reduceMotion: z.boolean(),
+    reminderEnabled: z.boolean(),
+    reminderTime: z.string(),
+    theme: z.enum(["system", "light", "dark"]),
+    timezone: z.string(),
+});
+
+const SESSION_SCHEMA = z.object({
+    book_id: z.string(),
+    created_at: z.string(),
+    ended_at: z.string(),
+    id: z.string(),
+    minutes: z.number(),
+    notes: z.string(),
+    pages_read: z.number().nullable(),
+    source: z.enum(["timer", "manual"]),
+    started_at: z.string(),
+    title: z.string(),
+});
+
+const PLAN_GENERATE_RESULT_SCHEMA = z.object({
+    schedule: z.array(
+        z.object({
+            book_id: z.string(),
+            date: z.string(),
+            finish: z.boolean().optional(),
+            minutes: z.number(),
+            session_index: z.number(),
+            title: z.string(),
+            words_planned: z.number(),
+        }),
+    ),
+    summary: z
+        .object({
+            feasibility_warning: z.string().nullable().optional(),
+            per_book: z
+                .record(
+                    z.string(),
+                    z.object({
+                        finished: z.boolean().optional(),
+                        minutes_planned: z.number().optional(),
+                        words_planned: z.number().optional(),
+                        words_total: z.number().optional(),
+                    }),
+                )
+                .optional(),
+            status: z.string().optional(),
+            total_available_minutes: z.number().optional(),
+            total_planned_minutes: z.number().optional(),
+        })
+        .catchall(JsonValueSchema)
+        .nullable(),
+});
+
+const SAMPLE_PAYLOAD_SCHEMA = z.object({
+    books: z.array(z.unknown()),
+    settings: plannerSettingsSchema(),
+});
+
+const PLANNER_STATE_SNAPSHOT_SCHEMA = z.object({
+    blocked_day_books: BOOL_RECORD_SCHEMA,
+    books: z.array(z.unknown()),
+    feature_flags: FEATURE_FLAGS_SCHEMA,
+    last_result: PLAN_GENERATE_RESULT_SCHEMA.extend({
+        created_at: z.string(),
+    }).nullable(),
+    preferences: PREFERENCES_SCHEMA,
+    schedule_completions: BOOL_RECORD_SCHEMA,
+    sessions: z.array(SESSION_SCHEMA),
+    settings: plannerSettingsSchema(),
+});
+
+const LOADED_PLANNER_STATE_SCHEMA = z
+    .object({
+        blocked_day_books: BOOL_RECORD_SCHEMA.optional(),
+        books: z.array(z.unknown()).optional(),
+        feature_flags: z.record(z.string(), z.unknown()).optional(),
+        last_result: z
+            .record(z.string(), z.unknown())
+            .nullable()
+            .optional(),
+        preferences: z.record(z.string(), z.unknown()).optional(),
+        schedule_completions: BOOL_RECORD_SCHEMA.optional(),
+        sessions: z.array(z.record(z.string(), z.unknown())).optional(),
+        settings: plannerSettingsSchema().optional(),
+    })
+    .passthrough();
+
+export function parsePlannerStateSnapshot(
+    input: unknown,
+): PlannerStateSnapshot {
+    return PLANNER_STATE_SNAPSHOT_SCHEMA.parse(input) as PlannerStateSnapshot;
+}
+
+export function safeParseLoadedPlannerState(input: unknown) {
+    const RESULT = LOADED_PLANNER_STATE_SCHEMA.safeParse(input);
+    if (RESULT.success) {
+        return { success: true as const, data: RESULT.data as LoadedPlannerState };
+    }
+    return RESULT;
+}

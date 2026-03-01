@@ -103,3 +103,41 @@ test("SQLite store recovers from snapshot corruption using journal replay", () =
         cleanup(userDataDir);
     }
 });
+
+test("SQLite store recovers when snapshot JSON is schema-invalid", () => {
+    const userDataDir = tempUserDataDir();
+    try {
+        assert.equal(
+            writeStateToSqlite(userDataDir, {
+                books: [],
+                revision: 1,
+                settings: { start_date: "2026-02-01" },
+            }).ok,
+            true,
+        );
+        assert.equal(
+            writeStateToSqlite(userDataDir, {
+                books: [],
+                revision: 2,
+                settings: { start_date: "2026-02-02" },
+            }).ok,
+            true,
+        );
+
+        const database = new DatabaseSync(sqliteStatePath(userDataDir));
+        try {
+            database.exec(
+                "UPDATE planner_state_snapshot SET payload_json = '{\"books\":\"bad\",\"settings\":{}}' WHERE id = 1",
+            );
+        } finally {
+            database.close();
+        }
+
+        const recovered = readStateFromSqlite(userDataDir);
+        assert.equal(recovered?.source, "sqlite_journal_replay");
+        assert.equal(recovered?.warningCode, "RECOVERED_FROM_JOURNAL");
+        assert.equal(recovered?.state?.revision, 2);
+    } finally {
+        cleanup(userDataDir);
+    }
+});

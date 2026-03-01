@@ -3,6 +3,7 @@
  */
 import fs from "node:fs";
 import { DatabaseSync } from "node:sqlite";
+import { safeParseLoadedPlannerState } from "../contracts/state.js";
 import {
     type JsonValue,
     type LoadedPlannerState,
@@ -59,7 +60,11 @@ function objectState(value: unknown): LoadedPlannerState | null {
     if (typeof value !== "object") {
         return null;
     }
-    return value as LoadedPlannerState;
+    const RESULT = safeParseLoadedPlannerState(value);
+    if (!RESULT.success) {
+        return null;
+    }
+    return RESULT.data;
 }
 
 /**
