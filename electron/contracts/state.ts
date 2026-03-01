@@ -3,8 +3,8 @@ import {
     type LoadedPlannerState,
     type PlannerStateSnapshot,
 } from "../types/types.js";
+import { PLAN_GENERATE_RESULT_SCHEMA } from "./planner_result.js";
 import { plannerSettingsSchema } from "./settings.js";
-import { JSON_VALUE_SCHEMA } from "./shared.js";
 
 const BOOL_RECORD_SCHEMA = z.record(z.string(), z.boolean());
 
@@ -34,45 +34,6 @@ const SESSION_SCHEMA = z.object({
     source: z.enum(["timer", "manual"]),
     started_at: z.string(),
     title: z.string(),
-});
-
-const PLAN_GENERATE_RESULT_SCHEMA = z.object({
-    schedule: z.array(
-        z.object({
-            book_id: z.string(),
-            date: z.string(),
-            finish: z.boolean().optional(),
-            minutes: z.number(),
-            session_index: z.number(),
-            title: z.string(),
-            words_planned: z.number(),
-        }),
-    ),
-    summary: z
-        .object({
-            feasibility_warning: z.string().nullable().optional(),
-            per_book: z
-                .record(
-                    z.string(),
-                    z.object({
-                        finished: z.boolean().optional(),
-                        minutes_planned: z.number().optional(),
-                        words_planned: z.number().optional(),
-                        words_total: z.number().optional(),
-                    }),
-                )
-                .optional(),
-            status: z.string().optional(),
-            total_available_minutes: z.number().optional(),
-            total_planned_minutes: z.number().optional(),
-        })
-        .catchall(JSON_VALUE_SCHEMA)
-        .nullable(),
-});
-
-const _SAMPLE_PAYLOAD_SCHEMA = z.object({
-    books: z.array(z.unknown()),
-    settings: plannerSettingsSchema(),
 });
 
 const PLANNER_STATE_SNAPSHOT_SCHEMA = z.object({
