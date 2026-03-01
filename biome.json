@@ -326,7 +326,7 @@
                         "useExportType": "error",
                         "useForOf": "error",
                         "useNamingConvention": {
-                            "level": "warn",
+                            "level": "error",
                             "options": {
                                 "conventions": [
                                     {

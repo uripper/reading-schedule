@@ -1,27 +1,31 @@
-import { test, expect } from "./fixtures";
+import { expect, TEST } from "./fixtures";
 
-test("app boots and exposes planner API", async ({ electronApp, window }) => {
-  await expect(window.locator("body")).toBeVisible();
+TEST("app boots and exposes planner API", async ({ electronApp, window }) => {
+    await expect(window.locator("body")).toBeVisible();
 
-  const hasPlannerApi = await window.evaluate(() => {
-    const globalWithPlanner = globalThis as typeof globalThis & {
-      plannerApi?: {
-        loadState?: unknown;
-        generate?: unknown;
-      };
-    };
+    const HAS_PLANNER_API = await window.evaluate(() => {
+        const GLOBAL_WITH_PLANNER = globalThis as typeof globalThis & {
+            plannerApi?: {
+                loadState?: unknown;
+                generate?: unknown;
+            };
+        };
 
-    return (
-      typeof globalWithPlanner.plannerApi?.loadState === "function" &&
-      typeof globalWithPlanner.plannerApi?.generate === "function"
+        return (
+            typeof GLOBAL_WITH_PLANNER.plannerApi?.loadState === "function" &&
+            typeof GLOBAL_WITH_PLANNER.plannerApi?.generate === "function"
+        );
+    });
+
+    expect(HAS_PLANNER_API).toBe(true);
+
+    const WINDOW_COUNT = await electronApp.evaluate(
+        (electronModule: Record<string, unknown>) => {
+            const BROWSER_WINDOW =
+                electronModule.BrowserWindow as typeof import("electron").BrowserWindow;
+            return BROWSER_WINDOW.getAllWindows().length;
+        },
     );
-  });
 
-  expect(hasPlannerApi).toBe(true);
-
-  const windowCount = await electronApp.evaluate(({ BrowserWindow }) => {
-    return BrowserWindow.getAllWindows().length;
-  });
-
-  expect(windowCount).toBeGreaterThan(0);
+    expect(WINDOW_COUNT).toBeGreaterThan(0);
 });

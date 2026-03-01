@@ -1,32 +1,43 @@
 import {
     test as base,
     type ElectronApplication,
-    expect,
     type Page,
 } from "@playwright/test";
 import { _electron as electron } from "playwright";
 
-type BartlebyFixtures = {
+interface BartlebyFixtures {
     electronApp: ElectronApplication;
     window: Page;
-};
+}
 
-export const test = base.extend<BartlebyFixtures>({
-    electronApp: async ({}, use) => {
+export const TEST = base.extend<BartlebyFixtures>({
+    electronApp: async (
+        {},
+        use: (value: ElectronApplication) => Promise<void>,
+    ) => {
+        const LAUNCH_ENV: Record<string, string> = {};
+        for (const [KEY, VALUE] of Object.entries(process.env)) {
+            if (typeof VALUE === "string") {
+                LAUNCH_ENV[KEY] = VALUE;
+            }
+        }
+
+        LAUNCH_ENV.NODE_ENV = "test";
+        LAUNCH_ENV.UI_SCALE = "1";
+
         const APP = await electron.launch({
             args: ["."],
-            env: {
-                ...process.env,
-                NODE_ENV: "test",
-                UI_SCALE: "1",
-            },
+            env: LAUNCH_ENV,
         });
 
         await use(APP);
         await APP.close();
     },
 
-    window: async ({ electronApp }, use) => {
+    window: async (
+        { electronApp }: { electronApp: ElectronApplication },
+        use: (value: Page) => Promise<void>,
+    ) => {
         const WINDOW = await electronApp.firstWindow();
         await WINDOW.waitForLoadState("domcontentloaded");
         await use(WINDOW);

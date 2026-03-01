@@ -26,14 +26,14 @@
         "start": "node ./scripts/start_electron.mjs",
         "start:dev": "node ./scripts/start_electron.mjs --development",
         "state:recover": "node ./scripts/state_recover.mjs",
-        "test:e2e": "pnpm run build && playwright test",
-        "test:e2e:debug": "pnpm run build && playwright test --debug",
-        "test:e2e:headed": "pnpm run build && playwright test --headed",
-        "test:e2e:ui": "pnpm run build && playwright test --ui",
+        "test:e2e": "pnpm run build && playwright test -c playwright.config.ts",
+        "test:e2e:debug": "pnpm run build && playwright test -c playwright.config.ts --debug",
+        "test:e2e:headed": "pnpm run build && playwright test -c playwright.config.ts --headed",
+        "test:e2e:ui": "pnpm run build && playwright test -c playwright.config.ts --ui",
         "test:node": "node --test tests/schedule-preserve.test.mjs tests/load-state-recovery.test.mjs tests/init-startup-autoplan.test.mjs tests/contracts-planner-validation.test.mjs tests/state-store-json-atomic.test.mjs tests/state-store-sqlite.test.mjs tests/state-store-migration.test.mjs tests/state-recover.test.mjs",
         "tokens:build": "node ./scripts/build_tokens.mjs",
         "tokens:check": "node ./scripts/check_token_usage.mjs",
-        "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit"
+        "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit && tsc -p tsconfig.e2e.json --noEmit"
     },
     "version": "0.1.0"
 }
