@@ -2,6 +2,7 @@ import { type WebContents } from "electron";
 
 import { type JsonValue } from "./types_core.js";
 import {
+    type PlanGeneratePayload,
     type PlannerSaveResult,
     type PlannerStateLoadResult,
 } from "./types_planner.js";
@@ -14,12 +15,6 @@ export interface DownloadCoverPayload {
 export interface UploadCoverPayload {
     bookId?: string;
     dataUrl?: string;
-}
-
-export interface BridgeResponse {
-    data?: JsonValue;
-    error?: string;
-    ok?: boolean;
 }
 
 export interface RegisterIpcHandlersArgs {
