@@ -19,9 +19,24 @@ test("runPlanGeneration forces settings.start_date to tomorrow", async () => {
     });
 
     assert.equal(calls.length, 1);
+    assert.equal(calls[0].planner, "mip");
     assert.equal(calls[0].settings.start_date, tomorrowKey());
     assert.equal(calls[0].settings.end_date, "2099-01-01");
     assert.equal(calls[0].settings.minutes_per_day, 20);
+});
+
+test("runPlanGeneration maps solver profile to planner token", async () => {
+    const calls = [];
+    await runPlanGenerationForTest({
+        collectSettings: () => ({
+            end_date: "2099-01-01",
+            planner_solver_profile: "thorough",
+        }),
+        generate: recordingGenerate(calls),
+    });
+
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].planner, "mip-thorough");
 });
 
 test("runPlanGeneration clamps end_date to tomorrow when it is in the past", async () => {

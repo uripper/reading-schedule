@@ -2,6 +2,7 @@ import { type PlannerSettings } from "../../types/types.js";
 import {
     DEFAULT_DIFFICULTY_MULTIPLIER,
     DEFAULT_PLAN_MODE,
+    DEFAULT_SOLVER_PROFILE,
     WEEKDAYS,
 } from "./config.js";
 import {
@@ -37,12 +38,18 @@ function settingValueText(value: unknown): string {
  * @param value Raw settings value.
  * @returns Select value text.
  */
-function selectSettingValue(value: unknown): string {
+function selectSettingValue(fieldId: string, value: unknown): string {
     const NORMALIZED = settingValueText(value);
     if (NORMALIZED) {
         return NORMALIZED;
     }
-    return DEFAULT_PLAN_MODE;
+    if (fieldId === "plan_mode") {
+        return DEFAULT_PLAN_MODE;
+    }
+    if (fieldId === "planner_solver_profile") {
+        return DEFAULT_SOLVER_PROFILE;
+    }
+    return "";
 }
 
 /**
@@ -69,7 +76,7 @@ export function fillSettingsForm(
     allFieldDefinitions().forEach((field) => {
         const VALUE = settings[field.id];
         if (field.type === "select") {
-            selectEl(field.id).value = selectSettingValue(VALUE);
+            selectEl(field.id).value = selectSettingValue(field.id, VALUE);
             return;
         }
         if (field.type === "checkbox") {

@@ -1,12 +1,11 @@
 import {
-    type BindTodayActionsArgs,
     type CreatePlanControllerArgs,
     type FinalizeInitialLoadArgs,
 } from "../../../types/types.js";
 import { el } from "../../dom.js";
+import { logDebug } from "../../logger.js";
 import { createPlanController } from "../plan_controller.js";
 import { bindSettingsAutoPlanListeners } from "../runtime_helpers.js";
-import { bindTodayFocusActions } from "../today/index.js";
 
 const SUPPRESSED_LOADED_STATUS_WARNING_CODES = new Set<
     FinalizeInitialLoadArgs["loadResult"]["warningCode"]
@@ -89,6 +88,11 @@ export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
         args.queueAutoPlan();
     };
     args.setReady();
+    logDebug("Initial load finalized and runtime marked ready.", {
+        hasSavedPayload: Boolean(args.saved),
+        loadSource: args.loadResult.source,
+        warningCode: args.loadResult.warningCode,
+    });
     document.addEventListener("input", QUEUE_PERSIST);
     document.addEventListener("change", QUEUE_PERSIST);
 
@@ -102,17 +106,18 @@ export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
             args.setStatus("Loaded sample data.");
         }
     }
-    if (shouldAutoPlanOnStartup(args)) {
+
+    const HAS_SAVED_SCHEDULE = hasSavedSchedule(args.saved);
+    const SHOULD_AUTO_PLAN = shouldAutoPlanOnStartup(args);
+    logDebug("Evaluated startup auto-plan decision.", {
+        hasSavedSchedule: HAS_SAVED_SCHEDULE,
+        loadSource: args.loadResult.source,
+        shouldAutoPlan: SHOULD_AUTO_PLAN,
+    });
+
+    if (SHOULD_AUTO_PLAN) {
         QUEUE_AUTO_PLAN();
         return;
     }
     args.addLog?.("Skipped startup auto-plan to preserve loaded schedule.");
-}
-
-/**
- * Binds Today-section runtime actions.
- * @param args Today action getters/setters and update callbacks.
- */
-export function bindTodayActions(args: BindTodayActionsArgs): void {
-    bindTodayFocusActions(args);
 }

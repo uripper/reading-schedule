@@ -4,6 +4,7 @@
         "concurrently": "^9.2.1",
         "electron": "^40.4.1",
         "electron-reloader": "^1.2.3",
+        "esbuild": "^0.25.11",
         "eslint": "^9.39.2",
         "typescript": "^5.7.3"
     },
@@ -11,10 +12,10 @@
     "name": "reading-plan-gui",
     "private": true,
     "scripts": {
-        "build": "pnpm run clean:dist && pnpm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/copy_static.mjs",
+        "build": "pnpm run clean:dist && pnpm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/bundle_renderer.mjs && node ./scripts/copy_static.mjs",
         "clean:dist": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
         "copy:watch": "node ./scripts/watch_static.mjs",
-        "dev": "pnpm run clean:dist && pnpm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/copy_static.mjs && concurrently \"tsc -p tsconfig.main.json --watch\" \"tsc -p tsconfig.renderer.json --watch\" \"pnpm run copy:watch\" \"node ./scripts/start_electron_hot.mjs\"",
+        "dev": "pnpm run clean:dist && pnpm run tokens:build && tsc -p tsconfig.main.json && node ./scripts/bundle_renderer.mjs && node ./scripts/copy_static.mjs && concurrently \"tsc -p tsconfig.main.json --watch\" \"tsc -p tsconfig.renderer.json --noEmit --watch\" \"node ./scripts/watch_renderer.mjs\" \"pnpm run copy:watch\" \"node ./scripts/start_electron_hot.mjs\"",
         "lint": "pnpm run tokens:check && eslint --ext .js,.mjs,.ts .",
         "lint:fix": "eslint --ext .js,.mjs,.ts . --fix",
         "prestart": "pnpm run build",

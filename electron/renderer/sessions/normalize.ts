@@ -73,7 +73,7 @@ function normalizedSource(value?: string): Session["source"] {
  * @param session Raw session input.
  * @returns Normalized session object.
  */
-export function normalizeSession(session: SessionInput = {}): Session {
+function normalizeSession(session: SessionInput = {}): Session {
     const { endedAt, startedAt } = normalizedDates(session);
     const PAGES_READ = normalizedPagesRead(session.pages_read);
     const SOURCE = normalizedSource(session.source);
