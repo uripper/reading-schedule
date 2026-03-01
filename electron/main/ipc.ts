@@ -69,25 +69,30 @@ function registerPlannerHandlers(
         });
         const RESULT = parsePlanGenerateResult(RAW_RESPONSE);
         const SUMMARY = RESULT.summary;
-        const SUMMARY_DATA =
-            SUMMARY && typeof SUMMARY === "object" ? SUMMARY : null;
-        const PLANNER_USED =
-            SUMMARY_DATA && typeof SUMMARY_DATA.planner === "string"
-                ? SUMMARY_DATA.planner
-                : null;
-        const STATUS =
-            SUMMARY_DATA && typeof SUMMARY_DATA.status === "string"
-                ? SUMMARY_DATA.status
-                : null;
-        const NOTE =
-            SUMMARY_DATA && typeof SUMMARY_DATA.note === "string"
-                ? SUMMARY_DATA.note
-                : null;
+        let summaryData: Record<string, unknown> | null = null;
+        if (SUMMARY && typeof SUMMARY === "object") {
+            summaryData = SUMMARY;
+        }
+
+        let plannerUsed: string | null = null;
+        if (summaryData && typeof summaryData.planner === "string") {
+            plannerUsed = summaryData.planner;
+        }
+
+        let status: string | null = null;
+        if (summaryData && typeof summaryData.status === "string") {
+            status = summaryData.status;
+        }
+
+        let note: string | null = null;
+        if (summaryData && typeof summaryData.note === "string") {
+            note = summaryData.note;
+        }
         logDebug("Planner result parsed.", {
-            note: NOTE,
-            plannerUsed: PLANNER_USED,
+            note,
+            plannerUsed,
             requestId: REQUEST_ID,
-            status: STATUS,
+            status,
         });
         return RESULT;
     });
