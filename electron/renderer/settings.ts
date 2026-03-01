@@ -1,5 +1,6 @@
 import { parseSettings, safeParseSettings } from "../contracts/settings.js";
 import { type PlannerSettings } from "../types/types.js";
+import { logDebug } from "./logger.js";
 import { FIELDS } from "./settings/config.js";
 import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.js";
 import {
@@ -43,9 +44,24 @@ export function initSettingsGrid(): void {
 export function fillSettings(settings: PlannerSettings = {}): void {
     const RESULT = safeParseSettings(settings);
     if (!RESULT.success) {
+        logDebug(
+            "Failed to parse persisted settings; falling back to defaults.",
+            {
+                issueCount: RESULT.error.issues.length,
+            },
+        );
         fillSettingsForm({}, setDayOffs);
         return;
     }
+
+    let dayOffCount = 0;
+    if (Array.isArray(RESULT.data.day_offs)) {
+        dayOffCount = RESULT.data.day_offs.length;
+    }
+
+    logDebug("Applied persisted settings to settings form.", {
+        dayOffCount,
+    });
     fillSettingsForm(RESULT.data, setDayOffs);
 }
 
@@ -55,5 +71,11 @@ export function fillSettings(settings: PlannerSettings = {}): void {
  */
 export function collectSettings(): PlannerSettings {
     const RAW_SETTINGS = collectSettingsForm(dayOffs);
+    logDebug("Collected settings payload from form.", {
+        dayOffCount: dayOffs.length,
+        hasEndDate:
+            typeof RAW_SETTINGS.end_date === "string" &&
+            RAW_SETTINGS.end_date.trim() !== "",
+    });
     return parseSettings(RAW_SETTINGS);
 }

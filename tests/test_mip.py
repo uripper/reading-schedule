@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 from reading_plan.planner_types import Book
 from reading_plan.planning.budget import words_per_block
+import reading_plan.planning.solve as solve_module
 from reading_plan.planning.solve import solve_plan
 from reading_plan.reading_calendar import weekday_key
 from tests.helpers import demo_books, demo_settings
@@ -126,3 +127,50 @@ def test_mip_respects_book_scheduled_days() -> None:
     ]
     assert planned_days
     assert all(weekday_key(day) in allowed_days for day in planned_days)
+
+
+def test_mip_unknown_status_falls_back_to_greedy(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """UNKNOWN CP-SAT status should return a usable greedy fallback plan."""
+
+    class FakeCpSolver:
+        """Minimal fake solver returning UNKNOWN."""
+
+        class parameters:  # noqa: D106 - test fake structure
+            random_seed = 0
+            num_search_workers = 0
+            max_time_in_seconds = 0.0
+
+        def Solve(self, _model: object) -> int:  # noqa: N802 - OR-Tools API
+            return 4
+
+    class FakeCpModule:
+        """Minimal fake CP-SAT module constants and solver constructor."""
+
+        OPTIMAL = 4_000
+        FEASIBLE = 3_000
+        INFEASIBLE = 2_000
+        MODEL_INVALID = 1_000
+        UNKNOWN = 4
+
+        CpSolver = FakeCpSolver
+
+    monkeypatch.setattr(solve_module, "load_cp_model_module", lambda: FakeCpModule)
+    monkeypatch.setattr(
+        solve_module,
+        "build_cp_sat",
+        lambda _books, _settings, _cp: (object(), {}, {}, {}, []),
+    )
+    monkeypatch.setattr(
+        solve_module,
+        "plan_greedy",
+        lambda _books, _settings: {("fallback", date(2026, 1, 1)): 1},
+    )
+
+    result = solve_plan(demo_books(), demo_settings(), planner="mip")
+
+    assert result.planner == "greedy"
+    assert result.status == "FEASIBLE"
+    assert result.assignments
+    assert "UNKNOWN" in result.note

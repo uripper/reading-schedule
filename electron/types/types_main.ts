@@ -30,6 +30,10 @@ export interface RegisterIpcHandlersArgs {
         this: void,
         args: string[],
         payload?: PlanGeneratePayload,
+        context?: {
+            requestId?: string;
+            userDataDir?: string;
+        },
     ): Promise<unknown>;
     saveUploadedCover(
         this: void,

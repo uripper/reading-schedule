@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import logging
 from typing import TYPE_CHECKING
 
 from reading_plan.planning.budget import (
@@ -28,7 +29,12 @@ if TYPE_CHECKING:
         CpModelModuleLike,
         FinishedVars,
         IntVarLike,
+        LinearExprLike,
     )
+
+
+LOGGER = logging.getLogger("reading_plan.bridge")
+DEPENDENCY_PROGRESS_LOG_INTERVAL = 25
 
 
 def _create_book_day_variables(
@@ -72,30 +78,79 @@ def _add_day_constraints(context: ModelBuildContext) -> None:
         )
 
 
+def _build_progress_before_by_day(
+    context: ModelBuildContext,
+    blocker: Book,
+    blocker_index: int,
+) -> dict[date, IntVarLike]:
+    """Build prefix-progress vars: words read before each day for one blocker."""
+    progress_before_by_day: dict[date, IntVarLike] = {}
+    max_progress = blocker.words_total + context.wpb[blocker.book_id] * max(
+        1,
+        blocker.min_blocks_per_session - 1,
+    )
+    progressed_before: LinearExprLike = 0
+    for day_index, day in enumerate(context.days):
+        before_var = context.model.new_int_var(
+            0,
+            max_progress,
+            f"dep_progress_before_{blocker_index}_{day_index}",
+        )
+        context.model.add(before_var == progressed_before)
+        progress_before_by_day[day] = before_var
+        progressed_before = (
+            before_var
+            + context.wpb[blocker.book_id] * context.x[blocker.book_id, day]
+        )
+    return progress_before_by_day
+
+
 def _add_dependency_constraints(context: ModelBuildContext) -> None:
     """Prevent scheduling a blocked book before its blocker is complete."""
-    for book_index, book in enumerate(context.books):
+    dependency_cache: dict[str, dict[date, IntVarLike]] = {}
+    blocker_index_map = {
+        book.book_id: index
+        for index, book in enumerate(context.books)
+    }
+    dependent_count = 0
+
+    for book in context.books:
         blocker_id = book.blocked_by
         if not blocker_id:
             continue
+        dependent_count += 1
         blocker = context.book_map[blocker_id]
-        for day_index, day in enumerate(context.days):
-            progressed_before = sum(
-                context.wpb[blocker_id] * context.x[blocker_id, prev_day]
-                for prev_day in context.days[:day_index]
+
+        if blocker_id not in dependency_cache:
+            dependency_cache[blocker_id] = _build_progress_before_by_day(
+                context,
+                blocker,
+                blocker_index_map[blocker_id],
             )
-            blocker_done = context.model.new_bool_var(
-                f"ready_{book_index}_{day_index}"
+
+        progress_before_by_day = dependency_cache[blocker_id]
+        for day in context.days:
+            context.model.add(
+                progress_before_by_day[day]
+                >= blocker.words_total * context.y[book.book_id, day]
             )
-            at_or_above_target = context.model.add(
-                progressed_before >= blocker.words_total
+
+        if dependent_count % DEPENDENCY_PROGRESS_LOG_INTERVAL == 0:
+            LOGGER.debug(
+                "build_cp_sat: dependency constraints progress",
+                extra={
+                    "cached_blocker_count": len(dependency_cache),
+                    "dependent_count": dependent_count,
+                },
             )
-            at_or_above_target.OnlyEnforceIf(blocker_done)
-            below_target = context.model.add(
-                progressed_before <= blocker.words_total - 1
-            )
-            below_target.OnlyEnforceIf(blocker_done.Not())
-            context.model.add(context.y[book.book_id, day] <= blocker_done)
+
+    LOGGER.debug(
+        "build_cp_sat: dependency constraints internal done",
+        extra={
+            "cached_blocker_count": len(dependency_cache),
+            "dependent_count": dependent_count,
+        },
+    )
 
 
 def _add_progress_constraints(
@@ -126,9 +181,7 @@ def _add_progress_constraints(
 
         if not book.deadline:
             continue
-        if due_days := [
-            day for day in context.days if day <= book.deadline
-        ]:
+        if due_days := [day for day in context.days if day <= book.deadline]:
             context.model.add(
                 sum(
                     context.wpb[book.book_id] * context.x[book.book_id, day]
@@ -160,12 +213,19 @@ def build_cp_sat(
     cp_model_module: CpModelModuleLike,
 ) -> BuildCpSatResult:
     """Build cp sat."""
+    LOGGER.debug("build_cp_sat: started", extra={"book_count": len(books)})
+
     raw_model = cp_model_module.CpModel()
     model = raw_model
     days = date_range(settings.start_date, settings.end_date)
     caps = {d: day_capacity_blocks(settings, d) for d in days}
     wpb = {b.book_id: words_per_block(b, settings) for b in books}
     book_map = {book.book_id: book for book in books}
+    LOGGER.debug(
+        "build_cp_sat: base calendar and budgets built",
+        extra={"day_count": len(days)},
+    )
+
     context = ModelBuildContext(
         model=model,
         books=books,
@@ -178,9 +238,19 @@ def build_cp_sat(
         y={},
     )
     context.x, context.y = _create_book_day_variables(context)
+    LOGGER.debug(
+        "build_cp_sat: decision variables created",
+        extra={"variable_count": len(context.x)},
+    )
+
     _add_day_constraints(context)
+    LOGGER.debug("build_cp_sat: day constraints added")
+
     _add_dependency_constraints(context)
+    LOGGER.debug("build_cp_sat: dependency constraints added")
+
     finished, useful_words = _add_progress_constraints(context)
+    LOGGER.debug("build_cp_sat: progress constraints added")
 
     terms = build_objective_terms(
         books,
@@ -194,5 +264,9 @@ def build_cp_sat(
         ),
     )
     model.maximize(sum(terms))
+    LOGGER.debug(
+        "build_cp_sat: objective added",
+        extra={"term_count": len(terms)},
+    )
 
     return raw_model, context.x, context.y, finished, days
