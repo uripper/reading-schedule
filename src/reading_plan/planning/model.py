@@ -191,6 +191,27 @@ def _add_progress_constraints(
     return finished, useful_words
 
 
+def _add_near_term_lock_constraints(
+    context: ModelBuildContext,
+    lock_days_from_start: int,
+    lock_assignments: dict[tuple[str, date], int] | None,
+) -> None:
+    """Pin early-day x-vars to provided assignments (or zero when absent)."""
+    if lock_days_from_start <= 0:
+        return
+    if not context.days:
+        return
+    assignments = lock_assignments or {}
+    lock_days = min(lock_days_from_start, len(context.days))
+    lock_cutoff = context.days[lock_days - 1]
+    for key, variable in context.x.items():
+        _book_id, day = key
+        if day > lock_cutoff:
+            continue
+        fixed_value = assignments.get(key, 0)
+        context.model.add(variable == fixed_value)
+
+
 @dataclass
 class ModelBuildContext:
     """Shared state used while building the planner CP-SAT model."""
@@ -206,12 +227,23 @@ class ModelBuildContext:
     y: BookDayVars
 
 
+@dataclass(frozen=True)
+class BuildModelOptions:
+    """Optional knobs for stage-specific model construction."""
+
+    objective_mode: str = "optimize"
+    lock_days_from_start: int = 0
+    lock_assignments: dict[tuple[str, date], int] | None = None
+
+
 def build_cp_sat(
     books: list[Book],
     settings: Settings,
     cp_model_module: CpModelModuleLike,
+    options: BuildModelOptions | None = None,
 ) -> BuildCpSatResult:
     """Build cp sat."""
+    build_options = options or BuildModelOptions()
     LOGGER.debug("build_cp_sat: started", extra={"book_count": len(books)})
 
     raw_model = cp_model_module.CpModel()
@@ -248,24 +280,38 @@ def build_cp_sat(
     _add_dependency_constraints(context)
     LOGGER.debug("build_cp_sat: dependency constraints added")
 
+    _add_near_term_lock_constraints(
+        context,
+        build_options.lock_days_from_start,
+        build_options.lock_assignments,
+    )
+    if build_options.lock_days_from_start > 0:
+        LOGGER.debug(
+            "build_cp_sat: near-term lock constraints added",
+            extra={"lock_days_from_start": build_options.lock_days_from_start},
+        )
+
     finished, useful_words = _add_progress_constraints(context)
     LOGGER.debug("build_cp_sat: progress constraints added")
 
-    terms = build_objective_terms(
-        books,
-        ObjectiveContext(
-            settings=settings,
-            days=days,
-            useful_words=useful_words,
-            finished=finished,
-            active_flags=context.y,
-            assigned_blocks=context.x,
-        ),
-    )
-    model.maximize(sum(terms))
-    LOGGER.debug(
-        "build_cp_sat: objective added",
-        extra={"term_count": len(terms)},
-    )
+    if build_options.objective_mode == "optimize":
+        terms = build_objective_terms(
+            books,
+            ObjectiveContext(
+                settings=settings,
+                days=days,
+                useful_words=useful_words,
+                finished=finished,
+                active_flags=context.y,
+                assigned_blocks=context.x,
+            ),
+        )
+        model.maximize(sum(terms))
+        LOGGER.debug(
+            "build_cp_sat: objective added",
+            extra={"term_count": len(terms)},
+        )
+    else:
+        LOGGER.debug("build_cp_sat: objective skipped for feasibility stage")
 
     return raw_model, context.x, context.y, finished, days

@@ -228,3 +228,62 @@ def test_mip_infeasible_status_falls_back_to_greedy(
     assert result.status == "FEASIBLE"
     assert result.assignments
     assert "INFEASIBLE" in result.note
+
+
+def test_mip_feasibility_stage_uses_near_term_lock(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """First staged build should enable greedy-guided near-term locking."""
+
+    class FakeCpSolver:
+        """Minimal fake solver returning UNKNOWN."""
+
+        class parameters:  # noqa: D106 - test fake structure
+            random_seed = 0
+            num_search_workers = 0
+            cp_model_presolve = False
+            stop_after_first_solution = False
+            max_time_in_seconds = 0.0
+
+        def Solve(self, _model: object) -> int:  # noqa: N802 - OR-Tools API
+            return 4
+
+    class FakeCpModule:
+        """Minimal fake CP-SAT module constants and solver constructor."""
+
+        OPTIMAL = 4_000
+        FEASIBLE = 3_000
+        INFEASIBLE = 2_000
+        MODEL_INVALID = 1_000
+        UNKNOWN = 4
+
+        CpSolver = FakeCpSolver
+
+    build_calls: list[tuple[tuple[object, ...], dict[str, object]]] = []
+
+    def fake_build_cp_sat(
+        *args: object,
+        **kwargs: object,
+    ) -> tuple[object, dict, dict, dict, list]:
+        build_calls.append((args, kwargs))
+        return object(), {}, {}, {}, []
+
+    monkeypatch.setattr(
+        solve_module,
+        "load_cp_model_module",
+        lambda: FakeCpModule,
+    )
+    monkeypatch.setattr(solve_module, "build_cp_sat", fake_build_cp_sat)
+    monkeypatch.setattr(
+        solve_module,
+        "plan_greedy",
+        lambda _books, _settings: {("fallback", date(2026, 1, 2)): 2},
+    )
+
+    _result = solve_plan(demo_books(), demo_settings(), planner="mip")
+
+    assert build_calls
+    first_args, _first_kwargs = build_calls[0]
+    options = first_args[3]
+    assert getattr(options, "objective_mode") == "feasibility"
+    assert int(getattr(options, "lock_days_from_start")) > 0

@@ -11,6 +11,7 @@ from reading_plan.planning.solve_heuristics import (
     PROFILE_THOROUGH,
     profile_from_planner,
     run_precheck,
+    stages_for_profile,
 )
 from tests.helpers import demo_settings
 
@@ -77,3 +78,26 @@ def test_precheck_detects_deadline_infeasibility() -> None:
 
     assert not precheck.is_feasible
     assert "deadline-bound book" in precheck.note
+
+
+def test_fast_profile_starts_with_feasibility_stage() -> None:
+    """Fast profile should prioritize first-feasible discovery."""
+    stages = stages_for_profile(PROFILE_FAST)
+
+    assert stages
+    assert stages[0].include_objective is False
+    assert stages[0].stop_after_first_solution is True
+    assert stages[0].worker_count > 1
+    assert stages[0].lock_days_from_start > 0
+    assert stages[1].lock_days_from_start == 0
+
+
+def test_balanced_profile_includes_feasibility_then_improvement() -> None:
+    """Balanced profile should attempt feasibility before objective tuning."""
+    stages = stages_for_profile(DEFAULT_SOLVER_PROFILE)
+
+    assert len(stages) >= 2
+    assert stages[0].include_objective is False
+    assert stages[1].include_objective is True
+    assert stages[0].lock_days_from_start > 0
+    assert all(stage.lock_days_from_start == 0 for stage in stages[1:])

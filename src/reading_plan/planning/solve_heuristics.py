@@ -26,6 +26,12 @@ PROFILE_FAST = "fast"
 PROFILE_BALANCED = "balanced"
 PROFILE_THOROUGH = "thorough"
 DEFAULT_SEED = 7
+DEFAULT_WORKER_COUNT = 1
+ESCALATED_WORKER_COUNT = 4
+THOROUGH_WORKER_COUNT = 6
+FAST_LOCK_DAYS = 5
+BALANCED_LOCK_DAYS = 7
+THOROUGH_LOCK_DAYS = 10
 
 
 @dataclass(frozen=True)
@@ -35,6 +41,10 @@ class SolveStage:
     name: str
     max_time_seconds: float
     seed: int
+    include_objective: bool = True
+    stop_after_first_solution: bool = False
+    worker_count: int = DEFAULT_WORKER_COUNT
+    lock_days_from_start: int = 0
 
 
 @dataclass(frozen=True)
@@ -49,20 +59,74 @@ def stages_for_profile(profile: str) -> tuple[SolveStage, ...]:
     """Return deterministic stage sequence for a solver profile."""
     if profile == PROFILE_FAST:
         return (
-            SolveStage("fast-first-feasible", 4.0, DEFAULT_SEED),
-            SolveStage("fast-improve", 6.0, DEFAULT_SEED),
+            SolveStage(
+                "fast-feasibility",
+                4.0,
+                DEFAULT_SEED,
+                include_objective=False,
+                stop_after_first_solution=True,
+                worker_count=ESCALATED_WORKER_COUNT,
+                lock_days_from_start=FAST_LOCK_DAYS,
+            ),
+            SolveStage(
+                "fast-improve",
+                4.0,
+                DEFAULT_SEED,
+                worker_count=ESCALATED_WORKER_COUNT,
+            ),
         )
     if profile == PROFILE_THOROUGH:
         return (
-            SolveStage("thorough-first-feasible", 8.0, DEFAULT_SEED),
-            SolveStage("thorough-improve", 16.0, DEFAULT_SEED),
-            SolveStage("thorough-seed-11", 16.0, 11),
-            SolveStage("thorough-seed-19", 16.0, 19),
+            SolveStage(
+                "thorough-feasibility",
+                10.0,
+                DEFAULT_SEED,
+                include_objective=False,
+                stop_after_first_solution=True,
+                worker_count=THOROUGH_WORKER_COUNT,
+                lock_days_from_start=THOROUGH_LOCK_DAYS,
+            ),
+            SolveStage(
+                "thorough-improve",
+                10.0,
+                DEFAULT_SEED,
+                worker_count=THOROUGH_WORKER_COUNT,
+            ),
+            SolveStage(
+                "thorough-seed-11",
+                10.0,
+                11,
+                worker_count=THOROUGH_WORKER_COUNT,
+            ),
+            SolveStage(
+                "thorough-seed-19",
+                10.0,
+                19,
+                worker_count=THOROUGH_WORKER_COUNT,
+            ),
         )
     return (
-        SolveStage("balanced-first-feasible", 6.0, DEFAULT_SEED),
-        SolveStage("balanced-improve", 10.0, DEFAULT_SEED),
-        SolveStage("balanced-seed-11", 8.0, 11),
+        SolveStage(
+            "balanced-feasibility",
+            8.0,
+            DEFAULT_SEED,
+            include_objective=False,
+            stop_after_first_solution=True,
+            worker_count=ESCALATED_WORKER_COUNT,
+            lock_days_from_start=BALANCED_LOCK_DAYS,
+        ),
+        SolveStage(
+            "balanced-improve",
+            10.0,
+            DEFAULT_SEED,
+            worker_count=ESCALATED_WORKER_COUNT,
+        ),
+        SolveStage(
+            "balanced-seed-11",
+            10.0,
+            11,
+            worker_count=ESCALATED_WORKER_COUNT,
+        ),
     )
 
 
