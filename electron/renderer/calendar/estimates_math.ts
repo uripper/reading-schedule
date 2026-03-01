@@ -22,7 +22,7 @@ function positiveFiniteNumber(value: unknown): number {
  * @param progressPercent Raw progress percent.
  * @returns Clamped percent.
  */
-export function clampPercent(progressPercent: number): number {
+function clampPercent(progressPercent: number): number {
     return Math.min(PERCENT_SCALE, Math.max(0, progressPercent));
 }
 

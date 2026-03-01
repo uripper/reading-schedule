@@ -14,7 +14,7 @@
         "build": "pnpm run clean:dist && pnpm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/copy_static.mjs",
         "clean:dist": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
         "copy:watch": "node ./scripts/watch_static.mjs",
-        "dev": "pnpm run clean:dist && pnpm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/copy_static.mjs && concurrently \"tsc -p tsconfig.main.json --watch\" \"tsc -p tsconfig.renderer.json --watch\" \"pnpm run copy:watch\" \"pnpm run start:dev\"",
+        "dev": "pnpm run clean:dist && pnpm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/copy_static.mjs && concurrently \"tsc -p tsconfig.main.json --watch\" \"tsc -p tsconfig.renderer.json --watch\" \"pnpm run copy:watch\" \"node ./scripts/start_electron_hot.mjs\"",
         "lint": "pnpm run tokens:check && eslint --ext .js,.mjs,.ts .",
         "lint:fix": "eslint --ext .js,.mjs,.ts . --fix",
         "prestart": "pnpm run build",

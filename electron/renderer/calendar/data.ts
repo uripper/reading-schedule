@@ -185,23 +185,3 @@ export function monthKeysFromRows(
     );
     return [...MONTH_KEY_SET].sort((left, right) => left.localeCompare(right));
 }
-
-/**
- * Returns first upcoming row, or earliest row when all are in past.
- * @param rows Raw schedule rows.
- * @returns Row to focus initially, or `null` when no rows exist.
- */
-export function firstPlannedRow(rows: CalendarRow[] = []): CalendarRow | null {
-    if (!Array.isArray(rows) || !rows.length) {
-        return null;
-    }
-    const SORTED_ROWS = sortRowsByDateAndSession(rows);
-    const TODAY = todayKey();
-    const UPCOMING = SORTED_ROWS.find((row) =>
-        rowIsPlannedForTodayOrLater(String(row.date || ""), TODAY),
-    );
-    if (UPCOMING) {
-        return UPCOMING;
-    }
-    return SORTED_ROWS[0];
-}

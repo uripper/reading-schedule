@@ -62,16 +62,3 @@ export function normalizeScheduledDays(value: unknown): BookWeekday[] {
     }
     return [...BOOK_WEEKDAYS];
 }
-
-/**
- * Checks whether a scheduled-day set includes all weekdays.
- * @param days Candidate scheduled-day values.
- * @returns True when `days` contains all weekdays.
- */
-export function scheduledDaysMatchAll(days: readonly string[]): boolean {
-    const NORMALIZED = normalizeScheduledDays(days);
-    if (NORMALIZED.length !== BOOK_WEEKDAYS.length) {
-        return false;
-    }
-    return BOOK_WEEKDAYS.every((day, index) => NORMALIZED[index] === day);
-}

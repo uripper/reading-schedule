@@ -112,7 +112,7 @@ function createBookSummary(
  * @param scheduleCompletions Completion map keyed by session identity.
  * @returns Next uncompleted row, or null when none remain.
  */
-export function nextUncompletedPlannedRow(
+function nextUncompletedPlannedRow(
     lastResult: PlannerResult | null,
     scheduleCompletions: Record<string, boolean>,
 ): PlannerScheduleRow | null {

@@ -96,7 +96,7 @@ function setFocusSessionDataset(
  * @param goalMinutesRaw Daily goal minutes.
  * @returns Integer percent between 0 and 100.
  */
-export function goalProgressPercent(
+function goalProgressPercent(
     todayMinutesRaw: number,
     goalMinutesRaw: number,
 ): number {

@@ -20,7 +20,7 @@ import {
  * @param value Raw text value.
  * @returns Lowercased trimmed text.
  */
-export function normalizedText(value: string | null | undefined): string {
+function normalizedText(value: string | null | undefined): string {
     return String(value ?? "")
         .trim()
         .toLocaleLowerCase(AUTHOR_LOCALE);

@@ -25,7 +25,7 @@ export function createCalendarRuntimeState(): CalendarRuntimeState {
  * Returns no-op/default calendar handler implementations.
  * @returns Handler object safe for unbound calendar usage.
  */
-export function defaultCalendarHandlers(): CalendarHandlers {
+function defaultCalendarHandlers(): CalendarHandlers {
     return {
         getBookById: () => null,
         isSessionCompleted: () => false,

@@ -1,20 +1,6 @@
 import { type NumericLike } from "../../types/types.js";
 
 /**
- * Escapes text for safe HTML interpolation in renderer templates.
- * @param text Numeric-like value to escape.
- * @returns HTML-escaped string.
- */
-export function escapeHtml(text: NumericLike): string {
-    return String(text ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
-}
-
-/**
  * Clamps numeric value between inclusive bounds.
  * @param value Candidate numeric value.
  * @param min Inclusive minimum.
