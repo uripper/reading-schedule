@@ -1,5 +1,4 @@
 import {
-    type BindTodayActionsArgs,
     type CreatePlanControllerArgs,
     type FinalizeInitialLoadArgs,
 } from "../../../types/types.js";
@@ -7,7 +6,6 @@ import { el } from "../../dom.js";
 import { logDebug } from "../../logger.js";
 import { createPlanController } from "../plan_controller.js";
 import { bindSettingsAutoPlanListeners } from "../runtime_helpers.js";
-import { bindTodayFocusActions } from "../today/index.js";
 
 const SUPPRESSED_LOADED_STATUS_WARNING_CODES = new Set<
     FinalizeInitialLoadArgs["loadResult"]["warningCode"]
@@ -122,12 +120,4 @@ export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
         return;
     }
     args.addLog?.("Skipped startup auto-plan to preserve loaded schedule.");
-}
-
-/**
- * Binds Today-section runtime actions.
- * @param args Today action getters/setters and update callbacks.
- */
-export function bindTodayActions(args: BindTodayActionsArgs): void {
-    bindTodayFocusActions(args);
 }

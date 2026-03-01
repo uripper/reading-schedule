@@ -15,6 +15,7 @@ from reading_plan.planning.solve_heuristics import (
     DEFAULT_SOLVER_PROFILE,
     FEASIBLE_STATUS_NAME,
     OPTIMAL_STATUS_NAME,
+    PROFILE_FAST,
     better_plan,
     is_result_feasible,
     profile_from_planner,
@@ -59,6 +60,7 @@ class CpModuleLike(Protocol):
 LOGGER = logging.getLogger("reading_plan.bridge")
 UNKNOWN_STATUS_NAME = "UNKNOWN"
 INFEASIBLE_STATUS_NAME = "INFEASIBLE"
+FAST_MODE_NOTE = "Fast mode uses greedy planner."
 
 
 @dataclass(frozen=True)
@@ -83,17 +85,31 @@ def solve_plan(
     books: list[Book], settings: Settings, planner: str = "mip"
 ) -> PlanResult:
     """Route planning to greedy or MIP and return a normalized plan result."""
+    planner_name = planner.strip().lower()
+    profile = profile_from_planner(planner_name)
+    log_context = {
+        "book_count": len(books),
+        "planner": planner,
+        "profile": profile,
+    }
     LOGGER.debug(
         "solve_plan: entered",
-        extra={"book_count": len(books), "planner": planner},
+        extra=log_context,
     )
-    if planner == "greedy":
+    if planner_name == "greedy":
         return PlanResult(
             planner="greedy",
             status=FEASIBLE_STATUS_NAME,
             assignments=plan_greedy(books, settings),
         )
-    return _solve_mip(books, settings, profile=profile_from_planner(planner))
+    if profile == PROFILE_FAST:
+        return PlanResult(
+            planner="greedy",
+            status=FEASIBLE_STATUS_NAME,
+            assignments=plan_greedy(books, settings),
+            note=FAST_MODE_NOTE,
+        )
+    return _solve_mip(books, settings, profile=profile)
 
 
 def _solve_mip(

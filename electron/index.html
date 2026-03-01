@@ -117,61 +117,18 @@
         tabindex="-1"
       >
         <div class="today-grid">
-          <article class="surface-card">
-            <h2>Today Focus</h2>
-            <p id="todaySummary" class="body-text">
-              No schedule yet. Add books and configure settings to auto-build
-              your plan.
+          
+          <article class="surface-card today-schedule-card">
+            <h2>Scheduled Today</h2>
+            <p id="todaySessionCounts" class="today-session-counts">
+              No sessions scheduled for today.
             </p>
-            <div class="row wrap-row">
-              <button
-                id="startSessionFromTodayBtn"
-                class="btn btn-primary"
-                type="button"
-                aria-expanded="false"
-              >
-                Open Focus Controls
-              </button>
-              <button id="viewScheduleFromTodayBtn" class="btn" type="button">
-                Open Schedule
-              </button>
-            </div>
-            <section id="todayFocusModePanel" class="today-focus-mode" hidden>
-              <h3>Focus Controls</h3>
-              <p id="todayFocusSessionText" class="body-text">
-                No upcoming planned session.
-              </p>
-              <p id="todayFocusSessionMeta" class="hint-text">
-                Use Tiny Start to log a short reading sprint.
-              </p>
-              <div class="row wrap-row">
-                <button
-                  id="todayFocusStartBtn"
-                  class="btn btn-primary"
-                  type="button"
-                >
-                  Start Planned Session
-                </button>
-                <button id="todayFocusTinyStartBtn" class="btn" type="button">
-                  Log Tiny Start (3 min)
-                </button>
-                <button
-                  id="todayFocusCompleteBtn"
-                  class="btn"
-                  type="button"
-                  hidden
-                >
-                  Mark Planned Session Complete
-                </button>
-              </div>
-              <p
-                id="todayFocusFeedback"
-                class="hint-text"
-                aria-live="polite"
-              ></p>
-            </section>
+            <div id="todayScheduledBooks" class="today-scheduled-books"></div>
+            <p id="todayScheduledEmpty" class="hint-text">
+              Add books and update your plan to see today's schedule.
+            </p>
           </article>
-
+          
           <article class="surface-card">
             <h2>Daily Goal</h2>
             <p id="todayGoalText" class="body-text">
@@ -186,16 +143,6 @@
             ></progress>
           </article>
 
-          <article class="surface-card today-schedule-card">
-            <h2>Scheduled Today</h2>
-            <p id="todaySessionCounts" class="today-session-counts">
-              No sessions scheduled for today.
-            </p>
-            <div id="todayScheduledBooks" class="today-scheduled-books"></div>
-            <p id="todayScheduledEmpty" class="hint-text">
-              Add books and update your plan to see today's schedule.
-            </p>
-          </article>
 
           <article id="gamificationCard" class="surface-card" hidden>
             <h2>Momentum</h2>
