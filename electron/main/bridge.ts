@@ -639,25 +639,18 @@ function settleFromClose(
  * @returns Parsed planner payload or null when no data is returned.
  */
 function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
-    let parsed: unknown;
     try {
-        parsed = JSON.parse(stdout || "{}");
+        const PARSED = JSON.parse(stdout || "{}") as BridgeResponse;
+        if (PARSED.ok !== true) {
+            throw new Error((PARSED.error ?? stderr) || "Planner failed");
+        }
+        if (PARSED.data === undefined) {
+            return null;
+        }
+        return PARSED.data;
     } catch {
         throw new Error(stderr || stdout || "Invalid planner response");
     }
-
-    const ENVELOPE = parseBridgeResponseEnvelope(parsed);
-    if (ENVELOPE.ok !== true) {
-        const ERROR_TEXT = ENVELOPE.error ?? stderr;
-        if (ERROR_TEXT) {
-            throw new Error(ERROR_TEXT);
-        }
-        throw new Error("Planner failed");
-    }
-    if (ENVELOPE.data === undefined) {
-        return null;
-    }
-    return ENVELOPE.data;
 }
 
 /**

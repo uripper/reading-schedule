@@ -5,10 +5,5 @@
         "moduleResolution": "Bundler"
     },
     "extends": "./tsconfig.json",
-    "include": [
-        "contracts/**/*.ts",
-        "renderer/**/*.ts",
-        "renderer/**/*.d.ts",
-        "types/**/*.ts"
-    ]
+    "include": ["renderer/**/*.ts", "renderer/**/*.d.ts", "types/**/*.ts"]
 }

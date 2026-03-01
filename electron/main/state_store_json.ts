@@ -2,12 +2,11 @@
  * @file Atomic JSON planner state read/write helpers with backup fallback.
  */
 import fs from "node:fs";
-import { safeParseLoadedPlannerState } from "../contracts/state.js";
 import {
+    type JsonValue,
     type LoadedPlannerState,
     type PlannerSaveResult,
     type PlannerStateLoadResult,
-    type PlannerStateSnapshot,
 } from "../types/types.js";
 import {
     jsonStateBackupPath,
@@ -44,11 +43,7 @@ function objectState(value: unknown): LoadedPlannerState | null {
     if (typeof value !== "object") {
         return null;
     }
-    const RESULT = safeParseLoadedPlannerState(value);
-    if (!RESULT.success) {
-        return null;
-    }
-    return RESULT.data;
+    return value as LoadedPlannerState;
 }
 
 /**
@@ -136,7 +131,7 @@ export function readStateFromJson(
  */
 export function writeStateToJson(
     userDataDir: string,
-    data: LoadedPlannerState | PlannerStateSnapshot,
+    data: JsonValue,
 ): PlannerSaveResult {
     const PRIMARY_PATH = jsonStatePath(userDataDir);
     const BACKUP_PATH = jsonStateBackupPath(userDataDir);

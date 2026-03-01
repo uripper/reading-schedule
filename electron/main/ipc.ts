@@ -11,6 +11,7 @@ import { parsePlannerStateSnapshot } from "../contracts/state.js";
 import { logDebug } from "../renderer/logger.js";
 import type {
     DownloadCoverPayload,
+    JsonValue,
     RegisterIpcHandlersArgs,
     UploadCoverPayload,
 } from "../types/types.js";
@@ -143,9 +144,8 @@ function registerStateHandlers(
     userData: RegisterIpcHandlersArgs["userData"],
 ): void {
     ipcMain.handle("state:load", () => readState(userData()));
-    ipcMain.handle("state:save", (_event, payload: unknown) => {
-        const SNAPSHOT = parsePlannerStateSnapshot(payload);
-        const RESULT = writeState(userData(), SNAPSHOT);
+    ipcMain.handle("state:save", (_event, payload: JsonValue) => {
+        const RESULT = writeState(userData(), payload);
         if (RESULT.ok === false) {
             throw new Error(RESULT.error);
         }

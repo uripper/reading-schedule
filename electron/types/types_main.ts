@@ -1,10 +1,9 @@
 import { type WebContents } from "electron";
 
+import { type JsonValue } from "./types_core.js";
 import {
-    type PlanGeneratePayload,
     type PlannerSaveResult,
     type PlannerStateLoadResult,
-    type PlannerStateSnapshot,
 } from "./types_planner.js";
 
 export interface DownloadCoverPayload {
@@ -15,6 +14,12 @@ export interface DownloadCoverPayload {
 export interface UploadCoverPayload {
     bookId?: string;
     dataUrl?: string;
+}
+
+export interface BridgeResponse {
+    data?: JsonValue;
+    error?: string;
+    ok?: boolean;
 }
 
 export interface RegisterIpcHandlersArgs {
@@ -52,6 +57,6 @@ export interface RegisterIpcHandlersArgs {
     writeState(
         this: void,
         userDataDir: string,
-        payload: PlannerStateSnapshot,
+        payload: JsonValue,
     ): PlannerSaveResult;
 }

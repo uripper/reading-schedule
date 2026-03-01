@@ -3,10 +3,10 @@
  */
 import fs from "node:fs";
 import {
+    type JsonValue,
     type LoadedPlannerState,
     type PlannerSaveResult,
     type PlannerStateLoadResult,
-    type PlannerStateSnapshot,
 } from "../types/types.js";
 import { readStateFromJson, writeStateToJson } from "./state_store_json";
 import {
@@ -57,10 +57,10 @@ function migratedJsonResult(
     userDataDir: string,
     jsonResult: PlannerStateLoadResult,
 ): PlannerStateLoadResult {
-    if (jsonResult.state === null) {
-        return jsonResult;
-    }
-    const BACKFILL = writeStateToSqlite(userDataDir, jsonResult.state);
+    const BACKFILL = writeStateToSqlite(
+        userDataDir,
+        jsonResult.state as unknown as JsonValue,
+    );
     if (BACKFILL.ok === false) {
         return {
             ...jsonResult,
@@ -119,7 +119,7 @@ export function readState(userDataDir: string): PlannerStateLoadResult {
  */
 export function writeState(
     userDataDir: string,
-    data: PlannerStateSnapshot,
+    data: JsonValue,
 ): PlannerSaveResult {
     const SQLITE_SAVE = writeStateToSqlite(userDataDir, data);
     if (SQLITE_SAVE.ok === false) {
