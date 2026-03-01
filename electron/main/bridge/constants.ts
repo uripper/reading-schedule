@@ -1,5 +1,5 @@
-export const PRIMARY_PLANNER_MODULE = "reading_plan.gui_api";
-export const FALLBACK_PLANNER_MODULE = "reading_plan.cli";
+const PRIMARY_PLANNER_MODULE = "reading_plan.gui_api";
+const FALLBACK_PLANNER_MODULE = "reading_plan.cli";
 export const PLANNER_MODULE_CANDIDATES = [
     PRIMARY_PLANNER_MODULE,
     FALLBACK_PLANNER_MODULE,
