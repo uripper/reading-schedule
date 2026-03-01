@@ -6,11 +6,11 @@ import {
     type PlannerStateSnapshot,
 } from "../types/types.js";
 import { plannerSettingsSchema } from "./settings.js";
-import { JsonValueSchema, schemaErrorMessage } from "./shared.js";
+import { JSON_VALUE_SCHEMA, schemaErrorMessage } from "./shared.js";
 
 const BRIDGE_RESPONSE_ENVELOPE_SCHEMA = z
     .object({
-        data: JsonValueSchema.optional(),
+        data: JSON_VALUE_SCHEMA.optional(),
         error: z.string().optional(),
         ok: z.boolean().optional(),
     })
@@ -45,7 +45,7 @@ const PLANNER_SUMMARY_SCHEMA = z
         total_available_minutes: z.number().optional(),
         total_planned_minutes: z.number().optional(),
     })
-    .catchall(JsonValueSchema)
+    .catchall(JSON_VALUE_SCHEMA)
     .nullable();
 
 const PLAN_GENERATE_PAYLOAD_SCHEMA = z.object({

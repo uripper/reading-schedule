@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { type PlannerSettings } from "../types/types.js";
-import { JsonValueSchema } from "./shared.js";
+import { JSON_VALUE_SCHEMA } from "./shared.js";
 
 const WEEKDAY_KEYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 
@@ -32,7 +32,7 @@ const PLANNER_SETTINGS_SCHEMA = z
         w_switch: z.number().optional(),
         wpm_base: z.number().optional(),
     })
-    .catchall(JsonValueSchema);
+    .catchall(JSON_VALUE_SCHEMA);
 
 export function plannerSettingsSchema() {
     return PLANNER_SETTINGS_SCHEMA;

@@ -4,7 +4,7 @@ import {
     type PlannerStateSnapshot,
 } from "../types/types.js";
 import { plannerSettingsSchema } from "./settings.js";
-import { JsonValueSchema } from "./shared.js";
+import { JSON_VALUE_SCHEMA } from "./shared.js";
 
 const BOOL_RECORD_SCHEMA = z.record(z.string(), z.boolean());
 
@@ -66,7 +66,7 @@ const PLAN_GENERATE_RESULT_SCHEMA = z.object({
             total_available_minutes: z.number().optional(),
             total_planned_minutes: z.number().optional(),
         })
-        .catchall(JsonValueSchema)
+        .catchall(JSON_VALUE_SCHEMA)
         .nullable(),
 });
 

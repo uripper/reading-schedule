@@ -8,11 +8,11 @@ const JSON_PRIMITIVE_SCHEMA = z.union([
     z.null(),
 ]);
 
-export const JsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
+export const JSON_VALUE_SCHEMA: z.ZodType<JsonValue> = z.lazy(() =>
     z.union([
         JSON_PRIMITIVE_SCHEMA,
-        z.array(JsonValueSchema),
-        z.record(z.string(), JsonValueSchema),
+        z.array(JSON_VALUE_SCHEMA),
+        z.record(z.string(), JSON_VALUE_SCHEMA),
     ]),
 );
 

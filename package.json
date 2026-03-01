@@ -2,7 +2,6 @@
     "devDependencies": {
         "@biomejs/biome": "2.4.4",
         "@types/node": "^25.3.0",
-        "dependency-cruiser": "^17.3.8",
         "knip": "^5.85.0",
         "type-coverage": "^2.29.7",
         "typescript": "^5.7.3"
