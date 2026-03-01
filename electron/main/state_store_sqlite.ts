@@ -5,10 +5,10 @@ import fs from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { safeParseLoadedPlannerState } from "../contracts/state.js";
 import {
+    type JsonValue,
     type LoadedPlannerState,
     type PlannerSaveResult,
     type PlannerStateLoadResult,
-    type PlannerStateSnapshot,
 } from "../types/types.js";
 import { sqliteStatePath } from "./state_store_paths";
 
@@ -238,7 +238,7 @@ export function readStateFromSqlite(
  */
 export function writeStateToSqlite(
     userDataDir: string,
-    data: LoadedPlannerState | PlannerStateSnapshot,
+    data: JsonValue,
 ): PlannerSaveResult {
     try {
         fs.mkdirSync(userDataDir, { recursive: true });

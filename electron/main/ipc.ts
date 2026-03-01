@@ -10,6 +10,7 @@ import {
 import { parsePlannerStateSnapshot } from "../contracts/state.js";
 import type {
     DownloadCoverPayload,
+    JsonValue,
     RegisterIpcHandlersArgs,
     UploadCoverPayload,
 } from "../types/types.js";
@@ -48,7 +49,10 @@ export function registerIpcHandlers({
     });
     ipcMain.handle("plan:generate", async (_event, payload: unknown) => {
         const REQUEST = parsePlanGeneratePayload(payload);
-        const RAW_RESPONSE = await runBridge([], REQUEST);
+        const RAW_RESPONSE = await runBridge(
+            [],
+            REQUEST as unknown as JsonValue,
+        );
         return parsePlanGenerateResult(RAW_RESPONSE);
     });
     ipcMain.handle(
@@ -77,7 +81,7 @@ export function registerIpcHandlers({
     ipcMain.handle("state:load", () => readState(userData()));
     ipcMain.handle("state:save", (_event, payload: unknown) => {
         const SNAPSHOT = parsePlannerStateSnapshot(payload);
-        const RESULT = writeState(userData(), SNAPSHOT);
+        const RESULT = writeState(userData(), SNAPSHOT as unknown as JsonValue);
         if (RESULT.ok === false) {
             throw new Error(RESULT.error);
         }
