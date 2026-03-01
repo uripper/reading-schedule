@@ -21,7 +21,6 @@ export function el<T extends HTMLElement = HTMLElement>(id: string): T {
     return NODE as T;
 }
 
-
 /**
  * Queries for all matching elements within a root node.
  * @param sel Selector string.

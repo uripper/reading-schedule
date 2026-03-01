@@ -185,4 +185,3 @@ export function configureCalendarInteractions(
 ): void {
     interactionHandlers = mergeCalendarHandlers(handlers);
 }
-

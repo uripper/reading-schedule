@@ -2,7 +2,6 @@ import { yearFromDateKey } from "@renderer/stats/helpers.js";
 
 const ZERO_MINUTES = 0;
 
-
 /**
  * Determines whether a day key should be included for a target year filter.
  * @param dayKey Day key candidate (`YYYY-MM-DD`).

@@ -61,7 +61,6 @@ export function readRawCompletions(
     return {};
 }
 
-
 /**
  * Resolves raw session payload from canonical and legacy saved-state fields.
  * @param saved Canonical loaded state.

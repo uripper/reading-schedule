@@ -217,4 +217,3 @@ export function validatedShelfSelection(refs: BookFormRefs): string {
     }
     return SHELF;
 }
-

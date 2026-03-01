@@ -427,7 +427,6 @@ export interface BindTodayActionsArgs {
     updateTodayView(): void;
 }
 
-
 export interface TodayBookSummary {
     bookId: string;
     completedSessions: number;
@@ -515,7 +514,6 @@ export interface ProgressUpdateInput {
     progressPercent?: number | null;
     row?: PlannerScheduleRow;
 }
-
 
 export type UpdatedBook = Book;
 
