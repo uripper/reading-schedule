@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+from time import perf_counter
 from typing import TYPE_CHECKING
 
 from reading_plan.planner_types import PlanResult
@@ -16,10 +18,23 @@ if TYPE_CHECKING:
     from reading_plan.planning.model_types import BookDayVars
 
 
+LOGGER = logging.getLogger("reading_plan.bridge")
+UNKNOWN_STATUS_NAME = "UNKNOWN"
+
+
+def _status_name_with_values(raw: int, cp_model_module: object) -> str:
+    """Resolve CP-SAT status name from raw value and module constants."""
+    return _status_name(raw, _status_values(cp_model_module))
+
+
 def solve_plan(
     books: list[Book], settings: Settings, planner: str = "mip"
 ) -> PlanResult:
     """Route planning to greedy or MIP and return a normalized plan result."""
+    LOGGER.debug(
+        "solve_plan: entered",
+        extra={"book_count": len(books), "planner": planner},
+    )
     if planner == "greedy":
         return PlanResult(
             planner="greedy",
@@ -31,18 +46,46 @@ def solve_plan(
 
 def _solve_mip(books: list[Book], settings: Settings) -> PlanResult:
     """Solve with CP-SAT, fall back to greedy when OR-Tools is unavailable."""
+    started = perf_counter()
+    LOGGER.debug("solve_mip: loading cp-sat module")
     cp_model_module = load_cp_model_module()
     if cp_model_module is None:
+        LOGGER.debug(
+            "solve_mip: cp-sat module unavailable; using greedy fallback"
+        )
         return _fallback_to_greedy(books, settings)
 
-    model, x, _y, _f, _days = build_cp_sat(
-        books, settings, cp_model_module
+    build_started = perf_counter()
+    LOGGER.debug("solve_mip: building cp-sat model")
+    model, x, _y, _f, _days = build_cp_sat(books, settings, cp_model_module)
+    LOGGER.debug(
+        "solve_mip: model build completed",
+        extra={"elapsed_ms": int((perf_counter() - build_started) * 1000)},
     )
+
     solver = cp_model_module.CpSolver()
     solver.parameters.random_seed = 7
     solver.parameters.num_search_workers = 1
     solver.parameters.max_time_in_seconds = 20.0
+    LOGGER.debug(
+        "solve_mip: starting solver",
+        extra={"max_time_seconds": solver.parameters.max_time_in_seconds},
+    )
+    solve_started = perf_counter()
     raw = int(solver.Solve(model))
+    status_name = _status_name_with_values(raw, cp_model_module)
+    LOGGER.debug(
+        "solve_mip: solver finished",
+        extra={
+            "elapsed_ms": int((perf_counter() - solve_started) * 1000),
+            "raw_status": raw,
+            "status": status_name,
+            "total_elapsed_ms": int((perf_counter() - started) * 1000),
+        },
+    )
+    if status_name == UNKNOWN_STATUS_NAME:
+        LOGGER.debug("solve_mip: unknown status; using greedy fallback")
+        return _fallback_to_greedy_unknown(books, settings)
     return _result_from_solver(raw, cp_model_module, solver, x)
 
 
@@ -84,6 +127,20 @@ def _status_name(raw: int, status_values: dict[str, int]) -> str:
 def _fallback_to_greedy(books: list[Book], settings: Settings) -> PlanResult:
     """Return a greedy fallback plan when CP-SAT is unavailable."""
     note = "OR-Tools is unavailable; fell back to greedy planner."
+    return PlanResult(
+        "greedy",
+        "FEASIBLE",
+        plan_greedy(books, settings),
+        note=note,
+    )
+
+
+def _fallback_to_greedy_unknown(
+    books: list[Book],
+    settings: Settings,
+) -> PlanResult:
+    """Return a greedy plan when CP-SAT exits with UNKNOWN status."""
+    note = "MIP returned UNKNOWN status; fell back to greedy planner."
     return PlanResult(
         "greedy",
         "FEASIBLE",

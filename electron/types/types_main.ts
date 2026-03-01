@@ -34,7 +34,11 @@ export interface RegisterIpcHandlersArgs {
     runBridge(
         this: void,
         args: string[],
-        payload?: JsonValue,
+        payload?: PlanGeneratePayload,
+        context?: {
+            requestId?: string;
+            userDataDir?: string;
+        },
     ): Promise<unknown>;
     saveUploadedCover(
         this: void,

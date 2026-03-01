@@ -25,7 +25,7 @@ export interface DialogFocusOptions {
     initialFocusSelector?: string | null;
 }
 
-export type LogLevel = "info" | "error";
+export type LogLevel = "debug" | "info" | "error";
 
 export interface LogPayload {
     context?: Record<string, unknown>;
