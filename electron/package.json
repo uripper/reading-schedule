@@ -1,27 +1,23 @@
 {
     "devDependencies": {
-        "@eslint/js": "^9.39.2",
         "@types/node": "^25.3.0",
         "concurrently": "^9.2.1",
         "electron": "^40.4.1",
         "electron-reloader": "^1.2.3",
         "eslint": "^9.39.2",
-        "eslint-plugin-jsdoc": "^61.7.1",
-        "globals": "^17.3.0",
-        "typescript": "^5.7.3",
-        "typescript-eslint": "^8.56.0"
+        "typescript": "^5.7.3"
     },
     "main": "dist/main.js",
     "name": "reading-plan-gui",
     "private": true,
     "scripts": {
-        "build": "npm run clean:dist && npm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/copy_static.mjs",
+        "build": "pnpm run clean:dist && pnpm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/copy_static.mjs",
         "clean:dist": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
         "copy:watch": "node ./scripts/watch_static.mjs",
-        "dev": "npm run clean:dist && npm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/copy_static.mjs && concurrently \"tsc -p tsconfig.main.json --watch\" \"tsc -p tsconfig.renderer.json --watch\" \"npm run copy:watch\" \"npm run start:dev\"",
-        "lint": "npm run tokens:check && eslint --ext .js,.mjs,.ts .",
+        "dev": "pnpm run clean:dist && pnpm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/copy_static.mjs && concurrently \"tsc -p tsconfig.main.json --watch\" \"tsc -p tsconfig.renderer.json --watch\" \"pnpm run copy:watch\" \"pnpm run start:dev\"",
+        "lint": "pnpm run tokens:check && eslint --ext .js,.mjs,.ts .",
         "lint:fix": "eslint --ext .js,.mjs,.ts . --fix",
-        "prestart": "npm run build",
+        "prestart": "pnpm run build",
         "start": "node ./scripts/start_electron.mjs",
         "start:dev": "node ./scripts/start_electron.mjs --development",
         "state:recover": "node ./scripts/state_recover.mjs",

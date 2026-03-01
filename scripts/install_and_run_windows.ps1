@@ -86,13 +86,13 @@ try {
 
   Push-Location .\electron
   try {
-    npm install --include=dev
+    pnpm install --include=dev
     $env:PYTHON_BIN = (Resolve-Path ..\.venv\Scripts\python.exe).Path
     $env:UI_SCALE = "1.65"
     if ($Hot) {
-      npm run dev
+      pnpm run dev
     } else {
-      npm run start
+      pnpm run start
     }
   } finally {
     Pop-Location

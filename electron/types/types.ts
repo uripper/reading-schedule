@@ -23,25 +23,3 @@ export type StringKeyed<T> = Record<string, T>;
 export type DateLike = string | number | Date;
 
 export type Identifier = string;
-
-export type AsyncResult<T> = Promise<T>;
-
-export interface LabeledValue<T> {
-    label: string;
-    value: T;
-}
-
-export interface IdentifierLabel {
-    id: Identifier;
-    label: string;
-}
-
-export interface RangeBound {
-    max: number;
-    min: number;
-}
-
-export interface PaginationWindow {
-    page: number;
-    pageSize: number;
-}

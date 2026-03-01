@@ -1,0 +1,25 @@
+{
+    "$schema": "https://unpkg.com/knip@5/schema-jsonc.json",
+    "treatConfigHintsAsErrors": true,
+    "workspaces": {
+        ".": {
+            "entry": ["scripts/*.mjs"],
+            "project": ["scripts/**/*.mjs"]
+        },
+        "electron": {
+            "entry": [
+                "main.ts",
+                "preload.ts",
+                "renderer/app.ts",
+                "scripts/*.mjs",
+                "tests/*.mjs"
+            ],
+            "project": [
+                "**/*.ts",
+                "**/*.mjs",
+                "!dist/**",
+                "!node_modules/**"
+            ]
+        }
+    }
+}

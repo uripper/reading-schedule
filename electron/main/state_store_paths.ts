@@ -3,10 +3,10 @@
  */
 import path from "node:path";
 
-export const JSON_STATE_FILE_NAME = "planner_state.json";
-export const JSON_STATE_BACKUP_FILE_NAME = "planner_state.json.bak";
-export const JSON_STATE_TEMP_FILE_NAME = "planner_state.json.tmp";
-export const SQLITE_STATE_FILE_NAME = "planner_state.sqlite3";
+const JSON_STATE_FILE_NAME = "planner_state.json";
+const JSON_STATE_BACKUP_FILE_NAME = "planner_state.json.bak";
+const JSON_STATE_TEMP_FILE_NAME = "planner_state.json.tmp";
+const SQLITE_STATE_FILE_NAME = "planner_state.sqlite3";
 
 /**
  * Resolves the primary JSON state file path.
