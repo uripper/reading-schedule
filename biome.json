@@ -23,6 +23,10 @@
             "!dist/**",
             "!node_modules/**",
             "!package-lock.json",
+            "!playwright-report/**",
+            "!test-results/**",
+            "!electron/playwright-report/**",
+            "!electron/test-results/**",
             "!tokens/**"
         ],
         "rules": { "recommended": false }
