@@ -30,7 +30,7 @@ const isDevelopmentLaunch = () => {
  * @param {boolean} developmentLaunch Whether to force development mode.
  * @returns {NodeJS.ProcessEnv} Cleaned environment object.
  */
-const cleanedEnvironment = developmentLaunch => {
+const cleanedEnvironment = (developmentLaunch) => {
     const env = { ...process.env };
     delete env.ELECTRON_RUN_AS_NODE;
     if (developmentLaunch) {
@@ -166,7 +166,7 @@ const spawnElectron = () => {
         env: cleanedEnvironment(developmentLaunch),
         stdio: "inherit",
     });
-    child.on("error", error => {
+    child.on("error", (error) => {
         let message = "";
         if (error instanceof Error) {
             message = error.message;
