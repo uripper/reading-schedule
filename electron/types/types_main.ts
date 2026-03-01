@@ -16,6 +16,12 @@ export interface UploadCoverPayload {
     dataUrl?: string;
 }
 
+export interface BridgeResponse {
+    data?: JsonValue;
+    error?: string;
+    ok?: boolean;
+}
+
 export interface RegisterIpcHandlersArgs {
     downloadCover(
         this: void,
