@@ -38,7 +38,7 @@ function hasSavedSchedule(saved: FinalizeInitialLoadArgs["saved"]): boolean {
  * @param args Startup load context with saved payload and load metadata.
  * @returns True when startup should auto-plan; false when loaded plan should be preserved.
  */
-export function shouldAutoPlanOnStartup(
+function shouldAutoPlanOnStartup(
     args: Pick<FinalizeInitialLoadArgs, "saved" | "loadResult">,
 ): boolean {
     if (args.loadResult.source === "fresh") {

@@ -6,7 +6,7 @@ import { COVER_PLACEHOLDER } from "../books/constants.js";
 import { el } from "../dom.js";
 
 const EMPTY_SUMMARY_TEXT =
-    "Read books by your favorite authors to unlock recommendations.";
+    "Click 'Get Recommendations' to discover new books based on your reading list.";
 
 const NON_EMPTY_SUMMARY_PREFIX =
     "Recommendations based on authors you've finished:";

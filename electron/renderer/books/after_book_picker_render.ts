@@ -7,7 +7,7 @@ import { optionLabel } from "./after_book_picker_helpers.js";
 
 export const NO_ACTIVE_INDEX = -1;
 export const FIRST_RESULT_INDEX = 0;
-export const UNKNOWN_BOOK_LABEL = "Unknown";
+const UNKNOWN_BOOK_LABEL = "Unknown";
 const ARIA_ACTIVE_DESCENDANT_ATTR = "aria-activedescendant";
 
 /**

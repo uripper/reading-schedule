@@ -29,7 +29,7 @@ async function refreshRecommendationsPanel(
 }
 
 /**
- * Initializes recommendations rendering and keeps it synced to books-grid updates.
+ * Initializes recommendations rendering with manual fetch on button click.
  */
 export function initRecommendationsRuntime(): void {
     let refreshToken = 0;
@@ -44,17 +44,10 @@ export function initRecommendationsRuntime(): void {
         const ACTIVE_TOKEN = NEXT_REFRESH_TOKEN();
         await refreshRecommendationsPanel(ACTIVE_TOKEN, GET_REFRESH_TOKEN);
     };
-    QUEUE_REFRESH().catch((error: unknown) => {
-        logError("Failed to refresh recommendations", error);
-    });
-    const BOOKS_GRID = el("booksGrid");
-    const OBSERVER = new MutationObserver(() => {
+    const GET_RECOMMENDATIONS_BTN = el("getRecommendationsBtn");
+    GET_RECOMMENDATIONS_BTN.addEventListener("click", () => {
         QUEUE_REFRESH().catch((error: unknown) => {
             logError("Failed to refresh recommendations", error);
         });
-    });
-    OBSERVER.observe(BOOKS_GRID, {
-        childList: true,
-        subtree: true,
     });
 }

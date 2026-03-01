@@ -16,8 +16,6 @@ export interface UploadCoverPayload {
     dataUrl?: string;
 }
 
-export type SaveResult = PlannerSaveResult;
-
 export interface BridgeResponse {
     data?: JsonValue;
     error?: string;
