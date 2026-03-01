@@ -18,4 +18,4 @@ git config core.hooksPath "${HOOKS_PATH}"
 chmod +x "${PRE_PUSH_HOOK}"
 
 echo "[hooks] Installed git hooks from ${HOOKS_PATH}."
-echo "[hooks] pre-push will run: npm run ci:local"
+echo "[hooks] pre-push will run: pnpm run ci:local"

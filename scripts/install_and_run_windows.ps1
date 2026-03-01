@@ -31,6 +31,70 @@ function Get-LauncherMajorMinor([string]$spec) {
   return (& py -$spec -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')").Trim()
 }
 
+function Invoke-Pnpm {
+  param(
+    [string[]]$Arguments
+  )
+
+  $pnpmVersion = "10.30.3"
+
+  $pnpmCmd = Get-Command pnpm.cmd -ErrorAction SilentlyContinue
+  if ($null -ne $pnpmCmd) {
+    & $pnpmCmd.Source @Arguments
+    if ($LASTEXITCODE -ne 0) {
+      throw "pnpm failed with exit code $LASTEXITCODE"
+    }
+    return
+  }
+
+  $pnpm = Get-Command pnpm -ErrorAction SilentlyContinue
+  if ($null -ne $pnpm) {
+    & $pnpm.Source @Arguments
+    if ($LASTEXITCODE -ne 0) {
+      throw "pnpm failed with exit code $LASTEXITCODE"
+    }
+    return
+  }
+
+  $corepackCmd = Get-Command corepack.cmd -ErrorAction SilentlyContinue
+  $npmCmd = Get-Command npm.cmd -ErrorAction SilentlyContinue
+  if ($null -ne $npmCmd) {
+    & $npmCmd.Source exec --yes "pnpm@$pnpmVersion" -- @Arguments
+    if ($LASTEXITCODE -ne 0) {
+      throw "npm exec pnpm failed with exit code $LASTEXITCODE"
+    }
+    return
+  }
+
+  $npm = Get-Command npm -ErrorAction SilentlyContinue
+  if ($null -ne $npm) {
+    & $npm.Source exec --yes "pnpm@$pnpmVersion" -- @Arguments
+    if ($LASTEXITCODE -ne 0) {
+      throw "npm exec pnpm failed with exit code $LASTEXITCODE"
+    }
+    return
+  }
+
+  if ($null -ne $corepackCmd) {
+    & $corepackCmd.Source pnpm @Arguments
+    if ($LASTEXITCODE -ne 0) {
+      throw "corepack pnpm failed with exit code $LASTEXITCODE"
+    }
+    return
+  }
+
+  $corepack = Get-Command corepack -ErrorAction SilentlyContinue
+  if ($null -ne $corepack) {
+    & $corepack.Source pnpm @Arguments
+    if ($LASTEXITCODE -ne 0) {
+      throw "corepack pnpm failed with exit code $LASTEXITCODE"
+    }
+    return
+  }
+
+  throw "pnpm was not found. Install pnpm globally or enable Corepack in Windows Node.js."
+}
+
 Write-Host "Installing to $InstallPath"
 New-Item -ItemType Directory -Force -Path $InstallPath | Out-Null
 
@@ -86,13 +150,15 @@ try {
 
   Push-Location .\electron
   try {
-    npm install --include=dev
+    Invoke-Pnpm @("install", "--include=dev", "--ignore-scripts=false")
+    Invoke-Pnpm @("rebuild", "electron")
+    Invoke-Pnpm @("exec", "electron", "--version") | Out-Null
     $env:PYTHON_BIN = (Resolve-Path ..\.venv\Scripts\python.exe).Path
     $env:UI_SCALE = "1.65"
     if ($Hot) {
-      npm run dev
+      Invoke-Pnpm @("run", "dev")
     } else {
-      npm run start
+      Invoke-Pnpm @("run", "start")
     }
   } finally {
     Pop-Location

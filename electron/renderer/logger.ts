@@ -1,4 +1,4 @@
-import type { LogPayload } from "../types/types_app.js";
+import { type LogPayload } from "../types/types.js";
 
 /**
  * Serializes `Error` instances into plain objects for structured logging.
@@ -6,14 +6,14 @@ import type { LogPayload } from "../types/types_app.js";
  * @returns Structured error object for `Error`, otherwise original value.
  */
 function normalizeError(error: unknown): unknown {
-  if (error instanceof Error) {
-    return {
-      name: error.name,
-      message: error.message,
-      stack: error.stack,
-    };
-  }
-  return error;
+    if (error instanceof Error) {
+        return {
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
+        };
+    }
+    return error;
 }
 
 /**
@@ -21,27 +21,27 @@ function normalizeError(error: unknown): unknown {
  * @param payload Log payload containing level/message/context/error.
  */
 function emitLog(payload: LogPayload): void {
-  const output: LogPayload = {
-    level: payload.level,
-    message: payload.message,
-  };
+    const OUTPUT: LogPayload = {
+        level: payload.level,
+        message: payload.message,
+    };
 
-  if (payload.context !== undefined) {
-    output.context = payload.context;
-  }
+    if (payload.context !== undefined) {
+        OUTPUT.context = payload.context;
+    }
 
-  if (payload.error !== undefined) {
-    output.error = normalizeError(payload.error);
-  }
+    if (payload.error !== undefined) {
+        OUTPUT.error = normalizeError(payload.error);
+    }
 
-  if (payload.level === "error") {
-    console.groupCollapsed("[renderer][error]", payload.message);
-    console.info(output);
-    console.groupEnd();
-    return;
-  }
+    if (payload.level === "error") {
+        console.groupCollapsed("[renderer][error]", payload.message);
+        console.info(OUTPUT);
+        console.groupEnd();
+        return;
+    }
 
-  console.info("[renderer][info]", output);
+    console.info("[renderer][info]", OUTPUT);
 }
 
 /**
@@ -50,14 +50,14 @@ function emitLog(payload: LogPayload): void {
  * @param context Optional structured context fields.
  */
 export function logInfo(
-  message: string,
-  context?: Record<string, unknown>,
+    message: string,
+    context?: Record<string, unknown>,
 ): void {
-  emitLog({
-    level: "info",
-    message,
-    context,
-  });
+    emitLog({
+        context,
+        level: "info",
+        message,
+    });
 }
 
 /**
@@ -67,14 +67,14 @@ export function logInfo(
  * @param context Optional structured context fields.
  */
 export function logError(
-  message: string,
-  error?: unknown,
-  context?: Record<string, unknown>,
+    message: string,
+    error?: unknown,
+    context?: Record<string, unknown>,
 ): void {
-  emitLog({
-    level: "error",
-    message,
-    context,
-    error,
-  });
+    emitLog({
+        context,
+        error,
+        level: "error",
+        message,
+    });
 }

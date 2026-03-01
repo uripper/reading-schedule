@@ -1,18 +1,15 @@
-import type { Book, BookProgressUpdates } from "./types_books.js";
-import type {
-  CalendarHandlers,
-  CalendarRowWithFinish,
-  ManualSessionBook,
-} from "./types_calendar.js";
-import type { Session } from "./types_core.js";
-import type { FeatureFlags, Preferences } from "./types_experience.js";
-import type {
-  LoadedPlannerState,
-  PlannerApi,
-  PlannerResult,
-  PlannerScheduleRow,
-  PlannerSettings,
-  PlannerSummary,
+import { type Book, type BookProgressUpdates } from "./types_books.js";
+import { type CalendarHandlers } from "./types_calendar.js";
+import { type Session } from "./types_core.js";
+import { type FeatureFlags, type Preferences } from "./types_experience.js";
+import {
+    type LoadedPlannerState,
+    type PlannerApi,
+    type PlannerResult,
+    type PlannerScheduleRow,
+    type PlannerSettings,
+    type PlannerStateLoadResult,
+    type PlannerSummary,
 } from "./types_planner.js";
 
 export type SetStatus = (message: string, isError?: boolean) => void;
@@ -20,40 +17,44 @@ export type SetStatus = (message: string, isError?: boolean) => void;
 export type AnnouncePoliteness = "polite" | "assertive";
 
 export interface DocumentPreferencesInput {
-  theme?: string;
-  reduceMotion?: boolean;
+    reduceMotion?: boolean;
+    theme?: string;
 }
 
 export interface DialogFocusOptions {
-  initialFocusSelector?: string | null;
+    initialFocusSelector?: string | null;
 }
 
 export type LogLevel = "info" | "error";
 
 export interface LogPayload {
-  level: LogLevel;
-  message: string;
-  context?: Record<string, unknown>;
-  error?: unknown;
+    context?: Record<string, unknown>;
+    error?: unknown;
+    level: LogLevel;
+    message: string;
 }
 
 export interface ActivateTabOptions {
-  focusPanel?: boolean;
+    focusPanel?: boolean;
 }
 
 export type ZoomApi = Pick<PlannerApi, "zoomIn" | "zoomOut" | "zoomReset">;
 
 export interface ShortcutBindings {
-  announce(this: void, message: string, politeness?: AnnouncePoliteness): void;
-  plannerApi: ZoomApi;
+    announce(
+        this: void,
+        message: string,
+        politeness?: AnnouncePoliteness,
+    ): void;
+    plannerApi: ZoomApi;
 }
 
 export interface UpdateStatsArgs {
-  books: Book[];
-  sessions: Session[];
-  lastResult: PlannerResult | null;
-  scheduleCompletions: Record<string, boolean>;
-  dailyGoalMinutes: number;
+    books: Book[];
+    dailyGoalMinutes: number;
+    lastResult: PlannerResult | null;
+    scheduleCompletions: Record<string, boolean>;
+    sessions: Session[];
 }
 
 export type PlannerApiGlobal = typeof globalThis & { plannerApi?: PlannerApi };
@@ -61,503 +62,558 @@ export type PlannerApiGlobal = typeof globalThis & { plannerApi?: PlannerApi };
 export type DayMinutesMap = Map<string, number>;
 
 export interface DayMinutesArgs {
-  sessions: Session[];
-  lastResult: PlannerResult | null;
-  scheduleCompletions: Record<string, boolean>;
-  year: number | null;
+    lastResult: PlannerResult | null;
+    scheduleCompletions: Record<string, boolean>;
+    sessions: Session[];
+    year: number | null;
 }
 
 export interface AppRuntimeState {
-  lastResult: PlannerResult | null;
-  ready: boolean;
-  preferences: Preferences;
-  featureFlags: FeatureFlags;
-  scheduleCompletions: Record<string, boolean>;
-  blockedDayBooks: Record<string, boolean>;
-  sessions: Session[];
+    blockedDayBooks: Record<string, boolean>;
+    derived: AppDerivedIndexes;
+    featureFlags: FeatureFlags;
+    lastResult: PlannerResult | null;
+    preferences: Preferences;
+    ready: boolean;
+    scheduleCompletions: Record<string, boolean>;
+    sessions: Session[];
 }
 
+export interface AppDerivedIndexes {
+    bookById: Map<string, Book>;
+    completionByDayBookKey: Record<string, boolean>;
+    completionBySessionKey: Record<string, boolean>;
+    sessionsByBook: Map<string, Session[]>;
+    sessionsByDay: Map<string, Session[]>;
+}
+
+export type AppStateMutation =
+    | {
+          type: "set_last_result";
+          lastResult: PlannerResult | null;
+      }
+    | {
+          type: "set_schedule_completions";
+          scheduleCompletions: Record<string, boolean>;
+      }
+    | {
+          type: "set_blocked_day_books";
+          blockedDayBooks: Record<string, boolean>;
+      }
+    | {
+          type: "set_blocked_day_book";
+          key: string;
+          blocked: boolean;
+      }
+    | {
+          type: "set_sessions";
+          sessions: Session[];
+      }
+    | {
+          type: "set_book_index";
+          books: Book[];
+      };
+
 export interface DraftDataParams {
-  sessions: Session[];
-  collectBooks(): Book[];
-  collectSettings(): PlannerSettings;
-  preferences: Preferences;
-  featureFlags: FeatureFlags;
-  scheduleCompletions: Record<string, boolean>;
-  blockedDayBooks: Record<string, boolean>;
-  lastResult: PlannerResult | null;
+    blockedDayBooks: Record<string, boolean>;
+    collectBooks(): Book[];
+    collectSettings(): PlannerSettings;
+    featureFlags: FeatureFlags;
+    lastResult: PlannerResult | null;
+    preferences: Preferences;
+    scheduleCompletions: Record<string, boolean>;
+    sessions: Session[];
 }
 
 export type AddLog = (message: string) => void;
 
 export interface PersistQueueState {
-  ready: boolean;
-  preferences: Preferences;
-  featureFlags: FeatureFlags;
-  scheduleCompletions: Record<string, boolean>;
-  blockedDayBooks: Record<string, boolean>;
-  lastResult: PlannerResult | null;
+    blockedDayBooks: Record<string, boolean>;
+    featureFlags: FeatureFlags;
+    lastResult: PlannerResult | null;
+    preferences: Preferences;
+    ready: boolean;
+    scheduleCompletions: Record<string, boolean>;
 }
 
 export interface PersistQueueArgs {
-  plannerApi: Pick<PlannerApi, "saveState">;
-  state: PersistQueueState;
-  getSessions(this: void): Session[];
-  collectBooks(this: void): Book[];
-  collectSettings(this: void): PlannerSettings;
-  addLog(this: void, message: string): void;
+    addLog(this: void, message: string): void;
+    collectBooks(this: void): Book[];
+    collectSettings(this: void): PlannerSettings;
+    getSessions(this: void): Session[];
+    plannerApi: Pick<PlannerApi, "saveState">;
+    state: PersistQueueState;
 }
 
 export interface PersistQueue {
-  persistDraft(): Promise<boolean>;
-  queuePersist(): void;
+    persistDraft(): Promise<boolean>;
+    queuePersist(): void;
 }
 
 export interface DashboardRuntime {
-  applyExperienceSettings(): void;
-  updateDashboards(): void;
+    applyExperienceSettings(): void;
+    updateDashboards(): void;
 }
 
 export interface InitRuntime {
-  handleBooksChanged(): void;
-  handleScheduleMutation(): void;
-  handleTabChange(name: string): void;
-  queueAutoPlanIfReady(): void;
-  setPlanController(controller: AutoPlanController | null): void;
+    handleBooksChanged(): void;
+    handleScheduleMutation(): void;
+    handleTabChange(name: string): void;
+    queueAutoPlanIfReady(): void;
+    setPlanController(controller: AutoPlanController | null): void;
 }
 
 export type Announcer = (
-  message: string,
-  politeness?: AnnouncePoliteness,
+    message: string,
+    politeness?: AnnouncePoliteness,
 ) => void;
 
 export interface AppBootstrapContext {
-  announce: Announcer;
-  announceForPlanController(message: string, politeness?: string): void;
-  dashboards: DashboardRuntime;
-  plannerApi: PlannerApi;
-  persistDraft(): Promise<boolean>;
-  queuePersist(): void;
-  runtime: InitRuntime;
-  setStatus(message: string, isError?: boolean): void;
-  state: AppRuntimeState;
+    addLog(message: string): void;
+    announce: Announcer;
+    announceForPlanController(message: string, politeness?: string): void;
+    dashboards: DashboardRuntime;
+    persistDraft(): Promise<boolean>;
+    plannerApi: PlannerApi;
+    queuePersist(): void;
+    runtime: InitRuntime;
+    setStatus(message: string, isError?: boolean): void;
+    state: AppRuntimeState;
 }
 
 export interface DashboardRuntimeArgs {
-  applyPreferencesToDocument(
-    this: void,
-    preferences: AppRuntimeState["preferences"],
-  ): void;
-  collectFeatureFlagsFromUI(this: void): Partial<AppRuntimeState["featureFlags"]>;
-  collectPreferencesFromUI(this: void): Partial<AppRuntimeState["preferences"]>;
-  collectAllBooks(this: void): Book[];
-  normalizeFeatureFlags(
-    this: void,
-    flags: Partial<AppRuntimeState["featureFlags"]>,
-  ): AppRuntimeState["featureFlags"];
-  normalizePreferences(
-    this: void,
-    preferences: Partial<AppRuntimeState["preferences"]>,
-  ): AppRuntimeState["preferences"];
-  queuePersist(this: void): void;
-  state: AppRuntimeState;
-  updateStatsView(this: void, payload: {
-    books: Book[];
-    sessions: AppRuntimeState["sessions"];
-    lastResult: AppRuntimeState["lastResult"];
-    scheduleCompletions: AppRuntimeState["scheduleCompletions"];
-    dailyGoalMinutes: number;
-  }): void;
-  updateTodayDashboard(this: void, payload: {
-    books: Book[];
-    defaultDailyGoalMinutes: number;
-    featureFlags: AppRuntimeState["featureFlags"];
-    lastResult: AppRuntimeState["lastResult"];
-    preferences: AppRuntimeState["preferences"];
-    scheduleCompletions: AppRuntimeState["scheduleCompletions"];
-    sessions: AppRuntimeState["sessions"];
-  }): void;
+    applyPreferencesToDocument(
+        this: void,
+        preferences: AppRuntimeState["preferences"],
+    ): void;
+    collectAllBooks(this: void): Book[];
+    collectFeatureFlagsFromUI(
+        this: void,
+    ): Partial<AppRuntimeState["featureFlags"]>;
+    collectPreferencesFromUI(
+        this: void,
+    ): Partial<AppRuntimeState["preferences"]>;
+    normalizeFeatureFlags(
+        this: void,
+        flags: Partial<AppRuntimeState["featureFlags"]>,
+    ): AppRuntimeState["featureFlags"];
+    normalizePreferences(
+        this: void,
+        preferences: Partial<AppRuntimeState["preferences"]>,
+    ): AppRuntimeState["preferences"];
+    queuePersist(this: void): void;
+    state: AppRuntimeState;
+    updateStatsView(
+        this: void,
+        payload: {
+            books: Book[];
+            sessions: AppRuntimeState["sessions"];
+            lastResult: AppRuntimeState["lastResult"];
+            scheduleCompletions: AppRuntimeState["scheduleCompletions"];
+            dailyGoalMinutes: number;
+        },
+    ): void;
+    updateTodayDashboard(
+        this: void,
+        payload: {
+            books: Book[];
+            defaultDailyGoalMinutes: number;
+            featureFlags: AppRuntimeState["featureFlags"];
+            lastResult: AppRuntimeState["lastResult"];
+            preferences: AppRuntimeState["preferences"];
+            scheduleCompletions: AppRuntimeState["scheduleCompletions"];
+            sessions: AppRuntimeState["sessions"];
+        },
+    ): void;
 }
 
 export type PlannerRunData = Pick<PlannerResult, "schedule" | "summary">;
 
 export interface ApplyPlannedDataArgs {
-  data: PlannerRunData;
-  preserveLockedDays: boolean;
-  getLastResult(this: void): PlannerResult | null;
-  getSessions(this: void): Session[];
-  getBlockedDayBooks(this: void): Record<string, boolean>;
-  getScheduleCompletions(this: void): Record<string, boolean>;
-  setScheduleCompletions(
-    this: void,
-    completions: Record<string, boolean>,
-  ): void;
-  setLastResult(this: void, result: PlannerResult): void;
-  setBookScheduleRows(this: void, rows: PlannerScheduleRow[]): void;
-  renderCalendar(
-    this: void,
-    rows: PlannerScheduleRow[],
-    totals: Record<string, number>,
-  ): void;
-  totalsFromSummary(this: void, summary: PlannerSummary | null): Record<string, number>;
-  updateTodayView(this: void): void;
-  persistDraft(this: void): Promise<boolean>;
+    data: PlannerRunData;
+    getBlockedDayBooks(this: void): Record<string, boolean>;
+    getLastResult(this: void): PlannerResult | null;
+    getScheduleCompletions(this: void): Record<string, boolean>;
+    getSessions(this: void): Session[];
+    persistDraft(this: void): Promise<boolean>;
+    preserveLockedDays: boolean;
+    renderCalendar(
+        this: void,
+        rows: PlannerScheduleRow[],
+        totals: Record<string, number>,
+    ): void;
+    setBookScheduleRows(this: void, rows: PlannerScheduleRow[]): void;
+    setLastResult(this: void, result: PlannerResult): void;
+    setScheduleCompletions(
+        this: void,
+        completions: Record<string, boolean>,
+    ): void;
+    totalsFromSummary(
+        this: void,
+        summary: PlannerSummary | null,
+    ): Record<string, number>;
+    updateTodayView(this: void): void;
 }
 
 export interface ApplyLoadedResultArgs {
-  savedResult: PlannerResult | null;
-  defaultLastResult: PlannerResult;
-  setLastResult(this: void, result: PlannerResult): void;
-  setBookScheduleRows(this: void, rows: PlannerScheduleRow[]): void;
-  renderCalendar(
-    this: void,
-    rows: PlannerScheduleRow[],
-    totals: Record<string, number>,
-  ): void;
-  totalsFromSummary(this: void, summary: PlannerSummary | null): Record<string, number>;
-  addLog(this: void, message: string): void;
+    addLog(this: void, message: string): void;
+    defaultLastResult: PlannerResult;
+    renderCalendar(
+        this: void,
+        rows: PlannerScheduleRow[],
+        totals: Record<string, number>,
+    ): void;
+    savedResult: PlannerResult | null;
+    setBookScheduleRows(this: void, rows: PlannerScheduleRow[]): void;
+    setLastResult(this: void, result: PlannerResult): void;
+    totalsFromSummary(
+        this: void,
+        summary: PlannerSummary | null,
+    ): Record<string, number>;
 }
 
 export interface RunPlanGenerationArgs {
-  plannerApi: Pick<PlannerApi, "generate">;
-  collectBooks(this: void): Book[];
-  collectSettings(this: void): PlannerSettings;
-  setStatus(this: void, message: string, isError?: boolean): void;
-  addLog(this: void, message: string): void;
-  announce(
-    this: void,
-    message: string,
-    politeness?: "polite" | "assertive",
-  ): void;
-  onSuccess(
-    this: void,
-    data: Pick<PlannerResult, "schedule" | "summary">,
-  ): Promise<void>;
-  statusGeneratingMessage?: string;
-  statusSuccessMessage?: string;
-  successAnnouncement?: string;
+    addLog(this: void, message: string): void;
+    announce(
+        this: void,
+        message: string,
+        politeness?: "polite" | "assertive",
+    ): void;
+    collectBooks(this: void): Book[];
+    collectSettings(this: void): PlannerSettings;
+    onSuccess(
+        this: void,
+        data: Pick<PlannerResult, "schedule" | "summary">,
+    ): Promise<void>;
+    plannerApi: Pick<PlannerApi, "generate">;
+    setStatus(this: void, message: string, isError?: boolean): void;
+    statusGeneratingMessage?: string;
+    statusSuccessMessage?: string;
+    successAnnouncement?: string;
 }
 
 export interface PlanControllerArgs {
-  plannerApi: Pick<PlannerApi, "generate">;
-  collectBooks(this: void): Book[];
-  collectSettings(this: void): PlannerSettings;
-  setStatus(this: void, message: string, isError?: boolean): void;
-  addLog(this: void, message: string): void;
-  announce(
-    this: void,
-    message: string,
-    politeness?: "polite" | "assertive",
-  ): void;
-  getLastResult(this: void): PlannerResult | null;
-  setLastResult(this: void, result: PlannerResult): void;
-  getSessions(this: void): Session[];
-  getScheduleCompletions(this: void): Record<string, boolean>;
-  getBlockedDayBooks(this: void): Record<string, boolean>;
-  setScheduleCompletions(
-    this: void,
-    completions: Record<string, boolean>,
-  ): void;
-  renderCalendar(
-    this: void,
-    rows: PlannerScheduleRow[],
-    totals: Record<string, number>,
-  ): void;
-  totalsFromSummary(
-    this: void,
-    summary: PlannerSummary | null,
-  ): Record<string, number>;
-  setBookScheduleRows(this: void, rows: PlannerScheduleRow[]): void;
-  updateTodayView(this: void): void;
-  persistDraft(this: void): Promise<boolean>;
+    addLog(this: void, message: string): void;
+    announce(
+        this: void,
+        message: string,
+        politeness?: "polite" | "assertive",
+    ): void;
+    collectBooks(this: void): Book[];
+    collectSettings(this: void): PlannerSettings;
+    getBlockedDayBooks(this: void): Record<string, boolean>;
+    getLastResult(this: void): PlannerResult | null;
+    getScheduleCompletions(this: void): Record<string, boolean>;
+    getSessions(this: void): Session[];
+    persistDraft(this: void): Promise<boolean>;
+    plannerApi: Pick<PlannerApi, "generate">;
+    renderCalendar(
+        this: void,
+        rows: PlannerScheduleRow[],
+        totals: Record<string, number>,
+    ): void;
+    setBookScheduleRows(this: void, rows: PlannerScheduleRow[]): void;
+    setLastResult(this: void, result: PlannerResult): void;
+    setScheduleCompletions(
+        this: void,
+        completions: Record<string, boolean>,
+    ): void;
+    setStatus(this: void, message: string, isError?: boolean): void;
+    totalsFromSummary(
+        this: void,
+        summary: PlannerSummary | null,
+    ): Record<string, number>;
+    updateTodayView(this: void): void;
 }
 
 export interface PlanController {
-  applyLoadedResult(savedResult: PlannerResult | null): void;
-  queueAutoPlan(): void;
+    applyLoadedResult(savedResult: PlannerResult | null): void;
+    queueAutoPlan(): void;
 }
 
 export interface AutoPlanRunner {
-  queueAutoPlan(): void;
+    queueAutoPlan(): void;
 }
 
 export interface AutoPlanState {
-  autoRunPending: boolean;
-  autoRunInFlight: boolean;
+    autoRunInFlight: boolean;
+    autoRunPending: boolean;
 }
 
 export interface RunAutoPlanFactoryArgs extends PlanControllerArgs {
-  state: AutoPlanState;
-  scheduleAutoPlan(this: void, runner: () => Promise<void>): void;
+    scheduleAutoPlan(this: void, runner: () => Promise<void>): void;
+    state: AutoPlanState;
 }
 
 export interface InitialDataSource {
-  settings?: PlannerSettings;
-  books?: Book[];
+    books?: Book[];
+    settings?: PlannerSettings;
 }
 
 export interface LoadStateArgs {
-  plannerApi: Pick<PlannerApi, "loadState" | "sample">;
-  fillSettings(settings?: PlannerSettings): void;
-  fillBooks(books?: Book[]): void;
-  normalizePreferences(raw: Partial<Preferences>): Preferences;
-  normalizeFeatureFlags(raw: Partial<FeatureFlags>): FeatureFlags;
-  normalizeScheduleCompletions(
-    raw: Record<string, boolean>,
-  ): Record<string, boolean>;
-  fillPreferencesUI(preferences: Preferences, featureFlags: FeatureFlags): void;
-  applyPreferencesToDocument(preferences: Preferences): void;
-  setPreferences(preferences: Preferences): void;
-  setFeatureFlags(featureFlags: FeatureFlags): void;
-  setScheduleCompletions(scheduleCompletions: Record<string, boolean>): void;
-  setBlockedDayBooks(blockedDayBooks: Record<string, boolean>): void;
-  setSessions(sessions: Session[]): void;
-  applyLoadedResult(result: PlannerResult | null): void;
-  updateTodayView(): void;
-  onLoaded(saved: LoadedPlannerState | null | undefined): void;
-  setStatus(message: string, isError?: boolean): void;
+    addLog?(message: string): void;
+    applyLoadedResult(result: PlannerResult | null): void;
+    applyPreferencesToDocument(preferences: Preferences): void;
+    fillBooks(books?: Book[]): void;
+    fillPreferencesUI(
+        preferences: Preferences,
+        featureFlags: FeatureFlags,
+    ): void;
+    fillSettings(settings?: PlannerSettings): void;
+    normalizeFeatureFlags(raw: Partial<FeatureFlags>): FeatureFlags;
+    normalizePreferences(raw: Partial<Preferences>): Preferences;
+    normalizeScheduleCompletions(
+        raw: Record<string, boolean>,
+    ): Record<string, boolean>;
+    onLoaded(
+        saved: LoadedPlannerState | null | undefined,
+        loadResult: PlannerStateLoadResult,
+    ): void;
+    plannerApi: Pick<PlannerApi, "loadState" | "sample">;
+    setBlockedDayBooks(blockedDayBooks: Record<string, boolean>): void;
+    setFeatureFlags(featureFlags: FeatureFlags): void;
+    setPreferences(preferences: Preferences): void;
+    setScheduleCompletions(scheduleCompletions: Record<string, boolean>): void;
+    setSessions(sessions: Session[]): void;
+    setStatus(message: string, isError?: boolean): void;
+    updateTodayView(): void;
+}
+
+export interface CreateLoadStateArgsInput {
+    context: AppBootstrapContext;
+    planController: LoadedResultController;
+    queueAutoPlanIfReady(): void;
+    queuePersist(): void;
+    setStatus: SetStatus;
+    state: AppBootstrapContext["state"];
+    updateTodayView(): void;
 }
 
 export type CreatePlanControllerArgs = PlanControllerArgs;
 
 export interface AutoPlanController {
-  queueAutoPlan(): void;
+    queueAutoPlan(): void;
 }
 
 export interface InitRuntimeArgs {
-  focusCalendarToday(): void;
-  queuePersist(): void;
-  state: AppRuntimeState;
-  updateDashboards(): void;
+    focusCalendarToday(): void;
+    queuePersist(): void;
+    state: AppRuntimeState;
+    updateDashboards(): void;
 }
 
 export interface LoadedResultController {
-  applyLoadedResult(result: PlannerResult): void;
+    applyLoadedResult(result: PlannerResult): void;
 }
 
 export interface FinalizeInitialLoadArgs {
-  saved: { last_result?: PlannerResult | null } | null | undefined;
-  setReady(): void;
-  queuePersist(): void;
-  queueAutoPlan(): void;
-  setStatus: SetStatus;
+    addLog?(message: string): void;
+    loadResult: PlannerStateLoadResult;
+    queueAutoPlan(): void;
+    queuePersist(): void;
+    saved: { last_result?: PlannerResult | null } | null | undefined;
+    setReady(): void;
+    setStatus: SetStatus;
 }
 
 export interface BindTodayActionsArgs {
-  getLastResult(): PlannerResult | null;
-  getScheduleCompletions(): Record<string, boolean>;
-  setScheduleCompletions(nextCompletions: Record<string, boolean>): void;
-  getSessions(): Session[];
-  setSessions(nextSessions: Session[]): void;
-  queuePersist(): void;
-  updateTodayView(): void;
-  setStatus: SetStatus;
-}
-
-export interface DashboardUpdateArgs {
-  books: Book[];
-  sessions: AppRuntimeState["sessions"];
-  lastResult: AppRuntimeState["lastResult"];
-  scheduleCompletions: AppRuntimeState["scheduleCompletions"];
-  dailyGoalMinutes: number;
+    getLastResult(): PlannerResult | null;
+    getScheduleCompletions(): Record<string, boolean>;
+    getSessions(): Session[];
+    queuePersist(): void;
+    setScheduleCompletions(nextCompletions: Record<string, boolean>): void;
+    setSessions(nextSessions: Session[]): void;
+    setStatus: SetStatus;
+    updateTodayView(): void;
 }
 
 export interface TodayBookSummary {
-  bookId: string;
-  title: string;
-  coverSrc: string;
-  plannedMinutes: number;
-  scheduledSessions: number;
-  completedSessions: number;
+    bookId: string;
+    completedSessions: number;
+    coverSrc: string;
+    plannedMinutes: number;
+    scheduledSessions: number;
+    title: string;
 }
 
 export interface TodayScheduleSnapshot {
-  nextUncompletedRow: PlannerScheduleRow | null;
-  completedPlannedMinutes: number;
-  scheduledSessions: number;
-  completedSessions: number;
-  books: TodayBookSummary[];
+    books: TodayBookSummary[];
+    completedPlannedMinutes: number;
+    completedSessions: number;
+    nextUncompletedRow: PlannerScheduleRow | null;
+    scheduledSessions: number;
 }
 
 export interface TodayFocusDomRefs {
-  focusCompleteButton: HTMLButtonElement;
-  focusEntryButton: HTMLButtonElement;
-  focusFeedback: HTMLElement;
-  focusPanel: HTMLElement;
-  focusSessionMeta: HTMLElement;
-  focusSessionText: HTMLElement;
-  focusStartButton: HTMLButtonElement;
-  focusTinyStartButton: HTMLButtonElement;
+    focusCompleteButton: HTMLButtonElement;
+    focusEntryButton: HTMLButtonElement;
+    focusFeedback: HTMLElement;
+    focusPanel: HTMLElement;
+    focusSessionMeta: HTMLElement;
+    focusSessionText: HTMLElement;
+    focusStartButton: HTMLButtonElement;
+    focusTinyStartButton: HTMLButtonElement;
 }
 
 export interface BindTodayFocusActionsArgs {
-  getLastResult(): PlannerResult | null;
-  getScheduleCompletions(): Record<string, boolean>;
-  setScheduleCompletions(nextCompletions: Record<string, boolean>): void;
-  getSessions(): Session[];
-  setSessions(nextSessions: Session[]): void;
-  queuePersist(): void;
-  updateTodayView(): void;
-  setStatus: SetStatus;
+    getLastResult(): PlannerResult | null;
+    getScheduleCompletions(): Record<string, boolean>;
+    getSessions(): Session[];
+    queuePersist(): void;
+    setScheduleCompletions(nextCompletions: Record<string, boolean>): void;
+    setSessions(nextSessions: Session[]): void;
+    setStatus: SetStatus;
+    updateTodayView(): void;
 }
 
 export interface FocusSession {
-  bookId: string;
-  date: string;
-  minutes: number;
-  sessionIndex: number | null;
-  title: string;
+    bookId: string;
+    date: string;
+    minutes: number;
+    sessionIndex: number | null;
+    title: string;
 }
 
 export interface TodayFocusState {
-  feedback: string;
-  isOpen: boolean;
-  isStarted: boolean;
-  session: FocusSession | null;
+    feedback: string;
+    isOpen: boolean;
+    isStarted: boolean;
+    session: FocusSession | null;
 }
 
 export interface UpdateTodayDashboardArgs {
-  lastResult: PlannerResult | null;
-  scheduleCompletions: Record<string, boolean>;
-  books: Book[];
-  sessions: Session[];
-  preferences: Preferences;
-  featureFlags: FeatureFlags;
-  defaultDailyGoalMinutes: number;
+    books: Book[];
+    defaultDailyGoalMinutes: number;
+    featureFlags: FeatureFlags;
+    lastResult: PlannerResult | null;
+    preferences: Preferences;
+    scheduleCompletions: Record<string, boolean>;
+    sessions: Session[];
 }
 
 export interface TodayBookNavigationActions {
-  activateBooksTab(): void;
-  scrollToBook(bookId: string): void;
+    activateBooksTab(): void;
+    scrollToBook(bookId: string): void;
 }
 
 export interface ScheduleRow {
-  title?: string;
-  date?: string;
-  book_id?: string;
+    book_id?: string;
+    date?: string;
+    title?: string;
 }
 
 export interface CompletionUpdate {
-  sessionKey: string;
-  completed: boolean;
-  row?: ScheduleRow;
+    completed: boolean;
+    row?: ScheduleRow;
+    sessionKey: string;
 }
 
 export interface ProgressUpdateInput {
-  bookId: string;
-  pagesRead?: number | null;
-  progressPercent?: number | null;
-  row?: PlannerScheduleRow;
-}
-
-export interface ManualSessionAddInput {
-  date: string;
-  bookId: string;
-  minutes: number;
-  completed?: boolean;
-}
-
-export interface RemoveSessionInput {
-  row: PlannerScheduleRow;
-}
-
-export interface MinutesUpdateInput {
-  minutes: number;
-  row: PlannerScheduleRow;
+    bookId: string;
+    pagesRead?: number | null;
+    progressPercent?: number | null;
+    row?: PlannerScheduleRow;
 }
 
 export type UpdatedBook = Book;
 
 export interface AppCalendarInteractionArgs {
-  configureCalendarInteractions(handlers?: Partial<CalendarHandlers>): void;
-  state: {
-    scheduleCompletions: Record<string, boolean>;
-    blockedDayBooks: Record<string, boolean>;
-    lastResult: PlannerResult | null;
-  };
-  queuePersist(): void;
-  setStatus(message: string, isError?: boolean): void;
-  collectSettings(): PlannerSettings;
-  collectAllBooks(): Book[];
-  setBookScheduleRows(rows: PlannerScheduleRow[]): void;
-  renderCalendar(rows: PlannerScheduleRow[], totals: Record<string, number>): void;
-  totalsFromSummary(summary: PlannerSummary | null): Record<string, number>;
-  updateBookProgress(
-    bookId: string,
-    updates: BookProgressUpdates,
-    options: { notifyBooksChanged?: boolean },
-  ): UpdatedBook | null;
-  getBookById(bookId: string): Book | null;
-  setLastResult(result: PlannerResult): void;
-  onSessionCompletionUpdated?(payload: CompletionUpdate): void;
-  onProgressUpdated?(book: UpdatedBook): void;
-  onScheduleRowsUpdated?(): void;
+    applyStateMutation(mutation: AppStateMutation): void;
+    collectAllBooks(): Book[];
+    collectSettings(): PlannerSettings;
+    configureCalendarInteractions(handlers?: Partial<CalendarHandlers>): void;
+    getBookById(bookId: string): Book | null;
+    onProgressUpdated?(book: UpdatedBook): void;
+    onScheduleRowsUpdated?(): void;
+    onSessionCompletionUpdated?(payload: CompletionUpdate): void;
+    queuePersist(): void;
+    renderCalendar(
+        rows: PlannerScheduleRow[],
+        totals: Record<string, number>,
+    ): void;
+    setBookScheduleRows(rows: PlannerScheduleRow[]): void;
+    setLastResult(result: PlannerResult): void;
+    setStatus(message: string, isError?: boolean): void;
+    state: {
+        scheduleCompletions: Record<string, boolean>;
+        blockedDayBooks: Record<string, boolean>;
+        lastResult: PlannerResult | null;
+    };
+    totalsFromSummary(summary: PlannerSummary | null): Record<string, number>;
+    updateBookProgress(
+        bookId: string,
+        updates: BookProgressUpdates,
+        options: { notifyBooksChanged?: boolean },
+    ): UpdatedBook | null;
 }
 
 export type CalendarInteractionHandlers = Partial<CalendarHandlers>;
 
 export type ScheduleMutationHandlers = Pick<
-  CalendarHandlers,
-  "onManualSessionAdded" | "onSessionMinutesUpdated" | "onSessionRemoved"
+    CalendarHandlers,
+    "onManualSessionAdded" | "onSessionMinutesUpdated" | "onSessionRemoved"
 >;
 
 export interface SharedScheduleBindings {
-  collectSettings: AppCalendarInteractionArgs["collectSettings"];
-  getBookById: AppCalendarInteractionArgs["getBookById"];
-  onScheduleRowsUpdated(this: void): void;
-  queuePersist(this: void): void;
-  renderCalendar: AppCalendarInteractionArgs["renderCalendar"];
-  setBookScheduleRows: AppCalendarInteractionArgs["setBookScheduleRows"];
-  setLastResult: AppCalendarInteractionArgs["setLastResult"];
-  setStatus: AppCalendarInteractionArgs["setStatus"];
-  state: AppCalendarInteractionArgs["state"];
-  totalsFromSummary: AppCalendarInteractionArgs["totalsFromSummary"];
+    applyStateMutation: AppCalendarInteractionArgs["applyStateMutation"];
+    collectSettings: AppCalendarInteractionArgs["collectSettings"];
+    getBookById: AppCalendarInteractionArgs["getBookById"];
+    onScheduleRowsUpdated(this: void): void;
+    queuePersist(this: void): void;
+    renderCalendar: AppCalendarInteractionArgs["renderCalendar"];
+    setBookScheduleRows: AppCalendarInteractionArgs["setBookScheduleRows"];
+    setLastResult: AppCalendarInteractionArgs["setLastResult"];
+    setStatus: AppCalendarInteractionArgs["setStatus"];
+    state: AppCalendarInteractionArgs["state"];
+    totalsFromSummary: AppCalendarInteractionArgs["totalsFromSummary"];
 }
 
 export interface SharedUpdateArgs {
-  onScheduleRowsUpdated(): void;
-  queuePersist(): void;
-  renderCalendar(rows: PlannerScheduleRow[], totals: Record<string, number>): void;
-  setBookScheduleRows(rows: PlannerScheduleRow[]): void;
-  setLastResult(result: PlannerResult): void;
-  setStatus(message: string, isError?: boolean): void;
-  state: {
-    lastResult: PlannerResult | null;
-    scheduleCompletions: Record<string, boolean>;
-    blockedDayBooks: Record<string, boolean>;
-  };
-  totalsFromSummary(summary: PlannerSummary | null): Record<string, number>;
+    applyStateMutation(mutation: AppStateMutation): void;
+    onScheduleRowsUpdated(): void;
+    queuePersist(): void;
+    renderCalendar(
+        rows: PlannerScheduleRow[],
+        totals: Record<string, number>,
+    ): void;
+    setBookScheduleRows(rows: PlannerScheduleRow[]): void;
+    setLastResult(result: PlannerResult): void;
+    setStatus(message: string, isError?: boolean): void;
+    state: {
+        lastResult: PlannerResult | null;
+        scheduleCompletions: Record<string, boolean>;
+        blockedDayBooks: Record<string, boolean>;
+    };
+    totalsFromSummary(summary: PlannerSummary | null): Record<string, number>;
 }
 
 export type AddManualSessionArgs = SharedUpdateArgs & {
-  bookId: string;
-  collectSettings(this: void): PlannerSettings;
-  completed?: boolean;
-  date: string;
-  getBookById(this: void, bookId: string): Book | null;
-  minutes: number;
+    bookId: string;
+    collectSettings(this: void): PlannerSettings;
+    completed?: boolean;
+    date: string;
+    getBookById(this: void, bookId: string): Book | null;
+    minutes: number;
 };
 
 export type RemoveSessionArgs = SharedUpdateArgs & {
-  row: PlannerScheduleRow;
+    row: PlannerScheduleRow;
 };
 
 export type UpdateSessionMinutesArgs = SharedUpdateArgs & {
-  collectSettings(this: void): PlannerSettings;
-  getBookById(this: void, bookId: string): Book | null;
-  minutes: number;
-  row: PlannerScheduleRow;
+    collectSettings(this: void): PlannerSettings;
+    getBookById(this: void, bookId: string): Book | null;
+    minutes: number;
+    row: PlannerScheduleRow;
 };
 
 export interface CompletionRow {
-  date?: string;
-  book_id?: string;
-  title?: string;
+    book_id?: string;
+    date?: string;
+    title?: string;
 }
 
 export type UpdatedRowsResult = {
-  normalizedMinutes: number;
-  rows: PlannerScheduleRow[];
+    normalizedMinutes: number;
+    rows: PlannerScheduleRow[];
 } | null;
-
-export type { CalendarHandlers, CalendarRowWithFinish, ManualSessionBook };

@@ -1,11 +1,11 @@
-import { normalizeStatusFilter } from "./status.js";
-import type {
-  BindToolbarEventsArgs,
-  BooksControllerRefs,
-  SortDirection,
-} from "../../types/types_books.js";
-import { SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from "./toolbar.js";
+import {
+    type BindToolbarEventsArgs,
+    type BooksControllerRefs,
+    type SortDirection,
+} from "../../types/types.js";
 import { toGroupBy, toSortBy } from "./controller_types.js";
+import { normalizeStatusFilter } from "./status.js";
+import { SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from "./toolbar.js";
 
 /**
  * Validates and unwraps toolbar control references required for event binding.
@@ -14,50 +14,52 @@ import { toGroupBy, toSortBy } from "./controller_types.js";
  * @throws {TypeError} Thrown when any required toolbar control is missing.
  */
 function assertToolbarControls(refs: BooksControllerRefs): {
-  titleFilterInput: HTMLInputElement;
-  sortBySelect: HTMLSelectElement;
-  shelfFilterSelect: HTMLSelectElement;
-  statusFilterSelect: HTMLSelectElement;
-  groupBySelect: HTMLSelectElement;
-  sortDirectionBtn: HTMLButtonElement;
+    titleFilterInput: HTMLInputElement;
+    sortBySelect: HTMLSelectElement;
+    shelfFilterSelect: HTMLSelectElement;
+    statusFilterSelect: HTMLSelectElement;
+    groupBySelect: HTMLSelectElement;
+    sortDirectionBtn: HTMLButtonElement;
 } {
-  if (!(refs.titleFilterInput instanceof HTMLInputElement)) {
-    throw new TypeError(
-      "Books toolbar title-filter control is missing or invalid.",
-    );
-  }
-  if (!(refs.sortBySelect instanceof HTMLSelectElement)) {
-    throw new TypeError("Books toolbar sort-by control is missing or invalid.");
-  }
-  if (!(refs.shelfFilterSelect instanceof HTMLSelectElement)) {
-    throw new TypeError(
-      "Books toolbar shelf-filter control is missing or invalid.",
-    );
-  }
-  if (!(refs.statusFilterSelect instanceof HTMLSelectElement)) {
-    throw new TypeError(
-      "Books toolbar status-filter control is missing or invalid.",
-    );
-  }
-  if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
-    throw new TypeError(
-      "Books toolbar group-by control is missing or invalid.",
-    );
-  }
-  if (!(refs.sortDirectionBtn instanceof HTMLButtonElement)) {
-    throw new TypeError(
-      "Books toolbar sort-direction control is missing or invalid.",
-    );
-  }
+    if (!(refs.titleFilterInput instanceof HTMLInputElement)) {
+        throw new TypeError(
+            "Books toolbar title-filter control is missing or invalid.",
+        );
+    }
+    if (!(refs.sortBySelect instanceof HTMLSelectElement)) {
+        throw new TypeError(
+            "Books toolbar sort-by control is missing or invalid.",
+        );
+    }
+    if (!(refs.shelfFilterSelect instanceof HTMLSelectElement)) {
+        throw new TypeError(
+            "Books toolbar shelf-filter control is missing or invalid.",
+        );
+    }
+    if (!(refs.statusFilterSelect instanceof HTMLSelectElement)) {
+        throw new TypeError(
+            "Books toolbar status-filter control is missing or invalid.",
+        );
+    }
+    if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
+        throw new TypeError(
+            "Books toolbar group-by control is missing or invalid.",
+        );
+    }
+    if (!(refs.sortDirectionBtn instanceof HTMLButtonElement)) {
+        throw new TypeError(
+            "Books toolbar sort-direction control is missing or invalid.",
+        );
+    }
 
-  return {
-    titleFilterInput: refs.titleFilterInput,
-    sortBySelect: refs.sortBySelect,
-    shelfFilterSelect: refs.shelfFilterSelect,
-    statusFilterSelect: refs.statusFilterSelect,
-    groupBySelect: refs.groupBySelect,
-    sortDirectionBtn: refs.sortDirectionBtn,
-  };
+    return {
+        groupBySelect: refs.groupBySelect,
+        shelfFilterSelect: refs.shelfFilterSelect,
+        sortBySelect: refs.sortBySelect,
+        sortDirectionBtn: refs.sortDirectionBtn,
+        statusFilterSelect: refs.statusFilterSelect,
+        titleFilterInput: refs.titleFilterInput,
+    };
 }
 
 /**
@@ -68,49 +70,51 @@ function assertToolbarControls(refs: BooksControllerRefs): {
  * @param args.rerender Callback that refreshes the books view.
  */
 export function bindToolbarEvents(args: BindToolbarEventsArgs): void {
-  const nextViewState = args.viewState;
-  const {
-    titleFilterInput,
-    sortBySelect,
-    shelfFilterSelect,
-    statusFilterSelect,
-    groupBySelect,
-    sortDirectionBtn,
-  } = assertToolbarControls(args.refs);
+    const NEXT_VIEW_STATE = args.viewState;
+    const {
+        titleFilterInput,
+        sortBySelect,
+        shelfFilterSelect,
+        statusFilterSelect,
+        groupBySelect,
+        sortDirectionBtn,
+    } = assertToolbarControls(args.refs);
 
-  const applyTitleFilter = (): void => {
-    nextViewState.titleFilter = String(titleFilterInput.value || "");
-    args.rerender();
-  };
-  titleFilterInput.addEventListener("input", applyTitleFilter);
-  titleFilterInput.addEventListener("change", applyTitleFilter);
+    const APPLY_TITLE_FILTER = (): void => {
+        NEXT_VIEW_STATE.titleFilter = String(titleFilterInput.value || "");
+        args.rerender();
+    };
+    titleFilterInput.addEventListener("input", APPLY_TITLE_FILTER);
+    titleFilterInput.addEventListener("change", APPLY_TITLE_FILTER);
 
-  sortBySelect.addEventListener("change", () => {
-    nextViewState.sortBy = toSortBy(sortBySelect.value);
-    args.rerender();
-  });
+    sortBySelect.addEventListener("change", () => {
+        NEXT_VIEW_STATE.sortBy = toSortBy(sortBySelect.value);
+        args.rerender();
+    });
 
-  shelfFilterSelect.addEventListener("change", () => {
-    nextViewState.shelfFilter = shelfFilterSelect.value;
-    args.rerender();
-  });
+    shelfFilterSelect.addEventListener("change", () => {
+        NEXT_VIEW_STATE.shelfFilter = shelfFilterSelect.value;
+        args.rerender();
+    });
 
-  statusFilterSelect.addEventListener("change", () => {
-    nextViewState.statusFilter = normalizeStatusFilter(statusFilterSelect.value);
-    args.rerender();
-  });
+    statusFilterSelect.addEventListener("change", () => {
+        NEXT_VIEW_STATE.statusFilter = normalizeStatusFilter(
+            statusFilterSelect.value,
+        );
+        args.rerender();
+    });
 
-  groupBySelect.addEventListener("change", () => {
-    nextViewState.groupBy = toGroupBy(groupBySelect.value);
-    args.rerender();
-  });
+    groupBySelect.addEventListener("change", () => {
+        NEXT_VIEW_STATE.groupBy = toGroupBy(groupBySelect.value);
+        args.rerender();
+    });
 
-  sortDirectionBtn.addEventListener("click", () => {
-    let nextDirection: SortDirection = SORT_DIRECTION_ASC;
-    if (nextViewState.sortDirection === SORT_DIRECTION_ASC) {
-      nextDirection = SORT_DIRECTION_DESC;
-    }
-    nextViewState.sortDirection = nextDirection;
-    args.rerender();
-  });
+    sortDirectionBtn.addEventListener("click", () => {
+        let nextDirection: SortDirection = SORT_DIRECTION_ASC;
+        if (NEXT_VIEW_STATE.sortDirection === SORT_DIRECTION_ASC) {
+            nextDirection = SORT_DIRECTION_DESC;
+        }
+        NEXT_VIEW_STATE.sortDirection = nextDirection;
+        args.rerender();
+    });
 }

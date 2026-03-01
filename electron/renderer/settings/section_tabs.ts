@@ -7,42 +7,42 @@ const DEFAULT_SETTINGS_SECTION = "plan-budget";
  * @param nextSection Section id to activate.
  */
 function activateSettingsSection(nextSection: string): void {
-  const section = String(nextSection);
-  for (const card of qa<HTMLElement>("[data-settings-section]")) {
-    const nextCard = card;
-    const active = nextCard.dataset.settingsSection === section;
-    nextCard.hidden = !active;
-    if (active) {
-      nextCard.style.display = "grid";
-    } else {
-      nextCard.style.display = "none";
+    const SECTION = String(nextSection);
+    for (const CARD of qa<HTMLElement>("[data-settings-section]")) {
+        const NEXT_CARD = CARD;
+        const ACTIVE = NEXT_CARD.dataset.settingsSection === SECTION;
+        NEXT_CARD.hidden = !ACTIVE;
+        if (ACTIVE) {
+            NEXT_CARD.style.display = "grid";
+        } else {
+            NEXT_CARD.style.display = "none";
+        }
     }
-  }
-  qa<HTMLElement>(".settings-section-tab").forEach((button) => {
-    const active = button.dataset.settingsSectionTarget === section;
-    button.classList.toggle("is-active", active);
-    let ariaSelected = "false";
-    if (active) {
-      ariaSelected = "true";
-    }
-    button.setAttribute("aria-selected", ariaSelected);
-  });
+    qa<HTMLElement>(".settings-section-tab").forEach((button) => {
+        const ACTIVE = button.dataset.settingsSectionTarget === SECTION;
+        button.classList.toggle("is-active", ACTIVE);
+        let ariaSelected = "false";
+        if (ACTIVE) {
+            ariaSelected = "true";
+        }
+        button.setAttribute("aria-selected", ariaSelected);
+    });
 }
 
 /**
  * Binds settings section tab click handlers and activates default section.
  */
 export function bindSettingsSectionTabs(): void {
-  const tabs = qa<HTMLElement>(".settings-section-tab");
-  tabs.forEach((button) => {
-    button.addEventListener("click", () => {
-      const section = button.dataset.settingsSectionTarget;
-      if (typeof section === "string" && section.length > 0) {
-        activateSettingsSection(section);
-        return;
-      }
-      activateSettingsSection(DEFAULT_SETTINGS_SECTION);
+    const TABS = qa<HTMLElement>(".settings-section-tab");
+    TABS.forEach((button) => {
+        button.addEventListener("click", () => {
+            const SECTION = button.dataset.settingsSectionTarget;
+            if (typeof SECTION === "string" && SECTION.length > 0) {
+                activateSettingsSection(SECTION);
+                return;
+            }
+            activateSettingsSection(DEFAULT_SETTINGS_SECTION);
+        });
     });
-  });
-  activateSettingsSection(DEFAULT_SETTINGS_SECTION);
+    activateSettingsSection(DEFAULT_SETTINGS_SECTION);
 }

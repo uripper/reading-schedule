@@ -1,7 +1,7 @@
-import { el } from "./dom.js";
 import { bindDialogFocus } from "./accessibility/index.js";
+import { el } from "./dom.js";
 
-const logs: string[] = [];
+const LOGS: string[] = [];
 const MAX_LOG_LINES = 250;
 
 /**
@@ -9,14 +9,29 @@ const MAX_LOG_LINES = 250;
  * @returns Time string for log prefix.
  */
 function ts(): string {
-  return new Date().toLocaleTimeString();
+    return new Date().toLocaleTimeString();
+}
+
+/**
+ * Checks whether DOM APIs needed for log rendering are available.
+ * @returns True when a browser document is available.
+ */
+function canRenderLogs(): boolean {
+    return typeof document !== "undefined";
 }
 
 /**
  * Renders in-memory log lines into help dialog output panel.
  */
 function renderLogs(): void {
-  el("logOutput").textContent = logs.join("\n") || "No logs yet.";
+    if (!canRenderLogs()) {
+        return;
+    }
+    const LOG_OUTPUT = document.getElementById("logOutput");
+    if (!(LOG_OUTPUT instanceof HTMLElement)) {
+        return;
+    }
+    LOG_OUTPUT.textContent = LOGS.join("\n") || "No logs yet.";
 }
 
 /**
@@ -24,30 +39,32 @@ function renderLogs(): void {
  * @param message Log message text to append.
  */
 export function addLog(message: string): void {
-  logs.unshift(`[${ts()}] ${message}`);
-  if (logs.length > MAX_LOG_LINES) {
-    logs.pop();
-  }
-  renderLogs();
+    LOGS.unshift(`[${ts()}] ${message}`);
+    if (LOGS.length > MAX_LOG_LINES) {
+        LOGS.pop();
+    }
+    renderLogs();
 }
 
 /**
  * Binds help dialog open/close controls with focus restoration behavior.
  */
 export function bindHelpDialog(): void {
-  const dlg = el<HTMLDialogElement>("helpDialog");
-  const focus = bindDialogFocus(dlg, { initialFocusSelector: "#closeHelpBtn" });
-  el<HTMLButtonElement>("helpBtn").onclick = () => {
-    focus.rememberOpener();
-    dlg.showModal();
-    focus.focusInitialTarget();
-  };
-  el<HTMLButtonElement>("closeHelpBtn").onclick = (): void => {
-    focus.closeAndReturnFocus();
-  };
-  dlg.addEventListener("cancel", (e) => {
-    e.preventDefault();
-    focus.closeAndReturnFocus();
-  });
-  renderLogs();
+    const DLG = el<HTMLDialogElement>("helpDialog");
+    const FOCUS = bindDialogFocus(DLG, {
+        initialFocusSelector: "#closeHelpBtn",
+    });
+    el<HTMLButtonElement>("helpBtn").onclick = () => {
+        FOCUS.rememberOpener();
+        DLG.showModal();
+        FOCUS.focusInitialTarget();
+    };
+    el<HTMLButtonElement>("closeHelpBtn").onclick = (): void => {
+        FOCUS.closeAndReturnFocus();
+    };
+    DLG.addEventListener("cancel", (e) => {
+        e.preventDefault();
+        FOCUS.closeAndReturnFocus();
+    });
+    renderLogs();
 }

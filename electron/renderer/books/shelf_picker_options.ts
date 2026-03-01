@@ -1,7 +1,6 @@
-import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";
+import { SHELF_SELECT_CREATE_NEW, UNSHELVED_LABEL } from "./shelf.js";
 
 const UNSHELVED_VALUE = "";
-const UNSHELVED_LABEL = "Unshelved";
 const CREATE_SHELF_LABEL = "Create new shelf...";
 const DATA_KEY_PREVIOUS_SHELF = "previousShelf";
 
@@ -12,10 +11,10 @@ const DATA_KEY_PREVIOUS_SHELF = "previousShelf";
  * @returns Configured option element.
  */
 function createOption(value: string, label: string): HTMLOptionElement {
-  const option = document.createElement("option");
-  option.value = value;
-  option.textContent = label;
-  return option;
+    const OPTION = document.createElement("option");
+    OPTION.value = value;
+    OPTION.textContent = label;
+    return OPTION;
 }
 
 /**
@@ -24,12 +23,12 @@ function createOption(value: string, label: string): HTMLOptionElement {
  * @returns Option elements ready to render into the shelf select.
  */
 function shelfOptions(shelves: string[]): HTMLOptionElement[] {
-  const options = [createOption(UNSHELVED_VALUE, UNSHELVED_LABEL)];
-  shelves.forEach((shelfName) => {
-    options.push(createOption(shelfName, shelfName));
-  });
-  options.push(createOption(SHELF_SELECT_CREATE_NEW, CREATE_SHELF_LABEL));
-  return options;
+    const OPTIONS = [createOption(UNSHELVED_VALUE, UNSHELVED_LABEL)];
+    shelves.forEach((shelfName) => {
+        OPTIONS.push(createOption(shelfName, shelfName));
+    });
+    OPTIONS.push(createOption(SHELF_SELECT_CREATE_NEW, CREATE_SHELF_LABEL));
+    return OPTIONS;
 }
 
 /**
@@ -39,17 +38,17 @@ function shelfOptions(shelves: string[]): HTMLOptionElement[] {
  * @param selectedShelf Shelf value to select when available.
  */
 function renderShelfOptions(
-  select: HTMLSelectElement,
-  shelves: string[],
-  selectedShelf: string,
+    select: HTMLSelectElement,
+    shelves: string[],
+    selectedShelf: string,
 ): void {
-  const shelfSelect = select;
-  shelfSelect.replaceChildren(...shelfOptions(shelves));
-  if (selectedShelf) {
-    shelfSelect.value = selectedShelf;
-    return;
-  }
-  shelfSelect.value = UNSHELVED_VALUE;
+    const SHELF_SELECT = select;
+    SHELF_SELECT.replaceChildren(...shelfOptions(shelves));
+    if (selectedShelf) {
+        SHELF_SELECT.value = selectedShelf;
+        return;
+    }
+    SHELF_SELECT.value = UNSHELVED_VALUE;
 }
 
 /**
@@ -59,7 +58,7 @@ function renderShelfOptions(
  * @returns True when names are equal ignoring case.
  */
 function caseInsensitiveMatch(left: string, right: string): boolean {
-  return left.localeCompare(right, undefined, { sensitivity: "base" }) === 0;
+    return left.localeCompare(right, undefined, { sensitivity: "base" }) === 0;
 }
 
 /**
@@ -68,14 +67,14 @@ function caseInsensitiveMatch(left: string, right: string): boolean {
  * @returns Shelf names excluding empty and "create new" entries.
  */
 function collectShelfValues(select: HTMLSelectElement): string[] {
-  const values: string[] = [];
-  Array.from(select.options).forEach((option) => {
-    if (!option.value || option.value === SHELF_SELECT_CREATE_NEW) {
-      return;
-    }
-    values.push(option.value);
-  });
-  return values;
+    const VALUES: string[] = [];
+    Array.from(select.options).forEach((option) => {
+        if (!option.value || option.value === SHELF_SELECT_CREATE_NEW) {
+            return;
+        }
+        VALUES.push(option.value);
+    });
+    return VALUES;
 }
 
 /**
@@ -83,8 +82,8 @@ function collectShelfValues(select: HTMLSelectElement): string[] {
  * @param select Shelf dropdown element.
  */
 export function rememberSelectedShelf(select: HTMLSelectElement): void {
-  const shelfSelect = select;
-  shelfSelect.dataset[DATA_KEY_PREVIOUS_SHELF] = shelfSelect.value;
+    const SHELF_SELECT = select;
+    SHELF_SELECT.dataset[DATA_KEY_PREVIOUS_SHELF] = SHELF_SELECT.value;
 }
 
 /**
@@ -93,7 +92,7 @@ export function rememberSelectedShelf(select: HTMLSelectElement): void {
  * @returns Previously selected shelf, or unshelved when missing.
  */
 export function previousShelf(select: HTMLSelectElement): string {
-  return String(select.dataset[DATA_KEY_PREVIOUS_SHELF] ?? UNSHELVED_VALUE);
+    return String(select.dataset[DATA_KEY_PREVIOUS_SHELF] ?? UNSHELVED_VALUE);
 }
 
 /**
@@ -103,18 +102,18 @@ export function previousShelf(select: HTMLSelectElement): string {
  * @returns Matched option value, or empty string when not found.
  */
 export function existingShelfValue(
-  select: HTMLSelectElement,
-  shelfName: string,
+    select: HTMLSelectElement,
+    shelfName: string,
 ): string {
-  for (const option of Array.from(select.options)) {
-    if (!option.value || option.value === SHELF_SELECT_CREATE_NEW) {
-      continue;
+    for (const OPTION of Array.from(select.options)) {
+        if (!OPTION.value || OPTION.value === SHELF_SELECT_CREATE_NEW) {
+            continue;
+        }
+        if (caseInsensitiveMatch(OPTION.value, shelfName)) {
+            return OPTION.value;
+        }
     }
-    if (caseInsensitiveMatch(option.value, shelfName)) {
-      return option.value;
-    }
-  }
-  return "";
+    return "";
 }
 
 /**
@@ -123,18 +122,18 @@ export function existingShelfValue(
  * @param shelfName Shelf name to ensure exists in options.
  */
 export function ensureShelfOption(
-  select: HTMLSelectElement,
-  shelfName: string,
+    select: HTMLSelectElement,
+    shelfName: string,
 ): void {
-  const shelves = collectShelfValues(select);
-  if (shelves.includes(shelfName)) {
-    return;
-  }
-  shelves.push(shelfName);
-  shelves.sort((left, right) => {
-    return left.localeCompare(right, undefined, { sensitivity: "base" });
-  });
-  renderShelfOptions(select, shelves, shelfName);
+    const SHELVES = collectShelfValues(select);
+    if (SHELVES.includes(shelfName)) {
+        return;
+    }
+    SHELVES.push(shelfName);
+    SHELVES.sort((left, right) => {
+        return left.localeCompare(right, undefined, { sensitivity: "base" });
+    });
+    renderShelfOptions(select, SHELVES, shelfName);
 }
 
 /**
@@ -144,24 +143,24 @@ export function ensureShelfOption(
  * @param availableShelves Known shelf names from the catalog.
  */
 export function setSelectedShelf(
-  select: HTMLSelectElement,
-  selectedShelf: string,
-  availableShelves: string[],
+    select: HTMLSelectElement,
+    selectedShelf: string,
+    availableShelves: string[],
 ): void {
-  const shelfSelect = select;
-  const shelf = String(selectedShelf || "").trim();
-  renderShelfOptions(shelfSelect, availableShelves, "");
-  if (!shelf) {
-    rememberSelectedShelf(shelfSelect);
-    return;
-  }
-  const existingValue = existingShelfValue(shelfSelect, shelf);
-  if (existingValue) {
-    shelfSelect.value = existingValue;
-    rememberSelectedShelf(shelfSelect);
-    return;
-  }
-  ensureShelfOption(shelfSelect, shelf);
-  shelfSelect.value = shelf;
-  rememberSelectedShelf(shelfSelect);
+    const SHELF_SELECT = select;
+    const SHELF = String(selectedShelf || "").trim();
+    renderShelfOptions(SHELF_SELECT, availableShelves, "");
+    if (!SHELF) {
+        rememberSelectedShelf(SHELF_SELECT);
+        return;
+    }
+    const EXISTING_VALUE = existingShelfValue(SHELF_SELECT, SHELF);
+    if (EXISTING_VALUE) {
+        SHELF_SELECT.value = EXISTING_VALUE;
+        rememberSelectedShelf(SHELF_SELECT);
+        return;
+    }
+    ensureShelfOption(SHELF_SELECT, SHELF);
+    SHELF_SELECT.value = SHELF;
+    rememberSelectedShelf(SHELF_SELECT);
 }

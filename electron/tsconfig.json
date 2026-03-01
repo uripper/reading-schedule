@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "module": "CommonJS",
+        "moduleResolution": "Node",
+        "noEmitOnError": true,
+        "outDir": "dist",
+        "paths": {
+            "@main/*": ["./main/*"],
+            "@renderer/*": ["./renderer/*"],
+            "@shared/*": ["./types/*"]
+        },
+        "rootDir": ".",
+        "skipLibCheck": true,
+        "strict": true,
+        "target": "ES2023",
+        "types": ["node"]
+    }
+}

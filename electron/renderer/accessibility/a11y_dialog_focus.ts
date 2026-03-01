@@ -1,4 +1,4 @@
-import type { DialogFocusOptions } from "../../types/types_app.js";
+import { type DialogFocusOptions } from "../../types/types.js";
 
 /**
  * Returns a CSS selector string matching all interactive, focusable elements
@@ -6,14 +6,14 @@ import type { DialogFocusOptions } from "../../types/types_app.js";
  * @returns A comma-separated CSS selector string for focusable elements.
  */
 function focusableSelector(): string {
-  return [
-    "button:not([disabled])",
-    "input:not([disabled])",
-    "textarea:not([disabled])",
-    "select:not([disabled])",
-    "a[href]",
-    "[tabindex]:not([tabindex='-1'])",
-  ].join(",");
+    return [
+        "button:not([disabled])",
+        "input:not([disabled])",
+        "textarea:not([disabled])",
+        "select:not([disabled])",
+        "a[href]",
+        "[tabindex]:not([tabindex='-1'])",
+    ].join(",");
 }
 
 /**
@@ -28,53 +28,57 @@ function focusableSelector(): string {
  *   `closeAndReturnFocus` handlers to be called at the appropriate lifecycle points.
  */
 export function bindDialogFocus(
-  dialog: HTMLDialogElement,
-  { initialFocusSelector = null }: DialogFocusOptions = {},
+    dialog: HTMLDialogElement,
+    { initialFocusSelector = null }: DialogFocusOptions = {},
 ): {
-  rememberOpener(): void;
-  focusInitialTarget(): void;
-  closeAndReturnFocus(): void;
+    rememberOpener(): void;
+    focusInitialTarget(): void;
+    closeAndReturnFocus(): void;
 } {
-  let opener: HTMLElement | null = null;
-  const rememberOpener = (): void => {
-    opener = null;
-    if (document.activeElement instanceof HTMLElement) {
-      opener = document.activeElement;
-    }
-  };
-  const focusInitialTarget = (): void => {
-    let direct: Element | null = null;
-    if (initialFocusSelector !== null && initialFocusSelector !== "") {
-      direct = dialog.querySelector(initialFocusSelector);
-    }
-    if (direct instanceof HTMLElement) {
-      direct.focus();
-      return;
-    }
+    let opener: HTMLElement | null = null;
+    const REMEMBER_OPENER = (): void => {
+        opener = null;
+        if (document.activeElement instanceof HTMLElement) {
+            opener = document.activeElement;
+        }
+    };
+    const FOCUS_INITIAL_TARGET = (): void => {
+        let direct: Element | null = null;
+        if (initialFocusSelector !== null && initialFocusSelector !== "") {
+            direct = dialog.querySelector(initialFocusSelector);
+        }
+        if (direct instanceof HTMLElement) {
+            direct.focus();
+            return;
+        }
 
-    const autoFocus = dialog.querySelector("[autofocus]");
-    if (autoFocus instanceof HTMLElement) {
-      autoFocus.focus();
-      return;
-    }
+        const AUTO_FOCUS = dialog.querySelector("[autofocus]");
+        if (AUTO_FOCUS instanceof HTMLElement) {
+            AUTO_FOCUS.focus();
+            return;
+        }
 
-    const first = dialog.querySelector(focusableSelector());
-    if (first instanceof HTMLElement) {
-      first.focus();
-    }
-  };
-  const closeAndReturnFocus = (): void => {
-    if (dialog.open) {
-      dialog.close();
-    }
-  };
+        const FIRST = dialog.querySelector(focusableSelector());
+        if (FIRST instanceof HTMLElement) {
+            FIRST.focus();
+        }
+    };
+    const CLOSE_AND_RETURN_FOCUS = (): void => {
+        if (dialog.open) {
+            dialog.close();
+        }
+    };
 
-  dialog.addEventListener("close", (): void => {
-    if (opener?.isConnected === true) {
-      opener.focus();
-    }
-    opener = null;
-  });
+    dialog.addEventListener("close", (): void => {
+        if (opener?.isConnected === true) {
+            opener.focus();
+        }
+        opener = null;
+    });
 
-  return { rememberOpener, focusInitialTarget, closeAndReturnFocus };
+    return {
+        closeAndReturnFocus: CLOSE_AND_RETURN_FOCUS,
+        focusInitialTarget: FOCUS_INITIAL_TARGET,
+        rememberOpener: REMEMBER_OPENER,
+    };
 }

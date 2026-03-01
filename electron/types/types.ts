@@ -1,47 +1,40 @@
-export type * from "./types_core.js";
-export type * from "./types_planner.js";
+export type * from "./types_app.js";
 export type * from "./types_books.js";
 export type * from "./types_calendar.js";
-export type * from "./types_app.js";
+export type * from "./types_core.js";
 export type * from "./types_experience.js";
 export type * from "./types_lookup.js";
 export type * from "./types_main.js";
-export type * from "./types_stats.js";
+export type * from "./types_planner.js";
 
-export type Nullable<T> = T | null;
+import { type Book, type BookStatus } from "./types_books.js";
+import { type Session } from "./types_core.js";
+import { type PlannerResult } from "./types_planner.js";
 
-export type Optional<T> = T | undefined;
+export type StatusBreakdown = Record<BookStatus, number>;
 
-export type Maybe<T> = T | null | undefined;
-
-export type NonEmptyArray<T> = [T, ...T[]];
-
-export type ValueOf<T> = T[keyof T];
-
-export type StringKeyed<T> = Record<string, T>;
-
-export type DateLike = string | number | Date;
-
-export type Identifier = string;
-
-export type AsyncResult<T> = Promise<T>;
-
-export interface LabeledValue<T> {
-  label: string;
-  value: T;
+export interface StatsSnapshot {
+    activeDaysYear: number;
+    averageProgressPercent: number;
+    booksStartedCount: number;
+    completedSessionsToDate: number;
+    completionRatePercent: number;
+    currentStreakDays: number;
+    finishedThisYearCount: number;
+    monthlyFinishes: number[];
+    plannedFinishCount: number;
+    projectedFinishCount: number;
+    readingMinutesYear: number;
+    scheduledSessionsToDate: number;
+    statusBreakdown: StatusBreakdown;
+    totalBooks: number;
+    year: number;
 }
 
-export interface IdentifierLabel {
-  id: Identifier;
-  label: string;
-}
-
-export interface RangeBound {
-  min: number;
-  max: number;
-}
-
-export interface PaginationWindow {
-  page: number;
-  pageSize: number;
+export interface SnapshotInputs {
+    books: Book[];
+    dailyGoalMinutes?: number;
+    lastResult: PlannerResult | null;
+    scheduleCompletions: Record<string, boolean>;
+    sessions: Session[];
 }

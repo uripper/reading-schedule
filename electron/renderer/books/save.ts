@@ -1,4 +1,4 @@
-import type { Book } from "../../types/types_books.js";
+import { type Book } from "../../types/types.js";
 import { getPlannerApi } from "../app/planner_api.js";
 
 /**
@@ -7,22 +7,22 @@ import { getPlannerApi } from "../app/planner_api.js";
  * @returns Original book or cloned book with `cover_local_path` populated.
  */
 export async function hydrateBookCover(book: Book): Promise<Book> {
-  if (!book.cover_url || book.cover_local_path) {
-    return book;
-  }
-
-  try {
-    const localCover = await getPlannerApi().downloadCover(
-      book.cover_url,
-      book.book_id,
-    );
-    if (localCover) {
-      return { ...book, cover_local_path: localCover };
+    if (!book.cover_url || book.cover_local_path) {
+        return book;
     }
-    return book;
-  } catch {
-    return book;
-  }
+
+    try {
+        const LOCAL_COVER = await getPlannerApi().downloadCover(
+            book.cover_url,
+            book.book_id,
+        );
+        if (LOCAL_COVER) {
+            return { ...book, cover_local_path: LOCAL_COVER };
+        }
+        return book;
+    } catch {
+        return book;
+    }
 }
 
 /**
@@ -32,11 +32,11 @@ export async function hydrateBookCover(book: Book): Promise<Book> {
  * @returns New books array with upsert applied.
  */
 export function upsertBookById(books: Book[], nextBook: Book): Book[] {
-  const index = books.findIndex((row) => row.book_id === nextBook.book_id);
-  if (index < 0) {
-    return [...books, nextBook];
-  }
-  const nextBooks = [...books];
-  nextBooks[index] = nextBook;
-  return nextBooks;
+    const INDEX = books.findIndex((row) => row.book_id === nextBook.book_id);
+    if (INDEX < 0) {
+        return [...books, nextBook];
+    }
+    const NEXT_BOOKS = [...books];
+    NEXT_BOOKS[INDEX] = nextBook;
+    return NEXT_BOOKS;
 }

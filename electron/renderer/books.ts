@@ -1,9 +1,10 @@
 export {
-  bindBooksUI,
-  collectAllBooks,
-  collectBooks,
-  fillBooks,
-  getBookById,
-  setBookScheduleRows,
-  updateBookProgress,
+    bindBooksUI,
+    collectAllBooks,
+    collectBooks,
+    fillBooks,
+    getBookById,
+    setBookCommitHook,
+    setBookScheduleRows,
+    updateBookProgress,
 } from "./books/controller.js";

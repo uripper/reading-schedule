@@ -6,7 +6,7 @@
 
 Problem:
 
-`npm run lint:desktop` currently reports 421 `no-param-reassign` errors. This obscures higher-value regressions and indicates state mutation patterns that are hard to reason about.
+`pnpm run lint:desktop` currently reports 421 `no-param-reassign` errors. This obscures higher-value regressions and indicates state mutation patterns that are hard to reason about.
 
 Expected:
 

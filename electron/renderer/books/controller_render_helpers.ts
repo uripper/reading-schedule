@@ -1,13 +1,16 @@
+import {
+    type Book,
+    type BooksControllerRefs,
+    type BooksViewState,
+    type RenderableBooksRefs,
+} from "../../types/types.js";
+import {
+    normalizeTitleFilterQuery,
+    titleMatchesNormalizedQuery,
+} from "../title_filter.js";
 import { shelfFilterMatches } from "./shelf.js";
-import { statusFilterMatches } from "./status.js";
 import { sortBooks } from "./sort.js";
-import { normalizeTitleFilterQuery, titleMatchesNormalizedQuery } from "../title_filter.js";
-import type {
-  Book,
-  BooksControllerRefs,
-  BooksViewState,
-  RenderableBooksRefs,
-} from "../../types/types_books.js";
+import { statusFilterMatches } from "./status.js";
 
 /**
  * Checks whether a book title matches the active case-insensitive text filter.
@@ -16,8 +19,8 @@ import type {
  * @returns `true` when filter is empty or title contains the filter substring.
  */
 export function matchesTitleFilter(book: Book, titleFilter: string): boolean {
-  const normalizedFilter = normalizeTitleFilterQuery(titleFilter);
-  return titleMatchesNormalizedQuery(book.title, normalizedFilter);
+    const NORMALIZED_FILTER = normalizeTitleFilterQuery(titleFilter);
+    return titleMatchesNormalizedQuery(book.title, NORMALIZED_FILTER);
 }
 
 /**
@@ -26,31 +29,34 @@ export function matchesTitleFilter(book: Book, titleFilter: string): boolean {
  * @returns Resolved render references when all required nodes exist; otherwise `null`.
  */
 export function resolveRenderableRefs(
-  refs: BooksControllerRefs,
+    refs: BooksControllerRefs,
 ): RenderableBooksRefs | null {
-  if (!(refs.shelfFilterSelect instanceof HTMLSelectElement)) {
-    return null;
-  }
-  if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
-    return null;
-  }
-  if (!(refs.statusFilterSelect instanceof HTMLSelectElement)) {
-    return null;
-  }
-  if (!(refs.sortDirectionBtn instanceof HTMLButtonElement)) {
-    return null;
-  }
-  if (!(refs.grid instanceof HTMLElement) || !(refs.empty instanceof HTMLElement)) {
-    return null;
-  }
-  return {
-    shelfFilterSelect: refs.shelfFilterSelect,
-    groupBySelect: refs.groupBySelect,
-    statusFilterSelect: refs.statusFilterSelect,
-    sortDirectionBtn: refs.sortDirectionBtn,
-    grid: refs.grid,
-    empty: refs.empty,
-  };
+    if (!(refs.shelfFilterSelect instanceof HTMLSelectElement)) {
+        return null;
+    }
+    if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
+        return null;
+    }
+    if (!(refs.statusFilterSelect instanceof HTMLSelectElement)) {
+        return null;
+    }
+    if (!(refs.sortDirectionBtn instanceof HTMLButtonElement)) {
+        return null;
+    }
+    if (
+        !(refs.grid instanceof HTMLElement) ||
+        !(refs.empty instanceof HTMLElement)
+    ) {
+        return null;
+    }
+    return {
+        empty: refs.empty,
+        grid: refs.grid,
+        groupBySelect: refs.groupBySelect,
+        shelfFilterSelect: refs.shelfFilterSelect,
+        sortDirectionBtn: refs.sortDirectionBtn,
+        statusFilterSelect: refs.statusFilterSelect,
+    };
 }
 
 /**
@@ -61,22 +67,22 @@ export function resolveRenderableRefs(
  * @returns Books visible in the current controller view.
  */
 export function visibleBooksForView(
-  books: Book[],
-  viewState: BooksViewState,
-  finishDateByBookId: Record<string, string>,
+    books: Book[],
+    viewState: BooksViewState,
+    finishDateByBookId: Record<string, string>,
 ): Book[] {
-  return sortBooks(
-    books,
-    viewState.sortBy,
-    viewState.sortDirection,
-    finishDateByBookId,
-  ).filter((book) => {
-    if (!matchesTitleFilter(book, viewState.titleFilter)) {
-      return false;
-    }
-    if (!shelfFilterMatches(book, viewState.shelfFilter)) {
-      return false;
-    }
-    return statusFilterMatches(book, viewState.statusFilter);
-  });
+    return sortBooks(
+        books,
+        viewState.sortBy,
+        viewState.sortDirection,
+        finishDateByBookId,
+    ).filter((book) => {
+        if (!matchesTitleFilter(book, viewState.titleFilter)) {
+            return false;
+        }
+        if (!shelfFilterMatches(book, viewState.shelfFilter)) {
+            return false;
+        }
+        return statusFilterMatches(book, viewState.statusFilter);
+    });
 }

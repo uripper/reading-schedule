@@ -3,17 +3,19 @@
  */
 import { spawn } from "node:child_process";
 import path from "node:path";
-import type { BridgeResponse, JsonValue } from "../types/types.js";
+import { parseBridgeResponseEnvelope } from "../contracts/planner.js";
+import { type JsonValue, type PlanGeneratePayload } from "../types/types.js";
 
 const PLANNER_MODULE = "reading_plan.gui_api";
 const PYTHONPATH_SEGMENT = "src";
+const PYTHONPATH_KEY = "PYTHONPATH";
 
 /**
  * Resolves the repository root used by the Python bridge process.
  * @returns Absolute path to the project root directory.
  */
 function root(): string {
-  return path.join(__dirname, "..", "..");
+    return path.join(__dirname, "..", "..");
 }
 
 /**
@@ -21,10 +23,10 @@ function root(): string {
  * @returns Process environment including the planner PYTHONPATH.
  */
 function pyEnv(): NodeJS.ProcessEnv {
-  return {
-    ...process.env,
-    PYTHONPATH: path.join(root(), PYTHONPATH_SEGMENT),
-  };
+    return {
+        ...process.env,
+        [PYTHONPATH_KEY]: path.join(root(), PYTHONPATH_SEGMENT),
+    };
 }
 
 /**
@@ -34,7 +36,7 @@ function pyEnv(): NodeJS.ProcessEnv {
  * @returns Updated output buffer.
  */
 function appendChunk(target: string, chunk: Buffer | string): string {
-  return target + chunk.toString();
+    return target + chunk.toString();
 }
 
 /**
@@ -44,18 +46,25 @@ function appendChunk(target: string, chunk: Buffer | string): string {
  * @returns Parsed planner payload or null when no data is returned.
  */
 function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
-  try {
-    const parsed = JSON.parse(stdout || "{}") as BridgeResponse;
-    if (parsed.ok !== true) {
-      throw new Error((parsed.error ?? stderr) || "Planner failed");
+    let parsed: unknown;
+    try {
+        parsed = JSON.parse(stdout || "{}");
+    } catch {
+        throw new Error(stderr || stdout || "Invalid planner response");
     }
-    if (parsed.data === undefined) {
-      return null;
+
+    const ENVELOPE = parseBridgeResponseEnvelope(parsed);
+    if (ENVELOPE.ok !== true) {
+        const ERROR_TEXT = ENVELOPE.error ?? stderr;
+        if (ERROR_TEXT) {
+            throw new Error(ERROR_TEXT);
+        }
+        throw new Error("Planner failed");
     }
-    return parsed.data;
-  } catch {
-    throw new Error(stderr || stdout || "Invalid planner response");
-  }
+    if (ENVELOPE.data === undefined) {
+        return null;
+    }
+    return ENVELOPE.data;
 }
 
 /**
@@ -64,36 +73,43 @@ function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
  * @param payload Optional JSON payload written to planner stdin.
  * @returns Parsed planner JSON response.
  */
-export async function runBridge(args: string[], payload?: JsonValue): Promise<JsonValue> {
-  return await new Promise((resolve, reject) => {
-    const pythonBinary = process.env.PYTHON_BIN ?? "python";
-    const processHandle = spawn(pythonBinary, ["-m", PLANNER_MODULE, ...args], {
-      cwd: root(),
-      env: pyEnv(),
-    });
-    let stdout = "";
-    let stderr = "";
-    processHandle.stdout.on("data", (chunk: Buffer | string) => {
-      stdout = appendChunk(stdout, chunk);
-    });
-    processHandle.stderr.on("data", (chunk: Buffer | string) => {
-      stderr = appendChunk(stderr, chunk);
-    });
-    processHandle.on("error", reject);
-    processHandle.on("close", () => {
-      try {
-        resolve(parseBridgeOutput(stdout, stderr));
-      } catch (error) {
-        if (error instanceof Error) {
-          reject(error);
-          return;
+export async function runBridge(
+    args: string[],
+    payload?: PlanGeneratePayload,
+): Promise<JsonValue> {
+    return await new Promise((resolve, reject) => {
+        const PYTHON_BINARY = process.env.PYTHON_BIN ?? "python";
+        const PROCESS_HANDLE = spawn(
+            PYTHON_BINARY,
+            ["-m", PLANNER_MODULE, ...args],
+            {
+                cwd: root(),
+                env: pyEnv(),
+            },
+        );
+        let stdout = "";
+        let stderr = "";
+        PROCESS_HANDLE.stdout.on("data", (chunk: Buffer | string) => {
+            stdout = appendChunk(stdout, chunk);
+        });
+        PROCESS_HANDLE.stderr.on("data", (chunk: Buffer | string) => {
+            stderr = appendChunk(stderr, chunk);
+        });
+        PROCESS_HANDLE.on("error", reject);
+        PROCESS_HANDLE.on("close", () => {
+            try {
+                resolve(parseBridgeOutput(stdout, stderr));
+            } catch (error) {
+                if (error instanceof Error) {
+                    reject(error);
+                    return;
+                }
+                reject(new Error(String(error)));
+            }
+        });
+        if (payload !== undefined) {
+            PROCESS_HANDLE.stdin.write(JSON.stringify(payload));
         }
-        reject(new Error(String(error)));
-      }
+        PROCESS_HANDLE.stdin.end();
     });
-    if (payload !== undefined) {
-      processHandle.stdin.write(JSON.stringify(payload));
-    }
-    processHandle.stdin.end();
-  });
 }

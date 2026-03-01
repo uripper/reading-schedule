@@ -9,10 +9,10 @@ const DAY_PAD = 2;
  * @returns Local day key.
  */
 function dayKeyFromDate(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + MONTH_BASE).padStart(DAY_PAD, "0");
-  const day = String(date.getDate()).padStart(DAY_PAD, "0");
-  return `${year}-${month}-${day}`;
+    const YEAR = date.getFullYear();
+    const MONTH = String(date.getMonth() + MONTH_BASE).padStart(DAY_PAD, "0");
+    const DAY = String(date.getDate()).padStart(DAY_PAD, "0");
+    return `${YEAR}-${MONTH}-${DAY}`;
 }
 
 /**
@@ -21,14 +21,14 @@ function dayKeyFromDate(date: Date): string {
  * @returns `true` when key shape and calendar date are valid.
  */
 export function isValidDateKey(dateKey: string): boolean {
-  if (!DATE_KEY_PATTERN.test(dateKey)) {
-    return false;
-  }
-  const parsed = new Date(`${dateKey}${CALENDAR_DATE_SUFFIX}`);
-  if (Number.isNaN(parsed.getTime())) {
-    return false;
-  }
-  return dayKeyFromDate(parsed) === dateKey;
+    if (!DATE_KEY_PATTERN.test(dateKey)) {
+        return false;
+    }
+    const PARSED = new Date(`${dateKey}${CALENDAR_DATE_SUFFIX}`);
+    if (Number.isNaN(PARSED.getTime())) {
+        return false;
+    }
+    return dayKeyFromDate(PARSED) === dateKey;
 }
 
 /**
@@ -38,12 +38,12 @@ export function isValidDateKey(dateKey: string): boolean {
  * @returns `true` when navigation callback was invoked.
  */
 export function navigateToEstimatedFinishDate(
-  dateKey: string,
-  onNavigate: (dateKey: string) => void,
+    dateKey: string,
+    onNavigate: (dateKey: string) => void,
 ): boolean {
-  if (!isValidDateKey(dateKey)) {
-    return false;
-  }
-  onNavigate(dateKey);
-  return true;
+    if (!isValidDateKey(dateKey)) {
+        return false;
+    }
+    onNavigate(dateKey);
+    return true;
 }

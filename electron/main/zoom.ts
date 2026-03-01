@@ -1,7 +1,7 @@
 /**
  * @file Main-process zoom factor helpers for renderer web contents.
  */
-import type { WebContents } from "electron";
+import { type WebContents } from "electron";
 
 const DEFAULT_UI_SCALE = 1.55;
 const MIN_UI_SCALE = 0.7;
@@ -15,10 +15,10 @@ const ZOOM_PRECISION = 100;
  * @returns Clamped zoom factor within configured limits.
  */
 function clampZoomFactor(value: number): number {
-  if (!Number.isFinite(value)) {
-    return DEFAULT_UI_SCALE;
-  }
-  return Math.min(MAX_UI_SCALE, Math.max(MIN_UI_SCALE, value));
+    if (!Number.isFinite(value)) {
+        return DEFAULT_UI_SCALE;
+    }
+    return Math.min(MAX_UI_SCALE, Math.max(MIN_UI_SCALE, value));
 }
 
 /**
@@ -27,7 +27,7 @@ function clampZoomFactor(value: number): number {
  * @returns Rounded zoom factor using configured precision.
  */
 function normalizedZoomFactor(value: number): number {
-  return Math.round(clampZoomFactor(value) * ZOOM_PRECISION) / ZOOM_PRECISION;
+    return Math.round(clampZoomFactor(value) * ZOOM_PRECISION) / ZOOM_PRECISION;
 }
 
 /**
@@ -36,7 +36,7 @@ function normalizedZoomFactor(value: number): number {
  * @returns Normalized current zoom factor.
  */
 function currentZoomFactor(webContents: WebContents): number {
-  return normalizedZoomFactor(webContents.getZoomFactor());
+    return normalizedZoomFactor(webContents.getZoomFactor());
 }
 
 /**
@@ -46,9 +46,9 @@ function currentZoomFactor(webContents: WebContents): number {
  * @returns Applied normalized zoom factor.
  */
 export function setZoomFactor(webContents: WebContents, value: number): number {
-  const nextFactor = normalizedZoomFactor(value);
-  webContents.setZoomFactor(nextFactor);
-  return nextFactor;
+    const NEXT_FACTOR = normalizedZoomFactor(value);
+    webContents.setZoomFactor(NEXT_FACTOR);
+    return NEXT_FACTOR;
 }
 
 /**
@@ -56,9 +56,10 @@ export function setZoomFactor(webContents: WebContents, value: number): number {
  * @returns Initial normalized zoom factor.
  */
 export function initialZoomFactor(): number {
-  const requestedScaleRaw = process.env.UI_SCALE ?? String(DEFAULT_UI_SCALE);
-  const requestedScale = Number(requestedScaleRaw);
-  return normalizedZoomFactor(requestedScale);
+    const REQUESTED_SCALE_RAW =
+        process.env.UI_SCALE ?? String(DEFAULT_UI_SCALE);
+    const REQUESTED_SCALE = Number(REQUESTED_SCALE_RAW);
+    return normalizedZoomFactor(REQUESTED_SCALE);
 }
 
 /**
@@ -67,6 +68,9 @@ export function initialZoomFactor(): number {
  * @param delta Relative zoom delta to apply.
  * @returns Applied normalized zoom factor.
  */
-export function shiftZoomFactor(webContents: WebContents, delta: number): number {
-  return setZoomFactor(webContents, currentZoomFactor(webContents) + delta);
+export function shiftZoomFactor(
+    webContents: WebContents,
+    delta: number,
+): number {
+    return setZoomFactor(webContents, currentZoomFactor(webContents) + delta);
 }

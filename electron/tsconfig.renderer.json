@@ -1,14 +1,14 @@
 {
-  "compilerOptions": {
-    "target": "ES2023",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "outDir": "dist",
-    "rootDir": ".",
-    "lib": ["ES2023", "DOM"],
-    "strict": true,
-    "noEmitOnError": true,
-    "skipLibCheck": true
-  },
-  "include": ["renderer/**/*.ts", "renderer/**/*.d.ts", "types/**/*.ts"]
+    "compilerOptions": {
+        "lib": ["ES2023", "DOM"],
+        "module": "ESNext",
+        "moduleResolution": "Bundler"
+    },
+    "extends": "./tsconfig.json",
+    "include": [
+        "contracts/**/*.ts",
+        "renderer/**/*.ts",
+        "renderer/**/*.d.ts",
+        "types/**/*.ts"
+    ]
 }

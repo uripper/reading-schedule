@@ -1,57 +1,137 @@
 /**
- * @file Read/write helpers for persisted planner state JSON.
+ * @file Planner state persistence facade with SQLite primary + JSON compatibility fallback.
  */
 import fs from "node:fs";
-import path from "node:path";
-import type { SaveResult, JsonValue } from "../types/types.js";
-
-const FILE_NAME = "planner_state.json";
+import {
+    type LoadedPlannerState,
+    type PlannerSaveResult,
+    type PlannerStateLoadResult,
+    type PlannerStateSnapshot,
+} from "../types/types.js";
+import { readStateFromJson, writeStateToJson } from "./state_store_json";
+import {
+    jsonStateBackupPath,
+    jsonStatePath,
+    sqliteStatePath,
+} from "./state_store_paths";
+import { readStateFromSqlite, writeStateToSqlite } from "./state_store_sqlite";
 
 /**
- * Builds the absolute path for the persisted planner state file.
- * @param userDataDir Base Electron user-data directory for this profile.
- * @returns Absolute file path to `planner_state.json`.
+ * Returns true when state payload contains required bootstrap fields.
+ * @param state Candidate loaded state payload.
+ * @returns True when settings and books are both present.
  */
-function statePath(userDataDir: string): string {
-  return path.join(userDataDir, FILE_NAME);
+function hasBootstrapState(state: LoadedPlannerState | null): boolean {
+    if (state === null) {
+        return false;
+    }
+    if (state.settings === undefined) {
+        return false;
+    }
+    if (state.books === undefined) {
+        return false;
+    }
+    return true;
 }
 
 /**
- * Loads persisted planner state from disk, returning null on failure.
+ * Returns true when persistence artifacts exist on disk.
  * @param userDataDir Base Electron user-data directory for this profile.
- * @returns Parsed JSON state or null when the file is missing/invalid.
+ * @returns True when at least one persistence artifact exists.
  */
-export function readState(userDataDir: string): JsonValue | null {
-  try {
-    const text = fs.readFileSync(statePath(userDataDir), "utf8");
-    return JSON.parse(text) as JsonValue;
-  } catch {
-    return null;
-  }
+function hasPersistedArtifacts(userDataDir: string): boolean {
+    return (
+        fs.existsSync(sqliteStatePath(userDataDir)) ||
+        fs.existsSync(jsonStatePath(userDataDir)) ||
+        fs.existsSync(jsonStateBackupPath(userDataDir))
+    );
 }
 
 /**
- * Writes planner state to disk and returns a structured success result.
+ * Backfills SQLite from JSON state and decorates warnings when migration fails.
+ * @param userDataDir Base Electron user-data directory for this profile.
+ * @param jsonResult Loaded JSON state result.
+ * @returns JSON result with migration metadata applied.
+ */
+function migratedJsonResult(
+    userDataDir: string,
+    jsonResult: PlannerStateLoadResult,
+): PlannerStateLoadResult {
+    if (jsonResult.state === null) {
+        return jsonResult;
+    }
+    const BACKFILL = writeStateToSqlite(userDataDir, jsonResult.state);
+    if (BACKFILL.ok === false) {
+        return {
+            ...jsonResult,
+            warningMessage: `Loaded JSON fallback but SQLite migration failed: ${BACKFILL.error}`,
+        };
+    }
+    if (jsonResult.source !== "json_primary") {
+        return jsonResult;
+    }
+    return {
+        ...jsonResult,
+        warningCode: "MIGRATED_JSON_TO_SQLITE",
+        warningMessage: "Migrated saved data from JSON storage to SQLite.",
+    };
+}
+
+/**
+ * Loads persisted planner state from SQLite first, then JSON fallback paths.
+ * @param userDataDir Base Electron user-data directory for this profile.
+ * @returns Structured state load result with source and warning metadata.
+ */
+export function readState(userDataDir: string): PlannerStateLoadResult {
+    const SQLITE_RESULT = readStateFromSqlite(userDataDir);
+    if (SQLITE_RESULT !== null && hasBootstrapState(SQLITE_RESULT.state)) {
+        return SQLITE_RESULT;
+    }
+    const JSON_RESULT = readStateFromJson(userDataDir);
+    if (JSON_RESULT !== null) {
+        return migratedJsonResult(userDataDir, JSON_RESULT);
+    }
+    if (SQLITE_RESULT !== null) {
+        return SQLITE_RESULT;
+    }
+    if (hasPersistedArtifacts(userDataDir)) {
+        return {
+            source: "fresh",
+            sourcePath: userDataDir,
+            state: null,
+            warningCode: "STATE_RESET_FRESH",
+            warningMessage:
+                "Saved state was unreadable. Started with fresh data.",
+        };
+    }
+    return {
+        source: "fresh",
+        sourcePath: userDataDir,
+        state: null,
+    };
+}
+
+/**
+ * Writes planner state to SQLite primary store plus JSON compatibility files.
  * @param userDataDir Base Electron user-data directory for this profile.
  * @param data Serializable planner state payload to persist.
- * @returns Success flag or error message suitable for user-facing status.
+ * @returns Structured save result.
  */
-export function writeState(userDataDir: string, data: JsonValue): SaveResult {
-  try {
-    fs.mkdirSync(userDataDir, { recursive: true });
-    fs.writeFileSync(
-      statePath(userDataDir),
-      JSON.stringify(data, null, 2),
-      "utf8",
-    );
-    return { ok: true };
-  } catch (error) {
-    let message: string;
-    if (error instanceof Error) {
-      message = error.message;
-    } else {
-      message = String(error);
+export function writeState(
+    userDataDir: string,
+    data: PlannerStateSnapshot,
+): PlannerSaveResult {
+    const SQLITE_SAVE = writeStateToSqlite(userDataDir, data);
+    if (SQLITE_SAVE.ok === false) {
+        return SQLITE_SAVE;
     }
-    return { ok: false, error: message };
-  }
+
+    const JSON_SAVE = writeStateToJson(userDataDir, data);
+    if (JSON_SAVE.ok === false) {
+        return {
+            ok: true,
+            warningMessage: `SQLite save succeeded but JSON compatibility write failed: ${JSON_SAVE.error}`,
+        };
+    }
+    return SQLITE_SAVE;
 }

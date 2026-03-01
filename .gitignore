@@ -57,6 +57,7 @@ apps/*/dist/
 packages/*/dist/
 services/*/dist/
 apps/client/.vite/
+/.scratch/
 
 # Capacitor / mobile build outputs
 apps/mobile/android/.gradle/
@@ -83,3 +84,7 @@ sonar-project.properties
 .scannerwork/report-task.txt
 .sonarlint/connectedMode.json
 .github/instructions/sonarqube_mcp.instructions.md
+.scratch/planner_state.sqlite3
+uv.lock
+electron/playwright-report/index.html
+electron/test-results/.last-run.json

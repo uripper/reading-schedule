@@ -1,6 +1,10 @@
+import {
+    type CalendarControlsState,
+    type JumpToTodayFn,
+    type RenderFn,
+} from "../../types/types.js";
 import { el } from "../dom.js";
 import { monthLabel } from "./utils.js";
-import type { CalendarControlsState, JumpToTodayFn, RenderFn } from "../../types/types_calendar.js";
 
 /**
  * Renders month navigation controls and binds prev/next/today actions.
@@ -10,55 +14,55 @@ import type { CalendarControlsState, JumpToTodayFn, RenderFn } from "../../types
  * @param jumpToToday Callback that jumps state focus to today.
  */
 export function renderCalendarControls(
-  state: CalendarControlsState,
-  renderControls: RenderFn,
-  renderMonth: RenderFn,
-  jumpToToday: JumpToTodayFn,
+    state: CalendarControlsState,
+    renderControls: RenderFn,
+    renderMonth: RenderFn,
+    jumpToToday: JumpToTodayFn,
 ): void {
-  const calendarState = state;
-  const key = calendarState.months[calendarState.index] || "";
-  const controls = el("calendarControls");
-  const title = document.createElement("strong");
-  title.textContent = monthLabel(key);
+    const CALENDAR_STATE = state;
+    const KEY = CALENDAR_STATE.months[CALENDAR_STATE.index] || "";
+    const CONTROLS = el("calendarControls");
+    const TITLE = document.createElement("strong");
+    TITLE.textContent = monthLabel(KEY);
 
-  if (!key) {
-    controls.replaceChildren(title);
-    return;
-  }
+    if (!KEY) {
+        CONTROLS.replaceChildren(TITLE);
+        return;
+    }
 
-  const prev = document.createElement("button");
-  prev.className = "btn";
-  prev.type = "button";
-  prev.textContent = "Prev";
+    const PREV = document.createElement("button");
+    PREV.className = "btn";
+    PREV.type = "button";
+    PREV.textContent = "Prev";
 
-  const today = document.createElement("button");
-  today.className = "btn btn-calendar-today";
-  today.type = "button";
-  today.textContent = "Today";
+    const TODAY = document.createElement("button");
+    TODAY.className = "btn btn-calendar-today";
+    TODAY.type = "button";
+    TODAY.textContent = "Today";
 
-  const next = document.createElement("button");
-  next.className = "btn";
-  next.type = "button";
-  next.textContent = "Next";
+    const NEXT = document.createElement("button");
+    NEXT.className = "btn";
+    NEXT.type = "button";
+    NEXT.textContent = "Next";
 
-  prev.onclick = () => {
-    calendarState.index = Math.max(0, calendarState.index - 1);
-    renderControls();
-    renderMonth();
-  };
+    PREV.onclick = () => {
+        CALENDAR_STATE.index = Math.max(0, CALENDAR_STATE.index - 1);
+        renderControls();
+        renderMonth();
+    };
 
-  next.onclick = () => {
-    calendarState.index = Math.min(
-      calendarState.months.length - 1,
-      calendarState.index + 1,
-    );
-    renderControls();
-    renderMonth();
-  };
+    NEXT.onclick = () => {
+        CALENDAR_STATE.index = Math.min(
+            CALENDAR_STATE.months.length - 1,
+            CALENDAR_STATE.index + 1,
+        );
+        renderControls();
+        renderMonth();
+    };
 
-  today.onclick = () => {
-    jumpToToday();
-  };
+    TODAY.onclick = () => {
+        jumpToToday();
+    };
 
-  controls.replaceChildren(prev, today, title, next);
+    CONTROLS.replaceChildren(PREV, TODAY, TITLE, NEXT);
 }

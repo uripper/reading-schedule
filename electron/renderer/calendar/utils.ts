@@ -1,5 +1,9 @@
-import { CALENDAR_COLUMN_COUNT, SESSION_INDEX_PAD, WEEK_START_OFFSET } from "./constants.js";
-import type { SortableRow } from "../../types/types_calendar.js";
+import { type SortableRow } from "../../types/types.js";
+import {
+    CALENDAR_COLUMN_COUNT,
+    SESSION_INDEX_PAD,
+    WEEK_START_OFFSET,
+} from "./constants.js";
 
 const DATE_KEY_PART_COUNT = 3;
 const DATE_KEY_MONTH_INDEX = 1;
@@ -13,8 +17,8 @@ const MONTH_INDEX_OFFSET = 1;
  * @returns Number of weeks needed to display the month.
  */
 function weekCountNeeded(weekdayOffset: number, daysInMonth: number): number {
-  const totalCells = weekdayOffset + daysInMonth;
-  return Math.ceil(totalCells / CALENDAR_COLUMN_COUNT);
+    const TOTAL_CELLS = weekdayOffset + daysInMonth;
+    return Math.ceil(TOTAL_CELLS / CALENDAR_COLUMN_COUNT);
 }
 
 /**
@@ -23,11 +27,11 @@ function weekCountNeeded(weekdayOffset: number, daysInMonth: number): number {
  * @returns Lexicographically sortable row key.
  */
 function rowSortKey(row: SortableRow): string {
-  const sessionIndex = String(row.session_index).padStart(
-    SESSION_INDEX_PAD,
-    "0",
-  );
-  return `${row.date}-${sessionIndex}`;
+    const SESSION_INDEX = String(row.session_index).padStart(
+        SESSION_INDEX_PAD,
+        "0",
+    );
+    return `${row.date}-${SESSION_INDEX}`;
 }
 
 /**
@@ -36,11 +40,11 @@ function rowSortKey(row: SortableRow): string {
  * @returns Sorted row copy.
  */
 export function sortRowsByDateAndSession<T extends SortableRow>(
-  rows: T[] = [],
+    rows: T[] = [],
 ): T[] {
-  return [...rows].sort((left, right) =>
-    rowSortKey(left).localeCompare(rowSortKey(right)),
-  );
+    return [...rows].sort((left, right) =>
+        rowSortKey(left).localeCompare(rowSortKey(right)),
+    );
 }
 
 /**
@@ -49,15 +53,15 @@ export function sortRowsByDateAndSession<T extends SortableRow>(
  * @returns Human-readable month/year label.
  */
 export function monthLabel(key: string): string {
-  if (!key) {
-    return "No Schedule";
-  }
-  const [year, month] = key.split("-").map(Number);
-  const formatter = new Intl.DateTimeFormat(undefined, {
-    month: "long",
-    year: "numeric",
-  });
-  return formatter.format(new Date(year, month - 1, 1));
+    if (!key) {
+        return "No Schedule";
+    }
+    const [YEAR, MONTH] = key.split("-").map(Number);
+    const FORMATTER = new Intl.DateTimeFormat(undefined, {
+        month: "long",
+        year: "numeric",
+    });
+    return FORMATTER.format(new Date(YEAR, MONTH - 1, 1));
 }
 
 /**
@@ -66,10 +70,10 @@ export function monthLabel(key: string): string {
  * @returns Day key string.
  */
 export function dayKey(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const dayOfMonth = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${dayOfMonth}`;
+    const YEAR = date.getFullYear();
+    const MONTH = String(date.getMonth() + 1).padStart(2, "0");
+    const DAY_OF_MONTH = String(date.getDate()).padStart(2, "0");
+    return `${YEAR}-${MONTH}-${DAY_OF_MONTH}`;
 }
 
 /**
@@ -78,25 +82,25 @@ export function dayKey(date: Date): string {
  * @returns Date cells used for calendar month rendering.
  */
 export function monthCells(monthKey: string): Date[] {
-  const [year, month] = monthKey.split("-").map(Number);
-  const first = new Date(year, month - MONTH_INDEX_OFFSET, 1);
-  const start = new Date(first);
-  const weekdayOffset =
-    (first.getDay() + WEEK_START_OFFSET) % CALENDAR_COLUMN_COUNT;
-  start.setDate(first.getDate() - weekdayOffset);
+    const [YEAR, MONTH] = monthKey.split("-").map(Number);
+    const FIRST = new Date(YEAR, MONTH - MONTH_INDEX_OFFSET, 1);
+    const START = new Date(FIRST);
+    const WEEKDAY_OFFSET =
+        (FIRST.getDay() + WEEK_START_OFFSET) % CALENDAR_COLUMN_COUNT;
+    START.setDate(FIRST.getDate() - WEEKDAY_OFFSET);
 
-  // Determine day_grid_size based on number of days in month
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const weekCount = weekCountNeeded(weekdayOffset, daysInMonth);
-  const dayGridSize: number = CALENDAR_COLUMN_COUNT * weekCount;
+    // Determine day_grid_size based on number of days in month
+    const DAYS_IN_MONTH = new Date(YEAR, MONTH, 0).getDate();
+    const WEEK_COUNT = weekCountNeeded(WEEKDAY_OFFSET, DAYS_IN_MONTH);
+    const DAY_GRID_SIZE: number = CALENDAR_COLUMN_COUNT * WEEK_COUNT;
 
-  return Array.from({ length: dayGridSize }, (_, index) => {
-    return new Date(
-      start.getFullYear(),
-      start.getMonth(),
-      start.getDate() + index,
-    );
-  });
+    return Array.from({ length: DAY_GRID_SIZE }, (_, index) => {
+        return new Date(
+            START.getFullYear(),
+            START.getMonth(),
+            START.getDate() + index,
+        );
+    });
 }
 
 /**
@@ -105,33 +109,33 @@ export function monthCells(monthKey: string): Date[] {
  * @returns Local Date for valid keys, otherwise null.
  */
 function parseDayKey(dateKey: string): Date | null {
-  const parts = dateKey.split("-");
-  if (parts.length !== DATE_KEY_PART_COUNT) {
-    return null;
-  }
-  const year = Number(parts[0]);
-  const month = Number(parts[DATE_KEY_MONTH_INDEX]);
-  const day = Number(parts[DATE_KEY_DAY_INDEX]);
-  if (!Number.isInteger(year)) {
-    return null;
-  }
-  if (!Number.isInteger(month)) {
-    return null;
-  }
-  if (!Number.isInteger(day)) {
-    return null;
-  }
-  const date = new Date(year, month - MONTH_INDEX_OFFSET, day);
-  if (date.getFullYear() !== year) {
-    return null;
-  }
-  if (date.getMonth() !== month - MONTH_INDEX_OFFSET) {
-    return null;
-  }
-  if (date.getDate() !== day) {
-    return null;
-  }
-  return date;
+    const PARTS = dateKey.split("-");
+    if (PARTS.length !== DATE_KEY_PART_COUNT) {
+        return null;
+    }
+    const YEAR = Number(PARTS[0]);
+    const MONTH = Number(PARTS[DATE_KEY_MONTH_INDEX]);
+    const DAY = Number(PARTS[DATE_KEY_DAY_INDEX]);
+    if (!Number.isInteger(YEAR)) {
+        return null;
+    }
+    if (!Number.isInteger(MONTH)) {
+        return null;
+    }
+    if (!Number.isInteger(DAY)) {
+        return null;
+    }
+    const DATE = new Date(YEAR, MONTH - MONTH_INDEX_OFFSET, DAY);
+    if (DATE.getFullYear() !== YEAR) {
+        return null;
+    }
+    if (DATE.getMonth() !== MONTH - MONTH_INDEX_OFFSET) {
+        return null;
+    }
+    if (DATE.getDate() !== DAY) {
+        return null;
+    }
+    return DATE;
 }
 
 /**
@@ -140,17 +144,17 @@ function parseDayKey(dateKey: string): Date | null {
  * @returns Human-readable heading string.
  */
 export function dateHeading(dateKey: string): string {
-  const date = parseDayKey(dateKey);
-  if (date === null) {
-    return dateKey;
-  }
-  const formatter = new Intl.DateTimeFormat(undefined, {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-  return formatter.format(date);
+    const DATE = parseDayKey(dateKey);
+    if (DATE === null) {
+        return dateKey;
+    }
+    const FORMATTER = new Intl.DateTimeFormat(undefined, {
+        day: "numeric",
+        month: "long",
+        weekday: "long",
+        year: "numeric",
+    });
+    return FORMATTER.format(DATE);
 }
 
 /**
@@ -162,11 +166,11 @@ export function dateHeading(dateKey: string): string {
  * @returns Session identity key.
  */
 export function sessionKeyFor(row: {
-  date: string;
-  session_index: string | number;
-  book_id: string | number;
+    date: string;
+    session_index: string | number;
+    book_id: string | number;
 }): string {
-  return `${row.date}|${row.session_index}|${row.book_id}`;
+    return `${row.date}|${row.session_index}|${row.book_id}`;
 }
 
 /**
@@ -175,13 +179,13 @@ export function sessionKeyFor(row: {
  * @returns Parsed number or `null`.
  */
 export function parseOptionalNumber(value?: string | number): number | null {
-  const raw = String(value ?? "").trim();
-  if (!raw) {
-    return null;
-  }
-  const parsed = Number(raw);
-  if (!Number.isFinite(parsed)) {
-    return null;
-  }
-  return parsed;
+    const RAW = String(value ?? "").trim();
+    if (!RAW) {
+        return null;
+    }
+    const PARSED = Number(RAW);
+    if (!Number.isFinite(PARSED)) {
+        return null;
+    }
+    return PARSED;
 }

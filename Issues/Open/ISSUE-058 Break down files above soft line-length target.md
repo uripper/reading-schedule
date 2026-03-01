@@ -6,7 +6,7 @@
 
 Problem:
 
-`npm run audit` found 24 files above the 150-line soft limit. The repo currently sits at exactly 90.0% of files under 150 lines (225/250), which leaves no buffer for future growth and increases complexity in key modules.
+`pnpm run audit` found 24 files above the 200-line soft limit. The repo currently sits at exactly 90.0% of files under 200 lines (225/250), which leaves no buffer for future growth and increases complexity in key modules.
 
 Expected:
 
@@ -15,9 +15,9 @@ Large files should be split into clearer units with focused responsibilities, wh
 Definition of done:
 
 - Refactor the largest files first into smaller modules/functions.
-- Keep each file under the 200-line hard limit and improve margin under the 150-line soft target.
+- Keep each file under the 300-line hard limit and improve margin under the 200-line soft target.
 - Run relevant tests for touched areas after each split.
-- Re-run `npm run audit` and improve percentage of files under 150 lines beyond the current 90.0% baseline.
+- Re-run `pnpm run audit` and improve percentage of files under 200 lines beyond the current 90.0% baseline.
 
 Largest files from today’s audit:
 

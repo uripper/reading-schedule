@@ -5,19 +5,31 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from typing import TYPE_CHECKING, TypedDict
 
 from reading_plan.api import generate_plan
 from reading_plan.input.reading_io import load_inputs
 from reading_plan.input.serializers import book_to_data, settings_to_data
 
+if TYPE_CHECKING:
+    from reading_plan.api_types import PlannerInputPayload, PlannerOutputPayload
 
-def write_payload(payload: dict[str, object]) -> None:
+
+class BridgeResponse(TypedDict, total=False):
+    """Response wrapper for bridge communication."""
+
+    ok: bool
+    data: PlannerOutputPayload | PlannerInputPayload | dict[str, object]
+    error: str
+
+
+def write_payload(payload: BridgeResponse) -> None:
     """Write JSON payload to stdout."""
     json.dump(payload, sys.stdout)
     sys.stdout.write("\n")
 
 
-def read_stdin_payload() -> dict[str, object]:
+def read_stdin_payload() -> PlannerInputPayload:
     """Read and validate planner payload from stdin."""
     payload = json.load(sys.stdin)
     if isinstance(payload, dict):
@@ -53,15 +65,13 @@ def main() -> int:
     try:
         if args.sample:
             books, settings = load_inputs(args.data, args.settings)
-            write_payload(
-                {
-                    "ok": True,
-                    "data": {
-                        "books": [book_to_data(b) for b in books],
-                        "settings": settings_to_data(settings),
-                    },
-                }
-            )
+            write_payload({
+                "ok": True,
+                "data": {
+                    "books": [book_to_data(b) for b in books],
+                    "settings": settings_to_data(settings),
+                },
+            })
             return 0
 
         payload = read_stdin_payload()

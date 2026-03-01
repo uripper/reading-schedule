@@ -1,4 +1,7 @@
-import type { DownloadCoverPayload, UploadCoverPayload } from "../types/types.js";
+import {
+    type DownloadCoverPayload,
+    type UploadCoverPayload,
+} from "../types/types.js";
 
 /**
  * Normalizes unknown download payload input into a safe object.
@@ -6,15 +9,15 @@ import type { DownloadCoverPayload, UploadCoverPayload } from "../types/types.js
  * @returns Normalized download-cover payload.
  */
 export function asDownloadCoverPayload(
-  value: DownloadCoverPayload | null,
+    value: DownloadCoverPayload | null,
 ): DownloadCoverPayload {
-  if (!value) {
-    return {};
-  }
-  return {
-    url: value.url,
-    bookId: value.bookId,
-  };
+    if (!value) {
+        return {};
+    }
+    return {
+        bookId: value.bookId,
+        url: value.url,
+    };
 }
 
 /**
@@ -23,13 +26,13 @@ export function asDownloadCoverPayload(
  * @returns Normalized upload-cover payload.
  */
 export function asUploadCoverPayload(
-  value: UploadCoverPayload | null,
+    value: UploadCoverPayload | null,
 ): UploadCoverPayload {
-  if (!value) {
-    return {};
-  }
-  return {
-    dataUrl: value.dataUrl,
-    bookId: value.bookId,
-  };
+    if (!value) {
+        return {};
+    }
+    return {
+        bookId: value.bookId,
+        dataUrl: value.dataUrl,
+    };
 }

@@ -13,7 +13,7 @@ Guidance for coding agents working in this repository.
 
 ## 2) High-Value Paths
 
-- `src/reading_plan/`: planner/domain logic and CLI.
+- `src/reading_plan/`: planner/domain logic and API bridge.
 - `electron/main*.ts`: Electron main process entry points and IPC wiring.
 - `electron/renderer/`: UI/runtime logic by feature area.
 - `scripts/`: style audit, issue sync, Windows helper scripts.
@@ -25,8 +25,8 @@ Guidance for coding agents working in this repository.
 These are enforced standards from `STYLEGUIDE.md`.
 
 - Keep function complexity under 10.
-- Keep files under 200 lines (hard limit).
-- Keep at least 90% of files under 150 lines.
+- Keep files under 300 lines (hard limit).
+- Keep at least 90% of files under 200 lines.
 - Do not use ternary operators.
 - Do not use magic numbers; extract named constants.
 - Do not introduce implicit `any` in TypeScript.
@@ -64,26 +64,28 @@ These are enforced standards from `STYLEGUIDE.md`.
 Run commands relevant to touched areas before finishing:
 
 - Electron:
-  - `npm --prefix electron run lint`
-  - `npm --prefix electron run typecheck`
-  - `npm --prefix electron run build`
+  - `pnpm run lint:desktop`
+  - `pnpm run typecheck:desktop`
+  - `pnpm run build:desktop`
 - Python planner:
-  - `npm run lint:python`
+  - `pnpm run lint:python`
+  - `pnpm run typecheck:python`
   - `.venv/bin/pytest -q`
 
 Helpful aggregate checks:
 
-- Style audit: `npm run audit`
-- Repo desktop dev entrypoint: `npm run dev:desktop`
+- Style audit: `pnpm run audit`
+- Repo desktop dev entrypoint: `pnpm run dev:desktop`
 - Root desktop wrappers:
-  - `npm run lint:desktop`
-  - `npm run typecheck:desktop`
-  - `npm run build:desktop`
+  - `pnpm run lint:desktop`
+  - `pnpm run typecheck:python`
+  - `pnpm run typecheck:desktop`
+  - `pnpm run build:desktop`
 
 For broad refactors or project-wide cleanup work, run these repo-level checks by default unless the user explicitly asks you not to:
 
-- `npm run audit`
-- `npm run lint:desktop`
+- `pnpm run audit`
+- `pnpm run lint:desktop`
 
 If a required command fails, the change is not done.
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "[pre-push] Running npm run ci:local"
-if npm run ci:local; then
+echo "[pre-push] Running pnpm run ci:local"
+if pnpm run ci:local; then
   echo "[pre-push] All checks passed. Proceeding with push."
   exit 0
 fi

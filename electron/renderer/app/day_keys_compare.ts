@@ -1,0 +1,88 @@
+const DAY_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/u;
+const MONTH_INDEX_OFFSET = 1;
+const DAY_KEY_COMPARE_EQUAL = 0;
+const DAY_KEY_COMPARE_LEFT_BEFORE_RIGHT = -1;
+const DAY_KEY_COMPARE_LEFT_AFTER_RIGHT = 1;
+
+/**
+ * Validates strict local day-key format (`YYYY-MM-DD`) and calendar date ranges.
+ * @param dayKey Candidate day key.
+ * @returns True when the key is a valid calendar day.
+ */
+export function isValidDayKey(dayKey: string): boolean {
+    if (!DAY_KEY_PATTERN.test(dayKey)) {
+        return false;
+    }
+    const [YEAR, MONTH, DAY] = dayKey.split("-").map(Number);
+    if (!Number.isInteger(YEAR)) {
+        return false;
+    }
+    if (!Number.isInteger(MONTH)) {
+        return false;
+    }
+    if (!Number.isInteger(DAY)) {
+        return false;
+    }
+    const PARSED = new Date(YEAR, MONTH - MONTH_INDEX_OFFSET, DAY);
+    if (PARSED.getFullYear() !== YEAR) {
+        return false;
+    }
+    if (PARSED.getMonth() !== MONTH - MONTH_INDEX_OFFSET) {
+        return false;
+    }
+    if (PARSED.getDate() !== DAY) {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Compares two valid day keys using ISO lexical ordering.
+ * @param left Left day key.
+ * @param right Right day key.
+ * @returns `-1` when left is earlier, `0` when equal, `1` when later, else `null`.
+ */
+export function compareDayKeys(left: string, right: string): number | null {
+    if (!isValidDayKey(left)) {
+        return null;
+    }
+    if (!isValidDayKey(right)) {
+        return null;
+    }
+    if (left === right) {
+        return DAY_KEY_COMPARE_EQUAL;
+    }
+    const LEFT_GREATER = left.localeCompare(right) > 0;
+    if (!LEFT_GREATER) {
+        return DAY_KEY_COMPARE_LEFT_BEFORE_RIGHT;
+    }
+    return DAY_KEY_COMPARE_LEFT_AFTER_RIGHT;
+}
+
+/**
+ * Checks whether a valid day key is on or before another valid day key.
+ * @param left Left day key.
+ * @param right Right day key.
+ * @returns True when `left` is on or before `right`.
+ */
+export function isOnOrBeforeDay(left: string, right: string): boolean {
+    const COMPARED = compareDayKeys(left, right);
+    if (COMPARED === null) {
+        return false;
+    }
+    return COMPARED <= DAY_KEY_COMPARE_EQUAL;
+}
+
+/**
+ * Checks whether a valid day key is on or after another valid day key.
+ * @param left Left day key.
+ * @param right Right day key.
+ * @returns True when `left` is on or after `right`.
+ */
+export function isOnOrAfterDay(left: string, right: string): boolean {
+    const COMPARED = compareDayKeys(left, right);
+    if (COMPARED === null) {
+        return false;
+    }
+    return COMPARED >= DAY_KEY_COMPARE_EQUAL;
+}

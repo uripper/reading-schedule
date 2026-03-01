@@ -3,19 +3,22 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "reading-plan-optimizer"
+name = "Bartleby-Reading_Plan_Generator"
 version = "0.1.0"
 description = "Generate daily reading schedules from backlog and time budgets"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "ortools>=9.10",
+]
 
-[project.optional-dependencies]
-mip = ["ortools>=9.10"]
-dev = ["pytest>=8.0", "ruff>=0.6.0"]
-
-[project.scripts]
-reading-plan = "reading_plan.cli:main"
+[dependency-groups]
+dev = [
+    "deptry>=0.24.0",
+    "pytest>=8.0",
+    "ruff>=0.6.0",
+    "ty>=0.0.19",
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -25,3 +28,6 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+
+[tool.deptry]
+known_first_party = ["reading_plan"]

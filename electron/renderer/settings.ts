@@ -1,10 +1,15 @@
-import { fields } from "./settings/config.js";
+import { parseSettings, safeParseSettings } from "../contracts/settings.js";
+import { type PlannerSettings } from "../types/types.js";
+import { FIELDS } from "./settings/config.js";
 import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.js";
+import {
+    renderDifficultyRows,
+    renderGrid,
+    renderWeekdayGrid,
+} from "./settings/render.js";
 import { bindSettingsSectionTabs } from "./settings/section_tabs.js";
-import { fillSettingsForm } from "./settings/serialize_fill.js";
 import { collectSettingsForm } from "./settings/serialize_collect.js";
-import { renderDifficultyRows, renderGrid, renderWeekdayGrid } from "./settings/render.js";
-import type { PlannerSettings } from "../types/types.js";
+import { fillSettingsForm } from "./settings/serialize_fill.js";
 
 let dayOffs: string[] = [];
 
@@ -13,22 +18,22 @@ let dayOffs: string[] = [];
  * @param nextDayOffs Updated day-off weekday keys.
  */
 function setDayOffs(nextDayOffs: string[]): void {
-  dayOffs = [...nextDayOffs];
-  renderDayOffs(dayOffs, setDayOffs);
+    dayOffs = [...nextDayOffs];
+    renderDayOffs(dayOffs, setDayOffs);
 }
 
 /**
  * Initializes settings UI sections, grids, and day-off controls.
  */
 export function initSettingsGrid(): void {
-  bindSettingsSectionTabs();
-  renderGrid("windowGrid", fields.window);
-  renderGrid("budgetGrid", fields.budget);
-  renderGrid("weightsGrid", fields.weights);
-  renderGrid("displayGrid", fields.display);
-  renderWeekdayGrid();
-  renderDifficultyRows();
-  bindDayOffAddButton(() => dayOffs, setDayOffs);
+    bindSettingsSectionTabs();
+    renderGrid("windowGrid", FIELDS.window);
+    renderGrid("budgetGrid", FIELDS.budget);
+    renderGrid("weightsGrid", FIELDS.weights);
+    renderGrid("displayGrid", FIELDS.display);
+    renderWeekdayGrid();
+    renderDifficultyRows();
+    bindDayOffAddButton(() => dayOffs, setDayOffs);
 }
 
 /**
@@ -36,7 +41,12 @@ export function initSettingsGrid(): void {
  * @param settings Planner settings snapshot.
  */
 export function fillSettings(settings: PlannerSettings = {}): void {
-  fillSettingsForm(settings, setDayOffs);
+    const RESULT = safeParseSettings(settings);
+    if (!RESULT.success) {
+        fillSettingsForm({}, setDayOffs);
+        return;
+    }
+    fillSettingsForm(RESULT.data, setDayOffs);
 }
 
 /**
@@ -44,5 +54,6 @@ export function fillSettings(settings: PlannerSettings = {}): void {
  * @returns Serialized planner settings.
  */
 export function collectSettings(): PlannerSettings {
-  return collectSettingsForm(dayOffs);
+    const RAW_SETTINGS = collectSettingsForm(dayOffs);
+    return parseSettings(RAW_SETTINGS);
 }

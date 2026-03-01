@@ -1,4 +1,4 @@
-import type { EstimateSnapshot } from "../../types/types_calendar.js";
+import { type EstimateSnapshot } from "../../types/types.js";
 
 export const NO_ESTIMATE_LABEL = "No estimate available";
 
@@ -8,11 +8,11 @@ export const NO_ESTIMATE_LABEL = "No estimate available";
  * @returns Formatted estimate label.
  */
 export function estimateLabelWithPages(snapshot: EstimateSnapshot): string {
-  const { startPages, endPages } = snapshot;
-  if (startPages === null || endPages === null) {
-    return NO_ESTIMATE_LABEL;
-  }
-  return `Estimated by end of this session: ${endPages} pages read (${snapshot.endPercent}% complete)`;
+    const { startPages, endPages } = snapshot;
+    if (startPages === null || endPages === null) {
+        return NO_ESTIMATE_LABEL;
+    }
+    return `Estimated by end of this session: ${endPages} pages read (${snapshot.endPercent}% complete)`;
 }
 
 /**
@@ -21,5 +21,5 @@ export function estimateLabelWithPages(snapshot: EstimateSnapshot): string {
  * @returns Formatted estimate label.
  */
 export function estimateLabelWithoutPages(snapshot: EstimateSnapshot): string {
-  return `Estimated by end of this session: ${snapshot.endPercent}% complete`;
+    return `Estimated by end of this session: ${snapshot.endPercent}% complete`;
 }

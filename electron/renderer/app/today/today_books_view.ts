@@ -1,16 +1,16 @@
+import {
+    type TodayBookSummary,
+    type TodayScheduleSnapshot,
+} from "../../../types/types.js";
 import { COVER_PLACEHOLDER } from "../../books/constants.js";
 import { el } from "../../dom.js";
 import { navigateToTodayBook } from "./today_books_navigation.js";
 import {
-  coverFallbackText,
-  perBookSessionText,
-  plannedMinutesText,
-  todaySessionCountsText,
+    coverFallbackText,
+    perBookSessionText,
+    plannedMinutesText,
+    todaySessionCountsText,
 } from "./today_books_view_text.js";
-import type {
-  TodayBookSummary,
-  TodayScheduleSnapshot,
-} from "../../../types/types_app.js";
 
 /**
  * Creates the visual cover node for a today-list book item.
@@ -18,22 +18,22 @@ import type {
  * @returns Cover element with either image or text fallback.
  */
 function createCover(summary: TodayBookSummary): HTMLElement {
-  const cover = document.createElement("div");
-  cover.className = "today-scheduled-cover";
-  if (summary.coverSrc) {
-    const img = document.createElement("img");
-    img.src = summary.coverSrc;
-    img.alt = `Cover of ${summary.title}`;
-    img.loading = "lazy";
-    img.dataset.fallbackCover = "1";
-    cover.append(img);
-    return cover;
-  }
+    const COVER = document.createElement("div");
+    COVER.className = "today-scheduled-cover";
+    if (summary.coverSrc) {
+        const IMG = document.createElement("img");
+        IMG.src = summary.coverSrc;
+        IMG.alt = `Cover of ${summary.title}`;
+        IMG.loading = "lazy";
+        IMG.dataset.fallbackCover = "1";
+        COVER.append(IMG);
+        return COVER;
+    }
 
-  const fallback = document.createElement("span");
-  fallback.textContent = coverFallbackText(summary.title);
-  cover.append(fallback);
-  return cover;
+    const FALLBACK = document.createElement("span");
+    FALLBACK.textContent = coverFallbackText(summary.title);
+    COVER.append(FALLBACK);
+    return COVER;
 }
 
 /**
@@ -42,37 +42,37 @@ function createCover(summary: TodayBookSummary): HTMLElement {
  * @returns Button element representing one book row.
  */
 function createBookItem(summary: TodayBookSummary): HTMLElement {
-  const item = document.createElement("button");
-  item.type = "button";
-  item.className = "today-scheduled-book";
-  item.setAttribute("aria-label", `Open ${summary.title} in Books`);
-  item.onclick = () => {
-    navigateToTodayBook(summary.bookId);
-  };
-  if (
-    summary.completedSessions >= summary.scheduledSessions &&
-    summary.scheduledSessions > 0
-  ) {
-    item.classList.add("is-complete");
-  }
+    const ITEM = document.createElement("button");
+    ITEM.type = "button";
+    ITEM.className = "today-scheduled-book";
+    ITEM.setAttribute("aria-label", `Open ${summary.title} in Books`);
+    ITEM.onclick = () => {
+        navigateToTodayBook(summary.bookId);
+    };
+    if (
+        summary.completedSessions >= summary.scheduledSessions &&
+        summary.scheduledSessions > 0
+    ) {
+        ITEM.classList.add("is-complete");
+    }
 
-  const meta = document.createElement("div");
-  meta.className = "today-scheduled-meta";
+    const META = document.createElement("div");
+    META.className = "today-scheduled-meta";
 
-  const title = document.createElement("strong");
-  title.textContent = summary.title;
+    const TITLE = document.createElement("strong");
+    TITLE.textContent = summary.title;
 
-  const sessionsText = document.createElement("p");
-  sessionsText.className = "today-scheduled-note";
-  sessionsText.textContent = perBookSessionText(summary);
+    const SESSIONS_TEXT = document.createElement("p");
+    SESSIONS_TEXT.className = "today-scheduled-note";
+    SESSIONS_TEXT.textContent = perBookSessionText(summary);
 
-  const minutesText = document.createElement("p");
-  minutesText.className = "today-scheduled-note";
-  minutesText.textContent = plannedMinutesText(summary);
+    const MINUTES_TEXT = document.createElement("p");
+    MINUTES_TEXT.className = "today-scheduled-note";
+    MINUTES_TEXT.textContent = plannedMinutesText(summary);
 
-  meta.append(title, sessionsText, minutesText);
-  item.append(createCover(summary), meta);
-  return item;
+    META.append(TITLE, SESSIONS_TEXT, MINUTES_TEXT);
+    ITEM.append(createCover(summary), META);
+    return ITEM;
 }
 
 /**
@@ -80,15 +80,15 @@ function createBookItem(summary: TodayBookSummary): HTMLElement {
  * @param listNode List container that may contain cover images.
  */
 function applyCoverFallbacks(listNode: HTMLElement): void {
-  listNode
-    .querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']")
-    .forEach((img) => {
-      img.addEventListener("error", () => {
-        const nextImage = img;
-        nextImage.src = COVER_PLACEHOLDER;
-        nextImage.classList.add("is-empty");
-      });
-    });
+    listNode
+        .querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']")
+        .forEach((img) => {
+            img.addEventListener("error", () => {
+                const NEXT_IMAGE = img;
+                NEXT_IMAGE.src = COVER_PLACEHOLDER;
+                NEXT_IMAGE.classList.add("is-empty");
+            });
+        });
 }
 
 /**
@@ -96,23 +96,23 @@ function applyCoverFallbacks(listNode: HTMLElement): void {
  * @param snapshot Today schedule snapshot driving list and empty states.
  */
 export function renderTodayScheduledBooks(
-  snapshot: TodayScheduleSnapshot,
+    snapshot: TodayScheduleSnapshot,
 ): void {
-  const countsNode = el("todaySessionCounts");
-  const listNode = el("todayScheduledBooks");
-  const emptyNode = el("todayScheduledEmpty");
+    const COUNTS_NODE = el("todaySessionCounts");
+    const LIST_NODE = el("todayScheduledBooks");
+    const EMPTY_NODE = el("todayScheduledEmpty");
 
-  countsNode.textContent = todaySessionCountsText(snapshot);
-  if (!snapshot.books.length) {
-    listNode.replaceChildren();
-    emptyNode.hidden = false;
-    return;
-  }
+    COUNTS_NODE.textContent = todaySessionCountsText(snapshot);
+    if (!snapshot.books.length) {
+        LIST_NODE.replaceChildren();
+        EMPTY_NODE.hidden = false;
+        return;
+    }
 
-  const items = snapshot.books.map((summary) => {
-    return createBookItem(summary);
-  });
-  listNode.replaceChildren(...items);
-  emptyNode.hidden = true;
-  applyCoverFallbacks(listNode);
+    const ITEMS = snapshot.books.map((summary) => {
+        return createBookItem(summary);
+    });
+    LIST_NODE.replaceChildren(...ITEMS);
+    EMPTY_NODE.hidden = true;
+    applyCoverFallbacks(LIST_NODE);
 }

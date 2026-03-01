@@ -1,7 +1,7 @@
+import { logError } from "@renderer/logger.js";
+import { getPlannerApi } from "../app/planner_api.js";
 import { collectAllBooks } from "../books.js";
 import { el } from "../dom.js";
-import { getPlannerApi } from "../app/planner_api.js";
-import { logError } from "../logger.js";
 import { addRecommendationToShelf } from "./add_to_shelf.js";
 import { renderRecommendationsPanel } from "./render.js";
 import { findRecommendations } from "./search.js";
@@ -12,49 +12,42 @@ import { findRecommendations } from "./search.js";
  * @param getRefreshToken Function that returns the latest refresh token.
  */
 async function refreshRecommendationsPanel(
-  refreshToken: number,
-  getRefreshToken: () => number,
+    refreshToken: number,
+    getRefreshToken: () => number,
 ): Promise<void> {
-  const books = collectAllBooks();
-  const recommendations = await findRecommendations(books, getPlannerApi());
-  if (refreshToken !== getRefreshToken()) {
-    return;
-  }
-  renderRecommendationsPanel({
-    recommendations,
-    onAddToShelf: (recommendation) => {
-      addRecommendationToShelf(recommendation);
-    },
-  });
+    const BOOKS = collectAllBooks();
+    const RECOMMENDATIONS = await findRecommendations(BOOKS, getPlannerApi());
+    if (refreshToken !== getRefreshToken()) {
+        return;
+    }
+    renderRecommendationsPanel({
+        onAddToShelf: (recommendation) => {
+            addRecommendationToShelf(recommendation);
+        },
+        recommendations: RECOMMENDATIONS,
+    });
 }
 
 /**
- * Initializes recommendations rendering and keeps it synced to books-grid updates.
+ * Initializes recommendations rendering with manual fetch on button click.
  */
 export function initRecommendationsRuntime(): void {
-  let refreshToken = 0;
-  const nextRefreshToken = (): number => {
-    refreshToken += 1;
-    return refreshToken;
-  };
-  const getRefreshToken = (): number => {
-    return refreshToken;
-  };
-  const queueRefresh = async (): Promise<void> => {
-    const activeToken = nextRefreshToken();
-    await refreshRecommendationsPanel(activeToken, getRefreshToken);
-  };
-  queueRefresh().catch((error: unknown) => {
-    logError("Failed to refresh recommendations", error);
-  });
-  const booksGrid = el("booksGrid");
-  const observer = new MutationObserver(() => {
-    queueRefresh().catch((error: unknown) => {
-      logError("Failed to refresh recommendations", error);
+    let refreshToken = 0;
+    const NEXT_REFRESH_TOKEN = (): number => {
+        refreshToken += 1;
+        return refreshToken;
+    };
+    const GET_REFRESH_TOKEN = (): number => {
+        return refreshToken;
+    };
+    const QUEUE_REFRESH = async (): Promise<void> => {
+        const ACTIVE_TOKEN = NEXT_REFRESH_TOKEN();
+        await refreshRecommendationsPanel(ACTIVE_TOKEN, GET_REFRESH_TOKEN);
+    };
+    const GET_RECOMMENDATIONS_BTN = el("getRecommendationsBtn");
+    GET_RECOMMENDATIONS_BTN.addEventListener("click", () => {
+        QUEUE_REFRESH().catch((error: unknown) => {
+            logError("Failed to refresh recommendations", error);
+        });
     });
-  });
-  observer.observe(booksGrid, {
-    childList: true,
-    subtree: true,
-  });
 }

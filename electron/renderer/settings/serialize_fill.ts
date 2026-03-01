@@ -1,6 +1,15 @@
-import type { PlannerSettings } from "../../types/types.js";
-import { DEFAULT_DIFFICULTY_MULTIPLIER, DEFAULT_PLAN_MODE, weekdays } from "./config.js";
-import { allFieldDefinitions, inputEl, numberLevels, selectEl } from "./field_io.js";
+import { type PlannerSettings } from "../../types/types.js";
+import {
+    DEFAULT_DIFFICULTY_MULTIPLIER,
+    DEFAULT_PLAN_MODE,
+    WEEKDAYS,
+} from "./config.js";
+import {
+    allFieldDefinitions,
+    inputEl,
+    numberLevels,
+    selectEl,
+} from "./field_io.js";
 
 /**
  * Normalizes arbitrary settings value to text for form controls.
@@ -8,19 +17,19 @@ import { allFieldDefinitions, inputEl, numberLevels, selectEl } from "./field_io
  * @returns String representation suitable for input/select values.
  */
 function settingValueText(value: unknown): string {
-  if (typeof value === "string") {
-    return value;
-  }
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return String(value);
-  }
-  if (typeof value === "boolean") {
-    if (value) {
-      return "true";
+    if (typeof value === "string") {
+        return value;
     }
-    return "false";
-  }
-  return "";
+    if (typeof value === "number" && Number.isFinite(value)) {
+        return String(value);
+    }
+    if (typeof value === "boolean") {
+        if (value) {
+            return "true";
+        }
+        return "false";
+    }
+    return "";
 }
 
 /**
@@ -29,11 +38,11 @@ function settingValueText(value: unknown): string {
  * @returns Select value text.
  */
 function selectSettingValue(value: unknown): string {
-  const normalized = settingValueText(value);
-  if (normalized) {
-    return normalized;
-  }
-  return DEFAULT_PLAN_MODE;
+    const NORMALIZED = settingValueText(value);
+    if (NORMALIZED) {
+        return NORMALIZED;
+    }
+    return DEFAULT_PLAN_MODE;
 }
 
 /**
@@ -42,10 +51,10 @@ function selectSettingValue(value: unknown): string {
  * @returns Boolean value for checkbox controls.
  */
 function checkboxSettingValue(value: unknown): boolean {
-  if (value === false || value === "false") {
-    return false;
-  }
-  return true;
+    if (value === false || value === "false") {
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -54,44 +63,44 @@ function checkboxSettingValue(value: unknown): boolean {
  * @param setDayOffs Setter used to update day-off chips/state.
  */
 export function fillSettingsForm(
-  settings: PlannerSettings,
-  setDayOffs: (nextDayOffs: string[]) => void,
+    settings: PlannerSettings,
+    setDayOffs: (nextDayOffs: string[]) => void,
 ): void {
-  allFieldDefinitions().forEach((field) => {
-    const value = settings[field.id];
-    if (field.type === "select") {
-      selectEl(field.id).value = selectSettingValue(value);
-      return;
-    }
-    if (field.type === "checkbox") {
-      inputEl(field.id).checked = checkboxSettingValue(value);
-      return;
-    }
-    inputEl(field.id).value = settingValueText(value);
-  });
-  const minutesByWeekday = settings.minutes_by_weekday ?? {};
-  weekdays.forEach(([key]) => {
-    inputEl(`minutes_${key}`).value = String(minutesByWeekday[key]);
-  });
-  const rawDayOffs = settings.days_off;
-  const nextDayOffs: string[] = [];
-  if (Array.isArray(rawDayOffs)) {
-    rawDayOffs.forEach((dayOff) => {
-      if (typeof dayOff === "string") {
-        nextDayOffs.push(dayOff);
-      }
+    allFieldDefinitions().forEach((field) => {
+        const VALUE = settings[field.id];
+        if (field.type === "select") {
+            selectEl(field.id).value = selectSettingValue(VALUE);
+            return;
+        }
+        if (field.type === "checkbox") {
+            inputEl(field.id).checked = checkboxSettingValue(VALUE);
+            return;
+        }
+        inputEl(field.id).value = settingValueText(VALUE);
     });
-  }
-  nextDayOffs.sort((left, right) => left.localeCompare(right));
-  setDayOffs(nextDayOffs);
-  const difficultyMultiplier = settings.difficulty_multiplier ?? {};
-  numberLevels().forEach((level) => {
-    const id = `diff_${level}`;
-    const difficultyKey = String(level);
-    let value = DEFAULT_DIFFICULTY_MULTIPLIER;
-    if (Object.hasOwn(difficultyMultiplier, difficultyKey)) {
-      value = difficultyMultiplier[difficultyKey];
+    const MINUTES_BY_WEEKDAY = settings.minutes_by_weekday ?? {};
+    WEEKDAYS.forEach(([key]) => {
+        inputEl(`minutes_${key}`).value = String(MINUTES_BY_WEEKDAY[key]);
+    });
+    const RAW_DAY_OFFS = settings.days_off;
+    const NEXT_DAY_OFFS: string[] = [];
+    if (Array.isArray(RAW_DAY_OFFS)) {
+        RAW_DAY_OFFS.forEach((dayOff) => {
+            if (typeof dayOff === "string") {
+                NEXT_DAY_OFFS.push(dayOff);
+            }
+        });
     }
-    inputEl(id).value = String(value);
-  });
+    NEXT_DAY_OFFS.sort((left, right) => left.localeCompare(right));
+    setDayOffs(NEXT_DAY_OFFS);
+    const DIFFICULTY_MULTIPLIER = settings.difficulty_multiplier ?? {};
+    numberLevels().forEach((level) => {
+        const ID = `diff_${level}`;
+        const DIFFICULTY_KEY = String(level);
+        let value = DEFAULT_DIFFICULTY_MULTIPLIER;
+        if (Object.hasOwn(DIFFICULTY_MULTIPLIER, DIFFICULTY_KEY)) {
+            value = DIFFICULTY_MULTIPLIER[DIFFICULTY_KEY];
+        }
+        inputEl(ID).value = String(value);
+    });
 }

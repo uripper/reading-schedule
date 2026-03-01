@@ -1,6 +1,11 @@
-
+import {
+    type CalendarRow,
+    type CalendarRowWithFinish,
+    type CompletionChecker,
+    type RowsByDate,
+} from "../../types/types.js";
+import { isOnOrAfterDay } from "../app/day_keys_compare.js";
 import { sessionKeyFor, sortRowsByDateAndSession } from "./utils.js";
-import type { CalendarRow, CalendarRowWithFinish, CompletionChecker, RowsByDate } from "../../types/types_calendar.js";
 
 const DAYS_IN_WEEK = 7;
 
@@ -9,11 +14,11 @@ const DAYS_IN_WEEK = 7;
  * @returns Local today key.
  */
 function todayKey(): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+    const NOW = new Date();
+    const YEAR = NOW.getFullYear();
+    const MONTH = String(NOW.getMonth() + 1).padStart(2, "0");
+    const DAY = String(NOW.getDate()).padStart(2, "0");
+    return `${YEAR}-${MONTH}-${DAY}`;
 }
 
 /**
@@ -23,10 +28,7 @@ function todayKey(): string {
  * @returns `true` when row is today/future and should affect finish estimates.
  */
 function rowIsPlannedForTodayOrLater(rowDate: string, today: string): boolean {
-  if (!rowDate) {
-    return false;
-  }
-  return rowDate >= today;
+    return isOnOrAfterDay(rowDate, today);
 }
 
 /**
@@ -37,15 +39,15 @@ function rowIsPlannedForTodayOrLater(rowDate: string, today: string): boolean {
  * @returns Updated cumulative progress for the book.
  */
 function nextProgress(
-  bookId: string,
-  plannedWords: number,
-  progressByBookId: Record<string, number>,
+    bookId: string,
+    plannedWords: number,
+    progressByBookId: Record<string, number>,
 ): number {
-  const nextProgressByBookId = progressByBookId;
-  const previousProgress = Number(nextProgressByBookId[bookId] || 0);
-  const next = previousProgress + plannedWords;
-  nextProgressByBookId[bookId] = next;
-  return next;
+    const NEXT_PROGRESS_BY_BOOK_ID = progressByBookId;
+    const PREVIOUS_PROGRESS = Number(NEXT_PROGRESS_BY_BOOK_ID[bookId] || 0);
+    const NEXT = PREVIOUS_PROGRESS + plannedWords;
+    NEXT_PROGRESS_BY_BOOK_ID[bookId] = NEXT;
+    return NEXT;
 }
 
 /**
@@ -57,27 +59,27 @@ function nextProgress(
  * @returns `true` when this row should receive finish badge.
  */
 function isFinishRow(
-  bookId: string,
-  nextBookProgress: number,
-  totals: Record<string, number>,
-  finishedByBookId: Record<string, boolean>,
+    bookId: string,
+    nextBookProgress: number,
+    totals: Record<string, number>,
+    finishedByBookId: Record<string, boolean>,
 ): boolean {
-  const nextFinishedByBookId = finishedByBookId;
-  if (!bookId) {
-    return false;
-  }
-  const totalWords = Number(totals[bookId] || 0);
-  if (totalWords <= 0) {
-    return false;
-  }
-  if (nextFinishedByBookId[bookId]) {
-    return false;
-  }
-  if (nextBookProgress < totalWords) {
-    return false;
-  }
-  nextFinishedByBookId[bookId] = true;
-  return true;
+    const NEXT_FINISHED_BY_BOOK_ID = finishedByBookId;
+    if (!bookId) {
+        return false;
+    }
+    const TOTAL_WORDS = Number(totals[bookId] || 0);
+    if (TOTAL_WORDS <= 0) {
+        return false;
+    }
+    if (NEXT_FINISHED_BY_BOOK_ID[bookId]) {
+        return false;
+    }
+    if (nextBookProgress < TOTAL_WORDS) {
+        return false;
+    }
+    NEXT_FINISHED_BY_BOOK_ID[bookId] = true;
+    return true;
 }
 
 /**
@@ -88,44 +90,44 @@ function isFinishRow(
  * @returns Rows sorted and annotated with `finish` flag.
  */
 export function enrichRows(
-  rows: CalendarRow[],
-  totals: Record<string, number> = {},
-  isSessionCompleted: CompletionChecker = () => false,
+    rows: CalendarRow[],
+    totals: Record<string, number> = {},
+    isSessionCompleted: CompletionChecker = () => false,
 ): CalendarRowWithFinish[] {
-  const progressByBookId: Record<string, number> = {};
-  const finishedByBookId: Record<string, boolean> = {};
-  const sortedRows = sortRowsByDateAndSession(rows);
-  const today = todayKey();
-  return sortedRows.map((row) => {
-    const rowDate = String(row.date || "");
-    if (!rowIsPlannedForTodayOrLater(rowDate, today)) {
-      return { ...row, finish: false };
-    }
-
-    const bookId = String(row.book_id || "");
-    const plannedWords = Number(row.words_planned || 0);
-    const sessionKey = sessionKeyFor(row);
-    const completedToday = rowDate === today && isSessionCompleted(sessionKey);
-    let effectivePlannedWords = plannedWords;
-    if (completedToday) {
-      effectivePlannedWords = 0;
-    }
-    const nextBookProgress = nextProgress(
-      bookId,
-      effectivePlannedWords,
-      progressByBookId,
-    );
-    const finishesBook = isFinishRow(
-      bookId,
-      nextBookProgress,
-      totals,
-      finishedByBookId,
-    );
-    if (completedToday) {
-      return { ...row, finish: false };
-    }
-    return { ...row, finish: finishesBook };
-  });
+    const PROGRESS_BY_BOOK_ID: Record<string, number> = {};
+    const FINISHED_BY_BOOK_ID: Record<string, boolean> = {};
+    const SORTED_ROWS = sortRowsByDateAndSession(rows);
+    const TODAY = todayKey();
+    return SORTED_ROWS.map((row) => {
+        const ROW_DATE = String(row.date || "");
+        if (!rowIsPlannedForTodayOrLater(ROW_DATE, TODAY)) {
+            return { ...row, finish: false };
+        }
+        const BOOK_ID = String(row.book_id || "");
+        const PLANNED_WORDS = Number(row.words_planned || 0);
+        const SESSION_KEY = sessionKeyFor(row);
+        const COMPLETED_TODAY =
+            ROW_DATE === TODAY && isSessionCompleted(SESSION_KEY);
+        let effectivePlannedWords = PLANNED_WORDS;
+        if (COMPLETED_TODAY) {
+            effectivePlannedWords = 0;
+        }
+        const NEXT_BOOK_PROGRESS = nextProgress(
+            BOOK_ID,
+            effectivePlannedWords,
+            PROGRESS_BY_BOOK_ID,
+        );
+        const FINISHES_BOOK = isFinishRow(
+            BOOK_ID,
+            NEXT_BOOK_PROGRESS,
+            totals,
+            FINISHED_BY_BOOK_ID,
+        );
+        if (COMPLETED_TODAY) {
+            return { ...row, finish: false };
+        }
+        return { ...row, finish: FINISHES_BOOK };
+    });
 }
 
 /**
@@ -134,18 +136,18 @@ export function enrichRows(
  * @returns Rows with finish rows moved to front.
  */
 export function rowsWithFinishFirst(
-  rows: CalendarRowWithFinish[] = [],
+    rows: CalendarRowWithFinish[] = [],
 ): CalendarRowWithFinish[] {
-  const finishRows: CalendarRowWithFinish[] = [];
-  const otherRows: CalendarRowWithFinish[] = [];
-  rows.forEach((row) => {
-    if (row.finish) {
-      finishRows.push(row);
-      return;
-    }
-    otherRows.push(row);
-  });
-  return [...finishRows, ...otherRows];
+    const FINISH_ROWS: CalendarRowWithFinish[] = [];
+    const OTHER_ROWS: CalendarRowWithFinish[] = [];
+    rows.forEach((row) => {
+        if (row.finish) {
+            FINISH_ROWS.push(row);
+            return;
+        }
+        OTHER_ROWS.push(row);
+    });
+    return [...FINISH_ROWS, ...OTHER_ROWS];
 }
 
 /**
@@ -154,20 +156,20 @@ export function rowsWithFinishFirst(
  * @returns Rows grouped by date with finish-first ordering per day.
  */
 export function groupRowsByDate(
-  rows: CalendarRowWithFinish[] = [],
+    rows: CalendarRowWithFinish[] = [],
 ): RowsByDate {
-  const groupedRows = rows.reduce((accumulator, row) => {
-    const nextAccumulator = accumulator;
-    if (!(row.date in nextAccumulator)) {
-      nextAccumulator[row.date] = [];
-    }
-    nextAccumulator[row.date].push(row);
-    return nextAccumulator;
-  }, {} as RowsByDate);
-  Object.keys(groupedRows).forEach((dateKey) => {
-    groupedRows[dateKey] = rowsWithFinishFirst(groupedRows[dateKey]);
-  });
-  return groupedRows;
+    const GROUPED_ROWS = rows.reduce((accumulator, row) => {
+        const NEXT_ACCUMULATOR = accumulator;
+        if (!(row.date in NEXT_ACCUMULATOR)) {
+            NEXT_ACCUMULATOR[row.date] = [];
+        }
+        NEXT_ACCUMULATOR[row.date].push(row);
+        return NEXT_ACCUMULATOR;
+    }, {} as RowsByDate);
+    Object.keys(GROUPED_ROWS).forEach((dateKey) => {
+        GROUPED_ROWS[dateKey] = rowsWithFinishFirst(GROUPED_ROWS[dateKey]);
+    });
+    return GROUPED_ROWS;
 }
 
 /**
@@ -176,28 +178,10 @@ export function groupRowsByDate(
  * @returns Sorted month keys in `YYYY-MM` format.
  */
 export function monthKeysFromRows(
-  rows: CalendarRowWithFinish[] = [],
+    rows: CalendarRowWithFinish[] = [],
 ): string[] {
-  const monthKeySet = new Set(
-    rows.map((row) => row.date.slice(0, DAYS_IN_WEEK)),
-  );
-  return [...monthKeySet].sort((left, right) => left.localeCompare(right));
-}
-
-/**
- * Returns first upcoming row, or earliest row when all are in past.
- * @param rows Raw schedule rows.
- * @returns Row to focus initially, or `null` when no rows exist.
- */
-export function firstPlannedRow(rows: CalendarRow[] = []): CalendarRow | null {
-  if (!Array.isArray(rows) || !rows.length) {
-    return null;
-  }
-  const sortedRows = sortRowsByDateAndSession(rows);
-  const today = todayKey();
-  const upcoming = sortedRows.find((row) => String(row.date || "") >= today);
-  if (upcoming) {
-    return upcoming;
-  }
-  return sortedRows[0];
+    const MONTH_KEY_SET = new Set(
+        rows.map((row) => row.date.slice(0, DAYS_IN_WEEK)),
+    );
+    return [...MONTH_KEY_SET].sort((left, right) => left.localeCompare(right));
 }

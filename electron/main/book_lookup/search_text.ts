@@ -1,7 +1,7 @@
 /**
  * @file Text normalization helpers for search matching and scoring.
  */
-import type { SearchDoc } from "../../types/types_lookup.js";
+import { type SearchDoc } from "../../types/types.js";
 
 /**
  * Normalizes free-form text into a lowercase, punctuation-stripped form.
@@ -9,11 +9,11 @@ import type { SearchDoc } from "../../types/types_lookup.js";
  * @returns Normalized text suitable for matching/scoring.
  */
 export function normalizeSearchText(value: string): string {
-  return String(value || "")
-    .normalize("NFKD")
-    .replaceAll(/[^\p{L}\p{N}\s]/gu, " ")
-    .toLowerCase()
-    .trim();
+    return String(value || "")
+        .normalize("NFKD")
+        .replaceAll(/[^\p{L}\p{N}\s]/gu, " ")
+        .toLowerCase()
+        .trim();
 }
 
 /**
@@ -22,7 +22,7 @@ export function normalizeSearchText(value: string): string {
  * @returns Normalized query tokens.
  */
 export function queryTokens(query: string): string[] {
-  return normalizeSearchText(query).split(/\s+/).filter(Boolean);
+    return normalizeSearchText(query).split(/\s+/).filter(Boolean);
 }
 
 /**
@@ -31,10 +31,10 @@ export function queryTokens(query: string): string[] {
  * @returns First author name, or empty string when unavailable.
  */
 export function primaryAuthor(doc: SearchDoc): string {
-  if (!Array.isArray(doc.author_name) || !doc.author_name.length) {
-    return "";
-  }
-  return String(doc.author_name[0] || "");
+    if (!Array.isArray(doc.author_name) || !doc.author_name.length) {
+        return "";
+    }
+    return String(doc.author_name[0] || "");
 }
 
 /**
@@ -43,14 +43,14 @@ export function primaryAuthor(doc: SearchDoc): string {
  * @returns True when language tags include English.
  */
 export function hasEnglishLanguage(doc: SearchDoc): boolean {
-  if (!Array.isArray(doc.language)) {
-    return false;
-  }
-  return doc.language.some((code) => {
-    const normalized = String(code || "").toLowerCase();
-    if (!normalized) {
-      return false;
+    if (!Array.isArray(doc.language)) {
+        return false;
     }
-    return normalized === "eng" || normalized.endsWith("/eng");
-  });
+    return doc.language.some((code) => {
+        const NORMALIZED = String(code || "").toLowerCase();
+        if (!NORMALIZED) {
+            return false;
+        }
+        return NORMALIZED === "eng" || NORMALIZED.endsWith("/eng");
+    });
 }
