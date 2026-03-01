@@ -46,7 +46,7 @@ export function yearFromDateKey(dateText: string): number | null {
  * @param dateText Date key text.
  * @returns Month index in `[0, 11]`, or null when invalid.
  */
-export function monthIndexFromDateKey(dateText: string): number | null {
+function monthIndexFromDateKey(dateText: string): number | null {
     const KEY = String(dateText || "").trim();
     const PARSED = Number(
         KEY.slice(DATE_MONTH_START_INDEX, DATE_MONTH_END_INDEX),

@@ -114,16 +114,6 @@ export type AppStateMutation =
           books: Book[];
       };
 
-export type ApplyAppStateMutation = (
-    state: AppRuntimeState,
-    mutation: AppStateMutation,
-) => void;
-
-export interface AppStateMutationBindings {
-    applyStateMutation(this: void, mutation: AppStateMutation): void;
-    getState(this: void): AppRuntimeState;
-}
-
 export interface DraftDataParams {
     blockedDayBooks: Record<string, boolean>;
     collectBooks(): Book[];
@@ -437,13 +427,6 @@ export interface BindTodayActionsArgs {
     updateTodayView(): void;
 }
 
-export interface DashboardUpdateArgs {
-    books: Book[];
-    dailyGoalMinutes: number;
-    lastResult: AppRuntimeState["lastResult"];
-    scheduleCompletions: AppRuntimeState["scheduleCompletions"];
-    sessions: AppRuntimeState["sessions"];
-}
 
 export interface TodayBookSummary {
     bookId: string;
@@ -533,21 +516,6 @@ export interface ProgressUpdateInput {
     row?: PlannerScheduleRow;
 }
 
-export interface ManualSessionAddInput {
-    bookId: string;
-    completed?: boolean;
-    date: string;
-    minutes: number;
-}
-
-export interface RemoveSessionInput {
-    row: PlannerScheduleRow;
-}
-
-export interface MinutesUpdateInput {
-    minutes: number;
-    row: PlannerScheduleRow;
-}
 
 export type UpdatedBook = Book;
 

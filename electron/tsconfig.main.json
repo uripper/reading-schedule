@@ -4,16 +4,11 @@
         "esModuleInterop": true,
         "module": "CommonJS",
         "moduleResolution": "Node",
-        "noEmitOnError": true,
         "noImplicitAny": true,
-        "outDir": "dist",
         "resolveJsonModule": true,
-        "rootDir": ".",
-        "skipLibCheck": true,
-        "strict": true,
         "strictNullChecks": true,
-        "target": "ES2023",
         "types": ["node", "electron"]
     },
+    "extends": "./tsconfig.json",
     "include": ["*.ts", "main/**/*.ts", "types/**/*.ts"]
 }

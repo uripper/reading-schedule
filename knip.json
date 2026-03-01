@@ -14,12 +14,12 @@
                 "scripts/*.mjs",
                 "tests/*.mjs"
             ],
-            "project": [
-                "**/*.ts",
-                "**/*.mjs",
-                "!dist/**",
-                "!node_modules/**"
-            ]
+            "paths": {
+                "@main/*": ["./main/*"],
+                "@renderer/*": ["./renderer/*"],
+                "@shared/*": ["./types/*"]
+            },
+            "project": ["**/*.ts", "**/*.mjs", "!dist/**", "!node_modules/**"]
         }
     }
 }

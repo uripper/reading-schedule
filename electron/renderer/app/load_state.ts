@@ -9,6 +9,7 @@ import {
 } from "../../types/types.js";
 import { normalizeSessions } from "../sessions/normalize.js";
 import {
+    normalizeBlockedDayBooks,
     readFeatureFlags,
     readLoadedResult,
     readRawCompletions,
@@ -16,24 +17,6 @@ import {
     sessionInputs,
     toSavedRecord,
 } from "./load_state_compat.js";
-
-/**
- * Normalizes persisted blocked day-book map values to strict booleans.
- * @param raw Persisted blocked map keyed by `YYYY-MM-DD|book_id`.
- * @returns Sanitized blocked map.
- */
-function normalizeBlockedDayBooks(
-    raw: Record<string, string | number | boolean | null | undefined> = {},
-): Record<string, boolean> {
-    const OUT: Record<string, boolean> = {};
-    Object.entries(raw).forEach(([key, value]) => {
-        if (!key) {
-            return;
-        }
-        OUT[key] = Boolean(value);
-    });
-    return OUT;
-}
 
 /**
  * Checks whether loaded state already contains full bootstrapping data.

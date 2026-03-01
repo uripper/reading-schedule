@@ -218,4 +218,3 @@ export function validatedShelfSelection(refs: BookFormRefs): string {
     return SHELF;
 }
 
-export { BOOK_STATUS_TO_READ } from "./status_catalog.js";

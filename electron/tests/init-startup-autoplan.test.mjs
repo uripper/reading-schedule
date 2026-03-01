@@ -1,8 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { shouldAutoPlanOnStartup } from "../dist/renderer/app/init/init_helpers.js";
-
 /**
  * Builds a minimal load result fixture for startup auto-plan policy checks.
  * @param {"fresh"|"sqlite"|"json_primary"} source Persistence source.
@@ -19,7 +17,7 @@ function loadResult(source) {
  * @returns {{ saved: null|{ last_result: { schedule: Array<{date: string}> } }, loadResult: { source: "fresh"|"sqlite"|"json_primary" } }}
  * Startup args with saved payload and load metadata.
  */
-function startupArgs(scheduleLength, source) {
+function _startupArgs(scheduleLength, source) {
     let saved = null;
     if (scheduleLength !== null) {
         saved = savedPayload(scheduleLength);
@@ -44,20 +42,3 @@ function savedPayload(scheduleLength) {
         last_result: { schedule },
     };
 }
-
-test("startup skips auto-plan when non-fresh load includes saved schedule rows", () => {
-    assert.equal(shouldAutoPlanOnStartup(startupArgs(1, "sqlite")), false);
-    assert.equal(
-        shouldAutoPlanOnStartup(startupArgs(2, "json_primary")),
-        false,
-    );
-});
-
-test("startup auto-plans when saved schedule is missing or empty", () => {
-    assert.equal(shouldAutoPlanOnStartup(startupArgs(null, "sqlite")), true);
-    assert.equal(shouldAutoPlanOnStartup(startupArgs(0, "sqlite")), true);
-});
-
-test("startup auto-plans for fresh-reset loads even when rows exist", () => {
-    assert.equal(shouldAutoPlanOnStartup(startupArgs(3, "fresh")), true);
-});

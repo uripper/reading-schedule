@@ -1,25 +1,7 @@
-const DATE_YEAR_START_INDEX = 0;
-const DATE_YEAR_END_INDEX = 4;
+import { yearFromDateKey } from "@renderer/stats/helpers.js";
+
 const ZERO_MINUTES = 0;
 
-/**
- * Extracts the numeric year from a day key string (`YYYY-MM-DD`).
- * @param dateText Day key text to parse.
- * @returns Parsed 4-digit year, or null when the key is too short/invalid.
- */
-function yearFromDateKey(dateText: string): number | null {
-    const KEY = String(dateText || "").trim();
-    if (KEY.length < DATE_YEAR_END_INDEX) {
-        return null;
-    }
-    const PARSED = Number(
-        KEY.slice(DATE_YEAR_START_INDEX, DATE_YEAR_END_INDEX),
-    );
-    if (!Number.isInteger(PARSED)) {
-        return null;
-    }
-    return PARSED;
-}
 
 /**
  * Determines whether a day key should be included for a target year filter.

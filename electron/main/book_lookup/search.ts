@@ -2,6 +2,7 @@
  * @file Search orchestration for Open Library queries.
  */
 
+import { logInfo } from "../../renderer/logger.js";
 import { type SearchDoc, type SearchItem } from "../../types/types.js";
 import { toItem } from "./search_map.js";
 import { dedupeDocs, scoreDoc } from "./search_scoring.js";
@@ -25,10 +26,10 @@ export async function searchBooks(
         return [];
     }
     const URLS = searchUrls(NORMALIZED_QUERY, authorOnly);
-    console.info(
+    logInfo(
         `[OpenLibrary] Searching (authorOnly=${authorOnly}): "${NORMALIZED_QUERY}"`,
     );
-    console.info(`[OpenLibrary] URLs: ${URLS.join(" | ")}`);
+    logInfo(`[OpenLibrary] URLs: ${URLS.join(" | ")}`);
     const RESPONSES = await Promise.allSettled(
         URLS.map(async (url) => await fetchJson(url)),
     );
@@ -44,18 +45,14 @@ export async function searchBooks(
             DOCS.push(doc);
         });
     });
-    console.info(
-        `[OpenLibrary] Raw results before dedup/scoring: ${DOCS.length}`,
-    );
+    logInfo(`[OpenLibrary] Raw results before dedup/scoring: ${DOCS.length}`);
     const SCORED = dedupeDocs(DOCS)
         .map((doc) => ({
             doc,
             score: scoreDoc(doc, NORMALIZED_QUERY, authorOnly),
         }))
         .filter((entry) => entry.score > 0);
-    console.info(
-        `[OpenLibrary] After scoring: ${SCORED.length} with score > 0`,
-    );
+    logInfo(`[OpenLibrary] After scoring: ${SCORED.length} with score > 0`);
     SCORED.sort((left, right) => {
         if (left.score !== right.score) {
             return right.score - left.score;
@@ -69,12 +66,12 @@ export async function searchBooks(
     const FINAL = SCORED.slice(0, SEARCH_OUTPUT_LIMIT)
         .map((entry) => toItem(entry.doc))
         .filter((item) => Boolean(item.title));
-    console.info(
+    logInfo(
         `[OpenLibrary] Final results (limit ${SEARCH_OUTPUT_LIMIT}): ${FINAL.length}`,
     );
     if (!IS_PRODUCTION) {
         FINAL.forEach((item, idx) => {
-            console.info(
+            logInfo(
                 `  [${idx + 1}] "${item.title}" by ${item.author} (${item.words_estimate} words)`,
             );
         });

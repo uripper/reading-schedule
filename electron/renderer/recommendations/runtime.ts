@@ -1,7 +1,7 @@
+import { logError } from "@renderer/logger.js";
 import { getPlannerApi } from "../app/planner_api.js";
 import { collectAllBooks } from "../books.js";
 import { el } from "../dom.js";
-import { logError } from "../logger.js";
 import { addRecommendationToShelf } from "./add_to_shelf.js";
 import { renderRecommendationsPanel } from "./render.js";
 import { findRecommendations } from "./search.js";

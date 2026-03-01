@@ -61,27 +61,6 @@ export function readRawCompletions(
     return {};
 }
 
-/**
- * Resolves blocked day-book map from canonical or legacy saved-state fields.
- * @param saved Canonical loaded state.
- * @param savedRecord Object-like compatibility record.
- * @returns Raw blocked day-book map.
- */
-export function readRawBlockedDayBooks(
-    saved: LoadedPlannerState | null | undefined,
-    savedRecord: Record<string, unknown>,
-): Record<string, ScalarValue> {
-    if (saved?.blocked_day_books) {
-        return saved.blocked_day_books;
-    }
-    const LEGACY = savedRecord.blockedDayBooks as
-        | Record<string, ScalarValue>
-        | undefined;
-    if (LEGACY) {
-        return LEGACY;
-    }
-    return {};
-}
 
 /**
  * Resolves raw session payload from canonical and legacy saved-state fields.

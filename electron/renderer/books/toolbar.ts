@@ -1,4 +1,3 @@
-export { GROUP_BY_NONE, GROUP_BY_SHELF } from "./grouping.js";
 export {
     SORT_BY_TITLE,
     SORT_DIRECTION_ASC,

@@ -29,7 +29,3 @@ export interface SnapshotInputs {
     scheduleCompletions: Record<string, boolean>;
     sessions: Session[];
 }
-
-export interface BuildStatsSnapshotArgs extends SnapshotInputs {
-    year: number;
-}

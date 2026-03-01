@@ -32,7 +32,7 @@ export interface SelectOption {
     value: string;
 }
 
-export interface BaseFieldDefinition {
+interface BaseFieldDefinition {
     hint?: string;
     id: string;
     label: string;

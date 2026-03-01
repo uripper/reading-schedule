@@ -1,7 +1,6 @@
-import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";
+import { SHELF_SELECT_CREATE_NEW, UNSHELVED_LABEL } from "./shelf.js";
 
 const UNSHELVED_VALUE = "";
-const UNSHELVED_LABEL = "Unshelved";
 const CREATE_SHELF_LABEL = "Create new shelf...";
 const DATA_KEY_PREVIOUS_SHELF = "previousShelf";
 

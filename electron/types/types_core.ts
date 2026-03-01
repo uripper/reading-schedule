@@ -38,8 +38,3 @@ export interface SessionRecord {
     ended_at: DateInput;
     minutes?: number | string | null;
 }
-
-export interface SessionWindow {
-    ended_at: DateInput;
-    started_at: DateInput;
-}

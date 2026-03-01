@@ -186,4 +186,3 @@ export function configureCalendarInteractions(
     interactionHandlers = mergeCalendarHandlers(handlers);
 }
 
-export { firstPlannedRow } from "./calendar/data.js";

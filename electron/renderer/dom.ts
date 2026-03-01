@@ -21,22 +21,6 @@ export function el<T extends HTMLElement = HTMLElement>(id: string): T {
     return NODE as T;
 }
 
-/**
- * Queries for a single element within a root node.
- * @param sel Selector string.
- * @param root Query root node.
- * @returns Matched element or `null`.
- */
-export function q<T extends Element = Element>(
-    sel: string,
-    root: ParentNode = document,
-): T | null {
-    const NODE = root.querySelector(sel);
-    if (NODE === null) {
-        return null;
-    }
-    return NODE as T;
-}
 
 /**
  * Queries for all matching elements within a root node.
