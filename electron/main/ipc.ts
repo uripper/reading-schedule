@@ -149,9 +149,8 @@ function registerStateHandlers(
     userData: RegisterIpcHandlersArgs["userData"],
 ): void {
     ipcMain.handle("state:load", () => readState(userData()));
-    ipcMain.handle("state:save", (_event, payload: unknown) => {
-        const SNAPSHOT = parsePlannerStateSnapshot(payload);
-        const RESULT = writeState(userData(), SNAPSHOT);
+    ipcMain.handle("state:save", (_event, payload: JsonValue) => {
+        const RESULT = writeState(userData(), payload);
         if (RESULT.ok === false) {
             throw new Error(RESULT.error);
         }
