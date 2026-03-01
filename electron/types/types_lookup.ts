@@ -35,13 +35,6 @@ export interface ProgressSyncInputs {
 
 export type ProgressField = "pages" | "progress";
 
-export interface LookupInputHandlerArgs {
-    clearResults(this: void): void;
-    metaEl: HTMLElement;
-    refreshResults(this: void): void;
-    searchInput: HTMLInputElement;
-    state: LookupSearchState;
-}
 
 export type SetActiveIndex = (index: number) => void;
 
