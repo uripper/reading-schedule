@@ -4,9 +4,11 @@ Create daily reading schedules from backlog + time budget.
 
 ## Current Status
 
-This repository is now focused on the Electron desktop app.
+This repository now includes an Electron desktop app and an Expo mobile app shell.
 
 - Desktop runtime: `electron/`
+- Mobile runtime: `mobile/`
+- Shared TypeScript contracts: `packages/contracts/`
 - Planner engine source of truth: `src/reading_plan`
 
 Legacy cross-platform scaffold directories were removed.
@@ -44,6 +46,36 @@ UI_SCALE=1.65 pnpm run start
 ```
 
 Book scheduling supports per-book weekday selection in the Books dialog, with an option to apply the same scheduled days to all books on the same shelf.
+
+## Mobile App (Expo)
+
+From repo root:
+
+```bash
+pnpm dev:mobile
+```
+
+Platform-specific:
+
+```bash
+pnpm dev:mobile:ios
+pnpm dev:mobile:android
+```
+
+The mobile app currently ships a `Today` screen skeleton inspired by the new visual direction and uses a backend API adapter seam in `mobile/src/api/planner_client.ts`.
+
+Set planner API base URL for mobile:
+
+```bash
+EXPO_PUBLIC_PLANNER_API_BASE_URL=http://localhost:8787 pnpm dev:mobile
+```
+
+Shared contracts package build/typecheck:
+
+```bash
+pnpm build:contracts
+pnpm typecheck:contracts
+```
 
 ## Windows Install/Run Helper
 

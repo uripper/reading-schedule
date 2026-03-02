@@ -1,0 +1,17 @@
+{
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "jsx": "react-jsx",
+        "lib": ["ES2023"],
+        "paths": {
+            "@reading-schedule/contracts": ["../packages/contracts/src/index.ts"],
+            "@api/*": ["src/api/*"],
+            "@config/*": ["src/config/*"],
+            "@features/*": ["src/features/*"]
+        },
+        "strict": true,
+        "types": ["react", "react-native"]
+    },
+    "include": ["App.tsx", "src/**/*.ts", "src/**/*.tsx"]
+}

@@ -1,5 +1,7 @@
 packages:
   - "electron"
+  - "mobile"
+  - "packages/*"
 
 onlyBuiltDependencies:
   - "electron"
