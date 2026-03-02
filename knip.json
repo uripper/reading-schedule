@@ -20,11 +20,13 @@
                 "@renderer/*": ["./renderer/*"],
                 "@shared/*": ["./types/*"]
             },
-            "project": ["**/*.ts", "**/*.mjs", "!**/*.md", "!dist/**", "!node_modules/**"]
-        },
-        "packages/contracts": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
+            "project": [
+                "**/*.ts",
+                "**/*.mjs",
+                "!**/*.md",
+                "!dist/**",
+                "!node_modules/**"
+            ]
         },
         "mobile": {
             "entry": ["App.tsx", "src/**/*.ts", "src/**/*.tsx"],
@@ -33,7 +35,156 @@
                 "@config/*": ["./src/config/*"],
                 "@features/*": ["./src/features/*"]
             },
-            "project": ["App.tsx", "src/**/*.ts", "src/**/*.tsx", "!node_modules/**"]
+            "project": [
+                "App.tsx",
+                "src/**/*.ts",
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "entry": ["src/index.ts"],
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
+        }
+    }
+}
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "entry": ["src/index.ts"],
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
+        }
+    }
+}
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "entry": ["src/index.ts"],
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
+        }
+    }
+}
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "entry": ["src/index.ts"],
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
+        }
+    }
+}
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "entry": ["src/index.ts"],
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
+        }
+    }
+}
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "entry": ["src/index.ts"],
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
+        }
+    }
+}
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "entry": ["src/index.ts"],
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
+        }
+    }
+}
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "entry": ["src/index.ts"],
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
+        }
+    }
+}
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "entry": ["src/index.ts"],
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
+        }
+    }
+}
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "entry": ["src/index.ts"],
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
+        }
+    }
+}
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "entry": ["src/index.ts"],
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
+        }
+    }
+}
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "entry": ["src/index.ts"],
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
+        }
+    }
+}
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "entry": ["src/index.ts"],
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
+        }
+    }
+}
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "entry": ["src/index.ts"],
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
+        }
+    }
+}
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "entry": ["src/index.ts"],
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
         }
     }
 }

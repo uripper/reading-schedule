@@ -1,13 +1,13 @@
 import {
     type BookLookupItem,
-    parsePlanGenerateResult,
-    parseSamplePayload,
     type PlanGeneratePayload,
     type PlannerApi,
     type PlannerResult,
     type PlannerSaveResult,
     type PlannerStateLoadResult,
     type PlannerStateSnapshot,
+    parsePlanGenerateResult,
+    parseSamplePayload,
 } from "@reading-schedule/contracts";
 
 interface ErrorResponse {
@@ -24,14 +24,16 @@ function joinUrl(baseUrl: string, path: string): string {
 
 async function decodeJson(response: Response): Promise<unknown> {
     if (!response.ok) {
-        const JSON_RESPONSE = (await response.json().catch(() => null)) as
-            | ErrorResponse
-            | null;
+        const JSON_RESPONSE = (await response
+            .json()
+            .catch(() => null)) as ErrorResponse | null;
         const MESSAGE = JSON_RESPONSE?.error;
         if (MESSAGE) {
             throw new Error(MESSAGE);
         }
-        throw new Error(`Planner API request failed with status ${response.status}`);
+        throw new Error(
+            `Planner API request failed with status ${response.status}`,
+        );
     }
     return response.json();
 }
@@ -52,7 +54,9 @@ async function postJson(
 }
 
 function notImplemented(name: string): Promise<never> {
-    return Promise.reject(new Error(`${name} is not implemented for mobile yet`));
+    return Promise.reject(
+        new Error(`${name} is not implemented for mobile yet`),
+    );
 }
 
 export function createMobilePlannerApi(baseUrl: string): PlannerApi {
@@ -66,18 +70,26 @@ export function createMobilePlannerApi(baseUrl: string): PlannerApi {
         async generate(
             payload: PlanGeneratePayload,
         ): Promise<Pick<PlannerResult, "schedule" | "summary">> {
-            const RESULT = await postJson(baseUrl, "/api/plan/generate", payload);
+            const RESULT = await postJson(
+                baseUrl,
+                "/api/plan/generate",
+                payload,
+            );
             return parsePlanGenerateResult(RESULT);
         },
         async loadState(): Promise<PlannerStateLoadResult> {
             const RESULT = await postJson(baseUrl, "/api/state/load", {});
             return RESULT as PlannerStateLoadResult;
         },
-        async sample(): Promise<Pick<PlannerStateSnapshot, "settings" | "books">> {
+        async sample(): Promise<
+            Pick<PlannerStateSnapshot, "settings" | "books">
+        > {
             const RESULT = await postJson(baseUrl, "/api/state/sample", {});
             return parseSamplePayload(RESULT);
         },
-        async saveState(state: PlannerStateSnapshot): Promise<PlannerSaveResult> {
+        async saveState(
+            state: PlannerStateSnapshot,
+        ): Promise<PlannerSaveResult> {
             const RESULT = await postJson(baseUrl, "/api/state/save", state);
             return RESULT as PlannerSaveResult;
         },
@@ -87,7 +99,206 @@ export function createMobilePlannerApi(baseUrl: string): PlannerApi {
         ): Promise<string> {
             return notImplemented("saveUploadedCover");
         },
-        async searchBooks(query: string, author = false): Promise<BookLookupItem[]> {
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            const RESULT = await postJson(baseUrl, "/api/books/search", {
+                author,
+                query,
+            });
+            return RESULT as BookLookupItem[];
+        },
+    };
+}
+            return notImplemented("saveUploadedCover");
+        },
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            const RESULT = await postJson(baseUrl, "/api/books/search", {
+                author,
+                query,
+            });
+            return RESULT as BookLookupItem[];
+        },
+    };
+}
+            return notImplemented("saveUploadedCover");
+        },
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            const RESULT = await postJson(baseUrl, "/api/books/search", {
+                author,
+                query,
+            });
+            return RESULT as BookLookupItem[];
+        },
+    };
+}
+            return notImplemented("saveUploadedCover");
+        },
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            const RESULT = await postJson(baseUrl, "/api/books/search", {
+                author,
+                query,
+            });
+            return RESULT as BookLookupItem[];
+        },
+    };
+}
+            return notImplemented("saveUploadedCover");
+        },
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            const RESULT = await postJson(baseUrl, "/api/books/search", {
+                author,
+                query,
+            });
+            return RESULT as BookLookupItem[];
+        },
+    };
+}
+            return notImplemented("saveUploadedCover");
+        },
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            const RESULT = await postJson(baseUrl, "/api/books/search", {
+                author,
+                query,
+            });
+            return RESULT as BookLookupItem[];
+        },
+    };
+}
+            return notImplemented("saveUploadedCover");
+        },
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            const RESULT = await postJson(baseUrl, "/api/books/search", {
+                author,
+                query,
+            });
+            return RESULT as BookLookupItem[];
+        },
+    };
+}
+            return notImplemented("saveUploadedCover");
+        },
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            const RESULT = await postJson(baseUrl, "/api/books/search", {
+                author,
+                query,
+            });
+            return RESULT as BookLookupItem[];
+        },
+    };
+}
+            return notImplemented("saveUploadedCover");
+        },
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            const RESULT = await postJson(baseUrl, "/api/books/search", {
+                author,
+                query,
+            });
+            return RESULT as BookLookupItem[];
+        },
+    };
+}
+            return notImplemented("saveUploadedCover");
+        },
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            const RESULT = await postJson(baseUrl, "/api/books/search", {
+                author,
+                query,
+            });
+            return RESULT as BookLookupItem[];
+        },
+    };
+}
+            return notImplemented("saveUploadedCover");
+        },
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            const RESULT = await postJson(baseUrl, "/api/books/search", {
+                author,
+                query,
+            });
+            return RESULT as BookLookupItem[];
+        },
+    };
+}
+            return notImplemented("saveUploadedCover");
+        },
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            const RESULT = await postJson(baseUrl, "/api/books/search", {
+                author,
+                query,
+            });
+            return RESULT as BookLookupItem[];
+        },
+    };
+}
+            return notImplemented("saveUploadedCover");
+        },
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            const RESULT = await postJson(baseUrl, "/api/books/search", {
+                author,
+                query,
+            });
+            return RESULT as BookLookupItem[];
+        },
+    };
+}
+            return notImplemented("saveUploadedCover");
+        },
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            const RESULT = await postJson(baseUrl, "/api/books/search", {
+                author,
+                query,
+            });
+            return RESULT as BookLookupItem[];
+        },
+    };
+}
+            return notImplemented("saveUploadedCover");
+        },
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
             const RESULT = await postJson(baseUrl, "/api/books/search", {
                 author,
                 query,
