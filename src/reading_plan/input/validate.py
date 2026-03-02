@@ -79,7 +79,7 @@ def validate_book(book: Book) -> None:
     _validate_scheduled_days(book)
 
 
-def validate_settings(settings: Settings) -> None:
+def validate_settings(settings: Settings) -> None:  # noqa: C901
     """Validate settings."""
     if settings.end_date < settings.start_date:
         msg = "end_date must be on or after start_date"

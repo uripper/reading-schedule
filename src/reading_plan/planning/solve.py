@@ -24,6 +24,7 @@ from reading_plan.planning.solve_heuristics import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from datetime import date
 
     from reading_plan.planner_types import Book, Settings
@@ -119,53 +120,88 @@ def _solve_mip(
 ) -> PlanResult:
     """Solve with CP-SAT, fall back to greedy when OR-Tools is unavailable."""
     started = perf_counter()
-    LOGGER.debug("solve_mip: loading cp-sat module")
-    cp_model_module = load_cp_model_module()
     greedy_assignments = plan_greedy(books, settings)
+    cp_model_module = _load_cp_sat_module_or_none()
     if cp_model_module is None:
-        LOGGER.debug(
-            "solve_mip: cp-sat module unavailable; using greedy fallback"
-        )
-        return _fallback_to_greedy(
-            greedy_assignments,
-            "OR-Tools is unavailable; fell back to greedy planner.",
-        )
-
-    precheck = run_precheck(books, settings)
-    if not precheck.is_feasible:
-        LOGGER.debug(
-            "solve_mip: precheck marked infeasible; using greedy fallback",
-            extra={"note": precheck.note},
-        )
-        return _fallback_to_greedy(greedy_assignments, precheck.note)
-
-    stages = stages_for_profile(profile)
-    best_result: PlanResult | None = None
-    incumbent_hints = greedy_assignments
-    last_status = UNKNOWN_STATUS_NAME
+        return _fallback_for_unavailable_cp_sat(greedy_assignments)
+    precheck_fallback = _fallback_from_precheck(
+        books=books,
+        settings=settings,
+        greedy_assignments=greedy_assignments,
+    )
+    if precheck_fallback is not None:
+        return precheck_fallback
     attempt_context = AttemptContext(
         books=books,
         settings=settings,
         cp_model_module=cp_model_module,
-        hints=incumbent_hints,
+        hints=greedy_assignments,
     )
+    best_result, last_status = _solve_stages(
+        attempt_context,
+        stages_for_profile(profile),
+        greedy_assignments,
+    )
+    return _finalize_solve_mip_result(
+        best_result,
+        last_status,
+        greedy_assignments,
+        started,
+        profile,
+    )
+
+
+def _load_cp_sat_module_or_none() -> object | None:
+    """Load CP-SAT module for MIP solve flow."""
+    LOGGER.debug("solve_mip: loading cp-sat module")
+    return load_cp_model_module()
+
+
+def _fallback_for_unavailable_cp_sat(
+    greedy_assignments: dict[tuple[str, date], int],
+) -> PlanResult:
+    """Return greedy fallback when OR-Tools is unavailable."""
+    LOGGER.debug("solve_mip: cp-sat module unavailable; using greedy fallback")
+    return _fallback_to_greedy(
+        greedy_assignments,
+        "OR-Tools is unavailable; fell back to greedy planner.",
+    )
+
+
+def _fallback_from_precheck(
+    books: list[Book],
+    settings: Settings,
+    greedy_assignments: dict[tuple[str, date], int],
+) -> PlanResult | None:
+    """Return greedy fallback when precheck detects infeasibility."""
+    precheck = run_precheck(books, settings)
+    if precheck.is_feasible:
+        return None
+    LOGGER.debug(
+        "solve_mip: precheck marked infeasible; using greedy fallback",
+        extra={"note": precheck.note},
+    )
+    return _fallback_to_greedy(greedy_assignments, precheck.note)
+
+
+def _solve_stages(
+    base_context: AttemptContext,
+    stages: Sequence[SolveStage],
+    initial_hints: dict[tuple[str, date], int],
+) -> tuple[PlanResult | None, str]:
+    """Run staged solve attempts and return best feasible result and status."""
+    best_result: PlanResult | None = None
+    incumbent_hints = initial_hints
+    last_status = UNKNOWN_STATUS_NAME
     for stage in stages:
-        attempt_context = AttemptContext(
-            books=attempt_context.books,
-            settings=attempt_context.settings,
-            cp_model_module=attempt_context.cp_model_module,
-            hints=incumbent_hints,
+        attempt_context = _attempt_context_with_hints(
+            base_context,
+            incumbent_hints,
         )
         attempt = _run_attempt(attempt_context, stage)
         _log_stage_result(stage, attempt)
         last_status = attempt.plan.status
-        if _is_infeasible_stage(attempt.plan):
-            LOGGER.debug(
-                "solve_mip: infeasible stage encountered",
-                extra={"stage": stage.name},
-            )
-            continue
-        if not is_result_feasible(attempt.plan):
+        if _should_skip_stage_result(attempt.plan, stage):
             continue
         incumbent_hints, best_result = _accept_feasible_attempt(
             stage,
@@ -175,7 +211,41 @@ def _solve_mip(
         )
         if _is_optimal_result(best_result):
             break
+    return best_result, last_status
 
+
+def _attempt_context_with_hints(
+    context: AttemptContext,
+    hints: dict[tuple[str, date], int],
+) -> AttemptContext:
+    """Clone immutable attempt context with updated incumbent hints."""
+    return AttemptContext(
+        books=context.books,
+        settings=context.settings,
+        cp_model_module=context.cp_model_module,
+        hints=hints,
+    )
+
+
+def _should_skip_stage_result(plan: PlanResult, stage: SolveStage) -> bool:
+    """Return true when stage result should not be accepted."""
+    if _is_infeasible_stage(plan):
+        LOGGER.debug(
+            "solve_mip: infeasible stage encountered",
+            extra={"stage": stage.name},
+        )
+        return True
+    return not is_result_feasible(plan)
+
+
+def _finalize_solve_mip_result(
+    best_result: PlanResult | None,
+    last_status: str,
+    greedy_assignments: dict[tuple[str, date], int],
+    started: float,
+    profile: str,
+) -> PlanResult:
+    """Return best CP-SAT plan or a greedy fallback with explanatory note."""
     if best_result is not None:
         LOGGER.debug(
             "solve_mip: returning best cp-sat solution",
@@ -187,7 +257,6 @@ def _solve_mip(
             },
         )
         return best_result
-
     note = (
         f"MIP produced no feasible solution ({last_status}); "
         "fell back to greedy planner."

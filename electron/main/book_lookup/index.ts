@@ -62,7 +62,6 @@ export async function downloadCover(
     return pathToFileURL(FILE_PATH).href;
 }
 
-
 /**
  * Persists a user-uploaded cover data URL to disk and returns a file URL.
  * @param coverDataUrl Base64 image data URL from upload UI.

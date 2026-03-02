@@ -160,7 +160,7 @@ def _sort_key(
     return book.priority, due, -remaining[book.book_id], book.book_id
 
 
-def _next_book(state: DayState) -> Book | None:
+def _next_book(state: DayState) -> Book | None:  # noqa: C901
     """Select the next eligible book that can start a valid session today."""
     if len(state.used) >= state.daily_book_cap:
         return None
