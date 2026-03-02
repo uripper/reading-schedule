@@ -102,7 +102,7 @@ max-line-length = 80
 max-doc-length = 80
 
 [lint.mccabe]
-max-complexity = 8
+max-complexity = 6
 
 [lint.pylint]
 # Tight maintainability limits, with a looser positional-arg cap for

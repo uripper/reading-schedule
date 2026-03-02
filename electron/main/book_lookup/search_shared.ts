@@ -14,7 +14,7 @@ export const HTTP_STATUS_ERROR_MIN = 400;
 export const COVER_ID_MIN = 1;
 export const WORDS_PER_PAGE_ESTIMATE = 300;
 
-export const SCORE_EXACT_TITLE = 700;
+export const SCORE_EXACT_TITLE = 960;
 export const SCORE_PREFIX_TITLE = 360;
 export const SCORE_CONTAINS_TITLE = 240;
 export const SCORE_TOKEN_PREFIX = 40;

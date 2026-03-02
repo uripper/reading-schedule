@@ -20,7 +20,7 @@
                 "@renderer/*": ["./renderer/*"],
                 "@shared/*": ["./types/*"]
             },
-            "project": ["**/*.ts", "**/*.mjs", "!dist/**", "!node_modules/**"]
+            "project": ["**/*.ts", "**/*.mjs", "!**/*.md", "!dist/**", "!node_modules/**"]
         }
     }
 }
