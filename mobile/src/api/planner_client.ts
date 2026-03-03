@@ -75,6 +75,12 @@ function notImplemented(name: string): Promise<never> {
     );
 }
 
+/**
+ * Creates a PlannerApi instance that communicates with the backend server
+ * @param baseUrl - The base URL of the backend server
+ * @returns An object that implements the PlannerApi interface, with methods
+ * that make HTTP requests to the backend server.
+ */
 export function createMobilePlannerApi(baseUrl: string): PlannerApi {
     return {
         downloadCover(

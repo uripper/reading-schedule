@@ -38,7 +38,7 @@ function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
     let node: HTMLInputElement | HTMLSelectElement;
     if (field.type === "select") {
         node = document.createElement("select");
-        // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+        
         field.options.forEach((option) => {
             const OPTION_NODE = document.createElement("option");
             OPTION_NODE.value = String(option.value);

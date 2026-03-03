@@ -44,7 +44,7 @@ function lockedDates(
     const PREVIOUS_DATES = new Set<string>();
     const TODAY_KEY = dayKeyFromDate(new Date());
 
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     previousRows.forEach((row) => {
         const ROW_DATE = String(row.date || "");
         if (!isValidDayKey(ROW_DATE)) {
@@ -56,7 +56,7 @@ function lockedDates(
         }
     });
 
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     sessions.forEach((session) => {
         const ENDED_AT = String(session.ended_at || "");
         const KEY = localDayKeyFromIso(ENDED_AT);
@@ -137,7 +137,7 @@ export function mergeScheduleRows(
     });
 
     const MERGED_BY_KEY = new Map<string, PlannerScheduleRow>();
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     [...KEPT_ROWS, ...NEW_ROWS].forEach((row) => {
         MERGED_BY_KEY.set(scheduleKey(row), row);
     });
@@ -160,7 +160,7 @@ export function pruneScheduleCompletions(
         rows.map((row) => dayBookCompletionKey(row)),
     );
     const OUT: Record<string, boolean> = {};
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     Object.entries(scheduleCompletions).forEach(([key, value]) => {
         if (!ALLOWED_SESSION_KEYS.has(key) && !ALLOWED_DAY_BOOK_KEYS.has(key)) {
             return;

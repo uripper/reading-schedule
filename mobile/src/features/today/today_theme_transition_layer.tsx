@@ -23,7 +23,13 @@ interface TodayThemeTransitionLayerProps {
     toColor: string;
 }
 
-// biome-ignore lint/complexity/noExcessiveLinesPerFunction: transition layering intentionally grouped for tuning.
+/**
+ * Renders a non-interactive animated color-transition overlay for the Today screen.
+ * @param fromColor - Starting canvas color before transition.
+ * @param progress - Shared transition progress animated value in range `[0, 1]`.
+ * @param toColor - Target canvas color after transition.
+ * @returns Layer containing sweep and tile effects blended between theme colors.
+ */
 export function TodayThemeTransitionLayer({
     fromColor,
     progress,

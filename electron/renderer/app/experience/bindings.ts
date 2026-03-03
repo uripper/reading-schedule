@@ -89,7 +89,7 @@ function hideUnshippedControlById(id: string): void {
  * Hides and disables all unshipped experience controls.
  */
 function hideUnshippedExperienceControls(): void {
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     HIDDEN_EXPERIENCE_CONTROL_IDS.forEach((id) => {
         hideUnshippedControlById(id);
     });
@@ -103,7 +103,7 @@ export function bindExperienceSettings(
     onApplySettings: ExperienceSettingsApplyHandler,
 ): void {
     hideUnshippedExperienceControls();
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     EXPERIENCE_SETTING_IDS.forEach((id) => {
         const NODE = el(id);
         NODE.addEventListener("change", onApplySettings);

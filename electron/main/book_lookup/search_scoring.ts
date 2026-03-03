@@ -1,7 +1,3 @@
-/**
- * @file Ranking helpers used to score Open Library search results.
- */
-
 import type { SearchDoc } from "../../types/types.js";
 import { bestAuthorOnlyScore } from "./search_author_scoring.js";
 import {
@@ -24,8 +20,8 @@ import {
 
 /**
  * Scores title relevance against the normalized query text.
- * @param titleNorm Normalized candidate title.
- * @param queryNorm Normalized query text.
+ * @param titleNorm - Normalized candidate title.
+ * @param queryNorm - Normalized query text.
  * @returns Title-only relevance score.
  */
 function baseTitleScore(titleNorm: string, queryNorm: string): number {
@@ -44,9 +40,9 @@ function baseTitleScore(titleNorm: string, queryNorm: string): number {
 
 /**
  * Scores title/author matches against normalized query tokens.
- * @param titleNorm Normalized candidate title.
- * @param authorNorm Normalized candidate author string.
- * @param tokens Normalized query tokens.
+ * @param titleNorm - Normalized candidate title.
+ * @param authorNorm - Normalized candidate author string.
+ * @param tokens - Normalized query tokens.
  * @returns Token-based relevance score.
  */
 function tokenScore(
@@ -55,25 +51,25 @@ function tokenScore(
     tokens: string[],
 ): number {
     let score = 0;
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
-    tokens.forEach((token) => {
-        if (titleNorm.startsWith(token)) {
+
+    for (const TOKEN of tokens) {
+        if (titleNorm.startsWith(TOKEN)) {
             score += SCORE_TOKEN_PREFIX;
-            return;
+            continue;
         }
-        if (titleNorm.includes(token)) {
+        if (titleNorm.includes(TOKEN)) {
             score += SCORE_TOKEN_CONTAINS;
         }
-        if (authorNorm.includes(token)) {
+        if (authorNorm.includes(TOKEN)) {
             score += SCORE_TOKEN_AUTHOR;
         }
-    });
+    }
     return score;
 }
 
 /**
  * Scores metadata quality signals such as language/pages/editions.
- * @param doc Open Library search document.
+ * @param doc - Open Library search document.
  * @returns Metadata contribution to overall score.
  */
 function metadataScore(doc: SearchDoc): number {
@@ -93,9 +89,9 @@ function metadataScore(doc: SearchDoc): number {
 
 /**
  * Computes a deterministic relevance score for a search document.
- * @param doc Open Library search document.
- * @param query Raw user query text.
- * @param authorOnly Whether this score is for author-only searching.
+ * @param doc - Open Library search document.
+ * @param query - Raw user query text.
+ * @param authorOnly - Whether this score is for author-only searching.
  * @returns Deterministic relevance score.
  */
 export function scoreDoc(

@@ -30,7 +30,7 @@ export function normalizeBlockedDayBooks(
     raw: Record<string, ScalarValue> = {},
 ): Record<string, boolean> {
     const OUT: Record<string, boolean> = {};
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     Object.entries(raw).forEach(([key, value]) => {
         if (!key) {
             return;

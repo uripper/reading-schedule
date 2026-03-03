@@ -133,7 +133,7 @@ function statusPanel(snapshot: StatsSnapshot): HTMLElement {
     LIST.className = "status-list";
     const TOTAL = Math.max(1, snapshot.totalBooks);
 
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     STATUS_ORDER.forEach((status) => {
         const ROW = document.createElement("div");
         ROW.className = "status-row";

@@ -32,7 +32,7 @@ function createLabeledSelect(
     const SELECT = document.createElement("select");
     SELECT.id = selectId;
     SELECT.className = "books-control-select";
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     options.forEach((option) => {
         SELECT.append(createOptionNode(option.value, option.label));
     });

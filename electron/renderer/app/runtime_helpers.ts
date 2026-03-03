@@ -48,7 +48,7 @@ export function totalsFromSummary(
 ): Record<string, number> {
     const PER_BOOK = summary?.per_book ?? {};
     const TOTALS: Record<string, number> = {};
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     Object.entries(PER_BOOK).forEach(([id, info]) => {
         TOTALS[id] = Number(info.words_total ?? 0);
     });

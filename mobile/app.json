@@ -3,7 +3,8 @@
         "android": {
             "adaptiveIcon": {
                 "backgroundColor": "#F3F7EA"
-            }
+            },
+            "edgeToEdgeEnabled": true
         },
         "assetBundlePatterns": ["**/*"],
         "ios": {

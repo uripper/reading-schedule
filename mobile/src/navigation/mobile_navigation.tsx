@@ -27,7 +27,6 @@ function tabLabel(tab: MobileTabKey): string {
     return "Settings";
 }
 
-// biome-ignore lint/complexity/noExcessiveLinesPerFunction: stack declarations are explicit route wiring.
 function rootStacks(plannerApi: PlannerApi): TabStacks {
     return {
         books: [
@@ -127,7 +126,11 @@ function popRoute(stacks: TabStacks, activeTab: MobileTabKey): TabStacks {
     };
 }
 
-// biome-ignore lint/complexity/noExcessiveLinesPerFunction: top-level shell component keeps navigation state local.
+/**
+ * Renders the mobile shell with top-bar navigation and per-tab route stacks.
+ * @param plannerApi - Planner API client injected into tab root screens.
+ * @returns Navigation frame that renders the active route for the selected tab.
+ */
 export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
     const INITIAL_STACKS = useMemo(() => rootStacks(plannerApi), [plannerApi]);
     const [ACTIVE_TAB, SET_ACTIVE_TAB] = useState<MobileTabKey>("today");

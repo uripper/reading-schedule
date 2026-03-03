@@ -122,7 +122,13 @@ function resolveCollision(a: Body, b: Body): void {
     b.spinVelocity -= SPIN_TRANSFER;
 }
 
-// biome-ignore lint/complexity/noExcessiveLinesPerFunction: background simulation is intentionally co-located.
+/**
+ * A background component for the "Today" screen that simulates
+ * floating and spinning background objects.
+ * @param ambientColor - The ambient color for the background
+ * @returns A React component that renders the background with floating and spinning objects, 
+ * using the specified ambient color.
+ */
 export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
     const { height, width } = useWindowDimensions();
     const [, setTick] = useState(0);
@@ -144,7 +150,6 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
         simulationTimeRef.current = 0;
     }, []);
 
-    // biome-ignore lint/complexity/noExcessiveLinesPerFunction: frame lifecycle setup and teardown must stay together.
     useEffect(() => {
         let frameId = 0;
 
@@ -189,7 +194,10 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
             }
         }
 
-        // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: physics step intentionally linear and explicit.
+        /**
+         * Simulates the physics step for the background objects.
+         * @param deltaSeconds - The time elapsed since the last frame, in seconds.
+         */
         function simulate(deltaSeconds: number): void {
             const bodies = bodiesRef.current;
             simulationTimeRef.current += deltaSeconds;

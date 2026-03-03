@@ -12,9 +12,23 @@ import RED_TRIANGLE from "../../../assets/background-objects/red-triangle.png";
 import YELLOW_BOX from "../../../assets/background-objects/yellow-box.png";
 import YELLOW_C from "../../../assets/background-objects/yellow-c.png";
 
+/**
+ * Represents a background sprite used in the "Today" 
+ * feature of the mobile application. Each sprite has 
+ * a height, width, and a source image.
+ */
 export interface BackgroundSprite {
+    /**
+     * The height of the background sprite.
+     */
     height: number;
+    /**
+     * The source image of the background sprite.
+     */
     source: number;
+    /**
+     * The width of the background sprite.
+     */
     width: number;
 }
 

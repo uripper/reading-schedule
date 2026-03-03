@@ -1,7 +1,3 @@
-/**
- * @file Search orchestration for Open Library queries.
- */
-
 import { logInfo } from "../../renderer/logger.js";
 import type { SearchDoc, SearchItem } from "../../types/types.js";
 import { toItem } from "./search_map.js";
@@ -13,8 +9,8 @@ const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 /**
  * Queries Open Library endpoints and returns ranked search items.
- * @param query User-entered search query text.
- * @param authorOnly Whether to search author field exclusively.
+ * @param query - User-entered search query text.
+ * @param authorOnly - Whether to search author field exclusively.
  * @returns Ranked search items limited to configured output size.
  */
 export async function searchBooks(
@@ -34,7 +30,6 @@ export async function searchBooks(
         URLS.map(async (url) => await fetchJson(url)),
     );
     const DOCS: SearchDoc[] = [];
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     RESPONSES.forEach((result) => {
         if (
             result.status !== "fulfilled" ||
@@ -42,7 +37,6 @@ export async function searchBooks(
         ) {
             return;
         }
-        // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
         result.value.docs.forEach((doc) => {
             DOCS.push(doc);
         });

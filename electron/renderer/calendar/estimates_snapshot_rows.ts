@@ -118,7 +118,7 @@ export function plannedWordsBeforeAndThroughRow(
         today: TODAY,
     };
 
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     ROWS.forEach((candidate) => {
         const CANDIDATE_SORT_KEY = eligibleSortKeyForCandidate(
             candidate,

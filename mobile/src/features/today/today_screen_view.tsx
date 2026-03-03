@@ -98,7 +98,12 @@ function StatBubble({ fill, label, value }: StatBubbleProps) {
     );
 }
 
-// biome-ignore lint/complexity/noExcessiveLinesPerFunction: component split planned after interaction model stabilizes.
+/**
+ * Renders the mobile Today screen with active-book carousel, progress, and stats.
+ * @param books - Ordered list of book cards available in the carousel.
+ * @param stats - Summary statistics rendered below the session controls.
+ * @returns Full Today screen scroll view for the current reading state.
+ */
 export function TodayScreen({ books, stats }: TodayScreenProps) {
     const [activeIndex, setActiveIndex] = useState(0);
     const activeBook = books[activeIndex] ?? books[0] ?? null;

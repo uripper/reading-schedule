@@ -140,7 +140,7 @@ export function rowsWithFinishFirst(
 ): CalendarRowWithFinish[] {
     const FINISH_ROWS: CalendarRowWithFinish[] = [];
     const OTHER_ROWS: CalendarRowWithFinish[] = [];
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     rows.forEach((row) => {
         if (row.finish) {
             FINISH_ROWS.push(row);
@@ -167,7 +167,7 @@ export function groupRowsByDate(
         NEXT_ACCUMULATOR[row.date].push(row);
         return NEXT_ACCUMULATOR;
     }, {} as RowsByDate);
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     Object.keys(GROUPED_ROWS).forEach((dateKey) => {
         GROUPED_ROWS[dateKey] = rowsWithFinishFirst(GROUPED_ROWS[dateKey]);
     });

@@ -10,7 +10,7 @@ let currentLogLevel: LogPayload["level"] = "debug";
 
 /**
  * Indicates whether a message level should be emitted at current runtime level.
- * @param level Candidate message level.
+ * @param level - Candidate message level.
  * @returns True when message level meets minimum threshold.
  */
 function shouldEmit(level: LogPayload["level"]): boolean {
@@ -19,7 +19,7 @@ function shouldEmit(level: LogPayload["level"]): boolean {
 
 /**
  * Updates minimum renderer log level.
- * @param level New minimum log level.
+ * @param level - New minimum log level.
  */
 export function setLogLevel(level: LogPayload["level"]): void {
     currentLogLevel = level;
@@ -27,7 +27,7 @@ export function setLogLevel(level: LogPayload["level"]): void {
 
 /**
  * Serializes `Error` instances into plain objects for structured logging.
- * @param error Unknown thrown value.
+ * @param error - Unknown thrown value.
  * @returns Structured error object for `Error`, otherwise original value.
  */
 function normalizeError(error: unknown): unknown {
@@ -43,7 +43,7 @@ function normalizeError(error: unknown): unknown {
 
 /**
  * Emits structured renderer logs to console with consistent prefixes.
- * @param payload Log payload containing level/message/context/error.
+ * @param payload - Log payload containing level/message/context/error.
  */
 function emitLog(payload: LogPayload): void {
     if (!shouldEmit(payload.level)) {
@@ -64,29 +64,24 @@ function emitLog(payload: LogPayload): void {
     }
 
     if (payload.level === "error") {
-        // biome-ignore lint/suspicious/noConsole: renderer logger intentionally writes structured logs.
         console.groupCollapsed("[renderer][error]", payload.message);
-        // biome-ignore lint/suspicious/noConsole: renderer logger intentionally writes structured logs.
         console.info(OUTPUT);
-        // biome-ignore lint/suspicious/noConsole: renderer logger intentionally writes structured logs.
         console.groupEnd();
         return;
     }
 
     if (payload.level === "debug") {
-        // biome-ignore lint/suspicious/noConsole: renderer logger intentionally writes structured logs.
         console.info("[renderer][debug]", OUTPUT);
         return;
     }
 
-    // biome-ignore lint/suspicious/noConsole: renderer logger intentionally writes structured logs.
     console.info("[renderer][info]", OUTPUT);
 }
 
 /**
  * Emits debug renderer log event.
- * @param message Human-readable message.
- * @param context Optional structured context fields.
+ * @param message - Human-readable message.
+ * @param context - Optional structured context fields.
  */
 export function logDebug(
     message: string,
@@ -101,8 +96,8 @@ export function logDebug(
 
 /**
  * Emits informational renderer log event.
- * @param message Human-readable message.
- * @param context Optional structured context fields.
+ * @param message - Human-readable message.
+ * @param context - Optional structured context fields.
  */
 export function logInfo(
     message: string,
@@ -117,9 +112,9 @@ export function logInfo(
 
 /**
  * Emits error renderer log event.
- * @param message Human-readable message.
- * @param error Optional error or thrown value.
- * @param context Optional structured context fields.
+ * @param message - Human-readable message.
+ * @param error - Optional error or thrown value.
+ * @param context - Optional structured context fields.
  */
 export function logError(
     message: string,

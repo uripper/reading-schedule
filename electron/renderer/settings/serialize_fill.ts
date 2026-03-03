@@ -73,7 +73,7 @@ export function fillSettingsForm(
     settings: PlannerSettings,
     setDayOffs: (nextDayOffs: string[]) => void,
 ): void {
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     allFieldDefinitions().forEach((field) => {
         const VALUE = settings[field.id];
         if (field.type === "select") {
@@ -87,14 +87,14 @@ export function fillSettingsForm(
         inputEl(field.id).value = settingValueText(VALUE);
     });
     const MINUTES_BY_WEEKDAY = settings.minutes_by_weekday ?? {};
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     WEEKDAYS.forEach(([key]) => {
         inputEl(`minutes_${key}`).value = String(MINUTES_BY_WEEKDAY[key]);
     });
     const RAW_DAY_OFFS = settings.days_off;
     const NEXT_DAY_OFFS: string[] = [];
     if (Array.isArray(RAW_DAY_OFFS)) {
-        // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+        
         RAW_DAY_OFFS.forEach((dayOff) => {
             if (typeof dayOff === "string") {
                 NEXT_DAY_OFFS.push(dayOff);
@@ -104,7 +104,7 @@ export function fillSettingsForm(
     NEXT_DAY_OFFS.sort((left, right) => left.localeCompare(right));
     setDayOffs(NEXT_DAY_OFFS);
     const DIFFICULTY_MULTIPLIER = settings.difficulty_multiplier ?? {};
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     numberLevels().forEach((level) => {
         const ID = `diff_${level}`;
         const DIFFICULTY_KEY = String(level);

@@ -173,7 +173,7 @@ function groupedBuckets(
     currentYear: number,
 ): Map<string, GroupBucket> {
     const BUCKETS = new Map<string, GroupBucket>();
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     books.forEach((book: Book) => {
         const META = metaForBook(
             book,

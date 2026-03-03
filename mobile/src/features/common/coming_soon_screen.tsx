@@ -7,6 +7,16 @@ interface ComingSoonScreenProps {
     title: string;
 }
 
+/**
+ * A reusable screen component that displays a "coming soon" message.
+ * @param props - An object containing the properties for the screen
+ * @param ctaLabel - The label for the call-to-action button
+ * @param description - A description of the upcoming feature or content
+ * @param onPress - A function to be called when the call-to-action button is pressed
+ * @param title - The title of the screen
+ * @returns A React component that represents the "coming soon" screen, with a title, 
+ * description, and a call-to-action button.
+ */
 export function ComingSoonScreen({
     ctaLabel,
     description,

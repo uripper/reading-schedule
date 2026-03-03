@@ -24,7 +24,7 @@ function createOption(value: string, label: string): HTMLOptionElement {
  */
 function shelfOptions(shelves: string[]): HTMLOptionElement[] {
     const OPTIONS = [createOption(UNSHELVED_VALUE, UNSHELVED_LABEL)];
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     shelves.forEach((shelfName) => {
         OPTIONS.push(createOption(shelfName, shelfName));
     });
@@ -69,7 +69,7 @@ function caseInsensitiveMatch(left: string, right: string): boolean {
  */
 function collectShelfValues(select: HTMLSelectElement): string[] {
     const VALUES: string[] = [];
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     Array.from(select.options).forEach((option) => {
         if (!option.value || option.value === SHELF_SELECT_CREATE_NEW) {
             return;

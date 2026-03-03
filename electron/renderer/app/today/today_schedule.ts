@@ -51,7 +51,7 @@ function isCompletedRow(
  */
 function booksById(books: Book[]): Map<string, Book> {
     const BY_ID = new Map<string, Book>();
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     books.forEach((book) => {
         const BOOK_ID = String(book.book_id || "").trim();
         if (!BOOK_ID) {
@@ -152,7 +152,7 @@ export function buildTodayScheduleSnapshot(
     let scheduledSessions = ZERO_COUNT;
     let completedSessions = ZERO_COUNT;
 
-    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
+    
     ROW_LIST.forEach((row) => {
         const ROW_DATE = String(row.date || "");
         if (ROW_DATE !== TODAY) {

@@ -322,6 +322,14 @@ function hexToRgb(hex: string): Rgb {
     };
 }
 
+/**
+ * Generates a background theme for the "Today" screen based 
+ * on the title of the book and whether it has a cover image.
+ * @param title - The title of the book
+ * @param hasCover - A boolean indicating whether the book has a cover image
+ * @returns A TodayBackgroundTheme object containing the ambient color, canvas color,
+ * and dominant color for the background, as well as the source of the theme (either "cover" or "fallback").
+ */
 export function themeFromBook(
     title: string,
     hasCover: boolean,
