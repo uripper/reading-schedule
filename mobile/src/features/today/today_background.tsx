@@ -124,12 +124,12 @@ function resolveCollision(a: Body, b: Body): void {
 
 export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
     const { height, width } = useWindowDimensions();
-    const [tick, setTick] = useState(0);
-    const bodiesRef = useRef<Body[]>([]);
-    const nextIdRef = useRef(1);
-    const lastFrameTimeRef = useRef(0);
-    const spawnAccumulatorMsRef = useRef(0);
-    const simulationTimeRef = useRef(0);
+    const [TICK, SET_TICK] = useState(0);
+    const BODIES_REF = useRef<Body[]>([]);
+    const NEXT_ID_REF = useRef(1);
+    const LAST_FRAME_TIME_REF = useRef(0);
+    const SPAWN_ACCUMULATOR_MS_REF = useRef(0);
+    const SIMULATION_TIME_REF = useRef(0);
 
     const SCREEN_BOTTOM = useMemo(() => height + 180, [height]);
     const SCREEN_LEFT = useMemo(() => HORIZONTAL_PADDING, []);
@@ -137,11 +137,11 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
     const SPRITE_COUNT = BACKGROUND_SPRITES.length;
 
     useEffect(() => {
-        bodiesRef.current = [];
-        nextIdRef.current = 1;
-        spawnAccumulatorMsRef.current = 0;
-        lastFrameTimeRef.current = 0;
-        simulationTimeRef.current = 0;
+        BODIES_REF.current = [];
+        NEXT_ID_REF.current = 1;
+        SPAWN_ACCUMULATOR_MS_REF.current = 0;
+        LAST_FRAME_TIME_REF.current = 0;
+        SIMULATION_TIME_REF.current = 0;
     }, [height, width]);
 
     useEffect(() => {
@@ -156,7 +156,7 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
             return {
                 driftForce: randomRange(24, 56),
                 driftPhase: Math.random() * Math.PI * 2,
-                id: nextIdRef.current++,
+                id: NEXT_ID_REF.current++,
                 index: INDEX,
                 opacity: MIN_OPACITY + Math.random() * OPACITY_RANGE,
                 radius: RADIUS,
@@ -170,13 +170,13 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
         }
 
         function maybeSpawn(deltaSeconds: number): void {
-            spawnAccumulatorMsRef.current += deltaSeconds * 1000;
-            if (spawnAccumulatorMsRef.current < SPAWN_INTERVAL_MS) {
+            SPAWN_ACCUMULATOR_MS_REF.current += deltaSeconds * 1000;
+            if (SPAWN_ACCUMULATOR_MS_REF.current < SPAWN_INTERVAL_MS) {
                 return;
             }
-            spawnAccumulatorMsRef.current = 0;
+            SPAWN_ACCUMULATOR_MS_REF.current = 0;
 
-            const EXISTING = bodiesRef.current.length;
+            const EXISTING = BODIES_REF.current.length;
             if (EXISTING >= MAX_ACTIVE_OBJECTS) {
                 return;
             }
@@ -184,14 +184,14 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
             const CAPACITY = MAX_ACTIVE_OBJECTS - EXISTING;
             const TARGET_COUNT = Math.min(CAPACITY, spawnCountByChance());
             for (let i = 0; i < TARGET_COUNT; i += 1) {
-                bodiesRef.current.push(spawnBody());
+                BODIES_REF.current.push(spawnBody());
             }
         }
 
         function simulate(deltaSeconds: number): void {
-            const BODIES = bodiesRef.current;
-            simulationTimeRef.current += deltaSeconds;
-            const NOW = simulationTimeRef.current;
+            const BODIES = BODIES_REF.current;
+            SIMULATION_TIME_REF.current += deltaSeconds;
+            const NOW = SIMULATION_TIME_REF.current;
             BODIES.forEach((body) => {
                 const DRIFT = Math.sin(NOW + body.driftPhase) * body.driftForce;
                 body.vx += DRIFT * deltaSeconds;
@@ -226,14 +226,14 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
             }
 
             const DESPAWN_EDGE = SCREEN_BOTTOM + DESPAWN_BOTTOM_MARGIN;
-            bodiesRef.current = BODIES.filter((body) => {
+            BODIES_REF.current = BODIES.filter((body) => {
                 return body.y - body.radius < DESPAWN_EDGE;
             });
         }
 
         function frame(timeMs: number): void {
-            const LAST = lastFrameTimeRef.current;
-            lastFrameTimeRef.current = timeMs;
+            const LAST = LAST_FRAME_TIME_REF.current;
+            LAST_FRAME_TIME_REF.current = timeMs;
             if (LAST === 0) {
                 frameId = requestAnimationFrame(frame);
                 return;
@@ -243,7 +243,7 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
             const DT = Math.min(FRAME_DT_CAP, RAW_DT);
             maybeSpawn(DT);
             simulate(DT);
-            setTick((current) => current + 1);
+            SET_TICK((current) => current + 1);
             frameId = requestAnimationFrame(frame);
         }
 
@@ -252,14 +252,14 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
     }, [SCREEN_BOTTOM, SCREEN_LEFT, SCREEN_RIGHT, SPRITE_COUNT]);
 
     return (
-        <View pointerEvents="none" style={styles.layer}>
+        <View pointerEvents="none" style={STYLES.layer}>
             <View
                 style={[
-                    styles.ambientOverlay,
+                    STYLES.ambientOverlay,
                     { backgroundColor: ambientColor },
                 ]}
             />
-            {bodiesRef.current.map((body) => {
+            {BODIES_REF.current.map((body) => {
                 const WIDTH = spriteWidth(body.index);
                 const HEIGHT = spriteHeight(body.index);
                 const SOURCE = BACKGROUND_SPRITES[body.index]?.source;
@@ -273,7 +273,7 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
                         resizeMode="contain"
                         source={SOURCE}
                         style={[
-                            styles.sprite,
+                            STYLES.sprite,
                             {
                                 height: HEIGHT,
                                 left: body.x - WIDTH / 2,
@@ -290,7 +290,7 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
     );
 }
 
-const styles = StyleSheet.create({
+const STYLES = StyleSheet.create({
     ambientOverlay: {
         ...StyleSheet.absoluteFillObject,
         opacity: 0.22,

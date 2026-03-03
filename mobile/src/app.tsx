@@ -3,21 +3,21 @@ import { createMobilePlannerApi } from "./api/planner_client";
 import { mobilePlannerApiBaseUrl } from "./config/mobile_env";
 import { MobileNavigation } from "./navigation/mobile_navigation";
 
-const plannerApi = createMobilePlannerApi(mobilePlannerApiBaseUrl());
+const PLANNER_API = createMobilePlannerApi(mobilePlannerApiBaseUrl());
 
 export function MobileApp() {
     return (
-        <SafeAreaView style={styles.safeArea}>
-            <View style={styles.viewport}>
-                <View style={styles.container}>
-                    <MobileNavigation plannerApi={plannerApi} />
+        <SafeAreaView style={STYLES.safeArea}>
+            <View style={STYLES.viewport}>
+                <View style={STYLES.container}>
+                    <MobileNavigation plannerApi={PLANNER_API} />
                 </View>
             </View>
         </SafeAreaView>
     );
 }
 
-const styles = StyleSheet.create({
+const STYLES = StyleSheet.create({
     container: {
         flex: 1,
         maxWidth: 460,

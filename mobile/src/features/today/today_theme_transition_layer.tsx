@@ -44,34 +44,46 @@ export function TodayThemeTransitionLayer({
     });
 
     return (
-        <View pointerEvents="none" style={styles.layer}>
+        <View pointerEvents="none" style={STYLES.layer}>
             <Animated.View
-                style={[styles.fill, { backgroundColor: fromColor, opacity: FROM_OPACITY }]}
-            />
-            <Animated.View
-                style={[styles.fill, { backgroundColor: toColor, opacity: TO_OPACITY }]}
+                style={[
+                    STYLES.fill,
+                    { backgroundColor: fromColor, opacity: FROM_OPACITY },
+                ]}
             />
             <Animated.View
                 style={[
-                    styles.scanBand,
+                    STYLES.fill,
+                    { backgroundColor: toColor, opacity: TO_OPACITY },
+                ]}
+            />
+            <Animated.View
+                style={[
+                    STYLES.scanBand,
                     {
                         opacity: SWEEP_OPACITY,
-                        transform: [{ translateX: SWEEP_SHIFT }, { rotate: "-14deg" }],
+                        transform: [
+                            { translateX: SWEEP_SHIFT },
+                            { rotate: "-14deg" },
+                        ],
                     },
                 ]}
             />
             <Animated.View
                 style={[
-                    styles.scanBandThin,
+                    STYLES.scanBandThin,
                     {
                         opacity: SWEEP_OPACITY,
-                        transform: [{ translateX: SWEEP_SHIFT }, { rotate: "-14deg" }],
+                        transform: [
+                            { translateX: SWEEP_SHIFT },
+                            { rotate: "-14deg" },
+                        ],
                     },
                 ]}
             />
             <Animated.View
                 style={[
-                    styles.pipeSweep,
+                    STYLES.pipeSweep,
                     {
                         opacity: SWEEP_OPACITY,
                         transform: [{ translateX: PIPE_SWEEP_SHIFT }],
@@ -80,7 +92,7 @@ export function TodayThemeTransitionLayer({
             />
             <Animated.View
                 style={[
-                    styles.pipeSweepVertical,
+                    STYLES.pipeSweepVertical,
                     {
                         opacity: SWEEP_OPACITY,
                         transform: [{ translateY: PIPE_SWEEP_SHIFT }],
@@ -102,7 +114,7 @@ export function TodayThemeTransitionLayer({
                     <Animated.View
                         key={`dissolve-tile-${index}`}
                         style={[
-                            styles.dissolveTile,
+                            STYLES.dissolveTile,
                             {
                                 left: LEFT_PERCENT,
                                 opacity: TILE_OPACITY,
@@ -115,7 +127,7 @@ export function TodayThemeTransitionLayer({
         </View>
     );
 }
-const styles = StyleSheet.create({
+const STYLES = StyleSheet.create({
     dissolveTile: {
         backgroundColor: "rgba(255, 255, 255, 0.65)",
         borderColor: "rgba(0, 0, 0, 0.45)",

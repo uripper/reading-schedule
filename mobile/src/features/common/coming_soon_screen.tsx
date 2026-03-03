@@ -14,17 +14,17 @@ export function ComingSoonScreen({
     title,
 }: ComingSoonScreenProps) {
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.description}>{description}</Text>
-            <Pressable onPress={onPress} style={styles.button}>
-                <Text style={styles.buttonLabel}>{ctaLabel}</Text>
+        <View style={STYLES.container}>
+            <Text style={STYLES.title}>{title}</Text>
+            <Text style={STYLES.description}>{description}</Text>
+            <Pressable onPress={onPress} style={STYLES.button}>
+                <Text style={STYLES.buttonLabel}>{ctaLabel}</Text>
             </Pressable>
         </View>
     );
 }
 
-const styles = StyleSheet.create({
+const STYLES = StyleSheet.create({
     button: {
         backgroundColor: "#F3D731",
         borderColor: "#0D0D0D",

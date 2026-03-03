@@ -1,10 +1,10 @@
-import {
-    type Book,
-    type PlannerApi,
-    type PlannerResult,
+import type {
+    Book,
+    PlannerApi,
+    PlannerResult,
 } from "@reading-schedule/contracts";
 import { useEffect, useState } from "react";
-import { type TodayBookCard, type TodayStats } from "./types";
+import type { TodayBookCard, TodayStats } from "./types";
 
 const CARD_ACCENTS = ["#9CD2EE", "#F16865", "#B5E080", "#E7B1EF", "#F4D738"];
 const DEFAULT_BOOK_LIMIT = 6;

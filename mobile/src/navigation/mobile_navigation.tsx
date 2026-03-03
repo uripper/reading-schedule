@@ -1,14 +1,10 @@
-import { type PlannerApi } from "@reading-schedule/contracts";
+import type { PlannerApi } from "@reading-schedule/contracts";
 import { useMemo, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import { ComingSoonScreen } from "../features/common/coming_soon_screen";
 import { TodayScreenContainer } from "../features/today/today_screen_container";
 import { styles } from "./mobile_navigation_styles";
-import {
-    type MobileTabKey,
-    type StackNavigator,
-    type StackRoute,
-} from "./types";
+import type { MobileTabKey, StackNavigator, StackRoute } from "./types";
 
 interface MobileNavigationProps {
     plannerApi: PlannerApi;
@@ -132,24 +128,24 @@ function popRoute(stacks: TabStacks, activeTab: MobileTabKey): TabStacks {
 
 export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
     const INITIAL_STACKS = useMemo(() => rootStacks(plannerApi), [plannerApi]);
-    const [activeTab, setActiveTab] = useState<MobileTabKey>("today");
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [stacks, setStacks] = useState<TabStacks>(INITIAL_STACKS);
+    const [ACTIVE_TAB, SET_ACTIVE_TAB] = useState<MobileTabKey>("today");
+    const [IS_MENU_OPEN, SET_IS_MENU_OPEN] = useState(false);
+    const [STACKS, SET_STACKS] = useState<TabStacks>(INITIAL_STACKS);
 
-    const ACTIVE_STACK = stacks[activeTab];
+    const ACTIVE_STACK = STACKS[ACTIVE_TAB];
     const ACTIVE_ROUTE = ACTIVE_STACK[ACTIVE_STACK.length - 1];
     if (!ACTIVE_ROUTE) {
         return null;
     }
 
     function push(route: StackRoute): void {
-        setIsMenuOpen(false);
-        setStacks((previous) => pushRoute(previous, activeTab, route));
+        SET_IS_MENU_OPEN(false);
+        SET_STACKS((previous) => pushRoute(previous, ACTIVE_TAB, route));
     }
 
     function pop(): void {
-        setIsMenuOpen(false);
-        setStacks((previous) => popRoute(previous, activeTab));
+        SET_IS_MENU_OPEN(false);
+        SET_STACKS((previous) => popRoute(previous, ACTIVE_TAB));
     }
 
     const NAVIGATOR: StackNavigator = {
@@ -160,19 +156,19 @@ export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
     const SHOW_BACK = ACTIVE_STACK.length > 1;
 
     function activateTab(tab: MobileTabKey): void {
-        setActiveTab(tab);
-        setIsMenuOpen(false);
+        SET_ACTIVE_TAB(tab);
+        SET_IS_MENU_OPEN(false);
     }
 
-    let MENU = null;
-    if (isMenuOpen) {
-        MENU = (
+    let menu = null;
+    if (IS_MENU_OPEN) {
+        menu = (
             <View style={styles.menuPanel}>
                 {MENU_ITEMS.map((tab) => {
-                    const IS_ACTIVE = tab === activeTab;
-                    let MENU_ITEM_ACTIVE_STYLE = null;
+                    const IS_ACTIVE = tab === ACTIVE_TAB;
+                    let menuItemActiveStyle = null;
                     if (IS_ACTIVE) {
-                        MENU_ITEM_ACTIVE_STYLE = styles.menuItemActive;
+                        menuItemActiveStyle = styles.menuItemActive;
                     }
                     return (
                         <Pressable
@@ -180,7 +176,7 @@ export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
                             onPress={() => {
                                 activateTab(tab);
                             }}
-                            style={[styles.menuItem, MENU_ITEM_ACTIVE_STYLE]}
+                            style={[styles.menuItem, menuItemActiveStyle]}
                         >
                             <Text style={styles.menuItemText}>
                                 {tabLabel(tab)}
@@ -192,9 +188,9 @@ export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
         );
     }
 
-    let BACK_BUTTON = null;
+    let backButton = null;
     if (SHOW_BACK) {
-        BACK_BUTTON = (
+        backButton = (
             <Pressable onPress={pop} style={styles.backButton}>
                 <Text style={styles.backText}>Back</Text>
             </Pressable>
@@ -218,10 +214,10 @@ export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
                 </View>
 
                 <View style={styles.topActions}>
-                    {BACK_BUTTON}
+                    {backButton}
                     <Pressable
                         onPress={() => {
-                            setIsMenuOpen((previous) => !previous);
+                            SET_IS_MENU_OPEN((previous) => !previous);
                         }}
                         style={styles.menuToggle}
                     >
@@ -230,10 +226,9 @@ export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
                 </View>
             </View>
 
-            {MENU}
+            {menu}
 
             <View style={styles.screen}>{ACTIVE_ROUTE.render(NAVIGATOR)}</View>
         </View>
     );
 }
-

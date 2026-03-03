@@ -23,7 +23,7 @@ import {
     STYLES,
 } from "./today_screen_styles";
 import { TodayThemeTransitionLayer } from "./today_theme_transition_layer";
-import { type TodayBookCard, type TodayStats } from "./types";
+import type { TodayBookCard, TodayStats } from "./types";
 
 const CAROUSEL_GAP = 16;
 const MIN_CAROUSEL_SIDE_INSET = 12;
@@ -68,16 +68,16 @@ function hasCoverForBook(title: string): boolean {
     return COVER_SOURCES[title] !== undefined;
 }
 
-function CarouselCard({ book, isActive, onPress }: CardProps) {
-    let CARD_OPACITY = 0.64;
+function carouselCard({ book, isActive, onPress }: CardProps) {
+    let cardOpacity = 0.64;
     if (isActive) {
-        CARD_OPACITY = 1;
+        cardOpacity = 1;
     }
 
     return (
         <Pressable
             onPress={onPress}
-            style={[STYLES.card, { opacity: CARD_OPACITY }]}
+            style={[STYLES.card, { opacity: cardOpacity }]}
         >
             <View style={[STYLES.bookArt, { backgroundColor: book.accent }]}>
                 <Image
@@ -89,7 +89,7 @@ function CarouselCard({ book, isActive, onPress }: CardProps) {
     );
 }
 
-function StatBubble({ fill, label, value }: StatBubbleProps) {
+function statBubble({ fill, label, value }: StatBubbleProps) {
     return (
         <View style={[STYLES.statBubble, { backgroundColor: fill }]}>
             <Text style={STYLES.statValue}>{value}</Text>
@@ -99,17 +99,17 @@ function StatBubble({ fill, label, value }: StatBubbleProps) {
 }
 
 export function TodayScreen({ books, stats }: TodayScreenProps) {
-    const [activeIndex, setActiveIndex] = useState(0);
-    const activeBook = books[activeIndex] ?? books[0];
-    if (!activeBook) {
+    const [ACTIVE_INDEX, SET_ACTIVE_INDEX] = useState(0);
+    const ACTIVE_BOOK = books[ACTIVE_INDEX] ?? books[0];
+    if (!ACTIVE_BOOK) {
         return null;
     }
 
     const { width } = useWindowDimensions();
-    const ACTIVE_BOOK_HAS_COVER = hasCoverForBook(activeBook.title);
+    const ACTIVE_BOOK_HAS_COVER = hasCoverForBook(ACTIVE_BOOK.title);
     const BACKGROUND_THEME = useMemo(() => {
-        return themeFromBook(activeBook.title, ACTIVE_BOOK_HAS_COVER);
-    }, [ACTIVE_BOOK_HAS_COVER, activeBook.title]);
+        return themeFromBook(ACTIVE_BOOK.title, ACTIVE_BOOK_HAS_COVER);
+    }, [ACTIVE_BOOK_HAS_COVER, ACTIVE_BOOK.title]);
     const [PREVIOUS_THEME, SET_PREVIOUS_THEME] = useState(BACKGROUND_THEME);
     const [CURRENT_THEME, SET_CURRENT_THEME] = useState(BACKGROUND_THEME);
     const PREVIOUS_THEME_REF = useRef(BACKGROUND_THEME);
@@ -179,7 +179,7 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
         if (INDEX < 0 || INDEX >= books.length) {
             return;
         }
-        setActiveIndex(INDEX);
+        SET_ACTIVE_INDEX(INDEX);
     }
 
     return (
@@ -232,11 +232,11 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
                 renderItem={({ item, index }) => {
                     return (
                         <View style={{ width: CARD_WIDTH }}>
-                            <CarouselCard
+                            <carouselCard
                                 book={item}
-                                isActive={index === activeIndex}
+                                isActive={index === ACTIVE_INDEX}
                                 onPress={() => {
-                                    setActiveIndex(index);
+                                    SET_ACTIVE_INDEX(index);
                                 }}
                             />
                         </View>
@@ -249,14 +249,14 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
             />
 
             <Text style={STYLES.currentBook}>
-                {activeBook.title.toUpperCase()} |{" "}
-                {activeBook.author.toUpperCase()}
+                {ACTIVE_BOOK.title.toUpperCase()} |{" "}
+                {ACTIVE_BOOK.author.toUpperCase()}
             </Text>
 
             <View style={STYLES.progressPill}>
                 <Text style={STYLES.progressText}>
-                    {activeBook.completionPercent}% | {activeBook.pagesDone}/
-                    {activeBook.pagesTotal}
+                    {ACTIVE_BOOK.completionPercent}% | {ACTIVE_BOOK.pagesDone}/
+                    {ACTIVE_BOOK.pagesTotal}
                 </Text>
             </View>
 
@@ -268,12 +268,12 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
                 <View style={STYLES.statConnectorVertical} />
                 <View style={STYLES.statConnectorHorizontal} />
                 <View style={STYLES.statConnectorDot} />
-                <StatBubble
+                <statBubble
                     fill={STAT_A}
                     label="Day Streak"
                     value={String(stats.dayStreak)}
                 />
-                <StatBubble
+                <statBubble
                     fill={STAT_B}
                     label="Complete Sessions"
                     value={stats.completedSessions}
