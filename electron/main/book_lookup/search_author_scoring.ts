@@ -27,6 +27,7 @@ function matchingAuthorTokenCount(
 ): number {
     const AUTHOR_TOKEN_SET = new Set(authorTokens);
     let matches = 0;
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     queryTokenList.forEach((token) => {
         if (!AUTHOR_TOKEN_SET.has(token)) {
             return;

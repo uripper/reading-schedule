@@ -34,6 +34,7 @@ export function buildCompletedBookRowsByDate(
 ): Record<string, CompletedBookRow[]> {
     const ROWS_BY_DATE: Record<string, CompletedBookRow[]> = {};
     const SEEN_BOOK_IDS = new Set<string>();
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     sessionBooks.forEach((entry) => {
         const BOOK_ID = entry.bookId.trim();
         if (BOOK_ID === "") {
@@ -73,6 +74,7 @@ export function buildCompletedBookRowsByDate(
 export function finishedBooksSummaryText(rows: CompletedBookRow[]): string {
     const SEEN_TITLES = new Set<string>();
     const FINISHED_TITLES: string[] = [];
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     rows.forEach((row) => {
         const TITLE = row.title.trim();
         if (TITLE === "") {

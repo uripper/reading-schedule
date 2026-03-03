@@ -1,5 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { logError, logInfo } from "./logger.mjs";
 import { recoverStateFromArgs } from "./state_recover_helpers.mjs";
 
 /**
@@ -8,18 +9,18 @@ import { recoverStateFromArgs } from "./state_recover_helpers.mjs";
  */
 export function runStateRecover(argv) {
     const RESULT = recoverStateFromArgs(argv);
-    console.info(`Recovered source type: ${RESULT.sourceType}`);
-    console.info(`Input path: ${RESULT.inputPath}`);
-    console.info(`User data dir: ${RESULT.userDataDir}`);
-    console.info(`Books: ${RESULT.counts.books}`);
-    console.info(`Sessions: ${RESULT.counts.sessions}`);
-    console.info(`Schedule rows: ${RESULT.counts.scheduleRows}`);
-    console.info(`Schedule completions: ${RESULT.counts.scheduleCompletions}`);
+    logInfo(`Recovered source type: ${RESULT.sourceType}`);
+    logInfo(`Input path: ${RESULT.inputPath}`);
+    logInfo(`User data dir: ${RESULT.userDataDir}`);
+    logInfo(`Books: ${RESULT.counts.books}`);
+    logInfo(`Sessions: ${RESULT.counts.sessions}`);
+    logInfo(`Schedule rows: ${RESULT.counts.scheduleRows}`);
+    logInfo(`Schedule completions: ${RESULT.counts.scheduleCompletions}`);
     if (RESULT.backups.length > 0) {
-        console.info("Created backups:");
-        RESULT.backups.forEach((backupPath) => {
-            console.info(`- ${backupPath}`);
-        });
+        logInfo("Created backups:");
+        for (const BACKUP_PATH of RESULT.backups) {
+            logInfo(`- ${BACKUP_PATH}`);
+        }
     }
 }
 
@@ -28,11 +29,7 @@ if (path.resolve(process.argv[1] || "") === SCRIPT_PATH) {
     try {
         runStateRecover(process.argv.slice(2));
     } catch (error) {
-        let message = "State recovery failed.";
-        if (error instanceof Error) {
-            message = `${message} ${error.message}`;
-        }
-        process.stderr.write(`${message}\n`);
+        logError("State recovery failed.", error);
         process.exitCode = 1;
     }
 }

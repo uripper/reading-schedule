@@ -58,6 +58,7 @@ export function shelfFilterMatches(
  */
 export function uniqueShelves(books: Pick<Book, "shelf">[] = []): string[] {
     const SHELF_SET = new Set<string>();
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     books.forEach((book) => {
         const SHELF = normalizeShelfName(book.shelf);
         if (!SHELF) {

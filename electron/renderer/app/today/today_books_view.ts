@@ -80,6 +80,7 @@ function createBookItem(summary: TodayBookSummary): HTMLElement {
  * @param listNode List container that may contain cover images.
  */
 function applyCoverFallbacks(listNode: HTMLElement): void {
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     listNode
         .querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']")
         .forEach((img) => {

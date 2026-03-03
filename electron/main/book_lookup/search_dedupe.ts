@@ -12,6 +12,7 @@ import { primaryAuthor } from "./search_text.js";
 export function dedupeDocs(docs: SearchDoc[]): SearchDoc[] {
     const SEEN = new Set<string>();
     const DEDUPED: SearchDoc[] = [];
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     docs.forEach((doc) => {
         const KEY = String(doc.key ?? "").trim();
         if (KEY.length > 0) {

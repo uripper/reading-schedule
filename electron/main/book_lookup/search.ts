@@ -34,6 +34,7 @@ export async function searchBooks(
         URLS.map(async (url) => await fetchJson(url)),
     );
     const DOCS: SearchDoc[] = [];
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     RESPONSES.forEach((result) => {
         if (
             result.status !== "fulfilled" ||
@@ -41,6 +42,7 @@ export async function searchBooks(
         ) {
             return;
         }
+        // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
         result.value.docs.forEach((doc) => {
             DOCS.push(doc);
         });

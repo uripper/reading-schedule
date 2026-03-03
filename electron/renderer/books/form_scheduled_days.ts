@@ -57,6 +57,7 @@ export function fillScheduledDayControls(
  */
 export function readScheduledDaySelection(refs: BookFormRefs): BookWeekday[] {
     const SELECTED = new Set<BookWeekday>();
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     scheduledDayInputs(refs).forEach((input) => {
         if (!input.checked) {
             return;

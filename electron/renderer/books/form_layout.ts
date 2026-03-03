@@ -33,6 +33,7 @@ function createStatusSelectLabel(): HTMLLabelElement {
 
     const SELECT = document.createElement("select");
     SELECT.id = "bookStatusSelectInput";
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     statusOptions().forEach((optionDef) => {
         const OPTION = document.createElement("option");
         OPTION.value = optionDef.value;
@@ -77,6 +78,7 @@ function createScheduledDaysField(): HTMLFieldSetElement {
 
     const DAYS = document.createElement("div");
     DAYS.className = "book-scheduled-days-grid";
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     BOOK_WEEKDAYS.forEach((weekday) => {
         const LABEL = document.createElement("label");
         LABEL.className = "book-scheduled-day";

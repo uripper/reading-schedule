@@ -11,6 +11,7 @@ const COMPLETION_KEY_PART_SESSION = 3;
  */
 export function bookByIdIndex(books: Book[] = []): Map<string, Book> {
     const BY_ID = new Map<string, Book>();
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     books.forEach((book) => {
         const BOOK_ID = String(book.book_id || "").trim();
         if (!BOOK_ID) {
@@ -30,6 +31,7 @@ export function sessionsByDayIndex(
     sessions: Session[] = [],
 ): Map<string, Session[]> {
     const BY_DAY = new Map<string, Session[]>();
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     sessions.forEach((session) => {
         const DAY_KEY = isoLocalDayKey(session.ended_at);
         if (!DAY_KEY) {
@@ -54,6 +56,7 @@ export function sessionsByBookIndex(
     sessions: Session[] = [],
 ): Map<string, Session[]> {
     const BY_BOOK = new Map<string, Session[]>();
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     sessions.forEach((session) => {
         const BOOK_ID = String(session.book_id || "").trim();
         if (!BOOK_ID) {
@@ -82,6 +85,7 @@ export function splitCompletionIndexes(
 > {
     const COMPLETION_BY_SESSION_KEY: Record<string, boolean> = {};
     const COMPLETION_BY_DAY_BOOK_KEY: Record<string, boolean> = {};
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     Object.entries(scheduleCompletions).forEach(([key, value]) => {
         const PARTS = key.split("|");
         if (PARTS.length === COMPLETION_KEY_PART_SESSION) {

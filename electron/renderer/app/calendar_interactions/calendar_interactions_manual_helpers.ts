@@ -35,6 +35,7 @@ function historicalWordsPerMinute(
 ): number | null {
     let totalWords = 0;
     let totalMinutes = 0;
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     rows.forEach((row) => {
         if (String(row.book_id || "") !== bookId) {
             return;

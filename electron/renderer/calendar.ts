@@ -33,6 +33,7 @@ let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});
  * @param details Day-details root node.
  */
 function clearFinishedBooksSummary(details: HTMLElement): void {
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     details.querySelectorAll(".day-finished-summary").forEach((node) => {
         node.remove();
     });

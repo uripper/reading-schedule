@@ -3,6 +3,12 @@ import { Animated, StyleSheet, View } from "react-native";
 const GRID_COLUMNS = 5;
 const GRID_ROWS = 5;
 const GRID_TILE_COUNT = GRID_COLUMNS * GRID_ROWS;
+const GRID_TILE_INDEXES = Array.from(
+    { length: GRID_TILE_COUNT },
+    (_, index) => {
+        return index;
+    },
+);
 
 function tilePhase(index: number): number {
     const COLUMN = index % GRID_COLUMNS;
@@ -17,6 +23,7 @@ interface TodayThemeTransitionLayerProps {
     toColor: string;
 }
 
+// biome-ignore lint/complexity/noExcessiveLinesPerFunction: transition layering intentionally grouped for tuning.
 export function TodayThemeTransitionLayer({
     fromColor,
     progress,
@@ -99,20 +106,20 @@ export function TodayThemeTransitionLayer({
                     },
                 ]}
             />
-            {Array.from({ length: GRID_TILE_COUNT }).map((_, index) => {
-                const PHASE = tilePhase(index);
+            {GRID_TILE_INDEXES.map((tileIndex) => {
+                const PHASE = tilePhase(tileIndex);
                 const TILE_OPACITY = progress.interpolate({
                     inputRange: [PHASE, PHASE + 0.12, PHASE + 0.24],
                     outputRange: [0, 0.52, 0],
                     extrapolate: "clamp",
                 });
                 const LEFT_PERCENT =
-                    `${(index % GRID_COLUMNS) * (100 / GRID_COLUMNS)}%` as `${number}%`;
+                    `${(tileIndex % GRID_COLUMNS) * (100 / GRID_COLUMNS)}%` as `${number}%`;
                 const TOP_PERCENT =
-                    `${Math.floor(index / GRID_COLUMNS) * (100 / GRID_ROWS)}%` as `${number}%`;
+                    `${Math.floor(tileIndex / GRID_COLUMNS) * (100 / GRID_ROWS)}%` as `${number}%`;
                 return (
                     <Animated.View
-                        key={`dissolve-tile-${index}`}
+                        key={`dissolve-tile-${tileIndex}`}
                         style={[
                             STYLES.dissolveTile,
                             {

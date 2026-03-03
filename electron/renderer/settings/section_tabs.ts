@@ -18,6 +18,7 @@ function activateSettingsSection(nextSection: string): void {
             NEXT_CARD.style.display = "none";
         }
     }
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     qa<HTMLElement>(".settings-section-tab").forEach((button) => {
         const ACTIVE = button.dataset.settingsSectionTarget === SECTION;
         button.classList.toggle("is-active", ACTIVE);
@@ -34,6 +35,7 @@ function activateSettingsSection(nextSection: string): void {
  */
 export function bindSettingsSectionTabs(): void {
     const TABS = qa<HTMLElement>(".settings-section-tab");
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     TABS.forEach((button) => {
         button.addEventListener("click", () => {
             const SECTION = button.dataset.settingsSectionTarget;

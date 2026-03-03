@@ -98,18 +98,17 @@ function statBubble({ fill, label, value }: StatBubbleProps) {
     );
 }
 
+// biome-ignore lint/complexity/noExcessiveLinesPerFunction: component split planned after interaction model stabilizes.
 export function TodayScreen({ books, stats }: TodayScreenProps) {
     const [ACTIVE_INDEX, SET_ACTIVE_INDEX] = useState(0);
-    const ACTIVE_BOOK = books[ACTIVE_INDEX] ?? books[0];
-    if (!ACTIVE_BOOK) {
-        return null;
-    }
+    const ACTIVE_BOOK = books[ACTIVE_INDEX] ?? books[0] ?? null;
 
     const { width } = useWindowDimensions();
-    const ACTIVE_BOOK_HAS_COVER = hasCoverForBook(ACTIVE_BOOK.title);
+    const ACTIVE_BOOK_TITLE = ACTIVE_BOOK?.title ?? "";
+    const ACTIVE_BOOK_HAS_COVER = hasCoverForBook(ACTIVE_BOOK_TITLE);
     const BACKGROUND_THEME = useMemo(() => {
-        return themeFromBook(ACTIVE_BOOK.title, ACTIVE_BOOK_HAS_COVER);
-    }, [ACTIVE_BOOK_HAS_COVER, ACTIVE_BOOK.title]);
+        return themeFromBook(ACTIVE_BOOK_TITLE, ACTIVE_BOOK_HAS_COVER);
+    }, [ACTIVE_BOOK_HAS_COVER, ACTIVE_BOOK_TITLE]);
     const [PREVIOUS_THEME, SET_PREVIOUS_THEME] = useState(BACKGROUND_THEME);
     const [CURRENT_THEME, SET_CURRENT_THEME] = useState(BACKGROUND_THEME);
     const PREVIOUS_THEME_REF = useRef(BACKGROUND_THEME);
@@ -170,6 +169,10 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
         }
         return RAW_INSET;
     }, [CARD_WIDTH, width]);
+
+    if (!ACTIVE_BOOK) {
+        return null;
+    }
 
     function syncActiveIndex(
         event: NativeSyntheticEvent<NativeScrollEvent>,
@@ -232,13 +235,13 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
                 renderItem={({ item, index }) => {
                     return (
                         <View style={{ width: CARD_WIDTH }}>
-                            <carouselCard
-                                book={item}
-                                isActive={index === ACTIVE_INDEX}
-                                onPress={() => {
+                            {carouselCard({
+                                book: item,
+                                isActive: index === ACTIVE_INDEX,
+                                onPress: () => {
                                     SET_ACTIVE_INDEX(index);
-                                }}
-                            />
+                                },
+                            })}
                         </View>
                     );
                 }}
@@ -268,16 +271,16 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
                 <View style={STYLES.statConnectorVertical} />
                 <View style={STYLES.statConnectorHorizontal} />
                 <View style={STYLES.statConnectorDot} />
-                <statBubble
-                    fill={STAT_A}
-                    label="Day Streak"
-                    value={String(stats.dayStreak)}
-                />
-                <statBubble
-                    fill={STAT_B}
-                    label="Complete Sessions"
-                    value={stats.completedSessions}
-                />
+                {statBubble({
+                    fill: STAT_A,
+                    label: "Day Streak",
+                    value: String(stats.dayStreak),
+                })}
+                {statBubble({
+                    fill: STAT_B,
+                    label: "Complete Sessions",
+                    value: stats.completedSessions,
+                })}
             </View>
         </ScrollView>
     );

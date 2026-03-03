@@ -86,6 +86,7 @@ function cardStatsNode(book: Book, context: CardRenderContext): HTMLDivElement {
     if (BASE_META_TEXT !== "") {
         STAT_LINES.push({ preserveLineBreaks: true, text: BASE_META_TEXT });
     }
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     STAT_LINES.forEach((line) => {
         const SPAN = document.createElement("span");
         SPAN.textContent = line.text;

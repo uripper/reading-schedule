@@ -64,17 +64,22 @@ function emitLog(payload: LogPayload): void {
     }
 
     if (payload.level === "error") {
+        // biome-ignore lint/suspicious/noConsole: renderer logger intentionally writes structured logs.
         console.groupCollapsed("[renderer][error]", payload.message);
+        // biome-ignore lint/suspicious/noConsole: renderer logger intentionally writes structured logs.
         console.info(OUTPUT);
+        // biome-ignore lint/suspicious/noConsole: renderer logger intentionally writes structured logs.
         console.groupEnd();
         return;
     }
 
     if (payload.level === "debug") {
+        // biome-ignore lint/suspicious/noConsole: renderer logger intentionally writes structured logs.
         console.info("[renderer][debug]", OUTPUT);
         return;
     }
 
+    // biome-ignore lint/suspicious/noConsole: renderer logger intentionally writes structured logs.
     console.info("[renderer][info]", OUTPUT);
 }
 

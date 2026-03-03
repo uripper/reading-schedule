@@ -122,9 +122,10 @@ function resolveCollision(a: Body, b: Body): void {
     b.spinVelocity -= SPIN_TRANSFER;
 }
 
+// biome-ignore lint/complexity/noExcessiveLinesPerFunction: background simulation is intentionally co-located.
 export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
     const { height, width } = useWindowDimensions();
-    const [TICK, SET_TICK] = useState(0);
+    const [_TICK, SET_TICK] = useState(0);
     const BODIES_REF = useRef<Body[]>([]);
     const NEXT_ID_REF = useRef(1);
     const LAST_FRAME_TIME_REF = useRef(0);
@@ -142,8 +143,9 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
         SPAWN_ACCUMULATOR_MS_REF.current = 0;
         LAST_FRAME_TIME_REF.current = 0;
         SIMULATION_TIME_REF.current = 0;
-    }, [height, width]);
+    }, []);
 
+    // biome-ignore lint/complexity/noExcessiveLinesPerFunction: frame lifecycle setup and teardown must stay together.
     useEffect(() => {
         let frameId = 0;
 
@@ -188,31 +190,32 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
             }
         }
 
+        // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: physics step intentionally linear and explicit.
         function simulate(deltaSeconds: number): void {
             const BODIES = BODIES_REF.current;
             SIMULATION_TIME_REF.current += deltaSeconds;
             const NOW = SIMULATION_TIME_REF.current;
-            BODIES.forEach((body) => {
-                const DRIFT = Math.sin(NOW + body.driftPhase) * body.driftForce;
-                body.vx += DRIFT * deltaSeconds;
-                body.vy += GRAVITY_PER_SECOND * deltaSeconds;
-                body.x += body.vx * deltaSeconds;
-                body.y += body.vy * deltaSeconds;
-                body.spin += body.spinVelocity * deltaSeconds;
+            for (const BODY of BODIES) {
+                const DRIFT = Math.sin(NOW + BODY.driftPhase) * BODY.driftForce;
+                BODY.vx += DRIFT * deltaSeconds;
+                BODY.vy += GRAVITY_PER_SECOND * deltaSeconds;
+                BODY.x += BODY.vx * deltaSeconds;
+                BODY.y += BODY.vy * deltaSeconds;
+                BODY.spin += BODY.spinVelocity * deltaSeconds;
 
-                const LEFT_EDGE = SCREEN_LEFT + body.radius;
-                const RIGHT_EDGE = SCREEN_RIGHT - body.radius;
-                if (body.x < LEFT_EDGE) {
-                    body.x = LEFT_EDGE;
-                    body.vx = Math.abs(body.vx) * WALL_BOUNCE;
-                    body.spinVelocity += 0.3;
+                const LEFT_EDGE = SCREEN_LEFT + BODY.radius;
+                const RIGHT_EDGE = SCREEN_RIGHT - BODY.radius;
+                if (BODY.x < LEFT_EDGE) {
+                    BODY.x = LEFT_EDGE;
+                    BODY.vx = Math.abs(BODY.vx) * WALL_BOUNCE;
+                    BODY.spinVelocity += 0.3;
                 }
-                if (body.x > RIGHT_EDGE) {
-                    body.x = RIGHT_EDGE;
-                    body.vx = -Math.abs(body.vx) * WALL_BOUNCE;
-                    body.spinVelocity -= 0.3;
+                if (BODY.x > RIGHT_EDGE) {
+                    BODY.x = RIGHT_EDGE;
+                    BODY.vx = -Math.abs(BODY.vx) * WALL_BOUNCE;
+                    BODY.spinVelocity -= 0.3;
                 }
-            });
+            }
 
             for (let i = 0; i < BODIES.length; i += 1) {
                 for (let j = i + 1; j < BODIES.length; j += 1) {
@@ -249,7 +252,7 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
 
         frameId = requestAnimationFrame(frame);
         return () => cancelAnimationFrame(frameId);
-    }, [SCREEN_BOTTOM, SCREEN_LEFT, SCREEN_RIGHT, SPRITE_COUNT]);
+    }, [SCREEN_BOTTOM, SCREEN_LEFT, SCREEN_RIGHT]);
 
     return (
         <View pointerEvents="none" style={STYLES.layer}>

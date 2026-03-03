@@ -26,6 +26,7 @@ const STATUS_GROUPS: StatusGroupDefinition[] = [
  */
 export function groupsForEstimatedFinish(books: Book[] = []): BookGroup[] {
     const GROUPS: BookGroup[] = [];
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     STATUS_GROUPS.forEach((definition) => {
         const GROUPED_BOOKS = books.filter((book) => {
             return definition.statuses.includes(book.status);

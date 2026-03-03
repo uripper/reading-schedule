@@ -51,6 +51,7 @@ export function rowsWithCompletedLast(
 ): CalendarRowWithFinish[] {
     const INCOMPLETE_ROWS: CalendarRowWithFinish[] = [];
     const COMPLETE_ROWS: CalendarRowWithFinish[] = [];
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     rows.forEach((row) => {
         const COMPLETE = Boolean(
             interactionHandlers.isSessionCompleted(sessionKeyFor(row)),

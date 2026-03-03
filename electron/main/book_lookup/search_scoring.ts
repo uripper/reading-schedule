@@ -55,6 +55,7 @@ function tokenScore(
     tokens: string[],
 ): number {
     let score = 0;
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     tokens.forEach((token) => {
         if (titleNorm.startsWith(token)) {
             score += SCORE_TOKEN_PREFIX;

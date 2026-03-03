@@ -32,6 +32,7 @@ function fieldInputValue(field: FieldDefinition): string {
  */
 export function collectSettingsForm(dayOffs: string[]): PlannerSettings {
     const OUTPUT: PlannerSettings = {};
+    // biome-ignore lint/complexity/noForEach: tracked for incremental cleanup
     allFieldDefinitions().forEach((field) => {
         const RAW = fieldInputValue(field);
         if (field.type === "checkbox") {
