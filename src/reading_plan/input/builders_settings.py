@@ -19,7 +19,11 @@ if TYPE_CHECKING:
 
 
 def settings_from_data(data: Mapping[str, Any]) -> Settings:
-    """Normalize raw settings payload data into a validated Settings model."""
+    """Normalize raw settings payload data into a validated Settings model.
+
+    :param data: raw settings payload with mixed fields and formats
+    :return: validated Settings model with normalized fields
+    """
     by_weekday = {
         k[:3].title(): int(v)
         for k, v in (data.get("minutes_by_weekday") or {}).items()

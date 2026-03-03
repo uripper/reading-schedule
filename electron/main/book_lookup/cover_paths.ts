@@ -1,8 +1,8 @@
 /**
  * @file File-path and extension utilities for locally stored cover images.
  */
-import fs from "node:fs";
-import path from "node:path";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { type CoverExtension } from "../../types/types.js";
 
 const COVER_DIRECTORY_NAME = "book_covers";

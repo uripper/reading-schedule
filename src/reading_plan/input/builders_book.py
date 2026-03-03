@@ -21,7 +21,14 @@ MAX_PROGRESS_PERCENT = 100
 def _estimated_words_read_from_pages(
     pages_read: int, words_full: int, pages_raw: int | None
 ) -> int:
-    """Estimate words read from pages using per-book density when possible."""
+    """Estimate words read from pages using per-book density when possible.
+
+    :param pages_read: number of pages read, as provided by user
+    :param words_full: total words in the book, derived from input fields
+    :param pages_raw: total pages in the book, as provided by user (may be None)
+    :return: estimated words read based on pages read and book density,
+                or a fallback estimate when pages_raw is unavailable or invalid
+    """
     pages_total = optional_int(pages_raw, "pages_total")
     if pages_total is None or pages_total <= 0:
         return pages_read * WORDS_PER_PAGE
@@ -30,7 +37,11 @@ def _estimated_words_read_from_pages(
 
 
 def _word_stats(data: Mapping[str, Any]) -> tuple[int, int, float]:
-    """Derive full words, remaining words, and progress from mixed fields."""
+    """Derive full words, remaining words, and progress from mixed fields.
+
+    :param data: raw book payload with mixed fields for words/pages and progress
+    :return: tuple of (full words, remaining words, progress percent)
+    """
     words_raw = data.get("words_total")
     pages_raw = data.get("pages_total")
     has_words = bool(str(words_raw or "").strip())
@@ -69,7 +80,12 @@ def _word_stats(data: Mapping[str, Any]) -> tuple[int, int, float]:
 
 
 def _scheduled_day_entries(raw: object) -> list[str]:
-    """Parse raw scheduled-day payload into unvalidated weekday entries."""
+    """Parse raw scheduled-day payload into unvalidated weekday entries.
+
+    :param raw: user-provided scheduled_days value, which may be None, a string,
+                    or a list of strings
+    :return: list of weekday entries (e.g. ["Mon", "Wed"]) without validation
+    """
     if raw is None:
         return list(WEEKDAYS)
     if isinstance(raw, str):
@@ -83,15 +99,19 @@ def _scheduled_day_entries(raw: object) -> list[str]:
 
 
 def _scheduled_days(data: Mapping[str, Any], book_id: str) -> frozenset[str]:
-    """Normalize and validate scheduled weekdays for one book payload."""
+    """Normalize and validate scheduled weekdays for one book payload.
+
+    :param data: raw book payload with mixed fields for scheduled days
+    :param book_id: book_id for error messages when validation fails
+    :return: frozenset of validated weekday entries
+                (e.g. frozenset({"Mon", "Wed"}))
+    """
     selected: set[str] = set()
     for entry in _scheduled_day_entries(data.get("scheduled_days")):
         if not entry:
             continue
         if entry not in WEEKDAYS:
-            msg = (
-                f"scheduled_days must only include Mon..Sun for {book_id}"
-            )
+            msg = f"scheduled_days must only include Mon..Sun for {book_id}"
             raise ValueError(msg)
         selected.add(entry)
     if not selected:
@@ -101,7 +121,11 @@ def _scheduled_days(data: Mapping[str, Any], book_id: str) -> frozenset[str]:
 
 
 def book_from_data(data: Mapping[str, Any]) -> Book:
-    """Normalize a raw book payload into a validated planner Book model."""
+    """Normalize a raw book payload into a validated planner Book model.
+
+    :param data: raw book payload with mixed fields and formats
+    :return: validated Book model with normalized fields
+    """
     words_full, words_remaining, progress = _word_stats(data)
     book_id = str(data.get("book_id") or "").strip() or str(uuid4())
     deadline = parse_date(data["deadline"]) if data.get("deadline") else None

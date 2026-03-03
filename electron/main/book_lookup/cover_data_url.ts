@@ -20,9 +20,7 @@ const DATA_URL_BASE64_SEGMENT = ";base64";
  * @returns Supported cover extension, or null when unsupported.
  */
 function extensionForDataMime(mimeType: string): CoverExtension | null {
-    const NORMALIZED_MIME = String(mimeType || "")
-        .trim()
-        .toLowerCase();
+    const NORMALIZED_MIME = mimeType.trim().toLowerCase();
     if (NORMALIZED_MIME === CONTENT_TYPE_PNG) {
         return EXTENSION_PNG;
     }
