@@ -7,24 +7,24 @@ import { recoverStateFromArgs } from "./state_recover_helpers.mjs";
  * @param {string[]} argv CLI arguments excluding `node` and script path.
  */
 export function runStateRecover(argv) {
-    const result = recoverStateFromArgs(argv);
-    console.info(`Recovered source type: ${result.sourceType}`);
-    console.info(`Input path: ${result.inputPath}`);
-    console.info(`User data dir: ${result.userDataDir}`);
-    console.info(`Books: ${result.counts.books}`);
-    console.info(`Sessions: ${result.counts.sessions}`);
-    console.info(`Schedule rows: ${result.counts.scheduleRows}`);
-    console.info(`Schedule completions: ${result.counts.scheduleCompletions}`);
-    if (result.backups.length > 0) {
+    const RESULT = recoverStateFromArgs(argv);
+    console.info(`Recovered source type: ${RESULT.sourceType}`);
+    console.info(`Input path: ${RESULT.inputPath}`);
+    console.info(`User data dir: ${RESULT.userDataDir}`);
+    console.info(`Books: ${RESULT.counts.books}`);
+    console.info(`Sessions: ${RESULT.counts.sessions}`);
+    console.info(`Schedule rows: ${RESULT.counts.scheduleRows}`);
+    console.info(`Schedule completions: ${RESULT.counts.scheduleCompletions}`);
+    if (RESULT.backups.length > 0) {
         console.info("Created backups:");
-        result.backups.forEach((backupPath) => {
+        RESULT.backups.forEach((backupPath) => {
             console.info(`- ${backupPath}`);
         });
     }
 }
 
-const scriptPath = fileURLToPath(import.meta.url);
-if (path.resolve(process.argv[1] || "") === scriptPath) {
+const SCRIPT_PATH = fileURLToPath(import.meta.url);
+if (path.resolve(process.argv[1] || "") === SCRIPT_PATH) {
     try {
         runStateRecover(process.argv.slice(2));
     } catch (error) {

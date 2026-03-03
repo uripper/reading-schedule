@@ -6,13 +6,13 @@ import { navigateToTodayBook } from "../dist/renderer/app/today/today_books_navi
 test("navigateToTodayBook activates Books and scrolls in animation frame", () => {
     let activateCount = 0;
     let scrolledBookId = "";
-    const queuedFrames = [];
+    const QUEUED_FRAMES = [];
 
-    const originalRequestAnimationFrame = globalThis.requestAnimationFrame;
+    const ORIGINAL_REQUEST_ANIMATION_FRAME = globalThis.requestAnimationFrame;
     try {
         globalThis.requestAnimationFrame = (callback) => {
-            queuedFrames.push(callback);
-            return queuedFrames.length;
+            QUEUED_FRAMES.push(callback);
+            return QUEUED_FRAMES.length;
         };
 
         navigateToTodayBook("  book-123  ", {
@@ -26,25 +26,25 @@ test("navigateToTodayBook activates Books and scrolls in animation frame", () =>
 
         assert.equal(activateCount, 1);
         assert.equal(scrolledBookId, "");
-        assert.equal(queuedFrames.length, 1);
+        assert.equal(QUEUED_FRAMES.length, 1);
 
-        queuedFrames[0](0);
+        QUEUED_FRAMES[0](0);
         assert.equal(scrolledBookId, "book-123");
     } finally {
-        globalThis.requestAnimationFrame = originalRequestAnimationFrame;
+        globalThis.requestAnimationFrame = ORIGINAL_REQUEST_ANIMATION_FRAME;
     }
 });
 
 test("navigateToTodayBook ignores blank ids", () => {
     let activateCount = 0;
     let scrollCount = 0;
-    const queuedFrames = [];
+    const QUEUED_FRAMES = [];
 
-    const originalRequestAnimationFrame = globalThis.requestAnimationFrame;
+    const ORIGINAL_REQUEST_ANIMATION_FRAME = globalThis.requestAnimationFrame;
     try {
         globalThis.requestAnimationFrame = (callback) => {
-            queuedFrames.push(callback);
-            return queuedFrames.length;
+            QUEUED_FRAMES.push(callback);
+            return QUEUED_FRAMES.length;
         };
 
         navigateToTodayBook("   ", {
@@ -58,8 +58,8 @@ test("navigateToTodayBook ignores blank ids", () => {
 
         assert.equal(activateCount, 0);
         assert.equal(scrollCount, 0);
-        assert.equal(queuedFrames.length, 0);
+        assert.equal(QUEUED_FRAMES.length, 0);
     } finally {
-        globalThis.requestAnimationFrame = originalRequestAnimationFrame;
+        globalThis.requestAnimationFrame = ORIGINAL_REQUEST_ANIMATION_FRAME;
     }
 });

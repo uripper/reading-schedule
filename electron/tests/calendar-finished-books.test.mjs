@@ -7,7 +7,7 @@ import {
 } from "../dist/renderer/calendar/finished_books.js";
 
 test("buildCompletedBookRowsByDate groups rows by finished date", () => {
-    const rowsByDate = buildCompletedBookRowsByDate(
+    const ROWS_BY_DATE = buildCompletedBookRowsByDate(
         [
             { bookId: "book-1", title: "Fallback One" },
             { bookId: "book-2", title: "Fallback Two" },
@@ -23,14 +23,14 @@ test("buildCompletedBookRowsByDate groups rows by finished date", () => {
         },
     );
 
-    assert.equal(rowsByDate["2026-02-17"]?.length, 1);
-    assert.equal(rowsByDate["2026-02-17"]?.[0]?.title, "Oedipus Rex");
-    assert.equal(rowsByDate["2026-02-18"]?.length, 1);
-    assert.equal(rowsByDate["2026-02-18"]?.[0]?.title, "Medea");
+    assert.equal(ROWS_BY_DATE["2026-02-17"]?.length, 1);
+    assert.equal(ROWS_BY_DATE["2026-02-17"]?.[0]?.title, "Oedipus Rex");
+    assert.equal(ROWS_BY_DATE["2026-02-18"]?.length, 1);
+    assert.equal(ROWS_BY_DATE["2026-02-18"]?.[0]?.title, "Medea");
 });
 
 test("buildCompletedBookRowsByDate deduplicates repeated session-book ids", () => {
-    const rowsByDate = buildCompletedBookRowsByDate(
+    const ROWS_BY_DATE = buildCompletedBookRowsByDate(
         [
             { bookId: "book-1", title: "Fallback One" },
             { bookId: "book-1", title: "Fallback One Duplicate" },
@@ -40,11 +40,11 @@ test("buildCompletedBookRowsByDate deduplicates repeated session-book ids", () =
         },
     );
 
-    assert.equal(rowsByDate["2026-02-17"]?.length, 1);
+    assert.equal(ROWS_BY_DATE["2026-02-17"]?.length, 1);
 });
 
 test("finishedBooksSummaryText returns de-duplicated summary text", () => {
-    const summary = finishedBooksSummaryText([
+    const SUMMARY = finishedBooksSummaryText([
         {
             book_id: "book-1",
             date: "2026-02-17",
@@ -68,11 +68,11 @@ test("finishedBooksSummaryText returns de-duplicated summary text", () => {
         },
     ]);
 
-    assert.equal(summary, "Finished: Oedipus Rex, The Bacchae");
+    assert.equal(SUMMARY, "Finished: Oedipus Rex, The Bacchae");
 });
 
 test("finishedBooksSummaryText returns empty text when rows are untitled", () => {
-    const summary = finishedBooksSummaryText([
+    const SUMMARY = finishedBooksSummaryText([
         {
             book_id: "book-1",
             date: "2026-02-17",
@@ -82,5 +82,5 @@ test("finishedBooksSummaryText returns empty text when rows are untitled", () =>
         },
     ]);
 
-    assert.equal(summary, "");
+    assert.equal(SUMMARY, "");
 });

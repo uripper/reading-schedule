@@ -37,18 +37,18 @@ function book(overrides = {}) {
 }
 
 test("deriveReadAuthors deduplicates and sorts read authors", () => {
-    const authors = deriveReadAuthors([
+    const AUTHORS = deriveReadAuthors([
         book({ author: "George Orwell", status: "read" }),
         book({ author: "jane austen", progress_percent: 100 }),
         book({ author: "Jane Austen", status: "in_progress" }),
         book({ author: "  " }),
     ]);
 
-    assert.deepEqual(authors, ["George Orwell", "jane austen"]);
+    assert.deepEqual(AUTHORS, ["George Orwell", "jane austen"]);
 });
 
 test("buildRecommendations excludes books already in the shelf", () => {
-    const recommendations = buildRecommendations([
+    const RECOMMENDATIONS = buildRecommendations([
         book({ author: "George Orwell", status: "read", title: "Animal Farm" }),
         book({
             author: "George Orwell",
@@ -57,10 +57,10 @@ test("buildRecommendations excludes books already in the shelf", () => {
         }),
     ]);
 
-    const titles = recommendations.map((item) => {
+    const TITLES = RECOMMENDATIONS.map((item) => {
         return item.title;
     });
 
-    assert.equal(titles.includes("Homage to Catalonia"), false);
-    assert.equal(titles.includes("Keep the Aspidistra Flying"), true);
+    assert.equal(TITLES.includes("Homage to Catalonia"), false);
+    assert.equal(TITLES.includes("Keep the Aspidistra Flying"), true);
 });

@@ -5,7 +5,7 @@ import { submitRecommendationToShelf } from "../dist/renderer/recommendations/ad
 
 test("submitRecommendationToShelf fills form values and focuses shelf picker", () => {
     let focusCount = 0;
-    const target = {
+    const TARGET = {
         authorInput: { value: "" },
         shelfInput: {
             focus() {
@@ -16,15 +16,15 @@ test("submitRecommendationToShelf fills form values and focuses shelf picker", (
         wordsInput: { value: "" },
     };
 
-    submitRecommendationToShelf(target, {
+    submitRecommendationToShelf(TARGET, {
         author: "Jane Austen",
         coverUrl: "",
         title: "Persuasion",
         wordsTotal: 86500,
     });
 
-    assert.equal(target.titleInput.value, "Persuasion");
-    assert.equal(target.authorInput.value, "Jane Austen");
-    assert.equal(target.wordsInput.value, "86500");
+    assert.equal(TARGET.titleInput.value, "Persuasion");
+    assert.equal(TARGET.authorInput.value, "Jane Austen");
+    assert.equal(TARGET.wordsInput.value, "86500");
     assert.equal(focusCount, 1);
 });

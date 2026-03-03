@@ -22,55 +22,55 @@ function row(overrides = {}) {
 }
 
 test("removeSessionRow blocks the same day-book pair from future replan merges", () => {
-    const removedRow = row();
-    const keepRow = row({
+    const REMOVED_ROW = row();
+    const KEEP_ROW = row({
         book_id: "book-2",
         date: "2026-02-25",
         session_index: 1,
         title: "Book 2",
     });
-    const state = {
+    const STATE = {
         blockedDayBooks: {},
         lastResult: {
             created_at: "2026-02-23T00:00:00.000Z",
-            schedule: [removedRow, keepRow],
+            schedule: [REMOVED_ROW, KEEP_ROW],
             summary: null,
         },
         scheduleCompletions: {},
     };
     let updates = 0;
-    const markUpdated = () => {
+    const MARK_UPDATED = () => {
         updates += 1;
     };
 
-    const removed = removeSessionRow({
-        onScheduleRowsUpdated: markUpdated,
-        queuePersist: markUpdated,
-        renderCalendar: markUpdated,
-        row: removedRow,
-        setBookScheduleRows: markUpdated,
+    const REMOVED = removeSessionRow({
+        onScheduleRowsUpdated: MARK_UPDATED,
+        queuePersist: MARK_UPDATED,
+        renderCalendar: MARK_UPDATED,
+        row: REMOVED_ROW,
+        setBookScheduleRows: MARK_UPDATED,
         setLastResult: (result) => {
-            state.lastResult = result;
+            STATE.lastResult = result;
         },
-        setStatus: markUpdated,
-        state,
+        setStatus: MARK_UPDATED,
+        state: STATE,
         totalsFromSummary: () => ({}),
     });
 
-    assert.equal(removed, true);
-    assert.equal(state.blockedDayBooks["2026-02-24|book-1"], true);
+    assert.equal(REMOVED, true);
+    assert.equal(STATE.blockedDayBooks["2026-02-24|book-1"], true);
     assert.ok(updates > 0);
 
-    const replannedRows = [removedRow, keepRow];
-    const merged = mergeScheduleRows(
+    const REPLANNED_ROWS = [REMOVED_ROW, KEEP_ROW];
+    const MERGED = mergeScheduleRows(
         [],
-        replannedRows,
+        REPLANNED_ROWS,
         [],
-        state.blockedDayBooks,
+        STATE.blockedDayBooks,
     );
 
     assert.equal(
-        merged.some(
+        MERGED.some(
             (entry) =>
                 entry.date === "2026-02-24" && entry.book_id === "book-1",
         ),

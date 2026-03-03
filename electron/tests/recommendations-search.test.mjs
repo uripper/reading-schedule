@@ -34,10 +34,10 @@ function book(overrides = {}) {
 }
 
 test("findRecommendations queries read authors and filters existing titles", async () => {
-    const calls = [];
-    const api = {
+    const CALLS = [];
+    const API = {
         searchBooks(query, authorOnly) {
-            calls.push({ authorOnly, query });
+            CALLS.push({ authorOnly, query });
             return Promise.resolve([
                 {
                     author: "George Orwell",
@@ -53,7 +53,7 @@ test("findRecommendations queries read authors and filters existing titles", asy
         },
     };
 
-    const recommendations = await findRecommendations(
+    const RECOMMENDATIONS = await findRecommendations(
         [
             book({
                 author: "George Orwell",
@@ -66,17 +66,17 @@ test("findRecommendations queries read authors and filters existing titles", asy
                 title: "Homage to Catalonia",
             }),
         ],
-        api,
+        API,
     );
 
-    assert.equal(calls[0].query, "George Orwell");
-    assert.equal(calls[0].authorOnly, true);
+    assert.equal(CALLS[0].query, "George Orwell");
+    assert.equal(CALLS[0].authorOnly, true);
     assert.equal(
-        recommendations.some((item) => item.title === "Homage to Catalonia"),
+        RECOMMENDATIONS.some((item) => item.title === "Homage to Catalonia"),
         false,
     );
     assert.equal(
-        recommendations.some(
+        RECOMMENDATIONS.some(
             (item) => item.title === "Keep the Aspidistra Flying",
         ),
         true,
@@ -84,10 +84,10 @@ test("findRecommendations queries read authors and filters existing titles", asy
 });
 
 test("findRecommendations samples a random subset of up to five read authors", async () => {
-    const calls = [];
-    const api = {
+    const CALLS = [];
+    const API = {
         searchBooks(query) {
-            calls.push(query);
+            CALLS.push(query);
             return Promise.resolve([]);
         },
     };
@@ -101,12 +101,12 @@ test("findRecommendations samples a random subset of up to five read authors", a
             book({ author: "Author E", status: "read", title: "Book E" }),
             book({ author: "Author F", status: "read", title: "Book F" }),
         ],
-        api,
+        API,
         { randomFn: () => 0 },
     );
 
-    assert.equal(calls.length, 5);
-    assert.deepEqual(calls, [
+    assert.equal(CALLS.length, 5);
+    assert.deepEqual(CALLS, [
         "Author B",
         "Author C",
         "Author D",

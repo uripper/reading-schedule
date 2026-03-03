@@ -2,19 +2,23 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const electronRoot = path.resolve(__dirname, "..");
-const tokenSourcePath = path.join(electronRoot, "tokens", "dtcg.tokens.json");
-const outputCssPath = path.join(
-    electronRoot,
+const _FILENAME = fileURLToPath(import.meta.url);
+const _DIRNAME = path.dirname(_FILENAME);
+const ELECTRON_ROOT = path.resolve(_DIRNAME, "..");
+const TOKEN_SOURCE_PATH = path.join(
+    ELECTRON_ROOT,
+    "tokens",
+    "dtcg.tokens.json",
+);
+const OUTPUT_CSS_PATH = path.join(
+    ELECTRON_ROOT,
     "styles",
     "generated",
     "tokens.css",
 );
-const outputTsPath = path.join(electronRoot, "tokens", "dist", "tokens.ts");
-const outputJsonPath = path.join(
-    electronRoot,
+const OUTPUT_TS_PATH = path.join(ELECTRON_ROOT, "tokens", "dist", "tokens.ts");
+const OUTPUT_JSON_PATH = path.join(
+    ELECTRON_ROOT,
     "tokens",
     "dist",
     "tokens.resolved.json",
@@ -46,11 +50,11 @@ function flattenTokens(node, pathParts = [], map = new Map()) {
         map.set(pathParts.join("."), node.$value);
         return map;
     }
-    for (const [key, value] of Object.entries(node)) {
-        if (key.startsWith("$")) {
+    for (const [KEY, VALUE] of Object.entries(node)) {
+        if (KEY.startsWith("$")) {
             continue;
         }
-        flattenTokens(value, [...pathParts, key], map);
+        flattenTokens(VALUE, [...pathParts, KEY], map);
     }
     return map;
 }
@@ -65,11 +69,11 @@ function resolveValue(rawValue, resolver) {
     if (typeof rawValue !== "string") {
         return rawValue;
     }
-    const alias = rawValue.match(/^\{([^}]+)\}$/);
-    if (!alias) {
+    const ALIAS = rawValue.match(/^\{([^}]+)\}$/);
+    if (!ALIAS) {
         return rawValue;
     }
-    return resolver(alias[1]);
+    return resolver(ALIAS[1]);
 }
 
 /**
@@ -78,7 +82,7 @@ function resolveValue(rawValue, resolver) {
  * @returns {(pathKey: string, stack?: Set<string>) => unknown} Alias resolver.
  */
 function createResolver(flatMap) {
-    const cache = new Map();
+    const CACHE = new Map();
 
     /**
      * Resolves a single token path with circular-reference detection.
@@ -87,8 +91,8 @@ function createResolver(flatMap) {
      * @returns {unknown} Resolved token value.
      */
     function resolve(pathKey, stack = new Set()) {
-        if (cache.has(pathKey)) {
-            return cache.get(pathKey);
+        if (CACHE.has(pathKey)) {
+            return CACHE.get(pathKey);
         }
         if (stack.has(pathKey)) {
             throw new Error(
@@ -99,12 +103,12 @@ function createResolver(flatMap) {
             throw new Error(`Unknown token alias: ${pathKey}`);
         }
         stack.add(pathKey);
-        const value = resolveValue(flatMap.get(pathKey), (nextKey) =>
+        const VALUE = resolveValue(flatMap.get(pathKey), (nextKey) =>
             resolve(nextKey, stack),
         );
         stack.delete(pathKey);
-        cache.set(pathKey, value);
-        return value;
+        CACHE.set(pathKey, VALUE);
+        return VALUE;
     }
 
     return resolve;
@@ -138,48 +142,50 @@ function writeFile(filePath, content) {
     fs.writeFileSync(filePath, content, "utf8");
 }
 
-const source = JSON.parse(fs.readFileSync(tokenSourcePath, "utf8"));
-const flat = flattenTokens(source);
-const resolve = createResolver(flat);
+const SOURCE = JSON.parse(fs.readFileSync(TOKEN_SOURCE_PATH, "utf8"));
+const FLAT = flattenTokens(SOURCE);
+const RESOLVE = createResolver(FLAT);
 
-const resolved = Object.fromEntries(
-    [...flat.keys()].sort().map((key) => [key, resolve(key)]),
+const RESOLVED = Object.fromEntries(
+    [...FLAT.keys()].sort().map((key) => [key, RESOLVE(key)]),
 );
 
-const semanticLight = Object.entries(resolved)
+const SEMANTIC_LIGHT = Object.entries(RESOLVED)
     .filter(([key]) => key.startsWith("semantic.light."))
     .map(([key, value]) => [key.replace("semantic.light.", ""), value]);
 
-const semanticDark = Object.entries(resolved)
+const SEMANTIC_DARK = Object.entries(RESOLVED)
     .filter(([key]) => key.startsWith("semantic.dark."))
     .map(([key, value]) => [key.replace("semantic.dark.", ""), value]);
 
-const tokenEntries = Object.entries(resolved);
+const TOKEN_ENTRIES = Object.entries(RESOLVED);
 
-const cssLines = [
+const CSS_LINES = [
     "/* Auto-generated from tokens/dtcg.tokens.json. Do not edit by hand. */",
     ":root {",
-    ...tokenEntries.map(([key, value]) => `  ${cssVarName(key)}: ${value};`),
-    ...semanticDark.map(([key, value]) => `  ${appVarName(key)}: ${value};`),
+    ...TOKEN_ENTRIES.map(([key, value]) => `  ${cssVarName(key)}: ${value};`),
+    ...SEMANTIC_DARK.map(([key, value]) => `  ${appVarName(key)}: ${value};`),
     "}",
     "",
     ':root[data-theme="dark"] {',
-    ...semanticDark.map(([key, value]) => `  ${appVarName(key)}: ${value};`),
+    ...SEMANTIC_DARK.map(([key, value]) => `  ${appVarName(key)}: ${value};`),
     "}",
     "",
     ':root[data-theme="light"] {',
-    ...semanticLight.map(([key, value]) => `  ${appVarName(key)}: ${value};`),
+    ...SEMANTIC_LIGHT.map(([key, value]) => `  ${appVarName(key)}: ${value};`),
     "}",
     "",
     "@media (prefers-color-scheme: dark) {",
     '  :root[data-theme="system"] {',
-    ...semanticDark.map(([key, value]) => `    ${appVarName(key)}: ${value};`),
+    ...SEMANTIC_DARK.map(([key, value]) => `    ${appVarName(key)}: ${value};`),
     "  }",
     "}",
     "",
     "@media (prefers-color-scheme: light) {",
     '  :root[data-theme="system"] {',
-    ...semanticLight.map(([key, value]) => `    ${appVarName(key)}: ${value};`),
+    ...SEMANTIC_LIGHT.map(
+        ([key, value]) => `    ${appVarName(key)}: ${value};`,
+    ),
     "  }",
     "}",
     "",
@@ -193,10 +199,10 @@ const cssLines = [
     "",
 ].join("\n");
 
-const tsLines = [
+const TS_LINES = [
     "// Auto-generated from tokens/dtcg.tokens.json. Do not edit by hand.",
     "export const tokenVarByName = {",
-    ...Object.keys(resolved)
+    ...Object.keys(RESOLVED)
         .sort()
         .map((key) => `  "${key}": "var(${cssVarName(key)})",`),
     "} as const;",
@@ -204,19 +210,19 @@ const tsLines = [
     "export type TokenName = keyof typeof tokenVarByName;",
     "",
     "export const semanticTokenVarByName = {",
-    ...semanticDark
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([name]) => `  "${name}": "var(${appVarName(name)})",`),
+    ...SEMANTIC_DARK.sort(([a], [b]) => a.localeCompare(b)).map(
+        ([name]) => `  "${name}": "var(${appVarName(name)})",`,
+    ),
     "} as const;",
     "",
     "export type SemanticTokenName = keyof typeof semanticTokenVarByName;",
     "",
 ].join("\n");
 
-writeFile(outputCssPath, cssLines);
-writeFile(outputTsPath, tsLines);
-writeFile(outputJsonPath, `${JSON.stringify(resolved, null, 2)}\n`);
+writeFile(OUTPUT_CSS_PATH, CSS_LINES);
+writeFile(OUTPUT_TS_PATH, TS_LINES);
+writeFile(OUTPUT_JSON_PATH, `${JSON.stringify(RESOLVED, null, 2)}\n`);
 
 process.stdout.write(
-    `Built tokens: ${path.relative(electronRoot, outputCssPath)} and ${path.relative(electronRoot, outputTsPath)}\n`,
+    `Built tokens: ${path.relative(ELECTRON_ROOT, OUTPUT_CSS_PATH)} and ${path.relative(ELECTRON_ROOT, OUTPUT_TS_PATH)}\n`,
 );

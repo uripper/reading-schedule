@@ -37,39 +37,39 @@ function book(overrides = {}) {
 }
 
 test("normalizeBook defaults scheduled days to all weekdays", () => {
-    const normalized = normalizeBook({
+    const NORMALIZED = normalizeBook({
         title: "Default Days",
         words_total: 1000,
     });
 
-    assert.deepEqual(normalized.scheduled_days, BOOK_WEEKDAYS);
+    assert.deepEqual(NORMALIZED.scheduled_days, BOOK_WEEKDAYS);
 });
 
 test("normalizeBook normalizes scheduled-day order and removes invalid values", () => {
-    const normalized = normalizeBook({
+    const NORMALIZED = normalizeBook({
         scheduled_days: ["Fri", "Mon", "Fri", "BadDay"],
         title: "Ordered Days",
         words_total: 1000,
     });
 
-    assert.deepEqual(normalized.scheduled_days, ["Mon", "Fri"]);
+    assert.deepEqual(NORMALIZED.scheduled_days, ["Mon", "Fri"]);
 });
 
 test("applyScheduledDaysToShelfBooks updates only matching shelf books", () => {
-    const nextDays = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-    const source = book({
+    const NEXT_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    const SOURCE = book({
         book_id: "work-1",
-        scheduled_days: nextDays,
+        scheduled_days: NEXT_DAYS,
         shelf: "Work",
     });
-    const books = [
-        source,
+    const BOOKS = [
+        SOURCE,
         book({ book_id: "work-2", scheduled_days: ["Sat"], shelf: "Work" }),
         book({ book_id: "home-1", scheduled_days: ["Sat"], shelf: "Home" }),
     ];
 
-    const result = applyScheduledDaysToShelfBooks(books, source);
-    assert.deepEqual(result[0].scheduled_days, nextDays);
-    assert.deepEqual(result[1].scheduled_days, nextDays);
-    assert.deepEqual(result[2].scheduled_days, ["Sat"]);
+    const RESULT = applyScheduledDaysToShelfBooks(BOOKS, SOURCE);
+    assert.deepEqual(RESULT[0].scheduled_days, NEXT_DAYS);
+    assert.deepEqual(RESULT[1].scheduled_days, NEXT_DAYS);
+    assert.deepEqual(RESULT[2].scheduled_days, ["Sat"]);
 });

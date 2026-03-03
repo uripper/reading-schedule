@@ -23,8 +23,8 @@ function row(overrides) {
 }
 
 test("groupRowsByDate prioritizes expected-finish rows within each day", () => {
-    const date = "2026-02-22";
-    const grouped = groupRowsByDate([
+    const DATE = "2026-02-22";
+    const GROUPED = groupRowsByDate([
         row({ book_id: "book-1", finish: false, session_index: 1 }),
         row({ book_id: "book-2", finish: true, session_index: 2 }),
         row({ book_id: "book-3", finish: false, session_index: 3 }),
@@ -32,13 +32,13 @@ test("groupRowsByDate prioritizes expected-finish rows within each day", () => {
     ]);
 
     assert.deepEqual(
-        grouped[date].map((entry) => entry.book_id),
+        GROUPED[DATE].map((entry) => entry.book_id),
         ["book-2", "book-4", "book-1", "book-3"],
     );
 });
 
 test("rowsWithCompletedLast keeps expected-finish rows first inside incomplete and complete groups", () => {
-    const rows = [
+    const ROWS = [
         row({
             book_id: "book-complete-finish",
             finish: true,
@@ -61,21 +61,21 @@ test("rowsWithCompletedLast keeps expected-finish rows first inside incomplete a
         }),
     ];
 
-    const completedSessionKeys = new Set([
-        sessionKeyFor(rows[0]),
-        sessionKeyFor(rows[3]),
+    const COMPLETED_SESSION_KEYS = new Set([
+        sessionKeyFor(ROWS[0]),
+        sessionKeyFor(ROWS[3]),
     ]);
 
-    const ordered = rowsWithCompletedLast(rows, {
+    const ORDERED = rowsWithCompletedLast(ROWS, {
         getBookById: () => null,
         isSessionCompleted: (sessionKey) =>
-            completedSessionKeys.has(sessionKey),
+            COMPLETED_SESSION_KEYS.has(sessionKey),
         onSessionCompletionChanged: () => null,
         onSessionProgressUpdated: () => null,
     });
 
     assert.deepEqual(
-        ordered.map((entry) => entry.book_id),
+        ORDERED.map((entry) => entry.book_id),
         [
             "book-incomplete-finish",
             "book-incomplete-normal",
@@ -86,31 +86,31 @@ test("rowsWithCompletedLast keeps expected-finish rows first inside incomplete a
 });
 
 test("enrichRows moves expected-finish forward when today row is marked complete", () => {
-    const today = dayKey(new Date());
-    const tomorrowDate = new Date(`${today}T00:00:00`);
-    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-    const tomorrow = dayKey(tomorrowDate);
+    const TODAY = dayKey(new Date());
+    const TOMORROW_DATE = new Date(`${TODAY}T00:00:00`);
+    TOMORROW_DATE.setDate(TOMORROW_DATE.getDate() + 1);
+    const TOMORROW = dayKey(TOMORROW_DATE);
 
-    const todayRow = row({
+    const TODAY_ROW = row({
         book_id: "book-1",
-        date: today,
+        date: TODAY,
         session_index: 1,
         words_planned: 100,
     });
-    const tomorrowRow = row({
+    const TOMORROW_ROW = row({
         book_id: "book-1",
-        date: tomorrow,
+        date: TOMORROW,
         session_index: 1,
         words_planned: 100,
     });
-    const totals = { "book-1": 100 };
+    const TOTALS = { "book-1": 100 };
 
-    const enriched = enrichRows(
-        [todayRow, tomorrowRow],
-        totals,
-        (sessionKey) => sessionKey === sessionKeyFor(todayRow),
+    const ENRICHED = enrichRows(
+        [TODAY_ROW, TOMORROW_ROW],
+        TOTALS,
+        (sessionKey) => sessionKey === sessionKeyFor(TODAY_ROW),
     );
 
-    assert.equal(enriched[0]?.finish, false);
-    assert.equal(enriched[1]?.finish, true);
+    assert.equal(ENRICHED[0]?.finish, false);
+    assert.equal(ENRICHED[1]?.finish, true);
 });

@@ -46,58 +46,58 @@ function row(args) {
 }
 
 test("nextUncompletedPlannedRow skips already completed rows", () => {
-    const date = todayKey();
-    const first = row({
+    const DATE = todayKey();
+    const FIRST = row({
         bookId: "book-1",
-        date,
+        date: DATE,
         minutes: 15,
         sessionIndex: 1,
         title: "The First",
     });
-    const second = row({
+    const SECOND = row({
         bookId: "book-2",
-        date,
+        date: DATE,
         minutes: 20,
         sessionIndex: 2,
         title: "Second",
     });
-    const completions = {};
-    completions[sessionKeyFor(first)] = true;
+    const COMPLETIONS = {};
+    COMPLETIONS[sessionKeyFor(FIRST)] = true;
 
-    const next = nextUncompletedPlannedRow(
-        plannerResult([first, second]),
-        completions,
+    const NEXT = nextUncompletedPlannedRow(
+        plannerResult([FIRST, SECOND]),
+        COMPLETIONS,
     );
-    assert.equal(next?.book_id, "book-2");
+    assert.equal(NEXT?.book_id, "book-2");
 });
 
 test("buildTodayScheduleSnapshot returns per-book and overall completion counts", () => {
-    const date = todayKey();
-    const first = row({
+    const DATE = todayKey();
+    const FIRST = row({
         bookId: "book-1",
-        date,
+        date: DATE,
         minutes: 10,
         sessionIndex: 1,
         title: "The Book",
     });
-    const second = row({
+    const SECOND = row({
         bookId: "book-1",
-        date,
+        date: DATE,
         minutes: 20,
         sessionIndex: 2,
         title: "The Book",
     });
-    const third = row({
+    const THIRD = row({
         bookId: "book-2",
-        date,
+        date: DATE,
         minutes: 30,
         sessionIndex: 3,
         title: "Another Book",
     });
-    const completions = {};
-    completions[sessionKeyFor(first)] = true;
+    const COMPLETIONS = {};
+    COMPLETIONS[sessionKeyFor(FIRST)] = true;
 
-    const books = [
+    const BOOKS = [
         {
             book_id: "book-1",
             cover_local_path: "",
@@ -106,16 +106,16 @@ test("buildTodayScheduleSnapshot returns per-book and overall completion counts"
         { book_id: "book-2", cover_local_path: "/tmp/two.jpg", cover_url: "" },
     ];
 
-    const snapshot = buildTodayScheduleSnapshot(
-        plannerResult([first, second, third]),
-        completions,
-        books,
+    const SNAPSHOT = buildTodayScheduleSnapshot(
+        plannerResult([FIRST, SECOND, THIRD]),
+        COMPLETIONS,
+        BOOKS,
     );
 
-    assert.equal(snapshot.scheduledSessions, 3);
-    assert.equal(snapshot.completedSessions, 1);
-    assert.equal(snapshot.completedPlannedMinutes, 10);
-    assert.equal(snapshot.books.length, 2);
-    assert.equal(snapshot.books[0].title, "Another Book");
-    assert.equal(snapshot.books[1].title, "The Book");
+    assert.equal(SNAPSHOT.scheduledSessions, 3);
+    assert.equal(SNAPSHOT.completedSessions, 1);
+    assert.equal(SNAPSHOT.completedPlannedMinutes, 10);
+    assert.equal(SNAPSHOT.books.length, 2);
+    assert.equal(SNAPSHOT.books[0].title, "Another Book");
+    assert.equal(SNAPSHOT.books[1].title, "The Book");
 });

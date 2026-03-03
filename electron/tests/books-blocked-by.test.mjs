@@ -17,18 +17,18 @@ function book(overrides = {}) {
 }
 
 test("clearMissingBlockedBy keeps blocker ids that are still schedulable", () => {
-    const books = [
+    const BOOKS = [
         book({ book_id: "book-a" }),
         book({ blocked_by: "book-a", book_id: "book-b" }),
     ];
 
-    const result = clearMissingBlockedBy(books);
-    assert.equal(result[1].blocked_by, "book-a");
+    const RESULT = clearMissingBlockedBy(BOOKS);
+    assert.equal(RESULT[1].blocked_by, "book-a");
 });
 
 test("clearMissingBlockedBy clears blocker ids that are missing", () => {
-    const books = [book({ blocked_by: "book-a", book_id: "book-b" })];
+    const BOOKS = [book({ blocked_by: "book-a", book_id: "book-b" })];
 
-    const result = clearMissingBlockedBy(books);
-    assert.equal(result[0].blocked_by, null);
+    const RESULT = clearMissingBlockedBy(BOOKS);
+    assert.equal(RESULT[0].blocked_by, null);
 });

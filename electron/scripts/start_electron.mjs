@@ -4,7 +4,7 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const require = createRequire(import.meta.url);
+const REQUIRE = createRequire(import.meta.url);
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(path.join(SCRIPT_DIR, ".."));
 const DEVELOPMENT_ENVIRONMENT = "development";
@@ -21,7 +21,7 @@ const PNPM_COMMAND_WINDOWS = "pnpm.cmd";
  * Detects whether the script should launch Electron in development mode.
  * @returns {boolean} True when development launch flag is present.
  */
-const isDevelopmentLaunch = () => {
+const IS_DEVELOPMENT_LAUNCH = () => {
     return process.argv.includes(DEVELOPMENT_FLAG);
 };
 
@@ -30,20 +30,20 @@ const isDevelopmentLaunch = () => {
  * @param {boolean} developmentLaunch Whether to force development mode.
  * @returns {NodeJS.ProcessEnv} Cleaned environment object.
  */
-const cleanedEnvironment = (developmentLaunch) => {
-    const env = { ...process.env };
-    delete env.ELECTRON_RUN_AS_NODE;
+const CLEANED_ENVIRONMENT = (developmentLaunch) => {
+    const ENV = { ...process.env };
+    delete ENV.ELECTRON_RUN_AS_NODE;
     if (developmentLaunch) {
-        env.NODE_ENV = DEVELOPMENT_ENVIRONMENT;
+        ENV.NODE_ENV = DEVELOPMENT_ENVIRONMENT;
     }
-    return env;
+    return ENV;
 };
 
 /**
  * Resolves the pnpm command name for the current platform.
  * @returns {string} pnpm executable name.
  */
-const pnpmCommandName = () => {
+const PNPM_COMMAND_NAME = () => {
     if (process.platform === "win32") {
         return PNPM_COMMAND_WINDOWS;
     }
@@ -53,13 +53,13 @@ const pnpmCommandName = () => {
 /**
  * Runs `pnpm rebuild electron` in project root to recover missing Electron binary.
  */
-const rebuildElectronBinary = () => {
-    const command = pnpmCommandName();
-    const result = spawnSync(command, ELECTRON_REBUILD_ARGS, {
+const REBUILD_ELECTRON_BINARY = () => {
+    const COMMAND = PNPM_COMMAND_NAME();
+    const RESULT = spawnSync(COMMAND, ELECTRON_REBUILD_ARGS, {
         cwd: ROOT,
         stdio: "inherit",
     });
-    const STATUS = result.status;
+    const STATUS = RESULT.status;
     if (STATUS === 0) {
         return;
     }
@@ -70,8 +70,8 @@ const rebuildElectronBinary = () => {
  * Returns absolute directory path to installed electron package.
  * @returns {string} Electron package directory path.
  */
-const electronPackageDirectory = () => {
-    const PACKAGE_JSON_PATH = require.resolve("electron/package.json");
+const ELECTRON_PACKAGE_DIRECTORY = () => {
+    const PACKAGE_JSON_PATH = REQUIRE.resolve("electron/package.json");
     return path.dirname(PACKAGE_JSON_PATH);
 };
 
@@ -79,8 +79,8 @@ const electronPackageDirectory = () => {
  * Checks whether Electron package generated path marker exists.
  * @returns {boolean} True when `path.txt` exists.
  */
-const hasElectronPathMarker = () => {
-    const ELECTRON_DIRECTORY = electronPackageDirectory();
+const HAS_ELECTRON_PATH_MARKER = () => {
+    const ELECTRON_DIRECTORY = ELECTRON_PACKAGE_DIRECTORY();
     const PATH_MARKER = path.join(ELECTRON_DIRECTORY, ELECTRON_PATH_FILE);
     return fs.existsSync(PATH_MARKER);
 };
@@ -88,8 +88,8 @@ const hasElectronPathMarker = () => {
 /**
  * Runs Electron package install script to force binary download and marker write.
  */
-const runElectronInstallScript = () => {
-    const ELECTRON_DIRECTORY = electronPackageDirectory();
+const RUN_ELECTRON_INSTALL_SCRIPT = () => {
+    const ELECTRON_DIRECTORY = ELECTRON_PACKAGE_DIRECTORY();
     const INSTALL_SCRIPT_PATH = path.join(
         ELECTRON_DIRECTORY,
         ELECTRON_INSTALL_SCRIPT,
@@ -110,24 +110,24 @@ const runElectronInstallScript = () => {
 /**
  * Repairs Electron dependency by rebuilding and then forcing install script when needed.
  */
-const repairElectronInstall = () => {
-    rebuildElectronBinary();
-    if (hasElectronPathMarker()) {
+const REPAIR_ELECTRON_INSTALL = () => {
+    REBUILD_ELECTRON_BINARY();
+    if (HAS_ELECTRON_PATH_MARKER()) {
         return;
     }
     process.stderr.write(
         "Electron path marker missing after rebuild; running install script...\n",
     );
-    runElectronInstallScript();
+    RUN_ELECTRON_INSTALL_SCRIPT();
 };
 
 /**
  * Attempts to resolve Electron binary path, optionally rebuilding on failure.
  * @returns {string} Electron binary path.
  */
-const resolveElectronBinaryPath = () => {
+const RESOLVE_ELECTRON_BINARY_PATH = () => {
     try {
-        return electronBinaryPath();
+        return ELECTRON_BINARY_PATH();
     } catch (error) {
         let message = "";
         if (error instanceof Error) {
@@ -139,8 +139,8 @@ const resolveElectronBinaryPath = () => {
         process.stderr.write(
             "Attempting to repair Electron install with `pnpm rebuild electron`...\n",
         );
-        repairElectronInstall();
-        return electronBinaryPath();
+        REPAIR_ELECTRON_INSTALL();
+        return ELECTRON_BINARY_PATH();
     }
 };
 
@@ -148,25 +148,25 @@ const resolveElectronBinaryPath = () => {
  * Resolves installed Electron binary path from dependency entrypoint.
  * @returns {string} Electron binary path.
  */
-const electronBinaryPath = () => {
-    const binary = require("electron");
-    if (typeof binary !== "string" || !binary) {
+const ELECTRON_BINARY_PATH = () => {
+    const BINARY = REQUIRE("electron");
+    if (typeof BINARY !== "string" || !BINARY) {
         throw new TypeError("Could not resolve Electron binary path.");
     }
-    return binary;
+    return BINARY;
 };
 
 /**
  * Spawns Electron process with inherited stdio and exit propagation.
  */
-const spawnElectron = () => {
-    const developmentLaunch = isDevelopmentLaunch();
-    const child = spawn(resolveElectronBinaryPath(), ["."], {
+const SPAWN_ELECTRON = () => {
+    const DEVELOPMENT_LAUNCH = IS_DEVELOPMENT_LAUNCH();
+    const CHILD = spawn(RESOLVE_ELECTRON_BINARY_PATH(), ["."], {
         cwd: ROOT,
-        env: cleanedEnvironment(developmentLaunch),
+        env: CLEANED_ENVIRONMENT(DEVELOPMENT_LAUNCH),
         stdio: "inherit",
     });
-    child.on("error", (error) => {
+    CHILD.on("error", (error) => {
         let message = "";
         if (error instanceof Error) {
             message = error.message;
@@ -176,7 +176,7 @@ const spawnElectron = () => {
         process.stderr.write(`${message}\n`);
         process.exitCode = 1;
     });
-    child.on("exit", (code, signal) => {
+    CHILD.on("exit", (code, signal) => {
         if (signal) {
             process.kill(process.pid, signal);
             return;
@@ -185,4 +185,4 @@ const spawnElectron = () => {
     });
 };
 
-spawnElectron();
+SPAWN_ELECTRON();

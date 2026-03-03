@@ -31,59 +31,59 @@ function cleanup(directory) {
 }
 
 test("JSON store rotates backup and recovers from corrupted primary", () => {
-    const userDataDir = tempUserDataDir();
+    const USER_DATA_DIR = tempUserDataDir();
     try {
-        const firstState = {
+        const FIRST_STATE = {
             books: [],
             settings: { start_date: "2026-01-01" },
         };
-        const secondState = {
+        const SECOND_STATE = {
             books: [{ book_id: "b-1", title: "Book" }],
             settings: { start_date: "2026-02-01" },
         };
 
-        assert.equal(writeStateToJson(userDataDir, firstState).ok, true);
-        assert.equal(writeStateToJson(userDataDir, secondState).ok, true);
+        assert.equal(writeStateToJson(USER_DATA_DIR, FIRST_STATE).ok, true);
+        assert.equal(writeStateToJson(USER_DATA_DIR, SECOND_STATE).ok, true);
 
-        const primaryResult = readStateFromJson(userDataDir);
-        assert.equal(primaryResult?.source, "json_primary");
-        assert.equal(primaryResult?.state?.settings?.start_date, "2026-02-01");
+        const PRIMARY_RESULT = readStateFromJson(USER_DATA_DIR);
+        assert.equal(PRIMARY_RESULT?.source, "json_primary");
+        assert.equal(PRIMARY_RESULT?.state?.settings?.start_date, "2026-02-01");
 
-        fs.writeFileSync(jsonStatePath(userDataDir), "{broken", "utf8");
+        fs.writeFileSync(jsonStatePath(USER_DATA_DIR), "{broken", "utf8");
 
-        const backupResult = readStateFromJson(userDataDir);
-        assert.equal(backupResult?.source, "json_backup");
-        assert.equal(backupResult?.warningCode, "RECOVERED_FROM_BACKUP");
-        assert.equal(backupResult?.state?.settings?.start_date, "2026-01-01");
+        const BACKUP_RESULT = readStateFromJson(USER_DATA_DIR);
+        assert.equal(BACKUP_RESULT?.source, "json_backup");
+        assert.equal(BACKUP_RESULT?.warningCode, "RECOVERED_FROM_BACKUP");
+        assert.equal(BACKUP_RESULT?.state?.settings?.start_date, "2026-01-01");
     } finally {
-        cleanup(userDataDir);
+        cleanup(USER_DATA_DIR);
     }
 });
 
 test("Facade emits fresh-warning when persisted JSON artifacts are unreadable", () => {
-    const userDataDir = tempUserDataDir();
+    const USER_DATA_DIR = tempUserDataDir();
     try {
         assert.equal(
-            writeStateToJson(userDataDir, { books: [], settings: {} }).ok,
+            writeStateToJson(USER_DATA_DIR, { books: [], settings: {} }).ok,
             true,
         );
         assert.equal(
-            writeStateToJson(userDataDir, { books: [], settings: {} }).ok,
+            writeStateToJson(USER_DATA_DIR, { books: [], settings: {} }).ok,
             true,
         );
 
-        fs.writeFileSync(jsonStatePath(userDataDir), "{broken", "utf8");
+        fs.writeFileSync(jsonStatePath(USER_DATA_DIR), "{broken", "utf8");
         fs.writeFileSync(
-            jsonStateBackupPath(userDataDir),
+            jsonStateBackupPath(USER_DATA_DIR),
             "{alsoBroken",
             "utf8",
         );
 
-        const loadResult = readState(userDataDir);
-        assert.equal(loadResult.source, "fresh");
-        assert.equal(loadResult.state, null);
-        assert.equal(loadResult.warningCode, "STATE_RESET_FRESH");
+        const LOAD_RESULT = readState(USER_DATA_DIR);
+        assert.equal(LOAD_RESULT.source, "fresh");
+        assert.equal(LOAD_RESULT.state, null);
+        assert.equal(LOAD_RESULT.warningCode, "STATE_RESET_FRESH");
     } finally {
-        cleanup(userDataDir);
+        cleanup(USER_DATA_DIR);
     }
 });

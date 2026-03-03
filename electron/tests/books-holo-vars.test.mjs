@@ -4,25 +4,25 @@ import test from "node:test";
 import { holoVarsForPointer } from "../dist/renderer/books/card_holo.js";
 
 test("holoVarsForPointer computes centered percentages", () => {
-    const vars = holoVarsForPointer(
+    const VARS = holoVarsForPointer(
         { height: 100, left: 10, top: 20, width: 200 },
         110,
         70,
     );
-    assert.equal(vars.pointerX, "50%");
-    assert.equal(vars.pointerY, "50%");
-    assert.equal(vars.bgShiftX, "50%");
-    assert.equal(vars.bgShiftY, "50%");
+    assert.equal(VARS.pointerX, "50%");
+    assert.equal(VARS.pointerY, "50%");
+    assert.equal(VARS.bgShiftX, "50%");
+    assert.equal(VARS.bgShiftY, "50%");
 });
 
 test("holoVarsForPointer clamps out-of-bounds pointer coordinates", () => {
-    const vars = holoVarsForPointer(
+    const VARS = holoVarsForPointer(
         { height: 100, left: 100, top: 100, width: 200 },
         -999,
         999,
     );
-    assert.equal(vars.pointerX, "0%");
-    assert.equal(vars.pointerY, "100%");
-    assert.equal(vars.bgShiftX, "32.5%");
-    assert.equal(vars.bgShiftY, "67.5%");
+    assert.equal(VARS.pointerX, "0%");
+    assert.equal(VARS.pointerY, "100%");
+    assert.equal(VARS.bgShiftX, "32.5%");
+    assert.equal(VARS.bgShiftY, "67.5%");
 });

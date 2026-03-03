@@ -2,12 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const electronRoot = path.resolve(__dirname, "..");
-const stylesRoot = path.join(electronRoot, "styles");
-const ignoreFiles = new Set([path.join(stylesRoot, "generated", "tokens.css")]);
-const hexPattern = /#[0-9a-fA-F]{3,8}\b/g;
+const _FILENAME = fileURLToPath(import.meta.url);
+const _DIRNAME = path.dirname(_FILENAME);
+const ELECTRON_ROOT = path.resolve(_DIRNAME, "..");
+const STYLES_ROOT = path.join(ELECTRON_ROOT, "styles");
+const IGNORE_FILES = new Set([
+    path.join(STYLES_ROOT, "generated", "tokens.css"),
+]);
+const HEX_PATTERN = /#[0-9a-fA-F]{3,8}\b/g;
 
 /**
  * Recursively collects CSS files under a directory.
@@ -16,38 +18,38 @@ const hexPattern = /#[0-9a-fA-F]{3,8}\b/g;
  * @returns {string[]} Discovered CSS file paths.
  */
 function walkCssFiles(dir, files = []) {
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-        const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-            walkCssFiles(fullPath, files);
+    for (const ENTRY of fs.readdirSync(dir, { withFileTypes: true })) {
+        const FULL_PATH = path.join(dir, ENTRY.name);
+        if (ENTRY.isDirectory()) {
+            walkCssFiles(FULL_PATH, files);
             continue;
         }
-        if (entry.isFile() && entry.name.endsWith(".css")) {
-            files.push(fullPath);
+        if (ENTRY.isFile() && ENTRY.name.endsWith(".css")) {
+            files.push(FULL_PATH);
         }
     }
     return files;
 }
 
 let failures = 0;
-for (const filePath of walkCssFiles(stylesRoot)) {
-    if (ignoreFiles.has(filePath)) {
+for (const FILE_PATH of walkCssFiles(STYLES_ROOT)) {
+    if (IGNORE_FILES.has(FILE_PATH)) {
         continue;
     }
-    const source = fs.readFileSync(filePath, "utf8");
-    const lines = source.split(/\r?\n/);
-    for (const [index, line] of lines.entries()) {
-        const trimmed = line.trim();
-        if (!trimmed || trimmed.startsWith("/*")) {
+    const SOURCE = fs.readFileSync(FILE_PATH, "utf8");
+    const LINES = SOURCE.split(/\r?\n/);
+    for (const [INDEX, LINE] of LINES.entries()) {
+        const TRIMMED = LINE.trim();
+        if (!TRIMMED || TRIMMED.startsWith("/*")) {
             continue;
         }
-        const matches = line.match(hexPattern);
-        if (!matches) {
+        const MATCHES = LINE.match(HEX_PATTERN);
+        if (!MATCHES) {
             continue;
         }
         failures += 1;
         process.stderr.write(
-            `${path.relative(electronRoot, filePath)}:${index + 1} uses raw hex color ${matches.join(", ")}\n`,
+            `${path.relative(ELECTRON_ROOT, FILE_PATH)}:${INDEX + 1} uses raw hex color ${MATCHES.join(", ")}\n`,
         );
     }
 }
