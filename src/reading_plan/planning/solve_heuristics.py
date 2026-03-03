@@ -164,7 +164,7 @@ def run_precheck(books: list[Book], settings: Settings) -> PrecheckResult:
     return _deadline_precheck(books, settings, days, caps, wpb)
 
 
-def jls_extract_def(
+def _deadline_capacity_note(
     book: Book,
     wpb: dict[str, int],
     settings: Settings,
@@ -183,8 +183,10 @@ def jls_extract_def(
         available += min(caps[day], per_book_limit)
     if available >= required:
         return None
-    return f"Precheck infeasible for deadline-bound book {book.book_id};\
-                fell back to greedy planner."
+    return (
+        f"Precheck infeasible for deadline-bound book {book.book_id}; "
+        "fell back to greedy planner."
+    )
 
 
 def _deadline_precheck(
@@ -198,7 +200,13 @@ def _deadline_precheck(
     for book in books:
         if book.deadline is None:
             continue
-        note: str | None = jls_extract_def(book, wpb, settings, days, caps)
+        note: str | None = _deadline_capacity_note(
+            book,
+            wpb,
+            settings,
+            days,
+            caps,
+        )
         if note is None:
             continue
         return PrecheckResult(is_feasible=False, note=note)

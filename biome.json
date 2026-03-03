@@ -29,6 +29,19 @@
     },
     "overrides": [
         {
+            "includes": ["**/*.tsx"],
+            "assist": {
+                "actions": {
+                    "source": {
+                        "useSortedAttributes": "off",
+                        "useSortedInterfaceMembers": "off",
+                        "useSortedKeys": "off",
+                        "useSortedProperties": "off"
+                    }
+                }
+            }
+        },
+        {
             "includes": ["eslint.config.mjs", "**/*.js", "**/*.mjs", "**/*.ts"],
             "javascript": { "globals": ["exports"] },
             "linter": {

@@ -3,6 +3,7 @@
  */
 import fs from "node:fs";
 import { DatabaseSync } from "node:sqlite";
+import { safeParseLoadedPlannerState } from "@reading-schedule/contracts";
 import {
     type JsonValue,
     type LoadedPlannerState,

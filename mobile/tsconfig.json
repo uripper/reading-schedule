@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "jsx": "react-jsx",
+        "lib": ["ES2023"],
+        "paths": {
+            "@api/*": ["src/api/*"],
+            "@config/*": ["src/config/*"],
+            "@features/*": ["src/features/*"],
+            "@navigation/*": ["src/navigation/*"]
+        },
+        "strict": true,
+        "types": ["react", "react-native"]
+    },
+    "extends": "../tsconfig.base.json",
+    "include": ["App.tsx", "src/**/*.d.ts", "src/**/*.ts", "src/**/*.tsx"]
+}

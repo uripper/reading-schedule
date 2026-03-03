@@ -1,0 +1,27 @@
+{
+    "dependencies": {
+        "zod": "^4.3.6"
+    },
+    "devDependencies": {
+        "typescript": "^5.7.3"
+    },
+    "exports": {
+        ".": {
+            "default": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "main": "./dist/index.js",
+    "name": "@reading-schedule/contracts",
+    "private": true,
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "typecheck": "tsc -p tsconfig.json --noEmit"
+    },
+    "type": "module",
+    "types": "./dist/index.d.ts",
+    "version": "0.1.0"
+}
