@@ -1,7 +1,6 @@
 {
     "dependencies": {
-        "@reading-schedule/contracts": "workspace:*",
-        "zod": "^4.3.6"
+        "@reading-schedule/contracts": "workspace:*"
     },
     "devDependencies": {
         "@types/node": "^25.3.0",
