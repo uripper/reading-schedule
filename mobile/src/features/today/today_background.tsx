@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Image, StyleSheet, useWindowDimensions, View } from "react-native";
 import { BACKGROUND_SPRITES } from "./today_background_sprites";
+
 const MAX_ACTIVE_OBJECTS = 15;
 const SPAWN_INTERVAL_MS = 1000;
 const BURST_TWO_PROBABILITY = 0.25;
 const BURST_THREE_PROBABILITY = 0.13;
-const SPRITE_SCALE = .52;
+const SPRITE_SCALE = 0.52;
 const HORIZONTAL_PADDING = -5;
 const TOP_SPAWN_Y = -120;
 const GRAVITY_PER_SECOND = 30;
 const WALL_BOUNCE = 0.7;
 const COLLISION_RESTITUTION = 0.9;
-const COLLISION_DAMPING = .92;
+const COLLISION_DAMPING = 0.92;
 const FRAME_DT_CAP = 1 / 24;
 const BLUR_LEVEL = 2;
 const MIN_OPACITY = 0.85;
@@ -105,7 +106,7 @@ function resolveCollision(a: Body, b: Body): void {
         return;
     }
 
-    const IMPULSE = -(1 + COLLISION_RESTITUTION) * SPEED_ON_NORMAL / 2;
+    const IMPULSE = (-(1 + COLLISION_RESTITUTION) * SPEED_ON_NORMAL) / 2;
     a.vx -= IMPULSE * NX;
     a.vy -= IMPULSE * NY;
     b.vx += IMPULSE * NX;
@@ -160,7 +161,7 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
                 opacity: MIN_OPACITY + Math.random() * OPACITY_RANGE,
                 radius: RADIUS,
                 spin: Math.random() * Math.PI * 2,
-                spinVelocity: randomRange(-.5, 0.5),
+                spinVelocity: randomRange(-0.5, 0.5),
                 vx: randomRange(-130, 260),
                 vy: randomRange(18, 58),
                 x: MIN_X + Math.random() * X_RANGE,
@@ -211,7 +212,6 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
                     body.vx = -Math.abs(body.vx) * WALL_BOUNCE;
                     body.spinVelocity -= 0.3;
                 }
-
             });
 
             for (let i = 0; i < BODIES.length; i += 1) {
@@ -253,7 +253,12 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
 
     return (
         <View pointerEvents="none" style={styles.layer}>
-            <View style={[styles.ambientOverlay, { backgroundColor: ambientColor }]} />
+            <View
+                style={[
+                    styles.ambientOverlay,
+                    { backgroundColor: ambientColor },
+                ]}
+            />
             {bodiesRef.current.map((body) => {
                 const WIDTH = spriteWidth(body.index);
                 const HEIGHT = spriteHeight(body.index);

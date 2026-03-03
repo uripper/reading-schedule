@@ -1,3 +1,4 @@
+import { TodayBackground } from "@features/today/today_background";
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
     Animated,
@@ -12,7 +13,7 @@ import {
     useWindowDimensions,
     View,
 } from "react-native";
-import { TodayBackground } from "@features/today/today_background";
+import { themeFromBook } from "./today_background_theme";
 import {
     HEADER_SHADOW_BLUE,
     HEADER_SHADOW_PURPLE,
@@ -21,9 +22,9 @@ import {
     STAT_B,
     STYLES,
 } from "./today_screen_styles";
-import { themeFromBook } from "./today_background_theme";
 import { TodayThemeTransitionLayer } from "./today_theme_transition_layer";
 import { type TodayBookCard, type TodayStats } from "./types";
+
 const CAROUSEL_GAP = 16;
 const MIN_CAROUSEL_SIDE_INSET = 12;
 const THEME_TRANSITION_DURATION_MS = 700;
