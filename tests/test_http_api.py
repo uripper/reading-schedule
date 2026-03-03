@@ -2,10 +2,23 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
+import pytest
+
+try:
+    from fastapi.testclient import TestClient
+
+    HAS_TEST_CLIENT = True
+except RuntimeError:
+    TestClient = object  # type: ignore[assignment]
+    HAS_TEST_CLIENT = False
+
 from reading_plan.input.serializers import book_to_data, settings_to_data
+import reading_plan.http_api as http_api
 from reading_plan.http_api import (
+    create_app,
     _load_state_file,
     _sample_payload,
     _save_state_file,
@@ -58,6 +71,41 @@ def test_state_save_and_load_roundtrip(tmp_path: Path, monkeypatch) -> None:
     assert loaded["state"]["preferences"]["theme"] == "system"
 
 
+def test_state_load_rejects_invalid_snapshot(tmp_path: Path, monkeypatch) -> None:
+    state_path = tmp_path / "mobile_state.json"
+    monkeypatch.setenv("READING_PLAN_API_STATE_PATH", str(state_path))
+    invalid = {
+        "books": [],
+        "settings": {},
+        "sessions": [],
+    }
+    state_path.write_text(json.dumps(invalid), encoding="utf-8")
+
+    loaded = _load_state_file()
+
+    assert loaded["source"] == "fresh"
+    assert loaded["state"] is None
+    assert loaded["warningCode"] == "STATE_RESET_FRESH"
+
+
+def test_state_save_rejects_invalid_snapshot(tmp_path: Path, monkeypatch) -> None:
+    state_path = tmp_path / "mobile_state.json"
+    monkeypatch.setenv("READING_PLAN_API_STATE_PATH", str(state_path))
+
+    invalid = {
+        "books": [],
+        "settings": {},
+        "sessions": [],
+    }
+
+    try:
+        _save_state_file(invalid)
+    except TypeError as error:
+        assert "Saved state payload" in str(error)
+    else:
+        raise AssertionError("Expected TypeError for invalid snapshot")
+
+
 def test_plan_generate_endpoint() -> None:
     payload = {
         "planner": "greedy",
@@ -78,3 +126,88 @@ def test_state_sample_endpoint() -> None:
 
 def test_books_search_empty_query_returns_empty() -> None:
     assert _search_open_library("   ", author_only=False) == []
+
+
+def _create_client() -> TestClient:
+    return TestClient(create_app())
+
+
+@pytest.mark.skipif(not HAS_TEST_CLIENT, reason="fastapi[test] extras missing")
+def test_state_load_endpoint_http(tmp_path: Path, monkeypatch) -> None:
+    state_path = tmp_path / "state.json"
+    monkeypatch.setenv("READING_PLAN_API_STATE_PATH", str(state_path))
+
+    client = _create_client()
+    response = client.post("/api/state/load", json={})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert isinstance(body, dict)
+    assert "source" in body
+    assert "state" in body
+
+
+@pytest.mark.skipif(not HAS_TEST_CLIENT, reason="fastapi[test] extras missing")
+def test_state_sample_endpoint_http() -> None:
+    client = _create_client()
+    response = client.post("/api/state/sample", json={})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert isinstance(body, dict)
+    assert isinstance(body.get("books"), list)
+    assert isinstance(body.get("settings"), dict)
+
+
+@pytest.mark.skipif(not HAS_TEST_CLIENT, reason="fastapi[test] extras missing")
+def test_state_save_endpoint_http(tmp_path: Path, monkeypatch) -> None:
+    state_path = tmp_path / "state.json"
+    monkeypatch.setenv("READING_PLAN_API_STATE_PATH", str(state_path))
+
+    client = _create_client()
+
+    payload = {
+        "books": [],
+        "settings": settings_to_data(demo_settings()),
+        "sessions": [],
+        "schedule_completions": {},
+        "blocked_day_books": {},
+        "feature_flags": {
+            "gamificationEnabled": False,
+            "recommendationsEnabled": False,
+            "socialEnabled": False,
+        },
+        "preferences": {
+            "dailyGoalMinutes": 30,
+            "reduceMotion": False,
+            "reminderEnabled": False,
+            "reminderTime": "20:00",
+            "theme": "system",
+            "timezone": "UTC",
+        },
+        "last_result": None,
+    }
+    response = client.post("/api/state/save", json=payload)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert isinstance(body, dict)
+    assert body.get("ok") is True
+
+
+@pytest.mark.skipif(not HAS_TEST_CLIENT, reason="fastapi[test] extras missing")
+def test_books_search_endpoint_http(monkeypatch) -> None:
+    client = _create_client()
+
+    def fake_search(query: str, *, author_only: bool) -> list[dict[str, str]]:
+        assert query == "test"
+        assert not author_only
+        return [{"author": "A", "title": "B", "work_id": "W1"}]
+
+    monkeypatch.setattr(http_api, "_search_open_library", fake_search)
+    response = client.post("/api/books/search", json={"query": "test"})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert isinstance(body, list)
+    assert body

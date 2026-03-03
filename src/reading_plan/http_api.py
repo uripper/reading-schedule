@@ -16,6 +16,7 @@ import uvicorn
 from reading_plan.api import generate_plan
 from reading_plan.input.reading_io import load_inputs
 from reading_plan.input.serializers import book_to_data, settings_to_data
+from reading_plan.state_validation import validate_state_snapshot
 
 if TYPE_CHECKING:
     from reading_plan.api_types import PlannerInputPayload
@@ -46,9 +47,7 @@ def _sample_settings_path() -> Path:
 
 def _state_path() -> Path:
     configured = os.environ.get("READING_PLAN_API_STATE_PATH", "").strip()
-    if configured:
-        return Path(configured)
-    return _data_dir() / DEFAULT_STATE_FILE
+    return Path(configured) if configured else _data_dir() / DEFAULT_STATE_FILE
 
 
 def _fresh_state_result() -> dict[str, object]:
@@ -87,20 +86,23 @@ def _loaded_state_result(state_path: Path) -> dict[str, object]:
         loaded = error
         return _invalid_state_result(f"Could not read saved state: {error}")
 
-    if not isinstance(loaded, dict):
-        return _invalid_state_result("Saved state payload must be an object.")
+    try:
+        validated = validate_state_snapshot(loaded)
+    except TypeError as error:
+        return _invalid_state_result(str(error))
 
     return {
         "source": "json_primary",
         "sourcePath": str(state_path),
-        "state": loaded,
+        "state": validated,
     }
 
 
 def _save_state_file(state: dict[str, object]) -> None:
+    validated = validate_state_snapshot(state)
     state_path = _state_path()
     state_path.parent.mkdir(parents=True, exist_ok=True)
-    payload = json.dumps(state, indent=2)
+    payload = json.dumps(validated, indent=2)
     state_path.write_text(payload, encoding="utf-8")
 
 
@@ -147,9 +149,7 @@ def _search_docs(query: str, *, author_only: bool) -> list[object]:
     request_url = _search_query(query, author_only=author_only)
     payload = _request_json(request_url)
     docs = payload.get("docs")
-    if not isinstance(docs, list):
-        return []
-    return cast("list[object]", docs)
+    return cast("list[object]", docs) if isinstance(docs, list) else []
 
 
 def _request_json(request_url: str) -> dict[str, object]:
@@ -164,9 +164,9 @@ def _request_json(request_url: str) -> dict[str, object]:
             status_code=502,
             detail=f"Book search failed: {error}",
         ) from error
-    if not isinstance(payload, dict):
-        return {}
-    return cast("dict[str, object]", payload)
+    if isinstance(payload, dict):
+        return cast("dict[str, object]", payload)
+    return {}
 
 
 def _doc_to_result(doc: object) -> dict[str, str] | None:
@@ -185,8 +185,7 @@ def _doc_to_result(doc: object) -> dict[str, str] | None:
         "title": title,
         "work_id": work_id,
     }
-    cover = _cover_url(doc_map.get("cover_i"))
-    if cover:
+    if cover := _cover_url(doc_map.get("cover_i")):
         result_item["cover_url"] = cover
     return result_item
 
@@ -194,9 +193,7 @@ def _doc_to_result(doc: object) -> dict[str, str] | None:
 def _first_author(raw_authors: object) -> str:
     if not isinstance(raw_authors, list):
         return ""
-    if len(raw_authors) == 0:
-        return ""
-    return str(raw_authors[0] or "").strip()
+    return str(raw_authors[0] or "").strip() if raw_authors else ""
 
 
 def _search_open_library(
@@ -237,6 +234,8 @@ def _api_state_sample(_payload: dict[str, object]) -> dict[str, object]:
 def _api_state_save(state: dict[str, object]) -> dict[str, object]:
     try:
         _save_state_file(state)
+    except TypeError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
     except OSError as error:
         raise HTTPException(status_code=500, detail=str(error)) from error
     return {"ok": True}
