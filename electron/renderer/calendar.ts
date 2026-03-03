@@ -33,9 +33,9 @@ let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});
  * @param details - Day-details root node.
  */
 function clearFinishedBooksSummary(details: HTMLElement): void {
-    details.querySelectorAll(".day-finished-summary").forEach((node) => {
-        node.remove();
-    });
+    for (const NODE of details.querySelectorAll(".day-finished-summary")) {
+        NODE.remove();
+    }
 }
 
 /**

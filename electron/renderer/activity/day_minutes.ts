@@ -5,7 +5,6 @@ import { addMinutes, includeDayKey } from "./day_minutes_collect.js";
 
 const MIN_STREAK_MINUTES = 1;
 const PREVIOUS_DAY_OFFSET = 1;
-const ZERO_MINUTES = 0;
 
 /**
  * Builds per-day minutes from completed focus sessions and completed planned rows.
@@ -21,31 +20,31 @@ export function dayMinutesFromActivity({
 }: DayMinutesArgs): DayMinutesMap {
     const MINUTES_BY_DAY = new Map<string, number>();
 
-    sessions.forEach((session) => {
-        const DAY_KEY = isoLocalDayKey(session.ended_at);
+    for (const SESSION of sessions) {
+        const DAY_KEY = isoLocalDayKey(SESSION.ended_at);
         if (!includeDayKey(DAY_KEY, year)) {
-            return;
+            continue;
         }
         addMinutes(
             MINUTES_BY_DAY,
             DAY_KEY,
-            Number(session.minutes || ZERO_MINUTES),
+            Number(SESSION.minutes || 0),
         );
-    });
+    }
 
     const ROWS = lastResult?.schedule ?? [];
 
-    ROWS.forEach((row) => {
-        const DAY_KEY = String(row.date);
+    for (const ROW of ROWS) {
+        const DAY_KEY = String(ROW.date);
         if (!includeDayKey(DAY_KEY, year)) {
-            return;
+            continue;
         }
-        const COMPLETION_KEY = sessionKeyFor(row);
+        const COMPLETION_KEY = sessionKeyFor(ROW);
         if (!scheduleCompletions[COMPLETION_KEY]) {
-            return;
+            continue;
         }
-        addMinutes(MINUTES_BY_DAY, DAY_KEY, Number(row.minutes));
-    });
+        addMinutes(MINUTES_BY_DAY, DAY_KEY, Number(ROW.minutes));
+    }
 
     return MINUTES_BY_DAY;
 }
@@ -60,7 +59,7 @@ export function dayMinutesForKey(
     dayMinutes: DayMinutesMap,
     dayKey: string,
 ): number {
-    return dayMinutes.get(dayKey) ?? ZERO_MINUTES;
+    return dayMinutes.get(dayKey) ?? 0;
 }
 
 /**
@@ -69,11 +68,10 @@ export function dayMinutesForKey(
  * @returns Total minutes across all keys.
  */
 export function totalMinutes(dayMinutes: DayMinutesMap): number {
-    let total = ZERO_MINUTES;
-
-    dayMinutes.forEach((minutes) => {
-        total += minutes;
-    });
+    let total = 0;
+    for (const MINUTES of dayMinutes.values()) {
+        total += MINUTES;
+    }
     return total;
 }
 
@@ -83,13 +81,14 @@ export function totalMinutes(dayMinutes: DayMinutesMap): number {
  * @returns Number of days with minutes greater than zero.
  */
 export function activeDayCount(dayMinutes: DayMinutesMap): number {
-    let total = ZERO_MINUTES;
+    let total = 0;
 
-    dayMinutes.forEach((minutes) => {
-        if (minutes > ZERO_MINUTES) {
+    for (const MINUTES of dayMinutes.values()) {
+        if (MINUTES > 0) {
             total += 1;
         }
-    });
+    }
+
     return total;
 }
 
@@ -108,7 +107,7 @@ export function streakFromDayMinutes(
         MIN_STREAK_MINUTES,
         Number(minimumMinutesPerDay || MIN_STREAK_MINUTES),
     );
-    let streakDays = ZERO_MINUTES;
+    let streakDays = 0;
     const CURSOR = new Date();
 
     for (;;) {

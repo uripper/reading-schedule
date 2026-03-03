@@ -27,7 +27,7 @@ function desktopTabs(): HTMLElement[] {
 
 /**
  * Resolves tab panel element by tab name.
- * @param name Tab name.
+ * @param name - Tab name.
  * @returns Matching panel element or null.
  */
 function panelByName(name: string): HTMLElement | null {
@@ -36,8 +36,8 @@ function panelByName(name: string): HTMLElement | null {
 
 /**
  * Applies active/inactive classes and ARIA state for a panel.
- * @param panel Tab panel element.
- * @param active Whether panel is active.
+ * @param panel - Tab panel element.
+ * @param active - Whether panel is active.
  */
 function setPanelState(panel: HTMLElement, active: boolean): void {
     const NEXT_PANEL = panel;
@@ -52,8 +52,8 @@ function setPanelState(panel: HTMLElement, active: boolean): void {
 
 /**
  * Applies tab-role accessibility attributes for selected/unselected state.
- * @param button Tab button element.
- * @param active Whether button matches the active tab.
+ * @param button - Tab button element.
+ * @param active - Whether button matches the active tab.
  */
 function setTabAriaState(button: HTMLElement, active: boolean): void {
     const NEXT_BUTTON = button;
@@ -71,8 +71,8 @@ function setTabAriaState(button: HTMLElement, active: boolean): void {
 
 /**
  * Resolves best label for the active tab button.
- * @param currentLabel Current fallback label.
- * @param button Candidate active tab button.
+ * @param currentLabel - Current fallback label.
+ * @param button - Candidate active tab button.
  * @returns Next document-title label.
  */
 function resolveActiveLabel(currentLabel: string, button: HTMLElement): string {
@@ -89,8 +89,8 @@ function resolveActiveLabel(currentLabel: string, button: HTMLElement): string {
 
 /**
  * Activates a tab, updates panel visibility, and optionally focuses active panel.
- * @param name Tab name to activate.
- * @param options Optional activation behaviors.
+ * @param name - Tab name to activate.
+ * @param options - Optional activation behaviors.
  */
 export function activateTab(
     name: string,
@@ -124,8 +124,8 @@ export function activateTab(
 
 /**
  * Focuses and activates tab at a given index.
- * @param tabs Ordered tab list.
- * @param index Target index.
+ * @param tabs - Ordered tab list.
+ * @param index - Target index.
  */
 function activateTabByIndex(tabs: HTMLElement[], index: number): void {
     const TARGET = tabs[index];
@@ -135,7 +135,7 @@ function activateTabByIndex(tabs: HTMLElement[], index: number): void {
 
 /**
  * Binds keyboard navigation for a tablist.
- * @param tabs Ordered tab list.
+ * @param tabs - Ordered tab list.
  */
 function bindTabKeyboard(tabs: HTMLElement[]): void {
     tabs.forEach((btn, index) => {
@@ -166,7 +166,7 @@ function bindTabKeyboard(tabs: HTMLElement[]): void {
 
 /**
  * Binds click/keyboard tab interactions and activation callback.
- * @param onChange Callback invoked after tab activation.
+ * @param onChange - Callback invoked after tab activation.
  */
 export function bindTabs(
     onChange: ((name: string) => void) | null = null,

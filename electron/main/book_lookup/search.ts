@@ -31,9 +31,11 @@ export async function searchBooks(
     );
     const DOCS: SearchDoc[] = [];
 
-    
     for (const RESULT of RESPONSES) {
-        if (RESULT.status !== "fulfilled" || !Array.isArray(RESULT.value.docs)) {
+        if (
+            RESULT.status !== "fulfilled" ||
+            !Array.isArray(RESULT.value.docs)
+        ) {
             continue;
         }
 
