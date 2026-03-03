@@ -7,7 +7,9 @@ interface TodayScreenContainerProps {
     plannerApi: PlannerApi;
 }
 
-export function TodayScreenContainer({ plannerApi }: TodayScreenContainerProps) {
+export function TodayScreenContainer({
+    plannerApi,
+}: TodayScreenContainerProps) {
     const { books, errorMessage, isLoading, refresh, stats } =
         useTodayData(plannerApi);
 

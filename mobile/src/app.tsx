@@ -10,7 +10,7 @@ export function MobileApp() {
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.viewport}>
                 <View style={styles.container}>
-                <MobileNavigation plannerApi={plannerApi} />
+                    <MobileNavigation plannerApi={plannerApi} />
                 </View>
             </View>
         </SafeAreaView>
@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
         width: "100%",
     },
     safeArea: {
-        backgroundColor: "#F3F7EA",
+        backgroundColor: "#9CD2EE",
         flex: 1,
     },
     viewport: {

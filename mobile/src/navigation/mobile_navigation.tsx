@@ -1,8 +1,9 @@
 import { type PlannerApi } from "@reading-schedule/contracts";
 import { useMemo, useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, Text, View } from "react-native";
 import { ComingSoonScreen } from "../features/common/coming_soon_screen";
 import { TodayScreenContainer } from "../features/today/today_screen_container";
+import { styles } from "./mobile_navigation_styles";
 import {
     type MobileTabKey,
     type StackNavigator,
@@ -169,15 +170,21 @@ export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
             <View style={styles.menuPanel}>
                 {MENU_ITEMS.map((tab) => {
                     const IS_ACTIVE = tab === activeTab;
+                    let MENU_ITEM_ACTIVE_STYLE = null;
+                    if (IS_ACTIVE) {
+                        MENU_ITEM_ACTIVE_STYLE = styles.menuItemActive;
+                    }
                     return (
                         <Pressable
                             key={tab}
                             onPress={() => {
                                 activateTab(tab);
                             }}
-                            style={[styles.menuItem, IS_ACTIVE ? styles.menuItemActive : null]}
+                            style={[styles.menuItem, MENU_ITEM_ACTIVE_STYLE]}
                         >
-                            <Text style={styles.menuItemText}>{tabLabel(tab)}</Text>
+                            <Text style={styles.menuItemText}>
+                                {tabLabel(tab)}
+                            </Text>
                         </Pressable>
                     );
                 })}
@@ -197,9 +204,17 @@ export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
     return (
         <View style={styles.appFrame}>
             <View style={styles.topBar}>
-                <View style={styles.logoWrap}>
-                    <Image source={LOGO_BACKGROUND} style={styles.logoBackground} />
-                    <Image source={LOGO} style={styles.logo} />
+                <View style={styles.brandBlock}>
+                    <View style={styles.logoWrap}>
+                        <Image
+                            source={LOGO_BACKGROUND}
+                            style={styles.logoBackground}
+                        />
+                        <Image source={LOGO} style={styles.logo} />
+                    </View>
+                    <Text numberOfLines={1} style={styles.brandText}>
+                        BARTLEBY
+                    </Text>
                 </View>
 
                 <View style={styles.topActions}>
@@ -222,97 +237,3 @@ export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
     );
 }
 
-const styles = StyleSheet.create({
-    appFrame: {
-        flex: 1,
-    },
-    backButton: {
-        backgroundColor: "#FFFFFF",
-        borderColor: "#0D0D0D",
-        borderRadius: 999,
-        borderWidth: 2,
-        marginRight: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-    },
-    backText: {
-        color: "#131313",
-        fontSize: 14,
-        fontWeight: "700",
-    },
-    logo: {
-        height: 30,
-        left: 14,
-        position: "absolute",
-        top: 12,
-        width: 118,
-    },
-    logoBackground: {
-        height: 54,
-        width: 160,
-    },
-    logoWrap: {
-        height: 54,
-        position: "relative",
-        width: 160,
-    },
-    menuItem: {
-        paddingHorizontal: 14,
-        paddingVertical: 10,
-    },
-    menuItemActive: {
-        backgroundColor: "#F3D731",
-    },
-    menuItemText: {
-        color: "#131313",
-        fontSize: 16,
-        fontWeight: "700",
-    },
-    menuPanel: {
-        alignSelf: "flex-end",
-        backgroundColor: "#FFFFFF",
-        borderColor: "#0D0D0D",
-        borderRadius: 12,
-        borderWidth: 2,
-        marginRight: 12,
-        marginTop: 8,
-        overflow: "hidden",
-        position: "absolute",
-        right: 0,
-        top: 56,
-        width: 180,
-        zIndex: 20,
-    },
-    menuToggle: {
-        backgroundColor: "#F3D731",
-        borderColor: "#0D0D0D",
-        borderRadius: 999,
-        borderWidth: 2,
-        paddingHorizontal: 14,
-        paddingVertical: 8,
-    },
-    menuToggleText: {
-        color: "#131313",
-        fontSize: 15,
-        fontWeight: "800",
-    },
-    screen: {
-        flex: 1,
-        zIndex: 1,
-    },
-    topActions: {
-        alignItems: "center",
-        flexDirection: "row",
-        justifyContent: "flex-end",
-    },
-    topBar: {
-        alignItems: "center",
-        backgroundColor: "#F3F7EA",
-        borderBottomColor: "#0D0D0D",
-        borderBottomWidth: 2,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-    },
-});

@@ -53,7 +53,7 @@ const LOCAL_FALLBACK_VIEW_DATA: TodayViewData = {
         },
     ],
     stats: {
-        completedSessions: "1/8",
+        completedSessions: "1/3",
         dayStreak: 7,
     },
 };
