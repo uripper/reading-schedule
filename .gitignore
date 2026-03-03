@@ -95,5 +95,3 @@ sonar-project.properties
 .github/instructions/sonarqube_mcp.instructions.md
 .scratch/planner_state.sqlite3
 uv.lock
-electron/playwright-report/index.html
-electron/test-results/.last-run.json

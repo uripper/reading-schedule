@@ -5,10 +5,10 @@ import fs from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { safeParseLoadedPlannerState } from "@reading-schedule/contracts";
 import {
+    type JsonValue,
     type LoadedPlannerState,
     type PlannerSaveResult,
     type PlannerStateLoadResult,
-    type PlannerStateSnapshot,
 } from "../types/types.js";
 import { sqliteStatePath } from "./state_store_paths";
 
@@ -60,11 +60,7 @@ function objectState(value: unknown): LoadedPlannerState | null {
     if (typeof value !== "object") {
         return null;
     }
-    const RESULT = safeParseLoadedPlannerState(value);
-    if (!RESULT.success) {
-        return null;
-    }
-    return RESULT.data;
+    return value as LoadedPlannerState;
 }
 
 /**
@@ -238,7 +234,7 @@ export function readStateFromSqlite(
  */
 export function writeStateToSqlite(
     userDataDir: string,
-    data: LoadedPlannerState | PlannerStateSnapshot,
+    data: JsonValue,
 ): PlannerSaveResult {
     try {
         fs.mkdirSync(userDataDir, { recursive: true });
