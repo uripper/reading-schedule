@@ -44,6 +44,21 @@ export interface Session {
     title: string;
 }
 
+export interface FeatureFlags {
+    gamificationEnabled: boolean;
+    recommendationsEnabled: boolean;
+    socialEnabled: boolean;
+}
+
+export interface Preferences {
+    dailyGoalMinutes: number;
+    reduceMotion: boolean;
+    reminderEnabled: boolean;
+    reminderTime: string;
+    theme: "system" | "light" | "dark";
+    timezone: string;
+}
+
 export type PlannerSolverProfile = "fast" | "balanced" | "thorough";
 
 export type PlannerToken = "mip" | "mip-fast" | "mip-balanced" | "mip-thorough";
@@ -105,12 +120,23 @@ export interface PlannerResult {
 export interface PlannerStateSnapshot {
     blocked_day_books: Record<string, boolean>;
     books: Book[];
-    feature_flags: Record<string, boolean>;
+    feature_flags: FeatureFlags;
     last_result: PlannerResult | null;
-    preferences: Record<string, JsonValue>;
+    preferences: Preferences;
     schedule_completions: Record<string, boolean>;
     sessions: Session[];
     settings: PlannerSettings;
+}
+
+export interface LoadedPlannerState {
+    blocked_day_books?: Record<string, boolean>;
+    books?: Book[];
+    feature_flags?: Partial<FeatureFlags>;
+    last_result?: PlannerResult | null;
+    preferences?: Partial<Preferences>;
+    schedule_completions?: Record<string, boolean>;
+    sessions?: Session[];
+    settings?: PlannerSettings;
 }
 
 export interface PlanGeneratePayload {
@@ -135,7 +161,7 @@ export type PlannerStateLoadWarningCode =
 export interface PlannerStateLoadResult {
     source: PlannerStateLoadSource;
     sourcePath?: string;
-    state: Partial<PlannerStateSnapshot> | null;
+    state: LoadedPlannerState | null;
     warningCode?: PlannerStateLoadWarningCode;
     warningMessage?: string;
 }

@@ -1,13 +1,14 @@
 /**
  * @file Main-process IPC registration for planner and window actions.
  */
-import { ipcMain } from "electron";
+
 import {
     parsePlanGeneratePayload,
     parsePlanGenerateResult,
+    parsePlannerStateSnapshot,
     parseSamplePayload,
-} from "../contracts/planner.js";
-import { parsePlannerStateSnapshot } from "../contracts/state.js";
+} from "@reading-schedule/contracts";
+import { ipcMain } from "electron";
 import { logDebug } from "../renderer/logger.js";
 import type {
     DownloadCoverPayload,

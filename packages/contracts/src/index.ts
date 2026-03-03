@@ -11,13 +11,19 @@ export {
     safeParseSettings,
 } from "./settings.js";
 export { JSON_VALUE_SCHEMA, schemaErrorMessage } from "./shared.js";
+export {
+    parsePlannerStateSnapshot,
+    safeParseLoadedPlannerState,
+} from "./state.js";
 export type {
     Book,
     BookLookupItem,
+    FeatureFlags,
     JsonArray,
     JsonObject,
     JsonPrimitive,
     JsonValue,
+    LoadedPlannerState,
     PlanGeneratePayload,
     PlannerApi,
     PlannerResult,
@@ -31,4 +37,6 @@ export type {
     PlannerSummary,
     PlannerSummaryBook,
     PlannerToken,
+    Preferences,
+    Session,
 } from "./types.js";

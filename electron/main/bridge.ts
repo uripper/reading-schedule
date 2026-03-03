@@ -2,7 +2,7 @@
  * @file Bridge that invokes the Python planner module from Electron.
  */
 
-import { parseBridgeResponseEnvelope } from "../contracts/planner.js";
+import { parseBridgeResponseEnvelope } from "@reading-schedule/contracts";
 import { logDebug } from "../renderer/logger.js";
 import { type JsonValue, type PlanGeneratePayload } from "../types/types.js";
 import { PLANNER_MODULE_CANDIDATES } from "./bridge/constants.js";

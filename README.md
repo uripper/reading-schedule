@@ -49,6 +49,18 @@ Book scheduling supports per-book weekday selection in the Books dialog, with an
 
 ## Mobile App (Expo)
 
+Start planner API first (required for live Today data):
+
+```bash
+pnpm run dev:planner-api
+```
+
+Health check from WSL:
+
+```bash
+curl -X POST http://127.0.0.1:8787/api/state/load -H "content-type: application/json" -d '{}'
+```
+
 From repo root:
 
 ```bash
@@ -68,6 +80,18 @@ Set planner API base URL for mobile:
 
 ```bash
 EXPO_PUBLIC_PLANNER_API_BASE_URL=http://localhost:8787 pnpm dev:mobile
+```
+
+For Android emulator from WSL, use:
+
+```bash
+EXPO_PUBLIC_PLANNER_API_BASE_URL=http://10.0.2.2:8787 pnpm dev:mobile
+```
+
+For a physical phone, use your WSL host machine LAN IP:
+
+```bash
+EXPO_PUBLIC_PLANNER_API_BASE_URL=http://<your-lan-ip>:8787 pnpm dev:mobile
 ```
 
 Shared contracts package build/typecheck:

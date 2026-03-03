@@ -1,5 +1,4 @@
 {
-    "$schema": "https://unpkg.com/knip@5/schema-jsonc.json",
     "treatConfigHintsAsErrors": true,
     "workspaces": {
         ".": {
@@ -17,6 +16,9 @@
             ],
             "paths": {
                 "@main/*": ["./main/*"],
+                "@reading-schedule/contracts": [
+                    "../packages/contracts/src/index.ts"
+                ],
                 "@renderer/*": ["./renderer/*"],
                 "@shared/*": ["./types/*"]
             },
@@ -38,146 +40,6 @@
             "project": [
                 "App.tsx",
                 "src/**/*.ts",
-                "src/**/*.tsx",
-                "!node_modules/**"
-            ]
-        },
-        "packages/contracts": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
-        }
-    }
-}
-                "src/**/*.tsx",
-                "!node_modules/**"
-            ]
-        },
-        "packages/contracts": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
-        }
-    }
-}
-                "src/**/*.tsx",
-                "!node_modules/**"
-            ]
-        },
-        "packages/contracts": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
-        }
-    }
-}
-                "src/**/*.tsx",
-                "!node_modules/**"
-            ]
-        },
-        "packages/contracts": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
-        }
-    }
-}
-                "src/**/*.tsx",
-                "!node_modules/**"
-            ]
-        },
-        "packages/contracts": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
-        }
-    }
-}
-                "src/**/*.tsx",
-                "!node_modules/**"
-            ]
-        },
-        "packages/contracts": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
-        }
-    }
-}
-                "src/**/*.tsx",
-                "!node_modules/**"
-            ]
-        },
-        "packages/contracts": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
-        }
-    }
-}
-                "src/**/*.tsx",
-                "!node_modules/**"
-            ]
-        },
-        "packages/contracts": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
-        }
-    }
-}
-                "src/**/*.tsx",
-                "!node_modules/**"
-            ]
-        },
-        "packages/contracts": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
-        }
-    }
-}
-                "src/**/*.tsx",
-                "!node_modules/**"
-            ]
-        },
-        "packages/contracts": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
-        }
-    }
-}
-                "src/**/*.tsx",
-                "!node_modules/**"
-            ]
-        },
-        "packages/contracts": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
-        }
-    }
-}
-                "src/**/*.tsx",
-                "!node_modules/**"
-            ]
-        },
-        "packages/contracts": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
-        }
-    }
-}
-                "src/**/*.tsx",
-                "!node_modules/**"
-            ]
-        },
-        "packages/contracts": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
-        }
-    }
-}
-                "src/**/*.tsx",
-                "!node_modules/**"
-            ]
-        },
-        "packages/contracts": {
-            "entry": ["src/index.ts"],
-            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
-        }
-    }
-}
                 "src/**/*.tsx",
                 "!node_modules/**"
             ]

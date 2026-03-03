@@ -1,5 +1,6 @@
 {
     "dependencies": {
+        "@reading-schedule/contracts": "workspace:*",
         "zod": "^4.3.6"
     },
     "devDependencies": {
@@ -17,7 +18,7 @@
     "name": "reading-plan-gui",
     "private": true,
     "scripts": {
-        "build": "pnpm run clean:dist && pnpm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/bundle_renderer.mjs && node ./scripts/copy_static.mjs",
+        "build": "pnpm -C ../packages/contracts run build && pnpm run clean:dist && pnpm run tokens:build && tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node ./scripts/bundle_renderer.mjs && node ./scripts/copy_static.mjs",
         "clean:dist": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
         "copy:watch": "node ./scripts/watch_static.mjs",
         "dev": "pnpm run clean:dist && pnpm run tokens:build && tsc -p tsconfig.main.json && node ./scripts/bundle_renderer.mjs && node ./scripts/copy_static.mjs && concurrently \"tsc -p tsconfig.main.json --watch\" \"tsc -p tsconfig.renderer.json --noEmit --watch\" \"node ./scripts/watch_renderer.mjs\" \"pnpm run copy:watch\" \"node ./scripts/start_electron_hot.mjs\"",
@@ -34,7 +35,7 @@
         "test:node": "node --test tests/schedule-preserve.test.mjs tests/load-state-recovery.test.mjs tests/init-startup-autoplan.test.mjs tests/contracts-planner-validation.test.mjs tests/state-store-json-atomic.test.mjs tests/state-store-sqlite.test.mjs tests/state-store-migration.test.mjs tests/state-recover.test.mjs",
         "tokens:build": "node ./scripts/build_tokens.mjs",
         "tokens:check": "node ./scripts/check_token_usage.mjs",
-        "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit && tsc -p tsconfig.e2e.json --noEmit"
+        "typecheck": "pnpm -C ../packages/contracts run build && tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit && tsc -p tsconfig.e2e.json --noEmit"
     },
     "version": "0.1.0"
 }
