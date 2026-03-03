@@ -182,8 +182,10 @@ function rgbToHsl(rgb: Rgb): { h: number; l: number; s: number } {
 
     let hue = 0;
     const LIGHTNESS = (MAX + MIN) / 2;
-    const SATURATION =
-        DELTA === 0 ? 0 : DELTA / (1 - Math.abs(2 * LIGHTNESS - 1));
+    let saturation = 0;
+    if (DELTA !== 0) {
+        saturation = DELTA / (1 - Math.abs(2 * LIGHTNESS - 1));
+    }
 
     if (DELTA !== 0) {
         if (MAX === R) {
@@ -196,7 +198,7 @@ function rgbToHsl(rgb: Rgb): { h: number; l: number; s: number } {
         hue = (hue * 60 + 360) % 360;
     }
 
-    return { h: hue, l: LIGHTNESS, s: SATURATION };
+    return { h: hue, l: LIGHTNESS, s: saturation };
 }
 
 function brutalNormalize(rgb: Rgb): Rgb {
@@ -242,9 +244,7 @@ function mostFrequentBucket(
     return bestBucket.rgb;
 }
 
-function dominantChromaFromPixels(
-    pixels: Uint8ClampedArray,
-): Rgb | null {
+function dominantChromaFromPixels(pixels: Uint8ClampedArray): Rgb | null {
     const COUNTS = new Map<string, { count: number; rgb: Rgb }>();
 
     for (let index = 0; index < pixels.length; index += 4) {

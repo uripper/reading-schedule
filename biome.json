@@ -29,7 +29,6 @@
     },
     "overrides": [
         {
-            "includes": ["**/*.tsx"],
             "assist": {
                 "actions": {
                     "source": {
@@ -39,10 +38,17 @@
                         "useSortedProperties": "off"
                     }
                 }
-            }
+            },
+            "includes": ["**/*.tsx"]
         },
         {
-            "includes": ["eslint.config.mjs", "**/*.js", "**/*.mjs", "**/*.ts"],
+            "includes": [
+                "eslint.config.mjs",
+                "**/*.js",
+                "**/*.mjs",
+                "**/*.ts",
+                "**/*.tsx"
+            ],
             "javascript": { "globals": ["exports"] },
             "linter": {
                 "rules": {
@@ -188,9 +194,12 @@
             }
         },
         { "includes": ["eslint.config.mjs", "**/*.js", "**/*.mjs"] },
-        { "includes": ["**/*.ts"], "javascript": { "globals": [] } },
         {
-            "includes": ["**/*.ts"],
+            "includes": ["**/*.ts", "**/*.tsx"],
+            "javascript": { "globals": [] }
+        },
+        {
+            "includes": ["**/*.ts", "**/*.tsx"],
             "linter": {
                 "rules": {
                     "complexity": { "noArguments": "error" },
@@ -222,7 +231,7 @@
             }
         },
         {
-            "includes": ["**/*.ts"],
+            "includes": ["**/*.ts", "**/*.tsx"],
             "linter": {
                 "rules": {
                     "complexity": {
@@ -252,9 +261,12 @@
                 }
             }
         },
-        { "includes": ["**/*.ts"], "javascript": { "globals": [] } },
         {
-            "includes": ["**/*.ts"],
+            "includes": ["**/*.ts", "**/*.tsx"],
+            "javascript": { "globals": [] }
+        },
+        {
+            "includes": ["**/*.ts", "**/*.tsx"],
             "linter": {
                 "rules": {
                     "complexity": { "noArguments": "error" },
@@ -286,7 +298,7 @@
             }
         },
         {
-            "includes": ["**/*.ts"],
+            "includes": ["**/*.ts", "**/*.tsx"],
             "linter": {
                 "rules": {
                     "complexity": {
@@ -307,9 +319,12 @@
                 }
             }
         },
-        { "includes": ["**/*.ts"], "javascript": { "globals": [] } },
         {
-            "includes": ["**/*.ts"],
+            "includes": ["**/*.ts", "**/*.tsx"],
+            "javascript": { "globals": [] }
+        },
+        {
+            "includes": ["**/*.ts", "**/*.tsx"],
             "linter": {
                 "rules": {
                     "complexity": {
@@ -553,7 +568,7 @@
             }
         },
         {
-            "includes": ["**/*.ts"],
+            "includes": ["**/*.ts", "**/*.tsx"],
             "linter": {
                 "rules": {
                     "correctness": { "useSingleJsDocAsterisk": "error" }
@@ -572,7 +587,7 @@
             }
         },
         {
-            "includes": ["**/tests/**/*.ts"],
+            "includes": ["**/tests/**/*.ts", "**/tests/**/*.tsx"],
             "linter": {
                 "rules": {
                     "complexity": {

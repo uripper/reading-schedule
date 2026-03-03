@@ -12,6 +12,7 @@ const SOURCE_ROOTS = [
 	"services",
 	"scripts",
 	"tests",
+	"mobile/src",
 ];
 
 const CODE_EXTENSIONS = new Set([
