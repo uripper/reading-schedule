@@ -258,7 +258,8 @@
                                         "formats": ["PascalCase"],
                                         "selector": { "kind": "class" }
                                     }
-                                ]
+                                ],
+                                "strictCase": false
                             }
                         },
                         "useObjectSpread": "error",

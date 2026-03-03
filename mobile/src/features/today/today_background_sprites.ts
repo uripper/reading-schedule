@@ -13,8 +13,8 @@ import YELLOW_BOX from "../../../assets/background-objects/yellow-box.png";
 import YELLOW_C from "../../../assets/background-objects/yellow-c.png";
 
 /**
- * Represents a background sprite used in the "Today" 
- * feature of the mobile application. Each sprite has 
+ * Represents a background sprite used in the "Today"
+ * feature of the mobile application. Each sprite has
  * a height, width, and a source image.
  */
 export interface BackgroundSprite {

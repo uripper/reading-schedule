@@ -266,10 +266,7 @@ export class BackgroundSimulation {
             if (BODY.x - BODY.radius < LEFT_EDGE_BASE) {
                 BODY.x = LEFT_EDGE_BASE + BODY.radius;
                 BODY.vx = -BODY.vx * WALL_BOUNCE;
-            } else if (
-                BODY.x + BODY.radius >
-                RIGHT_EDGE_BASE
-            ) {
+            } else if (BODY.x + BODY.radius > RIGHT_EDGE_BASE) {
                 BODY.x = RIGHT_EDGE_BASE - BODY.radius;
                 BODY.vx = -BODY.vx * WALL_BOUNCE;
             }

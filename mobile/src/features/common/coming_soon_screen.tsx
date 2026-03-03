@@ -14,7 +14,7 @@ interface ComingSoonScreenProps {
  * @param description - A description of the upcoming feature or content
  * @param onPress - A function to be called when the call-to-action button is pressed
  * @param title - The title of the screen
- * @returns A React component that represents the "coming soon" screen, with a title, 
+ * @returns A React component that represents the "coming soon" screen, with a title,
  * description, and a call-to-action button.
  */
 export function ComingSoonScreen({

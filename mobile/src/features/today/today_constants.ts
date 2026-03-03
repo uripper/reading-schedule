@@ -4,7 +4,7 @@
 // Frame timing
 // Cap the delta time to prevent large jumps
 // Lower values make motion more stable on laggy frames, but can look slower when frames are dropped.
-export const FRAME_DT_CAP = 1/24;
+export const FRAME_DT_CAP = 1 / 24;
 
 // Spawn frequency and population
 // Maximum number of objects to keep active at once

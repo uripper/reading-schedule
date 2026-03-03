@@ -323,7 +323,7 @@ function hexToRgb(hex: string): Rgb {
 }
 
 /**
- * Generates a background theme for the "Today" screen based 
+ * Generates a background theme for the "Today" screen based
  * on the title of the book and whether it has a cover image.
  * @param title - The title of the book
  * @param hasCover - A boolean indicating whether the book has a cover image

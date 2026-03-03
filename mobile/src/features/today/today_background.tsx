@@ -90,9 +90,9 @@ function useTodayBackgroundBodies(bounds: Bounds): readonly Body[] {
         sim.reset();
 
         let frameId = 0;
-        
+
         const frame = (timeMs: number): void => {
-            if (!sim){
+            if (!sim) {
                 return;
             }
             const stepped = sim.tick(timeMs, bounds);
@@ -100,7 +100,7 @@ function useTodayBackgroundBodies(bounds: Bounds): readonly Body[] {
                 forceTick((t) => t + 1);
             }
             frameId = requestAnimationFrame(frame);
-        }
+        };
 
         frameId = requestAnimationFrame(frame);
         return () => cancelAnimationFrame(frameId);
