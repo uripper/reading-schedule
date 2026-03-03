@@ -1,7 +1,7 @@
-import {
-    type Book,
-    type PlannerResult,
-    type StatusBreakdown,
+import type {
+    Book,
+    PlannerResult,
+    StatusBreakdown,
 } from "../../types/types.js";
 import { finishDatesByBookId } from "../books/finish_dates.js";
 import {

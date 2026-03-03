@@ -1,6 +1,6 @@
-import {
-    type PlannerScheduleRow,
-    type PlannerSettings,
+import type {
+    PlannerScheduleRow,
+    PlannerSettings,
 } from "../../../types/types.js";
 
 const DEFAULT_MANUAL_WPM_BASE = 220;

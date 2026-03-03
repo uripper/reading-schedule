@@ -1,8 +1,8 @@
-import {
-    type CalendarRow,
-    type CalendarRowWithFinish,
-    type CompletionChecker,
-    type RowsByDate,
+import type {
+    CalendarRow,
+    CalendarRowWithFinish,
+    CompletionChecker,
+    RowsByDate,
 } from "../../types/types.js";
 import { isOnOrAfterDay } from "../app/day_keys_compare.js";
 import { sessionKeyFor, sortRowsByDateAndSession } from "./utils.js";

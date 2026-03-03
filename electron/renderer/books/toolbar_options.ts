@@ -1,4 +1,4 @@
-import { type Book, type OptionDefinition } from "../../types/types.js";
+import type { Book, OptionDefinition } from "../../types/types.js";
 import {
     GROUP_BY_AUTHOR,
     GROUP_BY_FINISH_DATE,

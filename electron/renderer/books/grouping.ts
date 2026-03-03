@@ -1,9 +1,9 @@
-import {
-    type Book,
-    type BookGroup,
-    type BookGroupBy,
-    type GroupBucket,
-    type GroupMeta,
+import type {
+    Book,
+    BookGroup,
+    BookGroupBy,
+    GroupBucket,
+    GroupMeta,
 } from "../../types/types.js";
 import { finishDateMetaForBook } from "./grouping_finish.js";
 import { shelfLabelForBook } from "./shelf.js";

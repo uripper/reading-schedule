@@ -1,4 +1,4 @@
-import { type CardHandlers } from "../../types/types.js";
+import type { CardHandlers } from "../../types/types.js";
 import { COVER_PLACEHOLDER } from "./constants.js";
 
 /**

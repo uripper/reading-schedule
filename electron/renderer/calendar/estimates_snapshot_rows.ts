@@ -1,7 +1,7 @@
-import {
-    type CompletionChecker,
-    type EstimateRow,
-    type EstimateState,
+import type {
+    CompletionChecker,
+    EstimateRow,
+    EstimateState,
 } from "../../types/types.js";
 
 const SESSION_INDEX_PAD = 3;

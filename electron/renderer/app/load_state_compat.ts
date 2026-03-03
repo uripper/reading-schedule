@@ -1,8 +1,8 @@
-import {
-    type FeatureFlags,
-    type LoadedPlannerState,
-    type PlannerResult,
-    type SessionInput,
+import type {
+    FeatureFlags,
+    LoadedPlannerState,
+    PlannerResult,
+    SessionInput,
 } from "../../types/types.js";
 
 type ScalarValue = string | number | boolean | null | undefined;

@@ -25,7 +25,7 @@
             "!package-lock.json",
             "!tokens/**"
         ],
-        "rules": { "recommended": false }
+        "rules": { "recommended": true }
     },
     "overrides": [
         {
@@ -53,7 +53,6 @@
             "linter": {
                 "rules": {
                     "complexity": {
-                        "noArguments": "error",
                         "noExcessiveCognitiveComplexity": "error",
                         "noExcessiveLinesPerFunction": "error",
                         "noImplicitCoercions": "error",
@@ -204,28 +203,28 @@
                 "rules": {
                     "complexity": { "noArguments": "error" },
                     "correctness": {
-                        "noConstAssign": "off",
-                        "noGlobalObjectCalls": "off",
-                        "noInvalidBuiltinInstantiation": "off",
-                        "noInvalidConstructorSuper": "off",
-                        "noSetterReturn": "off",
-                        "noUndeclaredVariables": "off",
-                        "noUnreachable": "off",
-                        "noUnreachableSuper": "off"
+                        "noConstAssign": "error",
+                        "noGlobalObjectCalls": "error",
+                        "noInvalidBuiltinInstantiation": "error",
+                        "noInvalidConstructorSuper": "error",
+                        "noSetterReturn": "error",
+                        "noUndeclaredVariables": "error",
+                        "noUnreachable": "error",
+                        "noUnreachableSuper": "error"
                     },
                     "style": { "useConst": "error" },
                     "suspicious": {
-                        "noClassAssign": "off",
-                        "noDuplicateClassMembers": "off",
-                        "noDuplicateObjectKeys": "off",
-                        "noDuplicateParameters": "off",
-                        "noFunctionAssign": "off",
-                        "noImportAssign": "off",
-                        "noRedeclare": "off",
-                        "noUnsafeNegation": "off",
+                        "noClassAssign": "error",
+                        "noDuplicateClassMembers": "error",
+                        "noDuplicateObjectKeys": "error",
+                        "noDuplicateParameters": "error",
+                        "noFunctionAssign": "error",
+                        "noImportAssign": "error",
+                        "noRedeclare": "error",
+                        "noUnsafeNegation": "error",
                         "noVar": "error",
-                        "noWith": "off",
-                        "useGetterReturn": "off"
+                        "noWith": "error",
+                        "useGetterReturn": "error"
                     }
                 }
             }
@@ -254,7 +253,6 @@
                         "noNonNullAssertedOptionalChain": "error",
                         "noTsIgnore": "error",
                         "noUnsafeDeclarationMerging": "error",
-                        "noUnusedExpressions": "off",
                         "useAwait": "error",
                         "useNamespaceKeyword": "error"
                     }
@@ -270,29 +268,16 @@
             "linter": {
                 "rules": {
                     "complexity": { "noArguments": "error" },
-                    "correctness": {
-                        "noConstAssign": "off",
-                        "noGlobalObjectCalls": "off",
-                        "noInvalidBuiltinInstantiation": "off",
-                        "noInvalidConstructorSuper": "off",
-                        "noSetterReturn": "off",
-                        "noUndeclaredVariables": "off",
-                        "noUnreachable": "off",
-                        "noUnreachableSuper": "off"
-                    },
                     "style": { "useConst": "error" },
                     "suspicious": {
-                        "noClassAssign": "off",
-                        "noDuplicateClassMembers": "off",
-                        "noDuplicateObjectKeys": "off",
-                        "noDuplicateParameters": "off",
-                        "noFunctionAssign": "off",
-                        "noImportAssign": "off",
-                        "noRedeclare": "off",
-                        "noUnsafeNegation": "off",
+                        "noDuplicateParameters": "error",
+                        "noFunctionAssign": "error",
+                        "noImportAssign": "error",
+                        "noRedeclare": "error",
+                        "noUnsafeNegation": "error",
                         "noVar": "error",
-                        "noWith": "off",
-                        "useGetterReturn": "off"
+                        "noWith": "error",
+                        "useGetterReturn": "error"
                     }
                 }
             }
@@ -326,20 +311,30 @@
         {
             "includes": ["**/*.ts", "**/*.tsx"],
             "linter": {
+                "domains": {
+                    "react":"recommended"
+                },
                 "rules": {
                     "complexity": {
-                        "noUselessConstructor": "error",
+                        "noExcessiveCognitiveComplexity": "error",
+                        "noExcessiveLinesPerFunction": "error",
+                        "noUselessCatchBinding": "error",
+                        "noUselessFragments": "error",
                         "useOptionalChain": "error"
                     },
                     "correctness": {
+                        "noInnerDeclarations": "error",
                         "noInvalidUseBeforeDeclaration": "error",
                         "noUnusedVariables": "error"
                     },
+                    "nursery": {
+                        "noTernary": "error"
+                    },
                     "style": {
                         "noInferrableTypes": "error",
-                        "noNegationElse": "off",
+                        "noNegationElse": "error",
                         "noNonNullAssertion": "error",
-                        "useArrayLiterals": "off",
+                        "useArrayLiterals": "error",
                         "useConsistentArrayType": {
                             "level": "error",
                             "options": { "syntax": "shorthand" }
@@ -350,7 +345,6 @@
                         },
                         "useConsistentTypeDefinitions": "error",
                         "useConst": "error",
-                        "useDefaultParameterLast": "off",
                         "useExportType": "error",
                         "useForOf": "error",
                         "useNamingConvention": {
@@ -419,6 +413,7 @@
                     "suspicious": {
                         "noEmptyBlockStatements": "error",
                         "noExplicitAny": "error",
+                        "noImportCycles": "error",
                         "noTsIgnore": "error",
                         "useAdjacentOverloadSignatures": "error",
                         "useAwait": "error"
@@ -560,7 +555,7 @@
             }
         },
         {
-            "includes": ["**/*.js", "**/*.mjs"],
+            "includes": ["**/*.js", "**/*.mjs", "**/*.ts", "**/*.tsx"],
             "linter": {
                 "rules": {
                     "correctness": { "useSingleJsDocAsterisk": "error" }
@@ -568,33 +563,13 @@
             }
         },
         {
-            "includes": ["**/*.ts", "**/*.tsx"],
-            "linter": {
-                "rules": {
-                    "correctness": { "useSingleJsDocAsterisk": "error" }
-                }
-            }
-        },
-        {
-            "includes": ["**/tests/**/*.mjs", "**/tests/**/*.js"],
+            "includes": ["**/tests/**/*.mjs", "**/tests/**/*.js", "**/tests/**/*.ts", "**/tests/**/*.tsx"],
             "linter": {
                 "rules": {
                     "complexity": {
                         "noExcessiveCognitiveComplexity": "off",
                         "noExcessiveLinesPerFunction": "off"
                     }
-                }
-            }
-        },
-        {
-            "includes": ["**/tests/**/*.ts", "**/tests/**/*.tsx"],
-            "linter": {
-                "rules": {
-                    "complexity": {
-                        "noExcessiveCognitiveComplexity": "off",
-                        "noExcessiveLinesPerFunction": "off"
-                    },
-                    "suspicious": { "noExplicitAny": "off" }
                 }
             }
         }

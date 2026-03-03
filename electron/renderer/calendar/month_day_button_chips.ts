@@ -1,4 +1,4 @@
-import { type CalendarDisplayRow } from "../../types/types.js";
+import type { CalendarDisplayRow } from "../../types/types.js";
 
 /**
  * Returns compact planned-session summary text.

@@ -1,6 +1,6 @@
-import {
-    type CalendarHandlers,
-    type CalendarRuntimeState,
+import type {
+    CalendarHandlers,
+    CalendarRuntimeState,
 } from "../../types/types.js";
 
 /**

@@ -1,7 +1,7 @@
-import {
-    type CalendarRowWithFinish,
-    type CalendarStateSubset,
-    type DetailInteractionHandlers,
+import type {
+    CalendarRowWithFinish,
+    CalendarStateSubset,
+    DetailInteractionHandlers,
 } from "../../types/types.js";
 import { fallbackBookForRow } from "./details_fallback_book.js";
 import { minutesFormForSession } from "./details_minutes_form.js";

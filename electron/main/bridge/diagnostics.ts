@@ -5,13 +5,13 @@ import {
     LOG_TAIL_MAX_LINES,
     OUTPUT_PREVIEW_MAX_CHARS,
 } from "./constants.js";
-import {
-    type BridgeBuffers,
-    type BridgeDiagnosticsArgs,
-    type BridgeExecutionContext,
-    type BridgeProgressSnapshot,
-    type BridgeRunSession,
-    type BridgeTimeoutArgs,
+import type {
+    BridgeBuffers,
+    BridgeDiagnosticsArgs,
+    BridgeExecutionContext,
+    BridgeProgressSnapshot,
+    BridgeRunSession,
+    BridgeTimeoutArgs,
 } from "./types.js";
 
 /**

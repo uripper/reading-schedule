@@ -1,7 +1,7 @@
-import {
-    type CalendarDisplayRow,
-    type CalendarState,
-    type MonthActions,
+import type {
+    CalendarDisplayRow,
+    CalendarState,
+    MonthActions,
 } from "../../types/types.js";
 import { el } from "../dom.js";
 import { createDayButton, createWeekdayHeader } from "./month_day_button.js";

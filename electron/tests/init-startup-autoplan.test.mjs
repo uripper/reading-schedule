@@ -1,6 +1,3 @@
-import assert from "node:assert/strict";
-import test from "node:test";
-
 /**
  * Builds a minimal load result fixture for startup auto-plan policy checks.
  * @param {"fresh"|"sqlite"|"json_primary"} source Persistence source.

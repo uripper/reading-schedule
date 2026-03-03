@@ -1,4 +1,4 @@
-import { type Book, type GroupMeta } from "../../types/types.js";
+import type { Book, GroupMeta } from "../../types/types.js";
 
 const MONTH_INDEX_MIN = 1;
 const MONTH_INDEX_MAX = 12;

@@ -2,11 +2,11 @@
  * @file Planner state persistence facade with SQLite primary + JSON compatibility fallback.
  */
 import fs from "node:fs";
-import {
-    type JsonValue,
-    type LoadedPlannerState,
-    type PlannerSaveResult,
-    type PlannerStateLoadResult,
+import type {
+    JsonValue,
+    LoadedPlannerState,
+    PlannerSaveResult,
+    PlannerStateLoadResult,
 } from "../types/types.js";
 import { readStateFromJson, writeStateToJson } from "./state_store_json";
 import {

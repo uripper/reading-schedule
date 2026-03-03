@@ -1,8 +1,8 @@
-import {
-    type Book,
-    type BookLookupItem,
-    type RecommendationItem,
-    type RecommendationSearchApi,
+import type {
+    Book,
+    BookLookupItem,
+    RecommendationItem,
+    RecommendationSearchApi,
 } from "../../types/types.js";
 import { addLog } from "../help.js";
 import { buildRecommendations, deriveReadAuthors } from "./model.js";

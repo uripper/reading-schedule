@@ -1,7 +1,7 @@
-import {
-    type CalendarHandlers,
-    type CompletedBookRow,
-    type PlannerScheduleRow,
+import type {
+    CalendarHandlers,
+    CompletedBookRow,
+    PlannerScheduleRow,
 } from "../types/types.js";
 import { renderCalendarDetails } from "./calendar/details.js";
 import {

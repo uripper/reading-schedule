@@ -1,8 +1,4 @@
-import {
-    type Book,
-    type BookStatus,
-    type BookStatusFilter,
-} from "../../types/types.js";
+import type { Book, BookStatus, BookStatusFilter } from "../../types/types.js";
 import {
     BOOK_STATUS_DROPPED,
     BOOK_STATUS_FILTER_ALL,

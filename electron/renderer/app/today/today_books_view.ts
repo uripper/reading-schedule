@@ -1,6 +1,6 @@
-import {
-    type TodayBookSummary,
-    type TodayScheduleSnapshot,
+import type {
+    TodayBookSummary,
+    TodayScheduleSnapshot,
 } from "../../../types/types.js";
 import { COVER_PLACEHOLDER } from "../../books/constants.js";
 import { el } from "../../dom.js";

@@ -1,4 +1,4 @@
-import { type FieldDefinition } from "../../types/types.js";
+import type { FieldDefinition } from "../../types/types.js";
 import { el } from "../dom.js";
 import { DIFFICULTY_LEVEL_COUNT, WEEKDAYS } from "./config.js";
 

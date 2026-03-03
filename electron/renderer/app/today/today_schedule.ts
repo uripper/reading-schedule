@@ -1,9 +1,9 @@
-import {
-    type Book,
-    type PlannerResult,
-    type PlannerScheduleRow,
-    type TodayBookSummary,
-    type TodayScheduleSnapshot,
+import type {
+    Book,
+    PlannerResult,
+    PlannerScheduleRow,
+    TodayBookSummary,
+    TodayScheduleSnapshot,
 } from "../../../types/types.js";
 import { bookCoverSrc } from "../../books/model.js";
 import { titleSortKey } from "../../books/title_key.js";

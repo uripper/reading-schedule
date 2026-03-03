@@ -1,7 +1,7 @@
-import { type Book } from "./types_books.js";
-import { type JsonValue, type Session } from "./types_core.js";
-import { type FeatureFlags, type Preferences } from "./types_experience.js";
-import { type BookLookupItem } from "./types_lookup.js";
+import type { Book } from "./types_books.js";
+import type { JsonValue, Session } from "./types_core.js";
+import type { FeatureFlags, Preferences } from "./types_experience.js";
+import type { BookLookupItem } from "./types_lookup.js";
 
 export interface PlannerScheduleRow {
     book_id: string;

@@ -1,6 +1,6 @@
-import {
-    type CalendarDetailsState,
-    type DetailInteractionHandlers,
+import type {
+    CalendarDetailsState,
+    DetailInteractionHandlers,
 } from "../../types/types.js";
 import { el } from "../dom.js";
 import { buildManualSessionAddPanel, dayMode } from "./details_helpers.js";

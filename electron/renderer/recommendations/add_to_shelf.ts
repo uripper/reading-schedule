@@ -1,6 +1,6 @@
-import {
-    type RecommendationFormTarget,
-    type RecommendationItem,
+import type {
+    RecommendationFormTarget,
+    RecommendationItem,
 } from "../../types/types.js";
 import { el } from "../dom.js";
 

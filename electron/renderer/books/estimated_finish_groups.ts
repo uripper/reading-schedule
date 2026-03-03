@@ -1,7 +1,7 @@
-import {
-    type Book,
-    type BookGroup,
-    type StatusGroupDefinition,
+import type {
+    Book,
+    BookGroup,
+    StatusGroupDefinition,
 } from "../../types/types.js";
 import {
     BOOK_STATUS_DROPPED,

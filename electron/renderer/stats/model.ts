@@ -1,4 +1,4 @@
-import { type SnapshotInputs, type StatsSnapshot } from "../../types/types.js";
+import type { SnapshotInputs, StatsSnapshot } from "../../types/types.js";
 import {
     activeDayCount,
     dayMinutesFromActivity,

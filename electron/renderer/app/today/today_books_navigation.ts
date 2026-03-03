@@ -1,4 +1,4 @@
-import { type TodayBookNavigationActions } from "../../../types/types.js";
+import type { TodayBookNavigationActions } from "../../../types/types.js";
 import { scrollToBookCard } from "../../books/card_scroll_target.js";
 import { activateTab } from "../../tabs.js";
 

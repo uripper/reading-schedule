@@ -1,4 +1,4 @@
-import { type Book, type BookFormRefs } from "../../types/types.js";
+import type { Book, BookFormRefs } from "../../types/types.js";
 import { SHELF_SELECT_CREATE_NEW, uniqueShelves } from "./shelf.js";
 import {
     ensureShelfOption,

@@ -1,15 +1,15 @@
-import { type Book, type BookProgressUpdates } from "./types_books.js";
-import { type CalendarHandlers } from "./types_calendar.js";
-import { type Session } from "./types_core.js";
-import { type FeatureFlags, type Preferences } from "./types_experience.js";
-import {
-    type LoadedPlannerState,
-    type PlannerApi,
-    type PlannerResult,
-    type PlannerScheduleRow,
-    type PlannerSettings,
-    type PlannerStateLoadResult,
-    type PlannerSummary,
+import type { Book, BookProgressUpdates } from "./types_books.js";
+import type { CalendarHandlers } from "./types_calendar.js";
+import type { Session } from "./types_core.js";
+import type { FeatureFlags, Preferences } from "./types_experience.js";
+import type {
+    LoadedPlannerState,
+    PlannerApi,
+    PlannerResult,
+    PlannerScheduleRow,
+    PlannerSettings,
+    PlannerStateLoadResult,
+    PlannerSummary,
 } from "./types_planner.js";
 
 export type SetStatus = (message: string, isError?: boolean) => void;

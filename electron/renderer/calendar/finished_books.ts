@@ -1,7 +1,7 @@
-import {
-    type BookFinishLookup,
-    type CompletedBookRow,
-    type ManualSessionBook,
+import type {
+    BookFinishLookup,
+    CompletedBookRow,
+    ManualSessionBook,
 } from "../../types/types.js";
 
 /**

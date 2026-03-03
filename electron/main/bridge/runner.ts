@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { logDebug } from "../../renderer/logger.js";
-import { type JsonValue, type PlanGeneratePayload } from "../../types/types.js";
+import type { JsonValue, PlanGeneratePayload } from "../../types/types.js";
 import { BRIDGE_HEARTBEAT_MS } from "./constants.js";
 import { bridgeTimeoutMs, root } from "./context.js";
 import {
@@ -14,10 +14,10 @@ import {
     logProcessError,
     logTimeout,
 } from "./diagnostics.js";
-import {
-    type BridgeExecutionContext,
-    type BridgeRunSession,
-    type SettleHandlers,
+import type {
+    BridgeExecutionContext,
+    BridgeRunSession,
+    SettleHandlers,
 } from "./types.js";
 
 interface RunBridgeForModuleArgs {

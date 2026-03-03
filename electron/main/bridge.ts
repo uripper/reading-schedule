@@ -4,11 +4,11 @@
 
 import { parseBridgeResponseEnvelope } from "@reading-schedule/contracts";
 import { logDebug } from "../renderer/logger.js";
-import { type JsonValue, type PlanGeneratePayload } from "../types/types.js";
+import type { JsonValue, PlanGeneratePayload } from "../types/types.js";
 import { PLANNER_MODULE_CANDIDATES } from "./bridge/constants.js";
 import { resolveExecutionContext } from "./bridge/context.js";
 import { runBridgeForModule } from "./bridge/runner.js";
-import { type BridgeRunContext } from "./bridge/types.js";
+import type { BridgeRunContext } from "./bridge/types.js";
 
 /**
  * Parses planner JSON output and converts planner failures to thrown errors.

@@ -5,7 +5,6 @@
 import {
     parsePlanGeneratePayload,
     parsePlanGenerateResult,
-    parsePlannerStateSnapshot,
     parseSamplePayload,
 } from "@reading-schedule/contracts";
 import { ipcMain } from "electron";

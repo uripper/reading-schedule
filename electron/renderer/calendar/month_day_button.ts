@@ -1,7 +1,4 @@
-import {
-    type DayStyleFlags,
-    type DayStyleFlagsArgs,
-} from "../../types/types.js";
+import type { DayStyleFlags, DayStyleFlagsArgs } from "../../types/types.js";
 import { WEEKDAY_LABELS } from "./constants.js";
 import { appendDayButtonSummary } from "./month_day_button_chips.js";
 

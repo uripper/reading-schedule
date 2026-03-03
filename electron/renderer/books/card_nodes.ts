@@ -1,4 +1,4 @@
-import { type Book, type CardRenderContext } from "../../types/types.js";
+import type { Book, CardRenderContext } from "../../types/types.js";
 import { bindReadCardHolo } from "./card_holo.js";
 import {
     afterBookLinkButton,

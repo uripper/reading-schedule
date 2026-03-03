@@ -1,5 +1,5 @@
-import { spawn } from "node:child_process";
-import { type JsonValue } from "../../types/types.js";
+import type { spawn } from "node:child_process";
+import type { JsonValue } from "../../types/types.js";
 
 export interface BridgeRunContext {
     requestId?: string;

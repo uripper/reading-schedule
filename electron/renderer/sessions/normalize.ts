@@ -1,4 +1,4 @@
-import { type Session, type SessionInput } from "../../types/types.js";
+import type { Session, SessionInput } from "../../types/types.js";
 import { uid } from "../dom.js";
 import { toInt } from "./utils.js";
 

@@ -1,6 +1,6 @@
-import {
-    type AutoPlanController,
-    type InitRuntimeArgs,
+import type {
+    AutoPlanController,
+    InitRuntimeArgs,
 } from "../../../types/types.js";
 
 /**

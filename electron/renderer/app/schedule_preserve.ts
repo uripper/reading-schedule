@@ -1,4 +1,4 @@
-import { type PlannerScheduleRow, type Session } from "../../types/types.js";
+import type { PlannerScheduleRow, Session } from "../../types/types.js";
 import { dayKeyFromDate, localDayKeyFromIso } from "./date_keys.js";
 import { isOnOrBeforeDay, isValidDayKey } from "./day_keys_compare.js";
 

@@ -1,4 +1,4 @@
-import { type AppRuntimeState } from "../../types/types.js";
+import type { AppRuntimeState } from "../../types/types.js";
 import {
     DEFAULT_FEATURE_FLAGS,
     DEFAULT_PREFERENCES,

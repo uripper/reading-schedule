@@ -1,4 +1,4 @@
-import { type BookStatus, type StatsSnapshot } from "../../types/types.js";
+import type { BookStatus, StatsSnapshot } from "../../types/types.js";
 import {
     BOOK_STATUS_DROPPED,
     BOOK_STATUS_IN_PROGRESS,

@@ -1,4 +1,4 @@
-import { type LogPayload } from "../types/types.js";
+import type { LogPayload } from "../types/types.js";
 
 const LOG_LEVEL_PRIORITY: Record<LogPayload["level"], number> = {
     debug: 10,

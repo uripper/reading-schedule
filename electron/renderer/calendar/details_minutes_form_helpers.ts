@@ -1,6 +1,6 @@
-import {
-    type MinutesEditorAction,
-    type SubmitMinutesUpdateArgs,
+import type {
+    MinutesEditorAction,
+    SubmitMinutesUpdateArgs,
 } from "../../types/types.js";
 import { normalizedManualMinutes } from "../app/calendar_interactions/index.js";
 import { parseOptionalNumber } from "./utils.js";

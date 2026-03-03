@@ -1,8 +1,8 @@
-import {
-    type Book,
-    type BooksControllerRefs,
-    type BooksViewState,
-    type RenderableBooksRefs,
+import type {
+    Book,
+    BooksControllerRefs,
+    BooksViewState,
+    RenderableBooksRefs,
 } from "../../types/types.js";
 import {
     normalizeTitleFilterQuery,

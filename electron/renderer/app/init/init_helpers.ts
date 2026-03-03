@@ -1,6 +1,6 @@
-import {
-    type CreatePlanControllerArgs,
-    type FinalizeInitialLoadArgs,
+import type {
+    CreatePlanControllerArgs,
+    FinalizeInitialLoadArgs,
 } from "../../../types/types.js";
 import { el } from "../../dom.js";
 import { logDebug } from "../../logger.js";

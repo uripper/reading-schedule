@@ -1,4 +1,4 @@
-import { type CardNavigationActions } from "../../types/types.js";
+import type { CardNavigationActions } from "../../types/types.js";
 import { navigateToEstimatedFinishDate } from "./estimated_finish_navigation.js";
 
 const ESTIMATED_FINISH_BUTTON_CLASS = "book-estimated-finish-btn";

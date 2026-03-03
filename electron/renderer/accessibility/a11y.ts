@@ -1,6 +1,6 @@
-import {
-    type AnnouncePoliteness,
-    type DocumentPreferencesInput,
+import type {
+    AnnouncePoliteness,
+    DocumentPreferencesInput,
 } from "../../types/types.js";
 import { el } from "../dom.js";
 

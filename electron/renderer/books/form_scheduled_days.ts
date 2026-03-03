@@ -1,4 +1,4 @@
-import { type BookFormRefs, type BookWeekday } from "../../types/types.js";
+import type { BookFormRefs, BookWeekday } from "../../types/types.js";
 import {
     BOOK_WEEKDAYS,
     isBookWeekday,

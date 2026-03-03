@@ -1,9 +1,9 @@
-import {
-    type Book,
-    type BookProgressUpdates,
-    type PagesUpdateResult,
-    type PercentUpdateContext,
-    type ProgressTotals,
+import type {
+    Book,
+    BookProgressUpdates,
+    PagesUpdateResult,
+    PercentUpdateContext,
+    ProgressTotals,
 } from "../../types/types.js";
 import { clamp } from "./utils.js";
 

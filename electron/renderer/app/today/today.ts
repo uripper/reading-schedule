@@ -1,8 +1,8 @@
-import {
-    type PlannerResult,
-    type PlannerScheduleRow,
-    type TodayScheduleSnapshot,
-    type UpdateTodayDashboardArgs,
+import type {
+    PlannerResult,
+    PlannerScheduleRow,
+    TodayScheduleSnapshot,
+    UpdateTodayDashboardArgs,
 } from "../../../types/types.js";
 import {
     dayMinutesForKey,

@@ -1,7 +1,7 @@
-import {
-    type BindBookLookupOptions,
-    type LookupBinding,
-    type LookupSearchState,
+import type {
+    BindBookLookupOptions,
+    LookupBinding,
+    LookupSearchState,
 } from "../../types/types.js";
 import { placeholderCoverSvg } from "./helpers.js";
 import { createLookupInputHandler } from "./input.js";
