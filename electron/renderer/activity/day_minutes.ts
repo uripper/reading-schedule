@@ -25,11 +25,7 @@ export function dayMinutesFromActivity({
         if (!includeDayKey(DAY_KEY, year)) {
             continue;
         }
-        addMinutes(
-            MINUTES_BY_DAY,
-            DAY_KEY,
-            Number(SESSION.minutes || 0),
-        );
+        addMinutes(MINUTES_BY_DAY, DAY_KEY, Number(SESSION.minutes || 0));
     }
 
     const ROWS = lastResult?.schedule ?? [];

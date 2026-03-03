@@ -28,51 +28,51 @@ import {
  */
 export interface Body {
     /**
-     *
+     * Horizontal oscillation strength.
      */
     driftForce: number;
     /**
-     *
+     * Phase offset for sinusoidal horizontal drift.
      */
     driftPhase: number;
     /**
-     *
+     * Stable unique identifier used for rendering keys.
      */
     id: number;
     /**
-     *
+     * Index into `BACKGROUND_SPRITES`.
      */
     index: number;
     /**
-     *
+     * Render opacity in [0, 1].
      */
     opacity: number;
     /**
-     *
+     * Approximate collision radius in pixels.
      */
     radius: number;
     /**
-     *
+     * Current rotation angle in radians.
      */
     spin: number;
     /**
-     *
+     * Angular velocity in radians/second.
      */
     spinVelocity: number;
     /**
-     *
+     * Horizontal velocity in pixels/second.
      */
     vx: number;
     /**
-     *
+     * Vertical velocity in pixels/second.
      */
     vy: number;
     /**
-     *
+     * Horizontal position in pixels.
      */
     x: number;
     /**
-     *
+     * Vertical position in pixels.
      */
     y: number;
 }
@@ -175,9 +175,8 @@ export class BackgroundSimulation {
             return;
         }
 
-        // Extraction candidate: spawn burst strategy. This currently scales random
-        // spawn count by free capacity; consider replacing with BURST probabilities
-        // in today_constants for more predictable tuning.
+        // Spawn a random count proportional to remaining capacity so population
+        // grows smoothly as the scene fills.
         const CAPACITY = MAX_ACTIVE_OBJECTS - EXISTING;
         const TARGET = Math.ceil(CAPACITY * Math.random());
 
@@ -325,6 +324,14 @@ export class BackgroundSimulation {
         return minimum + Math.random() * range;
     }
 
+    /**
+     * Resolves overlap and velocity exchange for one body pair.
+     *
+     * Uses a normal impulse model with restitution and damping, then applies
+     * positional correction to reduce persistent interpenetration.
+     * @param bodyA - First body in the collision pair.
+     * @param bodyB - Second body in the collision pair.
+     */
     private resolveCollision(bodyA: Body, bodyB: Body): void {
         const DX = bodyB.x - bodyA.x;
         const DY = bodyB.y - bodyA.y;
@@ -362,9 +369,9 @@ export class BackgroundSimulation {
             bodyB.vx += IMPULSE_X * DAMPING;
             bodyB.vy += IMPULSE_Y * DAMPING;
 
-            // Positional correction to prevent sinking
-            const PERCENT = 0.2; // usually 20% to 80%
-            const SLOP = 0.01; // usually 0.01 to 0.1
+            // Positional correction to reduce overlap artifacts.
+            const PERCENT = 0.2;
+            const SLOP = 0.01;
             const CORRECTION_MAGNITUDE =
                 Math.max(DISTANCE - MIN_DISTANCE, SLOP) / (1 / PERCENT);
             const CORRECTION_X = CORRECTION_MAGNITUDE * NX;
@@ -376,6 +383,13 @@ export class BackgroundSimulation {
             bodyB.y += CORRECTION_Y;
         }
     }
+
+    /**
+     * Computes a collision radius from the sprite's scaled dimensions.
+     * Falls back to a conservative default when sprite metadata is missing.
+     * @param index - Sprite index in `BACKGROUND_SPRITES`.
+     * @returns Collision radius in pixels.
+     */
     private bodyRadius(index: number): number {
         const SPRITE = BACKGROUND_SPRITES[index];
         if (!SPRITE) {

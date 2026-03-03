@@ -1,6 +1,5 @@
 import { yearFromDateKey } from "@renderer/stats/helpers.js";
 
-
 /**
  * Determines whether a day key should be included for a target year filter.
  * @param dayKey - Day key candidate (`YYYY-MM-DD`).
@@ -39,8 +38,5 @@ export function addMinutes(
     if (NORMALIZED <= 0) {
         return;
     }
-    dayMinutes.set(
-        dayKey,
-        (dayMinutes.get(dayKey) ?? 0) + NORMALIZED,
-    );
+    dayMinutes.set(dayKey, (dayMinutes.get(dayKey) ?? 0) + NORMALIZED);
 }

@@ -1,6 +1,6 @@
 import { parseSettings, safeParseSettings } from "@reading-schedule/contracts";
-import type { PlannerSettings } from "../types/types.js";
 import { logDebug } from "@renderer/logger.js";
+import type { PlannerSettings } from "../types/types.js";
 import { FIELDS } from "./settings/config.js";
 import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.js";
 import {
