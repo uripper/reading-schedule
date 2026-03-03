@@ -278,6 +278,16 @@
             }
         },
         {
+            "includes": ["**/*.tsx"],
+            "linter": {
+                "rules": {
+                    "style": {
+                        "useNamingConvention": "off"
+                    }
+                }
+            }
+        },
+        {
             "includes": [
                 "**/tests/**/*.mjs",
                 "**/tests/**/*.js",

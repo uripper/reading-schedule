@@ -68,7 +68,7 @@ function hasCoverForBook(title: string): boolean {
     return COVER_SOURCES[title] !== undefined;
 }
 
-function carouselCard({ book, isActive, onPress }: CardProps) {
+function CarouselCard({ book, isActive, onPress }: CardProps) {
     let cardOpacity = 0.64;
     if (isActive) {
         cardOpacity = 1;
@@ -89,7 +89,7 @@ function carouselCard({ book, isActive, onPress }: CardProps) {
     );
 }
 
-function statBubble({ fill, label, value }: StatBubbleProps) {
+function StatBubble({ fill, label, value }: StatBubbleProps) {
     return (
         <View style={[STYLES.statBubble, { backgroundColor: fill }]}>
             <Text style={STYLES.statValue}>{value}</Text>
@@ -100,37 +100,37 @@ function statBubble({ fill, label, value }: StatBubbleProps) {
 
 // biome-ignore lint/complexity/noExcessiveLinesPerFunction: component split planned after interaction model stabilizes.
 export function TodayScreen({ books, stats }: TodayScreenProps) {
-    const [ACTIVE_INDEX, SET_ACTIVE_INDEX] = useState(0);
-    const ACTIVE_BOOK = books[ACTIVE_INDEX] ?? books[0] ?? null;
+    const [activeIndex, setActiveIndex] = useState(0);
+    const activeBook = books[activeIndex] ?? books[0] ?? null;
 
     const { width } = useWindowDimensions();
-    const ACTIVE_BOOK_TITLE = ACTIVE_BOOK?.title ?? "";
-    const ACTIVE_BOOK_HAS_COVER = hasCoverForBook(ACTIVE_BOOK_TITLE);
-    const BACKGROUND_THEME = useMemo(() => {
-        return themeFromBook(ACTIVE_BOOK_TITLE, ACTIVE_BOOK_HAS_COVER);
-    }, [ACTIVE_BOOK_HAS_COVER, ACTIVE_BOOK_TITLE]);
-    const [PREVIOUS_THEME, SET_PREVIOUS_THEME] = useState(BACKGROUND_THEME);
-    const [CURRENT_THEME, SET_CURRENT_THEME] = useState(BACKGROUND_THEME);
-    const PREVIOUS_THEME_REF = useRef(BACKGROUND_THEME);
-    const TRANSITION_ID_REF = useRef(0);
-    const THEME_PROGRESS = useRef(new Animated.Value(1)).current;
+    const activeBookTitle = activeBook?.title ?? "";
+    const activeBookHasCover = hasCoverForBook(activeBookTitle);
+    const backgroundTheme = useMemo(() => {
+        return themeFromBook(activeBookTitle, activeBookHasCover);
+    }, [activeBookHasCover, activeBookTitle]);
+    const [previousTheme, setPreviousTheme] = useState(backgroundTheme);
+    const [currentTheme, setCurrentTheme] = useState(backgroundTheme);
+    const previousThemeRef = useRef(backgroundTheme);
+    const transitionIdRef = useRef(0);
+    const themeProgress = useRef(new Animated.Value(1)).current;
 
     useLayoutEffect(() => {
-        const PREVIOUS = PREVIOUS_THEME_REF.current;
-        const HAS_CHANGED =
-            PREVIOUS.canvasColor !== BACKGROUND_THEME.canvasColor ||
-            PREVIOUS.ambientColor !== BACKGROUND_THEME.ambientColor;
-        if (!HAS_CHANGED) {
+        const previous = previousThemeRef.current;
+        const hasChanged =
+            previous.canvasColor !== backgroundTheme.canvasColor ||
+            previous.ambientColor !== backgroundTheme.ambientColor;
+        if (!hasChanged) {
             return;
         }
 
-        SET_PREVIOUS_THEME(PREVIOUS);
-        SET_CURRENT_THEME(BACKGROUND_THEME);
-        THEME_PROGRESS.stopAnimation();
-        THEME_PROGRESS.setValue(0);
-        const TRANSITION_ID = TRANSITION_ID_REF.current + 1;
-        TRANSITION_ID_REF.current = TRANSITION_ID;
-        Animated.timing(THEME_PROGRESS, {
+        setPreviousTheme(previous);
+        setCurrentTheme(backgroundTheme);
+        themeProgress.stopAnimation();
+        themeProgress.setValue(0);
+        const transitionId = transitionIdRef.current + 1;
+        transitionIdRef.current = transitionId;
+        Animated.timing(themeProgress, {
             duration: THEME_TRANSITION_DURATION_MS,
             easing: Easing.out(Easing.cubic),
             toValue: 1,
@@ -139,50 +139,50 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
             if (!finished) {
                 return;
             }
-            if (TRANSITION_ID_REF.current !== TRANSITION_ID) {
+            if (transitionIdRef.current !== transitionId) {
                 return;
             }
-            PREVIOUS_THEME_REF.current = BACKGROUND_THEME;
-            SET_PREVIOUS_THEME(BACKGROUND_THEME);
-            SET_CURRENT_THEME(BACKGROUND_THEME);
+            previousThemeRef.current = backgroundTheme;
+            setPreviousTheme(backgroundTheme);
+            setCurrentTheme(backgroundTheme);
         });
-    }, [BACKGROUND_THEME, THEME_PROGRESS]);
+    }, [backgroundTheme, themeProgress]);
 
-    const CARD_WIDTH = useMemo(() => {
-        const BASE_CARD_WIDTH = 214;
-        const EDGE_PADDING = 82;
-        const CANDIDATE = width - EDGE_PADDING;
-        if (CANDIDATE < BASE_CARD_WIDTH) {
-            return BASE_CARD_WIDTH;
+    const cardWidth = useMemo(() => {
+        const baseCardWidth = 214;
+        const edgePadding = 82;
+        const candidate = width - edgePadding;
+        if (candidate < baseCardWidth) {
+            return baseCardWidth;
         }
-        if (CANDIDATE > 294) {
+        if (candidate > 294) {
             return 294;
         }
-        return CANDIDATE;
+        return candidate;
     }, [width]);
 
-    const ITEM_WIDTH = CARD_WIDTH + CAROUSEL_GAP;
-    const CAROUSEL_SIDE_INSET = useMemo(() => {
-        const RAW_INSET = (width - CARD_WIDTH) / 2;
-        if (RAW_INSET < MIN_CAROUSEL_SIDE_INSET) {
+    const itemWidth = cardWidth + CAROUSEL_GAP;
+    const carouselSideInset = useMemo(() => {
+        const rawInset = (width - cardWidth) / 2;
+        if (rawInset < MIN_CAROUSEL_SIDE_INSET) {
             return MIN_CAROUSEL_SIDE_INSET;
         }
-        return RAW_INSET;
-    }, [CARD_WIDTH, width]);
+        return rawInset;
+    }, [cardWidth, width]);
 
-    if (!ACTIVE_BOOK) {
+    if (!activeBook) {
         return null;
     }
 
     function syncActiveIndex(
         event: NativeSyntheticEvent<NativeScrollEvent>,
     ): void {
-        const OFFSET_X = event.nativeEvent.contentOffset.x;
-        const INDEX = Math.round(OFFSET_X / ITEM_WIDTH);
-        if (INDEX < 0 || INDEX >= books.length) {
+        const offsetX = event.nativeEvent.contentOffset.x;
+        const index = Math.round(offsetX / itemWidth);
+        if (index < 0 || index >= books.length) {
             return;
         }
-        SET_ACTIVE_INDEX(INDEX);
+        setActiveIndex(index);
     }
 
     return (
@@ -190,15 +190,15 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
             bounces={false}
             contentContainerStyle={[
                 STYLES.content,
-                { backgroundColor: CURRENT_THEME.canvasColor },
+                { backgroundColor: currentTheme.canvasColor },
             ]}
         >
             <TodayThemeTransitionLayer
-                fromColor={PREVIOUS_THEME.canvasColor}
-                progress={THEME_PROGRESS}
-                toColor={CURRENT_THEME.canvasColor}
+                fromColor={previousTheme.canvasColor}
+                progress={themeProgress}
+                toColor={currentTheme.canvasColor}
             />
-            <TodayBackground ambientColor={CURRENT_THEME.ambientColor} />
+            <TodayBackground ambientColor={currentTheme.ambientColor} />
 
             <View style={STYLES.hero}>
                 <Text
@@ -222,7 +222,7 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
             <FlatList
                 contentContainerStyle={[
                     STYLES.carouselRow,
-                    { paddingHorizontal: CAROUSEL_SIDE_INSET },
+                    { paddingHorizontal: carouselSideInset },
                 ]}
                 data={books}
                 decelerationRate="fast"
@@ -234,32 +234,32 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
                 onMomentumScrollEnd={syncActiveIndex}
                 renderItem={({ item, index }) => {
                     return (
-                        <View style={{ width: CARD_WIDTH }}>
-                            {carouselCard({
-                                book: item,
-                                isActive: index === ACTIVE_INDEX,
-                                onPress: () => {
-                                    SET_ACTIVE_INDEX(index);
-                                },
-                            })}
+                        <View style={{ width: cardWidth }}>
+                            <CarouselCard
+                                book={item}
+                                isActive={index === activeIndex}
+                                onPress={() => {
+                                    setActiveIndex(index);
+                                }}
+                            />
                         </View>
                     );
                 }}
                 showsHorizontalScrollIndicator={false}
                 snapToAlignment="start"
-                snapToInterval={ITEM_WIDTH}
+                snapToInterval={itemWidth}
                 style={STYLES.carouselList}
             />
 
             <Text style={STYLES.currentBook}>
-                {ACTIVE_BOOK.title.toUpperCase()} |{" "}
-                {ACTIVE_BOOK.author.toUpperCase()}
+                {activeBook.title.toUpperCase()} |{" "}
+                {activeBook.author.toUpperCase()}
             </Text>
 
             <View style={STYLES.progressPill}>
                 <Text style={STYLES.progressText}>
-                    {ACTIVE_BOOK.completionPercent}% | {ACTIVE_BOOK.pagesDone}/
-                    {ACTIVE_BOOK.pagesTotal}
+                    {activeBook.completionPercent}% | {activeBook.pagesDone}/
+                    {activeBook.pagesTotal}
                 </Text>
             </View>
 
@@ -271,16 +271,16 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
                 <View style={STYLES.statConnectorVertical} />
                 <View style={STYLES.statConnectorHorizontal} />
                 <View style={STYLES.statConnectorDot} />
-                {statBubble({
-                    fill: STAT_A,
-                    label: "Day Streak",
-                    value: String(stats.dayStreak),
-                })}
-                {statBubble({
-                    fill: STAT_B,
-                    label: "Complete Sessions",
-                    value: stats.completedSessions,
-                })}
+                <StatBubble
+                    fill={STAT_A}
+                    label="Day Streak"
+                    value={String(stats.dayStreak)}
+                />
+                <StatBubble
+                    fill={STAT_B}
+                    label="Complete Sessions"
+                    value={stats.completedSessions}
+                />
             </View>
         </ScrollView>
     );

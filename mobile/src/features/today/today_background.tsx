@@ -125,24 +125,23 @@ function resolveCollision(a: Body, b: Body): void {
 // biome-ignore lint/complexity/noExcessiveLinesPerFunction: background simulation is intentionally co-located.
 export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
     const { height, width } = useWindowDimensions();
-    const [_TICK, SET_TICK] = useState(0);
-    const BODIES_REF = useRef<Body[]>([]);
-    const NEXT_ID_REF = useRef(1);
-    const LAST_FRAME_TIME_REF = useRef(0);
-    const SPAWN_ACCUMULATOR_MS_REF = useRef(0);
-    const SIMULATION_TIME_REF = useRef(0);
+    const [, setTick] = useState(0);
+    const bodiesRef = useRef<Body[]>([]);
+    const nextIdRef = useRef(1);
+    const lastFrameTimeRef = useRef(0);
+    const spawnAccumulatorMsRef = useRef(0);
+    const simulationTimeRef = useRef(0);
 
-    const SCREEN_BOTTOM = useMemo(() => height + 180, [height]);
-    const SCREEN_LEFT = useMemo(() => HORIZONTAL_PADDING, []);
-    const SCREEN_RIGHT = useMemo(() => width - HORIZONTAL_PADDING, [width]);
-    const SPRITE_COUNT = BACKGROUND_SPRITES.length;
+    const screenBottom = useMemo(() => height + 180, [height]);
+    const screenLeft = useMemo(() => HORIZONTAL_PADDING, []);
+    const screenRight = useMemo(() => width - HORIZONTAL_PADDING, [width]);
 
     useEffect(() => {
-        BODIES_REF.current = [];
-        NEXT_ID_REF.current = 1;
-        SPAWN_ACCUMULATOR_MS_REF.current = 0;
-        LAST_FRAME_TIME_REF.current = 0;
-        SIMULATION_TIME_REF.current = 0;
+        bodiesRef.current = [];
+        nextIdRef.current = 1;
+        spawnAccumulatorMsRef.current = 0;
+        lastFrameTimeRef.current = 0;
+        simulationTimeRef.current = 0;
     }, []);
 
     // biome-ignore lint/complexity/noExcessiveLinesPerFunction: frame lifecycle setup and teardown must stay together.
@@ -150,109 +149,109 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
         let frameId = 0;
 
         function spawnBody(): Body {
-            const INDEX = Math.floor(Math.random() * SPRITE_COUNT);
-            const RADIUS = bodyRadius(INDEX);
-            const MIN_X = SCREEN_LEFT + RADIUS;
-            const MAX_X = SCREEN_RIGHT - RADIUS;
-            const X_RANGE = Math.max(1, MAX_X - MIN_X);
+            const index = Math.floor(Math.random() * BACKGROUND_SPRITES.length);
+            const radius = bodyRadius(index);
+            const minX = screenLeft + radius;
+            const maxX = screenRight - radius;
+            const xRange = Math.max(1, maxX - minX);
             return {
                 driftForce: randomRange(24, 56),
                 driftPhase: Math.random() * Math.PI * 2,
-                id: NEXT_ID_REF.current++,
-                index: INDEX,
+                id: nextIdRef.current++,
+                index,
                 opacity: MIN_OPACITY + Math.random() * OPACITY_RANGE,
-                radius: RADIUS,
+                radius,
                 spin: Math.random() * Math.PI * 2,
                 spinVelocity: randomRange(-0.5, 0.5),
                 vx: randomRange(-130, 260),
                 vy: randomRange(18, 58),
-                x: MIN_X + Math.random() * X_RANGE,
+                x: minX + Math.random() * xRange,
                 y: TOP_SPAWN_Y - Math.random() * 60,
             };
         }
 
         function maybeSpawn(deltaSeconds: number): void {
-            SPAWN_ACCUMULATOR_MS_REF.current += deltaSeconds * 1000;
-            if (SPAWN_ACCUMULATOR_MS_REF.current < SPAWN_INTERVAL_MS) {
+            spawnAccumulatorMsRef.current += deltaSeconds * 1000;
+            if (spawnAccumulatorMsRef.current < SPAWN_INTERVAL_MS) {
                 return;
             }
-            SPAWN_ACCUMULATOR_MS_REF.current = 0;
+            spawnAccumulatorMsRef.current = 0;
 
-            const EXISTING = BODIES_REF.current.length;
-            if (EXISTING >= MAX_ACTIVE_OBJECTS) {
+            const existing = bodiesRef.current.length;
+            if (existing >= MAX_ACTIVE_OBJECTS) {
                 return;
             }
 
-            const CAPACITY = MAX_ACTIVE_OBJECTS - EXISTING;
-            const TARGET_COUNT = Math.min(CAPACITY, spawnCountByChance());
-            for (let i = 0; i < TARGET_COUNT; i += 1) {
-                BODIES_REF.current.push(spawnBody());
+            const capacity = MAX_ACTIVE_OBJECTS - existing;
+            const targetCount = Math.min(capacity, spawnCountByChance());
+            for (let i = 0; i < targetCount; i += 1) {
+                bodiesRef.current.push(spawnBody());
             }
         }
 
         // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: physics step intentionally linear and explicit.
         function simulate(deltaSeconds: number): void {
-            const BODIES = BODIES_REF.current;
-            SIMULATION_TIME_REF.current += deltaSeconds;
-            const NOW = SIMULATION_TIME_REF.current;
-            for (const BODY of BODIES) {
-                const DRIFT = Math.sin(NOW + BODY.driftPhase) * BODY.driftForce;
-                BODY.vx += DRIFT * deltaSeconds;
-                BODY.vy += GRAVITY_PER_SECOND * deltaSeconds;
-                BODY.x += BODY.vx * deltaSeconds;
-                BODY.y += BODY.vy * deltaSeconds;
-                BODY.spin += BODY.spinVelocity * deltaSeconds;
+            const bodies = bodiesRef.current;
+            simulationTimeRef.current += deltaSeconds;
+            const now = simulationTimeRef.current;
+            for (const body of bodies) {
+                const drift = Math.sin(now + body.driftPhase) * body.driftForce;
+                body.vx += drift * deltaSeconds;
+                body.vy += GRAVITY_PER_SECOND * deltaSeconds;
+                body.x += body.vx * deltaSeconds;
+                body.y += body.vy * deltaSeconds;
+                body.spin += body.spinVelocity * deltaSeconds;
 
-                const LEFT_EDGE = SCREEN_LEFT + BODY.radius;
-                const RIGHT_EDGE = SCREEN_RIGHT - BODY.radius;
-                if (BODY.x < LEFT_EDGE) {
-                    BODY.x = LEFT_EDGE;
-                    BODY.vx = Math.abs(BODY.vx) * WALL_BOUNCE;
-                    BODY.spinVelocity += 0.3;
+                const leftEdge = screenLeft + body.radius;
+                const rightEdge = screenRight - body.radius;
+                if (body.x < leftEdge) {
+                    body.x = leftEdge;
+                    body.vx = Math.abs(body.vx) * WALL_BOUNCE;
+                    body.spinVelocity += 0.3;
                 }
-                if (BODY.x > RIGHT_EDGE) {
-                    BODY.x = RIGHT_EDGE;
-                    BODY.vx = -Math.abs(BODY.vx) * WALL_BOUNCE;
-                    BODY.spinVelocity -= 0.3;
+                if (body.x > rightEdge) {
+                    body.x = rightEdge;
+                    body.vx = -Math.abs(body.vx) * WALL_BOUNCE;
+                    body.spinVelocity -= 0.3;
                 }
             }
 
-            for (let i = 0; i < BODIES.length; i += 1) {
-                for (let j = i + 1; j < BODIES.length; j += 1) {
-                    const A = BODIES[i];
-                    const B = BODIES[j];
-                    if (!A || !B) {
+            for (let i = 0; i < bodies.length; i += 1) {
+                for (let j = i + 1; j < bodies.length; j += 1) {
+                    const bodyA = bodies[i];
+                    const bodyB = bodies[j];
+                    if (!bodyA || !bodyB) {
                         continue;
                     }
-                    resolveCollision(A, B);
+                    resolveCollision(bodyA, bodyB);
                 }
             }
 
-            const DESPAWN_EDGE = SCREEN_BOTTOM + DESPAWN_BOTTOM_MARGIN;
-            BODIES_REF.current = BODIES.filter((body) => {
-                return body.y - body.radius < DESPAWN_EDGE;
+            const despawnEdge = screenBottom + DESPAWN_BOTTOM_MARGIN;
+            bodiesRef.current = bodies.filter((body) => {
+                return body.y - body.radius < despawnEdge;
             });
         }
 
         function frame(timeMs: number): void {
-            const LAST = LAST_FRAME_TIME_REF.current;
-            LAST_FRAME_TIME_REF.current = timeMs;
-            if (LAST === 0) {
+            const last = lastFrameTimeRef.current;
+            lastFrameTimeRef.current = timeMs;
+            if (last === 0) {
                 frameId = requestAnimationFrame(frame);
                 return;
             }
 
-            const RAW_DT = (timeMs - LAST) / 1000;
-            const DT = Math.min(FRAME_DT_CAP, RAW_DT);
-            maybeSpawn(DT);
-            simulate(DT);
-            SET_TICK((current) => current + 1);
+            const rawDeltaSeconds = (timeMs - last) / 1000;
+            const deltaSeconds = Math.min(FRAME_DT_CAP, rawDeltaSeconds);
+            maybeSpawn(deltaSeconds);
+            simulate(deltaSeconds);
+            setTick((current) => current + 1);
             frameId = requestAnimationFrame(frame);
         }
 
         frameId = requestAnimationFrame(frame);
         return () => cancelAnimationFrame(frameId);
-    }, [SCREEN_BOTTOM, SCREEN_LEFT, SCREEN_RIGHT]);
+    }, [screenBottom, screenLeft, screenRight]);
 
     return (
         <View pointerEvents="none" style={STYLES.layer}>
@@ -262,11 +261,11 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
                     { backgroundColor: ambientColor },
                 ]}
             />
-            {BODIES_REF.current.map((body) => {
-                const WIDTH = spriteWidth(body.index);
-                const HEIGHT = spriteHeight(body.index);
-                const SOURCE = BACKGROUND_SPRITES[body.index]?.source;
-                if (!SOURCE) {
+            {bodiesRef.current.map((body) => {
+                const spriteWidthPx = spriteWidth(body.index);
+                const spriteHeightPx = spriteHeight(body.index);
+                const spriteSource = BACKGROUND_SPRITES[body.index]?.source;
+                if (!spriteSource) {
                     return null;
                 }
                 return (
@@ -274,16 +273,16 @@ export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
                         blurRadius={BLUR_LEVEL}
                         key={`floating-bg-${body.id}`}
                         resizeMode="contain"
-                        source={SOURCE}
+                        source={spriteSource}
                         style={[
                             STYLES.sprite,
                             {
-                                height: HEIGHT,
-                                left: body.x - WIDTH / 2,
+                                height: spriteHeightPx,
+                                left: body.x - spriteWidthPx / 2,
                                 opacity: body.opacity,
-                                top: body.y - HEIGHT / 2,
+                                top: body.y - spriteHeightPx / 2,
                                 transform: [{ rotate: `${body.spin}rad` }],
-                                width: WIDTH,
+                                width: spriteWidthPx,
                             },
                         ]}
                     />

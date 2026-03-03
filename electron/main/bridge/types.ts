@@ -1,4 +1,5 @@
-import type { spawn } from "node:child_process";
+// biome-ignore lint/style/useImportType: spawn is intentionally kept as a runtime import for bridge process handles.
+import { spawn } from "node:child_process";
 import type { JsonValue } from "../../types/types.js";
 
 export interface BridgeRunContext {
