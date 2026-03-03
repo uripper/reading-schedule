@@ -1,5 +1,5 @@
 import * as fs from "node:fs";
-import { logDebug } from "../../types/logger.js";
+import { logDebug } from "@renderer/logger.js";
 import {
     LOG_TAIL_MAX_BYTES,
     LOG_TAIL_MAX_LINES,
@@ -16,8 +16,8 @@ import type {
 
 /**
  * Appends a stream chunk to an accumulated output buffer.
- * @param target Existing text buffer.
- * @param chunk New stdout/stderr chunk from the child process.
+ * @param target - Existing text buffer.
+ * @param chunk - New stdout/stderr chunk from the child process.
  * @returns Updated output buffer.
  */
 function appendChunk(target: string, chunk: Buffer | string): string {
@@ -26,7 +26,7 @@ function appendChunk(target: string, chunk: Buffer | string): string {
 
 /**
  * Returns a bounded preview for verbose log streams.
- * @param text Source text.
+ * @param text - Source text.
  * @returns Truncated text preview.
  */
 function preview(text: string): string {
@@ -35,7 +35,7 @@ function preview(text: string): string {
 
 /**
  * Reads a bounded tail from a text log file.
- * @param filePath Absolute log file path.
+ * @param filePath - Absolute log file path.
  * @returns Tail text or empty string when unavailable.
  */
 function readLogTail(filePath: string): string {
@@ -52,8 +52,8 @@ function readLogTail(filePath: string): string {
 
 /**
  * Filters log tail text to entries for a specific request identifier.
- * @param logTail Full log tail text.
- * @param requestId Current request identifier.
+ * @param logTail - Full log tail text.
+ * @param requestId - Current request identifier.
  * @returns Request-scoped log tail text.
  */
 function logTailForRequest(logTail: string, requestId: string | null): string {
@@ -68,8 +68,8 @@ function logTailForRequest(logTail: string, requestId: string | null): string {
 
 /**
  * Returns only the newly appended segment of a log tail string.
- * @param previous Previous tail content.
- * @param current Current tail content.
+ * @param previous - Previous tail content.
+ * @param current - Current tail content.
  * @returns Newly appended tail content or current content when no prefix match exists.
  */
 export function appendedLogTail(previous: string, current: string): string {
@@ -81,9 +81,9 @@ export function appendedLogTail(previous: string, current: string): string {
 
 /**
  * Appends child-process stdout/stderr and emits chunk diagnostics.
- * @param processHandle Child process handle.
- * @param buffers Mutable output buffers.
- * @param requestId Planner request correlation identifier.
+ * @param processHandle - Child process handle.
+ * @param buffers - Mutable output buffers.
+ * @param requestId - Planner request correlation identifier.
  */
 export function attachStreamHandlers(
     processHandle: BridgeRunSession["processHandle"],
@@ -197,6 +197,7 @@ export function logHeartbeat(args: BridgeDiagnosticsArgs): void {
 
 /**
  * Captures the current bridge progress snapshot for change detection.
+ * @returns Current progress snapshot including log tail and output lengths.
  */
 export function currentProgressSnapshot(
     session: BridgeRunSession,
@@ -218,6 +219,9 @@ export function currentProgressSnapshot(
 
 /**
  * Determines whether bridge progress changed since the previous snapshot.
+ * @param previous - Previous progress snapshot.
+ * @param current - Current progress snapshot.
+ * @returns True when progress has changed since the last snapshot.
  */
 export function hasProgressChanged(
     previous: BridgeProgressSnapshot,
@@ -234,6 +238,7 @@ export function hasProgressChanged(
 
 /**
  * Logs timeout diagnostics before process termination.
+ * @param args - Timeout diagnostics arguments.
  */
 export function logTimeout(args: BridgeTimeoutArgs): void {
     let logTail = "";

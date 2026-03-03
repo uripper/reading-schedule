@@ -1,14 +1,10 @@
-/**
- * @file Main-process IPC registration for planner and window actions.
- */
-
 import {
     parsePlanGeneratePayload,
     parsePlanGenerateResult,
     parseSamplePayload,
 } from "@reading-schedule/contracts";
+import { logDebug } from "@renderer/logger.js";
 import { ipcMain } from "electron";
-import { logDebug } from "../types/logger.js";
 import type {
     DownloadCoverPayload,
     JsonValue,
@@ -31,8 +27,8 @@ function nextPlannerRequestId(): string {
 
 /**
  * Registers planner IPC handlers with bridge debug correlation IDs.
- * @param runBridge Bridge runner implementation.
- * @param userData Function returning app user-data directory.
+ * @param runBridge - Bridge runner implementation.
+ * @param userData - Function returning app user-data directory.
  */
 function registerPlannerHandlers(
     runBridge: RegisterIpcHandlersArgs["runBridge"],
@@ -101,10 +97,10 @@ function registerPlannerHandlers(
 
 /**
  * Registers book lookup and cover management handlers.
- * @param downloadCover Cover download implementation.
- * @param saveUploadedCover Cover upload persistence implementation.
- * @param searchBooks Book search implementation.
- * @param userData Function returning app user-data directory.
+ * @param downloadCover - Cover download implementation.
+ * @param saveUploadedCover - Cover upload persistence implementation.
+ * @param searchBooks - Book search implementation.
+ * @param userData - Function returning app user-data directory.
  */
 function registerBookHandlers(
     downloadCover: RegisterIpcHandlersArgs["downloadCover"],
@@ -139,9 +135,9 @@ function registerBookHandlers(
 
 /**
  * Registers state load/save handlers.
- * @param readState State read implementation.
- * @param writeState State write implementation.
- * @param userData Function returning app user-data directory.
+ * @param readState - State read implementation.
+ * @param writeState - State write implementation.
+ * @param userData - Function returning app user-data directory.
  */
 function registerStateHandlers(
     readState: RegisterIpcHandlersArgs["readState"],
@@ -160,9 +156,9 @@ function registerStateHandlers(
 
 /**
  * Registers zoom control handlers.
- * @param initialZoomFactor Initial zoom accessor.
- * @param setZoomFactor Absolute zoom setter.
- * @param shiftZoomFactor Relative zoom setter.
+ * @param initialZoomFactor - Initial zoom accessor.
+ * @param setZoomFactor - Absolute zoom setter.
+ * @param shiftZoomFactor - Relative zoom setter.
  */
 function registerZoomHandlers(
     initialZoomFactor: RegisterIpcHandlersArgs["initialZoomFactor"],
@@ -182,17 +178,17 @@ function registerZoomHandlers(
 
 /**
  * Registers all main-process IPC handlers consumed by the renderer.
- * @param root0 IPC dependency implementations.
- * @param root0.downloadCover Fetches and stores a remote cover image.
- * @param root0.initialZoomFactor Returns the configured initial zoom factor.
- * @param root0.readState Loads persisted renderer state from disk.
- * @param root0.runBridge Invokes the planner bridge command.
- * @param root0.saveUploadedCover Persists a user-uploaded cover image.
- * @param root0.searchBooks Executes remote book search by query.
- * @param root0.setZoomFactor Applies an absolute zoom factor.
- * @param root0.shiftZoomFactor Applies a relative zoom factor delta.
- * @param root0.userData Returns the app user-data directory path.
- * @param root0.writeState Persists renderer state payload to disk.
+ * @param root0 - IPC dependency implementations.
+ * @param downloadCover - Fetches and stores a remote cover image.
+ * @param initialZoomFactor - Returns the configured initial zoom factor.
+ * @param readState - Loads persisted renderer state from disk.
+ * @param runBridge - Invokes the planner bridge command.
+ * @param saveUploadedCover - Persists a user-uploaded cover image.
+ * @param searchBooks - Executes remote book search by query.
+ * @param setZoomFactor - Applies an absolute zoom factor.
+ * @param shiftZoomFactor - Applies a relative zoom factor delta.
+ * @param userData - Returns the app user-data directory path.
+ * @param writeState - Persists renderer state payload to disk.
  */
 export function registerIpcHandlers({
     downloadCover,

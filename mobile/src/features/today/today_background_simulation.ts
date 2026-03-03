@@ -7,7 +7,6 @@ import {
     DRIFT_FORCE_RANGE,
     FRAME_DT_CAP,
     GRAVITY_PER_SECOND,
-    HORIZONTAL_PADDING,
     MAX_ACTIVE_OBJECTS,
     MIN_OPACITY,
     OPACITY_RANGE,
@@ -25,7 +24,7 @@ import {
 } from "./today_constants";
 
 /**
- *
+ * Represents a single body in the background simulation.
  */
 export interface Body {
     /**

@@ -14,18 +14,18 @@ import { statusFilterMatches } from "./status.js";
 
 /**
  * Checks whether a book title matches the active case-insensitive text filter.
- * @param book Book to test.
- * @param titleFilter Active title filter text.
+ * @param book - Book to test.
+ * @param titleFilter - Active title filter text.
  * @returns `true` when filter is empty or title contains the filter substring.
  */
-export function matchesTitleFilter(book: Book, titleFilter: string): boolean {
+function matchesTitleFilter(book: Book, titleFilter: string): boolean {
     const NORMALIZED_FILTER = normalizeTitleFilterQuery(titleFilter);
     return titleMatchesNormalizedQuery(book.title, NORMALIZED_FILTER);
 }
 
 /**
  * Validates render-critical DOM references for the books controller.
- * @param refs Controller references that may still be nullable.
+ * @param refs - Controller references that may still be nullable.
  * @returns Resolved render references when all required nodes exist; otherwise `null`.
  */
 export function resolveRenderableRefs(
@@ -61,9 +61,9 @@ export function resolveRenderableRefs(
 
 /**
  * Sorts and filters books based on current controller view options.
- * @param books Source books to evaluate.
- * @param viewState Active filter and sort selections.
- * @param finishDateByBookId Planner-derived finish date lookup keyed by `book_id`.
+ * @param books - Source books to evaluate.
+ * @param viewState - Active filter and sort selections.
+ * @param finishDateByBookId - Planner-derived finish date lookup keyed by `book_id`.
  * @returns Books visible in the current controller view.
  */
 export function visibleBooksForView(

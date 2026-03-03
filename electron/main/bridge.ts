@@ -1,9 +1,5 @@
-/**
- * @file Bridge that invokes the Python planner module from Electron.
- */
-
 import { parseBridgeResponseEnvelope } from "@reading-schedule/contracts";
-import { logDebug } from "../types/logger.js";
+import { logDebug } from "@renderer/logger.js";
 import type { JsonValue, PlanGeneratePayload } from "../types/types.js";
 import { PLANNER_MODULE_CANDIDATES } from "./bridge/constants.js";
 import { resolveExecutionContext } from "./bridge/context.js";
@@ -12,8 +8,8 @@ import type { BridgeRunContext } from "./bridge/types.js";
 
 /**
  * Parses planner JSON output and converts planner failures to thrown errors.
- * @param stdout Raw stdout text from the planner subprocess.
- * @param stderr Raw stderr text from the planner subprocess.
+ * @param stdout - Raw stdout text from the planner subprocess.
+ * @param stderr - Raw stderr text from the planner subprocess.
  * @returns Parsed planner payload or null when no data is returned.
  */
 function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
@@ -40,8 +36,8 @@ function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
 
 /**
  * Checks whether a bridge error indicates missing Python module import.
- * @param error Error thrown by bridge invocation.
- * @param moduleName Module that was attempted.
+ * @param error - Error thrown by bridge invocation.
+ * @param moduleName - Module that was attempted.
  * @returns True when error indicates module import failure.
  */
 function isMissingModuleError(error: unknown, moduleName: string): boolean {
@@ -58,8 +54,8 @@ function isMissingModuleError(error: unknown, moduleName: string): boolean {
 
 /**
  * Executes the Python planner bridge command and returns parsed JSON output.
- * @param args Planner CLI arguments passed after the module name.
- * @param payload Optional JSON payload written to planner stdin.
+ * @param args - Planner CLI arguments passed after the module name.
+ * @param payload - Optional JSON payload written to planner stdin.
  * @returns Parsed planner JSON response.
  */
 export async function runBridge(

@@ -90,8 +90,8 @@ function useTodayBackgroundBodies(bounds: Bounds): readonly Body[] {
         sim.reset();
 
         let frameId = 0;
-
-        function frame(timeMs: number): void {
+        
+        const frame = (timeMs: number): void => {
             if (!sim){
                 return;
             }

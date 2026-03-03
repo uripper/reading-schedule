@@ -4,11 +4,11 @@ import type {
     PlannerToken,
     RunPlanGenerationArgs,
 } from "../../types/types.js";
-import { logDebug } from "../logger.js";
+import { logDebug } from "@renderer/logger.js";
 
 /**
  * Generates a day key in the format "YYYY-MM-DD" from a Date object.
- * @param date The Date object to convert.
+ * @param date - The Date object to convert.
  * @returns A string representing the day key in "YYYY-MM-DD" format.
  */
 function dayKeyFromDate(date: Date): string {
@@ -30,7 +30,7 @@ function tomorrowDayKey(): string {
 
 /**
  * Maps settings solver profile to planner token accepted by the bridge.
- * @param profileRaw Raw settings profile value.
+ * @param profileRaw - Raw settings profile value.
  * @returns Planner token for Python solve strategy selection.
  */
 function plannerTokenFromProfile(profileRaw: unknown): PlannerToken {
@@ -48,8 +48,8 @@ function plannerTokenFromProfile(profileRaw: unknown): PlannerToken {
 
 /**
  * Normalizes the end date by ensuring it is a valid string and not before the start date.
- * @param endDate The end date to normalize.
- * @param startDate The start date to compare against.
+ * @param endDate - The end date to normalize.
+ * @param startDate - The start date to compare against.
  * @returns A normalized end date string or undefined if the input is invalid.
  */
 function normalizeEndDate(
@@ -71,7 +71,7 @@ function normalizeEndDate(
 
 /**
  * Generates a summary log message based on the planner summary data.
- * @param summary The planner summary data to generate the log message from.
+ * @param summary - The planner summary data to generate the log message from.
  * @returns A string containing the status and planned/available minutes.
  */
 function summaryLog(summary: PlannerSummary | null): string {
@@ -83,8 +83,8 @@ function summaryLog(summary: PlannerSummary | null): string {
 
 /**
  * Logs planner summary details and optional feasibility warning.
- * @param summary Planner summary payload from the generated plan.
- * @param addLog Log sink used for planner status output.
+ * @param summary - Planner summary payload from the generated plan.
+ * @param addLog - Log sink used for planner status output.
  */
 function logPlanSummary(
     summary: PlannerSummary | null | undefined,
@@ -99,7 +99,7 @@ function logPlanSummary(
 
 /**
  * Trims a string value or returns an empty string if the input is not a valid string.
- * @param value The value to trim or validate.
+ * @param value - The value to trim or validate.
  * @returns A trimmed string or an empty string if the input is invalid.
  */
 function trimmedStringOrEmpty(value: unknown): string {
@@ -111,7 +111,7 @@ function trimmedStringOrEmpty(value: unknown): string {
 
 /**
  * Extracts a message from an error-like object that has a "message" property.
- * @param error The error-like object to extract the message from.
+ * @param error - The error-like object to extract the message from.
  * @returns A trimmed message string or an empty string if the input is not a valid error-like object.
  */
 function messageFromErrorLikeObject(error: unknown): string {
@@ -125,7 +125,7 @@ function messageFromErrorLikeObject(error: unknown): string {
  * Extracts a user-friendly error message from an unknown error object,
  * handling various cases such as Error instances, strings, and error-like
  * objects with a "message" property.
- * @param error The unknown error object to extract the message from.
+ * @param error - The unknown error object to extract the message from.
  * @returns A user-friendly error message string.
  */
 function errorMessage(error: unknown): string {
@@ -150,19 +150,19 @@ function errorMessage(error: unknown): string {
 /**
  * Runs the plan generation process by collecting necessary data, calling the planner API,
  * and handling the results.
- * @param root0 An object containing the necessary functions and parameters for running the plan generation.
- * @param root0.plannerApi An object with a "generate" method to call the planner API.
- * @param root0.collectBooks A function that collects and returns an array of books to be planned.
- * @param root0.collectSettings A function that collects and returns the planner settings.
- * @param root0.setStatus A function to update the status message in the UI, with an optional error flag.
- * @param root0.addLog A function to add a log message to the UI.
- * @param root0.announce A function to announce a message to the user, with an optional politeness level.
- * @param root0.onSuccess A function that is called with the planner result data when the plan generation is successful.
- * @param root0.statusGeneratingMessage An optional custom message to display while the plan is being generated.
+ * @param root0 - An object containing the necessary functions and parameters for running the plan generation.
+ * @param plannerApi - An object with a "generate" method to call the planner API.
+ * @param collectBooks - A function that collects and returns an array of books to be planned.
+ * @param collectSettings - A function that collects and returns the planner settings.
+ * @param setStatus - A function to update the status message in the UI, with an optional error flag.
+ * @param addLog - A function to add a log message to the UI.
+ * @param announce - A function to announce a message to the user, with an optional politeness level.
+ * @param onSuccess - A function that is called with the planner result data when the plan generation is successful.
+ * @param statusGeneratingMessage - An optional custom message to display while the plan is being generated.
  * Defaults to "Generating plan...".
- * @param root0.statusSuccessMessage An optional custom message to display when the plan generation is successful.
+ * @param statusSuccessMessage - An optional custom message to display when the plan generation is successful.
  * Defaults to "Plan generated.".
- * @param root0.successAnnouncement An optional custom message to announce when the plan generation is successful.
+ * @param successAnnouncement - An optional custom message to announce when the plan generation is successful.
  * Defaults to "Plan generated and schedule updated.".
  */
 export async function runPlanGeneration({
