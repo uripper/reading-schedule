@@ -32,7 +32,7 @@ function fieldInputValue(field: FieldDefinition): string {
  */
 export function collectSettingsForm(dayOffs: string[]): PlannerSettings {
     const OUTPUT: PlannerSettings = {};
-    
+
     allFieldDefinitions().forEach((field) => {
         const RAW = fieldInputValue(field);
         if (field.type === "checkbox") {

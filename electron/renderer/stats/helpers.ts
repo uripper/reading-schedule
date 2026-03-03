@@ -72,7 +72,7 @@ export function statusBreakdown(books: Book[]): StatusBreakdown {
         [BOOK_STATUS_READ]: 0,
         [BOOK_STATUS_DROPPED]: 0,
     };
-    
+
     books.forEach((book) => {
         COUNTS[book.status] += 1;
     });
@@ -90,7 +90,7 @@ export function readBooksFinishedThisYear(
     year: number,
 ): Set<string> {
     const IDS = new Set<string>();
-    
+
     books.forEach((book) => {
         if (book.status !== BOOK_STATUS_READ) {
             return;
@@ -120,7 +120,6 @@ export function plannedFinishBookIds(
     const BY_BOOK_ID = finishDatesByBookId(ROWS);
     const PER_BOOK_SUMMARY = lastResult?.summary?.per_book ?? {};
 
-    
     Object.entries(BY_BOOK_ID).forEach(([bookId, dateKey]) => {
         const FINISH_YEAR = yearFromDateKey(dateKey);
         if (FINISH_YEAR !== year) {
@@ -159,7 +158,6 @@ export function completionStats(
     let scheduled = 0;
     let completed = 0;
 
-    
     ROWS.forEach((row) => {
         const ROW_YEAR = yearFromDateKey(String(row.date || ""));
         if (ROW_YEAR !== year) {
@@ -200,7 +198,7 @@ export function averageProgress(books: Book[]): {
     }
     let startedCount = 0;
     let totalPercent = 0;
-    
+
     books.forEach((book) => {
         const PROGRESS = Number(book.progress_percent || 0);
         if (PROGRESS > 0) {
@@ -227,11 +225,11 @@ export function monthlyFinishCounts(
     plannedMonths: Map<string, number>,
 ): number[] {
     const COUNTS = Array.from({ length: MONTHS_PER_YEAR }, () => 0);
-    
+
     plannedMonths.forEach((monthIndex) => {
         COUNTS[monthIndex] += 1;
     });
-    
+
     books.forEach((book) => {
         if (!readThisYearIds.has(book.book_id)) {
             return;

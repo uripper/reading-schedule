@@ -69,7 +69,7 @@ export function nextSessionIndexForDate(
 ): number {
     const NORMALIZED = normalizeRowsAndDate(dateOrRows, rowsOrDate);
     let maxIndex = 0;
-    
+
     NORMALIZED.rows.forEach((row) => {
         if (String(row.date || "") !== NORMALIZED.date) {
             return;

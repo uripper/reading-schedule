@@ -51,7 +51,7 @@ function isCompletedRow(
  */
 function booksById(books: Book[]): Map<string, Book> {
     const BY_ID = new Map<string, Book>();
-    
+
     books.forEach((book) => {
         const BOOK_ID = String(book.book_id || "").trim();
         if (!BOOK_ID) {
@@ -152,7 +152,6 @@ export function buildTodayScheduleSnapshot(
     let scheduledSessions = ZERO_COUNT;
     let completedSessions = ZERO_COUNT;
 
-    
     ROW_LIST.forEach((row) => {
         const ROW_DATE = String(row.date || "");
         if (ROW_DATE !== TODAY) {

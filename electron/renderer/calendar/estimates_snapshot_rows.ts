@@ -118,7 +118,6 @@ export function plannedWordsBeforeAndThroughRow(
         today: TODAY,
     };
 
-    
     ROWS.forEach((candidate) => {
         const CANDIDATE_SORT_KEY = eligibleSortKeyForCandidate(
             candidate,

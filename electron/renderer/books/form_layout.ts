@@ -33,7 +33,7 @@ function createStatusSelectLabel(): HTMLLabelElement {
 
     const SELECT = document.createElement("select");
     SELECT.id = "bookStatusSelectInput";
-    
+
     statusOptions().forEach((optionDef) => {
         const OPTION = document.createElement("option");
         OPTION.value = optionDef.value;
@@ -78,7 +78,7 @@ function createScheduledDaysField(): HTMLFieldSetElement {
 
     const DAYS = document.createElement("div");
     DAYS.className = "book-scheduled-days-grid";
-    
+
     BOOK_WEEKDAYS.forEach((weekday) => {
         const LABEL = document.createElement("label");
         LABEL.className = "book-scheduled-day";

@@ -51,7 +51,7 @@ export function rowsWithCompletedLast(
 ): CalendarRowWithFinish[] {
     const INCOMPLETE_ROWS: CalendarRowWithFinish[] = [];
     const COMPLETE_ROWS: CalendarRowWithFinish[] = [];
-    
+
     rows.forEach((row) => {
         const COMPLETE = Boolean(
             interactionHandlers.isSessionCompleted(sessionKeyFor(row)),

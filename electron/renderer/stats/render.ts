@@ -133,7 +133,6 @@ function statusPanel(snapshot: StatsSnapshot): HTMLElement {
     LIST.className = "status-list";
     const TOTAL = Math.max(1, snapshot.totalBooks);
 
-    
     STATUS_ORDER.forEach((status) => {
         const ROW = document.createElement("div");
         ROW.className = "status-row";

@@ -33,7 +33,6 @@ function appendVisibleRowChips(
     dayButton: HTMLButtonElement,
     rows: CalendarDisplayRow[],
 ): void {
-    
     rows.slice(0, 2).forEach((row) => {
         const CHIP = document.createElement("span");
         CHIP.className = chipClassNameForRow(row);

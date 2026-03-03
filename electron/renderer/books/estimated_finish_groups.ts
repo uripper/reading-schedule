@@ -26,7 +26,7 @@ const STATUS_GROUPS: StatusGroupDefinition[] = [
  */
 export function groupsForEstimatedFinish(books: Book[] = []): BookGroup[] {
     const GROUPS: BookGroup[] = [];
-    
+
     STATUS_GROUPS.forEach((definition) => {
         const GROUPED_BOOKS = books.filter((book) => {
             return definition.statuses.includes(book.status);

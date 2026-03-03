@@ -35,7 +35,7 @@ function historicalWordsPerMinute(
 ): number | null {
     let totalWords = 0;
     let totalMinutes = 0;
-    
+
     rows.forEach((row) => {
         if (String(row.book_id || "") !== bookId) {
             return;

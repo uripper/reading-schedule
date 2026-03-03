@@ -34,7 +34,7 @@ export function dayMinutesFromActivity({
     });
 
     const ROWS = lastResult?.schedule ?? [];
-    
+
     ROWS.forEach((row) => {
         const DAY_KEY = String(row.date);
         if (!includeDayKey(DAY_KEY, year)) {
@@ -70,7 +70,7 @@ export function dayMinutesForKey(
  */
 export function totalMinutes(dayMinutes: DayMinutesMap): number {
     let total = ZERO_MINUTES;
-    
+
     dayMinutes.forEach((minutes) => {
         total += minutes;
     });
@@ -84,7 +84,7 @@ export function totalMinutes(dayMinutes: DayMinutesMap): number {
  */
 export function activeDayCount(dayMinutes: DayMinutesMap): number {
     let total = ZERO_MINUTES;
-    
+
     dayMinutes.forEach((minutes) => {
         if (minutes > ZERO_MINUTES) {
             total += 1;

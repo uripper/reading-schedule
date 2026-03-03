@@ -173,7 +173,7 @@ function groupedBuckets(
     currentYear: number,
 ): Map<string, GroupBucket> {
     const BUCKETS = new Map<string, GroupBucket>();
-    
+
     books.forEach((book: Book) => {
         const META = metaForBook(
             book,

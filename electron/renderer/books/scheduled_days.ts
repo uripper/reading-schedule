@@ -32,7 +32,7 @@ export function isBookWeekday(value: string): value is BookWeekday {
  */
 function orderedWeekdays(rawDays: unknown[]): BookWeekday[] {
     const SEEN = new Set<BookWeekday>();
-    
+
     rawDays.forEach((rawValue) => {
         if (typeof rawValue !== "string") {
             return;

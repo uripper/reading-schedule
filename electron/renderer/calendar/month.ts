@@ -27,7 +27,7 @@ export function mergeDisplayRows(
     completedBookRows: CalendarDisplayRow[],
 ): CalendarDisplayRow[] {
     const COMPLETED_BY_BOOK_ID = new Map<string, CalendarDisplayRow>();
-    
+
     completedBookRows.forEach((row) => {
         if (typeof row.book_id !== "string" || row.book_id === "") {
             return;
@@ -39,7 +39,7 @@ export function mergeDisplayRows(
     });
     const OUT: CalendarDisplayRow[] = [];
     const SEEN_BOOK_IDS = new Set<string>();
-    
+
     plannedRows.forEach((row) => {
         if (typeof row.book_id !== "string" || row.book_id === "") {
             OUT.push(row);
@@ -65,7 +65,7 @@ export function mergeDisplayRows(
     });
     const FINISH_ROWS: CalendarDisplayRow[] = [];
     const OTHER_ROWS: CalendarDisplayRow[] = [];
-    
+
     OUT.forEach((row) => {
         if (row.finish === true) {
             FINISH_ROWS.push(row);

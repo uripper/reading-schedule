@@ -37,7 +37,7 @@ function withBookFinishedDates(
     books: Book[] = [],
 ): Record<string, string> {
     const OUT = { ...finishDateByBookId };
-    
+
     books.forEach((book) => {
         const BOOK_ID = String(book.book_id || "");
         const FINISHED_AT = String(book.finished_at ?? "");
@@ -61,7 +61,7 @@ export function finishDatesByBookId(
     books: Book[] = [],
 ): Record<string, string> {
     const OUT: Record<string, string> = {};
-    
+
     sortRows(rows).forEach((row) => {
         const BOOK_ID = String(row.book_id || "");
         const DATE = String(row.date || "");

@@ -30,17 +30,15 @@ export async function searchBooks(
         URLS.map(async (url) => await fetchJson(url)),
     );
     const DOCS: SearchDoc[] = [];
-    RESPONSES.forEach((result) => {
-        if (
-            result.status !== "fulfilled" ||
-            !Array.isArray(result.value.docs)
-        ) {
-            return;
+
+    
+    for (const RESULT of RESPONSES) {
+        if (RESULT.status !== "fulfilled" || !Array.isArray(RESULT.value.docs)) {
+            continue;
         }
-        result.value.docs.forEach((doc) => {
-            DOCS.push(doc);
-        });
-    });
+
+        DOCS.push(...RESULT.value.docs);
+    }
     logInfo(`[OpenLibrary] Raw results before dedup/scoring: ${DOCS.length}`);
     const SCORED = dedupeDocs(DOCS)
         .map((doc) => ({

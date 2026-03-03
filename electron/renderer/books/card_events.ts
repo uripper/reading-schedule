@@ -12,7 +12,6 @@ export function bindCardEvents(
     rootNode: HTMLElement,
     handlers: CardHandlers,
 ): void {
-    
     rootNode
         .querySelectorAll<HTMLButtonElement>(".edit-book-btn")
         .forEach((button) => {
@@ -20,7 +19,7 @@ export function bindCardEvents(
                 handlers.onEdit(button.dataset.bookId ?? "");
             });
         });
-    
+
     rootNode
         .querySelectorAll<HTMLButtonElement>(".remove-book-btn")
         .forEach((button) => {
@@ -28,7 +27,7 @@ export function bindCardEvents(
                 handlers.onRemove(button.dataset.bookId ?? "");
             });
         });
-    
+
     rootNode
         .querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']")
         .forEach((image) => {

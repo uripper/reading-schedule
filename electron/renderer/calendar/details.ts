@@ -63,7 +63,7 @@ interface AppendRenderedRowsArgs {
 function appendRenderedRows(args: AppendRenderedRowsArgs): void {
     const ANIMATE_FINISH_ROWS =
         args.state.expectedFinishHighlightDate === args.state.selectedDate;
-    
+
     args.rows.forEach((row) => {
         const NODE = rowNodeForMode({
             interactionHandlers: args.interactionHandlers,

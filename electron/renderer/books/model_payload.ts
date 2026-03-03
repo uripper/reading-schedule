@@ -108,7 +108,7 @@ export function hasSchedulableLength(book: Book): boolean {
  */
 export function clearMissingBlockedBy(books: Book[]): Book[] {
     const SCHEDULABLE_IDS = new Set<string>();
-    
+
     books.forEach((book) => {
         SCHEDULABLE_IDS.add(book.book_id);
     });

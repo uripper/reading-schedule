@@ -103,7 +103,7 @@ export function statusFilterOptions(): Array<{
     const OPTIONS: Array<{ value: BookStatusFilter; label: string }> = [
         { label: "All Statuses", value: BOOK_STATUS_FILTER_ALL },
     ];
-    
+
     statusOptions().forEach((option) => {
         OPTIONS.push(option);
     });

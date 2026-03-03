@@ -57,7 +57,7 @@ export function fillScheduledDayControls(
  */
 export function readScheduledDaySelection(refs: BookFormRefs): BookWeekday[] {
     const SELECTED = new Set<BookWeekday>();
-    
+
     scheduledDayInputs(refs).forEach((input) => {
         if (!input.checked) {
             return;

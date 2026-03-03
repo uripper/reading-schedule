@@ -30,7 +30,7 @@ export function normalizeBlockedDayBooks(
     raw: Record<string, ScalarValue> = {},
 ): Record<string, boolean> {
     const OUT: Record<string, boolean> = {};
-    
+
     Object.entries(raw).forEach(([key, value]) => {
         if (!key) {
             return;
