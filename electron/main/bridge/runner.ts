@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { logDebug } from "../../renderer/logger.js";
+import { logDebug } from "../../types/logger.js";
 import type { JsonValue, PlanGeneratePayload } from "../../types/types.js";
 import { BRIDGE_HEARTBEAT_MS } from "./constants.js";
 import { bridgeTimeoutMs, root } from "./context.js";

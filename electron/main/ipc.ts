@@ -8,7 +8,7 @@ import {
     parseSamplePayload,
 } from "@reading-schedule/contracts";
 import { ipcMain } from "electron";
-import { logDebug } from "../renderer/logger.js";
+import { logDebug } from "../types/logger.js";
 import type {
     DownloadCoverPayload,
     JsonValue,
