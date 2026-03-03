@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Image, StyleSheet, useWindowDimensions, View } from "react-native";
 import { BACKGROUND_SPRITES } from "./today_background_sprites";
-
 const MAX_ACTIVE_OBJECTS = 15;
 const SPAWN_INTERVAL_MS = 1000;
 const BURST_TWO_PROBABILITY = 0.25;
@@ -9,7 +8,7 @@ const BURST_THREE_PROBABILITY = 0.13;
 const SPRITE_SCALE = .52;
 const HORIZONTAL_PADDING = -5;
 const TOP_SPAWN_Y = -120;
-const GRAVITY_PER_SECOND = 150;
+const GRAVITY_PER_SECOND = 30;
 const WALL_BOUNCE = 0.7;
 const COLLISION_RESTITUTION = 0.9;
 const COLLISION_DAMPING = .92;
@@ -18,6 +17,10 @@ const BLUR_LEVEL = 2;
 const MIN_OPACITY = 0.85;
 const OPACITY_RANGE = 0.08;
 const DESPAWN_BOTTOM_MARGIN = 120;
+
+interface TodayBackgroundProps {
+    ambientColor: string;
+}
 
 interface Body {
     driftForce: number;
@@ -118,7 +121,7 @@ function resolveCollision(a: Body, b: Body): void {
     b.spinVelocity -= SPIN_TRANSFER;
 }
 
-export function TodayBackground() {
+export function TodayBackground({ ambientColor }: TodayBackgroundProps) {
     const { height, width } = useWindowDimensions();
     const [tick, setTick] = useState(0);
     const bodiesRef = useRef<Body[]>([]);
@@ -157,7 +160,7 @@ export function TodayBackground() {
                 opacity: MIN_OPACITY + Math.random() * OPACITY_RANGE,
                 radius: RADIUS,
                 spin: Math.random() * Math.PI * 2,
-                spinVelocity: randomRange(-1.2, 2.4),
+                spinVelocity: randomRange(-.5, 0.5),
                 vx: randomRange(-130, 260),
                 vy: randomRange(18, 58),
                 x: MIN_X + Math.random() * X_RANGE,
@@ -250,6 +253,7 @@ export function TodayBackground() {
 
     return (
         <View pointerEvents="none" style={styles.layer}>
+            <View style={[styles.ambientOverlay, { backgroundColor: ambientColor }]} />
             {bodiesRef.current.map((body) => {
                 const WIDTH = spriteWidth(body.index);
                 const HEIGHT = spriteHeight(body.index);
@@ -282,6 +286,10 @@ export function TodayBackground() {
 }
 
 const styles = StyleSheet.create({
+    ambientOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        opacity: 0.22,
+    },
     layer: {
         ...StyleSheet.absoluteFillObject,
         overflow: "visible",

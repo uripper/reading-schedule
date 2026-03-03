@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
+    Animated,
+    Easing,
     FlatList,
     Image,
     type NativeScrollEvent,
@@ -10,7 +12,7 @@ import {
     useWindowDimensions,
     View,
 } from "react-native";
-import { TodayBackground } from "./today_background";
+import { TodayBackground } from "@features/today/today_background";
 import {
     HEADER_SHADOW_BLUE,
     HEADER_SHADOW_PURPLE,
@@ -19,9 +21,12 @@ import {
     STAT_B,
     STYLES,
 } from "./today_screen_styles";
+import { themeFromBook } from "./today_background_theme";
+import { TodayThemeTransitionLayer } from "./today_theme_transition_layer";
 import { type TodayBookCard, type TodayStats } from "./types";
 const CAROUSEL_GAP = 16;
 const MIN_CAROUSEL_SIDE_INSET = 12;
+const THEME_TRANSITION_DURATION_MS = 700;
 const DEFAULT_COVER_SOURCE = require("../../../assets/book-covers/Hamlet.jpg");
 
 const COVER_SOURCES: Record<string, number> = {
@@ -56,6 +61,10 @@ function coverForBook(title: string): number {
         return SOURCE;
     }
     return DEFAULT_COVER_SOURCE;
+}
+
+function hasCoverForBook(title: string): boolean {
+    return COVER_SOURCES[title] !== undefined;
 }
 
 function CarouselCard({ book, isActive, onPress }: CardProps) {
@@ -96,6 +105,49 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
     }
 
     const { width } = useWindowDimensions();
+    const ACTIVE_BOOK_HAS_COVER = hasCoverForBook(activeBook.title);
+    const BACKGROUND_THEME = useMemo(() => {
+        return themeFromBook(activeBook.title, ACTIVE_BOOK_HAS_COVER);
+    }, [ACTIVE_BOOK_HAS_COVER, activeBook.title]);
+    const [PREVIOUS_THEME, SET_PREVIOUS_THEME] = useState(BACKGROUND_THEME);
+    const [CURRENT_THEME, SET_CURRENT_THEME] = useState(BACKGROUND_THEME);
+    const PREVIOUS_THEME_REF = useRef(BACKGROUND_THEME);
+    const TRANSITION_ID_REF = useRef(0);
+    const THEME_PROGRESS = useRef(new Animated.Value(1)).current;
+
+    useLayoutEffect(() => {
+        const PREVIOUS = PREVIOUS_THEME_REF.current;
+        const HAS_CHANGED =
+            PREVIOUS.canvasColor !== BACKGROUND_THEME.canvasColor ||
+            PREVIOUS.ambientColor !== BACKGROUND_THEME.ambientColor;
+        if (!HAS_CHANGED) {
+            return;
+        }
+
+        SET_PREVIOUS_THEME(PREVIOUS);
+        SET_CURRENT_THEME(BACKGROUND_THEME);
+        THEME_PROGRESS.stopAnimation();
+        THEME_PROGRESS.setValue(0);
+        const TRANSITION_ID = TRANSITION_ID_REF.current + 1;
+        TRANSITION_ID_REF.current = TRANSITION_ID;
+        Animated.timing(THEME_PROGRESS, {
+            duration: THEME_TRANSITION_DURATION_MS,
+            easing: Easing.out(Easing.cubic),
+            toValue: 1,
+            useNativeDriver: true,
+        }).start(({ finished }) => {
+            if (!finished) {
+                return;
+            }
+            if (TRANSITION_ID_REF.current !== TRANSITION_ID) {
+                return;
+            }
+            PREVIOUS_THEME_REF.current = BACKGROUND_THEME;
+            SET_PREVIOUS_THEME(BACKGROUND_THEME);
+            SET_CURRENT_THEME(BACKGROUND_THEME);
+        });
+    }, [BACKGROUND_THEME, THEME_PROGRESS]);
+
     const CARD_WIDTH = useMemo(() => {
         const BASE_CARD_WIDTH = 214;
         const EDGE_PADDING = 82;
@@ -130,8 +182,19 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
     }
 
     return (
-        <ScrollView bounces={false} contentContainerStyle={STYLES.content}>
-            <TodayBackground />
+        <ScrollView
+            bounces={false}
+            contentContainerStyle={[
+                STYLES.content,
+                { backgroundColor: CURRENT_THEME.canvasColor },
+            ]}
+        >
+            <TodayThemeTransitionLayer
+                fromColor={PREVIOUS_THEME.canvasColor}
+                progress={THEME_PROGRESS}
+                toColor={CURRENT_THEME.canvasColor}
+            />
+            <TodayBackground ambientColor={CURRENT_THEME.ambientColor} />
 
             <View style={STYLES.hero}>
                 <Text

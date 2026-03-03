@@ -2,14 +2,14 @@ import { StyleSheet } from "react-native";
 
 const BORDER_COLOR = "#0D0D0D";
 const BUTTON_COLOR = "#F3D731";
-const CANVAS_COLOR = "#9CD2EE";
-export const HEADER_SHADOW_BLUE = "#2A74FF";
-export const HEADER_SHADOW_PURPLE = "#8753FF";
+const CANVAS_COLOR = "#0095FF";
+export const HEADER_SHADOW_BLUE = "#004EFF";
+export const HEADER_SHADOW_PURPLE = "#6700FF";
 export const HEADER_TEXT = "#E3DE87";
 const PANEL_COLOR = "#E8E8E8";
 const PRIMARY_TEXT = "#131313";
-export const STAT_A = "#BC7FAF";
-export const STAT_B = "#7FBC8C";
+export const STAT_A = "#FF00D9";
+export const STAT_B = "#00FF44";
 
 export const STYLES = StyleSheet.create({
     bookArt: {
@@ -184,7 +184,7 @@ export const STYLES = StyleSheet.create({
         lineHeight: 108,
         opacity: 0.86,
         position: "absolute",
-        top: 8,
+        top: 12,
     },
     todayTitle: {
         fontSize: 106,
@@ -193,5 +193,6 @@ export const STYLES = StyleSheet.create({
         textShadowColor: BORDER_COLOR,
         textShadowOffset: { height: 3, width: 4 },
         textShadowRadius: 0,
+        top: 8,
     },
 });
