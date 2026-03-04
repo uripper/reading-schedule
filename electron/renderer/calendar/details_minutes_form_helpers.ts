@@ -69,7 +69,7 @@ export function minPlannedMinutes(): number {
  * @param minutes Minutes value.
  * @returns Formatted summary text.
  */
-export function plannedMinutesSummaryText(minutes: number): string {
+function plannedMinutesSummaryText(minutes: number): string {
     const NORMALIZED_MINUTES = normalizedManualMinutes(minutes);
     return `${NORMALIZED_MINUTES} minutes`;
 }
@@ -93,7 +93,7 @@ export function nextMinutesEditorOpenState(
  * @param isOpen Whether editor is currently open.
  * @returns `true` when summary row should be shown.
  */
-export function minutesSummaryVisible(isOpen: boolean): boolean {
+function minutesSummaryVisible(isOpen: boolean): boolean {
     return !isOpen;
 }
 

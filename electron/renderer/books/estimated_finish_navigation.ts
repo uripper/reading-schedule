@@ -20,7 +20,7 @@ function dayKeyFromDate(date: Date): string {
  * @param dateKey Candidate day key.
  * @returns `true` when key shape and calendar date are valid.
  */
-export function isValidDateKey(dateKey: string): boolean {
+function isValidDateKey(dateKey: string): boolean {
     if (!DATE_KEY_PATTERN.test(dateKey)) {
         return false;
     }

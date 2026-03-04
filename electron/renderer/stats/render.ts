@@ -59,7 +59,7 @@ function card(title: string, value: string, note: string): HTMLElement {
  * @param count Finish count.
  * @returns Human-friendly count label.
  */
-export function finishCountLabel(count: number): string {
+function finishCountLabel(count: number): string {
     if (count === SINGLE_FINISH_COUNT) {
         return `${count} finish`;
     }
@@ -72,7 +72,7 @@ export function finishCountLabel(count: number): string {
  * @param maxCount Maximum count across months.
  * @returns Bar height percent.
  */
-export function barHeightPercent(count: number, maxCount: number): number {
+function barHeightPercent(count: number, maxCount: number): number {
     if (count <= ZERO_COUNT) {
         return ZERO_COUNT;
     }
@@ -133,19 +133,18 @@ function statusPanel(snapshot: StatsSnapshot): HTMLElement {
     LIST.className = "status-list";
     const TOTAL = Math.max(1, snapshot.totalBooks);
 
-    STATUS_ORDER.forEach((status) => {
+    for (const STATUS of STATUS_ORDER) {
         const ROW = document.createElement("div");
         ROW.className = "status-row";
 
         const LABEL = document.createElement("span");
         LABEL.className = "status-label";
-        LABEL.textContent = statusLabel(status);
-
+        LABEL.textContent = statusLabel(STATUS);
         const BAR_WRAP = document.createElement("div");
         BAR_WRAP.className = "status-bar-wrap";
         const BAR = document.createElement("span");
-        BAR.className = `status-bar is-${status}`;
-        const COUNT = snapshot.statusBreakdown[status];
+        BAR.className = `status-bar is-${STATUS}`;
+        const COUNT = snapshot.statusBreakdown[STATUS];
         const WIDTH = Math.round((COUNT / TOTAL) * 100);
         BAR.style.width = `${WIDTH}%`;
         BAR_WRAP.append(BAR);
@@ -156,7 +155,7 @@ function statusPanel(snapshot: StatsSnapshot): HTMLElement {
 
         ROW.append(LABEL, BAR_WRAP, COUNT_NODE);
         LIST.append(ROW);
-    });
+    }
 
     PANEL.append(HEADING, LIST);
     return PANEL;

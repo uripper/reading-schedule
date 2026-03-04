@@ -29,7 +29,7 @@ const PRE_LINE_WHITESPACE = "pre-line";
  * @param status Book status value.
  * @returns Class-name text for card root element.
  */
-export function cardClassNameForStatus(status: Book["status"]): string {
+function cardClassNameForStatus(status: Book["status"]): string {
     if (status === BOOK_STATUS_READ) {
         return `${CARD_CLASS} ${READ_CARD_CLASS}`;
     }
@@ -86,15 +86,14 @@ function cardStatsNode(book: Book, context: CardRenderContext): HTMLDivElement {
     if (BASE_META_TEXT !== "") {
         STAT_LINES.push({ preserveLineBreaks: true, text: BASE_META_TEXT });
     }
-
-    STAT_LINES.forEach((line) => {
+    for (const LINE of STAT_LINES) {
         const SPAN = document.createElement("span");
-        SPAN.textContent = line.text;
-        if (line.preserveLineBreaks) {
+        SPAN.textContent = LINE.text;
+        if (LINE.preserveLineBreaks) {
             SPAN.style.whiteSpace = PRE_LINE_WHITESPACE;
         }
         STATS.append(SPAN);
-    });
+    }
     if (blocker !== null) {
         STATS.append(
             afterBookLinkButton(

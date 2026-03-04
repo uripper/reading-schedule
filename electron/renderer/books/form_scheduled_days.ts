@@ -9,7 +9,7 @@ const SCHEDULED_DAY_SELECTOR = 'input[type="checkbox"][data-book-weekday]';
 
 /**
  * Returns scheduled-day checkbox inputs from the form.
- * @param refs Book form references containing the scheduled-days field.
+ * @param refs - Book form references containing the scheduled-days field.
  * @returns Checkbox inputs for all weekday options.
  */
 function scheduledDayInputs(refs: BookFormRefs): HTMLInputElement[] {
@@ -22,7 +22,7 @@ function scheduledDayInputs(refs: BookFormRefs): HTMLInputElement[] {
 
 /**
  * Resets scheduled-day controls to "all weekdays selected".
- * @param refs Book form references containing scheduled-day controls.
+ * @param refs - Book form references containing scheduled-day controls.
  */
 export function resetScheduledDayControls(refs: BookFormRefs): void {
     const FORM_REFS = refs;
@@ -34,8 +34,8 @@ export function resetScheduledDayControls(refs: BookFormRefs): void {
 
 /**
  * Applies normalized scheduled days to weekday checkboxes.
- * @param refs Book form references containing scheduled-day controls.
- * @param days Scheduled-day values from a book model.
+ * @param refs - Book form references containing scheduled-day controls.
+ * @param days - Scheduled-day values from a book model.
  */
 export function fillScheduledDayControls(
     refs: BookFormRefs,
@@ -52,20 +52,20 @@ export function fillScheduledDayControls(
 
 /**
  * Reads selected weekday values from scheduled-day checkboxes.
- * @param refs Book form references containing scheduled-day controls.
+ * @param refs - Book form references containing scheduled-day controls.
  * @returns Ordered weekday keys selected by the user.
  */
 export function readScheduledDaySelection(refs: BookFormRefs): BookWeekday[] {
     const SELECTED = new Set<BookWeekday>();
 
-    scheduledDayInputs(refs).forEach((input) => {
-        if (!input.checked) {
-            return;
+    for (const INPUT of scheduledDayInputs(refs)) {
+        if (!INPUT.checked) {
+            continue;
         }
-        const VALUE = String(input.value || "").trim();
+        const VALUE = String(INPUT.value || "").trim();
         if (isBookWeekday(VALUE)) {
             SELECTED.add(VALUE);
         }
-    });
+    }
     return BOOK_WEEKDAYS.filter((weekday) => SELECTED.has(weekday));
 }
