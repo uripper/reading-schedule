@@ -36,18 +36,19 @@ function historicalWordsPerMinute(
     let totalWords = 0;
     let totalMinutes = 0;
 
-    rows.forEach((row) => {
-        if (String(row.book_id || "") !== bookId) {
-            return;
+    for (const ROW of rows) {
+        if (String(ROW.book_id || "") !== bookId) {
+            continue;
         }
-        const ROW_MINUTES = Number(row.minutes || 0);
-        const ROW_WORDS = Number(row.words_planned || 0);
+        const ROW_MINUTES = Number(ROW.minutes || 0);
+        const ROW_WORDS = Number(ROW.words_planned || 0);
         if (ROW_MINUTES <= 0 || ROW_WORDS <= 0) {
-            return;
+            continue;
         }
         totalMinutes += ROW_MINUTES;
         totalWords += ROW_WORDS;
-    });
+    }
+    
     if (totalMinutes <= 0 || totalWords <= 0) {
         return null;
     }

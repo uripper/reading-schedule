@@ -48,12 +48,12 @@ export function totalsFromSummary(
 ): Record<string, number> {
     const PER_BOOK = summary?.per_book ?? {};
     const TOTALS: Record<string, number> = {};
-
-    Object.entries(PER_BOOK).forEach(([id, info]) => {
-        TOTALS[id] = Number(info.words_total ?? 0);
-    });
+    for (const [ID, INFO] of Object.entries(PER_BOOK)) {
+        TOTALS[ID] = Number(INFO.words_total ?? 0);
+    }
     return TOTALS;
 }
+
 
 /**
  * Creates persistence helpers for saving draft state with debounced writes.

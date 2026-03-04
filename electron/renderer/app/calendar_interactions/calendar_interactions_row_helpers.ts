@@ -70,15 +70,15 @@ export function nextSessionIndexForDate(
     const NORMALIZED = normalizeRowsAndDate(dateOrRows, rowsOrDate);
     let maxIndex = 0;
 
-    NORMALIZED.rows.forEach((row) => {
-        if (String(row.date || "") !== NORMALIZED.date) {
-            return;
+    for (const ROW of NORMALIZED.rows) {
+        if (String(ROW.date || "") !== NORMALIZED.date) {
+            continue;
         }
-        const INDEX = Number(row.session_index || 0);
+        const INDEX = Number(ROW.session_index || 0);
         if (Number.isFinite(INDEX)) {
             maxIndex = Math.max(maxIndex, Math.floor(INDEX));
         }
-    });
+    }
     return maxIndex + 1;
 }
 

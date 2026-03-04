@@ -89,9 +89,9 @@ function hideUnshippedControlById(id: string): void {
  * Hides and disables all unshipped experience controls.
  */
 function hideUnshippedExperienceControls(): void {
-    HIDDEN_EXPERIENCE_CONTROL_IDS.forEach((id) => {
-        hideUnshippedControlById(id);
-    });
+    for (const ID of HIDDEN_EXPERIENCE_CONTROL_IDS) {
+        hideUnshippedControlById(ID);
+    }
 }
 
 /**
@@ -103,8 +103,8 @@ export function bindExperienceSettings(
 ): void {
     hideUnshippedExperienceControls();
 
-    EXPERIENCE_SETTING_IDS.forEach((id) => {
-        const NODE = el(id);
+    for (const ID of EXPERIENCE_SETTING_IDS) {
+        const NODE = el(ID);
         NODE.addEventListener("change", onApplySettings);
-    });
+    }
 }
