@@ -59,13 +59,13 @@ export function shelfFilterMatches(
 export function uniqueShelves(books: Pick<Book, "shelf">[] = []): string[] {
     const SHELF_SET = new Set<string>();
 
-    books.forEach((book) => {
-        const SHELF = normalizeShelfName(book.shelf);
+    for (const BOOK of books) {
+        const SHELF = normalizeShelfName(BOOK.shelf);
         if (!SHELF) {
-            return;
-        }
+            continue;
+        }     
         SHELF_SET.add(SHELF);
-    });
+    }
     return [...SHELF_SET].sort((left, right) => {
         return left.localeCompare(right, undefined, { sensitivity: "base" });
     });

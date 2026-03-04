@@ -174,9 +174,9 @@ function groupedBuckets(
 ): Map<string, GroupBucket> {
     const BUCKETS = new Map<string, GroupBucket>();
 
-    books.forEach((book: Book) => {
+    for (const BOOK of books) {
         const META = metaForBook(
-            book,
+            BOOK,
             groupBy,
             finishDateByBookId,
             currentYear,
@@ -186,9 +186,9 @@ function groupedBuckets(
         }
         const BUCKET = BUCKETS.get(META.key);
         if (BUCKET) {
-            BUCKET.books.push(book);
+            BUCKET.books.push(BOOK);
         }
-    });
+    }
     return BUCKETS;
 }
 
