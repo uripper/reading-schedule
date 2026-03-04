@@ -1,26 +1,37 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Animated, Easing } from "react-native";
-import { themeFromBook } from "../today_background_theme";
+import {
+    type TodayBackgroundTheme,
+    themeFromBook,
+} from "../today_background_theme";
 import {
     COVER_SOURCES,
     THEME_TRANSITION_DURATION_MS,
 } from "../today_constants";
 import type { TodayBookCard } from "../types";
+
+interface TodayThemeTransitionState {
+    currentTheme: TodayBackgroundTheme;
+    previousTheme: TodayBackgroundTheme;
+    themeProgress: Animated.Value;
+}
+
 /**
  * Transitions between background themes when the active book changes.
+ * @returns Current and previous themes plus animated transition progress.
  */
 export function useTodayThemeTransition(
     books: TodayBookCard[],
     activeIndex: number,
-) {
+): TodayThemeTransitionState {
     const ACTIVE_BOOK = books[activeIndex] ?? books[0] ?? null;
     const ACTIVE_BOOK_TITLE = ACTIVE_BOOK?.title ?? "";
     const ACTIVE_BOOK_HAS_COVER = hasCoverForBook(ACTIVE_BOOK_TITLE);
     const BACKGROUND_THEME = useMemo(() => {
         return themeFromBook(ACTIVE_BOOK_TITLE, ACTIVE_BOOK_HAS_COVER);
     }, [ACTIVE_BOOK_HAS_COVER, ACTIVE_BOOK_TITLE]);
-    const [, SET_PREVIOUS_THEME] = useState(BACKGROUND_THEME);
-    const [, SET_CURRENT_THEME] = useState(BACKGROUND_THEME);
+    const [PREVIOUS_THEME, SET_PREVIOUS_THEME] = useState(BACKGROUND_THEME);
+    const [CURRENT_THEME, SET_CURRENT_THEME] = useState(BACKGROUND_THEME);
     const PREVIOUS_THEME_REF = useRef(BACKGROUND_THEME);
     const TRANSITION_ID_REF = useRef(0);
     const THEME_PROGRESS = useRef(new Animated.Value(1)).current;
@@ -57,6 +68,12 @@ export function useTodayThemeTransition(
             SET_CURRENT_THEME(BACKGROUND_THEME);
         });
     }, [BACKGROUND_THEME, THEME_PROGRESS]);
+
+    return {
+        currentTheme: CURRENT_THEME,
+        previousTheme: PREVIOUS_THEME,
+        themeProgress: THEME_PROGRESS,
+    };
 }
 
 function hasCoverForBook(title: string): boolean {

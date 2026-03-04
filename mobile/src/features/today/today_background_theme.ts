@@ -4,10 +4,17 @@ interface Rgb {
     r: number;
 }
 
-interface TodayBackgroundTheme {
+/**
+ * Visual colors used by the Today screen background and transition layer.
+ */
+export interface TodayBackgroundTheme {
+    /** Ambient color used by floating background elements. */
     ambientColor: string;
+    /** Base canvas color applied to the screen content container. */
     canvasColor: string;
+    /** Dominant extracted color retained for diagnostics and future UI use. */
     dominantColor: string;
+    /** Identifies whether the theme came from cover sampling or fallback generation. */
     source: "cover" | "fallback";
 }
 

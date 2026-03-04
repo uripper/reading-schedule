@@ -31,6 +31,7 @@ export function useCarouselMetrics() {
     }, [CARD_WIDTH, width]);
 
     return {
+        cardWidth: CARD_WIDTH,
         carouselSideInset: CAROUSEL_SIDE_INSET,
         itemWidth: ITEM_WIDTH,
     };

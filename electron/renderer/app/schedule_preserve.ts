@@ -136,9 +136,10 @@ export function mergeScheduleRows(
 
     const MERGED_BY_KEY = new Map<string, PlannerScheduleRow>();
 
-    [...KEPT_ROWS, ...NEW_ROWS].forEach((row) => {
-        MERGED_BY_KEY.set(scheduleKey(row), row);
-    });
+    for (const ROW of [...KEPT_ROWS, ...NEW_ROWS]) {
+        MERGED_BY_KEY.set(scheduleKey(ROW), ROW);
+    }
+
     return sortedRows([...MERGED_BY_KEY.values()]);
 }
 

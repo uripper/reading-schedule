@@ -3,38 +3,38 @@ import { COVER_PLACEHOLDER } from "./constants.js";
 
 /**
  * Wires edit/remove/fallback-cover handlers for rendered book cards.
- * @param rootNode Root container containing card elements.
- * @param handlers Callback handlers for card actions.
- * @param handlers.onEdit Called when edit button is clicked.
- * @param handlers.onRemove Called when remove button is clicked.
+ * @param rootNode - Root container containing card elements.
+ * @param handlers -  Callback handlers for card actions.
+ *        handlers.onEdit - Called when edit button is clicked.
+ *        handlers.onRemove Called when remove button is clicked.
  */
 export function bindCardEvents(
     rootNode: HTMLElement,
     handlers: CardHandlers,
 ): void {
-    rootNode
-        .querySelectorAll<HTMLButtonElement>(".edit-book-btn")
-        .forEach((button) => {
-            button.addEventListener("click", () => {
-                handlers.onEdit(button.dataset.bookId ?? "");
-            });
+    for (const BUTTON of rootNode.querySelectorAll<HTMLButtonElement>(
+        ".remove-book-btn",
+    )) {
+        BUTTON.addEventListener("click", () => {
+            handlers.onRemove(BUTTON.dataset.bookId ?? "");
         });
+    }
 
-    rootNode
-        .querySelectorAll<HTMLButtonElement>(".remove-book-btn")
-        .forEach((button) => {
-            button.addEventListener("click", () => {
-                handlers.onRemove(button.dataset.bookId ?? "");
-            });
+    for (const BUTTON of rootNode.querySelectorAll<HTMLButtonElement>(
+        ".edit-book-btn",
+    )) {
+        BUTTON.addEventListener("click", () => {
+            handlers.onEdit(BUTTON.dataset.bookId ?? "");
         });
+    }
 
-    rootNode
-        .querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']")
-        .forEach((image) => {
-            const NEXT_IMAGE = image;
-            image.addEventListener("error", () => {
-                NEXT_IMAGE.src = COVER_PLACEHOLDER;
-                NEXT_IMAGE.classList.add("is-empty");
-            });
+    for (const IMAGE of rootNode.querySelectorAll<HTMLImageElement>(
+        "img[data-fallback-cover='1']",
+    )) {
+        const NEXT_IMAGE = IMAGE;
+        IMAGE.addEventListener("error", () => {
+            NEXT_IMAGE.src = COVER_PLACEHOLDER;
+            NEXT_IMAGE.classList.add("is-empty");
         });
+    }
 }
