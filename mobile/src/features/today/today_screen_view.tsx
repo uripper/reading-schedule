@@ -1,8 +1,7 @@
 import { TodayBackground } from "@features/today/today_background";
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
     Animated,
-    Easing,
     FlatList,
     Image,
     type NativeScrollEvent,
@@ -10,10 +9,12 @@ import {
     Pressable,
     ScrollView,
     Text,
-    useWindowDimensions,
     View,
 } from "react-native";
+import { useCarouselMetrics } from "./hooks/use_carousel_metrics";
+import { useTodayThemeTransition } from "./hooks/use_today_theme_transition";
 import { themeFromBook } from "./today_background_theme";
+import { CAROUSEL_GAP, COVER_SOURCES, DEFAULT_COVER_SOURCE } from "./today_constants"
 import {
     HEADER_SHADOW_BLUE,
     HEADER_SHADOW_PURPLE,
@@ -24,20 +25,6 @@ import {
 } from "./today_screen_styles";
 import { TodayThemeTransitionLayer } from "./today_theme_transition_layer";
 import type { TodayBookCard, TodayStats } from "./types";
-
-const CAROUSEL_GAP = 16;
-const MIN_CAROUSEL_SIDE_INSET = 12;
-const THEME_TRANSITION_DURATION_MS = 700;
-const DEFAULT_COVER_SOURCE = require("../../../assets/book-covers/Hamlet.jpg");
-
-const COVER_SOURCES: Record<string, number> = {
-    "2666": require("../../../assets/book-covers/2666.jpg"),
-    "Anna Karenina": require("../../../assets/book-covers/AnnaKarenina.jpg"),
-    "Don Quixote": require("../../../assets/book-covers/DonQuixote.jpg"),
-    Ficciones: require("../../../assets/book-covers/Ficciones.jpg"),
-    Hamlet: require("../../../assets/book-covers/Hamlet.jpg"),
-    "Moby-Dick": require("../../../assets/book-covers/MobyDick.jpg"),
-};
 
 interface CardProps {
     book: TodayBookCard;
@@ -107,81 +94,25 @@ function StatBubble({ fill, label, value }: StatBubbleProps) {
 export function TodayScreen({ books, stats }: TodayScreenProps) {
     const [activeIndex, setActiveIndex] = useState(0);
     const activeBook = books[activeIndex] ?? books[0] ?? null;
-
-    const { width } = useWindowDimensions();
     const activeBookTitle = activeBook?.title ?? "";
     const activeBookHasCover = hasCoverForBook(activeBookTitle);
     const backgroundTheme = useMemo(() => {
         return themeFromBook(activeBookTitle, activeBookHasCover);
     }, [activeBookHasCover, activeBookTitle]);
-    const [previousTheme, setPreviousTheme] = useState(backgroundTheme);
-    const [currentTheme, setCurrentTheme] = useState(backgroundTheme);
-    const previousThemeRef = useRef(backgroundTheme);
-    const transitionIdRef = useRef(0);
+    const [previousTheme, ] = useState(backgroundTheme);
+    const [currentTheme, ] = useState(backgroundTheme);
     const themeProgress = useRef(new Animated.Value(1)).current;
 
-    useLayoutEffect(() => {
-        const previous = previousThemeRef.current;
-        const hasChanged =
-            previous.canvasColor !== backgroundTheme.canvasColor ||
-            previous.ambientColor !== backgroundTheme.ambientColor;
-        if (!hasChanged) {
-            return;
-        }
+    useTodayThemeTransition(books, activeIndex);
 
-        setPreviousTheme(previous);
-        setCurrentTheme(backgroundTheme);
-        themeProgress.stopAnimation();
-        themeProgress.setValue(0);
-        const transitionId = transitionIdRef.current + 1;
-        transitionIdRef.current = transitionId;
-        Animated.timing(themeProgress, {
-            duration: THEME_TRANSITION_DURATION_MS,
-            easing: Easing.out(Easing.cubic),
-            toValue: 1,
-            useNativeDriver: true,
-        }).start(({ finished }) => {
-            if (!finished) {
-                return;
-            }
-            if (transitionIdRef.current !== transitionId) {
-                return;
-            }
-            previousThemeRef.current = backgroundTheme;
-            setPreviousTheme(backgroundTheme);
-            setCurrentTheme(backgroundTheme);
-        });
-    }, [backgroundTheme, themeProgress]);
-
-    const cardWidth = useMemo(() => {
-        const baseCardWidth = 214;
-        const edgePadding = 82;
-        const candidate = width - edgePadding;
-        if (candidate < baseCardWidth) {
-            return baseCardWidth;
-        }
-        if (candidate > 294) {
-            return 294;
-        }
-        return candidate;
-    }, [width]);
-
-    const itemWidth = cardWidth + CAROUSEL_GAP;
-    const carouselSideInset = useMemo(() => {
-        const rawInset = (width - cardWidth) / 2;
-        if (rawInset < MIN_CAROUSEL_SIDE_INSET) {
-            return MIN_CAROUSEL_SIDE_INSET;
-        }
-        return rawInset;
-    }, [cardWidth, width]);
+    const { itemWidth, carouselSideInset } = useCarouselMetrics();
 
     if (!activeBook) {
         return null;
     }
-
-    function syncActiveIndex(
+    const syncActiveIndex = (
         event: NativeSyntheticEvent<NativeScrollEvent>,
-    ): void {
+    ): void => {
         const offsetX = event.nativeEvent.contentOffset.x;
         const index = Math.round(offsetX / itemWidth);
         if (index < 0 || index >= books.length) {
@@ -190,6 +121,33 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
         setActiveIndex(index);
     }
 
+    return renderTodayScreen(
+        currentTheme,
+        previousTheme,
+        themeProgress,
+        carouselSideInset,
+        books,
+        syncActiveIndex,
+        itemWidth,
+        activeIndex,
+        setActiveIndex,
+        activeBook,
+        stats,
+    );
+}
+function renderTodayScreen(
+    currentTheme: TodayBackgroundTheme,
+    previousTheme: TodayBackgroundTheme,
+    themeProgress: Animated.Value,
+    carouselSideInset: number,
+    books: TodayBookCard[],
+    syncActiveIndex: (event: NativeSyntheticEvent<NativeScrollEvent>) => void,
+    itemWidth: number,
+    activeIndex: number,
+    setActiveIndex,
+    activeBook: TodayBookCard,
+    stats: TodayStats,
+) {
     return (
         <ScrollView
             bounces={false}
@@ -239,7 +197,7 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
                 onMomentumScrollEnd={syncActiveIndex}
                 renderItem={({ item, index }) => {
                     return (
-                        <View style={{ width: cardWidth }}>
+                        <View style={{ width: itemWidth }}>
                             <CarouselCard
                                 book={item}
                                 isActive={index === activeIndex}

@@ -1,8 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ImageSourcePropType } from "react-native";
 import { Image, StyleSheet, useWindowDimensions, View } from "react-native";
-import type { Body, Bounds } from "./today_background_simulation";
-import { BackgroundSimulation } from "./today_background_simulation";
+import {
+    createBackgroundSimulationState,
+    getBackgroundBodies,
+    resetBackgroundSimulation,
+    tickBackgroundSimulation,
+} from "./today_background_simulation";
+import type {
+    BackgroundSimulationState,
+    Body,
+    Bounds,
+} from "./today_background_simulation";
 import { BACKGROUND_SPRITES } from "./today_background_sprites";
 import {
     BLUR_LEVEL,
@@ -71,10 +80,10 @@ function BackgroundSprite({ body }: { body: Body }) {
 
 function useTodayBackgroundBodies(bounds: Bounds): readonly Body[] {
     const [, forceTick] = useState(0);
-    const simRef = useRef<BackgroundSimulation | null>(null);
+    const simRef = useRef<BackgroundSimulationState | null>(null);
 
     useEffect(() => {
-        simRef.current = new BackgroundSimulation();
+        simRef.current = createBackgroundSimulationState();
         return () => {
             simRef.current = null;
         };
@@ -87,7 +96,7 @@ function useTodayBackgroundBodies(bounds: Bounds): readonly Body[] {
         }
 
         // Reset here so changing bounds doesn't produce a giant delta frame.
-        sim.reset();
+        resetBackgroundSimulation(sim);
 
         let frameId = 0;
 
@@ -95,7 +104,7 @@ function useTodayBackgroundBodies(bounds: Bounds): readonly Body[] {
             if (!sim) {
                 return;
             }
-            const stepped = sim.tick(timeMs, bounds);
+            const stepped = tickBackgroundSimulation(sim, timeMs, bounds);
             if (stepped) {
                 forceTick((t) => t + 1);
             }
@@ -111,7 +120,7 @@ function useTodayBackgroundBodies(bounds: Bounds): readonly Body[] {
         return [];
     }
 
-    return sim.getBodies();
+    return getBackgroundBodies(sim);
 }
 
 /**

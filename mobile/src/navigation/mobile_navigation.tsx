@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import { ComingSoonScreen } from "../features/common/coming_soon_screen";
 import { TodayScreenContainer } from "../features/today/today_screen_container";
-import { styles } from "./mobile_navigation_styles";
+import { STYLES } from "./mobile_navigation_styles";
 import type { MobileTabKey, StackNavigator, StackRoute } from "./types";
 
 interface MobileNavigationProps {
@@ -168,12 +168,12 @@ export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
     let menu = null;
     if (IS_MENU_OPEN) {
         menu = (
-            <View style={styles.menuPanel}>
+            <View style={STYLES.menuPanel}>
                 {MENU_ITEMS.map((tab) => {
                     const IS_ACTIVE = tab === ACTIVE_TAB;
                     let menuItemActiveStyle = null;
                     if (IS_ACTIVE) {
-                        menuItemActiveStyle = styles.menuItemActive;
+                        menuItemActiveStyle = STYLES.menuItemActive;
                     }
                     return (
                         <Pressable
@@ -181,9 +181,9 @@ export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
                             onPress={() => {
                                 activateTab(tab);
                             }}
-                            style={[styles.menuItem, menuItemActiveStyle]}
+                            style={[STYLES.menuItem, menuItemActiveStyle]}
                         >
-                            <Text style={styles.menuItemText}>
+                            <Text style={STYLES.menuItemText}>
                                 {tabLabel(tab)}
                             </Text>
                         </Pressable>
@@ -196,44 +196,44 @@ export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
     let backButton = null;
     if (SHOW_BACK) {
         backButton = (
-            <Pressable onPress={pop} style={styles.backButton}>
-                <Text style={styles.backText}>Back</Text>
+            <Pressable onPress={pop} style={STYLES.backButton}>
+                <Text style={STYLES.backText}>Back</Text>
             </Pressable>
         );
     }
 
     return (
-        <View style={styles.appFrame}>
-            <View style={styles.topBar}>
-                <View style={styles.brandBlock}>
-                    <View style={styles.logoWrap}>
+        <View style={STYLES.appFrame}>
+            <View style={STYLES.topBar}>
+                <View style={STYLES.brandBlock}>
+                    <View style={STYLES.logoWrap}>
                         <Image
                             source={LOGO_BACKGROUND}
-                            style={styles.logoBackground}
+                            style={STYLES.logoBackground}
                         />
-                        <Image source={LOGO} style={styles.logo} />
+                        <Image source={LOGO} style={STYLES.logo} />
                     </View>
-                    <Text numberOfLines={1} style={styles.brandText}>
+                    <Text numberOfLines={1} style={STYLES.brandText}>
                         BARTLEBY
                     </Text>
                 </View>
 
-                <View style={styles.topActions}>
+                <View style={STYLES.topActions}>
                     {backButton}
                     <Pressable
                         onPress={() => {
                             SET_IS_MENU_OPEN((previous) => !previous);
                         }}
-                        style={styles.menuToggle}
+                        style={STYLES.menuToggle}
                     >
-                        <Text style={styles.menuToggleText}>Menu</Text>
+                        <Text style={STYLES.menuToggleText}>Menu</Text>
                     </Pressable>
                 </View>
             </View>
 
             {menu}
 
-            <View style={styles.screen}>{ACTIVE_ROUTE.render(NAVIGATOR)}</View>
+            <View style={STYLES.screen}>{ACTIVE_ROUTE.render(NAVIGATOR)}</View>
         </View>
     );
 }

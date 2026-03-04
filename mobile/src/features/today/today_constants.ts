@@ -80,3 +80,18 @@ export const VY_MIN = 2;
 export const VY_RANGE = 50;
 // Extra random distance above TOP_SPAWN_Y where new bodies can appear.
 export const Y_SPAWN_RANGE = 60;
+
+export const CAROUSEL_GAP = 16;
+export const MIN_CAROUSEL_SIDE_INSET = 12;
+export const THEME_TRANSITION_DURATION_MS = 700;
+
+export const COVER_SOURCES: Record<string, number> = {
+    "2666": require("../../../assets/book-covers/2666.jpg"),
+    "Anna Karenina": require("../../../assets/book-covers/AnnaKarenina.jpg"),
+    "Don Quixote": require("../../../assets/book-covers/DonQuixote.jpg"),
+    Ficciones: require("../../../assets/book-covers/Ficciones.jpg"),
+    Hamlet: require("../../../assets/book-covers/Hamlet.jpg"),
+    "Moby-Dick": require("../../../assets/book-covers/MobyDick.jpg"),
+};
+
+export const DEFAULT_COVER_SOURCE = require("../../../assets/book-covers/Hamlet.jpg")

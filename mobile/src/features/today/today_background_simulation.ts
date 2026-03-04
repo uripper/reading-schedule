@@ -97,304 +97,293 @@ export interface Bounds {
 }
 
 /**
- * Runs a frame-based particle simulation for the Today background.
- *
- * Lifecycle:
- * 1. `tick(...)` advances time and applies frame time capping.
- * 2. New bodies are spawned on an interval up to `MAX_ACTIVE_OBJECTS`.
- * 3. Bodies are integrated with drift, gravity, wall bounces, and collisions.
- * 4. Bodies are removed after passing below the despawn edge.
+ * Mutable simulation state used by the function-based update pipeline.
  */
-export class BackgroundSimulation {
-    private bodies: Body[] = [];
-    private nextId = 1;
-    private lastFrameMs = 0;
-    private spawnAccumulatorMs = 0;
-    private timeSeconds = 0;
-
+export interface BackgroundSimulationState {
     /**
-     * Clears all simulation state.
-     *
-     * Call this when dimensions/theme context changes and you want to restart
-     * from an empty background with deterministic counters reset.
+     * Active bodies currently simulated.
      */
-    public reset(): void {
-        this.bodies = [];
-        this.nextId = 1;
-        this.lastFrameMs = 0;
-        this.spawnAccumulatorMs = 0;
-        this.timeSeconds = 0;
+    bodies: Body[];
+    /**
+     * Previous animation-frame timestamp, in milliseconds.
+     */
+    lastFrameMs: number;
+    /**
+     * Monotonic counter used for assigning stable body IDs.
+     */
+    nextId: number;
+    /**
+     * Accumulated time used to trigger interval-based spawning.
+     */
+    spawnAccumulatorMs: number;
+    /**
+     * Total simulated elapsed time in seconds.
+     */
+    timeSeconds: number;
+}
+
+/**
+ * Creates a new simulation state container.
+ * @returns Fresh mutable simulation state.
+ */
+export function createBackgroundSimulationState(): BackgroundSimulationState {
+    return {
+        bodies: [],
+        lastFrameMs: 0,
+        nextId: 1,
+        spawnAccumulatorMs: 0,
+        timeSeconds: 0,
+    };
+}
+
+/**
+ * Clears all state values so simulation can restart from scratch.
+ * @param state - Simulation state to reset.
+ */
+export function resetBackgroundSimulation(
+    state: BackgroundSimulationState,
+): void {
+    state.bodies = [];
+    state.nextId = 1;
+    state.lastFrameMs = 0;
+    state.spawnAccumulatorMs = 0;
+    state.timeSeconds = 0;
+}
+
+/**
+ * Returns the active bodies snapshot used by rendering.
+ * @param state - Simulation state.
+ * @returns Active bodies array.
+ */
+export function getBackgroundBodies(
+    state: BackgroundSimulationState,
+): readonly Body[] {
+    return state.bodies;
+}
+
+/**
+ * Advances simulation state by one frame.
+ * @param state - Simulation state.
+ * @param timeMs - Current animation frame timestamp in milliseconds.
+ * @param bounds - Active horizontal/vertical movement boundaries.
+ * @returns `false` on first frame (no previous delta), else `true`.
+ */
+export function tickBackgroundSimulation(
+    state: BackgroundSimulationState,
+    timeMs: number,
+    bounds: Bounds,
+): boolean {
+    const LAST = state.lastFrameMs;
+    state.lastFrameMs = timeMs;
+    if (LAST === 0) {
+        return false;
     }
 
-    /**
-     * Returns the current immutable view of active bodies.
-     * @returns An array of active bodies in the simulation.
-     */
-    public getBodies(): readonly Body[] {
-        return this.bodies;
+    const RAW_DELTA_SECONDS = (timeMs - LAST) / 1000;
+    const DELTA_SECONDS = Math.min(FRAME_DT_CAP, RAW_DELTA_SECONDS);
+
+    maybeSpawn(state, DELTA_SECONDS, bounds);
+    step(state, DELTA_SECONDS, bounds);
+
+    return true;
+}
+
+function maybeSpawn(
+    state: BackgroundSimulationState,
+    deltaSeconds: number,
+    bounds: Bounds,
+): void {
+    state.spawnAccumulatorMs += deltaSeconds * 1000;
+
+    if (state.spawnAccumulatorMs < SPAWN_INTERVAL_MS) {
+        return;
     }
 
-    /**
-     * Advances the simulation by one frame time.
-     * @param timeMs - Current frame timestamp (from RAF), in milliseconds.
-     * @param bounds - Active simulation boundaries.
-     * @returns `false` on first frame (no delta yet), otherwise `true`.
-     */
-    public tick(timeMs: number, bounds: Bounds): boolean {
-        const LAST = this.lastFrameMs;
-        this.lastFrameMs = timeMs;
-        if (LAST === 0) {
-            return false;
+    state.spawnAccumulatorMs = 0;
+
+    const EXISTING = state.bodies.length;
+    if (EXISTING >= MAX_ACTIVE_OBJECTS) {
+        return;
+    }
+
+    // Spawn a random count proportional to remaining capacity so population
+    // grows smoothly as the scene fills.
+    const CAPACITY = MAX_ACTIVE_OBJECTS - EXISTING;
+    const TARGET = Math.ceil(CAPACITY * Math.random());
+
+    for (let i = 0; i < TARGET; i += 1) {
+        state.bodies.push(spawnBody(state, bounds));
+    }
+}
+
+function randomAngle(): number {
+    return Math.random() * Math.PI * 2;
+}
+
+function spawnBody(state: BackgroundSimulationState, bounds: Bounds): Body {
+    const INDEX = Math.floor(Math.random() * BACKGROUND_SPRITES.length);
+    const RADIUS = bodyRadius(INDEX);
+
+    const MIN_X = bounds.left + RADIUS;
+    const MAX_X = bounds.right - RADIUS;
+    const X_RANGE = Math.max(1, MAX_X - MIN_X);
+
+    const NEXT_ID = state.nextId;
+    state.nextId += 1;
+
+    return {
+        driftForce: randomRange(DRIFT_FORCE_MIN, DRIFT_FORCE_RANGE),
+        driftPhase: randomAngle(),
+        id: NEXT_ID,
+        index: INDEX,
+        opacity: MIN_OPACITY + Math.random() * OPACITY_RANGE,
+        radius: RADIUS,
+        spin: randomAngle(),
+        spinVelocity: randomRange(SPIN_VELOCITY_MIN, SPIN_VELOCITY_RANGE),
+        vx: randomRange(VX_MIN, VX_RANGE),
+        vy: randomRange(VY_MIN, VY_RANGE),
+        x: MIN_X + Math.random() * X_RANGE,
+        y: TOP_SPAWN_Y - Math.random() * Y_SPAWN_RANGE,
+    };
+}
+
+function step(
+    state: BackgroundSimulationState,
+    deltaSeconds: number,
+    bounds: Bounds,
+): void {
+    state.timeSeconds += deltaSeconds;
+    const NOW = state.timeSeconds;
+
+    integrate(state, deltaSeconds, bounds, NOW);
+    resolveAllCollisions(state);
+    despawn(state, bounds);
+}
+
+function integrate(
+    state: BackgroundSimulationState,
+    deltaSeconds: number,
+    bounds: Bounds,
+    now: number,
+): void {
+    // Uses semi-implicit Euler integration:
+    // velocity is updated first, then position from updated velocity.
+    const LEFT_EDGE_BASE = bounds.left;
+    const RIGHT_EDGE_BASE = bounds.right;
+
+    for (const BODY of state.bodies) {
+        const DRIFT = Math.sin(now + BODY.driftPhase) * BODY.driftForce;
+
+        BODY.vx += DRIFT * deltaSeconds;
+        BODY.vy += GRAVITY_PER_SECOND * deltaSeconds;
+
+        BODY.x += BODY.vx * deltaSeconds;
+        BODY.y += BODY.vy * deltaSeconds;
+
+        if (BODY.x - BODY.radius < LEFT_EDGE_BASE) {
+            BODY.x = LEFT_EDGE_BASE + BODY.radius;
+            BODY.vx = -BODY.vx * WALL_BOUNCE;
+        } else if (BODY.x + BODY.radius > RIGHT_EDGE_BASE) {
+            BODY.x = RIGHT_EDGE_BASE - BODY.radius;
+            BODY.vx = -BODY.vx * WALL_BOUNCE;
         }
 
-        const RAW_DELTA_SECONDS = (timeMs - LAST) / 1000;
-        const DELTA_SECONDS = Math.min(FRAME_DT_CAP, RAW_DELTA_SECONDS);
-
-        this.maybeSpawn(DELTA_SECONDS, bounds);
-        this.step(DELTA_SECONDS, bounds);
-
-        return true;
+        BODY.spin += BODY.spinVelocity * deltaSeconds;
     }
+}
 
-    /**
-     * Spawns one or more new bodies after enough simulated time has elapsed.
-     * @param deltaSeconds - Time advanced this frame, in seconds.
-     * @param bounds - Current horizontal spawn limits.
-     */
-    private maybeSpawn(deltaSeconds: number, bounds: Bounds): void {
-        this.spawnAccumulatorMs += deltaSeconds * 1000;
+function resolveAllCollisions(state: BackgroundSimulationState): void {
+    // Pairwise pass for O(n^2) collision checks. Fine for small n and keeps
+    // collision behavior deterministic relative to body order.
+    const BODIES = state.bodies;
 
-        if (this.spawnAccumulatorMs < SPAWN_INTERVAL_MS) {
-            return;
+    for (let i = 0; i < BODIES.length; i += 1) {
+        const BODY_A = BODIES[i];
+        if (!BODY_A) {
+            continue;
         }
-
-        this.spawnAccumulatorMs = 0;
-
-        const EXISTING = this.bodies.length;
-        if (EXISTING >= MAX_ACTIVE_OBJECTS) {
-            return;
-        }
-
-        // Spawn a random count proportional to remaining capacity so population
-        // grows smoothly as the scene fills.
-        const CAPACITY = MAX_ACTIVE_OBJECTS - EXISTING;
-        const TARGET = Math.ceil(CAPACITY * Math.random());
-
-        for (let i = 0; i < TARGET; i++) {
-            this.bodies.push(this.spawnBody(bounds));
-        }
-    }
-
-    /**
-     * Creates a uniformly random angle in radians within [0, 2pi).
-     * @returns A random angle in radians.
-     */
-    private randomAngle(): number {
-        return Math.random() * Math.PI * 2;
-    }
-
-    /**
-     * Creates one body with randomized visual and motion properties.
-     * @param bounds - Current simulation bounds used to constrain initial X.
-     * @returns A new Body with random properties and a unique ID.
-     */
-    private spawnBody(bounds: Bounds): Body {
-        const INDEX = Math.floor(Math.random() * BACKGROUND_SPRITES.length);
-        const RADIUS = this.bodyRadius(INDEX);
-
-        const MIN_X = bounds.left + RADIUS;
-        const MAX_X = bounds.right - RADIUS;
-        const X_RANGE = Math.max(1, MAX_X - MIN_X);
-
-        const NEXT_ID = this.nextId++;
-
-        return {
-            driftForce: this.randomRange(DRIFT_FORCE_MIN, DRIFT_FORCE_RANGE),
-            driftPhase: this.randomAngle(),
-            id: NEXT_ID,
-            index: INDEX,
-            opacity: MIN_OPACITY + Math.random() * OPACITY_RANGE,
-            radius: RADIUS,
-            spin: this.randomAngle(),
-            spinVelocity: this.randomRange(
-                SPIN_VELOCITY_MIN,
-                SPIN_VELOCITY_RANGE,
-            ),
-            vx: this.randomRange(VX_MIN, VX_RANGE),
-            vy: this.randomRange(VY_MIN, VY_RANGE),
-            x: MIN_X + Math.random() * X_RANGE,
-            y: TOP_SPAWN_Y - Math.random() * Y_SPAWN_RANGE,
-        };
-    }
-
-    /**
-     * Runs a full simulation step: integrate movement, resolve collisions,
-     * then remove bodies that have left the active viewport region.
-     * @param deltaSeconds - Time advanced this frame, in seconds.
-     * @param bounds - Current simulation bounds.
-     */
-    private step(deltaSeconds: number, bounds: Bounds): void {
-        this.timeSeconds += deltaSeconds;
-        const NOW = this.timeSeconds;
-
-        this.integrate(deltaSeconds, bounds, NOW);
-        this.resolveAllCollisions();
-        this.despawn(bounds);
-    }
-
-    /**
-     * Integrates velocity/position and resolves wall bounces for each body.
-     * @param deltaSeconds - Time step in seconds.
-     * @param bounds - Current simulation bounds.
-     * @param now - Accumulated simulation time, used for sinusoidal drift.
-     */
-    private integrate(deltaSeconds: number, bounds: Bounds, now: number): void {
-        // Uses semi-implicit Euler integration:
-        // velocity is updated first, then position from updated velocity.
-        const LEFT_EDGE_BASE = bounds.left;
-        const RIGHT_EDGE_BASE = bounds.right;
-
-        for (const BODY of this.bodies) {
-            const DRIFT = Math.sin(now + BODY.driftPhase) * BODY.driftForce;
-
-            BODY.vx += DRIFT * deltaSeconds;
-            BODY.vy += GRAVITY_PER_SECOND * deltaSeconds;
-
-            BODY.x += BODY.vx * deltaSeconds;
-            BODY.y += BODY.vy * deltaSeconds;
-
-            if (BODY.x - BODY.radius < LEFT_EDGE_BASE) {
-                BODY.x = LEFT_EDGE_BASE + BODY.radius;
-                BODY.vx = -BODY.vx * WALL_BOUNCE;
-            } else if (BODY.x + BODY.radius > RIGHT_EDGE_BASE) {
-                BODY.x = RIGHT_EDGE_BASE - BODY.radius;
-                BODY.vx = -BODY.vx * WALL_BOUNCE;
-            }
-
-            BODY.spin += BODY.spinVelocity * deltaSeconds;
-        }
-    }
-
-    /**
-     * Resolves pairwise body collisions for all active bodies.
-     */
-    private resolveAllCollisions(): void {
-        // Pairwise pass for O(n^2) collision checks. Fine for small n and keeps
-        // collision behavior deterministic relative to body order.
-        const BODIES = this.bodies;
-
-        for (let i = 0; i < BODIES.length; i += 1) {
-            const BODY_A = BODIES[i];
-            if (!BODY_A) {
+        for (let j = i + 1; j < BODIES.length; j += 1) {
+            const BODY_B = BODIES[j];
+            if (!BODY_B) {
                 continue;
             }
-            for (let j = i + 1; j < BODIES.length; j += 1) {
-                const BODY_B = BODIES[j];
-                if (!BODY_B) {
-                    continue;
-                }
-                this.resolveCollision(BODY_A, BODY_B);
-            }
+            resolveCollision(BODY_A, BODY_B);
         }
     }
+}
 
-    /**
-     * Removes bodies that have fallen beyond the configured despawn margin.
-     * @param bounds - Current simulation bounds, including screen bottom.
-     */
-    private despawn(bounds: Bounds): void {
-        // Keep bodies until their top edge passes below the despawn threshold,
-        // so large sprites are not removed while still visible.
-        const DESPAWN_EDGE = bounds.bottom + DESPAWN_BOTTOM_MARGIN;
-        this.bodies = this.bodies.filter(
-            (body) => body.y - body.radius < DESPAWN_EDGE,
-        );
-    }
+function despawn(state: BackgroundSimulationState, bounds: Bounds): void {
+    // Keep bodies until their top edge passes below the despawn threshold,
+    // so large sprites are not removed while still visible.
+    const DESPAWN_EDGE = bounds.bottom + DESPAWN_BOTTOM_MARGIN;
+    state.bodies = state.bodies.filter(
+        (body) => body.y - body.radius < DESPAWN_EDGE,
+    );
+}
 
-    /**
-     * Returns a random number in [minimum, minimum + range).
-     * @param minimum - The lowest possible return value.
-     * @param range - The size of the interval above minimum.
-     * @returns A random number in the specified range.
-     */
-    private randomRange(minimum: number, range: number): number {
-        return minimum + Math.random() * range;
-    }
+function randomRange(minimum: number, range: number): number {
+    return minimum + Math.random() * range;
+}
 
-    /**
-     * Resolves overlap and velocity exchange for one body pair.
-     *
-     * Uses a normal impulse model with restitution and damping, then applies
-     * positional correction to reduce persistent interpenetration.
-     * @param bodyA - First body in the collision pair.
-     * @param bodyB - Second body in the collision pair.
-     */
-    private resolveCollision(bodyA: Body, bodyB: Body): void {
-        const DX = bodyB.x - bodyA.x;
-        const DY = bodyB.y - bodyA.y;
-        const DISTANCE = Math.sqrt(DX * DX + DY * DY);
-        const MIN_DISTANCE = bodyA.radius + bodyB.radius;
+function resolveCollision(bodyA: Body, bodyB: Body): void {
+    const DX = bodyB.x - bodyA.x;
+    const DY = bodyB.y - bodyA.y;
+    const DISTANCE = Math.sqrt(DX * DX + DY * DY);
+    const MIN_DISTANCE = bodyA.radius + bodyB.radius;
 
-        if (DISTANCE < MIN_DISTANCE) {
-            // Normalize the collision vector
-            const NX = DX / DISTANCE;
-            const NY = DY / DISTANCE;
+    if (DISTANCE < MIN_DISTANCE) {
+        // Normalize the collision vector
+        const NX = DX / DISTANCE;
+        const NY = DY / DISTANCE;
 
-            // Relative velocity
-            const VX_REL = bodyB.vx - bodyA.vx;
-            const VY_REL = bodyB.vy - bodyA.vy;
+        // Relative velocity
+        const VX_REL = bodyB.vx - bodyA.vx;
+        const VY_REL = bodyB.vy - bodyA.vy;
 
-            // Relative velocity in terms of the normal direction
-            const VEL_ALONG_NORMAL = VX_REL * NX + VY_REL * NY;
+        // Relative velocity in terms of the normal direction
+        const VEL_ALONG_NORMAL = VX_REL * NX + VY_REL * NY;
 
-            if (VEL_ALONG_NORMAL > 0) {
-                return; // Bodies are moving apart, no need to resolve
-            }
-
-            // Calculate restitution and damping
-            const RESTITUTION = COLLISION_RESTITUTION;
-            const DAMPING = COLLISION_DAMPING;
-
-            // Calculate impulse scalar
-            const IMPULSE = -(1 + RESTITUTION) * VEL_ALONG_NORMAL;
-            const IMPULSE_X = IMPULSE * NX;
-            const IMPULSE_Y = IMPULSE * NY;
-
-            // Apply impulse to the bodies
-            bodyA.vx -= IMPULSE_X * DAMPING;
-            bodyA.vy -= IMPULSE_Y * DAMPING;
-            bodyB.vx += IMPULSE_X * DAMPING;
-            bodyB.vy += IMPULSE_Y * DAMPING;
-
-            // Positional correction to reduce overlap artifacts.
-            const PERCENT = 0.2;
-            const SLOP = 0.01;
-            const CORRECTION_MAGNITUDE =
-                Math.max(DISTANCE - MIN_DISTANCE, SLOP) / (1 / PERCENT);
-            const CORRECTION_X = CORRECTION_MAGNITUDE * NX;
-            const CORRECTION_Y = CORRECTION_MAGNITUDE * NY;
-
-            bodyA.x -= CORRECTION_X;
-            bodyA.y -= CORRECTION_Y;
-            bodyB.x += CORRECTION_X;
-            bodyB.y += CORRECTION_Y;
+        if (VEL_ALONG_NORMAL > 0) {
+            return; // Bodies are moving apart, no need to resolve
         }
-    }
 
-    /**
-     * Computes a collision radius from the sprite's scaled dimensions.
-     * Falls back to a conservative default when sprite metadata is missing.
-     * @param index - Sprite index in `BACKGROUND_SPRITES`.
-     * @returns Collision radius in pixels.
-     */
-    private bodyRadius(index: number): number {
-        const SPRITE = BACKGROUND_SPRITES[index];
-        if (!SPRITE) {
-            return 38;
-        }
-        const WIDTH = SPRITE.width * SPRITE_SCALE;
-        const HEIGHT = SPRITE.height * SPRITE_SCALE;
-        const DIAMETER = Math.min(WIDTH, HEIGHT);
-        return DIAMETER / 2;
+        // Calculate restitution and damping
+        const RESTITUTION = COLLISION_RESTITUTION;
+        const DAMPING = COLLISION_DAMPING;
+
+        // Calculate impulse scalar
+        const IMPULSE = -(1 + RESTITUTION) * VEL_ALONG_NORMAL;
+        const IMPULSE_X = IMPULSE * NX;
+        const IMPULSE_Y = IMPULSE * NY;
+
+        // Apply impulse to the bodies
+        bodyA.vx -= IMPULSE_X * DAMPING;
+        bodyA.vy -= IMPULSE_Y * DAMPING;
+        bodyB.vx += IMPULSE_X * DAMPING;
+        bodyB.vy += IMPULSE_Y * DAMPING;
+
+        // Positional correction to reduce overlap artifacts.
+        const PERCENT = 0.2;
+        const SLOP = 0.01;
+        const CORRECTION_MAGNITUDE =
+            Math.max(DISTANCE - MIN_DISTANCE, SLOP) / (1 / PERCENT);
+        const CORRECTION_X = CORRECTION_MAGNITUDE * NX;
+        const CORRECTION_Y = CORRECTION_MAGNITUDE * NY;
+
+        bodyA.x -= CORRECTION_X;
+        bodyA.y -= CORRECTION_Y;
+        bodyB.x += CORRECTION_X;
+        bodyB.y += CORRECTION_Y;
     }
+}
+
+function bodyRadius(index: number): number {
+    const SPRITE = BACKGROUND_SPRITES[index];
+    if (!SPRITE) {
+        return 38;
+    }
+    const WIDTH = SPRITE.width * SPRITE_SCALE;
+    const HEIGHT = SPRITE.height * SPRITE_SCALE;
+    const DIAMETER = Math.min(WIDTH, HEIGHT);
+    return DIAMETER / 2;
 }
