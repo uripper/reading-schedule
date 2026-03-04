@@ -4,10 +4,17 @@ interface Rgb {
     r: number;
 }
 
-interface TodayBackgroundTheme {
+/**
+ * Visual colors used by the Today screen background and transition layer.
+ */
+export interface TodayBackgroundTheme {
+    /** Ambient color used by floating background elements. */
     ambientColor: string;
+    /** Base canvas color applied to the screen content container. */
     canvasColor: string;
+    /** Dominant extracted color retained for diagnostics and future UI use. */
     dominantColor: string;
+    /** Identifies whether the theme came from cover sampling or fallback generation. */
     source: "cover" | "fallback";
 }
 
@@ -182,8 +189,10 @@ function rgbToHsl(rgb: Rgb): { h: number; l: number; s: number } {
 
     let hue = 0;
     const LIGHTNESS = (MAX + MIN) / 2;
-    const SATURATION =
-        DELTA === 0 ? 0 : DELTA / (1 - Math.abs(2 * LIGHTNESS - 1));
+    let saturation = 0;
+    if (DELTA !== 0) {
+        saturation = DELTA / (1 - Math.abs(2 * LIGHTNESS - 1));
+    }
 
     if (DELTA !== 0) {
         if (MAX === R) {
@@ -196,7 +205,7 @@ function rgbToHsl(rgb: Rgb): { h: number; l: number; s: number } {
         hue = (hue * 60 + 360) % 360;
     }
 
-    return { h: hue, l: LIGHTNESS, s: SATURATION };
+    return { h: hue, l: LIGHTNESS, s: saturation };
 }
 
 function brutalNormalize(rgb: Rgb): Rgb {
@@ -242,9 +251,7 @@ function mostFrequentBucket(
     return bestBucket.rgb;
 }
 
-function dominantChromaFromPixels(
-    pixels: Uint8ClampedArray,
-): Rgb | null {
+function dominantChromaFromPixels(pixels: Uint8ClampedArray): Rgb | null {
     const COUNTS = new Map<string, { count: number; rgb: Rgb }>();
 
     for (let index = 0; index < pixels.length; index += 4) {
@@ -322,6 +329,14 @@ function hexToRgb(hex: string): Rgb {
     };
 }
 
+/**
+ * Generates a background theme for the "Today" screen based
+ * on the title of the book and whether it has a cover image.
+ * @param title - The title of the book
+ * @param hasCover - A boolean indicating whether the book has a cover image
+ * @returns A TodayBackgroundTheme object containing the ambient color, canvas color,
+ * and dominant color for the background, as well as the source of the theme (either "cover" or "fallback").
+ */
 export function themeFromBook(
     title: string,
     hasCover: boolean,

@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
-import { logDebug } from "../../renderer/logger.js";
-import { type JsonValue, type PlanGeneratePayload } from "../../types/types.js";
+import { logDebug } from "../../types/logger.js";
+import type { JsonValue, PlanGeneratePayload } from "../../types/types.js";
 import { BRIDGE_HEARTBEAT_MS } from "./constants.js";
 import { bridgeTimeoutMs, root } from "./context.js";
 import {
@@ -14,10 +14,10 @@ import {
     logProcessError,
     logTimeout,
 } from "./diagnostics.js";
-import {
-    type BridgeExecutionContext,
-    type BridgeRunSession,
-    type SettleHandlers,
+import type {
+    BridgeExecutionContext,
+    BridgeRunSession,
+    SettleHandlers,
 } from "./types.js";
 
 interface RunBridgeForModuleArgs {
@@ -30,6 +30,10 @@ interface RunBridgeForModuleArgs {
 
 /**
  * Creates bridge run session with spawned process and defaults.
+ * @param moduleName - Python module name to execute.
+ * @param args - CLI arguments passed to the module.
+ * @param executionContext - Execution context including env and logging info.
+ * @returns Initialized bridge run session with active process handle.
  */
 function createRunSession(
     moduleName: string,
@@ -138,6 +142,9 @@ function writePayloadAndClose(
 
 /**
  * Attaches timeout and heartbeat timers for active bridge process.
+ * @param session - Active bridge run session with process handle and context.
+ * @param onTimeout - Callback executed on bridge timeout before process termination.
+ * @returns Function to clear both heartbeat and timeout timers.
  */
 function startSessionTimers(
     session: BridgeRunSession,
@@ -182,6 +189,9 @@ function startSessionTimers(
 
 /**
  * Builds guarded resolve/reject callbacks to avoid duplicate promise settlement.
+ * @param resolve - Promise resolve callback.
+ * @param reject - Promise reject callback.
+ * @returns Object with guarded resolveOnce and rejectOnce callbacks.
  */
 function createSettleHandlers(
     resolve: (value: JsonValue) => void,
@@ -210,6 +220,12 @@ function createSettleHandlers(
 
 /**
  * Executes one planner module candidate and parses bridge output.
+ * @param args - CLI arguments passed to the module.
+ * @param executionContext - Execution context including env and logging info.
+ * @param moduleName - Python module name to execute.
+ * @param payload - Optional JSON payload written to planner stdin.
+ * @param parseOutput - Output parser that transforms raw stdout/stderr into JSON result or throws on failure.
+ * @returns Parsed JSON result from the bridge output parser.
  */
 export async function runBridgeForModule({
     args,

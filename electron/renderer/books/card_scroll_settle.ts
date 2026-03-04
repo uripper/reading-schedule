@@ -1,4 +1,4 @@
-import { type ScrollSettleState } from "../../types/types.js";
+import type { ScrollSettleState } from "../../types/types.js";
 
 const RAF_FALLBACK_DELAY_MS = 16;
 const _SCROLL_SETTLE_DELTA_PX = 0.5;

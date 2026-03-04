@@ -10,7 +10,7 @@ import {
     PYTHONPATH_KEY,
     PYTHONPATH_SEGMENT,
 } from "./constants.js";
-import { type BridgeExecutionContext, type BridgeRunContext } from "./types.js";
+import type { BridgeExecutionContext, BridgeRunContext } from "./types.js";
 
 /**
  * Resolves subprocess timeout for planner bridge execution.

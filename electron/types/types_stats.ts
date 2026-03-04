@@ -1,6 +1,6 @@
-import { type Book, type BookStatus } from "./types_books.js";
-import { type Session } from "./types_core.js";
-import { type PlannerResult } from "./types_planner.js";
+import type { Book, BookStatus } from "./types_books.js";
+import type { Session } from "./types_core.js";
+import type { PlannerResult } from "./types_planner.js";
 
 export type StatusBreakdown = Record<BookStatus, number>;
 

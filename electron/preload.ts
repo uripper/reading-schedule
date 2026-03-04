@@ -2,14 +2,14 @@
  * @file Preload bridge exposing a typed planner API to the renderer.
  */
 import { contextBridge, ipcRenderer } from "electron";
-import {
-    type BookLookupItem,
-    type PlanGeneratePayload,
-    type PlannerApi,
-    type PlannerResult,
-    type PlannerSaveResult,
-    type PlannerStateLoadResult,
-    type PlannerStateSnapshot,
+import type {
+    BookLookupItem,
+    PlanGeneratePayload,
+    PlannerApi,
+    PlannerResult,
+    PlannerSaveResult,
+    PlannerStateLoadResult,
+    PlannerStateSnapshot,
 } from "./types/types.js";
 
 /**

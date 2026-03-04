@@ -1,7 +1,7 @@
-import {
-    type Book,
-    type BookLookupItem,
-    type RecommendationItem,
+import type {
+    Book,
+    BookLookupItem,
+    RecommendationItem,
 } from "../../types/types.js";
 import {
     AUTHOR_LOCALE,

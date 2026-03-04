@@ -7,6 +7,16 @@ interface ComingSoonScreenProps {
     title: string;
 }
 
+/**
+ * A reusable screen component that displays a "coming soon" message.
+ * @param props - An object containing the properties for the screen
+ * @param ctaLabel - The label for the call-to-action button
+ * @param description - A description of the upcoming feature or content
+ * @param onPress - A function to be called when the call-to-action button is pressed
+ * @param title - The title of the screen
+ * @returns A React component that represents the "coming soon" screen, with a title,
+ * description, and a call-to-action button.
+ */
 export function ComingSoonScreen({
     ctaLabel,
     description,
@@ -14,17 +24,17 @@ export function ComingSoonScreen({
     title,
 }: ComingSoonScreenProps) {
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.description}>{description}</Text>
-            <Pressable onPress={onPress} style={styles.button}>
-                <Text style={styles.buttonLabel}>{ctaLabel}</Text>
+        <View style={STYLES.container}>
+            <Text style={STYLES.title}>{title}</Text>
+            <Text style={STYLES.description}>{description}</Text>
+            <Pressable onPress={onPress} style={STYLES.button}>
+                <Text style={STYLES.buttonLabel}>{ctaLabel}</Text>
             </Pressable>
         </View>
     );
 }
 
-const styles = StyleSheet.create({
+const STYLES = StyleSheet.create({
     button: {
         backgroundColor: "#F3D731",
         borderColor: "#0D0D0D",

@@ -1,7 +1,7 @@
-import {
-    type BookFormRefs,
-    type BookLookupItem,
-    type ProgressSyncInputs,
+import type {
+    BookFormRefs,
+    BookLookupItem,
+    ProgressSyncInputs,
 } from "../../types/types.js";
 import { noteFromLookup, syncProgressAndPages } from "../book_lookup.js";
 import { CUSTOM_COVER_NOTE, setCoverPreview } from "./form_state_helpers.js";

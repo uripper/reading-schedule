@@ -1,9 +1,9 @@
-import {
-    type Book,
-    type PlannerResult,
-    type PlannerScheduleRow,
-    type TodayBookSummary,
-    type TodayScheduleSnapshot,
+import type {
+    Book,
+    PlannerResult,
+    PlannerScheduleRow,
+    TodayBookSummary,
+    TodayScheduleSnapshot,
 } from "../../../types/types.js";
 import { bookCoverSrc } from "../../books/model.js";
 import { titleSortKey } from "../../books/title_key.js";
@@ -51,13 +51,14 @@ function isCompletedRow(
  */
 function booksById(books: Book[]): Map<string, Book> {
     const BY_ID = new Map<string, Book>();
-    books.forEach((book) => {
-        const BOOK_ID = String(book.book_id || "").trim();
+
+    for (const BOOK of books) {
+        const BOOK_ID = String(BOOK.book_id || "").trim();
         if (!BOOK_ID) {
-            return;
+            continue;
         }
-        BY_ID.set(BOOK_ID, book);
-    });
+        BY_ID.set(BOOK_ID, BOOK);
+    }
     return BY_ID;
 }
 
@@ -151,31 +152,31 @@ export function buildTodayScheduleSnapshot(
     let scheduledSessions = ZERO_COUNT;
     let completedSessions = ZERO_COUNT;
 
-    ROW_LIST.forEach((row) => {
-        const ROW_DATE = String(row.date || "");
+    for (const ROW of ROW_LIST) {
+        const ROW_DATE = String(ROW.date || "");
         if (ROW_DATE !== TODAY) {
-            return;
+            continue;
         }
 
-        const COMPLETED = isCompletedRow(row, scheduleCompletions);
-        const BOOK_ID = String(row.book_id || "").trim();
+        const COMPLETED = isCompletedRow(ROW, scheduleCompletions);
+        const BOOK_ID = String(ROW.book_id || "").trim();
         let summary = SUMMARIES_BY_BOOK_ID.get(BOOK_ID);
         if (!summary) {
-            summary = createBookSummary(row, BOOKS_MAP);
+            summary = createBookSummary(ROW, BOOKS_MAP);
             SUMMARIES_BY_BOOK_ID.set(BOOK_ID, summary);
         }
 
-        const PLANNED_MINUTES = Number(row.minutes || ZERO_COUNT);
+        const PLANNED_MINUTES = Number(ROW.minutes || ZERO_COUNT);
         summary.scheduledSessions += 1;
         summary.plannedMinutes += PLANNED_MINUTES;
         scheduledSessions += 1;
         if (!COMPLETED) {
-            return;
+            continue;
         }
         summary.completedSessions += 1;
         completedSessions += 1;
         completedPlannedMinutes += PLANNED_MINUTES;
-    });
+    }
 
     const BOOKS_FOR_TODAY = [...SUMMARIES_BY_BOOK_ID.values()];
     BOOKS_FOR_TODAY.sort((left, right) => {

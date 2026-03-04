@@ -1,6 +1,6 @@
 import { parseSettings, safeParseSettings } from "@reading-schedule/contracts";
-import { type PlannerSettings } from "../types/types.js";
-import { logDebug } from "./logger.js";
+import { logDebug } from "@renderer/logger.js";
+import type { PlannerSettings } from "../types/types.js";
 import { FIELDS } from "./settings/config.js";
 import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.js";
 import {
@@ -16,7 +16,7 @@ let dayOffs: string[] = [];
 
 /**
  * Replaces day-off state and refreshes chip UI.
- * @param nextDayOffs Updated day-off weekday keys.
+ * @param nextDayOffs - Updated day-off weekday keys.
  */
 function setDayOffs(nextDayOffs: string[]): void {
     dayOffs = [...nextDayOffs];
@@ -39,7 +39,7 @@ export function initSettingsGrid(): void {
 
 /**
  * Fills settings form controls from persisted planner settings.
- * @param settings Planner settings snapshot.
+ * @param settings - Planner settings snapshot.
  */
 export function fillSettings(settings: PlannerSettings = {}): void {
     const RESULT = safeParseSettings(settings);

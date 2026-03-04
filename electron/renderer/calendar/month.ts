@@ -1,7 +1,7 @@
-import {
-    type CalendarDisplayRow,
-    type CalendarState,
-    type MonthActions,
+import type {
+    CalendarDisplayRow,
+    CalendarState,
+    MonthActions,
 } from "../../types/types.js";
 import { el } from "../dom.js";
 import { createDayButton, createWeekdayHeader } from "./month_day_button.js";
@@ -22,55 +22,71 @@ function todayDayKey(): string {
  * @param completedBookRows Synthetic completed-book rows.
  * @returns Combined rows for month-grid display.
  */
-export function mergeDisplayRows(
+function mergeDisplayRows(
     plannedRows: CalendarDisplayRow[],
     completedBookRows: CalendarDisplayRow[],
 ): CalendarDisplayRow[] {
     const COMPLETED_BY_BOOK_ID = new Map<string, CalendarDisplayRow>();
-    completedBookRows.forEach((row) => {
-        if (typeof row.book_id !== "string" || row.book_id === "") {
-            return;
+
+    for (const ROW of completedBookRows) {
+        if (typeof ROW.book_id !== "string" || ROW.book_id === "") {
+            continue;
         }
-        if (COMPLETED_BY_BOOK_ID.has(row.book_id)) {
-            return;
+        if (COMPLETED_BY_BOOK_ID.has(ROW.book_id)) {
+            continue;
         }
-        COMPLETED_BY_BOOK_ID.set(row.book_id, row);
-    });
-    const OUT: CalendarDisplayRow[] = [];
-    const SEEN_BOOK_IDS = new Set<string>();
-    plannedRows.forEach((row) => {
-        if (typeof row.book_id !== "string" || row.book_id === "") {
-            OUT.push(row);
-            return;
+        COMPLETED_BY_BOOK_ID.set(ROW.book_id, ROW);
+    }
+    const {
+        SEEN_BOOK_IDS,
+        OUT,
+    }: { SEEN_BOOK_IDS: Set<string>; OUT: CalendarDisplayRow[] } =
+        processReadingRows(plannedRows, COMPLETED_BY_BOOK_ID);
+
+    for (const [BOOK_ID, ROW] of COMPLETED_BY_BOOK_ID.entries()) {
+        if (SEEN_BOOK_IDS.has(BOOK_ID)) {
+            continue;
         }
-        if (COMPLETED_BY_BOOK_ID.has(row.book_id)) {
-            OUT.push({
-                ...row,
-                finish: true,
-            });
-            SEEN_BOOK_IDS.add(row.book_id);
-            return;
-        }
-        OUT.push(row);
-        SEEN_BOOK_IDS.add(row.book_id);
-    });
-    COMPLETED_BY_BOOK_ID.forEach((row, bookId) => {
-        if (SEEN_BOOK_IDS.has(bookId)) {
-            return;
-        }
-        SEEN_BOOK_IDS.add(bookId);
-        OUT.push(row);
-    });
+        SEEN_BOOK_IDS.add(BOOK_ID);
+        OUT.push(ROW);
+    }
     const FINISH_ROWS: CalendarDisplayRow[] = [];
     const OTHER_ROWS: CalendarDisplayRow[] = [];
-    OUT.forEach((row) => {
-        if (row.finish === true) {
-            FINISH_ROWS.push(row);
-            return;
+
+    for (const ROW of OUT) {
+        if (ROW.finish === true) {
+            FINISH_ROWS.push(ROW);
+            continue;
         }
-        OTHER_ROWS.push(row);
-    });
+        OTHER_ROWS.push(ROW);
+    }
     return [...FINISH_ROWS, ...OTHER_ROWS];
+}
+
+function processReadingRows(
+    plannedRows: CalendarDisplayRow[],
+    completedByBookId: Map<string, CalendarDisplayRow>,
+) {
+    const OUT: CalendarDisplayRow[] = [];
+    const SEEN_BOOK_IDS = new Set<string>();
+
+    for (const ROW of plannedRows) {
+        if (typeof ROW.book_id !== "string" || ROW.book_id === "") {
+            OUT.push(ROW);
+            continue;
+        }
+        if (completedByBookId.has(ROW.book_id)) {
+            OUT.push({
+                ...ROW,
+                finish: true,
+            });
+            SEEN_BOOK_IDS.add(ROW.book_id);
+            continue;
+        }
+        OUT.push(ROW);
+        SEEN_BOOK_IDS.add(ROW.book_id);
+    }
+    return { OUT, SEEN_BOOK_IDS };
 }
 
 /**

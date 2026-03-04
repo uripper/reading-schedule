@@ -1,7 +1,7 @@
-import {
-    type BookFinishLookup,
-    type CompletedBookRow,
-    type ManualSessionBook,
+import type {
+    BookFinishLookup,
+    CompletedBookRow,
+    ManualSessionBook,
 } from "../../types/types.js";
 
 /**
@@ -34,22 +34,23 @@ export function buildCompletedBookRowsByDate(
 ): Record<string, CompletedBookRow[]> {
     const ROWS_BY_DATE: Record<string, CompletedBookRow[]> = {};
     const SEEN_BOOK_IDS = new Set<string>();
-    sessionBooks.forEach((entry) => {
-        const BOOK_ID = entry.bookId.trim();
+
+    for (const ENTRY of sessionBooks) {
+        const BOOK_ID = ENTRY.bookId.trim();
         if (BOOK_ID === "") {
-            return;
+            continue;
         }
         if (SEEN_BOOK_IDS.has(BOOK_ID)) {
-            return;
+            continue;
         }
         SEEN_BOOK_IDS.add(BOOK_ID);
         const BOOK = getBookById(BOOK_ID);
         if (BOOK === null) {
-            return;
+            continue;
         }
         const FINISHED_AT = String(BOOK.finished_at ?? "").trim();
         if (FINISHED_AT === "") {
-            return;
+            continue;
         }
         if (!(FINISHED_AT in ROWS_BY_DATE)) {
             ROWS_BY_DATE[FINISHED_AT] = [];
@@ -59,9 +60,9 @@ export function buildCompletedBookRowsByDate(
             date: FINISHED_AT,
             finish: true,
             minutes: 0,
-            title: completedBookTitle(BOOK.title, entry.title),
+            title: completedBookTitle(BOOK.title, ENTRY.title),
         });
-    });
+    }
     return ROWS_BY_DATE;
 }
 
@@ -73,17 +74,18 @@ export function buildCompletedBookRowsByDate(
 export function finishedBooksSummaryText(rows: CompletedBookRow[]): string {
     const SEEN_TITLES = new Set<string>();
     const FINISHED_TITLES: string[] = [];
-    rows.forEach((row) => {
-        const TITLE = row.title.trim();
+
+    for (const ROW of rows) {
+        const TITLE = ROW.title.trim();
         if (TITLE === "") {
-            return;
+            continue;
         }
         if (SEEN_TITLES.has(TITLE)) {
-            return;
+            continue;
         }
         SEEN_TITLES.add(TITLE);
         FINISHED_TITLES.push(TITLE);
-    });
+    }
     if (FINISHED_TITLES.length === 0) {
         return "";
     }

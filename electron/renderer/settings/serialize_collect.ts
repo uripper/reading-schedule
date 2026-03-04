@@ -1,7 +1,4 @@
-import {
-    type FieldDefinition,
-    type PlannerSettings,
-} from "../../types/types.js";
+import type { FieldDefinition, PlannerSettings } from "../../types/types.js";
 import { DEFAULT_DIFFICULTY_MULTIPLIER, WEEKDAYS } from "./config.js";
 import {
     allFieldDefinitions,
@@ -35,18 +32,20 @@ function fieldInputValue(field: FieldDefinition): string {
  */
 export function collectSettingsForm(dayOffs: string[]): PlannerSettings {
     const OUTPUT: PlannerSettings = {};
-    allFieldDefinitions().forEach((field) => {
-        const RAW = fieldInputValue(field);
-        if (field.type === "checkbox") {
-            OUTPUT[field.id] = RAW === "true";
-            return;
+
+    for (const FIELD of allFieldDefinitions()) {
+        const RAW = fieldInputValue(FIELD);
+        if (FIELD.type === "checkbox") {
+            OUTPUT[FIELD.id] = RAW === "true";
+            continue;
         }
-        if (field.type === "date" || field.type === "select") {
-            OUTPUT[field.id] = RAW;
-            return;
+        if (FIELD.type === "date" || FIELD.type === "select") {
+            OUTPUT[FIELD.id] = RAW;
+            continue;
         }
-        OUTPUT[field.id] = Number(RAW || 0);
-    });
+        OUTPUT[FIELD.id] = Number(RAW || 0);
+    }
+
     const MINUTES_PER_DAY_RAW = inputEl("minutes_per_day").value.trim();
     OUTPUT.minutes_per_day = null;
     if (MINUTES_PER_DAY_RAW) {

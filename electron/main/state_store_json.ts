@@ -2,12 +2,11 @@
  * @file Atomic JSON planner state read/write helpers with backup fallback.
  */
 import fs from "node:fs";
-import { safeParseLoadedPlannerState } from "@reading-schedule/contracts";
-import {
-    type JsonValue,
-    type LoadedPlannerState,
-    type PlannerSaveResult,
-    type PlannerStateLoadResult,
+import type {
+    JsonValue,
+    LoadedPlannerState,
+    PlannerSaveResult,
+    PlannerStateLoadResult,
 } from "../types/types.js";
 import {
     jsonStateBackupPath,

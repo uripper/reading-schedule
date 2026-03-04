@@ -1,8 +1,8 @@
-import {
-    type AppBootstrapContext,
-    type CreateLoadStateArgsInput,
-    type LoadedResultController,
-    type LoadStateArgs,
+import type {
+    AppBootstrapContext,
+    CreateLoadStateArgsInput,
+    LoadedResultController,
+    LoadStateArgs,
 } from "../../../types/types.js";
 import { applyPreferencesToDocument } from "../../accessibility/index.js";
 import { fillBooks } from "../../books.js";

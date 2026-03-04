@@ -1,18 +1,21 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { TodayBackground } from "@features/today/today_background";
+import type { ComponentProps } from "react";
 import {
-    Animated,
-    Easing,
     FlatList,
     Image,
-    type NativeScrollEvent,
-    type NativeSyntheticEvent,
     Pressable,
     ScrollView,
     Text,
-    useWindowDimensions,
     View,
 } from "react-native";
-import { TodayBackground } from "@features/today/today_background";
+import { useCarouselMetrics } from "./hooks/use_carousel_metrics";
+import { useTodayActiveBook } from "./hooks/use_today_active_book";
+import { useTodayThemeTransition } from "./hooks/use_today_theme_transition";
+import {
+    CAROUSEL_GAP,
+    COVER_SOURCES,
+    DEFAULT_COVER_SOURCE,
+} from "./today_constants";
 import {
     HEADER_SHADOW_BLUE,
     HEADER_SHADOW_PURPLE,
@@ -21,22 +24,8 @@ import {
     STAT_B,
     STYLES,
 } from "./today_screen_styles";
-import { themeFromBook } from "./today_background_theme";
 import { TodayThemeTransitionLayer } from "./today_theme_transition_layer";
-import { type TodayBookCard, type TodayStats } from "./types";
-const CAROUSEL_GAP = 16;
-const MIN_CAROUSEL_SIDE_INSET = 12;
-const THEME_TRANSITION_DURATION_MS = 700;
-const DEFAULT_COVER_SOURCE = require("../../../assets/book-covers/Hamlet.jpg");
-
-const COVER_SOURCES: Record<string, number> = {
-    "2666": require("../../../assets/book-covers/2666.jpg"),
-    "Anna Karenina": require("../../../assets/book-covers/AnnaKarenina.jpg"),
-    "Don Quixote": require("../../../assets/book-covers/DonQuixote.jpg"),
-    Ficciones: require("../../../assets/book-covers/Ficciones.jpg"),
-    Hamlet: require("../../../assets/book-covers/Hamlet.jpg"),
-    "Moby-Dick": require("../../../assets/book-covers/MobyDick.jpg"),
-};
+import type { TodayBookCard, TodayStats } from "./types";
 
 interface CardProps {
     book: TodayBookCard;
@@ -63,20 +52,16 @@ function coverForBook(title: string): number {
     return DEFAULT_COVER_SOURCE;
 }
 
-function hasCoverForBook(title: string): boolean {
-    return COVER_SOURCES[title] !== undefined;
-}
-
 function CarouselCard({ book, isActive, onPress }: CardProps) {
-    let CARD_OPACITY = 0.64;
+    let cardOpacity = 0.64;
     if (isActive) {
-        CARD_OPACITY = 1;
+        cardOpacity = 1;
     }
 
     return (
         <Pressable
             onPress={onPress}
-            style={[STYLES.card, { opacity: CARD_OPACITY }]}
+            style={[STYLES.card, { opacity: cardOpacity }]}
         >
             <View style={[STYLES.bookArt, { backgroundColor: book.accent }]}>
                 <Image
@@ -97,105 +82,47 @@ function StatBubble({ fill, label, value }: StatBubbleProps) {
     );
 }
 
-export function TodayScreen({ books, stats }: TodayScreenProps) {
-    const [activeIndex, setActiveIndex] = useState(0);
-    const activeBook = books[activeIndex] ?? books[0];
-    if (!activeBook) {
-        return null;
-    }
+interface TodayHeroProps {
+    currentThemeCanvasColor: string;
+    previousThemeCanvasColor: string;
+    ambientColor: string;
+    themeProgress: ComponentProps<typeof TodayThemeTransitionLayer>["progress"];
+}
 
-    const { width } = useWindowDimensions();
-    const ACTIVE_BOOK_HAS_COVER = hasCoverForBook(activeBook.title);
-    const BACKGROUND_THEME = useMemo(() => {
-        return themeFromBook(activeBook.title, ACTIVE_BOOK_HAS_COVER);
-    }, [ACTIVE_BOOK_HAS_COVER, activeBook.title]);
-    const [PREVIOUS_THEME, SET_PREVIOUS_THEME] = useState(BACKGROUND_THEME);
-    const [CURRENT_THEME, SET_CURRENT_THEME] = useState(BACKGROUND_THEME);
-    const PREVIOUS_THEME_REF = useRef(BACKGROUND_THEME);
-    const TRANSITION_ID_REF = useRef(0);
-    const THEME_PROGRESS = useRef(new Animated.Value(1)).current;
+interface TodayCarouselProps {
+    activeIndex: number;
+    books: TodayBookCard[];
+    cardWidth: number;
+    carouselSideInset: number;
+    itemWidth: number;
+    onCardPress(index: number): void;
+    onMomentumScrollEnd: ReturnType<
+        typeof useTodayActiveBook
+    >["syncActiveIndex"];
+}
 
-    useLayoutEffect(() => {
-        const PREVIOUS = PREVIOUS_THEME_REF.current;
-        const HAS_CHANGED =
-            PREVIOUS.canvasColor !== BACKGROUND_THEME.canvasColor ||
-            PREVIOUS.ambientColor !== BACKGROUND_THEME.ambientColor;
-        if (!HAS_CHANGED) {
-            return;
-        }
+interface TodayBookProgressProps {
+    activeBook: TodayBookCard;
+}
 
-        SET_PREVIOUS_THEME(PREVIOUS);
-        SET_CURRENT_THEME(BACKGROUND_THEME);
-        THEME_PROGRESS.stopAnimation();
-        THEME_PROGRESS.setValue(0);
-        const TRANSITION_ID = TRANSITION_ID_REF.current + 1;
-        TRANSITION_ID_REF.current = TRANSITION_ID;
-        Animated.timing(THEME_PROGRESS, {
-            duration: THEME_TRANSITION_DURATION_MS,
-            easing: Easing.out(Easing.cubic),
-            toValue: 1,
-            useNativeDriver: true,
-        }).start(({ finished }) => {
-            if (!finished) {
-                return;
-            }
-            if (TRANSITION_ID_REF.current !== TRANSITION_ID) {
-                return;
-            }
-            PREVIOUS_THEME_REF.current = BACKGROUND_THEME;
-            SET_PREVIOUS_THEME(BACKGROUND_THEME);
-            SET_CURRENT_THEME(BACKGROUND_THEME);
-        });
-    }, [BACKGROUND_THEME, THEME_PROGRESS]);
+interface TodayStatsSectionProps {
+    stats: TodayStats;
+}
 
-    const CARD_WIDTH = useMemo(() => {
-        const BASE_CARD_WIDTH = 214;
-        const EDGE_PADDING = 82;
-        const CANDIDATE = width - EDGE_PADDING;
-        if (CANDIDATE < BASE_CARD_WIDTH) {
-            return BASE_CARD_WIDTH;
-        }
-        if (CANDIDATE > 294) {
-            return 294;
-        }
-        return CANDIDATE;
-    }, [width]);
-
-    const ITEM_WIDTH = CARD_WIDTH + CAROUSEL_GAP;
-    const CAROUSEL_SIDE_INSET = useMemo(() => {
-        const RAW_INSET = (width - CARD_WIDTH) / 2;
-        if (RAW_INSET < MIN_CAROUSEL_SIDE_INSET) {
-            return MIN_CAROUSEL_SIDE_INSET;
-        }
-        return RAW_INSET;
-    }, [CARD_WIDTH, width]);
-
-    function syncActiveIndex(
-        event: NativeSyntheticEvent<NativeScrollEvent>,
-    ): void {
-        const OFFSET_X = event.nativeEvent.contentOffset.x;
-        const INDEX = Math.round(OFFSET_X / ITEM_WIDTH);
-        if (INDEX < 0 || INDEX >= books.length) {
-            return;
-        }
-        setActiveIndex(INDEX);
-    }
-
+function TodayHero({
+    ambientColor,
+    currentThemeCanvasColor,
+    previousThemeCanvasColor,
+    themeProgress,
+}: TodayHeroProps) {
     return (
-        <ScrollView
-            bounces={false}
-            contentContainerStyle={[
-                STYLES.content,
-                { backgroundColor: CURRENT_THEME.canvasColor },
-            ]}
-        >
+        <>
             <TodayThemeTransitionLayer
-                fromColor={PREVIOUS_THEME.canvasColor}
-                progress={THEME_PROGRESS}
-                toColor={CURRENT_THEME.canvasColor}
+                fromColor={previousThemeCanvasColor}
+                progress={themeProgress}
+                toColor={currentThemeCanvasColor}
             />
-            <TodayBackground ambientColor={CURRENT_THEME.ambientColor} />
-
+            <TodayBackground ambientColor={ambientColor} />
             <View style={STYLES.hero}>
                 <Text
                     style={[STYLES.todayShadow, { color: HEADER_SHADOW_BLUE }]}
@@ -214,39 +141,57 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
                     TODAY
                 </Text>
             </View>
+        </>
+    );
+}
 
-            <FlatList
-                contentContainerStyle={[
-                    STYLES.carouselRow,
-                    { paddingHorizontal: CAROUSEL_SIDE_INSET },
-                ]}
-                data={books}
-                decelerationRate="fast"
-                horizontal
-                keyExtractor={(item) => item.id}
-                ItemSeparatorComponent={() => {
-                    return <View style={{ width: CAROUSEL_GAP }} />;
-                }}
-                onMomentumScrollEnd={syncActiveIndex}
-                renderItem={({ item, index }) => {
-                    return (
-                        <View style={{ width: CARD_WIDTH }}>
-                            <CarouselCard
-                                book={item}
-                                isActive={index === activeIndex}
-                                onPress={() => {
-                                    setActiveIndex(index);
-                                }}
-                            />
-                        </View>
-                    );
-                }}
-                showsHorizontalScrollIndicator={false}
-                snapToAlignment="start"
-                snapToInterval={ITEM_WIDTH}
-                style={STYLES.carouselList}
-            />
+function TodayCarousel({
+    activeIndex,
+    books,
+    cardWidth,
+    carouselSideInset,
+    itemWidth,
+    onCardPress,
+    onMomentumScrollEnd,
+}: TodayCarouselProps) {
+    return (
+        <FlatList
+            contentContainerStyle={[
+                STYLES.carouselRow,
+                { paddingHorizontal: carouselSideInset },
+            ]}
+            data={books}
+            decelerationRate="fast"
+            horizontal
+            keyExtractor={(item) => item.id}
+            ItemSeparatorComponent={() => {
+                return <View style={{ width: CAROUSEL_GAP }} />;
+            }}
+            onMomentumScrollEnd={onMomentumScrollEnd}
+            renderItem={({ item, index }) => {
+                return (
+                    <View style={{ width: cardWidth }}>
+                        <CarouselCard
+                            book={item}
+                            isActive={index === activeIndex}
+                            onPress={() => {
+                                onCardPress(index);
+                            }}
+                        />
+                    </View>
+                );
+            }}
+            showsHorizontalScrollIndicator={false}
+            snapToAlignment="start"
+            snapToInterval={itemWidth}
+            style={STYLES.carouselList}
+        />
+    );
+}
 
+function TodayBookProgress({ activeBook }: TodayBookProgressProps) {
+    return (
+        <>
             <Text style={STYLES.currentBook}>
                 {activeBook.title.toUpperCase()} |{" "}
                 {activeBook.author.toUpperCase()}
@@ -262,22 +207,72 @@ export function TodayScreen({ books, stats }: TodayScreenProps) {
             <Pressable style={STYLES.sessionButton}>
                 <Text style={STYLES.sessionButtonLabel}>Log Session</Text>
             </Pressable>
+        </>
+    );
+}
 
-            <View style={STYLES.statsRow}>
-                <View style={STYLES.statConnectorVertical} />
-                <View style={STYLES.statConnectorHorizontal} />
-                <View style={STYLES.statConnectorDot} />
-                <StatBubble
-                    fill={STAT_A}
-                    label="Day Streak"
-                    value={String(stats.dayStreak)}
-                />
-                <StatBubble
-                    fill={STAT_B}
-                    label="Complete Sessions"
-                    value={stats.completedSessions}
-                />
-            </View>
+function TodayStatsSection({ stats }: TodayStatsSectionProps) {
+    return (
+        <View style={STYLES.statsRow}>
+            <View style={STYLES.statConnectorVertical} />
+            <View style={STYLES.statConnectorHorizontal} />
+            <View style={STYLES.statConnectorDot} />
+            <StatBubble
+                fill={STAT_A}
+                label="Day Streak"
+                value={String(stats.dayStreak)}
+            />
+            <StatBubble
+                fill={STAT_B}
+                label="Complete Sessions"
+                value={stats.completedSessions}
+            />
+        </View>
+    );
+}
+
+/**
+ * Renders the mobile Today screen with active-book carousel, progress, and stats.
+ * @param books - Ordered list of book cards available in the carousel.
+ * @param stats - Summary statistics rendered below the session controls.
+ * @returns Full Today screen scroll view for the current reading state.
+ */
+export function TodayScreen({ books, stats }: TodayScreenProps) {
+    const { cardWidth, itemWidth, carouselSideInset } = useCarouselMetrics();
+    const { activeBook, activeIndex, setActiveIndex, syncActiveIndex } =
+        useTodayActiveBook(books, itemWidth);
+    const { currentTheme, previousTheme, themeProgress } =
+        useTodayThemeTransition(books, activeIndex);
+
+    if (!activeBook) {
+        return null;
+    }
+
+    return (
+        <ScrollView
+            bounces={false}
+            contentContainerStyle={[
+                STYLES.content,
+                { backgroundColor: currentTheme.canvasColor },
+            ]}
+        >
+            <TodayHero
+                ambientColor={currentTheme.ambientColor}
+                currentThemeCanvasColor={currentTheme.canvasColor}
+                previousThemeCanvasColor={previousTheme.canvasColor}
+                themeProgress={themeProgress}
+            />
+            <TodayCarousel
+                activeIndex={activeIndex}
+                books={books}
+                cardWidth={cardWidth}
+                carouselSideInset={carouselSideInset}
+                itemWidth={itemWidth}
+                onCardPress={setActiveIndex}
+                onMomentumScrollEnd={syncActiveIndex}
+            />
+            <TodayBookProgress activeBook={activeBook} />
+            <TodayStatsSection stats={stats} />
         </ScrollView>
     );
 }

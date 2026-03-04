@@ -1,7 +1,7 @@
-import {
-    type PersistQueue,
-    type PersistQueueArgs,
-    type PlannerSummary,
+import type {
+    PersistQueue,
+    PersistQueueArgs,
+    PlannerSummary,
 } from "../../types/types.js";
 import { draftData, saveStateSafe } from "./persistence.js";
 
@@ -48,9 +48,9 @@ export function totalsFromSummary(
 ): Record<string, number> {
     const PER_BOOK = summary?.per_book ?? {};
     const TOTALS: Record<string, number> = {};
-    Object.entries(PER_BOOK).forEach(([id, info]) => {
-        TOTALS[id] = Number(info.words_total ?? 0);
-    });
+    for (const [ID, INFO] of Object.entries(PER_BOOK)) {
+        TOTALS[ID] = Number(INFO.words_total ?? 0);
+    }
     return TOTALS;
 }
 

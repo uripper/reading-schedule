@@ -1,9 +1,9 @@
-import {
-    type BookGetter,
-    type CompletionChecker,
-    type EstimateRow,
-    type EstimateSnapshot,
-    type EstimateState,
+import type {
+    BookGetter,
+    CompletionChecker,
+    EstimateRow,
+    EstimateSnapshot,
+    EstimateState,
 } from "../../types/types.js";
 import {
     fullWordsForBook,

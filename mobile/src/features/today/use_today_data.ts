@@ -1,10 +1,10 @@
-import {
-    type Book,
-    type PlannerApi,
-    type PlannerResult,
+import type {
+    Book,
+    PlannerApi,
+    PlannerResult,
 } from "@reading-schedule/contracts";
-import { useEffect, useState } from "react";
-import { type TodayBookCard, type TodayStats } from "./types";
+import { useCallback, useEffect, useState } from "react";
+import type { TodayBookCard, TodayStats } from "./types";
 
 const CARD_ACCENTS = ["#9CD2EE", "#F16865", "#B5E080", "#E7B1EF", "#F4D738"];
 const DEFAULT_BOOK_LIMIT = 6;
@@ -151,32 +151,32 @@ function completedSessionsLabel(
     let completed = 0;
     let total = 0;
 
-    ROWS.forEach((row) => {
-        if (row.date !== TODAY_KEY) {
-            return;
+    for (const ROW of ROWS) {
+        if (ROW.date !== TODAY_KEY) {
+            continue;
         }
         total += 1;
-        const KEY = sessionKey(row.date, row.session_index);
+        const KEY = sessionKey(ROW.date, ROW.session_index);
         if (completions[KEY]) {
             completed += 1;
         }
-    });
+    }
 
     return `${completed}/${total}`;
 }
 
 function dayStreak(sessions: TodaySession[]): number {
     const ACTIVE_DAYS = new Set<string>();
-    sessions.forEach((session) => {
-        if (session.minutes < MIN_STREAK_MINUTES) {
-            return;
+    for (const SESSION of sessions) {
+        if (SESSION.minutes < MIN_STREAK_MINUTES) {
+            continue;
         }
-        const KEY = dayKeyFromTimestamp(String(session.ended_at));
+        const KEY = dayKeyFromTimestamp(String(SESSION.ended_at));
         if (!KEY) {
-            return;
+            continue;
         }
         ACTIVE_DAYS.add(KEY);
-    });
+    }
 
     const CURSOR = new Date();
     let streak = 0;
@@ -247,7 +247,7 @@ const INITIAL_STATE: TodayState = {
 export function useTodayData(plannerApi: PlannerApi) {
     const [STATE, SET_STATE] = useState<TodayState>(INITIAL_STATE);
 
-    async function refresh(): Promise<void> {
+    const REFRESH = useCallback(async (): Promise<void> => {
         SET_STATE((previous) => {
             return {
                 ...previous,
@@ -268,23 +268,23 @@ export function useTodayData(plannerApi: PlannerApi) {
                 viewData: LOCAL_FALLBACK_VIEW_DATA,
             });
         }
-    }
+    }, [plannerApi]);
 
     useEffect(() => {
-        refresh().catch(() => {
+        REFRESH().catch(() => {
             SET_STATE({
                 errorMessage: null,
                 isLoading: false,
                 viewData: LOCAL_FALLBACK_VIEW_DATA,
             });
         });
-    }, [plannerApi]);
+    }, [REFRESH]);
 
     return {
         books: STATE.viewData.books,
         errorMessage: STATE.errorMessage,
         isLoading: STATE.isLoading,
-        refresh,
+        refresh: REFRESH,
         stats: STATE.viewData.stats,
     };
 }

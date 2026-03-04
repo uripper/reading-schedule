@@ -1,7 +1,7 @@
-import {
-    type BindToolbarEventsArgs,
-    type BooksControllerRefs,
-    type SortDirection,
+import type {
+    BindToolbarEventsArgs,
+    BooksControllerRefs,
+    SortDirection,
 } from "../../types/types.js";
 import { toGroupBy, toSortBy } from "./controller_types.js";
 import { normalizeStatusFilter } from "./status.js";

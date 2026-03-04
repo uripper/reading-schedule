@@ -25,21 +25,21 @@ const DEFAULT_FEATURE_FLAGS = {
  * @returns {import("../dist/types/types_app.js").LoadStateArgs} Load arguments.
  */
 function loadArgs(loadResult, overrides = {}) {
-    const noop = () => undefined;
-    const base = {
-        addLog: noop,
-        applyLoadedResult: noop,
-        applyPreferencesToDocument: noop,
-        fillBooks: noop,
-        fillPreferencesUI: noop,
-        fillSettings: noop,
+    const NOOP = () => undefined;
+    const BASE = {
+        addLog: NOOP,
+        applyLoadedResult: NOOP,
+        applyPreferencesToDocument: NOOP,
+        fillBooks: NOOP,
+        fillPreferencesUI: NOOP,
+        fillSettings: NOOP,
         normalizeFeatureFlags: (value) => ({
             ...DEFAULT_FEATURE_FLAGS,
             ...value,
         }),
         normalizePreferences: () => DEFAULT_PREFERENCES,
         normalizeScheduleCompletions: (value) => value,
-        onLoaded: noop,
+        onLoaded: NOOP,
         plannerApi: {
             loadState: () => Promise.resolve(loadResult),
             sample: () =>
@@ -48,15 +48,15 @@ function loadArgs(loadResult, overrides = {}) {
                     settings: { start_date: "2026-04-01" },
                 }),
         },
-        setBlockedDayBooks: noop,
-        setFeatureFlags: noop,
-        setPreferences: noop,
-        setScheduleCompletions: noop,
-        setSessions: noop,
-        setStatus: noop,
-        updateTodayView: noop,
+        setBlockedDayBooks: NOOP,
+        setFeatureFlags: NOOP,
+        setPreferences: NOOP,
+        setScheduleCompletions: NOOP,
+        setSessions: NOOP,
+        setStatus: NOOP,
+        updateTodayView: NOOP,
     };
-    return { ...base, ...overrides };
+    return { ...BASE, ...overrides };
 }
 
 test("loadInitialData restores legacy session/completion/result shapes", async () => {
@@ -65,7 +65,7 @@ test("loadInitialData restores legacy session/completion/result shapes", async (
     let capturedBlocked = {};
     let capturedResult = null;
     let capturedFeatureFlags = null;
-    const logs = [];
+    const LOGS = [];
 
     await loadInitialData(
         loadArgs(
@@ -114,7 +114,7 @@ test("loadInitialData restores legacy session/completion/result shapes", async (
             },
             {
                 addLog: (message) => {
-                    logs.push(message);
+                    LOGS.push(message);
                 },
                 applyLoadedResult: (result) => {
                     capturedResult = result;
@@ -144,7 +144,7 @@ test("loadInitialData restores legacy session/completion/result shapes", async (
     assert.equal(capturedResult.schedule.length, 1);
     assert.equal(capturedFeatureFlags.gamificationEnabled, false);
     assert.equal(
-        logs.some((entry) => entry.includes("State load source: json_primary")),
+        LOGS.some((entry) => entry.includes("State load source: json_primary")),
         true,
     );
 });

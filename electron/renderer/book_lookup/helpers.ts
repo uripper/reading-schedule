@@ -1,8 +1,8 @@
-import {
-    type BookLookupItem,
-    type NumericLike,
-    type ProgressField,
-    type ProgressSyncInputs,
+import type {
+    BookLookupItem,
+    NumericLike,
+    ProgressField,
+    ProgressSyncInputs,
 } from "../../types/types.js";
 
 const PLACEHOLDER_SVG = [

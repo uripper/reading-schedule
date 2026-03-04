@@ -1,4 +1,4 @@
-import { type FieldDefinition } from "../../types/types.js";
+import type { FieldDefinition } from "../../types/types.js";
 import { el } from "../dom.js";
 import { DIFFICULTY_LEVEL_COUNT, WEEKDAYS } from "./config.js";
 
@@ -38,12 +38,13 @@ function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
     let node: HTMLInputElement | HTMLSelectElement;
     if (field.type === "select") {
         node = document.createElement("select");
-        field.options.forEach((option) => {
+
+        for (const OPTION of field.options) {
             const OPTION_NODE = document.createElement("option");
-            OPTION_NODE.value = String(option.value);
-            OPTION_NODE.textContent = String(option.label);
+            OPTION_NODE.value = String(OPTION.value);
+            OPTION_NODE.textContent = String(OPTION.label);
             node.append(OPTION_NODE);
-        });
+        }
     } else {
         node = document.createElement("input");
         node.type = field.type;

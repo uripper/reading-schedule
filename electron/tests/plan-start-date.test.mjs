@@ -8,80 +8,80 @@ import {
 } from "./plan-start-date-runner.mjs";
 
 test("runPlanGeneration forces settings.start_date to tomorrow", async () => {
-    const calls = [];
+    const CALLS = [];
     await runPlanGenerationForTest({
         collectSettings: () => ({
             end_date: "2099-01-01",
             minutes_per_day: 20,
             start_date: "1999-01-01",
         }),
-        generate: recordingGenerate(calls),
+        generate: recordingGenerate(CALLS),
     });
 
-    assert.equal(calls.length, 1);
-    assert.equal(calls[0].planner, "mip");
-    assert.equal(calls[0].settings.start_date, tomorrowKey());
-    assert.equal(calls[0].settings.end_date, "2099-01-01");
-    assert.equal(calls[0].settings.minutes_per_day, 20);
+    assert.equal(CALLS.length, 1);
+    assert.equal(CALLS[0].planner, "mip");
+    assert.equal(CALLS[0].settings.start_date, tomorrowKey());
+    assert.equal(CALLS[0].settings.end_date, "2099-01-01");
+    assert.equal(CALLS[0].settings.minutes_per_day, 20);
 });
 
 test("runPlanGeneration maps solver profile to planner token", async () => {
-    const calls = [];
+    const CALLS = [];
     await runPlanGenerationForTest({
         collectSettings: () => ({
             end_date: "2099-01-01",
             planner_solver_profile: "thorough",
         }),
-        generate: recordingGenerate(calls),
+        generate: recordingGenerate(CALLS),
     });
 
-    assert.equal(calls.length, 1);
-    assert.equal(calls[0].planner, "mip-thorough");
+    assert.equal(CALLS.length, 1);
+    assert.equal(CALLS[0].planner, "mip-thorough");
 });
 
 test("runPlanGeneration clamps end_date to tomorrow when it is in the past", async () => {
-    const calls = [];
+    const CALLS = [];
     await runPlanGenerationForTest({
         collectSettings: () => ({
             end_date: "1999-01-01",
         }),
-        generate: recordingGenerate(calls),
+        generate: recordingGenerate(CALLS),
     });
 
-    assert.equal(calls.length, 1);
-    assert.equal(calls[0].settings.start_date, tomorrowKey());
-    assert.equal(calls[0].settings.end_date, tomorrowKey());
+    assert.equal(CALLS.length, 1);
+    assert.equal(CALLS[0].settings.start_date, tomorrowKey());
+    assert.equal(CALLS[0].settings.end_date, tomorrowKey());
 });
 
 test("runPlanGeneration logs plan error details when generation fails", async () => {
-    const logs = [];
-    const statuses = [];
+    const LOGS = [];
+    const STATUSES = [];
     await runPlanGenerationForTest({
         addLog: (message) => {
-            logs.push(message);
+            LOGS.push(message);
         },
         collectSettings: () => ({ end_date: "1999-01-01" }),
         generate: () => {
             throw new Error("end_date must be on or after start_date");
         },
         setStatus: (message, isError) => {
-            statuses.push({ isError, message });
+            STATUSES.push({ isError, message });
         },
     });
 
-    assert.equal(statuses.at(-1)?.message, "Failed to generate plan");
-    assert.equal(statuses.at(-1)?.isError, true);
+    assert.equal(STATUSES.at(-1)?.message, "Failed to generate plan");
+    assert.equal(STATUSES.at(-1)?.isError, true);
     assert.equal(
-        logs.at(-1),
+        LOGS.at(-1),
         "Plan generation error: end_date must be on or after start_date",
     );
 });
 
 test("runPlanGeneration logs fallback error detail for unknown failures", async () => {
-    const logs = [];
+    const LOGS = [];
     await runPlanGenerationForTest({
         addLog: (message) => {
-            logs.push(message);
+            LOGS.push(message);
         },
         collectSettings: () => ({ minutes_per_day: 20 }),
         generate: () => {
@@ -89,5 +89,5 @@ test("runPlanGeneration logs fallback error detail for unknown failures", async 
         },
     });
 
-    assert.equal(logs.at(-1), "Plan generation error: Unknown planner error");
+    assert.equal(LOGS.at(-1), "Plan generation error: Unknown planner error");
 });

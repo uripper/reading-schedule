@@ -3,29 +3,29 @@ import test from "node:test";
 
 import { matchesTitleFilter } from "../dist/renderer/books/controller_render_helpers.js";
 
-const book = (title) => {
+const BOOK = (title) => {
     return { title };
 };
 
 test("matchesTitleFilter returns true for empty filters", () => {
-    assert.equal(matchesTitleFilter(book("Against Interpretation"), ""), true);
+    assert.equal(matchesTitleFilter(BOOK("Against Interpretation"), ""), true);
     assert.equal(
-        matchesTitleFilter(book("Against Interpretation"), "   "),
+        matchesTitleFilter(BOOK("Against Interpretation"), "   "),
         true,
     );
 });
 
 test("matchesTitleFilter applies case-insensitive substring matching", () => {
     assert.equal(
-        matchesTitleFilter(book("Against Interpretation"), "against"),
+        matchesTitleFilter(BOOK("Against Interpretation"), "against"),
         true,
     );
     assert.equal(
-        matchesTitleFilter(book("Against Interpretation"), "TERPRET"),
+        matchesTitleFilter(BOOK("Against Interpretation"), "TERPRET"),
         true,
     );
     assert.equal(
-        matchesTitleFilter(book("Against Interpretation"), "orwell"),
+        matchesTitleFilter(BOOK("Against Interpretation"), "orwell"),
         false,
     );
 });

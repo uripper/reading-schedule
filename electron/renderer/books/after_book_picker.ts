@@ -1,9 +1,9 @@
-import {
-    type AfterBookPicker,
-    type Book,
-    type BookFormRefs,
-    type GetBooks,
-    type PickerState,
+import type {
+    AfterBookPicker,
+    Book,
+    BookFormRefs,
+    GetBooks,
+    PickerState,
 } from "../../types/types.js";
 import { bindAfterBookPickerEvents } from "./after_book_picker_bindings.js";
 import {

@@ -27,7 +27,7 @@ async function runHotLoop() {
     while (!shuttingDown) {
         const STARTED_AT = Date.now();
         const EXIT_CODE = await new Promise((resolve) => {
-            const child = spawn(
+            const CHILD = spawn(
                 process.execPath,
                 [START_SCRIPT_PATH, DEVELOPMENT_FLAG],
                 {
@@ -37,11 +37,11 @@ async function runHotLoop() {
                 },
             );
 
-            child.on("error", () => {
+            CHILD.on("error", () => {
                 resolve(1);
             });
 
-            child.on("exit", (code) => {
+            CHILD.on("exit", (code) => {
                 resolve(Number(code ?? 0));
             });
         });

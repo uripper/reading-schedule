@@ -4,7 +4,7 @@ const MENU_PANEL_TOP = 88;
 const TOP_BAR_BOTTOM_PADDING = 8;
 const TOP_BAR_TOP_PADDING = 25;
 
-export const styles = StyleSheet.create({
+export const STYLES = StyleSheet.create({
     appFrame: {
         flex: 1,
     },

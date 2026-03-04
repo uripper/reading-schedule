@@ -1,4 +1,4 @@
-import { type SearchDoc } from "../../types/types.js";
+import type { SearchDoc } from "../../types/types.js";
 import {
     SCORE_AUTHOR_ALL_TOKENS,
     SCORE_AUTHOR_EXACT,
@@ -8,7 +8,7 @@ import { normalizeSearchText, primaryAuthor } from "./search_text.js";
 
 /**
  * Splits normalized text into non-empty tokens.
- * @param value Normalized text value.
+ * @param value - Normalized text value.
  * @returns Non-empty tokens.
  */
 function normalizedTokens(value: string): string[] {
@@ -17,8 +17,8 @@ function normalizedTokens(value: string): string[] {
 
 /**
  * Counts matching query tokens present in author tokens.
- * @param authorTokens Candidate author tokens.
- * @param queryTokenList Query tokens to match.
+ * @param authorTokens - Candidate author tokens.
+ * @param queryTokenList - Query tokens to match.
  * @returns Number of matched query tokens.
  */
 function matchingAuthorTokenCount(
@@ -27,20 +27,19 @@ function matchingAuthorTokenCount(
 ): number {
     const AUTHOR_TOKEN_SET = new Set(authorTokens);
     let matches = 0;
-    queryTokenList.forEach((token) => {
-        if (!AUTHOR_TOKEN_SET.has(token)) {
-            return;
+    for (const TOKEN of queryTokenList) {
+        if (AUTHOR_TOKEN_SET.has(TOKEN)) {
+            matches += 1;
         }
-        matches += 1;
-    });
+    }
     return matches;
 }
 
 /**
  * Scores one normalized author string against the normalized query.
- * @param authorNorm Normalized author name.
- * @param queryNorm Normalized query text.
- * @param tokens Query tokens.
+ * @param authorNorm - Normalized author name.
+ * @param queryNorm - Normalized query text.
+ * @param tokens - Query tokens.
  * @returns Author-match score.
  */
 function authorMatchScore(
@@ -83,9 +82,9 @@ function authorMatchScore(
 
 /**
  * Returns best author-match score from all author names on a document.
- * @param doc Open Library search document.
- * @param queryNorm Normalized query text.
- * @param tokens Query tokens.
+ * @param doc - Open Library search document.
+ * @param queryNorm - Normalized query text.
+ * @param tokens - Query tokens.
  * @returns Best author-only score across author names.
  */
 export function bestAuthorOnlyScore(

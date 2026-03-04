@@ -1,4 +1,4 @@
-import { type PlannerApi } from "@reading-schedule/contracts";
+import type { PlannerApi } from "@reading-schedule/contracts";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { TodayScreen } from "./today_screen_view";
 import { useTodayData } from "./use_today_data";
@@ -15,19 +15,19 @@ export function TodayScreenContainer({
 
     if (isLoading) {
         return (
-            <View style={styles.centered}>
-                <Text style={styles.headline}>Loading today...</Text>
+            <View style={STYLES.centered}>
+                <Text style={STYLES.headline}>Loading today...</Text>
             </View>
         );
     }
 
     if (errorMessage) {
         return (
-            <View style={styles.centered}>
-                <Text style={styles.headline}>Could not load today</Text>
-                <Text style={styles.detail}>{errorMessage}</Text>
-                <Pressable onPress={refresh} style={styles.button}>
-                    <Text style={styles.buttonLabel}>Retry</Text>
+            <View style={STYLES.centered}>
+                <Text style={STYLES.headline}>Could not load today</Text>
+                <Text style={STYLES.detail}>{errorMessage}</Text>
+                <Pressable onPress={refresh} style={STYLES.button}>
+                    <Text style={STYLES.buttonLabel}>Retry</Text>
                 </Pressable>
             </View>
         );
@@ -35,10 +35,10 @@ export function TodayScreenContainer({
 
     if (books.length === 0) {
         return (
-            <View style={styles.centered}>
-                <Text style={styles.headline}>No books to show yet</Text>
-                <Pressable onPress={refresh} style={styles.button}>
-                    <Text style={styles.buttonLabel}>Refresh</Text>
+            <View style={STYLES.centered}>
+                <Text style={STYLES.headline}>No books to show yet</Text>
+                <Pressable onPress={refresh} style={STYLES.button}>
+                    <Text style={STYLES.buttonLabel}>Refresh</Text>
                 </Pressable>
             </View>
         );
@@ -47,7 +47,7 @@ export function TodayScreenContainer({
     return <TodayScreen books={books} stats={stats} />;
 }
 
-const styles = StyleSheet.create({
+const STYLES = StyleSheet.create({
     button: {
         backgroundColor: "#F3D731",
         borderColor: "#0D0D0D",

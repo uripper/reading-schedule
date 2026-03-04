@@ -9,10 +9,10 @@ import { estimateProgressLabel } from "../dist/renderer/calendar/estimates.js";
  * @returns {string} Day key text.
  */
 function dayKey(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    const YEAR = date.getFullYear();
+    const MONTH = String(date.getMonth() + 1).padStart(2, "0");
+    const DAY = String(date.getDate()).padStart(2, "0");
+    return `${YEAR}-${MONTH}-${DAY}`;
 }
 
 /**
@@ -22,9 +22,9 @@ function dayKey(date) {
  * @returns {string} Shifted day key.
  */
 function plusDays(key, delta) {
-    const date = new Date(`${key}T00:00:00`);
-    date.setDate(date.getDate() + delta);
-    return dayKey(date);
+    const DATE = new Date(`${key}T00:00:00`);
+    DATE.setDate(DATE.getDate() + delta);
+    return dayKey(DATE);
 }
 
 /**
@@ -73,113 +73,116 @@ function book(overrides = {}) {
 }
 
 test("estimateProgressLabel includes incomplete current-day sessions for future estimates", () => {
-    const today = dayKey(new Date());
-    const tomorrow = plusDays(today, 1);
-    const todayRow = row({ date: today, session_index: 1 });
-    const futureRow = row({ date: tomorrow, session_index: 1 });
-    const state = {
-        rows: [todayRow, futureRow],
+    const TODAY = dayKey(new Date());
+    const TOMORROW = plusDays(TODAY, 1);
+    const TODAY_ROW = row({ date: TODAY, session_index: 1 });
+    const FUTURE_ROW = row({ date: TOMORROW, session_index: 1 });
+    const STATE = {
+        rows: [TODAY_ROW, FUTURE_ROW],
         totalsByBookId: { "book-1": 4000 },
     };
 
-    const label = estimateProgressLabel(
-        futureRow,
-        state,
+    const LABEL = estimateProgressLabel(
+        FUTURE_ROW,
+        STATE,
         () => book(),
         () => false,
     );
 
     assert.equal(
-        label,
+        LABEL,
         "Estimated by end of this session: 300 pages read (75% complete)",
     );
 });
 
 test("estimateProgressLabel ignores completed current-day sessions for future estimates", () => {
-    const today = dayKey(new Date());
-    const tomorrow = plusDays(today, 1);
-    const todayRow = row({ date: today, session_index: 1 });
-    const futureRow = row({ date: tomorrow, session_index: 1 });
-    const state = {
-        rows: [todayRow, futureRow],
+    const TODAY = dayKey(new Date());
+    const TOMORROW = plusDays(TODAY, 1);
+    const TODAY_ROW = row({ date: TODAY, session_index: 1 });
+    const FUTURE_ROW = row({ date: TOMORROW, session_index: 1 });
+    const STATE = {
+        rows: [TODAY_ROW, FUTURE_ROW],
         totalsByBookId: { "book-1": 4000 },
     };
 
-    const label = estimateProgressLabel(
-        futureRow,
-        state,
+    const LABEL = estimateProgressLabel(
+        FUTURE_ROW,
+        STATE,
         () => book(),
-        (sessionKey) => sessionKey === `${today}|1|book-1`,
+        (sessionKey) => sessionKey === `${TODAY}|1|book-1`,
     );
 
     assert.equal(
-        label,
+        LABEL,
         "Estimated by end of this session: 200 pages read (50% complete)",
     );
 });
 
 test("estimateProgressLabel ignores completed pre-target sessions even when date is after local today", () => {
-    const today = dayKey(new Date());
-    const shiftedCurrent = plusDays(today, 1);
-    const target = plusDays(today, 2);
-    const shiftedCurrentRow = row({ date: shiftedCurrent, session_index: 1 });
-    const targetRow = row({ date: target, session_index: 1 });
-    const state = {
-        rows: [shiftedCurrentRow, targetRow],
+    const TODAY = dayKey(new Date());
+    const SHIFTED_CURRENT = plusDays(TODAY, 1);
+    const TARGET = plusDays(TODAY, 2);
+    const SHIFTED_CURRENT_ROW = row({
+        date: SHIFTED_CURRENT,
+        session_index: 1,
+    });
+    const TARGET_ROW = row({ date: TARGET, session_index: 1 });
+    const STATE = {
+        rows: [SHIFTED_CURRENT_ROW, TARGET_ROW],
         totalsByBookId: { "book-1": 4000 },
     };
 
-    const label = estimateProgressLabel(
-        targetRow,
-        state,
+    const LABEL = estimateProgressLabel(
+        TARGET_ROW,
+        STATE,
         () => book(),
-        (sessionKey) => sessionKey === `${shiftedCurrent}|1|book-1`,
+        (sessionKey) => sessionKey === `${SHIFTED_CURRENT}|1|book-1`,
     );
 
     assert.equal(
-        label,
+        LABEL,
         "Estimated by end of this session: 200 pages read (50% complete)",
     );
 });
 
 test("estimateProgressLabel uses current progress for completed current-day session", () => {
-    const today = dayKey(new Date());
-    const todayRow = row({ date: today, session_index: 1 });
-    const state = {
-        rows: [todayRow],
+    const TODAY = dayKey(new Date());
+    const TODAY_ROW = row({ date: TODAY, session_index: 1 });
+    const STATE = {
+        rows: [TODAY_ROW],
         totalsByBookId: { "book-1": 4000 },
     };
 
-    const label = estimateProgressLabel(
-        todayRow,
-        state,
+    const LABEL = estimateProgressLabel(
+        TODAY_ROW,
+        STATE,
         () => book({ progress_percent: 40 }),
-        (sessionKey) => sessionKey === `${today}|1|book-1`,
+        (sessionKey) => sessionKey === `${TODAY}|1|book-1`,
     );
 
     assert.equal(
-        label,
+        LABEL,
         "Estimated by end of this session: 160 pages read (40% complete)",
     );
 });
 
 test("estimateProgressLabel projects end-of-session pages for incomplete current-day session", () => {
-    const today = dayKey(new Date());
-    const todayRow = row({ date: today, session_index: 1 });
-    const state = {
-        rows: [todayRow],
+    const TODAY = dayKey(new Date());
+    const TODAY_ROW = row({ date: TODAY, session_index: 1 });
+    const STATE = {
+        rows: [TODAY_ROW],
         totalsByBookId: { "book-1": 4000 },
     };
 
-    const label = estimateProgressLabel(
-        todayRow,
-        state,
+    const LABEL = estimateProgressLabel(
+        TODAY_ROW,
+        STATE,
         () => book(),
         () => false,
     );
 
     assert.equal(
-        label,
+        LABEL,
         "Estimated by end of this session: 200 pages read (50% complete)",
     );
 });

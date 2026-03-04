@@ -1,5 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { logError, logInfo } from "./logger.mjs";
 import { recoverStateFromArgs } from "./state_recover_helpers.mjs";
 
 /**
@@ -7,32 +8,28 @@ import { recoverStateFromArgs } from "./state_recover_helpers.mjs";
  * @param {string[]} argv CLI arguments excluding `node` and script path.
  */
 export function runStateRecover(argv) {
-    const result = recoverStateFromArgs(argv);
-    console.info(`Recovered source type: ${result.sourceType}`);
-    console.info(`Input path: ${result.inputPath}`);
-    console.info(`User data dir: ${result.userDataDir}`);
-    console.info(`Books: ${result.counts.books}`);
-    console.info(`Sessions: ${result.counts.sessions}`);
-    console.info(`Schedule rows: ${result.counts.scheduleRows}`);
-    console.info(`Schedule completions: ${result.counts.scheduleCompletions}`);
-    if (result.backups.length > 0) {
-        console.info("Created backups:");
-        result.backups.forEach((backupPath) => {
-            console.info(`- ${backupPath}`);
-        });
+    const RESULT = recoverStateFromArgs(argv);
+    logInfo(`Recovered source type: ${RESULT.sourceType}`);
+    logInfo(`Input path: ${RESULT.inputPath}`);
+    logInfo(`User data dir: ${RESULT.userDataDir}`);
+    logInfo(`Books: ${RESULT.counts.books}`);
+    logInfo(`Sessions: ${RESULT.counts.sessions}`);
+    logInfo(`Schedule rows: ${RESULT.counts.scheduleRows}`);
+    logInfo(`Schedule completions: ${RESULT.counts.scheduleCompletions}`);
+    if (RESULT.backups.length > 0) {
+        logInfo("Created backups:");
+        for (const BACKUP_PATH of RESULT.backups) {
+            logInfo(`- ${BACKUP_PATH}`);
+        }
     }
 }
 
-const scriptPath = fileURLToPath(import.meta.url);
-if (path.resolve(process.argv[1] || "") === scriptPath) {
+const SCRIPT_PATH = fileURLToPath(import.meta.url);
+if (path.resolve(process.argv[1] || "") === SCRIPT_PATH) {
     try {
         runStateRecover(process.argv.slice(2));
     } catch (error) {
-        let message = "State recovery failed.";
-        if (error instanceof Error) {
-            message = `${message} ${error.message}`;
-        }
-        process.stderr.write(`${message}\n`);
+        logError("State recovery failed.", error);
         process.exitCode = 1;
     }
 }

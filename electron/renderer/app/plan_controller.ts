@@ -1,17 +1,17 @@
-import {
-    type AnnouncePoliteness,
-    type AutoPlanRunner,
-    type AutoPlanState,
-    type Book,
-    type PlanController,
-    type PlanControllerArgs,
-    type PlannerApi,
-    type PlannerResult,
-    type PlannerRunData,
-    type PlannerScheduleRow,
-    type PlannerSettings,
-    type RunAutoPlanFactoryArgs,
-    type Session,
+import type {
+    AnnouncePoliteness,
+    AutoPlanRunner,
+    AutoPlanState,
+    Book,
+    PlanController,
+    PlanControllerArgs,
+    PlannerApi,
+    PlannerResult,
+    PlannerRunData,
+    PlannerScheduleRow,
+    PlannerSettings,
+    RunAutoPlanFactoryArgs,
+    Session,
 } from "../../types/types.js";
 import { runPlanGeneration } from "./plan.js";
 import {

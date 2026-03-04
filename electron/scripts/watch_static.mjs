@@ -7,6 +7,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { logInfo } from "./logger.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(path.join(SCRIPT_DIR, ".."));
@@ -30,15 +31,15 @@ function copyStatic() {
  * Sets up watchers on all static paths.
  */
 function setupWatchers() {
-    console.info("Watching static assets for changes...");
-    WATCH_PATHS.forEach((watchPath) => {
-        fs.watch(watchPath, { recursive: true }, (eventType) => {
+    logInfo("Watching static assets for changes...");
+    for (const WATCH_PATH of WATCH_PATHS) {
+        fs.watch(WATCH_PATH, { recursive: true }, (eventType) => {
             if (eventType === "change" || eventType === "rename") {
-                console.info(`${watchPath} changed, copying static files...`);
+                logInfo(`${WATCH_PATH} changed, copying static files...`);
                 copyStatic();
             }
         });
-    });
+    }
 }
 
 setupWatchers();

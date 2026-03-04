@@ -1,8 +1,8 @@
-import {
-    type AddLog,
-    type DraftDataParams,
-    type PlannerApi,
-    type PlannerStateSnapshot,
+import type {
+    AddLog,
+    DraftDataParams,
+    PlannerApi,
+    PlannerStateSnapshot,
 } from "../../types/types.js";
 
 /**

@@ -1,6 +1,6 @@
-import {
-    type RecommendationFormTarget,
-    type RecommendationItem,
+import type {
+    RecommendationFormTarget,
+    RecommendationItem,
 } from "../../types/types.js";
 import { el } from "../dom.js";
 
@@ -24,7 +24,7 @@ function normalizedWordsTotal(wordsTotal: number): string {
  * @param target Required add-book form references.
  * @param recommendation Recommendation selected by the user.
  */
-export function submitRecommendationToShelf(
+function submitRecommendationToShelf(
     target: RecommendationFormTarget,
     recommendation: RecommendationItem,
 ): void {

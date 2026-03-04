@@ -12,16 +12,16 @@ import { scrollToBookCard } from "../dist/renderer/books/card_scroll_target.js";
  * }} Minimal classList-compatible helper.
  */
 function fakeClassList() {
-    const classes = new Set();
+    const CLASSES = new Set();
     return {
         add(name) {
-            classes.add(name);
+            CLASSES.add(name);
         },
         contains(name) {
-            return classes.has(name);
+            return CLASSES.has(name);
         },
         remove(name) {
-            classes.delete(name);
+            CLASSES.delete(name);
         },
     };
 }
@@ -57,68 +57,68 @@ function fakeCard(bookId, rectProvider) {
  * @param {Array<(time: number) => void>} frameQueue Queued frame callbacks.
  */
 function runNextAnimationFrame(frameQueue) {
-    const callback = frameQueue.shift();
-    assert.equal(typeof callback, "function");
-    if (typeof callback === "function") {
-        callback(0);
+    const CALLBACK = frameQueue.shift();
+    assert.equal(typeof CALLBACK, "function");
+    if (typeof CALLBACK === "function") {
+        CALLBACK(0);
     }
 }
 
 test("scrollToBookCard highlights immediately when card is already visible", () => {
-    const inViewRect = {
+    const IN_VIEW_RECT = {
         bottom: 240,
         left: 20,
         right: 320,
         top: 120,
     };
-    const targetCard = fakeCard("book-b", () => inViewRect);
-    const firstCard = fakeCard("book-a", () => inViewRect);
-    const pendingTimers = new Map();
+    const TARGET_CARD = fakeCard("book-b", () => IN_VIEW_RECT);
+    const FIRST_CARD = fakeCard("book-a", () => IN_VIEW_RECT);
+    const PENDING_TIMERS = new Map();
     let nextTimerId = 0;
 
-    const originalDocument = globalThis.document;
-    const originalSetTimeout = globalThis.setTimeout;
-    const originalClearTimeout = globalThis.clearTimeout;
-    const originalInnerHeight = globalThis.innerHeight;
-    const originalInnerWidth = globalThis.innerWidth;
+    const ORIGINAL_DOCUMENT = globalThis.document;
+    const ORIGINAL_SET_TIMEOUT = globalThis.setTimeout;
+    const ORIGINAL_CLEAR_TIMEOUT = globalThis.clearTimeout;
+    const ORIGINAL_INNER_HEIGHT = globalThis.innerHeight;
+    const ORIGINAL_INNER_WIDTH = globalThis.innerWidth;
     try {
         globalThis.document = {
             querySelectorAll() {
-                return [firstCard, targetCard];
+                return [FIRST_CARD, TARGET_CARD];
             },
         };
         globalThis.innerHeight = 900;
         globalThis.innerWidth = 1400;
         globalThis.setTimeout = (callback) => {
             nextTimerId += 1;
-            pendingTimers.set(nextTimerId, callback);
+            PENDING_TIMERS.set(nextTimerId, callback);
             return nextTimerId;
         };
         globalThis.clearTimeout = (timerId) => {
-            pendingTimers.delete(timerId);
+            PENDING_TIMERS.delete(timerId);
         };
 
         scrollToBookCard("book-b");
-        assert.equal(targetCard.scrollCalls, 0);
-        assert.equal(targetCard.classList.contains("is-after-target"), true);
+        assert.equal(TARGET_CARD.scrollCalls, 0);
+        assert.equal(TARGET_CARD.classList.contains("is-after-target"), true);
 
-        const resetTimer = pendingTimers.get(1);
-        assert.equal(typeof resetTimer, "function");
-        if (typeof resetTimer === "function") {
-            resetTimer();
+        const RESET_TIMER = PENDING_TIMERS.get(1);
+        assert.equal(typeof RESET_TIMER, "function");
+        if (typeof RESET_TIMER === "function") {
+            RESET_TIMER();
         }
-        assert.equal(targetCard.classList.contains("is-after-target"), false);
+        assert.equal(TARGET_CARD.classList.contains("is-after-target"), false);
     } finally {
-        globalThis.document = originalDocument;
-        globalThis.setTimeout = originalSetTimeout;
-        globalThis.clearTimeout = originalClearTimeout;
-        globalThis.innerHeight = originalInnerHeight;
-        globalThis.innerWidth = originalInnerWidth;
+        globalThis.document = ORIGINAL_DOCUMENT;
+        globalThis.setTimeout = ORIGINAL_SET_TIMEOUT;
+        globalThis.clearTimeout = ORIGINAL_CLEAR_TIMEOUT;
+        globalThis.innerHeight = ORIGINAL_INNER_HEIGHT;
+        globalThis.innerWidth = ORIGINAL_INNER_WIDTH;
     }
 });
 
 test("scrollToBookCard waits for scrolling to settle before highlighting", () => {
-    const rects = [
+    const RECTS = [
         { bottom: 1320, left: 0, right: 320, top: 1200 },
         { bottom: 800, left: 0, right: 320, top: 680 },
         { bottom: 540, left: 0, right: 320, top: 420 },
@@ -129,70 +129,70 @@ test("scrollToBookCard waits for scrolling to settle before highlighting", () =>
         { bottom: 300, left: 0, right: 320, top: 180 },
     ];
     let rectIndex = 0;
-    const targetCard = fakeCard("book-b", () => {
-        const rect = rects[Math.min(rectIndex, rects.length - 1)];
+    const TARGET_CARD = fakeCard("book-b", () => {
+        const RECT = RECTS[Math.min(rectIndex, RECTS.length - 1)];
         rectIndex += 1;
-        return rect;
+        return RECT;
     });
-    const firstCard = fakeCard("book-a", () => rects[0]);
-    const pendingTimers = new Map();
+    const FIRST_CARD = fakeCard("book-a", () => RECTS[0]);
+    const PENDING_TIMERS = new Map();
     let nextTimerId = 0;
-    const frameQueue = [];
+    const FRAME_QUEUE = [];
 
-    const originalDocument = globalThis.document;
-    const originalAnimationFrame = globalThis.requestAnimationFrame;
-    const originalSetTimeout = globalThis.setTimeout;
-    const originalClearTimeout = globalThis.clearTimeout;
-    const originalInnerHeight = globalThis.innerHeight;
-    const originalInnerWidth = globalThis.innerWidth;
+    const ORIGINAL_DOCUMENT = globalThis.document;
+    const ORIGINAL_ANIMATION_FRAME = globalThis.requestAnimationFrame;
+    const ORIGINAL_SET_TIMEOUT = globalThis.setTimeout;
+    const ORIGINAL_CLEAR_TIMEOUT = globalThis.clearTimeout;
+    const ORIGINAL_INNER_HEIGHT = globalThis.innerHeight;
+    const ORIGINAL_INNER_WIDTH = globalThis.innerWidth;
     try {
         globalThis.document = {
             querySelectorAll() {
-                return [firstCard, targetCard];
+                return [FIRST_CARD, TARGET_CARD];
             },
         };
         globalThis.innerHeight = 900;
         globalThis.innerWidth = 1400;
         globalThis.requestAnimationFrame = (callback) => {
-            frameQueue.push(callback);
-            return frameQueue.length;
+            FRAME_QUEUE.push(callback);
+            return FRAME_QUEUE.length;
         };
         globalThis.setTimeout = (callback) => {
             nextTimerId += 1;
-            pendingTimers.set(nextTimerId, callback);
+            PENDING_TIMERS.set(nextTimerId, callback);
             return nextTimerId;
         };
         globalThis.clearTimeout = (timerId) => {
-            pendingTimers.delete(timerId);
+            PENDING_TIMERS.delete(timerId);
         };
 
         scrollToBookCard("book-b");
-        assert.equal(targetCard.scrollCalls, 1);
-        assert.equal(targetCard.classList.contains("is-after-target"), false);
+        assert.equal(TARGET_CARD.scrollCalls, 1);
+        assert.equal(TARGET_CARD.classList.contains("is-after-target"), false);
 
-        runNextAnimationFrame(frameQueue);
-        assert.equal(targetCard.classList.contains("is-after-target"), false);
+        runNextAnimationFrame(FRAME_QUEUE);
+        assert.equal(TARGET_CARD.classList.contains("is-after-target"), false);
 
-        runNextAnimationFrame(frameQueue);
-        assert.equal(targetCard.classList.contains("is-after-target"), false);
+        runNextAnimationFrame(FRAME_QUEUE);
+        assert.equal(TARGET_CARD.classList.contains("is-after-target"), false);
 
-        runNextAnimationFrame(frameQueue);
-        assert.equal(targetCard.classList.contains("is-after-target"), false);
+        runNextAnimationFrame(FRAME_QUEUE);
+        assert.equal(TARGET_CARD.classList.contains("is-after-target"), false);
 
-        runNextAnimationFrame(frameQueue);
-        assert.equal(targetCard.classList.contains("is-after-target"), false);
+        runNextAnimationFrame(FRAME_QUEUE);
+        assert.equal(TARGET_CARD.classList.contains("is-after-target"), false);
 
-        runNextAnimationFrame(frameQueue);
-        assert.equal(targetCard.classList.contains("is-after-target"), false);
+        runNextAnimationFrame(FRAME_QUEUE);
+        assert.equal(TARGET_CARD.classList.contains("is-after-target"), false);
 
-        runNextAnimationFrame(frameQueue);
-        assert.equal(targetCard.classList.contains("is-after-target"), true);
+        runNextAnimationFrame(FRAME_QUEUE);
+        assert.equal(TARGET_CARD.classList.contains("is-after-target"), true);
     } finally {
-        globalThis.document = originalDocument;
-        globalThis.requestAnimationFrame = originalAnimationFrame;
-        globalThis.setTimeout = originalSetTimeout;
-        globalThis.clearTimeout = originalClearTimeout;
-        globalThis.innerHeight = originalInnerHeight;
-        globalThis.innerWidth = originalInnerWidth;
+        globalThis.document = ORIGINAL_DOCUMENT;
+        globalThis.requestAnimationFrame = ORIGINAL_ANIMATION_FRAME;
+        globalThis.setTimeout = ORIGINAL_SET_TIMEOUT;
+        globalThis.clearTimeout = ORIGINAL_CLEAR_TIMEOUT;
+        globalThis.innerHeight = ORIGINAL_INNER_HEIGHT;
+        globalThis.innerWidth = ORIGINAL_INNER_WIDTH;
     }
 });

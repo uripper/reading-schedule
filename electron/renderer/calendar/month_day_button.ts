@@ -1,7 +1,4 @@
-import {
-    type DayStyleFlags,
-    type DayStyleFlagsArgs,
-} from "../../types/types.js";
+import type { DayStyleFlags, DayStyleFlagsArgs } from "../../types/types.js";
 import { WEEKDAY_LABELS } from "./constants.js";
 import { appendDayButtonSummary } from "./month_day_button_chips.js";
 
@@ -16,7 +13,7 @@ import { appendDayButtonSummary } from "./month_day_button_chips.js";
  * @param args.rows Rows scheduled for the day.
  * @returns Day-style flags used for class/aria assignment.
  */
-export function dayStyleFlags(args: DayStyleFlagsArgs): DayStyleFlags {
+function dayStyleFlags(args: DayStyleFlagsArgs): DayStyleFlags {
     const HAS_FINISH_ROW = args.rows.some((row) => {
         return row.finish === true;
     });

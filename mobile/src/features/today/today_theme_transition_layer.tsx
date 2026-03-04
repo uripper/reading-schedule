@@ -3,6 +3,12 @@ import { Animated, StyleSheet, View } from "react-native";
 const GRID_COLUMNS = 5;
 const GRID_ROWS = 5;
 const GRID_TILE_COUNT = GRID_COLUMNS * GRID_ROWS;
+const GRID_TILE_INDEXES = Array.from(
+    { length: GRID_TILE_COUNT },
+    (_, index) => {
+        return index;
+    },
+);
 
 function tilePhase(index: number): number {
     const COLUMN = index % GRID_COLUMNS;
@@ -17,6 +23,13 @@ interface TodayThemeTransitionLayerProps {
     toColor: string;
 }
 
+/**
+ * Renders a non-interactive animated color-transition overlay for the Today screen.
+ * @param fromColor - Starting canvas color before transition.
+ * @param progress - Shared transition progress animated value in range `[0, 1]`.
+ * @param toColor - Target canvas color after transition.
+ * @returns Layer containing sweep and tile effects blended between theme colors.
+ */
 export function TodayThemeTransitionLayer({
     fromColor,
     progress,
@@ -44,34 +57,46 @@ export function TodayThemeTransitionLayer({
     });
 
     return (
-        <View pointerEvents="none" style={styles.layer}>
+        <View pointerEvents="none" style={STYLES.layer}>
             <Animated.View
-                style={[styles.fill, { backgroundColor: fromColor, opacity: FROM_OPACITY }]}
-            />
-            <Animated.View
-                style={[styles.fill, { backgroundColor: toColor, opacity: TO_OPACITY }]}
+                style={[
+                    STYLES.fill,
+                    { backgroundColor: fromColor, opacity: FROM_OPACITY },
+                ]}
             />
             <Animated.View
                 style={[
-                    styles.scanBand,
+                    STYLES.fill,
+                    { backgroundColor: toColor, opacity: TO_OPACITY },
+                ]}
+            />
+            <Animated.View
+                style={[
+                    STYLES.scanBand,
                     {
                         opacity: SWEEP_OPACITY,
-                        transform: [{ translateX: SWEEP_SHIFT }, { rotate: "-14deg" }],
+                        transform: [
+                            { translateX: SWEEP_SHIFT },
+                            { rotate: "-14deg" },
+                        ],
                     },
                 ]}
             />
             <Animated.View
                 style={[
-                    styles.scanBandThin,
+                    STYLES.scanBandThin,
                     {
                         opacity: SWEEP_OPACITY,
-                        transform: [{ translateX: SWEEP_SHIFT }, { rotate: "-14deg" }],
+                        transform: [
+                            { translateX: SWEEP_SHIFT },
+                            { rotate: "-14deg" },
+                        ],
                     },
                 ]}
             />
             <Animated.View
                 style={[
-                    styles.pipeSweep,
+                    STYLES.pipeSweep,
                     {
                         opacity: SWEEP_OPACITY,
                         transform: [{ translateX: PIPE_SWEEP_SHIFT }],
@@ -80,29 +105,29 @@ export function TodayThemeTransitionLayer({
             />
             <Animated.View
                 style={[
-                    styles.pipeSweepVertical,
+                    STYLES.pipeSweepVertical,
                     {
                         opacity: SWEEP_OPACITY,
                         transform: [{ translateY: PIPE_SWEEP_SHIFT }],
                     },
                 ]}
             />
-            {Array.from({ length: GRID_TILE_COUNT }).map((_, index) => {
-                const PHASE = tilePhase(index);
+            {GRID_TILE_INDEXES.map((tileIndex) => {
+                const PHASE = tilePhase(tileIndex);
                 const TILE_OPACITY = progress.interpolate({
                     inputRange: [PHASE, PHASE + 0.12, PHASE + 0.24],
                     outputRange: [0, 0.52, 0],
                     extrapolate: "clamp",
                 });
                 const LEFT_PERCENT =
-                    `${(index % GRID_COLUMNS) * (100 / GRID_COLUMNS)}%` as `${number}%`;
+                    `${(tileIndex % GRID_COLUMNS) * (100 / GRID_COLUMNS)}%` as `${number}%`;
                 const TOP_PERCENT =
-                    `${Math.floor(index / GRID_COLUMNS) * (100 / GRID_ROWS)}%` as `${number}%`;
+                    `${Math.floor(tileIndex / GRID_COLUMNS) * (100 / GRID_ROWS)}%` as `${number}%`;
                 return (
                     <Animated.View
-                        key={`dissolve-tile-${index}`}
+                        key={`dissolve-tile-${tileIndex}`}
                         style={[
-                            styles.dissolveTile,
+                            STYLES.dissolveTile,
                             {
                                 left: LEFT_PERCENT,
                                 opacity: TILE_OPACITY,
@@ -115,7 +140,7 @@ export function TodayThemeTransitionLayer({
         </View>
     );
 }
-const styles = StyleSheet.create({
+const STYLES = StyleSheet.create({
     dissolveTile: {
         backgroundColor: "rgba(255, 255, 255, 0.65)",
         borderColor: "rgba(0, 0, 0, 0.45)",

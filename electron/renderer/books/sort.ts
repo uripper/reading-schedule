@@ -1,10 +1,10 @@
-import {
-    type Book,
-    type OptionalNumber,
-    type OptionalString,
-    type SortBy,
-    type SortComparator,
-    type SortDirection,
+import type {
+    Book,
+    OptionalNumber,
+    OptionalString,
+    SortBy,
+    SortComparator,
+    SortDirection,
 } from "../../types/types.js";
 import { normalizeShelfName } from "./shelf.js";
 import { titleSortKey } from "./title_key.js";

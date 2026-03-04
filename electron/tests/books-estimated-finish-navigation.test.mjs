@@ -16,14 +16,14 @@ test("isValidDateKey rejects impossible day keys", () => {
 
 test("navigateToEstimatedFinishDate triggers callback only for valid keys", () => {
     let navigatedDate = "";
-    const first = navigateToEstimatedFinishDate("2026-03-10", (dateKey) => {
+    const FIRST = navigateToEstimatedFinishDate("2026-03-10", (dateKey) => {
         navigatedDate = dateKey;
     });
-    const second = navigateToEstimatedFinishDate("bad-date", () => {
+    const SECOND = navigateToEstimatedFinishDate("bad-date", () => {
         navigatedDate = "bad";
     });
 
-    assert.equal(first, true);
-    assert.equal(second, false);
+    assert.equal(FIRST, true);
+    assert.equal(SECOND, false);
     assert.equal(navigatedDate, "2026-03-10");
 });

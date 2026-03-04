@@ -1,4 +1,4 @@
-import { type BookFormRefs, type ProgressSyncRefs } from "../../types/types.js";
+import type { BookFormRefs, ProgressSyncRefs } from "../../types/types.js";
 import { syncProgressAndPages } from "../book_lookup.js";
 import { syncFinishedAtField } from "./form_state.js";
 

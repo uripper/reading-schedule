@@ -1,4 +1,4 @@
-import { type BindingArgs } from "../../types/types.js";
+import type { BindingArgs } from "../../types/types.js";
 import {
     lookupResultTarget,
     shouldKeepPickerOpen,

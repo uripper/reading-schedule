@@ -1,7 +1,7 @@
-import {
-    type FieldDefinition,
-    type FieldGroupName,
-    type SelectOption,
+import type {
+    FieldDefinition,
+    FieldGroupName,
+    SelectOption,
 } from "../../types/types.js";
 
 const PLAN_MODE_OPTIONS: SelectOption[] = [

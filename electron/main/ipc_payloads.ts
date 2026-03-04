@@ -1,6 +1,6 @@
-import {
-    type DownloadCoverPayload,
-    type UploadCoverPayload,
+import type {
+    DownloadCoverPayload,
+    UploadCoverPayload,
 } from "../types/types.js";
 
 /**

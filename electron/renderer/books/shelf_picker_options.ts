@@ -24,9 +24,10 @@ function createOption(value: string, label: string): HTMLOptionElement {
  */
 function shelfOptions(shelves: string[]): HTMLOptionElement[] {
     const OPTIONS = [createOption(UNSHELVED_VALUE, UNSHELVED_LABEL)];
-    shelves.forEach((shelfName) => {
-        OPTIONS.push(createOption(shelfName, shelfName));
-    });
+
+    for (const SHELF_NAME of shelves) {
+        OPTIONS.push(createOption(SHELF_NAME, SHELF_NAME));
+    }
     OPTIONS.push(createOption(SHELF_SELECT_CREATE_NEW, CREATE_SHELF_LABEL));
     return OPTIONS;
 }
@@ -68,12 +69,13 @@ function caseInsensitiveMatch(left: string, right: string): boolean {
  */
 function collectShelfValues(select: HTMLSelectElement): string[] {
     const VALUES: string[] = [];
-    Array.from(select.options).forEach((option) => {
-        if (!option.value || option.value === SHELF_SELECT_CREATE_NEW) {
-            return;
+
+    for (const OPTION of Array.from(select.options)) {
+        if (!OPTION.value || OPTION.value === SHELF_SELECT_CREATE_NEW) {
+            continue;
         }
-        VALUES.push(option.value);
-    });
+        VALUES.push(OPTION.value);
+    }
     return VALUES;
 }
 

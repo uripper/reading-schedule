@@ -1,4 +1,4 @@
-import { type CalendarDisplayRow } from "../../types/types.js";
+import type { CalendarDisplayRow } from "../../types/types.js";
 
 /**
  * Returns compact planned-session summary text.
@@ -17,7 +17,7 @@ function plannedSessionText(rowCount: number): string {
  * @param row Day row to style.
  * @returns Class string for chip styling.
  */
-export function chipClassNameForRow(row: CalendarDisplayRow): string {
+function chipClassNameForRow(row: CalendarDisplayRow): string {
     if (row.finish === true) {
         return "day-chip finish";
     }
@@ -33,12 +33,12 @@ function appendVisibleRowChips(
     dayButton: HTMLButtonElement,
     rows: CalendarDisplayRow[],
 ): void {
-    rows.slice(0, 2).forEach((row) => {
+    for (const ROW of rows.slice(0, 2)) {
         const CHIP = document.createElement("span");
-        CHIP.className = chipClassNameForRow(row);
-        CHIP.textContent = `${row.title ?? "Untitled"} - ${Number(row.minutes ?? 0)}m`;
+        CHIP.className = chipClassNameForRow(ROW);
+        CHIP.textContent = `${ROW.title ?? "Untitled"} - ${Number(ROW.minutes ?? 0)}m`;
         dayButton.append(CHIP);
-    });
+    }
 }
 
 /**

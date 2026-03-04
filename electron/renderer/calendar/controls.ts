@@ -1,7 +1,7 @@
-import {
-    type CalendarControlsState,
-    type JumpToTodayFn,
-    type RenderFn,
+import type {
+    CalendarControlsState,
+    JumpToTodayFn,
+    RenderFn,
 } from "../../types/types.js";
 import { el } from "../dom.js";
 import { monthLabel } from "./utils.js";

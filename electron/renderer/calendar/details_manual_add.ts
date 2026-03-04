@@ -1,7 +1,7 @@
-import {
-    type BookSelectionControls,
-    type BuildManualSessionAddPanelArgs,
-    type SubmitManualAddFormArgs,
+import type {
+    BookSelectionControls,
+    BuildManualSessionAddPanelArgs,
+    SubmitManualAddFormArgs,
 } from "../../types/types.js";
 import {
     minuteValueForManualInput,

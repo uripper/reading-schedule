@@ -8,7 +8,7 @@ import {
 } from "../dist/contracts/planner.js";
 
 test("planner payload parser accepts valid generate payload", () => {
-    const payload = parsePlanGeneratePayload({
+    const PAYLOAD = parsePlanGeneratePayload({
         books: [{ book_id: "book-1", title: "Sample" }],
         planner: "mip",
         settings: {
@@ -26,12 +26,12 @@ test("planner payload parser accepts valid generate payload", () => {
         },
     });
 
-    assert.equal(payload.planner, "mip");
-    assert.equal(payload.books.length, 1);
+    assert.equal(PAYLOAD.planner, "mip");
+    assert.equal(PAYLOAD.books.length, 1);
 });
 
 test("planner payload parser accepts profile planner token", () => {
-    const payload = parsePlanGeneratePayload({
+    const PAYLOAD = parsePlanGeneratePayload({
         books: [{ book_id: "book-1", title: "Sample" }],
         planner: "mip-fast",
         settings: {
@@ -39,7 +39,7 @@ test("planner payload parser accepts profile planner token", () => {
         },
     });
 
-    assert.equal(payload.planner, "mip-fast");
+    assert.equal(PAYLOAD.planner, "mip-fast");
 });
 
 test("planner payload parser rejects invalid planner type", () => {

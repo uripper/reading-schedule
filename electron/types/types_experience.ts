@@ -1,4 +1,4 @@
-import { type BookLookupItem } from "./types_lookup.js";
+import type { BookLookupItem } from "./types_lookup.js";
 
 export interface Preferences {
     dailyGoalMinutes: number;

@@ -3,12 +3,11 @@
  */
 import fs from "node:fs";
 import { DatabaseSync } from "node:sqlite";
-import { safeParseLoadedPlannerState } from "@reading-schedule/contracts";
-import {
-    type JsonValue,
-    type LoadedPlannerState,
-    type PlannerSaveResult,
-    type PlannerStateLoadResult,
+import type {
+    JsonValue,
+    LoadedPlannerState,
+    PlannerSaveResult,
+    PlannerStateLoadResult,
 } from "../types/types.js";
 import { sqliteStatePath } from "./state_store_paths";
 

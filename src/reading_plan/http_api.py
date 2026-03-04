@@ -164,9 +164,9 @@ def _request_json(request_url: str) -> dict[str, object]:
             status_code=502,
             detail=f"Book search failed: {error}",
         ) from error
-    if isinstance(payload, dict):
-        return cast("dict[str, object]", payload)
-    return {}
+    return cast(
+        "dict[str, object]", payload
+        ) if isinstance(payload, dict) else {}
 
 
 def _doc_to_result(doc: object) -> dict[str, str] | None:

@@ -21,17 +21,17 @@ function headingFormatter() {
 }
 
 test("monthCells starts a Sunday-first month on that Sunday", () => {
-    const cells = monthCells("2026-02");
-    assert.equal(dayKey(cells[0]), "2026-02-01");
+    const CELLS = monthCells("2026-02");
+    assert.equal(dayKey(CELLS[0]), "2026-02-01");
 });
 
 test("monthCells includes prior Sunday when month starts on Monday", () => {
-    const cells = monthCells("2026-06");
-    assert.equal(dayKey(cells[0]), "2026-05-31");
+    const CELLS = monthCells("2026-06");
+    assert.equal(dayKey(CELLS[0]), "2026-05-31");
 });
 
 test("dateHeading formats day keys using local calendar date", () => {
-    const localDate = new Date(2026, 1, 23);
-    const expected = headingFormatter().format(localDate);
-    assert.equal(dateHeading("2026-02-23"), expected);
+    const LOCAL_DATE = new Date(2026, 1, 23);
+    const EXPECTED = headingFormatter().format(LOCAL_DATE);
+    assert.equal(dateHeading("2026-02-23"), EXPECTED);
 });

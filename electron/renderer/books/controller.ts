@@ -1,13 +1,13 @@
-import {
-    type BindBooksUIOptions,
-    type Book,
-    type BookDialogController,
-    type BookProgressUpdates,
-    type BookSubmitPayload,
-    type BooksControllerRefs,
-    type BooksViewState,
-    type PlannerScheduleRow,
-    type UpdateBookProgressOptions,
+import type {
+    BindBooksUIOptions,
+    Book,
+    BookDialogController,
+    BookProgressUpdates,
+    BookSubmitPayload,
+    BooksControllerRefs,
+    BooksViewState,
+    PlannerScheduleRow,
+    UpdateBookProgressOptions,
 } from "../../types/types.js";
 import { el } from "../dom.js";
 import { bindToolbarEvents } from "./controller_bindings.js";

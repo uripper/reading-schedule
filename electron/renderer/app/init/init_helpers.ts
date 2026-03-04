@@ -1,9 +1,9 @@
-import {
-    type CreatePlanControllerArgs,
-    type FinalizeInitialLoadArgs,
+import { logDebug } from "@renderer/logger.js";
+import type {
+    CreatePlanControllerArgs,
+    FinalizeInitialLoadArgs,
 } from "../../../types/types.js";
 import { el } from "../../dom.js";
-import { logDebug } from "../../logger.js";
 import { createPlanController } from "../plan_controller.js";
 import { bindSettingsAutoPlanListeners } from "../runtime_helpers.js";
 
@@ -13,7 +13,7 @@ const SUPPRESSED_LOADED_STATUS_WARNING_CODES = new Set<
 
 /**
  * Indicates whether startup should show generic "loaded" status text.
- * @param args Finalize-initial-load arguments.
+ * @param args - Finalize-initial-load arguments.
  * @returns True when generic loaded status should be displayed.
  */
 function shouldShowLoadedStatus(args: FinalizeInitialLoadArgs): boolean {
@@ -24,7 +24,7 @@ function shouldShowLoadedStatus(args: FinalizeInitialLoadArgs): boolean {
 
 /**
  * Returns true when loaded payload contains one or more persisted schedule rows.
- * @param saved Loaded persisted payload from startup state load.
+ * @param saved - Loaded persisted payload from startup state load.
  * @returns True when `last_result.schedule` exists and has rows.
  */
 function hasSavedSchedule(saved: FinalizeInitialLoadArgs["saved"]): boolean {
@@ -34,7 +34,7 @@ function hasSavedSchedule(saved: FinalizeInitialLoadArgs["saved"]): boolean {
 
 /**
  * Determines whether startup should queue an immediate auto-plan run.
- * @param args Startup load context with saved payload and load metadata.
+ * @param args - Startup load context with saved payload and load metadata.
  * @returns True when startup should auto-plan; false when loaded plan should be preserved.
  */
 function shouldAutoPlanOnStartup(
@@ -62,7 +62,7 @@ export function setupSkipLink(): void {
 
 /**
  * Creates the app plan-controller instance from prepared dependencies.
- * @param args Dependencies required by `createPlanController`.
+ * @param args - Dependencies required by `createPlanController`.
  * @returns Initialized plan-controller instance.
  */
 export function createAppPlanControllerInstance(
@@ -73,12 +73,12 @@ export function createAppPlanControllerInstance(
 
 /**
  * Finalizes post-load wiring and kicks off auto-plan after initial state load.
- * @param args Initial-load completion dependencies.
- * @param args.saved Loaded persisted payload, if available.
- * @param args.setReady Marks runtime ready state.
- * @param args.queuePersist Schedules persistence of form changes.
- * @param args.queueAutoPlan Schedules an automatic plan generation.
- * @param args.setStatus Sets startup status text.
+ * @param args - Initial-load completion dependencies.
+ * @param saved - Loaded persisted payload, if available.
+ * @param setReady - Marks runtime ready state.
+ * @param queuePersist - Schedules persistence of form changes.
+ * @param queueAutoPlan - Schedules an automatic plan generation.
+ * @param setStatus - Sets startup status text.
  */
 export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
     const QUEUE_PERSIST = (): void => {

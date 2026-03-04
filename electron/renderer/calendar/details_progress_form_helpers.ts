@@ -1,4 +1,4 @@
-import { type SubmitProgressUpdateArgs } from "../../types/types.js";
+import type { SubmitProgressUpdateArgs } from "../../types/types.js";
 import { parseOptionalNumber } from "./utils.js";
 
 /**

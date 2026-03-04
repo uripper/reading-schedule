@@ -30,7 +30,7 @@
             ]
         },
         "mobile": {
-            "entry": ["App.tsx", "src/**/*.ts", "src/**/*.tsx"],
+            "entry": ["src/**/*.ts", "src/**/*.tsx"],
             "paths": {
                 "@api/*": ["./src/api/*"],
                 "@config/*": ["./src/config/*"],
@@ -44,7 +44,6 @@
             ]
         },
         "packages/contracts": {
-            "entry": ["src/index.ts"],
             "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
         }
     }

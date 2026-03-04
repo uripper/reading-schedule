@@ -1,4 +1,4 @@
-import { type DialogFocusOptions } from "../../types/types.js";
+import type { DialogFocusOptions } from "../../types/types.js";
 
 /**
  * Returns a CSS selector string matching all interactive, focusable elements

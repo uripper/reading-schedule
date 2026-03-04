@@ -1,7 +1,7 @@
-import {
-    type AnnouncePoliteness,
-    type AppBootstrapContext,
-    type PlannerApi,
+import type {
+    AnnouncePoliteness,
+    AppBootstrapContext,
+    PlannerApi,
 } from "../../types/types.js";
 import {
     applyPreferencesToDocument,

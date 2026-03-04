@@ -1,7 +1,7 @@
-import {
-    type CalendarHandlers,
-    type CompletedBookRow,
-    type PlannerScheduleRow,
+import type {
+    CalendarHandlers,
+    CompletedBookRow,
+    PlannerScheduleRow,
 } from "../types/types.js";
 import { renderCalendarDetails } from "./calendar/details.js";
 import {
@@ -30,17 +30,17 @@ let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});
 
 /**
  * Removes any prior finished-books summary from details panel.
- * @param details Day-details root node.
+ * @param details - Day-details root node.
  */
 function clearFinishedBooksSummary(details: HTMLElement): void {
-    details.querySelectorAll(".day-finished-summary").forEach((node) => {
-        node.remove();
-    });
+    for (const NODE of details.querySelectorAll(".day-finished-summary")) {
+        NODE.remove();
+    }
 }
 
 /**
  * Renders top summary line listing books finished on selected day.
- * @param completedRows Completed-book rows for selected date.
+ * @param completedRows - Completed-book rows for selected date.
  */
 function renderFinishedBooksSummary(completedRows: CompletedBookRow[]): void {
     const DETAILS = document.getElementById("calendarDayDetails");
@@ -115,8 +115,8 @@ function renderControlsView(): void {
 
 /**
  * Renders full calendar from schedule rows and per-book totals.
- * @param rows Planner schedule rows.
- * @param totals Book totals keyed by `book_id`.
+ * @param rows - Planner schedule rows.
+ * @param totals - Book totals keyed by `book_id`.
  */
 export function renderCalendar(
     rows: PlannerScheduleRow[],
@@ -164,7 +164,7 @@ export function focusCalendarToday(): void {
 
 /**
  * Moves calendar focus to a specific day key and rerenders controls/month.
- * @param dateKey Day key in `YYYY-MM-DD` format.
+ * @param dateKey - Day key in `YYYY-MM-DD` format.
  */
 export function focusCalendarDate(dateKey: string): void {
     if (!STATE.months.length) {
@@ -178,7 +178,7 @@ export function focusCalendarDate(dateKey: string): void {
 
 /**
  * Configures interaction callbacks used by calendar details and actions.
- * @param handlers Partial interaction handler overrides.
+ * @param handlers - Partial interaction handler overrides.
  */
 export function configureCalendarInteractions(
     handlers: Partial<CalendarHandlers> = {},
