@@ -1,5 +1,4 @@
 {
-    "$schema": "https://unpkg.com/knip@5/schema-jsonc.json",
     "treatConfigHintsAsErrors": true,
     "workspaces": {
         ".": {
@@ -10,17 +9,42 @@
             "entry": [
                 "main.ts",
                 "preload.ts",
-                "e2e/**/*.ts",
                 "renderer/app.ts",
                 "scripts/*.mjs",
                 "tests/*.mjs"
             ],
             "paths": {
                 "@main/*": ["./main/*"],
+                "@reading-schedule/contracts": [
+                    "../packages/contracts/src/index.ts"
+                ],
                 "@renderer/*": ["./renderer/*"],
                 "@shared/*": ["./types/*"]
             },
-            "project": ["**/*.ts", "**/*.mjs", "!dist/**", "!node_modules/**"]
+            "project": [
+                "**/*.ts",
+                "**/*.mjs",
+                "!**/*.md",
+                "!dist/**",
+                "!node_modules/**"
+            ]
+        },
+        "mobile": {
+            "entry": ["src/**/*.ts", "src/**/*.tsx"],
+            "paths": {
+                "@api/*": ["./src/api/*"],
+                "@config/*": ["./src/config/*"],
+                "@features/*": ["./src/features/*"]
+            },
+            "project": [
+                "App.tsx",
+                "src/**/*.ts",
+                "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/contracts": {
+            "project": ["src/**/*.ts", "!dist/**", "!node_modules/**"]
         }
     }
 }

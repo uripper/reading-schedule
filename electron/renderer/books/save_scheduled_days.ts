@@ -1,4 +1,4 @@
-import { type Book } from "../../types/types.js";
+import type { Book } from "../../types/types.js";
 import { normalizeScheduledDays } from "./scheduled_days.js";
 import { normalizeShelfName } from "./shelf.js";
 

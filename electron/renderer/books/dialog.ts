@@ -1,11 +1,11 @@
-import {
-    type Book,
-    type BookDialogController,
-    type BookDialogOptions,
-    type BookFormRefs,
-    type BookSubmitPayload,
-    type OpenBookDialogArgs,
-    type OpenDialogOptions,
+import type {
+    Book,
+    BookDialogController,
+    BookDialogOptions,
+    BookFormRefs,
+    BookSubmitPayload,
+    OpenBookDialogArgs,
+    OpenDialogOptions,
 } from "../../types/types.js";
 import { bindDialogFocus, focusFirstError } from "../accessibility/index.js";
 import { bindBookLookup } from "../book_lookup.js";

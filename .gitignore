@@ -65,6 +65,15 @@ apps/mobile/android/**/build/
 apps/mobile/ios/**/build/
 apps/mobile/ios/DerivedData/
 
+# Expo mobile workspace outputs
+mobile/.expo/
+mobile/.expo-shared/
+mobile/android/.gradle/
+mobile/android/**/build/
+mobile/ios/**/build/
+mobile/ios/DerivedData/
+mobile/web-build/
+
 # Runtime artifacts
 *.log
 *.pid
@@ -86,5 +95,3 @@ sonar-project.properties
 .github/instructions/sonarqube_mcp.instructions.md
 .scratch/planner_state.sqlite3
 uv.lock
-electron/playwright-report/index.html
-electron/test-results/.last-run.json

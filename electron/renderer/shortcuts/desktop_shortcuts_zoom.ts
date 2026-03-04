@@ -1,5 +1,5 @@
 import { logError } from "@renderer/logger.js";
-import { type ZoomApi } from "../../types/types.js";
+import type { ZoomApi } from "../../types/types.js";
 import {
     isCommandPressed,
     isZoomInShortcut,

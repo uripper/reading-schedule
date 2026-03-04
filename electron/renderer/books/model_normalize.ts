@@ -1,4 +1,4 @@
-import { type Book, type BookInput } from "../../types/types.js";
+import type { Book, BookInput } from "../../types/types.js";
 import {
     DEFAULT_DIFFICULTY,
     DEFAULT_PRIORITY,

@@ -1,6 +1,6 @@
-import {
-    type TodayBookSummary,
-    type TodayScheduleSnapshot,
+import type {
+    TodayBookSummary,
+    TodayScheduleSnapshot,
 } from "../../../types/types.js";
 import { COVER_PLACEHOLDER } from "../../books/constants.js";
 import { el } from "../../dom.js";
@@ -80,15 +80,15 @@ function createBookItem(summary: TodayBookSummary): HTMLElement {
  * @param listNode List container that may contain cover images.
  */
 function applyCoverFallbacks(listNode: HTMLElement): void {
-    listNode
-        .querySelectorAll<HTMLImageElement>("img[data-fallback-cover='1']")
-        .forEach((img) => {
-            img.addEventListener("error", () => {
-                const NEXT_IMAGE = img;
-                NEXT_IMAGE.src = COVER_PLACEHOLDER;
-                NEXT_IMAGE.classList.add("is-empty");
-            });
+    for (const IMG of listNode.querySelectorAll<HTMLImageElement>(
+        "img[data-fallback-cover='1']",
+    )) {
+        IMG.addEventListener("error", () => {
+            const NEXT_IMAGE = IMG;
+            NEXT_IMAGE.src = COVER_PLACEHOLDER;
+            NEXT_IMAGE.classList.add("is-empty");
         });
+    }
 }
 
 /**

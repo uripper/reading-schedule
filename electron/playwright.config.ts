@@ -1,5 +1,12 @@
 import { defineConfig } from "@playwright/test";
 
+const RETRIES_ON_CI = 2;
+const RETRIES_OFF_CI = 0;
+let retries = RETRIES_OFF_CI;
+if (process.env.CI) {
+    retries = RETRIES_ON_CI;
+}
+
 export default defineConfig({
     expect: {
         timeout: 5_000,
@@ -7,7 +14,7 @@ export default defineConfig({
     forbidOnly: Boolean(process.env.CI),
     fullyParallel: false,
     reporter: [["list"], ["html", { open: "never" }]],
-    retries: process.env.CI ? 2 : 0,
+    retries,
     testDir: "./e2e",
     timeout: 30_000,
     use: {

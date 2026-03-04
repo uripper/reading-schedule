@@ -1,7 +1,4 @@
-import {
-    type AppRuntimeState,
-    type AppStateMutation,
-} from "../../types/types.js";
+import type { AppRuntimeState, AppStateMutation } from "../../types/types.js";
 import {
     bookByIdIndex,
     sessionsByBookIndex,

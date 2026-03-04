@@ -7,8 +7,8 @@ import {
 } from "../dist/renderer/title_filter.js";
 
 test("normalizeTitleFilterQuery trims and lowercases query text", () => {
-    const normalized = normalizeTitleFilterQuery("  AGAINST  ");
-    assert.equal(normalized, "against");
+    const NORMALIZED = normalizeTitleFilterQuery("  AGAINST  ");
+    assert.equal(NORMALIZED, "against");
 });
 
 test("titleMatchesNormalizedQuery supports empty query and substring matching", () => {

@@ -1,4 +1,4 @@
-import { type RenderBookGridOptions } from "../../types/types.js";
+import type { RenderBookGridOptions } from "../../types/types.js";
 import { bindCardEvents } from "./card_events.js";
 import { renderFlatBooks, renderGroupedBooks } from "./card_group_render.js";
 import { titleByIdMap } from "./title_lookup.js";

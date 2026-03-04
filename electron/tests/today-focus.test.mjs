@@ -12,7 +12,7 @@ import {
 } from "../dist/renderer/app/today_focus.js";
 
 test("today focus flow supports start, complete, and exit", () => {
-    const session = focusSessionFromRow({
+    const SESSION = focusSessionFromRow({
         book_id: "book-1",
         date: "2026-02-21",
         minutes: 25,
@@ -20,7 +20,7 @@ test("today focus flow supports start, complete, and exit", () => {
         title: "Ulysses",
         words_planned: 2500,
     });
-    let state = openFocusMode(session);
+    let state = openFocusMode(SESSION);
     assert.equal(state.isOpen, true);
     assert.equal(state.isStarted, false);
 

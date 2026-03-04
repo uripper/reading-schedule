@@ -1,10 +1,10 @@
-import { type WebContents } from "electron";
+import type { WebContents } from "electron";
 
-import {
-    type PlanGeneratePayload,
-    type PlannerSaveResult,
-    type PlannerStateLoadResult,
-    type PlannerStateSnapshot,
+import type { JsonValue } from "./types_core.js";
+import type {
+    PlanGeneratePayload,
+    PlannerSaveResult,
+    PlannerStateLoadResult,
 } from "./types_planner.js";
 
 export interface DownloadCoverPayload {
@@ -30,6 +30,10 @@ export interface RegisterIpcHandlersArgs {
         this: void,
         args: string[],
         payload?: PlanGeneratePayload,
+        context?: {
+            requestId?: string;
+            userDataDir?: string;
+        },
     ): Promise<unknown>;
     saveUploadedCover(
         this: void,
@@ -48,6 +52,6 @@ export interface RegisterIpcHandlersArgs {
     writeState(
         this: void,
         userDataDir: string,
-        payload: PlannerStateSnapshot,
+        payload: JsonValue,
     ): PlannerSaveResult;
 }

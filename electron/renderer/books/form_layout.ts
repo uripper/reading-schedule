@@ -33,12 +33,13 @@ function createStatusSelectLabel(): HTMLLabelElement {
 
     const SELECT = document.createElement("select");
     SELECT.id = "bookStatusSelectInput";
-    statusOptions().forEach((optionDef) => {
+
+    for (const OPTION_DEF of statusOptions()) {
         const OPTION = document.createElement("option");
-        OPTION.value = optionDef.value;
-        OPTION.textContent = optionDef.label;
+        OPTION.value = OPTION_DEF.value;
+        OPTION.textContent = OPTION_DEF.label;
         SELECT.append(OPTION);
-    });
+    }
 
     LABEL.append(SELECT);
     return LABEL;
@@ -77,19 +78,21 @@ function createScheduledDaysField(): HTMLFieldSetElement {
 
     const DAYS = document.createElement("div");
     DAYS.className = "book-scheduled-days-grid";
-    BOOK_WEEKDAYS.forEach((weekday) => {
+
+    for (const WEEKDAY of BOOK_WEEKDAYS) {
         const LABEL = document.createElement("label");
         LABEL.className = "book-scheduled-day";
 
         const INPUT = document.createElement("input");
         INPUT.type = "checkbox";
-        INPUT.value = weekday;
+        INPUT.value = WEEKDAY;
         INPUT.checked = true;
         INPUT.dataset.bookWeekday = "1";
 
-        LABEL.append(INPUT, document.createTextNode(weekday));
+        LABEL.append(INPUT, document.createTextNode(WEEKDAY));
         DAYS.append(LABEL);
-    });
+    }
+
     FIELDSET.append(DAYS);
 
     return FIELDSET;

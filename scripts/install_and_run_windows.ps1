@@ -145,12 +145,15 @@ try {
     & py -$PythonSpec -m venv .venv
   }
 
+  # Install all workspace dependencies so shared packages
+  # (e.g. packages/contracts) have their own node_modules available.
+  Invoke-Pnpm @("install", "-r", "--include-workspace-root", "--ignore-scripts=false")
+
   & .\.venv\Scripts\python.exe -m pip install --upgrade pip | Out-Null
   & .\.venv\Scripts\python.exe -m pip install -e . | Out-Null
 
   Push-Location .\electron
   try {
-    Invoke-Pnpm @("install", "--include=dev", "--ignore-scripts=false")
     Invoke-Pnpm @("rebuild", "electron")
     Invoke-Pnpm @("exec", "electron", "--version") | Out-Null
     $env:PYTHON_BIN = (Resolve-Path ..\.venv\Scripts\python.exe).Path

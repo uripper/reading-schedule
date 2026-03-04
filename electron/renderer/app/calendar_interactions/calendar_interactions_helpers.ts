@@ -1,7 +1,7 @@
-import {
-    type Book,
-    type ManualSessionBook,
-    type PlannerResult,
+import type {
+    Book,
+    ManualSessionBook,
+    PlannerResult,
 } from "../../../types/types.js";
 
 export {

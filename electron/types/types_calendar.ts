@@ -1,5 +1,5 @@
-import { type Book } from "./types_books.js";
-import { type PlannerScheduleRow } from "./types_planner.js";
+import type { Book } from "./types_books.js";
+import type { PlannerScheduleRow } from "./types_planner.js";
 
 export interface CalendarDisplayRow {
     book_id?: string;

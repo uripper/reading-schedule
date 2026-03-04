@@ -7,30 +7,30 @@ import {
 } from "../dist/renderer/app/experience.js";
 
 test("normalizeFeatureFlags keeps shipped gamification flag", () => {
-    const flags = normalizeFeatureFlags({
+    const FLAGS = normalizeFeatureFlags({
         gamificationEnabled: true,
     });
 
-    assert.equal(flags.gamificationEnabled, true);
+    assert.equal(FLAGS.gamificationEnabled, true);
 });
 
 test("normalizeFeatureFlags disables hidden placeholder flags", () => {
-    const flags = normalizeFeatureFlags({
+    const FLAGS = normalizeFeatureFlags({
         gamificationEnabled: false,
         recommendationsEnabled: true,
         socialEnabled: true,
     });
 
-    assert.equal(flags.socialEnabled, false);
-    assert.equal(flags.recommendationsEnabled, false);
+    assert.equal(FLAGS.socialEnabled, false);
+    assert.equal(FLAGS.recommendationsEnabled, false);
 });
 
 test("normalizePreferences disables hidden reminder settings", () => {
-    const preferences = normalizePreferences({
+    const PREFERENCES = normalizePreferences({
         reminderEnabled: true,
         reminderTime: "07:15",
     });
 
-    assert.equal(preferences.reminderEnabled, false);
-    assert.equal(preferences.reminderTime, "20:00");
+    assert.equal(PREFERENCES.reminderEnabled, false);
+    assert.equal(PREFERENCES.reminderTime, "20:00");
 });

@@ -1,8 +1,8 @@
-import {
-    type PlannerResult,
-    type PlannerScheduleRow,
-    type TodayScheduleSnapshot,
-    type UpdateTodayDashboardArgs,
+import type {
+    PlannerResult,
+    PlannerScheduleRow,
+    TodayScheduleSnapshot,
+    UpdateTodayDashboardArgs,
 } from "../../../types/types.js";
 import {
     dayMinutesForKey,
@@ -22,7 +22,6 @@ const NO_SCHEDULE_TEXT =
 const TODAY_DONE_TEXT = "All planned sessions for today are complete.";
 const NO_INCOMPLETE_TEXT =
     "No incomplete planned sessions ahead. Update books or settings to refresh your plan.";
-const FOCUS_SESSION_UPDATE_EVENT = "today-focus-session-updated";
 
 /**
  * Checks whether planner results contain any schedule rows.
@@ -64,33 +63,6 @@ function summaryText(
 }
 
 /**
- * Mirrors next focus session fields into data attributes for focus-mode controls.
- * @param button Today focus entry button element.
- * @param nextRow Next uncompleted row for today/future schedule.
- */
-function setFocusSessionDataset(
-    button: HTMLButtonElement,
-    nextRow: PlannerScheduleRow | null,
-): void {
-    const TARGET_BUTTON = button;
-    if (!nextRow) {
-        TARGET_BUTTON.dataset.focusSessionBookId = "";
-        TARGET_BUTTON.dataset.focusSessionDate = "";
-        TARGET_BUTTON.dataset.focusSessionIndex = "";
-        TARGET_BUTTON.dataset.focusSessionMinutes = "";
-        TARGET_BUTTON.dataset.focusSessionTitle = "";
-        TARGET_BUTTON.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
-        return;
-    }
-    TARGET_BUTTON.dataset.focusSessionBookId = String(nextRow.book_id);
-    TARGET_BUTTON.dataset.focusSessionDate = String(nextRow.date);
-    TARGET_BUTTON.dataset.focusSessionIndex = String(nextRow.session_index);
-    TARGET_BUTTON.dataset.focusSessionMinutes = String(nextRow.minutes);
-    TARGET_BUTTON.dataset.focusSessionTitle = String(nextRow.title);
-    TARGET_BUTTON.dispatchEvent(new Event(FOCUS_SESSION_UPDATE_EVENT));
-}
-
-/**
  * Computes bounded goal-completion percentage for today's minutes bar.
  * @param todayMinutesRaw Minutes logged today.
  * @param goalMinutesRaw Daily goal minutes.
@@ -116,7 +88,7 @@ function goalProgressPercent(
 }
 
 /**
- * Re-renders Today dashboard content, progress, and focus-session metadata.
+ * Re-renders Today dashboard content and progress widgets.
  * @param root0 Inputs used to render Today summary, books, and progress.
  * @param root0.lastResult Latest planner result.
  * @param root0.scheduleCompletions Completion map keyed by session/day-book keys.
@@ -135,12 +107,9 @@ export function updateTodayDashboard({
     featureFlags,
     defaultDailyGoalMinutes,
 }: UpdateTodayDashboardArgs): void {
-    const SUMMARY_NODE = el("todaySummary");
+    const SUMMARY_NODE = globalThis.document.getElementById("todaySummary");
     const GOAL_TEXT = el("todayGoalText");
     const GOAL_PROGRESS = el<HTMLProgressElement>("todayGoalProgress");
-    const FOCUS_ENTRY_BUTTON = el<HTMLButtonElement>(
-        "startSessionFromTodayBtn",
-    );
     const GAMIFICATION_CARD = el("gamificationCard");
     const STREAK_NODE = el("streakText");
 
@@ -150,8 +119,9 @@ export function updateTodayDashboard({
         books,
     );
     const NEXT = SNAPSHOT.nextUncompletedRow;
-    SUMMARY_NODE.textContent = summaryText(lastResult, SNAPSHOT, NEXT);
-    setFocusSessionDataset(FOCUS_ENTRY_BUTTON, NEXT);
+    if (SUMMARY_NODE instanceof HTMLElement) {
+        SUMMARY_NODE.textContent = summaryText(lastResult, SNAPSHOT, NEXT);
+    }
     renderTodayScheduledBooks(SNAPSHOT);
 
     const ACTIVITY_BY_DAY = dayMinutesFromActivity({

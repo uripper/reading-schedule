@@ -1,4 +1,4 @@
-import { type BookFormRefs, type BookStatus } from "../../types/types.js";
+import type { BookFormRefs, BookStatus } from "../../types/types.js";
 import { dayKey } from "../calendar/utils.js";
 import { COVER_PLACEHOLDER } from "./constants.js";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";

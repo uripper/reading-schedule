@@ -18,7 +18,7 @@ const EXPECTED_READING_MINUTES_WITH_ONLY_SCHEDULED = 40;
  * @param {Record<string, unknown>} overrides Book field overrides.
  * @returns {Record<string, unknown>} Book fixture.
  */
-const book = (overrides) => {
+const BOOK = (overrides) => {
     return {
         author: "",
         blocked_by: null,
@@ -50,7 +50,7 @@ const book = (overrides) => {
  * @param {string} bookId Book id.
  * @returns {Record<string, unknown>} Row fixture.
  */
-const row = (date, sessionIndex, bookId) => {
+const ROW = (date, sessionIndex, bookId) => {
     return {
         book_id: bookId,
         date,
@@ -62,40 +62,40 @@ const row = (date, sessionIndex, bookId) => {
 };
 
 test("buildStatsSnapshot combines planned and already-read finishes for current year", () => {
-    const year = new Date().getFullYear();
-    const janFirst = `${year}-01-01`;
-    const janSecond = `${year}-01-02`;
-    const febFirst = `${year}-02-01`;
-    const previousYearSession = `${year - 1}-12-31T12:00:00.000Z`;
+    const YEAR = new Date().getFullYear();
+    const JAN_FIRST = `${YEAR}-01-01`;
+    const JAN_SECOND = `${YEAR}-01-02`;
+    const FEB_FIRST = `${YEAR}-02-01`;
+    const PREVIOUS_YEAR_SESSION = `${YEAR - 1}-12-31T12:00:00.000Z`;
 
-    const rowOne = row(janFirst, 1, "book-1");
-    const rowTwo = row(janSecond, 1, "book-2");
+    const ROW_ONE = ROW(JAN_FIRST, 1, "book-1");
+    const ROW_TWO = ROW(JAN_SECOND, 1, "book-2");
 
-    const completions = {};
-    completions[sessionKeyFor(rowOne)] = true;
+    const COMPLETIONS = {};
+    COMPLETIONS[sessionKeyFor(ROW_ONE)] = true;
 
-    const snapshot = buildStatsSnapshot({
+    const SNAPSHOT = buildStatsSnapshot({
         books: [
-            book({
+            BOOK({
                 book_id: "book-1",
                 progress_percent: 30,
                 status: BOOK_STATUS_IN_PROGRESS,
             }),
-            book({
+            BOOK({
                 book_id: "book-2",
                 progress_percent: 0,
                 status: BOOK_STATUS_TO_READ,
             }),
-            book({
+            BOOK({
                 book_id: "book-3",
-                finished_at: febFirst,
+                finished_at: FEB_FIRST,
                 progress_percent: 100,
                 status: BOOK_STATUS_READ,
             }),
         ],
         lastResult: {
-            created_at: `${year}-01-01T00:00:00.000Z`,
-            schedule: [rowOne, rowTwo],
+            created_at: `${YEAR}-01-01T00:00:00.000Z`,
+            schedule: [ROW_ONE, ROW_TWO],
             summary: {
                 per_book: {
                     "book-1": { finished: true },
@@ -103,59 +103,59 @@ test("buildStatsSnapshot combines planned and already-read finishes for current 
                 },
             },
         },
-        scheduleCompletions: completions,
+        scheduleCompletions: COMPLETIONS,
         sessions: [
             {
                 book_id: "book-1",
-                created_at: `${year}-01-05T12:30:00.000Z`,
-                ended_at: `${year}-01-05T12:30:00.000Z`,
+                created_at: `${YEAR}-01-05T12:30:00.000Z`,
+                ended_at: `${YEAR}-01-05T12:30:00.000Z`,
                 id: "session-1",
                 minutes: 30,
                 notes: "",
                 pages_read: null,
                 source: "manual",
-                started_at: `${year}-01-05T12:00:00.000Z`,
+                started_at: `${YEAR}-01-05T12:00:00.000Z`,
                 title: "Book 1",
             },
             {
                 book_id: "book-1",
-                created_at: previousYearSession,
-                ended_at: previousYearSession,
+                created_at: PREVIOUS_YEAR_SESSION,
+                ended_at: PREVIOUS_YEAR_SESSION,
                 id: "session-2",
                 minutes: 45,
                 notes: "",
                 pages_read: null,
                 source: "manual",
-                started_at: previousYearSession,
+                started_at: PREVIOUS_YEAR_SESSION,
                 title: "Book 1",
             },
         ],
     });
 
-    assert.equal(snapshot.plannedFinishCount, 1);
-    assert.equal(snapshot.finishedThisYearCount, 1);
-    assert.equal(snapshot.projectedFinishCount, 2);
-    assert.equal(snapshot.completedSessionsToDate, 1);
-    assert.equal(snapshot.scheduledSessionsToDate, 2);
+    assert.equal(SNAPSHOT.plannedFinishCount, 1);
+    assert.equal(SNAPSHOT.finishedThisYearCount, 1);
+    assert.equal(SNAPSHOT.projectedFinishCount, 2);
+    assert.equal(SNAPSHOT.completedSessionsToDate, 1);
+    assert.equal(SNAPSHOT.scheduledSessionsToDate, 2);
     assert.equal(
-        snapshot.readingMinutesYear,
+        SNAPSHOT.readingMinutesYear,
         EXPECTED_READING_MINUTES_WITH_PLANNED_AND_FINISHED,
     );
-    assert.equal(snapshot.monthlyFinishes[0], 1);
-    assert.equal(snapshot.monthlyFinishes[1], 1);
+    assert.equal(SNAPSHOT.monthlyFinishes[0], 1);
+    assert.equal(SNAPSHOT.monthlyFinishes[1], 1);
 });
 
 test("buildStatsSnapshot uses completed schedule rows for reading minutes and streak", () => {
-    const year = new Date().getFullYear();
-    const today = todayKey();
-    const scheduleRow = row(today, 1, "book-1");
-    scheduleRow.minutes = 40;
-    const completions = {};
-    completions[sessionKeyFor(scheduleRow)] = true;
+    const YEAR = new Date().getFullYear();
+    const TODAY = todayKey();
+    const SCHEDULE_ROW = ROW(TODAY, 1, "book-1");
+    SCHEDULE_ROW.minutes = 40;
+    const COMPLETIONS = {};
+    COMPLETIONS[sessionKeyFor(SCHEDULE_ROW)] = true;
 
-    const snapshot = buildStatsSnapshot({
+    const SNAPSHOT = buildStatsSnapshot({
         books: [
-            book({
+            BOOK({
                 book_id: "book-1",
                 progress_percent: 10,
                 status: BOOK_STATUS_IN_PROGRESS,
@@ -163,22 +163,22 @@ test("buildStatsSnapshot uses completed schedule rows for reading minutes and st
         ],
         dailyGoalMinutes: 30,
         lastResult: {
-            created_at: `${year}-01-01T00:00:00.000Z`,
-            schedule: [scheduleRow],
+            created_at: `${YEAR}-01-01T00:00:00.000Z`,
+            schedule: [SCHEDULE_ROW],
             summary: {
                 per_book: {
                     "book-1": { finished: false },
                 },
             },
         },
-        scheduleCompletions: completions,
+        scheduleCompletions: COMPLETIONS,
         sessions: [],
     });
 
     assert.equal(
-        snapshot.readingMinutesYear,
+        SNAPSHOT.readingMinutesYear,
         EXPECTED_READING_MINUTES_WITH_ONLY_SCHEDULED,
     );
-    assert.equal(snapshot.activeDaysYear, 1);
-    assert.equal(snapshot.currentStreakDays, 1);
+    assert.equal(SNAPSHOT.activeDaysYear, 1);
+    assert.equal(SNAPSHOT.currentStreakDays, 1);
 });

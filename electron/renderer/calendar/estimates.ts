@@ -1,8 +1,8 @@
-import {
-    type BookGetter,
-    type CompletionChecker,
-    type EstimateRow,
-    type EstimateState,
+import type {
+    BookGetter,
+    CompletionChecker,
+    EstimateRow,
+    EstimateState,
 } from "../../types/types.js";
 import {
     estimateLabelWithoutPages,

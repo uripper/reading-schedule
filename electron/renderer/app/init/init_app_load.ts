@@ -1,9 +1,8 @@
-import {
-    type AppBootstrapContext,
-    type CreateLoadStateArgsInput,
-    type LoadedResultController,
-    type LoadStateArgs,
-    type SetStatus,
+import type {
+    AppBootstrapContext,
+    CreateLoadStateArgsInput,
+    LoadedResultController,
+    LoadStateArgs,
 } from "../../../types/types.js";
 import { applyPreferencesToDocument } from "../../accessibility/index.js";
 import { fillBooks } from "../../books.js";
@@ -16,7 +15,7 @@ import {
 } from "../experience/index.js";
 import { loadInitialData } from "../load_state.js";
 import { applyAppStateMutation } from "../state_mutations.js";
-import { bindTodayActions, finalizeInitialLoad } from "./init_helpers.js";
+import { finalizeInitialLoad } from "./init_helpers.js";
 
 /**
  * Creates `loadInitialData` bindings for runtime state mutation and startup flow.
@@ -98,46 +97,10 @@ function createLoadStateArgs(args: CreateLoadStateArgsInput): LoadStateArgs {
 }
 
 /**
- * Binds Today action handlers backed by central state mutation operations.
- * @param state Mutable runtime state.
- * @param handleScheduleMutation Dashboard refresh callback.
- * @param queuePersist Persist queue callback.
- * @param setStatus Status output callback.
- */
-function bindTodayActionsWithState(
-    state: AppBootstrapContext["state"],
-    handleScheduleMutation: () => void,
-    queuePersist: () => void,
-    setStatus: SetStatus,
-): void {
-    bindTodayActions({
-        getLastResult: () => state.lastResult,
-        getScheduleCompletions: () => state.scheduleCompletions,
-        getSessions: () => state.sessions,
-        queuePersist,
-        setScheduleCompletions: (nextCompletions) => {
-            applyAppStateMutation(state, {
-                scheduleCompletions: nextCompletions,
-                type: "set_schedule_completions",
-            });
-        },
-        setSessions: (nextSessions) => {
-            applyAppStateMutation(state, {
-                sessions: nextSessions,
-                type: "set_sessions",
-            });
-        },
-        setStatus,
-        updateTodayView: handleScheduleMutation,
-    });
-}
-
-/**
- * Loads the initial state of the application, applying it to the provided context and controller,
- * and binds actions for the "Today" view.
+ * Loads the initial state of the application and applies it to runtime context.
  * @param context Application bootstrap context containing APIs and state management functions
  * @param planController Controller for applying the loaded planner result to the application state
- * @returns Promise that resolves when the initial load and bindings are complete
+ * @returns Promise that resolves when initial load is complete
  */
 export async function loadStateAndBindTodayActions(
     context: AppBootstrapContext,
@@ -152,8 +115,6 @@ export async function loadStateAndBindTodayActions(
     const QUEUE_AUTO_PLAN_IF_READY = context.runtime.queueAutoPlanIfReady.bind(
         context.runtime,
     );
-    const HANDLE_SCHEDULE_MUTATION =
-        context.runtime.handleScheduleMutation.bind(context.runtime);
 
     await loadInitialData(
         createLoadStateArgs({
@@ -165,11 +126,5 @@ export async function loadStateAndBindTodayActions(
             state,
             updateTodayView: UPDATE_DASHBOARDS,
         }),
-    );
-    bindTodayActionsWithState(
-        state,
-        HANDLE_SCHEDULE_MUTATION,
-        QUEUE_PERSIST,
-        SET_STATUS,
     );
 }

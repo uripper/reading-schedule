@@ -14,67 +14,67 @@ const COVER_DIRECTORY = "book_covers";
 
 test("saveUploadedCover writes uploaded image to user data directory", () => {
     const { saveUploadedCover } = lookup;
-    const userDataDirectory = fs.mkdtempSync(
+    const USER_DATA_DIRECTORY = fs.mkdtempSync(
         path.join(os.tmpdir(), TEMP_DIRECTORY_PREFIX),
     );
 
     try {
-        const result = saveUploadedCover(
+        const RESULT = saveUploadedCover(
             DATA_URL_PNG_1X1,
             "book-test",
-            userDataDirectory,
+            USER_DATA_DIRECTORY,
         );
-        assert.ok(result.startsWith("file://"));
+        assert.ok(RESULT.startsWith("file://"));
 
-        const filePath = fileURLToPath(result);
-        assert.ok(fs.existsSync(filePath));
-        assert.equal(path.extname(filePath), ".png");
-        assert.equal(path.basename(path.dirname(filePath)), COVER_DIRECTORY);
+        const FILE_PATH = fileURLToPath(RESULT);
+        assert.ok(fs.existsSync(FILE_PATH));
+        assert.equal(path.extname(FILE_PATH), ".png");
+        assert.equal(path.basename(path.dirname(FILE_PATH)), COVER_DIRECTORY);
     } finally {
-        fs.rmSync(userDataDirectory, { force: true, recursive: true });
+        fs.rmSync(USER_DATA_DIRECTORY, { force: true, recursive: true });
     }
 });
 
 test("saveUploadedCover returns empty string for invalid input", () => {
     const { saveUploadedCover } = lookup;
-    const userDataDirectory = fs.mkdtempSync(
+    const USER_DATA_DIRECTORY = fs.mkdtempSync(
         path.join(os.tmpdir(), TEMP_DIRECTORY_PREFIX),
     );
 
     try {
-        const result = saveUploadedCover(
+        const RESULT = saveUploadedCover(
             "not-a-data-url",
             "book-test",
-            userDataDirectory,
+            USER_DATA_DIRECTORY,
         );
-        assert.equal(result, "");
+        assert.equal(RESULT, "");
     } finally {
-        fs.rmSync(userDataDirectory, { force: true, recursive: true });
+        fs.rmSync(USER_DATA_DIRECTORY, { force: true, recursive: true });
     }
 });
 
 test("saveUploadedCover returns a new local path when replacing an existing cover", () => {
     const { saveUploadedCover } = lookup;
-    const userDataDirectory = fs.mkdtempSync(
+    const USER_DATA_DIRECTORY = fs.mkdtempSync(
         path.join(os.tmpdir(), TEMP_DIRECTORY_PREFIX),
     );
 
     try {
-        const first = saveUploadedCover(
+        const FIRST = saveUploadedCover(
             DATA_URL_PNG_1X1,
             "book-test",
-            userDataDirectory,
+            USER_DATA_DIRECTORY,
         );
-        const second = saveUploadedCover(
+        const SECOND = saveUploadedCover(
             DATA_URL_PNG_1X1,
             "book-test",
-            userDataDirectory,
+            USER_DATA_DIRECTORY,
         );
 
-        assert.notEqual(first, second);
-        assert.ok(fs.existsSync(fileURLToPath(first)));
-        assert.ok(fs.existsSync(fileURLToPath(second)));
+        assert.notEqual(FIRST, SECOND);
+        assert.ok(fs.existsSync(fileURLToPath(FIRST)));
+        assert.ok(fs.existsSync(fileURLToPath(SECOND)));
     } finally {
-        fs.rmSync(userDataDirectory, { force: true, recursive: true });
+        fs.rmSync(USER_DATA_DIRECTORY, { force: true, recursive: true });
     }
 });

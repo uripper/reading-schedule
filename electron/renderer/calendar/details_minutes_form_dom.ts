@@ -1,4 +1,4 @@
-import { type CalendarRowWithFinish } from "../../types/types.js";
+import type { CalendarRowWithFinish } from "../../types/types.js";
 import { minPlannedMinutes } from "./details_minutes_form_helpers.js";
 
 const PLANNED_MINUTES_PLACEHOLDER = "Planned minutes";

@@ -1,7 +1,7 @@
-import {
-    type Book,
-    type CalendarRowWithFinish,
-    type DetailInteractionHandlers,
+import type {
+    Book,
+    CalendarRowWithFinish,
+    DetailInteractionHandlers,
 } from "../../types/types.js";
 import {
     setInputValueFromBookProgress,

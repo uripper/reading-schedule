@@ -27,20 +27,20 @@ const DEFAULT_FEATURE_FLAGS = {
  * @returns {import("../dist/types/types_app.js").LoadStateArgs} Load arguments.
  */
 function loadArgs(loadResult, statuses, logs, overrides = {}) {
-    const noop = () => undefined;
-    const base = {
+    const NOOP = () => undefined;
+    const BASE = {
         addLog: (message) => {
             logs.push(message);
         },
-        applyLoadedResult: noop,
-        applyPreferencesToDocument: noop,
-        fillBooks: noop,
-        fillPreferencesUI: noop,
-        fillSettings: noop,
+        applyLoadedResult: NOOP,
+        applyPreferencesToDocument: NOOP,
+        fillBooks: NOOP,
+        fillPreferencesUI: NOOP,
+        fillSettings: NOOP,
         normalizeFeatureFlags: () => DEFAULT_FEATURE_FLAGS,
         normalizePreferences: () => DEFAULT_PREFERENCES,
         normalizeScheduleCompletions: (value) => value,
-        onLoaded: noop,
+        onLoaded: NOOP,
         plannerApi: {
             loadState: () => Promise.resolve(loadResult),
             sample: () =>
@@ -49,22 +49,22 @@ function loadArgs(loadResult, statuses, logs, overrides = {}) {
                     settings: { start_date: "2026-04-01" },
                 }),
         },
-        setBlockedDayBooks: noop,
-        setFeatureFlags: noop,
-        setPreferences: noop,
-        setScheduleCompletions: noop,
-        setSessions: noop,
+        setBlockedDayBooks: NOOP,
+        setFeatureFlags: NOOP,
+        setPreferences: NOOP,
+        setScheduleCompletions: NOOP,
+        setSessions: NOOP,
         setStatus: (message, isError = false) => {
             statuses.push({ isError, message });
         },
-        updateTodayView: noop,
+        updateTodayView: NOOP,
     };
-    return { ...base, ...overrides };
+    return { ...BASE, ...overrides };
 }
 
 test("loadInitialData surfaces backup/journal/fresh recovery warnings", async () => {
-    const statuses = [];
-    const logs = [];
+    const STATUSES = [];
+    const LOGS = [];
 
     await loadInitialData(
         loadArgs(
@@ -73,8 +73,8 @@ test("loadInitialData surfaces backup/journal/fresh recovery warnings", async ()
                 state: { books: [], settings: { start_date: "2026-04-01" } },
                 warningCode: "RECOVERED_FROM_BACKUP",
             },
-            statuses,
-            logs,
+            STATUSES,
+            LOGS,
         ),
     );
     await loadInitialData(
@@ -84,8 +84,8 @@ test("loadInitialData surfaces backup/journal/fresh recovery warnings", async ()
                 state: { books: [], settings: { start_date: "2026-04-02" } },
                 warningCode: "RECOVERED_FROM_JOURNAL",
             },
-            statuses,
-            logs,
+            STATUSES,
+            LOGS,
         ),
     );
     await loadInitialData(
@@ -95,34 +95,34 @@ test("loadInitialData surfaces backup/journal/fresh recovery warnings", async ()
                 state: null,
                 warningCode: "STATE_RESET_FRESH",
             },
-            statuses,
-            logs,
+            STATUSES,
+            LOGS,
         ),
     );
 
     assert.equal(
-        statuses.some((entry) => entry.message.includes("backup copy")),
+        STATUSES.some((entry) => entry.message.includes("backup copy")),
         true,
     );
     assert.equal(
-        statuses.some((entry) => entry.message.includes("journal replay")),
+        STATUSES.some((entry) => entry.message.includes("journal replay")),
         true,
     );
     assert.equal(
-        statuses.some((entry) =>
+        STATUSES.some((entry) =>
             entry.message.includes("Started with fresh data"),
         ),
         true,
     );
     assert.equal(
-        logs.some((entry) => entry.includes("Migrated saved data from JSON")),
+        LOGS.some((entry) => entry.includes("Migrated saved data from JSON")),
         true,
     );
 });
 
 test("loadInitialData logs migration info for json-primary loads", async () => {
-    const statuses = [];
-    const logs = [];
+    const STATUSES = [];
+    const LOGS = [];
 
     await loadInitialData(
         loadArgs(
@@ -132,22 +132,22 @@ test("loadInitialData logs migration info for json-primary loads", async () => {
                 state: { books: [], settings: { start_date: "2026-05-01" } },
                 warningCode: "MIGRATED_JSON_TO_SQLITE",
             },
-            statuses,
-            logs,
+            STATUSES,
+            LOGS,
         ),
     );
 
-    assert.equal(statuses.length, 0);
+    assert.equal(STATUSES.length, 0);
     assert.equal(
-        logs.some((entry) => entry.includes("Migrated saved data from JSON")),
+        LOGS.some((entry) => entry.includes("Migrated saved data from JSON")),
         true,
     );
     assert.equal(
-        logs.some((entry) => entry.includes("State load source: json_primary")),
+        LOGS.some((entry) => entry.includes("State load source: json_primary")),
         true,
     );
     assert.equal(
-        logs.some((entry) => entry.includes("/tmp/planner_state.json")),
+        LOGS.some((entry) => entry.includes("/tmp/planner_state.json")),
         true,
     );
 });

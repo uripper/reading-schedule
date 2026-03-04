@@ -1,7 +1,7 @@
-import { type Book } from "./types_books.js";
-import { type JsonValue, type Session } from "./types_core.js";
-import { type FeatureFlags, type Preferences } from "./types_experience.js";
-import { type BookLookupItem } from "./types_lookup.js";
+import type { Book } from "./types_books.js";
+import type { JsonValue, Session } from "./types_core.js";
+import type { FeatureFlags, Preferences } from "./types_experience.js";
+import type { BookLookupItem } from "./types_lookup.js";
 
 export interface PlannerScheduleRow {
     book_id: string;
@@ -34,6 +34,10 @@ export interface PlannerResult {
     summary: PlannerSummary | null;
 }
 
+export type PlannerSolverProfile = "fast" | "balanced" | "thorough";
+
+export type PlannerToken = "mip" | "mip-fast" | "mip-balanced" | "mip-thorough";
+
 export type PlannerSettings = {
     start_date?: string;
     end_date?: string;
@@ -54,6 +58,7 @@ export type PlannerSettings = {
     books_show_word_count?: boolean;
     books_show_blocker_meta?: boolean;
     books_show_shelf_meta?: boolean;
+    planner_solver_profile?: PlannerSolverProfile;
 } & Record<string, JsonValue>;
 
 export interface PlannerStateSnapshot {
@@ -80,7 +85,7 @@ export interface LoadedPlannerState {
 
 export interface PlanGeneratePayload {
     books: Book[];
-    planner: "mip";
+    planner: PlannerToken;
     settings: PlannerSettings;
 }
 

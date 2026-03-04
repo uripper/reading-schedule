@@ -27,58 +27,58 @@ function session(bookId, endedAt) {
 }
 
 test("App state mutations keep derived indexes synchronized", () => {
-    const state = createRuntimeState();
-    const books = [
+    const STATE = createRuntimeState();
+    const BOOKS = [
         { book_id: "book-1", title: "One" },
         { book_id: "book-2", title: "Two" },
     ];
 
-    applyAppStateMutation(state, { books, type: "set_book_index" });
-    assert.equal(state.derived.bookById.get("book-1")?.title, "One");
+    applyAppStateMutation(STATE, { books: BOOKS, type: "set_book_index" });
+    assert.equal(STATE.derived.bookById.get("book-1")?.title, "One");
 
-    const sessions = [
+    const SESSIONS = [
         session("book-1", "2026-02-27T15:00:00.000Z"),
         session("book-2", "2026-02-27T16:00:00.000Z"),
         session("book-1", "2026-02-28T16:00:00.000Z"),
     ];
-    applyAppStateMutation(state, { sessions, type: "set_sessions" });
+    applyAppStateMutation(STATE, { sessions: SESSIONS, type: "set_sessions" });
 
-    const firstDayKey = isoLocalDayKey("2026-02-27T15:00:00.000Z");
-    assert.equal(state.derived.sessionsByDay.get(firstDayKey)?.length, 2);
-    assert.equal(state.derived.sessionsByBook.get("book-1")?.length, 2);
+    const FIRST_DAY_KEY = isoLocalDayKey("2026-02-27T15:00:00.000Z");
+    assert.equal(STATE.derived.sessionsByDay.get(FIRST_DAY_KEY)?.length, 2);
+    assert.equal(STATE.derived.sessionsByBook.get("book-1")?.length, 2);
 
-    const scheduleCompletions = {
+    const SCHEDULE_COMPLETIONS = {
         "2026-02-27|0|book-1": true,
         "2026-02-27|book-1": true,
     };
-    applyAppStateMutation(state, {
-        scheduleCompletions,
+    applyAppStateMutation(STATE, {
+        scheduleCompletions: SCHEDULE_COMPLETIONS,
         type: "set_schedule_completions",
     });
 
     assert.equal(
-        state.derived.completionBySessionKey["2026-02-27|0|book-1"],
+        STATE.derived.completionBySessionKey["2026-02-27|0|book-1"],
         true,
     );
     assert.equal(
-        state.derived.completionByDayBookKey["2026-02-27|book-1"],
+        STATE.derived.completionByDayBookKey["2026-02-27|book-1"],
         true,
     );
 
-    applyAppStateMutation(state, {
+    applyAppStateMutation(STATE, {
         blocked: true,
         key: "2026-02-27|book-1",
         type: "set_blocked_day_book",
     });
-    assert.equal(state.blockedDayBooks["2026-02-27|book-1"], true);
+    assert.equal(STATE.blockedDayBooks["2026-02-27|book-1"], true);
 
-    applyAppStateMutation(state, {
+    applyAppStateMutation(STATE, {
         blocked: false,
         key: "2026-02-27|book-1",
         type: "set_blocked_day_book",
     });
     assert.equal(
-        Object.hasOwn(state.blockedDayBooks, "2026-02-27|book-1"),
+        Object.hasOwn(STATE.blockedDayBooks, "2026-02-27|book-1"),
         false,
     );
 });

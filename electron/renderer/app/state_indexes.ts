@@ -1,8 +1,4 @@
-import {
-    type AppDerivedIndexes,
-    type Book,
-    type Session,
-} from "../../types/types.js";
+import type { AppDerivedIndexes, Book, Session } from "../../types/types.js";
 import { isoLocalDayKey } from "../sessions/utils.js";
 
 const COMPLETION_KEY_PART_DAY_BOOK = 2;
@@ -15,13 +11,14 @@ const COMPLETION_KEY_PART_SESSION = 3;
  */
 export function bookByIdIndex(books: Book[] = []): Map<string, Book> {
     const BY_ID = new Map<string, Book>();
-    books.forEach((book) => {
-        const BOOK_ID = String(book.book_id || "").trim();
+
+    for (const BOOK of books) {
+        const BOOK_ID = String(BOOK.book_id || "").trim();
         if (!BOOK_ID) {
-            return;
+            continue;
         }
-        BY_ID.set(BOOK_ID, book);
-    });
+        BY_ID.set(BOOK_ID, BOOK);
+    }
     return BY_ID;
 }
 
@@ -34,18 +31,19 @@ export function sessionsByDayIndex(
     sessions: Session[] = [],
 ): Map<string, Session[]> {
     const BY_DAY = new Map<string, Session[]>();
-    sessions.forEach((session) => {
-        const DAY_KEY = isoLocalDayKey(session.ended_at);
+
+    for (const SESSION of sessions) {
+        const DAY_KEY = isoLocalDayKey(SESSION.ended_at);
         if (!DAY_KEY) {
-            return;
+            continue;
         }
         const GROUPED = BY_DAY.get(DAY_KEY);
         if (GROUPED) {
-            GROUPED.push(session);
-            return;
+            GROUPED.push(SESSION);
+            continue;
         }
-        BY_DAY.set(DAY_KEY, [session]);
-    });
+        BY_DAY.set(DAY_KEY, [SESSION]);
+    }
     return BY_DAY;
 }
 
@@ -58,18 +56,19 @@ export function sessionsByBookIndex(
     sessions: Session[] = [],
 ): Map<string, Session[]> {
     const BY_BOOK = new Map<string, Session[]>();
-    sessions.forEach((session) => {
-        const BOOK_ID = String(session.book_id || "").trim();
+
+    for (const SESSION of sessions) {
+        const BOOK_ID = String(SESSION.book_id || "").trim();
         if (!BOOK_ID) {
-            return;
+            continue;
         }
         const GROUPED = BY_BOOK.get(BOOK_ID);
         if (GROUPED) {
-            GROUPED.push(session);
-            return;
+            GROUPED.push(SESSION);
+            continue;
         }
-        BY_BOOK.set(BOOK_ID, [session]);
-    });
+        BY_BOOK.set(BOOK_ID, [SESSION]);
+    }
     return BY_BOOK;
 }
 
@@ -86,16 +85,17 @@ export function splitCompletionIndexes(
 > {
     const COMPLETION_BY_SESSION_KEY: Record<string, boolean> = {};
     const COMPLETION_BY_DAY_BOOK_KEY: Record<string, boolean> = {};
-    Object.entries(scheduleCompletions).forEach(([key, value]) => {
-        const PARTS = key.split("|");
+
+    for (const [KEY, VALUE] of Object.entries(scheduleCompletions)) {
+        const PARTS = KEY.split("|");
         if (PARTS.length === COMPLETION_KEY_PART_SESSION) {
-            COMPLETION_BY_SESSION_KEY[key] = Boolean(value);
-            return;
+            COMPLETION_BY_SESSION_KEY[KEY] = Boolean(VALUE);
+            continue;
         }
         if (PARTS.length === COMPLETION_KEY_PART_DAY_BOOK) {
-            COMPLETION_BY_DAY_BOOK_KEY[key] = Boolean(value);
+            COMPLETION_BY_DAY_BOOK_KEY[KEY] = Boolean(VALUE);
         }
-    });
+    }
     return {
         completionByDayBookKey: COMPLETION_BY_DAY_BOOK_KEY,
         completionBySessionKey: COMPLETION_BY_SESSION_KEY,

@@ -1,8 +1,4 @@
-import {
-    type Book,
-    type BookFormRefs,
-    type LookupControl,
-} from "../../types/types.js";
+import type { Book, BookFormRefs, LookupControl } from "../../types/types.js";
 import { uid } from "../dom.js";
 import {
     fillScheduledDayControls,

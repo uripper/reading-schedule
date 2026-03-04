@@ -1,4 +1,4 @@
-import { type BookFormRefs } from "../../types/types.js";
+import type { BookFormRefs } from "../../types/types.js";
 import { el } from "../dom.js";
 
 /**

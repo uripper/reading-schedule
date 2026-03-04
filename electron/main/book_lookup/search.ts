@@ -1,9 +1,5 @@
-/**
- * @file Search orchestration for Open Library queries.
- */
-
-import { logInfo } from "../../renderer/logger.js";
-import { type SearchDoc, type SearchItem } from "../../types/types.js";
+import { logInfo } from "../../types/logger.js";
+import type { SearchDoc, SearchItem } from "../../types/types.js";
 import { toItem } from "./search_map.js";
 import { dedupeDocs, scoreDoc } from "./search_scoring.js";
 import { MIN_QUERY_LENGTH, SEARCH_OUTPUT_LIMIT } from "./search_shared.js";
@@ -13,8 +9,8 @@ const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 /**
  * Queries Open Library endpoints and returns ranked search items.
- * @param query User-entered search query text.
- * @param authorOnly Whether to search author field exclusively.
+ * @param query - User-entered search query text.
+ * @param authorOnly - Whether to search author field exclusively.
  * @returns Ranked search items limited to configured output size.
  */
 export async function searchBooks(
@@ -34,17 +30,17 @@ export async function searchBooks(
         URLS.map(async (url) => await fetchJson(url)),
     );
     const DOCS: SearchDoc[] = [];
-    RESPONSES.forEach((result) => {
+
+    for (const RESULT of RESPONSES) {
         if (
-            result.status !== "fulfilled" ||
-            !Array.isArray(result.value.docs)
+            RESULT.status !== "fulfilled" ||
+            !Array.isArray(RESULT.value.docs)
         ) {
-            return;
+            continue;
         }
-        result.value.docs.forEach((doc) => {
-            DOCS.push(doc);
-        });
-    });
+
+        DOCS.push(...RESULT.value.docs);
+    }
     logInfo(`[OpenLibrary] Raw results before dedup/scoring: ${DOCS.length}`);
     const SCORED = dedupeDocs(DOCS)
         .map((doc) => ({

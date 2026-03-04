@@ -1,8 +1,8 @@
-import {
-    type Book,
-    type PlannerScheduleRow,
-    type PlannerSettings,
-    type UpdatedRowsResult,
+import type {
+    Book,
+    PlannerScheduleRow,
+    PlannerSettings,
+    UpdatedRowsResult,
 } from "../../../types/types.js";
 import {
     sessionKeyFor,

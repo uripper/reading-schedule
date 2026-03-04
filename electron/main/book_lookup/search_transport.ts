@@ -2,7 +2,7 @@
  * @file HTTP transport helpers for Open Library book search.
  */
 
-import { type SearchResponse } from "../../types/types.js";
+import type { SearchResponse } from "../../types/types.js";
 import {
     HTTP_STATUS_ERROR_MIN,
     HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE,

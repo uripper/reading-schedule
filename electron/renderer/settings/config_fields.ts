@@ -1,12 +1,18 @@
-import {
-    type FieldDefinition,
-    type FieldGroupName,
-    type SelectOption,
+import type {
+    FieldDefinition,
+    FieldGroupName,
+    SelectOption,
 } from "../../types/types.js";
 
 const PLAN_MODE_OPTIONS: SelectOption[] = [
     { label: "Finish ASAP", value: "finish_soon" },
     { label: "Spread Across Window", value: "spread_out" },
+];
+
+const SOLVER_PROFILE_OPTIONS: SelectOption[] = [
+    { label: "Fast", value: "fast" },
+    { label: "Balanced", value: "balanced" },
+    { label: "Thorough", value: "thorough" },
 ];
 
 export const FIELDS: Record<FieldGroupName, FieldDefinition[]> = {
@@ -16,6 +22,13 @@ export const FIELDS: Record<FieldGroupName, FieldDefinition[]> = {
             id: "plan_mode",
             label: "Plan behavior",
             options: PLAN_MODE_OPTIONS,
+            type: "select",
+        },
+        {
+            hint: "Controls how much optimizer search to run before fallback.",
+            id: "planner_solver_profile",
+            label: "Solver profile",
+            options: SOLVER_PROFILE_OPTIONS,
             type: "select",
         },
         {

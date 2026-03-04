@@ -1,9 +1,9 @@
-import {
-    type Book,
-    type BookGroup,
-    type BookGroupBy,
-    type GroupBucket,
-    type GroupMeta,
+import type {
+    Book,
+    BookGroup,
+    BookGroupBy,
+    GroupBucket,
+    GroupMeta,
 } from "../../types/types.js";
 import { finishDateMetaForBook } from "./grouping_finish.js";
 import { shelfLabelForBook } from "./shelf.js";
@@ -173,9 +173,10 @@ function groupedBuckets(
     currentYear: number,
 ): Map<string, GroupBucket> {
     const BUCKETS = new Map<string, GroupBucket>();
-    books.forEach((book: Book) => {
+
+    for (const BOOK of books) {
         const META = metaForBook(
-            book,
+            BOOK,
             groupBy,
             finishDateByBookId,
             currentYear,
@@ -185,9 +186,9 @@ function groupedBuckets(
         }
         const BUCKET = BUCKETS.get(META.key);
         if (BUCKET) {
-            BUCKET.books.push(book);
+            BUCKET.books.push(BOOK);
         }
-    });
+    }
     return BUCKETS;
 }
 

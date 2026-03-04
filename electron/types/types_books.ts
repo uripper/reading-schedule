@@ -1,4 +1,4 @@
-import { type PlannerScheduleRow } from "./types_planner.js";
+import type { PlannerScheduleRow } from "./types_planner.js";
 
 export type BookStatus = "to_read" | "in_progress" | "read" | "dropped";
 

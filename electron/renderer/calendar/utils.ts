@@ -1,4 +1,4 @@
-import { type SortableRow } from "../../types/types.js";
+import type { SortableRow } from "../../types/types.js";
 import {
     CALENDAR_COLUMN_COUNT,
     SESSION_INDEX_PAD,

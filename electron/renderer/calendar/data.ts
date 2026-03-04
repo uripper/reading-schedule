@@ -1,8 +1,8 @@
-import {
-    type CalendarRow,
-    type CalendarRowWithFinish,
-    type CompletionChecker,
-    type RowsByDate,
+import type {
+    CalendarRow,
+    CalendarRowWithFinish,
+    CompletionChecker,
+    RowsByDate,
 } from "../../types/types.js";
 import { isOnOrAfterDay } from "../app/day_keys_compare.js";
 import { sessionKeyFor, sortRowsByDateAndSession } from "./utils.js";
@@ -140,13 +140,14 @@ export function rowsWithFinishFirst(
 ): CalendarRowWithFinish[] {
     const FINISH_ROWS: CalendarRowWithFinish[] = [];
     const OTHER_ROWS: CalendarRowWithFinish[] = [];
-    rows.forEach((row) => {
-        if (row.finish) {
-            FINISH_ROWS.push(row);
-            return;
+
+    for (const ROW of rows) {
+        if (ROW.finish === true) {
+            FINISH_ROWS.push(ROW);
+            continue;
         }
-        OTHER_ROWS.push(row);
-    });
+        OTHER_ROWS.push(ROW);
+    }
     return [...FINISH_ROWS, ...OTHER_ROWS];
 }
 
@@ -166,9 +167,10 @@ export function groupRowsByDate(
         NEXT_ACCUMULATOR[row.date].push(row);
         return NEXT_ACCUMULATOR;
     }, {} as RowsByDate);
-    Object.keys(GROUPED_ROWS).forEach((dateKey) => {
-        GROUPED_ROWS[dateKey] = rowsWithFinishFirst(GROUPED_ROWS[dateKey]);
-    });
+
+    for (const DATE_KEY of Object.keys(GROUPED_ROWS)) {
+        GROUPED_ROWS[DATE_KEY] = rowsWithFinishFirst(GROUPED_ROWS[DATE_KEY]);
+    }
     return GROUPED_ROWS;
 }
 

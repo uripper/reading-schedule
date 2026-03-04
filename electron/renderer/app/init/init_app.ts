@@ -1,6 +1,6 @@
-import {
-    type AppBootstrapContext,
-    type PlannerResult,
+import type {
+    AppBootstrapContext,
+    PlannerResult,
 } from "../../../types/types.js";
 import {
     bindBooksUI,

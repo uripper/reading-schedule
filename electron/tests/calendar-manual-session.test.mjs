@@ -13,29 +13,29 @@ import {
 } from "./calendar-manual-session.fixtures.mjs";
 
 test("nextSessionIndexForDate appends after highest index on the same day", () => {
-    const rows = indexRowsFixture();
+    const ROWS = indexRowsFixture();
 
-    assert.equal(nextSessionIndexForDate(rows, "2026-02-20"), 4);
-    assert.equal(nextSessionIndexForDate(rows, "2026-02-21"), 3);
-    assert.equal(nextSessionIndexForDate(rows, "2026-02-22"), 1);
+    assert.equal(nextSessionIndexForDate(ROWS, "2026-02-20"), 4);
+    assert.equal(nextSessionIndexForDate(ROWS, "2026-02-21"), 3);
+    assert.equal(nextSessionIndexForDate(ROWS, "2026-02-22"), 1);
 });
 
 test("wordsPlannedForManualSession uses historical pace when available", () => {
-    const rows = historicalPaceRowsFixture();
+    const ROWS = historicalPaceRowsFixture();
 
-    const words = wordsPlannedForManualSession({
+    const WORDS = wordsPlannedForManualSession({
         bookId: "book-1",
         difficulty: 3,
         minutes: 15,
-        rows,
+        rows: ROWS,
         settings: { difficulty_multiplier: { 3: 2 }, wpm_base: 250 },
     });
 
-    assert.equal(words, 1600);
+    assert.equal(WORDS, 1600);
 });
 
 test("wordsPlannedForManualSession falls back to settings-based speed", () => {
-    const words = wordsPlannedForManualSession({
+    const WORDS = wordsPlannedForManualSession({
         bookId: "book-1",
         difficulty: 4,
         minutes: 12,
@@ -46,32 +46,32 @@ test("wordsPlannedForManualSession falls back to settings-based speed", () => {
         },
     });
 
-    assert.equal(words, 1800);
+    assert.equal(WORDS, 1800);
 });
 
 test("rowsWithoutSession removes only the targeted row key", () => {
-    const rows = removableRowsFixture();
+    const ROWS = removableRowsFixture();
 
-    const nextRows = rowsWithoutSession(rows, "2026-02-20|2|book-1");
+    const NEXT_ROWS = rowsWithoutSession(ROWS, "2026-02-20|2|book-1");
 
-    assert.equal(nextRows.length, 2);
+    assert.equal(NEXT_ROWS.length, 2);
     assert.ok(
-        nextRows.some(
+        NEXT_ROWS.some(
             (row) => row.book_id === "book-1" && row.session_index === 1,
         ),
     );
     assert.ok(
-        nextRows.some(
+        NEXT_ROWS.some(
             (row) => row.book_id === "book-2" && row.session_index === 1,
         ),
     );
 });
 
 test("rowsWithoutSession preserves rows when session key is not found", () => {
-    const rows = removableRowsFixture();
+    const ROWS = removableRowsFixture();
 
-    const nextRows = rowsWithoutSession(rows, "2026-02-20|9|missing-book");
+    const NEXT_ROWS = rowsWithoutSession(ROWS, "2026-02-20|9|missing-book");
 
-    assert.notEqual(nextRows, rows);
-    assert.deepEqual(nextRows, rows);
+    assert.notEqual(NEXT_ROWS, ROWS);
+    assert.deepEqual(NEXT_ROWS, ROWS);
 });

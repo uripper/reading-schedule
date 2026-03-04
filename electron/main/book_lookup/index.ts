@@ -1,7 +1,7 @@
 /**
  * @file Book lookup and cover persistence helpers used by IPC handlers.
  */
-import fs from "node:fs";
+import * as fs from "node:fs";
 import { pathToFileURL } from "node:url";
 import { parseCoverDataUrl } from "./cover_data_url";
 import { extensionFor, filePathForCover, isHttpProtocol } from "./cover_paths";

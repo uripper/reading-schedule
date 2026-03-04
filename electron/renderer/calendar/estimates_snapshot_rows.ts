@@ -1,7 +1,7 @@
-import {
-    type CompletionChecker,
-    type EstimateRow,
-    type EstimateState,
+import type {
+    CompletionChecker,
+    EstimateRow,
+    EstimateState,
 } from "../../types/types.js";
 
 const SESSION_INDEX_PAD = 3;
@@ -118,20 +118,20 @@ export function plannedWordsBeforeAndThroughRow(
         today: TODAY,
     };
 
-    ROWS.forEach((candidate) => {
+    for (const CANDIDATE of ROWS) {
         const CANDIDATE_SORT_KEY = eligibleSortKeyForCandidate(
-            candidate,
+            CANDIDATE,
             CANDIDATE_STATE,
         );
         if (CANDIDATE_SORT_KEY === null) {
-            return;
+            continue;
         }
-        const PLANNED_WORDS = Math.max(0, Number(candidate.words_planned ?? 0));
+        const PLANNED_WORDS = Math.max(0, Number(CANDIDATE.words_planned ?? 0));
         through += PLANNED_WORDS;
         if (CANDIDATE_SORT_KEY < TARGET_SORT_KEY) {
             before += PLANNED_WORDS;
         }
-    });
+    }
 
     return { before, through };
 }

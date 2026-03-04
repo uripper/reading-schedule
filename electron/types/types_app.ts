@@ -1,15 +1,15 @@
-import { type Book, type BookProgressUpdates } from "./types_books.js";
-import { type CalendarHandlers } from "./types_calendar.js";
-import { type Session } from "./types_core.js";
-import { type FeatureFlags, type Preferences } from "./types_experience.js";
-import {
-    type LoadedPlannerState,
-    type PlannerApi,
-    type PlannerResult,
-    type PlannerScheduleRow,
-    type PlannerSettings,
-    type PlannerStateLoadResult,
-    type PlannerSummary,
+import type { Book, BookProgressUpdates } from "./types_books.js";
+import type { CalendarHandlers } from "./types_calendar.js";
+import type { Session } from "./types_core.js";
+import type { FeatureFlags, Preferences } from "./types_experience.js";
+import type {
+    LoadedPlannerState,
+    PlannerApi,
+    PlannerResult,
+    PlannerScheduleRow,
+    PlannerSettings,
+    PlannerStateLoadResult,
+    PlannerSummary,
 } from "./types_planner.js";
 
 export type SetStatus = (message: string, isError?: boolean) => void;
@@ -25,7 +25,7 @@ export interface DialogFocusOptions {
     initialFocusSelector?: string | null;
 }
 
-export type LogLevel = "info" | "error";
+export type LogLevel = "debug" | "info" | "error";
 
 export interface LogPayload {
     context?: Record<string, unknown>;
@@ -416,17 +416,6 @@ export interface FinalizeInitialLoadArgs {
     setStatus: SetStatus;
 }
 
-export interface BindTodayActionsArgs {
-    getLastResult(): PlannerResult | null;
-    getScheduleCompletions(): Record<string, boolean>;
-    getSessions(): Session[];
-    queuePersist(): void;
-    setScheduleCompletions(nextCompletions: Record<string, boolean>): void;
-    setSessions(nextSessions: Session[]): void;
-    setStatus: SetStatus;
-    updateTodayView(): void;
-}
-
 export interface TodayBookSummary {
     bookId: string;
     completedSessions: number;
@@ -442,43 +431,6 @@ export interface TodayScheduleSnapshot {
     completedSessions: number;
     nextUncompletedRow: PlannerScheduleRow | null;
     scheduledSessions: number;
-}
-
-export interface TodayFocusDomRefs {
-    focusCompleteButton: HTMLButtonElement;
-    focusEntryButton: HTMLButtonElement;
-    focusFeedback: HTMLElement;
-    focusPanel: HTMLElement;
-    focusSessionMeta: HTMLElement;
-    focusSessionText: HTMLElement;
-    focusStartButton: HTMLButtonElement;
-    focusTinyStartButton: HTMLButtonElement;
-}
-
-export interface BindTodayFocusActionsArgs {
-    getLastResult(): PlannerResult | null;
-    getScheduleCompletions(): Record<string, boolean>;
-    getSessions(): Session[];
-    queuePersist(): void;
-    setScheduleCompletions(nextCompletions: Record<string, boolean>): void;
-    setSessions(nextSessions: Session[]): void;
-    setStatus: SetStatus;
-    updateTodayView(): void;
-}
-
-export interface FocusSession {
-    bookId: string;
-    date: string;
-    minutes: number;
-    sessionIndex: number | null;
-    title: string;
-}
-
-export interface TodayFocusState {
-    feedback: string;
-    isOpen: boolean;
-    isStarted: boolean;
-    session: FocusSession | null;
 }
 
 export interface UpdateTodayDashboardArgs {

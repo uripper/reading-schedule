@@ -1,0 +1,33 @@
+{
+  "dependencies": {
+    "@expo/metro-runtime": "~55.0.6",
+    "@reading-schedule/contracts": "workspace:*",
+    "expo": "~55.0.4",
+    "expo-status-bar": "~55.0.4",
+    "expo-system-ui": "~55.0.9",
+    "expo-updates": "~55.0.12",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-native": "0.83.2",
+    "react-native-web": "^0.21.0",
+    "react-native-webview": "13.16.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "typescript": "^5.9.3"
+  },
+  "main": "index.js",
+  "name": "reading-schedule-mobile",
+  "private": true,
+  "scripts": {
+    "dev": "expo start --tunnel",
+    "dev:android": "expo start --android",
+    "dev:ios": "expo start --ios",
+    "dev:tunnel": "expo start --tunnel",
+    "dev:web": "expo start --web",
+    "lint": "biome check App.tsx src",
+    "lint:fix": "biome check App.tsx src --write",
+    "typecheck": "tsc --noEmit"
+  },
+  "version": "0.1.0"
+}

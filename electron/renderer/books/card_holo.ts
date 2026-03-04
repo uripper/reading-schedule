@@ -1,4 +1,4 @@
-import { type HoloPointerVars } from "../../types/types.js";
+import type { HoloPointerVars } from "../../types/types.js";
 
 const DEFAULT_POINTER_PERCENT = "50%";
 const ACTIVE_HOLO = "1";
@@ -10,7 +10,7 @@ const MAX_PERCENT = 100;
 
 /**
  * Returns a percent value clamped to [0, 100].
- * @param value Raw percent candidate.
+ * @param value - Raw percent candidate.
  * @returns Clamped percent.
  */
 function clampedPercent(value: number): number {
@@ -29,7 +29,7 @@ function clampedPercent(value: number): number {
 
 /**
  * Formats numeric percent as CSS percentage string.
- * @param value Percent number.
+ * @param value - Percent number.
  * @returns CSS percent text.
  */
 function asPercent(value: number): string {
@@ -39,7 +39,7 @@ function asPercent(value: number): string {
 
 /**
  * Resets all holo CSS variables to neutral defaults.
- * @param button Cover button.
+ * @param button - Cover button.
  */
 function defaultVars(button: HTMLButtonElement): void {
     button.style.setProperty("--pointer-x", DEFAULT_POINTER_PERCENT);
@@ -51,8 +51,8 @@ function defaultVars(button: HTMLButtonElement): void {
 
 /**
  * Writes computed holo CSS variables onto target button.
- * @param button Cover button.
- * @param vars Computed CSS values.
+ * @param button - Cover button.
+ * @param vars - Computed CSS values.
  */
 function applyVars(button: HTMLButtonElement, vars: HoloPointerVars): void {
     button.style.setProperty("--pointer-x", vars.pointerX);
@@ -63,12 +63,12 @@ function applyVars(button: HTMLButtonElement, vars: HoloPointerVars): void {
 
 /**
  * Computes pointer-driven CSS variable values for holo layers.
- * @param rect Cover-button bounding rect.
- * @param clientX Pointer client x-coordinate.
- * @param clientY Pointer client y-coordinate.
+ * @param rect - Cover-button bounding rect.
+ * @param clientX - Pointer client x-coordinate.
+ * @param clientY - Pointer client y-coordinate.
  * @returns CSS variable value object.
  */
-export function holoVarsForPointer(
+function holoVarsForPointer(
     rect: Pick<DOMRect, "left" | "top" | "width" | "height">,
     clientX: number,
     clientY: number,
@@ -97,7 +97,7 @@ export function holoVarsForPointer(
 
 /**
  * Binds pointer-reactive holo behavior for a cover button.
- * @param button Cover button with artwork.
+ * @param button - Cover button with artwork.
  */
 export function bindReadCardHolo(button: HTMLButtonElement): void {
     const TARGET_BUTTON = button;

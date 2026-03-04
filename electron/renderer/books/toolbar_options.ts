@@ -1,4 +1,4 @@
-import { type Book, type OptionDefinition } from "../../types/types.js";
+import type { Book, OptionDefinition } from "../../types/types.js";
 import {
     GROUP_BY_AUTHOR,
     GROUP_BY_FINISH_DATE,
@@ -76,8 +76,9 @@ export function shelfFilterOptions(books: Book[]): OptionDefinition[] {
         { label: "All Shelves", value: SHELF_FILTER_ALL },
         { label: "Unshelved", value: SHELF_FILTER_UNSHELVED },
     ];
-    uniqueShelves(books).forEach((shelfName) => {
-        OPTIONS.push({ label: shelfName, value: shelfName });
-    });
+
+    for (const SHELF_NAME of uniqueShelves(books)) {
+        OPTIONS.push({ label: SHELF_NAME, value: SHELF_NAME });
+    }
     return OPTIONS;
 }

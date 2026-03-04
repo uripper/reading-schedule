@@ -1,6 +1,6 @@
-import {
-    type CreateLookupStateControllerArgs,
-    type LookupStateController,
+import type {
+    CreateLookupStateControllerArgs,
+    LookupStateController,
 } from "../../types/types.js";
 import { describeLookup } from "./helpers.js";
 import { renderLookupResults, updateComboboxA11y } from "./render.js";

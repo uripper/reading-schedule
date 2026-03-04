@@ -1,0 +1,19 @@
+{
+    "expo": {
+        "android": {
+            "adaptiveIcon": {
+                "backgroundColor": "#F3F7EA"
+            },
+            "edgeToEdgeEnabled": true
+        },
+        "assetBundlePatterns": ["**/*"],
+        "ios": {
+            "supportsTablet": false
+        },
+        "name": "Bartleby Mobile",
+        "orientation": "portrait",
+        "slug": "bartleby-mobile",
+        "userInterfaceStyle": "light",
+        "version": "0.1.0"
+    }
+}

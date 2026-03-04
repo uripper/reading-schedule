@@ -1,6 +1,3 @@
-import assert from "node:assert/strict";
-import test from "node:test";
-
 /**
  * Builds a minimal load result fixture for startup auto-plan policy checks.
  * @param {"fresh"|"sqlite"|"json_primary"} source Persistence source.
@@ -34,11 +31,11 @@ function _startupArgs(scheduleLength, source) {
  * @returns {{ last_result: { schedule: Array<{date: string}> }}} Saved payload fixture.
  */
 function savedPayload(scheduleLength) {
-    const schedule = [];
+    const SCHEDULE = [];
     for (let index = 0; index < scheduleLength; index += 1) {
-        schedule.push({ date: "2026-02-27" });
+        SCHEDULE.push({ date: "2026-02-27" });
     }
     return {
-        last_result: { schedule },
+        last_result: { schedule: SCHEDULE },
     };
 }

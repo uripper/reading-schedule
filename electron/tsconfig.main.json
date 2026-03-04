@@ -10,5 +10,5 @@
         "types": ["node", "electron"]
     },
     "extends": "./tsconfig.json",
-    "include": ["*.ts", "contracts/**/*.ts", "main/**/*.ts", "types/**/*.ts"]
+    "include": ["*.ts", "main/**/*.ts", "types/**/*.ts"]
 }

@@ -1,9 +1,9 @@
-import {
-    type AppCalendarInteractionArgs,
-    type CalendarInteractionHandlers,
-    type CompletionRow,
-    type CompletionUpdate,
-    type ProgressUpdateInput,
+import type {
+    AppCalendarInteractionArgs,
+    CalendarInteractionHandlers,
+    CompletionRow,
+    CompletionUpdate,
+    ProgressUpdateInput,
 } from "../../../types/types.js";
 import { sessionKeyFor } from "../../calendar/utils.js";
 import {

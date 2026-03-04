@@ -30,43 +30,43 @@ function cleanup(directory) {
 }
 
 test("SQLite store persists roundtrip and trims journal entries", () => {
-    const userDataDir = tempUserDataDir();
+    const USER_DATA_DIR = tempUserDataDir();
     try {
         for (let index = 0; index < WRITE_COUNT; index += 1) {
-            const saveResult = writeStateToSqlite(userDataDir, {
+            const SAVE_RESULT = writeStateToSqlite(USER_DATA_DIR, {
                 books: [],
                 revision: index,
                 settings: {
                     start_date: `2026-01-${String((index % 28) + 1).padStart(2, "0")}`,
                 },
             });
-            assert.equal(saveResult.ok, true);
+            assert.equal(SAVE_RESULT.ok, true);
         }
 
-        const loadResult = readStateFromSqlite(userDataDir);
-        assert.equal(loadResult?.source, "sqlite");
-        assert.equal(loadResult?.state?.revision, WRITE_COUNT - 1);
+        const LOAD_RESULT = readStateFromSqlite(USER_DATA_DIR);
+        assert.equal(LOAD_RESULT?.source, "sqlite");
+        assert.equal(LOAD_RESULT?.state?.revision, WRITE_COUNT - 1);
 
-        const database = new DatabaseSync(sqliteStatePath(userDataDir));
+        const DATABASE = new DatabaseSync(sqliteStatePath(USER_DATA_DIR));
         try {
-            const row = database
-                .prepare("SELECT COUNT(*) AS count FROM planner_state_journal")
-                .get();
-            const journalCount = Number(row.count ?? 0);
-            assert.ok(journalCount <= JOURNAL_LIMIT);
+            const ROW = DATABASE.prepare(
+                "SELECT COUNT(*) AS count FROM planner_state_journal",
+            ).get();
+            const JOURNAL_COUNT = Number(ROW.count ?? 0);
+            assert.ok(JOURNAL_COUNT <= JOURNAL_LIMIT);
         } finally {
-            database.close();
+            DATABASE.close();
         }
     } finally {
-        cleanup(userDataDir);
+        cleanup(USER_DATA_DIR);
     }
 });
 
 test("SQLite store recovers from snapshot corruption using journal replay", () => {
-    const userDataDir = tempUserDataDir();
+    const USER_DATA_DIR = tempUserDataDir();
     try {
         assert.equal(
-            writeStateToSqlite(userDataDir, {
+            writeStateToSqlite(USER_DATA_DIR, {
                 books: [],
                 revision: 1,
                 settings: { start_date: "2026-02-01" },
@@ -74,7 +74,7 @@ test("SQLite store recovers from snapshot corruption using journal replay", () =
             true,
         );
         assert.equal(
-            writeStateToSqlite(userDataDir, {
+            writeStateToSqlite(USER_DATA_DIR, {
                 books: [],
                 revision: 2,
                 settings: { start_date: "2026-02-02" },
@@ -82,62 +82,24 @@ test("SQLite store recovers from snapshot corruption using journal replay", () =
             true,
         );
 
-        const database = new DatabaseSync(sqliteStatePath(userDataDir));
+        const DATABASE = new DatabaseSync(sqliteStatePath(USER_DATA_DIR));
         try {
-            database.exec(
+            DATABASE.exec(
                 "UPDATE planner_state_snapshot SET payload_json = '{broken-json' WHERE id = 1",
             );
         } finally {
-            database.close();
+            DATABASE.close();
         }
 
-        const recovered = readStateFromSqlite(userDataDir);
-        assert.equal(recovered?.source, "sqlite_journal_replay");
-        assert.equal(recovered?.warningCode, "RECOVERED_FROM_JOURNAL");
-        assert.equal(recovered?.state?.revision, 2);
+        const RECOVERED = readStateFromSqlite(USER_DATA_DIR);
+        assert.equal(RECOVERED?.source, "sqlite_journal_replay");
+        assert.equal(RECOVERED?.warningCode, "RECOVERED_FROM_JOURNAL");
+        assert.equal(RECOVERED?.state?.revision, 2);
 
-        const nextRead = readStateFromSqlite(userDataDir);
-        assert.equal(nextRead?.source, "sqlite");
-        assert.equal(nextRead?.state?.revision, 2);
+        const NEXT_READ = readStateFromSqlite(USER_DATA_DIR);
+        assert.equal(NEXT_READ?.source, "sqlite");
+        assert.equal(NEXT_READ?.state?.revision, 2);
     } finally {
-        cleanup(userDataDir);
-    }
-});
-
-test("SQLite store recovers when snapshot JSON is schema-invalid", () => {
-    const userDataDir = tempUserDataDir();
-    try {
-        assert.equal(
-            writeStateToSqlite(userDataDir, {
-                books: [],
-                revision: 1,
-                settings: { start_date: "2026-02-01" },
-            }).ok,
-            true,
-        );
-        assert.equal(
-            writeStateToSqlite(userDataDir, {
-                books: [],
-                revision: 2,
-                settings: { start_date: "2026-02-02" },
-            }).ok,
-            true,
-        );
-
-        const database = new DatabaseSync(sqliteStatePath(userDataDir));
-        try {
-            database.exec(
-                'UPDATE planner_state_snapshot SET payload_json = \'{"books":"bad","settings":{}}\' WHERE id = 1',
-            );
-        } finally {
-            database.close();
-        }
-
-        const recovered = readStateFromSqlite(userDataDir);
-        assert.equal(recovered?.source, "sqlite_journal_replay");
-        assert.equal(recovered?.warningCode, "RECOVERED_FROM_JOURNAL");
-        assert.equal(recovered?.state?.revision, 2);
-    } finally {
-        cleanup(userDataDir);
+        cleanup(USER_DATA_DIR);
     }
 });

@@ -1,4 +1,4 @@
-import { type BookWeekday } from "../../types/types.js";
+import type { BookWeekday } from "../../types/types.js";
 /**
  * @file Weekday contracts and normalization helpers for per-book scheduling.
  */
@@ -32,15 +32,17 @@ export function isBookWeekday(value: string): value is BookWeekday {
  */
 function orderedWeekdays(rawDays: unknown[]): BookWeekday[] {
     const SEEN = new Set<BookWeekday>();
-    rawDays.forEach((rawValue) => {
-        if (typeof rawValue !== "string") {
-            return;
+
+    for (const RAW_VALUE of rawDays) {
+        if (typeof RAW_VALUE !== "string") {
+            continue;
         }
-        const WEEKDAY = rawValue.trim();
+        const WEEKDAY = RAW_VALUE.trim();
         if (isBookWeekday(WEEKDAY)) {
             SEEN.add(WEEKDAY);
         }
-    });
+    }
+
     if (SEEN.size === 0) {
         return [...BOOK_WEEKDAYS];
     }

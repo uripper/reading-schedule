@@ -19,22 +19,22 @@ function parseArgs(argv) {
     let userDataDir = null;
     let force = false;
     for (let index = 0; index < argv.length; index += 1) {
-        const value = String(argv[index] || "");
-        if (value === "--input") {
+        const VALUE = String(argv[index] || "");
+        if (VALUE === "--input") {
             inputPath = String(argv[index + 1] || "");
             index += 1;
             continue;
         }
-        if (value === "--user-data-dir") {
+        if (VALUE === "--user-data-dir") {
             userDataDir = String(argv[index + 1] || "");
             index += 1;
             continue;
         }
-        if (value === "--force") {
+        if (VALUE === "--force") {
             force = true;
             continue;
         }
-        throw new TypeError(`Unknown argument: ${value}`);
+        throw new TypeError(`Unknown argument: ${VALUE}`);
     }
     if (!inputPath) {
         throw new TypeError(
@@ -49,20 +49,20 @@ function parseArgs(argv) {
  * @returns {string} Absolute default user-data directory.
  */
 function defaultUserDataDir() {
-    const home = os.homedir();
+    const HOME = os.homedir();
     if (process.platform === "win32") {
         let base = process.env.APPDATA || "";
         if (!base) {
-            base = path.join(home, "AppData", "Roaming");
+            base = path.join(HOME, "AppData", "Roaming");
         }
         return path.join(base, APP_NAME);
     }
     if (process.platform === "darwin") {
-        return path.join(home, "Library", "Application Support", APP_NAME);
+        return path.join(HOME, "Library", "Application Support", APP_NAME);
     }
     let base = process.env.XDG_CONFIG_HOME || "";
     if (!base) {
-        base = path.join(home, ".config");
+        base = path.join(HOME, ".config");
     }
     return path.join(base, APP_NAME);
 }
@@ -82,22 +82,22 @@ function countEntities(state) {
         sessions = state.sessions.length;
     }
     let scheduleRows = 0;
-    const lastResult = state.last_result;
+    const LAST_RESULT = state.last_result;
     if (
-        lastResult &&
-        typeof lastResult === "object" &&
-        Array.isArray(lastResult.schedule)
+        LAST_RESULT &&
+        typeof LAST_RESULT === "object" &&
+        Array.isArray(LAST_RESULT.schedule)
     ) {
-        scheduleRows = lastResult.schedule.length;
+        scheduleRows = LAST_RESULT.schedule.length;
     }
     let scheduleCompletions = 0;
-    const completions = state.schedule_completions;
+    const COMPLETIONS = state.schedule_completions;
     if (
-        completions &&
-        typeof completions === "object" &&
-        !Array.isArray(completions)
+        COMPLETIONS &&
+        typeof COMPLETIONS === "object" &&
+        !Array.isArray(COMPLETIONS)
     ) {
-        scheduleCompletions = Object.keys(completions).length;
+        scheduleCompletions = Object.keys(COMPLETIONS).length;
     }
     return { books, scheduleCompletions, scheduleRows, sessions };
 }
@@ -108,26 +108,28 @@ function countEntities(state) {
  * @returns {{ sourceType: string, inputPath: string, userDataDir: string, backups: string[], counts: Record<string, number> }} Recovery summary.
  */
 export function recoverStateFromArgs(argv) {
-    const args = parseArgs(argv);
-    const inputPath = path.resolve(args.inputPath);
-    if (!fs.existsSync(inputPath)) {
-        throw new TypeError(`Input file not found: ${inputPath}`);
+    const ARGS = parseArgs(argv);
+    const INPUT_PATH = path.resolve(ARGS.inputPath);
+    if (!fs.existsSync(INPUT_PATH)) {
+        throw new TypeError(`Input file not found: ${INPUT_PATH}`);
     }
-    const userDataDir = path.resolve(args.userDataDir || defaultUserDataDir());
-    const stamp = new Date().toISOString().replace(/[^0-9]/g, "");
-    const backups = backupTargets(userDataDir, stamp);
-    if (args.force !== true && backups.length > 0) {
+    const USER_DATA_DIR = path.resolve(
+        ARGS.userDataDir || defaultUserDataDir(),
+    );
+    const STAMP = new Date().toISOString().replace(/[^0-9]/g, "");
+    const BACKUPS = backupTargets(USER_DATA_DIR, STAMP);
+    if (ARGS.force !== true && BACKUPS.length > 0) {
         throw new TypeError(
             "Refusing to overwrite existing state without --force.",
         );
     }
-    const recovered = readStateFromInput(inputPath);
-    writeRecoveredState(userDataDir, recovered.state);
+    const RECOVERED = readStateFromInput(INPUT_PATH);
+    writeRecoveredState(USER_DATA_DIR, RECOVERED.state);
     return {
-        backups,
-        counts: countEntities(recovered.state),
-        inputPath,
-        sourceType: recovered.sourceType,
-        userDataDir,
+        backups: BACKUPS,
+        counts: countEntities(RECOVERED.state),
+        inputPath: INPUT_PATH,
+        sourceType: RECOVERED.sourceType,
+        userDataDir: USER_DATA_DIR,
     };
 }

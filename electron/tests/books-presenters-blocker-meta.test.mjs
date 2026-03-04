@@ -21,18 +21,18 @@ test("blockerMeta returns null when blocker id is missing", () => {
 });
 
 test("blockerMeta resolves blocker title while keeping blocker id", () => {
-    const result = blockerMeta(book({ blocked_by: "book-b" }), {
+    const RESULT = blockerMeta(book({ blocked_by: "book-b" }), {
         "book-b": "Powerful Python",
     });
-    assert.deepEqual(result, {
+    assert.deepEqual(RESULT, {
         blockerBookId: "book-b",
         label: "After: Powerful Python",
     });
 });
 
 test("blockerMeta falls back to blocker id when title lookup misses", () => {
-    const result = blockerMeta(book({ blocked_by: "book-b" }), {});
-    assert.deepEqual(result, {
+    const RESULT = blockerMeta(book({ blocked_by: "book-b" }), {});
+    assert.deepEqual(RESULT, {
         blockerBookId: "book-b",
         label: "After: book-b",
     });

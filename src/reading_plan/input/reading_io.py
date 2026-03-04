@@ -14,7 +14,11 @@ if TYPE_CHECKING:
 
 
 def load_books(path: str) -> list[Book]:
-    """Load books."""
+    """Load books.
+
+    :param path: path to the books file
+    :return: list of Book models
+    """
     books: list[Book] = []
     with Path(path).open(newline="", encoding="utf-8") as f:
         books.extend(book_from_data(dict(row)) for row in csv.DictReader(f))
@@ -25,7 +29,11 @@ def load_books(path: str) -> list[Book]:
 
 
 def load_settings(path: str) -> Settings:
-    """Load settings."""
+    """Load settings.
+
+    :param path: path to the settings file
+    :return: Settings model
+    """
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
     return settings_from_data(raw)
 
@@ -33,5 +41,10 @@ def load_settings(path: str) -> Settings:
 def load_inputs(
     books_path: str, settings_path: str
 ) -> tuple[list[Book], Settings]:
-    """Load inputs."""
+    """Load inputs.
+
+    :param books_path: path to the books file
+    :param settings_path: path to the settings file
+    :return: tuple of list of Book models and Settings model
+    """
     return load_books(books_path), load_settings(settings_path)

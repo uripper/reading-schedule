@@ -1,8 +1,4 @@
-import {
-    type Book,
-    type BookStatus,
-    type BookStatusFilter,
-} from "../../types/types.js";
+import type { Book, BookStatus, BookStatusFilter } from "../../types/types.js";
 import {
     BOOK_STATUS_DROPPED,
     BOOK_STATUS_FILTER_ALL,
@@ -107,8 +103,12 @@ export function statusFilterOptions(): Array<{
     const OPTIONS: Array<{ value: BookStatusFilter; label: string }> = [
         { label: "All Statuses", value: BOOK_STATUS_FILTER_ALL },
     ];
-    statusOptions().forEach((option) => {
-        OPTIONS.push(option);
-    });
+
+    for (const OPTION of statusOptions()) {
+        OPTIONS.push({
+            label: OPTION.label,
+            value: OPTION.value,
+        });
+    }
     return OPTIONS;
 }

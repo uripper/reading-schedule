@@ -26,52 +26,52 @@ function cleanup(directory) {
 }
 
 test("Facade reads JSON fallback once, migrates to SQLite, then reads SQLite", () => {
-    const userDataDir = tempUserDataDir();
+    const USER_DATA_DIR = tempUserDataDir();
     try {
-        const seed = {
+        const SEED = {
             books: [{ book_id: "book-1", title: "Migrated" }],
             settings: { start_date: "2026-03-01" },
         };
-        assert.equal(writeStateToJson(userDataDir, seed).ok, true);
+        assert.equal(writeStateToJson(USER_DATA_DIR, SEED).ok, true);
 
-        const firstRead = readState(userDataDir);
-        assert.equal(firstRead.source, "json_primary");
-        assert.equal(firstRead.warningCode, "MIGRATED_JSON_TO_SQLITE");
-        assert.equal(firstRead.state?.settings?.start_date, "2026-03-01");
+        const FIRST_READ = readState(USER_DATA_DIR);
+        assert.equal(FIRST_READ.source, "json_primary");
+        assert.equal(FIRST_READ.warningCode, "MIGRATED_JSON_TO_SQLITE");
+        assert.equal(FIRST_READ.state?.settings?.start_date, "2026-03-01");
 
-        assert.equal(fs.existsSync(sqliteStatePath(userDataDir)), true);
+        assert.equal(fs.existsSync(sqliteStatePath(USER_DATA_DIR)), true);
 
-        const secondRead = readState(userDataDir);
-        assert.equal(secondRead.source, "sqlite");
-        assert.equal(secondRead.state?.settings?.start_date, "2026-03-01");
+        const SECOND_READ = readState(USER_DATA_DIR);
+        assert.equal(SECOND_READ.source, "sqlite");
+        assert.equal(SECOND_READ.state?.settings?.start_date, "2026-03-01");
     } finally {
-        cleanup(userDataDir);
+        cleanup(USER_DATA_DIR);
     }
 });
 
 test("Facade prefers SQLite source when both SQLite and JSON are present", () => {
-    const userDataDir = tempUserDataDir();
+    const USER_DATA_DIR = tempUserDataDir();
     try {
         assert.equal(
-            writeStateToJson(userDataDir, {
+            writeStateToJson(USER_DATA_DIR, {
                 books: [{ book_id: "book-json", title: "JSON Source" }],
                 settings: { start_date: "2026-03-01" },
             }).ok,
             true,
         );
         assert.equal(
-            writeStateToSqlite(userDataDir, {
+            writeStateToSqlite(USER_DATA_DIR, {
                 books: [{ book_id: "book-sqlite", title: "SQLite Source" }],
                 settings: { start_date: "2026-03-02" },
             }).ok,
             true,
         );
 
-        const result = readState(userDataDir);
-        assert.equal(result.source, "sqlite");
-        assert.equal(result.state?.settings?.start_date, "2026-03-02");
-        assert.equal(result.state?.books?.[0]?.book_id, "book-sqlite");
+        const RESULT = readState(USER_DATA_DIR);
+        assert.equal(RESULT.source, "sqlite");
+        assert.equal(RESULT.state?.settings?.start_date, "2026-03-02");
+        assert.equal(RESULT.state?.books?.[0]?.book_id, "book-sqlite");
     } finally {
-        cleanup(userDataDir);
+        cleanup(USER_DATA_DIR);
     }
 });

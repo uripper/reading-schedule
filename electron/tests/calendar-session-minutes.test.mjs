@@ -27,35 +27,35 @@ function row(overrides = {}) {
 }
 
 test("nextRowsWithUpdatedMinutes updates minutes and recomputes planned words", () => {
-    const targetRow = row();
-    const previousRows = [
+    const TARGET_ROW = row();
+    const PREVIOUS_ROWS = [
         row({
             date: "2026-02-20",
             minutes: 10,
             session_index: 1,
             words_planned: 1000,
         }),
-        targetRow,
+        TARGET_ROW,
     ];
 
-    const updated = nextRowsWithUpdatedMinutes({
+    const UPDATED = nextRowsWithUpdatedMinutes({
         collectSettings: () => ({ wpm_base: 240 }),
         getBookById: () => ({ difficulty: 3 }),
         minutes: 20,
-        previousRows,
-        row: targetRow,
+        previousRows: PREVIOUS_ROWS,
+        row: TARGET_ROW,
     });
 
-    assert.ok(updated);
-    assert.equal(updated.normalizedMinutes, 20);
-    const edited = updated.rows.find((entry) => entry.session_index === 2);
-    assert.ok(edited);
-    assert.equal(edited.minutes, 20);
-    assert.equal(edited.words_planned, 2000);
+    assert.ok(UPDATED);
+    assert.equal(UPDATED.normalizedMinutes, 20);
+    const EDITED = UPDATED.rows.find((entry) => entry.session_index === 2);
+    assert.ok(EDITED);
+    assert.equal(EDITED.minutes, 20);
+    assert.equal(EDITED.words_planned, 2000);
 });
 
 test("nextRowsWithUpdatedMinutes returns null when target row is missing", () => {
-    const updated = nextRowsWithUpdatedMinutes({
+    const UPDATED = nextRowsWithUpdatedMinutes({
         collectSettings: () => ({ wpm_base: 240 }),
         getBookById: () => ({ difficulty: 3 }),
         minutes: 20,
@@ -63,7 +63,7 @@ test("nextRowsWithUpdatedMinutes returns null when target row is missing", () =>
         row: row(),
     });
 
-    assert.equal(updated, null);
+    assert.equal(UPDATED, null);
 });
 
 test("planned minutes editor starts closed", () => {
@@ -71,13 +71,13 @@ test("planned minutes editor starts closed", () => {
 });
 
 test("planned minutes editor opens only after explicit edit action", () => {
-    const openFromEdit = nextMinutesEditorOpenState("edit");
-    const openFromCancel = nextMinutesEditorOpenState("cancel");
-    const openFromSave = nextMinutesEditorOpenState("saved");
+    const OPEN_FROM_EDIT = nextMinutesEditorOpenState("edit");
+    const OPEN_FROM_CANCEL = nextMinutesEditorOpenState("cancel");
+    const OPEN_FROM_SAVE = nextMinutesEditorOpenState("saved");
 
-    assert.equal(openFromEdit, true);
-    assert.equal(openFromCancel, false);
-    assert.equal(openFromSave, false);
+    assert.equal(OPEN_FROM_EDIT, true);
+    assert.equal(OPEN_FROM_CANCEL, false);
+    assert.equal(OPEN_FROM_SAVE, false);
 });
 
 test("minutes summary visibility mirrors editor open state", () => {

@@ -1,7 +1,7 @@
-import {
-    type Book,
-    type BookGroup,
-    type StatusGroupDefinition,
+import type {
+    Book,
+    BookGroup,
+    StatusGroupDefinition,
 } from "../../types/types.js";
 import {
     BOOK_STATUS_DROPPED,
@@ -26,19 +26,20 @@ const STATUS_GROUPS: StatusGroupDefinition[] = [
  */
 export function groupsForEstimatedFinish(books: Book[] = []): BookGroup[] {
     const GROUPS: BookGroup[] = [];
-    STATUS_GROUPS.forEach((definition) => {
+
+    for (const DEFINITION of STATUS_GROUPS) {
         const GROUPED_BOOKS = books.filter((book) => {
-            return definition.statuses.includes(book.status);
+            return DEFINITION.statuses.includes(book.status);
         });
         if (!GROUPED_BOOKS.length) {
-            return;
+            continue;
         }
-        const KEY = `status:${definition.label.toLowerCase().replaceAll(/\s+/g, "_")}`;
+        const KEY = `status:${DEFINITION.label.toLowerCase().replaceAll(/\s+/g, "_")}`;
         GROUPS.push({
             books: GROUPED_BOOKS,
             key: KEY,
-            label: definition.label,
+            label: DEFINITION.label,
         });
-    });
+    }
     return GROUPS;
 }

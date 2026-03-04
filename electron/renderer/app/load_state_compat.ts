@@ -1,8 +1,8 @@
-import {
-    type FeatureFlags,
-    type LoadedPlannerState,
-    type PlannerResult,
-    type SessionInput,
+import type {
+    FeatureFlags,
+    LoadedPlannerState,
+    PlannerResult,
+    SessionInput,
 } from "../../types/types.js";
 
 type ScalarValue = string | number | boolean | null | undefined;
@@ -30,12 +30,12 @@ export function normalizeBlockedDayBooks(
     raw: Record<string, ScalarValue> = {},
 ): Record<string, boolean> {
     const OUT: Record<string, boolean> = {};
-    Object.entries(raw).forEach(([key, value]) => {
-        if (!key) {
-            return;
+    for (const [KEY, VALUE] of Object.entries(raw)) {
+        if (!KEY) {
+            continue;
         }
-        OUT[key] = Boolean(value);
-    });
+        OUT[KEY] = Boolean(VALUE);
+    }
     return OUT;
 }
 

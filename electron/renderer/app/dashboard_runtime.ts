@@ -1,4 +1,4 @@
-import { type DashboardRuntimeArgs } from "../../types/types.js";
+import type { DashboardRuntimeArgs } from "../../types/types.js";
 import { DEFAULT_PREFERENCES } from "./experience/index.js";
 
 /**

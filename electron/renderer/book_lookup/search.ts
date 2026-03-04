@@ -1,17 +1,13 @@
-import {
-    type BindBookLookupOptions,
-    type LookupBinding,
-    type LookupSearchState,
+import type {
+    BindBookLookupOptions,
+    LookupBinding,
+    LookupSearchState,
 } from "../../types/types.js";
-import { getPlannerApi } from "../app/planner_api.js";
 import { placeholderCoverSvg } from "./helpers.js";
+import { createLookupInputHandler } from "./input.js";
 import { handleLookupKeydown } from "./keyboard.js";
 import { lookupResultTarget } from "./render.js";
 import { createLookupStateController } from "./search_state.js";
-
-const LOOKUP_DELAY_MS = 260;
-const RESULT_LIMIT = 12;
-const MIN_QUERY_LENGTH = 2;
 
 interface LookupListHandlers {
     selectItem: (nextIndex: number) => void;
@@ -53,61 +49,6 @@ function bindLookupKeydown(
             setActiveIndex: handlers.setActiveIndex,
         });
     });
-}
-
-function createLookupInputHandler(
-    options: BindBookLookupOptions,
-    state: LookupSearchState,
-    clearResults: () => void,
-    refreshResults: () => void,
-): () => void {
-    const LOOKUP_STATE = state;
-    return (): void => {
-        const QUERY = options.searchInput.value.trim();
-        if (LOOKUP_STATE.timer !== null) {
-            clearTimeout(LOOKUP_STATE.timer);
-        }
-
-        if (QUERY.length < MIN_QUERY_LENGTH) {
-            clearResults();
-            options.metaEl.textContent = "";
-            return;
-        }
-
-        LOOKUP_STATE.timer = setTimeout((): void => {
-            LOOKUP_STATE.token += 1;
-            const CURRENT_TOKEN = LOOKUP_STATE.token;
-            getPlannerApi()
-                .searchBooks(QUERY)
-                .then((fetchedItems): void => {
-                    const ITEMS = fetchedItems.slice(0, RESULT_LIMIT);
-                    if (CURRENT_TOKEN !== LOOKUP_STATE.token) {
-                        return;
-                    }
-                    LOOKUP_STATE.currentItems = ITEMS;
-                    LOOKUP_STATE.activeIndex = -1;
-                    if (ITEMS.length > 0) {
-                        LOOKUP_STATE.activeIndex = 0;
-                    }
-                    if (ITEMS.length === 0) {
-                        clearResults();
-                        options.metaEl.textContent = "No matches found.";
-                        return;
-                    }
-                    refreshResults();
-                    options.metaEl.textContent =
-                        "Select a result to fill details.";
-                })
-                .catch((): void => {
-                    if (CURRENT_TOKEN !== LOOKUP_STATE.token) {
-                        return;
-                    }
-                    clearResults();
-                    options.metaEl.textContent =
-                        "Lookup unavailable; enter values manually.";
-                });
-        }, LOOKUP_DELAY_MS);
-    };
 }
 
 function createOutsideClickHandler(
@@ -167,12 +108,13 @@ export function bindBookLookup(options: BindBookLookupOptions): LookupBinding {
         selectItem: SELECT_ITEM,
         setActiveIndex: SET_ACTIVE_INDEX,
     });
-    const ON_INPUT = createLookupInputHandler(
-        options,
-        STATE,
-        CLEAR_RESULTS,
-        REFRESH_RESULTS,
-    );
+    const ON_INPUT = createLookupInputHandler({
+        clearResults: CLEAR_RESULTS,
+        metaEl: options.metaEl,
+        refreshResults: REFRESH_RESULTS,
+        searchInput: options.searchInput,
+        state: STATE,
+    });
     options.searchInput.addEventListener("input", ON_INPUT);
     bindLookupKeydown(
         options,

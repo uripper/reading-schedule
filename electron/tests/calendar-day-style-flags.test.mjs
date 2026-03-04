@@ -13,7 +13,7 @@ function day(dateText) {
 }
 
 test("dayStyleFlags marks today with selection-friendly flags", () => {
-    const flags = dayStyleFlags({
+    const FLAGS = dayStyleFlags({
         date: day("2026-02-21"),
         firstDate: day("2026-02-01"),
         keyForDay: "2026-02-21",
@@ -22,14 +22,14 @@ test("dayStyleFlags marks today with selection-friendly flags", () => {
         todayKey: "2026-02-21",
     });
 
-    assert.equal(flags.isToday, true);
-    assert.equal(flags.isPast, false);
-    assert.equal(flags.isSelected, true);
-    assert.equal(flags.isMuted, false);
+    assert.equal(FLAGS.isToday, true);
+    assert.equal(FLAGS.isPast, false);
+    assert.equal(FLAGS.isSelected, true);
+    assert.equal(FLAGS.isMuted, false);
 });
 
 test("dayStyleFlags marks non-month cells as muted", () => {
-    const flags = dayStyleFlags({
+    const FLAGS = dayStyleFlags({
         date: day("2026-01-31"),
         firstDate: day("2026-02-01"),
         keyForDay: "2026-01-31",
@@ -38,12 +38,12 @@ test("dayStyleFlags marks non-month cells as muted", () => {
         todayKey: "2026-02-21",
     });
 
-    assert.equal(flags.isMuted, true);
-    assert.equal(flags.hasFinishRow, true);
+    assert.equal(FLAGS.isMuted, true);
+    assert.equal(FLAGS.hasFinishRow, true);
 });
 
 test("dayStyleFlags ignores completed-only rows in month grid", () => {
-    const flags = dayStyleFlags({
+    const FLAGS = dayStyleFlags({
         date: day("2026-02-20"),
         firstDate: day("2026-02-01"),
         keyForDay: "2026-02-20",
@@ -52,5 +52,5 @@ test("dayStyleFlags ignores completed-only rows in month grid", () => {
         todayKey: "2026-02-21",
     });
 
-    assert.equal(flags.hasFinishRow, false);
+    assert.equal(FLAGS.hasFinishRow, false);
 });

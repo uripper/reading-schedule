@@ -8,7 +8,7 @@ import {
 } from "../dist/renderer/app/today_focus_bindings_helpers.js";
 
 test("findSessionRow matches using date, id, session index, title, and minutes", () => {
-    const row = {
+    const ROW = {
         book_id: "book-1",
         date: "2026-02-22",
         minutes: 10,
@@ -16,10 +16,10 @@ test("findSessionRow matches using date, id, session index, title, and minutes",
         title: "Ulysses",
         words_planned: 1000,
     };
-    const matched = findSessionRow(
+    const MATCHED = findSessionRow(
         {
             created_at: "",
-            schedule: [row],
+            schedule: [ROW],
             summary: null,
         },
         {
@@ -30,11 +30,11 @@ test("findSessionRow matches using date, id, session index, title, and minutes",
             title: "Ulysses",
         },
     );
-    assert.deepEqual(matched, row);
+    assert.deepEqual(MATCHED, ROW);
 });
 
 test("nextCompletionsWithRowMarkedComplete sets session and day-book keys", () => {
-    const row = {
+    const ROW = {
         book_id: "book-1",
         date: "2026-02-22",
         minutes: 10,
@@ -42,21 +42,21 @@ test("nextCompletionsWithRowMarkedComplete sets session and day-book keys", () =
         title: "Ulysses",
         words_planned: 1000,
     };
-    const completions = nextCompletionsWithRowMarkedComplete({}, row);
-    assert.equal(completions["2026-02-22|2|book-1"], true);
-    assert.equal(completions["2026-02-22|book-1"], true);
+    const COMPLETIONS = nextCompletionsWithRowMarkedComplete({}, ROW);
+    assert.equal(COMPLETIONS["2026-02-22|2|book-1"], true);
+    assert.equal(COMPLETIONS["2026-02-22|book-1"], true);
 });
 
 test("tinyStartSessionFromFocus logs a manual 3-minute session", () => {
-    const session = tinyStartSessionFromFocus({
+    const SESSION = tinyStartSessionFromFocus({
         bookId: "book-1",
         date: "2026-02-22",
         minutes: 10,
         sessionIndex: 1,
         title: "Ulysses",
     });
-    assert.equal(session.source, "manual");
-    assert.equal(session.book_id, "book-1");
-    assert.equal(session.title, "Ulysses");
-    assert.equal(session.minutes, 3);
+    assert.equal(SESSION.source, "manual");
+    assert.equal(SESSION.book_id, "book-1");
+    assert.equal(SESSION.title, "Ulysses");
+    assert.equal(SESSION.minutes, 3);
 });

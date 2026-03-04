@@ -1,8 +1,8 @@
-import {
-    type FeatureFlags,
-    type FeatureFlagsInput,
-    type Preferences,
-    type PreferencesInput,
+import type {
+    FeatureFlags,
+    FeatureFlagsInput,
+    Preferences,
+    PreferencesInput,
 } from "../../../types/types.js";
 import {
     RECOMMENDATIONS_AVAILABLE,

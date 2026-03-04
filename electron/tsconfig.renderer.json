@@ -1,14 +1,9 @@
 {
     "compilerOptions": {
-        "lib": ["ES2023", "DOM"],
+        "lib": ["ES2023", "DOM", "Dom.Iterable"],
         "module": "ESNext",
         "moduleResolution": "Bundler"
     },
     "extends": "./tsconfig.json",
-    "include": [
-        "contracts/**/*.ts",
-        "renderer/**/*.ts",
-        "renderer/**/*.d.ts",
-        "types/**/*.ts"
-    ]
+    "include": ["renderer/**/*.ts", "renderer/**/*.d.ts", "types/**/*.ts"]
 }

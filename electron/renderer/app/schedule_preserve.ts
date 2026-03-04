@@ -1,4 +1,4 @@
-import { type PlannerScheduleRow, type Session } from "../../types/types.js";
+import type { PlannerScheduleRow, Session } from "../../types/types.js";
 import { dayKeyFromDate, localDayKeyFromIso } from "./date_keys.js";
 import { isOnOrBeforeDay, isValidDayKey } from "./day_keys_compare.js";
 
@@ -44,27 +44,27 @@ function lockedDates(
     const PREVIOUS_DATES = new Set<string>();
     const TODAY_KEY = dayKeyFromDate(new Date());
 
-    previousRows.forEach((row) => {
-        const ROW_DATE = String(row.date || "");
+    for (const ROW of previousRows) {
+        const ROW_DATE = String(ROW.date || "");
         if (!isValidDayKey(ROW_DATE)) {
-            return;
+            continue;
         }
         PREVIOUS_DATES.add(ROW_DATE);
         if (isOnOrBeforeDay(ROW_DATE, TODAY_KEY)) {
             LOCKED.add(ROW_DATE);
         }
-    });
+    }
 
-    sessions.forEach((session) => {
-        const ENDED_AT = String(session.ended_at || "");
+    for (const SESSION of sessions) {
+        const ENDED_AT = String(SESSION.ended_at || "");
         const KEY = localDayKeyFromIso(ENDED_AT);
         if (!isValidDayKey(KEY || "")) {
-            return;
+            continue;
         }
         if (PREVIOUS_DATES.has(KEY) && isOnOrBeforeDay(KEY, TODAY_KEY)) {
             LOCKED.add(KEY);
         }
-    });
+    }
 
     return LOCKED;
 }
@@ -135,9 +135,11 @@ export function mergeScheduleRows(
     });
 
     const MERGED_BY_KEY = new Map<string, PlannerScheduleRow>();
-    [...KEPT_ROWS, ...NEW_ROWS].forEach((row) => {
-        MERGED_BY_KEY.set(scheduleKey(row), row);
-    });
+
+    for (const ROW of [...KEPT_ROWS, ...NEW_ROWS]) {
+        MERGED_BY_KEY.set(scheduleKey(ROW), ROW);
+    }
+
     return sortedRows([...MERGED_BY_KEY.values()]);
 }
 
@@ -157,11 +159,11 @@ export function pruneScheduleCompletions(
         rows.map((row) => dayBookCompletionKey(row)),
     );
     const OUT: Record<string, boolean> = {};
-    Object.entries(scheduleCompletions).forEach(([key, value]) => {
-        if (!ALLOWED_SESSION_KEYS.has(key) && !ALLOWED_DAY_BOOK_KEYS.has(key)) {
-            return;
+    for (const [KEY, VALUE] of Object.entries(scheduleCompletions)) {
+        if (!ALLOWED_SESSION_KEYS.has(KEY) && !ALLOWED_DAY_BOOK_KEYS.has(KEY)) {
+            continue;
         }
-        OUT[key] = Boolean(value);
-    });
+        OUT[KEY] = Boolean(VALUE);
+    }
     return OUT;
 }

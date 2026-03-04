@@ -1,4 +1,4 @@
-import { type OptionDefinition } from "../../types/types.js";
+import type { OptionDefinition } from "../../types/types.js";
 import { GROUP_OPTIONS_BASE, SORT_OPTIONS } from "./toolbar_options.js";
 
 /**
@@ -32,9 +32,10 @@ function createLabeledSelect(
     const SELECT = document.createElement("select");
     SELECT.id = selectId;
     SELECT.className = "books-control-select";
-    options.forEach((option) => {
-        SELECT.append(createOptionNode(option.value, option.label));
-    });
+
+    for (const OPTION of options) {
+        SELECT.append(createOptionNode(OPTION.value, OPTION.label));
+    }
     LABEL.append(SELECT);
     return { label: LABEL, select: SELECT };
 }

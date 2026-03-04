@@ -1,9 +1,9 @@
-import {
-    type ApplyLoadedResultArgs,
-    type ApplyPlannedDataArgs,
-    type PlannerResult,
-    type PlannerRunData,
-    type PlannerScheduleRow,
+import type {
+    ApplyLoadedResultArgs,
+    ApplyPlannedDataArgs,
+    PlannerResult,
+    PlannerRunData,
+    PlannerScheduleRow,
 } from "../../types/types.js";
 import {
     mergeScheduleRows,
