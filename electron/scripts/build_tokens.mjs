@@ -2,9 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const _FILENAME = fileURLToPath(import.meta.url);
-const _DIRNAME = path.dirname(_FILENAME);
-const ELECTRON_ROOT = path.resolve(_DIRNAME, "..");
+const Filename = fileURLToPath(import.meta.url);
+const Dirname = path.dirname(Filename);
+const ELECTRON_ROOT = path.resolve(Dirname, "..");
 const TOKEN_SOURCE_PATH = path.join(
     ELECTRON_ROOT,
     "tokens",
