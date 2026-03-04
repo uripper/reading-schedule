@@ -73,43 +73,49 @@ export function fillSettingsForm(
     settings: PlannerSettings,
     setDayOffs: (nextDayOffs: string[]) => void,
 ): void {
-    allFieldDefinitions().forEach((field) => {
-        const VALUE = settings[field.id];
-        if (field.type === "select") {
-            selectEl(field.id).value = selectSettingValue(field.id, VALUE);
-            return;
-        }
-        if (field.type === "checkbox") {
-            inputEl(field.id).checked = checkboxSettingValue(VALUE);
-            return;
-        }
-        inputEl(field.id).value = settingValueText(VALUE);
-    });
-    const MINUTES_BY_WEEKDAY = settings.minutes_by_weekday ?? {};
+    populateSettingsFields(settings);
 
-    WEEKDAYS.forEach(([key]) => {
-        inputEl(`minutes_${key}`).value = String(MINUTES_BY_WEEKDAY[key]);
-    });
     const RAW_DAY_OFFS = settings.days_off;
     const NEXT_DAY_OFFS: string[] = [];
     if (Array.isArray(RAW_DAY_OFFS)) {
-        RAW_DAY_OFFS.forEach((dayOff) => {
-            if (typeof dayOff === "string") {
-                NEXT_DAY_OFFS.push(dayOff);
+        for (const DAY_OFF of RAW_DAY_OFFS) {
+            if (typeof DAY_OFF === "string") {
+                NEXT_DAY_OFFS.push(DAY_OFF);
             }
-        });
+        }
     }
     NEXT_DAY_OFFS.sort((left, right) => left.localeCompare(right));
     setDayOffs(NEXT_DAY_OFFS);
     const DIFFICULTY_MULTIPLIER = settings.difficulty_multiplier ?? {};
 
-    numberLevels().forEach((level) => {
-        const ID = `diff_${level}`;
-        const DIFFICULTY_KEY = String(level);
+    for (const LEVEL of numberLevels()) {
+        const ID = `diff_${LEVEL}`;
+        const DIFFICULTY_KEY = String(LEVEL);
         let value = DEFAULT_DIFFICULTY_MULTIPLIER;
         if (Object.hasOwn(DIFFICULTY_MULTIPLIER, DIFFICULTY_KEY)) {
             value = DIFFICULTY_MULTIPLIER[DIFFICULTY_KEY];
         }
         inputEl(ID).value = String(value);
-    });
+    }
+}
+
+function populateSettingsFields(settings: PlannerSettings) {
+    for (const FIELD of allFieldDefinitions()) {
+        const VALUE = settings[FIELD.id];
+        if (FIELD.type === "select") {
+            selectEl(FIELD.id).value = selectSettingValue(FIELD.id, VALUE);
+            continue;
+        }
+        if (FIELD.type === "checkbox") {
+            inputEl(FIELD.id).checked = checkboxSettingValue(VALUE);
+            continue;
+        }
+        inputEl(FIELD.id).value = settingValueText(VALUE);
+    }
+
+    const MINUTES_BY_WEEKDAY = settings.minutes_by_weekday ?? {};
+
+    for (const [KEY] of WEEKDAYS) {
+        inputEl(`minutes_${KEY}`).value = String(MINUTES_BY_WEEKDAY[KEY]);
+    }
 }

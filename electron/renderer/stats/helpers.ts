@@ -119,24 +119,24 @@ export function plannedFinishBookIds(
     const BY_BOOK_ID = finishDatesByBookId(ROWS);
     const PER_BOOK_SUMMARY = lastResult?.summary?.per_book ?? {};
 
-    Object.entries(BY_BOOK_ID).forEach(([bookId, dateKey]) => {
-        const FINISH_YEAR = yearFromDateKey(dateKey);
+    for (const [BOOK_ID, DATE_KEY] of Object.entries(BY_BOOK_ID)) {
+        const FINISH_YEAR = yearFromDateKey(String(DATE_KEY));
         if (FINISH_YEAR !== year) {
-            return;
+            continue;
         }
-        if (Object.hasOwn(PER_BOOK_SUMMARY, bookId)) {
-            const SUMMARY = PER_BOOK_SUMMARY[bookId];
+        if (Object.hasOwn(PER_BOOK_SUMMARY, BOOK_ID)) {
+            const SUMMARY = PER_BOOK_SUMMARY[BOOK_ID];
             if (SUMMARY.finished === false) {
-                return;
+                continue;
             }
         }
-        const MONTH_INDEX = monthIndexFromDateKey(dateKey);
+        const MONTH_INDEX = monthIndexFromDateKey(String(DATE_KEY));
         if (MONTH_INDEX === null) {
-            return;
+            continue;
         }
-        IDS.add(bookId);
-        MONTH_BY_BOOK_ID.set(bookId, MONTH_INDEX);
-    });
+        IDS.add(BOOK_ID);
+        MONTH_BY_BOOK_ID.set(BOOK_ID, MONTH_INDEX);
+    }
     return { ids: IDS, monthByBookId: MONTH_BY_BOOK_ID };
 }
 
@@ -198,13 +198,13 @@ export function averageProgress(books: Book[]): {
     let startedCount = 0;
     let totalPercent = 0;
 
-    books.forEach((book) => {
-        const PROGRESS = Number(book.progress_percent || 0);
+    for (const BOOK of books) {
+        const PROGRESS = Number(BOOK.progress_percent || 0);
         if (PROGRESS > 0) {
             startedCount += 1;
         }
         totalPercent += PROGRESS;
-    });
+    }
     return {
         averagePercent: Math.round((totalPercent / books.length) * 10) / 10,
         startedCount,
@@ -224,22 +224,21 @@ export function monthlyFinishCounts(
     plannedMonths: Map<string, number>,
 ): number[] {
     const COUNTS = Array.from({ length: MONTHS_PER_YEAR }, () => 0);
+    for (const MONTH_INDEX of plannedMonths.values()) {
+        COUNTS[MONTH_INDEX] += 1;
+    }
 
-    plannedMonths.forEach((monthIndex) => {
-        COUNTS[monthIndex] += 1;
-    });
-
-    books.forEach((book) => {
-        if (!readThisYearIds.has(book.book_id)) {
-            return;
+    for (const BOOK of books) {
+        if (!readThisYearIds.has(BOOK.book_id)) {
+            continue;
         }
         const MONTH_INDEX = monthIndexFromDateKey(
-            String(book.finished_at ?? ""),
+            String(BOOK.finished_at ?? ""),
         );
         if (MONTH_INDEX === null) {
-            return;
+            continue;
         }
         COUNTS[MONTH_INDEX] += 1;
-    });
+    }
     return COUNTS;
 }

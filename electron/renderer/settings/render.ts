@@ -39,12 +39,12 @@ function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
     if (field.type === "select") {
         node = document.createElement("select");
 
-        field.options.forEach((option) => {
+        for (const OPTION of field.options) {
             const OPTION_NODE = document.createElement("option");
-            OPTION_NODE.value = String(option.value);
-            OPTION_NODE.textContent = String(option.label);
+            OPTION_NODE.value = String(OPTION.value);
+            OPTION_NODE.textContent = String(OPTION.label);
             node.append(OPTION_NODE);
-        });
+        }
     } else {
         node = document.createElement("input");
         node.type = field.type;

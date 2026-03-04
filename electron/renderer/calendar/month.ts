@@ -37,25 +37,11 @@ function mergeDisplayRows(
         }
         COMPLETED_BY_BOOK_ID.set(ROW.book_id, ROW);
     }
-    const OUT: CalendarDisplayRow[] = [];
-    const SEEN_BOOK_IDS = new Set<string>();
-
-    for (const ROW of plannedRows) {
-        if (typeof ROW.book_id !== "string" || ROW.book_id === "") {
-            OUT.push(ROW);
-            continue;
-        }
-        if (COMPLETED_BY_BOOK_ID.has(ROW.book_id)) {
-            OUT.push({
-                ...ROW,
-                finish: true,
-            });
-            SEEN_BOOK_IDS.add(ROW.book_id);
-            continue;
-        }
-        OUT.push(ROW);
-        SEEN_BOOK_IDS.add(ROW.book_id);
-    }
+    const {
+        SEEN_BOOK_IDS,
+        OUT,
+    }: { SEEN_BOOK_IDS: Set<string>; OUT: CalendarDisplayRow[] } =
+        processReadingRows(plannedRows, COMPLETED_BY_BOOK_ID);
 
     for (const [BOOK_ID, ROW] of COMPLETED_BY_BOOK_ID.entries()) {
         if (SEEN_BOOK_IDS.has(BOOK_ID)) {
@@ -75,6 +61,32 @@ function mergeDisplayRows(
         OTHER_ROWS.push(ROW);
     }
     return [...FINISH_ROWS, ...OTHER_ROWS];
+}
+
+function processReadingRows(
+    plannedRows: CalendarDisplayRow[],
+    completedByBookId: Map<string, CalendarDisplayRow>,
+) {
+    const OUT: CalendarDisplayRow[] = [];
+    const SEEN_BOOK_IDS = new Set<string>();
+
+    for (const ROW of plannedRows) {
+        if (typeof ROW.book_id !== "string" || ROW.book_id === "") {
+            OUT.push(ROW);
+            continue;
+        }
+        if (completedByBookId.has(ROW.book_id)) {
+            OUT.push({
+                ...ROW,
+                finish: true,
+            });
+            SEEN_BOOK_IDS.add(ROW.book_id);
+            continue;
+        }
+        OUT.push(ROW);
+        SEEN_BOOK_IDS.add(ROW.book_id);
+    }
+    return { OUT, SEEN_BOOK_IDS };
 }
 
 /**
