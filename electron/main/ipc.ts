@@ -3,8 +3,8 @@ import {
     parsePlanGenerateResult,
     parseSamplePayload,
 } from "@reading-schedule/contracts";
-import { logDebug } from "@renderer/logger.js";
 import { ipcMain } from "electron";
+import { logDebug } from "../types/logger.js";
 import type {
     DownloadCoverPayload,
     JsonValue,

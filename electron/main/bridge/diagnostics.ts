@@ -1,5 +1,5 @@
 import * as fs from "node:fs";
-import { logDebug } from "@renderer/logger.js";
+import { logDebug } from "../../types/logger.js";
 import {
     LOG_TAIL_MAX_BYTES,
     LOG_TAIL_MAX_LINES,

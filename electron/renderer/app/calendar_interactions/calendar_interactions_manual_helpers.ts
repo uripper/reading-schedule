@@ -48,7 +48,7 @@ function historicalWordsPerMinute(
         totalMinutes += ROW_MINUTES;
         totalWords += ROW_WORDS;
     }
-    
+
     if (totalMinutes <= 0 || totalWords <= 0) {
         return null;
     }

@@ -54,7 +54,6 @@ export function totalsFromSummary(
     return TOTALS;
 }
 
-
 /**
  * Creates persistence helpers for saving draft state with debounced writes.
  * @param root0 Dependencies and state required for persistence queue management.

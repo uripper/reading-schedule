@@ -1,5 +1,5 @@
 import { parseBridgeResponseEnvelope } from "@reading-schedule/contracts";
-import { logDebug } from "@renderer/logger.js";
+import { logDebug } from "../types/logger.js";
 import type { JsonValue, PlanGeneratePayload } from "../types/types.js";
 import { PLANNER_MODULE_CANDIDATES } from "./bridge/constants.js";
 import { resolveExecutionContext } from "./bridge/context.js";

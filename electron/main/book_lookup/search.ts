@@ -1,4 +1,4 @@
-import { logInfo } from "@renderer/logger.js";
+import { logInfo } from "../../types/logger.js";
 import type { SearchDoc, SearchItem } from "../../types/types.js";
 import { toItem } from "./search_map.js";
 import { dedupeDocs, scoreDoc } from "./search_scoring.js";
