@@ -38,22 +38,22 @@ function mergeDisplayRows(
         COMPLETED_BY_BOOK_ID.set(ROW.book_id, ROW);
     }
     const {
-        SEEN_BOOK_IDS,
-        OUT,
-    }: { SEEN_BOOK_IDS: Set<string>; OUT: CalendarDisplayRow[] } =
+        SeenBookIds,
+        Out,
+    }: { SeenBookIds: Set<string>; Out: CalendarDisplayRow[] } =
         processReadingRows(plannedRows, COMPLETED_BY_BOOK_ID);
 
     for (const [BOOK_ID, ROW] of COMPLETED_BY_BOOK_ID.entries()) {
-        if (SEEN_BOOK_IDS.has(BOOK_ID)) {
+        if (SeenBookIds.has(BOOK_ID)) {
             continue;
         }
-        SEEN_BOOK_IDS.add(BOOK_ID);
-        OUT.push(ROW);
+        SeenBookIds.add(BOOK_ID);
+        Out.push(ROW);
     }
     const FINISH_ROWS: CalendarDisplayRow[] = [];
     const OTHER_ROWS: CalendarDisplayRow[] = [];
 
-    for (const ROW of OUT) {
+    for (const ROW of Out) {
         if (ROW.finish === true) {
             FINISH_ROWS.push(ROW);
             continue;
@@ -67,26 +67,26 @@ function processReadingRows(
     plannedRows: CalendarDisplayRow[],
     completedByBookId: Map<string, CalendarDisplayRow>,
 ) {
-    const OUT: CalendarDisplayRow[] = [];
-    const SEEN_BOOK_IDS = new Set<string>();
+    const Out: CalendarDisplayRow[] = [];
+    const SeenBookIds = new Set<string>();
 
     for (const ROW of plannedRows) {
         if (typeof ROW.book_id !== "string" || ROW.book_id === "") {
-            OUT.push(ROW);
+            Out.push(ROW);
             continue;
         }
         if (completedByBookId.has(ROW.book_id)) {
-            OUT.push({
+            Out.push({
                 ...ROW,
                 finish: true,
             });
-            SEEN_BOOK_IDS.add(ROW.book_id);
+            SeenBookIds.add(ROW.book_id);
             continue;
         }
-        OUT.push(ROW);
-        SEEN_BOOK_IDS.add(ROW.book_id);
+        Out.push(ROW);
+        SeenBookIds.add(ROW.book_id);
     }
-    return { OUT, SEEN_BOOK_IDS };
+    return { Out, SeenBookIds };
 }
 
 /**

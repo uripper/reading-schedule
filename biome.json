@@ -229,7 +229,7 @@
                                         "selector": { "kind": "let" }
                                     },
                                     {
-                                        "formats": ["CONSTANT_CASE"],
+                                        "formats": ["CONSTANT_CASE", "PascalCase"],
                                         "selector": { "kind": "const" }
                                     },
                                     {
@@ -237,7 +237,7 @@
                                         "selector": { "kind": "typeLike" }
                                     },
                                     {
-                                        "formats": ["camelCase", "snake_case"],
+                                        "formats": ["camelCase", "snake_case", "PascalCase"],
                                         "selector": { "kind": "typeProperty" }
                                     },
                                     {
