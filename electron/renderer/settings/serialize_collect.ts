@@ -45,7 +45,7 @@ export function collectSettingsForm(dayOffs: string[]): PlannerSettings {
         }
         OUTPUT[FIELD.id] = Number(RAW || 0);
     }
-    
+
     const MINUTES_PER_DAY_RAW = inputEl("minutes_per_day").value.trim();
     OUTPUT.minutes_per_day = null;
     if (MINUTES_PER_DAY_RAW) {

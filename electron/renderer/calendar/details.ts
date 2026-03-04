@@ -64,19 +64,19 @@ function appendRenderedRows(args: AppendRenderedRowsArgs): void {
     const ANIMATE_FINISH_ROWS =
         args.state.expectedFinishHighlightDate === args.state.selectedDate;
 
-    args.rows.forEach((row) => {
+    for (const ROW of args.rows) {
         const NODE = rowNodeForMode({
             interactionHandlers: args.interactionHandlers,
             mode: args.mode,
             rerenderDetails: args.rerenderDetails,
-            row,
+            row: ROW,
             state: args.state,
         });
-        if (ANIMATE_FINISH_ROWS && row.finish) {
+        if (ANIMATE_FINISH_ROWS && ROW.finish) {
             NODE.classList.add("is-finish-pulse");
         }
         args.list.append(NODE);
-    });
+    }
 }
 
 function manualAddPanel(args: ManualAddPanelArgs): HTMLElement {

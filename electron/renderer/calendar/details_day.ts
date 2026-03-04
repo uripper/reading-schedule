@@ -52,16 +52,16 @@ export function rowsWithCompletedLast(
     const INCOMPLETE_ROWS: CalendarRowWithFinish[] = [];
     const COMPLETE_ROWS: CalendarRowWithFinish[] = [];
 
-    rows.forEach((row) => {
+    for (const ROW of rows) {
         const COMPLETE = Boolean(
-            interactionHandlers.isSessionCompleted(sessionKeyFor(row)),
+            interactionHandlers.isSessionCompleted(sessionKeyFor(ROW)),
         );
         if (COMPLETE) {
-            COMPLETE_ROWS.push(row);
-            return;
+            COMPLETE_ROWS.push(ROW);
+            continue;
         }
-        INCOMPLETE_ROWS.push(row);
-    });
+        INCOMPLETE_ROWS.push(ROW);
+    }
     return [
         ...rowsWithFinishFirst(INCOMPLETE_ROWS),
         ...rowsWithFinishFirst(COMPLETE_ROWS),

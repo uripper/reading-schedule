@@ -63,7 +63,7 @@ export function uniqueShelves(books: Pick<Book, "shelf">[] = []): string[] {
         const SHELF = normalizeShelfName(BOOK.shelf);
         if (!SHELF) {
             continue;
-        }     
+        }
         SHELF_SET.add(SHELF);
     }
     return [...SHELF_SET].sort((left, right) => {

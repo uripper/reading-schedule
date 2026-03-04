@@ -18,16 +18,15 @@ function activateSettingsSection(nextSection: string): void {
             NEXT_CARD.style.display = "none";
         }
     }
-
-    qa<HTMLElement>(".settings-section-tab").forEach((button) => {
-        const ACTIVE = button.dataset.settingsSectionTarget === SECTION;
-        button.classList.toggle("is-active", ACTIVE);
+    for (const BUTTON of qa<HTMLElement>(".settings-section-tab")) {
+        const ACTIVE = BUTTON.dataset.settingsSectionTarget === SECTION;
+        BUTTON.classList.toggle("is-active", ACTIVE);
         let ariaSelected = "false";
         if (ACTIVE) {
             ariaSelected = "true";
         }
-        button.setAttribute("aria-selected", ariaSelected);
-    });
+        BUTTON.setAttribute("aria-selected", ariaSelected);
+    }
 }
 
 /**
@@ -36,15 +35,15 @@ function activateSettingsSection(nextSection: string): void {
 export function bindSettingsSectionTabs(): void {
     const TABS = qa<HTMLElement>(".settings-section-tab");
 
-    TABS.forEach((button) => {
-        button.addEventListener("click", () => {
-            const SECTION = button.dataset.settingsSectionTarget;
+    for (const BUTTON of TABS) {
+        BUTTON.addEventListener("click", () => {
+            const SECTION = BUTTON.dataset.settingsSectionTarget;
             if (typeof SECTION === "string" && SECTION.length > 0) {
                 activateSettingsSection(SECTION);
                 return;
             }
             activateSettingsSection(DEFAULT_SETTINGS_SECTION);
         });
-    });
+    }
     activateSettingsSection(DEFAULT_SETTINGS_SECTION);
 }

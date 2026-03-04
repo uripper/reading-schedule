@@ -42,7 +42,7 @@ function orderedWeekdays(rawDays: unknown[]): BookWeekday[] {
             SEEN.add(WEEKDAY);
         }
     }
-    
+
     if (SEEN.size === 0) {
         return [...BOOK_WEEKDAYS];
     }

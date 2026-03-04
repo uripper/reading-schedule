@@ -40,7 +40,6 @@ function createLabeledSelect(
     return { label: LABEL, select: SELECT };
 }
 
-
 /**
  * Creates a labeled toolbar title-filter `<input>` control.
  * @param labelText Visible label text.

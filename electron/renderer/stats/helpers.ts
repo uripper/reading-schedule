@@ -73,9 +73,9 @@ export function statusBreakdown(books: Book[]): StatusBreakdown {
         [BOOK_STATUS_DROPPED]: 0,
     };
 
-    books.forEach((book) => {
-        COUNTS[book.status] += 1;
-    });
+    for (const BOOK of books) {
+        COUNTS[BOOK.status] += 1;
+    }
     return COUNTS;
 }
 
@@ -91,16 +91,15 @@ export function readBooksFinishedThisYear(
 ): Set<string> {
     const IDS = new Set<string>();
 
-    books.forEach((book) => {
-        if (book.status !== BOOK_STATUS_READ) {
-            return;
+    for (const BOOK of books) {
+        if (BOOK.status !== BOOK_STATUS_READ) {
+            continue;
         }
-        const FINISHED_YEAR = yearFromDateKey(String(book.finished_at ?? ""));
-        if (FINISHED_YEAR !== year) {
-            return;
+        const FINISHED_YEAR = yearFromDateKey(String(BOOK.finished_at ?? ""));
+        if (FINISHED_YEAR === year) {
+            IDS.add(BOOK.book_id);
         }
-        IDS.add(book.book_id);
-    });
+    }
     return IDS;
 }
 
@@ -158,20 +157,20 @@ export function completionStats(
     let scheduled = 0;
     let completed = 0;
 
-    ROWS.forEach((row) => {
-        const ROW_YEAR = yearFromDateKey(String(row.date || ""));
+    for (const ROW of ROWS) {
+        const ROW_YEAR = yearFromDateKey(String(ROW.date || ""));
         if (ROW_YEAR !== year) {
-            return;
+            continue;
         }
-        const ROW_DATE = String(row.date || "");
+        const ROW_DATE = String(ROW.date || "");
         if (!ROW_DATE || Number(ROW_DATE) > Number(TODAY)) {
-            return;
+            continue;
         }
         scheduled += 1;
-        if (scheduleCompletions[sessionKeyFor(row)]) {
+        if (scheduleCompletions[sessionKeyFor(ROW)]) {
             completed += 1;
         }
-    });
+    }
 
     if (!scheduled) {
         return { completed, ratePercent: 0, scheduled };
