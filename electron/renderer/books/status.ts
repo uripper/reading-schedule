@@ -104,8 +104,11 @@ export function statusFilterOptions(): Array<{
         { label: "All Statuses", value: BOOK_STATUS_FILTER_ALL },
     ];
 
-    statusOptions().forEach((option) => {
-        OPTIONS.push(option);
-    });
+    for (const OPTION of statusOptions()) {
+        OPTIONS.push({
+            label: OPTION.label,
+            value: OPTION.value,
+        });
+    }
     return OPTIONS;
 }

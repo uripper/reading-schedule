@@ -33,12 +33,13 @@ function createLabeledSelect(
     SELECT.id = selectId;
     SELECT.className = "books-control-select";
 
-    options.forEach((option) => {
-        SELECT.append(createOptionNode(option.value, option.label));
-    });
+    for (const OPTION of options) {
+        SELECT.append(createOptionNode(OPTION.value, OPTION.label));
+    }
     LABEL.append(SELECT);
     return { label: LABEL, select: SELECT };
 }
+
 
 /**
  * Creates a labeled toolbar title-filter `<input>` control.

@@ -77,8 +77,8 @@ export function shelfFilterOptions(books: Book[]): OptionDefinition[] {
         { label: "Unshelved", value: SHELF_FILTER_UNSHELVED },
     ];
 
-    uniqueShelves(books).forEach((shelfName) => {
-        OPTIONS.push({ label: shelfName, value: shelfName });
-    });
+    for (const SHELF_NAME of uniqueShelves(books)) {
+        OPTIONS.push({ label: SHELF_NAME, value: SHELF_NAME });
+    }
     return OPTIONS;
 }
