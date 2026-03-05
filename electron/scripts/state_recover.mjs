@@ -5,7 +5,7 @@ import { recoverStateFromArgs } from "./state_recover_helpers.mjs";
 
 /**
  * Runs state recovery and prints a concise summary.
- * @param {string[]} argv CLI arguments excluding `node` and script path.
+ * @param {string[]} argv - CLI arguments excluding `node` and script path.
  */
 export function runStateRecover(argv) {
     const RESULT = recoverStateFromArgs(argv);

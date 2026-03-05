@@ -499,8 +499,6 @@ export interface AppCalendarInteractionArgs {
     ): UpdatedBook | null;
 }
 
-export type CalendarInteractionHandlers = Partial<CalendarHandlers>;
-
 export type ScheduleMutationHandlers = Pick<
     CalendarHandlers,
     "onManualSessionAdded" | "onSessionMinutesUpdated" | "onSessionRemoved"

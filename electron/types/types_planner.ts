@@ -1,25 +1,75 @@
+import type { UUID } from "node:crypto";
 import type { Book } from "./types_books.js";
 import type { JsonValue, Session } from "./types_core.js";
 import type { FeatureFlags, Preferences } from "./types_experience.js";
 import type { BookLookupItem } from "./types_lookup.js";
 
+/**
+ * Types related to the reading schedule planner feature.
+ */
 export interface PlannerScheduleRow {
-    book_id: string;
+    /**
+     * The UUID of the book
+     */
+    book_id: UUID | string;
+    /**
+     * The date it is planned for, in YYYY-MM-DD format
+     */
     date: string;
+    /**
+     * Whether the book is finished this session or not
+     */
     finish?: boolean;
+    /**
+     * Number of minutes planned for this book on this date
+     */
     minutes: number;
+    /**
+     * Simply the index associated with a session for a book
+     */
     session_index: number;
+    /**
+     * Book title
+     */
     title: string;
+    /**
+     * Number of words planned for reading
+     */
     words_planned: number;
 }
 
+/**
+ * PlannerSummaryBook helps scheduler see what to report to the user about a session
+ */
 export interface PlannerSummaryBook {
+    /**
+     * Whether the book is finished or not
+     */
     finished?: boolean;
+    /**
+     * Number of minutes planned for reading
+     */
     minutes_planned?: number;
+    /**
+     * Number of words planned based on WPM and minutes. Converted for reader
+     * to a percentage of the book and a number of pages those words correspond to.
+     */
     words_planned?: number;
+    /**
+     * Total number of words in the book. Used to calculate percentage of the book planned for reading.
+     */
     words_total?: number;
 }
 
+/**
+ * Gives a detailed report of the results of the planner
+ * feasibility_warning gives a warning if a solution is non-feasible
+ * status gives a general status of the solution (e.g. optimal, infeasible, unknown, unbounded, etc...)
+ * total_planned_minutes gives the total number of minutes planned across all books and sessions
+ * total_available_minutes gives the total number of minutes available across all days in the
+ *     plan based on user set minutes per day and days off
+ * per_book gives a breakdown of the summary information for each book in the plan, keyed by book id
+ */
 export type PlannerSummary = {
     feasibility_warning?: string | null;
     status?: string;
@@ -28,12 +78,39 @@ export type PlannerSummary = {
     per_book?: Record<string, PlannerSummaryBook>;
 } & Record<string, JsonValue>;
 
+/**
+ * Gives a result of the planner
+ */
 export interface PlannerResult {
+    /**
+     * Self-explanatory. When the plan was created.
+     */
     created_at: string;
+    /**
+     * The reading schedule returned by the planner
+     */
     schedule: PlannerScheduleRow[];
+    /**
+     * The summary given by the planner
+     */
     summary: PlannerSummary | null;
 }
 
+/**
+ * Which profile of planner to use
+ * fast - Uses a greedy algorithm to find a solution as quickly as possible.
+ *        This is the only one functional currently, due to huge search spaces
+ *        and the sheer complexity of dates, blockers, minutes, etc...
+ *        Most will probably never find a solution in a reasonable time unless
+ *        they have a very small number of books and a long time horizon.
+ *
+ * balanced - Uses Mixed Integer Programming with a short time limit. Almost always
+ *            never finds ANY solution. So.
+ *
+ * thorough - Uses Mixed Integer Programming with a long time limit,
+ *            allowing it to explore more of the search space and find better solutions.
+ *            Still doesnt find any.
+ */
 export type PlannerSolverProfile = "fast" | "balanced" | "thorough";
 
 export type PlannerToken = "mip" | "mip-fast" | "mip-balanced" | "mip-thorough";

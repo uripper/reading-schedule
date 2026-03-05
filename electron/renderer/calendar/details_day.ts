@@ -21,7 +21,7 @@ function todayDateKey(): string {
 
 /**
  * Categorizes a date relative to today for day-detail UI behavior.
- * @param dateKey Day key in `YYYY-MM-DD` format.
+ * @param dateKey - Day key in `YYYY-MM-DD` format.
  * @returns Whether the day is in the past, today, or future.
  */
 export function dayMode(dateKey: string): DayMode {
@@ -41,8 +41,8 @@ export function dayMode(dateKey: string): DayMode {
 
 /**
  * Sorts rows with unfinished sessions first and completed sessions last.
- * @param rows Rows for a single day before completion-based ordering.
- * @param interactionHandlers Completion lookup handlers for session rows.
+ * @param rows - Rows for a single day before completion-based ordering.
+ * @param interactionHandlers - Completion lookup handlers for session rows.
  * @returns Rows grouped by completion state, with finish-priority sorting in each group.
  */
 export function rowsWithCompletedLast(

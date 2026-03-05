@@ -18,12 +18,12 @@ import {
 /**
  * Calculates the updated schedule rows when a session's planned minutes are manually changed.
  * It normalizes the input minutes, recalculates the words planned for that session, and returns the updated rows.
- * @param root0 The input parameters for calculating the updated rows.
- * @param root0.collectSettings Function to collect the current planner settings.
- * @param root0.getBookById Function to retrieve a book by its ID.
- * @param root0.minutes The new planned minutes for the session.
- * @param root0.previousRows The current schedule rows before the update.
- * @param root0.row The specific schedule row that is being updated.
+ * @param root0 - The input parameters for calculating the updated rows.
+ * @param collectSettings - Function to collect the current planner settings.
+ * @param getBookById - Function to retrieve a book by its ID.
+ * @param minutes - The new planned minutes for the session.
+ * @param previousRows - The current schedule rows before the update.
+ * @param row - The specific schedule row that is being updated.
  * @returns An object containing the normalized minutes and the updated schedule rows,
  * or null if the target session was not found.
  */

@@ -6,7 +6,7 @@ import { formatInt } from "./utils.js";
 
 /**
  * Checks whether an optional numeric value is a positive finite number.
- * @param value Numeric value that may be nullish.
+ * @param value - Numeric value that may be nullish.
  * @returns `true` when value exists and is greater than zero.
  */
 function hasPositiveNumber(value: number | null | undefined): boolean {
@@ -18,8 +18,8 @@ function hasPositiveNumber(value: number | null | undefined): boolean {
 
 /**
  * Builds status-sensitive finish metadata text for one book.
- * @param book Book to describe.
- * @param finishDateByBookId Finish date lookup keyed by `book_id`.
+ * @param book - Book to describe.
+ * @param finishDateByBookId - Finish date lookup keyed by `book_id`.
  * @returns Metadata text or `null` when no finish text should be shown.
  */
 function finishMetaPart(
@@ -38,8 +38,8 @@ function finishMetaPart(
 
 /**
  * Builds blocker metadata text with title resolution when available.
- * @param book Book to describe.
- * @param titleById Book-title lookup keyed by `book_id`.
+ * @param book - Book to describe.
+ * @param titleById - Book-title lookup keyed by `book_id`.
  * @returns Blocker metadata or `null` when no blocker is set.
  */
 export function blockerMeta(
@@ -63,8 +63,8 @@ export function blockerMeta(
 
 /**
  * Builds blocker metadata text with title resolution when available.
- * @param book Book to describe.
- * @param titleById Book-title lookup keyed by `book_id`.
+ * @param book - Book to describe.
+ * @param titleById - Book-title lookup keyed by `book_id`.
  * @returns Metadata text or `null` when no blocker is set.
  */
 function blockerMetaPart(
@@ -80,7 +80,7 @@ function blockerMetaPart(
 
 /**
  * Builds the progress line shown in each book card.
- * @param book Book to present.
+ * @param book - Book to present.
  * @returns Human-readable progress summary with percent and pages.
  */
 export function progressLabel(book: Book): string {
@@ -95,7 +95,7 @@ export function progressLabel(book: Book): string {
 
 /**
  * Builds word-count summary text for each book card.
- * @param book Book to present.
+ * @param book - Book to present.
  * @returns Word total label or page-based estimate fallback.
  */
 export function wordsLabel(book: Book): string {
@@ -112,8 +112,8 @@ export function wordsLabel(book: Book): string {
 
 /**
  * Builds metadata line including status, completion date, due date, and blockers.
- * @param book Book to present.
- * @param options Optional context used to resolve titles and finish dates.
+ * @param book - Book to present.
+ * @param options - Optional context used to resolve titles and finish dates.
  * @returns Joined metadata text for card subtitle line.
  */
 export function metaLabel(book: Book, options: BookMetaOptions = {}): string {
@@ -142,7 +142,7 @@ export function metaLabel(book: Book, options: BookMetaOptions = {}): string {
 
 /**
  * Builds secondary subtitle text for a book card.
- * @param book Book to present.
+ * @param book - Book to present.
  * @returns Author text, lookup note, or fallback label.
  */
 export function subtitle(book: Book): string {

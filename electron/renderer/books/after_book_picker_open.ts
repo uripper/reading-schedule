@@ -4,9 +4,9 @@ import { setUnknownSelectionLabel } from "./after_book_picker_render.js";
 
 /**
  * Initializes picker state/fields when opening the dialog for a given book.
- * @param refs Form references for picker controls.
- * @param state Mutable picker state.
- * @param book Book being edited, if any.
+ * @param refs - Form references for picker controls.
+ * @param state - Mutable picker state.
+ * @param book - Book being edited, if any.
  */
 export function initializePickerForBook(
     refs: BookFormRefs,

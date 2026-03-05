@@ -17,7 +17,7 @@ const SAVE_OPERATION = "save_snapshot";
 
 /**
  * Opens the SQLite state database and ensures required schema and pragmas.
- * @param databasePath SQLite database file path.
+ * @param databasePath - SQLite database file path.
  * @returns Initialized synchronous SQLite handle.
  */
 function openDatabase(databasePath: string): DatabaseSync {
@@ -46,7 +46,7 @@ function openDatabase(databasePath: string): DatabaseSync {
 
 /**
  * Coerces parsed JSON into object-like state payload.
- * @param value Parsed JSON value.
+ * @param value - Parsed JSON value.
  * @returns Object payload when valid, otherwise null.
  */
 function objectState(value: unknown): LoadedPlannerState | null {
@@ -64,7 +64,7 @@ function objectState(value: unknown): LoadedPlannerState | null {
 
 /**
  * Reads and parses the latest snapshot payload.
- * @param database Open SQLite handle.
+ * @param database - Open SQLite handle.
  * @returns Parsed snapshot state or null.
  */
 function readSnapshotState(database: DatabaseSync): LoadedPlannerState | null {
@@ -83,7 +83,7 @@ function readSnapshotState(database: DatabaseSync): LoadedPlannerState | null {
 
 /**
  * Reads journal rows newest-first and returns first parseable payload.
- * @param database Open SQLite handle.
+ * @param database - Open SQLite handle.
  * @returns First recoverable state payload from journal, or null.
  */
 function recoverStateFromJournal(
@@ -113,9 +113,9 @@ function recoverStateFromJournal(
 
 /**
  * Upserts the singleton snapshot row with current schema metadata.
- * @param database Open SQLite handle.
- * @param payloadJson Serialized state payload.
- * @param updatedAt ISO timestamp for snapshot update time.
+ * @param database - Open SQLite handle.
+ * @param payloadJson - Serialized state payload.
+ * @param updatedAt - ISO timestamp for snapshot update time.
  */
 function upsertSnapshot(
     database: DatabaseSync,
@@ -138,8 +138,8 @@ function upsertSnapshot(
 
 /**
  * Persists snapshot+journal records transactionally.
- * @param database Open SQLite handle.
- * @param payloadJson Serialized state JSON payload.
+ * @param database - Open SQLite handle.
+ * @param payloadJson - Serialized state JSON payload.
  * @returns Save result.
  */
 function writeSnapshotTransaction(
@@ -179,7 +179,7 @@ function writeSnapshotTransaction(
 
 /**
  * Reads planner state from SQLite snapshot/journal.
- * @param userDataDir App user-data directory.
+ * @param userDataDir - App user-data directory.
  * @returns SQLite load result, or null when DB is absent/unreadable.
  */
 export function readStateFromSqlite(
@@ -227,8 +227,8 @@ export function readStateFromSqlite(
 
 /**
  * Writes planner state to SQLite snapshot+journal.
- * @param userDataDir App user-data directory.
- * @param data Serializable planner state payload.
+ * @param userDataDir - App user-data directory.
+ * @param data - Serializable planner state payload.
  * @returns Save result.
  */
 export function writeStateToSqlite(

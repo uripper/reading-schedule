@@ -13,10 +13,10 @@ import { estimateProgressLabel } from "./estimates.js";
 
 /**
  * Builds details row node for future sessions.
- * @param row Calendar row.
- * @param state Calendar state subset.
- * @param interactionHandlers Detail interaction handlers.
- * @param rerenderDetails Details rerender callback.
+ * @param row - Calendar row.
+ * @param state - Calendar state subset.
+ * @param interactionHandlers - Detail interaction handlers.
+ * @param rerenderDetails - Details rerender callback.
  * @returns Rendered row element.
  */
 export function buildFutureSessionItem(

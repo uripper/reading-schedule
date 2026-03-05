@@ -1,5 +1,5 @@
 /**
- * @file Data URL parsing helpers for uploaded book covers.
+ * Data URL parsing helpers for uploaded book covers.
  */
 import type { CoverExtension } from "../../types/types.js";
 
@@ -16,7 +16,7 @@ const DATA_URL_BASE64_SEGMENT = ";base64";
 
 /**
  * Maps an image MIME type from a data URL to a supported file extension.
- * @param mimeType MIME type parsed from the data URL header.
+ * @param mimeType - MIME type parsed from the data URL header.
  * @returns Supported cover extension, or null when unsupported.
  */
 function extensionForDataMime(mimeType: string): CoverExtension | null {
@@ -38,7 +38,7 @@ function extensionForDataMime(mimeType: string): CoverExtension | null {
 
 /**
  * Parses a base64 data URL and returns image bytes with an allowed extension.
- * @param coverDataUrl Data URL candidate for an uploaded cover image.
+ * @param coverDataUrl - Data URL candidate for an uploaded cover image.
  * @returns Decoded bytes and extension, or null when the payload is invalid.
  */
 export function parseCoverDataUrl(

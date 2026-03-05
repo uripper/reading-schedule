@@ -8,7 +8,7 @@ const ANNOUNCE_DELAY_MS = 30;
 
 /**
  * Focuses the first invalid field within a form-like container.
- * @param formElement Container to scan for invalid controls.
+ * @param formElement - Container to scan for invalid controls.
  * @returns The focused invalid element, or null when none is found.
  */
 export function focusFirstError(
@@ -27,7 +27,7 @@ export function focusFirstError(
 
 /**
  * Creates an ARIA live-region announcer function for status messages.
- * @param regionId DOM id of the live region element.
+ * @param regionId - DOM id of the live region element.
  * @returns Function that posts a message to the live region.
  */
 export function createAnnouncer(
@@ -55,7 +55,7 @@ export function createAnnouncer(
 
 /**
  * Applies theme and reduced-motion preferences to document data attributes.
- * @param preferences User preference values to apply.
+ * @param preferences - User preference values to apply.
  */
 export function applyPreferencesToDocument(
     preferences: DocumentPreferencesInput = {},

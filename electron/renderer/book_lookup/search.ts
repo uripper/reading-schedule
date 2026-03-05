@@ -69,11 +69,11 @@ function createOutsideClickHandler(
 
 /**
  * Binds all lookup search interactions (input, keyboard, mouse, outside click).
- * @param options Lookup binding options and callbacks.
- * @param options.searchInput Search field element.
- * @param options.resultsEl Lookup results container element.
- * @param options.metaEl Metadata/help text element.
- * @param options.onPick Callback invoked when a lookup result is selected.
+ * @param options - Lookup binding options and callbacks.
+ * @param searchInput - Search field element.
+ * @param resultsEl - Lookup results container element.
+ * @param metaEl - Metadata/help text element.
+ * @param onPick - Callback invoked when a lookup result is selected.
  * @returns Binding handle with clear/destroy controls.
  */
 export function bindBookLookup(options: BindBookLookupOptions): LookupBinding {

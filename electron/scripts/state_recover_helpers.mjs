@@ -11,7 +11,7 @@ const APP_NAME = "reading-plan-gui";
 
 /**
  * Parses CLI arguments for state recovery.
- * @param {string[]} argv CLI arguments excluding `node` and script path.
+ * @param {string[]} argv - CLI arguments excluding `node` and script path.
  * @returns {{ inputPath: string, userDataDir: string | null, force: boolean }} Parsed arguments.
  */
 function parseArgs(argv) {
@@ -69,7 +69,7 @@ function defaultUserDataDir() {
 
 /**
  * Counts top-level persisted entities for summary output.
- * @param {Record<string, unknown>} state Recovered planner state payload.
+ * @param {Record<string, unknown>} state - Recovered planner state payload.
  * @returns {{ books: number, sessions: number, scheduleRows: number, scheduleCompletions: number }} Count summary.
  */
 function countEntities(state) {
@@ -104,7 +104,7 @@ function countEntities(state) {
 
 /**
  * Recovers state from source input and writes it to canonical userData targets.
- * @param {string[]} argv CLI arguments excluding `node` and script path.
+ * @param {string[]} argv - CLI arguments excluding `node` and script path.
  * @returns {{ sourceType: string, inputPath: string, userDataDir: string, backups: string[], counts: Record<string, number> }} Recovery summary.
  */
 export function recoverStateFromArgs(argv) {

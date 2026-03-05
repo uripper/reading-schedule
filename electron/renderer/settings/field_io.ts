@@ -4,7 +4,7 @@ import { DIFFICULTY_LEVEL_COUNT, FIELDS } from "./config.js";
 
 /**
  * Returns typed input element by id.
- * @param id Element id.
+ * @param id - Element id.
  * @returns Input element.
  */
 export function inputEl(id: string): HTMLInputElement {
@@ -13,7 +13,7 @@ export function inputEl(id: string): HTMLInputElement {
 
 /**
  * Returns typed select element by id.
- * @param id Element id.
+ * @param id - Element id.
  * @returns Select element.
  */
 export function selectEl(id: string): HTMLSelectElement {

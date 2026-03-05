@@ -7,7 +7,7 @@ const CANCEL_MINUTES_BUTTON_LABEL = "Cancel";
 
 /**
  * Builds planned-minutes numeric input prefilled from row data.
- * @param row Calendar row being edited.
+ * @param row - Calendar row being edited.
  * @returns Minutes input element.
  */
 export function minutesInputForRow(

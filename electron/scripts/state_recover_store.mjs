@@ -15,7 +15,7 @@ const JSON_INDENT_SPACES = 2;
 
 /**
  * Parses a JSON payload and validates the base planner-state shape.
- * @param {string} payloadText Raw JSON payload text.
+ * @param {string} payloadText - Raw JSON payload text.
  * @returns {Record<string, unknown>} Parsed planner state object.
  */
 function parseState(payloadText) {
@@ -38,7 +38,7 @@ function parseState(payloadText) {
 
 /**
  * Reads planner state from SQLite snapshot, then journal fallback.
- * @param {string} inputPath SQLite file path.
+ * @param {string} inputPath - SQLite file path.
  * @returns {Record<string, unknown>} Recovered planner state object.
  */
 function readStateFromSqlite(inputPath) {
@@ -77,7 +77,7 @@ function readStateFromSqlite(inputPath) {
 
 /**
  * Reads planner state from JSON or SQLite input path.
- * @param {string} inputPath Source path.
+ * @param {string} inputPath - Source path.
  * @returns {{ sourceType: string, state: Record<string, unknown> }} Recovered state and source type.
  */
 export function readStateFromInput(inputPath) {
@@ -95,8 +95,8 @@ export function readStateFromInput(inputPath) {
 
 /**
  * Copies existing target files to timestamped backups before recovery writes.
- * @param {string} userDataDir Target user-data directory.
- * @param {string} timestamp Safe timestamp suffix.
+ * @param {string} userDataDir - Target user-data directory.
+ * @param {string} timestamp - Safe timestamp suffix.
  * @returns {string[]} Created backup file paths.
  */
 export function backupTargets(userDataDir, timestamp) {
@@ -121,8 +121,8 @@ export function backupTargets(userDataDir, timestamp) {
 
 /**
  * Writes recovered planner state to JSON + SQLite targets in user data.
- * @param {string} userDataDir Target user-data directory.
- * @param {Record<string, unknown>} state Recovered planner state object.
+ * @param {string} userDataDir - Target user-data directory.
+ * @param {Record<string, unknown>} state - Recovered planner state object.
  */
 export function writeRecoveredState(userDataDir, state) {
     fs.mkdirSync(userDataDir, { recursive: true });

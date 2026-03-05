@@ -47,7 +47,7 @@ const PLANNER_STATE_SNAPSHOT_SCHEMA = z.object({
 });
 
 const LOADED_PLANNER_STATE_SCHEMA = z
-    .object({
+    .looseObject({
         blocked_day_books: BOOL_RECORD_SCHEMA.optional(),
         books: z.array(z.unknown()).optional(),
         feature_flags: z.record(z.string(), z.unknown()).optional(),
@@ -57,7 +57,6 @@ const LOADED_PLANNER_STATE_SCHEMA = z
         sessions: z.array(z.record(z.string(), z.unknown())).optional(),
         settings: plannerSettingsSchema().optional(),
     })
-    .passthrough();
 
 export function parsePlannerStateSnapshot(
     input: unknown,

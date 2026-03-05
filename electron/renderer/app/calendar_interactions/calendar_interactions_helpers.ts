@@ -37,7 +37,7 @@ export function emptyPlannerResult(): PlannerResult {
  * alphabetically by title. This function is useful for preparing book data for manual
  * session interactions, ensuring that only relevant information is included and that
  * the list is user-friendly.
- * @param books An array of `Book` objects to be transformed into `ManualSessionBook` objects.
+ * @param books - An array of `Book` objects to be transformed into `ManualSessionBook` objects.
  * @returns An array of `ManualSessionBook` objects, sorted by title.
  */
 export function manualSessionBooks(books: Book[] = []): ManualSessionBook[] {

@@ -5,17 +5,17 @@ import { titleByIdMap } from "./title_lookup.js";
 
 /**
  * Renders book cards (grouped or flat) and wires edit/remove handlers.
- * @param args Render options and callbacks.
- * @param args.grid Card grid container element.
- * @param args.empty Empty-state element.
- * @param args.books Books to render.
- * @param args.groups Optional grouped book structure.
- * @param args.allBooks Optional full book catalog for metadata lookup.
- * @param args.finishDateByBookId Optional finish-date lookup.
- * @param args.onEstimatedFinishNavigate Navigates to the selected finish date.
- * @param args.showShelfMeta Whether shelf metadata should be displayed.
- * @param args.onEdit Edit callback for a book id.
- * @param args.onRemove Remove callback for a book id.
+ * @param args - Render options and callbacks.
+ * @param grid - Card grid container element.
+ * @param empty - Empty-state element.
+ * @param books - Books to render.
+ * @param groups - Optional grouped book structure.
+ * @param allBooks - Optional full book catalog for metadata lookup.
+ * @param finishDateByBookId - Optional finish-date lookup.
+ * @param onEstimatedFinishNavigate - Navigates to the selected finish date.
+ * @param showShelfMeta - Whether shelf metadata should be displayed.
+ * @param onEdit - Edit callback for a book id.
+ * @param onRemove - Remove callback for a book id.
  */
 export function renderBookGrid(args: RenderBookGridOptions): void {
     const GROUPS = args.groups ?? [];

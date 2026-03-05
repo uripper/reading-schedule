@@ -11,7 +11,7 @@ const ZOOM_PRECISION = 100;
 
 /**
  * Clamps a zoom factor to supported bounds and handles invalid numbers.
- * @param value Candidate zoom factor.
+ * @param value - Candidate zoom factor.
  * @returns Clamped zoom factor within configured limits.
  */
 function clampZoomFactor(value: number): number {
@@ -23,7 +23,7 @@ function clampZoomFactor(value: number): number {
 
 /**
  * Normalizes zoom factor precision after clamping.
- * @param value Candidate zoom factor.
+ * @param value - Candidate zoom factor.
  * @returns Rounded zoom factor using configured precision.
  */
 function normalizedZoomFactor(value: number): number {
@@ -32,7 +32,7 @@ function normalizedZoomFactor(value: number): number {
 
 /**
  * Reads and normalizes the current zoom factor from web contents.
- * @param webContents Electron web contents whose zoom is read.
+ * @param webContents - Electron web contents whose zoom is read.
  * @returns Normalized current zoom factor.
  */
 function currentZoomFactor(webContents: WebContents): number {
@@ -41,8 +41,8 @@ function currentZoomFactor(webContents: WebContents): number {
 
 /**
  * Applies and returns a normalized zoom factor for the target web contents.
- * @param webContents Electron web contents receiving the zoom update.
- * @param value Requested zoom factor.
+ * @param webContents - Electron web contents receiving the zoom update.
+ * @param value - Requested zoom factor.
  * @returns Applied normalized zoom factor.
  */
 export function setZoomFactor(webContents: WebContents, value: number): number {
@@ -64,8 +64,8 @@ export function initialZoomFactor(): number {
 
 /**
  * Moves the current zoom factor by a delta and returns the applied value.
- * @param webContents Electron web contents receiving the zoom update.
- * @param delta Relative zoom delta to apply.
+ * @param webContents - Electron web contents receiving the zoom update.
+ * @param delta - Relative zoom delta to apply.
  * @returns Applied normalized zoom factor.
  */
 export function shiftZoomFactor(

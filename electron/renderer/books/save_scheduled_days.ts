@@ -4,8 +4,8 @@ import { normalizeShelfName } from "./shelf.js";
 
 /**
  * Propagates one book's scheduled days to all books on the same shelf.
- * @param books Current in-memory books collection.
- * @param sourceBook Book whose scheduled days should be used as the source.
+ * @param books - Current in-memory books collection.
+ * @param sourceBook - Book whose scheduled days should be used as the source.
  * @returns Updated books collection with same-shelf scheduled days aligned.
  */
 export function applyScheduledDaysToShelfBooks(

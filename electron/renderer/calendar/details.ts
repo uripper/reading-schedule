@@ -4,11 +4,7 @@ import type {
 } from "../../types/types.js";
 import { el } from "../dom.js";
 import { buildManualSessionAddPanel, dayMode } from "./details_helpers.js";
-import {
-    emptyMessageForMode,
-    rowNodeForMode,
-    rowsForMode,
-} from "./details_render_helpers.js";
+import { emptyMessageForMode, rowsForMode } from "./details_render_helpers.js";
 import { dateHeading } from "./utils.js";
 
 interface ManualAddPanelArgs {
@@ -51,32 +47,35 @@ function defaultManualAddValues(rows: CalendarDetailsState["dates"][string]): {
     };
 }
 
-interface AppendRenderedRowsArgs {
-    interactionHandlers: DetailInteractionHandlers;
-    list: HTMLElement;
-    mode: ReturnType<typeof dayMode>;
-    rerenderDetails: () => void;
-    rows: CalendarDetailsState["dates"][string];
-    state: CalendarDetailsState;
+function scheduledBookTitles(
+    rows: CalendarDetailsState["dates"][string],
+): string[] {
+    const SEEN_TITLES = new Set<string>();
+    const TITLES: string[] = [];
+    for (const ROW of rows) {
+        if (ROW.finish) {
+            continue;
+        }
+        const TITLE = String(ROW.title || "").trim() || "Untitled";
+        if (SEEN_TITLES.has(TITLE)) {
+            continue;
+        }
+        SEEN_TITLES.add(TITLE);
+        TITLES.push(TITLE);
+    }
+    return TITLES;
 }
 
-function appendRenderedRows(args: AppendRenderedRowsArgs): void {
-    const ANIMATE_FINISH_ROWS =
-        args.state.expectedFinishHighlightDate === args.state.selectedDate;
-
-    for (const ROW of args.rows) {
-        const NODE = rowNodeForMode({
-            interactionHandlers: args.interactionHandlers,
-            mode: args.mode,
-            rerenderDetails: args.rerenderDetails,
-            row: ROW,
-            state: args.state,
-        });
-        if (ANIMATE_FINISH_ROWS && ROW.finish) {
-            NODE.classList.add("is-finish-pulse");
-        }
-        args.list.append(NODE);
+function booksListNode(bookTitles: string[]): HTMLElement {
+    const LIST = document.createElement("ul");
+    LIST.className = "day-scheduled-books-list";
+    for (const TITLE of bookTitles) {
+        const ITEM = document.createElement("li");
+        ITEM.className = "day-scheduled-book-item";
+        ITEM.textContent = TITLE;
+        LIST.append(ITEM);
     }
+    return LIST;
 }
 
 function manualAddPanel(args: ManualAddPanelArgs): HTMLElement {
@@ -124,9 +123,9 @@ function renderEmptyRows(args: RenderEmptyRowsArgs): void {
 
 /**
  * Renders selected-day details list and manual-add panel for current mode.
- * @param state Calendar details render state.
- * @param interactionHandlers Detail interaction callbacks.
- * @param onRerenderRequested Optional rerender callback override.
+ * @param state - Calendar details render state.
+ * @param interactionHandlers - Detail interaction callbacks.
+ * @param onRerenderRequested - Optional rerender callback override.
  */
 export function renderCalendarDetails(
     state: CalendarDetailsState,
@@ -157,6 +156,7 @@ export function renderCalendarDetails(
         );
     };
     const ROWS_TO_RENDER = rowsForMode(ROWS, MODE, interactionHandlers);
+    const SCHEDULED_BOOK_TITLES = scheduledBookTitles(ROWS_TO_RENDER);
     const DEFAULTS = defaultManualAddValues(ROWS_TO_RENDER);
     const MANUAL_ADD_PANEL = manualAddPanel({
         defaults: DEFAULTS,
@@ -165,7 +165,7 @@ export function renderCalendarDetails(
         mode: MODE,
         rerenderDetails: RERENDER_DETAILS,
     });
-    if (!ROWS_TO_RENDER.length) {
+    if (!SCHEDULED_BOOK_TITLES.length) {
         renderEmptyRows({
             details: DETAILS,
             mode: MODE,
@@ -176,16 +176,7 @@ export function renderCalendarDetails(
         return;
     }
 
-    const LIST = document.createElement("div");
-    LIST.className = "day-details-list";
-    appendRenderedRows({
-        interactionHandlers,
-        list: LIST,
-        mode: MODE,
-        rerenderDetails: RERENDER_DETAILS,
-        rows: ROWS_TO_RENDER,
-        state: CALENDAR_STATE,
-    });
+    const LIST = booksListNode(SCHEDULED_BOOK_TITLES);
 
     DETAILS.replaceChildren(TITLE, LIST, MANUAL_ADD_PANEL);
     CALENDAR_STATE.expectedFinishHighlightDate = "";

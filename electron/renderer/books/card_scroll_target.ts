@@ -17,7 +17,7 @@ const RESET_TIMER_BY_CARD = new WeakMap<
 
 /**
  * Starts/updates a scroll token used to cancel stale settle checks.
- * @param card Card element receiving the scroll token.
+ * @param card - Card element receiving the scroll token.
  * @returns Fresh scroll token id for this navigation request.
  */
 function startScrollToken(card: HTMLElement): number {
@@ -29,8 +29,8 @@ function startScrollToken(card: HTMLElement): number {
 
 /**
  * Checks whether a settle callback still belongs to the latest request.
- * @param card Card element currently being tracked.
- * @param token Token captured when settle tracking started.
+ * @param card - Card element currently being tracked.
+ * @param token - Token captured when settle tracking started.
  * @returns `true` when token is still current for this card.
  */
 function isCurrentScrollToken(card: HTMLElement, token: number): boolean {
@@ -43,7 +43,7 @@ function isCurrentScrollToken(card: HTMLElement, token: number): boolean {
 
 /**
  * Removes a pending highlight reset timer for the target card.
- * @param card Card element whose timer should be cancelled.
+ * @param card - Card element whose timer should be cancelled.
  */
 function clearResetTimer(card: HTMLElement): void {
     const TIMER_ID = RESET_TIMER_BY_CARD.get(card);
@@ -56,7 +56,7 @@ function clearResetTimer(card: HTMLElement): void {
 
 /**
  * Schedules highlight class removal after the configured duration.
- * @param card Card element currently marked as target.
+ * @param card - Card element currently marked as target.
  */
 function scheduleTargetClassReset(card: HTMLElement): void {
     const TIMER_ID = globalThis.setTimeout(() => {
@@ -68,7 +68,7 @@ function scheduleTargetClassReset(card: HTMLElement): void {
 
 /**
  * Applies a temporary highlight class and restarts the animation immediately.
- * @param card Card element that should be emphasized.
+ * @param card - Card element that should be emphasized.
  */
 function highlightTargetCard(card: HTMLElement): void {
     clearResetTimer(card);
@@ -80,7 +80,7 @@ function highlightTargetCard(card: HTMLElement): void {
 
 /**
  * Finds a rendered book card matching the provided id.
- * @param bookId Stable book id to locate.
+ * @param bookId - Stable book id to locate.
  * @returns Matched card element when present; otherwise `null`.
  */
 function bookCardById(bookId: string): HTMLElement | null {
@@ -98,7 +98,7 @@ function bookCardById(bookId: string): HTMLElement | null {
 
 /**
  * Scrolls to a rendered book card and applies temporary target emphasis.
- * @param bookId Stable book id to find and reveal.
+ * @param bookId - Stable book id to find and reveal.
  */
 export function scrollToBookCard(bookId: string): void {
     const CARD = bookCardById(bookId);

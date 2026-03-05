@@ -27,7 +27,7 @@ const IS_DEVELOPMENT_LAUNCH = () => {
 
 /**
  * Returns environment variables safe for launching Electron child process.
- * @param {boolean} developmentLaunch Whether to force development mode.
+ * @param {boolean} developmentLaunch - Whether to force development mode.
  * @returns {NodeJS.ProcessEnv} Cleaned environment object.
  */
 const CLEANED_ENVIRONMENT = (developmentLaunch) => {

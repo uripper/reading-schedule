@@ -16,7 +16,7 @@ const PLACEHOLDER = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(PLACE
 
 /**
  * Parses a numeric-like input into a non-negative integer.
- * @param raw String/number-like value from form fields.
+ * @param raw - String/number-like value from form fields.
  * @returns Rounded integer, clamped at zero for invalid or negative input.
  */
 function toInt(raw: NumericLike): number {
@@ -37,7 +37,7 @@ export function placeholderCoverSvg(): string {
 
 /**
  * Builds a user-facing description for a selected lookup result.
- * @param item Selected lookup item.
+ * @param item - Selected lookup item.
  * @returns Description text including source/author/year when available.
  */
 export function describeLookup(item: BookLookupItem): string {
@@ -62,7 +62,7 @@ export function describeLookup(item: BookLookupItem): string {
 
 /**
  * Returns note text to save alongside a picked lookup result.
- * @param item Selected lookup item.
+ * @param item - Selected lookup item.
  * @returns Saved note text describing the lookup source.
  */
 export function noteFromLookup(item: BookLookupItem): string {
@@ -71,8 +71,8 @@ export function noteFromLookup(item: BookLookupItem): string {
 
 /**
  * Keeps pages-read and progress inputs in sync after one of them changes.
- * @param form Inputs participating in pages/progress synchronization.
- * @param changedField Field that initiated the update.
+ * @param form - Inputs participating in pages/progress synchronization.
+ * @param changedField - Field that initiated the update.
  */
 export function syncProgressAndPages(
     form: ProgressSyncInputs,

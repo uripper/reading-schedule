@@ -16,7 +16,7 @@ import {
 
 /**
  * Creates isolated temp user-data directory for persistence tests.
- * @returns {string} Temporary directory path.
+ * @returns Temporary directory path.
  */
 function tempUserDataDir() {
     return fs.mkdtempSync(path.join(os.tmpdir(), "planner-state-json-"));
@@ -24,7 +24,7 @@ function tempUserDataDir() {
 
 /**
  * Removes temporary directory tree when it exists.
- * @param {string} directory Temporary directory path.
+ * @param directory - Temporary directory path.
  */
 function cleanup(directory) {
     fs.rmSync(directory, { force: true, recursive: true });

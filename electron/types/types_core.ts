@@ -33,8 +33,3 @@ export type SessionInput = Omit<Partial<Session>, "pages_read" | "source"> & {
 };
 
 export type DateInput = string | number | Date;
-
-export interface SessionRecord {
-    ended_at: DateInput;
-    minutes?: number | string | null;
-}

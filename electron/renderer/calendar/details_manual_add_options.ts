@@ -6,7 +6,7 @@ const EMPTY_BOOK_OPTION_VALUE = "";
 
 /**
  * Builds a select option node for one manual-session book.
- * @param book Manual-session book option.
+ * @param book - Manual-session book option.
  * @returns Select option element.
  */
 function optionForBook(book: ManualSessionBook): HTMLOptionElement {
@@ -18,8 +18,8 @@ function optionForBook(book: ManualSessionBook): HTMLOptionElement {
 
 /**
  * Chooses initial preferred book id for manual-add dropdown selection.
- * @param defaultBookId Optional default selected book id.
- * @param books Available manual-session books.
+ * @param defaultBookId - Optional default selected book id.
+ * @param books - Available manual-session books.
  * @returns Preferred id when present; otherwise empty string.
  */
 export function initialPreferredBookId(
@@ -40,7 +40,7 @@ export function initialPreferredBookId(
 
 /**
  * Renders a disabled placeholder when no book matches the title filter.
- * @param bookSelect Manual-add select element.
+ * @param bookSelect - Manual-add select element.
  */
 function renderEmptyBookOptions(bookSelect: HTMLSelectElement): void {
     const NEXT_BOOK_SELECT = bookSelect;
@@ -55,10 +55,10 @@ function renderEmptyBookOptions(bookSelect: HTMLSelectElement): void {
 
 /**
  * Rebuilds manual-add select options from title filter and preferred selection.
- * @param bookSelect Manual-add select element.
- * @param books Available manual-session books.
- * @param query Title filter query text.
- * @param preferredBookId Book id to preserve when still visible.
+ * @param bookSelect - Manual-add select element.
+ * @param books - Available manual-session books.
+ * @param query - Title filter query text.
+ * @param preferredBookId - Book id to preserve when still visible.
  */
 export function refreshBookOptions(
     bookSelect: HTMLSelectElement,

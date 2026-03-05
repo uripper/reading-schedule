@@ -17,7 +17,7 @@ import {
 
 /**
  * Normalizes text for case-insensitive recommendation comparisons.
- * @param value Raw text value.
+ * @param value - Raw text value.
  * @returns Lowercased trimmed text.
  */
 function normalizedText(value: string | null | undefined): string {
@@ -28,8 +28,8 @@ function normalizedText(value: string | null | undefined): string {
 
 /**
  * Builds a stable key from title and author.
- * @param title Book title.
- * @param author Author text.
+ * @param title - Book title.
+ * @param author - Author text.
  * @returns Normalized recommendation key.
  */
 export function recommendationKey(title: string, author: string): string {
@@ -38,7 +38,7 @@ export function recommendationKey(title: string, author: string): string {
 
 /**
  * Normalizes text for alphanumeric token comparisons.
- * @param value Raw text value.
+ * @param value - Raw text value.
  * @returns Lowercased text with punctuation collapsed to spaces.
  */
 function normalizedAlnumText(value: string): string {
@@ -51,7 +51,7 @@ function normalizedAlnumText(value: string): string {
 
 /**
  * Checks whether candidate title looks like a book title rather than metadata noise.
- * @param title Candidate title.
+ * @param title - Candidate title.
  * @returns True when title passes quality heuristics.
  */
 function isPlausibleBookTitle(title: string): boolean {
@@ -70,7 +70,7 @@ function isPlausibleBookTitle(title: string): boolean {
 
 /**
  * Resolves words-total estimate from lookup metadata.
- * @param item Lookup item with optional words/pages estimates.
+ * @param item - Lookup item with optional words/pages estimates.
  * @returns Positive words-total estimate.
  */
 function wordsFromLookup(item: BookLookupItem): number {
@@ -87,8 +87,8 @@ function wordsFromLookup(item: BookLookupItem): number {
 
 /**
  * Checks whether two author names likely refer to the same author.
- * @param readAuthor Author from an already-read shelf book.
- * @param candidateAuthor Author returned from lookup results.
+ * @param readAuthor - Author from an already-read shelf book.
+ * @param candidateAuthor - Author returned from lookup results.
  * @returns True when names overlap after normalization.
  */
 export function authorMatches(
@@ -125,7 +125,7 @@ export function authorMatches(
 
 /**
  * Precomputes dedupe keys for titles already in the shelf.
- * @param books Existing shelf books.
+ * @param books - Existing shelf books.
  * @returns Set of normalized title-author keys.
  */
 export function addExistingBookKeys(books: Book[]): Set<string> {
@@ -138,8 +138,8 @@ export function addExistingBookKeys(books: Book[]): Set<string> {
 
 /**
  * Normalizes one lookup row into a recommendation item.
- * @param item Raw lookup item.
- * @param readAuthor Read author fallback when lookup row has no author.
+ * @param item - Raw lookup item.
+ * @param readAuthor - Read author fallback when lookup row has no author.
  * @returns Recommendation row or `null` when title is missing.
  */
 export function normalizeLookupRecommendation(

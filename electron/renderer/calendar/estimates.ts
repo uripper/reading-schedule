@@ -13,10 +13,10 @@ import { estimateSnapshotForRow } from "./estimates_snapshot.js";
 
 /**
  * Builds end-of-session progress estimate label for a calendar row.
- * @param row Target estimate row.
- * @param state Estimate state context.
- * @param getBookById Book lookup function.
- * @param isSessionCompleted Completion checker.
+ * @param row - Target estimate row.
+ * @param state - Estimate state context.
+ * @param getBookById - Book lookup function.
+ * @param isSessionCompleted - Completion checker.
  * @returns Human-readable estimate label.
  */
 export function estimateProgressLabel(

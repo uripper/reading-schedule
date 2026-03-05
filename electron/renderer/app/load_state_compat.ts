@@ -9,7 +9,7 @@ type ScalarValue = string | number | boolean | null | undefined;
 
 /**
  * Returns object-like state data for cross-shape compatibility reads.
- * @param saved Loaded state payload.
+ * @param saved - Loaded state payload.
  * @returns Plain object record for field probing.
  */
 export function toSavedRecord(
@@ -23,7 +23,7 @@ export function toSavedRecord(
 
 /**
  * Normalizes persisted blocked day-book map values to strict booleans.
- * @param raw Persisted blocked map keyed by `YYYY-MM-DD|book_id`.
+ * @param raw - Persisted blocked map keyed by `YYYY-MM-DD|book_id`.
  * @returns Sanitized blocked map.
  */
 export function normalizeBlockedDayBooks(
@@ -41,8 +41,8 @@ export function normalizeBlockedDayBooks(
 
 /**
  * Resolves completion map from canonical or legacy saved-state fields.
- * @param saved Canonical loaded state.
- * @param savedRecord Object-like compatibility record.
+ * @param saved - Canonical loaded state.
+ * @param savedRecord - Object-like compatibility record.
  * @returns Raw completion map.
  */
 export function readRawCompletions(
@@ -63,8 +63,8 @@ export function readRawCompletions(
 
 /**
  * Resolves raw session payload from canonical and legacy saved-state fields.
- * @param saved Canonical loaded state.
- * @param savedRecord Object-like compatibility record.
+ * @param saved - Canonical loaded state.
+ * @param savedRecord - Object-like compatibility record.
  * @returns Raw session payload.
  */
 export function readRawSessions(
@@ -85,7 +85,7 @@ export function readRawSessions(
 
 /**
  * Normalizes raw session container into supported session input rows.
- * @param rawSessions Raw array/object session payload.
+ * @param rawSessions - Raw array/object session payload.
  * @returns Session input rows for normalization.
  */
 export function sessionInputs(rawSessions: unknown): SessionInput[] {
@@ -100,8 +100,8 @@ export function sessionInputs(rawSessions: unknown): SessionInput[] {
 
 /**
  * Resolves saved planner result from canonical and legacy fields.
- * @param saved Canonical loaded state.
- * @param savedRecord Object-like compatibility record.
+ * @param saved - Canonical loaded state.
+ * @param savedRecord - Object-like compatibility record.
  * @returns Planner result payload when available.
  */
 export function readLoadedResult(
@@ -120,8 +120,8 @@ export function readLoadedResult(
 
 /**
  * Resolves feature flags from canonical and legacy saved-state fields.
- * @param saved Canonical loaded state.
- * @param savedRecord Object-like compatibility record.
+ * @param saved - Canonical loaded state.
+ * @param savedRecord - Object-like compatibility record.
  * @returns Raw feature-flag payload.
  */
 export function readFeatureFlags(

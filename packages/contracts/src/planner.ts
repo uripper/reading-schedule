@@ -10,12 +10,11 @@ import {
 } from "./types.js";
 
 const BRIDGE_RESPONSE_ENVELOPE_SCHEMA = z
-    .object({
+    .looseObject({
         data: JSON_VALUE_SCHEMA.optional(),
         error: z.string().optional(),
         ok: z.boolean().optional(),
     })
-    .passthrough();
 
 const PLAN_GENERATE_PAYLOAD_SCHEMA = z.object({
     books: z.array(z.unknown()),

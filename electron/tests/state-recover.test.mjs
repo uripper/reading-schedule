@@ -34,7 +34,7 @@ function tempDir() {
 
 /**
  * Removes temporary directory tree when it exists.
- * @param {string} directory Temporary directory path.
+ * @param {string} directory - Temporary directory path.
  */
 function cleanup(directory) {
     fs.rmSync(directory, { force: true, recursive: true });
@@ -42,7 +42,7 @@ function cleanup(directory) {
 
 /**
  * Reads snapshot payload from a recovered SQLite file.
- * @param {string} sqlitePath SQLite file path.
+ * @param {string} sqlitePath - SQLite file path.
  * @returns {Record<string, unknown>} Parsed snapshot payload.
  */
 function readSnapshot(sqlitePath) {

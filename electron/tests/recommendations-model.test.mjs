@@ -8,7 +8,7 @@ import {
 
 /**
  * Builds a valid book-like test object with optional overrides.
- * @param {Record<string, unknown>} overrides Partial fields to override in the default book fixture.
+ * @param {Record<string, unknown>} overrides - Partial fields to override in the default book fixture.
  * @returns {Record<string, unknown>} Normalized test-book object.
  */
 function book(overrides = {}) {

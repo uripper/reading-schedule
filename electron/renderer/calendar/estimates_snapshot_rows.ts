@@ -20,7 +20,7 @@ function todayDateKey(): string {
 
 /**
  * Builds sortable key from estimate row date and session index.
- * @param row Estimate row.
+ * @param row - Estimate row.
  * @returns Lexicographically sortable key.
  */
 function rowSortKey(row: Pick<EstimateRow, "date" | "session_index">): string {
@@ -33,7 +33,7 @@ function rowSortKey(row: Pick<EstimateRow, "date" | "session_index">): string {
 
 /**
  * Builds stable session key for estimate completion checks.
- * @param row Estimate row.
+ * @param row - Estimate row.
  * @returns Session key.
  */
 function estimateSessionKey(row: EstimateRow): string {
@@ -42,13 +42,13 @@ function estimateSessionKey(row: EstimateRow): string {
 
 /**
  * Returns candidate sort key when row should contribute to estimate totals.
- * @param candidate Candidate row.
- * @param state Candidate-evaluation state.
- * @param state.bookId Target book id.
- * @param state.today Today's day key.
- * @param state.targetSortKey Target row sort key.
- * @param state.targetIsFuture Whether target row is in future.
- * @param state.isSessionCompleted Completion checker.
+ * @param candidate - Candidate row.
+ * @param state - Candidate-evaluation state.
+ * @param state.bookId - Target book id.
+ * @param state.today - Today's day key.
+ * @param state.targetSortKey - Target row sort key.
+ * @param state.targetIsFuture - Whether target row is in future.
+ * @param state.isSessionCompleted - Completion checker.
  * @returns Candidate sort key when eligible; otherwise `null`.
  */
 function eligibleSortKeyForCandidate(
@@ -83,10 +83,10 @@ function eligibleSortKeyForCandidate(
 
 /**
  * Computes planned words before and through target estimate row.
- * @param row Target estimate row.
- * @param state Estimate state context.
- * @param bookId Target book id.
- * @param isSessionCompleted Completion checker.
+ * @param row - Target estimate row.
+ * @param state - Estimate state context.
+ * @param bookId - Target book id.
+ * @param isSessionCompleted - Completion checker.
  * @returns Planned words before target row and through target row.
  */
 export function plannedWordsBeforeAndThroughRow(

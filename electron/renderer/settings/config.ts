@@ -12,5 +12,5 @@ export const WEEKDAYS: [string, string][] = [
 
 export const DIFFICULTY_LEVEL_COUNT = 10;
 export const DEFAULT_PLAN_MODE = "finish_soon";
-export const DEFAULT_SOLVER_PROFILE = "balanced";
+export const DEFAULT_SOLVER_PROFILE = "fast";
 export const DEFAULT_DIFFICULTY_MULTIPLIER = 1;

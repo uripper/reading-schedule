@@ -17,7 +17,7 @@ const WEEKDAY_SET = new Set<string>(BOOK_WEEKDAYS);
 
 /**
  * Checks whether a string matches a supported weekday key.
- * @param value Candidate weekday value.
+ * @param value - Candidate weekday value.
  * @returns True when value is one of `Mon..Sun`.
  */
 export function isBookWeekday(value: string): value is BookWeekday {
@@ -27,7 +27,7 @@ export function isBookWeekday(value: string): value is BookWeekday {
 /**
  * Returns stable weekday order and removes duplicates/invalid values.
  * Defaults to all weekdays when no valid values are present.
- * @param rawDays Candidate weekday values.
+ * @param rawDays - Candidate weekday values.
  * @returns Ordered weekday list.
  */
 function orderedWeekdays(rawDays: unknown[]): BookWeekday[] {
@@ -52,7 +52,7 @@ function orderedWeekdays(rawDays: unknown[]): BookWeekday[] {
 /**
  * Normalizes unknown scheduled-day input to ordered weekday keys.
  * Defaults to all weekdays when input is missing or invalid.
- * @param value Raw scheduled-days input.
+ * @param value - Raw scheduled-days input.
  * @returns Ordered weekday array with duplicates removed.
  */
 export function normalizeScheduledDays(value: unknown): BookWeekday[] {

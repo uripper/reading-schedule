@@ -4,7 +4,7 @@ const DEFAULT_SETTINGS_SECTION = "plan-budget";
 
 /**
  * Activates one settings section and updates tab selected states.
- * @param nextSection Section id to activate.
+ * @param nextSection - Section id to activate.
  */
 function activateSettingsSection(nextSection: string): void {
     const SECTION = String(nextSection);

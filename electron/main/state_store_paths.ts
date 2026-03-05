@@ -11,7 +11,7 @@ const PYTHON_BRIDGE_LOG_FILE_NAME = "planner_bridge_debug.log";
 
 /**
  * Resolves the primary JSON state file path.
- * @param userDataDir App user-data directory.
+ * @param userDataDir - App user-data directory.
  * @returns Absolute file path.
  */
 export function jsonStatePath(userDataDir: string): string {
@@ -20,7 +20,7 @@ export function jsonStatePath(userDataDir: string): string {
 
 /**
  * Resolves the JSON backup state file path.
- * @param userDataDir App user-data directory.
+ * @param userDataDir - App user-data directory.
  * @returns Absolute file path.
  */
 export function jsonStateBackupPath(userDataDir: string): string {
@@ -29,7 +29,7 @@ export function jsonStateBackupPath(userDataDir: string): string {
 
 /**
  * Resolves the JSON temporary write path.
- * @param userDataDir App user-data directory.
+ * @param userDataDir - App user-data directory.
  * @returns Absolute file path.
  */
 export function jsonStateTempPath(userDataDir: string): string {
@@ -38,7 +38,7 @@ export function jsonStateTempPath(userDataDir: string): string {
 
 /**
  * Resolves the SQLite state database file path.
- * @param userDataDir App user-data directory.
+ * @param userDataDir - App user-data directory.
  * @returns Absolute file path.
  */
 export function sqliteStatePath(userDataDir: string): string {
@@ -47,7 +47,7 @@ export function sqliteStatePath(userDataDir: string): string {
 
 /**
  * Resolves the planner Python bridge debug log file path.
- * @param userDataDir App user-data directory.
+ * @param userDataDir - App user-data directory.
  * @returns Absolute file path.
  */
 export function pythonBridgeLogPath(userDataDir: string): string {

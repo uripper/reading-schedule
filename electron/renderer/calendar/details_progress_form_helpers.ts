@@ -3,8 +3,8 @@ import { parseOptionalNumber } from "./utils.js";
 
 /**
  * Prefills input value from book progress value when present.
- * @param inputNode Input element to set.
- * @param value Optional source value.
+ * @param inputNode - Input element to set.
+ * @param value - Optional source value.
  */
 export function setInputValueFromBookProgress(
     inputNode: HTMLInputElement,
@@ -18,8 +18,8 @@ export function setInputValueFromBookProgress(
 
 /**
  * Parses changed numeric value from input relative to initial text.
- * @param inputNode Input element.
- * @param initialValue Initial value text.
+ * @param inputNode - Input element.
+ * @param initialValue - Initial value text.
  * @returns Parsed number or `null` when unchanged/invalid.
  */
 function changedNumberValue(
@@ -35,8 +35,8 @@ function changedNumberValue(
 
 /**
  * Syncs input element to provided numeric value when present.
- * @param inputNode Input element.
- * @param nextValue Optional value to write.
+ * @param inputNode - Input element.
+ * @param nextValue - Optional value to write.
  * @returns Current trimmed input value after sync.
  */
 function syncInputValue(
@@ -53,14 +53,14 @@ function syncInputValue(
 
 /**
  * Submits progress update and returns updated baseline form values.
- * @param args Form submission payload for the progress editor.
- * @param args.event Form submit event.
- * @param args.row Calendar row being edited.
- * @param args.pagesInput Pages-read input element.
- * @param args.pctInput Progress-percent input element.
- * @param args.initialPagesValue Previous stable pages value.
- * @param args.initialPercentValue Previous stable percent value.
- * @param args.interactionHandlers Detail interaction handlers.
+ * @param args - Form submission payload for the progress editor.
+ * @param event - Form submit event.
+ * @param row - Calendar row being edited.
+ * @param pagesInput - Pages-read input element.
+ * @param pctInput - Progress-percent input element.
+ * @param initialPagesValue - Previous stable pages value.
+ * @param initialPercentValue - Previous stable percent value.
+ * @param interactionHandlers - Detail interaction handlers.
  * @returns Updated initial values and apply status.
  */
 export function submitProgressUpdate(args: SubmitProgressUpdateArgs): {

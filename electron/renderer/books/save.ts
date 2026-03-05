@@ -3,7 +3,7 @@ import { getPlannerApi } from "../app/planner_api.js";
 
 /**
  * Downloads remote cover art for a book when no local cover exists yet.
- * @param book Source book model.
+ * @param book - Source book model.
  * @returns Original book or cloned book with `cover_local_path` populated.
  */
 export async function hydrateBookCover(book: Book): Promise<Book> {
@@ -27,8 +27,8 @@ export async function hydrateBookCover(book: Book): Promise<Book> {
 
 /**
  * Inserts or replaces a book in collection by `book_id`.
- * @param books Existing books collection.
- * @param nextBook Book to insert or replace.
+ * @param books - Existing books collection.
+ * @param nextBook - Book to insert or replace.
  * @returns New books array with upsert applied.
  */
 export function upsertBookById(books: Book[], nextBook: Book): Book[] {

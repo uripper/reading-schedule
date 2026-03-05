@@ -9,8 +9,8 @@ import { toOptionalInt } from "./utils.js";
 
 /**
  * Applies a positive lookup estimate to an input only when current value is missing.
- * @param input Target numeric input to update.
- * @param estimate Lookup-provided numeric estimate.
+ * @param input - Target numeric input to update.
+ * @param estimate - Lookup-provided numeric estimate.
  */
 function applyEstimateWhenMissing(
     input: HTMLInputElement,
@@ -29,8 +29,8 @@ function applyEstimateWhenMissing(
 
 /**
  * Applies a selected lookup result into editable form fields.
- * @param refs Book form references to update.
- * @param item Lookup result chosen by the user.
+ * @param refs - Book form references to update.
+ * @param item - Lookup result chosen by the user.
  */
 export function applyLookupItem(
     refs: BookFormRefs,
@@ -61,9 +61,9 @@ export function applyLookupItem(
 
 /**
  * Applies uploaded local cover metadata and updates preview/note fields.
- * @param refs Book form references to update.
- * @param localCoverPath Planner-saved local cover path.
- * @param fileName Optional original file name for display note.
+ * @param refs - Book form references to update.
+ * @param localCoverPath - Planner-saved local cover path.
+ * @param fileName - Optional original file name for display note.
  */
 export function applyUploadedCover(
     refs: BookFormRefs,

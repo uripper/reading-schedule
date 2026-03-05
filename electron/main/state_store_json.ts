@@ -1,5 +1,5 @@
 /**
- * @file Atomic JSON planner state read/write helpers with backup fallback.
+ * Atomic JSON planner state read/write helpers with backup fallback.
  */
 import fs from "node:fs";
 import type {
@@ -18,7 +18,7 @@ const UTF8_BOM = "\uFEFF";
 
 /**
  * Removes UTF-8 BOM marker when present so JSON parsing remains robust.
- * @param text Raw UTF-8 file text.
+ * @param text - Raw UTF-8 file text.
  * @returns BOM-stripped JSON text.
  */
 function stripUtf8Bom(text: string): string {
@@ -30,7 +30,7 @@ function stripUtf8Bom(text: string): string {
 
 /**
  * Normalizes parsed JSON payload into an object-like state payload.
- * @param value Raw parsed JSON value.
+ * @param value - Raw parsed JSON value.
  * @returns Object payload when valid, otherwise null.
  */
 function objectState(value: unknown): LoadedPlannerState | null {
@@ -48,7 +48,7 @@ function objectState(value: unknown): LoadedPlannerState | null {
 
 /**
  * Parses one JSON file into object state payload.
- * @param filePath Candidate JSON file path.
+ * @param filePath - Candidate JSON file path.
  * @returns Parsed object state, or null when file is missing/invalid.
  */
 function readJsonObjectFile(filePath: string): LoadedPlannerState | null {
@@ -63,7 +63,7 @@ function readJsonObjectFile(filePath: string): LoadedPlannerState | null {
 
 /**
  * Flushes file contents to disk.
- * @param filePath Path to fsync.
+ * @param filePath - Path to fsync.
  */
 function fsyncFile(filePath: string): void {
     const FILE = fs.openSync(filePath, "r");
@@ -76,7 +76,7 @@ function fsyncFile(filePath: string): void {
 
 /**
  * Flushes directory metadata updates to disk.
- * @param dirPath Directory path to fsync.
+ * @param dirPath - Directory path to fsync.
  */
 function fsyncDirectory(dirPath: string): void {
     try {
@@ -93,7 +93,7 @@ function fsyncDirectory(dirPath: string): void {
 
 /**
  * Attempts to load planner state from JSON primary/backup files.
- * @param userDataDir App user-data directory.
+ * @param userDataDir - App user-data directory.
  * @returns Load result for JSON sources, or null when unreadable/missing.
  */
 export function readStateFromJson(
@@ -125,8 +125,8 @@ export function readStateFromJson(
 
 /**
  * Writes planner state using atomic temp-file rename with backup rotation.
- * @param userDataDir App user-data directory.
- * @param data Serializable planner state payload.
+ * @param userDataDir - App user-data directory.
+ * @param data - Serializable planner state payload.
  * @returns Save result.
  */
 export function writeStateToJson(

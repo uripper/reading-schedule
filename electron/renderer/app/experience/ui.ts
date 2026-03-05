@@ -11,7 +11,7 @@ import { DEFAULT_PREFERENCES, isSupportedTheme } from "./model.js";
 
 /**
  * Reads a numeric input and normalizes empty or invalid values to 0.
- * @param id Input element id.
+ * @param id - Input element id.
  * @returns Parsed number, or 0 when input is empty/invalid.
  */
 function numberInputValue(id: string): number {
@@ -25,7 +25,7 @@ function numberInputValue(id: string): number {
 
 /**
  * Reads checkbox state as a boolean.
- * @param id Checkbox element id.
+ * @param id - Checkbox element id.
  * @returns Checked state.
  */
 function checkboxValue(id: string): boolean {
@@ -34,7 +34,7 @@ function checkboxValue(id: string): boolean {
 
 /**
  * Reads text-like input value.
- * @param id Input element id.
+ * @param id - Input element id.
  * @returns Raw input value.
  */
 function inputValue(id: string): string {
@@ -43,7 +43,7 @@ function inputValue(id: string): string {
 
 /**
  * Reads the current selected option value.
- * @param id Select element id.
+ * @param id - Select element id.
  * @returns Selected option value.
  */
 function selectValue(id: string): string {

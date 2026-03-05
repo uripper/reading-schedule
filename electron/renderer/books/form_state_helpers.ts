@@ -31,8 +31,8 @@ function todayDateKey(): string {
 
 /**
  * Updates the book cover preview image and empty-state class.
- * @param refs Form DOM references for the book dialog.
- * @param src URL/path to show in the preview.
+ * @param refs - Form DOM references for the book dialog.
+ * @param src - URL/path to show in the preview.
  */
 export function setCoverPreview(refs: BookFormRefs, src: string): void {
     const PREVIEW = refs.coverPreview;
@@ -47,8 +47,8 @@ export function setCoverPreview(refs: BookFormRefs, src: string): void {
 
 /**
  * Writes optional integer values into text inputs without `"null"` artifacts.
- * @param inputNode Input node to update.
- * @param value Number to render, or empty when missing.
+ * @param inputNode - Input node to update.
+ * @param value - Number to render, or empty when missing.
  */
 export function setOptionalIntegerInputValue(
     inputNode: HTMLInputElement,
@@ -64,8 +64,8 @@ export function setOptionalIntegerInputValue(
 
 /**
  * Returns fallback text when a value is empty, null, or undefined.
- * @param value Candidate text value.
- * @param fallback Value used when `value` is missing.
+ * @param value - Candidate text value.
+ * @param fallback - Value used when `value` is missing.
  * @returns `value` when present; otherwise `fallback`.
  */
 export function fallbackText(
@@ -80,8 +80,8 @@ export function fallbackText(
 
 /**
  * Returns number text or fallback when numeric value is absent/zero.
- * @param value Candidate numeric value.
- * @param fallback Value used when `value` is missing.
+ * @param value - Candidate numeric value.
+ * @param fallback - Value used when `value` is missing.
  * @returns String form of `value` or the provided fallback.
  */
 export function fallbackNumberText(
@@ -96,7 +96,7 @@ export function fallbackNumberText(
 
 /**
  * Reads and validates required title input.
- * @param refs Form DOM references for the book dialog.
+ * @param refs - Form DOM references for the book dialog.
  * @returns Trimmed title text.
  * @throws {Error} Thrown when the title is blank.
  */
@@ -110,7 +110,7 @@ export function requiredTitle(refs: BookFormRefs): string {
 
 /**
  * Reads and normalizes selected status into a supported book status.
- * @param refs Form DOM references for the book dialog.
+ * @param refs - Form DOM references for the book dialog.
  * @returns Supported book status value.
  */
 export function validatedStatusSelection(refs: BookFormRefs): BookStatus {
@@ -129,8 +129,8 @@ export function validatedStatusSelection(refs: BookFormRefs): BookStatus {
 
 /**
  * Shows or hides finished-date controls based on selected status.
- * @param refs Form DOM references for the book dialog.
- * @param status Current normalized status value.
+ * @param refs - Form DOM references for the book dialog.
+ * @param status - Current normalized status value.
  */
 function toggleFinishedAtInput(refs: BookFormRefs, status: BookStatus): void {
     const { finishedAtField, finishedAtInput } = refs;
@@ -148,7 +148,7 @@ function toggleFinishedAtInput(refs: BookFormRefs, status: BookStatus): void {
 
 /**
  * Synchronizes finished-date field visibility with current status selection.
- * @param refs Form DOM references for the book dialog.
+ * @param refs - Form DOM references for the book dialog.
  */
 export function syncFinishedAtFieldState(refs: BookFormRefs): void {
     const STATUS = validatedStatusSelection(refs);
@@ -157,7 +157,7 @@ export function syncFinishedAtFieldState(refs: BookFormRefs): void {
 
 /**
  * Parses and validates length/progress inputs into normalized numeric values.
- * @param refs Form DOM references for the book dialog.
+ * @param refs - Form DOM references for the book dialog.
  * @returns Parsed length and progress values for normalization.
  * @throws {Error} Thrown when neither words nor page total is provided.
  */
@@ -204,7 +204,7 @@ export function deriveLengthAndProgress(refs: BookFormRefs): {
 
 /**
  * Reads shelf selection and rejects the placeholder create-new option.
- * @param refs Form DOM references for the book dialog.
+ * @param refs - Form DOM references for the book dialog.
  * @returns Selected shelf id.
  * @throws {Error} Thrown when no valid shelf is selected.
  */

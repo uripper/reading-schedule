@@ -16,8 +16,8 @@ export const MAX_DIFFICULTY = 10;
 
 /**
  * Converts a numeric input to integer, defaulting when undefined/invalid.
- * @param value Raw numeric value from a book field.
- * @param fallback Default integer when value is missing.
+ * @param value - Raw numeric value from a book field.
+ * @param fallback - Default integer when value is missing.
  * @returns Parsed integer constrained by `toInt` fallback behavior.
  */
 function toIntWithFallback(
@@ -29,7 +29,7 @@ function toIntWithFallback(
 
 /**
  * Normalizes optional finished date text into nullable trimmed form.
- * @param value Raw finished date text.
+ * @param value - Raw finished date text.
  * @returns Trimmed date string or `null` when empty.
  */
 function normalizeFinishedAt(value: string | null | undefined): string | null {
@@ -50,7 +50,7 @@ function todayDateKey(): string {
 
 /**
  * Trims optional text values and normalizes nullish input to empty string.
- * @param value Optional text value.
+ * @param value - Optional text value.
  * @returns Trimmed text.
  */
 export function toTrimmedText(value?: string | null): string {
@@ -59,7 +59,7 @@ export function toTrimmedText(value?: string | null): string {
 
 /**
  * Returns a stable book id, generating one when input is blank.
- * @param value Existing book id candidate.
+ * @param value - Existing book id candidate.
  * @returns Existing trimmed id or generated uid.
  */
 export function toBookId(value?: string): string {
@@ -72,10 +72,10 @@ export function toBookId(value?: string): string {
 
 /**
  * Parses integer input and clamps it to an allowed range.
- * @param value Raw numeric value from book data.
- * @param fallback Integer used when value is missing/invalid.
- * @param minValue Inclusive minimum.
- * @param maxValue Inclusive maximum.
+ * @param value - Raw numeric value from book data.
+ * @param fallback - Integer used when value is missing/invalid.
+ * @param minValue - Inclusive minimum.
+ * @param maxValue - Inclusive maximum.
  * @returns Clamped integer value.
  */
 export function toClampedInt(
@@ -89,7 +89,7 @@ export function toClampedInt(
 
 /**
  * Ensures minimum blocks per session is at least one.
- * @param value Raw configured minimum blocks.
+ * @param value - Raw configured minimum blocks.
  * @returns Valid minimum blocks value.
  */
 export function minBlocksPerSession(value: number | undefined): number {
@@ -101,7 +101,7 @@ export function minBlocksPerSession(value: number | undefined): number {
 
 /**
  * Converts optional strings to nullable values used by persistence payloads.
- * @param value Optional string value.
+ * @param value - Optional string value.
  * @returns String when truthy; otherwise `null`.
  */
 export function withNullableString(
@@ -115,8 +115,8 @@ export function withNullableString(
 
 /**
  * Resolves `finished_at` value based on current status semantics.
- * @param status Normalized book status value.
- * @param finishedAtRaw Raw finished date text from source model.
+ * @param status - Normalized book status value.
+ * @param finishedAtRaw - Raw finished date text from source model.
  * @returns `null` for non-read status, explicit date when provided, or today for read books.
  */
 export function finishedAtForStatus(
@@ -135,9 +135,9 @@ export function finishedAtForStatus(
 
 /**
  * Normalizes pages read and progress so both fields stay consistent.
- * @param pagesTotal Total pages when known.
- * @param pagesRead Pages read when provided.
- * @param progressRaw Raw progress percent value.
+ * @param pagesTotal - Total pages when known.
+ * @param pagesRead - Pages read when provided.
+ * @param progressRaw - Raw progress percent value.
  * @returns Normalized pages read and progress percent pair.
  */
 export function normalizeProgressAndPages(

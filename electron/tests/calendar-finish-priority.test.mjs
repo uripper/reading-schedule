@@ -7,7 +7,7 @@ import { dayKey, sessionKeyFor } from "../dist/renderer/calendar/utils.js";
 
 /**
  * Builds calendar row fixture with override support.
- * @param {Record<string, unknown>} overrides Row field overrides.
+ * @param {Record<string, unknown>} overrides - Row field overrides.
  * @returns {Record<string, unknown>} Row fixture.
  */
 function row(overrides) {

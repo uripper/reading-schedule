@@ -3,9 +3,13 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
 
 try:
     from fastapi.testclient import TestClient
@@ -98,12 +102,9 @@ def test_state_save_rejects_invalid_snapshot(tmp_path: Path, monkeypatch) -> Non
         "sessions": [],
     }
 
-    try:
+    with pytest.raises(TypeError) as error:
         _save_state_file(invalid)
-    except TypeError as error:
-        assert "Saved state payload" in str(error)
-    else:
-        raise AssertionError("Expected TypeError for invalid snapshot")
+    assert "Saved state payload" in str(error.value)
 
 
 def test_plan_generate_endpoint() -> None:

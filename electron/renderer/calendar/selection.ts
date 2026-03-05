@@ -16,7 +16,7 @@ function todayDateKey(): string {
 
 /**
  * Extracts `YYYY-MM` month key from a day key.
- * @param dateKey Day key in `YYYY-MM-DD` format.
+ * @param dateKey - Day key in `YYYY-MM-DD` format.
  * @returns Month key in `YYYY-MM` format.
  */
 export function monthKeyForDateKey(dateKey: string): string {
@@ -25,8 +25,8 @@ export function monthKeyForDateKey(dateKey: string): string {
 
 /**
  * Resolves best index for target month within available month list.
- * @param months Available month keys.
- * @param targetMonthKey Preferred month key.
+ * @param months - Available month keys.
+ * @param targetMonthKey - Preferred month key.
  * @returns Matching/upcoming/fallback month index.
  */
 export function indexForMonth(
@@ -48,7 +48,7 @@ export function indexForMonth(
 
 /**
  * Moves runtime state focus to today when month data is present.
- * @param state Mutable calendar runtime state.
+ * @param state - Mutable calendar runtime state.
  */
 export function applyTodayFocus(state: CalendarRuntimeState): void {
     const CALENDAR_STATE = state;
@@ -69,11 +69,11 @@ export function applyTodayFocus(state: CalendarRuntimeState): void {
 
 /**
  * Selects a date, refreshes month UI, and optionally focuses its day button.
- * @param state Mutable calendar runtime state.
- * @param dateKey Day key to select.
- * @param renderMonth Callback to rerender calendar month.
- * @param options Optional selection behavior.
- * @param options.focus Whether to focus selected day button.
+ * @param state - Mutable calendar runtime state.
+ * @param dateKey - Day key to select.
+ * @param renderMonth - Callback to rerender calendar month.
+ * @param options - Optional selection behavior.
+ * @param focus - Whether to focus selected day button.
  */
 export function selectDate(
     state: CalendarRuntimeState,
@@ -97,10 +97,10 @@ export function selectDate(
 
 /**
  * Moves day-cell selection by offset and focuses resulting day.
- * @param state Mutable calendar runtime state.
- * @param delta Positive/negative index delta.
- * @param currentIndex Current cell index.
- * @param selectDateWithOptions Date selection callback with focus option.
+ * @param state - Mutable calendar runtime state.
+ * @param delta - Positive/negative index delta.
+ * @param currentIndex - Current cell index.
+ * @param selectDateWithOptions - Date selection callback with focus option.
  */
 export function moveSelectionBy(
     state: CalendarRuntimeState,

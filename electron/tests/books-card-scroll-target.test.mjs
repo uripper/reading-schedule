@@ -28,8 +28,8 @@ function fakeClassList() {
 
 /**
  * Creates a fake card node with the fields used by scroll targeting.
- * @param {string} bookId Stable fake `book_id`.
- * @param {() => {top: number, left: number, bottom: number, right: number}} rectProvider Bounds provider.
+ * @param {string} bookId - Stable fake `book_id`.
+ * @param {() - => {top: number, left: number, bottom: number, right: number}} rectProvider Bounds provider.
  * @returns {{
  *   classList: ReturnType<typeof fakeClassList>,
  *   dataset: { bookId: string },
@@ -54,7 +54,7 @@ function fakeCard(bookId, rectProvider) {
 
 /**
  * Executes the next queued animation-frame callback.
- * @param {Array<(time: number) => void>} frameQueue Queued frame callbacks.
+ * @param {Array<(time: number) => void>} frameQueue - Queued frame callbacks.
  */
 function runNextAnimationFrame(frameQueue) {
     const CALLBACK = frameQueue.shift();
