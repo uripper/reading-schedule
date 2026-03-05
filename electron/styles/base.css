@@ -35,6 +35,21 @@ body {
     background: var(--neo-app-background);
 }
 
+body::before {
+    background-image: url("../assets/wireframe.svg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 125%;
+    content: "";
+    inset: 0;
+    opacity: 0.15;
+    pointer-events: none;
+    position: fixed;
+    z-index: -1;
+}
+
+
+
 .splash-screen {
     position: fixed;
     inset: 0;
