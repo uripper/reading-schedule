@@ -1,3 +1,4 @@
+import * as fs from "node:fs";
 import * as path from "node:path";
 import { pythonBridgeLogPath } from "../state_store_paths";
 import {
@@ -11,6 +12,33 @@ import {
     PYTHONPATH_SEGMENT,
 } from "./constants.js";
 import type { BridgeExecutionContext, BridgeRunContext } from "./types.js";
+
+const ROOT_MARKER_FILE = "pyproject.toml";
+const ROOT_MARKER_PATH_SEGMENTS = ["src", "reading_plan"];
+const ROOT_SEARCH_ASCENT_LIMIT = 12;
+
+function hasRootMarkers(directory: string): boolean {
+    const ROOT_MARKER_PATH = path.join(directory, ...ROOT_MARKER_PATH_SEGMENTS);
+    const ROOT_FILE_PATH = path.join(directory, ROOT_MARKER_FILE);
+    return fs.existsSync(ROOT_MARKER_PATH) && fs.existsSync(ROOT_FILE_PATH);
+}
+
+function resolveRootFrom(startDirectory: string): string | null {
+    let currentDirectory = startDirectory;
+    let steps = 0;
+    while (steps < ROOT_SEARCH_ASCENT_LIMIT) {
+        if (hasRootMarkers(currentDirectory)) {
+            return currentDirectory;
+        }
+        const PARENT_DIRECTORY = path.dirname(currentDirectory);
+        if (PARENT_DIRECTORY === currentDirectory) {
+            return null;
+        }
+        currentDirectory = PARENT_DIRECTORY;
+        steps += 1;
+    }
+    return null;
+}
 
 /**
  * Resolves subprocess timeout for planner bridge execution.
@@ -37,7 +65,17 @@ export function bridgeTimeoutMs(): number {
  * @returns Absolute path to the project root directory.
  */
 export function root(): string {
-    return path.join(__dirname, "..", "..");
+    const FROM_MODULE_DIRECTORY = resolveRootFrom(__dirname);
+    if (FROM_MODULE_DIRECTORY !== null) {
+        return FROM_MODULE_DIRECTORY;
+    }
+    const FROM_WORKING_DIRECTORY = resolveRootFrom(process.cwd());
+    if (FROM_WORKING_DIRECTORY !== null) {
+        return FROM_WORKING_DIRECTORY;
+    }
+    throw new Error(
+        "Could not resolve planner bridge project root from runtime directories.",
+    );
 }
 
 /**
