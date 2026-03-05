@@ -24,7 +24,8 @@ def _is_feature_flags(value: object) -> bool:
         return False
     value_map = cast("dict[str, object]", value)
     return all(
-        isinstance(value_map.get(key), bool) for key in REQUIRED_FEATURE_FLAGS
+        isinstance(value_map.get(key, False), bool)
+        for key in REQUIRED_FEATURE_FLAGS
     )
 
 
@@ -33,15 +34,15 @@ def _is_preferences(value: object) -> bool:
         return False
     value_map = cast("dict[str, object]", value)
     checks = (
-        isinstance(value_map.get("dailyGoalMinutes"), int),
-        isinstance(value_map.get("reduceMotion"), bool),
-        isinstance(value_map.get("reminderEnabled"), bool),
-        isinstance(value_map.get("reminderTime"), str),
-        isinstance(value_map.get("timezone"), str),
+        isinstance(value_map.get("dailyGoalMinutes", 30), int),
+        isinstance(value_map.get("reduceMotion", False), bool),
+        isinstance(value_map.get("reminderEnabled", False), bool),
+        isinstance(value_map.get("reminderTime", "08:00"), str),
+        isinstance(value_map.get("timezone", "UTC"), str),
     )
     if not all(checks):
         return False
-    theme = value_map.get("theme")
+    theme = value_map.get("theme", "dark")
     return isinstance(theme, str) and theme in VALID_THEMES
 
 

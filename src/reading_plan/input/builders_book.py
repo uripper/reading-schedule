@@ -46,8 +46,14 @@ def _word_stats(data: BookData) -> tuple[int, int, float]:
     """
     words_raw = data.get("words_total")
     pages_raw = data.get("pages_total")
-    if words_raw:
-        full = to_int(words_raw or 0, "words_total")
+
+    has_words = words_raw is not None and str(words_raw).strip()
+
+    if has_words:
+        full = to_int(words_raw, "words_total")
+        if full <= 0:
+            msg = "words_total must be greater than 0"
+            raise ValueError(msg)
     else:
         full = to_int(pages_raw or 0, "pages_total") * WORDS_PER_PAGE
 
