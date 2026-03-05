@@ -9,6 +9,7 @@ import type {
     PlannerSaveResult,
     PlannerStateLoadResult,
 } from "../types/types.js";
+import { objectState } from "./state_store_json.js";
 import { sqliteStatePath } from "./state_store_paths";
 
 const STATE_SCHEMA_VERSION = 1;
@@ -42,24 +43,6 @@ function openDatabase(databasePath: string): DatabaseSync {
     );
   `);
     return DATABASE;
-}
-
-/**
- * Coerces parsed JSON into object-like state payload.
- * @param value - Parsed JSON value.
- * @returns Object payload when valid, otherwise null.
- */
-function objectState(value: unknown): LoadedPlannerState | null {
-    if (value === null) {
-        return null;
-    }
-    if (Array.isArray(value)) {
-        return null;
-    }
-    if (typeof value !== "object") {
-        return null;
-    }
-    return value as LoadedPlannerState;
 }
 
 /**

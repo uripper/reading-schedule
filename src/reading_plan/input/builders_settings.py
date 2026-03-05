@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from reading_plan.input.builders_coerce import to_float, to_int
 from reading_plan.input.validate import validate_settings
@@ -15,10 +15,10 @@ from reading_plan.planner_types import (
 from reading_plan.reading_calendar import parse_date
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from src.reading_plan.api_types import SettingsData
 
 
-def settings_from_data(data: Mapping[str, Any]) -> Settings:
+def settings_from_data(data: SettingsData) -> Settings:
     """Normalize raw settings payload data into a validated Settings model.
 
     :param data: raw settings payload with mixed fields and formats
@@ -51,7 +51,7 @@ def settings_from_data(data: Mapping[str, Any]) -> Settings:
         end_date=parse_date(data["end_date"]),
         minutes_per_day=parsed_minutes_per_day,
         minutes_by_weekday=by_weekday,
-        days_off={parse_date(d) for d in data.get("days_off", [])},
+        days_off={parse_date(d) for d in data.get("days_off", []) or []},
         wpm_base=to_int(data["wpm_base"], "wpm_base"),
         time_quantum_minutes=to_int(
             data.get("time_quantum_minutes", 15), "time_quantum_minutes"

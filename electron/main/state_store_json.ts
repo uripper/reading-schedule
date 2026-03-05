@@ -33,7 +33,7 @@ function stripUtf8Bom(text: string): string {
  * @param value - Raw parsed JSON value.
  * @returns Object payload when valid, otherwise null.
  */
-function objectState(value: unknown): LoadedPlannerState | null {
+export function objectState(value: unknown): LoadedPlannerState | null {
     if (value === null) {
         return null;
     }

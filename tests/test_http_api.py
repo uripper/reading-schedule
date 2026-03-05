@@ -22,7 +22,7 @@ except RuntimeError:
     HAS_TEST_CLIENT = False
 
 from reading_plan.api import generate_plan
-import reading_plan.http_api as http_api
+from reading_plan import http_api
 from reading_plan.http_api import (
     _load_state_file,
     _sample_payload,

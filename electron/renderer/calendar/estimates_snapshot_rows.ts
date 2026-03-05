@@ -4,19 +4,9 @@ import type {
     EstimateState,
 } from "../../types/types.js";
 
-const SESSION_INDEX_PAD = 3;
+import { todayDateKey } from "./selection.js";
 
-/**
- * Returns today's local day key for estimate row filtering.
- * @returns Day key in `YYYY-MM-DD` format.
- */
-function todayDateKey(): string {
-    const NOW = new Date();
-    const YEAR = NOW.getFullYear();
-    const MONTH = String(NOW.getMonth() + 1).padStart(2, "0");
-    const DAY = String(NOW.getDate()).padStart(2, "0");
-    return `${YEAR}-${MONTH}-${DAY}`;
-}
+const SESSION_INDEX_PAD = 3;
 
 /**
  * Builds sortable key from estimate row date and session index.

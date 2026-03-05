@@ -5,18 +5,7 @@ import type {
     PlannerToken,
     RunPlanGenerationArgs,
 } from "../../types/types.js";
-
-/**
- * Generates a day key in the format "YYYY-MM-DD" from a Date object.
- * @param date - The Date object to convert.
- * @returns A string representing the day key in "YYYY-MM-DD" format.
- */
-function dayKeyFromDate(date: Date): string {
-    const YEAR = date.getFullYear();
-    const MONTH = String(date.getMonth() + 1).padStart(2, "0");
-    const DAY = String(date.getDate()).padStart(2, "0");
-    return `${YEAR}-${MONTH}-${DAY}`;
-}
+import { dayKeyFromDate } from "./date_keys.js";
 
 /**
  * Generates a day key for tomorrow's date in the format "YYYY-MM-DD".
