@@ -4,8 +4,8 @@ import { sessionKeyFor } from "../../calendar/utils.js";
 /**
  * Normalizes overloaded arguments into a date string and row collection.
  * Supports either `(date, rows)` or `(rows, date)` call order.
- * @param dateOrRows Either a date string or an array of PlannerScheduleRow.
- * @param rowsOrDate Either an array of PlannerScheduleRow or a date string.
+ * @param dateOrRows - Either a date string or an array of PlannerScheduleRow.
+ * @param rowsOrDate - Either an array of PlannerScheduleRow or a date string.
  * @returns Normalized date/rows pair used by row helper functions.
  */
 function normalizeRowsAndDate(
@@ -32,8 +32,8 @@ function normalizeRowsAndDate(
 /**
  * Normalizes overloaded arguments into a session key and row collection.
  * Supports either `(sessionKey, rows)` or `(rows, sessionKey)` call order.
- * @param targetSessionKeyOrRows Either a session key string or an array of PlannerScheduleRow.
- * @param rowsOrTargetSessionKey Either an array of PlannerScheduleRow or a session key string.
+ * @param targetSessionKeyOrRows - Either a session key string or an array of PlannerScheduleRow.
+ * @param rowsOrTargetSessionKey - Either an array of PlannerScheduleRow or a session key string.
  * @returns Normalized session-key/rows pair used by row helper functions.
  */
 function normalizeRowsAndSessionKey(
@@ -59,8 +59,8 @@ function normalizeRowsAndSessionKey(
 
 /**
  * Calculates the next session index for a given date.
- * @param dateOrRows Either a date string or an array of PlannerScheduleRow.
- * @param rowsOrDate Either an array of PlannerScheduleRow or a date string.
+ * @param dateOrRows - Either a date string or an array of PlannerScheduleRow.
+ * @param rowsOrDate - Either an array of PlannerScheduleRow or a date string.
  * @returns The next session index for the specified date.
  */
 export function nextSessionIndexForDate(

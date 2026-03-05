@@ -226,7 +226,7 @@ export async function loadInitialData(args: LoadStateArgs): Promise<void> {
         applySessionAndResultData(SAVED, args);
         args.onLoaded(SAVED, LOAD_RESULT);
     } catch (error) {
-        const ErrorMessage = "Faile to load initial data. \n " + error;
+        const ErrorMessage = `Failed to load initial data. \n ${error}`;
         args.setStatus(ErrorMessage, true);
     }
 }

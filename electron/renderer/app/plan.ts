@@ -34,16 +34,18 @@ function tomorrowDayKey(): string {
  * @returns Planner token for Python solve strategy selection.
  */
 function plannerTokenFromProfile(profileRaw: unknown): PlannerToken {
+    // TODO: We are going to temporarily break this by sending everything to fast
+    // THIS MUST BE FIXED EVENTUALLY!
     if (profileRaw === "fast") {
         return "mip-fast";
     }
     if (profileRaw === "thorough") {
-        return "mip-thorough";
+        return "mip-fast";
     }
     if (profileRaw === "balanced") {
-        return "mip-balanced";
+        return "mip-fast";
     }
-    return "mip";
+    return "mip-fast";
 }
 
 /**
