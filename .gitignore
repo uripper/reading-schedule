@@ -78,14 +78,11 @@ mobile/web-build/
 *.log
 *.pid
 planner_state*.json
-data/schedule.csv
-data/books.csv
 Issues/.sync-cache.tsv
 
 # Local tooling config
 .sourcery.yaml
 pnpm-lock.yaml
-.gitignore
 sonar-project.properties
 .scannerwork/.sonar_lock
 .scannerwork/report-task.txt
