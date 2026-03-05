@@ -44,6 +44,9 @@ const EMPTY_INDEX = -1;
 const HOME_INDEX = 0;
 const STEP_PREVIOUS = -1;
 const STEP_NEXT = 1;
+const MIN_VISIBLE_OFFSET = -2;
+const MAX_VISIBLE_OFFSET = 2;
+type TodayCarouselTrackBook = TodayCarouselModel["books"][number];
 
 function interactionBindings(): TodayInteractionBindings | null {
     return interactions;
@@ -183,40 +186,92 @@ function centerBookInTrack(track: HTMLElement, bookId: string): void {
     track.scrollLeft = Math.round(TARGET_LEFT);
 }
 
+function carouselItems(track: HTMLElement): HTMLButtonElement[] {
+    return Array.from(track.children).filter(
+        (node): node is HTMLButtonElement => node instanceof HTMLButtonElement,
+    );
+}
+
+function hasSameTrackOrder(
+    items: HTMLButtonElement[],
+    books: TodayCarouselTrackBook[],
+): boolean {
+    if (items.length !== books.length) {
+        return false;
+    }
+    return books.every((book, index) => {
+        return items[index]?.dataset.bookId === book.bookId;
+    });
+}
+
+function buildCarouselItem(book: TodayCarouselTrackBook): HTMLButtonElement {
+    const ITEM = document.createElement("button");
+    ITEM.type = "button";
+    ITEM.className = "today-carousel-item";
+    ITEM.dataset.bookId = book.bookId;
+    ITEM.setAttribute("role", "option");
+    ITEM.setAttribute("aria-label", `${book.title} by ${book.author}`);
+    ITEM.onclick = () => selectBook(book.bookId);
+
+    if (book.coverSrc) {
+        const IMG = document.createElement("img");
+        IMG.src = book.coverSrc;
+        IMG.alt = `Cover of ${book.title}`;
+        IMG.loading = "lazy";
+        ITEM.append(IMG);
+        return ITEM;
+    }
+    const FALLBACK = document.createElement("span");
+    FALLBACK.className = "today-carousel-fallback";
+    FALLBACK.textContent = fallbackText(book.title);
+    ITEM.append(FALLBACK);
+    return ITEM;
+}
+
+function renderTrackItems(
+    track: HTMLElement,
+    books: TodayCarouselTrackBook[],
+): void {
+    const ITEMS = carouselItems(track);
+    if (hasSameTrackOrder(ITEMS, books)) {
+        return;
+    }
+    const NODES = books.map((book) => buildCarouselItem(book));
+    track.replaceChildren(...NODES);
+}
+
+function applySelectedItemState(
+    track: HTMLElement,
+    selectedBookId: string,
+    selectedIndex: number,
+): void {
+    for (const [INDEX, ITEM] of Array.from(track.children).entries()) {
+        if (!(ITEM instanceof HTMLButtonElement)) {
+            continue;
+        }
+
+        const IS_SELECTED = ITEM.dataset.bookId === selectedBookId;
+        const OFFSET = INDEX - selectedIndex;
+        const CLAMPED_OFFSET = Math.max(
+            MIN_VISIBLE_OFFSET,
+            Math.min(MAX_VISIBLE_OFFSET, OFFSET),
+        );
+
+        ITEM.classList.toggle("is-selected", IS_SELECTED);
+        ITEM.setAttribute("aria-selected", String(IS_SELECTED));
+        ITEM.dataset.offset = String(CLAMPED_OFFSET);
+    }
+}
+
 function renderCarouselTrack(model: TodayCarouselModel): void {
     const TRACK = el<HTMLElement>("todayCarouselTrack");
-    const NODES: HTMLButtonElement[] = [];
-    for (const BOOK of model.books) {
-        const ITEM = document.createElement("button");
-        ITEM.type = "button";
-        ITEM.className = "today-carousel-item";
-        ITEM.dataset.bookId = BOOK.bookId;
-        ITEM.setAttribute("role", "option");
-        ITEM.setAttribute(
-            "aria-selected",
-            String(BOOK.bookId === model.selectedBookId),
-        );
-        ITEM.setAttribute("aria-label", `${BOOK.title} by ${BOOK.author}`);
-        ITEM.classList.toggle(
-            "is-selected",
-            BOOK.bookId === model.selectedBookId,
-        );
-        ITEM.onclick = () => selectBook(BOOK.bookId);
-        if (BOOK.coverSrc) {
-            const IMG = document.createElement("img");
-            IMG.src = BOOK.coverSrc;
-            IMG.alt = `Cover of ${BOOK.title}`;
-            IMG.loading = "lazy";
-            ITEM.append(IMG);
-        } else {
-            const FALLBACK = document.createElement("span");
-            FALLBACK.className = "today-carousel-fallback";
-            FALLBACK.textContent = fallbackText(BOOK.title);
-            ITEM.append(FALLBACK);
-        }
-        NODES.push(ITEM);
-    }
-    TRACK.replaceChildren(...NODES);
+    renderTrackItems(TRACK, model.books);
+
+    const SELECTED_INDEX = model.books.findIndex((book) => {
+        return book.bookId === model.selectedBookId;
+    });
+    applySelectedItemState(TRACK, model.selectedBookId, SELECTED_INDEX);
+
     requestAnimationFrame(() => {
         centerBookInTrack(TRACK, model.selectedBookId);
     });
