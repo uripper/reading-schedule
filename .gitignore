@@ -84,10 +84,8 @@ Issues/.sync-cache.tsv
 
 # Local tooling config
 .sourcery.yaml
-roadmap.md
 pnpm-lock.yaml
 .gitignore
-STYLEGUIDE.md
 sonar-project.properties
 .scannerwork/.sonar_lock
 .scannerwork/report-task.txt
