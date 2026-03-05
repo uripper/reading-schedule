@@ -21,7 +21,7 @@ function focusableSelector(): string {
  * focus restoration on close, and a programmatic close helper.
  * @param dialog - The `<dialog>` element to bind focus management to.
  * @param root0 - Options controlling focus behavior.
- * @param root0.initialFocusSelector - CSS selector for the element that should
+ * @param initialFocusSelector - CSS selector for the element that should
  *   receive focus when the dialog opens. Falls back to `[autofocus]`, then the
  *   first focusable element if not provided or not found.
  * @returns An object containing `rememberOpener`, `focusInitialTarget`, and

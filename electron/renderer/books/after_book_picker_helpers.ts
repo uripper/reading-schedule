@@ -89,8 +89,8 @@ export function labelsMatch(left: string, right: string): boolean {
 /**
  * Determines whether picker dropdown should remain open for a click target.
  * @param root0 - Interaction location flags.
- * @param root0.targetIsInput - True when click target is the picker input.
- * @param root0.targetIsInResults - True when click target is inside result list.
+ * @param targetIsInput - True when click target is the picker input.
+ * @param targetIsInResults - True when click target is inside result list.
  * @returns True when picker should stay open.
  */
 export function shouldKeepPickerOpen({

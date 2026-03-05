@@ -54,13 +54,13 @@ function syncInputValue(
 /**
  * Submits progress update and returns updated baseline form values.
  * @param args - Form submission payload for the progress editor.
- * @param args.event - Form submit event.
- * @param args.row - Calendar row being edited.
- * @param args.pagesInput - Pages-read input element.
- * @param args.pctInput - Progress-percent input element.
- * @param args.initialPagesValue - Previous stable pages value.
- * @param args.initialPercentValue - Previous stable percent value.
- * @param args.interactionHandlers - Detail interaction handlers.
+ * @param event - Form submit event.
+ * @param row - Calendar row being edited.
+ * @param pagesInput - Pages-read input element.
+ * @param pctInput - Progress-percent input element.
+ * @param initialPagesValue - Previous stable pages value.
+ * @param initialPercentValue - Previous stable percent value.
+ * @param interactionHandlers - Detail interaction handlers.
  * @returns Updated initial values and apply status.
  */
 export function submitProgressUpdate(args: SubmitProgressUpdateArgs): {

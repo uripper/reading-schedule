@@ -8,11 +8,11 @@ const MIN_QUERY_LENGTH = 2;
 /**
  * Creates the debounced input handler that performs remote book lookup.
  * @param root0 - Dependencies required for lookup query execution and rendering.
- * @param root0.searchInput - Search field element.
- * @param root0.metaEl - Metadata/help text element for lookup status.
- * @param root0.state - Mutable lookup state (token, timer, current items).
- * @param root0.clearResults - Clears current rendered lookup results.
- * @param root0.refreshResults - Re-renders lookup results from current state.
+ * @param searchInput - Search field element.
+ * @param metaEl - Metadata/help text element for lookup status.
+ * @param state - Mutable lookup state (token, timer, current items).
+ * @param clearResults - Clears current rendered lookup results.
+ * @param refreshResults - Re-renders lookup results from current state.
  * @returns Input event handler for search field changes.
  */
 export function createLookupInputHandler({

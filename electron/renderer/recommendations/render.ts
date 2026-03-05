@@ -97,8 +97,8 @@ function summaryText(recommendations: RecommendationItem[]): string {
 /**
  * Renders recommendation cards for read authors and wires add-to-shelf actions.
  * @param args - Render dependencies.
- * @param args.recommendations - Existing recommendation candidates.
- * @param args.onAddToShelf - Action called when user adds one recommendation.
+ * @param recommendations - Existing recommendation candidates.
+ * @param onAddToShelf - Action called when user adds one recommendation.
  */
 export function renderRecommendationsPanel(
     args: RenderRecommendationsArgs,

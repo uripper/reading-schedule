@@ -74,12 +74,12 @@ function setLookupActiveIndex(deps: LookupControllerDeps, index: number): void {
 /**
  * Creates lookup state actions for rendering, clearing, selecting, and highlighting items.
  * @param root0 - Lookup UI elements, callbacks, and mutable state.
- * @param root0.searchInput - Search field element.
- * @param root0.resultsEl - Lookup results container element.
- * @param root0.metaEl - Metadata/help text element.
- * @param root0.onPick - Callback invoked when a result is selected.
- * @param root0.placeholder - Placeholder cover image URL.
- * @param root0.state - Mutable lookup state containing items and active index.
+ * @param searchInput - Search field element.
+ * @param resultsEl - Lookup results container element.
+ * @param metaEl - Metadata/help text element.
+ * @param onPick - Callback invoked when a result is selected.
+ * @param placeholder - Placeholder cover image URL.
+ * @param state - Mutable lookup state containing items and active index.
  * @returns State controller methods for lookup UI updates.
  */
 export function createLookupStateController({

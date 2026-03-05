@@ -57,12 +57,12 @@ export function totalsFromSummary(
 /**
  * Creates persistence helpers for saving draft state with debounced writes.
  * @param root0 - Dependencies and state required for persistence queue management.
- * @param root0.plannerApi - Planner API subset used to save state snapshots.
- * @param root0.state - Mutable runtime state used to compose saved payload data.
- * @param root0.getSessions - Returns normalized session records from runtime state.
- * @param root0.collectBooks - Returns current book list for persistence snapshots.
- * @param root0.collectSettings - Returns planner settings values from the UI.
- * @param root0.addLog - Callback used to record persistence errors.
+ * @param plannerApi - Planner API subset used to save state snapshots.
+ * @param state - Mutable runtime state used to compose saved payload data.
+ * @param getSessions - Returns normalized session records from runtime state.
+ * @param collectBooks - Returns current book list for persistence snapshots.
+ * @param collectSettings - Returns planner settings values from the UI.
+ * @param addLog - Callback used to record persistence errors.
  * @returns Draft persistence functions for immediate save and queued save.
  */
 export function createPersistQueue({

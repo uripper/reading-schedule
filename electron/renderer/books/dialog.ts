@@ -65,13 +65,13 @@ function saveErrorMessage(error: unknown): string {
 /**
  * Opens dialog UI and applies add/edit form state.
  * @param args - Dialog open dependencies and target book state.
- * @param args.refs - Book form references.
- * @param args.dialogFocus - Dialog focus manager.
- * @param args.lookupControl - Lookup clear helper used during open.
- * @param args.afterBookPicker - After-book picker controller for blocker links.
- * @param args.getBooks - Getter returning current books.
- * @param args.book - Existing book in edit mode, or null for add mode.
- * @param args.dialogOptions - Optional open options such as default shelf.
+ * @param refs - Book form references.
+ * @param dialogFocus - Dialog focus manager.
+ * @param lookupControl - Lookup clear helper used during open.
+ * @param afterBookPicker - After-book picker controller for blocker links.
+ * @param getBooks - Getter returning current books.
+ * @param book - Existing book in edit mode, or null for add mode.
+ * @param dialogOptions - Optional open options such as default shelf.
  */
 function openBookDialog(args: OpenBookDialogArgs): void {
     const FORM_REFS = args.refs;
@@ -97,7 +97,7 @@ function openBookDialog(args: OpenBookDialogArgs): void {
  * Creates the add/edit book dialog controller and binds its form behavior.
  * @param onSubmit - Callback invoked with the parsed form payload on submit.
  * @param options - Optional dialog dependencies.
- * @param options.getBooks - Returns current books for shelf and related UI helpers.
+ * @param getBooks - Returns current books for shelf and related UI helpers.
  * @returns Dialog API exposing the `open` function.
  */
 /**

@@ -104,12 +104,12 @@ function bindPickerOutsideClick(args: BindingArgs): void {
 /**
  * Binds keyboard/mouse/document events for after-book picker interactions.
  * @param args - Event-binding dependencies and state hooks.
- * @param args.clearResults - Clears currently filtered picker results.
- * @param args.refs - Form references containing picker controls.
- * @param args.refreshFiltered - Rebuilds filtered picker options from input text.
- * @param args.render - Re-renders picker result UI.
- * @param args.selectBook - Selects a book from filtered options.
- * @param args.state - Mutable picker state.
+ * @param clearResults - Clears currently filtered picker results.
+ * @param refs - Form references containing picker controls.
+ * @param refreshFiltered - Rebuilds filtered picker options from input text.
+ * @param render - Re-renders picker result UI.
+ * @param selectBook - Selects a book from filtered options.
+ * @param state - Mutable picker state.
  */
 export function bindAfterBookPickerEvents(args: BindingArgs): void {
     bindPickerInputEvents(args);

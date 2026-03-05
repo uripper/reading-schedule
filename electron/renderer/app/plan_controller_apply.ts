@@ -35,8 +35,8 @@ function resultFromData(data: PlannerRunData): PlannerResult {
 /**
  * Applies generated schedule data into runtime state and persists it.
  * @param root0 - Planner data and runtime dependencies.
- * @param root0.data - Generated schedule and summary payload.
- * @param root0.preserveLockedDays - Whether existing manual locks should be preserved.
+ * @param data - Generated schedule and summary payload.
+ * @param preserveLockedDays - Whether existing manual locks should be preserved.
  * @returns Promise that resolves after state persistence completes.
  */
 export async function applyPlannedData(
@@ -83,8 +83,8 @@ export async function applyPlannedData(
 /**
  * Applies a saved planner result into runtime state and calendar UI.
  * @param root0 - Saved result payload and update callbacks.
- * @param root0.savedResult - Persisted planner result to apply.
- * @param root0.defaultLastResult - Fallback empty planner result.
+ * @param savedResult - Persisted planner result to apply.
+ * @param defaultLastResult - Fallback empty planner result.
  */
 export function applyLoadedResult(root0: ApplyLoadedResultArgs): void {
     const {

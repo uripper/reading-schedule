@@ -40,16 +40,16 @@ function settingBoolean(value: unknown, fallback: boolean): boolean {
 /**
  * Renders toolbar-driven books content and wires row-level edit/remove actions.
  * @param args - Render inputs for books controller view.
- * @param args.refs - Controller DOM references required for rendering.
- * @param args.books - Full in-memory book list.
- * @param args.scheduleRows - Planner schedule rows used for finish-date metadata.
- * @param args.viewState - Active shelf/status/sort/group options.
- * @param args.dialog - Edit dialog controller when available.
- * @param args.onBooksChanged - Callback fired when collection mutations occur.
- * @param args.onEstimatedFinishNavigate - Navigates to the selected finish date.
- * @param args.setBooks - State updater used after remove operations.
- * @param args.findBook - Lookup helper used before opening edit dialog.
- * @param args.rerender - Callback to refresh the books view after state updates.
+ * @param refs - Controller DOM references required for rendering.
+ * @param books - Full in-memory book list.
+ * @param scheduleRows - Planner schedule rows used for finish-date metadata.
+ * @param viewState - Active shelf/status/sort/group options.
+ * @param dialog - Edit dialog controller when available.
+ * @param onBooksChanged - Callback fired when collection mutations occur.
+ * @param onEstimatedFinishNavigate - Navigates to the selected finish date.
+ * @param setBooks - State updater used after remove operations.
+ * @param findBook - Lookup helper used before opening edit dialog.
+ * @param rerender - Callback to refresh the books view after state updates.
  */
 /**
  * Updates all filter and sort options based on current view state.

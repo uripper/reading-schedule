@@ -253,10 +253,10 @@ export function removeSessionRow({ row, ...args }: RemoveSessionArgs): boolean {
  * Updates planned minutes for one scheduled session and recalculates
  * words-planned for that row based on current settings/book difficulty.
  * @param root0 - Update args plus shared state callbacks.
- * @param root0.collectSettings - Function that returns current planner settings.
- * @param root0.getBookById - Function that resolves a book by id.
- * @param root0.minutes - Requested session minutes before normalization.
- * @param root0.row - Schedule row to update.
+ * @param collectSettings - Function that returns current planner settings.
+ * @param getBookById - Function that resolves a book by id.
+ * @param minutes - Requested session minutes before normalization.
+ * @param row - Schedule row to update.
  * @returns `true` when the target session is updated; otherwise `false` after setting an error status.
  */
 export function updateSessionRowMinutes({

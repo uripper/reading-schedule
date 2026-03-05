@@ -73,7 +73,7 @@ export function applyTodayFocus(state: CalendarRuntimeState): void {
  * @param dateKey - Day key to select.
  * @param renderMonth - Callback to rerender calendar month.
  * @param options - Optional selection behavior.
- * @param options.focus - Whether to focus selected day button.
+ * @param focus - Whether to focus selected day button.
  */
 export function selectDate(
     state: CalendarRuntimeState,
