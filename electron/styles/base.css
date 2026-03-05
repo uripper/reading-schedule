@@ -4,7 +4,7 @@
     /* Colors */
     --neo-active-color: #ff4911;
     --neo-header-color: #2c0066;
-    --neo-app-background: #E87DDB;
+    --neo-app-background: #e87ddb;
 
     /* Fonts */
     --main-font: "Archivo", sans-serif;
@@ -36,19 +36,17 @@ body {
 }
 
 body::before {
-    background-image: url("../assets/wireframe.svg");
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 125%;
-    content: "";
-    inset: 0;
-    opacity: 0.15;
-    pointer-events: none;
     position: fixed;
+    inset: 0;
     z-index: -1;
+    pointer-events: none;
+    content: "";
+    background-image: url("../assets/wireframe.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 125%;
+    opacity: 0.15;
 }
-
-
 
 .splash-screen {
     position: fixed;
@@ -165,9 +163,7 @@ body.splash-exit .splash-screen {
     0% {
         opacity: 0;
         transform: scale(1) rotateX(45deg);
-
     }
-
 
     60% {
         opacity: 1;
