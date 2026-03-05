@@ -1,5 +1,5 @@
 /**
- * @file Planner state persistence facade with SQLite primary + JSON compatibility fallback.
+ * Planner state persistence facade with SQLite primary + JSON compatibility fallback.
  */
 import fs from "node:fs";
 import type {
@@ -18,7 +18,7 @@ import { readStateFromSqlite, writeStateToSqlite } from "./state_store_sqlite";
 
 /**
  * Returns true when state payload contains required bootstrap fields.
- * @param state Candidate loaded state payload.
+ * @param state - Candidate loaded state payload.
  * @returns True when settings and books are both present.
  */
 function hasBootstrapState(state: LoadedPlannerState | null): boolean {
@@ -36,7 +36,7 @@ function hasBootstrapState(state: LoadedPlannerState | null): boolean {
 
 /**
  * Returns true when persistence artifacts exist on disk.
- * @param userDataDir Base Electron user-data directory for this profile.
+ * @param userDataDir - Base Electron user-data directory for this profile.
  * @returns True when at least one persistence artifact exists.
  */
 function hasPersistedArtifacts(userDataDir: string): boolean {
@@ -49,8 +49,8 @@ function hasPersistedArtifacts(userDataDir: string): boolean {
 
 /**
  * Backfills SQLite from JSON state and decorates warnings when migration fails.
- * @param userDataDir Base Electron user-data directory for this profile.
- * @param jsonResult Loaded JSON state result.
+ * @param userDataDir - Base Electron user-data directory for this profile.
+ * @param jsonResult - Loaded JSON state result.
  * @returns JSON result with migration metadata applied.
  */
 function migratedJsonResult(
@@ -79,7 +79,7 @@ function migratedJsonResult(
 
 /**
  * Loads persisted planner state from SQLite first, then JSON fallback paths.
- * @param userDataDir Base Electron user-data directory for this profile.
+ * @param userDataDir - Base Electron user-data directory for this profile.
  * @returns Structured state load result with source and warning metadata.
  */
 export function readState(userDataDir: string): PlannerStateLoadResult {
@@ -113,8 +113,8 @@ export function readState(userDataDir: string): PlannerStateLoadResult {
 
 /**
  * Writes planner state to SQLite primary store plus JSON compatibility files.
- * @param userDataDir Base Electron user-data directory for this profile.
- * @param data Serializable planner state payload to persist.
+ * @param userDataDir - Base Electron user-data directory for this profile.
+ * @param data - Serializable planner state payload to persist.
  * @returns Structured save result.
  */
 export function writeState(

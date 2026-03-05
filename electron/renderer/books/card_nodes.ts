@@ -26,7 +26,7 @@ const PRE_LINE_WHITESPACE = "pre-line";
 
 /**
  * Builds class-name text for a card based on book status.
- * @param status Book status value.
+ * @param status - Book status value.
  * @returns Class-name text for card root element.
  */
 function cardClassNameForStatus(status: Book["status"]): string {
@@ -38,8 +38,8 @@ function cardClassNameForStatus(status: Book["status"]): string {
 
 /**
  * Resolves estimated finish date shown as interactive card control.
- * @param book Book model to inspect.
- * @param finishDateByBookId Finish date lookup keyed by `book_id`.
+ * @param book - Book model to inspect.
+ * @param finishDateByBookId - Finish date lookup keyed by `book_id`.
  * @returns Estimated finish day key or `null` when not applicable.
  */
 function estimatedFinishDate(
@@ -60,8 +60,8 @@ function estimatedFinishDate(
 }
 /**
  * Builds the stats section for one book card.
- * @param book Book model used for progress/meta labels.
- * @param context Shared render context for metadata options and lookups.
+ * @param book - Book model used for progress/meta labels.
+ * @param context - Shared render context for metadata options and lookups.
  * @returns Configured stats wrapper element.
  */
 function cardStatsNode(book: Book, context: CardRenderContext): HTMLDivElement {
@@ -133,8 +133,8 @@ function coverButtonForBook(book: Book, title: string): HTMLButtonElement {
 }
 /**
  * Creates a full book card node including cover, metadata, and actions.
- * @param book Book model to render.
- * @param context Shared render context for cross-book metadata.
+ * @param book - Book model to render.
+ * @param context - Shared render context for cross-book metadata.
  * @returns Rendered book card element.
  */
 export function createCardNode(

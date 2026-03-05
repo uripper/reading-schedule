@@ -1,6 +1,6 @@
 import type {
     AppCalendarInteractionArgs,
-    CalendarInteractionHandlers,
+    CalendarHandlers,
     CompletionRow,
     CompletionUpdate,
     ProgressUpdateInput,
@@ -149,7 +149,7 @@ const HANDLE_PROGRESS_UPDATED = (
 
 const BUILD_CALENDAR_HANDLERS = (
     args: AppCalendarInteractionArgs,
-): CalendarInteractionHandlers => {
+): CalendarHandlers => {
     const SCHEDULE_MUTATION_HANDLERS = BUILD_SCHEDULE_MUTATION_HANDLERS(args);
     return {
         getBookById: (bookId) => args.getBookById(bookId),
@@ -167,6 +167,8 @@ const BUILD_CALENDAR_HANDLERS = (
 
 export function configureAppCalendarInteractions(
     args: AppCalendarInteractionArgs,
-): void {
-    args.configureCalendarInteractions(BUILD_CALENDAR_HANDLERS(args));
+): CalendarHandlers {
+    const HANDLERS = BUILD_CALENDAR_HANDLERS(args);
+    args.configureCalendarInteractions(HANDLERS);
+    return HANDLERS;
 }

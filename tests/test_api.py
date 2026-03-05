@@ -14,7 +14,7 @@ def test_generate_plan_from_json_payload() -> None:
     books = [book_to_data(b) for b in demo_books()]
     settings = settings_to_data(demo_settings())
     payload = {"planner": "greedy", "books": books, "settings": settings}
-    data = cast(dict[str, Any], generate_plan(payload)) # type: ignore
+    data = cast("dict[str, Any]", generate_plan(payload)) # type: ignore
     assert "summary" in data
     assert "schedule" in data
     assert data["summary"]["status"] in {"FEASIBLE", "OPTIMAL"}

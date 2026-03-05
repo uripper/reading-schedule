@@ -14,7 +14,7 @@ import {
 
 /**
  * Returns empty-state message for day details panel by mode.
- * @param _mode Day mode.
+ * @param _mode - Day mode.
  * @returns Empty-state message.
  */
 export function emptyMessageForMode(_mode: DayMode): string {
@@ -23,9 +23,9 @@ export function emptyMessageForMode(_mode: DayMode): string {
 
 /**
  * Selects row ordering strategy for details mode.
- * @param rows Day rows.
- * @param mode Day mode.
- * @param interactionHandlers Detail interaction handlers.
+ * @param rows - Day rows.
+ * @param mode -Day mode.
+ * @param interactionHandlers - Detail interaction handlers.
  * @returns Rows ordered for display.
  */
 export function rowsForMode(
@@ -44,12 +44,12 @@ export function rowsForMode(
 
 /**
  * Builds the proper row node for current day mode.
- * @param args Row rendering payload for the active day mode.
- * @param args.mode Day mode.
- * @param args.row Calendar row.
- * @param args.state Calendar details state.
- * @param args.interactionHandlers Detail interaction handlers.
- * @param args.rerenderDetails Details rerender callback.
+ * @param args - Row rendering payload for the active day mode.
+ * args.mode - Day mode.
+ * args.row - Calendar row.
+ * args.state - Calendar details state.
+ * args.interactionHandlers - Detail interaction handlers.
+ * args.rerenderDetails - Details rerender callback.
  * @returns Rendered row element.
  */
 export function rowNodeForMode(args: RowNodeForModeArgs): HTMLElement {

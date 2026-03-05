@@ -6,8 +6,8 @@ import { buildMonthWindow } from "./month_window.js";
 
 /**
  * Recomputes derived calendar collections from current raw rows and handlers.
- * @param state Mutable calendar runtime state.
- * @param isSessionCompleted Completion checker by session key.
+ * @param state - Mutable calendar runtime state.
+ * @param isSessionCompleted - Completion checker by session key.
  */
 export function refreshDerivedRows(
     state: CalendarRuntimeState,
@@ -26,12 +26,12 @@ export function refreshDerivedRows(
 
 /**
  * Delegates month rendering with required keyboard/selection actions.
- * @param state Mutable calendar runtime state.
- * @param actions Month action callbacks.
- * @param actions.completedBookRowsForDate Returns synthetic rows for books completed on the given day.
- * @param actions.moveSelectionBy Keyboard/grid movement handler.
- * @param actions.renderDetails Details rerender callback.
- * @param actions.selectDate Date selection callback.
+ * @param state - Mutable calendar runtime state.
+ * @param actions - Month action callbacks.
+ * @param actions.completedBookRowsForDate - Returns synthetic rows for books completed on the given day.
+ * @param actions.moveSelectionBy - Keyboard/grid movement handler.
+ * @param actions.renderDetails - Details rerender callback.
+ * @param actions.selectDate - Date selection callback.
  */
 export function renderMonth(
     state: CalendarRuntimeState,
@@ -55,10 +55,10 @@ export function renderMonth(
 
 /**
  * Delegates controls rendering for month navigation and today jump.
- * @param state Mutable calendar runtime state.
- * @param rerenderControls Callback to rerender controls.
- * @param rerenderMonth Callback to rerender month grid.
- * @param jumpToToday Callback to focus today's date.
+ * @param state - Mutable calendar runtime state.
+ * @param rerenderControls - Callback to rerender controls.
+ * @param rerenderMonth - Callback to rerender month grid.
+ * @param jumpToToday - Callback to focus today's date.
  */
 export function renderControls(
     state: CalendarRuntimeState,

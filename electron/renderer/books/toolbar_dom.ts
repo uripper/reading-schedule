@@ -3,8 +3,8 @@ import { GROUP_OPTIONS_BASE, SORT_OPTIONS } from "./toolbar_options.js";
 
 /**
  * Creates a standard `<option>` element.
- * @param value Option value attribute.
- * @param label Visible option label text.
+ * @param value - Option value attribute.
+ * @param label - Visible option label text.
  * @returns Configured option node.
  */
 function createOptionNode(value: string, label: string): HTMLOptionElement {
@@ -16,9 +16,9 @@ function createOptionNode(value: string, label: string): HTMLOptionElement {
 
 /**
  * Creates a labeled toolbar `<select>` control from option definitions.
- * @param labelText Visible label text.
- * @param selectId DOM id assigned to select element.
- * @param options Options used to populate the select.
+ * @param labelText - Visible label text.
+ * @param selectId - DOM id assigned to select element.
+ * @param options - Options used to populate the select.
  * @returns Label/select pair ready for toolbar insertion.
  */
 function createLabeledSelect(
@@ -42,8 +42,8 @@ function createLabeledSelect(
 
 /**
  * Creates a labeled toolbar title-filter `<input>` control.
- * @param labelText Visible label text.
- * @param inputId DOM id assigned to input element.
+ * @param labelText - Visible label text.
+ * @param inputId - DOM id assigned to input element.
  * @returns Label/input pair ready for toolbar insertion.
  */
 function createLabeledSearchInput(
@@ -65,7 +65,7 @@ function createLabeledSearchInput(
 
 /**
  * Resolves or creates the toolbar controls wrapper element.
- * @param toolbar Toolbar root element.
+ * @param toolbar - Toolbar root element.
  * @returns Existing or newly created controls wrapper.
  */
 function createControlsWrap(toolbar: HTMLElement): HTMLElement {
@@ -81,8 +81,8 @@ function createControlsWrap(toolbar: HTMLElement): HTMLElement {
 
 /**
  * Creates a standard `<option>` element.
- * @param value Option value attribute.
- * @param label Visible option label text.
+ * @param value - Option value attribute.
+ * @param label - Visible option label text.
  * @returns Configured option node.
  */
 export function createOption(value: string, label: string): HTMLOptionElement {
@@ -91,7 +91,7 @@ export function createOption(value: string, label: string): HTMLOptionElement {
 
 /**
  * Builds and inserts books toolbar controls, returning resolved control refs.
- * @param toolbar Toolbar root element.
+ * @param toolbar - Toolbar root element.
  * @returns Toolbar control references used by controller wiring.
  */
 export function ensureBooksToolbarControls(toolbar: HTMLElement): {

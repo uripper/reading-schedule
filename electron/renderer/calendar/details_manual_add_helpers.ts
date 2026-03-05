@@ -6,7 +6,7 @@ import {
 
 /**
  * Returns default string value for manual minutes input field.
- * @param defaultMinutes Optional prefilled minutes value.
+ * @param defaultMinutes - Optional prefilled minutes value.
  * @returns Positive integer text with fallback of `"10"`.
  */
 export function minuteValueForManualInput(defaultMinutes?: number): string {
@@ -19,7 +19,7 @@ export function minuteValueForManualInput(defaultMinutes?: number): string {
 
 /**
  * Returns session books sorted alphabetically by title.
- * @param books Available manual-session books.
+ * @param books - Available manual-session books.
  * @returns Sorted copy of manual session books.
  */
 export function sortedManualBooks(
@@ -36,8 +36,8 @@ export function sortedManualBooks(
 
 /**
  * Filters manual-session books by case-insensitive title substring.
- * @param books Available manual-session books.
- * @param query User-entered title query text.
+ * @param books - Available manual-session books.
+ * @param query - User-entered title query text.
  * @returns Books whose title contains the query text.
  */
 export function booksMatchingTitleQuery(

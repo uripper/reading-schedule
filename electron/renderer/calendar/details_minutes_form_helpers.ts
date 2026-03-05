@@ -10,7 +10,7 @@ export const MINUTES_EDITOR_OPEN_BY_DEFAULT = false;
 
 /**
  * Reads trimmed value from a minutes input node.
- * @param inputNode Minutes input element.
+ * @param inputNode - Minutes input element.
  * @returns Trimmed input value.
  */
 function inputValue(inputNode: HTMLInputElement): string {
@@ -19,7 +19,7 @@ function inputValue(inputNode: HTMLInputElement): string {
 
 /**
  * Converts raw input value into normalized summary minutes value.
- * @param rawValue Raw input text.
+ * @param rawValue - Raw input text.
  * @returns Normalized minutes used in summary label.
  */
 function summaryValueFromInput(rawValue: string): number {
@@ -32,7 +32,7 @@ function summaryValueFromInput(rawValue: string): number {
 
 /**
  * Parses changed minutes value from input.
- * @param inputNode Minutes input element.
+ * @param inputNode - Minutes input element.
  * @returns Parsed number or `null` when invalid/blank.
  */
 function changedNumberValue(inputNode: HTMLInputElement): number | null {
@@ -41,8 +41,8 @@ function changedNumberValue(inputNode: HTMLInputElement): number | null {
 
 /**
  * Syncs input element to provided numeric value when present.
- * @param inputNode Minutes input element.
- * @param nextValue Optional next minutes value.
+ * @param inputNode - Minutes input element.
+ * @param nextValue - Optional next minutes value.
  * @returns Current trimmed input value after sync.
  */
 function syncInputValue(
@@ -66,7 +66,7 @@ export function minPlannedMinutes(): number {
 }
 /**
  * Formats planned-minutes summary label.
- * @param minutes Minutes value.
+ * @param minutes - Minutes value.
  * @returns Formatted summary text.
  */
 function plannedMinutesSummaryText(minutes: number): string {
@@ -76,7 +76,7 @@ function plannedMinutesSummaryText(minutes: number): string {
 
 /**
  * Returns next editor-open state for minutes editor action.
- * @param action Minutes editor action.
+ * @param action - Minutes editor action.
  * @returns Whether editor should be open.
  */
 export function nextMinutesEditorOpenState(
@@ -90,7 +90,7 @@ export function nextMinutesEditorOpenState(
 
 /**
  * Returns whether minutes summary row should be visible.
- * @param isOpen Whether editor is currently open.
+ * @param isOpen - Whether editor is currently open.
  * @returns `true` when summary row should be shown.
  */
 function minutesSummaryVisible(isOpen: boolean): boolean {
@@ -99,10 +99,10 @@ function minutesSummaryVisible(isOpen: boolean): boolean {
 
 /**
  * Applies visibility state to minutes form/edit trigger.
- * @param minutesForm Minutes edit form.
- * @param summaryRow Summary row showing current minutes.
- * @param editButton Edit trigger button.
- * @param isOpen Whether editor is open.
+ * @param minutesForm - Minutes edit form.
+ * @param summaryRow - Summary row showing current minutes.
+ * @param editButton - Edit trigger button.
+ * @param isOpen - Whether editor is open.
  */
 export function syncEditorVisibility(
     minutesForm: HTMLFormElement,
@@ -119,8 +119,8 @@ export function syncEditorVisibility(
 }
 /**
  * Updates planned-minutes summary text from input value.
- * @param summaryNode Summary label node.
- * @param minutesValue Raw minutes input value.
+ * @param summaryNode - Summary label node.
+ * @param minutesValue - Raw minutes input value.
  */
 export function syncSummaryText(
     summaryNode: HTMLElement,
@@ -134,12 +134,13 @@ export function syncSummaryText(
 
 /**
  * Submits minutes update and returns updated editor state values.
- * @param args Form submission payload for the minutes editor.
- * @param args.event Form submit event.
- * @param args.row Calendar row being edited.
- * @param args.minutesInput Minutes input element.
- * @param args.initialMinutesValue Previous stable minutes value.
- * @param args.interactionHandlers Detail interaction handlers.
+ * @param args - Form submission payload for the minutes editor.
+ * @param applied - Whether update was applied and editor should be updated.
+ * @param event - Form submit event.
+ * @param row - Calendar row being edited.
+ * @param minutesInput - Minutes input element.
+ * @param initialMinutesValue - Previous stable minutes value.
+ * @param interactionHandlers - Detail interaction handlers.
  * @returns Updated initial value and whether an update was applied.
  */
 export function submitMinutesUpdate(args: SubmitMinutesUpdateArgs): {

@@ -19,8 +19,8 @@ const DAY_PROGRESS_FIELD_CLASS = "day-progress-field";
 
 /**
  * Builds title-filter and book-select controls for manual session add.
- * @param books Sorted manual-session books available for selection.
- * @param defaultBookId Optional default selected book id.
+ * @param books - Sorted manual-session books available for selection.
+ * @param defaultBookId - Optional default selected book id.
  * @returns Book selection control nodes and select ref.
  */
 function createBookSelectionControls(
@@ -65,7 +65,7 @@ function createBookSelectionControls(
 
 /**
  * Validates and submits manual-add form values through interaction handlers.
- * @param args Manual-add submission payload.
+ * @param args - Manual-add submission payload.
  */
 function submitManualAddForm(args: SubmitManualAddFormArgs): void {
     const SELECTED_BOOK_ID = String(args.bookSelect.value || "").trim();
@@ -100,6 +100,11 @@ interface ManualAddFormElements {
 
 /**
  * Builds form elements for manual session add.
+ * @param books - Sorted manual-session books for selection options.
+ * @param defaultBookId - Optional default selected book id.
+ * @param defaultMinutes - Optional default minutes value.
+ * @param mode - Day mode (past/today/future).
+ * @returns Form element refs and nodes for manual add controls.
  */
 function buildManualAddFormElements(
     books: ReturnType<typeof sortedManualBooks>,
@@ -158,13 +163,13 @@ function buildManualAddFormElements(
 
 /**
  * Builds manual-session add UI panel for the selected day.
- * @param args Manual add panel dependencies.
- * @param args.dateKey Selected day key.
- * @param args.mode Day mode (past/today/future).
- * @param args.interactionHandlers Detail interaction callbacks.
- * @param args.rerenderDetails Callback to rerender details after successful add.
- * @param args.defaultBookId Default selected book id.
- * @param args.defaultMinutes Default minutes value.
+ * @param args - Manual add panel dependencies.
+ * @param dateKey - Selected day key.
+ * @param mode - Day mode (past/today/future).
+ * @param interactionHandlers - Detail interaction callbacks.
+ * @param rerenderDetails - Callback to rerender details after successful add.
+ * @param defaultBookId - Default selected book id.
+ * @param defaultMinutes - Default minutes value.
  * @returns Panel element containing manual add form.
  */
 export function buildManualSessionAddPanel(

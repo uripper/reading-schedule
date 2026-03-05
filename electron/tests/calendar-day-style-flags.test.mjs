@@ -5,7 +5,7 @@ import { dayStyleFlags } from "../dist/renderer/calendar/month_day_button.js";
 
 /**
  * Creates local-midnight date fixture from `YYYY-MM-DD` text.
- * @param {string} dateText Day key text.
+ * @param {string} dateText - Day key text.
  * @returns {Date} Date fixture.
  */
 function day(dateText) {

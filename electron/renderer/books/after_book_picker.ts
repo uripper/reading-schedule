@@ -66,8 +66,8 @@ function createRefreshFiltered(
 
 /**
  * Creates the "blocked by" picker controller used in the book dialog.
- * @param refs Form references for picker input/results fields.
- * @param getBooks Callback returning the latest book list.
+ * @param refs - Form references for picker input/results fields.
+ * @param getBooks - Callback returning the latest book list.
  * @returns Picker API exposing `openForBook`.
  */
 export function createAfterBookPicker(

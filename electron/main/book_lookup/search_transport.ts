@@ -16,8 +16,8 @@ const OPEN_LIBRARY_LANGUAGE_ENGLISH = "eng";
 
 /**
  * Builds prioritized Open Library query URLs for a search string.
- * @param query Raw user query text.
- * @param authorOnly Whether to search author field exclusively.
+ * @param query - Raw user query text.
+ * @param authorOnly - Whether to search author field exclusively.
  * @returns Ordered list of search endpoint URLs.
  */
 export function searchUrls(query: string, authorOnly = false): string[] {
@@ -41,7 +41,7 @@ export function searchUrls(query: string, authorOnly = false): string[] {
 
 /**
  * Fetches and validates one Open Library JSON response payload.
- * @param url Open Library API URL.
+ * @param url - Open Library API URL.
  * @returns Parsed search response payload.
  */
 export async function fetchJson(url: string): Promise<SearchResponse> {

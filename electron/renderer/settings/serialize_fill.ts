@@ -14,7 +14,7 @@ import {
 
 /**
  * Normalizes arbitrary settings value to text for form controls.
- * @param value Raw settings value.
+ * @param value - Raw settings value.
  * @returns String representation suitable for input/select values.
  */
 function settingValueText(value: unknown): string {
@@ -35,7 +35,8 @@ function settingValueText(value: unknown): string {
 
 /**
  * Resolves select-field value using fallback default when empty.
- * @param value Raw settings value.
+ * @param fieldId - The ID of the field.
+ * @param value - Raw settings value.
  * @returns Select value text.
  */
 function selectSettingValue(fieldId: string, value: unknown): string {
@@ -54,7 +55,7 @@ function selectSettingValue(fieldId: string, value: unknown): string {
 
 /**
  * Resolves boolean setting values with support for string payload variants.
- * @param value Raw settings value.
+ * @param value - Raw settings value.
  * @returns Boolean value for checkbox controls.
  */
 function checkboxSettingValue(value: unknown): boolean {
@@ -66,8 +67,8 @@ function checkboxSettingValue(value: unknown): boolean {
 
 /**
  * Populates settings form controls from planner settings payload.
- * @param settings Planner settings payload.
- * @param setDayOffs Setter used to update day-off chips/state.
+ * @param settings - Planner settings payload.
+ * @param setDayOffs - Setter used to update day-off chips/state.
  */
 export function fillSettingsForm(
     settings: PlannerSettings,

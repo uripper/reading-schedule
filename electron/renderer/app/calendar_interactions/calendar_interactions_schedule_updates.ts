@@ -27,8 +27,8 @@ import { nextRowsWithUpdatedMinutes } from "./calendar_interactions_minutes_rows
 /**
  * Builds a new planner result from replacement schedule rows while preserving
  * the existing summary and stamping a fresh creation timestamp.
- * @param previousResult Existing planner result used as the base.
- * @param rows Replacement schedule rows to persist.
+ * @param previousResult - Existing planner result used as the base.
+ * @param rows - Replacement schedule rows to persist.
  * @returns Planner result object ready to store in app state.
  */
 function nextResultWithRows(
@@ -45,8 +45,8 @@ function nextResultWithRows(
 /**
  * Applies the computed planner result to all bound UI/runtime sinks.
  * Side effects include state mutation, book row updates, and calendar re-render.
- * @param args Shared callbacks and runtime state references.
- * @param nextResult Next planner result to apply.
+ * @param args - Shared callbacks and runtime state references.
+ * @param nextResult - Next planner result to apply.
  */
 function applyNextResult(
     args: SharedUpdateArgs,
@@ -65,13 +65,13 @@ function applyNextResult(
 /**
  * Adds a manual session row for a specific book/day, recalculates words planned,
  * updates state/UI, and optionally marks the new session as completed.
- * @param root0 Manual-session creation args plus shared state callbacks.
- * @param root0.bookId Target book id to schedule.
- * @param root0.collectSettings Function that returns current planner settings.
- * @param root0.completed When true, marks the new row as completed.
- * @param root0.date Day key for the manual session.
- * @param root0.getBookById Function that resolves a book by id.
- * @param root0.minutes Requested session minutes before normalization.
+ * @param root0 - Manual-session creation args plus shared state callbacks.
+ * @param bookId - Target book id to schedule.
+ * @param collectSettings - Function that returns current planner settings.
+ * @param completed - When true, marks the new row as completed.
+ * @param date - Day key for the manual session.
+ * @param getBookById - Function that resolves a book by id.
+ * @param minutes - Requested session minutes before normalization.
  * @returns `true` when a session is added; otherwise `false` after setting an error status.
  */
 /**
@@ -214,8 +214,8 @@ export function addManualSessionRow({
 /**
  * Removes one scheduled session from the current result and prunes completion
  * keys that no longer map to an existing row.
- * @param root0 Removal args plus shared state callbacks.
- * @param root0.row Schedule row to remove.
+ * @param root0 - Removal args plus shared state callbacks.
+ * @param row - Schedule row to remove.
  * @returns `true` when a session is removed; otherwise `false` after setting an error status.
  */
 export function removeSessionRow({ row, ...args }: RemoveSessionArgs): boolean {
@@ -252,11 +252,11 @@ export function removeSessionRow({ row, ...args }: RemoveSessionArgs): boolean {
 /**
  * Updates planned minutes for one scheduled session and recalculates
  * words-planned for that row based on current settings/book difficulty.
- * @param root0 Update args plus shared state callbacks.
- * @param root0.collectSettings Function that returns current planner settings.
- * @param root0.getBookById Function that resolves a book by id.
- * @param root0.minutes Requested session minutes before normalization.
- * @param root0.row Schedule row to update.
+ * @param root0 - Update args plus shared state callbacks.
+ * @param collectSettings - Function that returns current planner settings.
+ * @param getBookById - Function that resolves a book by id.
+ * @param minutes - Requested session minutes before normalization.
+ * @param row - Schedule row to update.
  * @returns `true` when the target session is updated; otherwise `false` after setting an error status.
  */
 export function updateSessionRowMinutes({

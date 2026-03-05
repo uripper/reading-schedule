@@ -4,7 +4,7 @@ import test from "node:test";
 import {
     buildTodayScheduleSnapshot,
     nextUncompletedPlannedRow,
-} from "../dist/renderer/app/today_schedule.js";
+} from "../dist/renderer/app/today/today_schedule.js";
 import { sessionKeyFor } from "../dist/renderer/calendar/utils.js";
 import { todayKey } from "../dist/renderer/sessions/utils.js";
 
@@ -12,8 +12,8 @@ const CREATED_AT = "2026-01-01T00:00:00.000Z";
 
 /**
  * Builds planner result fixture with provided schedule rows.
- * @param {Array<Record<string, unknown>>} schedule Planner schedule rows.
- * @returns {{schedule: Array<Record<string, unknown>>, summary: null, created_at: string}} Planner result fixture.
+ * @param schedule - Planner schedule rows.
+ * @returns Planner result fixture.
  */
 function plannerResult(schedule) {
     return {
@@ -25,14 +25,13 @@ function plannerResult(schedule) {
 
 /**
  * Builds schedule row fixture for today-snapshot tests.
- * @param {{
+ * @param args - Row input values.
  *   date: string,
  *   sessionIndex: number,
- *   bookId: string,
  *   title: string,
+ *   bookId: string,
  *   minutes: number,
- * }} args Row input values.
- * @returns {Record<string, unknown>} Row fixture.
+ * @returns  Row fixture.
  */
 function row(args) {
     return {

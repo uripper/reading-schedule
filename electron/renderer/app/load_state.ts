@@ -20,7 +20,7 @@ import {
 
 /**
  * Checks whether loaded state already contains full bootstrapping data.
- * @param source Saved planner state returned from persistence.
+ * @param source - Saved planner state returned from persistence.
  * @returns True when settings and books are both present.
  */
 function hasInitialSettingsAndBooks(
@@ -40,8 +40,8 @@ function hasInitialSettingsAndBooks(
 
 /**
  * Resolves initial boot source from saved state or sample fallback.
- * @param plannerApi Planner API with sample data support.
- * @param saved Loaded state from persistence.
+ * @param plannerApi - Planner API with sample data support.
+ * @param saved - Loaded state from persistence.
  * @returns Settings and books used to initialize the UI.
  */
 async function resolveInitialSource(
@@ -56,8 +56,8 @@ async function resolveInitialSource(
 
 /**
  * Logs the persistence source path used for this load operation.
- * @param loadResult Structured load result metadata.
- * @param addLog Optional log sink for user-visible diagnostics.
+ * @param loadResult - Structured load result metadata.
+ * @param addLog - Optional log sink for user-visible diagnostics.
  */
 function appendLoadSourceLog(
     loadResult: PlannerStateLoadResult,
@@ -78,8 +78,8 @@ function appendLoadSourceLog(
 
 /**
  * Publishes recovery status messages for backup/journal/fresh reset loads.
- * @param loadResult Structured load result metadata.
- * @param setStatus Status sink for user-visible warnings.
+ * @param loadResult - Structured load result metadata.
+ * @param setStatus - Status sink for user-visible warnings.
  */
 function reportRecoveryStatus(
     loadResult: PlannerStateLoadResult,
@@ -109,7 +109,7 @@ function reportRecoveryStatus(
 
 /**
  * Indicates whether current load used the JSON migration path.
- * @param loadResult Structured load result metadata.
+ * @param loadResult - Structured load result metadata.
  * @returns True when migration info should be logged.
  */
 function didMigrateFromJson(loadResult: PlannerStateLoadResult): boolean {
@@ -127,8 +127,8 @@ function didMigrateFromJson(loadResult: PlannerStateLoadResult): boolean {
 
 /**
  * Emits recovery status/log output based on persistence load source metadata.
- * @param loadResult Structured load result from persistence facade.
- * @param args Runtime wiring for status/log output.
+ * @param loadResult - Structured load result from persistence facade.
+ * @param args - Runtime wiring for status/log output.
  */
 function reportLoadRecovery(
     loadResult: PlannerStateLoadResult,
@@ -143,9 +143,9 @@ function reportLoadRecovery(
 
 /**
  * Applies settings, books, and completion maps to runtime state.
- * @param saved Loaded state from persistence.
- * @param source Initial source containing settings and books.
- * @param args Runtime wiring for state setters and normalizers.
+ * @param saved - Loaded state from persistence.
+ * @param source - Initial source containing settings and books.
+ * @param args - Runtime wiring for state setters and normalizers.
  */
 function applyLoadedData(
     saved: LoadedPlannerState | null | undefined,
@@ -171,8 +171,8 @@ function applyLoadedData(
 
 /**
  * Applies sessions and last result, then refreshes Today view state.
- * @param saved Loaded state from persistence.
- * @param args Runtime wiring for session/result setters.
+ * @param saved - Loaded state from persistence.
+ * @param args - Runtime wiring for session/result setters.
  */
 function applySessionAndResultData(
     saved: LoadedPlannerState | null | undefined,
@@ -190,9 +190,9 @@ function applySessionAndResultData(
 
 /**
  * Applies normalized preference data to UI controls and document styles.
- * @param args Runtime wiring for preference/feature UI application.
- * @param preferences Normalized user preferences.
- * @param featureFlags Normalized feature flags.
+ * @param args - Runtime wiring for preference/feature UI application.
+ * @param preferences - Normalized user preferences.
+ * @param featureFlags - Normalized feature flags.
  */
 function applyExperienceData(
     args: LoadStateArgs,
@@ -205,7 +205,7 @@ function applyExperienceData(
 
 /**
  * Loads persisted planner state and applies it to the running UI/runtime state.
- * @param args Runtime dependencies for loading, normalizing, and applying state.
+ * @param args - Runtime dependencies for loading, normalizing, and applying state.
  * @returns Promise that resolves after load/init flow finishes.
  */
 export async function loadInitialData(args: LoadStateArgs): Promise<void> {
@@ -225,7 +225,8 @@ export async function loadInitialData(args: LoadStateArgs): Promise<void> {
         applyExperienceData(args, PREFERENCES, FEATURE_FLAGS);
         applySessionAndResultData(SAVED, args);
         args.onLoaded(SAVED, LOAD_RESULT);
-    } catch {
-        args.setStatus("Failed to load initial data", true);
+    } catch (error) {
+        const ErrorMessage = `Failed to load initial data. \n ${error}`;
+        args.setStatus(ErrorMessage, true);
     }
 }

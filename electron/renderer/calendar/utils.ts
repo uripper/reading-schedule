@@ -12,8 +12,8 @@ const MONTH_INDEX_OFFSET = 1;
 
 /**
  * Calculates the number of weeks needed to display a month in a calendar grid.
- * @param weekdayOffset Number of blank cells before the first day of the month (0-6).
- * @param daysInMonth Number of days in the month (28-31).
+ * @param weekdayOffset - Number of blank cells before the first day of the month (0-6).
+ * @param daysInMonth - Number of days in the month (28-31).
  * @returns Number of weeks needed to display the month.
  */
 function weekCountNeeded(weekdayOffset: number, daysInMonth: number): number {
@@ -23,7 +23,7 @@ function weekCountNeeded(weekdayOffset: number, daysInMonth: number): number {
 
 /**
  * Builds sortable key from calendar row date and session index.
- * @param row Row containing date and session index fields.
+ * @param row - Row containing date and session index fields.
  * @returns Lexicographically sortable row key.
  */
 function rowSortKey(row: SortableRow): string {
@@ -36,7 +36,7 @@ function rowSortKey(row: SortableRow): string {
 
 /**
  * Returns a sorted copy of rows by date then session index.
- * @param rows Rows to sort.
+ * @param rows - Rows to sort.
  * @returns Sorted row copy.
  */
 export function sortRowsByDateAndSession<T extends SortableRow>(
@@ -49,7 +49,7 @@ export function sortRowsByDateAndSession<T extends SortableRow>(
 
 /**
  * Formats `YYYY-MM` month keys for calendar header display.
- * @param key Month key.
+ * @param key - Month key.
  * @returns Human-readable month/year label.
  */
 export function monthLabel(key: string): string {
@@ -66,7 +66,7 @@ export function monthLabel(key: string): string {
 
 /**
  * Converts Date object to local `YYYY-MM-DD` key.
- * @param date Date to serialize.
+ * @param date - Date to serialize.
  * @returns Day key string.
  */
 export function dayKey(date: Date): string {
@@ -78,7 +78,7 @@ export function dayKey(date: Date): string {
 
 /**
  * Returns the 6-week calendar grid date cells for a month key.
- * @param monthKey Month key in `YYYY-MM` format.
+ * @param monthKey - Month key in `YYYY-MM` format.
  * @returns Date cells used for calendar month rendering.
  */
 export function monthCells(monthKey: string): Date[] {
@@ -105,7 +105,7 @@ export function monthCells(monthKey: string): Date[] {
 
 /**
  * Parses a day key (`YYYY-MM-DD`) into a local Date.
- * @param dateKey Day key to parse.
+ * @param dateKey - Day key to parse.
  * @returns Local Date for valid keys, otherwise null.
  */
 function parseDayKey(dateKey: string): Date | null {
@@ -140,7 +140,7 @@ function parseDayKey(dateKey: string): Date | null {
 
 /**
  * Formats date key for calendar details heading.
- * @param dateKey Day key in `YYYY-MM-DD` format.
+ * @param dateKey - Day key in `YYYY-MM-DD` format.
  * @returns Human-readable heading string.
  */
 export function dateHeading(dateKey: string): string {
@@ -159,10 +159,10 @@ export function dateHeading(dateKey: string): string {
 
 /**
  * Builds stable session key from row date, index, and book id.
- * @param row Row identity fields.
- * @param row.date Session date key.
- * @param row.session_index Session index within date.
- * @param row.book_id Book id for session.
+ * @param row - Row identity fields.
+ * @param row.date - Session date key.
+ * @param row.session_index - Session index within date.
+ * @param row.book_id - Book id for session.
  * @returns Session identity key.
  */
 export function sessionKeyFor(row: {
@@ -175,7 +175,7 @@ export function sessionKeyFor(row: {
 
 /**
  * Parses optional numeric input and returns null for blank/invalid values.
- * @param value Numeric-like value from UI or payload.
+ * @param value - Numeric-like value from UI or payload.
  * @returns Parsed number or `null`.
  */
 export function parseOptionalNumber(value?: string | number): number | null {

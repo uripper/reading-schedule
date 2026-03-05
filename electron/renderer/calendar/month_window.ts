@@ -5,7 +5,7 @@ const MONTH_KEY_PART_COUNT = 2;
 
 /**
  * Formats month key (`YYYY-MM`) from a local Date.
- * @param date Local date.
+ * @param date - Local date.
  * @returns Month key string.
  */
 function monthKeyFromDate(date: Date): string {
@@ -16,7 +16,7 @@ function monthKeyFromDate(date: Date): string {
 
 /**
  * Parses `YYYY-MM` key into local Date at first day of month.
- * @param monthKey Month key to parse.
+ * @param monthKey - Month key to parse.
  * @returns Parsed month date, or null for invalid keys.
  */
 function monthDateFromKey(monthKey: string): Date | null {
@@ -41,8 +41,8 @@ function monthDateFromKey(monthKey: string): Date | null {
 
 /**
  * Returns earlier of two month keys.
- * @param left Left month key.
- * @param right Right month key.
+ * @param left - Left month key.
+ * @param right - Right month key.
  * @returns Earliest month key.
  */
 function earlierMonthKey(left: string, right: string): string {
@@ -54,8 +54,8 @@ function earlierMonthKey(left: string, right: string): string {
 
 /**
  * Returns later of two month keys.
- * @param left Left month key.
- * @param right Right month key.
+ * @param left - Left month key.
+ * @param right - Right month key.
  * @returns Latest month key.
  */
 function laterMonthKey(left: string, right: string): string {
@@ -67,8 +67,8 @@ function laterMonthKey(left: string, right: string): string {
 
 /**
  * Builds contiguous inclusive month key range.
- * @param startKey Start month key.
- * @param endKey End month key.
+ * @param startKey - Start month key.
+ * @param endKey - End month key.
  * @returns Inclusive month-key range.
  */
 function contiguousMonthRange(startKey: string, endKey: string): string[] {
@@ -94,8 +94,8 @@ function contiguousMonthRange(startKey: string, endKey: string): string[] {
 /**
  * Expands schedule-derived months into a navigable month window.
  * Includes a 12-month lookback from current month and full schedule span.
- * @param monthKeys Schedule-derived month keys.
- * @param now Current local date for lookback calculations.
+ * @param monthKeys - Schedule-derived month keys.
+ * @param now - Current local date for lookback calculations.
  * @returns Contiguous month keys for calendar controls.
  */
 export function buildMonthWindow(

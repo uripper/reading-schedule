@@ -36,7 +36,7 @@ function renderLogs(): void {
 
 /**
  * Adds a log line to help dialog output with timestamp prefix.
- * @param message Log message text to append.
+ * @param message - Log message text to append.
  */
 export function addLog(message: string): void {
     LOGS.unshift(`[${ts()}] ${message}`);

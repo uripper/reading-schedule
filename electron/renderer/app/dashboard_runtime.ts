@@ -3,17 +3,17 @@ import { DEFAULT_PREFERENCES } from "./experience/index.js";
 
 /**
  * Creates dashboard update actions that keep Today/Stats panels in sync with UI preferences.
- * @param root0 Runtime dependencies and mutable app state for dashboard updates.
- * @param root0.applyPreferencesToDocument Applies visual preference changes to the document root.
- * @param root0.collectFeatureFlagsFromUI Reads current feature flags from settings controls.
- * @param root0.collectPreferencesFromUI Reads current preference values from settings controls.
- * @param root0.collectAllBooks Returns all books currently present in the catalog.
- * @param root0.normalizeFeatureFlags Normalizes partial flag values into a complete feature flag object.
- * @param root0.normalizePreferences Normalizes partial preferences into a complete preferences object.
- * @param root0.queuePersist Schedules state persistence after preference/flag updates.
- * @param root0.state Shared mutable runtime state used by dashboard rendering.
- * @param root0.updateStatsView Renders the Stats dashboard from latest state values.
- * @param root0.updateTodayDashboard Renders the Today dashboard from latest state values.
+ * @param root0 - Runtime dependencies and mutable app state for dashboard updates.
+ * @param applyPreferencesToDocument - Applies visual preference changes to the document root.
+ * @param collectFeatureFlagsFromUI - Reads current feature flags from settings controls.
+ * @param collectPreferencesFromUI - Reads current preference values from settings controls.
+ * @param collectAllBooks - Returns all books currently present in the catalog.
+ * @param normalizeFeatureFlags - Normalizes partial flag values into a complete feature flag object.
+ * @param normalizePreferences - Normalizes partial preferences into a complete preferences object.
+ * @param queuePersist - Schedules state persistence after preference/flag updates.
+ * @param state - Shared mutable runtime state used by dashboard rendering.
+ * @param updateStatsView - Renders the Stats dashboard from latest state values.
+ * @param updateTodayDashboard - Renders the Today dashboard from latest state values.
  * @returns Dashboard action handlers for applying settings and repainting both dashboards.
  */
 export function createDashboardRuntime({

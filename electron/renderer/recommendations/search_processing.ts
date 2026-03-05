@@ -17,8 +17,8 @@ interface ProcessAuthorOptions {
 
 /**
  * Returns a shuffled copy of values using Fisher-Yates.
- * @param values Source values.
- * @param randomFn Random number source in [0, 1).
+ * @param values - Source values.
+ * @param randomFn - Random number source in [0, 1).
  * @returns Shuffled copy of input values.
  */
 function shuffledCopy<T>(values: T[], randomFn: () => number): T[] {
@@ -34,9 +34,9 @@ function shuffledCopy<T>(values: T[], randomFn: () => number): T[] {
 
 /**
  * Picks up to `limit` random values from an input list without replacement.
- * @param values Source values.
- * @param limit Maximum number of values to pick.
- * @param randomFn Random number source in [0, 1).
+ * @param values - Source values.
+ * @param limit - Maximum number of values to pick.
+ * @param randomFn - Random number source in [0, 1).
  * @returns Random subset preserving shuffled order.
  */
 export function pickRandomSample<T>(
@@ -52,7 +52,7 @@ export function pickRandomSample<T>(
 
 /**
  * Summarizes the first few results for diagnostics.
- * @param lookupItems Lookup results from Open Library.
+ * @param lookupItems - Lookup results from Open Library.
  * @returns Comma-separated preview summary.
  */
 export function sampleResultsSummary(lookupItems: BookLookupItem[]): string {
@@ -62,7 +62,7 @@ export function sampleResultsSummary(lookupItems: BookLookupItem[]): string {
 
 /**
  * Processes lookup results for one author, applying plausibility and dedup checks.
- * @param options Processing options containing author, results, and accumulators.
+ * @param options - Processing options containing author, results, and accumulators.
  * @returns Number of items added.
  */
 export function processAuthorResults(options: ProcessAuthorOptions): number {

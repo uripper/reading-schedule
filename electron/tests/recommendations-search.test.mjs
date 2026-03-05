@@ -5,7 +5,7 @@ import { findRecommendations } from "../dist/renderer/recommendations/search.js"
 
 /**
  * Builds a valid book-like test object with optional overrides.
- * @param {Record<string, unknown>} overrides Partial fixture overrides.
+ * @param {Record<string, unknown>} overrides - Partial fixture overrides.
  * @returns {Record<string, unknown>} Book-like fixture object.
  */
 function book(overrides = {}) {

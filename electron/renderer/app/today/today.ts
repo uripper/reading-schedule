@@ -1,6 +1,5 @@
 import type {
-    PlannerResult,
-    PlannerScheduleRow,
+    DayMinutesMap,
     TodayScheduleSnapshot,
     UpdateTodayDashboardArgs,
 } from "../../../types/types.js";
@@ -9,95 +8,158 @@ import {
     dayMinutesFromActivity,
     streakFromDayMinutes,
 } from "../../activity/day_minutes.js";
-import { el } from "../../dom.js";
 import { todayKey } from "../../sessions/utils.js";
-import { renderTodayScheduledBooks } from "./today_books_view.js";
+import { renderTodayCarousel } from "./today_carousel_render.js";
+import { goalProgressPercent } from "./today_goal.js";
+import {
+    formatHeaderSessionsText,
+    formatStreakText,
+    isHeaderGoalComplete,
+    isHeaderSessionsComplete,
+} from "./today_header.js";
+import {
+    applyIndicatorState,
+    renderSessionDots,
+} from "./today_header_render.js";
 import { buildTodayScheduleSnapshot } from "./today_schedule.js";
 
 const MIN_GOAL_MINUTES = 1;
-const MAX_PERCENT = 100;
-const MIN_PERCENT = 0;
-const NO_SCHEDULE_TEXT =
-    "No schedule yet. Add or update books and settings to auto-build your plan.";
-const TODAY_DONE_TEXT = "All planned sessions for today are complete.";
-const NO_INCOMPLETE_TEXT =
-    "No incomplete planned sessions ahead. Update books or settings to refresh your plan.";
 
-/**
- * Checks whether planner results contain any schedule rows.
- * @param lastResult Latest planner result.
- * @returns True when at least one planned row exists.
- */
-function hasPlannedRows(lastResult: PlannerResult | null): boolean {
-    if (!Array.isArray(lastResult?.schedule)) {
-        return false;
-    }
-    return lastResult.schedule.length > 0;
-}
-
-/**
- * Builds the Today summary sentence shown above the schedule cards.
- * @param lastResult Latest planner result.
- * @param snapshot Computed today schedule snapshot.
- * @param next Next uncompleted planned row, if any.
- * @returns User-facing summary text.
- */
-function summaryText(
-    lastResult: PlannerResult | null,
-    snapshot: TodayScheduleSnapshot,
-    next: PlannerScheduleRow | null,
-): string {
-    if (next) {
-        return `Next planned session: ${next.title} for ${next.minutes} minutes on ${next.date}.`;
-    }
-    if (hasPlannedRows(lastResult)) {
-        if (
-            snapshot.scheduledSessions &&
-            snapshot.completedSessions >= snapshot.scheduledSessions
-        ) {
-            return TODAY_DONE_TEXT;
-        }
-        return NO_INCOMPLETE_TEXT;
-    }
-    return NO_SCHEDULE_TEXT;
-}
-
-/**
- * Computes bounded goal-completion percentage for today's minutes bar.
- * @param todayMinutesRaw Minutes logged today.
- * @param goalMinutesRaw Daily goal minutes.
- * @returns Integer percent between 0 and 100.
- */
-function goalProgressPercent(
-    todayMinutesRaw: number,
-    goalMinutesRaw: number,
+function resolvedGoalMinutes(
+    preferredGoalMinutes: number,
+    defaultGoalMinutes: number,
 ): number {
-    const GOAL_MINUTES = Math.max(
+    return Math.max(
         MIN_GOAL_MINUTES,
-        Number(goalMinutesRaw || MIN_GOAL_MINUTES),
+        Number(preferredGoalMinutes || defaultGoalMinutes),
     );
-    const TODAY_MINUTES = Math.max(
-        MIN_PERCENT,
-        Number(todayMinutesRaw || MIN_PERCENT),
-    );
-    const RAW_PERCENT = Math.round(
-        (TODAY_MINUTES / GOAL_MINUTES) * MAX_PERCENT,
-    );
-    const BOUNDED = Math.min(MAX_PERCENT, RAW_PERCENT);
-    return Math.max(MIN_PERCENT, BOUNDED);
 }
 
-/**
- * Re-renders Today dashboard content and progress widgets.
- * @param root0 Inputs used to render Today summary, books, and progress.
- * @param root0.lastResult Latest planner result.
- * @param root0.scheduleCompletions Completion map keyed by session/day-book keys.
- * @param root0.books Current book catalog.
- * @param root0.sessions Logged reading sessions.
- * @param root0.preferences Experience preferences.
- * @param root0.featureFlags Feature flag state.
- * @param root0.defaultDailyGoalMinutes Fallback goal minutes when preference is empty.
- */
+function getOptionalElement(id: string): HTMLElement | null {
+    const NODE = globalThis.document.getElementById(id);
+    if (!(NODE instanceof HTMLElement)) {
+        return null;
+    }
+    return NODE;
+}
+
+function renderHeaderGoalMetric(
+    activityByDay: DayMinutesMap,
+    goalMinutes: number,
+): {
+    goalComplete: boolean;
+    goalProgressPercent: number;
+    todayMinutes: number;
+} {
+    const TODAY_MINUTES = dayMinutesForKey(activityByDay, todayKey());
+    return {
+        goalComplete: isHeaderGoalComplete(TODAY_MINUTES, goalMinutes),
+        goalProgressPercent: goalProgressPercent(TODAY_MINUTES, goalMinutes),
+        todayMinutes: TODAY_MINUTES,
+    };
+}
+
+function renderHeaderSessionsMetric(options: {
+    snapshot: TodayScheduleSnapshot;
+    sessionsStatus: HTMLElement;
+    sessionDots: HTMLElement;
+    completeIndicator: HTMLElement | null;
+}): void {
+    options.sessionsStatus.textContent = formatHeaderSessionsText(
+        options.snapshot.completedSessions,
+        options.snapshot.scheduledSessions,
+    );
+    renderSessionDots(
+        options.sessionDots,
+        options.snapshot.completedSessions,
+        options.snapshot.scheduledSessions,
+    );
+    const COMPLETE = isHeaderSessionsComplete(
+        options.snapshot.completedSessions,
+        options.snapshot.scheduledSessions,
+    );
+    if (options.completeIndicator !== null) {
+        applyIndicatorState(options.completeIndicator, COMPLETE);
+    }
+}
+
+function renderHeaderStreakMetric(options: {
+    activityByDay: DayMinutesMap;
+    goalMinutes: number;
+    gamificationEnabled: boolean;
+    streakMetric: HTMLElement;
+    streakNode: HTMLElement;
+}): void {
+    options.streakMetric.hidden = !options.gamificationEnabled;
+    if (!options.gamificationEnabled) {
+        return;
+    }
+    const STREAK = streakFromDayMinutes(
+        options.activityByDay,
+        options.goalMinutes,
+    );
+    options.streakNode.textContent = formatStreakText(STREAK);
+}
+
+function applyHeaderGoalMetric(
+    activityByDay: DayMinutesMap,
+    goalMinutes: number,
+): void {
+    const GOAL_METRIC = renderHeaderGoalMetric(activityByDay, goalMinutes);
+    const GOAL_TEXT = getOptionalElement("todayGoalText");
+    if (GOAL_TEXT !== null) {
+        GOAL_TEXT.textContent = `${GOAL_METRIC.todayMinutes}/${goalMinutes} Minutes`;
+    }
+    const GOAL_INDICATOR = getOptionalElement("headerGoalIndicator");
+    if (GOAL_INDICATOR !== null) {
+        GOAL_INDICATOR.setAttribute(
+            "data-progress-percent",
+            String(GOAL_METRIC.goalProgressPercent),
+        );
+        applyIndicatorState(GOAL_INDICATOR, GOAL_METRIC.goalComplete);
+    }
+    const STREAK_FLAME = getOptionalElement("headerStreakFlame");
+    if (STREAK_FLAME !== null) {
+        STREAK_FLAME.classList.toggle(
+            "is-goal-complete",
+            GOAL_METRIC.goalComplete,
+        );
+    }
+}
+
+function applyHeaderSessionsMetric(snapshot: TodayScheduleSnapshot): void {
+    const SESSIONS_STATUS = getOptionalElement("headerSessionsStatus");
+    const SESSION_DOTS = getOptionalElement("headerSessionsDots");
+    if (SESSIONS_STATUS === null || SESSION_DOTS === null) {
+        return;
+    }
+    renderHeaderSessionsMetric({
+        completeIndicator: getOptionalElement("headerSessionsIndicator"),
+        sessionDots: SESSION_DOTS,
+        sessionsStatus: SESSIONS_STATUS,
+        snapshot,
+    });
+}
+
+function applyHeaderStreakMetric(
+    activityByDay: DayMinutesMap,
+    goalMinutes: number,
+    gamificationEnabled: boolean,
+): void {
+    const STREAK_METRIC = getOptionalElement("headerStreakMetric");
+    const STREAK_NODE = getOptionalElement("streakText");
+    if (STREAK_METRIC === null || STREAK_NODE === null) {
+        return;
+    }
+    renderHeaderStreakMetric({
+        activityByDay,
+        gamificationEnabled,
+        goalMinutes,
+        streakMetric: STREAK_METRIC,
+        streakNode: STREAK_NODE,
+    });
+}
+
 export function updateTodayDashboard({
     lastResult,
     scheduleCompletions,
@@ -107,22 +169,17 @@ export function updateTodayDashboard({
     featureFlags,
     defaultDailyGoalMinutes,
 }: UpdateTodayDashboardArgs): void {
-    const SUMMARY_NODE = globalThis.document.getElementById("todaySummary");
-    const GOAL_TEXT = el("todayGoalText");
-    const GOAL_PROGRESS = el<HTMLProgressElement>("todayGoalProgress");
-    const GAMIFICATION_CARD = el("gamificationCard");
-    const STREAK_NODE = el("streakText");
-
     const SNAPSHOT = buildTodayScheduleSnapshot(
         lastResult,
         scheduleCompletions,
         books,
     );
-    const NEXT = SNAPSHOT.nextUncompletedRow;
-    if (SUMMARY_NODE instanceof HTMLElement) {
-        SUMMARY_NODE.textContent = summaryText(lastResult, SNAPSHOT, NEXT);
-    }
-    renderTodayScheduledBooks(SNAPSHOT);
+
+    renderTodayCarousel({
+        books,
+        lastResult,
+        scheduleCompletions,
+    });
 
     const ACTIVITY_BY_DAY = dayMinutesFromActivity({
         lastResult,
@@ -130,20 +187,16 @@ export function updateTodayDashboard({
         sessions,
         year: null,
     });
-
-    const GOAL_MINUTES = Math.max(
-        MIN_GOAL_MINUTES,
-        Number(preferences.dailyGoalMinutes || defaultDailyGoalMinutes),
+    const GOAL_MINUTES = resolvedGoalMinutes(
+        Number(preferences.dailyGoalMinutes),
+        defaultDailyGoalMinutes,
     );
-    const TODAY_MINUTES = dayMinutesForKey(ACTIVITY_BY_DAY, todayKey());
-    const PCT = goalProgressPercent(TODAY_MINUTES, GOAL_MINUTES);
-    GOAL_TEXT.textContent = `${TODAY_MINUTES} / ${GOAL_MINUTES} minutes logged today`;
-    GOAL_PROGRESS.value = PCT;
 
-    const GAMIFICATION_ON = Boolean(featureFlags.gamificationEnabled);
-    GAMIFICATION_CARD.hidden = !GAMIFICATION_ON;
-    if (GAMIFICATION_ON) {
-        const STREAK = streakFromDayMinutes(ACTIVITY_BY_DAY, GOAL_MINUTES);
-        STREAK_NODE.textContent = `${STREAK} day streak`;
-    }
+    applyHeaderGoalMetric(ACTIVITY_BY_DAY, GOAL_MINUTES);
+    applyHeaderSessionsMetric(SNAPSHOT);
+    applyHeaderStreakMetric(
+        ACTIVITY_BY_DAY,
+        GOAL_MINUTES,
+        Boolean(featureFlags.gamificationEnabled),
+    );
 }

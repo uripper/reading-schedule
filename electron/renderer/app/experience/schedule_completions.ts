@@ -1,6 +1,6 @@
 /**
  * Normalize schedule completions from local storage.
- * @param raw The raw schedule completions object from local storage.
+ * @param raw - The raw schedule completions object from local storage.
  * @returns A normalized schedule completions object with boolean values.
  */
 export function normalizeScheduleCompletions(

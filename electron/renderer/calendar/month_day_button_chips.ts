@@ -2,7 +2,7 @@ import type { CalendarDisplayRow } from "../../types/types.js";
 
 /**
  * Returns compact planned-session summary text.
- * @param rowCount Number of sessions on a day.
+ * @param rowCount - Number of sessions on a day.
  * @returns Summary label for day chip header.
  */
 function plannedSessionText(rowCount: number): string {
@@ -14,7 +14,7 @@ function plannedSessionText(rowCount: number): string {
 
 /**
  * Resolves chip class name based on finish/completion state.
- * @param row Day row to style.
+ * @param row - Day row to style.
  * @returns Class string for chip styling.
  */
 function chipClassNameForRow(row: CalendarDisplayRow): string {
@@ -26,8 +26,8 @@ function chipClassNameForRow(row: CalendarDisplayRow): string {
 
 /**
  * Appends up to two visible row chips to a day button.
- * @param dayButton Day button node to append into.
- * @param rows Day rows to summarize.
+ * @param dayButton - Day button node to append into.
+ * @param rows - Day rows to summarize.
  */
 function appendVisibleRowChips(
     dayButton: HTMLButtonElement,
@@ -43,8 +43,8 @@ function appendVisibleRowChips(
 
 /**
  * Appends overflow chip when day contains more than two sessions.
- * @param dayButton Day button node to append into.
- * @param rowCount Total number of day rows.
+ * @param dayButton - Day button node to append into.
+ * @param rowCount - Total number of day rows.
  */
 function appendExtraRowChip(
     dayButton: HTMLButtonElement,
@@ -61,8 +61,8 @@ function appendExtraRowChip(
 
 /**
  * Appends summary count and row chips to day buttons.
- * @param dayButton Day button node to append into.
- * @param rows Day rows to summarize.
+ * @param dayButton - Day button node to append into.
+ * @param rows - Day rows to summarize.
  */
 export function appendDayButtonSummary(
     dayButton: HTMLButtonElement,

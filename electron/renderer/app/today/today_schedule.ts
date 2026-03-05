@@ -19,7 +19,7 @@ const DEFAULT_TITLE = "Untitled";
 
 /**
  * Returns sorted planned rows from planner result data.
- * @param lastResult Latest planner result.
+ * @param lastResult - Latest planner result.
  * @returns Planned rows sorted by day and session order.
  */
 function rowsFromResult(
@@ -33,8 +33,8 @@ function rowsFromResult(
 
 /**
  * Checks whether a planned row is marked complete in completion map.
- * @param row Planned schedule row.
- * @param scheduleCompletions Completion map keyed by session identity.
+ * @param row - Planned schedule row.
+ * @param scheduleCompletions - Completion map keyed by session identity.
  * @returns True when row is completed.
  */
 function isCompletedRow(
@@ -46,7 +46,7 @@ function isCompletedRow(
 
 /**
  * Builds a map of books keyed by non-empty book id.
- * @param books Source book catalog.
+ * @param books - Source book catalog.
  * @returns Map of book id to book model.
  */
 function booksById(books: Book[]): Map<string, Book> {
@@ -64,8 +64,8 @@ function booksById(books: Book[]): Map<string, Book> {
 
 /**
  * Compares titles using normalized sort keys with stable fallback.
- * @param left Left title.
- * @param right Right title.
+ * @param left - Left title.
+ * @param right - Right title.
  * @returns Locale comparison result.
  */
 function compareTitle(left: string, right: string): number {
@@ -82,8 +82,8 @@ function compareTitle(left: string, right: string): number {
 
 /**
  * Creates a mutable per-book summary accumulator for today's rows.
- * @param row First row encountered for the book.
- * @param bookById Catalog lookup keyed by book id.
+ * @param row - First row encountered for the book.
+ * @param bookById - Catalog lookup keyed by book id.
  * @returns Initialized summary object for the book.
  */
 function createBookSummary(
@@ -109,11 +109,11 @@ function createBookSummary(
 
 /**
  * Finds the next uncompleted planned row on or after today.
- * @param lastResult Latest planner result.
- * @param scheduleCompletions Completion map keyed by session identity.
+ * @param lastResult - Latest planner result.
+ * @param scheduleCompletions - Completion map keyed by session identity.
  * @returns Next uncompleted row, or null when none remain.
  */
-function nextUncompletedPlannedRow(
+export function nextUncompletedPlannedRow(
     lastResult: PlannerResult | null,
     scheduleCompletions: Record<string, boolean>,
 ): PlannerScheduleRow | null {
@@ -133,9 +133,9 @@ function nextUncompletedPlannedRow(
 
 /**
  * Builds aggregate Today schedule metrics and book-level summaries.
- * @param lastResult Latest planner result.
- * @param scheduleCompletions Completion map keyed by session identity.
- * @param books Current book catalog used for cover/title metadata.
+ * @param lastResult - Latest planner result.
+ * @param scheduleCompletions - Completion map keyed by session identity.
+ * @param books - Current book catalog used for cover/title metadata.
  * @returns Snapshot used by Today dashboard rendering.
  */
 export function buildTodayScheduleSnapshot(

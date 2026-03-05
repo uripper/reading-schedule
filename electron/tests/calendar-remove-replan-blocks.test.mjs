@@ -6,7 +6,7 @@ import { mergeScheduleRows } from "../dist/renderer/app/schedule_preserve.js";
 
 /**
  * Builds schedule row fixture with override support.
- * @param {Record<string, unknown>} overrides Row field overrides.
+ * @param {Record<string, unknown>} overrides - Row field overrides.
  * @returns {Record<string, unknown>} Row fixture.
  */
 function row(overrides = {}) {

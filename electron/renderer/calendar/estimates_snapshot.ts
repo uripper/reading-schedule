@@ -15,10 +15,10 @@ import { plannedWordsBeforeAndThroughRow } from "./estimates_snapshot_rows.js";
 
 /**
  * Builds estimate snapshot for target row using current progress and plan.
- * @param row Target estimate row.
- * @param state Estimate state context.
- * @param getBookById Book lookup function.
- * @param isSessionCompleted Completion checker.
+ * @param row - Target estimate row.
+ * @param state - Estimate state context.
+ * @param getBookById - Book lookup function.
+ * @param isSessionCompleted - Completion checker.
  * @returns Estimate snapshot or `null` when estimate cannot be computed.
  */
 export function estimateSnapshotForRow(

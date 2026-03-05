@@ -1,3 +1,4 @@
+import type { UUID } from "node:crypto";
 import type { PlannerScheduleRow } from "./types_planner.js";
 
 export type BookStatus = "to_read" | "in_progress" | "read" | "dropped";
@@ -26,7 +27,7 @@ export type OptionalString = string | null | undefined;
 export interface Book {
     author: string;
     blocked_by: string | null;
-    book_id: string;
+    book_id: UUID | string;
     cover_local_path: string;
     cover_url: string;
     deadline: string | null;

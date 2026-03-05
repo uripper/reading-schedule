@@ -28,7 +28,7 @@ const DEFAULT_LAST_RESULT: PlannerResult = {
 
 /**
  * Builds the auto-plan execution loop used by the debounced runner.
- * @param root0 Auto-plan dependencies and mutable in-flight/pending state.
+ * @param root0 - Auto-plan dependencies and mutable in-flight/pending state.
  * @returns Async auto-plan function.
  */
 interface ExecuteAutoPlanArgs {
@@ -166,7 +166,7 @@ function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
 
 /**
  * Creates debounced auto-plan runner state and scheduling handlers.
- * @param root0 Plan-controller dependencies used during auto generation.
+ * @param root0 - Plan-controller dependencies used during auto generation.
  * @returns Auto-plan queue handler.
  */
 function createAutoPlanRunner(root0: PlanControllerArgs): AutoPlanRunner {
@@ -200,24 +200,24 @@ function createAutoPlanRunner(root0: PlanControllerArgs): AutoPlanRunner {
 
 /**
  * Creates plan controller actions for applying, loading, and auto-refreshing schedules.
- * @param root0 Dependencies and state accessors required by plan operations.
- * @param root0.plannerApi Planner adapter used to generate schedules.
- * @param root0.collectBooks Returns all books currently in the planner.
- * @param root0.collectSettings Returns planner settings from the UI.
- * @param root0.setStatus Publishes user-facing status messages.
- * @param root0.addLog Appends diagnostic messages to planner logs.
- * @param root0.announce Sends screen-reader announcements.
- * @param root0.getLastResult Returns the last generated schedule result.
- * @param root0.setLastResult Stores the latest planner result.
- * @param root0.getSessions Returns normalized reading sessions.
- * @param root0.getScheduleCompletions Returns completion state keyed by schedule row.
- * @param root0.getBlockedDayBooks Returns manually blocked day-book keys.
- * @param root0.setScheduleCompletions Replaces completion state after schedule changes.
- * @param root0.renderCalendar Renders schedule rows into the calendar view.
- * @param root0.totalsFromSummary Converts summary data into calendar totals.
- * @param root0.setBookScheduleRows Updates book-level schedule rows in runtime state.
- * @param root0.updateTodayView Re-renders the Today panel.
- * @param root0.persistDraft Persists current runtime state.
+ * @param root0 - Dependencies and state accessors required by plan operations.
+ * @param plannerApi - Planner adapter used to generate schedules.
+ * @param collectBooks - Returns all books currently in the planner.
+ * @param collectSettings - Returns planner settings from the UI.
+ * @param setStatus - Publishes user-facing status messages.
+ * @param addLog - Appends diagnostic messages to planner logs.
+ * @param announce - Sends screen-reader announcements.
+ * @param getLastResult - Returns the last generated schedule result.
+ * @param setLastResult - Stores the latest planner result.
+ * @param getSessions - Returns normalized reading sessions.
+ * @param getScheduleCompletions - Returns completion state keyed by schedule row.
+ * @param getBlockedDayBooks - Returns manually blocked day-book keys.
+ * @param setScheduleCompletions - Replaces completion state after schedule changes.
+ * @param renderCalendar - Renders schedule rows into the calendar view.
+ * @param totalsFromSummary - Converts summary data into calendar totals.
+ * @param setBookScheduleRows - Updates book-level schedule rows in runtime state.
+ * @param updateTodayView - Re-renders the Today panel.
+ * @param persistDraft - Persists current runtime state.
  * @returns Controller methods for queueing auto-plan and applying loaded results.
  */
 export function createPlanController(

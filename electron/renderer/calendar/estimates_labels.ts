@@ -4,7 +4,7 @@ export const NO_ESTIMATE_LABEL = "No estimate available";
 
 /**
  * Formats estimate label including projected pages and percent.
- * @param snapshot Estimate snapshot.
+ * @param snapshot - Estimate snapshot.
  * @returns Formatted estimate label.
  */
 export function estimateLabelWithPages(snapshot: EstimateSnapshot): string {
@@ -17,7 +17,7 @@ export function estimateLabelWithPages(snapshot: EstimateSnapshot): string {
 
 /**
  * Formats estimate label when page projection is unavailable.
- * @param snapshot Estimate snapshot.
+ * @param snapshot - Estimate snapshot.
  * @returns Formatted estimate label.
  */
 export function estimateLabelWithoutPages(snapshot: EstimateSnapshot): string {

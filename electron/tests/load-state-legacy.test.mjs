@@ -20,8 +20,8 @@ const DEFAULT_FEATURE_FLAGS = {
 
 /**
  * Builds load-state args with override hooks for legacy-shape assertions.
- * @param {import("../dist/types/types.js").PlannerStateLoadResult} loadResult Structured load result fixture.
- * @param {Partial<import("../dist/types/types_app.js").LoadStateArgs>} overrides Override hooks for targeted assertions.
+ * @param {import("../dist/types/types.js").PlannerStateLoadResult} loadResult - Structured load result fixture.
+ * @param {Partial<import("../dist/types/types_app.js").LoadStateArgs>} overrides - Override hooks for targeted assertions.
  * @returns {import("../dist/types/types_app.js").LoadStateArgs} Load arguments.
  */
 function loadArgs(loadResult, overrides = {}) {

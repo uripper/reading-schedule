@@ -7,10 +7,10 @@ import type {
 
 /**
  * Moves highlight to the next search result when ArrowDown is pressed.
- * @param event Keyboard event for the lookup input.
- * @param currentItems Current result list shown in the lookup menu.
- * @param activeIndex Currently highlighted index, or -1 when none is active.
- * @param setActiveIndex Callback used to update highlighted result index.
+ * @param event - Keyboard event for the lookup input.
+ * @param currentItems - Current result list shown in the lookup menu.
+ * @param activeIndex - Currently highlighted index, or -1 when none is active.
+ * @param setActiveIndex - Callback used to update highlighted result index.
  */
 function handleArrowDown(
     event: KeyboardEvent,
@@ -31,10 +31,10 @@ function handleArrowDown(
 
 /**
  * Moves highlight to the previous search result when ArrowUp is pressed.
- * @param event Keyboard event for the lookup input.
- * @param currentItems Current result list shown in the lookup menu.
- * @param activeIndex Currently highlighted index, or -1 when none is active.
- * @param setActiveIndex Callback used to update highlighted result index.
+ * @param event - Keyboard event for the lookup input.
+ * @param currentItems - Current result list shown in the lookup menu.
+ * @param activeIndex - Currently highlighted index, or -1 when none is active.
+ * @param setActiveIndex - Callback used to update highlighted result index.
  */
 function handleArrowUp(
     event: KeyboardEvent,
@@ -55,10 +55,10 @@ function handleArrowUp(
 
 /**
  * Selects the currently highlighted lookup result when Enter is pressed.
- * @param event Keyboard event for the lookup input.
- * @param currentItems Current result list shown in the lookup menu.
- * @param activeIndex Currently highlighted index, or -1 when none is active.
- * @param selectItem Callback used to commit the selected item.
+ * @param event - Keyboard event for the lookup input.
+ * @param currentItems - Current result list shown in the lookup menu.
+ * @param activeIndex - Currently highlighted index, or -1 when none is active.
+ * @param selectItem - Callback used to commit the selected item.
  */
 function handleEnter(
     event: KeyboardEvent,
@@ -75,8 +75,8 @@ function handleEnter(
 
 /**
  * Clears lookup results and removes focus from the search field.
- * @param clearResults Callback that empties the current result list.
- * @param searchInput Lookup search input element.
+ * @param clearResults - Callback that empties the current result list.
+ * @param searchInput - Lookup search input element.
  */
 function handleEscape(
     clearResults: () => void,
@@ -88,14 +88,14 @@ function handleEscape(
 
 /**
  * Routes lookup keyboard events to navigation and selection handlers.
- * @param args Lookup keyboard event payload and state callbacks.
- * @param args.event Keyboard event from the lookup input.
- * @param args.currentItems Current result list shown in the lookup menu.
- * @param args.activeIndex Currently highlighted index, or -1 when none is active.
- * @param args.setActiveIndex Callback used to update highlighted result index.
- * @param args.selectItem Callback used to commit the selected item.
- * @param args.clearResults Callback that empties the current result list.
- * @param args.searchInput Lookup search input element.
+ * @param args - Lookup keyboard event payload and state callbacks.
+ * @param event - Keyboard event from the lookup input.
+ * @param currentItems - Current result list shown in the lookup menu.
+ * @param activeIndex - Currently highlighted index, or -1 when none is active.
+ * @param setActiveIndex - Callback used to update highlighted result index.
+ * @param selectItem - Callback used to commit the selected item.
+ * @param clearResults - Callback that empties the current result list.
+ * @param searchInput - Lookup search input element.
  */
 export function handleLookupKeydown(args: HandleLookupKeydownArgs): void {
     const { event, currentItems, activeIndex, searchInput } = args;

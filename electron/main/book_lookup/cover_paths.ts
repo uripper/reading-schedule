@@ -1,5 +1,5 @@
 /**
- * @file File-path and extension utilities for locally stored cover images.
+ * File-path and extension utilities for locally stored cover images.
  */
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -26,7 +26,7 @@ let coverVersionCounter = 0;
 
 /**
  * Creates a safe filename base from a book id.
- * @param bookId Raw book identifier.
+ * @param bookId - Raw book identifier.
  * @returns Sanitized filename-safe base string.
  */
 function safeFileBase(bookId: string | undefined): string {
@@ -42,7 +42,7 @@ function safeFileBase(bookId: string | undefined): string {
 
 /**
  * Ensures the cover directory exists beneath the user-data directory.
- * @param userDataDir App user-data directory path.
+ * @param userDataDir - App user-data directory path.
  * @returns Absolute path to the cover directory.
  */
 function ensureCoverDirectory(userDataDir: string): string {
@@ -53,8 +53,8 @@ function ensureCoverDirectory(userDataDir: string): string {
 
 /**
  * Resolves the normalized extension for a downloaded cover response.
- * @param contentType Response content-type header value.
- * @param parsedUrl Parsed remote cover URL.
+ * @param contentType - Response content-type header value.
+ * @param parsedUrl - Parsed remote cover URL.
  * @returns Normalized supported cover extension.
  */
 export function extensionFor(
@@ -86,7 +86,7 @@ export function extensionFor(
 
 /**
  * Returns true when the protocol is an allowed HTTP(S) protocol.
- * @param protocol URL protocol string.
+ * @param protocol - URL protocol string.
  * @returns True for `http:` or `https:`.
  */
 export function isHttpProtocol(protocol: string): boolean {
@@ -95,9 +95,9 @@ export function isHttpProtocol(protocol: string): boolean {
 
 /**
  * Builds a unique absolute file path for a cover image.
- * @param userDataDir App user-data directory path.
- * @param bookId Book identifier used in file naming.
- * @param extension Target image extension.
+ * @param userDataDir - App user-data directory path.
+ * @param bookId - Book identifier used in file naming.
+ * @param extension - Target image extension.
  * @returns Absolute destination path for the cover file.
  */
 export function filePathForCover(

@@ -27,7 +27,7 @@ import { toOptionalInt } from "./utils.js";
 
 /**
  * Synchronizes finished-date field visibility after status changes.
- * @param refs Book form references containing status and date controls.
+ * @param refs - Book form references containing status and date controls.
  */
 export function syncFinishedAtField(refs: BookFormRefs): void {
     syncFinishedAtFieldState(refs);
@@ -35,8 +35,8 @@ export function syncFinishedAtField(refs: BookFormRefs): void {
 
 /**
  * Resets form inputs to default add-book values and clears lookup UI state.
- * @param refs Book form references to clear.
- * @param lookupControl Lookup controller used to reset search results.
+ * @param refs - Book form references to clear.
+ * @param lookupControl - Lookup controller used to reset search results.
  */
 export function clearForm(
     refs: BookFormRefs,
@@ -68,8 +68,8 @@ export function clearForm(
 
 /**
  * Fills form controls from an existing book for edit mode.
- * @param refs Book form references to populate.
- * @param book Existing book record being edited.
+ * @param refs - Book form references to populate.
+ * @param book - Existing book record being edited.
  */
 export function fillForm(refs: BookFormRefs, book: Book): void {
     const FORM_REFS = refs;
@@ -118,7 +118,7 @@ export function fillForm(refs: BookFormRefs, book: Book): void {
 
 /**
  * Parses current form values into a normalized `Book` payload.
- * @param refs Book form references to read.
+ * @param refs - Book form references to read.
  * @returns Normalized book model ready for save.
  */
 export function parseFormBook(refs: BookFormRefs): Book {

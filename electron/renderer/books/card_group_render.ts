@@ -3,8 +3,8 @@ import { createCardNode } from "./card_nodes.js";
 
 /**
  * Creates a grouped section of book cards with heading and row container.
- * @param group Group metadata and grouped books.
- * @param context Shared card render context.
+ * @param group - Group metadata and grouped books.
+ * @param context - Shared card render context.
  * @returns Group section element.
  */
 function createGroupSection(
@@ -26,9 +26,9 @@ function createGroupSection(
 
 /**
  * Renders books in a flat (non-grouped) card grid.
- * @param grid Grid container element.
- * @param books Books to render.
- * @param context Shared card render context.
+ * @param grid - Grid container element.
+ * @param books - Books to render.
+ * @param context - Shared card render context.
  */
 export function renderFlatBooks(
     grid: HTMLElement,
@@ -41,9 +41,9 @@ export function renderFlatBooks(
 
 /**
  * Renders books grouped by section into the card grid.
- * @param grid Grid container element.
- * @param groups Prepared book groups.
- * @param context Shared card render context.
+ * @param grid - Grid container element.
+ * @param groups - Prepared book groups.
+ * @param context - Shared card render context.
  */
 export function renderGroupedBooks(
     grid: HTMLElement,

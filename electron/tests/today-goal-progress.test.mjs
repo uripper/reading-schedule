@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { goalProgressPercent } from "../dist/renderer/app/today.js";
+import { goalProgressPercent } from "../dist/renderer/app/today/today_goal.js";
 
 test("goalProgressPercent computes expected percentage for partial progress", () => {
     assert.equal(goalProgressPercent(15, 30), 50);

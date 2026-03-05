@@ -5,7 +5,7 @@ import { blockerMeta } from "../dist/renderer/books/presenters.js";
 
 /**
  * Builds minimal book fixture overrides for blocker metadata tests.
- * @param {Record<string, unknown>} overrides Partial field overrides.
+ * @param {Record<string, unknown>} overrides - Partial field overrides.
  * @returns {{book_id: string, blocked_by: string|null}} Book fixture.
  */
 function book(overrides = {}) {

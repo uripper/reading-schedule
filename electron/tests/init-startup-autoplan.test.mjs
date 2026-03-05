@@ -1,6 +1,6 @@
 /**
  * Builds a minimal load result fixture for startup auto-plan policy checks.
- * @param {"fresh"|"sqlite"|"json_primary"} source Persistence source.
+ * @param {"fresh"|"sqlite"|"json_primary"} source - Persistence source.
  * @returns {{ source: "fresh"|"sqlite"|"json_primary" }} Minimal load result.
  */
 function loadResult(source) {
@@ -9,8 +9,8 @@ function loadResult(source) {
 
 /**
  * Builds minimal startup args fixture for auto-plan policy checks.
- * @param {number|null} scheduleLength Number of saved schedule rows or null for no saved state.
- * @param {"fresh"|"sqlite"|"json_primary"} source Persistence source.
+ * @param {number|null} scheduleLength - Number of saved schedule rows or null for no saved state.
+ * @param {"fresh"|"sqlite"|"json_primary"} source - Persistence source.
  * @returns {{ saved: null|{ last_result: { schedule: Array<{date: string}> } }, loadResult: { source: "fresh"|"sqlite"|"json_primary" } }}
  * Startup args with saved payload and load metadata.
  */
@@ -27,7 +27,7 @@ function _startupArgs(scheduleLength, source) {
 
 /**
  * Builds minimal saved payload fixture for startup auto-plan policy checks.
- * @param {number} scheduleLength Number of saved schedule rows.
+ * @param {number} scheduleLength - Number of saved schedule rows.
  * @returns {{ last_result: { schedule: Array<{date: string}> }}} Saved payload fixture.
  */
 function savedPayload(scheduleLength) {

@@ -15,8 +15,8 @@ const DEFAULT_NAVIGATION_ACTIONS: TodayBookNavigationActions = {
 
 /**
  * Opens the Books tab and highlights the matching card for a Today book row.
- * @param bookId Stable `book_id` for the selected scheduled book.
- * @param actions Navigation actions used to activate the tab and scroll target.
+ * @param bookId - Stable `book_id` for the selected scheduled book.
+ * @param actions - Navigation actions used to activate the tab and scroll target.
  */
 export function navigateToTodayBook(
     bookId: string,

@@ -18,7 +18,7 @@ const MIN_GOAL_MINUTES = 1;
 
 /**
  * Normalizes daily goal minutes to a minimum valid value.
- * @param goalMinutes Optional goal minutes input.
+ * @param goalMinutes - Optional goal minutes input.
  * @returns Goal minutes clamped to at least 1.
  */
 function normalizedGoalMinutes(goalMinutes: number | undefined): number {
@@ -27,12 +27,12 @@ function normalizedGoalMinutes(goalMinutes: number | undefined): number {
 
 /**
  * Builds a full stats snapshot used by the Stats dashboard renderer.
- * @param root0 Snapshot input values.
- * @param root0.books Current book catalog.
- * @param root0.sessions Logged reading sessions.
- * @param root0.lastResult Latest planner result.
- * @param root0.scheduleCompletions Completion map keyed by schedule row.
- * @param root0.dailyGoalMinutes Optional daily goal minutes.
+ * @param root0 - Snapshot input values.
+ * @param books - Current book catalog.
+ * @param sessions - Logged reading sessions.
+ * @param lastResult - Latest planner result.
+ * @param scheduleCompletions - Completion map keyed by schedule row.
+ * @param dailyGoalMinutes - Optional daily goal minutes.
  * @returns Aggregated stats snapshot for rendering.
  */
 export function buildStatsSnapshot({

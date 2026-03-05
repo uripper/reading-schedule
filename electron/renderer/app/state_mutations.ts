@@ -8,8 +8,8 @@ import {
 
 /**
  * Applies runtime-state mutation operations and keeps derived indexes synchronized.
- * @param state Mutable runtime state container.
- * @param mutation Typed mutation payload.
+ * @param state - Mutable runtime state container.
+ * @param mutation - Typed mutation payload.
  */
 export function applyAppStateMutation(
     state: AppRuntimeState,
