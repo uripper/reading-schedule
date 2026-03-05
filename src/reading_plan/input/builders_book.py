@@ -44,24 +44,34 @@ def _word_stats(data: BookData) -> tuple[int, int, float]:
     :param data: raw book payload with mixed fields for words/pages and progress
     :return: tuple of (full words, remaining words, progress percent)
     """
-    words_raw = data.get("words_total")
-    pages_raw = data.get("pages_total")
+    words_raw = data.get("words_total", 0)
+    pages_raw = data.get("pages_total", 0)
 
-    has_words = words_raw is not None and str(words_raw).strip()
-
-    if has_words:
-        full = to_int(words_raw, "words_total")
+    if words_raw is not None:
+        if not isinstance(words_raw, int):
+            msg = "words_total must be an integer"
+            raise ValueError(msg)
+        full = words_raw or 0
         if full <= 0:
             msg = "words_total must be greater than 0"
             raise ValueError(msg)
     else:
         full = to_int(pages_raw or 0, "pages_total") * WORDS_PER_PAGE
 
+    progress, words_read = _calculate_words_read(data, full, pages_raw)
+
+    return full, max(0, full - words_read), progress
+
+
+def _calculate_words_read(
+    data: BookData, full_words: int, pages_raw: int | None
+) -> tuple[float, int]:
+
     words_read = optional_int(data.get("words_read"), "words_read")
     pages_read = optional_int(data.get("pages_read"), "pages_read")
     if words_read is None and pages_read is not None:
         words_read = _estimated_words_read_from_pages(
-            pages_read, full, pages_raw
+            pages_read, full_words, pages_raw
         )
     if words_read is None:
         progress = to_float(
@@ -70,19 +80,20 @@ def _word_stats(data: BookData) -> tuple[int, int, float]:
         if progress < MIN_PROGRESS_PERCENT or progress > MAX_PROGRESS_PERCENT:
             msg = "progress_percent must be between 0 and 100"
             raise ValueError(msg)
-        words_read = round(full * progress / float(MAX_PROGRESS_PERCENT))
+        words_read = round(full_words * progress / float(MAX_PROGRESS_PERCENT))
     else:
         words_read = max(0, words_read)
-        words_read = min(words_read, full)
+        words_read = min(words_read, full_words)
         progress = (
             0.0
-            if full <= 0
+            if full_words <= 0
             else round(
-                float(MAX_PROGRESS_PERCENT) * words_read / full,
+                float(MAX_PROGRESS_PERCENT) * words_read / full_words,
                 2,
             )
         )
-    return full, max(0, full - words_read), progress
+    return progress, words_read
+
 
 # TODO: Change this. Users never give a list of days, we can validate these
 # in a more normal way.
@@ -105,6 +116,7 @@ def _scheduled_day_entries(raw: object) -> list[str]:
         return [str(entry).strip() for entry in raw]
     msg = "scheduled_days must be a list or comma-separated string"
     raise ValueError(msg)
+
 
 # TODO: Again, this is probably stupid and useless.
 
