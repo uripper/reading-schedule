@@ -240,15 +240,20 @@
                 >
                 <span id="todayProgressPagesTotalText">--</span>
               </div>
-              <input
-                id="todayPercentInput"
-                class="today-progress-chip today-progress-percent-input"
-                type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                aria-label="Complete percent"
-              />
+              <div id="todayProgressPercentChip" class="today-progress-chip">
+                <input
+                  id="todayPercentInput"
+                  class="today-progress-percent-input"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  aria-label="Complete percent"
+                />
+                <span class="today-progress-percent-suffix" aria-hidden="true"
+                  >%</span
+                >
+              </div>
             </article>
             <button
               id="todayLogSessionBtn"

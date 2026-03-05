@@ -235,6 +235,23 @@
     gap: var(--token-space-2);
 }
 
+.day-scheduled-books-list {
+    display: grid;
+    gap: var(--token-space-1);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.day-scheduled-book-item {
+    padding: var(--token-space-1) var(--token-space-2);
+    font-size: var(--token-typography-size-sm);
+    color: var(--app-text);
+    background: color-mix(in srgb, var(--app-surface) 82%, transparent);
+    border: 1px solid color-mix(in srgb, var(--app-border) 86%, transparent);
+    border-radius: var(--token-radius-sm);
+}
+
 .day-manual-add {
     display: grid;
     gap: var(--token-space-2);

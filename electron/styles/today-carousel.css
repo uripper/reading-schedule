@@ -42,7 +42,7 @@
     border: 1px solid color-mix(in srgb, #ffffff 30%, transparent);
     border-radius: 4px;
     box-shadow: none;
-    transform: scale(.85);
+    transform: scale(0.85);
 }
 
 #todayCarouselPrev {
@@ -71,7 +71,6 @@
     padding: var(--neo-carousel-top-padding)
         calc(50vw - (var(--neo-cover-hero-width) / 2)) 10px;
     margin: 0;
-    perspective: 900px;
     overflow-x: auto;
     overflow-y: hidden;
     touch-action: pan-y;
@@ -80,6 +79,7 @@
     scroll-padding-inline: calc(50vw - (var(--neo-cover-hero-width) / 2));
     scrollbar-width: none;
     background: transparent;
+    perspective: 900px;
 }
 
 .today-carousel-track::-webkit-scrollbar {
@@ -149,10 +149,9 @@
 .today-carousel-item > img,
 .today-carousel-item > .today-carousel-fallback {
     transform-origin: center;
-    backface-visibility: hidden;
     transform-style: preserve-3d;
+    backface-visibility: hidden;
 }
-
 
 #todayCarouselEmpty {
     margin: 0 auto;
