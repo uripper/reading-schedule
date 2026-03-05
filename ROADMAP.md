@@ -1,168 +1,221 @@
-# Bartleby Roadmap (Audit-Based)
+# Reading Plan Optimizer — MVP Roadmap (Python)
 
-Last updated: February 27, 2026
+## Product goal
+Turn a user’s backlog + time budget into a **daily reading schedule** that:
+- respects days off and a date horizon
+- limits simultaneous books
+- allocates time by book “weight”
+- outputs a plan that is **human-usable** (not 6 minutes on 9 books)
 
-## Codebase Baseline
+Non-goal (for MVP): perfect realism (variable WPM by genre/language, habit modeling, etc.)
 
-- Product shape: Electron desktop app in `electron/` backed by Python planner engine in `src/reading_plan/`.
-- Planner capability: MIP (CP-SAT) with greedy fallback, blocker dependencies, deadlines, day budgets, and schedule summaries.
-- Verified quality gates (February 20, 2026):
-  - `.venv/bin/pytest -q` -> `21 passed`
-  - `node --test electron/tests/*.mjs` -> `12 passed`
-  - `npm run typecheck:desktop` -> pass
-  - `npm run lint:desktop` -> pass
-  - `npm run build:desktop` -> pass
+---
 
-## Audit Findings To Address
+## Core MVP decisions (lock these in)
+- **Unit:** minutes/day (not pages). Convert book size to required minutes via WPM.
+- **Granularity:** 15-minute blocks (`time_quantum=15`) to avoid fractional nonsense.
+- **Sessions:** at most `max_sessions_per_day` (default 2).
+- **Simultaneous books definition:** *per day* cap (`max_books_per_day`), simplest and intuitive.
+- **Book progress model:** continuous progress in words (derived from minutes * WPM * difficulty_multiplier).
 
-1. Onboarding path is brittle: `data/books.csv` is referenced by CLI and GUI sample mode but does not exist in repo.
-2. No local-first CI workflow (hook + one-command runner) to enforce checks before pushes/merges.
-3. ESLint currently covers only `electron/scripts/**/*.mjs`; renderer/main TypeScript is not linted.
-4. Planner generation always forces `start_date` to tomorrow in renderer flow (`electron/renderer/app/plan.ts`), not user-selectable.
-5. MIP fallback behavior is opaque in UI when OR-Tools is unavailable.
-6. Experience settings contain placeholders (`socialEnabled`, `recommendationsEnabled`, reminder settings) without shipped features.
-7. Session logging subsystem exists in code but is not surfaced in the current UI.
-8. State persistence has no schema versioning or migration strategy.
+---
 
-## 2026 Delivery Plan With Deadlines
+## Inputs (MVP)
+### Global settings
+- `start_date`, `end_date`
+- `minutes_per_day` (constant) OR `minutes_by_weekday` (Mon..Sun)
+- `days_off` (set of dates)
+- `wpm_base` (single number, e.g., 250)
+- `time_quantum_minutes` (default 15)
+- `max_sessions_per_day` (default 2)
+- `max_books_per_day` (default 2)
+- Objective weights:
+  - `w_finish` (prioritize finishing books)
+  - `w_priority` (prioritize high-priority books)
+  - `w_switch` (penalize reading many distinct books per day)
+  - `w_smooth` (avoid difficulty spikes day-to-day)
 
-### Milestone 1: Onboarding and Data Contracts
+### Per-book fields (CSV/JSON)
+- `book_id`
+- `title`
+- `words_total` (or `pages_total` with a fixed conversion you document)
+- `priority` (1–5)
+- `difficulty` (1–5)
+- optional:
+  - `deadline` (date)
+  - `min_blocks_per_session` (default 2 => 30 min)
 
-Deadline: March 20, 2026
+### Difficulty multiplier (simple, not “overengineered”)
+Use one global map (editable):
+- 1 → 1.00
+- 2 → 0.90
+- 3 → 0.80
+- 4 → 0.70
+- 5 → 0.60
 
-- [ ] Add committed sample dataset (`data/books.sample.csv`) and wire CLI/GUI defaults to it.
-- [ ] Add first-run fallback behavior when sample data is unavailable.
-- [ ] Update README commands so fresh-clone setup is guaranteed to work.
-- [ ] Add regression tests for CLI sample/default paths.
+Effective WPM = `wpm_base * difficulty_multiplier[difficulty]`
 
-Exit criteria:
+---
 
-- Fresh clone can run desktop app and CLI without missing-file errors.
-- `python -m reading_plan.gui_api --sample` succeeds with default args.
+## Outputs (MVP)
+- Daily schedule table:
+  - date, session_index, book_id/title, minutes, words_planned
+- Summary:
+  - total planned minutes, per-book planned words, projected completion status
+  - feasibility warning if total required minutes > available minutes
 
-### Milestone 2: Local-First Quality Gates
+Export formats:
+- console print + CSV output file (MVP)
+- (Later) ICS calendar export, Obsidian markdown
 
-Deadline: April 10, 2026
+---
 
-- [ ] Add a single local CI command (for example `npm run ci:local`) that runs Python tests, Electron typecheck, lint, build, and desktop tests.
-- [ ] Add local automation hooks (`pre-push` or equivalent) to run the local CI command before push.
-- [ ] Add a dedicated desktop test script in package scripts and include it in `ci:local`.
-- [ ] Extend lint coverage to Electron TypeScript sources (main + renderer), or adopt an equivalent enforced checker in `ci:local`.
+## Architecture (repo layout)
+reading-plan-optimizer/
+- README.md
+- pyproject.toml
+- data/
+  - books.csv
+  - settings.json
+- src/reading_plan/
+  - __init__.py
+  - io.py            # load/save csv/json
+  - model.py         # build optimization model
+  - solve.py         # solver interface + status parsing
+  - schedule.py      # convert solution -> human schedule rows
+  - report.py        # feasibility + summary metrics
+  - cli.py           # entrypoint
+- tests/
+  - test_io.py
+  - test_schedule.py
+  - test_feasibility.py
 
-Exit criteria:
+---
 
-- One local command enforces the same checks currently documented in `STYLEGUIDE.md`.
-- Pushes are blocked locally when required checks fail.
+## Roadmap (incremental milestones)
 
-### Milestone 3: Planner Transparency and Control
+### Milestone 0 — Skeleton + data contracts (0.5 day)
+- Create repo + packaging (uv/poetry/pip)
+- Define `books.csv` and `settings.json` schemas
+- Implement `io.py` to load/validate inputs
+- Add a tiny example dataset (3 books, 14-day horizon)
 
-Deadline: May 1, 2026
+**Exit criteria**
+- `python -m reading_plan.cli --data data/books.csv --settings data/settings.json` runs and prints parsed inputs
 
-- [ ] Add planner mode control in settings (`mip`, `greedy`, `auto`).
-- [ ] Surface planner metadata in UI/logs (actual planner used, status, note, objective).
-- [ ] Add user-configurable plan start policy (today/tomorrow/custom) instead of hardcoding tomorrow.
+---
 
-Exit criteria:
+### Milestone 1 — Greedy baseline planner (1 day)
+Implement a *non-optimization* baseline that:
+- computes available minutes per day
+- assigns blocks to books by priority (and/or weights)
+- respects `max_books_per_day`, `max_sessions_per_day`, `min_blocks_per_session`
+- tracks progress in words
 
-- Users can intentionally choose planner behavior.
-- Fallback to greedy is explicitly visible and test-covered.
+Why: gives you working product + reference to test solver outputs.
 
-### Milestone 4: State Portability and Versioning
+**Exit criteria**
+- Generates a schedule CSV
+- Produces per-book progress totals
+- No day exceeds minute budget; no day exceeds max books/sessions
 
-Deadline: May 29, 2026
+---
 
-- [ ] Ship full-state JSON export/import as the first portability slice (see `ISSUE-059`).
-- [ ] Define and implement persistence backend migration plan from JSON to database, starting with local-first SQLite baseline (see `ISSUE-060`).
-- [ ] Add `state_version` to persisted snapshots.
-- [ ] Implement migration path for older snapshots.
-- [ ] Add tests for load/save/migration compatibility.
+### Milestone 2 — MIP optimizer v1 (1–2 days)
+Use Pyomo (or OR-Tools CP-SAT; pick one and stick to it).
 
-Exit criteria:
+**Decision variables**
+- `x[b,d]` = integer blocks of 15 minutes assigned to book b on day d
+- `y[b,d]` = binary, 1 if book b is read on day d
 
-- Users can back up and restore state safely across app updates.
-- Backward compatibility for at least one previous state version is verified.
+**Constraints**
+- Daily time budget: `sum_b x[b,d] * q <= minutes_available[d]`
+- Link: `x[b,d] <= M * y[b,d]`
+- Max books/day: `sum_b y[b,d] <= max_books_per_day`
+- Sessions/day approximation: `sum_b y[b,d] <= max_sessions_per_day` (MVP simplification)
+- Min session length: `x[b,d] >= min_blocks * y[b,d]`
+- Optional deadlines:
+  - define cumulative progress and require completion by deadline (hard) OR penalize lateness (soft)
 
-### Milestone 5: Reading Activity Integration
+**Objective (linear, MVP-friendly)**
+Maximize:
+- `w_priority * sum_{b,d} (priority_b * words_per_block_b * x[b,d])`
+- `w_finish * sum_b finished_b` (optional binary finished variable)
+Minus:
+- `w_switch * sum_{b,d} y[b,d]`
 
-Deadline: June 26, 2026
+(Leave smoothing for Milestone 3 if it complicates linearization.)
 
-- [ ] Either integrate existing session logging UI into product navigation or remove dead session UI code paths.
-- [ ] Ensure schedule completions and session logs produce consistent stats.
-- [ ] Add tests for session-driven minute totals and streak calculations through UI flows.
+**Exit criteria**
+- Optimizer produces a schedule that beats greedy on your chosen metric (e.g., higher priority-weighted words)
+- Handles infeasible deadlines by reporting solver status clearly
 
-Exit criteria:
+---
 
-- Activity tracking has one clear, supported workflow (not partial/invisible subsystems).
-- Stats remain consistent between planned completions and logged sessions.
+### Milestone 3 — Add “finish” and “don’t-cram” realism (1–2 days)
+Add:
+- `finished_b` binary
+- Completion constraint:
+  - `sum_d words_per_block_b * x[b,d] >= words_total_b * finished_b`
+- Objective includes finishing reward:
+  - `+ w_finish * sum_b (priority_b * finished_b)`
 
-### Milestone 6: Experience Settings Completion
+Add anti-cram constraint (simple):
+- `x[b,d] <= max_blocks_per_book_per_day` (e.g., 12 blocks = 3 hours)
 
-Deadline: July 31, 2026
+**Exit criteria**
+- Schedule produces sensible completion behavior (finishes books rather than spreading thin forever)
 
-- [ ] Ship reminder behavior or remove reminder toggles from settings until implemented.
-- [ ] Ship first recommendations feature slice or remove recommendation flag from UI.
-- [ ] Fix recommendations quality and card formatting, including non-book filtering and duplicate prevention (see `ISSUE-052`).
-- [ ] Ship first social feature slice or remove social flag from UI.
+---
 
-Exit criteria:
+### Milestone 4 — Difficulty smoothing (optional, 1–2 days)
+Compute daily “difficulty load”:
+- `load[d] = sum_b difficulty_b * x[b,d]` (linear)
 
-- Every setting exposed in the UI has working behavior and tests.
-- No placeholder toggles remain in production-facing settings.
+Add smoothing via absolute deviation:
+- introduce `delta[d] >= load[d] - load[d-1]`
+- `delta[d] >= load[d-1] - load[d]`
+- penalize `sum_d delta[d]` with weight `w_smooth`
 
-### Milestone 7: Measurement, Privacy, and Calm Personalization Foundations
+**Exit criteria**
+- Schedules avoid large day-to-day swings when the weight is high
 
-Deadline: August 28, 2026
+---
 
-- [ ] Define a stable local event schema for session starts/completions, replans, and manual schedule edits.
-- [ ] Add metric derivation rules for adherence and realism outcomes in planner telemetry summaries.
-- [ ] Add local-only privacy controls for export/delete of behavior history and per-feature consent gates for connectors.
-- [ ] Add reminder guardrail controls (opt-in, cadence, quiet hours, one-click disable) in settings and persistence.
-- [ ] Add adaptive WPM calibration v1 (EWMA + clamp ranges + confidence gating) without shipping advanced experimentation loops.
+### Milestone 5 — Replanning loop + logging (optional, 2–4 days)
+- Add `progress.csv` where user logs actual minutes/words
+- Re-solve from “today” with remaining words
+- Keep already-completed books locked out
 
-Exit criteria:
+**Exit criteria**
+- `--replan` reads progress and outputs updated schedule forward
 
-- Outcome metrics can be computed from local state without external services.
-- Reminder behavior is user-controlled and can be disabled immediately.
-- Personalization behavior is bounded, explainable, and migration-safe.
+---
 
-## Outcome Metrics and Guardrails
+## Quality bar (keep it hireable)
+- Determinism: set solver seed where possible
+- Clear solver reporting:
+  - optimal / feasible / infeasible
+  - objective value + key constraint violations (should be none)
+- A README demo gif or screenshot (even CLI output is fine)
+- Tests around:
+  - day budget respected
+  - max books/day respected
+  - min session enforced
+  - progress accumulation correct
 
-Metrics tracked for every milestone change:
+---
 
-- `session_start_rate`: higher is better; percent of days with at least one started session.
-- `planned_session_completion_rate`: higher is better; percent of planned sessions completed.
-- `plan_realism_error_minutes`: lower is better; absolute difference between planned and actual minutes.
-- `weekly_active_days`: higher is better; active reading days in a rolling 7-day window.
-- `replan_recovery_rate`: higher is better; percent of missed-plan days that recover within 48 hours.
-- `schedule_churn_rate`: lower is better; percent of upcoming rows changed by each replan.
-- `reminder_opt_out_rate`: lower is better once reminders are enabled; monitor for reminder overload.
-- `auto_plan_disable_rate`: lower is better; indicates plan trust and usability.
+## MVP timeline suggestion (pragmatic)
+- Day 1: Milestone 0 + 1 (working greedy planner)
+- Day 2–3: Milestone 2 (optimizer v1)
+- Day 4: Milestone 3 (finish + anti-cram) + polish README
 
-Guardrails:
+---
 
-- Reminders are opt-in only.
-- Reminder cadence and quiet hours are user-configurable.
-- Reminder delivery can be disabled with a one-click control.
-- No forced interruption flows or non-dismissible reminder loops.
-
-## Data and Privacy Posture
-
-- Product mode is local-by-default: planning, personalization, and telemetry storage remain on-device.
-- Data minimization applies to new features: collect only fields needed for scheduling and user-visible insights.
-- Any connector/sync path must use explicit user consent before first data transfer.
-- Export and deletion expectations are mandatory: users can export state and remove stored activity/personalization data.
-- Advanced ML features remain blocked until telemetry quality and guardrails are validated locally.
-
-## Backlog (Post-August 2026, No Date Yet)
-
-Foundation expansion (after Milestone 7):
-
-- Multi-device sync.
-- Public API integrations beyond Open Library metadata lookup.
-- Mobile clients.
-- Localization and multi-language UX.
-
-Advanced experimentation (only after telemetry + guardrails readiness):
-
-- Adherence classifier for pre-plan stress testing.
-- Contextual bandit reminder optimization.
+## Minimal README checklist (what reviewers look for)
+- Problem statement + inputs/outputs
+- One command to run demo
+- Explanation of constraints + objective in plain English
+- Example schedule output
+- Notes on extensibility (deadlines, languages, UI) without building them yet

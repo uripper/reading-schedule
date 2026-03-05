@@ -1,6 +1,7 @@
-import { type ZodIssue, z } from "zod";
+import {  z } from "zod";
 import { type JsonValue } from "./types.js";
 
+type ZodIssue = z.core.$ZodIssue;
 const JSON_PRIMITIVE_SCHEMA = z.union([
     z.string(),
     z.number(),
