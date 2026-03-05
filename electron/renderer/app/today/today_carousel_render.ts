@@ -84,7 +84,18 @@ function afterSessionText(active: TodayCarouselActiveItem): string {
         pages = String(active.afterPagesRead);
     }
     const PERCENT = `${Math.round(active.afterPercent * 10) / 10}%`;
-    return `After session: ${pages}\npages | ${PERCENT}`;
+    return `${pages} pages\n${PERCENT}`;
+}
+
+function renderAfterSessionText(text: string): void {
+    const AFTER_SESSION = el<HTMLElement>("todayAfterSessionText");
+    const LABEL = document.createElement("span");
+    LABEL.className = "today-after-session-label";
+    LABEL.textContent = "After Session:";
+    const VALUES = document.createElement("span");
+    VALUES.className = "today-after-session-values";
+    VALUES.textContent = text;
+    AFTER_SESSION.replaceChildren(LABEL, VALUES);
 }
 function inputDraft(active: TodayCarouselActiveItem): {
     pagesText: string;
@@ -285,7 +296,7 @@ function renderNoData(): void {
     el<HTMLElement>("todayMinutesValue").hidden = false;
     el<HTMLInputElement>("todayMinutesInput").hidden = true;
     el<HTMLInputElement>("todayMinutesInput").value = EMPTY_TEXT;
-    el<HTMLElement>("todayAfterSessionText").textContent = "After session: --";
+    renderAfterSessionText("-- pages\n--%");
     el<HTMLElement>("todayProgressPagesTotalText").textContent =
         formatPagesTotalText(null);
     el<HTMLInputElement>("todayPagesInput").value = EMPTY_TEXT;
@@ -350,8 +361,7 @@ function renderActive(active: TodayCarouselActiveItem): void {
     el<HTMLElement>("todayMinutesValue").textContent = String(
         active.row.minutes,
     );
-    el<HTMLElement>("todayAfterSessionText").textContent =
-        afterSessionText(active);
+    renderAfterSessionText(afterSessionText(active));
     renderProgressSummary(active);
     bindProgressInputs(active);
     applyMinutesEditorVisibility(active);
