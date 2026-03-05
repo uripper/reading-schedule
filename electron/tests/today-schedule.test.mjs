@@ -4,7 +4,7 @@ import test from "node:test";
 import {
     buildTodayScheduleSnapshot,
     nextUncompletedPlannedRow,
-} from "../dist/renderer/app/today_schedule.js";
+} from "../dist/renderer/app/today/today_schedule.js";
 import { sessionKeyFor } from "../dist/renderer/calendar/utils.js";
 import { todayKey } from "../dist/renderer/sessions/utils.js";
 

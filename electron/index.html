@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bartleby</title>
     <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700&family=Plus+Jakarta+Sans:wght@800&family=Poppins:wght@200;600&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -22,14 +28,55 @@
 
     <a class="skip-link" href="#mainContent">Skip to main content</a>
 
-    <header class="app-header">
-      <div class="brand-wrap">
-        <p class="brand-eyebrow">Bartleby</p>
-        <img class="brand-logo" src="assets/logo.svg" alt="Bartleby logo" />
+    <header class="app-header" role="banner">
+      <div class="neo-brand-wrap">
+        <img class="neo-brand-logo" src="assets/logo.svg" alt="Bartleby logo" />
+        <p class="neo-brand-text">BARTLEBY</p>
       </div>
-      <div class="actions">
-        <button id="helpBtn" class="btn" type="button">Help / Logs</button>
-        <output id="status" aria-live="polite"></output>
+      <div class="neo-metrics" aria-label="Today Metrics">
+        <section id="headerStreakMetric" class="neo-metric neo-metric-streak">
+          <img
+            id="headerStreakFlame"
+            class="neo-metric-icon"
+            src="assets/flame.svg"
+            alt=""
+            aria-hidden="true"
+          />
+          <p id="streakText" class="neo-metric-streak-value">0 Day Streak</p>
+        </section>
+        <section class="neo-metric neo-metric-goal">
+          <span
+            id="headerGoalIndicator"
+            class="neo-metric-indicator"
+            aria-hidden="true"
+          ></span>
+          <div class="neo-metric-copy">
+            <p class="neo-metric-title">Daily Goal</p>
+            <p id="todayGoalText" class="neo-metric-value">
+              0/30 Minutes
+            </p>
+          </div>
+        </section>
+        <section id="headerSessionsMetric" class="neo-metric neo-metric-sessions">
+          <div class="neo-metric-copy">
+            <div class="neo-metric-title-row">
+              <p class="neo-metric-title">Sessions</p>
+              <span
+                id="headerSessionsCompleteIndicator"
+                class="neo-session-complete-indicator"
+                aria-hidden="true"
+              ></span>
+            </div>
+            <div id="headerSessionsDots" class="neo-session-dots"></div>
+            <p id="headerSessionsStatus" class="visually-hidden">0/0 logged</p>
+          </div>
+        </section>
+      </div>
+      <div class="neo-header-actions">
+        <button id="helpBtn" class="btn neo-help-btn" type="button">
+          Help/Logs
+        </button>
+        <output id="status" class="visually-hidden" aria-live="polite"></output>
       </div>
     </header>
 
@@ -117,7 +164,6 @@
         tabindex="-1"
       >
         <div class="today-grid">
-          
           <article class="surface-card today-schedule-card">
             <h2>Scheduled Today</h2>
             <p id="todaySessionCounts" class="today-session-counts">
@@ -126,30 +172,6 @@
             <div id="todayScheduledBooks" class="today-scheduled-books"></div>
             <p id="todayScheduledEmpty" class="hint-text">
               Add books and update your plan to see today's schedule.
-            </p>
-          </article>
-          
-          <article class="surface-card">
-            <h2>Daily Goal</h2>
-            <p id="todayGoalText" class="body-text">
-              0 / 30 minutes logged today
-            </p>
-            <progress
-              class="progress-track"
-              aria-label="Daily goal progress"
-              id="todayGoalProgress"
-              value="0"
-              max="100"
-            ></progress>
-          </article>
-
-
-          <article id="gamificationCard" class="surface-card" hidden>
-            <h2>Momentum</h2>
-            <p id="streakText" class="body-text">0 day streak</p>
-            <p class="hint-text">
-              Gamification is optional and can be disabled in settings at any
-              time.
             </p>
           </article>
         </div>

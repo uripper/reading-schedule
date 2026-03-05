@@ -1,4 +1,5 @@
 import type {
+    DayMinutesMap,
     PlannerResult,
     PlannerScheduleRow,
     TodayScheduleSnapshot,
@@ -9,14 +10,22 @@ import {
     dayMinutesFromActivity,
     streakFromDayMinutes,
 } from "../../activity/day_minutes.js";
-import { el } from "../../dom.js";
 import { todayKey } from "../../sessions/utils.js";
 import { renderTodayScheduledBooks } from "./today_books_view.js";
+import { goalProgressPercent } from "./today_goal.js";
+import {
+    formatHeaderSessionsText,
+    formatStreakText,
+    isHeaderGoalComplete,
+    isHeaderSessionsComplete,
+} from "./today_header.js";
+import {
+    applyIndicatorState,
+    renderSessionDots,
+} from "./today_header_render.js";
 import { buildTodayScheduleSnapshot } from "./today_schedule.js";
 
 const MIN_GOAL_MINUTES = 1;
-const MAX_PERCENT = 100;
-const MIN_PERCENT = 0;
 const NO_SCHEDULE_TEXT =
     "No schedule yet. Add or update books and settings to auto-build your plan.";
 const TODAY_DONE_TEXT = "All planned sessions for today are complete.";
@@ -63,28 +72,223 @@ function summaryText(
 }
 
 /**
- * Computes bounded goal-completion percentage for today's minutes bar.
- * @param todayMinutesRaw Minutes logged today.
- * @param goalMinutesRaw Daily goal minutes.
- * @returns Integer percent between 0 and 100.
+ * Updates optional Today summary copy when the summary node exists.
+ * @param lastResult Latest planner result.
+ * @param snapshot Computed today schedule snapshot.
  */
-function goalProgressPercent(
-    todayMinutesRaw: number,
-    goalMinutesRaw: number,
+function renderSummaryCopy(
+    lastResult: PlannerResult | null,
+    snapshot: TodayScheduleSnapshot,
+): void {
+    const SUMMARY_NODE = globalThis.document.getElementById("todaySummary");
+    if (!(SUMMARY_NODE instanceof HTMLElement)) {
+        return;
+    }
+    SUMMARY_NODE.textContent = summaryText(
+        lastResult,
+        snapshot,
+        snapshot.nextUncompletedRow,
+    );
+}
+
+/**
+ * Resolves daily goal minutes from preferences with fallback.
+ * @param preferredGoalMinutes Preferred daily goal.
+ * @param defaultGoalMinutes Default daily goal.
+ * @returns Normalized minimum positive goal.
+ */
+function resolvedGoalMinutes(
+    preferredGoalMinutes: number,
+    defaultGoalMinutes: number,
 ): number {
-    const GOAL_MINUTES = Math.max(
+    return Math.max(
         MIN_GOAL_MINUTES,
-        Number(goalMinutesRaw || MIN_GOAL_MINUTES),
+        Number(preferredGoalMinutes || defaultGoalMinutes),
     );
-    const TODAY_MINUTES = Math.max(
-        MIN_PERCENT,
-        Number(todayMinutesRaw || MIN_PERCENT),
+}
+
+/**
+ * Renders top-header goal text and completion indicator state.
+ * @param activityByDay Aggregated day-minute activity map.
+ * @param goalMinutes Daily goal minutes.
+ * @param goalText Goal text node.
+ * @param goalIndicator Goal completion indicator node.
+ */
+function renderHeaderGoalMetric(
+    activityByDay: DayMinutesMap,
+    goalMinutes: number,
+): {
+    goalComplete: boolean;
+    goalProgressPercent: number;
+    todayMinutes: number;
+} {
+    const TODAY_MINUTES = dayMinutesForKey(activityByDay, todayKey());
+    return {
+        goalComplete: isHeaderGoalComplete(TODAY_MINUTES, goalMinutes),
+        goalProgressPercent: goalProgressPercent(TODAY_MINUTES, goalMinutes),
+        todayMinutes: TODAY_MINUTES,
+    };
+}
+
+/**
+ * Renders top-header sessions status and completion dots.
+ * @param snapshot Today schedule snapshot.
+ * @param sessionsStatus Hidden sessions status text node.
+ * @param sessionDots Sessions dot-grid container.
+ */
+function renderHeaderSessionsMetric(options: {
+    snapshot: TodayScheduleSnapshot;
+    sessionsStatus: HTMLElement;
+    sessionDots: HTMLElement;
+    completeIndicator: HTMLElement | null;
+    sessionsMetric: HTMLElement | null;
+}): void {
+    options.sessionsStatus.textContent = formatHeaderSessionsText(
+        options.snapshot.completedSessions,
+        options.snapshot.scheduledSessions,
     );
-    const RAW_PERCENT = Math.round(
-        (TODAY_MINUTES / GOAL_MINUTES) * MAX_PERCENT,
+    renderSessionDots(
+        options.sessionDots,
+        options.snapshot.completedSessions,
+        options.snapshot.scheduledSessions,
     );
-    const BOUNDED = Math.min(MAX_PERCENT, RAW_PERCENT);
-    return Math.max(MIN_PERCENT, BOUNDED);
+    const IS_COMPLETE = isHeaderSessionsComplete(
+        options.snapshot.completedSessions,
+        options.snapshot.scheduledSessions,
+    );
+    if (options.completeIndicator !== null) {
+        applyIndicatorState(options.completeIndicator, IS_COMPLETE);
+    }
+    if (options.sessionsMetric !== null) {
+        if (IS_COMPLETE) {
+            options.sessionsMetric.classList.add("is-complete");
+        } else {
+            options.sessionsMetric.classList.remove("is-complete");
+        }
+    }
+}
+
+/**
+ * Renders top-header streak metric visibility and text.
+ * @param activityByDay Aggregated day-minute activity map.
+ * @param goalMinutes Daily goal minutes used for streak threshold.
+ * @param gamificationEnabled Feature-flag toggle value.
+ * @param streakMetric Streak metric wrapper.
+ * @param streakNode Streak text node.
+ */
+function renderHeaderStreakMetric(options: {
+    activityByDay: DayMinutesMap;
+    goalMinutes: number;
+    gamificationEnabled: boolean;
+    streakMetric: HTMLElement;
+    streakNode: HTMLElement;
+}): void {
+    options.streakMetric.hidden = !options.gamificationEnabled;
+    if (!options.gamificationEnabled) {
+        return;
+    }
+    const STREAK = streakFromDayMinutes(
+        options.activityByDay,
+        options.goalMinutes,
+    );
+    options.streakNode.textContent = formatStreakText(STREAK);
+}
+
+/**
+ * Returns an element by id when it exists and is an HTMLElement.
+ * @param id Element id.
+ * @returns HTMLElement instance or null when unavailable.
+ */
+function getOptionalElement(id: string): HTMLElement | null {
+    const NODE = globalThis.document.getElementById(id);
+    if (!(NODE instanceof HTMLElement)) {
+        return null;
+    }
+    return NODE;
+}
+
+/**
+ * Applies top-header daily-goal state and streak-flame complete style.
+ * @param activityByDay Aggregated day-minute activity map.
+ * @param goalMinutes Daily goal minute target.
+ * @returns Computed goal metric state.
+ */
+function applyHeaderGoalMetric(
+    activityByDay: DayMinutesMap,
+    goalMinutes: number,
+): {
+    goalComplete: boolean;
+    goalProgressPercent: number;
+    todayMinutes: number;
+} {
+    const GOAL_METRIC = renderHeaderGoalMetric(activityByDay, goalMinutes);
+    const GOAL_TEXT = getOptionalElement("todayGoalText");
+    if (GOAL_TEXT !== null) {
+        GOAL_TEXT.textContent = `${GOAL_METRIC.todayMinutes}/${goalMinutes} Minutes`;
+    }
+    const GOAL_INDICATOR = getOptionalElement("headerGoalIndicator");
+    if (GOAL_INDICATOR !== null) {
+        GOAL_INDICATOR.setAttribute(
+            "data-progress-percent",
+            String(GOAL_METRIC.goalProgressPercent),
+        );
+        applyIndicatorState(GOAL_INDICATOR, GOAL_METRIC.goalComplete);
+    }
+    const STREAK_FLAME = getOptionalElement("headerStreakFlame");
+    if (STREAK_FLAME !== null) {
+        if (GOAL_METRIC.goalComplete) {
+            STREAK_FLAME.classList.add("is-goal-complete");
+        } else {
+            STREAK_FLAME.classList.remove("is-goal-complete");
+        }
+    }
+    return GOAL_METRIC;
+}
+
+/**
+ * Applies top-header sessions text, completion dots, and complete indicator state.
+ * @param snapshot Today schedule snapshot.
+ */
+function applyHeaderSessionsMetric(snapshot: TodayScheduleSnapshot): void {
+    const SESSIONS_STATUS = getOptionalElement("headerSessionsStatus");
+    const SESSION_DOTS = getOptionalElement("headerSessionsDots");
+    if (SESSIONS_STATUS === null || SESSION_DOTS === null) {
+        return;
+    }
+    renderHeaderSessionsMetric({
+        completeIndicator: getOptionalElement(
+            "headerSessionsCompleteIndicator",
+        ),
+        sessionDots: SESSION_DOTS,
+        sessionsMetric: getOptionalElement("headerSessionsMetric"),
+        sessionsStatus: SESSIONS_STATUS,
+        snapshot,
+    });
+}
+
+/**
+ * Applies top-header streak metric visibility and text.
+ * @param activityByDay Aggregated day-minute activity map.
+ * @param goalMinutes Daily goal minute target.
+ * @param gamificationEnabled Feature toggle for streak visibility.
+ */
+function applyHeaderStreakMetric(
+    activityByDay: DayMinutesMap,
+    goalMinutes: number,
+    gamificationEnabled: boolean,
+): void {
+    const STREAK_METRIC = getOptionalElement("headerStreakMetric");
+    const STREAK_NODE = getOptionalElement("streakText");
+    if (STREAK_METRIC === null || STREAK_NODE === null) {
+        return;
+    }
+    renderHeaderStreakMetric({
+        activityByDay,
+        gamificationEnabled,
+        goalMinutes,
+        streakMetric: STREAK_METRIC,
+        streakNode: STREAK_NODE,
+    });
 }
 
 /**
@@ -107,21 +311,12 @@ export function updateTodayDashboard({
     featureFlags,
     defaultDailyGoalMinutes,
 }: UpdateTodayDashboardArgs): void {
-    const SUMMARY_NODE = globalThis.document.getElementById("todaySummary");
-    const GOAL_TEXT = el("todayGoalText");
-    const GOAL_PROGRESS = el<HTMLProgressElement>("todayGoalProgress");
-    const GAMIFICATION_CARD = el("gamificationCard");
-    const STREAK_NODE = el("streakText");
-
     const SNAPSHOT = buildTodayScheduleSnapshot(
         lastResult,
         scheduleCompletions,
         books,
     );
-    const NEXT = SNAPSHOT.nextUncompletedRow;
-    if (SUMMARY_NODE instanceof HTMLElement) {
-        SUMMARY_NODE.textContent = summaryText(lastResult, SNAPSHOT, NEXT);
-    }
+    renderSummaryCopy(lastResult, SNAPSHOT);
     renderTodayScheduledBooks(SNAPSHOT);
 
     const ACTIVITY_BY_DAY = dayMinutesFromActivity({
@@ -130,20 +325,15 @@ export function updateTodayDashboard({
         sessions,
         year: null,
     });
-
-    const GOAL_MINUTES = Math.max(
-        MIN_GOAL_MINUTES,
-        Number(preferences.dailyGoalMinutes || defaultDailyGoalMinutes),
+    const GOAL_MINUTES = resolvedGoalMinutes(
+        Number(preferences.dailyGoalMinutes),
+        defaultDailyGoalMinutes,
     );
-    const TODAY_MINUTES = dayMinutesForKey(ACTIVITY_BY_DAY, todayKey());
-    const PCT = goalProgressPercent(TODAY_MINUTES, GOAL_MINUTES);
-    GOAL_TEXT.textContent = `${TODAY_MINUTES} / ${GOAL_MINUTES} minutes logged today`;
-    GOAL_PROGRESS.value = PCT;
-
-    const GAMIFICATION_ON = Boolean(featureFlags.gamificationEnabled);
-    GAMIFICATION_CARD.hidden = !GAMIFICATION_ON;
-    if (GAMIFICATION_ON) {
-        const STREAK = streakFromDayMinutes(ACTIVITY_BY_DAY, GOAL_MINUTES);
-        STREAK_NODE.textContent = `${STREAK} day streak`;
-    }
+    applyHeaderGoalMetric(ACTIVITY_BY_DAY, GOAL_MINUTES);
+    applyHeaderSessionsMetric(SNAPSHOT);
+    applyHeaderStreakMetric(
+        ACTIVITY_BY_DAY,
+        GOAL_MINUTES,
+        Boolean(featureFlags.gamificationEnabled),
+    );
 }

@@ -1,5 +1,6 @@
 @import "./styles/generated/tokens.css";
 @import "./styles/base.css";
+@import "./styles/today-header.css";
 @import "./styles/settings.css";
 @import "./styles/calendar.css";
 @import "./styles/calendar-session-tidy.css";
