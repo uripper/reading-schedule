@@ -1,5 +1,5 @@
 /**
- * @file SQLite planner state read/write helpers with tiny mutation journal.
+ * SQLite planner state read/write helpers with tiny mutation journal.
  */
 import fs from "node:fs";
 import { DatabaseSync } from "node:sqlite";
@@ -9,7 +9,7 @@ import type {
     PlannerSaveResult,
     PlannerStateLoadResult,
 } from "../types/types.js";
-import { objectState } from "./state_store_json.js";
+import { objectState, returnErrorMessage } from "./state_store_json.js";
 import { sqliteStatePath } from "./state_store_paths";
 
 const STATE_SCHEMA_VERSION = 1;
@@ -227,9 +227,6 @@ export function writeStateToSqlite(
             DATABASE.close();
         }
     } catch (error) {
-        if (error instanceof Error) {
-            return { error: error.message, ok: false };
-        }
-        return { error: String(error), ok: false };
+        return returnErrorMessage(error);
     }
 }

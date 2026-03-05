@@ -30,7 +30,10 @@ export const SORT_DIRECTION_DESC = "desc";
  * @param right - Right numeric value.
  * @returns Negative/zero/positive comparison result.
  */
-function compareNumbers(left: OptionalNumber, right: OptionalNumber): number {
+function compareNumbers(
+    left: OptionalNumber | OptionalString,
+    right: OptionalNumber | OptionalString,
+): number {
     const LEFT_MISSING = left === null || left === undefined;
     const RIGHT_MISSING = right === null || right === undefined;
     if (LEFT_MISSING && RIGHT_MISSING) {
@@ -64,17 +67,7 @@ function compareText(left: OptionalString, right: OptionalString): number {
     const RIGHT_TEXT = String(right ?? "")
         .trim()
         .toLowerCase();
-    const LEFT_MISSING = !LEFT_TEXT;
-    const RIGHT_MISSING = !RIGHT_TEXT;
-    if (LEFT_MISSING && RIGHT_MISSING) {
-        return 0;
-    }
-    if (LEFT_MISSING) {
-        return 1;
-    }
-    if (RIGHT_MISSING) {
-        return -1;
-    }
+    compareNumbers(left, right);
     return LEFT_TEXT.localeCompare(RIGHT_TEXT, undefined, {
         sensitivity: "base",
     });

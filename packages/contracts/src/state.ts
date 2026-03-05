@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { PLAN_GENERATE_RESULT_SCHEMA } from "./planner_result.js";
 import { plannerSettingsSchema } from "./settings.js";
-import { type LoadedPlannerState, type PlannerStateSnapshot } from "./types.js";
+import { type LoadedPlannerState, type PlannerStateSnapshot } from "./types_subfolders/types_planner.js";
 
 const BOOL_RECORD_SCHEMA = z.record(z.string(), z.boolean());
 

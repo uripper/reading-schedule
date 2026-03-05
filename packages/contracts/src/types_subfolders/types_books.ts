@@ -1,7 +1,6 @@
+
 import type { UUID } from "node:crypto";
 import type { PlannerScheduleRow } from "./types_planner.js";
-
-export type BookStatus = "to_read" | "in_progress" | "read" | "dropped";
 
 export type BookStatusFilter = "all" | BookStatus;
 
@@ -23,6 +22,10 @@ export type SortDirection = "asc" | "desc";
 export type OptionalNumber = number | null | undefined;
 
 export type OptionalString = string | null | undefined;
+
+export type BookInput = Partial<Book>;
+
+export type BookStatus = "to_read" | "in_progress" | "read" | "dropped";
 
 export interface Book {
     author: string;
@@ -47,7 +50,6 @@ export interface Book {
     words_total: number | null;
 }
 
-export type BookInput = Partial<Book>;
 
 export interface BookProgressUpdates {
     pagesRead?: number | null;
