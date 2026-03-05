@@ -1,5 +1,5 @@
 // Keep this long enough to let the splash animations settle before removal.
-const SPLASH_MIN_DURATION_MS = 3000;
+const SPLASH_MIN_DURATION_MS = 2500;
 // Keep in sync with .splash-screen transition duration in electron/styles/base.css.
 const SPLASH_CSS_FADE_DURATION_MS = 560;
 // Buffer for cases where transitionend is delayed or not dispatched.

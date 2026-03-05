@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bartleby</title>
-    <link rel="icon" type="image/png" href="assets/logo.png" />
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -16,7 +16,7 @@
           </h1>
         </div>
 
-        <img class="splash-logo" src="assets/logo.png" alt="" />
+        <img class="splash-logo" src="assets/logo.svg" alt="" />
       </div>
     </div>
 
@@ -25,7 +25,7 @@
     <header class="app-header">
       <div class="brand-wrap">
         <p class="brand-eyebrow">Bartleby</p>
-        <img class="brand-logo" src="assets/logo.png" alt="Bartleby logo" />
+        <img class="brand-logo" src="assets/logo.svg" alt="Bartleby logo" />
       </div>
       <div class="actions">
         <button id="helpBtn" class="btn" type="button">Help / Logs</button>
@@ -39,12 +39,48 @@
         class="tab is-active"
         type="button"
         data-tab="today"
-        role="tab"
+        role="tablist"
         aria-selected="true"
         aria-controls="tab-today"
         tabindex="0"
       >
         Today
+      </button>
+      <button
+        id="tab-btn-books"
+        class="tab"
+        type="button"
+        data-tab="books"
+        role="tab"
+        aria-selected="false"
+        aria-controls="tab-books"
+        tabindex="-1"
+      >
+        Library
+      </button>
+      <button
+        id="tab-btn-schedule"
+        class="tab"
+        type="button"
+        data-tab="schedule"
+        role="tab"
+        aria-selected="false"
+        aria-controls="tab-schedule"
+        tabindex="-1"
+      >
+        Schedule
+      </button>      
+      <button
+        id="tab-btn-recommendations"
+        class="tab"
+        type="button"
+        data-tab="recommendations"
+        role="tab"
+        aria-selected="false"
+        aria-controls="tab-recommendations"
+        tabindex="-1"
+      >
+        Recs
       </button>
       <button
         id="tab-btn-stats"
@@ -69,42 +105,6 @@
         tabindex="-1"
       >
         Settings
-      </button>
-      <button
-        id="tab-btn-books"
-        class="tab"
-        type="button"
-        data-tab="books"
-        role="tab"
-        aria-selected="false"
-        aria-controls="tab-books"
-        tabindex="-1"
-      >
-        Books
-      </button>
-      <button
-        id="tab-btn-recommendations"
-        class="tab"
-        type="button"
-        data-tab="recommendations"
-        role="tab"
-        aria-selected="false"
-        aria-controls="tab-recommendations"
-        tabindex="-1"
-      >
-        Recommendations
-      </button>
-      <button
-        id="tab-btn-schedule"
-        class="tab"
-        type="button"
-        data-tab="schedule"
-        role="tab"
-        aria-selected="false"
-        aria-controls="tab-schedule"
-        tabindex="-1"
-      >
-        Schedule
       </button>
     </nav>
 

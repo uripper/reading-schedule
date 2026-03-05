@@ -1,5 +1,19 @@
 :root {
     --layout-max-width: 1720px;
+
+    /* Colors */
+    --neo-active-color: #ff4911;
+    --neo-header-color: #2c0066;
+    --neo-app-background: #E87DDB;
+
+    /* Fonts */
+    --main-font: "Archivo", sans-serif;
+    --header-font: "Plus Jakarta Sans", sans-serif;
+    --sub-header-font: "Poppins", sans-serif;
+    --silly-font: "Poor Story", cursive;
+
+    /* Effects */
+    --neo-brutalist-shadow: 6px 8px 0 #000;
 }
 
 * {
@@ -13,23 +27,12 @@ body {
 
 body {
     margin: 0;
-    font-family: var(--token-typography-family-sans);
+    font-family: var(--main-font);
     font-size: var(--token-typography-size-md);
     -webkit-font-smoothing: antialiased;
     line-height: var(--token-typography-lineHeight-base);
     color: var(--app-text);
-    background:
-        radial-gradient(
-            circle at top right,
-            color-mix(in srgb, var(--app-brandStrong) 18%, transparent),
-            transparent 40%
-        ),
-        radial-gradient(
-            circle at top left,
-            color-mix(in srgb, var(--app-success) 12%, transparent),
-            transparent 45%
-        ),
-        var(--app-bg);
+    background: var(--neo-app-background);
 }
 
 .splash-screen {
@@ -38,18 +41,7 @@ body {
     z-index: 1000;
     display: grid;
     place-items: center;
-    background:
-        radial-gradient(
-            circle at 25% 20%,
-            color-mix(in srgb, var(--app-brandStrong) 24%, transparent),
-            transparent 46%
-        ),
-        radial-gradient(
-            circle at 75% 75%,
-            color-mix(in srgb, var(--app-success) 20%, transparent),
-            transparent 52%
-        ),
-        var(--app-bg);
+    background: var(--neo-app-background);
     opacity: 1;
     perspective: 300px;
     perspective-origin: 50% 35%;
@@ -75,7 +67,7 @@ body {
 .splash-title-text {
     display: inline-block;
 
-    font-family: var(--token-typography-family-heading);
+    font-family: var(--header-font);
     font-size: clamp(1.8rem, 5.6vw, 3.8rem);
     font-variation-settings: "slnt" 0;
     font-style: normal;
@@ -86,14 +78,14 @@ body {
     white-space: nowrap;
 
     text-shadow:
-        0 0 18px color-mix(in srgb, var(--app-brandStrong) 30%, transparent),
+        0 0 18px color-mix(in srgb, var(--neo-active-color) 30%, transparent),
         0 6px 20px rgba(0, 0, 0, 0.35);
 
     background: linear-gradient(
         180deg,
         rgba(255, 255, 255, 0.95) 0%,
         rgba(223, 239, 255, 0.88) 45%,
-        color-mix(in srgb, var(--app-brandStrong) 55%, white 45%) 100%
+        color-mix(in srgb, var(--neo-active-color) 55%, white 45%) 100%
     );
     -webkit-background-clip: text;
     background-clip: text;
@@ -116,7 +108,7 @@ body {
     content: "";
     background: radial-gradient(
         ellipse at center,
-        color-mix(in srgb, var(--app-brandStrong) 20%, transparent) 0%,
+        color-mix(in srgb, var(--neo-active-color) 20%, transparent) 0%,
         rgba(255, 255, 255, 0.04) 35%,
         transparent 75%
     );
@@ -128,24 +120,11 @@ body {
 .splash-logo {
     display: block;
     margin-inline: auto;
-    opacity: 0.82;
-    filter: blur(0.8px);
-    -webkit-mask-image: radial-gradient(
-        circle at center,
-        rgba(0, 0, 0, 1) 66%,
-        rgba(0, 0, 0, 0.05) 84%,
-        rgba(0, 0, 0, 0) 100%
-    );
-    mask-image: radial-gradient(
-        circle at center,
-        rgba(0, 0, 0, 1) 66%,
-        rgba(0, 0, 0, 0.05) 84%,
-        rgba(0, 0, 0, 0) 100%
-    );
+    opacity: 1;
     transform-origin: center center;
     backface-visibility: hidden;
     animation: splashLogoEntrance 2200ms cubic-bezier(0.22, 1, 0.36, 1) both;
-    will-change: transform, opacity, filter;
+    will-change: transform, opacity;
 }
 
 body.splash-exit .splash-screen {
@@ -170,16 +149,18 @@ body.splash-exit .splash-screen {
 @keyframes splashLogoEntrance {
     0% {
         opacity: 0;
-        transform: translate3d(0, 28px, 0) scale(0.94);
+        transform: scale(1) rotateX(45deg);
+
     }
 
+
     60% {
-        opacity: 0.9;
-        transform: translate3d(0, -2px, 0) scale(1.045);
+        opacity: 1;
+        transform: translate3d(0px, 120px, 90px) scale(8) rotateZ(45deg);
     }
 
     100% {
-        opacity: 0.82;
+        opacity: 1;
         transform: translate3d(0, 0, 0) scale(1);
     }
 }
@@ -214,8 +195,8 @@ body.splash-exit .splash-screen {
     justify-content: space-between;
     min-height: var(--token-size-header-height);
     padding: var(--token-space-3) var(--token-space-4);
-    background: color-mix(in srgb, var(--app-bgElevated) 84%, transparent);
-    border-bottom: 1px solid var(--app-border);
+    background: var(--neo-header-color);
+    border-bottom: 1px solid var(--neo-header-border);
     backdrop-filter: blur(12px);
 }
 
@@ -242,7 +223,7 @@ body.splash-exit .splash-screen {
 
 h1 {
     margin: 0;
-    font-family: var(--token-typography-family-heading);
+    font-family: var(--header-font);
     font-size: var(--token-typography-size-xl);
     font-weight: var(--token-typography-weight-bold);
     line-height: var(--token-typography-lineHeight-tight);
@@ -250,7 +231,7 @@ h1 {
 
 h2 {
     margin: 0 0 var(--token-space-2);
-    font-family: var(--token-typography-family-heading);
+    font-family: var(--header-font);
     font-size: var(--token-typography-size-lg);
     line-height: var(--token-typography-lineHeight-tight);
 }
@@ -334,32 +315,40 @@ p {
     display: flex;
     gap: var(--token-space-2);
     align-items: center;
+    justify-content: space-between;
     padding: var(--token-space-2) var(--token-space-4);
     overflow-x: auto;
-    background: color-mix(in srgb, var(--app-bgElevated) 90%, transparent);
-    border-bottom: 1px solid var(--app-border);
+    background: #ffffff;
+    border: 1px solid var(--app-border);
+    box-shadow: var(--neo-brutalist-shadow);
 }
 
 .tab {
     min-height: var(--token-size-target-minimum);
-    padding: var(--token-space-2) var(--token-space-3);
-    font-size: var(--token-typography-size-sm);
-    color: var(--app-textMuted);
+    padding: var(--token-space-3) var(--token-space-6);
+    font: inherit;
+    font-family: var(--main-font);
+    font-size: clamp(1.2rem, 2.2vw, 2.2rem);
+    font-weight: var(--token-typography-weight-bold);
+    line-height: 1;
+    color: #000;
     white-space: nowrap;
-    background: var(--app-surface);
-    border: 1px solid var(--app-border);
-    border-radius: var(--token-radius-pill);
+    appearance: none;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+}
+
+.tab:hover {
+    /* replace your border-color hover with something that matches text-only */
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
 }
 
 .tab.is-active {
-    color: var(--app-text);
-    background: color-mix(
-        in srgb,
-        var(--app-brandStrong) 12%,
-        var(--app-surface)
-    );
-    border-color: var(--app-brandStrong);
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--app-brand) 34%, transparent);
+    color: var(--neo-active-color);
+    text-decoration: none; /* optional */
 }
 
 main {
