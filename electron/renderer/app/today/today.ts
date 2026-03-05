@@ -141,7 +141,6 @@ function renderHeaderSessionsMetric(options: {
     sessionsStatus: HTMLElement;
     sessionDots: HTMLElement;
     completeIndicator: HTMLElement | null;
-    sessionsMetric: HTMLElement | null;
 }): void {
     options.sessionsStatus.textContent = formatHeaderSessionsText(
         options.snapshot.completedSessions,
@@ -158,13 +157,6 @@ function renderHeaderSessionsMetric(options: {
     );
     if (options.completeIndicator !== null) {
         applyIndicatorState(options.completeIndicator, IS_COMPLETE);
-    }
-    if (options.sessionsMetric !== null) {
-        if (IS_COMPLETE) {
-            options.sessionsMetric.classList.add("is-complete");
-        } else {
-            options.sessionsMetric.classList.remove("is-complete");
-        }
     }
 }
 
@@ -256,11 +248,8 @@ function applyHeaderSessionsMetric(snapshot: TodayScheduleSnapshot): void {
         return;
     }
     renderHeaderSessionsMetric({
-        completeIndicator: getOptionalElement(
-            "headerSessionsCompleteIndicator",
-        ),
+        completeIndicator: getOptionalElement("headerSessionsIndicator"),
         sessionDots: SESSION_DOTS,
-        sessionsMetric: getOptionalElement("headerSessionsMetric"),
         sessionsStatus: SESSIONS_STATUS,
         snapshot,
     });

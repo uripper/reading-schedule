@@ -99,18 +99,12 @@
     gap: 4px;
 }
 
-.neo-metric-title-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
 .neo-metric-goal {
     min-width: 2vw;
 }
 
 .neo-metric-sessions {
-    align-items: flex-start;
+    align-items: center;
     min-width: 2vw;
 }
 
@@ -151,26 +145,6 @@
     background-repeat: no-repeat;
     background-position: center;
     background-size: 92% 92%;
-}
-
-.neo-session-complete-indicator {
-    width: 26px;
-    height: 26px;
-    background-image: url("../assets/checkbox_complete.svg");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 100% 100%;
-    opacity: 0;
-    transition: opacity var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard);
-}
-
-.neo-session-complete-indicator.is-complete {
-    opacity: 1;
-}
-
-.neo-metric-sessions.is-complete .neo-metric-title {
-    color: #d6ffe7;
 }
 
 .neo-session-dots {
