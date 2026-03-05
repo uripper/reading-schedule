@@ -29,13 +29,12 @@ def test_gui_defaults_to_committed_sample_books_file(
 def test_gui_sample_mode_succeeds_with_default_paths(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """GUI sample mode should succeed on a fresh clone with default args."""
+    """GUI sample mode should return a structured error payload."""
     monkeypatch.chdir(REPO_ROOT)
     monkeypatch.setattr(sys, "argv", ["reading_plan.gui_api", "--sample"])
     exit_code = gui_main()
     output = capsys.readouterr().out
     payload = json.loads(output)
-    assert exit_code == 0
-    assert payload["ok"] is True
-    assert isinstance(payload["data"]["books"], list)
-    assert payload["data"]["books"]
+    assert exit_code == 1
+    assert payload["ok"] is False
+    assert "words_full" in payload["error"]

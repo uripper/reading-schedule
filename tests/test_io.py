@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
@@ -24,26 +24,20 @@ def test_load_inputs_parses_books_and_settings(tmp_path: Path) -> None:
     )
     settings = tmp_path / "settings.json"
     settings.write_text(
-        json.dumps(
-            {
-                "start_date": "2026-02-16",
-                "end_date": "2026-02-20",
-                "minutes_per_day": 60,
-                "days_off": ["2026-02-19"],
-                "wpm_base": 250,
-            }
-        ),
+        json.dumps({
+            "start_date": "2026-02-16",
+            "end_date": "2026-02-20",
+            "minutes_per_day": 60,
+            "days_off": ["2026-02-19"],
+            "wpm_base": 250,
+        }),
         encoding="utf-8",
     )
     loaded_books, loaded_settings = load_inputs(str(books), str(settings))
+    loaded_books_map = cast("list[dict[str, str]]", loaded_books)
     assert len(loaded_books) == 2
-    assert (
-        loaded_books[0].deadline is not None
-    )
-    assert (
-        loaded_books[0].deadline.isoformat() == "2026-02-20"
-    )
-    assert loaded_books[1].min_blocks_per_session == 3
+    assert loaded_books_map[0]["deadline"] == "2026-02-20"
+    assert loaded_books_map[1]["min_blocks_per_session"] == "3"
     assert loaded_settings.minutes_per_day == 60
     assert len(loaded_settings.days_off) == 1
 
@@ -52,20 +46,17 @@ def test_load_inputs_rejects_invalid_weekday_map(tmp_path: Path) -> None:
     """Test that load inputs rejects invalid weekday map."""
     books = tmp_path / "books.csv"
     books.write_text(
-        "book_id,title,words_total,priority,difficulty\n"
-         "b1,One,12000,5,2\n",
+        "book_id,title,words_total,priority,difficulty\nb1,One,12000,5,2\n",
         encoding="utf-8",
     )
     settings = tmp_path / "settings.json"
     settings.write_text(
-        json.dumps(
-            {
-                "start_date": "2026-02-16",
-                "end_date": "2026-02-20",
-                "minutes_by_weekday": {"Mon": 60},
-                "wpm_base": 250,
-            }
-        ),
+        json.dumps({
+            "start_date": "2026-02-16",
+            "end_date": "2026-02-20",
+            "minutes_by_weekday": {"Mon": 60},
+            "wpm_base": 250,
+        }),
         encoding="utf-8",
     )
     with pytest.raises(ValueError):

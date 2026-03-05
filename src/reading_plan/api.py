@@ -96,8 +96,7 @@ def _parse_books(books_raw: list[BookData]) -> list[Book]:
         if not isinstance(row, dict):
             msg = f"book at index {idx} must be an object"
             raise TypeError(msg)
-        row_mapping = cast("Mapping[str, Any]", row)
-        books.append(book_from_data(row_mapping))
+        books.append(book_from_data(row))
     LOGGER.debug(
         "generate_plan: books parsed",
         extra={"elapsed_ms": _elapsed_ms(parse_started)},
