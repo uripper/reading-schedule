@@ -84,8 +84,8 @@ export function nextSessionIndexForDate(
 
 /**
  * Filters out a specific session from the given rows.
- * @param targetSessionKeyOrRows Either a session key string or an array of PlannerScheduleRow.
- * @param rowsOrTargetSessionKey Either an array of PlannerScheduleRow or a session key string.
+ * @param targetSessionKeyOrRows - Either a session key string or an array of PlannerScheduleRow.
+ * @param rowsOrTargetSessionKey - Either an array of PlannerScheduleRow or a session key string.
  * @returns An array of PlannerScheduleRow excluding the specified session.
  */
 export function rowsWithoutSession(

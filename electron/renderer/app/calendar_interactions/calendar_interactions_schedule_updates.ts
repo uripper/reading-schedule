@@ -27,8 +27,8 @@ import { nextRowsWithUpdatedMinutes } from "./calendar_interactions_minutes_rows
 /**
  * Builds a new planner result from replacement schedule rows while preserving
  * the existing summary and stamping a fresh creation timestamp.
- * @param previousResult Existing planner result used as the base.
- * @param rows Replacement schedule rows to persist.
+ * @param previousResult - Existing planner result used as the base.
+ * @param rows - Replacement schedule rows to persist.
  * @returns Planner result object ready to store in app state.
  */
 function nextResultWithRows(
@@ -45,7 +45,7 @@ function nextResultWithRows(
 /**
  * Applies the computed planner result to all bound UI/runtime sinks.
  * Side effects include state mutation, book row updates, and calendar re-render.
- * @param args Shared callbacks and runtime state references.
+ * @param args - Shared callbacks and runtime state references.
  * @param nextResult Next planner result to apply.
  */
 function applyNextResult(

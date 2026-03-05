@@ -12,7 +12,7 @@ export const DEFAULT_BOOK_DIFFICULTY = 3;
 /**
  * Normalizes a manually entered number of minutes for a session,
  * ensuring it's a finite number and applying a minimum if necessary.
- * @param minutes number of minutes for a manually entered session
+ * @param minutes - number of minutes for a manually entered session
  * @returns normalized number of minutes to use for calculations and display
  */
 function normalizeManualMinutes(minutes: number): number {
@@ -25,8 +25,8 @@ function normalizeManualMinutes(minutes: number): number {
 
 /**
  * Calculates the historical words per minute for a given book based on past rows.
- * @param bookId ID of the book to calculate WPM for
- * @param rows Array of past planner schedule rows
+ * @param bookId - ID of the book to calculate WPM for
+ * @param rows -Array of past planner schedule rows
  * @returns Historical words per minute or null if not enough data
  */
 function historicalWordsPerMinute(
@@ -57,8 +57,8 @@ function historicalWordsPerMinute(
 
 /**
  * Calculates the difficulty multiplier for a given book based on settings and difficulty level.
- * @param settings Planner settings containing difficulty multipliers
- * @param difficulty Difficulty level of the book
+ * @param settings - Planner settings containing difficulty multipliers
+ * @param difficulty - Difficulty level of the book
  * @returns Calculated difficulty multiplier
  */
 function difficultyMultiplier(
@@ -76,12 +76,12 @@ function difficultyMultiplier(
 
 /**
  * Calculates the number of words planned for a manually entered session.
- * @param root0 Object containing parameters for the calculation
- * @param root0.bookId ID of the book for the session
- * @param root0.minutes Number of minutes for the session
- * @param root0.rows Array of past planner schedule rows
- * @param root0.settings Planner settings containing difficulty multipliers
- * @param root0.difficulty Difficulty level of the book
+ * @param root0 - Object containing parameters for the calculation
+ * @param bookId - ID of the book for the session
+ * @param minutes - Number of minutes for the session
+ * @param rows - Array of past planner schedule rows
+ * @param settings - Planner settings containing difficulty multipliers
+ * @param difficulty - Difficulty level of the book
  * @returns Number of words planned for the session
  */
 export function wordsPlannedForManualSession({
@@ -119,7 +119,7 @@ export function wordsPlannedForManualSession({
 
 /**
  * Normalizes a manually entered number of minutes for a session.
- * @param minutes Number of minutes for the session
+ * @param minutes - Number of minutes for the session
  * @returns Normalized number of minutes
  */
 export function normalizedManualMinutes(minutes: number): number {
