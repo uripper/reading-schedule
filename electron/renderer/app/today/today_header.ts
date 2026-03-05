@@ -35,16 +35,16 @@ function boundedCompletedSessions(
 }
 
 /**
- * Formats streak text for the top header metric.
+ * Formats streak day-count text for the top header metric value span.
  * @param streakDaysRaw Current streak day count.
- * @returns Header-ready streak text.
+ * @returns Header-ready streak day count text.
  */
 export function formatStreakText(streakDaysRaw: number): string {
     const STREAK_DAYS = nonNegativeCount(streakDaysRaw);
     if (STREAK_DAYS === SINGLE_DAY_COUNT) {
-        return "1 Day Streak";
+        return "1";
     }
-    return `${STREAK_DAYS} Day Streak`;
+    return String(STREAK_DAYS);
 }
 
 /**

@@ -1,0 +1,240 @@
+:root {
+    --neo-today-green: #7edc85;
+    --neo-today-yellow: #ecd73a;
+    --neo-cover-height: 20vh;
+    --neo-cover-hero-height: 40vh;
+    --neo-cover-hero-width: 15vw;
+    --neo-cover-width: 7vw;
+    --neo-carousel-gap: 8vw;
+    --neo-carousel-top-padding: 18px;
+}
+
+#tab-today {
+    padding-inline: 0;
+    overflow-x: visible;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+.today-carousel-shell {
+    display: grid;
+    align-items: start;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+}
+
+.today-carousel-row {
+    position: relative;
+    width: 100vw;
+}
+
+.today-carousel-nav {
+    position: absolute;
+    top: calc(var(--neo-carousel-top-padding) + (var(--neo-cover-height) / 2));
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 60px;
+    height: 90px;
+    padding: 0;
+    background: color-mix(in srgb, #130820 60%, transparent);
+    border: 1px solid color-mix(in srgb, #ffffff 30%, transparent);
+    border-radius: 4px;
+    box-shadow: none;
+    transform: translateY(-50%);
+}
+
+#todayCarouselPrev {
+    left: 58px;
+}
+
+#todayCarouselNext {
+    right: 58px;
+}
+
+.today-carousel-nav img {
+    width: 60px;
+    height: 90px;
+    opacity: 0.95;
+}
+
+#todayCarouselPrev img {
+    transform: rotate(180deg);
+}
+
+.today-carousel-track {
+    display: flex;
+    gap: var(--neo-carousel-gap);
+    align-items: flex-start;
+    min-height: calc(var(--neo-cover-hero-height) + 20px);
+    padding: var(--neo-carousel-top-padding)
+        calc(50vw - (var(--neo-cover-hero-width) / 2)) 10px;
+    margin: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    touch-action: pan-y;
+    list-style: none;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: calc(50vw - (var(--neo-cover-hero-width) / 2));
+    scrollbar-width: none;
+    background: transparent;
+}
+
+.today-carousel-track::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+.today-carousel-track::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.today-carousel-track::-webkit-scrollbar-thumb {
+    background: transparent;
+}
+
+.today-carousel-item {
+    position: relative;
+    flex: 0 0 var(--neo-cover-width);
+    width: var(--neo-cover-width);
+    height: var(--neo-cover-height);
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    scroll-snap-align: center;
+    background: #ffffff;
+    border: 1px solid #000000;
+    border-radius: 2px;
+    box-shadow: 8px 8px 4px rgba(0, 0, 0, 0.85);
+    transform: translateY(-18px);
+    transition:
+        width var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard),
+        height var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard),
+        flex-basis var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard),
+        transform var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard);
+}
+
+.today-carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.today-carousel-item.is-selected {
+    z-index: 2;
+    flex-basis: var(--neo-cover-hero-width);
+    width: var(--neo-cover-hero-width);
+    height: var(--neo-cover-hero-height);
+    transform: translateY(0);
+}
+
+.today-carousel-fallback {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 12px;
+    font-family: var(--header-font);
+    font-size: clamp(2rem, 4vw, 4rem);
+    font-weight: 800;
+    line-height: 1;
+    color: #000000;
+    text-transform: uppercase;
+    background: color-mix(in srgb, var(--neo-today-green) 74%, #ffffff);
+}
+
+#todayCarouselEmpty {
+    margin: 0 auto;
+    font-family: var(--main-font);
+    font-size: clamp(1rem, 1vw, 1.2rem);
+    color: #2e2450;
+}
+
+.today-active-book-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    min-height: 54px;
+    padding: 2px 16px;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: var(--header-font);
+    font-size: clamp(2rem, 2.8vw, 3.3rem);
+    font-weight: 800;
+    line-height: 1.1;
+    color: #000000;
+    text-align: center;
+    white-space: nowrap;
+    background: var(--neo-today-green);
+    border-block: 1px solid #000000;
+    box-shadow: 0 4px 4px #000000;
+}
+
+@media (max-width: 1200px) {
+    :root {
+        --neo-cover-height: 258px;
+        --neo-cover-hero-height: 440px;
+        --neo-cover-hero-width: 290px;
+        --neo-cover-width: 170px;
+        --neo-carousel-gap: 24px;
+        --neo-carousel-top-padding: 14px;
+    }
+
+    #todayCarouselPrev {
+        left: 20px;
+    }
+
+    #todayCarouselNext {
+        right: 20px;
+    }
+
+    .today-carousel-nav {
+        width: 18px;
+        height: 62px;
+    }
+
+    .today-carousel-nav img {
+        width: 18px;
+        height: 62px;
+    }
+
+    .today-active-book-bar {
+        font-size: clamp(1.5rem, 4vw, 2.4rem);
+    }
+}
+
+@media (max-width: 900px) {
+    :root {
+        --neo-cover-height: 182px;
+        --neo-cover-hero-height: 300px;
+        --neo-cover-hero-width: 200px;
+        --neo-cover-width: 120px;
+        --neo-carousel-gap: 16px;
+        --neo-carousel-top-padding: 12px;
+    }
+
+    .today-carousel-nav {
+        width: 28px;
+        height: 84px;
+    }
+
+    .today-carousel-nav img {
+        width: 14px;
+        height: 52px;
+    }
+
+    #todayCarouselPrev {
+        left: 10px;
+    }
+
+    #todayCarouselNext {
+        right: 10px;
+    }
+}

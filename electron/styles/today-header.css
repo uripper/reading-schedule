@@ -122,13 +122,21 @@
     margin: 0;
     font-family: var(--sub-header-font);
     font-size: clamp(1.8rem, 2.05vw, 2.7rem);
-    font-weight: 200;
+    line-height: 1;
+    color: #f8f8f8;
+}
+.neo-metric-streak-text {
+    margin: 0;
+    font-family: var(--sub-header-font);
+    font-size: clamp(1.8rem, 2.05vw, 2.7rem);
+    font-weight: 100;
     line-height: 1;
     color: #f8f8f8;
 }
 
-.neo-metric-streak .neo-metric-streak-value {
+.neo-metric-streak-value {
     font-size: clamp(2rem, 2.05vw, 2.8rem);
+    font-weight: 800;
 }
 
 .neo-metric-indicator {

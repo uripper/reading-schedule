@@ -42,7 +42,10 @@
             alt=""
             aria-hidden="true"
           />
-          <p id="streakText" class="neo-metric-streak-value">0 Day Streak</p>
+          <p id="streakText" class="neo-metric-streak-value">
+            <span class="neo-metric-streak-value">0</span>
+            <span class="neo-metric-streak-text">Day Streak</span>
+          </p>
         </section>
         <section class="neo-metric neo-metric-goal">
           <span
@@ -161,17 +164,100 @@
         aria-labelledby="tab-btn-today"
         tabindex="-1"
       >
-        <div class="today-grid">
-          <article class="surface-card today-schedule-card">
-            <h2>Scheduled Today</h2>
-            <p id="todaySessionCounts" class="today-session-counts">
-              No sessions scheduled for today.
-            </p>
-            <div id="todayScheduledBooks" class="today-scheduled-books"></div>
-            <p id="todayScheduledEmpty" class="hint-text">
-              Add books and update your plan to see today's schedule.
-            </p>
-          </article>
+        <div id="todayCarouselSection" class="today-carousel-shell">
+          <div class="today-carousel-row">
+            <button
+              id="todayCarouselPrev"
+              class="btn today-carousel-nav"
+              type="button"
+              aria-label="Previous book"
+            >
+              <img src="assets/arrows.svg" alt="" aria-hidden="true" />
+            </button>
+            <div
+              id="todayCarouselTrack"
+              class="today-carousel-track"
+              tabindex="0"
+              role="listbox"
+              aria-label="Today's scheduled books"
+            ></div>
+            <button
+              id="todayCarouselNext"
+              class="btn today-carousel-nav"
+              type="button"
+              aria-label="Next book"
+            >
+              <img src="assets/arrows.svg" alt="" aria-hidden="true" />
+            </button>
+          </div>
+          <p id="todayCarouselEmpty" class="hint-text" hidden>
+            No sessions scheduled for today. Add books and update your plan to
+            see today&apos;s carousel.
+          </p>
+          <p id="todayActiveBookBar" class="today-active-book-bar">
+            No book selected
+          </p>
+          <section id="todayFocusPanel" class="today-focus-panel">
+            <article id="todayMinutesOval" class="today-minutes-oval">
+              <p class="today-minutes-label">Minutes Planned:</p>
+              <div class="today-minutes-value-row">
+                <span id="todayMinutesValue" class="today-minutes-value">0</span>
+                <input
+                  id="todayMinutesInput"
+                  class="today-minutes-inline-input"
+                  type="number"
+                  min="1"
+                  step="1"
+                  hidden
+                  aria-label="Planned minutes"
+                />
+                <button
+                  id="todayMinutesEditBtn"
+                  class="btn today-minutes-edit-btn"
+                  type="button"
+                  aria-label="Edit planned minutes"
+                >
+                  &#9998;
+                </button>
+              </div>
+              <p id="todayAfterSessionText" class="today-after-session-text">
+                After session: --
+              </p>
+            </article>
+            <article id="todayProgressPanel" class="today-progress-panel">
+              <p class="today-progress-title">Progress</p>
+              <div id="todayProgressPagesChip" class="today-progress-chip">
+                <input
+                  id="todayPagesInput"
+                  class="today-progress-pages-input"
+                  type="number"
+                  min="0"
+                  step="1"
+                  aria-label="Pages read"
+                />
+                <span class="today-progress-pages-separator" aria-hidden="true"
+                  >/</span
+                >
+                <span id="todayProgressPagesTotalText">--</span>
+              </div>
+              <input
+                id="todayPercentInput"
+                class="today-progress-chip today-progress-percent-input"
+                type="number"
+                min="0"
+                max="100"
+                step="0.1"
+                aria-label="Complete percent"
+              />
+            </article>
+            <button
+              id="todayLogSessionBtn"
+              class="btn today-log-session-btn"
+              type="button"
+            >
+              Log Session
+            </button>
+          </section>
         </div>
       </section>
 

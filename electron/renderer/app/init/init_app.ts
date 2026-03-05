@@ -1,5 +1,6 @@
 import type {
     AppBootstrapContext,
+    CalendarHandlers,
     PlannerResult,
 } from "../../../types/types.js";
 import {
@@ -24,6 +25,7 @@ import { configureAppCalendarInteractions } from "../calendar_interactions/index
 import { bindExperienceSettings } from "../experience/index.js";
 import { totalsFromSummary } from "../runtime_helpers.js";
 import { applyAppStateMutation } from "../state_mutations.js";
+import { configureTodayInteractions } from "../today/index.js";
 import { loadStateAndBindTodayActions } from "./init_app_load.js";
 import {
     createAppPlanControllerInstance,
@@ -89,9 +91,9 @@ function buildPlanController(
  */
 function configureCalendarAppInteractions(
     appContext: AppBootstrapContext,
-): void {
+): CalendarHandlers {
     const RUNTIME_STATE = appContext.state;
-    configureAppCalendarInteractions({
+    return configureAppCalendarInteractions({
         applyStateMutation: (mutation) => {
             applyAppStateMutation(RUNTIME_STATE, mutation);
         },
@@ -167,6 +169,18 @@ export async function initApp(context: AppBootstrapContext): Promise<void> {
     bindExperienceSettings((): void => {
         APP_CONTEXT.dashboards.applyExperienceSettings();
     });
-    configureCalendarAppInteractions(APP_CONTEXT);
+    const CALENDAR_HANDLERS = configureCalendarAppInteractions(APP_CONTEXT);
+    configureTodayInteractions({
+        onSessionCompletionChanged:
+            CALENDAR_HANDLERS.onSessionCompletionChanged,
+        onSessionMinutesUpdated: CALENDAR_HANDLERS.onSessionMinutesUpdated,
+        onSessionProgressUpdated: CALENDAR_HANDLERS.onSessionProgressUpdated,
+        rerender: (): void => {
+            APP_CONTEXT.dashboards.updateDashboards();
+        },
+        setStatus: (message: string, isError = false): void => {
+            APP_CONTEXT.setStatus(message, isError);
+        },
+    });
     await loadStateAndBindTodayActions(APP_CONTEXT, PLAN_CONTROLLER);
 }
