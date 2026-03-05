@@ -4,7 +4,7 @@ const SINGLE_DAY_COUNT = 1;
 
 /**
  * Normalizes count-like values to non-negative integers.
- * @param valueRaw Raw count value.
+ * @param valueRaw - Raw count value.
  * @returns Non-negative integer count.
  */
 function nonNegativeCount(valueRaw: number): number {
@@ -21,8 +21,8 @@ function nonNegativeCount(valueRaw: number): number {
 
 /**
  * Bounds completed-session count within scheduled-session range.
- * @param completedSessionsRaw Completed session count.
- * @param scheduledSessionsRaw Scheduled session count.
+ * @param completedSessionsRaw - Completed session count.
+ * @param scheduledSessionsRaw - Scheduled session count.
  * @returns Completed count clamped to [0, scheduled].
  */
 function boundedCompletedSessions(
@@ -36,7 +36,7 @@ function boundedCompletedSessions(
 
 /**
  * Formats streak day-count text for the top header metric value span.
- * @param streakDaysRaw Current streak day count.
+ * @param streakDaysRaw - Current streak day count.
  * @returns Header-ready streak day count text.
  */
 export function formatStreakText(streakDaysRaw: number): string {
@@ -49,8 +49,8 @@ export function formatStreakText(streakDaysRaw: number): string {
 
 /**
  * Formats sessions text for the top header metric.
- * @param completedSessionsRaw Completed sessions count.
- * @param scheduledSessionsRaw Scheduled sessions count.
+ * @param completedSessionsRaw - Completed sessions count.
+ * @param scheduledSessionsRaw - Scheduled sessions count.
  * @returns Header-ready session summary text.
  */
 export function formatHeaderSessionsText(
@@ -67,8 +67,8 @@ export function formatHeaderSessionsText(
 
 /**
  * Builds visual completion states for the session dot grid.
- * @param completedSessionsRaw Completed sessions count.
- * @param scheduledSessionsRaw Scheduled sessions count.
+ * @param completedSessionsRaw - Completed sessions count.
+ * @param scheduledSessionsRaw - Scheduled sessions count.
  * @returns Boolean completion list in scheduled-session order.
  */
 export function buildSessionDotStates(
@@ -89,8 +89,8 @@ export function buildSessionDotStates(
 
 /**
  * Checks whether today's logged minutes satisfy the daily goal.
- * @param todayMinutesRaw Logged minutes for today.
- * @param goalMinutesRaw Daily goal minutes.
+ * @param todayMinutesRaw - Logged minutes for today.
+ * @param goalMinutesRaw - Daily goal minutes.
  * @returns True when today's minutes meet or exceed the goal.
  */
 export function isHeaderGoalComplete(
@@ -110,8 +110,8 @@ export function isHeaderGoalComplete(
 
 /**
  * Checks whether all scheduled sessions are completed.
- * @param completedSessionsRaw Completed sessions count.
- * @param scheduledSessionsRaw Scheduled sessions count.
+ * @param completedSessionsRaw - Completed sessions count.
+ * @param scheduledSessionsRaw - Scheduled sessions count.
  * @returns True when scheduled sessions exist and all are complete.
  */
 export function isHeaderSessionsComplete(

@@ -38,10 +38,10 @@ function labeledProgressField(
 
 /**
  * Builds progress update form for today's session row.
- * @param row Calendar row being edited.
- * @param book Current book model for defaults.
- * @param interactionHandlers Detail interaction handlers.
- * @param onProgressApplied Callback fired after successful apply.
+ * @param row - Calendar row being edited.
+ * @param book - Current book model for defaults.
+ * @param interactionHandlers - Detail interaction handlers.
+ * @param onProgressApplied - Callback fired after successful apply.
  * @returns Progress form element.
  */
 export function progressFormForToday(

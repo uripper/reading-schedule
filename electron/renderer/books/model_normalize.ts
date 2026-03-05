@@ -23,7 +23,7 @@ const PROGRESS_MAX = 100;
 
 /**
  * Normalizes raw/partial book input into canonical book model shape.
- * @param book Partial book input from storage, form, or IPC payload.
+ * @param book - Partial book input from storage, form, or IPC payload.
  * @returns Normalized book with clamped numeric fields and consistent status data.
  */
 export function normalizeBook(book: BookInput = {}): Book {
@@ -80,7 +80,7 @@ export function normalizeBook(book: BookInput = {}): Book {
 
 /**
  * Resolves preferred cover source path for rendering.
- * @param book Book-like input containing cover fields.
+ * @param book - Book-like input containing cover fields.
  * @returns Local cover path when available, otherwise remote URL or empty string.
  */
 export function bookCoverSrc(book: BookInput): string {

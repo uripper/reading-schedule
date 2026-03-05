@@ -7,8 +7,8 @@ import { isoLocalDayKey } from "../dist/renderer/sessions/utils.js";
 
 /**
  * Creates a minimal valid session fixture.
- * @param {string} bookId Book id for fixture session.
- * @param {string} endedAt End timestamp used for day indexing.
+ * @param {string} bookId - Book id for fixture session.
+ * @param {string} endedAt - End timestamp used for day indexing.
  * @returns {Record<string, unknown>} Session fixture payload.
  */
 function session(bookId, endedAt) {

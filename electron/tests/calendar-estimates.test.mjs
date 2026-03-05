@@ -5,7 +5,7 @@ import { estimateProgressLabel } from "../dist/renderer/calendar/estimates.js";
 
 /**
  * Converts Date fixture to `YYYY-MM-DD` day key.
- * @param {Date} date Date fixture.
+ * @param {Date} date - Date fixture.
  * @returns {string} Day key text.
  */
 function dayKey(date) {
@@ -17,8 +17,8 @@ function dayKey(date) {
 
 /**
  * Offsets a day key by N days.
- * @param {string} key Base day key.
- * @param {number} delta Day offset.
+ * @param {string} key - Base day key.
+ * @param {number} delta - Day offset.
  * @returns {string} Shifted day key.
  */
 function plusDays(key, delta) {
@@ -29,7 +29,7 @@ function plusDays(key, delta) {
 
 /**
  * Builds calendar row fixture with override support.
- * @param {Record<string, unknown>} overrides Row field overrides.
+ * @param {Record<string, unknown>} overrides - Row field overrides.
  * @returns {Record<string, unknown>} Row fixture.
  */
 function row(overrides) {
@@ -44,7 +44,7 @@ function row(overrides) {
 
 /**
  * Builds in-progress book fixture with override support.
- * @param {Record<string, unknown>} overrides Book field overrides.
+ * @param {Record<string, unknown>} overrides - Book field overrides.
  * @returns {Record<string, unknown>} Book fixture.
  */
 function book(overrides = {}) {

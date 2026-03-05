@@ -24,8 +24,8 @@ import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.js";
 
 /**
  * Updates the save button state while a dialog submission is in progress.
- * @param refs Resolved DOM references for the book dialog.
- * @param busy True while the save action is running.
+ * @param refs - Resolved DOM references for the book dialog.
+ * @param busy - True while the save action is running.
  */
 function setSavingState(refs: BookFormRefs, busy: boolean): void {
     const SAVE_BUTTON = refs.saveBtn;
@@ -38,7 +38,7 @@ function setSavingState(refs: BookFormRefs, busy: boolean): void {
 
 /**
  * Resolves the live books getter from optional dialog options.
- * @param options Optional dialog dependencies.
+ * @param options - Optional dialog dependencies.
  * @returns Function returning the current books collection.
  */
 function booksGetter(options: BookDialogOptions): () => Book[] {
@@ -52,7 +52,7 @@ function booksGetter(options: BookDialogOptions): () => Book[] {
 
 /**
  * Resolves a user-facing error message from unknown save failures.
- * @param error Unknown error thrown by submit handlers.
+ * @param error - Unknown error thrown by submit handlers.
  * @returns User-visible save message.
  */
 function saveErrorMessage(error: unknown): string {
@@ -64,14 +64,14 @@ function saveErrorMessage(error: unknown): string {
 
 /**
  * Opens dialog UI and applies add/edit form state.
- * @param args Dialog open dependencies and target book state.
- * @param args.refs Book form references.
- * @param args.dialogFocus Dialog focus manager.
- * @param args.lookupControl Lookup clear helper used during open.
- * @param args.afterBookPicker After-book picker controller for blocker links.
- * @param args.getBooks Getter returning current books.
- * @param args.book Existing book in edit mode, or null for add mode.
- * @param args.dialogOptions Optional open options such as default shelf.
+ * @param args - Dialog open dependencies and target book state.
+ * @param args.refs - Book form references.
+ * @param args.dialogFocus - Dialog focus manager.
+ * @param args.lookupControl - Lookup clear helper used during open.
+ * @param args.afterBookPicker - After-book picker controller for blocker links.
+ * @param args.getBooks - Getter returning current books.
+ * @param args.book - Existing book in edit mode, or null for add mode.
+ * @param args.dialogOptions - Optional open options such as default shelf.
  */
 function openBookDialog(args: OpenBookDialogArgs): void {
     const FORM_REFS = args.refs;
@@ -95,9 +95,9 @@ function openBookDialog(args: OpenBookDialogArgs): void {
 
 /**
  * Creates the add/edit book dialog controller and binds its form behavior.
- * @param onSubmit Callback invoked with the parsed form payload on submit.
- * @param options Optional dialog dependencies.
- * @param options.getBooks Returns current books for shelf and related UI helpers.
+ * @param onSubmit - Callback invoked with the parsed form payload on submit.
+ * @param options - Optional dialog dependencies.
+ * @param options.getBooks - Returns current books for shelf and related UI helpers.
  * @returns Dialog API exposing the `open` function.
  */
 /**

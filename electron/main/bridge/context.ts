@@ -91,7 +91,7 @@ function pyEnv(): NodeJS.ProcessEnv {
 
 /**
  * Builds bridge environment variables with optional debug context.
- * @param context Optional runtime context from IPC layer.
+ * @param context - Optional runtime context from IPC layer.
  * @returns Child process environment variables.
  */
 function bridgeEnv(context?: BridgeRunContext): NodeJS.ProcessEnv {
@@ -107,7 +107,7 @@ function bridgeEnv(context?: BridgeRunContext): NodeJS.ProcessEnv {
 
 /**
  * Resolves runtime execution context values used by bridge instrumentation.
- * @param context Optional runtime context from IPC layer.
+ * @param context - Optional runtime context from IPC layer.
  * @returns Expanded bridge execution context.
  */
 export function resolveExecutionContext(

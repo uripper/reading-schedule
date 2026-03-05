@@ -6,7 +6,7 @@ const COMPLETION_KEY_PART_SESSION = 3;
 
 /**
  * Builds a lookup map keyed by normalized `book_id`.
- * @param books Book catalog rows.
+ * @param books - Book catalog rows.
  * @returns Map of book id to book payload.
  */
 export function bookByIdIndex(books: Book[] = []): Map<string, Book> {
@@ -24,7 +24,7 @@ export function bookByIdIndex(books: Book[] = []): Map<string, Book> {
 
 /**
  * Builds grouped sessions keyed by local `YYYY-MM-DD`.
- * @param sessions Session history rows.
+ * @param sessions - Session history rows.
  * @returns Day-key grouped session map.
  */
 export function sessionsByDayIndex(
@@ -49,7 +49,7 @@ export function sessionsByDayIndex(
 
 /**
  * Builds grouped sessions keyed by normalized `book_id`.
- * @param sessions Session history rows.
+ * @param sessions - Session history rows.
  * @returns Book-id grouped session map.
  */
 export function sessionsByBookIndex(
@@ -74,7 +74,7 @@ export function sessionsByBookIndex(
 
 /**
  * Splits completion state into explicit session-key and day-book key maps.
- * @param scheduleCompletions Raw completion map.
+ * @param scheduleCompletions - Raw completion map.
  * @returns Derived completion map partitions.
  */
 export function splitCompletionIndexes(

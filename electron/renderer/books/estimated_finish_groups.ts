@@ -21,7 +21,7 @@ const STATUS_GROUPS: StatusGroupDefinition[] = [
 
 /**
  * Buckets estimated-finish-sorted books by status sections for clearer display.
- * @param books Books already sorted by estimated finish.
+ * @param books - Books already sorted by estimated finish.
  * @returns Non-empty ordered status sections for grouped rendering.
  */
 export function groupsForEstimatedFinish(books: Book[] = []): BookGroup[] {

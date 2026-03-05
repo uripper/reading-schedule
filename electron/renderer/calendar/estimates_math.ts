@@ -6,7 +6,7 @@ const PERCENT_PRECISION_SCALE = 1000;
 
 /**
  * Converts unknown numeric input into positive finite number.
- * @param value Unknown numeric-like value.
+ * @param value - Unknown numeric-like value.
  * @returns Positive finite number or zero.
  */
 function positiveFiniteNumber(value: unknown): number {
@@ -19,7 +19,7 @@ function positiveFiniteNumber(value: unknown): number {
 
 /**
  * Clamps progress percent to inclusive `0..100` range.
- * @param progressPercent Raw progress percent.
+ * @param progressPercent - Raw progress percent.
  * @returns Clamped percent.
  */
 function clampPercent(progressPercent: number): number {
@@ -28,8 +28,8 @@ function clampPercent(progressPercent: number): number {
 
 /**
  * Resolves full-word baseline for estimate math using book/totals fallbacks.
- * @param book Book model when available.
- * @param remainingWords Remaining words fallback from totals map.
+ * @param book - Book model when available.
+ * @param remainingWords - Remaining words fallback from totals map.
  * @returns Full-word baseline for projection.
  */
 export function fullWordsForBook(
@@ -49,8 +49,8 @@ export function fullWordsForBook(
 
 /**
  * Estimates words-read from book progress and full-word baseline.
- * @param book Book model when available.
- * @param fullWords Full-word baseline.
+ * @param book - Book model when available.
+ * @param fullWords - Full-word baseline.
  * @returns Estimated words read.
  */
 export function wordsReadFromBook(
@@ -64,8 +64,8 @@ export function wordsReadFromBook(
 
 /**
  * Projects page count from percent when total pages are known.
- * @param projectedPercent Projected percent.
- * @param pagesTotal Total pages.
+ * @param projectedPercent - Projected percent.
+ * @param pagesTotal - Total pages.
  * @returns Projected pages or `null` when unavailable.
  */
 export function projectedPages(
@@ -80,8 +80,8 @@ export function projectedPages(
 
 /**
  * Converts words-read to one-decimal completion percent.
- * @param wordsRead Estimated words read.
- * @param fullWords Full-word baseline.
+ * @param wordsRead - Estimated words read.
+ * @param fullWords - Full-word baseline.
  * @returns Percent complete.
  */
 export function percentFromWords(wordsRead: number, fullWords: number): number {

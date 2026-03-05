@@ -1,5 +1,5 @@
 /**
- * @file Book lookup and cover persistence helpers used by IPC handlers.
+ * Book lookup and cover persistence helpers used by IPC handlers.
  */
 import * as fs from "node:fs";
 import { pathToFileURL } from "node:url";
@@ -10,9 +10,9 @@ export { searchBooks } from "./search";
 
 /**
  * Downloads a remote cover image and stores it in the user data directory.
- * @param coverUrl Remote cover URL candidate.
- * @param bookId Book identifier used in generated file names.
- * @param userDataDir App user-data directory where cover files are saved.
+ * @param coverUrl - Remote cover URL candidate.
+ * @param bookId - Book identifier used in generated file names.
+ * @param userDataDir - App user-data directory where cover files are saved.
  * @returns File URL for the persisted cover, or empty string when download fails.
  */
 export async function downloadCover(
@@ -64,9 +64,9 @@ export async function downloadCover(
 
 /**
  * Persists a user-uploaded cover data URL to disk and returns a file URL.
- * @param coverDataUrl Base64 image data URL from upload UI.
- * @param bookId Book identifier used in generated file names.
- * @param userDataDir App user-data directory where cover files are saved.
+ * @param coverDataUrl - Base64 image data URL from upload UI.
+ * @param bookId - Book identifier used in generated file names.
+ * @param userDataDir - App user-data directory where cover files are saved.
  * @returns File URL for the persisted cover, or empty string when parsing fails.
  */
 export function saveUploadedCover(

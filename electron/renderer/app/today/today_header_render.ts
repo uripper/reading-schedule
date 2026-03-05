@@ -2,8 +2,8 @@ import { buildSessionDotStates } from "./today_header.js";
 
 /**
  * Toggles complete-state CSS for a checkbox-style metric indicator.
- * @param indicatorNode Indicator DOM element.
- * @param complete Whether the metric is complete.
+ * @param indicatorNode - Indicator DOM element.
+ * @param complete - Whether the metric is complete.
  */
 export function applyIndicatorState(
     indicatorNode: HTMLElement,
@@ -19,9 +19,9 @@ export function applyIndicatorState(
 
 /**
  * Renders session completion circles in the header metric.
- * @param container Dot grid container element.
- * @param completedSessions Completed sessions count.
- * @param scheduledSessions Scheduled sessions count.
+ * @param container - Dot grid container element.
+ * @param completedSessions - Completed sessions count.
+ * @param scheduledSessions - Scheduled sessions count.
  */
 export function renderSessionDots(
     container: HTMLElement,

@@ -8,8 +8,8 @@ import { findRecommendations } from "./search.js";
 
 /**
  * Renders the recommendations panel from the latest in-memory book collection.
- * @param refreshToken Token for race-safe refresh ordering.
- * @param getRefreshToken Function that returns the latest refresh token.
+ * @param refreshToken - Token for race-safe refresh ordering.
+ * @param getRefreshToken - Function that returns the latest refresh token.
  */
 async function refreshRecommendationsPanel(
     refreshToken: number,

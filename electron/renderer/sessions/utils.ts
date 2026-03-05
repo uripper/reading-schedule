@@ -1,8 +1,8 @@
 import type { DateInput } from "../../types/types.js";
 /**
  * Parses a value as rounded integer with fallback.
- * @param value String/number-like value.
- * @param fallback Fallback integer when parsing fails.
+ * @param value - String/number-like value.
+ * @param fallback - Fallback integer when parsing fails.
  * @returns Rounded integer.
  */
 export function toInt(
@@ -18,7 +18,7 @@ export function toInt(
 
 /**
  * Converts a date input into local day key (`YYYY-MM-DD`).
- * @param iso Date input.
+ * @param iso - Date input.
  * @returns Local day key, or empty string when invalid.
  */
 export function isoLocalDayKey(iso: DateInput): string {

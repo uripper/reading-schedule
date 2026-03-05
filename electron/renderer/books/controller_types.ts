@@ -45,7 +45,7 @@ const GROUP_BY_OPTIONS: BookGroupBy[] = [
 
 /**
  * Converts toolbar sort value into a supported sort option.
- * @param value Raw value read from sort-by select control.
+ * @param value - Raw value read from sort-by select control.
  * @returns Matching sort option or title sort when value is unsupported.
  */
 export function toSortBy(value: string): SortBy {
@@ -58,7 +58,7 @@ export function toSortBy(value: string): SortBy {
 
 /**
  * Converts toolbar group value into a supported group option.
- * @param value Raw value read from group-by select control.
+ * @param value - Raw value read from group-by select control.
  * @returns Matching group option or no-group fallback when unsupported.
  */
 export function toGroupBy(value: string): BookGroupBy {
@@ -71,7 +71,7 @@ export function toGroupBy(value: string): BookGroupBy {
 
 /**
  * Resolves which shelf should be preselected when opening the add-book dialog.
- * @param currentShelfFilter Currently active shelf filter in the toolbar.
+ * @param currentShelfFilter - Currently active shelf filter in the toolbar.
  * @returns Shelf id for new books, or empty string when filter is global/unshelved.
  */
 export function defaultShelfForAddDialog(currentShelfFilter: string): string {

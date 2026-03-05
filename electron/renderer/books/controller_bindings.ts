@@ -9,7 +9,7 @@ import { SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from "./toolbar.js";
 
 /**
  * Validates and unwraps toolbar control references required for event binding.
- * @param refs Controller DOM references collected during books UI setup.
+ * @param refs - Controller DOM references collected during books UI setup.
  * @returns Strongly typed toolbar controls ready for listener registration.
  * @throws {TypeError} Thrown when any required toolbar control is missing.
  */
@@ -64,10 +64,10 @@ function assertToolbarControls(refs: BooksControllerRefs): {
 
 /**
  * Attaches toolbar listeners and synchronizes control changes into view state.
- * @param args Event binding inputs.
- * @param args.refs Controller DOM references for toolbar controls.
- * @param args.viewState Mutable view state driving books rendering.
- * @param args.rerender Callback that refreshes the books view.
+ * @param args - Event binding inputs.
+ * @param args.refs - Controller DOM references for toolbar controls.
+ * @param args.viewState - Mutable view state driving books rendering.
+ * @param args.rerender - Callback that refreshes the books view.
  */
 export function bindToolbarEvents(args: BindToolbarEventsArgs): void {
     const NEXT_VIEW_STATE = args.viewState;

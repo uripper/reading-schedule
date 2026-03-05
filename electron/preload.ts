@@ -14,8 +14,8 @@ import type {
 
 /**
  * Invokes an IPC channel and narrows the resolved payload to the expected type.
- * @param channel IPC channel name.
- * @param args Optional IPC payload arguments.
+ * @param channel - IPC channel name.
+ * @param args - Optional IPC payload arguments.
  * @returns Promise resolving to the expected typed payload.
  */
 async function invokeIpc<T>(channel: string, ...args: unknown[]): Promise<T> {

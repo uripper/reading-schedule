@@ -73,7 +73,7 @@ const VIEW_STATE: BooksViewState = {
 
 /**
  * Replaces the in-memory books collection used by the books controller.
- * @param nextBooks Books to render and edit in the current session.
+ * @param nextBooks - Books to render and edit in the current session.
  */
 function setBooks(nextBooks: Book[]): void {
     books = nextBooks;
@@ -82,7 +82,7 @@ function setBooks(nextBooks: Book[]): void {
 
 /**
  * Finds a mutable in-memory book by id.
- * @param bookId Stable `book_id` to locate.
+ * @param bookId - Stable `book_id` to locate.
  * @returns Matching book instance when present; otherwise `null`.
  */
 function findBook(bookId: string): Book | null {
@@ -109,7 +109,7 @@ function render(): void {
 
 /**
  * Reads a book by id and returns a defensive copy for callers.
- * @param bookId Stable `book_id` to locate.
+ * @param bookId - Stable `book_id` to locate.
  * @returns Cloned book when found; otherwise `null`.
  */
 export function getBookById(bookId: string): Book | null {
@@ -122,9 +122,9 @@ export function getBookById(bookId: string): Book | null {
 
 /**
  * Applies progress field updates to a single book and refreshes the UI.
- * @param bookId Stable `book_id` to update.
- * @param updates Partial progress values to merge into the current book.
- * @param options Behavioral flags such as change notification control.
+ * @param bookId - Stable `book_id` to update.
+ * @param updates - Partial progress values to merge into the current book.
+ * @param options - Behavioral flags such as change notification control.
  * @returns Updated cloned book when found; otherwise `null`.
  */
 export function updateBookProgress(
@@ -150,7 +150,7 @@ export function updateBookProgress(
 
 /**
  * Persists an edited book, including optional cover hydration, then rerenders.
- * @param payload Book save payload including optional shelf-day propagation flag.
+ * @param payload - Book save payload including optional shelf-day propagation flag.
  */
 async function saveBook(payload: BookSubmitPayload): Promise<void> {
     const HYDRATED = await hydrateBookCover(payload.book);
@@ -166,7 +166,7 @@ async function saveBook(payload: BookSubmitPayload): Promise<void> {
 
 /**
  * Replaces controller books from persisted payload data.
- * @param nextBooks Raw books to normalize and render.
+ * @param nextBooks - Raw books to normalize and render.
  */
 export function fillBooks(nextBooks: Book[] = []): void {
     books = nextBooks.map(normalizeBook);
@@ -176,7 +176,7 @@ export function fillBooks(nextBooks: Book[] = []): void {
 
 /**
  * Stores planner schedule rows used for finish-date and grouping metadata.
- * @param rows Schedule rows aligned to the current reading plan.
+ * @param rows - Schedule rows aligned to the current reading plan.
  */
 export function setBookScheduleRows(rows: PlannerScheduleRow[] = []): void {
     scheduleRows = [...rows];
@@ -211,8 +211,8 @@ export function collectAllBooks(): Book[] {
 
 /**
  * Binds books toolbar, dialog, and grid events for interactive editing.
- * @param onChanged Callback fired after persisted book list mutations.
- * @param options Optional UI behavior hooks.
+ * @param onChanged - Callback fired after persisted book list mutations.
+ * @param options - Optional UI behavior hooks.
  */
 export function bindBooksUI(
     onChanged: () => void = DEFAULT_ON_BOOKS_CHANGED,
@@ -261,7 +261,7 @@ export function bindBooksUI(
 
 /**
  * Registers callback invoked after in-memory book collection mutations.
- * @param hook Observer callback for committed in-memory book list.
+ * @param hook - Observer callback for committed in-memory book list.
  */
 export function setBookCommitHook(hook?: (books: Book[]) => void): void {
     if (typeof hook === "function") {

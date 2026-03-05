@@ -4,8 +4,8 @@ const MIN_PERCENT = 0;
 
 /**
  * Computes bounded goal-completion percentage for today's minutes.
- * @param todayMinutesRaw Minutes logged today.
- * @param goalMinutesRaw Daily goal minutes.
+ * @param todayMinutesRaw - Minutes logged today.
+ * @param goalMinutesRaw - Daily goal minutes.
  * @returns Integer percent between 0 and 100.
  */
 export function goalProgressPercent(

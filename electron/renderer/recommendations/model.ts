@@ -10,7 +10,7 @@ const AUTHOR_LIST_LOCALE = "en";
 
 /**
  * Normalizes text for case-insensitive recommendation matching.
- * @param value Raw text value.
+ * @param value - Raw text value.
  * @returns Lowercased trimmed text key.
  */
 function normalizedText(value: string | null | undefined): string {
@@ -21,8 +21,8 @@ function normalizedText(value: string | null | undefined): string {
 
 /**
  * Builds a stable dedupe key from recommendation title and author.
- * @param title Recommendation title.
- * @param author Recommendation author.
+ * @param title - Recommendation title.
+ * @param author - Recommendation author.
  * @returns Combined normalized key.
  */
 function recommendationKey(title: string, author: string): string {
@@ -31,7 +31,7 @@ function recommendationKey(title: string, author: string): string {
 
 /**
  * Determines whether a book should count as read for author derivation.
- * @param book Book to inspect.
+ * @param book - Book to inspect.
  * @returns True when read status/progress/finish date indicates completion.
  */
 function isReadBook(book: Book): boolean {
@@ -50,7 +50,7 @@ function isReadBook(book: Book): boolean {
 
 /**
  * Derives unique read-author names from the library, preserving first-seen casing.
- * @param books Existing library books.
+ * @param books - Existing library books.
  * @returns Sorted unique author names that already have at least one read title.
  */
 export function deriveReadAuthors(books: Book[]): string[] {
@@ -77,8 +77,8 @@ export function deriveReadAuthors(books: Book[]): string[] {
 
 /**
  * Builds per-author recommendation rows, excluding books already in the library.
- * @param books Existing library books.
- * @param catalog Static local recommendation seeds by normalized author key.
+ * @param books - Existing library books.
+ * @param catalog - Static local recommendation seeds by normalized author key.
  * @returns Recommendation list suitable for rendering in the Recommendations tab.
  */
 export function buildRecommendations(

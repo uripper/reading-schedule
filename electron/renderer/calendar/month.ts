@@ -18,8 +18,8 @@ function todayDayKey(): string {
 
 /**
  * Adds finish rows for books completed on this date without scheduled sessions.
- * @param plannedRows Existing scheduled rows for the date.
- * @param completedBookRows Synthetic completed-book rows.
+ * @param plannedRows - Existing scheduled rows for the date.
+ * @param completedBookRows - Synthetic completed-book rows.
  * @returns Combined rows for month-grid display.
  */
 function mergeDisplayRows(
@@ -92,7 +92,7 @@ function processReadingRows(
 /**
  * Ensures selected date is within current month cell range.
  * Defaults to first populated day, then first visible cell.
- * @param state Mutable calendar render state.
+ * @param state - Mutable calendar render state.
  */
 function ensureSelectedDateInMonth(state: CalendarState): void {
     const CALENDAR_STATE = state;
@@ -113,11 +113,11 @@ function ensureSelectedDateInMonth(state: CalendarState): void {
 
 /**
  * Renders month grid, day buttons, and keyboard interactions.
- * @param state Calendar render state.
- * @param actions Month interaction callbacks.
- * @param actions.selectDate Date selection callback.
- * @param actions.moveSelectionBy Keyboard/grid movement callback.
- * @param actions.renderDetails Details rerender callback.
+ * @param state - Calendar render state.
+ * @param actions - Month interaction callbacks.
+ * @param actions.selectDate - Date selection callback.
+ * @param actions.moveSelectionBy - Keyboard/grid movement callback.
+ * @param actions.renderDetails - Details rerender callback.
  */
 export function renderCalendarMonth(
     state: CalendarState,

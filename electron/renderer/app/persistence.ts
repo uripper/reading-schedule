@@ -7,15 +7,15 @@ import type {
 
 /**
  * Builds the planner snapshot payload used for durable state persistence.
- * @param args Current runtime values and collectors needed for serialization.
- * @param args.sessions Current normalized reading sessions.
- * @param args.collectBooks Returns all books currently tracked by the app.
- * @param args.collectSettings Returns planner settings from UI controls.
- * @param args.preferences Current experience preferences.
- * @param args.featureFlags Current feature flag selections.
- * @param args.scheduleCompletions Completion map keyed by day/session identity.
- * @param args.blockedDayBooks Manually blocked day-book keys to keep out of replans.
- * @param args.lastResult Most recent planning result if one exists.
+ * @param args - Current runtime values and collectors needed for serialization.
+ * @param args.sessions - Current normalized reading sessions.
+ * @param args.collectBooks - Returns all books currently tracked by the app.
+ * @param args.collectSettings - Returns planner settings from UI controls.
+ * @param args.preferences - Current experience preferences.
+ * @param args.featureFlags - Current feature flag selections.
+ * @param args.scheduleCompletions - Completion map keyed by day/session identity.
+ * @param args.blockedDayBooks - Manually blocked day-book keys to keep out of replans.
+ * @param args.lastResult - Most recent planning result if one exists.
  * @returns Snapshot payload expected by planner state APIs.
  */
 export function draftData(args: DraftDataParams): PlannerStateSnapshot {
@@ -33,9 +33,9 @@ export function draftData(args: DraftDataParams): PlannerStateSnapshot {
 
 /**
  * Attempts to save planner state and reports recoverable errors through log output.
- * @param plannerApi API adapter exposing persistence methods.
- * @param payload Snapshot payload to persist.
- * @param addLog Log sink for user-visible persistence failures.
+ * @param plannerApi - API adapter exposing persistence methods.
+ * @param payload - Snapshot payload to persist.
+ * @param addLog - Log sink for user-visible persistence failures.
  * @returns True when save succeeds, false when save fails.
  */
 export async function saveStateSafe(

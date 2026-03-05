@@ -11,7 +11,7 @@ const ZOOM_PERCENT_FACTOR = 100;
 
 /**
  * Formats the current zoom factor for user-facing announcements.
- * @param zoomFactor Browser zoom factor (for example `1` for 100%).
+ * @param zoomFactor - Browser zoom factor (for example `1` for 100%).
  * @returns Human-readable zoom text.
  */
 function formatZoomAnnouncement(zoomFactor: number): string {
@@ -20,8 +20,8 @@ function formatZoomAnnouncement(zoomFactor: number): string {
 
 /**
  * Creates a keyboard handler that routes zoom shortcuts through planner IPC.
- * @param plannerApi Planner bridge API exposing zoom operations.
- * @param announce Live-region announcer for zoom feedback.
+ * @param plannerApi - Planner bridge API exposing zoom operations.
+ * @param announce - Live-region announcer for zoom feedback.
  * @returns Keyboard handler that reports whether it handled the shortcut.
  */
 export function createZoomShortcutHandler(

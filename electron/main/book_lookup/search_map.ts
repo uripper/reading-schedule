@@ -1,5 +1,5 @@
 /**
- * @file Mapping helpers from Open Library docs to planner search items.
+ * Mapping helpers from Open Library docs to planner search items.
  */
 
 import type { SearchDoc, SearchItem } from "../../types/types.js";
@@ -12,7 +12,7 @@ import { primaryAuthor } from "./search_text.js";
 
 /**
  * Converts a raw search document into the app's normalized search item shape.
- * @param doc Open Library search document.
+ * @param doc - Open Library search document.
  * @returns Normalized planner search item.
  */
 export function toItem(doc: SearchDoc): SearchItem {

@@ -8,7 +8,7 @@ export const RECOMMENDATIONS_AVAILABLE = false;
 
 /**
  * Normalizes a string to a boolean or returns undefined if not recognized.
- * @param value String value to normalize.
+ * @param value - String value to normalize.
  * @returns true/false or undefined if not a recognized pattern.
  */
 function normalizeStringFlag(value: string): boolean | undefined {
@@ -24,7 +24,7 @@ function normalizeStringFlag(value: string): boolean | undefined {
 
 /**
  * Normalizes a number to a boolean or returns undefined if not recognized.
- * @param value Number value to normalize.
+ * @param value - Number value to normalize.
  * @returns true/false or undefined if not 0/1.
  */
 function normalizeNumberFlag(value: number): boolean | undefined {
@@ -40,8 +40,8 @@ function normalizeNumberFlag(value: number): boolean | undefined {
 /**
  * Normalizes persisted or user-provided flag-like values.
  * "true"/"1" and 1 map to true; "false"/"0" and 0 map to false.
- * @param rawValue Raw persisted/user flag value.
- * @param isAvailable Whether this feature is shipped/enabled.
+ * @param rawValue - Raw persisted/user flag value.
+ * @param isAvailable - Whether this feature is shipped/enabled.
  * @returns Normalized feature flag value.
  */
 export function shippedFeatureFlag(
@@ -75,9 +75,9 @@ export function shippedFeatureFlag(
 
 /**
  * Returns a trimmed reminder time string, or the default when unavailable/empty.
- * @param rawValue Raw persisted reminder-time value.
- * @param isAvailable Whether reminders are shipped/enabled.
- * @param defaultReminderTime Fallback reminder time.
+ * @param rawValue - Raw persisted reminder-time value.
+ * @param isAvailable - Whether reminders are shipped/enabled.
+ * @param defaultReminderTime - Fallback reminder time.
  * @returns Normalized reminder time string.
  */
 export function shippedReminderTime(

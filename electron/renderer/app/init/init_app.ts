@@ -34,7 +34,7 @@ import {
 
 /**
  * Creates the app-level plan controller instance with runtime-bound callbacks.
- * @param appContext Shared bootstrap context.
+ * @param appContext - Shared bootstrap context.
  * @returns Plan controller instance.
  */
 function buildPlanController(
@@ -87,7 +87,7 @@ function buildPlanController(
 
 /**
  * Wires calendar interaction handlers against app runtime callbacks/state.
- * @param appContext Shared bootstrap context.
+ * @param appContext - Shared bootstrap context.
  */
 function configureCalendarAppInteractions(
     appContext: AppBootstrapContext,
@@ -132,7 +132,7 @@ function configureCalendarAppInteractions(
 
 /**
  * Initializes renderer app bindings, controllers, and startup data load.
- * @param context Bootstrap context containing APIs, state, and runtime hooks.
+ * @param context - Bootstrap context containing APIs, state, and runtime hooks.
  * @returns Promise that resolves after startup load/bind operations complete.
  */
 export async function initApp(context: AppBootstrapContext): Promise<void> {

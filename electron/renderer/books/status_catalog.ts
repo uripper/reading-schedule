@@ -14,7 +14,7 @@ const BOOK_STATUSES: BookStatus[] = [
 
 /**
  * Normalizes raw status text to a supported status value.
- * @param value Raw status text.
+ * @param value - Raw status text.
  * @returns Matching status or `null` when unsupported.
  */
 export function normalizedStatus(value: string): BookStatus | null {
@@ -29,7 +29,7 @@ export function normalizedStatus(value: string): BookStatus | null {
 
 /**
  * Returns human-readable label for a book status.
- * @param status Supported status value.
+ * @param status - Supported status value.
  * @returns Display label used in UI.
  */
 export function statusLabel(status: BookStatus): string {
@@ -47,7 +47,7 @@ export function statusLabel(status: BookStatus): string {
 
 /**
  * Indicates whether status should be considered by scheduling logic.
- * @param status Supported status value.
+ * @param status - Supported status value.
  * @returns `true` when status is schedulable.
  */
 export function isStatusSchedulable(status: BookStatus): boolean {

@@ -2,8 +2,8 @@ import type { BookLookupItem } from "../../types/types.js";
 
 /**
  * Builds a stable option id for a lookup result row.
- * @param resultsEl Lookup results container element.
- * @param index Result index.
+ * @param resultsEl - Lookup results container element.
+ * @param index - Result index.
  * @returns DOM id for the option element.
  */
 function optionId(resultsEl: HTMLElement, index: number): string {
@@ -16,8 +16,8 @@ function optionId(resultsEl: HTMLElement, index: number): string {
 
 /**
  * Builds preferred cover source URL for a lookup item.
- * @param item Lookup result item.
- * @param placeholder Placeholder image URL.
+ * @param item - Lookup result item.
+ * @param placeholder - Placeholder image URL.
  * @returns Cover source URL.
  */
 function coverSource(item: BookLookupItem, placeholder: string): string {
@@ -30,7 +30,7 @@ function coverSource(item: BookLookupItem, placeholder: string): string {
 
 /**
  * Returns normalized title text from a lookup item.
- * @param item Lookup result item.
+ * @param item - Lookup result item.
  * @returns Trimmed title text (possibly empty).
  */
 function rawTitleText(item: BookLookupItem): string {
@@ -39,7 +39,7 @@ function rawTitleText(item: BookLookupItem): string {
 
 /**
  * Returns display title text for a lookup item.
- * @param item Lookup result item.
+ * @param item - Lookup result item.
  * @returns Title label for list rendering.
  */
 function titleLabel(item: BookLookupItem): string {
@@ -52,7 +52,7 @@ function titleLabel(item: BookLookupItem): string {
 
 /**
  * Returns image alt text for a lookup item cover thumbnail.
- * @param item Lookup result item.
+ * @param item - Lookup result item.
  * @returns Cover alt text.
  */
 function coverAlt(item: BookLookupItem): string {
@@ -65,7 +65,7 @@ function coverAlt(item: BookLookupItem): string {
 
 /**
  * Builds metadata line text for a lookup result item.
- * @param item Lookup result item.
+ * @param item - Lookup result item.
  * @returns Joined metadata text.
  */
 function metaText(item: BookLookupItem): string {
@@ -94,10 +94,10 @@ function metaText(item: BookLookupItem): string {
 
 /**
  * Renders lookup items into interactive result buttons.
- * @param resultsEl Lookup results container element.
- * @param items Current lookup result items.
- * @param placeholder Placeholder cover image URL.
- * @param activeIndex Currently highlighted result index.
+ * @param resultsEl - Lookup results container element.
+ * @param items - Current lookup result items.
+ * @param placeholder - Placeholder cover image URL.
+ * @param activeIndex - Currently highlighted result index.
  */
 export function renderLookupResults(
     resultsEl: HTMLElement,
@@ -147,10 +147,10 @@ export function renderLookupResults(
 
 /**
  * Synchronizes combobox accessibility attributes with lookup result state.
- * @param searchInput Lookup search input.
- * @param resultsEl Lookup results container element.
- * @param hasItems Whether result list currently has any items.
- * @param activeIndex Currently highlighted result index.
+ * @param searchInput - Lookup search input.
+ * @param resultsEl - Lookup results container element.
+ * @param hasItems - Whether result list currently has any items.
+ * @param activeIndex - Currently highlighted result index.
  */
 export function updateComboboxA11y(
     searchInput: HTMLInputElement,
@@ -174,7 +174,7 @@ export function updateComboboxA11y(
 
 /**
  * Resolves the `.book-result` element associated with an event target.
- * @param event Pointer/keyboard event originating from result list.
+ * @param event - Pointer/keyboard event originating from result list.
  * @returns Matched result element or null.
  */
 export function lookupResultTarget(event: Event): HTMLElement | null {

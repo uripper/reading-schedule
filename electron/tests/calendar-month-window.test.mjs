@@ -7,7 +7,7 @@ const MONTH_INDEX_OFFSET = 1;
 
 /**
  * Parses a `YYYY-MM` key into year/month numbers.
- * @param {string} monthKey Month key.
+ * @param {string} monthKey - Month key.
  * @returns {{year: number, month: number}} Parsed parts.
  */
 function parseMonth(monthKey) {
@@ -20,7 +20,7 @@ function parseMonth(monthKey) {
 
 /**
  * Asserts that month keys are contiguous and sorted.
- * @param {string[]} months Month keys to validate.
+ * @param {string[]} months - Month keys to validate.
  */
 function assertContiguous(months) {
     for (let index = 1; index < months.length; index += 1) {

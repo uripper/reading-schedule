@@ -13,8 +13,8 @@ import {
 /**
  * Normalizes a raw status string into an internal status value.
  * Progress is used as a fallback signal when status text is absent/invalid.
- * @param value Raw status value from persisted data or form input.
- * @param progressPercent Current progress percentage for fallback logic.
+ * @param value - Raw status value from persisted data or form input.
+ * @param progressPercent - Current progress percentage for fallback logic.
  * @returns Normalized book status.
  */
 export function statusFromRaw(
@@ -48,7 +48,7 @@ export function statusFromRaw(
 
 /**
  * Indicates whether a book can participate in scheduling.
- * @param book Book-like object containing status.
+ * @param book - Book-like object containing status.
  * @returns True when the status is schedulable.
  */
 export function schedulableBook(book: Pick<Book, "status">): boolean {
@@ -57,7 +57,7 @@ export function schedulableBook(book: Pick<Book, "status">): boolean {
 
 /**
  * Normalizes a raw status-filter value to a known filter option.
- * @param value Raw filter string from UI/query params.
+ * @param value - Raw filter string from UI/query params.
  * @returns Valid status filter value.
  */
 export function normalizeStatusFilter(
@@ -78,8 +78,8 @@ export function normalizeStatusFilter(
 
 /**
  * Checks whether a book matches the active status filter.
- * @param book Book-like object containing status.
- * @param filterValue Active filter value.
+ * @param book - Book-like object containing status.
+ * @param filterValue - Active filter value.
  * @returns True when the book should be included.
  */
 export function statusFilterMatches(

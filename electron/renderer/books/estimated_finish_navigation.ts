@@ -5,7 +5,7 @@ const DAY_PAD = 2;
 
 /**
  * Formats a Date into a local `YYYY-MM-DD` key.
- * @param date Date value to format.
+ * @param date - Date value to format.
  * @returns Local day key.
  */
 function dayKeyFromDate(date: Date): string {
@@ -17,7 +17,7 @@ function dayKeyFromDate(date: Date): string {
 
 /**
  * Checks whether text is a valid `YYYY-MM-DD` day key.
- * @param dateKey Candidate day key.
+ * @param dateKey - Candidate day key.
  * @returns `true` when key shape and calendar date are valid.
  */
 function isValidDateKey(dateKey: string): boolean {
@@ -33,8 +33,8 @@ function isValidDateKey(dateKey: string): boolean {
 
 /**
  * Navigates to an estimated-finish day when the provided key is valid.
- * @param dateKey Estimated finish day key.
- * @param onNavigate Callback invoked with validated day key.
+ * @param dateKey - Estimated finish day key.
+ * @param onNavigate - Callback invoked with validated day key.
  * @returns `true` when navigation callback was invoked.
  */
 export function navigateToEstimatedFinishDate(

@@ -19,7 +19,7 @@ import { finalizeInitialLoad } from "./init_helpers.js";
 
 /**
  * Creates `loadInitialData` bindings for runtime state mutation and startup flow.
- * @param args Bound startup/load dependencies.
+ * @param args - Bound startup/load dependencies.
  * @returns Fully bound load-state arguments.
  */
 function createLoadStateArgs(args: CreateLoadStateArgsInput): LoadStateArgs {
@@ -98,8 +98,8 @@ function createLoadStateArgs(args: CreateLoadStateArgsInput): LoadStateArgs {
 
 /**
  * Loads the initial state of the application and applies it to runtime context.
- * @param context Application bootstrap context containing APIs and state management functions
- * @param planController Controller for applying the loaded planner result to the application state
+ * @param context - Application bootstrap context containing APIs and state management functions
+ * @param planController - Controller for applying the loaded planner result to the application state
  * @returns Promise that resolves when initial load is complete
  */
 export async function loadStateAndBindTodayActions(

@@ -4,7 +4,7 @@ import { DIFFICULTY_LEVEL_COUNT, WEEKDAYS } from "./config.js";
 
 /**
  * Creates optional hint badge node for a field label.
- * @param text Hint text.
+ * @param text - Hint text.
  * @returns Hint node or null when hint is empty.
  */
 function hintDot(text?: string): HTMLSpanElement | null {
@@ -23,7 +23,7 @@ function hintDot(text?: string): HTMLSpanElement | null {
 
 /**
  * Renders a settings field as a labeled input/select control.
- * @param field Field definition.
+ * @param field - Field definition.
  * @returns Label element containing field control.
  */
 function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
@@ -63,8 +63,8 @@ function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
 
 /**
  * Renders a settings grid section from field definitions.
- * @param id Target container id.
- * @param fieldDefinitions Field definitions to render.
+ * @param id - Target container id.
+ * @param fieldDefinitions - Field definitions to render.
  */
 export function renderGrid(
     id: string,

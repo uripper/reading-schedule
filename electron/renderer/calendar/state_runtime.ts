@@ -42,7 +42,7 @@ function defaultCalendarHandlers(): CalendarHandlers {
 
 /**
  * Merges partial handler overrides over default calendar handlers.
- * @param handlers User-provided handler overrides.
+ * @param handlers - User-provided handler overrides.
  * @returns Fully populated handlers object.
  */
 export function mergeCalendarHandlers(

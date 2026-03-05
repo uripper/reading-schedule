@@ -8,8 +8,8 @@ const ESTIMATED_FINISH_LABEL = "Est. Finish";
 
 /**
  * Builds interactive estimated-finish control for schedulable books.
- * @param dateKey Estimated finish date key.
- * @param actions Shared card navigation callbacks.
+ * @param dateKey - Estimated finish date key.
+ * @param actions - Shared card navigation callbacks.
  * @returns Configured button element.
  */
 export function estimatedFinishButton(
@@ -36,9 +36,9 @@ export function estimatedFinishButton(
 
 /**
  * Builds clickable blocker metadata that scrolls to the referenced book card.
- * @param label Human-readable blocker metadata label.
- * @param blockerBookId Referenced blocker book id.
- * @param onNavigate Callback used to navigate to a book id.
+ * @param label - Human-readable blocker metadata label.
+ * @param blockerBookId - Referenced blocker book id.
+ * @param onNavigate - Callback used to navigate to a book id.
  * @returns Configured button element.
  */
 export function afterBookLinkButton(

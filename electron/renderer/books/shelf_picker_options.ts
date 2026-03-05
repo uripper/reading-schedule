@@ -6,8 +6,8 @@ const DATA_KEY_PREVIOUS_SHELF = "previousShelf";
 
 /**
  * Creates a select option element for the shelf dropdown.
- * @param value Option value attribute.
- * @param label User-facing option text.
+ * @param value - Option value attribute.
+ * @param label - User-facing option text.
  * @returns Configured option element.
  */
 function createOption(value: string, label: string): HTMLOptionElement {
@@ -19,7 +19,7 @@ function createOption(value: string, label: string): HTMLOptionElement {
 
 /**
  * Builds ordered shelf options including default and "create new" entries.
- * @param shelves Existing shelf names.
+ * @param shelves - Existing shelf names.
  * @returns Option elements ready to render into the shelf select.
  */
 function shelfOptions(shelves: string[]): HTMLOptionElement[] {
@@ -34,9 +34,9 @@ function shelfOptions(shelves: string[]): HTMLOptionElement[] {
 
 /**
  * Replaces shelf select options and sets the selected value.
- * @param select Shelf dropdown element.
- * @param shelves Existing shelf names.
- * @param selectedShelf Shelf value to select when available.
+ * @param select - Shelf dropdown element.
+ * @param shelves - Existing shelf names.
+ * @param selectedShelf - Shelf value to select when available.
  */
 function renderShelfOptions(
     select: HTMLSelectElement,
@@ -54,8 +54,8 @@ function renderShelfOptions(
 
 /**
  * Compares shelf names in a case-insensitive way.
- * @param left Left shelf name.
- * @param right Right shelf name.
+ * @param left - Left shelf name.
+ * @param right - Right shelf name.
  * @returns True when names are equal ignoring case.
  */
 function caseInsensitiveMatch(left: string, right: string): boolean {
@@ -64,7 +64,7 @@ function caseInsensitiveMatch(left: string, right: string): boolean {
 
 /**
  * Collects concrete shelf values from the current dropdown options.
- * @param select Shelf dropdown element.
+ * @param select - Shelf dropdown element.
  * @returns Shelf names excluding empty and "create new" entries.
  */
 function collectShelfValues(select: HTMLSelectElement): string[] {
@@ -81,7 +81,7 @@ function collectShelfValues(select: HTMLSelectElement): string[] {
 
 /**
  * Stores the current shelf selection for later restoration.
- * @param select Shelf dropdown element.
+ * @param select - Shelf dropdown element.
  */
 export function rememberSelectedShelf(select: HTMLSelectElement): void {
     const SHELF_SELECT = select;
@@ -90,7 +90,7 @@ export function rememberSelectedShelf(select: HTMLSelectElement): void {
 
 /**
  * Reads the previously remembered shelf value for the dropdown.
- * @param select Shelf dropdown element.
+ * @param select - Shelf dropdown element.
  * @returns Previously selected shelf, or unshelved when missing.
  */
 export function previousShelf(select: HTMLSelectElement): string {
@@ -99,8 +99,8 @@ export function previousShelf(select: HTMLSelectElement): string {
 
 /**
  * Finds an existing option value matching a shelf name case-insensitively.
- * @param select Shelf dropdown element.
- * @param shelfName Candidate shelf name.
+ * @param select - Shelf dropdown element.
+ * @param shelfName - Candidate shelf name.
  * @returns Matched option value, or empty string when not found.
  */
 export function existingShelfValue(
@@ -120,8 +120,8 @@ export function existingShelfValue(
 
 /**
  * Adds a missing shelf option and keeps options sorted alphabetically.
- * @param select Shelf dropdown element.
- * @param shelfName Shelf name to ensure exists in options.
+ * @param select - Shelf dropdown element.
+ * @param shelfName - Shelf name to ensure exists in options.
  */
 export function ensureShelfOption(
     select: HTMLSelectElement,
@@ -140,9 +140,9 @@ export function ensureShelfOption(
 
 /**
  * Sets shelf select options and resolves/creates the selected shelf value.
- * @param select Shelf dropdown element.
- * @param selectedShelf Current shelf value from form or persisted state.
- * @param availableShelves Known shelf names from the catalog.
+ * @param select - Shelf dropdown element.
+ * @param selectedShelf - Current shelf value from form or persisted state.
+ * @param availableShelves - Known shelf names from the catalog.
  */
 export function setSelectedShelf(
     select: HTMLSelectElement,

@@ -53,7 +53,7 @@ const GROUP_OPTION_SHELF: OptionDefinition = {
 
 /**
  * Returns group-by options adjusted for active shelf filter context.
- * @param shelfFilter Active shelf filter value.
+ * @param shelfFilter - Active shelf filter value.
  * @returns Group option definitions for toolbar render.
  */
 export function groupOptionsForShelfFilter(
@@ -68,7 +68,7 @@ export function groupOptionsForShelfFilter(
 
 /**
  * Builds shelf filter options from known shelves in current book list.
- * @param books Books to scan for shelf names.
+ * @param books - Books to scan for shelf names.
  * @returns Shelf filter option definitions for toolbar render.
  */
 export function shelfFilterOptions(books: Book[]): OptionDefinition[] {

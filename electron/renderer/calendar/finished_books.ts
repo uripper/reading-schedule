@@ -6,8 +6,8 @@ import type {
 
 /**
  * Resolves title text for completed-book row display.
- * @param bookTitle Canonical book title from model.
- * @param fallbackTitle Fallback title from session-book lookup.
+ * @param bookTitle - Canonical book title from model.
+ * @param fallbackTitle - Fallback title from session-book lookup.
  * @returns Non-empty title text.
  */
 function completedBookTitle(bookTitle: string, fallbackTitle: string): string {
@@ -24,8 +24,8 @@ function completedBookTitle(bookTitle: string, fallbackTitle: string): string {
 
 /**
  * Builds completed-book rows grouped by finished date.
- * @param sessionBooks Session-book options from calendar handlers.
- * @param getBookById Book resolver callback by id.
+ * @param sessionBooks - Session-book options from calendar handlers.
+ * @param getBookById - Book resolver callback by id.
  * @returns Map of date keys to completed-book rows.
  */
 export function buildCompletedBookRowsByDate(
@@ -68,7 +68,7 @@ export function buildCompletedBookRowsByDate(
 
 /**
  * Builds summary text for finished books on a selected day.
- * @param rows Completed-book rows for a day.
+ * @param rows - Completed-book rows for a day.
  * @returns Summary text or empty string when no titles exist.
  */
 export function finishedBooksSummaryText(rows: CompletedBookRow[]): string {

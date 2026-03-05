@@ -17,8 +17,8 @@ const GRID_LENGTH = 6;
 
 /**
  * Creates one recommendation card with an add-to-shelf action.
- * @param recommendation Recommendation values for the card.
- * @param onAddToShelf Callback used when the add button is clicked.
+ * @param recommendation - Recommendation values for the card.
+ * @param onAddToShelf - Callback used when the add button is clicked.
  * @returns Rendered recommendation card.
  */
 function createRecommendationCard(
@@ -70,7 +70,7 @@ function createRecommendationCard(
 
 /**
  * Builds recommendations panel summary text from current recommendation results.
- * @param recommendations Current recommendation rows.
+ * @param recommendations - Current recommendation rows.
  * @returns User-facing summary text.
  */
 function summaryText(recommendations: RecommendationItem[]): string {
@@ -96,9 +96,9 @@ function summaryText(recommendations: RecommendationItem[]): string {
 
 /**
  * Renders recommendation cards for read authors and wires add-to-shelf actions.
- * @param args Render dependencies.
- * @param args.recommendations Existing recommendation candidates.
- * @param args.onAddToShelf Action called when user adds one recommendation.
+ * @param args - Render dependencies.
+ * @param args.recommendations - Existing recommendation candidates.
+ * @param args.onAddToShelf - Action called when user adds one recommendation.
  */
 export function renderRecommendationsPanel(
     args: RenderRecommendationsArgs,

@@ -5,7 +5,7 @@ import type {
 
 /**
  * Normalizes unknown download payload input into a safe object.
- * @param value Raw payload value passed from renderer IPC.
+ * @param value - Raw payload value passed from renderer IPC.
  * @returns Normalized download-cover payload.
  */
 export function asDownloadCoverPayload(
@@ -22,7 +22,7 @@ export function asDownloadCoverPayload(
 
 /**
  * Normalizes unknown upload payload input into a safe object.
- * @param value Raw payload value passed from renderer IPC.
+ * @param value - Raw payload value passed from renderer IPC.
  * @returns Normalized upload-cover payload.
  */
 export function asUploadCoverPayload(

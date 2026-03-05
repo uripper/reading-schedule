@@ -10,7 +10,7 @@ const REMOVE_SESSION_LABEL = "Remove session";
 
 /**
  * Builds common base session item node used across day modes.
- * @param row Calendar row.
+ * @param row - Calendar row.
  * @returns Base session item element.
  */
 export function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
@@ -35,9 +35,9 @@ export function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
 
 /**
  * Builds remove-session button with confirmation and callback wiring.
- * @param row Calendar row.
- * @param interactionHandlers Detail interaction handlers.
- * @param rerenderDetails Details rerender callback.
+ * @param row - Calendar row.
+ * @param interactionHandlers - Detail interaction handlers.
+ * @param rerenderDetails - Details rerender callback.
  * @returns Remove button element.
  */
 export function removeSessionButton(

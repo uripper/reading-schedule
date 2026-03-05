@@ -9,7 +9,7 @@ import {
 
 /**
  * Reads raw string value for a settings field from the DOM.
- * @param field Field definition.
+ * @param field - Field definition.
  * @returns Trimmed field value text.
  */
 function fieldInputValue(field: FieldDefinition): string {
@@ -27,7 +27,7 @@ function fieldInputValue(field: FieldDefinition): string {
 
 /**
  * Serializes settings form controls and derived values into planner settings.
- * @param dayOffs Current day-off weekday keys.
+ * @param dayOffs - Current day-off weekday keys.
  * @returns Planner settings payload.
  */
 export function collectSettingsForm(dayOffs: string[]): PlannerSettings {

@@ -4,13 +4,13 @@ import { appendDayButtonSummary } from "./month_day_button_chips.js";
 
 /**
  * Derives visual state flags for a calendar day button.
- * @param args Day-style input values for one calendar cell.
- * @param args.date Cell date.
- * @param args.firstDate First date of displayed month.
- * @param args.keyForDay Day key for the cell.
- * @param args.selectedDate Currently selected day key.
- * @param args.todayKey Today's day key.
- * @param args.rows Rows scheduled for the day.
+ * @param args - Day-style input values for one calendar cell.
+ * @param args.date - Cell date.
+ * @param args.firstDate - First date of displayed month.
+ * @param args.keyForDay - Day key for the cell.
+ * @param args.selectedDate - Currently selected day key.
+ * @param args.todayKey - Today's day key.
+ * @param args.rows - Rows scheduled for the day.
  * @returns Day-style flags used for class/aria assignment.
  */
 function dayStyleFlags(args: DayStyleFlagsArgs): DayStyleFlags {
@@ -45,13 +45,13 @@ export function createWeekdayHeader(): HTMLSpanElement[] {
 
 /**
  * Creates one interactive day button with row summary chips and aria state.
- * @param args Day-button render input values.
- * @param args.date Cell date.
- * @param args.firstDate First date of displayed month.
- * @param args.keyForDay Day key for the cell.
- * @param args.rows Rows scheduled for the day.
- * @param args.selectedDate Currently selected day key.
- * @param args.todayKey Today's day key.
+ * @param args - Day-button render input values.
+ * @param args.date - Cell date.
+ * @param args.firstDate - First date of displayed month.
+ * @param args.keyForDay - Day key for the cell.
+ * @param args.rows - Rows scheduled for the day.
+ * @param args.selectedDate - Currently selected day key.
+ * @param args.todayKey - Today's day key.
  * @returns Configured day button element.
  */
 export function createDayButton(args: DayStyleFlagsArgs): HTMLButtonElement {

@@ -123,9 +123,9 @@ function renderEmptyRows(args: RenderEmptyRowsArgs): void {
 
 /**
  * Renders selected-day details list and manual-add panel for current mode.
- * @param state Calendar details render state.
- * @param interactionHandlers Detail interaction callbacks.
- * @param onRerenderRequested Optional rerender callback override.
+ * @param state - Calendar details render state.
+ * @param interactionHandlers - Detail interaction callbacks.
+ * @param onRerenderRequested - Optional rerender callback override.
  */
 export function renderCalendarDetails(
     state: CalendarDetailsState,

@@ -15,8 +15,8 @@ const EXPECTED_READING_MINUTES_WITH_ONLY_SCHEDULED = 40;
 
 /**
  * Builds book fixture with override support.
- * @param {Record<string, unknown>} overrides Book field overrides.
- * @returns {Record<string, unknown>} Book fixture.
+ * @param overrides - Book field overrides.
+ * @returns Book fixture.
  */
 const BOOK = (overrides) => {
     return {
@@ -45,10 +45,10 @@ const BOOK = (overrides) => {
 
 /**
  * Builds schedule row fixture used by stats tests.
- * @param {string} date Day key.
- * @param {number} sessionIndex Session index.
- * @param {string} bookId Book id.
- * @returns {Record<string, unknown>} Row fixture.
+ * @param date - Day key.
+ * @param sessionIndex - Session index.
+ * @param bookId - Book id.
+ * @returns Row fixture.
  */
 const ROW = (date, sessionIndex, bookId) => {
     return {

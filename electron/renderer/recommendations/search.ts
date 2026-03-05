@@ -53,9 +53,9 @@ async function lookupByAuthor(
 /**
  * Fetches recommendations from lookup search using already-read authors in the shelf.
  * Falls back to static local recommendations when no dynamic matches are found.
- * @param books Existing library books.
- * @param api Planner API lookup surface.
- * @param options Optional random source used for author sampling.
+ * @param books - Existing library books.
+ * @param api - Planner API lookup surface.
+ * @param options - Optional random source used for author sampling.
  * @returns Recommendation rows suitable for panel rendering.
  */
 export async function findRecommendations(

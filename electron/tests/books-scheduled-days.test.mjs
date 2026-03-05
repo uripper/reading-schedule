@@ -7,7 +7,7 @@ import { BOOK_WEEKDAYS } from "../dist/renderer/books/scheduled_days.js";
 
 /**
  * Builds canonical book fixture with override support.
- * @param {Record<string, unknown>} overrides Book field overrides.
+ * @param {Record<string, unknown>} overrides - Book field overrides.
  * @returns {Record<string, unknown>} Book fixture object.
  */
 function book(overrides = {}) {

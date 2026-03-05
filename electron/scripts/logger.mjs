@@ -9,7 +9,7 @@ const UNSERIALIZABLE_CONTEXT = "[unserializable-context]";
 
 /**
  * Safely serializes values for log output.
- * @param {unknown} value Value to serialize.
+ * @param {unknown} value - Value to serialize.
  * @returns {string} JSON string when possible.
  */
 function safeSerialize(value) {
@@ -22,7 +22,7 @@ function safeSerialize(value) {
 
 /**
  * Normalizes unknown errors for structured output.
- * @param {unknown} error Thrown value.
+ * @param {unknown} error - Thrown value.
  * @returns {unknown} Normalized error payload.
  */
 function normalizeError(error) {
@@ -38,10 +38,10 @@ function normalizeError(error) {
 
 /**
  * Writes a formatted log line to the selected stream.
- * @param {NodeJS.WriteStream} stream Destination stream.
- * @param {string} prefix Level prefix.
- * @param {string} message Log message.
- * @param {unknown} payload Optional payload.
+ * @param {NodeJS.WriteStream} stream - Destination stream.
+ * @param {string} prefix - Level prefix.
+ * @param {string} message - Log message.
+ * @param {unknown} payload - Optional payload.
  */
 function writeLogLine(stream, prefix, message, payload) {
     let line = `${prefix} ${message}`;
@@ -53,8 +53,8 @@ function writeLogLine(stream, prefix, message, payload) {
 
 /**
  * Emits an info-level log line.
- * @param {string} message Log message.
- * @param {unknown} payload Optional context payload.
+ * @param {string} message - Log message.
+ * @param {unknown} payload - Optional context payload.
  */
 export function logInfo(message, payload) {
     writeLogLine(process.stdout, INFO_PREFIX, message, payload);
@@ -62,9 +62,9 @@ export function logInfo(message, payload) {
 
 /**
  * Emits an error-level log line.
- * @param {string} message Log message.
- * @param {unknown} error Optional thrown value.
- * @param {unknown} context Optional context payload.
+ * @param {string} message - Log message.
+ * @param {unknown} error - Optional thrown value.
+ * @param {unknown} context - Optional context payload.
  */
 export function logError(message, error, context) {
     let payload;

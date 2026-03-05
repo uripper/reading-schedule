@@ -5,11 +5,11 @@ import type {
 
 /**
  * Creates runtime handlers used by tab changes, book edits, and schedule mutations.
- * @param args Runtime dependencies from bootstrap.
- * @param args.focusCalendarToday Focuses/selects today's calendar entry.
- * @param args.queuePersist Schedules persistence for changed inputs.
- * @param args.state Shared runtime state container.
- * @param args.updateDashboards Refreshes dashboard UI sections.
+ * @param args - Runtime dependencies from bootstrap.
+ * @param args.focusCalendarToday - Focuses/selects today's calendar entry.
+ * @param args.queuePersist - Schedules persistence for changed inputs.
+ * @param args.state - Shared runtime state container.
+ * @param args.updateDashboards - Refreshes dashboard UI sections.
  * @returns Handler object consumed by initialization and bindings.
  */
 export function createInitRuntime(args: InitRuntimeArgs): {

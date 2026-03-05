@@ -18,7 +18,7 @@ function nowMs(): number {
 
 /**
  * Schedules one frame callback with a timer fallback.
- * @param task Callback to execute on the next frame.
+ * @param task - Callback to execute on the next frame.
  */
 function requestFrame(task: () => void): void {
     if (typeof globalThis.requestAnimationFrame === "function") {
@@ -34,7 +34,7 @@ function requestFrame(task: () => void): void {
 
 /**
  * Captures initial settle-state metrics after scrolling starts.
- * @param card Card being tracked for motion settling.
+ * @param card - Card being tracked for motion settling.
  * @returns Mutable settle-state structure.
  */
 function initialSettleState(card: HTMLElement): ScrollSettleState {
@@ -49,8 +49,8 @@ function initialSettleState(card: HTMLElement): ScrollSettleState {
 
 /**
  * Returns next settle-state from current card bounds.
- * @param card Card being tracked for motion settling.
- * @param state Previous settle-state values.
+ * @param card - Card being tracked for motion settling.
+ * @param state - Previous settle-state values.
  * @returns Updated settle-state.
  */
 function nextSettleState(
@@ -72,10 +72,10 @@ function nextSettleState(
 
 /**
  * Waits until scroll motion settles, then invokes callback.
- * @param card Card being tracked.
- * @param isCurrent Callback that reports whether settle loop is still valid.
- * @param onSettled Callback fired once scroll is settled or timed out.
- * @param state Mutable settle-state across animation frames.
+ * @param card - Card being tracked.
+ * @param isCurrent - Callback that reports whether settle loop is still valid.
+ * @param onSettled - Callback fired once scroll is settled or timed out.
+ * @param state - Mutable settle-state across animation frames.
  */
 function waitForScrollSettle(
     card: HTMLElement,
@@ -103,7 +103,7 @@ function waitForScrollSettle(
 
 /**
  * Checks whether card bounds extend beyond the current viewport.
- * @param card Card element that may require scrolling.
+ * @param card - Card element that may require scrolling.
  * @returns `true` when card should be scrolled into view first.
  */
 export function shouldScrollCardIntoView(card: HTMLElement): boolean {
@@ -130,9 +130,9 @@ export function shouldScrollCardIntoView(card: HTMLElement): boolean {
 
 /**
  * Begins asynchronous settle tracking after scroll starts.
- * @param card Card being tracked.
- * @param isCurrent Callback that reports whether settle loop is still valid.
- * @param onSettled Callback fired once scroll settles or times out.
+ * @param card - Card being tracked.
+ * @param isCurrent - Callback that reports whether settle loop is still valid.
+ * @param onSettled - Callback fired once scroll settles or times out.
  */
 export function waitForCardScrollSettle(
     card: HTMLElement,
