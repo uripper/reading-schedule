@@ -30,26 +30,10 @@ export const SORT_DIRECTION_DESC = "desc";
  * @param right - Right numeric value.
  * @returns Negative/zero/positive comparison result.
  */
-function compareNumbers(
-    left: OptionalNumber | OptionalString,
-    right: OptionalNumber | OptionalString,
-): number {
-    const LEFT_MISSING = left === null || left === undefined;
-    const RIGHT_MISSING = right === null || right === undefined;
-    if (LEFT_MISSING && RIGHT_MISSING) {
-        return 0;
-    }
-    if (LEFT_MISSING) {
-        return 1;
-    }
-    if (RIGHT_MISSING) {
-        return -1;
-    }
-    if (left < right) {
-        return -1;
-    }
-    if (left > right) {
-        return 1;
+function compareNumbers(left: OptionalNumber, right: OptionalNumber): number {
+    const MISSING_TEXT = handleMissingText(left, right);
+    if (MISSING_TEXT !== null) {
+        return MISSING_TEXT;
     }
     return 0;
 }
@@ -61,16 +45,47 @@ function compareNumbers(
  * @returns Negative/zero/positive comparison result.
  */
 function compareText(left: OptionalString, right: OptionalString): number {
+    const MISSING_TEXT = handleMissingText(left, right);
+    if (MISSING_TEXT !== null) {
+        return MISSING_TEXT;
+    }
     const LEFT_TEXT = String(left ?? "")
         .trim()
         .toLowerCase();
     const RIGHT_TEXT = String(right ?? "")
         .trim()
         .toLowerCase();
-    compareNumbers(left, right);
     return LEFT_TEXT.localeCompare(RIGHT_TEXT, undefined, {
         sensitivity: "base",
     });
+}
+
+function handleMissingText(
+    left: OptionalString | OptionalNumber,
+    right: OptionalString | OptionalNumber,
+): number | null {
+    // Find out if you have a String or Number first
+    let left_missing = false;
+    let right_missing = false;
+    if (typeof left === "number" || typeof right === "number") {
+        left_missing = left === null || left === undefined;
+        right_missing = right === null || right === undefined;
+    } else {
+        left_missing =
+            left === null || left === undefined || left.trim() === "";
+        right_missing =
+            right === null || right === undefined || right.trim() === "";
+    }
+    if (left_missing && right_missing) {
+        return 0;
+    }
+    if (left_missing) {
+        return 1;
+    }
+    if (right_missing) {
+        return -1;
+    }
+    return null;
 }
 
 /**
