@@ -1,3 +1,9 @@
+import type {
+    DownloadCoverPayload,
+    JsonValue,
+    RegisterIpcHandlersArgs,
+    UploadCoverPayload,
+} from "@reading-schedule/contracts";
 import {
     parsePlanGeneratePayload,
     parsePlanGenerateResult,
@@ -5,12 +11,6 @@ import {
 } from "@reading-schedule/contracts";
 import { ipcMain } from "electron";
 import { logDebug } from "../types/logger.js";
-import type {
-    DownloadCoverPayload,
-    JsonValue,
-    RegisterIpcHandlersArgs,
-    UploadCoverPayload,
-} from "@reading-schedule/contracts";
 import { asDownloadCoverPayload, asUploadCoverPayload } from "./ipc_payloads";
 import { UI_SCALE_STEP } from "./zoom";
 
