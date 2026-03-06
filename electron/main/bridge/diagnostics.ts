@@ -14,6 +14,8 @@ import type {
     BridgeTimeoutArgs,
 } from "./types.js";
 
+let logTail = "";
+
 /**
  * Appends a stream chunk to an accumulated output buffer.
  * @param target - Existing text buffer.
@@ -128,7 +130,6 @@ export function logProcessClose(
     exitCode: number | null,
     signal: NodeJS.Signals | null,
 ): void {
-    let logTail = "";
     if (executionContext.logPath !== "") {
         logTail = readLogTail(executionContext.logPath);
     }
@@ -150,7 +151,6 @@ export function logProcessError(
     buffers: BridgeBuffers,
     executionContext: BridgeExecutionContext,
 ): void {
-    let logTail = "";
     if (executionContext.logPath !== "") {
         logTail = readLogTail(executionContext.logPath);
     }
@@ -169,7 +169,6 @@ export function logParseFailure(
     buffers: BridgeBuffers,
     executionContext: BridgeExecutionContext,
 ): void {
-    let logTail = "";
     if (executionContext.logPath !== "") {
         logTail = readLogTail(executionContext.logPath);
     }
@@ -202,7 +201,6 @@ export function logHeartbeat(args: BridgeDiagnosticsArgs): void {
 export function currentProgressSnapshot(
     session: BridgeRunSession,
 ): BridgeProgressSnapshot {
-    let logTail = "";
     if (session.executionContext.logPath !== "") {
         const RAW_TAIL = readLogTail(session.executionContext.logPath);
         logTail = logTailForRequest(
@@ -241,7 +239,6 @@ export function hasProgressChanged(
  * @param args - Timeout diagnostics arguments.
  */
 export function logTimeout(args: BridgeTimeoutArgs): void {
-    let logTail = "";
     if (args.executionContext.logPath !== "") {
         logTail = readLogTail(args.executionContext.logPath);
     }

@@ -2,15 +2,9 @@ import type {
     CalendarRowWithFinish,
     DayMode,
     DetailInteractionHandlers,
-    RowNodeForModeArgs,
 } from "@reading-schedule/contracts";
 import { rowsWithFinishFirst } from "./data.js";
-import {
-    buildFutureSessionItem,
-    buildPastSessionItem,
-    buildTodaySessionItem,
-    rowsWithCompletedLast,
-} from "./details_helpers.js";
+import { rowsWithCompletedLast } from "./details_helpers.js";
 
 /**
  * Returns empty-state message for day details panel by mode.

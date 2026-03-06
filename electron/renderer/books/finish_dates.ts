@@ -1,30 +1,5 @@
+import { sortedRows } from "@renderer/app/schedule_preserve.js";
 import type { Book, PlannerScheduleRow } from "../../types/types.js";
-
-const SESSION_INDEX_PAD = 3;
-
-/**
- * Builds sortable key for schedule rows using date and padded session index.
- * @param row - Planner schedule row.
- * @returns Lexicographically sortable row key.
- */
-function rowSortKey(row: PlannerScheduleRow): string {
-    const INDEX = String(row.session_index || 0).padStart(
-        SESSION_INDEX_PAD,
-        "0",
-    );
-    return `${String(row.date || "")}-${INDEX}`;
-}
-
-/**
- * Returns schedule rows sorted by date and session index.
- * @param rows - Planner schedule rows.
- * @returns Sorted rows copy.
- */
-function sortRows(rows: PlannerScheduleRow[] = []): PlannerScheduleRow[] {
-    return [...rows].sort((left, right) => {
-        return rowSortKey(left).localeCompare(rowSortKey(right));
-    });
-}
 
 /**
  * Overlays explicit read completion dates onto derived finish-date map.
@@ -62,7 +37,7 @@ export function finishDatesByBookId(
 ): Record<string, string> {
     const OUT: Record<string, string> = {};
 
-    for (const ROW of sortRows(rows)) {
+    for (const ROW of sortedRows(rows)) {
         const BOOK_ID = String(ROW.book_id || "");
         const DATE = String(ROW.date || "");
         if (!BOOK_ID || !DATE) {

@@ -5,8 +5,6 @@ import type {
     SessionInput,
 } from "../../types/types.js";
 
-type ScalarValue = string | number | boolean | null | undefined;
-
 /**
  * Returns object-like state data for cross-shape compatibility reads.
  * @param saved - Loaded state payload.
