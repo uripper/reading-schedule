@@ -66,7 +66,7 @@ def read_stdin_payload(logger: logging.Logger) -> PlannerInputPayload:
         msg = "planner payload is empty"
         raise ValueError(msg)
 
-    payload: object
+    payload: PlannerInputPayload
     try:
         payload = json.loads(payload_text)
     except json.JSONDecodeError as error:
