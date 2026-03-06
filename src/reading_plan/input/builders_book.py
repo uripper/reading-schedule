@@ -158,9 +158,14 @@ def book_from_data(data: BookData) -> Book:
         str(data.get("blocked_by") or data.get("blocker_book_id") or "").strip()
         or None
     )
+    # Make sure title is not None.
+    title = data.get("title", None)
+    if title is None:
+        msg = "Title is required"
+        raise ValueError(msg)
     book = Book(
         book_id=book_id,
-        title=str(data.get("title")).strip(),
+        title=title,
         words_total=words_remaining,
         priority=to_int(data.get("priority") or 3, "priority"),
         difficulty=to_int(data.get("difficulty") or 1, "difficulty"),
