@@ -22,24 +22,6 @@ export function toSavedRecord(
 }
 
 /**
- * Normalizes persisted blocked day-book map values to strict booleans.
- * @param raw - Persisted blocked map keyed by `YYYY-MM-DD|book_id`.
- * @returns Sanitized blocked map.
- */
-export function normalizeBlockedDayBooks(
-    raw: Record<string, ScalarValue> = {},
-): Record<string, boolean> {
-    const OUT: Record<string, boolean> = {};
-    for (const [KEY, VALUE] of Object.entries(raw)) {
-        if (!KEY) {
-            continue;
-        }
-        OUT[KEY] = Boolean(VALUE);
-    }
-    return OUT;
-}
-
-/**
  * Resolves completion map from canonical or legacy saved-state fields.
  * @param saved - Canonical loaded state.
  * @param savedRecord - Object-like compatibility record.

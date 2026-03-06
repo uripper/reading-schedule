@@ -25,14 +25,14 @@ class BookData(TypedDict, total=False):
     scheduled_days: list[str]
 
 
-class SettingsData(TypedDict, total=False):
+class SettingsData(TypedDict):
     """Settings data structure in plan input/output payloads."""
 
     start_date: str
     end_date: str
     minutes_per_day: int | None
     minutes_by_weekday: dict[str, int]
-    days_off: list[str]
+    days_off: list[str] | None
     wpm_base: int
     time_quantum_minutes: int
     max_sessions_per_day: int

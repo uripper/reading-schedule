@@ -5,9 +5,9 @@ from __future__ import annotations
 import csv
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
-from reading_plan.input.builders import book_from_data, settings_from_data
+from reading_plan.input.builders import settings_from_data
 
 if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
@@ -21,7 +21,10 @@ def load_books(path: str) -> list[Book]:
     """
     books: list[Book] = []
     with Path(path).open(newline="", encoding="utf-8") as f:
-        books.extend(book_from_data(dict(row)) for row in csv.DictReader(f))
+        reader = csv.DictReader(f)
+        for row in reader:
+            typed_row = cast("Book", row)
+            books.append(typed_row)
     if not books:
         msg = "books file is empty"
         raise ValueError(msg)

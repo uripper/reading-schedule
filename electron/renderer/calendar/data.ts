@@ -5,21 +5,10 @@ import type {
     RowsByDate,
 } from "../../types/types.js";
 import { isOnOrAfterDay } from "../app/day_keys_compare.js";
+import { todayDateKey } from "./selection.js";
 import { sessionKeyFor, sortRowsByDateAndSession } from "./utils.js";
 
 const DAYS_IN_WEEK = 7;
-
-/**
- * Returns today's local day key in `YYYY-MM-DD` format.
- * @returns Local today key.
- */
-function todayKey(): string {
-    const NOW = new Date();
-    const YEAR = NOW.getFullYear();
-    const MONTH = String(NOW.getMonth() + 1).padStart(2, "0");
-    const DAY = String(NOW.getDate()).padStart(2, "0");
-    return `${YEAR}-${MONTH}-${DAY}`;
-}
 
 /**
  * Checks whether a row date is today or in the future.
@@ -97,7 +86,7 @@ export function enrichRows(
     const PROGRESS_BY_BOOK_ID: Record<string, number> = {};
     const FINISHED_BY_BOOK_ID: Record<string, boolean> = {};
     const SORTED_ROWS = sortRowsByDateAndSession(rows);
-    const TODAY = todayKey();
+    const TODAY = todayDateKey();
     return SORTED_ROWS.map((row) => {
         const ROW_DATE = String(row.date || "");
         if (!rowIsPlannedForTodayOrLater(ROW_DATE, TODAY)) {

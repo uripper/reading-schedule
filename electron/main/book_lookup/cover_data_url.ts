@@ -1,7 +1,7 @@
 /**
  * Data URL parsing helpers for uploaded book covers.
  */
-import type { CoverExtension } from "../../types/types.js";
+import type { CoverExtension } from "@reading-schedule/contracts";
 
 const CONTENT_TYPE_PNG = "image/png";
 const CONTENT_TYPE_WEBP = "image/webp";

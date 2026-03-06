@@ -1,0 +1,20 @@
+{
+    "gitignore": true,
+    "ignore": [
+        "**/node_modules/**",
+        "**/.git/**",
+        "**/*.md",
+        "**/.tmp-pycompat/**",
+        "**/.venv-py311-backup/**",
+        "**/venv3.14/**",
+        "**/.venv/**",
+        "**/tests/**",
+        "**/*.css",
+        "**/*.sh",
+        "**/style_audit.mjs",
+        "**/scripts/**"
+    ],
+    "mode": "strict",
+    "reporters": ["html", "markdown"],
+    "threshold": 0
+}

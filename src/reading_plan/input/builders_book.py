@@ -14,6 +14,8 @@ from reading_plan.reading_calendar import parse_date
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
+    from src.reading_plan.api_types import BookData
+
 MIN_PROGRESS_PERCENT = 0
 MAX_PROGRESS_PERCENT = 100
 
@@ -36,27 +38,41 @@ def _estimated_words_read_from_pages(
     return round(words_full * bounded_pages / pages_total)
 
 
-def _word_stats(data: Mapping[str, Any]) -> tuple[int, int, float]:
+def _word_stats(data: BookData) -> tuple[int, int, float]:
     """Derive full words, remaining words, and progress from mixed fields.
 
     :param data: raw book payload with mixed fields for words/pages and progress
     :return: tuple of (full words, remaining words, progress percent)
     """
-    words_raw = data.get("words_total")
-    pages_raw = data.get("pages_total")
-    has_words = bool(str(words_raw or "").strip())
-    if has_words:
-        full = to_int(words_raw or 0, "words_total")
+    words_raw = data.get("words_total", 0)
+    pages_raw = data.get("pages_total", 0)
+
+    if words_raw is not None:
+        if not isinstance(words_raw, int):
+            msg = "words_total must be an integer"
+            raise ValueError(msg)
+        full = words_raw or 0
+        if full <= 0:
+            msg = "words_total must be greater than 0"
+            raise ValueError(msg)
     else:
         full = to_int(pages_raw or 0, "pages_total") * WORDS_PER_PAGE
+
+    progress, words_read = _calculate_words_read(data, full, pages_raw)
+
+    return full, max(0, full - words_read), progress
+
+
+def _calculate_words_read(
+    data: BookData, full_words: int, pages_raw: int | None
+) -> tuple[float, int]:
 
     words_read = optional_int(data.get("words_read"), "words_read")
     pages_read = optional_int(data.get("pages_read"), "pages_read")
     if words_read is None and pages_read is not None:
         words_read = _estimated_words_read_from_pages(
-            pages_read, full, pages_raw
+            pages_read, full_words, pages_raw
         )
-
     if words_read is None:
         progress = to_float(
             data.get("progress_percent", 0.0), "progress_percent"
@@ -64,19 +80,23 @@ def _word_stats(data: Mapping[str, Any]) -> tuple[int, int, float]:
         if progress < MIN_PROGRESS_PERCENT or progress > MAX_PROGRESS_PERCENT:
             msg = "progress_percent must be between 0 and 100"
             raise ValueError(msg)
-        words_read = round(full * progress / float(MAX_PROGRESS_PERCENT))
+        words_read = round(full_words * progress / float(MAX_PROGRESS_PERCENT))
     else:
         words_read = max(0, words_read)
-        words_read = min(words_read, full)
+        words_read = min(words_read, full_words)
         progress = (
             0.0
-            if full <= 0
+            if full_words <= 0
             else round(
-                float(MAX_PROGRESS_PERCENT) * words_read / full,
+                float(MAX_PROGRESS_PERCENT) * words_read / full_words,
                 2,
             )
         )
-    return full, max(0, full - words_read), progress
+    return progress, words_read
+
+
+# TODO: Change this. Users never give a list of days, we can validate these
+# in a more normal way.
 
 
 def _scheduled_day_entries(raw: object) -> list[str]:
@@ -96,6 +116,9 @@ def _scheduled_day_entries(raw: object) -> list[str]:
         return [str(entry).strip() for entry in raw]
     msg = "scheduled_days must be a list or comma-separated string"
     raise ValueError(msg)
+
+
+# TODO: Again, this is probably stupid and useless.
 
 
 def _scheduled_days(data: Mapping[str, Any], book_id: str) -> frozenset[str]:
@@ -120,7 +143,7 @@ def _scheduled_days(data: Mapping[str, Any], book_id: str) -> frozenset[str]:
     return frozenset(selected)
 
 
-def book_from_data(data: Mapping[str, Any]) -> Book:
+def book_from_data(data: BookData) -> Book:
     """Normalize a raw book payload into a validated planner Book model.
 
     :param data: raw book payload with mixed fields and formats
@@ -128,17 +151,24 @@ def book_from_data(data: Mapping[str, Any]) -> Book:
     """
     words_full, words_remaining, progress = _word_stats(data)
     book_id = str(data.get("book_id") or "").strip() or str(uuid4())
-    deadline = parse_date(data["deadline"]) if data.get("deadline") else None
+    deadline = (
+        parse_date(data.get("deadline") or "") if data.get("deadline") else None
+    )
     blocked_by = (
         str(data.get("blocked_by") or data.get("blocker_book_id") or "").strip()
         or None
     )
+    # Make sure title is not None.
+    title = data.get("title", None)
+    if title is None:
+        msg = "Title is required"
+        raise ValueError(msg)
     book = Book(
         book_id=book_id,
-        title=str(data["title"]).strip(),
+        title=title,
         words_total=words_remaining,
-        priority=to_int(data["priority"], "priority"),
-        difficulty=to_int(data["difficulty"], "difficulty"),
+        priority=to_int(data.get("priority") or 3, "priority"),
+        difficulty=to_int(data.get("difficulty") or 1, "difficulty"),
         deadline=deadline,
         min_blocks_per_session=to_int(
             data.get("min_blocks_per_session", 2), "min_blocks_per_session"

@@ -3,11 +3,11 @@ import { PLAN_GENERATE_RESULT_SCHEMA } from "./planner_result.js";
 import { plannerSettingsSchema } from "./settings.js";
 import { JSON_VALUE_SCHEMA, schemaErrorMessage } from "./shared.js";
 import {
-    type JsonValue,
     type PlanGeneratePayload,
     type PlannerResult,
     type PlannerStateSnapshot,
-} from "./types.js";
+} from "./types_subfolders/types_planner.js";
+import type { JsonValue } from "./types_subfolders/types_core.js";
 
 const BRIDGE_RESPONSE_ENVELOPE_SCHEMA = z
     .looseObject({

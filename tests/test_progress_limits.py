@@ -3,25 +3,35 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
 from reading_plan.input.builders import book_from_data
-from reading_plan.planner_types import Book, WEEKDAYS
+from reading_plan.planner_types import WEEKDAYS, Book
 from reading_plan.planning.greedy import plan_greedy
 from tests.helpers import demo_settings
+
+if TYPE_CHECKING:
+    from reading_plan.api_types import BookData
+
+
+def _book_payload(data: dict[str, object]) -> BookData:
+    return cast("BookData", data)
 
 
 def test_book_builder_converts_progress_to_remaining_words() -> None:
     """Test that book builder converts progress to remaining words."""
-    book = book_from_data({
-        "book_id": "b1",
-        "title": "Demo",
-        "words_total": 10000,
-        "priority": 1,
-        "difficulty": 3,
-        "progress_percent": 25,
-    })
+    book = book_from_data(
+        _book_payload({
+            "book_id": "b1",
+            "title": "Demo",
+            "words_total": 10000,
+            "priority": 1,
+            "difficulty": 3,
+            "progress_percent": 25,
+        })
+    )
     assert book.words_full == 10000
     assert book.words_total == 7500
     assert book.progress_percent == 25
@@ -29,15 +39,17 @@ def test_book_builder_converts_progress_to_remaining_words() -> None:
 
 def test_book_builder_scales_pages_read_using_book_page_density() -> None:
     """Test that pages read maps to words via per-book words/page."""
-    book = book_from_data({
-        "book_id": "b-pages",
-        "title": "Poetry",
-        "words_total": 6000,
-        "pages_total": 300,
-        "pages_read": 90,
-        "priority": 1,
-        "difficulty": 3,
-    })
+    book = book_from_data(
+        _book_payload({
+            "book_id": "b-pages",
+            "title": "Poetry",
+            "words_total": 6000,
+            "pages_total": 300,
+            "pages_read": 90,
+            "priority": 1,
+            "difficulty": 3,
+        })
+    )
     assert book.words_full == 6000
     assert book.words_total == 4200
     assert book.progress_percent == 30
@@ -60,13 +72,13 @@ def test_greedy_respects_per_book_max_minutes_per_day() -> None:
 def test_book_builder_defaults_scheduled_days_to_all_weekdays() -> None:
     """Test that book builder defaults scheduled days to every weekday."""
     book = book_from_data(
-        {
+        _book_payload({
             "book_id": "b-default-days",
             "title": "Demo",
             "words_total": 10000,
             "priority": 1,
             "difficulty": 3,
-        }
+        })
     )
     assert book.scheduled_days == frozenset(WEEKDAYS)
 
@@ -75,12 +87,12 @@ def test_book_builder_rejects_invalid_scheduled_days() -> None:
     """Test that book builder rejects unknown weekday keys."""
     with pytest.raises(ValueError):
         book_from_data(
-            {
+            _book_payload({
                 "book_id": "b-invalid-days",
                 "title": "Demo",
                 "words_total": 10000,
                 "priority": 1,
                 "difficulty": 3,
                 "scheduled_days": ["Mon", "Bad"],
-            }
+            })
         )

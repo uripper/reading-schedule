@@ -33,7 +33,7 @@ function stripUtf8Bom(text: string): string {
  * @param value - Raw parsed JSON value.
  * @returns Object payload when valid, otherwise null.
  */
-function objectState(value: unknown): LoadedPlannerState | null {
+export function objectState(value: unknown): LoadedPlannerState | null {
     if (value === null) {
         return null;
     }
@@ -157,9 +157,18 @@ export function writeStateToJson(
                 // Best-effort cleanup.
             }
         }
-        if (error instanceof Error) {
-            return { error: error.message, ok: false };
-        }
-        return { error: String(error), ok: false };
+        return returnErrorMessage(error);
     }
+}
+/**
+ * Just a helper to extract copied code around error message extraction
+ * and reporting.
+ * @param error - Unknown error value, often from a catch block.
+ * @returns Extracted error message as a string.
+ */
+export function returnErrorMessage(error: unknown): PlannerSaveResult {
+    if (error instanceof Error) {
+        return { error: error.message, ok: false };
+    }
+    return { error: String(error), ok: false };
 }

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from time import perf_counter
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING
 
 from reading_plan.api_types import (
     BookData,
@@ -28,8 +28,6 @@ __all__ = [
 ]
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
-
     from reading_plan.planner_types import Book, PlanResult, Settings
 
 
@@ -96,8 +94,7 @@ def _parse_books(books_raw: list[BookData]) -> list[Book]:
         if not isinstance(row, dict):
             msg = f"book at index {idx} must be an object"
             raise TypeError(msg)
-        row_mapping = cast("Mapping[str, Any]", row)
-        books.append(book_from_data(row_mapping))
+        books.append(book_from_data(row))
     LOGGER.debug(
         "generate_plan: books parsed",
         extra={"elapsed_ms": _elapsed_ms(parse_started)},
@@ -118,8 +115,7 @@ def _validate_blockers_with_logging(books: list[Book]) -> None:
 def _parse_settings(settings_raw: SettingsData) -> Settings:
     """Parse planner settings payload and emit stage timing."""
     started = perf_counter()
-    settings_mapping = cast("Mapping[str, Any]", settings_raw)
-    settings = settings_from_data(settings_mapping)
+    settings = settings_from_data(settings_raw)
     LOGGER.debug(
         "generate_plan: settings parsed",
         extra={"elapsed_ms": _elapsed_ms(started)},

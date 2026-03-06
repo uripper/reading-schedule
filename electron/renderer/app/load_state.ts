@@ -8,8 +8,8 @@ import type {
     Preferences,
 } from "../../types/types.js";
 import { normalizeSessions } from "../sessions/normalize.js";
+import { normalizeScheduleCompletions } from "./experience/schedule_completions.js";
 import {
-    normalizeBlockedDayBooks,
     readFeatureFlags,
     readLoadedResult,
     readRawCompletions,
@@ -161,7 +161,7 @@ function applyLoadedData(
         ),
     );
     args.setBlockedDayBooks(
-        normalizeBlockedDayBooks(
+        normalizeScheduleCompletions(
             saved?.blocked_day_books as
                 | Record<string, string | number | boolean | null | undefined>
                 | undefined,
