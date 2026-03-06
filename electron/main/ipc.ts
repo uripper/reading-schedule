@@ -10,7 +10,7 @@ import type {
     JsonValue,
     RegisterIpcHandlersArgs,
     UploadCoverPayload,
-} from "../types/types.js";
+} from "@reading-schedule/contracts";
 import { asDownloadCoverPayload, asUploadCoverPayload } from "./ipc_payloads";
 import { UI_SCALE_STEP } from "./zoom";
 

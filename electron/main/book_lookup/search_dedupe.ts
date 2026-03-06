@@ -1,4 +1,4 @@
-import type { SearchDoc } from "../../types/types.js";
+import type { SearchDoc } from "@reading-schedule/contracts";
 import { primaryAuthor } from "./search_text.js";
 
 /**

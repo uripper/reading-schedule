@@ -1,4 +1,4 @@
-import type { SearchDoc } from "../../types/types.js";
+import type { SearchDoc } from "@reading-schedule/contracts";
 import {
     SCORE_AUTHOR_ALL_TOKENS,
     SCORE_AUTHOR_EXACT,

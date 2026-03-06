@@ -3,7 +3,7 @@ import type {
     DayMode,
     DetailInteractionHandlers,
     RowNodeForModeArgs,
-} from "../../types/types.js";
+} from "@reading-schedule/contracts";
 import { rowsWithFinishFirst } from "./data.js";
 import {
     buildFutureSessionItem,

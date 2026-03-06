@@ -1,5 +1,5 @@
 import { logInfo } from "../../types/logger.js";
-import type { SearchDoc, SearchItem } from "../../types/types.js";
+import type { SearchDoc, SearchItem } from "@reading-schedule/contracts";
 import { toItem } from "./search_map.js";
 import { dedupeDocs, scoreDoc } from "./search_scoring.js";
 import { MIN_QUERY_LENGTH, SEARCH_OUTPUT_LIMIT } from "./search_shared.js";
