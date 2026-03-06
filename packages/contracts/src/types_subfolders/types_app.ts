@@ -100,13 +100,10 @@ export interface DayMinutesArgs {
     /** Target calendar year used when grouping minute totals. */
     year: number | null;
 }
-
-/** Canonical mutable renderer state shared across app runtime modules. */
-export interface AppRuntimeState {
+/** State snapshot consumed by the persistence queue. */
+export interface PersistQueueState {
     /** Map of day-book keys that are locked from automatic rescheduling. */
     blockedDayBooks: Record<string, boolean>;
-    /** Derived lookup indexes computed from current runtime state. */
-    derived: AppDerivedIndexes;
     /** Normalized feature flags controlling optional runtime behavior. */
     featureFlags: FeatureFlags;
     /** Most recent planner output; null means no plan is currently loaded. */
@@ -117,6 +114,13 @@ export interface AppRuntimeState {
     ready: boolean;
     /** Completion flags keyed by session or schedule identifiers. */
     scheduleCompletions: Record<string, boolean>;
+}
+
+
+/** Canonical mutable renderer state shared across app runtime modules. */
+export interface AppRuntimeState extends PersistQueueState {
+    /** Derived lookup indexes computed from current runtime state. */
+    derived: AppDerivedIndexes;
     /** Current reading session records from runtime state. */
     sessions: Session[];
 }
@@ -186,21 +190,6 @@ export interface DraftDataParams {
 /** Function signature for app log sink callbacks. */
 export type AddLog = (message: string) => void;
 
-/** State snapshot consumed by the persistence queue. */
-export interface PersistQueueState {
-    /** Map of day-book keys that are locked from automatic rescheduling. */
-    blockedDayBooks: Record<string, boolean>;
-    /** Normalized feature flags controlling optional runtime behavior. */
-    featureFlags: FeatureFlags;
-    /** Most recent planner output; null means no plan is currently loaded. */
-    lastResult: PlannerResult | null;
-    /** Normalized user experience preferences applied by the renderer. */
-    preferences: Preferences;
-    /** True once initial load finishes and runtime is ready for normal interactions. */
-    ready: boolean;
-    /** Completion flags keyed by session or schedule identifiers. */
-    scheduleCompletions: Record<string, boolean>;
-}
 
 /** Dependencies required to create the persistence queue. */
 export interface PersistQueueArgs {
@@ -403,29 +392,33 @@ export interface ApplyLoadedResultArgs {
     ): Record<string, number>;
 }
 
+interface PlanCommonArgs {
+  /** Appends a diagnostic message to the in-app log. */
+  addLog(this: void, message: string): void;
+  /** Announces generation progress/completion through accessibility live region. */
+  announce(
+      this: void,
+      message: string,
+      politeness?: "polite" | "assertive",
+  ): void;
+  /** Collects books from UI or runtime state. */
+  collectBooks(this: void): Book[];
+  /** Collects settings from UI or runtime state. */
+  collectSettings(this: void): PlannerSettings;
+  /** Planner API subset used for plan generation. */
+  plannerApi: Pick<PlannerApi, "generate">;
+  /** Status callback used to publish user-visible loading or error messages. */
+  setStatus(this: void, message: string, isError?: boolean): void;
+}
+
+
 /** Inputs required to run plan generation with status and announcement handling. */
-export interface RunPlanGenerationArgs {
-    /** Appends a diagnostic message to the in-app log. */
-    addLog(this: void, message: string): void;
-    /** Announces generation progress/completion through accessibility live region. */
-    announce(
-        this: void,
-        message: string,
-        politeness?: "polite" | "assertive",
-    ): void;
-    /** Collects books from UI or runtime state. */
-    collectBooks(this: void): Book[];
-    /** Collects settings from UI or runtime state. */
-    collectSettings(this: void): PlannerSettings;
+export interface RunPlanGenerationArgs extends PlanCommonArgs {
     /** Runs after successful generation to apply the generated schedule. */
     onSuccess(
         this: void,
         data: Pick<PlannerResult, "schedule" | "summary">,
     ): Promise<void>;
-    /** Planner API subset used to run generation. */
-    plannerApi: Pick<PlannerApi, "generate">;
-    /** Status callback used to publish user-visible loading or error messages. */
-    setStatus(this: void, message: string, isError?: boolean): void;
     /** Optional status text shown while plan generation is in progress. */
     statusGeneratingMessage?: string;
     /** Optional status text shown after plan generation succeeds. */
@@ -435,19 +428,7 @@ export interface RunPlanGenerationArgs {
 }
 
 /** Dependencies required to build the plan controller. */
-export interface PlanControllerArgs {
-    /** Appends a diagnostic message to the in-app log. */
-    addLog(this: void, message: string): void;
-    /** Announces plan-controller progress/completion through accessibility live region. */
-    announce(
-        this: void,
-        message: string,
-        politeness?: "polite" | "assertive",
-    ): void;
-    /** Collects books from UI or runtime state. */
-    collectBooks(this: void): Book[];
-    /** Collects settings from UI or runtime state. */
-    collectSettings(this: void): PlannerSettings;
+export interface PlanControllerArgs extends PlanCommonArgs {
     /** Returns blocked day books from current runtime state. */
     getBlockedDayBooks(this: void): Record<string, boolean>;
     /** Returns last result from current runtime state. */
@@ -458,8 +439,6 @@ export interface PlanControllerArgs {
     getSessions(this: void): Session[];
     /** Persists draft state to durable storage. */
     persistDraft(this: void): Promise<boolean>;
-    /** Planner API subset used for plan generation. */
-    plannerApi: Pick<PlannerApi, "generate">;
     /** Renders calendar in the UI. */
     renderCalendar(
         this: void,
@@ -475,8 +454,6 @@ export interface PlanControllerArgs {
         this: void,
         completions: Record<string, boolean>,
     ): void;
-    /** Status callback used to publish user-visible loading or error messages. */
-    setStatus(this: void, message: string, isError?: boolean): void;
     /** Converts a planner summary into per-day minute totals for calendar rendering. */
     totalsFromSummary(
         this: void,

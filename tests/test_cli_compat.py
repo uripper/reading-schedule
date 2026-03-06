@@ -7,7 +7,6 @@ from pathlib import Path
 import sys
 
 import pytest
-
 from reading_plan.cli import main as cli_main
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
