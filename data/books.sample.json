@@ -1,0 +1,67 @@
+[
+  {
+    "book_id": "sample-001",
+    "title": "Ulysses",
+    "words_total": 265000,
+    "priority": 5,
+    "difficulty": 9,
+    "deadline": "2026-10-15",
+    "min_blocks_per_session": 3,
+    "progress_percent": 12.5,
+    "max_minutes_per_day": 60,
+    "blocked_by": null,
+    "scheduled_days": ["Mon", "Tue", "Wed", "Thu", "Fri"]
+  },
+  {
+    "book_id": "sample-002",
+    "title": "Pride and Prejudice",
+    "words_total": 122000,
+    "priority": 4,
+    "difficulty": 5,
+    "deadline": "2026-07-01",
+    "min_blocks_per_session": 2,
+    "progress_percent": 35,
+    "max_minutes_per_day": 45,
+    "blocked_by": null,
+    "scheduled_days": ["Mon", "Wed", "Fri", "Sun"]
+  },
+  {
+    "book_id": "sample-003",
+    "title": "Moby-Dick",
+    "words_total": 209000,
+    "priority": 4,
+    "difficulty": 8,
+    "deadline": "2026-12-01",
+    "min_blocks_per_session": 3,
+    "progress_percent": 5,
+    "max_minutes_per_day": null,
+    "blocked_by": "sample-001",
+    "scheduled_days": ["Tue", "Thu", "Sat"]
+  },
+  {
+    "book_id": "sample-004",
+    "title": "Crime and Punishment",
+    "words_total": 211000,
+    "priority": 3,
+    "difficulty": 7,
+    "deadline": null,
+    "min_blocks_per_session": 3,
+    "progress_percent": 0,
+    "max_minutes_per_day": 30,
+    "blocked_by": null,
+    "scheduled_days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  },
+  {
+    "book_id": "sample-005",
+    "title": "The Secret History",
+    "words_total": 191041,
+    "priority": 2,
+    "difficulty": 3,
+    "deadline": null,
+    "min_blocks_per_session": 2,
+    "progress_percent": 18,
+    "max_minutes_per_day": null,
+    "blocked_by": "sample-002",
+    "scheduled_days": ["Sun"]
+  }
+]
