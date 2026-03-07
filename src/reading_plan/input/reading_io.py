@@ -26,12 +26,12 @@ def read_book_data(path: str) -> list[BookData]:
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
     if not isinstance(raw, list):
         msg = "books file must contain a JSON array"
-        raise ValueError(msg)
+        raise TypeError(msg)
     rows: list[BookData] = []
     for item in raw:
         if not isinstance(item, dict):
             msg = "each book entry must be a JSON object"
-            raise ValueError(msg)
+            raise TypeError(msg)
         rows.append(cast("BookData", item))
     return rows
 

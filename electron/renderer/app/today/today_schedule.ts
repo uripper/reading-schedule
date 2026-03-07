@@ -1,15 +1,15 @@
 import type {
-  Book,
-  PlannerResult,
-  PlannerScheduleRow,
-  TodayBookSummary,
-  TodayScheduleSnapshot,
+    Book,
+    PlannerResult,
+    PlannerScheduleRow,
+    TodayBookSummary,
+    TodayScheduleSnapshot,
 } from "../../../types/types.js";
 import { bookCoverSrc } from "../../books/model.js";
 import { titleSortKey } from "../../books/title_key.js";
 import {
-  sessionKeyFor,
-  sortRowsByDateAndSession,
+    sessionKeyFor,
+    sortRowsByDateAndSession,
 } from "../../calendar/utils.js";
 import { todayKey } from "../../sessions/utils.js";
 import { isOnOrAfterDay } from "../day_keys_compare.js";
@@ -24,12 +24,12 @@ const DEFAULT_TITLE = "Untitled";
  * @returns Planned rows sorted by day and session order.
  */
 function rowsFromResult(
-  lastResult: PlannerResult | null,
+    lastResult: PlannerResult | null,
 ): PlannerScheduleRow[] {
-  if (!Array.isArray(lastResult?.schedule)) {
-    return [];
-  }
-  return sortRowsByDateAndSession(lastResult.schedule);
+    if (!Array.isArray(lastResult?.schedule)) {
+        return [];
+    }
+    return sortRowsByDateAndSession(lastResult.schedule);
 }
 
 /**
@@ -39,10 +39,10 @@ function rowsFromResult(
  * @returns True when row is completed.
  */
 function isCompletedRow(
-  row: PlannerScheduleRow,
-  scheduleCompletions: Record<string, boolean>,
+    row: PlannerScheduleRow,
+    scheduleCompletions: Record<string, boolean>,
 ): boolean {
-  return Boolean(scheduleCompletions[sessionKeyFor(row)]);
+    return Boolean(scheduleCompletions[sessionKeyFor(row)]);
 }
 
 /**
@@ -52,15 +52,15 @@ function isCompletedRow(
  * @returns Locale comparison result.
  */
 function compareTitle(left: string, right: string): number {
-  const LEFT_KEY = titleSortKey(left);
-  const RIGHT_KEY = titleSortKey(right);
-  const BY_KEY = LEFT_KEY.localeCompare(RIGHT_KEY, undefined, {
-    sensitivity: "base",
-  });
-  if (BY_KEY !== ZERO_COUNT) {
-    return BY_KEY;
-  }
-  return left.localeCompare(right, undefined, { sensitivity: "base" });
+    const LEFT_KEY = titleSortKey(left);
+    const RIGHT_KEY = titleSortKey(right);
+    const BY_KEY = LEFT_KEY.localeCompare(RIGHT_KEY, undefined, {
+        sensitivity: "base",
+    });
+    if (BY_KEY !== ZERO_COUNT) {
+        return BY_KEY;
+    }
+    return left.localeCompare(right, undefined, { sensitivity: "base" });
 }
 
 /**
@@ -70,24 +70,24 @@ function compareTitle(left: string, right: string): number {
  * @returns Initialized summary object for the book.
  */
 function createBookSummary(
-  row: PlannerScheduleRow,
-  bookById: Map<string, Book>,
+    row: PlannerScheduleRow,
+    bookById: Map<string, Book>,
 ): TodayBookSummary {
-  const TITLE = String(row.title || DEFAULT_TITLE);
-  const BOOK_ID = String(row.book_id || "").trim();
-  let coverSrc = "";
-  const MATCHED = bookById.get(BOOK_ID);
-  if (MATCHED) {
-    coverSrc = bookCoverSrc(MATCHED);
-  }
-  return {
-    bookId: BOOK_ID,
-    completedSessions: ZERO_COUNT,
-    coverSrc,
-    plannedMinutes: ZERO_COUNT,
-    scheduledSessions: ZERO_COUNT,
-    title: TITLE,
-  };
+    const TITLE = String(row.title || DEFAULT_TITLE);
+    const BOOK_ID = String(row.book_id || "").trim();
+    let coverSrc = "";
+    const MATCHED = bookById.get(BOOK_ID);
+    if (MATCHED) {
+        coverSrc = bookCoverSrc(MATCHED);
+    }
+    return {
+        bookId: BOOK_ID,
+        completedSessions: ZERO_COUNT,
+        coverSrc,
+        plannedMinutes: ZERO_COUNT,
+        scheduledSessions: ZERO_COUNT,
+        title: TITLE,
+    };
 }
 
 /**
@@ -97,21 +97,21 @@ function createBookSummary(
  * @returns Next uncompleted row, or null when none remain.
  */
 function nextUncompletedPlannedRow(
-  lastResult: PlannerResult | null,
-  scheduleCompletions: Record<string, boolean>,
+    lastResult: PlannerResult | null,
+    scheduleCompletions: Record<string, boolean>,
 ): PlannerScheduleRow | null {
-  const TODAY = todayKey();
-  const ROWS = rowsFromResult(lastResult);
-  for (const ROW of ROWS) {
-    const ROW_DATE = String(ROW.date || "");
-    if (
-      isOnOrAfterDay(ROW_DATE, TODAY) &&
-      !isCompletedRow(ROW, scheduleCompletions)
-    ) {
-      return ROW;
+    const TODAY = todayKey();
+    const ROWS = rowsFromResult(lastResult);
+    for (const ROW of ROWS) {
+        const ROW_DATE = String(ROW.date || "");
+        if (
+            isOnOrAfterDay(ROW_DATE, TODAY) &&
+            !isCompletedRow(ROW, scheduleCompletions)
+        ) {
+            return ROW;
+        }
     }
-  }
-  return null;
+    return null;
 }
 
 /**
@@ -122,58 +122,58 @@ function nextUncompletedPlannedRow(
  * @returns Snapshot used by Today dashboard rendering.
  */
 export function buildTodayScheduleSnapshot(
-  lastResult: PlannerResult | null,
-  scheduleCompletions: Record<string, boolean>,
-  books: Book[] = [],
+    lastResult: PlannerResult | null,
+    scheduleCompletions: Record<string, boolean>,
+    books: Book[] = [],
 ): TodayScheduleSnapshot {
-  const TODAY = todayKey();
-  const ROW_LIST = rowsFromResult(lastResult);
-  const BOOKS_MAP = bookByIdIndex(books);
-  const SUMMARIES_BY_BOOK_ID = new Map<string, TodayBookSummary>();
+    const TODAY = todayKey();
+    const ROW_LIST = rowsFromResult(lastResult);
+    const BOOKS_MAP = bookByIdIndex(books);
+    const SUMMARIES_BY_BOOK_ID = new Map<string, TodayBookSummary>();
 
-  let completedPlannedMinutes = ZERO_COUNT;
-  let scheduledSessions = ZERO_COUNT;
-  let completedSessions = ZERO_COUNT;
+    let completedPlannedMinutes = ZERO_COUNT;
+    let scheduledSessions = ZERO_COUNT;
+    let completedSessions = ZERO_COUNT;
 
-  for (const ROW of ROW_LIST) {
-    const ROW_DATE = String(ROW.date || "");
-    if (ROW_DATE !== TODAY) {
-      continue;
+    for (const ROW of ROW_LIST) {
+        const ROW_DATE = String(ROW.date || "");
+        if (ROW_DATE !== TODAY) {
+            continue;
+        }
+
+        const COMPLETED = isCompletedRow(ROW, scheduleCompletions);
+        const BOOK_ID = String(ROW.book_id || "").trim();
+        let summary = SUMMARIES_BY_BOOK_ID.get(BOOK_ID);
+        if (!summary) {
+            summary = createBookSummary(ROW, BOOKS_MAP);
+            SUMMARIES_BY_BOOK_ID.set(BOOK_ID, summary);
+        }
+
+        const PLANNED_MINUTES = Number(ROW.minutes || ZERO_COUNT);
+        summary.scheduledSessions += 1;
+        summary.plannedMinutes += PLANNED_MINUTES;
+        scheduledSessions += 1;
+        if (!COMPLETED) {
+            continue;
+        }
+        summary.completedSessions += 1;
+        completedSessions += 1;
+        completedPlannedMinutes += PLANNED_MINUTES;
     }
 
-    const COMPLETED = isCompletedRow(ROW, scheduleCompletions);
-    const BOOK_ID = String(ROW.book_id || "").trim();
-    let summary = SUMMARIES_BY_BOOK_ID.get(BOOK_ID);
-    if (!summary) {
-      summary = createBookSummary(ROW, BOOKS_MAP);
-      SUMMARIES_BY_BOOK_ID.set(BOOK_ID, summary);
-    }
+    const BOOKS_FOR_TODAY = [...SUMMARIES_BY_BOOK_ID.values()];
+    BOOKS_FOR_TODAY.sort((left, right) => {
+        return compareTitle(left.title, right.title);
+    });
 
-    const PLANNED_MINUTES = Number(ROW.minutes || ZERO_COUNT);
-    summary.scheduledSessions += 1;
-    summary.plannedMinutes += PLANNED_MINUTES;
-    scheduledSessions += 1;
-    if (!COMPLETED) {
-      continue;
-    }
-    summary.completedSessions += 1;
-    completedSessions += 1;
-    completedPlannedMinutes += PLANNED_MINUTES;
-  }
-
-  const BOOKS_FOR_TODAY = [...SUMMARIES_BY_BOOK_ID.values()];
-  BOOKS_FOR_TODAY.sort((left, right) => {
-    return compareTitle(left.title, right.title);
-  });
-
-  return {
-    books: BOOKS_FOR_TODAY,
-    completedPlannedMinutes,
-    completedSessions,
-    nextUncompletedRow: nextUncompletedPlannedRow(
-      lastResult,
-      scheduleCompletions,
-    ),
-    scheduledSessions,
-  };
+    return {
+        books: BOOKS_FOR_TODAY,
+        completedPlannedMinutes,
+        completedSessions,
+        nextUncompletedRow: nextUncompletedPlannedRow(
+            lastResult,
+            scheduleCompletions,
+        ),
+        scheduledSessions,
+    };
 }

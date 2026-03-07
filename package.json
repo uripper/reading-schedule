@@ -48,7 +48,7 @@
         "build:contracts": "pnpm -C packages/contracts run build",
         "build:desktop": "pnpm -C electron run build",
         "build:mobile": "pnpm -C mobile run typecheck",
-        "ci:local": "pnpm run lint:python && pnpm run typecheck:python && pnpm run test:python && pnpm run typecheck:contracts && pnpm run typecheck:desktop && pnpm run lint:desktop:fix && pnpm run build:desktop && pnpm run test:desktop",
+        "ci:local": "pnpm run lint:python && pnpm run typecheck:python && pnpm run test:python && pnpm run typecheck:contracts && pnpm run typecheck:desktop && pnpm run lint:desktop && pnpm run build:desktop && pnpm run test:desktop",
         "dev:desktop": "pnpm -C electron run start",
         "dev:mobile": "pnpm -C mobile run dev:tunnel",
         "dev:mobile:android": "pnpm -C mobile run dev:android",
