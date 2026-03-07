@@ -103,8 +103,8 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--data",
-        default="data/books.sample.csv",
-        help="Books CSV path for --sample",
+        default="data/books.sample.json",
+        help="Books JSON path for --sample",
     )
     p.add_argument(
         "--settings",

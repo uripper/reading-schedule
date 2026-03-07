@@ -46,7 +46,7 @@ def _data_dir() -> Path:
 
 
 def _sample_books_path() -> Path:
-    return _data_dir() / "books.sample.csv"
+    return _data_dir() / "books.sample.json"
 
 
 def _sample_settings_path() -> Path:
