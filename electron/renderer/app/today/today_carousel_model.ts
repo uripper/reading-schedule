@@ -1,3 +1,6 @@
+/**
+ * Builds the Today carousel model from planner results and book metadata.
+ */
 import type {
     Book,
     CalendarRowWithFinish,
@@ -18,6 +21,9 @@ const DEFAULT_TITLE = "Untitled";
 const UNKNOWN_AUTHOR = "Unknown Author";
 const MIN_PROGRESS = 0;
 const MAX_PROGRESS = 100;
+
+// TODO: Split this file into focused selection, grouping, and projection
+// helpers so the Today model stays under the 300-line STYLEGUIDE limit.
 export interface TodayCarouselSessionItem {
     completed: boolean;
     minutes: number;

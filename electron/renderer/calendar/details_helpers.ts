@@ -1,7 +1,9 @@
+/**
+ * Barrel exports for calendar details rendering helpers.
+ */
 export { dayMode, rowsWithCompletedLast } from "./details_day.js";
-export { buildManualSessionAddPanel } from "./details_manual_add.js";
 export {
-    buildFutureSessionItem,
-    buildPastSessionItem,
-    buildTodaySessionItem,
-} from "./details_session_items.js";
+    buildSessionItemsForMode,
+    DEFAULT_DETAILS_ITEM_BUILDERS,
+} from "./details_items_for_mode.js";
+export { buildManualSessionAddPanel } from "./details_manual_add.js";

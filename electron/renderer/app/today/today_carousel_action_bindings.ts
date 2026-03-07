@@ -1,3 +1,6 @@
+/**
+ * Binds Today carousel controls to shared schedule and progress mutations.
+ */
 import type { CalendarHandlers } from "../../../types/types.js";
 import { el } from "../../dom.js";
 import {
@@ -6,6 +9,7 @@ import {
 } from "./today_carousel_actions.js";
 import type { TodayCarouselActiveItem } from "./today_carousel_model.js";
 import {
+    clearTodayCarouselRowState,
     closeMinutesEditor,
     minutesEditor,
     openMinutesEditor,
@@ -13,14 +17,24 @@ import {
     setMinutesEditorValue,
 } from "./today_carousel_state.js";
 
+// TODO: Move Today carousel binding contracts into `electron/types` once the
+// renderer Today modules settle.
+/**
+ * Schedule and progress callbacks exposed to the Today carousel UI.
+ */
 export interface TodayCarouselActionBindings {
     onSessionCompletionChanged: CalendarHandlers["onSessionCompletionChanged"];
     onSessionMinutesUpdated: CalendarHandlers["onSessionMinutesUpdated"];
     onSessionProgressUpdated: CalendarHandlers["onSessionProgressUpdated"];
+    onSessionRemoved: CalendarHandlers["onSessionRemoved"];
     rerender(): void;
     setStatus(message: string, isError?: boolean): void;
 }
 
+/**
+ * Binds the Today inline minutes editor to the current active session.
+ * @param options - Active row context and mutation callbacks.
+ */
 export function bindMinutesEditor(options: {
     active: TodayCarouselActiveItem;
     bindings: TodayCarouselActionBindings | null;
@@ -81,6 +95,10 @@ export function bindMinutesEditor(options: {
     };
 }
 
+/**
+ * Binds the Today completion/log button for the active session row.
+ * @param options - Active row context and mutation callbacks.
+ */
 export function bindToggleButton(options: {
     active: TodayCarouselActiveItem;
     bindings: TodayCarouselActionBindings | null;
@@ -134,6 +152,33 @@ export function bindToggleButton(options: {
             sessionKey: options.active.row.rowKey,
         });
         closeMinutesEditor();
+        options.bindings.rerender();
+    };
+}
+
+/**
+ * Binds the Today remove-session button for the active session row.
+ * @param options - Active row context and mutation callbacks.
+ */
+export function bindRemoveButton(options: {
+    active: TodayCarouselActiveItem;
+    bindings: TodayCarouselActionBindings | null;
+}): void {
+    const BUTTON = el<HTMLButtonElement>("todayRemoveSessionBtn");
+    BUTTON.onclick = () => {
+        if (options.bindings === null) {
+            return;
+        }
+        const REMOVED = options.bindings.onSessionRemoved({
+            row: options.active.row.row,
+        });
+        if (!REMOVED) {
+            return;
+        }
+        clearTodayCarouselRowState(
+            options.active.book.bookId,
+            options.active.row.rowKey,
+        );
         options.bindings.rerender();
     };
 }

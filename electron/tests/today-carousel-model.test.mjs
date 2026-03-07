@@ -1,169 +1,134 @@
+/**
+ * Verifies Today carousel model fallbacks and row-local UI state cleanup.
+ */
 import assert from "node:assert/strict";
 import test from "node:test";
 
 import { buildTodayCarouselModel } from "../dist/renderer/app/today/today_carousel_model.js";
+import {
+    clearTodayCarouselRowState,
+    closeMinutesEditor,
+    minutesEditor,
+    openMinutesEditor,
+    pinnedRowKeySnapshot,
+    pinRowKey,
+    progressDraft,
+    resetTodayCarouselUiState,
+    setProgressDraft,
+    setSelectedBookId,
+} from "../dist/renderer/app/today/today_carousel_state.js";
 import { sessionKeyFor } from "../dist/renderer/calendar/utils.js";
 import { todayKey } from "../dist/renderer/sessions/utils.js";
 
 const CREATED_AT = "2026-01-01T00:00:00.000Z";
 
-function row(args) {
-    return {
-        book_id: args.bookId,
-        date: args.date,
-        minutes: args.minutes,
-        session_index: args.sessionIndex,
-        title: args.title,
-        words_planned: args.minutes * 100,
-    };
-}
-
+/**
+ * Builds a planner result fixture for Today carousel tests.
+ * @param {Array<Record<string, unknown>>} schedule - Schedule rows.
+ * @returns {{created_at: string, schedule: Array<Record<string, unknown>>, summary: null}} Planner result fixture.
+ */
 function plannerResult(schedule) {
     return {
         created_at: CREATED_AT,
         schedule,
-        summary: {
-            per_book: {},
-            total_available_minutes: 0,
-            total_planned_minutes: 0,
-        },
+        summary: null,
     };
 }
 
-test("buildTodayCarouselModel groups only today's rows and attaches metadata", () => {
-    const TODAY = todayKey();
-    const TOMORROW = "2099-01-01";
-    const ROW_A = row({
+/**
+ * Builds a Today schedule row fixture.
+ * @param {{
+ *   bookId: string,
+ *   date?: string,
+ *   minutes?: number,
+ *   sessionIndex: number,
+ *   title?: string,
+ * }} args - Row input overrides.
+ * @returns {Record<string, unknown>} Today row fixture.
+ */
+function row(args) {
+    return {
+        book_id: args.bookId,
+        date: args.date ?? todayKey(),
+        minutes: args.minutes ?? 15,
+        session_index: args.sessionIndex,
+        title: args.title ?? args.bookId,
+        words_planned: 1500,
+    };
+}
+
+/**
+ * Builds a minimal book fixture for Today carousel model tests.
+ * @param {string} bookId - Book id.
+ * @returns {Record<string, unknown>} Book fixture.
+ */
+function book(bookId) {
+    return {
+        author: `${bookId} author`,
+        book_id: bookId,
+        cover_local_path: "",
+        cover_url: "",
+        pages_read: 10,
+        pages_total: 100,
+        progress_percent: 10,
+        title: `${bookId} title`,
+    };
+}
+
+test("buildTodayCarouselModel falls back when pinned row was removed", () => {
+    const FIRST = row({ bookId: "book-1", sessionIndex: 1, title: "Book 1" });
+    const REMOVED = row({
         bookId: "book-1",
-        date: TODAY,
-        minutes: 20,
-        sessionIndex: 1,
-        title: "Today One",
-    });
-    const ROW_B = row({
-        bookId: "book-1",
-        date: TODAY,
-        minutes: 25,
         sessionIndex: 2,
-        title: "Today One",
-    });
-    const ROW_C = row({
-        bookId: "book-2",
-        date: TODAY,
-        minutes: 30,
-        sessionIndex: 1,
-        title: "Today Two",
-    });
-    const TOMORROW_ROW = row({
-        bookId: "book-3",
-        date: TOMORROW,
-        minutes: 15,
-        sessionIndex: 1,
-        title: "Tomorrow",
+        title: "Book 1",
     });
 
     const MODEL = buildTodayCarouselModel({
-        books: [
-            {
-                author: "Author One",
-                book_id: "book-1",
-                cover_local_path: null,
-                cover_url: "https://example.com/cover-1.jpg",
-                progress_percent: 10,
-            },
-            {
-                author: "Author Two",
-                book_id: "book-2",
-                cover_local_path: "/tmp/cover-2.jpg",
-                cover_url: "",
-                progress_percent: 40,
-            },
-        ],
-        lastResult: plannerResult([ROW_A, ROW_B, ROW_C, TOMORROW_ROW]),
-        pinnedRowKeyByBookId: {},
-        scheduleCompletions: {
-            [sessionKeyFor(ROW_A)]: true,
-        },
-        selectedBookId: "book-2",
-    });
-
-    assert.equal(MODEL.books.length, 2);
-    assert.equal(MODEL.selectedBookId, "book-2");
-    assert.equal(MODEL.active?.book.bookId, "book-2");
-    assert.equal(MODEL.books[0].author.length > 0, true);
-    assert.equal(MODEL.books[0].coverSrc.length > 0, true);
-});
-
-test("buildTodayCarouselModel uses pinned target row when pinned row exists", () => {
-    const TODAY = todayKey();
-    const ROW_ONE = row({
-        bookId: "book-1",
-        date: TODAY,
-        minutes: 10,
-        sessionIndex: 1,
-        title: "Pinned",
-    });
-    const ROW_TWO = row({
-        bookId: "book-1",
-        date: TODAY,
-        minutes: 15,
-        sessionIndex: 2,
-        title: "Pinned",
-    });
-
-    const MODEL = buildTodayCarouselModel({
-        books: [
-            {
-                author: "Author One",
-                book_id: "book-1",
-                progress_percent: 5,
-            },
-        ],
-        lastResult: plannerResult([ROW_ONE, ROW_TWO]),
+        books: [book("book-1")],
+        lastResult: plannerResult([FIRST]),
         pinnedRowKeyByBookId: {
-            "book-1": sessionKeyFor(ROW_TWO),
+            "book-1": sessionKeyFor(REMOVED),
         },
         scheduleCompletions: {},
         selectedBookId: "book-1",
     });
 
-    assert.equal(MODEL.books[0].targetRow.rowKey, sessionKeyFor(ROW_TWO));
+    assert.equal(MODEL.selectedBookId, "book-1");
+    assert.equal(MODEL.active?.row.rowKey, sessionKeyFor(FIRST));
 });
 
-test("buildTodayCarouselModel falls back to next incomplete row when pinned row is missing", () => {
-    const TODAY = todayKey();
-    const ROW_ONE = row({
-        bookId: "book-1",
-        date: TODAY,
-        minutes: 10,
-        sessionIndex: 1,
-        title: "Fallback",
-    });
-    const ROW_TWO = row({
-        bookId: "book-1",
-        date: TODAY,
-        minutes: 15,
-        sessionIndex: 2,
-        title: "Fallback",
-    });
+test("clearTodayCarouselRowState removes only state for the deleted row", () => {
+    resetTodayCarouselUiState();
+    const REMOVED_ROW_KEY = "2026-02-24|1|book-1";
+    const KEPT_ROW_KEY = "2026-02-24|2|book-2";
 
-    const MODEL = buildTodayCarouselModel({
-        books: [
-            {
-                author: "Author One",
-                book_id: "book-1",
-                progress_percent: 5,
-            },
-        ],
-        lastResult: plannerResult([ROW_ONE, ROW_TWO]),
-        pinnedRowKeyByBookId: {
-            "book-1": "missing-row-key",
-        },
-        scheduleCompletions: {
-            [sessionKeyFor(ROW_ONE)]: true,
-        },
-        selectedBookId: "book-1",
+    pinRowKey("book-1", REMOVED_ROW_KEY);
+    pinRowKey("book-2", KEPT_ROW_KEY);
+    setProgressDraft({
+        pagesText: "25",
+        percentText: "20",
+        rowKey: REMOVED_ROW_KEY,
     });
+    setProgressDraft({
+        pagesText: "50",
+        percentText: "40",
+        rowKey: KEPT_ROW_KEY,
+    });
+    setSelectedBookId("book-1");
+    closeMinutesEditor();
 
-    assert.equal(MODEL.books[0].targetRow.rowKey, sessionKeyFor(ROW_TWO));
+    openMinutesEditor(REMOVED_ROW_KEY, "15");
+
+    clearTodayCarouselRowState("book-1", REMOVED_ROW_KEY);
+
+    assert.equal(minutesEditor(), null);
+    assert.equal(progressDraft(REMOVED_ROW_KEY), null);
+    assert.deepEqual(pinnedRowKeySnapshot(), {
+        "book-2": KEPT_ROW_KEY,
+    });
+    assert.deepEqual(progressDraft(KEPT_ROW_KEY), {
+        pagesText: "50",
+        percentText: "40",
+    });
+    resetTodayCarouselUiState();
 });

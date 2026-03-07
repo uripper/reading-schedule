@@ -226,6 +226,12 @@
     outline: none;
 }
 
+.today-focus-actions {
+    display: grid;
+    gap: 10px;
+    justify-items: stretch;
+}
+
 .today-log-session-btn {
     min-height: 62px;
     padding: 12px 22px;
@@ -238,6 +244,26 @@
     border: 1px solid #000000;
     border-radius: 100px;
     box-shadow: 6px 4px 0 #000000;
+}
+
+.today-remove-session-btn {
+    min-height: 54px;
+    padding: 10px 22px;
+    font-family: var(--main-font);
+    font-size: clamp(1.05rem, 1.2vw, 1.35rem);
+    font-weight: 600;
+    color: #000000;
+    white-space: nowrap;
+    background: color-mix(in srgb, #ff8d73 86%, #ffffff);
+    border: 1px solid #000000;
+    border-radius: 100px;
+    box-shadow: 6px 4px 0 #000000;
+}
+
+.today-focus-actions .btn:disabled,
+.today-minutes-edit-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
 }
 
 .today-log-session-btn.is-complete {

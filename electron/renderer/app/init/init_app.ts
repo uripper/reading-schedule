@@ -175,6 +175,7 @@ export async function initApp(context: AppBootstrapContext): Promise<void> {
             CALENDAR_HANDLERS.onSessionCompletionChanged,
         onSessionMinutesUpdated: CALENDAR_HANDLERS.onSessionMinutesUpdated,
         onSessionProgressUpdated: CALENDAR_HANDLERS.onSessionProgressUpdated,
+        onSessionRemoved: CALENDAR_HANDLERS.onSessionRemoved,
         rerender: (): void => {
             APP_CONTEXT.dashboards.updateDashboards();
         },
