@@ -21,8 +21,8 @@ except RuntimeError:
     TestClient = object  # type: ignore[assignment]
     HAS_TEST_CLIENT = False
 
-from reading_plan.api import generate_plan
 from reading_plan import http_api
+from reading_plan.api import generate_plan
 from reading_plan.http_api import (
     _load_state_file,
     _sample_payload,

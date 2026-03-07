@@ -4,18 +4,25 @@ from __future__ import annotations
 
 import argparse
 import json
-import logging
-import os
-from pathlib import Path
 import sys
 import traceback
 from typing import TYPE_CHECKING, TypedDict
 
 from reading_plan.api import generate_plan
+from reading_plan.bridge_logging import (
+    BRIDGE_LOG_PATH_ENV as BRIDGE_LOG_PATH_ENV_SHARED,
+    BRIDGE_REQUEST_ID_ENV as BRIDGE_REQUEST_ID_ENV_SHARED,
+    DEFAULT_LOG_PATH as DEFAULT_LOG_PATH_SHARED,
+    configure_bridge_logger,
+    log_file_execution,
+    log_incoming_data,
+)
 from reading_plan.input.reading_io import load_inputs
 from reading_plan.input.serializers import book_to_data, settings_to_data
 
 if TYPE_CHECKING:
+    import logging
+
     from reading_plan.api_types import PlannerInputPayload, PlannerOutputPayload
 
 
@@ -27,35 +34,14 @@ class BridgeResponse(TypedDict, total=False):
     error: str
 
 
-BRIDGE_LOG_PATH_ENV = "READING_PLAN_BRIDGE_LOG_PATH"
-BRIDGE_REQUEST_ID_ENV = "READING_PLAN_BRIDGE_REQUEST_ID"
-DEFAULT_LOG_PATH = "data/planner_bridge_debug.log"
+BRIDGE_LOG_PATH_ENV = BRIDGE_LOG_PATH_ENV_SHARED
+BRIDGE_REQUEST_ID_ENV = BRIDGE_REQUEST_ID_ENV_SHARED
+DEFAULT_LOG_PATH = DEFAULT_LOG_PATH_SHARED
 
 
-def configure_logger() -> logging.LoggerAdapter:
+def configure_logger() -> logging.Logger:
     """Configure planner bridge logger with file output."""
-    request_id = os.environ.get(BRIDGE_REQUEST_ID_ENV, "unknown")
-    log_path = Path(os.environ.get(BRIDGE_LOG_PATH_ENV, DEFAULT_LOG_PATH))
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    logger = logging.getLogger("reading_plan.bridge")
-    logger.setLevel(logging.DEBUG)
-    logger.handlers.clear()
-    handler = logging.FileHandler(log_path, encoding="utf-8")
-    format_text = (
-        "%(asctime)s | %(levelname)s | request=%(request_id)s | %(message)s"
-    )
-    handler.setFormatter(
-        logging.Formatter(
-            format_text,
-            defaults={"request_id": request_id},
-        )
-    )
-    logger.addHandler(handler)
-    logger.propagate = False
-    adapter = logging.LoggerAdapter(logger, {"request_id": request_id})
-    adapter.debug("Logger configured")
-    return adapter
+    return configure_bridge_logger()
 
 
 def write_payload(payload: BridgeResponse) -> None:
@@ -64,9 +50,14 @@ def write_payload(payload: BridgeResponse) -> None:
     sys.stdout.write("\n")
 
 
-def read_stdin_payload(logger: logging.LoggerAdapter) -> PlannerInputPayload:
+def read_stdin_payload(logger: logging.Logger) -> PlannerInputPayload:
     """Read and validate planner payload from stdin with diagnostics."""
     payload_text = sys.stdin.read()
+    log_file_execution(
+        logger,
+        file_path=__file__,
+        entrypoint="read_stdin_payload",
+    )
     logger.debug(
         "Planner stdin payload bytes received",
         extra={"stdin_bytes": len(payload_text)},
@@ -75,7 +66,7 @@ def read_stdin_payload(logger: logging.LoggerAdapter) -> PlannerInputPayload:
         msg = "planner payload is empty"
         raise ValueError(msg)
 
-    payload: object
+    payload: PlannerInputPayload
     try:
         payload = json.loads(payload_text)
     except json.JSONDecodeError as error:
@@ -84,6 +75,12 @@ def read_stdin_payload(logger: logging.LoggerAdapter) -> PlannerInputPayload:
         raise ValueError(msg) from error
 
     if isinstance(payload, dict):
+        log_incoming_data(
+            logger,
+            event="Planner stdin payload type summary",
+            file_path=__file__,
+            value=payload,
+        )
         logger.debug(
             "Planner stdin payload decoded",
             extra={
@@ -121,6 +118,13 @@ def main() -> int:
     """Run the GUI bridge in sample mode or stdin payload mode."""
     args = parse_args()
     logger = configure_logger()
+    log_file_execution(logger, file_path=__file__, entrypoint="main")
+    log_incoming_data(
+        logger,
+        event="Planner GUI args type summary",
+        file_path=__file__,
+        value=vars(args),
+    )
     try:
         if args.sample:
             logger.debug("Sample request received")

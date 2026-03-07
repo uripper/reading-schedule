@@ -7,8 +7,9 @@ import logging
 from time import perf_counter
 from typing import TYPE_CHECKING, Protocol, cast
 
+from ortools.sat.python import cp_model
+
 from reading_plan.planner_types import PlanResult
-from reading_plan.planning.cp_sat_runtime import load_cp_model_module
 from reading_plan.planning.greedy import plan_greedy
 from reading_plan.planning.model import BuildModelOptions, build_cp_sat
 from reading_plan.planning.solve_heuristics import (
@@ -154,7 +155,7 @@ def _solve_mip(
 def _load_cp_sat_module_or_none() -> object | None:
     """Load CP-SAT module for MIP solve flow."""
     LOGGER.debug("solve_mip: loading cp-sat module")
-    return load_cp_model_module()
+    return cp_model
 
 
 def _fallback_for_unavailable_cp_sat(

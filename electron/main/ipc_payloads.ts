@@ -1,7 +1,7 @@
 import type {
     DownloadCoverPayload,
     UploadCoverPayload,
-} from "../types/types.js";
+} from "@reading-schedule/contracts";
 
 /**
  * Normalizes unknown download payload input into a safe object.

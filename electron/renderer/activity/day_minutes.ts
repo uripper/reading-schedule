@@ -1,6 +1,6 @@
+import { localDayKeyFromIso } from "@renderer/app/date_keys.js";
 import type { DayMinutesArgs, DayMinutesMap } from "../../types/types.js";
 import { sessionKeyFor } from "../calendar/utils.js";
-import { isoLocalDayKey } from "../sessions/utils.js";
 import { addMinutes, includeDayKey } from "./day_minutes_collect.js";
 
 const MIN_STREAK_MINUTES = 1;
@@ -21,7 +21,7 @@ export function dayMinutesFromActivity({
     const MINUTES_BY_DAY = new Map<string, number>();
 
     for (const SESSION of sessions) {
-        const DAY_KEY = isoLocalDayKey(SESSION.ended_at);
+        const DAY_KEY = localDayKeyFromIso(SESSION.ended_at);
         if (!includeDayKey(DAY_KEY, year)) {
             continue;
         }
@@ -107,7 +107,7 @@ export function streakFromDayMinutes(
     const CURSOR = new Date();
 
     for (;;) {
-        const DAY_KEY = isoLocalDayKey(CURSOR.toISOString());
+        const DAY_KEY = localDayKeyFromIso(CURSOR.toISOString());
         const MINUTES = dayMinutesForKey(dayMinutes, DAY_KEY);
         if (MINUTES < GOAL_MINUTES) {
             break;

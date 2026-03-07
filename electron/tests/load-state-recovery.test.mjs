@@ -20,11 +20,11 @@ const DEFAULT_FEATURE_FLAGS = {
 
 /**
  * Builds load-state args with capture arrays for status/log assertions.
- * @param {import("../dist/types/types.js").PlannerStateLoadResult} loadResult - Structured load result fixture.
- * @param {Array<{ - message: string, isError: boolean }>} statuses Captured statuses sink.
- * @param {string[]} logs - Captured logs sink.
- * @param {Partial<import("../dist/types/types_app.js").LoadStateArgs>} overrides - Override hooks for targeted assertions.
- * @returns {import("../dist/types/types_app.js").LoadStateArgs} Load arguments.
+ * @param loadResult - Structured load result fixture.
+ * @param statuses - Captured statuses sink.
+ * @param logs - Captured logs sink.
+ * @param overrides - Override hooks for targeted assertions.
+ * @returns Load arguments.
  */
 function loadArgs(loadResult, statuses, logs, overrides = {}) {
     const NOOP = () => undefined;
