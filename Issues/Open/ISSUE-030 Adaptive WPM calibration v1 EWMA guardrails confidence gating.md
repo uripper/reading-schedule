@@ -6,7 +6,7 @@
 
 Problem:
 
-Current reading speed assumptions are static, causing plans to overestimate or underestimate realistic session completion time.
+Current reading speed assumptions are static, causing plans to overestimate or underestimate realistic session completion time. Underestimating is likely fine, and we can likely force a bit of underestimation to ensure users enjoy a sense of accomplishment. However, overestimation can lead to user frustration and disengagement.
 
 Expected:
 
