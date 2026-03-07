@@ -1,5 +1,5 @@
 import type { AppDerivedIndexes, Book, Session } from "../../types/types.js";
-import { isoLocalDayKey } from "../sessions/utils.js";
+import { localDayKeyFromIso } from "./date_keys.js";
 
 const COMPLETION_KEY_PART_DAY_BOOK = 2;
 const COMPLETION_KEY_PART_SESSION = 3;
@@ -33,7 +33,7 @@ export function sessionsByDayIndex(
     const BY_DAY = new Map<string, Session[]>();
 
     for (const SESSION of sessions) {
-        const DAY_KEY = isoLocalDayKey(SESSION.ended_at);
+        const DAY_KEY = localDayKeyFromIso(SESSION.ended_at);
         if (!DAY_KEY) {
             continue;
         }

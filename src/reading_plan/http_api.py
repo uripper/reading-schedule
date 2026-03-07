@@ -14,6 +14,12 @@ from fastapi import FastAPI, HTTPException
 import uvicorn
 
 from reading_plan.api import generate_plan
+from reading_plan.bridge_logging import (
+    configure_bridge_logger,
+    get_bridge_logger,
+    log_file_execution,
+    log_incoming_data,
+)
 from reading_plan.input.reading_io import load_inputs
 from reading_plan.input.serializers import book_to_data, settings_to_data
 from reading_plan.state_validation import validate_state_snapshot
@@ -27,6 +33,8 @@ DEFAULT_STATE_FILE = "mobile_state.json"
 OPEN_LIBRARY_SEARCH_URL = "https://openlibrary.org/search.json"
 SEARCH_TIMEOUT_SECONDS = 8
 SEARCH_OUTPUT_LIMIT = 20
+
+LOGGER = get_bridge_logger(__name__)
 
 
 def _repo_root() -> Path:
@@ -216,6 +224,13 @@ def _search_open_library(
 
 
 def _api_generate(payload: dict[str, object]) -> object:
+    log_file_execution(LOGGER, file_path=__file__, entrypoint="_api_generate")
+    log_incoming_data(
+        LOGGER,
+        event="http_api: plan generate payload type summary",
+        file_path=__file__,
+        value=payload,
+    )
     try:
         request_payload = cast("PlannerInputPayload", payload)
         return generate_plan(request_payload)
@@ -224,14 +239,27 @@ def _api_generate(payload: dict[str, object]) -> object:
 
 
 def _api_state_load(_payload: dict[str, object]) -> dict[str, object]:
+    log_file_execution(LOGGER, file_path=__file__, entrypoint="_api_state_load")
     return _load_state_file()
 
 
 def _api_state_sample(_payload: dict[str, object]) -> dict[str, object]:
+    log_file_execution(
+        LOGGER,
+        file_path=__file__,
+        entrypoint="_api_state_sample",
+    )
     return _sample_payload()
 
 
 def _api_state_save(state: dict[str, object]) -> dict[str, object]:
+    log_file_execution(LOGGER, file_path=__file__, entrypoint="_api_state_save")
+    log_incoming_data(
+        LOGGER,
+        event="http_api: state save payload type summary",
+        file_path=__file__,
+        value=state,
+    )
     try:
         _save_state_file(state)
     except TypeError as error:
@@ -242,6 +270,17 @@ def _api_state_save(state: dict[str, object]) -> dict[str, object]:
 
 
 def _api_books_search(payload: dict[str, object]) -> list[dict[str, str]]:
+    log_file_execution(
+        LOGGER,
+        file_path=__file__,
+        entrypoint="_api_books_search",
+    )
+    log_incoming_data(
+        LOGGER,
+        event="http_api: book search payload type summary",
+        file_path=__file__,
+        value=payload,
+    )
     query = str(payload.get("query") or "")
     author_only = payload.get("author") is True
     return _search_open_library(query, author_only=author_only)
@@ -249,6 +288,8 @@ def _api_books_search(payload: dict[str, object]) -> list[dict[str, str]]:
 
 def create_app() -> FastAPI:
     """Create the planner HTTP API app used by mobile clients."""
+    configure_bridge_logger()
+    log_file_execution(LOGGER, file_path=__file__, entrypoint="create_app")
     app = FastAPI(title="Reading Plan API", version="0.1.0")
 
     app.post("/api/plan/generate")(_api_generate)

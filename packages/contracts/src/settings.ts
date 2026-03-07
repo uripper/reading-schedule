@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { JSON_VALUE_SCHEMA } from "./shared.js";
-import { type PlannerSettings } from "./types.js";
+import { type PlannerSettings } from "./types_subfolders/types_planner.js"
 
 const WEEKDAY_KEYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 

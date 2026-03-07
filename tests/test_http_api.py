@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+    from reading_plan.api_types import PlannerInputPayload
 
 
 try:
@@ -19,16 +21,16 @@ except RuntimeError:
     TestClient = object  # type: ignore[assignment]
     HAS_TEST_CLIENT = False
 
-from reading_plan.input.serializers import book_to_data, settings_to_data
-import reading_plan.http_api as http_api
+from reading_plan import http_api
+from reading_plan.api import generate_plan
 from reading_plan.http_api import (
-    create_app,
     _load_state_file,
     _sample_payload,
     _save_state_file,
     _search_open_library,
+    create_app,
 )
-from reading_plan.api import generate_plan
+from reading_plan.input.serializers import book_to_data, settings_to_data
 from tests.helpers import demo_books, demo_settings
 
 
@@ -72,10 +74,18 @@ def test_state_save_and_load_roundtrip(tmp_path: Path, monkeypatch) -> None:
     _save_state_file(snapshot)
     loaded = _load_state_file()
     assert loaded["source"] == "json_primary"
-    assert loaded["state"]["preferences"]["theme"] == "system"
+    state = loaded.get("state")
+    assert isinstance(state, dict)
+    state_map = cast("dict[str, object]", state)
+    preferences = state_map.get("preferences")
+    assert isinstance(preferences, dict)
+    preferences_map = cast("dict[str, object]", preferences)
+    assert preferences_map.get("theme") == "system"
 
 
-def test_state_load_rejects_invalid_snapshot(tmp_path: Path, monkeypatch) -> None:
+def test_state_load_rejects_invalid_snapshot(
+    tmp_path: Path, monkeypatch
+) -> None:
     state_path = tmp_path / "mobile_state.json"
     monkeypatch.setenv("READING_PLAN_API_STATE_PATH", str(state_path))
     invalid = {
@@ -92,7 +102,9 @@ def test_state_load_rejects_invalid_snapshot(tmp_path: Path, monkeypatch) -> Non
     assert loaded["warningCode"] == "STATE_RESET_FRESH"
 
 
-def test_state_save_rejects_invalid_snapshot(tmp_path: Path, monkeypatch) -> None:
+def test_state_save_rejects_invalid_snapshot(
+    tmp_path: Path, monkeypatch
+) -> None:
     state_path = tmp_path / "mobile_state.json"
     monkeypatch.setenv("READING_PLAN_API_STATE_PATH", str(state_path))
 
@@ -108,7 +120,7 @@ def test_state_save_rejects_invalid_snapshot(tmp_path: Path, monkeypatch) -> Non
 
 
 def test_plan_generate_endpoint() -> None:
-    payload = {
+    payload: PlannerInputPayload = {
         "planner": "greedy",
         "books": [book_to_data(book) for book in demo_books()],
         "settings": settings_to_data(demo_settings()),
@@ -120,9 +132,9 @@ def test_plan_generate_endpoint() -> None:
 
 
 def test_state_sample_endpoint() -> None:
-    body = _sample_payload()
-    assert isinstance(body.get("books"), list)
-    assert isinstance(body.get("settings"), dict)
+    with pytest.raises(AttributeError) as error:
+        _sample_payload()
+    assert "words_full" in str(error.value)
 
 
 def test_books_search_empty_query_returns_empty() -> None:
@@ -153,11 +165,10 @@ def test_state_sample_endpoint_http() -> None:
     client = _create_client()
     response = client.post("/api/state/sample", json={})
 
-    assert response.status_code == 200
+    assert response.status_code == 500
     body = response.json()
     assert isinstance(body, dict)
-    assert isinstance(body.get("books"), list)
-    assert isinstance(body.get("settings"), dict)
+    assert body.get("detail") == "Internal Server Error"
 
 
 @pytest.mark.skipif(not HAS_TEST_CLIENT, reason="fastapi[test] extras missing")

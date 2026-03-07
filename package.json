@@ -6,6 +6,7 @@
         "eslint": "^10.0.2",
         "eslint-plugin-jsdoc": "^62.7.1",
         "eslint-plugin-tsdoc": "0.5.2",
+        "jscpd": "^4.0.8",
         "knip": "^5.85.0",
         "tslog": "^4.9.3",
         "type-coverage": "^2.29.7",
@@ -19,7 +20,27 @@
         ],
         "onlyBuiltDependencies": [
             "esbuild"
-        ]
+        ],
+        "overrides": {
+            "electron@<=1.8.2-beta4": ">=1.8.2-beta5",
+            "electron@<7.2.4": ">=7.2.4",
+            "electron@<6.1.11": ">=6.1.11",
+            "electron@<0.33.5": ">=0.33.5",
+            "electron@<15.5.0": ">=15.5.0",
+            "electron@<15.5.5": ">=15.5.5",
+            "electron@<18.3.7": ">=18.3.7",
+            "electron@<11.5.0": ">=11.5.0",
+            "electron@<13.6.6": ">=13.6.6",
+            "electron@<1.6.14": ">=1.6.14",
+            "electron@<1.6.8": ">=1.6.8",
+            "electron@<22.3.19": ">=22.3.19",
+            "electron@<22.3.6": ">=22.3.6",
+            "electron@<22.3.25": ">=22.3.25",
+            "electron@<22.3.24": ">=22.3.24",
+            "electron@<9.4.0": ">=9.4.0",
+            "electron@<28.3.2": ">=28.3.2",
+            "electron@<35.7.5": ">=35.7.5"
+        }
     },
     "private": true,
     "scripts": {
@@ -34,8 +55,8 @@
         "dev:mobile:ios": "pnpm -C mobile run dev:ios",
         "dev:mobile:tunnel": "pnpm -C mobile run dev:tunnel",
         "dev:planner-api": ".venv/bin/python -m reading_plan.http_api",
-        "dev:windows": "bash ./scripts/run_windows_gui_from_wsl.sh",
-        "dev:windows:hot": "bash ./scripts/run_windows_gui_hot_from_wsl.sh",
+        "dev:windows": "pnpm -C packages/contracts build && bash ./scripts/run_windows_gui_from_wsl.sh",
+        "dev:windows:hot": "pnpm -C packages/contracts build && bash ./scripts/run_windows_gui_hot_from_wsl.sh",
         "format:python": ".venv/bin/ruff check src --fix",
         "format:typescript": "pnpm biome check electron mobile packages --write",
         "hooks:install": "bash ./scripts/install_git_hooks.sh",

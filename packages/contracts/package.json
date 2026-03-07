@@ -1,6 +1,7 @@
 {
     "dependencies": {
-        "zod": "^4.3.6"
+        "zod": "^4.3.6",
+        "electron": "^25.0.0"
     },
     "devDependencies": {
         "typescript": "^5.7.3"

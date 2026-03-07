@@ -148,6 +148,7 @@ try {
   # Install all workspace dependencies so shared packages
   # (e.g. packages/contracts) have their own node_modules available.
   Invoke-Pnpm @("install", "-r", "--include-workspace-root", "--ignore-scripts=false")
+  Invoke-Pnpm @("-C", "packages/contracts", "run", "build")
 
   & .\.venv\Scripts\python.exe -m pip install --upgrade pip | Out-Null
   & .\.venv\Scripts\python.exe -m pip install -e . | Out-Null

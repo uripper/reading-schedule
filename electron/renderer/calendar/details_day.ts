@@ -5,19 +5,8 @@ import type {
 } from "../../types/types.js";
 import { compareDayKeys } from "../app/day_keys_compare.js";
 import { rowsWithFinishFirst } from "./data.js";
+import { todayDateKey } from "./selection.js";
 import { sessionKeyFor } from "./utils.js";
-
-/**
- * Creates a local date key (`YYYY-MM-DD`) for the current day.
- * @returns Date key for "today" in local time.
- */
-function todayDateKey(): string {
-    const NOW = new Date();
-    const YEAR = NOW.getFullYear();
-    const MONTH = String(NOW.getMonth() + 1).padStart(2, "0");
-    const DAY = String(NOW.getDate()).padStart(2, "0");
-    return `${YEAR}-${MONTH}-${DAY}`;
-}
 
 /**
  * Categorizes a date relative to today for day-detail UI behavior.

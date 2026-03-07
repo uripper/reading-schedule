@@ -22,7 +22,9 @@ function rowSortKey(row: PlannerScheduleRow): string {
  * @param rows - Unsanitized schedule rows.
  * @returns New sorted row array.
  */
-function sortedRows(rows: PlannerScheduleRow[] = []): PlannerScheduleRow[] {
+export function sortedRows(
+    rows: PlannerScheduleRow[] = [],
+): PlannerScheduleRow[] {
     return [...rows].sort((left, right) => {
         return rowSortKey(left).localeCompare(rowSortKey(right));
     });

@@ -1,4 +1,4 @@
-import type { SearchDoc } from "../../types/types.js";
+import type { SearchDoc } from "@reading-schedule/contracts";
 import { bestAuthorOnlyScore } from "./search_author_scoring.js";
 import {
     SCORE_CONTAINS_TITLE,

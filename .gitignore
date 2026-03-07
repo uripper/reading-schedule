@@ -90,3 +90,10 @@ sonar-project.properties
 .github/instructions/sonarqube_mcp.instructions.md
 .scratch/planner_state.sqlite3
 uv.lock
+.jscpdignore
+report/jscpd-report.md
+report/html/index.html
+report/html/jscpd-report.json
+report/html/js/prism.js
+report/html/styles/prism.css
+report/html/styles/tailwind.css

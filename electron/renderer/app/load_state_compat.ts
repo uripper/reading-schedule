@@ -5,8 +5,6 @@ import type {
     SessionInput,
 } from "../../types/types.js";
 
-type ScalarValue = string | number | boolean | null | undefined;
-
 /**
  * Returns object-like state data for cross-shape compatibility reads.
  * @param saved - Loaded state payload.
@@ -19,24 +17,6 @@ export function toSavedRecord(
         return {};
     }
     return saved as Record<string, unknown>;
-}
-
-/**
- * Normalizes persisted blocked day-book map values to strict booleans.
- * @param raw - Persisted blocked map keyed by `YYYY-MM-DD|book_id`.
- * @returns Sanitized blocked map.
- */
-export function normalizeBlockedDayBooks(
-    raw: Record<string, ScalarValue> = {},
-): Record<string, boolean> {
-    const OUT: Record<string, boolean> = {};
-    for (const [KEY, VALUE] of Object.entries(raw)) {
-        if (!KEY) {
-            continue;
-        }
-        OUT[KEY] = Boolean(VALUE);
-    }
-    return OUT;
 }
 
 /**

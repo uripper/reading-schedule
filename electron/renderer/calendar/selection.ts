@@ -6,7 +6,7 @@ const MONTH_KEY_LENGTH = 7;
  * Returns today's local day key in `YYYY-MM-DD` format.
  * @returns Local today key.
  */
-function todayDateKey(): string {
+export function todayDateKey(): string {
     const NOW = new Date();
     const YEAR = NOW.getFullYear();
     const MONTH = String(NOW.getMonth() + 1).padStart(2, "0");

@@ -73,6 +73,10 @@ export function isOnOrBeforeDay(left: string, right: string): boolean {
     return COMPARED <= DAY_KEY_COMPARE_EQUAL;
 }
 
+// TODO: Can almost definitely combine above and below into a single function by
+// having a parameter that indicates whether to check for "on or before" vs
+// "on or after".
+
 /**
  * Checks whether a valid day key is on or after another valid day key.
  * @param left - Left day key.

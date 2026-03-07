@@ -13,6 +13,7 @@ import {
 } from "../../calendar/utils.js";
 import { todayKey } from "../../sessions/utils.js";
 import { isOnOrAfterDay } from "../day_keys_compare.js";
+import { bookByIdIndex } from "../state_indexes.js";
 
 const ZERO_COUNT = 0;
 const DEFAULT_TITLE = "Untitled";
@@ -42,24 +43,6 @@ function isCompletedRow(
     scheduleCompletions: Record<string, boolean>,
 ): boolean {
     return Boolean(scheduleCompletions[sessionKeyFor(row)]);
-}
-
-/**
- * Builds a map of books keyed by non-empty book id.
- * @param books - Source book catalog.
- * @returns Map of book id to book model.
- */
-function booksById(books: Book[]): Map<string, Book> {
-    const BY_ID = new Map<string, Book>();
-
-    for (const BOOK of books) {
-        const BOOK_ID = String(BOOK.book_id || "").trim();
-        if (!BOOK_ID) {
-            continue;
-        }
-        BY_ID.set(BOOK_ID, BOOK);
-    }
-    return BY_ID;
 }
 
 /**
@@ -145,7 +128,7 @@ export function buildTodayScheduleSnapshot(
 ): TodayScheduleSnapshot {
     const TODAY = todayKey();
     const ROW_LIST = rowsFromResult(lastResult);
-    const BOOKS_MAP = booksById(books);
+    const BOOKS_MAP = bookByIdIndex(books);
     const SUMMARIES_BY_BOOK_ID = new Map<string, TodayBookSummary>();
 
     let completedPlannedMinutes = ZERO_COUNT;
