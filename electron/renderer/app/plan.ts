@@ -1,6 +1,8 @@
 import { logDebug } from "@renderer/logger.js";
 import type {
+    Book,
     PlanGeneratePayload,
+    PlannerSettings,
     PlannerSummary,
     PlannerToken,
     RunPlanGenerationArgs,
@@ -182,31 +184,21 @@ export async function runPlanGeneration({
         setStatus(statusGeneratingMessage);
         const SETTINGS = collectSettings();
         const FORCED_START_DATE = tomorrowDayKey();
+
+        const CustomStartDate: string = checkCustomStartDate(
+            FORCED_START_DATE,
+            SETTINGS,
+        );
         const NORMALIZED_END_DATE = normalizeEndDate(
             SETTINGS.end_date,
-            FORCED_START_DATE,
+            CustomStartDate,
         );
-        const PAYLOAD_SETTINGS = {
-            ...SETTINGS,
-            start_date: FORCED_START_DATE,
-        };
-        if (NORMALIZED_END_DATE !== undefined && NORMALIZED_END_DATE !== "") {
-            PAYLOAD_SETTINGS.end_date = NORMALIZED_END_DATE;
-        }
-        const PLANNER_TOKEN = plannerTokenFromProfile(
-            PAYLOAD_SETTINGS.planner_solver_profile,
+        const PAYLOAD: PlanGeneratePayload = generatePayload(
+            SETTINGS,
+            CustomStartDate,
+            NORMALIZED_END_DATE,
+            PAYLOAD_BOOKS,
         );
-        const PAYLOAD: PlanGeneratePayload = {
-            books: PAYLOAD_BOOKS,
-            planner: PLANNER_TOKEN,
-            settings: PAYLOAD_SETTINGS,
-        };
-        logDebug("Submitting planner payload.", {
-            bookCount: PAYLOAD.books.length,
-            endDate: PAYLOAD.settings.end_date ?? null,
-            planner: PAYLOAD.planner,
-            startDate: PAYLOAD.settings.start_date,
-        });
 
         const DATA = await plannerApi.generate(PAYLOAD);
         await onSuccess(DATA);
@@ -229,4 +221,53 @@ export async function runPlanGeneration({
         });
         announce(MESSAGE, "assertive");
     }
+}
+
+function generatePayload(
+    settings: PlannerSettings,
+    customStartDate: string,
+    normalizedEndDate: string | undefined,
+    payloadBooks: Book[],
+) {
+    const PAYLOAD_SETTINGS = {
+        ...settings,
+        start_date: customStartDate,
+    };
+    if (normalizedEndDate !== undefined && normalizedEndDate !== "") {
+        PAYLOAD_SETTINGS.end_date = normalizedEndDate;
+    }
+    const PLANNER_TOKEN = plannerTokenFromProfile(
+        PAYLOAD_SETTINGS.planner_solver_profile,
+    );
+    const PAYLOAD: PlanGeneratePayload = {
+        books: payloadBooks,
+        planner: PLANNER_TOKEN,
+        settings: PAYLOAD_SETTINGS,
+    };
+    logDebug("Submitting planner payload.", {
+        bookCount: PAYLOAD.books.length,
+        endDate: PAYLOAD.settings.end_date ?? null,
+        planner: PAYLOAD.planner,
+        startDate: PAYLOAD.settings.start_date,
+    });
+    return PAYLOAD;
+}
+
+function checkCustomStartDate(
+    forcedStartDate: string,
+    settings: PlannerSettings,
+) {
+    let custom_start_date = settings.start_date;
+    if (
+        typeof custom_start_date !== "string" ||
+        Number.isNaN(Date.parse(custom_start_date))
+    ) {
+        custom_start_date = forcedStartDate;
+    } else {
+        custom_start_date = custom_start_date.trim();
+        if (custom_start_date === "") {
+            custom_start_date = forcedStartDate;
+        }
+    }
+    return custom_start_date;
 }
