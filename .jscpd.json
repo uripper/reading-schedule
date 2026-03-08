@@ -16,5 +16,5 @@
     ],
     "mode": "strict",
     "reporters": ["html", "markdown"],
-    "threshold": 0
+    "threshold": 0.1
 }

@@ -1,4 +1,4 @@
-import { localDayKeyFromIso } from "../app/date_keys.js";
+import { todayDayKey } from "../app/date_keys.js";
 /**
  * Parses a value as rounded integer with fallback.
  * @param value - String/number-like value.
@@ -21,5 +21,5 @@ export function toInt(
  * @returns Local day key for now.
  */
 export function todayKey(): string {
-    return localDayKeyFromIso(new Date().toISOString());
+    return todayDayKey();
 }
