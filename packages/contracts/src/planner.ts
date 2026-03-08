@@ -2,19 +2,18 @@ import { z } from "zod";
 import { PLAN_GENERATE_RESULT_SCHEMA } from "./planner_result.js";
 import { plannerSettingsSchema } from "./settings.js";
 import { JSON_VALUE_SCHEMA, schemaErrorMessage } from "./shared.js";
-import {
-    type PlanGeneratePayload,
-    type PlannerResult,
-    type PlannerStateSnapshot,
-} from "./types_subfolders/types_planner.js";
 import type { JsonValue } from "./types_subfolders/types_core.js";
+import type {
+    PlanGeneratePayload,
+    PlannerResult,
+    PlannerStateSnapshot,
+} from "./types_subfolders/types_planner.js";
 
-const BRIDGE_RESPONSE_ENVELOPE_SCHEMA = z
-    .looseObject({
-        data: JSON_VALUE_SCHEMA.optional(),
-        error: z.string().optional(),
-        ok: z.boolean().optional(),
-    })
+const BRIDGE_RESPONSE_ENVELOPE_SCHEMA = z.looseObject({
+    data: JSON_VALUE_SCHEMA.optional(),
+    error: z.string().optional(),
+    ok: z.boolean().optional(),
+});
 
 const PLAN_GENERATE_PAYLOAD_SCHEMA = z.object({
     books: z.array(z.unknown()),
