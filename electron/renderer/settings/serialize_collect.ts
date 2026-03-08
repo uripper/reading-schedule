@@ -38,8 +38,8 @@ function clampedOptionalNumber(inputId: string): number | null {
     }
 
     let value = Math.round(Number(RAW));
-    if (isNaN(value)) {
-        value =  0;
+    if (Number.isNaN(value)) {
+        value = 0;
     }
     if (INPUT.min !== "") {
         const MIN = Number(INPUT.min);
