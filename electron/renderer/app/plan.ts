@@ -185,17 +185,17 @@ export async function runPlanGeneration({
         const SETTINGS = collectSettings();
         const FORCED_START_DATE = tomorrowDayKey();
 
-        const CustomStartDate: string = checkCustomStartDate(
+        const CUSTOM_START_DATE: string = checkCustomStartDate(
             FORCED_START_DATE,
             SETTINGS,
         );
         const NORMALIZED_END_DATE = normalizeEndDate(
             SETTINGS.end_date,
-            CustomStartDate,
+            CUSTOM_START_DATE,
         );
         const PAYLOAD: PlanGeneratePayload = generatePayload(
             SETTINGS,
-            CustomStartDate,
+            CUSTOM_START_DATE,
             NORMALIZED_END_DATE,
             PAYLOAD_BOOKS,
         );
@@ -228,7 +228,7 @@ function generatePayload(
     customStartDate: string,
     normalizedEndDate: string | undefined,
     payloadBooks: Book[],
-) {
+): PlanGeneratePayload {
     const PAYLOAD_SETTINGS = {
         ...settings,
         start_date: customStartDate,
@@ -256,7 +256,7 @@ function generatePayload(
 function checkCustomStartDate(
     forcedStartDate: string,
     settings: PlannerSettings,
-) {
+): string {
     let custom_start_date = settings.start_date;
     if (
         typeof custom_start_date !== "string" ||
