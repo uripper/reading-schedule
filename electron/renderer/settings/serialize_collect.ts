@@ -1,3 +1,6 @@
+/**
+ * Serializes settings form state into planner settings payloads.
+ */
 import type { FieldDefinition, PlannerSettings } from "../../types/types.js";
 import { DEFAULT_DIFFICULTY_MULTIPLIER, WEEKDAYS } from "./config.js";
 import {
@@ -6,6 +9,7 @@ import {
     numberLevels,
     selectEl,
 } from "./field_io.js";
+import { normalizePlannerStartDate } from "./start_date.js";
 
 /**
  * Reads raw string value for a settings field from the DOM.
@@ -70,7 +74,15 @@ export function collectSettingsForm(dayOffs: string[]): PlannerSettings {
             OUTPUT[FIELD.id] = RAW === "true";
             continue;
         }
-        if (FIELD.type === "date" || FIELD.type === "select") {
+        if (FIELD.type === "date") {
+            if (FIELD.id === "start_date") {
+                OUTPUT[FIELD.id] = normalizePlannerStartDate(RAW);
+                continue;
+            }
+            OUTPUT[FIELD.id] = RAW;
+            continue;
+        }
+        if (FIELD.type === "select") {
             OUTPUT[FIELD.id] = RAW;
             continue;
         }

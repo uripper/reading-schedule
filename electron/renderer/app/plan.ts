@@ -1,66 +1,20 @@
+/**
+ * Normalizes settings and submits desktop planner generation requests.
+ */
 import { logDebug } from "@renderer/logger.js";
 import type {
     Book,
     PlanGeneratePayload,
     PlannerSettings,
     PlannerSummary,
-    PlannerToken,
     RunPlanGenerationArgs,
 } from "../../types/types.js";
-import { dayKeyFromDate } from "./date_keys.js";
-
-/**
- * Generates a day key for tomorrow's date in the format "YYYY-MM-DD".
- * @returns A string representing tomorrow's day key in "YYYY-MM-DD" format.
- */
-function tomorrowDayKey(): string {
-    const TOMORROW = new Date();
-    TOMORROW.setDate(TOMORROW.getDate() + 1);
-    return dayKeyFromDate(TOMORROW);
-}
-
-/**
- * Maps settings solver profile to planner token accepted by the bridge.
- * @param profileRaw - Raw settings profile value.
- * @returns Planner token for Python solve strategy selection.
- */
-function plannerTokenFromProfile(profileRaw: unknown): PlannerToken {
-    // TODO: We are going to temporarily break this by sending everything to fast
-    // THIS MUST BE FIXED EVENTUALLY!
-    if (profileRaw === "fast") {
-        return "mip-fast";
-    }
-    if (profileRaw === "thorough") {
-        return "mip-fast";
-    }
-    if (profileRaw === "balanced") {
-        return "mip-fast";
-    }
-    return "mip-fast";
-}
-
-/**
- * Normalizes the end date by ensuring it is a valid string and not before the start date.
- * @param endDate - The end date to normalize.
- * @param startDate - The start date to compare against.
- * @returns A normalized end date string or undefined if the input is invalid.
- */
-function normalizeEndDate(
-    endDate: unknown,
-    startDate: string,
-): string | undefined {
-    if (typeof endDate !== "string" || !endDate) {
-        return undefined;
-    }
-    const NORMALIZED_END_DATE = endDate.trim();
-    if (NORMALIZED_END_DATE === "") {
-        return undefined;
-    }
-    if (NORMALIZED_END_DATE < startDate) {
-        return startDate;
-    }
-    return NORMALIZED_END_DATE;
-}
+import { todayDayKey } from "./date_keys.js";
+import {
+    normalizePlannerEndDate,
+    normalizePlannerStartDate,
+    plannerTokenFromProfile,
+} from "./plan_normalize.js";
 
 /**
  * Generates a summary log message based on the planner summary data.
@@ -183,13 +137,13 @@ export async function runPlanGeneration({
 
         setStatus(statusGeneratingMessage);
         const SETTINGS = collectSettings();
-        const FORCED_START_DATE = tomorrowDayKey();
+        const FORCED_START_DATE = todayDayKey();
 
-        const CUSTOM_START_DATE: string = checkCustomStartDate(
+        const CUSTOM_START_DATE = normalizePlannerStartDate(
+            SETTINGS.start_date,
             FORCED_START_DATE,
-            SETTINGS,
         );
-        const NORMALIZED_END_DATE = normalizeEndDate(
+        const NORMALIZED_END_DATE = normalizePlannerEndDate(
             SETTINGS.end_date,
             CUSTOM_START_DATE,
         );
@@ -223,6 +177,14 @@ export async function runPlanGeneration({
     }
 }
 
+/**
+ * Builds the final planner payload from normalized settings and books.
+ * @param settings - Collected planner settings.
+ * @param customStartDate - Normalized effective start date.
+ * @param normalizedEndDate - Normalized end date or undefined.
+ * @param payloadBooks - Books included in the request.
+ * @returns Planner API payload.
+ */
 function generatePayload(
     settings: PlannerSettings,
     customStartDate: string,
@@ -251,23 +213,4 @@ function generatePayload(
         startDate: PAYLOAD.settings.start_date,
     });
     return PAYLOAD;
-}
-
-function checkCustomStartDate(
-    forcedStartDate: string,
-    settings: PlannerSettings,
-): string {
-    let custom_start_date = settings.start_date;
-    if (
-        typeof custom_start_date !== "string" ||
-        Number.isNaN(Date.parse(custom_start_date))
-    ) {
-        custom_start_date = forcedStartDate;
-    } else {
-        custom_start_date = custom_start_date.trim();
-        if (custom_start_date === "") {
-            custom_start_date = forcedStartDate;
-        }
-    }
-    return custom_start_date;
 }

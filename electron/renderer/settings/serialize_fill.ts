@@ -1,3 +1,6 @@
+/**
+ * Fills settings form controls from persisted planner settings.
+ */
 import type { PlannerSettings } from "../../types/types.js";
 import {
     DEFAULT_DIFFICULTY_MULTIPLIER,
@@ -11,6 +14,10 @@ import {
     numberLevels,
     selectEl,
 } from "./field_io.js";
+import {
+    minimumPlannerStartDate,
+    normalizePlannerStartDate,
+} from "./start_date.js";
 
 /**
  * Normalizes arbitrary settings value to text for form controls.
@@ -100,7 +107,12 @@ export function fillSettingsForm(
     }
 }
 
+/**
+ * Populates the base settings fields before derived weekday/difficulty rows.
+ * @param settings - Planner settings payload.
+ */
 function populateSettingsFields(settings: PlannerSettings) {
+    const MINIMUM_START_DATE = minimumPlannerStartDate();
     for (const FIELD of allFieldDefinitions()) {
         const VALUE = settings[FIELD.id];
         if (FIELD.type === "select") {
@@ -111,8 +123,17 @@ function populateSettingsFields(settings: PlannerSettings) {
             inputEl(FIELD.id).checked = checkboxSettingValue(VALUE);
             continue;
         }
+        if (FIELD.type === "date" && FIELD.id === "start_date") {
+            inputEl(FIELD.id).value = normalizePlannerStartDate(
+                VALUE,
+                MINIMUM_START_DATE,
+            );
+            continue;
+        }
         inputEl(FIELD.id).value = settingValueText(VALUE);
     }
+
+    inputEl("start_date").min = MINIMUM_START_DATE;
 
     const MINUTES_BY_WEEKDAY = settings.minutes_by_weekday ?? {};
 
