@@ -1,12 +1,23 @@
+/**
+ * Renders selected-day schedule details and manual-add controls for the
+ * calendar side panel.
+ */
 import type {
     CalendarDetailsState,
     DetailInteractionHandlers,
 } from "../../types/types.js";
 import { el } from "../dom.js";
-import { buildManualSessionAddPanel, dayMode } from "./details_helpers.js";
+import {
+    buildManualSessionAddPanel,
+    buildSessionItemsForMode,
+    DEFAULT_DETAILS_ITEM_BUILDERS,
+    dayMode,
+} from "./details_helpers.js";
 import { emptyMessageForMode, rowsForMode } from "./details_render_helpers.js";
 import { dateHeading } from "./utils.js";
 
+// TODO: Move these calendar detail view-only interfaces into `electron/types`
+// when the renderer detail contracts are consolidated.
 interface ManualAddPanelArgs {
     defaults: ReturnType<typeof defaultManualAddValues>;
     interactionHandlers: DetailInteractionHandlers;
@@ -15,6 +26,11 @@ interface ManualAddPanelArgs {
     rerenderDetails: () => void;
 }
 
+/**
+ * Resolves schedule rows for the currently selected calendar day.
+ * @param state - Calendar details state snapshot.
+ * @returns Rows for the selected day or an empty list.
+ */
 function rowsForSelectedDate(
     state: CalendarDetailsState,
 ): CalendarDetailsState["dates"][string] {
@@ -25,6 +41,11 @@ function rowsForSelectedDate(
     return state.dates[KEY];
 }
 
+/**
+ * Builds the heading element for the selected calendar day.
+ * @param key - Selected day key.
+ * @returns Heading element for the details panel.
+ */
 function titleForSelectedDate(key: string): HTMLHeadingElement {
     const TITLE = document.createElement("h2");
     TITLE.textContent = "Selected Day";
@@ -34,6 +55,11 @@ function titleForSelectedDate(key: string): HTMLHeadingElement {
     return TITLE;
 }
 
+/**
+ * Computes initial values for the manual-session add form.
+ * @param rows - Rows currently rendered for the selected day.
+ * @returns Default book id and minutes for the add panel.
+ */
 function defaultManualAddValues(rows: CalendarDetailsState["dates"][string]): {
     firstBookId: string;
     firstMinutes: number | null;
@@ -47,37 +73,11 @@ function defaultManualAddValues(rows: CalendarDetailsState["dates"][string]): {
     };
 }
 
-function scheduledBookTitles(
-    rows: CalendarDetailsState["dates"][string],
-): string[] {
-    const SEEN_TITLES = new Set<string>();
-    const TITLES: string[] = [];
-    for (const ROW of rows) {
-        if (ROW.finish) {
-            continue;
-        }
-        const TITLE = String(ROW.title || "").trim() || "Untitled";
-        if (SEEN_TITLES.has(TITLE)) {
-            continue;
-        }
-        SEEN_TITLES.add(TITLE);
-        TITLES.push(TITLE);
-    }
-    return TITLES;
-}
-
-function booksListNode(bookTitles: string[]): HTMLElement {
-    const LIST = document.createElement("ul");
-    LIST.className = "day-scheduled-books-list";
-    for (const TITLE of bookTitles) {
-        const ITEM = document.createElement("li");
-        ITEM.className = "day-scheduled-book-item";
-        ITEM.textContent = TITLE;
-        LIST.append(ITEM);
-    }
-    return LIST;
-}
-
+/**
+ * Builds the manual-session add panel for the selected day.
+ * @param args - Default values, handlers, and rerender wiring.
+ * @returns Manual add panel element.
+ */
 function manualAddPanel(args: ManualAddPanelArgs): HTMLElement {
     let defaultMinutes: number | undefined;
     if (args.defaults.firstMinutes !== null) {
@@ -93,6 +93,12 @@ function manualAddPanel(args: ManualAddPanelArgs): HTMLElement {
     });
 }
 
+/**
+ * Renders the empty hint state when no day is selected.
+ * @param details - Calendar detail container.
+ * @param title - Heading element for the panel.
+ * @param state - Calendar details state snapshot.
+ */
 function renderHintOnly(
     details: HTMLElement,
     title: HTMLElement,
@@ -105,6 +111,38 @@ function renderHintOnly(
     state.expectedFinishHighlightDate = "";
 }
 
+// TODO: Move these calendar detail view-only interfaces into `electron/types`
+// when the renderer detail contracts are consolidated.
+interface DetailsListArgs {
+    interactionHandlers: DetailInteractionHandlers;
+    mode: ReturnType<typeof dayMode>;
+    rerenderDetails: () => void;
+    rows: CalendarDetailsState["dates"][string];
+    state: CalendarDetailsState;
+}
+
+/**
+ * Builds the selected-day session list for the current calendar mode.
+ * @param args - Rows, handlers, and rerender callback.
+ * @returns Detail list wrapper with rendered session items.
+ */
+function detailsListNode(args: DetailsListArgs): HTMLElement {
+    const LIST = document.createElement("div");
+    LIST.className = "day-details-list";
+    const ITEM_NODES = buildSessionItemsForMode({
+        builders: DEFAULT_DETAILS_ITEM_BUILDERS,
+        interactionHandlers: args.interactionHandlers,
+        mode: args.mode,
+        rerenderDetails: args.rerenderDetails,
+        rows: args.rows,
+        state: args.state,
+    });
+    LIST.append(...ITEM_NODES);
+    return LIST;
+}
+
+// TODO: Move these calendar detail view-only interfaces into `electron/types`
+// when the renderer detail contracts are consolidated.
 interface RenderEmptyRowsArgs {
     details: HTMLElement;
     mode: ReturnType<typeof dayMode>;
@@ -113,6 +151,10 @@ interface RenderEmptyRowsArgs {
     title: HTMLElement;
 }
 
+/**
+ * Renders the empty-row state while keeping manual add available.
+ * @param args - Empty-state render inputs.
+ */
 function renderEmptyRows(args: RenderEmptyRowsArgs): void {
     const EMPTY = document.createElement("p");
     EMPTY.className = "hint-text";
@@ -156,7 +198,6 @@ export function renderCalendarDetails(
         );
     };
     const ROWS_TO_RENDER = rowsForMode(ROWS, MODE, interactionHandlers);
-    const SCHEDULED_BOOK_TITLES = scheduledBookTitles(ROWS_TO_RENDER);
     const DEFAULTS = defaultManualAddValues(ROWS_TO_RENDER);
     const MANUAL_ADD_PANEL = manualAddPanel({
         defaults: DEFAULTS,
@@ -165,7 +206,7 @@ export function renderCalendarDetails(
         mode: MODE,
         rerenderDetails: RERENDER_DETAILS,
     });
-    if (!SCHEDULED_BOOK_TITLES.length) {
+    if (!ROWS_TO_RENDER.length) {
         renderEmptyRows({
             details: DETAILS,
             mode: MODE,
@@ -176,8 +217,14 @@ export function renderCalendarDetails(
         return;
     }
 
-    const LIST = booksListNode(SCHEDULED_BOOK_TITLES);
+    const DETAILS_LIST = detailsListNode({
+        interactionHandlers,
+        mode: MODE,
+        rerenderDetails: RERENDER_DETAILS,
+        rows: ROWS_TO_RENDER,
+        state: CALENDAR_STATE,
+    });
 
-    DETAILS.replaceChildren(TITLE, LIST, MANUAL_ADD_PANEL);
+    DETAILS.replaceChildren(TITLE, DETAILS_LIST, MANUAL_ADD_PANEL);
     CALENDAR_STATE.expectedFinishHighlightDate = "";
 }

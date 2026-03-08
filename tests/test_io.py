@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -15,11 +15,27 @@ if TYPE_CHECKING:
 
 def test_load_inputs_parses_books_and_settings(tmp_path: Path) -> None:
     """Test that load inputs parses books and settings."""
-    books = tmp_path / "books.csv"
+    books = tmp_path / "books.json"
     books.write_text(
-        "book_id,title,words_total,priority,difficulty,deadline,min_blocks_per_session\n"
-        "b1,One,12000,5,2,2026-02-20,2\n"
-        "b2,Two,9000,3,4,,3\n",
+        json.dumps([
+            {
+                "book_id": "b1",
+                "title": "One",
+                "words_total": 12000,
+                "priority": 5,
+                "difficulty": 2,
+                "deadline": "2026-02-20",
+                "min_blocks_per_session": 2,
+            },
+            {
+                "book_id": "b2",
+                "title": "Two",
+                "words_total": 9000,
+                "priority": 3,
+                "difficulty": 4,
+                "min_blocks_per_session": 3,
+            },
+        ]),
         encoding="utf-8",
     )
     settings = tmp_path / "settings.json"
@@ -34,19 +50,27 @@ def test_load_inputs_parses_books_and_settings(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     loaded_books, loaded_settings = load_inputs(str(books), str(settings))
-    loaded_books_map = cast("list[dict[str, str]]", loaded_books)
     assert len(loaded_books) == 2
-    assert loaded_books_map[0]["deadline"] == "2026-02-20"
-    assert loaded_books_map[1]["min_blocks_per_session"] == "3"
+    assert loaded_books[0].deadline is not None
+    assert loaded_books[0].deadline.isoformat() == "2026-02-20"
+    assert loaded_books[1].min_blocks_per_session == 3
     assert loaded_settings.minutes_per_day == 60
     assert len(loaded_settings.days_off) == 1
 
 
 def test_load_inputs_rejects_invalid_weekday_map(tmp_path: Path) -> None:
     """Test that load inputs rejects invalid weekday map."""
-    books = tmp_path / "books.csv"
+    books = tmp_path / "books.json"
     books.write_text(
-        "book_id,title,words_total,priority,difficulty\nb1,One,12000,5,2\n",
+        json.dumps([
+            {
+                "book_id": "b1",
+                "title": "One",
+                "words_total": 12000,
+                "priority": 5,
+                "difficulty": 2,
+            }
+        ]),
         encoding="utf-8",
     )
     settings = tmp_path / "settings.json"

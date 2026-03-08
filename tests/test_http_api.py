@@ -132,9 +132,23 @@ def test_plan_generate_endpoint() -> None:
 
 
 def test_state_sample_endpoint() -> None:
-    with pytest.raises(AttributeError) as error:
-        _sample_payload()
-    assert "words_full" in str(error.value)
+    payload = _sample_payload()
+
+    assert isinstance(payload, dict)
+    books = payload.get("books")
+    settings = payload.get("settings")
+    assert isinstance(books, list)
+    assert isinstance(settings, dict)
+    assert len(books) == 5
+    first_book = books[0]
+    assert isinstance(first_book, dict)
+    assert first_book.get("scheduled_days") == [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+    ]
 
 
 def test_books_search_empty_query_returns_empty() -> None:
@@ -165,10 +179,14 @@ def test_state_sample_endpoint_http() -> None:
     client = _create_client()
     response = client.post("/api/state/sample", json={})
 
-    assert response.status_code == 500
+    assert response.status_code == 200
     body = response.json()
     assert isinstance(body, dict)
-    assert body.get("detail") == "Internal Server Error"
+    books = body.get("books")
+    settings = body.get("settings")
+    assert isinstance(books, list)
+    assert isinstance(settings, dict)
+    assert len(books) == 5
 
 
 @pytest.mark.skipif(not HAS_TEST_CLIENT, reason="fastapi[test] extras missing")

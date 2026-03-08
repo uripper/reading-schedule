@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import csv
 import json
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
@@ -12,13 +11,29 @@ from reading_plan.bridge_logging import (
     log_file_execution,
     log_incoming_data,
 )
-from reading_plan.input.builders import settings_from_data
+from reading_plan.input.builders import book_from_data, settings_from_data
 
 if TYPE_CHECKING:
+    from reading_plan.api_types import BookData
     from reading_plan.planner_types import Book, Settings
 
 
 LOGGER = get_bridge_logger(__name__)
+
+
+def read_book_data(path: str) -> list[BookData]:
+    """Load raw book payload rows from a JSON file."""
+    raw = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(raw, list):
+        msg = f"books file '{path}' must contain a JSON array"
+        raise TypeError(msg)
+    rows: list[BookData] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            msg = f"each book entry in '{path}' must be a JSON object"
+            raise TypeError(msg)
+        rows.append(cast("BookData", item))
+    return rows
 
 
 def load_books(path: str) -> list[Book]:
@@ -34,12 +49,7 @@ def load_books(path: str) -> list[Book]:
         file_path=__file__,
         value=path,
     )
-    books: list[Book] = []
-    with Path(path).open(newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            typed_row = cast("Book", row)
-            books.append(typed_row)
+    books = [book_from_data(row) for row in read_book_data(path)]
     if not books:
         msg = "books file is empty"
         raise ValueError(msg)
