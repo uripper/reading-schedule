@@ -5,13 +5,28 @@ from __future__ import annotations
 from datetime import date
 from typing import TypeAlias
 
-from ortools.sat.python.cp_model import CpModel, IntVar, LinearExpr
+from reading_plan.planning.cp_sat_types import (
+    CpModelLike,
+    CpSolverLike,
+    IntVarLike,
+    LinearExprLike as CpSatLinearExprLike,
+)
 
-LinearExprLike: TypeAlias = LinearExpr | IntVar | int
-BookDayVars: TypeAlias = dict[tuple[str, date], IntVar]
-FinishedVars: TypeAlias = dict[str, IntVar]
+__all__ = [
+    "BookDayVars",
+    "BuildCpSatResult",
+    "CpModelLike",
+    "CpSolverLike",
+    "FinishedVars",
+    "IntVarLike",
+    "LinearExprLike",
+]
+
+LinearExprLike: TypeAlias = CpSatLinearExprLike | IntVarLike | int
+BookDayVars: TypeAlias = dict[tuple[str, date], IntVarLike]
+FinishedVars: TypeAlias = dict[str, IntVarLike]
 BuildCpSatResult: TypeAlias = tuple[
-    CpModel,
+    CpModelLike,
     BookDayVars,
     BookDayVars,
     FinishedVars,

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import logging
 from typing import TYPE_CHECKING
 
-from ortools.sat.python import cp_model
+from reading_plan.planning.cp_sat_runtime import cp_model
 from reading_plan.planning.model_objective import (
     ObjectiveContext,
     build_objective_terms,
@@ -90,7 +90,7 @@ def build_cp_sat(
                 assigned_blocks=context.x,
             ),
         )
-        model.maximize(sum(terms))
+        model.Maximize(sum(terms))
         LOGGER.debug(
             "build_cp_sat: objective added",
             extra={"term_count": len(terms)},

@@ -10,11 +10,11 @@ from reading_plan.planner_types import PLAN_MODE_SPREAD_OUT
 if TYPE_CHECKING:
     from datetime import date
 
-    from ortools.sat.python.cp_model import IntVar
     from reading_plan.planner_types import Book, Settings
     from reading_plan.planning.model_types import (
         BookDayVars,
         FinishedVars,
+        IntVarLike,
         LinearExprLike,
     )
 
@@ -25,7 +25,7 @@ class ObjectiveContext:
 
     settings: Settings
     days: list[date]
-    useful_words: dict[str, IntVar]
+    useful_words: dict[str, IntVarLike]
     finished: FinishedVars
     active_flags: BookDayVars
     assigned_blocks: BookDayVars

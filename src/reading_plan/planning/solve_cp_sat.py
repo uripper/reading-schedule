@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from time import perf_counter
 from typing import TYPE_CHECKING
 
-from ortools.sat.python import cp_model
 from reading_plan.planner_types import PlanResult
+from reading_plan.planning.cp_sat_runtime import cp_model
 from reading_plan.planning.model import BuildModelOptions, build_cp_sat
 from reading_plan.planning.solve_heuristics import (
     FEASIBLE_STATUS_NAME,
@@ -18,10 +18,15 @@ if TYPE_CHECKING:
     from datetime import date
 
     from reading_plan.planner_types import Book, Settings
-    from reading_plan.planning.model_types import BookDayVars, BuildCpSatResult
+    from reading_plan.planning.model_types import (
+        BookDayVars,
+        BuildCpSatResult,
+        CpModelLike,
+        CpSolverLike,
+    )
     from reading_plan.planning.solve_heuristics import SolveStage
 
-CP_SAT_PLANNER_NAME = "mip"
+CP_SAT_PLANNER_NAME = "cp-sat"
 MODEL_INVALID_STATUS_NAME = "MODEL_INVALID"
 INFEASIBLE_STATUS_NAME = "INFEASIBLE"
 UNKNOWN_STATUS_NAME = "UNKNOWN"
@@ -117,7 +122,7 @@ def _build_model_for_stage(
 
 
 def _add_hints(
-    model: cp_model.CpModel,
+    model: CpModelLike,
     x_vars: BookDayVars,
     assignments: dict[tuple[str, date], int],
 ) -> None:
@@ -128,11 +133,11 @@ def _add_hints(
         x_var = x_vars.get(key)
         if x_var is None:
             continue
-        model.add_hint(x_var, int(value))
+        model.AddHint(x_var, int(value))
 
 
 def _apply_solver_parameters(
-    solver: cp_model.CpSolver,
+    solver: CpSolverLike,
     stage: SolveStage,
 ) -> None:
     """Apply deterministic solver settings for one stage."""
@@ -146,7 +151,7 @@ def _apply_solver_parameters(
 
 def _result_from_solver(
     raw_status: int,
-    solver: cp_model.CpSolver,
+    solver: CpSolverLike,
     variables: BookDayVars,
 ) -> PlanResult:
     """Build planner result from solved model outputs and status code."""
@@ -174,7 +179,7 @@ def _status_name(raw_status: int) -> str:
 
 
 def _extract_assignments(
-    solver: cp_model.CpSolver,
+    solver: CpSolverLike,
     variables: BookDayVars,
 ) -> dict[tuple[str, date], int]:
     """Extract positive assignment values from solved decision variables."""

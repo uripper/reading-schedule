@@ -17,9 +17,13 @@ from reading_plan.reading_calendar import date_range
 if TYPE_CHECKING:
     from datetime import date
 
-    from ortools.sat.python.cp_model import CpModel, IntVar
     from reading_plan.planner_types import Book, Settings
-    from reading_plan.planning.model_types import BookDayVars, FinishedVars
+    from reading_plan.planning.model_types import (
+        BookDayVars,
+        CpModelLike,
+        FinishedVars,
+        IntVarLike,
+    )
 
 LOGGER = logging.getLogger("reading_plan.bridge")
 DEPENDENCY_PROGRESS_LOG_INTERVAL = 25
@@ -31,7 +35,7 @@ COMPLETION_GAP = 1
 class ModelBuildContext:
     """Shared state used while building the planner CP-SAT model."""
 
-    model: CpModel
+    model: CpModelLike
     books: list[Book]
     days: list[date]
     caps: dict[date, int]
@@ -43,7 +47,7 @@ class ModelBuildContext:
 
 
 def create_model_context(
-    model: CpModel,
+    model: CpModelLike,
     books: list[Book],
     settings: Settings,
 ) -> ModelBuildContext:
@@ -86,14 +90,14 @@ def add_day_constraints(context: ModelBuildContext) -> None:
         active_books = sum(
             context.y[book.book_id, day] for book in context.books
         )
-        context.model.add(assigned_blocks <= context.caps[day])
-        context.model.add(active_books <= context.settings.max_books_per_day)
-        context.model.add(active_books <= context.settings.max_sessions_per_day)
+        context.model.Add(assigned_blocks <= context.caps[day])
+        context.model.Add(active_books <= context.settings.max_books_per_day)
+        context.model.Add(active_books <= context.settings.max_sessions_per_day)
 
 
 def add_dependency_constraints(context: ModelBuildContext) -> None:
     """Prevent scheduling a blocked book before its blocker is complete."""
-    dependency_cache: dict[str, dict[date, IntVar]] = {}
+    dependency_cache: dict[str, dict[date, IntVarLike]] = {}
     blocker_index_map = {
         book.book_id: index for index, book in enumerate(context.books)
     }
@@ -115,7 +119,7 @@ def add_dependency_constraints(context: ModelBuildContext) -> None:
 
         progress_before_by_day = dependency_cache[blocker_id]
         for day in context.days:
-            context.model.add(
+            context.model.Add(
                 progress_before_by_day[day]
                 >= blocker.words_total * context.y[book.book_id, day]
             )
@@ -140,10 +144,10 @@ def add_dependency_constraints(context: ModelBuildContext) -> None:
 
 def add_progress_constraints(
     context: ModelBuildContext,
-) -> tuple[FinishedVars, dict[str, IntVar]]:
+) -> tuple[FinishedVars, dict[str, IntVarLike]]:
     """Link reading progress to completion, useful words, and deadlines."""
     finished: FinishedVars = {}
-    useful_words: dict[str, IntVar] = {}
+    useful_words: dict[str, IntVarLike] = {}
     for book_index, book in enumerate(context.books):
         progress = sum(
             context.wpb[book.book_id] * context.x[book.book_id, day]
@@ -154,23 +158,23 @@ def add_progress_constraints(
             book.min_blocks_per_session - COMPLETION_GAP,
         )
         max_progress = book.words_total + overshoot
-        context.model.add(progress <= max_progress)
+        context.model.Add(progress <= max_progress)
 
-        useful_words[book.book_id] = context.model.new_int_var(
+        useful_words[book.book_id] = context.model.NewIntVar(
             0,
             book.words_total,
             f"u_{book_index}",
         )
         useful_word_var = useful_words[book.book_id]
-        context.model.add(useful_word_var <= progress)
-        context.model.add(useful_word_var <= book.words_total)
+        context.model.Add(useful_word_var <= progress)
+        context.model.Add(useful_word_var <= book.words_total)
 
-        finished_var = context.model.new_bool_var(f"f_{book_index}")
+        finished_var = context.model.NewBoolVar(f"f_{book_index}")
         finished[book.book_id] = finished_var
         unfinished_limit = book.words_total - COMPLETION_GAP
         unfinished_limit = max(unfinished_limit, 0)
-        context.model.add(progress >= book.words_total * finished_var)
-        context.model.add(
+        context.model.Add(progress >= book.words_total * finished_var)
+        context.model.Add(
             progress <= unfinished_limit + max_progress * finished_var
         )
 
@@ -183,7 +187,7 @@ def add_progress_constraints(
             context.wpb[book.book_id] * context.x[book.book_id, day]
             for day in due_days
         )
-        context.model.add(due_progress >= book.words_total)
+        context.model.Add(due_progress >= book.words_total)
     return finished, useful_words
 
 
@@ -205,7 +209,7 @@ def add_near_term_lock_constraints(
         if day > lock_cutoff:
             continue
         fixed_value = assignments.get(key, 0)
-        context.model.add(variable == fixed_value)
+        context.model.Add(variable == fixed_value)
 
 
 def _create_book_day_variables(
@@ -221,16 +225,16 @@ def _create_book_day_variables(
             if not book_is_scheduled_for_day(book, day):
                 upper = 0
             key = (book.book_id, day)
-            x_vars[key] = context.model.new_int_var(
+            x_vars[key] = context.model.NewIntVar(
                 0,
                 upper,
                 f"x_{book_index}_{day_index}",
             )
-            y_vars[key] = context.model.new_bool_var(
+            y_vars[key] = context.model.NewBoolVar(
                 f"y_{book_index}_{day_index}"
             )
-            context.model.add(x_vars[key] <= upper * y_vars[key])
-            context.model.add(
+            context.model.Add(x_vars[key] <= upper * y_vars[key])
+            context.model.Add(
                 x_vars[key] >= book.min_blocks_per_session * y_vars[key]
             )
     return x_vars, y_vars
@@ -240,21 +244,21 @@ def _build_progress_before_by_day(
     context: ModelBuildContext,
     blocker: Book,
     blocker_index: int,
-) -> dict[date, IntVar]:
+) -> dict[date, IntVarLike]:
     """Build prefix-progress vars: words read before each day for a blocker."""
-    progress_before_by_day: dict[date, IntVar] = {}
+    progress_before_by_day: dict[date, IntVarLike] = {}
     max_progress = blocker.words_total + context.wpb[blocker.book_id] * max(
         MIN_OVERSHOOT_BLOCKS,
         blocker.min_blocks_per_session - COMPLETION_GAP,
     )
     progressed_before = 0
     for day_index, day in enumerate(context.days):
-        before_var = context.model.new_int_var(
+        before_var = context.model.NewIntVar(
             0,
             max_progress,
             f"dep_progress_before_{blocker_index}_{day_index}",
         )
-        context.model.add(before_var == progressed_before)
+        context.model.Add(before_var == progressed_before)
         progress_before_by_day[day] = before_var
         progressed_before = (
             before_var

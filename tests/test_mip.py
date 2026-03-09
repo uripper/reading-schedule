@@ -74,6 +74,7 @@ def test_mip_keeps_single_block_assignments() -> None:
     )
     result = solve_plan(books, settings, planner="mip")
     assert result.status in {"OPTIMAL", "FEASIBLE"}
+    assert result.planner == "cp-sat"
     assert result.assignments == {("b1", date(2026, 2, 16)): 1}
 
 
@@ -143,5 +144,4 @@ def test_mip_respects_book_scheduled_days() -> None:
     ]
     assert planned_days
     assert all(weekday_key(day) in allowed_days for day in planned_days)
-
 
