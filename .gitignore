@@ -98,3 +98,5 @@ report/html/jscpd-report.json
 report/html/js/prism.js
 report/html/styles/prism.css
 report/html/styles/tailwind.css
+
+*.tgz

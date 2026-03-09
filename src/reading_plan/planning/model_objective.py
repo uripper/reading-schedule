@@ -10,8 +10,13 @@ from reading_plan.planner_types import PLAN_MODE_SPREAD_OUT
 if TYPE_CHECKING:
     from datetime import date
 
+    from ortools.sat.python.cp_model import IntVar
     from reading_plan.planner_types import Book, Settings
-    from reading_plan.planning.model_types import IntVarLike, LinearExprLike
+    from reading_plan.planning.model_types import (
+        BookDayVars,
+        FinishedVars,
+        LinearExprLike,
+    )
 
 
 @dataclass
@@ -20,10 +25,10 @@ class ObjectiveContext:
 
     settings: Settings
     days: list[date]
-    useful_words: dict[str, IntVarLike]
-    finished: dict[str, IntVarLike]
-    active_flags: dict[tuple[str, date], IntVarLike]
-    assigned_blocks: dict[tuple[str, date], IntVarLike]
+    useful_words: dict[str, IntVar]
+    finished: FinishedVars
+    active_flags: BookDayVars
+    assigned_blocks: BookDayVars
 
 
 def _priority_weights(books: list[Book]) -> dict[str, int]:
