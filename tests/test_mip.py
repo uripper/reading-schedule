@@ -61,6 +61,22 @@ def test_mip_finishes_book_when_last_chunk_is_sub_block() -> None:
     assert planned >= books[0].words_total
 
 
+def test_mip_keeps_single_block_assignments() -> None:
+    """Test that one-block CP-SAT assignments are preserved in results."""
+    books = [Book("b1", "Short", 2000, 1, 1, None, 1)]
+    settings = demo_settings(
+        start_date=date(2026, 2, 16),
+        end_date=date(2026, 2, 16),
+        minutes_per_day=15,
+        time_quantum_minutes=15,
+        max_books_per_day=1,
+        max_sessions_per_day=1,
+    )
+    result = solve_plan(books, settings, planner="mip")
+    assert result.status in {"OPTIMAL", "FEASIBLE"}
+    assert result.assignments == {("b1", date(2026, 2, 16)): 1}
+
+
 def test_mip_honors_blocker_dependency() -> None:
     """Test that mip honors blocker dependency."""
     books = [
@@ -127,6 +143,5 @@ def test_mip_respects_book_scheduled_days() -> None:
     ]
     assert planned_days
     assert all(weekday_key(day) in allowed_days for day in planned_days)
-
 
 

@@ -99,3 +99,5 @@ report/html/js/prism.js
 report/html/styles/prism.css
 report/html/styles/tailwind.css
 reading-schedule-0.2.0.tgz
+
+*.tgz
