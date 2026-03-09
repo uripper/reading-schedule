@@ -3,15 +3,17 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Any, TypeAlias
+from typing import TypeAlias
 
-IntVarLike: TypeAlias = Any
-LinearExprLike: TypeAlias = Any
-ConstraintLike: TypeAlias = Any
-CpModelLike: TypeAlias = Any
-CpModelModuleLike: TypeAlias = Any
-BookDayVars = dict[tuple[str, date], IntVarLike]
-FinishedVars = dict[str, IntVarLike]
-BuildCpSatResult = tuple[
-    CpModelLike, BookDayVars, BookDayVars, FinishedVars, list[date]
+from ortools.sat.python.cp_model import CpModel, IntVar, LinearExpr
+
+LinearExprLike: TypeAlias = LinearExpr | IntVar | int
+BookDayVars: TypeAlias = dict[tuple[str, date], IntVar]
+FinishedVars: TypeAlias = dict[str, IntVar]
+BuildCpSatResult: TypeAlias = tuple[
+    CpModel,
+    BookDayVars,
+    BookDayVars,
+    FinishedVars,
+    list[date],
 ]
