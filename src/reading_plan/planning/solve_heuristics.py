@@ -42,6 +42,7 @@ class SolveStage:
     max_time_seconds: float
     seed: int
     include_objective: bool = True
+    cp_model_presolve: bool = True
     stop_after_first_solution: bool = False
     worker_count: int = DEFAULT_WORKER_COUNT
     lock_days_from_start: int = 0

@@ -7,7 +7,6 @@ from time import perf_counter
 from typing import TYPE_CHECKING
 
 from ortools.sat.python import cp_model
-
 from reading_plan.planner_types import PlanResult
 from reading_plan.planning.model import BuildModelOptions, build_cp_sat
 from reading_plan.planning.solve_heuristics import (
@@ -140,7 +139,7 @@ def _apply_solver_parameters(
     params = solver.parameters
     params.random_seed = stage.seed
     params.num_search_workers = stage.worker_count
-    params.cp_model_presolve = False
+    params.cp_model_presolve = stage.cp_model_presolve
     params.stop_after_first_solution = stage.stop_after_first_solution
     params.max_time_in_seconds = stage.max_time_seconds
 

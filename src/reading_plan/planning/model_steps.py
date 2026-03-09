@@ -79,7 +79,6 @@ def create_model_context(
 
 def add_day_constraints(context: ModelBuildContext) -> None:
     """Apply daily capacity and active-book limits."""
-    daily_active_limit = _daily_active_limit(context.settings)
     for day in context.days:
         assigned_blocks = sum(
             context.x[book.book_id, day] for book in context.books
@@ -88,7 +87,8 @@ def add_day_constraints(context: ModelBuildContext) -> None:
             context.y[book.book_id, day] for book in context.books
         )
         context.model.add(assigned_blocks <= context.caps[day])
-        context.model.add(active_books <= daily_active_limit)
+        context.model.add(active_books <= context.settings.max_books_per_day)
+        context.model.add(active_books <= context.settings.max_sessions_per_day)
 
 
 def add_dependency_constraints(context: ModelBuildContext) -> None:
@@ -261,8 +261,3 @@ def _build_progress_before_by_day(
             + context.wpb[blocker.book_id] * context.x[blocker.book_id, day]
         )
     return progress_before_by_day
-
-
-def _daily_active_limit(settings: Settings) -> int:
-    """Return the active-book limit implied by book and session settings."""
-    return min(settings.max_books_per_day, settings.max_sessions_per_day)
