@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import logging
 from time import perf_counter
-from typing import TYPE_CHECKING, Protocol, cast
-
-from ortools.sat.python import cp_model
+from typing import TYPE_CHECKING
 
 from reading_plan.planner_types import PlanResult
 from reading_plan.planning.greedy import plan_greedy
-from reading_plan.planning.model import BuildModelOptions, build_cp_sat
+from reading_plan.planning.solve_cp_sat import (
+    AttemptContext,
+    run_attempt,
+)
 from reading_plan.planning.solve_heuristics import (
     DEFAULT_SOLVER_PROFILE,
     FEASIBLE_STATUS_NAME,
@@ -29,34 +29,8 @@ if TYPE_CHECKING:
     from datetime import date
 
     from reading_plan.planner_types import Book, Settings
-    from reading_plan.planning.model_types import BookDayVars
+    from reading_plan.planning.solve_cp_sat import SolveAttemptResult
     from reading_plan.planning.solve_heuristics import SolveStage
-
-
-class SolverParameters(Protocol):
-    """Subset of CP-SAT parameters used by planner solve stages."""
-
-    random_seed: int
-    num_search_workers: int
-    cp_model_presolve: bool
-    stop_after_first_solution: bool
-    max_time_in_seconds: float
-
-
-class CpSolverLike(Protocol):
-    """Subset of CP-SAT solver API used by planner solve flow."""
-
-    parameters: SolverParameters
-
-    def Solve(self, model: object) -> int:  # noqa: N802 - OR-Tools API
-        """Solve one CP-SAT model and return raw status code."""
-
-
-class CpModuleLike(Protocol):
-    """Subset of CP-SAT module API used by planner solve flow."""
-
-    def CpSolver(self) -> CpSolverLike:  # noqa: N802 - OR-Tools API
-        """Construct a CP-SAT solver instance."""
 
 
 LOGGER = logging.getLogger("reading_plan.bridge")
@@ -65,28 +39,10 @@ INFEASIBLE_STATUS_NAME = "INFEASIBLE"
 FAST_MODE_NOTE = "Fast mode uses greedy planner."
 
 
-@dataclass(frozen=True)
-class SolveAttemptResult:
-    """Result metadata captured for one CP-SAT attempt."""
-
-    plan: PlanResult
-    elapsed_ms: int
-
-
-@dataclass(frozen=True)
-class AttemptContext:
-    """Shared immutable inputs used for each staged CP-SAT attempt."""
-
-    books: list[Book]
-    settings: Settings
-    cp_model_module: object
-    hints: dict[tuple[str, date], int]
-
-
 def solve_plan(
     books: list[Book], settings: Settings, planner: str = "mip"
 ) -> PlanResult:
-    """Route planning to greedy or MIP and return a normalized plan result."""
+    """Route planning to greedy or CP-SAT and return a normalized result."""
     planner_name = planner.strip().lower()
     profile = profile_from_planner(planner_name)
     log_context = {
@@ -119,12 +75,18 @@ def _solve_mip(
     settings: Settings,
     profile: str = DEFAULT_SOLVER_PROFILE,
 ) -> PlanResult:
-    """Solve with CP-SAT, fall back to greedy when OR-Tools is unavailable."""
+    """Backward-compatible entrypoint for the staged CP-SAT planner."""
+    return _solve_cp_sat(books, settings, profile=profile)
+
+
+def _solve_cp_sat(
+    books: list[Book],
+    settings: Settings,
+    profile: str = DEFAULT_SOLVER_PROFILE,
+) -> PlanResult:
+    """Solve with CP-SAT and fall back to greedy after infeasible prechecks."""
     started = perf_counter()
     greedy_assignments = plan_greedy(books, settings)
-    cp_model_module = _load_cp_sat_module_or_none()
-    if cp_model_module is None:
-        return _fallback_for_unavailable_cp_sat(greedy_assignments)
     precheck_fallback = _fallback_from_precheck(
         books=books,
         settings=settings,
@@ -135,7 +97,6 @@ def _solve_mip(
     attempt_context = AttemptContext(
         books=books,
         settings=settings,
-        cp_model_module=cp_model_module,
         hints=greedy_assignments,
     )
     best_result, last_status = _solve_stages(
@@ -143,29 +104,12 @@ def _solve_mip(
         stages_for_profile(profile),
         greedy_assignments,
     )
-    return _finalize_solve_mip_result(
+    return _finalize_solve_cp_sat_result(
         best_result,
         last_status,
         greedy_assignments,
         started,
         profile,
-    )
-
-
-def _load_cp_sat_module_or_none() -> object | None:
-    """Load CP-SAT module for MIP solve flow."""
-    LOGGER.debug("solve_mip: loading cp-sat module")
-    return cp_model
-
-
-def _fallback_for_unavailable_cp_sat(
-    greedy_assignments: dict[tuple[str, date], int],
-) -> PlanResult:
-    """Return greedy fallback when OR-Tools is unavailable."""
-    LOGGER.debug("solve_mip: cp-sat module unavailable; using greedy fallback")
-    return _fallback_to_greedy(
-        greedy_assignments,
-        "OR-Tools is unavailable; fell back to greedy planner.",
     )
 
 
@@ -179,7 +123,7 @@ def _fallback_from_precheck(
     if precheck.is_feasible:
         return None
     LOGGER.debug(
-        "solve_mip: precheck marked infeasible; using greedy fallback",
+        "solve_cp_sat: precheck marked infeasible; using greedy fallback",
         extra={"note": precheck.note},
     )
     return _fallback_to_greedy(greedy_assignments, precheck.note)
@@ -199,7 +143,7 @@ def _solve_stages(
             base_context,
             incumbent_hints,
         )
-        attempt = _run_attempt(attempt_context, stage)
+        attempt = run_attempt(attempt_context, stage)
         _log_stage_result(stage, attempt)
         last_status = attempt.plan.status
         if _should_skip_stage_result(attempt.plan, stage):
@@ -223,7 +167,6 @@ def _attempt_context_with_hints(
     return AttemptContext(
         books=context.books,
         settings=context.settings,
-        cp_model_module=context.cp_model_module,
         hints=hints,
     )
 
@@ -232,14 +175,14 @@ def _should_skip_stage_result(plan: PlanResult, stage: SolveStage) -> bool:
     """Return true when stage result should not be accepted."""
     if _is_infeasible_stage(plan):
         LOGGER.debug(
-            "solve_mip: infeasible stage encountered",
+            "solve_cp_sat: infeasible stage encountered",
             extra={"stage": stage.name},
         )
         return True
     return not is_result_feasible(plan)
 
 
-def _finalize_solve_mip_result(
+def _finalize_solve_cp_sat_result(
     best_result: PlanResult | None,
     last_status: str,
     greedy_assignments: dict[tuple[str, date], int],
@@ -249,7 +192,7 @@ def _finalize_solve_mip_result(
     """Return best CP-SAT plan or a greedy fallback with explanatory note."""
     if best_result is not None:
         LOGGER.debug(
-            "solve_mip: returning best cp-sat solution",
+            "solve_cp_sat: returning best CP-SAT solution",
             extra={
                 "status": best_result.status,
                 "assignment_count": len(best_result.assignments),
@@ -259,77 +202,10 @@ def _finalize_solve_mip_result(
         )
         return best_result
     note = (
-        f"MIP produced no feasible solution ({last_status}); "
+        f"CP-SAT produced no feasible solution ({last_status}); "
         "fell back to greedy planner."
     )
     return _fallback_to_greedy(greedy_assignments, note)
-
-
-def _run_attempt(
-    context: AttemptContext,
-    stage: SolveStage,
-) -> SolveAttemptResult:
-    """Execute one staged CP-SAT solve attempt with deterministic params."""
-    first_attempt = _solve_once(context, stage, hint_mode="with_hints")
-    if first_attempt.plan.status != "MODEL_INVALID":
-        return first_attempt
-    if not context.hints:
-        return first_attempt
-    retry_attempt = _solve_once(context, stage, hint_mode="without_hints")
-    combined_elapsed = first_attempt.elapsed_ms + retry_attempt.elapsed_ms
-    return SolveAttemptResult(
-        plan=retry_attempt.plan,
-        elapsed_ms=combined_elapsed,
-    )
-
-
-def _solve_once(
-    context: AttemptContext,
-    stage: SolveStage,
-    hint_mode: str,
-) -> SolveAttemptResult:
-    """Build and solve one CP-SAT model instance for a single stage."""
-    started = perf_counter()
-    cp_model_module = cast("CpModuleLike", context.cp_model_module)
-    objective_mode = "optimize" if stage.include_objective else "feasibility"
-    model, x, _y, _finished, _days = _build_model_for_stage(
-        context,
-        cp_model_module,
-        objective_mode,
-        stage.lock_days_from_start,
-    )
-    if hint_mode == "with_hints":
-        _add_hints(model, x, context.hints)
-    solver = cp_model_module.CpSolver()
-    _apply_solver_parameters(solver, stage)
-    raw = int(solver.Solve(model))
-    plan = _result_from_solver(raw, cp_model_module, solver, x)
-    return SolveAttemptResult(
-        plan=plan,
-        elapsed_ms=int((perf_counter() - started) * 1000),
-    )
-
-
-def _build_model_for_stage(
-    context: AttemptContext,
-    cp_model_module: CpModuleLike,
-    objective_mode: str,
-    lock_days_from_start: int,
-) -> tuple[object, BookDayVars, object, object, list[date]]:
-    """Build model with objective mode, tolerating legacy call signatures."""
-    try:
-        return build_cp_sat(
-            context.books,
-            context.settings,
-            cp_model_module,
-            BuildModelOptions(
-                objective_mode=objective_mode,
-                lock_days_from_start=lock_days_from_start,
-                lock_assignments=context.hints,
-            ),
-        )
-    except TypeError:
-        return build_cp_sat(context.books, context.settings, cp_model_module)
 
 
 def _accept_feasible_attempt(
@@ -356,72 +232,6 @@ def _is_optimal_result(plan: PlanResult | None) -> bool:
     return plan is not None and plan.status == OPTIMAL_STATUS_NAME
 
 
-def _add_hints(
-    model: object,
-    x_vars: BookDayVars,
-    assignments: dict[tuple[str, date], int],
-) -> None:
-    """Feed assignment hints into CP-SAT for faster first-feasible search."""
-    if not assignments:
-        return
-    add_hint_fn = getattr(model, "AddHint", None)
-    if add_hint_fn is None:
-        add_hint_fn = getattr(model, "add_hint", None)
-    if add_hint_fn is None:
-        return
-    for key, value in assignments.items():
-        x_var = x_vars.get(key)
-        if x_var is None:
-            continue
-        add_hint_fn(x_var, int(value))
-
-
-def _apply_solver_parameters(solver: object, stage: SolveStage) -> None:
-    """Apply deterministic solver settings for one stage."""
-    solver_typed = cast("CpSolverLike", solver)
-    params = solver_typed.parameters
-    params.random_seed = stage.seed
-    params.num_search_workers = stage.worker_count
-    params.cp_model_presolve = True
-    params.stop_after_first_solution = stage.stop_after_first_solution
-    params.max_time_in_seconds = stage.max_time_seconds
-
-
-def _result_from_solver(
-    raw: int,
-    cp_model_module: object,
-    solver: object,
-    variables: BookDayVars,
-) -> PlanResult:
-    """Build planner result from solved model outputs and status codes."""
-    status_values = _status_values(cp_model_module)
-    status = _status_name(raw, status_values)
-    if not _is_feasible(raw, status_values):
-        return PlanResult(planner="mip", status=status, assignments={})
-
-    assignments = _extract_assignments(solver, variables)
-    objective_name = "ObjectiveValue"
-    objective_fn = getattr(solver, objective_name)
-    return PlanResult(
-        planner="mip",
-        status=status,
-        assignments=assignments,
-        objective=int(objective_fn()),
-    )
-
-
-def _status_name(raw: int, status_values: dict[str, int]) -> str:
-    """Map CP-SAT numeric status codes to stable string names."""
-    mapping = {
-        status_values["OPTIMAL"]: "OPTIMAL",
-        status_values["FEASIBLE"]: "FEASIBLE",
-        status_values["INFEASIBLE"]: "INFEASIBLE",
-        status_values["MODEL_INVALID"]: "MODEL_INVALID",
-        status_values["UNKNOWN"]: "UNKNOWN",
-    }
-    return mapping.get(raw, "UNKNOWN")
-
-
 def _fallback_to_greedy(
     assignments: dict[tuple[str, date], int],
     note: str,
@@ -439,7 +249,7 @@ def _log_stage_result(stage: SolveStage, attempt: SolveAttemptResult) -> None:
     """Emit standardized logs for each staged solver attempt."""
     LOGGER.debug(
         (
-            "solve_mip: stage completed stage=%s seed=%s budget_s=%.1f "
+            "solve_cp_sat: stage completed stage=%s seed=%s budget_s=%.2f "
             "elapsed_ms=%s status=%s assignments=%s objective=%s lock_days=%s"
         ),
         stage.name,
@@ -460,43 +270,4 @@ def _log_stage_result(stage: SolveStage, attempt: SolveAttemptResult) -> None:
             "objective": attempt.plan.objective,
             "lock_days_from_start": stage.lock_days_from_start,
         },
-    )
-
-
-def _status_values(cp_model_module: object) -> dict[str, int]:
-    """Read CP-SAT status constants from the loaded module."""
-    status_values: dict[str, int] = {
-        name: int(getattr(cp_model_module, name)) for name in _status_names()
-    }
-    return status_values
-
-
-def _is_feasible(raw: int, status_values: dict[str, int]) -> bool:
-    """Check whether solver status indicates a feasible solution."""
-    return raw in {status_values["OPTIMAL"], status_values["FEASIBLE"]}
-
-
-def _extract_assignments(
-    solver: object,
-    variables: BookDayVars,
-) -> dict[tuple[str, date], int]:
-    """Extract positive assignment values from solved decision variables."""
-    value_name = "Value"
-    value_fn = getattr(solver, value_name)
-    assignments: dict[tuple[str, date], int] = {}
-    for key, variable in variables.items():
-        value = int(value_fn(variable))
-        if value > 0:
-            assignments[key] = value
-    return assignments
-
-
-def _status_names() -> tuple[str, str, str, str, str]:
-    """Return known CP-SAT status constant names."""
-    return (
-        "OPTIMAL",
-        "FEASIBLE",
-        "INFEASIBLE",
-        "MODEL_INVALID",
-        "UNKNOWN",
     )
