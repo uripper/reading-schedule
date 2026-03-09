@@ -162,21 +162,38 @@ def _sort_key(
 
 def _next_book(state: DayState) -> Book | None:
     """Select the next eligible book that can start a valid session today."""
-    if len(state.used) >= state.daily_book_cap:
+    if _day_book_limit_reached(state):
         return None
-    for book in state.ordered:
-        if book in state.used or state.remaining[book.book_id] <= 0:
-            continue
-        if not book_is_scheduled_for_day(book, state.day):
-            continue
-        if not _is_unlocked(book, state.remaining):
-            continue
-        if (
-            state.cap >= book.min_blocks_per_session
-            and _room(state, book.book_id) >= book.min_blocks_per_session
-        ):
-            return book
-    return None
+    return next(
+        (book for book in state.ordered if _can_start_book(state, book)), None
+    )
+
+
+def _day_book_limit_reached(state: DayState) -> bool:
+    """Return whether the day has already reached its book/session cap."""
+    return len(state.used) >= state.daily_book_cap
+
+
+def _can_start_book(state: DayState, book: Book) -> bool:
+    """Return whether a book can start a new session on the current day."""
+    if book in state.used:
+        return False
+    if state.remaining[book.book_id] <= 0:
+        return False
+    if book_is_scheduled_for_day(
+        book,
+        state.day,
+    ) and _is_unlocked(book, state.remaining):
+        return _has_minimum_capacity_for_book(state, book)
+    return False
+
+
+def _has_minimum_capacity_for_book(state: DayState, book: Book) -> bool:
+    """Return whether the day and book both have room for a minimum session."""
+    min_blocks = book.min_blocks_per_session
+    if state.cap < min_blocks:
+        return False
+    return _room(state, book.book_id) >= min_blocks
 
 
 def _room(state: DayState, book_id: str) -> int:

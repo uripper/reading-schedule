@@ -81,24 +81,60 @@ def validate_book(book: Book) -> None:
 
 def validate_settings(settings: Settings) -> None:
     """Validate settings."""
-    if settings.end_date < settings.start_date:
-        msg = "end_date must be on or after start_date"
-        raise ValueError(msg)
+    _validate_settings_dates(settings)
+    _validate_settings_minutes(settings)
+    _validate_settings_positive_limits(settings)
+    _validate_settings_weekday_minutes(settings)
+    _validate_settings_difficulty_multiplier(settings)
+    _validate_settings_plan_mode(settings)
+
+
+def _validate_settings_dates(settings: Settings) -> None:
+    """Validate settings date ordering."""
+    if settings.end_date >= settings.start_date:
+        return
+    msg = "end_date must be on or after start_date"
+    raise ValueError(msg)
+
+
+def _validate_settings_minutes(settings: Settings) -> None:
+    """Validate settings minute sources and quantum values."""
     if not settings.minutes_by_weekday and not settings.minutes_per_day:
         msg = "set minutes_per_day or minutes_by_weekday"
         raise ValueError(msg)
-    if settings.time_quantum_minutes <= 0:
-        msg = "time_quantum_minutes must be > 0"
-        raise ValueError(msg)
-    if settings.max_sessions_per_day <= 0 or settings.max_books_per_day <= 0:
-        msg = "max_sessions_per_day and max_books_per_day must be > 0"
-        raise ValueError(msg)
-    if sorted(settings.minutes_by_weekday.keys()) not in ([], sorted(WEEKDAYS)):
-        msg = "minutes_by_weekday must include Mon..Sun when provided"
-        raise ValueError(msg)
-    if sorted(settings.difficulty_multiplier.keys()) != list(range(1, 11)):
-        msg = "difficulty_multiplier must contain keys 1..10"
-        raise ValueError(msg)
-    if settings.plan_mode not in PLAN_MODES:
-        msg = f"plan_mode must be one of: {', '.join(PLAN_MODES)}"
-        raise ValueError(msg)
+    if settings.time_quantum_minutes > 0:
+        return
+    msg = "time_quantum_minutes must be > 0"
+    raise ValueError(msg)
+
+
+def _validate_settings_positive_limits(settings: Settings) -> None:
+    """Validate positive daily session and book limits."""
+    if settings.max_sessions_per_day > 0 and settings.max_books_per_day > 0:
+        return
+    msg = "max_sessions_per_day and max_books_per_day must be > 0"
+    raise ValueError(msg)
+
+
+def _validate_settings_weekday_minutes(settings: Settings) -> None:
+    """Validate weekday minute overrides when they are provided."""
+    if sorted(settings.minutes_by_weekday.keys()) in ([], sorted(WEEKDAYS)):
+        return
+    msg = "minutes_by_weekday must include Mon..Sun when provided"
+    raise ValueError(msg)
+
+
+def _validate_settings_difficulty_multiplier(settings: Settings) -> None:
+    """Validate difficulty multiplier coverage."""
+    if sorted(settings.difficulty_multiplier.keys()) == list(range(1, 11)):
+        return
+    msg = "difficulty_multiplier must contain keys 1..10"
+    raise ValueError(msg)
+
+
+def _validate_settings_plan_mode(settings: Settings) -> None:
+    """Validate planner mode selection."""
+    if settings.plan_mode in PLAN_MODES:
+        return
+    msg = f"plan_mode must be one of: {', '.join(PLAN_MODES)}"
+    raise ValueError(msg)
