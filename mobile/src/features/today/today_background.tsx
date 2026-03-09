@@ -1,16 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ImageSourcePropType } from "react-native";
 import { Image, StyleSheet, useWindowDimensions, View } from "react-native";
+import type {
+    BackgroundSimulationState,
+    Body,
+    Bounds,
+} from "./today_background_simulation";
 import {
     createBackgroundSimulationState,
     getBackgroundBodies,
     resetBackgroundSimulation,
     tickBackgroundSimulation,
-} from "./today_background_simulation";
-import type {
-    BackgroundSimulationState,
-    Body,
-    Bounds,
 } from "./today_background_simulation";
 import { BACKGROUND_SPRITES } from "./today_background_sprites";
 import {

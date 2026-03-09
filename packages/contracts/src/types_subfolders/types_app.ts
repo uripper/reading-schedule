@@ -1,4 +1,3 @@
-
 import type { Book, BookProgressUpdates } from "./types_books.js";
 import type { CalendarHandlers } from "./types_calendar.js";
 import type { Session } from "./types_core.js";
@@ -116,7 +115,6 @@ export interface PersistQueueState {
     scheduleCompletions: Record<string, boolean>;
 }
 
-
 /** Canonical mutable renderer state shared across app runtime modules. */
 export interface AppRuntimeState extends PersistQueueState {
     /** Derived lookup indexes computed from current runtime state. */
@@ -189,7 +187,6 @@ export interface DraftDataParams {
 
 /** Function signature for app log sink callbacks. */
 export type AddLog = (message: string) => void;
-
 
 /** Dependencies required to create the persistence queue. */
 export interface PersistQueueArgs {
@@ -393,24 +390,23 @@ export interface ApplyLoadedResultArgs {
 }
 
 interface PlanCommonArgs {
-  /** Appends a diagnostic message to the in-app log. */
-  addLog(this: void, message: string): void;
-  /** Announces generation progress/completion through accessibility live region. */
-  announce(
-      this: void,
-      message: string,
-      politeness?: "polite" | "assertive",
-  ): void;
-  /** Collects books from UI or runtime state. */
-  collectBooks(this: void): Book[];
-  /** Collects settings from UI or runtime state. */
-  collectSettings(this: void): PlannerSettings;
-  /** Planner API subset used for plan generation. */
-  plannerApi: Pick<PlannerApi, "generate">;
-  /** Status callback used to publish user-visible loading or error messages. */
-  setStatus(this: void, message: string, isError?: boolean): void;
+    /** Appends a diagnostic message to the in-app log. */
+    addLog(this: void, message: string): void;
+    /** Announces generation progress/completion through accessibility live region. */
+    announce(
+        this: void,
+        message: string,
+        politeness?: "polite" | "assertive",
+    ): void;
+    /** Collects books from UI or runtime state. */
+    collectBooks(this: void): Book[];
+    /** Collects settings from UI or runtime state. */
+    collectSettings(this: void): PlannerSettings;
+    /** Planner API subset used for plan generation. */
+    plannerApi: Pick<PlannerApi, "generate">;
+    /** Status callback used to publish user-visible loading or error messages. */
+    setStatus(this: void, message: string, isError?: boolean): void;
 }
-
 
 /** Inputs required to run plan generation with status and announcement handling. */
 export interface RunPlanGenerationArgs extends PlanCommonArgs {

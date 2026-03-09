@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { PLAN_GENERATE_RESULT_SCHEMA } from "./planner_result.js";
 import { plannerSettingsSchema } from "./settings.js";
-import { type LoadedPlannerState, type PlannerStateSnapshot } from "./types_subfolders/types_planner.js";
+import type {
+    LoadedPlannerState,
+    PlannerStateSnapshot,
+} from "./types_subfolders/types_planner.js";
 
 const BOOL_RECORD_SCHEMA = z.record(z.string(), z.boolean());
 
@@ -46,17 +49,16 @@ const PLANNER_STATE_SNAPSHOT_SCHEMA = z.object({
     settings: plannerSettingsSchema(),
 });
 
-const LOADED_PLANNER_STATE_SCHEMA = z
-    .looseObject({
-        blocked_day_books: BOOL_RECORD_SCHEMA.optional(),
-        books: z.array(z.unknown()).optional(),
-        feature_flags: z.record(z.string(), z.unknown()).optional(),
-        last_result: z.record(z.string(), z.unknown()).nullable().optional(),
-        preferences: z.record(z.string(), z.unknown()).optional(),
-        schedule_completions: BOOL_RECORD_SCHEMA.optional(),
-        sessions: z.array(z.record(z.string(), z.unknown())).optional(),
-        settings: plannerSettingsSchema().optional(),
-    })
+const LOADED_PLANNER_STATE_SCHEMA = z.looseObject({
+    blocked_day_books: BOOL_RECORD_SCHEMA.optional(),
+    books: z.array(z.unknown()).optional(),
+    feature_flags: z.record(z.string(), z.unknown()).optional(),
+    last_result: z.record(z.string(), z.unknown()).nullable().optional(),
+    preferences: z.record(z.string(), z.unknown()).optional(),
+    schedule_completions: BOOL_RECORD_SCHEMA.optional(),
+    sessions: z.array(z.record(z.string(), z.unknown())).optional(),
+    settings: plannerSettingsSchema().optional(),
+});
 
 export function parsePlannerStateSnapshot(
     input: unknown,
