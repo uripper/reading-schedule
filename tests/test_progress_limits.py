@@ -26,7 +26,7 @@ def test_book_builder_converts_progress_to_remaining_words() -> None:
         _book_payload({
             "book_id": "b1",
             "title": "Demo",
-            "remaining_words": 10000,
+            "words_total": 10000,
             "priority": 1,
             "difficulty": 3,
             "progress_percent": 25,
@@ -43,7 +43,7 @@ def test_book_builder_scales_pages_read_using_book_page_density() -> None:
         _book_payload({
             "book_id": "b-pages",
             "title": "Poetry",
-            "remaining_words": 6000,
+            "words_total": 6000,
             "pages_total": 300,
             "pages_read": 90,
             "priority": 1,
@@ -75,9 +75,10 @@ def test_book_builder_defaults_scheduled_days_to_all_weekdays() -> None:
         _book_payload({
             "book_id": "b-default-days",
             "title": "Demo",
-            "remaining_words": 10000,
+            "words_total": 10000,
             "priority": 1,
             "difficulty": 3,
+            "progress_percent": 1,
         })
     )
     assert book.scheduled_days == frozenset(WEEKDAYS)
@@ -90,9 +91,10 @@ def test_book_builder_rejects_invalid_scheduled_days() -> None:
             _book_payload({
                 "book_id": "b-invalid-days",
                 "title": "Demo",
-                "remaining_words": 10000,
+                "words_total": 10000,
                 "priority": 1,
                 "difficulty": 3,
+                "progress_percent": 1,
                 "scheduled_days": ["Mon", "Bad"],
             })
         )
