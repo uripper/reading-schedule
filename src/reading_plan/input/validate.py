@@ -32,11 +32,12 @@ def check_condition(
     :param condition: The boolean condition to check. If False, an error is
                         raised.
     """
-    unhandled_error = f"Unhandled error type: {error_type}"
-    if not condition:
-        if error_type == "type":
-            raise TypeError(msg)
-        if error_type == "value":
+    if condition:
+        return
+    if error_type == "type":
+        raise TypeError(msg)
+    if error_type == "value":
+        raise ValueError(msg)
 
 
 def _validate_required_fields(book: "Book") -> None:
@@ -91,11 +92,11 @@ def _validate_book_progress(book: "Book") -> None:
         or book.words_full >= book.remaining_words,
     )
 
-    progress_between_zero_and_100 = (
+    progress_between_zero_and_hundred = (
         f"progress_percent must be between 0 and 100 for {book.book_id}"
     )
     check_condition(
-        progress_between_zero_and_100,
+        progress_between_zero_and_hundred,
         condition=book.progress_percent is None
         or (
             MIN_PROGRESS_PERCENT
