@@ -48,7 +48,9 @@ FEASIBLE_CP_SAT_STATUSES = frozenset({
 class SolveAttemptResult:
     """Result metadata captured for one CP-SAT attempt."""
 
+    # Planner output captured from this individual solve attempt.
     plan: PlanResult
+    # Wall-clock solve time for the attempt in milliseconds.
     elapsed_ms: int
 
 
@@ -56,8 +58,11 @@ class SolveAttemptResult:
 class AttemptContext:
     """Shared immutable inputs used for each staged CP-SAT attempt."""
 
+    # Normalized books to schedule during the attempt.
     books: list[Book]
+    # Planner settings applied to the attempt.
     settings: Settings
+    # Optional assignment hints carried forward from earlier stages.
     hints: dict[tuple[str, date], int]
 
 

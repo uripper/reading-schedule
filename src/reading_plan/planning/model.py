@@ -33,8 +33,11 @@ LOGGER = logging.getLogger("reading_plan.bridge")
 class BuildModelOptions:
     """Optional knobs for stage-specific model construction."""
 
+    # Whether to optimize the full objective or build a feasibility model.
     objective_mode: str = "optimize"
+    # Number of early planning days to pin to known assignments.
     lock_days_from_start: int = 0
+    # Optional fixed assignments used when near-term days are locked.
     lock_assignments: dict[tuple[str, date], int] | None = None
 
 

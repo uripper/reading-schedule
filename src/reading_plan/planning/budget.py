@@ -66,7 +66,7 @@ def words_per_block(book: Book, settings: Settings) -> int:
 
 def required_minutes(book: Book, settings: Settings) -> int:
     """Estimate total minutes required to finish one book."""
-    return math.ceil(book.words_total / words_per_minute(book, settings))
+    return math.ceil(book.remaining_words / words_per_minute(book, settings))
 
 
 def required_total_minutes(books: list[Book], settings: Settings) -> int:

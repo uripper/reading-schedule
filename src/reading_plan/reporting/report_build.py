@@ -29,8 +29,8 @@ def build_summary(
         book.book_id: {
             "title": book.title,
             "planned_words": per_book[book.book_id],
-            "words_total": book.words_total,
-            "finished": per_book[book.book_id] >= book.words_total,
+            "remaining_words": book.remaining_words,
+            "finished": per_book[book.book_id] >= book.remaining_words,
         }
         for book in books
     }

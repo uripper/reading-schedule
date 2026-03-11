@@ -46,7 +46,7 @@ def iter_sessions(
 ) -> Iterator[Session]:
     """Iterate over sessions."""
     book_map = {book.book_id: book for book in books}
-    remaining = {book.book_id: book.words_total for book in books}
+    remaining = {book.book_id: book.remaining_words for book in books}
     for day in date_range(settings.start_date, settings.end_date):
         items = [
             (bid, blk)

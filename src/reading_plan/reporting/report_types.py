@@ -10,7 +10,7 @@ class BookProgress(TypedDict):
 
     title: str
     planned_words: int
-    words_total: int
+    remaining_words: int
     finished: bool
 
 

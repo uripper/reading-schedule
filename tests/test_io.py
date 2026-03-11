@@ -21,7 +21,7 @@ def test_load_inputs_parses_books_and_settings(tmp_path: Path) -> None:
             {
                 "book_id": "b1",
                 "title": "One",
-                "words_total": 12000,
+                "remaining_words": 12000,
                 "priority": 5,
                 "difficulty": 2,
                 "deadline": "2026-02-20",
@@ -30,7 +30,7 @@ def test_load_inputs_parses_books_and_settings(tmp_path: Path) -> None:
             {
                 "book_id": "b2",
                 "title": "Two",
-                "words_total": 9000,
+                "remaining_words": 9000,
                 "priority": 3,
                 "difficulty": 4,
                 "min_blocks_per_session": 3,
@@ -66,7 +66,7 @@ def test_load_inputs_rejects_invalid_weekday_map(tmp_path: Path) -> None:
             {
                 "book_id": "b1",
                 "title": "One",
-                "words_total": 12000,
+                "remaining_words": 12000,
                 "priority": 5,
                 "difficulty": 2,
             }

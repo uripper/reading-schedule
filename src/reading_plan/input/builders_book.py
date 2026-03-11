@@ -149,7 +149,7 @@ def book_from_data(data: BookData) -> Book:
     :param data: raw book payload with mixed fields and formats
     :return: validated Book model with normalized fields
     """
-    words_full, words_remaining, progress = _word_stats(data)
+    words_full, remaining_words, progress = _word_stats(data)
     book_id = str(data.get("book_id") or "").strip() or str(uuid4())
     deadline = (
         parse_date(data.get("deadline") or "") if data.get("deadline") else None
@@ -166,7 +166,7 @@ def book_from_data(data: BookData) -> Book:
     book = Book(
         book_id=book_id,
         title=title,
-        words_total=words_remaining,
+        remaining_words=remaining_words,
         priority=to_int(data.get("priority") or 3, "priority"),
         difficulty=to_int(data.get("difficulty") or 1, "difficulty"),
         deadline=deadline,

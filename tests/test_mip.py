@@ -35,7 +35,7 @@ def assert_no_large_overread(
             if book_id == book.book_id
         )
         overshoot = wpb[book.book_id] * max(1, book.min_blocks_per_session - 1)
-        assert planned <= book.words_total + overshoot
+        assert planned <= book.remaining_words + overshoot
 
 
 def test_mip_does_not_overread_books_far_past_completion() -> None:
@@ -58,7 +58,7 @@ def test_mip_finishes_book_when_last_chunk_is_sub_block() -> None:
     assert result.status in {"OPTIMAL", "FEASIBLE"}
     wpb = words_per_block(books[0], settings)
     planned = sum(v * wpb for (_bid, _), v in result.assignments.items())
-    assert planned >= books[0].words_total
+    assert planned >= books[0].remaining_words
 
 
 def test_mip_keeps_single_block_assignments() -> None:

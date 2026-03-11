@@ -38,13 +38,21 @@ THOROUGH_LOCK_DAYS = 10
 class SolveStage:
     """Configuration for one deterministic CP-SAT attempt."""
 
+    # Stable stage name used in logging and diagnostics.
     name: str
+    # Time budget for this stage in seconds.
     max_time_seconds: float
+    # Random seed used to keep the stage deterministic.
     seed: int
+    # Whether this stage optimizes the objective or only finds feasibility.
     include_objective: bool = True
+    # Whether CP-SAT presolve should run for this stage.
     cp_model_presolve: bool = True
+    # Whether the solver should stop after the first feasible solution.
     stop_after_first_solution: bool = False
+    # Number of CP-SAT worker threads to use.
     worker_count: int = DEFAULT_WORKER_COUNT
+    # Number of early days to lock to prior assignments.
     lock_days_from_start: int = 0
 
 
@@ -52,7 +60,9 @@ class SolveStage:
 class PrecheckResult:
     """Outcome from cheap infeasibility checks before CP-SAT."""
 
+    # Whether the precheck found the planning problem feasible enough to try.
     is_feasible: bool
+    # Optional explanation when the precheck rejects CP-SAT.
     note: str = ""
 
 
@@ -154,7 +164,8 @@ def run_precheck(books: list[Book], settings: Settings) -> PrecheckResult:
     wpb = {book.book_id: words_per_block(book, settings) for book in books}
     total_capacity = sum(caps.values())
     required_capacity = sum(
-        required_blocks(book.words_total, wpb[book.book_id]) for book in books
+        required_blocks(book.remaining_words, wpb[book.book_id])
+        for book in books
     )
     if required_capacity > total_capacity:
         note = (
@@ -173,7 +184,7 @@ def _deadline_capacity_note(
     caps: dict[date, int],
 ) -> str | None:
     """Check whether a deadline book can fit by capacity upper bounds."""
-    required = required_blocks(book.words_total, wpb[book.book_id])
+    required = required_blocks(book.remaining_words, wpb[book.book_id])
     per_book_limit = book_day_block_limit(book, settings)
     available = 0
     for day in days:
@@ -214,11 +225,11 @@ def _deadline_precheck(
     return PrecheckResult(is_feasible=True)
 
 
-def required_blocks(words_total: int, words_per_block_value: int) -> int:
+def required_blocks(remaining_words: int, words_per_block_value: int) -> int:
     """Compute minimum number of blocks needed to cover total words."""
     if words_per_block_value <= 0:
         return 0
-    return math.ceil(words_total / words_per_block_value)
+    return math.ceil(remaining_words / words_per_block_value)
 
 
 def better_plan(

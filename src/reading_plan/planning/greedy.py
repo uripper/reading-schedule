@@ -24,14 +24,23 @@ if TYPE_CHECKING:
 class DayState:
     """Mutable state for planning one day of greedy assignments."""
 
+    # Books ordered by the current day selection priority.
     ordered: list[Book]
+    # Books already started on the current day.
     used: list[Book]
+    # Remaining unscheduled words keyed by book id.
     remaining: dict[str, float]
+    # Accumulated block assignments keyed by book/day pair.
     assignments: dict[tuple[str, date], int]
+    # Per-book daily block caps keyed by book id.
     limits: dict[str, int]
+    # Words-per-block lookup keyed by book id.
     wpb: dict[str, int]
+    # Calendar day currently being filled.
     day: date
+    # Remaining block capacity for the current day.
     cap: int
+    # Limit on how many books may be active on the day.
     daily_book_cap: int
 
 
@@ -39,11 +48,17 @@ class DayState:
 class SpreadState:
     """Inputs for spread-mode daily capacity targeting."""
 
+    # Ordered planning days still under consideration.
     days: list[date]
+    # Index of the current day within the planning window.
     day_index: int
+    # Per-day capacity in blocks keyed by date.
     caps: dict[date, int]
+    # Remaining unscheduled words keyed by book id.
     remaining: dict[str, float]
+    # Words-per-block lookup keyed by book id.
     wpb: dict[str, int]
+    # Books ordered by the current greedy priority.
     ordered: list[Book]
 
 
@@ -53,7 +68,7 @@ def plan_greedy(
     """Build a feasible day-by-day block allocation using greedy heuristics."""
     days = date_range(settings.start_date, settings.end_date)
     caps = {day: day_capacity_blocks(settings, day) for day in days}
-    remaining = {b.book_id: float(b.words_total) for b in books}
+    remaining = {b.book_id: float(b.remaining_words) for b in books}
     wpb = {b.book_id: words_per_block(b, settings) for b in books}
     limits = {b.book_id: book_day_block_limit(b, settings) for b in books}
     assignments: dict[tuple[str, date], int] = {}

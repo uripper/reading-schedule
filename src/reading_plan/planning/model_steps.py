@@ -35,14 +35,23 @@ COMPLETION_GAP = 1
 class ModelBuildContext:
     """Shared state used while building the planner CP-SAT model."""
 
+    # Active CP-SAT model receiving constraints and objective terms.
     model: CpModelLike
+    # Normalized books included in the current planning run.
     books: list[Book]
+    # Ordered calendar days covered by the plan window.
     days: list[date]
+    # Per-day capacity in planning blocks.
     caps: dict[date, int]
+    # Global planner settings for the current run.
     settings: Settings
+    # Words-per-block lookup keyed by book id.
     wpb: dict[str, int]
+    # Book lookup keyed by book id for dependency and deadline logic.
     book_map: dict[str, Book]
+    # Assigned-block decision variables keyed by book/day pair.
     x: BookDayVars
+    # Active-session decision variables keyed by book/day pair.
     y: BookDayVars
 
 
@@ -121,7 +130,7 @@ def add_dependency_constraints(context: ModelBuildContext) -> None:
         for day in context.days:
             context.model.Add(
                 progress_before_by_day[day]
-                >= blocker.words_total * context.y[book.book_id, day]
+                >= blocker.remaining_words * context.y[book.book_id, day]
             )
 
         if dependent_count % DEPENDENCY_PROGRESS_LOG_INTERVAL == 0:
@@ -157,23 +166,23 @@ def add_progress_constraints(
             MIN_OVERSHOOT_BLOCKS,
             book.min_blocks_per_session - COMPLETION_GAP,
         )
-        max_progress = book.words_total + overshoot
+        max_progress = book.remaining_words + overshoot
         context.model.Add(progress <= max_progress)
 
         useful_words[book.book_id] = context.model.NewIntVar(
             0,
-            book.words_total,
+            book.remaining_words,
             f"u_{book_index}",
         )
         useful_word_var = useful_words[book.book_id]
         context.model.Add(useful_word_var <= progress)
-        context.model.Add(useful_word_var <= book.words_total)
+        context.model.Add(useful_word_var <= book.remaining_words)
 
         finished_var = context.model.NewBoolVar(f"f_{book_index}")
         finished[book.book_id] = finished_var
-        unfinished_limit = book.words_total - COMPLETION_GAP
+        unfinished_limit = book.remaining_words - COMPLETION_GAP
         unfinished_limit = max(unfinished_limit, 0)
-        context.model.Add(progress >= book.words_total * finished_var)
+        context.model.Add(progress >= book.remaining_words * finished_var)
         context.model.Add(
             progress <= unfinished_limit + max_progress * finished_var
         )
@@ -187,7 +196,7 @@ def add_progress_constraints(
             context.wpb[book.book_id] * context.x[book.book_id, day]
             for day in due_days
         )
-        context.model.Add(due_progress >= book.words_total)
+        context.model.Add(due_progress >= book.remaining_words)
     return finished, useful_words
 
 
@@ -247,7 +256,7 @@ def _build_progress_before_by_day(
 ) -> dict[date, IntVarLike]:
     """Build prefix-progress vars: words read before each day for a blocker."""
     progress_before_by_day: dict[date, IntVarLike] = {}
-    max_progress = blocker.words_total + context.wpb[blocker.book_id] * max(
+    max_progress = blocker.remaining_words + context.wpb[blocker.book_id] * max(
         MIN_OVERSHOOT_BLOCKS,
         blocker.min_blocks_per_session - COMPLETION_GAP,
     )

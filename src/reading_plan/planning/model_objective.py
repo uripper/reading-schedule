@@ -23,11 +23,17 @@ if TYPE_CHECKING:
 class ObjectiveContext:
     """Container for CP-SAT objective construction inputs."""
 
+    # Planner settings containing the objective weights and mode.
     settings: Settings
+    # Ordered planning days used for time-based objective shaping.
     days: list[date]
+    # Integer vars representing useful progress per book.
     useful_words: dict[str, IntVarLike]
+    # Boolean completion vars keyed by book id.
     finished: FinishedVars
+    # Boolean activity vars keyed by book/day pair.
     active_flags: BookDayVars
+    # Assigned-block vars keyed by book/day pair.
     assigned_blocks: BookDayVars
 
 
