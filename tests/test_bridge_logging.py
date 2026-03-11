@@ -1,10 +1,14 @@
-from pathlib import Path
+
+from typing import TYPE_CHECKING
 
 from reading_plan.bridge_logging import (
     configure_bridge_logger,
     get_bridge_logger,
     log_incoming_data,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _flush_log_file(log_path: Path) -> str:

@@ -1,7 +1,6 @@
 """Shared model typing helpers."""
 
 from datetime import date
-from typing import TypeAlias
 
 from reading_plan.planning.cp_sat_types import (
     CpModelLike,
@@ -20,10 +19,10 @@ __all__ = [
     "LinearExprLike",
 ]
 
-LinearExprLike: TypeAlias = CpSatLinearExprLike | IntVarLike | int
-BookDayVars: TypeAlias = dict[tuple[str, date], IntVarLike]
-FinishedVars: TypeAlias = dict[str, IntVarLike]
-BuildCpSatResult: TypeAlias = tuple[
+type LinearExprLike = CpSatLinearExprLike | IntVarLike | int
+type BookDayVars = dict[tuple[str, date], IntVarLike]
+type FinishedVars = dict[str, IntVarLike]
+type BuildCpSatResult = tuple[
     CpModelLike,
     BookDayVars,
     BookDayVars,
@@ -31,4 +30,4 @@ BuildCpSatResult: TypeAlias = tuple[
     list[date],
 ]
 
-Assignments: TypeAlias = dict[tuple[str, date], int]
+type Assignments = dict[tuple[str, date], int]

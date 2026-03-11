@@ -19,9 +19,9 @@ if TYPE_CHECKING:
 
 
 def assert_no_large_overread(
-    books: "list[Book]",
-    result_assignments: "Assignments",
-    settings: "Settings",
+    books: list[Book],
+    result_assignments: Assignments,
+    settings: Settings,
 ) -> None:
     """Assert each book's assigned words do not exceed allowed overshoot."""
     wpb = {book.book_id: words_per_block(book, settings) for book in books}
@@ -141,4 +141,3 @@ def test_mip_respects_book_scheduled_days() -> None:
     ]
     assert planned_days
     assert all(weekday_key(day) in allowed_days for day in planned_days)
-

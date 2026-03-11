@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 
 
 def build_summary(
-    books: list["Book"], settings: "Settings", result: "PlanResult"
-) -> "Summary":
+    books: list[Book], settings: Settings, result: PlanResult
+) -> Summary:
     """Build summary."""
     per_book, total_minutes = compute_plan_totals(
         books, settings, result.assignments

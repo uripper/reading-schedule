@@ -6,27 +6,27 @@ from typing import Protocol
 class LinearExprLike(Protocol):
     """Structural type for linear expressions used by the planner."""
 
-    def __add__(self, other: object) -> "LinearExprLike":
+    def __add__(self, other: object) -> LinearExprLike:
         """Return the sum of this expression and another value."""
         ...
 
-    def __radd__(self, other: object) -> "LinearExprLike":
+    def __radd__(self, other: object) -> LinearExprLike:
         """Return the reversed sum of this expression and another value."""
         ...
 
-    def __mul__(self, other: object) -> "LinearExprLike":
+    def __mul__(self, other: object) -> LinearExprLike:
         """Return this expression scaled by another value."""
         ...
 
-    def __rmul__(self, other: object) -> "LinearExprLike":
+    def __rmul__(self, other: object) -> LinearExprLike:
         """Return the reversed scaled form of this expression."""
         ...
 
-    def __sub__(self, other: object) -> "LinearExprLike":
+    def __sub__(self, other: object) -> LinearExprLike:
         """Return the difference between this expression and another value."""
         ...
 
-    def __rsub__(self, other: object) -> "LinearExprLike":
+    def __rsub__(self, other: object) -> LinearExprLike:
         """Return the reversed difference for this expression."""
         ...
 

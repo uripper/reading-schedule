@@ -1,12 +1,9 @@
-target-version = "py310"
+target-version = "py314"
 line-length = 80
 indent-width = 4
 src = ["src", "tests"]
 
-# Turn on newer lint/format behavior (expect occasional churn between Ruff releases).
 preview = true
-
-# Nice quality-of-life defaults.
 show-fixes = true
 respect-gitignore = true
 force-exclude = true
@@ -75,11 +72,8 @@ ignore = [
   # Conflicting docstring styles; keep the "Google" convention and 
   # let pydocstyle decide.
   "D203",
-  "D213",
+  "D212",
 
-  # Formatter compatibility (implicit string concat can conflict 
-  # with formatter output).
-  "ISC001",
 ]
 
 fixable = ["ALL"]

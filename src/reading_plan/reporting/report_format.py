@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from reading_plan.reporting.report_types import Summary
 
 
-def format_summary(summary: "Summary") -> str:
+def format_summary(summary: Summary) -> str:
     """Format summary."""
     lines = [
         f"Planner: {summary['planner']} ({summary['status']})",
