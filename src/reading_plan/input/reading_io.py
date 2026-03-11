@@ -35,15 +35,13 @@ def read_book_data(path: str) -> list["BookData"]:
     books_must_contain_json_objects = (
         f"books file '{path}' must contain JSON objects"
     )
-    rows: list[BookData] = []
-    for item in raw:
-        check_condition(
-            books_must_contain_json_objects,
-            error_type="type",
-            condition=all(isinstance(item, dict) for item in raw),
-        )
-        rows.append(cast("BookData", item))
-    return rows
+    check_condition(
+        books_must_contain_json_objects,
+        error_type="type",
+        condition=all(isinstance(item, dict) for item in raw),
+    )
+
+    return cast("list[BookData]", raw)
 
 
 def load_books(path: str) -> list["Book"]:

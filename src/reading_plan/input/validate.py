@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 from reading_plan.planner_types import PLAN_MODES, WEEKDAYS
 
 if TYPE_CHECKING:
+    from typing import Literal
+
     from reading_plan.planner_types import Book, Settings
 
 MIN_PROGRESS_PERCENT = 0
@@ -22,9 +24,18 @@ class UnhandledExceptionError(Exception):
 
 
 def check_condition(
-    msg: str, *, error_type: str = "value", condition: bool
+    msg: str,
+    *,
+    error_type: "Literal['type', 'value']" = "value",
+    condition: bool,
 ) -> None:
-    """Raise an error based on error_type."""
+    """Raise an error based on error_type.
+
+    :param msg: The error message to include if the condition is not met.
+    :param error_type: The type of error to raise if the condition is not met.
+    :param condition: The boolean condition to check. If False, an error is
+                        raised.
+    """
     unhandled_error = f"Unhandled error type: {error_type}"
     if not condition:
         if error_type == "type":
