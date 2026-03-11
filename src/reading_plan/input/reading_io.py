@@ -1,6 +1,4 @@
-"""Utilities for io."""
-
-from __future__ import annotations
+"""Load planner JSON input files and convert them into normalized models."""
 
 import json
 from pathlib import Path
@@ -21,7 +19,7 @@ if TYPE_CHECKING:
 LOGGER = get_bridge_logger(__name__)
 
 
-def read_book_data(path: str) -> list[BookData]:
+def read_book_data(path: str) -> list["BookData"]:
     """Load raw book payload rows from a JSON file."""
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
     if not isinstance(raw, list):
@@ -36,7 +34,7 @@ def read_book_data(path: str) -> list[BookData]:
     return rows
 
 
-def load_books(path: str) -> list[Book]:
+def load_books(path: str) -> list["Book"]:
     """Load books.
 
     :param path: path to the books file
@@ -56,7 +54,7 @@ def load_books(path: str) -> list[Book]:
     return books
 
 
-def load_settings(path: str) -> Settings:
+def load_settings(path: str) -> "Settings":
     """Load settings.
 
     :param path: path to the settings file
@@ -75,7 +73,7 @@ def load_settings(path: str) -> Settings:
 
 def load_inputs(
     books_path: str, settings_path: str
-) -> tuple[list[Book], Settings]:
+) -> tuple[list["Book"], "Settings"]:
     """Load inputs.
 
     :param books_path: path to the books file

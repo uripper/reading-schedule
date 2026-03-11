@@ -1,12 +1,12 @@
-"""Utilities for types."""
-
-from __future__ import annotations
+"""Define the core planner models, constants, and default scheduling data."""
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from datetime import date
+
+    from reading_plan.planning.model_types import Assignments
 
 DEFAULT_DIFFICULTY_MULTIPLIER = {
     1: 1.00,
@@ -35,17 +35,29 @@ def default_scheduled_days() -> frozenset[str]:
 class Book:
     """A normalized book input for planning."""
 
+    # Stable identifier used across planning, storage, and UI layers.
     book_id: str
+    # Human-readable book title shown in the app and reports.
     title: str
-    words_total: int
+    # Remaining words left to schedule after applying current progress.
+    remaining_words: int
+    # Relative importance where lower numbers mean higher priority.
     priority: int
+    # Reading difficulty bucket used to scale reading speed.
     difficulty: int
-    deadline: date | None = None
-    min_blocks_per_session: int = 2
+    # Optional date by which the book should be finished.
+    deadline: "date | None" = None
+    # Minimum block count required when starting a session for this book.
+    min_blocks_per_session: int = 1
+    # Original full book word count before progress is subtracted.
     words_full: int | None = None
+    # Percent of the book that has already been read.
     progress_percent: float = 0.0
+    # Optional per-day reading cap for this specific book.
     max_minutes_per_day: int | None = None
+    # Optional blocker book that must finish first.
     blocked_by: str | None = None
+    # Weekdays when this book is allowed to be scheduled.
     scheduled_days: frozenset[str] = field(
         default_factory=default_scheduled_days
     )
@@ -55,21 +67,37 @@ class Book:
 class Settings:
     """Planner configuration and scheduling constraints."""
 
-    start_date: date
-    end_date: date
+    # First date included in the planning window.
+    start_date: "date"
+    # Last date included in the planning window.
+    end_date: "date"
+    # Default minutes available on days without an override.
     minutes_per_day: int | None
+    # Optional per-weekday minute overrides keyed by weekday name.
     minutes_by_weekday: dict[str, int]
-    days_off: set[date]
+    # Calendar dates that should have no reading scheduled.
+    days_off: "set[date]"
+    # Baseline reading speed in words per minute before difficulty scaling.
     wpm_base: int
+    # Size of one schedulable planning block in minutes.
     time_quantum_minutes: int
+    # Maximum number of sessions that can be scheduled on one day.
     max_sessions_per_day: int
+    # Maximum number of distinct books that can appear on one day.
     max_books_per_day: int
+    # Objective weight for rewarding completed books.
     w_finish: float
+    # Objective weight for prioritizing higher-priority books.
     w_priority: float
+    # Objective weight for encouraging or discouraging book switching.
     w_switch: float
+    # Objective weight used by spread-out mode smoothing behavior.
     w_smooth: float
+    # Difficulty multiplier lookup for difficulty levels 1 through 10.
     difficulty_multiplier: dict[int, float]
+    # Maximum number of blocks one book can receive in a single day.
     max_blocks_per_book_per_day: int = 12
+    # Planner mode that controls how work is distributed across days.
     plan_mode: str = PLAN_MODE_FINISH_SOON
 
 
@@ -77,8 +105,13 @@ class Settings:
 class PlanResult:
     """Solver output assignments and metadata."""
 
+    # Name of the planner implementation that produced this result.
     planner: str
+    # High-level solver outcome such as OPTIMAL or INFEASIBLE.
     status: str
-    assignments: dict[tuple[str, date], int]
+    # Scheduled block counts keyed by book id and calendar day.
+    assignments: "Assignments"
+    # Optional solver objective value when one is available.
     objective: int | None = None
+    # Extra human-readable context about fallback or infeasibility.
     note: str = ""

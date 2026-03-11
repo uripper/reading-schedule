@@ -1,12 +1,10 @@
-"""Utilities for CP-SAT model construction."""
-
-from __future__ import annotations
+"""Build the CP-SAT model, constraints, and objective for one solve run."""
 
 from dataclasses import dataclass
 import logging
 from typing import TYPE_CHECKING
 
-from ortools.sat.python import cp_model
+from reading_plan.planning.cp_sat_runtime import cp_model
 from reading_plan.planning.model_objective import (
     ObjectiveContext,
     build_objective_terms,
@@ -33,16 +31,19 @@ LOGGER = logging.getLogger("reading_plan.bridge")
 class BuildModelOptions:
     """Optional knobs for stage-specific model construction."""
 
+    # Whether to optimize the full objective or build a feasibility model.
     objective_mode: str = "optimize"
+    # Number of early planning days to pin to known assignments.
     lock_days_from_start: int = 0
-    lock_assignments: dict[tuple[str, date], int] | None = None
+    # Optional fixed assignments used when near-term days are locked.
+    lock_assignments: dict[tuple[str, "date"], int] | None = None
 
 
 def build_cp_sat(
-    books: list[Book],
-    settings: Settings,
+    books: list["Book"],
+    settings: "Settings",
     options: BuildModelOptions | None = None,
-) -> BuildCpSatResult:
+) -> "BuildCpSatResult":
     """Build a stage-specific CP-SAT model and decision variables."""
     build_options = options or BuildModelOptions()
     LOGGER.debug("build_cp_sat: started", extra={"book_count": len(books)})
@@ -90,7 +91,7 @@ def build_cp_sat(
                 assigned_blocks=context.x,
             ),
         )
-        model.maximize(sum(terms))
+        model.Maximize(sum(terms))
         LOGGER.debug(
             "build_cp_sat: objective added",
             extra={"term_count": len(terms)},

@@ -1,6 +1,4 @@
-"""Utilities for calendar."""
-
-from __future__ import annotations
+"""Provide small date helpers used across parsing, planning, and reporting."""
 
 from datetime import date, timedelta
 

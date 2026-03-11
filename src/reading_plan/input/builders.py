@@ -1,6 +1,4 @@
-"""Utilities for builders."""
-
-from __future__ import annotations
+"""Re-export the main helpers for building normalized books and settings."""
 
 from reading_plan.input.builders_book import book_from_data
 from reading_plan.input.builders_settings import settings_from_data

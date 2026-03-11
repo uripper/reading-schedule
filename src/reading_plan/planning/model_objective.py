@@ -1,6 +1,4 @@
-"""Utilities for model objective."""
-
-from __future__ import annotations
+"""Construct CP-SAT objective terms that score competing scheduling goals."""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
@@ -10,11 +8,11 @@ from reading_plan.planner_types import PLAN_MODE_SPREAD_OUT
 if TYPE_CHECKING:
     from datetime import date
 
-    from ortools.sat.python.cp_model import IntVar
     from reading_plan.planner_types import Book, Settings
     from reading_plan.planning.model_types import (
         BookDayVars,
         FinishedVars,
+        IntVarLike,
         LinearExprLike,
     )
 
@@ -23,15 +21,21 @@ if TYPE_CHECKING:
 class ObjectiveContext:
     """Container for CP-SAT objective construction inputs."""
 
-    settings: Settings
-    days: list[date]
-    useful_words: dict[str, IntVar]
-    finished: FinishedVars
-    active_flags: BookDayVars
-    assigned_blocks: BookDayVars
+    # Planner settings containing the objective weights and mode.
+    settings: "Settings"
+    # Ordered planning days used for time-based objective shaping.
+    days: list["date"]
+    # Integer vars representing useful progress per book.
+    useful_words: dict[str, "IntVarLike"]
+    # Boolean completion vars keyed by book id.
+    finished: "FinishedVars"
+    # Boolean activity vars keyed by book/day pair.
+    active_flags: "BookDayVars"
+    # Assigned-block vars keyed by book/day pair.
+    assigned_blocks: "BookDayVars"
 
 
-def _priority_weights(books: list[Book]) -> dict[str, int]:
+def _priority_weights(books: list["Book"]) -> dict[str, int]:
     """Convert 1..5 priority values into larger-is-better objective weights."""
     weights: dict[str, int] = {}
     priority_min = 1
@@ -50,9 +54,9 @@ def _priority_weights(books: list[Book]) -> dict[str, int]:
 
 
 def build_objective_terms(
-    books: list[Book],
+    books: list["Book"],
     context: ObjectiveContext,
-) -> list[LinearExprLike]:
+) -> list["LinearExprLike"]:
     """Build objective terms."""
     priority_scale = max(1, round(context.settings.w_priority * 100))
     switch_scale = round(context.settings.w_switch * 100)

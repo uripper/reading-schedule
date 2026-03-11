@@ -1,7 +1,5 @@
 """Shared API payload types."""
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
@@ -13,13 +11,13 @@ class BookData(TypedDict, total=False):
 
     book_id: str
     title: str
-    words_total: int | None
+    remaining_words: int | None
     priority: int
     difficulty: int
     deadline: str | None
     min_blocks_per_session: int
     progress_percent: float
-    words_remaining: int
+    words_full: int | None
     max_minutes_per_day: int | None
     blocked_by: str | None
     scheduled_days: list[str]
@@ -73,5 +71,5 @@ class PlannerInputPayload(_PlannerInputRequired, total=False):
 class PlannerOutputPayload(TypedDict):
     """Output payload from plan generation."""
 
-    summary: Summary
+    summary: "Summary"
     schedule: list[ScheduleRow]

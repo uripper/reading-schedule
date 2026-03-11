@@ -1,6 +1,4 @@
-"""Utilities for builders coerce."""
-
-from __future__ import annotations
+"""Coerce raw input values into typed numbers with field-specific errors."""
 
 from typing import SupportsFloat, SupportsIndex, SupportsInt
 

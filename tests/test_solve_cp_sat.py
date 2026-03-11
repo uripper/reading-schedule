@@ -1,7 +1,5 @@
 """Tests for concrete CP-SAT solver helpers."""
 
-from __future__ import annotations
-
 import pytest
 
 pytest.importorskip("ortools")

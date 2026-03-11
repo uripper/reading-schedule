@@ -1,7 +1,5 @@
 """Validation helpers for persisted mobile planner state."""
 
-from __future__ import annotations
-
 from typing import cast
 
 VALID_THEMES = {"system", "light", "dark"}

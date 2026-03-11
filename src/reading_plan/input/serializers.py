@@ -1,6 +1,4 @@
-"""Utilities for serializers."""
-
-from __future__ import annotations
+"""Serialize normalized planner models back into JSON-safe payloads."""
 
 from typing import TYPE_CHECKING
 
@@ -11,22 +9,22 @@ if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
 
 
-def book_to_data(book: Book) -> BookData:
+def book_to_data(book: "Book") -> "BookData":
     """Serialize a Book model into a JSON-safe dictionary for UI/API use."""
-    words_total = (
-        book.words_total if book.words_full is None else book.words_full
+    words_full = (
+        book.remaining_words if book.words_full is None else book.words_full
     )
     deadline = book.deadline.isoformat() if book.deadline else None
     return {
         "book_id": book.book_id,
         "title": book.title,
-        "words_total": words_total,
+        "remaining_words": book.remaining_words,
         "priority": book.priority,
         "difficulty": book.difficulty,
         "deadline": deadline,
         "min_blocks_per_session": book.min_blocks_per_session,
         "progress_percent": book.progress_percent,
-        "words_remaining": book.words_total,
+        "words_full": words_full,
         "max_minutes_per_day": book.max_minutes_per_day,
         "blocked_by": book.blocked_by,
         "scheduled_days": [
@@ -35,7 +33,7 @@ def book_to_data(book: Book) -> BookData:
     }
 
 
-def settings_to_data(settings: Settings) -> SettingsData:
+def settings_to_data(settings: "Settings") -> "SettingsData":
     """Serialize Settings into a JSON-safe dictionary for UI/API use."""
     data: SettingsData = {
         "start_date": settings.start_date.isoformat(),

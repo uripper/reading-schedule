@@ -1,6 +1,4 @@
-"""Utilities for solve."""
-
-from __future__ import annotations
+"""Route planning requests through greedy or staged CP-SAT solving."""
 
 import logging
 from time import perf_counter
@@ -26,9 +24,9 @@ from reading_plan.planning.solve_heuristics import (
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from datetime import date
 
     from reading_plan.planner_types import Book, Settings
+    from reading_plan.planning.model_types import Assignments
     from reading_plan.planning.solve_cp_sat import SolveAttemptResult
     from reading_plan.planning.solve_heuristics import SolveStage
 
@@ -40,8 +38,8 @@ FAST_MODE_NOTE = "Fast mode uses greedy planner."
 
 
 def solve_plan(
-    books: list[Book], settings: Settings, planner: str = "mip"
-) -> PlanResult:
+    books: list["Book"], settings: "Settings", planner: str = "mip"
+) -> "PlanResult":
     """Route planning to greedy or CP-SAT and return a normalized result."""
     planner_name = planner.strip().lower()
     profile = profile_from_planner(planner_name)
@@ -71,8 +69,8 @@ def solve_plan(
 
 
 def _solve_mip(
-    books: list[Book],
-    settings: Settings,
+    books: list["Book"],
+    settings: "Settings",
     profile: str = DEFAULT_SOLVER_PROFILE,
 ) -> PlanResult:
     """Backward-compatible entrypoint for the staged CP-SAT planner."""
@@ -80,10 +78,10 @@ def _solve_mip(
 
 
 def _solve_cp_sat(
-    books: list[Book],
-    settings: Settings,
+    books: list["Book"],
+    settings: "Settings",
     profile: str = DEFAULT_SOLVER_PROFILE,
-) -> PlanResult:
+) -> "PlanResult":
     """Solve with CP-SAT and fall back to greedy after infeasible prechecks."""
     started = perf_counter()
     greedy_assignments = plan_greedy(books, settings)
@@ -114,10 +112,10 @@ def _solve_cp_sat(
 
 
 def _fallback_from_precheck(
-    books: list[Book],
-    settings: Settings,
-    greedy_assignments: dict[tuple[str, date], int],
-) -> PlanResult | None:
+    books: list["Book"],
+    settings: "Settings",
+    greedy_assignments: "Assignments",
+) -> "PlanResult | None":
     """Return greedy fallback when precheck detects infeasibility."""
     precheck = run_precheck(books, settings)
     if precheck.is_feasible:
@@ -130,10 +128,10 @@ def _fallback_from_precheck(
 
 
 def _solve_stages(
-    base_context: AttemptContext,
-    stages: Sequence[SolveStage],
-    initial_hints: dict[tuple[str, date], int],
-) -> tuple[PlanResult | None, str]:
+    base_context: "AttemptContext",
+    stages: "Sequence[SolveStage]",
+    initial_hints: "Assignments",
+) -> "tuple[PlanResult | None, str]":
     """Run staged solve attempts and return best feasible result and status."""
     best_result: PlanResult | None = None
     incumbent_hints = initial_hints
@@ -160,8 +158,8 @@ def _solve_stages(
 
 
 def _attempt_context_with_hints(
-    context: AttemptContext,
-    hints: dict[tuple[str, date], int],
+    context: "AttemptContext",
+    hints: "Assignments",
 ) -> AttemptContext:
     """Clone immutable attempt context with updated incumbent hints."""
     return AttemptContext(
@@ -171,7 +169,7 @@ def _attempt_context_with_hints(
     )
 
 
-def _should_skip_stage_result(plan: PlanResult, stage: SolveStage) -> bool:
+def _should_skip_stage_result(plan: "PlanResult", stage: "SolveStage") -> bool:
     """Return true when stage result should not be accepted."""
     if _is_infeasible_stage(plan):
         LOGGER.debug(
@@ -183,12 +181,12 @@ def _should_skip_stage_result(plan: PlanResult, stage: SolveStage) -> bool:
 
 
 def _finalize_solve_cp_sat_result(
-    best_result: PlanResult | None,
+    best_result: "PlanResult | None",
     last_status: str,
-    greedy_assignments: dict[tuple[str, date], int],
+    greedy_assignments: "Assignments",
     started: float,
     profile: str,
-) -> PlanResult:
+) -> "PlanResult":
     """Return best CP-SAT plan or a greedy fallback with explanatory note."""
     if best_result is not None:
         LOGGER.debug(
@@ -209,11 +207,11 @@ def _finalize_solve_cp_sat_result(
 
 
 def _accept_feasible_attempt(
-    stage: SolveStage,
-    attempt: SolveAttemptResult,
-    incumbent_hints: dict[tuple[str, date], int],
+    stage: "SolveStage",
+    attempt: "SolveAttemptResult",
+    incumbent_hints: "Assignments",
     best_result: PlanResult | None,
-) -> tuple[dict[tuple[str, date], int], PlanResult | None]:
+) -> "tuple[Assignments, PlanResult | None]":
     """Update hints and best result after a feasible stage solve."""
     if attempt.plan.assignments:
         incumbent_hints = attempt.plan.assignments
@@ -233,9 +231,9 @@ def _is_optimal_result(plan: PlanResult | None) -> bool:
 
 
 def _fallback_to_greedy(
-    assignments: dict[tuple[str, date], int],
+    assignments: "Assignments",
     note: str,
-) -> PlanResult:
+) -> "PlanResult":
     """Return a greedy fallback plan with a clear reason note."""
     return PlanResult(
         "greedy",
@@ -245,7 +243,9 @@ def _fallback_to_greedy(
     )
 
 
-def _log_stage_result(stage: SolveStage, attempt: SolveAttemptResult) -> None:
+def _log_stage_result(
+    stage: "SolveStage", attempt: "SolveAttemptResult"
+) -> None:
     """Emit standardized logs for each staged solver attempt."""
     LOGGER.debug(
         (

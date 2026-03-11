@@ -1,6 +1,4 @@
-"""Utilities for report types."""
-
-from __future__ import annotations
+"""Define typed summary structures returned by the reporting layer."""
 
 from typing import TypedDict
 
@@ -10,7 +8,7 @@ class BookProgress(TypedDict):
 
     title: str
     planned_words: int
-    words_total: int
+    remaining_words: int
     finished: bool
 
 

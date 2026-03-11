@@ -38,7 +38,7 @@ Non-goal (for MVP): perfect realism (variable WPM by genre/language, habit model
 ### Per-book fields (CSV/JSON)
 - `book_id`
 - `title`
-- `words_total` (or `pages_total` with a fixed conversion you document)
+- `words_full` (or `pages_total` with a fixed conversion you document)
 - `priority` (1–5)
 - `difficulty` (1–5)
 - optional:

@@ -1,7 +1,5 @@
 """Test cases for test io."""
 
-from __future__ import annotations
-
 import json
 from typing import TYPE_CHECKING
 
@@ -21,19 +19,21 @@ def test_load_inputs_parses_books_and_settings(tmp_path: Path) -> None:
             {
                 "book_id": "b1",
                 "title": "One",
-                "words_total": 12000,
+                "words_full": 12000,
                 "priority": 5,
                 "difficulty": 2,
                 "deadline": "2026-02-20",
                 "min_blocks_per_session": 2,
+                "progress_percent": 1,
             },
             {
                 "book_id": "b2",
                 "title": "Two",
-                "words_total": 9000,
+                "words_full": 9000,
                 "priority": 3,
                 "difficulty": 4,
                 "min_blocks_per_session": 3,
+                "progress_percent": 1,
             },
         ]),
         encoding="utf-8",
@@ -66,9 +66,10 @@ def test_load_inputs_rejects_invalid_weekday_map(tmp_path: Path) -> None:
             {
                 "book_id": "b1",
                 "title": "One",
-                "words_total": 12000,
+                "words_full": 12000,
                 "priority": 5,
                 "difficulty": 2,
+                "progress_percent": 1,
             }
         ]),
         encoding="utf-8",

@@ -1,11 +1,11 @@
 """HTTP API endpoint coverage for mobile backend."""
 
-from __future__ import annotations
-
 import json
 from typing import TYPE_CHECKING, cast
 
 import pytest
+
+from reading_plan.planner_types import WEEKDAYS
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -32,6 +32,16 @@ from reading_plan.http_api import (
 )
 from reading_plan.input.serializers import book_to_data, settings_to_data
 from tests.helpers import demo_books, demo_settings
+
+
+def _write_sample_input_files(tmp_path: Path) -> tuple[Path, Path]:
+    books_path = tmp_path / "books.sample.json"
+    settings_path = tmp_path / "settings.json"
+    books_payload = [book_to_data(book) for book in demo_books()]
+    settings_payload = settings_to_data(demo_settings())
+    books_path.write_text(json.dumps(books_payload), encoding="utf-8")
+    settings_path.write_text(json.dumps(settings_payload), encoding="utf-8")
+    return books_path, settings_path
 
 
 def test_state_load_returns_fresh_when_missing(
@@ -131,7 +141,10 @@ def test_plan_generate_endpoint() -> None:
     assert "schedule" in body
 
 
-def test_state_sample_endpoint() -> None:
+def test_state_sample_endpoint(tmp_path: Path, monkeypatch) -> None:
+    books_path, settings_path = _write_sample_input_files(tmp_path)
+    monkeypatch.setattr(http_api, "_sample_books_path", lambda: books_path)
+    monkeypatch.setattr(http_api, "_sample_settings_path", lambda: settings_path)
     payload = _sample_payload()
 
     assert isinstance(payload, dict)
@@ -139,16 +152,10 @@ def test_state_sample_endpoint() -> None:
     settings = payload.get("settings")
     assert isinstance(books, list)
     assert isinstance(settings, dict)
-    assert len(books) == 5
+    assert len(books) == len(demo_books())
     first_book = books[0]
     assert isinstance(first_book, dict)
-    assert first_book.get("scheduled_days") == [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-    ]
+    assert first_book.get("scheduled_days") == list(WEEKDAYS)
 
 
 def test_books_search_empty_query_returns_empty() -> None:
@@ -175,7 +182,10 @@ def test_state_load_endpoint_http(tmp_path: Path, monkeypatch) -> None:
 
 
 @pytest.mark.skipif(not HAS_TEST_CLIENT, reason="fastapi[test] extras missing")
-def test_state_sample_endpoint_http() -> None:
+def test_state_sample_endpoint_http(tmp_path: Path, monkeypatch) -> None:
+    books_path, settings_path = _write_sample_input_files(tmp_path)
+    monkeypatch.setattr(http_api, "_sample_books_path", lambda: books_path)
+    monkeypatch.setattr(http_api, "_sample_settings_path", lambda: settings_path)
     client = _create_client()
     response = client.post("/api/state/sample", json={})
 
@@ -186,7 +196,7 @@ def test_state_sample_endpoint_http() -> None:
     settings = body.get("settings")
     assert isinstance(books, list)
     assert isinstance(settings, dict)
-    assert len(books) == 5
+    assert len(books) == len(demo_books())
 
 
 @pytest.mark.skipif(not HAS_TEST_CLIENT, reason="fastapi[test] extras missing")

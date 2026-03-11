@@ -1,6 +1,4 @@
-"""Utilities for budget."""
-
-from __future__ import annotations
+"""Compute reading-time, capacity, and workload estimates for planning."""
 
 import math
 from typing import TYPE_CHECKING
@@ -13,7 +11,7 @@ if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
 
 
-def minutes_for_day(settings: Settings, day: date) -> int:
+def minutes_for_day(settings: "Settings", day: "date") -> int:
     """Return reading minutes for one day after days-off and overrides."""
     if day in settings.days_off:
         return 0
@@ -22,7 +20,7 @@ def minutes_for_day(settings: Settings, day: date) -> int:
     return settings.minutes_per_day or 0
 
 
-def calendar_minutes(settings: Settings) -> dict[date, int]:
+def calendar_minutes(settings: "Settings") -> dict["date", int]:
     """Build available reading minutes for every day in the planning window."""
     return {
         d: minutes_for_day(settings, d)
@@ -30,13 +28,13 @@ def calendar_minutes(settings: Settings) -> dict[date, int]:
     }
 
 
-def day_capacity_blocks(settings: Settings, day: date) -> int:
+def day_capacity_blocks(settings: "Settings", day: "date") -> int:
     """Convert one day's minutes into schedulable time-quantum blocks."""
     minutes = minutes_for_day(settings, day)
     return minutes // settings.time_quantum_minutes
 
 
-def book_day_block_limit(book: Book, settings: Settings) -> int:
+def book_day_block_limit(book: "Book", settings: "Settings") -> int:
     """Return per-book daily block cap with optional book-level minute limit."""
     limit = settings.max_blocks_per_book_per_day
     if book.max_minutes_per_day is not None:
@@ -46,29 +44,29 @@ def book_day_block_limit(book: Book, settings: Settings) -> int:
     return max(0, limit)
 
 
-def book_is_scheduled_for_day(book: Book, day: date) -> bool:
+def book_is_scheduled_for_day(book: "Book", day: "date") -> bool:
     """Return whether a book can be scheduled on the provided calendar day."""
     return weekday_key(day) in book.scheduled_days
 
 
-def words_per_minute(book: Book, settings: Settings) -> float:
+def words_per_minute(book: "Book", settings: "Settings") -> float:
     """Estimate reading speed using base WPM adjusted by book difficulty."""
     multiplier = settings.difficulty_multiplier[book.difficulty]
     return settings.wpm_base * multiplier
 
 
-def words_per_block(book: Book, settings: Settings) -> int:
+def words_per_block(book: "Book", settings: "Settings") -> int:
     """Convert estimated reading speed into words per scheduling block."""
     return round(
         words_per_minute(book, settings) * settings.time_quantum_minutes
     )
 
 
-def required_minutes(book: Book, settings: Settings) -> int:
+def required_minutes(book: "Book", settings: "Settings") -> int:
     """Estimate total minutes required to finish one book."""
-    return math.ceil(book.words_total / words_per_minute(book, settings))
+    return math.ceil(book.remaining_words / words_per_minute(book, settings))
 
 
-def required_total_minutes(books: list[Book], settings: Settings) -> int:
+def required_total_minutes(books: list["Book"], settings: "Settings") -> int:
     """Estimate total minutes required to finish all books in the list."""
     return sum(required_minutes(book, settings) for book in books)

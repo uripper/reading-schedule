@@ -1,7 +1,5 @@
 """Tests for solve-plan routing in fast mode."""
 
-from __future__ import annotations
-
 from datetime import date
 
 import pytest
