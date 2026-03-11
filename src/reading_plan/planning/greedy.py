@@ -16,6 +16,7 @@ from reading_plan.reading_calendar import date_range
 
 if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
+    from reading_plan.planning.model_types import Assignments
 
 
 @dataclass
@@ -25,11 +26,11 @@ class DayState:
     # Books ordered by the current day selection priority.
     ordered: list["Book"]
     # Books already started on the current day.
-    used: list["Book"]
+    used: "list[Book]"
     # Remaining unscheduled words keyed by book id.
     remaining: dict[str, float]
     # Accumulated block assignments keyed by book/day pair.
-    assignments: dict[tuple[str, date], int]
+    assignments: "Assignments"
     # Per-book daily block caps keyed by book id.
     limits: dict[str, int]
     # Words-per-block lookup keyed by book id.
@@ -62,14 +63,14 @@ class SpreadState:
 
 def plan_greedy(
     books: list["Book"], settings: "Settings"
-) -> dict[tuple[str, date], int]:
+) -> "Assignments":
     """Build a feasible day-by-day block allocation using greedy heuristics."""
     days = date_range(settings.start_date, settings.end_date)
     caps = {day: day_capacity_blocks(settings, day) for day in days}
     remaining = {b.book_id: float(b.remaining_words) for b in books}
     wpb = {b.book_id: words_per_block(b, settings) for b in books}
     limits = {b.book_id: book_day_block_limit(b, settings) for b in books}
-    assignments: dict[tuple[str, date], int] = {}
+    assignments: Assignments = {}
     daily_book_cap = min(
         settings.max_books_per_day, settings.max_sessions_per_day
     )

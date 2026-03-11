@@ -1,7 +1,5 @@
 """Test cases for test constants sync."""
 
-from __future__ import annotations
-
 from pathlib import Path
 import re
 

@@ -1,7 +1,5 @@
 """Shared API payload types."""
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
@@ -73,5 +71,5 @@ class PlannerInputPayload(_PlannerInputRequired, total=False):
 class PlannerOutputPayload(TypedDict):
     """Output payload from plan generation."""
 
-    summary: Summary
+    summary: "Summary"
     schedule: list[ScheduleRow]

@@ -1,7 +1,5 @@
 """Test cases for test schedule."""
 
-from __future__ import annotations
-
 from datetime import date
 
 from reading_plan.planner_types import Book

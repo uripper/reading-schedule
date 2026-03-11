@@ -1,7 +1,5 @@
 """Provide small date helpers used across parsing, planning, and reporting."""
 
-from __future__ import annotations
-
 from datetime import date, timedelta
 
 from reading_plan.planner_types import WEEKDAYS

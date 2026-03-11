@@ -1,7 +1,5 @@
 """Define typed summary structures returned by the reporting layer."""
 
-from __future__ import annotations
-
 from typing import TypedDict
 
 

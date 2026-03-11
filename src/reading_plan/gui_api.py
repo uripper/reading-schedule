@@ -1,7 +1,5 @@
 """Bridge the desktop app to the planner over stdin/stdout JSON messages."""
 
-from __future__ import annotations
-
 import argparse
 import json
 import sys
@@ -30,7 +28,7 @@ class BridgeResponse(TypedDict, total=False):
     """Response wrapper for bridge communication."""
 
     ok: bool
-    data: PlannerOutputPayload | PlannerInputPayload | dict[str, object]
+    data: "PlannerOutputPayload | PlannerInputPayload | dict[str, object]"
     error: str
 
 
@@ -39,7 +37,7 @@ BRIDGE_REQUEST_ID_ENV = BRIDGE_REQUEST_ID_ENV_SHARED
 DEFAULT_LOG_PATH = DEFAULT_LOG_PATH_SHARED
 
 
-def configure_logger() -> logging.Logger:
+def configure_logger() -> "logging.Logger":
     """Configure planner bridge logger with file output."""
     return configure_bridge_logger()
 
@@ -50,7 +48,7 @@ def write_payload(payload: BridgeResponse) -> None:
     sys.stdout.write("\n")
 
 
-def read_stdin_payload(logger: logging.Logger) -> PlannerInputPayload:
+def read_stdin_payload(logger: "logging.Logger") -> "PlannerInputPayload":
     """Read and validate planner payload from stdin with diagnostics."""
     payload_text = sys.stdin.read()
     log_file_execution(

@@ -1,7 +1,5 @@
 """Test cases for test feasibility."""
 
-from __future__ import annotations
-
 from reading_plan.planner_types import PlanResult
 from reading_plan.planning.greedy import plan_greedy
 from reading_plan.reporting.report import build_summary
