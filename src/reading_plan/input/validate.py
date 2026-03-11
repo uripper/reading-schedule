@@ -107,7 +107,7 @@ def _validate_scheduled_days(book: "Book") -> None:
     _check(book_must_have_scheduled_days, condition=bool(book.scheduled_days))
 
     scheduled_days_are_real = (
-        "scheduled_days must be Mon..Sun for {book.book_id}"
+        f"scheduled_days must be Mon..Sun for {book.book_id}"
     )
     _check(
         scheduled_days_are_real,
@@ -157,7 +157,7 @@ def _validate_settings_minutes(settings: "Settings") -> None:
     _check(
         time_quantum_minutes_required,
         condition=settings.time_quantum_minutes is not None
-        or settings.time_quantum_minutes > 0,
+        and settings.time_quantum_minutes > 0,
     )
 
 
@@ -208,7 +208,7 @@ def _validate_settings_plan_mode(settings: "Settings") -> None:
     plan_mode_required = (
         f"plan_mode must be set to one of: {', '.join(PLAN_MODES)}"
     )
-    _check(plan_mode_required, condition=bool(settings.plan_mode))
+    _check(plan_mode_required, condition=bool(settings.plan_mode in PLAN_MODES))
 
 
 if __name__ == "__main__":
