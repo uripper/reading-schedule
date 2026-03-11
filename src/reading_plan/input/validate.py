@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 logger = Logger(__name__)
 
-MIN_PROGRESS_PERCENT = 1
+MIN_PROGRESS_PERCENT = 0
 MAX_PROGRESS_PERCENT = 100
 # Books can be prioritized 1 (highest) to 5 (lowest).
 BOOK_PRIORITY_RANGE = range(1, 6)
@@ -42,11 +42,11 @@ def _validate_required_fields(book: "Book") -> None:
         condition=book.priority in BOOK_PRIORITY_RANGE,
     )
 
-    difficulty_between_one_and_10 = (
+    difficulty_between_one_and_ten = (
         f"difficulty must be 1..10 for {book.book_id}"
     )
     _check(
-        difficulty_between_one_and_10,
+        difficulty_between_one_and_ten,
         condition=book.difficulty in BOOK_DIFFICULTY_RANGE,
     )
 
