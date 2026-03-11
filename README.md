@@ -1,11 +1,11 @@
 
 # ![Bartleby Logo](BartlebyHeader.png)
 
-Read More Books.
+*Read More Books.*
 
 ## About
 
-Bartleby is a personal reading schedule **optimizer** that generates a daily reading plan based on your book backlog. Let it know what you want to read, how fast you read, how much time you have, and it will create a schedule that fits you.
+Bartleby is a personal **reading schedule optimizer** that generates a daily reading plan based on your book backlog. Let it know what you want to read, how fast you read, how much time you have, and it will create a schedule that fits you.
 
 ## Why?
 
