@@ -19,10 +19,6 @@ VALID_WEEKDAYS = frozenset(WEEKDAYS)
 VALID_DIFFICULTY_KEYS = frozenset(BOOK_DIFFICULTY_RANGE)
 
 
-class UnhandledExceptionError(Exception):
-    """Raised when an unhandled error type is passed to check_condition."""
-
-
 def check_condition(
     msg: str,
     *,
@@ -41,8 +37,6 @@ def check_condition(
         if error_type == "type":
             raise TypeError(msg)
         if error_type == "value":
-            raise ValueError(msg)
-        raise UnhandledExceptionError(unhandled_error)
 
 
 def _validate_required_fields(book: "Book") -> None:
