@@ -1,4 +1,4 @@
-"""Utilities for api."""
+"""Validate planner payloads, run scheduling, and build API-ready output."""
 
 from __future__ import annotations
 

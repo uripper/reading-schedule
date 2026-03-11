@@ -1,4 +1,4 @@
-"""Utilities for schedule totals."""
+"""Aggregate scheduled sessions into per-book totals and total minutes."""
 
 from __future__ import annotations
 

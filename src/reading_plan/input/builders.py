@@ -1,4 +1,4 @@
-"""Utilities for builders."""
+"""Re-export the main helpers for building normalized books and settings."""
 
 from __future__ import annotations
 

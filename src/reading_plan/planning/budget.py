@@ -1,4 +1,4 @@
-"""Utilities for budget."""
+"""Compute reading-time, capacity, and workload estimates for planning."""
 
 from __future__ import annotations
 

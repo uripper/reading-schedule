@@ -1,4 +1,4 @@
-"""Utilities for greedy."""
+"""Build feasible schedules greedily under calendar and per-book limits."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Utilities for gui api."""
+"""Bridge the desktop app to the planner over stdin/stdout JSON messages."""
 
 from __future__ import annotations
 

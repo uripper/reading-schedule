@@ -1,4 +1,4 @@
-"""Utilities for validate."""
+"""Validate normalized books and settings before they reach the planner."""
 
 from logging import Logger
 from typing import TYPE_CHECKING

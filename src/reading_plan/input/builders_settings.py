@@ -1,4 +1,4 @@
-"""Utilities for builders settings."""
+"""Normalize raw settings payloads into validated planner settings models."""
 
 from __future__ import annotations
 

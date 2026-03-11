@@ -1,4 +1,4 @@
-"""Utilities for model objective."""
+"""Construct CP-SAT objective terms that score competing scheduling goals."""
 
 from __future__ import annotations
 

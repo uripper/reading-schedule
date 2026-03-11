@@ -1,4 +1,4 @@
-"""Utilities for report build."""
+"""Build summary data that compares planned work against remaining work."""
 
 from __future__ import annotations
 

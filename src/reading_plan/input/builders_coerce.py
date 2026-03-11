@@ -1,4 +1,4 @@
-"""Utilities for builders coerce."""
+"""Coerce raw input values into typed numbers with field-specific errors."""
 
 from __future__ import annotations
 

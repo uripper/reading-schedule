@@ -1,4 +1,4 @@
-"""Utilities for types."""
+"""Define the core planner models, constants, and default scheduling data."""
 
 from __future__ import annotations
 

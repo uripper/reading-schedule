@@ -1,4 +1,4 @@
-"""Utilities for solve."""
+"""Route planning requests through greedy or staged CP-SAT solving."""
 
 from __future__ import annotations
 

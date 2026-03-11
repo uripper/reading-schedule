@@ -1,4 +1,4 @@
-"""Utilities for schedule sessions."""
+"""Expand block assignments into concrete reading sessions and word counts."""
 
 from __future__ import annotations
 

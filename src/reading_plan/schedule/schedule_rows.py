@@ -1,4 +1,4 @@
-"""Utilities for schedule rows."""
+"""Convert scheduled sessions into JSON-safe row dictionaries."""
 
 from __future__ import annotations
 

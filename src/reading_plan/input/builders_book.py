@@ -1,4 +1,4 @@
-"""Utilities for builders book."""
+"""Normalize raw book payloads into validated planner book models."""
 
 from __future__ import annotations
 

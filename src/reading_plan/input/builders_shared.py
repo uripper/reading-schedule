@@ -1,4 +1,4 @@
-"""Utilities for builders shared."""
+"""Hold shared input-normalization constants used by multiple builders."""
 
 from __future__ import annotations
 

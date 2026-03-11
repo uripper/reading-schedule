@@ -1,4 +1,4 @@
-"""Utilities for serializers."""
+"""Serialize normalized planner models back into JSON-safe payloads."""
 
 from __future__ import annotations
 

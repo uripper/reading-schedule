@@ -1,4 +1,4 @@
-"""Utilities for report format."""
+"""Format structured planner summaries into readable plain-text output."""
 
 from __future__ import annotations
 

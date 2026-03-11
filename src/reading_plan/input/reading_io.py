@@ -1,4 +1,4 @@
-"""Utilities for io."""
+"""Load planner JSON input files and convert them into normalized models."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Utilities for schedule."""
+"""Re-export helpers for transforming assignments into schedule artifacts."""
 
 from __future__ import annotations
 

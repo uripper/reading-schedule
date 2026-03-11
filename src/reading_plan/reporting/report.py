@@ -1,4 +1,4 @@
-"""Utilities for report."""
+"""Re-export the main helpers for building and formatting planner reports."""
 
 from __future__ import annotations
 

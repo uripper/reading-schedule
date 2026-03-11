@@ -1,4 +1,4 @@
-"""Utilities for CP-SAT model construction."""
+"""Build the CP-SAT model, constraints, and objective for one solve run."""
 
 from __future__ import annotations
 
