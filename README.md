@@ -9,7 +9,7 @@ Bartleby is a personal reading schedule **optimizer** that generates a daily rea
 
 ## Why?
 
-Bartleby was mainly built for myself. I wanted to visually see just how many books a year I could read with a small time commitment each day. I'm a fairly slow reader, and I have severe ADHD, which makes it pretty hard to believe that I can make meaningful progress on my backlog. And having a giant backlog of books doesn't feel as life affirming to me as it is for [Nassim Nicholas Taleb](https://en.wikipedia.org/wiki/Antilibrary). Ultimately, this became a fun way to get myself to read more. I hope that others find it useful too.
+Bartleby was mainly built for myself. I wanted to visually see just how many books a year I could read with a small time commitment each day. I'm a fairly slow reader, and I have severe ADHD, which makes it pretty hard to believe that I can make meaningful progress on my backlog. And having a giant backlog of books doesn't feel as life affirming to me as it is for [Umberto Eco and Nassim Nicholas Taleb](https://en.wikipedia.org/wiki/Antilibrary). Ultimately, this became a fun way to get myself to read more. I hope that others find it useful too.
 
 ## Current Status
 
