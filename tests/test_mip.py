@@ -1,7 +1,4 @@
 """Test cases for test mip."""
-
-from __future__ import annotations
-
 from datetime import date
 
 import pytest
@@ -12,19 +9,19 @@ from typing import TYPE_CHECKING
 
 from reading_plan.planner_types import Book
 from reading_plan.planning.budget import words_per_block
-import reading_plan.planning.solve as solve_module
 from reading_plan.planning.solve import solve_plan
 from reading_plan.reading_calendar import weekday_key
 from tests.helpers import demo_books, demo_settings
 
 if TYPE_CHECKING:
     from reading_plan.planner_types import Settings
+    from reading_plan.planning.model_types import Assignments
 
 
 def assert_no_large_overread(
-    books: list[Book],
-    result_assignments: dict[tuple[str, date], int],
-    settings: Settings,
+    books: "list[Book]",
+    result_assignments: "Assignments",
+    settings: "Settings",
 ) -> None:
     """Assert each book's assigned words do not exceed allowed overshoot."""
     wpb = {book.book_id: words_per_block(book, settings) for book in books}
@@ -35,7 +32,7 @@ def assert_no_large_overread(
             if book_id == book.book_id
         )
         overshoot = wpb[book.book_id] * max(1, book.min_blocks_per_session - 1)
-        assert planned <= book.words_total + overshoot
+        assert planned <= book.remaining_words + overshoot
 
 
 def test_mip_does_not_overread_books_far_past_completion() -> None:
@@ -58,7 +55,24 @@ def test_mip_finishes_book_when_last_chunk_is_sub_block() -> None:
     assert result.status in {"OPTIMAL", "FEASIBLE"}
     wpb = words_per_block(books[0], settings)
     planned = sum(v * wpb for (_bid, _), v in result.assignments.items())
-    assert planned >= books[0].words_total
+    assert planned >= books[0].remaining_words
+
+
+def test_mip_keeps_single_block_assignments() -> None:
+    """Test that one-block CP-SAT assignments are preserved in results."""
+    books = [Book("b1", "Short", 2000, 1, 1, None, 1)]
+    settings = demo_settings(
+        start_date=date(2026, 2, 16),
+        end_date=date(2026, 2, 16),
+        minutes_per_day=15,
+        time_quantum_minutes=15,
+        max_books_per_day=1,
+        max_sessions_per_day=1,
+    )
+    result = solve_plan(books, settings, planner="mip")
+    assert result.status in {"OPTIMAL", "FEASIBLE"}
+    assert result.planner == "cp-sat"
+    assert result.assignments == {("b1", date(2026, 2, 16)): 1}
 
 
 def test_mip_honors_blocker_dependency() -> None:
@@ -127,6 +141,4 @@ def test_mip_respects_book_scheduled_days() -> None:
     ]
     assert planned_days
     assert all(weekday_key(day) in allowed_days for day in planned_days)
-
-
 

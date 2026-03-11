@@ -34,6 +34,7 @@ env/
 build/
 site/
 pip-wheel-metadata/
+.python-version
 
 # Node / TypeScript
 node_modules/
@@ -97,3 +98,6 @@ report/html/jscpd-report.json
 report/html/js/prism.js
 report/html/styles/prism.css
 report/html/styles/tailwind.css
+reading-schedule-0.2.0.tgz
+
+*.tgz

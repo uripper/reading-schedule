@@ -11,6 +11,14 @@ export function dayKeyFromDate(date: Date): string {
 }
 
 /**
+ * Returns today's local calendar day key.
+ * @returns Day key for the current local date.
+ */
+export function todayDayKey(): string {
+    return dayKeyFromDate(new Date());
+}
+
+/**
  * Converts an ISO date/time string into a local calendar day key.
  * @param iso - ISO-8601 date string.
  * @returns Local day key, or an empty string for invalid date input.

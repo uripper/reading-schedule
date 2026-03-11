@@ -1,8 +1,5 @@
-"""Utilities for io."""
+"""Load planner JSON input files and convert them into normalized models."""
 
-from __future__ import annotations
-
-import csv
 import json
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
@@ -12,16 +9,42 @@ from reading_plan.bridge_logging import (
     log_file_execution,
     log_incoming_data,
 )
-from reading_plan.input.builders import settings_from_data
+from reading_plan.input.builders import book_from_data, settings_from_data
+from reading_plan.input.validate import check_condition
 
 if TYPE_CHECKING:
+    from reading_plan.api_types import BookData
     from reading_plan.planner_types import Book, Settings
 
 
 LOGGER = get_bridge_logger(__name__)
 
 
-def load_books(path: str) -> list[Book]:
+def read_book_data(path: str) -> list["BookData"]:
+    """Load raw book payload rows from a JSON file."""
+    books_must_contain_json_array = (
+        f"books file '{path}' must contain a JSON array"
+    )
+    raw = json.loads(Path(path).read_text(encoding="utf-8"))
+    check_condition(
+        books_must_contain_json_array,
+        error_type="type",
+        condition=isinstance(raw, list),
+    )
+
+    books_must_contain_json_objects = (
+        f"books file '{path}' must contain JSON objects"
+    )
+    check_condition(
+        books_must_contain_json_objects,
+        error_type="type",
+        condition=all(isinstance(item, dict) for item in raw),
+    )
+
+    return cast("list[BookData]", raw)
+
+
+def load_books(path: str) -> list["Book"]:
     """Load books.
 
     :param path: path to the books file
@@ -34,19 +57,16 @@ def load_books(path: str) -> list[Book]:
         file_path=__file__,
         value=path,
     )
-    books: list[Book] = []
-    with Path(path).open(newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            typed_row = cast("Book", row)
-            books.append(typed_row)
-    if not books:
-        msg = "books file is empty"
-        raise ValueError(msg)
+    book_file_cannot_be_empty = f"books file '{path}' cannot be empty"
+    books = [book_from_data(row) for row in read_book_data(path)]
+    check_condition(
+        book_file_cannot_be_empty,
+        condition=len(books) > 0,
+    )
     return books
 
 
-def load_settings(path: str) -> Settings:
+def load_settings(path: str) -> "Settings":
     """Load settings.
 
     :param path: path to the settings file
@@ -65,7 +85,7 @@ def load_settings(path: str) -> Settings:
 
 def load_inputs(
     books_path: str, settings_path: str
-) -> tuple[list[Book], Settings]:
+) -> tuple[list["Book"], "Settings"]:
     """Load inputs.
 
     :param books_path: path to the books file

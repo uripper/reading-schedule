@@ -1,7 +1,5 @@
 """Tests for solver heuristics and profile parsing."""
 
-from __future__ import annotations
-
 from datetime import date
 
 from reading_plan.planner_types import Book

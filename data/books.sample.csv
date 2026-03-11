@@ -1,6 +1,0 @@
-book_id,title,words_total,priority,difficulty,deadline,min_blocks_per_session
-sample-001,Ulysses,265000,5,9,2026-10-15,3
-sample-002,Pride and Prejudice,122000,4,5,2026-07-01,2
-sample-003,Moby-Dick,209000,4,8,2026-12-01,3
-sample-004,Crime and Punishment,211000,3,7,,3
-sample-005,The Secret History,191041,2,3,,2

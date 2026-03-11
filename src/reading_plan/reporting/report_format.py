@@ -1,6 +1,4 @@
-"""Utilities for report format."""
-
-from __future__ import annotations
+"""Format structured planner summaries into readable plain-text output."""
 
 from typing import TYPE_CHECKING
 
@@ -8,7 +6,7 @@ if TYPE_CHECKING:
     from reading_plan.reporting.report_types import Summary
 
 
-def format_summary(summary: Summary) -> str:
+def format_summary(summary: "Summary") -> str:
     """Format summary."""
     lines = [
         f"Planner: {summary['planner']} ({summary['status']})",
@@ -27,7 +25,7 @@ def format_summary(summary: Summary) -> str:
         if info["finished"]:
             done = "yes"
         lines.append(
-            f"- {book_id}: {info['planned_words']}/{info['words_total']} "
+            f"- {book_id}: {info['planned_words']}/{info['remaining_words']} "
             f"words (finished: {done})"
         )
     return "\n".join(lines)

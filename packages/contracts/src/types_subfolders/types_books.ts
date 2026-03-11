@@ -1,4 +1,3 @@
-
 import type { UUID } from "node:crypto";
 import type { PlannerScheduleRow } from "./types_planner.js";
 
@@ -49,7 +48,6 @@ export interface Book {
     title: string;
     words_total: number | null;
 }
-
 
 export interface BookProgressUpdates {
     pagesRead?: number | null;

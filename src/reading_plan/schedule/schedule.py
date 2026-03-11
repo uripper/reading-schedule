@@ -1,6 +1,4 @@
-"""Utilities for schedule."""
-
-from __future__ import annotations
+"""Re-export helpers for transforming assignments into schedule artifacts."""
 
 from reading_plan.schedule.schedule_csv import write_schedule_csv
 from reading_plan.schedule.schedule_rows import to_schedule_rows

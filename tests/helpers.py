@@ -1,7 +1,5 @@
 """Test cases for helpers."""
 
-from __future__ import annotations
-
 from datetime import date
 
 from reading_plan.planner_types import (
@@ -14,9 +12,9 @@ from reading_plan.planner_types import (
 def demo_books() -> list[Book]:
     """Execute demo books."""
     return [
-        Book("b1", "Book One", 12000, 5, 2, None, 2),
-        Book("b2", "Book Two", 10000, 4, 3, None, 2),
-        Book("b3", "Book Three", 9000, 2, 1, None, 2),
+        Book("b1", "Book One", 12000, 5, 2, None, 2, 15000, 20.0),
+        Book("b2", "Book Two", 10000, 4, 3, None, 2, 12500, 20.0),
+        Book("b3", "Book Three", 9000, 2, 1, None, 2, 10000, 10.0),
     ]
 
 

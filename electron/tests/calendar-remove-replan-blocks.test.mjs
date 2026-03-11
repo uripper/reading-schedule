@@ -1,3 +1,6 @@
+/**
+ * Verifies removed sessions stay blocked from future replan merges.
+ */
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -42,8 +45,22 @@ test("removeSessionRow blocks the same day-book pair from future replan merges",
     const MARK_UPDATED = () => {
         updates += 1;
     };
+    const APPLY_STATE_MUTATION = (mutation) => {
+        if (mutation.type === "set_schedule_completions") {
+            STATE.scheduleCompletions = mutation.scheduleCompletions;
+            return;
+        }
+        if (mutation.type === "set_blocked_day_book") {
+            if (mutation.blocked) {
+                STATE.blockedDayBooks[mutation.key] = true;
+                return;
+            }
+            delete STATE.blockedDayBooks[mutation.key];
+        }
+    };
 
     const REMOVED = removeSessionRow({
+        applyStateMutation: APPLY_STATE_MUTATION,
         onScheduleRowsUpdated: MARK_UPDATED,
         queuePersist: MARK_UPDATED,
         renderCalendar: MARK_UPDATED,

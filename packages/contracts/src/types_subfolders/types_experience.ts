@@ -36,6 +36,9 @@ interface BaseFieldDefinition {
     hint?: string;
     id: string;
     label: string;
+    max?: number;
+    min?: number;
+    pattern?: string;
     step?: string;
 }
 

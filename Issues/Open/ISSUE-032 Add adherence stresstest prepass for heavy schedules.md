@@ -6,7 +6,7 @@
 
 Problem:
 
-Some plans are technically valid but likely to fail in practice because session load is too heavy for recent user behavior.
+Some plans are technically valid but likely to fail in practice because session load is too heavy for recent user behavior. Can likely make suggestions if users have missed multiple sessions in a row or have a history of low adherence.
 
 Expected:
 

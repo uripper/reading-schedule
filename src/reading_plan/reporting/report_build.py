@@ -1,6 +1,4 @@
-"""Utilities for report build."""
-
-from __future__ import annotations
+"""Build summary data that compares planned work against remaining work."""
 
 from typing import TYPE_CHECKING
 
@@ -16,8 +14,8 @@ if TYPE_CHECKING:
 
 
 def build_summary(
-    books: list[Book], settings: Settings, result: PlanResult
-) -> Summary:
+    books: list["Book"], settings: "Settings", result: "PlanResult"
+) -> "Summary":
     """Build summary."""
     per_book, total_minutes = compute_plan_totals(
         books, settings, result.assignments
@@ -29,8 +27,8 @@ def build_summary(
         book.book_id: {
             "title": book.title,
             "planned_words": per_book[book.book_id],
-            "words_total": book.words_total,
-            "finished": per_book[book.book_id] >= book.words_total,
+            "remaining_words": book.remaining_words,
+            "finished": per_book[book.book_id] >= book.remaining_words,
         }
         for book in books
     }

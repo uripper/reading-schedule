@@ -94,4 +94,4 @@ export const COVER_SOURCES: Record<string, number> = {
     "Moby-Dick": require("../../../assets/book-covers/MobyDick.jpg"),
 };
 
-export const DEFAULT_COVER_SOURCE = require("../../../assets/book-covers/Hamlet.jpg")
+export const DEFAULT_COVER_SOURCE = require("../../../assets/book-covers/Hamlet.jpg");
