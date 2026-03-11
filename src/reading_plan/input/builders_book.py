@@ -33,6 +33,7 @@ ALL_WEEKDAYS = frozenset(WEEKDAYS)
 @dataclass(frozen=True)
 class WordStats:
     """A dataclass for containing and freezing parameters."""
+
     words_full: int
     remaining_words: int
     progress_percent: float
@@ -68,10 +69,11 @@ def book_from_data(data: BookData) -> Book:
 def _book_id(data: BookData) -> str:
     """Return normalized book_id, generating one when missing."""
     raw = data.get("book_id")
-    if isinstance(raw, str):
-        text = raw.strip()
-        if text:
-            return text
+    if raw is None:
+        return str(uuid4())
+    text = str(raw).strip()
+    if text:
+        return text
     return str(uuid4())
 
 
@@ -119,15 +121,12 @@ def _deadline(data: BookData) -> date | None:
 
 
 def _blocked_by(data: BookData) -> str | None:
-    """Parse optional blocker id."""
-    raw = data.get("blocked_by")
+    """Parse optional blocker id, including the legacy alias."""
+    raw = data.get("blocked_by") or data.get("blocker_book_id")
     if raw is None:
         return None
-    if isinstance(raw, str):
-        text = raw.strip()
-        return text or None
-    msg = "blocked_by must be a string or null"
-    raise TypeError(msg)
+    text = str(raw).strip()
+    return text or None
 
 
 def _max_minutes_per_day(data: BookData) -> int | None:
@@ -153,13 +152,16 @@ def _word_stats(data: BookData) -> WordStats:
 def _words_full(data: BookData) -> int:
     """Resolve total words from direct word count or page estimate."""
     words_full = _parse_optional_int(data.get("words_full"), "words_full")
-    if words_full is None or words_full <= 0:
+    if words_full is None:
         pages_total_raw = data.get("pages_total")
         pages_total = _require_int(pages_total_raw, "pages_total")
         check_condition(
             "pages_total must be greater than 0", condition=pages_total > 0
         )
         return pages_total * WORDS_PER_PAGE
+    check_condition(
+        "words_full must be greater than 0", condition=words_full > 0
+    )
     return words_full
 
 
@@ -242,7 +244,7 @@ def _scheduled_days(
     if isinstance(raw, str):
         entries = [segment.strip() for segment in raw.split(",")]
     else:
-        entries = [entry.strip() for entry in raw]
+        entries = [str(entry).strip() for entry in raw]
 
     selected = {entry for entry in entries if entry}
     if not selected:

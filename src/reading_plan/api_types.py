@@ -10,6 +10,7 @@ class BookData(TypedDict, total=False):
     """Book data structure in plan input/output payloads."""
 
     book_id: str
+    blocker_book_id: str | None
     title: str
     remaining_words: int | None
     priority: int
