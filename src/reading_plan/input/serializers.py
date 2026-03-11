@@ -11,20 +11,20 @@ if TYPE_CHECKING:
 
 def book_to_data(book: "Book") -> "BookData":
     """Serialize a Book model into a JSON-safe dictionary for UI/API use."""
-    remaining_words = (
+    words_full = (
         book.remaining_words if book.words_full is None else book.words_full
     )
     deadline = book.deadline.isoformat() if book.deadline else None
     return {
         "book_id": book.book_id,
         "title": book.title,
-        "words_total": remaining_words,
+        "remaining_words": book.remaining_words,
         "priority": book.priority,
         "difficulty": book.difficulty,
         "deadline": deadline,
         "min_blocks_per_session": book.min_blocks_per_session,
         "progress_percent": book.progress_percent,
-        "words_remaining": book.remaining_words,
+        "words_full": words_full,
         "max_minutes_per_day": book.max_minutes_per_day,
         "blocked_by": book.blocked_by,
         "scheduled_days": [

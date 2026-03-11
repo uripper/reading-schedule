@@ -42,16 +42,16 @@ def _word_stats(data: "BookData") -> tuple[int, int, float]:
     :param data: raw book payload with mixed fields for words/pages and progress
     :return: tuple of (full words, remaining words, progress percent)
     """
-    words_raw = data.get("words_total", 0)
+    words_raw = data.get("words_full", 0)
     pages_raw = data.get("pages_total", 0)
 
     if words_raw is not None:
         if not isinstance(words_raw, int):
-            msg = "words_total must be an integer"
+            msg = "words_full must be an integer"
             raise ValueError(msg)
         full = words_raw or 0
         if full <= 0:
-            msg = "words_total must be greater than 0"
+            msg = "words_full must be greater than 0"
             raise ValueError(msg)
     else:
         full = to_int(pages_raw or 0, "pages_total") * WORDS_PER_PAGE
