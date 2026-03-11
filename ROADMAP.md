@@ -1,10 +1,11 @@
 # Reading Plan Optimizer — MVP Roadmap (Python)
 
 ## Product goal
-Turn a user’s backlog + time budget into a **daily reading schedule** that:
+
+Turn a user's backlog + time budget into a **daily reading schedule** that:
 - respects days off and a date horizon
 - limits simultaneous books
-- allocates time by book “weight”
+- allocates time by book "weight"
 - outputs a plan that is **human-usable** (not 6 minutes on 9 books)
 
 Non-goal (for MVP): perfect realism (variable WPM by genre/language, habit modeling, etc.)
@@ -12,6 +13,7 @@ Non-goal (for MVP): perfect realism (variable WPM by genre/language, habit model
 ---
 
 ## Core MVP decisions (lock these in)
+
 - **Unit:** minutes/day (not pages). Convert book size to required minutes via WPM.
 - **Granularity:** 15-minute blocks (`time_quantum=15`) to avoid fractional nonsense.
 - **Sessions:** at most `max_sessions_per_day` (default 2).

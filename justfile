@@ -136,7 +136,8 @@ knip-strict:
 knip-debug:
   pnpm run knip:debug
 
-issues-sync:
+# Sync issues between GitHub and local
+sync:
   pnpm run issues:sync
 
 hooks:
