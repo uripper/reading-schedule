@@ -23,9 +23,9 @@ class DayState:
     """Mutable state for planning one day of greedy assignments."""
 
     # Books ordered by the current day selection priority.
-    ordered: list[Book]
+    ordered: list["Book"]
     # Books already started on the current day.
-    used: list[Book]
+    used: list["Book"]
     # Remaining unscheduled words keyed by book id.
     remaining: dict[str, float]
     # Accumulated block assignments keyed by book/day pair.
@@ -57,11 +57,11 @@ class SpreadState:
     # Words-per-block lookup keyed by book id.
     wpb: dict[str, int]
     # Books ordered by the current greedy priority.
-    ordered: list[Book]
+    ordered: list["Book"]
 
 
 def plan_greedy(
-    books: list[Book], settings: Settings
+    books: list["Book"], settings: "Settings"
 ) -> dict[tuple[str, date], int]:
     """Build a feasible day-by-day block allocation using greedy heuristics."""
     days = date_range(settings.start_date, settings.end_date)
@@ -154,7 +154,7 @@ def _fill_day(state: DayState) -> None:
         state.used.append(nxt)
 
 
-def _assign_blocks(state: DayState, book: Book, blocks: int) -> None:
+def _assign_blocks(state: DayState, book: "Book", blocks: int) -> None:
     """Assign blocks to one book/day and reduce remaining words and capacity."""
     key = (book.book_id, state.day)
     state.assignments[key] = state.assignments.get(key, 0) + blocks
@@ -166,14 +166,14 @@ def _assign_blocks(state: DayState, book: Book, blocks: int) -> None:
 
 
 def _sort_key(
-    book: Book, remaining: dict[str, float]
+    book: "Book", remaining: dict[str, float]
 ) -> tuple[int, date, float, str]:
     """Rank books by priority, deadline, and remaining words for ordering."""
     due = book.deadline or date.max
     return book.priority, due, -remaining[book.book_id], book.book_id
 
 
-def _next_book(state: DayState) -> Book | None:
+def _next_book(state: DayState) -> "Book | None":
     """Select the next eligible book that can start a valid session today."""
     if _day_book_limit_reached(state):
         return None
@@ -187,7 +187,7 @@ def _day_book_limit_reached(state: DayState) -> bool:
     return len(state.used) >= state.daily_book_cap
 
 
-def _can_start_book(state: DayState, book: Book) -> bool:
+def _can_start_book(state: DayState, book: "Book") -> bool:
     """Return whether a book can start a new session on the current day."""
     if book in state.used:
         return False
@@ -201,7 +201,7 @@ def _can_start_book(state: DayState, book: Book) -> bool:
     return False
 
 
-def _has_minimum_capacity_for_book(state: DayState, book: Book) -> bool:
+def _has_minimum_capacity_for_book(state: DayState, book: "Book") -> bool:
     """Return whether the day and book both have room for a minimum session."""
     min_blocks = book.min_blocks_per_session
     if state.cap < min_blocks:
@@ -215,7 +215,7 @@ def _room(state: DayState, book_id: str) -> int:
     return state.limits[book_id] - assigned
 
 
-def _is_unlocked(book: Book, remaining: dict[str, float]) -> bool:
+def _is_unlocked(book: "Book", remaining: dict[str, float]) -> bool:
     """Return whether unlocked."""
     blocker = book.blocked_by
     return remaining.get(blocker, 0.0) <= 0.0 if blocker else True

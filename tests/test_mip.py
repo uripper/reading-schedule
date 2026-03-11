@@ -1,7 +1,4 @@
 """Test cases for test mip."""
-
-from __future__ import annotations
-
 from datetime import date
 
 import pytest
@@ -12,19 +9,19 @@ from typing import TYPE_CHECKING
 
 from reading_plan.planner_types import Book
 from reading_plan.planning.budget import words_per_block
-import reading_plan.planning.solve as solve_module
 from reading_plan.planning.solve import solve_plan
 from reading_plan.reading_calendar import weekday_key
 from tests.helpers import demo_books, demo_settings
 
 if TYPE_CHECKING:
     from reading_plan.planner_types import Settings
+    from reading_plan.planning.model_types import Assignments
 
 
 def assert_no_large_overread(
-    books: list[Book],
-    result_assignments: dict[tuple[str, date], int],
-    settings: Settings,
+    books: "list[Book]",
+    result_assignments: "Assignments",
+    settings: "Settings",
 ) -> None:
     """Assert each book's assigned words do not exceed allowed overshoot."""
     wpb = {book.book_id: words_per_block(book, settings) for book in books}

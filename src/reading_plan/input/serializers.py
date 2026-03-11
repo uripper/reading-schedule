@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
 
 
-def book_to_data(book: Book) -> BookData:
+def book_to_data(book: "Book") -> "BookData":
     """Serialize a Book model into a JSON-safe dictionary for UI/API use."""
     remaining_words = (
         book.remaining_words if book.words_full is None else book.words_full
@@ -33,7 +33,7 @@ def book_to_data(book: Book) -> BookData:
     }
 
 
-def settings_to_data(settings: Settings) -> SettingsData:
+def settings_to_data(settings: "Settings") -> "SettingsData":
     """Serialize Settings into a JSON-safe dictionary for UI/API use."""
     data: SettingsData = {
         "start_date": settings.start_date.isoformat(),

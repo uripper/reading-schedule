@@ -36,14 +36,14 @@ class BuildModelOptions:
     # Number of early planning days to pin to known assignments.
     lock_days_from_start: int = 0
     # Optional fixed assignments used when near-term days are locked.
-    lock_assignments: dict[tuple[str, date], int] | None = None
+    lock_assignments: dict[tuple[str, "date"], int] | None = None
 
 
 def build_cp_sat(
-    books: list[Book],
-    settings: Settings,
+    books: list["Book"],
+    settings: "Settings",
     options: BuildModelOptions | None = None,
-) -> BuildCpSatResult:
+) -> "BuildCpSatResult":
     """Build a stage-specific CP-SAT model and decision variables."""
     build_options = options or BuildModelOptions()
     LOGGER.debug("build_cp_sat: started", extra={"book_count": len(books)})

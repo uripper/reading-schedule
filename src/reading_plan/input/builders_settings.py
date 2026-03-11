@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from src.reading_plan.api_types import SettingsData
 
 
-def settings_from_data(data: SettingsData) -> Settings:
+def settings_from_data(data: "SettingsData") -> Settings:
     """Normalize raw settings payload data into a validated Settings model.
 
     :param data: raw settings payload with mixed fields and formats

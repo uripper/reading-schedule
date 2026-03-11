@@ -22,20 +22,20 @@ class ObjectiveContext:
     """Container for CP-SAT objective construction inputs."""
 
     # Planner settings containing the objective weights and mode.
-    settings: Settings
+    settings: "Settings"
     # Ordered planning days used for time-based objective shaping.
-    days: list[date]
+    days: list["date"]
     # Integer vars representing useful progress per book.
-    useful_words: dict[str, IntVarLike]
+    useful_words: dict[str, "IntVarLike"]
     # Boolean completion vars keyed by book id.
-    finished: FinishedVars
+    finished: "FinishedVars"
     # Boolean activity vars keyed by book/day pair.
-    active_flags: BookDayVars
+    active_flags: "BookDayVars"
     # Assigned-block vars keyed by book/day pair.
-    assigned_blocks: BookDayVars
+    assigned_blocks: "BookDayVars"
 
 
-def _priority_weights(books: list[Book]) -> dict[str, int]:
+def _priority_weights(books: list["Book"]) -> dict[str, int]:
     """Convert 1..5 priority values into larger-is-better objective weights."""
     weights: dict[str, int] = {}
     priority_min = 1
@@ -54,9 +54,9 @@ def _priority_weights(books: list[Book]) -> dict[str, int]:
 
 
 def build_objective_terms(
-    books: list[Book],
+    books: list["Book"],
     context: ObjectiveContext,
-) -> list[LinearExprLike]:
+) -> list["LinearExprLike"]:
     """Build objective terms."""
     priority_scale = max(1, round(context.settings.w_priority * 100))
     switch_scale = round(context.settings.w_switch * 100)

@@ -34,29 +34,29 @@ class ModelBuildContext:
     """Shared state used while building the planner CP-SAT model."""
 
     # Active CP-SAT model receiving constraints and objective terms.
-    model: CpModelLike
+    model: "CpModelLike"
     # Normalized books included in the current planning run.
-    books: list[Book]
+    books: list["Book"]
     # Ordered calendar days covered by the plan window.
-    days: list[date]
+    days: list["date"]
     # Per-day capacity in planning blocks.
-    caps: dict[date, int]
+    caps: dict["date", int]
     # Global planner settings for the current run.
-    settings: Settings
+    settings: "Settings"
     # Words-per-block lookup keyed by book id.
     wpb: dict[str, int]
     # Book lookup keyed by book id for dependency and deadline logic.
-    book_map: dict[str, Book]
+    book_map: dict[str, "Book"]
     # Assigned-block decision variables keyed by book/day pair.
-    x: BookDayVars
+    x: "BookDayVars"
     # Active-session decision variables keyed by book/day pair.
-    y: BookDayVars
+    y: "BookDayVars"
 
 
 def create_model_context(
-    model: CpModelLike,
-    books: list[Book],
-    settings: Settings,
+    model: "CpModelLike",
+    books: list["Book"],
+    settings: "Settings",
 ) -> ModelBuildContext:
     """Build the static model context and all decision variables."""
     days = date_range(settings.start_date, settings.end_date)
@@ -151,7 +151,7 @@ def add_dependency_constraints(context: ModelBuildContext) -> None:
 
 def add_progress_constraints(
     context: ModelBuildContext,
-) -> tuple[FinishedVars, dict[str, IntVarLike]]:
+) -> tuple["FinishedVars", dict[str, "IntVarLike"]]:
     """Link reading progress to completion, useful words, and deadlines."""
     finished: FinishedVars = {}
     useful_words: dict[str, IntVarLike] = {}
@@ -201,7 +201,7 @@ def add_progress_constraints(
 def add_near_term_lock_constraints(
     context: ModelBuildContext,
     lock_days_from_start: int,
-    lock_assignments: dict[tuple[str, date], int] | None,
+    lock_assignments: dict[tuple[str, "date"], int] | None,
 ) -> None:
     """Pin early-day x-vars to provided assignments or zero when absent."""
     if lock_days_from_start <= 0:
@@ -221,7 +221,7 @@ def add_near_term_lock_constraints(
 
 def _create_book_day_variables(
     context: ModelBuildContext,
-) -> tuple[BookDayVars, BookDayVars]:
+) -> tuple["BookDayVars", "BookDayVars"]:
     """Create per-book and per-day decision variables."""
     x_vars: BookDayVars = {}
     y_vars: BookDayVars = {}
@@ -249,9 +249,9 @@ def _create_book_day_variables(
 
 def _build_progress_before_by_day(
     context: ModelBuildContext,
-    blocker: Book,
+    blocker: "Book",
     blocker_index: int,
-) -> dict[date, IntVarLike]:
+) -> dict["date", "IntVarLike"]:
     """Build prefix-progress vars: words read before each day for a blocker."""
     progress_before_by_day: dict[date, IntVarLike] = {}
     max_progress = blocker.remaining_words + context.wpb[blocker.book_id] * max(

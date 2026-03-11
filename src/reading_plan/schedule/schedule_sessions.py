@@ -1,7 +1,5 @@
 """Expand block assignments into concrete reading sessions and word counts."""
 
-from __future__ import annotations
-
 from datetime import date
 import math
 from typing import TYPE_CHECKING
@@ -14,16 +12,17 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from reading_plan.planner_types import Settings
+    from reading_plan.planning.model_types import Assignments
 
 Session = tuple[date, int, Book, int, int]
 SessionRequest = tuple[int, int]
 
 
 def clip_session(
-    book: Book,
-    settings: Settings,
-    request: SessionRequest,
-) -> tuple[int, int]:
+    book: "Book",
+    settings: "Settings",
+    request: "SessionRequest",
+) -> SessionRequest:
     """Clip session."""
     blocks, remaining_words = request
     if remaining_words <= 0:
@@ -40,10 +39,10 @@ def clip_session(
 
 
 def iter_sessions(
-    books: list[Book],
-    settings: Settings,
-    assignments: dict[tuple[str, date], int],
-) -> Iterator[Session]:
+    books: "list[Book]",
+    settings: "Settings",
+    assignments: "Assignments",
+) -> "Iterator[Session]":
     """Iterate over sessions."""
     book_map = {book.book_id: book for book in books}
     remaining = {book.book_id: book.remaining_words for book in books}

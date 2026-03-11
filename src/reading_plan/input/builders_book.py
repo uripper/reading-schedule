@@ -36,7 +36,7 @@ def _estimated_words_read_from_pages(
     return round(words_full * bounded_pages / pages_total)
 
 
-def _word_stats(data: BookData) -> tuple[int, int, float]:
+def _word_stats(data: "BookData") -> tuple[int, int, float]:
     """Derive full words, remaining words, and progress from mixed fields.
 
     :param data: raw book payload with mixed fields for words/pages and progress
@@ -62,7 +62,7 @@ def _word_stats(data: BookData) -> tuple[int, int, float]:
 
 
 def _calculate_words_read(
-    data: BookData, full_words: int, pages_raw: int | None
+    data: "BookData", full_words: int, pages_raw: int | None
 ) -> tuple[float, int]:
 
     words_read = optional_int(data.get("words_read"), "words_read")
@@ -119,7 +119,7 @@ def _scheduled_day_entries(raw: object) -> list[str]:
 # TODO: Again, this is probably stupid and useless.
 
 
-def _scheduled_days(data: Mapping[str, Any], book_id: str) -> frozenset[str]:
+def _scheduled_days(data: "Mapping[str, Any]", book_id: str) -> frozenset[str]:
     """Normalize and validate scheduled weekdays for one book payload.
 
     :param data: raw book payload with mixed fields for scheduled days
@@ -141,7 +141,7 @@ def _scheduled_days(data: Mapping[str, Any], book_id: str) -> frozenset[str]:
     return frozenset(selected)
 
 
-def book_from_data(data: BookData) -> Book:
+def book_from_data(data: "BookData") -> Book:
     """Normalize a raw book payload into a validated planner Book model.
 
     :param data: raw book payload with mixed fields and formats

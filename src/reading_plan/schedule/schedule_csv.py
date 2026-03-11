@@ -1,7 +1,5 @@
 """Write schedule row data to CSV using the planner's export columns."""
 
-from __future__ import annotations
-
 import csv
 from pathlib import Path
 
