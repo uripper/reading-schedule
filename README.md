@@ -1,7 +1,7 @@
 # Bartleby
 
 ![Bartleby Logo](BartlebyHeader.png)
-Read More.
+Read More Books.
 
 ## About
 
