@@ -1,14 +1,11 @@
 """Validate normalized books and settings before they reach the planner."""
 
-from logging import Logger
 from typing import TYPE_CHECKING
 
 from reading_plan.planner_types import PLAN_MODES, WEEKDAYS
 
 if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
-
-logger = Logger(__name__)
 
 MIN_PROGRESS_PERCENT = 0
 MAX_PROGRESS_PERCENT = 100
@@ -213,8 +210,11 @@ def _validate_settings_plan_mode(settings: "Settings") -> None:
 
 if __name__ == "__main__":
     from datetime import date
+    from logging import Logger
 
     from reading_plan.planner_types import Book, Settings
+
+    logger = Logger(__name__)
 
     test_book = Book(
         book_id="test_book",
