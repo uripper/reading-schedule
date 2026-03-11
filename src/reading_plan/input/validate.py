@@ -22,7 +22,7 @@ VALID_DIFFICULTY_KEYS = frozenset(BOOK_DIFFICULTY_RANGE)
 def check_condition(
     msg: str,
     *,
-    error_type: "Literal['type', 'value']" = "value",
+    error_type: Literal["type", "value"] = "value",
     condition: bool,
 ) -> None:
     """Raise an error based on error_type.
@@ -40,7 +40,7 @@ def check_condition(
         raise ValueError(msg)
 
 
-def _validate_required_fields(book: "Book") -> None:
+def _validate_required_fields(book: Book) -> None:
     """Validate required fields and core range constraints."""
     title_and_id_required = f"book_id and title are required for {book}"
     check_condition(
@@ -81,7 +81,7 @@ def _validate_required_fields(book: "Book") -> None:
     )
 
 
-def _validate_book_progress(book: "Book") -> None:
+def _validate_book_progress(book: Book) -> None:
     """Validate read-progress and words consistency values."""
     words_full_cannot_be_less_than_remaining = (
         f"words_full cannot be less than remaining_words for {book.book_id}"
@@ -106,7 +106,7 @@ def _validate_book_progress(book: "Book") -> None:
     )
 
 
-def _validate_book_limits(book: "Book") -> None:
+def _validate_book_limits(book: Book) -> None:
     """Validate optional daily limits and blocker invariants."""
     max_minutes_per_day_cannot_be_zero = (
         f"max_minutes_per_day must be > 0 for {book.book_id}"
@@ -124,7 +124,7 @@ def _validate_book_limits(book: "Book") -> None:
     )
 
 
-def _validate_scheduled_days(book: "Book") -> None:
+def _validate_scheduled_days(book: Book) -> None:
     """Validate book-level scheduled weekday constraints."""
     book_must_have_scheduled_days = (
         f"scheduled_days is required for {book.book_id}"
@@ -143,7 +143,7 @@ def _validate_scheduled_days(book: "Book") -> None:
     )
 
 
-def validate_book(book: "Book") -> None:
+def validate_book(book: Book) -> None:
     """Validate book."""
     _validate_required_fields(book)
     _validate_book_progress(book)
@@ -151,7 +151,7 @@ def validate_book(book: "Book") -> None:
     _validate_scheduled_days(book)
 
 
-def validate_settings(settings: "Settings") -> None:
+def validate_settings(settings: Settings) -> None:
     """Validate settings."""
     _validate_settings_dates(settings)
     _validate_settings_minutes(settings)
@@ -161,7 +161,7 @@ def validate_settings(settings: "Settings") -> None:
     _validate_settings_plan_mode(settings)
 
 
-def _validate_settings_dates(settings: "Settings") -> None:
+def _validate_settings_dates(settings: Settings) -> None:
     """Validate settings date ordering."""
     end_date_after_start = "end_date must be on or after start_date"
     check_condition(
@@ -170,7 +170,7 @@ def _validate_settings_dates(settings: "Settings") -> None:
     )
 
 
-def _validate_settings_minutes(settings: "Settings") -> None:
+def _validate_settings_minutes(settings: Settings) -> None:
     """Validate settings minute sources and quantum values."""
     minutes_per_day_or_weekday_required = (
         "Set minutes_per_day or minutes_by_weekday in settings"
@@ -190,7 +190,7 @@ def _validate_settings_minutes(settings: "Settings") -> None:
     )
 
 
-def _validate_settings_positive_limits(settings: "Settings") -> None:
+def _validate_settings_positive_limits(settings: Settings) -> None:
     """Validate positive daily session and book limits."""
     max_sessions_and_books_required = (
         "Set max_sessions_per_day and max_books_per_day to positive integers"
@@ -203,7 +203,7 @@ def _validate_settings_positive_limits(settings: "Settings") -> None:
     )
 
 
-def _validate_settings_weekday_minutes(settings: "Settings") -> None:
+def _validate_settings_weekday_minutes(settings: Settings) -> None:
     """Validate weekday minute overrides when they are provided."""
     # TODO: Will this ever be invalid if coming from our settings?
     minutes_by_weekday_keys_valid = (
@@ -216,7 +216,7 @@ def _validate_settings_weekday_minutes(settings: "Settings") -> None:
     )
 
 
-def _validate_settings_difficulty_multiplier(settings: "Settings") -> None:
+def _validate_settings_difficulty_multiplier(settings: Settings) -> None:
     """Validate difficulty multiplier coverage."""
     difficulty_multiplier_keys_required = (
         "difficulty_multiplier must be empty or contain keys 1..10"
@@ -230,7 +230,7 @@ def _validate_settings_difficulty_multiplier(settings: "Settings") -> None:
     )
 
 
-def _validate_settings_plan_mode(settings: "Settings") -> None:
+def _validate_settings_plan_mode(settings: Settings) -> None:
     """Validate planner mode selection."""
     plan_mode_required = (
         f"plan_mode must be set to one of: {', '.join(PLAN_MODES)}"

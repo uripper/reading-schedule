@@ -56,17 +56,17 @@ class AttemptContext:
     """Shared immutable inputs used for each staged CP-SAT attempt."""
 
     # Normalized books to schedule during the attempt.
-    books: list["Book"]
+    books: list[Book]
     # Planner settings applied to the attempt.
-    settings: "Settings"
+    settings: Settings
     # Optional assignment hints carried forward from earlier stages.
-    hints: "Assignments"
+    hints: Assignments
 
 
 def run_attempt(
-    context: "AttemptContext",
-    stage: "SolveStage",
-) -> "SolveAttemptResult":
+    context: AttemptContext,
+    stage: SolveStage,
+) -> SolveAttemptResult:
     """Execute one staged CP-SAT solve and retry once without hints."""
     first_attempt = _solve_once(context, stage, hint_mode="with_hints")
     if first_attempt.plan.status != MODEL_INVALID_STATUS_NAME:
@@ -82,10 +82,10 @@ def run_attempt(
 
 
 def _solve_once(
-    context: "AttemptContext",
-    stage: "SolveStage",
+    context: AttemptContext,
+    stage: SolveStage,
     hint_mode: str,
-) -> "SolveAttemptResult":
+) -> SolveAttemptResult:
     """Build and solve one CP-SAT model instance for a single stage."""
     started = perf_counter()
     objective_mode = "feasibility"
@@ -107,10 +107,10 @@ def _solve_once(
 
 
 def _build_model_for_stage(
-    context: "AttemptContext",
+    context: AttemptContext,
     objective_mode: str,
     lock_days_from_start: int,
-) -> "BuildCpSatResult":
+) -> BuildCpSatResult:
     """Build one stage-specific CP-SAT model."""
     return build_cp_sat(
         context.books,
@@ -124,9 +124,9 @@ def _build_model_for_stage(
 
 
 def _add_hints(
-    model: "CpModelLike",
-    x_vars: "BookDayVars",
-    assignments: "Assignments",
+    model: CpModelLike,
+    x_vars: BookDayVars,
+    assignments: Assignments,
 ) -> None:
     """Feed assignment hints into CP-SAT for faster feasible search."""
     if not assignments:
@@ -139,8 +139,8 @@ def _add_hints(
 
 
 def _apply_solver_parameters(
-    solver: "CpSolverLike",
-    stage: "SolveStage",
+    solver: CpSolverLike,
+    stage: SolveStage,
 ) -> None:
     """Apply deterministic solver settings for one stage."""
     params = solver.parameters
@@ -153,9 +153,9 @@ def _apply_solver_parameters(
 
 def _result_from_solver(
     raw_status: int,
-    solver: "CpSolverLike",
-    variables: "BookDayVars",
-) -> "PlanResult":
+    solver: CpSolverLike,
+    variables: BookDayVars,
+) -> PlanResult:
     """Build planner result from solved model outputs and status code."""
     status = _status_name(raw_status)
     if raw_status not in FEASIBLE_CP_SAT_STATUSES:
@@ -181,9 +181,9 @@ def _status_name(raw_status: int) -> str:
 
 
 def _extract_assignments(
-    solver: "CpSolverLike",
-    variables: "BookDayVars",
-) -> "Assignments":
+    solver: CpSolverLike,
+    variables: BookDayVars,
+) -> Assignments:
     """Extract positive assignment values from solved decision variables."""
     assignments: Assignments = {}
     for key, variable in variables.items():

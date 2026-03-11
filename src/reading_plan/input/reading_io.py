@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 LOGGER = get_bridge_logger(__name__)
 
 
-def read_book_data(path: str) -> list["BookData"]:
+def read_book_data(path: str) -> list[BookData]:
     """Load raw book payload rows from a JSON file."""
     books_must_contain_json_array = (
         f"books file '{path}' must contain a JSON array"
@@ -44,7 +44,7 @@ def read_book_data(path: str) -> list["BookData"]:
     return cast("list[BookData]", raw)
 
 
-def load_books(path: str) -> list["Book"]:
+def load_books(path: str) -> list[Book]:
     """Load books.
 
     :param path: path to the books file
@@ -66,7 +66,7 @@ def load_books(path: str) -> list["Book"]:
     return books
 
 
-def load_settings(path: str) -> "Settings":
+def load_settings(path: str) -> Settings:
     """Load settings.
 
     :param path: path to the settings file
@@ -85,7 +85,7 @@ def load_settings(path: str) -> "Settings":
 
 def load_inputs(
     books_path: str, settings_path: str
-) -> tuple[list["Book"], "Settings"]:
+) -> tuple[list[Book], Settings]:
     """Load inputs.
 
     :param books_path: path to the books file

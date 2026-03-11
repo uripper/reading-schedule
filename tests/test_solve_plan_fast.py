@@ -1,12 +1,14 @@
 """Tests for solve-plan routing in fast mode."""
 
 from datetime import date
-
-import pytest
+from typing import TYPE_CHECKING
 
 import reading_plan.planning.solve as solve_module
 from reading_plan.planning.solve import solve_plan
 from tests.helpers import demo_books, demo_settings
+
+if TYPE_CHECKING:
+    import pytest
 
 
 def test_mip_fast_routes_directly_to_greedy(
@@ -37,7 +39,7 @@ def test_mip_fast_routes_directly_to_greedy(
 def test_fast_alias_routes_directly_to_greedy(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """fast alias should also bypass CP-SAT and return greedy assignments."""
+    """Fast alias should also bypass CP-SAT and return greedy assignments."""
 
     def fail_if_mip_called(*_args: object, **_kwargs: object) -> None:
         msg = "_solve_mip should not run for fast alias"

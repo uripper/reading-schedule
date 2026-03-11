@@ -10,10 +10,10 @@ if TYPE_CHECKING:
 
 
 def compute_plan_totals(
-    books: "list[Book]",
-    settings: "Settings",
-    assignments: "Assignments",
-) -> "tuple[dict[str, int], int]":
+    books: list[Book],
+    settings: Settings,
+    assignments: Assignments,
+) -> tuple[dict[str, int], int]:
     """Compute plan totals."""
     per_book = {book.book_id: 0 for book in books}
     total_minutes = 0

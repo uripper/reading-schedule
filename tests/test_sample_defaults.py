@@ -2,16 +2,18 @@
 
 import json
 import sys
+from typing import TYPE_CHECKING
 
-import pytest
-
-from reading_plan.input.serializers import book_to_data, settings_to_data
 from reading_plan.gui_api import (
     main as gui_main,
     parse_args as parse_gui_args,
 )
+from reading_plan.input.serializers import book_to_data, settings_to_data
 from reading_plan.planner_types import WEEKDAYS
 from tests.helpers import demo_books, demo_settings
+
+if TYPE_CHECKING:
+    import pytest
 
 
 def test_gui_defaults_to_committed_sample_books_file(
