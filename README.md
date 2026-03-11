@@ -1,6 +1,15 @@
 # Bartleby
 
-Create daily reading schedules from backlog + time budget.
+![Bartleby Logo](BartlebyHeader.png)
+Read More.
+
+## About
+
+Bartleby is a personal reading schedule **optimizer** that generates a daily reading plan based on your book backlog. Let it know what you want to read, how fast you read, how much time you have, and it will create a schedule that fits you.
+
+## Why?
+
+Bartleby was mainly built for myself. I wanted to visually see just how many books a year I could read with a small time commitment each day. I'm a fairly slow reader, and I have severe ADHD, which makes it pretty hard to believe that I can make meaningful progress on my backlog. And having a giant backlog of books doesn't feel as life affirming to me as it is for [Nassim Nicholas Taleb](https://en.wikipedia.org/wiki/Antilibrary). Ultimately, this became a fun way to get myself to read more. I hope that others find it useful too.
 
 ## Current Status
 
@@ -11,191 +20,10 @@ This repository now includes an Electron desktop app and an Expo mobile app shel
 - Shared TypeScript contracts: `packages/contracts/`
 - Planner engine source of truth: `src/reading_plan`
 
-Legacy cross-platform scaffold directories were removed.
+Mobile is currently non-functional and rather just a proof of concept for testing a UI I designed. The desktop app is the main focus for now, and the planner engine will be shared between both.
 
-## Python Planner Core
+## Issue Information
 
-The planner engine remains under `src/reading_plan`.
+Issues are currently handled on GitHub, but also have a folder on the filesystem for easier local management: `issues/`. Each issue is a markdown file with a title, description, and acceptance criteria. The issue number is the filename (e.g., `1.md` for issue #1). This is probably going to change in the future, but I like using it like this for now.
 
-### Setup
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .
-pip install -e ".[dev]"
-# optional MIP solver
-pip install -e ".[mip]"
-```
-
-## Desktop App
-
-From repo root:
-
-```bash
-pnpm dev:desktop
-```
-
-Directly from `electron/`:
-
-```bash
-cd electron
-pnpm install
-pnpm run tokens:build
-UI_SCALE=1.65 pnpm run start
-```
-
-Book scheduling supports per-book weekday selection in the Books dialog, with an option to apply the same scheduled days to all books on the same shelf.
-
-## Mobile App (Expo)
-
-Start planner API first (required for live Today data):
-
-```bash
-pnpm run dev:planner-api
-```
-
-Health check from WSL:
-
-```bash
-curl -X POST http://127.0.0.1:8787/api/state/load -H "content-type: application/json" -d '{}'
-```
-
-From repo root:
-
-```bash
-pnpm dev:mobile
-```
-
-Platform-specific:
-
-```bash
-pnpm dev:mobile:ios
-pnpm dev:mobile:android
-```
-
-The mobile app currently ships a `Today` screen skeleton inspired by the new visual direction and uses a backend API adapter seam in `mobile/src/api/planner_client.ts`.
-
-Set planner API base URL for mobile:
-
-```bash
-EXPO_PUBLIC_PLANNER_API_BASE_URL=http://localhost:8787 pnpm dev:mobile
-```
-
-For Android emulator from WSL, use:
-
-```bash
-EXPO_PUBLIC_PLANNER_API_BASE_URL=http://10.0.2.2:8787 pnpm dev:mobile
-```
-
-For a physical phone, use your WSL host machine LAN IP:
-
-```bash
-EXPO_PUBLIC_PLANNER_API_BASE_URL=http://<your-lan-ip>:8787 pnpm dev:mobile
-```
-
-Shared contracts package build/typecheck:
-
-```bash
-pnpm build:contracts
-pnpm typecheck:contracts
-```
-
-## Windows Install/Run Helper
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/install_and_run_windows.ps1 -SourcePath "C:\path\to\reading-schedule"
-```
-
-From WSL, use:
-
-```bash
-pnpm run dev:windows
-```
-
-Set a specific Python launcher target:
-
-```bash
-pnpm run dev:windows -- 3.11
-```
-
-Hot reload in development mode (TypeScript watch + `electron-reloader`):
-
-```bash
-pnpm run dev:windows:hot
-```
-
-Set a specific Python launcher target:
-
-```bash
-pnpm run dev:windows:hot -- 3.11
-```
-
-This uses in-process Electron hot reload rather than an external sync/restart poll loop.
-
-## Experience Settings Status
-
-- Shipped and visible: `gamification` toggle.
-- Hidden until shipped: reminder controls, social flag, recommendations flag.
-- Session activity logging in desktop currently flows through Today/Stats state, and legacy standalone session-tab UI paths were removed.
-
-## Tests
-
-```bash
-pnpm run ci:local
-```
-
-Install git hooks so pushes run the same checks automatically:
-
-```bash
-pnpm run hooks:install
-```
-
-`pnpm install` also runs hook setup through the root `prepare` script.
-
-Manual individual commands:
-
-```bash
-pnpm run lint:python
-.venv/bin/pytest -q
-cd electron && pnpm run lint
-pnpm run audit
-```
-
-## Issue Sync (Local -> GitHub)
-
-Sync local issue definitions from `Issues/Open/*.md` and `Issues/Closed/*.md`
-into repository Issues:
-
-```bash
-pnpm run issues:sync
-```
-
-Preview without writing to GitHub:
-
-```bash
-scripts/sync_issues.sh --dry-run --repo OWNER/REPO
-```
-
-Sync from a custom issues root directory:
-
-```bash
-scripts/sync_issues.sh --dir path/to/Issues --repo OWNER/REPO
-```
-
-Duplicate prevention is handled by a stable marker per issue (`Sync-ID: ISSUE-XXX`).
-The script searches for that marker and updates matching issues instead of creating new ones.
-Files moved to `Issues/Closed` are synced as closed GitHub issues; files in
-`Issues/Open` are synced as open GitHub issues.
-The script keeps a local hash cache at `Issues/.sync-cache.tsv` and skips
-unchanged issues on subsequent runs.
-
-## Design Tokens (Electron)
-
-```bash
-cd electron
-pnpm run tokens:build
-pnpm run tokens:check
-```
-
-Token source: `electron/tokens/dtcg.tokens.json`
+You can run `just sync` or `pnpm issues:sync` to sync issues between GitHub and the local filesystem. This will create new files for any new issues on GitHub, and update existing files with any changes. It will also create new issues on GitHub for any new files in the `issues/` folder. Moving from Open to Closed in the folder will also Close the issue on GitHub. I don't have justifications for doing this this way.
