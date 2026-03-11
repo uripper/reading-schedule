@@ -11,10 +11,10 @@ if TYPE_CHECKING:
 
 
 def to_schedule_rows(
-    books: "list[Book]",
-    settings: "Settings",
-    assignments: "Assignments",
-) -> "list[ScheduleRow]":
+    books: list[Book],
+    settings: Settings,
+    assignments: Assignments,
+) -> list[ScheduleRow]:
     """Convert to schedule rows."""
     return [
         {

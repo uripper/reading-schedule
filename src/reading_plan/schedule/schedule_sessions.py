@@ -19,9 +19,9 @@ SessionRequest = tuple[int, int]
 
 
 def clip_session(
-    book: "Book",
-    settings: "Settings",
-    request: "SessionRequest",
+    book: Book,
+    settings: Settings,
+    request: SessionRequest,
 ) -> SessionRequest:
     """Clip session."""
     blocks, remaining_words = request
@@ -39,10 +39,10 @@ def clip_session(
 
 
 def iter_sessions(
-    books: "list[Book]",
-    settings: "Settings",
-    assignments: "Assignments",
-) -> "Iterator[Session]":
+    books: list[Book],
+    settings: Settings,
+    assignments: Assignments,
+) -> Iterator[Session]:
     """Iterate over sessions."""
     book_map = {book.book_id: book for book in books}
     remaining = {book.book_id: book.remaining_words for book in books}

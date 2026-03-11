@@ -42,8 +42,8 @@ def _elapsed_ms(started_at: float) -> int:
 
 
 def _validate_missing_blockers(
-    books: list["Book"],
-    by_id: dict[str, "Book"],
+    books: list[Book],
+    by_id: dict[str, Book],
 ) -> None:
     """Validate blocker references point to known books."""
     for book in books:
@@ -60,7 +60,7 @@ def _validate_missing_blockers(
 
 def _walk_blockers(
     book_id: str,
-    by_id: dict[str, "Book"],
+    by_id: dict[str, Book],
     visiting: set[str],
     visited: set[str],
 ) -> None:
@@ -77,7 +77,7 @@ def _walk_blockers(
     visited.add(book_id)
 
 
-def _validate_blockers(books: list["Book"]) -> None:
+def _validate_blockers(books: list[Book]) -> None:
     """Validate blocker references and reject cycles in dependency chains."""
     by_id = {book.book_id: book for book in books}
     _validate_missing_blockers(books, by_id)
@@ -88,7 +88,7 @@ def _validate_blockers(books: list["Book"]) -> None:
         _walk_blockers(book.book_id, by_id, visiting, visited)
 
 
-def _parse_books(books_raw: list[BookData]) -> list["Book"]:
+def _parse_books(books_raw: list[BookData]) -> list[Book]:
     """Parse and validate incoming raw book payload rows."""
     parse_started = perf_counter()
     books: list[Book] = []
@@ -104,7 +104,7 @@ def _parse_books(books_raw: list[BookData]) -> list["Book"]:
     return books
 
 
-def _validate_blockers_with_logging(books: list["Book"]) -> None:
+def _validate_blockers_with_logging(books: list[Book]) -> None:
     """Validate blocker graph and emit stage timing."""
     started = perf_counter()
     _validate_blockers(books)
@@ -114,7 +114,7 @@ def _validate_blockers_with_logging(books: list["Book"]) -> None:
     )
 
 
-def _parse_settings(settings_raw: SettingsData) -> "Settings":
+def _parse_settings(settings_raw: SettingsData) -> Settings:
     """Parse planner settings payload and emit stage timing."""
     started = perf_counter()
     settings = settings_from_data(settings_raw)
@@ -126,10 +126,10 @@ def _parse_settings(settings_raw: SettingsData) -> "Settings":
 
 
 def _solve_with_logging(
-    books: list["Book"],
+    books: list[Book],
     planner: str,
-    settings: "Settings",
-) -> "PlanResult":
+    settings: Settings,
+) -> PlanResult:
     """Run solver and emit timing/status diagnostics."""
     started = perf_counter()
     LOGGER.debug("generate_plan: solving started", extra={"planner": planner})
@@ -148,9 +148,9 @@ def _solve_with_logging(
 
 
 def _build_output_with_logging(
-    books: list["Book"],
-    result: "PlanResult",
-    settings: "Settings",
+    books: list[Book],
+    result: PlanResult,
+    settings: Settings,
     total_started: float,
 ) -> PlannerOutputPayload:
     """Build summary/schedule payload and emit timings."""
