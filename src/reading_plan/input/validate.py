@@ -13,6 +13,8 @@ MAX_PROGRESS_PERCENT = 100
 BOOK_PRIORITY_RANGE = range(1, 6)
 # Books can have difficulty 1 (easiest) to 10 (hardest).
 BOOK_DIFFICULTY_RANGE = range(1, 11)
+VALID_WEEKDAYS = frozenset(WEEKDAYS)
+VALID_DIFFICULTY_KEYS = frozenset(BOOK_DIFFICULTY_RANGE)
 
 
 def _check(msg: str, *, condition: bool) -> None:
@@ -108,7 +110,7 @@ def _validate_scheduled_days(book: "Book") -> None:
     )
     _check(
         scheduled_days_are_real,
-        condition=all(day in WEEKDAYS for day in book.scheduled_days),
+        condition=set(book.scheduled_days) <= VALID_WEEKDAYS,
     )
 
 
@@ -141,7 +143,7 @@ def _validate_settings_dates(settings: "Settings") -> None:
 def _validate_settings_minutes(settings: "Settings") -> None:
     """Validate settings minute sources and quantum values."""
     minutes_per_day_or_weekday_required = (
-        "Set minutes_per_day or minutes_per_weekday in settings"
+        "Set minutes_per_day or minutes_by_weekday in settings"
     )
     _check(
         minutes_per_day_or_weekday_required,
@@ -177,11 +179,10 @@ def _validate_settings_weekday_minutes(settings: "Settings") -> None:
     minutes_by_weekday_keys_valid = (
         "minutes_by_weekday keys must be Mon..Sun when provided"
     )
+    weekday_keys = set(settings.minutes_by_weekday)
     _check(
         minutes_by_weekday_keys_valid,
-        condition=bool(
-            sorted(settings.minutes_by_weekday.keys()) in ([], sorted(WEEKDAYS))
-        ),
+        condition=not weekday_keys or weekday_keys == VALID_WEEKDAYS,
     )
 
 
@@ -190,12 +191,11 @@ def _validate_settings_difficulty_multiplier(settings: "Settings") -> None:
     difficulty_multiplier_keys_required = (
         "difficulty_multiplier must be empty or contain keys 1..10"
     )
+    difficulty_keys = set(settings.difficulty_multiplier)
     _check(
         difficulty_multiplier_keys_required,
-        condition=bool(
-            not settings.difficulty_multiplier
-            or sorted(settings.difficulty_multiplier.keys())
-            == list(range(1, 11))
+        condition=(
+            not difficulty_keys or difficulty_keys == VALID_DIFFICULTY_KEYS
         ),
     )
 
@@ -205,16 +205,16 @@ def _validate_settings_plan_mode(settings: "Settings") -> None:
     plan_mode_required = (
         f"plan_mode must be set to one of: {', '.join(PLAN_MODES)}"
     )
-    _check(plan_mode_required, condition=bool(settings.plan_mode in PLAN_MODES))
+    _check(plan_mode_required, condition=settings.plan_mode in PLAN_MODES)
 
 
 if __name__ == "__main__":
     from datetime import date
-    from logging import Logger
+    import logging
 
     from reading_plan.planner_types import Book, Settings
 
-    logger = Logger(__name__)
+    logger = logging.getLogger(__name__)
 
     test_book = Book(
         book_id="test_book",
