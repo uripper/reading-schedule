@@ -21,7 +21,9 @@ class UnhandledExceptionError(Exception):
     """Raised when an unhandled error type is passed to check_condition."""
 
 
-def check_condition(msg: str, *, error_type: str = "value", condition: bool) -> None:
+def check_condition(
+    msg: str, *, error_type: str = "value", condition: bool
+) -> None:
     """Raise an error based on error_type."""
     unhandled_error = f"Unhandled error type: {error_type}"
     if not condition:
