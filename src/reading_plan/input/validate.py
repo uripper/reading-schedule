@@ -17,26 +17,41 @@ VALID_WEEKDAYS = frozenset(WEEKDAYS)
 VALID_DIFFICULTY_KEYS = frozenset(BOOK_DIFFICULTY_RANGE)
 
 
-def _check(msg: str, *, condition: bool) -> None:
-    """Raise ValueError with msg if condition is falsy."""
+class UnhandledExceptionError(Exception):
+    """Raised when an unhandled error type is passed to check_condition."""
+
+
+def check_condition(msg: str, *, error_type: str = "value", condition: bool) -> None:
+    """Raise an error based on error_type."""
+    unhandled_error = f"Unhandled error type: {error_type}"
     if not condition:
-        raise ValueError(msg)
+        if error_type == "type":
+            raise TypeError(msg)
+        if error_type == "value":
+            raise ValueError(msg)
+        raise UnhandledExceptionError(unhandled_error)
 
 
 def _validate_required_fields(book: "Book") -> None:
     """Validate required fields and core range constraints."""
     title_and_id_required = f"book_id and title are required for {book}"
-    _check(title_and_id_required, condition=bool(book.book_id and book.title))
+    check_condition(
+        title_and_id_required,
+        condition=bool(book.book_id and book.title),
+    )
 
     remaining_words_cannot_be_zero = (
         f"There are no words left to schedule for {book.book_id}"
     )
-    _check(remaining_words_cannot_be_zero, condition=book.remaining_words > 0)
+    check_condition(
+        remaining_words_cannot_be_zero,
+        condition=book.remaining_words > 0,
+    )
 
     priority_between_one_to_five = (
         f"priority must be between 1 and 5 for {book.book_id}"
     )
-    _check(
+    check_condition(
         priority_between_one_to_five,
         condition=book.priority in BOOK_PRIORITY_RANGE,
     )
@@ -44,7 +59,7 @@ def _validate_required_fields(book: "Book") -> None:
     difficulty_between_one_and_ten = (
         f"difficulty must be 1..10 for {book.book_id}"
     )
-    _check(
+    check_condition(
         difficulty_between_one_and_ten,
         condition=book.difficulty in BOOK_DIFFICULTY_RANGE,
     )
@@ -52,7 +67,10 @@ def _validate_required_fields(book: "Book") -> None:
     min_block_above_zero = (
         f"min_blocks_per_session must be > 0 for {book.book_id}"
     )
-    _check(min_block_above_zero, condition=book.min_blocks_per_session > 0)
+    check_condition(
+        min_block_above_zero,
+        condition=book.min_blocks_per_session > 0,
+    )
 
 
 def _validate_book_progress(book: "Book") -> None:
@@ -60,7 +78,7 @@ def _validate_book_progress(book: "Book") -> None:
     words_full_cannot_be_less_than_remaining = (
         f"words_full cannot be less than remaining_words for {book.book_id}"
     )
-    _check(
+    check_condition(
         words_full_cannot_be_less_than_remaining,
         condition=book.words_full is None
         or book.words_full >= book.remaining_words,
@@ -69,7 +87,7 @@ def _validate_book_progress(book: "Book") -> None:
     progress_between_zero_and_100 = (
         f"progress_percent must be between 0 and 100 for {book.book_id}"
     )
-    _check(
+    check_condition(
         progress_between_zero_and_100,
         condition=book.progress_percent is None
         or (
@@ -85,14 +103,14 @@ def _validate_book_limits(book: "Book") -> None:
     max_minutes_per_day_cannot_be_zero = (
         f"max_minutes_per_day must be > 0 for {book.book_id}"
     )
-    _check(
+    check_condition(
         max_minutes_per_day_cannot_be_zero,
         condition=book.max_minutes_per_day is None
         or book.max_minutes_per_day > 0,
     )
 
     book_cannot_block_itself = f"book {book.book_id} cannot block itself"
-    _check(
+    check_condition(
         book_cannot_block_itself,
         condition=book.blocked_by is None or book.blocked_by != book.book_id,
     )
@@ -103,12 +121,15 @@ def _validate_scheduled_days(book: "Book") -> None:
     book_must_have_scheduled_days = (
         f"scheduled_days is required for {book.book_id}"
     )
-    _check(book_must_have_scheduled_days, condition=bool(book.scheduled_days))
+    check_condition(
+        book_must_have_scheduled_days,
+        condition=bool(book.scheduled_days),
+    )
 
     scheduled_days_are_real = (
         f"scheduled_days must be Mon..Sun for {book.book_id}"
     )
-    _check(
+    check_condition(
         scheduled_days_are_real,
         condition=set(book.scheduled_days) <= VALID_WEEKDAYS,
     )
@@ -135,8 +156,9 @@ def validate_settings(settings: "Settings") -> None:
 def _validate_settings_dates(settings: "Settings") -> None:
     """Validate settings date ordering."""
     end_date_after_start = "end_date must be on or after start_date"
-    _check(
-        end_date_after_start, condition=settings.start_date <= settings.end_date
+    check_condition(
+        end_date_after_start,
+        condition=settings.start_date <= settings.end_date,
     )
 
 
@@ -145,7 +167,7 @@ def _validate_settings_minutes(settings: "Settings") -> None:
     minutes_per_day_or_weekday_required = (
         "Set minutes_per_day or minutes_by_weekday in settings"
     )
-    _check(
+    check_condition(
         minutes_per_day_or_weekday_required,
         condition=bool(settings.minutes_per_day or settings.minutes_by_weekday),
     )
@@ -153,7 +175,7 @@ def _validate_settings_minutes(settings: "Settings") -> None:
     time_quantum_minutes_required = (
         "time_quantum_minutes must be set to a positive integer in settings"
     )
-    _check(
+    check_condition(
         time_quantum_minutes_required,
         condition=settings.time_quantum_minutes is not None
         and settings.time_quantum_minutes > 0,
@@ -165,7 +187,7 @@ def _validate_settings_positive_limits(settings: "Settings") -> None:
     max_sessions_and_books_required = (
         "Set max_sessions_per_day and max_books_per_day to positive integers"
     )
-    _check(
+    check_condition(
         max_sessions_and_books_required,
         condition=bool(
             settings.max_sessions_per_day > 0 and settings.max_books_per_day > 0
@@ -180,7 +202,7 @@ def _validate_settings_weekday_minutes(settings: "Settings") -> None:
         "minutes_by_weekday keys must be Mon..Sun when provided"
     )
     weekday_keys = set(settings.minutes_by_weekday)
-    _check(
+    check_condition(
         minutes_by_weekday_keys_valid,
         condition=not weekday_keys or weekday_keys == VALID_WEEKDAYS,
     )
@@ -192,7 +214,7 @@ def _validate_settings_difficulty_multiplier(settings: "Settings") -> None:
         "difficulty_multiplier must be empty or contain keys 1..10"
     )
     difficulty_keys = set(settings.difficulty_multiplier)
-    _check(
+    check_condition(
         difficulty_multiplier_keys_required,
         condition=(
             not difficulty_keys or difficulty_keys == VALID_DIFFICULTY_KEYS
@@ -205,50 +227,7 @@ def _validate_settings_plan_mode(settings: "Settings") -> None:
     plan_mode_required = (
         f"plan_mode must be set to one of: {', '.join(PLAN_MODES)}"
     )
-    _check(plan_mode_required, condition=settings.plan_mode in PLAN_MODES)
-
-
-if __name__ == "__main__":
-    from datetime import date
-    import logging
-
-    from reading_plan.planner_types import Book, Settings
-
-    logger = logging.getLogger(__name__)
-
-    test_book = Book(
-        book_id="test_book",
-        title="Test Book",
-        remaining_words=1000,
-        priority=5,
-        difficulty=5,
-        deadline=None,
-        min_blocks_per_session=1,
-        words_full=10_000,
-        progress_percent=90.0,
-        max_minutes_per_day=30,
-        blocked_by=None,
-        scheduled_days=frozenset({"Mon", "Wed", "Fri"}),
+    check_condition(
+        plan_mode_required,
+        condition=settings.plan_mode in PLAN_MODES,
     )
-    validate_book(test_book)
-    logger.info("Book validation passed.")
-    test_settings = Settings(
-        start_date=date(2026, 1, 1),
-        end_date=date(2026, 1, 31),
-        minutes_per_day=30,
-        minutes_by_weekday={},
-        days_off={date(2026, 1, 6), date(2026, 1, 13)},
-        time_quantum_minutes=10,
-        max_sessions_per_day=3,
-        max_books_per_day=2,
-        w_finish=0.5,
-        w_priority=0.3,
-        w_switch=0.2,
-        w_smooth=0.1,
-        wpm_base=200,
-        difficulty_multiplier=dict.fromkeys(range(1, 11), 1),
-        max_blocks_per_book_per_day=2,
-        plan_mode="finish_soon",
-    )
-    validate_settings(test_settings)
-    logger.info("Settings validation passed.")

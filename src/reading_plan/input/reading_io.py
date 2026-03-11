@@ -10,6 +10,7 @@ from reading_plan.bridge_logging import (
     log_incoming_data,
 )
 from reading_plan.input.builders import book_from_data, settings_from_data
+from reading_plan.input.validate import check_condition
 
 if TYPE_CHECKING:
     from reading_plan.api_types import BookData
@@ -21,15 +22,26 @@ LOGGER = get_bridge_logger(__name__)
 
 def read_book_data(path: str) -> list["BookData"]:
     """Load raw book payload rows from a JSON file."""
+    books_must_contain_json_array = (
+        f"books file '{path}' must contain a JSON array"
+    )
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
-    if not isinstance(raw, list):
-        msg = f"books file '{path}' must contain a JSON array"
-        raise TypeError(msg)
+    check_condition(
+        books_must_contain_json_array,
+        error_type="type",
+        condition=isinstance(raw, list),
+    )
+
+    books_must_contain_json_objects = (
+        f"books file '{path}' must contain JSON objects"
+    )
     rows: list[BookData] = []
     for item in raw:
-        if not isinstance(item, dict):
-            msg = f"each book entry in '{path}' must be a JSON object"
-            raise TypeError(msg)
+        check_condition(
+            books_must_contain_json_objects,
+            error_type="type",
+            condition=all(isinstance(item, dict) for item in raw),
+        )
         rows.append(cast("BookData", item))
     return rows
 
@@ -47,10 +59,12 @@ def load_books(path: str) -> list["Book"]:
         file_path=__file__,
         value=path,
     )
+    book_file_cannot_be_empty = f"books file '{path}' cannot be empty"
     books = [book_from_data(row) for row in read_book_data(path)]
-    if not books:
-        msg = "books file is empty"
-        raise ValueError(msg)
+    check_condition(
+        book_file_cannot_be_empty,
+        condition=len(books) > 0,
+    )
     return books
 
 
