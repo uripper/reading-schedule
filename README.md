@@ -1,6 +1,6 @@
-# Bartleby
 
-![Bartleby Logo](BartlebyHeader.png)
+# ![Bartleby Logo](BartlebyHeader.png)
+
 Read More Books.
 
 ## About
