@@ -1,7 +1,5 @@
 """Coerce raw input values into typed numbers with field-specific errors."""
 
-from __future__ import annotations
-
 from typing import SupportsFloat, SupportsIndex, SupportsInt
 
 IntInput = str | bytes | bytearray | SupportsInt | SupportsIndex

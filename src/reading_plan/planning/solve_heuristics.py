@@ -1,7 +1,5 @@
 """Heuristic configuration and prechecks for staged CP-SAT solving."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 import math
 from typing import TYPE_CHECKING
@@ -157,7 +155,7 @@ def profile_from_planner(planner: str) -> str:
     return profile_aliases.get(token, DEFAULT_SOLVER_PROFILE)
 
 
-def run_precheck(books: list[Book], settings: Settings) -> PrecheckResult:
+def run_precheck(books: list["Book"], settings: "Settings") -> PrecheckResult:
     """Run cheap infeasibility checks before invoking CP-SAT."""
     days = date_range(settings.start_date, settings.end_date)
     caps = {day: day_capacity_blocks(settings, day) for day in days}
@@ -177,11 +175,11 @@ def run_precheck(books: list[Book], settings: Settings) -> PrecheckResult:
 
 
 def _deadline_capacity_note(
-    book: Book,
+    book: "Book",
     wpb: dict[str, int],
-    settings: Settings,
-    days: list[date],
-    caps: dict[date, int],
+    settings: "Settings",
+    days: list["date"],
+    caps: dict["date", int],
 ) -> str | None:
     """Check whether a deadline book can fit by capacity upper bounds."""
     required = required_blocks(book.remaining_words, wpb[book.book_id])
@@ -202,10 +200,10 @@ def _deadline_capacity_note(
 
 
 def _deadline_precheck(
-    books: list[Book],
-    settings: Settings,
-    days: list[date],
-    caps: dict[date, int],
+    books: list["Book"],
+    settings: "Settings",
+    days: list["date"],
+    caps: dict["date", int],
     wpb: dict[str, int],
 ) -> PrecheckResult:
     """Check whether each deadline book can fit by capacity upper bounds."""
@@ -233,9 +231,9 @@ def required_blocks(remaining_words: int, words_per_block_value: int) -> int:
 
 
 def better_plan(
-    current: PlanResult | None,
-    candidate: PlanResult,
-) -> PlanResult:
+    current: "PlanResult | None",
+    candidate: "PlanResult",
+) -> "PlanResult":
     """Return the plan with stronger status/objective preference."""
     if current is None or candidate.status == OPTIMAL_STATUS_NAME:
         return candidate
@@ -246,6 +244,6 @@ def better_plan(
     return current
 
 
-def is_result_feasible(plan: PlanResult) -> bool:
+def is_result_feasible(plan: "PlanResult") -> bool:
     """Return true when a solved result contains a feasible CP-SAT status."""
     return plan.status in {FEASIBLE_STATUS_NAME, OPTIMAL_STATUS_NAME}

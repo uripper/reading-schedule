@@ -1,7 +1,5 @@
 """Construct CP-SAT objective terms that score competing scheduling goals."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 

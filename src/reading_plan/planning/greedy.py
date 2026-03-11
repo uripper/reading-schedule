@@ -1,7 +1,5 @@
 """Build feasible schedules greedily under calendar and per-book limits."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from datetime import date
 import math

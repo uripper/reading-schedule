@@ -1,7 +1,5 @@
 """Normalize raw book payloads into validated planner book models."""
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 

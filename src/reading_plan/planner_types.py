@@ -1,12 +1,12 @@
 """Define the core planner models, constants, and default scheduling data."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from datetime import date
+
+    from reading_plan.planning.model_types import Assignments
 
 DEFAULT_DIFFICULTY_MULTIPLIER = {
     1: 1.00,
@@ -46,7 +46,7 @@ class Book:
     # Reading difficulty bucket used to scale reading speed.
     difficulty: int
     # Optional date by which the book should be finished.
-    deadline: date | None = None
+    deadline: "date | None" = None
     # Minimum block count required when starting a session for this book.
     min_blocks_per_session: int = 1
     # Original full book word count before progress is subtracted.
@@ -68,15 +68,15 @@ class Settings:
     """Planner configuration and scheduling constraints."""
 
     # First date included in the planning window.
-    start_date: date
+    start_date: "date"
     # Last date included in the planning window.
-    end_date: date
+    end_date: "date"
     # Default minutes available on days without an override.
     minutes_per_day: int | None
     # Optional per-weekday minute overrides keyed by weekday name.
     minutes_by_weekday: dict[str, int]
     # Calendar dates that should have no reading scheduled.
-    days_off: set[date]
+    days_off: "set[date]"
     # Baseline reading speed in words per minute before difficulty scaling.
     wpm_base: int
     # Size of one schedulable planning block in minutes.
@@ -110,7 +110,7 @@ class PlanResult:
     # High-level solver outcome such as OPTIMAL or INFEASIBLE.
     status: str
     # Scheduled block counts keyed by book id and calendar day.
-    assignments: dict[tuple[str, date], int]
+    assignments: "Assignments"
     # Optional solver objective value when one is available.
     objective: int | None = None
     # Extra human-readable context about fallback or infeasibility.

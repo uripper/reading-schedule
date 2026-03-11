@@ -1,7 +1,5 @@
 """Runtime import helpers for the OR-Tools CP-SAT module."""
 
-from __future__ import annotations
-
 from importlib import import_module
 from typing import TYPE_CHECKING, cast
 
@@ -15,7 +13,7 @@ MISSING_CP_MODEL_MESSAGE = (
 )
 
 
-def _load_cp_model() -> CpModelModule:
+def _load_cp_model() -> "CpModelModule":
     """Import the real OR-Tools CP-SAT module with an actionable error."""
     try:
         return cast("CpModelModule", import_module(CP_MODEL_MODULE_NAME))

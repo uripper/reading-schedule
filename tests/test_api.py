@@ -1,20 +1,25 @@
 """Test cases for test api."""
 
-from __future__ import annotations
-
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from reading_plan.api import generate_plan
 from reading_plan.input.serializers import book_to_data, settings_to_data
 from tests.helpers import demo_books, demo_settings
+
+if TYPE_CHECKING:
+    from reading_plan.api import PlannerInputPayload
 
 
 def test_generate_plan_from_json_payload() -> None:
     """Test that generate plan from json payload."""
     books = [book_to_data(b) for b in demo_books()]
     settings = settings_to_data(demo_settings())
-    payload = {"planner": "greedy", "books": books, "settings": settings}
-    data = cast("dict[str, Any]", generate_plan(payload)) # type: ignore
+    payload: PlannerInputPayload = {
+        "planner": "greedy",
+        "books": books,
+        "settings": settings,
+    }
+    data = cast("dict[str, Any]", generate_plan(payload))
     assert "summary" in data
     assert "schedule" in data
     assert data["summary"]["status"] in {"FEASIBLE", "OPTIMAL"}
@@ -27,7 +32,7 @@ def test_generate_plan_allows_missing_book_id() -> None:
     book.pop("book_id")
     settings = settings_to_data(demo_settings())
     data = cast(
-        dict[str, Any],
+        "dict[str, Any]",
         generate_plan({
             "planner": "greedy",
             "books": [book],
@@ -45,7 +50,7 @@ def test_generate_plan_rejects_missing_blocker() -> None:
     settings = settings_to_data(demo_settings())
     try:
         cast(
-            dict[str, Any],
+            "dict[str, Any]",
             generate_plan({
                 "planner": "greedy",
                 "books": books,
@@ -66,7 +71,7 @@ def test_generate_plan_rejects_blocker_cycles() -> None:
     settings = settings_to_data(demo_settings())
     try:
         cast(
-            dict[str, Any],
+            "dict[str, Any]",
             generate_plan({
                 "planner": "greedy",
                 "books": books,

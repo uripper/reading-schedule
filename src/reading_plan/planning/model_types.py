@@ -1,7 +1,5 @@
 """Shared model typing helpers."""
 
-from __future__ import annotations
-
 from datetime import date
 from typing import TypeAlias
 
@@ -32,3 +30,5 @@ BuildCpSatResult: TypeAlias = tuple[
     FinishedVars,
     list[date],
 ]
+
+Assignments: TypeAlias = dict[tuple[str, date], int]

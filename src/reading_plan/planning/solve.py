@@ -1,7 +1,5 @@
 """Route planning requests through greedy or staged CP-SAT solving."""
 
-from __future__ import annotations
-
 import logging
 from time import perf_counter
 from typing import TYPE_CHECKING

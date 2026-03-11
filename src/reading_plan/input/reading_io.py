@@ -1,7 +1,5 @@
 """Load planner JSON input files and convert them into normalized models."""
 
-from __future__ import annotations
-
 import json
 from pathlib import Path
 from typing import TYPE_CHECKING, cast

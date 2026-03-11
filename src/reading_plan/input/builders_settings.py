@@ -1,7 +1,5 @@
 """Normalize raw settings payloads into validated planner settings models."""
 
-from __future__ import annotations
-
 from datetime import datetime
 from typing import TYPE_CHECKING
 
