@@ -22,21 +22,15 @@ LOGGER = get_bridge_logger(__name__)
 
 def read_book_data(path: str) -> list[BookData]:
     """Load raw book payload rows from a JSON file."""
-    books_must_contain_json_array = (
-        f"books file '{path}' must contain a JSON array"
-    )
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
     check_condition(
-        books_must_contain_json_array,
+        f"books file '{path}' must contain a JSON array",
         error_type="type",
         condition=isinstance(raw, list),
     )
 
-    books_must_contain_json_objects = (
-        f"books file '{path}' must contain JSON objects"
-    )
     check_condition(
-        books_must_contain_json_objects,
+        f"books file '{path}' must contain JSON objects",
         error_type="type",
         condition=all(isinstance(item, dict) for item in raw),
     )
@@ -57,10 +51,9 @@ def load_books(path: str) -> list[Book]:
         file_path=__file__,
         value=path,
     )
-    book_file_cannot_be_empty = f"books file '{path}' cannot be empty"
     books = [book_from_data(row) for row in read_book_data(path)]
     check_condition(
-        book_file_cannot_be_empty,
+        f"books file '{path}' cannot be empty",
         condition=len(books) > 0,
     )
     return books

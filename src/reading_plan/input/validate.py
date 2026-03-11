@@ -42,61 +42,42 @@ def check_condition(
 
 def _validate_required_fields(book: Book) -> None:
     """Validate required fields and core range constraints."""
-    title_and_id_required = f"book_id and title are required for {book}"
     check_condition(
-        title_and_id_required,
+        f"book_id and title are required for {book}",
         condition=bool(book.book_id and book.title),
     )
 
-    remaining_words_cannot_be_zero = (
-        f"There are no words left to schedule for {book.book_id}"
-    )
     check_condition(
-        remaining_words_cannot_be_zero,
+        f"There are no words left to schedule for {book.book_id}",
         condition=book.remaining_words > 0,
     )
 
-    priority_between_one_to_five = (
-        f"priority must be between 1 and 5 for {book.book_id}"
-    )
     check_condition(
-        priority_between_one_to_five,
+        f"priority must be between 1 and 5 for {book.book_id}",
         condition=book.priority in BOOK_PRIORITY_RANGE,
     )
 
-    difficulty_between_one_and_ten = (
-        f"difficulty must be 1..10 for {book.book_id}"
-    )
     check_condition(
-        difficulty_between_one_and_ten,
+        f"difficulty must be 1..10 for {book.book_id}",
         condition=book.difficulty in BOOK_DIFFICULTY_RANGE,
     )
 
-    min_block_above_zero = (
-        f"min_blocks_per_session must be > 0 for {book.book_id}"
-    )
     check_condition(
-        min_block_above_zero,
+        f"min_blocks_per_session must be > 0 for {book.book_id}",
         condition=book.min_blocks_per_session > 0,
     )
 
 
 def _validate_book_progress(book: Book) -> None:
     """Validate read-progress and words consistency values."""
-    words_full_cannot_be_less_than_remaining = (
-        f"words_full cannot be less than remaining_words for {book.book_id}"
-    )
     check_condition(
-        words_full_cannot_be_less_than_remaining,
+        f"words_full cannot be less than remaining_words for {book.book_id}",
         condition=book.words_full is None
         or book.words_full >= book.remaining_words,
     )
 
-    progress_between_zero_and_hundred = (
-        f"progress_percent must be between 0 and 100 for {book.book_id}"
-    )
     check_condition(
-        progress_between_zero_and_hundred,
+        f"progress_percent must be between 0 and 100 for {book.book_id}",
         condition=book.progress_percent is None
         or (
             MIN_PROGRESS_PERCENT
@@ -108,37 +89,27 @@ def _validate_book_progress(book: Book) -> None:
 
 def _validate_book_limits(book: Book) -> None:
     """Validate optional daily limits and blocker invariants."""
-    max_minutes_per_day_cannot_be_zero = (
-        f"max_minutes_per_day must be > 0 for {book.book_id}"
-    )
     check_condition(
-        max_minutes_per_day_cannot_be_zero,
+        f"max_minutes_per_day must be > 0 for {book.book_id}",
         condition=book.max_minutes_per_day is None
         or book.max_minutes_per_day > 0,
     )
 
-    book_cannot_block_itself = f"book {book.book_id} cannot block itself"
     check_condition(
-        book_cannot_block_itself,
+        f"book {book.book_id} cannot block itself",
         condition=book.blocked_by is None or book.blocked_by != book.book_id,
     )
 
 
 def _validate_scheduled_days(book: Book) -> None:
     """Validate book-level scheduled weekday constraints."""
-    book_must_have_scheduled_days = (
-        f"scheduled_days is required for {book.book_id}"
-    )
     check_condition(
-        book_must_have_scheduled_days,
+        f"scheduled_days is required for {book.book_id}",
         condition=bool(book.scheduled_days),
     )
 
-    scheduled_days_are_real = (
-        f"scheduled_days must be Mon..Sun for {book.book_id}"
-    )
     check_condition(
-        scheduled_days_are_real,
+        f"scheduled_days must be Mon..Sun for {book.book_id}",
         condition=set(book.scheduled_days) <= VALID_WEEKDAYS,
     )
 
@@ -163,28 +134,21 @@ def validate_settings(settings: Settings) -> None:
 
 def _validate_settings_dates(settings: Settings) -> None:
     """Validate settings date ordering."""
-    end_date_after_start = "end_date must be on or after start_date"
     check_condition(
-        end_date_after_start,
+        "end_date must be on or after start_date",
         condition=settings.start_date <= settings.end_date,
     )
 
 
 def _validate_settings_minutes(settings: Settings) -> None:
     """Validate settings minute sources and quantum values."""
-    minutes_per_day_or_weekday_required = (
-        "Set minutes_per_day or minutes_by_weekday in settings"
-    )
     check_condition(
-        minutes_per_day_or_weekday_required,
+        "Set minutes_per_day or minutes_by_weekday in settings",
         condition=bool(settings.minutes_per_day or settings.minutes_by_weekday),
     )
 
-    time_quantum_minutes_required = (
-        "time_quantum_minutes must be set to a positive integer in settings"
-    )
     check_condition(
-        time_quantum_minutes_required,
+        "time_quantum_minutes must be set to a positive integer in settings",
         condition=settings.time_quantum_minutes is not None
         and settings.time_quantum_minutes > 0,
     )
@@ -192,11 +156,8 @@ def _validate_settings_minutes(settings: Settings) -> None:
 
 def _validate_settings_positive_limits(settings: Settings) -> None:
     """Validate positive daily session and book limits."""
-    max_sessions_and_books_required = (
-        "Set max_sessions_per_day and max_books_per_day to positive integers"
-    )
     check_condition(
-        max_sessions_and_books_required,
+        "Set max_sessions_per_day and max_books_per_day to positive integers",
         condition=bool(
             settings.max_sessions_per_day > 0 and settings.max_books_per_day > 0
         ),
@@ -206,24 +167,18 @@ def _validate_settings_positive_limits(settings: Settings) -> None:
 def _validate_settings_weekday_minutes(settings: Settings) -> None:
     """Validate weekday minute overrides when they are provided."""
     # TODO: Will this ever be invalid if coming from our settings?
-    minutes_by_weekday_keys_valid = (
-        "minutes_by_weekday keys must be Mon..Sun when provided"
-    )
     weekday_keys = set(settings.minutes_by_weekday)
     check_condition(
-        minutes_by_weekday_keys_valid,
+        "minutes_by_weekday keys must be Mon..Sun when provided",
         condition=not weekday_keys or weekday_keys == VALID_WEEKDAYS,
     )
 
 
 def _validate_settings_difficulty_multiplier(settings: Settings) -> None:
     """Validate difficulty multiplier coverage."""
-    difficulty_multiplier_keys_required = (
-        "difficulty_multiplier must be empty or contain keys 1..10"
-    )
     difficulty_keys = set(settings.difficulty_multiplier)
     check_condition(
-        difficulty_multiplier_keys_required,
+        "difficulty_multiplier must be empty or contain keys 1..10",
         condition=(
             not difficulty_keys or difficulty_keys == VALID_DIFFICULTY_KEYS
         ),
@@ -232,10 +187,7 @@ def _validate_settings_difficulty_multiplier(settings: Settings) -> None:
 
 def _validate_settings_plan_mode(settings: Settings) -> None:
     """Validate planner mode selection."""
-    plan_mode_required = (
-        f"plan_mode must be set to one of: {', '.join(PLAN_MODES)}"
-    )
     check_condition(
-        plan_mode_required,
+        f"plan_mode must be set to one of: {', '.join(PLAN_MODES)}",
         condition=settings.plan_mode in PLAN_MODES,
     )
