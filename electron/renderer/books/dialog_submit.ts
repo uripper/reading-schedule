@@ -33,7 +33,11 @@ function runBookDialogSubmitFlow(
         flow.setSavingState(false);
         return;
     }
-    Promise.resolve(flow.onSubmit(payload))
+
+    Promise.resolve()
+        .then(() => {
+            return flow.onSubmit(payload);
+        })
         .then(() => {
             flow.onComplete();
         })
@@ -46,7 +50,7 @@ function runBookDialogSubmitFlow(
 }
 
 /**
- * Restores the book dialog save button to its idle label and disabled state.
+ * Updates the book dialog save button for busy or idle submit state.
  * @param refs - Resolved DOM references for the book dialog.
  * @param busy - True while a save request is running.
  */

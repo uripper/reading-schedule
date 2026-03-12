@@ -1,8 +1,10 @@
 import type { PlannerScheduleRow } from "../../../types/types.js";
+import {
+    normalizedPagesValue,
+    normalizedPercentValue,
+} from "./today_carousel_progress.js";
 
 const EMPTY_TEXT = "";
-const MIN_PERCENT = 0;
-const MAX_PERCENT = 100;
 const MIN_MINUTES = 1;
 
 interface ProgressUpdateDraft {
@@ -24,7 +26,7 @@ interface ProgressPayloadResult {
 
 function parseOptionalNumber(valueRaw: string): number | null {
     const VALUE_TEXT = String(valueRaw || "").trim();
-    if (!VALUE_TEXT) {
+    if (VALUE_TEXT === EMPTY_TEXT) {
         return null;
     }
     const PARSED = Number(VALUE_TEXT);
@@ -42,43 +44,6 @@ function changedValue(
         return false;
     }
     return currentValue !== nextValue;
-}
-
-function normalizedPagesValue(pagesText: string): {
-    error: string;
-    value: number | null;
-} {
-    const PARSED = parseOptionalNumber(pagesText);
-    if (PARSED === null) {
-        if (String(pagesText || "").trim() === EMPTY_TEXT) {
-            return { error: EMPTY_TEXT, value: null };
-        }
-        return { error: "Pages Read must be a number.", value: null };
-    }
-    if (PARSED < MIN_PERCENT) {
-        return { error: "Pages Read cannot be negative.", value: null };
-    }
-    return { error: EMPTY_TEXT, value: Math.round(PARSED) };
-}
-
-function normalizedPercentValue(percentText: string): {
-    error: string;
-    value: number | null;
-} {
-    const PARSED = parseOptionalNumber(percentText);
-    if (PARSED === null) {
-        if (String(percentText || "").trim() === EMPTY_TEXT) {
-            return { error: EMPTY_TEXT, value: null };
-        }
-        return { error: "Complete % must be a number.", value: null };
-    }
-    if (PARSED < MIN_PERCENT || PARSED > MAX_PERCENT) {
-        return {
-            error: "Complete % must be between 0 and 100.",
-            value: null,
-        };
-    }
-    return { error: EMPTY_TEXT, value: Math.round(PARSED * 10) / 10 };
 }
 
 function isLogSessionComplete(activeCompleted: boolean): boolean {
@@ -100,10 +65,15 @@ export function buildProgressUpdatePayload(options: {
     bookId: string;
     currentPagesRead: number | null;
     currentPercent: number;
+    currentPagesTotal: number | null;
     draft: ProgressUpdateDraft;
     row: PlannerScheduleRow;
 }): ProgressPayloadResult {
-    const PAGES = normalizedPagesValue(options.draft.pagesText);
+    const PAGES = normalizedPagesValue({
+        currentPagesRead: options.currentPagesRead,
+        pagesText: options.draft.pagesText,
+        pagesTotal: options.currentPagesTotal,
+    });
     if (PAGES.error) {
         return {
             error: PAGES.error,
@@ -114,7 +84,10 @@ export function buildProgressUpdatePayload(options: {
             valid: false,
         };
     }
-    const PERCENT = normalizedPercentValue(options.draft.percentText);
+    const PERCENT = normalizedPercentValue({
+        currentPercent: options.currentPercent,
+        percentText: options.draft.percentText,
+    });
     if (PERCENT.error) {
         return {
             error: PERCENT.error,
