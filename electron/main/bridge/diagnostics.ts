@@ -49,9 +49,9 @@ function preview(text: string): string {
  */
 function readLogTail(filePath: string): string {
     try {
-        const CONTENT = readFileSync(filePath, "utf-8");
+        const CONTENT = readFileSync(filePath);
         const START = Math.max(0, CONTENT.length - LOG_TAIL_MAX_BYTES);
-        const WINDOW = CONTENT.slice(START);
+        const WINDOW = CONTENT.subarray(START).toString("utf-8");
         const LINES = WINDOW.split("\n");
         return LINES.slice(-LOG_TAIL_MAX_LINES).join("\n");
     } catch {
