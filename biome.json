@@ -97,9 +97,12 @@
               "options": {
                 "max": 3
               }
-            }
+            },
+            "useSimplifiedLogicExpression": "error"
           },
           "correctness": {
+            "noNestedComponentDefinitions":"warn",
+            "noReactPropAssignments": "error",
             "noUndeclaredVariables": {
               "level": "error",
               "options": {
@@ -118,10 +121,13 @@
             "useNullishCoalescing": "error"
           },
           "performance": {
+            "noAccumulatingSpread": "warn",
+            "noAwaitInLoops": "error",
             "noBarrelFile": "error",
             "noDynamicNamespaceImportAccess": "error",
             "noNamespaceImport": "error",
-            "noReExportAll": "error"
+            "noReExportAll": "error",
+            "useGoogleFontPreconnect": "error"
           },
           "style": {
             "noCommonJs": "error",

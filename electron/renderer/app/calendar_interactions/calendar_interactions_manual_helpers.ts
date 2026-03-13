@@ -37,22 +37,43 @@ function historicalWordsPerMinute(
     let totalMinutes = 0;
 
     for (const ROW of rows) {
-        if (String(ROW.book_id || "") !== bookId) {
+        const ROW_TOTALS = rowReadingTotals(bookId, ROW);
+        if (ROW_TOTALS === null) {
             continue;
         }
-        const ROW_MINUTES = Number(ROW.minutes || 0);
-        const ROW_WORDS = Number(ROW.words_planned || 0);
-        if (ROW_MINUTES <= 0 || ROW_WORDS <= 0) {
-            continue;
-        }
-        totalMinutes += ROW_MINUTES;
-        totalWords += ROW_WORDS;
+        totalMinutes += ROW_TOTALS.minutes;
+        totalWords += ROW_TOTALS.words;
     }
 
     if (totalMinutes <= 0 || totalWords <= 0) {
         return null;
     }
     return totalWords / totalMinutes;
+}
+
+function rowReadingTotals(
+    bookId: string,
+    row: PlannerScheduleRow,
+): { minutes: number; words: number } | null {
+    if (!matchesBookId(bookId, row)) {
+        return null;
+    }
+    return positiveRowReadingTotals(row);
+}
+
+function matchesBookId(bookId: string, row: PlannerScheduleRow): boolean {
+    return String(row.book_id || "") === bookId;
+}
+
+function positiveRowReadingTotals(
+    row: PlannerScheduleRow,
+): { minutes: number; words: number } | null {
+    const MINUTES = Number(row.minutes || 0);
+    const WORDS = Number(row.words_planned || 0);
+    if (MINUTES <= 0 || WORDS <= 0) {
+        return null;
+    }
+    return { minutes: MINUTES, words: WORDS };
 }
 
 /**
@@ -72,6 +93,24 @@ function difficultyMultiplier(
         return DEFAULT_DIFFICULTY_MULTIPLIER;
     }
     return MULTIPLIER;
+}
+
+function baseWordsPerMinute(settings: PlannerSettings): number {
+    const BASE = Number(settings.wpm_base ?? DEFAULT_MANUAL_WPM_BASE);
+    if (!Number.isFinite(BASE) || BASE <= 0) {
+        return DEFAULT_MANUAL_WPM_BASE;
+    }
+    return BASE;
+}
+
+function plannedWordsFromHistory(
+    minutes: number,
+    historicalWpm: number | null,
+): number | null {
+    if (historicalWpm === null) {
+        return null;
+    }
+    return Math.max(MIN_MANUAL_WORDS, Math.round(minutes * historicalWpm));
 }
 
 /**
@@ -99,20 +138,16 @@ export function wordsPlannedForManualSession({
 }): number {
     const NORMALIZED_MINUTES = normalizeManualMinutes(minutes);
     const HISTORICAL_WPM = historicalWordsPerMinute(bookId, rows);
-    if (HISTORICAL_WPM !== null) {
-        return Math.max(
-            MIN_MANUAL_WORDS,
-            Math.round(NORMALIZED_MINUTES * HISTORICAL_WPM),
-        );
-    }
-    const BASE = Number(settings.wpm_base ?? DEFAULT_MANUAL_WPM_BASE);
-    let wpmBase = DEFAULT_MANUAL_WPM_BASE;
-    if (Number.isFinite(BASE) && BASE > 0) {
-        wpmBase = BASE;
+    const HISTORICAL_PLANNED = plannedWordsFromHistory(
+        NORMALIZED_MINUTES,
+        HISTORICAL_WPM,
+    );
+    if (HISTORICAL_PLANNED !== null) {
+        return HISTORICAL_PLANNED;
     }
     const PLANNED =
         NORMALIZED_MINUTES *
-        wpmBase *
+        baseWordsPerMinute(settings) *
         difficultyMultiplier(settings, difficulty);
     return Math.max(MIN_MANUAL_WORDS, Math.round(PLANNED));
 }

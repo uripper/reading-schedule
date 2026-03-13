@@ -98,8 +98,8 @@ function createDashboards(
 
     const DASHBOARD_ARGS = {
         ...BASE_DASHBOARD_ARGS,
-        ["collectFeatureFlagsFromUI"]: collectFeatureFlagsFromUi,
-        ["collectPreferencesFromUI"]: collectPreferencesFromUi,
+        collectFeatureFlagsFromUI: collectFeatureFlagsFromUi,
+        collectPreferencesFromUI: collectPreferencesFromUi,
     } as Parameters<typeof createDashboardRuntime>[0];
 
     return createDashboardRuntime(DASHBOARD_ARGS);

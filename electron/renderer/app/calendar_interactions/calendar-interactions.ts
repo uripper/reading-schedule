@@ -13,6 +13,12 @@ import {
 } from "./calendar_interactions_helpers.ts";
 import { BUILD_SCHEDULE_MUTATION_HANDLERS } from "./calendar_interactions_schedule_handlers.ts";
 
+interface CompletionStateUpdateArgs {
+    completed: boolean;
+    completionState: Record<string, boolean>;
+    keys: string[];
+}
+
 /**
  * Returns a day-book completion key for a given completion row or an empty string when the row or required fields are missing.
  * @example
@@ -34,6 +40,13 @@ const COMPLETION_FALLBACK_KEY = (row: CompletionRow | undefined): string => {
     return dayBookCompletionKey(row.date, row.book_id);
 };
 
+function completionKeys(sessionKey: string, fallbackKey: string): string[] {
+    if (fallbackKey === "") {
+        return [sessionKey];
+    }
+    return [sessionKey, fallbackKey];
+}
+
 /**
  * Update a completion-state map by setting or removing entries for a session key and an optional fallback key based on a completion flag.
  * @example
@@ -45,23 +58,19 @@ const COMPLETION_FALLBACK_KEY = (row: CompletionRow | undefined): string => {
  * @param completed - If true, set the keys to true; if false, remove the keys from the map.
  * @returns No return value; the function mutates the provided completionStateInput in place.
  **/
-const SET_COMPLETION_STATE = (
-    completionStateInput: Record<string, boolean>,
-    sessionKey: string,
-    fallbackKey: string,
-    completed: boolean,
-): void => {
-    const COMPLETION_STATE = completionStateInput;
+const SET_COMPLETION_STATE = ({
+    completed,
+    completionState,
+    keys,
+}: CompletionStateUpdateArgs): void => {
     if (completed) {
-        COMPLETION_STATE[sessionKey] = true;
-        if (fallbackKey !== "") {
-            COMPLETION_STATE[fallbackKey] = true;
+        for (const KEY of keys) {
+            completionState[KEY] = true;
         }
         return;
     }
-    delete COMPLETION_STATE[sessionKey];
-    if (fallbackKey !== "") {
-        delete COMPLETION_STATE[fallbackKey];
+    for (const KEY of keys) {
+        delete completionState[KEY];
     }
 };
 
@@ -78,19 +87,18 @@ const COMPLETION_STATUS_MESSAGE = (
     row: CompletionRow | undefined,
     completed: boolean,
 ): string => {
-    if (row === undefined) {
+    const TITLE = row?.title;
+    if (typeof TITLE !== "string" || TITLE === "") {
         return "";
     }
-    if (typeof row.title !== "string" || row.title === "") {
-        return "";
-    }
-    if (typeof row.date !== "string" || row.date === "") {
+    const DATE = row?.date;
+    if (typeof DATE !== "string" || DATE === "") {
         return "";
     }
     if (completed) {
-        return `Marked "${row.title}" complete on ${row.date}.`;
+        return `Marked "${TITLE}" complete on ${DATE}.`;
     }
-    return `Marked "${row.title}" incomplete on ${row.date}.`;
+    return `Marked "${TITLE}" incomplete on ${DATE}.`;
 };
 
 /**
@@ -131,12 +139,11 @@ const HANDLE_COMPLETION_CHANGED = (
 ): void => {
     const COMPLETION_STATE = { ...args.state.scheduleCompletions };
     const FALLBACK_KEY = COMPLETION_FALLBACK_KEY(payload.row);
-    SET_COMPLETION_STATE(
-        COMPLETION_STATE,
-        payload.sessionKey,
-        FALLBACK_KEY,
-        payload.completed,
-    );
+    SET_COMPLETION_STATE({
+        completed: payload.completed,
+        completionState: COMPLETION_STATE,
+        keys: completionKeys(payload.sessionKey, FALLBACK_KEY),
+    });
     args.applyStateMutation({
         scheduleCompletions: COMPLETION_STATE,
         type: "set_schedule_completions",
@@ -153,6 +160,40 @@ const HANDLE_COMPLETION_CHANGED = (
         args.onSessionCompletionUpdated(payload);
     }
 };
+
+function markProgressRowCompleted(
+    args: AppCalendarInteractionArgs,
+    row: ProgressUpdateInput["row"],
+): void {
+    if (row === undefined) {
+        return;
+    }
+    const COMPLETION_STATE = { ...args.state.scheduleCompletions };
+    SET_COMPLETION_STATE({
+        completed: true,
+        completionState: COMPLETION_STATE,
+        keys: completionKeys(
+            sessionKeyFor(row),
+            dayBookCompletionKey(row.date, row.book_id),
+        ),
+    });
+    args.applyStateMutation({
+        scheduleCompletions: COMPLETION_STATE,
+        type: "set_schedule_completions",
+    });
+}
+
+function progressStatusMessage(
+    updatedBook: Exclude<
+        ReturnType<AppCalendarInteractionArgs["updateBookProgress"]>,
+        null
+    >,
+): string {
+    if (updatedBook.title === "") {
+        return "Updated progress for book.";
+    }
+    return `Updated progress for ${updatedBook.title}.`;
+}
 
 /**
  * Update a book's reading progress, mark schedule completion if provided, persist the change, and notify listeners.
@@ -179,22 +220,8 @@ const HANDLE_PROGRESS_UPDATED = (
         args.setStatus("Could not find that book to update progress.", true);
         return null;
     }
-    if (payload.row !== undefined) {
-        const COMPLETION_STATE = { ...args.state.scheduleCompletions };
-        COMPLETION_STATE[sessionKeyFor(payload.row)] = true;
-        COMPLETION_STATE[
-            dayBookCompletionKey(payload.row.date, payload.row.book_id)
-        ] = true;
-        args.applyStateMutation({
-            scheduleCompletions: COMPLETION_STATE,
-            type: "set_schedule_completions",
-        });
-    }
-    if (UPDATED_BOOK.title === "") {
-        args.setStatus("Updated progress for book.");
-    } else {
-        args.setStatus(`Updated progress for ${UPDATED_BOOK.title}.`);
-    }
+    markProgressRowCompleted(args, payload.row);
+    args.setStatus(progressStatusMessage(UPDATED_BOOK));
     args.queuePersist();
     if (args.onProgressUpdated !== undefined) {
         args.onProgressUpdated(UPDATED_BOOK);

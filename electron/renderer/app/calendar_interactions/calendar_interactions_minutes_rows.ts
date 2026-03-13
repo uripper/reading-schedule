@@ -15,6 +15,33 @@ import {
     wordsPlannedForManualSession,
 } from "./calendar_interactions_helpers.ts";
 
+interface UpdatedMinutesArgs {
+    collectSettings(): PlannerSettings;
+    getBookById(bookId: string): Book | null;
+    normalizedMinutes: number;
+    row: PlannerScheduleRow;
+    rowsExcludingTarget: PlannerScheduleRow[];
+}
+
+function plannedWordsForUpdatedMinutes(args: UpdatedMinutesArgs): number {
+    const BOOK = args.getBookById(args.row.book_id);
+    return wordsPlannedForManualSession({
+        bookId: args.row.book_id,
+        difficulty: Number(BOOK?.difficulty ?? DEFAULT_BOOK_DIFFICULTY),
+        minutes: args.normalizedMinutes,
+        rows: args.rowsExcludingTarget,
+        settings: args.collectSettings(),
+    });
+}
+
+function updatedRowWithMinutes(args: UpdatedMinutesArgs): PlannerScheduleRow {
+    return {
+        ...args.row,
+        minutes: args.normalizedMinutes,
+        words_planned: plannedWordsForUpdatedMinutes(args),
+    };
+}
+
 /**
  * Calculates the updated schedule rows when a session's planned minutes are manually changed.
  * It normalizes the input minutes, recalculates the words planned for that session, and returns the updated rows.
@@ -49,19 +76,13 @@ export function nextRowsWithUpdatedMinutes({
         return null;
     }
     const NORMALIZED_MINUTES = normalizedManualMinutes(minutes);
-    const BOOK = getBookById(row.book_id);
-    const WORDS_PLANNED = wordsPlannedForManualSession({
-        bookId: row.book_id,
-        difficulty: Number(BOOK?.difficulty ?? DEFAULT_BOOK_DIFFICULTY),
-        minutes: NORMALIZED_MINUTES,
-        rows: ROWS_EXCLUDING_TARGET,
-        settings: collectSettings(),
+    const UPDATED_ROW = updatedRowWithMinutes({
+        collectSettings,
+        getBookById,
+        normalizedMinutes: NORMALIZED_MINUTES,
+        row,
+        rowsExcludingTarget: ROWS_EXCLUDING_TARGET,
     });
-    const UPDATED_ROW: PlannerScheduleRow = {
-        ...row,
-        minutes: NORMALIZED_MINUTES,
-        words_planned: WORDS_PLANNED,
-    };
     return {
         normalizedMinutes: NORMALIZED_MINUTES,
         rows: sortRowsByDateAndSession([...ROWS_EXCLUDING_TARGET, UPDATED_ROW]),

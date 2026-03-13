@@ -21,7 +21,7 @@ import { addLog, bindHelpDialog } from "../../help.ts";
 import { collectSettings, initSettingsGrid } from "../../settings.ts";
 import { bindDesktopShortcuts } from "../../shortcuts/index.ts";
 import { activateTab, bindTabs } from "../../tabs.ts";
-import { configureAppCalendarInteractions } from "../calendar_interactions/index.ts";
+import { configureAppCalendarInteractions } from "../calendar_interactions/calendar-interactions.ts";
 import { bindExperienceSettings } from "../experience/index.ts";
 import { totalsFromSummary } from "../runtime_helpers.ts";
 import { applyAppStateMutation } from "../state_mutations.ts";
