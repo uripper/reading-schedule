@@ -1,6 +1,6 @@
 """Normalize raw settings payloads into validated planner settings models."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from reading_plan.input.builders_coerce import to_float, to_int
@@ -11,6 +11,7 @@ from reading_plan.planner_types import (
     Settings,
 )
 from reading_plan.reading_calendar import parse_date
+
 
 if TYPE_CHECKING:
     from src.reading_plan.api_types import SettingsData
@@ -28,7 +29,7 @@ def settings_from_data(data: SettingsData) -> Settings:
     }
     raw_diff = data.get("difficulty_multiplier", DEFAULT_DIFFICULTY_MULTIPLIER)
     diff = {int(k): float(v) for k, v in raw_diff.items()}
-    start_date = datetime.now().astimezone().date()
+    start_date = datetime.now(UTC).astimezone().date()
     if data.get("start_date"):
         start_date = parse_date(data["start_date"])
     minutes_per_day = data.get("minutes_per_day")

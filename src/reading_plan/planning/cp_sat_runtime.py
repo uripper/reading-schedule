@@ -3,6 +3,7 @@
 from importlib import import_module
 from typing import TYPE_CHECKING, cast
 
+
 if TYPE_CHECKING:
     from reading_plan.planning.cp_sat_types import CpModelModule
 

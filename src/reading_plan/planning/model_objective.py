@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from reading_plan.planner_types import PLAN_MODE_SPREAD_OUT
 
+
 if TYPE_CHECKING:
     from datetime import date
 

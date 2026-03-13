@@ -2,6 +2,7 @@
 
 from typing import TYPE_CHECKING, TypedDict
 
+
 if TYPE_CHECKING:
     from reading_plan.reporting.report_types import Summary
 

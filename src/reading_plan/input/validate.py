@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from reading_plan.planner_types import PLAN_MODES, WEEKDAYS
 
+
 if TYPE_CHECKING:
     from typing import Literal
 
@@ -166,7 +167,6 @@ def _validate_settings_positive_limits(settings: Settings) -> None:
 
 def _validate_settings_weekday_minutes(settings: Settings) -> None:
     """Validate weekday minute overrides when they are provided."""
-    # TODO: Will this ever be invalid if coming from our settings?
     weekday_keys = set(settings.minutes_by_weekday)
     check_condition(
         "minutes_by_weekday keys must be Mon..Sun when provided",

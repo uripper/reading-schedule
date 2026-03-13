@@ -1,6 +1,7 @@
 """Validation helpers for persisted mobile planner state."""
 
-from typing import cast
+from typing import TypeGuard
+
 
 VALID_THEMES = {"system", "light", "dark"}
 REQUIRED_FEATURE_FLAGS = (
@@ -10,56 +11,42 @@ REQUIRED_FEATURE_FLAGS = (
 )
 
 
+def _is_str_object_dict(value: object) -> TypeGuard[dict[str, object]]:
+    return isinstance(value, dict) and all(
+        isinstance(key, str) for key in value
+    )
+
+
 def _is_bool_record(value: object) -> bool:
-    if not isinstance(value, dict):
+    if not _is_str_object_dict(value):
         return False
-    value_map = cast("dict[str, object]", value)
-    return all(isinstance(item, bool) for item in value_map.values())
+    return all(isinstance(item, bool) for item in value.values())
 
 
 def _is_feature_flags(value: object) -> bool:
-    """Check whether a given value is a dict that contains all required feature flags with boolean values.
-    Parameters:
-        - value (object): The value to validate; should be a dict mapping feature flag names to booleans. The function checks presence and boolean-typed values for every key listed in REQUIRED_FEATURE_FLAGS.
-    Returns:
-        - bool: True if value is a dict and every required feature flag is present with a bool value; otherwise False."""
-    if not isinstance(value, dict):
+    """Return whether all required feature flags are present and boolean."""
+    if not _is_str_object_dict(value):
         return False
-    value_map = cast("dict[str, object]", value)
     return all(
-        isinstance(value_map.get(key, False), bool)
+        isinstance(value.get(key, False), bool)
         for key in REQUIRED_FEATURE_FLAGS
     )
 
 
 def _is_preferences(value: object) -> bool:
-    """Check whether an object matches the expected preferences dictionary shape and types.
-    Parameters:
-        - value (object): The object to validate. Expected to be a dict (mapping) that may contain:
-            - "dailyGoalMinutes" (int)
-            - "reduceMotion" (bool)
-            - "reminderEnabled" (bool)
-            - "reminderTime" (str)
-            - "timezone" (str)
-            - "theme" (str, must be one of VALID_THEMES)
-    Returns:
-        - bool: True if value is a dict and all present keys have the expected types and the theme (if present) is valid; False otherwise.
-    Examples:
-        - _is_preferences({"dailyGoalMinutes": 30, "theme": "dark"}) -> True
-        - _is_preferences({"dailyGoalMinutes": "30"}) -> False"""
-    if not isinstance(value, dict):
+    """Return whether a preferences object matches the persisted shape."""
+    if not _is_str_object_dict(value):
         return False
-    value_map = cast("dict[str, object]", value)
     checks = (
-        isinstance(value_map.get("dailyGoalMinutes", 30), int),
-        isinstance(value_map.get("reduceMotion", False), bool),
-        isinstance(value_map.get("reminderEnabled", False), bool),
-        isinstance(value_map.get("reminderTime", "08:00"), str),
-        isinstance(value_map.get("timezone", "UTC"), str),
+        isinstance(value.get("dailyGoalMinutes", 30), int),
+        isinstance(value.get("reduceMotion", False), bool),
+        isinstance(value.get("reminderEnabled", False), bool),
+        isinstance(value.get("reminderTime", "08:00"), str),
+        isinstance(value.get("timezone", "UTC"), str),
     )
     if not all(checks):
         return False
-    theme = value_map.get("theme", "dark")
+    theme = value.get("theme", "dark")
     return isinstance(theme, str) and theme in VALID_THEMES
 
 
@@ -77,10 +64,10 @@ def _require_state_field(*, is_valid: bool, message: str) -> None:
 def validate_state_snapshot(state: object) -> dict[str, object]:
     """Validate mobile state payload shape against shared planner contracts."""
     _require_state_field(
-        is_valid=isinstance(state, dict),
+        is_valid=_is_str_object_dict(state),
         message="Saved state payload must be an object.",
     )
-    state_map = cast("dict[str, object]", state)
+    state_map = state
     field_checks = (
         (
             isinstance(state_map.get("books"), list),

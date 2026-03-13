@@ -12,6 +12,7 @@ from reading_plan.planning.budget import (
 )
 from reading_plan.reading_calendar import date_range
 
+
 if TYPE_CHECKING:
     from datetime import date
 

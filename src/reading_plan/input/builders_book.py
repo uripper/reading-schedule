@@ -16,6 +16,7 @@ from reading_plan.input.validate import check_condition, validate_book
 from reading_plan.planner_types import WEEKDAYS, Book
 from reading_plan.reading_calendar import parse_date
 
+
 if TYPE_CHECKING:
     from datetime import date
 

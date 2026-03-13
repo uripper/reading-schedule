@@ -22,6 +22,7 @@ from reading_plan.planning.solve_heuristics import (
     stages_for_profile,
 )
 
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
