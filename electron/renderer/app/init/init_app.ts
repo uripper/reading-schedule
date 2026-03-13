@@ -26,6 +26,8 @@ import { bindExperienceSettings } from "../experience/index.js";
 import { totalsFromSummary } from "../runtime_helpers.js";
 import { applyAppStateMutation } from "../state_mutations.js";
 import { configureTodayInteractions } from "../today/index.js";
+import { resetTodayCarouselUiState } from "../today/today_carousel_state.js";
+import { bindTodayDayRollover } from "../today/today_rollover.js";
 import { loadStateAndBindTodayActions } from "./init_app_load.js";
 import {
     createAppPlanControllerInstance,
@@ -184,4 +186,16 @@ export async function initApp(context: AppBootstrapContext): Promise<void> {
         },
     });
     await loadStateAndBindTodayActions(APP_CONTEXT, PLAN_CONTROLLER);
+    bindTodayDayRollover({
+        onDayChanged: (): void => {
+            resetTodayCarouselUiState();
+            renderCalendar(
+                APP_CONTEXT.state.lastResult?.schedule ?? [],
+                totalsFromSummary(
+                    APP_CONTEXT.state.lastResult?.summary ?? null,
+                ),
+            );
+            APP_CONTEXT.dashboards.updateDashboards();
+        },
+    });
 }

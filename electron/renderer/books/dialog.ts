@@ -1,40 +1,28 @@
+/**
+ * Creates and opens the add/edit book dialog, wiring lookup, submit, and close behavior.
+ */
+
 import type {
     Book,
     BookDialogController,
     BookDialogOptions,
-    BookFormRefs,
     BookSubmitPayload,
     OpenBookDialogArgs,
     OpenDialogOptions,
 } from "../../types/types.js";
-import { bindDialogFocus, focusFirstError } from "../accessibility/index.js";
+import { bindDialogFocus } from "../accessibility/index.js";
 import { bindBookLookup } from "../book_lookup.js";
 import { createAfterBookPicker } from "./after_book_picker.js";
 import { bindCoverUpload } from "./cover_upload.js";
 import { bindBookDialogProgressSync } from "./dialog_progress_sync.js";
+import {
+    bindBookDialogSubmit,
+    resetBookDialogSubmitState,
+} from "./dialog_submit.js";
 import { ensureBookFormLayoutFields } from "./form_layout.js";
 import { getBookFormRefs } from "./form_refs.js";
-import {
-    applyLookupItem,
-    clearForm,
-    fillForm,
-    parseFormBook,
-} from "./form_state.js";
+import { applyLookupItem, clearForm, fillForm } from "./form_state.js";
 import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.js";
-
-/**
- * Updates the save button state while a dialog submission is in progress.
- * @param refs - Resolved DOM references for the book dialog.
- * @param busy - True while the save action is running.
- */
-function setSavingState(refs: BookFormRefs, busy: boolean): void {
-    const SAVE_BUTTON = refs.saveBtn;
-    SAVE_BUTTON.disabled = busy;
-    SAVE_BUTTON.textContent = "Save Book";
-    if (busy) {
-        SAVE_BUTTON.textContent = "Saving...";
-    }
-}
 
 /**
  * Resolves the live books getter from optional dialog options.
@@ -51,27 +39,8 @@ function booksGetter(options: BookDialogOptions): () => Book[] {
 }
 
 /**
- * Resolves a user-facing error message from unknown save failures.
- * @param error - Unknown error thrown by submit handlers.
- * @returns User-visible save message.
- */
-function saveErrorMessage(error: unknown): string {
-    if (error instanceof Error && error.message) {
-        return error.message;
-    }
-    return "Could not save this book.";
-}
-
-/**
  * Opens dialog UI and applies add/edit form state.
  * @param args - Dialog open dependencies and target book state.
- * @param refs - Book form references.
- * @param dialogFocus - Dialog focus manager.
- * @param lookupControl - Lookup clear helper used during open.
- * @param afterBookPicker - After-book picker controller for blocker links.
- * @param getBooks - Getter returning current books.
- * @param book - Existing book in edit mode, or null for add mode.
- * @param dialogOptions - Optional open options such as default shelf.
  */
 function openBookDialog(args: OpenBookDialogArgs): void {
     const FORM_REFS = args.refs;
@@ -89,48 +58,9 @@ function openBookDialog(args: OpenBookDialogArgs): void {
         FORM_REFS.dialogTitle.textContent = "Edit Book";
         fillForm(FORM_REFS, book);
     }
+    resetBookDialogSubmitState(FORM_REFS);
     FORM_REFS.dialog.showModal();
     args.dialogFocus.focusInitialTarget();
-}
-
-/**
- * Creates the add/edit book dialog controller and binds its form behavior.
- * @param onSubmit - Callback invoked with the parsed form payload on submit.
- * @param options - Optional dialog dependencies.
- * @param getBooks - Returns current books for shelf and related UI helpers.
- * @returns Dialog API exposing the `open` function.
- */
-/**
- * Binds form submission handler for book dialog.
- */
-function bindBookDialogSubmit(
-    form: HTMLFormElement,
-    refs: BookFormRefs,
-    onSubmit: (payload: BookSubmitPayload) => Promise<void> | void,
-    onComplete: () => void,
-): void {
-    form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        setSavingState(refs, true);
-        const PAYLOAD = {
-            applyScheduledDaysToShelf:
-                refs.applyScheduledDaysToShelfInput.checked,
-            book: parseFormBook(refs),
-        };
-        Promise.resolve(onSubmit(PAYLOAD))
-            .then(() => {
-                onComplete();
-            })
-            .catch((error: unknown) => {
-                refs.lookupMeta.textContent = saveErrorMessage(error);
-                if (!focusFirstError(refs.form)) {
-                    refs.titleInput.focus();
-                }
-            })
-            .finally(() => {
-                setSavingState(refs, false);
-            });
-    });
 }
 
 /**
@@ -150,6 +80,12 @@ function bindBookDialogCloseHandlers(
     });
 }
 
+/**
+ * Creates the add/edit book dialog controller and binds its form behavior.
+ * @param onSubmit - Callback invoked with the parsed form payload on submit.
+ * @param options - Optional dialog dependencies.
+ * @returns Dialog API exposing the `open` function.
+ */
 export function createBookDialog(
     onSubmit: (payload: BookSubmitPayload) => Promise<void> | void,
     options: BookDialogOptions = {},

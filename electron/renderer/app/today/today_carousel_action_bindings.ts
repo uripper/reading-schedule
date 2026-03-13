@@ -123,6 +123,7 @@ export function bindToggleButton(options: {
         const PAYLOAD_RESULT = buildProgressUpdatePayload({
             bookId: options.active.book.bookId,
             currentPagesRead: options.active.pagesRead,
+            currentPagesTotal: options.active.pagesTotal,
             currentPercent: options.active.progressPercent,
             draft: {
                 pagesText: el<HTMLInputElement>("todayPagesInput").value,

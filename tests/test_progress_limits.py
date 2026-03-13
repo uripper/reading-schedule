@@ -96,3 +96,52 @@ def test_book_builder_rejects_invalid_scheduled_days() -> None:
                 "scheduled_days": ["Mon", "Bad"],
             })
         )
+
+
+def test_book_builder_coerces_non_string_book_id() -> None:
+    """Test that book builder preserves non-string ids via coercion."""
+    book = book_from_data(
+        _book_payload({"book_id": 42, "title": "Demo", "words_full": 10000})
+    )
+    assert book.book_id == "42"
+
+
+def test_book_builder_accepts_legacy_blocker_book_id_alias() -> None:
+    """Test that book builder still supports blocker_book_id."""
+    book = book_from_data(
+        _book_payload({
+            "book_id": "b1",
+            "title": "Demo",
+            "words_full": 10000,
+            "blocker_book_id": 7,
+        })
+    )
+    assert book.blocked_by == "7"
+
+
+def test_book_builder_rejects_non_positive_words_full() -> None:
+    """Test that explicit non-positive words_full values fail fast."""
+    with pytest.raises(ValueError):
+        book_from_data(
+            _book_payload({
+                "book_id": "b1",
+                "title": "Demo",
+                "words_full": 0,
+                "pages_total": 100,
+            })
+        )
+
+
+def test_book_builder_rejects_non_string_scheduled_day_entries_cleanly() -> (
+    None
+):
+    """Test that scheduled day coercion still surfaces a validation error."""
+    with pytest.raises(ValueError):
+        book_from_data(
+            _book_payload({
+                "book_id": "b1",
+                "title": "Demo",
+                "words_full": 10000,
+                "scheduled_days": ["Mon", 2],
+            })
+        )
