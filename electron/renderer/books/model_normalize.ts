@@ -1,4 +1,4 @@
-import type { Book, BookInput } from "../../types/types.js";
+import type { Book, BookInput } from "../../types/types.ts";
 import {
     DEFAULT_DIFFICULTY,
     DEFAULT_PRIORITY,
@@ -13,11 +13,11 @@ import {
     toClampedInt,
     toTrimmedText,
     withNullableString,
-} from "./model_normalize_helpers.js";
-import { normalizeScheduledDays } from "./scheduled_days.js";
-import { normalizeShelfName } from "./shelf.js";
-import { statusFromRaw } from "./status.js";
-import { clamp, toOptionalDate, toOptionalInt } from "./utils.js";
+} from "./model_normalize_helpers.ts";
+import { normalizeScheduledDays } from "./scheduled_days.ts";
+import { normalizeShelfName } from "./shelf.ts";
+import { statusFromRaw } from "./status.ts";
+import { clamp, toOptionalDate, toOptionalInt } from "./utils.ts";
 
 const PROGRESS_MAX = 100;
 

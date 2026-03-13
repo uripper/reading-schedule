@@ -4,7 +4,8 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import TypeGuard
+
+from reading_plan.type_guards import is_object_list, is_object_mapping
 
 
 BRIDGE_LOGGER_NAME = "reading_plan.bridge"
@@ -24,14 +25,6 @@ _SAMPLE_RECORD = logging.LogRecord(
 )
 _STANDARD_RECORD_FIELDS = frozenset(_SAMPLE_RECORD.__dict__.keys())
 _EXCLUDED_METADATA_FIELDS = frozenset({"asctime", "message"})
-
-
-def _is_object_mapping(value: object) -> TypeGuard[dict[object, object]]:
-    return isinstance(value, dict)
-
-
-def _is_object_list(value: object) -> TypeGuard[list[object]]:
-    return isinstance(value, list)
 
 
 class StructuredBridgeFormatter(logging.Formatter):
@@ -123,10 +116,10 @@ def summarize_value_types(value: object) -> dict[str, object]:
     summary: dict[str, object] = {
         "value_type": type(value).__name__,
     }
-    if _is_object_mapping(value):
+    if is_object_mapping(value):
         summary.update(_summarize_mapping_types(value))
         return summary
-    if _is_object_list(value):
+    if is_object_list(value):
         summary.update(_summarize_list_types(value))
     return summary
 
@@ -212,7 +205,7 @@ def _normalize_metadata(value: object) -> object:
         normalized = value
     elif isinstance(value, Path):
         normalized = str(value)
-    elif _is_object_mapping(value):
+    elif is_object_mapping(value):
         normalized = _normalize_mapping(value)
     elif isinstance(value, (list, tuple, set)):
         normalized = [_normalize_metadata(item) for item in value]

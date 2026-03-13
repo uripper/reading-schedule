@@ -1,4 +1,4 @@
-import { CALENDAR_COLUMN_COUNT } from "./constants.js";
+import { CALENDAR_COLUMN_COUNT } from "./constants.ts";
 
 /**
  * Handles keyboard navigation for month grid day buttons.

@@ -1,9 +1,9 @@
 import type {
     CreateLookupStateControllerArgs,
     LookupStateController,
-} from "../../types/types.js";
-import { describeLookup } from "./helpers.js";
-import { renderLookupResults, updateComboboxA11y } from "./render.js";
+} from "../../types/types.ts";
+import { describeLookup } from "./helpers.ts";
+import { renderLookupResults, updateComboboxA11y } from "./render.ts";
 
 function boundedIndex(index: number, length: number): number {
     return ((index % length) + length) % length;
@@ -23,8 +23,8 @@ interface LookupControllerDeps {
  * @example
  * refreshLookupResults(deps)
  * undefined
- * @param {{LookupControllerDeps}} deps - Dependencies and DOM/state references required to render and update lookup results.
- * @returns {{void}} No return value; updates the DOM and accessibility attributes.
+ * @param deps - Dependencies and DOM/state references required to render and update lookup results.
+ * @returns No return value; updates the DOM and accessibility attributes.
  **/
 function refreshLookupResults(deps: LookupControllerDeps): void {
     const HAS_ITEMS = deps.state.currentItems.length > 0;
@@ -71,9 +71,9 @@ function selectLookupItem(deps: LookupControllerDeps, index: number): void {
  * @example
  * setLookupActiveIndex(deps, 2)
  * undefined
- * @param {{LookupControllerDeps}} {{deps}} - Lookup controller dependencies containing state and helpers.
- * @param {{number}} {{index}} - Desired active index; will be clamped to valid range or set to -1 if no items.
- * @returns {{void}} No return value; updates the state's activeIndex and refreshes lookup results.
+ * @param deps - Lookup controller dependencies containing state and helpers.
+ * @param index - Desired active index; will be clamped to valid range or set to -1 if no items.
+ * @returns No return value; updates the state's activeIndex and refreshes lookup results.
  **/
 function setLookupActiveIndex(deps: LookupControllerDeps, index: number): void {
     if (deps.state.currentItems.length === 0) {

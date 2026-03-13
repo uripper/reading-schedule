@@ -1,10 +1,10 @@
 import * as fs from "node:fs";
-import { logDebug } from "../../types/logger.js";
+import { logDebug } from "../../types/logger.ts";
 import {
     LOG_TAIL_MAX_BYTES,
     LOG_TAIL_MAX_LINES,
     OUTPUT_PREVIEW_MAX_CHARS,
-} from "./constants.js";
+} from "./constants.ts";
 import type {
     BridgeBuffers,
     BridgeDiagnosticsArgs,
@@ -12,7 +12,7 @@ import type {
     BridgeProgressSnapshot,
     BridgeRunSession,
     BridgeTimeoutArgs,
-} from "./types.js";
+} from "./types.ts";
 
 let logTail = "";
 

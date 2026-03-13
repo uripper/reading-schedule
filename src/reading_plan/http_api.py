@@ -3,7 +3,7 @@
 import json
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, TypeGuard
+from typing import TYPE_CHECKING
 from urllib.error import URLError
 from urllib.parse import urlencode
 from urllib.request import urlopen
@@ -21,14 +21,16 @@ from reading_plan.bridge_logging import (
 from reading_plan.input.reading_io import load_inputs
 from reading_plan.input.serializers import book_to_data, settings_to_data
 from reading_plan.state_validation import validate_state_snapshot
+from reading_plan.type_guards import (
+    is_book_data_list,
+    is_object_list,
+    is_settings_data,
+    is_str_object_dict,
+)
 
 
 if TYPE_CHECKING:
-    from reading_plan.api_types import (
-        BookData,
-        PlannerInputPayload,
-        SettingsData,
-    )
+    from reading_plan.api_types import PlannerInputPayload
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8787
@@ -38,26 +40,6 @@ SEARCH_TIMEOUT_SECONDS = 8
 SEARCH_OUTPUT_LIMIT = 20
 
 LOGGER = get_bridge_logger(__name__)
-
-
-def _is_object_dict(value: object) -> TypeGuard[dict[str, object]]:
-    return isinstance(value, dict) and all(
-        isinstance(key, str) for key in value
-    )
-
-
-def _is_object_list(value: object) -> TypeGuard[list[object]]:
-    return isinstance(value, list)
-
-
-def _is_book_data_list(value: object) -> TypeGuard[list[BookData]]:
-    return _is_object_list(value) and all(
-        _is_object_dict(item) for item in value
-    )
-
-
-def _is_settings_data(value: object) -> TypeGuard[SettingsData]:
-    return _is_object_dict(value)
 
 
 def _repo_root() -> Path:
@@ -224,7 +206,7 @@ def _request_json(request_url: str) -> dict[str, object]:
             status_code=502,
             detail=f"Book search failed: {error}",
         ) from error
-    if _is_object_dict(payload):
+    if is_str_object_dict(payload):
         return payload
     return {}
 
@@ -235,7 +217,7 @@ def _search_docs(query: str, *, author_only: bool) -> list[object]:
     request_url = _search_query(query, author_only=author_only)
     payload = _request_json(request_url)
     docs = payload.get("docs")
-    if _is_object_list(docs):
+    if is_object_list(docs):
         return docs
     return []
 
@@ -248,7 +230,7 @@ def _doc_to_result(doc: object) -> dict[str, str] | None:
     Non-dictionary inputs, or rows missing both title and author, return
     `None`.
     """
-    if not _is_object_dict(doc):
+    if not is_str_object_dict(doc):
         return None
     title = str(doc.get("title") or "").strip()
     author = _first_author(doc.get("author_name"))
@@ -266,7 +248,7 @@ def _doc_to_result(doc: object) -> dict[str, str] | None:
 
 
 def _first_author(raw_authors: object) -> str:
-    if not _is_object_list(raw_authors) or not raw_authors:
+    if not is_object_list(raw_authors) or not raw_authors:
         return ""
     return str(raw_authors[0] or "").strip()
 
@@ -302,10 +284,10 @@ def _planner_input_payload(payload: dict[str, object]) -> PlannerInputPayload:
     books = payload.get("books")
     settings = payload.get("settings")
     planner = payload.get("planner")
-    if not _is_book_data_list(books):
+    if not is_book_data_list(books):
         msg = "Planner payload field 'books' must be a list of objects."
         raise TypeError(msg)
-    if not _is_settings_data(settings):
+    if not is_settings_data(settings):
         msg = "Planner payload field 'settings' must be an object."
         raise TypeError(msg)
     request_payload: PlannerInputPayload = {

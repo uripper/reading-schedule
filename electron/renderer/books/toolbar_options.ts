@@ -1,16 +1,16 @@
-import type { Book, OptionDefinition } from "../../types/types.js";
+import type { Book, OptionDefinition } from "../../types/types.ts";
 import {
     GROUP_BY_AUTHOR,
     GROUP_BY_FINISH_DATE,
     GROUP_BY_NONE,
     GROUP_BY_SHELF,
     GROUP_BY_TITLE_LETTER,
-} from "./grouping.js";
+} from "./grouping.ts";
 import {
     SHELF_FILTER_ALL,
     SHELF_FILTER_UNSHELVED,
     uniqueShelves,
-} from "./shelf.js";
+} from "./shelf.ts";
 import {
     SORT_BY_AUTHOR,
     SORT_BY_DEADLINE,
@@ -23,7 +23,7 @@ import {
     SORT_BY_SHELF,
     SORT_BY_TITLE,
     SORT_BY_WORDS_TOTAL,
-} from "./sort.js";
+} from "./sort.ts";
 
 export const SORT_OPTIONS: OptionDefinition[] = [
     { label: "Title", value: SORT_BY_TITLE },

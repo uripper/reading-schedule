@@ -1,4 +1,4 @@
-import { el } from "../dom.js";
+import { el } from "../dom.ts";
 
 /**
  * Renders day-off chips with remove actions.

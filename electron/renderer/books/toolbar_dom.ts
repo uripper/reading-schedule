@@ -1,5 +1,5 @@
-import type { OptionDefinition } from "../../types/types.js";
-import { GROUP_OPTIONS_BASE, SORT_OPTIONS } from "./toolbar_options.js";
+import type { OptionDefinition } from "../../types/types.ts";
+import { GROUP_OPTIONS_BASE, SORT_OPTIONS } from "./toolbar_options.ts";
 
 /**
  * Creates a standard `<option>` element.

@@ -6,15 +6,15 @@ import type {
     CalendarRowWithFinish,
     PlannerResult,
     PlannerScheduleRow,
-} from "../../../types/types.js";
-import { bookCoverSrc } from "../../books/model.js";
-import { estimateSnapshotForRow } from "../../calendar/estimates_snapshot.js";
+} from "../../../types/types.ts";
+import { bookCoverSrc } from "../../books/model.ts";
+import { estimateSnapshotForRow } from "../../calendar/estimates_snapshot.ts";
 import {
     sessionKeyFor,
     sortRowsByDateAndSession,
-} from "../../calendar/utils.js";
-import { todayKey } from "../../sessions/utils.js";
-import { totalsFromSummary } from "../runtime_helpers.js";
+} from "../../calendar/utils.ts";
+import { todayKey } from "../../sessions/utils.ts";
+import { totalsFromSummary } from "../runtime_helpers.ts";
 
 const EMPTY_TEXT = "";
 const DEFAULT_TITLE = "Untitled";
@@ -121,9 +121,9 @@ function booksById(books: Book[]): Map<string, Book> {
  * @example
  * resolveBookTitle({ title: 'Row Title' }, { title: 'Book Title' })
  * 'Book Title'
- * @param {{PlannerScheduleRow}} {{row}} - Planner schedule row object whose title may be used if the book title is absent.
- * @param {{Book | undefined}} {{book}} - Optional book object; its title is preferred when present and non-empty.
- * @returns {{string}} The chosen title: book title, row title, or DEFAULT_TITLE.
+ * @param row - Planner schedule row object whose title may be used if the book title is absent.
+ * @param book - Optional book object; its title is preferred when present and non-empty.
+ * @returns The chosen title: book title, row title, or DEFAULT_TITLE.
  **/
 function resolveBookTitle(
     row: PlannerScheduleRow,
@@ -196,8 +196,8 @@ function sessionByKey(
  * @example
  * resolvedTargetRow({ pinnedRowKey: 'pin123', sessions: [{ id: 's1', status: 'complete' }, { id: 's2', status: 'incomplete' }] })
  * // returns { id: 's1', status: 'complete' } if 'pin123' matches s1, otherwise returns the first incomplete session object
- * @param {{ { pinnedRowKey: string; sessions: TodayCarouselSessionItem[] } }} {{options}} - Option bag containing the pinnedRowKey and the list of sessions.
- * @returns {{TodayCarouselSessionItem}} The chosen TodayCarouselSessionItem: pinned, first incomplete, or the first session as a fallback.
+ * @param options - Option bag containing the pinnedRowKey and the list of sessions.
+ * @returns The chosen TodayCarouselSessionItem: pinned, first incomplete, or the first session as a fallback.
  **/
 function resolvedTargetRow(options: {
     pinnedRowKey: string;
@@ -267,9 +267,9 @@ function buildBooks(options: {
  * @example
  * normalizedSelection("book-1", [{ bookId: "book-1" }])
  * "book-1"
- * @param {{string}} {{selectedBookIdRaw}} - Raw selected book id that may be empty or contain only whitespace.
- * @param {{TodayCarouselBookItem[]}} {{books}} - Array of available carousel book items.
- * @returns {{string}} Return the normalized bookId: the provided valid id, the first book's id, or an EMPTY_TEXT constant when the list is empty.
+ * @param selectedBookIdRaw - Raw selected book id that may be empty or contain only whitespace.
+ * @param books - Array of available carousel book items.
+ * @returns Return the normalized bookId: the provided valid id, the first book's id, or an EMPTY_TEXT constant when the list is empty.
  **/
 function normalizedSelection(
     selectedBookIdRaw: string,
@@ -289,9 +289,9 @@ function normalizedSelection(
  * @example
  * resolvedPagesRead({ pages_read: 42, progress_percent: 21 }, 200)
  * 42
- * @param {{Book|undefined}} {{book}} - Book object or undefined; may include pages_read and progress_percent fields.
- * @param {{number|null}} {{pagesTotal}} - Total number of pages in the book, or null if unknown.
- * @returns {{number|null}} Resolved pages read rounded to the nearest integer, or null if it cannot be determined.
+ * @param book - Book object or undefined; may include pages_read and progress_percent fields.
+ * @param pagesTotal - Total number of pages in the book, or null if unknown.
+ * @returns Resolved pages read rounded to the nearest integer, or null if it cannot be determined.
  **/
 function resolvedPagesRead(
     book: Book | undefined,
@@ -313,8 +313,8 @@ function resolvedPagesRead(
  * @example
  * activeItem({ bookById: new Map(), books: [], lastResult: null, scheduleCompletions: {}, selectedBookId: 'book-id' })
  * { afterPagesRead: 120, afterPercent: 80, book: { bookId: 'book-id', targetRow: {...} }, pagesRead: 20, pagesTotal: 150, progressPercent: 80, row: {...} } || null
- * @param {{ {bookById: Map<string, Book>, books: TodayCarouselBookItem[], lastResult: PlannerResult|null, scheduleCompletions: Record<string, boolean>, selectedBookId: string} }} {{options}} - Options containing book lookup map, carousel items, last planner result, schedule completion flags, and the selected book id.
- * @returns {{TodayCarouselActiveItem | null}} The resolved active carousel item for the selected book, or null if no matching book is found.
+ * @param options - Options containing book lookup map, carousel items, last planner result, schedule completion flags, and the selected book id.
+ * @returns The resolved active carousel item for the selected book, or null if no matching book is found.
  **/
 function activeItem(options: {
     bookById: Map<string, Book>;

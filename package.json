@@ -48,11 +48,12 @@
     "private": true,
     "scripts": {
         "audit": "node ./scripts/style_audit.mjs",
+        "audit:local": "pnpm run lint:python && pnpm run typecheck:python && pnpm run test:python && pnpm run typecheck:contracts && pnpm run typecheck:website && pnpm run typecheck:desktop && pnpm run lint:website && pnpm run lint:desktop && pnpm run build:website && pnpm run build:desktop && pnpm run test:website && pnpm run test:desktop",
         "build:contracts": "pnpm -C packages/contracts run build",
         "build:desktop": "pnpm -C electron run build",
         "build:mobile": "pnpm -C mobile run typecheck",
         "build:website": "pnpm -C apps/website run build",
-        "ci:local": "pnpm run lint:python && pnpm run typecheck:python && pnpm run test:python && pnpm run typecheck:contracts && pnpm run typecheck:website && pnpm run typecheck:desktop && pnpm run lint:website && pnpm run lint:desktop && pnpm run build:website && pnpm run build:desktop && pnpm run test:website && pnpm run test:desktop",
+        "ci:local": "pnpm run typecheck:python && pnpm run typecheck:contracts",
         "dev:desktop": "pnpm -C electron run start",
         "dev:mobile": "pnpm -C mobile run dev:tunnel",
         "dev:mobile:android": "pnpm -C mobile run dev:android",

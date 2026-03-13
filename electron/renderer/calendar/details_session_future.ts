@@ -2,14 +2,14 @@ import type {
     CalendarRowWithFinish,
     CalendarStateSubset,
     DetailInteractionHandlers,
-} from "../../types/types.js";
-import { minutesFormForSession } from "./details_minutes_form.js";
+} from "../../types/types.ts";
+import { minutesFormForSession } from "./details_minutes_form.ts";
 import {
     baseSessionItem,
     DAY_DETAILS_META_CLASS,
     removeSessionButton,
-} from "./details_session_shared.js";
-import { estimateProgressLabel } from "./estimates.js";
+} from "./details_session_shared.ts";
+import { estimateProgressLabel } from "./estimates.ts";
 
 /**
  * Builds details row node for future sessions.

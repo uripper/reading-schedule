@@ -2,7 +2,7 @@ import type {
     AppBootstrapContext,
     CalendarHandlers,
     PlannerResult,
-} from "../../../types/types.js";
+} from "../../../types/types.ts";
 import {
     bindBooksUI,
     collectAllBooks,
@@ -11,28 +11,28 @@ import {
     setBookCommitHook,
     setBookScheduleRows,
     updateBookProgress,
-} from "../../books.js";
+} from "../../books.ts";
 import {
     configureCalendarInteractions,
     focusCalendarDate,
     renderCalendar,
-} from "../../calendar.js";
-import { addLog, bindHelpDialog } from "../../help.js";
-import { collectSettings, initSettingsGrid } from "../../settings.js";
-import { bindDesktopShortcuts } from "../../shortcuts/index.js";
-import { activateTab, bindTabs } from "../../tabs.js";
-import { configureAppCalendarInteractions } from "../calendar_interactions/index.js";
-import { bindExperienceSettings } from "../experience/index.js";
-import { totalsFromSummary } from "../runtime_helpers.js";
-import { applyAppStateMutation } from "../state_mutations.js";
-import { configureTodayInteractions } from "../today/index.js";
-import { resetTodayCarouselUiState } from "../today/today_carousel_state.js";
-import { bindTodayDayRollover } from "../today/today_rollover.js";
-import { loadStateAndBindTodayActions } from "./init_app_load.js";
+} from "../../calendar.ts";
+import { addLog, bindHelpDialog } from "../../help.ts";
+import { collectSettings, initSettingsGrid } from "../../settings.ts";
+import { bindDesktopShortcuts } from "../../shortcuts/index.ts";
+import { activateTab, bindTabs } from "../../tabs.ts";
+import { configureAppCalendarInteractions } from "../calendar_interactions/index.ts";
+import { bindExperienceSettings } from "../experience/index.ts";
+import { totalsFromSummary } from "../runtime_helpers.ts";
+import { applyAppStateMutation } from "../state_mutations.ts";
+import { configureTodayInteractions } from "../today/index.ts";
+import { resetTodayCarouselUiState } from "../today/today_carousel_state.ts";
+import { bindTodayDayRollover } from "../today/today_rollover.ts";
+import { loadStateAndBindTodayActions } from "./init_app_load.ts";
 import {
     createAppPlanControllerInstance,
     setupSkipLink,
-} from "./init_helpers.js";
+} from "./init_helpers.ts";
 
 /**
  * Creates the app-level plan controller instance with runtime-bound callbacks.

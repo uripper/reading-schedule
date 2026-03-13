@@ -1,11 +1,13 @@
+import type {
+    BookLookupItem,
+    PlanGeneratePayload,
+    PlannerApi,
+    PlannerResult,
+    PlannerSaveResult,
+    PlannerStateLoadResult,
+    PlannerStateSnapshot,
+} from "@reading-schedule/contracts";
 import {
-    type BookLookupItem,
-    type PlanGeneratePayload,
-    type PlannerApi,
-    type PlannerResult,
-    type PlannerSaveResult,
-    type PlannerStateLoadResult,
-    type PlannerStateSnapshot,
     parsePlanGenerateResult,
     parseSamplePayload,
 } from "@reading-schedule/contracts";
@@ -25,13 +27,13 @@ function joinUrl(baseUrl: string, path: string): string {
 }
 
 /**
-* Decode a fetch Response as JSON, throwing an Error with the server message or a status-based message when not OK.
-* @example
-* decodeJson(response)
-* { "data": 123 }
-* @param {{Response}} {{response}} - The fetch Response to decode.
-* @returns {{Promise<unknown>}} A promise that resolves to the parsed JSON body or rejects with an Error if the response is not ok.
-**/
+ * Decode a fetch Response as JSON, throwing an Error with the server message or a status-based message when not OK.
+ * @example
+ * decodeJson(response)
+ * { "data": 123 }
+ * @param response - The fetch Response to decode.
+ * @returns A promise that resolves to the parsed JSON body or rejects with an Error if the response is not ok.
+ **/
 async function decodeJson(response: Response): Promise<unknown> {
     if (!response.ok) {
         const JSON_RESPONSE = (await response

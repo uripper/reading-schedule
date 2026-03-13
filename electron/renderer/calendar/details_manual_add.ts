@@ -2,15 +2,15 @@ import type {
     BookSelectionControls,
     BuildManualSessionAddPanelArgs,
     SubmitManualAddFormArgs,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 import {
     minuteValueForManualInput,
     sortedManualBooks,
-} from "./details_manual_add_helpers.js";
+} from "./details_manual_add_helpers.ts";
 import {
     initialPreferredBookId,
     refreshBookOptions,
-} from "./details_manual_add_options.js";
+} from "./details_manual_add_options.ts";
 
 const MANUAL_ADD_TITLE = "Manual add";
 const TITLE_FILTER_LABEL = "Find title";

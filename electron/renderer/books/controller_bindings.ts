@@ -2,10 +2,10 @@ import type {
     BindToolbarEventsArgs,
     BooksControllerRefs,
     SortDirection,
-} from "../../types/types.js";
-import { toGroupBy, toSortBy } from "./controller_types.js";
-import { normalizeStatusFilter } from "./status.js";
-import { SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from "./toolbar.js";
+} from "../../types/types.ts";
+import { toGroupBy, toSortBy } from "./controller_types.ts";
+import { normalizeStatusFilter } from "./status.ts";
+import { SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from "./toolbar.ts";
 
 /**
  * Validates and unwraps toolbar control references required for event binding.

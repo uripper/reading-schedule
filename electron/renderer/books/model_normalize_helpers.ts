@@ -1,7 +1,7 @@
-import { dayKey } from "../calendar/utils.js";
-import { uid } from "../dom.js";
-import { BOOK_STATUS_READ } from "./status_catalog.js";
-import { clamp, toInt } from "./utils.js";
+import { dayKey } from "../calendar/utils.ts";
+import { uid } from "../dom.ts";
+import { BOOK_STATUS_READ } from "./status_catalog.ts";
+import { clamp, toInt } from "./utils.ts";
 
 const DEFAULT_MIN_BLOCKS = 1;
 const PROGRESS_MAX = 100;

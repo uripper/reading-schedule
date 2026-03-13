@@ -1,5 +1,5 @@
 import type { SearchDoc } from "@reading-schedule/contracts";
-import { primaryAuthor } from "./search_text.js";
+import { primaryAuthor } from "./search_text.ts";
 
 /**
  * Removes duplicate docs by canonical key and title/author fallback.

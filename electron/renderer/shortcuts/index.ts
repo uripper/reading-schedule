@@ -1,1 +1,1 @@
-export { bindDesktopShortcuts } from "./desktop_shortcuts.js";
+export { bindDesktopShortcuts } from "./desktop_shortcuts.ts";

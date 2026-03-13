@@ -2,9 +2,9 @@ import type {
     CompletionChecker,
     EstimateRow,
     EstimateState,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 
-import { todayDateKey } from "./selection.js";
+import { todayDateKey } from "./selection.ts";
 
 const SESSION_INDEX_PAD = 3;
 

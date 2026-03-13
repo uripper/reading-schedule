@@ -1,13 +1,13 @@
-import type { FeatureFlags, Preferences } from "../../../types/types.js";
-import { el } from "../../dom.js";
+import type { FeatureFlags, Preferences } from "../../../types/types.ts";
+import { el } from "../../dom.ts";
 import {
     RECOMMENDATIONS_AVAILABLE,
     REMINDERS_AVAILABLE,
     SOCIAL_FEATURES_AVAILABLE,
     shippedFeatureFlag,
     shippedReminderTime,
-} from "./availability.js";
-import { DEFAULT_PREFERENCES, isSupportedTheme } from "./model.js";
+} from "./availability.ts";
+import { DEFAULT_PREFERENCES, isSupportedTheme } from "./model.ts";
 
 /**
  * Reads a numeric input and normalizes empty or invalid values to 0.

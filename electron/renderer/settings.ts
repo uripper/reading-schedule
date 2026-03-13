@@ -1,16 +1,16 @@
 import { parseSettings, safeParseSettings } from "@reading-schedule/contracts";
-import { logDebug } from "@renderer/logger.js";
-import type { PlannerSettings } from "../types/types.js";
-import { FIELDS } from "./settings/config.js";
-import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.js";
+import { logDebug } from "@renderer/logger.ts";
+import type { PlannerSettings } from "../types/types.ts";
+import { FIELDS } from "./settings/config.ts";
+import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.ts";
 import {
     renderDifficultyRows,
     renderGrid,
     renderWeekdayGrid,
-} from "./settings/render.js";
-import { bindSettingsSectionTabs } from "./settings/section_tabs.js";
-import { collectSettingsForm } from "./settings/serialize_collect.js";
-import { fillSettingsForm } from "./settings/serialize_fill.js";
+} from "./settings/render.ts";
+import { bindSettingsSectionTabs } from "./settings/section_tabs.ts";
+import { collectSettingsForm } from "./settings/serialize_collect.ts";
+import { fillSettingsForm } from "./settings/serialize_fill.ts";
 
 let dayOffs: string[] = [];
 

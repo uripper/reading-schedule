@@ -1,8 +1,8 @@
-import type { BlockerMeta, Book, BookMetaOptions } from "../../types/types.js";
-import { WORDS_PER_PAGE } from "./constants.js";
-import { shelfLabelForBook } from "./shelf.js";
-import { BOOK_STATUS_READ } from "./status_catalog.js";
-import { formatInt } from "./utils.js";
+import type { BlockerMeta, Book, BookMetaOptions } from "../../types/types.ts";
+import { WORDS_PER_PAGE } from "./constants.ts";
+import { shelfLabelForBook } from "./shelf.ts";
+import { BOOK_STATUS_READ } from "./status_catalog.ts";
+import { formatInt } from "./utils.ts";
 
 /**
  * Checks whether an optional numeric value is a positive finite number.

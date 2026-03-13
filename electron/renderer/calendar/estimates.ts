@@ -3,13 +3,13 @@ import type {
     CompletionChecker,
     EstimateRow,
     EstimateState,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 import {
     estimateLabelWithoutPages,
     estimateLabelWithPages,
     NO_ESTIMATE_LABEL,
-} from "./estimates_labels.js";
-import { estimateSnapshotForRow } from "./estimates_snapshot.js";
+} from "./estimates_labels.ts";
+import { estimateSnapshotForRow } from "./estimates_snapshot.ts";
 
 /**
  * Builds end-of-session progress estimate label for a calendar row.

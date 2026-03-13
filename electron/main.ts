@@ -9,11 +9,15 @@ import {
     downloadCover,
     saveUploadedCover,
     searchBooks,
-} from "./main/book_lookup";
-import { runBridge } from "./main/bridge";
-import { registerIpcHandlers } from "./main/ipc";
-import { readState, writeState } from "./main/state_store";
-import { initialZoomFactor, setZoomFactor, shiftZoomFactor } from "./main/zoom";
+} from "./main/book_lookup/index.ts";
+import { runBridge } from "./main/bridge.ts";
+import { registerIpcHandlers } from "./main/ipc.ts";
+import { readState, writeState } from "./main/state_store.ts";
+import {
+    initialZoomFactor,
+    setZoomFactor,
+    shiftZoomFactor,
+} from "./main/zoom.ts";
 
 const DEVELOPMENT_ENVIRONMENT = "development";
 const HOT_RELOAD_IGNORED_OUTPUTS = ["dist/main.js", "dist/main/**"];

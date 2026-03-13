@@ -2,8 +2,8 @@
  * Renders platform logos for download cards.
  */
 
-import type { DownloadCard } from "../types/site_content.js";
-import { escapeHtml } from "./render_helpers.js";
+import type { DownloadCard } from "../types/site_content.ts";
+import { escapeHtml } from "./render_helpers.ts";
 
 type PlatformLogoMap = Readonly<Record<DownloadCard["platform"], string>>;
 

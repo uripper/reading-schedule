@@ -1,7 +1,7 @@
 import { SafeAreaView, StyleSheet, View } from "react-native";
-import { createMobilePlannerApi } from "./api/planner_client";
-import { mobilePlannerApiBaseUrl } from "./config/mobile_env";
-import { MobileNavigation } from "./navigation/mobile_navigation";
+import { createMobilePlannerApi } from "./api/planner_client.ts";
+import { mobilePlannerApiBaseUrl } from "./config/mobile_env.ts";
+import { MobileNavigation } from "./navigation/mobile_navigation.tsx";
 
 const PLANNER_API = createMobilePlannerApi(mobilePlannerApiBaseUrl());
 

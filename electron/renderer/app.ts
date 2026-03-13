@@ -1,8 +1,8 @@
-import { logDebug, setLogLevel } from "@renderer/logger.js";
-import { createAppBootstrapContext } from "./app/bootstrap_runtime.js";
-import { initApp } from "./app/init/index.js";
-import { createSplashController } from "./app/splash.js";
-import { initRecommendationsRuntime } from "./recommendations/runtime.js";
+import { logDebug, setLogLevel } from "@renderer/logger.ts";
+import { createAppBootstrapContext } from "./app/bootstrap_runtime.ts";
+import { initApp } from "./app/init/index.ts";
+import { createSplashController } from "./app/splash.ts";
+import { initRecommendationsRuntime } from "./recommendations/runtime.ts";
 
 setLogLevel("debug");
 logDebug("Renderer runtime log level initialized.", {

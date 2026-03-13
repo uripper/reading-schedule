@@ -1,12 +1,12 @@
-import type { BookStatus, StatsSnapshot } from "../../types/types.js";
+import type { BookStatus, StatsSnapshot } from "../../types/types.ts";
 import {
     BOOK_STATUS_DROPPED,
     BOOK_STATUS_IN_PROGRESS,
     BOOK_STATUS_READ,
     BOOK_STATUS_TO_READ,
     statusLabel,
-} from "../books/status_catalog.js";
-import { el } from "../dom.js";
+} from "../books/status_catalog.ts";
+import { el } from "../dom.ts";
 
 const STATUS_ORDER: BookStatus[] = [
     BOOK_STATUS_TO_READ,

@@ -2,19 +2,19 @@ import type {
     CalendarRowWithFinish,
     CalendarStateSubset,
     DetailInteractionHandlers,
-} from "../../types/types.js";
-import { fallbackBookForRow } from "./details_fallback_book.js";
-import { minutesFormForSession } from "./details_minutes_form.js";
-import { progressFormForToday } from "./details_progress_form.js";
+} from "../../types/types.ts";
+import { fallbackBookForRow } from "./details_fallback_book.ts";
+import { minutesFormForSession } from "./details_minutes_form.ts";
+import { progressFormForToday } from "./details_progress_form.ts";
 import {
     baseSessionItem,
     COMPLETE_ITEM_CLASS,
     COMPLETE_TOGGLE_LABEL,
     DAY_DETAILS_META_CLASS,
     removeSessionButton,
-} from "./details_session_shared.js";
-import { estimateProgressLabel } from "./estimates.js";
-import { sessionKeyFor } from "./utils.js";
+} from "./details_session_shared.ts";
+import { estimateProgressLabel } from "./estimates.ts";
+import { sessionKeyFor } from "./utils.ts";
 
 interface CompletionUi {
     checkbox: HTMLInputElement;

@@ -1,5 +1,5 @@
 import type { spawn } from "node:child_process";
-import type { JsonValue } from "../../types/types.js";
+import type { JsonValue } from "../../types/types.ts";
 
 /**
  * Optional context passed in by the IPC caller before launching a bridge run.

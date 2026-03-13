@@ -10,9 +10,12 @@ import {
     parseSamplePayload,
 } from "@reading-schedule/contracts";
 import { ipcMain } from "electron";
-import { logDebug } from "../types/logger.js";
-import { asDownloadCoverPayload, asUploadCoverPayload } from "./ipc_payloads";
-import { UI_SCALE_STEP } from "./zoom";
+import { logDebug } from "../types/logger.ts";
+import {
+    asDownloadCoverPayload,
+    asUploadCoverPayload,
+} from "./ipc_payloads.ts";
+import { UI_SCALE_STEP } from "./zoom.ts";
 
 let plannerRequestCounter = 0;
 

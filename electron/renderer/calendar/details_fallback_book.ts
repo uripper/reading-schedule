@@ -1,6 +1,6 @@
-import type { Book, CalendarRowWithFinish } from "../../types/types.js";
-import { BOOK_WEEKDAYS } from "../books/scheduled_days.js";
-import { BOOK_STATUS_IN_PROGRESS } from "../books/status_catalog.js";
+import type { Book, CalendarRowWithFinish } from "../../types/types.ts";
+import { BOOK_WEEKDAYS } from "../books/scheduled_days.ts";
+import { BOOK_STATUS_IN_PROGRESS } from "../books/status_catalog.ts";
 
 /**
  * Creates minimal in-progress fallback book model from calendar row data.

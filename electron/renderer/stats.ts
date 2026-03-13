@@ -1,6 +1,6 @@
-import type { UpdateStatsArgs } from "../types/types.js";
-import { buildStatsSnapshot } from "./stats/model.js";
-import { renderStatsDashboard } from "./stats/render.js";
+import type { UpdateStatsArgs } from "../types/types.ts";
+import { buildStatsSnapshot } from "./stats/model.ts";
+import { renderStatsDashboard } from "./stats/render.ts";
 
 /**
  * Computes and renders the Stats dashboard from current runtime data.

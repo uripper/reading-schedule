@@ -2,8 +2,8 @@ import type {
     PersistQueue,
     PersistQueueArgs,
     PlannerSummary,
-} from "../../types/types.js";
-import { draftData, saveStateSafe } from "./persistence.js";
+} from "../../types/types.ts";
+import { draftData, saveStateSafe } from "./persistence.ts";
 
 const PERSIST_DELAY_MS = 300;
 const NON_PLANNING_SETTING_IDS = new Set([
@@ -156,8 +156,8 @@ export function bindSettingsAutoPlanListeners(
      * @example
      * handleAutoPlanEvent(new Event('click'))
      * undefined
-     * @param {{Event}} {{event}} - The DOM event to evaluate for auto-planning.
-     * @returns {{void}} Does not return a value.
+     * @param event - The DOM event to evaluate for auto-planning.
+     * @returns Does not return a value.
      **/
     const ON_SETTING_MUTATION = (event: Event): void => {
         if (!isReady()) {
@@ -177,8 +177,8 @@ export function bindSettingsAutoPlanListeners(
      * @example
      * handleRuntimeEvent(event)
      * undefined
-     * @param {{Event}} {{event}} - The DOM event to process for potential day-off button interactions.
-     * @returns {{void}} No return value; may call queueAutoPlan() when relevant elements are clicked.
+     * @param event - The DOM event to process for potential day-off button interactions.
+     * @returns No return value; may call queueAutoPlan() when relevant elements are clicked.
      **/
     const ON_SETTING_CLICK = (event: Event): void => {
         if (!isReady()) {

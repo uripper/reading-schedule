@@ -1,14 +1,12 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Animated, Easing } from "react-native";
-import {
-    type TodayBackgroundTheme,
-    themeFromBook,
-} from "../today_background_theme";
+import type { TodayBackgroundTheme } from "../today_background_theme.ts";
+import { themeFromBook } from "../today_background_theme.ts";
 import {
     COVER_SOURCES,
     THEME_TRANSITION_DURATION_MS,
-} from "../today_constants";
-import type { TodayBookCard } from "../types";
+} from "../today_constants.ts";
+import type { TodayBookCard } from "../types.ts";
 
 interface TodayThemeTransitionState {
     currentTheme: TodayBackgroundTheme;

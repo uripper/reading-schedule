@@ -1,5 +1,5 @@
-import type { CardHandlers } from "../../types/types.js";
-import { COVER_PLACEHOLDER } from "./constants.js";
+import type { CardHandlers } from "../../types/types.ts";
+import { COVER_PLACEHOLDER } from "./constants.ts";
 
 /**
  * Wires edit/remove/fallback-cover handlers for rendered book cards.

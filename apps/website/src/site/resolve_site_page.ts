@@ -2,7 +2,7 @@
  * Resolves the configured site page id to a supported page.
  */
 
-import type { SitePage } from "../types/site_content.js";
+import type { SitePage } from "../types/site_content.ts";
 
 const DEFAULT_SITE_PAGE: SitePage = "landing";
 const ROADMAP_PAGE: SitePage = "roadmap";
@@ -12,8 +12,8 @@ const ROADMAP_PAGE: SitePage = "roadmap";
  * @example
  * resolveSitePage(undefined)
  * DEFAULT_SITE_PAGE
- * @param {{string|undefined}} {{pageId}} - Page identifier to resolve; may be undefined or a known page id.
- * @returns {{SitePage}} Return the resolved SitePage constant (DEFAULT_SITE_PAGE, ROADMAP_PAGE, or the provided pageId).
+ * @param pageId - Page identifier to resolve; may be undefined or a known page id.
+ * @returns Return the resolved SitePage constant (DEFAULT_SITE_PAGE, ROADMAP_PAGE, or the provided pageId).
  **/
 export function resolveSitePage(pageId: string | undefined): SitePage {
     if (pageId === undefined) {

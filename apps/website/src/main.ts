@@ -2,11 +2,11 @@
  * Mounts the Bartleby website into the page shell.
  */
 
-import { SITE_CONTENT } from "./content/site_content.js";
-import { renderRoadmapPage } from "./site/render_roadmap.js";
-import { renderSite } from "./site/render_site.js";
-import { resolveSitePage } from "./site/resolve_site_page.js";
-import type { SitePage } from "./types/site_content.js";
+import { SITE_CONTENT } from "./content/site_content.ts";
+import { renderRoadmapPage } from "./site/render_roadmap.ts";
+import { renderSite } from "./site/render_site.ts";
+import { resolveSitePage } from "./site/resolve_site_page.ts";
+import type { SitePage } from "./types/site_content.ts";
 
 const HTML_MIME_TYPE = "text/html";
 const ROOT_ELEMENT_ID = "app";

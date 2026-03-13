@@ -1,4 +1,4 @@
-import { qa } from "../dom.js";
+import { qa } from "../dom.ts";
 
 const DEFAULT_SETTINGS_SECTION = "plan-budget";
 

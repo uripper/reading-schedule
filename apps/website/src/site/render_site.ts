@@ -2,11 +2,11 @@
  * Composes the full Bartleby landing page markup.
  */
 
-import type { SiteContent } from "../types/site_content.js";
-import { joinMarkup } from "./render_helpers.js";
-import { renderHero } from "./render_hero.js";
-import { renderPageShell } from "./render_page_shell.js";
-import { renderSections } from "./render_sections.js";
+import type { SiteContent } from "../types/site_content.ts";
+import { joinMarkup } from "./render_helpers.ts";
+import { renderHero } from "./render_hero.ts";
+import { renderPageShell } from "./render_page_shell.ts";
+import { renderSections } from "./render_sections.ts";
 
 /**
  * Returns the full HTML for the static website shell.

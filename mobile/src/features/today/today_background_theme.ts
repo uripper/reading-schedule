@@ -88,15 +88,15 @@ function rgbToHex(rgb: Rgb): string {
 }
 
 /**
-* Convert an HSL color to an RGB color with channels in the 0–255 range.
-* @example
-* hslToRgb(0, 1, 0.5)
-* { r: 255, g: 0, b: 0 }
-* @param {{number}} h - Hue in degrees (0–360).
-* @param {{number}} s - Saturation as a fraction (0–1).
-* @param {{number}} l - Lightness as a fraction (0–1).
-* @returns {{Rgb}} RGB color object with r, g, b channels clamped to 0–255.
-**/
+ * Convert an HSL color to an RGB color with channels in the 0–255 range.
+ * @example
+ * hslToRgb(0, 1, 0.5)
+ * { r: 255, g: 0, b: 0 }
+ * @param h - Hue in degrees (0–360).
+ * @param s - Saturation as a fraction (0–1).
+ * @param l - Lightness as a fraction (0–1).
+ * @returns RGB color object with r, g, b channels clamped to 0–255.
+ **/
 function hslToRgb(h: number, s: number, l: number): Rgb {
     const C = (1 - Math.abs(2 * l - 1)) * s;
     const H_PRIME = h / 60;
@@ -144,13 +144,13 @@ function hashString(value: string): number {
 }
 
 /**
-* Convert an RGB color (0-255) to HSL with hue in degrees and saturation/lightness in [0,1].
-* @example
-* rgbToHsl({ r: 255, g: 0, b: 0 })
-* { h: 0, l: 0.5, s: 1 }
-* @param {{Rgb}} {{rgb}} - RGB color with r, g, b components in the 0-255 range.
-* @returns {{ h: number; l: number; s: number }} Return object with hue (degrees), lightness and saturation (0-1).
-**/
+ * Convert an RGB color (0-255) to HSL with hue in degrees and saturation/lightness in [0,1].
+ * @example
+ * rgbToHsl({ r: 255, g: 0, b: 0 })
+ * { h: 0, l: 0.5, s: 1 }
+ * @param rgb - RGB color with r, g, b components in the 0-255 range.
+ * @returns Return object with hue (degrees), lightness and saturation (0-1).
+ **/
 function rgbToHsl(rgb: Rgb): { h: number; l: number; s: number } {
     const R = rgb.r / 255;
     const G = rgb.g / 255;
@@ -233,13 +233,13 @@ function mostFrequentBucket(
 }
 
 /**
-* Determine the dominant chroma (most frequent RGB bucket) from a flat RGBA pixel array.
-* @example
-* dominantChromaFromPixels(new Uint8ClampedArray([255,0,0,255, 0,255,0,255, 255,0,0,255]))
-* { r: 255, g: 0, b: 0 }
-* @param {{Uint8ClampedArray}} pixels - Flat RGBA pixel data where each pixel is four consecutive bytes.
-* @returns {{Rgb | null}} The RGB color representing the most frequent chroma bucket among "interesting" pixels, or null if none found.
-**/
+ * Determine the dominant chroma (most frequent RGB bucket) from a flat RGBA pixel array.
+ * @example
+ * dominantChromaFromPixels(new Uint8ClampedArray([255,0,0,255, 0,255,0,255, 255,0,0,255]))
+ * { r: 255, g: 0, b: 0 }
+ * @param pixels - Flat RGBA pixel data where each pixel is four consecutive bytes.
+ * @returns The RGB color representing the most frequent chroma bucket among "interesting" pixels, or null if none found.
+ **/
 function dominantChromaFromPixels(pixels: Uint8ClampedArray): Rgb | null {
     const COUNTS = new Map<string, { count: number; rgb: Rgb }>();
 
@@ -286,13 +286,13 @@ function dominantForTitle(title: string): Rgb | null {
 }
 
 /**
-* Returns a deterministic fallback TodayBackgroundTheme for a given key.
-* @example
-* fallbackTheme("exampleKey")
-* { ambientColor: "#2E3DFF", canvasColor: "#2E3DFF", dominantColor: "#2E3DFF", source: "fallback" }
-* @param {{string}} {{key}} - Input key used to deterministically select a fallback theme.
-* @returns {{TodayBackgroundTheme}} Return object containing ambientColor, canvasColor, dominantColor and source set to "fallback".
-**/
+ * Returns a deterministic fallback TodayBackgroundTheme for a given key.
+ * @example
+ * fallbackTheme("exampleKey")
+ * { ambientColor: "#2E3DFF", canvasColor: "#2E3DFF", dominantColor: "#2E3DFF", source: "fallback" }
+ * @param key - Input key used to deterministically select a fallback theme.
+ * @returns Return object containing ambientColor, canvasColor, dominantColor and source set to "fallback".
+ **/
 function fallbackTheme(key: string): TodayBackgroundTheme {
     const INDEX = hashString(key) % NEO_BRUTALIST_FALLBACKS.length;
     const PICK = NEO_BRUTALIST_FALLBACKS[INDEX];

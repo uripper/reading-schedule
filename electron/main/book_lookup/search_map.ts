@@ -7,8 +7,8 @@ import {
     COVER_ID_MIN,
     SOURCE_NAME,
     WORDS_PER_PAGE_ESTIMATE,
-} from "./search_shared.js";
-import { primaryAuthor } from "./search_text.js";
+} from "./search_shared.ts";
+import { primaryAuthor } from "./search_text.ts";
 
 /**
  * Converts a raw search document into the app's normalized search item shape.

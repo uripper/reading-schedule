@@ -1,13 +1,13 @@
 /**
  * Binds Today carousel controls to shared schedule and progress mutations.
  */
-import type { CalendarHandlers } from "../../../types/types.js";
-import { el } from "../../dom.js";
+import type { CalendarHandlers } from "../../../types/types.ts";
+import { el } from "../../dom.ts";
 import {
     buildProgressUpdatePayload,
     parseMinutesInput,
-} from "./today_carousel_actions.js";
-import type { TodayCarouselActiveItem } from "./today_carousel_model.js";
+} from "./today_carousel_actions.ts";
+import type { TodayCarouselActiveItem } from "./today_carousel_model.ts";
 import {
     clearTodayCarouselRowState,
     closeMinutesEditor,
@@ -15,7 +15,7 @@ import {
     openMinutesEditor,
     pinRowKey,
     setMinutesEditorValue,
-} from "./today_carousel_state.js";
+} from "./today_carousel_state.ts";
 
 // TODO: Move Today carousel binding contracts into `electron/types` once the
 // renderer Today modules settle.
@@ -48,9 +48,9 @@ export function bindMinutesEditor(options: {
      * @example
      * saveMinutes(INPUT, options)
      * undefined
-     * @param {{HTMLInputElement}} {{INPUT}} - The input element that contains the minutes value to parse and save.
-     * @param {{Object}} {{options}} - Options object containing bindings and active context (bindings may be null).
-     * @returns {{void}} Return nothing.
+     * @param INPUT - The input element that contains the minutes value to parse and save.
+     * @param options - Options object containing bindings and active context (bindings may be null).
+     * @returns Return nothing.
      **/
     const SAVE_MINUTES = (): void => {
         const PARSED = parseMinutesInput(INPUT.value);

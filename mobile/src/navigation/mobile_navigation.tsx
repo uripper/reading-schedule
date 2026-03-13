@@ -2,14 +2,14 @@ import type { PlannerApi } from "@reading-schedule/contracts";
 import type { Dispatch, SetStateAction } from "react";
 import { useMemo, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
-import { createRootStacks } from "./mobile_navigation_routes";
-import { STYLES } from "./mobile_navigation_styles";
+import { createRootStacks } from "./mobile_navigation_routes.tsx";
+import { STYLES } from "./mobile_navigation_styles.ts";
 import type {
     MobileTabKey,
     StackNavigator,
     StackRoute,
     TabStacks,
-} from "./types";
+} from "./types.ts";
 
 interface MobileNavigationProps {
     plannerApi: PlannerApi;
@@ -64,15 +64,15 @@ function selectTab(
 }
 
 /**
-* Create a StackNavigator for the given active mobile tab that closes the menu and updates stack state when navigating.
-* @example
-* createNavigator('homeTab', setMenuOpen, setStacks)
-* { pop: [Function], push: [Function] }
-* @param {{MobileTabKey}} {{activeTab}} - The key of the currently active mobile tab.
-* @param {{MenuSetter}} {{setIsMenuOpen}} - Setter function to open or close the mobile menu.
-* @param {{StackSetter}} {{setStacks}} - Setter function to update the navigation stacks state.
-* @returns {{StackNavigator}} Return an object with pop and push methods to navigate within the active tab.
-**/
+ * Create a StackNavigator for the given active mobile tab that closes the menu and updates stack state when navigating.
+ * @example
+ * createNavigator('homeTab', setMenuOpen, setStacks)
+ * { pop: [Function], push: [Function] }
+ * @param activeTab - The key of the currently active mobile tab.
+ * @param setIsMenuOpen - Setter function to open or close the mobile menu.
+ * @param setStacks - Setter function to update the navigation stacks state.
+ * @returns Return an object with pop and push methods to navigate within the active tab.
+ **/
 function createNavigator(
     activeTab: MobileTabKey,
     setIsMenuOpen: MenuSetter,
@@ -96,13 +96,13 @@ interface MenuPanelProps {
 }
 
 /**
-* Renders a menu panel with selectable tabs and highlights the active tab.
-* @example
-* MenuPanel({ activeTab: 'home', onSelectTab: (tab) => console.log(tab) })
-* <View>...JSX element representing the menu panel...</View>
-* @param {MenuPanelProps} props - Props object containing activeTab (the currently selected tab) and onSelectTab (callback invoked when a tab is selected).
-* @returns {JSX.Element} JSX element representing the rendered menu panel.
-**/
+ * Renders a menu panel with selectable tabs and highlights the active tab.
+ * @example
+ * MenuPanel({ activeTab: 'home', onSelectTab: (tab) => console.log(tab) })
+ * <View>...JSX element representing the menu panel...</View>
+ * @param {MenuPanelProps} props - Props object containing activeTab (the currently selected tab) and onSelectTab (callback invoked when a tab is selected).
+ * @returns {JSX.Element} JSX element representing the rendered menu panel.
+ **/
 function MenuPanel({ activeTab, onSelectTab }: MenuPanelProps) {
     return (
         <View style={STYLES.menuPanel}>
@@ -136,15 +136,15 @@ interface MobileTopBarProps {
 }
 
 /**
-* MobileTopBar component that renders the app branding and top action buttons for mobile navigation.
-* @example
-* MobileTopBar({ onBack: () => {}, onToggleMenu: () => {}, showBack: true })
-* <View>...top bar JSX...</View>
-* @param {{() => void}} {{onBack}} - Callback invoked when the back button is pressed.
-* @param {{() => void}} {{onToggleMenu}} - Callback invoked to toggle the menu.
-* @param {{boolean}} {{showBack}} - Whether to display the back button.
-* @returns {{JSX.Element}} Rendered top bar JSX element.
-**/
+ * MobileTopBar component that renders the app branding and top action buttons for mobile navigation.
+ * @example
+ * MobileTopBar({ onBack: () => {}, onToggleMenu: () => {}, showBack: true })
+ * <View>...top bar JSX...</View>
+ * @param onBack - Callback invoked when the back button is pressed.
+ * @param onToggleMenu - Callback invoked to toggle the menu.
+ * @param showBack - Whether to display the back button.
+ * @returns Rendered top bar JSX element.
+ **/
 function MobileTopBar({ onBack, onToggleMenu, showBack }: MobileTopBarProps) {
     let backButton = null;
     if (showBack) {

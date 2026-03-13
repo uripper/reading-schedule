@@ -1,6 +1,6 @@
 """Validation helpers for persisted mobile planner state."""
 
-from typing import TypeGuard
+from reading_plan.type_guards import is_str_object_dict
 
 
 VALID_THEMES = {"system", "light", "dark"}
@@ -11,14 +11,8 @@ REQUIRED_FEATURE_FLAGS = (
 )
 
 
-def _is_str_object_dict(value: object) -> TypeGuard[dict[str, object]]:
-    return isinstance(value, dict) and all(
-        isinstance(key, str) for key in value
-    )
-
-
 def _is_bool_record(value: object) -> bool:
-    if not _is_str_object_dict(value):
+    if not is_str_object_dict(value):
         return False
     return all(isinstance(item, bool) for item in value.values())
 
@@ -29,7 +23,7 @@ def _is_feature_flags(value: object) -> bool:
     Valid inputs are dictionaries containing every key listed in
     `REQUIRED_FEATURE_FLAGS`, each mapped to a boolean value.
     """
-    if not _is_str_object_dict(value):
+    if not is_str_object_dict(value):
         return False
     return all(
         isinstance(value.get(key, False), bool)
@@ -45,7 +39,7 @@ def _is_preferences(value: object) -> bool:
     `theme` (one of `VALID_THEMES`). Missing keys fall back to the defaults
     expected by the mobile client.
     """
-    if not _is_str_object_dict(value):
+    if not is_str_object_dict(value):
         return False
     checks = (
         isinstance(value.get("dailyGoalMinutes", 30), int),
@@ -73,7 +67,7 @@ def _require_state_field(*, is_valid: bool, message: str) -> None:
 
 def validate_state_snapshot(state: object) -> dict[str, object]:
     """Validate mobile state payload shape against shared planner contracts."""
-    if not _is_str_object_dict(state):
+    if not is_str_object_dict(state):
         message = "Saved state payload must be an object"
         raise TypeError(message)
     state_map: dict[str, object] = state

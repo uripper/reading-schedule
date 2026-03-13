@@ -1,6 +1,6 @@
-import type { BookFormRefs } from "../../types/types.js";
-import { getPlannerApi } from "../app/planner_api.js";
-import { applyUploadedCover } from "./form_state.js";
+import type { BookFormRefs } from "../../types/types.ts";
+import { getPlannerApi } from "../app/planner_api.ts";
+import { applyUploadedCover } from "./form_state.ts";
 
 const COVER_MIME_PNG = "image/png";
 const COVER_MIME_JPEG = "image/jpeg";

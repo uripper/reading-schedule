@@ -2,9 +2,9 @@ import type {
     Book,
     RecommendationItem,
     RecommendationSeed,
-} from "../../types/types.js";
-import { BOOK_STATUS_READ } from "../books/status_catalog.js";
-import { AUTHOR_RECOMMENDATION_CATALOG } from "./catalog.js";
+} from "../../types/types.ts";
+import { BOOK_STATUS_READ } from "../books/status_catalog.ts";
+import { AUTHOR_RECOMMENDATION_CATALOG } from "./catalog.ts";
 
 const AUTHOR_LIST_LOCALE = "en";
 

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useWindowDimensions } from "react-native";
-import { CAROUSEL_GAP, MIN_CAROUSEL_SIDE_INSET } from "../today_constants";
+import { CAROUSEL_GAP, MIN_CAROUSEL_SIDE_INSET } from "../today_constants.ts";
 
 /**
  * Calculates carousel metrics such as item width and side insets based on the screen width.

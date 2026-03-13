@@ -1,9 +1,9 @@
 import type {
     RecommendationItem,
     RenderRecommendationsArgs,
-} from "../../types/types.js";
-import { COVER_PLACEHOLDER } from "../books/constants.js";
-import { el } from "../dom.js";
+} from "../../types/types.ts";
+import { COVER_PLACEHOLDER } from "../books/constants.ts";
+import { el } from "../dom.ts";
 
 const EMPTY_SUMMARY_TEXT =
     "Click 'Get Recommendations' to discover new books based on your reading list.";

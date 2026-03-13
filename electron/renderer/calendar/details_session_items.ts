@@ -1,3 +1,3 @@
-export { buildFutureSessionItem } from "./details_session_future.js";
-export { buildPastSessionItem } from "./details_session_past.js";
-export { buildTodaySessionItem } from "./details_session_today.js";
+export { buildFutureSessionItem } from "./details_session_future.ts";
+export { buildPastSessionItem } from "./details_session_past.ts";
+export { buildTodaySessionItem } from "./details_session_today.ts";

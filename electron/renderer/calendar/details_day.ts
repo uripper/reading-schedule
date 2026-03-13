@@ -2,11 +2,11 @@ import type {
     CalendarRowWithFinish,
     DayMode,
     DetailInteractionHandlers,
-} from "../../types/types.js";
-import { compareDayKeys } from "../app/day_keys_compare.js";
-import { rowsWithFinishFirst } from "./data.js";
-import { todayDateKey } from "./selection.js";
-import { sessionKeyFor } from "./utils.js";
+} from "../../types/types.ts";
+import { compareDayKeys } from "../app/day_keys_compare.ts";
+import { rowsWithFinishFirst } from "./data.ts";
+import { todayDateKey } from "./selection.ts";
+import { sessionKeyFor } from "./utils.ts";
 
 /**
  * Categorizes a date relative to today for day-detail UI behavior.

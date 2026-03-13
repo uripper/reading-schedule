@@ -2,10 +2,10 @@
  * Renders the Bartleby roadmap page.
  */
 
-import { HOME_PAGE_URL } from "../content/site_urls.js";
-import type { RoadmapStage, SiteContent } from "../types/site_content.js";
-import { escapeHtml, joinMarkup } from "./render_helpers.js";
-import { renderPageShell } from "./render_page_shell.js";
+import { HOME_PAGE_URL } from "../content/site_urls.ts";
+import type { RoadmapStage, SiteContent } from "../types/site_content.ts";
+import { escapeHtml, joinMarkup } from "./render_helpers.ts";
+import { renderPageShell } from "./render_page_shell.ts";
 
 /**
  * Render an HTML unordered list of roadmap items or return an empty string when none are provided.
@@ -66,8 +66,8 @@ function renderRoadmapPhase(stage: RoadmapStage): string {
  * @example
  * renderRoadmap(sampleContent)
  * '<section class="section-shell roadmap panel" id="top">...</section>'
- * @param {{SiteContent}} {{content}} - The site content object containing a roadmap with heading and stages.
- * @returns {{string}} Rendered HTML string for the roadmap section.
+ * @param content - The site content object containing a roadmap with heading and stages.
+ * @returns Rendered HTML string for the roadmap section.
  **/
 function renderRoadmap(content: SiteContent): string {
     const STAGE_MARKUP = content.roadmap.stages.map((stage) => {

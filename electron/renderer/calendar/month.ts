@@ -2,11 +2,11 @@ import type {
     CalendarDisplayRow,
     CalendarState,
     MonthActions,
-} from "../../types/types.js";
-import { el } from "../dom.js";
-import { createDayButton, createWeekdayHeader } from "./month_day_button.js";
-import { handleDayKeydown } from "./month_keyboard.js";
-import { dayKey, monthCells, monthLabel } from "./utils.js";
+} from "../../types/types.ts";
+import { el } from "../dom.ts";
+import { createDayButton, createWeekdayHeader } from "./month_day_button.ts";
+import { handleDayKeydown } from "./month_keyboard.ts";
+import { dayKey, monthCells, monthLabel } from "./utils.ts";
 
 /**
  * Returns today's local day key for month rendering state checks.
@@ -197,8 +197,8 @@ interface RenderCalendarCellsArgs {
  *   moveSelectionBy: (n) => {}
  * })
  * undefined
- * @param {{RenderCalendarCellsArgs}} {{args}} - Arguments object containing cells, calendar state, DOM elements and action callbacks required to render the month.
- * @returns {{void}} Does not return a value; performs DOM updates and triggers side effects.
+ * @param args - Arguments object containing cells, calendar state, DOM elements and action callbacks required to render the month.
+ * @returns Does not return a value; performs DOM updates and triggers side effects.
  */
 function renderCalendarCells(args: RenderCalendarCellsArgs): void {
     args.cells.forEach((date, index) => {

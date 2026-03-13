@@ -5,9 +5,9 @@ import type {
     SortBy,
     SortComparator,
     SortDirection,
-} from "../../types/types.js";
-import { normalizeShelfName } from "./shelf.js";
-import { titleSortKey } from "./title_key.js";
+} from "../../types/types.ts";
+import { normalizeShelfName } from "./shelf.ts";
+import { titleSortKey } from "./title_key.ts";
 
 export const SORT_BY_TITLE = "title";
 export const SORT_BY_AUTHOR = "author";

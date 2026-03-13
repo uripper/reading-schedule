@@ -1,11 +1,11 @@
-import type { BookLookupItem, RecommendationItem } from "../../types/types.js";
-import { addLog } from "../help.js";
-import { MAX_PER_AUTHOR, SAMPLE_RESULTS_COUNT } from "./search_constants.js";
+import type { BookLookupItem, RecommendationItem } from "../../types/types.ts";
+import { addLog } from "../help.ts";
+import { MAX_PER_AUTHOR, SAMPLE_RESULTS_COUNT } from "./search_constants.ts";
 import {
     authorMatches,
     normalizeLookupRecommendation,
     recommendationKey,
-} from "./search_matchers.js";
+} from "./search_matchers.ts";
 
 interface ProcessAuthorOptions {
     author: string;

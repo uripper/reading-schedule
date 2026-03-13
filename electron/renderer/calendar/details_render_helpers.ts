@@ -3,8 +3,8 @@ import type {
     DayMode,
     DetailInteractionHandlers,
 } from "@reading-schedule/contracts";
-import { rowsWithFinishFirst } from "./data.js";
-import { rowsWithCompletedLast } from "./details_helpers.js";
+import { rowsWithFinishFirst } from "./data.ts";
+import { rowsWithCompletedLast } from "./details_helpers.ts";
 
 /**
  * Returns empty-state message for day details panel by mode.

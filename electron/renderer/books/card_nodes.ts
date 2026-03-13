@@ -1,24 +1,24 @@
-import type { Book, CardRenderContext } from "../../types/types.js";
-import { bindReadCardHolo } from "./card_holo.js";
+import type { Book, CardRenderContext } from "../../types/types.ts";
+import { bindReadCardHolo } from "./card_holo.ts";
 import {
     afterBookLinkButton,
     estimatedFinishButton,
-} from "./card_navigation_buttons.js";
-import { scrollToBookCard } from "./card_scroll_target.js";
-import { bookCoverSrc } from "./model.js";
+} from "./card_navigation_buttons.ts";
+import { scrollToBookCard } from "./card_scroll_target.ts";
+import { bookCoverSrc } from "./model.ts";
 import {
     blockerMeta,
     metaLabel,
     progressLabel,
     subtitle,
     wordsLabel,
-} from "./presenters.js";
+} from "./presenters.ts";
 import {
     BOOK_STATUS_IN_PROGRESS,
     BOOK_STATUS_READ,
     BOOK_STATUS_TO_READ,
     statusLabel,
-} from "./status_catalog.js";
+} from "./status_catalog.ts";
 
 const CARD_CLASS = "book-card";
 const READ_CARD_CLASS = "is-read-card";

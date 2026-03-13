@@ -8,9 +8,9 @@ import type {
     LoadedPlannerState,
     PlannerSaveResult,
     PlannerStateLoadResult,
-} from "../types/types.js";
-import { objectState, returnErrorMessage } from "./state_store_json.js";
-import { sqliteStatePath } from "./state_store_paths";
+} from "../types/types.ts";
+import { objectState, returnErrorMessage } from "./state_store_json.ts";
+import { sqliteStatePath } from "./state_store_paths.ts";
 
 const STATE_SCHEMA_VERSION = 1;
 const JOURNAL_KEEP_ROWS = 200;

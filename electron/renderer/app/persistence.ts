@@ -3,7 +3,7 @@ import type {
     DraftDataParams,
     PlannerApi,
     PlannerStateSnapshot,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 
 /**
  * Builds the planner snapshot payload used for durable state persistence.

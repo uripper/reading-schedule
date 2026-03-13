@@ -1,4 +1,4 @@
-import { buildSessionDotStates } from "./today_header.js";
+import { buildSessionDotStates } from "./today_header.ts";
 
 /**
  * Toggles complete-state CSS for a checkbox-style metric indicator.

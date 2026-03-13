@@ -5,16 +5,16 @@
 import type {
     CalendarDetailsState,
     DetailInteractionHandlers,
-} from "../../types/types.js";
-import { el } from "../dom.js";
+} from "../../types/types.ts";
+import { el } from "../dom.ts";
 import {
     buildManualSessionAddPanel,
     buildSessionItemsForMode,
     DEFAULT_DETAILS_ITEM_BUILDERS,
     dayMode,
-} from "./details_helpers.js";
-import { emptyMessageForMode, rowsForMode } from "./details_render_helpers.js";
-import { dateHeading } from "./utils.js";
+} from "./details_helpers.ts";
+import { emptyMessageForMode, rowsForMode } from "./details_render_helpers.ts";
+import { dateHeading } from "./utils.ts";
 
 // TODO: Move these calendar detail view-only interfaces into `electron/types`
 // when the renderer detail contracts are consolidated.

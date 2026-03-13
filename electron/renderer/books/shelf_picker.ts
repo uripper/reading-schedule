@@ -1,16 +1,16 @@
-import type { Book, BookFormRefs } from "../../types/types.js";
-import { SHELF_SELECT_CREATE_NEW, uniqueShelves } from "./shelf.js";
+import type { Book, BookFormRefs } from "../../types/types.ts";
+import { SHELF_SELECT_CREATE_NEW, uniqueShelves } from "./shelf.ts";
 import {
     ensureShelfOption,
     existingShelfValue,
     previousShelf,
     rememberSelectedShelf,
     setSelectedShelf,
-} from "./shelf_picker_options.js";
+} from "./shelf_picker_options.ts";
 import {
     ensurePromptValidation,
     promptForShelfName,
-} from "./shelf_picker_prompt.js";
+} from "./shelf_picker_prompt.ts";
 
 /**
  * Handles create-shelf flow when special picker option is selected.

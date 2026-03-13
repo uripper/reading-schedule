@@ -2,12 +2,12 @@ import type {
     AppCalendarInteractionArgs,
     ScheduleMutationHandlers,
     SharedScheduleBindings,
-} from "../../../types/types.js";
+} from "../../../types/types.ts";
 import {
     addManualSessionRow,
     removeSessionRow,
     updateSessionRowMinutes,
-} from "./calendar_interactions_schedule_updates.js";
+} from "./calendar_interactions_schedule_updates.ts";
 
 /**
  * Create SharedScheduleBindings from AppCalendarInteractionArgs by wrapping the provided callbacks and state for schedule handlers.

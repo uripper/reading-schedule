@@ -4,11 +4,11 @@ import type {
     PlannerResult,
     PlannerRunData,
     PlannerScheduleRow,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 import {
     mergeScheduleRows,
     pruneScheduleCompletions,
-} from "./schedule_preserve.js";
+} from "./schedule_preserve.ts";
 
 /**
  * Checks whether a schedule contains at least one row.

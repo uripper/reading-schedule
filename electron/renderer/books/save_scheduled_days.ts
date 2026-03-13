@@ -1,6 +1,6 @@
-import type { Book } from "../../types/types.js";
-import { normalizeScheduledDays } from "./scheduled_days.js";
-import { normalizeShelfName } from "./shelf.js";
+import type { Book } from "../../types/types.ts";
+import { normalizeScheduledDays } from "./scheduled_days.ts";
+import { normalizeShelfName } from "./shelf.ts";
 
 /**
  * Propagates one book's scheduled days to all books on the same shelf.

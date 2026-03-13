@@ -1,9 +1,9 @@
 /**
  * Renders and binds Today carousel track navigation.
  */
-import { el } from "../../dom.js";
-import type { TodayCarouselModel } from "./today_carousel_model.js";
-import { renderTrackState } from "./today_carousel_track_render.js";
+import { el } from "../../dom.ts";
+import type { TodayCarouselModel } from "./today_carousel_model.ts";
+import { renderTrackState } from "./today_carousel_track_render.ts";
 
 const EMPTY_INDEX = -1;
 const HOME_INDEX = 0;
@@ -68,8 +68,8 @@ export function bindCarouselNavigation(
      * @example
      * changeSelectedBook(1)
      * undefined
-     * @param {{number}} {{delta}} - Number of positions to move the current selection (positive moves forward, negative moves backward).
-     * @returns {{void}} No return value; updates the selected book in the shared model.
+     * @param delta - Number of positions to move the current selection (positive moves forward, negative moves backward).
+     * @returns No return value; updates the selected book in the shared model.
      **/
     const MOVE_SELECTION = (delta: number): void => {
         if (!model.books.length) {

@@ -2,28 +2,28 @@ import type {
     CalendarHandlers,
     CompletedBookRow,
     PlannerScheduleRow,
-} from "../types/types.js";
-import { renderCalendarDetails } from "./calendar/details.js";
+} from "../types/types.ts";
+import { renderCalendarDetails } from "./calendar/details.ts";
 import {
     buildCompletedBookRowsByDate,
     finishedBooksSummaryText,
-} from "./calendar/finished_books.js";
+} from "./calendar/finished_books.ts";
 import {
     refreshDerivedRows,
     renderControls,
     renderMonth,
-} from "./calendar/render_runtime.js";
+} from "./calendar/render_runtime.ts";
 import {
     applyTodayFocus,
     indexForMonth,
     monthKeyForDateKey,
     moveSelectionBy,
     selectDate,
-} from "./calendar/selection.js";
+} from "./calendar/selection.ts";
 import {
     createCalendarRuntimeState,
     mergeCalendarHandlers,
-} from "./calendar/state_runtime.js";
+} from "./calendar/state_runtime.ts";
 
 const STATE = createCalendarRuntimeState();
 let interactionHandlers: CalendarHandlers = mergeCalendarHandlers({});
