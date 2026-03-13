@@ -33,7 +33,7 @@ function parseFinishDateParts(
 
     const YEAR = Number(PARTS[0]);
     const MONTH = Number(PARTS[1]);
-    if (!Number.isInteger(YEAR) || !Number.isInteger(MONTH)) {
+    if (!(Number.isInteger(YEAR) && Number.isInteger(MONTH))) {
         return null;
     }
     if (MONTH < MONTH_INDEX_MIN || MONTH > MONTH_INDEX_MAX) {

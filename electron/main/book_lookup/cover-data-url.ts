@@ -87,7 +87,7 @@ function parsedBase64DataUrl(value: string): {
 
     if (
         !DATA_URL_PARTS.header.includes(DATA_URL_BASE64_SEGMENT) ||
-        !DATA_URL_PARTS.payload
+        DATA_URL_PARTS.payload === ""
     ) {
         return null;
     }

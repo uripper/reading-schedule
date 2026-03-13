@@ -15,7 +15,7 @@ export function dayBookCompletionKey(rowDate: string, bookId: string): string {
  */
 export function dayBookCompletionKeyFromSession(sessionKey: string): string {
     const [DATE, , BOOK_ID] = String(sessionKey || "").split("|");
-    if (!DATE || !BOOK_ID) {
+    if (!(DATE && BOOK_ID)) {
         return "";
     }
     return dayBookCompletionKey(DATE, BOOK_ID);

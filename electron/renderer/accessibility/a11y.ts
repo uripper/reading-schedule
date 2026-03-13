@@ -2,8 +2,8 @@ import type {
     AnnouncePoliteness,
     DocumentPreferencesInput,
 } from "../../types/types.ts";
-import { bindDialogFocus } from "./a11y-dialog-focus.ts";
 import { el } from "../dom.ts";
+import { bindDialogFocus } from "./a11y-dialog-focus.ts";
 
 const ANNOUNCE_DELAY_MS = 30;
 
