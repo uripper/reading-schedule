@@ -30,6 +30,9 @@ interface PlannerSummaryLogFields {
     status: string | null;
 }
 
+type PlannerSummaryField = "note" | "planner" | "status";
+type PlannerSummaryRecord = Partial<Record<PlannerSummaryField, unknown>>;
+
 interface BookHandlerArgs {
     downloadCover: RegisterIpcHandlersArgs["downloadCover"];
     saveUploadedCover: RegisterIpcHandlersArgs["saveUploadedCover"];
@@ -57,12 +60,13 @@ function plannerRequestContext(
 
 function stringSummaryField(
     summary: unknown,
-    field: "note" | "planner" | "status",
+    field: PlannerSummaryField,
 ): string | null {
     if (summary === null || typeof summary !== "object") {
         return null;
     }
-    const VALUE = summary[field];
+    const SUMMARY_RECORD = summary as PlannerSummaryRecord;
+    const VALUE = SUMMARY_RECORD[field];
     if (typeof VALUE !== "string") {
         return null;
     }
