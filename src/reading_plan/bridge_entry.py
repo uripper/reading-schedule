@@ -2,18 +2,26 @@
 
 from __future__ import annotations
 
-import runpy
 import sys
 import typing
 
+from reading_plan.gui_api import main as gui_api_main
+from reading_plan.http_api import main as http_api_main
+
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
 MODULE_NAME_ARG_INDEX = 1
 MODULE_ARGS_START_INDEX = 2
 ERROR_EXIT_CODE = 1
 SUCCESS_EXIT_CODE = 0
+GUI_API_MODULE_NAME = "reading_plan.gui_api"
+HTTP_API_MODULE_NAME = "reading_plan.http_api"
+MODULE_ENTRYPOINTS: dict[str, Callable[[], int]] = {
+    GUI_API_MODULE_NAME: gui_api_main,
+    HTTP_API_MODULE_NAME: http_api_main,
+}
 
 
 def module_name(argv: Sequence[str]) -> str:
@@ -56,12 +64,23 @@ def exit_code_from_system_exit(exit_signal: SystemExit) -> int:
     return write_error(exit_signal.code)
 
 
-def run_requested_module(argv: Sequence[str]) -> None:
+def requested_entrypoint(argv: Sequence[str]) -> Callable[[], int]:
+    """Resolve the supported planner entrypoint from process arguments."""
+    name = module_name(argv)
+    entrypoint = MODULE_ENTRYPOINTS.get(name)
+    if entrypoint is not None:
+        return entrypoint
+    msg = f"unsupported planner module: {name}"
+    raise ValueError(msg)
+
+
+def run_requested_module(argv: Sequence[str]) -> int:
     """Execute the requested planner module with temporary argv state."""
+    entrypoint = requested_entrypoint(argv)
     original_argv = list(sys.argv)
     try:
         sys.argv = module_argv(argv)
-        runpy.run_module(sys.argv[0], run_name="__main__", alter_sys=True)
+        return entrypoint()
     finally:
         sys.argv = original_argv
 
@@ -69,12 +88,11 @@ def run_requested_module(argv: Sequence[str]) -> None:
 def main(argv: Sequence[str] | None = None) -> int:
     """Dispatch to a planner module while preserving CLI-style execution."""
     try:
-        run_requested_module(active_argv(argv))
+        return run_requested_module(active_argv(argv))
     except ValueError as error:
         return write_error(error)
     except SystemExit as exit_signal:
         return exit_code_from_system_exit(exit_signal)
-    return SUCCESS_EXIT_CODE
 
 
 if __name__ == "__main__":

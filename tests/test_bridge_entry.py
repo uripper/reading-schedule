@@ -58,3 +58,13 @@ def test_bridge_entry_runs_gui_sample_mode(
     assert payload["ok"] is True
     assert len(payload["data"]["books"]) == len(demo_books())
     assert payload["data"]["books"][0]["scheduled_days"] == list(WEEKDAYS)
+
+
+def test_bridge_entry_rejects_unknown_modules(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Packaged planner entry should fail fast for unsupported modules."""
+    exit_code = bridge_main(["planner-bridge", "reading_plan.cli"])
+    captured = capsys.readouterr()
+    assert exit_code == 1
+    assert "unsupported planner module: reading_plan.cli" in captured.err

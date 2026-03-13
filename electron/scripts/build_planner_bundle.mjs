@@ -40,6 +40,8 @@ const PLANNER_EXECUTABLE_NAME = "planner-bridge.exe";
 const WINDOWS_PLATFORM = "win32";
 const WINDOWS_DATA_SEPARATOR = ";";
 const POSIX_DATA_SEPARATOR = ":";
+const GUI_API_MODULE = "reading_plan.gui_api";
+const HTTP_API_MODULE = "reading_plan.http_api";
 
 /**
  * Throws a consistent build-time error.
@@ -157,6 +159,10 @@ function buildPlannerBundle() {
         path.join(REPOSITORY_DIRECTORY, "src"),
         "--add-data",
         plannerDataArgValue(),
+        "--hidden-import",
+        GUI_API_MODULE,
+        "--hidden-import",
+        HTTP_API_MODULE,
         "--collect-submodules",
         "reading_plan",
         PLANNER_ENTRYPOINT_PATH,
