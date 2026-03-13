@@ -1,7 +1,7 @@
 /**
  * Normalizes settings and submits desktop planner generation requests.
  */
-import { logDebug } from "@renderer/logger.ts";
+
 import type {
     Book,
     PlanGeneratePayload,
@@ -9,12 +9,41 @@ import type {
     PlannerSummary,
     RunPlanGenerationArgs,
 } from "../../types/types.ts";
+import { logDebug } from "../logger.ts";
 import { todayDayKey } from "./date_keys.ts";
 import {
     normalizePlannerEndDate,
     normalizePlannerStartDate,
     plannerTokenFromProfile,
 } from "./plan_normalize.ts";
+
+interface GeneratePayloadArgs {
+    customStartDate: string;
+    normalizedEndDate: string | undefined;
+    payloadBooks: Book[];
+    settings: PlannerSettings;
+}
+
+interface PlanSuccessArgs {
+    addLog(message: string): void;
+    announce(message: string, politeness?: "polite" | "assertive"): void;
+    data: Awaited<ReturnType<RunPlanGenerationArgs["plannerApi"]["generate"]>>;
+    onSuccess(
+        data: Awaited<
+            ReturnType<RunPlanGenerationArgs["plannerApi"]["generate"]>
+        >,
+    ): Promise<void>;
+    setStatus(message: string, isError?: boolean): void;
+    statusSuccessMessage: string;
+    successAnnouncement: string;
+}
+
+interface PlanFailureArgs {
+    addLog(message: string): void;
+    announce(message: string, politeness?: "polite" | "assertive"): void;
+    error: unknown;
+    setStatus(message: string, isError?: boolean): void;
+}
 
 /**
  * Generates a summary log message based on the planner summary data.
@@ -94,6 +123,66 @@ function errorMessage(error: unknown): string {
     return "Unknown planner error";
 }
 
+function buildPlanPayload(
+    settings: PlannerSettings,
+    payloadBooks: Book[],
+): PlanGeneratePayload {
+    const FORCED_START_DATE = todayDayKey();
+    const CUSTOM_START_DATE = normalizePlannerStartDate(
+        settings.start_date,
+        FORCED_START_DATE,
+    );
+    const NORMALIZED_END_DATE = normalizePlannerEndDate(
+        settings.end_date,
+        CUSTOM_START_DATE,
+    );
+
+    return generatePayload({
+        customStartDate: CUSTOM_START_DATE,
+        normalizedEndDate: NORMALIZED_END_DATE,
+        payloadBooks,
+        settings,
+    });
+}
+
+async function handlePlanSuccess({
+    addLog,
+    announce,
+    data,
+    onSuccess,
+    setStatus,
+    statusSuccessMessage,
+    successAnnouncement,
+}: PlanSuccessArgs): Promise<void> {
+    await onSuccess(data);
+    logPlanSummary(data.summary, addLog);
+    logDebug("Planner payload resolved successfully.", {
+        scheduleRows: data.schedule.length,
+        status: data.summary?.status ?? null,
+    });
+    setStatus(statusSuccessMessage);
+
+    if (successAnnouncement !== "") {
+        announce(successAnnouncement);
+    }
+}
+
+function handlePlanFailure({
+    addLog,
+    announce,
+    error,
+    setStatus,
+}: PlanFailureArgs): void {
+    const MESSAGE = "Failed to generate plan";
+
+    setStatus(MESSAGE, true);
+    addLog(`Plan generation error: ${errorMessage(error)}`);
+    logDebug("Planner payload failed.", {
+        detail: errorMessage(error),
+    });
+    announce(MESSAGE, "assertive");
+}
+
 /**
  * Runs the plan generation process by collecting necessary data, calling the planner API,
  * and handling the results.
@@ -136,44 +225,24 @@ export async function runPlanGeneration({
         }
 
         setStatus(statusGeneratingMessage);
-        const SETTINGS = collectSettings();
-        const FORCED_START_DATE = todayDayKey();
-
-        const CUSTOM_START_DATE = normalizePlannerStartDate(
-            SETTINGS.start_date,
-            FORCED_START_DATE,
-        );
-        const NORMALIZED_END_DATE = normalizePlannerEndDate(
-            SETTINGS.end_date,
-            CUSTOM_START_DATE,
-        );
-        const PAYLOAD: PlanGeneratePayload = generatePayload(
-            SETTINGS,
-            CUSTOM_START_DATE,
-            NORMALIZED_END_DATE,
-            PAYLOAD_BOOKS,
-        );
-
+        const PAYLOAD = buildPlanPayload(collectSettings(), PAYLOAD_BOOKS);
         const DATA = await plannerApi.generate(PAYLOAD);
-        await onSuccess(DATA);
-        logPlanSummary(DATA.summary, addLog);
-        logDebug("Planner payload resolved successfully.", {
-            scheduleRows: DATA.schedule.length,
-            status: DATA.summary?.status ?? null,
+        await handlePlanSuccess({
+            addLog,
+            announce,
+            data: DATA,
+            onSuccess,
+            setStatus,
+            statusSuccessMessage,
+            successAnnouncement,
         });
-
-        setStatus(statusSuccessMessage);
-        if (successAnnouncement !== "") {
-            announce(successAnnouncement);
-        }
     } catch (error) {
-        const MESSAGE = "Failed to generate plan";
-        setStatus(MESSAGE, true);
-        addLog(`Plan generation error: ${errorMessage(error)}`);
-        logDebug("Planner payload failed.", {
-            detail: errorMessage(error),
+        handlePlanFailure({
+            addLog,
+            announce,
+            error,
+            setStatus,
         });
-        announce(MESSAGE, "assertive");
     }
 }
 
@@ -185,12 +254,12 @@ export async function runPlanGeneration({
  * @param payloadBooks - Books included in the request.
  * @returns Planner API payload.
  */
-function generatePayload(
-    settings: PlannerSettings,
-    customStartDate: string,
-    normalizedEndDate: string | undefined,
-    payloadBooks: Book[],
-): PlanGeneratePayload {
+function generatePayload({
+    customStartDate,
+    normalizedEndDate,
+    payloadBooks,
+    settings,
+}: GeneratePayloadArgs): PlanGeneratePayload {
     const PAYLOAD_SETTINGS = {
         ...settings,
         start_date: customStartDate,

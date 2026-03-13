@@ -2,11 +2,11 @@
  * Composes the full Bartleby landing page markup.
  */
 
-import type { SiteContent } from "../types/site_content.ts";
-import { joinMarkup } from "./render_helpers.ts";
-import { renderHero } from "./render_hero.ts";
-import { renderPageShell } from "./render_page_shell.ts";
-import { renderSections } from "./render_sections.ts";
+import type { SiteContent } from "../types/site-content.ts";
+import { joinMarkup } from "./render-helpers.ts";
+import { renderHero } from "./render-hero.ts";
+import { renderPageShell } from "./render-page-shell.ts";
+import { renderSections } from "./render-sections.ts";
 
 /**
  * Returns the full HTML for the static website shell.
@@ -14,12 +14,12 @@ import { renderSections } from "./render_sections.ts";
 export function renderSite(content: SiteContent, currentYear: number): string {
     const MAIN_CONTENT = joinMarkup([
         renderHero(content.hero),
-        renderSections(
-            content.features,
-            content.workflow,
-            content.downloads,
+        renderSections({
             currentYear,
-        ),
+            downloads: content.downloads,
+            features: content.features,
+            workflow: content.workflow,
+        }),
     ]);
 
     return renderPageShell(

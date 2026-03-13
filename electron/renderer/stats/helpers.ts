@@ -3,7 +3,7 @@ import type {
     PlannerResult,
     StatusBreakdown,
 } from "../../types/types.ts";
-import { finishDatesByBookId } from "../books/finish_dates.ts";
+import { finishDatesByBookId } from "../books/finish-dates.ts";
 import {
     BOOK_STATUS_DROPPED,
     BOOK_STATUS_IN_PROGRESS,

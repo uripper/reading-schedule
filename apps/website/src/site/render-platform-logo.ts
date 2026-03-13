@@ -2,16 +2,22 @@
  * Renders platform logos for download cards.
  */
 
-import type { DownloadCard } from "../types/site_content.ts";
-import { escapeHtml } from "./render_helpers.ts";
+import type { DownloadCard } from "../types/site-content.ts";
+import { escapeHtml } from "./render-helpers.ts";
 
-type PlatformLogoMap = Readonly<Record<DownloadCard["platform"], string>>;
+const MAC_OS_PLATFORM: DownloadCard["platform"] = "macOS";
 
-const PLATFORM_LOGO_FILES: PlatformLogoMap = {
-    Linux: "/LinuxLogo.png",
-    macOS: "/macOS.png",
-    Windows: "/WindowsLogo.png",
-};
+function getPlatformLogoSource(platform: DownloadCard["platform"]): string {
+    if (platform === "Linux") {
+        return "/LinuxLogo.png";
+    }
+
+    if (platform === MAC_OS_PLATFORM) {
+        return "/macOS.png";
+    }
+
+    return "/WindowsLogo.png";
+}
 
 function platformLogoClass(platform: DownloadCard["platform"]): string {
     if (platform === "Windows") {
@@ -29,7 +35,7 @@ function platformLogoClass(platform: DownloadCard["platform"]): string {
  * Returns the logo image markup for one platform.
  */
 export function renderPlatformLogo(platform: DownloadCard["platform"]): string {
-    const PLATFORM_SOURCE = PLATFORM_LOGO_FILES[platform];
+    const PLATFORM_SOURCE = getPlatformLogoSource(platform);
     const PLATFORM_CLASS = platformLogoClass(platform);
 
     return [

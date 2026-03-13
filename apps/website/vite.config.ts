@@ -8,6 +8,7 @@ const WEBSITE_INPUT = {
     roadmap: fileURLToPath(new URL("./roadmap.html", import.meta.url)),
 };
 
+// biome-ignore lint/style/noDefaultExport: Vite loads config files from the default export.
 export default defineConfig({
     base: "./",
     build: {

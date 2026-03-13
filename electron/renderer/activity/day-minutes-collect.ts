@@ -1,4 +1,4 @@
-import { yearFromDateKey } from "@renderer/stats/helpers.ts";
+import { yearFromDateKey } from "../stats/helpers.ts";
 
 /**
  * Determines whether a day key should be included for a target year filter.

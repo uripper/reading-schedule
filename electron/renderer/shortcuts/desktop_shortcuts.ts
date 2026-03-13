@@ -1,5 +1,5 @@
 import type { ShortcutBindings } from "../../types/types.ts";
-import { createZoomShortcutHandler } from "./desktop_shortcuts_zoom.ts";
+import { createZoomShortcutHandler } from "./desktop-shortcuts-zoom.ts";
 
 /**
  * Wires global desktop shortcut handlers for zoom commands.

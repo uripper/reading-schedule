@@ -3,8 +3,8 @@ import {
     SCORE_AUTHOR_ALL_TOKENS,
     SCORE_AUTHOR_EXACT,
     SCORE_AUTHOR_PARTIAL_TOKEN,
-} from "./search_shared.ts";
-import { normalizeSearchText, primaryAuthor } from "./search_text.ts";
+} from "./search-shared.ts";
+import { normalizeSearchText, primaryAuthor } from "./search-text.ts";
 
 /**
  * Splits normalized text into non-empty tokens.

@@ -2,7 +2,7 @@
  * Roadmap content for the public website.
  */
 
-import type { RoadmapContent } from "../types/site_content.ts";
+import type { RoadmapContent } from "../types/site-content.ts";
 
 export const ROADMAP_CONTENT: RoadmapContent = {
     heading: "Bartleby Roadmap",

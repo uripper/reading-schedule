@@ -9,7 +9,7 @@ import {
     HTTP_STATUS_REDIRECT_MIN,
     SEARCH_FETCH_LIMIT,
     SEARCH_FIELDS,
-} from "./search_shared.ts";
+} from "./search-shared.ts";
 
 const OPEN_LIBRARY_SEARCH_URL = "https://openlibrary.org/search.json";
 const OPEN_LIBRARY_LANGUAGE_ENGLISH = "eng";

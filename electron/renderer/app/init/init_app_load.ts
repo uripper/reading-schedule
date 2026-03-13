@@ -15,7 +15,7 @@ import {
 } from "../experience/index.ts";
 import { loadInitialData } from "../load_state.ts";
 import { applyAppStateMutation } from "../state_mutations.ts";
-import { finalizeInitialLoad } from "./init_helpers.ts";
+import { finalizeInitialLoad } from "./init-helpers.ts";
 
 /**
  * Creates `loadInitialData` bindings for runtime state mutation and startup flow.

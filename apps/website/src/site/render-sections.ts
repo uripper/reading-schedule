@@ -6,9 +6,16 @@ import type {
     DownloadCard,
     FeatureItem,
     WorkflowStep,
-} from "../types/site_content.ts";
-import { escapeHtml, joinMarkup, renderButtonLink } from "./render_helpers.ts";
-import { renderPlatformLogo } from "./render_platform_logo.ts";
+} from "../types/site-content.ts";
+import { escapeHtml, joinMarkup, renderButtonLink } from "./render-helpers.ts";
+import { renderPlatformLogo } from "./render-platform-logo.ts";
+
+type RenderSectionsContent = Readonly<{
+    currentYear: number;
+    downloads: readonly DownloadCard[];
+    features: readonly FeatureItem[];
+    workflow: readonly WorkflowStep[];
+}>;
 
 /**
  * Render a section wrapper with the provided CSS class and inner content.
@@ -110,7 +117,6 @@ function renderDownloadCard(card: DownloadCard): string {
         '<div class="download-card__logo" aria-hidden="true">',
         renderPlatformLogo(card.platform),
         "</div>",
-        `<p class="download-card__label">${escapeHtml(card.platform)}</p>`,
         renderButtonLink(card.action),
         "</article>",
     ]);
@@ -166,16 +172,11 @@ function renderFooter(currentYear: number) {
 /**
  * Builds the non-hero site sections.
  */
-export function renderSections(
-    features: readonly FeatureItem[],
-    workflow: readonly WorkflowStep[],
-    downloads: readonly DownloadCard[],
-    currentYear: number,
-): string {
+export function renderSections(content: RenderSectionsContent): string {
     return joinMarkup([
-        renderFeatures(features),
-        renderWorkflow(workflow),
-        renderDownloadSection(downloads),
-        renderFooter(currentYear),
+        renderFeatures(content.features),
+        renderWorkflow(content.workflow),
+        renderDownloadSection(content.downloads),
+        renderFooter(content.currentYear),
     ]);
 }

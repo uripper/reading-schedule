@@ -1,9 +1,9 @@
-import { logDebug } from "@renderer/logger.ts";
 import type {
     CreatePlanControllerArgs,
     FinalizeInitialLoadArgs,
 } from "../../../types/types.ts";
 import { el } from "../../dom.ts";
+import { logDebug } from "../../logger.ts";
 import { createPlanController } from "../plan_controller.ts";
 import { bindSettingsAutoPlanListeners } from "../runtime_helpers.ts";
 

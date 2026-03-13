@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { groupsForEstimatedFinish } from "../dist/renderer/books/estimated_finish_groups.js";
-import { finishDatesByBookId } from "../dist/renderer/books/finish_dates.js";
+import { finishDatesByBookId } from "../dist/renderer/books/finish-dates.js";
 import {
     GROUP_BY_TITLE_LETTER,
     groupBooks,

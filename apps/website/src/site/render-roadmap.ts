@@ -2,10 +2,10 @@
  * Renders the Bartleby roadmap page.
  */
 
-import { HOME_PAGE_URL } from "../content/site_urls.ts";
-import type { RoadmapStage, SiteContent } from "../types/site_content.ts";
-import { escapeHtml, joinMarkup } from "./render_helpers.ts";
-import { renderPageShell } from "./render_page_shell.ts";
+import { HOME_PAGE_URL } from "../content/site-urls.ts";
+import type { RoadmapStage, SiteContent } from "../types/site-content.ts";
+import { escapeHtml, joinMarkup } from "./render-helpers.ts";
+import { renderPageShell } from "./render-page-shell.ts";
 
 /**
  * Render an HTML unordered list of roadmap items or return an empty string when none are provided.

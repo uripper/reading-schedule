@@ -1,8 +1,8 @@
 /**
  * File-path and extension utilities for locally stored cover images.
  */
-import * as fs from "node:fs";
-import * as path from "node:path";
+import { mkdirSync } from "node:fs";
+import { extname, join } from "node:path";
 import type { CoverExtension } from "@reading-schedule/contracts";
 
 const COVER_DIRECTORY_NAME = "book_covers";
@@ -46,8 +46,8 @@ function safeFileBase(bookId: string | undefined): string {
  * @returns Absolute path to the cover directory.
  */
 function ensureCoverDirectory(userDataDir: string): string {
-    const COVER_DIRECTORY = path.join(userDataDir, COVER_DIRECTORY_NAME);
-    fs.mkdirSync(COVER_DIRECTORY, { recursive: true });
+    const COVER_DIRECTORY = join(userDataDir, COVER_DIRECTORY_NAME);
+    mkdirSync(COVER_DIRECTORY, { recursive: true });
     return COVER_DIRECTORY;
 }
 
@@ -68,9 +68,7 @@ export function extensionFor(
     if (NORMALIZED_CONTENT_TYPE.includes(CONTENT_TYPE_WEBP)) {
         return EXTENSION_WEBP;
     }
-    const KNOWN_EXTENSION = path
-        .extname(parsedUrl.pathname || "")
-        .toLowerCase();
+    const KNOWN_EXTENSION = extname(parsedUrl.pathname || "").toLowerCase();
     if (
         KNOWN_EXTENSION === EXTENSION_PNG ||
         KNOWN_EXTENSION === EXTENSION_WEBP ||
@@ -111,5 +109,5 @@ export function filePathForCover(
     );
     coverVersionCounter = (coverVersionCounter + 1) % COVER_VERSION_WRAP_AT;
     const FILE_NAME = `${safeFileBase(bookId)}${COVER_FILE_VERSION_SEPARATOR}${Date.now()}${COVER_FILE_VERSION_SEPARATOR}${VERSION}${extension}`;
-    return path.join(ensureCoverDirectory(userDataDir), FILE_NAME);
+    return join(ensureCoverDirectory(userDataDir), FILE_NAME);
 }

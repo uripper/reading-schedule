@@ -4,7 +4,7 @@ import {
     dayMinutesFromActivity,
     streakFromDayMinutes,
     totalMinutes,
-} from "../activity/day_minutes.ts";
+} from "../activity/day-minutes.ts";
 import {
     averageProgress,
     completionStats,

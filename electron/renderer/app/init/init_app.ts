@@ -32,7 +32,7 @@ import { loadStateAndBindTodayActions } from "./init_app_load.ts";
 import {
     createAppPlanControllerInstance,
     setupSkipLink,
-} from "./init_helpers.ts";
+} from "./init-helpers.ts";
 
 /**
  * Creates the app-level plan controller instance with runtime-bound callbacks.
