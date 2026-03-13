@@ -1,4 +1,4 @@
-import { yearFromDateKey } from "@renderer/stats/helpers.ts";
+import { yearFromDateKey } from "@renderer/stats/helpers";
 
 /**
  * Determines whether a day key should be included for a target year filter.
@@ -7,17 +7,17 @@ import { yearFromDateKey } from "@renderer/stats/helpers.ts";
  * @returns True when the key should be included in aggregation.
  */
 export function includeDayKey(dayKey: string, year: number | null): boolean {
-    if (!dayKey) {
-        return false;
-    }
-    if (year === null) {
-        return true;
-    }
-    const DAY_YEAR = yearFromDateKey(dayKey);
-    if (DAY_YEAR !== year) {
-        return false;
-    }
+  if (!dayKey) {
+    return false;
+  }
+  if (year === null) {
     return true;
+  }
+  const DAY_YEAR = yearFromDateKey(dayKey);
+  if (DAY_YEAR !== year) {
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -27,16 +27,16 @@ export function includeDayKey(dayKey: string, year: number | null): boolean {
  * @param minutes - Minute value to add; non-positive values are ignored.
  */
 export function addMinutes(
-    dayMinutes: Map<string, number>,
-    dayKey: string,
-    minutes: number,
+  dayMinutes: Map<string, number>,
+  dayKey: string,
+  minutes: number,
 ): void {
-    if (!dayKey) {
-        return;
-    }
-    const NORMALIZED = Number(minutes || 0);
-    if (NORMALIZED <= 0) {
-        return;
-    }
-    dayMinutes.set(dayKey, (dayMinutes.get(dayKey) ?? 0) + NORMALIZED);
+  if (!dayKey) {
+    return;
+  }
+  const NORMALIZED = Number(minutes || 0);
+  if (NORMALIZED <= 0) {
+    return;
+  }
+  dayMinutes.set(dayKey, (dayMinutes.get(dayKey) ?? 0) + NORMALIZED);
 }

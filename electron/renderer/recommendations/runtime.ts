@@ -1,4 +1,4 @@
-import { logError } from "@renderer/logger.ts";
+import { logError } from "@renderer/logger";
 import { getPlannerApi } from "../app/planner_api.ts";
 import { collectAllBooks } from "../books.ts";
 import { el } from "../dom.ts";
@@ -12,42 +12,42 @@ import { findRecommendations } from "./search.ts";
  * @param getRefreshToken - Function that returns the latest refresh token.
  */
 async function refreshRecommendationsPanel(
-    refreshToken: number,
-    getRefreshToken: () => number,
+  refreshToken: number,
+  getRefreshToken: () => number,
 ): Promise<void> {
-    const BOOKS = collectAllBooks();
-    const RECOMMENDATIONS = await findRecommendations(BOOKS, getPlannerApi());
-    if (refreshToken !== getRefreshToken()) {
-        return;
-    }
-    renderRecommendationsPanel({
-        onAddToShelf: (recommendation) => {
-            addRecommendationToShelf(recommendation);
-        },
-        recommendations: RECOMMENDATIONS,
-    });
+  const BOOKS = collectAllBooks();
+  const RECOMMENDATIONS = await findRecommendations(BOOKS, getPlannerApi());
+  if (refreshToken !== getRefreshToken()) {
+    return;
+  }
+  renderRecommendationsPanel({
+    onAddToShelf: (recommendation) => {
+      addRecommendationToShelf(recommendation);
+    },
+    recommendations: RECOMMENDATIONS,
+  });
 }
 
 /**
  * Initializes recommendations rendering with manual fetch on button click.
  */
 export function initRecommendationsRuntime(): void {
-    let refreshToken = 0;
-    const NEXT_REFRESH_TOKEN = (): number => {
-        refreshToken += 1;
-        return refreshToken;
-    };
-    const GET_REFRESH_TOKEN = (): number => {
-        return refreshToken;
-    };
-    const QUEUE_REFRESH = async (): Promise<void> => {
-        const ACTIVE_TOKEN = NEXT_REFRESH_TOKEN();
-        await refreshRecommendationsPanel(ACTIVE_TOKEN, GET_REFRESH_TOKEN);
-    };
-    const GET_RECOMMENDATIONS_BTN = el("getRecommendationsBtn");
-    GET_RECOMMENDATIONS_BTN.addEventListener("click", () => {
-        QUEUE_REFRESH().catch((error: unknown) => {
-            logError("Failed to refresh recommendations", error);
-        });
+  let refreshToken = 0;
+  const NEXT_REFRESH_TOKEN = (): number => {
+    refreshToken += 1;
+    return refreshToken;
+  };
+  const GET_REFRESH_TOKEN = (): number => {
+    return refreshToken;
+  };
+  const QUEUE_REFRESH = async (): Promise<void> => {
+    const ACTIVE_TOKEN = NEXT_REFRESH_TOKEN();
+    await refreshRecommendationsPanel(ACTIVE_TOKEN, GET_REFRESH_TOKEN);
+  };
+  const GET_RECOMMENDATIONS_BTN = el("getRecommendationsBtn");
+  GET_RECOMMENDATIONS_BTN.addEventListener("click", () => {
+    QUEUE_REFRESH().catch((error: unknown) => {
+      logError("Failed to refresh recommendations", error);
     });
+  });
 }
