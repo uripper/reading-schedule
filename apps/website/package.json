@@ -1,0 +1,20 @@
+{
+    "devDependencies": {
+        "vite": "8.0.0"
+    },
+    "name": "reading-schedule-website",
+    "private": true,
+    "scripts": {
+        "build": "pnpm run clean && vite build",
+        "build:test": "pnpm --dir ../.. exec tsc -p apps/website/tsconfig.tests.json",
+        "clean": "node -e \"const fs = require('node:fs'); fs.rmSync('dist', { recursive: true, force: true }); fs.rmSync('dist-tests', { recursive: true, force: true })\"",
+        "dev": "pnpm run dev:static",
+        "dev:hot": "vite",
+        "dev:static": "pnpm run build && vite preview",
+        "lint": "pnpm --dir ../.. exec biome check apps/website",
+        "test": "pnpm run build:test && node --test dist-tests/tests/*.test.js",
+        "typecheck": "pnpm --dir ../.. exec tsc -p apps/website/tsconfig.json --noEmit"
+    },
+    "type": "module",
+    "version": "0.1.0"
+}

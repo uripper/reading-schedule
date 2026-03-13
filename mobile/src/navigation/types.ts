@@ -12,3 +12,5 @@ export interface StackRoute {
     render(navigator: StackNavigator): ReactNode;
     title: string;
 }
+
+export type TabStacks = Record<MobileTabKey, StackRoute[]>;
