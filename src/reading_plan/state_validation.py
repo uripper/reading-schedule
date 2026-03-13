@@ -18,6 +18,11 @@ def _is_bool_record(value: object) -> bool:
 
 
 def _is_feature_flags(value: object) -> bool:
+    """Check whether a given value is a dict that contains all required feature flags with boolean values.
+    Parameters:
+        - value (object): The value to validate; should be a dict mapping feature flag names to booleans. The function checks presence and boolean-typed values for every key listed in REQUIRED_FEATURE_FLAGS.
+    Returns:
+        - bool: True if value is a dict and every required feature flag is present with a bool value; otherwise False."""
     if not isinstance(value, dict):
         return False
     value_map = cast("dict[str, object]", value)
@@ -28,6 +33,20 @@ def _is_feature_flags(value: object) -> bool:
 
 
 def _is_preferences(value: object) -> bool:
+    """Check whether an object matches the expected preferences dictionary shape and types.
+    Parameters:
+        - value (object): The object to validate. Expected to be a dict (mapping) that may contain:
+            - "dailyGoalMinutes" (int)
+            - "reduceMotion" (bool)
+            - "reminderEnabled" (bool)
+            - "reminderTime" (str)
+            - "timezone" (str)
+            - "theme" (str, must be one of VALID_THEMES)
+    Returns:
+        - bool: True if value is a dict and all present keys have the expected types and the theme (if present) is valid; False otherwise.
+    Examples:
+        - _is_preferences({"dailyGoalMinutes": 30, "theme": "dark"}) -> True
+        - _is_preferences({"dailyGoalMinutes": "30"}) -> False"""
     if not isinstance(value, dict):
         return False
     value_map = cast("dict[str, object]", value)

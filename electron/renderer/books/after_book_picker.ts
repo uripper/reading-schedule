@@ -38,6 +38,14 @@ interface CreateRefreshFilteredArgs {
     state: PickerState;
 }
 
+/**
+* Create and return a function that refreshes the filtered book list, updates the active index and selection, and triggers a re-render.
+* @example
+* createRefreshFiltered(args)(true)
+* undefined
+* @param {{CreateRefreshFilteredArgs}} {{args}} - Object containing refs, state, clearSelection and render used to filter options and update UI.
+* @returns {{(clearChangedSelection: boolean) => void}} Function that when called optionally clears a mismatched selection, filters options by the current query, updates activeIndex, and calls render.
+**/
 function createRefreshFiltered(
     args: CreateRefreshFilteredArgs,
 ): (clearChangedSelection: boolean) => void {

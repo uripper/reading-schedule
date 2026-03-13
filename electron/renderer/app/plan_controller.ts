@@ -81,6 +81,14 @@ interface AutoPlanSuccessHandlerArgs {
     updateTodayView: () => void;
 }
 
+/**
+* Creates a handler that applies planned data from an auto-plan run to the app state.
+* @example
+* createAutoPlanSuccessHandler({ getSessions, persistDraft, setLastResult })
+* (data: PlannerRunData) => Promise<void>
+* @param {{AutoPlanSuccessHandlerArgs}} {{args}} - Configuration and callbacks used to apply planned data and update application state.
+* @returns {{(data: PlannerRunData) => Promise<void>}} Returns an async handler that accepts planner run data and applies it (resolves to void).
+**/
 function createAutoPlanSuccessHandler(
     args: AutoPlanSuccessHandlerArgs,
 ): (data: PlannerRunData) => Promise<void> {
@@ -103,6 +111,14 @@ function createAutoPlanSuccessHandler(
     };
 }
 
+/**
+* Creates a runner for the automatic planning process that manages concurrency, triggers the planner, and schedules retries if a run is already in progress.
+* @example
+* createRunAutoPlan({ plannerApi, collectBooks, collectSettings, setStatus, addLog, announce, getLastResult, setLastResult, getSessions, getScheduleCompletions, getBlockedDayBooks, setScheduleCompletions, renderCalendar, totalsFromSummary, setBookScheduleRows, updateTodayView, persistDraft, state, scheduleAutoPlan })()
+* Promise<void>
+* @param {{RunAutoPlanFactoryArgs}} {{root0}} - Factory arguments required to create the auto-plan runner.
+* @returns {{() => Promise<void>}} Returns a function that, when invoked, runs the auto-plan process and resolves once complete.
+**/
 function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
     const {
         plannerApi,
@@ -125,6 +141,13 @@ function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
         state,
         scheduleAutoPlan,
     } = root0;
+    /**
+    * Trigger an automatic plan execution, ensuring only one run executes at a time and queuing a pending run if called while another is in progress.
+    * @example
+    * sync()
+    * // returns Promise<void>
+    * @returns {Promise<void>} Resolves when the sync cycle completes; if a run is already in flight it marks a pending run and resolves immediately. 
+    */
     const SELF: () => Promise<void> = async (): Promise<void> => {
         if (state.autoRunInFlight) {
             state.autoRunPending = true;

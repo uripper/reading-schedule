@@ -106,6 +106,15 @@ function cardStatsNode(book: Book, context: CardRenderContext): HTMLDivElement {
     return STATS;
 }
 
+/**
+ * Create a button element representing a book cover (uses the book's cover image if available, otherwise shows a fallback).
+ * @example
+ * coverButtonForBook(sampleBook, "Example Title")
+ * <button class="book-cover-btn edit-book-btn" data-book-id="123">...</button>
+ * @param {Book} book - Book object used to build the cover button.
+ * @param {string} title - Title of the book used for the image alt text.
+ * @returns {HTMLButtonElement} Button element containing the cover image or a fallback placeholder.
+ */
 function coverButtonForBook(book: Book, title: string): HTMLButtonElement {
     const COVER_BUTTON = document.createElement("button");
     COVER_BUTTON.className = "book-cover-btn edit-book-btn";

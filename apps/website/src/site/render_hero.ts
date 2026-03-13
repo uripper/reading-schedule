@@ -13,6 +13,14 @@ function renderActionRow(hero: HeroContent): string {
     ]);
 }
 
+/**
+* Render HTML markup for a hero content block.
+* @example
+* renderHeroCopy({ headlineLead: 'Leading', headlineAccent: 'Accent', body: 'Body text' })
+* '<div class="hero__copy"><h1 class="hero__title">Leading <span>Accent</span></h1><p class="hero__body">Body text</p><!-- action row markup here --></div>'
+* @param {{HeroContent}} hero - Hero content object with headlineLead, headlineAccent, body, and action data.
+* @returns {{string}} Rendered HTML string for the hero copy block.
+**/
 function renderHeroCopy(hero: HeroContent): string {
     return joinMarkup([
         '<div class="hero__copy">',

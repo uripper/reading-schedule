@@ -88,6 +88,15 @@ interface RenderBookGridParams {
     visibleBooks: Book[];
 }
 
+/**
+* Builds the options object used to render the book grid from controller args and grid params; throws if required DOM refs are missing.
+* @example
+* buildRenderBookGridArgs(controllerArgs, gridParams)
+* { allBooks: [...], books: [...], empty: HTMLElement, grid: HTMLElement, onEdit: f, onRemove: f, onEstimatedFinishNavigate: f, ... }
+* @param {{RenderBooksControllerArgs}} {{args}} - Controller state, DOM references, book list and utility callbacks.
+* @param {{RenderBookGridParams}} {{params}} - Visible books, grouping and display flags for the grid.
+* @returns {{RenderBookGridOptions}} Return object with DOM refs, book lists, display flags and callback handlers for the grid.
+**/
 function buildRenderBookGridArgs(
     args: RenderBooksControllerArgs,
     params: RenderBookGridParams,
@@ -128,6 +137,14 @@ function buildRenderBookGridArgs(
     };
 }
 
+/**
+* Render the books view by updating filters, generating view settings, and rendering the book grid.
+* @example
+* renderBooksController({ refs: someRefs, books: booksArray, viewState: currentViewState })
+* undefined
+* @param {RenderBooksControllerArgs} args - Arguments including refs, books, and viewState used to compute rendering.
+* @returns {void} Nothing; performs UI updates to render the book grid.
+**/
 export function renderBooksController(args: RenderBooksControllerArgs): void {
     const { viewState } = args;
     const RENDER_REFS = resolveRenderableRefs(args.refs);

@@ -23,6 +23,14 @@ interface TodayThemeTransitionLayerProps {
     toColor: string;
 }
 
+/**
+* Create interpolated animation values for a theme transition layer.
+* @example
+* createLayerAnimations(progress)
+* { fromOpacity: Animated.AnimatedInterpolation, pipeSweepShift: Animated.AnimatedInterpolation, sweepOpacity: Animated.AnimatedInterpolation, sweepShift: Animated.AnimatedInterpolation, toOpacity: Animated.AnimatedInterpolation }
+* @param {{Animated.Value}} {{progress}} - Animated.Value used to drive interpolation for the layer transitions.
+* @returns {{Object}} Returns an object containing interpolated animation values for from/to opacity, sweep opacity/shift, and pipe sweep shift.
+**/
 function createLayerAnimations(progress: Animated.Value) {
     const FROM_OPACITY = progress.interpolate({
         inputRange: [0, 1],
@@ -61,6 +69,14 @@ function tileTop(index: number): `${number}%` {
     return `${Math.floor(index / GRID_COLUMNS) * (100 / GRID_ROWS)}%`;
 }
 
+/**
+* Render a grid of dissolve tiles whose opacities are interpolated from an animated progress value.
+* @example
+* renderDissolveTiles(progress)
+* [<Animated.View key="dissolve-tile-0" ... />, <Animated.View key="dissolve-tile-1" ... />, ...]
+* @param {Animated.Value} progress - Animated progress value driving each tile's opacity interpolation.
+* @returns {JSX.Element[]} Array of Animated.View elements positioned in a grid with interpolated opacity.
+**/
 function renderDissolveTiles(progress: Animated.Value) {
     return GRID_TILE_INDEXES.map((tileIndex) => {
         const PHASE = tilePhase(tileIndex);
@@ -104,6 +120,14 @@ interface SweepEffectsProps {
     sweepShift: Animated.AnimatedInterpolation<number>;
 }
 
+/**
+* Render sweeping animated overlay effects (scan bands and pipe sweeps) for the today theme transition layer.
+* @example
+* SweepEffects({ pipeSweepShift: new Animated.Value(0), sweepOpacity: new Animated.Value(0.5), sweepShift: new Animated.Value(10) })
+* <></>
+* @param {{SweepEffectsProps}} {{props}} - Props object with Animated.Value entries: pipeSweepShift (horizontal/vertical shift), sweepOpacity (opacity), and sweepShift (diagonal band translateX).
+* @returns {{JSX.Element}} Return a React fragment containing multiple Animated.View sweep overlays.
+**/
 function SweepEffects({
     pipeSweepShift,
     sweepOpacity,

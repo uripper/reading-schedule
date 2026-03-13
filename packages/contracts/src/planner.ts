@@ -26,6 +26,14 @@ const SAMPLE_PAYLOAD_SCHEMA = z.object({
     settings: plannerSettingsSchema(),
 });
 
+/**
+ * Validate and parse a planner bridge response envelope using BRIDGE_RESPONSE_ENVELOPE_SCHEMA.
+ * @example
+ * parseBridgeResponseEnvelope({ data: { id: 1 }, ok: true })
+ * // { data: { id: 1 }, ok: true }
+ * @param {unknown} input - Input value to validate as a bridge response envelope.
+ * @returns {{data?: JsonValue; error?: string; ok?: boolean}} Validated envelope containing optional data, error message, and ok flag.
+ */
 export function parseBridgeResponseEnvelope(input: unknown): {
     data?: JsonValue;
     error?: string;
