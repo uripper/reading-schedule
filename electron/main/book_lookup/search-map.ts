@@ -16,7 +16,7 @@ function estimateReadingSize(doc: SearchDoc): {
 } {
     const PAGES = Number(doc.number_of_pages_median ?? 0);
 
-    if (PAGES <= 0) {
+    if (!Number.isFinite(PAGES) || PAGES <= 0) {
         return {
             pagesEstimate: null,
             wordsEstimate: null,
