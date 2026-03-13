@@ -53,17 +53,30 @@ function tokenScore(
     let score = 0;
 
     for (const TOKEN of tokens) {
-        if (titleNorm.startsWith(TOKEN)) {
-            score += SCORE_TOKEN_PREFIX;
-            continue;
-        }
-        if (titleNorm.includes(TOKEN)) {
-            score += SCORE_TOKEN_CONTAINS;
-        }
-        if (authorNorm.includes(TOKEN)) {
-            score += SCORE_TOKEN_AUTHOR;
-        }
+        score += tokenMatchScore(titleNorm, authorNorm, TOKEN);
     }
+    return score;
+}
+
+function tokenMatchScore(
+    titleNorm: string,
+    authorNorm: string,
+    token: string,
+): number {
+    if (titleNorm.startsWith(token)) {
+        return SCORE_TOKEN_PREFIX;
+    }
+
+    let score = 0;
+
+    if (titleNorm.includes(token)) {
+        score += SCORE_TOKEN_CONTAINS;
+    }
+
+    if (authorNorm.includes(token)) {
+        score += SCORE_TOKEN_AUTHOR;
+    }
+
     return score;
 }
 
@@ -106,11 +119,7 @@ export function scoreDoc(
     }
     const TOKENS = queryTokens(query);
     if (authorOnly) {
-        const AUTHOR_SCORE = bestAuthorOnlyScore(doc, QUERY_NORM, TOKENS);
-        if (AUTHOR_SCORE <= 0) {
-            return 0;
-        }
-        return AUTHOR_SCORE + metadataScore(doc);
+        return authorOnlyScore(doc, QUERY_NORM, TOKENS);
     }
     const AUTHOR_NORM = normalizeSearchText(primaryAuthor(doc));
     return (
@@ -118,4 +127,18 @@ export function scoreDoc(
         tokenScore(TITLE_NORM, AUTHOR_NORM, TOKENS) +
         metadataScore(doc)
     );
+}
+
+function authorOnlyScore(
+    doc: SearchDoc,
+    queryNorm: string,
+    tokens: string[],
+): number {
+    const AUTHOR_SCORE = bestAuthorOnlyScore(doc, queryNorm, tokens);
+
+    if (AUTHOR_SCORE <= 0) {
+        return 0;
+    }
+
+    return AUTHOR_SCORE + metadataScore(doc);
 }

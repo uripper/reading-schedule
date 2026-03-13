@@ -51,6 +51,40 @@ function ensureCoverDirectory(userDataDir: string): string {
     return COVER_DIRECTORY;
 }
 
+function extensionFromContentType(contentType: string): CoverExtension | null {
+    if (contentType.includes(CONTENT_TYPE_PNG)) {
+        return EXTENSION_PNG;
+    }
+
+    if (contentType.includes(CONTENT_TYPE_WEBP)) {
+        return EXTENSION_WEBP;
+    }
+
+    return null;
+}
+
+function normalizedPathExtension(parsedUrl: URL): string {
+    return extname(parsedUrl.pathname || "").toLowerCase();
+}
+
+function extensionFromPath(parsedUrl: URL): CoverExtension {
+    const KNOWN_EXTENSION = normalizedPathExtension(parsedUrl);
+
+    if (KNOWN_EXTENSION === EXTENSION_JPEG) {
+        return EXTENSION_JPG;
+    }
+
+    if (
+        KNOWN_EXTENSION === EXTENSION_PNG ||
+        KNOWN_EXTENSION === EXTENSION_WEBP ||
+        KNOWN_EXTENSION === EXTENSION_JPG
+    ) {
+        return KNOWN_EXTENSION;
+    }
+
+    return EXTENSION_JPG;
+}
+
 /**
  * Resolves the normalized extension for a downloaded cover response.
  * @param contentType - Response content-type header value.
@@ -62,24 +96,16 @@ export function extensionFor(
     parsedUrl: URL,
 ): CoverExtension {
     const NORMALIZED_CONTENT_TYPE = String(contentType ?? "").toLowerCase();
-    if (NORMALIZED_CONTENT_TYPE.includes(CONTENT_TYPE_PNG)) {
-        return EXTENSION_PNG;
+
+    const CONTENT_TYPE_EXTENSION = extensionFromContentType(
+        NORMALIZED_CONTENT_TYPE,
+    );
+
+    if (CONTENT_TYPE_EXTENSION !== null) {
+        return CONTENT_TYPE_EXTENSION;
     }
-    if (NORMALIZED_CONTENT_TYPE.includes(CONTENT_TYPE_WEBP)) {
-        return EXTENSION_WEBP;
-    }
-    const KNOWN_EXTENSION = extname(parsedUrl.pathname || "").toLowerCase();
-    if (
-        KNOWN_EXTENSION === EXTENSION_PNG ||
-        KNOWN_EXTENSION === EXTENSION_WEBP ||
-        KNOWN_EXTENSION === EXTENSION_JPG
-    ) {
-        return KNOWN_EXTENSION;
-    }
-    if (KNOWN_EXTENSION === EXTENSION_JPEG) {
-        return EXTENSION_JPG;
-    }
-    return EXTENSION_JPG;
+
+    return extensionFromPath(parsedUrl);
 }
 
 /**

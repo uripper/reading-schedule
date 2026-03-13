@@ -1,4 +1,4 @@
-import * as fs from "node:fs";
+import { readFileSync } from "node:fs";
 import { logDebug } from "../../types/logger.ts";
 import {
     LOG_TAIL_MAX_BYTES,
@@ -15,6 +15,13 @@ import type {
 } from "./types.ts";
 
 let logTail = "";
+
+interface ProcessCloseLogArgs {
+    buffers: BridgeBuffers;
+    executionContext: BridgeExecutionContext;
+    exitCode: number | null;
+    signal: NodeJS.Signals | null;
+}
 
 /**
  * Appends a stream chunk to an accumulated output buffer.
@@ -42,7 +49,7 @@ function preview(text: string): string {
  */
 function readLogTail(filePath: string): string {
     try {
-        const CONTENT = fs.readFileSync(filePath, "utf-8");
+        const CONTENT = readFileSync(filePath, "utf-8");
         const START = Math.max(0, CONTENT.length - LOG_TAIL_MAX_BYTES);
         const WINDOW = CONTENT.slice(START);
         const LINES = WINDOW.split("\n");
@@ -92,11 +99,12 @@ export function attachStreamHandlers(
     buffers: BridgeBuffers,
     requestId: string | null,
 ): void {
+    const BUFFER_STATE = buffers;
     const STDOUT = processHandle.stdout;
     if (STDOUT !== null) {
         STDOUT.on("data", (chunk: Buffer | string) => {
             const TEXT = chunk.toString();
-            buffers.stdout = appendChunk(buffers.stdout, TEXT);
+            BUFFER_STATE.stdout = appendChunk(BUFFER_STATE.stdout, TEXT);
             logDebug("Planner bridge stdout chunk.", {
                 preview: preview(TEXT),
                 requestId,
@@ -112,7 +120,7 @@ export function attachStreamHandlers(
 
     STDERR.on("data", (chunk: Buffer | string) => {
         const TEXT = chunk.toString();
-        buffers.stderr = appendChunk(buffers.stderr, TEXT);
+        BUFFER_STATE.stderr = appendChunk(BUFFER_STATE.stderr, TEXT);
         logDebug("Planner bridge stderr chunk.", {
             preview: preview(TEXT),
             requestId,
@@ -124,12 +132,12 @@ export function attachStreamHandlers(
 /**
  * Logs planner process close state including optional Python log tail.
  */
-export function logProcessClose(
-    buffers: BridgeBuffers,
-    executionContext: BridgeExecutionContext,
-    exitCode: number | null,
-    signal: NodeJS.Signals | null,
-): void {
+export function logProcessClose({
+    buffers,
+    executionContext,
+    exitCode,
+    signal,
+}: ProcessCloseLogArgs): void {
     if (executionContext.logPath !== "") {
         logTail = readLogTail(executionContext.logPath);
     }

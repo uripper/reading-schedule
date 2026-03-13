@@ -2,19 +2,14 @@ import { spawn } from "node:child_process";
 import { logDebug } from "../../types/logger.ts";
 import type { JsonValue, PlanGeneratePayload } from "../../types/types.ts";
 import { readEnvironmentValue } from "../runtime-env.ts";
-import { BRIDGE_HEARTBEAT_MS } from "./constants.ts";
 import { bridgeTimeoutMs, root } from "./context.ts";
 import {
-    appendedLogTail,
     attachStreamHandlers,
-    currentProgressSnapshot,
-    hasProgressChanged,
-    logHeartbeat,
     logParseFailure,
     logProcessClose,
     logProcessError,
-    logTimeout,
 } from "./diagnostics.ts";
+import { startSessionTimers, writePayloadAndClose } from "./session-runtime.ts";
 import type {
     BridgeExecutionContext,
     BridgeRunSession,
@@ -93,102 +88,6 @@ function attachLifecycleLogs(session: BridgeRunSession): void {
 }
 
 /**
- * Writes optional payload to bridge stdin and closes input stream.
- */
-function writePayloadAndClose(
-    session: BridgeRunSession,
-    payload: PlanGeneratePayload | undefined,
-): void {
-    const STDIN = session.processHandle.stdin;
-    if (STDIN === null) {
-        logDebug("Planner bridge stdin stream unavailable.", {
-            module: session.moduleName,
-            requestId: session.executionContext.requestId,
-        });
-        return;
-    }
-    STDIN.on("error", (error: Error) => {
-        logDebug("Planner bridge stdin stream error.", {
-            message: error.message,
-            module: session.moduleName,
-            requestId: session.executionContext.requestId,
-        });
-    });
-    STDIN.on("finish", () => {
-        logDebug("Planner bridge stdin stream finished.", {
-            module: session.moduleName,
-            requestId: session.executionContext.requestId,
-        });
-    });
-    if (payload !== undefined) {
-        const SERIALIZED_PAYLOAD = JSON.stringify(payload);
-        logDebug("Writing planner payload to stdin.", {
-            requestId: session.executionContext.requestId,
-            size: SERIALIZED_PAYLOAD.length,
-        });
-        const WRITE_RESULT = STDIN.write(SERIALIZED_PAYLOAD);
-        logDebug("Planner bridge stdin write completed.", {
-            module: session.moduleName,
-            requestId: session.executionContext.requestId,
-            writeAcceptedImmediately: WRITE_RESULT,
-        });
-    }
-    STDIN.end(() => {
-        logDebug("Planner bridge stdin stream ended.", {
-            module: session.moduleName,
-            requestId: session.executionContext.requestId,
-        });
-    });
-}
-
-/**
- * Attaches timeout and heartbeat timers for active bridge process.
- * @param session - Active bridge run session with process handle and context.
- * @param onTimeout - Callback executed on bridge timeout before process termination.
- * @returns Function to clear both heartbeat and timeout timers.
- */
-function startSessionTimers(
-    session: BridgeRunSession,
-    onTimeout: () => void,
-): () => void {
-    let previousSnapshot = currentProgressSnapshot(session);
-    const HEARTBEAT = setInterval(() => {
-        const CURRENT_SNAPSHOT = currentProgressSnapshot(session);
-        if (!hasProgressChanged(previousSnapshot, CURRENT_SNAPSHOT)) {
-            return;
-        }
-        const APPENDED_TAIL = appendedLogTail(
-            previousSnapshot.logTail,
-            CURRENT_SNAPSHOT.logTail,
-        );
-        previousSnapshot = CURRENT_SNAPSHOT;
-        logHeartbeat({
-            buffers: session.buffers,
-            executionContext: session.executionContext,
-            logTail: APPENDED_TAIL,
-            moduleName: session.moduleName,
-            startedAt: session.startedAt,
-        });
-    }, BRIDGE_HEARTBEAT_MS);
-    const TIMEOUT = setTimeout(() => {
-        const CURRENT_SNAPSHOT = currentProgressSnapshot(session);
-        logTimeout({
-            buffers: session.buffers,
-            executionContext: session.executionContext,
-            logTail: CURRENT_SNAPSHOT.logTail,
-            moduleName: session.moduleName,
-            startedAt: session.startedAt,
-            timeoutMs: session.timeoutMs,
-        });
-        onTimeout();
-    }, session.timeoutMs);
-    return (): void => {
-        clearInterval(HEARTBEAT);
-        clearTimeout(TIMEOUT);
-    };
-}
-
-/**
  * Builds guarded resolve/reject callbacks to avoid duplicate promise settlement.
  * @param resolve - Promise resolve callback.
  * @param reject - Promise reject callback.
@@ -246,12 +145,12 @@ function handleSessionClose({
     settle,
     signal,
 }: HandleSessionCloseArgs): void {
-    logProcessClose(
-        session.buffers,
-        session.executionContext,
+    logProcessClose({
+        buffers: session.buffers,
+        executionContext: session.executionContext,
         exitCode,
         signal,
-    );
+    });
 
     try {
         settle.resolveOnce(

@@ -6,6 +6,41 @@ import { resolveExecutionContext } from "./bridge/context.ts";
 import { runBridgeForModule } from "./bridge/runner.ts";
 import type { BridgeRunContext } from "./bridge/types.ts";
 
+interface BridgeCandidateArgs {
+    args: string[];
+    executionContext: ReturnType<typeof resolveExecutionContext>;
+    moduleIndex: number;
+    payload: PlanGeneratePayload | undefined;
+}
+
+function parsedBridgeJson(stdout: string, stderr: string): unknown {
+    try {
+        return JSON.parse(stdout || "{}");
+    } catch {
+        throw new Error(stderr || stdout || "Invalid planner response");
+    }
+}
+
+function envelopeError(
+    envelope: ReturnType<typeof parseBridgeResponseEnvelope>,
+    stderr: string,
+): string {
+    return envelope.error ?? (stderr || "Planner failed");
+}
+
+function requireEnvelopeData(
+    envelope: ReturnType<typeof parseBridgeResponseEnvelope>,
+    stderr: string,
+): JsonValue {
+    if (envelope.ok !== true) {
+        throw new Error(envelopeError(envelope, stderr));
+    }
+    if (envelope.data === undefined) {
+        return null;
+    }
+    return envelope.data;
+}
+
 /**
  * Parses planner JSON output and converts planner failures to thrown errors.
  * @param stdout - Raw stdout text from the planner subprocess.
@@ -13,25 +48,10 @@ import type { BridgeRunContext } from "./bridge/types.ts";
  * @returns Parsed planner payload or null when no data is returned.
  */
 function parseBridgeOutput(stdout: string, stderr: string): JsonValue {
-    let parsed: unknown;
-    try {
-        parsed = JSON.parse(stdout || "{}");
-    } catch {
-        throw new Error(stderr || stdout || "Invalid planner response");
-    }
-
-    const ENVELOPE = parseBridgeResponseEnvelope(parsed);
-    if (ENVELOPE.ok !== true) {
-        const ERROR_TEXT = ENVELOPE.error ?? stderr;
-        if (ERROR_TEXT) {
-            throw new Error(ERROR_TEXT);
-        }
-        throw new Error("Planner failed");
-    }
-    if (ENVELOPE.data === undefined) {
-        return null;
-    }
-    return ENVELOPE.data;
+    const ENVELOPE = parseBridgeResponseEnvelope(
+        parsedBridgeJson(stdout, stderr),
+    );
+    return requireEnvelopeData(ENVELOPE, stderr);
 }
 
 /**
@@ -52,6 +72,62 @@ function isMissingModuleError(error: unknown, moduleName: string): boolean {
     );
 }
 
+function nextModuleName(moduleIndex: number): string | null {
+    return PLANNER_MODULE_CANDIDATES[moduleIndex + 1] ?? null;
+}
+
+function shouldTryFallbackModule(
+    error: unknown,
+    moduleName: string,
+    moduleIndex: number,
+): boolean {
+    return (
+        nextModuleName(moduleIndex) !== null &&
+        isMissingModuleError(error, moduleName)
+    );
+}
+
+function logModuleFallback(
+    requestId: string | null,
+    moduleIndex: number,
+    moduleName: string,
+): void {
+    logDebug("Planner module missing. Trying fallback module.", {
+        missingModule: moduleName,
+        nextModule: nextModuleName(moduleIndex),
+        requestId,
+    });
+}
+
+async function runBridgeCandidateAtIndex({
+    args,
+    executionContext,
+    moduleIndex,
+    payload,
+}: BridgeCandidateArgs): Promise<JsonValue> {
+    const MODULE_NAME = PLANNER_MODULE_CANDIDATES[moduleIndex];
+    try {
+        return await runBridgeForModule({
+            args,
+            executionContext,
+            moduleName: MODULE_NAME,
+            parseOutput: parseBridgeOutput,
+            payload,
+        });
+    } catch (error) {
+        if (!shouldTryFallbackModule(error, MODULE_NAME, moduleIndex)) {
+            throw error;
+        }
+        logModuleFallback(executionContext.requestId, moduleIndex, MODULE_NAME);
+        return await runBridgeCandidateAtIndex({
+            args,
+            executionContext,
+            moduleIndex: moduleIndex + 1,
+            payload,
+        });
+    }
+}
+
 /**
  * Executes the Python planner bridge command and returns parsed JSON output.
  * @param args - Planner CLI arguments passed after the module name.
@@ -64,29 +140,15 @@ export async function runBridge(
     context?: BridgeRunContext,
 ): Promise<JsonValue> {
     const EXECUTION_CONTEXT = resolveExecutionContext(context);
-    const MODULE_COUNT = PLANNER_MODULE_CANDIDATES.length;
-    for (let moduleIndex = 0; moduleIndex < MODULE_COUNT; moduleIndex += 1) {
-        const MODULE_NAME = PLANNER_MODULE_CANDIDATES[moduleIndex];
-        try {
-            return await runBridgeForModule({
-                args,
-                executionContext: EXECUTION_CONTEXT,
-                moduleName: MODULE_NAME,
-                parseOutput: parseBridgeOutput,
-                payload,
-            });
-        } catch (error) {
-            const IS_LAST_MODULE = moduleIndex === MODULE_COUNT - 1;
-            if (isMissingModuleError(error, MODULE_NAME) && !IS_LAST_MODULE) {
-                logDebug("Planner module missing. Trying fallback module.", {
-                    missingModule: MODULE_NAME,
-                    nextModule: PLANNER_MODULE_CANDIDATES[moduleIndex + 1],
-                    requestId: EXECUTION_CONTEXT.requestId,
-                });
-                continue;
-            }
-            throw error;
-        }
+    if (PLANNER_MODULE_CANDIDATES.length === 0) {
+        throw new Error(
+            "Planner bridge failed: no candidate module succeeded.",
+        );
     }
-    throw new Error("Planner bridge failed: no candidate module succeeded.");
+    return await runBridgeCandidateAtIndex({
+        args,
+        executionContext: EXECUTION_CONTEXT,
+        moduleIndex: 0,
+        payload,
+    });
 }
