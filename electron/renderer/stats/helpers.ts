@@ -100,7 +100,7 @@ function rowDateIfScheduledInRange(options: {
         return null;
     }
 
-    if (!ROW_DATE || Number(ROW_DATE) > Number(options.today)) {
+    if (!ROW_DATE || ROW_DATE.localeCompare(options.today) > 0) {
         return null;
     }
 
