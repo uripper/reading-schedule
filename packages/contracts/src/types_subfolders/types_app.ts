@@ -700,9 +700,7 @@ export interface ProgressUpdateInput {
 export type UpdatedBook = Book;
 
 /** Dependencies used by calendar interaction handlers. */
-export interface AppCalendarInteractionArgs {
-    /** Applies state mutation to runtime or UI state. */
-    applyStateMutation(mutation: AppStateMutation): void;
+export interface AppCalendarInteractionArgs extends SharedUpdateArgs {
     /** Collects all books from UI or runtime state. */
     collectAllBooks(): Book[];
     /** Collects settings from UI or runtime state. */
@@ -713,31 +711,8 @@ export interface AppCalendarInteractionArgs {
     getBookById(bookId: string): Book | null;
     /** Optional callback fired after book progress has been updated. */
     onProgressUpdated?(book: UpdatedBook): void;
-    /** Optional callback fired after schedule rows are replaced. */
-    onScheduleRowsUpdated?(): void;
     /** Optional callback fired when a session completion toggle is applied. */
     onSessionCompletionUpdated?(payload: CompletionUpdate): void;
-    /** Queues persist work for deferred execution. */
-    queuePersist(): void;
-    /** Renders calendar in the UI. */
-    renderCalendar(
-        rows: PlannerScheduleRow[],
-        totals: Record<string, number>,
-    ): void;
-    /** Updates book schedule rows in runtime state. */
-    setBookScheduleRows(rows: PlannerScheduleRow[]): void;
-    /** Updates last result in runtime state. */
-    setLastResult(result: PlannerResult): void;
-    /** Status callback used to publish user-visible loading or error messages. */
-    setStatus(message: string, isError?: boolean): void;
-    /** Mutable runtime state consumed and updated by this module. */
-    state: {
-        scheduleCompletions: Record<string, boolean>;
-        blockedDayBooks: Record<string, boolean>;
-        lastResult: PlannerResult | null;
-    };
-    /** Converts a planner summary into per-day minute totals for calendar rendering. */
-    totalsFromSummary(summary: PlannerSummary | null): Record<string, number>;
     /** Applies progress updates to a book and returns the updated book if found. */
     updateBookProgress(
         bookId: string,

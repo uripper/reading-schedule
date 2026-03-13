@@ -68,51 +68,6 @@ const NEO_BRUTALIST_FALLBACKS: readonly NeoBrutalistFallback[] = [
         canvasColor: "#FF6B60",
         dominantColor: "#FF3D2E",
     },
-    {
-        ambientColor: "#FFE34A",
-        canvasColor: "#FFE768",
-        dominantColor: "#FFE34A",
-    },
-    {
-        ambientColor: "#2C5BFF",
-        canvasColor: "#5F83FF",
-        dominantColor: "#2C5BFF",
-    },
-    {
-        ambientColor: "#00D35E",
-        canvasColor: "#3EEA83",
-        dominantColor: "#00D35E",
-    },
-    {
-        ambientColor: "#F7529C",
-        canvasColor: "#FF73B2",
-        dominantColor: "#F7529C",
-    },
-    {
-        ambientColor: "#FF7C22",
-        canvasColor: "#FF9A47",
-        dominantColor: "#FF7C22",
-    },
-    {
-        ambientColor: "#05C6D1",
-        canvasColor: "#45D7E1",
-        dominantColor: "#05C6D1",
-    },
-    {
-        ambientColor: "#8CDD28",
-        canvasColor: "#A9EB4D",
-        dominantColor: "#8CDD28",
-    },
-    {
-        ambientColor: "#FF4E00",
-        canvasColor: "#FF7E40",
-        dominantColor: "#FF4E00",
-    },
-    {
-        ambientColor: "#FF235E",
-        canvasColor: "#FF5A86",
-        dominantColor: "#FF235E",
-    },
 ];
 
 function clampChannel(value: number): number {
