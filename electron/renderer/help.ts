@@ -1,4 +1,4 @@
-import { bindDialogFocus } from "./accessibility/index.ts";
+import { bindDialogFocus } from "./accessibility/a11y.ts";
 import { el } from "./dom.ts";
 
 const LOGS: string[] = [];

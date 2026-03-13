@@ -2,7 +2,7 @@
  * Handles book-dialog submit orchestration, validation recovery, and save state UI.
  */
 import type { BookFormRefs, BookSubmitPayload } from "../../types/types.ts";
-import { focusFirstError } from "../accessibility/index.ts";
+import { focusFirstError } from "../accessibility/a11y.ts";
 import { parseFormBook } from "./form_state.ts";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
 

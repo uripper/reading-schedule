@@ -13,6 +13,11 @@ interface BridgeCandidateArgs {
     payload: PlanGeneratePayload | undefined;
 }
 
+interface BridgeCandidateFailureArgs extends BridgeCandidateArgs {
+    error: unknown;
+    moduleName: string;
+}
+
 function parsedBridgeJson(stdout: string, stderr: string): unknown {
     try {
         return JSON.parse(stdout || "{}");
@@ -99,6 +104,35 @@ function logModuleFallback(
     });
 }
 
+function terminalBridgeError(error: unknown, moduleName: string): unknown {
+    if (isMissingModuleError(error, moduleName)) {
+        return new Error(
+            "Planner bridge failed: no candidate module succeeded.",
+        );
+    }
+    return error;
+}
+
+async function handleBridgeCandidateFailure({
+    args,
+    error,
+    executionContext,
+    moduleIndex,
+    moduleName,
+    payload,
+}: BridgeCandidateFailureArgs): Promise<JsonValue> {
+    if (!shouldTryFallbackModule(error, moduleName, moduleIndex)) {
+        throw terminalBridgeError(error, moduleName);
+    }
+    logModuleFallback(executionContext.requestId, moduleIndex, moduleName);
+    return await runBridgeCandidateAtIndex({
+        args,
+        executionContext,
+        moduleIndex: moduleIndex + 1,
+        payload,
+    });
+}
+
 async function runBridgeCandidateAtIndex({
     args,
     executionContext,
@@ -115,19 +149,12 @@ async function runBridgeCandidateAtIndex({
             payload,
         });
     } catch (error) {
-        if (!shouldTryFallbackModule(error, MODULE_NAME, moduleIndex)) {
-            if (isMissingModuleError(error, MODULE_NAME)) {
-                throw new Error(
-                    "Planner bridge failed: no candidate module succeeded.",
-                );
-            }
-            throw error;
-        }
-        logModuleFallback(executionContext.requestId, moduleIndex, MODULE_NAME);
-        return await runBridgeCandidateAtIndex({
+        return await handleBridgeCandidateFailure({
             args,
+            error,
             executionContext,
-            moduleIndex: moduleIndex + 1,
+            moduleIndex,
+            moduleName: MODULE_NAME,
             payload,
         });
     }
