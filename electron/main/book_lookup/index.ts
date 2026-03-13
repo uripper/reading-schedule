@@ -64,6 +64,18 @@ function parsedHttpUrl(urlText: string): URL | null {
         return null;
     }
 
+    const HOSTNAME = parsedUrl.hostname.toLowerCase();
+    if (
+        HOSTNAME === "localhost" ||
+        HOSTNAME === "::1" ||
+        HOSTNAME.startsWith("127.") ||
+        HOSTNAME.startsWith("10.") ||
+        HOSTNAME.startsWith("192.168.") ||
+        /^172\.(1[6-9]|2\d|3[0-1])\./.test(HOSTNAME)
+    ) {
+        return null;
+    }
+
     return parsedUrl;
 }
 
