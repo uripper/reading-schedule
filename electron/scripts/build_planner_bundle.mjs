@@ -6,7 +6,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
+const SCRIPT_PATH = fileURLToPath(import.meta.url);
+const SCRIPT_DIRECTORY = path.dirname(SCRIPT_PATH);
 const ELECTRON_DIRECTORY = path.resolve(SCRIPT_DIRECTORY, "..");
 const REPOSITORY_DIRECTORY = path.resolve(ELECTRON_DIRECTORY, "..");
 const PYINSTALLER_TEMP_DIRECTORY = path.join(
@@ -42,6 +43,7 @@ const WINDOWS_DATA_SEPARATOR = ";";
 const POSIX_DATA_SEPARATOR = ":";
 const GUI_API_MODULE = "reading_plan.gui_api";
 const HTTP_API_MODULE = "reading_plan.http_api";
+const ORTOOLS_PACKAGE_NAME = "ortools";
 
 /**
  * Throws a consistent build-time error.
@@ -136,12 +138,8 @@ function verifyPyInstaller() {
 /**
  * Builds the Windows planner bridge executable into the ignored build directory.
  */
-function buildPlannerBundle() {
-    removeDirectoryIfPresent(PYINSTALLER_TEMP_DIRECTORY);
-    removeDirectoryIfPresent(PLANNER_OUTPUT_DIRECTORY);
-    ensureDirectory(PYINSTALLER_TEMP_DIRECTORY);
-    ensureDirectory(PLANNER_OUTPUT_DIRECTORY);
-    runPython([
+export function plannerBundleArguments() {
+    return [
         "-m",
         PYINSTALLER_MODULE,
         "--noconfirm",
@@ -165,8 +163,18 @@ function buildPlannerBundle() {
         HTTP_API_MODULE,
         "--collect-submodules",
         "reading_plan",
+        "--collect-all",
+        ORTOOLS_PACKAGE_NAME,
         PLANNER_ENTRYPOINT_PATH,
-    ]);
+    ];
+}
+
+function buildPlannerBundle() {
+    removeDirectoryIfPresent(PYINSTALLER_TEMP_DIRECTORY);
+    removeDirectoryIfPresent(PLANNER_OUTPUT_DIRECTORY);
+    ensureDirectory(PYINSTALLER_TEMP_DIRECTORY);
+    ensureDirectory(PLANNER_OUTPUT_DIRECTORY);
+    runPython(plannerBundleArguments());
 }
 
 /**
@@ -183,7 +191,13 @@ function verifyPlannerExecutable() {
     fail(`Planner executable was not created: ${EXECUTABLE_PATH}`);
 }
 
-requireWindowsHost();
-verifyPyInstaller();
-buildPlannerBundle();
-verifyPlannerExecutable();
+export function main() {
+    requireWindowsHost();
+    verifyPyInstaller();
+    buildPlannerBundle();
+    verifyPlannerExecutable();
+}
+
+if (path.resolve(process.argv[1] || "") === SCRIPT_PATH) {
+    main();
+}

@@ -35,7 +35,7 @@ async function enableDevelopmentHotReload(): Promise<void> {
  * Creates and initializes the main application browser window.
  */
 async function createWindow(): Promise<void> {
-    const ICON_PATH = path.join(__dirname, "assets", "logo.png");
+    const ICON_PATH = path.join(__dirname, "assets", "icon.ico");
     const WINDOW = new BrowserWindow({
         height: 1100,
         icon: ICON_PATH,
