@@ -116,6 +116,11 @@ async function runBridgeCandidateAtIndex({
         });
     } catch (error) {
         if (!shouldTryFallbackModule(error, MODULE_NAME, moduleIndex)) {
+            if (isMissingModuleError(error, MODULE_NAME)) {
+                throw new Error(
+                    "Planner bridge failed: no candidate module succeeded.",
+                );
+            }
             throw error;
         }
         logModuleFallback(executionContext.requestId, moduleIndex, MODULE_NAME);
