@@ -2,14 +2,14 @@
     "dependencies": {
         "@expo/metro-runtime": "~55.0.6",
         "@reading-schedule/contracts": "workspace:*",
-        "expo": "~55.0.4",
+        "expo": "~55.0.6",
         "expo-status-bar": "~55.0.4",
         "expo-system-ui": "~55.0.9",
-        "expo-updates": "~55.0.12",
-        "react": "19.2.0",
-        "react-native": "0.83.2",
+        "expo-updates": "~55.0.13",
+        "react": "19.2.4",
+        "react-native": "0.84.1",
         "react-native-web": "^0.21.0",
-        "react-native-webview": "13.16.0"
+        "react-native-webview": "13.16.1"
     },
     "devDependencies": {
         "@types/react": "~19.2.2",

@@ -14,7 +14,12 @@
         "enabled": true
     },
     "files": { "ignoreUnknown": false },
-    "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 4 },
+    "formatter": { 
+        "enabled": true, 
+        "indentStyle": "space", 
+        "indentWidth": 4,
+        "lineWidth": 80
+    },
     "javascript": { "formatter": { "quoteStyle": "double" } },
     "linter": {
         "enabled": true,

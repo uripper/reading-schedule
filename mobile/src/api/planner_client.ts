@@ -131,5 +131,14 @@ export function createMobilePlannerApi(baseUrl: string): PlannerApi {
             });
             return RESULT as BookLookupItem[];
         },
+        zoomIn(): Promise<number> {
+            return notImplemented("zoomIn");
+        },
+        zoomOut(): Promise<number> {
+            return notImplemented("zoomOut");
+        },
+        zoomReset(): Promise<number> {
+            return notImplemented("zoomReset");
+        },
     };
 }

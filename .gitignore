@@ -32,7 +32,6 @@ venv/
 .venv*/
 env/
 build/
-site/
 pip-wheel-metadata/
 .python-version
 
@@ -55,6 +54,7 @@ electron/styles/generated/
 electron/tokens/dist/
 electron/dist/
 apps/*/dist/
+apps/*/dist-tests/
 packages/*/dist/
 services/*/dist/
 apps/client/.vite/

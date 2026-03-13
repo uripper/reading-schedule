@@ -23,18 +23,7 @@ interface TodayThemeTransitionLayerProps {
     toColor: string;
 }
 
-/**
- * Renders a non-interactive animated color-transition overlay for the Today screen.
- * @param fromColor - Starting canvas color before transition.
- * @param progress - Shared transition progress animated value in range `[0, 1]`.
- * @param toColor - Target canvas color after transition.
- * @returns Layer containing sweep and tile effects blended between theme colors.
- */
-export function TodayThemeTransitionLayer({
-    fromColor,
-    progress,
-    toColor,
-}: TodayThemeTransitionLayerProps) {
+function createLayerAnimations(progress: Animated.Value) {
     const FROM_OPACITY = progress.interpolate({
         inputRange: [0, 1],
         outputRange: [1, 0],
@@ -55,28 +44,80 @@ export function TodayThemeTransitionLayer({
         inputRange: [0, 1],
         outputRange: [-180, 220],
     });
+    return {
+        fromOpacity: FROM_OPACITY,
+        pipeSweepShift: PIPE_SWEEP_SHIFT,
+        sweepOpacity: SWEEP_OPACITY,
+        sweepShift: SWEEP_SHIFT,
+        toOpacity: TO_OPACITY,
+    };
+}
 
+function tileLeft(index: number): `${number}%` {
+    return `${(index % GRID_COLUMNS) * (100 / GRID_COLUMNS)}%`;
+}
+
+function tileTop(index: number): `${number}%` {
+    return `${Math.floor(index / GRID_COLUMNS) * (100 / GRID_ROWS)}%`;
+}
+
+function renderDissolveTiles(progress: Animated.Value) {
+    return GRID_TILE_INDEXES.map((tileIndex) => {
+        const PHASE = tilePhase(tileIndex);
+        const TILE_OPACITY = progress.interpolate({
+            inputRange: [PHASE, PHASE + 0.12, PHASE + 0.24],
+            outputRange: [0, 0.52, 0],
+            extrapolate: "clamp",
+        });
+        return (
+            <Animated.View
+                key={`dissolve-tile-${tileIndex}`}
+                style={[
+                    STYLES.dissolveTile,
+                    {
+                        left: tileLeft(tileIndex),
+                        opacity: TILE_OPACITY,
+                        top: tileTop(tileIndex),
+                    },
+                ]}
+            />
+        );
+    });
+}
+
+interface LayerFillProps {
+    color: string;
+    opacity: Animated.AnimatedInterpolation<number>;
+}
+
+function LayerFill({ color, opacity }: LayerFillProps) {
     return (
-        <View pointerEvents="none" style={STYLES.layer}>
-            <Animated.View
-                style={[
-                    STYLES.fill,
-                    { backgroundColor: fromColor, opacity: FROM_OPACITY },
-                ]}
-            />
-            <Animated.View
-                style={[
-                    STYLES.fill,
-                    { backgroundColor: toColor, opacity: TO_OPACITY },
-                ]}
-            />
+        <Animated.View
+            style={[STYLES.fill, { backgroundColor: color, opacity }]}
+        />
+    );
+}
+
+interface SweepEffectsProps {
+    pipeSweepShift: Animated.AnimatedInterpolation<number>;
+    sweepOpacity: Animated.AnimatedInterpolation<number>;
+    sweepShift: Animated.AnimatedInterpolation<number>;
+}
+
+function SweepEffects({
+    pipeSweepShift,
+    sweepOpacity,
+    sweepShift,
+}: SweepEffectsProps) {
+    return (
+        <>
             <Animated.View
                 style={[
                     STYLES.scanBand,
                     {
-                        opacity: SWEEP_OPACITY,
+                        opacity: sweepOpacity,
                         transform: [
-                            { translateX: SWEEP_SHIFT },
+                            { translateX: sweepShift },
                             { rotate: "-14deg" },
                         ],
                     },
@@ -86,9 +127,9 @@ export function TodayThemeTransitionLayer({
                 style={[
                     STYLES.scanBandThin,
                     {
-                        opacity: SWEEP_OPACITY,
+                        opacity: sweepOpacity,
                         transform: [
-                            { translateX: SWEEP_SHIFT },
+                            { translateX: sweepShift },
                             { rotate: "-14deg" },
                         ],
                     },
@@ -98,8 +139,8 @@ export function TodayThemeTransitionLayer({
                 style={[
                     STYLES.pipeSweep,
                     {
-                        opacity: SWEEP_OPACITY,
-                        transform: [{ translateX: PIPE_SWEEP_SHIFT }],
+                        opacity: sweepOpacity,
+                        transform: [{ translateX: pipeSweepShift }],
                     },
                 ]}
             />
@@ -107,36 +148,39 @@ export function TodayThemeTransitionLayer({
                 style={[
                     STYLES.pipeSweepVertical,
                     {
-                        opacity: SWEEP_OPACITY,
-                        transform: [{ translateY: PIPE_SWEEP_SHIFT }],
+                        opacity: sweepOpacity,
+                        transform: [{ translateY: pipeSweepShift }],
                     },
                 ]}
             />
-            {GRID_TILE_INDEXES.map((tileIndex) => {
-                const PHASE = tilePhase(tileIndex);
-                const TILE_OPACITY = progress.interpolate({
-                    inputRange: [PHASE, PHASE + 0.12, PHASE + 0.24],
-                    outputRange: [0, 0.52, 0],
-                    extrapolate: "clamp",
-                });
-                const LEFT_PERCENT =
-                    `${(tileIndex % GRID_COLUMNS) * (100 / GRID_COLUMNS)}%` as `${number}%`;
-                const TOP_PERCENT =
-                    `${Math.floor(tileIndex / GRID_COLUMNS) * (100 / GRID_ROWS)}%` as `${number}%`;
-                return (
-                    <Animated.View
-                        key={`dissolve-tile-${tileIndex}`}
-                        style={[
-                            STYLES.dissolveTile,
-                            {
-                                left: LEFT_PERCENT,
-                                opacity: TILE_OPACITY,
-                                top: TOP_PERCENT,
-                            },
-                        ]}
-                    />
-                );
-            })}
+        </>
+    );
+}
+
+/**
+ * Renders a non-interactive animated color-transition overlay for the Today screen.
+ * @param fromColor - Starting canvas color before transition.
+ * @param progress - Shared transition progress animated value in range `[0, 1]`.
+ * @param toColor - Target canvas color after transition.
+ * @returns Layer containing sweep and tile effects blended between theme colors.
+ */
+export function TodayThemeTransitionLayer({
+    fromColor,
+    progress,
+    toColor,
+}: TodayThemeTransitionLayerProps) {
+    const ANIMATIONS = createLayerAnimations(progress);
+
+    return (
+        <View pointerEvents="none" style={STYLES.layer}>
+            <LayerFill color={fromColor} opacity={ANIMATIONS.fromOpacity} />
+            <LayerFill color={toColor} opacity={ANIMATIONS.toOpacity} />
+            <SweepEffects
+                pipeSweepShift={ANIMATIONS.pipeSweepShift}
+                sweepOpacity={ANIMATIONS.sweepOpacity}
+                sweepShift={ANIMATIONS.sweepShift}
+            />
+            {renderDissolveTiles(progress)}
         </View>
     );
 }
