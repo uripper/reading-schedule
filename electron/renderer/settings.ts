@@ -1,12 +1,12 @@
 import { parseSettings, safeParseSettings } from "@reading-schedule/contracts";
-import { logDebug } from "@renderer/logger";
+import { logDebug } from "@renderer/logger.ts";
 import type { PlannerSettings } from "../types/types.ts";
 import { FIELDS } from "./settings/config.ts";
 import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.ts";
 import {
-  renderDifficultyRows,
-  renderGrid,
-  renderWeekdayGrid,
+    renderDifficultyRows,
+    renderGrid,
+    renderWeekdayGrid,
 } from "./settings/render.ts";
 import { bindSettingsSectionTabs } from "./settings/section_tabs.ts";
 import { collectSettingsForm } from "./settings/serialize_collect.ts";
@@ -19,22 +19,22 @@ let dayOffs: string[] = [];
  * @param nextDayOffs - Updated day-off weekday keys.
  */
 function setDayOffs(nextDayOffs: string[]): void {
-  dayOffs = [...nextDayOffs];
-  renderDayOffs(dayOffs, setDayOffs);
+    dayOffs = [...nextDayOffs];
+    renderDayOffs(dayOffs, setDayOffs);
 }
 
 /**
  * Initializes settings UI sections, grids, and day-off controls.
  */
 export function initSettingsGrid(): void {
-  bindSettingsSectionTabs();
-  renderGrid("windowGrid", FIELDS.window);
-  renderGrid("budgetGrid", FIELDS.budget);
-  renderGrid("weightsGrid", FIELDS.weights);
-  renderGrid("displayGrid", FIELDS.display);
-  renderWeekdayGrid();
-  renderDifficultyRows();
-  bindDayOffAddButton(() => dayOffs, setDayOffs);
+    bindSettingsSectionTabs();
+    renderGrid("windowGrid", FIELDS.window);
+    renderGrid("budgetGrid", FIELDS.budget);
+    renderGrid("weightsGrid", FIELDS.weights);
+    renderGrid("displayGrid", FIELDS.display);
+    renderWeekdayGrid();
+    renderDifficultyRows();
+    bindDayOffAddButton(() => dayOffs, setDayOffs);
 }
 
 /**
@@ -42,24 +42,27 @@ export function initSettingsGrid(): void {
  * @param settings - Planner settings snapshot.
  */
 export function fillSettings(settings: PlannerSettings = {}): void {
-  const RESULT = safeParseSettings(settings);
-  if (!RESULT.success) {
-    logDebug("Failed to parse persisted settings; falling back to defaults.", {
-      issueCount: RESULT.error.issues.length,
+    const RESULT = safeParseSettings(settings);
+    if (!RESULT.success) {
+        logDebug(
+            "Failed to parse persisted settings; falling back to defaults.",
+            {
+                issueCount: RESULT.error.issues.length,
+            },
+        );
+        fillSettingsForm({}, setDayOffs);
+        return;
+    }
+
+    let dayOffCount = 0;
+    if (Array.isArray(RESULT.data.day_offs)) {
+        dayOffCount = RESULT.data.day_offs.length;
+    }
+
+    logDebug("Applied persisted settings to settings form.", {
+        dayOffCount,
     });
-    fillSettingsForm({}, setDayOffs);
-    return;
-  }
-
-  let dayOffCount = 0;
-  if (Array.isArray(RESULT.data.day_offs)) {
-    dayOffCount = RESULT.data.day_offs.length;
-  }
-
-  logDebug("Applied persisted settings to settings form.", {
-    dayOffCount,
-  });
-  fillSettingsForm(RESULT.data, setDayOffs);
+    fillSettingsForm(RESULT.data, setDayOffs);
 }
 
 /**
@@ -67,12 +70,12 @@ export function fillSettings(settings: PlannerSettings = {}): void {
  * @returns Serialized planner settings.
  */
 export function collectSettings(): PlannerSettings {
-  const RAW_SETTINGS = collectSettingsForm(dayOffs);
-  logDebug("Collected settings payload from form.", {
-    dayOffCount: dayOffs.length,
-    hasEndDate:
-      typeof RAW_SETTINGS.end_date === "string" &&
-      RAW_SETTINGS.end_date.trim() !== "",
-  });
-  return parseSettings(RAW_SETTINGS);
+    const RAW_SETTINGS = collectSettingsForm(dayOffs);
+    logDebug("Collected settings payload from form.", {
+        dayOffCount: dayOffs.length,
+        hasEndDate:
+            typeof RAW_SETTINGS.end_date === "string" &&
+            RAW_SETTINGS.end_date.trim() !== "",
+    });
+    return parseSettings(RAW_SETTINGS);
 }

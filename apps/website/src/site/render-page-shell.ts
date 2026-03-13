@@ -2,13 +2,13 @@
  * Shared page frame markup for the Bartleby website.
  */
 
-import type { ActionLink, NavItem } from "../types/site_content.ts";
+import type { ActionLink, NavItem } from "../types/site-content.ts";
 import {
     escapeHtml,
     joinMarkup,
     renderActionLink,
     renderButtonLink,
-} from "./render_helpers.ts";
+} from "./render-helpers.ts";
 
 /**
  * Content passed into the shared website frame.

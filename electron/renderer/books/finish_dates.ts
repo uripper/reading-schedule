@@ -1,4 +1,4 @@
-import { sortedRows } from "@renderer/app/schedule_preserve";
+import { sortedRows } from "@renderer/app/schedule_preserve.ts";
 import type { Book, PlannerScheduleRow } from "../../types/types.ts";
 
 /**
@@ -8,21 +8,21 @@ import type { Book, PlannerScheduleRow } from "../../types/types.ts";
  * @returns Finish-date map where explicit read dates take precedence.
  */
 function withBookFinishedDates(
-  finishDateByBookId: Record<string, string>,
-  books: Book[] = [],
+    finishDateByBookId: Record<string, string>,
+    books: Book[] = [],
 ): Record<string, string> {
-  const OUT = { ...finishDateByBookId };
+    const OUT = { ...finishDateByBookId };
 
-  for (const BOOK of books) {
-    const BOOK_ID = String(BOOK.book_id || "");
-    const FINISHED_AT = String(BOOK.finished_at ?? "");
-    if (!BOOK_ID || !FINISHED_AT) {
-      continue;
+    for (const BOOK of books) {
+        const BOOK_ID = String(BOOK.book_id || "");
+        const FINISHED_AT = String(BOOK.finished_at ?? "");
+        if (!BOOK_ID || !FINISHED_AT) {
+            continue;
+        }
+        // For read books, explicit completion date should win over schedule estimates.
+        OUT[BOOK_ID] = FINISHED_AT;
     }
-    // For read books, explicit completion date should win over schedule estimates.
-    OUT[BOOK_ID] = FINISHED_AT;
-  }
-  return OUT;
+    return OUT;
 }
 
 /**
@@ -32,18 +32,18 @@ function withBookFinishedDates(
  * @returns Finish-date map for books grid sorting/grouping.
  */
 export function finishDatesByBookId(
-  rows: PlannerScheduleRow[] = [],
-  books: Book[] = [],
+    rows: PlannerScheduleRow[] = [],
+    books: Book[] = [],
 ): Record<string, string> {
-  const OUT: Record<string, string> = {};
+    const OUT: Record<string, string> = {};
 
-  for (const ROW of sortedRows(rows)) {
-    const BOOK_ID = String(ROW.book_id || "");
-    const DATE = String(ROW.date || "");
-    if (!BOOK_ID || !DATE) {
-      continue;
+    for (const ROW of sortedRows(rows)) {
+        const BOOK_ID = String(ROW.book_id || "");
+        const DATE = String(ROW.date || "");
+        if (!BOOK_ID || !DATE) {
+            continue;
+        }
+        OUT[BOOK_ID] = DATE;
     }
-    OUT[BOOK_ID] = DATE;
-  }
-  return withBookFinishedDates(OUT, books);
+    return withBookFinishedDates(OUT, books);
 }

@@ -2,8 +2,8 @@
  * Renders the top-of-page hero and preview layout.
  */
 
-import type { HeroContent } from "../types/site_content.ts";
-import { escapeHtml, joinMarkup, renderButtonLink } from "./render_helpers.ts";
+import type { HeroContent } from "../types/site-content.ts";
+import { escapeHtml, joinMarkup, renderButtonLink } from "./render-helpers.ts";
 
 function renderActionRow(hero: HeroContent): string {
     return joinMarkup([

@@ -2,8 +2,8 @@
  * Download-surface content for the public site.
  */
 
-import type { DownloadCard } from "../types/site_content.ts";
-import { DOWNLOAD_SECTION_URL } from "./site_urls.ts";
+import type { DownloadCard } from "../types/site-content.ts";
+import { DOWNLOAD_SECTION_URL } from "./site-urls.ts";
 
 export const DOWNLOAD_CARDS: readonly DownloadCard[] = [
     {

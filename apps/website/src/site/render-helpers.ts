@@ -2,7 +2,7 @@
  * Shared HTML render helpers for the website's static sections.
  */
 
-import type { ActionLink, NavItem } from "../types/site_content.ts";
+import type { ActionLink, NavItem } from "../types/site-content.ts";
 
 const HTML_ESCAPE_MAP: Readonly<Record<string, string>> = {
     "'": "&#39;",

@@ -2,7 +2,7 @@
  * Resolves the configured site page id to a supported page.
  */
 
-import type { SitePage } from "../types/site_content.ts";
+import type { SitePage } from "../types/site-content.ts";
 
 const DEFAULT_SITE_PAGE: SitePage = "landing";
 const ROADMAP_PAGE: SitePage = "roadmap";

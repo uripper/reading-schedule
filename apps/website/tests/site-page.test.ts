@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { renderPlatformLogo } from "../src/site/render_platform_logo.ts";
-import { resolveSitePage } from "../src/site/resolve_site_page.ts";
+import { renderPlatformLogo } from "../src/site/render-platform-logo.ts";
+import { resolveSitePage } from "../src/site/resolve-site-page.ts";
 
 test("resolveSitePage defaults to landing when data-page is absent", () => {
     assert.equal(resolveSitePage(undefined), "landing");
