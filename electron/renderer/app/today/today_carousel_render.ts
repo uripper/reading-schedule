@@ -16,7 +16,6 @@ import {
 import {
     afterSessionText,
     clearNoDataHandlers,
-    inputDraft,
     renderAfterSessionText,
     renderProgressSummary,
     setActionButtonsDisabled,
@@ -25,12 +24,15 @@ import {
     setProgressInputsDisabled,
 } from "./today_carousel_panel.js";
 import {
+    bindTodayProgressInputs,
+    resetTodayProgressInputs,
+} from "./today_carousel_progress_bindings.js";
+import {
     closeMinutesEditor,
     minutesEditor,
     pinnedRowKeySnapshot,
     resetTodayCarouselUiState,
     selectedBookId,
-    setProgressDraft,
     setSelectedBookId,
 } from "./today_carousel_state.js";
 import {
@@ -100,38 +102,11 @@ function renderNoData(): void {
     el<HTMLInputElement>("todayMinutesInput").value = EMPTY_TEXT;
     renderAfterSessionText("-- pages\n--%");
     el<HTMLElement>("todayProgressPagesTotalText").textContent = "--";
-    el<HTMLInputElement>("todayPagesInput").value = EMPTY_TEXT;
-    el<HTMLInputElement>("todayPercentInput").value = EMPTY_TEXT;
+    resetTodayProgressInputs();
     setMinutesEditDisabled(true);
     setActionButtonsDisabled(true);
     setLogButtonState(false);
     setProgressInputsDisabled(true);
-}
-
-/**
- * Wires the active row's progress inputs to the ephemeral draft state.
- * @param active - Active Today carousel row.
- */
-function bindProgressInputs(active: TodayCarouselActiveItem): void {
-    const DRAFT = inputDraft(active);
-    const PAGES_INPUT = el<HTMLInputElement>("todayPagesInput");
-    const PERCENT_INPUT = el<HTMLInputElement>("todayPercentInput");
-    PAGES_INPUT.value = DRAFT.pagesText;
-    PERCENT_INPUT.value = DRAFT.percentText;
-    PAGES_INPUT.oninput = () => {
-        setProgressDraft({
-            pagesText: PAGES_INPUT.value,
-            percentText: PERCENT_INPUT.value,
-            rowKey: active.row.rowKey,
-        });
-    };
-    PERCENT_INPUT.oninput = () => {
-        setProgressDraft({
-            pagesText: PAGES_INPUT.value,
-            percentText: PERCENT_INPUT.value,
-            rowKey: active.row.rowKey,
-        });
-    };
 }
 
 /**
@@ -173,7 +148,7 @@ function renderActive(active: TodayCarouselActiveItem): void {
     );
     renderAfterSessionText(afterSessionText(active));
     renderProgressSummary(active);
-    bindProgressInputs(active);
+    bindTodayProgressInputs(active);
     applyMinutesEditorVisibility(active);
     setMinutesEditDisabled(false);
     setActionButtonsDisabled(false);

@@ -6,7 +6,7 @@
 
 Problem:
 
-The Today progress chips do not enforce sensible numeric bounds. Users can enter values that are impossible or inconsistent with the current session state.
+The Today progress chips do not enforce sensible numeric bounds. Users can enter values that are impossible or inconsistent with the current session state. Currently they do not let you save an insensible number, but they also do not prevent you from entering it in the first place, which can lead to confusion and a lack of trust in the input.
 
 Expected:
 

@@ -13,14 +13,14 @@ import { appendDayButtonSummary } from "./month_day_button_chips.js";
  * @param rows - Rows scheduled for the day.
  * @returns Day-style flags used for class/aria assignment.
  */
-function dayStyleFlags(args: DayStyleFlagsArgs): DayStyleFlags {
+export function dayStyleFlags(args: DayStyleFlagsArgs): DayStyleFlags {
     const HAS_FINISH_ROW = args.rows.some((row) => {
         return row.finish === true;
     });
     const IS_MUTED = args.date.getMonth() !== args.firstDate.getMonth();
     const IS_SELECTED = args.selectedDate === args.keyForDay;
-    const IS_PAST = Number(args.keyForDay) < Number(args.todayKey);
-    const IS_TODAY = Number(args.keyForDay) === Number(args.todayKey);
+    const IS_PAST = args.keyForDay < args.todayKey;
+    const IS_TODAY = args.keyForDay === args.todayKey;
     return {
         hasFinishRow: HAS_FINISH_ROW,
         isMuted: IS_MUTED,

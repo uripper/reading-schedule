@@ -8,10 +8,8 @@ import {
 } from "./today_carousel_actions.js";
 import type { TodayCarouselActiveItem } from "./today_carousel_model.js";
 import { formatPagesTotalText } from "./today_carousel_progress.js";
-import { progressDraft } from "./today_carousel_state.js";
 
 const EDIT_MINUTES_LABEL = "Edit planned minutes";
-const EMPTY_TEXT = "";
 
 /**
  * Updates the primary Today action button text and completion styling.
@@ -97,29 +95,6 @@ export function renderAfterSessionText(text: string): void {
     VALUES.className = "today-after-session-values";
     VALUES.textContent = text;
     AFTER_SESSION.replaceChildren(LABEL, VALUES);
-}
-
-/**
- * Resolves the current editable progress draft for the active Today row.
- * @param active - Active carousel item.
- * @returns Progress input values to display in the UI.
- */
-export function inputDraft(active: TodayCarouselActiveItem): {
-    pagesText: string;
-    percentText: string;
-} {
-    const DRAFT = progressDraft(active.row.rowKey);
-    if (DRAFT !== null) {
-        return DRAFT;
-    }
-    let pagesText = EMPTY_TEXT;
-    if (active.pagesRead !== null) {
-        pagesText = String(active.pagesRead);
-    }
-    return {
-        pagesText,
-        percentText: String(active.progressPercent),
-    };
 }
 
 /**

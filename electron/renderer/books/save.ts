@@ -1,6 +1,35 @@
 import type { Book } from "../../types/types.js";
 import { getPlannerApi } from "../app/planner_api.js";
 
+const COVER_DOWNLOAD_TIMEOUT_MS = 4_000;
+const COVER_DOWNLOAD_TIMEOUT_MESSAGE = "Timed out downloading the book cover.";
+
+/**
+ * Resolves a promise within a bounded time window.
+ * @param operation - Promise to await.
+ * @param timeoutMs - Maximum wait time in milliseconds.
+ * @returns Resolved operation value when it finishes in time.
+ */
+async function promiseWithTimeout<T>(
+    operation: Promise<T>,
+    timeoutMs: number,
+): Promise<T> {
+    let timeoutId: ReturnType<typeof globalThis.setTimeout> | null = null;
+    const TIMEOUT_PROMISE = new Promise<never>((_resolve, reject) => {
+        timeoutId = globalThis.setTimeout(() => {
+            reject(new Error(COVER_DOWNLOAD_TIMEOUT_MESSAGE));
+        }, timeoutMs);
+    });
+
+    try {
+        return await Promise.race([operation, TIMEOUT_PROMISE]);
+    } finally {
+        if (timeoutId !== null) {
+            globalThis.clearTimeout(timeoutId);
+        }
+    }
+}
+
 /**
  * Downloads remote cover art for a book when no local cover exists yet.
  * @param book - Source book model.
@@ -12,9 +41,9 @@ export async function hydrateBookCover(book: Book): Promise<Book> {
     }
 
     try {
-        const LOCAL_COVER = await getPlannerApi().downloadCover(
-            book.cover_url,
-            book.book_id,
+        const LOCAL_COVER = await promiseWithTimeout(
+            getPlannerApi().downloadCover(book.cover_url, book.book_id),
+            COVER_DOWNLOAD_TIMEOUT_MS,
         );
         if (LOCAL_COVER) {
             return { ...book, cover_local_path: LOCAL_COVER };
