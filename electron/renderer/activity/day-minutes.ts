@@ -1,7 +1,7 @@
-import { localDayKeyFromIso } from "@renderer/app/date_keys.ts";
 import type { DayMinutesArgs, DayMinutesMap } from "../../types/types.ts";
+import { localDayKeyFromIso } from "../app/date_keys.ts";
 import { sessionKeyFor } from "../calendar/utils.ts";
-import { addMinutes, includeDayKey } from "./day_minutes_collect.ts";
+import { addMinutes, includeDayKey } from "./day-minutes-collect.ts";
 
 const MIN_STREAK_MINUTES = 1;
 const PREVIOUS_DAY_OFFSET = 1;

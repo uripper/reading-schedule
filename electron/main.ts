@@ -4,14 +4,11 @@
 import path from "node:path";
 
 import { app, BrowserWindow } from "electron";
-
-import {
-    downloadCover,
-    saveUploadedCover,
-    searchBooks,
-} from "./main/book_lookup/index.ts";
+import { downloadCover, saveUploadedCover } from "./main/book_lookup/index.ts";
+import { searchBooks } from "./main/book_lookup/search.ts";
 import { runBridge } from "./main/bridge.ts";
 import { registerIpcHandlers } from "./main/ipc.ts";
+import { isProductionEnvironment } from "./main/runtime-env.ts";
 import { readState, writeState } from "./main/state_store.ts";
 import {
     initialZoomFactor,
@@ -19,14 +16,13 @@ import {
     shiftZoomFactor,
 } from "./main/zoom.ts";
 
-const DEVELOPMENT_ENVIRONMENT = "development";
 const HOT_RELOAD_IGNORED_OUTPUTS = ["dist/main.js", "dist/main/**"];
 
 /**
  * Enables main-process hot reload during development.
  */
 async function enableDevelopmentHotReload(): Promise<void> {
-    if (process.env.NODE_ENV !== DEVELOPMENT_ENVIRONMENT) {
+    if (isProductionEnvironment()) {
         return;
     }
     const RELOADER_MODULE = await import("electron-reloader");

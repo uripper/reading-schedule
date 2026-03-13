@@ -117,7 +117,6 @@ function renderDownloadCard(card: DownloadCard): string {
         '<div class="download-card__logo" aria-hidden="true">',
         renderPlatformLogo(card.platform),
         "</div>",
-        `<p class="download-card__label">${escapeHtml(card.platform)}</p>`,
         renderButtonLink(card.action),
         "</article>",
     ]);

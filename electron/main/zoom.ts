@@ -2,6 +2,7 @@
  * @file Main-process zoom factor helpers for renderer web contents.
  */
 import type { WebContents } from "electron";
+import { readEnvironmentValue } from "./runtime-env.ts";
 
 const DEFAULT_UI_SCALE = 1.55;
 const MIN_UI_SCALE = 0.7;
@@ -57,7 +58,7 @@ export function setZoomFactor(webContents: WebContents, value: number): number {
  */
 export function initialZoomFactor(): number {
     const REQUESTED_SCALE_RAW =
-        process.env.UI_SCALE ?? String(DEFAULT_UI_SCALE);
+        readEnvironmentValue("UI_SCALE") ?? String(DEFAULT_UI_SCALE);
     const REQUESTED_SCALE = Number(REQUESTED_SCALE_RAW);
     return normalizedZoomFactor(REQUESTED_SCALE);
 }

@@ -1,5 +1,6 @@
-import * as fs from "node:fs";
-import * as path from "node:path";
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { processEnvironment, readEnvironmentValue } from "../runtime-env.ts";
 import { pythonBridgeLogPath } from "../state_store_paths.ts";
 import {
     BRIDGE_LOG_PATH_KEY,
@@ -18,9 +19,9 @@ const ROOT_MARKER_PATH_SEGMENTS = ["src", "reading_plan"];
 const ROOT_SEARCH_ASCENT_LIMIT = 12;
 
 function hasRootMarkers(directory: string): boolean {
-    const ROOT_MARKER_PATH = path.join(directory, ...ROOT_MARKER_PATH_SEGMENTS);
-    const ROOT_FILE_PATH = path.join(directory, ROOT_MARKER_FILE);
-    return fs.existsSync(ROOT_MARKER_PATH) && fs.existsSync(ROOT_FILE_PATH);
+    const ROOT_MARKER_PATH = join(directory, ...ROOT_MARKER_PATH_SEGMENTS);
+    const ROOT_FILE_PATH = join(directory, ROOT_MARKER_FILE);
+    return existsSync(ROOT_MARKER_PATH) && existsSync(ROOT_FILE_PATH);
 }
 
 /**
@@ -38,7 +39,7 @@ function resolveRootFrom(startDirectory: string): string | null {
         if (hasRootMarkers(currentDirectory)) {
             return currentDirectory;
         }
-        const PARENT_DIRECTORY = path.dirname(currentDirectory);
+        const PARENT_DIRECTORY = dirname(currentDirectory);
         if (PARENT_DIRECTORY === currentDirectory) {
             return null;
         }
@@ -53,7 +54,7 @@ function resolveRootFrom(startDirectory: string): string | null {
  * @returns Timeout in milliseconds.
  */
 export function bridgeTimeoutMs(): number {
-    const RAW_TIMEOUT = process.env[BRIDGE_TIMEOUT_MS_KEY];
+    const RAW_TIMEOUT = readEnvironmentValue(BRIDGE_TIMEOUT_MS_KEY);
     if (typeof RAW_TIMEOUT !== "string" || RAW_TIMEOUT.trim() === "") {
         return DEFAULT_BRIDGE_TIMEOUT_MS;
     }
@@ -92,8 +93,8 @@ export function root(): string {
  */
 function pyEnv(): NodeJS.ProcessEnv {
     return {
-        ...process.env,
-        [PYTHONPATH_KEY]: path.join(root(), PYTHONPATH_SEGMENT),
+        ...processEnvironment(),
+        [PYTHONPATH_KEY]: join(root(), PYTHONPATH_SEGMENT),
     };
 }
 

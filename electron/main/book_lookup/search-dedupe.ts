@@ -1,5 +1,22 @@
 import type { SearchDoc } from "@reading-schedule/contracts";
-import { primaryAuthor } from "./search_text.ts";
+import { primaryAuthor } from "./search-text.ts";
+
+function docDeduplicationKey(doc: SearchDoc): string {
+    const KEY = String(doc.key ?? "").trim();
+
+    if (KEY.length > 0) {
+        return KEY;
+    }
+
+    const TITLE = String(doc.title ?? "").trim();
+    const AUTHOR = primaryAuthor(doc).trim();
+
+    if (TITLE.length === 0 && AUTHOR.length === 0) {
+        return "";
+    }
+
+    return `${TITLE}|${AUTHOR}`;
+}
 
 /**
  * Removes duplicate docs by canonical key and title/author fallback.
@@ -9,27 +26,21 @@ import { primaryAuthor } from "./search_text.ts";
 export function dedupeDocs(docs: SearchDoc[]): SearchDoc[] {
     const SEEN = new Set<string>();
     const DEDUPED: SearchDoc[] = [];
+
     for (const DOC of docs) {
-        const KEY = String(DOC.key ?? "").trim();
-        if (KEY.length > 0) {
-            if (SEEN.has(KEY)) {
-                continue;
-            }
-            SEEN.add(KEY);
-            DEDUPED.push(DOC);
+        const DEDUPE_KEY = docDeduplicationKey(DOC);
+
+        if (DEDUPE_KEY.length === 0) {
             continue;
         }
-        const TITLE = String(DOC.title ?? "").trim();
-        const AUTHOR = primaryAuthor(DOC).trim();
-        if (TITLE.length === 0 && AUTHOR.length === 0) {
+
+        if (SEEN.has(DEDUPE_KEY)) {
             continue;
         }
-        const FALLBACK = `${TITLE}|${AUTHOR}`;
-        if (SEEN.has(FALLBACK)) {
-            continue;
-        }
-        SEEN.add(FALLBACK);
+
+        SEEN.add(DEDUPE_KEY);
         DEDUPED.push(DOC);
     }
+
     return DEDUPED;
 }

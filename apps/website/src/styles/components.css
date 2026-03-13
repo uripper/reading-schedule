@@ -132,7 +132,7 @@
 .download-card {
     align-content: space-between;
     min-height: 15rem;
-    background: var(--color-white);
+    background: var(--color-gray);
 }
 
 .download-card__logo {
@@ -140,14 +140,6 @@
     align-items: center;
     justify-content: center;
     min-height: 12rem;
-}
-
-.download-card__label {
-    margin: 0;
-    font-size: 2.05rem;
-    font-weight: 700;
-    line-height: 1.2;
-    color: var(--color-ink);
 }
 
 .platform-logo {

@@ -13,7 +13,7 @@ import {
     visibleBooksForView,
 } from "./controller_render_helpers.ts";
 import { groupsForEstimatedFinish } from "./estimated_finish_groups.ts";
-import { finishDatesByBookId } from "./finish_dates.ts";
+import { finishDatesByBookId } from "./finish-dates.ts";
 import { GROUP_BY_NONE, groupBooks } from "./grouping.ts";
 import { SHELF_FILTER_ALL } from "./shelf.ts";
 import { SORT_BY_ESTIMATED_FINISH } from "./sort.ts";

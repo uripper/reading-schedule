@@ -7,7 +7,7 @@ import {
     dayMinutesForKey,
     dayMinutesFromActivity,
     streakFromDayMinutes,
-} from "../../activity/day_minutes.ts";
+} from "../../activity/day-minutes.ts";
 import { todayKey } from "../../sessions/utils.ts";
 import { renderTodayCarousel } from "./today_carousel_render.ts";
 import { goalProgressPercent } from "./today_goal.ts";
