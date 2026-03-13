@@ -60,7 +60,13 @@ function extensionFromContentType(contentType: string): CoverExtension | null {
         return EXTENSION_WEBP;
     }
 
-    return null;
+    if (
+        contentType.includes("image/jpeg") ||
+        contentType.includes("image/jpg")
+    ) {
+        return EXTENSION_JPG;
+    }
+
 }
 
 function normalizedPathExtension(parsedUrl: URL): string {
