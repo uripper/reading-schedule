@@ -117,21 +117,18 @@ def add_dependency_constraints(context: ModelBuildContext) -> None:
             continue
         dependent_count += 1
         blocker = context.book_map[blocker_id]
-
-        if blocker_id not in dependency_cache:
-            dependency_cache[blocker_id] = _build_progress_before_by_day(
-                context,
-                blocker,
-                blocker_index_map[blocker_id],
-            )
-
-        progress_before_by_day = dependency_cache[blocker_id]
-        for day in context.days:
-            context.model.Add(
-                progress_before_by_day[day]
-                >= blocker.remaining_words * context.y[book.book_id, day]
-            )
-
+        progress_before_by_day = _dependency_progress_before_by_day(
+            blocker,
+            blocker_index_map,
+            context,
+            dependency_cache,
+        )
+        _add_dependency_day_constraints(
+            blocker,
+            book,
+            context,
+            progress_before_by_day,
+        )
         if dependent_count % DEPENDENCY_PROGRESS_LOG_INTERVAL == 0:
             LOGGER.debug(
                 "build_cp_sat: dependency constraints progress",
@@ -148,6 +145,35 @@ def add_dependency_constraints(context: ModelBuildContext) -> None:
             "dependent_count": dependent_count,
         },
     )
+
+
+def _dependency_progress_before_by_day(
+    blocker: Book,
+    blocker_index_map: dict[str, int],
+    context: ModelBuildContext,
+    dependency_cache: dict[str, dict[date, IntVarLike]],
+) -> dict[date, IntVarLike]:
+    blocker_id = blocker.book_id
+    if blocker_id not in dependency_cache:
+        dependency_cache[blocker_id] = _build_progress_before_by_day(
+            context,
+            blocker,
+            blocker_index_map[blocker_id],
+        )
+    return dependency_cache[blocker_id]
+
+
+def _add_dependency_day_constraints(
+    blocker: Book,
+    book: Book,
+    context: ModelBuildContext,
+    progress_before_by_day: dict[date, IntVarLike],
+) -> None:
+    for day in context.days:
+        context.model.Add(
+            progress_before_by_day[day]
+            >= blocker.remaining_words * context.y[book.book_id, day]
+        )
 
 
 def add_progress_constraints(

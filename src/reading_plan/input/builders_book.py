@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, TypeGuard
 from uuid import uuid4
 
 from reading_plan.input.builders_coerce import (
@@ -38,6 +38,22 @@ class WordStats:
     words_full: int
     remaining_words: int
     progress_percent: float
+
+
+def _is_int_input(value: object) -> TypeGuard[IntInput]:
+    return (
+        isinstance(value, (int, str, bytes, bytearray))
+        or hasattr(value, "__int__")
+        or hasattr(value, "__index__")
+    )
+
+
+def _is_float_input(value: object) -> TypeGuard[FloatInput]:
+    return (
+        isinstance(value, (int, float, str, bytes, bytearray))
+        or hasattr(value, "__float__")
+        or hasattr(value, "__index__")
+    )
 
 
 def book_from_data(data: BookData) -> Book:
@@ -260,8 +276,8 @@ def _scheduled_days(
 
 def _int_input(raw: object, field: str) -> IntInput:
     """Validate and narrow a raw value into an accepted integer input."""
-    if isinstance(raw, (int, str, bytes, bytearray)):
-        return cast("IntInput", raw)
+    if _is_int_input(raw):
+        return raw
     msg = f"{field} must be an integer-compatible value"
     raise TypeError(msg)
 
@@ -275,8 +291,8 @@ def _optional_int_input(raw: object | None, field: str) -> IntInput | None:
 
 def _float_input(raw: object, field: str) -> FloatInput:
     """Validate and narrow a raw value into an accepted numeric input."""
-    if isinstance(raw, (int, float, str, bytes, bytearray)):
-        return cast("FloatInput", raw)
+    if _is_float_input(raw):
+        return raw
     msg = f"{field} must be a numeric value"
     raise TypeError(msg)
 

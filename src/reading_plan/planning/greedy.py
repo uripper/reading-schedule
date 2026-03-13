@@ -191,11 +191,11 @@ def _can_start_book(state: DayState, book: Book) -> bool:
     """Return whether a book can start a new session on the current day."""
     if book in state.used or state.remaining[book.book_id] <= 0:
         return False
-    if not book_is_scheduled_for_day(book, state.day):
-        return False
-    if not _is_unlocked(book, state.remaining):
-        return False
-    return _has_minimum_capacity_for_book(state, book)
+    can_start = book_is_scheduled_for_day(
+        book,
+        state.day,
+    ) and _is_unlocked(book, state.remaining)
+    return can_start and _has_minimum_capacity_for_book(state, book)
 
 
 def _has_minimum_capacity_for_book(state: DayState, book: Book) -> bool:

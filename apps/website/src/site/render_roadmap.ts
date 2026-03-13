@@ -8,13 +8,13 @@ import { escapeHtml, joinMarkup } from "./render_helpers.js";
 import { renderPageShell } from "./render_page_shell.js";
 
 /**
-* Render an HTML unordered list of roadmap items or return an empty string when none are provided.
-* @example
-* renderRoadmapItems(['Plan', 'Build'])
-* '<ul class="roadmap-phase__list"><li>Plan</li><li>Build</li></ul>'
-* @param {readonly string[]|undefined} items - Read-only array of item strings or undefined to render nothing.
-* @returns {string} HTML string containing a UL with LI elements for each item, or an empty string.
-**/
+ * Render an HTML unordered list of roadmap items or return an empty string when none are provided.
+ * @example
+ * renderRoadmapItems(['Plan', 'Build'])
+ * '<ul class="roadmap-phase__list"><li>Plan</li><li>Build</li></ul>'
+ * @param {readonly string[]|undefined} items - Read-only array of item strings or undefined to render nothing.
+ * @returns {string} HTML string containing a UL with LI elements for each item, or an empty string.
+ **/
 function renderRoadmapItems(items: readonly string[] | undefined): string {
     if (items === undefined) {
         return "";
@@ -32,13 +32,13 @@ function renderRoadmapItems(items: readonly string[] | undefined): string {
 }
 
 /**
-* Render a roadmap phase object into an HTML string.
-* @example
-* renderRoadmapPhase({ title: 'Phase 1', highlightLabel: 'Beta', items: [] })
-* '<article class="roadmap-phase offset-card">...</article>'
-* @param {RoadmapStage} stage - Roadmap phase data including title, optional highlightLabel, and items.
-* @returns {string} HTML string representing the rendered roadmap phase.
-**/
+ * Render a roadmap phase object into an HTML string.
+ * @example
+ * renderRoadmapPhase({ title: 'Phase 1', highlightLabel: 'Beta', items: [] })
+ * '<article class="roadmap-phase offset-card">...</article>'
+ * @param {RoadmapStage} stage - Roadmap phase data including title, optional highlightLabel, and items.
+ * @returns {string} HTML string representing the rendered roadmap phase.
+ **/
 function renderRoadmapPhase(stage: RoadmapStage): string {
     let statusMarkup = "";
 
@@ -62,13 +62,13 @@ function renderRoadmapPhase(stage: RoadmapStage): string {
 }
 
 /**
-* Render the roadmap section HTML from the provided site content.
-* @example
-* renderRoadmap(sampleContent)
-* '<section class="section-shell roadmap panel" id="top">...</section>'
-* @param {{SiteContent}} {{content}} - The site content object containing a roadmap with heading and stages.
-* @returns {{string}} Rendered HTML string for the roadmap section.
-**/
+ * Render the roadmap section HTML from the provided site content.
+ * @example
+ * renderRoadmap(sampleContent)
+ * '<section class="section-shell roadmap panel" id="top">...</section>'
+ * @param {{SiteContent}} {{content}} - The site content object containing a roadmap with heading and stages.
+ * @returns {{string}} Rendered HTML string for the roadmap section.
+ **/
 function renderRoadmap(content: SiteContent): string {
     const STAGE_MARKUP = content.roadmap.stages.map((stage) => {
         return renderRoadmapPhase(stage);

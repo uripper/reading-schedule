@@ -24,7 +24,11 @@ def _is_bool_record(value: object) -> bool:
 
 
 def _is_feature_flags(value: object) -> bool:
-    """Return whether all required feature flags are present and boolean."""
+    """Return whether `value` matches the persisted feature-flags shape.
+
+    Valid inputs are dictionaries containing every key listed in
+    `REQUIRED_FEATURE_FLAGS`, each mapped to a boolean value.
+    """
     if not _is_str_object_dict(value):
         return False
     return all(
@@ -34,7 +38,13 @@ def _is_feature_flags(value: object) -> bool:
 
 
 def _is_preferences(value: object) -> bool:
-    """Return whether a preferences object matches the persisted shape."""
+    """Return whether `value` matches the persisted preferences shape.
+
+    Accepted keys include `dailyGoalMinutes` (int), `reduceMotion` (bool),
+    `reminderEnabled` (bool), `reminderTime` (str), `timezone` (str), and
+    `theme` (one of `VALID_THEMES`). Missing keys fall back to the defaults
+    expected by the mobile client.
+    """
     if not _is_str_object_dict(value):
         return False
     checks = (
@@ -63,11 +73,10 @@ def _require_state_field(*, is_valid: bool, message: str) -> None:
 
 def validate_state_snapshot(state: object) -> dict[str, object]:
     """Validate mobile state payload shape against shared planner contracts."""
-    _require_state_field(
-        is_valid=_is_str_object_dict(state),
-        message="Saved state payload must be an object.",
-    )
-    state_map = state
+    if not _is_str_object_dict(state):
+        message = "Saved state payload must be an object"
+        raise TypeError(message)
+    state_map: dict[str, object] = state
     field_checks = (
         (
             isinstance(state_map.get("books"), list),

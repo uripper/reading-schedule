@@ -4,18 +4,18 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from reading_plan.reporting.report_types import Summary
+    from reading_plan.reporting.report_types import BookProgress, Summary
 
 
 def _format_book_progress_line(
     book_id: str,
-    planned_words: int,
-    remaining_words: int,
-    finished: bool,
+    info: BookProgress,
 ) -> str:
-    done = "yes" if finished else "no"
+    done = "yes"
+    if not info["finished"]:
+        done = "no"
     return (
-        f"- {book_id}: {planned_words}/{remaining_words} words "
+        f"- {book_id}: {info['planned_words']}/{info['remaining_words']} words "
         f"(finished: {done})"
     )
 
@@ -41,12 +41,5 @@ def format_summary(summary: Summary) -> str:
     ]
     lines.extend(_optional_summary_lines(summary))
     for book_id, info in summary["per_book"].items():
-        lines.append(
-            _format_book_progress_line(
-                book_id,
-                info["planned_words"],
-                info["remaining_words"],
-                info["finished"],
-            )
-        )
+        lines.append(_format_book_progress_line(book_id, info))
     return "\n".join(lines)

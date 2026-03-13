@@ -1,5 +1,8 @@
 """Route planning requests through greedy or staged CP-SAT solving."""
 
+from __future__ import annotations
+
+from dataclasses import dataclass
 import logging
 from time import perf_counter
 from typing import TYPE_CHECKING
@@ -36,6 +39,16 @@ LOGGER = logging.getLogger("reading_plan.bridge")
 UNKNOWN_STATUS_NAME = "UNKNOWN"
 INFEASIBLE_STATUS_NAME = "INFEASIBLE"
 FAST_MODE_NOTE = "Fast mode uses greedy planner."
+
+
+@dataclass(frozen=True)
+class FinalizeSolveContext:
+    """Shared fallback and logging data for CP-SAT finalization."""
+
+    greedy_assignments: Assignments
+    last_status: str
+    profile: str
+    started: float
 
 
 def solve_plan(
@@ -103,12 +116,15 @@ def _solve_cp_sat(
         stages_for_profile(profile),
         greedy_assignments,
     )
+    finalize_context = FinalizeSolveContext(
+        greedy_assignments=greedy_assignments,
+        last_status=last_status,
+        profile=profile,
+        started=started,
+    )
     return _finalize_solve_cp_sat_result(
         best_result,
-        last_status,
-        greedy_assignments,
-        started,
-        profile,
+        finalize_context,
     )
 
 
@@ -183,10 +199,7 @@ def _should_skip_stage_result(plan: PlanResult, stage: SolveStage) -> bool:
 
 def _finalize_solve_cp_sat_result(
     best_result: PlanResult | None,
-    last_status: str,
-    greedy_assignments: Assignments,
-    started: float,
-    profile: str,
+    context: FinalizeSolveContext,
 ) -> PlanResult:
     """Return best CP-SAT plan or a greedy fallback with explanatory note."""
     if best_result is not None:
@@ -195,16 +208,18 @@ def _finalize_solve_cp_sat_result(
             extra={
                 "status": best_result.status,
                 "assignment_count": len(best_result.assignments),
-                "total_elapsed_ms": int((perf_counter() - started) * 1000),
-                "profile": profile,
+                "total_elapsed_ms": int(
+                    (perf_counter() - context.started) * 1000
+                ),
+                "profile": context.profile,
             },
         )
         return best_result
     note = (
-        f"CP-SAT produced no feasible solution ({last_status}); "
+        f"CP-SAT produced no feasible solution ({context.last_status}); "
         "fell back to greedy planner."
     )
-    return _fallback_to_greedy(greedy_assignments, note)
+    return _fallback_to_greedy(context.greedy_assignments, note)
 
 
 def _accept_feasible_attempt(
@@ -244,9 +259,7 @@ def _fallback_to_greedy(
     )
 
 
-def _log_stage_result(
-    stage: SolveStage, attempt: SolveAttemptResult
-) -> None:
+def _log_stage_result(stage: SolveStage, attempt: SolveAttemptResult) -> None:
     """Emit standardized logs for each staged solver attempt."""
     LOGGER.debug(
         (

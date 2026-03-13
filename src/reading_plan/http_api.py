@@ -90,7 +90,12 @@ def _fresh_state_result() -> dict[str, object]:
 
 
 def _invalid_state_result(message: str) -> dict[str, object]:
-    """Return a fresh-state response with a warning message."""
+    """Return a standardized fresh-state response.
+
+    The payload marks the state source as `"fresh"`, uses the configured state
+    path, clears the persisted state value, and attaches the
+    `"STATE_RESET_FRESH"` warning code together with the supplied message.
+    """
     return {
         "source": "fresh",
         "sourcePath": str(_state_path()),
@@ -101,28 +106,37 @@ def _invalid_state_result(message: str) -> dict[str, object]:
 
 
 def _loaded_state_result(state_path: Path) -> dict[str, object]:
-    """Load, validate, and normalize the saved mobile state file."""
-    error_message: str | None = None
+    """Load and validate the saved mobile state file.
+
+    The file is parsed as JSON and then validated with
+    `validate_state_snapshot(...)`. On success the response reports
+    `"json_primary"` as the source and returns the validated state. JSON parse
+    errors, file read failures, and validation failures are all normalized
+    into `_invalid_state_result(...)`.
+    """
     try:
         loaded = json.loads(state_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
-        error_message = "Saved state JSON is invalid."
+        return _invalid_state_result("Saved state JSON is invalid.")
     except OSError as error:
-        error_message = f"Could not read saved state: {error}"
-    else:
-        try:
-            validated = validate_state_snapshot(loaded)
-        except TypeError as error:
-            error_message = str(error)
-        else:
-            return {
-                "source": "json_primary",
-                "sourcePath": str(state_path),
-                "state": validated,
-            }
-    return _invalid_state_result(
-        error_message or "Saved state JSON is invalid."
-    )
+        return _invalid_state_result(f"Could not read saved state: {error}")
+    return _validated_state_result(state_path, loaded)
+
+
+def _validated_state_result(
+    state_path: Path,
+    loaded: object,
+) -> dict[str, object]:
+    """Validate parsed state JSON and return a normalized response."""
+    try:
+        validated = validate_state_snapshot(loaded)
+    except TypeError as error:
+        return _invalid_state_result(str(error))
+    return {
+        "source": "json_primary",
+        "sourcePath": str(state_path),
+        "state": validated,
+    }
 
 
 def _load_state_file() -> dict[str, object]:
@@ -141,7 +155,11 @@ def _save_state_file(state: dict[str, object]) -> None:
 
 
 def _sample_payload() -> dict[str, object]:
-    """Return serialized sample books and settings."""
+    """Return serialized sample planner inputs.
+
+    The payload contains `"books"` rows produced by `book_to_data(...)` and a
+    `"settings"` object produced by `settings_to_data(...)`.
+    """
     books, settings = load_inputs(
         str(_sample_books_path()),
         str(_sample_settings_path()),
@@ -159,7 +177,11 @@ def _cover_url(cover_id: object) -> str | None:
 
 
 def _work_id(raw_key: object) -> str:
-    """Extract the final work-id segment from an Open Library key."""
+    """Extract the final work-id segment from an Open Library key.
+
+    Non-string inputs, blank strings, and strings that become empty after
+    trimming produce an empty string.
+    """
     if not isinstance(raw_key, str):
         return ""
     trimmed = raw_key.strip()
@@ -169,7 +191,12 @@ def _work_id(raw_key: object) -> str:
 
 
 def _search_query(query: str, *, author_only: bool) -> str:
-    """Build an Open Library search URL for title or author queries."""
+    """Build an Open Library search URL for title or author queries.
+
+    When `author_only` is true the query is sent through the `author`
+    parameter. Otherwise it uses the general `q` parameter and constrains the
+    search to English results. The configured output limit is always included.
+    """
     params: dict[str, str | int] = {"limit": SEARCH_OUTPUT_LIMIT}
     if author_only:
         params["author"] = query
@@ -180,7 +207,12 @@ def _search_query(query: str, *, author_only: bool) -> str:
 
 
 def _request_json(request_url: str) -> dict[str, object]:
-    """Fetch JSON from Open Library and return an object payload."""
+    """Fetch JSON from Open Library and return an object payload.
+
+    Network and timeout failures are converted into
+    `HTTPException(status_code=502)`. If the remote JSON is not an object, the
+    function returns an empty dictionary.
+    """
     try:
         with urlopen(  # noqa: S310 - fixed OpenLibrary HTTPS endpoint
             request_url,
@@ -209,7 +241,13 @@ def _search_docs(query: str, *, author_only: bool) -> list[object]:
 
 
 def _doc_to_result(doc: object) -> dict[str, str] | None:
-    """Normalize one Open Library result row."""
+    """Normalize one Open Library result row.
+
+    Valid rows produce a dictionary containing `author`, `title`, and
+    `work_id`. A `cover_url` field is added when a usable cover id is present.
+    Non-dictionary inputs, or rows missing both title and author, return
+    `None`.
+    """
     if not _is_object_dict(doc):
         return None
     title = str(doc.get("title") or "").strip()
@@ -238,7 +276,11 @@ def _search_open_library(
     *,
     author_only: bool,
 ) -> list[dict[str, str]]:
-    """Search Open Library and return normalized result rows."""
+    """Search Open Library and return normalized result rows.
+
+    Rows that cannot be normalized are skipped, and the output is capped at
+    `SEARCH_OUTPUT_LIMIT`.
+    """
     results: list[dict[str, str]] = []
     for doc in _search_docs(query, author_only=author_only):
         item = _doc_to_result(doc)
@@ -251,7 +293,12 @@ def _search_open_library(
 
 
 def _planner_input_payload(payload: dict[str, object]) -> PlannerInputPayload:
-    """Validate the top-level planner payload shape before generation."""
+    """Validate the top-level planner payload shape before generation.
+
+    The HTTP layer expects `books` and `settings` fields compatible with the
+    shared planner payload contracts. An optional `planner` string is allowed
+    to select a solver profile.
+    """
     books = payload.get("books")
     settings = payload.get("settings")
     planner = payload.get("planner")
@@ -274,7 +321,11 @@ def _planner_input_payload(payload: dict[str, object]) -> PlannerInputPayload:
 
 
 def _api_generate(payload: dict[str, object]) -> object:
-    """Generate a plan from a validated planner payload."""
+    """Generate a plan from a validated planner payload.
+
+    Invalid input or planner runtime failures are surfaced to the client as
+    `HTTPException(status_code=400)`.
+    """
     log_file_execution(LOGGER, file_path=__file__, entrypoint="_api_generate")
     log_incoming_data(
         LOGGER,
@@ -303,7 +354,11 @@ def _api_state_sample(_payload: dict[str, object]) -> dict[str, object]:
 
 
 def _api_state_save(state: dict[str, object]) -> dict[str, object]:
-    """Persist validated mobile state and return a success flag."""
+    """Persist validated mobile state and return a success flag.
+
+    Validation errors become `HTTPException(status_code=400)`. File-system
+    write failures become `HTTPException(status_code=500)`.
+    """
     log_file_execution(LOGGER, file_path=__file__, entrypoint="_api_state_save")
     log_incoming_data(
         LOGGER,
@@ -321,7 +376,11 @@ def _api_state_save(state: dict[str, object]) -> dict[str, object]:
 
 
 def _api_books_search(payload: dict[str, object]) -> list[dict[str, str]]:
-    """Search Open Library using the provided query payload."""
+    """Search Open Library using the provided query payload.
+
+    The payload accepts a `query` string and an `author` boolean. When the
+    boolean is true, the search is restricted to author matches.
+    """
     log_file_execution(
         LOGGER,
         file_path=__file__,

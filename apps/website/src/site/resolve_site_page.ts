@@ -8,13 +8,13 @@ const DEFAULT_SITE_PAGE: SitePage = "landing";
 const ROADMAP_PAGE: SitePage = "roadmap";
 
 /**
-* Resolve a page identifier into a valid SitePage, defaulting to DEFAULT_SITE_PAGE when undefined.
-* @example
-* resolveSitePage(undefined)
-* DEFAULT_SITE_PAGE
-* @param {{string|undefined}} {{pageId}} - Page identifier to resolve; may be undefined or a known page id.
-* @returns {{SitePage}} Return the resolved SitePage constant (DEFAULT_SITE_PAGE, ROADMAP_PAGE, or the provided pageId).
-**/
+ * Resolve a page identifier into a valid SitePage, defaulting to DEFAULT_SITE_PAGE when undefined.
+ * @example
+ * resolveSitePage(undefined)
+ * DEFAULT_SITE_PAGE
+ * @param {{string|undefined}} {{pageId}} - Page identifier to resolve; may be undefined or a known page id.
+ * @returns {{SitePage}} Return the resolved SitePage constant (DEFAULT_SITE_PAGE, ROADMAP_PAGE, or the provided pageId).
+ **/
 export function resolveSitePage(pageId: string | undefined): SitePage {
     if (pageId === undefined) {
         return DEFAULT_SITE_PAGE;

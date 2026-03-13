@@ -1,5 +1,7 @@
 """Heuristic configuration and prechecks for staged CP-SAT solving."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 import math
 from typing import TYPE_CHECKING
@@ -63,6 +65,16 @@ class PrecheckResult:
     is_feasible: bool
     # Optional explanation when the precheck rejects CP-SAT.
     note: str = ""
+
+
+@dataclass(frozen=True)
+class DeadlinePrecheckContext:
+    """Shared data for deadline-capacity prechecks."""
+
+    settings: Settings
+    days: list[date]
+    caps: dict[date, int]
+    wpb: dict[str, int]
 
 
 def stages_for_profile(profile: str) -> tuple[SolveStage, ...]:
@@ -161,6 +173,12 @@ def run_precheck(books: list[Book], settings: Settings) -> PrecheckResult:
     days = date_range(settings.start_date, settings.end_date)
     caps = {day: day_capacity_blocks(settings, day) for day in days}
     wpb = {book.book_id: words_per_block(book, settings) for book in books}
+    context = DeadlinePrecheckContext(
+        settings=settings,
+        days=days,
+        caps=caps,
+        wpb=wpb,
+    )
     total_capacity = sum(caps.values())
     required_capacity = sum(
         required_blocks(book.remaining_words, wpb[book.book_id])
@@ -172,26 +190,26 @@ def run_precheck(books: list[Book], settings: Settings) -> PrecheckResult:
             "fell back to greedy planner."
         )
         return PrecheckResult(is_feasible=False, note=note)
-    return _deadline_precheck(books, settings, days, caps, wpb)
+    return _deadline_precheck(books, context)
 
 
 def _deadline_capacity_note(
     book: Book,
-    wpb: dict[str, int],
-    settings: Settings,
-    days: list[date],
-    caps: dict[date, int],
+    context: DeadlinePrecheckContext,
 ) -> str | None:
     """Check whether a deadline book can fit by capacity upper bounds."""
-    required = required_blocks(book.remaining_words, wpb[book.book_id])
-    per_book_limit = book_day_block_limit(book, settings)
+    required = required_blocks(
+        book.remaining_words,
+        context.wpb[book.book_id],
+    )
+    per_book_limit = book_day_block_limit(book, context.settings)
     available = 0
-    for day in days:
+    for day in context.days:
         if book.deadline and day > book.deadline:
             continue
         if not book_is_scheduled_for_day(book, day):
             continue
-        available += min(caps[day], per_book_limit)
+        available += min(context.caps[day], per_book_limit)
     if available >= required:
         return None
     return (
@@ -202,22 +220,13 @@ def _deadline_capacity_note(
 
 def _deadline_precheck(
     books: list[Book],
-    settings: Settings,
-    days: list[date],
-    caps: dict[date, int],
-    wpb: dict[str, int],
+    context: DeadlinePrecheckContext,
 ) -> PrecheckResult:
     """Check whether each deadline book can fit by capacity upper bounds."""
     for book in books:
         if book.deadline is None:
             continue
-        note: str | None = _deadline_capacity_note(
-            book,
-            wpb,
-            settings,
-            days,
-            caps,
-        )
+        note: str | None = _deadline_capacity_note(book, context)
         if note is None:
             continue
         return PrecheckResult(is_feasible=False, note=note)
@@ -236,13 +245,16 @@ def better_plan(
     candidate: PlanResult,
 ) -> PlanResult:
     """Return the plan with stronger status/objective preference."""
+    selected = current or candidate
     if current is None or candidate.status == OPTIMAL_STATUS_NAME:
-        return candidate
-    if current.status == OPTIMAL_STATUS_NAME or candidate.objective is None:
-        return current
-    if current.objective is None or candidate.objective > current.objective:
-        return candidate
-    return current
+        selected = candidate
+    elif current.status != OPTIMAL_STATUS_NAME:
+        candidate_is_better = candidate.objective is not None and (
+            current.objective is None or candidate.objective > current.objective
+        )
+        if candidate_is_better:
+            selected = candidate
+    return selected
 
 
 def is_result_feasible(plan: PlanResult) -> bool:

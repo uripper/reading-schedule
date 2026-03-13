@@ -4,11 +4,8 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TypeGuard
 
-
-if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
 
 BRIDGE_LOGGER_NAME = "reading_plan.bridge"
 BRIDGE_LOG_PATH_ENV = "READING_PLAN_BRIDGE_LOG_PATH"
@@ -27,6 +24,14 @@ _SAMPLE_RECORD = logging.LogRecord(
 )
 _STANDARD_RECORD_FIELDS = frozenset(_SAMPLE_RECORD.__dict__.keys())
 _EXCLUDED_METADATA_FIELDS = frozenset({"asctime", "message"})
+
+
+def _is_object_mapping(value: object) -> TypeGuard[dict[object, object]]:
+    return isinstance(value, dict)
+
+
+def _is_object_list(value: object) -> TypeGuard[list[object]]:
+    return isinstance(value, list)
 
 
 class StructuredBridgeFormatter(logging.Formatter):
@@ -118,10 +123,10 @@ def summarize_value_types(value: object) -> dict[str, object]:
     summary: dict[str, object] = {
         "value_type": type(value).__name__,
     }
-    if isinstance(value, dict):
+    if _is_object_mapping(value):
         summary.update(_summarize_mapping_types(value))
         return summary
-    if isinstance(value, list):
+    if _is_object_list(value):
         summary.update(_summarize_list_types(value))
     return summary
 
@@ -207,14 +212,14 @@ def _normalize_metadata(value: object) -> object:
         normalized = value
     elif isinstance(value, Path):
         normalized = str(value)
-    elif isinstance(value, dict):
+    elif _is_object_mapping(value):
         normalized = _normalize_mapping(value)
     elif isinstance(value, (list, tuple, set)):
         normalized = [_normalize_metadata(item) for item in value]
     return normalized
 
 
-def _normalize_mapping(value: Mapping[object, object]) -> dict[str, object]:
+def _normalize_mapping(value: dict[object, object]) -> dict[str, object]:
     """Normalize mapping metadata keys and values recursively."""
     normalized: dict[str, object] = {}
     for key, item in value.items():
@@ -223,7 +228,7 @@ def _normalize_mapping(value: Mapping[object, object]) -> dict[str, object]:
 
 
 def _summarize_mapping_types(
-    value: Mapping[object, object],
+    value: dict[object, object],
 ) -> dict[str, object]:
     """Summarize dictionary keys and top-level value types."""
     sampled: dict[str, str] = {}
@@ -241,7 +246,7 @@ def _summarize_mapping_types(
     }
 
 
-def _summarize_list_types(value: Sequence[object]) -> dict[str, object]:
+def _summarize_list_types(value: list[object]) -> dict[str, object]:
     """Summarize list length and a bounded sample of item types."""
     sampled_items = value[:_TYPE_SUMMARY_LIMIT]
     sampled_types = sorted({type(item).__name__ for item in sampled_items})
