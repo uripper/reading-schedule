@@ -8,9 +8,9 @@ import { escapeHtml } from "./render_helpers.js";
 type PlatformLogoMap = Readonly<Record<DownloadCard["platform"], string>>;
 
 const PLATFORM_LOGO_FILES: PlatformLogoMap = {
-    Linux: "./LinuxLogo.png",
-    macOS: "./macOS.png",
-    Windows: "./WindowsLogo.png",
+    Linux: "/LinuxLogo.png",
+    macOS: "/macOS.png",
+    Windows: "/WindowsLogo.png",
 };
 
 function platformLogoClass(platform: DownloadCard["platform"]): string {

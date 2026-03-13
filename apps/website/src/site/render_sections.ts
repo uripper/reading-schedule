@@ -10,11 +10,6 @@ import type {
 import { escapeHtml, joinMarkup, renderButtonLink } from "./render_helpers.js";
 import { renderPlatformLogo } from "./render_platform_logo.js";
 
-interface TextCardContent {
-    readonly description: string;
-    readonly title: string;
-}
-
 function renderSectionShell(
     className: string,
     content: string,

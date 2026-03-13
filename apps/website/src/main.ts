@@ -5,8 +5,10 @@
 import { SITE_CONTENT } from "./content/site_content.js";
 import { renderRoadmapPage } from "./site/render_roadmap.js";
 import { renderSite } from "./site/render_site.js";
+import { resolveSitePage } from "./site/resolve_site_page.js";
 import type { SitePage } from "./types/site_content.js";
 
+const HTML_MIME_TYPE = "text/html";
 const ROOT_ELEMENT_ID = "app";
 
 function getRootElement(): HTMLElement {
@@ -20,17 +22,27 @@ function getRootElement(): HTMLElement {
 }
 
 function getSitePage(): SitePage {
-    const PAGE_ID = globalThis.document.body.dataset.page;
+    return resolveSitePage(globalThis.document.body.dataset.page);
+}
 
-    if (PAGE_ID === "landing") {
-        return PAGE_ID;
-    }
+function createRenderedFragment(markup: string): DocumentFragment {
+    const DOCUMENT_PARSER = new DOMParser();
+    const PARSED_DOCUMENT = DOCUMENT_PARSER.parseFromString(
+        markup,
+        HTML_MIME_TYPE,
+    );
+    const PAGE_CONTENT = globalThis.document.createDocumentFragment();
+    const PARSED_NODES = Array.from(PARSED_DOCUMENT.body.childNodes);
 
-    if (PAGE_ID === "roadmap") {
-        return PAGE_ID;
-    }
+    PAGE_CONTENT.append(...PARSED_NODES);
 
-    throw new Error("Missing or invalid website page id.");
+    return PAGE_CONTENT;
+}
+
+function mountRequestedPage(rootElement: HTMLElement, markup: string): void {
+    const PAGE_CONTENT = createRenderedFragment(markup);
+
+    rootElement.replaceChildren(PAGE_CONTENT);
 }
 
 function renderRequestedPage(page: SitePage, currentYear: number): string {
@@ -44,5 +56,6 @@ function renderRequestedPage(page: SitePage, currentYear: number): string {
 const CURRENT_YEAR = new Date().getFullYear();
 const CURRENT_PAGE = getSitePage();
 const ROOT_ELEMENT = getRootElement();
+const CURRENT_PAGE_MARKUP = renderRequestedPage(CURRENT_PAGE, CURRENT_YEAR);
 
-ROOT_ELEMENT.innerHTML = renderRequestedPage(CURRENT_PAGE, CURRENT_YEAR);
+mountRequestedPage(ROOT_ELEMENT, CURRENT_PAGE_MARKUP);

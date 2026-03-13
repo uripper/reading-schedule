@@ -2,5 +2,7 @@
     "compilerOptions": {
         "outDir": "dist-tests"
     },
-    "extends": "./tsconfig.json"
+    "exclude": ["dist", "dist-tests"],
+    "extends": "./tsconfig.json",
+    "include": ["src/**/*.ts", "tests/**/*.ts"]
 }
