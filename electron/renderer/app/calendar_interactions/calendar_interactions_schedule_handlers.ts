@@ -10,13 +10,13 @@ import {
 } from "./calendar_interactions_schedule_updates.js";
 
 /**
-* Create SharedScheduleBindings from AppCalendarInteractionArgs by wrapping the provided callbacks and state for schedule handlers.
-* @example
-* createScheduleBindings(args)
-* { applyStateMutation: Function, collectSettings: Function, getBookById: Function, onScheduleRowsUpdated: Function, queuePersist: Function, renderCalendar: Function, setBookScheduleRows: Function, setLastResult: Function, setStatus: Function, state: Object, totalsFromSummary: Function }
-* @param {AppCalendarInteractionArgs} args - The AppCalendarInteractionArgs containing callbacks and state to wrap.
-* @returns {SharedScheduleBindings} Return an object exposing wrapped schedule-related functions and the shared state.
-*/
+ * Create SharedScheduleBindings from AppCalendarInteractionArgs by wrapping the provided callbacks and state for schedule handlers.
+ * @example
+ * createScheduleBindings(args)
+ * { applyStateMutation: Function, collectSettings: Function, getBookById: Function, onScheduleRowsUpdated: Function, queuePersist: Function, renderCalendar: Function, setBookScheduleRows: Function, setLastResult: Function, setStatus: Function, state: Object, totalsFromSummary: Function }
+ * @param {AppCalendarInteractionArgs} args - The AppCalendarInteractionArgs containing callbacks and state to wrap.
+ * @returns {SharedScheduleBindings} Return an object exposing wrapped schedule-related functions and the shared state.
+ */
 const CREATE_SHARED_SCHEDULE_BINDINGS = (
     args: AppCalendarInteractionArgs,
 ): SharedScheduleBindings => {

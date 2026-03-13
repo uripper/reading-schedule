@@ -76,12 +76,12 @@ export function createPersistQueue({
     let persistTimer: ReturnType<typeof setTimeout> | null = null;
 
     /**
-    * Synchronize planner state by building a payload from current runtime state and saving it via the planner API.
-    * @example
-    * sync()
-    * true
-    * @returns {Promise<boolean>} Resolves to true if the state was saved successfully, otherwise false.
-    */
+     * Synchronize planner state by building a payload from current runtime state and saving it via the planner API.
+     * @example
+     * sync()
+     * true
+     * @returns {Promise<boolean>} Resolves to true if the state was saved successfully, otherwise false.
+     */
     const PERSIST_DRAFT = async (): Promise<boolean> => {
         const PAYLOAD = draftData({
             blockedDayBooks: state.blockedDayBooks,
@@ -97,13 +97,13 @@ export function createPersistQueue({
     };
 
     /**
-    * Schedules a debounced persistence of the draft state if the runtime is ready.
-    * @example
-    * schedulePersistDraft()
-    * undefined
-    * @param {void} none - This function takes no parameters.
-    * @returns {void} Returns nothing; schedules a delayed persistence operation.
-    **/
+     * Schedules a debounced persistence of the draft state if the runtime is ready.
+     * @example
+     * schedulePersistDraft()
+     * undefined
+     * @param {void} none - This function takes no parameters.
+     * @returns {void} Returns nothing; schedules a delayed persistence operation.
+     **/
     const QUEUE_PERSIST = (): void => {
         if (!state.ready) {
             return;
@@ -152,13 +152,13 @@ export function bindSettingsAutoPlanListeners(
     queueAutoPlan: () => void,
 ): void {
     /**
-    * Check conditions and queue an auto-plan when an input event should trigger it.
-    * @example
-    * handleAutoPlanEvent(new Event('click'))
-    * undefined
-    * @param {{Event}} {{event}} - The DOM event to evaluate for auto-planning.
-    * @returns {{void}} Does not return a value.
-    **/
+     * Check conditions and queue an auto-plan when an input event should trigger it.
+     * @example
+     * handleAutoPlanEvent(new Event('click'))
+     * undefined
+     * @param {{Event}} {{event}} - The DOM event to evaluate for auto-planning.
+     * @returns {{void}} Does not return a value.
+     **/
     const ON_SETTING_MUTATION = (event: Event): void => {
         if (!isReady()) {
             return;
@@ -173,13 +173,13 @@ export function bindSettingsAutoPlanListeners(
     };
 
     /**
-    * Handle user events and schedule an auto-plan when add/remove day-off controls are activated.
-    * @example
-    * handleRuntimeEvent(event)
-    * undefined
-    * @param {{Event}} {{event}} - The DOM event to process for potential day-off button interactions.
-    * @returns {{void}} No return value; may call queueAutoPlan() when relevant elements are clicked.
-    **/
+     * Handle user events and schedule an auto-plan when add/remove day-off controls are activated.
+     * @example
+     * handleRuntimeEvent(event)
+     * undefined
+     * @param {{Event}} {{event}} - The DOM event to process for potential day-off button interactions.
+     * @returns {{void}} No return value; may call queueAutoPlan() when relevant elements are clicked.
+     **/
     const ON_SETTING_CLICK = (event: Event): void => {
         if (!isReady()) {
             return;

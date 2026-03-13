@@ -24,13 +24,13 @@ function hasRootMarkers(directory: string): boolean {
 }
 
 /**
-* Ascend parent directories from a starting path to find a directory that contains project root markers.
-* @example
-* resolveRootFrom('/home/user/project/src')
-* '/home/user/project'
-* @param {{string}} {{startDirectory}} - Starting directory path to begin searching for root markers.
-* @returns {{(string|null)}} Return the path of the found root directory, or null if no root markers are found within the ascent limit or the filesystem root is reached.
-**/
+ * Ascend parent directories from a starting path to find a directory that contains project root markers.
+ * @example
+ * resolveRootFrom('/home/user/project/src')
+ * '/home/user/project'
+ * @param {{string}} {{startDirectory}} - Starting directory path to begin searching for root markers.
+ * @returns {{(string|null)}} Return the path of the found root directory, or null if no root markers are found within the ascent limit or the filesystem root is reached.
+ **/
 function resolveRootFrom(startDirectory: string): string | null {
     let currentDirectory = startDirectory;
     let steps = 0;

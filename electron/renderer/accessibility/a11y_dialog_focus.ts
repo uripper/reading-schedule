@@ -43,15 +43,15 @@ export function bindDialogFocus(
         }
     };
     /**
-    * Set focus inside a dialog element using an initial selector, an [autofocus] element, or the first focusable element.
-    * @example
-    * setDialogFocus(dialogElement, '#initial', () => 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
-    * undefined
-    * @param {{Element}} {{dialog}} - Dialog element to search and set focus within.
-    * @param {{string|null}} {{initialFocusSelector}} - CSS selector for an initial focus target; may be null or empty to skip.
-    * @param {{() => string}} {{focusableSelector}} - Function that returns a CSS selector matching focusable elements inside the dialog.
-    * @returns {{void}} No return value.
-    **/
+     * Set focus inside a dialog element using an initial selector, an [autofocus] element, or the first focusable element.
+     * @example
+     * setDialogFocus(dialogElement, '#initial', () => 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+     * undefined
+     * @param {{Element}} {{dialog}} - Dialog element to search and set focus within.
+     * @param {{string|null}} {{initialFocusSelector}} - CSS selector for an initial focus target; may be null or empty to skip.
+     * @param {{() => string}} {{focusableSelector}} - Function that returns a CSS selector matching focusable elements inside the dialog.
+     * @returns {{void}} No return value.
+     **/
     const FOCUS_INITIAL_TARGET = (): void => {
         let direct: Element | null = null;
         if (initialFocusSelector !== null && initialFocusSelector !== "") {

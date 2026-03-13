@@ -159,13 +159,13 @@ function markSessionCompleted(
 }
 
 /**
-* Add a manual reading session row to the schedule after validating input and update runtime state/UI.
-* @example
-* addManualSessionRow({ bookId: "book-1", collectSettings: {}, completed: false, date: "2026-03-13", getBookById: id => ({ id, title: "Example" }), minutes: 30, state: {}, setStatus: () => {}, applyStateMutation: () => {}, queuePersist: () => {}, onScheduleRowsUpdated: () => {} })
-* true
-* @param {{AddManualSessionArgs}} {{args}} - The destructured arguments object containing session details, helpers, and runtime state.
-* @returns {{boolean}} Whether the session was successfully added.
-**/
+ * Add a manual reading session row to the schedule after validating input and update runtime state/UI.
+ * @example
+ * addManualSessionRow({ bookId: "book-1", collectSettings: {}, completed: false, date: "2026-03-13", getBookById: id => ({ id, title: "Example" }), minutes: 30, state: {}, setStatus: () => {}, applyStateMutation: () => {}, queuePersist: () => {}, onScheduleRowsUpdated: () => {} })
+ * true
+ * @param {{AddManualSessionArgs}} {{args}} - The destructured arguments object containing session details, helpers, and runtime state.
+ * @returns {{boolean}} Whether the session was successfully added.
+ **/
 export function addManualSessionRow({
     bookId,
     collectSettings,

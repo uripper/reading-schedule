@@ -9,16 +9,16 @@ import {
 } from "./details_progress_form_helpers.js";
 
 /**
-* Create and configure a numeric HTML input element for progress values.
-* @example
-* progressInput("Enter value", "0", "100", "1")
-* <input type="number" min="0" max="100" step="1" placeholder="Enter value">
-* @param {{string}} placeholder - Placeholder text shown when the input is empty.
-* @param {{string}} min - Minimum allowed value for the input (as a string).
-* @param {{string|null}} max - Maximum allowed value for the input (as a string) or null to omit the attribute.
-* @param {{string}} step - Step/increment value for the input (as a string).
-* @returns {{HTMLInputElement}} Configured numeric HTMLInputElement.
-**/
+ * Create and configure a numeric HTML input element for progress values.
+ * @example
+ * progressInput("Enter value", "0", "100", "1")
+ * <input type="number" min="0" max="100" step="1" placeholder="Enter value">
+ * @param {{string}} placeholder - Placeholder text shown when the input is empty.
+ * @param {{string}} min - Minimum allowed value for the input (as a string).
+ * @param {{string|null}} max - Maximum allowed value for the input (as a string) or null to omit the attribute.
+ * @param {{string}} step - Step/increment value for the input (as a string).
+ * @returns {{HTMLInputElement}} Configured numeric HTMLInputElement.
+ **/
 function progressInput(
     placeholder: string,
     min: string,

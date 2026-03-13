@@ -64,10 +64,10 @@ function mergeDisplayRows(
 }
 
 /**
-* Mark planned calendar rows as finished when a corresponding completed row exists and collect seen book ids.
-* @example
-* processReadingRows(plannedRows, completedByBookId)
-* { Out: [/* CalendarDisplayRow objects, some with finish: true */
+ * Mark planned calendar rows as finished when a corresponding completed row exists and collect seen book ids.
+ * @example
+ * processReadingRows(plannedRows, completedByBookId)
+ * { Out: [/* CalendarDisplayRow objects, some with finish: true */
 function processReadingRows(
     plannedRows: CalendarDisplayRow[],
     completedByBookId: Map<string, CalendarDisplayRow>,
@@ -180,26 +180,26 @@ interface RenderCalendarCellsArgs {
 }
 
 /**
-* Renders day cells for a calendar month into the provided grid, attaches click and keyboard handlers, and updates the calendar DOM and details pane.
-* @example
-* renderCalendarCells({
-*   cells: [new Date(2026,0,1), new Date(2026,0,2)],
-*   firstDate: new Date(2026,0,1),
-*   calendarState: { monthCellKeys: ['2026-01-01','2026-01-02'], dates: {}, selectedDate: '2026-01-01' },
-*   todayKey: '2026-01-01',
-*   grid: document.createElement('div'),
-*   calendar: document.querySelector('.calendar'),
-*   actions: {
-*     completedBookRowsForDate: (key) => [],
-*     selectDate: (key) => {},
-*     renderDetails: () => {}
-*   },
-*   moveSelectionBy: (n) => {}
-* })
-* undefined
-* @param {{RenderCalendarCellsArgs}} {{args}} - Arguments object containing cells, calendar state, DOM elements and action callbacks required to render the month.
-* @returns {{void}} Does not return a value; performs DOM updates and triggers side effects.
-*/
+ * Renders day cells for a calendar month into the provided grid, attaches click and keyboard handlers, and updates the calendar DOM and details pane.
+ * @example
+ * renderCalendarCells({
+ *   cells: [new Date(2026,0,1), new Date(2026,0,2)],
+ *   firstDate: new Date(2026,0,1),
+ *   calendarState: { monthCellKeys: ['2026-01-01','2026-01-02'], dates: {}, selectedDate: '2026-01-01' },
+ *   todayKey: '2026-01-01',
+ *   grid: document.createElement('div'),
+ *   calendar: document.querySelector('.calendar'),
+ *   actions: {
+ *     completedBookRowsForDate: (key) => [],
+ *     selectDate: (key) => {},
+ *     renderDetails: () => {}
+ *   },
+ *   moveSelectionBy: (n) => {}
+ * })
+ * undefined
+ * @param {{RenderCalendarCellsArgs}} {{args}} - Arguments object containing cells, calendar state, DOM elements and action callbacks required to render the month.
+ * @returns {{void}} Does not return a value; performs DOM updates and triggers side effects.
+ */
 function renderCalendarCells(args: RenderCalendarCellsArgs): void {
     args.cells.forEach((date, index) => {
         const KEY_FOR_DAY = args.calendarState.monthCellKeys[index];

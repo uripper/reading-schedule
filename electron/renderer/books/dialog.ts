@@ -111,14 +111,14 @@ export function createBookDialog(
         DIALOG_FOCUS.closeAndReturnFocus();
     };
     /**
-    * Open a pre-configured book selection dialog, optionally pre-selecting a Book and applying dialog options.
-    * @example
-    * openBookPickerDialog(null, { modal: true })
-    * undefined
-    * @param {{Book|null}} {{book}} - Optional Book to pre-select in the dialog, or null to start without a selection.
-    * @param {{OpenDialogOptions}} {{dialogOptions}} - Options to customize the dialog's appearance and behavior.
-    * @returns {{void}} Void.
-    **/
+     * Open a pre-configured book selection dialog, optionally pre-selecting a Book and applying dialog options.
+     * @example
+     * openBookPickerDialog(null, { modal: true })
+     * undefined
+     * @param {{Book|null}} {{book}} - Optional Book to pre-select in the dialog, or null to start without a selection.
+     * @param {{OpenDialogOptions}} {{dialogOptions}} - Options to customize the dialog's appearance and behavior.
+     * @returns {{void}} Void.
+     **/
     const OPEN = (
         book: Book | null = null,
         dialogOptions: OpenDialogOptions = {},

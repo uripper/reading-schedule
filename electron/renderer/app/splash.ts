@@ -16,12 +16,12 @@ export function createSplashController(): { completeWhenReady(): void } {
     const STARTED_AT = performance.now();
 
     /**
-    * Animate out and remove the global SPLASH_SCREEN element, using a transitionend listener with a timeout fallback.
-    * @example
-    * hideSplashScreen()
-    * undefined
-    * @returns {{void}} Removes the splash screen element asynchronously and cleans up the body class.
-    **/
+     * Animate out and remove the global SPLASH_SCREEN element, using a transitionend listener with a timeout fallback.
+     * @example
+     * hideSplashScreen()
+     * undefined
+     * @returns {{void}} Removes the splash screen element asynchronously and cleans up the body class.
+     **/
     const FINISH = (): void => {
         if (!(SPLASH_SCREEN instanceof HTMLElement)) {
             return;

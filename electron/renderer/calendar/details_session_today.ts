@@ -23,16 +23,16 @@ interface CompletionUi {
 }
 
 /**
-* Create UI controls for marking a session complete and wire up interaction handlers.
-* @example
-* createCompletionUi(row, interactionHandlers, item, rerenderDetails)
-* { checkbox: HTMLInputElement, label: HTMLLabelElement, sessionKey: string }
-* @param {CalendarRowWithFinish} row - The calendar row describing the session (including finish info).
-* @param {DetailInteractionHandlers} interactionHandlers - Handlers to query and update session completion state.
-* @param {HTMLElement} item - Container DOM element to attach the completion UI and toggle completion class on.
-* @param {() => void} rerenderDetails - Callback invoked to re-render detail UI after completion changes.
-* @returns {CompletionUi} An object containing the created checkbox input, label element, and sessionKey.
-**/
+ * Create UI controls for marking a session complete and wire up interaction handlers.
+ * @example
+ * createCompletionUi(row, interactionHandlers, item, rerenderDetails)
+ * { checkbox: HTMLInputElement, label: HTMLLabelElement, sessionKey: string }
+ * @param {CalendarRowWithFinish} row - The calendar row describing the session (including finish info).
+ * @param {DetailInteractionHandlers} interactionHandlers - Handlers to query and update session completion state.
+ * @param {HTMLElement} item - Container DOM element to attach the completion UI and toggle completion class on.
+ * @param {() => void} rerenderDetails - Callback invoked to re-render detail UI after completion changes.
+ * @returns {CompletionUi} An object containing the created checkbox input, label element, and sessionKey.
+ **/
 function createCompletionUi(
     row: CalendarRowWithFinish,
     interactionHandlers: DetailInteractionHandlers,
@@ -86,13 +86,13 @@ function appendTodaySessionEditors(args: {
 }): void {
     const BOOK = args.book ?? fallbackBookForRow(args.row);
     /**
-    * Mark the given session as completed, update its UI state, and notify listeners.
-    * @example
-    * markSessionComplete(args)
-    * undefined
-    * @param {Object} args - Object containing completeCheckbox, item, interactionHandlers, row, sessionKey and rerenderDetails used to complete the session.
-    * @returns {void} Does not return a value.
-    **/
+     * Mark the given session as completed, update its UI state, and notify listeners.
+     * @example
+     * markSessionComplete(args)
+     * undefined
+     * @param {Object} args - Object containing completeCheckbox, item, interactionHandlers, row, sessionKey and rerenderDetails used to complete the session.
+     * @returns {void} Does not return a value.
+     **/
     const MARK_COMPLETE_FROM_PROGRESS_UPDATE = (): void => {
         if (args.completeCheckbox.checked) {
             return;

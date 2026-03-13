@@ -44,13 +44,13 @@ export function createDashboardRuntime({
         });
     };
     /**
-    * Update today's dashboard and the statistics dashboard view by collecting current books and applying runtime preferences and state.
-    * @example
-    * refreshTodayDashboards()
-    * undefined
-    * @param {void} none - This function does not accept any arguments.
-    * @returns {void} Does not return a value.
-    **/
+     * Update today's dashboard and the statistics dashboard view by collecting current books and applying runtime preferences and state.
+     * @example
+     * refreshTodayDashboards()
+     * undefined
+     * @param {void} none - This function does not accept any arguments.
+     * @returns {void} Does not return a value.
+     **/
     const UPDATE_DASHBOARDS = (): void => {
         updateTodayDashboard({
             books: collectAllBooks(),

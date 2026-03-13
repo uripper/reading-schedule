@@ -27,14 +27,14 @@ function resolveRandomFn(options: RecommendationSearchOptions): () => number {
 }
 
 /**
-* Searches for books by a given author using the RecommendationSearchApi and returns lookup items.
-* @example
-* lookupByAuthor(api, "J.K. Rowling")
-* [{ id: "1", title: "Harry Potter and the Philosopher's Stone", author: "J.K. Rowling" }]
-* @param {{RecommendationSearchApi}} {{api}} - RecommendationSearchApi instance used to perform the search.
-* @param {{string}} {{author}} - Author name to search for.
-* @returns {{Promise<BookLookupItem[]>}} Promise resolving to an array of BookLookupItem results (empty array on error).
-**/
+ * Searches for books by a given author using the RecommendationSearchApi and returns lookup items.
+ * @example
+ * lookupByAuthor(api, "J.K. Rowling")
+ * [{ id: "1", title: "Harry Potter and the Philosopher's Stone", author: "J.K. Rowling" }]
+ * @param {{RecommendationSearchApi}} {{api}} - RecommendationSearchApi instance used to perform the search.
+ * @param {{string}} {{author}} - Author name to search for.
+ * @returns {{Promise<BookLookupItem[]>}} Promise resolving to an array of BookLookupItem results (empty array on error).
+ **/
 async function lookupByAuthor(
     api: RecommendationSearchApi,
     author: string,
