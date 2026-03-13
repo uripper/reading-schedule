@@ -25,6 +25,14 @@ function getSitePage(): SitePage {
     return resolveSitePage(globalThis.document.body.dataset.page);
 }
 
+/**
+ * Create a DocumentFragment from an HTML markup string by parsing it with DOMParser and appending the parsed child nodes.
+ * @example
+ * createRenderedFragment('<div>Hello</div>')
+ * // DocumentFragment containing a <div> element with text "Hello"
+ * @param {string} markup - The HTML markup string to parse into a document fragment.
+ * @returns {DocumentFragment} A DocumentFragment containing the parsed nodes from the provided markup.
+ */
 function createRenderedFragment(markup: string): DocumentFragment {
     const DOCUMENT_PARSER = new DOMParser();
     const PARSED_DOCUMENT = DOCUMENT_PARSER.parseFromString(
