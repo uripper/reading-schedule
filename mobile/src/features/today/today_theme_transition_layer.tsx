@@ -24,17 +24,14 @@ interface TodayThemeTransitionLayerProps {
 }
 
 /**
- * Renders a non-interactive animated color-transition overlay for the Today screen.
- * @param fromColor - Starting canvas color before transition.
- * @param progress - Shared transition progress animated value in range `[0, 1]`.
- * @param toColor - Target canvas color after transition.
- * @returns Layer containing sweep and tile effects blended between theme colors.
- */
-export function TodayThemeTransitionLayer({
-    fromColor,
-    progress,
-    toColor,
-}: TodayThemeTransitionLayerProps) {
+ * Create interpolated animation values for a theme transition layer.
+ * @example
+ * createLayerAnimations(progress)
+ * { fromOpacity: Animated.AnimatedInterpolation, pipeSweepShift: Animated.AnimatedInterpolation, sweepOpacity: Animated.AnimatedInterpolation, sweepShift: Animated.AnimatedInterpolation, toOpacity: Animated.AnimatedInterpolation }
+ * @param progress - Animated.Value used to drive interpolation for the layer transitions.
+ * @returns Returns an object containing interpolated animation values for from/to opacity, sweep opacity/shift, and pipe sweep shift.
+ **/
+function createLayerAnimations(progress: Animated.Value) {
     const FROM_OPACITY = progress.interpolate({
         inputRange: [0, 1],
         outputRange: [1, 0],
@@ -55,28 +52,96 @@ export function TodayThemeTransitionLayer({
         inputRange: [0, 1],
         outputRange: [-180, 220],
     });
+    return {
+        fromOpacity: FROM_OPACITY,
+        pipeSweepShift: PIPE_SWEEP_SHIFT,
+        sweepOpacity: SWEEP_OPACITY,
+        sweepShift: SWEEP_SHIFT,
+        toOpacity: TO_OPACITY,
+    };
+}
 
+function tileLeft(index: number): `${number}%` {
+    return `${(index % GRID_COLUMNS) * (100 / GRID_COLUMNS)}%`;
+}
+
+function tileTop(index: number): `${number}%` {
+    return `${Math.floor(index / GRID_COLUMNS) * (100 / GRID_ROWS)}%`;
+}
+
+/**
+ * Render a grid of dissolve tiles whose opacities are interpolated from an animated progress value.
+ * @example
+ * renderDissolveTiles(progress)
+ * [<Animated.View key="dissolve-tile-0" ... />, <Animated.View key="dissolve-tile-1" ... />, ...]
+ * @param {Animated.Value} progress - Animated progress value driving each tile's opacity interpolation.
+ * @returns {JSX.Element[]} Array of Animated.View elements positioned in a grid with interpolated opacity.
+ **/
+function renderDissolveTiles(progress: Animated.Value) {
+    return GRID_TILE_INDEXES.map((tileIndex) => {
+        const PHASE = tilePhase(tileIndex);
+        const TILE_OPACITY = progress.interpolate({
+            inputRange: [PHASE, PHASE + 0.12, PHASE + 0.24],
+            outputRange: [0, 0.52, 0],
+            extrapolate: "clamp",
+        });
+        return (
+            <Animated.View
+                key={`dissolve-tile-${tileIndex}`}
+                style={[
+                    STYLES.dissolveTile,
+                    {
+                        left: tileLeft(tileIndex),
+                        opacity: TILE_OPACITY,
+                        top: tileTop(tileIndex),
+                    },
+                ]}
+            />
+        );
+    });
+}
+
+interface LayerFillProps {
+    color: string;
+    opacity: Animated.AnimatedInterpolation<number>;
+}
+
+function LayerFill({ color, opacity }: LayerFillProps) {
     return (
-        <View pointerEvents="none" style={STYLES.layer}>
-            <Animated.View
-                style={[
-                    STYLES.fill,
-                    { backgroundColor: fromColor, opacity: FROM_OPACITY },
-                ]}
-            />
-            <Animated.View
-                style={[
-                    STYLES.fill,
-                    { backgroundColor: toColor, opacity: TO_OPACITY },
-                ]}
-            />
+        <Animated.View
+            style={[STYLES.fill, { backgroundColor: color, opacity }]}
+        />
+    );
+}
+
+interface SweepEffectsProps {
+    pipeSweepShift: Animated.AnimatedInterpolation<number>;
+    sweepOpacity: Animated.AnimatedInterpolation<number>;
+    sweepShift: Animated.AnimatedInterpolation<number>;
+}
+
+/**
+ * Render sweeping animated overlay effects (scan bands and pipe sweeps) for the today theme transition layer.
+ * @example
+ * SweepEffects({ pipeSweepShift: new Animated.Value(0), sweepOpacity: new Animated.Value(0.5), sweepShift: new Animated.Value(10) })
+ * <></>
+ * @param props - Props object with Animated.Value entries: pipeSweepShift (horizontal/vertical shift), sweepOpacity (opacity), and sweepShift (diagonal band translateX).
+ * @returns Return a React fragment containing multiple Animated.View sweep overlays.
+ **/
+function SweepEffects({
+    pipeSweepShift,
+    sweepOpacity,
+    sweepShift,
+}: SweepEffectsProps) {
+    return (
+        <>
             <Animated.View
                 style={[
                     STYLES.scanBand,
                     {
-                        opacity: SWEEP_OPACITY,
+                        opacity: sweepOpacity,
                         transform: [
-                            { translateX: SWEEP_SHIFT },
+                            { translateX: sweepShift },
                             { rotate: "-14deg" },
                         ],
                     },
@@ -86,9 +151,9 @@ export function TodayThemeTransitionLayer({
                 style={[
                     STYLES.scanBandThin,
                     {
-                        opacity: SWEEP_OPACITY,
+                        opacity: sweepOpacity,
                         transform: [
-                            { translateX: SWEEP_SHIFT },
+                            { translateX: sweepShift },
                             { rotate: "-14deg" },
                         ],
                     },
@@ -98,8 +163,8 @@ export function TodayThemeTransitionLayer({
                 style={[
                     STYLES.pipeSweep,
                     {
-                        opacity: SWEEP_OPACITY,
-                        transform: [{ translateX: PIPE_SWEEP_SHIFT }],
+                        opacity: sweepOpacity,
+                        transform: [{ translateX: pipeSweepShift }],
                     },
                 ]}
             />
@@ -107,36 +172,39 @@ export function TodayThemeTransitionLayer({
                 style={[
                     STYLES.pipeSweepVertical,
                     {
-                        opacity: SWEEP_OPACITY,
-                        transform: [{ translateY: PIPE_SWEEP_SHIFT }],
+                        opacity: sweepOpacity,
+                        transform: [{ translateY: pipeSweepShift }],
                     },
                 ]}
             />
-            {GRID_TILE_INDEXES.map((tileIndex) => {
-                const PHASE = tilePhase(tileIndex);
-                const TILE_OPACITY = progress.interpolate({
-                    inputRange: [PHASE, PHASE + 0.12, PHASE + 0.24],
-                    outputRange: [0, 0.52, 0],
-                    extrapolate: "clamp",
-                });
-                const LEFT_PERCENT =
-                    `${(tileIndex % GRID_COLUMNS) * (100 / GRID_COLUMNS)}%` as `${number}%`;
-                const TOP_PERCENT =
-                    `${Math.floor(tileIndex / GRID_COLUMNS) * (100 / GRID_ROWS)}%` as `${number}%`;
-                return (
-                    <Animated.View
-                        key={`dissolve-tile-${tileIndex}`}
-                        style={[
-                            STYLES.dissolveTile,
-                            {
-                                left: LEFT_PERCENT,
-                                opacity: TILE_OPACITY,
-                                top: TOP_PERCENT,
-                            },
-                        ]}
-                    />
-                );
-            })}
+        </>
+    );
+}
+
+/**
+ * Renders a non-interactive animated color-transition overlay for the Today screen.
+ * @param fromColor - Starting canvas color before transition.
+ * @param progress - Shared transition progress animated value in range `[0, 1]`.
+ * @param toColor - Target canvas color after transition.
+ * @returns Layer containing sweep and tile effects blended between theme colors.
+ */
+export function TodayThemeTransitionLayer({
+    fromColor,
+    progress,
+    toColor,
+}: TodayThemeTransitionLayerProps) {
+    const ANIMATIONS = createLayerAnimations(progress);
+
+    return (
+        <View pointerEvents="none" style={STYLES.layer}>
+            <LayerFill color={fromColor} opacity={ANIMATIONS.fromOpacity} />
+            <LayerFill color={toColor} opacity={ANIMATIONS.toOpacity} />
+            <SweepEffects
+                pipeSweepShift={ANIMATIONS.pipeSweepShift}
+                sweepOpacity={ANIMATIONS.sweepOpacity}
+                sweepShift={ANIMATIONS.sweepShift}
+            />
+            {renderDissolveTiles(progress)}
         </View>
     );
 }

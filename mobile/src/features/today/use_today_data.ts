@@ -4,7 +4,7 @@ import type {
     PlannerResult,
 } from "@reading-schedule/contracts";
 import { useCallback, useEffect, useState } from "react";
-import type { TodayBookCard, TodayStats } from "./types";
+import type { TodayBookCard, TodayStats } from "./types.ts";
 
 const CARD_ACCENTS = ["#9CD2EE", "#F16865", "#B5E080", "#E7B1EF", "#F4D738"];
 const DEFAULT_BOOK_LIMIT = 6;
@@ -70,6 +70,14 @@ function localDayKey(date: Date): string {
     return `${YEAR}-${MONTH}-${DAY}`;
 }
 
+/**
+ * Produce a YYYY-MM-DD day key from a timestamp or date string, returning the input date if it already matches ISO date format or an empty string for invalid dates.
+ * @example
+ * dayKeyFromTimestamp('2023-07-15T12:34:56Z')
+ * '2023-07-15'
+ * @param {string} value - A timestamp or date string; if the first 10 characters match YYYY-MM-DD that substring is returned.
+ * @returns {string} A YYYY-MM-DD day key in local time, or an empty string if the input cannot be parsed as a valid date.
+ */
 function dayKeyFromTimestamp(value: string): string {
     const DIRECT = value.slice(0, 10);
     const LOOKS_ISO = /^\d{4}-\d{2}-\d{2}$/.test(DIRECT);
@@ -107,6 +115,14 @@ function toPagesDone(book: Book): number {
     return Math.round((PERCENT / 100) * PAGES_TOTAL);
 }
 
+/**
+ * Estimate total number of pages for a Book, using pages_total if available or words_total with a 300 words/page fallback; always returns at least 1.
+ * @example
+ * toPagesTotal({ pages_total: 250 })
+ * 250
+ * @param book - Book object that may include numeric pages_total or words_total properties.
+ * @returns Estimated total page count (rounded, minimum 1).
+ **/
 function toPagesTotal(book: Book): number {
     const PAGES_TOTAL = Number(book.pages_total ?? 0);
     if (!Number.isNaN(PAGES_TOTAL) && PAGES_TOTAL > 0) {
@@ -120,6 +136,15 @@ function toPagesTotal(book: Book): number {
     return 1;
 }
 
+/**
+ * Convert a Book object into a TodayBookCard, mapping fields and selecting an accent color by index.
+ * @example
+ * toBookCard({ book_id: "b1", author: "Jane Doe", title: "Example", progress_percent: 45 }, 2)
+ * { accent: "#9CD2EE", author: "Jane Doe", completionPercent: 45, id: "b1", pagesDone: 0, pagesTotal: 0, title: "Example" }
+ * @param book - Book to convert into a TodayBookCard.
+ * @param index - Zero-based index used to pick a card accent color.
+ * @returns Return a TodayBookCard with accent, author, completionPercent, id, pagesDone, pagesTotal, and title.
+ **/
 function toBookCard(book: Book, index: number): TodayBookCard {
     const ACCENT = CARD_ACCENTS[index % CARD_ACCENTS.length] ?? "#9CD2EE";
     return {
@@ -142,6 +167,15 @@ function toBookCards(books: Book[]): TodayBookCard[] {
     return sourceBooks.slice(0, DEFAULT_BOOK_LIMIT).map(toBookCard);
 }
 
+/**
+ * Compute a "completed/total" label for today's sessions from a planner result and a completions map.
+ * @example
+ * completedSessionsLabel(plannerResult, completions)
+ * "1/2"
+ * @param plannerResult - Planner result object that may contain a schedule array; only today's rows are counted.
+ * @param completions - Map of session keys to boolean completion status.
+ * @returns A string in the form "completed/total" representing completed sessions out of total sessions scheduled for today.
+ **/
 function completedSessionsLabel(
     plannerResult: PlannerResult | null | undefined,
     completions: Record<string, boolean>,
@@ -165,6 +199,14 @@ function completedSessionsLabel(
     return `${completed}/${total}`;
 }
 
+/**
+ * Calculate the current consecutive-day active session streak up to today.
+ * @example
+ * dayStreak([{ minutes: 30, ended_at: '2026-03-12T08:00:00Z' }])
+ * 1
+ * @param sessions - Array of session objects; sessions with minutes below MIN_STREAK_MINUTES are ignored.
+ * @returns Number of consecutive days (including today) with at least one qualifying session.
+ **/
 function dayStreak(sessions: TodaySession[]): number {
     const ACTIVE_DAYS = new Set<string>();
     for (const SESSION of sessions) {
@@ -191,6 +233,14 @@ function dayStreak(sessions: TodaySession[]): number {
     return streak;
 }
 
+/**
+ * Load and prepare the data required for the Today view (books, completions and stats).
+ * @example
+ * loadTodayViewData(plannerApi)
+ * { books: [{ id: "book1", title: "Sample Book", ... }], stats: { completedSessions: "1/3", dayStreak: 2 } }
+ * @param plannerApi - Planner API client used to load persisted state or fallback sample data.
+ * @returns Promise resolving to today's view data containing book cards and stats.
+ **/
 async function loadTodayViewData(
     plannerApi: PlannerApi,
 ): Promise<TodayViewData> {
@@ -244,6 +294,14 @@ const INITIAL_STATE: TodayState = {
     viewData: LOCAL_FALLBACK_VIEW_DATA,
 };
 
+/**
+ * React hook that loads and returns today's view data from the Planner API including loading state, error, books, stats, and a refresh function.
+ * @example
+ * useTodayData(plannerApi)
+ * { books: [...], errorMessage: null, isLoading: false, refresh: async () => void, stats: {...} }
+ * @param plannerApi - Planner API instance used to fetch today's view data.
+ * @returns Object containing today's view data: books, stats, isLoading flag, errorMessage, and a refresh function.
+ **/
 export function useTodayData(plannerApi: PlannerApi) {
     const [STATE, SET_STATE] = useState<TodayState>(INITIAL_STATE);
 

@@ -1,5 +1,5 @@
-import type { AppDerivedIndexes, Book, Session } from "../../types/types.js";
-import { localDayKeyFromIso } from "./date_keys.js";
+import type { AppDerivedIndexes, Book, Session } from "../../types/types.ts";
+import { localDayKeyFromIso } from "./date_keys.ts";
 
 const COMPLETION_KEY_PART_DAY_BOOK = 2;
 const COMPLETION_KEY_PART_SESSION = 3;

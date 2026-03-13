@@ -2,13 +2,13 @@ import type {
     Book,
     BookGroup,
     StatusGroupDefinition,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 import {
     BOOK_STATUS_DROPPED,
     BOOK_STATUS_IN_PROGRESS,
     BOOK_STATUS_READ,
     BOOK_STATUS_TO_READ,
-} from "./status_catalog.js";
+} from "./status_catalog.ts";
 
 const STATUS_GROUPS: StatusGroupDefinition[] = [
     { label: "Dropped", statuses: [BOOK_STATUS_DROPPED] },

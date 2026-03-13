@@ -1,12 +1,20 @@
 import type { PlannerApi } from "@reading-schedule/contracts";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { TodayScreen } from "./today_screen_view";
-import { useTodayData } from "./use_today_data";
+import { TodayScreen } from "./today_screen_view.tsx";
+import { useTodayData } from "./use_today_data.ts";
 
 interface TodayScreenContainerProps {
     plannerApi: PlannerApi;
 }
 
+/**
+ * Renders the container for the "Today" screen: loads today's data and shows loading, error, empty, or the TodayScreen view.
+ * @example
+ * TodayScreenContainer({ plannerApi })
+ * <TodayScreen books={books} stats={stats} />
+ * @param props - Props object containing a plannerApi client used to fetch today's data.
+ * @returns A React element that displays the appropriate UI for the today's data state.
+ **/
 export function TodayScreenContainer({
     plannerApi,
 }: TodayScreenContainerProps) {

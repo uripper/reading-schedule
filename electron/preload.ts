@@ -10,7 +10,7 @@ import type {
     PlannerSaveResult,
     PlannerStateLoadResult,
     PlannerStateSnapshot,
-} from "./types/types.js";
+} from "./types/types.ts";
 
 /**
  * Invokes an IPC channel and narrows the resolved payload to the expected type.

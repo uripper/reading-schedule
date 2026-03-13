@@ -3,17 +3,17 @@ import type {
     PlannerScheduleRow,
     PlannerSettings,
     UpdatedRowsResult,
-} from "../../../types/types.js";
+} from "../../../types/types.ts";
 import {
     sessionKeyFor,
     sortRowsByDateAndSession,
-} from "../../calendar/utils.js";
+} from "../../calendar/utils.ts";
 import {
     DEFAULT_BOOK_DIFFICULTY,
     normalizedManualMinutes,
     rowsWithoutSession,
     wordsPlannedForManualSession,
-} from "./calendar_interactions_helpers.js";
+} from "./calendar_interactions_helpers.ts";
 
 /**
  * Calculates the updated schedule rows when a session's planned minutes are manually changed.

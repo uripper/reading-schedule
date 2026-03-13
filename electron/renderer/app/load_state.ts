@@ -6,9 +6,9 @@ import type {
     PlannerApi,
     PlannerStateLoadResult,
     Preferences,
-} from "../../types/types.js";
-import { normalizeSessions } from "../sessions/normalize.js";
-import { normalizeScheduleCompletions } from "./experience/schedule_completions.js";
+} from "../../types/types.ts";
+import { normalizeSessions } from "../sessions/normalize.ts";
+import { normalizeScheduleCompletions } from "./experience/schedule_completions.ts";
 import {
     readFeatureFlags,
     readLoadedResult,
@@ -16,7 +16,7 @@ import {
     readRawSessions,
     sessionInputs,
     toSavedRecord,
-} from "./load_state_compat.js";
+} from "./load_state_compat.ts";
 
 /**
  * Checks whether loaded state already contains full bootstrapping data.

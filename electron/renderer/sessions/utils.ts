@@ -1,4 +1,4 @@
-import { todayDayKey } from "../app/date_keys.js";
+import { todayDayKey } from "../app/date_keys.ts";
 /**
  * Parses a value as rounded integer with fallback.
  * @param value - String/number-like value.

@@ -1,12 +1,46 @@
 /**
  * Book lookup and cover persistence helpers used by IPC handlers.
  */
-import * as fs from "node:fs";
+import { writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
-import { parseCoverDataUrl } from "./cover_data_url";
-import { extensionFor, filePathForCover, isHttpProtocol } from "./cover_paths";
+import { parseCoverDataUrl } from "./cover-data-url.ts";
+import {
+    extensionFor,
+    filePathForCover,
+    isHttpProtocol,
+} from "./cover-paths.ts";
 
-export { searchBooks } from "./search";
+interface DownloadedCover {
+    bytes: ArrayBuffer;
+    contentType: string | null;
+}
+
+async function fetchCover(parsedUrl: URL): Promise<DownloadedCover | null> {
+    let response: Response;
+
+    try {
+        response = await globalThis.fetch(parsedUrl.toString(), {
+            redirect: "follow",
+        });
+    } catch {
+        return null;
+    }
+
+    if (!response.ok) {
+        return null;
+    }
+
+    const BYTES = await response.arrayBuffer();
+
+    if (BYTES.byteLength === 0) {
+        return null;
+    }
+
+    return {
+        bytes: BYTES,
+        contentType: response.headers.get("content-type"),
+    };
+}
 
 /**
  * Downloads a remote cover image and stores it in the user data directory.
@@ -34,31 +68,18 @@ export async function downloadCover(
     if (!isHttpProtocol(parsedUrl.protocol)) {
         return "";
     }
-    let response: Response;
-    try {
-        response = await globalThis.fetch(parsedUrl.toString(), {
-            redirect: "follow",
-        });
-    } catch {
+    const DOWNLOADED_COVER = await fetchCover(parsedUrl);
+
+    if (DOWNLOADED_COVER === null) {
         return "";
     }
-    if (!response.ok) {
-        return "";
-    }
-    const BYTES = await response.arrayBuffer();
-    if (BYTES.byteLength === 0) {
-        return "";
-    }
-    const EXTENSION = extensionFor(
-        response.headers.get("content-type"),
-        parsedUrl,
-    );
+    const EXTENSION = extensionFor(DOWNLOADED_COVER.contentType, parsedUrl);
     const FILE_PATH = filePathForCover(
         NORMALIZED_USER_DATA_DIR,
         bookId,
         EXTENSION,
     );
-    fs.writeFileSync(FILE_PATH, new Uint8Array(BYTES));
+    writeFileSync(FILE_PATH, new Uint8Array(DOWNLOADED_COVER.bytes));
     return pathToFileURL(FILE_PATH).href;
 }
 
@@ -87,6 +108,6 @@ export function saveUploadedCover(
         bookId,
         PARSED.extension,
     );
-    fs.writeFileSync(FILE_PATH, PARSED.bytes);
+    writeFileSync(FILE_PATH, PARSED.bytes);
     return pathToFileURL(FILE_PATH).href;
 }

@@ -3,7 +3,7 @@ import type {
     LoadedPlannerState,
     PlannerResult,
     SessionInput,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 
 /**
  * Returns object-like state data for cross-shape compatibility reads.

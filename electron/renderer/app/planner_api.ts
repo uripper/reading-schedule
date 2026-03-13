@@ -1,4 +1,4 @@
-import type { PlannerApi, PlannerApiGlobal } from "../../types/types.js";
+import type { PlannerApi, PlannerApiGlobal } from "../../types/types.ts";
 
 /**
  * Reads the typed planner API bridge exposed by Electron preload.

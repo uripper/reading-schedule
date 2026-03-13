@@ -120,6 +120,17 @@
     opacity: 1;
 }
 
+.day-date {
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-bold);
+    line-height: 1.2;
+}
+
+.day-event-count {
+    font-size: var(--token-typography-size-xs);
+    color: var(--app-textMuted);
+}
+
 .day.is-today .day-date {
     color: color-mix(in srgb, var(--app-focusRing) 78%, var(--app-text));
 }
@@ -163,17 +174,6 @@
         inset 0 0 0 1px
         color-mix(in srgb, var(--app-focusRing) 50%, transparent),
         0 0 0 1px color-mix(in srgb, var(--app-brandStrong) 54%, transparent);
-}
-
-.day-date {
-    font-size: var(--token-typography-size-md);
-    font-weight: var(--token-typography-weight-bold);
-    line-height: 1.2;
-}
-
-.day-event-count {
-    font-size: var(--token-typography-size-xs);
-    color: var(--app-textMuted);
 }
 
 .day-chip {
@@ -288,14 +288,37 @@
     width: 100%;
 }
 
-.day-manual-add-form .day-complete-toggle {
+.day-complete-toggle {
     display: flex;
+    gap: var(--token-space-2);
     align-items: center;
+    font-size: var(--token-typography-size-sm);
+    color: var(--app-textMuted);
+}
+
+.day-complete-toggle input[type="checkbox"] {
+    width: auto;
+    min-height: 0;
+    margin: 0;
+}
+
+.day-manual-add-form .day-complete-toggle {
     min-height: var(--token-size-target-minimum);
 }
 
 .day-manual-add-form .btn {
     min-height: var(--token-size-target-minimum);
+}
+
+.day-progress-field {
+    display: grid;
+    gap: var(--token-space-1);
+    font-size: var(--token-typography-size-xs);
+    color: var(--app-textMuted);
+}
+
+.day-progress-field input {
+    margin-top: 0;
 }
 
 .day-manual-add-form .day-progress-field select,
@@ -376,20 +399,6 @@
     color: var(--app-textMuted);
 }
 
-.day-complete-toggle {
-    display: flex;
-    gap: var(--token-space-2);
-    align-items: center;
-    font-size: var(--token-typography-size-sm);
-    color: var(--app-textMuted);
-}
-
-.day-complete-toggle input[type="checkbox"] {
-    width: auto;
-    min-height: 0;
-    margin: 0;
-}
-
 .day-progress-form {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
@@ -442,17 +451,6 @@
 
 .day-minutes-form {
     grid-template-columns: minmax(0, 1fr) auto;
-}
-
-.day-progress-field {
-    display: grid;
-    gap: var(--token-space-1);
-    font-size: var(--token-typography-size-xs);
-    color: var(--app-textMuted);
-}
-
-.day-progress-field input {
-    margin-top: 0;
 }
 
 .day-progress-form .btn {

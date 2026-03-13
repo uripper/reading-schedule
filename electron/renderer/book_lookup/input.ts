@@ -1,5 +1,5 @@
-import type { LookupInputHandlerArgs } from "../../types/types.js";
-import { getPlannerApi } from "../app/planner_api.js";
+import type { LookupInputHandlerArgs } from "../../types/types.ts";
+import { getPlannerApi } from "../app/planner_api.ts";
 
 const LOOKUP_DELAY_MS = 260;
 const RESULT_LIMIT = 12;

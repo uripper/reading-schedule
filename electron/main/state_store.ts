@@ -7,14 +7,17 @@ import type {
     LoadedPlannerState,
     PlannerSaveResult,
     PlannerStateLoadResult,
-} from "../types/types.js";
-import { readStateFromJson, writeStateToJson } from "./state_store_json";
+} from "../types/types.ts";
+import { readStateFromJson, writeStateToJson } from "./state_store_json.ts";
 import {
     jsonStateBackupPath,
     jsonStatePath,
     sqliteStatePath,
-} from "./state_store_paths";
-import { readStateFromSqlite, writeStateToSqlite } from "./state_store_sqlite";
+} from "./state_store_paths.ts";
+import {
+    readStateFromSqlite,
+    writeStateToSqlite,
+} from "./state_store_sqlite.ts";
 
 /**
  * Returns true when state payload contains required bootstrap fields.

@@ -1,7 +1,7 @@
 import {
     shouldScrollCardIntoView,
     waitForCardScrollSettle,
-} from "./card_scroll_settle.js";
+} from "./card_scroll_settle.ts";
 
 const AFTER_TARGET_CLASS = "is-after-target";
 const AFTER_TARGET_DURATION_MS = 1800;

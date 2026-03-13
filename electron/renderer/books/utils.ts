@@ -1,4 +1,4 @@
-import type { NumericLike } from "../../types/types.js";
+import type { NumericLike } from "../../types/types.ts";
 
 /**
  * Clamps numeric value between inclusive bounds.

@@ -4,8 +4,8 @@ import type {
     PagesUpdateResult,
     PercentUpdateContext,
     ProgressTotals,
-} from "../../types/types.js";
-import { clamp } from "./utils.js";
+} from "../../types/types.ts";
+import { clamp } from "./utils.ts";
 
 /**
  * Parses numeric-like input and rejects blank/non-finite values.

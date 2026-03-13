@@ -18,6 +18,7 @@ from reading_plan.bridge_logging import (
 from reading_plan.input.reading_io import load_inputs
 from reading_plan.input.serializers import book_to_data, settings_to_data
 
+
 if TYPE_CHECKING:
     import logging
 
@@ -116,6 +117,7 @@ def main() -> int:
     """Run the GUI bridge in sample mode or stdin payload mode."""
     args = parse_args()
     logger = configure_logger()
+    exit_code = 0
     log_file_execution(logger, file_path=__file__, entrypoint="main")
     log_incoming_data(
         logger,
@@ -127,17 +129,19 @@ def main() -> int:
         if args.sample:
             logger.debug("Sample request received")
             books, settings = load_inputs(args.data, args.settings)
-            write_payload({
-                "ok": True,
-                "data": {
-                    "books": [book_to_data(b) for b in books],
-                    "settings": settings_to_data(settings),
-                },
-            })
+            write_payload(
+                {
+                    "ok": True,
+                    "data": {
+                        "books": [book_to_data(b) for b in books],
+                        "settings": settings_to_data(settings),
+                    },
+                }
+            )
             logger.debug(
                 "Sample payload returned", extra={"book_count": len(books)}
             )
-            return 0
+            return exit_code
 
         payload = read_stdin_payload(logger)
         logger.debug(
@@ -156,14 +160,13 @@ def main() -> int:
     except (KeyError, OSError, RuntimeError, TypeError, ValueError) as error:
         logger.exception("Bridge handled exception")
         write_payload({"ok": False, "error": str(error)})
-        return 1
+        exit_code = 1
     except Exception as error:  # pragma: no cover - defensive envelope
         logger.exception("Bridge unhandled exception")
         traceback.print_exc(file=sys.stderr)
         write_payload({"ok": False, "error": f"Unhandled exception: {error}"})
-        return 1
-    else:
-        return 0
+        exit_code = 1
+    return exit_code
 
 
 if __name__ == "__main__":

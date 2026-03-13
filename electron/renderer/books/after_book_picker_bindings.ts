@@ -1,10 +1,10 @@
-import type { BindingArgs } from "../../types/types.js";
+import type { BindingArgs } from "../../types/types.ts";
 import {
     lookupResultTarget,
     shouldKeepPickerOpen,
     wrapIndex,
-} from "./after_book_picker_helpers.js";
-import { NO_ACTIVE_INDEX } from "./after_book_picker_render.js";
+} from "./after_book_picker_helpers.ts";
+import { NO_ACTIVE_INDEX } from "./after_book_picker_render.ts";
 
 function bindPickerInputEvents(args: BindingArgs): void {
     args.refs.afterBookInput.addEventListener("focus", () => {
@@ -15,6 +15,14 @@ function bindPickerInputEvents(args: BindingArgs): void {
     });
 }
 
+/**
+ * Attach keyboard handlers to the after-book input to navigate the filtered picker list, select an entry, or dismiss the picker.
+ * @example
+ * bindPickerKeyboardEvents({ state: pickerState, refs: pickerRefs, selectBook: fn, clearResults: fn, render: fn })
+ * undefined
+ * @param {BindingArgs} args - Binding object containing the picker state, DOM refs, and action callbacks used for navigation, selection, and rendering.
+ * @returns {void} No return value.
+ */
 function bindPickerKeyboardEvents(args: BindingArgs): void {
     const PICKER_STATE = args.state;
     args.refs.afterBookInput.addEventListener(
@@ -57,6 +65,14 @@ function bindPickerKeyboardEvents(args: BindingArgs): void {
     );
 }
 
+/**
+ * Attach mousemove and click handlers to the afterBookResults element to update the active result on hover and select a book on click.
+ * @example
+ * bindPickerResultsEvents({ refs: { afterBookResults: document.querySelector('.results') }, state: { activeIndex: 0, filtered: [] }, render: () => {}, selectBook: () => {} })
+ * undefined
+ * @param args - BindingArgs object containing refs (with afterBookResults HTMLElement), state, render function, and selectBook callback.
+ * @returns Return nothing.
+ **/
 function bindPickerResultsEvents(args: BindingArgs): void {
     args.refs.afterBookResults.addEventListener(
         "mousemove",
@@ -82,6 +98,14 @@ function bindPickerResultsEvents(args: BindingArgs): void {
     );
 }
 
+/**
+ * Binds a document click listener that clears and re-renders the after-book picker when clicking outside it.
+ * @example
+ * bindPickerOutsideClick({ refs: { afterBookInput: inputEl, afterBookResults: resultsEl }, clearResults: () => {}, render: () => {} })
+ * undefined
+ * @param args - Binding arguments containing refs to input/results and callbacks to clear and render picker.
+ * @returns No return value.
+ **/
 function bindPickerOutsideClick(args: BindingArgs): void {
     document.addEventListener("click", (event: MouseEvent) => {
         if (!(event.target instanceof Node)) {

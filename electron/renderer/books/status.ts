@@ -1,4 +1,4 @@
-import type { Book, BookStatus, BookStatusFilter } from "../../types/types.js";
+import type { Book, BookStatus, BookStatusFilter } from "../../types/types.ts";
 import {
     BOOK_STATUS_DROPPED,
     BOOK_STATUS_FILTER_ALL,
@@ -8,7 +8,7 @@ import {
     isStatusSchedulable,
     normalizedStatus,
     statusOptions,
-} from "./status_catalog.js";
+} from "./status_catalog.ts";
 
 /**
  * Normalizes a raw status string into an internal status value.

@@ -208,6 +208,15 @@ Run all commands relevant to touched areas before merge.
 - `npm --prefix electron run typecheck`
 - `npm --prefix electron run build`
 
+### Website
+
+- `pnpm -C apps/website run lint`
+- `pnpm -C apps/website run typecheck`
+- `pnpm -C apps/website run build`
+- `pnpm -C apps/website run test`
+- `pnpm run dev:website` for standard preview
+- `pnpm run dev:website:hot` for Vite hot reload
+
 ### Python Planner
 
 - `npm run lint:python`

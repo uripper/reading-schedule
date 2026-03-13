@@ -2,10 +2,10 @@ import type {
     BookFormRefs,
     BookLookupItem,
     ProgressSyncInputs,
-} from "../../types/types.js";
-import { noteFromLookup, syncProgressAndPages } from "../book_lookup.js";
-import { CUSTOM_COVER_NOTE, setCoverPreview } from "./form_state_helpers.js";
-import { toOptionalInt } from "./utils.js";
+} from "../../types/types.ts";
+import { noteFromLookup, syncProgressAndPages } from "../book_lookup.ts";
+import { CUSTOM_COVER_NOTE, setCoverPreview } from "./form_state_helpers.ts";
+import { toOptionalInt } from "./utils.ts";
 
 /**
  * Applies a positive lookup estimate to an input only when current value is missing.

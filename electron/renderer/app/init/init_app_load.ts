@@ -3,19 +3,19 @@ import type {
     CreateLoadStateArgsInput,
     LoadedResultController,
     LoadStateArgs,
-} from "../../../types/types.js";
-import { applyPreferencesToDocument } from "../../accessibility/index.js";
-import { fillBooks } from "../../books.js";
-import { fillSettings } from "../../settings.js";
+} from "../../../types/types.ts";
+import { applyPreferencesToDocument } from "../../accessibility/index.ts";
+import { fillBooks } from "../../books.ts";
+import { fillSettings } from "../../settings.ts";
 import {
     fillPreferencesUI,
     normalizeFeatureFlags,
     normalizePreferences,
     normalizeScheduleCompletions,
-} from "../experience/index.js";
-import { loadInitialData } from "../load_state.js";
-import { applyAppStateMutation } from "../state_mutations.js";
-import { finalizeInitialLoad } from "./init_helpers.js";
+} from "../experience/index.ts";
+import { loadInitialData } from "../load_state.ts";
+import { applyAppStateMutation } from "../state_mutations.ts";
+import { finalizeInitialLoad } from "./init-helpers.ts";
 
 /**
  * Creates `loadInitialData` bindings for runtime state mutation and startup flow.

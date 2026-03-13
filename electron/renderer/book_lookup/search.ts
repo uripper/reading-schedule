@@ -2,18 +2,27 @@ import type {
     BindBookLookupOptions,
     LookupBinding,
     LookupSearchState,
-} from "../../types/types.js";
-import { placeholderCoverSvg } from "./helpers.js";
-import { createLookupInputHandler } from "./input.js";
-import { handleLookupKeydown } from "./keyboard.js";
-import { lookupResultTarget } from "./render.js";
-import { createLookupStateController } from "./search_state.js";
+} from "../../types/types.ts";
+import { placeholderCoverSvg } from "./helpers.ts";
+import { createLookupInputHandler } from "./input.ts";
+import { handleLookupKeydown } from "./keyboard.ts";
+import { lookupResultTarget } from "./render.ts";
+import { createLookupStateController } from "./search_state.ts";
 
 interface LookupListHandlers {
     selectItem: (nextIndex: number) => void;
     setActiveIndex: (nextIndex: number) => void;
 }
 
+/**
+ * Binds mousemove and click event listeners to a lookup results container element to update the active index and trigger selection.
+ * @example
+ * bindLookupResultEvents(resultsEl, handlers)
+ * undefined
+ * @param resultsEl - The container element that contains lookup result items (expects children with data-result-index attributes).
+ * @param handlers - An object with setActiveIndex(index: number) and selectItem(index: number) methods invoked on hover and click respectively.
+ * @returns No return value.
+ **/
 function bindLookupResultEvents(
     resultsEl: HTMLElement,
     handlers: LookupListHandlers,
@@ -32,6 +41,17 @@ function bindLookupResultEvents(
     });
 }
 
+/**
+ * Attach a keydown event listener to the provided search input to handle lookup navigation and selection.
+ * @example
+ * bindLookupKeydown(options, state, handlers, clearResults)
+ * undefined
+ * @param options - Configuration object that includes the searchInput HTML element to receive the keydown listener.
+ * @param state - Current lookup search state containing activeIndex and currentItems.
+ * @param handlers - Object with handler functions such as selectItem and setActiveIndex.
+ * @param clearResults - Callback invoked to clear current search results.
+ * @returns No return value; attaches a keydown event listener to the given search input.
+ **/
 function bindLookupKeydown(
     options: BindBookLookupOptions,
     state: LookupSearchState,
@@ -51,6 +71,16 @@ function bindLookupKeydown(
     });
 }
 
+/**
+ * Creates an event handler that clears search results when clicking outside the search input or results element.
+ * @example
+ * createOutsideClickHandler(searchInput, resultsEl, clearResults)
+ * (event) => { ... }
+ * @param {HTMLInputElement} searchInput - The input element that should not trigger clearing when clicked.
+ * @param {HTMLElement} resultsEl - The results container element that should not trigger clearing when clicked.
+ * @param {() => void} clearResults - Callback invoked to clear the current search results.
+ * @returns {(event: MouseEvent) => void} A mouse event handler that clears results when a click occurs outside the input and results elements.
+ */
 function createOutsideClickHandler(
     searchInput: HTMLInputElement,
     resultsEl: HTMLElement,

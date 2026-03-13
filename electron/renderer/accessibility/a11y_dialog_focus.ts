@@ -1,4 +1,4 @@
-import type { DialogFocusOptions } from "../../types/types.js";
+import type { DialogFocusOptions } from "../../types/types.ts";
 
 /**
  * Returns a CSS selector string matching all interactive, focusable elements
@@ -42,6 +42,16 @@ export function bindDialogFocus(
             opener = document.activeElement;
         }
     };
+    /**
+     * Set focus inside a dialog element using an initial selector, an [autofocus] element, or the first focusable element.
+     * @example
+     * setDialogFocus(dialogElement, '#initial', () => 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+     * undefined
+     * @param dialog - Dialog element to search and set focus within.
+     * @param initialFocusSelector - CSS selector for an initial focus target; may be null or empty to skip.
+     * @param focusableSelector - Function that returns a CSS selector matching focusable elements inside the dialog.
+     * @returns No return value.
+     **/
     const FOCUS_INITIAL_TARGET = (): void => {
         let direct: Element | null = null;
         if (initialFocusSelector !== null && initialFocusSelector !== "") {

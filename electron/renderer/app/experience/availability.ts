@@ -1,7 +1,7 @@
 import type {
     FeatureFlagRawValue,
     ReminderTimeRawValue,
-} from "../../../types/types.js";
+} from "../../../types/types.ts";
 export const REMINDERS_AVAILABLE = false;
 export const SOCIAL_FEATURES_AVAILABLE = false;
 export const RECOMMENDATIONS_AVAILABLE = false;

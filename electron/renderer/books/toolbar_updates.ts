@@ -3,15 +3,15 @@ import type {
     BookGroupBy,
     BookStatusFilter,
     SortDirection,
-} from "../../types/types.js";
-import { GROUP_BY_NONE } from "./grouping.js";
-import { SORT_DIRECTION_DESC } from "./sort.js";
-import { normalizeStatusFilter, statusFilterOptions } from "./status.js";
-import { createOption } from "./toolbar_dom.js";
+} from "../../types/types.ts";
+import { GROUP_BY_NONE } from "./grouping.ts";
+import { SORT_DIRECTION_DESC } from "./sort.ts";
+import { normalizeStatusFilter, statusFilterOptions } from "./status.ts";
+import { createOption } from "./toolbar_dom.ts";
 import {
     groupOptionsForShelfFilter,
     shelfFilterOptions,
-} from "./toolbar_options.js";
+} from "./toolbar_options.ts";
 
 /**
  * Updates sort direction button label from current direction state.

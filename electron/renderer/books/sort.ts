@@ -5,9 +5,9 @@ import type {
     SortBy,
     SortComparator,
     SortDirection,
-} from "../../types/types.js";
-import { normalizeShelfName } from "./shelf.js";
-import { titleSortKey } from "./title_key.js";
+} from "../../types/types.ts";
+import { normalizeShelfName } from "./shelf.ts";
+import { titleSortKey } from "./title_key.ts";
 
 export const SORT_BY_TITLE = "title";
 export const SORT_BY_AUTHOR = "author";
@@ -60,6 +60,15 @@ function compareText(left: OptionalString, right: OptionalString): number {
     });
 }
 
+/**
+ * Determine which of two optional string or number values is considered "missing".
+ * @example
+ * handleMissingText(null, "text")
+ * 1
+ * @param {OptionalString|OptionalNumber} left - Left value; strings are missing if null/undefined/trim() === "" and numbers are missing if null/undefined.
+ * @param {OptionalString|OptionalNumber} right - Right value; strings are missing if null/undefined/trim() === "" and numbers are missing if null/undefined.
+ * @returns {number|null} Return 0 if both missing, 1 if left is missing, -1 if right is missing, or null if neither is missing.
+ **/
 function handleMissingText(
     left: OptionalString | OptionalNumber,
     right: OptionalString | OptionalNumber,

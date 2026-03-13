@@ -8,29 +8,29 @@ import type {
     BooksViewState,
     PlannerScheduleRow,
     UpdateBookProgressOptions,
-} from "../../types/types.js";
-import { el } from "../dom.js";
-import { bindToolbarEvents } from "./controller_bindings.js";
-import { renderBooksController } from "./controller_render.js";
-import { defaultShelfForAddDialog } from "./controller_types.js";
-import { createBookDialog } from "./dialog.js";
-import { GROUP_BY_NONE } from "./grouping.js";
+} from "../../types/types.ts";
+import { el } from "../dom.ts";
+import { bindToolbarEvents } from "./controller_bindings.ts";
+import { renderBooksController } from "./controller_render.ts";
+import { defaultShelfForAddDialog } from "./controller_types.ts";
+import { createBookDialog } from "./dialog.ts";
+import { GROUP_BY_NONE } from "./grouping.ts";
 import {
     clearMissingBlockedBy,
     hasSchedulableLength,
     normalizeBook,
     toPayloadBook,
-} from "./model.js";
-import { withUpdatedProgress } from "./progress.js";
-import { hydrateBookCover, upsertBookById } from "./save.js";
-import { applyScheduledDaysToShelfBooks } from "./save_scheduled_days.js";
-import { schedulableBook } from "./status.js";
-import { BOOK_STATUS_FILTER_ALL } from "./status_catalog.js";
+} from "./model.ts";
+import { withUpdatedProgress } from "./progress.ts";
+import { hydrateBookCover, upsertBookById } from "./save.ts";
+import { applyScheduledDaysToShelfBooks } from "./save_scheduled_days.ts";
+import { schedulableBook } from "./status.ts";
+import { BOOK_STATUS_FILTER_ALL } from "./status_catalog.ts";
 import {
     ensureBooksToolbarControls,
     SORT_BY_TITLE,
     SORT_DIRECTION_ASC,
-} from "./toolbar.js";
+} from "./toolbar.ts";
 
 let books: Book[] = [];
 let scheduleRows: PlannerScheduleRow[] = [];

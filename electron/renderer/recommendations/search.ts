@@ -3,16 +3,16 @@ import type {
     BookLookupItem,
     RecommendationItem,
     RecommendationSearchApi,
-} from "../../types/types.js";
-import { addLog } from "../help.js";
-import { buildRecommendations, deriveReadAuthors } from "./model.js";
-import { MAX_AUTHORS } from "./search_constants.js";
-import { addExistingBookKeys } from "./search_matchers.js";
+} from "../../types/types.ts";
+import { addLog } from "../help.ts";
+import { buildRecommendations, deriveReadAuthors } from "./model.ts";
+import { MAX_AUTHORS } from "./search_constants.ts";
+import { addExistingBookKeys } from "./search_matchers.ts";
 import {
     pickRandomSample,
     processAuthorResults,
     sampleResultsSummary,
-} from "./search_processing.js";
+} from "./search_processing.ts";
 
 interface RecommendationSearchOptions {
     randomFn?(this: void): number;
@@ -26,6 +26,15 @@ function resolveRandomFn(options: RecommendationSearchOptions): () => number {
     return (): number => RANDOM_SOURCE();
 }
 
+/**
+ * Searches for books by a given author using the RecommendationSearchApi and returns lookup items.
+ * @example
+ * lookupByAuthor(api, "J.K. Rowling")
+ * [{ id: "1", title: "Harry Potter and the Philosopher's Stone", author: "J.K. Rowling" }]
+ * @param api - RecommendationSearchApi instance used to perform the search.
+ * @param author - Author name to search for.
+ * @returns Promise resolving to an array of BookLookupItem results (empty array on error).
+ **/
 async function lookupByAuthor(
     api: RecommendationSearchApi,
     author: string,

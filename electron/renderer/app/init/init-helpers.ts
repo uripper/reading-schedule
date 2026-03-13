@@ -1,11 +1,11 @@
-import { logDebug } from "@renderer/logger.js";
 import type {
     CreatePlanControllerArgs,
     FinalizeInitialLoadArgs,
-} from "../../../types/types.js";
-import { el } from "../../dom.js";
-import { createPlanController } from "../plan_controller.js";
-import { bindSettingsAutoPlanListeners } from "../runtime_helpers.js";
+} from "../../../types/types.ts";
+import { el } from "../../dom.ts";
+import { logDebug } from "../../logger.ts";
+import { createPlanController } from "../plan_controller.ts";
+import { bindSettingsAutoPlanListeners } from "../runtime_helpers.ts";
 
 const SUPPRESSED_LOADED_STATUS_WARNING_CODES = new Set<
     FinalizeInitialLoadArgs["loadResult"]["warningCode"]

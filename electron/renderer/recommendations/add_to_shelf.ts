@@ -1,8 +1,8 @@
 import type {
     RecommendationFormTarget,
     RecommendationItem,
-} from "../../types/types.js";
-import { el } from "../dom.js";
+} from "../../types/types.ts";
+import { el } from "../dom.ts";
 
 const MIN_WORDS_TOTAL = 1;
 

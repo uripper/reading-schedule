@@ -1,5 +1,5 @@
-import { sortedRows } from "@renderer/app/schedule_preserve.js";
-import type { Book, PlannerScheduleRow } from "../../types/types.js";
+import type { Book, PlannerScheduleRow } from "../../types/types.ts";
+import { sortedRows } from "../app/schedule_preserve.ts";
 
 /**
  * Overlays explicit read completion dates onto derived finish-date map.

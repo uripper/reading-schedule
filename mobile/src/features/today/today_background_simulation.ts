@@ -1,4 +1,4 @@
-import { BACKGROUND_SPRITES } from "./today_background_sprites";
+import { BACKGROUND_SPRITES } from "./today_background_sprites.ts";
 import {
     COLLISION_DAMPING,
     COLLISION_RESTITUTION,
@@ -21,7 +21,7 @@ import {
     VY_RANGE,
     WALL_BOUNCE,
     Y_SPAWN_RANGE,
-} from "./today_constants";
+} from "./today_constants.ts";
 
 /**
  * Represents a single body in the background simulation.
@@ -188,6 +188,16 @@ export function tickBackgroundSimulation(
     return true;
 }
 
+/**
+ * Maybe spawn new bodies into the background simulation when the spawn interval has elapsed.
+ * @example
+ * maybeSpawn(state, 0.016, bounds)
+ * undefined
+ * @param state - The simulation state containing bodies, spawn accumulator, and configuration.
+ * @param deltaSeconds - Elapsed time in seconds since the last update.
+ * @param bounds - The bounds within which new bodies should be spawned.
+ * @returns No return value; may append new bodies to state.bodies when spawning occurs.
+ **/
 function maybeSpawn(
     state: BackgroundSimulationState,
     deltaSeconds: number,
@@ -220,6 +230,28 @@ function randomAngle(): number {
     return Math.random() * Math.PI * 2;
 }
 
+/**
+ * Spawn a new background body with randomized position and motion properties and advance the simulation id.
+ * @example
+ * spawnBody(state, bounds)
+ * {
+ *   driftForce: 0.12,
+ *   driftPhase: 1.5708,
+ *   id: 42,
+ *   index: 3,
+ *   opacity: 0.85,
+ *   radius: 12,
+ *   spin: 0.5,
+ *   spinVelocity: -0.02,
+ *   vx: 0.3,
+ *   vy: 1.1,
+ *   x: 150,
+ *   y: -10
+ * }
+ * @param state - Simulation state used to assign a unique id and track bodies.
+ * @param bounds - Horizontal and vertical bounds used to constrain the spawn position.
+ * @returns Newly created Body object with randomized visual and motion properties.
+ **/
 function spawnBody(state: BackgroundSimulationState, bounds: Bounds): Body {
     const INDEX = Math.floor(Math.random() * BACKGROUND_SPRITES.length);
     const RADIUS = bodyRadius(INDEX);
@@ -247,6 +279,16 @@ function spawnBody(state: BackgroundSimulationState, bounds: Bounds): Body {
     };
 }
 
+/**
+ * Advance the background simulation by a time step: update time, integrate motion, resolve collisions, and despawn out-of-bounds entities.
+ * @example
+ * step(simState, 0.016, worldBounds)
+ * undefined
+ * @param state - The simulation state to update.
+ * @param deltaSeconds - Time step in seconds to advance the simulation.
+ * @param bounds - World bounds used for despawning and collision constraints.
+ * @returns Void return; the function mutates the provided simulation state in place.
+ **/
 function step(
     state: BackgroundSimulationState,
     deltaSeconds: number,
@@ -260,6 +302,17 @@ function step(
     despawn(state, bounds);
 }
 
+/**
+ * Advance the background physics simulation by a timestep using semi-implicit Euler integration, applying gravity, sinusoidal drift, wall collisions, and spin updates.
+ * @example
+ * integrate(state, 0.016, {left: 0, right: 800}, performance.now())
+ * undefined
+ * @param state - Current simulation state containing an array of bodies to update.
+ * @param deltaSeconds - Time step in seconds to advance the simulation.
+ * @param bounds - Horizontal bounds with left and right edges used for collision handling.
+ * @param now - Current time value used to compute per-body sinusoidal drift.
+ * @returns No return value.
+ **/
 function integrate(
     state: BackgroundSimulationState,
     deltaSeconds: number,
@@ -292,6 +345,14 @@ function integrate(
     }
 }
 
+/**
+ * Resolve pairwise collisions for all bodies in the provided simulation state using an O(n^2) deterministic pass.
+ * @example
+ * resolveAllCollisions(simulationState)
+ * undefined
+ * @param state - The simulation state containing the array of bodies to check for collisions.
+ * @returns Does not return a value; collisions are resolved by mutating body states in-place.
+ **/
 function resolveAllCollisions(state: BackgroundSimulationState): void {
     // Pairwise pass for O(n^2) collision checks. Fine for small n and keeps
     // collision behavior deterministic relative to body order.
@@ -325,6 +386,15 @@ function randomRange(minimum: number, range: number): number {
     return minimum + Math.random() * range;
 }
 
+/**
+ * Resolve a collision between two circular bodies by updating their velocities and positions in place.
+ * @example
+ * resolveCollision(bodyA, bodyB)
+ * undefined
+ * @param bodyA - First circular body involved in the collision; mutated in place (x, y, vx, vy).
+ * @param bodyB - Second circular body involved in the collision; mutated in place (x, y, vx, vy).
+ * @returns No return value; bodies are modified directly to apply impulse and positional correction.
+ **/
 function resolveCollision(bodyA: Body, bodyB: Body): void {
     const DX = bodyB.x - bodyA.x;
     const DY = bodyB.y - bodyA.y;

@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from reading_plan.bridge_logging import (
     get_bridge_logger,
@@ -11,6 +11,8 @@ from reading_plan.bridge_logging import (
 )
 from reading_plan.input.builders import book_from_data, settings_from_data
 from reading_plan.input.validate import check_condition
+from reading_plan.type_guards import is_book_data_list, is_object_list
+
 
 if TYPE_CHECKING:
     from reading_plan.api_types import BookData
@@ -23,19 +25,19 @@ LOGGER = get_bridge_logger(__name__)
 def read_book_data(path: str) -> list[BookData]:
     """Load raw book payload rows from a JSON file."""
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
-    check_condition(
-        f"books file '{path}' must contain a JSON array",
-        error_type="type",
-        condition=isinstance(raw, list),
-    )
-
-    check_condition(
-        f"books file '{path}' must contain JSON objects",
-        error_type="type",
-        condition=all(isinstance(item, dict) for item in raw),
-    )
-
-    return cast("list[BookData]", raw)
+    if not is_object_list(raw):
+        check_condition(
+            f"books file '{path}' must contain a JSON array",
+            error_type="type",
+            condition=False,
+        )
+    if not is_book_data_list(raw):
+        check_condition(
+            f"books file '{path}' must contain JSON objects",
+            error_type="type",
+            condition=False,
+        )
+    return raw
 
 
 def load_books(path: str) -> list[Book]:

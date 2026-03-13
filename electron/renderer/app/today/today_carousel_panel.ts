@@ -1,13 +1,13 @@
 /**
  * Renders and resets the active Today carousel control panel.
  */
-import { el } from "../../dom.js";
+import { el } from "../../dom.ts";
 import {
     logSessionButtonText,
     shouldDisableProgressInputs,
-} from "./today_carousel_actions.js";
-import type { TodayCarouselActiveItem } from "./today_carousel_model.js";
-import { formatPagesTotalText } from "./today_carousel_progress.js";
+} from "./today_carousel_actions.ts";
+import type { TodayCarouselActiveItem } from "./today_carousel_model.ts";
+import { formatPagesTotalText } from "./today_carousel_progress.ts";
 
 const EDIT_MINUTES_LABEL = "Edit planned minutes";
 

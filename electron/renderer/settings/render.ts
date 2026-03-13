@@ -1,6 +1,6 @@
-import type { FieldDefinition } from "../../types/types.js";
-import { el } from "../dom.js";
-import { DIFFICULTY_LEVEL_COUNT, WEEKDAYS } from "./config.js";
+import type { FieldDefinition } from "../../types/types.ts";
+import { el } from "../dom.ts";
+import { DIFFICULTY_LEVEL_COUNT, WEEKDAYS } from "./config.ts";
 
 const INTEGER_STEP = "1";
 const INTEGER_INPUT_INVALID_KEYS = new Set(["+", "-", ".", ",", "e", "E"]);
@@ -45,6 +45,14 @@ function sanitizeIntegerInput(inputNode: HTMLInputElement): void {
     }
 }
 
+/**
+ * Clamp the numeric value in an input element to its configured min/max, enforce integer step, or clear invalid input.
+ * @example
+ * clampNumericInput(document.querySelector('#myInput'))
+ * undefined
+ * @param inputNode - The input element whose value will be parsed, validated and clamped.
+ * @returns Does not return a value; updates the input element's value directly.
+ **/
 function clampNumericInput(inputNode: HTMLInputElement): void {
     const RAW = inputNode.value.trim();
     if (RAW === "") {
@@ -85,6 +93,15 @@ function bindIntegerInputConstraints(inputNode: HTMLInputElement): void {
     });
 }
 
+/**
+ * Binds numeric constraints and event listeners to an input when the provided field is of type "number".
+ * @example
+ * bindNumberConstraints(inputElement, { name: 'age', type: 'number' })
+ * undefined
+ * @param inputNode - The input element to attach numeric constraints and listeners to.
+ * @param field - The field definition; constraints are applied only if field.type === "number".
+ * @returns No return value; the function attaches event listeners and may modify the input's value.
+ **/
 function bindNumberConstraints(
     inputNode: HTMLInputElement,
     field: FieldDefinition,
@@ -109,6 +126,14 @@ function bindNumberConstraints(
     });
 }
 
+/**
+ * Create and return a constrained numeric input for weekday minutes.
+ * @example
+ * createWeekdayMinutesInput("monday")
+ * HTMLInputElement
+ * @param key - The weekday key used to build the input id.
+ * @returns Return a number input element constrained to weekday minute limits.
+ **/
 function createWeekdayMinutesInput(key: string): HTMLInputElement {
     const INPUT_NODE = document.createElement("input");
     INPUT_NODE.id = `minutes_${key}`;

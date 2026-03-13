@@ -2,7 +2,7 @@
  * Normalizes planner start-date behavior for the settings form and plan
  * submission flow.
  */
-import { todayDayKey } from "../app/date_keys.js";
+import { todayDayKey } from "../app/date_keys.ts";
 
 /**
  * Returns the minimum planner start date allowed by the desktop app.

@@ -1,5 +1,5 @@
-import type { Book, BookFormRefs, PickerState } from "../../types/types.js";
-import { optionLabel } from "./after_book_picker_helpers.js";
+import type { Book, BookFormRefs, PickerState } from "../../types/types.ts";
+import { optionLabel } from "./after_book_picker_helpers.ts";
 
 export const NO_ACTIVE_INDEX = -1;
 export const FIRST_RESULT_INDEX = 0;

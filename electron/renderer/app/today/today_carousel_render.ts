@@ -1,18 +1,16 @@
 /**
  * Renders the Today carousel shell and active-session control panel.
  */
-import type { Book, PlannerResult } from "../../../types/types.js";
-import { el } from "../../dom.js";
+import type { Book, PlannerResult } from "../../../types/types.ts";
+import { el } from "../../dom.ts";
+import type { TodayCarouselActionBindings } from "./today_carousel_action_bindings.ts";
 import {
     bindMinutesEditor,
     bindRemoveButton,
     bindToggleButton,
-    type TodayCarouselActionBindings,
-} from "./today_carousel_action_bindings.js";
-import {
-    buildTodayCarouselModel,
-    type TodayCarouselActiveItem,
-} from "./today_carousel_model.js";
+} from "./today_carousel_action_bindings.ts";
+import type { TodayCarouselActiveItem } from "./today_carousel_model.ts";
+import { buildTodayCarouselModel } from "./today_carousel_model.ts";
 import {
     afterSessionText,
     clearNoDataHandlers,
@@ -22,11 +20,11 @@ import {
     setLogButtonState,
     setMinutesEditDisabled,
     setProgressInputsDisabled,
-} from "./today_carousel_panel.js";
+} from "./today_carousel_panel.ts";
 import {
     bindTodayProgressInputs,
     resetTodayProgressInputs,
-} from "./today_carousel_progress_bindings.js";
+} from "./today_carousel_progress_bindings.ts";
 import {
     closeMinutesEditor,
     minutesEditor,
@@ -34,11 +32,11 @@ import {
     resetTodayCarouselUiState,
     selectedBookId,
     setSelectedBookId,
-} from "./today_carousel_state.js";
+} from "./today_carousel_state.ts";
 import {
     bindCarouselNavigation,
     renderCarouselTrack,
-} from "./today_carousel_track.js";
+} from "./today_carousel_track.ts";
 
 const EMPTY_TEXT = "";
 

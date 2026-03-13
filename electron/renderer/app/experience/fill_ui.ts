@@ -1,13 +1,13 @@
-import type { FeatureFlags, Preferences } from "../../../types/types.js";
-import { el } from "../../dom.js";
+import type { FeatureFlags, Preferences } from "../../../types/types.ts";
+import { el } from "../../dom.ts";
 import {
     RECOMMENDATIONS_AVAILABLE,
     REMINDERS_AVAILABLE,
     SOCIAL_FEATURES_AVAILABLE,
     shippedFeatureFlag,
     shippedReminderTime,
-} from "./availability.js";
-import { DEFAULT_PREFERENCES } from "./model.js";
+} from "./availability.ts";
+import { DEFAULT_PREFERENCES } from "./model.ts";
 
 /**
  * Fills the experience settings UI controls based on the provided preferences and feature flags.

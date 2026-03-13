@@ -1,6 +1,6 @@
-import { BOOK_WEEKDAYS } from "./scheduled_days.js";
-import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";
-import { statusOptions } from "./status_catalog.js";
+import { BOOK_WEEKDAYS } from "./scheduled_days.ts";
+import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
+import { statusOptions } from "./status_catalog.ts";
 
 /**
  * Creates shelf select field with built-in create-shelf option.

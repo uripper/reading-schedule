@@ -68,18 +68,15 @@
         transform 150ms ease;
 }
 
-.books-grid:not(.is-grouped):hover .book-card,
-.books-grid:not(.is-grouped):focus-within .book-card,
-.books-group-row:hover .book-card,
-.books-group-row:focus-within .book-card {
+:where(.books-grid:not(.is-grouped), .books-group-row):hover .book-card,
+:where(.books-grid:not(.is-grouped), .books-group-row):focus-within .book-card {
     opacity: 0.65;
     filter: brightness(0.72);
 }
 
-.books-grid:not(.is-grouped):hover .book-card:hover,
-.books-grid:not(.is-grouped):focus-within .book-card:focus-within,
-.books-group-row:hover .book-card:hover,
-.books-group-row:focus-within .book-card:focus-within {
+:where(.books-grid:not(.is-grouped), .books-group-row):hover .book-card:hover,
+:where(.books-grid:not(.is-grouped), .books-group-row):focus-within
+    .book-card:focus-within {
     opacity: 1;
     filter: brightness(1);
     transform: translateY(-2px);
@@ -194,10 +191,10 @@
     font-size: var(--token-typography-size-xs);
 }
 
-.book-actions .rm-btn {
-    margin-left: auto;
-}
-
 .rm-btn {
     color: var(--app-danger);
+}
+
+.book-actions .rm-btn {
+    margin-left: auto;
 }

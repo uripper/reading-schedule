@@ -1,10 +1,10 @@
-import type { AppRuntimeState, AppStateMutation } from "../../types/types.js";
+import type { AppRuntimeState, AppStateMutation } from "../../types/types.ts";
 import {
     bookByIdIndex,
     sessionsByBookIndex,
     sessionsByDayIndex,
     splitCompletionIndexes,
-} from "./state_indexes.js";
+} from "./state_indexes.ts";
 
 /**
  * Applies runtime-state mutation operations and keeps derived indexes synchronized.

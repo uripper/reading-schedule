@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { MobileApp } from "./src/app";
+import { MobileApp } from "./src/app.tsx";
 
 /**
  * The main entry point for the mobile application.

@@ -1,5 +1,5 @@
-import type { PlannerScheduleRow } from "../../../types/types.js";
-import { sessionKeyFor } from "../../calendar/utils.js";
+import type { PlannerScheduleRow } from "../../../types/types.ts";
+import { sessionKeyFor } from "../../calendar/utils.ts";
 
 /**
  * Normalizes overloaded arguments into a date string and row collection.

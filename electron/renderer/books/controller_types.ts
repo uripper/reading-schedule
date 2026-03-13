@@ -1,12 +1,12 @@
-import type { BookGroupBy, SortBy } from "../../types/types.js";
+import type { BookGroupBy, SortBy } from "../../types/types.ts";
 import {
     GROUP_BY_AUTHOR,
     GROUP_BY_FINISH_DATE,
     GROUP_BY_NONE,
     GROUP_BY_SHELF,
     GROUP_BY_TITLE_LETTER,
-} from "./grouping.js";
-import { SHELF_FILTER_ALL, SHELF_FILTER_UNSHELVED } from "./shelf.js";
+} from "./grouping.ts";
+import { SHELF_FILTER_ALL, SHELF_FILTER_UNSHELVED } from "./shelf.ts";
 import {
     SORT_BY_AUTHOR,
     SORT_BY_DEADLINE,
@@ -18,8 +18,8 @@ import {
     SORT_BY_PROGRESS,
     SORT_BY_SHELF,
     SORT_BY_WORDS_TOTAL,
-} from "./sort.js";
-import { SORT_BY_TITLE } from "./toolbar.js";
+} from "./sort.ts";
+import { SORT_BY_TITLE } from "./toolbar.ts";
 
 const SORT_BY_OPTIONS: SortBy[] = [
     SORT_BY_TITLE,

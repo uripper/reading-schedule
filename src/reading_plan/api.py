@@ -20,6 +20,7 @@ from reading_plan.planning.solve import solve_plan
 from reading_plan.reporting.report import build_summary
 from reading_plan.schedule.schedule import to_schedule_rows
 
+
 __all__ = [
     "BookData",
     "PlannerInputPayload",

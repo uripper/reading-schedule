@@ -1,10 +1,10 @@
-import type { Book, BookFormRefs, LookupControl } from "../../types/types.js";
-import { uid } from "../dom.js";
+import type { Book, BookFormRefs, LookupControl } from "../../types/types.ts";
+import { uid } from "../dom.ts";
 import {
     fillScheduledDayControls,
     readScheduledDaySelection,
     resetScheduledDayControls,
-} from "./form_scheduled_days.js";
+} from "./form_scheduled_days.ts";
 import {
     DEFAULT_DIFFICULTY,
     DEFAULT_MIN_BLOCKS,
@@ -20,10 +20,10 @@ import {
     syncFinishedAtFieldState,
     validatedShelfSelection,
     validatedStatusSelection,
-} from "./form_state_helpers.js";
-import { bookCoverSrc, normalizeBook } from "./model.js";
-import { BOOK_STATUS_READ } from "./status_catalog.js";
-import { toOptionalInt } from "./utils.js";
+} from "./form_state_helpers.ts";
+import { bookCoverSrc, normalizeBook } from "./model.ts";
+import { BOOK_STATUS_READ } from "./status_catalog.ts";
+import { toOptionalInt } from "./utils.ts";
 
 /**
  * Synchronizes finished-date field visibility after status changes.
@@ -167,4 +167,4 @@ export function parseFormBook(refs: BookFormRefs): Book {
 export {
     applyLookupItem,
     applyUploadedCover,
-} from "./form_state_lookup.js";
+} from "./form_state_lookup.ts";

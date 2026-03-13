@@ -1,18 +1,18 @@
 import type {
     CalendarRowWithFinish,
     DetailInteractionHandlers,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 import {
     minutesFormActions,
     minutesInputForRow,
-} from "./details_minutes_form_dom.js";
+} from "./details_minutes_form_dom.ts";
 import {
     MINUTES_EDITOR_OPEN_BY_DEFAULT,
     nextMinutesEditorOpenState,
     submitMinutesUpdate,
     syncEditorVisibility,
     syncSummaryText,
-} from "./details_minutes_form_helpers.js";
+} from "./details_minutes_form_helpers.ts";
 
 const EDIT_MINUTES_BUTTON_LABEL = "Edit planned minutes";
 const EDIT_MINUTES_BUTTON_TEXT = "Edit";
@@ -23,6 +23,13 @@ interface MinutesSummaryRow {
     summaryValue: HTMLElement;
 }
 
+/**
+ * Create and return a DOM row that displays a minutes summary value alongside an edit button.
+ * @example
+ * createMinutesSummaryRow()
+ * { editButton: HTMLButtonElement, node: HTMLDivElement, summaryValue: HTMLStrongElement }
+ * @returns Returns an object containing the container node, the strong element for the minutes value, and the edit button.
+ **/
 function createMinutesSummaryRow(): MinutesSummaryRow {
     const SUMMARY_ROW = document.createElement("div");
     SUMMARY_ROW.className = "day-minutes-summary";
@@ -54,6 +61,14 @@ interface MinutesEditorBindingsArgs {
     summaryValue: HTMLElement;
 }
 
+/**
+ * Bind UI event handlers for the minutes editor: sync summary text, control editor visibility, and handle edit/cancel/submit actions.
+ * @example
+ * bindMinutesEditorActions({minutesInput, minutesForm, summaryRow, summaryValue, editButton, cancelBtn, interactionHandlers, row, onMinutesApplied})
+ * undefined
+ * @param args - Arguments object containing DOM elements and handlers needed to wire the minutes editor.
+ * @returns Nothing.
+ **/
 function bindMinutesEditorActions(args: MinutesEditorBindingsArgs): void {
     let initialMinutesValue = String(args.minutesInput.value).trim();
     syncSummaryText(args.summaryValue, initialMinutesValue);

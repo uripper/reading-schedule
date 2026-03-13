@@ -2,7 +2,7 @@ import type {
     FieldDefinition,
     FieldGroupName,
     SelectOption,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 
 const PLAN_MODE_OPTIONS: SelectOption[] = [
     { label: "Finish ASAP", value: "finish_soon" },

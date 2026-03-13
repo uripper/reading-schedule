@@ -1,7 +1,7 @@
 import type {
     CalendarHandlers,
     CalendarRuntimeState,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 
 /**
  * Creates default mutable runtime state for calendar renderer.

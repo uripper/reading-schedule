@@ -1,5 +1,5 @@
 {
-    "$schema": "https://biomejs.dev/schemas/2.4.4/schema.json",
+    "$schema": "https://biomejs.dev/schemas/2.4.6/schema.json",
     "assist": {
         "actions": {
             "source": {
@@ -13,9 +13,20 @@
         },
         "enabled": true
     },
-    "files": { "ignoreUnknown": false },
-    "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 4 },
-    "javascript": { "formatter": { "quoteStyle": "double" } },
+    "files": {
+        "ignoreUnknown": false
+    },
+    "formatter": {
+        "enabled": true,
+        "indentStyle": "space",
+        "indentWidth": 4,
+        "lineWidth": 80
+    },
+    "javascript": {
+        "formatter": {
+            "quoteStyle": "double"
+        }
+    },
     "linter": {
         "enabled": true,
         "includes": [
@@ -25,7 +36,13 @@
             "!package-lock.json",
             "!tokens/**"
         ],
-        "rules": { "recommended": true }
+        "domains": {
+            "project": "all",
+            "types": "all"
+        },
+        "rules": {
+            "recommended": true
+        }
     },
     "overrides": [
         {
@@ -43,169 +60,141 @@
         },
         {
             "includes": [
-                "eslint.config.mjs",
+                "eslint.config.mjs"
+            ],
+            "linter": {
+                "rules": {
+                    "style": {
+                        "noDefaultExport": "off",
+                        "noProcessEnv": "off"
+                    }
+                }
+            }
+        },
+        {
+            "includes": [
                 "**/*.js",
                 "**/*.mjs",
                 "**/*.ts",
                 "**/*.tsx"
             ],
-            "javascript": {
-                "globals": [
-                    "onanimationend",
-                    "ongamepadconnected",
-                    "onlostpointercapture",
-                    "onanimationiteration",
-                    "onkeyup",
-                    "onmousedown",
-                    "onanimationstart",
-                    "onslotchange",
-                    "onprogress",
-                    "ontransitionstart",
-                    "onpause",
-                    "onended",
-                    "onpointerover",
-                    "onscrollend",
-                    "onformdata",
-                    "ontransitionrun",
-                    "onanimationcancel",
-                    "ondrag",
-                    "onchange",
-                    "onbeforeinstallprompt",
-                    "onbeforexrselect",
-                    "onmessage",
-                    "ontransitioncancel",
-                    "onpointerdown",
-                    "onabort",
-                    "onpointerout",
-                    "oncuechange",
-                    "ongotpointercapture",
-                    "onscrollsnapchanging",
-                    "onsearch",
-                    "onsubmit",
-                    "onstalled",
-                    "onsuspend",
-                    "onreset",
-                    "onerror",
-                    "onmouseenter",
-                    "ongamepaddisconnected",
-                    "onresize",
-                    "ondragover",
-                    "onbeforetoggle",
-                    "onmouseover",
-                    "onpagehide",
-                    "onmousemove",
-                    "onratechange",
-                    "oncommand",
-                    "onmessageerror",
-                    "onwheel",
-                    "ondevicemotion",
-                    "onauxclick",
-                    "ontransitionend",
-                    "onpaste",
-                    "onpageswap",
-                    "ononline",
-                    "ondeviceorientationabsolute",
-                    "onkeydown",
-                    "onclose",
-                    "onselect",
-                    "onpageshow",
-                    "onpointercancel",
-                    "onbeforematch",
-                    "onpointerrawupdate",
-                    "ondragleave",
-                    "onscrollsnapchange",
-                    "onseeked",
-                    "onwaiting",
-                    "onbeforeunload",
-                    "onplaying",
-                    "onvolumechange",
-                    "ondragend",
-                    "onstorage",
-                    "onloadeddata",
-                    "onfocus",
-                    "onoffline",
-                    "onplay",
-                    "onafterprint",
-                    "onclick",
-                    "oncut",
-                    "onmouseout",
-                    "ondblclick",
-                    "oncanplay",
-                    "onloadstart",
-                    "onappinstalled",
-                    "onpointermove",
-                    "ontoggle",
-                    "oncontextmenu",
-                    "onblur",
-                    "oncancel",
-                    "onbeforeprint",
-                    "oncontextrestored",
-                    "onloadedmetadata",
-                    "onpointerup",
-                    "onlanguagechange",
-                    "oncopy",
-                    "onselectstart",
-                    "onscroll",
-                    "onload",
-                    "ondragstart",
-                    "onbeforeinput",
-                    "oncanplaythrough",
-                    "oninput",
-                    "oninvalid",
-                    "ontimeupdate",
-                    "ondurationchange",
-                    "onselectionchange",
-                    "onmouseup",
-                    "location",
-                    "onkeypress",
-                    "onpointerleave",
-                    "oncontextlost",
-                    "ondrop",
-                    "onsecuritypolicyviolation",
-                    "oncontentvisibilityautostatechange",
-                    "ondeviceorientation",
-                    "onseeking",
-                    "onrejectionhandled",
-                    "onunload",
-                    "onmouseleave",
-                    "onhashchange",
-                    "onpointerenter",
-                    "onmousewheel",
-                    "onunhandledrejection",
-                    "ondragenter",
-                    "onpopstate",
-                    "onpagereveal",
-                    "onemptied"
-                ]
-            },
             "linter": {
                 "rules": {
                     "complexity": {
-                        "noExcessiveCognitiveComplexity": "error",
-                        "noExcessiveLinesPerFunction": "error",
+                        "noExcessiveCognitiveComplexity": {
+                            "level": "error",
+                            "options": {
+                                "maxAllowedComplexity": 10
+                            }
+                        },
+                        "noExcessiveLinesPerFunction": {
+                            "level": "error",
+                            "options": {
+                                "maxLines": 30,
+                                "skipBlankLines": true,
+                                "skipIifes": true
+                            }
+                        },
                         "noForEach": "error",
                         "noImplicitCoercions": "error",
                         "noUselessStringConcat": "error",
                         "noVoid": "error",
-                        "useMaxParams": "error"
+                        "useMaxParams": {
+                            "level": "error",
+                            "options": {
+                                "max": 3
+                            }
+                        }
+                    },
+                    "correctness": {
+                        "noUndeclaredVariables": {
+                            "level": "error",
+                            "options": {
+                                "checkTypes": true
+                            }
+                        },
+                        "noUnusedImports": "error",
+                        "noUnusedVariables": "error"
                     },
                     "nursery": {
-                        "noTernary": "error"
+                        "noFloatingPromises": "error",
+                        "noMisusedPromises": "error",
+                        "noTernary": "error",
+                        "noUnnecessaryConditions": "error",
+                        "useExhaustiveSwitchCases": "error",
+                        "useNullishCoalescing": "error"
+                    },
+                    "performance": {
+                        "noBarrelFile": "error",
+                        "noDynamicNamespaceImportAccess": "error",
+                        "noNamespaceImport": "error",
+                        "noReExportAll": "error"
                     },
                     "style": {
-                        "noParameterAssign": "error",
+                        "noCommonJs": "error",
+                        "noDefaultExport": "error",
+                        "noEnum": "error",
+                        "noNamespace": "error",
+                        "noNonNullAssertion": "error",
+                        "noParameterAssign": {
+                            "level": "error",
+                            "options": {
+                                "propertyAssignment": "deny"
+                            }
+                        },
+                        "noParameterProperties": "error",
+                        "noProcessEnv": "error",
+                        "noRestrictedGlobals": "error",
+                        "noRestrictedTypes": {
+                            "level": "error",
+                            "options": {
+                                "types": {
+                                    "{}": {
+                                        "message": "Use object, unknown, or an explicit structural type instead."
+                                    },
+                                    "Function": {
+                                        "message": "Write an explicit callable signature instead."
+                                    },
+                                    "Object": {
+                                        "message": "Use object, unknown, or an explicit structural type instead."
+                                    }
+                                }
+                            }
+                        },
                         "noUselessElse": "error",
                         "noYodaExpression": "error",
+                        "useAsConstAssertion": "error",
                         "useBlockStatements": "error",
                         "useCollapsedElseIf": "error",
                         "useConsistentBuiltinInstantiation": "error",
+                        "useConsistentMemberAccessibility": {
+                            "level": "error",
+                            "options": {
+                                "accessibility": "explicit"
+                            }
+                        },
                         "useConsistentObjectDefinitions": "error",
                         "useDefaultParameterLast": "error",
                         "useExponentiationOperator": "error",
-                        "useGroupedAccessorPairs": "error",
-                        "useNamingConvention": {
-                            "level": "warn",
+                        "useExportType": "error",
+                        "useFilenamingConvention": {
+                            "level": "error",
                             "options": {
+                                "filenameCases": ["kebab-case", "PascalCase"]
+                            }
+                        },
+                        "useGroupedAccessorPairs": "error",
+                        "useImportType": {
+                            "level": "error",
+                            "options": {
+                                "style": "separatedType"
+                            }
+                        },
+                        "useNamingConvention": {
+                            "level": "error",
+                            "options": {
+                                "strictCase": true,
+                                "requireAscii": true,
                                 "conventions": [
                                     {
                                         "formats": [
@@ -258,8 +247,7 @@
                                         "formats": ["PascalCase"],
                                         "selector": { "kind": "class" }
                                     }
-                                ],
-                                "strictCase": false
+                                ]
                             }
                         },
                         "useObjectSpread": "error",
@@ -271,6 +259,9 @@
                         "noAlert": "error",
                         "noConsole": "error",
                         "noEmptyBlockStatements": "error",
+                        "noEvolvingTypes": "error",
+                        "noExplicitAny": "error",
+                        "noImplicitAnyLet": "error",
                         "noUnusedExpressions": "error",
                         "useAwait": "error",
                         "useGuardForIn": "error"

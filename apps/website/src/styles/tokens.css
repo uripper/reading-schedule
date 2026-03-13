@@ -1,0 +1,30 @@
+:root {
+    --color-ink: #050505;
+    --color-paper: #ff7799;
+    --color-panel: #111111;
+    --color-acid: #9bdeac;
+    --color-blue: #6ac7ff;
+    --color-lilac: #d9c8ff;
+    --color-line: #111111;
+    --color-muted: #615948;
+    --color-white: #f3fff4;
+    --color-gray: #c4fcef;
+    --shadow-offset-x: 10px;
+    --shadow-offset-y: 10px;
+    --border-width: 3px;
+    --radius-card: 28px;
+    --radius-pill: 999px;
+    --max-page-width: 1240px;
+    --space-2xs: 0.375rem;
+    --space-xs: 0.625rem;
+    --space-sm: 0.875rem;
+    --space-md: 1.25rem;
+    --space-lg: 1.75rem;
+    --space-xl: 2.5rem;
+    --space-2xl: 3.5rem;
+    --space-3xl: 5rem;
+    --display-font: "Fraunces", "Georgia", serif;
+    --body-font: "Space Grotesk", "Trebuchet MS", sans-serif;
+    --transition-fast: 160ms ease;
+    --transition-base: 240ms ease;
+}

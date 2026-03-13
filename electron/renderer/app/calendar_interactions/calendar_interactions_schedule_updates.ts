@@ -8,12 +8,12 @@ import type {
     RemoveSessionArgs,
     SharedUpdateArgs,
     UpdateSessionMinutesArgs,
-} from "../../../types/types.js";
+} from "../../../types/types.ts";
 import {
     sessionKeyFor,
     sortRowsByDateAndSession,
-} from "../../calendar/utils.js";
-import { pruneScheduleCompletions } from "../schedule_preserve.js";
+} from "../../calendar/utils.ts";
+import { pruneScheduleCompletions } from "../schedule_preserve.ts";
 import {
     dayBookCompletionKey,
     emptyPlannerResult,
@@ -21,8 +21,8 @@ import {
     normalizedManualMinutes,
     rowsWithoutSession,
     wordsPlannedForManualSession,
-} from "./calendar_interactions_helpers.js";
-import { nextRowsWithUpdatedMinutes } from "./calendar_interactions_minutes_rows.js";
+} from "./calendar_interactions_helpers.ts";
+import { nextRowsWithUpdatedMinutes } from "./calendar_interactions_minutes_rows.ts";
 
 /**
  * Builds a new planner result from replacement schedule rows while preserving
@@ -158,6 +158,14 @@ function markSessionCompleted(
     });
 }
 
+/**
+ * Add a manual reading session row to the schedule after validating input and update runtime state/UI.
+ * @example
+ * addManualSessionRow({ bookId: "book-1", collectSettings: {}, completed: false, date: "2026-03-13", getBookById: id => ({ id, title: "Example" }), minutes: 30, state: {}, setStatus: () => {}, applyStateMutation: () => {}, queuePersist: () => {}, onScheduleRowsUpdated: () => {} })
+ * true
+ * @param args - The destructured arguments object containing session details, helpers, and runtime state.
+ * @returns Whether the session was successfully added.
+ **/
 export function addManualSessionRow({
     bookId,
     collectSettings,

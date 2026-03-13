@@ -2,9 +2,9 @@ import type {
     CalendarControlsState,
     JumpToTodayFn,
     RenderFn,
-} from "../../types/types.js";
-import { el } from "../dom.js";
-import { monthLabel } from "./utils.js";
+} from "../../types/types.ts";
+import { el } from "../dom.ts";
+import { monthLabel } from "./utils.ts";
 
 /**
  * Renders month navigation controls and binds prev/next/today actions.

@@ -1,2 +1,2 @@
-export { initApp } from "./init_app.js";
-export { createInitRuntime } from "./init_runtime.js";
+export { initApp } from "./init_app.ts";
+export { createInitRuntime } from "./init_runtime.ts";

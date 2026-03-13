@@ -4,10 +4,10 @@ import type {
     BookGroupBy,
     GroupBucket,
     GroupMeta,
-} from "../../types/types.js";
-import { finishDateMetaForBook } from "./grouping_finish.js";
-import { shelfLabelForBook } from "./shelf.js";
-import { titleInitialLetter } from "./title_key.js";
+} from "../../types/types.ts";
+import { finishDateMetaForBook } from "./grouping_finish.ts";
+import { shelfLabelForBook } from "./shelf.ts";
+import { titleInitialLetter } from "./title_key.ts";
 
 export const GROUP_BY_NONE = "none";
 export const GROUP_BY_SHELF = "shelf";

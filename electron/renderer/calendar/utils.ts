@@ -1,9 +1,9 @@
-import type { SortableRow } from "../../types/types.js";
+import type { SortableRow } from "../../types/types.ts";
 import {
     CALENDAR_COLUMN_COUNT,
     SESSION_INDEX_PAD,
     WEEK_START_OFFSET,
-} from "./constants.js";
+} from "./constants.ts";
 
 const DATE_KEY_PART_COUNT = 3;
 const DATE_KEY_MONTH_INDEX = 1;

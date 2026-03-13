@@ -1,15 +1,15 @@
 /**
  * Serializes settings form state into planner settings payloads.
  */
-import type { FieldDefinition, PlannerSettings } from "../../types/types.js";
-import { DEFAULT_DIFFICULTY_MULTIPLIER, WEEKDAYS } from "./config.js";
+import type { FieldDefinition, PlannerSettings } from "../../types/types.ts";
+import { DEFAULT_DIFFICULTY_MULTIPLIER, WEEKDAYS } from "./config.ts";
 import {
     allFieldDefinitions,
     inputEl,
     numberLevels,
     selectEl,
-} from "./field_io.js";
-import { normalizePlannerStartDate } from "./start_date.js";
+} from "./field_io.ts";
+import { normalizePlannerStartDate } from "./start_date.ts";
 
 /**
  * Reads raw string value for a settings field from the DOM.

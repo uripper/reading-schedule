@@ -1,4 +1,4 @@
-import { todayKey } from "../../sessions/utils.js";
+import { todayKey } from "../../sessions/utils.ts";
 
 const MIN_DAY_ROLLOVER_DELAY_MS = 1;
 
@@ -17,6 +17,20 @@ function nextLocalMidnightDelay(now: Date): number {
     );
 }
 
+/**
+ * Binds a daily rollover watcher that triggers a callback when the local day changes.
+ * @example
+ * bindTodayDayRollover({ onDayChanged: () => console.log('day changed') })
+ * { checkForDayChange: [Function], dispose: [Function] }
+ * @param options - Options for configuring the rollover watcher.
+ * @param options.document - Optional document-like object to observe visibility; defaults to window.document.
+ * @param options.now - Optional function that returns the current Date; defaults to () => new Date().
+ * @param options.onDayChanged - Callback invoked when the day key changes.
+ * @param options.readDayKey - Optional function that returns the current "day key"; defaults to todayKey.
+ * @param options.clearTimeout - Optional clearTimeout implementation; defaults to global clearTimeout.
+ * @param options.setTimeout - Optional setTimeout implementation; defaults to global setTimeout.
+ * @returns Returns a controller with checkForDayChange() to trigger an immediate check and dispose() to stop timers and listeners.
+ **/
 export function bindTodayDayRollover(options: {
     document?: DayRolloverDocument;
     now?: () => Date;

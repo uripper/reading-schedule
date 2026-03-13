@@ -1,5 +1,5 @@
-import type { ExperienceSettingsApplyHandler } from "../../../types/types.js";
-import { el } from "../../dom.js";
+import type { ExperienceSettingsApplyHandler } from "../../../types/types.ts";
+import { el } from "../../dom.ts";
 
 const EXPERIENCE_SETTING_IDS: readonly string[] = [
     "themeSelect",

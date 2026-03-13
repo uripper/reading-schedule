@@ -2,12 +2,23 @@ import type {
     Book,
     CalendarRowWithFinish,
     DetailInteractionHandlers,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 import {
     setInputValueFromBookProgress,
     submitProgressUpdate,
-} from "./details_progress_form_helpers.js";
+} from "./details_progress_form_helpers.ts";
 
+/**
+ * Create and configure a numeric HTML input element for progress values.
+ * @example
+ * progressInput("Enter value", "0", "100", "1")
+ * <input type="number" min="0" max="100" step="1" placeholder="Enter value">
+ * @param placeholder - Placeholder text shown when the input is empty.
+ * @param min - Minimum allowed value for the input (as a string).
+ * @param max - Maximum allowed value for the input (as a string) or null to omit the attribute.
+ * @param step - Step/increment value for the input (as a string).
+ * @returns Configured numeric HTMLInputElement.
+ **/
 function progressInput(
     placeholder: string,
     min: string,

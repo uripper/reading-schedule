@@ -2,7 +2,7 @@ import type {
     Book,
     BookLookupItem,
     RecommendationItem,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 import {
     AUTHOR_LOCALE,
     AUTHOR_MAX_LENGTH,
@@ -13,7 +13,7 @@ import {
     TITLE_MAX_LENGTH,
     TITLE_MIN_LENGTH,
     WORDS_PER_PAGE_ESTIMATE,
-} from "./search_constants.js";
+} from "./search_constants.ts";
 
 /**
  * Normalizes text for case-insensitive recommendation comparisons.

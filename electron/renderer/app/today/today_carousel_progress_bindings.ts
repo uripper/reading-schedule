@@ -1,11 +1,11 @@
-import { el } from "../../dom.js";
-import type { TodayCarouselActiveItem } from "./today_carousel_model.js";
+import { el } from "../../dom.ts";
+import type { TodayCarouselActiveItem } from "./today_carousel_model.ts";
+import type { TodayProgressDraft } from "./today_carousel_progress.ts";
 import {
     boundedTodayProgressDraft,
     buildTodayProgressInputViewModel,
-    type TodayProgressDraft,
-} from "./today_carousel_progress.js";
-import { progressDraft, setProgressDraft } from "./today_carousel_state.js";
+} from "./today_carousel_progress.ts";
+import { progressDraft, setProgressDraft } from "./today_carousel_state.ts";
 
 const EMPTY_TEXT = "";
 
@@ -22,6 +22,14 @@ function liveDraft(): TodayProgressDraft {
     };
 }
 
+/**
+ * Update the Today carousel's progress input fields (pages and percent) from the provided active item.
+ * @example
+ * applyProgressInputViewModel(activeItem)
+ * undefined
+ * @param active - The active carousel item containing pagesRead, progressPercent, pagesTotal and draft state used to build the view model.
+ * @returns No return value; updates DOM input elements directly.
+ **/
 function applyProgressInputViewModel(active: TodayCarouselActiveItem): void {
     const VIEW_MODEL = buildTodayProgressInputViewModel({
         currentPagesRead: active.pagesRead,

@@ -1,23 +1,23 @@
 /**
  * Fills settings form controls from persisted planner settings.
  */
-import type { PlannerSettings } from "../../types/types.js";
+import type { PlannerSettings } from "../../types/types.ts";
 import {
     DEFAULT_DIFFICULTY_MULTIPLIER,
     DEFAULT_PLAN_MODE,
     DEFAULT_SOLVER_PROFILE,
     WEEKDAYS,
-} from "./config.js";
+} from "./config.ts";
 import {
     allFieldDefinitions,
     inputEl,
     numberLevels,
     selectEl,
-} from "./field_io.js";
+} from "./field_io.ts";
 import {
     minimumPlannerStartDate,
     normalizePlannerStartDate,
-} from "./start_date.js";
+} from "./start_date.ts";
 
 /**
  * Normalizes arbitrary settings value to text for form controls.

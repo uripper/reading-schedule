@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "allowImportingTsExtensions": true,
         "baseUrl": ".",
         "module": "ESNext",
         "moduleResolution": "Bundler",
@@ -10,6 +11,7 @@
             "@renderer/*": ["./renderer/*"],
             "@shared/*": ["./types/*"]
         },
+        "rewriteRelativeImportExtensions": true,
         "rootDir": ".",
         "skipLibCheck": true,
         "strict": true,

@@ -4,7 +4,9 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import cast
+
+from reading_plan.type_guards import is_object_list, is_object_mapping
+
 
 BRIDGE_LOGGER_NAME = "reading_plan.bridge"
 BRIDGE_LOG_PATH_ENV = "READING_PLAN_BRIDGE_LOG_PATH"
@@ -114,13 +116,11 @@ def summarize_value_types(value: object) -> dict[str, object]:
     summary: dict[str, object] = {
         "value_type": type(value).__name__,
     }
-    if isinstance(value, dict):
-        mapping = cast("dict[object, object]", value)
-        summary.update(_summarize_mapping_types(mapping))
+    if is_object_mapping(value):
+        summary.update(_summarize_mapping_types(value))
         return summary
-    if isinstance(value, list):
-        list_value = cast("list[object]", value)
-        summary.update(_summarize_list_types(list_value))
+    if is_object_list(value):
+        summary.update(_summarize_list_types(value))
     return summary
 
 
@@ -205,9 +205,8 @@ def _normalize_metadata(value: object) -> object:
         normalized = value
     elif isinstance(value, Path):
         normalized = str(value)
-    elif isinstance(value, dict):
-        mapping = cast("dict[object, object]", value)
-        normalized = _normalize_mapping(mapping)
+    elif is_object_mapping(value):
+        normalized = _normalize_mapping(value)
     elif isinstance(value, (list, tuple, set)):
         normalized = [_normalize_metadata(item) for item in value]
     return normalized
@@ -221,7 +220,9 @@ def _normalize_mapping(value: dict[object, object]) -> dict[str, object]:
     return normalized
 
 
-def _summarize_mapping_types(value: dict[object, object]) -> dict[str, object]:
+def _summarize_mapping_types(
+    value: dict[object, object],
+) -> dict[str, object]:
     """Summarize dictionary keys and top-level value types."""
     sampled: dict[str, str] = {}
     sampled_keys: list[str] = []

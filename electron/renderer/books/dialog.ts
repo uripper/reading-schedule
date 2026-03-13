@@ -9,20 +9,20 @@ import type {
     BookSubmitPayload,
     OpenBookDialogArgs,
     OpenDialogOptions,
-} from "../../types/types.js";
-import { bindDialogFocus } from "../accessibility/index.js";
-import { bindBookLookup } from "../book_lookup.js";
-import { createAfterBookPicker } from "./after_book_picker.js";
-import { bindCoverUpload } from "./cover_upload.js";
-import { bindBookDialogProgressSync } from "./dialog_progress_sync.js";
+} from "../../types/types.ts";
+import { bindDialogFocus } from "../accessibility/index.ts";
+import { bindBookLookup } from "../book_lookup.ts";
+import { createAfterBookPicker } from "./after_book_picker.ts";
+import { bindCoverUpload } from "./cover_upload.ts";
+import { bindBookDialogProgressSync } from "./dialog_progress_sync.ts";
 import {
     bindBookDialogSubmit,
     resetBookDialogSubmitState,
-} from "./dialog_submit.js";
-import { ensureBookFormLayoutFields } from "./form_layout.js";
-import { getBookFormRefs } from "./form_refs.js";
-import { applyLookupItem, clearForm, fillForm } from "./form_state.js";
-import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.js";
+} from "./dialog_submit.ts";
+import { ensureBookFormLayoutFields } from "./form_layout.ts";
+import { getBookFormRefs } from "./form_refs.ts";
+import { applyLookupItem, clearForm, fillForm } from "./form_state.ts";
+import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.ts";
 
 /**
  * Resolves the live books getter from optional dialog options.
@@ -110,6 +110,15 @@ export function createBookDialog(
     const CLOSE = (): void => {
         DIALOG_FOCUS.closeAndReturnFocus();
     };
+    /**
+     * Open a pre-configured book selection dialog, optionally pre-selecting a Book and applying dialog options.
+     * @example
+     * openBookPickerDialog(null, { modal: true })
+     * undefined
+     * @param book - Optional Book to pre-select in the dialog, or null to start without a selection.
+     * @param dialogOptions - Options to customize the dialog's appearance and behavior.
+     * @returns Void.
+     **/
     const OPEN = (
         book: Book | null = null,
         dialogOptions: OpenDialogOptions = {},

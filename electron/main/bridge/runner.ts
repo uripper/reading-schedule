@@ -1,8 +1,9 @@
 import { spawn } from "node:child_process";
-import { logDebug } from "../../types/logger.js";
-import type { JsonValue, PlanGeneratePayload } from "../../types/types.js";
-import { BRIDGE_HEARTBEAT_MS } from "./constants.js";
-import { bridgeTimeoutMs, root } from "./context.js";
+import { logDebug } from "../../types/logger.ts";
+import type { JsonValue, PlanGeneratePayload } from "../../types/types.ts";
+import { readEnvironmentValue } from "../runtime-env.ts";
+import { BRIDGE_HEARTBEAT_MS } from "./constants.ts";
+import { bridgeTimeoutMs, root } from "./context.ts";
 import {
     appendedLogTail,
     attachStreamHandlers,
@@ -13,12 +14,12 @@ import {
     logProcessClose,
     logProcessError,
     logTimeout,
-} from "./diagnostics.js";
+} from "./diagnostics.ts";
 import type {
     BridgeExecutionContext,
     BridgeRunSession,
     SettleHandlers,
-} from "./types.js";
+} from "./types.ts";
 
 interface RunBridgeForModuleArgs {
     args: string[];
@@ -40,7 +41,7 @@ function createRunSession(
     args: string[],
     executionContext: BridgeExecutionContext,
 ): BridgeRunSession {
-    const PYTHON_BINARY = process.env.PYTHON_BIN ?? "python";
+    const PYTHON_BINARY = readEnvironmentValue("PYTHON_BIN") ?? "python";
     const TIMEOUT_MS = bridgeTimeoutMs();
     logDebug("Spawning planner bridge process.", {
         args,
@@ -218,6 +219,92 @@ function createSettleHandlers(
     };
 }
 
+function rejectOnTimeout(
+    session: BridgeRunSession,
+    settle: SettleHandlers,
+): void {
+    session.processHandle.kill();
+    settle.rejectOnce(
+        new Error(
+            `Planner bridge timed out after ${session.timeoutMs}ms (${session.moduleName}).`,
+        ),
+    );
+}
+
+interface HandleSessionCloseArgs {
+    exitCode: number | null;
+    parseOutput: RunBridgeForModuleArgs["parseOutput"];
+    session: BridgeRunSession;
+    settle: SettleHandlers;
+    signal: NodeJS.Signals | null;
+}
+
+function handleSessionClose({
+    exitCode,
+    parseOutput,
+    session,
+    settle,
+    signal,
+}: HandleSessionCloseArgs): void {
+    logProcessClose(
+        session.buffers,
+        session.executionContext,
+        exitCode,
+        signal,
+    );
+
+    try {
+        settle.resolveOnce(
+            parseOutput(session.buffers.stdout, session.buffers.stderr),
+        );
+    } catch (error) {
+        logParseFailure(session.buffers, session.executionContext);
+
+        if (error instanceof Error) {
+            settle.rejectOnce(error);
+            return;
+        }
+
+        settle.rejectOnce(new Error(String(error)));
+    }
+}
+
+interface AttachSessionHandlersArgs {
+    clearTimers(): void;
+    parseOutput: RunBridgeForModuleArgs["parseOutput"];
+    session: BridgeRunSession;
+    settle: SettleHandlers;
+}
+
+function attachSessionHandlers({
+    clearTimers,
+    parseOutput,
+    session,
+    settle,
+}: AttachSessionHandlersArgs): void {
+    attachLifecycleLogs(session);
+    attachStreamHandlers(
+        session.processHandle,
+        session.buffers,
+        session.executionContext.requestId,
+    );
+    session.processHandle.on("error", (error: Error) => {
+        clearTimers();
+        logProcessError(error, session.buffers, session.executionContext);
+        settle.rejectOnce(error);
+    });
+    session.processHandle.on("close", (exitCode, signal) => {
+        clearTimers();
+        handleSessionClose({
+            exitCode,
+            parseOutput,
+            session,
+            settle,
+            signal,
+        });
+    });
+}
+
 /**
  * Executes one planner module candidate and parses bridge output.
  * @param args - CLI arguments passed to the module.
@@ -238,45 +325,14 @@ export async function runBridgeForModule({
         const SETTLE = createSettleHandlers(resolve, reject);
         const SESSION = createRunSession(moduleName, args, executionContext);
         const CLEAR_TIMERS = startSessionTimers(SESSION, () => {
-            SESSION.processHandle.kill();
-            SETTLE.rejectOnce(
-                new Error(
-                    `Planner bridge timed out after ${SESSION.timeoutMs}ms (${moduleName}).`,
-                ),
-            );
+            rejectOnTimeout(SESSION, SETTLE);
         });
 
-        attachLifecycleLogs(SESSION);
-        attachStreamHandlers(
-            SESSION.processHandle,
-            SESSION.buffers,
-            SESSION.executionContext.requestId,
-        );
-        SESSION.processHandle.on("error", (error: Error) => {
-            CLEAR_TIMERS();
-            logProcessError(error, SESSION.buffers, SESSION.executionContext);
-            SETTLE.rejectOnce(error);
-        });
-        SESSION.processHandle.on("close", (exitCode, signal) => {
-            CLEAR_TIMERS();
-            logProcessClose(
-                SESSION.buffers,
-                SESSION.executionContext,
-                exitCode,
-                signal,
-            );
-            try {
-                SETTLE.resolveOnce(
-                    parseOutput(SESSION.buffers.stdout, SESSION.buffers.stderr),
-                );
-            } catch (error) {
-                logParseFailure(SESSION.buffers, SESSION.executionContext);
-                if (error instanceof Error) {
-                    SETTLE.rejectOnce(error);
-                    return;
-                }
-                SETTLE.rejectOnce(new Error(String(error)));
-            }
+        attachSessionHandlers({
+            clearTimers: CLEAR_TIMERS,
+            parseOutput,
+            session: SESSION,
+            settle: SETTLE,
         });
         writePayloadAndClose(SESSION, payload);
     });
