@@ -63,6 +63,14 @@ export function bindCarouselNavigation(
     const PREV = el<HTMLButtonElement>("todayCarouselPrev");
     const NEXT = el<HTMLButtonElement>("todayCarouselNext");
     const TRACK = el<HTMLElement>("todayCarouselTrack");
+    /**
+    * Shift the selected book in the carousel by delta steps, wrapping around the book list.
+    * @example
+    * changeSelectedBook(1)
+    * undefined
+    * @param {{number}} {{delta}} - Number of positions to move the current selection (positive moves forward, negative moves backward).
+    * @returns {{void}} No return value; updates the selected book in the shared model.
+    **/
     const MOVE_SELECTION = (delta: number): void => {
         if (!model.books.length) {
             return;

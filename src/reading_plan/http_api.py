@@ -65,6 +65,16 @@ def _fresh_state_result() -> dict[str, object]:
 
 
 def _invalid_state_result(message: str) -> dict[str, object]:
+    """Return a standardized result dict indicating the state was reset to a fresh state with a warning message.
+    Parameters:
+        - message (str): Warning message describing why the state is considered invalid or has been reset.
+    Returns:
+        - dict[str, object]: Dictionary containing:
+            - "source" (str): "fresh"
+            - "sourcePath" (str): Path to the state file as returned by _state_path()
+            - "state" (None): Reset state value (None)
+            - "warningCode" (str): "STATE_RESET_FRESH"
+            - "warningMessage" (str): The provided warning message"""
     return {
         "source": "fresh",
         "sourcePath": str(_state_path()),
@@ -82,6 +92,15 @@ def _load_state_file() -> dict[str, object]:
 
 
 def _loaded_state_result(state_path: Path) -> dict[str, object]:
+    """Load and validate a saved JSON state from a file and return a standardized result dictionary.
+    Parameters:
+        - state_path (Path): Path to the JSON file containing the saved state to read and validate.
+    Returns:
+        - dict[str, object]: A result dictionary. On success this contains:
+            - "source": "json_primary"
+            - "sourcePath": str(state_path)
+            - "state": validated state object
+    On failure returns an invalid-state result dict (from _invalid_state_result) with an explanatory error message."""
     loaded: object
     try:
         loaded = json.loads(state_path.read_text(encoding="utf-8"))
@@ -113,6 +132,13 @@ def _save_state_file(state: dict[str, object]) -> None:
 
 
 def _sample_payload() -> dict[str, object]:
+    """Return a payload dictionary containing serialized sample books and settings.
+    Parameters:
+        - None
+    Returns:
+        - dict[str, object]: A dictionary containing:
+            - "books": list of serialized book data (each element produced by book_to_data).
+            - "settings": serialized settings data (produced by settings_to_data)."""
     books, settings = load_inputs(
         str(_sample_books_path()),
         str(_sample_settings_path()),
@@ -130,6 +156,12 @@ def _cover_url(cover_id: object) -> str | None:
 
 
 def _work_id(raw_key: object) -> str:
+    """Extract the work identifier: return the last path segment of a string separated by '/'.
+    Non-string or empty (after trimming) inputs yield an empty string.
+    Parameters:
+        - raw_key (object): The input value expected to be a string containing '/'-separated segments.
+    Returns:
+        - str: The last segment of the trimmed input string after splitting on '/', or an empty string if the input is not a non-empty string."""
     if not isinstance(raw_key, str):
         return ""
     trimmed = raw_key.strip()
@@ -140,6 +172,15 @@ def _work_id(raw_key: object) -> str:
 
 
 def _search_query(query: str, *, author_only: bool) -> str:
+    """Constructs an Open Library search URL for a given query or author.
+    Parameters:
+        - query (str): Search text to send to the Open Library API. When author_only is True, this should be the author name.
+        - author_only (bool): If True, generate a URL that filters by author (uses the 'author' parameter). If False, generate a general search URL (uses the 'q' parameter and sets language to "eng").
+    Returns:
+        - str: An encoded URL string for the Open Library search endpoint incorporating the appropriate parameters and the configured result limit (uses OPEN_LIBRARY_SEARCH_URL and SEARCH_OUTPUT_LIMIT constants).
+    Examples:
+        - _search_query("Jane Austen", author_only=True) -> "OPEN_LIBRARY_SEARCH_URL?author=Jane+Austen&limit=SEARCH_OUTPUT_LIMIT"
+        - _search_query("Pride and Prejudice", author_only=False) -> "OPEN_LIBRARY_SEARCH_URL?q=Pride+and+Prejudice&language=eng&limit=SEARCH_OUTPUT_LIMIT"""
     params: dict[str, str | int] = {"limit": SEARCH_OUTPUT_LIMIT}
     if author_only:
         params["author"] = query
@@ -159,6 +200,13 @@ def _search_docs(query: str, *, author_only: bool) -> list[object]:
 
 
 def _request_json(request_url: str) -> dict[str, object]:
+    """Fetch JSON from the given URL and return it as a dictionary; network or timeout errors are converted to an HTTPException with status 502.
+    Parameters:
+        - request_url (str): The URL to request JSON from.
+    Returns:
+        - dict[str, object]: Parsed JSON payload as a dictionary if the top-level JSON value is an object; otherwise returns an empty dict.
+    Example:
+        - _request_json("https://openlibrary.org/works/OL.../data.json")"""
     try:
         with urlopen(  # noqa: S310 - fixed OpenLibrary HTTPS endpoint
             request_url,
@@ -176,6 +224,11 @@ def _request_json(request_url: str) -> dict[str, object]:
 
 
 def _doc_to_result(doc: object) -> dict[str, str] | None:
+    """Convert a document-like mapping into a normalized result dict containing title, author, work_id, and optional cover_url.
+    Parameters:
+        - doc (object): Input expected to be a dict-like mapping with possible keys "title", "author_name", "key", and "cover_i". If doc is not a dict or lacks both title and author, the function returns None.
+    Returns:
+        - dict[str, str] | None: A dictionary with keys "author", "title", and "work_id", and "cover_url" if available; or None when input is invalid or missing both title and author."""
     if not isinstance(doc, dict):
         return None
     doc_map = cast("dict[str, object]", doc)
@@ -207,6 +260,15 @@ def _search_open_library(
     *,
     author_only: bool,
 ) -> list[dict[str, str]]:
+    """Search Open Library documents for a query and return a list of result dictionaries.
+    Parameters:
+        - query (str): The search query string.
+        - author_only (bool): If True, restrict the search to author fields only.
+    Returns:
+        - list[dict[str, str]]: A list of result dictionaries (string keys to string values). Items that could not be converted are omitted and the list is truncated to SEARCH_OUTPUT_LIMIT.
+    Examples:
+        - _search_open_library("Jane Austen", author_only=True)
+        - _search_open_library("Pride and Prejudice", author_only=False)"""
     docs = _search_docs(query, author_only=author_only)
 
     results: list[dict[str, str]] = []
@@ -222,6 +284,11 @@ def _search_open_library(
 
 
 def _api_generate(payload: dict[str, object]) -> object:
+    """Generate a plan by casting the incoming payload to PlannerInputPayload and delegating to generate_plan.
+    Parameters:
+        - payload (dict[str, object]): Incoming request payload expected to conform to the PlannerInputPayload schema.
+    Returns:
+        - object: The result returned by generate_plan (the generated plan). Raises HTTPException(status_code=400) if the payload is invalid or processing fails."""
     log_file_execution(LOGGER, file_path=__file__, entrypoint="_api_generate")
     log_incoming_data(
         LOGGER,
@@ -251,6 +318,17 @@ def _api_state_sample(_payload: dict[str, object]) -> dict[str, object]:
 
 
 def _api_state_save(state: dict[str, object]) -> dict[str, object]:
+    """Save the provided state dictionary to persistent storage and return a success indicator.
+    Parameters:
+        - state (dict[str, object]): The state payload to persist. Expected to be serializable by the underlying storage helper; invalid types will cause a TypeError.
+    Returns:
+        - dict[str, object]: A simple success indicator of the form {"ok": True} when the save completes.
+    Notes:
+        - Raises HTTPException(status_code=400) if the state contains invalid types (TypeError).
+        - Raises HTTPException(status_code=500) on underlying OS/file errors (OSError).
+    Example:
+        >>> _api_state_save({"feature_enabled": True})
+        {"ok": True}"""
     log_file_execution(LOGGER, file_path=__file__, entrypoint="_api_state_save")
     log_incoming_data(
         LOGGER,
@@ -268,6 +346,13 @@ def _api_state_save(state: dict[str, object]) -> dict[str, object]:
 
 
 def _api_books_search(payload: dict[str, object]) -> list[dict[str, str]]:
+    """Search for books using the provided payload, logging execution and incoming data.
+    Parameters:
+        - payload (dict[str, object]): Payload containing search parameters. Expected keys:
+            - "query" (str | None): Search query string; defaults to an empty string when absent.
+            - "author" (bool | None): If True, perform an author-only search.
+    Returns:
+        - list[dict[str, str]]: A list of book records returned by the underlying Open Library search helper; each record is a mapping of string fields describing a book."""
     log_file_execution(
         LOGGER,
         file_path=__file__,

@@ -35,6 +35,14 @@ function renderPrimaryNav(navItems: readonly NavItem[]): string {
     ]);
 }
 
+/**
+* Render the header section of the page shell as an HTML string.
+* @example
+* renderHeader({ primaryAction: { label: 'Sign up', href: '/signup' }, brandHref: '/', navItems: [] })
+* '<header class="section-shell site-header panel"><a class="brand" href="/">Brand</a><nav>...</nav><a class="button" href="/signup">Sign up</a></header>'
+* @param {{PageShellContent}} {{content}} - Page shell content including brandHref, navItems, and optional primaryAction.
+* @returns {{string}} HTML string for the header element.
+**/
 function renderHeader(content: PageShellContent): string {
     let actionMarkup = "";
 

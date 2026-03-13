@@ -61,6 +61,21 @@ export function shouldDisableProgressInputs(activeCompleted: boolean): boolean {
     return isLogSessionComplete(activeCompleted);
 }
 
+/**
+* Build a progress update payload from the provided options, validating and normalizing pages and percent inputs.
+* @example
+* buildProgressUpdatePayload({
+*   bookId: 'book-123',
+*   currentPagesRead: 50,
+*   currentPercent: 16.7,
+*   currentPagesTotal: 300,
+*   draft: { pagesText: '50', percentText: '16.7' },
+*   row: somePlannerRow
+* })
+* { error: '', payload: { bookId: 'book-123', row: somePlannerRow, pagesRead: 50, progressPercent: 16.7 }, valid: true }
+* @param {{bookId: string; currentPagesRead: number | null; currentPercent: number; currentPagesTotal: number | null; draft: ProgressUpdateDraft; row: PlannerScheduleRow}} {options} - Options object containing identifiers, current values, totals and the raw draft inputs.
+* @returns {{ProgressPayloadResult}} Returns an object with an error message (empty if none), a payload containing bookId/row and any changed fields (pagesRead, progressPercent), and a valid boolean.
+**/
 export function buildProgressUpdatePayload(options: {
     bookId: string;
     currentPagesRead: number | null;
@@ -120,6 +135,14 @@ export function buildProgressUpdatePayload(options: {
     };
 }
 
+/**
+* Parse a text input for planned minutes, validate it, and return either an error message or the rounded minutes.
+* @example
+* parseMinutesInput("15")
+* { error: "", minutes: 15 }
+* @param {{string}} {{minutesText}} - Input text representing the planned minutes.
+* @returns {{{error: string, minutes: number|null}}} Return object containing an error message (empty if valid) and the parsed minutes or null on error.
+**/
 export function parseMinutesInput(minutesText: string): {
     error: string;
     minutes: number | null;
