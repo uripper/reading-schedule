@@ -17,6 +17,7 @@ from reading_plan.planning.model_steps import (
     create_model_context,
 )
 
+
 if TYPE_CHECKING:
     from datetime import date
 

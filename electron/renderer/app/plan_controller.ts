@@ -81,6 +81,14 @@ interface AutoPlanSuccessHandlerArgs {
     updateTodayView: () => void;
 }
 
+/**
+ * Creates a handler that applies planned data from an auto-plan run to the app state.
+ * @example
+ * createAutoPlanSuccessHandler({ getSessions, persistDraft, setLastResult })
+ * (data: PlannerRunData) => Promise<void>
+ * @param {{AutoPlanSuccessHandlerArgs}} {{args}} - Configuration and callbacks used to apply planned data and update application state.
+ * @returns {{(data: PlannerRunData) => Promise<void>}} Returns an async handler that accepts planner run data and applies it (resolves to void).
+ **/
 function createAutoPlanSuccessHandler(
     args: AutoPlanSuccessHandlerArgs,
 ): (data: PlannerRunData) => Promise<void> {
@@ -103,64 +111,85 @@ function createAutoPlanSuccessHandler(
     };
 }
 
+/**
+ * Creates the execution payload reused by each auto-plan run.
+ */
+function createExecuteAutoPlanArgs(
+    args: RunAutoPlanFactoryArgs,
+): ExecuteAutoPlanArgs {
+    const ON_SUCCESS = createAutoPlanSuccessHandler({
+        getBlockedDayBooks: args.getBlockedDayBooks,
+        getLastResult: args.getLastResult,
+        getScheduleCompletions: args.getScheduleCompletions,
+        getSessions: args.getSessions,
+        persistDraft: args.persistDraft,
+        renderCalendar: args.renderCalendar,
+        setBookScheduleRows: args.setBookScheduleRows,
+        setLastResult: args.setLastResult,
+        setScheduleCompletions: args.setScheduleCompletions,
+        totalsFromSummary: args.totalsFromSummary,
+        updateTodayView: args.updateTodayView,
+    });
+
+    return {
+        addLog: args.addLog,
+        announce: args.announce,
+        collectBooks: args.collectBooks,
+        collectSettings: args.collectSettings,
+        onSuccess: ON_SUCCESS,
+        plannerApi: args.plannerApi,
+        setStatus: args.setStatus,
+    };
+}
+
+/**
+ * Clears in-flight state and reschedules a pending auto-plan run when needed.
+ */
+function finalizeAutoPlanRun(
+    args: RunAutoPlanFactoryArgs,
+    runner: () => Promise<void>,
+): void {
+    args.state.autoRunInFlight = false;
+
+    if (args.state.autoRunPending) {
+        args.state.autoRunPending = false;
+        args.scheduleAutoPlan(runner);
+    }
+}
+
+/**
+ * Creates a runner for the automatic planning process that manages concurrency, triggers the planner, and schedules retries if a run is already in progress.
+ * @example
+ * createRunAutoPlan({ plannerApi, collectBooks, collectSettings, setStatus, addLog, announce, getLastResult, setLastResult, getSessions, getScheduleCompletions, getBlockedDayBooks, setScheduleCompletions, renderCalendar, totalsFromSummary, setBookScheduleRows, updateTodayView, persistDraft, state, scheduleAutoPlan })()
+ * Promise<void>
+ * @param {{RunAutoPlanFactoryArgs}} {{root0}} - Factory arguments required to create the auto-plan runner.
+ * @returns {{() => Promise<void>}} Returns a function that, when invoked, runs the auto-plan process and resolves once complete.
+ **/
 function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
-    const {
-        plannerApi,
-        collectBooks,
-        collectSettings,
-        setStatus,
-        addLog,
-        announce,
-        getLastResult,
-        setLastResult,
-        getSessions,
-        getScheduleCompletions,
-        getBlockedDayBooks,
-        setScheduleCompletions,
-        renderCalendar,
-        totalsFromSummary,
-        setBookScheduleRows,
-        updateTodayView,
-        persistDraft,
-        state,
-        scheduleAutoPlan,
-    } = root0;
+    const EXECUTE_AUTO_PLAN_ARGS = createExecuteAutoPlanArgs(root0);
+
+    /**
+     * Trigger an automatic plan execution, ensuring only one run executes at a time and queuing a pending run if called while another is in progress.
+     * @example
+     * sync()
+     * // returns Promise<void>
+     * @returns {Promise<void>} Resolves when the sync cycle completes; if a run is already in flight it marks a pending run and resolves immediately.
+     */
     const SELF: () => Promise<void> = async (): Promise<void> => {
-        if (state.autoRunInFlight) {
-            state.autoRunPending = true;
+        if (root0.state.autoRunInFlight) {
+            root0.state.autoRunPending = true;
             return;
         }
-        state.autoRunInFlight = true;
+
+        root0.state.autoRunInFlight = true;
+
         try {
-            await executeAutoPlan({
-                addLog,
-                announce,
-                collectBooks,
-                collectSettings,
-                onSuccess: createAutoPlanSuccessHandler({
-                    getBlockedDayBooks,
-                    getLastResult,
-                    getScheduleCompletions,
-                    getSessions,
-                    persistDraft,
-                    renderCalendar,
-                    setBookScheduleRows,
-                    setLastResult,
-                    setScheduleCompletions,
-                    totalsFromSummary,
-                    updateTodayView,
-                }),
-                plannerApi,
-                setStatus,
-            });
+            await executeAutoPlan(EXECUTE_AUTO_PLAN_ARGS);
         } finally {
-            state.autoRunInFlight = false;
-            if (state.autoRunPending) {
-                state.autoRunPending = false;
-                scheduleAutoPlan(SELF);
-            }
+            finalizeAutoPlanRun(root0, SELF);
         }
     };
+
     return SELF;
 }
 

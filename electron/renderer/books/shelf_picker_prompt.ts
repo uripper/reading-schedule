@@ -12,6 +12,14 @@ async function promptViaDialog(refs: BookFormRefs): Promise<string | null> {
     return await new Promise((resolve) => {
         DIALOG_REFS.shelfPromptInput.value = "";
         DIALOG_REFS.shelfPromptDialog.returnValue = "";
+        /**
+         * Handles the shelf prompt dialog "close" event: removes the listener and resolves the enclosing promise with the trimmed input value or null.
+         * @example
+         * ON_CLOSE(resolve)
+         * undefined
+         * @param {{(value: string|null) => void}} {{resolve}} - Function to resolve the surrounding promise with the user's input (trimmed) or null if the dialog was not confirmed.
+         * @returns {{void}} Does not return a value.
+         **/
         const ON_CLOSE = (): void => {
             DIALOG_REFS.shelfPromptDialog.removeEventListener(
                 "close",

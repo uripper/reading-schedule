@@ -43,6 +43,15 @@ export function bindMinutesEditor(options: {
     const EDIT_BTN = el<HTMLButtonElement>("todayMinutesEditBtn");
     const INPUT = el<HTMLInputElement>("todayMinutesInput");
 
+    /**
+     * Validate the minutes input, apply the update via bindings, pin the row and close the minutes editor.
+     * @example
+     * saveMinutes(INPUT, options)
+     * undefined
+     * @param {{HTMLInputElement}} {{INPUT}} - The input element that contains the minutes value to parse and save.
+     * @param {{Object}} {{options}} - Options object containing bindings and active context (bindings may be null).
+     * @returns {{void}} Return nothing.
+     **/
     const SAVE_MINUTES = (): void => {
         const PARSED = parseMinutesInput(INPUT.value);
         if (PARSED.minutes === null) {

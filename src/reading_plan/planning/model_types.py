@@ -9,6 +9,7 @@ from reading_plan.planning.cp_sat_types import (
     LinearExprLike as CpSatLinearExprLike,
 )
 
+
 __all__ = [
     "BookDayVars",
     "BuildCpSatResult",

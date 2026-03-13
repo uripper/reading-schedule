@@ -18,6 +18,14 @@ interface LookupControllerDeps {
     state: CreateLookupStateControllerArgs["state"];
 }
 
+/**
+ * Update the lookup results DOM based on the current state: render items, toggle the "has-items" class, and update combobox accessibility attributes.
+ * @example
+ * refreshLookupResults(deps)
+ * undefined
+ * @param {{LookupControllerDeps}} deps - Dependencies and DOM/state references required to render and update lookup results.
+ * @returns {{void}} No return value; updates the DOM and accessibility attributes.
+ **/
 function refreshLookupResults(deps: LookupControllerDeps): void {
     const HAS_ITEMS = deps.state.currentItems.length > 0;
     if (!HAS_ITEMS) {
@@ -58,6 +66,15 @@ function selectLookupItem(deps: LookupControllerDeps, index: number): void {
     deps.onPick(ITEM);
 }
 
+/**
+ * Update the lookup state's active index (bounded to available items) and refresh the displayed results.
+ * @example
+ * setLookupActiveIndex(deps, 2)
+ * undefined
+ * @param {{LookupControllerDeps}} {{deps}} - Lookup controller dependencies containing state and helpers.
+ * @param {{number}} {{index}} - Desired active index; will be clamped to valid range or set to -1 if no items.
+ * @returns {{void}} No return value; updates the state's activeIndex and refreshes lookup results.
+ **/
 function setLookupActiveIndex(deps: LookupControllerDeps, index: number): void {
     if (deps.state.currentItems.length === 0) {
         deps.state.activeIndex = -1;

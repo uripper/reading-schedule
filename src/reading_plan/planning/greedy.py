@@ -14,6 +14,7 @@ from reading_plan.planning.budget import (
 )
 from reading_plan.reading_calendar import date_range
 
+
 if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
     from reading_plan.planning.model_types import Assignments
@@ -61,9 +62,7 @@ class SpreadState:
     ordered: list[Book]
 
 
-def plan_greedy(
-    books: list[Book], settings: Settings
-) -> Assignments:
+def plan_greedy(books: list[Book], settings: Settings) -> Assignments:
     """Build a feasible day-by-day block allocation using greedy heuristics."""
     days = date_range(settings.start_date, settings.end_date)
     caps = {day: day_capacity_blocks(settings, day) for day in days}
@@ -190,16 +189,13 @@ def _day_book_limit_reached(state: DayState) -> bool:
 
 def _can_start_book(state: DayState, book: Book) -> bool:
     """Return whether a book can start a new session on the current day."""
-    if book in state.used:
+    if book in state.used or state.remaining[book.book_id] <= 0:
         return False
-    if state.remaining[book.book_id] <= 0:
-        return False
-    if book_is_scheduled_for_day(
+    can_start = book_is_scheduled_for_day(
         book,
         state.day,
-    ) and _is_unlocked(book, state.remaining):
-        return _has_minimum_capacity_for_book(state, book)
-    return False
+    ) and _is_unlocked(book, state.remaining)
+    return can_start and _has_minimum_capacity_for_book(state, book)
 
 
 def _has_minimum_capacity_for_book(state: DayState, book: Book) -> bool:

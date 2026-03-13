@@ -17,6 +17,20 @@ function nextLocalMidnightDelay(now: Date): number {
     );
 }
 
+/**
+ * Binds a daily rollover watcher that triggers a callback when the local day changes.
+ * @example
+ * bindTodayDayRollover({ onDayChanged: () => console.log('day changed') })
+ * { checkForDayChange: [Function], dispose: [Function] }
+ * @param {{object}} {{options}} - Options for configuring the rollover watcher.
+ * @param {{DayRolloverDocument}} {{options.document}} - Optional document-like object to observe visibility; defaults to window.document.
+ * @param {{function():Date}} {{options.now}} - Optional function that returns the current Date; defaults to () => new Date().
+ * @param {{function():void}} {{options.onDayChanged}} - Callback invoked when the day key changes.
+ * @param {{function():string}} {{options.readDayKey}} - Optional function that returns the current "day key"; defaults to todayKey.
+ * @param {{function(number):void}} {{options.clearTimeout}} - Optional clearTimeout implementation; defaults to global clearTimeout.
+ * @param {{function(function, number): any}} {{options.setTimeout}} - Optional setTimeout implementation; defaults to global setTimeout.
+ * @returns {{object}} Returns a controller with checkForDayChange() to trigger an immediate check and dispose() to stop timers and listeners.
+ **/
 export function bindTodayDayRollover(options: {
     document?: DayRolloverDocument;
     now?: () => Date;

@@ -7,6 +7,14 @@ interface TodayScreenContainerProps {
     plannerApi: PlannerApi;
 }
 
+/**
+* Renders the container for the "Today" screen: loads today's data and shows loading, error, empty, or the TodayScreen view.
+* @example
+* TodayScreenContainer({ plannerApi })
+* <TodayScreen books={books} stats={stats} />
+* @param {{TodayScreenContainerProps}} {{props}} - Props object containing a plannerApi client used to fetch today's data.
+* @returns {{JSX.Element}} A React element that displays the appropriate UI for the today's data state.
+**/
 export function TodayScreenContainer({
     plannerApi,
 }: TodayScreenContainerProps) {

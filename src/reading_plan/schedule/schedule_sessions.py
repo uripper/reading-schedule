@@ -8,6 +8,7 @@ from reading_plan.planner_types import Book
 from reading_plan.planning.budget import words_per_block, words_per_minute
 from reading_plan.reading_calendar import date_range
 
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
 

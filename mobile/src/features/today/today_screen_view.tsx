@@ -52,6 +52,16 @@ function coverForBook(title: string): number {
     return DEFAULT_COVER_SOURCE;
 }
 
+/**
+* Render a single carousel card for a book with cover art and tap handler.
+* @example
+* CarouselCard({ book: { title: '1984', accent: '#ff0' }, isActive: true, onPress: () => {} })
+* <Pressable ...>...</Pressable>
+* @param {{Book}} {{book}} - Book object containing at least title and accent color used for cover and background.
+* @param {{boolean}} {{isActive}} - Whether this card is the active/selected item (affects opacity).
+* @param {{() => void}} {{onPress}} - Callback invoked when the card is pressed.
+* @returns {{JSX.Element}} A Pressable JSX element representing the card.
+**/
 function CarouselCard({ book, isActive, onPress }: CardProps) {
     let cardOpacity = 0.64;
     if (isActive) {
@@ -109,6 +119,14 @@ interface TodayStatsSectionProps {
     stats: TodayStats;
 }
 
+/**
+* Render the "TODAY" hero section with theme transition, ambient background, and layered title text.
+* @example
+* TodayHero({ ambientColor: '#E0F7FA', currentThemeCanvasColor: '#FFFFFF', previousThemeCanvasColor: '#000000', themeProgress: 0.5 })
+* <React.Fragment>Today theme transition layer, background, and layered "TODAY" text</React.Fragment>
+* @param {{TodayHeroProps}} {{props}} - Props object containing ambientColor, currentThemeCanvasColor, previousThemeCanvasColor, and themeProgress.
+* @returns {{JSX.Element}} Returns a JSX fragment that composes the theme transition layer, background, and rendered TITLE elements.
+**/
 function TodayHero({
     ambientColor,
     currentThemeCanvasColor,
@@ -145,6 +163,20 @@ function TodayHero({
     );
 }
 
+/**
+* Renders a horizontal carousel of book cards using FlatList.
+* @example
+* TodayCarousel({ activeIndex: 0, books: [{ id: '1', title: 'Sample' }], cardWidth: 200, carouselSideInset: 16, itemWidth: 216, onCardPress: (i) => console.log(i), onMomentumScrollEnd: () => {} })
+* <FlatList ... />
+* @param {{number}} {{activeIndex}} - Index of the currently active/visible card.
+* @param {{Array<Book>}} {{books}} - Array of book objects to render in the carousel.
+* @param {{number}} {{cardWidth}} - Width (in pixels) of each card container.
+* @param {{number}} {{carouselSideInset}} - Horizontal padding applied to the carousel content container.
+* @param {{number}} {{itemWidth}} - Snap interval width used by FlatList (card width + gap).
+* @param {{function}} {{onCardPress}} - Callback invoked with the index of a pressed card.
+* @param {{function}} {{onMomentumScrollEnd}} - Callback forwarded to FlatList's onMomentumScrollEnd event.
+* @returns {{JSX.Element}} Rendered carousel FlatList component.
+**/
 function TodayCarousel({
     activeIndex,
     books,
@@ -189,6 +221,14 @@ function TodayCarousel({
     );
 }
 
+/**
+* Renders the current active book's title, author, progress pill, and a "Log Session" button for the Today screen.
+* @example
+* TodayBookProgress({ activeBook: { title: 'The Hobbit', author: 'J.R.R. Tolkien', completionPercent: 42, pagesDone: 123, pagesTotal: 295 } })
+* <Text>THE HOBBIT | J.R.R. TOLKIEN</Text> plus a progress pill "42% | 123/295" and a "Log Session" button
+* @param {TodayBookProgressProps} props - Props object containing the activeBook to display.
+* @returns {JSX.Element} Rendered JSX element showing the active book progress and a Log Session button.
+**/
 function TodayBookProgress({ activeBook }: TodayBookProgressProps) {
     return (
         <>
@@ -211,6 +251,14 @@ function TodayBookProgress({ activeBook }: TodayBookProgressProps) {
     );
 }
 
+/**
+* Renders a horizontal row of statistic bubbles and connector visuals for today's stats.
+* @example
+* TodayStatsSection({ stats: { dayStreak: 5, completedSessions: 3 } })
+* <View>...StatBubble day streak and complete sessions...</View>
+* @param {{TodayStatsSectionProps}} {{stats}} - Props object containing today's statistics (e.g., dayStreak and completedSessions).
+* @returns {{JSX.Element}} A JSX.Element that displays the stats row for the Today screen.
+**/
 function TodayStatsSection({ stats }: TodayStatsSectionProps) {
     return (
         <View style={STYLES.statsRow}>

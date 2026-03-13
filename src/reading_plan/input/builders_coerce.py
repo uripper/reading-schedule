@@ -2,11 +2,9 @@
 
 from typing import SupportsFloat, SupportsIndex, SupportsInt
 
+
 IntInput = str | bytes | bytearray | SupportsInt | SupportsIndex
 FloatInput = str | bytes | bytearray | SupportsFloat | SupportsIndex
-
-# TODO: probably just get rid of this stupid bullshit
-
 
 def to_int(raw: IntInput, field: str) -> int:
     """Convert to int."""

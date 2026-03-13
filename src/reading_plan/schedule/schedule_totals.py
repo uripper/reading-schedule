@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from reading_plan.schedule.schedule_sessions import iter_sessions
 
+
 if TYPE_CHECKING:
     from reading_plan.planner_types import Book, Settings
     from reading_plan.planning.model_types import Assignments

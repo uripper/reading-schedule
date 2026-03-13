@@ -3,6 +3,18 @@ import { ComingSoonScreen } from "../features/common/coming_soon_screen";
 import { TodayScreenContainer } from "../features/today/today_screen_container";
 import type { StackRoute, TabStacks } from "./types";
 
+/**
+ * Create a StackRoute representing the "Queue" screen (a coming-soon placeholder).
+ * @example
+ * createQueueRoute()
+ * // returns:
+ * // {
+ * //   key: "books-queue",
+ * //   render: (navigator) => <ComingSoonScreen ctaLabel="Back" description="Queue details will show here once mobile list models are integrated." onPress={navigator.pop} title="Queue" />,
+ * //   title: "Queue"
+ * // }
+ * @returns {StackRoute} Route object for the "Queue" screen used by the mobile navigator.
+ */
 function createQueueRoute(): StackRoute {
     return {
         key: "books-queue",
@@ -20,6 +32,13 @@ function createQueueRoute(): StackRoute {
     };
 }
 
+/**
+* Create the root navigation route for the Books section.
+* @example
+* createBooksRootRoute()
+* { key: "books-root", title: "Books", render: (navigator) => <ComingSoonScreen ... /> }
+* @returns {{StackRoute}} The route object for the Books root screen.
+**/
 function createBooksRootRoute(): StackRoute {
     return {
         key: "books-root",
@@ -39,6 +58,17 @@ function createBooksRootRoute(): StackRoute {
     };
 }
 
+/**
+* Create a StackRoute for the "Preferences" settings screen that renders a ComingSoonScreen placeholder.
+* @example
+* createPreferencesRoute()
+* {
+*   key: "settings-preferences",
+*   render: (navigator) => <ComingSoonScreen title="Preferences" ctaLabel="Back" ... />,
+*   title: "Preferences",
+* }
+* @returns {StackRoute} A route object configured for the Preferences screen.
+**/
 function createPreferencesRoute(): StackRoute {
     return {
         key: "settings-preferences",
@@ -56,6 +86,13 @@ function createPreferencesRoute(): StackRoute {
     };
 }
 
+/**
+* Create a navigation route for the Settings root screen.
+* @example
+* createSettingsRootRoute()
+* { key: "settings-root", title: "Settings", render: (navigator) => <ComingSoonScreen ... /> }
+* @returns {StackRoute} StackRoute object representing the Settings root route.
+**/
 function createSettingsRootRoute(): StackRoute {
     return {
         key: "settings-root",

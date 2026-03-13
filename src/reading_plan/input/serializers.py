@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from reading_plan.planner_types import WEEKDAYS
 
+
 if TYPE_CHECKING:
     from reading_plan.api_types import BookData, SettingsData
     from reading_plan.planner_types import Book, Settings

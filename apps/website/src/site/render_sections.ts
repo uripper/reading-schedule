@@ -10,6 +10,16 @@ import type {
 import { escapeHtml, joinMarkup, renderButtonLink } from "./render_helpers.js";
 import { renderPlatformLogo } from "./render_platform_logo.js";
 
+/**
+ * Render a section wrapper with the provided CSS class and inner content.
+ * @example
+ * renderSectionShell("hero", "<h1>Title</h1>")
+ * '<section class="section-shell hero"><h1>Title</h1></section>'
+ * @param {{string}} {{className}} - The CSS class to append to "section-shell".
+ * @param {{string}} {{content}} - The HTML content to place inside the section.
+ * @param {{string}} {{id}} - Optional id for the section; if provided it will be HTML-escaped and added as an id attribute.
+ * @returns {{string}} The HTML string for the section element.
+ **/
 function renderSectionShell(
     className: string,
     content: string,
@@ -45,6 +55,14 @@ function renderFeatureCard(feature: FeatureItem): string {
     ]);
 }
 
+/**
+ * Render a features section composed of feature cards as an HTML string.
+ * @example
+ * renderFeatures([{ id: 'f1', title: 'Sample Feature', description: 'Desc' }])
+ * '<section class="section-copy" id="features">...</section>'
+ * @param {{readonly FeatureItem[]}} {{features}} - Array of feature items to render into cards.
+ * @returns {{string}} HTML string for the complete features section.
+ **/
 function renderFeatures(features: readonly FeatureItem[]): string {
     const MARKUP = features.map((feature) => {
         return renderFeatureCard(feature);
@@ -68,6 +86,10 @@ function renderWorkflowStepCard(step: WorkflowStep): string {
     ]);
 }
 
+/**
+ * Render a workflow section as HTML markup from an array of WorkflowStep objects.
+ * @example
+ * renderWorkflow([{ title: "Analyze", description: "Adjust settings", /* ... */
 function renderWorkflow(workflow: readonly WorkflowStep[]): string {
     const MARKUP = workflow.map((step) => {
         return renderWorkflowStepCard(step);
@@ -94,6 +116,14 @@ function renderDownloadCard(card: DownloadCard): string {
     ]);
 }
 
+/**
+ * Renders the "Get Bartleby." downloads section as an HTML string.
+ * @example
+ * renderDownloadSection([{ id: "mac", title: "macOS", links: [{ platform: "mac", url: "https://example.com" }] }])
+ * '<section id="download" class="download-shell">...<div class="download-grid">...'
+ * @param {{readonly DownloadCard[]}} {{downloads}} - Array of DownloadCard objects used to build each download card.
+ * @returns {{string}} HTML markup for the complete download section.
+ **/
 function renderDownloadSection(downloads: readonly DownloadCard[]): string {
     const DOWNLOAD_MARKUP = downloads.map((card) => {
         return renderDownloadCard(card);
@@ -108,6 +138,14 @@ function renderDownloadSection(downloads: readonly DownloadCard[]): string {
     return renderSectionShell("download-shell", CONTENT, "download");
 }
 
+/**
+ * Render the site's footer HTML markup with the provided year.
+ * @example
+ * renderFooter(2026)
+ * '<footer class="section-shell site-footer panel"><div><h2>Read more books.</h2></div><div class="site-footer__meta"><p>&copy; 2026 Bartleby</p></div></footer>'
+ * @param {{number}} {{currentYear}} - Current year to display in the footer.
+ * @returns {{string}} Footer HTML markup as a string.
+ **/
 function renderFooter(currentYear: number) {
     const FOOTER_META = joinMarkup([
         '<div class="site-footer__meta">',

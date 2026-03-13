@@ -55,6 +55,14 @@ export interface TodayCarouselModel {
 function normalizedBookId(value: unknown): string {
     return String(value || "").trim();
 }
+/**
+ * Clamp a raw progress value to the inclusive range defined by MIN_PROGRESS and MAX_PROGRESS.
+ * @example
+ * clampProgress(1.5)
+ * MAX_PROGRESS
+ * @param {number} progressRaw - Raw progress value to clamp; if falsy or non-finite, MIN_PROGRESS is used.
+ * @returns {number} A number within the inclusive range [MIN_PROGRESS, MAX_PROGRESS].
+ **/
 function clampProgress(progressRaw: number): number {
     const VALUE = Number(progressRaw || MIN_PROGRESS);
     if (!Number.isFinite(VALUE)) {
@@ -108,6 +116,15 @@ function booksById(books: Book[]): Map<string, Book> {
     }
     return BY_ID;
 }
+/**
+ * Resolve the display title for a planner row: prefer book.title, then row.title, otherwise a default.
+ * @example
+ * resolveBookTitle({ title: 'Row Title' }, { title: 'Book Title' })
+ * 'Book Title'
+ * @param {{PlannerScheduleRow}} {{row}} - Planner schedule row object whose title may be used if the book title is absent.
+ * @param {{Book | undefined}} {{book}} - Optional book object; its title is preferred when present and non-empty.
+ * @returns {{string}} The chosen title: book title, row title, or DEFAULT_TITLE.
+ **/
 function resolveBookTitle(
     row: PlannerScheduleRow,
     book: Book | undefined,
@@ -129,6 +146,15 @@ function resolveAuthor(book: Book | undefined): string {
     }
     return UNKNOWN_AUTHOR;
 }
+/**
+ * Convert a planner schedule row and completion map into a TodayCarouselSessionItem.
+ * @example
+ * toSessionItem({ id: '1', minutes: 25, finish: 0 }, { 'session-1': true })
+ * { completed: true, minutes: 25, row: { id: '1', minutes: 25, finish: false }, rowKey: 'session-1' }
+ * @param {PlannerScheduleRow} row - Planner schedule row to convert.
+ * @param {Record<string,boolean>} scheduleCompletions - Map of session keys to completion status.
+ * @returns {TodayCarouselSessionItem} Today carousel session item derived from the row and completions.
+ */
 function toSessionItem(
     row: PlannerScheduleRow,
     scheduleCompletions: Record<string, boolean>,
@@ -165,6 +191,14 @@ function sessionByKey(
     }
     return null;
 }
+/**
+ * Selects the target TodayCarouselSessionItem to display: the pinned session if present, otherwise the first incomplete session, otherwise the first session in the list.
+ * @example
+ * resolvedTargetRow({ pinnedRowKey: 'pin123', sessions: [{ id: 's1', status: 'complete' }, { id: 's2', status: 'incomplete' }] })
+ * // returns { id: 's1', status: 'complete' } if 'pin123' matches s1, otherwise returns the first incomplete session object
+ * @param {{ { pinnedRowKey: string; sessions: TodayCarouselSessionItem[] } }} {{options}} - Option bag containing the pinnedRowKey and the list of sessions.
+ * @returns {{TodayCarouselSessionItem}} The chosen TodayCarouselSessionItem: pinned, first incomplete, or the first session as a fallback.
+ **/
 function resolvedTargetRow(options: {
     pinnedRowKey: string;
     sessions: TodayCarouselSessionItem[];
@@ -179,6 +213,11 @@ function resolvedTargetRow(options: {
     }
     return options.sessions[0];
 }
+/**
+ * Build a list of TodayCarouselBookItem objects grouped by book from today's schedule rows.
+ * @example
+ * buildBooks({
+ *   books: [{ id: "book1", /* ... */
 function buildBooks(options: {
     books: Book[];
     pinnedRowKeyByBookId: Record<string, string>;
@@ -223,6 +262,15 @@ function buildBooks(options: {
     });
     return OUTPUT;
 }
+/**
+ * Normalize the selected book id to a valid id present in the carousel or fall back to an appropriate default.
+ * @example
+ * normalizedSelection("book-1", [{ bookId: "book-1" }])
+ * "book-1"
+ * @param {{string}} {{selectedBookIdRaw}} - Raw selected book id that may be empty or contain only whitespace.
+ * @param {{TodayCarouselBookItem[]}} {{books}} - Array of available carousel book items.
+ * @returns {{string}} Return the normalized bookId: the provided valid id, the first book's id, or an EMPTY_TEXT constant when the list is empty.
+ **/
 function normalizedSelection(
     selectedBookIdRaw: string,
     books: TodayCarouselBookItem[],
@@ -236,6 +284,15 @@ function normalizedSelection(
     }
     return books[0].bookId;
 }
+/**
+ * Resolve the number of pages read for a book using explicit pages_read or computed from progress percent and total pages.
+ * @example
+ * resolvedPagesRead({ pages_read: 42, progress_percent: 21 }, 200)
+ * 42
+ * @param {{Book|undefined}} {{book}} - Book object or undefined; may include pages_read and progress_percent fields.
+ * @param {{number|null}} {{pagesTotal}} - Total number of pages in the book, or null if unknown.
+ * @returns {{number|null}} Resolved pages read rounded to the nearest integer, or null if it cannot be determined.
+ **/
 function resolvedPagesRead(
     book: Book | undefined,
     pagesTotal: number | null,
@@ -251,6 +308,14 @@ function resolvedPagesRead(
         (clampProgress(Number(book?.progress_percent ?? 0)) / 100) * pagesTotal,
     );
 }
+/**
+ * Get the active carousel item for the currently selected book, including estimated end pages/percent, pages read/total, and current progress.
+ * @example
+ * activeItem({ bookById: new Map(), books: [], lastResult: null, scheduleCompletions: {}, selectedBookId: 'book-id' })
+ * { afterPagesRead: 120, afterPercent: 80, book: { bookId: 'book-id', targetRow: {...} }, pagesRead: 20, pagesTotal: 150, progressPercent: 80, row: {...} } || null
+ * @param {{ {bookById: Map<string, Book>, books: TodayCarouselBookItem[], lastResult: PlannerResult|null, scheduleCompletions: Record<string, boolean>, selectedBookId: string} }} {{options}} - Options containing book lookup map, carousel items, last planner result, schedule completion flags, and the selected book id.
+ * @returns {{TodayCarouselActiveItem | null}} The resolved active carousel item for the selected book, or null if no matching book is found.
+ **/
 function activeItem(options: {
     bookById: Map<string, Book>;
     books: TodayCarouselBookItem[];
@@ -304,6 +369,10 @@ function activeItem(options: {
         row: ACTIVE_ROW,
     };
 }
+/**
+ * Build the Today carousel model from provided books, planner results, pinned rows, and selection.
+ * @example
+ * buildTodayCarouselModel({books: [{/* Book */
 export function buildTodayCarouselModel(options: {
     books: Book[];
     lastResult: PlannerResult | null;

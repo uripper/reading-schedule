@@ -1,6 +1,7 @@
 """Validation helpers for persisted mobile planner state."""
 
-from typing import cast
+from typing import TypeGuard
+
 
 VALID_THEMES = {"system", "light", "dark"}
 REQUIRED_FEATURE_FLAGS = (
@@ -10,37 +11,52 @@ REQUIRED_FEATURE_FLAGS = (
 )
 
 
+def _is_str_object_dict(value: object) -> TypeGuard[dict[str, object]]:
+    return isinstance(value, dict) and all(
+        isinstance(key, str) for key in value
+    )
+
+
 def _is_bool_record(value: object) -> bool:
-    if not isinstance(value, dict):
+    if not _is_str_object_dict(value):
         return False
-    value_map = cast("dict[str, object]", value)
-    return all(isinstance(item, bool) for item in value_map.values())
+    return all(isinstance(item, bool) for item in value.values())
 
 
 def _is_feature_flags(value: object) -> bool:
-    if not isinstance(value, dict):
+    """Return whether `value` matches the persisted feature-flags shape.
+
+    Valid inputs are dictionaries containing every key listed in
+    `REQUIRED_FEATURE_FLAGS`, each mapped to a boolean value.
+    """
+    if not _is_str_object_dict(value):
         return False
-    value_map = cast("dict[str, object]", value)
     return all(
-        isinstance(value_map.get(key, False), bool)
+        isinstance(value.get(key, False), bool)
         for key in REQUIRED_FEATURE_FLAGS
     )
 
 
 def _is_preferences(value: object) -> bool:
-    if not isinstance(value, dict):
+    """Return whether `value` matches the persisted preferences shape.
+
+    Accepted keys include `dailyGoalMinutes` (int), `reduceMotion` (bool),
+    `reminderEnabled` (bool), `reminderTime` (str), `timezone` (str), and
+    `theme` (one of `VALID_THEMES`). Missing keys fall back to the defaults
+    expected by the mobile client.
+    """
+    if not _is_str_object_dict(value):
         return False
-    value_map = cast("dict[str, object]", value)
     checks = (
-        isinstance(value_map.get("dailyGoalMinutes", 30), int),
-        isinstance(value_map.get("reduceMotion", False), bool),
-        isinstance(value_map.get("reminderEnabled", False), bool),
-        isinstance(value_map.get("reminderTime", "08:00"), str),
-        isinstance(value_map.get("timezone", "UTC"), str),
+        isinstance(value.get("dailyGoalMinutes", 30), int),
+        isinstance(value.get("reduceMotion", False), bool),
+        isinstance(value.get("reminderEnabled", False), bool),
+        isinstance(value.get("reminderTime", "08:00"), str),
+        isinstance(value.get("timezone", "UTC"), str),
     )
     if not all(checks):
         return False
-    theme = value_map.get("theme", "dark")
+    theme = value.get("theme", "dark")
     return isinstance(theme, str) and theme in VALID_THEMES
 
 
@@ -57,11 +73,10 @@ def _require_state_field(*, is_valid: bool, message: str) -> None:
 
 def validate_state_snapshot(state: object) -> dict[str, object]:
     """Validate mobile state payload shape against shared planner contracts."""
-    _require_state_field(
-        is_valid=isinstance(state, dict),
-        message="Saved state payload must be an object.",
-    )
-    state_map = cast("dict[str, object]", state)
+    if not _is_str_object_dict(state):
+        message = "Saved state payload must be an object"
+        raise TypeError(message)
+    state_map: dict[str, object] = state
     field_checks = (
         (
             isinstance(state_map.get("books"), list),

@@ -8,6 +8,7 @@ from reading_plan.planning.budget import (
 )
 from reading_plan.schedule.schedule import compute_plan_totals
 
+
 if TYPE_CHECKING:
     from reading_plan.planner_types import Book, PlanResult, Settings
     from reading_plan.reporting.report_types import BookProgress, Summary

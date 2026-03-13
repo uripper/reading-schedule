@@ -22,6 +22,14 @@ function liveDraft(): TodayProgressDraft {
     };
 }
 
+/**
+ * Update the Today carousel's progress input fields (pages and percent) from the provided active item.
+ * @example
+ * applyProgressInputViewModel(activeItem)
+ * undefined
+ * @param {{TodayCarouselActiveItem}} {{active}} - The active carousel item containing pagesRead, progressPercent, pagesTotal and draft state used to build the view model.
+ * @returns {{void}} No return value; updates DOM input elements directly.
+ **/
 function applyProgressInputViewModel(active: TodayCarouselActiveItem): void {
     const VIEW_MODEL = buildTodayProgressInputViewModel({
         currentPagesRead: active.pagesRead,
