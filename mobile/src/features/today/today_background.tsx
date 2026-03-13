@@ -5,19 +5,19 @@ import type {
     BackgroundSimulationState,
     Body,
     Bounds,
-} from "./today_background_simulation";
+} from "./today_background_simulation.ts";
 import {
     createBackgroundSimulationState,
     getBackgroundBodies,
     resetBackgroundSimulation,
     tickBackgroundSimulation,
-} from "./today_background_simulation";
-import { BACKGROUND_SPRITES } from "./today_background_sprites";
+} from "./today_background_simulation.ts";
+import { BACKGROUND_SPRITES } from "./today_background_sprites.ts";
 import {
     BLUR_LEVEL,
     HORIZONTAL_PADDING,
     SPRITE_SCALE,
-} from "./today_constants";
+} from "./today_constants.ts";
 
 interface TodayBackgroundProps {
     ambientColor: string;
@@ -50,13 +50,13 @@ function spriteSource(index: number): ImageSourcePropType | null {
 }
 
 /**
-* Render a background sprite Image for a given body or return null if no sprite source.
-* @example
-* BackgroundSprite({ body: sampleBody })
-* <Image ... /> or null
-* @param {Body} body - Body object containing sprite index, position (x, y), opacity, and spin.
-* @returns {JSX.Element|null} Rendered Image component for the sprite or null when no source is available.
-**/
+ * Render a background sprite Image for a given body or return null if no sprite source.
+ * @example
+ * BackgroundSprite({ body: sampleBody })
+ * <Image ... /> or null
+ * @param {Body} body - Body object containing sprite index, position (x, y), opacity, and spin.
+ * @returns {JSX.Element|null} Rendered Image component for the sprite or null when no source is available.
+ **/
 function BackgroundSprite({ body }: { body: Body }) {
     const source = spriteSource(body.index);
     if (!source) {
@@ -87,10 +87,10 @@ function BackgroundSprite({ body }: { body: Body }) {
 }
 
 /**
-* Return the current list of background simulation bodies for the provided bounds and keep the simulation updated.
-* @example
-* useTodayBackgroundBodies({ bottom: 0, left: 0, right: 375 })
-* [ { /* Body */
+ * Return the current list of background simulation bodies for the provided bounds and keep the simulation updated.
+ * @example
+ * useTodayBackgroundBodies({ bottom: 0, left: 0, right: 375 })
+ * [ { /* Body */
 function useTodayBackgroundBodies(bounds: Bounds): readonly Body[] {
     const [, forceTick] = useState(0);
     const simRef = useRef<BackgroundSimulationState | null>(null);

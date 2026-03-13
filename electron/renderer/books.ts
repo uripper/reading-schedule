@@ -7,4 +7,4 @@ export {
     setBookCommitHook,
     setBookScheduleRows,
     updateBookProgress,
-} from "./books/controller.js";
+} from "./books/controller.ts";

@@ -1,9 +1,9 @@
 import type { SearchDoc, SearchItem } from "@reading-schedule/contracts";
-import { logInfo } from "../../types/logger.js";
-import { toItem } from "./search_map.js";
-import { dedupeDocs, scoreDoc } from "./search_scoring.js";
-import { MIN_QUERY_LENGTH, SEARCH_OUTPUT_LIMIT } from "./search_shared.js";
-import { fetchJson, searchUrls } from "./search_transport.js";
+import { logInfo } from "../../types/logger.ts";
+import { toItem } from "./search_map.ts";
+import { dedupeDocs, scoreDoc } from "./search_scoring.ts";
+import { MIN_QUERY_LENGTH, SEARCH_OUTPUT_LIMIT } from "./search_shared.ts";
+import { fetchJson, searchUrls } from "./search_transport.ts";
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 

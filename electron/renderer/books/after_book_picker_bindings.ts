@@ -1,10 +1,10 @@
-import type { BindingArgs } from "../../types/types.js";
+import type { BindingArgs } from "../../types/types.ts";
 import {
     lookupResultTarget,
     shouldKeepPickerOpen,
     wrapIndex,
-} from "./after_book_picker_helpers.js";
-import { NO_ACTIVE_INDEX } from "./after_book_picker_render.js";
+} from "./after_book_picker_helpers.ts";
+import { NO_ACTIVE_INDEX } from "./after_book_picker_render.ts";
 
 function bindPickerInputEvents(args: BindingArgs): void {
     args.refs.afterBookInput.addEventListener("focus", () => {
@@ -70,8 +70,8 @@ function bindPickerKeyboardEvents(args: BindingArgs): void {
  * @example
  * bindPickerResultsEvents({ refs: { afterBookResults: document.querySelector('.results') }, state: { activeIndex: 0, filtered: [] }, render: () => {}, selectBook: () => {} })
  * undefined
- * @param {{BindingArgs}} {{args}} - BindingArgs object containing refs (with afterBookResults HTMLElement), state, render function, and selectBook callback.
- * @returns {{void}} Return nothing.
+ * @param args - BindingArgs object containing refs (with afterBookResults HTMLElement), state, render function, and selectBook callback.
+ * @returns Return nothing.
  **/
 function bindPickerResultsEvents(args: BindingArgs): void {
     args.refs.afterBookResults.addEventListener(
@@ -103,8 +103,8 @@ function bindPickerResultsEvents(args: BindingArgs): void {
  * @example
  * bindPickerOutsideClick({ refs: { afterBookInput: inputEl, afterBookResults: resultsEl }, clearResults: () => {}, render: () => {} })
  * undefined
- * @param {{BindingArgs}} {{args}} - Binding arguments containing refs to input/results and callbacks to clear and render picker.
- * @returns {{void}} No return value.
+ * @param args - Binding arguments containing refs to input/results and callbacks to clear and render picker.
+ * @returns No return value.
  **/
 function bindPickerOutsideClick(args: BindingArgs): void {
     document.addEventListener("click", (event: MouseEvent) => {

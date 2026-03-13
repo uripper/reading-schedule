@@ -7,12 +7,12 @@ import type {
     LoadedPlannerState,
     PlannerSaveResult,
     PlannerStateLoadResult,
-} from "../types/types.js";
+} from "../types/types.ts";
 import {
     jsonStateBackupPath,
     jsonStatePath,
     jsonStateTempPath,
-} from "./state_store_paths";
+} from "./state_store_paths.ts";
 
 const UTF8_BOM = "\uFEFF";
 

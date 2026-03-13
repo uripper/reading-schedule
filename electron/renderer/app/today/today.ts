@@ -2,26 +2,26 @@ import type {
     DayMinutesMap,
     TodayScheduleSnapshot,
     UpdateTodayDashboardArgs,
-} from "../../../types/types.js";
+} from "../../../types/types.ts";
 import {
     dayMinutesForKey,
     dayMinutesFromActivity,
     streakFromDayMinutes,
-} from "../../activity/day_minutes.js";
-import { todayKey } from "../../sessions/utils.js";
-import { renderTodayCarousel } from "./today_carousel_render.js";
-import { goalProgressPercent } from "./today_goal.js";
+} from "../../activity/day_minutes.ts";
+import { todayKey } from "../../sessions/utils.ts";
+import { renderTodayCarousel } from "./today_carousel_render.ts";
+import { goalProgressPercent } from "./today_goal.ts";
 import {
     formatHeaderSessionsText,
     formatStreakText,
     isHeaderGoalComplete,
     isHeaderSessionsComplete,
-} from "./today_header.js";
+} from "./today_header.ts";
 import {
     applyIndicatorState,
     renderSessionDots,
-} from "./today_header_render.js";
-import { buildTodayScheduleSnapshot } from "./today_schedule.js";
+} from "./today_header_render.ts";
+import { buildTodayScheduleSnapshot } from "./today_schedule.ts";
 
 const MIN_GOAL_MINUTES = 1;
 
@@ -48,9 +48,9 @@ function getOptionalElement(id: string): HTMLElement | null {
  * @example
  * renderHeaderGoalMetric(activityByDay, 60)
  * { goalComplete: false, goalProgressPercent: 75, todayMinutes: 45 }
- * @param {{DayMinutesMap}} {activityByDay} - Map of day keys to minutes of activity for each day.
- * @param {{number}} {goalMinutes} - Goal time in minutes used to evaluate today's progress.
- * @returns {{goalComplete: boolean, goalProgressPercent: number, todayMinutes: number}} Return object with whether the goal is complete, the progress percent toward the goal, and today's minutes.
+ * @param activityByDay - Map of day keys to minutes of activity for each day.
+ * @param goalMinutes - Goal time in minutes used to evaluate today's progress.
+ * @returns Return object with whether the goal is complete, the progress percent toward the goal, and today's minutes.
  **/
 function renderHeaderGoalMetric(
     activityByDay: DayMinutesMap,
@@ -73,8 +73,8 @@ function renderHeaderGoalMetric(
  * @example
  * renderHeaderSessionsMetric({ snapshot: todaysSnapshot, sessionsStatus: statusEl, sessionDots: dotsEl, completeIndicator: indicatorEl })
  * undefined
- * @param {{snapshot: TodayScheduleSnapshot, sessionsStatus: HTMLElement, sessionDots: HTMLElement, completeIndicator: HTMLElement|null}} {{options}} - Options object containing the schedule snapshot and DOM elements to update.
- * @returns {{void}} Void return value.
+ * @param options - Options object containing the schedule snapshot and DOM elements to update.
+ * @returns Void return value.
  **/
 function renderHeaderSessionsMetric(options: {
     snapshot: TodayScheduleSnapshot;
@@ -142,9 +142,9 @@ function renderHeaderStreakMetric(options: {
  * @example
  * applyHeaderGoalMetric(activityByDay, 30)
  * undefined
- * @param {{DayMinutesMap}} {{activityByDay}} - Map of days to minutes of activity used to compute today's metric.
- * @param {{number}} {{goalMinutes}} - Daily goal in minutes used to compute progress and completion state.
- * @returns {{void}} No return value.
+ * @param activityByDay - Map of days to minutes of activity used to compute today's metric.
+ * @param goalMinutes - Daily goal in minutes used to compute progress and completion state.
+ * @returns No return value.
  **/
 function applyHeaderGoalMetric(
     activityByDay: DayMinutesMap,
@@ -177,8 +177,8 @@ function applyHeaderGoalMetric(
  * @example
  * applyHeaderSessionsMetric({ date: '2026-03-13', sessions: [] })
  * undefined
- * @param {{TodayScheduleSnapshot}} snapshot - Today's schedule snapshot used to render header session indicators.
- * @returns {{void}} No return value.
+ * @param snapshot - Today's schedule snapshot used to render header session indicators.
+ * @returns No return value.
  **/
 function applyHeaderSessionsMetric(snapshot: TodayScheduleSnapshot): void {
     const SESSIONS_STATUS = getOptionalElement("headerSessionsStatus");
@@ -199,10 +199,10 @@ function applyHeaderSessionsMetric(snapshot: TodayScheduleSnapshot): void {
  * @example
  * applyHeaderStreakMetric(activityByDay, 30, true)
  * undefined
- * @param {{DayMinutesMap}} {{activityByDay}} - Map of days to active minutes used to compute streaks.
- * @param {{number}} {{goalMinutes}} - Daily goal in minutes used to evaluate streak progress.
- * @param {{boolean}} {{gamificationEnabled}} - Whether gamification features (like streaks) are enabled.
- * @returns {{void}} Returns nothing; renders UI directly when relevant DOM elements exist.
+ * @param activityByDay - Map of days to active minutes used to compute streaks.
+ * @param goalMinutes - Daily goal in minutes used to evaluate streak progress.
+ * @param gamificationEnabled - Whether gamification features (like streaks) are enabled.
+ * @returns Returns nothing; renders UI directly when relevant DOM elements exist.
  **/
 function applyHeaderStreakMetric(
     activityByDay: DayMinutesMap,
@@ -228,8 +228,8 @@ function applyHeaderStreakMetric(
  * @example
  * updateTodayDashboard({ lastResult: {}, scheduleCompletions: [], books: [], sessions: [], preferences: { dailyGoalMinutes: '30' }, featureFlags: { gamificationEnabled: true }, defaultDailyGoalMinutes: 20 })
  * undefined
- * @param {{UpdateTodayDashboardArgs}} {{args}} - Configuration object containing lastResult, scheduleCompletions, books, sessions, preferences, featureFlags, and defaultDailyGoalMinutes.
- * @returns {{void}} Does not return a value; updates the UI and header metrics for Today.
+ * @param args - Configuration object containing lastResult, scheduleCompletions, books, sessions, preferences, featureFlags, and defaultDailyGoalMinutes.
+ * @returns Does not return a value; updates the UI and header metrics for Today.
  **/
 export function updateTodayDashboard({
     lastResult,

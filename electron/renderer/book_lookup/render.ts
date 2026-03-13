@@ -1,4 +1,4 @@
-import type { BookLookupItem } from "../../types/types.js";
+import type { BookLookupItem } from "../../types/types.ts";
 
 /**
  * Builds a stable option id for a lookup result row.

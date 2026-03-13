@@ -1,10 +1,10 @@
-import { logError } from "@renderer/logger.js";
-import { getPlannerApi } from "../app/planner_api.js";
-import { collectAllBooks } from "../books.js";
-import { el } from "../dom.js";
-import { addRecommendationToShelf } from "./add_to_shelf.js";
-import { renderRecommendationsPanel } from "./render.js";
-import { findRecommendations } from "./search.js";
+import { logError } from "@renderer/logger.ts";
+import { getPlannerApi } from "../app/planner_api.ts";
+import { collectAllBooks } from "../books.ts";
+import { el } from "../dom.ts";
+import { addRecommendationToShelf } from "./add_to_shelf.ts";
+import { renderRecommendationsPanel } from "./render.ts";
+import { findRecommendations } from "./search.ts";
 
 /**
  * Renders the recommendations panel from the latest in-memory book collection.

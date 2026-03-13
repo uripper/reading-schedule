@@ -1,4 +1,4 @@
-import type { BookFormRefs } from "../../types/types.js";
+import type { BookFormRefs } from "../../types/types.ts";
 
 const DIALOG_CONFIRM_VALUE = "confirm";
 
@@ -17,8 +17,8 @@ async function promptViaDialog(refs: BookFormRefs): Promise<string | null> {
          * @example
          * ON_CLOSE(resolve)
          * undefined
-         * @param {{(value: string|null) => void}} {{resolve}} - Function to resolve the surrounding promise with the user's input (trimmed) or null if the dialog was not confirmed.
-         * @returns {{void}} Does not return a value.
+         * @param resolve - Function to resolve the surrounding promise with the user's input (trimmed) or null if the dialog was not confirmed.
+         * @returns Does not return a value.
          **/
         const ON_CLOSE = (): void => {
             DIALOG_REFS.shelfPromptDialog.removeEventListener(

@@ -3,14 +3,14 @@ import type {
     FeatureFlagsInput,
     Preferences,
     PreferencesInput,
-} from "../../../types/types.js";
+} from "../../../types/types.ts";
 import {
     RECOMMENDATIONS_AVAILABLE,
     REMINDERS_AVAILABLE,
     SOCIAL_FEATURES_AVAILABLE,
     shippedFeatureFlag,
     shippedReminderTime,
-} from "./availability.js";
+} from "./availability.ts";
 
 export const DEFAULT_PREFERENCES: Preferences = {
     dailyGoalMinutes: 30,

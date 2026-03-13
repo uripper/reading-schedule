@@ -1,6 +1,6 @@
-import type { FieldDefinition } from "../../types/types.js";
-import { el } from "../dom.js";
-import { DIFFICULTY_LEVEL_COUNT, FIELDS } from "./config.js";
+import type { FieldDefinition } from "../../types/types.ts";
+import { el } from "../dom.ts";
+import { DIFFICULTY_LEVEL_COUNT, FIELDS } from "./config.ts";
 
 /**
  * Returns typed input element by id.

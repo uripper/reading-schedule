@@ -1,7 +1,7 @@
 import type { PlannerApi } from "@reading-schedule/contracts";
-import { ComingSoonScreen } from "../features/common/coming_soon_screen";
-import { TodayScreenContainer } from "../features/today/today_screen_container";
-import type { StackRoute, TabStacks } from "./types";
+import { ComingSoonScreen } from "../features/common/coming_soon_screen.tsx";
+import { TodayScreenContainer } from "../features/today/today_screen_container.tsx";
+import type { StackRoute, TabStacks } from "./types.ts";
 
 /**
  * Create a StackRoute representing the "Queue" screen (a coming-soon placeholder).
@@ -33,12 +33,12 @@ function createQueueRoute(): StackRoute {
 }
 
 /**
-* Create the root navigation route for the Books section.
-* @example
-* createBooksRootRoute()
-* { key: "books-root", title: "Books", render: (navigator) => <ComingSoonScreen ... /> }
-* @returns {{StackRoute}} The route object for the Books root screen.
-**/
+ * Create the root navigation route for the Books section.
+ * @example
+ * createBooksRootRoute()
+ * { key: "books-root", title: "Books", render: (navigator) => <ComingSoonScreen ... /> }
+ * @returns The route object for the Books root screen.
+ **/
 function createBooksRootRoute(): StackRoute {
     return {
         key: "books-root",
@@ -59,16 +59,16 @@ function createBooksRootRoute(): StackRoute {
 }
 
 /**
-* Create a StackRoute for the "Preferences" settings screen that renders a ComingSoonScreen placeholder.
-* @example
-* createPreferencesRoute()
-* {
-*   key: "settings-preferences",
-*   render: (navigator) => <ComingSoonScreen title="Preferences" ctaLabel="Back" ... />,
-*   title: "Preferences",
-* }
-* @returns {StackRoute} A route object configured for the Preferences screen.
-**/
+ * Create a StackRoute for the "Preferences" settings screen that renders a ComingSoonScreen placeholder.
+ * @example
+ * createPreferencesRoute()
+ * {
+ *   key: "settings-preferences",
+ *   render: (navigator) => <ComingSoonScreen title="Preferences" ctaLabel="Back" ... />,
+ *   title: "Preferences",
+ * }
+ * @returns {StackRoute} A route object configured for the Preferences screen.
+ **/
 function createPreferencesRoute(): StackRoute {
     return {
         key: "settings-preferences",
@@ -87,12 +87,12 @@ function createPreferencesRoute(): StackRoute {
 }
 
 /**
-* Create a navigation route for the Settings root screen.
-* @example
-* createSettingsRootRoute()
-* { key: "settings-root", title: "Settings", render: (navigator) => <ComingSoonScreen ... /> }
-* @returns {StackRoute} StackRoute object representing the Settings root route.
-**/
+ * Create a navigation route for the Settings root screen.
+ * @example
+ * createSettingsRootRoute()
+ * { key: "settings-root", title: "Settings", render: (navigator) => <ComingSoonScreen ... /> }
+ * @returns {StackRoute} StackRoute object representing the Settings root route.
+ **/
 function createSettingsRootRoute(): StackRoute {
     return {
         key: "settings-root",

@@ -10,7 +10,7 @@ import { bindBookDialogSubmit } from "../dist/renderer/books/dialog_submit.js";
 const NOOP = () => undefined;
 const MICROTASK_FLUSH_COUNT = 5;
 
-class FakeHTMLElement {
+class FakeHtmlElement {
     focusCalls = 0;
 
     focus() {
@@ -26,7 +26,7 @@ class FakeHTMLElement {
     }
 }
 
-class FakeFormElement extends FakeHTMLElement {
+class FakeFormElement extends FakeHtmlElement {
     handlers = new Map();
 
     addEventListener(type, handler) {
@@ -52,9 +52,9 @@ async function flushMicrotasks() {
     }
 }
 
-async function withFakeHTMLElement(work) {
+async function withFakeHtmlElement(work) {
     const ORIGINAL_HTML_ELEMENT = globalThis.HTMLElement;
-    globalThis.HTMLElement = FakeHTMLElement;
+    globalThis.HTMLElement = FakeHtmlElement;
 
     try {
         await work();
@@ -68,7 +68,7 @@ async function withFakeHTMLElement(work) {
 }
 
 function fakeInput(value = "") {
-    const INPUT = new FakeHTMLElement();
+    const INPUT = new FakeHtmlElement();
     INPUT.value = value;
     return INPUT;
 }
@@ -148,7 +148,7 @@ test("bindBookDialogSubmit recovers after sync validation errors", () => {
             lookupMeta: LOOKUP_META,
             pagesTotalInput: PAGES_TOTAL_INPUT,
             saveBtn: SAVE_BUTTON,
-            scheduledDaysField: new FakeHTMLElement(),
+            scheduledDaysField: new FakeHtmlElement(),
             titleInput: TITLE_INPUT,
             wordsInput: WORDS_INPUT,
         }),
@@ -160,7 +160,7 @@ test("bindBookDialogSubmit recovers after sync validation errors", () => {
         },
     );
 
-    return withFakeHTMLElement(() => {
+    return withFakeHtmlElement(() => {
         const PREVENT_DEFAULT_CALLS = FORM.submit();
 
         assert.equal(PREVENT_DEFAULT_CALLS, 1);
@@ -200,7 +200,7 @@ test("bindBookDialogSubmit restores save state after async submit failure", asyn
         NOOP,
     );
 
-    await withFakeHTMLElement(async () => {
+    await withFakeHtmlElement(async () => {
         FORM.submit();
         await flushMicrotasks();
     });
@@ -236,7 +236,7 @@ test("bindBookDialogSubmit restores save state after sync submit failure", async
         NOOP,
     );
 
-    await withFakeHTMLElement(async () => {
+    await withFakeHtmlElement(async () => {
         FORM.submit();
         await flushMicrotasks();
     });

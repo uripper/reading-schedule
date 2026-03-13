@@ -2,16 +2,16 @@ import type {
     Book,
     PlannerResult,
     StatusBreakdown,
-} from "../../types/types.js";
-import { finishDatesByBookId } from "../books/finish_dates.js";
+} from "../../types/types.ts";
+import { finishDatesByBookId } from "../books/finish_dates.ts";
 import {
     BOOK_STATUS_DROPPED,
     BOOK_STATUS_IN_PROGRESS,
     BOOK_STATUS_READ,
     BOOK_STATUS_TO_READ,
-} from "../books/status_catalog.js";
-import { sessionKeyFor } from "../calendar/utils.js";
-import { todayKey } from "../sessions/utils.js";
+} from "../books/status_catalog.ts";
+import { sessionKeyFor } from "../calendar/utils.ts";
+import { todayKey } from "../sessions/utils.ts";
 
 const MONTHS_PER_YEAR = 12;
 const PERCENT_MAX = 100;

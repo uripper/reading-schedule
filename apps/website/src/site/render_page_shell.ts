@@ -2,13 +2,13 @@
  * Shared page frame markup for the Bartleby website.
  */
 
-import type { ActionLink, NavItem } from "../types/site_content.js";
+import type { ActionLink, NavItem } from "../types/site_content.ts";
 import {
     escapeHtml,
     joinMarkup,
     renderActionLink,
     renderButtonLink,
-} from "./render_helpers.js";
+} from "./render_helpers.ts";
 
 /**
  * Content passed into the shared website frame.
@@ -40,8 +40,8 @@ function renderPrimaryNav(navItems: readonly NavItem[]): string {
  * @example
  * renderHeader({ primaryAction: { label: 'Sign up', href: '/signup' }, brandHref: '/', navItems: [] })
  * '<header class="section-shell site-header panel"><a class="brand" href="/">Brand</a><nav>...</nav><a class="button" href="/signup">Sign up</a></header>'
- * @param {{PageShellContent}} {{content}} - Page shell content including brandHref, navItems, and optional primaryAction.
- * @returns {{string}} HTML string for the header element.
+ * @param content - Page shell content including brandHref, navItems, and optional primaryAction.
+ * @returns HTML string for the header element.
  **/
 function renderHeader(content: PageShellContent): string {
     let actionMarkup = "";

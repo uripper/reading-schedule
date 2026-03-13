@@ -2,28 +2,28 @@ import type {
     AnnouncePoliteness,
     AppBootstrapContext,
     PlannerApi,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 import {
     applyPreferencesToDocument,
     createAnnouncer,
-} from "../accessibility/index.js";
-import { collectAllBooks } from "../books.js";
-import { focusCalendarToday } from "../calendar.js";
-import { el } from "../dom.js";
-import { addLog } from "../help.js";
-import { collectSettings } from "../settings.js";
-import { updateStatsView } from "../stats.js";
-import { createDashboardRuntime } from "./dashboard_runtime.js";
+} from "../accessibility/index.ts";
+import { collectAllBooks } from "../books.ts";
+import { focusCalendarToday } from "../calendar.ts";
+import { el } from "../dom.ts";
+import { addLog } from "../help.ts";
+import { collectSettings } from "../settings.ts";
+import { updateStatsView } from "../stats.ts";
+import { createDashboardRuntime } from "./dashboard_runtime.ts";
 import {
     collectFeatureFlagsFromUI,
     collectPreferencesFromUI,
     normalizeFeatureFlags,
     normalizePreferences,
-} from "./experience/index.js";
-import { createInitRuntime } from "./init/index.js";
-import { createPersistQueue, createStatusSetter } from "./runtime_helpers.js";
-import { createRuntimeState } from "./runtime_state.js";
-import { updateTodayDashboard } from "./today/index.js";
+} from "./experience/index.ts";
+import { createInitRuntime } from "./init/index.ts";
+import { createPersistQueue, createStatusSetter } from "./runtime_helpers.ts";
+import { createRuntimeState } from "./runtime_state.ts";
+import { updateTodayDashboard } from "./today/index.ts";
 
 /**
  * Retrieves the Planner API from the global context. This function assumes that the `plannerApi`

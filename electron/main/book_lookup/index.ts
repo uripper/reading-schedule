@@ -3,10 +3,14 @@
  */
 import * as fs from "node:fs";
 import { pathToFileURL } from "node:url";
-import { parseCoverDataUrl } from "./cover_data_url";
-import { extensionFor, filePathForCover, isHttpProtocol } from "./cover_paths";
+import { parseCoverDataUrl } from "./cover_data_url.ts";
+import {
+    extensionFor,
+    filePathForCover,
+    isHttpProtocol,
+} from "./cover_paths.ts";
 
-export { searchBooks } from "./search";
+export { searchBooks } from "./search.ts";
 
 /**
  * Downloads a remote cover image and stores it in the user data directory.

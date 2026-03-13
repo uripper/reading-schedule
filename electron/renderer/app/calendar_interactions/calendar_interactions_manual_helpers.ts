@@ -1,7 +1,7 @@
 import type {
     PlannerScheduleRow,
     PlannerSettings,
-} from "../../../types/types.js";
+} from "../../../types/types.ts";
 
 const DEFAULT_MANUAL_WPM_BASE = 220;
 const DEFAULT_DIFFICULTY_MULTIPLIER = 1;

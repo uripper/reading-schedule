@@ -1,8 +1,8 @@
 import { spawn } from "node:child_process";
-import { logDebug } from "../../types/logger.js";
-import type { JsonValue, PlanGeneratePayload } from "../../types/types.js";
-import { BRIDGE_HEARTBEAT_MS } from "./constants.js";
-import { bridgeTimeoutMs, root } from "./context.js";
+import { logDebug } from "../../types/logger.ts";
+import type { JsonValue, PlanGeneratePayload } from "../../types/types.ts";
+import { BRIDGE_HEARTBEAT_MS } from "./constants.ts";
+import { bridgeTimeoutMs, root } from "./context.ts";
 import {
     appendedLogTail,
     attachStreamHandlers,
@@ -13,12 +13,12 @@ import {
     logProcessClose,
     logProcessError,
     logTimeout,
-} from "./diagnostics.js";
+} from "./diagnostics.ts";
 import type {
     BridgeExecutionContext,
     BridgeRunSession,
     SettleHandlers,
-} from "./types.js";
+} from "./types.ts";
 
 interface RunBridgeForModuleArgs {
     args: string[];

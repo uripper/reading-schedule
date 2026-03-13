@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { pythonBridgeLogPath } from "../state_store_paths";
+import { pythonBridgeLogPath } from "../state_store_paths.ts";
 import {
     BRIDGE_LOG_PATH_KEY,
     BRIDGE_REQUEST_ID_KEY,
@@ -10,8 +10,8 @@ import {
     MIN_BRIDGE_TIMEOUT_MS,
     PYTHONPATH_KEY,
     PYTHONPATH_SEGMENT,
-} from "./constants.js";
-import type { BridgeExecutionContext, BridgeRunContext } from "./types.js";
+} from "./constants.ts";
+import type { BridgeExecutionContext, BridgeRunContext } from "./types.ts";
 
 const ROOT_MARKER_FILE = "pyproject.toml";
 const ROOT_MARKER_PATH_SEGMENTS = ["src", "reading_plan"];
@@ -28,8 +28,8 @@ function hasRootMarkers(directory: string): boolean {
  * @example
  * resolveRootFrom('/home/user/project/src')
  * '/home/user/project'
- * @param {{string}} {{startDirectory}} - Starting directory path to begin searching for root markers.
- * @returns {{(string|null)}} Return the path of the found root directory, or null if no root markers are found within the ascent limit or the filesystem root is reached.
+ * @param startDirectory - Starting directory path to begin searching for root markers.
+ * @returns Return the path of the found root directory, or null if no root markers are found within the ascent limit or the filesystem root is reached.
  **/
 function resolveRootFrom(startDirectory: string): string | null {
     let currentDirectory = startDirectory;

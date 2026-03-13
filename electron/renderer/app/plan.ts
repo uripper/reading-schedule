@@ -1,20 +1,20 @@
 /**
  * Normalizes settings and submits desktop planner generation requests.
  */
-import { logDebug } from "@renderer/logger.js";
+import { logDebug } from "@renderer/logger.ts";
 import type {
     Book,
     PlanGeneratePayload,
     PlannerSettings,
     PlannerSummary,
     RunPlanGenerationArgs,
-} from "../../types/types.js";
-import { todayDayKey } from "./date_keys.js";
+} from "../../types/types.ts";
+import { todayDayKey } from "./date_keys.ts";
 import {
     normalizePlannerEndDate,
     normalizePlannerStartDate,
     plannerTokenFromProfile,
-} from "./plan_normalize.js";
+} from "./plan_normalize.ts";
 
 /**
  * Generates a summary log message based on the planner summary data.

@@ -1,16 +1,16 @@
 import type {
     CalendarRowWithFinish,
     DetailInteractionHandlers,
-} from "../../types/types.js";
-import { minutesFormForSession } from "./details_minutes_form.js";
+} from "../../types/types.ts";
+import { minutesFormForSession } from "./details_minutes_form.ts";
 import {
     baseSessionItem,
     COMPLETE_ITEM_CLASS,
     COMPLETE_TOGGLE_LABEL,
     DAY_DETAILS_META_CLASS,
     removeSessionButton,
-} from "./details_session_shared.js";
-import { sessionKeyFor } from "./utils.js";
+} from "./details_session_shared.ts";
+import { sessionKeyFor } from "./utils.ts";
 
 const COMPLETED_TEXT = "Completed";
 const NOT_COMPLETED_TEXT = "Not completed";

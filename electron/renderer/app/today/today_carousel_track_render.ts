@@ -1,8 +1,8 @@
 /**
  * Renders the Today carousel track DOM and selected-book presentation.
  */
-import { el } from "../../dom.js";
-import type { TodayCarouselModel } from "./today_carousel_model.js";
+import { el } from "../../dom.ts";
+import type { TodayCarouselModel } from "./today_carousel_model.ts";
 
 const MIN_VISIBLE_OFFSET = -2;
 const MAX_VISIBLE_OFFSET = 2;

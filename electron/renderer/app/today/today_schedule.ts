@@ -4,16 +4,16 @@ import type {
     PlannerScheduleRow,
     TodayBookSummary,
     TodayScheduleSnapshot,
-} from "../../../types/types.js";
-import { bookCoverSrc } from "../../books/model.js";
-import { titleSortKey } from "../../books/title_key.js";
+} from "../../../types/types.ts";
+import { bookCoverSrc } from "../../books/model.ts";
+import { titleSortKey } from "../../books/title_key.ts";
 import {
     sessionKeyFor,
     sortRowsByDateAndSession,
-} from "../../calendar/utils.js";
-import { todayKey } from "../../sessions/utils.js";
-import { isOnOrAfterDay } from "../day_keys_compare.js";
-import { bookByIdIndex } from "../state_indexes.js";
+} from "../../calendar/utils.ts";
+import { todayKey } from "../../sessions/utils.ts";
+import { isOnOrAfterDay } from "../day_keys_compare.ts";
+import { bookByIdIndex } from "../state_indexes.ts";
 
 const ZERO_COUNT = 0;
 const DEFAULT_TITLE = "Untitled";

@@ -1,11 +1,11 @@
-import { logError } from "@renderer/logger.js";
-import type { ZoomApi } from "../../types/types.js";
+import { logError } from "@renderer/logger.ts";
+import type { ZoomApi } from "../../types/types.ts";
 import {
     isCommandPressed,
     isZoomInShortcut,
     isZoomOutShortcut,
     isZoomResetShortcut,
-} from "./desktop_shortcuts_keys.js";
+} from "./desktop_shortcuts_keys.ts";
 
 const ZOOM_PERCENT_FACTOR = 100;
 

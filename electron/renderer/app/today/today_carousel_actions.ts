@@ -1,8 +1,8 @@
-import type { PlannerScheduleRow } from "../../../types/types.js";
+import type { PlannerScheduleRow } from "../../../types/types.ts";
 import {
     normalizedPagesValue,
     normalizedPercentValue,
-} from "./today_carousel_progress.js";
+} from "./today_carousel_progress.ts";
 
 const EMPTY_TEXT = "";
 const MIN_MINUTES = 1;
@@ -73,8 +73,8 @@ export function shouldDisableProgressInputs(activeCompleted: boolean): boolean {
  *   row: somePlannerRow
  * })
  * { error: '', payload: { bookId: 'book-123', row: somePlannerRow, pagesRead: 50, progressPercent: 16.7 }, valid: true }
- * @param {{bookId: string; currentPagesRead: number | null; currentPercent: number; currentPagesTotal: number | null; draft: ProgressUpdateDraft; row: PlannerScheduleRow}} {options} - Options object containing identifiers, current values, totals and the raw draft inputs.
- * @returns {{ProgressPayloadResult}} Returns an object with an error message (empty if none), a payload containing bookId/row and any changed fields (pagesRead, progressPercent), and a valid boolean.
+ * @param options - Options object containing identifiers, current values, totals and the raw draft inputs.
+ * @returns Returns an object with an error message (empty if none), a payload containing bookId/row and any changed fields (pagesRead, progressPercent), and a valid boolean.
  **/
 export function buildProgressUpdatePayload(options: {
     bookId: string;
@@ -140,8 +140,8 @@ export function buildProgressUpdatePayload(options: {
  * @example
  * parseMinutesInput("15")
  * { error: "", minutes: 15 }
- * @param {{string}} {{minutesText}} - Input text representing the planned minutes.
- * @returns {{{error: string, minutes: number|null}}} Return object containing an error message (empty if valid) and the parsed minutes or null on error.
+ * @param minutesText - Input text representing the planned minutes.
+ * @returns Return object containing an error message (empty if valid) and the parsed minutes or null on error.
  **/
 export function parseMinutesInput(minutesText: string): {
     error: string;

@@ -1,10 +1,10 @@
-import type { SnapshotInputs, StatsSnapshot } from "../../types/types.js";
+import type { SnapshotInputs, StatsSnapshot } from "../../types/types.ts";
 import {
     activeDayCount,
     dayMinutesFromActivity,
     streakFromDayMinutes,
     totalMinutes,
-} from "../activity/day_minutes.js";
+} from "../activity/day_minutes.ts";
 import {
     averageProgress,
     completionStats,
@@ -12,7 +12,7 @@ import {
     plannedFinishBookIds,
     readBooksFinishedThisYear,
     statusBreakdown,
-} from "./helpers.js";
+} from "./helpers.ts";
 
 const MIN_GOAL_MINUTES = 1;
 

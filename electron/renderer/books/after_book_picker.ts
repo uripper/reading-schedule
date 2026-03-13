@@ -4,21 +4,21 @@ import type {
     BookFormRefs,
     GetBooks,
     PickerState,
-} from "../../types/types.js";
-import { bindAfterBookPickerEvents } from "./after_book_picker_bindings.js";
+} from "../../types/types.ts";
+import { bindAfterBookPickerEvents } from "./after_book_picker_bindings.ts";
 import {
     compareBooks,
     labelsMatch,
     matchesQuery,
     optionLabel,
-} from "./after_book_picker_helpers.js";
-import { initializePickerForBook } from "./after_book_picker_open.js";
+} from "./after_book_picker_helpers.ts";
+import { initializePickerForBook } from "./after_book_picker_open.ts";
 import {
     FIRST_RESULT_INDEX,
     NO_ACTIVE_INDEX,
     renderAfterBookResults,
     selectedBook,
-} from "./after_book_picker_render.js";
+} from "./after_book_picker_render.ts";
 
 function refreshPickerOptions(state: PickerState, getBooks: GetBooks): void {
     const AVAILABLE_BOOKS = getBooks().filter((book) => {
@@ -43,8 +43,8 @@ interface CreateRefreshFilteredArgs {
  * @example
  * createRefreshFiltered(args)(true)
  * undefined
- * @param {{CreateRefreshFilteredArgs}} {{args}} - Object containing refs, state, clearSelection and render used to filter options and update UI.
- * @returns {{(clearChangedSelection: boolean) => void}} Function that when called optionally clears a mismatched selection, filters options by the current query, updates activeIndex, and calls render.
+ * @param args - Object containing refs, state, clearSelection and render used to filter options and update UI.
+ * @returns Function that when called optionally clears a mismatched selection, filters options by the current query, updates activeIndex, and calls render.
  **/
 function createRefreshFiltered(
     args: CreateRefreshFilteredArgs,

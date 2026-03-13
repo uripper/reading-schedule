@@ -1,5 +1,5 @@
 import type { SearchDoc } from "@reading-schedule/contracts";
-import { bestAuthorOnlyScore } from "./search_author_scoring.js";
+import { bestAuthorOnlyScore } from "./search_author_scoring.ts";
 import {
     SCORE_CONTAINS_TITLE,
     SCORE_ENGLISH_LANGUAGE,
@@ -10,13 +10,13 @@ import {
     SCORE_TOKEN_AUTHOR,
     SCORE_TOKEN_CONTAINS,
     SCORE_TOKEN_PREFIX,
-} from "./search_shared.js";
+} from "./search_shared.ts";
 import {
     hasEnglishLanguage,
     normalizeSearchText,
     primaryAuthor,
     queryTokens,
-} from "./search_text.js";
+} from "./search_text.ts";
 
 /**
  * Scores title relevance against the normalized query text.
@@ -120,4 +120,4 @@ export function scoreDoc(
     );
 }
 
-export { dedupeDocs } from "./search_dedupe.js";
+export { dedupeDocs } from "./search_dedupe.ts";

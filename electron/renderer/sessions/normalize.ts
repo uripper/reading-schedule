@@ -1,6 +1,6 @@
-import type { Session, SessionInput } from "../../types/types.js";
-import { uid } from "../dom.js";
-import { toInt } from "./utils.js";
+import type { Session, SessionInput } from "../../types/types.ts";
+import { uid } from "../dom.ts";
+import { toInt } from "./utils.ts";
 
 const SOURCE_TIMER: Session["source"] = "timer";
 const SOURCE_MANUAL: Session["source"] = "manual";

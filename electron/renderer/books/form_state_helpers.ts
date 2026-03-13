@@ -1,14 +1,14 @@
 import type { BookFormRefs, BookStatus } from "@reading-schedule/contracts";
-import { dayKey } from "../calendar/utils.js";
-import { COVER_PLACEHOLDER } from "./constants.js";
-import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";
+import { dayKey } from "../calendar/utils.ts";
+import { COVER_PLACEHOLDER } from "./constants.ts";
+import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
 import {
     BOOK_STATUS_DROPPED,
     BOOK_STATUS_IN_PROGRESS,
     BOOK_STATUS_READ,
     BOOK_STATUS_TO_READ,
-} from "./status_catalog.js";
-import { clamp, toOptionalInt } from "./utils.js";
+} from "./status_catalog.ts";
+import { clamp, toOptionalInt } from "./utils.ts";
 
 export const DEFAULT_PROGRESS = "0";
 export const DEFAULT_PRIORITY = "3";

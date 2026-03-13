@@ -4,14 +4,14 @@ import type {
     CompletionRow,
     CompletionUpdate,
     ProgressUpdateInput,
-} from "../../../types/types.js";
-import { sessionKeyFor } from "../../calendar/utils.js";
+} from "../../../types/types.ts";
+import { sessionKeyFor } from "../../calendar/utils.ts";
 import {
     dayBookCompletionKey,
     dayBookCompletionKeyFromSession,
     manualSessionBooks,
-} from "./calendar_interactions_helpers.js";
-import { BUILD_SCHEDULE_MUTATION_HANDLERS } from "./calendar_interactions_schedule_handlers.js";
+} from "./calendar_interactions_helpers.ts";
+import { BUILD_SCHEDULE_MUTATION_HANDLERS } from "./calendar_interactions_schedule_handlers.ts";
 
 /**
  * Returns a day-book completion key for a given completion row or an empty string when the row or required fields are missing.
@@ -39,11 +39,11 @@ const COMPLETION_FALLBACK_KEY = (row: CompletionRow | undefined): string => {
  * @example
  * updateCompletionState(completionState, 'session123', 'fallback456', true)
  * undefined
- * @param {{Record<string, boolean>}} {{completionStateInput}} - The mutable map that tracks completion status by session keys.
- * @param {{string}} {{sessionKey}} - The primary session key to set to true or remove from the map.
- * @param {{string}} {{fallbackKey}} - An optional fallback session key; if non-empty it is treated the same as the primary key.
- * @param {{boolean}} {{completed}} - If true, set the keys to true; if false, remove the keys from the map.
- * @returns {{void}} No return value; the function mutates the provided completionStateInput in place.
+ * @param completionStateInput - The mutable map that tracks completion status by session keys.
+ * @param sessionKey - The primary session key to set to true or remove from the map.
+ * @param fallbackKey - An optional fallback session key; if non-empty it is treated the same as the primary key.
+ * @param completed - If true, set the keys to true; if false, remove the keys from the map.
+ * @returns No return value; the function mutates the provided completionStateInput in place.
  **/
 const SET_COMPLETION_STATE = (
     completionStateInput: Record<string, boolean>,
@@ -70,9 +70,9 @@ const SET_COMPLETION_STATE = (
  * @example
  * formatCompletionStatus({ title: "Write report", date: "2026-03-13" }, true)
  * Marked "Write report" complete on 2026-03-13.
- * @param {{CompletionRow | undefined}} {{row}} - The completion row object or undefined.
- * @param {{boolean}} {{completed}} - True if the row is marked complete, false if marked incomplete.
- * @returns {{string}} Return a formatted status message or an empty string if input is invalid.
+ * @param row - The completion row object or undefined.
+ * @param completed - True if the row is marked complete, false if marked incomplete.
+ * @returns Return a formatted status message or an empty string if input is invalid.
  **/
 const COMPLETION_STATUS_MESSAGE = (
     row: CompletionRow | undefined,
@@ -121,9 +121,9 @@ const IS_COMPLETED = (
  * @example
  * handleCompletionUpdate(args, payload)
  * undefined
- * @param {{AppCalendarInteractionArgs}} {{args}} - Calendar interaction helpers and state accessor used to update completions and trigger persistence.
- * @param {{CompletionUpdate}} {{payload}} - Payload describing which row/session was updated and the new completed boolean.
- * @returns {{void}} Does not return a value; updates state, queues persistence, sets status, and calls onSessionCompletionUpdated if present.
+ * @param args - Calendar interaction helpers and state accessor used to update completions and trigger persistence.
+ * @param payload - Payload describing which row/session was updated and the new completed boolean.
+ * @returns Does not return a value; updates state, queues persistence, sets status, and calls onSessionCompletionUpdated if present.
  **/
 const HANDLE_COMPLETION_CHANGED = (
     args: AppCalendarInteractionArgs,
@@ -159,9 +159,9 @@ const HANDLE_COMPLETION_CHANGED = (
  * @example
  * updateProgress(args, { bookId: "book-123", pagesRead: 50, progressPercent: 25 })
  * { id: "book-123", title: "Example Title", pagesRead: 50, progressPercent: 25 }
- * @param {{AppCalendarInteractionArgs}} {{args}} - Helpers, state accessors, and callbacks used to perform the calendar update.
- * @param {{ProgressUpdateInput}} {{payload}} - Progress data including bookId, pagesRead, optional progressPercent, and optional schedule row for completion.
- * @returns {{ReturnType<AppCalendarInteractionArgs["updateBookProgress"]>}} The updated book object returned by updateBookProgress, or null if the book was not found.
+ * @param args - Helpers, state accessors, and callbacks used to perform the calendar update.
+ * @param payload - Progress data including bookId, pagesRead, optional progressPercent, and optional schedule row for completion.
+ * @returns The updated book object returned by updateBookProgress, or null if the book was not found.
  **/
 const HANDLE_PROGRESS_UPDATED = (
     args: AppCalendarInteractionArgs,

@@ -1,5 +1,5 @@
-import type { ManualSessionBook } from "../../types/types.js";
-import { booksMatchingTitleQuery } from "./details_manual_add_helpers.js";
+import type { ManualSessionBook } from "../../types/types.ts";
+import { booksMatchingTitleQuery } from "./details_manual_add_helpers.ts";
 
 const EMPTY_BOOK_OPTION_TEXT = "No matching books";
 const EMPTY_BOOK_OPTION_VALUE = "";

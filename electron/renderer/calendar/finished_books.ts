@@ -2,7 +2,7 @@ import type {
     BookFinishLookup,
     CompletedBookRow,
     ManualSessionBook,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 
 /**
  * Resolves title text for completed-book row display.

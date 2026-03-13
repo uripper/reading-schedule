@@ -2,4 +2,4 @@ export {
     logDebug,
     logError,
     setLogLevel,
-} from "../types/logger.js";
+} from "../types/logger.ts";

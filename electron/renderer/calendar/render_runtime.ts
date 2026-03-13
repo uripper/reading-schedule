@@ -1,8 +1,8 @@
-import type { CalendarRuntimeState } from "../../types/types.js";
-import { renderCalendarControls } from "./controls.js";
-import { enrichRows, groupRowsByDate, monthKeysFromRows } from "./data.js";
-import { renderCalendarMonth } from "./month.js";
-import { buildMonthWindow } from "./month_window.js";
+import type { CalendarRuntimeState } from "../../types/types.ts";
+import { renderCalendarControls } from "./controls.ts";
+import { enrichRows, groupRowsByDate, monthKeysFromRows } from "./data.ts";
+import { renderCalendarMonth } from "./month.ts";
+import { buildMonthWindow } from "./month_window.ts";
 
 /**
  * Recomputes derived calendar collections from current raw rows and handlers.

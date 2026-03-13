@@ -6,8 +6,8 @@ import type {
     FeatureItem,
     HeroContent,
     WorkflowStep,
-} from "../types/site_content.js";
-import { DOWNLOAD_SECTION_URL } from "./site_urls.js";
+} from "../types/site_content.ts";
+import { DOWNLOAD_SECTION_URL } from "./site_urls.ts";
 
 export const FEATURE_ITEMS: readonly FeatureItem[] = [
     {

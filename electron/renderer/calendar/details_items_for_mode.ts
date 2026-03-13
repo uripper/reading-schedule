@@ -6,12 +6,12 @@ import type {
     CalendarRowWithFinish,
     DayMode,
     DetailInteractionHandlers,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 import {
     buildFutureSessionItem,
     buildPastSessionItem,
     buildTodaySessionItem,
-} from "./details_session_items.js";
+} from "./details_session_items.ts";
 
 // TODO: Move these detail-renderer contracts into `electron/types` when the
 // calendar details modules are normalized.

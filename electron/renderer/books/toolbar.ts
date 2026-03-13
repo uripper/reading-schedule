@@ -2,11 +2,11 @@ export {
     SORT_BY_TITLE,
     SORT_DIRECTION_ASC,
     SORT_DIRECTION_DESC,
-} from "./sort.js";
-export { ensureBooksToolbarControls } from "./toolbar_dom.js";
+} from "./sort.ts";
+export { ensureBooksToolbarControls } from "./toolbar_dom.ts";
 export {
     updateGroupByOptions,
     updateShelfFilterOptions,
     updateSortDirectionButton,
     updateStatusFilterOptions,
-} from "./toolbar_updates.js";
+} from "./toolbar_updates.ts";

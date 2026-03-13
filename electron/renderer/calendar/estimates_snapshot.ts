@@ -4,14 +4,14 @@ import type {
     EstimateRow,
     EstimateSnapshot,
     EstimateState,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 import {
     fullWordsForBook,
     percentFromWords,
     projectedPages,
     wordsReadFromBook,
-} from "./estimates_math.js";
-import { plannedWordsBeforeAndThroughRow } from "./estimates_snapshot_rows.js";
+} from "./estimates_math.ts";
+import { plannedWordsBeforeAndThroughRow } from "./estimates_snapshot_rows.ts";
 
 /**
  * Builds estimate snapshot for target row using current progress and plan.

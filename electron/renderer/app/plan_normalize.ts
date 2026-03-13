@@ -2,7 +2,7 @@
  * Normalizes planner request dates and solver-token selection for desktop plan
  * generation.
  */
-import type { PlannerToken } from "../../types/types.js";
+import type { PlannerToken } from "../../types/types.ts";
 
 /**
  * Maps settings solver profile to planner token accepted by the bridge.

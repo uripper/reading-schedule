@@ -1,5 +1,5 @@
-import type { Book } from "../../types/types.js";
-import { getPlannerApi } from "../app/planner_api.js";
+import type { Book } from "../../types/types.ts";
+import { getPlannerApi } from "../app/planner_api.ts";
 
 const COVER_DOWNLOAD_TIMEOUT_MS = 4_000;
 const COVER_DOWNLOAD_TIMEOUT_MESSAGE = "Timed out downloading the book cover.";

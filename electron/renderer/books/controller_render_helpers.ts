@@ -3,14 +3,14 @@ import type {
     BooksControllerRefs,
     BooksViewState,
     RenderableBooksRefs,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 import {
     normalizeTitleFilterQuery,
     titleMatchesNormalizedQuery,
-} from "../title_filter.js";
-import { shelfFilterMatches } from "./shelf.js";
-import { sortBooks } from "./sort.js";
-import { statusFilterMatches } from "./status.js";
+} from "../title_filter.ts";
+import { shelfFilterMatches } from "./shelf.ts";
+import { sortBooks } from "./sort.ts";
+import { statusFilterMatches } from "./status.ts";
 
 /**
  * Checks whether a book title matches the active case-insensitive text filter.

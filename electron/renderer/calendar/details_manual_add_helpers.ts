@@ -1,8 +1,8 @@
-import type { ManualSessionBook } from "../../types/types.js";
+import type { ManualSessionBook } from "../../types/types.ts";
 import {
     normalizeTitleFilterQuery,
     titleMatchesNormalizedQuery,
-} from "../title_filter.js";
+} from "../title_filter.ts";
 
 /**
  * Returns default string value for manual minutes input field.

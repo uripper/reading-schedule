@@ -1,5 +1,5 @@
 import { Logger } from "tslog";
-import type { LogLevel, LogPayload } from "./types.js";
+import type { LogLevel, LogPayload } from "./types.ts";
 
 interface LoggerMeta {
     context?: Record<string, unknown>;

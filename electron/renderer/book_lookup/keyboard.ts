@@ -3,7 +3,7 @@ import type {
     HandleLookupKeydownArgs,
     SelectItem,
     SetActiveIndex,
-} from "../../types/types.js";
+} from "../../types/types.ts";
 
 /**
  * Moves highlight to the next search result when ArrowDown is pressed.

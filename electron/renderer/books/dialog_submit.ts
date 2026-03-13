@@ -1,10 +1,10 @@
 /**
  * Handles book-dialog submit orchestration, validation recovery, and save state UI.
  */
-import type { BookFormRefs, BookSubmitPayload } from "../../types/types.js";
-import { focusFirstError } from "../accessibility/index.js";
-import { parseFormBook } from "./form_state.js";
-import { SHELF_SELECT_CREATE_NEW } from "./shelf.js";
+import type { BookFormRefs, BookSubmitPayload } from "../../types/types.ts";
+import { focusFirstError } from "../accessibility/index.ts";
+import { parseFormBook } from "./form_state.ts";
+import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
 
 const SCHEDULED_DAY_SELECTOR = 'input[type="checkbox"][data-book-weekday]';
 const SAVE_BUTTON_IDLE_LABEL = "Save Book";

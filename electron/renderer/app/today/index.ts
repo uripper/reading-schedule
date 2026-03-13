@@ -1,2 +1,2 @@
-export { updateTodayDashboard } from "./today.js";
-export { configureTodayInteractions } from "./today_carousel_render.js";
+export { updateTodayDashboard } from "./today.ts";
+export { configureTodayInteractions } from "./today_carousel_render.ts";

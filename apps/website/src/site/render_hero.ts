@@ -2,8 +2,8 @@
  * Renders the top-of-page hero and preview layout.
  */
 
-import type { HeroContent } from "../types/site_content.js";
-import { escapeHtml, joinMarkup, renderButtonLink } from "./render_helpers.js";
+import type { HeroContent } from "../types/site_content.ts";
+import { escapeHtml, joinMarkup, renderButtonLink } from "./render_helpers.ts";
 
 function renderActionRow(hero: HeroContent): string {
     return joinMarkup([
@@ -18,8 +18,8 @@ function renderActionRow(hero: HeroContent): string {
  * @example
  * renderHeroCopy({ headlineLead: 'Leading', headlineAccent: 'Accent', body: 'Body text' })
  * '<div class="hero__copy"><h1 class="hero__title">Leading <span>Accent</span></h1><p class="hero__body">Body text</p><!-- action row markup here --></div>'
- * @param {{HeroContent}} hero - Hero content object with headlineLead, headlineAccent, body, and action data.
- * @returns {{string}} Rendered HTML string for the hero copy block.
+ * @param hero - Hero content object with headlineLead, headlineAccent, body, and action data.
+ * @returns Rendered HTML string for the hero copy block.
  **/
 function renderHeroCopy(hero: HeroContent): string {
     return joinMarkup([

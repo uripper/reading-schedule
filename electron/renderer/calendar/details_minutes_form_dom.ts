@@ -1,5 +1,5 @@
-import type { CalendarRowWithFinish } from "../../types/types.js";
-import { minPlannedMinutes } from "./details_minutes_form_helpers.js";
+import type { CalendarRowWithFinish } from "../../types/types.ts";
+import { minPlannedMinutes } from "./details_minutes_form_helpers.ts";
 
 const PLANNED_MINUTES_PLACEHOLDER = "Planned minutes";
 const SAVE_MINUTES_BUTTON_LABEL = "Save minutes";

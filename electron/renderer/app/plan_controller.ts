@@ -12,12 +12,12 @@ import type {
     PlannerSettings,
     RunAutoPlanFactoryArgs,
     Session,
-} from "../../types/types.js";
-import { runPlanGeneration } from "./plan.js";
+} from "../../types/types.ts";
+import { runPlanGeneration } from "./plan.ts";
 import {
     applyLoadedResult,
     applyPlannedData,
-} from "./plan_controller_apply.js";
+} from "./plan_controller_apply.ts";
 
 const AUTO_PLAN_DELAY_MS = 450;
 const DEFAULT_LAST_RESULT: PlannerResult = {
@@ -86,8 +86,8 @@ interface AutoPlanSuccessHandlerArgs {
  * @example
  * createAutoPlanSuccessHandler({ getSessions, persistDraft, setLastResult })
  * (data: PlannerRunData) => Promise<void>
- * @param {{AutoPlanSuccessHandlerArgs}} {{args}} - Configuration and callbacks used to apply planned data and update application state.
- * @returns {{(data: PlannerRunData) => Promise<void>}} Returns an async handler that accepts planner run data and applies it (resolves to void).
+ * @param args - Configuration and callbacks used to apply planned data and update application state.
+ * @returns Returns an async handler that accepts planner run data and applies it (resolves to void).
  **/
 function createAutoPlanSuccessHandler(
     args: AutoPlanSuccessHandlerArgs,
@@ -162,8 +162,8 @@ function finalizeAutoPlanRun(
  * @example
  * createRunAutoPlan({ plannerApi, collectBooks, collectSettings, setStatus, addLog, announce, getLastResult, setLastResult, getSessions, getScheduleCompletions, getBlockedDayBooks, setScheduleCompletions, renderCalendar, totalsFromSummary, setBookScheduleRows, updateTodayView, persistDraft, state, scheduleAutoPlan })()
  * Promise<void>
- * @param {{RunAutoPlanFactoryArgs}} {{root0}} - Factory arguments required to create the auto-plan runner.
- * @returns {{() => Promise<void>}} Returns a function that, when invoked, runs the auto-plan process and resolves once complete.
+ * @param root0 - Factory arguments required to create the auto-plan runner.
+ * @returns Returns a function that, when invoked, runs the auto-plan process and resolves once complete.
  **/
 function createRunAutoPlan(root0: RunAutoPlanFactoryArgs): () => Promise<void> {
     const EXECUTE_AUTO_PLAN_ARGS = createExecuteAutoPlanArgs(root0);

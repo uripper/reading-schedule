@@ -3,10 +3,10 @@ import type {
     CalendarRowWithFinish,
     CompletionChecker,
     RowsByDate,
-} from "../../types/types.js";
-import { isOnOrAfterDay } from "../app/day_keys_compare.js";
-import { todayDateKey } from "./selection.js";
-import { sessionKeyFor, sortRowsByDateAndSession } from "./utils.js";
+} from "../../types/types.ts";
+import { isOnOrAfterDay } from "../app/day_keys_compare.ts";
+import { todayDateKey } from "./selection.ts";
+import { sessionKeyFor, sortRowsByDateAndSession } from "./utils.ts";
 
 const DAYS_IN_WEEK = 7;
 

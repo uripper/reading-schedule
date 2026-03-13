@@ -1,5 +1,5 @@
-import type { SubmitProgressUpdateArgs } from "../../types/types.js";
-import { parseOptionalNumber } from "./utils.js";
+import type { SubmitProgressUpdateArgs } from "../../types/types.ts";
+import { parseOptionalNumber } from "./utils.ts";
 
 /**
  * Prefills input value from book progress value when present.
