@@ -72,6 +72,36 @@ function logSearchItems(items: SearchItem[]): void {
     });
 }
 
+async function fetchSearchDocs(
+    query: string,
+    authorOnly: boolean,
+): Promise<SearchDoc[]> {
+    const URLS = searchUrls(query, authorOnly);
+
+    logInfo(`[OpenLibrary] URLs: ${URLS.join(" | ")}`);
+
+    const RESPONSES = await Promise.allSettled(
+        URLS.map(async (url) => await fetchJson(url)),
+    );
+
+    return collectDocs(RESPONSES);
+}
+
+function finalizeSearchItems(
+    docs: SearchDoc[],
+    normalizedQuery: string,
+    authorOnly: boolean,
+): SearchItem[] {
+    const SCORED = rankDocs(docs, normalizedQuery, authorOnly);
+
+    logInfo(`[OpenLibrary] After scoring: ${SCORED.length} with score > 0`);
+    SCORED.sort(compareScoredDocs);
+
+    return SCORED.slice(0, SEARCH_OUTPUT_LIMIT)
+        .map((entry) => toItem(entry.doc))
+        .filter((item) => Boolean(item.title));
+}
+
 /**
  * Queries Open Library endpoints and returns ranked search items.
  * @param query - User-entered search query text.
@@ -86,22 +116,12 @@ export async function searchBooks(
     if (NORMALIZED_QUERY.length < MIN_QUERY_LENGTH) {
         return [];
     }
-    const URLS = searchUrls(NORMALIZED_QUERY, authorOnly);
     logInfo(
         `[OpenLibrary] Searching (authorOnly=${authorOnly}): "${NORMALIZED_QUERY}"`,
     );
-    logInfo(`[OpenLibrary] URLs: ${URLS.join(" | ")}`);
-    const RESPONSES = await Promise.allSettled(
-        URLS.map(async (url) => await fetchJson(url)),
-    );
-    const DOCS = collectDocs(RESPONSES);
+    const DOCS = await fetchSearchDocs(NORMALIZED_QUERY, authorOnly);
     logInfo(`[OpenLibrary] Raw results before dedup/scoring: ${DOCS.length}`);
-    const SCORED = rankDocs(DOCS, NORMALIZED_QUERY, authorOnly);
-    logInfo(`[OpenLibrary] After scoring: ${SCORED.length} with score > 0`);
-    SCORED.sort(compareScoredDocs);
-    const FINAL = SCORED.slice(0, SEARCH_OUTPUT_LIMIT)
-        .map((entry) => toItem(entry.doc))
-        .filter((item) => Boolean(item.title));
+    const FINAL = finalizeSearchItems(DOCS, NORMALIZED_QUERY, authorOnly);
     logInfo(
         `[OpenLibrary] Final results (limit ${SEARCH_OUTPUT_LIMIT}): ${FINAL.length}`,
     );

@@ -19,6 +19,27 @@ import { UI_SCALE_STEP } from "./zoom.ts";
 
 let plannerRequestCounter = 0;
 
+interface PlannerRequestContext {
+    requestId: string;
+    userDataDir: string;
+}
+
+interface PlannerSummaryLogFields {
+    note: string | null;
+    plannerUsed: string | null;
+    status: string | null;
+}
+
+type PlannerSummaryField = "note" | "planner" | "status";
+type PlannerSummaryRecord = Partial<Record<PlannerSummaryField, unknown>>;
+
+interface BookHandlerArgs {
+    downloadCover: RegisterIpcHandlersArgs["downloadCover"];
+    saveUploadedCover: RegisterIpcHandlersArgs["saveUploadedCover"];
+    searchBooks: RegisterIpcHandlersArgs["searchBooks"];
+    userData: RegisterIpcHandlersArgs["userData"];
+}
+
 /**
  * Creates a per-request identifier for planner bridge traces.
  * @returns Correlation identifier string.
@@ -28,94 +49,93 @@ function nextPlannerRequestId(): string {
     return `planner-${Date.now()}-${plannerRequestCounter}`;
 }
 
-/**
- * Registers planner IPC handlers with bridge debug correlation IDs.
- * @param runBridge - Bridge runner implementation.
- * @param userData - Function returning app user-data directory.
- */
-function registerPlannerHandlers(
-    runBridge: RegisterIpcHandlersArgs["runBridge"],
+function plannerRequestContext(
     userData: RegisterIpcHandlersArgs["userData"],
-): void {
-    ipcMain.handle("plan:sample", async () => {
-        const REQUEST_ID = nextPlannerRequestId();
-        logDebug("IPC received sample planner request.", {
-            requestId: REQUEST_ID,
-        });
-        const RAW_RESPONSE = await runBridge(["--sample"], undefined, {
-            requestId: REQUEST_ID,
-            userDataDir: userData(),
-        });
-        return parseSamplePayload(RAW_RESPONSE);
-    });
-
-    ipcMain.handle("plan:generate", async (_event, payload: unknown) => {
-        const REQUEST_ID = nextPlannerRequestId();
-        logDebug("IPC received planner generation request.", {
-            requestId: REQUEST_ID,
-        });
-        const REQUEST = parsePlanGeneratePayload(payload);
-        logDebug("Planner request payload parsed.", {
-            bookCount: REQUEST.books.length,
-            planner: REQUEST.planner,
-            requestId: REQUEST_ID,
-        });
-        const RAW_RESPONSE = await runBridge([], REQUEST, {
-            requestId: REQUEST_ID,
-            userDataDir: userData(),
-        });
-        logDebug("Planner bridge returned raw payload.", {
-            requestId: REQUEST_ID,
-        });
-        const RESULT = parsePlanGenerateResult(RAW_RESPONSE);
-        const SUMMARY = RESULT.summary;
-        let summaryData: Record<string, unknown> | null = null;
-        if (SUMMARY && typeof SUMMARY === "object") {
-            summaryData = SUMMARY;
-        }
-
-        let plannerUsed: string | null = null;
-        if (summaryData && typeof summaryData.planner === "string") {
-            plannerUsed = summaryData.planner;
-        }
-
-        let status: string | null = null;
-        if (summaryData && typeof summaryData.status === "string") {
-            status = summaryData.status;
-        }
-
-        let note: string | null = null;
-        if (summaryData && typeof summaryData.note === "string") {
-            note = summaryData.note;
-        }
-        logDebug("Planner result parsed.", {
-            note,
-            plannerUsed,
-            requestId: REQUEST_ID,
-            status,
-        });
-        return RESULT;
-    });
+): PlannerRequestContext {
+    return {
+        requestId: nextPlannerRequestId(),
+        userDataDir: userData(),
+    };
 }
 
-/**
- * Registers book lookup and cover management handlers.
- * @param downloadCover - Cover download implementation.
- * @param saveUploadedCover - Cover upload persistence implementation.
- * @param searchBooks - Book search implementation.
- * @param userData - Function returning app user-data directory.
- */
-function registerBookHandlers(
-    downloadCover: RegisterIpcHandlersArgs["downloadCover"],
-    saveUploadedCover: RegisterIpcHandlersArgs["saveUploadedCover"],
-    searchBooks: RegisterIpcHandlersArgs["searchBooks"],
+function stringSummaryField(
+    summary: unknown,
+    field: PlannerSummaryField,
+): string | null {
+    if (summary === null || typeof summary !== "object") {
+        return null;
+    }
+    const SUMMARY_RECORD = summary as PlannerSummaryRecord;
+    const VALUE = SUMMARY_RECORD[field];
+    if (typeof VALUE !== "string") {
+        return null;
+    }
+    return VALUE;
+}
+
+function plannerSummaryLogFields(
+    result: ReturnType<typeof parsePlanGenerateResult>,
+): PlannerSummaryLogFields {
+    return {
+        note: stringSummaryField(result.summary, "note"),
+        plannerUsed: stringSummaryField(result.summary, "planner"),
+        status: stringSummaryField(result.summary, "status"),
+    };
+}
+
+async function handleSamplePlannerRequest(
+    runBridge: RegisterIpcHandlersArgs["runBridge"],
     userData: RegisterIpcHandlersArgs["userData"],
-): void {
+): Promise<ReturnType<typeof parseSamplePayload>> {
+    const CONTEXT = plannerRequestContext(userData);
+    logDebug("IPC received sample planner request.", {
+        requestId: CONTEXT.requestId,
+    });
+    const RAW_RESPONSE = await runBridge(["--sample"], undefined, CONTEXT);
+    return parseSamplePayload(RAW_RESPONSE);
+}
+
+async function handleGeneratePlannerRequest(
+    payload: unknown,
+    runBridge: RegisterIpcHandlersArgs["runBridge"],
+    userData: RegisterIpcHandlersArgs["userData"],
+): Promise<ReturnType<typeof parsePlanGenerateResult>> {
+    const CONTEXT = plannerRequestContext(userData);
+    logDebug("IPC received planner generation request.", {
+        requestId: CONTEXT.requestId,
+    });
+    const REQUEST = parsePlanGeneratePayload(payload);
+    logDebug("Planner request payload parsed.", {
+        bookCount: REQUEST.books.length,
+        planner: REQUEST.planner,
+        requestId: CONTEXT.requestId,
+    });
+    const RAW_RESPONSE = await runBridge([], REQUEST, CONTEXT);
+    logDebug("Planner bridge returned raw payload.", {
+        requestId: CONTEXT.requestId,
+    });
+    const RESULT = parsePlanGenerateResult(RAW_RESPONSE);
+    logDebug("Planner result parsed.", {
+        ...plannerSummaryLogFields(RESULT),
+        requestId: CONTEXT.requestId,
+    });
+    return RESULT;
+}
+
+function registerBookSearchHandler({
+    searchBooks,
+}: Pick<BookHandlerArgs, "searchBooks">): void {
     ipcMain.handle(
         "book:search",
         async (_event, query: string, author: unknown) =>
             await searchBooks(String(query || ""), author === true),
     );
+}
+
+function registerBookDownloadCoverHandler({
+    downloadCover,
+    userData,
+}: Pick<BookHandlerArgs, "downloadCover" | "userData">): void {
     ipcMain.handle(
         "book:downloadCover",
         async (_event, payload: DownloadCoverPayload | null) => {
@@ -123,6 +143,12 @@ function registerBookHandlers(
             return await downloadCover(REQUEST.url, REQUEST.bookId, userData());
         },
     );
+}
+
+function registerUploadedCoverHandler({
+    saveUploadedCover,
+    userData,
+}: Pick<BookHandlerArgs, "saveUploadedCover" | "userData">): void {
     ipcMain.handle(
         "book:saveUploadedCover",
         (_event, payload: UploadCoverPayload | null) => {
@@ -134,6 +160,39 @@ function registerBookHandlers(
             );
         },
     );
+}
+
+/**
+ * Registers planner IPC handlers with bridge debug correlation IDs.
+ * @param runBridge - Bridge runner implementation.
+ * @param userData - Function returning app user-data directory.
+ */
+function registerPlannerHandlers(
+    runBridge: RegisterIpcHandlersArgs["runBridge"],
+    userData: RegisterIpcHandlersArgs["userData"],
+): void {
+    ipcMain.handle(
+        "plan:sample",
+        async () => await handleSamplePlannerRequest(runBridge, userData),
+    );
+    ipcMain.handle(
+        "plan:generate",
+        async (_event, payload: unknown) =>
+            await handleGeneratePlannerRequest(payload, runBridge, userData),
+    );
+}
+
+/**
+ * Registers book lookup and cover management handlers.
+ * @param downloadCover - Cover download implementation.
+ * @param saveUploadedCover - Cover upload persistence implementation.
+ * @param searchBooks - Book search implementation.
+ * @param userData - Function returning app user-data directory.
+ */
+function registerBookHandlers(args: BookHandlerArgs): void {
+    registerBookSearchHandler(args);
+    registerBookDownloadCoverHandler(args);
+    registerUploadedCoverHandler(args);
 }
 
 /**
@@ -206,12 +265,12 @@ export function registerIpcHandlers({
     writeState,
 }: RegisterIpcHandlersArgs): void {
     registerPlannerHandlers(runBridge, userData);
-    registerBookHandlers(
+    registerBookHandlers({
         downloadCover,
         saveUploadedCover,
         searchBooks,
         userData,
-    );
+    });
     registerStateHandlers(readState, writeState, userData);
     registerZoomHandlers(initialZoomFactor, setZoomFactor, shiftZoomFactor);
 }

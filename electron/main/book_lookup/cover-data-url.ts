@@ -36,6 +36,74 @@ function extensionForDataMime(mimeType: string): CoverExtension | null {
     return null;
 }
 
+function splitDataUrl(
+    value: string,
+): { header: string; payload: string } | null {
+    if (!value.startsWith(DATA_URL_PREFIX)) {
+        return null;
+    }
+
+    const SEPARATOR_INDEX = value.indexOf(DATA_URL_SEPARATOR);
+
+    if (SEPARATOR_INDEX < 0) {
+        return null;
+    }
+
+    return {
+        header: value.slice(DATA_URL_PREFIX.length, SEPARATOR_INDEX),
+        payload: value.slice(SEPARATOR_INDEX + 1),
+    };
+}
+
+function decodeBase64Payload(payload: string): Uint8Array | null {
+    let bytes: Uint8Array;
+
+    try {
+        bytes = new Uint8Array(Buffer.from(payload, "base64"));
+    } catch {
+        return null;
+    }
+
+    if (bytes.byteLength <= 0) {
+        return null;
+    }
+
+    return bytes;
+}
+
+function dataMimeExtension(header: string): CoverExtension | null {
+    return extensionForDataMime(header.split(";")[0]);
+}
+
+function parsedBase64DataUrl(value: string): {
+    extension: CoverExtension;
+    payload: string;
+} | null {
+    const DATA_URL_PARTS = splitDataUrl(value);
+
+    if (DATA_URL_PARTS === null) {
+        return null;
+    }
+
+    if (
+        !DATA_URL_PARTS.header.includes(DATA_URL_BASE64_SEGMENT) ||
+        DATA_URL_PARTS.payload === ""
+    ) {
+        return null;
+    }
+
+    const EXTENSION = dataMimeExtension(DATA_URL_PARTS.header);
+
+    if (EXTENSION === null) {
+        return null;
+    }
+
+    return {
+        extension: EXTENSION,
+        payload: DATA_URL_PARTS.payload,
+    };
+}
+
 /**
  * Parses a base64 data URL and returns image bytes with an allowed extension.
  * @param coverDataUrl - Data URL candidate for an uploaded cover image.
@@ -45,31 +113,17 @@ export function parseCoverDataUrl(
     coverDataUrl: string | undefined,
 ): { bytes: Uint8Array; extension: CoverExtension } | null {
     const NORMALIZED = String(coverDataUrl ?? "").trim();
-    if (!NORMALIZED.startsWith(DATA_URL_PREFIX)) {
+    const PARSED_DATA_URL = parsedBase64DataUrl(NORMALIZED);
+
+    if (PARSED_DATA_URL === null) {
         return null;
     }
-    const SEPARATOR_INDEX = NORMALIZED.indexOf(DATA_URL_SEPARATOR);
-    if (SEPARATOR_INDEX < 0) {
+
+    const BYTES = decodeBase64Payload(PARSED_DATA_URL.payload);
+
+    if (BYTES === null) {
         return null;
     }
-    const HEADER = NORMALIZED.slice(DATA_URL_PREFIX.length, SEPARATOR_INDEX);
-    const PAYLOAD = NORMALIZED.slice(SEPARATOR_INDEX + 1);
-    if (!HEADER.includes(DATA_URL_BASE64_SEGMENT) || !PAYLOAD) {
-        return null;
-    }
-    const MIME_TYPE = HEADER.split(";")[0];
-    const EXTENSION = extensionForDataMime(MIME_TYPE);
-    if (!EXTENSION) {
-        return null;
-    }
-    let bytes: Uint8Array;
-    try {
-        bytes = new Uint8Array(Buffer.from(PAYLOAD, "base64"));
-    } catch {
-        return null;
-    }
-    if (bytes.byteLength <= 0) {
-        return null;
-    }
-    return { bytes, extension: EXTENSION };
+
+    return { bytes: BYTES, extension: PARSED_DATA_URL.extension };
 }

@@ -6,6 +6,46 @@ import { addMinutes, includeDayKey } from "./day-minutes-collect.ts";
 const MIN_STREAK_MINUTES = 1;
 const PREVIOUS_DAY_OFFSET = 1;
 
+function addSessionMinutes(
+    dayMinutes: DayMinutesMap,
+    args: Pick<DayMinutesArgs, "sessions" | "year">,
+): void {
+    for (const SESSION of args.sessions) {
+        const DAY_KEY = localDayKeyFromIso(SESSION.ended_at);
+        if (!includeDayKey(DAY_KEY, args.year)) {
+            continue;
+        }
+        addMinutes(dayMinutes, DAY_KEY, Number(SESSION.minutes || 0));
+    }
+}
+
+function includesScheduledRow(
+    row: NonNullable<DayMinutesArgs["lastResult"]>["schedule"][number],
+    scheduleCompletions: DayMinutesArgs["scheduleCompletions"],
+    year: DayMinutesArgs["year"],
+): boolean {
+    const DAY_KEY = String(row.date);
+    if (!includeDayKey(DAY_KEY, year)) {
+        return false;
+    }
+    const COMPLETION_KEY = sessionKeyFor(row);
+    return scheduleCompletions[COMPLETION_KEY] === true;
+}
+
+function addScheduledMinutes(
+    dayMinutes: DayMinutesMap,
+    args: Pick<DayMinutesArgs, "lastResult" | "scheduleCompletions" | "year">,
+): void {
+    const ROWS = args.lastResult?.schedule ?? [];
+    for (const ROW of ROWS) {
+        if (!includesScheduledRow(ROW, args.scheduleCompletions, args.year)) {
+            continue;
+        }
+        const DAY_KEY = String(ROW.date);
+        addMinutes(dayMinutes, DAY_KEY, Number(ROW.minutes));
+    }
+}
+
 /**
  * Builds per-day minutes from completed focus sessions and completed planned rows.
  * @param root0 - Activity aggregation inputs including sessions, planner result,
@@ -19,29 +59,12 @@ export function dayMinutesFromActivity({
     year,
 }: DayMinutesArgs): DayMinutesMap {
     const MINUTES_BY_DAY = new Map<string, number>();
-
-    for (const SESSION of sessions) {
-        const DAY_KEY = localDayKeyFromIso(SESSION.ended_at);
-        if (!includeDayKey(DAY_KEY, year)) {
-            continue;
-        }
-        addMinutes(MINUTES_BY_DAY, DAY_KEY, Number(SESSION.minutes || 0));
-    }
-
-    const ROWS = lastResult?.schedule ?? [];
-
-    for (const ROW of ROWS) {
-        const DAY_KEY = String(ROW.date);
-        if (!includeDayKey(DAY_KEY, year)) {
-            continue;
-        }
-        const COMPLETION_KEY = sessionKeyFor(ROW);
-        if (!scheduleCompletions[COMPLETION_KEY]) {
-            continue;
-        }
-        addMinutes(MINUTES_BY_DAY, DAY_KEY, Number(ROW.minutes));
-    }
-
+    addSessionMinutes(MINUTES_BY_DAY, { sessions, year });
+    addScheduledMinutes(MINUTES_BY_DAY, {
+        lastResult,
+        scheduleCompletions,
+        year,
+    });
     return MINUTES_BY_DAY;
 }
 

@@ -162,7 +162,9 @@ export function pruneScheduleCompletions(
     );
     const OUT: Record<string, boolean> = {};
     for (const [KEY, VALUE] of Object.entries(scheduleCompletions)) {
-        if (!ALLOWED_SESSION_KEYS.has(KEY) && !ALLOWED_DAY_BOOK_KEYS.has(KEY)) {
+        if (
+            !(ALLOWED_SESSION_KEYS.has(KEY) || ALLOWED_DAY_BOOK_KEYS.has(KEY))
+        ) {
             continue;
         }
         OUT[KEY] = Boolean(VALUE);

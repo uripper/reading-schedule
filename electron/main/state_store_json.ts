@@ -16,6 +16,14 @@ import {
 
 const UTF8_BOM = "\uFEFF";
 
+interface AtomicWriteArgs {
+    backupPath: string;
+    data: JsonValue;
+    primaryPath: string;
+    tempPath: string;
+    userDataDir: string;
+}
+
 /**
  * Removes UTF-8 BOM marker when present so JSON parsing remains robust.
  * @param text - Raw UTF-8 file text.
@@ -91,6 +99,48 @@ function fsyncDirectory(dirPath: string): void {
     }
 }
 
+function deleteFileIfPresent(filePath: string): void {
+    if (!fs.existsSync(filePath)) {
+        return;
+    }
+    fs.unlinkSync(filePath);
+}
+
+function rotatePrimaryStateFile(primaryPath: string, backupPath: string): void {
+    if (!fs.existsSync(primaryPath)) {
+        return;
+    }
+    deleteFileIfPresent(backupPath);
+    fs.renameSync(primaryPath, backupPath);
+}
+
+function writeTempStateFile(tempPath: string, data: JsonValue): void {
+    fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), "utf8");
+    fsyncFile(tempPath);
+}
+
+function removeTempStateFile(tempPath: string): void {
+    try {
+        deleteFileIfPresent(tempPath);
+    } catch {
+        // Best-effort cleanup.
+    }
+}
+
+function persistStateAtomically({
+    backupPath,
+    data,
+    primaryPath,
+    tempPath,
+    userDataDir,
+}: AtomicWriteArgs): void {
+    fs.mkdirSync(userDataDir, { recursive: true });
+    writeTempStateFile(tempPath, data);
+    rotatePrimaryStateFile(primaryPath, backupPath);
+    fs.renameSync(tempPath, primaryPath);
+    fsyncDirectory(userDataDir);
+}
+
 /**
  * Attempts to load planner state from JSON primary/backup files.
  * @param userDataDir - App user-data directory.
@@ -137,26 +187,16 @@ export function writeStateToJson(
     const BACKUP_PATH = jsonStateBackupPath(userDataDir);
     const TEMP_PATH = jsonStateTempPath(userDataDir);
     try {
-        fs.mkdirSync(userDataDir, { recursive: true });
-        fs.writeFileSync(TEMP_PATH, JSON.stringify(data, null, 2), "utf8");
-        fsyncFile(TEMP_PATH);
-        if (fs.existsSync(PRIMARY_PATH)) {
-            if (fs.existsSync(BACKUP_PATH)) {
-                fs.unlinkSync(BACKUP_PATH);
-            }
-            fs.renameSync(PRIMARY_PATH, BACKUP_PATH);
-        }
-        fs.renameSync(TEMP_PATH, PRIMARY_PATH);
-        fsyncDirectory(userDataDir);
+        persistStateAtomically({
+            backupPath: BACKUP_PATH,
+            data,
+            primaryPath: PRIMARY_PATH,
+            tempPath: TEMP_PATH,
+            userDataDir,
+        });
         return { ok: true };
     } catch (error) {
-        if (fs.existsSync(TEMP_PATH)) {
-            try {
-                fs.unlinkSync(TEMP_PATH);
-            } catch {
-                // Best-effort cleanup.
-            }
-        }
+        removeTempStateFile(TEMP_PATH);
         return returnErrorMessage(error);
     }
 }

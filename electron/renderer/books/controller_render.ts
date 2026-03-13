@@ -101,7 +101,7 @@ function buildRenderBookGridArgs(
     args: RenderBooksControllerArgs,
     params: RenderBookGridParams,
 ): RenderBookGridOptions {
-    if (!args.refs.empty || !args.refs.grid) {
+    if (!(args.refs.empty && args.refs.grid)) {
         throw new Error("Missing required DOM references");
     }
     return {

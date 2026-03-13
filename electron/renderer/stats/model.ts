@@ -25,6 +25,104 @@ function normalizedGoalMinutes(goalMinutes: number | undefined): number {
     return Math.max(MIN_GOAL_MINUTES, Number(goalMinutes ?? MIN_GOAL_MINUTES));
 }
 
+function buildMinutesByDay(
+    inputs: SnapshotInputs,
+    year: number | null,
+): ReturnType<typeof dayMinutesFromActivity> {
+    return dayMinutesFromActivity({
+        lastResult: inputs.lastResult,
+        scheduleCompletions: inputs.scheduleCompletions,
+        sessions: inputs.sessions,
+        year,
+    });
+}
+
+function buildFinishSummary(
+    books: SnapshotInputs["books"],
+    lastResult: SnapshotInputs["lastResult"],
+    year: number,
+): {
+    planned: ReturnType<typeof plannedFinishBookIds>;
+    projectedFinishCount: number;
+    readThisYearIds: Set<string>;
+} {
+    const READ_THIS_YEAR_IDS = readBooksFinishedThisYear(books, year);
+    const PLANNED = plannedFinishBookIds(lastResult, year);
+    const PROJECTED = new Set([...READ_THIS_YEAR_IDS, ...PLANNED.ids]);
+
+    return {
+        planned: PLANNED,
+        projectedFinishCount: PROJECTED.size,
+        readThisYearIds: READ_THIS_YEAR_IDS,
+    };
+}
+
+function buildActivitySummary(
+    inputs: SnapshotInputs,
+    year: number,
+): {
+    allTime: ReturnType<typeof dayMinutesFromActivity>;
+    goalMinutes: number;
+    thisYear: ReturnType<typeof dayMinutesFromActivity>;
+} {
+    return {
+        allTime: buildMinutesByDay(inputs, null),
+        goalMinutes: normalizedGoalMinutes(inputs.dailyGoalMinutes),
+        thisYear: buildMinutesByDay(inputs, year),
+    };
+}
+
+function buildStatsSnapshotResult(args: {
+    activitySummary: ReturnType<typeof buildActivitySummary>;
+    books: SnapshotInputs["books"];
+    completion: ReturnType<typeof completionStats>;
+    finishSummary: ReturnType<typeof buildFinishSummary>;
+    progress: ReturnType<typeof averageProgress>;
+    year: number;
+}): StatsSnapshot {
+    return {
+        activeDaysYear: activeDayCount(args.activitySummary.thisYear),
+        averageProgressPercent: args.progress.averagePercent,
+        booksStartedCount: args.progress.startedCount,
+        completedSessionsToDate: args.completion.completed,
+        completionRatePercent: args.completion.ratePercent,
+        readingMinutesYear: totalMinutes(args.activitySummary.thisYear),
+        scheduledSessionsToDate: args.completion.scheduled,
+        statusBreakdown: statusBreakdown(args.books),
+        totalBooks: args.books.length,
+        year: args.year,
+        ...buildStreakAndFinishStats(args),
+    };
+}
+
+function buildStreakAndFinishStats(args: {
+    activitySummary: ReturnType<typeof buildActivitySummary>;
+    books: SnapshotInputs["books"];
+    finishSummary: ReturnType<typeof buildFinishSummary>;
+}): Pick<
+    StatsSnapshot,
+    | "currentStreakDays"
+    | "finishedThisYearCount"
+    | "monthlyFinishes"
+    | "plannedFinishCount"
+    | "projectedFinishCount"
+> {
+    return {
+        currentStreakDays: streakFromDayMinutes(
+            args.activitySummary.allTime,
+            args.activitySummary.goalMinutes,
+        ),
+        finishedThisYearCount: args.finishSummary.readThisYearIds.size,
+        monthlyFinishes: monthlyFinishCounts(
+            args.finishSummary.readThisYearIds,
+            args.books,
+            args.finishSummary.planned.monthByBookId,
+        ),
+        plannedFinishCount: args.finishSummary.planned.ids.size,
+        projectedFinishCount: args.finishSummary.projectedFinishCount,
+    };
+}
+
 /**
  * Builds a full stats snapshot used by the Stats dashboard renderer.
  * @param root0 - Snapshot input values.
@@ -43,47 +141,24 @@ export function buildStatsSnapshot({
     dailyGoalMinutes,
 }: SnapshotInputs): StatsSnapshot {
     const YEAR = new Date().getFullYear();
-    const MINUTES_BY_DAY_THIS_YEAR = dayMinutesFromActivity({
+    const INPUTS: SnapshotInputs = {
+        books,
+        dailyGoalMinutes,
         lastResult,
         scheduleCompletions,
         sessions,
-        year: YEAR,
-    });
-    const MINUTES_BY_DAY_ALL_TIME = dayMinutesFromActivity({
-        lastResult,
-        scheduleCompletions,
-        sessions,
-        year: null,
-    });
+    };
+    const ACTIVITY_SUMMARY = buildActivitySummary(INPUTS, YEAR);
     const PROGRESS = averageProgress(books);
     const COMPLETION = completionStats(lastResult, scheduleCompletions, YEAR);
-    const READ_THIS_YEAR_IDS = readBooksFinishedThisYear(books, YEAR);
-    const PLANNED = plannedFinishBookIds(lastResult, YEAR);
-    const PROJECTED = new Set([...READ_THIS_YEAR_IDS, ...PLANNED.ids]);
-    const GOAL_MINUTES = normalizedGoalMinutes(dailyGoalMinutes);
+    const FINISH_SUMMARY = buildFinishSummary(books, lastResult, YEAR);
 
-    return {
-        activeDaysYear: activeDayCount(MINUTES_BY_DAY_THIS_YEAR),
-        averageProgressPercent: PROGRESS.averagePercent,
-        booksStartedCount: PROGRESS.startedCount,
-        completedSessionsToDate: COMPLETION.completed,
-        completionRatePercent: COMPLETION.ratePercent,
-        currentStreakDays: streakFromDayMinutes(
-            MINUTES_BY_DAY_ALL_TIME,
-            GOAL_MINUTES,
-        ),
-        finishedThisYearCount: READ_THIS_YEAR_IDS.size,
-        monthlyFinishes: monthlyFinishCounts(
-            READ_THIS_YEAR_IDS,
-            books,
-            PLANNED.monthByBookId,
-        ),
-        plannedFinishCount: PLANNED.ids.size,
-        projectedFinishCount: PROJECTED.size,
-        readingMinutesYear: totalMinutes(MINUTES_BY_DAY_THIS_YEAR),
-        scheduledSessionsToDate: COMPLETION.scheduled,
-        statusBreakdown: statusBreakdown(books),
-        totalBooks: books.length,
+    return buildStatsSnapshotResult({
+        activitySummary: ACTIVITY_SUMMARY,
+        books,
+        completion: COMPLETION,
+        finishSummary: FINISH_SUMMARY,
+        progress: PROGRESS,
         year: YEAR,
-    };
+    });
 }

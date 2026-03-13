@@ -75,6 +75,33 @@ function toLoggerMeta(payload: LogPayload): LoggerMeta | undefined {
     return META;
 }
 
+type LoggerMethod = "debug" | "error" | "info";
+
+function loggerMethodForLevel(level: LogLevel): LoggerMethod {
+    if (level === "debug") {
+        return "debug";
+    }
+
+    if (level === "error") {
+        return "error";
+    }
+
+    return "info";
+}
+
+function emitWithOptionalMeta(
+    method: LoggerMethod,
+    message: string,
+    meta: LoggerMeta | undefined,
+): void {
+    if (meta === undefined) {
+        LOGGER[method](message);
+        return;
+    }
+
+    LOGGER[method](message, meta);
+}
+
 /**
  * Emits a structured log through tslog.
  * @param level - Log level to emit.
@@ -86,32 +113,7 @@ function emitTsLog(
     message: string,
     meta: LoggerMeta | undefined,
 ): void {
-    if (level === "debug") {
-        if (meta === undefined) {
-            LOGGER.debug(message);
-            return;
-        }
-
-        LOGGER.debug(message, meta);
-        return;
-    }
-
-    if (level === "error") {
-        if (meta === undefined) {
-            LOGGER.error(message);
-            return;
-        }
-
-        LOGGER.error(message, meta);
-        return;
-    }
-
-    if (meta === undefined) {
-        LOGGER.info(message);
-        return;
-    }
-
-    LOGGER.info(message, meta);
+    emitWithOptionalMeta(loggerMethodForLevel(level), message, meta);
 }
 
 /**

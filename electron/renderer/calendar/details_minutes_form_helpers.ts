@@ -2,11 +2,23 @@ import type {
     MinutesEditorAction,
     SubmitMinutesUpdateArgs,
 } from "../../types/types.ts";
-import { normalizedManualMinutes } from "../app/calendar_interactions/index.ts";
+import { normalizedManualMinutes } from "../app/calendar_interactions/calendar_interactions_helpers.ts";
 import { parseOptionalNumber } from "./utils.ts";
 
 const MINUTES_MIN = normalizedManualMinutes(0);
 export const MINUTES_EDITOR_OPEN_BY_DEFAULT = false;
+
+interface EditorVisibilityArgs {
+    editButton: HTMLButtonElement;
+    isOpen: boolean;
+    minutesForm: HTMLFormElement;
+    summaryRow: HTMLElement;
+}
+
+interface SubmitMinutesUpdateResult {
+    applied: boolean;
+    initialMinutesValue: string;
+}
 
 /**
  * Reads trimmed value from a minutes input node.
@@ -104,18 +116,15 @@ function minutesSummaryVisible(isOpen: boolean): boolean {
  * @param editButton - Edit trigger button.
  * @param isOpen - Whether editor is open.
  */
-export function syncEditorVisibility(
-    minutesForm: HTMLFormElement,
-    summaryRow: HTMLElement,
-    editButton: HTMLButtonElement,
-    isOpen: boolean,
-): void {
-    const NEXT_MINUTES_FORM = minutesForm;
-    const NEXT_SUMMARY_ROW = summaryRow;
-    const NEXT_EDIT_BUTTON = editButton;
-    NEXT_MINUTES_FORM.hidden = !isOpen;
-    NEXT_SUMMARY_ROW.hidden = !minutesSummaryVisible(isOpen);
-    NEXT_EDIT_BUTTON.hidden = isOpen;
+export function syncEditorVisibility({
+    editButton,
+    isOpen,
+    minutesForm,
+    summaryRow,
+}: EditorVisibilityArgs): void {
+    minutesForm.hidden = !isOpen;
+    summaryRow.hidden = !minutesSummaryVisible(isOpen);
+    editButton.hidden = isOpen;
 }
 /**
  * Updates planned-minutes summary text from input value.
@@ -143,10 +152,39 @@ export function syncSummaryText(
  * @param interactionHandlers - Detail interaction handlers.
  * @returns Updated initial value and whether an update was applied.
  */
-export function submitMinutesUpdate(args: SubmitMinutesUpdateArgs): {
-    initialMinutesValue: string;
-    applied: boolean;
-} {
+function rejectedMinutesUpdate(
+    minutesInput: HTMLInputElement,
+    initialMinutesValue: string,
+): SubmitMinutesUpdateResult {
+    const NEXT_INPUT = minutesInput;
+    NEXT_INPUT.value = initialMinutesValue;
+    return { applied: false, initialMinutesValue };
+}
+
+function applyMinutesUpdate(
+    args: Pick<
+        SubmitMinutesUpdateArgs,
+        "initialMinutesValue" | "interactionHandlers" | "minutesInput" | "row"
+    >,
+    nextMinutes: number,
+): SubmitMinutesUpdateResult {
+    const APPLIED = args.interactionHandlers.onSessionMinutesUpdated({
+        minutes: nextMinutes,
+        row: args.row,
+    });
+    if (!APPLIED) {
+        return rejectedMinutesUpdate(
+            args.minutesInput,
+            args.initialMinutesValue,
+        );
+    }
+    const NEXT_VALUE = syncInputValue(args.minutesInput, nextMinutes);
+    return { applied: true, initialMinutesValue: NEXT_VALUE };
+}
+
+export function submitMinutesUpdate(
+    args: SubmitMinutesUpdateArgs,
+): SubmitMinutesUpdateResult {
     const {
         event,
         row,
@@ -161,18 +199,10 @@ export function submitMinutesUpdate(args: SubmitMinutesUpdateArgs): {
     }
     const CHANGED_MINUTES = changedNumberValue(minutesInput);
     if (CHANGED_MINUTES === null) {
-        minutesInput.value = initialMinutesValue;
-        return { applied: false, initialMinutesValue };
+        return rejectedMinutesUpdate(minutesInput, initialMinutesValue);
     }
-    const NEXT_MINUTES = normalizedManualMinutes(CHANGED_MINUTES);
-    const APPLIED = interactionHandlers.onSessionMinutesUpdated({
-        minutes: NEXT_MINUTES,
-        row,
-    });
-    if (!APPLIED) {
-        minutesInput.value = initialMinutesValue;
-        return { applied: false, initialMinutesValue };
-    }
-    const NEXT_VALUE = syncInputValue(minutesInput, NEXT_MINUTES);
-    return { applied: true, initialMinutesValue: NEXT_VALUE };
+    return applyMinutesUpdate(
+        { initialMinutesValue, interactionHandlers, minutesInput, row },
+        normalizedManualMinutes(CHANGED_MINUTES),
+    );
 }

@@ -16,7 +16,7 @@ function withBookFinishedDates(
     for (const BOOK of books) {
         const BOOK_ID = String(BOOK.book_id || "");
         const FINISHED_AT = String(BOOK.finished_at ?? "");
-        if (!BOOK_ID || !FINISHED_AT) {
+        if (!(BOOK_ID && FINISHED_AT)) {
             continue;
         }
         // For read books, explicit completion date should win over schedule estimates.
@@ -40,7 +40,7 @@ export function finishDatesByBookId(
     for (const ROW of sortedRows(rows)) {
         const BOOK_ID = String(ROW.book_id || "");
         const DATE = String(ROW.date || "");
-        if (!BOOK_ID || !DATE) {
+        if (!(BOOK_ID && DATE)) {
             continue;
         }
         OUT[BOOK_ID] = DATE;

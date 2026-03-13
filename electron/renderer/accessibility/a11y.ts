@@ -3,6 +3,7 @@ import type {
     DocumentPreferencesInput,
 } from "../../types/types.ts";
 import { el } from "../dom.ts";
+import { bindDialogFocus } from "./a11y-dialog-focus.ts";
 
 const ANNOUNCE_DELAY_MS = 30;
 
@@ -76,4 +77,4 @@ export function applyPreferencesToDocument(
     }
 }
 
-export { bindDialogFocus } from "./a11y_dialog_focus.ts";
+export { bindDialogFocus };

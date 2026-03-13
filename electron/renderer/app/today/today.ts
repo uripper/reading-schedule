@@ -82,21 +82,24 @@ function renderHeaderSessionsMetric(options: {
     sessionDots: HTMLElement;
     completeIndicator: HTMLElement | null;
 }): void {
-    options.sessionsStatus.textContent = formatHeaderSessionsText(
-        options.snapshot.completedSessions,
-        options.snapshot.scheduledSessions,
+    const { completeIndicator, sessionDots, sessionsStatus, snapshot } =
+        options;
+
+    sessionsStatus.textContent = formatHeaderSessionsText(
+        snapshot.completedSessions,
+        snapshot.scheduledSessions,
     );
     renderSessionDots(
-        options.sessionDots,
-        options.snapshot.completedSessions,
-        options.snapshot.scheduledSessions,
+        sessionDots,
+        snapshot.completedSessions,
+        snapshot.scheduledSessions,
     );
     const COMPLETE = isHeaderSessionsComplete(
-        options.snapshot.completedSessions,
-        options.snapshot.scheduledSessions,
+        snapshot.completedSessions,
+        snapshot.scheduledSessions,
     );
-    if (options.completeIndicator !== null) {
-        applyIndicatorState(options.completeIndicator, COMPLETE);
+    if (completeIndicator !== null) {
+        applyIndicatorState(completeIndicator, COMPLETE);
     }
 }
 
@@ -126,15 +129,20 @@ function renderHeaderStreakMetric(options: {
     streakMetric: HTMLElement;
     streakNode: HTMLElement;
 }): void {
-    options.streakMetric.hidden = !options.gamificationEnabled;
-    if (!options.gamificationEnabled) {
+    const {
+        activityByDay,
+        gamificationEnabled,
+        goalMinutes,
+        streakMetric,
+        streakNode,
+    } = options;
+
+    streakMetric.hidden = !gamificationEnabled;
+    if (!gamificationEnabled) {
         return;
     }
-    const STREAK = streakFromDayMinutes(
-        options.activityByDay,
-        options.goalMinutes,
-    );
-    options.streakNode.textContent = formatStreakText(STREAK);
+    const STREAK = streakFromDayMinutes(activityByDay, goalMinutes);
+    streakNode.textContent = formatStreakText(STREAK);
 }
 
 /**
@@ -240,34 +248,86 @@ export function updateTodayDashboard({
     featureFlags,
     defaultDailyGoalMinutes,
 }: UpdateTodayDashboardArgs): void {
-    const SNAPSHOT = buildTodayScheduleSnapshot(
+    const SNAPSHOT = renderTodayCarouselAndBuildSnapshot({
+        books,
         lastResult,
         scheduleCompletions,
-        books,
+    });
+    const HEADER_METRICS = buildTodayHeaderMetrics({
+        defaultDailyGoalMinutes,
+        featureFlags,
+        lastResult,
+        preferences,
+        scheduleCompletions,
+        sessions,
+    });
+
+    applyTodayHeaderMetrics({
+        activityByDay: HEADER_METRICS.activityByDay,
+        gamificationEnabled: HEADER_METRICS.gamificationEnabled,
+        goalMinutes: HEADER_METRICS.goalMinutes,
+        snapshot: SNAPSHOT,
+    });
+}
+
+function renderTodayCarouselAndBuildSnapshot(options: {
+    books: UpdateTodayDashboardArgs["books"];
+    lastResult: UpdateTodayDashboardArgs["lastResult"];
+    scheduleCompletions: UpdateTodayDashboardArgs["scheduleCompletions"];
+}): TodayScheduleSnapshot {
+    const SNAPSHOT = buildTodayScheduleSnapshot(
+        options.lastResult,
+        options.scheduleCompletions,
+        options.books,
     );
 
     renderTodayCarousel({
-        books,
-        lastResult,
-        scheduleCompletions,
+        books: options.books,
+        lastResult: options.lastResult,
+        scheduleCompletions: options.scheduleCompletions,
     });
 
-    const ACTIVITY_BY_DAY = dayMinutesFromActivity({
-        lastResult,
-        scheduleCompletions,
-        sessions,
-        year: null,
-    });
-    const GOAL_MINUTES = resolvedGoalMinutes(
-        Number(preferences.dailyGoalMinutes),
-        defaultDailyGoalMinutes,
-    );
+    return SNAPSHOT;
+}
 
-    applyHeaderGoalMetric(ACTIVITY_BY_DAY, GOAL_MINUTES);
-    applyHeaderSessionsMetric(SNAPSHOT);
+function buildTodayHeaderMetrics(options: {
+    defaultDailyGoalMinutes: number;
+    featureFlags: UpdateTodayDashboardArgs["featureFlags"];
+    lastResult: UpdateTodayDashboardArgs["lastResult"];
+    preferences: UpdateTodayDashboardArgs["preferences"];
+    scheduleCompletions: UpdateTodayDashboardArgs["scheduleCompletions"];
+    sessions: UpdateTodayDashboardArgs["sessions"];
+}): {
+    activityByDay: DayMinutesMap;
+    gamificationEnabled: boolean;
+    goalMinutes: number;
+} {
+    return {
+        activityByDay: dayMinutesFromActivity({
+            lastResult: options.lastResult,
+            scheduleCompletions: options.scheduleCompletions,
+            sessions: options.sessions,
+            year: null,
+        }),
+        gamificationEnabled: Boolean(options.featureFlags.gamificationEnabled),
+        goalMinutes: resolvedGoalMinutes(
+            Number(options.preferences.dailyGoalMinutes),
+            options.defaultDailyGoalMinutes,
+        ),
+    };
+}
+
+function applyTodayHeaderMetrics(options: {
+    activityByDay: DayMinutesMap;
+    gamificationEnabled: boolean;
+    goalMinutes: number;
+    snapshot: TodayScheduleSnapshot;
+}): void {
+    applyHeaderGoalMetric(options.activityByDay, options.goalMinutes);
+    applyHeaderSessionsMetric(options.snapshot);
     applyHeaderStreakMetric(
-        ACTIVITY_BY_DAY,
-        GOAL_MINUTES,
-        Boolean(featureFlags.gamificationEnabled),
+        options.activityByDay,
+        options.goalMinutes,
+        options.gamificationEnabled,
     );
 }

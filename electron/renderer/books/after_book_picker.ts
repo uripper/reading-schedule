@@ -54,9 +54,7 @@ function createRefreshFiltered(
         if (clearChangedSelection) {
             const CURRENT = selectedBook(args.state);
             if (
-                !QUERY ||
-                !CURRENT ||
-                !labelsMatch(QUERY, optionLabel(CURRENT))
+                !(QUERY && CURRENT && labelsMatch(QUERY, optionLabel(CURRENT)))
             ) {
                 args.clearSelection();
             }

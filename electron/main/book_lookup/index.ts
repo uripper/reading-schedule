@@ -15,6 +15,15 @@ interface DownloadedCover {
     contentType: string | null;
 }
 
+interface DownloadCoverInput {
+    parsedUrl: URL;
+    userDataDir: string;
+}
+
+function normalizedCoverInput(value: string | undefined): string {
+    return String(value ?? "").trim();
+}
+
 async function fetchCover(parsedUrl: URL): Promise<DownloadedCover | null> {
     let response: Response;
 
@@ -42,6 +51,57 @@ async function fetchCover(parsedUrl: URL): Promise<DownloadedCover | null> {
     };
 }
 
+function parsedHttpUrl(urlText: string): URL | null {
+    let parsedUrl: URL;
+
+    try {
+        parsedUrl = new URL(urlText);
+    } catch {
+        return null;
+    }
+
+    if (!isHttpProtocol(parsedUrl.protocol)) {
+        return null;
+    }
+
+    const HOSTNAME = parsedUrl.hostname.toLowerCase();
+    if (
+        HOSTNAME === "localhost" ||
+        HOSTNAME === "::1" ||
+        HOSTNAME.startsWith("127.") ||
+        HOSTNAME.startsWith("10.") ||
+        HOSTNAME.startsWith("192.168.") ||
+        /^172\.(1[6-9]|2\d|3[0-1])\./.test(HOSTNAME)
+    ) {
+        return null;
+    }
+
+    return parsedUrl;
+}
+
+function resolveDownloadCoverInput(
+    coverUrl: string | undefined,
+    userDataDir: string | undefined,
+): DownloadCoverInput | null {
+    const NORMALIZED_URL = normalizedCoverInput(coverUrl);
+    const NORMALIZED_USER_DATA_DIR = normalizedCoverInput(userDataDir);
+
+    if (NORMALIZED_URL.length === 0 || NORMALIZED_USER_DATA_DIR.length === 0) {
+        return null;
+    }
+
+    const PARSED_URL = parsedHttpUrl(NORMALIZED_URL);
+
+    if (PARSED_URL === null) {
+        return null;
+    }
+
+    return {
+        parsedUrl: PARSED_URL,
+        userDataDir: NORMALIZED_USER_DATA_DIR,
+    };
+}
+
 /**
  * Downloads a remote cover image and stores it in the user data directory.
  * @param coverUrl - Remote cover URL candidate.
@@ -54,28 +114,24 @@ export async function downloadCover(
     bookId: string | undefined,
     userDataDir: string | undefined,
 ): Promise<string> {
-    const NORMALIZED_URL = String(coverUrl ?? "").trim();
-    const NORMALIZED_USER_DATA_DIR = String(userDataDir ?? "").trim();
-    if (NORMALIZED_URL.length === 0 || NORMALIZED_USER_DATA_DIR.length === 0) {
+    const DOWNLOAD_INPUT = resolveDownloadCoverInput(coverUrl, userDataDir);
+
+    if (DOWNLOAD_INPUT === null) {
         return "";
     }
-    let parsedUrl: URL;
-    try {
-        parsedUrl = new URL(NORMALIZED_URL);
-    } catch {
-        return "";
-    }
-    if (!isHttpProtocol(parsedUrl.protocol)) {
-        return "";
-    }
-    const DOWNLOADED_COVER = await fetchCover(parsedUrl);
+
+    const DOWNLOADED_COVER = await fetchCover(DOWNLOAD_INPUT.parsedUrl);
 
     if (DOWNLOADED_COVER === null) {
         return "";
     }
-    const EXTENSION = extensionFor(DOWNLOADED_COVER.contentType, parsedUrl);
+
+    const EXTENSION = extensionFor(
+        DOWNLOADED_COVER.contentType,
+        DOWNLOAD_INPUT.parsedUrl,
+    );
     const FILE_PATH = filePathForCover(
-        NORMALIZED_USER_DATA_DIR,
+        DOWNLOAD_INPUT.userDataDir,
         bookId,
         EXTENSION,
     );

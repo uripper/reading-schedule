@@ -1,5 +1,5 @@
-import { createAppBootstrapContext } from "./app/bootstrap_runtime.ts";
-import { initApp } from "./app/init/index.ts";
+import { createAppBootstrapContext } from "./app/bootstrap-runtime.ts";
+import { initApp } from "./app/init/init-app.ts";
 import { createSplashController } from "./app/splash.ts";
 import { logDebug, setLogLevel } from "./logger.ts";
 import { initRecommendationsRuntime } from "./recommendations/runtime.ts";
