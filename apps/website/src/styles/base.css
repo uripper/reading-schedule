@@ -6,7 +6,7 @@
 
 html {
     scroll-behavior: smooth;
-    background:  #020202;
+    background: #020202;
 }
 
 body {
@@ -15,17 +15,17 @@ body {
     font-family: var(--body-font);
     color: var(--color-paper);
     background:
-    radial-gradient(
-        circle at top right,
-        rgb(106 199 255 / 0.24),
-        transparent 26%
-    ),
-    radial-gradient(
-        circle at bottom left,
-        rgb(214 255 47 / 0.16),
-        transparent 24%
-    ),
-    linear-gradient(180deg, #020202 0%, #090909 100%);
+        radial-gradient(
+            circle at top right,
+            rgb(106 199 255 / 0.24),
+            transparent 26%
+        ),
+        radial-gradient(
+            circle at bottom left,
+            rgb(214 255 47 / 0.16),
+            transparent 24%
+        ),
+        linear-gradient(180deg, #020202 0%, #090909 100%);
 }
 
 main,
