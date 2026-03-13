@@ -133,7 +133,10 @@ export function startSessionTimers(
     onTimeout: () => void,
 ): () => void {
     const HEARTBEAT = heartbeatTimer(session);
-    const TIMEOUT = timeoutTimer(session, onTimeout);
+    const TIMEOUT = timeoutTimer(session, () => {
+        clearInterval(HEARTBEAT);
+        onTimeout();
+    });
     return (): void => {
         clearInterval(HEARTBEAT);
         clearTimeout(TIMEOUT);
