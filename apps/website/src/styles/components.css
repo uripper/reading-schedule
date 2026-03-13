@@ -120,15 +120,14 @@
 }
 
 .step-card p:last-child {
-    line-height: 1.6;
-    font-size: 1.25rem;
     align-content: start;
+    font-size: 1.25rem;
+    line-height: 1.6;
 }
 
 .step-card {
     align-content: start;
 }
-
 
 .download-card {
     align-content: space-between;

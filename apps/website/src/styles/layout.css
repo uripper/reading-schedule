@@ -30,8 +30,8 @@
     align-items: center;
     padding: clamp(1.5rem, 2vw, 2.25rem);
     margin-top: var(--space-xl);
-    background: var(--color-paper);
     color: var(--color-ink);
+    background: var(--color-paper);
 }
 
 .hero__copy,
@@ -84,8 +84,8 @@
     grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
     gap: var(--space-xl);
     margin-bottom: var(--space-2xl);
-    background: var(--color-paper);
     color: var(--color-ink);
+    background: var(--color-paper);
 }
 
 .site-footer__meta {
