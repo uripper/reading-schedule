@@ -59,6 +59,7 @@
         "dev:mobile:android": "pnpm -C mobile run dev:android",
         "dev:mobile:ios": "pnpm -C mobile run dev:ios",
         "dev:mobile:tunnel": "pnpm -C mobile run dev:tunnel",
+        "dist:desktop:win": "pnpm -C electron run dist:win",
         "dev:planner-api": ".venv/bin/python -m reading_plan.http_api",
         "dev:website": "pnpm -C apps/website run dev",
         "dev:website:hot": "pnpm -C apps/website run dev:hot",

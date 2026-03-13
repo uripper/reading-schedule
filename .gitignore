@@ -53,6 +53,7 @@ coverage/
 electron/styles/generated/
 electron/tokens/dist/
 electron/dist/
+electron/release/
 apps/*/dist/
 apps/*/dist-tests/
 packages/*/dist/

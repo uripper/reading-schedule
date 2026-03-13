@@ -1,14 +1,14 @@
 import { spawn } from "node:child_process";
 import { logDebug } from "../../types/logger.ts";
 import type { JsonValue, PlanGeneratePayload } from "../../types/types.ts";
-import { readEnvironmentValue } from "../runtime-env.ts";
-import { bridgeTimeoutMs, root } from "./context.ts";
+import { bridgeTimeoutMs } from "./context.ts";
 import {
     attachStreamHandlers,
     logParseFailure,
     logProcessClose,
     logProcessError,
 } from "./diagnostics.ts";
+import { resolvePlannerLaunch } from "./launch.ts";
 import { startSessionTimers, writePayloadAndClose } from "./session-runtime.ts";
 import type {
     BridgeExecutionContext,
@@ -36,18 +36,19 @@ function createRunSession(
     args: string[],
     executionContext: BridgeExecutionContext,
 ): BridgeRunSession {
-    const PYTHON_BINARY = readEnvironmentValue("PYTHON_BIN") ?? "python";
     const TIMEOUT_MS = bridgeTimeoutMs();
+    const LAUNCH_SPEC = resolvePlannerLaunch(moduleName, args);
     logDebug("Spawning planner bridge process.", {
-        args,
+        args: LAUNCH_SPEC.args,
+        command: LAUNCH_SPEC.command,
+        cwd: LAUNCH_SPEC.cwd,
         logPath: executionContext.logPath,
         module: moduleName,
-        pythonBinary: PYTHON_BINARY,
         requestId: executionContext.requestId,
         timeoutMs: TIMEOUT_MS,
     });
-    const PROCESS_HANDLE = spawn(PYTHON_BINARY, ["-m", moduleName, ...args], {
-        cwd: root(),
+    const PROCESS_HANDLE = spawn(LAUNCH_SPEC.command, LAUNCH_SPEC.args, {
+        cwd: LAUNCH_SPEC.cwd,
         env: executionContext.env,
     });
     return {

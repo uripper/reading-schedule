@@ -113,7 +113,7 @@ max-locals = 10
 max-nested-blocks = 3
 max-public-methods = 10
 max-returns = 3
-max-statements = 30
+max-statements = 10
 allow-magic-value-types = ["str"]
 
 [lint.flake8-annotations]
