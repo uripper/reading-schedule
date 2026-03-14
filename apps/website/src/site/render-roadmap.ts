@@ -7,14 +7,6 @@ import type { RoadmapStage, SiteContent } from "../types/site-content.ts";
 import { escapeHtml, joinMarkup } from "./render-helpers.ts";
 import { renderPageShell } from "./render-page-shell.ts";
 
-/**
- * Render an HTML unordered list of roadmap items or return an empty string when none are provided.
- * @example
- * renderRoadmapItems(['Plan', 'Build'])
- * '<ul class="roadmap-phase__list"><li>Plan</li><li>Build</li></ul>'
- * @param {readonly string[]|undefined} items - Read-only array of item strings or undefined to render nothing.
- * @returns {string} HTML string containing a UL with LI elements for each item, or an empty string.
- **/
 function renderRoadmapItems(items: readonly string[] | undefined): string {
     if (items === undefined) {
         return "";
@@ -31,47 +23,54 @@ function renderRoadmapItems(items: readonly string[] | undefined): string {
     ]);
 }
 
-/**
- * Render a roadmap phase object into an HTML string.
- * @example
- * renderRoadmapPhase({ title: 'Phase 1', highlightLabel: 'Beta', items: [] })
- * '<article class="roadmap-phase offset-card">...</article>'
- * @param {RoadmapStage} stage - Roadmap phase data including title, optional highlightLabel, and items.
- * @returns {string} HTML string representing the rendered roadmap phase.
- **/
-function renderRoadmapPhase(stage: RoadmapStage): string {
-    let statusMarkup = "";
-
-    if (stage.highlightLabel !== undefined) {
-        statusMarkup = joinMarkup([
-            '<p class="roadmap-phase__status">',
-            escapeHtml(stage.highlightLabel),
-            "</p>",
-        ]);
+function renderRoadmapStatus(
+    highlightLabel: RoadmapStage["highlightLabel"],
+): string {
+    if (highlightLabel === undefined) {
+        return "";
     }
 
     return joinMarkup([
-        '<article class="roadmap-phase offset-card">',
-        '<div class="roadmap-phase__header">',
-        `<h2>${escapeHtml(stage.title)}</h2>`,
-        statusMarkup,
+        '<p class="roadmap-phase__status">',
+        escapeHtml(highlightLabel),
+        "</p>",
+    ]);
+}
+
+function roadmapStageClassName(stage: RoadmapStage, index: number): string {
+    let className = "roadmap-stage panel";
+
+    if (index % 2 === 0) {
+        className += " roadmap-stage--left";
+    } else {
+        className += " roadmap-stage--right";
+    }
+
+    if (stage.items === undefined) {
+        className += " roadmap-stage--title-only";
+    }
+
+    return className;
+}
+
+function renderRoadmapStage(stage: RoadmapStage, index: number): string {
+    return joinMarkup([
+        `<article class="${roadmapStageClassName(stage, index)}" data-roadmap-stage>`,
+        '<div class="roadmap-stage__accent" aria-hidden="true"></div>',
+        '<div class="roadmap-stage__surface">',
+        '<div class="roadmap-stage__header">',
+        `<h2 class="roadmap-stage__title">${escapeHtml(stage.title)}</h2>`,
+        renderRoadmapStatus(stage.highlightLabel),
         "</div>",
         renderRoadmapItems(stage.items),
+        "</div>",
         "</article>",
     ]);
 }
 
-/**
- * Render the roadmap section HTML from the provided site content.
- * @example
- * renderRoadmap(sampleContent)
- * '<section class="section-shell roadmap panel" id="top">...</section>'
- * @param content - The site content object containing a roadmap with heading and stages.
- * @returns Rendered HTML string for the roadmap section.
- **/
 function renderRoadmap(content: SiteContent): string {
-    const STAGE_MARKUP = content.roadmap.stages.map((stage) => {
-        return renderRoadmapPhase(stage);
+    const STAGE_MARKUP = content.roadmap.stages.map((stage, index) => {
+        return renderRoadmapStage(stage, index);
     });
 
     return joinMarkup([
@@ -86,9 +85,6 @@ function renderRoadmap(content: SiteContent): string {
     ]);
 }
 
-/**
- * Builds the roadmap page using the shared site chrome.
- */
 export function renderRoadmapPage(content: SiteContent): string {
     return renderPageShell(
         {
