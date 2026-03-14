@@ -13,6 +13,12 @@ const EXTENSION_WEBP = ".webp";
 const DATA_URL_PREFIX = "data:";
 const DATA_URL_SEPARATOR = ",";
 const DATA_URL_BASE64_SEGMENT = ";base64";
+const DATA_MIME_TO_EXTENSION = {
+    [CONTENT_TYPE_JPEG]: EXTENSION_JPG,
+    [CONTENT_TYPE_JPG]: EXTENSION_JPG,
+    [CONTENT_TYPE_PNG]: EXTENSION_PNG,
+    [CONTENT_TYPE_WEBP]: EXTENSION_WEBP,
+} as const;
 
 /**
  * Maps an image MIME type from a data URL to a supported file extension.
@@ -21,19 +27,7 @@ const DATA_URL_BASE64_SEGMENT = ";base64";
  */
 function extensionForDataMime(mimeType: string): CoverExtension | null {
     const NORMALIZED_MIME = mimeType.trim().toLowerCase();
-    if (NORMALIZED_MIME === CONTENT_TYPE_PNG) {
-        return EXTENSION_PNG;
-    }
-    if (NORMALIZED_MIME === CONTENT_TYPE_WEBP) {
-        return EXTENSION_WEBP;
-    }
-    if (
-        NORMALIZED_MIME === CONTENT_TYPE_JPEG ||
-        NORMALIZED_MIME === CONTENT_TYPE_JPG
-    ) {
-        return EXTENSION_JPG;
-    }
-    return null;
+    return DATA_MIME_TO_EXTENSION[NORMALIZED_MIME] ?? null;
 }
 
 function splitDataUrl(
@@ -75,33 +69,35 @@ function dataMimeExtension(header: string): CoverExtension | null {
     return extensionForDataMime(header.split(";")[0]);
 }
 
+function hasBase64DataUrlPayload(parts: {
+    header: string;
+    payload: string;
+}): boolean {
+    return (
+        parts.header.includes(DATA_URL_BASE64_SEGMENT) && parts.payload !== ""
+    );
+}
+
+function parsedDataUrlPayload(parts: {
+    header: string;
+    payload: string;
+}): { extension: CoverExtension; payload: string } | null {
+    const EXTENSION = dataMimeExtension(parts.header);
+    if (EXTENSION === null) {
+        return null;
+    }
+    return { extension: EXTENSION, payload: parts.payload };
+}
+
 function parsedBase64DataUrl(value: string): {
     extension: CoverExtension;
     payload: string;
 } | null {
     const DATA_URL_PARTS = splitDataUrl(value);
-
-    if (DATA_URL_PARTS === null) {
+    if (DATA_URL_PARTS === null || !hasBase64DataUrlPayload(DATA_URL_PARTS)) {
         return null;
     }
-
-    if (
-        !DATA_URL_PARTS.header.includes(DATA_URL_BASE64_SEGMENT) ||
-        DATA_URL_PARTS.payload === ""
-    ) {
-        return null;
-    }
-
-    const EXTENSION = dataMimeExtension(DATA_URL_PARTS.header);
-
-    if (EXTENSION === null) {
-        return null;
-    }
-
-    return {
-        extension: EXTENSION,
-        payload: DATA_URL_PARTS.payload,
-    };
+    return parsedDataUrlPayload(DATA_URL_PARTS);
 }
 
 /**

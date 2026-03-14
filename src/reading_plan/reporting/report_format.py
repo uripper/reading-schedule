@@ -11,9 +11,7 @@ def _format_book_progress_line(
     book_id: str,
     info: BookProgress,
 ) -> str:
-    done = "yes"
-    if not info["finished"]:
-        done = "no"
+    done = "yes" if info["finished"] else "no"
     return (
         f"- {book_id}: {info['planned_words']}/{info['remaining_words']} words "
         f"(finished: {done})"
@@ -40,6 +38,8 @@ def format_summary(summary: Summary) -> str:
         f"Total required minutes: {summary['total_required_minutes']}",
     ]
     lines.extend(_optional_summary_lines(summary))
-    for book_id, info in summary["per_book"].items():
-        lines.append(_format_book_progress_line(book_id, info))
+    lines.extend(
+        _format_book_progress_line(book_id, info)
+        for book_id, info in summary["per_book"].items()
+    )
     return "\n".join(lines)

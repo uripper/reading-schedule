@@ -100,6 +100,23 @@ function metadataScore(doc: SearchDoc): number {
     return score;
 }
 
+function standardSearchScore(
+    doc: SearchDoc,
+    queryNorm: string,
+    tokens: string[],
+): number {
+    const TITLE_NORM = normalizeSearchText(doc.title ?? "");
+    if (TITLE_NORM.length === 0) {
+        return 0;
+    }
+    const AUTHOR_NORM = normalizeSearchText(primaryAuthor(doc));
+    return (
+        baseTitleScore(TITLE_NORM, queryNorm) +
+        tokenScore(TITLE_NORM, AUTHOR_NORM, tokens) +
+        metadataScore(doc)
+    );
+}
+
 /**
  * Computes a deterministic relevance score for a search document.
  * @param doc - Open Library search document.
@@ -113,20 +130,11 @@ export function scoreDoc(
     authorOnly = false,
 ): number {
     const QUERY_NORM = normalizeSearchText(query);
-    const TITLE_NORM = normalizeSearchText(doc.title ?? "");
-    if (!authorOnly && TITLE_NORM.length === 0) {
-        return 0;
-    }
     const TOKENS = queryTokens(query);
     if (authorOnly) {
         return authorOnlyScore(doc, QUERY_NORM, TOKENS);
     }
-    const AUTHOR_NORM = normalizeSearchText(primaryAuthor(doc));
-    return (
-        baseTitleScore(TITLE_NORM, QUERY_NORM) +
-        tokenScore(TITLE_NORM, AUTHOR_NORM, TOKENS) +
-        metadataScore(doc)
-    );
+    return standardSearchScore(doc, QUERY_NORM, TOKENS);
 }
 
 function authorOnlyScore(

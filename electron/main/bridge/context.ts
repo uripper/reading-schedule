@@ -25,6 +25,14 @@ function hasRootMarkers(directory: string): boolean {
     return existsSync(ROOT_MARKER_PATH) && existsSync(ROOT_FILE_PATH);
 }
 
+function parentDirectory(directory: string): string | null {
+    const PARENT_DIRECTORY = dirname(directory);
+    if (PARENT_DIRECTORY === directory) {
+        return null;
+    }
+    return PARENT_DIRECTORY;
+}
+
 /**
  * Ascend parent directories from a starting path to find a directory that contains project root markers.
  * @example
@@ -35,19 +43,35 @@ function hasRootMarkers(directory: string): boolean {
  */
 function resolveRootFrom(startDirectory: string): string | null {
     let currentDirectory = startDirectory;
-    let steps = 0;
-    while (steps < ROOT_SEARCH_ASCENT_LIMIT) {
+    for (let steps = 0; steps < ROOT_SEARCH_ASCENT_LIMIT; steps += 1) {
         if (hasRootMarkers(currentDirectory)) {
             return currentDirectory;
         }
-        const PARENT_DIRECTORY = dirname(currentDirectory);
-        if (PARENT_DIRECTORY === currentDirectory) {
+        const PARENT_DIRECTORY = parentDirectory(currentDirectory);
+        if (PARENT_DIRECTORY === null) {
             return null;
         }
         currentDirectory = PARENT_DIRECTORY;
-        steps += 1;
     }
     return null;
+}
+
+function parsedBridgeTimeout(rawTimeout: unknown): number | null {
+    if (typeof rawTimeout !== "string" || rawTimeout.trim() === "") {
+        return null;
+    }
+    const PARSED = Number(rawTimeout);
+    if (!Number.isFinite(PARSED)) {
+        return null;
+    }
+    return Math.floor(PARSED);
+}
+
+function clampedBridgeTimeout(timeoutMs: number): number {
+    return Math.min(
+        MAX_BRIDGE_TIMEOUT_MS,
+        Math.max(MIN_BRIDGE_TIMEOUT_MS, timeoutMs),
+    );
 }
 
 /**
@@ -55,19 +79,13 @@ function resolveRootFrom(startDirectory: string): string | null {
  * @returns Timeout in milliseconds.
  */
 export function bridgeTimeoutMs(): number {
-    const RAW_TIMEOUT = readEnvironmentValue(BRIDGE_TIMEOUT_MS_KEY);
-    if (typeof RAW_TIMEOUT !== "string" || RAW_TIMEOUT.trim() === "") {
-        return DEFAULT_BRIDGE_TIMEOUT_MS;
-    }
-    const PARSED = Number(RAW_TIMEOUT);
-    if (!Number.isFinite(PARSED)) {
-        return DEFAULT_BRIDGE_TIMEOUT_MS;
-    }
-    const ROUNDED = Math.floor(PARSED);
-    return Math.min(
-        MAX_BRIDGE_TIMEOUT_MS,
-        Math.max(MIN_BRIDGE_TIMEOUT_MS, ROUNDED),
+    const PARSED_TIMEOUT = parsedBridgeTimeout(
+        readEnvironmentValue(BRIDGE_TIMEOUT_MS_KEY),
     );
+    if (PARSED_TIMEOUT === null) {
+        return DEFAULT_BRIDGE_TIMEOUT_MS;
+    }
+    return clampedBridgeTimeout(PARSED_TIMEOUT);
 }
 
 /**
@@ -113,6 +131,20 @@ function bridgeEnv(context?: BridgeRunContext): NodeJS.ProcessEnv {
     return ENV;
 }
 
+function executionContextRequestId(context?: BridgeRunContext): string | null {
+    if (typeof context?.requestId === "string" && context.requestId !== "") {
+        return context.requestId;
+    }
+    return null;
+}
+
+function executionContextLogPath(context?: BridgeRunContext): string {
+    if (!context?.userDataDir) {
+        return "";
+    }
+    return pythonBridgeLogPath(context.userDataDir);
+}
+
 /**
  * Resolves runtime execution context values used by bridge instrumentation.
  * @param context - Optional runtime context from IPC layer.
@@ -121,18 +153,9 @@ function bridgeEnv(context?: BridgeRunContext): NodeJS.ProcessEnv {
 export function resolveExecutionContext(
     context?: BridgeRunContext,
 ): BridgeExecutionContext {
-    const ENV = bridgeEnv(context);
-    let requestId: string | null = null;
-    if (typeof context?.requestId === "string" && context.requestId !== "") {
-        requestId = context.requestId;
-    }
-    let logPath = "";
-    if (context?.userDataDir) {
-        logPath = pythonBridgeLogPath(context.userDataDir);
-    }
     return {
-        env: ENV,
-        logPath,
-        requestId,
+        env: bridgeEnv(context),
+        logPath: executionContextLogPath(context),
+        requestId: executionContextRequestId(context),
     };
 }

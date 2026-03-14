@@ -84,9 +84,7 @@ def run_attempt(
 
 def _objective_mode(stage: SolveStage) -> str:
     """Return the stage objective mode label."""
-    if stage.include_objective:
-        return "optimize"
-    return "feasibility"
+    return "optimize" if stage.include_objective else "feasibility"
 
 
 def _maybe_add_hints(

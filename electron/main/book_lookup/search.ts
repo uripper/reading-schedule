@@ -35,6 +35,14 @@ function collectDocs(
     return DOCS;
 }
 
+function normalizedSearchQuery(query: string): string {
+    const NORMALIZED_QUERY = query.trim();
+    if (NORMALIZED_QUERY.length < MIN_QUERY_LENGTH) {
+        return "";
+    }
+    return NORMALIZED_QUERY;
+}
+
 function rankDocs(
     docs: SearchDoc[],
     normalizedQuery: string,
@@ -102,6 +110,19 @@ function finalizeSearchItems(
         .filter((item) => Boolean(item.title));
 }
 
+async function loggedFinalSearchItems(
+    normalizedQuery: string,
+    authorOnly: boolean,
+): Promise<SearchItem[]> {
+    const DOCS = await fetchSearchDocs(normalizedQuery, authorOnly);
+    logInfo(`[OpenLibrary] Raw results before dedup/scoring: ${DOCS.length}`);
+    const FINAL = finalizeSearchItems(DOCS, normalizedQuery, authorOnly);
+    logInfo(
+        `[OpenLibrary] Final results (limit ${SEARCH_OUTPUT_LIMIT}): ${FINAL.length}`,
+    );
+    return FINAL;
+}
+
 /**
  * Queries Open Library endpoints and returns ranked search items.
  * @param query - User-entered search query text.
@@ -112,19 +133,14 @@ export async function searchBooks(
     query: string,
     authorOnly = false,
 ): Promise<SearchItem[]> {
-    const NORMALIZED_QUERY = query.trim();
-    if (NORMALIZED_QUERY.length < MIN_QUERY_LENGTH) {
+    const NORMALIZED_QUERY = normalizedSearchQuery(query);
+    if (NORMALIZED_QUERY === "") {
         return [];
     }
     logInfo(
         `[OpenLibrary] Searching (authorOnly=${authorOnly}): "${NORMALIZED_QUERY}"`,
     );
-    const DOCS = await fetchSearchDocs(NORMALIZED_QUERY, authorOnly);
-    logInfo(`[OpenLibrary] Raw results before dedup/scoring: ${DOCS.length}`);
-    const FINAL = finalizeSearchItems(DOCS, NORMALIZED_QUERY, authorOnly);
-    logInfo(
-        `[OpenLibrary] Final results (limit ${SEARCH_OUTPUT_LIMIT}): ${FINAL.length}`,
-    );
+    const FINAL = await loggedFinalSearchItems(NORMALIZED_QUERY, authorOnly);
     logSearchItems(FINAL);
     return FINAL;
 }

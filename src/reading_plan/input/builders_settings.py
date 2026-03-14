@@ -37,9 +37,9 @@ def _difficulty_multiplier(data: SettingsData) -> dict[int, float]:
 def _start_date(data: SettingsData) -> date:
     """Return explicit or default planning start date."""
     start_date = datetime.fromtimestamp(time(), UTC).astimezone().date()
-    if data.get("start_date"):
-        return parse_date(data["start_date"])
-    return start_date
+    return (
+        parse_date(data["start_date"]) if data.get("start_date") else start_date
+    )
 
 
 def _default_minutes_per_day(by_weekday: dict[str, int]) -> int:
@@ -63,9 +63,14 @@ def _minutes_per_day(
 
 def _plan_mode(data: SettingsData) -> str:
     """Normalize the planner mode value."""
-    return str(
-        data.get("plan_mode", PLAN_MODE_FINISH_SOON) or PLAN_MODE_FINISH_SOON
-    ).strip().lower()
+    return (
+        str(
+            data.get("plan_mode", PLAN_MODE_FINISH_SOON)
+            or PLAN_MODE_FINISH_SOON
+        )
+        .strip()
+        .lower()
+    )
 
 
 def settings_from_data(data: SettingsData) -> Settings:

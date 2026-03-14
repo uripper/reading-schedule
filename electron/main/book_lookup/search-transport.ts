@@ -13,6 +13,23 @@ import {
 
 const OPEN_LIBRARY_SEARCH_URL = "https://openlibrary.org/search.json";
 const OPEN_LIBRARY_LANGUAGE_ENGLISH = "eng";
+const SEARCH_BASE = `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}&fields=${SEARCH_FIELDS}`;
+const AUTHOR_ONLY_SEARCH_BASE = `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}`;
+
+function authorOnlySearchUrls(encodedQuery: string): string[] {
+    return [
+        `${AUTHOR_ONLY_SEARCH_BASE}&author=${encodedQuery}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
+        `${AUTHOR_ONLY_SEARCH_BASE}&author=${encodedQuery}`,
+    ];
+}
+
+function generalSearchUrls(encodedQuery: string): string[] {
+    return [
+        `${SEARCH_BASE}&q=${encodedQuery}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
+        `${SEARCH_BASE}&author=${encodedQuery}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
+        `${SEARCH_BASE}&title=${encodedQuery}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
+    ];
+}
 
 /**
  * Builds prioritized Open Library query URLs for a search string.
@@ -22,21 +39,12 @@ const OPEN_LIBRARY_LANGUAGE_ENGLISH = "eng";
  */
 export function searchUrls(query: string, authorOnly = false): string[] {
     const ENCODED = encodeURIComponent(query);
-    const BASE = `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}&fields=${SEARCH_FIELDS}`;
     if (authorOnly) {
         // Intentionally omit `fields` in author-only mode because Open Library
         // ranking quality regresses with projected fields for these queries.
-        const AUTHOR_ONLY_BASE = `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}`;
-        return [
-            `${AUTHOR_ONLY_BASE}&author=${ENCODED}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
-            `${AUTHOR_ONLY_BASE}&author=${ENCODED}`,
-        ];
+        return authorOnlySearchUrls(ENCODED);
     }
-    return [
-        `${BASE}&q=${ENCODED}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
-        `${BASE}&author=${ENCODED}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
-        `${BASE}&title=${ENCODED}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
-    ];
+    return generalSearchUrls(ENCODED);
 }
 
 /**

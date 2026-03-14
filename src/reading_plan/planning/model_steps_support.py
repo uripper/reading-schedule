@@ -252,9 +252,7 @@ def _daily_upper_bound(
 ) -> int:
     """Return the allowed block cap for one book on one day."""
     upper = min(context.caps[day], per_book_cap)
-    if not book_is_scheduled_for_day(book, day):
-        return 0
-    return upper
+    return upper if book_is_scheduled_for_day(book, day) else 0
 
 
 def _new_day_variables(

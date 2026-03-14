@@ -61,6 +61,20 @@ function hasAuthorMatchInputs(
     return authorNorm.length > 0 && queryNorm.length > 0 && tokens.length > 0;
 }
 
+function scoredAuthorTokenMatch(
+    authorTokens: string[],
+    tokens: string[],
+): number {
+    if (authorTokens.length === 0) {
+        return 0;
+    }
+    const MATCHED_COUNT = matchingAuthorTokenCount(authorTokens, tokens);
+    if (MATCHED_COUNT <= 0 || MATCHED_COUNT < minimumMatchedTokens(tokens)) {
+        return 0;
+    }
+    return scoreMatchedTokens(MATCHED_COUNT, tokens.length);
+}
+
 /**
  * Scores one normalized author string against the normalized query.
  * @param authorNorm - Normalized author name.
@@ -79,20 +93,7 @@ function authorMatchScore(
     if (authorNorm === queryNorm) {
         return SCORE_AUTHOR_EXACT;
     }
-    const AUTHOR_TOKENS = normalizedTokens(authorNorm);
-    if (AUTHOR_TOKENS.length === 0) {
-        return 0;
-    }
-    const MATCHED_COUNT = matchingAuthorTokenCount(AUTHOR_TOKENS, tokens);
-    if (MATCHED_COUNT <= 0) {
-        return 0;
-    }
-
-    if (MATCHED_COUNT < minimumMatchedTokens(tokens)) {
-        return 0;
-    }
-
-    return scoreMatchedTokens(MATCHED_COUNT, tokens.length);
+    return scoredAuthorTokenMatch(normalizedTokens(authorNorm), tokens);
 }
 
 /**

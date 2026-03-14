@@ -12,6 +12,14 @@ const PLANNER_EXECUTABLE_BASENAME = "planner-bridge";
 const WINDOWS_PLATFORM = "win32";
 const WINDOWS_EXECUTABLE_SUFFIX = ".exe";
 
+function trimmedEnvironmentPath(key: string): string {
+    const ENV_PATH = readEnvironmentValue(key);
+    if (typeof ENV_PATH !== "string") {
+        return "";
+    }
+    return ENV_PATH.trim();
+}
+
 function processResourcesPath(): string {
     const RESOURCES_PATH = process.resourcesPath;
     if (typeof RESOURCES_PATH !== "string") {
@@ -25,9 +33,9 @@ function processResourcesPath(): string {
  * @returns Absolute packaged resources path, or an empty string in dev.
  */
 function packagedResourcesPath(): string {
-    const ENV_PATH = readEnvironmentValue(RESOURCES_PATH_ENV_KEY);
-    if (typeof ENV_PATH === "string" && ENV_PATH.trim() !== "") {
-        return ENV_PATH.trim();
+    const ENV_PATH = trimmedEnvironmentPath(RESOURCES_PATH_ENV_KEY);
+    if (ENV_PATH !== "") {
+        return ENV_PATH;
     }
     return processResourcesPath();
 }
@@ -43,24 +51,28 @@ function plannerExecutableFileName(): string {
     return PLANNER_EXECUTABLE_BASENAME;
 }
 
+function bundledPlannerPathFromResources(resourcesPath: string): string {
+    return join(
+        resourcesPath,
+        PLANNER_DIRECTORY_NAME,
+        plannerExecutableFileName(),
+    );
+}
+
 /**
  * Resolves the bundled planner executable path when present.
  * @returns Absolute planner executable path, or an empty string.
  */
 export function bundledPlannerPath(): string {
-    const OVERRIDE_PATH = readEnvironmentValue(PLANNER_PATH_ENV_KEY);
-    if (typeof OVERRIDE_PATH === "string" && OVERRIDE_PATH.trim() !== "") {
-        return OVERRIDE_PATH.trim();
+    const OVERRIDE_PATH = trimmedEnvironmentPath(PLANNER_PATH_ENV_KEY);
+    if (OVERRIDE_PATH !== "") {
+        return OVERRIDE_PATH;
     }
     const RESOURCES_PATH = packagedResourcesPath();
     if (RESOURCES_PATH === "") {
         return "";
     }
-    return join(
-        RESOURCES_PATH,
-        PLANNER_DIRECTORY_NAME,
-        plannerExecutableFileName(),
-    );
+    return bundledPlannerPathFromResources(RESOURCES_PATH);
 }
 
 /**
@@ -84,9 +96,9 @@ export function bundledPlannerWorkingDirectory(): string {
     if (RESOURCES_PATH !== "") {
         return RESOURCES_PATH;
     }
-    const OVERRIDE_PATH = readEnvironmentValue(PLANNER_PATH_ENV_KEY);
-    if (typeof OVERRIDE_PATH === "string" && OVERRIDE_PATH.trim() !== "") {
-        return dirname(OVERRIDE_PATH.trim());
+    const OVERRIDE_PATH = trimmedEnvironmentPath(PLANNER_PATH_ENV_KEY);
+    if (OVERRIDE_PATH !== "") {
+        return dirname(OVERRIDE_PATH);
     }
     return "";
 }

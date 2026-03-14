@@ -24,6 +24,46 @@ interface RunBridgeForModuleArgs {
     payload: PlanGeneratePayload | undefined;
 }
 
+interface LaunchSessionArgs {
+    executionContext: BridgeExecutionContext;
+    launchSpec: ReturnType<typeof resolvePlannerLaunch>;
+    moduleName: string;
+    timeoutMs: number;
+}
+
+interface AttachSessionHandlersArgs {
+    clearTimers(): void;
+    parseOutput: RunBridgeForModuleArgs["parseOutput"];
+    session: BridgeRunSession;
+    settle: SettleHandlers;
+}
+
+function logSpawnSpec(args: LaunchSessionArgs): void {
+    logDebug("Spawning planner bridge process.", {
+        args: args.launchSpec.args,
+        command: args.launchSpec.command,
+        cwd: args.launchSpec.cwd,
+        logPath: args.executionContext.logPath,
+        module: args.moduleName,
+        requestId: args.executionContext.requestId,
+        timeoutMs: args.timeoutMs,
+    });
+}
+
+function runSessionFromLaunch(args: LaunchSessionArgs): BridgeRunSession {
+    return {
+        buffers: { stderr: "", stdout: "" },
+        executionContext: args.executionContext,
+        moduleName: args.moduleName,
+        processHandle: spawn(args.launchSpec.command, args.launchSpec.args, {
+            cwd: args.launchSpec.cwd,
+            env: args.executionContext.env,
+        }),
+        startedAt: Date.now(),
+        timeoutMs: args.timeoutMs,
+    };
+}
+
 /**
  * Creates bridge run session with spawned process and defaults.
  * @param moduleName - Python module name to execute.
@@ -36,55 +76,56 @@ function createRunSession(
     args: string[],
     executionContext: BridgeExecutionContext,
 ): BridgeRunSession {
-    const TIMEOUT_MS = bridgeTimeoutMs();
-    const LAUNCH_SPEC = resolvePlannerLaunch(moduleName, args);
-    logDebug("Spawning planner bridge process.", {
-        args: LAUNCH_SPEC.args,
-        command: LAUNCH_SPEC.command,
-        cwd: LAUNCH_SPEC.cwd,
-        logPath: executionContext.logPath,
-        module: moduleName,
-        requestId: executionContext.requestId,
-        timeoutMs: TIMEOUT_MS,
-    });
-    const PROCESS_HANDLE = spawn(LAUNCH_SPEC.command, LAUNCH_SPEC.args, {
-        cwd: LAUNCH_SPEC.cwd,
-        env: executionContext.env,
-    });
-    return {
-        buffers: { stderr: "", stdout: "" },
+    const LAUNCH_ARGS: LaunchSessionArgs = {
         executionContext,
+        launchSpec: resolvePlannerLaunch(moduleName, args),
         moduleName,
-        processHandle: PROCESS_HANDLE,
-        startedAt: Date.now(),
-        timeoutMs: TIMEOUT_MS,
+        timeoutMs: bridgeTimeoutMs(),
     };
+    logSpawnSpec(LAUNCH_ARGS);
+    return runSessionFromLaunch(LAUNCH_ARGS);
 }
 
 /**
  * Attaches spawn/exit/disconnect lifecycle diagnostics.
  */
+function logSpawnedSession(session: BridgeRunSession): void {
+    logDebug("Planner bridge subprocess spawned.", {
+        module: session.moduleName,
+        pid: session.processHandle.pid ?? null,
+        requestId: session.executionContext.requestId,
+    });
+}
+
+function logExitedSession(
+    session: BridgeRunSession,
+    exitCode: number | null,
+    signal: NodeJS.Signals | null,
+): void {
+    logDebug("Planner bridge process exited.", {
+        exitCode: Number(exitCode ?? 0),
+        module: session.moduleName,
+        requestId: session.executionContext.requestId,
+        signal: signal ?? null,
+    });
+}
+
+function logDisconnectedSession(session: BridgeRunSession): void {
+    logDebug("Planner bridge process disconnected.", {
+        module: session.moduleName,
+        requestId: session.executionContext.requestId,
+    });
+}
+
 function attachLifecycleLogs(session: BridgeRunSession): void {
     session.processHandle.on("spawn", () => {
-        logDebug("Planner bridge subprocess spawned.", {
-            module: session.moduleName,
-            pid: session.processHandle.pid ?? null,
-            requestId: session.executionContext.requestId,
-        });
+        logSpawnedSession(session);
     });
     session.processHandle.on("exit", (exitCode, signal) => {
-        logDebug("Planner bridge process exited.", {
-            exitCode: Number(exitCode ?? 0),
-            module: session.moduleName,
-            requestId: session.executionContext.requestId,
-            signal: signal ?? null,
-        });
+        logExitedSession(session, exitCode, signal);
     });
     session.processHandle.on("disconnect", () => {
-        logDebug("Planner bridge process disconnected.", {
-            module: session.moduleName,
-            requestId: session.executionContext.requestId,
-        });
+        logDisconnectedSession(session);
     });
 }
 
@@ -94,28 +135,37 @@ function attachLifecycleLogs(session: BridgeRunSession): void {
  * @param reject - Promise reject callback.
  * @returns Object with guarded resolveOnce and rejectOnce callbacks.
  */
+function createSettleGuard(): () => boolean {
+    let settled = false;
+    return (): boolean => {
+        if (settled) {
+            return false;
+        }
+        settled = true;
+        return true;
+    };
+}
+
+function guardedSettle<T>(
+    shouldSettle: () => boolean,
+    settle: (value: T) => void,
+): (value: T) => void {
+    return (value: T): void => {
+        if (!shouldSettle()) {
+            return;
+        }
+        settle(value);
+    };
+}
+
 function createSettleHandlers(
     resolve: (value: JsonValue) => void,
     reject: (error: Error) => void,
 ): SettleHandlers {
-    let settled = false;
-    const REJECT_ONCE = (error: Error): void => {
-        if (settled) {
-            return;
-        }
-        settled = true;
-        reject(error);
-    };
-    const RESOLVE_ONCE = (value: JsonValue): void => {
-        if (settled) {
-            return;
-        }
-        settled = true;
-        resolve(value);
-    };
+    const SHOULD_SETTLE = createSettleGuard();
     return {
-        rejectOnce: REJECT_ONCE,
-        resolveOnce: RESOLVE_ONCE,
+        rejectOnce: guardedSettle(SHOULD_SETTLE, reject),
+        resolveOnce: guardedSettle(SHOULD_SETTLE, resolve),
     };
 }
 
@@ -139,6 +189,21 @@ interface HandleSessionCloseArgs {
     signal: NodeJS.Signals | null;
 }
 
+function parsedSessionOutput(
+    parseOutput: RunBridgeForModuleArgs["parseOutput"],
+    session: BridgeRunSession,
+): JsonValue {
+    return parseOutput(session.buffers.stdout, session.buffers.stderr);
+}
+
+function rejectWithUnknownError(error: unknown, settle: SettleHandlers): void {
+    if (error instanceof Error) {
+        settle.rejectOnce(error);
+        return;
+    }
+    settle.rejectOnce(new Error(String(error)));
+}
+
 function handleSessionClose({
     exitCode,
     parseOutput,
@@ -152,28 +217,37 @@ function handleSessionClose({
         exitCode,
         signal,
     });
-
     try {
-        settle.resolveOnce(
-            parseOutput(session.buffers.stdout, session.buffers.stderr),
-        );
+        settle.resolveOnce(parsedSessionOutput(parseOutput, session));
     } catch (error) {
         logParseFailure(session.buffers, session.executionContext);
-
-        if (error instanceof Error) {
-            settle.rejectOnce(error);
-            return;
-        }
-
-        settle.rejectOnce(new Error(String(error)));
+        rejectWithUnknownError(error, settle);
     }
 }
 
-interface AttachSessionHandlersArgs {
-    clearTimers(): void;
-    parseOutput: RunBridgeForModuleArgs["parseOutput"];
-    session: BridgeRunSession;
-    settle: SettleHandlers;
+function attachSessionErrorHandler(args: AttachSessionHandlersArgs): void {
+    args.session.processHandle.on("error", (error: Error) => {
+        args.clearTimers();
+        logProcessError(
+            error,
+            args.session.buffers,
+            args.session.executionContext,
+        );
+        args.settle.rejectOnce(error);
+    });
+}
+
+function attachSessionCloseHandler(args: AttachSessionHandlersArgs): void {
+    args.session.processHandle.on("close", (exitCode, signal) => {
+        args.clearTimers();
+        handleSessionClose({
+            exitCode,
+            parseOutput: args.parseOutput,
+            session: args.session,
+            settle: args.settle,
+            signal,
+        });
+    });
 }
 
 function attachSessionHandlers({
@@ -188,21 +262,17 @@ function attachSessionHandlers({
         session.buffers,
         session.executionContext.requestId,
     );
-    session.processHandle.on("error", (error: Error) => {
-        clearTimers();
-        logProcessError(error, session.buffers, session.executionContext);
-        settle.rejectOnce(error);
-    });
-    session.processHandle.on("close", (exitCode, signal) => {
-        clearTimers();
-        handleSessionClose({
-            exitCode,
-            parseOutput,
-            session,
-            settle,
-            signal,
-        });
-    });
+    attachSessionErrorHandler({ clearTimers, parseOutput, session, settle });
+    attachSessionCloseHandler({ clearTimers, parseOutput, session, settle });
+}
+
+function sessionTimeoutHandler(
+    session: BridgeRunSession,
+    settle: SettleHandlers,
+): () => void {
+    return (): void => {
+        rejectOnTimeout(session, settle);
+    };
 }
 
 /**
@@ -224,10 +294,10 @@ export async function runBridgeForModule({
     return await new Promise((resolve, reject) => {
         const SETTLE = createSettleHandlers(resolve, reject);
         const SESSION = createRunSession(moduleName, args, executionContext);
-        const CLEAR_TIMERS = startSessionTimers(SESSION, () => {
-            rejectOnTimeout(SESSION, SETTLE);
-        });
-
+        const CLEAR_TIMERS = startSessionTimers(
+            SESSION,
+            sessionTimeoutHandler(SESSION, SETTLE),
+        );
         attachSessionHandlers({
             clearTimers: CLEAR_TIMERS,
             parseOutput,

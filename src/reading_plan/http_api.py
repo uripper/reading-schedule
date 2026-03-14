@@ -171,9 +171,7 @@ def _work_id(raw_key: object) -> str:
     if not isinstance(raw_key, str):
         return ""
     trimmed = raw_key.strip()
-    if not trimmed:
-        return ""
-    return trimmed.split("/")[-1]
+    return trimmed.split("/")[-1] if trimmed else ""
 
 
 def _search_query(query: str, *, author_only: bool) -> str:
@@ -210,9 +208,7 @@ def _request_json(request_url: str) -> dict[str, object]:
             status_code=502,
             detail=f"Book search failed: {error}",
         ) from error
-    if is_str_object_dict(payload):
-        return payload
-    return {}
+    return payload if is_str_object_dict(payload) else {}
 
 
 def _search_docs(query: str, *, author_only: bool) -> list[object]:
@@ -221,9 +217,7 @@ def _search_docs(query: str, *, author_only: bool) -> list[object]:
     request_url = _search_query(query, author_only=author_only)
     payload = _request_json(request_url)
     docs = payload.get("docs")
-    if is_object_list(docs):
-        return docs
-    return []
+    return docs if is_object_list(docs) else []
 
 
 def _doc_to_result(doc: object) -> dict[str, str] | None:

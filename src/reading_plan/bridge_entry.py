@@ -44,9 +44,7 @@ def module_argv(argv: Sequence[str]) -> list[str]:
 
 def active_argv(argv: Sequence[str] | None) -> list[str]:
     """Return runtime argv from an explicit override or process state."""
-    if argv is None:
-        return list(sys.argv)
-    return list(argv)
+    return list(sys.argv) if argv is None else list(argv)
 
 
 def write_error(message: object) -> int:

@@ -89,9 +89,7 @@ def _book_id(data: BookData) -> str:
     if raw is None:
         return str(uuid4())
     text = str(raw).strip()
-    if text:
-        return text
-    return str(uuid4())
+    return text or str(uuid4())
 
 
 def _title(data: BookData) -> str:
@@ -130,9 +128,7 @@ def _deadline(data: BookData) -> date | None:
         return None
     if isinstance(raw, str):
         text = raw.strip()
-        if not text:
-            return None
-        return parse_date(text)
+        return parse_date(text) if text else None
     msg = "deadline must be a string or null"
     raise TypeError(msg)
 
@@ -264,8 +260,7 @@ def _validated_scheduled_days(
     if not selected:
         msg = f"scheduled_days must include at least one day for {book_id}"
         raise ValueError(msg)
-    invalid_days = selected - ALL_WEEKDAYS
-    if invalid_days:
+    if _invalid_days := selected - ALL_WEEKDAYS:
         msg = f"scheduled_days must only include Mon..Sun for {book_id}"
         raise ValueError(msg)
     return frozenset(selected)
@@ -294,9 +289,7 @@ def _int_input(raw: object, field: str) -> IntInput:
 
 def _optional_int_input(raw: object | None, field: str) -> IntInput | None:
     """Validate and narrow an optional raw value into integer input."""
-    if raw is None:
-        return None
-    return _int_input(raw, field)
+    return None if raw is None else _int_input(raw, field)
 
 
 def _float_input(raw: object, field: str) -> FloatInput:

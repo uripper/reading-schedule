@@ -10,30 +10,41 @@ import {
 } from "./diagnostics.ts";
 import type { BridgeProgressSnapshot, BridgeRunSession } from "./types.ts";
 
-function attachStdinLogs(
+function logUnavailableStdin(session: BridgeRunSession): null {
+    logDebug("Planner bridge stdin stream unavailable.", {
+        module: session.moduleName,
+        requestId: session.executionContext.requestId,
+    });
+    return null;
+}
+
+function attachStdinListeners(
     session: BridgeRunSession,
-): NodeJS.WritableStream | null {
-    const STDIN = session.processHandle.stdin;
-    if (STDIN === null) {
-        logDebug("Planner bridge stdin stream unavailable.", {
-            module: session.moduleName,
-            requestId: session.executionContext.requestId,
-        });
-        return null;
-    }
-    STDIN.on("error", (error: Error) => {
+    stdin: NodeJS.WritableStream,
+): void {
+    stdin.on("error", (error: Error) => {
         logDebug("Planner bridge stdin stream error.", {
             message: error.message,
             module: session.moduleName,
             requestId: session.executionContext.requestId,
         });
     });
-    STDIN.on("finish", () => {
+    stdin.on("finish", () => {
         logDebug("Planner bridge stdin stream finished.", {
             module: session.moduleName,
             requestId: session.executionContext.requestId,
         });
     });
+}
+
+function attachStdinLogs(
+    session: BridgeRunSession,
+): NodeJS.WritableStream | null {
+    const STDIN = session.processHandle.stdin;
+    if (STDIN === null) {
+        return logUnavailableStdin(session);
+    }
+    attachStdinListeners(session, STDIN);
     return STDIN;
 }
 
@@ -52,6 +63,23 @@ function writePayload(
         module: session.moduleName,
         requestId: session.executionContext.requestId,
         writeAcceptedImmediately: WRITE_RESULT,
+    });
+}
+
+function heartbeatLogTail(
+    previousSnapshot: BridgeProgressSnapshot,
+    currentSnapshot: BridgeProgressSnapshot,
+): string {
+    return appendedLogTail(previousSnapshot.logTail, currentSnapshot.logTail);
+}
+
+function logSessionHeartbeat(session: BridgeRunSession, logTail: string): void {
+    logHeartbeat({
+        buffers: session.buffers,
+        executionContext: session.executionContext,
+        logTail,
+        moduleName: session.moduleName,
+        startedAt: session.startedAt,
     });
 }
 
@@ -89,17 +117,10 @@ function logHeartbeatIfChanged(
     if (!hasProgressChanged(previousSnapshot, CURRENT_SNAPSHOT)) {
         return previousSnapshot;
     }
-    const APPENDED_TAIL = appendedLogTail(
-        previousSnapshot.logTail,
-        CURRENT_SNAPSHOT.logTail,
+    logSessionHeartbeat(
+        session,
+        heartbeatLogTail(previousSnapshot, CURRENT_SNAPSHOT),
     );
-    logHeartbeat({
-        buffers: session.buffers,
-        executionContext: session.executionContext,
-        logTail: APPENDED_TAIL,
-        moduleName: session.moduleName,
-        startedAt: session.startedAt,
-    });
     return CURRENT_SNAPSHOT;
 }
 
