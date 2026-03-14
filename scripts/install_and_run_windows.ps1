@@ -155,8 +155,6 @@ try {
 
   Push-Location .\electron
   try {
-    Invoke-Pnpm @("rebuild", "electron")
-    Invoke-Pnpm @("exec", "electron", "--version") | Out-Null
     $env:PYTHON_BIN = (Resolve-Path ..\.venv\Scripts\python.exe).Path
     $env:UI_SCALE = "1.65"
     if ($Hot) {

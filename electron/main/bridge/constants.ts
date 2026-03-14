@@ -1,9 +1,5 @@
 const PRIMARY_PLANNER_MODULE = "reading_plan.gui_api";
-const FALLBACK_PLANNER_MODULE = "reading_plan.cli";
-export const PLANNER_MODULE_CANDIDATES = [
-    PRIMARY_PLANNER_MODULE,
-    FALLBACK_PLANNER_MODULE,
-];
+export const PLANNER_MODULE_CANDIDATES = [PRIMARY_PLANNER_MODULE];
 
 export const PYTHONPATH_SEGMENT = "src";
 export const PYTHONPATH_KEY = "PYTHONPATH";

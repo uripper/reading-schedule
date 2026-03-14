@@ -1,8 +1,11 @@
-interface Rgb {
-    b: number;
-    g: number;
-    r: number;
-}
+import type { Rgb } from "./today-background-color.ts";
+import {
+    brutalNormalize,
+    dominantChromaFromPixels,
+    hexToRgb,
+    rgbToHex,
+    samplesToPixels,
+} from "./today-background-color.ts";
 
 /**
  * Visual colors used by the Today screen background and transition layer.
@@ -23,11 +26,6 @@ interface NeoBrutalistFallback {
     canvasColor: string;
     dominantColor: string;
 }
-
-const LUMA_HIGH_CUTOFF = 0.92;
-const LUMA_LOW_CUTOFF = 0.08;
-const SATURATION_LOW_CUTOFF = 0.12;
-const QUANTIZATION_STEP = 24;
 
 const COVER_SAMPLES_BY_TITLE: Readonly<Record<string, readonly Rgb[]>> = {
     "2666": [
@@ -70,70 +68,6 @@ const NEO_BRUTALIST_FALLBACKS: readonly NeoBrutalistFallback[] = [
     },
 ];
 
-function clampChannel(value: number): number {
-    if (value < 0) {
-        return 0;
-    }
-    if (value > 255) {
-        return 255;
-    }
-    return Math.round(value);
-}
-
-function rgbToHex(rgb: Rgb): string {
-    const R = clampChannel(rgb.r).toString(16).padStart(2, "0");
-    const G = clampChannel(rgb.g).toString(16).padStart(2, "0");
-    const B = clampChannel(rgb.b).toString(16).padStart(2, "0");
-    return `#${R}${G}${B}`.toUpperCase();
-}
-
-/**
- * Convert an HSL color to an RGB color with channels in the 0–255 range.
- * @example
- * hslToRgb(0, 1, 0.5)
- * { r: 255, g: 0, b: 0 }
- * @param h - Hue in degrees (0–360).
- * @param s - Saturation as a fraction (0–1).
- * @param l - Lightness as a fraction (0–1).
- * @returns RGB color object with r, g, b channels clamped to 0–255.
- **/
-function hslToRgb(h: number, s: number, l: number): Rgb {
-    const C = (1 - Math.abs(2 * l - 1)) * s;
-    const H_PRIME = h / 60;
-    const X = C * (1 - Math.abs((H_PRIME % 2) - 1));
-
-    let r1 = 0;
-    let g1 = 0;
-    let b1 = 0;
-
-    if (H_PRIME >= 0 && H_PRIME < 1) {
-        r1 = C;
-        g1 = X;
-    } else if (H_PRIME >= 1 && H_PRIME < 2) {
-        r1 = X;
-        g1 = C;
-    } else if (H_PRIME >= 2 && H_PRIME < 3) {
-        g1 = C;
-        b1 = X;
-    } else if (H_PRIME >= 3 && H_PRIME < 4) {
-        g1 = X;
-        b1 = C;
-    } else if (H_PRIME >= 4 && H_PRIME < 5) {
-        r1 = X;
-        b1 = C;
-    } else {
-        r1 = C;
-        b1 = X;
-    }
-
-    const M = l - C / 2;
-    return {
-        b: clampChannel((b1 + M) * 255),
-        g: clampChannel((g1 + M) * 255),
-        r: clampChannel((r1 + M) * 255),
-    };
-}
-
 function hashString(value: string): number {
     let hash = 0;
     for (let index = 0; index < value.length; index += 1) {
@@ -141,140 +75,6 @@ function hashString(value: string): number {
         hash |= 0;
     }
     return Math.abs(hash);
-}
-
-/**
- * Convert an RGB color (0-255) to HSL with hue in degrees and saturation/lightness in [0,1].
- * @example
- * rgbToHsl({ r: 255, g: 0, b: 0 })
- * { h: 0, l: 0.5, s: 1 }
- * @param rgb - RGB color with r, g, b components in the 0-255 range.
- * @returns Return object with hue (degrees), lightness and saturation (0-1).
- **/
-function rgbToHsl(rgb: Rgb): { h: number; l: number; s: number } {
-    const R = rgb.r / 255;
-    const G = rgb.g / 255;
-    const B = rgb.b / 255;
-
-    const MAX = Math.max(R, G, B);
-    const MIN = Math.min(R, G, B);
-    const DELTA = MAX - MIN;
-
-    let hue = 0;
-    const LIGHTNESS = (MAX + MIN) / 2;
-    let saturation = 0;
-    if (DELTA !== 0) {
-        saturation = DELTA / (1 - Math.abs(2 * LIGHTNESS - 1));
-    }
-
-    if (DELTA !== 0) {
-        if (MAX === R) {
-            hue = ((G - B) / DELTA) % 6;
-        } else if (MAX === G) {
-            hue = (B - R) / DELTA + 2;
-        } else {
-            hue = (R - G) / DELTA + 4;
-        }
-        hue = (hue * 60 + 360) % 360;
-    }
-
-    return { h: hue, l: LIGHTNESS, s: saturation };
-}
-
-function brutalNormalize(rgb: Rgb): Rgb {
-    const { h: HUE } = rgbToHsl(rgb);
-    return hslToRgb(HUE, 1, 0.5);
-}
-
-function luma(rgb: Rgb): number {
-    return (0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b) / 255;
-}
-
-function bucketKey(rgb: Rgb, step = QUANTIZATION_STEP): string {
-    const R = clampChannel(Math.round(rgb.r / step) * step);
-    const G = clampChannel(Math.round(rgb.g / step) * step);
-    const B = clampChannel(Math.round(rgb.b / step) * step);
-    return `${R},${G},${B}`;
-}
-
-function isInterestingPixel(rgb: Rgb): boolean {
-    const LUMA = luma(rgb);
-    if (LUMA < LUMA_LOW_CUTOFF || LUMA > LUMA_HIGH_CUTOFF) {
-        return false;
-    }
-    const { s: SATURATION } = rgbToHsl(rgb);
-    if (SATURATION < SATURATION_LOW_CUTOFF) {
-        return false;
-    }
-    return true;
-}
-
-/**
- * Return the rgb color of the bucket with the highest count from a map of buckets.
- * @example
- * mostFrequentBucket(new Map([['bucket1', {count: 5, rgb: {r: 255, g: 0, b: 0}}]]))
- * { r: 255, g: 0, b: 0 }
- * @param {Map<string, {count: number, rgb: Rgb}>} counts - Map of bucket keys to objects containing a count and an rgb value.
- * @returns {Rgb|null} The rgb of the most frequent bucket, or null if no buckets are provided.
- */
-function mostFrequentBucket(
-    counts: Map<string, { count: number; rgb: Rgb }>,
-): Rgb | null {
-    let bestBucket: { count: number; rgb: Rgb } | null = null;
-    for (const BUCKET of counts.values()) {
-        if (!bestBucket || BUCKET.count > bestBucket.count) {
-            bestBucket = BUCKET;
-        }
-    }
-    if (!bestBucket) {
-        return null;
-    }
-    return bestBucket.rgb;
-}
-
-/**
- * Determine the dominant chroma (most frequent RGB bucket) from a flat RGBA pixel array.
- * @example
- * dominantChromaFromPixels(new Uint8ClampedArray([255,0,0,255, 0,255,0,255, 255,0,0,255]))
- * { r: 255, g: 0, b: 0 }
- * @param pixels - Flat RGBA pixel data where each pixel is four consecutive bytes.
- * @returns The RGB color representing the most frequent chroma bucket among "interesting" pixels, or null if none found.
- **/
-function dominantChromaFromPixels(pixels: Uint8ClampedArray): Rgb | null {
-    const COUNTS = new Map<string, { count: number; rgb: Rgb }>();
-
-    for (let index = 0; index < pixels.length; index += 4) {
-        const RGB: Rgb = {
-            b: pixels[index + 2] ?? 0,
-            g: pixels[index + 1] ?? 0,
-            r: pixels[index] ?? 0,
-        };
-        if (!isInterestingPixel(RGB)) {
-            continue;
-        }
-
-        const KEY = bucketKey(RGB);
-        const PREVIOUS = COUNTS.get(KEY);
-        if (PREVIOUS) {
-            PREVIOUS.count += 1;
-        } else {
-            COUNTS.set(KEY, { count: 1, rgb: RGB });
-        }
-    }
-
-    return mostFrequentBucket(COUNTS);
-}
-
-function samplesToPixels(samples: readonly Rgb[]): Uint8ClampedArray {
-    const PIXELS = new Uint8ClampedArray(samples.length * 4);
-    samples.forEach((rgb, index) => {
-        const OFFSET = index * 4;
-        PIXELS[OFFSET] = clampChannel(rgb.r);
-        PIXELS[OFFSET + 1] = clampChannel(rgb.g);
-        PIXELS[OFFSET + 2] = clampChannel(rgb.b);
-        PIXELS[OFFSET + 3] = 255;
-    });
-    return PIXELS;
 }
 
 function dominantForTitle(title: string): Rgb | null {
@@ -313,16 +113,6 @@ function fallbackTheme(key: string): TodayBackgroundTheme {
         canvasColor: HEX,
         dominantColor: HEX,
         source: "fallback",
-    };
-}
-
-function hexToRgb(hex: string): Rgb {
-    const SANITIZED = hex.replace("#", "");
-    const VALUE = Number.parseInt(SANITIZED, 16);
-    return {
-        b: VALUE & 255,
-        g: (VALUE >> 8) & 255,
-        r: (VALUE >> 16) & 255,
     };
 }
 

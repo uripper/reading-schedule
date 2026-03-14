@@ -1,11 +1,7 @@
+import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { ImageSourcePropType } from "react-native";
+import type { ImageSourcePropType, ImageStyle } from "react-native";
 import { Image, StyleSheet, useWindowDimensions, View } from "react-native";
-import type {
-    BackgroundSimulationState,
-    Body,
-    Bounds,
-} from "./today_background_simulation.ts";
 import {
     createBackgroundSimulationState,
     getBackgroundBodies,
@@ -18,6 +14,11 @@ import {
     HORIZONTAL_PADDING,
     SPRITE_SCALE,
 } from "./today_constants.ts";
+import type {
+    BackgroundSimulationState,
+    Body,
+    Bounds,
+} from "./today-background-simulation-types.ts";
 
 interface TodayBackgroundProps {
     ambientColor: string;
@@ -49,91 +50,112 @@ function spriteSource(index: number): ImageSourcePropType | null {
     return sprite.source;
 }
 
-/**
- * Render a background sprite Image for a given body or return null if no sprite source.
- * @example
- * BackgroundSprite({ body: sampleBody })
- * <Image ... /> or null
- * @param {Body} body - Body object containing sprite index, position (x, y), opacity, and spin.
- * @returns {JSX.Element|null} Rendered Image component for the sprite or null when no source is available.
- **/
+function spriteLayout(body: Body): ImageStyle {
+    const width = spriteWidthPx(body.index);
+    const height = spriteHeightPx(body.index);
+
+    return {
+        height,
+        left: body.x - width / 2,
+        opacity: body.opacity,
+        top: body.y - height / 2,
+        transform: [{ rotate: `${body.spin}rad` }],
+        width,
+    };
+}
+
 function BackgroundSprite({ body }: { body: Body }) {
     const source = spriteSource(body.index);
     if (!source) {
         return null;
     }
 
-    const width = spriteWidthPx(body.index);
-    const height = spriteHeightPx(body.index);
-
     return (
         <Image
             blurRadius={BLUR_LEVEL}
             resizeMode="contain"
             source={source}
-            style={[
-                STYLES.sprite,
-                {
-                    height,
-                    left: body.x - width / 2,
-                    opacity: body.opacity,
-                    top: body.y - height / 2,
-                    transform: [{ rotate: `${body.spin}rad` }],
-                    width,
-                },
-            ]}
+            style={[STYLES.sprite, spriteLayout(body)]}
         />
     );
 }
 
-/**
- * Return the current list of background simulation bodies for the provided bounds and keep the simulation updated.
- * @example
- * useTodayBackgroundBodies({ bottom: 0, left: 0, right: 375 })
- * [ { /* Body */
-function useTodayBackgroundBodies(bounds: Bounds): readonly Body[] {
-    const [, forceTick] = useState(0);
-    const simRef = useRef<BackgroundSimulationState | null>(null);
+function useBackgroundSimulationRef(): MutableRefObject<BackgroundSimulationState | null> {
+    const simulationRef = useRef<BackgroundSimulationState | null>(null);
 
     useEffect(() => {
-        simRef.current = createBackgroundSimulationState();
+        simulationRef.current = createBackgroundSimulationState();
         return () => {
-            simRef.current = null;
+            simulationRef.current = null;
         };
     }, []);
 
+    return simulationRef;
+}
+
+interface BackgroundAnimationArgs {
+    bounds: Bounds;
+    forceTick: Dispatch<SetStateAction<number>>;
+    simulation: BackgroundSimulationState;
+}
+
+function runBackgroundFrame(
+    backgroundAnimationArgs: BackgroundAnimationArgs,
+    timeMs: number,
+): void {
+    const stepped = tickBackgroundSimulation(
+        backgroundAnimationArgs.simulation,
+        timeMs,
+        backgroundAnimationArgs.bounds,
+    );
+    if (stepped) {
+        backgroundAnimationArgs.forceTick((tickCount) => tickCount + 1);
+    }
+}
+
+function startBackgroundAnimation(
+    backgroundAnimationArgs: BackgroundAnimationArgs,
+): () => void {
+    let frameId = 0;
+
+    const frame = (timeMs: number): void => {
+        runBackgroundFrame(backgroundAnimationArgs, timeMs);
+        frameId = requestAnimationFrame(frame);
+    };
+
+    frameId = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(frameId);
+}
+
+function backgroundBodies(
+    simulation: BackgroundSimulationState | null,
+): readonly Body[] {
+    if (!simulation) {
+        return [];
+    }
+    return getBackgroundBodies(simulation);
+}
+
+function useTodayBackgroundBodies(bounds: Bounds): readonly Body[] {
+    const [, forceTick] = useState(0);
+    const simulationRef = useBackgroundSimulationRef();
+
     useEffect(() => {
-        const sim = simRef.current;
-        if (!sim) {
+        const simulation = simulationRef.current;
+        if (!simulation) {
             return;
         }
 
         // Reset here so changing bounds doesn't produce a giant delta frame.
-        resetBackgroundSimulation(sim);
+        resetBackgroundSimulation(simulation);
+        return startBackgroundAnimation({
+            bounds,
+            forceTick,
+            simulation,
+        });
+    }, [bounds.bottom, bounds.left, bounds.right, simulationRef]);
 
-        let frameId = 0;
-
-        const frame = (timeMs: number): void => {
-            if (!sim) {
-                return;
-            }
-            const stepped = tickBackgroundSimulation(sim, timeMs, bounds);
-            if (stepped) {
-                forceTick((t) => t + 1);
-            }
-            frameId = requestAnimationFrame(frame);
-        };
-
-        frameId = requestAnimationFrame(frame);
-        return () => cancelAnimationFrame(frameId);
-    }, [bounds.bottom, bounds.left, bounds.right, bounds]);
-
-    const sim = simRef.current;
-    if (!sim) {
-        return [];
-    }
-
-    return getBackgroundBodies(sim);
+    return backgroundBodies(simulationRef.current);
 }
 
 /**

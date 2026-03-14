@@ -67,6 +67,7 @@ function extensionFromContentType(contentType: string): CoverExtension | null {
         return EXTENSION_JPG;
     }
 
+    return null;
 }
 
 function normalizedPathExtension(parsedUrl: URL): string {

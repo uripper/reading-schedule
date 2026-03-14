@@ -8,7 +8,7 @@ import { MobileApp } from "./src/app.tsx";
  * @returns A React component that represents the mobile
  * application.
  */
-export default function App() {
+export function App() {
     return (
         <>
             <StatusBar style="dark" />

@@ -6,11 +6,11 @@ import type {
     ProgressUpdateInput,
 } from "../../../types/types.ts";
 import { sessionKeyFor } from "../../calendar/utils.ts";
+import { manualSessionBooks } from "./calendar_interactions_helpers.ts";
 import {
     dayBookCompletionKey,
     dayBookCompletionKeyFromSession,
-    manualSessionBooks,
-} from "./calendar_interactions_helpers.ts";
+} from "./calendar_interactions_key_helpers.ts";
 import { BUILD_SCHEDULE_MUTATION_HANDLERS } from "./calendar_interactions_schedule_handlers.ts";
 
 interface CompletionStateUpdateArgs {

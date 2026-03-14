@@ -11,9 +11,9 @@ import {
 import {
     DEFAULT_BOOK_DIFFICULTY,
     normalizedManualMinutes,
-    rowsWithoutSession,
     wordsPlannedForManualSession,
-} from "./calendar_interactions_helpers.ts";
+} from "./calendar_interactions_manual_helpers.ts";
+import { rowsWithoutSession } from "./calendar_interactions_row_helpers.ts";
 
 interface UpdatedMinutesArgs {
     collectSettings(): PlannerSettings;

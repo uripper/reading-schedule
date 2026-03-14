@@ -10,7 +10,7 @@ import type {
     OpenBookDialogArgs,
     OpenDialogOptions,
 } from "../../types/types.ts";
-import { bindDialogFocus } from "../accessibility/index.ts";
+import { bindDialogFocus } from "../accessibility/a11y.ts";
 import { bindBookLookup } from "../book_lookup.ts";
 import { createAfterBookPicker } from "./after_book_picker.ts";
 import { bindCoverUpload } from "./cover_upload.ts";

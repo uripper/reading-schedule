@@ -6,7 +6,7 @@ import type {
 import {
     applyPreferencesToDocument,
     createAnnouncer,
-} from "../accessibility/index.ts";
+} from "../accessibility/a11y.ts";
 import { collectAllBooks } from "../books.ts";
 import { focusCalendarToday } from "../calendar.ts";
 import { el } from "../dom.ts";

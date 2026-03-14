@@ -1,5 +1,5 @@
 /**
- * @file Electron main-process entry point and startup wiring.
+ * Electron main-process entry point and startup wiring.
  */
 import path from "node:path";
 
@@ -8,7 +8,6 @@ import { downloadCover, saveUploadedCover } from "./main/book_lookup/index.ts";
 import { searchBooks } from "./main/book_lookup/search.ts";
 import { runBridge } from "./main/bridge.ts";
 import { registerIpcHandlers } from "./main/ipc.ts";
-import { isProductionEnvironment } from "./main/runtime-env.ts";
 import { readState, writeState } from "./main/state_store.ts";
 import {
     initialZoomFactor,
@@ -22,7 +21,7 @@ const HOT_RELOAD_IGNORED_OUTPUTS = ["dist/main.js", "dist/main/**"];
  * Enables main-process hot reload during development.
  */
 async function enableDevelopmentHotReload(): Promise<void> {
-    if (isProductionEnvironment()) {
+    if (app.isPackaged) {
         return;
     }
     const RELOADER_MODULE = await import("electron-reloader");
@@ -36,7 +35,7 @@ async function enableDevelopmentHotReload(): Promise<void> {
  * Creates and initializes the main application browser window.
  */
 async function createWindow(): Promise<void> {
-    const ICON_PATH = path.join(__dirname, "assets", "logo.svg");
+    const ICON_PATH = path.join(__dirname, "assets", "icon.ico");
     const WINDOW = new BrowserWindow({
         height: 1100,
         icon: ICON_PATH,

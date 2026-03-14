@@ -6,7 +6,7 @@ import type {
     LoadStateArgs,
     PlannerResult,
 } from "../../../types/types.ts";
-import { applyPreferencesToDocument } from "../../accessibility/index.ts";
+import { applyPreferencesToDocument } from "../../accessibility/a11y.ts";
 import { fillBooks } from "../../books.ts";
 import { fillSettings } from "../../settings.ts";
 import {

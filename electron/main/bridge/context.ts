@@ -12,6 +12,7 @@ import {
     PYTHONPATH_KEY,
     PYTHONPATH_SEGMENT,
 } from "./constants.ts";
+import { hasBundledPlanner } from "./runtime.ts";
 import type { BridgeExecutionContext, BridgeRunContext } from "./types.ts";
 
 const ROOT_MARKER_FILE = "pyproject.toml";
@@ -31,7 +32,7 @@ function hasRootMarkers(directory: string): boolean {
  * '/home/user/project'
  * @param startDirectory - Starting directory path to begin searching for root markers.
  * @returns Return the path of the found root directory, or null if no root markers are found within the ascent limit or the filesystem root is reached.
- **/
+ */
 function resolveRootFrom(startDirectory: string): string | null {
     let currentDirectory = startDirectory;
     let steps = 0;
@@ -87,15 +88,13 @@ export function root(): string {
     );
 }
 
-/**
- * Builds environment variables for the planner subprocess.
- * @returns Process environment including the planner PYTHONPATH.
- */
-function pyEnv(): NodeJS.ProcessEnv {
-    return {
-        ...processEnvironment(),
-        [PYTHONPATH_KEY]: join(root(), PYTHONPATH_SEGMENT),
-    };
+function baseBridgeEnvironment(): NodeJS.ProcessEnv {
+    const ENV = { ...processEnvironment() };
+    if (hasBundledPlanner()) {
+        return ENV;
+    }
+    ENV[PYTHONPATH_KEY] = join(root(), PYTHONPATH_SEGMENT);
+    return ENV;
 }
 
 /**
@@ -104,7 +103,7 @@ function pyEnv(): NodeJS.ProcessEnv {
  * @returns Child process environment variables.
  */
 function bridgeEnv(context?: BridgeRunContext): NodeJS.ProcessEnv {
-    const ENV = pyEnv();
+    const ENV = baseBridgeEnvironment();
     if (context?.userDataDir) {
         ENV[BRIDGE_LOG_PATH_KEY] = pythonBridgeLogPath(context.userDataDir);
     }

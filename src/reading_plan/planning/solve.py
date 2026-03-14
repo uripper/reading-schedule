@@ -144,6 +144,36 @@ def _fallback_from_precheck(
     return _fallback_to_greedy(greedy_assignments, precheck.note)
 
 
+def _run_stage_attempt(
+    base_context: AttemptContext,
+    hints: Assignments,
+    stage: SolveStage,
+) -> SolveAttemptResult:
+    """Run one staged attempt using the current incumbent hints."""
+    attempt_context = _attempt_context_with_hints(base_context, hints)
+    attempt = run_attempt(attempt_context, stage)
+    _log_stage_result(stage, attempt)
+    return attempt
+
+
+def _next_stage_state(
+    attempt: SolveAttemptResult,
+    best_result: PlanResult | None,
+    incumbent_hints: Assignments,
+    stage: SolveStage,
+) -> tuple[Assignments, PlanResult | None, bool]:
+    """Return updated state after one stage attempt."""
+    if _should_skip_stage_result(attempt.plan, stage):
+        return incumbent_hints, best_result, False
+    incumbent_hints, best_result = _accept_feasible_attempt(
+        stage,
+        attempt,
+        incumbent_hints,
+        best_result,
+    )
+    return incumbent_hints, best_result, _is_optimal_result(best_result)
+
+
 def _solve_stages(
     base_context: AttemptContext,
     stages: Sequence[SolveStage],
@@ -154,22 +184,15 @@ def _solve_stages(
     incumbent_hints = initial_hints
     last_status = UNKNOWN_STATUS_NAME
     for stage in stages:
-        attempt_context = _attempt_context_with_hints(
-            base_context,
-            incumbent_hints,
-        )
-        attempt = run_attempt(attempt_context, stage)
-        _log_stage_result(stage, attempt)
+        attempt = _run_stage_attempt(base_context, incumbent_hints, stage)
         last_status = attempt.plan.status
-        if _should_skip_stage_result(attempt.plan, stage):
-            continue
-        incumbent_hints, best_result = _accept_feasible_attempt(
-            stage,
+        incumbent_hints, best_result, should_stop = _next_stage_state(
             attempt,
-            incumbent_hints,
             best_result,
+            incumbent_hints,
+            stage,
         )
-        if _is_optimal_result(best_result):
+        if should_stop:
             break
     return best_result, last_status
 

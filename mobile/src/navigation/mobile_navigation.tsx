@@ -1,7 +1,9 @@
 import type { PlannerApi } from "@reading-schedule/contracts";
-import type { Dispatch, SetStateAction } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { useMemo, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
+import LOGO from "../../assets/logo.png";
+import LOGO_BACKGROUND from "../../assets/logo-background.png";
 import { createRootStacks } from "./mobile_navigation_routes.tsx";
 import { STYLES } from "./mobile_navigation_styles.ts";
 import type {
@@ -15,14 +17,38 @@ interface MobileNavigationProps {
     plannerApi: PlannerApi;
 }
 
-const LOGO_BACKGROUND = require("../../assets/logo-background.png");
-const LOGO = require("../../assets/logo.png");
-
 const MENU_ITEMS: readonly MobileTabKey[] = ["today", "books", "settings"];
 
 type MenuSetter = Dispatch<SetStateAction<boolean>>;
 type StackSetter = Dispatch<SetStateAction<TabStacks>>;
 type TabSetter = Dispatch<SetStateAction<MobileTabKey>>;
+
+interface MobileNavigationState {
+    activeTab: MobileTabKey;
+    isMenuOpen: boolean;
+    setActiveTab: TabSetter;
+    setIsMenuOpen: MenuSetter;
+    setStacks: StackSetter;
+    stacks: TabStacks;
+}
+
+interface NavigationFrameArgs {
+    activeRoute: StackRoute;
+    activeTab: MobileTabKey;
+    isMenuOpen: boolean;
+    navigator: StackNavigator;
+    onSelectTab(tab: MobileTabKey): void;
+    onToggleMenu(): void;
+    showBack: boolean;
+}
+
+interface NavigationRouteContext {
+    activeRoute: StackRoute | null;
+    navigator: StackNavigator;
+    onSelectTab(tab: MobileTabKey): void;
+    onToggleMenu(): void;
+    showBack: boolean;
+}
 
 function tabLabel(tab: MobileTabKey): string {
     if (tab === "today") {
@@ -108,7 +134,8 @@ function MenuPanel({ activeTab, onSelectTab }: MenuPanelProps) {
         <View style={STYLES.menuPanel}>
             {MENU_ITEMS.map((tab) => {
                 const IS_ACTIVE = tab === activeTab;
-                let menuItemActiveStyle = null;
+                let menuItemActiveStyle: typeof STYLES.menuItemActive | null =
+                    null;
                 if (IS_ACTIVE) {
                     menuItemActiveStyle = STYLES.menuItemActive;
                 }
@@ -129,6 +156,17 @@ function MenuPanel({ activeTab, onSelectTab }: MenuPanelProps) {
     );
 }
 
+function backButtonNode(onBack: () => void, showBack: boolean): ReactNode {
+    if (!showBack) {
+        return null;
+    }
+    return (
+        <Pressable onPress={onBack} style={STYLES.backButton}>
+            <Text style={STYLES.backText}>Back</Text>
+        </Pressable>
+    );
+}
+
 interface MobileTopBarProps {
     onBack(): void;
     onToggleMenu(): void;
@@ -146,15 +184,6 @@ interface MobileTopBarProps {
  * @returns Rendered top bar JSX element.
  **/
 function MobileTopBar({ onBack, onToggleMenu, showBack }: MobileTopBarProps) {
-    let backButton = null;
-    if (showBack) {
-        backButton = (
-            <Pressable onPress={onBack} style={STYLES.backButton}>
-                <Text style={STYLES.backText}>Back</Text>
-            </Pressable>
-        );
-    }
-
     return (
         <View style={STYLES.topBar}>
             <View style={STYLES.brandBlock}>
@@ -171,7 +200,7 @@ function MobileTopBar({ onBack, onToggleMenu, showBack }: MobileTopBarProps) {
             </View>
 
             <View style={STYLES.topActions}>
-                {backButton}
+                {backButtonNode(onBack, showBack)}
                 <Pressable onPress={onToggleMenu} style={STYLES.menuToggle}>
                     <Text style={STYLES.menuToggleText}>Menu</Text>
                 </Pressable>
@@ -191,12 +220,9 @@ function popRoute(stacks: TabStacks, activeTab: MobileTabKey): TabStacks {
     };
 }
 
-/**
- * Renders the mobile shell with top-bar navigation and per-tab route stacks.
- * @param plannerApi - Planner API client injected into tab root screens.
- * @returns Navigation frame that renders the active route for the selected tab.
- */
-export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
+function useMobileNavigationState(
+    plannerApi: PlannerApi,
+): MobileNavigationState {
     const INITIAL_STACKS = useMemo(
         () => createRootStacks(plannerApi),
         [plannerApi],
@@ -204,38 +230,103 @@ export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
     const [ACTIVE_TAB, SET_ACTIVE_TAB] = useState<MobileTabKey>("today");
     const [IS_MENU_OPEN, SET_IS_MENU_OPEN] = useState(false);
     const [STACKS, SET_STACKS] = useState<TabStacks>(INITIAL_STACKS);
-    const ACTIVE_STACK = STACKS[ACTIVE_TAB];
-    const ACTIVE_ROUTE = ACTIVE_STACK.at(-1);
-    const NAVIGATOR = createNavigator(ACTIVE_TAB, SET_IS_MENU_OPEN, SET_STACKS);
-    const SHOW_BACK = ACTIVE_STACK.length > 1;
+    return {
+        activeTab: ACTIVE_TAB,
+        isMenuOpen: IS_MENU_OPEN,
+        setActiveTab: SET_ACTIVE_TAB,
+        setIsMenuOpen: SET_IS_MENU_OPEN,
+        setStacks: SET_STACKS,
+        stacks: STACKS,
+    };
+}
 
-    if (!ACTIVE_ROUTE) {
+function menuNode(
+    activeTab: MobileTabKey,
+    isMenuOpen: boolean,
+    onSelectTab: (tab: MobileTabKey) => void,
+): ReactNode {
+    if (!isMenuOpen) {
         return null;
     }
+    return <MenuPanel activeTab={activeTab} onSelectTab={onSelectTab} />;
+}
 
-    let menu = null;
-    if (IS_MENU_OPEN) {
-        menu = (
-            <MenuPanel
-                activeTab={ACTIVE_TAB}
-                onSelectTab={(tab) => {
-                    selectTab(tab, SET_ACTIVE_TAB, SET_IS_MENU_OPEN);
-                }}
-            />
-        );
-    }
-
+function navigationFrame({
+    activeRoute,
+    activeTab,
+    isMenuOpen,
+    navigator,
+    onSelectTab,
+    onToggleMenu,
+    showBack,
+}: NavigationFrameArgs): ReactNode {
     return (
         <View style={STYLES.appFrame}>
             <MobileTopBar
-                onBack={NAVIGATOR.pop}
-                onToggleMenu={() => {
-                    toggleMenu(SET_IS_MENU_OPEN);
-                }}
-                showBack={SHOW_BACK}
+                onBack={navigator.pop}
+                onToggleMenu={onToggleMenu}
+                showBack={showBack}
             />
-            {menu}
-            <View style={STYLES.screen}>{ACTIVE_ROUTE.render(NAVIGATOR)}</View>
+            {menuNode(activeTab, isMenuOpen, onSelectTab)}
+            <View style={STYLES.screen}>{activeRoute.render(navigator)}</View>
         </View>
     );
+}
+
+function navigationRouteContext(
+    state: MobileNavigationState,
+): NavigationRouteContext {
+    const ACTIVE_STACK = state.stacks[state.activeTab];
+    const ACTIVE_ROUTE = ACTIVE_STACK.at(-1) ?? null;
+    return {
+        activeRoute: ACTIVE_ROUTE,
+        navigator: createNavigator(
+            state.activeTab,
+            state.setIsMenuOpen,
+            state.setStacks,
+        ),
+        onSelectTab: tabSelectionHandler(
+            state.setActiveTab,
+            state.setIsMenuOpen,
+        ),
+        onToggleMenu: menuToggleHandler(state.setIsMenuOpen),
+        showBack: ACTIVE_STACK.length > 1,
+    };
+}
+
+function menuToggleHandler(setIsMenuOpen: MenuSetter): () => void {
+    return (): void => {
+        toggleMenu(setIsMenuOpen);
+    };
+}
+
+function tabSelectionHandler(
+    setActiveTab: TabSetter,
+    setIsMenuOpen: MenuSetter,
+): (tab: MobileTabKey) => void {
+    return (tab: MobileTabKey): void => {
+        selectTab(tab, setActiveTab, setIsMenuOpen);
+    };
+}
+
+/**
+ * Renders the mobile shell with top-bar navigation and per-tab route stacks.
+ * @param plannerApi - Planner API client injected into tab root screens.
+ * @returns Navigation frame that renders the active route for the selected tab.
+ */
+export function MobileNavigation({ plannerApi }: MobileNavigationProps) {
+    const STATE = useMobileNavigationState(plannerApi);
+    const ROUTE_CONTEXT = navigationRouteContext(STATE);
+    if (ROUTE_CONTEXT.activeRoute === null) {
+        return null;
+    }
+    return navigationFrame({
+        activeRoute: ROUTE_CONTEXT.activeRoute,
+        activeTab: STATE.activeTab,
+        isMenuOpen: STATE.isMenuOpen,
+        navigator: ROUTE_CONTEXT.navigator,
+        onSelectTab: ROUTE_CONTEXT.onSelectTab,
+        onToggleMenu: ROUTE_CONTEXT.onToggleMenu,
+        showBack: ROUTE_CONTEXT.showBack,
+    });
 }

@@ -15,14 +15,16 @@
         "type-coverage": "^2.29.7",
         "typescript": "^5.9.3"
     },
-    "name": "reading-schedule",
+    "name": "bartleby",
+    "description": "Bartleby is a reading scheduler to help you read more books",
+    "author": {"name": "uripper"},
     "packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017",
     "pnpm": {
-        "ignoredBuiltDependencies": [
-            "electron"
-        ],
         "onlyBuiltDependencies": [
-            "esbuild"
+            "electron",
+            "electron-winstaller",
+            "esbuild",
+            "inotify"
         ],
         "overrides": {
             "electron@<=1.8.2-beta4": ">=1.8.2-beta5",
@@ -59,6 +61,7 @@
         "dev:mobile:android": "pnpm -C mobile run dev:android",
         "dev:mobile:ios": "pnpm -C mobile run dev:ios",
         "dev:mobile:tunnel": "pnpm -C mobile run dev:tunnel",
+        "dist:desktop:win": "pnpm -C electron run dist:win",
         "dev:planner-api": ".venv/bin/python -m reading_plan.http_api",
         "dev:website": "pnpm -C apps/website run dev",
         "dev:website:hot": "pnpm -C apps/website run dev:hot",
@@ -66,7 +69,7 @@
         "dev:windows:hot": "pnpm -C packages/contracts build && bash ./scripts/run_windows_gui_hot_from_wsl.sh",
         "format:python": ".venv/bin/ruff check src --fix",
         "format:typescript": "pnpm biome check apps electron mobile packages --write",
-        "hooks:install": "bash ./scripts/install_git_hooks.sh",
+        "hooks:install": "node ./scripts/install_git_hooks.mjs",
         "issues:sync": "bash ./scripts/sync_issues.sh",
         "knip": "knip",
         "knip:debug": "knip --debug",
@@ -96,7 +99,7 @@
         "typecheck:contracts": "pnpm -C packages/contracts run typecheck",
         "typecheck:desktop": "pnpm -C electron run typecheck",
         "typecheck:mobile": "pnpm -C mobile run typecheck",
-        "typecheck:python": ".venv/bin/ty check src",
+        "typecheck:python": ".venv/bin/ty check .",
         "typecheck:website": "pnpm -C apps/website run typecheck",
         "typecov": "pnpm run typecov:main && pnpm run typecov:renderer",
         "typecov:main": "type-coverage -p electron/tsconfig.main.json --detail --show-relative-path --cache",

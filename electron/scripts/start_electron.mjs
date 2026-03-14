@@ -108,17 +108,29 @@ const RUN_ELECTRON_INSTALL_SCRIPT = () => {
 };
 
 /**
- * Repairs Electron dependency by rebuilding and then forcing install script when needed.
+ * Repairs Electron dependency by restoring the binary path marker.
  */
 const REPAIR_ELECTRON_INSTALL = () => {
-    REBUILD_ELECTRON_BINARY();
     if (HAS_ELECTRON_PATH_MARKER()) {
         return;
     }
     process.stderr.write(
-        "Electron path marker missing after rebuild; running install script...\n",
+        "Electron path marker missing; running install script...\n",
     );
     RUN_ELECTRON_INSTALL_SCRIPT();
+    if (HAS_ELECTRON_PATH_MARKER()) {
+        return;
+    }
+    process.stderr.write(
+        "Electron path marker still missing after install script; attempting `pnpm rebuild electron`...\n",
+    );
+    REBUILD_ELECTRON_BINARY();
+    if (HAS_ELECTRON_PATH_MARKER()) {
+        return;
+    }
+    throw new Error(
+        "Electron install repair did not create the expected path marker.",
+    );
 };
 
 /**
@@ -137,7 +149,7 @@ const RESOLVE_ELECTRON_BINARY_PATH = () => {
         }
         process.stderr.write(`${ELECTRON_RESOLVE_ERROR_PREFIX}: ${message}\n`);
         process.stderr.write(
-            "Attempting to repair Electron install with `pnpm rebuild electron`...\n",
+            "Attempting to repair Electron install...\n",
         );
         REPAIR_ELECTRON_INSTALL();
         return ELECTRON_BINARY_PATH();

@@ -117,7 +117,7 @@ def summarize_value_types(value: object) -> dict[str, object]:
         "value_type": type(value).__name__,
     }
     if is_object_mapping(value):
-        summary.update(_summarize_mapping_types(value))
+        summary |= _summarize_mapping_types(value)
         return summary
     if is_object_list(value):
         summary.update(_summarize_list_types(value))
@@ -129,9 +129,7 @@ def _resolve_request_id(request_id: str | None) -> str:
     if request_id:
         return request_id
     env_request_id = os.environ.get(BRIDGE_REQUEST_ID_ENV, "").strip()
-    if env_request_id:
-        return env_request_id
-    return "unknown"
+    return env_request_id or "unknown"
 
 
 def _resolve_log_path(log_path: str | Path | None) -> Path:
@@ -139,9 +137,7 @@ def _resolve_log_path(log_path: str | Path | None) -> Path:
     if log_path is not None:
         return Path(log_path)
     configured = os.environ.get(BRIDGE_LOG_PATH_ENV, "").strip()
-    if configured:
-        return Path(configured)
-    return Path(DEFAULT_LOG_PATH)
+    return Path(configured) if configured else Path(DEFAULT_LOG_PATH)
 
 
 def _configure_file_handler(
@@ -151,13 +147,43 @@ def _configure_file_handler(
 ) -> None:
     """Attach a single file handler for the bridge logger."""
     existing = _find_bridge_handler(logger)
-    if existing is not None:
-        if Path(existing.baseFilename) == log_path:
-            existing.setFormatter(_build_formatter(request_id))
-            return
-        logger.removeHandler(existing)
-        existing.close()
+    if _reuse_existing_handler(existing, log_path, request_id):
+        return
+    _remove_existing_handler(logger, existing)
+    _add_file_handler(logger, log_path, request_id)
 
+
+def _reuse_existing_handler(
+    existing: logging.FileHandler | None,
+    log_path: Path,
+    request_id: str,
+) -> bool:
+    """Return whether an existing handler can be kept in place."""
+    if existing is None:
+        return False
+    if Path(existing.baseFilename) != log_path:
+        return False
+    existing.setFormatter(_build_formatter(request_id))
+    return True
+
+
+def _remove_existing_handler(
+    logger: logging.Logger,
+    existing: logging.FileHandler | None,
+) -> None:
+    """Detach an outdated bridge file handler when present."""
+    if existing is None:
+        return
+    logger.removeHandler(existing)
+    existing.close()
+
+
+def _add_file_handler(
+    logger: logging.Logger,
+    log_path: Path,
+    request_id: str,
+) -> None:
+    """Create and attach the bridge file handler."""
     handler = logging.FileHandler(log_path, encoding="utf-8")
     handler.set_name(_FILE_HANDLER_NAME)
     handler.setFormatter(_build_formatter(request_id))
@@ -214,9 +240,9 @@ def _normalize_metadata(value: object) -> object:
 
 def _normalize_mapping(value: dict[object, object]) -> dict[str, object]:
     """Normalize mapping metadata keys and values recursively."""
-    normalized: dict[str, object] = {}
-    for key, item in value.items():
-        normalized[str(key)] = _normalize_metadata(item)
+    normalized: dict[str, object] = {
+        str(key): _normalize_metadata(item) for key, item in value.items()
+    }
     return normalized
 
 
