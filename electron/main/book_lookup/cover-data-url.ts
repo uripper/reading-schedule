@@ -65,10 +65,6 @@ function decodeBase64Payload(payload: string): Uint8Array | null {
     return bytes;
 }
 
-function dataMimeExtension(header: string): CoverExtension | null {
-    return extensionForDataMime(header.split(";")[0]);
-}
-
 function hasBase64DataUrlPayload(parts: {
     header: string;
     payload: string;
@@ -82,7 +78,7 @@ function parsedDataUrlPayload(parts: {
     header: string;
     payload: string;
 }): { extension: CoverExtension; payload: string } | null {
-    const EXTENSION = dataMimeExtension(parts.header);
+    const EXTENSION = extensionForDataMime(parts.header.split(";")[0]);
     if (EXTENSION === null) {
         return null;
     }

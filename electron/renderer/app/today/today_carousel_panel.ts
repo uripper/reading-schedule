@@ -2,9 +2,7 @@
  * Renders and resets the active Today carousel control panel.
  */
 import { el } from "../../dom.ts";
-import {
-    logSessionButtonText,
-} from "./today_carousel_actions.ts";
+import { logSessionButtonText } from "./today_carousel_actions.ts";
 import type { TodayCarouselActiveItem } from "./today_carousel_model.ts";
 import { formatPagesTotalText } from "./today_carousel_progress.ts";
 

@@ -5,10 +5,14 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-const require = createRequire(import.meta.url);
-const { readState } = require("../dist/main/state_store.js");
-const { readStateFromJson, writeStateToJson } = require("../dist/main/state_store_json.js");
-const { jsonStateBackupPath, jsonStatePath } = require("../dist/main/state_store_paths.js");
+const Require = createRequire(import.meta.url);
+const { readState } = Require("../dist/main/state_store.js");
+const { readStateFromJson, writeStateToJson } = Require(
+    "../dist/main/state_store_json.js",
+);
+const { jsonStateBackupPath, jsonStatePath } = Require(
+    "../dist/main/state_store_paths.js",
+);
 
 /**
  * Creates isolated temp user-data directory for persistence tests.
@@ -61,25 +65,28 @@ function assertBackupJsonState(userDataDir, startDate) {
 }
 
 test("JSON store rotates backup and recovers from corrupted primary", () => {
-    withTempUserData((USER_DATA_DIR) => {
-        assertJsonWrite(USER_DATA_DIR, { books: [], settings: { start_date: "2026-01-01" } });
-        assertJsonWrite(USER_DATA_DIR, {
+    withTempUserData((userDataDir) => {
+        assertJsonWrite(userDataDir, {
+            books: [],
+            settings: { start_date: "2026-01-01" },
+        });
+        assertJsonWrite(userDataDir, {
             books: [{ book_id: "b-1", title: "Book" }],
             settings: { start_date: "2026-02-01" },
         });
-        assertPrimaryJsonState(USER_DATA_DIR, "2026-02-01");
-        corruptPrimaryJson(USER_DATA_DIR);
-        assertBackupJsonState(USER_DATA_DIR, "2026-01-01");
+        assertPrimaryJsonState(userDataDir, "2026-02-01");
+        corruptPrimaryJson(userDataDir);
+        assertBackupJsonState(userDataDir, "2026-01-01");
     });
 });
 
 test("Facade emits fresh-warning when persisted JSON artifacts are unreadable", () => {
-    withTempUserData((USER_DATA_DIR) => {
-        assertJsonWrite(USER_DATA_DIR, { books: [], settings: {} });
-        assertJsonWrite(USER_DATA_DIR, { books: [], settings: {} });
-        corruptPrimaryJson(USER_DATA_DIR);
-        corruptBackupJson(USER_DATA_DIR);
-        const LOAD_RESULT = readState(USER_DATA_DIR);
+    withTempUserData((userDataDir) => {
+        assertJsonWrite(userDataDir, { books: [], settings: {} });
+        assertJsonWrite(userDataDir, { books: [], settings: {} });
+        corruptPrimaryJson(userDataDir);
+        corruptBackupJson(userDataDir);
+        const LOAD_RESULT = readState(userDataDir);
         assert.equal(LOAD_RESULT.source, "fresh");
         assert.equal(LOAD_RESULT.state, null);
         assert.equal(LOAD_RESULT.warningCode, "STATE_RESET_FRESH");

@@ -70,12 +70,8 @@ function extensionFromContentType(contentType: string): CoverExtension | null {
     return null;
 }
 
-function normalizedPathExtension(parsedUrl: URL): string {
-    return extname(parsedUrl.pathname || "").toLowerCase();
-}
-
 function extensionFromPath(parsedUrl: URL): CoverExtension {
-    const KNOWN_EXTENSION = normalizedPathExtension(parsedUrl);
+    const KNOWN_EXTENSION = extname(parsedUrl.pathname || "").toLowerCase();
 
     if (KNOWN_EXTENSION === EXTENSION_JPEG) {
         return EXTENSION_JPG;

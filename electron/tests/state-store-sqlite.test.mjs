@@ -5,10 +5,12 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-const require = createRequire(import.meta.url);
-const { DatabaseSync } = require("node:sqlite");
-const { sqliteStatePath } = require("../dist/main/state_store_paths.js");
-const { readStateFromSqlite, writeStateToSqlite } = require("../dist/main/state_store_sqlite.js");
+const Require = createRequire(import.meta.url);
+const { DatabaseSync } = Require("node:sqlite");
+const { sqliteStatePath } = Require("../dist/main/state_store_paths.js");
+const { readStateFromSqlite, writeStateToSqlite } = Require(
+    "../dist/main/state_store_sqlite.js",
+);
 
 const WRITE_COUNT = 230;
 const JOURNAL_LIMIT = 200;
@@ -78,36 +80,43 @@ function corruptSnapshotPayload(userDataDir) {
     }
 }
 
+function seedJournalRecoveryState(userDataDir) {
+    assertSqliteWrite(userDataDir, {
+        books: [],
+        revision: 1,
+        settings: { start_date: "2026-02-01" },
+    });
+    assertSqliteWrite(userDataDir, {
+        books: [],
+        revision: 2,
+        settings: { start_date: "2026-02-02" },
+    });
+}
+
+function assertJournalRecovery(userDataDir) {
+    const RECOVERED = readStateFromSqlite(userDataDir);
+    assert.equal(RECOVERED?.source, "sqlite_journal_replay");
+    assert.equal(RECOVERED?.warningCode, "RECOVERED_FROM_JOURNAL");
+    assert.equal(RECOVERED?.state?.revision, 2);
+    const NEXT_READ = readStateFromSqlite(userDataDir);
+    assert.equal(NEXT_READ?.source, "sqlite");
+    assert.equal(NEXT_READ?.state?.revision, 2);
+}
+
 test("SQLite store persists roundtrip and trims journal entries", () => {
-    withTempUserData((USER_DATA_DIR) => {
-        seedSqliteRevisions(USER_DATA_DIR);
-        const LOAD_RESULT = readStateFromSqlite(USER_DATA_DIR);
+    withTempUserData((userDataDir) => {
+        seedSqliteRevisions(userDataDir);
+        const LOAD_RESULT = readStateFromSqlite(userDataDir);
         assert.equal(LOAD_RESULT?.source, "sqlite");
         assert.equal(LOAD_RESULT?.state?.revision, WRITE_COUNT - 1);
-        assert.ok(journalEntryCount(USER_DATA_DIR) <= JOURNAL_LIMIT);
+        assert.ok(journalEntryCount(userDataDir) <= JOURNAL_LIMIT);
     });
 });
 
 test("SQLite store recovers from snapshot corruption using journal replay", () => {
-    withTempUserData((USER_DATA_DIR) => {
-        assertSqliteWrite(USER_DATA_DIR, {
-            books: [],
-            revision: 1,
-            settings: { start_date: "2026-02-01" },
-        });
-        assertSqliteWrite(USER_DATA_DIR, {
-            books: [],
-            revision: 2,
-            settings: { start_date: "2026-02-02" },
-        });
-        corruptSnapshotPayload(USER_DATA_DIR);
-        const RECOVERED = readStateFromSqlite(USER_DATA_DIR);
-        assert.equal(RECOVERED?.source, "sqlite_journal_replay");
-        assert.equal(RECOVERED?.warningCode, "RECOVERED_FROM_JOURNAL");
-        assert.equal(RECOVERED?.state?.revision, 2);
-
-        const NEXT_READ = readStateFromSqlite(USER_DATA_DIR);
-        assert.equal(NEXT_READ?.source, "sqlite");
-        assert.equal(NEXT_READ?.state?.revision, 2);
+    withTempUserData((userDataDir) => {
+        seedJournalRecoveryState(userDataDir);
+        corruptSnapshotPayload(userDataDir);
+        assertJournalRecovery(userDataDir);
     });
 });

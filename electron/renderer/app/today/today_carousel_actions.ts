@@ -24,6 +24,22 @@ interface ProgressPayloadResult {
     valid: boolean;
 }
 
+interface ProgressUpdatePayloadOptions {
+    bookId: string;
+    currentPagesRead: number | null;
+    currentPagesTotal: number | null;
+    currentPercent: number;
+    draft: ProgressUpdateDraft;
+    row: PlannerScheduleRow;
+}
+
+interface ProgressPayloadChangeOptions {
+    currentPagesRead: number | null;
+    currentPercent: number;
+    pagesRead: number | null;
+    progressPercent: number | null;
+}
+
 function parseOptionalNumber(valueRaw: string): number | null {
     const VALUE_TEXT = String(valueRaw || "").trim();
     if (VALUE_TEXT === EMPTY_TEXT) {
@@ -53,78 +69,132 @@ export function logSessionButtonText(activeCompleted: boolean): string {
     return "Log Session";
 }
 
-/**
- * Build a progress update payload from the provided options, validating and normalizing pages and percent inputs.
- * @example
- * buildProgressUpdatePayload({
- *   bookId: 'book-123',
- *   currentPagesRead: 50,
- *   currentPercent: 16.7,
- *   currentPagesTotal: 300,
- *   draft: { pagesText: '50', percentText: '16.7' },
- *   row: somePlannerRow
- * })
- * { error: '', payload: { bookId: 'book-123', row: somePlannerRow, pagesRead: 50, progressPercent: 16.7 }, valid: true }
- * @param options - Options object containing identifiers, current values, totals and the raw draft inputs.
- * @returns Returns an object with an error message (empty if none), a payload containing bookId/row and any changed fields (pagesRead, progressPercent), and a valid boolean.
- **/
-export function buildProgressUpdatePayload(options: {
-    bookId: string;
+function progressPayloadBase(
+    bookId: string,
+    row: PlannerScheduleRow,
+): ProgressUpdatePayload {
+    return { bookId, row };
+}
+
+function invalidProgressPayload(
+    error: string,
+    bookId: string,
+    row: PlannerScheduleRow,
+): ProgressPayloadResult {
+    return {
+        error,
+        payload: progressPayloadBase(bookId, row),
+        valid: false,
+    };
+}
+
+function roundedCurrentPercent(currentPercent: number): number {
+    return Math.round(Number(currentPercent || 0) * 10) / 10;
+}
+
+interface NormalizedProgressValues {
+    error: string;
+    pagesRead: number | null;
+    progressPercent: number | null;
+    valid: boolean;
+}
+
+function invalidNormalizedProgressValues(
+    error: string,
+    pagesRead: number | null,
+): NormalizedProgressValues {
+    return { error, pagesRead, progressPercent: null, valid: false };
+}
+
+function validNormalizedProgressValues(
+    pagesRead: number | null,
+    progressPercent: number | null,
+): NormalizedProgressValues {
+    return { error: EMPTY_TEXT, pagesRead, progressPercent, valid: true };
+}
+
+function validProgressPayload(
+    bookId: string,
+    row: PlannerScheduleRow,
+    changes: Partial<ProgressUpdatePayload>,
+): ProgressPayloadResult {
+    return {
+        error: EMPTY_TEXT,
+        payload: { ...progressPayloadBase(bookId, row), ...changes },
+        valid: true,
+    };
+}
+
+function normalizedProgressValues(options: {
     currentPagesRead: number | null;
-    currentPercent: number;
     currentPagesTotal: number | null;
+    currentPercent: number;
     draft: ProgressUpdateDraft;
-    row: PlannerScheduleRow;
-}): ProgressPayloadResult {
+}): NormalizedProgressValues {
     const PAGES = normalizedPagesValue({
         currentPagesRead: options.currentPagesRead,
         pagesText: options.draft.pagesText,
         pagesTotal: options.currentPagesTotal,
     });
     if (PAGES.error) {
-        return {
-            error: PAGES.error,
-            payload: {
-                bookId: options.bookId,
-                row: options.row,
-            },
-            valid: false,
-        };
+        return invalidNormalizedProgressValues(PAGES.error, null);
     }
     const PERCENT = normalizedPercentValue({
         currentPercent: options.currentPercent,
         percentText: options.draft.percentText,
     });
     if (PERCENT.error) {
-        return {
-            error: PERCENT.error,
-            payload: {
-                bookId: options.bookId,
-                row: options.row,
-            },
-            valid: false,
-        };
+        return invalidNormalizedProgressValues(PERCENT.error, PAGES.value);
     }
+    return validNormalizedProgressValues(PAGES.value, PERCENT.value);
+}
 
-    const PAYLOAD: ProgressUpdatePayload = {
-        bookId: options.bookId,
-        row: options.row,
-    };
-    const CURRENT_PERCENT =
-        Math.round(Number(options.currentPercent || 0) * 10) / 10;
-
-    if (changedValue(options.currentPagesRead, PAGES.value)) {
-        PAYLOAD.pagesRead = PAGES.value;
+function progressPayloadChanges(
+    options: ProgressPayloadChangeOptions,
+): Partial<ProgressUpdatePayload> {
+    const CHANGES: Partial<ProgressUpdatePayload> = {};
+    if (changedValue(options.currentPagesRead, options.pagesRead)) {
+        CHANGES.pagesRead = options.pagesRead;
     }
-    if (changedValue(CURRENT_PERCENT, PERCENT.value)) {
-        PAYLOAD.progressPercent = PERCENT.value;
+    if (
+        changedValue(
+            roundedCurrentPercent(options.currentPercent),
+            options.progressPercent,
+        )
+    ) {
+        CHANGES.progressPercent = options.progressPercent;
     }
+    return CHANGES;
+}
 
-    return {
-        error: EMPTY_TEXT,
-        payload: PAYLOAD,
-        valid: true,
-    };
+function validProgressUpdatePayload(
+    options: ProgressUpdatePayloadOptions,
+    values: NormalizedProgressValues,
+): ProgressPayloadResult {
+    return validProgressPayload(
+        options.bookId,
+        options.row,
+        progressPayloadChanges({
+            currentPagesRead: options.currentPagesRead,
+            currentPercent: options.currentPercent,
+            pagesRead: values.pagesRead,
+            progressPercent: values.progressPercent,
+        }),
+    );
+}
+
+export function buildProgressUpdatePayload(
+    options: ProgressUpdatePayloadOptions,
+): ProgressPayloadResult {
+    const VALUES = normalizedProgressValues(options);
+    if (!VALUES.valid) {
+        return invalidProgressPayload(
+            VALUES.error,
+            options.bookId,
+            options.row,
+        );
+    }
+    return validProgressUpdatePayload(options, VALUES);
 }
 
 /**
