@@ -46,19 +46,11 @@ function changedValue(
     return currentValue !== nextValue;
 }
 
-function isLogSessionComplete(activeCompleted: boolean): boolean {
-    return Boolean(activeCompleted);
-}
-
 export function logSessionButtonText(activeCompleted: boolean): string {
-    if (isLogSessionComplete(activeCompleted)) {
+    if (activeCompleted) {
         return "Completed";
     }
     return "Log Session";
-}
-
-export function shouldDisableProgressInputs(activeCompleted: boolean): boolean {
-    return isLogSessionComplete(activeCompleted);
 }
 
 /**

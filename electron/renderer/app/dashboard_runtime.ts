@@ -54,8 +54,8 @@ function createApplyExperienceSettings(
     >,
     updateDashboards: () => void,
 ): () => void {
-    const STATE = args.state;
-    return (): void => {
+    const APPLY_SETTINGS = (): void => {
+        const STATE = args.state;
         STATE.preferences = args.normalizePreferences(
             args.collectPreferencesFromUI(),
         );
@@ -63,9 +63,19 @@ function createApplyExperienceSettings(
             args.collectFeatureFlagsFromUI(),
         );
         args.applyPreferencesToDocument(STATE.preferences);
+    };
+    return (): void => {
+        APPLY_SETTINGS();
         updateDashboards();
         args.queuePersist();
     };
+}
+
+function dashboardRuntimeResult(
+    applyExperienceSettings: () => void,
+    updateDashboards: () => void,
+): { applyExperienceSettings(): void; updateDashboards(): void } {
+    return { applyExperienceSettings, updateDashboards };
 }
 
 /**
@@ -83,44 +93,18 @@ function createApplyExperienceSettings(
  * @param updateTodayDashboard - Renders the Today dashboard from latest state values.
  * @returns Dashboard action handlers for applying settings and repainting both dashboards.
  */
-export function createDashboardRuntime({
-    applyPreferencesToDocument,
-    collectFeatureFlagsFromUI,
-    collectPreferencesFromUI,
-    collectAllBooks,
-    normalizeFeatureFlags,
-    normalizePreferences,
-    queuePersist,
-    state,
-    updateStatsView,
-    updateTodayDashboard,
-}: DashboardRuntimeArgs): {
+export function createDashboardRuntime({ ...args }: DashboardRuntimeArgs): {
     applyExperienceSettings(): void;
     updateDashboards(): void;
 } {
-    const UPDATE_STATS_DASHBOARD_VIEW = createUpdateStatsDashboardView({
-        collectAllBooks,
-        state,
-        updateStatsView,
-    });
+    const UPDATE_STATS_DASHBOARD_VIEW = createUpdateStatsDashboardView(args);
     const UPDATE_DASHBOARDS = createUpdateDashboards(
-        { collectAllBooks, state, updateTodayDashboard },
+        args,
         UPDATE_STATS_DASHBOARD_VIEW,
     );
     const APPLY_EXPERIENCE_SETTINGS = createApplyExperienceSettings(
-        {
-            applyPreferencesToDocument,
-            collectFeatureFlagsFromUI,
-            collectPreferencesFromUI,
-            normalizeFeatureFlags,
-            normalizePreferences,
-            queuePersist,
-            state,
-        },
+        args,
         UPDATE_DASHBOARDS,
     );
-    return {
-        applyExperienceSettings: APPLY_EXPERIENCE_SETTINGS,
-        updateDashboards: UPDATE_DASHBOARDS,
-    };
+    return dashboardRuntimeResult(APPLY_EXPERIENCE_SETTINGS, UPDATE_DASHBOARDS);
 }

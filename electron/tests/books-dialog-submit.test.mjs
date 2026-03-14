@@ -10,74 +10,76 @@ import { bindBookDialogSubmit } from "../dist/renderer/books/dialog_submit.js";
 const NOOP = () => undefined;
 const MICROTASK_FLUSH_COUNT = 5;
 
-class FakeHtmlElement {
-    focusCalls = 0;
-
-    focus() {
-        this.focusCalls += 1;
-    }
-
-    querySelector() {
-        return null;
-    }
-
-    querySelectorAll() {
-        return [];
-    }
+function fakeHtmlElement() {
+    this.focusCalls = 0;
 }
 
-class FakeFormElement extends FakeHtmlElement {
-    handlers = new Map();
+fakeHtmlElement.prototype.focus = function () {
+    this.focusCalls += 1;
+};
 
-    addEventListener(type, handler) {
-        this.handlers.set(type, handler);
-    }
+fakeHtmlElement.prototype.querySelector = () => null;
 
-    submit() {
-        const HANDLER = this.handlers.get("submit");
-        assert.ok(HANDLER);
-        let preventDefaultCalls = 0;
-        HANDLER({
-            preventDefault() {
-                preventDefaultCalls += 1;
-            },
-        });
-        return preventDefaultCalls;
-    }
+fakeHtmlElement.prototype.querySelectorAll = () => [];
+
+function fakeFormElement() {
+    fakeHtmlElement.call(this);
+    this.handlers = new Map();
 }
 
-async function flushMicrotasks() {
+fakeFormElement.prototype = Object.create(fakeHtmlElement.prototype);
+fakeFormElement.prototype.constructor = fakeFormElement;
+
+fakeFormElement.prototype.addEventListener = function (type, handler) {
+    this.handlers.set(type, handler);
+};
+
+fakeFormElement.prototype.submit = function () {
+    const HANDLER = this.handlers.get("submit");
+    assert.ok(HANDLER);
+    let preventDefaultCalls = 0;
+    HANDLER({
+        preventDefault() {
+            preventDefaultCalls += 1;
+        },
+    });
+    return preventDefaultCalls;
+};
+
+function flushMicrotasks() {
+    let flush = Promise.resolve();
     for (let index = 0; index < MICROTASK_FLUSH_COUNT; index += 1) {
-        await Promise.resolve();
+        flush = flush.then(NOOP);
     }
+    return flush;
+}
+
+function restoreGlobalValue(key, value) {
+    if (value === undefined) {
+        delete globalThis[key];
+        return;
+    }
+    globalThis[key] = value;
 }
 
 async function withFakeHtmlElement(work) {
     const ORIGINAL_HTML_ELEMENT = globalThis.HTMLElement;
-    globalThis.HTMLElement = FakeHtmlElement;
-
+    globalThis.HTMLElement = fakeHtmlElement;
     try {
         await work();
     } finally {
-        if (ORIGINAL_HTML_ELEMENT === undefined) {
-            delete globalThis.HTMLElement;
-        } else {
-            globalThis.HTMLElement = ORIGINAL_HTML_ELEMENT;
-        }
+        restoreGlobalValue("HTMLElement", ORIGINAL_HTML_ELEMENT);
     }
 }
 
 function fakeInput(value = "") {
-    const INPUT = new FakeHtmlElement();
+    const INPUT = new fakeHtmlElement();
     INPUT.value = value;
     return INPUT;
 }
 
 function checkedScheduledDaysField() {
-    const CHECKBOX = {
-        checked: true,
-        value: "Mon",
-    };
+    const CHECKBOX = { checked: true, value: "Mon" };
     return {
         querySelector() {
             return CHECKBOX;
@@ -88,161 +90,170 @@ function checkedScheduledDaysField() {
     };
 }
 
-function createRefs(form, overrides = {}) {
-    const LOOKUP_META = overrides.lookupMeta ?? {
-        dataset: { lookupNote: "" },
-        textContent: "",
-    };
-    const SAVE_BUTTON = overrides.saveBtn ?? {
-        disabled: false,
-        textContent: "Save Book",
-    };
+function createLookupMeta() {
+    return { dataset: { lookupNote: "" }, textContent: "" };
+}
 
+function createSaveButton() {
+    return { disabled: false, textContent: "Save Book" };
+}
+
+function createIdentityRefs() {
     return {
-        applyScheduledDaysToShelfInput: { checked: false },
         author: fakeInput("Author"),
         blockedByInput: fakeInput(""),
         bookId: fakeInput("book-1"),
         coverLocal: fakeInput(""),
         coverUrl: fakeInput(""),
+        titleInput: fakeInput("A Book"),
+    };
+}
+
+function createPlanningRefs() {
+    return {
         deadlineInput: fakeInput(""),
         difficultyInput: fakeInput("3"),
         finishedAtInput: fakeInput(""),
-        form,
-        lookupMeta: LOOKUP_META,
         maxMinutesInput: fakeInput(""),
         minBlocksInput: fakeInput("1"),
+        priorityInput: fakeInput("3"),
+    };
+}
+
+function createProgressRefs() {
+    return {
         pagesReadInput: fakeInput(""),
         pagesTotalInput: fakeInput(""),
-        priorityInput: fakeInput("3"),
         progressInput: fakeInput("0"),
-        saveBtn: SAVE_BUTTON,
-        scheduledDaysField: checkedScheduledDaysField(),
         shelfSelectInput: fakeInput("Shelf"),
         statusSelectInput: fakeInput("to_read"),
-        titleInput: fakeInput("A Book"),
         wordsInput: fakeInput("95000"),
+    };
+}
+
+function createRefs(form, overrides = {}) {
+    const LOOKUP_META = overrides.lookupMeta ?? createLookupMeta();
+    const SAVE_BUTTON = overrides.saveBtn ?? createSaveButton();
+    return {
+        ...createIdentityRefs(),
+        ...createPlanningRefs(),
+        ...createProgressRefs(),
+        applyScheduledDaysToShelfInput: { checked: false },
+        form,
+        lookupMeta: LOOKUP_META,
+        saveBtn: SAVE_BUTTON,
+        scheduledDaysField: checkedScheduledDaysField(),
         ...overrides,
     };
 }
 
-test("bindBookDialogSubmit recovers after sync validation errors", () => {
-    const FORM = new FakeFormElement();
-    const WORDS_INPUT = fakeInput("");
-    const PAGES_TOTAL_INPUT = fakeInput("");
-    const TITLE_INPUT = fakeInput("A Book");
-    const SAVE_BUTTON = {
-        disabled: false,
-        textContent: "Save Book",
+function createValidationFailureContext() {
+    return {
+        completeCalls: 0,
+        form: new fakeFormElement(),
+        lookupMeta: createLookupMeta(),
+        pagesTotalInput: fakeInput(""),
+        saveButton: createSaveButton(),
+        submitCalls: 0,
+        titleInput: fakeInput("A Book"),
+        wordsInput: fakeInput(""),
     };
-    const LOOKUP_META = {
-        dataset: { lookupNote: "" },
-        textContent: "",
-    };
-    let submitCalls = 0;
-    let completeCalls = 0;
+}
 
+function bindValidationFailureDialog(context) {
+    const CONTEXT = context;
     bindBookDialogSubmit(
-        FORM,
-        createRefs(FORM, {
-            lookupMeta: LOOKUP_META,
-            pagesTotalInput: PAGES_TOTAL_INPUT,
-            saveBtn: SAVE_BUTTON,
-            scheduledDaysField: new FakeHtmlElement(),
-            titleInput: TITLE_INPUT,
-            wordsInput: WORDS_INPUT,
+        CONTEXT.form,
+        createRefs(CONTEXT.form, {
+            lookupMeta: CONTEXT.lookupMeta,
+            pagesTotalInput: CONTEXT.pagesTotalInput,
+            saveBtn: CONTEXT.saveButton,
+            scheduledDaysField: new fakeHtmlElement(),
+            titleInput: CONTEXT.titleInput,
+            wordsInput: CONTEXT.wordsInput,
         }),
         () => {
-            submitCalls += 1;
+            CONTEXT.submitCalls += 1;
         },
         () => {
-            completeCalls += 1;
+            CONTEXT.completeCalls += 1;
         },
     );
+}
 
+function assertValidationFailure(context, preventDefaultCalls) {
+    assert.equal(preventDefaultCalls, 1);
+    assert.equal(context.submitCalls, 0);
+    assert.equal(context.completeCalls, 0);
+    assert.equal(context.saveButton.disabled, false);
+    assert.equal(context.saveButton.textContent, "Save Book");
+    assert.equal(
+        context.lookupMeta.textContent,
+        "Enter estimated words or total pages.",
+    );
+    assert.equal(context.wordsInput.focusCalls, 1);
+    assert.equal(context.titleInput.focusCalls, 0);
+}
+
+function createSubmitFailureContext() {
+    return {
+        form: new fakeFormElement(),
+        lookupMeta: createLookupMeta(),
+        saveButton: createSaveButton(),
+        titleInput: fakeInput("A Book"),
+    };
+}
+
+function bindSubmitFailureDialog(context, onSubmit) {
+    bindBookDialogSubmit(
+        context.form,
+        createRefs(context.form, {
+            lookupMeta: context.lookupMeta,
+            saveBtn: context.saveButton,
+            titleInput: context.titleInput,
+        }),
+        onSubmit,
+        NOOP,
+    );
+}
+
+async function submitFailureDialog(context) {
+    await withFakeHtmlElement(async () => {
+        context.form.submit();
+        await flushMicrotasks();
+    });
+}
+
+function assertSubmitFailure(context) {
+    assert.equal(context.saveButton.disabled, false);
+    assert.equal(context.saveButton.textContent, "Save Book");
+    assert.equal(context.lookupMeta.textContent, "Could not save this book.");
+    assert.equal(context.titleInput.focusCalls, 1);
+}
+
+test("bindBookDialogSubmit recovers after sync validation errors", () => {
+    const CONTEXT = createValidationFailureContext();
+    bindValidationFailureDialog(CONTEXT);
     return withFakeHtmlElement(() => {
-        const PREVENT_DEFAULT_CALLS = FORM.submit();
-
-        assert.equal(PREVENT_DEFAULT_CALLS, 1);
-        assert.equal(submitCalls, 0);
-        assert.equal(completeCalls, 0);
-        assert.equal(SAVE_BUTTON.disabled, false);
-        assert.equal(SAVE_BUTTON.textContent, "Save Book");
-        assert.equal(
-            LOOKUP_META.textContent,
-            "Enter estimated words or total pages.",
-        );
-        assert.equal(WORDS_INPUT.focusCalls, 1);
-        assert.equal(TITLE_INPUT.focusCalls, 0);
+        const PREVENT_DEFAULT_CALLS = CONTEXT.form.submit();
+        assertValidationFailure(CONTEXT, PREVENT_DEFAULT_CALLS);
     });
 });
 
 test("bindBookDialogSubmit restores save state after async submit failure", async () => {
-    const FORM = new FakeFormElement();
-    const TITLE_INPUT = fakeInput("A Book");
-    const SAVE_BUTTON = {
-        disabled: false,
-        textContent: "Save Book",
-    };
-    const LOOKUP_META = {
-        dataset: { lookupNote: "" },
-        textContent: "",
-    };
-
-    bindBookDialogSubmit(
-        FORM,
-        createRefs(FORM, {
-            lookupMeta: LOOKUP_META,
-            saveBtn: SAVE_BUTTON,
-            titleInput: TITLE_INPUT,
-        }),
-        () => Promise.reject(new Error("Could not save this book.")),
-        NOOP,
+    const CONTEXT = createSubmitFailureContext();
+    bindSubmitFailureDialog(CONTEXT, () =>
+        Promise.reject(new Error("Could not save this book.")),
     );
-
-    await withFakeHtmlElement(async () => {
-        FORM.submit();
-        await flushMicrotasks();
-    });
-
-    assert.equal(SAVE_BUTTON.disabled, false);
-    assert.equal(SAVE_BUTTON.textContent, "Save Book");
-    assert.equal(LOOKUP_META.textContent, "Could not save this book.");
-    assert.equal(TITLE_INPUT.focusCalls, 1);
+    await submitFailureDialog(CONTEXT);
+    assertSubmitFailure(CONTEXT);
 });
 
 test("bindBookDialogSubmit restores save state after sync submit failure", async () => {
-    const FORM = new FakeFormElement();
-    const TITLE_INPUT = fakeInput("A Book");
-    const SAVE_BUTTON = {
-        disabled: false,
-        textContent: "Save Book",
-    };
-    const LOOKUP_META = {
-        dataset: { lookupNote: "" },
-        textContent: "",
-    };
-
-    bindBookDialogSubmit(
-        FORM,
-        createRefs(FORM, {
-            lookupMeta: LOOKUP_META,
-            saveBtn: SAVE_BUTTON,
-            titleInput: TITLE_INPUT,
-        }),
-        () => {
-            throw new Error("Could not save this book.");
-        },
-        NOOP,
-    );
-
-    await withFakeHtmlElement(async () => {
-        FORM.submit();
-        await flushMicrotasks();
+    const CONTEXT = createSubmitFailureContext();
+    bindSubmitFailureDialog(CONTEXT, () => {
+        throw new Error("Could not save this book.");
     });
-
-    assert.equal(SAVE_BUTTON.disabled, false);
-    assert.equal(SAVE_BUTTON.textContent, "Save Book");
-    assert.equal(LOOKUP_META.textContent, "Could not save this book.");
-    assert.equal(TITLE_INPUT.focusCalls, 1);
+    await submitFailureDialog(CONTEXT);
+    assertSubmitFailure(CONTEXT);
 });

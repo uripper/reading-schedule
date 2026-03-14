@@ -4,166 +4,123 @@ import test from "node:test";
 import { bindTodayProgressInputs } from "../dist/renderer/app/today/today_carousel_progress_bindings.js";
 import { resetTodayCarouselUiState } from "../dist/renderer/app/today/today_carousel_state.js";
 
-class FakeInputElement {
-    constructor() {
-        this.max = "";
-        this.oninput = null;
-        this.placeholder = "";
-        this.value = "";
-    }
+function fakeInputElement() {
+    this.max = "";
+    this.oninput = null;
+    this.placeholder = "";
+    this.value = "";
+}
 
-    removeAttribute(name) {
-        if (name === "max") {
-            this.max = "";
-        }
+fakeInputElement.prototype.removeAttribute = function (name) {
+    if (name === "max") {
+        this.max = "";
+    }
+};
+
+function fakeTodayInputsDocument(pagesInput, percentInput) {
+    return {
+        getElementById(id) {
+            if (id === "todayPagesInput") {
+                return pagesInput;
+            }
+            if (id === "todayPercentInput") {
+                return percentInput;
+            }
+            return null;
+        },
+    };
+}
+
+function restoreGlobalValue(key, value) {
+    if (value === undefined) {
+        delete globalThis[key];
+        return;
+    }
+    globalThis[key] = value;
+}
+
+function progressInputFixtures() {
+    return {
+        pagesInput: new fakeInputElement(),
+        percentInput: new fakeInputElement(),
+    };
+}
+
+function restoreTodayProgressGlobals(originalDocument, originalHtmlElement) {
+    restoreGlobalValue("HTMLElement", originalHtmlElement);
+    restoreGlobalValue("document", originalDocument);
+}
+
+function installTodayProgressGlobals(fixtures) {
+    globalThis.HTMLElement = fakeInputElement;
+    globalThis.document = fakeTodayInputsDocument(
+        fixtures.pagesInput,
+        fixtures.percentInput,
+    );
+}
+
+function bindTodayProgressFixtures(options) {
+    resetTodayCarouselUiState();
+    bindTodayProgressInputs({
+        pagesRead: 120,
+        pagesTotal: options.pagesTotal,
+        progressPercent: 36.6,
+        row: { rowKey: "row-1" },
+    });
+}
+
+function bindTodayProgressInputFixtures(options, work) {
+    const ORIGINAL_DOCUMENT = globalThis.document;
+    const ORIGINAL_HTML_ELEMENT = globalThis.HTMLElement;
+    const FIXTURES = progressInputFixtures();
+    installTodayProgressGlobals(FIXTURES);
+    try {
+        bindTodayProgressFixtures(options);
+        work(FIXTURES);
+    } finally {
+        resetTodayCarouselUiState();
+        restoreTodayProgressGlobals(ORIGINAL_DOCUMENT, ORIGINAL_HTML_ELEMENT);
     }
 }
 
 test("bindTodayProgressInputs opens with empty values and placeholder hints", () => {
-    const ORIGINAL_DOCUMENT = globalThis.document;
-    const ORIGINAL_HTML_ELEMENT = globalThis.HTMLElement;
-    const PAGES_INPUT = new FakeInputElement();
-    const PERCENT_INPUT = new FakeInputElement();
-
-    globalThis.HTMLElement = FakeInputElement;
-    globalThis.document = {
-        getElementById(id) {
-            if (id === "todayPagesInput") {
-                return PAGES_INPUT;
-            }
-            if (id === "todayPercentInput") {
-                return PERCENT_INPUT;
-            }
-            return null;
+    bindTodayProgressInputFixtures(
+        { pagesTotal: 328 },
+        ({ pagesInput, percentInput }) => {
+            assert.equal(pagesInput.value, "");
+            assert.equal(pagesInput.placeholder, "120");
+            assert.equal(percentInput.value, "");
+            assert.equal(percentInput.placeholder, "36.6");
         },
-    };
-
-    try {
-        resetTodayCarouselUiState();
-        bindTodayProgressInputs({
-            pagesRead: 120,
-            pagesTotal: 328,
-            progressPercent: 36.6,
-            row: { rowKey: "row-1" },
-        });
-
-        assert.equal(PAGES_INPUT.value, "");
-        assert.equal(PAGES_INPUT.placeholder, "120");
-        assert.equal(PERCENT_INPUT.value, "");
-        assert.equal(PERCENT_INPUT.placeholder, "36.6");
-    } finally {
-        resetTodayCarouselUiState();
-        if (ORIGINAL_HTML_ELEMENT === undefined) {
-            delete globalThis.HTMLElement;
-        } else {
-            globalThis.HTMLElement = ORIGINAL_HTML_ELEMENT;
-        }
-        if (ORIGINAL_DOCUMENT === undefined) {
-            delete globalThis.document;
-        } else {
-            globalThis.document = ORIGINAL_DOCUMENT;
-        }
-    }
+    );
 });
 
 test("bindTodayProgressInputs updates reciprocal placeholder hints while typing", () => {
-    const ORIGINAL_DOCUMENT = globalThis.document;
-    const ORIGINAL_HTML_ELEMENT = globalThis.HTMLElement;
-    const PAGES_INPUT = new FakeInputElement();
-    const PERCENT_INPUT = new FakeInputElement();
-
-    globalThis.HTMLElement = FakeInputElement;
-    globalThis.document = {
-        getElementById(id) {
-            if (id === "todayPagesInput") {
-                return PAGES_INPUT;
-            }
-            if (id === "todayPercentInput") {
-                return PERCENT_INPUT;
-            }
-            return null;
+    bindTodayProgressInputFixtures(
+        { pagesTotal: 328 },
+        ({ pagesInput, percentInput }) => {
+            percentInput.value = "25";
+            percentInput.oninput();
+            assert.equal(pagesInput.placeholder, "82");
+            pagesInput.value = "164";
+            pagesInput.oninput();
+            assert.equal(percentInput.placeholder, "50");
         },
-    };
-
-    try {
-        resetTodayCarouselUiState();
-        bindTodayProgressInputs({
-            pagesRead: 120,
-            pagesTotal: 328,
-            progressPercent: 36.6,
-            row: { rowKey: "row-1" },
-        });
-
-        PERCENT_INPUT.value = "25";
-        PERCENT_INPUT.oninput();
-        assert.equal(PAGES_INPUT.placeholder, "82");
-
-        PAGES_INPUT.value = "164";
-        PAGES_INPUT.oninput();
-        assert.equal(PERCENT_INPUT.placeholder, "50");
-    } finally {
-        resetTodayCarouselUiState();
-        if (ORIGINAL_HTML_ELEMENT === undefined) {
-            delete globalThis.HTMLElement;
-        } else {
-            globalThis.HTMLElement = ORIGINAL_HTML_ELEMENT;
-        }
-        if (ORIGINAL_DOCUMENT === undefined) {
-            delete globalThis.document;
-        } else {
-            globalThis.document = ORIGINAL_DOCUMENT;
-        }
-    }
+    );
 });
 
 test("bindTodayProgressInputs clamps oversize page and percent values while typing", () => {
-    const ORIGINAL_DOCUMENT = globalThis.document;
-    const ORIGINAL_HTML_ELEMENT = globalThis.HTMLElement;
-    const PAGES_INPUT = new FakeInputElement();
-    const PERCENT_INPUT = new FakeInputElement();
-
-    globalThis.HTMLElement = FakeInputElement;
-    globalThis.document = {
-        getElementById(id) {
-            if (id === "todayPagesInput") {
-                return PAGES_INPUT;
-            }
-            if (id === "todayPercentInput") {
-                return PERCENT_INPUT;
-            }
-            return null;
+    bindTodayProgressInputFixtures(
+        { pagesTotal: 336 },
+        ({ pagesInput, percentInput }) => {
+            pagesInput.value = "99999999";
+            pagesInput.oninput();
+            assert.equal(pagesInput.value, "336");
+            assert.equal(percentInput.placeholder, "100");
+            percentInput.value = "999999";
+            percentInput.oninput();
+            assert.equal(percentInput.value, "100");
+            assert.equal(pagesInput.placeholder, "336");
         },
-    };
-
-    try {
-        resetTodayCarouselUiState();
-        bindTodayProgressInputs({
-            pagesRead: 120,
-            pagesTotal: 336,
-            progressPercent: 36.6,
-            row: { rowKey: "row-1" },
-        });
-
-        PAGES_INPUT.value = "99999999";
-        PAGES_INPUT.oninput();
-        assert.equal(PAGES_INPUT.value, "336");
-        assert.equal(PERCENT_INPUT.placeholder, "100");
-
-        PERCENT_INPUT.value = "999999";
-        PERCENT_INPUT.oninput();
-        assert.equal(PERCENT_INPUT.value, "100");
-        assert.equal(PAGES_INPUT.placeholder, "336");
-    } finally {
-        resetTodayCarouselUiState();
-        if (ORIGINAL_HTML_ELEMENT === undefined) {
-            delete globalThis.HTMLElement;
-        } else {
-            globalThis.HTMLElement = ORIGINAL_HTML_ELEMENT;
-        }
-        if (ORIGINAL_DOCUMENT === undefined) {
-            delete globalThis.document;
-        } else {
-            globalThis.document = ORIGINAL_DOCUMENT;
-        }
-    }
+    );
 });

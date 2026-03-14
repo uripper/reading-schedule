@@ -61,88 +61,140 @@ interface MinutesEditorBindingsArgs {
     summaryValue: HTMLElement;
 }
 
-/**
- * Bind UI event handlers for the minutes editor: sync summary text, control editor visibility, and handle edit/cancel/submit actions.
- * @example
- * bindMinutesEditorActions({minutesInput, minutesForm, summaryRow, summaryValue, editButton, cancelBtn, interactionHandlers, row, onMinutesApplied})
- * undefined
- * @param args - Arguments object containing DOM elements and handlers needed to wire the minutes editor.
- * @returns Nothing.
- **/
-function bindMinutesEditorActions(args: MinutesEditorBindingsArgs): void {
-    let initialMinutesValue = String(args.minutesInput.value).trim();
-    syncSummaryText(args.summaryValue, initialMinutesValue);
-    let isEditorOpen = MINUTES_EDITOR_OPEN_BY_DEFAULT;
-    syncEditorVisibility({
-        editButton: args.editButton,
-        isOpen: isEditorOpen,
-        minutesForm: args.minutesForm,
-        summaryRow: args.summaryRow,
-    });
+interface MinutesEditorState {
+    initialMinutesValue: string;
+    isEditorOpen: boolean;
+}
 
-    args.editButton.onclick = () => {
-        isEditorOpen = nextMinutesEditorOpenState("edit");
-        syncEditorVisibility({
-            editButton: args.editButton,
-            isOpen: isEditorOpen,
-            minutesForm: args.minutesForm,
-            summaryRow: args.summaryRow,
-        });
-        args.minutesInput.focus();
-        args.minutesInput.select();
-    };
-    args.cancelBtn.onclick = () => {
-        args.minutesInput.value = initialMinutesValue;
-        isEditorOpen = nextMinutesEditorOpenState("cancel");
-        syncEditorVisibility({
-            editButton: args.editButton,
-            isOpen: isEditorOpen,
-            minutesForm: args.minutesForm,
-            summaryRow: args.summaryRow,
-        });
-        args.editButton.focus();
-    };
-    args.minutesForm.onsubmit = (event) => {
-        const UPDATED_VALUES = submitMinutesUpdate({
-            event,
-            initialMinutesValue,
-            interactionHandlers: args.interactionHandlers,
-            minutesInput: args.minutesInput,
-            row: args.row,
-        });
-        initialMinutesValue = UPDATED_VALUES.initialMinutesValue;
-        if (!UPDATED_VALUES.applied) {
-            return;
-        }
-        syncSummaryText(args.summaryValue, initialMinutesValue);
-        isEditorOpen = nextMinutesEditorOpenState("saved");
-        syncEditorVisibility({
-            editButton: args.editButton,
-            isOpen: isEditorOpen,
-            minutesForm: args.minutesForm,
-            summaryRow: args.summaryRow,
-        });
-        args.editButton.focus();
-        args.onMinutesApplied();
+type MinutesEditorVisibilityArgs = Pick<
+    MinutesEditorBindingsArgs,
+    "editButton" | "minutesForm" | "summaryRow"
+>;
+
+interface BindMinutesFormArgs {
+    formParts: MinutesFormParts;
+    interactionHandlers: DetailInteractionHandlers;
+    onMinutesApplied: () => void;
+    row: CalendarRowWithFinish;
+    summaryParts: MinutesSummaryRow;
+}
+
+function minutesEditorState(
+    minutesInput: HTMLInputElement,
+): MinutesEditorState {
+    return {
+        initialMinutesValue: String(minutesInput.value).trim(),
+        isEditorOpen: MINUTES_EDITOR_OPEN_BY_DEFAULT,
     };
 }
 
-/**
- * Builds the "planned minutes" editor for a day detail session row.
- * @param row - Calendar row currently being edited.
- * @param interactionHandlers - Handlers used to persist and react to edits.
- * @param onMinutesApplied - Callback invoked after a successful save.
- * @returns Container element with summary display and editable minutes form.
- */
-export function minutesFormForSession(
-    row: CalendarRowWithFinish,
-    interactionHandlers: DetailInteractionHandlers,
-    onMinutesApplied: () => void,
-): HTMLElement {
-    const MINUTES_CONTAINER = document.createElement("section");
-    MINUTES_CONTAINER.className = "day-minutes-editor";
-    const SUMMARY_PARTS = createMinutesSummaryRow();
+function syncMinutesEditorState(
+    args: MinutesEditorVisibilityArgs,
+    state: MinutesEditorState,
+): void {
+    syncEditorVisibility({
+        editButton: args.editButton,
+        isOpen: state.isEditorOpen,
+        minutesForm: args.minutesForm,
+        summaryRow: args.summaryRow,
+    });
+}
 
+function focusMinutesInput(minutesInput: HTMLInputElement): void {
+    minutesInput.focus();
+    minutesInput.select();
+}
+
+function createEditMinutesHandler(
+    args: MinutesEditorBindingsArgs,
+    state: MinutesEditorState,
+): () => void {
+    const { editButton, minutesForm, minutesInput, summaryRow } = args;
+    return (): void => {
+        const STATE = state;
+        STATE.isEditorOpen = nextMinutesEditorOpenState("edit");
+        syncMinutesEditorState({ editButton, minutesForm, summaryRow }, STATE);
+        focusMinutesInput(minutesInput);
+    };
+}
+
+function createCancelMinutesHandler(
+    args: MinutesEditorBindingsArgs,
+    state: MinutesEditorState,
+): () => void {
+    const { editButton, minutesForm, minutesInput, summaryRow } = args;
+    return (): void => {
+        const STATE = state;
+        minutesInput.value = STATE.initialMinutesValue;
+        STATE.isEditorOpen = nextMinutesEditorOpenState("cancel");
+        syncMinutesEditorState({ editButton, minutesForm, summaryRow }, STATE);
+        editButton.focus();
+    };
+}
+
+function createSubmitMinutesHandler(
+    args: MinutesEditorBindingsArgs,
+    state: MinutesEditorState,
+): (event: SubmitEvent) => void {
+    const { editButton, minutesForm, summaryRow } = args;
+    return (event: SubmitEvent): void => {
+        const STATE = state;
+        const UPDATED_VALUES = submittedMinutesValues(args, STATE, event);
+        STATE.initialMinutesValue = UPDATED_VALUES.initialMinutesValue;
+        if (!UPDATED_VALUES.applied) {
+            return;
+        }
+        applySubmittedMinutes(args, STATE);
+        syncMinutesEditorState({ editButton, minutesForm, summaryRow }, STATE);
+    };
+}
+
+function submittedMinutesValues(
+    args: MinutesEditorBindingsArgs,
+    state: MinutesEditorState,
+    event: SubmitEvent,
+) {
+    return submitMinutesUpdate({
+        event,
+        initialMinutesValue: state.initialMinutesValue,
+        interactionHandlers: args.interactionHandlers,
+        minutesInput: args.minutesInput,
+        row: args.row,
+    });
+}
+
+function applySubmittedMinutes(
+    args: Pick<
+        MinutesEditorBindingsArgs,
+        "editButton" | "onMinutesApplied" | "summaryValue"
+    >,
+    state: MinutesEditorState,
+): void {
+    const STATE = state;
+    syncSummaryText(args.summaryValue, STATE.initialMinutesValue);
+    STATE.isEditorOpen = nextMinutesEditorOpenState("saved");
+    args.editButton.focus();
+    args.onMinutesApplied();
+}
+
+function bindMinutesEditorActions(args: MinutesEditorBindingsArgs): void {
+    const { cancelBtn, editButton, minutesForm, minutesInput, summaryValue } =
+        args;
+    const STATE = minutesEditorState(minutesInput);
+    syncSummaryText(summaryValue, STATE.initialMinutesValue);
+    syncMinutesEditorState(args, STATE);
+    editButton.onclick = createEditMinutesHandler(args, STATE);
+    cancelBtn.onclick = createCancelMinutesHandler(args, STATE);
+    minutesForm.onsubmit = createSubmitMinutesHandler(args, STATE);
+}
+
+interface MinutesFormParts {
+    cancelBtn: HTMLButtonElement;
+    minutesForm: HTMLFormElement;
+    minutesInput: HTMLInputElement;
+}
+
+function createMinutesFormParts(row: CalendarRowWithFinish): MinutesFormParts {
     const MINUTES_FORM = document.createElement("form");
     MINUTES_FORM.className = "day-progress-form day-minutes-form";
     const MINUTES_INPUT = minutesInputForRow(row);
@@ -152,17 +204,48 @@ export function minutesFormForSession(
     MINUTES_LABEL.append(MINUTES_INPUT);
     const { actions, cancelBtn } = minutesFormActions();
     MINUTES_FORM.append(MINUTES_LABEL, actions);
-    bindMinutesEditorActions({
+    return {
         cancelBtn,
-        editButton: SUMMARY_PARTS.editButton,
-        interactionHandlers,
         minutesForm: MINUTES_FORM,
         minutesInput: MINUTES_INPUT,
+    };
+}
+
+function bindMinutesForm(args: BindMinutesFormArgs): void {
+    bindMinutesEditorActions({
+        cancelBtn: args.formParts.cancelBtn,
+        editButton: args.summaryParts.editButton,
+        interactionHandlers: args.interactionHandlers,
+        minutesForm: args.formParts.minutesForm,
+        minutesInput: args.formParts.minutesInput,
+        onMinutesApplied: args.onMinutesApplied,
+        row: args.row,
+        summaryRow: args.summaryParts.node,
+        summaryValue: args.summaryParts.summaryValue,
+    });
+}
+
+function createMinutesContainer(): HTMLElement {
+    const MINUTES_CONTAINER = document.createElement("section");
+    MINUTES_CONTAINER.className = "day-minutes-editor";
+    return MINUTES_CONTAINER;
+}
+
+export function minutesFormForSession(
+    row: CalendarRowWithFinish,
+    interactionHandlers: DetailInteractionHandlers,
+    onMinutesApplied: () => void,
+): HTMLElement {
+    const MINUTES_CONTAINER = createMinutesContainer();
+    const SUMMARY_PARTS = createMinutesSummaryRow();
+    const FORM_PARTS = createMinutesFormParts(row);
+    bindMinutesForm({
+        formParts: FORM_PARTS,
+        interactionHandlers,
         onMinutesApplied,
         row,
-        summaryRow: SUMMARY_PARTS.node,
-        summaryValue: SUMMARY_PARTS.summaryValue,
+        summaryParts: SUMMARY_PARTS,
     });
-    MINUTES_CONTAINER.append(SUMMARY_PARTS.node, MINUTES_FORM);
+    MINUTES_CONTAINER.append(SUMMARY_PARTS.node, FORM_PARTS.minutesForm);
     return MINUTES_CONTAINER;
 }
