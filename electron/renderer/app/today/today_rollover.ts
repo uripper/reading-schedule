@@ -8,6 +8,29 @@ interface DayRolloverDocument {
     visibilityState: "hidden" | "visible";
 }
 
+type DayRolloverOptions = {
+    document?: DayRolloverDocument;
+    now?: () => Date;
+    onDayChanged(): void;
+    readDayKey?: () => string;
+    clearTimeout?: typeof globalThis.clearTimeout;
+    setTimeout?: typeof globalThis.setTimeout;
+};
+
+type ResolvedDayRolloverOptions = {
+    document: DayRolloverDocument;
+    now: () => Date;
+    onDayChanged(): void;
+    readDayKey: () => string;
+    clearTimeout: typeof globalThis.clearTimeout;
+    setTimeout: typeof globalThis.setTimeout;
+};
+
+type DayRolloverState = {
+    activeDayKey: string;
+    timeoutId: ReturnType<typeof globalThis.setTimeout> | null;
+};
+
 function nextLocalMidnightDelay(now: Date): number {
     const NEXT_MIDNIGHT = new Date(now);
     NEXT_MIDNIGHT.setHours(24, 0, 0, 0);
@@ -15,6 +38,75 @@ function nextLocalMidnightDelay(now: Date): number {
         MIN_DAY_ROLLOVER_DELAY_MS,
         NEXT_MIDNIGHT.getTime() - now.getTime(),
     );
+}
+
+function resolvedDayRolloverOptions(
+    options: DayRolloverOptions,
+): ResolvedDayRolloverOptions {
+    return {
+        clearTimeout: options.clearTimeout ?? globalThis.clearTimeout,
+        document: options.document ?? globalThis.document,
+        now: options.now ?? (() => new Date()),
+        onDayChanged: options.onDayChanged,
+        readDayKey: options.readDayKey ?? todayKey,
+        setTimeout: options.setTimeout ?? globalThis.setTimeout,
+    };
+}
+
+function createDayRolloverState(
+    readDayKey: () => string,
+): DayRolloverState {
+    return {
+        activeDayKey: readDayKey(),
+        timeoutId: null,
+    };
+}
+
+function scheduleNextDayCheck(
+    state: DayRolloverState,
+    options: ResolvedDayRolloverOptions,
+    checkForDayChange: () => void,
+): void {
+    if (state.timeoutId !== null) {
+        options.clearTimeout(state.timeoutId);
+    }
+    state.timeoutId = options.setTimeout(() => {
+        checkForDayChange();
+    }, nextLocalMidnightDelay(options.now()));
+}
+
+function handleDayChange(
+    state: DayRolloverState,
+    options: ResolvedDayRolloverOptions,
+): void {
+    const NEXT_DAY_KEY = options.readDayKey();
+    if (NEXT_DAY_KEY !== state.activeDayKey) {
+        state.activeDayKey = NEXT_DAY_KEY;
+        options.onDayChanged();
+    }
+}
+
+function visibilityChangeHandler(
+    options: ResolvedDayRolloverOptions,
+    checkForDayChange: () => void,
+): () => void {
+    return (): void => {
+        if (options.document.visibilityState !== "visible") {
+            return;
+        }
+        checkForDayChange();
+    };
+}
+
+function disposeDayRollover(
+    state: DayRolloverState,
+    options: ResolvedDayRolloverOptions,
+    onVisibilityChange: () => void,
+): void {
+    if (state.timeoutId !== null) {
+        options.clearTimeout(state.timeoutId);
+    }
+    options.document.removeEventListener("visibilitychange", onVisibilityChange);
 }
 
 /**
@@ -31,63 +123,30 @@ function nextLocalMidnightDelay(now: Date): number {
  * @param options.setTimeout - Optional setTimeout implementation; defaults to global setTimeout.
  * @returns Returns a controller with checkForDayChange() to trigger an immediate check and dispose() to stop timers and listeners.
  **/
-export function bindTodayDayRollover(options: {
-    document?: DayRolloverDocument;
-    now?: () => Date;
-    onDayChanged(): void;
-    readDayKey?: () => string;
-    clearTimeout?: typeof globalThis.clearTimeout;
-    setTimeout?: typeof globalThis.setTimeout;
-}): {
+export function bindTodayDayRollover(options: DayRolloverOptions): {
     checkForDayChange(): void;
     dispose(): void;
 } {
-    const CLEAR_TIMEOUT = options.clearTimeout ?? globalThis.clearTimeout;
-    const DOCUMENT = options.document ?? globalThis.document;
-    const NOW = options.now ?? (() => new Date());
-    const READ_DAY_KEY = options.readDayKey ?? todayKey;
-    const SET_TIMEOUT = options.setTimeout ?? globalThis.setTimeout;
-    let activeDayKey = READ_DAY_KEY();
-    let timeoutId: ReturnType<typeof globalThis.setTimeout> | null = null;
-
-    const SCHEDULE_NEXT_CHECK = (): void => {
-        if (timeoutId !== null) {
-            CLEAR_TIMEOUT(timeoutId);
-        }
-        timeoutId = SET_TIMEOUT(() => {
-            CHECK_FOR_DAY_CHANGE();
-        }, nextLocalMidnightDelay(NOW()));
-    };
-
+    const RESOLVED = resolvedDayRolloverOptions(options);
+    const STATE = createDayRolloverState(RESOLVED.readDayKey);
     const CHECK_FOR_DAY_CHANGE = (): void => {
-        const NEXT_DAY_KEY = READ_DAY_KEY();
-        if (NEXT_DAY_KEY !== activeDayKey) {
-            activeDayKey = NEXT_DAY_KEY;
-            options.onDayChanged();
-        }
-        SCHEDULE_NEXT_CHECK();
+        handleDayChange(STATE, RESOLVED);
+        scheduleNextDayCheck(STATE, RESOLVED, CHECK_FOR_DAY_CHANGE);
     };
-
-    const HANDLE_VISIBILITY_CHANGE = (): void => {
-        if (DOCUMENT.visibilityState !== "visible") {
-            return;
-        }
-        CHECK_FOR_DAY_CHANGE();
-    };
-
-    SCHEDULE_NEXT_CHECK();
-    DOCUMENT.addEventListener("visibilitychange", HANDLE_VISIBILITY_CHANGE);
+    const HANDLE_VISIBILITY_CHANGE = visibilityChangeHandler(
+        RESOLVED,
+        CHECK_FOR_DAY_CHANGE,
+    );
+    scheduleNextDayCheck(STATE, RESOLVED, CHECK_FOR_DAY_CHANGE);
+    RESOLVED.document.addEventListener(
+        "visibilitychange",
+        HANDLE_VISIBILITY_CHANGE,
+    );
 
     return {
         checkForDayChange: CHECK_FOR_DAY_CHANGE,
         dispose(): void {
-            if (timeoutId !== null) {
-                CLEAR_TIMEOUT(timeoutId);
-            }
-            DOCUMENT.removeEventListener(
-                "visibilitychange",
-                HANDLE_VISIBILITY_CHANGE,
-            );
+            disposeDayRollover(STATE, RESOLVED, HANDLE_VISIBILITY_CHANGE);
         },
     };
 }
