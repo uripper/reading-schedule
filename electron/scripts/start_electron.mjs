@@ -148,9 +148,7 @@ const RESOLVE_ELECTRON_BINARY_PATH = () => {
             message = String(error);
         }
         process.stderr.write(`${ELECTRON_RESOLVE_ERROR_PREFIX}: ${message}\n`);
-        process.stderr.write(
-            "Attempting to repair Electron install...\n",
-        );
+        process.stderr.write("Attempting to repair Electron install...\n");
         REPAIR_ELECTRON_INSTALL();
         return ELECTRON_BINARY_PATH();
     }

@@ -15,7 +15,11 @@ const PYINSTALLER_TEMP_DIRECTORY = path.join(
     "build",
     "pyinstaller",
 );
-const PLANNER_OUTPUT_DIRECTORY = path.join(ELECTRON_DIRECTORY, "build", "planner");
+const PLANNER_OUTPUT_DIRECTORY = path.join(
+    ELECTRON_DIRECTORY,
+    "build",
+    "planner",
+);
 const PLANNER_ENTRYPOINT_PATH = path.join(
     REPOSITORY_DIRECTORY,
     "src",
