@@ -1,9 +1,22 @@
 import type {
     BookLookupItem,
     HandleLookupKeydownArgs,
-    SelectItem,
     SetActiveIndex,
 } from "../../types/types.ts";
+
+interface LookupNavigationArgs {
+    activeIndex: number;
+    currentItems: readonly BookLookupItem[];
+    event: KeyboardEvent;
+    setActiveIndex: SetActiveIndex;
+}
+
+interface LookupSelectionArgs {
+    activeIndex: number;
+    currentItems: readonly BookLookupItem[];
+    event: KeyboardEvent;
+    selectItem: HandleLookupKeydownArgs["selectItem"];
+}
 
 /**
  * Moves highlight to the next search result when ArrowDown is pressed.
@@ -12,21 +25,16 @@ import type {
  * @param activeIndex - Currently highlighted index, or -1 when none is active.
  * @param setActiveIndex - Callback used to update highlighted result index.
  */
-function handleArrowDown(
-    event: KeyboardEvent,
-    currentItems: readonly BookLookupItem[],
-    activeIndex: number,
-    setActiveIndex: SetActiveIndex,
-): void {
-    event.preventDefault();
-    if (!currentItems.length) {
+function handleArrowDown(args: LookupNavigationArgs): void {
+    args.event.preventDefault();
+    if (!args.currentItems.length) {
         return;
     }
-    if (activeIndex < 0) {
-        setActiveIndex(0);
+    if (args.activeIndex < 0) {
+        args.setActiveIndex(0);
         return;
     }
-    setActiveIndex(activeIndex + 1);
+    args.setActiveIndex(args.activeIndex + 1);
 }
 
 /**
@@ -36,21 +44,16 @@ function handleArrowDown(
  * @param activeIndex - Currently highlighted index, or -1 when none is active.
  * @param setActiveIndex - Callback used to update highlighted result index.
  */
-function handleArrowUp(
-    event: KeyboardEvent,
-    currentItems: readonly BookLookupItem[],
-    activeIndex: number,
-    setActiveIndex: SetActiveIndex,
-): void {
-    event.preventDefault();
-    if (!currentItems.length) {
+function handleArrowUp(args: LookupNavigationArgs): void {
+    args.event.preventDefault();
+    if (!args.currentItems.length) {
         return;
     }
-    if (activeIndex < 0) {
-        setActiveIndex(currentItems.length - 1);
+    if (args.activeIndex < 0) {
+        args.setActiveIndex(args.currentItems.length - 1);
         return;
     }
-    setActiveIndex(activeIndex - 1);
+    args.setActiveIndex(args.activeIndex - 1);
 }
 
 /**
@@ -60,17 +63,12 @@ function handleArrowUp(
  * @param activeIndex - Currently highlighted index, or -1 when none is active.
  * @param selectItem - Callback used to commit the selected item.
  */
-function handleEnter(
-    event: KeyboardEvent,
-    currentItems: readonly BookLookupItem[],
-    activeIndex: number,
-    selectItem: SelectItem,
-): void {
-    if (activeIndex < 0 || !currentItems.length) {
+function handleEnter(args: LookupSelectionArgs): void {
+    if (args.activeIndex < 0 || !args.currentItems.length) {
         return;
     }
-    event.preventDefault();
-    selectItem(activeIndex);
+    args.event.preventDefault();
+    args.selectItem(args.activeIndex);
 }
 
 /**
@@ -86,6 +84,46 @@ function handleEscape(
     searchInput.blur();
 }
 
+function lookupNavigationArgs(
+    args: HandleLookupKeydownArgs,
+): LookupNavigationArgs {
+    return {
+        activeIndex: args.activeIndex,
+        currentItems: args.currentItems,
+        event: args.event,
+        setActiveIndex: args.setActiveIndex,
+    };
+}
+
+function handleLookupArrowKey(args: HandleLookupKeydownArgs): boolean {
+    if (args.event.key === "ArrowDown") {
+        handleArrowDown(lookupNavigationArgs(args));
+        return true;
+    }
+    if (args.event.key === "ArrowUp") {
+        handleArrowUp(lookupNavigationArgs(args));
+        return true;
+    }
+    return false;
+}
+
+function handleLookupActionKey(args: HandleLookupKeydownArgs): boolean {
+    if (args.event.key === "Enter") {
+        handleEnter({
+            activeIndex: args.activeIndex,
+            currentItems: args.currentItems,
+            event: args.event,
+            selectItem: args.selectItem,
+        });
+        return true;
+    }
+    if (args.event.key === "Escape") {
+        handleEscape(args.clearResults, args.searchInput);
+        return true;
+    }
+    return false;
+}
+
 /**
  * Routes lookup keyboard events to navigation and selection handlers.
  * @param args - Lookup keyboard event payload and state callbacks.
@@ -98,30 +136,8 @@ function handleEscape(
  * @param searchInput - Lookup search input element.
  */
 export function handleLookupKeydown(args: HandleLookupKeydownArgs): void {
-    const { event, currentItems, activeIndex, searchInput } = args;
-    const SET_ACTIVE_INDEX = (index: number): void => {
-        args.setActiveIndex(index);
-    };
-    const SELECT_ITEM = (index: number): void => {
-        args.selectItem(index);
-    };
-    const CLEAR_LOOKUP_RESULTS = (): void => {
-        args.clearResults();
-    };
-    switch (event.key) {
-        case "ArrowDown":
-            handleArrowDown(event, currentItems, activeIndex, SET_ACTIVE_INDEX);
-            return;
-        case "ArrowUp":
-            handleArrowUp(event, currentItems, activeIndex, SET_ACTIVE_INDEX);
-            return;
-        case "Enter":
-            handleEnter(event, currentItems, activeIndex, SELECT_ITEM);
-            return;
-        case "Escape":
-            handleEscape(CLEAR_LOOKUP_RESULTS, searchInput);
-            return;
-        default:
-            return;
+    if (handleLookupArrowKey(args)) {
+        return;
     }
+    handleLookupActionKey(args);
 }

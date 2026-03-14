@@ -70,12 +70,12 @@ export function visibleBooksForView(
     viewState: BooksViewState,
     finishDateByBookId: Record<string, string>,
 ): Book[] {
-    return sortBooks(
+    return sortBooks({
         books,
-        viewState.sortBy,
-        viewState.sortDirection,
         finishDateByBookId,
-    ).filter((book) => {
+        sortBy: viewState.sortBy,
+        sortDirection: viewState.sortDirection,
+    }).filter((book) => {
         if (!matchesTitleFilter(book, viewState.titleFilter)) {
             return false;
         }

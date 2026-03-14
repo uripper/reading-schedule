@@ -5,14 +5,13 @@ import {
     streakFromDayMinutes,
     totalMinutes,
 } from "../activity/day-minutes.ts";
+import { readBooksFinishedThisYear, statusBreakdown } from "./helpers.ts";
 import {
     averageProgress,
     completionStats,
     monthlyFinishCounts,
     plannedFinishBookIds,
-    readBooksFinishedThisYear,
-    statusBreakdown,
-} from "./helpers.ts";
+} from "./helpers-metrics.ts";
 
 const MIN_GOAL_MINUTES = 1;
 
@@ -95,6 +94,47 @@ function buildStatsSnapshotResult(args: {
     };
 }
 
+function statsSnapshotResultArgs(options: {
+    activitySummary: ReturnType<typeof buildActivitySummary>;
+    books: SnapshotInputs["books"];
+    computation: ReturnType<typeof statsSnapshotComputation>;
+    year: number;
+}) {
+    return {
+        activitySummary: options.activitySummary,
+        books: options.books,
+        completion: options.computation.completion,
+        finishSummary: options.computation.finishSummary,
+        progress: options.computation.progress,
+        year: options.year,
+    };
+}
+
+function statsSnapshotComputation(options: {
+    books: SnapshotInputs["books"];
+    lastResult: SnapshotInputs["lastResult"];
+    scheduleCompletions: SnapshotInputs["scheduleCompletions"];
+    year: number;
+}): {
+    completion: ReturnType<typeof completionStats>;
+    finishSummary: ReturnType<typeof buildFinishSummary>;
+    progress: ReturnType<typeof averageProgress>;
+} {
+    return {
+        completion: completionStats(
+            options.lastResult,
+            options.scheduleCompletions,
+            options.year,
+        ),
+        finishSummary: buildFinishSummary(
+            options.books,
+            options.lastResult,
+            options.year,
+        ),
+        progress: averageProgress(options.books),
+    };
+}
+
 function buildStreakAndFinishStats(args: {
     activitySummary: ReturnType<typeof buildActivitySummary>;
     books: SnapshotInputs["books"];
@@ -133,32 +173,21 @@ function buildStreakAndFinishStats(args: {
  * @param dailyGoalMinutes - Optional daily goal minutes.
  * @returns Aggregated stats snapshot for rendering.
  */
-export function buildStatsSnapshot({
-    books,
-    sessions,
-    lastResult,
-    scheduleCompletions,
-    dailyGoalMinutes,
-}: SnapshotInputs): StatsSnapshot {
+export function buildStatsSnapshot(inputs: SnapshotInputs): StatsSnapshot {
     const YEAR = new Date().getFullYear();
-    const INPUTS: SnapshotInputs = {
-        books,
-        dailyGoalMinutes,
-        lastResult,
-        scheduleCompletions,
-        sessions,
-    };
-    const ACTIVITY_SUMMARY = buildActivitySummary(INPUTS, YEAR);
-    const PROGRESS = averageProgress(books);
-    const COMPLETION = completionStats(lastResult, scheduleCompletions, YEAR);
-    const FINISH_SUMMARY = buildFinishSummary(books, lastResult, YEAR);
-
-    return buildStatsSnapshotResult({
-        activitySummary: ACTIVITY_SUMMARY,
-        books,
-        completion: COMPLETION,
-        finishSummary: FINISH_SUMMARY,
-        progress: PROGRESS,
+    const ACTIVITY_SUMMARY = buildActivitySummary(inputs, YEAR);
+    const COMPUTATION = statsSnapshotComputation({
+        books: inputs.books,
+        lastResult: inputs.lastResult,
+        scheduleCompletions: inputs.scheduleCompletions,
         year: YEAR,
     });
+    return buildStatsSnapshotResult(
+        statsSnapshotResultArgs({
+            activitySummary: ACTIVITY_SUMMARY,
+            books: inputs.books,
+            computation: COMPUTATION,
+            year: YEAR,
+        }),
+    );
 }

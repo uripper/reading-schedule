@@ -83,6 +83,47 @@ function barHeightPercent(count: number, maxCount: number): number {
     return SCALED;
 }
 
+function projectedFinishCard(snapshot: StatsSnapshot): HTMLElement {
+    return card(
+        `Projected Finishes ${snapshot.year}`,
+        numberText(snapshot.projectedFinishCount),
+        `${snapshot.plannedFinishCount} planned + ${snapshot.finishedThisYearCount} already read`,
+    );
+}
+
+function completionRateCard(snapshot: StatsSnapshot): HTMLElement {
+    return card(
+        "Completion Rate",
+        `${snapshot.completionRatePercent}%`,
+        `${numberText(snapshot.completedSessionsToDate)} of ${numberText(snapshot.scheduledSessionsToDate)} sessions complete`,
+    );
+}
+
+function readingMinutesCard(snapshot: StatsSnapshot): HTMLElement {
+    return card(
+        `Reading Minutes ${snapshot.year}`,
+        numberText(snapshot.readingMinutesYear),
+        `${numberText(snapshot.activeDaysYear)} active days, ${snapshot.currentStreakDays} day streak`,
+    );
+}
+
+function catalogProgressCard(snapshot: StatsSnapshot): HTMLElement {
+    return card(
+        "Catalog Progress",
+        `${snapshot.averageProgressPercent.toFixed(1)}%`,
+        `${numberText(snapshot.booksStartedCount)} started across ${numberText(snapshot.totalBooks)} books`,
+    );
+}
+
+function kpiCards(snapshot: StatsSnapshot): HTMLElement[] {
+    return [
+        projectedFinishCard(snapshot),
+        completionRateCard(snapshot),
+        readingMinutesCard(snapshot),
+        catalogProgressCard(snapshot),
+    ];
+}
+
 /**
  * Renders top-level KPI cards.
  * @param snapshot - Stats snapshot.
@@ -91,29 +132,74 @@ function barHeightPercent(count: number, maxCount: number): number {
 function kpiGrid(snapshot: StatsSnapshot): HTMLElement {
     const GRID = document.createElement("div");
     GRID.className = "stats-kpi-grid";
-    GRID.append(
-        card(
-            `Projected Finishes ${snapshot.year}`,
-            numberText(snapshot.projectedFinishCount),
-            `${snapshot.plannedFinishCount} planned + ${snapshot.finishedThisYearCount} already read`,
-        ),
-        card(
-            "Completion Rate",
-            `${snapshot.completionRatePercent}%`,
-            `${numberText(snapshot.completedSessionsToDate)} of ${numberText(snapshot.scheduledSessionsToDate)} sessions complete`,
-        ),
-        card(
-            `Reading Minutes ${snapshot.year}`,
-            numberText(snapshot.readingMinutesYear),
-            `${numberText(snapshot.activeDaysYear)} active days, ${snapshot.currentStreakDays} day streak`,
-        ),
-        card(
-            "Catalog Progress",
-            `${snapshot.averageProgressPercent.toFixed(1)}%`,
-            `${numberText(snapshot.booksStartedCount)} started across ${numberText(snapshot.totalBooks)} books`,
-        ),
-    );
+    GRID.append(...kpiCards(snapshot));
     return GRID;
+}
+
+function panelWithHeading(title: string): {
+    heading: HTMLElement;
+    panel: HTMLElement;
+} {
+    const PANEL = document.createElement("article");
+    PANEL.className = "stats-panel";
+
+    const HEADING = document.createElement("h1");
+    HEADING.className = "stats-section-heading";
+    HEADING.textContent = title;
+    PANEL.append(HEADING);
+    return { heading: HEADING, panel: PANEL };
+}
+
+function statusBarWrap(
+    snapshot: StatsSnapshot,
+    status: BookStatus,
+    total: number,
+): HTMLElement {
+    const BAR_WRAP = document.createElement("div");
+    BAR_WRAP.className = "status-bar-wrap";
+    const BAR = document.createElement("span");
+    BAR.className = `status-bar is-${status}`;
+    const COUNT = snapshot.statusBreakdown[status];
+    BAR.style.width = `${Math.round((COUNT / total) * 100)}%`;
+    BAR_WRAP.append(BAR);
+    return BAR_WRAP;
+}
+
+function statusCountNode(count: number): HTMLElement {
+    const COUNT_NODE = document.createElement("span");
+    COUNT_NODE.className = "status-count";
+    COUNT_NODE.textContent = numberText(count);
+    return COUNT_NODE;
+}
+
+function statusRow(
+    snapshot: StatsSnapshot,
+    status: BookStatus,
+    total: number,
+): HTMLElement {
+    const ROW = document.createElement("div");
+    ROW.className = "status-row";
+
+    const LABEL = document.createElement("span");
+    LABEL.className = "status-label";
+    LABEL.textContent = statusLabel(status);
+    const COUNT = snapshot.statusBreakdown[status];
+    ROW.append(
+        LABEL,
+        statusBarWrap(snapshot, status, total),
+        statusCountNode(COUNT),
+    );
+    return ROW;
+}
+
+function statusList(snapshot: StatsSnapshot): HTMLElement {
+    const LIST = document.createElement("div");
+    LIST.className = "status-list";
+    const TOTAL = Math.max(1, snapshot.totalBooks);
+    for (const STATUS of STATUS_ORDER) {
+        LIST.append(statusRow(snapshot, STATUS, TOTAL));
+    }
+    return LIST;
 }
 
 /**
@@ -122,43 +208,72 @@ function kpiGrid(snapshot: StatsSnapshot): HTMLElement {
  * @returns Status panel element.
  */
 function statusPanel(snapshot: StatsSnapshot): HTMLElement {
-    const PANEL = document.createElement("article");
-    PANEL.className = "stats-panel";
+    const PANEL = panelWithHeading("Status Mix");
+    PANEL.panel.append(statusList(snapshot));
+    return PANEL.panel;
+}
 
-    const HEADING = document.createElement("h1");
-    HEADING.className = "stats-section-heading";
-    HEADING.textContent = "Status Mix";
+function monthTrack(count: number, maxCount: number): HTMLElement {
+    const TRACK = document.createElement("div");
+    TRACK.className = "month-bar-track";
+    TRACK.tabIndex = 0;
 
-    const LIST = document.createElement("div");
-    LIST.className = "status-list";
-    const TOTAL = Math.max(1, snapshot.totalBooks);
-
-    for (const STATUS of STATUS_ORDER) {
-        const ROW = document.createElement("div");
-        ROW.className = "status-row";
-
-        const LABEL = document.createElement("span");
-        LABEL.className = "status-label";
-        LABEL.textContent = statusLabel(STATUS);
-        const BAR_WRAP = document.createElement("div");
-        BAR_WRAP.className = "status-bar-wrap";
-        const BAR = document.createElement("span");
-        BAR.className = `status-bar is-${STATUS}`;
-        const COUNT = snapshot.statusBreakdown[STATUS];
-        const WIDTH = Math.round((COUNT / TOTAL) * 100);
-        BAR.style.width = `${WIDTH}%`;
-        BAR_WRAP.append(BAR);
-
-        const COUNT_NODE = document.createElement("span");
-        COUNT_NODE.className = "status-count";
-        COUNT_NODE.textContent = numberText(COUNT);
-
-        ROW.append(LABEL, BAR_WRAP, COUNT_NODE);
-        LIST.append(ROW);
+    const FILL = document.createElement("span");
+    FILL.className = "month-bar-fill";
+    FILL.style.height = `${barHeightPercent(count, maxCount)}%`;
+    FILL.setAttribute("title", finishCountLabel(count));
+    if (count <= ZERO_COUNT) {
+        FILL.classList.add("is-zero");
     }
 
-    PANEL.append(HEADING, LIST);
-    return PANEL;
+    const VALUE_LABEL = document.createElement("span");
+    VALUE_LABEL.className = "month-bar-value";
+    VALUE_LABEL.textContent = finishCountLabel(count);
+    TRACK.append(FILL, VALUE_LABEL);
+    return TRACK;
+}
+
+function monthLabelNode(year: number, index: number): HTMLElement {
+    const MONTH = document.createElement("span");
+    MONTH.className = "month-bar-label";
+    MONTH.textContent = new Intl.DateTimeFormat(undefined, {
+        month: "short",
+    }).format(new Date(year, index, 1));
+    return MONTH;
+}
+
+function monthBarItem(options: {
+    count: number;
+    index: number;
+    maxCount: number;
+    year: number;
+}): HTMLElement {
+    const ITEM = document.createElement("div");
+    ITEM.className = "month-bar-item";
+    const MONTH = monthLabelNode(options.year, options.index);
+    ITEM.setAttribute(
+        "aria-label",
+        `${MONTH.textContent}: ${finishCountLabel(options.count)}`,
+    );
+    ITEM.append(monthTrack(options.count, options.maxCount), MONTH);
+    return ITEM;
+}
+
+function monthBars(snapshot: StatsSnapshot): HTMLElement {
+    const BARS = document.createElement("div");
+    BARS.className = "month-bars";
+    const MAX_COUNT = Math.max(...snapshot.monthlyFinishes, 1);
+    snapshot.monthlyFinishes.forEach((count: number, index: number) => {
+        BARS.append(
+            monthBarItem({
+                count,
+                index,
+                maxCount: MAX_COUNT,
+                year: snapshot.year,
+            }),
+        );
+    });
+    return BARS;
 }
 
 /**
@@ -167,54 +282,9 @@ function statusPanel(snapshot: StatsSnapshot): HTMLElement {
  * @returns Month timeline panel element.
  */
 function monthPanel(snapshot: StatsSnapshot): HTMLElement {
-    const PANEL = document.createElement("article");
-    PANEL.className = "stats-panel";
-
-    const HEADING = document.createElement("h1");
-    HEADING.className = "stats-section-heading";
-    HEADING.textContent = `Finish Timeline ${snapshot.year}`;
-
-    const BARS = document.createElement("div");
-    BARS.className = "month-bars";
-    const MAX_COUNT = Math.max(...snapshot.monthlyFinishes, 1);
-
-    snapshot.monthlyFinishes.forEach((count: number, index: number) => {
-        const ITEM = document.createElement("div");
-        ITEM.className = "month-bar-item";
-
-        const TRACK = document.createElement("div");
-        TRACK.className = "month-bar-track";
-        TRACK.tabIndex = 0;
-
-        const FILL = document.createElement("span");
-        FILL.className = "month-bar-fill";
-        const HEIGHT_PERCENT = barHeightPercent(count, MAX_COUNT);
-        FILL.style.height = `${HEIGHT_PERCENT}%`;
-        FILL.setAttribute("title", finishCountLabel(count));
-        if (count <= ZERO_COUNT) {
-            FILL.classList.add("is-zero");
-        }
-        const VALUE_LABEL = document.createElement("span");
-        VALUE_LABEL.className = "month-bar-value";
-        VALUE_LABEL.textContent = finishCountLabel(count);
-        TRACK.append(FILL, VALUE_LABEL);
-
-        const MONTH = document.createElement("span");
-        MONTH.className = "month-bar-label";
-        MONTH.textContent = new Intl.DateTimeFormat(undefined, {
-            month: "short",
-        }).format(new Date(snapshot.year, index, 1));
-
-        ITEM.setAttribute(
-            "aria-label",
-            `${MONTH.textContent}: ${finishCountLabel(count)}`,
-        );
-        ITEM.append(TRACK, MONTH);
-        BARS.append(ITEM);
-    });
-
-    PANEL.append(HEADING, BARS);
-    return PANEL;
+    const PANEL = panelWithHeading(`Finish Timeline ${snapshot.year}`);
+    PANEL.panel.append(monthBars(snapshot));
+    return PANEL.panel;
 }
 
 /**

@@ -60,7 +60,12 @@ test('sortBooks sorts titles using key without leading "The "', () => {
         baseBook({ book_id: "book-1", title: "The Odyssey" }),
         baseBook({ book_id: "book-2", title: "The Book of Disquiet" }),
     ];
-    const SORTED = sortBooks(BOOKS, SORT_BY_TITLE, "asc", {});
+    const SORTED = sortBooks({
+        books: BOOKS,
+        finishDateByBookId: {},
+        sortBy: SORT_BY_TITLE,
+        sortDirection: "asc",
+    });
     assert.equal(SORTED[0].title, "The Book of Disquiet");
     assert.equal(SORTED[1].title, "The Odyssey");
 });
@@ -104,12 +109,12 @@ test("sortBooks by estimated finish includes finished read books in date order",
     const ROWS = [{ book_id: "book-1", date: "2026-12-22", session_index: 1 }];
 
     const FINISH_DATES = finishDatesByBookId(ROWS, BOOKS);
-    const SORTED = sortBooks(
-        BOOKS,
-        SORT_BY_ESTIMATED_FINISH,
-        "asc",
-        FINISH_DATES,
-    );
+    const SORTED = sortBooks({
+        books: BOOKS,
+        finishDateByBookId: FINISH_DATES,
+        sortBy: SORT_BY_ESTIMATED_FINISH,
+        sortDirection: "asc",
+    });
     assert.deepEqual(
         SORTED.map((book) => book.book_id),
         ["book-2", "book-3", "book-1"],

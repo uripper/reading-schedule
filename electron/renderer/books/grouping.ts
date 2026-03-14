@@ -22,6 +22,20 @@ const TITLE_MISC_KEY = "title:#";
 const TITLE_MISC_ORDER = 2;
 const TITLE_LETTER_ORDER = 1;
 
+type MetaForBookArgs = {
+    book: Book;
+    groupBy: BookGroupBy;
+    finishDateByBookId: Record<string, string>;
+    currentYear: number;
+};
+
+type GroupedBucketsArgs = {
+    books: Book[];
+    groupBy: BookGroupBy;
+    finishDateByBookId: Record<string, string>;
+    currentYear: number;
+};
+
 /**
  * Normalizes optional text-like values for stable grouping keys.
  * @param value - Raw value from book metadata.
@@ -44,30 +58,37 @@ function compareTextInsensitive(left: string, right: string): number {
 }
 
 /**
+ * Returns metadata for the catch-all title-letter bucket.
+ * @returns Group metadata for non-letter titles.
+ */
+function miscTitleLetterMeta(): GroupMeta {
+    return {
+        key: TITLE_MISC_KEY,
+        label: TITLE_MISC_LABEL,
+        order: TITLE_MISC_ORDER,
+        tie: TITLE_MISC_LABEL,
+    };
+}
+
+/**
+ * Checks whether a title initial should get its own letter bucket.
+ * @param letter - Candidate initial letter.
+ * @returns `true` when the title belongs to a dedicated A-Z bucket.
+ */
+function isTitleLetterGroup(letter: string): boolean {
+    return /^[A-Z]$/.test(letter);
+}
+
+/**
  * Builds title-initial group metadata for one book.
  * @param book - Book to classify.
  * @returns Group metadata keyed by title letter or misc bucket.
  */
 function titleLetterMetaForBook(book: Book): GroupMeta {
-    const FIRST = titleInitialLetter(book.title);
-    if (!FIRST) {
-        return {
-            key: TITLE_MISC_KEY,
-            label: TITLE_MISC_LABEL,
-            order: TITLE_MISC_ORDER,
-            tie: TITLE_MISC_LABEL,
-        };
+    const FIRST = titleInitialLetter(book.title) ?? "";
+    if (!isTitleLetterGroup(FIRST)) {
+        return miscTitleLetterMeta();
     }
-
-    if (!/^[A-Z]$/.test(FIRST)) {
-        return {
-            key: TITLE_MISC_KEY,
-            label: TITLE_MISC_LABEL,
-            order: TITLE_MISC_ORDER,
-            tie: TITLE_MISC_LABEL,
-        };
-    }
-
     return {
         key: `title:${FIRST}`,
         label: FIRST,
@@ -117,18 +138,11 @@ function shelfMetaForBook(book: Book): GroupMeta {
 
 /**
  * Resolves grouping metadata for one book under the active grouping mode.
- * @param book - Book to classify.
- * @param groupBy - Active grouping option.
- * @param finishDateByBookId - Finish-date lookup keyed by `book_id`.
- * @param currentYear - Calendar year used for relative finish-date labels.
+ * @param args - Grouping context for the current book.
  * @returns Group metadata used for bucket assignment and ordering.
  */
-function metaForBook(
-    book: Book,
-    groupBy: BookGroupBy,
-    finishDateByBookId: Record<string, string>,
-    currentYear: number,
-): GroupMeta {
+function metaForBook(args: MetaForBookArgs): GroupMeta {
+    const { book, currentYear, finishDateByBookId, groupBy } = args;
     if (groupBy === GROUP_BY_SHELF) {
         return shelfMetaForBook(book);
     }
@@ -159,35 +173,42 @@ function compareGroups(left: GroupBucket, right: GroupBucket): number {
 }
 
 /**
+ * Returns an existing bucket for metadata or creates one when needed.
+ * @param buckets - Bucket map keyed by group key.
+ * @param meta - Group metadata for the current book.
+ * @returns Mutable bucket ready to receive books.
+ */
+function bucketForMeta(
+    buckets: Map<string, GroupBucket>,
+    meta: GroupMeta,
+): GroupBucket {
+    const EXISTING = buckets.get(meta.key);
+    if (EXISTING) {
+        return EXISTING;
+    }
+    const CREATED = { ...meta, books: [] };
+    buckets.set(meta.key, CREATED);
+    return CREATED;
+}
+
+/**
  * Builds grouping buckets from books for the active grouping strategy.
- * @param books - Books visible in the current view.
- * @param groupBy - Active grouping option.
- * @param finishDateByBookId - Finish-date lookup keyed by `book_id`.
- * @param currentYear - Calendar year used for relative finish-date labels.
+ * @param args - Grouping inputs for the current view.
  * @returns Buckets keyed by grouping key, each containing matching books.
  */
-function groupedBuckets(
-    books: Book[],
-    groupBy: BookGroupBy,
-    finishDateByBookId: Record<string, string>,
-    currentYear: number,
-): Map<string, GroupBucket> {
+function groupedBuckets(args: GroupedBucketsArgs): Map<string, GroupBucket> {
+    const { books, currentYear, finishDateByBookId, groupBy } = args;
     const BUCKETS = new Map<string, GroupBucket>();
 
     for (const BOOK of books) {
-        const META = metaForBook(
-            BOOK,
-            groupBy,
-            finishDateByBookId,
+        const META = metaForBook({
+            book: BOOK,
             currentYear,
-        );
-        if (!BUCKETS.has(META.key)) {
-            BUCKETS.set(META.key, { ...META, books: [] });
-        }
-        const BUCKET = BUCKETS.get(META.key);
-        if (BUCKET) {
-            BUCKET.books.push(BOOK);
-        }
+            finishDateByBookId,
+            groupBy,
+        });
+        const BUCKET = bucketForMeta(BUCKETS, META);
+        BUCKET.books.push(BOOK);
     }
     return BUCKETS;
 }
@@ -209,12 +230,12 @@ export function groupBooks(
     }
 
     const CURRENT_YEAR = new Date().getFullYear();
-    const BUCKETS = groupedBuckets(
+    const BUCKETS = groupedBuckets({
         books,
-        groupBy,
+        currentYear: CURRENT_YEAR,
         finishDateByBookId,
-        CURRENT_YEAR,
-    );
+        groupBy,
+    });
     return [...BUCKETS.values()].sort(compareGroups).map((bucket) => ({
         books: bucket.books,
         key: bucket.key,

@@ -5,6 +5,180 @@ const LOOKUP_DELAY_MS = 260;
 const RESULT_LIMIT = 12;
 const MIN_QUERY_LENGTH = 2;
 
+type LookupInputDeps = Pick<
+    LookupInputHandlerArgs,
+    "clearResults" | "metaEl" | "refreshResults" | "searchInput" | "state"
+>;
+
+interface RunLookupSearchArgs {
+    clearResults: () => void;
+    lookupState: LookupInputHandlerArgs["state"];
+    query: string;
+    refreshResults: () => void;
+    statusElement: HTMLElement;
+}
+
+function clearPendingLookupTimer(
+    lookupState: LookupInputHandlerArgs["state"],
+): void {
+    if (lookupState.timer === null) {
+        return;
+    }
+    clearTimeout(lookupState.timer);
+}
+
+function clearLookupStatus(
+    clearResults: () => void,
+    statusElement: HTMLElement,
+): void {
+    const STATUS_ELEMENT = statusElement;
+    clearResults();
+    STATUS_ELEMENT.textContent = "";
+}
+
+function isStaleLookupToken(
+    currentToken: number,
+    lookupState: LookupInputHandlerArgs["state"],
+): boolean {
+    return currentToken !== lookupState.token;
+}
+
+function applyLookupItems(
+    items: LookupInputHandlerArgs["state"]["currentItems"],
+    lookupState: LookupInputHandlerArgs["state"],
+): void {
+    const LOOKUP_STATE = lookupState;
+    LOOKUP_STATE.currentItems = items;
+    LOOKUP_STATE.activeIndex = -1;
+    if (items.length > 0) {
+        LOOKUP_STATE.activeIndex = 0;
+    }
+}
+
+function applyEmptyLookupResult(options: {
+    clearResults: () => void;
+    statusElement: HTMLElement;
+}): void {
+    const STATUS_ELEMENT = options.statusElement;
+    options.clearResults();
+    STATUS_ELEMENT.textContent = "No matches found.";
+}
+
+function applyLookupSuccess(options: {
+    clearResults: () => void;
+    currentToken: number;
+    fetchedItems: Awaited<
+        ReturnType<ReturnType<typeof getPlannerApi>["searchBooks"]>
+    >;
+    lookupState: LookupInputHandlerArgs["state"];
+    refreshResults: () => void;
+    statusElement: HTMLElement;
+}): void {
+    const STATUS_ELEMENT = options.statusElement;
+    if (isStaleLookupToken(options.currentToken, options.lookupState)) {
+        return;
+    }
+    const ITEMS = options.fetchedItems.slice(0, RESULT_LIMIT);
+    applyLookupItems(ITEMS, options.lookupState);
+    if (ITEMS.length === 0) {
+        applyEmptyLookupResult(options);
+        return;
+    }
+    options.refreshResults();
+    STATUS_ELEMENT.textContent = "Select a result to fill details.";
+}
+
+function applyLookupFailure(options: {
+    clearResults: () => void;
+    currentToken: number;
+    lookupState: LookupInputHandlerArgs["state"];
+    statusElement: HTMLElement;
+}): void {
+    const STATUS_ELEMENT = options.statusElement;
+    if (isStaleLookupToken(options.currentToken, options.lookupState)) {
+        return;
+    }
+    options.clearResults();
+    STATUS_ELEMENT.textContent = "Lookup unavailable; enter values manually.";
+}
+
+function nextLookupToken(lookupState: LookupInputHandlerArgs["state"]): number {
+    const LOOKUP_STATE = lookupState;
+    LOOKUP_STATE.token += 1;
+    return LOOKUP_STATE.token;
+}
+
+function lookupSearchSuccessHandler(
+    args: RunLookupSearchArgs,
+    currentToken: number,
+): (
+    fetchedItems: Awaited<
+        ReturnType<ReturnType<typeof getPlannerApi>["searchBooks"]>
+    >,
+) => void {
+    return (fetchedItems): void => {
+        applyLookupSuccess({
+            clearResults: args.clearResults,
+            currentToken,
+            fetchedItems,
+            lookupState: args.lookupState,
+            refreshResults: args.refreshResults,
+            statusElement: args.statusElement,
+        });
+    };
+}
+
+function lookupSearchFailureHandler(
+    args: RunLookupSearchArgs,
+    currentToken: number,
+): () => void {
+    return (): void => {
+        applyLookupFailure({
+            clearResults: args.clearResults,
+            currentToken,
+            lookupState: args.lookupState,
+            statusElement: args.statusElement,
+        });
+    };
+}
+
+function fetchLookupSearch(
+    args: RunLookupSearchArgs,
+    currentToken: number,
+): void {
+    getPlannerApi()
+        .searchBooks(args.query)
+        .then(lookupSearchSuccessHandler(args, currentToken))
+        .catch(lookupSearchFailureHandler(args, currentToken));
+}
+
+function runLookupSearch(args: RunLookupSearchArgs): void {
+    fetchLookupSearch(args, nextLookupToken(args.lookupState));
+}
+
+function scheduleLookupSearch(args: RunLookupSearchArgs): void {
+    const LOOKUP_STATE = args.lookupState;
+    LOOKUP_STATE.timer = setTimeout((): void => {
+        runLookupSearch(args);
+    }, LOOKUP_DELAY_MS);
+}
+
+function handleLookupInput(deps: LookupInputDeps): void {
+    const QUERY = deps.searchInput.value.trim();
+    clearPendingLookupTimer(deps.state);
+    if (QUERY.length < MIN_QUERY_LENGTH) {
+        clearLookupStatus(deps.clearResults, deps.metaEl);
+        return;
+    }
+    scheduleLookupSearch({
+        clearResults: deps.clearResults,
+        lookupState: deps.state,
+        query: QUERY,
+        refreshResults: deps.refreshResults,
+        statusElement: deps.metaEl,
+    });
+}
+
 /**
  * Creates the debounced input handler that performs remote book lookup.
  * @param root0 - Dependencies required for lookup query execution and rendering.
@@ -22,52 +196,13 @@ export function createLookupInputHandler({
     clearResults,
     refreshResults,
 }: LookupInputHandlerArgs): () => void {
-    const LOOKUP_STATE = state;
-    const STATUS_ELEMENT = metaEl;
     return (): void => {
-        const QUERY = searchInput.value.trim();
-        if (LOOKUP_STATE.timer !== null) {
-            clearTimeout(LOOKUP_STATE.timer);
-        }
-
-        if (QUERY.length < MIN_QUERY_LENGTH) {
-            clearResults();
-            STATUS_ELEMENT.textContent = "";
-            return;
-        }
-
-        LOOKUP_STATE.timer = setTimeout((): void => {
-            LOOKUP_STATE.token += 1;
-            const CURRENT_TOKEN = LOOKUP_STATE.token;
-            getPlannerApi()
-                .searchBooks(QUERY)
-                .then((fetchedItems): void => {
-                    const ITEMS = fetchedItems.slice(0, RESULT_LIMIT);
-                    if (CURRENT_TOKEN !== LOOKUP_STATE.token) {
-                        return;
-                    }
-                    LOOKUP_STATE.currentItems = ITEMS;
-                    LOOKUP_STATE.activeIndex = -1;
-                    if (ITEMS.length > 0) {
-                        LOOKUP_STATE.activeIndex = 0;
-                    }
-                    if (ITEMS.length === 0) {
-                        clearResults();
-                        STATUS_ELEMENT.textContent = "No matches found.";
-                        return;
-                    }
-                    refreshResults();
-                    STATUS_ELEMENT.textContent =
-                        "Select a result to fill details.";
-                })
-                .catch((): void => {
-                    if (CURRENT_TOKEN !== LOOKUP_STATE.token) {
-                        return;
-                    }
-                    clearResults();
-                    STATUS_ELEMENT.textContent =
-                        "Lookup unavailable; enter values manually.";
-                });
-        }, LOOKUP_DELAY_MS);
+        handleLookupInput({
+            clearResults,
+            metaEl,
+            refreshResults,
+            searchInput,
+            state,
+        });
     };
 }

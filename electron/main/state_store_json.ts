@@ -95,7 +95,7 @@ function fsyncDirectory(dirPath: string): void {
             fs.closeSync(DIRECTORY);
         }
     } catch {
-        // Some platforms/filesystems do not support directory fsync.
+        // TODO: Have an actual error handling mechanism.
     }
 }
 
@@ -123,7 +123,7 @@ function removeTempStateFile(tempPath: string): void {
     try {
         deleteFileIfPresent(tempPath);
     } catch {
-        // Best-effort cleanup.
+        // TODO: Have an actual error handling mechanism.
     }
 }
 
