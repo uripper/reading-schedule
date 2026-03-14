@@ -13,7 +13,7 @@ import {
 /**
  * Content passed into the shared website frame.
  */
-export interface PageShellContent {
+interface PageShellContent {
     readonly brandHref: string;
     readonly navItems: readonly NavItem[];
     readonly primaryAction?: ActionLink;

@@ -24,7 +24,7 @@ function processResourcesPath(): string {
  * Resolves the packaged resources root used by bundled bridge assets.
  * @returns Absolute packaged resources path, or an empty string in dev.
  */
-export function packagedResourcesPath(): string {
+function packagedResourcesPath(): string {
     const ENV_PATH = readEnvironmentValue(RESOURCES_PATH_ENV_KEY);
     if (typeof ENV_PATH === "string" && ENV_PATH.trim() !== "") {
         return ENV_PATH.trim();
@@ -36,7 +36,7 @@ export function packagedResourcesPath(): string {
  * Resolves the planner executable filename for the current platform.
  * @returns Planner executable basename.
  */
-export function plannerExecutableFileName(): string {
+function plannerExecutableFileName(): string {
     if (process.platform === WINDOWS_PLATFORM) {
         return `${PLANNER_EXECUTABLE_BASENAME}${WINDOWS_EXECUTABLE_SUFFIX}`;
     }
