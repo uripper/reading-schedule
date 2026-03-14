@@ -47,7 +47,7 @@ automatically parsed and imported into Bartleby",
             title: "iOS Mobile App Release 0.1",
         },
         {
-            title: "TBA",
+            title: "To Be Announced",
         },
     ],
 };
