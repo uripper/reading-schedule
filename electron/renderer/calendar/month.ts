@@ -274,12 +274,12 @@ function bindDayButtonActions(options: {
         options.actions.selectDate(options.keyForDay);
     };
     BUTTON.onkeydown = (event) => {
-        handleDayKeydown(
+        handleDayKeydown({
             event,
-            options.currentIndex,
-            options.monthCellCount,
-            options.moveSelectionBy,
-        );
+            index: options.currentIndex,
+            moveSelectionBy: options.moveSelectionBy,
+            totalCellCount: options.monthCellCount,
+        });
     };
 }
 

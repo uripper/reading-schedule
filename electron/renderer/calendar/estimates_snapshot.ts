@@ -33,6 +33,16 @@ type EstimatePercentages = {
     endPages: number | null;
 };
 
+type EstimateWordRange = {
+    startWords: number;
+    endWords: number;
+};
+
+type EstimateRangePercents = {
+    startPercent: number;
+    endPercent: number;
+};
+
 function estimateBookContext(
     args: EstimateSnapshotArgs,
 ): EstimateBookContext | null {
@@ -53,29 +63,58 @@ function estimatePercentages(
     args: EstimateSnapshotArgs,
     context: EstimateBookContext,
 ): EstimatePercentages {
-    const CURRENT_WORDS_READ = wordsReadFromBook(context.book, context.fullWords);
+    const CURRENT_WORDS_READ = wordsReadFromBook(
+        context.book,
+        context.fullWords,
+    );
     const PAGES_TOTAL = Number(context.book?.pages_total ?? 0);
-    const PLANNED_WORDS = plannedWordsBeforeAndThroughRow({
+    const WORD_RANGE = estimateWordRange(args, context, CURRENT_WORDS_READ);
+    const PERCENTS = estimateRangePercents(WORD_RANGE, context.fullWords);
+    return {
+        endPages: projectedPages(PERCENTS.endPercent, PAGES_TOTAL),
+        endPercent: PERCENTS.endPercent,
+        startPages: projectedPages(PERCENTS.startPercent, PAGES_TOTAL),
+        startPercent: PERCENTS.startPercent,
+    };
+}
+
+function estimateRangePercents(
+    wordRange: EstimateWordRange,
+    fullWords: number,
+): EstimateRangePercents {
+    return {
+        endPercent: percentFromWords(wordRange.endWords, fullWords),
+        startPercent: percentFromWords(wordRange.startWords, fullWords),
+    };
+}
+
+function plannedWordWindow(
+    args: EstimateSnapshotArgs,
+    context: EstimateBookContext,
+) {
+    return plannedWordsBeforeAndThroughRow({
         bookId: context.bookId,
         isSessionCompleted: args.isSessionCompleted,
         row: args.row,
         state: args.state,
     });
-    const START_WORDS = Math.min(
-        context.fullWords,
-        CURRENT_WORDS_READ + PLANNED_WORDS.before,
-    );
-    const END_WORDS = Math.min(
-        context.fullWords,
-        CURRENT_WORDS_READ + PLANNED_WORDS.through,
-    );
-    const START_PERCENT = percentFromWords(START_WORDS, context.fullWords);
-    const END_PERCENT = percentFromWords(END_WORDS, context.fullWords);
+}
+
+function estimateWordRange(
+    args: EstimateSnapshotArgs,
+    context: EstimateBookContext,
+    currentWordsRead: number,
+): EstimateWordRange {
+    const PLANNED_WORDS = plannedWordWindow(args, context);
     return {
-        endPages: projectedPages(END_PERCENT, PAGES_TOTAL),
-        endPercent: END_PERCENT,
-        startPages: projectedPages(START_PERCENT, PAGES_TOTAL),
-        startPercent: START_PERCENT,
+        endWords: Math.min(
+            context.fullWords,
+            currentWordsRead + PLANNED_WORDS.through,
+        ),
+        startWords: Math.min(
+            context.fullWords,
+            currentWordsRead + PLANNED_WORDS.before,
+        ),
     };
 }
 

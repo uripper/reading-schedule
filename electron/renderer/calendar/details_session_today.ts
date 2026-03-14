@@ -104,14 +104,14 @@ function todaySessionBook(args: BuildTodaySessionItemArgs) {
 function progressEditor(
     args: AppendTodaySessionEditorsArgs,
 ): ReturnType<typeof progressFormForToday> {
-    return progressFormForToday(
-        args.row,
-        args.book,
-        args.interactionHandlers,
-        () => {
+    return progressFormForToday({
+        book: args.book,
+        interactionHandlers: args.interactionHandlers,
+        onProgressApplied: () => {
             markSessionComplete(args);
         },
-    );
+        row: args.row,
+    });
 }
 
 function appendTodaySessionEditors(args: AppendTodaySessionEditorsArgs): void {
@@ -130,12 +130,12 @@ function estimateElement(
 ): HTMLParagraphElement {
     const ESTIMATE = document.createElement("p");
     ESTIMATE.className = DAY_DETAILS_META_CLASS;
-    ESTIMATE.textContent = estimateProgressLabel(
-        args.row,
-        args.state,
-        args.interactionHandlers.getBookById,
-        args.interactionHandlers.isSessionCompleted,
-    );
+    ESTIMATE.textContent = estimateProgressLabel({
+        getBookById: args.interactionHandlers.getBookById,
+        isSessionCompleted: args.interactionHandlers.isSessionCompleted,
+        row: args.row,
+        state: args.state,
+    });
     return ESTIMATE;
 }
 

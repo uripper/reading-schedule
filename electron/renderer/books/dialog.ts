@@ -49,16 +49,8 @@ function openBookDialog(args: OpenBookDialogArgs): void {
     args.dialogFocus.rememberOpener();
     clearForm(FORM_REFS, args.lookupControl);
     args.afterBookPicker.openForBook(book);
-    let selectedShelf = String(args.dialogOptions.defaultShelf ?? "").trim();
-    if (book !== null && book.shelf !== "") {
-        selectedShelf = book.shelf;
-    }
-    renderShelfPicker(FORM_REFS, args.getBooks(), selectedShelf);
-    FORM_REFS.dialogTitle.textContent = "Add Book";
-    if (book) {
-        FORM_REFS.dialogTitle.textContent = "Edit Book";
-        fillForm(FORM_REFS, book);
-    }
+    renderShelfPicker(FORM_REFS, args.getBooks(), selectedShelfForDialog(args));
+    applyDialogBookState(FORM_REFS, book);
     resetBookDialogSubmitState(FORM_REFS);
     FORM_REFS.dialog.showModal();
     args.dialogFocus.focusInitialTarget();
@@ -103,6 +95,27 @@ function createLookupControl(
     });
 }
 
+function selectedShelfForDialog(args: OpenBookDialogArgs): string {
+    const SELECTED_SHELF = String(args.dialogOptions.defaultShelf ?? "").trim();
+    if (args.book !== null && args.book.shelf !== "") {
+        return args.book.shelf;
+    }
+    return SELECTED_SHELF;
+}
+
+function applyDialogBookState(
+    refs: ReturnType<typeof getBookFormRefs>,
+    book: Book | null,
+): void {
+    const FORM_REFS = refs;
+    FORM_REFS.dialogTitle.textContent = "Add Book";
+    if (book === null) {
+        return;
+    }
+    FORM_REFS.dialogTitle.textContent = "Edit Book";
+    fillForm(FORM_REFS, book);
+}
+
 function createOpenHandler(options: {
     afterBookPicker: ReturnType<typeof createAfterBookPicker>;
     dialogFocus: ReturnType<typeof bindDialogFocus>;
@@ -126,17 +139,42 @@ function createOpenHandler(options: {
     };
 }
 
+function createBookDialogHandlers(
+    refs: ReturnType<typeof getBookFormRefs>,
+    getBooks: () => Book[],
+): {
+    close: () => void;
+    open: BookDialogController["open"];
+} {
+    const AFTER_BOOK_PICKER = createAfterBookPicker(refs, getBooks);
+    const DIALOG_FOCUS = bindDialogFocus(refs.dialog, {
+        initialFocusSelector: "#bookTitleInput",
+    });
+    const LOOKUP_CONTROL = createLookupControl(refs);
+    const CLOSE = (): void => {
+        DIALOG_FOCUS.closeAndReturnFocus();
+    };
+    const OPEN = createOpenHandler({
+        afterBookPicker: AFTER_BOOK_PICKER,
+        dialogFocus: DIALOG_FOCUS,
+        getBooks,
+        lookupControl: LOOKUP_CONTROL,
+        refs,
+    });
+    return { close: CLOSE, open: OPEN };
+}
+
 function bindDialogInteractions(options: {
     close: () => void;
     onSubmit: (payload: BookSubmitPayload) => Promise<void> | void;
     refs: ReturnType<typeof getBookFormRefs>;
 }): void {
-    bindBookDialogSubmit(
-        options.refs.form,
-        options.refs,
-        options.onSubmit,
-        options.close,
-    );
+    bindBookDialogSubmit({
+        form: options.refs.form,
+        onComplete: options.close,
+        onSubmit: options.onSubmit,
+        refs: options.refs,
+    });
     bindBookDialogCloseHandlers(
         options.refs.dialog,
         options.refs.cancelBtn,
@@ -157,21 +195,7 @@ export function createBookDialog(
 ): BookDialogController {
     const GET_BOOKS = booksGetter(options);
     const REFS = initializeBookDialogRefs();
-    const AFTER_BOOK_PICKER = createAfterBookPicker(REFS, GET_BOOKS);
-    const DIALOG_FOCUS = bindDialogFocus(REFS.dialog, {
-        initialFocusSelector: "#bookTitleInput",
-    });
-    const LOOKUP_CONTROL = createLookupControl(REFS);
-    const CLOSE = (): void => {
-        DIALOG_FOCUS.closeAndReturnFocus();
-    };
-    const OPEN = createOpenHandler({
-        afterBookPicker: AFTER_BOOK_PICKER,
-        dialogFocus: DIALOG_FOCUS,
-        getBooks: GET_BOOKS,
-        lookupControl: LOOKUP_CONTROL,
-        refs: REFS,
-    });
-    bindDialogInteractions({ close: CLOSE, onSubmit, refs: REFS });
-    return { open: OPEN };
+    const HANDLERS = createBookDialogHandlers(REFS, GET_BOOKS);
+    bindDialogInteractions({ close: HANDLERS.close, onSubmit, refs: REFS });
+    return { open: HANDLERS.open };
 }

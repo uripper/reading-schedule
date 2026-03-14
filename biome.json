@@ -283,6 +283,38 @@
                     }
                 }
             }
+        },
+        {
+            "includes": ["**/*.json"],
+            "linter": {
+                "rules": {
+                    "recommended": true,
+                    "style": {
+                        "useFilenamingConvention": "off"
+                    }
+                }
+            }
+        },
+        {
+            "includes": ["**/*.css", "**/*.scss", "**/*.sass", "**/*.less"],
+            "linter": {
+                "rules": {
+                    "nursery": {
+                        "noDeprecatedMediaType": "error",
+                        "noExcessiveLinesPerFile": {
+                            "level": "error",
+                            "options": {
+                                "maxLines": 300,
+                                "skipBlankLines": true
+                            }
+                    }
+                },
+                    "recommended": true,
+                    "style": {
+                        "noValueAtRule": "warn"
+                    }
+                }
+            }
         }
     ],
     "vcs": {

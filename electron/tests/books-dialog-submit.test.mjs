@@ -162,9 +162,15 @@ function createValidationFailureContext() {
 
 function bindValidationFailureDialog(context) {
     const CONTEXT = context;
-    bindBookDialogSubmit(
-        CONTEXT.form,
-        createRefs(CONTEXT.form, {
+    bindBookDialogSubmit({
+        form: CONTEXT.form,
+        onComplete: () => {
+            CONTEXT.completeCalls += 1;
+        },
+        onSubmit: () => {
+            CONTEXT.submitCalls += 1;
+        },
+        refs: createRefs(CONTEXT.form, {
             lookupMeta: CONTEXT.lookupMeta,
             pagesTotalInput: CONTEXT.pagesTotalInput,
             saveBtn: CONTEXT.saveButton,
@@ -172,13 +178,7 @@ function bindValidationFailureDialog(context) {
             titleInput: CONTEXT.titleInput,
             wordsInput: CONTEXT.wordsInput,
         }),
-        () => {
-            CONTEXT.submitCalls += 1;
-        },
-        () => {
-            CONTEXT.completeCalls += 1;
-        },
-    );
+    });
 }
 
 function assertValidationFailure(context, preventDefaultCalls) {
@@ -205,16 +205,16 @@ function createSubmitFailureContext() {
 }
 
 function bindSubmitFailureDialog(context, onSubmit) {
-    bindBookDialogSubmit(
-        context.form,
-        createRefs(context.form, {
+    bindBookDialogSubmit({
+        form: context.form,
+        onComplete: NOOP,
+        onSubmit,
+        refs: createRefs(context.form, {
             lookupMeta: context.lookupMeta,
             saveBtn: context.saveButton,
             titleInput: context.titleInput,
         }),
-        onSubmit,
-        NOOP,
-    );
+    });
 }
 
 async function submitFailureDialog(context) {

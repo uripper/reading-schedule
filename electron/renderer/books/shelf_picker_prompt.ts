@@ -2,45 +2,51 @@ import type { BookFormRefs } from "../../types/types.ts";
 
 const DIALOG_CONFIRM_VALUE = "confirm";
 
+function resolvedShelfPromptValue(refs: BookFormRefs): string | null {
+    if (refs.shelfPromptDialog.returnValue !== DIALOG_CONFIRM_VALUE) {
+        return null;
+    }
+    return refs.shelfPromptInput.value.trim();
+}
+
+function resetShelfPrompt(refs: BookFormRefs): void {
+    const DIALOG_REFS = refs;
+    DIALOG_REFS.shelfPromptInput.value = "";
+    DIALOG_REFS.shelfPromptDialog.returnValue = "";
+}
+
+function showShelfPromptDialog(refs: BookFormRefs): void {
+    try {
+        refs.shelfPromptDialog.showModal();
+    } catch {
+        refs.shelfPromptDialog.show();
+    }
+}
+
+function bindShelfPromptClose(
+    refs: BookFormRefs,
+    resolve: (value: string | null) => void,
+): void {
+    refs.shelfPromptDialog.addEventListener(
+        "close",
+        () => {
+            resolve(resolvedShelfPromptValue(refs));
+        },
+        { once: true },
+    );
+}
+
 /**
  * Shows the shelf-name dialog and resolves with a trimmed name on confirm.
  * @param refs - Form references containing shelf prompt dialog elements.
  * @returns Trimmed shelf name, or null when the prompt is canceled.
  */
 async function promptViaDialog(refs: BookFormRefs): Promise<string | null> {
-    const DIALOG_REFS = refs;
     return await new Promise((resolve) => {
-        DIALOG_REFS.shelfPromptInput.value = "";
-        DIALOG_REFS.shelfPromptDialog.returnValue = "";
-        /**
-         * Handles the shelf prompt dialog "close" event: removes the listener and resolves the enclosing promise with the trimmed input value or null.
-         * @example
-         * ON_CLOSE(resolve)
-         * undefined
-         * @param resolve - Function to resolve the surrounding promise with the user's input (trimmed) or null if the dialog was not confirmed.
-         * @returns Does not return a value.
-         **/
-        const ON_CLOSE = (): void => {
-            DIALOG_REFS.shelfPromptDialog.removeEventListener(
-                "close",
-                ON_CLOSE,
-            );
-            if (
-                DIALOG_REFS.shelfPromptDialog.returnValue !==
-                DIALOG_CONFIRM_VALUE
-            ) {
-                resolve(null);
-                return;
-            }
-            resolve(DIALOG_REFS.shelfPromptInput.value.trim());
-        };
-        DIALOG_REFS.shelfPromptDialog.addEventListener("close", ON_CLOSE);
-        try {
-            DIALOG_REFS.shelfPromptDialog.showModal();
-        } catch {
-            DIALOG_REFS.shelfPromptDialog.show();
-        }
-        DIALOG_REFS.shelfPromptInput.focus();
+        resetShelfPrompt(refs);
+        bindShelfPromptClose(refs, resolve);
+        showShelfPromptDialog(refs);
+        refs.shelfPromptInput.focus();
     });
 }
 
@@ -52,23 +58,38 @@ function promptViaBrowser(): string | null {
     return null;
 }
 
+function isConfirmSubmitter(submitter: HTMLElement | null): boolean {
+    if (!(submitter instanceof HTMLButtonElement)) {
+        return false;
+    }
+    return submitter.value === DIALOG_CONFIRM_VALUE;
+}
+
+function hasPromptValue(refs: BookFormRefs): boolean {
+    return refs.shelfPromptInput.value.trim() !== "";
+}
+
+function handlePromptValidationSubmit(
+    refs: BookFormRefs,
+    event: SubmitEvent,
+): void {
+    if (!isConfirmSubmitter(event.submitter)) {
+        return;
+    }
+    if (hasPromptValue(refs)) {
+        return;
+    }
+    event.preventDefault();
+    refs.shelfPromptInput.focus();
+}
+
 /**
  * Prevents prompt confirmation when the user submits an empty shelf name.
  * @param refs - Form references containing shelf prompt dialog elements.
  */
 export function ensurePromptValidation(refs: BookFormRefs): void {
     refs.shelfPromptForm.addEventListener("submit", (event) => {
-        if (!(event.submitter instanceof HTMLButtonElement)) {
-            return;
-        }
-        if (event.submitter.value !== DIALOG_CONFIRM_VALUE) {
-            return;
-        }
-        if (refs.shelfPromptInput.value.trim()) {
-            return;
-        }
-        event.preventDefault();
-        refs.shelfPromptInput.focus();
+        handlePromptValidationSubmit(refs, event);
     });
 }
 

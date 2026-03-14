@@ -7,58 +7,112 @@ import { toGroupBy, toSortBy } from "./controller_types.ts";
 import { normalizeStatusFilter } from "./status.ts";
 import { SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from "./toolbar.ts";
 
-/**
- * Validates and unwraps toolbar control references required for event binding.
- * @param refs - Controller DOM references collected during books UI setup.
- * @returns Strongly typed toolbar controls ready for listener registration.
- */
-function assertToolbarControls(refs: BooksControllerRefs): {
+type ToolbarControls = {
     titleFilterInput: HTMLInputElement;
     sortBySelect: HTMLSelectElement;
     shelfFilterSelect: HTMLSelectElement;
     statusFilterSelect: HTMLSelectElement;
     groupBySelect: HTMLSelectElement;
     sortDirectionBtn: HTMLButtonElement;
-} {
-    if (!(refs.titleFilterInput instanceof HTMLInputElement)) {
-        throw new TypeError(
-            "Books toolbar title-filter control is missing or invalid.",
-        );
-    }
-    if (!(refs.sortBySelect instanceof HTMLSelectElement)) {
-        throw new TypeError(
-            "Books toolbar sort-by control is missing or invalid.",
-        );
-    }
-    if (!(refs.shelfFilterSelect instanceof HTMLSelectElement)) {
-        throw new TypeError(
-            "Books toolbar shelf-filter control is missing or invalid.",
-        );
-    }
-    if (!(refs.statusFilterSelect instanceof HTMLSelectElement)) {
-        throw new TypeError(
-            "Books toolbar status-filter control is missing or invalid.",
-        );
-    }
-    if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
-        throw new TypeError(
-            "Books toolbar group-by control is missing or invalid.",
-        );
-    }
-    if (!(refs.sortDirectionBtn instanceof HTMLButtonElement)) {
-        throw new TypeError(
-            "Books toolbar sort-direction control is missing or invalid.",
-        );
-    }
+};
 
+function requiredInput(
+    control: unknown,
+    message: string,
+): HTMLInputElement {
+    if (control instanceof HTMLInputElement) {
+        return control;
+    }
+    throw new TypeError(message);
+}
+
+function requiredSelect(
+    control: unknown,
+    message: string,
+): HTMLSelectElement {
+    if (control instanceof HTMLSelectElement) {
+        return control;
+    }
+    throw new TypeError(message);
+}
+
+function requiredButton(
+    control: unknown,
+    message: string,
+): HTMLButtonElement {
+    if (control instanceof HTMLButtonElement) {
+        return control;
+    }
+    throw new TypeError(message);
+}
+
+/**
+ * Validates and unwraps toolbar control references required for event binding.
+ * @param refs - Controller DOM references collected during books UI setup.
+ * @returns Strongly typed toolbar controls ready for listener registration.
+ */
+function assertToolbarControls(refs: BooksControllerRefs): ToolbarControls {
     return {
-        groupBySelect: refs.groupBySelect,
-        shelfFilterSelect: refs.shelfFilterSelect,
-        sortBySelect: refs.sortBySelect,
-        sortDirectionBtn: refs.sortDirectionBtn,
-        statusFilterSelect: refs.statusFilterSelect,
-        titleFilterInput: refs.titleFilterInput,
+        groupBySelect: requiredSelect(
+            refs.groupBySelect,
+            "Books toolbar group-by control is missing or invalid.",
+        ),
+        shelfFilterSelect: requiredSelect(
+            refs.shelfFilterSelect,
+            "Books toolbar shelf-filter control is missing or invalid.",
+        ),
+        sortBySelect: requiredSelect(
+            refs.sortBySelect,
+            "Books toolbar sort-by control is missing or invalid.",
+        ),
+        sortDirectionBtn: requiredButton(
+            refs.sortDirectionBtn,
+            "Books toolbar sort-direction control is missing or invalid.",
+        ),
+        statusFilterSelect: requiredSelect(
+            refs.statusFilterSelect,
+            "Books toolbar status-filter control is missing or invalid.",
+        ),
+        titleFilterInput: requiredInput(
+            refs.titleFilterInput,
+            "Books toolbar title-filter control is missing or invalid.",
+        ),
     };
+}
+
+function bindTitleFilterEvents(args: {
+    titleFilterInput: HTMLInputElement;
+    rerender: () => void;
+    viewState: BindToolbarEventsArgs["viewState"];
+}): void {
+    const APPLY_TITLE_FILTER = (): void => {
+        args.viewState.titleFilter = String(args.titleFilterInput.value || "");
+        args.rerender();
+    };
+    args.titleFilterInput.addEventListener("input", APPLY_TITLE_FILTER);
+    args.titleFilterInput.addEventListener("change", APPLY_TITLE_FILTER);
+}
+
+function bindSelectChange(
+    select: HTMLSelectElement,
+    onChange: () => void,
+): void {
+    select.addEventListener("change", onChange);
+}
+
+function bindSortDirectionToggle(args: {
+    button: HTMLButtonElement;
+    rerender: () => void;
+    viewState: BindToolbarEventsArgs["viewState"];
+}): void {
+    args.button.addEventListener("click", () => {
+        let nextDirection: SortDirection = SORT_DIRECTION_ASC;
+        if (args.viewState.sortDirection === SORT_DIRECTION_ASC) {
+            nextDirection = SORT_DIRECTION_DESC;
+        }
+        args.viewState.sortDirection = nextDirection;
+        args.rerender();
+    });
 }
 
 /**
@@ -69,7 +123,6 @@ function assertToolbarControls(refs: BooksControllerRefs): {
  * @param rerender - Callback that refreshes the books view.
  */
 export function bindToolbarEvents(args: BindToolbarEventsArgs): void {
-    const NEXT_VIEW_STATE = args.viewState;
     const {
         titleFilterInput,
         sortBySelect,
@@ -78,42 +131,32 @@ export function bindToolbarEvents(args: BindToolbarEventsArgs): void {
         groupBySelect,
         sortDirectionBtn,
     } = assertToolbarControls(args.refs);
-
-    const APPLY_TITLE_FILTER = (): void => {
-        NEXT_VIEW_STATE.titleFilter = String(titleFilterInput.value || "");
-        args.rerender();
-    };
-    titleFilterInput.addEventListener("input", APPLY_TITLE_FILTER);
-    titleFilterInput.addEventListener("change", APPLY_TITLE_FILTER);
-
-    sortBySelect.addEventListener("change", () => {
-        NEXT_VIEW_STATE.sortBy = toSortBy(sortBySelect.value);
+    bindTitleFilterEvents({
+        rerender: args.rerender,
+        titleFilterInput,
+        viewState: args.viewState,
+    });
+    bindSelectChange(sortBySelect, () => {
+        args.viewState.sortBy = toSortBy(sortBySelect.value);
         args.rerender();
     });
-
-    shelfFilterSelect.addEventListener("change", () => {
-        NEXT_VIEW_STATE.shelfFilter = shelfFilterSelect.value;
+    bindSelectChange(shelfFilterSelect, () => {
+        args.viewState.shelfFilter = shelfFilterSelect.value;
         args.rerender();
     });
-
-    statusFilterSelect.addEventListener("change", () => {
-        NEXT_VIEW_STATE.statusFilter = normalizeStatusFilter(
+    bindSelectChange(statusFilterSelect, () => {
+        args.viewState.statusFilter = normalizeStatusFilter(
             statusFilterSelect.value,
         );
         args.rerender();
     });
-
-    groupBySelect.addEventListener("change", () => {
-        NEXT_VIEW_STATE.groupBy = toGroupBy(groupBySelect.value);
+    bindSelectChange(groupBySelect, () => {
+        args.viewState.groupBy = toGroupBy(groupBySelect.value);
         args.rerender();
     });
-
-    sortDirectionBtn.addEventListener("click", () => {
-        let nextDirection: SortDirection = SORT_DIRECTION_ASC;
-        if (NEXT_VIEW_STATE.sortDirection === SORT_DIRECTION_ASC) {
-            nextDirection = SORT_DIRECTION_DESC;
-        }
-        NEXT_VIEW_STATE.sortDirection = nextDirection;
-        args.rerender();
+    bindSortDirectionToggle({
+        button: sortDirectionBtn,
+        rerender: args.rerender,
+        viewState: args.viewState,
     });
 }

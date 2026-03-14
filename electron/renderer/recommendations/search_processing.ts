@@ -108,7 +108,7 @@ function uniqueRecommendationKey(
     recommendationKeys: Set<string>,
 ): string | null {
     const KEY = recommendationKey(candidate.title, candidate.author);
-    if (!existingKeys.has(KEY) && !recommendationKeys.has(KEY)) {
+    if (!(existingKeys.has(KEY) || recommendationKeys.has(KEY))) {
         return KEY;
     }
     addLog(
@@ -150,6 +150,18 @@ function addRecommendation(
     options.recommendations.push(recommendation.candidate);
 }
 
+function addEligibleRecommendation(
+    options: ProcessAuthorOptions,
+    lookupItem: BookLookupItem,
+): number {
+    const RECOMMENDATION = eligibleRecommendation(options, lookupItem);
+    if (RECOMMENDATION === null) {
+        return 0;
+    }
+    addRecommendation(RECOMMENDATION, options);
+    return 1;
+}
+
 /**
  * Processes lookup results for one author, applying plausibility and dedup checks.
  * @param options - Processing options containing author, results, and accumulators.
@@ -161,12 +173,7 @@ export function processAuthorResults(options: ProcessAuthorOptions): number {
         if (reachedAuthorLimit(addedForAuthor, options.author)) {
             break;
         }
-        const RECOMMENDATION = eligibleRecommendation(options, LOOKUP_ITEM);
-        if (RECOMMENDATION === null) {
-            continue;
-        }
-        addRecommendation(RECOMMENDATION, options);
-        addedForAuthor += 1;
+        addedForAuthor += addEligibleRecommendation(options, LOOKUP_ITEM);
     }
     return addedForAuthor;
 }

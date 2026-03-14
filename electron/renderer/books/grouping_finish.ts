@@ -13,6 +13,30 @@ const MONTH_LABEL_FORMATTER = new Intl.DateTimeFormat(undefined, {
     month: "long",
 });
 
+function parsedYearMonth(
+    dateText?: string,
+): { year: number; month: number } | null {
+    const RAW = String(dateText ?? "").trim();
+    if (RAW === "") {
+        return null;
+    }
+    const PARTS = RAW.split("-");
+    if (PARTS.length !== ISO_DATE_PART_COUNT) {
+        return null;
+    }
+    return {
+        month: Number(PARTS[1]),
+        year: Number(PARTS[0]),
+    };
+}
+
+function hasValidYearMonth(year: number, month: number): boolean {
+    if (!Number.isInteger(year) || !Number.isInteger(month)) {
+        return false;
+    }
+    return month >= MONTH_INDEX_MIN && month <= MONTH_INDEX_MAX;
+}
+
 /**
  * Parses `YYYY-MM-DD` finish dates into grouping metadata parts.
  * @param dateText - Finish date text.
@@ -21,30 +45,42 @@ const MONTH_LABEL_FORMATTER = new Intl.DateTimeFormat(undefined, {
 function parseFinishDateParts(
     dateText?: string,
 ): { year: number; month: number; date: Date } | null {
-    const RAW = String(dateText ?? "").trim();
-    if (!RAW) {
+    const YEAR_MONTH = parsedYearMonth(dateText);
+    if (YEAR_MONTH === null) {
         return null;
     }
-
-    const PARTS = RAW.split("-");
-    if (PARTS.length !== ISO_DATE_PART_COUNT) {
+    if (!hasValidYearMonth(YEAR_MONTH.year, YEAR_MONTH.month)) {
         return null;
     }
-
-    const YEAR = Number(PARTS[0]);
-    const MONTH = Number(PARTS[1]);
-    if (!(Number.isInteger(YEAR) && Number.isInteger(MONTH))) {
-        return null;
-    }
-    if (MONTH < MONTH_INDEX_MIN || MONTH > MONTH_INDEX_MAX) {
-        return null;
-    }
-
     return {
-        date: new Date(YEAR, MONTH - MONTH_INDEX_MIN, MONTH_INDEX_MIN),
-        month: MONTH,
-        year: YEAR,
+        date: new Date(
+            YEAR_MONTH.year,
+            YEAR_MONTH.month - MONTH_INDEX_MIN,
+            MONTH_INDEX_MIN,
+        ),
+        month: YEAR_MONTH.month,
+        year: YEAR_MONTH.year,
     };
+}
+
+function noEstimatedFinishMeta(): GroupMeta {
+    return {
+        key: NO_ESTIMATED_FINISH_KEY,
+        label: NO_ESTIMATED_FINISH_LABEL,
+        order: NO_ESTIMATED_FINISH_ORDER,
+        tie: NO_ESTIMATED_FINISH_LABEL,
+    };
+}
+
+function finishDateLabel(
+    finishDate: NonNullable<ReturnType<typeof parseFinishDateParts>>,
+    currentYear: number,
+): string {
+    const MONTH_LABEL = MONTH_LABEL_FORMATTER.format(finishDate.date);
+    if (finishDate.year === currentYear) {
+        return MONTH_LABEL;
+    }
+    return `${MONTH_LABEL} ${finishDate.year}`;
 }
 
 /**
@@ -61,24 +97,13 @@ export function finishDateMetaForBook(
 ): GroupMeta {
     const FINISH_DATE = parseFinishDateParts(finishDateByBookId[book.book_id]);
     if (!FINISH_DATE) {
-        return {
-            key: NO_ESTIMATED_FINISH_KEY,
-            label: NO_ESTIMATED_FINISH_LABEL,
-            order: NO_ESTIMATED_FINISH_ORDER,
-            tie: NO_ESTIMATED_FINISH_LABEL,
-        };
+        return noEstimatedFinishMeta();
     }
-
-    const MONTH_LABEL = MONTH_LABEL_FORMATTER.format(FINISH_DATE.date);
-    let label = MONTH_LABEL;
-    if (FINISH_DATE.year !== currentYear) {
-        label = `${MONTH_LABEL} ${FINISH_DATE.year}`;
-    }
-
+    const LABEL = finishDateLabel(FINISH_DATE, currentYear);
     return {
         key: `finish:${FINISH_DATE.year}-${String(FINISH_DATE.month).padStart(2, "0")}`,
-        label,
+        label: LABEL,
         order: FINISH_DATE.year * YEAR_MONTH_MULTIPLIER + FINISH_DATE.month,
-        tie: label,
+        tie: LABEL,
     };
 }

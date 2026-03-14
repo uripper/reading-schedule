@@ -127,15 +127,6 @@ function resolvedDocumentTheme(preferences: DocumentPreferencesInput): string {
     return THEME_SYSTEM;
 }
 
-function reduceMotionDatasetValue(
-    preferences: DocumentPreferencesInput,
-): string {
-    if (preferences.reduceMotion) {
-        return "true";
-    }
-    return "false";
-}
-
 /**
  * Applies theme and reduced-motion preferences to document data attributes.
  * @param preferences - User preference values to apply.
@@ -145,7 +136,7 @@ export function applyPreferencesToDocument(
 ): void {
     const ROOT = document.documentElement;
     ROOT.dataset.theme = resolvedDocumentTheme(preferences);
-    ROOT.dataset.reduceMotion = reduceMotionDatasetValue(preferences);
+    ROOT.dataset.reduceMotion = String(preferences.reduceMotion);
 }
 
 export { bindDialogFocus };

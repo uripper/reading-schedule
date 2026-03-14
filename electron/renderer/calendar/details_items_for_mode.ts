@@ -18,12 +18,12 @@ import { buildTodaySessionItem } from "./details_session_today.ts";
  * Session-item builder implementations grouped by calendar day mode.
  */
 interface DetailsItemBuilders<TNode> {
-    future(
-        row: CalendarRowWithFinish,
-        state: CalendarDetailsState,
-        interactionHandlers: DetailInteractionHandlers,
-        rerenderDetails: () => void,
-    ): TNode;
+    future(args: {
+        row: CalendarRowWithFinish;
+        state: CalendarDetailsState;
+        interactionHandlers: DetailInteractionHandlers;
+        rerenderDetails: () => void;
+    }): TNode;
     past(
         row: CalendarRowWithFinish,
         interactionHandlers: DetailInteractionHandlers,
@@ -66,12 +66,12 @@ function buildTodayItems<TNode>(args: BuildSessionItemsArgs<TNode>): TNode[] {
 
 function buildFutureItems<TNode>(args: BuildSessionItemsArgs<TNode>): TNode[] {
     return args.rows.map((row) => {
-        return args.builders.future(
+        return args.builders.future({
+            interactionHandlers: args.interactionHandlers,
+            rerenderDetails: args.rerenderDetails,
             row,
-            args.state,
-            args.interactionHandlers,
-            args.rerenderDetails,
-        );
+            state: args.state,
+        });
     });
 }
 

@@ -55,6 +55,39 @@ function normalizeFinishedAt(value: string | null | undefined): string | null {
     return withNullableString(String(value ?? "").trim());
 }
 
+function payloadTextFields(book: Book, status: Book["status"]): Partial<Book> {
+    return {
+        author: withDefaultString(book.author),
+        blocked_by: withNullableString(book.blocked_by),
+        book_id: book.book_id,
+        cover_local_path: withDefaultString(book.cover_local_path),
+        cover_url: withDefaultString(book.cover_url),
+        deadline: withNullableString(book.deadline),
+        finished_at: normalizeFinishedAt(book.finished_at),
+        lookup_note: withDefaultString(book.lookup_note),
+        shelf: withDefaultString(book.shelf),
+        status,
+        title: book.title,
+    };
+}
+
+function payloadNumericFields(book: Book): Partial<Book> {
+    return {
+        difficulty: withDefaultNumber(book.difficulty, DEFAULT_DIFFICULTY),
+        max_minutes_per_day: book.max_minutes_per_day ?? null,
+        min_blocks_per_session: withDefaultNumber(
+            book.min_blocks_per_session,
+            DEFAULT_MIN_BLOCKS,
+        ),
+        pages_read: book.pages_read ?? null,
+        pages_total: book.pages_total ?? null,
+        priority: withDefaultNumber(book.priority, DEFAULT_PRIORITY),
+        progress_percent: book.progress_percent,
+        scheduled_days: normalizeScheduledDays(book.scheduled_days),
+        words_total: book.words_total ?? null,
+    };
+}
+
 /**
  * Converts a normalized book model into persistence/planner payload shape.
  * @param book - Source book model.
@@ -66,29 +99,8 @@ export function toPayloadBook(book: Book): Book {
         Number(book.progress_percent || 0),
     );
     return {
-        author: withDefaultString(book.author),
-        blocked_by: withNullableString(book.blocked_by),
-        book_id: book.book_id,
-        cover_local_path: withDefaultString(book.cover_local_path),
-        cover_url: withDefaultString(book.cover_url),
-        deadline: withNullableString(book.deadline),
-        difficulty: withDefaultNumber(book.difficulty, DEFAULT_DIFFICULTY),
-        finished_at: normalizeFinishedAt(book.finished_at),
-        lookup_note: withDefaultString(book.lookup_note),
-        max_minutes_per_day: book.max_minutes_per_day ?? null,
-        min_blocks_per_session: withDefaultNumber(
-            book.min_blocks_per_session,
-            DEFAULT_MIN_BLOCKS,
-        ),
-        pages_read: book.pages_read ?? null,
-        pages_total: book.pages_total ?? null,
-        priority: withDefaultNumber(book.priority, DEFAULT_PRIORITY),
-        progress_percent: book.progress_percent,
-        scheduled_days: normalizeScheduledDays(book.scheduled_days),
-        shelf: withDefaultString(book.shelf),
-        status: STATUS,
-        title: book.title,
-        words_total: book.words_total ?? null,
+        ...payloadTextFields(book, STATUS),
+        ...payloadNumericFields(book),
     };
 }
 
@@ -114,16 +126,17 @@ export function clearMissingBlockedBy(books: Book[]): Book[] {
     }
 
     return books.map((book) => {
-        const BLOCKED_BY_ID = String(book.blocked_by ?? "").trim();
-        if (!BLOCKED_BY_ID) {
-            return book;
-        }
-        if (SCHEDULABLE_IDS.has(BLOCKED_BY_ID)) {
-            return book;
-        }
-        return {
-            ...book,
-            blocked_by: null,
-        };
+        return clearedBlockedByBook(book, SCHEDULABLE_IDS);
     });
+}
+
+function clearedBlockedByBook(book: Book, schedulableIds: Set<string>): Book {
+    const BLOCKED_BY_ID = String(book.blocked_by ?? "").trim();
+    if (BLOCKED_BY_ID === "" || schedulableIds.has(BLOCKED_BY_ID)) {
+        return book;
+    }
+    return {
+        ...book,
+        blocked_by: null,
+    };
 }

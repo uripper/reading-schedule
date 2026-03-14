@@ -93,6 +93,11 @@ function manualAddPanel(args: ManualAddPanelArgs): HTMLElement {
     });
 }
 
+function clearExpectedFinishHighlight(state: CalendarDetailsState): void {
+    const CALENDAR_STATE = state;
+    CALENDAR_STATE.expectedFinishHighlightDate = "";
+}
+
 /**
  * Renders the empty hint state when no day is selected.
  * @param details - Calendar detail container.
@@ -108,7 +113,7 @@ function renderHintOnly(
     HINT.className = "hint-text";
     HINT.textContent = "Select a day in the schedule grid to view details.";
     details.replaceChildren(title, HINT);
-    state.expectedFinishHighlightDate = "";
+    clearExpectedFinishHighlight(state);
 }
 
 // TODO: Move these calendar detail view-only interfaces into `electron/types`
@@ -160,7 +165,149 @@ function renderEmptyRows(args: RenderEmptyRowsArgs): void {
     EMPTY.className = "hint-text";
     EMPTY.textContent = emptyMessageForMode(args.mode);
     args.details.replaceChildren(args.title, EMPTY, args.panel);
-    args.state.expectedFinishHighlightDate = "";
+    clearExpectedFinishHighlight(args.state);
+}
+
+function rerenderDetailsCallback(args: {
+    state: CalendarDetailsState;
+    interactionHandlers: DetailInteractionHandlers;
+    onRerenderRequested: (() => void) | null;
+}): () => void {
+    return () => {
+        if (args.onRerenderRequested !== null) {
+            args.onRerenderRequested();
+            return;
+        }
+        renderCalendarDetails(
+            args.state,
+            args.interactionHandlers,
+            args.onRerenderRequested,
+        );
+    };
+}
+
+function manualAddPanelForSelection(args: {
+    key: string;
+    mode: ReturnType<typeof dayMode>;
+    rowsToRender: CalendarDetailsState["dates"][string];
+    interactionHandlers: DetailInteractionHandlers;
+    rerenderDetails: () => void;
+}): HTMLElement {
+    return manualAddPanel({
+        defaults: defaultManualAddValues(args.rowsToRender),
+        interactionHandlers: args.interactionHandlers,
+        key: args.key,
+        mode: args.mode,
+        rerenderDetails: args.rerenderDetails,
+    });
+}
+
+function renderPopulatedDetails(args: {
+    details: HTMLElement;
+    title: HTMLElement;
+    panel: HTMLElement;
+    mode: ReturnType<typeof dayMode>;
+    rows: CalendarDetailsState["dates"][string];
+    state: CalendarDetailsState;
+    interactionHandlers: DetailInteractionHandlers;
+    rerenderDetails: () => void;
+}): void {
+    const DETAILS_LIST = detailsListNode({
+        interactionHandlers: args.interactionHandlers,
+        mode: args.mode,
+        rerenderDetails: args.rerenderDetails,
+        rows: args.rows,
+        state: args.state,
+    });
+    args.details.replaceChildren(args.title, DETAILS_LIST, args.panel);
+    clearExpectedFinishHighlight(args.state);
+}
+
+type RenderSelectedDayDetailsArgs = {
+    details: HTMLElement;
+    title: HTMLElement;
+    key: string;
+    state: CalendarDetailsState;
+    interactionHandlers: DetailInteractionHandlers;
+    onRerenderRequested: (() => void) | null;
+};
+
+function selectedDayRows(args: RenderSelectedDayDetailsArgs): {
+    mode: ReturnType<typeof dayMode>;
+    rerenderDetails: () => void;
+    rowsToRender: CalendarDetailsState["dates"][string];
+} {
+    const MODE = dayMode(args.key);
+    const RERENDER_DETAILS = rerenderDetailsCallback({
+        interactionHandlers: args.interactionHandlers,
+        onRerenderRequested: args.onRerenderRequested,
+        state: args.state,
+    });
+    return {
+        mode: MODE,
+        rerenderDetails: RERENDER_DETAILS,
+        rowsToRender: rowsForMode(
+            rowsForSelectedDate(args.state),
+            MODE,
+            args.interactionHandlers,
+        ),
+    };
+}
+
+function selectedDayPanel(
+    args: RenderSelectedDayDetailsArgs,
+    selectedRows: ReturnType<typeof selectedDayRows>,
+): HTMLElement {
+    return manualAddPanelForSelection({
+        interactionHandlers: args.interactionHandlers,
+        key: args.key,
+        mode: selectedRows.mode,
+        rerenderDetails: selectedRows.rerenderDetails,
+        rowsToRender: selectedRows.rowsToRender,
+    });
+}
+
+function renderSelectedDayContent(args: {
+    detailsArgs: RenderSelectedDayDetailsArgs;
+    selectedRows: ReturnType<typeof selectedDayRows>;
+    panel: HTMLElement;
+}): void {
+    renderPopulatedDetails({
+        details: args.detailsArgs.details,
+        interactionHandlers: args.detailsArgs.interactionHandlers,
+        mode: args.selectedRows.mode,
+        panel: args.panel,
+        rerenderDetails: args.selectedRows.rerenderDetails,
+        rows: args.selectedRows.rowsToRender,
+        state: args.detailsArgs.state,
+        title: args.detailsArgs.title,
+    });
+}
+
+function renderSelectedDayRows(
+    args: RenderSelectedDayDetailsArgs,
+    selectedRows: ReturnType<typeof selectedDayRows>,
+): void {
+    const MANUAL_ADD_PANEL = selectedDayPanel(args, selectedRows);
+    if (!selectedRows.rowsToRender.length) {
+        renderEmptyRows({
+            details: args.details,
+            mode: selectedRows.mode,
+            panel: MANUAL_ADD_PANEL,
+            state: args.state,
+            title: args.title,
+        });
+        return;
+    }
+    renderSelectedDayContent({
+        detailsArgs: args,
+        panel: MANUAL_ADD_PANEL,
+        selectedRows,
+    });
+}
+
+function renderSelectedDayDetails(args: RenderSelectedDayDetailsArgs): void {
+    renderSelectedDayRows(args, selectedDayRows(args));
 }
 
 /**
@@ -174,57 +321,19 @@ export function renderCalendarDetails(
     interactionHandlers: DetailInteractionHandlers,
     onRerenderRequested: (() => void) | null = null,
 ): void {
-    const CALENDAR_STATE = state;
     const DETAILS = el("calendarDayDetails");
-    const KEY = CALENDAR_STATE.selectedDate;
-    const ROWS = rowsForSelectedDate(CALENDAR_STATE);
+    const KEY = state.selectedDate;
     const TITLE = titleForSelectedDate(KEY);
-
     if (!KEY) {
-        renderHintOnly(DETAILS, TITLE, CALENDAR_STATE);
+        renderHintOnly(DETAILS, TITLE, state);
         return;
     }
-
-    const MODE = dayMode(KEY);
-    const RERENDER_DETAILS = (): void => {
-        if (onRerenderRequested !== null) {
-            onRerenderRequested();
-            return;
-        }
-        renderCalendarDetails(
-            CALENDAR_STATE,
-            interactionHandlers,
-            onRerenderRequested,
-        );
-    };
-    const ROWS_TO_RENDER = rowsForMode(ROWS, MODE, interactionHandlers);
-    const DEFAULTS = defaultManualAddValues(ROWS_TO_RENDER);
-    const MANUAL_ADD_PANEL = manualAddPanel({
-        defaults: DEFAULTS,
+    renderSelectedDayDetails({
+        details: DETAILS,
         interactionHandlers,
         key: KEY,
-        mode: MODE,
-        rerenderDetails: RERENDER_DETAILS,
+        onRerenderRequested,
+        state,
+        title: TITLE,
     });
-    if (!ROWS_TO_RENDER.length) {
-        renderEmptyRows({
-            details: DETAILS,
-            mode: MODE,
-            panel: MANUAL_ADD_PANEL,
-            state: CALENDAR_STATE,
-            title: TITLE,
-        });
-        return;
-    }
-
-    const DETAILS_LIST = detailsListNode({
-        interactionHandlers,
-        mode: MODE,
-        rerenderDetails: RERENDER_DETAILS,
-        rows: ROWS_TO_RENDER,
-        state: CALENDAR_STATE,
-    });
-
-    DETAILS.replaceChildren(TITLE, DETAILS_LIST, MANUAL_ADD_PANEL);
-    CALENDAR_STATE.expectedFinishHighlightDate = "";
 }

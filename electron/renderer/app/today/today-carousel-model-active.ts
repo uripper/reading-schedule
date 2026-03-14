@@ -110,11 +110,16 @@ function activeEstimate(options: {
     return estimateSnapshotForRow({
         getBookById: (bookId) => options.bookById.get(bookId) ?? null,
         isSessionCompleted: (sessionKey) =>
-            isEstimatedSessionCompleted(options.scheduleCompletions, sessionKey),
+            isEstimatedSessionCompleted(
+                options.scheduleCompletions,
+                sessionKey,
+            ),
         row: options.activeRow.row,
         state: {
             rows: scheduleRows(options.lastResult),
-            totalsByBookId: totalsFromSummary(options.lastResult?.summary ?? null),
+            totalsByBookId: totalsFromSummary(
+                options.lastResult?.summary ?? null,
+            ),
         },
     });
 }

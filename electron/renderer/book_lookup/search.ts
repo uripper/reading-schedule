@@ -14,6 +14,18 @@ interface LookupListHandlers {
     setActiveIndex: (nextIndex: number) => void;
 }
 
+type BindLookupKeydownArgs = {
+    options: BindBookLookupOptions;
+    state: LookupSearchState;
+    handlers: LookupListHandlers;
+    clearResults: () => void;
+};
+
+type LookupActionHandlers = LookupListHandlers & {
+    clearResults: () => void;
+    refreshResults: () => void;
+};
+
 /**
  * Binds mousemove and click event listeners to a lookup results container element to update the active index and trigger selection.
  * @example
@@ -52,23 +64,29 @@ function bindLookupResultEvents(
  * @param clearResults - Callback invoked to clear current search results.
  * @returns No return value; attaches a keydown event listener to the given search input.
  **/
-function bindLookupKeydown(
-    options: BindBookLookupOptions,
-    state: LookupSearchState,
-    handlers: LookupListHandlers,
-    clearResults: () => void,
-): void {
-    options.searchInput.addEventListener("keydown", (event: KeyboardEvent) => {
+function bindLookupKeydown(args: BindLookupKeydownArgs): void {
+    args.options.searchInput.addEventListener("keydown", (event: KeyboardEvent) => {
         handleLookupKeydown({
-            activeIndex: state.activeIndex,
-            clearResults,
-            currentItems: state.currentItems,
+            activeIndex: args.state.activeIndex,
+            clearResults: args.clearResults,
+            currentItems: args.state.currentItems,
             event,
-            searchInput: options.searchInput,
-            selectItem: handlers.selectItem,
-            setActiveIndex: handlers.setActiveIndex,
+            searchInput: args.options.searchInput,
+            selectItem: args.handlers.selectItem,
+            setActiveIndex: args.handlers.setActiveIndex,
         });
     });
+}
+
+function shouldClearLookupResults(
+    target: Node,
+    searchInput: HTMLInputElement,
+    resultsEl: HTMLElement,
+): boolean {
+    if (target === searchInput) {
+        return false;
+    }
+    return !resultsEl.contains(target);
 }
 
 /**
@@ -90,10 +108,71 @@ function createOutsideClickHandler(
         if (!(event.target instanceof Node)) {
             return;
         }
-        if (event.target === searchInput || resultsEl.contains(event.target)) {
+        if (!shouldClearLookupResults(event.target, searchInput, resultsEl)) {
             return;
         }
         clearResults();
+    };
+}
+
+function lookupActionHandlers(
+    lookupState: ReturnType<typeof createLookupStateController>,
+): LookupActionHandlers {
+    return {
+        clearResults: () => {
+            lookupState.clearResults();
+        },
+        refreshResults: () => {
+            lookupState.refreshResults();
+        },
+        selectItem: (nextIndex: number) => {
+            lookupState.selectItem(nextIndex);
+        },
+        setActiveIndex: (nextIndex: number) => {
+            lookupState.setActiveIndex(nextIndex);
+        },
+    };
+}
+
+function bindLookupInputEvents(args: {
+    options: BindBookLookupOptions;
+    state: LookupSearchState;
+    handlers: LookupActionHandlers;
+}): void {
+    const ON_INPUT = createLookupInputHandler({
+        clearResults: args.handlers.clearResults,
+        metaEl: args.options.metaEl,
+        refreshResults: args.handlers.refreshResults,
+        searchInput: args.options.searchInput,
+        state: args.state,
+    });
+    args.options.searchInput.addEventListener("input", ON_INPUT);
+}
+
+function bindLookupInteractions(args: {
+    options: BindBookLookupOptions;
+    state: LookupSearchState;
+    handlers: LookupActionHandlers;
+}): void {
+    bindLookupResultEvents(args.options.resultsEl, args.handlers);
+    bindLookupInputEvents(args);
+    bindLookupKeydown({
+        clearResults: args.handlers.clearResults,
+        handlers: args.handlers,
+        options: args.options,
+        state: args.state,
+    });
+}
+
+function lookupBinding(
+    clearResults: () => void,
+    onDocClick: (event: MouseEvent) => void,
+): LookupBinding {
+    return {
+        clearResults,
+        destroy: (): void => {
+            document.removeEventListener("click", onDocClick);
+        },
     };
 }
 
@@ -122,49 +201,13 @@ export function bindBookLookup(options: BindBookLookupOptions): LookupBinding {
         searchInput: options.searchInput,
         state: STATE,
     });
-    const CLEAR_RESULTS = (): void => {
-        LOOKUP_STATE.clearResults();
-    };
-    const REFRESH_RESULTS = (): void => {
-        LOOKUP_STATE.refreshResults();
-    };
-    const SET_ACTIVE_INDEX = (nextIndex: number): void => {
-        LOOKUP_STATE.setActiveIndex(nextIndex);
-    };
-    const SELECT_ITEM = (nextIndex: number): void => {
-        LOOKUP_STATE.selectItem(nextIndex);
-    };
-    bindLookupResultEvents(options.resultsEl, {
-        selectItem: SELECT_ITEM,
-        setActiveIndex: SET_ACTIVE_INDEX,
-    });
-    const ON_INPUT = createLookupInputHandler({
-        clearResults: CLEAR_RESULTS,
-        metaEl: options.metaEl,
-        refreshResults: REFRESH_RESULTS,
-        searchInput: options.searchInput,
-        state: STATE,
-    });
-    options.searchInput.addEventListener("input", ON_INPUT);
-    bindLookupKeydown(
-        options,
-        STATE,
-        {
-            selectItem: SELECT_ITEM,
-            setActiveIndex: SET_ACTIVE_INDEX,
-        },
-        CLEAR_RESULTS,
-    );
+    const HANDLERS = lookupActionHandlers(LOOKUP_STATE);
+    bindLookupInteractions({ handlers: HANDLERS, options, state: STATE });
     const ON_DOC_CLICK = createOutsideClickHandler(
         options.searchInput,
         options.resultsEl,
-        CLEAR_RESULTS,
+        HANDLERS.clearResults,
     );
     document.addEventListener("click", ON_DOC_CLICK);
-    return {
-        clearResults: CLEAR_RESULTS,
-        destroy: (): void => {
-            document.removeEventListener("click", ON_DOC_CLICK);
-        },
-    };
+    return lookupBinding(HANDLERS.clearResults, ON_DOC_CLICK);
 }
