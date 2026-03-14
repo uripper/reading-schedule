@@ -17,6 +17,11 @@ const STEP_NEXT = 1;
  */
 type SelectTodayBook = (bookId: string) => void;
 
+type TrackNavigationActions = {
+    selectPrevious(): void;
+    selectNext(): void;
+};
+
 /**
  * Wraps a carousel index while moving left or right through the book list.
  * @param index - Current selected index.
@@ -51,6 +56,90 @@ function selectedIndex(model: TodayCarouselModel): number {
     return INDEX;
 }
 
+function moveSelection(
+    model: TodayCarouselModel,
+    selectBook: SelectTodayBook,
+    delta: number,
+): void {
+    if (!model.books.length) {
+        return;
+    }
+    const CURRENT_INDEX = selectedIndex(model);
+    const NEXT_INDEX = wrappedIndex(CURRENT_INDEX, delta, model.books.length);
+    selectBook(model.books[NEXT_INDEX].bookId);
+}
+
+function selectEdgeBook(
+    model: TodayCarouselModel,
+    selectBook: SelectTodayBook,
+    index: number,
+): boolean {
+    if (!model.books.length) {
+        return false;
+    }
+    selectBook(model.books[index].bookId);
+    return true;
+}
+
+function handleArrowKey(
+    event: KeyboardEvent,
+    actions: TrackNavigationActions,
+): boolean {
+    if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        actions.selectPrevious();
+        return true;
+    }
+    if (event.key === "ArrowRight") {
+        event.preventDefault();
+        actions.selectNext();
+        return true;
+    }
+    return false;
+}
+
+function handleEdgeKey(
+    event: KeyboardEvent,
+    model: TodayCarouselModel,
+    selectBook: SelectTodayBook,
+): boolean {
+    if (event.key === "Home") {
+        event.preventDefault();
+        return selectEdgeBook(model, selectBook, HOME_INDEX);
+    }
+    if (event.key === "End") {
+        event.preventDefault();
+        return selectEdgeBook(model, selectBook, model.books.length - 1);
+    }
+    return false;
+}
+
+function bindTrackKeydown(args: {
+    track: HTMLElement;
+    model: TodayCarouselModel;
+    selectBook: SelectTodayBook;
+    actions: TrackNavigationActions;
+}): void {
+    const TRACK = args.track;
+    TRACK.onkeydown = (event) => {
+        if (handleArrowKey(event, args.actions)) {
+            return;
+        }
+        handleEdgeKey(event, args.model, args.selectBook);
+    };
+}
+
+function bindTrackButtons(args: {
+    previousButton: HTMLButtonElement;
+    nextButton: HTMLButtonElement;
+    actions: TrackNavigationActions;
+}): void {
+    const PREVIOUS_BUTTON = args.previousButton;
+    const NEXT_BUTTON = args.nextButton;
+    PREVIOUS_BUTTON.onclick = args.actions.selectPrevious;
+    NEXT_BUTTON.onclick = args.actions.selectNext;
+}
+
 /**
  * Binds keyboard and previous/next navigation controls for the Today carousel.
  * @param model - Current carousel model.
@@ -63,53 +152,25 @@ export function bindCarouselNavigation(
     const PREV = el<HTMLButtonElement>("todayCarouselPrev");
     const NEXT = el<HTMLButtonElement>("todayCarouselNext");
     const TRACK = el<HTMLElement>("todayCarouselTrack");
-    /**
-     * Shift the selected book in the carousel by delta steps, wrapping around the book list.
-     * @example
-     * changeSelectedBook(1)
-     * undefined
-     * @param delta - Number of positions to move the current selection (positive moves forward, negative moves backward).
-     * @returns No return value; updates the selected book in the shared model.
-     **/
-    const MOVE_SELECTION = (delta: number): void => {
-        if (!model.books.length) {
-            return;
-        }
-        const CURRENT_INDEX = selectedIndex(model);
-        const NEXT_INDEX = wrappedIndex(
-            CURRENT_INDEX,
-            delta,
-            model.books.length,
-        );
-        selectBook(model.books[NEXT_INDEX].bookId);
+    const ACTIONS: TrackNavigationActions = {
+        selectNext: (): void => {
+            moveSelection(model, selectBook, STEP_NEXT);
+        },
+        selectPrevious: (): void => {
+            moveSelection(model, selectBook, STEP_PREVIOUS);
+        },
     };
-    PREV.onclick = () => {
-        MOVE_SELECTION(STEP_PREVIOUS);
-    };
-    NEXT.onclick = () => {
-        MOVE_SELECTION(STEP_NEXT);
-    };
-    TRACK.onkeydown = (event) => {
-        if (event.key === "ArrowLeft") {
-            event.preventDefault();
-            MOVE_SELECTION(STEP_PREVIOUS);
-            return;
-        }
-        if (event.key === "ArrowRight") {
-            event.preventDefault();
-            MOVE_SELECTION(STEP_NEXT);
-            return;
-        }
-        if (event.key === "Home" && model.books.length) {
-            event.preventDefault();
-            selectBook(model.books[HOME_INDEX].bookId);
-            return;
-        }
-        if (event.key === "End" && model.books.length) {
-            event.preventDefault();
-            selectBook(model.books[model.books.length - 1].bookId);
-        }
-    };
+    bindTrackButtons({
+        actions: ACTIONS,
+        nextButton: NEXT,
+        previousButton: PREV,
+    });
+    bindTrackKeydown({
+        actions: ACTIONS,
+        model,
+        selectBook,
+        track: TRACK,
+    });
 }
 
 /**

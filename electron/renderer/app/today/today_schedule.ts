@@ -172,6 +172,18 @@ function sortedBookSummaries(
     return BOOKS_FOR_TODAY;
 }
 
+function isNextUncompletedRow(
+    row: PlannerScheduleRow,
+    scheduleCompletions: Record<string, boolean>,
+    today: string,
+): boolean {
+    const ROW_DATE = String(row.date || "");
+    if (!isOnOrAfterDay(ROW_DATE, today)) {
+        return false;
+    }
+    return !isCompletedRow(row, scheduleCompletions);
+}
+
 /**
  * Finds the next uncompleted planned row on or after today.
  * @param lastResult - Latest planner result.
@@ -185,11 +197,7 @@ export function nextUncompletedPlannedRow(
     const TODAY = todayKey();
     const ROWS = rowsFromResult(lastResult);
     for (const ROW of ROWS) {
-        const ROW_DATE = String(ROW.date || "");
-        if (
-            isOnOrAfterDay(ROW_DATE, TODAY) &&
-            !isCompletedRow(ROW, scheduleCompletions)
-        ) {
+        if (isNextUncompletedRow(ROW, scheduleCompletions, TODAY)) {
             return ROW;
         }
     }

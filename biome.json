@@ -288,10 +288,7 @@
             "includes": ["**/*.json"],
             "linter": {
                 "rules": {
-                    "recommended": true,
-                    "style": {
-                        "useFilenamingConvention": "off"
-                    }
+                    "recommended": true
                 }
             }
         },

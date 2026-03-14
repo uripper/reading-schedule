@@ -89,6 +89,24 @@ function selectBook(bookId: string): void {
     requestRerender();
 }
 
+function resetNoDataMinutesUi(): void {
+    el<HTMLElement>("todayMinutesValue").textContent = EMPTY_MINUTES_TEXT;
+    el<HTMLElement>("todayMinutesValue").hidden = false;
+    el<HTMLInputElement>("todayMinutesInput").hidden = true;
+    el<HTMLInputElement>("todayMinutesInput").value = EMPTY_TEXT;
+}
+
+function resetNoDataProgressUi(): void {
+    renderAfterSessionText(EMPTY_SESSION_SUMMARY_TEXT);
+    el<HTMLElement>("todayProgressPagesTotalText").textContent =
+        EMPTY_PROGRESS_TOTAL_TEXT;
+    resetTodayProgressInputs();
+    setMinutesEditDisabled(true);
+    setActionButtonsDisabled(true);
+    setLogButtonState(false);
+    setProgressInputsDisabled(true);
+}
+
 /**
  * Renders the empty Today state when there is no active session.
  */
@@ -98,18 +116,30 @@ function renderNoData(): void {
     el<HTMLElement>("todayCarouselEmpty").hidden = false;
     el<HTMLElement>("todayActiveBookBar").textContent = EMPTY_BOOK_LABEL;
     el<HTMLElement>("todayCarouselTrack").replaceChildren();
-    el<HTMLElement>("todayMinutesValue").textContent = EMPTY_MINUTES_TEXT;
-    el<HTMLElement>("todayMinutesValue").hidden = false;
-    el<HTMLInputElement>("todayMinutesInput").hidden = true;
-    el<HTMLInputElement>("todayMinutesInput").value = EMPTY_TEXT;
-    renderAfterSessionText(EMPTY_SESSION_SUMMARY_TEXT);
-    el<HTMLElement>("todayProgressPagesTotalText").textContent =
-        EMPTY_PROGRESS_TOTAL_TEXT;
-    resetTodayProgressInputs();
-    setMinutesEditDisabled(true);
-    setActionButtonsDisabled(true);
-    setLogButtonState(false);
-    setProgressInputsDisabled(true);
+    resetNoDataMinutesUi();
+    resetNoDataProgressUi();
+}
+
+function applyOpenMinutesEditor(
+    input: HTMLInputElement,
+    editButton: HTMLButtonElement,
+    valueText: string,
+): void {
+    const INPUT = input;
+    const EDIT_BUTTON = editButton;
+    INPUT.value = valueText;
+    EDIT_BUTTON.textContent = "✓";
+    EDIT_BUTTON.setAttribute("aria-label", "Save planned minutes");
+    if (globalThis.document.activeElement !== INPUT) {
+        INPUT.focus();
+        INPUT.select();
+    }
+}
+
+function applyClosedMinutesEditor(editButton: HTMLButtonElement): void {
+    const EDIT_BUTTON = editButton;
+    EDIT_BUTTON.textContent = "✎";
+    EDIT_BUTTON.setAttribute("aria-label", "Edit planned minutes");
 }
 
 /**
@@ -125,17 +155,14 @@ function applyMinutesEditorVisibility(active: TodayCarouselActiveItem): void {
     VALUE.hidden = IS_EDIT_OPEN;
     INPUT.hidden = !IS_EDIT_OPEN;
     if (IS_EDIT_OPEN) {
-        INPUT.value = EDIT_STATE?.valueText ?? EMPTY_TEXT;
-        EDIT_BUTTON.textContent = "✓";
-        EDIT_BUTTON.setAttribute("aria-label", "Save planned minutes");
-        if (globalThis.document.activeElement !== INPUT) {
-            INPUT.focus();
-            INPUT.select();
-        }
+        applyOpenMinutesEditor(
+            INPUT,
+            EDIT_BUTTON,
+            EDIT_STATE?.valueText ?? EMPTY_TEXT,
+        );
         return;
     }
-    EDIT_BUTTON.textContent = "✎";
-    EDIT_BUTTON.setAttribute("aria-label", "Edit planned minutes");
+    applyClosedMinutesEditor(EDIT_BUTTON);
 }
 
 /**

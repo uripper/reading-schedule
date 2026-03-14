@@ -21,6 +21,12 @@ export interface TodayProgressInputViewModel {
     percentText: string;
 }
 
+type NormalizedPagesValueOptions = {
+    currentPagesRead: number | null;
+    pagesText: string;
+    pagesTotal: number | null;
+};
+
 function isBlankText(value: string): boolean {
     return value.trim() === EMPTY_TEXT;
 }
@@ -79,10 +85,18 @@ function boundedText(valueRaw: string, maximum: number | null): string {
     if (PARSED < MIN_PROGRESS) {
         return String(MIN_PROGRESS);
     }
-    if (maximum !== null && PARSED > maximum) {
+    return boundedMaximumText(PARSED, VALUE_TEXT, maximum);
+}
+
+function boundedMaximumText(
+    parsed: number,
+    valueText: string,
+    maximum: number | null,
+): string {
+    if (maximum !== null && parsed > maximum) {
         return String(maximum);
     }
-    return VALUE_TEXT;
+    return valueText;
 }
 
 function boundedPagesText(
@@ -229,38 +243,59 @@ export function formatPagesTotalText(pagesTotal: number | null): string {
  * @param {{ {currentPagesRead: number | null; pagesText: string; pagesTotal: number | null} }} {{options}} - Options object containing currentPagesRead, the raw pagesText input, and optional pagesTotal.
  * @returns {{ {error: string; value: number | null} }} Return object with an error message (EMPTY_TEXT when no error) and the normalized page number or null.
  **/
-export function normalizedPagesValue(options: {
-    currentPagesRead: number | null;
-    pagesText: string;
-    pagesTotal: number | null;
-}): {
+export function normalizedPagesValue(options: NormalizedPagesValueOptions): {
     error: string;
     value: number | null;
 } {
     if (isBlankText(options.pagesText)) {
-        return {
-            error: EMPTY_TEXT,
-            value: options.currentPagesRead,
-        };
+        return currentPagesValue(options.currentPagesRead);
     }
     const PARSED = parseOptionalNumber(options.pagesText);
     if (PARSED === null) {
-        return { error: "Pages Read must be a number.", value: null };
+        return invalidPagesValue("Pages Read must be a number.");
     }
-    const PAGES = roundedPages(PARSED);
-    if (PAGES < MIN_PROGRESS) {
-        return { error: "Pages Read cannot be negative.", value: null };
+    return validatedPagesValue(roundedPages(PARSED), options.pagesTotal);
+}
+
+function currentPagesValue(currentPagesRead: number | null): {
+    error: string;
+    value: number | null;
+} {
+    return {
+        error: EMPTY_TEXT,
+        value: currentPagesRead,
+    };
+}
+
+function invalidPagesValue(error: string): {
+    error: string;
+    value: null;
+} {
+    return { error, value: null };
+}
+
+function pagesValueError(pages: number, pagesTotal: number | null): string {
+    if (pages < MIN_PROGRESS) {
+        return "Pages Read cannot be negative.";
     }
-    if (
-        options.pagesTotal !== null &&
-        PAGES > roundedPages(options.pagesTotal)
-    ) {
-        return {
-            error: "Pages Read cannot exceed total pages.",
-            value: null,
-        };
+    if (pagesTotal !== null && pages > roundedPages(pagesTotal)) {
+        return "Pages Read cannot exceed total pages.";
     }
-    return { error: EMPTY_TEXT, value: PAGES };
+    return EMPTY_TEXT;
+}
+
+function validatedPagesValue(
+    pages: number,
+    pagesTotal: number | null,
+): {
+    error: string;
+    value: number | null;
+} {
+    const ERROR = pagesValueError(pages, pagesTotal);
+    if (ERROR !== EMPTY_TEXT) {
+        return invalidPagesValue(ERROR);
+    }
+    return { error: EMPTY_TEXT, value: pages };
 }
 
 /**

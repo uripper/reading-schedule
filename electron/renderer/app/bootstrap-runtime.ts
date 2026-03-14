@@ -80,11 +80,16 @@ function createPersistActions(
     };
 }
 
-function createDashboards(
+type DashboardRuntimeArgs = Parameters<typeof createDashboardRuntime>[0];
+
+function baseDashboardArgs(
     queuePersist: () => void,
     state: AppBootstrapContext["state"],
-) {
-    const BASE_DASHBOARD_ARGS = {
+): Omit<
+    DashboardRuntimeArgs,
+    "collectFeatureFlagsFromUI" | "collectPreferencesFromUI"
+> {
+    return {
         applyPreferencesToDocument,
         collectAllBooks,
         normalizeFeatureFlags,
@@ -93,18 +98,27 @@ function createDashboards(
         state,
         updateStatsView,
         updateTodayDashboard,
-    } satisfies Omit<
-        Parameters<typeof createDashboardRuntime>[0],
-        "collectFeatureFlagsFromUI" | "collectPreferencesFromUI"
-    >;
+    };
+}
 
-    const DASHBOARD_ARGS = {
-        ...BASE_DASHBOARD_ARGS,
+function dashboardUiArgs(): Pick<
+    DashboardRuntimeArgs,
+    "collectFeatureFlagsFromUI" | "collectPreferencesFromUI"
+> {
+    return {
         collectFeatureFlagsFromUI: collectFeatureFlagsFromUi,
         collectPreferencesFromUI: collectPreferencesFromUi,
-    } as Parameters<typeof createDashboardRuntime>[0];
+    };
+}
 
-    return createDashboardRuntime(DASHBOARD_ARGS);
+function createDashboards(
+    queuePersist: () => void,
+    state: AppBootstrapContext["state"],
+) {
+    return createDashboardRuntime({
+        ...baseDashboardArgs(queuePersist, state),
+        ...dashboardUiArgs(),
+    });
 }
 
 function createRuntime(
