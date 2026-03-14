@@ -42,6 +42,31 @@ function updatedRowWithMinutes(args: UpdatedMinutesArgs): PlannerScheduleRow {
     };
 }
 
+function rowsExcludingUpdatedTarget(
+    row: PlannerScheduleRow,
+    previousRows: PlannerScheduleRow[],
+): PlannerScheduleRow[] | null {
+    const ROWS_EXCLUDING_TARGET = rowsWithoutSession(
+        sessionKeyFor(row),
+        previousRows,
+    );
+    if (ROWS_EXCLUDING_TARGET.length !== previousRows.length) {
+        return ROWS_EXCLUDING_TARGET;
+    }
+    return null;
+}
+
+function updatedRowsResult(args: UpdatedMinutesArgs): UpdatedRowsResult {
+    const UPDATED_ROW = updatedRowWithMinutes(args);
+    return {
+        normalizedMinutes: args.normalizedMinutes,
+        rows: sortRowsByDateAndSession([
+            ...args.rowsExcludingTarget,
+            UPDATED_ROW,
+        ]),
+    };
+}
+
 /**
  * Calculates the updated schedule rows when a session's planned minutes are manually changed.
  * It normalizes the input minutes, recalculates the words planned for that session, and returns the updated rows.
@@ -67,24 +92,15 @@ export function nextRowsWithUpdatedMinutes({
     previousRows: PlannerScheduleRow[];
     row: PlannerScheduleRow;
 }): UpdatedRowsResult {
-    const TARGET_SESSION_KEY = sessionKeyFor(row);
-    const ROWS_EXCLUDING_TARGET = rowsWithoutSession(
-        TARGET_SESSION_KEY,
-        previousRows,
-    );
-    if (ROWS_EXCLUDING_TARGET.length === previousRows.length) {
+    const ROWS_EXCLUDING_TARGET = rowsExcludingUpdatedTarget(row, previousRows);
+    if (ROWS_EXCLUDING_TARGET === null) {
         return null;
     }
-    const NORMALIZED_MINUTES = normalizedManualMinutes(minutes);
-    const UPDATED_ROW = updatedRowWithMinutes({
+    return updatedRowsResult({
         collectSettings,
         getBookById,
-        normalizedMinutes: NORMALIZED_MINUTES,
+        normalizedMinutes: normalizedManualMinutes(minutes),
         row,
         rowsExcludingTarget: ROWS_EXCLUDING_TARGET,
     });
-    return {
-        normalizedMinutes: NORMALIZED_MINUTES,
-        rows: sortRowsByDateAndSession([...ROWS_EXCLUDING_TARGET, UPDATED_ROW]),
-    };
 }

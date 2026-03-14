@@ -1,6 +1,33 @@
 import type { PlannerScheduleRow } from "../../../types/types.ts";
 import { sessionKeyFor } from "../../calendar/utils.ts";
 
+function normalizedRows(
+    primary: string | PlannerScheduleRow[],
+    fallback: PlannerScheduleRow[] | string,
+): PlannerScheduleRow[] {
+    if (Array.isArray(primary)) {
+        return primary;
+    }
+    if (Array.isArray(fallback)) {
+        return fallback;
+    }
+    return [];
+}
+
+function normalizedStringValue(
+    primary: string | PlannerScheduleRow[],
+    fallback: PlannerScheduleRow[] | string,
+): string {
+    let value: string | PlannerScheduleRow[] = primary;
+    if (Array.isArray(primary)) {
+        value = fallback;
+    }
+    if (typeof value === "string") {
+        return value;
+    }
+    return "";
+}
+
 /**
  * Normalizes overloaded arguments into a date string and row collection.
  * Supports either `(date, rows)` or `(rows, date)` call order.
@@ -12,21 +39,10 @@ function normalizeRowsAndDate(
     dateOrRows: string | PlannerScheduleRow[],
     rowsOrDate: PlannerScheduleRow[] | string,
 ): { date: string; rows: PlannerScheduleRow[] } {
-    let rows: PlannerScheduleRow[] = [];
-    let dateValue: string | PlannerScheduleRow[] = dateOrRows;
-    if (Array.isArray(dateOrRows)) {
-        rows = dateOrRows;
-        dateValue = rowsOrDate;
-    } else if (Array.isArray(rowsOrDate)) {
-        rows = rowsOrDate;
-    } else {
-        rows = [];
-    }
-    let date = "";
-    if (typeof dateValue === "string") {
-        date = dateValue;
-    }
-    return { date, rows };
+    return {
+        date: normalizedStringValue(dateOrRows, rowsOrDate),
+        rows: normalizedRows(dateOrRows, rowsOrDate),
+    };
 }
 
 /**
@@ -40,21 +56,13 @@ function normalizeRowsAndSessionKey(
     targetSessionKeyOrRows: string | PlannerScheduleRow[],
     rowsOrTargetSessionKey: PlannerScheduleRow[] | string,
 ): { key: string; rows: PlannerScheduleRow[] } {
-    let rows: PlannerScheduleRow[] = [];
-    let keyValue: string | PlannerScheduleRow[] = targetSessionKeyOrRows;
-    if (Array.isArray(targetSessionKeyOrRows)) {
-        rows = targetSessionKeyOrRows;
-        keyValue = rowsOrTargetSessionKey;
-    } else if (Array.isArray(rowsOrTargetSessionKey)) {
-        rows = rowsOrTargetSessionKey;
-    } else {
-        rows = [];
-    }
-    let key = "";
-    if (typeof keyValue === "string") {
-        key = keyValue;
-    }
-    return { key, rows };
+    return {
+        key: normalizedStringValue(
+            targetSessionKeyOrRows,
+            rowsOrTargetSessionKey,
+        ),
+        rows: normalizedRows(targetSessionKeyOrRows, rowsOrTargetSessionKey),
+    };
 }
 
 function sessionIndexForDate(

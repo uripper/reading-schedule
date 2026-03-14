@@ -141,6 +141,51 @@ function persistStateAtomically({
     fsyncDirectory(userDataDir);
 }
 
+function primaryJsonLoadResult(
+    filePath: string,
+    state: LoadedPlannerState,
+): PlannerStateLoadResult {
+    return {
+        source: "json_primary",
+        sourcePath: filePath,
+        state,
+    };
+}
+
+function backupJsonLoadResult(
+    filePath: string,
+    state: LoadedPlannerState,
+): PlannerStateLoadResult {
+    return {
+        source: "json_backup",
+        sourcePath: filePath,
+        state,
+        warningCode: "RECOVERED_FROM_BACKUP",
+        warningMessage:
+            "Recovered saved data from backup copy. Recent unsaved changes may be missing.",
+    };
+}
+
+function readPrimaryStateResult(
+    filePath: string,
+): PlannerStateLoadResult | null {
+    const PRIMARY_STATE = readJsonObjectFile(filePath);
+    if (PRIMARY_STATE === null) {
+        return null;
+    }
+    return primaryJsonLoadResult(filePath, PRIMARY_STATE);
+}
+
+function readBackupStateResult(
+    filePath: string,
+): PlannerStateLoadResult | null {
+    const BACKUP_STATE = readJsonObjectFile(filePath);
+    if (BACKUP_STATE === null) {
+        return null;
+    }
+    return backupJsonLoadResult(filePath, BACKUP_STATE);
+}
+
 /**
  * Attempts to load planner state from JSON primary/backup files.
  * @param userDataDir - App user-data directory.
@@ -149,28 +194,29 @@ function persistStateAtomically({
 export function readStateFromJson(
     userDataDir: string,
 ): PlannerStateLoadResult | null {
-    const PRIMARY_PATH = jsonStatePath(userDataDir);
-    const BACKUP_PATH = jsonStateBackupPath(userDataDir);
-    const PRIMARY = readJsonObjectFile(PRIMARY_PATH);
-    if (PRIMARY) {
-        return {
-            source: "json_primary",
-            sourcePath: PRIMARY_PATH,
-            state: PRIMARY,
-        };
+    const PRIMARY_RESULT = readPrimaryStateResult(jsonStatePath(userDataDir));
+    if (PRIMARY_RESULT !== null) {
+        return PRIMARY_RESULT;
     }
-    const BACKUP = readJsonObjectFile(BACKUP_PATH);
-    if (BACKUP) {
-        return {
-            source: "json_backup",
-            sourcePath: BACKUP_PATH,
-            state: BACKUP,
-            warningCode: "RECOVERED_FROM_BACKUP",
-            warningMessage:
-                "Recovered saved data from backup copy. Recent unsaved changes may be missing.",
-        };
-    }
-    return null;
+    return readBackupStateResult(jsonStateBackupPath(userDataDir));
+}
+
+function persistStateToJson(userDataDir: string, data: JsonValue): void {
+    persistStateAtomically({
+        backupPath: jsonStateBackupPath(userDataDir),
+        data,
+        primaryPath: jsonStatePath(userDataDir),
+        tempPath: jsonStateTempPath(userDataDir),
+        userDataDir,
+    });
+}
+
+function failedJsonWrite(
+    userDataDir: string,
+    error: unknown,
+): PlannerSaveResult {
+    removeTempStateFile(jsonStateTempPath(userDataDir));
+    return returnErrorMessage(error);
 }
 
 /**
@@ -183,21 +229,11 @@ export function writeStateToJson(
     userDataDir: string,
     data: JsonValue,
 ): PlannerSaveResult {
-    const PRIMARY_PATH = jsonStatePath(userDataDir);
-    const BACKUP_PATH = jsonStateBackupPath(userDataDir);
-    const TEMP_PATH = jsonStateTempPath(userDataDir);
     try {
-        persistStateAtomically({
-            backupPath: BACKUP_PATH,
-            data,
-            primaryPath: PRIMARY_PATH,
-            tempPath: TEMP_PATH,
-            userDataDir,
-        });
+        persistStateToJson(userDataDir, data);
         return { ok: true };
     } catch (error) {
-        removeTempStateFile(TEMP_PATH);
-        return returnErrorMessage(error);
+        return failedJsonWrite(userDataDir, error);
     }
 }
 /**

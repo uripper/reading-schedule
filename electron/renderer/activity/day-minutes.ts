@@ -122,22 +122,38 @@ export function streakFromDayMinutes(
     dayMinutes: DayMinutesMap,
     minimumMinutesPerDay = MIN_STREAK_MINUTES,
 ): number {
-    const GOAL_MINUTES = Math.max(
-        MIN_STREAK_MINUTES,
-        Number(minimumMinutesPerDay || MIN_STREAK_MINUTES),
-    );
+    const GOAL_MINUTES = normalizedStreakGoalMinutes(minimumMinutesPerDay);
     let streakDays = 0;
     const CURSOR = new Date();
-
     for (;;) {
-        const DAY_KEY = localDayKeyFromIso(CURSOR.toISOString());
-        const MINUTES = dayMinutesForKey(dayMinutes, DAY_KEY);
-        if (MINUTES < GOAL_MINUTES) {
+        if (!isStreakDay(dayMinutes, CURSOR, GOAL_MINUTES)) {
             break;
         }
         streakDays += 1;
-        CURSOR.setDate(CURSOR.getDate() - PREVIOUS_DAY_OFFSET);
+        moveToPreviousDay(CURSOR);
     }
-
     return streakDays;
+}
+
+function normalizedStreakGoalMinutes(minimumMinutesPerDay: number): number {
+    return Math.max(
+        MIN_STREAK_MINUTES,
+        Number(minimumMinutesPerDay || MIN_STREAK_MINUTES),
+    );
+}
+
+function dayKeyForDate(date: Date): string {
+    return localDayKeyFromIso(date.toISOString());
+}
+
+function isStreakDay(
+    dayMinutes: DayMinutesMap,
+    date: Date,
+    goalMinutes: number,
+): boolean {
+    return dayMinutesForKey(dayMinutes, dayKeyForDate(date)) >= goalMinutes;
+}
+
+function moveToPreviousDay(date: Date): void {
+    date.setDate(date.getDate() - PREVIOUS_DAY_OFFSET);
 }

@@ -2,6 +2,7 @@
  * SQLite planner state read/write helpers with tiny mutation journal.
  */
 import fs from "node:fs";
+// biome-ignore lint/correctness/noUnresolvedImports: node:sqlite is available in the target Electron Node runtime.
 import { DatabaseSync } from "node:sqlite";
 import type {
     JsonValue,
@@ -124,6 +125,69 @@ function upsertSnapshot(
         .run(STATE_SCHEMA_VERSION, payloadJson, updatedAt);
 }
 
+interface JournalStatements {
+    insertJournal: ReturnType<DatabaseSync["prepare"]>;
+    trimJournal: ReturnType<DatabaseSync["prepare"]>;
+}
+
+interface CommitSnapshotWriteArgs {
+    createdAt: string;
+    database: DatabaseSync;
+    payloadJson: string;
+    statements: JournalStatements;
+}
+
+function journalStatements(database: DatabaseSync): JournalStatements {
+    return {
+        insertJournal: database.prepare(
+            `
+      INSERT INTO planner_state_journal (created_at, operation, payload_json)
+      VALUES (?, ?, ?)
+    `,
+        ),
+        trimJournal: database.prepare(
+            `
+      DELETE FROM planner_state_journal
+      WHERE seq NOT IN (
+        SELECT seq FROM planner_state_journal ORDER BY seq DESC LIMIT ?
+      )
+    `,
+        ),
+    };
+}
+
+function commitSnapshotWrite({
+    createdAt,
+    database,
+    payloadJson,
+    statements,
+}: CommitSnapshotWriteArgs): void {
+    statements.insertJournal.run(createdAt, SAVE_OPERATION, payloadJson);
+    upsertSnapshot(database, payloadJson, createdAt);
+    statements.trimJournal.run(JOURNAL_KEEP_ROWS);
+    database.exec("COMMIT");
+}
+
+function snapshotWriteArgs(
+    database: DatabaseSync,
+    payloadJson: string,
+): CommitSnapshotWriteArgs {
+    return {
+        createdAt: new Date().toISOString(),
+        database,
+        payloadJson,
+        statements: journalStatements(database),
+    };
+}
+
+function rollbackSnapshotWrite(
+    database: DatabaseSync,
+    error: unknown,
+): PlannerSaveResult {
+    database.exec("ROLLBACK");
+    return returnErrorMessage(error);
+}
+
 /**
  * Persists snapshot+journal records transactionally.
  * @param database - Open SQLite handle.
@@ -134,34 +198,12 @@ function writeSnapshotTransaction(
     database: DatabaseSync,
     payloadJson: string,
 ): PlannerSaveResult {
-    const CREATED_AT = new Date().toISOString();
-    const INSERT_JOURNAL = database.prepare(
-        `
-      INSERT INTO planner_state_journal (created_at, operation, payload_json)
-      VALUES (?, ?, ?)
-    `,
-    );
-    const TRIM_JOURNAL = database.prepare(
-        `
-      DELETE FROM planner_state_journal
-      WHERE seq NOT IN (
-        SELECT seq FROM planner_state_journal ORDER BY seq DESC LIMIT ?
-      )
-    `,
-    );
     database.exec("BEGIN IMMEDIATE");
     try {
-        INSERT_JOURNAL.run(CREATED_AT, SAVE_OPERATION, payloadJson);
-        upsertSnapshot(database, payloadJson, CREATED_AT);
-        TRIM_JOURNAL.run(JOURNAL_KEEP_ROWS);
-        database.exec("COMMIT");
+        commitSnapshotWrite(snapshotWriteArgs(database, payloadJson));
         return { ok: true };
     } catch (error) {
-        database.exec("ROLLBACK");
-        if (error instanceof Error) {
-            return { error: error.message, ok: false };
-        }
-        return { error: String(error), ok: false };
+        return rollbackSnapshotWrite(database, error);
     }
 }
 
@@ -201,6 +243,31 @@ function loadSqliteState(databasePath: string): PlannerStateLoadResult | null {
     }
 }
 
+function replayedJournalStateResult(
+    databasePath: string,
+    recoveredState: LoadedPlannerState,
+): PlannerStateLoadResult {
+    return {
+        source: "sqlite_journal_replay",
+        sourcePath: databasePath,
+        state: recoveredState,
+        warningCode: "RECOVERED_FROM_JOURNAL",
+        warningMessage:
+            "Recovered saved data from journal replay after storage corruption.",
+    };
+}
+
+function writeReplayedSnapshot(
+    database: DatabaseSync,
+    recoveredState: LoadedPlannerState,
+): void {
+    upsertSnapshot(
+        database,
+        JSON.stringify(recoveredState),
+        new Date().toISOString(),
+    );
+}
+
 function replayJournalState(
     databasePath: string,
     database: DatabaseSync,
@@ -209,19 +276,8 @@ function replayJournalState(
     if (RECOVERED_STATE === null) {
         return null;
     }
-    upsertSnapshot(
-        database,
-        JSON.stringify(RECOVERED_STATE),
-        new Date().toISOString(),
-    );
-    return {
-        source: "sqlite_journal_replay",
-        sourcePath: databasePath,
-        state: RECOVERED_STATE,
-        warningCode: "RECOVERED_FROM_JOURNAL",
-        warningMessage:
-            "Recovered saved data from journal replay after storage corruption.",
-    };
+    writeReplayedSnapshot(database, RECOVERED_STATE);
+    return replayedJournalStateResult(databasePath, RECOVERED_STATE);
 }
 
 /**
