@@ -141,13 +141,17 @@ function handleMissingText(
     right: OptionalString | OptionalNumber,
 ): number | null {
     const USES_NUMBERS = isNumericComparison(left, right);
-    const LEFT_MISSING = USES_NUMBERS
-        ? isMissingNumber(left)
-        : isMissingString(left);
-    const RIGHT_MISSING = USES_NUMBERS
-        ? isMissingNumber(right)
-        : isMissingString(right);
-    return missingValueResult(LEFT_MISSING, RIGHT_MISSING);
+    let leftMissing = false;
+    let rightMissing = false;
+
+    if (USES_NUMBERS) {
+        leftMissing = isMissingNumber(left);
+        rightMissing = isMissingNumber(right);
+    } else {
+        leftMissing = isMissingString(left);
+        rightMissing = isMissingString(right);
+    }
+    return missingValueResult(leftMissing, rightMissing);
 }
 
 /**
@@ -214,6 +218,45 @@ function compareBySortKey(args: CompareBySortKeyArgs): number {
 }
 
 /**
+ * Converts toolbar direction into a comparator multiplier.
+ * @param sortDirection - Active toolbar direction.
+ * @returns `1` for ascending and `-1` for descending.
+ */
+function sortDirectionSign(sortDirection: SortDirection): number {
+    if (sortDirection === SORT_DIRECTION_DESC) {
+        return -1;
+    }
+    return 1;
+}
+
+/**
+ * Creates a stable book comparator for the active toolbar sort state.
+ * @param sortBy - Active sort field.
+ * @param sortDirection - Ascending or descending direction.
+ * @param finishDateByBookId - Finish-date lookup keyed by `book_id`.
+ * @returns Comparator suitable for `Array.prototype.sort`.
+ */
+function bookComparator(
+    sortBy: SortBy,
+    sortDirection: SortDirection,
+    finishDateByBookId: Record<string, string>,
+): (leftBook: Book, rightBook: Book) => number {
+    const DIRECTION_SIGN = sortDirectionSign(sortDirection);
+    return (leftBook, rightBook) => {
+        const PRIMARY = compareBySortKey({
+            finishDateByBookId,
+            leftBook,
+            rightBook,
+            sortBy,
+        });
+        if (PRIMARY !== 0) {
+            return PRIMARY * DIRECTION_SIGN;
+        }
+        return compareTitleText(leftBook.title, rightBook.title);
+    };
+}
+
+/**
  * Returns a stably sorted copy of books for current toolbar sort controls.
  * @param args - Sort inputs from the current toolbar state.
  * @returns Sorted array copy suitable for rendering.
@@ -225,20 +268,7 @@ export function sortBooks(args: SortBooksArgs = {}): Book[] {
         sortBy = SORT_BY_TITLE,
         sortDirection = SORT_DIRECTION_ASC,
     } = args;
-    let directionSign = 1;
-    if (sortDirection === SORT_DIRECTION_DESC) {
-        directionSign = -1;
-    }
-    return [...books].sort((leftBook, rightBook) => {
-        const PRIMARY = compareBySortKey({
-            finishDateByBookId,
-            leftBook,
-            rightBook,
-            sortBy,
-        });
-        if (PRIMARY !== 0) {
-            return PRIMARY * directionSign;
-        }
-        return compareTitleText(leftBook.title, rightBook.title);
-    });
+    return [...books].sort(
+        bookComparator(sortBy, sortDirection, finishDateByBookId),
+    );
 }

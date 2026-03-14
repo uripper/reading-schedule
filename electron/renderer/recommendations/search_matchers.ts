@@ -50,22 +50,122 @@ function normalizedAlnumText(value: string): string {
 }
 
 /**
+ * Checks whether title length falls within recommendation heuristics.
+ * @param title - Candidate title.
+ * @returns `true` when the title length is acceptable.
+ */
+function isPlausibleTitleLength(title: string): boolean {
+    return title.length >= TITLE_MIN_LENGTH && title.length <= TITLE_MAX_LENGTH;
+}
+
+/**
+ * Checks whether a title matches known non-book noise patterns.
+ * @param normalizedTitle - Normalized title text.
+ * @returns `true` when the title should be filtered out.
+ */
+function hasNonBookTitlePattern(normalizedTitle: string): boolean {
+    for (const PATTERN of NON_BOOK_TITLE_PATTERNS) {
+        if (normalizedTitle.includes(PATTERN)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Checks whether candidate title looks like a book title rather than metadata noise.
  * @param title - Candidate title.
  * @returns True when title passes quality heuristics.
  */
 function isPlausibleBookTitle(title: string): boolean {
     const TEXT = title.trim();
-    if (TEXT.length < TITLE_MIN_LENGTH || TEXT.length > TITLE_MAX_LENGTH) {
+    if (!isPlausibleTitleLength(TEXT)) {
         return false;
     }
-    const NORMALIZED = normalizedText(TEXT);
-    for (const PATTERN of NON_BOOK_TITLE_PATTERNS) {
-        if (NORMALIZED.includes(PATTERN)) {
-            return false;
-        }
+    if (hasNonBookTitlePattern(normalizedText(TEXT))) {
+        return false;
     }
     return true;
+}
+
+/**
+ * Counts normalized author-name words.
+ * @param authorKey - Normalized author key.
+ * @returns Number of non-empty author tokens.
+ */
+function authorWordCount(authorKey: string): number {
+    return authorKey.split(/\s+/).filter(Boolean).length;
+}
+
+/**
+ * Checks whether normalized author keys are usable for comparison.
+ * @param readAuthorKey - Normalized read-author key.
+ * @param candidateAuthorKey - Normalized candidate-author key.
+ * @returns `true` when both keys satisfy basic comparison heuristics.
+ */
+function comparableAuthorKeys(
+    readAuthorKey: string,
+    candidateAuthorKey: string,
+): boolean {
+    if (readAuthorKey.length === 0 || candidateAuthorKey.length === 0) {
+        return false;
+    }
+    if (authorWordCount(candidateAuthorKey) > AUTHOR_MAX_WORDS) {
+        return false;
+    }
+    return candidateAuthorKey.length <= AUTHOR_MAX_LENGTH;
+}
+
+/**
+ * Checks whether author keys match exactly or by prefix.
+ * @param readAuthorKey - Normalized read-author key.
+ * @param candidateAuthorKey - Normalized candidate-author key.
+ * @returns `true` when one author name is a prefix of the other.
+ */
+function exactOrPrefixAuthorMatch(
+    readAuthorKey: string,
+    candidateAuthorKey: string,
+): boolean {
+    if (readAuthorKey === candidateAuthorKey) {
+        return true;
+    }
+    if (candidateAuthorKey.startsWith(readAuthorKey)) {
+        return true;
+    }
+    return readAuthorKey.startsWith(candidateAuthorKey);
+}
+
+/**
+ * Checks whether the candidate author appears inside the read author key.
+ * @param readAuthorKey - Normalized read-author key.
+ * @param candidateAuthorKey - Normalized candidate-author key.
+ * @returns `true` when the candidate key is a long enough contained match.
+ */
+function containedAuthorMatch(
+    readAuthorKey: string,
+    candidateAuthorKey: string,
+): boolean {
+    if (candidateAuthorKey.length < AUTHOR_MIN_KEY_LENGTH) {
+        return false;
+    }
+    return readAuthorKey.includes(candidateAuthorKey);
+}
+
+/**
+ * Resolves the author text for a normalized recommendation item.
+ * @param readAuthor - Read author fallback.
+ * @param lookupAuthor - Lookup-author text from the candidate item.
+ * @returns Preferred author string for the recommendation row.
+ */
+function recommendationAuthor(
+    readAuthor: string,
+    lookupAuthor: string | null | undefined,
+): string {
+    const LOOKUP_AUTHOR = String(lookupAuthor ?? "").trim();
+    if (LOOKUP_AUTHOR.length > 0) {
+        return LOOKUP_AUTHOR;
+    }
+    return readAuthor;
 }
 
 /**
@@ -97,30 +197,13 @@ export function authorMatches(
 ): boolean {
     const READ_AUTHOR_KEY = normalizedAlnumText(readAuthor);
     const CANDIDATE_AUTHOR_KEY = normalizedAlnumText(candidateAuthor);
-    if (READ_AUTHOR_KEY.length === 0 || CANDIDATE_AUTHOR_KEY.length === 0) {
+    if (!comparableAuthorKeys(READ_AUTHOR_KEY, CANDIDATE_AUTHOR_KEY)) {
         return false;
     }
-    const CANDIDATE_WORD_COUNT =
-        CANDIDATE_AUTHOR_KEY.split(/\s+/).filter(Boolean).length;
-    if (CANDIDATE_WORD_COUNT > AUTHOR_MAX_WORDS) {
-        return false;
-    }
-    if (CANDIDATE_AUTHOR_KEY.length > AUTHOR_MAX_LENGTH) {
-        return false;
-    }
-    if (READ_AUTHOR_KEY === CANDIDATE_AUTHOR_KEY) {
+    if (exactOrPrefixAuthorMatch(READ_AUTHOR_KEY, CANDIDATE_AUTHOR_KEY)) {
         return true;
     }
-    if (CANDIDATE_AUTHOR_KEY.startsWith(READ_AUTHOR_KEY)) {
-        return true;
-    }
-    if (READ_AUTHOR_KEY.startsWith(CANDIDATE_AUTHOR_KEY)) {
-        return true;
-    }
-    return (
-        READ_AUTHOR_KEY.includes(CANDIDATE_AUTHOR_KEY) &&
-        CANDIDATE_AUTHOR_KEY.length >= AUTHOR_MIN_KEY_LENGTH
-    );
+    return containedAuthorMatch(READ_AUTHOR_KEY, CANDIDATE_AUTHOR_KEY);
 }
 
 /**
@@ -150,13 +233,8 @@ export function normalizeLookupRecommendation(
     if (!isPlausibleBookTitle(TITLE)) {
         return null;
     }
-    const LOOKUP_AUTHOR = String(item.author ?? "").trim();
-    let author = readAuthor;
-    if (LOOKUP_AUTHOR.length > 0) {
-        author = LOOKUP_AUTHOR;
-    }
     return {
-        author,
+        author: recommendationAuthor(readAuthor, item.author),
         coverUrl: String(item.cover_url ?? "").trim(),
         title: TITLE,
         wordsTotal: wordsFromLookup(item),

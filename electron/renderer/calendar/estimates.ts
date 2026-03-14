@@ -25,12 +25,12 @@ export function estimateProgressLabel(
     getBookById: BookGetter,
     isSessionCompleted: CompletionChecker = () => false,
 ): string {
-    const SNAPSHOT = estimateSnapshotForRow(
-        row,
-        state,
+    const SNAPSHOT = estimateSnapshotForRow({
         getBookById,
         isSessionCompleted,
-    );
+        row,
+        state,
+    });
     if (!SNAPSHOT) {
         return NO_ESTIMATE_LABEL;
     }

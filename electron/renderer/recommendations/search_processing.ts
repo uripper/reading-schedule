@@ -15,6 +15,11 @@ interface ProcessAuthorOptions {
     recommendations: RecommendationItem[];
 }
 
+type EligibleRecommendation = {
+    candidate: RecommendationItem;
+    key: string;
+};
+
 /**
  * Returns a shuffled copy of values using Fisher-Yates.
  * @param values - Source values.
@@ -60,52 +65,107 @@ export function sampleResultsSummary(lookupItems: BookLookupItem[]): string {
     return SAMPLE.map((item) => `"${item.title}" by ${item.author}`).join(", ");
 }
 
+function reachedAuthorLimit(addedForAuthor: number, author: string): boolean {
+    if (addedForAuthor < MAX_PER_AUTHOR) {
+        return false;
+    }
+    addLog(
+        `Recommendations: Reached max (${MAX_PER_AUTHOR}) for author "${author}", stopping.`,
+    );
+    return true;
+}
+
+function normalizedRecommendation(
+    lookupItem: BookLookupItem,
+    author: string,
+): RecommendationItem | null {
+    const CANDIDATE = normalizeLookupRecommendation(lookupItem, author);
+    if (CANDIDATE !== null) {
+        return CANDIDATE;
+    }
+    addLog(
+        `Recommendations: Filtered out "${lookupItem.title}" - failed plausibility check`,
+    );
+    return null;
+}
+
+function hasMatchingAuthor(
+    author: string,
+    candidate: RecommendationItem,
+): boolean {
+    if (authorMatches(author, candidate.author)) {
+        return true;
+    }
+    addLog(
+        `Recommendations: Filtered out "${candidate.title}" by ${candidate.author} - author mismatch (expected "${author}")`,
+    );
+    return false;
+}
+
+function uniqueRecommendationKey(
+    candidate: RecommendationItem,
+    existingKeys: Set<string>,
+    recommendationKeys: Set<string>,
+): string | null {
+    const KEY = recommendationKey(candidate.title, candidate.author);
+    if (!existingKeys.has(KEY) && !recommendationKeys.has(KEY)) {
+        return KEY;
+    }
+    addLog(
+        `Recommendations: Filtered out "${candidate.title}" - already in shelf or added`,
+    );
+    return null;
+}
+
+function eligibleRecommendation(
+    options: ProcessAuthorOptions,
+    lookupItem: BookLookupItem,
+): EligibleRecommendation | null {
+    const CANDIDATE = normalizedRecommendation(lookupItem, options.author);
+    if (CANDIDATE === null) {
+        return null;
+    }
+    if (!hasMatchingAuthor(options.author, CANDIDATE)) {
+        return null;
+    }
+    const KEY = uniqueRecommendationKey(
+        CANDIDATE,
+        options.existingKeys,
+        options.recommendationKeys,
+    );
+    if (KEY === null) {
+        return null;
+    }
+    return { candidate: CANDIDATE, key: KEY };
+}
+
+function addRecommendation(
+    recommendation: EligibleRecommendation,
+    options: ProcessAuthorOptions,
+): void {
+    addLog(
+        `Recommendations: Adding "${recommendation.candidate.title}" by ${recommendation.candidate.author}`,
+    );
+    options.recommendationKeys.add(recommendation.key);
+    options.recommendations.push(recommendation.candidate);
+}
+
 /**
  * Processes lookup results for one author, applying plausibility and dedup checks.
  * @param options - Processing options containing author, results, and accumulators.
  * @returns Number of items added.
  */
 export function processAuthorResults(options: ProcessAuthorOptions): number {
-    const {
-        author,
-        lookupItems,
-        existingKeys,
-        recommendationKeys,
-        recommendations,
-    } = options;
     let addedForAuthor = 0;
-    for (const LOOKUP_ITEM of lookupItems) {
-        if (addedForAuthor >= MAX_PER_AUTHOR) {
-            addLog(
-                `Recommendations: Reached max (${MAX_PER_AUTHOR}) for author "${author}", stopping.`,
-            );
+    for (const LOOKUP_ITEM of options.lookupItems) {
+        if (reachedAuthorLimit(addedForAuthor, options.author)) {
             break;
         }
-        const CANDIDATE = normalizeLookupRecommendation(LOOKUP_ITEM, author);
-        if (CANDIDATE === null) {
-            addLog(
-                `Recommendations: Filtered out "${LOOKUP_ITEM.title}" - failed plausibility check`,
-            );
+        const RECOMMENDATION = eligibleRecommendation(options, LOOKUP_ITEM);
+        if (RECOMMENDATION === null) {
             continue;
         }
-        if (!authorMatches(author, CANDIDATE.author)) {
-            addLog(
-                `Recommendations: Filtered out "${CANDIDATE.title}" by ${CANDIDATE.author} - author mismatch (expected "${author}")`,
-            );
-            continue;
-        }
-        const KEY = recommendationKey(CANDIDATE.title, CANDIDATE.author);
-        if (existingKeys.has(KEY) || recommendationKeys.has(KEY)) {
-            addLog(
-                `Recommendations: Filtered out "${CANDIDATE.title}" - already in shelf or added`,
-            );
-            continue;
-        }
-        addLog(
-            `Recommendations: Adding "${CANDIDATE.title}" by ${CANDIDATE.author}`,
-        );
-        recommendationKeys.add(KEY);
-        recommendations.push(CANDIDATE);
+        addRecommendation(RECOMMENDATION, options);
         addedForAuthor += 1;
     }
     return addedForAuthor;

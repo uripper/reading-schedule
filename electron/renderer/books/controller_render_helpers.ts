@@ -24,6 +24,35 @@ function matchesTitleFilter(book: Book, titleFilter: string): boolean {
 }
 
 /**
+ * Checks whether the select/button refs needed for rendering are present.
+ * @param refs - Controller refs under validation.
+ * @returns `true` when toolbar refs are usable.
+ */
+function hasRenderableToolbarRefs(refs: BooksControllerRefs): boolean {
+    if (!(refs.shelfFilterSelect instanceof HTMLSelectElement)) {
+        return false;
+    }
+    if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
+        return false;
+    }
+    if (!(refs.statusFilterSelect instanceof HTMLSelectElement)) {
+        return false;
+    }
+    return refs.sortDirectionBtn instanceof HTMLButtonElement;
+}
+
+/**
+ * Checks whether the grid and empty-state nodes are present.
+ * @param refs - Controller refs under validation.
+ * @returns `true` when content refs are usable.
+ */
+function hasRenderableContentRefs(refs: BooksControllerRefs): boolean {
+    return (
+        refs.grid instanceof HTMLElement && refs.empty instanceof HTMLElement
+    );
+}
+
+/**
  * Validates render-critical DOM references for the books controller.
  * @param refs - Controller references that may still be nullable.
  * @returns Resolved render references when all required nodes exist; otherwise `null`.
@@ -31,21 +60,10 @@ function matchesTitleFilter(book: Book, titleFilter: string): boolean {
 export function resolveRenderableRefs(
     refs: BooksControllerRefs,
 ): RenderableBooksRefs | null {
-    if (!(refs.shelfFilterSelect instanceof HTMLSelectElement)) {
+    if (!hasRenderableToolbarRefs(refs)) {
         return null;
     }
-    if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
-        return null;
-    }
-    if (!(refs.statusFilterSelect instanceof HTMLSelectElement)) {
-        return null;
-    }
-    if (!(refs.sortDirectionBtn instanceof HTMLButtonElement)) {
-        return null;
-    }
-    if (
-        !(refs.grid instanceof HTMLElement && refs.empty instanceof HTMLElement)
-    ) {
+    if (!hasRenderableContentRefs(refs)) {
         return null;
     }
     return {

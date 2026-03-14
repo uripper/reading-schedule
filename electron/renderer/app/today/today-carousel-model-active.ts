@@ -107,21 +107,16 @@ function activeEstimate(options: {
     lastResult: PlannerResult | null;
     scheduleCompletions: Record<string, boolean>;
 }) {
-    return estimateSnapshotForRow(
-        options.activeRow.row,
-        {
+    return estimateSnapshotForRow({
+        getBookById: (bookId) => options.bookById.get(bookId) ?? null,
+        isSessionCompleted: (sessionKey) =>
+            isEstimatedSessionCompleted(options.scheduleCompletions, sessionKey),
+        row: options.activeRow.row,
+        state: {
             rows: scheduleRows(options.lastResult),
-            totalsByBookId: totalsFromSummary(
-                options.lastResult?.summary ?? null,
-            ),
+            totalsByBookId: totalsFromSummary(options.lastResult?.summary ?? null),
         },
-        (bookId) => options.bookById.get(bookId) ?? null,
-        (sessionKey) =>
-            isEstimatedSessionCompleted(
-                options.scheduleCompletions,
-                sessionKey,
-            ),
-    );
+    });
 }
 
 function activeBookProgress(book: Book | undefined): {
