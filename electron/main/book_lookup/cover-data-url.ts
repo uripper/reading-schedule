@@ -13,7 +13,7 @@ const EXTENSION_WEBP = ".webp";
 const DATA_URL_PREFIX = "data:";
 const DATA_URL_SEPARATOR = ",";
 const DATA_URL_BASE64_SEGMENT = ";base64";
-const DATA_MIME_TO_EXTENSION = {
+const DATA_MIME_TO_EXTENSION: Partial<Record<string, CoverExtension>> = {
     [CONTENT_TYPE_JPEG]: EXTENSION_JPG,
     [CONTENT_TYPE_JPG]: EXTENSION_JPG,
     [CONTENT_TYPE_PNG]: EXTENSION_PNG,

@@ -275,6 +275,57 @@ function sessionTimeoutHandler(
     };
 }
 
+interface RunningSessionState {
+    clearTimers(): void;
+    session: BridgeRunSession;
+}
+
+function timedSessionClearer(
+    session: BridgeRunSession,
+    settle: SettleHandlers,
+): () => void {
+    return startSessionTimers(session, sessionTimeoutHandler(session, settle));
+}
+
+function runningSessionState(
+    options: RunBridgeForModuleArgs,
+    settle: SettleHandlers,
+): RunningSessionState {
+    const SESSION = createRunSession(
+        options.moduleName,
+        options.args,
+        options.executionContext,
+    );
+    return {
+        clearTimers: timedSessionClearer(SESSION, settle),
+        session: SESSION,
+    };
+}
+
+function attachAndWriteBridgeSession(
+    options: RunBridgeForModuleArgs,
+    settle: SettleHandlers,
+    state: RunningSessionState,
+): void {
+    attachSessionHandlers({
+        clearTimers: state.clearTimers,
+        parseOutput: options.parseOutput,
+        session: state.session,
+        settle,
+    });
+    writePayloadAndClose(state.session, options.payload);
+}
+
+function runBridgeModulePromise(
+    options: RunBridgeForModuleArgs,
+    resolve: (value: JsonValue) => void,
+    reject: (error: Error) => void,
+): void {
+    const SETTLE = createSettleHandlers(resolve, reject);
+    const SESSION_STATE = runningSessionState(options, SETTLE);
+    attachAndWriteBridgeSession(options, SETTLE, SESSION_STATE);
+}
+
 /**
  * Executes one planner module candidate and parses bridge output.
  * @param args - CLI arguments passed to the module.
@@ -292,18 +343,10 @@ export async function runBridgeForModule({
     parseOutput,
 }: RunBridgeForModuleArgs): Promise<JsonValue> {
     return await new Promise((resolve, reject) => {
-        const SETTLE = createSettleHandlers(resolve, reject);
-        const SESSION = createRunSession(moduleName, args, executionContext);
-        const CLEAR_TIMERS = startSessionTimers(
-            SESSION,
-            sessionTimeoutHandler(SESSION, SETTLE),
+        runBridgeModulePromise(
+            { args, executionContext, moduleName, parseOutput, payload },
+            resolve,
+            reject,
         );
-        attachSessionHandlers({
-            clearTimers: CLEAR_TIMERS,
-            parseOutput,
-            session: SESSION,
-            settle: SETTLE,
-        });
-        writePayloadAndClose(SESSION, payload);
     });
 }
