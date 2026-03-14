@@ -3,13 +3,13 @@
  */
 
 import type { DownloadCard } from "../types/site-content.ts";
-import { DOWNLOAD_SECTION_URL } from "./site-urls.ts";
+import { DOWNLOAD_SECTION_URL, WINDOWS_DOWNLOAD_URL } from "./site-urls.ts";
 
 export const DOWNLOAD_CARDS: readonly DownloadCard[] = [
     {
         action: {
             ariaLabel: "Download Bartleby for Windows",
-            href: DOWNLOAD_SECTION_URL,
+            href: WINDOWS_DOWNLOAD_URL,
             label: "Download",
             variant: "primary",
         },

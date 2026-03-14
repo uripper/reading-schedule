@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
+import { DOWNLOAD_CARDS } from "../src/content/site-download-surface.ts";
+import { WINDOWS_DOWNLOAD_URL } from "../src/content/site-urls.ts";
 import { renderPlatformLogo } from "../src/site/render-platform-logo.ts";
 import { resolveSitePage } from "../src/site/resolve-site-page.ts";
 
@@ -23,4 +28,16 @@ test("renderPlatformLogo uses public asset urls", () => {
     assert.match(renderPlatformLogo("Linux"), /src="\/LinuxLogo\.png"/);
     assert.match(renderPlatformLogo("macOS"), /src="\/macOS\.png"/);
     assert.match(renderPlatformLogo("Windows"), /src="\/WindowsLogo\.png"/);
+});
+
+test("website ships the copied app icon asset", () => {
+    const TESTS_DIR = path.dirname(fileURLToPath(import.meta.url));
+    const ICON_PATH = path.join(TESTS_DIR, "..", "..", "public", "icon.ico");
+
+    assert.equal(fs.existsSync(ICON_PATH), true);
+});
+
+test("windows download card uses the GitHub release installer url", () => {
+    assert.equal(DOWNLOAD_CARDS[0]?.platform, "Windows");
+    assert.equal(DOWNLOAD_CARDS[0]?.action.href, WINDOWS_DOWNLOAD_URL);
 });
