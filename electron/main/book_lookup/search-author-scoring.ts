@@ -35,6 +35,32 @@ function matchingAuthorTokenCount(
     return matches;
 }
 
+function minimumMatchedTokens(tokens: string[]): number {
+    if (tokens.length >= 2) {
+        return 2;
+    }
+
+    return 1;
+}
+
+function scoreMatchedTokens(matchedCount: number, tokenCount: number): number {
+    if (matchedCount >= tokenCount) {
+        return (
+            SCORE_AUTHOR_ALL_TOKENS + matchedCount * SCORE_AUTHOR_PARTIAL_TOKEN
+        );
+    }
+
+    return matchedCount * SCORE_AUTHOR_PARTIAL_TOKEN;
+}
+
+function hasAuthorMatchInputs(
+    authorNorm: string,
+    queryNorm: string,
+    tokens: string[],
+): boolean {
+    return authorNorm.length > 0 && queryNorm.length > 0 && tokens.length > 0;
+}
+
 /**
  * Scores one normalized author string against the normalized query.
  * @param authorNorm - Normalized author name.
@@ -47,11 +73,7 @@ function authorMatchScore(
     queryNorm: string,
     tokens: string[],
 ): number {
-    if (
-        authorNorm.length === 0 ||
-        queryNorm.length === 0 ||
-        tokens.length === 0
-    ) {
+    if (!hasAuthorMatchInputs(authorNorm, queryNorm, tokens)) {
         return 0;
     }
     if (authorNorm === queryNorm) {
@@ -65,19 +87,12 @@ function authorMatchScore(
     if (MATCHED_COUNT <= 0) {
         return 0;
     }
-    let minimumMatchedTokens = 1;
-    if (tokens.length >= 2) {
-        minimumMatchedTokens = 2;
-    }
-    if (MATCHED_COUNT < minimumMatchedTokens) {
+
+    if (MATCHED_COUNT < minimumMatchedTokens(tokens)) {
         return 0;
     }
-    if (MATCHED_COUNT >= tokens.length) {
-        return (
-            SCORE_AUTHOR_ALL_TOKENS + MATCHED_COUNT * SCORE_AUTHOR_PARTIAL_TOKEN
-        );
-    }
-    return MATCHED_COUNT * SCORE_AUTHOR_PARTIAL_TOKEN;
+
+    return scoreMatchedTokens(MATCHED_COUNT, tokens.length);
 }
 
 /**

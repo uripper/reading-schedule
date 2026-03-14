@@ -54,6 +54,25 @@ function handleZoomShortcut(
     return true;
 }
 
+function zoomOperationForEvent(
+    event: KeyboardEvent,
+    plannerApi: ZoomApi,
+): (() => Promise<number>) | null {
+    if (isZoomInShortcut(event)) {
+        return async (): Promise<number> => await plannerApi.zoomIn();
+    }
+
+    if (isZoomOutShortcut(event)) {
+        return async (): Promise<number> => await plannerApi.zoomOut();
+    }
+
+    if (isZoomResetShortcut(event)) {
+        return async (): Promise<number> => await plannerApi.zoomReset();
+    }
+
+    return null;
+}
+
 /**
  * Creates a keyboard handler that routes zoom shortcuts through planner IPC.
  * @param plannerApi - Planner bridge API exposing zoom operations.
@@ -68,21 +87,12 @@ export function createZoomShortcutHandler(
         if (!isCommandPressed(event)) {
             return false;
         }
-        if (isZoomInShortcut(event)) {
-            return handleZoomShortcut(event, announce, async () => {
-                return await plannerApi.zoomIn();
-            });
+        const OPERATION = zoomOperationForEvent(event, plannerApi);
+
+        if (OPERATION === null) {
+            return false;
         }
-        if (isZoomOutShortcut(event)) {
-            return handleZoomShortcut(event, announce, async () => {
-                return await plannerApi.zoomOut();
-            });
-        }
-        if (isZoomResetShortcut(event)) {
-            return handleZoomShortcut(event, announce, async () => {
-                return await plannerApi.zoomReset();
-            });
-        }
-        return false;
+
+        return handleZoomShortcut(event, announce, OPERATION);
     };
 }

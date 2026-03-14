@@ -24,23 +24,14 @@ if TYPE_CHECKING:
 class DayState:
     """Mutable state for planning one day of greedy assignments."""
 
-    # Books ordered by the current day selection priority.
     ordered: list[Book]
-    # Books already started on the current day.
     used: list[Book]
-    # Remaining unscheduled words keyed by book id.
     remaining: dict[str, float]
-    # Accumulated block assignments keyed by book/day pair.
     assignments: Assignments
-    # Per-book daily block caps keyed by book id.
     limits: dict[str, int]
-    # Words-per-block lookup keyed by book id.
     wpb: dict[str, int]
-    # Calendar day currently being filled.
     day: date
-    # Remaining block capacity for the current day.
     cap: int
-    # Limit on how many books may be active on the day.
     daily_book_cap: int
 
 
@@ -48,68 +39,127 @@ class DayState:
 class SpreadState:
     """Inputs for spread-mode daily capacity targeting."""
 
-    # Ordered planning days still under consideration.
     days: list[date]
-    # Index of the current day within the planning window.
     day_index: int
-    # Per-day capacity in blocks keyed by date.
     caps: dict[date, int]
-    # Remaining unscheduled words keyed by book id.
     remaining: dict[str, float]
-    # Words-per-block lookup keyed by book id.
     wpb: dict[str, int]
-    # Books ordered by the current greedy priority.
     ordered: list[Book]
+
+
+@dataclass
+class GreedyPlanContext:
+    """Shared mutable state across the full greedy planning run."""
+
+    assignments: Assignments
+    caps: dict[date, int]
+    daily_book_cap: int
+    days: list[date]
+    limits: dict[str, int]
+    remaining: dict[str, float]
+    settings: Settings
+    wpb: dict[str, int]
+
+
+def _greedy_cap_for_day(
+    context: GreedyPlanContext,
+    day: date,
+    day_index: int,
+    ordered: list[Book],
+) -> int:
+    """Return the block capacity used for one day's greedy fill."""
+    cap = context.caps[day]
+    if cap <= 0:
+        return 0
+    if context.settings.plan_mode != PLAN_MODE_SPREAD_OUT:
+        return cap
+    return min(
+        cap,
+        _spread_cap_for_day(
+            SpreadState(
+                days=context.days,
+                day_index=day_index,
+                caps=context.caps,
+                remaining=context.remaining,
+                wpb=context.wpb,
+                ordered=ordered,
+            )
+        ),
+    )
+
+
+def _greedy_plan_context(
+    books: list[Book],
+    settings: Settings,
+) -> GreedyPlanContext:
+    """Build the shared mutable state used by greedy planning."""
+    days = date_range(settings.start_date, settings.end_date)
+    return GreedyPlanContext(
+        assignments={},
+        caps={day: day_capacity_blocks(settings, day) for day in days},
+        daily_book_cap=min(
+            settings.max_books_per_day,
+            settings.max_sessions_per_day,
+        ),
+        days=days,
+        limits={
+            book.book_id: book_day_block_limit(book, settings) for book in books
+        },
+        remaining={book.book_id: float(book.remaining_words) for book in books},
+        settings=settings,
+        wpb={book.book_id: words_per_block(book, settings) for book in books},
+    )
+
+
+def _day_state(
+    context: GreedyPlanContext,
+    cap: int,
+    day: date,
+    ordered: list[Book],
+) -> DayState:
+    """Build mutable state for planning one day."""
+    return DayState(
+        ordered,
+        [],
+        context.remaining,
+        context.assignments,
+        context.limits,
+        context.wpb,
+        day,
+        cap,
+        context.daily_book_cap,
+    )
+
+
+def _plan_day(state: DayState) -> None:
+    """Seed and fill one day of greedy assignments."""
+    _seed_day(state)
+    _fill_day(state)
+
+
+def _ordered_books(
+    books: list[Book],
+    remaining: dict[str, float],
+) -> list[Book]:
+    """Return books in greedy selection order for the current day."""
+    return sorted(books, key=lambda book: _sort_key(book, remaining))
+
+
+def _positive_assignments(assignments: Assignments) -> Assignments:
+    """Drop zero-value assignment entries before returning results."""
+    return {key: value for key, value in assignments.items() if value > 0}
 
 
 def plan_greedy(books: list[Book], settings: Settings) -> Assignments:
     """Build a feasible day-by-day block allocation using greedy heuristics."""
-    days = date_range(settings.start_date, settings.end_date)
-    caps = {day: day_capacity_blocks(settings, day) for day in days}
-    remaining = {b.book_id: float(b.remaining_words) for b in books}
-    wpb = {b.book_id: words_per_block(b, settings) for b in books}
-    limits = {b.book_id: book_day_block_limit(b, settings) for b in books}
-    assignments: Assignments = {}
-    daily_book_cap = min(
-        settings.max_books_per_day, settings.max_sessions_per_day
-    )
-
-    for day_index, day in enumerate(days):
-        cap = caps[day]
+    context = _greedy_plan_context(books, settings)
+    for day_index, day in enumerate(context.days):
+        ordered = _ordered_books(books, context.remaining)
+        cap = _greedy_cap_for_day(context, day, day_index, ordered)
         if cap <= 0:
             continue
-        ordered = sorted(books, key=lambda b: _sort_key(b, remaining))
-        if settings.plan_mode == PLAN_MODE_SPREAD_OUT:
-            cap = min(
-                cap,
-                _spread_cap_for_day(
-                    SpreadState(
-                        days=days,
-                        day_index=day_index,
-                        caps=caps,
-                        remaining=remaining,
-                        wpb=wpb,
-                        ordered=ordered,
-                    )
-                ),
-            )
-        if cap <= 0:
-            continue
-        state = DayState(
-            ordered,
-            [],
-            remaining,
-            assignments,
-            limits,
-            wpb,
-            day,
-            cap,
-            daily_book_cap,
-        )
-        _seed_day(state)
-        _fill_day(state)
-
-    return {k: v for k, v in assignments.items() if v > 0}
+        _plan_day(_day_state(context, cap, day, ordered))
+    return _positive_assignments(context.assignments)
 
 
 def _seed_day(state: DayState) -> None:

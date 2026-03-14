@@ -173,7 +173,7 @@ export function deriveLengthAndProgress(refs: BookFormRefs): {
     let progress = clamp(Number(refs.progressInput.value), 0, PROGRESS_MAX);
     const HAS_WORDS_TOTAL = WORDS_TOTAL !== null && WORDS_TOTAL > 0;
     const HAS_PAGES_TOTAL = PAGES_TOTAL !== null && PAGES_TOTAL > 0;
-    if (!HAS_WORDS_TOTAL && !HAS_PAGES_TOTAL) {
+    if (!(HAS_WORDS_TOTAL || HAS_PAGES_TOTAL)) {
         throw new Error("Enter estimated words or total pages.");
     }
 

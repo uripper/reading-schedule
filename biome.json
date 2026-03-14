@@ -1,305 +1,297 @@
 {
-    "$schema": "https://biomejs.dev/schemas/2.4.6/schema.json",
-    "assist": {
-        "actions": {
-            "source": {
-                "noDuplicateClasses": "on",
-                "organizeImports": "on",
-                "useSortedAttributes": "on",
-                "useSortedInterfaceMembers": "on",
-                "useSortedKeys": "on",
-                "useSortedProperties": "on"
-            }
-        },
-        "enabled": true
+  "$schema": "https://biomejs.dev/schemas/2.4.6/schema.json",
+  "assist": {
+    "actions": {
+      "source": {
+        "noDuplicateClasses": "on",
+        "organizeImports": "on",
+        "useSortedAttributes": "on",
+        "useSortedInterfaceMembers": "on",
+        "useSortedKeys": "on",
+        "useSortedProperties": "on"
+      }
     },
-    "files": {
-        "ignoreUnknown": false
-    },
+    "enabled": true
+  },
+  "files": {
+    "ignoreUnknown": false
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 4,
+    "lineWidth": 80
+  },
+  "javascript": {
     "formatter": {
-        "enabled": true,
-        "indentStyle": "space",
-        "indentWidth": 4,
-        "lineWidth": 80
-    },
-    "javascript": {
-        "formatter": {
-            "quoteStyle": "double"
-        }
-    },
-    "linter": {
-        "enabled": true,
-        "includes": [
-            "**",
-            "!dist/**",
-            "!node_modules/**",
-            "!package-lock.json",
-            "!tokens/**"
-        ],
-        "domains": {
-            "project": "all",
-            "types": "all"
-        },
-        "rules": {
-            "recommended": true
-        }
-    },
-    "overrides": [
-        {
-            "assist": {
-                "actions": {
-                    "source": {
-                        "useSortedAttributes": "off",
-                        "useSortedInterfaceMembers": "off",
-                        "useSortedKeys": "off",
-                        "useSortedProperties": "off"
-                    }
-                }
-            },
-            "includes": ["**/*.tsx"]
-        },
-        {
-            "includes": [
-                "eslint.config.mjs"
-            ],
-            "linter": {
-                "rules": {
-                    "style": {
-                        "noDefaultExport": "off",
-                        "noProcessEnv": "off"
-                    }
-                }
-            }
-        },
-        {
-            "includes": [
-                "**/*.js",
-                "**/*.mjs",
-                "**/*.ts",
-                "**/*.tsx"
-            ],
-            "linter": {
-                "rules": {
-                    "complexity": {
-                        "noExcessiveCognitiveComplexity": {
-                            "level": "error",
-                            "options": {
-                                "maxAllowedComplexity": 10
-                            }
-                        },
-                        "noExcessiveLinesPerFunction": {
-                            "level": "error",
-                            "options": {
-                                "maxLines": 30,
-                                "skipBlankLines": true,
-                                "skipIifes": true
-                            }
-                        },
-                        "noForEach": "error",
-                        "noImplicitCoercions": "error",
-                        "noUselessStringConcat": "error",
-                        "noVoid": "error",
-                        "useMaxParams": {
-                            "level": "error",
-                            "options": {
-                                "max": 3
-                            }
-                        }
-                    },
-                    "correctness": {
-                        "noUndeclaredVariables": {
-                            "level": "error",
-                            "options": {
-                                "checkTypes": true
-                            }
-                        },
-                        "noUnusedImports": "error",
-                        "noUnusedVariables": "error"
-                    },
-                    "nursery": {
-                        "noFloatingPromises": "error",
-                        "noMisusedPromises": "error",
-                        "noTernary": "error",
-                        "noUnnecessaryConditions": "error",
-                        "useExhaustiveSwitchCases": "error",
-                        "useNullishCoalescing": "error"
-                    },
-                    "performance": {
-                        "noBarrelFile": "error",
-                        "noDynamicNamespaceImportAccess": "error",
-                        "noNamespaceImport": "error",
-                        "noReExportAll": "error"
-                    },
-                    "style": {
-                        "noCommonJs": "error",
-                        "noDefaultExport": "error",
-                        "noEnum": "error",
-                        "noNamespace": "error",
-                        "noNonNullAssertion": "error",
-                        "noParameterAssign": {
-                            "level": "error",
-                            "options": {
-                                "propertyAssignment": "deny"
-                            }
-                        },
-                        "noParameterProperties": "error",
-                        "noProcessEnv": "error",
-                        "noRestrictedGlobals": "error",
-                        "noRestrictedTypes": {
-                            "level": "error",
-                            "options": {
-                                "types": {
-                                    "{}": {
-                                        "message": "Use object, unknown, or an explicit structural type instead."
-                                    },
-                                    "Function": {
-                                        "message": "Write an explicit callable signature instead."
-                                    },
-                                    "Object": {
-                                        "message": "Use object, unknown, or an explicit structural type instead."
-                                    }
-                                }
-                            }
-                        },
-                        "noUselessElse": "error",
-                        "noYodaExpression": "error",
-                        "useAsConstAssertion": "error",
-                        "useBlockStatements": "error",
-                        "useCollapsedElseIf": "error",
-                        "useConsistentBuiltinInstantiation": "error",
-                        "useConsistentMemberAccessibility": {
-                            "level": "error",
-                            "options": {
-                                "accessibility": "explicit"
-                            }
-                        },
-                        "useConsistentObjectDefinitions": "error",
-                        "useDefaultParameterLast": "error",
-                        "useExponentiationOperator": "error",
-                        "useExportType": "error",
-                        "useFilenamingConvention": {
-                            "level": "error",
-                            "options": {
-                                "filenameCases": ["kebab-case", "PascalCase"]
-                            }
-                        },
-                        "useGroupedAccessorPairs": "error",
-                        "useImportType": {
-                            "level": "error",
-                            "options": {
-                                "style": "separatedType"
-                            }
-                        },
-                        "useNamingConvention": {
-                            "level": "error",
-                            "options": {
-                                "strictCase": true,
-                                "requireAscii": true,
-                                "conventions": [
-                                    {
-                                        "formats": [
-                                            "PascalCase",
-                                            "CONSTANT_CASE"
-                                        ],
-                                        "selector": { "kind": "enumMember" }
-                                    },
-                                    {
-                                        "formats": ["camelCase"],
-                                        "selector": { "kind": "function" }
-                                    },
-                                    {
-                                        "formats": ["camelCase", "snake_case"],
-                                        "selector": {
-                                            "kind": "functionParameter"
-                                        }
-                                    },
-                                    {
-                                        "formats": ["camelCase", "snake_case"],
-                                        "selector": { "kind": "let" }
-                                    },
-                                    {
-                                        "formats": ["CONSTANT_CASE", "PascalCase"],
-                                        "selector": { "kind": "const" }
-                                    },
-                                    {
-                                        "formats": ["PascalCase"],
-                                        "selector": { "kind": "typeLike" }
-                                    },
-                                    {
-                                        "formats": ["camelCase", "snake_case", "PascalCase"],
-                                        "selector": { "kind": "typeProperty" }
-                                    },
-                                    {
-                                        "formats": ["camelCase", "PascalCase"],
-                                        "selector": { "kind": "classProperty" }
-                                    },
-                                    {
-                                        "formats": [
-                                            "PascalCase",
-                                            "camelCase",
-                                            "snake_case"
-                                        ],
-                                        "selector": {
-                                            "kind": "objectLiteralProperty"
-                                        }
-                                    },
-                                    {
-                                        "formats": ["PascalCase"],
-                                        "selector": { "kind": "class" }
-                                    }
-                                ]
-                            }
-                        },
-                        "useObjectSpread": "error",
-                        "useShorthandAssign": "error",
-                        "useSingleVarDeclarator": "error",
-                        "useSymbolDescription": "error"
-                    },
-                    "suspicious": {
-                        "noAlert": "error",
-                        "noConsole": "error",
-                        "noEmptyBlockStatements": "error",
-                        "noEvolvingTypes": "error",
-                        "noExplicitAny": "error",
-                        "noImplicitAnyLet": "error",
-                        "noUnusedExpressions": "error",
-                        "useAwait": "error",
-                        "useGuardForIn": "error"
-                    }
-                }
-            }
-        },
-        {
-            "includes": ["**/*.tsx"],
-            "linter": {
-                "rules": {
-                    "style": {
-                        "useNamingConvention": "off"
-                    }
-                }
-            }
-        },
-        {
-            "includes": [
-                "**/tests/**/*.mjs",
-                "**/tests/**/*.js",
-                "**/tests/**/*.ts",
-                "**/tests/**/*.tsx"
-            ],
-            "linter": {
-                "rules": {
-                    "complexity": {
-                        "noExcessiveCognitiveComplexity": "off",
-                        "noExcessiveLinesPerFunction": "off"
-                    }
-                }
-            }
-        }
-    ],
-    "vcs": {
-        "clientKind": "git",
-        "defaultBranch": "main",
-        "enabled": true,
-        "useIgnoreFile": true
+      "quoteStyle": "double"
     }
+  },
+  "linter": {
+    "enabled": true,
+    "includes": [
+      "**",
+      "!dist/**",
+      "!node_modules/**",
+      "!package-lock.json",
+      "!tokens/**"
+    ],
+    "domains": {
+      "project": "all",
+      "types": "all"
+    },
+    "rules": {
+      "recommended": true
+    }
+  },
+  "overrides": [
+    {
+      "assist": {
+        "actions": {
+          "source": {
+            "useSortedAttributes": "off",
+            "useSortedInterfaceMembers": "off",
+            "useSortedKeys": "off",
+            "useSortedProperties": "off"
+          }
+        }
+      },
+      "includes": ["**/*.tsx"]
+    },
+    {
+      "includes": ["eslint.config.mjs"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off",
+            "noProcessEnv": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.js", "**/*.mjs", "**/*.ts", "**/*.tsx"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveCognitiveComplexity": {
+              "level": "error",
+              "options": {
+                "maxAllowedComplexity": 5
+              }
+            },
+            "noExcessiveLinesPerFunction": {
+              "level": "error",
+              "options": {
+                "maxLines": 20,
+                "skipBlankLines": true,
+                "skipIifes": true
+              }
+            },
+            "noForEach": "error",
+            "noImplicitCoercions": "error",
+            "noUselessStringConcat": "error",
+            "noVoid": "error",
+            "useMaxParams": {
+              "level": "error",
+              "options": {
+                "max": 3
+              }
+            },
+            "useSimplifiedLogicExpression": "error"
+          },
+          "correctness": {
+            "noNestedComponentDefinitions":"warn",
+            "noReactPropAssignments": "error",
+            "noUndeclaredVariables": {
+              "level": "error",
+              "options": {
+                "checkTypes": true
+              }
+            },
+            "noUnusedImports": "error",
+            "noUnusedVariables": "error"
+          },
+          "nursery": {
+            "noFloatingPromises": "error",
+            "noMisusedPromises": "error",
+            "noTernary": "error",
+            "noUnnecessaryConditions": "error",
+            "useExhaustiveSwitchCases": "error",
+            "useNullishCoalescing": "error"
+          },
+          "performance": {
+            "noAccumulatingSpread": "warn",
+            "noAwaitInLoops": "error",
+            "noBarrelFile": "error",
+            "noDynamicNamespaceImportAccess": "error",
+            "noNamespaceImport": "error",
+            "noReExportAll": "error",
+            "useGoogleFontPreconnect": "error"
+          },
+          "style": {
+            "noCommonJs": "error",
+            "noDefaultExport": "error",
+            "noEnum": "error",
+            "noNamespace": "error",
+            "noNonNullAssertion": "error",
+            "noParameterAssign": {
+              "level": "error",
+              "options": {
+                "propertyAssignment": "deny"
+              }
+            },
+            "noParameterProperties": "error",
+            "noProcessEnv": "error",
+            "noRestrictedGlobals": "error",
+            "noRestrictedTypes": {
+              "level": "error",
+              "options": {
+                "types": {
+                  "{}": {
+                    "message": "Use object, unknown, or an explicit structural type instead."
+                  },
+                  "Function": {
+                    "message": "Write an explicit callable signature instead."
+                  },
+                  "Object": {
+                    "message": "Use object, unknown, or an explicit structural type instead."
+                  }
+                }
+              }
+            },
+            "noUselessElse": "error",
+            "noYodaExpression": "error",
+            "useAsConstAssertion": "error",
+            "useBlockStatements": "error",
+            "useCollapsedElseIf": "error",
+            "useConsistentBuiltinInstantiation": "error",
+            "useConsistentMemberAccessibility": {
+              "level": "error",
+              "options": {
+                "accessibility": "explicit"
+              }
+            },
+            "useConsistentObjectDefinitions": "error",
+            "useDefaultParameterLast": "error",
+            "useExponentiationOperator": "error",
+            "useExportType": "error",
+            "useFilenamingConvention": {
+              "level": "warn",
+              "options": {
+                "filenameCases": ["kebab-case", "PascalCase"]
+              }
+            },
+            "useGroupedAccessorPairs": "error",
+            "useImportType": {
+              "level": "error",
+              "options": {
+                "style": "separatedType"
+              }
+            },
+            "useNamingConvention": {
+              "level": "error",
+              "options": {
+                "strictCase": false,
+                "requireAscii": true,
+                "conventions": [
+                  {
+                    "formats": ["PascalCase", "CONSTANT_CASE"],
+                    "selector": { "kind": "enumMember" }
+                  },
+                  {
+                    "formats": ["camelCase"],
+                    "selector": { "kind": "function" }
+                  },
+                  {
+                    "formats": ["camelCase", "snake_case"],
+                    "selector": {
+                      "kind": "functionParameter"
+                    }
+                  },
+                  {
+                    "formats": ["camelCase", "snake_case"],
+                    "selector": { "kind": "let" }
+                  },
+                  {
+                    "formats": ["CONSTANT_CASE", "PascalCase"],
+                    "selector": { "kind": "const" }
+                  },
+                  {
+                    "formats": ["PascalCase"],
+                    "selector": { "kind": "typeLike" }
+                  },
+                  {
+                    "formats": ["camelCase", "snake_case", "PascalCase"],
+                    "selector": { "kind": "typeProperty" }
+                  },
+                  {
+                    "formats": ["camelCase", "PascalCase"],
+                    "selector": { "kind": "classProperty" }
+                  },
+                  {
+                    "formats": ["PascalCase", "camelCase", "snake_case"],
+                    "selector": {
+                      "kind": "objectLiteralProperty"
+                    }
+                  },
+                  {
+                    "formats": ["PascalCase"],
+                    "selector": { "kind": "class" }
+                  }
+                ]
+              }
+            },
+            "useObjectSpread": "error",
+            "useShorthandAssign": "error",
+            "useSingleVarDeclarator": "error",
+            "useSymbolDescription": "error"
+          },
+          "suspicious": {
+            "noAlert": "error",
+            "noConsole": "error",
+            "noEmptyBlockStatements": "error",
+            "noEvolvingTypes": "error",
+            "noExplicitAny": "error",
+            "noImplicitAnyLet": "error",
+            "noUnusedExpressions": "error",
+            "useAwait": "error",
+            "useGuardForIn": "error"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "**/tests/**/*.mjs",
+        "**/tests/**/*.js",
+        "**/tests/**/*.ts",
+        "**/tests/**/*.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveCognitiveComplexity": "off",
+            "noExcessiveLinesPerFunction": "off"
+          }
+        }
+      }
+    }
+  ],
+  "vcs": {
+    "clientKind": "git",
+    "defaultBranch": "main",
+    "enabled": true,
+    "useIgnoreFile": true
+  }
 }

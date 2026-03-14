@@ -30,7 +30,11 @@ from reading_plan.type_guards import (
 
 
 if TYPE_CHECKING:
-    from reading_plan.api_types import PlannerInputPayload
+    from reading_plan.api_types import (
+        BookData,
+        PlannerInputPayload,
+        SettingsData,
+    )
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8787
@@ -128,7 +132,7 @@ def _load_state_file() -> dict[str, object]:
     return _loaded_state_result(state_path)
 
 
-def _save_state_file(state: dict[str, object]) -> None:
+def _save_state_file(state: object) -> None:
     validated = validate_state_snapshot(state)
     state_path = _state_path()
     state_path.parent.mkdir(parents=True, exist_ok=True)
@@ -281,25 +285,45 @@ def _planner_input_payload(payload: dict[str, object]) -> PlannerInputPayload:
     shared planner payload contracts. An optional `planner` string is allowed
     to select a solver profile.
     """
-    books = payload.get("books")
-    settings = payload.get("settings")
-    planner = payload.get("planner")
-    if not is_book_data_list(books):
-        msg = "Planner payload field 'books' must be a list of objects."
-        raise TypeError(msg)
-    if not is_settings_data(settings):
-        msg = "Planner payload field 'settings' must be an object."
-        raise TypeError(msg)
+    books = _planner_books(payload)
+    settings = _planner_settings(payload)
     request_payload: PlannerInputPayload = {
         "books": books,
         "settings": settings,
     }
+    planner = _planner_name(payload)
     if planner is not None:
-        if not isinstance(planner, str):
-            msg = "Planner payload field 'planner' must be a string."
-            raise TypeError(msg)
         request_payload["planner"] = planner
     return request_payload
+
+
+def _planner_books(payload: dict[str, object]) -> list[BookData]:
+    """Return validated planner books payload."""
+    books = payload.get("books")
+    if is_book_data_list(books):
+        return books
+    msg = "Planner payload field 'books' must be a list of objects."
+    raise TypeError(msg)
+
+
+def _planner_settings(payload: dict[str, object]) -> SettingsData:
+    """Return validated planner settings payload."""
+    settings = payload.get("settings")
+    if is_settings_data(settings):
+        return settings
+    msg = "Planner payload field 'settings' must be an object."
+    raise TypeError(msg)
+
+
+def _planner_name(payload: dict[str, object]) -> str | None:
+    """Return validated optional planner name."""
+    planner = payload.get("planner")
+    if planner is None:
+        return None
+    if isinstance(planner, str):
+        return planner
+    msg = "Planner payload field 'planner' must be a string."
+    raise TypeError(msg)
 
 
 def _api_generate(payload: dict[str, object]) -> object:

@@ -73,33 +73,33 @@ function bindMinutesEditorActions(args: MinutesEditorBindingsArgs): void {
     let initialMinutesValue = String(args.minutesInput.value).trim();
     syncSummaryText(args.summaryValue, initialMinutesValue);
     let isEditorOpen = MINUTES_EDITOR_OPEN_BY_DEFAULT;
-    syncEditorVisibility(
-        args.minutesForm,
-        args.summaryRow,
-        args.editButton,
-        isEditorOpen,
-    );
+    syncEditorVisibility({
+        editButton: args.editButton,
+        isOpen: isEditorOpen,
+        minutesForm: args.minutesForm,
+        summaryRow: args.summaryRow,
+    });
 
     args.editButton.onclick = () => {
         isEditorOpen = nextMinutesEditorOpenState("edit");
-        syncEditorVisibility(
-            args.minutesForm,
-            args.summaryRow,
-            args.editButton,
-            isEditorOpen,
-        );
+        syncEditorVisibility({
+            editButton: args.editButton,
+            isOpen: isEditorOpen,
+            minutesForm: args.minutesForm,
+            summaryRow: args.summaryRow,
+        });
         args.minutesInput.focus();
         args.minutesInput.select();
     };
     args.cancelBtn.onclick = () => {
         args.minutesInput.value = initialMinutesValue;
         isEditorOpen = nextMinutesEditorOpenState("cancel");
-        syncEditorVisibility(
-            args.minutesForm,
-            args.summaryRow,
-            args.editButton,
-            isEditorOpen,
-        );
+        syncEditorVisibility({
+            editButton: args.editButton,
+            isOpen: isEditorOpen,
+            minutesForm: args.minutesForm,
+            summaryRow: args.summaryRow,
+        });
         args.editButton.focus();
     };
     args.minutesForm.onsubmit = (event) => {
@@ -116,12 +116,12 @@ function bindMinutesEditorActions(args: MinutesEditorBindingsArgs): void {
         }
         syncSummaryText(args.summaryValue, initialMinutesValue);
         isEditorOpen = nextMinutesEditorOpenState("saved");
-        syncEditorVisibility(
-            args.minutesForm,
-            args.summaryRow,
-            args.editButton,
-            isEditorOpen,
-        );
+        syncEditorVisibility({
+            editButton: args.editButton,
+            isOpen: isEditorOpen,
+            minutesForm: args.minutesForm,
+            summaryRow: args.summaryRow,
+        });
         args.editButton.focus();
         args.onMinutesApplied();
     };

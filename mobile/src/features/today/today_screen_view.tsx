@@ -1,4 +1,3 @@
-import { TodayBackground } from "@features/today/today_background";
 import type { ComponentProps } from "react";
 import {
     FlatList,
@@ -11,6 +10,7 @@ import {
 import { useCarouselMetrics } from "./hooks/use_carousel_metrics.ts";
 import { useTodayActiveBook } from "./hooks/use_today_active_book.ts";
 import { useTodayThemeTransition } from "./hooks/use_today_theme_transition.ts";
+import { TodayBackground } from "./today_background.tsx";
 import {
     CAROUSEL_GAP,
     COVER_SOURCES,
@@ -119,6 +119,46 @@ interface TodayStatsSectionProps {
     stats: TodayStats;
 }
 
+interface TodayCarouselItemProps {
+    activeIndex: number;
+    book: TodayBookCard;
+    cardWidth: number;
+    index: number;
+    onCardPress(index: number): void;
+}
+
+type TodayTheme = ReturnType<typeof useTodayThemeTransition>["currentTheme"];
+
+interface TodayScreenContentProps {
+    activeBook: TodayBookCard;
+    activeIndex: number;
+    books: TodayBookCard[];
+    cardWidth: number;
+    carouselSideInset: number;
+    currentTheme: TodayTheme;
+    itemWidth: number;
+    onCardPress(index: number): void;
+    previousTheme: TodayTheme;
+    stats: TodayStats;
+    syncActiveIndex: TodayCarouselProps["onMomentumScrollEnd"];
+    themeProgress: ComponentProps<typeof TodayThemeTransitionLayer>["progress"];
+}
+
+interface TodayScreenState {
+    activeBook: TodayBookCard | null;
+    activeIndex: number;
+    cardWidth: number;
+    carouselSideInset: number;
+    currentTheme: TodayTheme;
+    itemWidth: number;
+    onCardPress(index: number): void;
+    previousTheme: TodayTheme;
+    syncActiveIndex: TodayCarouselProps["onMomentumScrollEnd"];
+    themeProgress: ComponentProps<typeof TodayThemeTransitionLayer>["progress"];
+}
+
+const CAROUSEL_SPACER_STYLE = { width: CAROUSEL_GAP } as const;
+
 /**
  * Render the "TODAY" hero section with theme transition, ambient background, and layered title text.
  * @example
@@ -163,6 +203,67 @@ function TodayHero({
     );
 }
 
+function CarouselSpacer() {
+    return <View style={CAROUSEL_SPACER_STYLE} />;
+}
+
+function TodayCarouselItem({
+    activeIndex,
+    book,
+    cardWidth,
+    index,
+    onCardPress,
+}: TodayCarouselItemProps) {
+    return (
+        <View style={{ width: cardWidth }}>
+            <CarouselCard
+                book={book}
+                isActive={index === activeIndex}
+                onPress={() => {
+                    onCardPress(index);
+                }}
+            />
+        </View>
+    );
+}
+
+function carouselContentStyle(carouselSideInset: number) {
+    return [STYLES.carouselRow, { paddingHorizontal: carouselSideInset }];
+}
+
+function contentStyle(canvasColor: string) {
+    return [STYLES.content, { backgroundColor: canvasColor }];
+}
+
+function carouselRenderItem(props: TodayCarouselProps) {
+    return ({ item, index }: { index: number; item: TodayBookCard }) => (
+        <TodayCarouselItem
+            activeIndex={props.activeIndex}
+            book={item}
+            cardWidth={props.cardWidth}
+            index={index}
+            onCardPress={props.onCardPress}
+        />
+    );
+}
+
+function createTodayCarouselListProps(props: TodayCarouselProps) {
+    return {
+        contentContainerStyle: carouselContentStyle(props.carouselSideInset),
+        data: props.books,
+        decelerationRate: "fast" as const,
+        horizontal: true,
+        ItemSeparatorComponent: CarouselSpacer,
+        keyExtractor: (item: TodayBookCard) => item.id,
+        onMomentumScrollEnd: props.onMomentumScrollEnd,
+        renderItem: carouselRenderItem(props),
+        showsHorizontalScrollIndicator: false,
+        snapToAlignment: "start" as const,
+        snapToInterval: props.itemWidth,
+        style: STYLES.carouselList,
+    };
+}
+
 /**
  * Renders a horizontal carousel of book cards using FlatList.
  * @example
@@ -177,48 +278,9 @@ function TodayHero({
  * @param onMomentumScrollEnd - Callback forwarded to FlatList's onMomentumScrollEnd event.
  * @returns Rendered carousel FlatList component.
  **/
-function TodayCarousel({
-    activeIndex,
-    books,
-    cardWidth,
-    carouselSideInset,
-    itemWidth,
-    onCardPress,
-    onMomentumScrollEnd,
-}: TodayCarouselProps) {
-    return (
-        <FlatList
-            contentContainerStyle={[
-                STYLES.carouselRow,
-                { paddingHorizontal: carouselSideInset },
-            ]}
-            data={books}
-            decelerationRate="fast"
-            horizontal
-            keyExtractor={(item) => item.id}
-            ItemSeparatorComponent={() => {
-                return <View style={{ width: CAROUSEL_GAP }} />;
-            }}
-            onMomentumScrollEnd={onMomentumScrollEnd}
-            renderItem={({ item, index }) => {
-                return (
-                    <View style={{ width: cardWidth }}>
-                        <CarouselCard
-                            book={item}
-                            isActive={index === activeIndex}
-                            onPress={() => {
-                                onCardPress(index);
-                            }}
-                        />
-                    </View>
-                );
-            }}
-            showsHorizontalScrollIndicator={false}
-            snapToAlignment="start"
-            snapToInterval={itemWidth}
-            style={STYLES.carouselList}
-        />
-    );
+function TodayCarousel(props: TodayCarouselProps) {
+    const TODAY_CAROUSEL_PROPS = createTodayCarouselListProps(props);
+    return <FlatList {...TODAY_CAROUSEL_PROPS} />;
 }
 
 /**
@@ -279,6 +341,54 @@ function TodayStatsSection({ stats }: TodayStatsSectionProps) {
     );
 }
 
+function TodayScreenContent(props: TodayScreenContentProps) {
+    return (
+        <ScrollView
+            bounces={false}
+            contentContainerStyle={contentStyle(props.currentTheme.canvasColor)}
+        >
+            <TodayHero
+                ambientColor={props.currentTheme.ambientColor}
+                currentThemeCanvasColor={props.currentTheme.canvasColor}
+                previousThemeCanvasColor={props.previousTheme.canvasColor}
+                themeProgress={props.themeProgress}
+            />
+            <TodayCarousel
+                activeIndex={props.activeIndex}
+                books={props.books}
+                cardWidth={props.cardWidth}
+                carouselSideInset={props.carouselSideInset}
+                itemWidth={props.itemWidth}
+                onCardPress={props.onCardPress}
+                onMomentumScrollEnd={props.syncActiveIndex}
+            />
+            <TodayBookProgress activeBook={props.activeBook} />
+            <TodayStatsSection stats={props.stats} />
+        </ScrollView>
+    );
+}
+
+function useTodayScreenState(books: TodayBookCard[]): TodayScreenState {
+    const { cardWidth, itemWidth, carouselSideInset } = useCarouselMetrics();
+    const { activeBook, activeIndex, setActiveIndex, syncActiveIndex } =
+        useTodayActiveBook(books, itemWidth);
+    const { currentTheme, previousTheme, themeProgress } =
+        useTodayThemeTransition(books, activeIndex);
+
+    return {
+        activeBook,
+        activeIndex,
+        cardWidth,
+        carouselSideInset,
+        currentTheme,
+        itemWidth,
+        onCardPress: setActiveIndex,
+        previousTheme,
+        syncActiveIndex,
+        themeProgress,
+    };
+}
+
 /**
  * Renders the mobile Today screen with active-book carousel, progress, and stats.
  * @param books - Ordered list of book cards available in the carousel.
@@ -286,41 +396,18 @@ function TodayStatsSection({ stats }: TodayStatsSectionProps) {
  * @returns Full Today screen scroll view for the current reading state.
  */
 export function TodayScreen({ books, stats }: TodayScreenProps) {
-    const { cardWidth, itemWidth, carouselSideInset } = useCarouselMetrics();
-    const { activeBook, activeIndex, setActiveIndex, syncActiveIndex } =
-        useTodayActiveBook(books, itemWidth);
-    const { currentTheme, previousTheme, themeProgress } =
-        useTodayThemeTransition(books, activeIndex);
+    const { activeBook, ...TODAY_SCREEN_STATE } = useTodayScreenState(books);
 
     if (!activeBook) {
         return null;
     }
 
-    return (
-        <ScrollView
-            bounces={false}
-            contentContainerStyle={[
-                STYLES.content,
-                { backgroundColor: currentTheme.canvasColor },
-            ]}
-        >
-            <TodayHero
-                ambientColor={currentTheme.ambientColor}
-                currentThemeCanvasColor={currentTheme.canvasColor}
-                previousThemeCanvasColor={previousTheme.canvasColor}
-                themeProgress={themeProgress}
-            />
-            <TodayCarousel
-                activeIndex={activeIndex}
-                books={books}
-                cardWidth={cardWidth}
-                carouselSideInset={carouselSideInset}
-                itemWidth={itemWidth}
-                onCardPress={setActiveIndex}
-                onMomentumScrollEnd={syncActiveIndex}
-            />
-            <TodayBookProgress activeBook={activeBook} />
-            <TodayStatsSection stats={stats} />
-        </ScrollView>
-    );
+    const TODAY_SCREEN_CONTENT_PROPS: TodayScreenContentProps = {
+        activeBook,
+        books,
+        stats,
+        ...TODAY_SCREEN_STATE,
+    };
+
+    return <TodayScreenContent {...TODAY_SCREEN_CONTENT_PROPS} />;
 }

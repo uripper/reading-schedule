@@ -1,6 +1,13 @@
 /**
  * BACKGROUND SIMULATION CONSTANTS
  */
+import COVER_2666 from "../../../assets/book-covers/2666.jpg";
+import COVER_ANNA_KARENINA from "../../../assets/book-covers/AnnaKarenina.jpg";
+import COVER_DON_QUIXOTE from "../../../assets/book-covers/DonQuixote.jpg";
+import COVER_FICCIONES from "../../../assets/book-covers/Ficciones.jpg";
+import COVER_HAMLET from "../../../assets/book-covers/Hamlet.jpg";
+import COVER_MOBY_DICK from "../../../assets/book-covers/MobyDick.jpg";
+
 // Frame timing
 // Cap the delta time to prevent large jumps
 // Lower values make motion more stable on laggy frames, but can look slower when frames are dropped.
@@ -86,12 +93,12 @@ export const MIN_CAROUSEL_SIDE_INSET = 12;
 export const THEME_TRANSITION_DURATION_MS = 700;
 
 export const COVER_SOURCES: Record<string, number> = {
-    "2666": require("../../../assets/book-covers/2666.jpg"),
-    "Anna Karenina": require("../../../assets/book-covers/AnnaKarenina.jpg"),
-    "Don Quixote": require("../../../assets/book-covers/DonQuixote.jpg"),
-    Ficciones: require("../../../assets/book-covers/Ficciones.jpg"),
-    Hamlet: require("../../../assets/book-covers/Hamlet.jpg"),
-    "Moby-Dick": require("../../../assets/book-covers/MobyDick.jpg"),
+    "2666": COVER_2666,
+    "Anna Karenina": COVER_ANNA_KARENINA,
+    "Don Quixote": COVER_DON_QUIXOTE,
+    Ficciones: COVER_FICCIONES,
+    Hamlet: COVER_HAMLET,
+    "Moby-Dick": COVER_MOBY_DICK,
 };
 
-export const DEFAULT_COVER_SOURCE = require("../../../assets/book-covers/Hamlet.jpg");
+export const DEFAULT_COVER_SOURCE = COVER_HAMLET;

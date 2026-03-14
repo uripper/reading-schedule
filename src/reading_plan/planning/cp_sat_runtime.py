@@ -2,14 +2,9 @@
 
 from __future__ import annotations
 
-from importlib import import_module
 from typing import TYPE_CHECKING, TypeGuard
 
 
-if TYPE_CHECKING:
-    from reading_plan.planning.cp_sat_types import CpModelModule
-
-CP_MODEL_MODULE_NAME = "ortools.sat.python.cp_model"
 MISSING_CP_MODEL_MESSAGE = (
     "OR-Tools CP-SAT is unavailable. Install the project Python "
     "dependencies before running the planner."
@@ -17,6 +12,14 @@ MISSING_CP_MODEL_MESSAGE = (
 INVALID_CP_MODEL_MESSAGE = (
     "Imported OR-Tools CP-SAT module is missing required planner symbols."
 )
+
+try:
+    from ortools.sat.python import cp_model as imported_cp_model
+except ModuleNotFoundError as exc:
+    raise ModuleNotFoundError(MISSING_CP_MODEL_MESSAGE) from exc
+
+if TYPE_CHECKING:
+    from reading_plan.planning.cp_sat_types import CpModelModule
 
 
 def _is_cp_model_module(value: object) -> TypeGuard[CpModelModule]:
@@ -34,10 +37,7 @@ def _is_cp_model_module(value: object) -> TypeGuard[CpModelModule]:
 
 def _load_cp_model() -> CpModelModule:
     """Import the real OR-Tools CP-SAT module with an actionable error."""
-    try:
-        module = import_module(CP_MODEL_MODULE_NAME)
-    except ModuleNotFoundError as exc:
-        raise ModuleNotFoundError(MISSING_CP_MODEL_MESSAGE) from exc
+    module = imported_cp_model
     if _is_cp_model_module(module):
         return module
     raise TypeError(INVALID_CP_MODEL_MESSAGE)

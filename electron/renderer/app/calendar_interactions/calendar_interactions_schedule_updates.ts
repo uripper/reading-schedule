@@ -14,15 +14,17 @@ import {
     sortRowsByDateAndSession,
 } from "../../calendar/utils.ts";
 import { pruneScheduleCompletions } from "../schedule_preserve.ts";
+import { emptyPlannerResult } from "./calendar_interactions_helpers.ts";
+import { dayBookCompletionKey } from "./calendar_interactions_key_helpers.ts";
 import {
-    dayBookCompletionKey,
-    emptyPlannerResult,
-    nextSessionIndexForDate,
     normalizedManualMinutes,
-    rowsWithoutSession,
     wordsPlannedForManualSession,
-} from "./calendar_interactions_helpers.ts";
+} from "./calendar_interactions_manual_helpers.ts";
 import { nextRowsWithUpdatedMinutes } from "./calendar_interactions_minutes_rows.ts";
+import {
+    nextSessionIndexForDate,
+    rowsWithoutSession,
+} from "./calendar_interactions_row_helpers.ts";
 
 /**
  * Builds a new planner result from replacement schedule rows while preserving

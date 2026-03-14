@@ -78,20 +78,25 @@ function recoverStateFromJournal(
         )
         .all(JOURNAL_KEEP_ROWS) as Array<{ payload_json: string } | undefined>;
     for (const ROW of ROWS) {
-        if (!ROW) {
-            continue;
-        }
-        try {
-            const PARSED = JSON.parse(ROW.payload_json) as unknown;
-            const STATE = objectState(PARSED);
-            if (STATE) {
-                return STATE;
-            }
-        } catch {
-            // Continue scanning older journal rows.
+        const STATE = recoverJournalRowState(ROW);
+        if (STATE !== null) {
+            return STATE;
         }
     }
     return null;
+}
+
+function recoverJournalRowState(
+    row: { payload_json: string } | undefined,
+): LoadedPlannerState | null {
+    if (row === undefined) {
+        return null;
+    }
+    try {
+        return objectState(JSON.parse(row.payload_json) as unknown);
+    } catch {
+        return null;
+    }
 }
 
 /**
@@ -173,39 +178,50 @@ export function readStateFromSqlite(
         return null;
     }
     try {
-        const DATABASE = openDatabase(DATABASE_PATH);
-        try {
-            const SNAPSHOT_STATE = readSnapshotState(DATABASE);
-            if (SNAPSHOT_STATE) {
-                return {
-                    source: "sqlite",
-                    sourcePath: DATABASE_PATH,
-                    state: SNAPSHOT_STATE,
-                };
-            }
-            const RECOVERED_STATE = recoverStateFromJournal(DATABASE);
-            if (!RECOVERED_STATE) {
-                return null;
-            }
-            upsertSnapshot(
-                DATABASE,
-                JSON.stringify(RECOVERED_STATE),
-                new Date().toISOString(),
-            );
-            return {
-                source: "sqlite_journal_replay",
-                sourcePath: DATABASE_PATH,
-                state: RECOVERED_STATE,
-                warningCode: "RECOVERED_FROM_JOURNAL",
-                warningMessage:
-                    "Recovered saved data from journal replay after storage corruption.",
-            };
-        } finally {
-            DATABASE.close();
-        }
+        return loadSqliteState(DATABASE_PATH);
     } catch {
         return null;
     }
+}
+
+function loadSqliteState(databasePath: string): PlannerStateLoadResult | null {
+    const DATABASE = openDatabase(databasePath);
+    try {
+        const SNAPSHOT_STATE = readSnapshotState(DATABASE);
+        if (SNAPSHOT_STATE !== null) {
+            return {
+                source: "sqlite",
+                sourcePath: databasePath,
+                state: SNAPSHOT_STATE,
+            };
+        }
+        return replayJournalState(databasePath, DATABASE);
+    } finally {
+        DATABASE.close();
+    }
+}
+
+function replayJournalState(
+    databasePath: string,
+    database: DatabaseSync,
+): PlannerStateLoadResult | null {
+    const RECOVERED_STATE = recoverStateFromJournal(database);
+    if (RECOVERED_STATE === null) {
+        return null;
+    }
+    upsertSnapshot(
+        database,
+        JSON.stringify(RECOVERED_STATE),
+        new Date().toISOString(),
+    );
+    return {
+        source: "sqlite_journal_replay",
+        sourcePath: databasePath,
+        state: RECOVERED_STATE,
+        warningCode: "RECOVERED_FROM_JOURNAL",
+        warningMessage:
+            "Recovered saved data from journal replay after storage corruption.",
+    };
 }
 
 /**

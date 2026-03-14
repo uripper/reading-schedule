@@ -57,6 +57,20 @@ function normalizeRowsAndSessionKey(
     return { key, rows };
 }
 
+function sessionIndexForDate(
+    date: string,
+    row: PlannerScheduleRow,
+): number | null {
+    if (String(row.date || "") !== date) {
+        return null;
+    }
+    const INDEX = Number(row.session_index || 0);
+    if (!Number.isFinite(INDEX)) {
+        return null;
+    }
+    return Math.floor(INDEX);
+}
+
 /**
  * Calculates the next session index for a given date.
  * @param dateOrRows - Either a date string or an array of PlannerScheduleRow.
@@ -71,13 +85,11 @@ export function nextSessionIndexForDate(
     let maxIndex = 0;
 
     for (const ROW of NORMALIZED.rows) {
-        if (String(ROW.date || "") !== NORMALIZED.date) {
+        const INDEX = sessionIndexForDate(NORMALIZED.date, ROW);
+        if (INDEX === null) {
             continue;
         }
-        const INDEX = Number(ROW.session_index || 0);
-        if (Number.isFinite(INDEX)) {
-            maxIndex = Math.max(maxIndex, Math.floor(INDEX));
-        }
+        maxIndex = Math.max(maxIndex, INDEX);
     }
     return maxIndex + 1;
 }

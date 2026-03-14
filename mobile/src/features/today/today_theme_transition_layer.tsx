@@ -23,6 +23,19 @@ interface TodayThemeTransitionLayerProps {
     toColor: string;
 }
 
+interface SweepStyleArgs {
+    opacity: Animated.AnimatedInterpolation<number>;
+    shift: Animated.AnimatedInterpolation<number>;
+}
+
+function interpolateValues(
+    progress: Animated.Value,
+    inputRange: number[],
+    outputRange: number[],
+) {
+    return progress.interpolate({ inputRange, outputRange });
+}
+
 /**
  * Create interpolated animation values for a theme transition layer.
  * @example
@@ -32,32 +45,16 @@ interface TodayThemeTransitionLayerProps {
  * @returns Returns an object containing interpolated animation values for from/to opacity, sweep opacity/shift, and pipe sweep shift.
  **/
 function createLayerAnimations(progress: Animated.Value) {
-    const FROM_OPACITY = progress.interpolate({
-        inputRange: [0, 1],
-        outputRange: [1, 0],
-    });
-    const TO_OPACITY = progress.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0, 1],
-    });
-    const SWEEP_OPACITY = progress.interpolate({
-        inputRange: [0, 0.14, 0.78, 1],
-        outputRange: [0, 0.48, 0.14, 0],
-    });
-    const SWEEP_SHIFT = progress.interpolate({
-        inputRange: [0, 1],
-        outputRange: [-260, 260],
-    });
-    const PIPE_SWEEP_SHIFT = progress.interpolate({
-        inputRange: [0, 1],
-        outputRange: [-180, 220],
-    });
     return {
-        fromOpacity: FROM_OPACITY,
-        pipeSweepShift: PIPE_SWEEP_SHIFT,
-        sweepOpacity: SWEEP_OPACITY,
-        sweepShift: SWEEP_SHIFT,
-        toOpacity: TO_OPACITY,
+        fromOpacity: interpolateValues(progress, [0, 1], [1, 0]),
+        pipeSweepShift: interpolateValues(progress, [0, 1], [-180, 220]),
+        sweepOpacity: interpolateValues(
+            progress,
+            [0, 0.14, 0.78, 1],
+            [0, 0.48, 0.14, 0],
+        ),
+        sweepShift: interpolateValues(progress, [0, 1], [-260, 260]),
+        toOpacity: interpolateValues(progress, [0, 1], [0, 1]),
     };
 }
 
@@ -114,6 +111,21 @@ function LayerFill({ color, opacity }: LayerFillProps) {
     );
 }
 
+function diagonalSweepStyle({ opacity, shift }: SweepStyleArgs) {
+    return {
+        opacity,
+        transform: [{ rotate: "-14deg" }, { translateX: shift }],
+    };
+}
+
+function horizontalSweepStyle({ opacity, shift }: SweepStyleArgs) {
+    return { opacity, transform: [{ translateX: shift }] };
+}
+
+function verticalSweepStyle({ opacity, shift }: SweepStyleArgs) {
+    return { opacity, transform: [{ translateY: shift }] };
+}
+
 interface SweepEffectsProps {
     pipeSweepShift: Animated.AnimatedInterpolation<number>;
     sweepOpacity: Animated.AnimatedInterpolation<number>;
@@ -133,49 +145,26 @@ function SweepEffects({
     sweepOpacity,
     sweepShift,
 }: SweepEffectsProps) {
+    const DIAGONAL_SWEEP = diagonalSweepStyle({
+        opacity: sweepOpacity,
+        shift: sweepShift,
+    });
+    const PIPE_SWEEP = horizontalSweepStyle({
+        opacity: sweepOpacity,
+        shift: pipeSweepShift,
+    });
+    const VERTICAL_PIPE_SWEEP = verticalSweepStyle({
+        opacity: sweepOpacity,
+        shift: pipeSweepShift,
+    });
+
     return (
         <>
+            <Animated.View style={[STYLES.scanBand, DIAGONAL_SWEEP]} />
+            <Animated.View style={[STYLES.scanBandThin, DIAGONAL_SWEEP]} />
+            <Animated.View style={[STYLES.pipeSweep, PIPE_SWEEP]} />
             <Animated.View
-                style={[
-                    STYLES.scanBand,
-                    {
-                        opacity: sweepOpacity,
-                        transform: [
-                            { translateX: sweepShift },
-                            { rotate: "-14deg" },
-                        ],
-                    },
-                ]}
-            />
-            <Animated.View
-                style={[
-                    STYLES.scanBandThin,
-                    {
-                        opacity: sweepOpacity,
-                        transform: [
-                            { translateX: sweepShift },
-                            { rotate: "-14deg" },
-                        ],
-                    },
-                ]}
-            />
-            <Animated.View
-                style={[
-                    STYLES.pipeSweep,
-                    {
-                        opacity: sweepOpacity,
-                        transform: [{ translateX: pipeSweepShift }],
-                    },
-                ]}
-            />
-            <Animated.View
-                style={[
-                    STYLES.pipeSweepVertical,
-                    {
-                        opacity: sweepOpacity,
-                        transform: [{ translateY: pipeSweepShift }],
-                    },
-                ]}
+                style={[STYLES.pipeSweepVertical, VERTICAL_PIPE_SWEEP]}
             />
         </>
     );

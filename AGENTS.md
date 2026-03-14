@@ -2,6 +2,9 @@
 
 Guidance for coding agents working in this repository.
 
+NEVER TOUCH THE README.md. IF YOU WANT TO SUGGEST TO ADD TO IT, MENTION IT IN
+A CHAT! NEVER TOUCH THE README.md!!!! 
+
 ## 1) Project Snapshot
 
 - Product: Bartleby reading scheduler.

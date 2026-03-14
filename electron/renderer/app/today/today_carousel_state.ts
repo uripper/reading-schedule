@@ -71,7 +71,7 @@ export function pinnedRowKeySnapshot(): Record<string, string> {
 export function pinRowKey(bookId: string, rowKey: string): void {
     const BOOK_ID = normalizeKeyText(bookId);
     const ROW_KEY = normalizeKeyText(rowKey);
-    if (!BOOK_ID || !ROW_KEY) {
+    if (!(BOOK_ID && ROW_KEY)) {
         return;
     }
     UI_STATE.pinnedRowKeyByBookId[BOOK_ID] = ROW_KEY;

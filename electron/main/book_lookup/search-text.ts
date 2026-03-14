@@ -31,7 +31,7 @@ export function queryTokens(query: string): string[] {
  * @returns First author name, or empty string when unavailable.
  */
 export function primaryAuthor(doc: SearchDoc): string {
-    if (!Array.isArray(doc.author_name) || !doc.author_name.length) {
+    if (!Array.isArray(doc.author_name) || doc.author_name.length === 0) {
         return "";
     }
     return String(doc.author_name[0] || "");

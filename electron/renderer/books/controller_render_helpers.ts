@@ -44,8 +44,7 @@ export function resolveRenderableRefs(
         return null;
     }
     if (
-        !(refs.grid instanceof HTMLElement) ||
-        !(refs.empty instanceof HTMLElement)
+        !(refs.grid instanceof HTMLElement && refs.empty instanceof HTMLElement)
     ) {
         return null;
     }

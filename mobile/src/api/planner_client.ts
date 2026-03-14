@@ -95,13 +95,10 @@ function notImplemented(name: string): Promise<never> {
     );
 }
 
-/**
- * Creates a PlannerApi instance that communicates with the backend server
- * @param baseUrl - The base URL of the backend server
- * @returns An object that implements the PlannerApi interface, with methods
- * that make HTTP requests to the backend server.
- */
-export function createMobilePlannerApi(baseUrl: string): PlannerApi {
+function createUnsupportedPlannerApi(): Pick<
+    PlannerApi,
+    "downloadCover" | "saveUploadedCover" | "zoomIn" | "zoomOut" | "zoomReset"
+> {
     return {
         downloadCover(
             _url: string | undefined,
@@ -109,47 +106,11 @@ export function createMobilePlannerApi(baseUrl: string): PlannerApi {
         ): Promise<string> {
             return notImplemented("downloadCover");
         },
-        async generate(
-            payload: PlanGeneratePayload,
-        ): Promise<Pick<PlannerResult, "schedule" | "summary">> {
-            const RESULT = await postJson(
-                baseUrl,
-                "/api/plan/generate",
-                payload,
-            );
-            return parsePlanGenerateResult(RESULT);
-        },
-        async loadState(): Promise<PlannerStateLoadResult> {
-            const RESULT = await postJson(baseUrl, "/api/state/load", {});
-            return RESULT as PlannerStateLoadResult;
-        },
-        async sample(): Promise<
-            Pick<PlannerStateSnapshot, "settings" | "books">
-        > {
-            const RESULT = await postJson(baseUrl, "/api/state/sample", {});
-            return parseSamplePayload(RESULT);
-        },
-        async saveState(
-            state: PlannerStateSnapshot,
-        ): Promise<PlannerSaveResult> {
-            const RESULT = await postJson(baseUrl, "/api/state/save", state);
-            return RESULT as PlannerSaveResult;
-        },
         saveUploadedCover(
             _dataUrl: string | undefined,
             _bookId: string | undefined,
         ): Promise<string> {
             return notImplemented("saveUploadedCover");
-        },
-        async searchBooks(
-            query: string,
-            author = false,
-        ): Promise<BookLookupItem[]> {
-            const RESULT = await postJson(baseUrl, "/api/books/search", {
-                author,
-                query,
-            });
-            return RESULT as BookLookupItem[];
         },
         zoomIn(): Promise<number> {
             return notImplemented("zoomIn");
@@ -160,5 +121,77 @@ export function createMobilePlannerApi(baseUrl: string): PlannerApi {
         zoomReset(): Promise<number> {
             return notImplemented("zoomReset");
         },
+    };
+}
+
+function createPlanRequestApi(
+    baseUrl: string,
+): Pick<PlannerApi, "generate" | "sample"> {
+    return {
+        async generate(
+            payload: PlanGeneratePayload,
+        ): Promise<Pick<PlannerResult, "schedule" | "summary">> {
+            const RESULT = await postJson(
+                baseUrl,
+                "/api/plan/generate",
+                payload,
+            );
+            return parsePlanGenerateResult(RESULT);
+        },
+        async sample(): Promise<
+            Pick<PlannerStateSnapshot, "settings" | "books">
+        > {
+            const RESULT = await postJson(baseUrl, "/api/state/sample", {});
+            return parseSamplePayload(RESULT);
+        },
+    };
+}
+
+function createStateRequestApi(
+    baseUrl: string,
+): Pick<PlannerApi, "loadState" | "saveState"> {
+    return {
+        async loadState(): Promise<PlannerStateLoadResult> {
+            const RESULT = await postJson(baseUrl, "/api/state/load", {});
+            return RESULT as PlannerStateLoadResult;
+        },
+        async saveState(
+            state: PlannerStateSnapshot,
+        ): Promise<PlannerSaveResult> {
+            const RESULT = await postJson(baseUrl, "/api/state/save", state);
+            return RESULT as PlannerSaveResult;
+        },
+    };
+}
+
+function createSearchRequestApi(
+    baseUrl: string,
+): Pick<PlannerApi, "searchBooks"> {
+    return {
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            const RESULT = await postJson(baseUrl, "/api/books/search", {
+                author,
+                query,
+            });
+            return RESULT as BookLookupItem[];
+        },
+    };
+}
+
+/**
+ * Creates a PlannerApi instance that communicates with the backend server
+ * @param baseUrl - The base URL of the backend server
+ * @returns An object that implements the PlannerApi interface, with methods
+ * that make HTTP requests to the backend server.
+ */
+export function createMobilePlannerApi(baseUrl: string): PlannerApi {
+    return {
+        ...createUnsupportedPlannerApi(),
+        ...createPlanRequestApi(baseUrl),
+        ...createStateRequestApi(baseUrl),
+        ...createSearchRequestApi(baseUrl),
     };
 }

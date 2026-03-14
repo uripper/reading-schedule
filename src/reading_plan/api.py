@@ -178,9 +178,8 @@ def _build_output_with_logging(
     }
 
 
-def generate_plan(payload: PlannerInputPayload) -> PlannerOutputPayload:
-    """Validate inputs, solve the plan, and return summary plus schedule."""
-    start_time = perf_counter()
+def _log_generate_plan_start(payload: PlannerInputPayload) -> None:
+    """Emit the standard start-of-request diagnostics."""
     log_file_execution(
         LOGGER,
         file_path=__file__,
@@ -194,6 +193,11 @@ def generate_plan(payload: PlannerInputPayload) -> PlannerOutputPayload:
     )
     LOGGER.debug("generate_plan: started")
 
+
+def _payload_books_and_settings(
+    payload: PlannerInputPayload,
+) -> tuple[list[BookData], SettingsData]:
+    """Return validated raw books/settings payload fields."""
     books_raw = payload.get("books")
     settings_raw = payload.get("settings")
     if not isinstance(books_raw, list) or not isinstance(settings_raw, dict):
@@ -215,11 +219,22 @@ def generate_plan(payload: PlannerInputPayload) -> PlannerOutputPayload:
         file_path=__file__,
         value=settings_raw,
     )
+    return books_raw, settings_raw
 
+
+def _planner_name(payload: PlannerInputPayload) -> str:
+    """Return the requested planner name or the default solver."""
+    return str(payload.get("planner", "mip"))
+
+
+def generate_plan(payload: PlannerInputPayload) -> PlannerOutputPayload:
+    """Validate inputs, solve the plan, and return summary plus schedule."""
+    start_time = perf_counter()
+    _log_generate_plan_start(payload)
+    books_raw, settings_raw = _payload_books_and_settings(payload)
     books = _parse_books(books_raw)
     _validate_blockers_with_logging(books)
     settings = _parse_settings(settings_raw)
-
-    planner = str(payload.get("planner", "mip"))
+    planner = _planner_name(payload)
     result = _solve_with_logging(books, planner, settings)
     return _build_output_with_logging(books, result, settings, start_time)

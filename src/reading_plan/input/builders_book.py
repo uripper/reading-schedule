@@ -249,21 +249,18 @@ def _estimated_words_read_from_pages(
     return round(words_full * bounded_pages / pages_total)
 
 
-def _scheduled_days(
-    raw: list[str] | str | None,
-    *,
-    book_id: str,
-) -> frozenset[str]:
-    """Normalize and validate scheduled weekday entries."""
-    if raw is None:
-        return ALL_WEEKDAYS
-
+def _scheduled_day_entries(raw: list[str] | str) -> list[str]:
+    """Return trimmed weekday entries from string or list input."""
     if isinstance(raw, str):
-        entries = [segment.strip() for segment in raw.split(",")]
-    else:
-        entries = [str(entry).strip() for entry in raw]
+        return [segment.strip() for segment in raw.split(",")]
+    return [str(entry).strip() for entry in raw]
 
-    selected = {entry for entry in entries if entry}
+
+def _validated_scheduled_days(
+    book_id: str,
+    selected: set[str],
+) -> frozenset[str]:
+    """Validate normalized weekday names for one book."""
     if not selected:
         msg = f"scheduled_days must include at least one day for {book_id}"
         raise ValueError(msg)
@@ -272,6 +269,19 @@ def _scheduled_days(
         msg = f"scheduled_days must only include Mon..Sun for {book_id}"
         raise ValueError(msg)
     return frozenset(selected)
+
+
+def _scheduled_days(
+    raw: list[str] | str | None,
+    *,
+    book_id: str,
+) -> frozenset[str]:
+    """Normalize and validate scheduled weekday entries."""
+    if raw is None:
+        return ALL_WEEKDAYS
+    entries = _scheduled_day_entries(raw)
+    selected = {entry for entry in entries if entry}
+    return _validated_scheduled_days(book_id, selected)
 
 
 def _int_input(raw: object, field: str) -> IntInput:
