@@ -9,10 +9,8 @@ import type {
 } from "../../types/types.ts";
 import { buildFutureSessionItem } from "./details_session_future.ts";
 import { buildPastSessionItem } from "./details_session_past.ts";
-import {
-    buildTodaySessionItem,
-    type BuildTodaySessionItemArgs,
-} from "./details_session_today.ts";
+import type { BuildTodaySessionItemArgs } from "./details_session_today.ts";
+import { buildTodaySessionItem } from "./details_session_today.ts";
 
 // TODO: Move these detail-renderer contracts into `electron/types` when the
 // calendar details modules are normalized.
