@@ -1,5 +1,5 @@
 import type { DashboardRuntimeArgs } from "../../types/types.ts";
-import { DEFAULT_PREFERENCES } from "./experience/index.ts";
+import { DEFAULT_PREFERENCES } from "./experience/model.ts";
 
 function createUpdateStatsDashboardView({
     collectAllBooks,
@@ -54,14 +54,15 @@ function createApplyExperienceSettings(
     >,
     updateDashboards: () => void,
 ): () => void {
+    const STATE = args.state;
     return (): void => {
-        args.state.preferences = args.normalizePreferences(
+        STATE.preferences = args.normalizePreferences(
             args.collectPreferencesFromUI(),
         );
-        args.state.featureFlags = args.normalizeFeatureFlags(
+        STATE.featureFlags = args.normalizeFeatureFlags(
             args.collectFeatureFlagsFromUI(),
         );
-        args.applyPreferencesToDocument(args.state.preferences);
+        args.applyPreferencesToDocument(STATE.preferences);
         updateDashboards();
         args.queuePersist();
     };

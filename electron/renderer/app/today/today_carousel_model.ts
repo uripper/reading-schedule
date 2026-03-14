@@ -7,7 +7,7 @@ import type {
     PlannerResult,
     PlannerScheduleRow,
 } from "../../../types/types.ts";
-import { bookCoverSrc } from "../../books/model.ts";
+import { bookCoverSrc } from "../../books/model_normalize.ts";
 import { estimateSnapshotForRow } from "../../calendar/estimates_snapshot.ts";
 import {
     sessionKeyFor,

@@ -3,6 +3,10 @@ const MAX_PERCENT = 100;
 const MIN_PROGRESS = 0;
 const PERCENT_PRECISION_FACTOR = 10;
 const UNKNOWN_PAGES_TOTAL = "--";
+const EMPTY_PROGRESS_DRAFT: TodayProgressDraft = {
+    pagesText: EMPTY_TEXT,
+    percentText: EMPTY_TEXT,
+};
 
 export interface TodayProgressDraft {
     pagesText: string;
@@ -95,6 +99,16 @@ function boundedPercentText(percentText: string): string {
     return boundedText(percentText, MAX_PERCENT);
 }
 
+function boundedDraftOrEmpty(
+    draft: TodayProgressDraft | null,
+    pagesTotal: number | null,
+): TodayProgressDraft {
+    if (draft === null) {
+        return EMPTY_PROGRESS_DRAFT;
+    }
+    return boundedTodayProgressDraft({ draft, pagesTotal });
+}
+
 /**
  * Return a TodayProgressDraft with pagesText and percentText bounded according to available total pages.
  * @example
@@ -152,6 +166,13 @@ function derivedPercentPlaceholder(options: {
     return formattedPercentValue((PAGES / options.pagesTotal) * MAX_PERCENT);
 }
 
+function pagesMaxText(pagesTotal: number | null): string {
+    if (pagesTotal === null) {
+        return EMPTY_TEXT;
+    }
+    return String(roundedPages(pagesTotal));
+}
+
 /**
  * Build a view model for today's progress input fields from the current state and an optional draft.
  * @example
@@ -175,33 +196,21 @@ export function buildTodayProgressInputViewModel(options: {
     draft: TodayProgressDraft | null;
     pagesTotal: number | null;
 }): TodayProgressInputViewModel {
-    let draft: TodayProgressDraft | null = null;
-    if (options.draft !== null) {
-        draft = boundedTodayProgressDraft({
-            draft: options.draft,
-            pagesTotal: options.pagesTotal,
-        });
-    }
-    const PAGES_TEXT = draft?.pagesText ?? EMPTY_TEXT;
-    const PERCENT_TEXT = draft?.percentText ?? EMPTY_TEXT;
-    let pagesMax = EMPTY_TEXT;
-    if (options.pagesTotal !== null) {
-        pagesMax = String(roundedPages(options.pagesTotal));
-    }
+    const DRAFT = boundedDraftOrEmpty(options.draft, options.pagesTotal);
     return {
-        pagesMax,
+        pagesMax: pagesMaxText(options.pagesTotal),
         pagesPlaceholder: derivedPagesPlaceholder({
             currentPagesRead: options.currentPagesRead,
             pagesTotal: options.pagesTotal,
-            percentText: PERCENT_TEXT,
+            percentText: DRAFT.percentText,
         }),
-        pagesText: PAGES_TEXT,
+        pagesText: DRAFT.pagesText,
         percentPlaceholder: derivedPercentPlaceholder({
             currentPercent: options.currentPercent,
-            pagesText: PAGES_TEXT,
+            pagesText: DRAFT.pagesText,
             pagesTotal: options.pagesTotal,
         }),
-        percentText: PERCENT_TEXT,
+        percentText: DRAFT.percentText,
     };
 }
 

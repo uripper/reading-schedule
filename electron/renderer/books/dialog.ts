@@ -11,7 +11,7 @@ import type {
     OpenDialogOptions,
 } from "../../types/types.ts";
 import { bindDialogFocus } from "../accessibility/a11y.ts";
-import { bindBookLookup } from "../book_lookup.ts";
+import { bindBookLookup } from "../book_lookup/search.ts";
 import { createAfterBookPicker } from "./after_book_picker.ts";
 import { bindCoverUpload } from "./cover_upload.ts";
 import { bindBookDialogProgressSync } from "./dialog_progress_sync.ts";
@@ -21,7 +21,8 @@ import {
 } from "./dialog_submit.ts";
 import { ensureBookFormLayoutFields } from "./form_layout.ts";
 import { getBookFormRefs } from "./form_refs.ts";
-import { applyLookupItem, clearForm, fillForm } from "./form_state.ts";
+import { applyLookupItem } from "./form_state_lookup.ts";
+import { clearForm, fillForm } from "./form_state.ts";
 import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.ts";
 
 /**

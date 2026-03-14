@@ -39,6 +39,10 @@ import {
 } from "./today_carousel_track.ts";
 
 const EMPTY_TEXT = "";
+const EMPTY_BOOK_LABEL = "No book selected";
+const EMPTY_MINUTES_TEXT = "0";
+const EMPTY_PROGRESS_TOTAL_TEXT = "--";
+const EMPTY_SESSION_SUMMARY_TEXT = "-- pages\n--%";
 
 // TODO: Move Today carousel render contracts into `electron/types` when the
 // renderer Today surface is stabilized.
@@ -92,14 +96,15 @@ function renderNoData(): void {
     resetTodayCarouselUiState();
     clearNoDataHandlers();
     el<HTMLElement>("todayCarouselEmpty").hidden = false;
-    el<HTMLElement>("todayActiveBookBar").textContent = "No book selected";
+    el<HTMLElement>("todayActiveBookBar").textContent = EMPTY_BOOK_LABEL;
     el<HTMLElement>("todayCarouselTrack").replaceChildren();
-    el<HTMLElement>("todayMinutesValue").textContent = "0";
+    el<HTMLElement>("todayMinutesValue").textContent = EMPTY_MINUTES_TEXT;
     el<HTMLElement>("todayMinutesValue").hidden = false;
     el<HTMLInputElement>("todayMinutesInput").hidden = true;
     el<HTMLInputElement>("todayMinutesInput").value = EMPTY_TEXT;
-    renderAfterSessionText("-- pages\n--%");
-    el<HTMLElement>("todayProgressPagesTotalText").textContent = "--";
+    renderAfterSessionText(EMPTY_SESSION_SUMMARY_TEXT);
+    el<HTMLElement>("todayProgressPagesTotalText").textContent =
+        EMPTY_PROGRESS_TOTAL_TEXT;
     resetTodayProgressInputs();
     setMinutesEditDisabled(true);
     setActionButtonsDisabled(true);
@@ -138,6 +143,11 @@ function applyMinutesEditorVisibility(active: TodayCarouselActiveItem): void {
  * @param active - Active Today carousel row.
  */
 function renderActive(active: TodayCarouselActiveItem): void {
+    renderActiveSummary(active);
+    bindActiveActions(active);
+}
+
+function renderActiveSummary(active: TodayCarouselActiveItem): void {
     el<HTMLElement>("todayCarouselEmpty").hidden = true;
     el<HTMLElement>("todayActiveBookBar").textContent =
         `${active.book.title} | ${active.book.author}`;
@@ -152,6 +162,9 @@ function renderActive(active: TodayCarouselActiveItem): void {
     setActionButtonsDisabled(false);
     setLogButtonState(active.row.completed);
     setProgressInputsDisabled(active.row.completed);
+}
+
+function bindActiveActions(active: TodayCarouselActiveItem): void {
     bindMinutesEditor({
         active,
         bindings: interactionBindings(),

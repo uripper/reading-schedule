@@ -5,7 +5,7 @@ import type {
     TodayBookSummary,
     TodayScheduleSnapshot,
 } from "../../../types/types.ts";
-import { bookCoverSrc } from "../../books/model.ts";
+import { bookCoverSrc } from "../../books/model_normalize.ts";
 import { titleSortKey } from "../../books/title_key.ts";
 import {
     sessionKeyFor,

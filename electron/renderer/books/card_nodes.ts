@@ -5,7 +5,7 @@ import {
     estimatedFinishButton,
 } from "./card_navigation_buttons.ts";
 import { scrollToBookCard } from "./card_scroll_target.ts";
-import { bookCoverSrc } from "./model.ts";
+import { bookCoverSrc } from "./model_normalize.ts";
 import {
     blockerMeta,
     metaLabel,

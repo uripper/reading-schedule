@@ -7,7 +7,7 @@ import {
     applyPreferencesToDocument,
     createAnnouncer,
 } from "../accessibility/a11y.ts";
-import { collectAllBooks } from "../books.ts";
+import { collectAllBooks } from "../books/controller.ts";
 import { focusCalendarToday } from "../calendar.ts";
 import { el } from "../dom.ts";
 import { addLog } from "../help.ts";
@@ -15,15 +15,17 @@ import { collectSettings } from "../settings.ts";
 import { updateStatsView } from "../stats.ts";
 import { createDashboardRuntime } from "./dashboard_runtime.ts";
 import {
-    collectFeatureFlagsFromUI as collectFeatureFlagsFromUi,
-    collectPreferencesFromUI as collectPreferencesFromUi,
     normalizeFeatureFlags,
     normalizePreferences,
-} from "./experience/index.ts";
+} from "./experience/model.ts";
+import {
+    collectFeatureFlagsFromUI as collectFeatureFlagsFromUi,
+    collectPreferencesFromUI as collectPreferencesFromUi,
+} from "./experience/ui.ts";
 import { createInitRuntime } from "./init/init_runtime.ts";
 import { createPersistQueue, createStatusSetter } from "./runtime_helpers.ts";
 import { createRuntimeState } from "./runtime_state.ts";
-import { updateTodayDashboard } from "./today/index.ts";
+import { updateTodayDashboard } from "./today/today.ts";
 
 /**
  * Retrieves the Planner API from the global context. This function assumes that the `plannerApi`

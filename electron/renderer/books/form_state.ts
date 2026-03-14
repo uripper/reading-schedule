@@ -21,7 +21,7 @@ import {
     validatedShelfSelection,
     validatedStatusSelection,
 } from "./form_state_helpers.ts";
-import { bookCoverSrc, normalizeBook } from "./model.ts";
+import { bookCoverSrc, normalizeBook } from "./model_normalize.ts";
 import { BOOK_STATUS_READ } from "./status_catalog.ts";
 import { toOptionalInt } from "./utils.ts";
 
@@ -163,8 +163,3 @@ export function parseFormBook(refs: BookFormRefs): Book {
         words_total: PARSED.wordsTotal,
     });
 }
-
-export {
-    applyLookupItem,
-    applyUploadedCover,
-} from "./form_state_lookup.ts";

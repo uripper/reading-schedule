@@ -11,7 +11,7 @@ import {
     setBookCommitHook,
     setBookScheduleRows,
     updateBookProgress,
-} from "../../books.ts";
+} from "../../books/controller.ts";
 import {
     configureCalendarInteractions,
     focusCalendarDate,
@@ -22,10 +22,10 @@ import { collectSettings, initSettingsGrid } from "../../settings.ts";
 import { bindDesktopShortcuts } from "../../shortcuts/index.ts";
 import { activateTab, bindTabs } from "../../tabs.ts";
 import { configureAppCalendarInteractions } from "../calendar_interactions/calendar-interactions.ts";
-import { bindExperienceSettings } from "../experience/index.ts";
+import { bindExperienceSettings } from "../experience/bindings.ts";
 import { totalsFromSummary } from "../runtime_helpers.ts";
 import { applyAppStateMutation } from "../state_mutations.ts";
-import { configureTodayInteractions } from "../today/index.ts";
+import { configureTodayInteractions } from "../today/today_carousel_render.ts";
 import { resetTodayCarouselUiState } from "../today/today_carousel_state.ts";
 import { bindTodayDayRollover } from "../today/today_rollover.ts";
 import { loadStateAndBindTodayActions } from "./init-app-load.ts";

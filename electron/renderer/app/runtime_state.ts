@@ -2,7 +2,7 @@ import type { AppRuntimeState } from "../../types/types.ts";
 import {
     DEFAULT_FEATURE_FLAGS,
     DEFAULT_PREFERENCES,
-} from "./experience/index.ts";
+} from "./experience/model.ts";
 import { emptyDerivedIndexes } from "./state_indexes.ts";
 
 /**

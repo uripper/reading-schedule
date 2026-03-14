@@ -15,12 +15,12 @@ import { renderBooksController } from "./controller_render.ts";
 import { defaultShelfForAddDialog } from "./controller_types.ts";
 import { createBookDialog } from "./dialog.ts";
 import { GROUP_BY_NONE } from "./grouping.ts";
+import { normalizeBook } from "./model_normalize.ts";
 import {
     clearMissingBlockedBy,
     hasSchedulableLength,
-    normalizeBook,
     toPayloadBook,
-} from "./model.ts";
+} from "./model_payload.ts";
 import { withUpdatedProgress } from "./progress.ts";
 import { hydrateBookCover, upsertBookById } from "./save.ts";
 import { applyScheduledDaysToShelfBooks } from "./save_scheduled_days.ts";
@@ -209,6 +209,46 @@ export function collectAllBooks(): Book[] {
     });
 }
 
+function setEstimatedFinishNavigateHandler(options: BindBooksUIOptions): void {
+    const HANDLER = options.onEstimatedFinishNavigate;
+    if (typeof HANDLER === "function") {
+        onEstimatedFinishNavigate = (dateKey: string): void => {
+            HANDLER(dateKey);
+        };
+        return;
+    }
+    onEstimatedFinishNavigate = DEFAULT_ON_ESTIMATED_FINISH_NAVIGATE;
+}
+
+function initializeBooksUiRefs(toolbar: HTMLElement): HTMLButtonElement {
+    REFS.toolbar = toolbar;
+    REFS.grid = el("booksGrid");
+    REFS.empty = el("booksEmpty");
+    const ADD_BUTTON = el<HTMLButtonElement>("addBookBtn");
+    REFS.addBtn = ADD_BUTTON;
+
+    const TOOLBAR_CONTROLS = ensureBooksToolbarControls(toolbar);
+    REFS.titleFilterInput = TOOLBAR_CONTROLS.titleFilterInput;
+    REFS.shelfFilterSelect = TOOLBAR_CONTROLS.shelfFilterSelect;
+    REFS.statusFilterSelect = TOOLBAR_CONTROLS.statusFilterSelect;
+    REFS.sortBySelect = TOOLBAR_CONTROLS.sortBySelect;
+    REFS.groupBySelect = TOOLBAR_CONTROLS.groupBySelect;
+    REFS.sortDirectionBtn = TOOLBAR_CONTROLS.sortDirectionBtn;
+
+    return ADD_BUTTON;
+}
+
+function bindAddBookButton(addButton: HTMLButtonElement): void {
+    addButton.onclick = () => {
+        if (!dialog) {
+            return;
+        }
+        dialog.open(null, {
+            defaultShelf: defaultShelfForAddDialog(VIEW_STATE.shelfFilter),
+        });
+    };
+}
+
 /**
  * Binds books toolbar, dialog, and grid events for interactive editing.
  * @param onChanged - Callback fired after persisted book list mutations.
@@ -219,43 +259,15 @@ export function bindBooksUI(
     options: BindBooksUIOptions = {},
 ): void {
     onBooksChanged = onChanged;
-    const ESTIMATED_FINISH_NAVIGATE_HANDLER = options.onEstimatedFinishNavigate;
-    if (typeof ESTIMATED_FINISH_NAVIGATE_HANDLER === "function") {
-        onEstimatedFinishNavigate = (dateKey: string): void => {
-            ESTIMATED_FINISH_NAVIGATE_HANDLER(dateKey);
-        };
-    } else {
-        onEstimatedFinishNavigate = DEFAULT_ON_ESTIMATED_FINISH_NAVIGATE;
-    }
-    REFS.toolbar = document.querySelector(".books-toolbar");
-    if (!(REFS.toolbar instanceof HTMLElement)) {
+    setEstimatedFinishNavigateHandler(options);
+    const TOOLBAR = document.querySelector(".books-toolbar");
+    if (!(TOOLBAR instanceof HTMLElement)) {
         return;
     }
-
-    REFS.grid = el("booksGrid");
-    REFS.empty = el("booksEmpty");
-    REFS.addBtn = el<HTMLButtonElement>("addBookBtn");
-
-    const TOOLBAR_CONTROLS = ensureBooksToolbarControls(REFS.toolbar);
-    REFS.titleFilterInput = TOOLBAR_CONTROLS.titleFilterInput;
-    REFS.shelfFilterSelect = TOOLBAR_CONTROLS.shelfFilterSelect;
-    REFS.statusFilterSelect = TOOLBAR_CONTROLS.statusFilterSelect;
-    REFS.sortBySelect = TOOLBAR_CONTROLS.sortBySelect;
-    REFS.groupBySelect = TOOLBAR_CONTROLS.groupBySelect;
-    REFS.sortDirectionBtn = TOOLBAR_CONTROLS.sortDirectionBtn;
-
+    const ADD_BUTTON = initializeBooksUiRefs(TOOLBAR);
     bindToolbarEvents({ refs: REFS, rerender: render, viewState: VIEW_STATE });
-
     dialog = createBookDialog(saveBook, { getBooks: () => books });
-    REFS.addBtn.onclick = () => {
-        if (!dialog) {
-            return;
-        }
-        dialog.open(null, {
-            defaultShelf: defaultShelfForAddDialog(VIEW_STATE.shelfFilter),
-        });
-    };
-
+    bindAddBookButton(ADD_BUTTON);
     render();
 }
 
