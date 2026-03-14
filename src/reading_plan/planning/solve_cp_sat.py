@@ -82,6 +82,35 @@ def run_attempt(
     )
 
 
+def _objective_mode(stage: SolveStage) -> str:
+    """Return the stage objective mode label."""
+    if stage.include_objective:
+        return "optimize"
+    return "feasibility"
+
+
+def _maybe_add_hints(
+    hint_mode: str,
+    hints: Assignments,
+    model: CpModelLike,
+    x_vars: BookDayVars,
+) -> None:
+    """Apply solver hints only when this attempt allows them."""
+    if hint_mode != "with_hints":
+        return
+    _add_hints(model, x_vars, hints)
+
+
+def _solver_and_status(
+    model: CpModelLike,
+    stage: SolveStage,
+) -> tuple[CpSolverLike, int]:
+    """Solve the model with stage parameters and return raw status."""
+    solver = cp_model.CpSolver()
+    _apply_solver_parameters(solver, stage)
+    return solver, int(solver.Solve(model))
+
+
 def _solve_once(
     context: AttemptContext,
     stage: SolveStage,
@@ -89,19 +118,13 @@ def _solve_once(
 ) -> SolveAttemptResult:
     """Build and solve one CP-SAT model instance for a single stage."""
     started = perf_counter()
-    objective_mode = "feasibility"
-    if stage.include_objective:
-        objective_mode = "optimize"
     model, x, _y, _finished, _days = _build_model_for_stage(
         context,
-        objective_mode,
+        _objective_mode(stage),
         stage.lock_days_from_start,
     )
-    if hint_mode == "with_hints":
-        _add_hints(model, x, context.hints)
-    solver = cp_model.CpSolver()
-    _apply_solver_parameters(solver, stage)
-    raw_status = int(solver.Solve(model))
+    _maybe_add_hints(hint_mode, context.hints, model, x)
+    solver, raw_status = _solver_and_status(model, stage)
     plan = _result_from_solver(raw_status, solver, x)
     elapsed_ms = int((perf_counter() - started) * MILLISECONDS_PER_SECOND)
     return SolveAttemptResult(plan=plan, elapsed_ms=elapsed_ms)

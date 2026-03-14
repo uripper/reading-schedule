@@ -13,6 +13,8 @@ from reading_plan.planner_types import WEEKDAYS
 from tests.helpers import demo_books, demo_settings
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     import pytest
 
 

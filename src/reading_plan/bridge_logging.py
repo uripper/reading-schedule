@@ -147,13 +147,43 @@ def _configure_file_handler(
 ) -> None:
     """Attach a single file handler for the bridge logger."""
     existing = _find_bridge_handler(logger)
-    if existing is not None:
-        if Path(existing.baseFilename) == log_path:
-            existing.setFormatter(_build_formatter(request_id))
-            return
-        logger.removeHandler(existing)
-        existing.close()
+    if _reuse_existing_handler(existing, log_path, request_id):
+        return
+    _remove_existing_handler(logger, existing)
+    _add_file_handler(logger, log_path, request_id)
 
+
+def _reuse_existing_handler(
+    existing: logging.FileHandler | None,
+    log_path: Path,
+    request_id: str,
+) -> bool:
+    """Return whether an existing handler can be kept in place."""
+    if existing is None:
+        return False
+    if Path(existing.baseFilename) != log_path:
+        return False
+    existing.setFormatter(_build_formatter(request_id))
+    return True
+
+
+def _remove_existing_handler(
+    logger: logging.Logger,
+    existing: logging.FileHandler | None,
+) -> None:
+    """Detach an outdated bridge file handler when present."""
+    if existing is None:
+        return
+    logger.removeHandler(existing)
+    existing.close()
+
+
+def _add_file_handler(
+    logger: logging.Logger,
+    log_path: Path,
+    request_id: str,
+) -> None:
+    """Create and attach the bridge file handler."""
     handler = logging.FileHandler(log_path, encoding="utf-8")
     handler.set_name(_FILE_HANDLER_NAME)
     handler.setFormatter(_build_formatter(request_id))

@@ -99,7 +99,7 @@
         "typecheck:contracts": "pnpm -C packages/contracts run typecheck",
         "typecheck:desktop": "pnpm -C electron run typecheck",
         "typecheck:mobile": "pnpm -C mobile run typecheck",
-        "typecheck:python": ".venv/bin/ty check src",
+        "typecheck:python": ".venv/bin/ty check .",
         "typecheck:website": "pnpm -C apps/website run typecheck",
         "typecov": "pnpm run typecov:main && pnpm run typecov:renderer",
         "typecov:main": "type-coverage -p electron/tsconfig.main.json --detail --show-relative-path --cache",

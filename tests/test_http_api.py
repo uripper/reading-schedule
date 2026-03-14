@@ -31,6 +31,7 @@ from reading_plan.http_api import (
     create_app,
 )
 from reading_plan.input.serializers import book_to_data, settings_to_data
+from reading_plan.type_guards import is_str_object_dict
 from tests.helpers import demo_books, demo_settings
 
 
@@ -154,7 +155,7 @@ def test_state_sample_endpoint(tmp_path: Path, monkeypatch) -> None:
     assert isinstance(settings, dict)
     assert len(books) == len(demo_books())
     first_book = books[0]
-    assert isinstance(first_book, dict)
+    assert is_str_object_dict(first_book)
     assert first_book.get("scheduled_days") == list(WEEKDAYS)
 
 
