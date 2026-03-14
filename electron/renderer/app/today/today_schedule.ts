@@ -90,13 +90,95 @@ function createBookSummary(
     };
 }
 
+interface TodayScheduleAccumulator {
+    completedPlannedMinutes: number;
+    completedSessions: number;
+    scheduledSessions: number;
+    summariesByBookId: Map<string, TodayBookSummary>;
+}
+
+function createTodayScheduleAccumulator(): TodayScheduleAccumulator {
+    return {
+        completedPlannedMinutes: ZERO_COUNT,
+        completedSessions: ZERO_COUNT,
+        scheduledSessions: ZERO_COUNT,
+        summariesByBookId: new Map<string, TodayBookSummary>(),
+    };
+}
+
+function summaryForBook(
+    accumulator: TodayScheduleAccumulator,
+    row: PlannerScheduleRow,
+    booksMap: Map<string, Book>,
+): TodayBookSummary {
+    const BOOK_ID = String(row.book_id || "").trim();
+    const EXISTING = accumulator.summariesByBookId.get(BOOK_ID);
+    if (EXISTING !== undefined) {
+        return EXISTING;
+    }
+    const CREATED = createBookSummary(row, booksMap);
+    accumulator.summariesByBookId.set(BOOK_ID, CREATED);
+    return CREATED;
+}
+
+function applyTodayRow(options: {
+    accumulator: TodayScheduleAccumulator;
+    booksMap: Map<string, Book>;
+    row: PlannerScheduleRow;
+    scheduleCompletions: Record<string, boolean>;
+}): void {
+    const ACCUMULATOR = options.accumulator;
+    const SUMMARY = summaryForBook(ACCUMULATOR, options.row, options.booksMap);
+    const PLANNED_MINUTES = Number(options.row.minutes || ZERO_COUNT);
+    SUMMARY.scheduledSessions += 1;
+    SUMMARY.plannedMinutes += PLANNED_MINUTES;
+    ACCUMULATOR.scheduledSessions += 1;
+    if (!isCompletedRow(options.row, options.scheduleCompletions)) {
+        return;
+    }
+    SUMMARY.completedSessions += 1;
+    ACCUMULATOR.completedSessions += 1;
+    ACCUMULATOR.completedPlannedMinutes += PLANNED_MINUTES;
+}
+
+function accumulateTodaySchedule(options: {
+    booksMap: Map<string, Book>;
+    rows: PlannerScheduleRow[];
+    scheduleCompletions: Record<string, boolean>;
+    today: string;
+}): TodayScheduleAccumulator {
+    const ACCUMULATOR = createTodayScheduleAccumulator();
+    for (const ROW of options.rows) {
+        if (String(ROW.date || "") !== options.today) {
+            continue;
+        }
+        applyTodayRow({
+            accumulator: ACCUMULATOR,
+            booksMap: options.booksMap,
+            row: ROW,
+            scheduleCompletions: options.scheduleCompletions,
+        });
+    }
+    return ACCUMULATOR;
+}
+
+function sortedBookSummaries(
+    summariesByBookId: Map<string, TodayBookSummary>,
+): TodayBookSummary[] {
+    const BOOKS_FOR_TODAY = [...summariesByBookId.values()];
+    BOOKS_FOR_TODAY.sort((left, right) => {
+        return compareTitle(left.title, right.title);
+    });
+    return BOOKS_FOR_TODAY;
+}
+
 /**
  * Finds the next uncompleted planned row on or after today.
  * @param lastResult - Latest planner result.
  * @param scheduleCompletions - Completion map keyed by session identity.
  * @returns Next uncompleted row, or null when none remain.
  */
-function nextUncompletedPlannedRow(
+export function nextUncompletedPlannedRow(
     lastResult: PlannerResult | null,
     scheduleCompletions: Record<string, boolean>,
 ): PlannerScheduleRow | null {
@@ -127,53 +209,21 @@ export function buildTodayScheduleSnapshot(
     books: Book[] = [],
 ): TodayScheduleSnapshot {
     const TODAY = todayKey();
-    const ROW_LIST = rowsFromResult(lastResult);
-    const BOOKS_MAP = bookByIdIndex(books);
-    const SUMMARIES_BY_BOOK_ID = new Map<string, TodayBookSummary>();
-
-    let completedPlannedMinutes = ZERO_COUNT;
-    let scheduledSessions = ZERO_COUNT;
-    let completedSessions = ZERO_COUNT;
-
-    for (const ROW of ROW_LIST) {
-        const ROW_DATE = String(ROW.date || "");
-        if (ROW_DATE !== TODAY) {
-            continue;
-        }
-
-        const COMPLETED = isCompletedRow(ROW, scheduleCompletions);
-        const BOOK_ID = String(ROW.book_id || "").trim();
-        let summary = SUMMARIES_BY_BOOK_ID.get(BOOK_ID);
-        if (!summary) {
-            summary = createBookSummary(ROW, BOOKS_MAP);
-            SUMMARIES_BY_BOOK_ID.set(BOOK_ID, summary);
-        }
-
-        const PLANNED_MINUTES = Number(ROW.minutes || ZERO_COUNT);
-        summary.scheduledSessions += 1;
-        summary.plannedMinutes += PLANNED_MINUTES;
-        scheduledSessions += 1;
-        if (!COMPLETED) {
-            continue;
-        }
-        summary.completedSessions += 1;
-        completedSessions += 1;
-        completedPlannedMinutes += PLANNED_MINUTES;
-    }
-
-    const BOOKS_FOR_TODAY = [...SUMMARIES_BY_BOOK_ID.values()];
-    BOOKS_FOR_TODAY.sort((left, right) => {
-        return compareTitle(left.title, right.title);
+    const ACCUMULATOR = accumulateTodaySchedule({
+        booksMap: bookByIdIndex(books),
+        rows: rowsFromResult(lastResult),
+        scheduleCompletions,
+        today: TODAY,
     });
 
     return {
-        books: BOOKS_FOR_TODAY,
-        completedPlannedMinutes,
-        completedSessions,
+        books: sortedBookSummaries(ACCUMULATOR.summariesByBookId),
+        completedPlannedMinutes: ACCUMULATOR.completedPlannedMinutes,
+        completedSessions: ACCUMULATOR.completedSessions,
         nextUncompletedRow: nextUncompletedPlannedRow(
             lastResult,
             scheduleCompletions,
         ),
-        scheduledSessions,
+        scheduledSessions: ACCUMULATOR.scheduledSessions,
     };
 }

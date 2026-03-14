@@ -239,7 +239,8 @@ function initializeBooksUiRefs(toolbar: HTMLElement): HTMLButtonElement {
 }
 
 function bindAddBookButton(addButton: HTMLButtonElement): void {
-    addButton.onclick = () => {
+    const ADD_BUTTON = addButton;
+    ADD_BUTTON.onclick = () => {
         if (!dialog) {
             return;
         }
