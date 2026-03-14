@@ -39,7 +39,7 @@
 }
 
 .button-link--ghost {
-    color: inherit;
+    color: var(--color-ink);
     background: transparent;
     box-shadow: none;
 }
