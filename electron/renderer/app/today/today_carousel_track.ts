@@ -140,6 +140,20 @@ function bindTrackButtons(args: {
     NEXT_BUTTON.onclick = args.actions.selectNext;
 }
 
+function carouselNavigationActions(
+    model: TodayCarouselModel,
+    selectBook: SelectTodayBook,
+): TrackNavigationActions {
+    return {
+        selectNext: (): void => {
+            moveSelection(model, selectBook, STEP_NEXT);
+        },
+        selectPrevious: (): void => {
+            moveSelection(model, selectBook, STEP_PREVIOUS);
+        },
+    };
+}
+
 /**
  * Binds keyboard and previous/next navigation controls for the Today carousel.
  * @param model - Current carousel model.
@@ -152,14 +166,7 @@ export function bindCarouselNavigation(
     const PREV = el<HTMLButtonElement>("todayCarouselPrev");
     const NEXT = el<HTMLButtonElement>("todayCarouselNext");
     const TRACK = el<HTMLElement>("todayCarouselTrack");
-    const ACTIONS: TrackNavigationActions = {
-        selectNext: (): void => {
-            moveSelection(model, selectBook, STEP_NEXT);
-        },
-        selectPrevious: (): void => {
-            moveSelection(model, selectBook, STEP_PREVIOUS);
-        },
-    };
+    const ACTIONS = carouselNavigationActions(model, selectBook);
     bindTrackButtons({
         actions: ACTIONS,
         nextButton: NEXT,
