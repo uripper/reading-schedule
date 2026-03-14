@@ -25,6 +25,13 @@ import { buildTodayScheduleSnapshot } from "./today_schedule.ts";
 
 const MIN_GOAL_MINUTES = 1;
 
+type RenderHeaderSessionsMetricOptions = {
+    snapshot: TodayScheduleSnapshot;
+    sessionsStatus: HTMLElement;
+    sessionDots: HTMLElement;
+    completeIndicator: HTMLElement | null;
+};
+
 function resolvedGoalMinutes(
     preferredGoalMinutes: number,
     defaultGoalMinutes: number,
@@ -68,6 +75,23 @@ function renderHeaderGoalMetric(
     };
 }
 
+function applyOptionalIndicator(
+    completeIndicator: HTMLElement | null,
+    complete: boolean,
+): void {
+    if (completeIndicator === null) {
+        return;
+    }
+    applyIndicatorState(completeIndicator, complete);
+}
+
+function headerSessionsComplete(snapshot: TodayScheduleSnapshot): boolean {
+    return isHeaderSessionsComplete(
+        snapshot.completedSessions,
+        snapshot.scheduledSessions,
+    );
+}
+
 /**
  * Renders the header sessions metric (updates status text, session dots, and optional completion indicator) from a schedule snapshot.
  * @example
@@ -76,15 +100,11 @@ function renderHeaderGoalMetric(
  * @param options - Options object containing the schedule snapshot and DOM elements to update.
  * @returns Void return value.
  **/
-function renderHeaderSessionsMetric(options: {
-    snapshot: TodayScheduleSnapshot;
-    sessionsStatus: HTMLElement;
-    sessionDots: HTMLElement;
-    completeIndicator: HTMLElement | null;
-}): void {
+function renderHeaderSessionsMetric(
+    options: RenderHeaderSessionsMetricOptions,
+): void {
     const { completeIndicator, sessionDots, sessionsStatus, snapshot } =
         options;
-
     sessionsStatus.textContent = formatHeaderSessionsText(
         snapshot.completedSessions,
         snapshot.scheduledSessions,
@@ -94,13 +114,7 @@ function renderHeaderSessionsMetric(options: {
         snapshot.completedSessions,
         snapshot.scheduledSessions,
     );
-    const COMPLETE = isHeaderSessionsComplete(
-        snapshot.completedSessions,
-        snapshot.scheduledSessions,
-    );
-    if (completeIndicator !== null) {
-        applyIndicatorState(completeIndicator, COMPLETE);
-    }
+    applyOptionalIndicator(completeIndicator, headerSessionsComplete(snapshot));
 }
 
 /**
@@ -145,6 +159,37 @@ function renderHeaderStreakMetric(options: {
     streakNode.textContent = formatStreakText(STREAK);
 }
 
+function applyGoalText(goalMinutes: number, todayMinutes: number): void {
+    const GOAL_TEXT = getOptionalElement("todayGoalText");
+    if (GOAL_TEXT === null) {
+        return;
+    }
+    GOAL_TEXT.textContent = `${todayMinutes}/${goalMinutes} Minutes`;
+}
+
+function applyGoalIndicator(options: {
+    goalComplete: boolean;
+    goalProgressPercent: number;
+}): void {
+    const GOAL_INDICATOR = getOptionalElement("headerGoalIndicator");
+    if (GOAL_INDICATOR === null) {
+        return;
+    }
+    GOAL_INDICATOR.setAttribute(
+        "data-progress-percent",
+        String(options.goalProgressPercent),
+    );
+    applyIndicatorState(GOAL_INDICATOR, options.goalComplete);
+}
+
+function applyGoalFlame(goalComplete: boolean): void {
+    const STREAK_FLAME = getOptionalElement("headerStreakFlame");
+    if (STREAK_FLAME === null) {
+        return;
+    }
+    STREAK_FLAME.classList.toggle("is-goal-complete", goalComplete);
+}
+
 /**
  * Updates header UI elements (today's goal text, progress indicator, and streak flame) to reflect the computed goal metric for today.
  * @example
@@ -159,25 +204,9 @@ function applyHeaderGoalMetric(
     goalMinutes: number,
 ): void {
     const GOAL_METRIC = renderHeaderGoalMetric(activityByDay, goalMinutes);
-    const GOAL_TEXT = getOptionalElement("todayGoalText");
-    if (GOAL_TEXT !== null) {
-        GOAL_TEXT.textContent = `${GOAL_METRIC.todayMinutes}/${goalMinutes} Minutes`;
-    }
-    const GOAL_INDICATOR = getOptionalElement("headerGoalIndicator");
-    if (GOAL_INDICATOR !== null) {
-        GOAL_INDICATOR.setAttribute(
-            "data-progress-percent",
-            String(GOAL_METRIC.goalProgressPercent),
-        );
-        applyIndicatorState(GOAL_INDICATOR, GOAL_METRIC.goalComplete);
-    }
-    const STREAK_FLAME = getOptionalElement("headerStreakFlame");
-    if (STREAK_FLAME !== null) {
-        STREAK_FLAME.classList.toggle(
-            "is-goal-complete",
-            GOAL_METRIC.goalComplete,
-        );
-    }
+    applyGoalText(goalMinutes, GOAL_METRIC.todayMinutes);
+    applyGoalIndicator(GOAL_METRIC);
+    applyGoalFlame(GOAL_METRIC.goalComplete);
 }
 
 /**
@@ -239,34 +268,31 @@ function applyHeaderStreakMetric(
  * @param args - Configuration object containing lastResult, scheduleCompletions, books, sessions, preferences, featureFlags, and defaultDailyGoalMinutes.
  * @returns Does not return a value; updates the UI and header metrics for Today.
  **/
-export function updateTodayDashboard({
-    lastResult,
-    scheduleCompletions,
-    books,
-    sessions,
-    preferences,
-    featureFlags,
-    defaultDailyGoalMinutes,
-}: UpdateTodayDashboardArgs): void {
+export function updateTodayDashboard(args: UpdateTodayDashboardArgs): void {
     const SNAPSHOT = renderTodayCarouselAndBuildSnapshot({
-        books,
-        lastResult,
-        scheduleCompletions,
+        books: args.books,
+        lastResult: args.lastResult,
+        scheduleCompletions: args.scheduleCompletions,
     });
-    const HEADER_METRICS = buildTodayHeaderMetrics({
-        defaultDailyGoalMinutes,
-        featureFlags,
-        lastResult,
-        preferences,
-        scheduleCompletions,
-        sessions,
-    });
-
+    const HEADER_METRICS = todayHeaderMetrics(args);
     applyTodayHeaderMetrics({
         activityByDay: HEADER_METRICS.activityByDay,
         gamificationEnabled: HEADER_METRICS.gamificationEnabled,
         goalMinutes: HEADER_METRICS.goalMinutes,
         snapshot: SNAPSHOT,
+    });
+}
+
+function todayHeaderMetrics(
+    args: UpdateTodayDashboardArgs,
+): ReturnType<typeof buildTodayHeaderMetrics> {
+    return buildTodayHeaderMetrics({
+        defaultDailyGoalMinutes: args.defaultDailyGoalMinutes,
+        featureFlags: args.featureFlags,
+        lastResult: args.lastResult,
+        preferences: args.preferences,
+        scheduleCompletions: args.scheduleCompletions,
+        sessions: args.sessions,
     });
 }
 

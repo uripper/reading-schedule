@@ -31,7 +31,7 @@ function parsedYearMonth(
 }
 
 function hasValidYearMonth(year: number, month: number): boolean {
-    if (!Number.isInteger(year) || !Number.isInteger(month)) {
+    if (!(Number.isInteger(year) && Number.isInteger(month))) {
         return false;
     }
     return month >= MONTH_INDEX_MIN && month <= MONTH_INDEX_MAX;

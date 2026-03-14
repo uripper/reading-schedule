@@ -33,6 +33,13 @@ function parentDirectory(directory: string): string | null {
     return PARENT_DIRECTORY;
 }
 
+function rootSearchStep(directory: string): string | null {
+    if (hasRootMarkers(directory)) {
+        return directory;
+    }
+    return parentDirectory(directory);
+}
+
 /**
  * Ascend parent directories from a starting path to find a directory that contains project root markers.
  * @example
@@ -41,19 +48,25 @@ function parentDirectory(directory: string): string | null {
  * @param startDirectory - Starting directory path to begin searching for root markers.
  * @returns Return the path of the found root directory, or null if no root markers are found within the ascent limit or the filesystem root is reached.
  */
-function resolveRootFrom(startDirectory: string): string | null {
-    let currentDirectory = startDirectory;
-    for (let steps = 0; steps < ROOT_SEARCH_ASCENT_LIMIT; steps += 1) {
-        if (hasRootMarkers(currentDirectory)) {
-            return currentDirectory;
-        }
-        const PARENT_DIRECTORY = parentDirectory(currentDirectory);
-        if (PARENT_DIRECTORY === null) {
-            return null;
-        }
-        currentDirectory = PARENT_DIRECTORY;
+function resolveRootFromStep(
+    currentDirectory: string,
+    remainingSteps: number,
+): string | null {
+    if (remainingSteps <= 0) {
+        return null;
     }
-    return null;
+    const NEXT_DIRECTORY = rootSearchStep(currentDirectory);
+    if (NEXT_DIRECTORY === null) {
+        return null;
+    }
+    if (NEXT_DIRECTORY === currentDirectory) {
+        return currentDirectory;
+    }
+    return resolveRootFromStep(NEXT_DIRECTORY, remainingSteps - 1);
+}
+
+function resolveRootFrom(startDirectory: string): string | null {
+    return resolveRootFromStep(startDirectory, ROOT_SEARCH_ASCENT_LIMIT);
 }
 
 function parsedBridgeTimeout(rawTimeout: unknown): number | null {

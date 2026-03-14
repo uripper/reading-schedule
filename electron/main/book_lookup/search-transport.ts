@@ -31,6 +31,17 @@ function generalSearchUrls(encodedQuery: string): string[] {
     ];
 }
 
+function isRedirectStatus(status: number): boolean {
+    return (
+        status >= HTTP_STATUS_REDIRECT_MIN &&
+        status < HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE
+    );
+}
+
+function isErrorStatus(response: Response, status: number): boolean {
+    return status >= HTTP_STATUS_ERROR_MIN || !response.ok;
+}
+
 /**
  * Builds prioritized Open Library query URLs for a search string.
  * @param query - Raw user query text.
@@ -55,13 +66,10 @@ export function searchUrls(query: string, authorOnly = false): string[] {
 export async function fetchJson(url: string): Promise<SearchResponse> {
     const RESPONSE = await globalThis.fetch(url, { redirect: "follow" });
     const STATUS = Number(RESPONSE.status || 0);
-    if (
-        STATUS >= HTTP_STATUS_REDIRECT_MIN &&
-        STATUS < HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE
-    ) {
+    if (isRedirectStatus(STATUS)) {
         throw new Error(`Unexpected redirect status (${STATUS})`);
     }
-    if (STATUS >= HTTP_STATUS_ERROR_MIN || !RESPONSE.ok) {
+    if (isErrorStatus(RESPONSE, STATUS)) {
         throw new Error(`Request failed (${STATUS})`);
     }
     return (await RESPONSE.json()) as SearchResponse;

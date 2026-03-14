@@ -1,21 +1,25 @@
 import type { SearchDoc } from "@reading-schedule/contracts";
 import { primaryAuthor } from "./search-text.ts";
 
-function docDeduplicationKey(doc: SearchDoc): string {
-    const KEY = String(doc.key ?? "").trim();
+function trimmedDocKey(doc: SearchDoc): string {
+    return String(doc.key ?? "").trim();
+}
 
-    if (KEY.length > 0) {
-        return KEY;
-    }
-
+function fallbackDeduplicationKey(doc: SearchDoc): string {
     const TITLE = String(doc.title ?? "").trim();
     const AUTHOR = primaryAuthor(doc).trim();
-
     if (TITLE.length === 0 && AUTHOR.length === 0) {
         return "";
     }
-
     return `${TITLE}|${AUTHOR}`;
+}
+
+function docDeduplicationKey(doc: SearchDoc): string {
+    const KEY = trimmedDocKey(doc);
+    if (KEY.length > 0) {
+        return KEY;
+    }
+    return fallbackDeduplicationKey(doc);
 }
 
 function appendUniqueDoc(

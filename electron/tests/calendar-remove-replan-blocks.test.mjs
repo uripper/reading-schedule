@@ -79,12 +79,12 @@ test("removeSessionRow blocks the same day-book pair from future replan merges",
     assert.ok(updates > 0);
 
     const REPLANNED_ROWS = [REMOVED_ROW, KEEP_ROW];
-    const MERGED = mergeScheduleRows(
-        [],
-        REPLANNED_ROWS,
-        [],
-        STATE.blockedDayBooks,
-    );
+    const MERGED = mergeScheduleRows({
+        blockedDayBooks: STATE.blockedDayBooks,
+        nextRows: REPLANNED_ROWS,
+        previousRows: [],
+        sessions: [],
+    });
 
     assert.equal(
         MERGED.some(

@@ -19,6 +19,13 @@ interface CompletionStateUpdateArgs {
     keys: string[];
 }
 
+function rowText(value: unknown): string {
+    if (typeof value !== "string") {
+        return "";
+    }
+    return value;
+}
+
 /**
  * Returns a day-book completion key for a given completion row or an empty string when the row or required fields are missing.
  * @example
@@ -28,16 +35,12 @@ interface CompletionStateUpdateArgs {
  * @returns {string} A string key produced by dayBookCompletionKey(date, book_id) or an empty string if row is undefined or invalid.
  **/
 const COMPLETION_FALLBACK_KEY = (row: CompletionRow | undefined): string => {
-    if (row === undefined) {
+    const DATE = rowText(row?.date);
+    const BOOK_ID = rowText(row?.book_id);
+    if (DATE === "" || BOOK_ID === "") {
         return "";
     }
-    if (typeof row.date !== "string" || row.date === "") {
-        return "";
-    }
-    if (typeof row.book_id !== "string" || row.book_id === "") {
-        return "";
-    }
-    return dayBookCompletionKey(row.date, row.book_id);
+    return dayBookCompletionKey(DATE, BOOK_ID);
 };
 
 function completionKeys(sessionKey: string, fallbackKey: string): string[] {
@@ -87,19 +90,24 @@ const COMPLETION_STATUS_MESSAGE = (
     row: CompletionRow | undefined,
     completed: boolean,
 ): string => {
-    const TITLE = row?.title;
-    if (typeof TITLE !== "string" || TITLE === "") {
+    const TITLE = rowText(row?.title);
+    const DATE = rowText(row?.date);
+    if (TITLE === "" || DATE === "") {
         return "";
     }
-    const DATE = row?.date;
-    if (typeof DATE !== "string" || DATE === "") {
-        return "";
-    }
-    if (completed) {
-        return `Marked "${TITLE}" complete on ${DATE}.`;
-    }
-    return `Marked "${TITLE}" incomplete on ${DATE}.`;
+    return completionStatusText(TITLE, DATE, completed);
 };
+
+function completionStatusText(
+    title: string,
+    date: string,
+    completed: boolean,
+): string {
+    if (completed) {
+        return `Marked "${title}" complete on ${date}.`;
+    }
+    return `Marked "${title}" incomplete on ${date}.`;
+}
 
 /**
  * Determines whether a session (or its day-book fallback session) is marked complete in the provided completion state.
@@ -137,6 +145,15 @@ const HANDLE_COMPLETION_CHANGED = (
     args: AppCalendarInteractionArgs,
     payload: CompletionUpdate,
 ): void => {
+    applyCompletionChangedState(args, payload);
+    applyCompletionChangedStatus(args, payload);
+    notifySessionCompletionUpdated(args, payload);
+};
+
+function applyCompletionChangedState(
+    args: AppCalendarInteractionArgs,
+    payload: CompletionUpdate,
+): void {
     const COMPLETION_STATE = { ...args.state.scheduleCompletions };
     const FALLBACK_KEY = COMPLETION_FALLBACK_KEY(payload.row);
     SET_COMPLETION_STATE({
@@ -149,6 +166,12 @@ const HANDLE_COMPLETION_CHANGED = (
         type: "set_schedule_completions",
     });
     args.queuePersist();
+}
+
+function applyCompletionChangedStatus(
+    args: AppCalendarInteractionArgs,
+    payload: CompletionUpdate,
+): void {
     const STATUS_MESSAGE = COMPLETION_STATUS_MESSAGE(
         payload.row,
         payload.completed,
@@ -156,10 +179,17 @@ const HANDLE_COMPLETION_CHANGED = (
     if (STATUS_MESSAGE !== "") {
         args.setStatus(STATUS_MESSAGE);
     }
-    if (args.onSessionCompletionUpdated !== undefined) {
-        args.onSessionCompletionUpdated(payload);
+}
+
+function notifySessionCompletionUpdated(
+    args: AppCalendarInteractionArgs,
+    payload: CompletionUpdate,
+): void {
+    if (args.onSessionCompletionUpdated === undefined) {
+        return;
     }
-};
+    args.onSessionCompletionUpdated(payload);
+}
 
 function markProgressRowCompleted(
     args: AppCalendarInteractionArgs,

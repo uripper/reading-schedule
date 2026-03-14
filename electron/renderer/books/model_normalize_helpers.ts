@@ -172,7 +172,10 @@ function normalizedPagesRead(
     }
     let nextPagesRead = pagesRead;
     if (nextPagesRead === null) {
-        nextPagesRead = pagesReadFromProgress(progressRaw, pageState.totalPages);
+        nextPagesRead = pagesReadFromProgress(
+            progressRaw,
+            pageState.totalPages,
+        );
     }
     return clamp(nextPagesRead, 0, pageState.totalPages);
 }
@@ -185,7 +188,9 @@ function normalizedProgress(
     if (!pageState.hasPagesTotal) {
         return roundedProgress(progressRaw);
     }
-    return roundedProgress(((pagesRead ?? 0) / pageState.totalPages) * PROGRESS_MAX);
+    return roundedProgress(
+        ((pagesRead ?? 0) / pageState.totalPages) * PROGRESS_MAX,
+    );
 }
 
 /**

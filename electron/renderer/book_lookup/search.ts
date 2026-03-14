@@ -65,17 +65,20 @@ function bindLookupResultEvents(
  * @returns No return value; attaches a keydown event listener to the given search input.
  **/
 function bindLookupKeydown(args: BindLookupKeydownArgs): void {
-    args.options.searchInput.addEventListener("keydown", (event: KeyboardEvent) => {
-        handleLookupKeydown({
-            activeIndex: args.state.activeIndex,
-            clearResults: args.clearResults,
-            currentItems: args.state.currentItems,
-            event,
-            searchInput: args.options.searchInput,
-            selectItem: args.handlers.selectItem,
-            setActiveIndex: args.handlers.setActiveIndex,
-        });
-    });
+    args.options.searchInput.addEventListener(
+        "keydown",
+        (event: KeyboardEvent) => {
+            handleLookupKeydown({
+                activeIndex: args.state.activeIndex,
+                clearResults: args.clearResults,
+                currentItems: args.state.currentItems,
+                event,
+                searchInput: args.options.searchInput,
+                selectItem: args.handlers.selectItem,
+                setActiveIndex: args.handlers.setActiveIndex,
+            });
+        },
+    );
 }
 
 function shouldClearLookupResults(
@@ -176,6 +179,42 @@ function lookupBinding(
     };
 }
 
+function createLookupSearchState(): LookupSearchState {
+    return {
+        activeIndex: -1,
+        currentItems: [],
+        timer: null,
+        token: 0,
+    };
+}
+
+function createLookupController(
+    options: BindBookLookupOptions,
+    state: LookupSearchState,
+) {
+    return createLookupStateController({
+        metaEl: options.metaEl,
+        onPick: options.onPick,
+        placeholder: placeholderCoverSvg(),
+        resultsEl: options.resultsEl,
+        searchInput: options.searchInput,
+        state,
+    });
+}
+
+function bindLookupDocumentClear(
+    options: BindBookLookupOptions,
+    clearResults: () => void,
+): (event: MouseEvent) => void {
+    const ON_DOC_CLICK = createOutsideClickHandler(
+        options.searchInput,
+        options.resultsEl,
+        clearResults,
+    );
+    document.addEventListener("click", ON_DOC_CLICK);
+    return ON_DOC_CLICK;
+}
+
 /**
  * Binds all lookup search interactions (input, keyboard, mouse, outside click).
  * @param options - Lookup binding options and callbacks.
@@ -186,28 +225,13 @@ function lookupBinding(
  * @returns Binding handle with clear/destroy controls.
  */
 export function bindBookLookup(options: BindBookLookupOptions): LookupBinding {
-    const PLACEHOLDER = placeholderCoverSvg();
-    const STATE: LookupSearchState = {
-        activeIndex: -1,
-        currentItems: [],
-        timer: null,
-        token: 0,
-    };
-    const LOOKUP_STATE = createLookupStateController({
-        metaEl: options.metaEl,
-        onPick: options.onPick,
-        placeholder: PLACEHOLDER,
-        resultsEl: options.resultsEl,
-        searchInput: options.searchInput,
-        state: STATE,
-    });
+    const STATE = createLookupSearchState();
+    const LOOKUP_STATE = createLookupController(options, STATE);
     const HANDLERS = lookupActionHandlers(LOOKUP_STATE);
     bindLookupInteractions({ handlers: HANDLERS, options, state: STATE });
-    const ON_DOC_CLICK = createOutsideClickHandler(
-        options.searchInput,
-        options.resultsEl,
+    const ON_DOC_CLICK = bindLookupDocumentClear(
+        options,
         HANDLERS.clearResults,
     );
-    document.addEventListener("click", ON_DOC_CLICK);
     return lookupBinding(HANDLERS.clearResults, ON_DOC_CLICK);
 }

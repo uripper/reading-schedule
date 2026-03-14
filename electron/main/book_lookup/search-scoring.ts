@@ -80,24 +80,35 @@ function tokenMatchScore(
     return score;
 }
 
+function languageScore(doc: SearchDoc): number {
+    if (hasEnglishLanguage(doc)) {
+        return SCORE_ENGLISH_LANGUAGE;
+    }
+    return 0;
+}
+
+function pageCountScore(doc: SearchDoc): number {
+    if (Number(doc.number_of_pages_median ?? 0) > 0) {
+        return SCORE_HAS_PAGE_COUNT;
+    }
+    return 0;
+}
+
+function editionCountScore(doc: SearchDoc): number {
+    const EDITION_COUNT = Number(doc.edition_count ?? 0);
+    if (EDITION_COUNT > 0) {
+        return Math.min(SCORE_MAX_EDITION_COUNT, EDITION_COUNT);
+    }
+    return 0;
+}
+
 /**
  * Scores metadata quality signals such as language/pages/editions.
  * @param doc - Open Library search document.
  * @returns Metadata contribution to overall score.
  */
 function metadataScore(doc: SearchDoc): number {
-    let score = 0;
-    if (hasEnglishLanguage(doc)) {
-        score += SCORE_ENGLISH_LANGUAGE;
-    }
-    if (Number(doc.number_of_pages_median ?? 0) > 0) {
-        score += SCORE_HAS_PAGE_COUNT;
-    }
-    const EDITION_COUNT = Number(doc.edition_count ?? 0);
-    if (EDITION_COUNT > 0) {
-        score += Math.min(SCORE_MAX_EDITION_COUNT, EDITION_COUNT);
-    }
-    return score;
+    return languageScore(doc) + pageCountScore(doc) + editionCountScore(doc);
 }
 
 function standardSearchScore(
