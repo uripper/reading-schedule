@@ -97,10 +97,6 @@ export function appendedLogTail(previous: string, current: string): string {
     return current;
 }
 
-function streamChunkText(chunk: Buffer | string): string {
-    return chunk.toString();
-}
-
 function logStreamChunk(
     streamName: StreamName,
     requestId: string | null,
@@ -132,7 +128,7 @@ function attachStreamBuffer({
         return;
     }
     stream.on("data", (chunk: Buffer | string) => {
-        const TEXT = streamChunkText(chunk);
+        const TEXT = chunk.toString();
         appendStreamChunk(buffers, streamName, TEXT);
         logStreamChunk(streamName, requestId, TEXT);
     });

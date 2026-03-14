@@ -75,7 +75,10 @@ function mergeDisplayRows(
     completedBookRows: CalendarDisplayRow[],
 ): CalendarDisplayRow[] {
     const COMPLETED_BY_BOOK_ID = completedRowsByBookId(completedBookRows);
-    const PROCESSED_ROWS = processReadingRows(plannedRows, COMPLETED_BY_BOOK_ID);
+    const PROCESSED_ROWS = processReadingRows(
+        plannedRows,
+        COMPLETED_BY_BOOK_ID,
+    );
     return finishFirstRows([
         ...PROCESSED_ROWS.Out,
         ...missingCompletedRows(
@@ -156,11 +159,12 @@ function emptyCalendarMonth(
     state: CalendarState,
     actions: MonthActions,
 ): void {
+    const CALENDAR_STATE = state;
     const EMPTY = document.createElement("p");
     EMPTY.className = "hint-text";
     EMPTY.textContent = "No schedule yet.";
     calendar.replaceChildren(EMPTY);
-    state.monthCellKeys = [];
+    CALENDAR_STATE.monthCellKeys = [];
     actions.renderDetails();
 }
 
@@ -183,6 +187,32 @@ function monthContext(monthKey: string): {
     };
 }
 
+function applyMonthCellKeys(state: CalendarState, cells: Date[]): void {
+    const CALENDAR_STATE = state;
+    CALENDAR_STATE.monthCellKeys = cells.map((date) => dayKey(date));
+}
+
+function renderMonthKey(options: {
+    actions: MonthActions;
+    calendar: HTMLElement;
+    calendarState: CalendarState;
+    monthKey: string;
+}): void {
+    const MONTH_CONTEXT = monthContext(options.monthKey);
+    applyMonthCellKeys(options.calendarState, MONTH_CONTEXT.cells);
+    ensureSelectedDateInMonth(options.calendarState);
+    renderCalendarCells({
+        actions: options.actions,
+        calendar: options.calendar,
+        calendarState: options.calendarState,
+        cells: MONTH_CONTEXT.cells,
+        firstDate: MONTH_CONTEXT.firstDate,
+        grid: monthGrid(options.monthKey),
+        moveSelectionBy: options.actions.moveSelectionBy,
+        todayKey: todayDayKey(),
+    });
+}
+
 /**
  * Renders month grid, day buttons, and keyboard interactions.
  * @param state - Calendar render state.
@@ -195,25 +225,17 @@ export function renderCalendarMonth(
     state: CalendarState,
     actions: MonthActions,
 ): void {
-    const CALENDAR_STATE = state;
-    const MONTH_KEY = CALENDAR_STATE.months[CALENDAR_STATE.index];
+    const MONTH_KEY = state.months[state.index];
     const CALENDAR = el("calendar");
     if (!MONTH_KEY) {
-        emptyCalendarMonth(CALENDAR, CALENDAR_STATE, actions);
+        emptyCalendarMonth(CALENDAR, state, actions);
         return;
     }
-    const MONTH_CONTEXT = monthContext(MONTH_KEY);
-    CALENDAR_STATE.monthCellKeys = MONTH_CONTEXT.cells.map((date) => dayKey(date));
-    ensureSelectedDateInMonth(CALENDAR_STATE);
-    renderCalendarCells({
+    renderMonthKey({
         actions,
         calendar: CALENDAR,
-        calendarState: CALENDAR_STATE,
-        cells: MONTH_CONTEXT.cells,
-        firstDate: MONTH_CONTEXT.firstDate,
-        grid: monthGrid(MONTH_KEY),
-        moveSelectionBy: actions.moveSelectionBy,
-        todayKey: todayDayKey(),
+        calendarState: state,
+        monthKey: MONTH_KEY,
     });
 }
 
@@ -247,10 +269,11 @@ function bindDayButtonActions(options: {
     monthCellCount: number;
     moveSelectionBy: (delta: number, currentIndex: number) => void;
 }): void {
-    options.button.onclick = () => {
+    const BUTTON = options.button;
+    BUTTON.onclick = () => {
         options.actions.selectDate(options.keyForDay);
     };
-    options.button.onkeydown = (event) => {
+    BUTTON.onkeydown = (event) => {
         handleDayKeydown(
             event,
             options.currentIndex,
@@ -260,19 +283,31 @@ function bindDayButtonActions(options: {
     };
 }
 
+function dayButtonElement(options: {
+    args: RenderCalendarCellsArgs;
+    date: Date;
+    keyForDay: string;
+}): HTMLButtonElement {
+    return createDayButton({
+        date: options.date,
+        firstDate: options.args.firstDate,
+        keyForDay: options.keyForDay,
+        rows: rowsForDay(options.args, options.keyForDay),
+        selectedDate: options.args.calendarState.selectedDate,
+        todayKey: options.args.todayKey,
+    });
+}
+
 function calendarDayButton(options: {
     args: RenderCalendarCellsArgs;
     date: Date;
     index: number;
 }): HTMLButtonElement {
     const KEY_FOR_DAY = options.args.calendarState.monthCellKeys[options.index];
-    const DAY_BUTTON = createDayButton({
+    const DAY_BUTTON = dayButtonElement({
+        args: options.args,
         date: options.date,
-        firstDate: options.args.firstDate,
         keyForDay: KEY_FOR_DAY,
-        rows: rowsForDay(options.args, KEY_FOR_DAY),
-        selectedDate: options.args.calendarState.selectedDate,
-        todayKey: options.args.todayKey,
     });
     bindDayButtonActions({
         actions: options.args.actions,
@@ -285,7 +320,9 @@ function calendarDayButton(options: {
     return DAY_BUTTON;
 }
 
-function calendarDayButtons(args: RenderCalendarCellsArgs): HTMLButtonElement[] {
+function calendarDayButtons(
+    args: RenderCalendarCellsArgs,
+): HTMLButtonElement[] {
     return args.cells.map((date, index) => {
         return calendarDayButton({ args, date, index });
     });
