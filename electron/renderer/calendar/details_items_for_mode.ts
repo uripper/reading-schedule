@@ -7,11 +7,12 @@ import type {
     DayMode,
     DetailInteractionHandlers,
 } from "../../types/types.ts";
+import { buildFutureSessionItem } from "./details_session_future.ts";
+import { buildPastSessionItem } from "./details_session_past.ts";
 import {
-    buildFutureSessionItem,
-    buildPastSessionItem,
     buildTodaySessionItem,
-} from "./details_session_items.ts";
+    type BuildTodaySessionItemArgs,
+} from "./details_session_today.ts";
 
 // TODO: Move these detail-renderer contracts into `electron/types` when the
 // calendar details modules are normalized.
@@ -30,12 +31,7 @@ interface DetailsItemBuilders<TNode> {
         interactionHandlers: DetailInteractionHandlers,
         rerenderDetails: () => void,
     ): TNode;
-    today(
-        row: CalendarRowWithFinish,
-        state: CalendarDetailsState,
-        interactionHandlers: DetailInteractionHandlers,
-        rerenderDetails: () => void,
-    ): TNode;
+    today(args: BuildTodaySessionItemArgs): TNode;
 }
 
 // TODO: Move these detail-renderer contracts into `electron/types` when the
@@ -61,12 +57,12 @@ function buildPastItems<TNode>(args: BuildSessionItemsArgs<TNode>): TNode[] {
 
 function buildTodayItems<TNode>(args: BuildSessionItemsArgs<TNode>): TNode[] {
     return args.rows.map((row) => {
-        return args.builders.today(
+        return args.builders.today({
+            interactionHandlers: args.interactionHandlers,
+            rerenderDetails: args.rerenderDetails,
             row,
-            args.state,
-            args.interactionHandlers,
-            args.rerenderDetails,
-        );
+            state: args.state,
+        });
     });
 }
 

@@ -16,96 +16,86 @@ import {
 import { estimateProgressLabel } from "./estimates.ts";
 import { sessionKeyFor } from "./utils.ts";
 
+export interface BuildTodaySessionItemArgs {
+    interactionHandlers: DetailInteractionHandlers;
+    rerenderDetails: () => void;
+    row: CalendarRowWithFinish;
+    state: CalendarStateSubset;
+}
+
 interface CompletionUi {
     checkbox: HTMLInputElement;
     label: HTMLElement;
     sessionKey: string;
 }
 
-/**
- * Create UI controls for marking a session complete and wire up interaction handlers.
- * @example
- * createCompletionUi(row, interactionHandlers, item, rerenderDetails)
- * { checkbox: HTMLInputElement, label: HTMLLabelElement, sessionKey: string }
- * @param {CalendarRowWithFinish} row - The calendar row describing the session (including finish info).
- * @param {DetailInteractionHandlers} interactionHandlers - Handlers to query and update session completion state.
- * @param {HTMLElement} item - Container DOM element to attach the completion UI and toggle completion class on.
- * @param {() => void} rerenderDetails - Callback invoked to re-render detail UI after completion changes.
- * @returns {CompletionUi} An object containing the created checkbox input, label element, and sessionKey.
- **/
-function createCompletionUi(
-    row: CalendarRowWithFinish,
-    interactionHandlers: DetailInteractionHandlers,
-    item: HTMLElement,
-    rerenderDetails: () => void,
-): CompletionUi {
-    const SESSION_KEY = sessionKeyFor(row);
-    const COMPLETE_LABEL = document.createElement("label");
-    COMPLETE_LABEL.className = "day-complete-toggle";
-    const COMPLETE_INPUT = document.createElement("input");
-    COMPLETE_INPUT.type = "checkbox";
-    COMPLETE_INPUT.checked = Boolean(
-        interactionHandlers.isSessionCompleted(SESSION_KEY),
-    );
-    COMPLETE_LABEL.append(COMPLETE_INPUT, COMPLETE_TOGGLE_LABEL);
-    item.classList.toggle(COMPLETE_ITEM_CLASS, COMPLETE_INPUT.checked);
-    COMPLETE_INPUT.onchange = () => {
-        const CHECKED = Boolean(COMPLETE_INPUT.checked);
-        item.classList.toggle(COMPLETE_ITEM_CLASS, CHECKED);
-        interactionHandlers.onSessionCompletionChanged({
-            completed: CHECKED,
-            row,
-            sessionKey: SESSION_KEY,
-        });
-        rerenderDetails();
-    };
-    return {
-        checkbox: COMPLETE_INPUT,
-        label: COMPLETE_LABEL,
-        sessionKey: SESSION_KEY,
-    };
-}
-
-/**
- * Append editors for today's session (minutes and progress forms) to the given item element and wire up completion handling.
- * @example
- * appendTodaySessionEditors({
- *   book: someBook, // ReturnType<DetailInteractionHandlers["getBookById"]>
- *   completeCheckbox: document.createElement('input') as HTMLInputElement,
- *   interactionHandlers: interactionHandlersInstance,
- *   item: document.createElement('div'),
- *   rerenderDetails: () => { /* re-render callback */
-function appendTodaySessionEditors(args: {
-    book: ReturnType<DetailInteractionHandlers["getBookById"]>;
-    completeCheckbox: HTMLInputElement;
+interface CompletionChangeArgs {
     interactionHandlers: DetailInteractionHandlers;
     item: HTMLElement;
     rerenderDetails: () => void;
     row: CalendarRowWithFinish;
     sessionKey: string;
-}): void {
-    const BOOK = args.book ?? fallbackBookForRow(args.row);
-    /**
-     * Mark the given session as completed, update its UI state, and notify listeners.
-     * @example
-     * markSessionComplete(args)
-     * undefined
-     * @param {Object} args - Object containing completeCheckbox, item, interactionHandlers, row, sessionKey and rerenderDetails used to complete the session.
-     * @returns {void} Does not return a value.
-     **/
-    const MARK_COMPLETE_FROM_PROGRESS_UPDATE = (): void => {
-        if (args.completeCheckbox.checked) {
-            return;
-        }
-        args.completeCheckbox.checked = true;
-        args.item.classList.add(COMPLETE_ITEM_CLASS);
-        args.interactionHandlers.onSessionCompletionChanged({
-            completed: true,
-            row: args.row,
-            sessionKey: args.sessionKey,
-        });
-        args.rerenderDetails();
+}
+
+interface AppendTodaySessionEditorsArgs extends CompletionChangeArgs {
+    book: ReturnType<DetailInteractionHandlers["getBookById"]>;
+    checkbox: HTMLInputElement;
+}
+
+function completionToggle(
+    interactionHandlers: DetailInteractionHandlers,
+    sessionKey: string,
+): CompletionUi {
+    const LABEL = document.createElement("label");
+    LABEL.className = "day-complete-toggle";
+    const CHECKBOX = document.createElement("input");
+    CHECKBOX.type = "checkbox";
+    CHECKBOX.checked = Boolean(interactionHandlers.isSessionCompleted(sessionKey));
+    LABEL.append(CHECKBOX, COMPLETE_TOGGLE_LABEL);
+    return { checkbox: CHECKBOX, label: LABEL, sessionKey };
+}
+
+function notifyCompletionChange(
+    args: CompletionChangeArgs,
+    completed: boolean,
+): void {
+    args.item.classList.toggle(COMPLETE_ITEM_CLASS, completed);
+    args.interactionHandlers.onSessionCompletionChanged({
+        completed,
+        row: args.row,
+        sessionKey: args.sessionKey,
+    });
+    args.rerenderDetails();
+}
+
+function createCompletionUi(args: CompletionChangeArgs): CompletionUi {
+    const SESSION_KEY = sessionKeyFor(args.row);
+    const TOGGLE = completionToggle(args.interactionHandlers, SESSION_KEY);
+    args.item.classList.toggle(COMPLETE_ITEM_CLASS, TOGGLE.checkbox.checked);
+    TOGGLE.checkbox.onchange = () => {
+        notifyCompletionChange(
+            { ...args, sessionKey: SESSION_KEY },
+            Boolean(TOGGLE.checkbox.checked),
+        );
     };
+    return { ...TOGGLE, sessionKey: SESSION_KEY };
+}
+
+function markSessionComplete(args: AppendTodaySessionEditorsArgs): void {
+    const CHECKBOX = args.checkbox;
+    if (CHECKBOX.checked) {
+        return;
+    }
+    CHECKBOX.checked = true;
+    notifyCompletionChange(args, true);
+}
+
+function todaySessionBook(args: BuildTodaySessionItemArgs) {
+    return args.interactionHandlers.getBookById(args.row.book_id)
+        ?? fallbackBookForRow(args.row);
+}
+
+function appendTodaySessionEditors(args: AppendTodaySessionEditorsArgs): void {
     args.item.append(
         minutesFormForSession(
             args.row,
@@ -116,58 +106,60 @@ function appendTodaySessionEditors(args: {
     args.item.append(
         progressFormForToday(
             args.row,
-            BOOK,
+            args.book,
             args.interactionHandlers,
-            MARK_COMPLETE_FROM_PROGRESS_UPDATE,
+            () => {
+                markSessionComplete(args);
+            },
         ),
     );
 }
 
-/**
- * Builds details row node for today sessions with progress and completion UX.
- * @param row - Calendar row.
- * @param state - Calendar state subset.
- * @param interactionHandlers - Detail interaction handlers.
- * @param rerenderDetails - Details rerender callback.
- * @returns Rendered row element.
- */
-export function buildTodaySessionItem(
-    row: CalendarRowWithFinish,
-    state: CalendarStateSubset,
-    interactionHandlers: DetailInteractionHandlers,
-    rerenderDetails: () => void,
-): HTMLElement {
-    const ITEM = baseSessionItem(row);
-    const COMPLETION_UI = createCompletionUi(
-        row,
-        interactionHandlers,
-        ITEM,
-        rerenderDetails,
-    );
+function estimateElement(args: BuildTodaySessionItemArgs): HTMLParagraphElement {
     const ESTIMATE = document.createElement("p");
     ESTIMATE.className = DAY_DETAILS_META_CLASS;
     ESTIMATE.textContent = estimateProgressLabel(
-        row,
-        state,
-        interactionHandlers.getBookById,
-        interactionHandlers.isSessionCompleted,
+        args.row,
+        args.state,
+        args.interactionHandlers.getBookById,
+        args.interactionHandlers.isSessionCompleted,
     );
-    const INCLUDE_ESTIMATE = !interactionHandlers.isSessionCompleted(
-        COMPLETION_UI.sessionKey,
+    return ESTIMATE;
+}
+
+function appendEstimateIfIncomplete(options: {
+    completionUi: CompletionUi;
+    estimate: HTMLParagraphElement;
+    interactionHandlers: DetailInteractionHandlers;
+    item: HTMLElement;
+}): void {
+    const IS_COMPLETED = options.interactionHandlers.isSessionCompleted(
+        options.completionUi.sessionKey,
     );
+    if (!IS_COMPLETED) {
+        options.item.append(options.estimate);
+    }
+}
+
+export function buildTodaySessionItem(
+    args: BuildTodaySessionItemArgs,
+): HTMLElement {
+    const ITEM = baseSessionItem(args.row);
+    const COMPLETION_UI = createCompletionUi({ ...args, item: ITEM, sessionKey: "" });
     ITEM.append(COMPLETION_UI.label);
     appendTodaySessionEditors({
-        book: interactionHandlers.getBookById(row.book_id),
-        completeCheckbox: COMPLETION_UI.checkbox,
-        interactionHandlers,
+        ...args,
+        book: todaySessionBook(args),
+        checkbox: COMPLETION_UI.checkbox,
         item: ITEM,
-        rerenderDetails,
-        row,
         sessionKey: COMPLETION_UI.sessionKey,
     });
-    if (INCLUDE_ESTIMATE) {
-        ITEM.append(ESTIMATE);
-    }
-    ITEM.append(removeSessionButton(row, interactionHandlers, rerenderDetails));
+    appendEstimateIfIncomplete({
+        completionUi: COMPLETION_UI,
+        estimate: estimateElement(args),
+        interactionHandlers: args.interactionHandlers,
+        item: ITEM,
+    });
+    ITEM.append(removeSessionButton(args.row, args.interactionHandlers, args.rerenderDetails));
     return ITEM;
 }

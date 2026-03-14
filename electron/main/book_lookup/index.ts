@@ -71,6 +71,13 @@ function parsedUrlOrNull(urlText: string): URL | null {
     }
 }
 
+/**
+ * Checks whether a hostname is blocked from cover downloads.
+ * This prevents downloading covers from localhost and common private network ranges.
+ *
+ * @param hostname - Hostname portion of a parsed URL.
+ * @returns True when the hostname is considered private or loopback, otherwise false.
+ */
 function hasBlockedCoverHostname(hostname: string): boolean {
     return (
         hostname === "localhost" ||
@@ -116,10 +123,6 @@ function resolveDownloadCoverInput(
     };
 }
 
-function persistedCoverFileUrl(filePath: string): string {
-    return pathToFileURL(filePath).href;
-}
-
 function persistDownloadedCover(
     input: DownloadCoverInput,
     bookId: string | undefined,
@@ -128,7 +131,7 @@ function persistDownloadedCover(
     const EXTENSION = extensionFor(cover.contentType, input.parsedUrl);
     const FILE_PATH = filePathForCover(input.userDataDir, bookId, EXTENSION);
     writeFileSync(FILE_PATH, new Uint8Array(cover.bytes));
-    return persistedCoverFileUrl(FILE_PATH);
+    return pathToFileURL(FILE_PATH).href;
 }
 
 /**
@@ -165,7 +168,7 @@ function persistUploadedCover(
         parsedCover.extension,
     );
     writeFileSync(FILE_PATH, parsedCover.bytes);
-    return persistedCoverFileUrl(FILE_PATH);
+    return pathToFileURL(FILE_PATH).href;
 }
 
 /**

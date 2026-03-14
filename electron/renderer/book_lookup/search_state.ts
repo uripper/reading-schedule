@@ -25,26 +25,31 @@ function clearRenderedLookupResults(
     const RESULTS_EL = resultsEl;
     RESULTS_EL.classList.remove("has-items");
     RESULTS_EL.replaceChildren();
-    updateComboboxA11y(searchInput, RESULTS_EL, false, -1);
+    updateComboboxA11y({
+        activeIndex: -1,
+        hasItems: false,
+        resultsEl: RESULTS_EL,
+        searchInput,
+    });
 }
 
 function updateRenderedLookupA11y(deps: LookupControllerDeps): void {
-    updateComboboxA11y(
-        deps.searchInput,
-        deps.resultsEl,
-        true,
-        deps.state.activeIndex,
-    );
+    updateComboboxA11y({
+        activeIndex: deps.state.activeIndex,
+        hasItems: true,
+        resultsEl: deps.resultsEl,
+        searchInput: deps.searchInput,
+    });
 }
 
 function renderLookupItems(deps: LookupControllerDeps): void {
     const RESULTS_EL = deps.resultsEl;
-    renderLookupResults(
-        RESULTS_EL,
-        deps.state.currentItems,
-        deps.placeholder,
-        deps.state.activeIndex,
-    );
+    renderLookupResults({
+        activeIndex: deps.state.activeIndex,
+        items: deps.state.currentItems,
+        placeholder: deps.placeholder,
+        resultsEl: RESULTS_EL,
+    });
     RESULTS_EL.classList.add("has-items");
     updateRenderedLookupA11y(deps);
 }
