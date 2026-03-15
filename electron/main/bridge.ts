@@ -6,6 +6,7 @@ import { resolveExecutionContext } from "./bridge/context.ts";
 import { runBridgeForModule } from "./bridge/runner.ts";
 import type { BridgeRunContext } from "./bridge/types.ts";
 
+// TODO: Move these interfaces to contracts
 interface BridgeCandidateArgs {
     args: string[];
     executionContext: ReturnType<typeof resolveExecutionContext>;
@@ -92,6 +93,7 @@ function shouldTryFallbackModule(
     );
 }
 
+// TODO: Probably makes sense to move all logging to a dedicated module
 function logModuleFallback(
     requestId: string | null,
     moduleIndex: number,
