@@ -43,7 +43,7 @@ interface BuildRowArgs {
     previousRows: PlannerScheduleRow[];
 }
 
-export interface ManualSessionAddResult {
+interface ManualSessionAddResult {
     nextResult: ReturnType<typeof nextResultWithRows>;
     normalizedDate: string;
     row: PlannerScheduleRow;

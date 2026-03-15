@@ -18,7 +18,6 @@ export type {
     TodayCarouselActiveItem,
     TodayCarouselBookItem,
     TodayCarouselModel,
-    TodayCarouselSessionItem,
 } from "./today-carousel-model-types.ts";
 
 function todayRows(lastResult: PlannerResult | null): PlannerScheduleRow[] {
