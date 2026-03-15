@@ -10,6 +10,7 @@ const THEME_SYSTEM = "system";
 const THEME_DARK = "dark";
 const THEME_LIGHT = "light";
 
+// TODO: Move interfaces and types to our contracts package
 interface AnnouncementArgs {
     clearTimer: ReturnType<typeof setTimeout> | null;
     message: string;

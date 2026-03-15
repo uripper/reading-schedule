@@ -2,6 +2,7 @@ import { todayKey } from "../../sessions/utils.ts";
 
 const MIN_DAY_ROLLOVER_DELAY_MS = 1;
 
+// TODO: Move interfaces and types to our contracts package
 interface DayRolloverDocument {
     addEventListener(type: "visibilitychange", listener: () => void): void;
     removeEventListener(type: "visibilitychange", listener: () => void): void;
