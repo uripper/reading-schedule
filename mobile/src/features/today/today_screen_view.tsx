@@ -129,20 +129,6 @@ interface TodayCarouselItemProps {
 
 type TodayTheme = ReturnType<typeof useTodayThemeTransition>["currentTheme"];
 
-interface TodayScreenContentProps {
-    activeBook: TodayBookCard;
-    activeIndex: number;
-    books: TodayBookCard[];
-    cardWidth: number;
-    carouselSideInset: number;
-    currentTheme: TodayTheme;
-    itemWidth: number;
-    onCardPress(index: number): void;
-    previousTheme: TodayTheme;
-    stats: TodayStats;
-    syncActiveIndex: TodayCarouselProps["onMomentumScrollEnd"];
-    themeProgress: ComponentProps<typeof TodayThemeTransitionLayer>["progress"];
-}
 
 interface TodayScreenState {
     activeBook: TodayBookCard | null;
@@ -155,6 +141,11 @@ interface TodayScreenState {
     previousTheme: TodayTheme;
     syncActiveIndex: TodayCarouselProps["onMomentumScrollEnd"];
     themeProgress: ComponentProps<typeof TodayThemeTransitionLayer>["progress"];
+}
+
+interface TodayScreenContentProps extends TodayScreenState {
+    books: TodayBookCard[];
+    stats: TodayStats;
 }
 
 const CAROUSEL_SPACER_STYLE = { width: CAROUSEL_GAP } as const;

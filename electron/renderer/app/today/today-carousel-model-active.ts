@@ -5,19 +5,15 @@ import type {
 } from "../../../types/types.ts";
 import { estimateSnapshotForRow } from "../../calendar/estimates_snapshot.ts";
 import { totalsFromSummary } from "../runtime_helpers.ts";
+import { booksById } from "./today-carousel-model-helpers.ts";
 import type {
     TodayCarouselActiveItem,
     TodayCarouselBookItem,
     TodayCarouselSessionItem,
 } from "./today-carousel-model-types.ts";
 
-const EMPTY_TEXT = "";
 const MIN_PROGRESS = 0;
 const MAX_PROGRESS = 100;
-
-function normalizedBookId(value: unknown): string {
-    return String(value || EMPTY_TEXT).trim();
-}
 
 function clampProgress(progressRaw: number): number {
     const VALUE = Number(progressRaw || MIN_PROGRESS);
@@ -41,18 +37,6 @@ function normalizedPages(value: number | null | undefined): number | null {
         return MIN_PROGRESS;
     }
     return Math.round(value);
-}
-
-function booksById(books: Book[]): Map<string, Book> {
-    const BY_ID = new Map<string, Book>();
-    for (const BOOK of books) {
-        const BOOK_ID = normalizedBookId(BOOK.book_id);
-        if (BOOK_ID === EMPTY_TEXT) {
-            continue;
-        }
-        BY_ID.set(BOOK_ID, BOOK);
-    }
-    return BY_ID;
 }
 
 function resolvedPagesRead(

@@ -4,6 +4,7 @@ import type {
     SetActiveIndex,
 } from "../../types/types.ts";
 
+// TODO: Move these interfaces to packages/contracts
 interface LookupNavigationArgs {
     activeIndex: number;
     currentItems: readonly BookLookupItem[];
@@ -18,23 +19,27 @@ interface LookupSelectionArgs {
     selectItem: HandleLookupKeydownArgs["selectItem"];
 }
 
-/**
- * Moves highlight to the next search result when ArrowDown is pressed.
- * @param event - Keyboard event for the lookup input.
- * @param currentItems - Current result list shown in the lookup menu.
- * @param activeIndex - Currently highlighted index, or -1 when none is active.
- * @param setActiveIndex - Callback used to update highlighted result index.
- */
-function handleArrowDown(args: LookupNavigationArgs): void {
+type ArrowStep = {
+    initialIndex: number;
+    indexDelta: number;
+};
+
+function handleArrowNavigation(
+    args: LookupNavigationArgs,
+    step: ArrowStep,
+): void {
     args.event.preventDefault();
-    if (!args.currentItems.length) {
+
+    if (args.currentItems.length === 0) {
         return;
     }
+
     if (args.activeIndex < 0) {
-        args.setActiveIndex(0);
+        args.setActiveIndex(step.initialIndex);
         return;
     }
-    args.setActiveIndex(args.activeIndex + 1);
+
+    args.setActiveIndex(args.activeIndex + step.indexDelta);
 }
 
 /**
@@ -45,16 +50,27 @@ function handleArrowDown(args: LookupNavigationArgs): void {
  * @param setActiveIndex - Callback used to update highlighted result index.
  */
 function handleArrowUp(args: LookupNavigationArgs): void {
-    args.event.preventDefault();
-    if (!args.currentItems.length) {
-        return;
-    }
-    if (args.activeIndex < 0) {
-        args.setActiveIndex(args.currentItems.length - 1);
-        return;
-    }
-    args.setActiveIndex(args.activeIndex - 1);
+    handleArrowNavigation(args, {
+        indexDelta: -1,
+        initialIndex: args.currentItems.length - 1,
+    });
 }
+
+
+/**
+ * Moves highlight to the next search result when ArrowDown is pressed.
+ * @param event - Keyboard event for the lookup input.
+ * @param currentItems - Current result list shown in the lookup menu.
+ * @param activeIndex - Currently highlighted index, or -1 when none is active.
+ * @param setActiveIndex - Callback used to update highlighted result index.
+ */
+function handleArrowDown(args: LookupNavigationArgs): void {
+    handleArrowNavigation(args, {
+        indexDelta: 1,
+        initialIndex: 0,
+    });
+}
+
 
 /**
  * Selects the currently highlighted lookup result when Enter is pressed.

@@ -30,7 +30,7 @@ function isSessionCompleted(options: {
     return Boolean(options.scheduleCompletions[FALLBACK_KEY]);
 }
 
-function booksById(books: Book[]): Map<string, Book> {
+export function booksById(books: Book[]): Map<string, Book> {
     const BY_ID = new Map<string, Book>();
     for (const BOOK of books) {
         const BOOK_ID = normalizedBookId(BOOK.book_id);
