@@ -1,6 +1,7 @@
 import type { Book } from "../../types/types.ts";
 import { normalizeScheduledDays } from "./scheduled_days.ts";
 import { statusFromRaw } from "./status.ts";
+import { withNullableString } from "./model_normalize_helpers.ts";
 
 const DEFAULT_PRIORITY = 3;
 const DEFAULT_DIFFICULTY = 3;
@@ -32,18 +33,6 @@ function withDefaultString(value: string | null | undefined): string {
         return value;
     }
     return "";
-}
-
-/**
- * Normalizes optional text to nullable string for payload fields.
- * @param value - Optional text value.
- * @returns Original text when truthy; otherwise `null`.
- */
-function withNullableString(value: string | null | undefined): string | null {
-    if (value !== null && value !== undefined && value !== "") {
-        return value;
-    }
-    return null;
 }
 
 /**
