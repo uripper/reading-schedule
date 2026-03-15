@@ -50,6 +50,10 @@ export function applyAppStateMutation(
         case "set_sessions": return setSessions(state, mutation);
         case "set_book_index": return setBookIndex(state, mutation);
     }
+
+    // Explicit exhaustive-check to catch unhandled AppStateMutation variants.
+    const _exhaustiveCheck: never = mutation;
+    throw new Error(`Unhandled AppStateMutation type: ${(_exhaustiveCheck as AppStateMutation).type}`);
 }
 
 function setLastResult(
