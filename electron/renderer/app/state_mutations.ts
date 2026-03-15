@@ -11,7 +11,7 @@ type SetLastResultMutation = Extract<
     { type: "set_last_result" }
 >;
 
-type SetScheduleMutation = Extract<
+type SetScheduleCompletionsMutation = Extract<
     AppStateMutation,
     { type: "set_schedule_completions" }
 >;
@@ -44,7 +44,7 @@ export function applyAppStateMutation(
 ): void {
     switch (mutation.type) {
         case "set_last_result": return setLastResult(state, mutation);
-        case "set_schedule_completions": return setSchedule(state, mutation);
+        case "set_schedule_completions": return setScheduleCompletions(state, mutation);
         case "set_blocked_day_books": return setBlockedDays(state, mutation);
         case "set_blocked_day_book": return setBlockedDay(state, mutation);
         case "set_sessions": return setSessions(state, mutation);
@@ -63,9 +63,9 @@ function setLastResult(
     state.lastResult = mutation.lastResult;
 }
 
-function setSchedule(
+function setScheduleCompletions(
     state: AppRuntimeState,
-    mutation: SetScheduleMutation,
+    mutation: SetScheduleCompletionsMutation,
 ): void {
     state.scheduleCompletions = { ...mutation.scheduleCompletions };
     const split = splitCompletionIndexes(state.scheduleCompletions);
