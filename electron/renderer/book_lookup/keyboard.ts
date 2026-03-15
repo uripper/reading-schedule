@@ -56,7 +56,6 @@ function handleArrowUp(args: LookupNavigationArgs): void {
     });
 }
 
-
 /**
  * Moves highlight to the next search result when ArrowDown is pressed.
  * @param event - Keyboard event for the lookup input.
@@ -70,7 +69,6 @@ function handleArrowDown(args: LookupNavigationArgs): void {
         initialIndex: 0,
     });
 }
-
 
 /**
  * Selects the currently highlighted lookup result when Enter is pressed.

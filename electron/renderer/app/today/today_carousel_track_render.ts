@@ -2,7 +2,10 @@
  * Renders the Today carousel track DOM and selected-book presentation.
  */
 import { el } from "../../dom.ts";
-import type { TodayCarouselBookItem, TodayCarouselModel } from "./today_carousel_model.ts";
+import type {
+    TodayCarouselBookItem,
+    TodayCarouselModel,
+} from "./today_carousel_model.ts";
 
 const MIN_VISIBLE_OFFSET = -2;
 const MAX_VISIBLE_OFFSET = 2;
@@ -105,7 +108,11 @@ function buildCarouselItem(
     return ITEM;
 }
 
-function setCarouselItems(item: HTMLButtonElement, book: TodayCarouselBookItem, selectBook: (bookId: string) => void) {
+function setCarouselItems(
+    item: HTMLButtonElement,
+    book: TodayCarouselBookItem,
+    selectBook: (bookId: string) => void,
+) {
     const ITEM = item;
     ITEM.type = "button";
     ITEM.className = "today-carousel-item";
