@@ -164,7 +164,8 @@ export function writeState(
     if (JSON_SAVE.ok === false) {
         return {
             ok: true,
-            warningMessage: `SQLite save succeeded but JSON compatibility write failed: ${JSON_SAVE.error}`,
+            warningMessage: `SQLite save succeeded but JSON compatibility\
+            write failed: ${JSON_SAVE.error}`,
         };
     }
     return SQLITE_SAVE;

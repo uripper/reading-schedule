@@ -19,6 +19,8 @@ import { UI_SCALE_STEP } from "./zoom.ts";
 
 let plannerRequestCounter = 0;
 
+// TODO: Move interfaces and types to contracts 
+
 interface PlannerRequestContext {
     requestId: string;
     userDataDir: string;

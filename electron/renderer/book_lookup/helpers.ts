@@ -35,25 +35,17 @@ export function placeholderCoverSvg(): string {
     return PLACEHOLDER;
 }
 
+// TODO: Double check changes here
 /**
  * Builds a user-facing description for a selected lookup result.
  * @param item - Selected lookup item.
  * @returns Description text including source/author/year when available.
  */
 export function describeLookup(item: BookLookupItem): string {
-    const BITS: string[] = [];
-    const SOURCE = String(item.source ?? "").trim();
-    if (SOURCE.length > 0) {
-        BITS.push(SOURCE);
-    }
-    const AUTHOR = String(item.author ?? "").trim();
-    if (AUTHOR.length > 0) {
-        BITS.push(AUTHOR);
-    }
-    const YEAR = String(item.year ?? "").trim();
-    if (YEAR.length > 0) {
-        BITS.push(YEAR);
-    }
+    const BITS = [item.source, item.author, item.year]
+        .map((value) => String(value ?? "").trim())
+        .filter((bit) => bit.length > 0);
+
     if (BITS.length > 0) {
         return `Selected from ${BITS.join(" · ")}`;
     }
