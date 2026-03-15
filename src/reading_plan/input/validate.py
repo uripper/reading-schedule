@@ -159,9 +159,8 @@ def _validate_settings_positive_limits(settings: Settings) -> None:
     """Validate positive daily session and book limits."""
     check_condition(
         "Set max_sessions_per_day and max_books_per_day to positive integers",
-        condition=bool(
-            settings.max_sessions_per_day > 0 and settings.max_books_per_day > 0
-        ),
+        condition=settings.max_sessions_per_day > 0
+        and settings.max_books_per_day > 0,
     )
 
 

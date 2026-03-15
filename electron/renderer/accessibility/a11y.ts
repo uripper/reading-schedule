@@ -6,6 +6,22 @@ import { el } from "../dom.ts";
 import { bindDialogFocus } from "./a11y-dialog-focus.ts";
 
 const ANNOUNCE_DELAY_MS = 30;
+const THEME_SYSTEM = "system";
+const THEME_DARK = "dark";
+const THEME_LIGHT = "light";
+
+// TODO: Move interfaces and types to our contracts package
+interface AnnouncementArgs {
+    clearTimer: ReturnType<typeof setTimeout> | null;
+    message: string;
+    politeness: AnnouncePoliteness;
+    region: HTMLElement;
+}
+
+interface AnnouncerState {
+    clearTimer: ReturnType<typeof setTimeout> | null;
+    region: HTMLElement;
+}
 
 /**
  * Focuses the first invalid field within a form-like container.
@@ -34,24 +50,82 @@ export function focusFirstError(
 export function createAnnouncer(
     regionId = "liveRegion",
 ): (message: string, politeness?: AnnouncePoliteness) => void {
-    const REGION = el(regionId);
-    let clearTimer: ReturnType<typeof setTimeout> | null = null;
+    const STATE: AnnouncerState = { clearTimer: null, region: el(regionId) };
     return (
         message: string,
         politeness: AnnouncePoliteness = "polite",
     ): void => {
-        if (!message) {
-            return;
-        }
-        if (clearTimer) {
-            clearTimeout(clearTimer);
-        }
-        REGION.setAttribute("aria-live", politeness);
-        REGION.textContent = "";
-        clearTimer = setTimeout(() => {
-            REGION.textContent = String(message);
-        }, ANNOUNCE_DELAY_MS);
+        announceMessage(STATE, message, politeness);
     };
+}
+
+function clearAnnouncerTimer(
+    timer: ReturnType<typeof setTimeout> | null,
+): void {
+    if (timer !== null) {
+        clearTimeout(timer);
+    }
+}
+
+function scheduleAnnouncement(
+    region: HTMLElement,
+    message: string,
+): ReturnType<typeof setTimeout> {
+    const REGION = region;
+    return setTimeout(() => {
+        REGION.textContent = String(message);
+    }, ANNOUNCE_DELAY_MS);
+}
+
+function prepareAnnouncementRegion(
+    region: HTMLElement,
+    politeness: AnnouncePoliteness,
+    clearTimer: ReturnType<typeof setTimeout> | null,
+): void {
+    const REGION = region;
+    clearAnnouncerTimer(clearTimer);
+    REGION.setAttribute("aria-live", politeness);
+    REGION.textContent = "";
+}
+
+function postAnnouncement(
+    options: AnnouncementArgs,
+): ReturnType<typeof setTimeout> {
+    prepareAnnouncementRegion(
+        options.region,
+        options.politeness,
+        options.clearTimer,
+    );
+    return scheduleAnnouncement(options.region, options.message);
+}
+
+function announceMessage(
+    state: AnnouncerState,
+    message: string,
+    politeness: AnnouncePoliteness,
+): void {
+    const STATE = state;
+    if (!message) {
+        return;
+    }
+    STATE.clearTimer = postAnnouncement({
+        clearTimer: STATE.clearTimer,
+        message,
+        politeness,
+        region: STATE.region,
+    });
+}
+
+function resolvedDocumentTheme(preferences: DocumentPreferencesInput): string {
+    const THEME = preferences.theme;
+    if (
+        THEME === THEME_SYSTEM ||
+        THEME === THEME_LIGHT ||
+        THEME === THEME_DARK
+    ) {
+        return THEME;
+    }
+    return THEME_SYSTEM;
 }
 
 /**
@@ -61,20 +135,9 @@ export function createAnnouncer(
 export function applyPreferencesToDocument(
     preferences: DocumentPreferencesInput = {},
 ): void {
-    let theme = "system";
-    if (
-        typeof preferences.theme === "string" &&
-        ["system", "light", "dark"].includes(preferences.theme)
-    ) {
-        theme = preferences.theme;
-    }
-    const REDUCE_MOTION = Boolean(preferences.reduceMotion);
     const ROOT = document.documentElement;
-    ROOT.dataset.theme = theme;
-    ROOT.dataset.reduceMotion = "false";
-    if (REDUCE_MOTION) {
-        ROOT.dataset.reduceMotion = "true";
-    }
+    ROOT.dataset.theme = resolvedDocumentTheme(preferences);
+    ROOT.dataset.reduceMotion = String(preferences.reduceMotion);
 }
 
 export { bindDialogFocus };

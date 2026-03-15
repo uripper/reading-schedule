@@ -13,6 +13,34 @@ import {
 
 const OPEN_LIBRARY_SEARCH_URL = "https://openlibrary.org/search.json";
 const OPEN_LIBRARY_LANGUAGE_ENGLISH = "eng";
+const SEARCH_BASE = `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}&fields=${SEARCH_FIELDS}`;
+const AUTHOR_ONLY_SEARCH_BASE = `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}`;
+
+function authorOnlySearchUrls(encodedQuery: string): string[] {
+    return [
+        `${AUTHOR_ONLY_SEARCH_BASE}&author=${encodedQuery}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
+        `${AUTHOR_ONLY_SEARCH_BASE}&author=${encodedQuery}`,
+    ];
+}
+
+function generalSearchUrls(encodedQuery: string): string[] {
+    return [
+        `${SEARCH_BASE}&q=${encodedQuery}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
+        `${SEARCH_BASE}&author=${encodedQuery}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
+        `${SEARCH_BASE}&title=${encodedQuery}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
+    ];
+}
+
+function isRedirectStatus(status: number): boolean {
+    return (
+        status >= HTTP_STATUS_REDIRECT_MIN &&
+        status < HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE
+    );
+}
+
+function isErrorStatus(response: Response, status: number): boolean {
+    return status >= HTTP_STATUS_ERROR_MIN || !response.ok;
+}
 
 /**
  * Builds prioritized Open Library query URLs for a search string.
@@ -22,21 +50,12 @@ const OPEN_LIBRARY_LANGUAGE_ENGLISH = "eng";
  */
 export function searchUrls(query: string, authorOnly = false): string[] {
     const ENCODED = encodeURIComponent(query);
-    const BASE = `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}&fields=${SEARCH_FIELDS}`;
     if (authorOnly) {
         // Intentionally omit `fields` in author-only mode because Open Library
         // ranking quality regresses with projected fields for these queries.
-        const AUTHOR_ONLY_BASE = `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}`;
-        return [
-            `${AUTHOR_ONLY_BASE}&author=${ENCODED}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
-            `${AUTHOR_ONLY_BASE}&author=${ENCODED}`,
-        ];
+        return authorOnlySearchUrls(ENCODED);
     }
-    return [
-        `${BASE}&q=${ENCODED}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
-        `${BASE}&author=${ENCODED}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
-        `${BASE}&title=${ENCODED}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
-    ];
+    return generalSearchUrls(ENCODED);
 }
 
 /**
@@ -47,13 +66,10 @@ export function searchUrls(query: string, authorOnly = false): string[] {
 export async function fetchJson(url: string): Promise<SearchResponse> {
     const RESPONSE = await globalThis.fetch(url, { redirect: "follow" });
     const STATUS = Number(RESPONSE.status || 0);
-    if (
-        STATUS >= HTTP_STATUS_REDIRECT_MIN &&
-        STATUS < HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE
-    ) {
+    if (isRedirectStatus(STATUS)) {
         throw new Error(`Unexpected redirect status (${STATUS})`);
     }
-    if (STATUS >= HTTP_STATUS_ERROR_MIN || !RESPONSE.ok) {
+    if (isErrorStatus(RESPONSE, STATUS)) {
         throw new Error(`Request failed (${STATUS})`);
     }
     return (await RESPONSE.json()) as SearchResponse;

@@ -32,6 +32,18 @@ function experienceControlNode(id: string): HTMLElement | null {
     return null;
 }
 
+function disableHiddenInputControl(control: HTMLInputElement): void {
+    const INPUT_CONTROL = control;
+    INPUT_CONTROL.disabled = true;
+    if (INPUT_CONTROL.type === "checkbox") {
+        INPUT_CONTROL.checked = false;
+        return;
+    }
+    if (INPUT_CONTROL.type === "time") {
+        INPUT_CONTROL.value = DEFAULT_REMINDER_TIME;
+    }
+}
+
 /**
  * Disables an input or select control and resets its value if necessary.
  * @param node - The HTMLElement to disable and reset.
@@ -40,21 +52,13 @@ function experienceControlNode(id: string): HTMLElement | null {
  * For other input types, it will be disabled without changing the value.
  */
 function disableHiddenControl(node: HTMLElement): void {
-    const CONTROL = node;
-
-    if (CONTROL instanceof HTMLInputElement) {
-        CONTROL.disabled = true;
-        if (CONTROL.type === "checkbox") {
-            CONTROL.checked = false;
-            return;
-        }
-        if (CONTROL.type === "time") {
-            CONTROL.value = DEFAULT_REMINDER_TIME;
-        }
+    if (node instanceof HTMLInputElement) {
+        disableHiddenInputControl(node);
         return;
     }
-    if (CONTROL instanceof HTMLSelectElement) {
-        CONTROL.disabled = true;
+    if (node instanceof HTMLSelectElement) {
+        const SELECT_CONTROL = node;
+        SELECT_CONTROL.disabled = true;
     }
 }
 

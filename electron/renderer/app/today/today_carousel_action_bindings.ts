@@ -31,49 +31,49 @@ export interface TodayCarouselActionBindings {
     setStatus(message: string, isError?: boolean): void;
 }
 
-/**
- * Binds the Today inline minutes editor to the current active session.
- * @param options - Active row context and mutation callbacks.
- */
-export function bindMinutesEditor(options: {
+interface MinutesEditorOptions {
     active: TodayCarouselActiveItem;
     bindings: TodayCarouselActionBindings | null;
     onUiRerender(): void;
-}): void {
-    const EDIT_BTN = el<HTMLButtonElement>("todayMinutesEditBtn");
-    const INPUT = el<HTMLInputElement>("todayMinutesInput");
+}
 
-    /**
-     * Validate the minutes input, apply the update via bindings, pin the row and close the minutes editor.
-     * @example
-     * saveMinutes(INPUT, options)
-     * undefined
-     * @param INPUT - The input element that contains the minutes value to parse and save.
-     * @param options - Options object containing bindings and active context (bindings may be null).
-     * @returns Return nothing.
-     **/
-    const SAVE_MINUTES = (): void => {
-        const PARSED = parseMinutesInput(INPUT.value);
-        if (PARSED.minutes === null) {
-            options.bindings?.setStatus(PARSED.error, true);
-            return;
-        }
-        if (options.bindings === null) {
-            return;
-        }
-        const APPLIED = options.bindings.onSessionMinutesUpdated({
-            minutes: PARSED.minutes,
-            row: options.active.row.row,
-        });
-        if (!APPLIED) {
-            return;
-        }
-        pinRowKey(options.active.book.bookId, options.active.row.rowKey);
-        closeMinutesEditor();
-        options.bindings.rerender();
-    };
+interface ToggleButtonOptions {
+    active: TodayCarouselActiveItem;
+    bindings: TodayCarouselActionBindings | null;
+}
 
-    EDIT_BTN.onclick = () => {
+function saveMinutesUpdate(
+    options: MinutesEditorOptions,
+    minutesText: string,
+): void {
+    const PARSED = parseMinutesInput(minutesText);
+    if (PARSED.minutes === null) {
+        options.bindings?.setStatus(PARSED.error, true);
+        return;
+    }
+    const BINDINGS = options.bindings;
+    if (BINDINGS === null) {
+        return;
+    }
+    const APPLIED = BINDINGS.onSessionMinutesUpdated({
+        minutes: PARSED.minutes,
+        row: options.active.row.row,
+    });
+    if (!APPLIED) {
+        return;
+    }
+    pinRowKey(options.active.book.bookId, options.active.row.rowKey);
+    closeMinutesEditor();
+    BINDINGS.rerender();
+}
+
+function bindMinutesEditButton(
+    button: HTMLButtonElement,
+    input: HTMLInputElement,
+    options: MinutesEditorOptions,
+): void {
+    const BUTTON = button;
+    BUTTON.onclick = () => {
         const EDIT_STATE = minutesEditor();
         const IS_EDITING_ACTIVE_ROW =
             EDIT_STATE?.rowKey === options.active.row.rowKey;
@@ -85,15 +85,22 @@ export function bindMinutesEditor(options: {
             options.onUiRerender();
             return;
         }
-        SAVE_MINUTES();
+        saveMinutesUpdate(options, input.value);
     };
+}
+
+function bindMinutesInputKeys(
+    input: HTMLInputElement,
+    options: MinutesEditorOptions,
+): void {
+    const INPUT = input;
     INPUT.oninput = () => {
         setMinutesEditorValue(INPUT.value);
     };
     INPUT.onkeydown = (event) => {
         if (event.key === "Enter") {
             event.preventDefault();
-            SAVE_MINUTES();
+            saveMinutesUpdate(options, INPUT.value);
             return;
         }
         if (event.key === "Escape") {
@@ -105,64 +112,110 @@ export function bindMinutesEditor(options: {
 }
 
 /**
+ * Binds the Today inline minutes editor to the current active session.
+ * @param options - Active row context and mutation callbacks.
+ */
+export function bindMinutesEditor(options: MinutesEditorOptions): void {
+    const EDIT_BTN = el<HTMLButtonElement>("todayMinutesEditBtn");
+    const INPUT = el<HTMLInputElement>("todayMinutesInput");
+    bindMinutesEditButton(EDIT_BTN, INPUT, options);
+    bindMinutesInputKeys(INPUT, options);
+}
+
+function progressUpdateDraft(): { pagesText: string; percentText: string } {
+    return {
+        pagesText: el<HTMLInputElement>("todayPagesInput").value,
+        percentText: el<HTMLInputElement>("todayPercentInput").value,
+    };
+}
+
+function hasProgressChange(payload: {
+    pagesRead?: number | null;
+    progressPercent?: number | null;
+}): boolean {
+    return (
+        payload.pagesRead !== undefined || payload.progressPercent !== undefined
+    );
+}
+
+function progressPayloadResult(options: ToggleButtonOptions) {
+    return buildProgressUpdatePayload({
+        bookId: options.active.book.bookId,
+        currentPagesRead: options.active.pagesRead,
+        currentPagesTotal: options.active.pagesTotal,
+        currentPercent: options.active.progressPercent,
+        draft: progressUpdateDraft(),
+        row: options.active.row.row,
+    });
+}
+
+function applyProgressChanges(
+    bindings: TodayCarouselActionBindings,
+    payload: {
+        pagesRead?: number | null;
+        progressPercent?: number | null;
+        row: TodayCarouselActiveItem["row"]["row"];
+        bookId: string;
+    },
+): boolean {
+    if (!hasProgressChange(payload)) {
+        return true;
+    }
+    const UPDATED = bindings.onSessionProgressUpdated(payload);
+    return UPDATED !== null;
+}
+
+function completeActiveSession(
+    options: ToggleButtonOptions,
+    bindings: TodayCarouselActionBindings,
+): void {
+    const PAYLOAD_RESULT = progressPayloadResult(options);
+    if (!PAYLOAD_RESULT.valid) {
+        bindings.setStatus(PAYLOAD_RESULT.error, true);
+        return;
+    }
+    if (!applyProgressChanges(bindings, PAYLOAD_RESULT.payload)) {
+        return;
+    }
+    bindings.onSessionCompletionChanged({
+        completed: true,
+        row: options.active.row.row,
+        sessionKey: options.active.row.rowKey,
+    });
+    closeMinutesEditor();
+    bindings.rerender();
+}
+
+function uncompleteActiveSession(
+    options: ToggleButtonOptions,
+    bindings: TodayCarouselActionBindings,
+): void {
+    closeMinutesEditor();
+    bindings.onSessionCompletionChanged({
+        completed: false,
+        row: options.active.row.row,
+        sessionKey: options.active.row.rowKey,
+    });
+    bindings.rerender();
+}
+
+/**
  * Binds the Today completion/log button for the active session row.
  * @param options - Active row context and mutation callbacks.
  */
-export function bindToggleButton(options: {
-    active: TodayCarouselActiveItem;
-    bindings: TodayCarouselActionBindings | null;
-}): void {
+export function bindToggleButton(options: ToggleButtonOptions): void {
     const BUTTON = el<HTMLButtonElement>("todayLogSessionBtn");
     BUTTON.onclick = () => {
-        if (options.bindings === null) {
+        const BINDINGS = options.bindings;
+        if (BINDINGS === null) {
             return;
         }
         pinRowKey(options.active.book.bookId, options.active.row.rowKey);
         if (options.active.row.completed) {
-            closeMinutesEditor();
-            options.bindings.onSessionCompletionChanged({
-                completed: false,
-                row: options.active.row.row,
-                sessionKey: options.active.row.rowKey,
-            });
-            options.bindings.rerender();
+            uncompleteActiveSession(options, BINDINGS);
             return;
         }
-
-        const PAYLOAD_RESULT = buildProgressUpdatePayload({
-            bookId: options.active.book.bookId,
-            currentPagesRead: options.active.pagesRead,
-            currentPagesTotal: options.active.pagesTotal,
-            currentPercent: options.active.progressPercent,
-            draft: {
-                pagesText: el<HTMLInputElement>("todayPagesInput").value,
-                percentText: el<HTMLInputElement>("todayPercentInput").value,
-            },
-            row: options.active.row.row,
-        });
-        if (!PAYLOAD_RESULT.valid) {
-            options.bindings.setStatus(PAYLOAD_RESULT.error, true);
-            return;
-        }
-
-        const HAS_PROGRESS_CHANGE =
-            PAYLOAD_RESULT.payload.pagesRead !== undefined ||
-            PAYLOAD_RESULT.payload.progressPercent !== undefined;
-        if (HAS_PROGRESS_CHANGE) {
-            const UPDATED = options.bindings.onSessionProgressUpdated(
-                PAYLOAD_RESULT.payload,
-            );
-            if (UPDATED === null) {
-                return;
-            }
-        }
-        options.bindings.onSessionCompletionChanged({
-            completed: true,
-            row: options.active.row.row,
-            sessionKey: options.active.row.rowKey,
-        });
-        closeMinutesEditor();
-        options.bindings.rerender();
+        completeActiveSession(options, BINDINGS);
     };
 }
 

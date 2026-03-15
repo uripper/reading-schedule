@@ -67,9 +67,9 @@ def _priority_weights(books: list[Book]) -> dict[str, int]:
 
 def _objective_scales(context: ObjectiveContext) -> ObjectiveScales:
     """Return integer-scaled weights for the active objective config."""
-    switch_sign = -1
-    if context.settings.plan_mode == PLAN_MODE_SPREAD_OUT:
-        switch_sign = 1
+    switch_sign = (
+        1 if context.settings.plan_mode == PLAN_MODE_SPREAD_OUT else -1
+    )
     return ObjectiveScales(
         finish=max(1, round(context.settings.w_finish * 10000)),
         mode=max(1, round((context.settings.w_smooth + 1.0) * 10)),

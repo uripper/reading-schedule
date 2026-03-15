@@ -1,5 +1,5 @@
 import { getPlannerApi } from "../app/planner_api.ts";
-import { collectAllBooks } from "../books.ts";
+import { collectAllBooks } from "../books/controller.ts";
 import { el } from "../dom.ts";
 import { logError } from "../logger.ts";
 import { addRecommendationToShelf } from "./add_to_shelf.ts";

@@ -4,6 +4,61 @@ import { localDayKeyFromIso } from "./date_keys.ts";
 const COMPLETION_KEY_PART_DAY_BOOK = 2;
 const COMPLETION_KEY_PART_SESSION = 3;
 
+type CompletionIndexes = Pick<
+    AppDerivedIndexes,
+    "completionBySessionKey" | "completionByDayBookKey"
+>;
+
+function appendSessionGroup(
+    index: Map<string, Session[]>,
+    key: string,
+    session: Session,
+): void {
+    const GROUPED = index.get(key);
+    if (GROUPED === undefined) {
+        index.set(key, [session]);
+        return;
+    }
+    GROUPED.push(session);
+}
+
+function indexSessions(
+    sessions: Session[],
+    resolveKey: (session: Session) => string,
+): Map<string, Session[]> {
+    const INDEX = new Map<string, Session[]>();
+    for (const SESSION of sessions) {
+        const KEY = resolveKey(SESSION);
+        if (KEY === "") {
+            continue;
+        }
+        appendSessionGroup(INDEX, KEY, SESSION);
+    }
+    return INDEX;
+}
+
+function sessionDayKey(session: Session): string {
+    return localDayKeyFromIso(session.ended_at) ?? "";
+}
+
+function sessionBookKey(session: Session): string {
+    return String(session.book_id || "").trim();
+}
+
+function completionIndexTarget(
+    key: string,
+    indexes: CompletionIndexes,
+): Record<string, boolean> | null {
+    const PARTS = key.split("|");
+    if (PARTS.length === COMPLETION_KEY_PART_SESSION) {
+        return indexes.completionBySessionKey;
+    }
+    if (PARTS.length === COMPLETION_KEY_PART_DAY_BOOK) {
+        return indexes.completionByDayBookKey;
+    }
+    return null;
+}
+
 /**
  * Builds a lookup map keyed by normalized `book_id`.
  * @param books - Book catalog rows.
@@ -30,21 +85,7 @@ export function bookByIdIndex(books: Book[] = []): Map<string, Book> {
 export function sessionsByDayIndex(
     sessions: Session[] = [],
 ): Map<string, Session[]> {
-    const BY_DAY = new Map<string, Session[]>();
-
-    for (const SESSION of sessions) {
-        const DAY_KEY = localDayKeyFromIso(SESSION.ended_at);
-        if (!DAY_KEY) {
-            continue;
-        }
-        const GROUPED = BY_DAY.get(DAY_KEY);
-        if (GROUPED) {
-            GROUPED.push(SESSION);
-            continue;
-        }
-        BY_DAY.set(DAY_KEY, [SESSION]);
-    }
-    return BY_DAY;
+    return indexSessions(sessions, sessionDayKey);
 }
 
 /**
@@ -55,21 +96,7 @@ export function sessionsByDayIndex(
 export function sessionsByBookIndex(
     sessions: Session[] = [],
 ): Map<string, Session[]> {
-    const BY_BOOK = new Map<string, Session[]>();
-
-    for (const SESSION of sessions) {
-        const BOOK_ID = String(SESSION.book_id || "").trim();
-        if (!BOOK_ID) {
-            continue;
-        }
-        const GROUPED = BY_BOOK.get(BOOK_ID);
-        if (GROUPED) {
-            GROUPED.push(SESSION);
-            continue;
-        }
-        BY_BOOK.set(BOOK_ID, [SESSION]);
-    }
-    return BY_BOOK;
+    return indexSessions(sessions, sessionBookKey);
 }
 
 /**
@@ -79,27 +106,18 @@ export function sessionsByBookIndex(
  */
 export function splitCompletionIndexes(
     scheduleCompletions: Record<string, boolean> = {},
-): Pick<
-    AppDerivedIndexes,
-    "completionBySessionKey" | "completionByDayBookKey"
-> {
-    const COMPLETION_BY_SESSION_KEY: Record<string, boolean> = {};
-    const COMPLETION_BY_DAY_BOOK_KEY: Record<string, boolean> = {};
-
+): CompletionIndexes {
+    const INDEXES: CompletionIndexes = {
+        completionByDayBookKey: {},
+        completionBySessionKey: {},
+    };
     for (const [KEY, VALUE] of Object.entries(scheduleCompletions)) {
-        const PARTS = KEY.split("|");
-        if (PARTS.length === COMPLETION_KEY_PART_SESSION) {
-            COMPLETION_BY_SESSION_KEY[KEY] = Boolean(VALUE);
-            continue;
-        }
-        if (PARTS.length === COMPLETION_KEY_PART_DAY_BOOK) {
-            COMPLETION_BY_DAY_BOOK_KEY[KEY] = Boolean(VALUE);
+        const TARGET = completionIndexTarget(KEY, INDEXES);
+        if (TARGET !== null) {
+            TARGET[KEY] = Boolean(VALUE);
         }
     }
-    return {
-        completionByDayBookKey: COMPLETION_BY_DAY_BOOK_KEY,
-        completionBySessionKey: COMPLETION_BY_SESSION_KEY,
-    };
+    return INDEXES;
 }
 
 /**

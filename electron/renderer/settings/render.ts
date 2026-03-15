@@ -2,16 +2,21 @@ import type { FieldDefinition } from "../../types/types.ts";
 import { el } from "../dom.ts";
 import { DIFFICULTY_LEVEL_COUNT, WEEKDAYS } from "./config.ts";
 
+type InputFieldDefinition = Extract<
+    FieldDefinition,
+    { type: "number" | "date" | "checkbox" }
+>;
+type SelectFieldDefinition = Extract<FieldDefinition, { type: "select" }>;
+
 const INTEGER_STEP = "1";
 const INTEGER_INPUT_INVALID_KEYS = new Set(["+", "-", ".", ",", "e", "E"]);
 const WEEKDAY_MINUTES_MIN = "0";
 const WEEKDAY_MINUTES_MAX = "1440";
+const DIFFICULTY_STEP = "0.05";
+const DIFFICULTY_MIN = "0.05";
+const DIFFICULTY_MAX = "2";
+const FIRST_DIFFICULTY_LEVEL = 1;
 
-/**
- * Creates optional hint badge node for a field label.
- * @param text - Hint text.
- * @returns Hint node or null when hint is empty.
- */
 function hintDot(text?: string): HTMLSpanElement | null {
     const NORMALIZED_TEXT = String(text ?? "").trim();
     if (NORMALIZED_TEXT.length === 0) {
@@ -39,69 +44,114 @@ function integerDigitsOnly(value: string): string {
 }
 
 function sanitizeIntegerInput(inputNode: HTMLInputElement): void {
-    const SANITIZED = integerDigitsOnly(inputNode.value);
-    if (inputNode.value !== SANITIZED) {
-        inputNode.value = SANITIZED;
+    const INPUT_NODE = inputNode;
+    const SANITIZED = integerDigitsOnly(INPUT_NODE.value);
+    if (INPUT_NODE.value !== SANITIZED) {
+        INPUT_NODE.value = SANITIZED;
     }
 }
 
-/**
- * Clamp the numeric value in an input element to its configured min/max, enforce integer step, or clear invalid input.
- * @example
- * clampNumericInput(document.querySelector('#myInput'))
- * undefined
- * @param inputNode - The input element whose value will be parsed, validated and clamped.
- * @returns Does not return a value; updates the input element's value directly.
- **/
-function clampNumericInput(inputNode: HTMLInputElement): void {
+function finiteInputValue(rawValue: string): number | null {
+    const VALUE = Number(rawValue);
+    if (!Number.isFinite(VALUE)) {
+        return null;
+    }
+    return VALUE;
+}
+
+function roundedInputValue(value: number, step: string): number {
+    if (step !== INTEGER_STEP) {
+        return value;
+    }
+    return Math.round(value);
+}
+
+function clampedMinValue(value: number, minValue: string): number {
+    if (minValue === "") {
+        return value;
+    }
+    const MINIMUM = Number(minValue);
+    if (value < MINIMUM) {
+        return MINIMUM;
+    }
+    return value;
+}
+
+function clampedMaxValue(value: number, maxValue: string): number {
+    if (maxValue === "") {
+        return value;
+    }
+    const MAXIMUM = Number(maxValue);
+    if (value > MAXIMUM) {
+        return MAXIMUM;
+    }
+    return value;
+}
+
+function clampedNumericValue(inputNode: HTMLInputElement): string | null {
     const RAW = inputNode.value.trim();
     if (RAW === "") {
+        return null;
+    }
+    const VALUE = finiteInputValue(RAW);
+    if (VALUE === null) {
+        return "";
+    }
+    const ROUNDED = roundedInputValue(VALUE, inputNode.step);
+    const MIN_CLAMPED = clampedMinValue(ROUNDED, inputNode.min);
+    return String(clampedMaxValue(MIN_CLAMPED, inputNode.max));
+}
+
+function clampNumericInput(inputNode: HTMLInputElement): void {
+    const INPUT_NODE = inputNode;
+    const VALUE = clampedNumericValue(INPUT_NODE);
+    if (VALUE === null) {
         return;
     }
-    let value = Number(RAW);
-    if (!Number.isFinite(value)) {
-        inputNode.value = "";
-        return;
+    INPUT_NODE.value = VALUE;
+}
+
+function preventInvalidIntegerKeys(event: KeyboardEvent): void {
+    if (INTEGER_INPUT_INVALID_KEYS.has(event.key)) {
+        event.preventDefault();
     }
-    if (inputNode.step === INTEGER_STEP) {
-        value = Math.round(value);
-    }
-    if (inputNode.min !== "") {
-        const MIN = Number(inputNode.min);
-        if (value < MIN) {
-            value = MIN;
-        }
-    }
-    if (inputNode.max !== "") {
-        const MAX = Number(inputNode.max);
-        if (value > MAX) {
-            value = MAX;
-        }
-    }
-    inputNode.value = String(value);
+}
+
+function setNumericInputMode(inputNode: HTMLInputElement): void {
+    const INPUT_NODE = inputNode;
+    INPUT_NODE.inputMode = "numeric";
 }
 
 function bindIntegerInputConstraints(inputNode: HTMLInputElement): void {
-    inputNode.inputMode = "numeric";
-    inputNode.addEventListener("keydown", (event) => {
-        if (INTEGER_INPUT_INVALID_KEYS.has(event.key)) {
-            event.preventDefault();
-        }
-    });
+    setNumericInputMode(inputNode);
+    inputNode.addEventListener("keydown", preventInvalidIntegerKeys);
     inputNode.addEventListener("input", () => {
         sanitizeIntegerInput(inputNode);
     });
 }
 
-/**
- * Binds numeric constraints and event listeners to an input when the provided field is of type "number".
- * @example
- * bindNumberConstraints(inputElement, { name: 'age', type: 'number' })
- * undefined
- * @param inputNode - The input element to attach numeric constraints and listeners to.
- * @param field - The field definition; constraints are applied only if field.type === "number".
- * @returns No return value; the function attaches event listeners and may modify the input's value.
- **/
+function normalizeNumericInput(
+    inputNode: HTMLInputElement,
+    field: FieldDefinition,
+): void {
+    if (isIntegerField(field)) {
+        sanitizeIntegerInput(inputNode);
+    }
+    clampNumericInput(inputNode);
+}
+
+function bindNumericNormalization(
+    inputNode: HTMLInputElement,
+    field: FieldDefinition,
+): void {
+    inputNode.addEventListener("blur", () => {
+        normalizeNumericInput(inputNode, field);
+    });
+    inputNode.addEventListener("change", () => {
+        normalizeNumericInput(inputNode, field);
+    });
+}
+
 function bindNumberConstraints(
     inputNode: HTMLInputElement,
     field: FieldDefinition,
@@ -112,97 +162,141 @@ function bindNumberConstraints(
     if (isIntegerField(field)) {
         bindIntegerInputConstraints(inputNode);
     }
-    inputNode.addEventListener("blur", () => {
-        if (isIntegerField(field)) {
-            sanitizeIntegerInput(inputNode);
-        }
-        clampNumericInput(inputNode);
-    });
-    inputNode.addEventListener("change", () => {
-        if (isIntegerField(field)) {
-            sanitizeIntegerInput(inputNode);
-        }
-        clampNumericInput(inputNode);
-    });
+    bindNumericNormalization(inputNode, field);
 }
 
-/**
- * Create and return a constrained numeric input for weekday minutes.
- * @example
- * createWeekdayMinutesInput("monday")
- * HTMLInputElement
- * @param key - The weekday key used to build the input id.
- * @returns Return a number input element constrained to weekday minute limits.
- **/
-function createWeekdayMinutesInput(key: string): HTMLInputElement {
-    const INPUT_NODE = document.createElement("input");
-    INPUT_NODE.id = `minutes_${key}`;
+function applyWeekdayMinuteBounds(inputNode: HTMLInputElement): void {
+    const INPUT_NODE = inputNode;
     INPUT_NODE.type = "number";
     INPUT_NODE.min = WEEKDAY_MINUTES_MIN;
     INPUT_NODE.max = WEEKDAY_MINUTES_MAX;
     INPUT_NODE.step = INTEGER_STEP;
+}
+
+function bindWeekdayMinuteNormalization(inputNode: HTMLInputElement): void {
+    inputNode.addEventListener("blur", () => {
+        clampNumericInput(inputNode);
+    });
+    inputNode.addEventListener("change", () => {
+        clampNumericInput(inputNode);
+    });
+}
+
+function createWeekdayMinutesInput(key: string): HTMLInputElement {
+    const INPUT_NODE = document.createElement("input");
+    INPUT_NODE.id = `minutes_${key}`;
+    applyWeekdayMinuteBounds(INPUT_NODE);
     bindIntegerInputConstraints(INPUT_NODE);
-    INPUT_NODE.addEventListener("blur", () => {
-        clampNumericInput(INPUT_NODE);
-    });
-    INPUT_NODE.addEventListener("change", () => {
-        clampNumericInput(INPUT_NODE);
-    });
+    bindWeekdayMinuteNormalization(INPUT_NODE);
     return INPUT_NODE;
 }
 
-/**
- * Renders a settings field as a labeled input/select control.
- * @param field - Field definition.
- * @returns Label element containing field control.
- */
-function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
+function appendHint(label: HTMLLabelElement, hint?: string): void {
+    const DOT = hintDot(hint);
+    if (DOT !== null) {
+        label.append(" ", DOT);
+    }
+}
+
+function createFieldLabel(field: FieldDefinition): HTMLLabelElement {
     const LABEL = document.createElement("label");
     LABEL.append(field.label);
-
-    const DOT = hintDot(field.hint);
-    if (DOT) {
-        LABEL.append(" ", DOT);
-    }
-
-    let node: HTMLInputElement | HTMLSelectElement;
-    if (field.type === "select") {
-        node = document.createElement("select");
-
-        for (const OPTION of field.options) {
-            const OPTION_NODE = document.createElement("option");
-            OPTION_NODE.value = String(OPTION.value);
-            OPTION_NODE.textContent = String(OPTION.label);
-            node.append(OPTION_NODE);
-        }
-    } else {
-        node = document.createElement("input");
-        node.type = field.type;
-        if (typeof field.step === "string" && field.step.length > 0) {
-            node.step = field.step;
-        }
-        if (typeof field.min === "number") {
-            node.min = String(field.min);
-        }
-        if (typeof field.max === "number") {
-            node.max = String(field.max);
-        }
-        bindNumberConstraints(node, field);
-        if (field.type === "checkbox") {
-            LABEL.classList.add("toggle-row");
-        }
-    }
-
-    node.id = field.id;
-    LABEL.append(node);
     return LABEL;
 }
 
-/**
- * Renders a settings grid section from field definitions.
- * @param id - Target container id.
- * @param fieldDefinitions - Field definitions to render.
- */
+function appendSelectOptions(
+    selectNode: HTMLSelectElement,
+    options: SelectFieldDefinition["options"],
+): void {
+    for (const OPTION of options) {
+        const OPTION_NODE = document.createElement("option");
+        OPTION_NODE.value = String(OPTION.value);
+        OPTION_NODE.textContent = String(OPTION.label);
+        selectNode.append(OPTION_NODE);
+    }
+}
+
+function createSelectFieldInput(
+    field: SelectFieldDefinition,
+): HTMLSelectElement {
+    const SELECT_NODE = document.createElement("select");
+    appendSelectOptions(SELECT_NODE, field.options);
+    return SELECT_NODE;
+}
+
+function applyFieldRange(
+    inputNode: HTMLInputElement,
+    field: InputFieldDefinition,
+): void {
+    const INPUT_NODE = inputNode;
+    if (typeof field.min === "number") {
+        INPUT_NODE.min = String(field.min);
+    }
+    if (typeof field.max === "number") {
+        INPUT_NODE.max = String(field.max);
+    }
+}
+
+function applyFieldStep(
+    inputNode: HTMLInputElement,
+    field: InputFieldDefinition,
+): void {
+    const INPUT_NODE = inputNode;
+    if (typeof field.step === "string" && field.step.length > 0) {
+        INPUT_NODE.step = field.step;
+    }
+}
+
+function applyCheckboxFieldStyle(
+    label: HTMLLabelElement,
+    field: InputFieldDefinition,
+): void {
+    if (field.type === "checkbox") {
+        label.classList.add("toggle-row");
+    }
+}
+
+function createInputFieldInput(
+    field: InputFieldDefinition,
+    label: HTMLLabelElement,
+): HTMLInputElement {
+    const INPUT_NODE = document.createElement("input");
+    INPUT_NODE.type = field.type;
+    applyFieldStep(INPUT_NODE, field);
+    applyFieldRange(INPUT_NODE, field);
+    bindNumberConstraints(INPUT_NODE, field);
+    applyCheckboxFieldStyle(label, field);
+    return INPUT_NODE;
+}
+
+function createFieldInputNode(
+    field: FieldDefinition,
+    label: HTMLLabelElement,
+): HTMLInputElement | HTMLSelectElement {
+    if (field.type === "select") {
+        return createSelectFieldInput(field);
+    }
+    return createInputFieldInput(field, label);
+}
+
+function appendFieldInput(
+    label: HTMLLabelElement,
+    inputNode: HTMLInputElement | HTMLSelectElement,
+    fieldId: string,
+): HTMLLabelElement {
+    const INPUT_NODE = inputNode;
+    INPUT_NODE.id = fieldId;
+    label.append(INPUT_NODE);
+    return label;
+}
+
+function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
+    const LABEL = createFieldLabel(field);
+    appendHint(LABEL, field.hint);
+    const INPUT_NODE = createFieldInputNode(field, LABEL);
+    return appendFieldInput(LABEL, INPUT_NODE, field.id);
+}
+
 export function renderGrid(
     id: string,
     fieldDefinitions: FieldDefinition[],
@@ -210,45 +304,44 @@ export function renderGrid(
     el(id).replaceChildren(...fieldDefinitions.map(renderFieldInput));
 }
 
-/**
- * Renders weekday minutes input rows.
- */
-export function renderWeekdayGrid(): void {
-    const WEEKDAY_NODES = WEEKDAYS.map(([key, name]) => {
-        const LABEL = document.createElement("label");
-        LABEL.append(`${name} minutes`);
-        LABEL.append(createWeekdayMinutesInput(key));
-        return LABEL;
-    });
-    el("weekdayGrid").replaceChildren(...WEEKDAY_NODES);
+function weekdayMinutesLabel([
+    key,
+    name,
+]: (typeof WEEKDAYS)[number]): HTMLLabelElement {
+    const LABEL = document.createElement("label");
+    LABEL.append(`${name} minutes`);
+    LABEL.append(createWeekdayMinutesInput(key));
+    return LABEL;
 }
 
-/**
- * Renders difficulty multiplier table rows.
- */
+export function renderWeekdayGrid(): void {
+    el("weekdayGrid").replaceChildren(...WEEKDAYS.map(weekdayMinutesLabel));
+}
+
+function createDifficultyInput(level: number): HTMLInputElement {
+    const INPUT_NODE = document.createElement("input");
+    INPUT_NODE.id = `diff_${level}`;
+    INPUT_NODE.type = "number";
+    INPUT_NODE.step = DIFFICULTY_STEP;
+    INPUT_NODE.min = DIFFICULTY_MIN;
+    INPUT_NODE.max = DIFFICULTY_MAX;
+    return INPUT_NODE;
+}
+
+function createDifficultyRow(level: number): HTMLTableRowElement {
+    const ROW = document.createElement("tr");
+    const LABEL_CELL = document.createElement("td");
+    LABEL_CELL.textContent = String(level);
+    const INPUT_CELL = document.createElement("td");
+    INPUT_CELL.append(createDifficultyInput(level));
+    ROW.append(LABEL_CELL, INPUT_CELL);
+    return ROW;
+}
+
 export function renderDifficultyRows(): void {
     const DIFF_ROWS = Array.from(
         { length: DIFFICULTY_LEVEL_COUNT },
-        (_, index) => {
-            const ROW = document.createElement("tr");
-            const LEVEL = index + 1;
-
-            const LABEL_CELL = document.createElement("td");
-            LABEL_CELL.textContent = String(LEVEL);
-
-            const INPUT_CELL = document.createElement("td");
-            const INPUT_NODE = document.createElement("input");
-            INPUT_NODE.id = `diff_${LEVEL}`;
-            INPUT_NODE.type = "number";
-            INPUT_NODE.step = "0.05";
-            INPUT_NODE.min = "0.05";
-            INPUT_NODE.max = "2";
-            INPUT_CELL.append(INPUT_NODE);
-
-            ROW.append(LABEL_CELL, INPUT_CELL);
-            return ROW;
-        },
+        (_value, index) => createDifficultyRow(index + FIRST_DIFFICULTY_LEVEL),
     );
-
     el("difficultyBody").replaceChildren(...DIFF_ROWS);
 }

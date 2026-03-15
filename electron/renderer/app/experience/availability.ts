@@ -37,6 +37,21 @@ function normalizeNumberFlag(value: number): boolean | undefined {
     return undefined;
 }
 
+function normalizedFlagValue(
+    rawValue: FeatureFlagRawValue,
+): boolean | undefined {
+    if (typeof rawValue === "boolean") {
+        return rawValue;
+    }
+    if (typeof rawValue === "string") {
+        return normalizeStringFlag(rawValue);
+    }
+    if (typeof rawValue === "number") {
+        return normalizeNumberFlag(rawValue);
+    }
+    return undefined;
+}
+
 /**
  * Normalizes persisted or user-provided flag-like values.
  * "true"/"1" and 1 map to true; "false"/"0" and 0 map to false.
@@ -51,25 +66,10 @@ export function shippedFeatureFlag(
     if (!isAvailable) {
         return false;
     }
-
-    if (typeof rawValue === "boolean") {
-        return rawValue;
+    const NORMALIZED = normalizedFlagValue(rawValue);
+    if (NORMALIZED !== undefined) {
+        return NORMALIZED;
     }
-
-    if (typeof rawValue === "string") {
-        const RESULT = normalizeStringFlag(rawValue);
-        if (RESULT !== undefined) {
-            return RESULT;
-        }
-    }
-
-    if (typeof rawValue === "number") {
-        const RESULT = normalizeNumberFlag(rawValue);
-        if (RESULT !== undefined) {
-            return RESULT;
-        }
-    }
-
     return Boolean(rawValue);
 }
 

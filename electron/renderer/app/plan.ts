@@ -45,6 +45,12 @@ interface PlanFailureArgs {
     setStatus(message: string, isError?: boolean): void;
 }
 
+interface PlanMessages {
+    statusGeneratingMessage: string;
+    statusSuccessMessage: string;
+    successAnnouncement: string;
+}
+
 /**
  * Generates a summary log message based on the planner summary data.
  * @param summary - The planner summary data to generate the log message from.
@@ -97,6 +103,25 @@ function messageFromErrorLikeObject(error: unknown): string {
     return trimmedStringOrEmpty(error.message);
 }
 
+function namedErrorMessage(error: Error): string {
+    const DETAIL = trimmedStringOrEmpty(error.message);
+    if (DETAIL !== "") {
+        return DETAIL;
+    }
+    if (error.name !== "") {
+        return error.name;
+    }
+    return "Unknown error";
+}
+
+function detailFromUnknownError(error: unknown): string {
+    const STRING_DETAIL = trimmedStringOrEmpty(error);
+    if (STRING_DETAIL !== "") {
+        return STRING_DETAIL;
+    }
+    return messageFromErrorLikeObject(error);
+}
+
 /**
  * Extracts a user-friendly error message from an unknown error object,
  * handling various cases such as Error instances, strings, and error-like
@@ -106,19 +131,11 @@ function messageFromErrorLikeObject(error: unknown): string {
  */
 function errorMessage(error: unknown): string {
     if (error instanceof Error) {
-        const DETAIL = trimmedStringOrEmpty(error.message);
-        if (DETAIL) {
-            return DETAIL;
-        }
-        return error.name || "Unknown error";
+        return namedErrorMessage(error);
     }
-    const STRING_DETAIL = trimmedStringOrEmpty(error);
-    if (STRING_DETAIL) {
-        return STRING_DETAIL;
-    }
-    const MESSAGE_DETAIL = messageFromErrorLikeObject(error);
-    if (MESSAGE_DETAIL) {
-        return MESSAGE_DETAIL;
+    const DETAIL = detailFromUnknownError(error);
+    if (DETAIL !== "") {
+        return DETAIL;
     }
     return "Unknown planner error";
 }
@@ -183,6 +200,58 @@ function handlePlanFailure({
     announce(MESSAGE, "assertive");
 }
 
+function resolvedPlanMessages(args: RunPlanGenerationArgs): PlanMessages {
+    return {
+        statusGeneratingMessage:
+            args.statusGeneratingMessage ?? "Generating plan...",
+        statusSuccessMessage: args.statusSuccessMessage ?? "Plan generated.",
+        successAnnouncement:
+            args.successAnnouncement ?? "Plan generated and schedule updated.",
+    };
+}
+
+function logPlanGenerationStarted(payloadBooks: Book[]): void {
+    logDebug("Plan generation started.", {
+        candidateBookCount: payloadBooks.length,
+    });
+}
+
+async function handleNoSchedulableBooks(args: {
+    onSuccess: RunPlanGenerationArgs["onSuccess"];
+    setStatus: RunPlanGenerationArgs["setStatus"];
+}): Promise<void> {
+    await args.onSuccess({ schedule: [], summary: null });
+    args.setStatus("No schedulable books to plan.");
+}
+
+function requestGeneratedPlan(
+    args: RunPlanGenerationArgs,
+    payloadBooks: Book[],
+    messages: PlanMessages,
+): Promise<
+    Awaited<ReturnType<RunPlanGenerationArgs["plannerApi"]["generate"]>>
+> {
+    args.setStatus(messages.statusGeneratingMessage);
+    const PAYLOAD = buildPlanPayload(args.collectSettings(), payloadBooks);
+    return args.plannerApi.generate(PAYLOAD);
+}
+
+function planSuccessArgs(
+    args: RunPlanGenerationArgs,
+    data: Awaited<ReturnType<RunPlanGenerationArgs["plannerApi"]["generate"]>>,
+    messages: PlanMessages,
+): PlanSuccessArgs {
+    return {
+        addLog: args.addLog,
+        announce: args.announce,
+        data,
+        onSuccess: args.onSuccess,
+        setStatus: args.setStatus,
+        statusSuccessMessage: messages.statusSuccessMessage,
+        successAnnouncement: messages.successAnnouncement,
+    };
+}
+
 /**
  * Runs the plan generation process by collecting necessary data, calling the planner API,
  * and handling the results.
@@ -201,47 +270,25 @@ function handlePlanFailure({
  * @param successAnnouncement - An optional custom message to announce when the plan generation is successful.
  * Defaults to "Plan generated and schedule updated.".
  */
-export async function runPlanGeneration({
-    plannerApi,
-    collectBooks,
-    collectSettings,
-    setStatus,
-    addLog,
-    announce,
-    onSuccess,
-    statusGeneratingMessage = "Generating plan...",
-    statusSuccessMessage = "Plan generated.",
-    successAnnouncement = "Plan generated and schedule updated.",
-}: RunPlanGenerationArgs): Promise<void> {
+export async function runPlanGeneration(
+    args: RunPlanGenerationArgs,
+): Promise<void> {
     try {
-        const PAYLOAD_BOOKS = collectBooks();
-        logDebug("Plan generation started.", {
-            candidateBookCount: PAYLOAD_BOOKS.length,
-        });
+        const PAYLOAD_BOOKS = args.collectBooks();
+        const MESSAGES = resolvedPlanMessages(args);
+        logPlanGenerationStarted(PAYLOAD_BOOKS);
         if (!PAYLOAD_BOOKS.length) {
-            await onSuccess({ schedule: [], summary: null });
-            setStatus("No schedulable books to plan.");
+            await handleNoSchedulableBooks(args);
             return;
         }
-
-        setStatus(statusGeneratingMessage);
-        const PAYLOAD = buildPlanPayload(collectSettings(), PAYLOAD_BOOKS);
-        const DATA = await plannerApi.generate(PAYLOAD);
-        await handlePlanSuccess({
-            addLog,
-            announce,
-            data: DATA,
-            onSuccess,
-            setStatus,
-            statusSuccessMessage,
-            successAnnouncement,
-        });
+        const DATA = await requestGeneratedPlan(args, PAYLOAD_BOOKS, MESSAGES);
+        await handlePlanSuccess(planSuccessArgs(args, DATA, MESSAGES));
     } catch (error) {
         handlePlanFailure({
-            addLog,
-            announce,
+            addLog: args.addLog,
+            announce: args.announce,
             error,
-            setStatus,
+            setStatus: args.setStatus,
         });
     }
 }
@@ -260,13 +307,11 @@ function generatePayload({
     payloadBooks,
     settings,
 }: GeneratePayloadArgs): PlanGeneratePayload {
-    const PAYLOAD_SETTINGS = {
-        ...settings,
-        start_date: customStartDate,
-    };
-    if (normalizedEndDate !== undefined && normalizedEndDate !== "") {
-        PAYLOAD_SETTINGS.end_date = normalizedEndDate;
-    }
+    const PAYLOAD_SETTINGS = payloadSettings(
+        settings,
+        customStartDate,
+        normalizedEndDate,
+    );
     const PLANNER_TOKEN = plannerTokenFromProfile(
         PAYLOAD_SETTINGS.planner_solver_profile,
     );
@@ -275,11 +320,30 @@ function generatePayload({
         planner: PLANNER_TOKEN,
         settings: PAYLOAD_SETTINGS,
     };
-    logDebug("Submitting planner payload.", {
-        bookCount: PAYLOAD.books.length,
-        endDate: PAYLOAD.settings.end_date ?? null,
-        planner: PAYLOAD.planner,
-        startDate: PAYLOAD.settings.start_date,
-    });
+    logPlannerPayload(PAYLOAD);
     return PAYLOAD;
+}
+
+function logPlannerPayload(payload: PlanGeneratePayload): void {
+    logDebug("Submitting planner payload.", {
+        bookCount: payload.books.length,
+        endDate: payload.settings.end_date ?? null,
+        planner: payload.planner,
+        startDate: payload.settings.start_date,
+    });
+}
+
+function payloadSettings(
+    settings: PlannerSettings,
+    customStartDate: string,
+    normalizedEndDate: string | undefined,
+): PlannerSettings {
+    const PAYLOAD_SETTINGS = {
+        ...settings,
+        start_date: customStartDate,
+    };
+    if (normalizedEndDate !== undefined && normalizedEndDate !== "") {
+        PAYLOAD_SETTINGS.end_date = normalizedEndDate;
+    }
+    return PAYLOAD_SETTINGS;
 }

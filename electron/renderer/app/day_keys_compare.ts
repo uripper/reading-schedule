@@ -4,6 +4,29 @@ const DAY_KEY_COMPARE_EQUAL = 0;
 const DAY_KEY_COMPARE_LEFT_BEFORE_RIGHT = -1;
 const DAY_KEY_COMPARE_LEFT_AFTER_RIGHT = 1;
 
+function hasIntegerDateParts(
+    year: number,
+    month: number,
+    day: number,
+): boolean {
+    return (
+        Number.isInteger(year) &&
+        Number.isInteger(month) &&
+        Number.isInteger(day)
+    );
+}
+
+function matchesCalendarDay(year: number, month: number, day: number): boolean {
+    const PARSED = new Date(year, month - MONTH_INDEX_OFFSET, day);
+    if (PARSED.getFullYear() !== year) {
+        return false;
+    }
+    if (PARSED.getMonth() !== month - MONTH_INDEX_OFFSET) {
+        return false;
+    }
+    return PARSED.getDate() === day;
+}
+
 /**
  * Validates strict local day-key format (`YYYY-MM-DD`) and calendar date ranges.
  * @param dayKey - Candidate day key.
@@ -14,26 +37,10 @@ export function isValidDayKey(dayKey: string): boolean {
         return false;
     }
     const [YEAR, MONTH, DAY] = dayKey.split("-").map(Number);
-    if (!Number.isInteger(YEAR)) {
+    if (!hasIntegerDateParts(YEAR, MONTH, DAY)) {
         return false;
     }
-    if (!Number.isInteger(MONTH)) {
-        return false;
-    }
-    if (!Number.isInteger(DAY)) {
-        return false;
-    }
-    const PARSED = new Date(YEAR, MONTH - MONTH_INDEX_OFFSET, DAY);
-    if (PARSED.getFullYear() !== YEAR) {
-        return false;
-    }
-    if (PARSED.getMonth() !== MONTH - MONTH_INDEX_OFFSET) {
-        return false;
-    }
-    if (PARSED.getDate() !== DAY) {
-        return false;
-    }
-    return true;
+    return matchesCalendarDay(YEAR, MONTH, DAY);
 }
 
 /**

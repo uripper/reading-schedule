@@ -2,7 +2,10 @@
  * Renders the Today carousel track DOM and selected-book presentation.
  */
 import { el } from "../../dom.ts";
-import type { TodayCarouselModel } from "./today_carousel_model.ts";
+import type {
+    TodayCarouselBookItem,
+    TodayCarouselModel,
+} from "./today_carousel_model.ts";
 
 const MIN_VISIBLE_OFFSET = -2;
 const MAX_VISIBLE_OFFSET = 2;
@@ -88,14 +91,7 @@ function buildCarouselItem(
     selectBook: (bookId: string) => void,
 ): HTMLButtonElement {
     const ITEM = document.createElement("button");
-    ITEM.type = "button";
-    ITEM.className = "today-carousel-item";
-    ITEM.dataset.bookId = book.bookId;
-    ITEM.setAttribute("role", "option");
-    ITEM.setAttribute("aria-label", `${book.title} by ${book.author}`);
-    ITEM.onclick = () => {
-        selectBook(book.bookId);
-    };
+    setCarouselItems(ITEM, book, selectBook);
 
     if (book.coverSrc !== "") {
         const IMG = document.createElement("img");
@@ -110,6 +106,22 @@ function buildCarouselItem(
     FALLBACK.textContent = fallbackText(book.title);
     ITEM.append(FALLBACK);
     return ITEM;
+}
+
+function setCarouselItems(
+    item: HTMLButtonElement,
+    book: TodayCarouselBookItem,
+    selectBook: (bookId: string) => void,
+) {
+    const ITEM = item;
+    ITEM.type = "button";
+    ITEM.className = "today-carousel-item";
+    ITEM.dataset.bookId = book.bookId;
+    ITEM.setAttribute("role", "option");
+    ITEM.setAttribute("aria-label", `${book.title} by ${book.author}`);
+    ITEM.onclick = () => {
+        selectBook(book.bookId);
+    };
 }
 
 /**

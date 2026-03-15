@@ -8,6 +8,26 @@ import { todayDateKey } from "./selection.ts";
 
 const SESSION_INDEX_PAD = 3;
 
+type CandidateState = {
+    bookId: string;
+    today: string;
+    targetSortKey: string;
+    targetIsFuture: boolean;
+    isSessionCompleted: CompletionChecker;
+};
+
+type PlannedWordsArgs = {
+    row: EstimateRow;
+    state: EstimateState;
+    bookId: string;
+    isSessionCompleted: CompletionChecker;
+};
+
+type PlannedWordTotals = {
+    before: number;
+    through: number;
+};
+
 /**
  * Builds sortable key from estimate row date and session index.
  * @param row - Estimate row.
@@ -31,6 +51,119 @@ function estimateSessionKey(row: EstimateRow): string {
 }
 
 /**
+ * Checks whether a candidate belongs to the target book.
+ * @param candidate - Candidate row.
+ * @param bookId - Target book id.
+ * @returns `true` when the candidate belongs to the same book.
+ */
+function candidateMatchesBook(candidate: EstimateRow, bookId: string): boolean {
+    return String(candidate.book_id) === bookId;
+}
+
+/**
+ * Checks whether a candidate should be skipped for a completed future target.
+ * @param candidate - Candidate row.
+ * @param state - Candidate-evaluation state.
+ * @returns `true` when the candidate is already completed and excluded.
+ */
+function isCompletedFutureCandidate(
+    candidate: EstimateRow,
+    state: CandidateState,
+): boolean {
+    if (!state.targetIsFuture) {
+        return false;
+    }
+    return state.isSessionCompleted(estimateSessionKey(candidate));
+}
+
+/**
+ * Returns normalized estimate rows from state.
+ * @param state - Estimate state context.
+ * @returns Array of estimate rows, or an empty array when unavailable.
+ */
+function estimateRows(state: EstimateState): EstimateRow[] {
+    if (!Array.isArray(state.rows)) {
+        return [];
+    }
+    return state.rows;
+}
+
+/**
+ * Returns planned words contributed by one candidate row.
+ * @param candidate - Candidate row.
+ * @returns Non-negative planned words.
+ */
+function plannedWordsForCandidate(candidate: EstimateRow): number {
+    return Math.max(0, Number(candidate.words_planned ?? 0));
+}
+
+/**
+ * Adds candidate planned words into running totals.
+ * @param args - Candidate accumulation inputs.
+ */
+function addCandidateWords(args: {
+    totals: PlannedWordTotals;
+    candidateSortKey: string;
+    targetSortKey: string;
+    plannedWords: number;
+}): void {
+    const TOTALS = args.totals;
+    TOTALS.through += args.plannedWords;
+    if (args.candidateSortKey < args.targetSortKey) {
+        TOTALS.before += args.plannedWords;
+    }
+}
+
+/**
+ * Checks whether the target row is already completed today.
+ * @param row - Target estimate row.
+ * @param today - Today's day key.
+ * @param isSessionCompleted - Completion checker.
+ * @returns `true` when the target should contribute no planned words.
+ */
+function isCompletedTodayTarget(
+    row: EstimateRow,
+    today: string,
+    isSessionCompleted: CompletionChecker,
+): boolean {
+    if (String(row.date) !== today) {
+        return false;
+    }
+    return isSessionCompleted(estimateSessionKey(row));
+}
+
+/**
+ * Builds evaluation state for planned-word accumulation.
+ * @param args - Planned-word inputs for the target row.
+ * @param today - Today's day key.
+ * @returns Candidate-evaluation state.
+ */
+function candidateState(args: PlannedWordsArgs, today: string): CandidateState {
+    const TARGET_DATE = String(args.row.date);
+    return {
+        bookId: args.bookId,
+        isSessionCompleted: args.isSessionCompleted,
+        targetIsFuture: TARGET_DATE > today,
+        targetSortKey: rowSortKey(args.row),
+        today,
+    };
+}
+
+/**
+ * Checks whether a candidate row date is eligible for accumulation.
+ * @param candidate - Candidate row.
+ * @param today - Today's day key.
+ * @returns `true` when the row date should be considered.
+ */
+function hasEligibleCandidateDate(
+    candidate: EstimateRow,
+    today: string,
+): boolean {
+    const DATE = String(candidate.date);
+    return DATE !== "" && DATE >= today;
+}
+
+/**
  * Returns candidate sort key when row should contribute to estimate totals.
  * @param candidate - Candidate row.
  * @param state - Candidate-evaluation state.
@@ -43,85 +176,67 @@ function estimateSessionKey(row: EstimateRow): string {
  */
 function eligibleSortKeyForCandidate(
     candidate: EstimateRow,
-    state: {
-        bookId: string;
-        today: string;
-        targetSortKey: string;
-        targetIsFuture: boolean;
-        isSessionCompleted: CompletionChecker;
-    },
+    state: CandidateState,
 ): string | null {
-    if (String(candidate.book_id) !== state.bookId) {
+    if (!candidateMatchesBook(candidate, state.bookId)) {
         return null;
     }
-    const DATE = String(candidate.date);
-    if (!DATE || DATE < state.today) {
+    if (!hasEligibleCandidateDate(candidate, state.today)) {
         return null;
     }
     const CANDIDATE_SORT_KEY = rowSortKey(candidate);
     if (CANDIDATE_SORT_KEY > state.targetSortKey) {
         return null;
     }
-    if (
-        state.targetIsFuture &&
-        state.isSessionCompleted(estimateSessionKey(candidate))
-    ) {
+    if (isCompletedFutureCandidate(candidate, state)) {
         return null;
     }
     return CANDIDATE_SORT_KEY;
 }
 
 /**
- * Computes planned words before and through target estimate row.
- * @param row - Target estimate row.
- * @param state - Estimate state context.
- * @param bookId - Target book id.
- * @param isSessionCompleted - Completion checker.
+ * Accumulates planned words across eligible rows for a target state.
+ * @param rows - Estimate rows to evaluate.
+ * @param state - Candidate-evaluation state.
  * @returns Planned words before target row and through target row.
  */
-export function plannedWordsBeforeAndThroughRow(
-    row: EstimateRow,
-    state: EstimateState,
-    bookId: string,
-    isSessionCompleted: CompletionChecker,
-): { before: number; through: number } {
-    const TODAY = todayDateKey();
-    const TARGET_DATE = String(row.date);
-    const TARGET_SESSION_KEY = estimateSessionKey(row);
-    if (TARGET_DATE === TODAY && isSessionCompleted(TARGET_SESSION_KEY)) {
-        return { before: 0, through: 0 };
-    }
-
-    const TARGET_IS_FUTURE = TARGET_DATE > TODAY;
-    const TARGET_SORT_KEY = rowSortKey(row);
-    let before = 0;
-    let through = 0;
-    const ROWS: EstimateRow[] = [];
-    if (Array.isArray(state.rows)) {
-        ROWS.push(...state.rows);
-    }
-    const CANDIDATE_STATE = {
-        bookId,
-        isSessionCompleted,
-        targetIsFuture: TARGET_IS_FUTURE,
-        targetSortKey: TARGET_SORT_KEY,
-        today: TODAY,
-    };
-
-    for (const CANDIDATE of ROWS) {
+function plannedWordTotals(
+    rows: EstimateRow[],
+    state: CandidateState,
+): PlannedWordTotals {
+    const TOTALS = { before: 0, through: 0 };
+    for (const CANDIDATE of rows) {
         const CANDIDATE_SORT_KEY = eligibleSortKeyForCandidate(
             CANDIDATE,
-            CANDIDATE_STATE,
+            state,
         );
         if (CANDIDATE_SORT_KEY === null) {
             continue;
         }
-        const PLANNED_WORDS = Math.max(0, Number(CANDIDATE.words_planned ?? 0));
-        through += PLANNED_WORDS;
-        if (CANDIDATE_SORT_KEY < TARGET_SORT_KEY) {
-            before += PLANNED_WORDS;
-        }
+        addCandidateWords({
+            candidateSortKey: CANDIDATE_SORT_KEY,
+            plannedWords: plannedWordsForCandidate(CANDIDATE),
+            targetSortKey: state.targetSortKey,
+            totals: TOTALS,
+        });
     }
+    return TOTALS;
+}
 
-    return { before, through };
+/**
+ * Computes planned words before and through target estimate row.
+ * @param args - Planned-word inputs for the target row.
+ * @returns Planned words before target row and through target row.
+ */
+export function plannedWordsBeforeAndThroughRow(
+    args: PlannedWordsArgs,
+): PlannedWordTotals {
+    const TODAY = todayDateKey();
+    if (isCompletedTodayTarget(args.row, TODAY, args.isSessionCompleted)) {
+        return { before: 0, through: 0 };
+    }
+    return plannedWordTotals(
+        estimateRows(args.state),
+        candidateState(args, TODAY),
+    );
 }

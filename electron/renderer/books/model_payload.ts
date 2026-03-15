@@ -1,10 +1,15 @@
 import type { Book } from "../../types/types.ts";
+import { withNullableString } from "./model_normalize_helpers.ts";
 import { normalizeScheduledDays } from "./scheduled_days.ts";
 import { statusFromRaw } from "./status.ts";
 
 const DEFAULT_PRIORITY = 3;
 const DEFAULT_DIFFICULTY = 3;
 const DEFAULT_MIN_BLOCKS = 1;
+
+type PlannerPayloadNumericFields = Partial<Book> & {
+    words_full: number | null;
+};
 
 /**
  * Returns numeric value when defined, otherwise a provided default.
@@ -35,24 +40,47 @@ function withDefaultString(value: string | null | undefined): string {
 }
 
 /**
- * Normalizes optional text to nullable string for payload fields.
- * @param value - Optional text value.
- * @returns Original text when truthy; otherwise `null`.
- */
-function withNullableString(value: string | null | undefined): string | null {
-    if (value !== null && value !== undefined && value !== "") {
-        return value;
-    }
-    return null;
-}
-
-/**
  * Normalizes `finished_at` text to a nullable trimmed value.
  * @param value - Raw finished date text.
  * @returns Trimmed date string or `null`.
  */
 function normalizeFinishedAt(value: string | null | undefined): string | null {
     return withNullableString(String(value ?? "").trim());
+}
+
+function payloadTextFields(book: Book, status: Book["status"]): Partial<Book> {
+    return {
+        author: withDefaultString(book.author),
+        blocked_by: withNullableString(book.blocked_by),
+        book_id: book.book_id,
+        cover_local_path: withDefaultString(book.cover_local_path),
+        cover_url: withDefaultString(book.cover_url),
+        deadline: withNullableString(book.deadline),
+        finished_at: normalizeFinishedAt(book.finished_at),
+        lookup_note: withDefaultString(book.lookup_note),
+        shelf: withDefaultString(book.shelf),
+        status,
+        title: book.title,
+    };
+}
+
+function payloadNumericFields(book: Book): PlannerPayloadNumericFields {
+    const WORDS_TOTAL = book.words_total ?? null;
+    return {
+        difficulty: withDefaultNumber(book.difficulty, DEFAULT_DIFFICULTY),
+        max_minutes_per_day: book.max_minutes_per_day ?? null,
+        min_blocks_per_session: withDefaultNumber(
+            book.min_blocks_per_session,
+            DEFAULT_MIN_BLOCKS,
+        ),
+        pages_read: book.pages_read ?? null,
+        pages_total: book.pages_total ?? null,
+        priority: withDefaultNumber(book.priority, DEFAULT_PRIORITY),
+        progress_percent: book.progress_percent,
+        scheduled_days: normalizeScheduledDays(book.scheduled_days),
+        words_full: WORDS_TOTAL,
+        words_total: WORDS_TOTAL,
+    };
 }
 
 /**
@@ -66,30 +94,9 @@ export function toPayloadBook(book: Book): Book {
         Number(book.progress_percent || 0),
     );
     return {
-        author: withDefaultString(book.author),
-        blocked_by: withNullableString(book.blocked_by),
-        book_id: book.book_id,
-        cover_local_path: withDefaultString(book.cover_local_path),
-        cover_url: withDefaultString(book.cover_url),
-        deadline: withNullableString(book.deadline),
-        difficulty: withDefaultNumber(book.difficulty, DEFAULT_DIFFICULTY),
-        finished_at: normalizeFinishedAt(book.finished_at),
-        lookup_note: withDefaultString(book.lookup_note),
-        max_minutes_per_day: book.max_minutes_per_day ?? null,
-        min_blocks_per_session: withDefaultNumber(
-            book.min_blocks_per_session,
-            DEFAULT_MIN_BLOCKS,
-        ),
-        pages_read: book.pages_read ?? null,
-        pages_total: book.pages_total ?? null,
-        priority: withDefaultNumber(book.priority, DEFAULT_PRIORITY),
-        progress_percent: book.progress_percent,
-        scheduled_days: normalizeScheduledDays(book.scheduled_days),
-        shelf: withDefaultString(book.shelf),
-        status: STATUS,
-        title: book.title,
-        words_total: book.words_total ?? null,
-    };
+        ...payloadTextFields(book, STATUS),
+        ...payloadNumericFields(book),
+    } as Book;
 }
 
 /**
@@ -114,16 +121,17 @@ export function clearMissingBlockedBy(books: Book[]): Book[] {
     }
 
     return books.map((book) => {
-        const BLOCKED_BY_ID = String(book.blocked_by ?? "").trim();
-        if (!BLOCKED_BY_ID) {
-            return book;
-        }
-        if (SCHEDULABLE_IDS.has(BLOCKED_BY_ID)) {
-            return book;
-        }
-        return {
-            ...book,
-            blocked_by: null,
-        };
+        return clearedBlockedByBook(book, SCHEDULABLE_IDS);
     });
+}
+
+function clearedBlockedByBook(book: Book, schedulableIds: Set<string>): Book {
+    const BLOCKED_BY_ID = String(book.blocked_by ?? "").trim();
+    if (BLOCKED_BY_ID === "" || schedulableIds.has(BLOCKED_BY_ID)) {
+        return book;
+    }
+    return {
+        ...book,
+        blocked_by: null,
+    };
 }

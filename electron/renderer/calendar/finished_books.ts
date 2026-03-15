@@ -22,6 +22,80 @@ function completedBookTitle(bookTitle: string, fallbackTitle: string): string {
     return "Untitled";
 }
 
+function finishedAtValue(book: BookFinishLookup): string {
+    return String(book.finished_at ?? "").trim();
+}
+
+function isUniqueBookId(bookId: string, seenBookIds: Set<string>): boolean {
+    if (bookId === "") {
+        return false;
+    }
+    if (seenBookIds.has(bookId)) {
+        return false;
+    }
+    seenBookIds.add(bookId);
+    return true;
+}
+
+function appendRowByDate(
+    rowsByDate: Record<string, CompletedBookRow[]>,
+    finishedAt: string,
+    row: CompletedBookRow,
+): void {
+    const ROWS_BY_DATE = rowsByDate;
+    if (!(finishedAt in ROWS_BY_DATE)) {
+        ROWS_BY_DATE[finishedAt] = [];
+    }
+    ROWS_BY_DATE[finishedAt].push(row);
+}
+
+function uniqueFinishedTitles(rows: CompletedBookRow[]): string[] {
+    const SEEN_TITLES = new Set<string>();
+    const TITLES: string[] = [];
+
+    for (const ROW of rows) {
+        const TITLE = ROW.title.trim();
+        if (TITLE === "") {
+            continue;
+        }
+        if (SEEN_TITLES.has(TITLE)) {
+            continue;
+        }
+        SEEN_TITLES.add(TITLE);
+        TITLES.push(TITLE);
+    }
+    return TITLES;
+}
+
+function completedBookRowForEntry(
+    entry: ManualSessionBook,
+    getBookById: (bookId: string) => BookFinishLookup | null,
+    seenBookIds: Set<string>,
+): { finishedAt: string; row: CompletedBookRow } | null {
+    const BOOK_ID = entry.bookId.trim();
+    if (!isUniqueBookId(BOOK_ID, seenBookIds)) {
+        return null;
+    }
+    const BOOK = getBookById(BOOK_ID);
+    if (BOOK === null) {
+        return null;
+    }
+    const FINISHED_AT = finishedAtValue(BOOK);
+    if (FINISHED_AT === "") {
+        return null;
+    }
+    return {
+        finishedAt: FINISHED_AT,
+        row: {
+            book_id: BOOK_ID,
+            date: FINISHED_AT,
+            finish: true,
+            minutes: 0,
+            title: completedBookTitle(BOOK.title, entry.title),
+        },
+    };
+}
+
 /**
  * Builds completed-book rows grouped by finished date.
  * @param sessionBooks - Session-book options from calendar handlers.
@@ -36,32 +110,15 @@ export function buildCompletedBookRowsByDate(
     const SEEN_BOOK_IDS = new Set<string>();
 
     for (const ENTRY of sessionBooks) {
-        const BOOK_ID = ENTRY.bookId.trim();
-        if (BOOK_ID === "") {
+        const ROW_DATA = completedBookRowForEntry(
+            ENTRY,
+            getBookById,
+            SEEN_BOOK_IDS,
+        );
+        if (ROW_DATA === null) {
             continue;
         }
-        if (SEEN_BOOK_IDS.has(BOOK_ID)) {
-            continue;
-        }
-        SEEN_BOOK_IDS.add(BOOK_ID);
-        const BOOK = getBookById(BOOK_ID);
-        if (BOOK === null) {
-            continue;
-        }
-        const FINISHED_AT = String(BOOK.finished_at ?? "").trim();
-        if (FINISHED_AT === "") {
-            continue;
-        }
-        if (!(FINISHED_AT in ROWS_BY_DATE)) {
-            ROWS_BY_DATE[FINISHED_AT] = [];
-        }
-        ROWS_BY_DATE[FINISHED_AT].push({
-            book_id: BOOK_ID,
-            date: FINISHED_AT,
-            finish: true,
-            minutes: 0,
-            title: completedBookTitle(BOOK.title, ENTRY.title),
-        });
+        appendRowByDate(ROWS_BY_DATE, ROW_DATA.finishedAt, ROW_DATA.row);
     }
     return ROWS_BY_DATE;
 }
@@ -72,20 +129,7 @@ export function buildCompletedBookRowsByDate(
  * @returns Summary text or empty string when no titles exist.
  */
 export function finishedBooksSummaryText(rows: CompletedBookRow[]): string {
-    const SEEN_TITLES = new Set<string>();
-    const FINISHED_TITLES: string[] = [];
-
-    for (const ROW of rows) {
-        const TITLE = ROW.title.trim();
-        if (TITLE === "") {
-            continue;
-        }
-        if (SEEN_TITLES.has(TITLE)) {
-            continue;
-        }
-        SEEN_TITLES.add(TITLE);
-        FINISHED_TITLES.push(TITLE);
-    }
+    const FINISHED_TITLES = uniqueFinishedTitles(rows);
     if (FINISHED_TITLES.length === 0) {
         return "";
     }

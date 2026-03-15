@@ -3,6 +3,92 @@ import type {
     InitRuntimeArgs,
 } from "../../../types/types.ts";
 
+type InitRuntimeHandlers = {
+    handleBooksChanged(): void;
+    handleScheduleMutation(): void;
+    handleTabChange(name: string): void;
+    queueAutoPlanIfReady(): void;
+    setPlanController(controller: AutoPlanController | null): void;
+};
+
+type PlanControllerGetter = () => AutoPlanController | null;
+type PlanControllerSetter = (controller: AutoPlanController | null) => void;
+
+function queueAutoPlan(
+    args: InitRuntimeArgs,
+    planController: AutoPlanController | null,
+): void {
+    if (args.state.ready && planController !== null) {
+        planController.queueAutoPlan();
+    }
+}
+
+function handleBooksChangedHandler(
+    args: InitRuntimeArgs,
+    getPlanController: PlanControllerGetter,
+): () => void {
+    return (): void => {
+        args.updateDashboards();
+        args.queuePersist();
+        queueAutoPlan(args, getPlanController());
+    };
+}
+
+function handleScheduleMutationHandler(
+    args: InitRuntimeArgs,
+    getPlanController: PlanControllerGetter,
+): () => void {
+    return (): void => {
+        args.updateDashboards();
+        queueAutoPlan(args, getPlanController());
+    };
+}
+
+function handleTabChangeHandler(args: InitRuntimeArgs): (name: string) => void {
+    return (name: string): void => {
+        if (name === "schedule") {
+            args.focusCalendarToday();
+        }
+    };
+}
+
+function queueAutoPlanIfReadyHandler(
+    args: InitRuntimeArgs,
+    getPlanController: PlanControllerGetter,
+): () => void {
+    return (): void => {
+        queueAutoPlan(args, getPlanController());
+    };
+}
+
+function setPlanControllerHandler(
+    setPlanController: PlanControllerSetter,
+): (controller: AutoPlanController | null) => void {
+    return (controller: AutoPlanController | null): void => {
+        setPlanController(controller);
+    };
+}
+
+function initRuntimeHandlers(
+    args: InitRuntimeArgs,
+    getPlanController: PlanControllerGetter,
+    setPlanController: PlanControllerSetter,
+): InitRuntimeHandlers {
+    return {
+        handleBooksChanged: handleBooksChangedHandler(args, getPlanController),
+        handleScheduleMutation: handleScheduleMutationHandler(
+            args,
+            getPlanController,
+        ),
+        handleTabChange: handleTabChangeHandler(args),
+        queueAutoPlanIfReady: queueAutoPlanIfReadyHandler(
+            args,
+            getPlanController,
+        ),
+        setPlanController: setPlanControllerHandler(setPlanController),
+    };
+}
+
 /**
  * Creates runtime handlers used by tab changes, book edits, and schedule mutations.
  * @param args - Runtime dependencies from bootstrap.
@@ -12,43 +98,11 @@ import type {
  * @param updateDashboards - Refreshes dashboard UI sections.
  * @returns Handler object consumed by initialization and bindings.
  */
-export function createInitRuntime(args: InitRuntimeArgs): {
-    handleBooksChanged(): void;
-    handleScheduleMutation(): void;
-    handleTabChange(name: string): void;
-    queueAutoPlanIfReady(): void;
-    setPlanController(controller: AutoPlanController | null): void;
-} {
+export function createInitRuntime(args: InitRuntimeArgs): InitRuntimeHandlers {
     let planController: AutoPlanController | null = null;
-    const QUEUE_AUTO_PLAN_IF_READY = (): void => {
-        if (args.state.ready && planController !== null) {
-            planController.queueAutoPlan();
-        }
-    };
-    const HANDLE_TAB_CHANGE = (name: string): void => {
-        if (name === "schedule") {
-            args.focusCalendarToday();
-        }
-    };
-    const HANDLE_BOOKS_CHANGED = (): void => {
-        args.updateDashboards();
-        args.queuePersist();
-        QUEUE_AUTO_PLAN_IF_READY();
-    };
-    const HANDLE_SCHEDULE_MUTATION = (): void => {
-        args.updateDashboards();
-        QUEUE_AUTO_PLAN_IF_READY();
-    };
-    const SET_PLAN_CONTROLLER = (
-        controller: AutoPlanController | null,
-    ): void => {
+    const GET_PLAN_CONTROLLER = (): AutoPlanController | null => planController;
+    const SET_PLAN_CONTROLLER: PlanControllerSetter = (controller) => {
         planController = controller;
     };
-    return {
-        handleBooksChanged: HANDLE_BOOKS_CHANGED,
-        handleScheduleMutation: HANDLE_SCHEDULE_MUTATION,
-        handleTabChange: HANDLE_TAB_CHANGE,
-        queueAutoPlanIfReady: QUEUE_AUTO_PLAN_IF_READY,
-        setPlanController: SET_PLAN_CONTROLLER,
-    };
+    return initRuntimeHandlers(args, GET_PLAN_CONTROLLER, SET_PLAN_CONTROLLER);
 }

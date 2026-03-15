@@ -6,8 +6,15 @@ const DEFAULT_TITLE = "Bartleby";
 const TAB_PANEL_SELECTOR = ".panel";
 const TAB_BUTTON_SELECTOR = ".tab[data-tab]";
 const TAB_DESKTOP_SELECTOR = ".tabs .tab[data-tab]";
+const TAB_TITLE_SUFFIX = " - Bartleby";
+const HOME_KEY = "Home";
+const END_KEY = "End";
+const LEFT_KEY = "ArrowLeft";
+const RIGHT_KEY = "ArrowRight";
+const TAB_NAVIGATION_KEYS = [RIGHT_KEY, LEFT_KEY, HOME_KEY, END_KEY];
 
 let onTabActivated: ((name: string) => void) | null = null;
+let desktopTabButtonsState: HTMLElement[] = [];
 
 /**
  * Returns all tab buttons across desktop/mobile navs.
@@ -96,30 +103,11 @@ export function activateTab(
     name: string,
     options: ActivateTabOptions = {},
 ): void {
-    const { focusPanel = false } = options;
-    let activeLabel = DEFAULT_TITLE;
-
-    for (const BUTTON of allTabButtons()) {
-        const BTN = BUTTON;
-        const ACTIVE = BTN.dataset.tab === name;
-        BTN.classList.toggle("is-active", ACTIVE);
-        setTabAriaState(BTN, ACTIVE);
-        if (ACTIVE) {
-            activeLabel = resolveActiveLabel(activeLabel, BTN);
-        }
-    }
-
-    for (const PANEL of qa<HTMLElement>(TAB_PANEL_SELECTOR)) {
-        setPanelState(PANEL, PANEL.id === `tab-${name}`);
-    }
-    const ACTIVE_PANEL = panelByName(name);
-    if (focusPanel && ACTIVE_PANEL) {
-        ACTIVE_PANEL.focus();
-    }
-    document.title = `${activeLabel} - Bartleby`;
-    if (onTabActivated !== null) {
-        onTabActivated(name);
-    }
+    const FOCUS_PANEL = options.focusPanel ?? false;
+    const ACTIVE_LABEL = syncTabButtons(name);
+    syncTabPanels(name, FOCUS_PANEL);
+    document.title = `${ACTIVE_LABEL}${TAB_TITLE_SUFFIX}`;
+    notifyTabActivated(name);
 }
 
 /**
@@ -130,7 +118,95 @@ export function activateTab(
 function activateTabByIndex(tabs: HTMLElement[], index: number): void {
     const TARGET = tabs[index];
     TARGET.focus();
-    activateTab(TARGET.dataset.tab ?? DEFAULT_TAB_NAME);
+    activateTab(tabNameFromButton(TARGET));
+}
+
+function tabNameFromButton(button: HTMLElement): string {
+    return button.dataset.tab ?? DEFAULT_TAB_NAME;
+}
+
+function syncTabButtons(name: string): string {
+    let activeLabel = DEFAULT_TITLE;
+    for (const BUTTON of allTabButtons()) {
+        const ACTIVE = BUTTON.dataset.tab === name;
+        BUTTON.classList.toggle("is-active", ACTIVE);
+        setTabAriaState(BUTTON, ACTIVE);
+        if (ACTIVE) {
+            activeLabel = resolveActiveLabel(activeLabel, BUTTON);
+        }
+    }
+    return activeLabel;
+}
+
+function syncTabPanels(name: string, focusPanel: boolean): void {
+    for (const PANEL of qa<HTMLElement>(TAB_PANEL_SELECTOR)) {
+        setPanelState(PANEL, PANEL.id === `tab-${name}`);
+    }
+    const ACTIVE_PANEL = panelByName(name);
+    if (focusPanel && ACTIVE_PANEL !== null) {
+        ACTIVE_PANEL.focus();
+    }
+}
+
+function notifyTabActivated(name: string): void {
+    if (onTabActivated === null) {
+        return;
+    }
+    onTabActivated(name);
+}
+
+function isTabNavigationKey(key: string): boolean {
+    return TAB_NAVIGATION_KEYS.includes(key);
+}
+
+function tabIndexDelta(key: string): number {
+    if (key === RIGHT_KEY) {
+        return 1;
+    }
+    return -1;
+}
+
+function nextTabIndex(
+    currentIndex: number,
+    key: string,
+    tabs: HTMLElement[],
+): number {
+    if (key === HOME_KEY) {
+        return 0;
+    }
+    if (key === END_KEY) {
+        return tabs.length - 1;
+    }
+    return (currentIndex + tabIndexDelta(key) + tabs.length) % tabs.length;
+}
+
+function desktopTabIndex(button: HTMLElement): number {
+    return desktopTabButtonsState.indexOf(button);
+}
+
+function onTabClick(event: Event): void {
+    if (!(event.currentTarget instanceof HTMLElement)) {
+        return;
+    }
+    activateTab(tabNameFromButton(event.currentTarget));
+}
+
+function onDesktopTabKeydown(event: KeyboardEvent): void {
+    if (!(event.currentTarget instanceof HTMLElement)) {
+        return;
+    }
+    if (!isTabNavigationKey(event.key)) {
+        return;
+    }
+    const CURRENT_INDEX = desktopTabIndex(event.currentTarget);
+    if (CURRENT_INDEX < 0) {
+        return;
+    }
+    event.preventDefault();
+    activateTabByIndex(
+        desktopTabButtonsState,
+        nextTabIndex(CURRENT_INDEX, event.key, desktopTabButtonsState),
+    );
 }
 
 /**
@@ -138,30 +214,10 @@ function activateTabByIndex(tabs: HTMLElement[], index: number): void {
  * @param tabs - Ordered tab list.
  */
 function bindTabKeyboard(tabs: HTMLElement[]): void {
-    tabs.forEach((btn, index) => {
-        btn.addEventListener("keydown", (event) => {
-            if (
-                !["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)
-            ) {
-                return;
-            }
-            event.preventDefault();
-            if (event.key === "Home") {
-                activateTabByIndex(tabs, 0);
-                return;
-            }
-            if (event.key === "End") {
-                activateTabByIndex(tabs, tabs.length - 1);
-                return;
-            }
-            let direction = -1;
-            if (event.key === "ArrowRight") {
-                direction = 1;
-            }
-            const NEXT = (index + direction + tabs.length) % tabs.length;
-            activateTabByIndex(tabs, NEXT);
-        });
-    });
+    desktopTabButtonsState = tabs;
+    for (const BUTTON of tabs) {
+        BUTTON.addEventListener("keydown", onDesktopTabKeydown);
+    }
 }
 
 /**
@@ -173,10 +229,7 @@ export function bindTabs(
 ): void {
     onTabActivated = onChange;
     for (const BUTTON of allTabButtons()) {
-        const BTN = BUTTON;
-        BTN.addEventListener("click", () => {
-            activateTab(BTN.dataset.tab ?? DEFAULT_TAB_NAME);
-        });
+        BUTTON.addEventListener("click", onTabClick);
     }
 
     bindTabKeyboard(desktopTabs());

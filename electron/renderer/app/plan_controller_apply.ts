@@ -34,78 +34,62 @@ function resultFromData(data: PlannerRunData): PlannerResult {
 
 /**
  * Applies generated schedule data into runtime state and persists it.
- * @param root0 - Planner data and runtime dependencies.
- * @param data - Generated schedule and summary payload.
- * @param preserveLockedDays - Whether existing manual locks should be preserved.
+ * @param args - Planner data and runtime dependencies.
  * @returns Promise that resolves after state persistence completes.
  */
 export async function applyPlannedData(
-    root0: ApplyPlannedDataArgs,
+    args: ApplyPlannedDataArgs,
 ): Promise<void> {
-    const {
-        data,
-        preserveLockedDays,
-        getLastResult,
-        getSessions,
-        getBlockedDayBooks,
-        getScheduleCompletions,
-        setScheduleCompletions,
-        setLastResult,
-        setBookScheduleRows,
-        renderCalendar,
-        totalsFromSummary,
-        updateTodayView,
-        persistDraft,
-    } = root0;
-    const PREVIOUS_ROWS = getLastResult()?.schedule ?? [];
-    let nextRows = data.schedule;
-    if (preserveLockedDays) {
-        nextRows = mergeScheduleRows(
-            PREVIOUS_ROWS,
-            nextRows,
-            getSessions(),
-            getBlockedDayBooks(),
-        );
-    }
+    const NEXT_ROWS = plannedScheduleRows(args);
     const FILTERED_COMPLETIONS = pruneScheduleCompletions(
-        getScheduleCompletions(),
-        nextRows,
+        args.getScheduleCompletions(),
+        NEXT_ROWS,
     );
-    setScheduleCompletions(FILTERED_COMPLETIONS);
-    const NEXT_RESULT = resultFromData({ ...data, schedule: nextRows });
-    setLastResult(NEXT_RESULT);
-    setBookScheduleRows(nextRows);
-    renderCalendar(nextRows, totalsFromSummary(NEXT_RESULT.summary));
-    updateTodayView();
-    await persistDraft();
+    args.setScheduleCompletions(FILTERED_COMPLETIONS);
+    applyPlannedRows(args, NEXT_ROWS);
+    await args.persistDraft();
+}
+
+function plannedScheduleRows(args: ApplyPlannedDataArgs): PlannerScheduleRow[] {
+    const PREVIOUS_ROWS = args.getLastResult()?.schedule ?? [];
+    if (!args.preserveLockedDays) {
+        return args.data.schedule;
+    }
+    return mergeScheduleRows({
+        blockedDayBooks: args.getBlockedDayBooks(),
+        nextRows: args.data.schedule,
+        previousRows: PREVIOUS_ROWS,
+        sessions: args.getSessions(),
+    });
+}
+
+function applyPlannedRows(
+    args: ApplyPlannedDataArgs,
+    nextRows: PlannerScheduleRow[],
+): void {
+    const NEXT_RESULT = resultFromData({ ...args.data, schedule: nextRows });
+    args.setLastResult(NEXT_RESULT);
+    args.setBookScheduleRows(nextRows);
+    args.renderCalendar(nextRows, args.totalsFromSummary(NEXT_RESULT.summary));
+    args.updateTodayView();
 }
 
 /**
  * Applies a saved planner result into runtime state and calendar UI.
- * @param root0 - Saved result payload and update callbacks.
- * @param savedResult - Persisted planner result to apply.
- * @param defaultLastResult - Fallback empty planner result.
+ * @param args - Saved result payload and update callbacks.
  */
-export function applyLoadedResult(root0: ApplyLoadedResultArgs): void {
-    const {
-        savedResult,
-        defaultLastResult,
-        setLastResult,
-        setBookScheduleRows,
-        renderCalendar,
-        totalsFromSummary,
-        addLog,
-    } = root0;
-    if (savedResult === null || !hasRows(savedResult.schedule)) {
-        setLastResult(defaultLastResult);
-        setBookScheduleRows([]);
+export function applyLoadedResult(args: ApplyLoadedResultArgs): void {
+    const SAVED_RESULT = args.savedResult;
+    if (SAVED_RESULT === null || !hasRows(SAVED_RESULT.schedule)) {
+        args.setLastResult(args.defaultLastResult);
+        args.setBookScheduleRows([]);
         return;
     }
-    setLastResult(savedResult);
-    setBookScheduleRows(savedResult.schedule);
-    renderCalendar(
-        savedResult.schedule,
-        totalsFromSummary(savedResult.summary),
+    args.setLastResult(SAVED_RESULT);
+    args.setBookScheduleRows(SAVED_RESULT.schedule);
+    args.renderCalendar(
+        SAVED_RESULT.schedule,
+        args.totalsFromSummary(SAVED_RESULT.summary),
     );
-    addLog("Loaded previous schedule.");
+    args.addLog("Loaded previous schedule.");
 }

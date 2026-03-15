@@ -4,6 +4,18 @@ import { isOnOrBeforeDay, isValidDayKey } from "./day_keys_compare.ts";
 
 const SESSION_INDEX_PAD = 3;
 
+type MergeScheduleRowsArgs = {
+    previousRows?: PlannerScheduleRow[];
+    nextRows?: PlannerScheduleRow[];
+    sessions?: Session[];
+    blockedDayBooks?: Record<string, boolean>;
+};
+
+type LockedDateState = {
+    locked: Set<string>;
+    previousDates: Set<string>;
+};
+
 /**
  * Builds a sortable key for stable schedule ordering by day and session index.
  * @param row - Planner schedule row.
@@ -15,6 +27,22 @@ function rowSortKey(row: PlannerScheduleRow): string {
         "0",
     );
     return `${String(row.date || "")}-${SESSION}`;
+}
+
+function validDayKey(value: string): string | null {
+    if (!isValidDayKey(value)) {
+        return null;
+    }
+    return value;
+}
+
+function rowDayKey(row: PlannerScheduleRow): string | null {
+    return validDayKey(String(row.date || ""));
+}
+
+function sessionDayKey(session: Session): string | null {
+    const KEY = localDayKeyFromIso(String(session.ended_at || "")) ?? "";
+    return validDayKey(KEY);
 }
 
 /**
@@ -42,33 +70,87 @@ function lockedDates(
     previousRows: PlannerScheduleRow[] = [],
     sessions: Session[] = [],
 ): Set<string> {
-    const LOCKED = new Set<string>();
-    const PREVIOUS_DATES = new Set<string>();
     const TODAY_KEY = dayKeyFromDate(new Date());
+    const STATE = previousLockedDates(previousRows, TODAY_KEY);
+    addLockedSessionDates({
+        sessions,
+        state: STATE,
+        todayKey: TODAY_KEY,
+    });
+    return STATE.locked;
+}
 
+function previousLockedDates(
+    previousRows: PlannerScheduleRow[],
+    todayKey: string,
+): LockedDateState {
+    const PREVIOUS_DATES = new Set<string>();
+    collectPreviousDates(previousRows, PREVIOUS_DATES);
+    return {
+        locked: lockedPreviousDates(PREVIOUS_DATES, todayKey),
+        previousDates: PREVIOUS_DATES,
+    };
+}
+
+function collectPreviousDates(
+    previousRows: PlannerScheduleRow[],
+    previousDates: Set<string>,
+): void {
     for (const ROW of previousRows) {
-        const ROW_DATE = String(ROW.date || "");
-        if (!isValidDayKey(ROW_DATE)) {
-            continue;
-        }
-        PREVIOUS_DATES.add(ROW_DATE);
-        if (isOnOrBeforeDay(ROW_DATE, TODAY_KEY)) {
-            LOCKED.add(ROW_DATE);
+        const ROW_DATE = rowDayKey(ROW);
+        if (ROW_DATE !== null) {
+            previousDates.add(ROW_DATE);
         }
     }
+}
 
-    for (const SESSION of sessions) {
-        const ENDED_AT = String(SESSION.ended_at || "");
-        const KEY = localDayKeyFromIso(ENDED_AT);
-        if (!isValidDayKey(KEY || "")) {
-            continue;
-        }
-        if (PREVIOUS_DATES.has(KEY) && isOnOrBeforeDay(KEY, TODAY_KEY)) {
-            LOCKED.add(KEY);
+function lockedPreviousDates(
+    previousDates: Set<string>,
+    todayKey: string,
+): Set<string> {
+    const LOCKED = new Set<string>();
+    for (const PREVIOUS_DATE of previousDates) {
+        if (isOnOrBeforeDay(PREVIOUS_DATE, todayKey)) {
+            LOCKED.add(PREVIOUS_DATE);
         }
     }
-
     return LOCKED;
+}
+
+function addLockedSessionDates(args: {
+    sessions: Session[];
+    state: LockedDateState;
+    todayKey: string;
+}): void {
+    for (const SESSION of args.sessions) {
+        addLockedSessionDate(SESSION, args.state, args.todayKey);
+    }
+}
+
+function shouldLockSessionDate(
+    key: string | null,
+    state: LockedDateState,
+    todayKey: string,
+): key is string {
+    if (key === null) {
+        return false;
+    }
+    if (!state.previousDates.has(key)) {
+        return false;
+    }
+    return isOnOrBeforeDay(key, todayKey);
+}
+
+function addLockedSessionDate(
+    session: Session,
+    state: LockedDateState,
+    todayKey: string,
+): void {
+    const KEY = sessionDayKey(session);
+    if (!shouldLockSessionDate(KEY, state, todayKey)) {
+        return;
+    }
+    state.locked.add(KEY);
 }
 
 /**
@@ -108,41 +190,111 @@ function rowsWithoutBlockedDayBooks(
 /**
  * Merges new plan rows with locked rows from the previous plan.
  * Locked days are preserved from `previousRows`; other days come from `nextRows`.
- * @param previousRows - Previous schedule rows.
- * @param nextRows - Newly generated schedule rows.
- * @param sessions - Recorded reading sessions used to infer locked days.
- * @param blockedDayBooks - Manually blocked day-book keys to exclude from replans.
+ * @param args - Previous rows, new rows, sessions, and blocked day-book keys.
  * @returns Sorted merged schedule rows with duplicate keys removed.
  */
 export function mergeScheduleRows(
-    previousRows: PlannerScheduleRow[] = [],
-    nextRows: PlannerScheduleRow[] = [],
-    sessions: Session[] = [],
-    blockedDayBooks: Record<string, boolean> = {},
+    args: MergeScheduleRowsArgs = {},
 ): PlannerScheduleRow[] {
-    const FILTERED_NEXT_ROWS = rowsWithoutBlockedDayBooks(
-        nextRows,
-        blockedDayBooks,
-    );
-    const LOCKED = lockedDates(previousRows, sessions);
+    const INPUTS = mergeScheduleRowsInputs(args);
+    const LOCKED = lockedDates(INPUTS.previousRows, INPUTS.sessions);
     if (!LOCKED.size) {
-        return sortedRows(FILTERED_NEXT_ROWS);
+        return sortedRows(INPUTS.nextRows);
     }
+    return sortedRows([
+        ...mergedRowsByKey(
+            INPUTS.previousRows,
+            INPUTS.nextRows,
+            LOCKED,
+        ).values(),
+    ]);
+}
 
-    const KEPT_ROWS = previousRows.filter((row) => {
-        return LOCKED.has(String(row.date || ""));
-    });
-    const NEW_ROWS = FILTERED_NEXT_ROWS.filter((row) => {
-        return !LOCKED.has(String(row.date || ""));
-    });
+function mergeScheduleRowsInputs(
+    args: MergeScheduleRowsArgs,
+): Required<MergeScheduleRowsArgs> {
+    const BLOCKED_DAY_BOOKS = resolvedBlockedDayBooks(args.blockedDayBooks);
+    return {
+        blockedDayBooks: BLOCKED_DAY_BOOKS,
+        nextRows: rowsWithoutBlockedDayBooks(
+            resolvedScheduleRows(args.nextRows),
+            BLOCKED_DAY_BOOKS,
+        ),
+        previousRows: resolvedScheduleRows(args.previousRows),
+        sessions: resolvedSessions(args.sessions),
+    };
+}
 
+function resolvedScheduleRows(
+    rows: PlannerScheduleRow[] | undefined,
+): PlannerScheduleRow[] {
+    if (rows === undefined) {
+        return [];
+    }
+    return rows;
+}
+
+function resolvedSessions(sessions: Session[] | undefined): Session[] {
+    if (sessions === undefined) {
+        return [];
+    }
+    return sessions;
+}
+
+function resolvedBlockedDayBooks(
+    blockedDayBooks: Record<string, boolean> | undefined,
+): Record<string, boolean> {
+    if (blockedDayBooks === undefined) {
+        return {};
+    }
+    return blockedDayBooks;
+}
+
+function mergedRowsByKey(
+    previousRows: PlannerScheduleRow[],
+    nextRows: PlannerScheduleRow[],
+    locked: Set<string>,
+): Map<string, PlannerScheduleRow> {
     const MERGED_BY_KEY = new Map<string, PlannerScheduleRow>();
+    appendMergedRows({
+        keepLocked: true,
+        locked,
+        mergedByKey: MERGED_BY_KEY,
+        rows: previousRows,
+    });
+    appendMergedRows({
+        keepLocked: false,
+        locked,
+        mergedByKey: MERGED_BY_KEY,
+        rows: nextRows,
+    });
+    return MERGED_BY_KEY;
+}
 
-    for (const ROW of [...KEPT_ROWS, ...NEW_ROWS]) {
-        MERGED_BY_KEY.set(scheduleKey(ROW), ROW);
+function appendMergedRows(args: {
+    mergedByKey: Map<string, PlannerScheduleRow>;
+    rows: PlannerScheduleRow[];
+    locked: Set<string>;
+    keepLocked: boolean;
+}): void {
+    for (const ROW of args.rows) {
+        if (shouldSkipMergedRow(ROW, args.locked, args.keepLocked)) {
+            continue;
+        }
+        args.mergedByKey.set(scheduleKey(ROW), ROW);
     }
+}
 
-    return sortedRows([...MERGED_BY_KEY.values()]);
+function shouldSkipMergedRow(
+    row: PlannerScheduleRow,
+    locked: Set<string>,
+    keepLocked: boolean,
+): boolean {
+    const IS_LOCKED = locked.has(String(row.date || ""));
+    if (keepLocked) {
+        return !IS_LOCKED;
+    }
+    return IS_LOCKED;
 }
 
 /**

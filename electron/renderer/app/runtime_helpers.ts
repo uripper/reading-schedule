@@ -6,6 +6,7 @@ import type {
 import { draftData, saveStateSafe } from "./persistence.ts";
 
 const PERSIST_DELAY_MS = 300;
+const NO_WORDS = 0;
 const NON_PLANNING_SETTING_IDS = new Set([
     "themeSelect",
     "reduceMotionToggle",
@@ -16,6 +17,13 @@ const NON_PLANNING_SETTING_IDS = new Set([
     "flagSocial",
     "flagRecommendations",
 ]);
+
+interface PersistTimerState {
+    timer: ReturnType<typeof setTimeout> | null;
+}
+
+type PersistDraftFn = PersistQueue["persistDraft"];
+type QueuePersistFn = PersistQueue["queuePersist"];
 
 /**
  * Builds a status setter that updates UI status text and mirrors messages to logs.
@@ -38,10 +46,33 @@ export function createStatusSetter(
     };
 }
 
+function normalizedWordCount(value: unknown): number | null {
+    const PARSED = Number(value);
+    if (!Number.isFinite(PARSED)) {
+        return null;
+    }
+    if (PARSED < NO_WORDS) {
+        return NO_WORDS;
+    }
+    return PARSED;
+}
+
+function summaryWordsRemaining(info: unknown): number {
+    if (typeof info !== "object" || info === null) {
+        return NO_WORDS;
+    }
+    const INFO = info as Record<string, unknown>;
+    const WORD_COUNT =
+        normalizedWordCount(INFO.remaining_words) ??
+        normalizedWordCount(INFO.words_total) ??
+        normalizedWordCount(INFO.words_planned);
+    return WORD_COUNT ?? NO_WORDS;
+}
+
 /**
- * Extracts per-book total word counts from planner summary output.
+ * Extracts per-book remaining word counts from planner summary output.
  * @param summary - Planner summary payload from generation result.
- * @returns Map of book id to total planned words.
+ * @returns Map of book id to remaining words used by finish projections.
  */
 export function totalsFromSummary(
     summary: PlannerSummary | null,
@@ -49,7 +80,7 @@ export function totalsFromSummary(
     const PER_BOOK = summary?.per_book ?? {};
     const TOTALS: Record<string, number> = {};
     for (const [ID, INFO] of Object.entries(PER_BOOK)) {
-        TOTALS[ID] = Number(INFO.words_total ?? 0);
+        TOTALS[ID] = summaryWordsRemaining(INFO);
     }
     return TOTALS;
 }
@@ -73,54 +104,79 @@ export function createPersistQueue({
     collectSettings,
     addLog,
 }: PersistQueueArgs): PersistQueue {
-    let persistTimer: ReturnType<typeof setTimeout> | null = null;
+    const TIMER_STATE: PersistTimerState = { timer: null };
+    const PERSIST_DRAFT = persistDraftFn({
+        addLog,
+        collectBooks,
+        collectSettings,
+        getSessions,
+        plannerApi,
+        state,
+    });
+    const QUEUE_PERSIST = queuePersistFn({
+        addLog,
+        persistDraft: PERSIST_DRAFT,
+        state,
+        timerState: TIMER_STATE,
+    });
+    return persistQueueResult(PERSIST_DRAFT, QUEUE_PERSIST);
+}
 
-    /**
-     * Synchronize planner state by building a payload from current runtime state and saving it via the planner API.
-     * @example
-     * sync()
-     * true
-     * @returns {Promise<boolean>} Resolves to true if the state was saved successfully, otherwise false.
-     */
-    const PERSIST_DRAFT = async (): Promise<boolean> => {
-        const PAYLOAD = draftData({
-            blockedDayBooks: state.blockedDayBooks,
-            collectBooks,
-            collectSettings,
-            featureFlags: state.featureFlags,
-            lastResult: state.lastResult,
-            preferences: state.preferences,
-            scheduleCompletions: state.scheduleCompletions,
-            sessions: getSessions(),
-        });
-        return await saveStateSafe(plannerApi, PAYLOAD, addLog);
+function persistQueueResult(
+    persistDraft: PersistDraftFn,
+    queuePersist: QueuePersistFn,
+): PersistQueue {
+    return { persistDraft, queuePersist };
+}
+
+function persistDraftPayload(args: PersistQueueArgs) {
+    return draftData({
+        blockedDayBooks: args.state.blockedDayBooks,
+        collectBooks: args.collectBooks,
+        collectSettings: args.collectSettings,
+        featureFlags: args.state.featureFlags,
+        lastResult: args.state.lastResult,
+        preferences: args.state.preferences,
+        scheduleCompletions: args.state.scheduleCompletions,
+        sessions: args.getSessions(),
+    });
+}
+
+function persistDraftFn(args: PersistQueueArgs): PersistDraftFn {
+    return async (): Promise<boolean> => {
+        const PAYLOAD = persistDraftPayload(args);
+        return await saveStateSafe(args.plannerApi, PAYLOAD, args.addLog);
     };
+}
 
-    /**
-     * Schedules a debounced persistence of the draft state if the runtime is ready.
-     * @example
-     * schedulePersistDraft()
-     * undefined
-     * @param {void} none - This function takes no parameters.
-     * @returns {void} Returns nothing; schedules a delayed persistence operation.
-     **/
-    const QUEUE_PERSIST = (): void => {
-        if (!state.ready) {
+function clearPersistTimer(timerState: PersistTimerState): void {
+    if (timerState.timer === null) {
+        return;
+    }
+    clearTimeout(timerState.timer);
+}
+
+function persistDraftFailure(addLog: (message: string) => void): void {
+    addLog("Failed to persist draft state.");
+}
+
+function queuePersistFn(options: {
+    addLog: (message: string) => void;
+    persistDraft: PersistDraftFn;
+    state: PersistQueueArgs["state"];
+    timerState: PersistTimerState;
+}): QueuePersistFn {
+    return (): void => {
+        if (!options.state.ready) {
             return;
         }
-        if (persistTimer) {
-            clearTimeout(persistTimer);
-        }
-        persistTimer = setTimeout(() => {
-            PERSIST_DRAFT().catch(() => {
-                addLog("Failed to persist draft state.");
+        clearPersistTimer(options.timerState);
+        const TIMER_STATE = options.timerState;
+        TIMER_STATE.timer = setTimeout(() => {
+            options.persistDraft().catch(() => {
+                persistDraftFailure(options.addLog);
             });
         }, PERSIST_DELAY_MS);
-    };
-
-    return {
-        persistDraft: PERSIST_DRAFT,
-        queuePersist: QUEUE_PERSIST,
     };
 }
 
@@ -140,6 +196,57 @@ function shouldAutoPlanTarget(target: HTMLElement): boolean {
     return true;
 }
 
+function eventTargetElement(event: Event): HTMLElement | null {
+    if (!(event.target instanceof HTMLElement)) {
+        return null;
+    }
+    return event.target;
+}
+
+function shouldQueueSettingMutation(
+    event: Event,
+    isReady: () => boolean,
+): boolean {
+    if (!isReady()) {
+        return false;
+    }
+    const TARGET = eventTargetElement(event);
+    if (TARGET === null) {
+        return false;
+    }
+    return shouldAutoPlanTarget(TARGET);
+}
+
+function clickedDayOffControl(target: HTMLElement): boolean {
+    const ADD_DAY_OFF = target.closest("#addDayOffBtn");
+    const REMOVE_DAY_OFF = target.closest("#dayOffList .chip-btn");
+    return Boolean(ADD_DAY_OFF || REMOVE_DAY_OFF);
+}
+
+function shouldQueueSettingClick(
+    event: Event,
+    isReady: () => boolean,
+): boolean {
+    if (!isReady()) {
+        return false;
+    }
+    const TARGET = eventTargetElement(event);
+    if (TARGET === null) {
+        return false;
+    }
+    return clickedDayOffControl(TARGET);
+}
+
+function bindSettingsAutoPlanEvents(options: {
+    onSettingClick: (event: Event) => void;
+    onSettingMutation: (event: Event) => void;
+    settingsPanel: HTMLElement;
+}): void {
+    options.settingsPanel.addEventListener("input", options.onSettingMutation);
+    options.settingsPanel.addEventListener("change", options.onSettingMutation);
+    options.settingsPanel.addEventListener("click", options.onSettingClick);
+}
+
 /**
  * Binds settings listeners that queue automatic plan refresh when planning inputs change.
  * @param settingsPanel - Settings container element hosting planner controls.
@@ -151,50 +258,21 @@ export function bindSettingsAutoPlanListeners(
     isReady: () => boolean,
     queueAutoPlan: () => void,
 ): void {
-    /**
-     * Check conditions and queue an auto-plan when an input event should trigger it.
-     * @example
-     * handleAutoPlanEvent(new Event('click'))
-     * undefined
-     * @param event - The DOM event to evaluate for auto-planning.
-     * @returns Does not return a value.
-     **/
     const ON_SETTING_MUTATION = (event: Event): void => {
-        if (!isReady()) {
-            return;
-        }
-        if (!(event.target instanceof HTMLElement)) {
-            return;
-        }
-        if (!shouldAutoPlanTarget(event.target)) {
+        if (!shouldQueueSettingMutation(event, isReady)) {
             return;
         }
         queueAutoPlan();
     };
-
-    /**
-     * Handle user events and schedule an auto-plan when add/remove day-off controls are activated.
-     * @example
-     * handleRuntimeEvent(event)
-     * undefined
-     * @param event - The DOM event to process for potential day-off button interactions.
-     * @returns No return value; may call queueAutoPlan() when relevant elements are clicked.
-     **/
     const ON_SETTING_CLICK = (event: Event): void => {
-        if (!isReady()) {
+        if (!shouldQueueSettingClick(event, isReady)) {
             return;
         }
-        if (!(event.target instanceof HTMLElement)) {
-            return;
-        }
-        const ADD_DAY_OFF = event.target.closest("#addDayOffBtn");
-        const REMOVE_DAY_OFF = event.target.closest("#dayOffList .chip-btn");
-        if (ADD_DAY_OFF || REMOVE_DAY_OFF) {
-            queueAutoPlan();
-        }
+        queueAutoPlan();
     };
-
-    settingsPanel.addEventListener("input", ON_SETTING_MUTATION);
-    settingsPanel.addEventListener("change", ON_SETTING_MUTATION);
-    settingsPanel.addEventListener("click", ON_SETTING_CLICK);
+    bindSettingsAutoPlanEvents({
+        onSettingClick: ON_SETTING_CLICK,
+        onSettingMutation: ON_SETTING_MUTATION,
+        settingsPanel,
+    });
 }

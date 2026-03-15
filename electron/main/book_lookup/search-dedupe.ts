@@ -1,21 +1,38 @@
 import type { SearchDoc } from "@reading-schedule/contracts";
 import { primaryAuthor } from "./search-text.ts";
 
-function docDeduplicationKey(doc: SearchDoc): string {
-    const KEY = String(doc.key ?? "").trim();
+function trimmedDocKey(doc: SearchDoc): string {
+    return String(doc.key ?? "").trim();
+}
 
-    if (KEY.length > 0) {
-        return KEY;
-    }
-
+function fallbackDeduplicationKey(doc: SearchDoc): string {
     const TITLE = String(doc.title ?? "").trim();
     const AUTHOR = primaryAuthor(doc).trim();
-
     if (TITLE.length === 0 && AUTHOR.length === 0) {
         return "";
     }
-
     return `${TITLE}|${AUTHOR}`;
+}
+
+function docDeduplicationKey(doc: SearchDoc): string {
+    const KEY = trimmedDocKey(doc);
+    if (KEY.length > 0) {
+        return KEY;
+    }
+    return fallbackDeduplicationKey(doc);
+}
+
+function appendUniqueDoc(
+    doc: SearchDoc,
+    seen: Set<string>,
+    deduped: SearchDoc[],
+): void {
+    const DEDUPE_KEY = docDeduplicationKey(doc);
+    if (DEDUPE_KEY.length === 0 || seen.has(DEDUPE_KEY)) {
+        return;
+    }
+    seen.add(DEDUPE_KEY);
+    deduped.push(doc);
 }
 
 /**
@@ -26,21 +43,8 @@ function docDeduplicationKey(doc: SearchDoc): string {
 export function dedupeDocs(docs: SearchDoc[]): SearchDoc[] {
     const SEEN = new Set<string>();
     const DEDUPED: SearchDoc[] = [];
-
     for (const DOC of docs) {
-        const DEDUPE_KEY = docDeduplicationKey(DOC);
-
-        if (DEDUPE_KEY.length === 0) {
-            continue;
-        }
-
-        if (SEEN.has(DEDUPE_KEY)) {
-            continue;
-        }
-
-        SEEN.add(DEDUPE_KEY);
-        DEDUPED.push(DOC);
+        appendUniqueDoc(DOC, SEEN, DEDUPED);
     }
-
     return DEDUPED;
 }

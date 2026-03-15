@@ -92,7 +92,11 @@ test("mergeScheduleRows preserves locked-day rows even when book is no longer in
     const NEXT_ROWS = [
         row({ book_id: "book-active", date: TOMORROW, session_index: 1 }),
     ];
-    const MERGED = mergeScheduleRows(PREVIOUS_ROWS, NEXT_ROWS, []);
+    const MERGED = mergeScheduleRows({
+        nextRows: NEXT_ROWS,
+        previousRows: PREVIOUS_ROWS,
+        sessions: [],
+    });
     const BOOK_IDS = MERGED.map((entry) => entry.book_id);
     assert.ok(
         BOOK_IDS.includes("book-complete"),
@@ -130,7 +134,11 @@ test("mergeScheduleRows keeps past-day rows for books still in new schedule", ()
             words_planned: 500,
         }),
     ];
-    const MERGED = mergeScheduleRows(PREVIOUS_ROWS, NEXT_ROWS, []);
+    const MERGED = mergeScheduleRows({
+        nextRows: NEXT_ROWS,
+        previousRows: PREVIOUS_ROWS,
+        sessions: [],
+    });
     const YESTERDAY_ROWS = MERGED.filter((entry) => entry.date === YESTERDAY);
     assert.equal(YESTERDAY_ROWS.length, 1);
     assert.equal(YESTERDAY_ROWS[0].book_id, "book-1");
@@ -161,7 +169,11 @@ test("mergeScheduleRows preserves today rows while still rebuilding tomorrow onw
             words_planned: 700,
         }),
     ];
-    const MERGED = mergeScheduleRows(PREVIOUS_ROWS, NEXT_ROWS, []);
+    const MERGED = mergeScheduleRows({
+        nextRows: NEXT_ROWS,
+        previousRows: PREVIOUS_ROWS,
+        sessions: [],
+    });
     const TODAY_ROWS = MERGED.filter((entry) => entry.date === TODAY);
     const TOMORROW_ROWS = MERGED.filter((entry) => entry.date === TOMORROW);
     assert.equal(TODAY_ROWS.length, 1);
@@ -176,8 +188,13 @@ test("mergeScheduleRows excludes day-book pairs that were manually blocked", () 
         row({ book_id: "book-1", date: "2026-02-24", session_index: 1 }),
         row({ book_id: "book-2", date: "2026-02-24", session_index: 2 }),
     ];
-    const MERGED = mergeScheduleRows([], NEXT_ROWS, [], {
-        [BLOCKED_KEY]: true,
+    const MERGED = mergeScheduleRows({
+        blockedDayBooks: {
+            [BLOCKED_KEY]: true,
+        },
+        nextRows: NEXT_ROWS,
+        previousRows: [],
+        sessions: [],
     });
     assert.equal(MERGED.length, 1);
     assert.equal(MERGED[0].book_id, "book-2");
@@ -188,6 +205,10 @@ test("mergeScheduleRows does not lock malformed day keys from previous rows", ()
         row({ book_id: "book-1", date: "2026-2-4", session_index: 1 }),
         row({ book_id: "book-2", date: "2026/02/04", session_index: 2 }),
     ];
-    const MERGED = mergeScheduleRows(PREVIOUS_ROWS, [], []);
+    const MERGED = mergeScheduleRows({
+        nextRows: [],
+        previousRows: PREVIOUS_ROWS,
+        sessions: [],
+    });
     assert.equal(MERGED.length, 0);
 });

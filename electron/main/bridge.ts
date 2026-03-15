@@ -133,30 +133,46 @@ async function handleBridgeCandidateFailure({
     });
 }
 
-async function runBridgeCandidateAtIndex({
-    args,
-    executionContext,
-    moduleIndex,
-    payload,
-}: BridgeCandidateArgs): Promise<JsonValue> {
-    const MODULE_NAME = PLANNER_MODULE_CANDIDATES[moduleIndex];
+function bridgeRunCandidateArgs(
+    options: BridgeCandidateArgs,
+    moduleName: string,
+) {
+    return {
+        args: options.args,
+        executionContext: options.executionContext,
+        moduleName,
+        parseOutput: parseBridgeOutput,
+        payload: options.payload,
+    };
+}
+
+function bridgeCandidateFailureArgs(
+    options: BridgeCandidateArgs,
+    error: unknown,
+    moduleName: string,
+): BridgeCandidateFailureArgs {
+    return {
+        args: options.args,
+        error,
+        executionContext: options.executionContext,
+        moduleIndex: options.moduleIndex,
+        moduleName,
+        payload: options.payload,
+    };
+}
+
+async function runBridgeCandidateAtIndex(
+    options: BridgeCandidateArgs,
+): Promise<JsonValue> {
+    const MODULE_NAME = PLANNER_MODULE_CANDIDATES[options.moduleIndex];
     try {
-        return await runBridgeForModule({
-            args,
-            executionContext,
-            moduleName: MODULE_NAME,
-            parseOutput: parseBridgeOutput,
-            payload,
-        });
+        return await runBridgeForModule(
+            bridgeRunCandidateArgs(options, MODULE_NAME),
+        );
     } catch (error) {
-        return await handleBridgeCandidateFailure({
-            args,
-            error,
-            executionContext,
-            moduleIndex,
-            moduleName: MODULE_NAME,
-            payload,
-        });
+        return await handleBridgeCandidateFailure(
+            bridgeCandidateFailureArgs(options, error, MODULE_NAME),
+        );
     }
 }
 

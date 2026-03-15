@@ -3,6 +3,28 @@ import test from "node:test";
 
 import { estimateProgressLabel } from "../dist/renderer/calendar/estimates.js";
 
+const DEFAULT_BOOK = {
+    author: "Author",
+    blocked_by: null,
+    book_id: "book-1",
+    cover_local_path: "",
+    cover_url: "",
+    deadline: null,
+    difficulty: 3,
+    finished_at: null,
+    lookup_note: "",
+    max_minutes_per_day: null,
+    min_blocks_per_session: 1,
+    pages_read: null,
+    pages_total: 400,
+    priority: 3,
+    progress_percent: 25,
+    shelf: "",
+    status: "in_progress",
+    title: "Book",
+    words_total: 4000,
+};
+
 /**
  * Converts Date fixture to `YYYY-MM-DD` day key.
  * @param {Date} date - Date fixture.
@@ -48,46 +70,50 @@ function row(overrides) {
  * @returns {Record<string, unknown>} Book fixture.
  */
 function book(overrides = {}) {
+    return { ...DEFAULT_BOOK, ...overrides };
+}
+
+function futureEstimateScenario() {
+    const TODAY = dayKey(new Date());
+    const TARGET = plusDays(TODAY, 1);
+    const CURRENT_ROW = row({ date: TODAY, session_index: 1 });
+    const TARGET_ROW = row({ date: TARGET, session_index: 1 });
     return {
-        author: "Author",
-        blocked_by: null,
-        book_id: "book-1",
-        cover_local_path: "",
-        cover_url: "",
-        deadline: null,
-        difficulty: 3,
-        finished_at: null,
-        lookup_note: "",
-        max_minutes_per_day: null,
-        min_blocks_per_session: 1,
-        pages_read: null,
-        pages_total: 400,
-        priority: 3,
-        progress_percent: 25,
-        shelf: "",
-        status: "in_progress",
-        title: "Book",
-        words_total: 4000,
-        ...overrides,
+        currentRow: CURRENT_ROW,
+        state: {
+            rows: [CURRENT_ROW, TARGET_ROW],
+            totalsByBookId: { "book-1": 4000 },
+        },
+        targetRow: TARGET_ROW,
+        today: TODAY,
+    };
+}
+
+function shiftedFutureEstimateScenario() {
+    const TODAY = dayKey(new Date());
+    const SHIFTED_CURRENT = plusDays(TODAY, 1);
+    const TARGET = plusDays(TODAY, 2);
+    const CURRENT_ROW = row({ date: SHIFTED_CURRENT, session_index: 1 });
+    const TARGET_ROW = row({ date: TARGET, session_index: 1 });
+    return {
+        shiftedCurrent: SHIFTED_CURRENT,
+        state: {
+            rows: [CURRENT_ROW, TARGET_ROW],
+            totalsByBookId: { "book-1": 4000 },
+        },
+        targetRow: TARGET_ROW,
     };
 }
 
 test("estimateProgressLabel includes incomplete current-day sessions for future estimates", () => {
-    const TODAY = dayKey(new Date());
-    const TOMORROW = plusDays(TODAY, 1);
-    const TODAY_ROW = row({ date: TODAY, session_index: 1 });
-    const FUTURE_ROW = row({ date: TOMORROW, session_index: 1 });
-    const STATE = {
-        rows: [TODAY_ROW, FUTURE_ROW],
-        totalsByBookId: { "book-1": 4000 },
-    };
+    const SCENARIO = futureEstimateScenario();
 
-    const LABEL = estimateProgressLabel(
-        FUTURE_ROW,
-        STATE,
-        () => book(),
-        () => false,
-    );
+    const LABEL = estimateProgressLabel({
+        getBookById: () => book(),
+        isSessionCompleted: () => false,
+        row: SCENARIO.targetRow,
+        state: SCENARIO.state,
+    });
 
     assert.equal(
         LABEL,
@@ -96,21 +122,15 @@ test("estimateProgressLabel includes incomplete current-day sessions for future 
 });
 
 test("estimateProgressLabel ignores completed current-day sessions for future estimates", () => {
-    const TODAY = dayKey(new Date());
-    const TOMORROW = plusDays(TODAY, 1);
-    const TODAY_ROW = row({ date: TODAY, session_index: 1 });
-    const FUTURE_ROW = row({ date: TOMORROW, session_index: 1 });
-    const STATE = {
-        rows: [TODAY_ROW, FUTURE_ROW],
-        totalsByBookId: { "book-1": 4000 },
-    };
+    const SCENARIO = futureEstimateScenario();
 
-    const LABEL = estimateProgressLabel(
-        FUTURE_ROW,
-        STATE,
-        () => book(),
-        (sessionKey) => sessionKey === `${TODAY}|1|book-1`,
-    );
+    const LABEL = estimateProgressLabel({
+        getBookById: () => book(),
+        isSessionCompleted: (sessionKey) =>
+            sessionKey === `${SCENARIO.today}|1|book-1`,
+        row: SCENARIO.targetRow,
+        state: SCENARIO.state,
+    });
 
     assert.equal(
         LABEL,
@@ -119,25 +139,15 @@ test("estimateProgressLabel ignores completed current-day sessions for future es
 });
 
 test("estimateProgressLabel ignores completed pre-target sessions even when date is after local today", () => {
-    const TODAY = dayKey(new Date());
-    const SHIFTED_CURRENT = plusDays(TODAY, 1);
-    const TARGET = plusDays(TODAY, 2);
-    const SHIFTED_CURRENT_ROW = row({
-        date: SHIFTED_CURRENT,
-        session_index: 1,
-    });
-    const TARGET_ROW = row({ date: TARGET, session_index: 1 });
-    const STATE = {
-        rows: [SHIFTED_CURRENT_ROW, TARGET_ROW],
-        totalsByBookId: { "book-1": 4000 },
-    };
+    const SCENARIO = shiftedFutureEstimateScenario();
 
-    const LABEL = estimateProgressLabel(
-        TARGET_ROW,
-        STATE,
-        () => book(),
-        (sessionKey) => sessionKey === `${SHIFTED_CURRENT}|1|book-1`,
-    );
+    const LABEL = estimateProgressLabel({
+        getBookById: () => book(),
+        isSessionCompleted: (sessionKey) =>
+            sessionKey === `${SCENARIO.shiftedCurrent}|1|book-1`,
+        row: SCENARIO.targetRow,
+        state: SCENARIO.state,
+    });
 
     assert.equal(
         LABEL,
@@ -153,12 +163,12 @@ test("estimateProgressLabel uses current progress for completed current-day sess
         totalsByBookId: { "book-1": 4000 },
     };
 
-    const LABEL = estimateProgressLabel(
-        TODAY_ROW,
-        STATE,
-        () => book({ progress_percent: 40 }),
-        (sessionKey) => sessionKey === `${TODAY}|1|book-1`,
-    );
+    const LABEL = estimateProgressLabel({
+        getBookById: () => book({ progress_percent: 40 }),
+        isSessionCompleted: (sessionKey) => sessionKey === `${TODAY}|1|book-1`,
+        row: TODAY_ROW,
+        state: STATE,
+    });
 
     assert.equal(
         LABEL,
@@ -174,12 +184,12 @@ test("estimateProgressLabel projects end-of-session pages for incomplete current
         totalsByBookId: { "book-1": 4000 },
     };
 
-    const LABEL = estimateProgressLabel(
-        TODAY_ROW,
-        STATE,
-        () => book(),
-        () => false,
-    );
+    const LABEL = estimateProgressLabel({
+        getBookById: () => book(),
+        isSessionCompleted: () => false,
+        row: TODAY_ROW,
+        state: STATE,
+    });
 
     assert.equal(
         LABEL,

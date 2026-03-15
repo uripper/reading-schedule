@@ -20,13 +20,14 @@ interface DownloadCoverInput {
     userDataDir: string;
 }
 
+const PRIVATE_NETWORK_HOSTNAME_PATTERN = /^172\.(1[6-9]|2\d|3[0-1])\./;
+
 function normalizedCoverInput(value: string | undefined): string {
     return String(value ?? "").trim();
 }
 
-async function fetchCover(parsedUrl: URL): Promise<DownloadedCover | null> {
+async function fetchedCoverResponse(parsedUrl: URL): Promise<Response | null> {
     let response: Response;
-
     try {
         response = await globalThis.fetch(parsedUrl.toString(), {
             redirect: "follow",
@@ -38,45 +39,65 @@ async function fetchCover(parsedUrl: URL): Promise<DownloadedCover | null> {
     if (!response.ok) {
         return null;
     }
+    return response;
+}
 
+async function downloadedCover(
+    response: Response,
+): Promise<DownloadedCover | null> {
     const BYTES = await response.arrayBuffer();
-
     if (BYTES.byteLength === 0) {
         return null;
     }
-
     return {
         bytes: BYTES,
         contentType: response.headers.get("content-type"),
     };
 }
 
-function parsedHttpUrl(urlText: string): URL | null {
-    let parsedUrl: URL;
+async function fetchCover(parsedUrl: URL): Promise<DownloadedCover | null> {
+    const RESPONSE = await fetchedCoverResponse(parsedUrl);
+    if (RESPONSE === null) {
+        return null;
+    }
+    return downloadedCover(RESPONSE);
+}
 
+function parsedUrlOrNull(urlText: string): URL | null {
     try {
-        parsedUrl = new URL(urlText);
+        return new URL(urlText);
     } catch {
         return null;
     }
+}
 
-    if (!isHttpProtocol(parsedUrl.protocol)) {
+/**
+ * Checks whether a hostname is blocked from cover downloads.
+ * This prevents downloading covers from localhost and common private network ranges.
+ *
+ * @param hostname - Hostname portion of a parsed URL.
+ * @returns True when the hostname is considered private or loopback, otherwise false.
+ */
+function hasBlockedCoverHostname(hostname: string): boolean {
+    return (
+        hostname === "localhost" ||
+        hostname === "::1" ||
+        hostname.startsWith("127.") ||
+        hostname.startsWith("10.") ||
+        hostname.startsWith("192.168.") ||
+        PRIVATE_NETWORK_HOSTNAME_PATTERN.test(hostname)
+    );
+}
+
+function parsedHttpUrl(urlText: string): URL | null {
+    const PARSED_URL = parsedUrlOrNull(urlText);
+    if (PARSED_URL === null || !isHttpProtocol(PARSED_URL.protocol)) {
         return null;
     }
-
-    const HOSTNAME = parsedUrl.hostname.toLowerCase();
-    if (
-        HOSTNAME === "localhost" ||
-        HOSTNAME === "::1" ||
-        HOSTNAME.startsWith("127.") ||
-        HOSTNAME.startsWith("10.") ||
-        HOSTNAME.startsWith("192.168.") ||
-        /^172\.(1[6-9]|2\d|3[0-1])\./.test(HOSTNAME)
-    ) {
+    if (hasBlockedCoverHostname(PARSED_URL.hostname.toLowerCase())) {
         return null;
     }
-
-    return parsedUrl;
+    return PARSED_URL;
 }
 
 function resolveDownloadCoverInput(
@@ -102,6 +123,17 @@ function resolveDownloadCoverInput(
     };
 }
 
+function persistDownloadedCover(
+    input: DownloadCoverInput,
+    bookId: string | undefined,
+    cover: DownloadedCover,
+): string {
+    const EXTENSION = extensionFor(cover.contentType, input.parsedUrl);
+    const FILE_PATH = filePathForCover(input.userDataDir, bookId, EXTENSION);
+    writeFileSync(FILE_PATH, new Uint8Array(cover.bytes));
+    return pathToFileURL(FILE_PATH).href;
+}
+
 /**
  * Downloads a remote cover image and stores it in the user data directory.
  * @param coverUrl - Remote cover URL candidate.
@@ -115,27 +147,27 @@ export async function downloadCover(
     userDataDir: string | undefined,
 ): Promise<string> {
     const DOWNLOAD_INPUT = resolveDownloadCoverInput(coverUrl, userDataDir);
-
     if (DOWNLOAD_INPUT === null) {
         return "";
     }
-
     const DOWNLOADED_COVER = await fetchCover(DOWNLOAD_INPUT.parsedUrl);
-
     if (DOWNLOADED_COVER === null) {
         return "";
     }
+    return persistDownloadedCover(DOWNLOAD_INPUT, bookId, DOWNLOADED_COVER);
+}
 
-    const EXTENSION = extensionFor(
-        DOWNLOADED_COVER.contentType,
-        DOWNLOAD_INPUT.parsedUrl,
-    );
+function persistUploadedCover(
+    userDataDir: string,
+    bookId: string | undefined,
+    parsedCover: NonNullable<ReturnType<typeof parseCoverDataUrl>>,
+): string {
     const FILE_PATH = filePathForCover(
-        DOWNLOAD_INPUT.userDataDir,
+        userDataDir,
         bookId,
-        EXTENSION,
+        parsedCover.extension,
     );
-    writeFileSync(FILE_PATH, new Uint8Array(DOWNLOADED_COVER.bytes));
+    writeFileSync(FILE_PATH, parsedCover.bytes);
     return pathToFileURL(FILE_PATH).href;
 }
 
@@ -152,18 +184,9 @@ export function saveUploadedCover(
     userDataDir: string | undefined,
 ): string {
     const NORMALIZED_USER_DATA_DIR = String(userDataDir ?? "").trim();
-    if (NORMALIZED_USER_DATA_DIR.length === 0) {
-        return "";
-    }
     const PARSED = parseCoverDataUrl(coverDataUrl);
-    if (!PARSED) {
+    if (NORMALIZED_USER_DATA_DIR.length === 0 || PARSED === null) {
         return "";
     }
-    const FILE_PATH = filePathForCover(
-        NORMALIZED_USER_DATA_DIR,
-        bookId,
-        PARSED.extension,
-    );
-    writeFileSync(FILE_PATH, PARSED.bytes);
-    return pathToFileURL(FILE_PATH).href;
+    return persistUploadedCover(NORMALIZED_USER_DATA_DIR, bookId, PARSED);
 }

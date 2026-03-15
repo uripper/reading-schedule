@@ -28,6 +28,10 @@
     }
   },
   "linter": {
+    "domains": {
+      "project": "all",
+      "types": "all"
+    },
     "enabled": true,
     "includes": [
       "**",
@@ -36,10 +40,6 @@
       "!package-lock.json",
       "!tokens/**"
     ],
-    "domains": {
-      "project": "all",
-      "types": "all"
-    },
     "rules": {
       "recommended": true
     }
@@ -77,15 +77,14 @@
             "noExcessiveCognitiveComplexity": {
               "level": "error",
               "options": {
-                "maxAllowedComplexity": 5
+                "maxAllowedComplexity": 4
               }
             },
             "noExcessiveLinesPerFunction": {
               "level": "error",
               "options": {
-                "maxLines": 20,
-                "skipBlankLines": true,
-                "skipIifes": true
+                "maxLines": 15,
+                "skipBlankLines": true
               }
             },
             "noForEach": "error",
@@ -101,7 +100,7 @@
             "useSimplifiedLogicExpression": "error"
           },
           "correctness": {
-            "noNestedComponentDefinitions":"warn",
+            "noNestedComponentDefinitions": "warn",
             "noReactPropAssignments": "error",
             "noUndeclaredVariables": {
               "level": "error",
@@ -192,8 +191,6 @@
             "useNamingConvention": {
               "level": "error",
               "options": {
-                "strictCase": false,
-                "requireAscii": true,
                 "conventions": [
                   {
                     "formats": ["PascalCase", "CONSTANT_CASE"],
@@ -239,7 +236,9 @@
                     "formats": ["PascalCase"],
                     "selector": { "kind": "class" }
                   }
-                ]
+                ],
+                "requireAscii": true,
+                "strictCase": false
               }
             },
             "useObjectSpread": "error",
@@ -272,18 +271,39 @@
       }
     },
     {
-      "includes": [
-        "**/tests/**/*.mjs",
-        "**/tests/**/*.js",
-        "**/tests/**/*.ts",
-        "**/tests/**/*.tsx"
-      ],
+      "includes": ["**/*.json"],
       "linter": {
         "rules": {
-          "complexity": {
-            "noExcessiveCognitiveComplexity": "off",
-            "noExcessiveLinesPerFunction": "off"
+          "recommended": true
+        }
+      }
+    },
+    {
+      "includes": ["**/*.css", "**/*.scss", "**/*.sass", "**/*.less"],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "noDeprecatedMediaType": "error",
+            "noExcessiveLinesPerFile": {
+              "level": "error",
+              "options": {
+                "maxLines": 300,
+                "skipBlankLines": true
+              }
+            }
+          },
+          "recommended": true,
+          "style": {
+            "noValueAtRule": "warn"
           }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.html"],
+      "linter": {
+        "rules": {
+          "recommended": true
         }
       }
     }
