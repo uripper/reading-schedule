@@ -82,9 +82,9 @@ function resolvedSetTimeout(
     if (setTimeoutImpl !== undefined) {
         return setTimeoutImpl;
     }
-    return (...args: Parameters<typeof globalThis.setTimeout>) => {
+    return ((...args: Parameters<typeof globalThis.setTimeout>) => {
         return globalThis.setTimeout(...args);
-    };
+    }) as typeof globalThis.setTimeout;
 }
 
 function resolvedDayRolloverOptions(

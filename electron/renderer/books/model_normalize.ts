@@ -1,4 +1,4 @@
-import type { Book, BookInput } from "../../types/types.ts";
+import type { Book, BookInput, BookStatus } from "../../types/types.ts";
 import {
     DEFAULT_DIFFICULTY,
     DEFAULT_PRIORITY,
@@ -25,7 +25,7 @@ type NormalizedBookState = {
     wordsTotal: number | null;
     pagesTotal: number | null;
     normalized: ReturnType<typeof normalizeProgressAndPages>;
-    status: string;
+    status: BookStatus;
 };
 
 type NormalizedBookTotals = Pick<
@@ -66,7 +66,10 @@ function normalizedBookState(book: BookInput): NormalizedBookState {
     };
 }
 
-function normalizedTextFields(book: BookInput, status: string): Partial<Book> {
+function normalizedTextFields(
+    book: BookInput,
+    status: BookStatus,
+): Partial<Book> {
     return {
         author: toTrimmedText(book.author),
         blocked_by: withNullableString(toTrimmedText(book.blocked_by)),
@@ -133,7 +136,7 @@ export function normalizeBook(book: BookInput = {}): Book {
         ...normalizedTextFields(book, NORMALIZED_STATE.status),
         ...normalizedNumericMetrics(book, NORMALIZED_STATE),
         ...normalizedScheduleFields(book),
-    };
+    } as Book;
 }
 
 /**

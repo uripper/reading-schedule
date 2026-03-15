@@ -1,4 +1,9 @@
-import type { Book, BookFormRefs, LookupControl } from "../../types/types.ts";
+import type {
+    Book,
+    BookFormRefs,
+    BookWeekday,
+    LookupControl,
+} from "../../types/types.ts";
 import { uid } from "../dom.ts";
 import {
     fillScheduledDayControls,
@@ -35,7 +40,7 @@ type NormalizedPlanningFieldsArgs = {
     parsed: ParsedReadingState;
     status: Book["status"];
     shelf: string;
-    scheduledDays: number[];
+    scheduledDays: BookWeekday[];
 };
 
 /**
@@ -178,7 +183,7 @@ export function fillForm(refs: BookFormRefs, book: Book): void {
     fillLookupFields(FORM_REFS, book);
 }
 
-function validatedScheduledDays(refs: BookFormRefs): number[] {
+function validatedScheduledDays(refs: BookFormRefs): BookWeekday[] {
     const SCHEDULED_DAYS = readScheduledDaySelection(refs);
     if (SCHEDULED_DAYS.length === 0) {
         throw new Error("Select at least one scheduled day.");
@@ -193,7 +198,7 @@ function normalizedProgressState(
     if (status !== BOOK_STATUS_READ) {
         return { pagesRead: parsed.pagesRead, progress: parsed.progress };
     }
-    let pagesRead = parsed.pagesRead;
+    let { pagesRead } = parsed;
     if (typeof parsed.pagesTotal === "number" && parsed.pagesTotal > 0) {
         pagesRead = parsed.pagesTotal;
     }

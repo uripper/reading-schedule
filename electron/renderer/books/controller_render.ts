@@ -1,6 +1,8 @@
 import type {
     Book,
     BookGroup,
+    BookGroupBy,
+    BookStatusFilter,
     BooksViewState,
     RenderableBooksRefs,
     RenderBookGridOptions,
@@ -84,7 +86,7 @@ function updateShelfFilter(
 function updateStatusFilter(
     refs: RenderableBooksRefs,
     viewState: BooksViewState,
-): string {
+): BookStatusFilter {
     return updateStatusFilterOptions(
         refs.statusFilterSelect,
         viewState.statusFilter,
@@ -94,7 +96,7 @@ function updateStatusFilter(
 function updateGroupBy(
     refs: RenderableBooksRefs,
     viewState: BooksViewState,
-): string {
+): BookGroupBy {
     return updateGroupByOptions(
         refs.groupBySelect,
         viewState.groupBy,

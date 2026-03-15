@@ -67,12 +67,12 @@ export function resolveRenderableRefs(
         return null;
     }
     return {
-        empty: refs.empty,
-        grid: refs.grid,
-        groupBySelect: refs.groupBySelect,
-        shelfFilterSelect: refs.shelfFilterSelect,
-        sortDirectionBtn: refs.sortDirectionBtn,
-        statusFilterSelect: refs.statusFilterSelect,
+        empty: refs.empty as HTMLElement,
+        grid: refs.grid as HTMLElement,
+        groupBySelect: refs.groupBySelect as HTMLSelectElement,
+        shelfFilterSelect: refs.shelfFilterSelect as HTMLSelectElement,
+        sortDirectionBtn: refs.sortDirectionBtn as HTMLButtonElement,
+        statusFilterSelect: refs.statusFilterSelect as HTMLSelectElement,
     };
 }
 

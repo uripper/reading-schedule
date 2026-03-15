@@ -1,4 +1,5 @@
 import type {
+    Book,
     CalendarRowWithFinish,
     CalendarStateSubset,
     DetailInteractionHandlers,
@@ -40,7 +41,7 @@ interface CompletionChangeArgs {
 type CompletionUiArgs = Omit<CompletionChangeArgs, "sessionKey">;
 
 interface AppendTodaySessionEditorsArgs extends CompletionChangeArgs {
-    book: ReturnType<DetailInteractionHandlers["getBookById"]>;
+    book: Book;
     checkbox: HTMLInputElement;
 }
 

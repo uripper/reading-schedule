@@ -1,4 +1,4 @@
-import type { PlannerScheduleRow } from "../../../types/types.ts";
+import type { CalendarRowWithFinish } from "../../../types/types.ts";
 import {
     normalizedPagesValue,
     normalizedPercentValue,
@@ -15,7 +15,7 @@ interface ProgressUpdatePayload {
     bookId: string;
     pagesRead?: number | null;
     progressPercent?: number | null;
-    row: PlannerScheduleRow;
+    row: CalendarRowWithFinish;
 }
 
 interface ProgressPayloadResult {
@@ -30,7 +30,7 @@ interface ProgressUpdatePayloadOptions {
     currentPagesTotal: number | null;
     currentPercent: number;
     draft: ProgressUpdateDraft;
-    row: PlannerScheduleRow;
+    row: CalendarRowWithFinish;
 }
 
 interface ProgressPayloadChangeOptions {
@@ -71,7 +71,7 @@ export function logSessionButtonText(activeCompleted: boolean): string {
 
 function progressPayloadBase(
     bookId: string,
-    row: PlannerScheduleRow,
+    row: CalendarRowWithFinish,
 ): ProgressUpdatePayload {
     return { bookId, row };
 }
@@ -79,7 +79,7 @@ function progressPayloadBase(
 function invalidProgressPayload(
     error: string,
     bookId: string,
-    row: PlannerScheduleRow,
+    row: CalendarRowWithFinish,
 ): ProgressPayloadResult {
     return {
         error,
@@ -115,7 +115,7 @@ function validNormalizedProgressValues(
 
 function validProgressPayload(
     bookId: string,
-    row: PlannerScheduleRow,
+    row: CalendarRowWithFinish,
     changes: Partial<ProgressUpdatePayload>,
 ): ProgressPayloadResult {
     return {

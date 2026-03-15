@@ -1,11 +1,15 @@
 import type { Book } from "../../types/types.ts";
+import { withNullableString } from "./model_normalize_helpers.ts";
 import { normalizeScheduledDays } from "./scheduled_days.ts";
 import { statusFromRaw } from "./status.ts";
-import { withNullableString } from "./model_normalize_helpers.ts";
 
 const DEFAULT_PRIORITY = 3;
 const DEFAULT_DIFFICULTY = 3;
 const DEFAULT_MIN_BLOCKS = 1;
+
+type PlannerPayloadNumericFields = Partial<Book> & {
+    words_full: number | null;
+};
 
 /**
  * Returns numeric value when defined, otherwise a provided default.
@@ -60,7 +64,8 @@ function payloadTextFields(book: Book, status: Book["status"]): Partial<Book> {
     };
 }
 
-function payloadNumericFields(book: Book): Partial<Book> {
+function payloadNumericFields(book: Book): PlannerPayloadNumericFields {
+    const WORDS_TOTAL = book.words_total ?? null;
     return {
         difficulty: withDefaultNumber(book.difficulty, DEFAULT_DIFFICULTY),
         max_minutes_per_day: book.max_minutes_per_day ?? null,
@@ -73,7 +78,8 @@ function payloadNumericFields(book: Book): Partial<Book> {
         priority: withDefaultNumber(book.priority, DEFAULT_PRIORITY),
         progress_percent: book.progress_percent,
         scheduled_days: normalizeScheduledDays(book.scheduled_days),
-        words_total: book.words_total ?? null,
+        words_full: WORDS_TOTAL,
+        words_total: WORDS_TOTAL,
     };
 }
 
@@ -90,7 +96,7 @@ export function toPayloadBook(book: Book): Book {
     return {
         ...payloadTextFields(book, STATUS),
         ...payloadNumericFields(book),
-    };
+    } as Book;
 }
 
 /**

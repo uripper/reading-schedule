@@ -145,11 +145,11 @@ function handleMissingText(
     let rightMissing = false;
 
     if (USES_NUMBERS) {
-        leftMissing = isMissingNumber(left);
-        rightMissing = isMissingNumber(right);
+        leftMissing = isMissingNumber(left as OptionalNumber);
+        rightMissing = isMissingNumber(right as OptionalNumber);
     } else {
-        leftMissing = isMissingString(left);
-        rightMissing = isMissingString(right);
+        leftMissing = isMissingString(left as OptionalString);
+        rightMissing = isMissingString(right as OptionalString);
     }
     return missingValueResult(leftMissing, rightMissing);
 }

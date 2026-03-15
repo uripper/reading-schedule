@@ -102,10 +102,7 @@ function renderMonthActions(
         renderDetails: () => {
             renderDetailsForDate(completedBookRowsForDate);
         },
-        selectDate: (
-            dateKey: string,
-            options?: { preventScroll?: boolean },
-        ) => {
+        selectDate: (dateKey: string, options?: { focus?: boolean }) => {
             selectDate(STATE, dateKey, renderMonthView, options);
         },
     };

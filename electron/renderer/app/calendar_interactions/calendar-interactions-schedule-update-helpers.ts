@@ -16,12 +16,12 @@ import { dayBookCompletionKey } from "./calendar_interactions_key_helpers.ts";
 import { nextRowsWithUpdatedMinutes } from "./calendar_interactions_minutes_rows.ts";
 import { rowsWithoutSession } from "./calendar_interactions_row_helpers.ts";
 
-export interface RemovedSessionResult {
+interface RemovedSessionResult {
     nextCompletions: Record<string, boolean>;
     nextResult: PlannerResult;
 }
 
-export interface UpdatedSessionMinutesResult {
+interface UpdatedSessionMinutesResult {
     nextResult: PlannerResult;
     normalizedMinutes: number;
 }

@@ -6,6 +6,7 @@ import type {
 import { draftData, saveStateSafe } from "./persistence.ts";
 
 const PERSIST_DELAY_MS = 300;
+const NO_WORDS = 0;
 const NON_PLANNING_SETTING_IDS = new Set([
     "themeSelect",
     "reduceMotionToggle",
@@ -45,10 +46,33 @@ export function createStatusSetter(
     };
 }
 
+function normalizedWordCount(value: unknown): number | null {
+    const PARSED = Number(value);
+    if (!Number.isFinite(PARSED)) {
+        return null;
+    }
+    if (PARSED < NO_WORDS) {
+        return NO_WORDS;
+    }
+    return PARSED;
+}
+
+function summaryWordsRemaining(info: unknown): number {
+    if (typeof info !== "object" || info === null) {
+        return NO_WORDS;
+    }
+    const INFO = info as Record<string, unknown>;
+    const WORD_COUNT =
+        normalizedWordCount(INFO.remaining_words) ??
+        normalizedWordCount(INFO.words_total) ??
+        normalizedWordCount(INFO.words_planned);
+    return WORD_COUNT ?? NO_WORDS;
+}
+
 /**
- * Extracts per-book total word counts from planner summary output.
+ * Extracts per-book remaining word counts from planner summary output.
  * @param summary - Planner summary payload from generation result.
- * @returns Map of book id to total planned words.
+ * @returns Map of book id to remaining words used by finish projections.
  */
 export function totalsFromSummary(
     summary: PlannerSummary | null,
@@ -56,7 +80,7 @@ export function totalsFromSummary(
     const PER_BOOK = summary?.per_book ?? {};
     const TOTALS: Record<string, number> = {};
     for (const [ID, INFO] of Object.entries(PER_BOOK)) {
-        TOTALS[ID] = Number(INFO.words_total ?? 0);
+        TOTALS[ID] = summaryWordsRemaining(INFO);
     }
     return TOTALS;
 }
