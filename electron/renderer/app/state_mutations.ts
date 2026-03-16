@@ -43,17 +43,25 @@ export function applyAppStateMutation(
     mutation: AppStateMutation,
 ): void {
     switch (mutation.type) {
-        case "set_last_result": return setLastResult(state, mutation);
-        case "set_schedule_completions": return setScheduleCompletions(state, mutation);
-        case "set_blocked_day_books": return setBlockedDays(state, mutation);
-        case "set_blocked_day_book": return setBlockedDay(state, mutation);
-        case "set_sessions": return setSessions(state, mutation);
-        case "set_book_index": return setBookIndex(state, mutation);
+        case "set_last_result":
+            return setLastResult(state, mutation);
+        case "set_schedule_completions":
+            return setScheduleCompletions(state, mutation);
+        case "set_blocked_day_books":
+            return setBlockedDays(state, mutation);
+        case "set_blocked_day_book":
+            return setBlockedDay(state, mutation);
+        case "set_sessions":
+            return setSessions(state, mutation);
+        case "set_book_index":
+            return setBookIndex(state, mutation);
     }
 
     // Explicit exhaustive-check to catch unhandled AppStateMutation variants.
     const _exhaustiveCheck: never = mutation;
-    throw new Error(`Unhandled AppStateMutation type: ${(_exhaustiveCheck as AppStateMutation).type}`);
+    throw new Error(
+        `Unhandled AppStateMutation type: ${(_exhaustiveCheck as AppStateMutation).type}`,
+    );
 }
 
 function setLastResult(
