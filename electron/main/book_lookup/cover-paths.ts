@@ -51,6 +51,9 @@ function ensureCoverDirectory(userDataDir: string): string {
     return COVER_DIRECTORY;
 }
 
+/**
+ * Resolves an extension from a response content type when it is recognizable.
+ */
 function extensionFromContentType(contentType: string): CoverExtension | null {
     if (contentType.includes(CONTENT_TYPE_PNG)) {
         return EXTENSION_PNG;
@@ -70,6 +73,9 @@ function extensionFromContentType(contentType: string): CoverExtension | null {
     return null;
 }
 
+/**
+ * Resolves an extension from a parsed URL path when the path already has one.
+ */
 function extensionFromPath(parsedUrl: URL): CoverExtension {
     const KNOWN_EXTENSION = extname(parsedUrl.pathname || "").toLowerCase();
 

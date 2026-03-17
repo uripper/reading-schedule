@@ -212,7 +212,7 @@ function dayRolloverController(args: {
 /**
  * Binds a daily rollover watcher that triggers a callback when the local day changes.
  * @example
- * bindTodayDayRollover({ onDayChanged: () => console.log('day changed') })
+ * bindTodayDayRollover({ onDayChanged: refreshTodayForNewDay })
  * { checkForDayChange: [Function], dispose: [Function] }
  * @param options - Options for configuring the rollover watcher.
  * @param options.document - Optional document-like object to observe visibility; defaults to window.document.

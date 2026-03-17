@@ -1,4 +1,12 @@
-import type { SearchDoc, SearchItem } from "@reading-schedule/contracts";
+/**
+ * Book lookup search pipeline used by the main process.
+ */
+import type {
+    ScoredDoc,
+    SearchDoc,
+    SearchDocsResponse,
+    SearchItem,
+} from "@reading-schedule/contracts";
 import { logInfo } from "../../types/logger.ts";
 import { isProductionEnvironment } from "../runtime-env.ts";
 import { dedupeDocs } from "./search-dedupe.ts";
@@ -7,25 +15,14 @@ import { scoreDoc } from "./search-scoring.ts";
 import { MIN_QUERY_LENGTH, SEARCH_OUTPUT_LIMIT } from "./search-shared.ts";
 import { fetchJson, searchUrls } from "./search-transport.ts";
 
-interface SearchResponseDocShape {
-    docs?: unknown;
-}
-
-interface ScoredDoc {
-    doc: SearchDoc;
-    score: number;
-}
-
-function collectDocs(
-    responses: PromiseSettledResult<SearchResponseDocShape>[],
-): SearchDoc[] {
+/**
+ * Collects every successful docs array from the Open Library responses.
+ */
+function collectDocs(responses: SearchDocsResponse): SearchDoc[] {
     const DOCS: SearchDoc[] = [];
 
     for (const RESULT of responses) {
-        if (
-            RESULT.status !== "fulfilled" ||
-            !Array.isArray(RESULT.value.docs)
-        ) {
+        if (RESULT.status !== "fulfilled" || !hasSearchDocs(RESULT.value)) {
             continue;
         }
 
@@ -35,6 +32,9 @@ function collectDocs(
     return DOCS;
 }
 
+/**
+ * Trims user input to the minimum query length enforced by the lookup UI.
+ */
 function normalizedSearchQuery(query: string): string {
     const NORMALIZED_QUERY = query.trim();
     if (NORMALIZED_QUERY.length < MIN_QUERY_LENGTH) {
@@ -43,6 +43,9 @@ function normalizedSearchQuery(query: string): string {
     return NORMALIZED_QUERY;
 }
 
+/**
+ * Dedupe, score, and discard search docs that do not earn a positive score.
+ */
 function rankDocs(
     docs: SearchDoc[],
     normalizedQuery: string,
@@ -56,6 +59,9 @@ function rankDocs(
         .filter((entry) => entry.score > 0);
 }
 
+/**
+ * Orders scored docs by relevance and then by title for stable results.
+ */
 function compareScoredDocs(left: ScoredDoc, right: ScoredDoc): number {
     if (left.score !== right.score) {
         return right.score - left.score;
@@ -68,6 +74,9 @@ function compareScoredDocs(left: ScoredDoc, right: ScoredDoc): number {
     );
 }
 
+/**
+ * Logs rendered lookup items when the app is running outside production.
+ */
 function logSearchItems(items: SearchItem[]): void {
     if (isProductionEnvironment()) {
         return;
@@ -80,6 +89,18 @@ function logSearchItems(items: SearchItem[]): void {
     });
 }
 
+/**
+ * Narrows a response payload to one that actually contains search docs.
+ */
+function hasSearchDocs(response: { docs?: unknown }): response is {
+    docs: SearchDoc[];
+} {
+    return Array.isArray(response.docs);
+}
+
+/**
+ * Fetches Open Library search documents for the normalized query.
+ */
 async function fetchSearchDocs(
     query: string,
     authorOnly: boolean,
@@ -95,6 +116,9 @@ async function fetchSearchDocs(
     return collectDocs(RESPONSES);
 }
 
+/**
+ * Produces the final ranked and filtered search item list for rendering.
+ */
 function finalizeSearchItems(
     docs: SearchDoc[],
     normalizedQuery: string,
@@ -110,6 +134,9 @@ function finalizeSearchItems(
         .filter((item) => Boolean(item.title));
 }
 
+/**
+ * Logs the intermediate and final search item counts around the scoring pass.
+ */
 async function loggedFinalSearchItems(
     normalizedQuery: string,
     authorOnly: boolean,

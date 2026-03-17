@@ -12,13 +12,16 @@ def _format_book_progress_line(
     info: BookProgress,
 ) -> str:
     done = "yes" if info["finished"] else "no"
-    return (
-        f"- {book_id}: {info['planned_words']}/{info['remaining_words']} words "
-        f"(finished: {done})"
-    )
+    progress = f"{info['planned_words']}/{info['remaining_words']}"
+    return f"- {book_id}: {progress} words (finished: {done})"
 
 
 def _optional_summary_lines(summary: Summary) -> list[str]:
+    """Build summary lines for optional planner metadata fields.
+
+    Returns:
+        A list of summary lines for objective, note, and feasibility details.
+    """
     lines: list[str] = []
     if summary.get("objective") is not None:
         lines.append(f"Objective value: {summary['objective']}")
@@ -30,7 +33,12 @@ def _optional_summary_lines(summary: Summary) -> list[str]:
 
 
 def format_summary(summary: Summary) -> str:
-    """Format summary."""
+    """Render planner output in the order used by CLI and log summaries.
+
+    Returns:
+        A newline-delimited summary with headline totals followed by per-book
+        progress lines.
+    """
     lines = [
         f"Planner: {summary['planner']} ({summary['status']})",
         f"Total planned minutes: {summary['total_planned_minutes']}",
@@ -38,8 +46,6 @@ def format_summary(summary: Summary) -> str:
         f"Total required minutes: {summary['total_required_minutes']}",
     ]
     lines.extend(_optional_summary_lines(summary))
-    lines.extend(
-        _format_book_progress_line(book_id, info)
-        for book_id, info in summary["per_book"].items()
-    )
+    for book_id, info in summary["per_book"].items():
+        lines.append(_format_book_progress_line(book_id, info))
     return "\n".join(lines)

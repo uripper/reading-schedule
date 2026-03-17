@@ -12,6 +12,12 @@ REQUIRED_FEATURE_FLAGS = (
 
 
 def _is_bool_record(value: object) -> bool:
+    """Return whether a payload field is a string-keyed bool mapping.
+
+    The persisted mobile snapshot stores several per-day and per-book toggles
+    as object maps, so this helper centralizes the "all values must be bool"
+    rule used by those fields.
+    """
     if not is_str_object_dict(value):
         return False
     return all(isinstance(item, bool) for item in value.values())
@@ -55,18 +61,33 @@ def _is_preferences(value: object) -> bool:
 
 
 def _raise_state_type_error(message: str) -> None:
+    """Raise the shared state-snapshot type error with one message shape.
+
+    Raises:
+        TypeError: Raised with the provided snapshot validation message.
+    """
     error_message = message
     raise TypeError(error_message)
 
 
 def _require_state_field(*, is_valid: bool, message: str) -> None:
+    """Raise when one persisted-state field fails its boundary validation."""
     if is_valid:
         return
     _raise_state_type_error(message)
 
 
+# TODO(uripper): Is saved state payload ever not going to be a payload? Should
+# this not be a narrower type?
 def validate_state_snapshot(state: object) -> dict[str, object]:
-    """Validate mobile state payload shape against shared planner contracts."""
+    """Validate mobile state payload shape against shared planner contracts.
+
+    Returns:
+        The validated state snapshot as a mutable object dictionary.
+
+    Raises:
+        TypeError: If the saved state payload fails shape validation.
+    """
     if not is_str_object_dict(state):
         message = "Saved state payload must be an object"
         raise TypeError(message)

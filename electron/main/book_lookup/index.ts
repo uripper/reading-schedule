@@ -3,6 +3,10 @@
  */
 import { writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
+import type {
+    DownloadCoverInput,
+    DownloadedCover,
+} from "@reading-schedule/contracts";
 import { parseCoverDataUrl } from "./cover-data-url.ts";
 import {
     extensionFor,
@@ -10,22 +14,18 @@ import {
     isHttpProtocol,
 } from "./cover-paths.ts";
 
-interface DownloadedCover {
-    bytes: ArrayBuffer;
-    contentType: string | null;
-}
-
-interface DownloadCoverInput {
-    parsedUrl: URL;
-    userDataDir: string;
-}
-
 const PRIVATE_NETWORK_HOSTNAME_PATTERN = /^172\.(1[6-9]|2\d|3[0-1])\./;
 
+/**
+ * Normalizes optional cover input text so validation can use one code path.
+ */
 function normalizedCoverInput(value: string | undefined): string {
     return String(value ?? "").trim();
 }
 
+/**
+ * Fetches a remote cover image response without exposing network failures.
+ */
 async function fetchedCoverResponse(parsedUrl: URL): Promise<Response | null> {
     let response: Response;
     try {
@@ -42,6 +42,9 @@ async function fetchedCoverResponse(parsedUrl: URL): Promise<Response | null> {
     return response;
 }
 
+/**
+ * Reads a successful cover response into bytes and metadata for persistence.
+ */
 async function downloadedCover(
     response: Response,
 ): Promise<DownloadedCover | null> {
@@ -55,6 +58,9 @@ async function downloadedCover(
     };
 }
 
+/**
+ * Fetches a remote cover image and converts it to persisted cover bytes.
+ */
 async function fetchCover(parsedUrl: URL): Promise<DownloadedCover | null> {
     const RESPONSE = await fetchedCoverResponse(parsedUrl);
     if (RESPONSE === null) {
@@ -63,6 +69,9 @@ async function fetchCover(parsedUrl: URL): Promise<DownloadedCover | null> {
     return downloadedCover(RESPONSE);
 }
 
+/**
+ * Parses a URL string and returns `null` when it is not a valid absolute URL.
+ */
 function parsedUrlOrNull(urlText: string): URL | null {
     try {
         return new URL(urlText);
@@ -89,6 +98,9 @@ function hasBlockedCoverHostname(hostname: string): boolean {
     );
 }
 
+/**
+ * Filters cover URLs down to allowed HTTP(S) destinations outside private nets.
+ */
 function parsedHttpUrl(urlText: string): URL | null {
     const PARSED_URL = parsedUrlOrNull(urlText);
     if (PARSED_URL === null || !isHttpProtocol(PARSED_URL.protocol)) {
@@ -100,6 +112,9 @@ function parsedHttpUrl(urlText: string): URL | null {
     return PARSED_URL;
 }
 
+/**
+ * Validates the inputs needed to download and persist a remote cover image.
+ */
 function resolveDownloadCoverInput(
     coverUrl: string | undefined,
     userDataDir: string | undefined,
@@ -123,6 +138,9 @@ function resolveDownloadCoverInput(
     };
 }
 
+/**
+ * Writes a downloaded cover to disk and returns the resulting file URL.
+ */
 function persistDownloadedCover(
     input: DownloadCoverInput,
     bookId: string | undefined,
@@ -157,6 +175,9 @@ export async function downloadCover(
     return persistDownloadedCover(DOWNLOAD_INPUT, bookId, DOWNLOADED_COVER);
 }
 
+/**
+ * Writes a parsed uploaded cover payload to disk and returns its file URL.
+ */
 function persistUploadedCover(
     userDataDir: string,
     bookId: string | undefined,

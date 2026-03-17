@@ -16,6 +16,9 @@ const OPEN_LIBRARY_LANGUAGE_ENGLISH = "eng";
 const SEARCH_BASE = `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}&fields=${SEARCH_FIELDS}`;
 const AUTHOR_ONLY_SEARCH_BASE = `${OPEN_LIBRARY_SEARCH_URL}?limit=${SEARCH_FETCH_LIMIT}`;
 
+/**
+ * Builds the author-only search URL set for author-filtered lookup queries.
+ */
 function authorOnlySearchUrls(encodedQuery: string): string[] {
     return [
         `${AUTHOR_ONLY_SEARCH_BASE}&author=${encodedQuery}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
@@ -23,6 +26,9 @@ function authorOnlySearchUrls(encodedQuery: string): string[] {
     ];
 }
 
+/**
+ * Builds the general search URL set for query/title/author matching.
+ */
 function generalSearchUrls(encodedQuery: string): string[] {
     return [
         `${SEARCH_BASE}&q=${encodedQuery}&language=${OPEN_LIBRARY_LANGUAGE_ENGLISH}`,
@@ -31,6 +37,9 @@ function generalSearchUrls(encodedQuery: string): string[] {
     ];
 }
 
+/**
+ * Returns whether an HTTP status is a redirect status.
+ */
 function isRedirectStatus(status: number): boolean {
     return (
         status >= HTTP_STATUS_REDIRECT_MIN &&
@@ -38,6 +47,9 @@ function isRedirectStatus(status: number): boolean {
     );
 }
 
+/**
+ * Returns whether a response should be treated as a fetch failure.
+ */
 function isErrorStatus(response: Response, status: number): boolean {
     return status >= HTTP_STATUS_ERROR_MIN || !response.ok;
 }

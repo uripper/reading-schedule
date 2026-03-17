@@ -219,6 +219,12 @@ def _raw_progress_percent(data: BookData) -> float:
 
 
 def _is_int_input(value: object) -> TypeGuard[IntInput]:
+    """Return whether a raw value can safely flow through integer coercion.
+
+    This mirrors the boundary accepted by ``to_int(...)`` so the builder can
+    reject obviously-wrong payload fields with a field-specific error before
+    coercion happens.
+    """
     return (
         isinstance(value, (int, str, bytes, bytearray))
         or hasattr(value, "__int__")
@@ -227,6 +233,12 @@ def _is_int_input(value: object) -> TypeGuard[IntInput]:
 
 
 def _is_float_input(value: object) -> TypeGuard[FloatInput]:
+    """Return whether a raw value can safely flow through float coercion.
+
+    Progress fields accept integer-like and float-like values, but we still
+    validate the runtime boundary here so error messages point at the specific
+    offending book field instead of bubbling up from generic conversion code.
+    """
     return (
         isinstance(value, (int, float, str, bytes, bytearray))
         or hasattr(value, "__float__")

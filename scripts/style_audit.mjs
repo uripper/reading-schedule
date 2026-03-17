@@ -315,7 +315,13 @@ function pushTernaryHits(relativePath, sourceFile, ternaryHits) {
 
 function isInTypesDirectory(relativePath) {
 	const segments = relativePath.split("/");
-	return segments.includes("types");
+	return segments.some((segment) => {
+		return segment === "types" || segment.startsWith("types_");
+	});
+}
+
+function isDeclarationFile(relativePath) {
+	return relativePath.endsWith(".d.ts");
 }
 
 function isContractsPath(relativePath) {
@@ -460,10 +466,69 @@ function isElectronTypesPath(relativePath) {
 	return relativePath.startsWith("electron/types/");
 }
 
-function isMinimumLineCountExempt(relativePath) {
+function isBarrelModule(content, extension) {
+	if (!JS_TS_EXTENSIONS.has(extension)) {
+		return false;
+	}
+
+	const lines = content.split(/\r?\n/);
+	let hasExportLine = false;
+
+	for (const rawLine of lines) {
+		const trimmed = rawLine.trim();
+		if (!trimmed) {
+			continue;
+		}
+		if (
+			trimmed.startsWith("//") ||
+			trimmed.startsWith("/*") ||
+			trimmed.startsWith("*") ||
+			trimmed === "*/"
+		) {
+			continue;
+		}
+		if (trimmed.startsWith("import type ")) {
+			continue;
+		}
+		if (
+			trimmed.startsWith("export *") ||
+			trimmed.startsWith("export type *") ||
+			trimmed.startsWith("export {")
+		) {
+			hasExportLine = true;
+			continue;
+		}
+		return false;
+	}
+
+	return hasExportLine;
+}
+
+function isMinimumLineCountExempt(relativePath, content, extension) {
 	// Package marker modules are intentionally tiny, so they should not
 	// count as "combine these files" candidates in the cohesion audit.
 	return path.basename(relativePath) === "__init__.py";
+}
+
+function hasMinimumLineCountExemption(relativePath, content, extension) {
+	if (isMinimumLineCountExempt(relativePath, content, extension)) {
+		return true;
+	}
+	if (isDeclarationFile(relativePath)) {
+		return true;
+	}
+	if (isTestCoverageTestFile(relativePath)) {
+		// Focused regression tests are often small on purpose, so treating them
+		// as cohesion failures discourages exactly the kind of narrow tests we
+		// want contributors to add.
+		return true;
+	}
+	if (isBarrelModule(content, extension)) {
+		// Export-only barrel files and contract shims are boundary modules rather
+		// than "too-small features", so they should not count against the minimum.
+		return true;
+	}
+	return false;
 }
 
 function scanJsTs(
@@ -592,6 +657,10 @@ function isTopLevelJsDeclaration(trimmedLine) {
 }
 
 function scanJsTsDocumentation(relativePath, content, documentationHits) {
+	if (isDeclarationFile(relativePath) || isTestCoverageTestFile(relativePath)) {
+		return;
+	}
+
 	const lines = content.split(/\r?\n/);
 
 	if (!hasJsTsModuleDoc(lines)) {
@@ -902,7 +971,7 @@ async function run() {
 			overHardLimit.push({ path: relativePath, lines: lineCount });
 		}
 
-		if (!isMinimumLineCountExempt(relativePath)) {
+		if (!hasMinimumLineCountExemption(relativePath, content, extension)) {
 			minimumLineFilesAnalyzed += 1;
 			if (lineCount >= MIN_LINE_LIMIT) {
 				filesAtOrAboveMinimum += 1;

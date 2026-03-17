@@ -10,6 +10,9 @@ import {
 } from "./search-shared.ts";
 import { primaryAuthor } from "./search-text.ts";
 
+/**
+ * Estimates reading size from the median page count on a search document.
+ */
 function estimateReadingSize(doc: SearchDoc): {
     pagesEstimate: number | null;
     wordsEstimate: number | null;
@@ -29,6 +32,9 @@ function estimateReadingSize(doc: SearchDoc): {
     };
 }
 
+/**
+ * Builds the cover image URL for a document when a cover id is present.
+ */
 function coverUrlFor(doc: SearchDoc): string {
     const COVER_ID = Number(doc.cover_i ?? 0);
 
@@ -39,6 +45,9 @@ function coverUrlFor(doc: SearchDoc): string {
     return `https://covers.openlibrary.org/b/id/${COVER_ID}-L.jpg`;
 }
 
+/**
+ * Normalizes the first publish year into a number or empty string.
+ */
 function publishYearFor(doc: SearchDoc): number | "" {
     if (typeof doc.first_publish_year === "number") {
         return doc.first_publish_year;

@@ -1,7 +1,6 @@
-import type { PlannerApi } from "@reading-schedule/contracts";
+import type { PlannerApi, TodayViewData } from "@reading-schedule/contracts";
 import type { Dispatch, SetStateAction } from "react";
 import { useCallback, useEffect, useState } from "react";
-import type { TodayViewData } from "./today-data-logic.ts";
 import { loadTodayViewData } from "./today-data-logic.ts";
 
 interface TodayState {

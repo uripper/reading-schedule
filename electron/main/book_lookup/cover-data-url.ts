@@ -30,6 +30,9 @@ function extensionForDataMime(mimeType: string): CoverExtension | null {
     return DATA_MIME_TO_EXTENSION[NORMALIZED_MIME] ?? null;
 }
 
+/**
+ * Splits a data URL into header and payload pieces.
+ */
 function splitDataUrl(
     value: string,
 ): { header: string; payload: string } | null {
@@ -49,6 +52,9 @@ function splitDataUrl(
     };
 }
 
+/**
+ * Decodes a base64 payload into image bytes and rejects empty payloads.
+ */
 function decodeBase64Payload(payload: string): Uint8Array | null {
     let bytes: Uint8Array;
 
@@ -65,6 +71,9 @@ function decodeBase64Payload(payload: string): Uint8Array | null {
     return bytes;
 }
 
+/**
+ * Verifies that the data URL header and payload look like base64 image data.
+ */
 function hasBase64DataUrlPayload(parts: {
     header: string;
     payload: string;
@@ -74,6 +83,9 @@ function hasBase64DataUrlPayload(parts: {
     );
 }
 
+/**
+ * Resolves the file extension and payload from a validated data URL header.
+ */
 function parsedDataUrlPayload(parts: {
     header: string;
     payload: string;
@@ -85,6 +97,9 @@ function parsedDataUrlPayload(parts: {
     return { extension: EXTENSION, payload: parts.payload };
 }
 
+/**
+ * Parses and validates a full base64 data URL string.
+ */
 function parsedBase64DataUrl(value: string): {
     extension: CoverExtension;
     payload: string;
