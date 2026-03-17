@@ -77,13 +77,13 @@
             "noExcessiveCognitiveComplexity": {
               "level": "error",
               "options": {
-                "maxAllowedComplexity": 4
+                "maxAllowedComplexity": 5
               }
             },
             "noExcessiveLinesPerFunction": {
               "level": "error",
               "options": {
-                "maxLines": 15,
+                "maxLines": 20,
                 "skipBlankLines": true
               }
             },

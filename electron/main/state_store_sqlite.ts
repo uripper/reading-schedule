@@ -100,8 +100,8 @@ function recoverJournalRowState(
     }
 }
 
-// TODO: This is so fucking stupid. Why are we just storing a JSON into an 
-// SQLite database instead of using the database's native schema capabilities? 
+// TODO: This is so fucking stupid. Why are we just storing a JSON into an
+// SQLite database instead of using the database's native schema capabilities?
 
 /**
  * Upserts the singleton snapshot row with current schema metadata.

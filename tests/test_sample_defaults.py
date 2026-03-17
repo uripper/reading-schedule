@@ -62,4 +62,6 @@ def test_gui_sample_mode_succeeds_with_explicit_sample_paths(
     assert exit_code == 0
     assert payload["ok"] is True
     assert len(payload["data"]["books"]) == len(demo_books())
+    assert payload["data"]["books"][0]["remaining_words"] == 12000
+    assert payload["data"]["books"][0]["words_total"] == 15000
     assert payload["data"]["books"][0]["scheduled_days"] == list(WEEKDAYS)

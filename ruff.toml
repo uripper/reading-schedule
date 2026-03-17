@@ -1,10 +1,10 @@
 target-version = "py314"
+required-version = "==0.15.6"
 line-length = 80
 indent-width = 4
 src = ["src", "tests"]
 
-# Keep this off unless you deliberately want churn from unstable behavior.
-preview = false
+
 show-fixes = true
 respect-gitignore = true
 force-exclude = true
@@ -24,8 +24,8 @@ extend-exclude = [
 ]
 
 [lint]
-preview = false
-explicit-preview-rules = true
+preview = true
+extend-unsafe-fixes = ["ALL"]
 
 select = [
   "A",    # flake8-builtins
@@ -74,7 +74,7 @@ select = [
   "UP",   # pyupgrade
   "W",    # pycodestyle warnings
   "YTT",  # flake8-2020
-  # "FURB", # refurb; enable after the rest if you want even more pressure
+  "FURB", # refurb
 ]
 
 ignore = [
@@ -87,7 +87,7 @@ fixable = ["ALL"]
 unfixable = ["F401"]
 
 dummy-variable-rgx = "^(_[a-zA-Z0-9_]*|unused(_[a-zA-Z0-9_]+)?)$"
-task-tags = ["TODO", "FIXME", "HACK", "XXX"]
+task-tags = ["TODO", "FIXME", "HACK", "TODO:"]
 
 [lint.pydocstyle]
 convention = "google"
@@ -128,9 +128,6 @@ check-typed-exception = true
 
 [lint.flake8-builtins]
 strict-checking = true
-
-[lint.flake8-errmsg]
-max-string-length = 20
 
 [lint.flake8-quotes]
 inline-quotes = "double"
@@ -186,6 +183,13 @@ lines-after-imports = 2
 "tests/**/*.py" = [
   "S101",    # pytest assert
 ]
+
+[lint.flake8-implicit-str-concat]
+allow-multiline = false
+
+[lint.ruff]
+parenthesize-tuple-in-subscript = true
+
 
 [format]
 preview = false

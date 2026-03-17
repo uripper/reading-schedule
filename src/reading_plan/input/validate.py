@@ -72,9 +72,9 @@ def _validate_required_fields(book: Book) -> None:
 def _validate_book_progress(book: Book) -> None:
     """Validate read-progress and words consistency values."""
     check_condition(
-        f"words_full cannot be less than remaining_words for {book.book_id}",
-        condition=book.words_full is None
-        or book.words_full >= book.remaining_words,
+        f"words_total cannot be less than remaining_words for {book.book_id}",
+        condition=book.words_total is None
+        or book.words_total >= book.remaining_words,
     )
 
     check_condition(

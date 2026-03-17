@@ -13,7 +13,7 @@ export interface TodayProgressDraft {
     percentText: string;
 }
 
-export interface TodayProgressInputViewModel {
+interface TodayProgressInputViewModel {
     pagesMax: string;
     pagesPlaceholder: string;
     pagesText: string;

@@ -21,7 +21,14 @@ if TYPE_CHECKING:
 
 
 def _minutes_by_weekday(data: SettingsData) -> dict[str, int]:
-    """Normalize per-weekday reading minutes."""
+    """Normalize per-weekday reading minutes.
+
+    Args:
+        data: Raw settings payload.
+
+    Returns:
+        Mapping of weekday abbreviations to reading minutes.
+    """
     return {
         key[:3].title(): int(value)
         for key, value in (data.get("minutes_by_weekday") or {}).items()
@@ -29,13 +36,27 @@ def _minutes_by_weekday(data: SettingsData) -> dict[str, int]:
 
 
 def _difficulty_multiplier(data: SettingsData) -> dict[int, float]:
-    """Normalize difficulty multiplier weights."""
+    """Normalize difficulty multiplier weights.
+
+    Args:
+        data: Raw settings payload.
+
+    Returns:
+        Mapping of difficulty levels to multiplier weights.
+    """
     raw_diff = data.get("difficulty_multiplier", DEFAULT_DIFFICULTY_MULTIPLIER)
     return {int(key): float(value) for key, value in raw_diff.items()}
 
 
 def _start_date(data: SettingsData) -> date:
-    """Return explicit or default planning start date."""
+    """Return the explicit or default planning start date.
+
+    Args:
+        data: Raw settings payload.
+
+    Returns:
+        Parsed start date, or today's local date when omitted.
+    """
     start_date = datetime.fromtimestamp(time(), UTC).astimezone().date()
     return (
         parse_date(data["start_date"]) if data.get("start_date") else start_date
@@ -51,7 +72,18 @@ def _minutes_per_day(
     data: SettingsData,
     by_weekday: dict[str, int],
 ) -> int:
-    """Normalize explicit or derived minutes-per-day value."""
+    """Normalize an explicit or derived minutes-per-day value.
+
+    Args:
+        data: Raw settings payload.
+        by_weekday: Normalized weekday minute overrides.
+
+    Returns:
+        Explicit minutes-per-day, or a derived default from weekday values.
+
+    Raises:
+        ValueError: If ``minutes_per_day`` is provided as an empty value.
+    """
     minutes_per_day = data.get("minutes_per_day")
     if minutes_per_day is None:
         return _default_minutes_per_day(by_weekday)
@@ -62,7 +94,14 @@ def _minutes_per_day(
 
 
 def _plan_mode(data: SettingsData) -> str:
-    """Normalize the planner mode value."""
+    """Normalize the planner mode value.
+
+    Args:
+        data: Raw settings payload.
+
+    Returns:
+        Lower-cased planner mode with the default applied.
+    """
     return (
         str(
             data.get("plan_mode", PLAN_MODE_FINISH_SOON)
@@ -76,8 +115,11 @@ def _plan_mode(data: SettingsData) -> str:
 def settings_from_data(data: SettingsData) -> Settings:
     """Normalize raw settings payload data into a validated Settings model.
 
-    :param data: raw settings payload with mixed fields and formats
-    :return: validated Settings model with normalized fields
+    Args:
+        data: Raw settings payload with mixed fields and formats.
+
+    Returns:
+        Validated settings model with normalized fields.
     """
     by_weekday = _minutes_by_weekday(data)
     settings = Settings(

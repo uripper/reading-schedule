@@ -10,19 +10,23 @@ if TYPE_CHECKING:
 class BookData(TypedDict, total=False):
     """Book data structure in plan input/output payloads."""
 
+    author: str
     book_id: str
-    blocker_book_id: str | None
     title: str
-    remaining_words: int | None
+    blocked_by: str | None
+    blocker_book_id: str | None
+    deadline: str | None
     priority: int
     difficulty: int
-    deadline: str | None
     min_blocks_per_session: int
-    progress_percent: float
-    words_full: int | None
     max_minutes_per_day: int | None
-    blocked_by: str | None
+    pages_read: int | None
+    pages_total: int | None
+    progress_percent: float
+    remaining_words: int | None
     scheduled_days: list[str]
+    words_read: int | None
+    words_total: int | None
 
 
 class SettingsData(TypedDict):

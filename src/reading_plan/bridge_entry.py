@@ -25,19 +25,22 @@ MODULE_ENTRYPOINTS: dict[str, Callable[[], int]] = {
 
 
 def module_name(argv: Sequence[str]) -> str:
-    """Return the requested module name from process arguments."""
+    """Return the requested module name from process arguments.
+
+    Raises:
+        ValueError: If the module name argument is missing or blank.
+    """
     if len(argv) <= MODULE_NAME_ARG_INDEX:
         msg = "planner module name is required"
         raise ValueError(msg)
-    name = argv[MODULE_NAME_ARG_INDEX].strip()
-    if name == "":
-        msg = "planner module name is required"
-        raise ValueError(msg)
-    return name
+    if name := argv[MODULE_NAME_ARG_INDEX].strip():
+        return name
+    msg = "planner module name is required"
+    raise ValueError(msg)
 
 
 def module_argv(argv: Sequence[str]) -> list[str]:
-    """Build argv passed through to the requested planner module."""
+    """Return argv passed through to the requested planner module."""
     name = module_name(argv)
     return [name, *argv[MODULE_ARGS_START_INDEX:]]
 
@@ -48,13 +51,13 @@ def active_argv(argv: Sequence[str] | None) -> list[str]:
 
 
 def write_error(message: object) -> int:
-    """Write an error message to stderr and return a failure exit code."""
+    """Return a failure exit code after writing an error to stderr."""
     sys.stderr.write(f"{message}\n")
     return ERROR_EXIT_CODE
 
 
 def exit_code_from_system_exit(exit_signal: SystemExit) -> int:
-    """Normalize a module SystemExit into an integer process exit code."""
+    """Return an integer process exit code from a module ``SystemExit``."""
     if isinstance(exit_signal.code, int):
         return exit_signal.code
     if exit_signal.code is None:
@@ -63,7 +66,11 @@ def exit_code_from_system_exit(exit_signal: SystemExit) -> int:
 
 
 def requested_entrypoint(argv: Sequence[str]) -> Callable[[], int]:
-    """Resolve the supported planner entrypoint from process arguments."""
+    """Return the supported planner entrypoint from process arguments.
+
+    Raises:
+        ValueError: If the requested module name is not supported.
+    """
     name = module_name(argv)
     entrypoint = MODULE_ENTRYPOINTS.get(name)
     if entrypoint is not None:
@@ -73,7 +80,7 @@ def requested_entrypoint(argv: Sequence[str]) -> Callable[[], int]:
 
 
 def run_requested_module(argv: Sequence[str]) -> int:
-    """Execute the requested planner module with temporary argv state."""
+    """Return the exit code from the requested planner module."""
     entrypoint = requested_entrypoint(argv)
     original_argv = list(sys.argv)
     try:
@@ -84,7 +91,7 @@ def run_requested_module(argv: Sequence[str]) -> int:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """Dispatch to a planner module while preserving CLI-style execution."""
+    """Return the CLI exit code for the requested planner module."""
     try:
         return run_requested_module(active_argv(argv))
     except ValueError as error:

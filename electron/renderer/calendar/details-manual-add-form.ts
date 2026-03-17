@@ -16,7 +16,7 @@ const EMPTY_TEXT = "";
 
 type ManualBooks = ReturnType<typeof sortedManualBooks>;
 
-export interface BuildManualAddFormElementsArgs {
+interface BuildManualAddFormElementsArgs {
     books: ManualBooks;
     defaultBookId: string | undefined;
     defaultMinutes: number;
