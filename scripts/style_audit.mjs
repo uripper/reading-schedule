@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import * as typeCoverageCore from "type-coverage-core";
 import * as ts from "typescript";
 
 const SOURCE_ROOTS = [
@@ -58,9 +59,45 @@ const SOFT_LINE_LIMIT = 200;
 const HARD_LINE_LIMIT = 300;
 const MIN_UNDER_SOFT_PERCENT = 90;
 const MIN_LINE_LIMIT = 30;
+const MAX_UNDER_MIN_LINE_PERCENT = 10;
+const MIN_TYPE_COVERAGE_PERCENT = 90;
+const MIN_TEST_COVERAGE_PERCENT = 90;
 
 const AUDIT_SELF_PATH = "scripts/style_audit.mjs";
+const CONTRACTS_ROOT = "packages/contracts/";
 const DISALLOWED_CONSOLE_PATTERN = /\bconsole\.(error|warn|log|debug)\s*\(/g;
+const TYPE_COVERAGE_CHECKS = [
+	{
+		label: "electron main strict",
+		project: "electron/tsconfig.main.json",
+	},
+	{
+		label: "electron renderer strict",
+		project: "electron/tsconfig.renderer.json",
+	},
+];
+const TEST_COVERAGE_AREAS = [
+	{
+		label: "Python planner",
+		sourcePrefixes: ["src/reading_plan/"],
+		testPrefixes: ["tests/"],
+	},
+	{
+		label: "Electron desktop",
+		sourcePrefixes: ["electron/main/", "electron/renderer/"],
+		testPrefixes: ["electron/tests/"],
+	},
+	{
+		label: "Website",
+		sourcePrefixes: ["apps/website/src/"],
+		testPrefixes: ["apps/website/tests/"],
+	},
+	{
+		label: "Mobile app",
+		sourcePrefixes: ["mobile/src/"],
+		testPrefixes: ["mobile/tests/"],
+	},
+];
 
 const FUNCTION_DECLARATION_PATTERNS = [
 	/^(export\s+)?(async\s+)?function\s+[A-Za-z_$][\w$]*\s*\(/,
@@ -281,19 +318,16 @@ function isInTypesDirectory(relativePath) {
 	return segments.includes("types");
 }
 
-function pushTypeDefinitionHitsOutsideTypes(
-	relativePath,
-	sourceFile,
-	typeHits,
-) {
+function isContractsPath(relativePath) {
+	return relativePath.startsWith(CONTRACTS_ROOT);
+}
+
+function typeDeclarationSummary(relativePath, sourceFile) {
 	if (relativePath.endsWith(".d.ts")) {
-		return;
+		return null;
 	}
 	if (relativePath.startsWith("electron/tokens/dist/")) {
-		return;
-	}
-	if (isInTypesDirectory(relativePath)) {
-		return;
+		return null;
 	}
 
 	let declarationCount = 0;
@@ -311,11 +345,42 @@ function pushTypeDefinitionHitsOutsideTypes(
 		}
 	});
 
-	if (declarationCount > 0) {
-		typeHits.push(
-			`${relativePath}:${firstLine} ${declarationCount} type/interface declarations`,
-		);
+	if (declarationCount === 0) {
+		return null;
 	}
+
+	return { declarationCount, firstLine };
+}
+
+function pushTypeDeclarationHit(relativePath, summary, typeHits) {
+	if (summary === null) {
+		return;
+	}
+	typeHits.push(
+		`${relativePath}:${summary.firstLine} ${summary.declarationCount} type/interface declarations`,
+	);
+}
+
+function pushTypeDefinitionHitsOutsideContracts(
+	relativePath,
+	summary,
+	typeHits,
+) {
+	if (isContractsPath(relativePath)) {
+		return;
+	}
+	pushTypeDeclarationHit(relativePath, summary, typeHits);
+}
+
+function pushTypeDefinitionHitsOutsideTypes(
+	relativePath,
+	summary,
+	typeHits,
+) {
+	if (isInTypesDirectory(relativePath)) {
+		return;
+	}
+	pushTypeDeclarationHit(relativePath, summary, typeHits);
 }
 
 function collectFiles() {
@@ -395,13 +460,20 @@ function isElectronTypesPath(relativePath) {
 	return relativePath.startsWith("electron/types/");
 }
 
+function isMinimumLineCountExempt(relativePath) {
+	// Package marker modules are intentionally tiny, so they should not
+	// count as "combine these files" candidates in the cohesion audit.
+	return path.basename(relativePath) === "__init__.py";
+}
+
 function scanJsTs(
 	relativePath,
 	content,
 	extension,
 	ternaryHits,
 	consoleHits,
-	typeHits,
+	typeDefinitionOutsideContractsHits,
+	typeDefinitionOutsideTypesHits,
 ) {
 	const lines = content.split(/\r?\n/);
 	let lineNumber = 1;
@@ -426,7 +498,17 @@ function scanJsTs(
 	pushTernaryHits(relativePath, sourceFile, ternaryHits);
 
 	if (TS_EXTENSIONS.has(extension)) {
-		pushTypeDefinitionHitsOutsideTypes(relativePath, sourceFile, typeHits);
+		const summary = typeDeclarationSummary(relativePath, sourceFile);
+		pushTypeDefinitionHitsOutsideContracts(
+			relativePath,
+			summary,
+			typeDefinitionOutsideContractsHits,
+		);
+		pushTypeDefinitionHitsOutsideTypes(
+			relativePath,
+			summary,
+			typeDefinitionOutsideTypesHits,
+		);
 	}
 }
 
@@ -639,19 +721,163 @@ function printHitSection(title, hits) {
 	}
 }
 
-function run() {
+function formatTypeCoveragePercent(correctCount, totalCount) {
+	if (totalCount === 0) {
+		return "100.00";
+	}
+
+	return (Math.floor((correctCount * 10000) / totalCount) / 100).toFixed(2);
+}
+
+function isPathUnderPrefixes(relativePath, prefixes) {
+	return prefixes.some((prefix) => relativePath.startsWith(prefix));
+}
+
+function isTestCoverageSourceFile(relativePath) {
+	if (relativePath.endsWith(".d.ts")) {
+		return false;
+	}
+	return path.basename(relativePath) !== "__init__.py";
+}
+
+function isTestCoverageTestFile(relativePath) {
+	const baseName = path.basename(relativePath);
+	if (relativePath.endsWith(".py")) {
+		return baseName.startsWith("test_");
+	}
+	return baseName.includes(".test.");
+}
+
+function formatTestCoveragePercent(testCount, sourceCount) {
+	if (sourceCount === 0) {
+		return "100.0";
+	}
+
+	return ((testCount * 100) / sourceCount).toFixed(1);
+}
+
+function numericCoveragePercent(correctCount, totalCount) {
+	if (totalCount === 0) {
+		return 100;
+	}
+
+	return (correctCount * 100) / totalCount;
+}
+
+function runTestCoverageAudit(relativePaths) {
+	const hits = [];
+	const areas = [];
+	let totalSourceCount = 0;
+	let totalTestCount = 0;
+	let zeroTestAreas = 0;
+
+	// The repo does not yet have a unified cross-language line-coverage runner,
+	// so the audit reports test-surface coverage by area to keep obvious gaps
+	// visible during review.
+	for (const area of TEST_COVERAGE_AREAS) {
+		let sourceCount = 0;
+		let testCount = 0;
+
+		for (const relativePath of relativePaths) {
+			if (
+				isPathUnderPrefixes(relativePath, area.sourcePrefixes) &&
+				isTestCoverageSourceFile(relativePath)
+			) {
+				sourceCount += 1;
+			}
+			if (
+				isPathUnderPrefixes(relativePath, area.testPrefixes) &&
+				isTestCoverageTestFile(relativePath)
+			) {
+				testCount += 1;
+			}
+		}
+
+		areas.push({
+			label: area.label,
+			sourceCount,
+			testCount,
+		});
+		totalSourceCount += sourceCount;
+		totalTestCount += testCount;
+		if (sourceCount > 0 && testCount === 0) {
+			zeroTestAreas += 1;
+		}
+		hits.push(
+			`${area.label}: ${testCount} test files for ${sourceCount} source files (${formatTestCoveragePercent(testCount, sourceCount)}%)`,
+		);
+	}
+
+	return { areas, hits, totalSourceCount, totalTestCount, zeroTestAreas };
+}
+
+async function runTypeCoverageAudit() {
+	const { lint: typeCoverageLint } = typeCoverageCore;
+	const entries = [];
+	const hits = [];
+	const failures = [];
+	let totalCorrectCount = 0;
+	let totalCount = 0;
+	let totalUncovered = 0;
+
+	for (const check of TYPE_COVERAGE_CHECKS) {
+		// Strict coverage highlights assertions and implicit type holes that
+		// ordinary typechecking can miss, so the audit surfaces the summary here.
+		try {
+			const summary = await typeCoverageLint(check.project, {
+				cacheDirectory: ".type-coverage",
+				enableCache: true,
+				strict: true,
+			});
+			entries.push({
+				label: check.label,
+				correctCount: summary.correctCount,
+				totalCount: summary.totalCount,
+			});
+			totalCorrectCount += summary.correctCount;
+			totalCount += summary.totalCount;
+			const percent = formatTypeCoveragePercent(
+				summary.correctCount,
+				summary.totalCount,
+			);
+			const uncovered = summary.totalCount - summary.correctCount;
+			totalUncovered += uncovered;
+			hits.push(
+				`${check.label}: ${percent}% (${summary.correctCount}/${summary.totalCount}, ${uncovered} uncovered)`,
+			);
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			failures.push(
+				`Type coverage command failed for ${check.label}: ${message}`,
+			);
+		}
+	}
+
+	return {
+		entries,
+		failures,
+		hits,
+		totalCorrectCount,
+		totalCount,
+		totalUncovered,
+	};
+}
+
+async function run() {
 	const overSoftLimit = [];
 	const overHardLimit = [];
 	const filesUnderMinimum = [];
 	const ternaryHits = [];
 	const consoleHits = [];
-	const typeDefinitionHits = [];
+	const typeDefinitionOutsideContractsHits = [];
+	const typeDefinitionOutsideTypesHits = [];
 	const documentationHits = [];
 
 	let analyzed = 0;
 	let underSoft = 0;
-	let filesAnalyzed = 0;
+	let minimumLineFilesAnalyzed = 0;
 	let filesAtOrAboveMinimum = 0;
+	const analyzedRelativePaths = [];
 
 	for (const filePath of collectFiles()) {
 		const extension = path.extname(filePath);
@@ -663,6 +889,7 @@ function run() {
 
 		const content = fs.readFileSync(filePath, "utf8");
 		const lineCount = countCodeLines(content, extension);
+		analyzedRelativePaths.push(relativePath);
 
 		analyzed += 1;
 		if (lineCount < SOFT_LINE_LIMIT) {
@@ -675,10 +902,13 @@ function run() {
 			overHardLimit.push({ path: relativePath, lines: lineCount });
 		}
 
-		if (lineCount >= MIN_LINE_LIMIT) {
-			filesAtOrAboveMinimum += 1;
-		} else {
-			filesUnderMinimum.push({ path: relativePath, lines: lineCount });
+		if (!isMinimumLineCountExempt(relativePath)) {
+			minimumLineFilesAnalyzed += 1;
+			if (lineCount >= MIN_LINE_LIMIT) {
+				filesAtOrAboveMinimum += 1;
+			} else {
+				filesUnderMinimum.push({ path: relativePath, lines: lineCount });
+			}
 		}
 
 		if (JS_TS_EXTENSIONS.has(extension)) {
@@ -688,7 +918,8 @@ function run() {
 				extension,
 				ternaryHits,
 				consoleHits,
-				typeDefinitionHits,
+				typeDefinitionOutsideContractsHits,
+				typeDefinitionOutsideTypesHits,
 			);
 			scanJsTsDocumentation(relativePath, content, documentationHits);
 			continue;
@@ -703,14 +934,20 @@ function run() {
 	sortByLines(overHardLimit);
 	sortByLinesAscending(filesUnderMinimum);
 
+	const typeCoverageAudit = await runTypeCoverageAudit();
+	const testCoverageAudit = runTestCoverageAudit(analyzedRelativePaths);
+
 	let underSoftPercent = 100;
 	let filesAtOrAboveMinimumPercent = 100;
+	let filesUnderMinimumPercent = 0;
 	if (analyzed > 0) {
 		underSoftPercent = (underSoft / analyzed) * 100;
 	}
-	if (filesAnalyzed > 0) {
+	if (minimumLineFilesAnalyzed > 0) {
 		filesAtOrAboveMinimumPercent =
-			(filesAtOrAboveMinimum / filesAnalyzed) * 100;
+			(filesAtOrAboveMinimum / minimumLineFilesAnalyzed) * 100;
+		filesUnderMinimumPercent =
+			(filesUnderMinimum.length / minimumLineFilesAnalyzed) * 100;
 	}
 
 	process.stdout.write("Style audit report\n");
@@ -719,7 +956,7 @@ function run() {
 		`Files under ${SOFT_LINE_LIMIT} lines: ${underSoft}/${analyzed} (${underSoftPercent.toFixed(1)}%)\n`,
 	);
 	process.stdout.write(
-		`Files at or above ${MIN_LINE_LIMIT} lines: ${filesAtOrAboveMinimum}/${filesAnalyzed} (${filesAtOrAboveMinimumPercent.toFixed(1)}%)\n`,
+		`Files at or above ${MIN_LINE_LIMIT} lines: ${filesAtOrAboveMinimum}/${minimumLineFilesAnalyzed} (${filesAtOrAboveMinimumPercent.toFixed(1)}%)\n`,
 	);
 
 	printSection(`Files over ${SOFT_LINE_LIMIT} lines`, overSoftLimit);
@@ -731,9 +968,15 @@ function run() {
 	printHitSection("Ternary expressions", ternaryHits);
 	printHitSection("Disallowed console methods", consoleHits);
 	printHitSection(
-		"Type/interface definitions outside types folders",
-		typeDefinitionHits,
+		"Type/interface definitions outside packages/contracts",
+		typeDefinitionOutsideContractsHits,
 	);
+	printHitSection(
+		"Type/interface definitions outside types folders",
+		typeDefinitionOutsideTypesHits,
+	);
+	printHitSection("Type coverage", typeCoverageAudit.hits);
+	printHitSection("Test coverage surface", testCoverageAudit.hits);
 	printHitSection("Probable documentation gaps", documentationHits);
 
 	const failures = [];
@@ -747,9 +990,9 @@ function run() {
 			`Files under ${SOFT_LINE_LIMIT} lines below ${MIN_UNDER_SOFT_PERCENT}%: ${underSoftPercent.toFixed(1)}%`,
 		);
 	}
-	if (filesUnderMinimum.length > 0) {
+	if (filesUnderMinimumPercent > MAX_UNDER_MIN_LINE_PERCENT) {
 		failures.push(
-			`Files under ${MIN_LINE_LIMIT} lines: ${filesUnderMinimum.length}`,
+			`Files under ${MIN_LINE_LIMIT} lines above ${MAX_UNDER_MIN_LINE_PERCENT}%: ${filesUnderMinimum.length}/${minimumLineFilesAnalyzed} (${filesUnderMinimumPercent.toFixed(1)}%)`,
 		);
 	}
 	if (ternaryHits.length > 0) {
@@ -758,9 +1001,74 @@ function run() {
 	if (consoleHits.length > 0) {
 		failures.push(`Disallowed console methods found: ${consoleHits.length}`);
 	}
+	if (typeDefinitionOutsideContractsHits.length > 0) {
+		failures.push(
+			`Type/interface definitions outside packages/contracts: ${typeDefinitionOutsideContractsHits.length}`,
+		);
+	}
+	if (typeDefinitionOutsideTypesHits.length > 0) {
+		failures.push(
+			`Type/interface definitions outside types folders: ${typeDefinitionOutsideTypesHits.length}`,
+		);
+	}
+	if (documentationHits.length > 0) {
+		failures.push(`Probable documentation gaps: ${documentationHits.length}`);
+	}
+	failures.push(...typeCoverageAudit.failures);
+	if (typeCoverageAudit.failures.length === 0) {
+		const typeCoveragePercent = numericCoveragePercent(
+			typeCoverageAudit.totalCorrectCount,
+			typeCoverageAudit.totalCount,
+		);
+		if (typeCoveragePercent < MIN_TYPE_COVERAGE_PERCENT) {
+			failures.push(
+				`Type coverage below ${MIN_TYPE_COVERAGE_PERCENT}%: ${formatTypeCoveragePercent(typeCoverageAudit.totalCorrectCount, typeCoverageAudit.totalCount)}%`,
+			);
+		}
+	}
+	const testCoveragePercent = numericCoveragePercent(
+		testCoverageAudit.totalTestCount,
+		testCoverageAudit.totalSourceCount,
+	);
+	if (testCoveragePercent < MIN_TEST_COVERAGE_PERCENT) {
+		failures.push(
+			`Test coverage surface below ${MIN_TEST_COVERAGE_PERCENT}%: ${formatTestCoveragePercent(testCoverageAudit.totalTestCount, testCoverageAudit.totalSourceCount)}%`,
+		);
+	}
+	const summaryLines = [
+		`Files under ${SOFT_LINE_LIMIT} lines: ${underSoft}/${analyzed} (${underSoftPercent.toFixed(1)}%)`,
+		`Files over ${SOFT_LINE_LIMIT} lines: ${overSoftLimit.length}`,
+		`Files over ${HARD_LINE_LIMIT} lines: ${overHardLimit.length}`,
+		`Files under ${MIN_LINE_LIMIT} lines: ${filesUnderMinimum.length}/${minimumLineFilesAnalyzed} (${filesUnderMinimumPercent.toFixed(1)}%)`,
+		`Ternary expressions: ${ternaryHits.length}`,
+		`Disallowed console methods: ${consoleHits.length}`,
+		`Type/interface definitions outside packages/contracts: ${typeDefinitionOutsideContractsHits.length}`,
+		`Type/interface definitions outside types folders: ${typeDefinitionOutsideTypesHits.length}`,
+		`Probable documentation gaps: ${documentationHits.length}`,
+	];
+	if (typeCoverageAudit.failures.length === 0) {
+		const typeCoveragePercent = formatTypeCoveragePercent(
+			typeCoverageAudit.totalCorrectCount,
+			typeCoverageAudit.totalCount,
+		);
+		summaryLines.push(
+			`Type coverage: ${typeCoveragePercent}% (${typeCoverageAudit.totalUncovered} uncovered across ${typeCoverageAudit.entries.length} targets)`,
+		);
+	} else {
+		summaryLines.push(
+			`Type coverage: ${typeCoverageAudit.failures.length} coverage command failures`,
+		);
+	}
+	summaryLines.push(
+		`Test coverage surface: ${testCoverageAudit.totalTestCount} test files for ${testCoverageAudit.totalSourceCount} source files (${formatTestCoveragePercent(testCoverageAudit.totalTestCount, testCoverageAudit.totalSourceCount)}%), ${testCoverageAudit.zeroTestAreas} areas with zero tests`,
+	);
 
 	if (failures.length > 0) {
 		process.stderr.write("\nAudit failed:\n");
+		for (const summaryLine of summaryLines) {
+			process.stderr.write(`- ${summaryLine}\n`);
+		}
+		process.stderr.write("\nBlocking failures:\n");
 		for (const failure of failures) {
 			process.stderr.write(`- ${failure}\n`);
 		}
@@ -771,4 +1079,8 @@ function run() {
 	process.stdout.write("\nAudit passed.\n");
 }
 
-run();
+run().catch((error) => {
+	const message = error instanceof Error ? error.message : String(error);
+	process.stderr.write(`Audit failed unexpectedly: ${message}\n`);
+	process.exitCode = 1;
+});
