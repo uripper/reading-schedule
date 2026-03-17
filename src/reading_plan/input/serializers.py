@@ -11,7 +11,11 @@ if TYPE_CHECKING:
 
 
 def book_to_data(book: Book) -> BookData:
-    """Serialize a Book model into a JSON-safe dictionary for UI/API use."""
+    """Serialize a Book model into a JSON-safe dictionary for UI/API use.
+
+    Returns:
+        A TypedDict that allows for a Book's metadata to be read as a JSON
+    """
     words_total = (
         book.remaining_words if book.words_total is None else book.words_total
     )
@@ -35,7 +39,11 @@ def book_to_data(book: Book) -> BookData:
 
 
 def settings_to_data(settings: Settings) -> SettingsData:
-    """Serialize Settings into a JSON-safe dictionary for UI/API use."""
+    """Serialize Settings into a JSON-safe dictionary for UI/API use.
+
+    Returns:
+        A TypedDict of settings for planning, to use with JSON.
+    """
     data: SettingsData = {
         "start_date": settings.start_date.isoformat(),
         "end_date": settings.end_date.isoformat(),

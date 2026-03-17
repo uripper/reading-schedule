@@ -77,7 +77,7 @@ def _require_state_field(*, is_valid: bool, message: str) -> None:
     _raise_state_type_error(message)
 
 
-# TODO(uripper): Is saved state payload ever not going to be a payload? Should
+# TODO: Is saved state payload ever not going to be a payload? Should
 # this not be a narrower type?
 def validate_state_snapshot(state: object) -> dict[str, object]:
     """Validate mobile state payload shape against shared planner contracts.

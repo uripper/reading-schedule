@@ -95,10 +95,50 @@ function logSearchItems(items: SearchItem[]): void {
 function hasSearchDocs(response: unknown): response is {
     docs: SearchDoc[];
 } {
+    if (!(isObjectRecord(response) && Array.isArray(response.docs))) {
+        return false;
+    }
+
+    return response.docs.every((item) => isSearchDoc(item));
+}
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null;
+}
+
+function isOptionalNumber(value: unknown): boolean {
+    return value === undefined || typeof value === "number";
+}
+
+function isOptionalString(value: unknown): boolean {
+    return value === undefined || typeof value === "string";
+}
+
+function isOptionalStringArray(value: unknown): boolean {
     return (
-        typeof response === "object" &&
-        response !== null &&
-        Array.isArray((response as { docs?: unknown }).docs)
+        value === undefined ||
+        (Array.isArray(value) &&
+            value.every((item) => typeof item === "string"))
+    );
+}
+
+/**
+ * Validates the subset of Open Library fields that the lookup pipeline reads.
+ */
+function isSearchDoc(value: unknown): value is SearchDoc {
+    if (!isObjectRecord(value)) {
+        return false;
+    }
+
+    return (
+        isOptionalStringArray(value.author_name) &&
+        isOptionalNumber(value.cover_i) &&
+        isOptionalNumber(value.edition_count) &&
+        isOptionalNumber(value.first_publish_year) &&
+        isOptionalString(value.key) &&
+        isOptionalStringArray(value.language) &&
+        isOptionalNumber(value.number_of_pages_median) &&
+        isOptionalString(value.title)
     );
 }
 

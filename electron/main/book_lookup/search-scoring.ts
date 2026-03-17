@@ -135,15 +135,16 @@ function standardSearchScore(
     tokens: string[],
 ): number {
     const TITLE_NORM = normalizeSearchText(doc.title ?? "");
-    if (TITLE_NORM.length === 0) {
+    const AUTHOR_NORM = normalizeSearchText(primaryAuthor(doc));
+    const TEXT_SCORE =
+        baseTitleScore(TITLE_NORM, queryNorm) +
+        tokenScore(TITLE_NORM, AUTHOR_NORM, tokens);
+
+    if (TITLE_NORM.length === 0 && TEXT_SCORE <= 0) {
         return 0;
     }
-    const AUTHOR_NORM = normalizeSearchText(primaryAuthor(doc));
-    return (
-        baseTitleScore(TITLE_NORM, queryNorm) +
-        tokenScore(TITLE_NORM, AUTHOR_NORM, tokens) +
-        metadataScore(doc)
-    );
+
+    return TEXT_SCORE + metadataScore(doc);
 }
 
 /**

@@ -8,13 +8,8 @@ import type {
     DownloadedCover,
 } from "@reading-schedule/contracts";
 import { parseCoverDataUrl } from "./cover-data-url.ts";
-import {
-    extensionFor,
-    filePathForCover,
-    isHttpProtocol,
-} from "./cover-paths.ts";
-
-const PRIVATE_NETWORK_HOSTNAME_PATTERN = /^172\.(1[6-9]|2\d|3[0-1])\./;
+import { extensionFor, filePathForCover } from "./cover-paths.ts";
+import { fetchRemoteCover, parsedHttpCoverUrl } from "./cover-remote.ts";
 
 /**
  * Normalizes optional cover input text so validation can use one code path.
@@ -24,92 +19,10 @@ function normalizedCoverInput(value: string | undefined): string {
 }
 
 /**
- * Fetches a remote cover image response without exposing network failures.
- */
-async function fetchedCoverResponse(parsedUrl: URL): Promise<Response | null> {
-    let response: Response;
-    try {
-        response = await globalThis.fetch(parsedUrl.toString(), {
-            redirect: "follow",
-        });
-    } catch {
-        return null;
-    }
-
-    if (!response.ok) {
-        return null;
-    }
-    return response;
-}
-
-/**
- * Reads a successful cover response into bytes and metadata for persistence.
- */
-async function downloadedCover(
-    response: Response,
-): Promise<DownloadedCover | null> {
-    const BYTES = await response.arrayBuffer();
-    if (BYTES.byteLength === 0) {
-        return null;
-    }
-    return {
-        bytes: BYTES,
-        contentType: response.headers.get("content-type"),
-    };
-}
-
-/**
  * Fetches a remote cover image and converts it to persisted cover bytes.
  */
-async function fetchCover(parsedUrl: URL): Promise<DownloadedCover | null> {
-    const RESPONSE = await fetchedCoverResponse(parsedUrl);
-    if (RESPONSE === null) {
-        return null;
-    }
-    return downloadedCover(RESPONSE);
-}
-
-/**
- * Parses a URL string and returns `null` when it is not a valid absolute URL.
- */
-function parsedUrlOrNull(urlText: string): URL | null {
-    try {
-        return new URL(urlText);
-    } catch {
-        return null;
-    }
-}
-
-/**
- * Checks whether a hostname is blocked from cover downloads.
- * This prevents downloading covers from localhost and common private network ranges.
- *
- * @param hostname - Hostname portion of a parsed URL.
- * @returns True when the hostname is considered private or loopback, otherwise false.
- */
-function hasBlockedCoverHostname(hostname: string): boolean {
-    return (
-        hostname === "localhost" ||
-        hostname === "::1" ||
-        hostname.startsWith("127.") ||
-        hostname.startsWith("10.") ||
-        hostname.startsWith("192.168.") ||
-        PRIVATE_NETWORK_HOSTNAME_PATTERN.test(hostname)
-    );
-}
-
-/**
- * Filters cover URLs down to allowed HTTP(S) destinations outside private nets.
- */
-function parsedHttpUrl(urlText: string): URL | null {
-    const PARSED_URL = parsedUrlOrNull(urlText);
-    if (PARSED_URL === null || !isHttpProtocol(PARSED_URL.protocol)) {
-        return null;
-    }
-    if (hasBlockedCoverHostname(PARSED_URL.hostname.toLowerCase())) {
-        return null;
-    }
-    return PARSED_URL;
+function fetchCover(parsedUrl: URL): Promise<DownloadedCover | null> {
+    return fetchRemoteCover(parsedUrl);
 }
 
 /**
@@ -126,7 +39,7 @@ function resolveDownloadCoverInput(
         return null;
     }
 
-    const PARSED_URL = parsedHttpUrl(NORMALIZED_URL);
+    const PARSED_URL = parsedHttpCoverUrl(NORMALIZED_URL);
 
     if (PARSED_URL === null) {
         return null;
