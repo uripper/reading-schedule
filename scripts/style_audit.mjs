@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
-import * as typeCoverageCore from "type-coverage-core";
+import * as typeCoverageCore from "type-coverage";
 import * as ts from "typescript";
 
 const SOURCE_ROOTS = [
