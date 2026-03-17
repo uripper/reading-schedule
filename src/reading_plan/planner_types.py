@@ -50,8 +50,8 @@ class Book:
     deadline: date | None = None
     # Minimum block count required when starting a session for this book.
     min_blocks_per_session: int = 1
-    # Original full book word count before progress is subtracted.
-    words_full: int | None = None
+    # Total book word count before progress is subtracted.
+    words_total: int | None = None
     # Percent of the book that has already been read.
     progress_percent: float = 0.0
     # Optional per-day reading cap for this specific book.

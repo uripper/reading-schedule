@@ -26,15 +26,20 @@ const DEFAULT_BOOK = {
     words_total: 1000,
 };
 
+/**
+ * Creates a test book payload with selective overrides.
+ * @param overrides - Fields to override.
+ * @returns Book payload for tests.
+ */
 function book(overrides = {}) {
     return { ...DEFAULT_BOOK, ...overrides };
 }
 
-test("toPayloadBook mirrors words_total to words_full for planner payloads", () => {
+test("toPayloadBook derives remaining_words for planner payloads", () => {
     const PAYLOAD = toPayloadBook(book());
 
     assert.equal(PAYLOAD.words_total, 1000);
-    assert.equal(PAYLOAD.words_full, 1000);
+    assert.equal(PAYLOAD.remaining_words, 100);
 });
 
 test("toPayloadBook treats 100 percent progress as read", () => {

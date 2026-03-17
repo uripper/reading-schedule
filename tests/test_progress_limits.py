@@ -18,19 +18,19 @@ def _book_payload(data: dict[str, object]) -> BookData:
     return cast("BookData", data)
 
 
-def test_book_builder_converts_progress_to_remaining_words() -> None:
-    """Test that book builder converts progress to remaining words."""
+def test_book_builder_accepts_remaining_words_as_canonical_length() -> None:
+    """Test that book builder derives total words from remaining words."""
     book = book_from_data(
         _book_payload({
             "book_id": "b1",
             "title": "Demo",
-            "words_full": 10000,
+            "remaining_words": 7500,
             "priority": 1,
             "difficulty": 3,
             "progress_percent": 25,
         })
     )
-    assert book.words_full == 10000
+    assert book.words_total == 10000
     assert book.remaining_words == 7500
     assert book.progress_percent == 25
 
@@ -41,14 +41,14 @@ def test_book_builder_scales_pages_read_using_book_page_density() -> None:
         _book_payload({
             "book_id": "b-pages",
             "title": "Poetry",
-            "words_full": 6000,
+            "words_total": 6000,
             "pages_total": 300,
             "pages_read": 90,
             "priority": 1,
             "difficulty": 3,
         })
     )
-    assert book.words_full == 6000
+    assert book.words_total == 6000
     assert book.remaining_words == 4200
     assert book.progress_percent == 30
 
@@ -73,10 +73,9 @@ def test_book_builder_defaults_scheduled_days_to_all_weekdays() -> None:
         _book_payload({
             "book_id": "b-default-days",
             "title": "Demo",
-            "words_full": 10000,
+            "remaining_words": 10000,
             "priority": 1,
             "difficulty": 3,
-            "progress_percent": 1,
         })
     )
     assert book.scheduled_days == frozenset(WEEKDAYS)
@@ -89,10 +88,9 @@ def test_book_builder_rejects_invalid_scheduled_days() -> None:
             _book_payload({
                 "book_id": "b-invalid-days",
                 "title": "Demo",
-                "words_full": 10000,
+                "remaining_words": 10000,
                 "priority": 1,
                 "difficulty": 3,
-                "progress_percent": 1,
                 "scheduled_days": ["Mon", "Bad"],
             })
         )
@@ -101,7 +99,7 @@ def test_book_builder_rejects_invalid_scheduled_days() -> None:
 def test_book_builder_coerces_non_string_book_id() -> None:
     """Test that book builder preserves non-string ids via coercion."""
     book = book_from_data(
-        _book_payload({"book_id": 42, "title": "Demo", "words_full": 10000})
+        _book_payload({"book_id": 42, "title": "Demo", "remaining_words": 10000})
     )
     assert book.book_id == "42"
 
@@ -112,21 +110,21 @@ def test_book_builder_accepts_legacy_blocker_book_id_alias() -> None:
         _book_payload({
             "book_id": "b1",
             "title": "Demo",
-            "words_full": 10000,
+            "remaining_words": 10000,
             "blocker_book_id": 7,
         })
     )
     assert book.blocked_by == "7"
 
 
-def test_book_builder_rejects_non_positive_words_full() -> None:
-    """Test that explicit non-positive words_full values fail fast."""
+def test_book_builder_rejects_non_positive_words_total() -> None:
+    """Test that explicit non-positive words_total values fail fast."""
     with pytest.raises(ValueError):
         book_from_data(
             _book_payload({
                 "book_id": "b1",
                 "title": "Demo",
-                "words_full": 0,
+                "words_total": 0,
                 "pages_total": 100,
             })
         )
@@ -141,7 +139,7 @@ def test_book_builder_rejects_non_string_scheduled_day_entries_cleanly() -> (
             _book_payload({
                 "book_id": "b1",
                 "title": "Demo",
-                "words_full": 10000,
+                "remaining_words": 10000,
                 "scheduled_days": ["Mon", 2],
             })
         )
