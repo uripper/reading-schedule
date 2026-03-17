@@ -6,12 +6,16 @@ from reading_plan.planner_types import WEEKDAYS
 
 
 def parse_date(value: str) -> date:
-    """Parse date."""
+    """Return a parsed ISO calendar date."""
     return date.fromisoformat(value)
 
 
 def date_range(start: date, end: date) -> list[date]:
-    """Return inclusive start/end calendar days, raising on inverted ranges."""
+    """Return inclusive calendar days from ``start`` through ``end``.
+
+    Raises:
+        ValueError: If ``end`` is earlier than ``start``.
+    """
     if end < start:
         msg = "end_date must be on or after start_date"
         raise ValueError(msg)

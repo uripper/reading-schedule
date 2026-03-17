@@ -23,7 +23,14 @@ LOGGER = get_bridge_logger(__name__)
 
 
 def read_book_data(path: str) -> list[BookData]:
-    """Load raw book payload rows from a JSON file."""
+    """Load raw book payload rows from a JSON file.
+
+    Args:
+        path: Path to the books JSON file.
+
+    Returns:
+        Raw book payload rows from the file.
+    """
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
     if not is_object_list(raw):
         check_condition(
@@ -41,10 +48,13 @@ def read_book_data(path: str) -> list[BookData]:
 
 
 def load_books(path: str) -> list[Book]:
-    """Load books.
+    """Load and normalize planner books from a JSON file.
 
-    :param path: path to the books file
-    :return: list of Book models
+    Args:
+        path: Path to the books file.
+
+    Returns:
+        List of normalized ``Book`` models.
     """
     log_file_execution(LOGGER, file_path=__file__, entrypoint="load_books")
     log_incoming_data(
@@ -62,10 +72,13 @@ def load_books(path: str) -> list[Book]:
 
 
 def load_settings(path: str) -> Settings:
-    """Load settings.
+    """Load and normalize planner settings from a JSON file.
 
-    :param path: path to the settings file
-    :return: Settings model
+    Args:
+        path: Path to the settings file.
+
+    Returns:
+        Normalized ``Settings`` model.
     """
     log_file_execution(LOGGER, file_path=__file__, entrypoint="load_settings")
     log_incoming_data(
@@ -81,11 +94,14 @@ def load_settings(path: str) -> Settings:
 def load_inputs(
     books_path: str, settings_path: str
 ) -> tuple[list[Book], Settings]:
-    """Load inputs.
+    """Load and normalize both planner input files.
 
-    :param books_path: path to the books file
-    :param settings_path: path to the settings file
-    :return: tuple of list of Book models and Settings model
+    Args:
+        books_path: Path to the books file.
+        settings_path: Path to the settings file.
+
+    Returns:
+        Tuple of normalized books and settings models.
     """
     log_file_execution(LOGGER, file_path=__file__, entrypoint="load_inputs")
     log_incoming_data(

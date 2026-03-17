@@ -57,7 +57,7 @@ const IGNORED_FILES = new Set(["eslint.config.mjs", "style_audit.mjs"]);
 const SOFT_LINE_LIMIT = 200;
 const HARD_LINE_LIMIT = 300;
 const MIN_UNDER_SOFT_PERCENT = 90;
-const TYPES_MIN_LINE_LIMIT = 30;
+const MIN_LINE_LIMIT = 30;
 
 const AUDIT_SELF_PATH = "scripts/style_audit.mjs";
 const DISALLOWED_CONSOLE_PATTERN = /\bconsole\.(error|warn|log|debug)\s*\(/g;
@@ -642,7 +642,7 @@ function printHitSection(title, hits) {
 function run() {
 	const overSoftLimit = [];
 	const overHardLimit = [];
-	const typesUnderMinimum = [];
+	const filesUnderMinimum = [];
 	const ternaryHits = [];
 	const consoleHits = [];
 	const typeDefinitionHits = [];
@@ -650,8 +650,8 @@ function run() {
 
 	let analyzed = 0;
 	let underSoft = 0;
-	let typesAnalyzed = 0;
-	let typesAtOrAboveMinimum = 0;
+	let filesAnalyzed = 0;
+	let filesAtOrAboveMinimum = 0;
 
 	for (const filePath of collectFiles()) {
 		const extension = path.extname(filePath);
@@ -674,13 +674,11 @@ function run() {
 		if (lineCount > HARD_LINE_LIMIT && !isElectronTypesPath(relativePath)) {
 			overHardLimit.push({ path: relativePath, lines: lineCount });
 		}
-		if (isElectronTypesPath(relativePath)) {
-			typesAnalyzed += 1;
-			if (lineCount >= TYPES_MIN_LINE_LIMIT) {
-				typesAtOrAboveMinimum += 1;
-			} else {
-				typesUnderMinimum.push({ path: relativePath, lines: lineCount });
-			}
+
+		if (lineCount >= MIN_LINE_LIMIT) {
+			filesAtOrAboveMinimum += 1;
+		} else {
+			filesUnderMinimum.push({ path: relativePath, lines: lineCount });
 		}
 
 		if (JS_TS_EXTENSIONS.has(extension)) {
@@ -703,16 +701,16 @@ function run() {
 
 	sortByLines(overSoftLimit);
 	sortByLines(overHardLimit);
-	sortByLinesAscending(typesUnderMinimum);
+	sortByLinesAscending(filesUnderMinimum);
 
 	let underSoftPercent = 100;
-	let typesAtOrAboveMinimumPercent = 100;
+	let filesAtOrAboveMinimumPercent = 100;
 	if (analyzed > 0) {
 		underSoftPercent = (underSoft / analyzed) * 100;
 	}
-	if (typesAnalyzed > 0) {
-		typesAtOrAboveMinimumPercent =
-			(typesAtOrAboveMinimum / typesAnalyzed) * 100;
+	if (filesAnalyzed > 0) {
+		filesAtOrAboveMinimumPercent =
+			(filesAtOrAboveMinimum / filesAnalyzed) * 100;
 	}
 
 	process.stdout.write("Style audit report\n");
@@ -721,14 +719,14 @@ function run() {
 		`Files under ${SOFT_LINE_LIMIT} lines: ${underSoft}/${analyzed} (${underSoftPercent.toFixed(1)}%)\n`,
 	);
 	process.stdout.write(
-		`electron/types files at or above ${TYPES_MIN_LINE_LIMIT} lines: ${typesAtOrAboveMinimum}/${typesAnalyzed} (${typesAtOrAboveMinimumPercent.toFixed(1)}%)\n`,
+		`Files at or above ${MIN_LINE_LIMIT} lines: ${filesAtOrAboveMinimum}/${filesAnalyzed} (${filesAtOrAboveMinimumPercent.toFixed(1)}%)\n`,
 	);
 
 	printSection(`Files over ${SOFT_LINE_LIMIT} lines`, overSoftLimit);
 	printSection(`Files over ${HARD_LINE_LIMIT} lines`, overHardLimit);
 	printSection(
-		`electron/types files under ${TYPES_MIN_LINE_LIMIT} code lines`,
-		typesUnderMinimum,
+		`Files under ${MIN_LINE_LIMIT} code lines`,
+		filesUnderMinimum,
 	);
 	printHitSection("Ternary expressions", ternaryHits);
 	printHitSection("Disallowed console methods", consoleHits);
@@ -749,9 +747,9 @@ function run() {
 			`Files under ${SOFT_LINE_LIMIT} lines below ${MIN_UNDER_SOFT_PERCENT}%: ${underSoftPercent.toFixed(1)}%`,
 		);
 	}
-	if (typesUnderMinimum.length > 0) {
+	if (filesUnderMinimum.length > 0) {
 		failures.push(
-			`electron/types files under ${TYPES_MIN_LINE_LIMIT} lines: ${typesUnderMinimum.length}`,
+			`Files under ${MIN_LINE_LIMIT} lines: ${filesUnderMinimum.length}`,
 		);
 	}
 	if (ternaryHits.length > 0) {
