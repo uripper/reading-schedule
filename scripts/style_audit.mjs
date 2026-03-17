@@ -492,7 +492,7 @@ function isBarrelModule(content, extension) {
 		}
 		if (
 			trimmed.startsWith("export *") ||
-			trimmed.startsWith("export type *") ||
+			trimmed.startsWith("export type {") ||
 			trimmed.startsWith("export {")
 		) {
 			hasExportLine = true;
