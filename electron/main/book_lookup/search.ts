@@ -92,10 +92,14 @@ function logSearchItems(items: SearchItem[]): void {
 /**
  * Narrows a response payload to one that actually contains search docs.
  */
-function hasSearchDocs(response: { docs?: unknown }): response is {
+function hasSearchDocs(response: unknown): response is {
     docs: SearchDoc[];
 } {
-    return Array.isArray(response.docs);
+    return (
+        typeof response === "object" &&
+        response !== null &&
+        Array.isArray((response as { docs?: unknown }).docs)
+    );
 }
 
 /**
