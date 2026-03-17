@@ -93,10 +93,11 @@ const TEST_COVERAGE_AREAS = [
 		testPrefixes: ["apps/website/tests/"],
 	},
 	{
-		label: "Mobile app",
-		sourcePrefixes: ["mobile/src/"],
-		testPrefixes: ["mobile/tests/"],
-	},
+  {
+          label: "Mobile app",
+          sourcePrefixes: ["mobile/src/"],
+          testPrefixes: ["mobile/src/", "mobile/tests/"],
+      },
 ];
 
 const FUNCTION_DECLARATION_PATTERNS = [
