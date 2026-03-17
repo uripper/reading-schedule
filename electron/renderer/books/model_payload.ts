@@ -8,7 +8,7 @@ const DEFAULT_DIFFICULTY = 3;
 const DEFAULT_MIN_BLOCKS = 1;
 
 type PlannerPayloadNumericFields = Partial<Book> & {
-    words_full: number | null;
+    remaining_words: number | null;
 };
 
 /**
@@ -77,8 +77,8 @@ function payloadNumericFields(book: Book): PlannerPayloadNumericFields {
         pages_total: book.pages_total ?? null,
         priority: withDefaultNumber(book.priority, DEFAULT_PRIORITY),
         progress_percent: book.progress_percent,
+        remaining_words: book.remaining_words ?? WORDS_TOTAL,
         scheduled_days: normalizeScheduledDays(book.scheduled_days),
-        words_full: WORDS_TOTAL,
         words_total: WORDS_TOTAL,
     };
 }

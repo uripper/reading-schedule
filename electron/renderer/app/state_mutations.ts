@@ -1,4 +1,13 @@
-import type { AppRuntimeState, AppStateMutation } from "../../types/types.ts";
+/**
+ * Applies app-runtime mutations by computing next-state snapshots and then
+ * synchronizing them back into the shared runtime object.
+ */
+
+import type {
+    AppDerivedIndexes,
+    AppRuntimeState,
+    AppStateMutation,
+} from "../../types/types.ts";
 import {
     bookByIdIndex,
     sessionsByBookIndex,
@@ -34,85 +43,144 @@ type SetBookIndexMutation = Extract<
 >;
 
 /**
- * Applies runtime-state mutation operations and keeps derived indexes synchronized.
- * @param state - Mutable runtime state container.
+ * Applies a runtime-state mutation while preserving the shared state object identity.
+ * Derived indexes stay synchronized with the primary state fields they depend on.
+ * @param state - Shared runtime state container used across renderer modules.
  * @param mutation - Typed mutation payload.
  */
 export function applyAppStateMutation(
     state: AppRuntimeState,
     mutation: AppStateMutation,
 ): void {
+    const NEXT_STATE = nextAppRuntimeState(state, mutation);
+    syncAppRuntimeState(state, NEXT_STATE);
+}
+
+function nextAppRuntimeState(
+    state: Readonly<AppRuntimeState>,
+    mutation: AppStateMutation,
+): AppRuntimeState {
     switch (mutation.type) {
         case "set_last_result":
-            return setLastResult(state, mutation);
+            return nextLastResultState(state, mutation);
         case "set_schedule_completions":
-            return setScheduleCompletions(state, mutation);
+            return nextScheduleCompletionsState(state, mutation);
         case "set_blocked_day_books":
-            return setBlockedDays(state, mutation);
+            return nextBlockedDayBooksState(state, mutation);
         case "set_blocked_day_book":
-            return setBlockedDay(state, mutation);
+            return nextBlockedDayBookState(state, mutation);
         case "set_sessions":
-            return setSessions(state, mutation);
+            return nextSessionsState(state, mutation);
         case "set_book_index":
-            return setBookIndex(state, mutation);
+            return nextBookIndexState(state, mutation);
     }
+    return assertUnreachableAppStateMutation(mutation);
+}
 
-    // Explicit exhaustive-check to catch unhandled AppStateMutation variants.
-    const _exhaustiveCheck: never = mutation;
-    throw new Error(
-        `Unhandled AppStateMutation type: ${(_exhaustiveCheck as AppStateMutation).type}`,
+function syncAppRuntimeState(
+    state: AppRuntimeState,
+    nextState: AppRuntimeState,
+): void {
+    Object.assign(state, nextState);
+}
+
+function withDerivedIndexes(
+    state: Readonly<AppRuntimeState>,
+    derivedIndexes: Partial<AppDerivedIndexes>,
+): AppRuntimeState {
+    return {
+        ...state,
+        derived: {
+            ...state.derived,
+            ...derivedIndexes,
+        },
+    };
+}
+
+function nextLastResultState(
+    state: Readonly<AppRuntimeState>,
+    mutation: Readonly<SetLastResultMutation>,
+): AppRuntimeState {
+    return {
+        ...state,
+        lastResult: mutation.lastResult,
+    };
+}
+
+function nextScheduleCompletionsState(
+    state: Readonly<AppRuntimeState>,
+    mutation: Readonly<SetScheduleCompletionsMutation>,
+): AppRuntimeState {
+    const SCHEDULE_COMPLETIONS = { ...mutation.scheduleCompletions };
+    const COMPLETION_INDEXES = splitCompletionIndexes(SCHEDULE_COMPLETIONS);
+    return withDerivedIndexes(
+        {
+            ...state,
+            scheduleCompletions: SCHEDULE_COMPLETIONS,
+        },
+        COMPLETION_INDEXES,
     );
 }
 
-function setLastResult(
-    state: AppRuntimeState,
-    mutation: SetLastResultMutation,
-): void {
-    state.lastResult = mutation.lastResult;
+function nextBlockedDayBooksState(
+    state: Readonly<AppRuntimeState>,
+    mutation: Readonly<SetBlockedDayBooksMutation>,
+): AppRuntimeState {
+    return {
+        ...state,
+        blockedDayBooks: { ...mutation.blockedDayBooks },
+    };
 }
 
-function setScheduleCompletions(
-    state: AppRuntimeState,
-    mutation: SetScheduleCompletionsMutation,
-): void {
-    state.scheduleCompletions = { ...mutation.scheduleCompletions };
-    const split = splitCompletionIndexes(state.scheduleCompletions);
-    state.derived.completionBySessionKey = split.completionBySessionKey;
-    state.derived.completionByDayBookKey = split.completionByDayBookKey;
-}
-
-function setBlockedDays(
-    state: AppRuntimeState,
-    mutation: SetBlockedDayBooksMutation,
-): void {
-    state.blockedDayBooks = { ...mutation.blockedDayBooks };
-}
-
-function setBlockedDay(
-    state: AppRuntimeState,
-    mutation: SetBlockedDayBookMutation,
-): void {
-    const nextBlocked = { ...state.blockedDayBooks };
+function nextBlockedDayBooks(
+    blockedDayBooks: Readonly<AppRuntimeState["blockedDayBooks"]>,
+    mutation: Readonly<SetBlockedDayBookMutation>,
+): AppRuntimeState["blockedDayBooks"] {
+    const NEXT_BLOCKED_DAY_BOOKS = { ...blockedDayBooks };
     if (mutation.blocked) {
-        nextBlocked[mutation.key] = true;
-    } else {
-        delete nextBlocked[mutation.key];
+        NEXT_BLOCKED_DAY_BOOKS[mutation.key] = true;
+        return NEXT_BLOCKED_DAY_BOOKS;
     }
-    state.blockedDayBooks = nextBlocked;
+    delete NEXT_BLOCKED_DAY_BOOKS[mutation.key];
+    return NEXT_BLOCKED_DAY_BOOKS;
 }
 
-function setSessions(
-    state: AppRuntimeState,
-    mutation: SetSessionsMutation,
-): void {
-    state.sessions = [...mutation.sessions];
-    state.derived.sessionsByDay = sessionsByDayIndex(state.sessions);
-    state.derived.sessionsByBook = sessionsByBookIndex(state.sessions);
+function nextBlockedDayBookState(
+    state: Readonly<AppRuntimeState>,
+    mutation: Readonly<SetBlockedDayBookMutation>,
+): AppRuntimeState {
+    return {
+        ...state,
+        blockedDayBooks: nextBlockedDayBooks(state.blockedDayBooks, mutation),
+    };
 }
 
-function setBookIndex(
-    state: AppRuntimeState,
-    mutation: SetBookIndexMutation,
-): void {
-    state.derived.bookById = bookByIdIndex(mutation.books);
+function nextSessionsState(
+    state: Readonly<AppRuntimeState>,
+    mutation: Readonly<SetSessionsMutation>,
+): AppRuntimeState {
+    const SESSIONS = [...mutation.sessions];
+    return withDerivedIndexes(
+        {
+            ...state,
+            sessions: SESSIONS,
+        },
+        {
+            sessionsByBook: sessionsByBookIndex(SESSIONS),
+            sessionsByDay: sessionsByDayIndex(SESSIONS),
+        },
+    );
+}
+
+function nextBookIndexState(
+    state: Readonly<AppRuntimeState>,
+    mutation: Readonly<SetBookIndexMutation>,
+): AppRuntimeState {
+    return withDerivedIndexes(state, {
+        bookById: bookByIdIndex(mutation.books),
+    });
+}
+
+function assertUnreachableAppStateMutation(mutation: never): never {
+    throw new Error(`Unhandled AppStateMutation: ${String(mutation)}`);
 }
