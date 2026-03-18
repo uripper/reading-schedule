@@ -2,7 +2,6 @@
  * Remote cover URL validation and bounded-download helpers.
  */
 import { isIP } from "node:net";
-import { Readable } from "node:stream";
 import type { DownloadedCover } from "@reading-schedule/contracts";
 import { bytesMatchCoverExtension } from "./cover-data-url.ts";
 import { extensionFor, isHttpProtocol } from "./cover-paths.ts";
@@ -112,7 +111,9 @@ function combinedChunks(chunks: Uint8Array[], totalBytes: number): Uint8Array {
     return COMBINED;
 }
 
-function bodyStreamOrNull(response: Response): Readable | null {
+function bodyReaderOrNull(
+    response: Response,
+): ReadableStreamDefaultReader<Uint8Array> | null {
     const CONTENT_LENGTH = parsedContentLength(response);
     if (CONTENT_LENGTH !== null && exceedsRemoteCoverLimit(CONTENT_LENGTH)) {
         return null;
@@ -121,11 +122,29 @@ function bodyStreamOrNull(response: Response): Readable | null {
         return null;
     }
 
-    return Readable.fromWeb(response.body);
+    return response.body.getReader();
 }
 
 function nextTotalBytes(totalBytes: number, chunk: Uint8Array): number {
     return totalBytes + chunk.byteLength;
+}
+
+async function readCoverChunks(
+    reader: ReadableStreamDefaultReader<Uint8Array>,
+    chunks: Uint8Array[],
+    totalBytes: number,
+): Promise<number | null> {
+    const RESULT = await reader.read();
+    if (RESULT.done || RESULT.value === undefined) {
+        return totalBytes;
+    }
+    const BYTES = RESULT.value;
+    const NEXT_TOTAL = nextTotalBytes(totalBytes, BYTES);
+    if (exceedsRemoteCoverLimit(NEXT_TOTAL)) {
+        return null;
+    }
+    chunks.push(BYTES);
+    return readCoverChunks(reader, chunks, NEXT_TOTAL);
 }
 
 /**
@@ -134,23 +153,20 @@ function nextTotalBytes(totalBytes: number, chunk: Uint8Array): number {
 async function downloadedCoverBytes(
     response: Response,
 ): Promise<Uint8Array | null> {
-    const BODY_STREAM = bodyStreamOrNull(response);
-    if (BODY_STREAM === null) {
+    const BODY_READER = bodyReaderOrNull(response);
+    if (BODY_READER === null) {
         return null;
     }
 
     const CHUNKS: Uint8Array[] = [];
-    let totalBytes = 0;
-    for await (const CHUNK of BODY_STREAM) {
-        const BYTES = Uint8Array.from(CHUNK);
-        totalBytes = nextTotalBytes(totalBytes, BYTES);
-        if (exceedsRemoteCoverLimit(totalBytes)) {
-            return null;
-        }
-        CHUNKS.push(BYTES);
+    let totalBytes: number | null;
+    try {
+        totalBytes = await readCoverChunks(BODY_READER, CHUNKS, 0);
+    } finally {
+        BODY_READER.releaseLock();
     }
 
-    if (totalBytes === 0) {
+    if (totalBytes === null || totalBytes === 0) {
         return null;
     }
 
@@ -158,10 +174,7 @@ async function downloadedCoverBytes(
 }
 
 function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
-    return bytes.buffer.slice(
-        bytes.byteOffset,
-        bytes.byteOffset + bytes.byteLength,
-    );
+    return Uint8Array.from(bytes).buffer;
 }
 
 /**

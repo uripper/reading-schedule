@@ -16,8 +16,8 @@ if TYPE_CHECKING:
     from reading_plan.planner_types import Settings
     from reading_plan.planning.model_types import Assignments
 
-Session = tuple[date, int, Book, int, int]
-SessionRequest = tuple[int, int]
+type Session = tuple[date, int, Book, int, int]
+type SessionRequest = tuple[int, int]
 
 
 @dataclass
@@ -34,7 +34,11 @@ def clip_session(
     settings: Settings,
     request: SessionRequest,
 ) -> SessionRequest:
-    """Clip session."""
+    """Clip session.
+
+    Returns:
+        Computed value.
+    """
     blocks, remaining_words = request
     if remaining_words <= 0:
         return 0, 0
@@ -90,7 +94,11 @@ def iter_sessions(
     settings: Settings,
     assignments: Assignments,
 ) -> Iterator[Session]:
-    """Iterate over sessions."""
+    """Iterate over sessions.
+
+    Yields:
+        Generated values.
+    """
     context = DaySessionContext(
         book_map={book.book_id: book for book in books},
         remaining={book.book_id: book.remaining_words for book in books},

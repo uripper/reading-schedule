@@ -1,5 +1,6 @@
 """Format structured planner summaries into readable plain-text output."""
 
+from itertools import starmap
 from typing import TYPE_CHECKING
 
 
@@ -20,7 +21,7 @@ def _optional_summary_lines(summary: Summary) -> list[str]:
     """Build summary lines for optional planner metadata fields.
 
     Returns:
-        A list of summary lines for objective, note, and feasibility details.
+        Summary lines for optional metadata fields.
     """
     lines: list[str] = []
     if summary.get("objective") is not None:
@@ -36,8 +37,7 @@ def format_summary(summary: Summary) -> str:
     """Render planner output in the order used by CLI and log summaries.
 
     Returns:
-        A newline-delimited summary with headline totals followed by per-book
-        progress lines.
+        Newline-delimited summary text.
     """
     lines = [
         f"Planner: {summary['planner']} ({summary['status']})",
@@ -46,6 +46,7 @@ def format_summary(summary: Summary) -> str:
         f"Total required minutes: {summary['total_required_minutes']}",
     ]
     lines.extend(_optional_summary_lines(summary))
-    for book_id, info in summary["per_book"].items():
-        lines.append(_format_book_progress_line(book_id, info))
+    lines.extend(
+        starmap(_format_book_progress_line, summary["per_book"].items())
+    )
     return "\n".join(lines)

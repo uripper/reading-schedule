@@ -73,8 +73,8 @@ def _validate_missing_blockers(
         if book.blocked_by in by_id:
             continue
         message = (
-            f"book {book.book_id} is blocked by missing book_id "
-            f"{book.blocked_by}"
+            f"book {book.book_id} is blocked by missing "
+            + f"book_id {book.blocked_by}"
         )
         raise ValueError(message)
 
@@ -82,6 +82,7 @@ def _validate_missing_blockers(
 def _walk_blockers(
     book_id: str,
     by_id: dict[str, Book],
+    *,
     visiting: set[str],
     visited: set[str],
 ) -> None:
@@ -97,7 +98,7 @@ def _walk_blockers(
         raise ValueError(msg)
     visiting.add(book_id)
     if blocker := by_id[book_id].blocked_by:
-        _walk_blockers(blocker, by_id, visiting, visited)
+        _walk_blockers(blocker, by_id, visiting=visiting, visited=visited)
     visiting.remove(book_id)
     visited.add(book_id)
 
@@ -110,14 +111,14 @@ def _validate_blockers(books: list[Book]) -> None:
     visiting: set[str] = set()
     visited: set[str] = set()
     for book in books:
-        _walk_blockers(book.book_id, by_id, visiting, visited)
+        _walk_blockers(book.book_id, by_id, visiting=visiting, visited=visited)
 
 
 def _parse_books(books_raw: list[BookData]) -> list[Book]:
     """Parse and validate incoming raw book payload rows.
 
     Returns:
-        A list of books.
+        Parsed book models.
 
     Raises:
         TypeError: A row is not a JSON object.
@@ -169,7 +170,7 @@ def _solve_with_logging(
     """Run solver and emit timing/status diagnostics.
 
     Returns:
-        The plan result.
+        Planner solve result.
     """
     started = perf_counter()
     LOGGER.debug("generate_plan: solving started", extra={"planner": planner})
@@ -190,6 +191,7 @@ def _solve_with_logging(
 def _build_output_with_logging(
     books: list[Book],
     result: PlanResult,
+    *,
     settings: Settings,
     total_started: float,
 ) -> PlannerOutputPayload:
@@ -303,4 +305,9 @@ def generate_plan(payload: PlannerInputPayload) -> PlannerOutputPayload:
     settings = _parse_settings(settings_raw)
     planner = _planner_name(payload)
     result = _solve_with_logging(books, planner, settings)
-    return _build_output_with_logging(books, result, settings, start_time)
+    return _build_output_with_logging(
+        books,
+        result,
+        settings=settings,
+        total_started=start_time,
+    )

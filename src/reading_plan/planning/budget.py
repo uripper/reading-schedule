@@ -22,7 +22,11 @@ def minutes_for_day(settings: Settings, day: date) -> int:
 
 
 def calendar_minutes(settings: Settings) -> dict[date, int]:
-    """Build available reading minutes for every day in the planning window."""
+    """Build available reading minutes for every day in the planning window.
+
+    Returns:
+        Computed value.
+    """
     return {
         d: minutes_for_day(settings, d)
         for d in date_range(settings.start_date, settings.end_date)
@@ -30,7 +34,11 @@ def calendar_minutes(settings: Settings) -> dict[date, int]:
 
 
 def day_capacity_blocks(settings: Settings, day: date) -> int:
-    """Convert one day's minutes into schedulable time-quantum blocks."""
+    """Convert one day's minutes into schedulable time-quantum blocks.
+
+    Returns:
+        Computed value.
+    """
     minutes = minutes_for_day(settings, day)
     return minutes // settings.time_quantum_minutes
 
@@ -51,23 +59,39 @@ def book_is_scheduled_for_day(book: Book, day: date) -> bool:
 
 
 def words_per_minute(book: Book, settings: Settings) -> float:
-    """Estimate reading speed using base WPM adjusted by book difficulty."""
+    """Estimate reading speed using base WPM adjusted by book difficulty.
+
+    Returns:
+        Computed value.
+    """
     multiplier = settings.difficulty_multiplier[book.difficulty]
     return settings.wpm_base * multiplier
 
 
 def words_per_block(book: Book, settings: Settings) -> int:
-    """Convert estimated reading speed into words per scheduling block."""
+    """Convert estimated reading speed into words per scheduling block.
+
+    Returns:
+        Computed value.
+    """
     return round(
         words_per_minute(book, settings) * settings.time_quantum_minutes
     )
 
 
 def required_minutes(book: Book, settings: Settings) -> int:
-    """Estimate total minutes required to finish one book."""
+    """Estimate total minutes required to finish one book.
+
+    Returns:
+        Computed value.
+    """
     return math.ceil(book.remaining_words / words_per_minute(book, settings))
 
 
 def required_total_minutes(books: list[Book], settings: Settings) -> int:
-    """Estimate total minutes required to finish all books in the list."""
+    """Estimate total minutes required to finish all books in the list.
+
+    Returns:
+        Computed value.
+    """
     return sum(required_minutes(book, settings) for book in books)

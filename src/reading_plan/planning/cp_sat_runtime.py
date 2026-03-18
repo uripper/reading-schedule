@@ -26,8 +26,7 @@ def _is_cp_model_module(value: object) -> TypeGuard[CpModelModule]:
     """Check whether a runtime import looks like the CP-SAT module we expect.
 
     Returns:
-        `True` when the import exposes every planner symbol required by this
-        module.
+        True when required CP-SAT planner symbols are present.
     """
     required_attributes = (
         "CpModel",
@@ -45,7 +44,7 @@ def _load_cp_model() -> CpModelModule:
     """Return the validated CP-SAT module used by the staged solver.
 
     Returns:
-        The imported CP-SAT module after symbol validation succeeds.
+        Validated imported CP-SAT module.
 
     Raises:
         TypeError: If the imported module is missing required planner symbols.

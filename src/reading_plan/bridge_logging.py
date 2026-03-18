@@ -69,7 +69,7 @@ def configure_bridge_logger(
     existing handlers when possible.
 
     Returns:
-        The configured logger.
+        Configured bridge logger.
     """
     resolved_request_id = _resolve_request_id(request_id)
     resolved_log_path = _resolve_log_path(log_path)
@@ -242,8 +242,8 @@ def _build_formatter(request_id: str) -> StructuredBridgeFormatter:
         Structured formatter bound to the request id.
     """
     format_text = (
-        "%(asctime)s | %(levelname)s | "
-        "request=%(request_id)s | logger=%(name)s | %(message)s"
+        "%(asctime)s | %(levelname)s | request=%(request_id)s | "
+        + "logger=%(name)s | %(message)s"
     )
     return StructuredBridgeFormatter(
         format_text,

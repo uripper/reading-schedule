@@ -17,7 +17,11 @@ if TYPE_CHECKING:
 def build_summary(
     books: list[Book], settings: Settings, result: PlanResult
 ) -> Summary:
-    """Build summary."""
+    """Build summary.
+
+    Returns:
+        Computed value.
+    """
     per_book, total_minutes = compute_plan_totals(
         books, settings, result.assignments
     )
@@ -36,7 +40,7 @@ def build_summary(
     warning = ""
     if required > available:
         warning = (
-            f"Required minutes ({required}) exceed "
+            f"Required minutes ({required}) exceed " +
             f"available minutes ({available})."
         )
 

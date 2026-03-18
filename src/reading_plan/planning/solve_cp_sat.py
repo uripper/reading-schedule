@@ -68,7 +68,11 @@ def run_attempt(
     context: AttemptContext,
     stage: SolveStage,
 ) -> SolveAttemptResult:
-    """Execute one staged CP-SAT solve and retry once without hints."""
+    """Execute one staged CP-SAT solve and retry once without hints.
+
+    Returns:
+        Computed value.
+    """
     first_attempt = _solve_once(context, stage, hint_mode="with_hints")
     if first_attempt.plan.status != MODEL_INVALID_STATUS_NAME:
         return first_attempt
@@ -91,6 +95,7 @@ def _maybe_add_hints(
     hint_mode: str,
     hints: Assignments,
     model: CpModelLike,
+    *,
     x_vars: BookDayVars,
 ) -> None:
     """Apply solver hints only when this attempt allows them."""
@@ -103,7 +108,11 @@ def _solver_and_status(
     model: CpModelLike,
     stage: SolveStage,
 ) -> tuple[CpSolverLike, int]:
-    """Solve the model with stage parameters and return raw status."""
+    """Solve the model with stage parameters and return raw status.
+
+    Returns:
+        Computed value.
+    """
     solver = cp_model.CpSolver()
     _apply_solver_parameters(solver, stage)
     return solver, int(solver.Solve(model))
@@ -114,14 +123,18 @@ def _solve_once(
     stage: SolveStage,
     hint_mode: str,
 ) -> SolveAttemptResult:
-    """Build and solve one CP-SAT model instance for a single stage."""
+    """Build and solve one CP-SAT model instance for a single stage.
+
+    Returns:
+        Computed value.
+    """
     started = perf_counter()
     model, x, _y, _finished, _days = _build_model_for_stage(
         context,
         _objective_mode(stage),
         stage.lock_days_from_start,
     )
-    _maybe_add_hints(hint_mode, context.hints, model, x)
+    _maybe_add_hints(hint_mode, context.hints, model, x_vars=x)
     solver, raw_status = _solver_and_status(model, stage)
     plan = _result_from_solver(raw_status, solver, x)
     elapsed_ms = int((perf_counter() - started) * MILLISECONDS_PER_SECOND)
@@ -133,7 +146,11 @@ def _build_model_for_stage(
     objective_mode: str,
     lock_days_from_start: int,
 ) -> BuildCpSatResult:
-    """Build one stage-specific CP-SAT model."""
+    """Build one stage-specific CP-SAT model.
+
+    Returns:
+        Computed value.
+    """
     return build_cp_sat(
         context.books,
         context.settings,
@@ -178,7 +195,11 @@ def _result_from_solver(
     solver: CpSolverLike,
     variables: BookDayVars,
 ) -> PlanResult:
-    """Build planner result from solved model outputs and status code."""
+    """Build planner result from solved model outputs and status code.
+
+    Returns:
+        Computed value.
+    """
     status = _status_name(raw_status)
     if raw_status not in FEASIBLE_CP_SAT_STATUSES:
         return PlanResult(
@@ -198,7 +219,11 @@ def _result_from_solver(
 
 
 def _status_name(raw_status: int) -> str:
-    """Map CP-SAT numeric status codes to stable string names."""
+    """Map CP-SAT numeric status codes to stable string names.
+
+    Returns:
+        Computed value.
+    """
     return STATUS_NAME_BY_CODE.get(raw_status, UNKNOWN_STATUS_NAME)
 
 
@@ -206,7 +231,11 @@ def _extract_assignments(
     solver: CpSolverLike,
     variables: BookDayVars,
 ) -> Assignments:
-    """Extract positive assignment values from solved decision variables."""
+    """Extract positive assignment values from solved decision variables.
+
+    Returns:
+        Computed value.
+    """
     assignments: Assignments = {}
     for key, variable in variables.items():
         value = int(solver.Value(variable))

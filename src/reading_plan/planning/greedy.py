@@ -65,6 +65,7 @@ def _greedy_cap_for_day(
     context: GreedyPlanContext,
     day: date,
     day_index: int,
+    *,
     ordered: list[Book],
 ) -> int:
     """Return the block capacity used for one day's greedy fill."""
@@ -92,7 +93,11 @@ def _greedy_plan_context(
     books: list[Book],
     settings: Settings,
 ) -> GreedyPlanContext:
-    """Build the shared mutable state used by greedy planning."""
+    """Build the shared mutable state used by greedy planning.
+
+    Returns:
+        Computed value.
+    """
     days = date_range(settings.start_date, settings.end_date)
     return GreedyPlanContext(
         assignments={},
@@ -115,9 +120,14 @@ def _day_state(
     context: GreedyPlanContext,
     cap: int,
     day: date,
+    *,
     ordered: list[Book],
 ) -> DayState:
-    """Build mutable state for planning one day."""
+    """Build mutable state for planning one day.
+
+    Returns:
+        Computed value.
+    """
     return DayState(
         ordered,
         [],
@@ -146,36 +156,41 @@ def _ordered_books(
 
 
 def _positive_assignments(assignments: Assignments) -> Assignments:
-    """Drop zero-value assignment entries before returning results."""
+    """Drop zero-value assignment entries before returning results.
+
+    Returns:
+        Computed value.
+    """
     return {key: value for key, value in assignments.items() if value > 0}
 
 
 def plan_greedy(books: list[Book], settings: Settings) -> Assignments:
-    """Build a feasible day-by-day block allocation using greedy heuristics."""
+    """Build a feasible day-by-day block allocation using greedy heuristics.
+
+    Returns:
+        Computed value.
+    """
     context = _greedy_plan_context(books, settings)
     for day_index, day in enumerate(context.days):
         ordered = _ordered_books(books, context.remaining)
-        cap = _greedy_cap_for_day(context, day, day_index, ordered)
+        cap = _greedy_cap_for_day(
+            context,
+            day,
+            day_index,
+            ordered=ordered,
+        )
         if cap <= 0:
             continue
-        _plan_day(_day_state(context, cap, day, ordered))
+        _plan_day(_day_state(context, cap, day, ordered=ordered))
     return _positive_assignments(context.assignments)
 
 
 def _seed_day(state: DayState) -> None:
     """Seed a day with minimum sessions for top unlocked books."""
     for book in state.ordered:
-        if len(state.used) >= state.daily_book_cap:
+        if _day_book_limit_reached(state):
             return
-        if (
-            state.cap < book.min_blocks_per_session
-            or state.remaining[book.book_id] <= 0
-            or not _is_unlocked(book, state.remaining)
-            or not book_is_scheduled_for_day(book, state.day)
-        ):
-            continue
-        room = _room(state, book.book_id)
-        if room < book.min_blocks_per_session:
+        if not _can_start_book(state, book):
             continue
         _assign_blocks(state, book, book.min_blocks_per_session)
         state.used.append(book)
@@ -218,13 +233,21 @@ def _assign_blocks(state: DayState, book: Book, blocks: int) -> None:
 def _sort_key(
     book: Book, remaining: dict[str, float]
 ) -> tuple[int, date, float, str]:
-    """Rank books by priority, deadline, and remaining words for ordering."""
+    """Rank books by priority, deadline, and remaining words for ordering.
+
+    Returns:
+        Computed value.
+    """
     due = book.deadline or date.max
     return book.priority, due, -remaining[book.book_id], book.book_id
 
 
 def _next_book(state: DayState) -> Book | None:
-    """Select the next eligible book that can start a valid session today."""
+    """Select the next eligible book that can start a valid session today.
+
+    Returns:
+        Computed value.
+    """
     if _day_book_limit_reached(state):
         return None
     return next(
@@ -269,7 +292,11 @@ def _is_unlocked(book: Book, remaining: dict[str, float]) -> bool:
 
 
 def _spread_cap_for_day(state: SpreadState) -> int:
-    """Compute a daily cap that spreads remaining work across active days."""
+    """Compute a daily cap that spreads remaining work across active days.
+
+    Returns:
+        Computed value.
+    """
     day = state.days[state.day_index]
     remaining_blocks = sum(
         math.ceil(words_left / state.wpb[book_id])

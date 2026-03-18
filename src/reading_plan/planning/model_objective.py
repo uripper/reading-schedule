@@ -48,7 +48,14 @@ class ObjectiveScales:
 
 
 def _priority_weights(books: list[Book]) -> dict[str, int]:
-    """Convert 1..5 priority values into larger-is-better objective weights."""
+    """Convert 1..5 priority values into larger-is-better objective weights.
+
+    Returns:
+        Computed value.
+
+    Raises:
+        ValueError: Raised when input validation fails.
+    """
     weights: dict[str, int] = {}
     priority_min = 1
     priority_max = 5
@@ -59,7 +66,7 @@ def _priority_weights(books: list[Book]) -> dict[str, int]:
             continue
         msg = (
             f"priority must be {priority_min}..{priority_max}, "
-            f"got {book.priority} for {book.book_id}"
+            + f"got {book.priority} for {book.book_id}"
         )
         raise ValueError(msg)
     return weights
@@ -83,20 +90,25 @@ def _day_terms(
     book: Book,
     context: ObjectiveContext,
     day_index: int,
+    *,
     scales: ObjectiveScales,
 ) -> list[LinearExprLike]:
-    """Build per-day objective terms for one book."""
+    """Build per-day objective terms for one book.
+
+    Returns:
+        Computed value.
+    """
     day = context.days[day_index]
     terms: list[LinearExprLike] = [
         (scales.switch_sign * scales.switch)
-        * context.active_flags[book.book_id, day]
+        * context.active_flags[(book.book_id, day)]
     ]
     if context.settings.plan_mode == PLAN_MODE_SPREAD_OUT:
         return terms
     terms.append(
         scales.mode
         * (len(context.days) - day_index)
-        * context.assigned_blocks[book.book_id, day]
+        * context.assigned_blocks[(book.book_id, day)]
     )
     return terms
 
@@ -104,17 +116,22 @@ def _day_terms(
 def _book_terms(
     book: Book,
     context: ObjectiveContext,
+    *,
     priority_weights: dict[str, int],
     scales: ObjectiveScales,
 ) -> list[LinearExprLike]:
-    """Build all objective terms contributed by one book."""
+    """Build all objective terms contributed by one book.
+
+    Returns:
+        Computed value.
+    """
     weight = priority_weights[book.book_id]
     terms: list[LinearExprLike] = [
         scales.priority * weight * context.useful_words[book.book_id],
         scales.finish * weight * context.finished[book.book_id],
     ]
     for day_index, _day in enumerate(context.days):
-        terms.extend(_day_terms(book, context, day_index, scales))
+        terms.extend(_day_terms(book, context, day_index, scales=scales))
     return terms
 
 
@@ -122,7 +139,11 @@ def build_objective_terms(
     books: list[Book],
     context: ObjectiveContext,
 ) -> list[LinearExprLike]:
-    """Build objective terms."""
+    """Build objective terms.
+
+    Returns:
+        Computed value.
+    """
     scales = _objective_scales(context)
     priority_weights = _priority_weights(books)
     terms: list[LinearExprLike] = []
@@ -131,8 +152,8 @@ def build_objective_terms(
             _book_terms(
                 book,
                 context,
-                priority_weights,
-                scales,
+                priority_weights=priority_weights,
+                scales=scales,
             )
         )
     return terms

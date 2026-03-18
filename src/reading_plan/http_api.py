@@ -28,13 +28,16 @@ Environment variables:
 - ``READING_PLAN_API_STATE_PATH``: state file override path.
 """
 
+from contextlib import closing
+from http.client import (
+    HTTPException as ClientHTTPException,
+    HTTPSConnection,
+)
 import json
 import os
 from pathlib import Path
 from typing import TYPE_CHECKING
-from urllib.error import URLError
 from urllib.parse import urlencode
-from urllib.request import urlopen
 
 from fastapi import FastAPI, HTTPException
 import uvicorn
@@ -132,9 +135,7 @@ def _loaded_state_result(state_path: Path) -> dict[str, object]:
     into `_invalid_state_result(...)`.
 
     Returns:
-        A normalized state payload. If the file is unreadable, invalid JSON,
-        or fails validation, the response is converted to a fresh-state
-        payload with warning metadata.
+        Normalized state payload.
     """
     try:
         loaded = json.loads(state_path.read_text(encoding="utf-8"))
@@ -212,7 +213,7 @@ def _work_id(raw_key: object) -> str:
     trimming produce an empty string.
 
     Returns:
-        The final work-id segment.
+        Final work-id segment.
     """
     if not isinstance(raw_key, str):
         return ""
@@ -228,7 +229,7 @@ def _search_query(query: str, *, author_only: bool) -> str:
     search to English results. The configured output limit is always included.
 
     Returns:
-        A normalized search query url.
+        Normalized search URL.
     """
     params: dict[str, str | int] = {"limit": SEARCH_OUTPUT_LIMIT}
     if author_only:
@@ -239,6 +240,35 @@ def _search_query(query: str, *, author_only: bool) -> str:
     return f"{OPEN_LIBRARY_SEARCH_URL}?{urlencode(params)}"
 
 
+def _open_library_query_string(request_url: str) -> str:
+    """Return the query string segment for the fixed Open Library endpoint."""
+    prefix = f"{OPEN_LIBRARY_SEARCH_URL}?"
+    return request_url.removeprefix(prefix)
+
+
+def _fetch_open_library_payload(query: str) -> object:
+    """Fetch raw Open Library payload using a fixed HTTPS host/path.
+
+    Returns:
+        Parsed Open Library payload.
+
+    Raises:
+        HTTPException: Open Library request failed.
+    """
+    try:
+        with closing(
+            HTTPSConnection("openlibrary.org", timeout=SEARCH_TIMEOUT_SECONDS),
+        ) as connection:
+            connection.request("GET", f"/search.json?{query}")
+            response = connection.getresponse()
+            return json.loads(response.read().decode("utf-8"))
+    except (ClientHTTPException, OSError, TimeoutError) as error:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Book search failed: {error}",
+        ) from error
+
+
 def _request_json(request_url: str) -> dict[str, object]:
     """Fetch JSON from Open Library and return an object payload.
 
@@ -247,23 +277,11 @@ def _request_json(request_url: str) -> dict[str, object]:
     function returns an empty dictionary.
 
     Returns:
-        The Open Library JSON as a dictionary, or an empty dictionary when the
-        decoded JSON is not an object.
+        Open Library JSON object, or an empty dictionary.
 
-    Raises:
-        HTTPException: Open Library request failed.
     """
-    try:
-        with urlopen(  # noqa: S310 - fixed OpenLibrary HTTPS endpoint
-            request_url,
-            timeout=SEARCH_TIMEOUT_SECONDS,
-        ) as response:
-            payload = json.loads(response.read().decode("utf-8"))
-    except (OSError, TimeoutError, URLError) as error:
-        raise HTTPException(
-            status_code=502,
-            detail=f"Book search failed: {error}",
-        ) from error
+    query = _open_library_query_string(request_url)
+    payload = _fetch_open_library_payload(query)
     return payload if is_str_object_dict(payload) else {}
 
 
@@ -342,8 +360,7 @@ def _planner_input_payload(payload: dict[str, object]) -> PlannerInputPayload:
     to select a solver profile.
 
     Returns:
-            PlannerInputPayload. I.e. the books to be scheduled, alongside user
-            settings.
+        Validated planner input payload.
     """
     books = _planner_books(payload)
     settings = _planner_settings(payload)
@@ -361,7 +378,7 @@ def _planner_books(payload: dict[str, object]) -> list[BookData]:
     """Return validated planner books payload.
 
     Returns:
-        Books that have been validated.
+        Validated planner books list.
 
     Raises:
         TypeError: Books aren't a list of objects.
@@ -377,7 +394,7 @@ def _planner_settings(payload: dict[str, object]) -> SettingsData:
     """Return validated planner settings payload.
 
     Returns:
-        Validated and normalized planner settings.
+        Validated planner settings object.
 
     Raises:
         TypeError: Settings is not an object.
@@ -393,7 +410,7 @@ def _planner_name(payload: dict[str, object]) -> str | None:
     """Return validated optional planner name.
 
     Returns:
-        Planner name for logging
+        Validated planner name or ``None``.
 
     Raises:
         TypeError: Payload field isn't a string
@@ -417,7 +434,7 @@ def _api_generate(payload: dict[str, object]) -> object:
     `HTTPException(status_code=400)`.
 
     Returns:
-        The full generated plan.
+        Generated planning payload.
 
     Raises:
         HTTPException: Validation or planner execution failed.
@@ -459,7 +476,7 @@ def _api_state_save(state: dict[str, object]) -> dict[str, object]:
     write failures become `HTTPException(status_code=500)`.
 
     Returns:
-        A status stating that the retrieval was a success.
+        Success status payload.
 
     Raises:
         HTTPException: Either a TypeError or an OSError.
@@ -488,7 +505,7 @@ def _api_books_search(payload: dict[str, object]) -> list[dict[str, str]]:
     ``author is True``.
 
     Returns:
-        A result from the _search_open_library function.
+        Normalized Open Library result rows.
     """
     log_file_execution(
         LOGGER,

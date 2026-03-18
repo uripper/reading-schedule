@@ -15,7 +15,11 @@ def compute_plan_totals(
     settings: Settings,
     assignments: Assignments,
 ) -> tuple[dict[str, int], int]:
-    """Compute plan totals."""
+    """Compute plan totals.
+
+    Returns:
+        Computed value.
+    """
     per_book = {book.book_id: 0 for book in books}
     total_minutes = 0
     for _day, _idx, book, minutes, words in iter_sessions(

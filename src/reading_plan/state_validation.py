@@ -106,7 +106,7 @@ def validate_state_snapshot(state: object) -> dict[str, object]:
     - ``last_result`` (object or null)
 
     Returns:
-        The validated state snapshot as a mutable object dictionary.
+        Validated state snapshot as a mutable object dictionary.
 
     Raises:
         TypeError: If the saved state payload fails shape validation.
