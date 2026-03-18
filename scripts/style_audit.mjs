@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
-import * as typeCoverageCore from "type-coverage";
+import * as typeCoverageCore from "type-coverage-core";
 import * as ts from "typescript";
 
 const SOURCE_ROOTS = [
@@ -93,11 +93,10 @@ const TEST_COVERAGE_AREAS = [
 		testPrefixes: ["apps/website/tests/"],
 	},
 	{
-  {
-          label: "Mobile app",
-          sourcePrefixes: ["mobile/src/"],
-          testPrefixes: ["mobile/src/", "mobile/tests/"],
-      },
+		label: "Mobile app",
+		sourcePrefixes: ["mobile/src/"],
+		testPrefixes: ["mobile/src/", "mobile/tests/"],
+	},
 ];
 
 const FUNCTION_DECLARATION_PATTERNS = [
