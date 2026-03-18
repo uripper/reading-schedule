@@ -1,4 +1,8 @@
-"""Validation helpers for persisted mobile planner state."""
+"""Validation helpers for persisted mobile planner state.
+
+This module validates only top-level snapshot shape and selected field value
+types. Nested planner payload details are validated by downstream modules.
+"""
 
 from reading_plan.type_guards import is_str_object_dict
 
@@ -17,6 +21,9 @@ def _is_bool_record(value: object) -> bool:
     The persisted mobile snapshot stores several per-day and per-book toggles
     as object maps, so this helper centralizes the "all values must be bool"
     rule used by those fields.
+
+    Returns:
+        True when the value is a string-keyed bool map.
     """
     if not is_str_object_dict(value):
         return False
@@ -26,8 +33,11 @@ def _is_bool_record(value: object) -> bool:
 def _is_feature_flags(value: object) -> bool:
     """Return whether `value` matches the persisted feature-flags shape.
 
-    Valid inputs are dictionaries containing every key listed in
-    `REQUIRED_FEATURE_FLAGS`, each mapped to a boolean value.
+    Valid inputs are dictionaries where required feature-flag keys, when
+    present, are mapped to boolean values.
+
+    Returns:
+        True when feature flags are structurally valid.
     """
     if not is_str_object_dict(value):
         return False
@@ -42,8 +52,11 @@ def _is_preferences(value: object) -> bool:
 
     Accepted keys include `dailyGoalMinutes` (int), `reduceMotion` (bool),
     `reminderEnabled` (bool), `reminderTime` (str), `timezone` (str), and
-    `theme` (one of `VALID_THEMES`). Missing keys fall back to the defaults
-    expected by the mobile client.
+    `theme` (one of `VALID_THEMES`). Missing keys are validated against local
+    defaults used by this module.
+
+    Returns:
+        True when preferences are structurally valid.
     """
     if not is_str_object_dict(value):
         return False
@@ -81,6 +94,16 @@ def _require_state_field(*, is_valid: bool, message: str) -> None:
 # this not be a narrower type?
 def validate_state_snapshot(state: object) -> dict[str, object]:
     """Validate mobile state payload shape against shared planner contracts.
+
+    Required top-level fields:
+    - ``books`` (list)
+    - ``settings`` (object)
+    - ``sessions`` (list)
+    - ``schedule_completions`` (str->bool map)
+    - ``blocked_day_books`` (str->bool map)
+    - ``feature_flags`` (object)
+    - ``preferences`` (object)
+    - ``last_result`` (object or null)
 
     Returns:
         The validated state snapshot as a mutable object dictionary.

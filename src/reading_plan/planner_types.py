@@ -1,4 +1,8 @@
-"""Define the core planner models, constants, and default scheduling data."""
+"""Define the core planner models, constants, and default scheduling data.
+
+The data classes in this module are normalized domain models used after JSON
+payload parsing. They are intentionally stricter than API boundary types.
+"""
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
@@ -28,13 +32,21 @@ PLAN_MODES = (PLAN_MODE_FINISH_SOON, PLAN_MODE_SPREAD_OUT)
 
 
 def default_scheduled_days() -> frozenset[str]:
-    """Return the default scheduled-day set containing every weekday."""
+    """Return the default scheduled-day set containing every weekday.
+
+    Returns:
+        Frozen set of all weekday abbreviations.
+    """
     return frozenset(WEEKDAYS)
 
 
 @dataclass
 class Book:
-    """A normalized book input for planning."""
+    """A normalized book input for planning.
+
+    Instances are created by parser/builders after boundary payload
+    validation and are used by all solver strategies.
+    """
 
     # Stable identifier used across planning, storage, and UI layers.
     book_id: str
@@ -66,7 +78,11 @@ class Book:
 
 @dataclass
 class Settings:
-    """Planner configuration and scheduling constraints."""
+    """Planner configuration and scheduling constraints.
+
+    These settings are solver-facing and assume date parsing and shape
+    validation have already completed.
+    """
 
     # First date included in the planning window.
     start_date: date
@@ -104,7 +120,11 @@ class Settings:
 
 @dataclass
 class PlanResult:
-    """Solver output assignments and metadata."""
+    """Solver output assignments and metadata.
+
+    ``assignments`` contains the canonical schedule map consumed by reporting
+    and schedule-row serialization layers.
+    """
 
     # Name of the planner implementation that produced this result.
     planner: str

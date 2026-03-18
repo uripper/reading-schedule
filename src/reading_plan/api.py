@@ -1,4 +1,16 @@
-"""Validate planner payloads, run scheduling, and build API-ready output."""
+"""Validate planner payloads, run scheduling, and build API-ready output.
+
+Pipeline overview:
+1. Validate top-level payload shape and parse books/settings.
+2. Validate blocker references and reject dependency cycles.
+3. Execute the selected planner implementation.
+4. Build the API response containing summary and schedule rows.
+
+Error behavior:
+- ``TypeError`` for malformed payload boundaries.
+- ``ValueError`` for invalid blocker relationships.
+- Solver/runtime errors are propagated from downstream planner modules.
+"""
 
 from time import perf_counter
 from typing import TYPE_CHECKING
@@ -38,7 +50,11 @@ LOGGER = get_bridge_logger(__name__)
 
 
 def _elapsed_ms(started_at: float) -> int:
-    """Return elapsed milliseconds from a `perf_counter` timestamp."""
+    """Return elapsed milliseconds from a `perf_counter` timestamp.
+
+    Returns:
+        Elapsed milliseconds.
+    """
     return int((perf_counter() - started_at) * 1000)
 
 
@@ -46,7 +62,11 @@ def _validate_missing_blockers(
     books: list[Book],
     by_id: dict[str, Book],
 ) -> None:
-    """Validate blocker references point to known books."""
+    """Validate blocker references point to known books.
+
+    Raises:
+        ValueError: A blocker points to an unknown ``book_id``.
+    """
     for book in books:
         if not book.blocked_by:
             continue
@@ -65,7 +85,11 @@ def _walk_blockers(
     visiting: set[str],
     visited: set[str],
 ) -> None:
-    """Traverse blocker ancestry for one book and detect cycles."""
+    """Traverse blocker ancestry for one book and detect cycles.
+
+    Raises:
+        ValueError: A cycle exists in blocker relationships.
+    """
     if book_id in visited:
         return
     if book_id in visiting:
@@ -90,7 +114,14 @@ def _validate_blockers(books: list[Book]) -> None:
 
 
 def _parse_books(books_raw: list[BookData]) -> list[Book]:
-    """Parse and validate incoming raw book payload rows."""
+    """Parse and validate incoming raw book payload rows.
+
+    Returns:
+        A list of books.
+
+    Raises:
+        TypeError: A row is not a JSON object.
+    """
     parse_started = perf_counter()
     books: list[Book] = []
     for idx, row in enumerate(books_raw):
@@ -116,7 +147,11 @@ def _validate_blockers_with_logging(books: list[Book]) -> None:
 
 
 def _parse_settings(settings_raw: SettingsData) -> Settings:
-    """Parse planner settings payload and emit stage timing."""
+    """Parse planner settings payload and emit stage timing.
+
+    Returns:
+        Parsed settings.
+    """
     started = perf_counter()
     settings = settings_from_data(settings_raw)
     LOGGER.debug(
@@ -131,7 +166,11 @@ def _solve_with_logging(
     planner: str,
     settings: Settings,
 ) -> PlanResult:
-    """Run solver and emit timing/status diagnostics."""
+    """Run solver and emit timing/status diagnostics.
+
+    Returns:
+        The plan result.
+    """
     started = perf_counter()
     LOGGER.debug("generate_plan: solving started", extra={"planner": planner})
     result = solve_plan(books, settings, planner=planner)
@@ -154,7 +193,11 @@ def _build_output_with_logging(
     settings: Settings,
     total_started: float,
 ) -> PlannerOutputPayload:
-    """Build summary/schedule payload and emit timings."""
+    """Build summary/schedule payload and emit timings.
+
+    Returns:
+        Planner output payload.
+    """
     summary_started = perf_counter()
     summary = build_summary(books, settings, result)
     LOGGER.debug(
@@ -197,7 +240,14 @@ def _log_generate_plan_start(payload: PlannerInputPayload) -> None:
 def _payload_books_and_settings(
     payload: PlannerInputPayload,
 ) -> tuple[list[BookData], SettingsData]:
-    """Return validated raw books/settings payload fields."""
+    """Return validated raw books/settings payload fields.
+
+    Returns:
+        Raw books list and settings object.
+
+    Raises:
+        TypeError: Required payload fields are missing or have wrong types.
+    """
     books_raw = payload.get("books")
     settings_raw = payload.get("settings")
     if not isinstance(books_raw, list) or not isinstance(settings_raw, dict):
@@ -223,12 +273,28 @@ def _payload_books_and_settings(
 
 
 def _planner_name(payload: PlannerInputPayload) -> str:
-    """Return the requested planner name or the default solver."""
+    """Return the requested planner name or the default solver.
+
+    Notes:
+        Values are string-coerced for compatibility with loosely typed JSON
+        payloads.
+
+    Returns:
+        Planner identifier.
+    """
     return str(payload.get("planner", "mip"))
 
 
 def generate_plan(payload: PlannerInputPayload) -> PlannerOutputPayload:
-    """Validate inputs, solve the plan, and return summary plus schedule."""
+    """Validate inputs, solve the plan, and return summary plus schedule.
+
+    Args:
+        payload: Planner request with ``books``, ``settings``, and optional
+            ``planner`` name.
+
+    Returns:
+        Response containing ``summary`` metrics and ``schedule`` rows.
+    """
     start_time = perf_counter()
     _log_generate_plan_start(payload)
     books_raw, settings_raw = _payload_books_and_settings(payload)
