@@ -1,4 +1,32 @@
-"""FastAPI wrapper exposing planner/state endpoints for mobile clients."""
+"""FastAPI wrapper exposing planner/state endpoints for mobile clients.
+
+Endpoint contract:
+- POST /api/plan/generate
+    - Request: planner payload with books/settings and optional planner name.
+    - Response: generated plan object from ``reading_plan.api.generate_plan``.
+    - Errors: 400 when payload validation or planning fails.
+- POST /api/state/load
+    - Request: empty JSON object.
+    - Response: state load result with ``source``, ``sourcePath``, and ``state``
+        Invalid saved state is normalized to ``source="fresh"`` with warning
+        metadata.
+- POST /api/state/sample
+    - Request: empty JSON object.
+    - Response: sample ``books`` and ``settings`` payload.
+- POST /api/state/save
+    - Request: full state snapshot.
+    - Response: ``{"ok": true}``.
+    - Errors: 400 for validation failures, 500 for write failures.
+- POST /api/books/search
+    - Request: ``{"query": str, "author": bool}``.
+    - Response: list of normalized Open Library results.
+    - Errors: 502 when Open Library cannot be reached.
+
+Environment variables:
+- ``READING_PLAN_API_HOST``: bind host (default: ``127.0.0.1``).
+- ``READING_PLAN_API_PORT``: bind port (default: ``8787``).
+- ``READING_PLAN_API_STATE_PATH``: state file override path.
+"""
 
 import json
 import os
@@ -44,6 +72,9 @@ SEARCH_TIMEOUT_SECONDS = 8
 SEARCH_OUTPUT_LIMIT = 20
 
 LOGGER = get_bridge_logger(__name__)
+
+# TODO: Is there a reason we are so reliant on "object" types for everything?
+# Is that not greatly reducing type safety and effectively acting as an `Any`?
 
 
 def _repo_root() -> Path:
@@ -99,6 +130,11 @@ def _loaded_state_result(state_path: Path) -> dict[str, object]:
     `"json_primary"` as the source and returns the validated state. JSON parse
     errors, file read failures, and validation failures are all normalized
     into `_invalid_state_result(...)`.
+
+    Returns:
+        A normalized state payload. If the file is unreadable, invalid JSON,
+        or fails validation, the response is converted to a fresh-state
+        payload with warning metadata.
     """
     try:
         loaded = json.loads(state_path.read_text(encoding="utf-8"))
@@ -113,7 +149,11 @@ def _validated_state_result(
     state_path: Path,
     loaded: object,
 ) -> dict[str, object]:
-    """Validate parsed state JSON and return a normalized response."""
+    """Validate parsed state JSON and return a normalized response.
+
+    Returns:
+        Either a validated or invalidated state result.
+    """
     try:
         validated = validate_state_snapshot(loaded)
     except TypeError as error:
@@ -162,11 +202,17 @@ def _cover_url(cover_id: object) -> str | None:
     return f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg"
 
 
+# TODO: What is the work-id segment?
+
+
 def _work_id(raw_key: object) -> str:
     """Extract the final work-id segment from an Open Library key.
 
     Non-string inputs, blank strings, and strings that become empty after
     trimming produce an empty string.
+
+    Returns:
+        The final work-id segment.
     """
     if not isinstance(raw_key, str):
         return ""
@@ -180,6 +226,9 @@ def _search_query(query: str, *, author_only: bool) -> str:
     When `author_only` is true the query is sent through the `author`
     parameter. Otherwise it uses the general `q` parameter and constrains the
     search to English results. The configured output limit is always included.
+
+    Returns:
+        A normalized search query url.
     """
     params: dict[str, str | int] = {"limit": SEARCH_OUTPUT_LIMIT}
     if author_only:
@@ -196,6 +245,13 @@ def _request_json(request_url: str) -> dict[str, object]:
     Network and timeout failures are converted into
     `HTTPException(status_code=502)`. If the remote JSON is not an object, the
     function returns an empty dictionary.
+
+    Returns:
+        The Open Library JSON as a dictionary, or an empty dictionary when the
+        decoded JSON is not an object.
+
+    Raises:
+        HTTPException: Open Library request failed.
     """
     try:
         with urlopen(  # noqa: S310 - fixed OpenLibrary HTTPS endpoint
@@ -227,6 +283,9 @@ def _doc_to_result(doc: object) -> dict[str, str] | None:
     `work_id`. A `cover_url` field is added when a usable cover id is present.
     Non-dictionary inputs, or rows missing both title and author, return
     `None`.
+
+    Returns:
+        Either a dictionary containing author, title, and work_id or None
     """
     if not is_str_object_dict(doc):
         return None
@@ -260,6 +319,9 @@ def _search_open_library(
 
     Rows that cannot be normalized are skipped, and the output is capped at
     `SEARCH_OUTPUT_LIMIT`.
+
+    Returns:
+        Results from the Open Library search.
     """
     results: list[dict[str, str]] = []
     for doc in _search_docs(query, author_only=author_only):
@@ -278,6 +340,10 @@ def _planner_input_payload(payload: dict[str, object]) -> PlannerInputPayload:
     The HTTP layer expects `books` and `settings` fields compatible with the
     shared planner payload contracts. An optional `planner` string is allowed
     to select a solver profile.
+
+    Returns:
+            PlannerInputPayload. I.e. the books to be scheduled, alongside user
+            settings.
     """
     books = _planner_books(payload)
     settings = _planner_settings(payload)
@@ -292,7 +358,14 @@ def _planner_input_payload(payload: dict[str, object]) -> PlannerInputPayload:
 
 
 def _planner_books(payload: dict[str, object]) -> list[BookData]:
-    """Return validated planner books payload."""
+    """Return validated planner books payload.
+
+    Returns:
+        Books that have been validated.
+
+    Raises:
+        TypeError: Books aren't a list of objects.
+    """
     books = payload.get("books")
     if is_book_data_list(books):
         return books
@@ -301,7 +374,14 @@ def _planner_books(payload: dict[str, object]) -> list[BookData]:
 
 
 def _planner_settings(payload: dict[str, object]) -> SettingsData:
-    """Return validated planner settings payload."""
+    """Return validated planner settings payload.
+
+    Returns:
+        Validated and normalized planner settings.
+
+    Raises:
+        TypeError: Settings is not an object.
+    """
     settings = payload.get("settings")
     if is_settings_data(settings):
         return settings
@@ -310,7 +390,14 @@ def _planner_settings(payload: dict[str, object]) -> SettingsData:
 
 
 def _planner_name(payload: dict[str, object]) -> str | None:
-    """Return validated optional planner name."""
+    """Return validated optional planner name.
+
+    Returns:
+        Planner name for logging
+
+    Raises:
+        TypeError: Payload field isn't a string
+    """
     planner = payload.get("planner")
     if planner is None:
         return None
@@ -320,11 +407,20 @@ def _planner_name(payload: dict[str, object]) -> str | None:
     raise TypeError(msg)
 
 
+# TODO: Why are these all generalized as HTTPException?
+
+
 def _api_generate(payload: dict[str, object]) -> object:
     """Generate a plan from a validated planner payload.
 
     Invalid input or planner runtime failures are surfaced to the client as
     `HTTPException(status_code=400)`.
+
+    Returns:
+        The full generated plan.
+
+    Raises:
+        HTTPException: Validation or planner execution failed.
     """
     log_file_execution(LOGGER, file_path=__file__, entrypoint="_api_generate")
     log_incoming_data(
@@ -353,11 +449,20 @@ def _api_state_sample(_payload: dict[str, object]) -> dict[str, object]:
     return _sample_payload()
 
 
+# TODO: Why are these also generalized as HTTPException?
+
+
 def _api_state_save(state: dict[str, object]) -> dict[str, object]:
     """Persist validated mobile state and return a success flag.
 
     Validation errors become `HTTPException(status_code=400)`. File-system
     write failures become `HTTPException(status_code=500)`.
+
+    Returns:
+        A status stating that the retrieval was a success.
+
+    Raises:
+        HTTPException: Either a TypeError or an OSError.
     """
     log_file_execution(LOGGER, file_path=__file__, entrypoint="_api_state_save")
     log_incoming_data(
@@ -378,8 +483,12 @@ def _api_state_save(state: dict[str, object]) -> dict[str, object]:
 def _api_books_search(payload: dict[str, object]) -> list[dict[str, str]]:
     """Search Open Library using the provided query payload.
 
-    The payload accepts a `query` string and an `author` boolean. When the
-    boolean is true, the search is restricted to author matches.
+    The payload accepts a ``query`` value and an ``author`` boolean. ``query``
+    is coerced to a string, and author-only mode is enabled only when
+    ``author is True``.
+
+    Returns:
+        A result from the _search_open_library function.
     """
     log_file_execution(
         LOGGER,
@@ -398,7 +507,11 @@ def _api_books_search(payload: dict[str, object]) -> list[dict[str, str]]:
 
 
 def create_app() -> FastAPI:
-    """Create the planner HTTP API app used by mobile clients."""
+    """Create the planner HTTP API app used by mobile clients.
+
+    Returns:
+        Configured FastAPI app with planner, state, and search endpoints.
+    """
     configure_bridge_logger()
     log_file_execution(LOGGER, file_path=__file__, entrypoint="create_app")
     app = FastAPI(title="Reading Plan API", version="0.1.0")
@@ -414,7 +527,11 @@ app = create_app()
 
 
 def main() -> int:
-    """Run the planner API using uvicorn."""
+    """Run the planner API using uvicorn.
+
+    Returns:
+        Exit status code ``0`` after the uvicorn server stops.
+    """
     host = os.environ.get("READING_PLAN_API_HOST", DEFAULT_HOST)
     port_text = os.environ.get("READING_PLAN_API_PORT", str(DEFAULT_PORT))
     try:
