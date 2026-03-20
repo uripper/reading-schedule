@@ -118,7 +118,7 @@ function yearlySnapshotFixture() {
     const ROW_ONE = ROW(`${YEAR}-01-01`, 1, "book-1");
     const ROW_TWO = ROW(`${YEAR}-01-02`, 1, "book-2");
     const FEB_FIRST = `${YEAR}-02-01`;
-    const PREVIOUS_YEAR_SESSION = `${YEAR - 1}-12-31T12:00:00.000Z`;
+    const PREVIOUS_YEAR_SESSION = `${YEAR - 1}-06-30T12:00:00.000Z`;
     return buildStatsSnapshot({
         books: yearlyBooks(FEB_FIRST),
         lastResult: lastResultFor(YEAR, [ROW_ONE, ROW_TWO], {
