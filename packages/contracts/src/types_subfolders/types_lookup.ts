@@ -95,6 +95,13 @@ export interface SearchResponse {
     docs?: SearchDoc[];
 }
 
+/**
+ * Minimal response shape needed to collect docs from Open Library lookups.
+ */
+export interface SearchResponseDocsShape {
+    docs?: unknown;
+}
+
 export interface SearchItem {
     author: string;
     cover_url: string;
@@ -105,3 +112,30 @@ export interface SearchItem {
     words_estimate: number | null;
     year: number | "";
 }
+
+/**
+ * Ranked Open Library document plus the score assigned by the lookup pipeline.
+ */
+export interface ScoredDoc {
+    doc: SearchDoc;
+    score: number;
+}
+
+/**
+ * Response payload used when downloading a remote cover image for a book.
+ */
+export interface DownloadedCover {
+    bytes: ArrayBuffer;
+    contentType: string | null;
+}
+
+/**
+ * Input required to fetch and persist a downloaded cover image.
+ */
+export interface DownloadCoverInput {
+    parsedUrl: URL;
+    userDataDir: string;
+}
+
+export type SearchDocsResponse =
+    PromiseSettledResult<SearchResponseDocsShape>[];

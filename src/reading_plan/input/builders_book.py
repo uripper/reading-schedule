@@ -25,7 +25,11 @@ ALL_WEEKDAYS = frozenset(WEEKDAYS)
 
 
 def book_from_data(data: BookData) -> Book:
-    """Normalize one raw book payload into a validated Book model."""
+    """Normalize one raw book payload into a validated Book model.
+
+    Returns:
+        Computed value.
+    """
     book_id = _book_id(data)
     title = _title(data)
     word_stats = word_stats_from_data(data)
@@ -69,19 +73,31 @@ def _title(data: BookData) -> str:
 
 
 def _priority(data: BookData) -> int:
-    """Parse priority with default fallback."""
+    """Parse priority with default fallback.
+
+    Returns:
+        Computed value.
+    """
     raw = data.get("priority", DEFAULT_PRIORITY)
     return _require_int(raw, "priority")
 
 
 def _difficulty(data: BookData) -> int:
-    """Parse difficulty with default fallback."""
+    """Parse difficulty with default fallback.
+
+    Returns:
+        Computed value.
+    """
     raw = data.get("difficulty", DEFAULT_DIFFICULTY)
     return _require_int(raw, "difficulty")
 
 
 def _min_blocks_per_session(data: BookData) -> int:
-    """Parse min_blocks_per_session with default fallback."""
+    """Parse min_blocks_per_session with default fallback.
+
+    Returns:
+        Computed value.
+    """
     raw = data.get(
         "min_blocks_per_session",
         DEFAULT_MIN_BLOCKS_PER_SESSION,
@@ -90,7 +106,14 @@ def _min_blocks_per_session(data: BookData) -> int:
 
 
 def _deadline(data: BookData) -> date | None:
-    """Parse optional deadline."""
+    """Parse optional deadline.
+
+    Returns:
+        Computed value.
+
+    Raises:
+        TypeError: Raised when input validation fails.
+    """
     raw = data.get("deadline")
     if raw is None:
         return None
@@ -102,7 +125,11 @@ def _deadline(data: BookData) -> date | None:
 
 
 def _blocked_by(data: BookData) -> str | None:
-    """Parse optional blocker id, including the legacy alias."""
+    """Parse optional blocker id, including the legacy alias.
+
+    Returns:
+        Computed value.
+    """
     raw = data.get("blocked_by") or data.get("blocker_book_id")
     if raw is None:
         return None
@@ -111,7 +138,11 @@ def _blocked_by(data: BookData) -> str | None:
 
 
 def _max_minutes_per_day(data: BookData) -> int | None:
-    """Parse optional max_minutes_per_day."""
+    """Parse optional max_minutes_per_day.
+
+    Returns:
+        Computed value.
+    """
     return _parse_optional_int(
         data.get("max_minutes_per_day"),
         "max_minutes_per_day",
@@ -129,7 +160,14 @@ def _validated_scheduled_days(
     book_id: str,
     selected: set[str],
 ) -> frozenset[str]:
-    """Validate normalized weekday names for one book."""
+    """Validate normalized weekday names for one book.
+
+    Returns:
+        Computed value.
+
+    Raises:
+        ValueError: Raised when input validation fails.
+    """
     if not selected:
         msg = f"scheduled_days must include at least one day for {book_id}"
         raise ValueError(msg)
@@ -144,7 +182,11 @@ def _scheduled_days(
     *,
     book_id: str,
 ) -> frozenset[str]:
-    """Normalize and validate scheduled weekday entries."""
+    """Normalize and validate scheduled weekday entries.
+
+    Returns:
+        Computed value.
+    """
     if raw is None:
         return ALL_WEEKDAYS
     entries = _scheduled_day_entries(raw)
@@ -153,7 +195,14 @@ def _scheduled_days(
 
 
 def _require_int(raw: object, field: str) -> int:
-    """Parse a required integer field."""
+    """Parse a required integer field.
+
+    Returns:
+        Computed value.
+
+    Raises:
+        TypeError: Raised when input validation fails.
+    """
     if _is_int_input(raw):
         return to_int(raw, field)
     msg = f"{field} must be an integer-compatible value"
@@ -161,7 +210,14 @@ def _require_int(raw: object, field: str) -> int:
 
 
 def _parse_optional_int(raw: object | None, field: str) -> int | None:
-    """Parse an optional integer field."""
+    """Parse an optional integer field.
+
+    Returns:
+        Computed value.
+
+    Raises:
+        TypeError: Raised when input validation fails.
+    """
     if raw is None:
         return None
     if _is_int_input(raw):

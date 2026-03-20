@@ -1,4 +1,14 @@
-"""Centralized logging helpers for planner bridge runtimes."""
+"""Centralized logging helpers for planner bridge runtimes.
+
+This module provides:
+- A shared logger namespace for bridge-related modules.
+- Structured metadata serialization appended to each log message.
+- Lightweight payload type summaries for incoming request diagnostics.
+
+Environment variables:
+- ``READING_PLAN_BRIDGE_LOG_PATH`` to override log destination.
+- ``READING_PLAN_BRIDGE_REQUEST_ID`` to stamp request context.
+"""
 
 import json
 import logging
@@ -31,7 +41,11 @@ class StructuredBridgeFormatter(logging.Formatter):
     """Formatter that appends JSON metadata for custom log fields."""
 
     def format(self, record: logging.LogRecord) -> str:
-        """Format one log record with a compact metadata suffix."""
+        """Format one log record with a compact metadata suffix.
+
+        Returns:
+            Message text with serialized metadata suffix when present.
+        """
         message = super().format(record)
         metadata = _record_metadata(record)
         if not metadata:
@@ -48,7 +62,15 @@ def configure_bridge_logger(
     request_id: str | None = None,
     log_path: str | Path | None = None,
 ) -> logging.Logger:
-    """Configure the shared bridge logger with file output."""
+    """Configure the shared bridge logger with file output.
+
+    The logger is configured at DEBUG level with a single managed file
+    handler. Reconfiguration updates the formatter request id and reuses
+    existing handlers when possible.
+
+    Returns:
+        Configured bridge logger.
+    """
     resolved_request_id = _resolve_request_id(request_id)
     resolved_log_path = _resolve_log_path(log_path)
     resolved_log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -73,7 +95,11 @@ def configure_bridge_logger(
 
 
 def get_bridge_logger(module_name: str) -> logging.Logger:
-    """Return a module-scoped child logger under the bridge namespace."""
+    """Return a module-scoped child logger under the bridge namespace.
+
+    Returns:
+        Child logger for the provided module name.
+    """
     child_name = _child_logger_name(module_name)
     return logging.getLogger(child_name)
 
@@ -112,7 +138,14 @@ def log_incoming_data(
 
 
 def summarize_value_types(value: object) -> dict[str, object]:
-    """Summarize top-level type information for diagnostics."""
+    """Summarize top-level type information for diagnostics.
+
+    Mapping summaries include bounded key/value-type samples. List summaries
+    include list length and a bounded set of sampled item types.
+
+    Returns:
+        Type-summary dictionary for logging metadata.
+    """
     summary: dict[str, object] = {
         "value_type": type(value).__name__,
     }
@@ -125,7 +158,11 @@ def summarize_value_types(value: object) -> dict[str, object]:
 
 
 def _resolve_request_id(request_id: str | None) -> str:
-    """Resolve request ID from explicit value, env, or fallback default."""
+    """Resolve request ID from explicit value, env, or fallback default.
+
+    Returns:
+        Request identifier used in log records.
+    """
     if request_id:
         return request_id
     env_request_id = os.environ.get(BRIDGE_REQUEST_ID_ENV, "").strip()
@@ -133,7 +170,11 @@ def _resolve_request_id(request_id: str | None) -> str:
 
 
 def _resolve_log_path(log_path: str | Path | None) -> Path:
-    """Resolve log file path from explicit value, env, or default path."""
+    """Resolve log file path from explicit value, env, or default path.
+
+    Returns:
+        Resolved log file path.
+    """
     if log_path is not None:
         return Path(log_path)
     configured = os.environ.get(BRIDGE_LOG_PATH_ENV, "").strip()
@@ -158,7 +199,11 @@ def _reuse_existing_handler(
     log_path: Path,
     request_id: str,
 ) -> bool:
-    """Return whether an existing handler can be kept in place."""
+    """Return whether an existing handler can be kept in place.
+
+    Returns:
+        True when the existing handler is reused.
+    """
     if existing is None:
         return False
     if Path(existing.baseFilename) != log_path:
@@ -191,10 +236,14 @@ def _add_file_handler(
 
 
 def _build_formatter(request_id: str) -> StructuredBridgeFormatter:
-    """Build formatter with stable request ID defaults."""
+    """Build formatter with stable request ID defaults.
+
+    Returns:
+        Structured formatter bound to the request id.
+    """
     format_text = (
-        "%(asctime)s | %(levelname)s | "
-        "request=%(request_id)s | logger=%(name)s | %(message)s"
+        "%(asctime)s | %(levelname)s | request=%(request_id)s | "
+        + "logger=%(name)s | %(message)s"
     )
     return StructuredBridgeFormatter(
         format_text,
@@ -203,7 +252,11 @@ def _build_formatter(request_id: str) -> StructuredBridgeFormatter:
 
 
 def _find_bridge_handler(logger: logging.Logger) -> logging.FileHandler | None:
-    """Find the existing file handler owned by bridge logging."""
+    """Find the existing file handler owned by bridge logging.
+
+    Returns:
+        Managed file handler when present; otherwise ``None``.
+    """
     for handler in logger.handlers:
         if not isinstance(handler, logging.FileHandler):
             continue
@@ -213,7 +266,14 @@ def _find_bridge_handler(logger: logging.Logger) -> logging.FileHandler | None:
 
 
 def _record_metadata(record: logging.LogRecord) -> dict[str, object]:
-    """Extract normalized custom fields from a log record."""
+    """Extract normalized custom fields from a log record.
+
+    Standard logging fields are excluded so only application metadata is
+    serialized into the structured suffix.
+
+    Returns:
+        Application metadata extracted from the log record.
+    """
     metadata: dict[str, object] = {}
     for key, value in record.__dict__.items():
         if key in _STANDARD_RECORD_FIELDS:
@@ -225,7 +285,11 @@ def _record_metadata(record: logging.LogRecord) -> dict[str, object]:
 
 
 def _normalize_metadata(value: object) -> object:
-    """Normalize metadata values so they can be serialized as JSON."""
+    """Normalize metadata values so they can be serialized as JSON.
+
+    Returns:
+        JSON-serializable representation of the value.
+    """
     normalized: object = str(value)
     if isinstance(value, (str, int, float, bool)) or value is None:
         normalized = value
@@ -239,7 +303,11 @@ def _normalize_metadata(value: object) -> object:
 
 
 def _normalize_mapping(value: dict[object, object]) -> dict[str, object]:
-    """Normalize mapping metadata keys and values recursively."""
+    """Normalize mapping metadata keys and values recursively.
+
+    Returns:
+        Mapping with string keys and normalized values.
+    """
     normalized: dict[str, object] = {
         str(key): _normalize_metadata(item) for key, item in value.items()
     }
@@ -249,7 +317,11 @@ def _normalize_mapping(value: dict[object, object]) -> dict[str, object]:
 def _summarize_mapping_types(
     value: dict[object, object],
 ) -> dict[str, object]:
-    """Summarize dictionary keys and top-level value types."""
+    """Summarize dictionary keys and top-level value types.
+
+    Returns:
+        Summary metadata for mapping contents.
+    """
     sampled: dict[str, str] = {}
     sampled_keys: list[str] = []
     for index, (key, item) in enumerate(value.items()):
@@ -266,7 +338,11 @@ def _summarize_mapping_types(
 
 
 def _summarize_list_types(value: list[object]) -> dict[str, object]:
-    """Summarize list length and a bounded sample of item types."""
+    """Summarize list length and a bounded sample of item types.
+
+    Returns:
+        Summary metadata for list contents.
+    """
     sampled_items = value[:_TYPE_SUMMARY_LIMIT]
     sampled_types = sorted({type(item).__name__ for item in sampled_items})
     return {
@@ -276,7 +352,11 @@ def _summarize_list_types(value: list[object]) -> dict[str, object]:
 
 
 def _child_logger_name(module_name: str) -> str:
-    """Build a child logger name for a Python module."""
+    """Build a child logger name for a Python module.
+
+    Returns:
+        Fully qualified bridge logger name.
+    """
     if module_name == "reading_plan":
         return BRIDGE_LOGGER_NAME
     if module_name.startswith("reading_plan."):

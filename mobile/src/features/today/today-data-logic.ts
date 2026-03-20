@@ -2,8 +2,10 @@ import type {
     Book,
     PlannerApi,
     PlannerResult,
+    TodayBookCard,
+    TodayStats,
+    TodayViewData,
 } from "@reading-schedule/contracts";
-import type { TodayBookCard, TodayStats } from "./types.ts";
 
 const CARD_ACCENTS = ["#9CD2EE", "#F16865", "#B5E080", "#E7B1EF", "#F4D738"];
 const DEFAULT_BOOK_LIMIT = 6;
@@ -11,11 +13,6 @@ const DEFAULT_PAGE_TOTAL = 1;
 const MIN_STREAK_MINUTES = 1;
 const PREVIOUS_DAY_OFFSET = 1;
 const WORDS_PER_PAGE = 300;
-
-export interface TodayViewData {
-    books: TodayBookCard[];
-    stats: TodayStats;
-}
 
 interface TodaySession {
     ended_at: string;

@@ -124,7 +124,7 @@ interface MenuPanelProps {
 /**
  * Renders a menu panel with selectable tabs and highlights the active tab.
  * @example
- * MenuPanel({ activeTab: 'home', onSelectTab: (tab) => console.log(tab) })
+ * MenuPanel({ activeTab: 'home', onSelectTab: handleTabSelection })
  * <View>...JSX element representing the menu panel...</View>
  * @param {MenuPanelProps} props - Props object containing activeTab (the currently selected tab) and onSelectTab (callback invoked when a tab is selected).
  * @returns {JSX.Element} JSX element representing the rendered menu panel.

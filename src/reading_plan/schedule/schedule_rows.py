@@ -16,7 +16,11 @@ def to_schedule_rows(
     settings: Settings,
     assignments: Assignments,
 ) -> list[ScheduleRow]:
-    """Convert to schedule rows."""
+    """Convert to schedule rows.
+
+    Returns:
+        Computed value.
+    """
     return [
         {
             "date": day.isoformat(),

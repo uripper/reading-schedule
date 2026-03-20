@@ -81,6 +81,10 @@ ignore = [
   # pydocstyle + google convention conflict pair
   "D203",
   "D212",
+  
+  # I'm the only coder right now, so we can ignore author and issues for TODO
+  "TD002",
+  "TD003",
 ]
 
 fixable = ["ALL"]

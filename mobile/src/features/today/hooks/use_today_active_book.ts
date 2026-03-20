@@ -1,6 +1,6 @@
+import type { TodayBookCard } from "@reading-schedule/contracts";
 import { useCallback, useState } from "react";
 import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native";
-import type { TodayBookCard } from "../types.ts";
 
 interface UseTodayActiveBookResult {
     activeBook: TodayBookCard | null;

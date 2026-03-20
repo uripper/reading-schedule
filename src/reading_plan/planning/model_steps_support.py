@@ -37,7 +37,11 @@ class DependencyConstraintState:
 
 
 def dependency_constraint_state(books: list[Book]) -> DependencyConstraintState:
-    """Build shared state for blocker dependency constraints."""
+    """Build shared state for blocker dependency constraints.
+
+    Returns:
+        Computed value.
+    """
     blocker_index_map = {
         book.book_id: index for index, book in enumerate(books)
     }
@@ -49,7 +53,11 @@ def apply_book_dependency_constraints(
     context: ModelBuildContext,
     state: DependencyConstraintState,
 ) -> bool:
-    """Apply blocker constraints for one dependent book."""
+    """Apply blocker constraints for one dependent book.
+
+    Returns:
+        Computed value.
+    """
     blocker_id = book.blocked_by
     if not blocker_id:
         return False
@@ -59,13 +67,13 @@ def apply_book_dependency_constraints(
         blocker,
         state.blocker_index_map,
         context,
-        state.dependency_cache,
+        dependency_cache=state.dependency_cache,
     )
     add_dependency_day_constraints(
         blocker,
         book,
         context,
-        progress_before_by_day,
+        progress_before_by_day=progress_before_by_day,
     )
     return True
 
@@ -100,6 +108,7 @@ def dependency_progress_before_by_day(
     blocker: Book,
     blocker_index_map: dict[str, int],
     context: ModelBuildContext,
+    *,
     dependency_cache: dict[str, dict[date, IntVarLike]],
 ) -> dict[date, IntVarLike]:
     """Return cached prefix-progress vars for one blocker book."""
@@ -117,13 +126,14 @@ def add_dependency_day_constraints(
     blocker: Book,
     book: Book,
     context: ModelBuildContext,
+    *,
     progress_before_by_day: dict[date, IntVarLike],
 ) -> None:
     """Prevent a dependent book from starting before its blocker progresses."""
     for day in context.days:
         context.model.Add(
             progress_before_by_day[day]
-            >= blocker.remaining_words * context.y[book.book_id, day]
+            >= blocker.remaining_words * context.y[(book.book_id, day)]
         )
 
 
@@ -132,7 +142,11 @@ def build_progress_before_by_day(
     blocker: Book,
     blocker_index: int,
 ) -> dict[date, IntVarLike]:
-    """Build prefix-progress vars: words read before each day for a blocker."""
+    """Build prefix-progress vars: words read before each day for a blocker.
+
+    Returns:
+        Computed value.
+    """
     progress_before_by_day: dict[date, IntVarLike] = {}
     max_progress = blocker.remaining_words + context.wpb[blocker.book_id] * max(
         MIN_OVERSHOOT_BLOCKS,
@@ -149,7 +163,7 @@ def build_progress_before_by_day(
         progress_before_by_day[day] = before_var
         progressed_before = (
             before_var
-            + context.wpb[blocker.book_id] * context.x[blocker.book_id, day]
+            + context.wpb[blocker.book_id] * context.x[(blocker.book_id, day)]
         )
     return progress_before_by_day
 
@@ -160,7 +174,7 @@ def book_progress(
 ) -> LinearExprLike:
     """Return the linear progress expression for one book."""
     return sum(
-        context.wpb[book.book_id] * context.x[book.book_id, day]
+        context.wpb[book.book_id] * context.x[(book.book_id, day)]
         for day in context.days
     )
 
@@ -181,9 +195,14 @@ def useful_word_var(
     book: Book,
     book_index: int,
     context: ModelBuildContext,
+    *,
     progress: LinearExprLike,
 ) -> IntVarLike:
-    """Create and constrain the useful-word variable for one book."""
+    """Create and constrain the useful-word variable for one book.
+
+    Returns:
+        Computed value.
+    """
     useful_word = context.model.NewIntVar(
         0,
         book.remaining_words,
@@ -205,7 +224,7 @@ def add_due_progress_constraint(
     if not due_days:
         return
     due_progress = sum(
-        context.wpb[book.book_id] * context.x[book.book_id, day]
+        context.wpb[book.book_id] * context.x[(book.book_id, day)]
         for day in due_days
     )
     context.model.Add(due_progress >= book.remaining_words)
@@ -216,11 +235,20 @@ def progress_variables_for_book(
     book_index: int,
     context: ModelBuildContext,
 ) -> tuple[str, IntVarLike, IntVarLike]:
-    """Create the useful-word and completion variables for one book."""
+    """Create the useful-word and completion variables for one book.
+
+    Returns:
+        Computed value.
+    """
     progress = book_progress(book, context)
     progress_limit = max_progress(book, context)
     context.model.Add(progress <= progress_limit)
-    useful_word = useful_word_var(book, book_index, context, progress)
+    useful_word = useful_word_var(
+        book,
+        book_index,
+        context,
+        progress=progress,
+    )
     finished_var = context.model.NewBoolVar(f"f_{book_index}")
     unfinished_limit = max(book.remaining_words - COMPLETION_GAP, 0)
     context.model.Add(progress >= book.remaining_words * finished_var)
@@ -248,6 +276,7 @@ def _daily_upper_bound(
     book: Book,
     context: ModelBuildContext,
     day: date,
+    *,
     per_book_cap: int,
 ) -> int:
     """Return the allowed block cap for one book on one day."""
@@ -259,9 +288,14 @@ def _new_day_variables(
     book: Book,
     context: ModelBuildContext,
     upper: int,
+    *,
     variable_suffix: str,
 ) -> tuple[IntVarLike, IntVarLike]:
-    """Create and constrain the daily decision-variable pair."""
+    """Create and constrain the daily decision-variable pair.
+
+    Returns:
+        Computed value.
+    """
     x_var = context.model.NewIntVar(0, upper, f"x_{variable_suffix}")
     y_var = context.model.NewBoolVar(f"y_{variable_suffix}")
     context.model.Add(x_var <= upper * y_var)
@@ -273,9 +307,14 @@ def book_day_variables(
     book: Book,
     book_index: int,
     context: ModelBuildContext,
+    *,
     per_book_cap: int,
 ) -> tuple[BookDayVars, BookDayVars]:
-    """Create all day-level decision variables for one book."""
+    """Create all day-level decision variables for one book.
+
+    Returns:
+        Computed value.
+    """
     x_vars: BookDayVars = {}
     y_vars: BookDayVars = {}
     for day_index, day in enumerate(context.days):
@@ -283,7 +322,7 @@ def book_day_variables(
             book,
             context,
             day,
-            per_book_cap,
+            per_book_cap=per_book_cap,
         )
         key = (book.book_id, day)
         variable_suffix = f"{book_index}_{day_index}"
@@ -291,7 +330,7 @@ def book_day_variables(
             book,
             context,
             upper,
-            variable_suffix,
+            variable_suffix=variable_suffix,
         )
         x_vars[key] = x_var
         y_vars[key] = y_var

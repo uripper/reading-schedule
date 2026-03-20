@@ -1,3 +1,8 @@
+import type {
+    BackgroundSimulationState,
+    Body,
+    Bounds,
+} from "@reading-schedule/contracts";
 import { BACKGROUND_SPRITES } from "./today_background_sprites.ts";
 import {
     DESPAWN_BOTTOM_MARGIN,
@@ -23,11 +28,6 @@ import {
     bodyRadius,
     resolveAllCollisions,
 } from "./today-background-collision.ts";
-import type {
-    BackgroundSimulationState,
-    Body,
-    Bounds,
-} from "./today-background-simulation-types.ts";
 
 interface StepContext {
     bounds: Bounds;

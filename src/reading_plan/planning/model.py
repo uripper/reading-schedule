@@ -70,7 +70,11 @@ def _add_stage_constraints(
     build_options: BuildModelOptions,
     context: ModelBuildContext,
 ) -> tuple[FinishedVars, dict[str, IntVarLike]]:
-    """Add stage constraints and return finished/progress vars."""
+    """Add stage constraints and return finished/progress vars.
+
+    Returns:
+        Computed value.
+    """
     add_day_constraints(context)
     LOGGER.debug("build_cp_sat: day constraints added")
     add_dependency_constraints(context)
@@ -94,6 +98,7 @@ def _apply_objective(
     build_options: BuildModelOptions,
     context: ModelBuildContext,
     inputs: ObjectiveBuildInputs,
+    *,
     model: cp_model.CpModel,
 ) -> None:
     """Attach the optimization objective when the stage requests it."""
@@ -123,7 +128,11 @@ def build_cp_sat(
     settings: Settings,
     options: BuildModelOptions | None = None,
 ) -> BuildCpSatResult:
-    """Build a stage-specific CP-SAT model and decision variables."""
+    """Build a stage-specific CP-SAT model and decision variables.
+
+    Returns:
+        Computed value.
+    """
     build_options = options or BuildModelOptions()
     LOGGER.debug("build_cp_sat: started", extra={"book_count": len(books)})
 
@@ -139,6 +148,6 @@ def build_cp_sat(
             finished=finished,
             useful_words=useful_words,
         ),
-        model,
+        model=model,
     )
     return model, context.x, context.y, finished, context.days

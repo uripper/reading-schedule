@@ -1,3 +1,6 @@
+/**
+ * Search result scoring helpers for the Open Library lookup pipeline.
+ */
 import type { SearchDoc } from "@reading-schedule/contracts";
 import { bestAuthorOnlyScore } from "./search-author-scoring.ts";
 import {
@@ -58,6 +61,9 @@ function tokenScore(
     return score;
 }
 
+/**
+ * Scores a single token against title and author text.
+ */
 function tokenMatchScore(
     titleNorm: string,
     authorNorm: string,
@@ -80,6 +86,9 @@ function tokenMatchScore(
     return score;
 }
 
+/**
+ * Returns the language score contribution for an Open Library document.
+ */
 function languageScore(doc: SearchDoc): number {
     if (hasEnglishLanguage(doc)) {
         return SCORE_ENGLISH_LANGUAGE;
@@ -87,6 +96,9 @@ function languageScore(doc: SearchDoc): number {
     return 0;
 }
 
+/**
+ * Returns the page-count score contribution for an Open Library document.
+ */
 function pageCountScore(doc: SearchDoc): number {
     if (Number(doc.number_of_pages_median ?? 0) > 0) {
         return SCORE_HAS_PAGE_COUNT;
@@ -94,6 +106,9 @@ function pageCountScore(doc: SearchDoc): number {
     return 0;
 }
 
+/**
+ * Returns the edition-count score contribution for an Open Library document.
+ */
 function editionCountScore(doc: SearchDoc): number {
     const EDITION_COUNT = Number(doc.edition_count ?? 0);
     if (EDITION_COUNT > 0) {
@@ -111,21 +126,25 @@ function metadataScore(doc: SearchDoc): number {
     return languageScore(doc) + pageCountScore(doc) + editionCountScore(doc);
 }
 
+/**
+ * Scores a normal search query using title, author, and metadata signals.
+ */
 function standardSearchScore(
     doc: SearchDoc,
     queryNorm: string,
     tokens: string[],
 ): number {
     const TITLE_NORM = normalizeSearchText(doc.title ?? "");
-    if (TITLE_NORM.length === 0) {
+    const AUTHOR_NORM = normalizeSearchText(primaryAuthor(doc));
+    const TEXT_SCORE =
+        baseTitleScore(TITLE_NORM, queryNorm) +
+        tokenScore(TITLE_NORM, AUTHOR_NORM, tokens);
+
+    if (TITLE_NORM.length === 0 && TEXT_SCORE <= 0) {
         return 0;
     }
-    const AUTHOR_NORM = normalizeSearchText(primaryAuthor(doc));
-    return (
-        baseTitleScore(TITLE_NORM, queryNorm) +
-        tokenScore(TITLE_NORM, AUTHOR_NORM, tokens) +
-        metadataScore(doc)
-    );
+
+    return TEXT_SCORE + metadataScore(doc);
 }
 
 /**
@@ -148,6 +167,9 @@ export function scoreDoc(
     return standardSearchScore(doc, QUERY_NORM, TOKENS);
 }
 
+/**
+ * Scores author-only lookups using the author-specific scoring path.
+ */
 function authorOnlyScore(
     doc: SearchDoc,
     queryNorm: string,

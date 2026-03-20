@@ -3,103 +3,31 @@
  */
 import { writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
+import type {
+    DownloadCoverInput,
+    DownloadedCover,
+} from "@reading-schedule/contracts";
 import { parseCoverDataUrl } from "./cover-data-url.ts";
-import {
-    extensionFor,
-    filePathForCover,
-    isHttpProtocol,
-} from "./cover-paths.ts";
+import { extensionFor, filePathForCover } from "./cover-paths.ts";
+import { fetchRemoteCover, parsedHttpCoverUrl } from "./cover-remote.ts";
 
-interface DownloadedCover {
-    bytes: ArrayBuffer;
-    contentType: string | null;
-}
-
-interface DownloadCoverInput {
-    parsedUrl: URL;
-    userDataDir: string;
-}
-
-const PRIVATE_NETWORK_HOSTNAME_PATTERN = /^172\.(1[6-9]|2\d|3[0-1])\./;
-
+/**
+ * Normalizes optional cover input text so validation can use one code path.
+ */
 function normalizedCoverInput(value: string | undefined): string {
     return String(value ?? "").trim();
 }
 
-async function fetchedCoverResponse(parsedUrl: URL): Promise<Response | null> {
-    let response: Response;
-    try {
-        response = await globalThis.fetch(parsedUrl.toString(), {
-            redirect: "follow",
-        });
-    } catch {
-        return null;
-    }
-
-    if (!response.ok) {
-        return null;
-    }
-    return response;
-}
-
-async function downloadedCover(
-    response: Response,
-): Promise<DownloadedCover | null> {
-    const BYTES = await response.arrayBuffer();
-    if (BYTES.byteLength === 0) {
-        return null;
-    }
-    return {
-        bytes: BYTES,
-        contentType: response.headers.get("content-type"),
-    };
-}
-
-async function fetchCover(parsedUrl: URL): Promise<DownloadedCover | null> {
-    const RESPONSE = await fetchedCoverResponse(parsedUrl);
-    if (RESPONSE === null) {
-        return null;
-    }
-    return downloadedCover(RESPONSE);
-}
-
-function parsedUrlOrNull(urlText: string): URL | null {
-    try {
-        return new URL(urlText);
-    } catch {
-        return null;
-    }
+/**
+ * Fetches a remote cover image and converts it to persisted cover bytes.
+ */
+function fetchCover(parsedUrl: URL): Promise<DownloadedCover | null> {
+    return fetchRemoteCover(parsedUrl);
 }
 
 /**
- * Checks whether a hostname is blocked from cover downloads.
- * This prevents downloading covers from localhost and common private network ranges.
- *
- * @param hostname - Hostname portion of a parsed URL.
- * @returns True when the hostname is considered private or loopback, otherwise false.
+ * Validates the inputs needed to download and persist a remote cover image.
  */
-function hasBlockedCoverHostname(hostname: string): boolean {
-    return (
-        hostname === "localhost" ||
-        hostname === "::1" ||
-        hostname.startsWith("127.") ||
-        hostname.startsWith("10.") ||
-        hostname.startsWith("192.168.") ||
-        PRIVATE_NETWORK_HOSTNAME_PATTERN.test(hostname)
-    );
-}
-
-function parsedHttpUrl(urlText: string): URL | null {
-    const PARSED_URL = parsedUrlOrNull(urlText);
-    if (PARSED_URL === null || !isHttpProtocol(PARSED_URL.protocol)) {
-        return null;
-    }
-    if (hasBlockedCoverHostname(PARSED_URL.hostname.toLowerCase())) {
-        return null;
-    }
-    return PARSED_URL;
-}
-
 function resolveDownloadCoverInput(
     coverUrl: string | undefined,
     userDataDir: string | undefined,
@@ -111,7 +39,7 @@ function resolveDownloadCoverInput(
         return null;
     }
 
-    const PARSED_URL = parsedHttpUrl(NORMALIZED_URL);
+    const PARSED_URL = parsedHttpCoverUrl(NORMALIZED_URL);
 
     if (PARSED_URL === null) {
         return null;
@@ -123,6 +51,9 @@ function resolveDownloadCoverInput(
     };
 }
 
+/**
+ * Writes a downloaded cover to disk and returns the resulting file URL.
+ */
 function persistDownloadedCover(
     input: DownloadCoverInput,
     bookId: string | undefined,
@@ -157,6 +88,9 @@ export async function downloadCover(
     return persistDownloadedCover(DOWNLOAD_INPUT, bookId, DOWNLOADED_COVER);
 }
 
+/**
+ * Writes a parsed uploaded cover payload to disk and returns its file URL.
+ */
 function persistUploadedCover(
     userDataDir: string,
     bookId: string | undefined,

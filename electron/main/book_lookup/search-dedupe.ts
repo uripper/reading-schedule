@@ -1,10 +1,19 @@
+/**
+ * Deduplication helpers for merging Open Library result pages.
+ */
 import type { SearchDoc } from "@reading-schedule/contracts";
 import { primaryAuthor } from "./search-text.ts";
 
+/**
+ * Reads the canonical Open Library key from a search document.
+ */
 function trimmedDocKey(doc: SearchDoc): string {
     return String(doc.key ?? "").trim();
 }
 
+/**
+ * Builds a fallback key from title and author when the canonical key is empty.
+ */
 function fallbackDeduplicationKey(doc: SearchDoc): string {
     const TITLE = String(doc.title ?? "").trim();
     const AUTHOR = primaryAuthor(doc).trim();
@@ -14,6 +23,9 @@ function fallbackDeduplicationKey(doc: SearchDoc): string {
     return `${TITLE}|${AUTHOR}`;
 }
 
+/**
+ * Resolves the key used to detect duplicate search documents.
+ */
 function docDeduplicationKey(doc: SearchDoc): string {
     const KEY = trimmedDocKey(doc);
     if (KEY.length > 0) {
@@ -22,6 +34,9 @@ function docDeduplicationKey(doc: SearchDoc): string {
     return fallbackDeduplicationKey(doc);
 }
 
+/**
+ * Appends a doc when its dedupe key has not been seen yet.
+ */
 function appendUniqueDoc(
     doc: SearchDoc,
     seen: Set<string>,

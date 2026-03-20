@@ -1,4 +1,9 @@
-"""Shared API payload types."""
+"""Shared API payload contracts used by bridge and HTTP surfaces.
+
+These ``TypedDict`` definitions model JSON boundary payloads exchanged between
+UI clients and planner backends. Validation is performed by parser and builder
+layers; this module defines the stable structural contract.
+"""
 
 from typing import TYPE_CHECKING, TypedDict
 
@@ -8,7 +13,11 @@ if TYPE_CHECKING:
 
 
 class BookData(TypedDict, total=False):
-    """Book data structure in plan input/output payloads."""
+    """Book row shape accepted by planner API entry points.
+
+    All fields are optional at this boundary to support incremental migration
+    from desktop and mobile clients with partially populated payloads.
+    """
 
     author: str
     book_id: str
@@ -30,7 +39,7 @@ class BookData(TypedDict, total=False):
 
 
 class SettingsData(TypedDict):
-    """Settings data structure in plan input/output payloads."""
+    """Settings object shape accepted by planner API entry points."""
 
     start_date: str
     end_date: str
@@ -51,7 +60,7 @@ class SettingsData(TypedDict):
 
 
 class ScheduleRow(TypedDict):
-    """Schedule row in plan output."""
+    """One scheduled reading session produced by a planner run."""
 
     date: str
     session_index: int
@@ -62,20 +71,23 @@ class ScheduleRow(TypedDict):
 
 
 class _PlannerInputRequired(TypedDict):
-    """Required fields for planner input."""
+    """Required planner-input fields shared by all planner requests."""
 
     books: list[BookData]
     settings: SettingsData
 
 
 class PlannerInputPayload(_PlannerInputRequired, total=False):
-    """Input payload for plan generation with optional planner selection."""
+    """Planner request payload.
+
+    ``planner`` is optional and selects a solver profile by name.
+    """
 
     planner: str
 
 
 class PlannerOutputPayload(TypedDict):
-    """Output payload from plan generation."""
+    """Planner response payload with summary and schedule details."""
 
     summary: Summary
     schedule: list[ScheduleRow]

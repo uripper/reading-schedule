@@ -32,6 +32,11 @@ def check_condition(
     :param error_type: The type of error to raise if the condition is not met.
     :param condition: The boolean condition to check. If False, an error is
                         raised.
+
+    Raises:
+        TypeError: A type error during conditional checks.
+        ValueError: The same, but for incorrect values.
+
     """
     if condition:
         return

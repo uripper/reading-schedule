@@ -1,3 +1,4 @@
+import type { TodayBookCard, TodayStats } from "@reading-schedule/contracts";
 import type { ComponentProps } from "react";
 import {
     FlatList,
@@ -25,7 +26,6 @@ import {
     STYLES,
 } from "./today_screen_styles.ts";
 import { TodayThemeTransitionLayer } from "./today_theme_transition_layer.tsx";
-import type { TodayBookCard, TodayStats } from "./types.ts";
 
 interface CardProps {
     book: TodayBookCard;
@@ -112,7 +112,7 @@ interface TodayCarouselProps {
 }
 
 interface TodayBookProgressProps {
-    activeBook: TodayBookCard;
+    activeBook: TodayBookCard | null;
 }
 
 interface TodayStatsSectionProps {
@@ -128,7 +128,6 @@ interface TodayCarouselItemProps {
 }
 
 type TodayTheme = ReturnType<typeof useTodayThemeTransition>["currentTheme"];
-
 
 interface TodayScreenState {
     activeBook: TodayBookCard | null;
@@ -258,7 +257,7 @@ function createTodayCarouselListProps(props: TodayCarouselProps) {
 /**
  * Renders a horizontal carousel of book cards using FlatList.
  * @example
- * TodayCarousel({ activeIndex: 0, books: [{ id: '1', title: 'Sample' }], cardWidth: 200, carouselSideInset: 16, itemWidth: 216, onCardPress: (i) => console.log(i), onMomentumScrollEnd: () => {} })
+ * TodayCarousel({ activeIndex: 0, books: [{ id: '1', title: 'Sample' }], cardWidth: 200, carouselSideInset: 16, itemWidth: 216, onCardPress: handleCardPress, onMomentumScrollEnd: syncVisibleCard })
  * <FlatList ... />
  * @param activeIndex - Index of the currently active/visible card.
  * @param books - Array of book objects to render in the carousel.
@@ -283,6 +282,9 @@ function TodayCarousel(props: TodayCarouselProps) {
  * @returns {JSX.Element} Rendered JSX element showing the active book progress and a Log Session button.
  **/
 function TodayBookProgress({ activeBook }: TodayBookProgressProps) {
+    if (!activeBook) {
+        return null;
+    }
     return (
         <>
             <Text style={STYLES.currentBook}>

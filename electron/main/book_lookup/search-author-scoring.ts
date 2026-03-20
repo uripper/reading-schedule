@@ -1,3 +1,6 @@
+/**
+ * Author scoring helpers used when lookup results are filtered by author.
+ */
 import type { SearchDoc } from "@reading-schedule/contracts";
 import {
     SCORE_AUTHOR_ALL_TOKENS,
@@ -35,6 +38,9 @@ function matchingAuthorTokenCount(
     return matches;
 }
 
+/**
+ * Raises the minimum token match threshold for short author names.
+ */
 function minimumMatchedTokens(tokens: string[]): number {
     if (tokens.length >= 2) {
         return 2;
@@ -43,6 +49,9 @@ function minimumMatchedTokens(tokens: string[]): number {
     return 1;
 }
 
+/**
+ * Converts the token match count into a contribution score.
+ */
 function scoreMatchedTokens(matchedCount: number, tokenCount: number): number {
     if (matchedCount >= tokenCount) {
         return (
@@ -53,6 +62,9 @@ function scoreMatchedTokens(matchedCount: number, tokenCount: number): number {
     return matchedCount * SCORE_AUTHOR_PARTIAL_TOKEN;
 }
 
+/**
+ * Checks whether the scoring inputs contain any usable text.
+ */
 function hasAuthorMatchInputs(
     authorNorm: string,
     queryNorm: string,
@@ -61,6 +73,9 @@ function hasAuthorMatchInputs(
     return authorNorm.length > 0 && queryNorm.length > 0 && tokens.length > 0;
 }
 
+/**
+ * Scores token-level author matches when the exact match path does not apply.
+ */
 function scoredAuthorTokenMatch(
     authorTokens: string[],
     tokens: string[],

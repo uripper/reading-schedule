@@ -52,7 +52,11 @@ def create_model_context(
     books: list[Book],
     settings: Settings,
 ) -> ModelBuildContext:
-    """Build the static model context and all decision variables."""
+    """Build the static model context and all decision variables.
+
+    Returns:
+        Computed value.
+    """
     days = date_range(settings.start_date, settings.end_date)
     caps = {day: day_capacity_blocks(settings, day) for day in days}
     wpb = {book.book_id: words_per_block(book, settings) for book in books}
@@ -86,10 +90,10 @@ def add_day_constraints(context: ModelBuildContext) -> None:
     """Apply daily capacity and active-book limits."""
     for day in context.days:
         assigned_blocks = sum(
-            context.x[book.book_id, day] for book in context.books
+            context.x[(book.book_id, day)] for book in context.books
         )
         active_books = sum(
-            context.y[book.book_id, day] for book in context.books
+            context.y[(book.book_id, day)] for book in context.books
         )
         context.model.Add(assigned_blocks <= context.caps[day])
         context.model.Add(active_books <= context.settings.max_books_per_day)
@@ -109,7 +113,11 @@ def add_dependency_constraints(context: ModelBuildContext) -> None:
 def add_progress_constraints(
     context: ModelBuildContext,
 ) -> tuple[FinishedVars, dict[str, IntVarLike]]:
-    """Link reading progress to completion, useful words, and deadlines."""
+    """Link reading progress to completion, useful words, and deadlines.
+
+    Returns:
+        Computed value.
+    """
     finished: FinishedVars = {}
     useful_words: dict[str, IntVarLike] = {}
     for book_index, book in enumerate(context.books):
@@ -144,7 +152,11 @@ def add_near_term_lock_constraints(
 def _create_book_day_variables(
     context: ModelBuildContext,
 ) -> tuple[BookDayVars, BookDayVars]:
-    """Create per-book and per-day decision variables."""
+    """Create per-book and per-day decision variables.
+
+    Returns:
+        Computed value.
+    """
     x_vars: BookDayVars = {}
     y_vars: BookDayVars = {}
     for book_index, book in enumerate(context.books):
@@ -153,7 +165,7 @@ def _create_book_day_variables(
             book,
             book_index,
             context,
-            per_book_cap,
+            per_book_cap=per_book_cap,
         )
         x_vars.update(book_x_vars)
         y_vars.update(book_y_vars)
