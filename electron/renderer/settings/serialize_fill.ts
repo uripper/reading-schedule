@@ -127,9 +127,8 @@ export function fillSettingsForm(
 
 /**
  * Populates the base settings fields before derived weekday/difficulty rows.
- * @param fieldId - The ID of the field to populate.
- * @param minimumStartDate - Minimum start date allowed for planning.
- * @param settings - Planner settings payload.
+ * @param options - Configuration for populating a single field, including
+ *                  its ID, minimum start date, planner settings, and type.
  */
 function populateFieldValue(options: {
     fieldId: string;
