@@ -70,7 +70,7 @@
         "start": "node ./scripts/start_electron.mjs",
         "start:dev": "node ./scripts/start_electron.mjs --development",
         "state:recover": "node ./scripts/state_recover.mjs",
-        "test:node": "node --test tests/books-model-payload.test.mjs tests/schedule-preserve.test.mjs tests/load-state-recovery.test.mjs tests/init-startup-autoplan.test.mjs tests/state-store-json-atomic.test.mjs tests/state-store-sqlite.test.mjs tests/state-store-migration.test.mjs tests/state-recover.test.mjs tests/bridge-context-root.test.mjs tests/bridge-launch.test.mjs tests/build-planner-bundle.test.mjs",
+        "test:node": "node --test tests/book-lookup-helpers.test.mjs tests/books-model-payload.test.mjs tests/recommendations-search-matchers.test.mjs tests/recommendations-search-processing.test.mjs tests/recommendations-search.test.mjs tests/schedule-preserve.test.mjs tests/load-state-recovery.test.mjs tests/init-startup-autoplan.test.mjs tests/state-store-json-atomic.test.mjs tests/state-store-sqlite.test.mjs tests/state-store-migration.test.mjs tests/state-recover.test.mjs tests/bridge-context-root.test.mjs tests/bridge-launch.test.mjs tests/build-planner-bundle.test.mjs tests/main-development-hot-reload.test.mjs tests/start-electron-launch.test.mjs tests/start-electron-hot-loop.test.mjs",
         "tokens:build": "node ./scripts/build_tokens.mjs",
         "tokens:check": "node ./scripts/check_token_usage.mjs",
         "typecheck": "pnpm -C ../packages/contracts run build && tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit && tsc -p tsconfig.e2e.json --noEmit"

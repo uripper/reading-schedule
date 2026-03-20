@@ -1,5 +1,5 @@
 /**
- * @file Main-process zoom factor helpers for renderer web contents.
+ * Main-process zoom factor helpers for renderer web contents.
  */
 import type { WebContents } from "electron";
 import { readEnvironmentValue } from "./runtime-env.ts";

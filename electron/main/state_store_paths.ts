@@ -1,5 +1,5 @@
 /**
- * @file Shared path constants/helpers for planner state persistence artifacts.
+ * Shared path helpers for planner state persistence artifacts.
  */
 import path from "node:path";
 

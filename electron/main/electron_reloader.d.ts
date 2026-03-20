@@ -1,5 +1,5 @@
 declare module "electron-reloader" {
-    export interface ElectronReloaderOptions {
+    interface ElectronReloaderOptions {
         readonly debug?: boolean;
         readonly ignore?: ReadonlyArray<string | RegExp>;
         readonly watchRenderer?: boolean;
@@ -10,8 +10,10 @@ declare module "electron-reloader" {
      * @param targetModule - Main process module reference.
      * @param options - Optional watcher behavior overrides.
      */
-    export default function reload(
+    function electronReloader(
         targetModule: NodeJS.Module,
         options?: ElectronReloaderOptions,
     ): void;
+
+    export = electronReloader;
 }
