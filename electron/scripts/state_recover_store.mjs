@@ -86,7 +86,9 @@ function latestJournalPayload(database) {
         if (!ROW || typeof ROW.payload_json !== "string") {
             continue;
         }
-        return ROW.payload_json;
+        if (parseRecoveredState(ROW.payload_json) !== null) {
+            return ROW.payload_json;
+        }
     }
     return null;
 }
