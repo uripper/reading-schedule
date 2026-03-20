@@ -20,6 +20,14 @@ function scheduledDayInputs(refs: BookFormRefs): HTMLInputElement[] {
     );
 }
 
+function selectedWeekday(input: HTMLInputElement): BookWeekday | null {
+    const VALUE = String(input.value || "").trim();
+    if (isBookWeekday(VALUE)) {
+        return VALUE;
+    }
+    return null;
+}
+
 /**
  * Resets scheduled-day controls to "all weekdays selected".
  * @param refs - Book form references containing scheduled-day controls.
@@ -62,9 +70,9 @@ export function readScheduledDaySelection(refs: BookFormRefs): BookWeekday[] {
         if (!INPUT.checked) {
             continue;
         }
-        const VALUE = String(INPUT.value || "").trim();
-        if (isBookWeekday(VALUE)) {
-            SELECTED.add(VALUE);
+        const WEEKDAY = selectedWeekday(INPUT);
+        if (WEEKDAY !== null) {
+            SELECTED.add(WEEKDAY);
         }
     }
     return BOOK_WEEKDAYS.filter((weekday) => SELECTED.has(weekday));
