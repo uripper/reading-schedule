@@ -71,7 +71,7 @@ def _words_total(
     words_total = _parse_optional_int(data.get("words_total"), "words_total")
     if words_total is not None:
         return _require_positive_int(words_total, "words_total")
-    if pages_total is not None:
+    if pages_total is not None and remaining_words is None:
         page_count = _require_positive_int(pages_total, "pages_total")
         return page_count * WORDS_PER_PAGE
     if remaining_words is None:
