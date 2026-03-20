@@ -2,7 +2,7 @@ import type { TodayBookCard, TodayStats } from "@reading-schedule/contracts";
 import type { ComponentProps } from "react";
 import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native";
 import type { TodayBackgroundTheme } from "./today_background_theme";
-import type { TodayThemeTransitionLayer } from "./today_theme_transition_layer.tsx";
+import { TodayThemeTransitionLayer } from "./today_theme_transition_layer.tsx";
 
 /** Props for a single carousel card. */
 export interface CardProps {
