@@ -273,7 +273,11 @@ def _fetch_open_library_payload(query: str) -> object:
         ) as connection:
             connection.request("GET", f"/search.json?{query}")
             response = connection.getresponse()
-            return json.loads(response.read().decode("utf-8"))
+            if response.status != 200:
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"Book search failed: Open Library responded with {response.status}",
+                )
     except (
         ClientHTTPException,
         OSError,
