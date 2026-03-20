@@ -274,7 +274,13 @@ def _fetch_open_library_payload(query: str) -> object:
             connection.request("GET", f"/search.json?{query}")
             response = connection.getresponse()
             return json.loads(response.read().decode("utf-8"))
-    except (ClientHTTPException, OSError, TimeoutError) as error:
+    except (
+        ClientHTTPException,
+        OSError,
+        TimeoutError,
+        json.JSONDecodeError,
+        UnicodeDecodeError,
+    ) as error:
         raise HTTPException(
             status_code=502,
             detail=f"Book search failed: {error}",
