@@ -79,7 +79,9 @@ export function runHotLoop({
             return Promise.resolve(0);
         }
 
-        return launchChild().then((child) => {
+        return Promise.resolve()
+            .then(() => launchChild())
+            .then((child) => {
             const EXIT_CODE = nextLoopExitCode({
                 child,
                 isShuttingDown,
