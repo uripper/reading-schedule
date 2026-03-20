@@ -409,9 +409,6 @@ function pushTypeDefinitionHitsOutsideContracts(options) {
 	if (isContractsPath(options.relativePath)) {
 		return;
 	}
-	if (options.waiverReason !== "") {
-		return;
-	}
 	pushTypeDeclarationHit({
 		count: options.summary.exportedDeclarationCount,
 		lineNumber: options.summary.firstExportedLine,
