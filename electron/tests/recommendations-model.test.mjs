@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -6,6 +7,28 @@ import {
     deriveReadAuthors,
 } from "../dist/renderer/recommendations/model.js";
 
+const BASE_BOOK = {
+    author: "",
+    blocked_by: null,
+    book_id: "book-default",
+    cover_local_path: "",
+    cover_url: "",
+    deadline: null,
+    difficulty: 3,
+    finished_at: null,
+    lookup_note: "",
+    max_minutes_per_day: null,
+    min_blocks_per_session: 1,
+    pages_read: null,
+    pages_total: null,
+    priority: 3,
+    progress_percent: 0,
+    shelf: "",
+    status: "to_read",
+    title: "Default Title",
+    words_total: 50000,
+};
+
 /**
  * Builds a valid book-like test object with optional overrides.
  * @param {Record<string, unknown>} overrides - Partial fields to override in the default book fixture.
@@ -13,25 +36,7 @@ import {
  */
 function book(overrides = {}) {
     return {
-        author: "",
-        blocked_by: null,
-        book_id: "book-default",
-        cover_local_path: "",
-        cover_url: "",
-        deadline: null,
-        difficulty: 3,
-        finished_at: null,
-        lookup_note: "",
-        max_minutes_per_day: null,
-        min_blocks_per_session: 1,
-        pages_read: null,
-        pages_total: null,
-        priority: 3,
-        progress_percent: 0,
-        shelf: "",
-        status: "to_read",
-        title: "Default Title",
-        words_total: 50000,
+        ...BASE_BOOK,
         ...overrides,
     };
 }

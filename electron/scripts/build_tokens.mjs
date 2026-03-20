@@ -36,6 +36,15 @@ function isTokenLeaf(node) {
 }
 
 /**
+ * Returns non-metadata entries from a token branch.
+ * @param {Record<string, unknown>} node - Branch node.
+ * @returns {[string, unknown][]} Traversable child entries.
+ */
+function tokenBranchEntries(node) {
+    return Object.entries(node).filter(([key]) => !key.startsWith("$"));
+}
+
+/**
  * Flattens nested token objects into dotted-path token map.
  * @param {unknown} node - Current tree node.
  * @param {string[]} pathParts - Current token path segments.
@@ -50,10 +59,8 @@ function flattenTokens(node, pathParts = [], map = new Map()) {
         map.set(pathParts.join("."), node.$value);
         return map;
     }
-    for (const [KEY, VALUE] of Object.entries(node)) {
-        if (KEY.startsWith("$")) {
-            continue;
-        }
+
+    for (const [KEY, VALUE] of tokenBranchEntries(node)) {
         flattenTokens(VALUE, [...pathParts, KEY], map);
     }
     return map;
@@ -77,6 +84,45 @@ function resolveValue(rawValue, resolver) {
 }
 
 /**
+ * Throws when a token path cannot be resolved safely.
+ * @param {Map<string, unknown>} flatMap - Flattened token map.
+ * @param {string} pathKey - Token path key.
+ * @param {Set<string>} stack - Active resolution stack.
+ */
+function assertResolvablePath(flatMap, pathKey, stack) {
+    if (stack.has(pathKey)) {
+        throw new Error(
+            `Circular token alias detected: ${[...stack, pathKey].join(" -> ")}`,
+        );
+    }
+    if (flatMap.has(pathKey)) {
+        return;
+    }
+    throw new Error(`Unknown token alias: ${pathKey}`);
+}
+
+/**
+ * Resolves a token path and stores the concrete value in the shared cache.
+ * @param {object} root0 - Resolver inputs.
+ * @param {Map<string, unknown>} root0.cache - Shared resolver cache.
+ * @param {Map<string, unknown>} root0.flatMap - Flattened token map.
+ * @param {string} root0.pathKey - Token path key.
+ * @param {(pathKey: string, stack?: Set<string>) => unknown} root0.resolve - Recursive resolver callback.
+ * @param {Set<string>} root0.stack - Resolution stack for cycle detection.
+ * @returns {unknown} Resolved token value.
+ */
+function resolvedTokenValue({ cache, flatMap, pathKey, resolve, stack }) {
+    assertResolvablePath(flatMap, pathKey, stack);
+    stack.add(pathKey);
+    const VALUE = resolveValue(flatMap.get(pathKey), (nextKey) =>
+        resolve(nextKey, stack),
+    );
+    stack.delete(pathKey);
+    cache.set(pathKey, VALUE);
+    return VALUE;
+}
+
+/**
  * Creates memoized resolver for flattened token map aliases.
  * @param {Map<string, unknown>} flatMap - Flattened token map.
  * @returns {(pathKey: string, stack?: Set<string>) => unknown} Alias resolver.
@@ -94,21 +140,13 @@ function createResolver(flatMap) {
         if (CACHE.has(pathKey)) {
             return CACHE.get(pathKey);
         }
-        if (stack.has(pathKey)) {
-            throw new Error(
-                `Circular token alias detected: ${[...stack, pathKey].join(" -> ")}`,
-            );
-        }
-        if (!flatMap.has(pathKey)) {
-            throw new Error(`Unknown token alias: ${pathKey}`);
-        }
-        stack.add(pathKey);
-        const VALUE = resolveValue(flatMap.get(pathKey), (nextKey) =>
-            resolve(nextKey, stack),
-        );
-        stack.delete(pathKey);
-        CACHE.set(pathKey, VALUE);
-        return VALUE;
+        return resolvedTokenValue({
+            cache: CACHE,
+            flatMap,
+            pathKey,
+            resolve,
+            stack,
+        });
     }
 
     return resolve;

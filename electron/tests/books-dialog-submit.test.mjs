@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 /**
  * Regression test for book dialog submit recovery after sync validation failures.
  */

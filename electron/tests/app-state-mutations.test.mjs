@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -26,61 +27,72 @@ function session(bookId, endedAt) {
     };
 }
 
-test("App state mutations keep derived indexes synchronized", () => {
-    const STATE = createRuntimeState();
-    const STATE_REFERENCE = STATE;
-    const BOOKS = [
-        { book_id: "book-1", title: "One" },
-        { book_id: "book-2", title: "Two" },
-    ];
+const BOOKS = [
+    { book_id: "book-1", title: "One" },
+    { book_id: "book-2", title: "Two" },
+];
+const SESSIONS = [
+    session("book-1", "2026-02-27T15:00:00.000Z"),
+    session("book-2", "2026-02-27T16:00:00.000Z"),
+    session("book-1", "2026-02-28T16:00:00.000Z"),
+];
+const SCHEDULE_COMPLETIONS = {
+    "2026-02-27|0|book-1": true,
+    "2026-02-27|book-1": true,
+};
+const BLOCKED_DAY_BOOK_KEY = "2026-02-27|book-1";
 
-    applyAppStateMutation(STATE, { books: BOOKS, type: "set_book_index" });
-    assert.strictEqual(STATE, STATE_REFERENCE);
-    assert.equal(STATE.derived.bookById.get("book-1")?.title, "One");
+function applyBooksAndSessions(state) {
+    applyAppStateMutation(state, { books: BOOKS, type: "set_book_index" });
+    applyAppStateMutation(state, { sessions: SESSIONS, type: "set_sessions" });
+}
 
-    const SESSIONS = [
-        session("book-1", "2026-02-27T15:00:00.000Z"),
-        session("book-2", "2026-02-27T16:00:00.000Z"),
-        session("book-1", "2026-02-28T16:00:00.000Z"),
-    ];
-    applyAppStateMutation(STATE, { sessions: SESSIONS, type: "set_sessions" });
-
-    const FIRST_DAY_KEY = localDayKeyFromIso("2026-02-27T15:00:00.000Z");
-    assert.equal(STATE.derived.sessionsByDay.get(FIRST_DAY_KEY)?.length, 2);
-    assert.equal(STATE.derived.sessionsByBook.get("book-1")?.length, 2);
-
-    const SCHEDULE_COMPLETIONS = {
-        "2026-02-27|0|book-1": true,
-        "2026-02-27|book-1": true,
-    };
-    applyAppStateMutation(STATE, {
+function applyCompletionIndexes(state) {
+    applyAppStateMutation(state, {
         scheduleCompletions: SCHEDULE_COMPLETIONS,
         type: "set_schedule_completions",
     });
+}
 
+function assertSessionIndexes(state) {
+    const FIRST_DAY_KEY = localDayKeyFromIso("2026-02-27T15:00:00.000Z");
+    assert.equal(state.derived.sessionsByDay.get(FIRST_DAY_KEY)?.length, 2);
+    assert.equal(state.derived.sessionsByBook.get("book-1")?.length, 2);
+}
+
+function assertCompletionIndexes(state) {
     assert.equal(
-        STATE.derived.completionBySessionKey["2026-02-27|0|book-1"],
+        state.derived.completionBySessionKey[BLOCKED_DAY_BOOK_KEY],
         true,
     );
     assert.equal(
-        STATE.derived.completionByDayBookKey["2026-02-27|book-1"],
+        state.derived.completionByDayBookKey[BLOCKED_DAY_BOOK_KEY],
         true,
     );
+}
 
-    applyAppStateMutation(STATE, {
-        blocked: true,
-        key: "2026-02-27|book-1",
+function setBlockedDayBook(state, blocked) {
+    applyAppStateMutation(state, {
+        blocked,
+        key: BLOCKED_DAY_BOOK_KEY,
         type: "set_blocked_day_book",
     });
-    assert.equal(STATE.blockedDayBooks["2026-02-27|book-1"], true);
+}
 
-    applyAppStateMutation(STATE, {
-        blocked: false,
-        key: "2026-02-27|book-1",
-        type: "set_blocked_day_book",
-    });
+test("App state mutations keep derived indexes synchronized", () => {
+    const STATE = createRuntimeState();
+    const STATE_REFERENCE = STATE;
+    applyBooksAndSessions(STATE);
+    assert.strictEqual(STATE, STATE_REFERENCE);
+    assert.equal(STATE.derived.bookById.get("book-1")?.title, "One");
+    assertSessionIndexes(STATE);
+    applyCompletionIndexes(STATE);
+    assertCompletionIndexes(STATE);
+    setBlockedDayBook(STATE, true);
+    assert.equal(STATE.blockedDayBooks[BLOCKED_DAY_BOOK_KEY], true);
+    setBlockedDayBook(STATE, false);
     assert.equal(
-        Object.hasOwn(STATE.blockedDayBooks, "2026-02-27|book-1"),
+        Object.hasOwn(STATE.blockedDayBooks, BLOCKED_DAY_BOOK_KEY),
         false,
     );
 });

@@ -17,6 +17,35 @@ import {
  * @param progressPercent - Current progress percentage for fallback logic.
  * @returns Normalized book status.
  */
+function resolvedKnownStatus(
+    knownStatus: BookStatus | null,
+    progressPercent: number,
+): BookStatus | null {
+    if (knownStatus === null) {
+        return null;
+    }
+    if (knownStatus === BOOK_STATUS_READ) {
+        return BOOK_STATUS_READ;
+    }
+    if (knownStatus === BOOK_STATUS_DROPPED) {
+        return BOOK_STATUS_DROPPED;
+    }
+    if (progressPercent >= 100) {
+        return BOOK_STATUS_READ;
+    }
+    return knownStatus;
+}
+
+function statusFromProgress(progressPercent: number): BookStatus {
+    if (progressPercent >= 100) {
+        return BOOK_STATUS_READ;
+    }
+    if (progressPercent > 0) {
+        return BOOK_STATUS_IN_PROGRESS;
+    }
+    return BOOK_STATUS_TO_READ;
+}
+
 export function statusFromRaw(
     value: string | null | undefined,
     progressPercent: number,
@@ -25,25 +54,11 @@ export function statusFromRaw(
         .trim()
         .toLowerCase();
     const KNOWN = normalizedStatus(RAW);
-    if (KNOWN) {
-        if (KNOWN === BOOK_STATUS_READ) {
-            return BOOK_STATUS_READ;
-        }
-        if (KNOWN === BOOK_STATUS_DROPPED) {
-            return BOOK_STATUS_DROPPED;
-        }
-        if (progressPercent >= 100) {
-            return BOOK_STATUS_READ;
-        }
-        return KNOWN;
+    const KNOWN_STATUS = resolvedKnownStatus(KNOWN, progressPercent);
+    if (KNOWN_STATUS !== null) {
+        return KNOWN_STATUS;
     }
-    if (progressPercent >= 100) {
-        return BOOK_STATUS_READ;
-    }
-    if (progressPercent > 0) {
-        return BOOK_STATUS_IN_PROGRESS;
-    }
-    return BOOK_STATUS_TO_READ;
+    return statusFromProgress(progressPercent);
 }
 
 /**

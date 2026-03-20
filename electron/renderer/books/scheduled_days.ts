@@ -1,7 +1,7 @@
-import type { BookWeekday } from "../../types/types.ts";
 /**
- * @file Weekday contracts and normalization helpers for per-book scheduling.
+ * Weekday contracts and normalization helpers for per-book scheduling.
  */
+import type { BookWeekday } from "../../types/types.ts";
 
 export const BOOK_WEEKDAYS = [
     "Mon",
@@ -14,6 +14,17 @@ export const BOOK_WEEKDAYS = [
 ] as const;
 
 const WEEKDAY_SET = new Set<string>(BOOK_WEEKDAYS);
+
+function normalizedWeekday(rawValue: unknown): BookWeekday | null {
+    if (typeof rawValue !== "string") {
+        return null;
+    }
+    const WEEKDAY = rawValue.trim();
+    if (isBookWeekday(WEEKDAY)) {
+        return WEEKDAY;
+    }
+    return null;
+}
 
 /**
  * Checks whether a string matches a supported weekday key.
@@ -34,11 +45,8 @@ function orderedWeekdays(rawDays: unknown[]): BookWeekday[] {
     const SEEN = new Set<BookWeekday>();
 
     for (const RAW_VALUE of rawDays) {
-        if (typeof RAW_VALUE !== "string") {
-            continue;
-        }
-        const WEEKDAY = RAW_VALUE.trim();
-        if (isBookWeekday(WEEKDAY)) {
+        const WEEKDAY = normalizedWeekday(RAW_VALUE);
+        if (WEEKDAY !== null) {
             SEEN.add(WEEKDAY);
         }
     }

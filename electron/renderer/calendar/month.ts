@@ -1,3 +1,7 @@
+/**
+ * Renders the month-grid calendar view and decorates displayed rows with
+ * completion state for books that finish on visible dates.
+ */
 import type {
     CalendarDisplayRow,
     CalendarState,
@@ -16,6 +20,11 @@ function todayDayKey(): string {
     return dayKey(new Date());
 }
 
+/**
+ * Normalizes unknown book ids to the string keys used by month-row helpers.
+ * @param bookId - Raw book id value from a calendar row.
+ * @returns A string book id or an empty string when the value is unusable.
+ */
 function validBookId(bookId: unknown): string {
     if (typeof bookId !== "string") {
         return "";
@@ -23,6 +32,11 @@ function validBookId(bookId: unknown): string {
     return bookId;
 }
 
+/**
+ * Indexes completed-book rows by book id so planned rows can inherit finish state.
+ * @param completedBookRows - Completed rows synthesized for a given day.
+ * @returns Completed rows keyed by book id.
+ */
 function completedRowsByBookId(
     completedBookRows: CalendarDisplayRow[],
 ): Map<string, CalendarDisplayRow> {
@@ -37,6 +51,11 @@ function completedRowsByBookId(
     return COMPLETED_BY_BOOK_ID;
 }
 
+/**
+ * Moves finish rows to the front so completion markers render before ordinary sessions.
+ * @param rows - Rows already prepared for display.
+ * @returns Rows ordered with finished books first.
+ */
 function finishFirstRows(rows: CalendarDisplayRow[]): CalendarDisplayRow[] {
     const FINISH_ROWS: CalendarDisplayRow[] = [];
     const OTHER_ROWS: CalendarDisplayRow[] = [];
@@ -50,6 +69,12 @@ function finishFirstRows(rows: CalendarDisplayRow[]): CalendarDisplayRow[] {
     return [...FINISH_ROWS, ...OTHER_ROWS];
 }
 
+/**
+ * Collects completed-book rows that were not already represented by planned rows.
+ * @param completedByBookId - Completed rows keyed by book id.
+ * @param seenBookIds - Book ids already encountered while processing planned rows.
+ * @returns Standalone completed rows that still need to be displayed.
+ */
 function missingCompletedRows(
     completedByBookId: Map<string, CalendarDisplayRow>,
     seenBookIds: Set<string>,
@@ -70,7 +95,7 @@ function missingCompletedRows(
  * @param completedBookRows - Synthetic completed-book rows.
  * @returns Combined rows for month-grid display.
  */
-function mergeDisplayRows(
+export function mergeDisplayRows(
     plannedRows: CalendarDisplayRow[],
     completedBookRows: CalendarDisplayRow[],
 ): CalendarDisplayRow[] {
@@ -89,10 +114,11 @@ function mergeDisplayRows(
 }
 
 /**
- * Mark planned calendar rows as finished when a corresponding completed row exists and collect seen book ids.
- * @example
- * processReadingRows(plannedRows, completedByBookId)
- * { Out: [/* CalendarDisplayRow objects, some with finish: true */
+ * Marks a planned row as finished when the same book has a completed row for the day.
+ * @param row - Planned display row to normalize.
+ * @param completedByBookId - Completed rows keyed by book id.
+ * @returns The normalized row plus the book id used for tracking.
+ */
 function processedReadingRow(
     row: CalendarDisplayRow,
     completedByBookId: Map<string, CalendarDisplayRow>,
@@ -110,6 +136,11 @@ function processedReadingRow(
     };
 }
 
+/**
+ * Records book ids that already produced a displayed row for the current day.
+ * @param seenBookIds - Mutable set of displayed book ids.
+ * @param bookId - Candidate book id for the processed row.
+ */
 function trackSeenBook(seenBookIds: Set<string>, bookId: string): void {
     if (bookId === "") {
         return;
@@ -117,6 +148,12 @@ function trackSeenBook(seenBookIds: Set<string>, bookId: string): void {
     seenBookIds.add(bookId);
 }
 
+/**
+ * Applies finish markers to planned rows and tracks which books were already shown.
+ * @param plannedRows - Planned calendar rows for the day.
+ * @param completedByBookId - Completed rows keyed by book id.
+ * @returns Processed rows plus the set of seen book ids.
+ */
 function processReadingRows(
     plannedRows: CalendarDisplayRow[],
     completedByBookId: Map<string, CalendarDisplayRow>,
@@ -154,6 +191,12 @@ function ensureSelectedDateInMonth(state: CalendarState): void {
     }
 }
 
+/**
+ * Replaces the calendar grid with an empty-state message and refreshes details.
+ * @param calendar - Calendar root element.
+ * @param state - Mutable calendar render state.
+ * @param actions - Month interaction callbacks.
+ */
 function emptyCalendarMonth(
     calendar: HTMLElement,
     state: CalendarState,
@@ -168,6 +211,11 @@ function emptyCalendarMonth(
     actions.renderDetails();
 }
 
+/**
+ * Creates the month grid container with its ARIA label.
+ * @param monthKey - Visible month key in `YYYY-MM` format.
+ * @returns Grid element used for day buttons.
+ */
 function monthGrid(monthKey: string): HTMLDivElement {
     const GRID = document.createElement("div");
     GRID.className = "calendar-grid";
@@ -176,6 +224,11 @@ function monthGrid(monthKey: string): HTMLDivElement {
     return GRID;
 }
 
+/**
+ * Builds the visible cell list and first-of-month date for the requested month.
+ * @param monthKey - Visible month key in `YYYY-MM` format.
+ * @returns Visible month cell dates and the month's first date.
+ */
 function monthContext(monthKey: string): {
     cells: Date[];
     firstDate: Date;
@@ -187,11 +240,20 @@ function monthContext(monthKey: string): {
     };
 }
 
+/**
+ * Stores the current month-cell keys on the mutable calendar state.
+ * @param state - Mutable calendar render state.
+ * @param cells - Visible month cell dates.
+ */
 function applyMonthCellKeys(state: CalendarState, cells: Date[]): void {
     const CALENDAR_STATE = state;
     CALENDAR_STATE.monthCellKeys = cells.map((date) => dayKey(date));
 }
 
+/**
+ * Prepares derived month state and renders the visible month grid.
+ * @param options - Rendering inputs for the visible month.
+ */
 function renderMonthKey(options: {
     actions: MonthActions;
     calendar: HTMLElement;
@@ -239,6 +301,9 @@ export function renderCalendarMonth(
     });
 }
 
+/**
+ * Arguments required to render every button in the current month grid.
+ */
 interface RenderCalendarCellsArgs {
     actions: MonthActions;
     calendar: HTMLElement;
@@ -250,6 +315,12 @@ interface RenderCalendarCellsArgs {
     todayKey: string;
 }
 
+/**
+ * Resolves display rows for one day, including synthetic completion-only rows.
+ * @param args - Month render context.
+ * @param keyForDay - Day key for the cell being rendered.
+ * @returns Display rows for the target day.
+ */
 function rowsForDay(
     args: RenderCalendarCellsArgs,
     keyForDay: string,
@@ -261,6 +332,10 @@ function rowsForDay(
     );
 }
 
+/**
+ * Wires click and keyboard handlers onto a rendered day button.
+ * @param options - Day button bindings and navigation context.
+ */
 function bindDayButtonActions(options: {
     actions: MonthActions;
     button: HTMLButtonElement;
@@ -283,6 +358,11 @@ function bindDayButtonActions(options: {
     };
 }
 
+/**
+ * Creates the button element for a single visible day cell.
+ * @param options - Render inputs for the day button.
+ * @returns Button element for the requested day.
+ */
 function dayButtonElement(options: {
     args: RenderCalendarCellsArgs;
     date: Date;
@@ -298,6 +378,11 @@ function dayButtonElement(options: {
     });
 }
 
+/**
+ * Builds and binds a rendered day button for the month grid.
+ * @param options - Render inputs for one visible day.
+ * @returns Bound day button element.
+ */
 function calendarDayButton(options: {
     args: RenderCalendarCellsArgs;
     date: Date;
@@ -320,6 +405,11 @@ function calendarDayButton(options: {
     return DAY_BUTTON;
 }
 
+/**
+ * Builds every day button needed for the current visible month.
+ * @param args - Month render context.
+ * @returns Day buttons in grid order.
+ */
 function calendarDayButtons(
     args: RenderCalendarCellsArgs,
 ): HTMLButtonElement[] {

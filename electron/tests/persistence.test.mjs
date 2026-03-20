@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -24,10 +25,8 @@ function session(overrides = {}) {
     };
 }
 
-test("draftData persists sessions from runtime state", () => {
-    const SESSIONS = [session()];
-
-    const SNAPSHOT = draftData({
+function runtimeStateForDraft(sessions) {
+    return {
         blockedDayBooks: { "2026-02-22|book-2": true },
         collectBooks: () => [],
         collectSettings: () => ({}),
@@ -46,8 +45,13 @@ test("draftData persists sessions from runtime state", () => {
             timezone: "UTC",
         },
         scheduleCompletions: {},
-        sessions: SESSIONS,
-    });
+        sessions,
+    };
+}
+
+test("draftData persists sessions from runtime state", () => {
+    const SESSIONS = [session()];
+    const SNAPSHOT = draftData(runtimeStateForDraft(SESSIONS));
 
     assert.equal(SNAPSHOT.sessions.length, 1);
     assert.equal(SNAPSHOT.sessions[0].id, "session-1");

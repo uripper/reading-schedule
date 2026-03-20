@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 /**
  * Verifies Today carousel model fallbacks and row-local UI state cleanup.
  */
@@ -75,6 +76,39 @@ function book(bookId) {
     };
 }
 
+const REMOVED_ROW_KEY = "2026-02-24|1|book-1";
+const KEPT_ROW_KEY = "2026-02-24|2|book-2";
+
+function seedRowScopedUiState() {
+    pinRowKey("book-1", REMOVED_ROW_KEY);
+    pinRowKey("book-2", KEPT_ROW_KEY);
+    setProgressDraft({
+        pagesText: "25",
+        percentText: "20",
+        rowKey: REMOVED_ROW_KEY,
+    });
+    setProgressDraft({
+        pagesText: "50",
+        percentText: "40",
+        rowKey: KEPT_ROW_KEY,
+    });
+    setSelectedBookId("book-1");
+    closeMinutesEditor();
+    openMinutesEditor(REMOVED_ROW_KEY, "15");
+}
+
+function assertRemainingUiState() {
+    assert.equal(minutesEditor(), null);
+    assert.equal(progressDraft(REMOVED_ROW_KEY), null);
+    assert.deepEqual(pinnedRowKeySnapshot(), {
+        "book-2": KEPT_ROW_KEY,
+    });
+    assert.deepEqual(progressDraft(KEPT_ROW_KEY), {
+        pagesText: "50",
+        percentText: "40",
+    });
+}
+
 test("buildTodayCarouselModel falls back when pinned row was removed", () => {
     const FIRST = row({ bookId: "book-1", sessionIndex: 1, title: "Book 1" });
     const REMOVED = row({
@@ -99,36 +133,8 @@ test("buildTodayCarouselModel falls back when pinned row was removed", () => {
 
 test("clearTodayCarouselRowState removes only state for the deleted row", () => {
     resetTodayCarouselUiState();
-    const REMOVED_ROW_KEY = "2026-02-24|1|book-1";
-    const KEPT_ROW_KEY = "2026-02-24|2|book-2";
-
-    pinRowKey("book-1", REMOVED_ROW_KEY);
-    pinRowKey("book-2", KEPT_ROW_KEY);
-    setProgressDraft({
-        pagesText: "25",
-        percentText: "20",
-        rowKey: REMOVED_ROW_KEY,
-    });
-    setProgressDraft({
-        pagesText: "50",
-        percentText: "40",
-        rowKey: KEPT_ROW_KEY,
-    });
-    setSelectedBookId("book-1");
-    closeMinutesEditor();
-
-    openMinutesEditor(REMOVED_ROW_KEY, "15");
-
+    seedRowScopedUiState();
     clearTodayCarouselRowState("book-1", REMOVED_ROW_KEY);
-
-    assert.equal(minutesEditor(), null);
-    assert.equal(progressDraft(REMOVED_ROW_KEY), null);
-    assert.deepEqual(pinnedRowKeySnapshot(), {
-        "book-2": KEPT_ROW_KEY,
-    });
-    assert.deepEqual(progressDraft(KEPT_ROW_KEY), {
-        pagesText: "50",
-        percentText: "40",
-    });
+    assertRemainingUiState();
     resetTodayCarouselUiState();
 });

@@ -65,7 +65,15 @@ const MIN_TEST_COVERAGE_PERCENT = 90;
 
 const AUDIT_SELF_PATH = "scripts/style_audit.mjs";
 const CONTRACTS_ROOT = "packages/contracts/";
+const CONTRACTS_FIRST_AUDIT_PREFIXES = [
+	"electron/",
+	"apps/website/src/",
+	"mobile/src/",
+
+];
 const DISALLOWED_CONSOLE_PATTERN = /\bconsole\.(error|warn|log|debug)\s*\(/g;
+const LOCAL_TYPE_AUDIT_ALLOW_PATTERN =
+	/\baudit-allow-local-types\s*:\s*([^\n*]+)/;
 const TYPE_COVERAGE_CHECKS = [
 	{
 		label: "electron main strict",
@@ -328,16 +336,29 @@ function isContractsPath(relativePath) {
 	return relativePath.startsWith(CONTRACTS_ROOT);
 }
 
-function typeDeclarationSummary(relativePath, sourceFile) {
-	if (relativePath.endsWith(".d.ts")) {
-		return null;
+function hasExportModifier(node) {
+	return (node.modifiers ?? []).some((modifier) => {
+		return modifier.kind === ts.SyntaxKind.ExportKeyword;
+	});
+}
+
+function localTypeAuditWaiverReason(content) {
+	const match = content.match(LOCAL_TYPE_AUDIT_ALLOW_PATTERN);
+	if (match === null) {
+		return "";
 	}
+	return match[1].trim();
+}
+
+function typeDeclarationSummary(relativePath, sourceFile) {
 	if (relativePath.startsWith("electron/tokens/dist/")) {
 		return null;
 	}
 
 	let declarationCount = 0;
+	let exportedDeclarationCount = 0;
 	let firstLine = 0;
+	let firstExportedLine = 0;
 
 	walkNodes(sourceFile, (node) => {
 		if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) {
@@ -348,6 +369,15 @@ function typeDeclarationSummary(relativePath, sourceFile) {
 				);
 				firstLine = position.line + 1;
 			}
+			if (isDeclarationFile(relativePath) || hasExportModifier(node)) {
+				exportedDeclarationCount += 1;
+				if (firstExportedLine === 0) {
+					const position = sourceFile.getLineAndCharacterOfPosition(
+						node.getStart(sourceFile),
+					);
+					firstExportedLine = position.line + 1;
+				}
+			}
 		}
 	});
 
@@ -355,38 +385,82 @@ function typeDeclarationSummary(relativePath, sourceFile) {
 		return null;
 	}
 
-	return { declarationCount, firstLine };
+	return {
+		declarationCount,
+		exportedDeclarationCount,
+		firstExportedLine,
+		firstLine,
+	};
 }
 
-function pushTypeDeclarationHit(relativePath, summary, typeHits) {
-	if (summary === null) {
+function pushTypeDeclarationHit(options) {
+	if (options.count === 0 || options.lineNumber === 0) {
 		return;
 	}
-	typeHits.push(
-		`${relativePath}:${summary.firstLine} ${summary.declarationCount} type/interface declarations`,
+	options.typeHits.push(
+		`${options.relativePath}:${options.lineNumber} ${options.count} ${options.suffix}`,
 	);
 }
 
-function pushTypeDefinitionHitsOutsideContracts(
-	relativePath,
-	summary,
-	typeHits,
-) {
-	if (isContractsPath(relativePath)) {
+function pushTypeDefinitionHitsOutsideContracts(options) {
+	if (options.summary === null) {
 		return;
 	}
-	pushTypeDeclarationHit(relativePath, summary, typeHits);
+	if (isContractsPath(options.relativePath)) {
+		return;
+	}
+	if (options.waiverReason !== "") {
+		return;
+	}
+	pushTypeDeclarationHit({
+		count: options.summary.exportedDeclarationCount,
+		lineNumber: options.summary.firstExportedLine,
+		relativePath: options.relativePath,
+		suffix: "exported type/interface declarations",
+		typeHits: options.typeHits,
+	});
 }
 
-function pushTypeDefinitionHitsOutsideTypes(
-	relativePath,
-	summary,
-	typeHits,
-) {
-	if (isInTypesDirectory(relativePath)) {
+function pushLocalTypeWaiverHits(options) {
+	if (options.summary === null) {
 		return;
 	}
-	pushTypeDeclarationHit(relativePath, summary, typeHits);
+	if (isInTypesDirectory(options.relativePath)) {
+		return;
+	}
+	if (isContractsPath(options.relativePath)) {
+		return;
+	}
+	if (options.waiverReason !== "") {
+		return;
+	}
+	pushTypeDeclarationHit({
+		count: options.summary.declarationCount,
+		lineNumber: options.summary.firstLine,
+		relativePath: options.relativePath,
+		suffix: "type/interface declarations without audit-allow-local-types waiver",
+		typeHits: options.typeHits,
+	});
+}
+
+function scanTsTypePlacement(options) {
+	if (!isContractsFirstAuditPath(options.relativePath)) {
+		return;
+	}
+	const summary = typeDeclarationSummary(options.relativePath, options.sourceFile);
+	const waiverReason = localTypeAuditWaiverReason(options.content);
+	pushTypeDefinitionHitsOutsideContracts({
+		relativePath: options.relativePath,
+		summary,
+		typeHits: options.typeDefinitionOutsideContractsHits,
+		waiverReason,
+	});
+	pushLocalTypeWaiverHits({
+		relativePath: options.relativePath,
+		summary,
+		typeHits: options.localTypeWaiverHits,
+		waiverReason,
+	});
 }
 
 function collectFiles() {
@@ -531,16 +605,8 @@ function hasMinimumLineCountExemption(relativePath, content, extension) {
 	return false;
 }
 
-function scanJsTs(
-	relativePath,
-	content,
-	extension,
-	ternaryHits,
-	consoleHits,
-	typeDefinitionOutsideContractsHits,
-	typeDefinitionOutsideTypesHits,
-) {
-	const lines = content.split(/\r?\n/);
+function scanJsTs(options) {
+	const lines = options.content.split(/\r?\n/);
 	let lineNumber = 1;
 
 	for (const rawLine of lines) {
@@ -551,7 +617,9 @@ function scanJsTs(
 
 		let match = DISALLOWED_CONSOLE_PATTERN.exec(line);
 		while (match !== null) {
-			consoleHits.push(`${relativePath}:${lineNumber} console.${match[1]}`);
+			options.consoleHits.push(
+				`${options.relativePath}:${lineNumber} console.${match[1]}`,
+			);
 			match = DISALLOWED_CONSOLE_PATTERN.exec(line);
 		}
 		DISALLOWED_CONSOLE_PATTERN.lastIndex = 0;
@@ -559,21 +627,22 @@ function scanJsTs(
 		lineNumber += 1;
 	}
 
-	const sourceFile = parseJsTsSource(relativePath, content, extension);
-	pushTernaryHits(relativePath, sourceFile, ternaryHits);
+	const sourceFile = parseJsTsSource(
+		options.relativePath,
+		options.content,
+		options.extension,
+	);
+	pushTernaryHits(options.relativePath, sourceFile, options.ternaryHits);
 
-	if (TS_EXTENSIONS.has(extension)) {
-		const summary = typeDeclarationSummary(relativePath, sourceFile);
-		pushTypeDefinitionHitsOutsideContracts(
-			relativePath,
-			summary,
-			typeDefinitionOutsideContractsHits,
-		);
-		pushTypeDefinitionHitsOutsideTypes(
-			relativePath,
-			summary,
-			typeDefinitionOutsideTypesHits,
-		);
+	if (TS_EXTENSIONS.has(options.extension)) {
+		scanTsTypePlacement({
+			content: options.content,
+			localTypeWaiverHits: options.localTypeWaiverHits,
+			relativePath: options.relativePath,
+			sourceFile,
+			typeDefinitionOutsideContractsHits:
+				options.typeDefinitionOutsideContractsHits,
+		});
 	}
 }
 
@@ -817,6 +886,25 @@ function isTestCoverageTestFile(relativePath) {
 	return baseName.includes(".test.");
 }
 
+function isTestPath(relativePath) {
+	if (relativePath.startsWith("tests/")) {
+		return true;
+	}
+	if (relativePath.includes("/tests/")) {
+		return true;
+	}
+	return isTestCoverageTestFile(relativePath);
+}
+
+function isContractsFirstAuditPath(relativePath) {
+	if (isTestPath(relativePath)) {
+		return false;
+	}
+	return CONTRACTS_FIRST_AUDIT_PREFIXES.some((prefix) => {
+		return relativePath.startsWith(prefix);
+	});
+}
+
 function formatTestCoveragePercent(testCount, sourceCount) {
 	if (sourceCount === 0) {
 		return "100.0";
@@ -939,7 +1027,7 @@ async function run() {
 	const ternaryHits = [];
 	const consoleHits = [];
 	const typeDefinitionOutsideContractsHits = [];
-	const typeDefinitionOutsideTypesHits = [];
+	const localTypeWaiverHits = [];
 	const documentationHits = [];
 
 	let analyzed = 0;
@@ -981,15 +1069,15 @@ async function run() {
 		}
 
 		if (JS_TS_EXTENSIONS.has(extension)) {
-			scanJsTs(
-				relativePath,
+			scanJsTs({
+				consoleHits,
 				content,
 				extension,
+				localTypeWaiverHits,
+				relativePath,
 				ternaryHits,
-				consoleHits,
 				typeDefinitionOutsideContractsHits,
-				typeDefinitionOutsideTypesHits,
-			);
+			});
 			scanJsTsDocumentation(relativePath, content, documentationHits);
 			continue;
 		}
@@ -1041,8 +1129,8 @@ async function run() {
 		typeDefinitionOutsideContractsHits,
 	);
 	printHitSection(
-		"Type/interface definitions outside types folders",
-		typeDefinitionOutsideTypesHits,
+		"Local type/interface definitions without audit-allow-local-types waiver",
+		localTypeWaiverHits,
 	);
 	printHitSection("Type coverage", typeCoverageAudit.hits);
 	printHitSection("Test coverage surface", testCoverageAudit.hits);
@@ -1075,9 +1163,9 @@ async function run() {
 			`Type/interface definitions outside packages/contracts: ${typeDefinitionOutsideContractsHits.length}`,
 		);
 	}
-	if (typeDefinitionOutsideTypesHits.length > 0) {
+	if (localTypeWaiverHits.length > 0) {
 		failures.push(
-			`Type/interface definitions outside types folders: ${typeDefinitionOutsideTypesHits.length}`,
+			`Local type/interface definitions without audit-allow-local-types waiver: ${localTypeWaiverHits.length}`,
 		);
 	}
 	if (documentationHits.length > 0) {
@@ -1112,7 +1200,7 @@ async function run() {
 		`Ternary expressions: ${ternaryHits.length}`,
 		`Disallowed console methods: ${consoleHits.length}`,
 		`Type/interface definitions outside packages/contracts: ${typeDefinitionOutsideContractsHits.length}`,
-		`Type/interface definitions outside types folders: ${typeDefinitionOutsideTypesHits.length}`,
+		`Local type/interface definitions without audit-allow-local-types waiver: ${localTypeWaiverHits.length}`,
 		`Probable documentation gaps: ${documentationHits.length}`,
 	];
 	if (typeCoverageAudit.failures.length === 0) {

@@ -6,6 +6,26 @@ import type {
 import { el } from "../dom.ts";
 import { monthLabel } from "./utils.ts";
 
+function controlButton(className: string, label: string): HTMLButtonElement {
+    const BUTTON = document.createElement("button");
+    BUTTON.className = className;
+    BUTTON.type = "button";
+    BUTTON.textContent = label;
+    return BUTTON;
+}
+
+function rerenderMonthView(
+    renderControls: RenderFn,
+    renderMonth: RenderFn,
+): void {
+    renderControls();
+    renderMonth();
+}
+
+function shiftedIndex(state: CalendarControlsState, delta: number): number {
+    return Math.min(state.months.length - 1, Math.max(0, state.index + delta));
+}
+
 /**
  * Renders month navigation controls and binds prev/next/today actions.
  * @param state - Calendar controls state.
@@ -13,13 +33,13 @@ import { monthLabel } from "./utils.ts";
  * @param renderMonth - Callback to rerender visible month grid.
  * @param jumpToToday - Callback that jumps state focus to today.
  */
-export function renderCalendarControls(
-    state: CalendarControlsState,
-    renderControls: RenderFn,
-    renderMonth: RenderFn,
-    jumpToToday: JumpToTodayFn,
-): void {
-    const CALENDAR_STATE = state;
+export function renderCalendarControls(args: {
+    jumpToToday: JumpToTodayFn;
+    renderControls: RenderFn;
+    renderMonth: RenderFn;
+    state: CalendarControlsState;
+}): void {
+    const CALENDAR_STATE = args.state;
     const KEY = CALENDAR_STATE.months[CALENDAR_STATE.index] || "";
     const CONTROLS = el("calendarControls");
     const TITLE = document.createElement("strong");
@@ -30,38 +50,22 @@ export function renderCalendarControls(
         return;
     }
 
-    const PREV = document.createElement("button");
-    PREV.className = "btn";
-    PREV.type = "button";
-    PREV.textContent = "Prev";
-
-    const TODAY = document.createElement("button");
-    TODAY.className = "btn btn-calendar-today";
-    TODAY.type = "button";
-    TODAY.textContent = "Today";
-
-    const NEXT = document.createElement("button");
-    NEXT.className = "btn";
-    NEXT.type = "button";
-    NEXT.textContent = "Next";
+    const PREV = controlButton("btn", "Prev");
+    const TODAY = controlButton("btn btn-calendar-today", "Today");
+    const NEXT = controlButton("btn", "Next");
 
     PREV.onclick = () => {
-        CALENDAR_STATE.index = Math.max(0, CALENDAR_STATE.index - 1);
-        renderControls();
-        renderMonth();
+        CALENDAR_STATE.index = shiftedIndex(CALENDAR_STATE, -1);
+        rerenderMonthView(args.renderControls, args.renderMonth);
     };
 
     NEXT.onclick = () => {
-        CALENDAR_STATE.index = Math.min(
-            CALENDAR_STATE.months.length - 1,
-            CALENDAR_STATE.index + 1,
-        );
-        renderControls();
-        renderMonth();
+        CALENDAR_STATE.index = shiftedIndex(CALENDAR_STATE, 1);
+        rerenderMonthView(args.renderControls, args.renderMonth);
     };
 
     TODAY.onclick = () => {
-        jumpToToday();
+        args.jumpToToday();
     };
 
     CONTROLS.replaceChildren(PREV, TODAY, TITLE, NEXT);

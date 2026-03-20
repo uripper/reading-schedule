@@ -52,6 +52,24 @@ function renderShelfOptions(
     SHELF_SELECT.value = UNSHELVED_VALUE;
 }
 
+function syncRememberedShelf(select: HTMLSelectElement): void {
+    rememberSelectedShelf(select);
+}
+
+function selectExistingShelf(
+    select: HTMLSelectElement,
+    shelfName: string,
+): boolean {
+    const EXISTING_VALUE = existingShelfValue(select, shelfName);
+    if (EXISTING_VALUE === "") {
+        return false;
+    }
+    const SHELF_SELECT = select;
+    SHELF_SELECT.value = EXISTING_VALUE;
+    syncRememberedShelf(SHELF_SELECT);
+    return true;
+}
+
 /**
  * Compares shelf names in a case-insensitive way.
  * @param left - Left shelf name.
@@ -60,6 +78,10 @@ function renderShelfOptions(
  */
 function caseInsensitiveMatch(left: string, right: string): boolean {
     return left.localeCompare(right, undefined, { sensitivity: "base" }) === 0;
+}
+
+function isConcreteShelfOption(option: HTMLOptionElement): boolean {
+    return option.value !== "" && option.value !== SHELF_SELECT_CREATE_NEW;
 }
 
 /**
@@ -71,7 +93,7 @@ function collectShelfValues(select: HTMLSelectElement): string[] {
     const VALUES: string[] = [];
 
     for (const OPTION of Array.from(select.options)) {
-        if (!OPTION.value || OPTION.value === SHELF_SELECT_CREATE_NEW) {
+        if (!isConcreteShelfOption(OPTION)) {
             continue;
         }
         VALUES.push(OPTION.value);
@@ -108,7 +130,7 @@ export function existingShelfValue(
     shelfName: string,
 ): string {
     for (const OPTION of Array.from(select.options)) {
-        if (!OPTION.value || OPTION.value === SHELF_SELECT_CREATE_NEW) {
+        if (!isConcreteShelfOption(OPTION)) {
             continue;
         }
         if (caseInsensitiveMatch(OPTION.value, shelfName)) {
@@ -153,16 +175,13 @@ export function setSelectedShelf(
     const SHELF = String(selectedShelf || "").trim();
     renderShelfOptions(SHELF_SELECT, availableShelves, "");
     if (!SHELF) {
-        rememberSelectedShelf(SHELF_SELECT);
+        syncRememberedShelf(SHELF_SELECT);
         return;
     }
-    const EXISTING_VALUE = existingShelfValue(SHELF_SELECT, SHELF);
-    if (EXISTING_VALUE) {
-        SHELF_SELECT.value = EXISTING_VALUE;
-        rememberSelectedShelf(SHELF_SELECT);
+    if (selectExistingShelf(SHELF_SELECT, SHELF)) {
         return;
     }
     ensureShelfOption(SHELF_SELECT, SHELF);
     SHELF_SELECT.value = SHELF;
-    rememberSelectedShelf(SHELF_SELECT);
+    syncRememberedShelf(SHELF_SELECT);
 }

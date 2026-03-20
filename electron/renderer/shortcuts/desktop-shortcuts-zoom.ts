@@ -1,5 +1,5 @@
+import { logError } from "../../types/logger.ts";
 import type { ZoomApi } from "../../types/types.ts";
-import { logError } from "../logger.ts";
 import {
     isCommandPressed,
     isZoomInShortcut,

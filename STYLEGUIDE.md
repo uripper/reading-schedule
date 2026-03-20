@@ -96,6 +96,7 @@ A PR must not merge if any of the following is true:
 - If a type can be expressed without application-specific runtime dependencies, promote it into `packages/contracts` even if it currently has only one consumer.
 - Keep a type local only when it is purely transient implementation state or when moving it into `packages/contracts` would force the shared package to depend on app-specific platform/runtime libraries.
 - Do not duplicate or re-derive cross-application shapes in app code; centralize them in `packages/contracts` first and import them outward.
+- For any new `.d.ts` files under `mobile/src/`, `electron/`, or other app folders, explicitly decide whether each type belongs in `packages/contracts`. If you keep a type app-local, add a brief comment in that file explaining why it is not shared (for example, because it depends on React Native or Electron runtime/platform types).
 
 ### Runtime and Platform Safety
 

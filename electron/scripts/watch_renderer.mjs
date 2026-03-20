@@ -1,6 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import esbuild from "esbuild";
+import { context } from "esbuild";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(path.join(SCRIPT_DIR, ".."));
@@ -11,7 +11,7 @@ const OUTFILE_PATH = path.join(ROOT, "dist", "renderer", "app.js");
  * Starts renderer bundler in watch mode for development.
  */
 async function watchRenderer() {
-    const CONTEXT = await esbuild.context({
+    const CONTEXT = await context({
         bundle: true,
         entryPoints: [ENTRY_PATH],
         format: "esm",

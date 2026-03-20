@@ -3,12 +3,15 @@ import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+    createElectronLaunchSpec,
+    isDevelopmentLaunch,
+} from "./electron-launcher.mjs";
 
 const REQUIRE = createRequire(import.meta.url);
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(path.join(SCRIPT_DIR, ".."));
-const DEVELOPMENT_ENVIRONMENT = "development";
-const DEVELOPMENT_FLAG = "--development";
+const PROCESS = process;
 const ELECTRON_PACKAGE_NAME = "electron";
 const ELECTRON_REBUILD_ARGS = ["rebuild", ELECTRON_PACKAGE_NAME];
 const ELECTRON_INSTALL_SCRIPT = "install.js";
@@ -18,33 +21,11 @@ const PNPM_COMMAND_DEFAULT = "pnpm";
 const PNPM_COMMAND_WINDOWS = "pnpm.cmd";
 
 /**
- * Detects whether the script should launch Electron in development mode.
- * @returns {boolean} True when development launch flag is present.
- */
-const IS_DEVELOPMENT_LAUNCH = () => {
-    return process.argv.includes(DEVELOPMENT_FLAG);
-};
-
-/**
- * Returns environment variables safe for launching Electron child process.
- * @param {boolean} developmentLaunch - Whether to force development mode.
- * @returns {NodeJS.ProcessEnv} Cleaned environment object.
- */
-const CLEANED_ENVIRONMENT = (developmentLaunch) => {
-    const ENV = { ...process.env };
-    delete ENV.ELECTRON_RUN_AS_NODE;
-    if (developmentLaunch) {
-        ENV.NODE_ENV = DEVELOPMENT_ENVIRONMENT;
-    }
-    return ENV;
-};
-
-/**
  * Resolves the pnpm command name for the current platform.
  * @returns {string} pnpm executable name.
  */
 const PNPM_COMMAND_NAME = () => {
-    if (process.platform === "win32") {
+    if (PROCESS.platform === "win32") {
         return PNPM_COMMAND_WINDOWS;
     }
     return PNPM_COMMAND_DEFAULT;
@@ -94,7 +75,7 @@ const RUN_ELECTRON_INSTALL_SCRIPT = () => {
         ELECTRON_DIRECTORY,
         ELECTRON_INSTALL_SCRIPT,
     );
-    const ENV = { ...process.env };
+    const ENV = { ...PROCESS.env };
     delete ENV.ELECTRON_SKIP_BINARY_DOWNLOAD;
     const RESULT = spawnSync(process.execPath, [INSTALL_SCRIPT_PATH], {
         cwd: ROOT,
@@ -133,6 +114,33 @@ const REPAIR_ELECTRON_INSTALL = () => {
     );
 };
 
+function errorMessage(error) {
+    if (error instanceof Error) {
+        return error.message;
+    }
+    return String(error);
+}
+
+function writeResolveError(error) {
+    process.stderr.write(
+        `${ELECTRON_RESOLVE_ERROR_PREFIX}: ${errorMessage(error)}\n`,
+    );
+    process.stderr.write("Attempting to repair Electron install...\n");
+}
+
+function handleElectronChildError(error) {
+    process.stderr.write(`${errorMessage(error)}\n`);
+    PROCESS.exitCode = 1;
+}
+
+function handleElectronChildExit(code, signal) {
+    if (signal) {
+        PROCESS.kill(PROCESS.pid, signal);
+        return;
+    }
+    PROCESS.exitCode = Number(code || 0);
+}
+
 /**
  * Attempts to resolve Electron binary path, optionally rebuilding on failure.
  * @returns {string} Electron binary path.
@@ -141,14 +149,7 @@ const RESOLVE_ELECTRON_BINARY_PATH = () => {
     try {
         return ELECTRON_BINARY_PATH();
     } catch (error) {
-        let message = "";
-        if (error instanceof Error) {
-            message = error.message;
-        } else {
-            message = String(error);
-        }
-        process.stderr.write(`${ELECTRON_RESOLVE_ERROR_PREFIX}: ${message}\n`);
-        process.stderr.write("Attempting to repair Electron install...\n");
+        writeResolveError(error);
         REPAIR_ELECTRON_INSTALL();
         return ELECTRON_BINARY_PATH();
     }
@@ -170,29 +171,19 @@ const ELECTRON_BINARY_PATH = () => {
  * Spawns Electron process with inherited stdio and exit propagation.
  */
 const SPAWN_ELECTRON = () => {
-    const DEVELOPMENT_LAUNCH = IS_DEVELOPMENT_LAUNCH();
-    const CHILD = spawn(RESOLVE_ELECTRON_BINARY_PATH(), ["."], {
+    const DEVELOPMENT_LAUNCH = isDevelopmentLaunch();
+    const LAUNCH_SPEC = createElectronLaunchSpec({
+        binaryPath: RESOLVE_ELECTRON_BINARY_PATH(),
         cwd: ROOT,
-        env: CLEANED_ENVIRONMENT(DEVELOPMENT_LAUNCH),
-        stdio: "inherit",
+        developmentLaunch: DEVELOPMENT_LAUNCH,
     });
-    CHILD.on("error", (error) => {
-        let message = "";
-        if (error instanceof Error) {
-            message = error.message;
-        } else {
-            message = String(error);
-        }
-        process.stderr.write(`${message}\n`);
-        process.exitCode = 1;
-    });
-    CHILD.on("exit", (code, signal) => {
-        if (signal) {
-            process.kill(process.pid, signal);
-            return;
-        }
-        process.exitCode = Number(code || 0);
-    });
+    const CHILD = spawn(
+        LAUNCH_SPEC.command,
+        LAUNCH_SPEC.args,
+        LAUNCH_SPEC.options,
+    );
+    CHILD.on("error", handleElectronChildError);
+    CHILD.on("exit", handleElectronChildExit);
 };
 
 SPAWN_ELECTRON();

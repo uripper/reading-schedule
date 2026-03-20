@@ -59,7 +59,7 @@ function card(title: string, value: string, note: string): HTMLElement {
  * @param count - Finish count.
  * @returns Human-friendly count label.
  */
-function finishCountLabel(count: number): string {
+export function finishCountLabel(count: number): string {
     if (count === SINGLE_FINISH_COUNT) {
         return `${count} finish`;
     }
@@ -72,7 +72,7 @@ function finishCountLabel(count: number): string {
  * @param maxCount - Maximum count across months.
  * @returns Bar height percent.
  */
-function barHeightPercent(count: number, maxCount: number): number {
+export function barHeightPercent(count: number, maxCount: number): number {
     if (count <= ZERO_COUNT) {
         return ZERO_COUNT;
     }

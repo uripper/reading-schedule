@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -5,7 +6,7 @@ import {
     parsePlanGeneratePayload,
     parsePlanGenerateResult,
     parseSamplePayload,
-} from "../dist/contracts/planner.js";
+} from "../../packages/contracts/dist/planner.js";
 
 test("planner payload parser accepts valid generate payload", () => {
     const PAYLOAD = parsePlanGeneratePayload({

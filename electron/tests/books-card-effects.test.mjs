@@ -1,7 +1,8 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { cardClassNameForStatus } from "../dist/renderer/books/card_nodes.js";
+import { cardClassNameForStatus } from "../dist/renderer/books/card-node-shell.js";
 import {
     BOOK_STATUS_IN_PROGRESS,
     BOOK_STATUS_READ,

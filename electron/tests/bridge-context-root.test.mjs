@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 /**
  * Regression tests for bridge root and packaged-env resolution.
  */

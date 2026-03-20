@@ -4,7 +4,7 @@ import type {
     DetailInteractionHandlers,
 } from "@reading-schedule/contracts";
 import { rowsWithFinishFirst } from "./data.ts";
-import { rowsWithCompletedLast } from "./details_helpers.ts";
+import { rowsWithCompletedLast } from "./details_day.ts";
 
 /**
  * Returns empty-state message for day details panel by mode.

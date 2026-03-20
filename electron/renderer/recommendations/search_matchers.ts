@@ -1,3 +1,6 @@
+/**
+ * Recommendation-match heuristics for titles and author names returned by lookup results.
+ */
 import type {
     Book,
     BookLookupItem,

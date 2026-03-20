@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -64,61 +65,91 @@ function runNextAnimationFrame(frameQueue) {
     }
 }
 
-test("scrollToBookCard highlights immediately when card is already visible", () => {
-    const IN_VIEW_RECT = {
+function inViewRect() {
+    return {
         bottom: 240,
         left: 20,
         right: 320,
         top: 120,
     };
-    const TARGET_CARD = fakeCard("book-b", () => IN_VIEW_RECT);
-    const FIRST_CARD = fakeCard("book-a", () => IN_VIEW_RECT);
+}
+
+function captureScrollEnvironment() {
+    return {
+        clearTimeout: globalThis.clearTimeout,
+        document: globalThis.document,
+        innerHeight: globalThis.innerHeight,
+        innerWidth: globalThis.innerWidth,
+        requestAnimationFrame: globalThis.requestAnimationFrame,
+        setTimeout: globalThis.setTimeout,
+    };
+}
+
+function installDocumentAndViewport(cards) {
+    globalThis.document = {
+        querySelectorAll() {
+            return cards;
+        },
+    };
+    globalThis.innerHeight = 900;
+    globalThis.innerWidth = 1400;
+}
+
+function installAnimationFrames(frameQueue) {
+    if (frameQueue !== null) {
+        globalThis.requestAnimationFrame = (callback) => {
+            frameQueue.push(callback);
+            return frameQueue.length;
+        };
+    }
+}
+
+function installTimers() {
     const PENDING_TIMERS = new Map();
     let nextTimerId = 0;
+    globalThis.setTimeout = (callback) => {
+        nextTimerId += 1;
+        PENDING_TIMERS.set(nextTimerId, callback);
+        return nextTimerId;
+    };
+    globalThis.clearTimeout = (timerId) => {
+        PENDING_TIMERS.delete(timerId);
+    };
+    return PENDING_TIMERS;
+}
 
-    const ORIGINAL_DOCUMENT = globalThis.document;
-    const ORIGINAL_SET_TIMEOUT = globalThis.setTimeout;
-    const ORIGINAL_CLEAR_TIMEOUT = globalThis.clearTimeout;
-    const ORIGINAL_INNER_HEIGHT = globalThis.innerHeight;
-    const ORIGINAL_INNER_WIDTH = globalThis.innerWidth;
-    try {
-        globalThis.document = {
-            querySelectorAll() {
-                return [FIRST_CARD, TARGET_CARD];
-            },
-        };
-        globalThis.innerHeight = 900;
-        globalThis.innerWidth = 1400;
-        globalThis.setTimeout = (callback) => {
-            nextTimerId += 1;
-            PENDING_TIMERS.set(nextTimerId, callback);
-            return nextTimerId;
-        };
-        globalThis.clearTimeout = (timerId) => {
-            PENDING_TIMERS.delete(timerId);
-        };
+function installScrollEnvironment(cards, frameQueue = null) {
+    const ORIGINALS = captureScrollEnvironment();
+    installDocumentAndViewport(cards);
+    installAnimationFrames(frameQueue);
+    const PENDING_TIMERS = installTimers();
+    return {
+        pendingTimers: PENDING_TIMERS,
+        restore() {
+            globalThis.clearTimeout = ORIGINALS.clearTimeout;
+            globalThis.document = ORIGINALS.document;
+            globalThis.innerHeight = ORIGINALS.innerHeight;
+            globalThis.innerWidth = ORIGINALS.innerWidth;
+            globalThis.requestAnimationFrame = ORIGINALS.requestAnimationFrame;
+            globalThis.setTimeout = ORIGINALS.setTimeout;
+        },
+    };
+}
 
-        scrollToBookCard("book-b");
-        assert.equal(TARGET_CARD.scrollCalls, 0);
-        assert.equal(TARGET_CARD.classList.contains("is-after-target"), true);
-
-        const RESET_TIMER = PENDING_TIMERS.get(1);
-        assert.equal(typeof RESET_TIMER, "function");
-        if (typeof RESET_TIMER === "function") {
-            RESET_TIMER();
-        }
-        assert.equal(TARGET_CARD.classList.contains("is-after-target"), false);
-    } finally {
-        globalThis.document = ORIGINAL_DOCUMENT;
-        globalThis.setTimeout = ORIGINAL_SET_TIMEOUT;
-        globalThis.clearTimeout = ORIGINAL_CLEAR_TIMEOUT;
-        globalThis.innerHeight = ORIGINAL_INNER_HEIGHT;
-        globalThis.innerWidth = ORIGINAL_INNER_WIDTH;
+function runResetTimer(pendingTimers) {
+    const RESET_TIMER = pendingTimers.get(1);
+    assert.equal(typeof RESET_TIMER, "function");
+    if (typeof RESET_TIMER === "function") {
+        RESET_TIMER();
     }
-});
+}
 
-test("scrollToBookCard waits for scrolling to settle before highlighting", () => {
-    const RECTS = [
+function assertNotHighlighted(card) {
+    assert.equal(card.classList.contains("is-after-target"), false);
+}
+
+function settlingRects() {
+    return [
         { bottom: 1320, left: 0, right: 320, top: 1200 },
         { bottom: 800, left: 0, right: 320, top: 680 },
         { bottom: 540, left: 0, right: 320, top: 420 },
@@ -128,6 +159,32 @@ test("scrollToBookCard waits for scrolling to settle before highlighting", () =>
         { bottom: 300, left: 0, right: 320, top: 180 },
         { bottom: 300, left: 0, right: 320, top: 180 },
     ];
+}
+
+function runFramesWithPendingHighlight(frameQueue, card, count) {
+    for (let index = 0; index < count; index += 1) {
+        runNextAnimationFrame(frameQueue);
+        assertNotHighlighted(card);
+    }
+}
+
+test("scrollToBookCard highlights immediately when card is already visible", () => {
+    const TARGET_CARD = fakeCard("book-b", inViewRect);
+    const FIRST_CARD = fakeCard("book-a", inViewRect);
+    const ENVIRONMENT = installScrollEnvironment([FIRST_CARD, TARGET_CARD]);
+    try {
+        scrollToBookCard("book-b");
+        assert.equal(TARGET_CARD.scrollCalls, 0);
+        assert.equal(TARGET_CARD.classList.contains("is-after-target"), true);
+        runResetTimer(ENVIRONMENT.pendingTimers);
+        assert.equal(TARGET_CARD.classList.contains("is-after-target"), false);
+    } finally {
+        ENVIRONMENT.restore();
+    }
+});
+
+test("scrollToBookCard waits for scrolling to settle before highlighting", () => {
+    const RECTS = settlingRects();
     let rectIndex = 0;
     const TARGET_CARD = fakeCard("book-b", () => {
         const RECT = RECTS[Math.min(rectIndex, RECTS.length - 1)];
@@ -135,64 +192,19 @@ test("scrollToBookCard waits for scrolling to settle before highlighting", () =>
         return RECT;
     });
     const FIRST_CARD = fakeCard("book-a", () => RECTS[0]);
-    const PENDING_TIMERS = new Map();
-    let nextTimerId = 0;
     const FRAME_QUEUE = [];
-
-    const ORIGINAL_DOCUMENT = globalThis.document;
-    const ORIGINAL_ANIMATION_FRAME = globalThis.requestAnimationFrame;
-    const ORIGINAL_SET_TIMEOUT = globalThis.setTimeout;
-    const ORIGINAL_CLEAR_TIMEOUT = globalThis.clearTimeout;
-    const ORIGINAL_INNER_HEIGHT = globalThis.innerHeight;
-    const ORIGINAL_INNER_WIDTH = globalThis.innerWidth;
+    const ENVIRONMENT = installScrollEnvironment(
+        [FIRST_CARD, TARGET_CARD],
+        FRAME_QUEUE,
+    );
     try {
-        globalThis.document = {
-            querySelectorAll() {
-                return [FIRST_CARD, TARGET_CARD];
-            },
-        };
-        globalThis.innerHeight = 900;
-        globalThis.innerWidth = 1400;
-        globalThis.requestAnimationFrame = (callback) => {
-            FRAME_QUEUE.push(callback);
-            return FRAME_QUEUE.length;
-        };
-        globalThis.setTimeout = (callback) => {
-            nextTimerId += 1;
-            PENDING_TIMERS.set(nextTimerId, callback);
-            return nextTimerId;
-        };
-        globalThis.clearTimeout = (timerId) => {
-            PENDING_TIMERS.delete(timerId);
-        };
-
         scrollToBookCard("book-b");
         assert.equal(TARGET_CARD.scrollCalls, 1);
-        assert.equal(TARGET_CARD.classList.contains("is-after-target"), false);
-
-        runNextAnimationFrame(FRAME_QUEUE);
-        assert.equal(TARGET_CARD.classList.contains("is-after-target"), false);
-
-        runNextAnimationFrame(FRAME_QUEUE);
-        assert.equal(TARGET_CARD.classList.contains("is-after-target"), false);
-
-        runNextAnimationFrame(FRAME_QUEUE);
-        assert.equal(TARGET_CARD.classList.contains("is-after-target"), false);
-
-        runNextAnimationFrame(FRAME_QUEUE);
-        assert.equal(TARGET_CARD.classList.contains("is-after-target"), false);
-
-        runNextAnimationFrame(FRAME_QUEUE);
-        assert.equal(TARGET_CARD.classList.contains("is-after-target"), false);
-
+        assertNotHighlighted(TARGET_CARD);
+        runFramesWithPendingHighlight(FRAME_QUEUE, TARGET_CARD, 5);
         runNextAnimationFrame(FRAME_QUEUE);
         assert.equal(TARGET_CARD.classList.contains("is-after-target"), true);
     } finally {
-        globalThis.document = ORIGINAL_DOCUMENT;
-        globalThis.requestAnimationFrame = ORIGINAL_ANIMATION_FRAME;
-        globalThis.setTimeout = ORIGINAL_SET_TIMEOUT;
-        globalThis.clearTimeout = ORIGINAL_CLEAR_TIMEOUT;
-        globalThis.innerHeight = ORIGINAL_INNER_HEIGHT;
-        globalThis.innerWidth = ORIGINAL_INNER_WIDTH;
+        ENVIRONMENT.restore();
     }
 });

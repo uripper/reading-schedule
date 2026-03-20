@@ -10,6 +10,43 @@ const DATE_KEY_MONTH_INDEX = 1;
 const DATE_KEY_DAY_INDEX = 2;
 const MONTH_INDEX_OFFSET = 1;
 
+function parsedDateKeyParts(dateKey: string): {
+    day: number;
+    month: number;
+    year: number;
+} | null {
+    const PARTS = dateKey.split("-");
+    if (PARTS.length !== DATE_KEY_PART_COUNT) {
+        return null;
+    }
+    const YEAR = Number(PARTS[0]);
+    const MONTH = Number(PARTS[DATE_KEY_MONTH_INDEX]);
+    const DAY = Number(PARTS[DATE_KEY_DAY_INDEX]);
+    if (!Number.isInteger(YEAR)) {
+        return null;
+    }
+    if (!Number.isInteger(MONTH)) {
+        return null;
+    }
+    if (!Number.isInteger(DAY)) {
+        return null;
+    }
+    return { day: DAY, month: MONTH, year: YEAR };
+}
+
+function matchesDateParts(
+    date: Date,
+    parts: { day: number; month: number; year: number },
+): boolean {
+    if (date.getFullYear() !== parts.year) {
+        return false;
+    }
+    if (date.getMonth() !== parts.month - MONTH_INDEX_OFFSET) {
+        return false;
+    }
+    return date.getDate() === parts.day;
+}
+
 /**
  * Calculates the number of weeks needed to display a month in a calendar grid.
  * @param weekdayOffset - Number of blank cells before the first day of the month (0-6).
@@ -109,30 +146,16 @@ export function monthCells(monthKey: string): Date[] {
  * @returns Local Date for valid keys, otherwise null.
  */
 function parseDayKey(dateKey: string): Date | null {
-    const PARTS = dateKey.split("-");
-    if (PARTS.length !== DATE_KEY_PART_COUNT) {
+    const PARTS = parsedDateKeyParts(dateKey);
+    if (PARTS === null) {
         return null;
     }
-    const YEAR = Number(PARTS[0]);
-    const MONTH = Number(PARTS[DATE_KEY_MONTH_INDEX]);
-    const DAY = Number(PARTS[DATE_KEY_DAY_INDEX]);
-    if (!Number.isInteger(YEAR)) {
-        return null;
-    }
-    if (!Number.isInteger(MONTH)) {
-        return null;
-    }
-    if (!Number.isInteger(DAY)) {
-        return null;
-    }
-    const DATE = new Date(YEAR, MONTH - MONTH_INDEX_OFFSET, DAY);
-    if (DATE.getFullYear() !== YEAR) {
-        return null;
-    }
-    if (DATE.getMonth() !== MONTH - MONTH_INDEX_OFFSET) {
-        return null;
-    }
-    if (DATE.getDate() !== DAY) {
+    const DATE = new Date(
+        PARTS.year,
+        PARTS.month - MONTH_INDEX_OFFSET,
+        PARTS.day,
+    );
+    if (!matchesDateParts(DATE, PARTS)) {
         return null;
     }
     return DATE;

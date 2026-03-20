@@ -1,7 +1,30 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
 import { findRecommendations } from "../dist/renderer/recommendations/search.js";
+
+const BASE_BOOK = {
+    author: "",
+    blocked_by: null,
+    book_id: "book-default",
+    cover_local_path: "",
+    cover_url: "",
+    deadline: null,
+    difficulty: 3,
+    finished_at: null,
+    lookup_note: "",
+    max_minutes_per_day: null,
+    min_blocks_per_session: 1,
+    pages_read: null,
+    pages_total: null,
+    priority: 3,
+    progress_percent: 0,
+    shelf: "",
+    status: "to_read",
+    title: "Default Title",
+    words_total: 50000,
+};
 
 /**
  * Builds a valid book-like test object with optional overrides.
@@ -9,52 +32,25 @@ import { findRecommendations } from "../dist/renderer/recommendations/search.js"
  * @returns {Record<string, unknown>} Book-like fixture object.
  */
 function book(overrides = {}) {
+    return { ...BASE_BOOK, ...overrides };
+}
+
+function createSearchApi(results, calls) {
     return {
-        author: "",
-        blocked_by: null,
-        book_id: "book-default",
-        cover_local_path: "",
-        cover_url: "",
-        deadline: null,
-        difficulty: 3,
-        finished_at: null,
-        lookup_note: "",
-        max_minutes_per_day: null,
-        min_blocks_per_session: 1,
-        pages_read: null,
-        pages_total: null,
-        priority: 3,
-        progress_percent: 0,
-        shelf: "",
-        status: "to_read",
-        title: "Default Title",
-        words_total: 50000,
-        ...overrides,
+        searchBooks(query, authorOnly) {
+            calls.push({ authorOnly, query });
+            return Promise.resolve(results);
+        },
     };
 }
 
-test("findRecommendations queries read authors and filters existing titles", async () => {
-    const CALLS = [];
-    const API = {
-        searchBooks(query, authorOnly) {
-            CALLS.push({ authorOnly, query });
-            return Promise.resolve([
-                {
-                    author: "George Orwell",
-                    title: "Homage to Catalonia",
-                    words_estimate: 73000,
-                },
-                {
-                    author: "George Orwell",
-                    title: "Keep the Aspidistra Flying",
-                    words_estimate: 89000,
-                },
-            ]);
-        },
-    };
+function titlesFor(items) {
+    return items.map((item) => item.title);
+}
 
-    const RECOMMENDATIONS = await findRecommendations(
-        [
+function georgeOrwellScenario() {
+    return {
+        books: [
             book({
                 author: "George Orwell",
                 status: "read",
@@ -66,51 +62,75 @@ test("findRecommendations queries read authors and filters existing titles", asy
                 title: "Homage to Catalonia",
             }),
         ],
-        API,
-    );
+        results: [
+            {
+                author: "George Orwell",
+                title: "Homage to Catalonia",
+                words_estimate: 73000,
+            },
+            {
+                author: "George Orwell",
+                title: "Keep the Aspidistra Flying",
+                words_estimate: 89000,
+            },
+        ],
+    };
+}
 
-    assert.equal(CALLS[0].query, "George Orwell");
-    assert.equal(CALLS[0].authorOnly, true);
-    assert.equal(
-        RECOMMENDATIONS.some((item) => item.title === "Homage to Catalonia"),
-        false,
+test("findRecommendations queries read authors and filters existing titles", async () => {
+    const CALLS = [];
+    const SCENARIO = georgeOrwellScenario();
+    const RECOMMENDATIONS = await findRecommendations(
+        SCENARIO.books,
+        createSearchApi(SCENARIO.results, CALLS),
     );
-    assert.equal(
-        RECOMMENDATIONS.some(
-            (item) => item.title === "Keep the Aspidistra Flying",
-        ),
-        true,
-    );
+    const TITLES = titlesFor(RECOMMENDATIONS);
+
+    assert.deepEqual(CALLS, [{ authorOnly: true, query: "George Orwell" }]);
+    assert.equal(TITLES.includes("Homage to Catalonia"), false);
+    assert.equal(TITLES.includes("Keep the Aspidistra Flying"), true);
 });
 
 test("findRecommendations samples a random subset of up to five read authors", async () => {
     const CALLS = [];
-    const API = {
-        searchBooks(query) {
-            CALLS.push(query);
-            return Promise.resolve([]);
-        },
-    };
-
-    await findRecommendations(
-        [
-            book({ author: "Author A", status: "read", title: "Book A" }),
-            book({ author: "Author B", status: "read", title: "Book B" }),
-            book({ author: "Author C", status: "read", title: "Book C" }),
-            book({ author: "Author D", status: "read", title: "Book D" }),
-            book({ author: "Author E", status: "read", title: "Book E" }),
-            book({ author: "Author F", status: "read", title: "Book F" }),
-        ],
-        API,
-        { randomFn: () => 0 },
-    );
-
-    assert.equal(CALLS.length, 5);
-    assert.deepEqual(CALLS, [
+    const AUTHORS = [
+        "Author A",
         "Author B",
         "Author C",
         "Author D",
         "Author E",
         "Author F",
-    ]);
+    ];
+    await findRecommendations(
+        AUTHORS.map((author, index) => {
+            return book({ author, status: "read", title: `Book ${index}` });
+        }),
+        createSearchApi([], CALLS),
+        { randomFn: () => 0 },
+    );
+
+    assert.equal(CALLS.length, 5);
+    assert.deepEqual(
+        CALLS.map((entry) => entry.query),
+        ["Author B", "Author C", "Author D", "Author E", "Author F"],
+    );
+});
+
+test("findRecommendations falls back to the static catalog when live searches return nothing", async () => {
+    const CALLS = [];
+    const RECOMMENDATIONS = await findRecommendations(
+        [
+            book({
+                author: "Toni Morrison",
+                status: "read",
+                title: "Beloved",
+            }),
+        ],
+        createSearchApi([], CALLS),
+    );
+    const TITLES = titlesFor(RECOMMENDATIONS);
+
+    assert.deepEqual(CALLS, [{ authorOnly: true, query: "Toni Morrison" }]);
+    assert.equal(TITLES.includes("Beloved"), false);
+    assert.equal(TITLES.includes("Sula"), true);
 });

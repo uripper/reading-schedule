@@ -4,7 +4,7 @@
 
 const HOT_RELOAD_IGNORED_OUTPUTS = ["dist/main.js", "dist/main/**"] as const;
 
-export interface ElectronReloaderOptions {
+interface ElectronReloaderOptions {
     readonly debug?: boolean;
     readonly ignore?: ReadonlyArray<string | RegExp>;
     readonly watchRenderer?: boolean;
@@ -15,11 +15,11 @@ type ElectronReloaderCallable = (
     options: ElectronReloaderOptions,
 ) => void;
 
-export interface ElectronReloaderModule {
+interface ElectronReloaderModule {
     readonly default?: ElectronReloaderCallable;
 }
 
-export interface DevelopmentHotReloadArgs {
+interface DevelopmentHotReloadArgs {
     importElectronReloader(): Promise<
         ElectronReloaderCallable | ElectronReloaderModule
     >;
@@ -57,4 +57,3 @@ export async function enableDevelopmentHotReload(
     });
 }
 
-export { HOT_RELOAD_IGNORED_OUTPUTS };

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+// biome-ignore lint/correctness/noUnresolvedImports: node:sqlite is available in the target Electron Node runtime.
 import { DatabaseSync } from "node:sqlite";
 import test from "node:test";
 
@@ -57,58 +58,44 @@ function readSnapshot(sqlitePath) {
     }
 }
 
-test("state recovery imports JSON input into canonical user-data targets", () => {
-    const ROOT = tempDir();
-    const INPUT_PATH = path.join(ROOT, "input.json");
-    const USER_DATA_DIR = path.join(ROOT, "userData");
-    const PAYLOAD = {
+function recoveryArgs(inputPath, userDataDir) {
+    return ["--input", inputPath, "--user-data-dir", userDataDir];
+}
+
+function recoveredJson(userDataDir) {
+    return JSON.parse(
+        fs.readFileSync(path.join(userDataDir, "planner_state.json"), "utf8"),
+    );
+}
+
+function assertRecoveredCounts(result) {
+    assert.equal(result.counts.books, 1);
+    assert.equal(result.counts.sessions, 1);
+    assert.equal(result.counts.scheduleRows, 1);
+}
+
+function jsonRecoveryPayload() {
+    return {
         books: [{ book_id: "book-1", title: "Recovered Book" }],
         last_result: { schedule: [{ date: "2026-02-27", session_index: 1 }] },
         schedule_completions: { "2026-02-27|1|book-1": true },
         sessions: [{ book_id: "book-1", id: "s-1", minutes: 15 }],
         settings: { end_date: "2026-12-31" },
     };
-    fs.writeFileSync(INPUT_PATH, JSON.stringify(PAYLOAD), "utf8");
-    try {
-        const RESULT = recoverStateFromArgs([
-            "--input",
-            INPUT_PATH,
-            "--user-data-dir",
-            USER_DATA_DIR,
-        ]);
-        assert.equal(RESULT.sourceType, "json");
-        assert.equal(RESULT.counts.books, 1);
-        assert.equal(RESULT.counts.sessions, 1);
-        assert.equal(RESULT.counts.scheduleRows, 1);
-        assert.equal(RESULT.counts.scheduleCompletions, 1);
-        const RECOVERED_JSON = JSON.parse(
-            fs.readFileSync(
-                path.join(USER_DATA_DIR, "planner_state.json"),
-                "utf8",
-            ),
-        );
-        assert.equal(RECOVERED_JSON.books.length, 1);
-        const RECOVERED_SNAPSHOT = readSnapshot(
-            path.join(USER_DATA_DIR, "planner_state.sqlite3"),
-        );
-        assert.equal(RECOVERED_SNAPSHOT.last_result.schedule.length, 1);
-    } finally {
-        cleanup(ROOT);
-    }
-});
+}
 
-test("state recovery replays SQLite journal when snapshot payload is invalid", () => {
-    const ROOT = tempDir();
-    const INPUT_PATH = path.join(ROOT, "input.sqlite3");
-    const USER_DATA_DIR = path.join(ROOT, "userData");
-    const VALID_PAYLOAD = {
+function journalPayload() {
+    return {
         books: [{ book_id: "book-2", title: "Journal Book" }],
         last_result: { schedule: [{ date: "2026-02-28", session_index: 2 }] },
         schedule_completions: { "2026-02-28|2|book-2": true },
         sessions: [{ book_id: "book-2", id: "s-2", minutes: 30 }],
         settings: { end_date: "2026-12-31" },
     };
-    const DATABASE = new DatabaseSync(INPUT_PATH);
+}
+
+function writeBrokenSnapshotWithJournal(inputPath, payload) {
+    const DATABASE = new DatabaseSync(inputPath);
     try {
         DATABASE.exec(SQLITE_SNAPSHOT_TABLE);
         DATABASE.exec(SQLITE_JOURNAL_TABLE);
@@ -120,28 +107,52 @@ test("state recovery replays SQLite journal when snapshot payload is invalid", (
         ).run(
             "2026-02-27T00:00:01.000Z",
             "save_snapshot",
-            JSON.stringify(VALID_PAYLOAD),
+            JSON.stringify(payload),
         );
     } finally {
         DATABASE.close();
     }
+}
+
+function assertJsonImportArtifacts(userDataDir) {
+    const RECOVERED_JSON = recoveredJson(userDataDir);
+    assert.equal(RECOVERED_JSON.books.length, 1);
+    const RECOVERED_SNAPSHOT = readSnapshot(
+        path.join(userDataDir, "planner_state.sqlite3"),
+    );
+    assert.equal(RECOVERED_SNAPSHOT.last_result.schedule.length, 1);
+}
+
+test("state recovery imports JSON input into canonical user-data targets", () => {
+    const ROOT = tempDir();
+    const INPUT_PATH = path.join(ROOT, "input.json");
+    const USER_DATA_DIR = path.join(ROOT, "userData");
+    fs.writeFileSync(INPUT_PATH, JSON.stringify(jsonRecoveryPayload()), "utf8");
     try {
-        const RESULT = recoverStateFromArgs([
-            "--input",
-            INPUT_PATH,
-            "--user-data-dir",
-            USER_DATA_DIR,
-        ]);
-        assert.equal(RESULT.sourceType, "sqlite");
-        assert.equal(RESULT.counts.books, 1);
-        assert.equal(RESULT.counts.sessions, 1);
-        assert.equal(RESULT.counts.scheduleRows, 1);
-        const RECOVERED_JSON = JSON.parse(
-            fs.readFileSync(
-                path.join(USER_DATA_DIR, "planner_state.json"),
-                "utf8",
-            ),
+        const RESULT = recoverStateFromArgs(
+            recoveryArgs(INPUT_PATH, USER_DATA_DIR),
         );
+        assert.equal(RESULT.sourceType, "json");
+        assertRecoveredCounts(RESULT);
+        assert.equal(RESULT.counts.scheduleCompletions, 1);
+        assertJsonImportArtifacts(USER_DATA_DIR);
+    } finally {
+        cleanup(ROOT);
+    }
+});
+
+test("state recovery replays SQLite journal when snapshot payload is invalid", () => {
+    const ROOT = tempDir();
+    const INPUT_PATH = path.join(ROOT, "input.sqlite3");
+    const USER_DATA_DIR = path.join(ROOT, "userData");
+    writeBrokenSnapshotWithJournal(INPUT_PATH, journalPayload());
+    try {
+        const RESULT = recoverStateFromArgs(
+            recoveryArgs(INPUT_PATH, USER_DATA_DIR),
+        );
+        assert.equal(RESULT.sourceType, "sqlite");
+        assertRecoveredCounts(RESULT);
+        const RECOVERED_JSON = recoveredJson(USER_DATA_DIR);
         assert.equal(RECOVERED_JSON.books[0].book_id, "book-2");
     } finally {
         cleanup(ROOT);
