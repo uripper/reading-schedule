@@ -876,7 +876,13 @@ function isTestCoverageSourceFile(relativePath) {
 }
 
 function isTestCoverageTestFile(relativePath) {
-	const baseName = path.basename(relativePath);
+    if (
+        relativePath.startsWith("tests/") ||
+        relativePath.includes("/tests/")
+    ) {
+        return true;
+    }
+
 	if (relativePath.endsWith(".py")) {
 		return baseName.startsWith("test_");
 	}
