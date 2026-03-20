@@ -202,8 +202,8 @@ export function finalizeManualSessionAdd(
     options: AddManualSessionArgs,
     result: ManualSessionAddResult,
 ): void {
+    applyManualSessionCompletion(options, result.row);
     applyNextResult(options, result.nextResult);
     setBlockedDayBook(options.applyStateMutation, result.row, false);
-    applyManualSessionCompletion(options, result.row);
     finishScheduleUpdate(options, addedManualSessionMessage(result));
 }
