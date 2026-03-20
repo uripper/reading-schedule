@@ -72,8 +72,14 @@ function latestSnapshotPayload(database) {
             return null;
         }
         return SNAPSHOT.payload_json;
-    } catch {
-        return null;
+    } catch (error) {
+        if (
+            error instanceof Error &&
+            /no such table:\s*planner_state_snapshot/i.test(error.message)
+        ) {
+            return null;
+        }
+        throw error;
     }
 
 function latestJournalPayload(database) {
