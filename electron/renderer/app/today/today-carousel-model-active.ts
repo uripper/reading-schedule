@@ -10,7 +10,7 @@ import type {
     TodayCarouselActiveItem,
     TodayCarouselBookItem,
     TodayCarouselSessionItem,
-} from "./today-carousel-model-types.ts";
+} from "./today-carousel-model-types.d.ts";
 
 const MIN_PROGRESS = 0;
 const MAX_PROGRESS = 100;

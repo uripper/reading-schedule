@@ -10,7 +10,7 @@ import { buildTodayCarouselBooks } from "./today-carousel-model-helpers.ts";
 import type {
     TodayCarouselBookItem,
     TodayCarouselModel,
-} from "./today-carousel-model-types.ts";
+} from "./today-carousel-model-types.d.ts";
 
 const EMPTY_TEXT = "";
 
@@ -18,7 +18,7 @@ export type {
     TodayCarouselActiveItem,
     TodayCarouselBookItem,
     TodayCarouselModel,
-} from "./today-carousel-model-types.ts";
+} from "./today-carousel-model-types.d.ts";
 
 function todayRows(lastResult: PlannerResult | null): PlannerScheduleRow[] {
     let schedule: PlannerScheduleRow[] = [];

@@ -48,7 +48,8 @@ function centerBookInTrack(track: HTMLElement, bookId: string): void {
         track.scrollLeft +
         NODE_RECT.width / 2;
     const TARGET_LEFT = Math.max(0, NODE_CENTER - TRACK_RECT.width / 2);
-    track.scrollLeft = Math.round(TARGET_LEFT);
+    const TRACK_ELEMENT = track;
+    TRACK_ELEMENT.scrollLeft = Math.round(TARGET_LEFT);
 }
 
 /**

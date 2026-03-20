@@ -8,7 +8,7 @@ import { sessionKeyFor } from "../../calendar/utils.ts";
 import type {
     TodayCarouselBookItem,
     TodayCarouselSessionItem,
-} from "./today-carousel-model-types.ts";
+} from "./today-carousel-model-types.d.ts";
 
 const EMPTY_TEXT = "";
 const DEFAULT_TITLE = "Untitled";

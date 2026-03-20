@@ -1,5 +1,15 @@
 import { buildSessionDotStates } from "./today_header.ts";
 
+function sessionDot(complete: boolean): HTMLSpanElement {
+    const DOT = document.createElement("span");
+    DOT.className = "neo-session-dot";
+    if (complete) {
+        DOT.classList.add("is-complete");
+    }
+    DOT.setAttribute("aria-hidden", "true");
+    return DOT;
+}
+
 /**
  * Toggles complete-state CSS for a checkbox-style metric indicator.
  * @param indicatorNode - Indicator DOM element.
@@ -34,13 +44,7 @@ export function renderSessionDots(
     );
     const DOTS: HTMLSpanElement[] = [];
     for (const IS_COMPLETE of DOT_STATES) {
-        const DOT = document.createElement("span");
-        DOT.className = "neo-session-dot";
-        if (IS_COMPLETE) {
-            DOT.classList.add("is-complete");
-        }
-        DOT.setAttribute("aria-hidden", "true");
-        DOTS.push(DOT);
+        DOTS.push(sessionDot(IS_COMPLETE));
     }
     container.replaceChildren(...DOTS);
 }
