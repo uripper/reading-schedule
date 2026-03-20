@@ -12,7 +12,7 @@ import type {
     BridgeProgressSnapshot,
     BridgeRunSession,
     BridgeTimeoutArgs,
-} from "./types.ts";
+} from "./types.d.ts";
 
 let logTail = "";
 
