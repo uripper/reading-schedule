@@ -20,7 +20,7 @@ const HTTP_STATUS_REDIRECT_MIN = 300;
 const HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE = 400;
 
 function normalizedHostname(hostname: string): string {
-    const NORMALIZED = hostname.trim().toLowerCase();
+    const NORMALIZED = hostname.trim().toLowerCase().replace(/\.+$/, "");
     if (
         NORMALIZED.startsWith(IPV6_HOSTNAME_PREFIX) &&
         NORMALIZED.endsWith(IPV6_HOSTNAME_SUFFIX)
