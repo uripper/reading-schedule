@@ -52,7 +52,9 @@ function nextLoopExitCode({ child, isShuttingDown, shortRunThresholdMs }) {
  * @returns {Promise<number>} Exit code from the next iteration.
  */
 function restartChild({ restartDelayMs, sleep, runIteration }) {
-    return sleep(restartDelayMs).then(() => runIteration());
+    return Promise.resolve()
+        .then(() => sleep(restartDelayMs))
+        .then(() => runIteration());
 }
 
 /**
