@@ -193,7 +193,7 @@ export async function fetchRemoteCover(
     }
 
     if (isRedirectStatus(response.status) || !response.ok) {
-        return null;
+        await response.body?.cancel();
     }
 
     const BYTES = await downloadedCoverBytes(response);
