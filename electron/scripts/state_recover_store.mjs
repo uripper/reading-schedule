@@ -64,14 +64,17 @@ function readStateFromSqlite(inputPath) {
 }
 
 function latestSnapshotPayload(database) {
-    const SNAPSHOT = database
-        .prepare("SELECT payload_json FROM planner_state_snapshot WHERE id = ?")
-        .get(SNAPSHOT_ROW_ID);
-    if (!SNAPSHOT || typeof SNAPSHOT.payload_json !== "string") {
+    try {
+        const SNAPSHOT = database
+            .prepare("SELECT payload_json FROM planner_state_snapshot WHERE id = ?")
+            .get(SNAPSHOT_ROW_ID);
+        if (!SNAPSHOT || typeof SNAPSHOT.payload_json !== "string") {
+            return null;
+        }
+        return SNAPSHOT.payload_json;
+    } catch {
         return null;
     }
-    return SNAPSHOT.payload_json;
-}
 
 function latestJournalPayload(database) {
     const ROWS = database
