@@ -7,6 +7,7 @@ import { app, BrowserWindow } from "electron";
 import { downloadCover, saveUploadedCover } from "./main/book_lookup/index.ts";
 import { searchBooks } from "./main/book_lookup/search.ts";
 import { runBridge } from "./main/bridge.ts";
+import { enableDevelopmentHotReload } from "./main/development-hot-reload.ts";
 import { registerIpcHandlers } from "./main/ipc.ts";
 import { readState, writeState } from "./main/state_store.ts";
 import {
@@ -14,22 +15,6 @@ import {
     setZoomFactor,
     shiftZoomFactor,
 } from "./main/zoom.ts";
-
-const HOT_RELOAD_IGNORED_OUTPUTS = ["dist/main.js", "dist/main/**"];
-
-/**
- * Enables main-process hot reload during development.
- */
-async function enableDevelopmentHotReload(): Promise<void> {
-    if (app.isPackaged) {
-        return;
-    }
-    const RELOADER_MODULE = await import("electron-reloader");
-    RELOADER_MODULE.default(module, {
-        ignore: HOT_RELOAD_IGNORED_OUTPUTS,
-        watchRenderer: true,
-    });
-}
 
 /**
  * Creates and initializes the main application browser window.
@@ -60,7 +45,11 @@ function userData(): string {
  * Performs async startup tasks before opening the window.
  */
 async function bootstrapApplication(): Promise<void> {
-    await enableDevelopmentHotReload();
+    await enableDevelopmentHotReload({
+        importElectronReloader: () => import("electron-reloader"),
+        isPackaged: app.isPackaged,
+        targetModule: module,
+    });
     await createWindow();
 }
 

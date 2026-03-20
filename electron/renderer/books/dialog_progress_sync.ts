@@ -1,5 +1,5 @@
 import type { BookFormRefs, ProgressSyncRefs } from "../../types/types.ts";
-import { syncProgressAndPages } from "../book_lookup.ts";
+import { syncProgressAndPages } from "../book_lookup/helpers.ts";
 import { syncFinishedAtField } from "./form_state.ts";
 
 /**

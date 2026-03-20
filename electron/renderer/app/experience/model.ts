@@ -36,6 +36,26 @@ export function isSupportedTheme(value: string): value is Preferences["theme"] {
     return value === "system" || value === "light" || value === "dark";
 }
 
+function normalizedTheme(raw: PreferencesInput): Preferences["theme"] {
+    const THEME_INPUT = String(raw.theme ?? "").trim();
+    if (isSupportedTheme(THEME_INPUT)) {
+        return THEME_INPUT;
+    }
+    return DEFAULT_PREFERENCES.theme;
+}
+
+function normalizedDailyGoalMinutes(raw: PreferencesInput): number {
+    const DAILY_GOAL_RAW =
+        raw.dailyGoalMinutes ??
+        raw.daily_goal_minutes ??
+        DEFAULT_PREFERENCES.dailyGoalMinutes;
+    const DAILY_GOAL_MINUTES = Number(DAILY_GOAL_RAW);
+    if (!Number.isFinite(DAILY_GOAL_MINUTES) || DAILY_GOAL_MINUTES <= 0) {
+        return DEFAULT_PREFERENCES.dailyGoalMinutes;
+    }
+    return Math.round(DAILY_GOAL_MINUTES);
+}
+
 /**
  * Normalize user preferences from raw input, applying defaults and handling feature availability.
  * @param raw - The raw input object containing user preferences, which may be incomplete
@@ -43,24 +63,8 @@ export function isSupportedTheme(value: string): value is Preferences["theme"] {
  * @returns A fully normalized Preferences object with all necessary fields and default values applied.
  */
 export function normalizePreferences(raw: PreferencesInput = {}): Preferences {
-    let theme: Preferences["theme"] = DEFAULT_PREFERENCES.theme;
-    const THEME_INPUT = String(raw.theme ?? "").trim();
-    if (isSupportedTheme(THEME_INPUT)) {
-        theme = THEME_INPUT;
-    }
-
-    const DAILY_GOAL_RAW =
-        raw.dailyGoalMinutes ??
-        raw.daily_goal_minutes ??
-        DEFAULT_PREFERENCES.dailyGoalMinutes;
-    const DAILY_GOAL_MINUTES = Number(DAILY_GOAL_RAW);
-    let normalizedDailyGoalMinutes = DEFAULT_PREFERENCES.dailyGoalMinutes;
-    if (Number.isFinite(DAILY_GOAL_MINUTES) && DAILY_GOAL_MINUTES > 0) {
-        normalizedDailyGoalMinutes = Math.round(DAILY_GOAL_MINUTES);
-    }
-
     return {
-        dailyGoalMinutes: normalizedDailyGoalMinutes,
+        dailyGoalMinutes: normalizedDailyGoalMinutes(raw),
         reduceMotion: Boolean(raw.reduceMotion),
         reminderEnabled: shippedFeatureFlag(
             raw.reminderEnabled,
@@ -71,7 +75,7 @@ export function normalizePreferences(raw: PreferencesInput = {}): Preferences {
             REMINDERS_AVAILABLE,
             DEFAULT_PREFERENCES.reminderTime,
         ),
-        theme,
+        theme: normalizedTheme(raw),
         timezone: String(raw.timezone ?? DEFAULT_PREFERENCES.timezone),
     };
 }

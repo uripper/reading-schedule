@@ -1,4 +1,13 @@
-"""Bridge the desktop app to the planner over stdin/stdout JSON messages."""
+"""Bridge the desktop app to the planner over stdin/stdout JSON messages.
+
+Modes:
+- ``--sample`` returns serialized sample books/settings from disk.
+- default mode reads planner payload JSON from stdin and returns plan output.
+
+Response schema:
+- ``{"ok": true, "data": ...}`` on success.
+- ``{"ok": false, "error": "..."}`` on handled failures.
+"""
 
 import argparse
 import json
@@ -25,7 +34,13 @@ if TYPE_CHECKING:
 
 
 class BridgeResponse(TypedDict, total=False):
-    """Response wrapper for bridge communication."""
+    """Response envelope exchanged over stdout.
+
+    Fields:
+        ok: Success marker for desktop bridge callers.
+        data: Successful payload body for sample or planner responses.
+        error: Human-readable error when ``ok`` is false.
+    """
 
     ok: bool
     data: PlannerOutputPayload | PlannerInputPayload | dict[str, object]
@@ -38,18 +53,26 @@ DEFAULT_LOG_PATH = DEFAULT_LOG_PATH_SHARED
 
 
 def configure_logger() -> logging.Logger:
-    """Configure planner bridge logger with file output."""
+    """Return the configured planner bridge logger.
+
+    Returns:
+        Configured bridge logger instance.
+    """
     return configure_bridge_logger()
 
 
 def write_payload(payload: BridgeResponse) -> None:
-    """Write JSON payload to stdout."""
+    """Write one JSON payload line to stdout for IPC consumers."""
     json.dump(payload, sys.stdout)
     sys.stdout.write("\n")
 
 
 def _require_payload_text(payload_text: str) -> None:
-    """Ensure stdin provided a non-empty planner payload."""
+    """Raise ``ValueError`` when stdin provides an empty payload.
+
+    Raises:
+        ValueError: If ``payload_text`` is blank after trimming.
+    """
     if not payload_text.strip():
         msg = "planner payload is empty"
         raise ValueError(msg)
@@ -59,7 +82,14 @@ def _parse_payload_json(
     payload_text: str,
     logger: logging.Logger,
 ) -> object:
-    """Parse JSON text while emitting decode diagnostics on failure."""
+    """Return decoded planner payload JSON.
+
+    Returns:
+        Decoded JSON payload.
+
+    Raises:
+        ValueError: If ``payload_text`` is not valid JSON.
+    """
     try:
         return json.loads(payload_text)
     except json.JSONDecodeError as error:
@@ -69,12 +99,23 @@ def _parse_payload_json(
 
 
 def _is_planner_payload(payload: object) -> TypeGuard[PlannerInputPayload]:
-    """Return whether a decoded payload has the expected top-level shape."""
+    """Return whether a decoded payload has the expected top-level shape.
+
+    Returns:
+        True when payload is a JSON object.
+    """
     return isinstance(payload, dict)
 
 
 def _planner_payload(payload: object) -> PlannerInputPayload:
-    """Validate the decoded top-level payload shape."""
+    """Return a validated planner payload object.
+
+    Returns:
+        Validated planner payload.
+
+    Raises:
+        TypeError: If ``payload`` is not a JSON object.
+    """
     if _is_planner_payload(payload):
         return payload
     msg = "planner payload must be a JSON object"
@@ -102,7 +143,11 @@ def _log_payload_details(
 
 
 def read_stdin_payload(logger: logging.Logger) -> PlannerInputPayload:
-    """Read and validate planner payload from stdin with diagnostics."""
+    """Return a validated planner payload read from stdin.
+
+    Returns:
+        Validated planner request payload.
+    """
     payload_text = sys.stdin.read()
     log_file_execution(
         logger,
@@ -120,7 +165,11 @@ def read_stdin_payload(logger: logging.Logger) -> PlannerInputPayload:
 
 
 def parse_args() -> argparse.Namespace:
-    """Parse args."""
+    """Return parsed CLI arguments for bridge execution modes.
+
+    Returns:
+        Parsed CLI namespace.
+    """
     p = argparse.ArgumentParser(description="GUI bridge for Reading Plan")
     p.add_argument(
         "--sample",
@@ -141,7 +190,11 @@ def parse_args() -> argparse.Namespace:
 
 
 def _sample_payload_data(args: argparse.Namespace) -> BridgeResponse:
-    """Return serialized sample payload data for the desktop UI."""
+    """Return serialized sample payload data for the desktop UI.
+
+    Returns:
+        Successful sample response payload.
+    """
     books, settings = load_inputs(args.data, args.settings)
     return {
         "ok": True,
@@ -156,7 +209,11 @@ def _handle_sample_request(
     args: argparse.Namespace,
     logger: logging.Logger,
 ) -> BridgeResponse:
-    """Build sample-mode payload response with diagnostics."""
+    """Return the sample-mode payload response with diagnostics.
+
+    Returns:
+        Successful sample response payload.
+    """
     logger.debug("Sample request received")
     response = _sample_payload_data(args)
     sample_data = response["data"]
@@ -171,7 +228,11 @@ def _handle_sample_request(
 
 
 def _handle_generate_request(logger: logging.Logger) -> BridgeResponse:
-    """Generate a plan from stdin payload and serialize the result."""
+    """Return the generated-plan response for a stdin payload.
+
+    Returns:
+        Successful generated-plan response payload.
+    """
     payload = read_stdin_payload(logger)
     logger.debug(
         "Planner request payload read",
@@ -191,7 +252,11 @@ def _response_payload(
     args: argparse.Namespace,
     logger: logging.Logger,
 ) -> BridgeResponse:
-    """Return the bridge response payload for the current request."""
+    """Return the bridge response payload for the current request.
+
+    Returns:
+        Response payload for sample or generation mode.
+    """
     if args.sample:
         return _handle_sample_request(args, logger)
     return _handle_generate_request(logger)
@@ -215,14 +280,27 @@ def _handled_error_response(
     error: KeyError | OSError | RuntimeError | TypeError | ValueError,
     logger: logging.Logger,
 ) -> int:
-    """Write a standard handled-error response and failure exit code."""
-    logger.exception("Bridge handled exception")
+    """Return the standard handled-error response exit code.
+
+    The response is always emitted to stdout to preserve the bridge contract
+    expected by desktop callers.
+
+    Returns:
+        Non-zero exit code for handled failures.
+    """
+    logger.error("Bridge handled exception", exc_info=error)
     write_payload({"ok": False, "error": str(error)})
     return 1
 
 
 def main() -> int:
-    """Run the GUI bridge in sample mode or stdin payload mode."""
+    """Return the bridge process exit code.
+
+    Handled exceptions are converted to structured ``ok=false`` payloads.
+
+    Returns:
+        Process exit code.
+    """
     args = parse_args()
     logger = configure_logger()
     _log_main_args(args, logger)

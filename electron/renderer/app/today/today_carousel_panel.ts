@@ -2,10 +2,7 @@
  * Renders and resets the active Today carousel control panel.
  */
 import { el } from "../../dom.ts";
-import {
-    logSessionButtonText,
-    shouldDisableProgressInputs,
-} from "./today_carousel_actions.ts";
+import { logSessionButtonText } from "./today_carousel_actions.ts";
 import type { TodayCarouselActiveItem } from "./today_carousel_model.ts";
 import { formatPagesTotalText } from "./today_carousel_progress.ts";
 
@@ -28,7 +25,7 @@ export function setLogButtonState(completed: boolean): void {
  * @param completed - Whether the active session is complete.
  */
 export function setProgressInputsDisabled(completed: boolean): void {
-    const DISABLED = shouldDisableProgressInputs(completed);
+    const DISABLED = completed;
     el<HTMLInputElement>("todayPagesInput").disabled = DISABLED;
     el<HTMLInputElement>("todayPercentInput").disabled = DISABLED;
 }

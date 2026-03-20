@@ -39,6 +39,10 @@ import {
 } from "./today_carousel_track.ts";
 
 const EMPTY_TEXT = "";
+const EMPTY_BOOK_LABEL = "No book selected";
+const EMPTY_MINUTES_TEXT = "0";
+const EMPTY_PROGRESS_TOTAL_TEXT = "--";
+const EMPTY_SESSION_SUMMARY_TEXT = "-- pages\n--%";
 
 // TODO: Move Today carousel render contracts into `electron/types` when the
 // renderer Today surface is stabilized.
@@ -85,6 +89,24 @@ function selectBook(bookId: string): void {
     requestRerender();
 }
 
+function resetNoDataMinutesUi(): void {
+    el<HTMLElement>("todayMinutesValue").textContent = EMPTY_MINUTES_TEXT;
+    el<HTMLElement>("todayMinutesValue").hidden = false;
+    el<HTMLInputElement>("todayMinutesInput").hidden = true;
+    el<HTMLInputElement>("todayMinutesInput").value = EMPTY_TEXT;
+}
+
+function resetNoDataProgressUi(): void {
+    renderAfterSessionText(EMPTY_SESSION_SUMMARY_TEXT);
+    el<HTMLElement>("todayProgressPagesTotalText").textContent =
+        EMPTY_PROGRESS_TOTAL_TEXT;
+    resetTodayProgressInputs();
+    setMinutesEditDisabled(true);
+    setActionButtonsDisabled(true);
+    setLogButtonState(false);
+    setProgressInputsDisabled(true);
+}
+
 /**
  * Renders the empty Today state when there is no active session.
  */
@@ -92,19 +114,32 @@ function renderNoData(): void {
     resetTodayCarouselUiState();
     clearNoDataHandlers();
     el<HTMLElement>("todayCarouselEmpty").hidden = false;
-    el<HTMLElement>("todayActiveBookBar").textContent = "No book selected";
+    el<HTMLElement>("todayActiveBookBar").textContent = EMPTY_BOOK_LABEL;
     el<HTMLElement>("todayCarouselTrack").replaceChildren();
-    el<HTMLElement>("todayMinutesValue").textContent = "0";
-    el<HTMLElement>("todayMinutesValue").hidden = false;
-    el<HTMLInputElement>("todayMinutesInput").hidden = true;
-    el<HTMLInputElement>("todayMinutesInput").value = EMPTY_TEXT;
-    renderAfterSessionText("-- pages\n--%");
-    el<HTMLElement>("todayProgressPagesTotalText").textContent = "--";
-    resetTodayProgressInputs();
-    setMinutesEditDisabled(true);
-    setActionButtonsDisabled(true);
-    setLogButtonState(false);
-    setProgressInputsDisabled(true);
+    resetNoDataMinutesUi();
+    resetNoDataProgressUi();
+}
+
+function applyOpenMinutesEditor(
+    input: HTMLInputElement,
+    editButton: HTMLButtonElement,
+    valueText: string,
+): void {
+    const INPUT = input;
+    const EDIT_BUTTON = editButton;
+    INPUT.value = valueText;
+    EDIT_BUTTON.textContent = "✓";
+    EDIT_BUTTON.setAttribute("aria-label", "Save planned minutes");
+    if (globalThis.document.activeElement !== INPUT) {
+        INPUT.focus();
+        INPUT.select();
+    }
+}
+
+function applyClosedMinutesEditor(editButton: HTMLButtonElement): void {
+    const EDIT_BUTTON = editButton;
+    EDIT_BUTTON.textContent = "✎";
+    EDIT_BUTTON.setAttribute("aria-label", "Edit planned minutes");
 }
 
 /**
@@ -120,17 +155,14 @@ function applyMinutesEditorVisibility(active: TodayCarouselActiveItem): void {
     VALUE.hidden = IS_EDIT_OPEN;
     INPUT.hidden = !IS_EDIT_OPEN;
     if (IS_EDIT_OPEN) {
-        INPUT.value = EDIT_STATE?.valueText ?? EMPTY_TEXT;
-        EDIT_BUTTON.textContent = "✓";
-        EDIT_BUTTON.setAttribute("aria-label", "Save planned minutes");
-        if (globalThis.document.activeElement !== INPUT) {
-            INPUT.focus();
-            INPUT.select();
-        }
+        applyOpenMinutesEditor(
+            INPUT,
+            EDIT_BUTTON,
+            EDIT_STATE?.valueText ?? EMPTY_TEXT,
+        );
         return;
     }
-    EDIT_BUTTON.textContent = "✎";
-    EDIT_BUTTON.setAttribute("aria-label", "Edit planned minutes");
+    applyClosedMinutesEditor(EDIT_BUTTON);
 }
 
 /**
@@ -138,6 +170,11 @@ function applyMinutesEditorVisibility(active: TodayCarouselActiveItem): void {
  * @param active - Active Today carousel row.
  */
 function renderActive(active: TodayCarouselActiveItem): void {
+    renderActiveSummary(active);
+    bindActiveActions(active);
+}
+
+function renderActiveSummary(active: TodayCarouselActiveItem): void {
     el<HTMLElement>("todayCarouselEmpty").hidden = true;
     el<HTMLElement>("todayActiveBookBar").textContent =
         `${active.book.title} | ${active.book.author}`;
@@ -152,6 +189,9 @@ function renderActive(active: TodayCarouselActiveItem): void {
     setActionButtonsDisabled(false);
     setLogButtonState(active.row.completed);
     setProgressInputsDisabled(active.row.completed);
+}
+
+function bindActiveActions(active: TodayCarouselActiveItem): void {
     bindMinutesEditor({
         active,
         bindings: interactionBindings(),

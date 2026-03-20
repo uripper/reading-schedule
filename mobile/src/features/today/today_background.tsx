@@ -1,3 +1,8 @@
+import type {
+    BackgroundSimulationState,
+    Body,
+    Bounds,
+} from "@reading-schedule/contracts";
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ImageSourcePropType, ImageStyle } from "react-native";
@@ -14,11 +19,6 @@ import {
     HORIZONTAL_PADDING,
     SPRITE_SCALE,
 } from "./today_constants.ts";
-import type {
-    BackgroundSimulationState,
-    Body,
-    Bounds,
-} from "./today-background-simulation-types.ts";
 
 interface TodayBackgroundProps {
     ambientColor: string;

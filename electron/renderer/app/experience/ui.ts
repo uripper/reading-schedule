@@ -50,21 +50,28 @@ function selectValue(id: string): string {
     return el<HTMLSelectElement>(id).value;
 }
 
+function selectedTheme(): Preferences["theme"] {
+    const SELECTED_THEME = selectValue("themeSelect");
+    if (isSupportedTheme(SELECTED_THEME)) {
+        return SELECTED_THEME;
+    }
+    return DEFAULT_PREFERENCES.theme;
+}
+
+function dailyGoalMinutesPreference(): number {
+    return (
+        numberInputValue("dailyGoalInput") ||
+        DEFAULT_PREFERENCES.dailyGoalMinutes
+    );
+}
+
 /**
  * Collect user preferences from the UI elements.
  * @returns An object containing the user preferences.
  */
 export function collectPreferencesFromUI(): Preferences {
-    let theme: Preferences["theme"] = DEFAULT_PREFERENCES.theme;
-    const SELECTED_THEME = selectValue("themeSelect");
-    if (isSupportedTheme(SELECTED_THEME)) {
-        theme = SELECTED_THEME;
-    }
-
     return {
-        dailyGoalMinutes:
-            numberInputValue("dailyGoalInput") ||
-            DEFAULT_PREFERENCES.dailyGoalMinutes,
+        dailyGoalMinutes: dailyGoalMinutesPreference(),
         reduceMotion: checkboxValue("reduceMotionToggle"),
         reminderEnabled: shippedFeatureFlag(
             checkboxValue("reminderEnabledToggle"),
@@ -75,7 +82,7 @@ export function collectPreferencesFromUI(): Preferences {
             REMINDERS_AVAILABLE,
             DEFAULT_PREFERENCES.reminderTime,
         ),
-        theme,
+        theme: selectedTheme(),
         timezone: DEFAULT_PREFERENCES.timezone,
     };
 }

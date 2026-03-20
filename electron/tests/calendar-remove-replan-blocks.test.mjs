@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 /**
  * Verifies removed sessions stay blocked from future replan merges.
  */
@@ -24,67 +25,110 @@ function row(overrides = {}) {
     };
 }
 
-test("removeSessionRow blocks the same day-book pair from future replan merges", () => {
-    const REMOVED_ROW = row();
-    const KEEP_ROW = row({
-        book_id: "book-2",
-        date: "2026-02-25",
-        session_index: 1,
-        title: "Book 2",
-    });
-    const STATE = {
+function createScenarioRows() {
+    return {
+        keepRow: row({
+            book_id: "book-2",
+            date: "2026-02-25",
+            session_index: 1,
+            title: "Book 2",
+        }),
+        removedRow: row(),
+    };
+}
+
+function createRemovalState(removedRow, keepRow) {
+    return {
         blockedDayBooks: {},
         lastResult: {
             created_at: "2026-02-23T00:00:00.000Z",
-            schedule: [REMOVED_ROW, KEEP_ROW],
+            schedule: [removedRow, keepRow],
             summary: null,
         },
         scheduleCompletions: {},
     };
-    let updates = 0;
-    const MARK_UPDATED = () => {
-        updates += 1;
-    };
-    const APPLY_STATE_MUTATION = (mutation) => {
-        if (mutation.type === "set_schedule_completions") {
-            STATE.scheduleCompletions = mutation.scheduleCompletions;
-            return;
-        }
-        if (mutation.type === "set_blocked_day_book") {
-            if (mutation.blocked) {
-                STATE.blockedDayBooks[mutation.key] = true;
-                return;
-            }
-            delete STATE.blockedDayBooks[mutation.key];
-        }
-    };
+}
 
-    const REMOVED = removeSessionRow({
-        applyStateMutation: APPLY_STATE_MUTATION,
-        onScheduleRowsUpdated: MARK_UPDATED,
-        queuePersist: MARK_UPDATED,
-        renderCalendar: MARK_UPDATED,
-        row: REMOVED_ROW,
-        setBookScheduleRows: MARK_UPDATED,
-        setLastResult: (result) => {
-            STATE.lastResult = result;
+function applyBlockedMutation(state, mutation) {
+    const MUTABLE_STATE = state;
+    if (mutation.blocked) {
+        MUTABLE_STATE.blockedDayBooks[mutation.key] = true;
+        return;
+    }
+    delete MUTABLE_STATE.blockedDayBooks[mutation.key];
+}
+
+function applyStateMutation(state, mutation) {
+    const MUTABLE_STATE = state;
+    if (mutation.type === "set_schedule_completions") {
+        MUTABLE_STATE.scheduleCompletions = mutation.scheduleCompletions;
+        return;
+    }
+    if (mutation.type === "set_blocked_day_book") {
+        applyBlockedMutation(MUTABLE_STATE, mutation);
+    }
+}
+
+function incrementCounter(counter) {
+    const MUTABLE_COUNTER = counter;
+    MUTABLE_COUNTER.count += 1;
+}
+
+function removeRowFromState(state, removedRow, counter) {
+    const MUTABLE_STATE = state;
+    return removeSessionRow({
+        applyStateMutation(mutation) {
+            applyStateMutation(MUTABLE_STATE, mutation);
         },
-        setStatus: MARK_UPDATED,
-        state: STATE,
-        totalsFromSummary: () => ({}),
+        onScheduleRowsUpdated() {
+            incrementCounter(counter);
+        },
+        queuePersist() {
+            incrementCounter(counter);
+        },
+        renderCalendar() {
+            incrementCounter(counter);
+        },
+        row: removedRow,
+        setBookScheduleRows() {
+            incrementCounter(counter);
+        },
+        setLastResult(result) {
+            MUTABLE_STATE.lastResult = result;
+        },
+        setStatus() {
+            incrementCounter(counter);
+        },
+        state: MUTABLE_STATE,
+        totalsFromSummary() {
+            return {};
+        },
     });
+}
+
+function mergeReplannedRows(state, rows) {
+    return mergeScheduleRows({
+        blockedDayBooks: state.blockedDayBooks,
+        nextRows: rows,
+        previousRows: [],
+        sessions: [],
+    });
+}
+
+test("removeSessionRow blocks the same day-book pair from future replan merges", () => {
+    const SCENARIO = createScenarioRows();
+    const STATE = createRemovalState(SCENARIO.removedRow, SCENARIO.keepRow);
+    const COUNTER = { count: 0 };
+    const REMOVED = removeRowFromState(STATE, SCENARIO.removedRow, COUNTER);
 
     assert.equal(REMOVED, true);
     assert.equal(STATE.blockedDayBooks["2026-02-24|book-1"], true);
-    assert.ok(updates > 0);
+    assert.ok(COUNTER.count > 0);
 
-    const REPLANNED_ROWS = [REMOVED_ROW, KEEP_ROW];
-    const MERGED = mergeScheduleRows(
-        [],
-        REPLANNED_ROWS,
-        [],
-        STATE.blockedDayBooks,
-    );
+    const MERGED = mergeReplannedRows(STATE, [
+        SCENARIO.removedRow,
+        SCENARIO.keepRow,
+    ]);
 
     assert.equal(
         MERGED.some(

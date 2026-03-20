@@ -16,7 +16,7 @@ const PYTHON_BINARY_ENV_KEY = "PYTHON_BIN";
 /**
  * Spawn command details for one planner invocation.
  */
-export interface PlannerLaunchSpec {
+interface PlannerLaunchSpec {
     /** CLI arguments forwarded to the selected planner entrypoint. */
     args: string[];
     /** Executable command path used to start the planner process. */

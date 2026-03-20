@@ -1,5 +1,19 @@
 import type { BookLookupItem } from "../../types/types.ts";
 
+interface RenderLookupResultsArgs {
+    activeIndex: number;
+    items: readonly BookLookupItem[];
+    placeholder: string;
+    resultsEl: HTMLElement;
+}
+
+interface UpdateComboboxA11yArgs {
+    activeIndex: number;
+    hasItems: boolean;
+    resultsEl: HTMLElement;
+    searchInput: HTMLInputElement;
+}
+
 /**
  * Builds a stable option id for a lookup result row.
  * @param resultsEl - Lookup results container element.
@@ -69,14 +83,26 @@ function coverAlt(item: BookLookupItem): string {
  * @returns Joined metadata text.
  */
 function metaText(item: BookLookupItem): string {
-    let pagesLabel = "";
-    if (
-        typeof item.pages_estimate === "number" &&
-        Number.isFinite(item.pages_estimate) &&
-        item.pages_estimate > 0
-    ) {
-        pagesLabel = `${item.pages_estimate} pages`;
+    const PAGES_LABEL = estimatedPagesLabel(item);
+    const META_PARTS = metaTextParts(item);
+    if (PAGES_LABEL.length > 0) {
+        META_PARTS.push(PAGES_LABEL);
     }
+    return META_PARTS.join(" · ");
+}
+
+function estimatedPagesLabel(item: BookLookupItem): string {
+    if (
+        typeof item.pages_estimate !== "number" ||
+        !Number.isFinite(item.pages_estimate) ||
+        item.pages_estimate <= 0
+    ) {
+        return "";
+    }
+    return `${item.pages_estimate} pages`;
+}
+
+function metaTextParts(item: BookLookupItem): string[] {
     const META_PARTS: string[] = [];
     const AUTHOR_TEXT = String(item.author ?? "").trim();
     if (AUTHOR_TEXT.length > 0) {
@@ -86,10 +112,80 @@ function metaText(item: BookLookupItem): string {
     if (YEAR_TEXT.length > 0) {
         META_PARTS.push(YEAR_TEXT);
     }
-    if (pagesLabel.length > 0) {
-        META_PARTS.push(pagesLabel);
+    return META_PARTS;
+}
+
+function setResultActiveState(button: HTMLElement, active: boolean): void {
+    button.setAttribute("aria-selected", "false");
+    if (active) {
+        button.setAttribute("aria-selected", "true");
     }
-    return META_PARTS.join(" · ");
+    button.classList.toggle("is-active", active);
+}
+
+function createCoverElement(
+    item: BookLookupItem,
+    placeholder: string,
+): HTMLImageElement {
+    const THUMB = document.createElement("img");
+    THUMB.className = "book-result-cover";
+    THUMB.loading = "lazy";
+    THUMB.src = coverSource(item, placeholder);
+    THUMB.alt = coverAlt(item);
+    THUMB.onerror = () => {
+        THUMB.onerror = null;
+        THUMB.src = placeholder;
+    };
+    return THUMB;
+}
+
+function createTextWrap(item: BookLookupItem): HTMLSpanElement {
+    const TEXT_WRAP = document.createElement("span");
+    const TITLE = document.createElement("span");
+    TITLE.className = "book-result-title";
+    TITLE.textContent = titleLabel(item);
+
+    const META = document.createElement("span");
+    META.className = "book-result-meta";
+    META.textContent = metaText(item);
+
+    TEXT_WRAP.append(TITLE, META);
+    return TEXT_WRAP;
+}
+
+function createLookupResultButton(options: {
+    active: boolean;
+    index: number;
+    item: BookLookupItem;
+    placeholder: string;
+    resultsEl: HTMLElement;
+}): HTMLButtonElement {
+    const BUTTON = document.createElement("button");
+    BUTTON.type = "button";
+    BUTTON.className = "book-result";
+    BUTTON.dataset.resultIndex = String(options.index);
+    BUTTON.id = optionId(options.resultsEl, options.index);
+    BUTTON.setAttribute("role", "option");
+    setResultActiveState(BUTTON, options.active);
+    BUTTON.append(
+        createCoverElement(options.item, options.placeholder),
+        createTextWrap(options.item),
+    );
+    return BUTTON;
+}
+
+function renderedLookupButtons(
+    options: RenderLookupResultsArgs,
+): HTMLButtonElement[] {
+    return options.items.map((item, index) =>
+        createLookupResultButton({
+            active: options.activeIndex === index,
+            index,
+            item,
+            placeholder: options.placeholder,
+            resultsEl: options.resultsEl,
+        }),
+    );
 }
 
 /**
@@ -99,50 +195,11 @@ function metaText(item: BookLookupItem): string {
  * @param placeholder - Placeholder cover image URL.
  * @param activeIndex - Currently highlighted result index.
  */
-export function renderLookupResults(
-    resultsEl: HTMLElement,
-    items: readonly BookLookupItem[],
-    placeholder: string,
-    activeIndex: number,
-): void {
-    const LIST_ELEMENT = resultsEl;
-    LIST_ELEMENT.innerHTML = "";
-    items.forEach((item: BookLookupItem, index: number) => {
-        const BTN = document.createElement("button");
-        BTN.type = "button";
-        BTN.className = "book-result";
-        BTN.dataset.resultIndex = String(index);
-        BTN.id = optionId(LIST_ELEMENT, index);
-        BTN.setAttribute("role", "option");
-        BTN.setAttribute("aria-selected", "false");
-        if (activeIndex === index) {
-            BTN.setAttribute("aria-selected", "true");
-        }
-        BTN.classList.toggle("is-active", activeIndex === index);
-
-        const THUMB = document.createElement("img");
-        THUMB.className = "book-result-cover";
-        THUMB.loading = "lazy";
-        THUMB.src = coverSource(item, placeholder);
-        THUMB.alt = coverAlt(item);
-        THUMB.onerror = () => {
-            THUMB.onerror = null;
-            THUMB.src = placeholder;
-        };
-
-        const TEXT_WRAP = document.createElement("span");
-        const TITLE = document.createElement("span");
-        TITLE.className = "book-result-title";
-        TITLE.textContent = titleLabel(item);
-
-        const META = document.createElement("span");
-        META.className = "book-result-meta";
-        META.textContent = metaText(item);
-
-        TEXT_WRAP.append(TITLE, META);
-        BTN.append(THUMB, TEXT_WRAP);
-        LIST_ELEMENT.append(BTN);
-    });
+export function renderLookupResults(options: RenderLookupResultsArgs): void {
+    const RESULTS_EL = options.resultsEl;
+    RESULTS_EL.innerHTML = "";
+    const BUTTONS = renderedLookupButtons(options);
+    RESULTS_EL.append(...BUTTONS);
 }
 
 /**
@@ -152,23 +209,18 @@ export function renderLookupResults(
  * @param hasItems - Whether result list currently has any items.
  * @param activeIndex - Currently highlighted result index.
  */
-export function updateComboboxA11y(
-    searchInput: HTMLInputElement,
-    resultsEl: HTMLElement,
-    hasItems: boolean,
-    activeIndex: number,
-): void {
-    searchInput.setAttribute("aria-expanded", "false");
-    if (hasItems) {
-        searchInput.setAttribute("aria-expanded", "true");
+export function updateComboboxA11y(options: UpdateComboboxA11yArgs): void {
+    options.searchInput.setAttribute("aria-expanded", "false");
+    if (options.hasItems) {
+        options.searchInput.setAttribute("aria-expanded", "true");
     }
-    if (!hasItems || activeIndex < 0) {
-        searchInput.removeAttribute("aria-activedescendant");
+    if (!options.hasItems || options.activeIndex < 0) {
+        options.searchInput.removeAttribute("aria-activedescendant");
         return;
     }
-    searchInput.setAttribute(
+    options.searchInput.setAttribute(
         "aria-activedescendant",
-        optionId(resultsEl, activeIndex),
+        optionId(options.resultsEl, options.activeIndex),
     );
 }
 

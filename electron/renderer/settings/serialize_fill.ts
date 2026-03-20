@@ -24,6 +24,13 @@ import {
  * @param value - Raw settings value.
  * @returns String representation suitable for input/select values.
  */
+function booleanSettingValueText(value: boolean): string {
+    if (value) {
+        return "true";
+    }
+    return "false";
+}
+
 function settingValueText(value: unknown): string {
     if (typeof value === "string") {
         return value;
@@ -31,13 +38,10 @@ function settingValueText(value: unknown): string {
     if (typeof value === "number" && Number.isFinite(value)) {
         return String(value);
     }
-    if (typeof value === "boolean") {
-        if (value) {
-            return "true";
-        }
-        return "false";
+    if (typeof value !== "boolean") {
+        return "";
     }
-    return "";
+    return booleanSettingValueText(value);
 }
 
 /**
@@ -72,6 +76,41 @@ function checkboxSettingValue(value: unknown): boolean {
     return true;
 }
 
+function normalizedDayOffs(settings: PlannerSettings): string[] {
+    const NEXT_DAY_OFFS: string[] = [];
+    const RAW_DAY_OFFS = settings.days_off;
+    if (!Array.isArray(RAW_DAY_OFFS)) {
+        return NEXT_DAY_OFFS;
+    }
+    for (const DAY_OFF of RAW_DAY_OFFS) {
+        if (typeof DAY_OFF === "string") {
+            NEXT_DAY_OFFS.push(DAY_OFF);
+        }
+    }
+    NEXT_DAY_OFFS.sort((left, right) => left.localeCompare(right));
+    return NEXT_DAY_OFFS;
+}
+
+function difficultyMultiplierValue(
+    difficultyMultiplier: Record<string, number>,
+    level: number,
+): number {
+    const DIFFICULTY_KEY = String(level);
+    if (Object.hasOwn(difficultyMultiplier, DIFFICULTY_KEY)) {
+        return difficultyMultiplier[DIFFICULTY_KEY];
+    }
+    return DEFAULT_DIFFICULTY_MULTIPLIER;
+}
+
+function populateDifficultyMultipliers(settings: PlannerSettings): void {
+    const DIFFICULTY_MULTIPLIER = settings.difficulty_multiplier ?? {};
+    for (const LEVEL of numberLevels()) {
+        inputEl(`diff_${LEVEL}`).value = String(
+            difficultyMultiplierValue(DIFFICULTY_MULTIPLIER, LEVEL),
+        );
+    }
+}
+
 /**
  * Populates settings form controls from planner settings payload.
  * @param settings - Planner settings payload.
@@ -82,62 +121,72 @@ export function fillSettingsForm(
     setDayOffs: (nextDayOffs: string[]) => void,
 ): void {
     populateSettingsFields(settings);
-
-    const RAW_DAY_OFFS = settings.days_off;
-    const NEXT_DAY_OFFS: string[] = [];
-    if (Array.isArray(RAW_DAY_OFFS)) {
-        for (const DAY_OFF of RAW_DAY_OFFS) {
-            if (typeof DAY_OFF === "string") {
-                NEXT_DAY_OFFS.push(DAY_OFF);
-            }
-        }
-    }
-    NEXT_DAY_OFFS.sort((left, right) => left.localeCompare(right));
-    setDayOffs(NEXT_DAY_OFFS);
-    const DIFFICULTY_MULTIPLIER = settings.difficulty_multiplier ?? {};
-
-    for (const LEVEL of numberLevels()) {
-        const ID = `diff_${LEVEL}`;
-        const DIFFICULTY_KEY = String(LEVEL);
-        let value = DEFAULT_DIFFICULTY_MULTIPLIER;
-        if (Object.hasOwn(DIFFICULTY_MULTIPLIER, DIFFICULTY_KEY)) {
-            value = DIFFICULTY_MULTIPLIER[DIFFICULTY_KEY];
-        }
-        inputEl(ID).value = String(value);
-    }
+    setDayOffs(normalizedDayOffs(settings));
+    populateDifficultyMultipliers(settings);
 }
 
 /**
  * Populates the base settings fields before derived weekday/difficulty rows.
- * @param settings - Planner settings payload.
+ * @param options - Configuration for populating a single field, including
+ *                  its ID, minimum start date, planner settings, and type.
  */
-function populateSettingsFields(settings: PlannerSettings) {
-    const MINIMUM_START_DATE = minimumPlannerStartDate();
-    for (const FIELD of allFieldDefinitions()) {
-        const VALUE = settings[FIELD.id];
-        if (FIELD.type === "select") {
-            selectEl(FIELD.id).value = selectSettingValue(FIELD.id, VALUE);
-            continue;
-        }
-        if (FIELD.type === "checkbox") {
-            inputEl(FIELD.id).checked = checkboxSettingValue(VALUE);
-            continue;
-        }
-        if (FIELD.type === "date" && FIELD.id === "start_date") {
-            inputEl(FIELD.id).value = normalizePlannerStartDate(
-                VALUE,
-                MINIMUM_START_DATE,
-            );
-            continue;
-        }
-        inputEl(FIELD.id).value = settingValueText(VALUE);
+function populateFieldValue(options: {
+    fieldId: string;
+    minimumStartDate: string;
+    settings: PlannerSettings;
+    type: ReturnType<typeof allFieldDefinitions>[number]["type"];
+}): void {
+    const VALUE = options.settings[options.fieldId];
+    if (options.type === "select") {
+        populateSelectField(options.fieldId, VALUE);
+        return;
     }
+    if (options.type === "checkbox") {
+        populateCheckboxField(options.fieldId, VALUE);
+        return;
+    }
+    if (options.type === "date" && options.fieldId === "start_date") {
+        populateStartDateField(options.minimumStartDate, VALUE);
+        return;
+    }
+    inputEl(options.fieldId).value = settingValueText(VALUE);
+}
 
-    inputEl("start_date").min = MINIMUM_START_DATE;
+function populateSelectField(fieldId: string, value: unknown): void {
+    selectEl(fieldId).value = selectSettingValue(fieldId, value);
+}
 
+function populateCheckboxField(fieldId: string, value: unknown): void {
+    inputEl(fieldId).checked = checkboxSettingValue(value);
+}
+
+function populateStartDateField(
+    minimumStartDate: string,
+    value: unknown,
+): void {
+    inputEl("start_date").value = normalizePlannerStartDate(
+        value,
+        minimumStartDate,
+    );
+}
+
+function populateWeekdayMinutes(settings: PlannerSettings): void {
     const MINUTES_BY_WEEKDAY = settings.minutes_by_weekday ?? {};
-
     for (const [KEY] of WEEKDAYS) {
         inputEl(`minutes_${KEY}`).value = String(MINUTES_BY_WEEKDAY[KEY]);
     }
+}
+
+function populateSettingsFields(settings: PlannerSettings) {
+    const MINIMUM_START_DATE = minimumPlannerStartDate();
+    for (const FIELD of allFieldDefinitions()) {
+        populateFieldValue({
+            fieldId: FIELD.id,
+            minimumStartDate: MINIMUM_START_DATE,
+            settings,
+            type: FIELD.type,
+        });
+    }
+    inputEl("start_date").min = MINIMUM_START_DATE;
+    populateWeekdayMinutes(settings);
 }

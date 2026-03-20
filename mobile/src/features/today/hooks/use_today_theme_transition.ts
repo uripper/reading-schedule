@@ -1,3 +1,4 @@
+import type { TodayBookCard } from "@reading-schedule/contracts";
 import type { RefObject } from "react";
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Animated, Easing } from "react-native";
@@ -7,7 +8,6 @@ import {
     COVER_SOURCES,
     THEME_TRANSITION_DURATION_MS,
 } from "../today_constants.ts";
-import type { TodayBookCard } from "../types.ts";
 
 interface TodayThemeTransitionState {
     currentTheme: TodayBackgroundTheme;

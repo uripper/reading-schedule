@@ -7,11 +7,10 @@ import type {
     DayMode,
     DetailInteractionHandlers,
 } from "../../types/types.ts";
-import {
-    buildFutureSessionItem,
-    buildPastSessionItem,
-    buildTodaySessionItem,
-} from "./details_session_items.ts";
+import { buildFutureSessionItem } from "./details_session_future.ts";
+import { buildPastSessionItem } from "./details_session_past.ts";
+import type { BuildTodaySessionItemArgs } from "./details_session_today.ts";
+import { buildTodaySessionItem } from "./details_session_today.ts";
 
 // TODO: Move these detail-renderer contracts into `electron/types` when the
 // calendar details modules are normalized.
@@ -19,23 +18,18 @@ import {
  * Session-item builder implementations grouped by calendar day mode.
  */
 interface DetailsItemBuilders<TNode> {
-    future(
-        row: CalendarRowWithFinish,
-        state: CalendarDetailsState,
-        interactionHandlers: DetailInteractionHandlers,
-        rerenderDetails: () => void,
-    ): TNode;
+    future(args: {
+        row: CalendarRowWithFinish;
+        state: CalendarDetailsState;
+        interactionHandlers: DetailInteractionHandlers;
+        rerenderDetails: () => void;
+    }): TNode;
     past(
         row: CalendarRowWithFinish,
         interactionHandlers: DetailInteractionHandlers,
         rerenderDetails: () => void,
     ): TNode;
-    today(
-        row: CalendarRowWithFinish,
-        state: CalendarDetailsState,
-        interactionHandlers: DetailInteractionHandlers,
-        rerenderDetails: () => void,
-    ): TNode;
+    today(args: BuildTodaySessionItemArgs): TNode;
 }
 
 // TODO: Move these detail-renderer contracts into `electron/types` when the
@@ -61,23 +55,23 @@ function buildPastItems<TNode>(args: BuildSessionItemsArgs<TNode>): TNode[] {
 
 function buildTodayItems<TNode>(args: BuildSessionItemsArgs<TNode>): TNode[] {
     return args.rows.map((row) => {
-        return args.builders.today(
+        return args.builders.today({
+            interactionHandlers: args.interactionHandlers,
+            rerenderDetails: args.rerenderDetails,
             row,
-            args.state,
-            args.interactionHandlers,
-            args.rerenderDetails,
-        );
+            state: args.state,
+        });
     });
 }
 
 function buildFutureItems<TNode>(args: BuildSessionItemsArgs<TNode>): TNode[] {
     return args.rows.map((row) => {
-        return args.builders.future(
+        return args.builders.future({
+            interactionHandlers: args.interactionHandlers,
+            rerenderDetails: args.rerenderDetails,
             row,
-            args.state,
-            args.interactionHandlers,
-            args.rerenderDetails,
-        );
+            state: args.state,
+        });
     });
 }
 

@@ -3,7 +3,7 @@
 Guidance for coding agents working in this repository.
 
 NEVER TOUCH THE README.md. IF YOU WANT TO SUGGEST TO ADD TO IT, MENTION IT IN
-A CHAT! NEVER TOUCH THE README.md!!!! 
+A CHAT! NEVER TOUCH THE README.md!!!!
 
 ## 1) Project Snapshot
 
@@ -43,6 +43,8 @@ These are enforced standards from `STYLEGUIDE.md`.
 ## 4) TypeScript / Sonar Rules
 
 - Treat lint/Sonar findings in touched files as merge blockers.
+- Default to `packages/contracts` for shared TypeScript types and inference-backed contract shapes; do not duplicate or re-derive cross-application contracts in app-local folders.
+- If a type could reasonably be shared by another application without pulling in app-specific runtime dependencies, move it into `packages/contracts` now instead of waiting for a second consumer.
 - Do not commit `console.error`, `console.warn`, `console.log`, or `console.debug`.
 - Allowed console methods only: `assert`, `clear`, `count`, `group`, `groupCollapsed`, `groupEnd`, `info`, `table`, `time`, `timeEnd`, `trace`.
 - Do not use `void` to suppress Promise handling. Use `await` or explicit `.catch(...)`.
@@ -97,6 +99,7 @@ If a required command fails, the change is not done.
 - Keep changes focused; avoid mixing unrelated refactors with behavior changes.
 - Add/adjust tests for new behavior and bug fixes (regression tests when practical).
 - Update docs in the same change when behavior, command, config, or contract changes.
+- When introducing or changing a shared or potentially reusable contract, update `packages/contracts` first and treat app-local copies as a design smell unless the type is transient implementation state or depends on app-specific runtime libraries.
 - For UI changes, include screenshots in PR/hand-off notes when applicable.
 - If you add new tooling checks, wire them into required commands in the same change.
 

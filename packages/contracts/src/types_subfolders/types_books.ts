@@ -1,5 +1,5 @@
 import type { UUID } from "node:crypto";
-import type { PlannerScheduleRow } from "./types_planner.js";
+import type { PlannerScheduleRow } from "./types_planner.ts";
 
 export type BookStatusFilter = "all" | BookStatus;
 
@@ -42,6 +42,7 @@ export interface Book {
     pages_total: number | null;
     priority: number;
     progress_percent: number;
+    remaining_words?: number | null;
     scheduled_days: string[];
     shelf: string;
     status: BookStatus;
@@ -52,6 +53,7 @@ export interface Book {
 export interface BookProgressUpdates {
     pagesRead?: number | null;
     progressPercent?: number | null;
+    remainingWords?: number | null;
 }
 
 export interface BookMetaOptions {

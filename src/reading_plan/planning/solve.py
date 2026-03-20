@@ -54,7 +54,11 @@ class FinalizeSolveContext:
 def solve_plan(
     books: list[Book], settings: Settings, planner: str = "mip"
 ) -> PlanResult:
-    """Route planning to greedy or CP-SAT and return a normalized result."""
+    """Route planning to greedy or CP-SAT and return a normalized result.
+
+    Returns:
+        Computed value.
+    """
     planner_name = planner.strip().lower()
     profile = profile_from_planner(planner_name)
     log_context = {
@@ -87,7 +91,11 @@ def _solve_mip(
     settings: Settings,
     profile: str = DEFAULT_SOLVER_PROFILE,
 ) -> PlanResult:
-    """Backward-compatible entrypoint for the staged CP-SAT planner."""
+    """Backward-compatible entrypoint for the staged CP-SAT planner.
+
+    Returns:
+        Computed value.
+    """
     return _solve_cp_sat(books, settings, profile=profile)
 
 
@@ -96,7 +104,11 @@ def _solve_cp_sat(
     settings: Settings,
     profile: str = DEFAULT_SOLVER_PROFILE,
 ) -> PlanResult:
-    """Solve with CP-SAT and fall back to greedy after infeasible prechecks."""
+    """Solve with CP-SAT and fall back to greedy after infeasible prechecks.
+
+    Returns:
+        Computed value.
+    """
     started = perf_counter()
     greedy_assignments = plan_greedy(books, settings)
     precheck_fallback = _fallback_from_precheck(
@@ -149,7 +161,11 @@ def _run_stage_attempt(
     hints: Assignments,
     stage: SolveStage,
 ) -> SolveAttemptResult:
-    """Run one staged attempt using the current incumbent hints."""
+    """Run one staged attempt using the current incumbent hints.
+
+    Returns:
+        Computed value.
+    """
     attempt_context = _attempt_context_with_hints(base_context, hints)
     attempt = run_attempt(attempt_context, stage)
     _log_stage_result(stage, attempt)
@@ -160,6 +176,7 @@ def _next_stage_state(
     attempt: SolveAttemptResult,
     best_result: PlanResult | None,
     incumbent_hints: Assignments,
+    *,
     stage: SolveStage,
 ) -> tuple[Assignments, PlanResult | None, bool]:
     """Return updated state after one stage attempt."""
@@ -169,7 +186,7 @@ def _next_stage_state(
         stage,
         attempt,
         incumbent_hints,
-        best_result,
+        best_result=best_result,
     )
     return incumbent_hints, best_result, _is_optimal_result(best_result)
 
@@ -179,7 +196,11 @@ def _solve_stages(
     stages: Sequence[SolveStage],
     initial_hints: Assignments,
 ) -> tuple[PlanResult | None, str]:
-    """Run staged solve attempts and return best feasible result and status."""
+    """Run staged solve attempts and return best feasible result and status.
+
+    Returns:
+        Computed value.
+    """
     best_result: PlanResult | None = None
     incumbent_hints = initial_hints
     last_status = UNKNOWN_STATUS_NAME
@@ -190,7 +211,7 @@ def _solve_stages(
             attempt,
             best_result,
             incumbent_hints,
-            stage,
+            stage=stage,
         )
         if should_stop:
             break
@@ -201,7 +222,11 @@ def _attempt_context_with_hints(
     context: AttemptContext,
     hints: Assignments,
 ) -> AttemptContext:
-    """Clone immutable attempt context with updated incumbent hints."""
+    """Clone immutable attempt context with updated incumbent hints.
+
+    Returns:
+        Computed value.
+    """
     return AttemptContext(
         books=context.books,
         settings=context.settings,
@@ -240,7 +265,7 @@ def _finalize_solve_cp_sat_result(
         return best_result
     note = (
         f"CP-SAT produced no feasible solution ({context.last_status}); "
-        "fell back to greedy planner."
+        + "fell back to greedy planner."
     )
     return _fallback_to_greedy(context.greedy_assignments, note)
 
@@ -249,9 +274,14 @@ def _accept_feasible_attempt(
     stage: SolveStage,
     attempt: SolveAttemptResult,
     incumbent_hints: Assignments,
+    *,
     best_result: PlanResult | None,
 ) -> tuple[Assignments, PlanResult | None]:
-    """Update hints and best result after a feasible stage solve."""
+    """Update hints and best result after a feasible stage solve.
+
+    Returns:
+        Computed value.
+    """
     if attempt.plan.assignments:
         incumbent_hints = attempt.plan.assignments
     if stage.include_objective or attempt.plan.assignments:
@@ -284,11 +314,12 @@ def _fallback_to_greedy(
 
 def _log_stage_result(stage: SolveStage, attempt: SolveAttemptResult) -> None:
     """Emit standardized logs for each staged solver attempt."""
+    message = (
+    "solve_cp_sat: stage completed stage=%s seed=%s budget_s=%.2f " +
+    "elapsed_ms=%s status=%s assignments=%s objective=%s lock_days=%s"
+    )
     LOGGER.debug(
-        (
-            "solve_cp_sat: stage completed stage=%s seed=%s budget_s=%.2f "
-            "elapsed_ms=%s status=%s assignments=%s objective=%s lock_days=%s"
-        ),
+        message,
         stage.name,
         stage.seed,
         stage.max_time_seconds,

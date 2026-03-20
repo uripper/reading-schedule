@@ -1,20 +1,12 @@
-import type {
-    Book,
-    PlannerResult,
-    StatusBreakdown,
-} from "../../types/types.ts";
-import { finishDatesByBookId } from "../books/finish-dates.ts";
+import type { Book, StatusBreakdown } from "../../types/types.ts";
 import {
     BOOK_STATUS_DROPPED,
     BOOK_STATUS_IN_PROGRESS,
     BOOK_STATUS_READ,
     BOOK_STATUS_TO_READ,
 } from "../books/status_catalog.ts";
-import { sessionKeyFor } from "../calendar/utils.ts";
-import { todayKey } from "../sessions/utils.ts";
 
 const MONTHS_PER_YEAR = 12;
-const PERCENT_MAX = 100;
 const DATE_YEAR_START_INDEX = 0;
 const DATE_YEAR_END_INDEX = 4;
 const DATE_MONTH_START_INDEX = 5;
@@ -46,7 +38,7 @@ export function yearFromDateKey(dateText: string): number | null {
  * @param dateText - Date key text.
  * @returns Month index in `[0, 11]`, or null when invalid.
  */
-function monthIndexFromDateKey(dateText: string): number | null {
+export function monthIndexFromDateKey(dateText: string): number | null {
     const KEY = String(dateText || "").trim();
     const PARSED = Number(
         KEY.slice(DATE_MONTH_START_INDEX, DATE_MONTH_END_INDEX),
@@ -60,83 +52,14 @@ function monthIndexFromDateKey(dateText: string): number | null {
     return PARSED - MONTH_NUMBER_TO_INDEX_OFFSET;
 }
 
-function shouldIncludePlannedFinish(options: {
-    bookId: string;
-    dateKey: string;
-    perBookSummary:
-        | NonNullable<PlannerResult["summary"]>["per_book"]
-        | undefined;
-    year: number;
-}): number | null {
-    const FINISH_YEAR = yearFromDateKey(options.dateKey);
-
-    if (FINISH_YEAR !== options.year) {
-        return null;
-    }
-
-    if (
-        options.perBookSummary !== undefined &&
-        Object.hasOwn(options.perBookSummary, options.bookId)
-    ) {
-        const SUMMARY = options.perBookSummary[options.bookId];
-
-        if (SUMMARY.finished === false) {
-            return null;
-        }
-    }
-
-    return monthIndexFromDateKey(options.dateKey);
-}
-
-function rowDateIfScheduledInRange(options: {
-    row: PlannerResult["schedule"][number];
-    today: string;
-    year: number;
-}): string | null {
-    const ROW_DATE = String(options.row.date || "");
-    const ROW_YEAR = yearFromDateKey(ROW_DATE);
-
-    if (ROW_YEAR !== options.year) {
-        return null;
-    }
-
-    if (!ROW_DATE || ROW_DATE.localeCompare(options.today) > 0) {
-        return null;
-    }
-
-    return ROW_DATE;
-}
-
-function isCompletedScheduledRow(options: {
-    row: PlannerResult["schedule"][number];
-    scheduleCompletions: Record<string, boolean>;
-    today: string;
-    year: number;
-}): boolean {
-    const ROW_DATE = rowDateIfScheduledInRange({
-        row: options.row,
-        today: options.today,
-        year: options.year,
-    });
-
-    if (ROW_DATE === null) {
-        return false;
-    }
-
-    return options.scheduleCompletions[sessionKeyFor(options.row)] === true;
-}
-
 function finishedReadBookIdForYear(book: Book, year: number): string | null {
     if (book.status !== BOOK_STATUS_READ) {
         return null;
     }
-
     const FINISHED_YEAR = yearFromDateKey(String(book.finished_at ?? ""));
-
     if (FINISHED_YEAR !== year) {
         return null;
     }
-
     return book.book_id;
 }
 
@@ -152,7 +75,6 @@ export function statusBreakdown(books: Book[]): StatusBreakdown {
         [BOOK_STATUS_READ]: 0,
         [BOOK_STATUS_DROPPED]: 0,
     };
-
     for (const BOOK of books) {
         COUNTS[BOOK.status] += 1;
     }
@@ -170,197 +92,11 @@ export function readBooksFinishedThisYear(
     year: number,
 ): Set<string> {
     const IDS = new Set<string>();
-
     for (const BOOK of books) {
         const BOOK_ID = finishedReadBookIdForYear(BOOK, year);
-
         if (BOOK_ID !== null) {
             IDS.add(BOOK_ID);
         }
     }
     return IDS;
-}
-
-/**
- * Collects planned finish ids/months from planner output for a target year.
- * @param lastResult - Latest planner result.
- * @param year - Target year.
- * @returns Planned finish ids and month index map keyed by book id.
- */
-export function plannedFinishBookIds(
-    lastResult: PlannerResult | null,
-    year: number,
-): { ids: Set<string>; monthByBookId: Map<string, number> } {
-    const IDS = new Set<string>();
-    const MONTH_BY_BOOK_ID = new Map<string, number>();
-    const ROWS = lastResult?.schedule ?? [];
-    const BY_BOOK_ID = finishDatesByBookId(ROWS);
-    const PER_BOOK_SUMMARY = lastResult?.summary?.per_book ?? {};
-
-    for (const [BOOK_ID, DATE_KEY] of Object.entries(BY_BOOK_ID)) {
-        const MONTH_INDEX = shouldIncludePlannedFinish({
-            bookId: BOOK_ID,
-            dateKey: String(DATE_KEY),
-            perBookSummary: PER_BOOK_SUMMARY,
-            year,
-        });
-
-        if (MONTH_INDEX === null) {
-            continue;
-        }
-        IDS.add(BOOK_ID);
-        MONTH_BY_BOOK_ID.set(BOOK_ID, MONTH_INDEX);
-    }
-    return { ids: IDS, monthByBookId: MONTH_BY_BOOK_ID };
-}
-
-/**
- * Computes completion-rate stats for rows scheduled through today in target year.
- * @param lastResult - Latest planner result.
- * @param scheduleCompletions - Completion map keyed by schedule row.
- * @param year - Target year.
- * @returns Scheduled/completed counts and rounded completion rate percent.
- */
-export function completionStats(
-    lastResult: PlannerResult | null,
-    scheduleCompletions: Record<string, boolean>,
-    year: number,
-): { scheduled: number; completed: number; ratePercent: number } {
-    const ROWS = lastResult?.schedule ?? [];
-    const TODAY = todayKey();
-    const COUNTS = countScheduledCompletions({
-        rows: ROWS,
-        scheduleCompletions,
-        today: TODAY,
-        year,
-    });
-
-    return {
-        completed: COUNTS.completed,
-        ratePercent: Math.round(
-            completionRatePercent(COUNTS.completed, COUNTS.scheduled),
-        ),
-        scheduled: COUNTS.scheduled,
-    };
-}
-
-function countScheduledCompletions(options: {
-    rows: PlannerResult["schedule"];
-    scheduleCompletions: Record<string, boolean>;
-    today: string;
-    year: number;
-}): { completed: number; scheduled: number } {
-    let scheduled = 0;
-    let completed = 0;
-
-    for (const ROW of options.rows) {
-        if (
-            rowDateIfScheduledInRange({
-                row: ROW,
-                today: options.today,
-                year: options.year,
-            }) === null
-        ) {
-            continue;
-        }
-
-        scheduled += 1;
-
-        if (
-            isCompletedScheduledRow({
-                row: ROW,
-                scheduleCompletions: options.scheduleCompletions,
-                today: options.today,
-                year: options.year,
-            })
-        ) {
-            completed += 1;
-        }
-    }
-
-    return { completed, scheduled };
-}
-
-function completionRatePercent(completed: number, scheduled: number): number {
-    if (scheduled === 0) {
-        return 0;
-    }
-
-    return (completed / scheduled) * PERCENT_MAX;
-}
-
-/**
- * Computes average progress percentage and started-book count.
- * @param books - Book catalog.
- * @returns Aggregate progress metrics.
- */
-export function averageProgress(books: Book[]): {
-    startedCount: number;
-    averagePercent: number;
-} {
-    if (!books.length) {
-        return { averagePercent: 0, startedCount: 0 };
-    }
-    let startedCount = 0;
-    let totalPercent = 0;
-
-    for (const BOOK of books) {
-        const PROGRESS = Number(BOOK.progress_percent || 0);
-        if (PROGRESS > 0) {
-            startedCount += 1;
-        }
-        totalPercent += PROGRESS;
-    }
-    return {
-        averagePercent: Math.round((totalPercent / books.length) * 10) / 10,
-        startedCount,
-    };
-}
-
-/**
- * Computes monthly finish counts from planned and completed finishes.
- * @param readThisYearIds - Set of books completed in target year.
- * @param books - Book catalog.
- * @param plannedMonths - Planned finish month index by book id.
- * @returns Array of 12 monthly finish totals.
- */
-export function monthlyFinishCounts(
-    readThisYearIds: Set<string>,
-    books: Book[],
-    plannedMonths: Map<string, number>,
-): number[] {
-    const COUNTS = Array.from({ length: MONTHS_PER_YEAR }, () => 0);
-    const PLANNED_COUNTS = incrementMonthlyCounts(
-        COUNTS,
-        plannedMonths.values(),
-    );
-
-    for (const BOOK of books) {
-        if (!readThisYearIds.has(BOOK.book_id)) {
-            continue;
-        }
-        const MONTH_INDEX = monthIndexFromFinishedBook(BOOK);
-        if (MONTH_INDEX === null) {
-            continue;
-        }
-        PLANNED_COUNTS[MONTH_INDEX] += 1;
-    }
-    return PLANNED_COUNTS;
-}
-
-function monthIndexFromFinishedBook(book: Book): number | null {
-    return monthIndexFromDateKey(String(book.finished_at ?? ""));
-}
-
-function incrementMonthlyCounts(
-    counts: number[],
-    monthIndexes: Iterable<number>,
-): number[] {
-    const NEXT_COUNTS = [...counts];
-
-    for (const MONTH_INDEX of monthIndexes) {
-        NEXT_COUNTS[MONTH_INDEX] += 1;
-    }
-
-    return NEXT_COUNTS;
 }

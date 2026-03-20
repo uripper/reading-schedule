@@ -11,29 +11,25 @@ const SAVE_BUTTON_IDLE_LABEL = "Save Book";
 const SAVE_BUTTON_BUSY_LABEL = "Saving...";
 const EMPTY_TEXT = "";
 
-/**
- * Runs book save work while keeping busy-state cleanup consistent for sync and async failures.
- * @param flow - Submission steps and callbacks for the current dialog save attempt.
- */
-function runBookDialogSubmitFlow(
-    flow: Readonly<{
-        createPayload(): BookSubmitPayload;
-        onComplete(): void;
-        onError(error: unknown): void;
-        onSubmit(payload: BookSubmitPayload): Promise<void> | void;
-        setSavingState(busy: boolean): void;
-    }>,
-): void {
-    flow.setSavingState(true);
-    let payload: BookSubmitPayload;
-    try {
-        payload = flow.createPayload();
-    } catch (error: unknown) {
-        flow.onError(error);
-        flow.setSavingState(false);
-        return;
-    }
+type BookDialogSubmitFlow = Readonly<{
+    createPayload(): BookSubmitPayload;
+    onComplete(): void;
+    onError(error: unknown): void;
+    onSubmit(payload: BookSubmitPayload): Promise<void> | void;
+    setSavingState(busy: boolean): void;
+}>;
 
+type BindBookDialogSubmitArgs = {
+    form: HTMLFormElement;
+    refs: BookFormRefs;
+    onSubmit: (payload: BookSubmitPayload) => Promise<void> | void;
+    onComplete: () => void;
+};
+
+function submitBookDialogPayload(
+    flow: BookDialogSubmitFlow,
+    payload: BookSubmitPayload,
+): void {
     Promise.resolve()
         .then(() => {
             return flow.onSubmit(payload);
@@ -47,6 +43,20 @@ function runBookDialogSubmitFlow(
         .finally(() => {
             flow.setSavingState(false);
         });
+}
+
+/**
+ * Runs book save work while keeping busy-state cleanup consistent for sync and async failures.
+ * @param flow - Submission steps and callbacks for the current dialog save attempt.
+ */
+function runBookDialogSubmitFlow(flow: BookDialogSubmitFlow): void {
+    flow.setSavingState(true);
+    try {
+        submitBookDialogPayload(flow, flow.createPayload());
+    } catch (error: unknown) {
+        flow.onError(error);
+        flow.setSavingState(false);
+    }
 }
 
 /**
@@ -80,7 +90,8 @@ function saveErrorMessage(error: unknown): string {
  */
 function restoreLookupMetaText(refs: BookFormRefs): void {
     const LOOKUP_NOTE = refs.lookupMeta.dataset.lookupNote ?? EMPTY_TEXT;
-    refs.lookupMeta.textContent = LOOKUP_NOTE;
+    const LOOKUP_META = refs.lookupMeta;
+    LOOKUP_META.textContent = LOOKUP_NOTE;
 }
 /**
  * Returns the first scheduled-day checkbox input in the dialog when present.
@@ -139,11 +150,12 @@ function focusCustomValidationTarget(refs: BookFormRefs): void {
  * @param error - Unknown error thrown during payload creation or save.
  */
 function showSubmitError(refs: BookFormRefs, error: unknown): void {
-    refs.lookupMeta.textContent = saveErrorMessage(error);
-    if (focusFirstError(refs.form)) {
+    const FORM_REFS = refs;
+    FORM_REFS.lookupMeta.textContent = saveErrorMessage(error);
+    if (focusFirstError(FORM_REFS.form)) {
         return;
     }
-    focusCustomValidationTarget(refs);
+    focusCustomValidationTarget(FORM_REFS);
 }
 /**
  * Builds the current book dialog payload from live form controls.
@@ -166,34 +178,33 @@ export function resetBookDialogSubmitState(refs: BookFormRefs): void {
     setBookDialogSavingState(refs, false);
 }
 
+function handleBookDialogSubmit(
+    args: BindBookDialogSubmitArgs,
+    event: SubmitEvent,
+): void {
+    event.preventDefault();
+    restoreLookupMetaText(args.refs);
+    runBookDialogSubmitFlow({
+        createPayload() {
+            return createBookSubmitPayload(args.refs);
+        },
+        onComplete: args.onComplete,
+        onError(error: unknown) {
+            showSubmitError(args.refs, error);
+        },
+        onSubmit: args.onSubmit,
+        setSavingState(busy: boolean) {
+            setBookDialogSavingState(args.refs, busy);
+        },
+    });
+}
+
 /**
  * Binds the book form submit event to payload parsing and save orchestration.
- * @param form - Dialog form element that dispatches submit events.
- * @param refs - Resolved DOM references for the book dialog.
- * @param onSubmit - Callback invoked with the parsed form payload on submit.
- * @param onComplete - Callback invoked after a successful save.
+ * @param args - Submit binding dependencies for the book dialog.
  */
-export function bindBookDialogSubmit(
-    form: HTMLFormElement,
-    refs: BookFormRefs,
-    onSubmit: (payload: BookSubmitPayload) => Promise<void> | void,
-    onComplete: () => void,
-): void {
-    form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        restoreLookupMetaText(refs);
-        runBookDialogSubmitFlow({
-            createPayload() {
-                return createBookSubmitPayload(refs);
-            },
-            onComplete,
-            onError(error: unknown) {
-                showSubmitError(refs, error);
-            },
-            onSubmit,
-            setSavingState(busy: boolean) {
-                setBookDialogSavingState(refs, busy);
-            },
-        });
+export function bindBookDialogSubmit(args: BindBookDialogSubmitArgs): void {
+    args.form.addEventListener("submit", (event) => {
+        handleBookDialogSubmit(args, event);
     });
 }

@@ -19,6 +19,8 @@ import { UI_SCALE_STEP } from "./zoom.ts";
 
 let plannerRequestCounter = 0;
 
+// TODO: Move interfaces and types to contracts
+
 interface PlannerRequestContext {
     requestId: string;
     userDataDir: string;
@@ -95,31 +97,45 @@ async function handleSamplePlannerRequest(
     return parseSamplePayload(RAW_RESPONSE);
 }
 
+function parsePlannerGenerationRequest(
+    payload: unknown,
+    requestId: string,
+): ReturnType<typeof parsePlanGeneratePayload> {
+    const REQUEST = parsePlanGeneratePayload(payload);
+    logDebug("Planner request payload parsed.", {
+        bookCount: REQUEST.books.length,
+        planner: REQUEST.planner,
+        requestId,
+    });
+    return REQUEST;
+}
+
+function parsePlannerGenerationResponse(
+    rawResponse: unknown,
+    requestId: string,
+): ReturnType<typeof parsePlanGenerateResult> {
+    logDebug("Planner bridge returned raw payload.", { requestId });
+    const RESULT = parsePlanGenerateResult(rawResponse);
+    logDebug("Planner result parsed.", {
+        ...plannerSummaryLogFields(RESULT),
+        requestId,
+    });
+    return RESULT;
+}
+
 async function handleGeneratePlannerRequest(
     payload: unknown,
     runBridge: RegisterIpcHandlersArgs["runBridge"],
     userData: RegisterIpcHandlersArgs["userData"],
 ): Promise<ReturnType<typeof parsePlanGenerateResult>> {
     const CONTEXT = plannerRequestContext(userData);
+    const REQUEST_ID = CONTEXT.requestId;
     logDebug("IPC received planner generation request.", {
-        requestId: CONTEXT.requestId,
+        requestId: REQUEST_ID,
     });
-    const REQUEST = parsePlanGeneratePayload(payload);
-    logDebug("Planner request payload parsed.", {
-        bookCount: REQUEST.books.length,
-        planner: REQUEST.planner,
-        requestId: CONTEXT.requestId,
-    });
+    const REQUEST = parsePlannerGenerationRequest(payload, REQUEST_ID);
     const RAW_RESPONSE = await runBridge([], REQUEST, CONTEXT);
-    logDebug("Planner bridge returned raw payload.", {
-        requestId: CONTEXT.requestId,
-    });
-    const RESULT = parsePlanGenerateResult(RAW_RESPONSE);
-    logDebug("Planner result parsed.", {
-        ...plannerSummaryLogFields(RESULT),
-        requestId: CONTEXT.requestId,
-    });
-    return RESULT;
+    return parsePlannerGenerationResponse(RAW_RESPONSE, REQUEST_ID);
 }
 
 function registerBookSearchHandler({

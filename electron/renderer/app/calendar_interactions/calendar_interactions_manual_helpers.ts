@@ -9,6 +9,11 @@ const MIN_MANUAL_MINUTES = 1;
 const MIN_MANUAL_WORDS = 1;
 export const DEFAULT_BOOK_DIFFICULTY = 3;
 
+type HistoricalReadingTotals = {
+    totalWords: number;
+    totalMinutes: number;
+};
+
 /**
  * Normalizes a manually entered number of minutes for a session,
  * ensuring it's a finite number and applying a minimum if necessary.
@@ -33,22 +38,45 @@ function historicalWordsPerMinute(
     bookId: string,
     rows: PlannerScheduleRow[] = [],
 ): number | null {
-    let totalWords = 0;
-    let totalMinutes = 0;
-
-    for (const ROW of rows) {
-        const ROW_TOTALS = rowReadingTotals(bookId, ROW);
-        if (ROW_TOTALS === null) {
-            continue;
-        }
-        totalMinutes += ROW_TOTALS.minutes;
-        totalWords += ROW_TOTALS.words;
-    }
-
-    if (totalMinutes <= 0 || totalWords <= 0) {
+    const TOTALS = historicalReadingTotals(bookId, rows);
+    if (!hasHistoricalReadingTotals(TOTALS)) {
         return null;
     }
-    return totalWords / totalMinutes;
+    return TOTALS.totalWords / TOTALS.totalMinutes;
+}
+
+function historicalReadingTotals(
+    bookId: string,
+    rows: PlannerScheduleRow[],
+): HistoricalReadingTotals {
+    let totals: HistoricalReadingTotals = {
+        totalMinutes: 0,
+        totalWords: 0,
+    };
+    for (const ROW of rows) {
+        totals = mergedHistoricalRowTotals(
+            totals,
+            rowReadingTotals(bookId, ROW),
+        );
+    }
+    return totals;
+}
+
+function mergedHistoricalRowTotals(
+    totals: HistoricalReadingTotals,
+    rowTotals: { minutes: number; words: number } | null,
+): HistoricalReadingTotals {
+    if (rowTotals === null) {
+        return totals;
+    }
+    return {
+        totalMinutes: totals.totalMinutes + rowTotals.minutes,
+        totalWords: totals.totalWords + rowTotals.words,
+    };
+}
+
+function hasHistoricalReadingTotals(totals: HistoricalReadingTotals): boolean {
+    return totals.totalMinutes > 0 && totals.totalWords > 0;
 }
 
 function rowReadingTotals(

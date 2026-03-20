@@ -7,14 +7,14 @@ import type {
     PlannerResult,
 } from "../../../types/types.ts";
 import { applyPreferencesToDocument } from "../../accessibility/a11y.ts";
-import { fillBooks } from "../../books.ts";
+import { fillBooks } from "../../books/controller.ts";
 import { fillSettings } from "../../settings.ts";
+import { fillPreferencesUI as fillPreferencesUi } from "../experience/fill_ui.ts";
 import {
-    fillPreferencesUI as fillPreferencesUi,
     normalizeFeatureFlags,
     normalizePreferences,
-    normalizeScheduleCompletions,
-} from "../experience/index.ts";
+} from "../experience/model.ts";
+import { normalizeScheduleCompletions } from "../experience/schedule_completions.ts";
 import { loadInitialData } from "../load_state.ts";
 import { applyAppStateMutation } from "../state_mutations.ts";
 import { finalizeInitialLoad } from "./init-helpers.ts";
@@ -160,7 +160,7 @@ function createLoadStateArgs(args: CreateLoadStateArgsInput): LoadStateArgs {
         ...createStateLoadStateArgs(args),
     } as LoadStateArgs;
 
-    LOAD_STATE_ARGS["fillPreferencesUI"] = fillPreferencesUi;
+    LOAD_STATE_ARGS.fillPreferencesUI = fillPreferencesUi;
 
     return LOAD_STATE_ARGS;
 }

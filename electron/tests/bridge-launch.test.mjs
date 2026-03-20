@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 /**
  * Regression tests for planner launch resolution.
  */
@@ -33,6 +34,30 @@ function restoreEnvironmentValue(name, previousValue) {
     ENVIRONMENT[name] = previousValue;
 }
 
+function rememberEnvironmentEntries(entries) {
+    const PREVIOUS_VALUES = new Map();
+    for (const [NAME] of entries) {
+        PREVIOUS_VALUES.set(NAME, ENVIRONMENT[NAME]);
+    }
+    return PREVIOUS_VALUES;
+}
+
+function applyEnvironmentEntries(entries) {
+    for (const [NAME, VALUE] of entries) {
+        if (VALUE === undefined) {
+            delete ENVIRONMENT[NAME];
+            continue;
+        }
+        ENVIRONMENT[NAME] = VALUE;
+    }
+}
+
+function restoreEnvironmentEntries(previousValues) {
+    for (const [NAME, PREVIOUS_VALUE] of previousValues) {
+        restoreEnvironmentValue(NAME, PREVIOUS_VALUE);
+    }
+}
+
 /**
  * Temporarily overrides environment values for a test callback.
  * @param entries - Key/value overrides.
@@ -40,40 +65,22 @@ function restoreEnvironmentValue(name, previousValue) {
  * @returns Callback return value.
  */
 function withEnvironmentEntries(entries, action) {
-    const PREVIOUS_VALUES = new Map();
-    for (const [NAME, VALUE] of entries) {
-        PREVIOUS_VALUES.set(NAME, ENVIRONMENT[NAME]);
-        if (VALUE === undefined) {
-            delete ENVIRONMENT[NAME];
-        } else {
-            ENVIRONMENT[NAME] = VALUE;
-        }
-    }
+    const PREVIOUS_VALUES = rememberEnvironmentEntries(entries);
+    applyEnvironmentEntries(entries);
     try {
         return action();
     } finally {
-        for (const [NAME, PREVIOUS_VALUE] of PREVIOUS_VALUES) {
-            restoreEnvironmentValue(NAME, PREVIOUS_VALUE);
-        }
+        restoreEnvironmentEntries(PREVIOUS_VALUES);
     }
 }
 
-test("planner launch uses python module execution during development", () => {
-    const PYTHON_BINARY = "/tmp/custom-python";
-    const LAUNCH = withEnvironmentEntries(
-        [
-            [PLANNER_PATH_ENV_KEY, undefined],
-            [PYTHON_BIN_ENV_KEY, PYTHON_BINARY],
-            [RESOURCES_PATH_ENV_KEY, undefined],
-        ],
-        () => resolvePlannerLaunch("reading_plan.gui_api", ["--sample"]),
-    );
-    assert.equal(LAUNCH.command, PYTHON_BINARY);
-    assert.deepEqual(LAUNCH.args, ["-m", "reading_plan.gui_api", "--sample"]);
-    assert.equal(LAUNCH.cwd, REPOSITORY_DIRECTORY);
-});
+function plannerLaunchWithEnvironment(entries) {
+    return withEnvironmentEntries(entries, () => {
+        return resolvePlannerLaunch("reading_plan.gui_api", ["--sample"]);
+    });
+}
 
-test("planner launch switches to bundled executable when available", () => {
+function createBundledPlannerFixture() {
     const TEMP_DIRECTORY = fs.mkdtempSync(
         path.join(os.tmpdir(), "bartleby-bridge-launch-"),
     );
@@ -82,19 +89,39 @@ test("planner launch switches to bundled executable when available", () => {
     const PLANNER_PATH = path.join(PLANNER_DIRECTORY, "planner-bridge.exe");
     fs.mkdirSync(PLANNER_DIRECTORY, { recursive: true });
     fs.writeFileSync(PLANNER_PATH, "");
+    return {
+        cleanup() {
+            fs.rmSync(TEMP_DIRECTORY, { force: true, recursive: true });
+        },
+        plannerPath: PLANNER_PATH,
+        resourcesDirectory: RESOURCES_DIRECTORY,
+    };
+}
+
+test("planner launch uses python module execution during development", () => {
+    const PYTHON_BINARY = "/tmp/custom-python";
+    const LAUNCH = plannerLaunchWithEnvironment([
+        [PLANNER_PATH_ENV_KEY, undefined],
+        [PYTHON_BIN_ENV_KEY, PYTHON_BINARY],
+        [RESOURCES_PATH_ENV_KEY, undefined],
+    ]);
+    assert.equal(LAUNCH.command, PYTHON_BINARY);
+    assert.deepEqual(LAUNCH.args, ["-m", "reading_plan.gui_api", "--sample"]);
+    assert.equal(LAUNCH.cwd, REPOSITORY_DIRECTORY);
+});
+
+test("planner launch switches to bundled executable when available", () => {
+    const FIXTURE = createBundledPlannerFixture();
     try {
-        const LAUNCH = withEnvironmentEntries(
-            [
-                [PLANNER_PATH_ENV_KEY, PLANNER_PATH],
-                [PYTHON_BIN_ENV_KEY, "/tmp/custom-python"],
-                [RESOURCES_PATH_ENV_KEY, RESOURCES_DIRECTORY],
-            ],
-            () => resolvePlannerLaunch("reading_plan.gui_api", ["--sample"]),
-        );
-        assert.equal(LAUNCH.command, PLANNER_PATH);
+        const LAUNCH = plannerLaunchWithEnvironment([
+            [PLANNER_PATH_ENV_KEY, FIXTURE.plannerPath],
+            [PYTHON_BIN_ENV_KEY, "/tmp/custom-python"],
+            [RESOURCES_PATH_ENV_KEY, FIXTURE.resourcesDirectory],
+        ]);
+        assert.equal(LAUNCH.command, FIXTURE.plannerPath);
         assert.deepEqual(LAUNCH.args, ["reading_plan.gui_api", "--sample"]);
-        assert.equal(LAUNCH.cwd, RESOURCES_DIRECTORY);
+        assert.equal(LAUNCH.cwd, FIXTURE.resourcesDirectory);
     } finally {
-        fs.rmSync(TEMP_DIRECTORY, { force: true, recursive: true });
+        FIXTURE.cleanup();
     }
 });

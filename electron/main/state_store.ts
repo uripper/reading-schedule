@@ -50,6 +50,29 @@ function hasPersistedArtifacts(userDataDir: string): boolean {
     );
 }
 
+function jsonMigrationFailureResult(
+    jsonResult: PlannerStateLoadResult,
+    errorMessage: string,
+): PlannerStateLoadResult {
+    return {
+        ...jsonResult,
+        warningMessage: `Loaded JSON fallback but SQLite migration failed: ${errorMessage}`,
+    };
+}
+
+function migratedPrimaryJsonResult(
+    jsonResult: PlannerStateLoadResult,
+): PlannerStateLoadResult {
+    if (jsonResult.source !== "json_primary") {
+        return jsonResult;
+    }
+    return {
+        ...jsonResult,
+        warningCode: "MIGRATED_JSON_TO_SQLITE",
+        warningMessage: "Migrated saved data from JSON storage to SQLite.",
+    };
+}
+
 /**
  * Backfills SQLite from JSON state and decorates warnings when migration fails.
  * @param userDataDir - Base Electron user-data directory for this profile.
@@ -65,18 +88,41 @@ function migratedJsonResult(
         jsonResult.state as unknown as JsonValue,
     );
     if (BACKFILL.ok === false) {
-        return {
-            ...jsonResult,
-            warningMessage: `Loaded JSON fallback but SQLite migration failed: ${BACKFILL.error}`,
-        };
+        return jsonMigrationFailureResult(
+            jsonResult,
+            BACKFILL.error ?? "Unknown SQLite migration failure.",
+        );
     }
-    if (jsonResult.source !== "json_primary") {
-        return jsonResult;
+    return migratedPrimaryJsonResult(jsonResult);
+}
+
+function preferredStateResult(
+    userDataDir: string,
+    sqliteResult: PlannerStateLoadResult | null,
+): PlannerStateLoadResult | null {
+    if (sqliteResult !== null && hasBootstrapState(sqliteResult.state)) {
+        return sqliteResult;
     }
+    const JSON_RESULT = readStateFromJson(userDataDir);
+    if (JSON_RESULT !== null) {
+        return migratedJsonResult(userDataDir, JSON_RESULT);
+    }
+    return sqliteResult;
+}
+
+function freshStateResult(userDataDir: string): PlannerStateLoadResult {
     return {
-        ...jsonResult,
-        warningCode: "MIGRATED_JSON_TO_SQLITE",
-        warningMessage: "Migrated saved data from JSON storage to SQLite.",
+        source: "fresh",
+        sourcePath: userDataDir,
+        state: null,
+    };
+}
+
+function resetFreshStateResult(userDataDir: string): PlannerStateLoadResult {
+    return {
+        ...freshStateResult(userDataDir),
+        warningCode: "STATE_RESET_FRESH",
+        warningMessage: "Saved state was unreadable. Started with fresh data.",
     };
 }
 
@@ -86,32 +132,17 @@ function migratedJsonResult(
  * @returns Structured state load result with source and warning metadata.
  */
 export function readState(userDataDir: string): PlannerStateLoadResult {
-    const SQLITE_RESULT = readStateFromSqlite(userDataDir);
-    if (SQLITE_RESULT !== null && hasBootstrapState(SQLITE_RESULT.state)) {
-        return SQLITE_RESULT;
-    }
-    const JSON_RESULT = readStateFromJson(userDataDir);
-    if (JSON_RESULT !== null) {
-        return migratedJsonResult(userDataDir, JSON_RESULT);
-    }
-    if (SQLITE_RESULT !== null) {
-        return SQLITE_RESULT;
+    const PREFERRED_RESULT = preferredStateResult(
+        userDataDir,
+        readStateFromSqlite(userDataDir),
+    );
+    if (PREFERRED_RESULT !== null) {
+        return PREFERRED_RESULT;
     }
     if (hasPersistedArtifacts(userDataDir)) {
-        return {
-            source: "fresh",
-            sourcePath: userDataDir,
-            state: null,
-            warningCode: "STATE_RESET_FRESH",
-            warningMessage:
-                "Saved state was unreadable. Started with fresh data.",
-        };
+        return resetFreshStateResult(userDataDir);
     }
-    return {
-        source: "fresh",
-        sourcePath: userDataDir,
-        state: null,
-    };
+    return freshStateResult(userDataDir);
 }
 
 /**

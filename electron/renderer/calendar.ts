@@ -63,42 +63,76 @@ function renderFinishedBooksSummary(completedRows: CompletedBookRow[]): void {
     DETAILS.prepend(SUMMARY);
 }
 
-/**
- * Renders month grid and wires date selection/navigation callbacks.
- */
-function renderMonthView(): void {
-    refreshDerivedRows(STATE, interactionHandlers.isSessionCompleted);
+function completedBookRowsLookup(): Record<string, CompletedBookRow[]> {
     const GET_BOOK_BY_ID = (
         bookId: string,
     ): ReturnType<CalendarHandlers["getBookById"]> => {
         return interactionHandlers.getBookById(bookId);
     };
-    const COMPLETED_ROWS_BY_DATE = buildCompletedBookRowsByDate(
+    return buildCompletedBookRowsByDate(
         interactionHandlers.listSessionBooks(),
         GET_BOOK_BY_ID,
     );
-    const COMPLETED_BOOK_ROWS_FOR_DATE = (
-        dateKey: string,
-    ): CompletedBookRow[] => {
+}
+
+function completedBookRowsForDate() {
+    const COMPLETED_ROWS_BY_DATE = completedBookRowsLookup();
+    return (dateKey: string): CompletedBookRow[] => {
         return COMPLETED_ROWS_BY_DATE[dateKey] ?? [];
     };
-    renderMonth(STATE, {
-        completedBookRowsForDate: COMPLETED_BOOK_ROWS_FOR_DATE,
-        moveSelectionBy: (delta, currentIndex) => {
-            moveSelectionBy(STATE, delta, currentIndex, (dateKey, options) => {
-                selectDate(STATE, dateKey, renderMonthView, options);
-            });
-        },
-        renderDetails: () => {
-            renderCalendarDetails(STATE, interactionHandlers, renderMonthView);
-            renderFinishedBooksSummary(
-                COMPLETED_BOOK_ROWS_FOR_DATE(STATE.selectedDate),
-            );
-        },
-        selectDate: (dateKey, options) => {
-            selectDate(STATE, dateKey, renderMonthView, options);
-        },
+}
+
+function renderDetailsForDate(
+    completedBookRowsForDate: (dateKey: string) => CompletedBookRow[],
+): void {
+    renderCalendarDetails(STATE, interactionHandlers, renderMonthView);
+    renderFinishedBooksSummary(completedBookRowsForDate(STATE.selectedDate));
+}
+
+function selectDateWithMonthView(
+    dateKey: string,
+    options?: { focus?: boolean },
+): void {
+    selectDate({
+        dateKey,
+        options,
+        renderMonth: renderMonthView,
+        state: STATE,
     });
+}
+
+function moveSelectionByWithMonthView(
+    delta: number,
+    currentIndex: number,
+): void {
+    moveSelectionBy({
+        currentIndex,
+        delta,
+        selectDateWithOptions: selectDateWithMonthView,
+        state: STATE,
+    });
+}
+
+function renderMonthActions(
+    completedBookRowsForDate: (dateKey: string) => CompletedBookRow[],
+) {
+    return {
+        completedBookRowsForDate,
+        moveSelectionBy: moveSelectionByWithMonthView,
+        renderDetails: () => {
+            renderDetailsForDate(completedBookRowsForDate);
+        },
+        selectDate: selectDateWithMonthView,
+    };
+}
+
+/**
+ * Renders month grid and wires date selection/navigation callbacks.
+ */
+function renderMonthView(): void {
+    refreshDerivedRows(STATE, interactionHandlers.isSessionCompleted);
+    const COMPLETED_BOOK_ROWS_FOR_DATE = completedBookRowsForDate();
+    renderMonth(STATE, renderMonthActions(COMPLETED_BOOK_ROWS_FOR_DATE));
 }
 
 /**
@@ -110,7 +144,44 @@ function renderControlsView(): void {
         renderControlsView();
         renderMonthView();
     };
-    renderControls(STATE, renderControlsView, renderMonthView, JUMP_TO_TODAY);
+    renderControls({
+        jumpToToday: JUMP_TO_TODAY,
+        rerenderControls: renderControlsView,
+        rerenderMonth: renderMonthView,
+        state: STATE,
+    });
+}
+
+function previousMonthKey(): string {
+    return STATE.months[STATE.index] || "";
+}
+
+function restoreCalendarIndex(previousMonthKeyValue: string): void {
+    STATE.index = 0;
+    if (!previousMonthKeyValue) {
+        return;
+    }
+    const PREVIOUS_MONTH_INDEX = STATE.months.indexOf(previousMonthKeyValue);
+    if (PREVIOUS_MONTH_INDEX >= 0) {
+        STATE.index = PREVIOUS_MONTH_INDEX;
+    }
+}
+
+function restoreSelectedDate(previousSelectedDate: string): void {
+    if (previousSelectedDate !== "" && previousSelectedDate in STATE.dates) {
+        STATE.selectedDate = previousSelectedDate;
+        return;
+    }
+    STATE.selectedDate = "";
+}
+
+function applyCalendarInputs(
+    rows: PlannerScheduleRow[],
+    totals: Record<string, number>,
+): void {
+    STATE.rawRows = [...rows];
+    STATE.totalsByBookId = { ...totals };
+    refreshDerivedRows(STATE, interactionHandlers.isSessionCompleted);
 }
 
 /**
@@ -123,25 +194,10 @@ export function renderCalendar(
     totals: Record<string, number>,
 ): void {
     const PREVIOUS_SELECTED_DATE = STATE.selectedDate;
-    const PREVIOUS_MONTH_KEY = STATE.months[STATE.index] || "";
-    STATE.rawRows = [...rows];
-    STATE.totalsByBookId = { ...totals };
-    refreshDerivedRows(STATE, interactionHandlers.isSessionCompleted);
-    STATE.index = 0;
-    if (PREVIOUS_MONTH_KEY) {
-        const PREVIOUS_MONTH_INDEX = STATE.months.indexOf(PREVIOUS_MONTH_KEY);
-        if (PREVIOUS_MONTH_INDEX >= 0) {
-            STATE.index = PREVIOUS_MONTH_INDEX;
-        }
-    }
-    if (
-        PREVIOUS_SELECTED_DATE !== "" &&
-        PREVIOUS_SELECTED_DATE in STATE.dates
-    ) {
-        STATE.selectedDate = PREVIOUS_SELECTED_DATE;
-    } else {
-        STATE.selectedDate = "";
-    }
+    const PREVIOUS_MONTH_KEY = previousMonthKey();
+    applyCalendarInputs(rows, totals);
+    restoreCalendarIndex(PREVIOUS_MONTH_KEY);
+    restoreSelectedDate(PREVIOUS_SELECTED_DATE);
     STATE.expectedFinishHighlightDate = "";
     if (!PREVIOUS_SELECTED_DATE) {
         applyTodayFocus(STATE);
@@ -173,7 +229,7 @@ export function focusCalendarDate(dateKey: string): void {
     const MONTH_KEY = monthKeyForDateKey(dateKey);
     STATE.index = indexForMonth(STATE.months, MONTH_KEY);
     renderControlsView();
-    selectDate(STATE, dateKey, renderMonthView);
+    selectDate({ dateKey, renderMonth: renderMonthView, state: STATE });
 }
 
 /**

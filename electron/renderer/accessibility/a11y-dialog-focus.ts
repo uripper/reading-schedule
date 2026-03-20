@@ -83,6 +83,65 @@ function attachCloseFocusHandler(
     });
 }
 
+interface DialogOpenerState {
+    current: HTMLElement | null;
+}
+
+function closeAndReturnFocusHandler(dialog: HTMLDialogElement): () => void {
+    return (): void => {
+        closeDialog(dialog);
+    };
+}
+
+function focusInitialTargetHandler(
+    dialog: HTMLDialogElement,
+    initialFocusSelector: string | null,
+): () => void {
+    return (): void => {
+        focusInitialTarget(dialog, initialFocusSelector);
+    };
+}
+
+function rememberOpenerHandler(openerState: DialogOpenerState): () => void {
+    return (): void => {
+        const OPENER_STATE = openerState;
+        OPENER_STATE.current = currentActiveElement();
+    };
+}
+
+function bindCloseFocusRestore(
+    dialog: HTMLDialogElement,
+    openerState: DialogOpenerState,
+): void {
+    attachCloseFocusHandler(
+        dialog,
+        () => openerState.current,
+        () => {
+            const OPENER_STATE = openerState;
+            OPENER_STATE.current = null;
+        },
+    );
+}
+
+function dialogFocusBindings(
+    dialog: HTMLDialogElement,
+    initialFocusSelector: string | null,
+    openerState: DialogOpenerState,
+): {
+    rememberOpener(): void;
+    focusInitialTarget(): void;
+    closeAndReturnFocus(): void;
+} {
+    return {
+        closeAndReturnFocus: closeAndReturnFocusHandler(dialog),
+        focusInitialTarget: focusInitialTargetHandler(
+            dialog,
+            initialFocusSelector,
+        ),
+        rememberOpener: rememberOpenerHandler(openerState),
+    };
+}
+
 /**
  * Binds focus management to a `<dialog>` element, handling focus on open,
  * focus restoration on close, and a programmatic close helper.
@@ -102,24 +161,7 @@ export function bindDialogFocus(
     focusInitialTarget(): void;
     closeAndReturnFocus(): void;
 } {
-    let opener: HTMLElement | null = null;
-    attachCloseFocusHandler(
-        dialog,
-        () => opener,
-        () => {
-            opener = null;
-        },
-    );
-
-    return {
-        closeAndReturnFocus: (): void => {
-            closeDialog(dialog);
-        },
-        focusInitialTarget: (): void => {
-            focusInitialTarget(dialog, initialFocusSelector);
-        },
-        rememberOpener: (): void => {
-            opener = currentActiveElement();
-        },
-    };
+    const OPENER_STATE: DialogOpenerState = { current: null };
+    bindCloseFocusRestore(dialog, OPENER_STATE);
+    return dialogFocusBindings(dialog, initialFocusSelector, OPENER_STATE);
 }

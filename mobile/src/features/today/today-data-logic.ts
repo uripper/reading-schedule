@@ -1,9 +1,14 @@
+/**
+ * Builds the mobile Today screen view model from persisted planner state.
+ */
 import type {
     Book,
     PlannerApi,
     PlannerResult,
+    TodayBookCard,
+    TodayStats,
+    TodayViewData,
 } from "@reading-schedule/contracts";
-import type { TodayBookCard, TodayStats } from "./types.ts";
 
 const CARD_ACCENTS = ["#9CD2EE", "#F16865", "#B5E080", "#E7B1EF", "#F4D738"];
 const DEFAULT_BOOK_LIMIT = 6;
@@ -12,20 +17,27 @@ const MIN_STREAK_MINUTES = 1;
 const PREVIOUS_DAY_OFFSET = 1;
 const WORDS_PER_PAGE = 300;
 
-export interface TodayViewData {
-    books: TodayBookCard[];
-    stats: TodayStats;
-}
-
+/**
+ * Captures the session fields needed to compute daily streaks.
+ */
 interface TodaySession {
     ended_at: string;
     minutes: number;
 }
 
+/**
+ * Describes the shape returned by the planner state loader.
+ */
 type LoadStateResult = Awaited<ReturnType<PlannerApi["loadState"]>>;
 
+/**
+ * Represents a single scheduled session row from the planner result.
+ */
 type ScheduleRow = PlannerResult["schedule"][number];
 
+/**
+ * Formats a local date as the day key used throughout the planner state.
+ */
 function localDayKey(date: Date): string {
     const YEAR = String(date.getFullYear());
     const MONTH = String(date.getMonth() + 1).padStart(2, "0");
@@ -33,6 +45,9 @@ function localDayKey(date: Date): string {
     return `${YEAR}-${MONTH}-${DAY}`;
 }
 
+/**
+ * Normalizes timestamps and ISO date strings into planner day keys.
+ */
 function dayKeyFromTimestamp(value: string): string {
     const DIRECT = value.slice(0, 10);
     const LOOKS_ISO = /^\d{4}-\d{2}-\d{2}$/.test(DIRECT);
@@ -47,10 +62,16 @@ function dayKeyFromTimestamp(value: string): string {
     return localDayKey(DATE_VALUE);
 }
 
+/**
+ * Builds a stable completion key for a scheduled session.
+ */
 function sessionKey(date: string, sessionIndex: number): string {
     return `${date}-${sessionIndex}`;
 }
 
+/**
+ * Clamps a numeric percentage into the display range used by the UI.
+ */
 function clampPercent(rawValue: number): number {
     if (rawValue < 0) {
         return 0;
@@ -61,6 +82,9 @@ function clampPercent(rawValue: number): number {
     return Math.round(rawValue);
 }
 
+/**
+ * Converts unknown numeric input into a rounded positive number when possible.
+ */
 function roundedPositiveNumber(value: unknown): number | null {
     const NUMERIC_VALUE = Number(value ?? 0);
     if (Number.isNaN(NUMERIC_VALUE) || NUMERIC_VALUE <= 0) {
@@ -69,6 +93,9 @@ function roundedPositiveNumber(value: unknown): number | null {
     return Math.round(NUMERIC_VALUE);
 }
 
+/**
+ * Estimates a page total from a book's word count.
+ */
 function pagesFromWords(book: Book): number | null {
     const WORDS_TOTAL = roundedPositiveNumber(book.words_total);
     if (!WORDS_TOTAL) {
@@ -80,6 +107,9 @@ function pagesFromWords(book: Book): number | null {
     );
 }
 
+/**
+ * Resolves the best available page-total value for a book card.
+ */
 function toPagesTotal(book: Book): number {
     const PAGES_TOTAL = roundedPositiveNumber(book.pages_total);
     if (PAGES_TOTAL) {
@@ -93,6 +123,9 @@ function toPagesTotal(book: Book): number {
     return DEFAULT_PAGE_TOTAL;
 }
 
+/**
+ * Resolves the best available pages-completed value for a book card.
+ */
 function toPagesDone(book: Book): number {
     const PAGES_READ = roundedPositiveNumber(book.pages_read);
     if (PAGES_READ) {
@@ -103,6 +136,9 @@ function toPagesDone(book: Book): number {
     return Math.round((PERCENT / 100) * toPagesTotal(book));
 }
 
+/**
+ * Maps a planner book into the mobile Today card format.
+ */
 function toBookCard(book: Book, index: number): TodayBookCard {
     const ACCENT = CARD_ACCENTS[index % CARD_ACCENTS.length] ?? "#9CD2EE";
     return {
@@ -116,6 +152,9 @@ function toBookCard(book: Book, index: number): TodayBookCard {
     };
 }
 
+/**
+ * Prefers unread books for the carousel while falling back to the full shelf.
+ */
 function sourceBooks(books: Book[]): Book[] {
     const ACTIVE_BOOKS = books.filter((book) => book.status !== "read");
     if (ACTIVE_BOOKS.length > 0) {
@@ -124,10 +163,16 @@ function sourceBooks(books: Book[]): Book[] {
     return books;
 }
 
+/**
+ * Builds the capped set of Today book cards shown on mobile.
+ */
 function toBookCards(books: Book[]): TodayBookCard[] {
     return sourceBooks(books).slice(0, DEFAULT_BOOK_LIMIT).map(toBookCard);
 }
 
+/**
+ * Returns only the schedule rows assigned to the current local day.
+ */
 function todayScheduleRows(
     plannerResult: PlannerResult | null | undefined,
 ): readonly ScheduleRow[] {
@@ -136,6 +181,9 @@ function todayScheduleRows(
     return ROWS.filter((row) => row.date === TODAY_KEY);
 }
 
+/**
+ * Counts completed schedule rows using the persisted completion map.
+ */
 function completedRowCount(
     rows: readonly ScheduleRow[],
     completions: Record<string, boolean>,
@@ -145,6 +193,9 @@ function completedRowCount(
     }).length;
 }
 
+/**
+ * Formats today's completed-session progress for the stats panel.
+ */
 function completedSessionsLabel(
     plannerResult: PlannerResult | null | undefined,
     completions: Record<string, boolean>,
@@ -154,6 +205,9 @@ function completedSessionsLabel(
     return `${COMPLETED_ROWS}/${TODAY_ROWS.length}`;
 }
 
+/**
+ * Collects the set of day keys that qualify toward the reading streak.
+ */
 function activeDayKeys(sessions: TodaySession[]): Set<string> {
     const ACTIVE_DAYS = new Set<string>();
 
@@ -171,6 +225,9 @@ function activeDayKeys(sessions: TodaySession[]): Set<string> {
     return ACTIVE_DAYS;
 }
 
+/**
+ * Walks backward from today to compute the current consecutive-day streak.
+ */
 function streakFromActiveDays(activeDays: ReadonlySet<string>): number {
     const CURSOR = new Date();
     let streak = 0;
@@ -183,10 +240,16 @@ function streakFromActiveDays(activeDays: ReadonlySet<string>): number {
     return streak;
 }
 
+/**
+ * Computes the current streak from the recorded reading sessions.
+ */
 function dayStreak(sessions: TodaySession[]): number {
     return streakFromActiveDays(activeDayKeys(sessions));
 }
 
+/**
+ * Loads planner state and falls back to `null` when the persisted state is unavailable.
+ */
 async function safelyLoadState(
     plannerApi: PlannerApi,
 ): Promise<LoadStateResult | null> {
@@ -197,6 +260,9 @@ async function safelyLoadState(
     }
 }
 
+/**
+ * Returns shelf books from saved state or falls back to the planner sample payload.
+ */
 async function booksForToday(
     loadResult: LoadStateResult | null,
     plannerApi: PlannerApi,
@@ -210,6 +276,9 @@ async function booksForToday(
     return SAMPLE.books;
 }
 
+/**
+ * Extracts the persisted session list used by the Today stats.
+ */
 function loadedSessions(loadResult: LoadStateResult | null): TodaySession[] {
     const LOADED_SESSIONS = loadResult?.state?.sessions;
     if (Array.isArray(LOADED_SESSIONS)) {
@@ -218,6 +287,9 @@ function loadedSessions(loadResult: LoadStateResult | null): TodaySession[] {
     return [];
 }
 
+/**
+ * Extracts the persisted schedule completion map.
+ */
 function loadedCompletions(
     loadResult: LoadStateResult | null,
 ): Record<string, boolean> {
@@ -228,6 +300,9 @@ function loadedCompletions(
     return {};
 }
 
+/**
+ * Builds the compact stats object rendered above the Today carousel.
+ */
 function buildTodayStats(
     loadResult: LoadStateResult | null,
     sessions: TodaySession[],
@@ -242,6 +317,9 @@ function buildTodayStats(
     };
 }
 
+/**
+ * Loads the mobile Today screen data from planner state and sample fallbacks.
+ */
 export async function loadTodayViewData(
     plannerApi: PlannerApi,
 ): Promise<TodayViewData> {

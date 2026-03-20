@@ -1,10 +1,10 @@
+import type { Body } from "@reading-schedule/contracts";
 import { BACKGROUND_SPRITES } from "./today_background_sprites.ts";
 import {
     COLLISION_DAMPING,
     COLLISION_RESTITUTION,
     SPRITE_SCALE,
 } from "./today_constants.ts";
-import type { Body } from "./today-background-simulation-types.ts";
 
 const COLLISION_CORRECTION_PERCENT = 0.2;
 const COLLISION_CORRECTION_SLOP = 0.01;

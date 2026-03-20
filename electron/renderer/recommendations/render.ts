@@ -27,35 +27,59 @@ function createRecommendationCard(
 ): HTMLElement {
     const CARD = document.createElement("article");
     CARD.className = "book-card";
+    CARD.append(
+        recommendationCover(recommendation),
+        recommendationTitle(recommendation.title),
+        recommendationMeta(recommendation.author),
+        recommendationMeta(
+            `Estimated words: ${recommendation.wordsTotal.toLocaleString()}`,
+        ),
+        recommendationButton(recommendation, onAddToShelf),
+    );
+    return CARD;
+}
 
+function recommendationCover(recommendation: RecommendationItem): HTMLElement {
     const COVER = document.createElement("div");
     COVER.className = "book-cover";
     const COVER_IMAGE = document.createElement("img");
     COVER_IMAGE.className = "book-cover-img";
     COVER_IMAGE.loading = "lazy";
     COVER_IMAGE.alt = `Cover of ${recommendation.title}`;
-    COVER_IMAGE.src = COVER_PLACEHOLDER;
-    const RECOMMENDATION_COVER_URL = recommendation.coverUrl.trim();
-    if (RECOMMENDATION_COVER_URL.length > 0) {
-        COVER_IMAGE.src = RECOMMENDATION_COVER_URL;
-    }
+    COVER_IMAGE.src = recommendationImageSource(recommendation);
     COVER_IMAGE.addEventListener("error", () => {
         COVER_IMAGE.src = COVER_PLACEHOLDER;
     });
     COVER.append(COVER_IMAGE);
+    return COVER;
+}
 
+function recommendationImageSource(recommendation: RecommendationItem): string {
+    const RECOMMENDATION_COVER_URL = recommendation.coverUrl.trim();
+    if (RECOMMENDATION_COVER_URL.length > 0) {
+        return RECOMMENDATION_COVER_URL;
+    }
+    return COVER_PLACEHOLDER;
+}
+
+function recommendationTitle(title: string): HTMLElement {
     const TITLE = document.createElement("h3");
     TITLE.className = "book-title";
-    TITLE.textContent = recommendation.title;
+    TITLE.textContent = title;
+    return TITLE;
+}
 
-    const AUTHOR = document.createElement("p");
-    AUTHOR.className = "book-meta";
-    AUTHOR.textContent = recommendation.author;
+function recommendationMeta(text: string): HTMLElement {
+    const META = document.createElement("p");
+    META.className = "book-meta";
+    META.textContent = text;
+    return META;
+}
 
-    const WORDS = document.createElement("p");
-    WORDS.className = "book-meta";
-    WORDS.textContent = `Estimated words: ${recommendation.wordsTotal.toLocaleString()}`;
-
+function recommendationButton(
+    recommendation: RecommendationItem,
+    onAddToShelf: (recommendation: RecommendationItem) => void,
+): HTMLButtonElement {
     const BUTTON = document.createElement("button");
     BUTTON.type = "button";
     BUTTON.className = "btn";
@@ -63,9 +87,7 @@ function createRecommendationCard(
     BUTTON.addEventListener("click", () => {
         onAddToShelf(recommendation);
     });
-
-    CARD.append(COVER, TITLE, AUTHOR, WORDS, BUTTON);
-    return CARD;
+    return BUTTON;
 }
 
 /**

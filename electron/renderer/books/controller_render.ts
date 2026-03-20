@@ -24,12 +24,6 @@ import {
     updateStatusFilterOptions,
 } from "./toolbar.ts";
 
-/**
- * Normalizes a settings value to boolean with a fallback.
- * @param value - Raw setting value.
- * @param fallback - Default value when not explicitly boolean.
- * @returns Boolean display toggle value.
- */
 function settingBoolean(value: unknown, fallback: boolean): boolean {
     if (typeof value === "boolean") {
         return value;
@@ -37,48 +31,32 @@ function settingBoolean(value: unknown, fallback: boolean): boolean {
     return fallback;
 }
 
-/**
- * Renders toolbar-driven books content and wires row-level edit/remove actions.
- * @param args - Render inputs for books controller view.
- * @param refs - Controller DOM references required for rendering.
- * @param books - Full in-memory book list.
- * @param scheduleRows - Planner schedule rows used for finish-date metadata.
- * @param viewState - Active shelf/status/sort/group options.
- * @param dialog - Edit dialog controller when available.
- * @param onBooksChanged - Callback fired when collection mutations occur.
- * @param onEstimatedFinishNavigate - Navigates to the selected finish date.
- * @param setBooks - State updater used after remove operations.
- * @param findBook - Lookup helper used before opening edit dialog.
- * @param rerender - Callback to refresh the books view after state updates.
- */
-/**
- * Updates all filter and sort options based on current view state.
- */
 function updateBooksViewFilters(
     refs: RenderableBooksRefs,
     books: Book[],
     viewState: BooksViewState,
 ): void {
-    viewState.shelfFilter = updateShelfFilterOptions(
+    const NEXT_VIEW_STATE = viewState;
+    NEXT_VIEW_STATE.shelfFilter = updateShelfFilterOptions(
         refs.shelfFilterSelect,
         books,
         viewState.shelfFilter,
     );
-    viewState.statusFilter = updateStatusFilterOptions(
+    NEXT_VIEW_STATE.statusFilter = updateStatusFilterOptions(
         refs.statusFilterSelect,
-        viewState.statusFilter,
+        NEXT_VIEW_STATE.statusFilter,
     );
-    viewState.groupBy = updateGroupByOptions(
+    NEXT_VIEW_STATE.groupBy = updateGroupByOptions(
         refs.groupBySelect,
-        viewState.groupBy,
-        viewState.shelfFilter,
+        NEXT_VIEW_STATE.groupBy,
+        NEXT_VIEW_STATE.shelfFilter,
     );
-    updateSortDirectionButton(refs.sortDirectionBtn, viewState.sortDirection);
+    updateSortDirectionButton(
+        refs.sortDirectionBtn,
+        NEXT_VIEW_STATE.sortDirection,
+    );
 }
 
-/**
- * Builds arguments for book grid rendering with handlers.
- */
 interface RenderBookGridParams {
     finishDateByBookId: Record<string, string>;
     groups: BookGroup[];
@@ -88,143 +66,133 @@ interface RenderBookGridParams {
     visibleBooks: Book[];
 }
 
-/**
- * Builds the options object used to render the book grid from controller args and grid params; throws if required DOM refs are missing.
- * @example
- * buildRenderBookGridArgs(controllerArgs, gridParams)
- * { allBooks: [...], books: [...], empty: HTMLElement, grid: HTMLElement, onEdit: f, onRemove: f, onEstimatedFinishNavigate: f, ... }
- * @param args - Controller state, DOM references, book list and utility callbacks.
- * @param params - Visible books, grouping and display flags for the grid.
- * @returns Return object with DOM refs, book lists, display flags and callback handlers for the grid.
- **/
+function requiredGridRefs(
+    refs: RenderBooksControllerArgs["refs"],
+): Pick<RenderBookGridOptions, "empty" | "grid"> {
+    if (!(refs.empty && refs.grid)) {
+        throw new Error("Missing required DOM references");
+    }
+    return {
+        empty: refs.empty,
+        grid: refs.grid,
+    };
+}
+
+function createEditHandler(
+    args: RenderBooksControllerArgs,
+): RenderBookGridOptions["onEdit"] {
+    return (bookId: string): void => {
+        const BOOK = args.findBook(bookId);
+        if (BOOK && args.dialog) {
+            args.dialog.open(BOOK);
+        }
+    };
+}
+
+function createRemoveHandler(
+    args: RenderBooksControllerArgs,
+): RenderBookGridOptions["onRemove"] {
+    return (bookId: string): void => {
+        const NEXT_BOOKS = args.books.filter((book) => book.book_id !== bookId);
+        if (NEXT_BOOKS.length === args.books.length) {
+            return;
+        }
+        args.setBooks(NEXT_BOOKS);
+        args.rerender();
+        args.onBooksChanged();
+    };
+}
+
 function buildRenderBookGridArgs(
     args: RenderBooksControllerArgs,
     params: RenderBookGridParams,
 ): RenderBookGridOptions {
-    if (!(args.refs.empty && args.refs.grid)) {
-        throw new Error("Missing required DOM references");
-    }
     return {
         allBooks: args.books,
         books: params.visibleBooks,
-        empty: args.refs.empty,
+        empty: requiredGridRefs(args.refs).empty,
         finishDateByBookId: params.finishDateByBookId,
-        grid: args.refs.grid,
+        grid: requiredGridRefs(args.refs).grid,
         groups: params.groups,
-        onEdit: (bookId: string): void => {
-            const BOOK = args.findBook(bookId);
-            if (BOOK && args.dialog) {
-                args.dialog.open(BOOK);
-            }
-        },
-        onEstimatedFinishNavigate: (dateKey: string): void => {
-            args.onEstimatedFinishNavigate(dateKey);
-        },
-        onRemove: (bookId: string): void => {
-            const NEXT_BOOKS = args.books.filter(
-                (book) => book.book_id !== bookId,
-            );
-            if (NEXT_BOOKS.length === args.books.length) {
-                return;
-            }
-            args.setBooks(NEXT_BOOKS);
-            args.rerender();
-            args.onBooksChanged();
-        },
+        onEdit: createEditHandler(args),
+        onEstimatedFinishNavigate: args.onEstimatedFinishNavigate,
+        onRemove: createRemoveHandler(args),
         showBlockerMeta: params.showBlockerMeta,
         showShelfMeta: params.showShelfMeta,
         showWordCount: params.showWordCount,
     };
 }
 
-/**
- * Render the books view by updating filters, generating view settings, and rendering the book grid.
- * @example
- * renderBooksController({ refs: someRefs, books: booksArray, viewState: currentViewState })
- * undefined
- * @param {RenderBooksControllerArgs} args - Arguments including refs, books, and viewState used to compute rendering.
- * @returns {void} Nothing; performs UI updates to render the book grid.
- **/
+function displayMetaSettings(
+    nextViewState: BooksViewState,
+): Pick<
+    RenderBookGridParams,
+    "showBlockerMeta" | "showShelfMeta" | "showWordCount"
+> {
+    const SETTINGS = collectSettings();
+    const SHOW_SHELF_META = settingBoolean(
+        SETTINGS.books_show_shelf_meta,
+        true,
+    );
+    return {
+        showBlockerMeta: settingBoolean(SETTINGS.books_show_blocker_meta, true),
+        showShelfMeta:
+            SHOW_SHELF_META && nextViewState.shelfFilter === SHELF_FILTER_ALL,
+        showWordCount: settingBoolean(SETTINGS.books_show_word_count, true),
+    };
+}
+
+function baseRenderGridParams(
+    args: RenderBooksControllerArgs,
+    viewState: BooksViewState,
+): RenderBookGridParams {
+    const FINISH_DATE_BY_BOOK_ID = finishDatesByBookId(
+        args.scheduleRows,
+        args.books,
+    );
+    const META_SETTINGS = displayMetaSettings(viewState);
+    const VISIBLE_BOOKS = visibleBooksForView(
+        args.books,
+        viewState,
+        FINISH_DATE_BY_BOOK_ID,
+    );
+    return {
+        ...META_SETTINGS,
+        finishDateByBookId: FINISH_DATE_BY_BOOK_ID,
+        groups: groupBooks(
+            VISIBLE_BOOKS,
+            viewState.groupBy,
+            FINISH_DATE_BY_BOOK_ID,
+        ),
+        visibleBooks: VISIBLE_BOOKS,
+    };
+}
+
+function renderGridParams(
+    args: RenderBooksControllerArgs,
+    viewState: BooksViewState,
+): RenderBookGridParams {
+    const VIEW_SETTINGS = baseRenderGridParams(args, viewState);
+    if (
+        viewState.sortBy === SORT_BY_ESTIMATED_FINISH &&
+        viewState.groupBy === GROUP_BY_NONE
+    ) {
+        return {
+            ...VIEW_SETTINGS,
+            groups: groupsForEstimatedFinish(VIEW_SETTINGS.visibleBooks),
+        };
+    }
+    return VIEW_SETTINGS;
+}
+
 export function renderBooksController(args: RenderBooksControllerArgs): void {
     const { viewState } = args;
     const RENDER_REFS = resolveRenderableRefs(args.refs);
     if (!RENDER_REFS) {
         return;
     }
-
     updateBooksViewFilters(RENDER_REFS, args.books, viewState);
-
-    let {
-        groups,
-        visibleBooks,
-        finishDateByBookId,
-        showBlockerMeta,
-        showShelfMeta,
-        showWordCount,
-    } = generateBookViewSettings(viewState, args);
-    if (
-        viewState.sortBy === SORT_BY_ESTIMATED_FINISH &&
-        viewState.groupBy === GROUP_BY_NONE
-    ) {
-        groups = groupsForEstimatedFinish(visibleBooks);
-    }
-    const GRID_ARGS = buildRenderBookGridArgs(args, {
-        finishDateByBookId,
-        groups,
-        showBlockerMeta,
-        showShelfMeta,
-        showWordCount,
-        visibleBooks,
-    });
-    renderBookGrid(GRID_ARGS);
-}
-
-/**
- * Derives book view settings and content based on active toolbar options and
- * @param nextViewState - Current shelf/status/sort/group options used for rendering.
- * @param args - Render inputs for books controller view.
- * @returns An object containing the settings for rendering the book view.
- */
-function generateBookViewSettings(
-    nextViewState: BooksViewState,
-    args: RenderBooksControllerArgs,
-) {
-    const SETTINGS = collectSettings();
-    const SHOW_WORD_COUNT = settingBoolean(
-        SETTINGS.books_show_word_count,
-        true,
+    renderBookGrid(
+        buildRenderBookGridArgs(args, renderGridParams(args, viewState)),
     );
-    const SHOW_BLOCKER_META = settingBoolean(
-        SETTINGS.books_show_blocker_meta,
-        true,
-    );
-    const SHOW_SHELF_SETTING = settingBoolean(
-        SETTINGS.books_show_shelf_meta,
-        true,
-    );
-    const SHOW_SHELF_META =
-        SHOW_SHELF_SETTING && nextViewState.shelfFilter === SHELF_FILTER_ALL;
-    const FINISH_DATE_BY_BOOK_ID = finishDatesByBookId(
-        args.scheduleRows,
-        args.books,
-    );
-    const VISIBLE_BOOKS = visibleBooksForView(
-        args.books,
-        nextViewState,
-        FINISH_DATE_BY_BOOK_ID,
-    );
-
-    const GROUPS = groupBooks(
-        VISIBLE_BOOKS,
-        nextViewState.groupBy,
-        FINISH_DATE_BY_BOOK_ID,
-    );
-    return {
-        finishDateByBookId: FINISH_DATE_BY_BOOK_ID,
-        groups: GROUPS,
-        showBlockerMeta: SHOW_BLOCKER_META,
-        showShelfMeta: SHOW_SHELF_META,
-        showWordCount: SHOW_WORD_COUNT,
-        visibleBooks: VISIBLE_BOOKS,
-    };
 }

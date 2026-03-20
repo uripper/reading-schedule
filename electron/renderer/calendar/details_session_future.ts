@@ -11,41 +11,52 @@ import {
 } from "./details_session_shared.ts";
 import { estimateProgressLabel } from "./estimates.ts";
 
+type BuildFutureSessionItemArgs = {
+    row: CalendarRowWithFinish;
+    state: CalendarStateSubset;
+    interactionHandlers: DetailInteractionHandlers;
+    rerenderDetails: () => void;
+};
+
+function futureEstimateText(args: BuildFutureSessionItemArgs): string {
+    return estimateProgressLabel({
+        getBookById: args.interactionHandlers.getBookById,
+        isSessionCompleted: args.interactionHandlers.isSessionCompleted,
+        row: args.row,
+        state: args.state,
+    });
+}
+
+function futureEstimateElement(
+    args: BuildFutureSessionItemArgs,
+): HTMLParagraphElement {
+    const ESTIMATE = document.createElement("p");
+    ESTIMATE.className = DAY_DETAILS_META_CLASS;
+    ESTIMATE.textContent = futureEstimateText(args);
+    return ESTIMATE;
+}
+
 /**
  * Builds details row node for future sessions.
- * @param row - Calendar row.
- * @param state - Calendar state subset.
- * @param interactionHandlers - Detail interaction handlers.
- * @param rerenderDetails - Details rerender callback.
+ * @param args - Future-session render inputs.
  * @returns Rendered row element.
  */
 export function buildFutureSessionItem(
-    row: CalendarRowWithFinish,
-    state: CalendarStateSubset,
-    interactionHandlers: DetailInteractionHandlers,
-    rerenderDetails: () => void,
+    args: BuildFutureSessionItemArgs,
 ): HTMLElement {
-    const GET_BOOK_BY_ID = (
-        bookId: string,
-    ): ReturnType<DetailInteractionHandlers["getBookById"]> => {
-        return interactionHandlers.getBookById(bookId);
-    };
-    const IS_SESSION_COMPLETED = (sessionKey: string): boolean => {
-        return interactionHandlers.isSessionCompleted(sessionKey);
-    };
-    const ITEM = baseSessionItem(row);
-    const ESTIMATE = document.createElement("p");
-    ESTIMATE.className = DAY_DETAILS_META_CLASS;
-    ESTIMATE.textContent = estimateProgressLabel(
-        row,
-        state,
-        GET_BOOK_BY_ID,
-        IS_SESSION_COMPLETED,
-    );
+    const ITEM = baseSessionItem(args.row);
     ITEM.append(
-        ESTIMATE,
-        minutesFormForSession(row, interactionHandlers, rerenderDetails),
-        removeSessionButton(row, interactionHandlers, rerenderDetails),
+        futureEstimateElement(args),
+        minutesFormForSession(
+            args.row,
+            args.interactionHandlers,
+            args.rerenderDetails,
+        ),
+        removeSessionButton(
+            args.row,
+            args.interactionHandlers,
+            args.rerenderDetails,
+        ),
     );
     return ITEM;
 }

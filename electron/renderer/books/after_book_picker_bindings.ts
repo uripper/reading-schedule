@@ -6,6 +6,13 @@ import {
 } from "./after_book_picker_helpers.ts";
 import { NO_ACTIVE_INDEX } from "./after_book_picker_render.ts";
 
+type PickerArrowKeyArgs = {
+    args: BindingArgs;
+    event: KeyboardEvent;
+    key: string;
+    delta: number;
+};
+
 function bindPickerInputEvents(args: BindingArgs): void {
     args.refs.afterBookInput.addEventListener("focus", () => {
         args.refreshFiltered(false);
@@ -13,6 +20,71 @@ function bindPickerInputEvents(args: BindingArgs): void {
     args.refs.afterBookInput.addEventListener("input", () => {
         args.refreshFiltered(true);
     });
+}
+
+function movePickerSelection(args: BindingArgs, delta: number): void {
+    const PICKER_STATE = args.state;
+    PICKER_STATE.activeIndex = wrapIndex(
+        PICKER_STATE.activeIndex + delta,
+        PICKER_STATE.filtered.length,
+    );
+    args.render();
+}
+
+function handlePickerArrowKey({
+    args,
+    delta,
+    event,
+    key,
+}: PickerArrowKeyArgs): boolean {
+    if (event.key !== key) {
+        return false;
+    }
+    event.preventDefault();
+    movePickerSelection(args, delta);
+    return true;
+}
+
+function handlePickerEnterKey(
+    args: BindingArgs,
+    event: KeyboardEvent,
+): boolean {
+    const PICKER_STATE = args.state;
+    if (event.key !== "Enter") {
+        return false;
+    }
+    if (PICKER_STATE.activeIndex <= NO_ACTIVE_INDEX) {
+        return false;
+    }
+    event.preventDefault();
+    args.selectBook(PICKER_STATE.filtered[PICKER_STATE.activeIndex]);
+    return true;
+}
+
+function handlePickerEscapeKey(
+    args: BindingArgs,
+    event: KeyboardEvent,
+): boolean {
+    if (event.key !== "Escape") {
+        return false;
+    }
+    args.clearResults();
+    args.render();
+    args.refs.afterBookInput.blur();
+    return true;
+}
+
+function onPickerKeydown(args: BindingArgs, event: KeyboardEvent): void {
+    if (handlePickerArrowKey({ args, delta: 1, event, key: "ArrowDown" })) {
+        return;
+    }
+    if (handlePickerArrowKey({ args, delta: -1, event, key: "ArrowUp" })) {
+        return;
+    }
+    if (handlePickerEnterKey(args, event)) {
+        return;
+    }
+    handlePickerEscapeKey(args, event);
 }
 
 /**
@@ -24,45 +96,46 @@ function bindPickerInputEvents(args: BindingArgs): void {
  * @returns {void} No return value.
  */
 function bindPickerKeyboardEvents(args: BindingArgs): void {
-    const PICKER_STATE = args.state;
     args.refs.afterBookInput.addEventListener(
         "keydown",
         (event: KeyboardEvent) => {
-            if (event.key === "ArrowDown") {
-                event.preventDefault();
-                PICKER_STATE.activeIndex = wrapIndex(
-                    PICKER_STATE.activeIndex + 1,
-                    PICKER_STATE.filtered.length,
-                );
-                args.render();
-                return;
-            }
-            if (event.key === "ArrowUp") {
-                event.preventDefault();
-                PICKER_STATE.activeIndex = wrapIndex(
-                    PICKER_STATE.activeIndex - 1,
-                    PICKER_STATE.filtered.length,
-                );
-                args.render();
-                return;
-            }
-            if (
-                event.key === "Enter" &&
-                PICKER_STATE.activeIndex > NO_ACTIVE_INDEX
-            ) {
-                event.preventDefault();
-                args.selectBook(
-                    PICKER_STATE.filtered[PICKER_STATE.activeIndex],
-                );
-                return;
-            }
-            if (event.key === "Escape") {
-                args.clearResults();
-                args.render();
-                args.refs.afterBookInput.blur();
-            }
+            onPickerKeydown(args, event);
         },
     );
+}
+
+function hoveredResultIndex(event: MouseEvent): number | null {
+    const TARGET = lookupResultTarget(event);
+    if (!TARGET) {
+        return null;
+    }
+    return Number(TARGET.dataset.resultIndex);
+}
+
+function setPickerActiveIndex(args: BindingArgs, resultIndex: number): void {
+    const PICKER_STATE = args.state;
+    PICKER_STATE.activeIndex = resultIndex;
+    args.render();
+}
+
+function selectPickerResult(args: BindingArgs, resultIndex: number): void {
+    args.selectBook(args.state.filtered[resultIndex]);
+}
+
+function onPickerResultsMousemove(args: BindingArgs, event: MouseEvent): void {
+    const RESULT_INDEX = hoveredResultIndex(event);
+    if (RESULT_INDEX === null) {
+        return;
+    }
+    setPickerActiveIndex(args, RESULT_INDEX);
+}
+
+function onPickerResultsClick(args: BindingArgs, event: MouseEvent): void {
+    const RESULT_INDEX = hoveredResultIndex(event);
+    if (RESULT_INDEX === null) {
+        return;
+    }
+    selectPickerResult(args, RESULT_INDEX);
 }
 
 /**
@@ -77,23 +150,13 @@ function bindPickerResultsEvents(args: BindingArgs): void {
     args.refs.afterBookResults.addEventListener(
         "mousemove",
         (event: MouseEvent) => {
-            const TARGET = lookupResultTarget(event);
-            if (!TARGET) {
-                return;
-            }
-            args.state.activeIndex = Number(TARGET.dataset.resultIndex);
-            args.render();
+            onPickerResultsMousemove(args, event);
         },
     );
     args.refs.afterBookResults.addEventListener(
         "click",
         (event: MouseEvent) => {
-            const TARGET = lookupResultTarget(event);
-            if (!TARGET) {
-                return;
-            }
-            const RESULT_INDEX = Number(TARGET.dataset.resultIndex);
-            args.selectBook(args.state.filtered[RESULT_INDEX]);
+            onPickerResultsClick(args, event);
         },
     );
 }

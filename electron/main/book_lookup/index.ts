@@ -3,82 +3,31 @@
  */
 import { writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
+import type {
+    DownloadCoverInput,
+    DownloadedCover,
+} from "@reading-schedule/contracts";
 import { parseCoverDataUrl } from "./cover-data-url.ts";
-import {
-    extensionFor,
-    filePathForCover,
-    isHttpProtocol,
-} from "./cover-paths.ts";
+import { extensionFor, filePathForCover } from "./cover-paths.ts";
+import { fetchRemoteCover, parsedHttpCoverUrl } from "./cover-remote.ts";
 
-interface DownloadedCover {
-    bytes: ArrayBuffer;
-    contentType: string | null;
-}
-
-interface DownloadCoverInput {
-    parsedUrl: URL;
-    userDataDir: string;
-}
-
+/**
+ * Normalizes optional cover input text so validation can use one code path.
+ */
 function normalizedCoverInput(value: string | undefined): string {
     return String(value ?? "").trim();
 }
 
-async function fetchCover(parsedUrl: URL): Promise<DownloadedCover | null> {
-    let response: Response;
-
-    try {
-        response = await globalThis.fetch(parsedUrl.toString(), {
-            redirect: "follow",
-        });
-    } catch {
-        return null;
-    }
-
-    if (!response.ok) {
-        return null;
-    }
-
-    const BYTES = await response.arrayBuffer();
-
-    if (BYTES.byteLength === 0) {
-        return null;
-    }
-
-    return {
-        bytes: BYTES,
-        contentType: response.headers.get("content-type"),
-    };
+/**
+ * Fetches a remote cover image and converts it to persisted cover bytes.
+ */
+function fetchCover(parsedUrl: URL): Promise<DownloadedCover | null> {
+    return fetchRemoteCover(parsedUrl);
 }
 
-function parsedHttpUrl(urlText: string): URL | null {
-    let parsedUrl: URL;
-
-    try {
-        parsedUrl = new URL(urlText);
-    } catch {
-        return null;
-    }
-
-    if (!isHttpProtocol(parsedUrl.protocol)) {
-        return null;
-    }
-
-    const HOSTNAME = parsedUrl.hostname.toLowerCase();
-    if (
-        HOSTNAME === "localhost" ||
-        HOSTNAME === "::1" ||
-        HOSTNAME.startsWith("127.") ||
-        HOSTNAME.startsWith("10.") ||
-        HOSTNAME.startsWith("192.168.") ||
-        /^172\.(1[6-9]|2\d|3[0-1])\./.test(HOSTNAME)
-    ) {
-        return null;
-    }
-
-    return parsedUrl;
-}
-
+/**
+ * Validates the inputs needed to download and persist a remote cover image.
+ */
 function resolveDownloadCoverInput(
     coverUrl: string | undefined,
     userDataDir: string | undefined,
@@ -90,7 +39,7 @@ function resolveDownloadCoverInput(
         return null;
     }
 
-    const PARSED_URL = parsedHttpUrl(NORMALIZED_URL);
+    const PARSED_URL = parsedHttpCoverUrl(NORMALIZED_URL);
 
     if (PARSED_URL === null) {
         return null;
@@ -100,6 +49,20 @@ function resolveDownloadCoverInput(
         parsedUrl: PARSED_URL,
         userDataDir: NORMALIZED_USER_DATA_DIR,
     };
+}
+
+/**
+ * Writes a downloaded cover to disk and returns the resulting file URL.
+ */
+function persistDownloadedCover(
+    input: DownloadCoverInput,
+    bookId: string | undefined,
+    cover: DownloadedCover,
+): string {
+    const EXTENSION = extensionFor(cover.contentType, input.parsedUrl);
+    const FILE_PATH = filePathForCover(input.userDataDir, bookId, EXTENSION);
+    writeFileSync(FILE_PATH, new Uint8Array(cover.bytes));
+    return pathToFileURL(FILE_PATH).href;
 }
 
 /**
@@ -115,27 +78,30 @@ export async function downloadCover(
     userDataDir: string | undefined,
 ): Promise<string> {
     const DOWNLOAD_INPUT = resolveDownloadCoverInput(coverUrl, userDataDir);
-
     if (DOWNLOAD_INPUT === null) {
         return "";
     }
-
     const DOWNLOADED_COVER = await fetchCover(DOWNLOAD_INPUT.parsedUrl);
-
     if (DOWNLOADED_COVER === null) {
         return "";
     }
+    return persistDownloadedCover(DOWNLOAD_INPUT, bookId, DOWNLOADED_COVER);
+}
 
-    const EXTENSION = extensionFor(
-        DOWNLOADED_COVER.contentType,
-        DOWNLOAD_INPUT.parsedUrl,
-    );
+/**
+ * Writes a parsed uploaded cover payload to disk and returns its file URL.
+ */
+function persistUploadedCover(
+    userDataDir: string,
+    bookId: string | undefined,
+    parsedCover: NonNullable<ReturnType<typeof parseCoverDataUrl>>,
+): string {
     const FILE_PATH = filePathForCover(
-        DOWNLOAD_INPUT.userDataDir,
+        userDataDir,
         bookId,
-        EXTENSION,
+        parsedCover.extension,
     );
-    writeFileSync(FILE_PATH, new Uint8Array(DOWNLOADED_COVER.bytes));
+    writeFileSync(FILE_PATH, parsedCover.bytes);
     return pathToFileURL(FILE_PATH).href;
 }
 
@@ -152,18 +118,9 @@ export function saveUploadedCover(
     userDataDir: string | undefined,
 ): string {
     const NORMALIZED_USER_DATA_DIR = String(userDataDir ?? "").trim();
-    if (NORMALIZED_USER_DATA_DIR.length === 0) {
-        return "";
-    }
     const PARSED = parseCoverDataUrl(coverDataUrl);
-    if (!PARSED) {
+    if (NORMALIZED_USER_DATA_DIR.length === 0 || PARSED === null) {
         return "";
     }
-    const FILE_PATH = filePathForCover(
-        NORMALIZED_USER_DATA_DIR,
-        bookId,
-        PARSED.extension,
-    );
-    writeFileSync(FILE_PATH, PARSED.bytes);
-    return pathToFileURL(FILE_PATH).href;
+    return persistUploadedCover(NORMALIZED_USER_DATA_DIR, bookId, PARSED);
 }

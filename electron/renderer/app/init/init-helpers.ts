@@ -1,9 +1,9 @@
+import { logDebug } from "../../../types/logger.ts";
 import type {
     CreatePlanControllerArgs,
     FinalizeInitialLoadArgs,
 } from "../../../types/types.ts";
 import { el } from "../../dom.ts";
-import { logDebug } from "../../logger.ts";
 import { createPlanController } from "../plan_controller.ts";
 import { bindSettingsAutoPlanListeners } from "../runtime_helpers.ts";
 
@@ -87,18 +87,50 @@ export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
     const QUEUE_AUTO_PLAN = (): void => {
         args.queueAutoPlan();
     };
+    const SHOULD_AUTO_PLAN = shouldAutoPlanOnStartup(args);
+    const SETTINGS_PANEL = el("tab-settings");
     args.setReady();
+    logLoadingSetEventListeners(args, QUEUE_PERSIST);
+
+    bindSettingsAutoPlanListeners(SETTINGS_PANEL, () => true, QUEUE_AUTO_PLAN);
+
+    setLoadStatus(args);
+
+    logAutoStartup(args, SHOULD_AUTO_PLAN);
+
+    if (SHOULD_AUTO_PLAN) {
+        QUEUE_AUTO_PLAN();
+        return;
+    }
+    args.addLog?.("Skipped startup auto-plan to preserve loaded schedule.");
+}
+
+function logLoadingSetEventListeners(
+    args: FinalizeInitialLoadArgs,
+    queuePersist: () => void,
+) {
     logDebug("Initial load finalized and runtime marked ready.", {
         hasSavedPayload: Boolean(args.saved),
         loadSource: args.loadResult.source,
         warningCode: args.loadResult.warningCode,
     });
-    document.addEventListener("input", QUEUE_PERSIST);
-    document.addEventListener("change", QUEUE_PERSIST);
+    document.addEventListener("input", queuePersist);
+    document.addEventListener("change", queuePersist);
+}
 
-    const SETTINGS_PANEL = el("tab-settings");
-    bindSettingsAutoPlanListeners(SETTINGS_PANEL, () => true, QUEUE_AUTO_PLAN);
+function logAutoStartup(
+    args: FinalizeInitialLoadArgs,
+    shouldAutoPlan: boolean,
+) {
+    const HAS_SAVED_SCHEDULE = hasSavedSchedule(args.saved);
+    logDebug("Evaluated startup auto-plan decision.", {
+        hasSavedSchedule: HAS_SAVED_SCHEDULE,
+        loadSource: args.loadResult.source,
+        shouldAutoPlan,
+    });
+}
 
+function setLoadStatus(args: FinalizeInitialLoadArgs) {
     if (shouldShowLoadedStatus(args)) {
         if (args.saved) {
             args.setStatus("Loaded saved data.");
@@ -106,18 +138,4 @@ export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
             args.setStatus("Loaded sample data.");
         }
     }
-
-    const HAS_SAVED_SCHEDULE = hasSavedSchedule(args.saved);
-    const SHOULD_AUTO_PLAN = shouldAutoPlanOnStartup(args);
-    logDebug("Evaluated startup auto-plan decision.", {
-        hasSavedSchedule: HAS_SAVED_SCHEDULE,
-        loadSource: args.loadResult.source,
-        shouldAutoPlan: SHOULD_AUTO_PLAN,
-    });
-
-    if (SHOULD_AUTO_PLAN) {
-        QUEUE_AUTO_PLAN();
-        return;
-    }
-    args.addLog?.("Skipped startup auto-plan to preserve loaded schedule.");
 }

@@ -7,7 +7,7 @@ import {
     applyPreferencesToDocument,
     createAnnouncer,
 } from "../accessibility/a11y.ts";
-import { collectAllBooks } from "../books.ts";
+import { collectAllBooks } from "../books/controller.ts";
 import { focusCalendarToday } from "../calendar.ts";
 import { el } from "../dom.ts";
 import { addLog } from "../help.ts";
@@ -15,15 +15,17 @@ import { collectSettings } from "../settings.ts";
 import { updateStatsView } from "../stats.ts";
 import { createDashboardRuntime } from "./dashboard_runtime.ts";
 import {
-    collectFeatureFlagsFromUI as collectFeatureFlagsFromUi,
-    collectPreferencesFromUI as collectPreferencesFromUi,
     normalizeFeatureFlags,
     normalizePreferences,
-} from "./experience/index.ts";
+} from "./experience/model.ts";
+import {
+    collectFeatureFlagsFromUI as collectFeatureFlagsFromUi,
+    collectPreferencesFromUI as collectPreferencesFromUi,
+} from "./experience/ui.ts";
 import { createInitRuntime } from "./init/init_runtime.ts";
 import { createPersistQueue, createStatusSetter } from "./runtime_helpers.ts";
 import { createRuntimeState } from "./runtime_state.ts";
-import { updateTodayDashboard } from "./today/index.ts";
+import { updateTodayDashboard } from "./today/today.ts";
 
 /**
  * Retrieves the Planner API from the global context. This function assumes that the `plannerApi`
@@ -78,11 +80,16 @@ function createPersistActions(
     };
 }
 
-function createDashboards(
+type DashboardRuntimeArgs = Parameters<typeof createDashboardRuntime>[0];
+
+function baseDashboardArgs(
     queuePersist: () => void,
     state: AppBootstrapContext["state"],
-) {
-    const BASE_DASHBOARD_ARGS = {
+): Omit<
+    DashboardRuntimeArgs,
+    "collectFeatureFlagsFromUI" | "collectPreferencesFromUI"
+> {
+    return {
         applyPreferencesToDocument,
         collectAllBooks,
         normalizeFeatureFlags,
@@ -91,18 +98,27 @@ function createDashboards(
         state,
         updateStatsView,
         updateTodayDashboard,
-    } satisfies Omit<
-        Parameters<typeof createDashboardRuntime>[0],
-        "collectFeatureFlagsFromUI" | "collectPreferencesFromUI"
-    >;
+    };
+}
 
-    const DASHBOARD_ARGS = {
-        ...BASE_DASHBOARD_ARGS,
+function dashboardUiArgs(): Pick<
+    DashboardRuntimeArgs,
+    "collectFeatureFlagsFromUI" | "collectPreferencesFromUI"
+> {
+    return {
         collectFeatureFlagsFromUI: collectFeatureFlagsFromUi,
         collectPreferencesFromUI: collectPreferencesFromUi,
-    } as Parameters<typeof createDashboardRuntime>[0];
+    };
+}
 
-    return createDashboardRuntime(DASHBOARD_ARGS);
+function createDashboards(
+    queuePersist: () => void,
+    state: AppBootstrapContext["state"],
+) {
+    return createDashboardRuntime({
+        ...baseDashboardArgs(queuePersist, state),
+        ...dashboardUiArgs(),
+    });
 }
 
 function createRuntime(

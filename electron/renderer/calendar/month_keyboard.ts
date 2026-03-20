@@ -1,45 +1,58 @@
 import { CALENDAR_COLUMN_COUNT } from "./constants.ts";
 
+type HandleDayKeydownArgs = {
+    event: KeyboardEvent;
+    index: number;
+    totalCellCount: number;
+    moveSelectionBy: (delta: number, currentIndex: number) => void;
+};
+
+const DIRECTIONAL_KEY_DELTAS: Record<string, number> = {
+    ArrowDown: CALENDAR_COLUMN_COUNT,
+    ArrowLeft: -1,
+    ArrowRight: 1,
+    ArrowUp: -CALENDAR_COLUMN_COUNT,
+};
+
+function edgeKeyDelta(
+    index: number,
+    key: string,
+    totalCellCount: number,
+): number | null {
+    if (key === "Home") {
+        return -index;
+    }
+    if (key === "End") {
+        return totalCellCount - index - 1;
+    }
+    return null;
+}
+
+function keyboardDelta(
+    index: number,
+    key: string,
+    totalCellCount: number,
+): number | null {
+    const DIRECTIONAL_DELTA = DIRECTIONAL_KEY_DELTAS[key];
+    if (typeof DIRECTIONAL_DELTA === "number") {
+        return DIRECTIONAL_DELTA;
+    }
+    return edgeKeyDelta(index, key, totalCellCount);
+}
+
 /**
  * Handles keyboard navigation for month grid day buttons.
- * @param event - Keyboard event from day button.
- * @param index - Current day-cell index.
- * @param totalCellCount - Total number of day cells.
- * @param moveSelectionBy - Callback to move selection by cell delta.
+ * @param args - Keyboard navigation inputs for the current day button.
  */
-export function handleDayKeydown(
-    event: KeyboardEvent,
-    index: number,
-    totalCellCount: number,
-    moveSelectionBy: (delta: number, currentIndex: number) => void,
-): void {
-    if (event.key === "ArrowRight") {
-        event.preventDefault();
-        moveSelectionBy(1, index);
+export function handleDayKeydown(args: HandleDayKeydownArgs): void {
+    const DELTA = keyboardDelta(
+        args.index,
+        args.event.key,
+        args.totalCellCount,
+    );
+    if (DELTA === null) {
         return;
     }
-    if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        moveSelectionBy(-1, index);
-        return;
-    }
-    if (event.key === "ArrowDown") {
-        event.preventDefault();
-        moveSelectionBy(CALENDAR_COLUMN_COUNT, index);
-        return;
-    }
-    if (event.key === "ArrowUp") {
-        event.preventDefault();
-        moveSelectionBy(-CALENDAR_COLUMN_COUNT, index);
-        return;
-    }
-    if (event.key === "Home") {
-        event.preventDefault();
-        moveSelectionBy(-index, index);
-        return;
-    }
-    if (event.key === "End") {
-        event.preventDefault();
-        moveSelectionBy(totalCellCount - index - 1, index);
-    }
+    args.event.preventDefault();
+    args.moveSelectionBy(DELTA, args.index);
 }

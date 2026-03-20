@@ -1,5 +1,4 @@
 export { FIELDS } from "./config_fields.ts";
-
 export const WEEKDAYS: [string, string][] = [
     ["Mon", "Monday"],
     ["Tue", "Tuesday"],

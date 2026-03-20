@@ -32,6 +32,11 @@ def check_condition(
     :param error_type: The type of error to raise if the condition is not met.
     :param condition: The boolean condition to check. If False, an error is
                         raised.
+
+    Raises:
+        TypeError: A type error during conditional checks.
+        ValueError: The same, but for incorrect values.
+
     """
     if condition:
         return
@@ -72,9 +77,9 @@ def _validate_required_fields(book: Book) -> None:
 def _validate_book_progress(book: Book) -> None:
     """Validate read-progress and words consistency values."""
     check_condition(
-        f"words_full cannot be less than remaining_words for {book.book_id}",
-        condition=book.words_full is None
-        or book.words_full >= book.remaining_words,
+        f"words_total cannot be less than remaining_words for {book.book_id}",
+        condition=book.words_total is None
+        or book.words_total >= book.remaining_words,
     )
 
     check_condition(
@@ -159,9 +164,8 @@ def _validate_settings_positive_limits(settings: Settings) -> None:
     """Validate positive daily session and book limits."""
     check_condition(
         "Set max_sessions_per_day and max_books_per_day to positive integers",
-        condition=bool(
-            settings.max_sessions_per_day > 0 and settings.max_books_per_day > 0
-        ),
+        condition=settings.max_sessions_per_day > 0
+        and settings.max_books_per_day > 0,
     )
 
 

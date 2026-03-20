@@ -11,26 +11,25 @@ import {
 } from "./estimates_labels.ts";
 import { estimateSnapshotForRow } from "./estimates_snapshot.ts";
 
+type EstimateProgressLabelArgs = {
+    row: EstimateRow;
+    state: EstimateState;
+    getBookById: BookGetter;
+    isSessionCompleted?: CompletionChecker;
+};
+
 /**
  * Builds end-of-session progress estimate label for a calendar row.
- * @param row - Target estimate row.
- * @param state - Estimate state context.
- * @param getBookById - Book lookup function.
- * @param isSessionCompleted - Completion checker.
+ * @param args - Estimate-label inputs for the target row.
  * @returns Human-readable estimate label.
  */
-export function estimateProgressLabel(
-    row: EstimateRow,
-    state: EstimateState,
-    getBookById: BookGetter,
-    isSessionCompleted: CompletionChecker = () => false,
-): string {
-    const SNAPSHOT = estimateSnapshotForRow(
-        row,
-        state,
-        getBookById,
-        isSessionCompleted,
-    );
+export function estimateProgressLabel(args: EstimateProgressLabelArgs): string {
+    const SNAPSHOT = estimateSnapshotForRow({
+        getBookById: args.getBookById,
+        isSessionCompleted: args.isSessionCompleted ?? (() => false),
+        row: args.row,
+        state: args.state,
+    });
     if (!SNAPSHOT) {
         return NO_ESTIMATE_LABEL;
     }

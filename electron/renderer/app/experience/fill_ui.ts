@@ -9,15 +9,7 @@ import {
 } from "./availability.ts";
 import { DEFAULT_PREFERENCES } from "./model.ts";
 
-/**
- * Fills the experience settings UI controls based on the provided preferences and feature flags.
- * @param preferences - User preferences to populate the UI with.
- * @param featureFlags - Current feature flags to determine which features are enabled in the UI.
- */
-export function fillPreferencesUI(
-    preferences: Preferences,
-    featureFlags: FeatureFlags,
-): void {
+function fillCorePreferenceControls(preferences: Preferences): void {
     el<HTMLSelectElement>("themeSelect").value = preferences.theme;
     el<HTMLInputElement>("reduceMotionToggle").checked = Boolean(
         preferences.reduceMotion,
@@ -25,6 +17,9 @@ export function fillPreferencesUI(
     el<HTMLInputElement>("dailyGoalInput").value = String(
         preferences.dailyGoalMinutes || DEFAULT_PREFERENCES.dailyGoalMinutes,
     );
+}
+
+function fillReminderControls(preferences: Preferences): void {
     el<HTMLInputElement>("reminderEnabledToggle").checked = shippedFeatureFlag(
         preferences.reminderEnabled,
         REMINDERS_AVAILABLE,
@@ -34,6 +29,9 @@ export function fillPreferencesUI(
         REMINDERS_AVAILABLE,
         DEFAULT_PREFERENCES.reminderTime,
     );
+}
+
+function fillFeatureFlagControls(featureFlags: FeatureFlags): void {
     el<HTMLInputElement>("flagGamification").checked = Boolean(
         featureFlags.gamificationEnabled,
     );
@@ -45,4 +43,18 @@ export function fillPreferencesUI(
         featureFlags.recommendationsEnabled,
         RECOMMENDATIONS_AVAILABLE,
     );
+}
+
+/**
+ * Fills the experience settings UI controls based on the provided preferences and feature flags.
+ * @param preferences - User preferences to populate the UI with.
+ * @param featureFlags - Current feature flags to determine which features are enabled in the UI.
+ */
+export function fillPreferencesUI(
+    preferences: Preferences,
+    featureFlags: FeatureFlags,
+): void {
+    fillCorePreferenceControls(preferences);
+    fillReminderControls(preferences);
+    fillFeatureFlagControls(featureFlags);
 }

@@ -1,4 +1,9 @@
-"""Shared API payload types."""
+"""Shared API payload contracts used by bridge and HTTP surfaces.
+
+These ``TypedDict`` definitions model JSON boundary payloads exchanged between
+UI clients and planner backends. Validation is performed by parser and builder
+layers; this module defines the stable structural contract.
+"""
 
 from typing import TYPE_CHECKING, TypedDict
 
@@ -8,25 +13,33 @@ if TYPE_CHECKING:
 
 
 class BookData(TypedDict, total=False):
-    """Book data structure in plan input/output payloads."""
+    """Book row shape accepted by planner API entry points.
 
+    All fields are optional at this boundary to support incremental migration
+    from desktop and mobile clients with partially populated payloads.
+    """
+
+    author: str
     book_id: str
-    blocker_book_id: str | None
     title: str
-    remaining_words: int | None
+    blocked_by: str | None
+    blocker_book_id: str | None
+    deadline: str | None
     priority: int
     difficulty: int
-    deadline: str | None
     min_blocks_per_session: int
-    progress_percent: float
-    words_full: int | None
     max_minutes_per_day: int | None
-    blocked_by: str | None
+    pages_read: int | None
+    pages_total: int | None
+    progress_percent: float
+    remaining_words: int | None
     scheduled_days: list[str]
+    words_read: int | None
+    words_total: int | None
 
 
 class SettingsData(TypedDict):
-    """Settings data structure in plan input/output payloads."""
+    """Settings object shape accepted by planner API entry points."""
 
     start_date: str
     end_date: str
@@ -47,7 +60,7 @@ class SettingsData(TypedDict):
 
 
 class ScheduleRow(TypedDict):
-    """Schedule row in plan output."""
+    """One scheduled reading session produced by a planner run."""
 
     date: str
     session_index: int
@@ -58,20 +71,23 @@ class ScheduleRow(TypedDict):
 
 
 class _PlannerInputRequired(TypedDict):
-    """Required fields for planner input."""
+    """Required planner-input fields shared by all planner requests."""
 
     books: list[BookData]
     settings: SettingsData
 
 
 class PlannerInputPayload(_PlannerInputRequired, total=False):
-    """Input payload for plan generation with optional planner selection."""
+    """Planner request payload.
+
+    ``planner`` is optional and selects a solver profile by name.
+    """
 
     planner: str
 
 
 class PlannerOutputPayload(TypedDict):
-    """Output payload from plan generation."""
+    """Planner response payload with summary and schedule details."""
 
     summary: Summary
     schedule: list[ScheduleRow]

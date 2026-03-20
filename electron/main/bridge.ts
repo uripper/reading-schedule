@@ -4,8 +4,9 @@ import type { JsonValue, PlanGeneratePayload } from "../types/types.ts";
 import { PLANNER_MODULE_CANDIDATES } from "./bridge/constants.ts";
 import { resolveExecutionContext } from "./bridge/context.ts";
 import { runBridgeForModule } from "./bridge/runner.ts";
-import type { BridgeRunContext } from "./bridge/types.ts";
+import type { BridgeRunContext } from "./bridge/types.d.ts";
 
+// TODO: Move these interfaces to contracts
 interface BridgeCandidateArgs {
     args: string[];
     executionContext: ReturnType<typeof resolveExecutionContext>;
@@ -92,6 +93,7 @@ function shouldTryFallbackModule(
     );
 }
 
+// TODO: Probably makes sense to move all logging to a dedicated module
 function logModuleFallback(
     requestId: string | null,
     moduleIndex: number,
@@ -133,30 +135,46 @@ async function handleBridgeCandidateFailure({
     });
 }
 
-async function runBridgeCandidateAtIndex({
-    args,
-    executionContext,
-    moduleIndex,
-    payload,
-}: BridgeCandidateArgs): Promise<JsonValue> {
-    const MODULE_NAME = PLANNER_MODULE_CANDIDATES[moduleIndex];
+function bridgeRunCandidateArgs(
+    options: BridgeCandidateArgs,
+    moduleName: string,
+) {
+    return {
+        args: options.args,
+        executionContext: options.executionContext,
+        moduleName,
+        parseOutput: parseBridgeOutput,
+        payload: options.payload,
+    };
+}
+
+function bridgeCandidateFailureArgs(
+    options: BridgeCandidateArgs,
+    error: unknown,
+    moduleName: string,
+): BridgeCandidateFailureArgs {
+    return {
+        args: options.args,
+        error,
+        executionContext: options.executionContext,
+        moduleIndex: options.moduleIndex,
+        moduleName,
+        payload: options.payload,
+    };
+}
+
+async function runBridgeCandidateAtIndex(
+    options: BridgeCandidateArgs,
+): Promise<JsonValue> {
+    const MODULE_NAME = PLANNER_MODULE_CANDIDATES[options.moduleIndex];
     try {
-        return await runBridgeForModule({
-            args,
-            executionContext,
-            moduleName: MODULE_NAME,
-            parseOutput: parseBridgeOutput,
-            payload,
-        });
+        return await runBridgeForModule(
+            bridgeRunCandidateArgs(options, MODULE_NAME),
+        );
     } catch (error) {
-        return await handleBridgeCandidateFailure({
-            args,
-            error,
-            executionContext,
-            moduleIndex,
-            moduleName: MODULE_NAME,
-            payload,
-        });
+        return await handleBridgeCandidateFailure(
+            bridgeCandidateFailureArgs(options, error, MODULE_NAME),
+        );
     }
 }
 

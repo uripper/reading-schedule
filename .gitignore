@@ -41,6 +41,7 @@ package-lock.json
 .pnpm-store/
 .npm/
 .yarn/
+.type-coverage/
 .parcel-cache/
 .turbo/
 .eslintcache

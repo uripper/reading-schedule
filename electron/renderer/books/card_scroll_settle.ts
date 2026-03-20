@@ -70,6 +70,42 @@ function nextSettleState(
     };
 }
 
+function hasTimedOut(state: ScrollSettleState): boolean {
+    const ELAPSED_MS = nowMs() - state.startedAtMs;
+    return ELAPSED_MS >= SCROLL_SETTLE_MAX_WAIT_MS;
+}
+
+function shouldFinishSettling(state: ScrollSettleState): boolean {
+    if (state.stableFrames >= SCROLL_SETTLE_REQUIRED_FRAMES) {
+        return true;
+    }
+    return hasTimedOut(state);
+}
+
+function viewportSize(): { height: number; width: number } {
+    return {
+        height: Number(globalThis.innerHeight || 0),
+        width: Number(globalThis.innerWidth || 0),
+    };
+}
+
+function invalidViewportSize(height: number, width: number): boolean {
+    return height <= 0 || width <= 0;
+}
+
+function rectOutsideViewport(
+    rect: Pick<DOMRect, "bottom" | "left" | "right" | "top">,
+    viewport: { height: number; width: number },
+): boolean {
+    if (rect.top < 0 || rect.left < 0) {
+        return true;
+    }
+    if (rect.bottom > viewport.height) {
+        return true;
+    }
+    return rect.right > viewport.width;
+}
+
 /**
  * Waits until scroll motion settles, then invokes callback.
  * @param card - Card being tracked.
@@ -77,27 +113,22 @@ function nextSettleState(
  * @param onSettled - Callback fired once scroll is settled or timed out.
  * @param state - Mutable settle-state across animation frames.
  */
-function waitForScrollSettle(
-    card: HTMLElement,
-    isCurrent: () => boolean,
-    onSettled: () => void,
-    state: ScrollSettleState,
-): void {
-    if (!isCurrent()) {
+function waitForScrollSettle(args: {
+    card: HTMLElement;
+    isCurrent: () => boolean;
+    onSettled: () => void;
+    state: ScrollSettleState;
+}): void {
+    if (!args.isCurrent()) {
         return;
     }
-    const NEXT_STATE = nextSettleState(card, state);
-    if (NEXT_STATE.stableFrames >= SCROLL_SETTLE_REQUIRED_FRAMES) {
-        onSettled();
-        return;
-    }
-    const ELAPSED_MS = nowMs() - NEXT_STATE.startedAtMs;
-    if (ELAPSED_MS >= SCROLL_SETTLE_MAX_WAIT_MS) {
-        onSettled();
+    const NEXT_STATE = nextSettleState(args.card, args.state);
+    if (shouldFinishSettling(NEXT_STATE)) {
+        args.onSettled();
         return;
     }
     requestFrame(() => {
-        waitForScrollSettle(card, isCurrent, onSettled, NEXT_STATE);
+        waitForScrollSettle({ ...args, state: NEXT_STATE });
     });
 }
 
@@ -108,24 +139,11 @@ function waitForScrollSettle(
  */
 export function shouldScrollCardIntoView(card: HTMLElement): boolean {
     const RECT = card.getBoundingClientRect();
-    const VIEWPORT_HEIGHT = Number(globalThis.innerHeight || 0);
-    const VIEWPORT_WIDTH = Number(globalThis.innerWidth || 0);
-    if (VIEWPORT_HEIGHT <= 0 || VIEWPORT_WIDTH <= 0) {
+    const VIEWPORT = viewportSize();
+    if (invalidViewportSize(VIEWPORT.height, VIEWPORT.width)) {
         return true;
     }
-    if (RECT.top < 0) {
-        return true;
-    }
-    if (RECT.left < 0) {
-        return true;
-    }
-    if (RECT.bottom > VIEWPORT_HEIGHT) {
-        return true;
-    }
-    if (RECT.right > VIEWPORT_WIDTH) {
-        return true;
-    }
-    return false;
+    return rectOutsideViewport(RECT, VIEWPORT);
 }
 
 /**
@@ -141,6 +159,11 @@ export function waitForCardScrollSettle(
 ): void {
     const SETTLE_STATE = initialSettleState(card);
     requestFrame(() => {
-        waitForScrollSettle(card, isCurrent, onSettled, SETTLE_STATE);
+        waitForScrollSettle({
+            card,
+            isCurrent,
+            onSettled,
+            state: SETTLE_STATE,
+        });
     });
 }

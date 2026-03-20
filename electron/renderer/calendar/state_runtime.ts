@@ -40,6 +40,73 @@ function defaultCalendarHandlers(): CalendarHandlers {
     };
 }
 
+function resolvedHandler<T>(override: T | undefined, fallback: T): T {
+    if (override !== undefined) {
+        return override;
+    }
+    return fallback;
+}
+
+function resolvedCalendarHandlers(
+    handlers: Partial<CalendarHandlers>,
+    defaults: CalendarHandlers,
+): CalendarHandlers {
+    const PRIMARY_HANDLERS = resolvedPrimaryHandlers(handlers, defaults);
+    const UPDATE_HANDLERS = resolvedUpdateHandlers(handlers, defaults);
+    return {
+        ...PRIMARY_HANDLERS,
+        ...UPDATE_HANDLERS,
+    };
+}
+
+function resolvedPrimaryHandlers(
+    handlers: Partial<CalendarHandlers>,
+    defaults: CalendarHandlers,
+) {
+    return {
+        getBookById: resolvedHandler(
+            handlers.getBookById,
+            defaults.getBookById,
+        ),
+        isSessionCompleted: resolvedHandler(
+            handlers.isSessionCompleted,
+            defaults.isSessionCompleted,
+        ),
+        listSessionBooks: resolvedHandler(
+            handlers.listSessionBooks,
+            defaults.listSessionBooks,
+        ),
+        onManualSessionAdded: resolvedHandler(
+            handlers.onManualSessionAdded,
+            defaults.onManualSessionAdded,
+        ),
+    };
+}
+
+function resolvedUpdateHandlers(
+    handlers: Partial<CalendarHandlers>,
+    defaults: CalendarHandlers,
+) {
+    return {
+        onSessionCompletionChanged: resolvedHandler(
+            handlers.onSessionCompletionChanged,
+            defaults.onSessionCompletionChanged,
+        ),
+        onSessionMinutesUpdated: resolvedHandler(
+            handlers.onSessionMinutesUpdated,
+            defaults.onSessionMinutesUpdated,
+        ),
+        onSessionProgressUpdated: resolvedHandler(
+            handlers.onSessionProgressUpdated,
+            defaults.onSessionProgressUpdated,
+        ),
+        onSessionRemoved: resolvedHandler(
+            handlers.onSessionRemoved,
+            defaults.onSessionRemoved,
+        ),
+    };
+}
+
 /**
  * Merges partial handler overrides over default calendar handlers.
  * @param handlers - User-provided handler overrides.
@@ -48,25 +115,5 @@ function defaultCalendarHandlers(): CalendarHandlers {
 export function mergeCalendarHandlers(
     handlers: Partial<CalendarHandlers>,
 ): CalendarHandlers {
-    const DEFAULTS = defaultCalendarHandlers();
-    return {
-        getBookById: handlers.getBookById ?? DEFAULTS.getBookById,
-        isSessionCompleted:
-            handlers.isSessionCompleted ?? DEFAULTS.isSessionCompleted,
-        listSessionBooks:
-            handlers.listSessionBooks ?? DEFAULTS.listSessionBooks,
-        onManualSessionAdded:
-            handlers.onManualSessionAdded ?? DEFAULTS.onManualSessionAdded,
-        onSessionCompletionChanged:
-            handlers.onSessionCompletionChanged ??
-            DEFAULTS.onSessionCompletionChanged,
-        onSessionMinutesUpdated:
-            handlers.onSessionMinutesUpdated ??
-            DEFAULTS.onSessionMinutesUpdated,
-        onSessionProgressUpdated:
-            handlers.onSessionProgressUpdated ??
-            DEFAULTS.onSessionProgressUpdated,
-        onSessionRemoved:
-            handlers.onSessionRemoved ?? DEFAULTS.onSessionRemoved,
-    };
+    return resolvedCalendarHandlers(handlers, defaultCalendarHandlers());
 }

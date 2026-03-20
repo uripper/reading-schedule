@@ -18,6 +18,42 @@ interface LookupControllerDeps {
     state: CreateLookupStateControllerArgs["state"];
 }
 
+function clearRenderedLookupResults(
+    resultsEl: HTMLElement,
+    searchInput: HTMLInputElement,
+): void {
+    const RESULTS_EL = resultsEl;
+    RESULTS_EL.classList.remove("has-items");
+    RESULTS_EL.replaceChildren();
+    updateComboboxA11y({
+        activeIndex: -1,
+        hasItems: false,
+        resultsEl: RESULTS_EL,
+        searchInput,
+    });
+}
+
+function updateRenderedLookupA11y(deps: LookupControllerDeps): void {
+    updateComboboxA11y({
+        activeIndex: deps.state.activeIndex,
+        hasItems: true,
+        resultsEl: deps.resultsEl,
+        searchInput: deps.searchInput,
+    });
+}
+
+function renderLookupItems(deps: LookupControllerDeps): void {
+    const RESULTS_EL = deps.resultsEl;
+    renderLookupResults({
+        activeIndex: deps.state.activeIndex,
+        items: deps.state.currentItems,
+        placeholder: deps.placeholder,
+        resultsEl: RESULTS_EL,
+    });
+    RESULTS_EL.classList.add("has-items");
+    updateRenderedLookupA11y(deps);
+}
+
 /**
  * Update the lookup results DOM based on the current state: render items, toggle the "has-items" class, and update combobox accessibility attributes.
  * @example
@@ -27,32 +63,37 @@ interface LookupControllerDeps {
  * @returns No return value; updates the DOM and accessibility attributes.
  **/
 function refreshLookupResults(deps: LookupControllerDeps): void {
-    const HAS_ITEMS = deps.state.currentItems.length > 0;
-    if (!HAS_ITEMS) {
-        deps.resultsEl.classList.remove("has-items");
-        deps.resultsEl.innerHTML = "";
-        updateComboboxA11y(deps.searchInput, deps.resultsEl, false, -1);
+    if (deps.state.currentItems.length === 0) {
+        clearRenderedLookupResults(deps.resultsEl, deps.searchInput);
         return;
     }
-    renderLookupResults(
-        deps.resultsEl,
-        deps.state.currentItems,
-        deps.placeholder,
-        deps.state.activeIndex,
-    );
-    deps.resultsEl.classList.add("has-items");
-    updateComboboxA11y(
-        deps.searchInput,
-        deps.resultsEl,
-        true,
-        deps.state.activeIndex,
-    );
+    renderLookupItems(deps);
+}
+
+function resetLookupState(
+    state: CreateLookupStateControllerArgs["state"],
+): void {
+    const LOOKUP_STATE = state;
+    LOOKUP_STATE.currentItems = [];
+    LOOKUP_STATE.activeIndex = -1;
 }
 
 function clearLookupResults(deps: LookupControllerDeps): void {
-    deps.state.currentItems = [];
-    deps.state.activeIndex = -1;
+    resetLookupState(deps.state);
     refreshLookupResults(deps);
+}
+
+function applySelectedLookupItem(
+    item: NonNullable<
+        CreateLookupStateControllerArgs["state"]["currentItems"][number]
+    >,
+    searchInput: HTMLInputElement,
+    metaEl: HTMLElement,
+): void {
+    const SEARCH_INPUT = searchInput;
+    const META_EL = metaEl;
+    SEARCH_INPUT.value = String(item.title ?? "");
+    META_EL.textContent = describeLookup(item);
 }
 
 function selectLookupItem(deps: LookupControllerDeps, index: number): void {
@@ -60,10 +101,24 @@ function selectLookupItem(deps: LookupControllerDeps, index: number): void {
         return;
     }
     const ITEM = deps.state.currentItems[index];
-    deps.searchInput.value = String(ITEM.title ?? "");
-    deps.metaEl.textContent = describeLookup(ITEM);
+    applySelectedLookupItem(ITEM, deps.searchInput, deps.metaEl);
     clearLookupResults(deps);
     deps.onPick(ITEM);
+}
+
+function updateActiveLookupIndex(
+    state: CreateLookupStateControllerArgs["state"],
+    index: number,
+): void {
+    const LOOKUP_STATE = state;
+    if (LOOKUP_STATE.currentItems.length === 0) {
+        LOOKUP_STATE.activeIndex = -1;
+        return;
+    }
+    LOOKUP_STATE.activeIndex = boundedIndex(
+        index,
+        LOOKUP_STATE.currentItems.length,
+    );
 }
 
 /**
@@ -76,16 +131,40 @@ function selectLookupItem(deps: LookupControllerDeps, index: number): void {
  * @returns No return value; updates the state's activeIndex and refreshes lookup results.
  **/
 function setLookupActiveIndex(deps: LookupControllerDeps, index: number): void {
-    if (deps.state.currentItems.length === 0) {
-        deps.state.activeIndex = -1;
-        refreshLookupResults(deps);
-        return;
-    }
-    deps.state.activeIndex = boundedIndex(
-        index,
-        deps.state.currentItems.length,
-    );
+    updateActiveLookupIndex(deps.state, index);
     refreshLookupResults(deps);
+}
+
+function createLookupControllerDeps(
+    args: CreateLookupStateControllerArgs,
+): LookupControllerDeps {
+    return {
+        metaEl: args.metaEl,
+        onPick: args.onPick,
+        placeholder: args.placeholder,
+        resultsEl: args.resultsEl,
+        searchInput: args.searchInput,
+        state: args.state,
+    };
+}
+
+function createLookupControllerHandlers(
+    deps: LookupControllerDeps,
+): LookupStateController {
+    return {
+        clearResults: (): void => {
+            clearLookupResults(deps);
+        },
+        refreshResults: (): void => {
+            refreshLookupResults(deps);
+        },
+        selectItem: (index: number): void => {
+            selectLookupItem(deps, index);
+        },
+        setActiveIndex: (index: number): void => {
+            setLookupActiveIndex(deps, index);
+        },
+    };
 }
 
 /**
@@ -107,27 +186,14 @@ export function createLookupStateController({
     placeholder,
     state,
 }: CreateLookupStateControllerArgs): LookupStateController {
-    const LOOKUP_DEPS: LookupControllerDeps = {
-        metaEl,
-        onPick,
-        placeholder,
-        resultsEl,
-        searchInput,
-        state,
-    };
-
-    return {
-        clearResults: (): void => {
-            clearLookupResults(LOOKUP_DEPS);
-        },
-        refreshResults: (): void => {
-            refreshLookupResults(LOOKUP_DEPS);
-        },
-        selectItem: (index: number): void => {
-            selectLookupItem(LOOKUP_DEPS, index);
-        },
-        setActiveIndex: (index: number): void => {
-            setLookupActiveIndex(LOOKUP_DEPS, index);
-        },
-    };
+    return createLookupControllerHandlers(
+        createLookupControllerDeps({
+            metaEl,
+            onPick,
+            placeholder,
+            resultsEl,
+            searchInput,
+            state,
+        }),
+    );
 }

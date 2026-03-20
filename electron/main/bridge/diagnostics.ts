@@ -12,7 +12,7 @@ import type {
     BridgeProgressSnapshot,
     BridgeRunSession,
     BridgeTimeoutArgs,
-} from "./types.ts";
+} from "./types.d.ts";
 
 let logTail = "";
 
@@ -21,6 +21,15 @@ interface ProcessCloseLogArgs {
     executionContext: BridgeExecutionContext;
     exitCode: number | null;
     signal: NodeJS.Signals | null;
+}
+
+type StreamName = "stderr" | "stdout";
+
+interface AttachStreamBufferArgs {
+    buffers: BridgeBuffers;
+    requestId: string | null;
+    stream: NodeJS.ReadableStream | null;
+    streamName: StreamName;
 }
 
 /**
@@ -88,6 +97,43 @@ export function appendedLogTail(previous: string, current: string): string {
     return current;
 }
 
+function logStreamChunk(
+    streamName: StreamName,
+    requestId: string | null,
+    text: string,
+): void {
+    logDebug(`Planner bridge ${streamName} chunk.`, {
+        preview: preview(text),
+        requestId,
+        size: text.length,
+    });
+}
+
+function appendStreamChunk(
+    buffers: BridgeBuffers,
+    streamName: StreamName,
+    text: string,
+): void {
+    const BUFFER_STATE = buffers;
+    BUFFER_STATE[streamName] = appendChunk(BUFFER_STATE[streamName], text);
+}
+
+function attachStreamBuffer({
+    buffers,
+    requestId,
+    stream,
+    streamName,
+}: AttachStreamBufferArgs): void {
+    if (!stream) {
+        return;
+    }
+    stream.on("data", (chunk: Buffer | string) => {
+        const TEXT = chunk.toString();
+        appendStreamChunk(buffers, streamName, TEXT);
+        logStreamChunk(streamName, requestId, TEXT);
+    });
+}
+
 /**
  * Appends child-process stdout/stderr and emits chunk diagnostics.
  * @param processHandle - Child process handle.
@@ -99,33 +145,17 @@ export function attachStreamHandlers(
     buffers: BridgeBuffers,
     requestId: string | null,
 ): void {
-    const BUFFER_STATE = buffers;
-    const STDOUT = processHandle.stdout;
-    if (STDOUT !== null) {
-        STDOUT.on("data", (chunk: Buffer | string) => {
-            const TEXT = chunk.toString();
-            BUFFER_STATE.stdout = appendChunk(BUFFER_STATE.stdout, TEXT);
-            logDebug("Planner bridge stdout chunk.", {
-                preview: preview(TEXT),
-                requestId,
-                size: TEXT.length,
-            });
-        });
-    }
-
-    const STDERR = processHandle.stderr;
-    if (STDERR === null) {
-        return;
-    }
-
-    STDERR.on("data", (chunk: Buffer | string) => {
-        const TEXT = chunk.toString();
-        BUFFER_STATE.stderr = appendChunk(BUFFER_STATE.stderr, TEXT);
-        logDebug("Planner bridge stderr chunk.", {
-            preview: preview(TEXT),
-            requestId,
-            size: TEXT.length,
-        });
+    attachStreamBuffer({
+        buffers,
+        requestId,
+        stream: processHandle.stdout,
+        streamName: "stdout",
+    });
+    attachStreamBuffer({
+        buffers,
+        requestId,
+        stream: processHandle.stderr,
+        streamName: "stderr",
     });
 }
 

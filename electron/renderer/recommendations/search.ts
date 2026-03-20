@@ -1,3 +1,6 @@
+/**
+ * Recommendation search flow that probes authors already read in the shelf and falls back to the static catalog.
+ */
 import type {
     Book,
     BookLookupItem,
@@ -18,6 +21,11 @@ interface RecommendationSearchOptions {
     randomFn?(this: void): number;
 }
 
+/**
+ * Resolves the random-number source used for author sampling.
+ * @param options - Search options supplied by the caller.
+ * @returns Zero-argument random function.
+ */
 function resolveRandomFn(options: RecommendationSearchOptions): () => number {
     const RANDOM_SOURCE = options.randomFn;
     if (typeof RANDOM_SOURCE !== "function") {
@@ -28,13 +36,11 @@ function resolveRandomFn(options: RecommendationSearchOptions): () => number {
 
 /**
  * Searches for books by a given author using the RecommendationSearchApi and returns lookup items.
- * @example
- * lookupByAuthor(api, "J.K. Rowling")
- * [{ id: "1", title: "Harry Potter and the Philosopher's Stone", author: "J.K. Rowling" }]
+ * Errors are logged and converted into an empty result so the broader recommendation flow can continue.
  * @param api - RecommendationSearchApi instance used to perform the search.
  * @param author - Author name to search for.
  * @returns Promise resolving to an array of BookLookupItem results (empty array on error).
- **/
+ */
 async function lookupByAuthor(
     api: RecommendationSearchApi,
     author: string,
@@ -57,6 +63,86 @@ async function lookupByAuthor(
         );
         return [];
     }
+}
+
+/**
+ * Logs the derived shelf authors and the smaller sampled subset used for the current lookup run.
+ * @param derivedReadAuthors - All read authors found in the shelf.
+ * @param sampledReadAuthors - Authors chosen for live lookup in this search.
+ */
+function logReadAuthorSelection(
+    derivedReadAuthors: string[],
+    sampledReadAuthors: string[],
+): void {
+    addLog(
+        `Recommendations: Derived ${derivedReadAuthors.length} read authors: ${derivedReadAuthors.join(", ")}`,
+    );
+    addLog(
+        `Recommendations: Sampled ${sampledReadAuthors.length} read authors for this run: ${sampledReadAuthors.join(", ")}`,
+    );
+}
+
+/**
+ * Starts one lookup per sampled read author.
+ * @param api - Recommendation search API.
+ * @param readAuthors - Authors sampled from the read shelf.
+ * @returns Promise resolving to one lookup result array per sampled author.
+ */
+function lookupReadAuthors(
+    api: RecommendationSearchApi,
+    readAuthors: string[],
+): Promise<BookLookupItem[][]> {
+    return Promise.all(
+        readAuthors.map((author) => {
+            return lookupByAuthor(api, author);
+        }),
+    );
+}
+
+interface ProcessReadAuthorLookupsArgs {
+    existingKeys: Set<string>;
+    lookupItemsByAuthor: BookLookupItem[][];
+    readAuthors: string[];
+    recommendationKeys: Set<string>;
+    recommendations: RecommendationItem[];
+}
+
+/**
+ * Applies lookup results author-by-author and mutates the recommendation accumulator.
+ * @param args - Lookup results and dedupe state for the current search run.
+ */
+function processReadAuthorLookups(args: ProcessReadAuthorLookupsArgs): void {
+    for (const [Index, Author] of args.readAuthors.entries()) {
+        processAuthorResults({
+            author: Author,
+            existingKeys: args.existingKeys,
+            lookupItems: args.lookupItemsByAuthor[Index] ?? [],
+            recommendationKeys: args.recommendationKeys,
+            recommendations: args.recommendations,
+        });
+    }
+}
+
+/**
+ * Returns dynamic recommendations when any were found, otherwise falls back to the static catalog.
+ * @param books - Existing library books.
+ * @param recommendations - Dynamic recommendations gathered from author lookups.
+ * @returns Final recommendation rows used by the renderer.
+ */
+function finishRecommendationSearch(
+    books: Book[],
+    recommendations: RecommendationItem[],
+): RecommendationItem[] {
+    if (recommendations.length > 0) {
+        addLog(
+            `Recommendations: Found ${recommendations.length} dynamic recommendations, using those.`,
+        );
+        return recommendations;
+    }
+    addLog(
+        "Recommendations: No dynamic results, falling back to static catalog.",
+    );
+    return buildRecommendations(books);
 }
 
 /**
@@ -84,32 +170,13 @@ export async function findRecommendations(
         RANDOM_FN,
     );
 
-    addLog(
-        `Recommendations: Derived ${DERIVED_READ_AUTHORS.length} read authors: ${DERIVED_READ_AUTHORS.join(", ")}`,
-    );
-    addLog(
-        `Recommendations: Sampled ${READ_AUTHORS.length} read authors for this run: ${READ_AUTHORS.join(", ")}`,
-    );
-
-    for (const AUTHOR of READ_AUTHORS) {
-        const LOOKUP_ITEMS = await lookupByAuthor(api, AUTHOR);
-        processAuthorResults({
-            author: AUTHOR,
-            existingKeys: EXISTING_KEYS,
-            lookupItems: LOOKUP_ITEMS,
-            recommendationKeys: RECOMMENDATION_KEYS,
-            recommendations: RECOMMENDATIONS,
-        });
-    }
-
-    if (RECOMMENDATIONS.length > 0) {
-        addLog(
-            `Recommendations: Found ${RECOMMENDATIONS.length} dynamic recommendations, using those.`,
-        );
-        return RECOMMENDATIONS;
-    }
-    addLog(
-        "Recommendations: No dynamic results, falling back to static catalog.",
-    );
-    return buildRecommendations(books);
+    logReadAuthorSelection(DERIVED_READ_AUTHORS, READ_AUTHORS);
+    processReadAuthorLookups({
+        existingKeys: EXISTING_KEYS,
+        lookupItemsByAuthor: await lookupReadAuthors(api, READ_AUTHORS),
+        readAuthors: READ_AUTHORS,
+        recommendationKeys: RECOMMENDATION_KEYS,
+        recommendations: RECOMMENDATIONS,
+    });
+    return finishRecommendationSearch(books, RECOMMENDATIONS);
 }

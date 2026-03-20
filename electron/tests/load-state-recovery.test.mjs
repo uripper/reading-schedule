@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -18,136 +19,118 @@ const DEFAULT_FEATURE_FLAGS = {
     socialEnabled: true,
 };
 
-/**
- * Builds load-state args with capture arrays for status/log assertions.
- * @param loadResult - Structured load result fixture.
- * @param statuses - Captured statuses sink.
- * @param logs - Captured logs sink.
- * @param overrides - Override hooks for targeted assertions.
- * @returns Load arguments.
- */
-function loadArgs(loadResult, statuses, logs, overrides = {}) {
+function createNoopHooks() {
     const NOOP = () => undefined;
-    const BASE = {
-        addLog: (message) => {
-            logs.push(message);
-        },
+    return {
         applyLoadedResult: NOOP,
         applyPreferencesToDocument: NOOP,
         fillBooks: NOOP,
         fillPreferencesUI: NOOP,
         fillSettings: NOOP,
-        normalizeFeatureFlags: () => DEFAULT_FEATURE_FLAGS,
-        normalizePreferences: () => DEFAULT_PREFERENCES,
-        normalizeScheduleCompletions: (value) => value,
         onLoaded: NOOP,
-        plannerApi: {
-            loadState: () => Promise.resolve(loadResult),
-            sample: () =>
-                Promise.resolve({
-                    books: [],
-                    settings: { start_date: "2026-04-01" },
-                }),
-        },
         setBlockedDayBooks: NOOP,
         setFeatureFlags: NOOP,
         setPreferences: NOOP,
         setScheduleCompletions: NOOP,
         setSessions: NOOP,
+        updateTodayView: NOOP,
+    };
+}
+
+function plannerApiFor(loadResult) {
+    return {
+        loadState: () => Promise.resolve(loadResult),
+        sample: () =>
+            Promise.resolve({
+                books: [],
+                settings: { start_date: "2026-04-01" },
+            }),
+    };
+}
+
+/**
+ * Builds load-state args with capture arrays for status/log assertions.
+ * @param options - Load fixture inputs and override hooks.
+ * @returns Load arguments.
+ */
+function loadArgs(options) {
+    const { loadResult, logs, overrides = {}, statuses } = options;
+    const BASE = {
+        addLog: (message) => {
+            logs.push(message);
+        },
+        ...createNoopHooks(),
+        normalizeFeatureFlags: () => DEFAULT_FEATURE_FLAGS,
+        normalizePreferences: () => DEFAULT_PREFERENCES,
+        normalizeScheduleCompletions: (value) => value,
+        plannerApi: plannerApiFor(loadResult),
         setStatus: (message, isError = false) => {
             statuses.push({ isError, message });
         },
-        updateTodayView: NOOP,
     };
     return { ...BASE, ...overrides };
 }
 
+function createLoadCapture() {
+    return { logs: [], statuses: [] };
+}
+
+async function runLoad(capture, loadResult, overrides) {
+    await loadInitialData(
+        loadArgs({
+            loadResult,
+            logs: capture.logs,
+            overrides,
+            statuses: capture.statuses,
+        }),
+    );
+}
+
+function hasStatus(capture, text) {
+    return capture.statuses.some((entry) => entry.message.includes(text));
+}
+
+function hasLog(capture, text) {
+    return capture.logs.some((entry) => entry.includes(text));
+}
+
 test("loadInitialData surfaces backup/journal/fresh recovery warnings", async () => {
-    const STATUSES = [];
-    const LOGS = [];
+    const CAPTURE = createLoadCapture();
 
-    await loadInitialData(
-        loadArgs(
-            {
-                source: "json_backup",
-                state: { books: [], settings: { start_date: "2026-04-01" } },
-                warningCode: "RECOVERED_FROM_BACKUP",
-            },
-            STATUSES,
-            LOGS,
-        ),
-    );
-    await loadInitialData(
-        loadArgs(
-            {
-                source: "sqlite_journal_replay",
-                state: { books: [], settings: { start_date: "2026-04-02" } },
-                warningCode: "RECOVERED_FROM_JOURNAL",
-            },
-            STATUSES,
-            LOGS,
-        ),
-    );
-    await loadInitialData(
-        loadArgs(
-            {
-                source: "fresh",
-                state: null,
-                warningCode: "STATE_RESET_FRESH",
-            },
-            STATUSES,
-            LOGS,
-        ),
-    );
+    await runLoad(CAPTURE, {
+        source: "json_backup",
+        state: { books: [], settings: { start_date: "2026-04-01" } },
+        warningCode: "RECOVERED_FROM_BACKUP",
+    });
+    await runLoad(CAPTURE, {
+        source: "sqlite_journal_replay",
+        state: { books: [], settings: { start_date: "2026-04-02" } },
+        warningCode: "RECOVERED_FROM_JOURNAL",
+    });
+    await runLoad(CAPTURE, {
+        source: "fresh",
+        state: null,
+        warningCode: "STATE_RESET_FRESH",
+    });
 
-    assert.equal(
-        STATUSES.some((entry) => entry.message.includes("backup copy")),
-        true,
-    );
-    assert.equal(
-        STATUSES.some((entry) => entry.message.includes("journal replay")),
-        true,
-    );
-    assert.equal(
-        STATUSES.some((entry) =>
-            entry.message.includes("Started with fresh data"),
-        ),
-        true,
-    );
-    assert.equal(
-        LOGS.some((entry) => entry.includes("Migrated saved data from JSON")),
-        true,
-    );
+    assert.equal(hasStatus(CAPTURE, "backup copy"), true);
+    assert.equal(hasStatus(CAPTURE, "journal replay"), true);
+    assert.equal(hasStatus(CAPTURE, "Started with fresh data"), true);
+    assert.equal(hasLog(CAPTURE, "Migrated saved data from JSON"), true);
 });
 
 test("loadInitialData logs migration info for json-primary loads", async () => {
-    const STATUSES = [];
-    const LOGS = [];
+    const CAPTURE = createLoadCapture();
 
-    await loadInitialData(
-        loadArgs(
-            {
-                source: "json_primary",
-                sourcePath: "/tmp/planner_state.json",
-                state: { books: [], settings: { start_date: "2026-05-01" } },
-                warningCode: "MIGRATED_JSON_TO_SQLITE",
-            },
-            STATUSES,
-            LOGS,
-        ),
-    );
+    await runLoad(CAPTURE, {
+        source: "json_primary",
+        sourcePath: "/tmp/planner_state.json",
+        state: { books: [], settings: { start_date: "2026-05-01" } },
+        warningCode: "MIGRATED_JSON_TO_SQLITE",
+    });
 
-    assert.equal(STATUSES.length, 0);
-    assert.equal(
-        LOGS.some((entry) => entry.includes("Migrated saved data from JSON")),
-        true,
-    );
-    assert.equal(
-        LOGS.some((entry) => entry.includes("State load source: json_primary")),
-        true,
-    );
-    assert.equal(
-        LOGS.some((entry) => entry.includes("/tmp/planner_state.json")),
-        true,
-    );
+    assert.equal(CAPTURE.statuses.length, 0);
+    assert.equal(hasLog(CAPTURE, "Migrated saved data from JSON"), true);
+    assert.equal(hasLog(CAPTURE, "State load source: json_primary"), true);
+    assert.equal(hasLog(CAPTURE, "/tmp/planner_state.json"), true);
 });

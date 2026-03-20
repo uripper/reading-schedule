@@ -153,7 +153,11 @@ def stages_for_profile(profile: str) -> tuple[SolveStage, ...]:
 
 
 def profile_from_planner(planner: str) -> str:
-    """Parse profile suffix while preserving planner token compatibility."""
+    """Parse profile suffix while preserving planner token compatibility.
+
+    Returns:
+        Computed value.
+    """
     token = planner.strip().lower()
     if token in {"mip", "", "default"}:
         return DEFAULT_SOLVER_PROFILE
@@ -169,7 +173,11 @@ def profile_from_planner(planner: str) -> str:
 
 
 def run_precheck(books: list[Book], settings: Settings) -> PrecheckResult:
-    """Run cheap infeasibility checks before invoking CP-SAT."""
+    """Run cheap infeasibility checks before invoking CP-SAT.
+
+    Returns:
+        Computed value.
+    """
     days = date_range(settings.start_date, settings.end_date)
     caps = {day: day_capacity_blocks(settings, day) for day in days}
     wpb = {book.book_id: words_per_block(book, settings) for book in books}
@@ -186,7 +194,7 @@ def run_precheck(books: list[Book], settings: Settings) -> PrecheckResult:
     )
     if required_capacity > total_capacity:
         note = (
-            "Precheck infeasible: required blocks exceed total capacity; "
+            "Precheck infeasible: required blocks exceed total capacity; " +
             "fell back to greedy planner."
         )
         return PrecheckResult(is_feasible=False, note=note)
@@ -197,7 +205,11 @@ def _deadline_capacity_note(
     book: Book,
     context: DeadlinePrecheckContext,
 ) -> str | None:
-    """Check whether a deadline book can fit by capacity upper bounds."""
+    """Check whether a deadline book can fit by capacity upper bounds.
+
+    Returns:
+        Computed value.
+    """
     required = required_blocks(
         book.remaining_words,
         context.wpb[book.book_id],
@@ -213,7 +225,7 @@ def _deadline_capacity_note(
     if available >= required:
         return None
     return (
-        f"Precheck infeasible for deadline-bound book {book.book_id}; "
+        f"Precheck infeasible for deadline-bound book {book.book_id}; " +
         "fell back to greedy planner."
     )
 
@@ -222,7 +234,11 @@ def _deadline_precheck(
     books: list[Book],
     context: DeadlinePrecheckContext,
 ) -> PrecheckResult:
-    """Check whether each deadline book can fit by capacity upper bounds."""
+    """Check whether each deadline book can fit by capacity upper bounds.
+
+    Returns:
+        Computed value.
+    """
     for book in books:
         if book.deadline is None:
             continue
@@ -234,7 +250,11 @@ def _deadline_precheck(
 
 
 def required_blocks(remaining_words: int, words_per_block_value: int) -> int:
-    """Compute minimum number of blocks needed to cover total words."""
+    """Compute minimum number of blocks needed to cover total words.
+
+    Returns:
+        Computed value.
+    """
     if words_per_block_value <= 0:
         return 0
     return math.ceil(remaining_words / words_per_block_value)

@@ -155,6 +155,54 @@ export function syncFinishedAtFieldState(refs: BookFormRefs): void {
     toggleFinishedAtInput(refs, STATUS);
 }
 
+function lengthInputs(refs: BookFormRefs): {
+    pagesRead: number | null;
+    pagesTotal: number | null;
+    progress: number;
+    wordsTotal: number | null;
+} {
+    return {
+        pagesRead: toOptionalInt(refs.pagesReadInput.value),
+        pagesTotal: toOptionalInt(refs.pagesTotalInput.value),
+        progress: clamp(Number(refs.progressInput.value), 0, PROGRESS_MAX),
+        wordsTotal: toOptionalInt(refs.wordsInput.value),
+    };
+}
+
+function hasPositiveLength(value: number | null): boolean {
+    return value !== null && value > 0;
+}
+
+function assertHasLengthInput(
+    wordsTotal: number | null,
+    pagesTotal: number | null,
+): void {
+    if (hasPositiveLength(wordsTotal) || hasPositiveLength(pagesTotal)) {
+        return;
+    }
+    throw new Error("Enter estimated words or total pages.");
+}
+
+function normalizedPageProgress(
+    pagesTotal: number,
+    pagesRead: number | null,
+    progress: number,
+): { pagesRead: number; progress: number } {
+    let nextPagesRead = pagesRead;
+    nextPagesRead ??= Math.round((progress / PROGRESS_MAX) * pagesTotal);
+    const CLAMPED_PAGES_READ = clamp(nextPagesRead, 0, pagesTotal);
+    const NORMALIZED_PROGRESS =
+        Math.round(
+            (CLAMPED_PAGES_READ / pagesTotal) *
+                PROGRESS_MAX *
+                PROGRESS_DECIMAL_SCALE,
+        ) / PROGRESS_DECIMAL_SCALE;
+    return {
+        pagesRead: CLAMPED_PAGES_READ,
+        progress: NORMALIZED_PROGRESS,
+    };
+}
+
 /**
  * Parses and validates length/progress inputs into normalized numeric values.
  * @param refs - Form DOM references for the book dialog.
@@ -167,38 +215,29 @@ export function deriveLengthAndProgress(refs: BookFormRefs): {
     pagesRead: number | null;
     progress: number;
 } {
-    const WORDS_TOTAL = toOptionalInt(refs.wordsInput.value);
-    const PAGES_TOTAL = toOptionalInt(refs.pagesTotalInput.value);
-    let pagesRead = toOptionalInt(refs.pagesReadInput.value);
-    let progress = clamp(Number(refs.progressInput.value), 0, PROGRESS_MAX);
-    const HAS_WORDS_TOTAL = WORDS_TOTAL !== null && WORDS_TOTAL > 0;
-    const HAS_PAGES_TOTAL = PAGES_TOTAL !== null && PAGES_TOTAL > 0;
-    if (!(HAS_WORDS_TOTAL || HAS_PAGES_TOTAL)) {
-        throw new Error("Enter estimated words or total pages.");
-    }
+    const INPUTS = lengthInputs(refs);
+    assertHasLengthInput(INPUTS.wordsTotal, INPUTS.pagesTotal);
 
-    if (HAS_PAGES_TOTAL) {
-        pagesRead ??= Math.round((progress / PROGRESS_MAX) * PAGES_TOTAL);
-        pagesRead = clamp(pagesRead, 0, PAGES_TOTAL);
-        progress =
-            Math.round(
-                (pagesRead / PAGES_TOTAL) *
-                    PROGRESS_MAX *
-                    PROGRESS_DECIMAL_SCALE,
-            ) / PROGRESS_DECIMAL_SCALE;
+    const PAGES_TOTAL = INPUTS.pagesTotal;
+    if (PAGES_TOTAL !== null && hasPositiveLength(PAGES_TOTAL)) {
+        const NORMALIZED = normalizedPageProgress(
+            PAGES_TOTAL,
+            INPUTS.pagesRead,
+            INPUTS.progress,
+        );
         return {
-            pagesRead,
+            pagesRead: NORMALIZED.pagesRead,
             pagesTotal: PAGES_TOTAL,
-            progress,
-            wordsTotal: WORDS_TOTAL,
+            progress: NORMALIZED.progress,
+            wordsTotal: INPUTS.wordsTotal,
         };
     }
 
     return {
         pagesRead: null,
         pagesTotal: PAGES_TOTAL,
-        progress,
-        wordsTotal: WORDS_TOTAL,
+        progress: INPUTS.progress,
+        wordsTotal: INPUTS.wordsTotal,
     };
 }
 

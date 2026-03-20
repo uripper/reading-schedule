@@ -14,15 +14,36 @@ function withBookFinishedDates(
     const OUT = { ...finishDateByBookId };
 
     for (const BOOK of books) {
-        const BOOK_ID = String(BOOK.book_id || "");
-        const FINISHED_AT = String(BOOK.finished_at ?? "");
-        if (!(BOOK_ID && FINISHED_AT)) {
+        const ENTRY = finishedBookEntry(BOOK);
+        if (ENTRY === null) {
             continue;
         }
         // For read books, explicit completion date should win over schedule estimates.
-        OUT[BOOK_ID] = FINISHED_AT;
+        OUT[ENTRY.bookId] = ENTRY.finishedAt;
     }
     return OUT;
+}
+
+function finishedBookEntry(
+    book: Book,
+): { bookId: string; finishedAt: string } | null {
+    const BOOK_ID = String(book.book_id || "");
+    const FINISHED_AT = String(book.finished_at ?? "");
+    if (BOOK_ID === "" || FINISHED_AT === "") {
+        return null;
+    }
+    return { bookId: BOOK_ID, finishedAt: FINISHED_AT };
+}
+
+function scheduledFinishEntry(
+    row: PlannerScheduleRow,
+): { bookId: string; date: string } | null {
+    const BOOK_ID = String(row.book_id || "");
+    const DATE = String(row.date || "");
+    if (BOOK_ID === "" || DATE === "") {
+        return null;
+    }
+    return { bookId: BOOK_ID, date: DATE };
 }
 
 /**
@@ -38,12 +59,11 @@ export function finishDatesByBookId(
     const OUT: Record<string, string> = {};
 
     for (const ROW of sortedRows(rows)) {
-        const BOOK_ID = String(ROW.book_id || "");
-        const DATE = String(ROW.date || "");
-        if (!(BOOK_ID && DATE)) {
+        const ENTRY = scheduledFinishEntry(ROW);
+        if (ENTRY === null) {
             continue;
         }
-        OUT[BOOK_ID] = DATE;
+        OUT[ENTRY.bookId] = ENTRY.date;
     }
     return withBookFinishedDates(OUT, books);
 }

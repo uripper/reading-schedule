@@ -14,6 +14,18 @@ export const MAX_PRIORITY = 5;
 export const MIN_DIFFICULTY = 1;
 export const MAX_DIFFICULTY = 10;
 
+type ToClampedIntArgs = {
+    value: number | undefined;
+    fallback: number;
+    minValue: number;
+    maxValue: number;
+};
+
+type PagesTotalState = {
+    hasPagesTotal: boolean;
+    totalPages: number;
+};
+
 /**
  * Converts a numeric input to integer, defaulting when undefined/invalid.
  * @param value - Raw numeric value from a book field.
@@ -78,13 +90,12 @@ export function toBookId(value?: string): string {
  * @param maxValue - Inclusive maximum.
  * @returns Clamped integer value.
  */
-export function toClampedInt(
-    value: number | undefined,
-    fallback: number,
-    minValue: number,
-    maxValue: number,
-): number {
-    return clamp(toIntWithFallback(value, fallback), minValue, maxValue);
+export function toClampedInt(args: ToClampedIntArgs): number {
+    return clamp(
+        toIntWithFallback(args.value, args.fallback),
+        args.minValue,
+        args.maxValue,
+    );
 }
 
 /**
@@ -133,6 +144,55 @@ export function finishedAtForStatus(
     return todayDateKey();
 }
 
+function pagesTotalState(pagesTotal: number | null): PagesTotalState {
+    if (pagesTotal === null || pagesTotal <= 0) {
+        return { hasPagesTotal: false, totalPages: 0 };
+    }
+    return { hasPagesTotal: true, totalPages: pagesTotal };
+}
+
+function roundedProgress(progressRaw: number): number {
+    return Math.round(progressRaw * PROGRESS_SCALE) / PROGRESS_SCALE;
+}
+
+function pagesReadFromProgress(
+    progressRaw: number,
+    totalPages: number,
+): number {
+    return Math.round((progressRaw / PROGRESS_MAX) * totalPages);
+}
+
+function normalizedPagesRead(
+    pageState: PagesTotalState,
+    pagesRead: number | null,
+    progressRaw: number,
+): number | null {
+    if (!pageState.hasPagesTotal) {
+        return pagesRead;
+    }
+    let nextPagesRead = pagesRead;
+    if (nextPagesRead === null) {
+        nextPagesRead = pagesReadFromProgress(
+            progressRaw,
+            pageState.totalPages,
+        );
+    }
+    return clamp(nextPagesRead, 0, pageState.totalPages);
+}
+
+function normalizedProgress(
+    pageState: PagesTotalState,
+    pagesRead: number | null,
+    progressRaw: number,
+): number {
+    if (!pageState.hasPagesTotal) {
+        return roundedProgress(progressRaw);
+    }
+    return roundedProgress(
+        ((pagesRead ?? 0) / pageState.totalPages) * PROGRESS_MAX,
+    );
+}
+
 /**
  * Normalizes pages read and progress so both fields stay consistent.
  * @param pagesTotal - Total pages when known.
@@ -145,27 +205,14 @@ export function normalizeProgressAndPages(
     pagesRead: number | null,
     progressRaw: number,
 ): { pagesRead: number | null; progress: number } {
-    let hasPagesTotal = false;
-    let totalPages = 0;
-    if (pagesTotal !== null && pagesTotal > 0) {
-        hasPagesTotal = true;
-        totalPages = pagesTotal;
-    }
-    let nextPagesRead = pagesRead;
-    if (hasPagesTotal && nextPagesRead === null) {
-        nextPagesRead = Math.round((progressRaw / PROGRESS_MAX) * totalPages);
-    }
-    if (hasPagesTotal && nextPagesRead !== null) {
-        nextPagesRead = clamp(nextPagesRead, 0, totalPages);
-    }
-    let progress = Math.round(progressRaw * PROGRESS_SCALE) / PROGRESS_SCALE;
-    if (hasPagesTotal) {
-        progress =
-            Math.round(
-                ((nextPagesRead ?? 0) / totalPages) *
-                    PROGRESS_MAX *
-                    PROGRESS_SCALE,
-            ) / PROGRESS_SCALE;
-    }
-    return { pagesRead: nextPagesRead, progress };
+    const PAGE_STATE = pagesTotalState(pagesTotal);
+    const NEXT_PAGES_READ = normalizedPagesRead(
+        PAGE_STATE,
+        pagesRead,
+        progressRaw,
+    );
+    return {
+        pagesRead: NEXT_PAGES_READ,
+        progress: normalizedProgress(PAGE_STATE, NEXT_PAGES_READ, progressRaw),
+    };
 }

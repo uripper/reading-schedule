@@ -1,0 +1,136 @@
+.day-details {
+    position: sticky;
+    top: calc(var(--token-size-header-height) + var(--token-space-4));
+    display: grid;
+    gap: var(--token-space-3);
+    align-content: start;
+    max-height: calc(100dvh - 140px);
+    padding: var(--token-space-3);
+    overflow: auto;
+    background:
+        linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--app-brand) 8%, transparent),
+            transparent 26%
+        ),
+        color-mix(in srgb, var(--app-surfaceMuted) 86%, transparent);
+    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
+    border-radius: var(--token-radius-md);
+}
+
+.day-details > h2 {
+    padding-bottom: var(--token-space-2);
+    margin: 0;
+    border-bottom: 1px solid
+        color-mix(in srgb, var(--app-border) 80%, transparent);
+}
+
+.day-finished-summary {
+    padding: var(--token-space-1) var(--token-space-2);
+    margin: 0;
+    font-size: var(--token-typography-size-sm);
+    font-weight: var(--token-typography-weight-medium);
+    color: color-mix(in srgb, var(--app-warning) 90%, var(--app-text));
+    background: color-mix(in srgb, var(--app-warning) 14%, var(--app-surface));
+    border: 1px solid
+        color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
+    border-radius: var(--token-radius-sm);
+}
+
+.day-details-list {
+    display: grid;
+    gap: var(--token-space-2);
+}
+
+.day-scheduled-books-list {
+    display: grid;
+    gap: var(--token-space-1);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.day-scheduled-book-item {
+    padding: var(--token-space-1) var(--token-space-2);
+    font-size: var(--token-typography-size-sm);
+    color: var(--app-text);
+    background: color-mix(in srgb, var(--app-surface) 82%, transparent);
+    border: 1px solid color-mix(in srgb, var(--app-border) 86%, transparent);
+    border-radius: var(--token-radius-sm);
+}
+
+.day-manual-add {
+    display: grid;
+    gap: var(--token-space-2);
+    padding: var(--token-space-2);
+    background: color-mix(in srgb, var(--app-surface) 84%, transparent);
+    border: 1px solid color-mix(in srgb, var(--app-border) 86%, transparent);
+    border-radius: var(--token-radius-sm);
+}
+
+.day-manual-add > h3 {
+    margin: 0;
+    font-size: var(--token-typography-size-sm);
+    font-weight: var(--token-typography-weight-semibold);
+    color: var(--app-textMuted);
+}
+
+.day-manual-add-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--token-space-2);
+    align-items: start;
+}
+
+.day-manual-add-form > * {
+    width: 100%;
+}
+
+.day-complete-toggle {
+    display: flex;
+    gap: var(--token-space-2);
+    align-items: center;
+    font-size: var(--token-typography-size-sm);
+    color: var(--app-textMuted);
+}
+
+.day-complete-toggle input[type="checkbox"] {
+    width: auto;
+    min-height: 0;
+    margin: 0;
+}
+
+.day-manual-add-form .day-complete-toggle {
+    min-height: var(--token-size-target-minimum);
+}
+
+.day-manual-add-form .btn {
+    min-height: var(--token-size-target-minimum);
+}
+
+.day-progress-field {
+    display: grid;
+    gap: var(--token-space-1);
+    font-size: var(--token-typography-size-xs);
+    color: var(--app-textMuted);
+}
+
+.day-progress-field input {
+    margin-top: 0;
+}
+
+.day-manual-add-form .day-progress-field select,
+.day-manual-add-form .day-progress-field input {
+    width: 100%;
+}
+
+@media (max-width: 1180px) {
+    .schedule-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .day-details {
+        position: static;
+        max-height: none;
+    }
+}

@@ -1,3 +1,6 @@
+/**
+ * Renders the mobile app shell, tab menu, and per-tab stack navigation.
+ */
 import type { PlannerApi } from "@reading-schedule/contracts";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { useMemo, useState } from "react";
@@ -13,16 +16,36 @@ import type {
     TabStacks,
 } from "./types.ts";
 
+/**
+ * Props for the mobile navigation shell.
+ */
 interface MobileNavigationProps {
     plannerApi: PlannerApi;
 }
 
+/**
+ * Declares the tabs shown in the mobile menu.
+ */
 const MENU_ITEMS: readonly MobileTabKey[] = ["today", "books", "settings"];
 
+/**
+ * Updates the mobile menu open state.
+ */
 type MenuSetter = Dispatch<SetStateAction<boolean>>;
+
+/**
+ * Updates the tab stack state.
+ */
 type StackSetter = Dispatch<SetStateAction<TabStacks>>;
+
+/**
+ * Updates the currently active mobile tab.
+ */
 type TabSetter = Dispatch<SetStateAction<MobileTabKey>>;
 
+/**
+ * Holds the mobile navigation state and its setters.
+ */
 interface MobileNavigationState {
     activeTab: MobileTabKey;
     isMenuOpen: boolean;
@@ -32,6 +55,9 @@ interface MobileNavigationState {
     stacks: TabStacks;
 }
 
+/**
+ * Arguments used to render the mobile navigation frame.
+ */
 interface NavigationFrameArgs {
     activeRoute: StackRoute;
     activeTab: MobileTabKey;
@@ -42,6 +68,9 @@ interface NavigationFrameArgs {
     showBack: boolean;
 }
 
+/**
+ * Derived route context for the active mobile tab.
+ */
 interface NavigationRouteContext {
     activeRoute: StackRoute | null;
     navigator: StackNavigator;
@@ -50,6 +79,9 @@ interface NavigationRouteContext {
     showBack: boolean;
 }
 
+/**
+ * Returns the display label for a mobile tab key.
+ */
 function tabLabel(tab: MobileTabKey): string {
     if (tab === "today") {
         return "Today";
@@ -60,6 +92,9 @@ function tabLabel(tab: MobileTabKey): string {
     return "Settings";
 }
 
+/**
+ * Pushes a route onto the active tab stack.
+ */
 function pushRoute(
     stacks: TabStacks,
     activeTab: MobileTabKey,
@@ -72,14 +107,23 @@ function pushRoute(
     };
 }
 
+/**
+ * Closes the mobile menu.
+ */
 function closeMenu(setIsMenuOpen: MenuSetter): void {
     setIsMenuOpen(false);
 }
 
+/**
+ * Toggles the mobile menu open state.
+ */
 function toggleMenu(setIsMenuOpen: MenuSetter): void {
     setIsMenuOpen((previous) => !previous);
 }
 
+/**
+ * Switches the active tab and closes the menu.
+ */
 function selectTab(
     tab: MobileTabKey,
     setActiveTab: TabSetter,
@@ -116,6 +160,9 @@ function createNavigator(
     };
 }
 
+/**
+ * Props for the mobile slide-down menu panel.
+ */
 interface MenuPanelProps {
     activeTab: MobileTabKey;
     onSelectTab(tab: MobileTabKey): void;
@@ -124,7 +171,7 @@ interface MenuPanelProps {
 /**
  * Renders a menu panel with selectable tabs and highlights the active tab.
  * @example
- * MenuPanel({ activeTab: 'home', onSelectTab: (tab) => console.log(tab) })
+ * MenuPanel({ activeTab: 'home', onSelectTab: handleTabSelection })
  * <View>...JSX element representing the menu panel...</View>
  * @param {MenuPanelProps} props - Props object containing activeTab (the currently selected tab) and onSelectTab (callback invoked when a tab is selected).
  * @returns {JSX.Element} JSX element representing the rendered menu panel.
@@ -156,6 +203,9 @@ function MenuPanel({ activeTab, onSelectTab }: MenuPanelProps) {
     );
 }
 
+/**
+ * Renders the back button when the active stack can pop.
+ */
 function backButtonNode(onBack: () => void, showBack: boolean): ReactNode {
     if (!showBack) {
         return null;
@@ -167,6 +217,9 @@ function backButtonNode(onBack: () => void, showBack: boolean): ReactNode {
     );
 }
 
+/**
+ * Props for the mobile top bar.
+ */
 interface MobileTopBarProps {
     onBack(): void;
     onToggleMenu(): void;
@@ -209,6 +262,9 @@ function MobileTopBar({ onBack, onToggleMenu, showBack }: MobileTopBarProps) {
     );
 }
 
+/**
+ * Pops the active tab stack when there is more than one route.
+ */
 function popRoute(stacks: TabStacks, activeTab: MobileTabKey): TabStacks {
     const CURRENT_STACK = stacks[activeTab];
     if (CURRENT_STACK.length <= 1) {
@@ -220,6 +276,9 @@ function popRoute(stacks: TabStacks, activeTab: MobileTabKey): TabStacks {
     };
 }
 
+/**
+ * Creates the local navigation state for the mobile shell.
+ */
 function useMobileNavigationState(
     plannerApi: PlannerApi,
 ): MobileNavigationState {
@@ -240,6 +299,9 @@ function useMobileNavigationState(
     };
 }
 
+/**
+ * Renders the menu panel only when it is open.
+ */
 function menuNode(
     activeTab: MobileTabKey,
     isMenuOpen: boolean,
@@ -251,6 +313,9 @@ function menuNode(
     return <MenuPanel activeTab={activeTab} onSelectTab={onSelectTab} />;
 }
 
+/**
+ * Renders the mobile shell around the active route.
+ */
 function navigationFrame({
     activeRoute,
     activeTab,
@@ -273,6 +338,9 @@ function navigationFrame({
     );
 }
 
+/**
+ * Derives the active route and handlers from the current navigation state.
+ */
 function navigationRouteContext(
     state: MobileNavigationState,
 ): NavigationRouteContext {
@@ -294,12 +362,18 @@ function navigationRouteContext(
     };
 }
 
+/**
+ * Returns a callback that toggles the menu.
+ */
 function menuToggleHandler(setIsMenuOpen: MenuSetter): () => void {
     return (): void => {
         toggleMenu(setIsMenuOpen);
     };
 }
 
+/**
+ * Returns a callback that selects a tab and closes the menu.
+ */
 function tabSelectionHandler(
     setActiveTab: TabSetter,
     setIsMenuOpen: MenuSetter,

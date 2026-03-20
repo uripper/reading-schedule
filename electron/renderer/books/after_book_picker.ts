@@ -1,3 +1,7 @@
+/**
+ * Builds and binds the "blocked by" picker that lets a book depend on another
+ * book in the current shelf.
+ */
 import type {
     AfterBookPicker,
     Book,
@@ -20,17 +24,28 @@ import {
     selectedBook,
 } from "./after_book_picker_render.ts";
 
-function refreshPickerOptions(state: PickerState, getBooks: GetBooks): void {
+/** Returns sorted picker candidates other than the book currently being edited. */
+function availablePickerOptions(
+    currentBookId: string,
+    getBooks: GetBooks,
+): Book[] {
     const AVAILABLE_BOOKS = getBooks().filter((book) => {
         const BOOK_ID = String(book.book_id || "");
         if (BOOK_ID === "") {
             return false;
         }
-        return BOOK_ID !== state.currentBookId;
+        return BOOK_ID !== currentBookId;
     });
-    state.options = AVAILABLE_BOOKS.toSorted(compareBooks);
+    return AVAILABLE_BOOKS.toSorted(compareBooks);
 }
 
+/** Refreshes the cached option list from the latest bookshelf snapshot. */
+function refreshPickerOptions(state: PickerState, getBooks: GetBooks): void {
+    const STATE = state;
+    STATE.options = availablePickerOptions(STATE.currentBookId, getBooks);
+}
+
+/** Bundles the dependencies needed to recompute filtered picker results. */
 interface CreateRefreshFilteredArgs {
     clearSelection: () => void;
     refs: BookFormRefs;
@@ -38,100 +53,267 @@ interface CreateRefreshFilteredArgs {
     state: PickerState;
 }
 
-/**
- * Create and return a function that refreshes the filtered book list, updates the active index and selection, and triggers a re-render.
- * @example
- * createRefreshFiltered(args)(true)
- * undefined
- * @param args - Object containing refs, state, clearSelection and render used to filter options and update UI.
- * @returns Function that when called optionally clears a mismatched selection, filters options by the current query, updates activeIndex, and calls render.
- **/
+/** Bundles the dependencies needed to apply a selected blocking book. */
+interface SelectBookArgs {
+    clearResults: () => void;
+    refs: BookFormRefs;
+    render: () => void;
+    state: PickerState;
+}
+
+/** Bundles the dependencies needed to reopen the picker for a specific book. */
+interface OpenForBookArgs {
+    clearResults: () => void;
+    refreshOptions: () => void;
+    refs: BookFormRefs;
+    render: () => void;
+    state: PickerState;
+}
+
+/** Bundles the callbacks that the DOM event binding layer needs. */
+interface BindPickerEventsArgs {
+    clearResults: () => void;
+    refreshFiltered: (clearChangedSelection: boolean) => void;
+    refs: BookFormRefs;
+    render: () => void;
+    selectBook: (book: Book | null | undefined) => void;
+    state: PickerState;
+}
+
+/** Groups the picker operations exposed to the rest of the form flow. */
+interface PickerActions {
+    clearResults: () => void;
+    openForBook: (book?: Book | null) => void;
+    refreshFiltered: (clearChangedSelection: boolean) => void;
+    render: () => void;
+    selectBook: (book: Book | null | undefined) => void;
+}
+
+/** Carries the shared picker state and helper callbacks used to build actions. */
+interface PickerActionDeps {
+    clearResults: () => void;
+    clearSelection: () => void;
+    getBooks: GetBooks;
+    refs: BookFormRefs;
+    render: () => void;
+    state: PickerState;
+}
+
+/** Preserves the picker action shape while letting inference stay local. */
+function pickerActionsResult(actions: PickerActions): PickerActions {
+    return actions;
+}
+
+/** Preserves the picker dependency shape while letting inference stay local. */
+function pickerActionDeps(args: PickerActionDeps): PickerActionDeps {
+    return args;
+}
+
+/** Filters the available options with the current query string. */
+function nextFilteredBooks(options: Book[], query: string): Book[] {
+    return options.filter((book) => matchesQuery(book, query));
+}
+
+/** Chooses the next highlighted result index for the current filtered list. */
+function nextActiveIndex(filtered: Book[]): number {
+    if (filtered.length === 0) {
+        return NO_ACTIVE_INDEX;
+    }
+    return FIRST_RESULT_INDEX;
+}
+
+/** Decides whether a query change invalidates the current selection. */
+function shouldClearChangedSelection(
+    args: CreateRefreshFilteredArgs,
+    clearChangedSelection: boolean,
+    query: string,
+): boolean {
+    if (!clearChangedSelection) {
+        return false;
+    }
+    const CURRENT = selectedBook(args.state);
+    if (!(query && CURRENT && labelsMatch(query, optionLabel(CURRENT)))) {
+        return true;
+    }
+    return false;
+}
+
+/** Creates the query-refresh handler used by typing and picker navigation. */
 function createRefreshFiltered(
     args: CreateRefreshFilteredArgs,
 ): (clearChangedSelection: boolean) => void {
     return (clearChangedSelection: boolean): void => {
         const QUERY = args.refs.afterBookInput.value.trim();
-        if (clearChangedSelection) {
-            const CURRENT = selectedBook(args.state);
-            if (
-                !(QUERY && CURRENT && labelsMatch(QUERY, optionLabel(CURRENT)))
-            ) {
-                args.clearSelection();
-            }
+        if (shouldClearChangedSelection(args, clearChangedSelection, QUERY)) {
+            args.clearSelection();
         }
-        args.state.filtered = args.state.options.filter((book) =>
-            matchesQuery(book, QUERY),
-        );
-        args.state.activeIndex = NO_ACTIVE_INDEX;
-        if (args.state.filtered.length) {
-            args.state.activeIndex = FIRST_RESULT_INDEX;
-        }
+        const STATE = args.state;
+        STATE.filtered = nextFilteredBooks(STATE.options, QUERY);
+        STATE.activeIndex = nextActiveIndex(STATE.filtered);
         args.render();
     };
 }
 
-/**
- * Creates the "blocked by" picker controller used in the book dialog.
- * @param refs - Form references for picker input/results fields.
- * @param getBooks - Callback returning the latest book list.
- * @returns Picker API exposing `openForBook`.
- */
-export function createAfterBookPicker(
-    refs: BookFormRefs,
-    getBooks: GetBooks,
-): AfterBookPicker {
-    const FORM_REFS = refs;
-    const STATE: PickerState = {
+/** Creates the mutable picker state for a book form session. */
+function createPickerState(): PickerState {
+    return {
         activeIndex: NO_ACTIVE_INDEX,
         currentBookId: "",
         filtered: [],
         options: [],
         selectedBookId: "",
     };
-    const RENDER = (): void => {
-        renderAfterBookResults(FORM_REFS, STATE);
+}
+
+/** Wraps the result renderer so callers can trigger a consistent repaint. */
+function createPickerRender(
+    refs: BookFormRefs,
+    state: PickerState,
+): () => void {
+    return (): void => {
+        renderAfterBookResults(refs, state);
     };
-    const CLEAR_RESULTS = (): void => {
+}
+
+/** Creates a helper that clears the visible search results and highlight. */
+function createClearResults(state: PickerState): () => void {
+    return (): void => {
+        const STATE = state;
         STATE.filtered = [];
         STATE.activeIndex = NO_ACTIVE_INDEX;
     };
-    const CLEAR_SELECTION = (): void => {
+}
+
+/** Creates a helper that clears the selected blocking-book value. */
+function createClearSelection(
+    refs: BookFormRefs,
+    state: PickerState,
+): () => void {
+    return (): void => {
+        const STATE = state;
+        const REFS = refs;
         STATE.selectedBookId = "";
-        FORM_REFS.blockedByInput.value = "";
+        REFS.blockedByInput.value = "";
     };
-    const SELECT_BOOK = (book: Book | null | undefined): void => {
+}
+
+/** Creates the action that applies a chosen blocking-book option. */
+function createSelectBook(
+    args: SelectBookArgs,
+): (book: Book | null | undefined) => void {
+    return (book: Book | null | undefined): void => {
         if (!book) {
             return;
         }
+        const STATE = args.state;
+        const REFS = args.refs;
         STATE.selectedBookId = String(book.book_id || "");
-        FORM_REFS.blockedByInput.value = STATE.selectedBookId;
-        FORM_REFS.afterBookInput.value = optionLabel(book);
-        CLEAR_RESULTS();
-        RENDER();
+        REFS.blockedByInput.value = STATE.selectedBookId;
+        REFS.afterBookInput.value = optionLabel(book);
+        args.clearResults();
+        args.render();
     };
-    const REFRESH_OPTIONS = (): void => {
-        refreshPickerOptions(STATE, getBooks);
-    };
-    const REFRESH_FILTERED = createRefreshFiltered({
-        clearSelection: CLEAR_SELECTION,
-        refs: FORM_REFS,
-        render: RENDER,
-        state: STATE,
-    });
-    bindAfterBookPickerEvents({
-        clearResults: CLEAR_RESULTS,
-        refreshFiltered: REFRESH_FILTERED,
-        refs: FORM_REFS,
-        render: RENDER,
-        selectBook: SELECT_BOOK,
-        state: STATE,
-    });
-    const OPEN_FOR_BOOK = (book: Book | null = null): void => {
+}
+
+/** Creates the action that reinitializes picker state for a given book. */
+function createOpenForBook(
+    args: OpenForBookArgs,
+): (book?: Book | null) => void {
+    return (book: Book | null = null): void => {
+        const STATE = args.state;
         STATE.currentBookId = String(book?.book_id ?? "");
-        REFRESH_OPTIONS();
-        initializePickerForBook(FORM_REFS, STATE, book);
-        CLEAR_RESULTS();
-        RENDER();
+        args.refreshOptions();
+        initializePickerForBook(args.refs, STATE, book);
+        args.clearResults();
+        args.render();
     };
-    return { openForBook: OPEN_FOR_BOOK };
+}
+
+/** Wires picker callbacks into the DOM event binding layer. */
+function bindPickerEvents(args: BindPickerEventsArgs): void {
+    bindAfterBookPickerEvents({
+        clearResults: args.clearResults,
+        refreshFiltered: args.refreshFiltered,
+        refs: args.refs,
+        render: args.render,
+        selectBook: args.selectBook,
+        state: args.state,
+    });
+}
+
+/** Builds the select-book action from the shared picker dependencies. */
+function createPickerSelectBookAction(
+    args: Pick<PickerActionDeps, "clearResults" | "refs" | "render" | "state">,
+): (book: Book | null | undefined) => void {
+    return createSelectBook(args);
+}
+
+/** Builds the filter-refresh action from the shared picker dependencies. */
+function createPickerRefreshFilteredAction(
+    args: Pick<
+        PickerActionDeps,
+        "clearSelection" | "refs" | "render" | "state"
+    >,
+): (clearChangedSelection: boolean) => void {
+    return createRefreshFiltered(args);
+}
+
+/** Builds the open-for-book action and refreshes options on each open. */
+function createPickerOpenForBookAction(
+    args: Pick<
+        PickerActionDeps,
+        "clearResults" | "getBooks" | "refs" | "render" | "state"
+    >,
+): (book?: Book | null) => void {
+    const REFRESH_OPTIONS = (): void =>
+        refreshPickerOptions(args.state, args.getBooks);
+    return createOpenForBook({ ...args, refreshOptions: REFRESH_OPTIONS });
+}
+
+/** Collects the shared callbacks needed to assemble picker actions. */
+function createPickerActionDeps(
+    refs: BookFormRefs,
+    state: PickerState,
+    getBooks: GetBooks,
+): PickerActionDeps {
+    const RENDER = createPickerRender(refs, state);
+    return pickerActionDeps({
+        clearResults: createClearResults(state),
+        clearSelection: createClearSelection(refs, state),
+        getBooks,
+        refs,
+        render: RENDER,
+        state,
+    });
+}
+
+/** Assembles the full set of picker actions used by the book form. */
+function pickerActionsFor(args: PickerActionDeps): PickerActions {
+    return pickerActionsResult({
+        clearResults: args.clearResults,
+        openForBook: createPickerOpenForBookAction(args),
+        refreshFiltered: createPickerRefreshFilteredAction(args),
+        render: args.render,
+        selectBook: createPickerSelectBookAction(args),
+    });
+}
+
+/** Creates all picker actions for a single form instance. */
+function createPickerActions(
+    refs: BookFormRefs,
+    state: PickerState,
+    getBooks: GetBooks,
+): PickerActions {
+    return pickerActionsFor(createPickerActionDeps(refs, state, getBooks));
+}
+
+/** Creates and binds the after-book picker used by the book form dialog. */
+export function createAfterBookPicker(
+    refs: BookFormRefs,
+    getBooks: GetBooks,
+): AfterBookPicker {
+    const STATE = createPickerState();
+    const ACTIONS = createPickerActions(refs, STATE, getBooks);
+    bindPickerEvents({ ...ACTIONS, refs, state: STATE });
+    return { openForBook: ACTIONS.openForBook };
 }

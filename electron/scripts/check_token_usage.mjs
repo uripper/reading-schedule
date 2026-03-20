@@ -12,6 +12,33 @@ const IGNORE_FILES = new Set([
 const HEX_PATTERN = /#[0-9a-fA-F]{3,8}\b/g;
 
 /**
+ * Checks whether a directory entry is a CSS file.
+ * @param {import("node:fs").Dirent} entry - Filesystem entry.
+ * @returns {boolean} `true` when the entry is a CSS file.
+ */
+function isCssFileEntry(entry) {
+    return entry.isFile() && entry.name.endsWith(".css");
+}
+
+/**
+ * Appends a discovered CSS file or recurses into a child directory.
+ * @param {string} directory - Current parent directory.
+ * @param {import("node:fs").Dirent} entry - Filesystem entry.
+ * @param {string[]} files - Accumulator for discovered CSS file paths.
+ */
+function collectCssEntry(directory, entry, files) {
+    const FULL_PATH = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+        walkCssFiles(FULL_PATH, files);
+        return;
+    }
+    if (!isCssFileEntry(entry)) {
+        return;
+    }
+    files.push(FULL_PATH);
+}
+
+/**
  * Recursively collects CSS files under a directory.
  * @param {string} dir - Directory to traverse.
  * @param {string[]} files - Accumulator for discovered CSS file paths.
@@ -19,14 +46,7 @@ const HEX_PATTERN = /#[0-9a-fA-F]{3,8}\b/g;
  */
 function walkCssFiles(dir, files = []) {
     for (const ENTRY of fs.readdirSync(dir, { withFileTypes: true })) {
-        const FULL_PATH = path.join(dir, ENTRY.name);
-        if (ENTRY.isDirectory()) {
-            walkCssFiles(FULL_PATH, files);
-            continue;
-        }
-        if (ENTRY.isFile() && ENTRY.name.endsWith(".css")) {
-            files.push(FULL_PATH);
-        }
+        collectCssEntry(dir, ENTRY, files);
     }
     return files;
 }

@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import { runPlanGeneration } from "../dist/renderer/app/plan.js";
 
 const BOOKS = [{ book_id: "book-1", title: "Book 1" }];

@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -5,7 +6,6 @@ import {
     buildProgressUpdatePayload,
     logSessionButtonText,
     parseMinutesInput,
-    shouldDisableProgressInputs,
 } from "../dist/renderer/app/today/today_carousel_actions.js";
 
 const ROW = {
@@ -108,8 +108,6 @@ test("buildProgressUpdatePayload rejects pages above the known total", () => {
 test("button and disable helpers mirror completed state", () => {
     assert.equal(logSessionButtonText(false), "Log Session");
     assert.equal(logSessionButtonText(true), "Completed");
-    assert.equal(shouldDisableProgressInputs(false), false);
-    assert.equal(shouldDisableProgressInputs(true), true);
 });
 
 test("parseMinutesInput enforces integer minimum", () => {

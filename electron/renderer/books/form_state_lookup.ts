@@ -3,7 +3,10 @@ import type {
     BookLookupItem,
     ProgressSyncInputs,
 } from "../../types/types.ts";
-import { noteFromLookup, syncProgressAndPages } from "../book_lookup.ts";
+import {
+    noteFromLookup,
+    syncProgressAndPages,
+} from "../book_lookup/helpers.ts";
 import { CUSTOM_COVER_NOTE, setCoverPreview } from "./form_state_helpers.ts";
 import { toOptionalInt } from "./utils.ts";
 

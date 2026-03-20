@@ -15,7 +15,11 @@ const PYINSTALLER_TEMP_DIRECTORY = path.join(
     "build",
     "pyinstaller",
 );
-const PLANNER_OUTPUT_DIRECTORY = path.join(ELECTRON_DIRECTORY, "build", "planner");
+const PLANNER_OUTPUT_DIRECTORY = path.join(
+    ELECTRON_DIRECTORY,
+    "build",
+    "planner",
+);
 const PLANNER_ENTRYPOINT_PATH = path.join(
     REPOSITORY_DIRECTORY,
     "src",
@@ -44,6 +48,7 @@ const POSIX_DATA_SEPARATOR = ":";
 const GUI_API_MODULE = "reading_plan.gui_api";
 const HTTP_API_MODULE = "reading_plan.http_api";
 const ORTOOLS_PACKAGE_NAME = "ortools";
+const PROCESS = process;
 
 /**
  * Throws a consistent build-time error.
@@ -57,7 +62,7 @@ function fail(message) {
  * Prevents packaging from running under WSL or another non-Windows host.
  */
 function requireWindowsHost() {
-    if (process.platform === WINDOWS_PLATFORM) {
+    if (PROCESS.platform === WINDOWS_PLATFORM) {
         return;
     }
     fail("Windows packaging must run from a native Windows shell.");
@@ -68,7 +73,7 @@ function requireWindowsHost() {
  * @returns Absolute Python executable path or fallback command name.
  */
 function existingPythonBinary() {
-    const ENV_PYTHON = process.env[PYTHON_BINARY_ENV_KEY];
+    const ENV_PYTHON = PROCESS.env[PYTHON_BINARY_ENV_KEY];
     if (typeof ENV_PYTHON === "string" && ENV_PYTHON.trim() !== "") {
         return ENV_PYTHON.trim();
     }
@@ -87,7 +92,7 @@ function existingPythonBinary() {
  */
 function plannerDataArgValue() {
     let separator = POSIX_DATA_SEPARATOR;
-    if (process.platform === WINDOWS_PLATFORM) {
+    if (PROCESS.platform === WINDOWS_PLATFORM) {
         separator = WINDOWS_DATA_SEPARATOR;
     }
     return `${PROJECT_DATA_DIRECTORY}${separator}data`;
@@ -138,34 +143,46 @@ function verifyPyInstaller() {
 /**
  * Builds the Windows planner bridge executable into the ignored build directory.
  */
+const PLANNER_BUNDLE_CORE_ARGUMENTS = [
+    "-m",
+    PYINSTALLER_MODULE,
+    "--noconfirm",
+    "--clean",
+    "--onefile",
+    "--name",
+    "planner-bridge",
+];
+
+const PLANNER_BUNDLE_PATH_ARGUMENTS = [
+    "--distpath",
+    PLANNER_OUTPUT_DIRECTORY,
+    "--workpath",
+    path.join(PYINSTALLER_TEMP_DIRECTORY, "work"),
+    "--specpath",
+    path.join(PYINSTALLER_TEMP_DIRECTORY, "spec"),
+    "--paths",
+    path.join(REPOSITORY_DIRECTORY, "src"),
+    "--add-data",
+    plannerDataArgValue(),
+];
+
+const PLANNER_BUNDLE_MODULE_ARGUMENTS = [
+    "--hidden-import",
+    GUI_API_MODULE,
+    "--hidden-import",
+    HTTP_API_MODULE,
+    "--collect-submodules",
+    "reading_plan",
+    "--collect-all",
+    ORTOOLS_PACKAGE_NAME,
+    PLANNER_ENTRYPOINT_PATH,
+];
+
 export function plannerBundleArguments() {
     return [
-        "-m",
-        PYINSTALLER_MODULE,
-        "--noconfirm",
-        "--clean",
-        "--onefile",
-        "--name",
-        "planner-bridge",
-        "--distpath",
-        PLANNER_OUTPUT_DIRECTORY,
-        "--workpath",
-        path.join(PYINSTALLER_TEMP_DIRECTORY, "work"),
-        "--specpath",
-        path.join(PYINSTALLER_TEMP_DIRECTORY, "spec"),
-        "--paths",
-        path.join(REPOSITORY_DIRECTORY, "src"),
-        "--add-data",
-        plannerDataArgValue(),
-        "--hidden-import",
-        GUI_API_MODULE,
-        "--hidden-import",
-        HTTP_API_MODULE,
-        "--collect-submodules",
-        "reading_plan",
-        "--collect-all",
-        ORTOOLS_PACKAGE_NAME,
-        PLANNER_ENTRYPOINT_PATH,
+        ...PLANNER_BUNDLE_CORE_ARGUMENTS,
+        ...PLANNER_BUNDLE_PATH_ARGUMENTS,
+        ...PLANNER_BUNDLE_MODULE_ARGUMENTS,
     ];
 }
 

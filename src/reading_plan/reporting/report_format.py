@@ -1,5 +1,6 @@
 """Format structured planner summaries into readable plain-text output."""
 
+from itertools import starmap
 from typing import TYPE_CHECKING
 
 
@@ -11,16 +12,17 @@ def _format_book_progress_line(
     book_id: str,
     info: BookProgress,
 ) -> str:
-    done = "yes"
-    if not info["finished"]:
-        done = "no"
-    return (
-        f"- {book_id}: {info['planned_words']}/{info['remaining_words']} words "
-        f"(finished: {done})"
-    )
+    done = "yes" if info["finished"] else "no"
+    progress = f"{info['planned_words']}/{info['remaining_words']}"
+    return f"- {book_id}: {progress} words (finished: {done})"
 
 
 def _optional_summary_lines(summary: Summary) -> list[str]:
+    """Build summary lines for optional planner metadata fields.
+
+    Returns:
+        Summary lines for optional metadata fields.
+    """
     lines: list[str] = []
     if summary.get("objective") is not None:
         lines.append(f"Objective value: {summary['objective']}")
@@ -32,7 +34,11 @@ def _optional_summary_lines(summary: Summary) -> list[str]:
 
 
 def format_summary(summary: Summary) -> str:
-    """Format summary."""
+    """Render planner output in the order used by CLI and log summaries.
+
+    Returns:
+        Newline-delimited summary text.
+    """
     lines = [
         f"Planner: {summary['planner']} ({summary['status']})",
         f"Total planned minutes: {summary['total_planned_minutes']}",
@@ -40,6 +46,7 @@ def format_summary(summary: Summary) -> str:
         f"Total required minutes: {summary['total_required_minutes']}",
     ]
     lines.extend(_optional_summary_lines(summary))
-    for book_id, info in summary["per_book"].items():
-        lines.append(_format_book_progress_line(book_id, info))
+    lines.extend(
+        starmap(_format_book_progress_line, summary["per_book"].items())
+    )
     return "\n".join(lines)

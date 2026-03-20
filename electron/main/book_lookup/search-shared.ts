@@ -1,5 +1,5 @@
 /**
- * @file Shared constants and data contracts for book lookup search.
+ * Shared constants and scoring thresholds for book lookup search.
  */
 export const SEARCH_FIELDS =
     "title,title_suggest,author_name,first_publish_year,number_of_pages_median,cover_i,key,language,edition_count";

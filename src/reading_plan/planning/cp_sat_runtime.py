@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, TypeGuard
 
 MISSING_CP_MODEL_MESSAGE = (
     "OR-Tools CP-SAT is unavailable. Install the project Python "
-    "dependencies before running the planner."
+    + "dependencies before running the planner."
 )
 INVALID_CP_MODEL_MESSAGE = (
     "Imported OR-Tools CP-SAT module is missing required planner symbols."
@@ -23,6 +23,11 @@ if TYPE_CHECKING:
 
 
 def _is_cp_model_module(value: object) -> TypeGuard[CpModelModule]:
+    """Check whether a runtime import looks like the CP-SAT module we expect.
+
+    Returns:
+        True when required CP-SAT planner symbols are present.
+    """
     required_attributes = (
         "CpModel",
         "CpSolver",
@@ -36,7 +41,14 @@ def _is_cp_model_module(value: object) -> TypeGuard[CpModelModule]:
 
 
 def _load_cp_model() -> CpModelModule:
-    """Import the real OR-Tools CP-SAT module with an actionable error."""
+    """Return the validated CP-SAT module used by the staged solver.
+
+    Returns:
+        Validated imported CP-SAT module.
+
+    Raises:
+        TypeError: If the imported module is missing required planner symbols.
+    """
     module = imported_cp_model
     if _is_cp_model_module(module):
         return module

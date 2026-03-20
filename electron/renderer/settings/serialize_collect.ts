@@ -29,6 +29,40 @@ function fieldInputValue(field: FieldDefinition): string {
     return inputEl(field.id).value.trim();
 }
 
+function roundedNumber(raw: string): number {
+    const VALUE = Math.round(Number(raw));
+    if (Number.isNaN(VALUE)) {
+        return 0;
+    }
+    return VALUE;
+}
+
+function minClampedValue(input: HTMLInputElement, value: number): number {
+    if (input.min === "") {
+        return value;
+    }
+    const MIN = Number(input.min);
+    if (value < MIN) {
+        return MIN;
+    }
+    return value;
+}
+
+function maxClampedValue(input: HTMLInputElement, value: number): number {
+    if (input.max === "") {
+        return value;
+    }
+    const MAX = Number(input.max);
+    if (value > MAX) {
+        return MAX;
+    }
+    return value;
+}
+
+function clampToInputBounds(input: HTMLInputElement, value: number): number {
+    return maxClampedValue(input, minClampedValue(input, value));
+}
+
 /**
  * Clamps a numeric input value to the input element's HTML min/max bounds.
  * @param inputId - Input element id.
@@ -40,24 +74,57 @@ function clampedOptionalNumber(inputId: string): number | null {
     if (RAW === "") {
         return null;
     }
+    return clampToInputBounds(INPUT, roundedNumber(RAW));
+}
 
-    let value = Math.round(Number(RAW));
-    if (Number.isNaN(value)) {
-        value = 0;
+function normalizedDateSetting(field: FieldDefinition, raw: string): string {
+    if (field.id === "start_date") {
+        return normalizePlannerStartDate(raw);
     }
-    if (INPUT.min !== "") {
-        const MIN = Number(INPUT.min);
-        if (value < MIN) {
-            value = MIN;
-        }
+    return raw;
+}
+
+function serializedFieldValue(
+    field: FieldDefinition,
+    raw: string,
+): boolean | number | string {
+    if (field.type === "checkbox") {
+        return raw === "true";
     }
-    if (INPUT.max !== "") {
-        const MAX = Number(INPUT.max);
-        if (value > MAX) {
-            value = MAX;
-        }
+    if (field.type === "date") {
+        return normalizedDateSetting(field, raw);
     }
-    return value;
+    if (field.type === "select") {
+        return raw;
+    }
+    return Number(raw || 0);
+}
+
+function collectFieldSettings(): PlannerSettings {
+    const OUTPUT: PlannerSettings = {};
+    for (const FIELD of allFieldDefinitions()) {
+        OUTPUT[FIELD.id] = serializedFieldValue(FIELD, fieldInputValue(FIELD));
+    }
+    return OUTPUT;
+}
+
+function weekdayMinutesByDay(): Record<string, number> {
+    return Object.fromEntries(
+        WEEKDAYS.map(([key]) => {
+            return [key, Number(inputEl(`minutes_${key}`).value || 0)];
+        }),
+    );
+}
+
+function difficultyMultipliersByLevel(): Record<string, number> {
+    return Object.fromEntries(
+        numberLevels().map((level) => {
+            const VALUE = Number(
+                inputEl(`diff_${level}`).value || DEFAULT_DIFFICULTY_MULTIPLIER,
+            );
+            return [String(level), VALUE];
+        }),
+    );
 }
 
 /**
@@ -66,43 +133,10 @@ function clampedOptionalNumber(inputId: string): number | null {
  * @returns Planner settings payload.
  */
 export function collectSettingsForm(dayOffs: string[]): PlannerSettings {
-    const OUTPUT: PlannerSettings = {};
-
-    for (const FIELD of allFieldDefinitions()) {
-        const RAW = fieldInputValue(FIELD);
-        if (FIELD.type === "checkbox") {
-            OUTPUT[FIELD.id] = RAW === "true";
-            continue;
-        }
-        if (FIELD.type === "date") {
-            if (FIELD.id === "start_date") {
-                OUTPUT[FIELD.id] = normalizePlannerStartDate(RAW);
-                continue;
-            }
-            OUTPUT[FIELD.id] = RAW;
-            continue;
-        }
-        if (FIELD.type === "select") {
-            OUTPUT[FIELD.id] = RAW;
-            continue;
-        }
-        OUTPUT[FIELD.id] = Number(RAW || 0);
-    }
-
+    const OUTPUT = collectFieldSettings();
     OUTPUT.minutes_per_day = clampedOptionalNumber("minutes_per_day");
-    OUTPUT.minutes_by_weekday = Object.fromEntries(
-        WEEKDAYS.map(([key]) => {
-            return [key, Number(inputEl(`minutes_${key}`).value || 0)];
-        }),
-    );
+    OUTPUT.minutes_by_weekday = weekdayMinutesByDay();
     OUTPUT.days_off = [...dayOffs];
-    OUTPUT.difficulty_multiplier = Object.fromEntries(
-        numberLevels().map((level) => {
-            const VALUE = Number(
-                inputEl(`diff_${level}`).value || DEFAULT_DIFFICULTY_MULTIPLIER,
-            );
-            return [String(level), VALUE];
-        }),
-    );
+    OUTPUT.difficulty_multiplier = difficultyMultipliersByLevel();
     return OUTPUT;
 }

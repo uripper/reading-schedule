@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -14,34 +15,55 @@ import {
     sortBooks,
 } from "../dist/renderer/books/sort.js";
 
+const DEFAULT_BOOK = {
+    author: "",
+    blocked_by: null,
+    book_id: "",
+    cover_local_path: "",
+    cover_url: "",
+    deadline: null,
+    difficulty: 3,
+    finished_at: null,
+    lookup_note: "",
+    max_minutes_per_day: null,
+    min_blocks_per_session: 1,
+    pages_read: null,
+    pages_total: null,
+    priority: 3,
+    progress_percent: 0,
+    shelf: "",
+    status: "to_read",
+    title: "",
+    words_total: null,
+};
+
+const ESTIMATED_FINISH_ROWS = [
+    { book_id: "book-1", date: "2026-12-22", session_index: 1 },
+];
+
+const ESTIMATED_FINISH_BOOKS = [
+    baseBook({ book_id: "book-1", title: "Anna Karenina" }),
+    baseBook({
+        book_id: "book-2",
+        finished_at: "2026-01-10",
+        status: "read",
+        title: "Ice",
+    }),
+    baseBook({
+        book_id: "book-3",
+        finished_at: "2026-01-20",
+        status: "read",
+        title: "White Noise",
+    }),
+];
+
 /**
  * Builds canonical book fixture with override support.
  * @param {Record<string, unknown>} overrides - Book field overrides.
  * @returns {Record<string, unknown>} Book fixture object.
  */
 function baseBook(overrides) {
-    return {
-        author: "",
-        blocked_by: null,
-        book_id: "",
-        cover_local_path: "",
-        cover_url: "",
-        deadline: null,
-        difficulty: 3,
-        finished_at: null,
-        lookup_note: "",
-        max_minutes_per_day: null,
-        min_blocks_per_session: 1,
-        pages_read: null,
-        pages_total: null,
-        priority: 3,
-        progress_percent: 0,
-        shelf: "",
-        status: "to_read",
-        title: "",
-        words_total: null,
-        ...overrides,
-    };
+    return { ...DEFAULT_BOOK, ...overrides };
 }
 
 test('groupBooks groups "The ..." by the next word letter', () => {
@@ -60,7 +82,12 @@ test('sortBooks sorts titles using key without leading "The "', () => {
         baseBook({ book_id: "book-1", title: "The Odyssey" }),
         baseBook({ book_id: "book-2", title: "The Book of Disquiet" }),
     ];
-    const SORTED = sortBooks(BOOKS, SORT_BY_TITLE, "asc", {});
+    const SORTED = sortBooks({
+        books: BOOKS,
+        finishDateByBookId: {},
+        sortBy: SORT_BY_TITLE,
+        sortDirection: "asc",
+    });
     assert.equal(SORTED[0].title, "The Book of Disquiet");
     assert.equal(SORTED[1].title, "The Odyssey");
 });
@@ -86,30 +113,16 @@ test("finishDatesByBookId uses explicit finished_at for read books", () => {
 });
 
 test("sortBooks by estimated finish includes finished read books in date order", () => {
-    const BOOKS = [
-        baseBook({ book_id: "book-1", title: "Anna Karenina" }),
-        baseBook({
-            book_id: "book-2",
-            finished_at: "2026-01-10",
-            status: "read",
-            title: "Ice",
-        }),
-        baseBook({
-            book_id: "book-3",
-            finished_at: "2026-01-20",
-            status: "read",
-            title: "White Noise",
-        }),
-    ];
-    const ROWS = [{ book_id: "book-1", date: "2026-12-22", session_index: 1 }];
-
-    const FINISH_DATES = finishDatesByBookId(ROWS, BOOKS);
-    const SORTED = sortBooks(
-        BOOKS,
-        SORT_BY_ESTIMATED_FINISH,
-        "asc",
-        FINISH_DATES,
+    const FINISH_DATES = finishDatesByBookId(
+        ESTIMATED_FINISH_ROWS,
+        ESTIMATED_FINISH_BOOKS,
     );
+    const SORTED = sortBooks({
+        books: ESTIMATED_FINISH_BOOKS,
+        finishDateByBookId: FINISH_DATES,
+        sortBy: SORT_BY_ESTIMATED_FINISH,
+        sortDirection: "asc",
+    });
     assert.deepEqual(
         SORTED.map((book) => book.book_id),
         ["book-2", "book-3", "book-1"],

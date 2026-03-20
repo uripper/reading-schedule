@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { env } from "node:process";
 import {
     backupTargets,
     readStateFromInput,
@@ -8,6 +9,56 @@ import {
 } from "./state_recover_store.mjs";
 
 const APP_NAME = "reading-plan-gui";
+const FORCE_FLAG = "--force";
+const INPUT_FLAG = "--input";
+const USER_DATA_DIR_FLAG = "--user-data-dir";
+
+function nextArgumentValue(argv, index) {
+    return String(argv[index + 1] || "");
+}
+
+function parsedArgument(key, value, index) {
+    return { index, key, value };
+}
+
+function inputPathArgument(argv, index) {
+    return parsedArgument(
+        "inputPath",
+        nextArgumentValue(argv, index),
+        index + 1,
+    );
+}
+
+function userDataDirArgument(argv, index) {
+    return parsedArgument(
+        "userDataDir",
+        nextArgumentValue(argv, index),
+        index + 1,
+    );
+}
+
+function parseCliArgument(argv, index) {
+    const VALUE = String(argv[index] || "");
+    if (VALUE === INPUT_FLAG) {
+        return inputPathArgument(argv, index);
+    }
+    if (VALUE === USER_DATA_DIR_FLAG) {
+        return userDataDirArgument(argv, index);
+    }
+    if (VALUE === FORCE_FLAG) {
+        return parsedArgument("force", true, index);
+    }
+    throw new TypeError(`Unknown argument: ${VALUE}`);
+}
+
+function requireInputPath(inputPath) {
+    if (inputPath) {
+        return inputPath;
+    }
+    throw new TypeError(
+        "Missing required argument: --input <path-to-json-or-sqlite>",
+    );
+}
 
 /**
  * Parses CLI arguments for state recovery.
@@ -15,33 +66,27 @@ const APP_NAME = "reading-plan-gui";
  * @returns {{ inputPath: string, userDataDir: string | null, force: boolean }} Parsed arguments.
  */
 function parseArgs(argv) {
-    let inputPath = "";
-    let userDataDir = null;
-    let force = false;
+    let parsedArgs = { force: false, inputPath: "", userDataDir: null };
     for (let index = 0; index < argv.length; index += 1) {
-        const VALUE = String(argv[index] || "");
-        if (VALUE === "--input") {
-            inputPath = String(argv[index + 1] || "");
-            index += 1;
-            continue;
-        }
-        if (VALUE === "--user-data-dir") {
-            userDataDir = String(argv[index + 1] || "");
-            index += 1;
-            continue;
-        }
-        if (VALUE === "--force") {
-            force = true;
-            continue;
-        }
-        throw new TypeError(`Unknown argument: ${VALUE}`);
+        const ARGUMENT = parseCliArgument(argv, index);
+        parsedArgs = { ...parsedArgs, [ARGUMENT.key]: ARGUMENT.value };
+        index = ARGUMENT.index;
     }
-    if (!inputPath) {
-        throw new TypeError(
-            "Missing required argument: --input <path-to-json-or-sqlite>",
-        );
-    }
-    return { force, inputPath, userDataDir };
+    return { ...parsedArgs, inputPath: requireInputPath(parsedArgs.inputPath) };
+}
+
+function windowsUserDataDir(homeDirectory) {
+    const BASE_DIRECTORY =
+        env.APPDATA || path.join(homeDirectory, "AppData", "Roaming");
+    return path.join(BASE_DIRECTORY, APP_NAME);
+}
+
+function macUserDataDir(homeDirectory) {
+    return path.join(homeDirectory, "Library", "Application Support", APP_NAME);
+}
+
+function linuxConfigDirectory(homeDirectory) {
+    return env.XDG_CONFIG_HOME || path.join(homeDirectory, ".config");
 }
 
 /**
@@ -51,20 +96,38 @@ function parseArgs(argv) {
 function defaultUserDataDir() {
     const HOME = os.homedir();
     if (process.platform === "win32") {
-        let base = process.env.APPDATA || "";
-        if (!base) {
-            base = path.join(HOME, "AppData", "Roaming");
-        }
-        return path.join(base, APP_NAME);
+        return windowsUserDataDir(HOME);
     }
     if (process.platform === "darwin") {
-        return path.join(HOME, "Library", "Application Support", APP_NAME);
+        return macUserDataDir(HOME);
     }
-    let base = process.env.XDG_CONFIG_HOME || "";
-    if (!base) {
-        base = path.join(HOME, ".config");
+    return path.join(linuxConfigDirectory(HOME), APP_NAME);
+}
+
+function arrayLength(value) {
+    if (!Array.isArray(value)) {
+        return 0;
     }
-    return path.join(base, APP_NAME);
+    return value.length;
+}
+
+function scheduleRowsCount(state) {
+    const LAST_RESULT = state.last_result;
+    if (!LAST_RESULT || typeof LAST_RESULT !== "object") {
+        return 0;
+    }
+    return arrayLength(LAST_RESULT.schedule);
+}
+
+function scheduleCompletionsCount(state) {
+    const COMPLETIONS = state.schedule_completions;
+    if (!COMPLETIONS || typeof COMPLETIONS !== "object") {
+        return 0;
+    }
+    if (Array.isArray(COMPLETIONS)) {
+        return 0;
+    }
+    return Object.keys(COMPLETIONS).length;
 }
 
 /**
@@ -73,33 +136,37 @@ function defaultUserDataDir() {
  * @returns {{ books: number, sessions: number, scheduleRows: number, scheduleCompletions: number }} Count summary.
  */
 function countEntities(state) {
-    let books = 0;
-    if (Array.isArray(state.books)) {
-        books = state.books.length;
+    return {
+        books: arrayLength(state.books),
+        scheduleCompletions: scheduleCompletionsCount(state),
+        scheduleRows: scheduleRowsCount(state),
+        sessions: arrayLength(state.sessions),
+    };
+}
+
+function resolvedUserDataDir(args) {
+    return path.resolve(args.userDataDir || defaultUserDataDir());
+}
+
+function recoveredStateBackups(args, userDataDir) {
+    const STAMP = new Date().toISOString().replace(/[^0-9]/g, "");
+    const BACKUPS = backupTargets(userDataDir, STAMP);
+    if (args.force !== true && BACKUPS.length > 0) {
+        throw new TypeError(
+            "Refusing to overwrite existing state without --force.",
+        );
     }
-    let sessions = 0;
-    if (Array.isArray(state.sessions)) {
-        sessions = state.sessions.length;
-    }
-    let scheduleRows = 0;
-    const LAST_RESULT = state.last_result;
-    if (
-        LAST_RESULT &&
-        typeof LAST_RESULT === "object" &&
-        Array.isArray(LAST_RESULT.schedule)
-    ) {
-        scheduleRows = LAST_RESULT.schedule.length;
-    }
-    let scheduleCompletions = 0;
-    const COMPLETIONS = state.schedule_completions;
-    if (
-        COMPLETIONS &&
-        typeof COMPLETIONS === "object" &&
-        !Array.isArray(COMPLETIONS)
-    ) {
-        scheduleCompletions = Object.keys(COMPLETIONS).length;
-    }
-    return { books, scheduleCompletions, scheduleRows, sessions };
+    return BACKUPS;
+}
+
+function recoverySummary({ backups, inputPath, recovered, userDataDir }) {
+    return {
+        backups,
+        counts: countEntities(recovered.state),
+        inputPath,
+        sourceType: recovered.sourceType,
+        userDataDir,
+    };
 }
 
 /**
@@ -113,23 +180,14 @@ export function recoverStateFromArgs(argv) {
     if (!fs.existsSync(INPUT_PATH)) {
         throw new TypeError(`Input file not found: ${INPUT_PATH}`);
     }
-    const USER_DATA_DIR = path.resolve(
-        ARGS.userDataDir || defaultUserDataDir(),
-    );
-    const STAMP = new Date().toISOString().replace(/[^0-9]/g, "");
-    const BACKUPS = backupTargets(USER_DATA_DIR, STAMP);
-    if (ARGS.force !== true && BACKUPS.length > 0) {
-        throw new TypeError(
-            "Refusing to overwrite existing state without --force.",
-        );
-    }
+    const USER_DATA_DIR = resolvedUserDataDir(ARGS);
+    const BACKUPS = recoveredStateBackups(ARGS, USER_DATA_DIR);
     const RECOVERED = readStateFromInput(INPUT_PATH);
     writeRecoveredState(USER_DATA_DIR, RECOVERED.state);
-    return {
+    return recoverySummary({
         backups: BACKUPS,
-        counts: countEntities(RECOVERED.state),
         inputPath: INPUT_PATH,
-        sourceType: RECOVERED.sourceType,
+        recovered: RECOVERED,
         userDataDir: USER_DATA_DIR,
-    };
+    });
 }

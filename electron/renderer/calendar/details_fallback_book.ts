@@ -2,16 +2,10 @@ import type { Book, CalendarRowWithFinish } from "../../types/types.ts";
 import { BOOK_WEEKDAYS } from "../books/scheduled_days.ts";
 import { BOOK_STATUS_IN_PROGRESS } from "../books/status_catalog.ts";
 
-/**
- * Creates minimal in-progress fallback book model from calendar row data.
- * @param row - Calendar row requiring fallback book context.
- * @returns Fallback book object for progress editing UI.
- */
-export function fallbackBookForRow(row: CalendarRowWithFinish): Book {
+function fallbackBookDefaults(): Omit<Book, "book_id" | "title"> {
     return {
         author: "",
         blocked_by: null,
-        book_id: row.book_id,
         cover_local_path: "",
         cover_url: "",
         deadline: null,
@@ -27,7 +21,19 @@ export function fallbackBookForRow(row: CalendarRowWithFinish): Book {
         scheduled_days: [...BOOK_WEEKDAYS],
         shelf: "",
         status: BOOK_STATUS_IN_PROGRESS,
-        title: row.title,
         words_total: null,
+    };
+}
+
+/**
+ * Creates minimal in-progress fallback book model from calendar row data.
+ * @param row - Calendar row requiring fallback book context.
+ * @returns Fallback book object for progress editing UI.
+ */
+export function fallbackBookForRow(row: CalendarRowWithFinish): Book {
+    return {
+        book_id: row.book_id,
+        title: row.title,
+        ...fallbackBookDefaults(),
     };
 }

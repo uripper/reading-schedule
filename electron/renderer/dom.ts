@@ -11,7 +11,6 @@ function missingElementMessage(id: string): string {
  * Returns required element by id or throws when not found.
  * @param id - Element id to resolve.
  * @returns Resolved element cast to requested subtype.
- * @throws {TypeError} Thrown when element is missing or not an HTMLElement.
  */
 export function el<T extends HTMLElement = HTMLElement>(id: string): T {
     const NODE = document.getElementById(id);

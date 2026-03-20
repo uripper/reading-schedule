@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -48,6 +49,92 @@ function row(overrides = {}) {
     };
 }
 
+function todayRange() {
+    const TODAY = dayKey(new Date());
+    return {
+        today: TODAY,
+        tomorrow: plusDays(TODAY, 1),
+        yesterday: plusDays(TODAY, -1),
+    };
+}
+
+function mergedRows(overrides) {
+    return mergeScheduleRows({
+        nextRows: [],
+        previousRows: [],
+        sessions: [],
+        ...overrides,
+    });
+}
+
+function lockedDayScenario(today, tomorrow) {
+    return {
+        nextRows: [
+            row({ book_id: "book-active", date: tomorrow, session_index: 1 }),
+        ],
+        previousRows: [
+            row({ book_id: "book-complete", date: today, session_index: 1 }),
+            row({ book_id: "book-active", date: today, session_index: 2 }),
+            row({ book_id: "book-complete", date: tomorrow, session_index: 1 }),
+            row({ book_id: "book-active", date: tomorrow, session_index: 2 }),
+        ],
+    };
+}
+
+function continuingBookScenario(yesterday, tomorrow) {
+    return {
+        nextRows: [
+            row({
+                book_id: "book-1",
+                date: tomorrow,
+                session_index: 1,
+                words_planned: 500,
+            }),
+        ],
+        previousRows: [
+            row({
+                book_id: "book-1",
+                date: yesterday,
+                session_index: 1,
+                words_planned: 500,
+            }),
+            row({
+                book_id: "book-1",
+                date: tomorrow,
+                session_index: 1,
+                words_planned: 500,
+            }),
+        ],
+    };
+}
+
+function rebuiltTomorrowScenario(today, tomorrow) {
+    return {
+        nextRows: [
+            row({
+                book_id: "book-1",
+                date: tomorrow,
+                session_index: 1,
+                words_planned: 700,
+            }),
+        ],
+        previousRows: [
+            row({
+                book_id: "book-1",
+                date: today,
+                session_index: 1,
+                words_planned: 500,
+            }),
+            row({
+                book_id: "book-1",
+                date: tomorrow,
+                session_index: 1,
+                words_planned: 500,
+            }),
+        ],
+    };
+}
+
 test("pruneScheduleCompletions keeps day-book fallback keys for rows that still exist", () => {
     const KEPT_ROW = row();
     const DROPPED_ROW = row({
@@ -81,18 +168,8 @@ test("pruneScheduleCompletions removes stale day-book keys when matching row no 
 });
 
 test("mergeScheduleRows preserves locked-day rows even when book is no longer in future plan", () => {
-    const TODAY = dayKey(new Date());
-    const TOMORROW = plusDays(TODAY, 1);
-    const PREVIOUS_ROWS = [
-        row({ book_id: "book-complete", date: TODAY, session_index: 1 }),
-        row({ book_id: "book-active", date: TODAY, session_index: 2 }),
-        row({ book_id: "book-complete", date: TOMORROW, session_index: 1 }),
-        row({ book_id: "book-active", date: TOMORROW, session_index: 2 }),
-    ];
-    const NEXT_ROWS = [
-        row({ book_id: "book-active", date: TOMORROW, session_index: 1 }),
-    ];
-    const MERGED = mergeScheduleRows(PREVIOUS_ROWS, NEXT_ROWS, []);
+    const { today, tomorrow } = todayRange();
+    const MERGED = mergedRows(lockedDayScenario(today, tomorrow));
     const BOOK_IDS = MERGED.map((entry) => entry.book_id);
     assert.ok(
         BOOK_IDS.includes("book-complete"),
@@ -105,65 +182,18 @@ test("mergeScheduleRows preserves locked-day rows even when book is no longer in
 });
 
 test("mergeScheduleRows keeps past-day rows for books still in new schedule", () => {
-    const TODAY = dayKey(new Date());
-    const YESTERDAY = plusDays(TODAY, -1);
-    const TOMORROW = plusDays(TODAY, 1);
-    const PREVIOUS_ROWS = [
-        row({
-            book_id: "book-1",
-            date: YESTERDAY,
-            session_index: 1,
-            words_planned: 500,
-        }),
-        row({
-            book_id: "book-1",
-            date: TOMORROW,
-            session_index: 1,
-            words_planned: 500,
-        }),
-    ];
-    const NEXT_ROWS = [
-        row({
-            book_id: "book-1",
-            date: TOMORROW,
-            session_index: 1,
-            words_planned: 500,
-        }),
-    ];
-    const MERGED = mergeScheduleRows(PREVIOUS_ROWS, NEXT_ROWS, []);
-    const YESTERDAY_ROWS = MERGED.filter((entry) => entry.date === YESTERDAY);
+    const { tomorrow, yesterday } = todayRange();
+    const MERGED = mergedRows(continuingBookScenario(yesterday, tomorrow));
+    const YESTERDAY_ROWS = MERGED.filter((entry) => entry.date === yesterday);
     assert.equal(YESTERDAY_ROWS.length, 1);
     assert.equal(YESTERDAY_ROWS[0].book_id, "book-1");
 });
 
 test("mergeScheduleRows preserves today rows while still rebuilding tomorrow onward", () => {
-    const TODAY = dayKey(new Date());
-    const TOMORROW = plusDays(TODAY, 1);
-    const PREVIOUS_ROWS = [
-        row({
-            book_id: "book-1",
-            date: TODAY,
-            session_index: 1,
-            words_planned: 500,
-        }),
-        row({
-            book_id: "book-1",
-            date: TOMORROW,
-            session_index: 1,
-            words_planned: 500,
-        }),
-    ];
-    const NEXT_ROWS = [
-        row({
-            book_id: "book-1",
-            date: TOMORROW,
-            session_index: 1,
-            words_planned: 700,
-        }),
-    ];
-    const MERGED = mergeScheduleRows(PREVIOUS_ROWS, NEXT_ROWS, []);
-    const TODAY_ROWS = MERGED.filter((entry) => entry.date === TODAY);
-    const TOMORROW_ROWS = MERGED.filter((entry) => entry.date === TOMORROW);
+    const { today, tomorrow } = todayRange();
+    const MERGED = mergedRows(rebuiltTomorrowScenario(today, tomorrow));
+    const TODAY_ROWS = MERGED.filter((entry) => entry.date === today);
+    const TOMORROW_ROWS = MERGED.filter((entry) => entry.date === tomorrow);
     assert.equal(TODAY_ROWS.length, 1);
     assert.equal(TODAY_ROWS[0].words_planned, 500);
     assert.equal(TOMORROW_ROWS.length, 1);
@@ -176,8 +206,11 @@ test("mergeScheduleRows excludes day-book pairs that were manually blocked", () 
         row({ book_id: "book-1", date: "2026-02-24", session_index: 1 }),
         row({ book_id: "book-2", date: "2026-02-24", session_index: 2 }),
     ];
-    const MERGED = mergeScheduleRows([], NEXT_ROWS, [], {
-        [BLOCKED_KEY]: true,
+    const MERGED = mergedRows({
+        blockedDayBooks: {
+            [BLOCKED_KEY]: true,
+        },
+        nextRows: NEXT_ROWS,
     });
     assert.equal(MERGED.length, 1);
     assert.equal(MERGED[0].book_id, "book-2");
@@ -188,6 +221,8 @@ test("mergeScheduleRows does not lock malformed day keys from previous rows", ()
         row({ book_id: "book-1", date: "2026-2-4", session_index: 1 }),
         row({ book_id: "book-2", date: "2026/02/04", session_index: 2 }),
     ];
-    const MERGED = mergeScheduleRows(PREVIOUS_ROWS, [], []);
+    const MERGED = mergedRows({
+        previousRows: PREVIOUS_ROWS,
+    });
     assert.equal(MERGED.length, 0);
 });

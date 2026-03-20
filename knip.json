@@ -5,6 +5,16 @@
             "entry": ["scripts/*.mjs"],
             "project": ["scripts/**/*.mjs"]
         },
+        "apps/website": {
+            "entry": ["src/*/*.ts"],
+            "paths": {
+                "@api/*": ["./src/api/*"],
+                "@components/*": ["./src/components/*"],
+                "@config/*": ["./src/config/*"],
+                "@features/*": ["./src/features/*"]
+            },
+            "project": ["src/*/*.ts", "!node_modules/**"]
+        },
         "electron": {
             "entry": [
                 "main.ts",
