@@ -75,33 +75,38 @@ SEARCH_TIMEOUT_SECONDS = 8
 SEARCH_OUTPUT_LIMIT = 20
 
 LOGGER = get_bridge_logger(__name__)
-
 # TODO: Is there a reason we are so reliant on "object" types for everything?
 # Is that not greatly reducing type safety and effectively acting as an `Any`?
 
 
 def _repo_root() -> Path:
+    """Return the repository root directory."""
     return Path(__file__).resolve().parents[2]
 
 
 def _data_dir() -> Path:
+    """Return the repository data directory."""
     return _repo_root() / "data"
 
 
 def _sample_books_path() -> Path:
+    """Return the sample books fixture path."""
     return _data_dir() / "books.sample.json"
 
 
 def _sample_settings_path() -> Path:
+    """Return the sample settings fixture path."""
     return _data_dir() / "settings.json"
 
 
 def _state_path() -> Path:
+    """Return the configured mobile state file path."""
     configured = os.environ.get("READING_PLAN_API_STATE_PATH", "").strip()
     return Path(configured) if configured else _data_dir() / DEFAULT_STATE_FILE
 
 
 def _fresh_state_result() -> dict[str, object]:
+    """Return the normalized payload for an absent state file."""
     return {
         "source": "fresh",
         "sourcePath": str(_state_path()),
@@ -167,6 +172,11 @@ def _validated_state_result(
 
 
 def _load_state_file() -> dict[str, object]:
+    """Load the configured mobile state file or fall back to fresh state.
+
+    Returns:
+        Normalized state payload.
+    """
     state_path = _state_path()
     if not state_path.exists():
         return _fresh_state_result()
@@ -174,6 +184,7 @@ def _load_state_file() -> dict[str, object]:
 
 
 def _save_state_file(state: object) -> None:
+    """Validate and persist the mobile state snapshot."""
     validated = validate_state_snapshot(state)
     state_path = _state_path()
     state_path.parent.mkdir(parents=True, exist_ok=True)
@@ -198,6 +209,7 @@ def _sample_payload() -> dict[str, object]:
 
 
 def _cover_url(cover_id: object) -> str | None:
+    """Return the canonical Open Library cover URL for an integer cover id."""
     if not isinstance(cover_id, int):
         return None
     return f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg"
@@ -286,6 +298,7 @@ def _request_json(request_url: str) -> dict[str, object]:
 
 
 def _search_docs(query: str, *, author_only: bool) -> list[object]:
+    """Return raw Open Library docs for a title or author query."""
     if not query.strip():
         return []
     request_url = _search_query(query, author_only=author_only)
@@ -323,6 +336,7 @@ def _doc_to_result(doc: object) -> dict[str, str] | None:
 
 
 def _first_author(raw_authors: object) -> str:
+    """Return the first normalized author name, if present."""
     if not is_object_list(raw_authors) or not raw_authors:
         return ""
     return str(raw_authors[0] or "").strip()
@@ -453,11 +467,17 @@ def _api_generate(payload: dict[str, object]) -> object:
 
 
 def _api_state_load(_payload: dict[str, object]) -> dict[str, object]:
+    """Load the persisted mobile state snapshot.
+
+    Returns:
+        Normalized mobile state payload.
+    """
     log_file_execution(LOGGER, file_path=__file__, entrypoint="_api_state_load")
     return _load_state_file()
 
 
 def _api_state_sample(_payload: dict[str, object]) -> dict[str, object]:
+    """Return the sample mobile planner payload."""
     log_file_execution(
         LOGGER,
         file_path=__file__,

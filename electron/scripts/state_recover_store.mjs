@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+// biome-ignore lint/correctness/noUnresolvedImports: node:sqlite is available in the target Electron Node runtime.
 import { DatabaseSync } from "node:sqlite";
 
 const JSON_STATE_FILE = "planner_state.json";
@@ -44,28 +45,15 @@ function parseState(payloadText) {
 function readStateFromSqlite(inputPath) {
     const DATABASE = new DatabaseSync(inputPath);
     try {
-        const SNAPSHOT = DATABASE.prepare(
-            "SELECT payload_json FROM planner_state_snapshot WHERE id = ?",
-        ).get(SNAPSHOT_ROW_ID);
-        if (SNAPSHOT && typeof SNAPSHOT.payload_json === "string") {
-            try {
-                return parseState(SNAPSHOT.payload_json);
-            } catch {
-                // Continue to journal replay.
-            }
+        const SNAPSHOT = latestSnapshotPayload(DATABASE);
+        const RECOVERED_SNAPSHOT = parseRecoveredState(SNAPSHOT);
+        if (RECOVERED_SNAPSHOT !== null) {
+            return RECOVERED_SNAPSHOT;
         }
-        const ROWS = DATABASE.prepare(
-            "SELECT payload_json FROM planner_state_journal ORDER BY seq DESC LIMIT ?",
-        ).all(JOURNAL_KEEP_ROWS);
-        for (const ROW of ROWS) {
-            if (!ROW || typeof ROW.payload_json !== "string") {
-                continue;
-            }
-            try {
-                return parseState(ROW.payload_json);
-            } catch {
-                // Continue scanning older rows.
-            }
+        const JOURNAL_PAYLOAD = latestJournalPayload(DATABASE);
+        const RECOVERED_JOURNAL = parseRecoveredState(JOURNAL_PAYLOAD);
+        if (RECOVERED_JOURNAL !== null) {
+            return RECOVERED_JOURNAL;
         }
     } finally {
         DATABASE.close();
@@ -73,6 +61,47 @@ function readStateFromSqlite(inputPath) {
     throw new TypeError(
         "Could not recover a valid planner state from SQLite input.",
     );
+}
+
+function latestSnapshotPayload(database) {
+    try {
+        const SNAPSHOT = database
+            .prepare("SELECT payload_json FROM planner_state_snapshot WHERE id = ?")
+            .get(SNAPSHOT_ROW_ID);
+        if (!SNAPSHOT || typeof SNAPSHOT.payload_json !== "string") {
+            return null;
+        }
+        return SNAPSHOT.payload_json;
+    } catch {
+        return null;
+    }
+
+function latestJournalPayload(database) {
+    const ROWS = database
+        .prepare(
+            "SELECT payload_json FROM planner_state_journal ORDER BY seq DESC LIMIT ?",
+        )
+        .all(JOURNAL_KEEP_ROWS);
+    for (const ROW of ROWS) {
+        if (!ROW || typeof ROW.payload_json !== "string") {
+            continue;
+        }
+        if (parseRecoveredState(ROW.payload_json) !== null) {
+            return ROW.payload_json;
+        }
+    }
+    return null;
+}
+
+function parseRecoveredState(payloadText) {
+    if (payloadText === null) {
+        return null;
+    }
+    try {
+        return parseState(payloadText);
+    } catch {
+        return null;
+    }
 }
 
 /**
@@ -119,31 +148,23 @@ export function backupTargets(userDataDir, timestamp) {
     return BACKUPS;
 }
 
-/**
- * Writes recovered planner state to JSON + SQLite targets in user data.
- * @param {string} userDataDir - Target user-data directory.
- * @param {Record<string, unknown>} state - Recovered planner state object.
- */
-export function writeRecoveredState(userDataDir, state) {
-    fs.mkdirSync(userDataDir, { recursive: true });
+function writeRecoveredJsonState(userDataDir, state) {
     const JSON_PATH = path.join(userDataDir, JSON_STATE_FILE);
     const JSON_BACKUP_PATH = path.join(userDataDir, JSON_BACKUP_FILE);
-    fs.writeFileSync(
-        JSON_BACKUP_PATH,
-        JSON.stringify(state, null, JSON_INDENT_SPACES),
-        "utf8",
-    );
-    fs.writeFileSync(
-        JSON_PATH,
-        JSON.stringify(state, null, JSON_INDENT_SPACES),
-        "utf8",
-    );
+    const PAYLOAD = JSON.stringify(state, null, JSON_INDENT_SPACES);
+    fs.writeFileSync(JSON_BACKUP_PATH, PAYLOAD, "utf8");
+    fs.writeFileSync(JSON_PATH, PAYLOAD, "utf8");
+}
+
+function openRecoveredStateDatabase(userDataDir) {
     const DATABASE_PATH = path.join(userDataDir, SQLITE_STATE_FILE);
-    const DATABASE = new DatabaseSync(DATABASE_PATH);
-    try {
-        DATABASE.exec("PRAGMA journal_mode=WAL;");
-        DATABASE.exec("PRAGMA synchronous=FULL;");
-        DATABASE.exec(`
+    return new DatabaseSync(DATABASE_PATH);
+}
+
+function initializeRecoveredStateTables(database) {
+    database.exec("PRAGMA journal_mode=WAL;");
+    database.exec("PRAGMA synchronous=FULL;");
+    database.exec(`
       CREATE TABLE IF NOT EXISTS planner_state_snapshot (
         id INTEGER PRIMARY KEY CHECK(id = 1),
         schema_version INTEGER NOT NULL,
@@ -151,7 +172,7 @@ export function writeRecoveredState(userDataDir, state) {
         updated_at TEXT NOT NULL
       );
     `);
-        DATABASE.exec(`
+    database.exec(`
       CREATE TABLE IF NOT EXISTS planner_state_journal (
         seq INTEGER PRIMARY KEY AUTOINCREMENT,
         created_at TEXT NOT NULL,
@@ -159,13 +180,19 @@ export function writeRecoveredState(userDataDir, state) {
         payload_json TEXT NOT NULL
       );
     `);
-        const NOW_ISO = new Date().toISOString();
-        const PAYLOAD = JSON.stringify(state);
-        DATABASE.exec("BEGIN IMMEDIATE");
-        DATABASE.prepare(
+}
+
+function writeRecoveredStateTransaction(database, state) {
+    const NOW_ISO = new Date().toISOString();
+    const PAYLOAD = JSON.stringify(state);
+    database.exec("BEGIN IMMEDIATE");
+    database
+        .prepare(
             "INSERT INTO planner_state_journal (created_at, operation, payload_json) VALUES (?, ?, ?)",
-        ).run(NOW_ISO, SAVE_OPERATION, PAYLOAD);
-        DATABASE.prepare(
+        )
+        .run(NOW_ISO, SAVE_OPERATION, PAYLOAD);
+    database
+        .prepare(
             `
           INSERT INTO planner_state_snapshot (id, schema_version, payload_json, updated_at)
           VALUES (?, ?, ?, ?)
@@ -174,16 +201,33 @@ export function writeRecoveredState(userDataDir, state) {
             payload_json = excluded.payload_json,
             updated_at = excluded.updated_at
         `,
-        ).run(SNAPSHOT_ROW_ID, STATE_SCHEMA_VERSION, PAYLOAD, NOW_ISO);
-        DATABASE.prepare(
+        )
+        .run(SNAPSHOT_ROW_ID, STATE_SCHEMA_VERSION, PAYLOAD, NOW_ISO);
+    database
+        .prepare(
             `
           DELETE FROM planner_state_journal
           WHERE seq NOT IN (
             SELECT seq FROM planner_state_journal ORDER BY seq DESC LIMIT ?
           )
         `,
-        ).run(JOURNAL_KEEP_ROWS);
-        DATABASE.exec("COMMIT");
+        )
+        .run(JOURNAL_KEEP_ROWS);
+    database.exec("COMMIT");
+}
+
+/**
+ * Writes recovered planner state to JSON + SQLite targets in user data.
+ * @param {string} userDataDir - Target user-data directory.
+ * @param {Record<string, unknown>} state - Recovered planner state object.
+ */
+export function writeRecoveredState(userDataDir, state) {
+    fs.mkdirSync(userDataDir, { recursive: true });
+    writeRecoveredJsonState(userDataDir, state);
+    const DATABASE = openRecoveredStateDatabase(userDataDir);
+    try {
+        initializeRecoveredStateTables(DATABASE);
+        writeRecoveredStateTransaction(DATABASE, state);
     } catch (error) {
         DATABASE.exec("ROLLBACK");
         throw error;

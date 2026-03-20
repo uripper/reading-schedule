@@ -1,53 +1,103 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
-
 import {
-    completeFocusSession,
-    completeTinyStart,
-    createClosedFocusState,
-    exitFocusMode,
-    focusSessionFromRow,
-    openFocusMode,
-    startFocusSession,
-} from "../dist/renderer/app/today_focus.js";
+    clearTodayCarouselRowState,
+    closeMinutesEditor,
+    minutesEditor,
+    openMinutesEditor,
+    pinnedRowKeySnapshot,
+    pinRowKey,
+    progressDraft,
+    resetTodayCarouselUiState,
+    selectedBookId,
+    setMinutesEditorValue,
+    setProgressDraft,
+    setSelectedBookId,
+} from "../dist/renderer/app/today/today_carousel_state.js";
 
-test("today focus flow supports start, complete, and exit", () => {
-    const SESSION = focusSessionFromRow({
-        book_id: "book-1",
-        date: "2026-02-21",
-        minutes: 25,
-        session_index: 1,
-        title: "Ulysses",
-        words_planned: 2500,
+const REMOVED_BOOK_ID = "book-1";
+const KEPT_BOOK_ID = "book-2";
+const REMOVED_ROW_KEY = "row-1";
+const KEPT_ROW_KEY = "row-2";
+
+function draftSnapshot(rowKey) {
+    const DRAFT = progressDraft(rowKey);
+    assert.notEqual(DRAFT, null);
+    return DRAFT;
+}
+
+function seedRowState(options) {
+    pinRowKey(options.bookId, options.rowKey);
+    setProgressDraft({
+        pagesText: options.pagesText,
+        percentText: options.percentText,
+        rowKey: options.rowKey,
     });
-    let state = openFocusMode(SESSION);
-    assert.equal(state.isOpen, true);
-    assert.equal(state.isStarted, false);
+}
 
-    state = startFocusSession(state);
-    assert.equal(state.isStarted, true);
-    assert.match(state.feedback, /Started "Ulysses"/);
+function assertSinglePinnedRow(bookId, rowKey) {
+    assert.deepEqual(pinnedRowKeySnapshot(), {
+        [bookId]: rowKey,
+    });
+}
 
-    state = completeFocusSession(state);
-    assert.equal(state.isStarted, false);
-    assert.match(state.feedback, /Completed "Ulysses"/);
+function assertMinutesEditor(rowKey, valueText) {
+    assert.deepEqual(minutesEditor(), {
+        rowKey,
+        valueText,
+    });
+}
 
-    state = exitFocusMode(state);
-    assert.equal(state.isOpen, false);
-    assert.equal(state.feedback, "");
+function assertProgressDraft(rowKey, pagesText, percentText) {
+    assert.deepEqual(progressDraft(rowKey), {
+        pagesText,
+        percentText,
+    });
+}
+
+test("today carousel state trims keys, clones drafts, and closes the minutes editor", () => {
+    resetTodayCarouselUiState();
+    setSelectedBookId(` ${REMOVED_BOOK_ID} `);
+    seedRowState({
+        bookId: ` ${REMOVED_BOOK_ID} `,
+        pagesText: " 120 ",
+        percentText: " 40 ",
+        rowKey: ` ${REMOVED_ROW_KEY} `,
+    });
+    openMinutesEditor(` ${REMOVED_ROW_KEY} `, " 15 ");
+    setMinutesEditorValue(" 20 ");
+    assert.equal(selectedBookId(), REMOVED_BOOK_ID);
+    assertSinglePinnedRow(REMOVED_BOOK_ID, REMOVED_ROW_KEY);
+    const DRAFT = draftSnapshot(REMOVED_ROW_KEY);
+    assert.deepEqual(DRAFT, { pagesText: "120", percentText: "40" });
+    DRAFT.pagesText = "changed";
+    assertProgressDraft(REMOVED_ROW_KEY, "120", "40");
+    assertMinutesEditor(REMOVED_ROW_KEY, "20");
+    closeMinutesEditor();
+    assert.equal(minutesEditor(), null);
 });
 
-test("today focus tiny start provides explicit feedback", () => {
-    let state = createClosedFocusState();
-    state = openFocusMode(null);
-    state = completeTinyStart(state, 3);
-    assert.equal(state.isStarted, false);
-    assert.equal(state.feedback, "Tiny Start complete: 3 minutes done.");
-});
-
-test("today focus start guards when no session exists", () => {
-    let state = openFocusMode(null);
-    state = startFocusSession(state);
-    assert.equal(state.isStarted, false);
-    assert.equal(state.feedback, "No upcoming session to start right now.");
+test("clearTodayCarouselRowState removes only matching row-scoped state", () => {
+    resetTodayCarouselUiState();
+    seedRowState({
+        bookId: REMOVED_BOOK_ID,
+        pagesText: "120",
+        percentText: "40",
+        rowKey: REMOVED_ROW_KEY,
+    });
+    seedRowState({
+        bookId: KEPT_BOOK_ID,
+        pagesText: "55",
+        percentText: "18",
+        rowKey: KEPT_ROW_KEY,
+    });
+    openMinutesEditor(KEPT_ROW_KEY, "10");
+    clearTodayCarouselRowState(REMOVED_BOOK_ID, REMOVED_ROW_KEY);
+    assert.equal(progressDraft(REMOVED_ROW_KEY), null);
+    assertProgressDraft(KEPT_ROW_KEY, "55", "18");
+    assertMinutesEditor(KEPT_ROW_KEY, "10");
+    assert.deepEqual(pinnedRowKeySnapshot(), {
+        [KEPT_BOOK_ID]: KEPT_ROW_KEY,
+    });
 });

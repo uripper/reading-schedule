@@ -92,6 +92,11 @@ A PR must not merge if any of the following is true:
 - Prefer more precise alternatives to broad string types for constrained values (literal unions, template literal types, branded/distinct types when justified).
 - Use `Record<...>` for exhaustive key-to-value mappings (labels, status renderers, config maps) when the keyspace is known and should stay in sync.
 - Prefer `interface` for object-shaped types when either `type` or `interface` would work; use `type` when you need unions/intersections/tuples/aliases or when it is more ergonomic.
+- Default to `packages/contracts` for TypeScript types and reusable inference-backed contract shapes so Electron, mobile, website, and future applications import the same source of truth.
+- If a type can be expressed without application-specific runtime dependencies, promote it into `packages/contracts` even if it currently has only one consumer.
+- Keep a type local only when it is purely transient implementation state or when moving it into `packages/contracts` would force the shared package to depend on app-specific platform/runtime libraries.
+- Do not duplicate or re-derive cross-application shapes in app code; centralize them in `packages/contracts` first and import them outward.
+- For any new `.d.ts` files under `mobile/src/`, `electron/`, or other app folders, explicitly decide whether each type belongs in `packages/contracts`. If you keep a type app-local, add a brief comment in that file explaining why it is not shared (for example, because it depends on React Native or Electron runtime/platform types).
 
 ### Runtime and Platform Safety
 
@@ -177,6 +182,7 @@ A PR must not merge if any of the following is true:
 - Update docs in the same PR when changing commands or scripts.
 - Update docs in the same PR when changing configuration formats.
 - Update docs in the same PR when changing API contracts.
+- Update `packages/contracts` exports and contributor guidance in the same PR when introducing a new shared cross-application contract.
 
 ### Code Documentation
 

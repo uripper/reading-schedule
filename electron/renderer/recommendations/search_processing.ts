@@ -1,3 +1,6 @@
+/**
+ * Recommendation lookup post-processing: sampling, summary logging, and per-author dedupe.
+ */
 import type { BookLookupItem, RecommendationItem } from "../../types/types.ts";
 import { addLog } from "../help.ts";
 import { MAX_PER_AUTHOR, SAMPLE_RESULTS_COUNT } from "./search_constants.ts";
@@ -15,6 +18,9 @@ interface ProcessAuthorOptions {
     recommendations: RecommendationItem[];
 }
 
+/**
+ * Represents a lookup item that survived plausibility and dedupe checks.
+ */
 type EligibleRecommendation = {
     candidate: RecommendationItem;
     key: string;
@@ -65,6 +71,12 @@ export function sampleResultsSummary(lookupItems: BookLookupItem[]): string {
     return SAMPLE.map((item) => `"${item.title}" by ${item.author}`).join(", ");
 }
 
+/**
+ * Stops adding rows once the per-author recommendation cap is reached.
+ * @param addedForAuthor - Number of rows already accepted for this author.
+ * @param author - Author name used in the diagnostic message.
+ * @returns `true` when the caller should stop scanning lookup rows.
+ */
 function reachedAuthorLimit(addedForAuthor: number, author: string): boolean {
     if (addedForAuthor < MAX_PER_AUTHOR) {
         return false;
@@ -75,6 +87,12 @@ function reachedAuthorLimit(addedForAuthor: number, author: string): boolean {
     return true;
 }
 
+/**
+ * Converts a lookup row into a recommendation item when it passes plausibility checks.
+ * @param lookupItem - Raw lookup item from the API.
+ * @param author - Author context used for normalization and fallback display text.
+ * @returns Normalized recommendation row or `null` when the row should be ignored.
+ */
 function normalizedRecommendation(
     lookupItem: BookLookupItem,
     author: string,
@@ -89,6 +107,12 @@ function normalizedRecommendation(
     return null;
 }
 
+/**
+ * Verifies the candidate author still matches the shelf author we searched for.
+ * @param author - Author sampled from the read shelf.
+ * @param candidate - Recommendation item produced from lookup data.
+ * @returns `true` when the author text still matches closely enough.
+ */
 function hasMatchingAuthor(
     author: string,
     candidate: RecommendationItem,
@@ -102,6 +126,13 @@ function hasMatchingAuthor(
     return false;
 }
 
+/**
+ * Builds a dedupe key and rejects rows already present in the shelf or in the current recommendation list.
+ * @param candidate - Candidate recommendation row.
+ * @param existingKeys - Keys already present in the shelf.
+ * @param recommendationKeys - Keys already added during this search run.
+ * @returns Dedupe key when the candidate is still eligible, otherwise `null`.
+ */
 function uniqueRecommendationKey(
     candidate: RecommendationItem,
     existingKeys: Set<string>,
@@ -117,6 +148,12 @@ function uniqueRecommendationKey(
     return null;
 }
 
+/**
+ * Fully evaluates one lookup item for a sampled author and returns the eligible result when it survives.
+ * @param options - Current author-processing state.
+ * @param lookupItem - Raw lookup row to inspect.
+ * @returns Eligible recommendation payload or `null`.
+ */
 function eligibleRecommendation(
     options: ProcessAuthorOptions,
     lookupItem: BookLookupItem,
@@ -139,6 +176,11 @@ function eligibleRecommendation(
     return { candidate: CANDIDATE, key: KEY };
 }
 
+/**
+ * Appends one eligible recommendation to the accumulated results.
+ * @param recommendation - Fully validated recommendation.
+ * @param options - Mutable search accumulators.
+ */
 function addRecommendation(
     recommendation: EligibleRecommendation,
     options: ProcessAuthorOptions,
@@ -150,6 +192,12 @@ function addRecommendation(
     options.recommendations.push(recommendation.candidate);
 }
 
+/**
+ * Validates a lookup row and returns how many recommendations were added from it.
+ * @param options - Current author-processing state.
+ * @param lookupItem - Raw lookup row to inspect.
+ * @returns `1` when the item was added, otherwise `0`.
+ */
 function addEligibleRecommendation(
     options: ProcessAuthorOptions,
     lookupItem: BookLookupItem,

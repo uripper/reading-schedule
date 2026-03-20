@@ -4,7 +4,7 @@ import type { JsonValue, PlanGeneratePayload } from "../types/types.ts";
 import { PLANNER_MODULE_CANDIDATES } from "./bridge/constants.ts";
 import { resolveExecutionContext } from "./bridge/context.ts";
 import { runBridgeForModule } from "./bridge/runner.ts";
-import type { BridgeRunContext } from "./bridge/types.ts";
+import type { BridgeRunContext } from "./bridge/types.d.ts";
 
 // TODO: Move these interfaces to contracts
 interface BridgeCandidateArgs {

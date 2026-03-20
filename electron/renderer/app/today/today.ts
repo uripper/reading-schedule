@@ -1,3 +1,7 @@
+/**
+ * Renders the Today dashboard and coordinates header metrics derived from
+ * activity, schedule progress, and reading goals.
+ */
 import type {
     DayMinutesMap,
     TodayScheduleSnapshot,
@@ -23,8 +27,10 @@ import {
 } from "./today_header_render.ts";
 import { buildTodayScheduleSnapshot } from "./today_schedule.ts";
 
+/** Minimum goal minutes allowed when resolving Today progress targets. */
 const MIN_GOAL_MINUTES = 1;
 
+/** DOM nodes required to render the header sessions metric. */
 type RenderHeaderSessionsMetricOptions = {
     snapshot: TodayScheduleSnapshot;
     sessionsStatus: HTMLElement;
@@ -32,6 +38,7 @@ type RenderHeaderSessionsMetricOptions = {
     completeIndicator: HTMLElement | null;
 };
 
+/** Resolve the effective Today goal minutes from saved and fallback settings. */
 function resolvedGoalMinutes(
     preferredGoalMinutes: number,
     defaultGoalMinutes: number,
@@ -42,6 +49,7 @@ function resolvedGoalMinutes(
     );
 }
 
+/** Look up an element by id and return it only when it is an `HTMLElement`. */
 function getOptionalElement(id: string): HTMLElement | null {
     const NODE = globalThis.document.getElementById(id);
     if (!(NODE instanceof HTMLElement)) {
@@ -75,6 +83,7 @@ function renderHeaderGoalMetric(
     };
 }
 
+/** Apply completion state to the optional header indicator when it exists. */
 function applyOptionalIndicator(
     completeIndicator: HTMLElement | null,
     complete: boolean,
@@ -85,6 +94,7 @@ function applyOptionalIndicator(
     applyIndicatorState(completeIndicator, complete);
 }
 
+/** Return whether a Today snapshot has completed all scheduled sessions. */
 function headerSessionsComplete(snapshot: TodayScheduleSnapshot): boolean {
     return isHeaderSessionsComplete(
         snapshot.completedSessions,
@@ -159,6 +169,7 @@ function renderHeaderStreakMetric(options: {
     streakNode.textContent = formatStreakText(STREAK);
 }
 
+/** Update the Today goal text with today's minutes and the configured target. */
 function applyGoalText(goalMinutes: number, todayMinutes: number): void {
     const GOAL_TEXT = getOptionalElement("todayGoalText");
     if (GOAL_TEXT === null) {
@@ -167,6 +178,7 @@ function applyGoalText(goalMinutes: number, todayMinutes: number): void {
     GOAL_TEXT.textContent = `${todayMinutes}/${goalMinutes} Minutes`;
 }
 
+/** Sync the Today goal indicator with the latest progress and completion state. */
 function applyGoalIndicator(options: {
     goalComplete: boolean;
     goalProgressPercent: number;
@@ -182,6 +194,7 @@ function applyGoalIndicator(options: {
     applyIndicatorState(GOAL_INDICATOR, options.goalComplete);
 }
 
+/** Toggle the streak flame styling to reflect goal completion. */
 function applyGoalFlame(goalComplete: boolean): void {
     const STREAK_FLAME = getOptionalElement("headerStreakFlame");
     if (STREAK_FLAME === null) {
@@ -283,6 +296,7 @@ export function updateTodayDashboard(args: UpdateTodayDashboardArgs): void {
     });
 }
 
+/** Collect the derived values needed to render the Today header. */
 function todayHeaderMetrics(
     args: UpdateTodayDashboardArgs,
 ): ReturnType<typeof buildTodayHeaderMetrics> {
@@ -296,6 +310,7 @@ function todayHeaderMetrics(
     });
 }
 
+/** Render the carousel first, then return the snapshot used by header metrics. */
 function renderTodayCarouselAndBuildSnapshot(options: {
     books: UpdateTodayDashboardArgs["books"];
     lastResult: UpdateTodayDashboardArgs["lastResult"];
@@ -316,6 +331,7 @@ function renderTodayCarouselAndBuildSnapshot(options: {
     return SNAPSHOT;
 }
 
+/** Build Today header state from planner results, sessions, and preferences. */
 function buildTodayHeaderMetrics(options: {
     defaultDailyGoalMinutes: number;
     featureFlags: UpdateTodayDashboardArgs["featureFlags"];
@@ -343,6 +359,7 @@ function buildTodayHeaderMetrics(options: {
     };
 }
 
+/** Apply all computed Today header metrics after the carousel has rendered. */
 function applyTodayHeaderMetrics(options: {
     activityByDay: DayMinutesMap;
     gamificationEnabled: boolean;

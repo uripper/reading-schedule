@@ -1,3 +1,7 @@
+/**
+ * Builds and binds the "blocked by" picker that lets a book depend on another
+ * book in the current shelf.
+ */
 import type {
     AfterBookPicker,
     Book,
@@ -20,6 +24,7 @@ import {
     selectedBook,
 } from "./after_book_picker_render.ts";
 
+/** Returns sorted picker candidates other than the book currently being edited. */
 function availablePickerOptions(
     currentBookId: string,
     getBooks: GetBooks,
@@ -34,11 +39,13 @@ function availablePickerOptions(
     return AVAILABLE_BOOKS.toSorted(compareBooks);
 }
 
+/** Refreshes the cached option list from the latest bookshelf snapshot. */
 function refreshPickerOptions(state: PickerState, getBooks: GetBooks): void {
     const STATE = state;
     STATE.options = availablePickerOptions(STATE.currentBookId, getBooks);
 }
 
+/** Bundles the dependencies needed to recompute filtered picker results. */
 interface CreateRefreshFilteredArgs {
     clearSelection: () => void;
     refs: BookFormRefs;
@@ -46,6 +53,7 @@ interface CreateRefreshFilteredArgs {
     state: PickerState;
 }
 
+/** Bundles the dependencies needed to apply a selected blocking book. */
 interface SelectBookArgs {
     clearResults: () => void;
     refs: BookFormRefs;
@@ -53,6 +61,7 @@ interface SelectBookArgs {
     state: PickerState;
 }
 
+/** Bundles the dependencies needed to reopen the picker for a specific book. */
 interface OpenForBookArgs {
     clearResults: () => void;
     refreshOptions: () => void;
@@ -61,6 +70,7 @@ interface OpenForBookArgs {
     state: PickerState;
 }
 
+/** Bundles the callbacks that the DOM event binding layer needs. */
 interface BindPickerEventsArgs {
     clearResults: () => void;
     refreshFiltered: (clearChangedSelection: boolean) => void;
@@ -70,6 +80,7 @@ interface BindPickerEventsArgs {
     state: PickerState;
 }
 
+/** Groups the picker operations exposed to the rest of the form flow. */
 interface PickerActions {
     clearResults: () => void;
     openForBook: (book?: Book | null) => void;
@@ -78,6 +89,7 @@ interface PickerActions {
     selectBook: (book: Book | null | undefined) => void;
 }
 
+/** Carries the shared picker state and helper callbacks used to build actions. */
 interface PickerActionDeps {
     clearResults: () => void;
     clearSelection: () => void;
@@ -87,18 +99,22 @@ interface PickerActionDeps {
     state: PickerState;
 }
 
+/** Preserves the picker action shape while letting inference stay local. */
 function pickerActionsResult(actions: PickerActions): PickerActions {
     return actions;
 }
 
+/** Preserves the picker dependency shape while letting inference stay local. */
 function pickerActionDeps(args: PickerActionDeps): PickerActionDeps {
     return args;
 }
 
+/** Filters the available options with the current query string. */
 function nextFilteredBooks(options: Book[], query: string): Book[] {
     return options.filter((book) => matchesQuery(book, query));
 }
 
+/** Chooses the next highlighted result index for the current filtered list. */
 function nextActiveIndex(filtered: Book[]): number {
     if (filtered.length === 0) {
         return NO_ACTIVE_INDEX;
@@ -106,6 +122,7 @@ function nextActiveIndex(filtered: Book[]): number {
     return FIRST_RESULT_INDEX;
 }
 
+/** Decides whether a query change invalidates the current selection. */
 function shouldClearChangedSelection(
     args: CreateRefreshFilteredArgs,
     clearChangedSelection: boolean,
@@ -121,6 +138,7 @@ function shouldClearChangedSelection(
     return false;
 }
 
+/** Creates the query-refresh handler used by typing and picker navigation. */
 function createRefreshFiltered(
     args: CreateRefreshFilteredArgs,
 ): (clearChangedSelection: boolean) => void {
@@ -136,6 +154,7 @@ function createRefreshFiltered(
     };
 }
 
+/** Creates the mutable picker state for a book form session. */
 function createPickerState(): PickerState {
     return {
         activeIndex: NO_ACTIVE_INDEX,
@@ -146,6 +165,7 @@ function createPickerState(): PickerState {
     };
 }
 
+/** Wraps the result renderer so callers can trigger a consistent repaint. */
 function createPickerRender(
     refs: BookFormRefs,
     state: PickerState,
@@ -155,6 +175,7 @@ function createPickerRender(
     };
 }
 
+/** Creates a helper that clears the visible search results and highlight. */
 function createClearResults(state: PickerState): () => void {
     return (): void => {
         const STATE = state;
@@ -163,6 +184,7 @@ function createClearResults(state: PickerState): () => void {
     };
 }
 
+/** Creates a helper that clears the selected blocking-book value. */
 function createClearSelection(
     refs: BookFormRefs,
     state: PickerState,
@@ -175,6 +197,7 @@ function createClearSelection(
     };
 }
 
+/** Creates the action that applies a chosen blocking-book option. */
 function createSelectBook(
     args: SelectBookArgs,
 ): (book: Book | null | undefined) => void {
@@ -192,6 +215,7 @@ function createSelectBook(
     };
 }
 
+/** Creates the action that reinitializes picker state for a given book. */
 function createOpenForBook(
     args: OpenForBookArgs,
 ): (book?: Book | null) => void {
@@ -205,6 +229,7 @@ function createOpenForBook(
     };
 }
 
+/** Wires picker callbacks into the DOM event binding layer. */
 function bindPickerEvents(args: BindPickerEventsArgs): void {
     bindAfterBookPickerEvents({
         clearResults: args.clearResults,
@@ -216,12 +241,14 @@ function bindPickerEvents(args: BindPickerEventsArgs): void {
     });
 }
 
+/** Builds the select-book action from the shared picker dependencies. */
 function createPickerSelectBookAction(
     args: Pick<PickerActionDeps, "clearResults" | "refs" | "render" | "state">,
 ): (book: Book | null | undefined) => void {
     return createSelectBook(args);
 }
 
+/** Builds the filter-refresh action from the shared picker dependencies. */
 function createPickerRefreshFilteredAction(
     args: Pick<
         PickerActionDeps,
@@ -231,6 +258,7 @@ function createPickerRefreshFilteredAction(
     return createRefreshFiltered(args);
 }
 
+/** Builds the open-for-book action and refreshes options on each open. */
 function createPickerOpenForBookAction(
     args: Pick<
         PickerActionDeps,
@@ -242,6 +270,7 @@ function createPickerOpenForBookAction(
     return createOpenForBook({ ...args, refreshOptions: REFRESH_OPTIONS });
 }
 
+/** Collects the shared callbacks needed to assemble picker actions. */
 function createPickerActionDeps(
     refs: BookFormRefs,
     state: PickerState,
@@ -258,6 +287,7 @@ function createPickerActionDeps(
     });
 }
 
+/** Assembles the full set of picker actions used by the book form. */
 function pickerActionsFor(args: PickerActionDeps): PickerActions {
     return pickerActionsResult({
         clearResults: args.clearResults,
@@ -268,6 +298,7 @@ function pickerActionsFor(args: PickerActionDeps): PickerActions {
     });
 }
 
+/** Creates all picker actions for a single form instance. */
 function createPickerActions(
     refs: BookFormRefs,
     state: PickerState,
@@ -276,6 +307,7 @@ function createPickerActions(
     return pickerActionsFor(createPickerActionDeps(refs, state, getBooks));
 }
 
+/** Creates and binds the after-book picker used by the book form dialog. */
 export function createAfterBookPicker(
     refs: BookFormRefs,
     getBooks: GetBooks,

@@ -3,56 +3,78 @@ import { bindCardEvents } from "./card_events.ts";
 import { renderFlatBooks, renderGroupedBooks } from "./card_group_render.ts";
 import { titleByIdMap } from "./title_lookup.ts";
 
+function createCardRenderContext(
+    args: RenderBookGridOptions,
+    allBooks: RenderBookGridOptions["allBooks"],
+): Parameters<typeof renderFlatBooks>[2] {
+    return {
+        finishDateByBookId: args.finishDateByBookId ?? {},
+        onEstimatedFinishNavigate: (dateKey: string): void => {
+            args.onEstimatedFinishNavigate(dateKey);
+        },
+        showBlockerMeta: args.showBlockerMeta ?? true,
+        showShelfMeta: args.showShelfMeta ?? true,
+        showWordCount: args.showWordCount ?? true,
+        titleById: titleByIdMap(args.books, allBooks ?? []),
+    };
+}
+
+interface RenderBooksArgs {
+    books: RenderBookGridOptions["books"];
+    context: Parameters<typeof renderFlatBooks>[2];
+    grid: HTMLElement;
+    groups: RenderBookGridOptions["groups"];
+}
+
+function renderBooks(args: RenderBooksArgs): void {
+    const GROUPS = args.groups ?? [];
+    if (GROUPS.length > 0) {
+        renderGroupedBooks(args.grid, GROUPS, args.context);
+        return;
+    }
+    renderFlatBooks(args.grid, args.books, args.context);
+}
+
+function showEmptyState(
+    empty: HTMLElement,
+    books: RenderBookGridOptions["books"],
+): void {
+    const EMPTY_STATE = empty;
+    EMPTY_STATE.style.display = "block";
+    if (books.length > 0) {
+        EMPTY_STATE.style.display = "none";
+    }
+}
+
+function bindBookActions(
+    grid: HTMLElement,
+    onEdit: RenderBookGridOptions["onEdit"],
+    onRemove: RenderBookGridOptions["onRemove"],
+): void {
+    bindCardEvents(grid, {
+        onEdit: (bookId: string): void => {
+            onEdit(bookId);
+        },
+        onRemove: (bookId: string): void => {
+            onRemove(bookId);
+        },
+    });
+}
+
 /**
  * Renders book cards (grouped or flat) and wires edit/remove handlers.
  * @param args - Render options and callbacks.
- * @param grid - Card grid container element.
- * @param empty - Empty-state element.
- * @param books - Books to render.
- * @param groups - Optional grouped book structure.
- * @param allBooks - Optional full book catalog for metadata lookup.
- * @param finishDateByBookId - Optional finish-date lookup.
- * @param onEstimatedFinishNavigate - Navigates to the selected finish date.
- * @param showShelfMeta - Whether shelf metadata should be displayed.
- * @param onEdit - Edit callback for a book id.
- * @param onRemove - Remove callback for a book id.
  */
 export function renderBookGrid(args: RenderBookGridOptions): void {
     const GROUPS = args.groups ?? [];
     const ALL_BOOKS = args.allBooks ?? [];
-    const FINISH_DATE_BY_BOOK_ID = args.finishDateByBookId ?? {};
-    const SHOW_BLOCKER_META = args.showBlockerMeta ?? true;
-    const SHOW_SHELF_META = args.showShelfMeta ?? true;
-    const SHOW_WORD_COUNT = args.showWordCount ?? true;
-    const ON_ESTIMATED_FINISH_NAVIGATE = (dateKey: string): void => {
-        args.onEstimatedFinishNavigate(dateKey);
-    };
-    const ON_EDIT = (bookId: string): void => {
-        args.onEdit(bookId);
-    };
-    const ON_REMOVE = (bookId: string): void => {
-        args.onRemove(bookId);
-    };
-    const CONTEXT = {
-        finishDateByBookId: FINISH_DATE_BY_BOOK_ID,
-        onEstimatedFinishNavigate: ON_ESTIMATED_FINISH_NAVIGATE,
-        showBlockerMeta: SHOW_BLOCKER_META,
-        showShelfMeta: SHOW_SHELF_META,
-        showWordCount: SHOW_WORD_COUNT,
-        titleById: titleByIdMap(args.books, ALL_BOOKS),
-    };
-
-    if (GROUPS.length) {
-        renderGroupedBooks(args.grid, GROUPS, CONTEXT);
-    } else {
-        renderFlatBooks(args.grid, args.books, CONTEXT);
-    }
-
-    const EMPTY_STATE = args.empty;
-    EMPTY_STATE.style.display = "block";
-    if (args.books.length) {
-        EMPTY_STATE.style.display = "none";
-    }
-
-    bindCardEvents(args.grid, { onEdit: ON_EDIT, onRemove: ON_REMOVE });
+    const CONTEXT = createCardRenderContext(args, ALL_BOOKS);
+    renderBooks({
+        books: args.books,
+        context: CONTEXT,
+        grid: args.grid,
+        groups: GROUPS,
+    });
+    showEmptyState(args.empty, args.books);
+    bindBookActions(args.grid, args.onEdit, args.onRemove);
 }

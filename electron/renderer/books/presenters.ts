@@ -36,6 +36,29 @@ function finishMetaPart(
     return null;
 }
 
+function dueMetaPart(book: Book): string | null {
+    if (book.deadline !== null && book.deadline !== "") {
+        return `Due: ${book.deadline}`;
+    }
+    return null;
+}
+
+function shelfMetaPart(
+    book: Book,
+    showShelfMeta: boolean | undefined,
+): string | null {
+    if (showShelfMeta === true) {
+        return `Shelf: ${shelfLabelForBook(book)}`;
+    }
+    return null;
+}
+
+function pushMetaPart(bits: string[], value: string | null): void {
+    if (value !== null) {
+        bits.push(value);
+    }
+}
+
 /**
  * Builds blocker metadata text with title resolution when available.
  * @param book - Book to describe.
@@ -120,23 +143,12 @@ export function metaLabel(book: Book, options: BookMetaOptions = {}): string {
     const TITLE_BY_ID = options.titleById ?? {};
     const FINISH_DATE_BY_BOOK_ID = options.finishDateByBookId ?? {};
     const BITS: string[] = [];
-
-    const FINISH_PART = finishMetaPart(book, FINISH_DATE_BY_BOOK_ID);
-    if (FINISH_PART !== null) {
-        BITS.push(FINISH_PART);
-    }
-    if (book.deadline !== null && book.deadline !== "") {
-        BITS.push(`Due: ${book.deadline}`);
-    }
+    pushMetaPart(BITS, finishMetaPart(book, FINISH_DATE_BY_BOOK_ID));
+    pushMetaPart(BITS, dueMetaPart(book));
     if (options.showBlockerMeta !== false) {
-        const BLOCKER_PART = blockerMetaPart(book, TITLE_BY_ID);
-        if (BLOCKER_PART !== null) {
-            BITS.push(BLOCKER_PART);
-        }
+        pushMetaPart(BITS, blockerMetaPart(book, TITLE_BY_ID));
     }
-    if (options.showShelfMeta === true) {
-        BITS.push(`Shelf: ${shelfLabelForBook(book)}`);
-    }
+    pushMetaPart(BITS, shelfMetaPart(book, options.showShelfMeta));
     return BITS.join("\n");
 }
 

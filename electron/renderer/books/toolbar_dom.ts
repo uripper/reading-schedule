@@ -79,6 +79,85 @@ function createControlsWrap(toolbar: HTMLElement): HTMLElement {
     return WRAP;
 }
 
+function sortDirectionButton(): HTMLButtonElement {
+    const BUTTON = document.createElement("button");
+    BUTTON.type = "button";
+    BUTTON.className = "btn";
+    BUTTON.id = "booksSortDirectionBtn";
+    return BUTTON;
+}
+
+function filterControls() {
+    const TITLE_FILTER = createLabeledSearchInput(
+        "Title",
+        "booksTitleFilterInput",
+    );
+    const SHELF = createLabeledSelect("Shelf", "booksShelfFilterSelect", []);
+    const STATUS = createLabeledSelect("Status", "booksStatusFilterSelect", []);
+    return {
+        shelf: SHELF,
+        status: STATUS,
+        titleFilter: TITLE_FILTER,
+    };
+}
+
+function sortingControls() {
+    const SORT_BY = createLabeledSelect(
+        "Sort",
+        "booksSortBySelect",
+        SORT_OPTIONS,
+    );
+    const GROUP_BY = createLabeledSelect(
+        "Group By",
+        "booksGroupBySelect",
+        GROUP_OPTIONS_BASE,
+    );
+    return {
+        groupBy: GROUP_BY,
+        sortBy: SORT_BY,
+        sortDirectionBtn: sortDirectionButton(),
+    };
+}
+
+function toolbarControls() {
+    return {
+        ...filterControls(),
+        ...sortingControls(),
+    };
+}
+
+function replaceToolbarChildren(
+    wrap: HTMLElement,
+    controls: ReturnType<typeof toolbarControls>,
+): void {
+    wrap.replaceChildren(
+        controls.titleFilter.label,
+        controls.shelf.label,
+        controls.status.label,
+        controls.sortBy.label,
+        controls.groupBy.label,
+        controls.sortDirectionBtn,
+    );
+}
+
+function toolbarControlRefs(controls: ReturnType<typeof toolbarControls>): {
+    groupBySelect: HTMLSelectElement;
+    shelfFilterSelect: HTMLSelectElement;
+    sortBySelect: HTMLSelectElement;
+    sortDirectionBtn: HTMLButtonElement;
+    statusFilterSelect: HTMLSelectElement;
+    titleFilterInput: HTMLInputElement;
+} {
+    return {
+        groupBySelect: controls.groupBy.select,
+        shelfFilterSelect: controls.shelf.select,
+        sortBySelect: controls.sortBy.select,
+        sortDirectionBtn: controls.sortDirectionBtn,
+        statusFilterSelect: controls.status.select,
+        titleFilterInput: controls.titleFilter.input,
+    };
+}
+
 /**
  * Creates a standard `<option>` element.
  * @param value - Option value attribute.
@@ -103,40 +182,7 @@ export function ensureBooksToolbarControls(toolbar: HTMLElement): {
     titleFilterInput: HTMLInputElement;
 } {
     const WRAP = createControlsWrap(toolbar);
-    const TITLE_FILTER = createLabeledSearchInput(
-        "Title",
-        "booksTitleFilterInput",
-    );
-    const SHELF = createLabeledSelect("Shelf", "booksShelfFilterSelect", []);
-    const STATUS = createLabeledSelect("Status", "booksStatusFilterSelect", []);
-    const SORT_BY = createLabeledSelect(
-        "Sort",
-        "booksSortBySelect",
-        SORT_OPTIONS,
-    );
-    const GROUP_BY = createLabeledSelect(
-        "Group By",
-        "booksGroupBySelect",
-        GROUP_OPTIONS_BASE,
-    );
-    const SORT_DIRECTION_BTN = document.createElement("button");
-    SORT_DIRECTION_BTN.type = "button";
-    SORT_DIRECTION_BTN.className = "btn";
-    SORT_DIRECTION_BTN.id = "booksSortDirectionBtn";
-    WRAP.replaceChildren(
-        TITLE_FILTER.label,
-        SHELF.label,
-        STATUS.label,
-        SORT_BY.label,
-        GROUP_BY.label,
-        SORT_DIRECTION_BTN,
-    );
-    return {
-        groupBySelect: GROUP_BY.select,
-        shelfFilterSelect: SHELF.select,
-        sortBySelect: SORT_BY.select,
-        sortDirectionBtn: SORT_DIRECTION_BTN,
-        statusFilterSelect: STATUS.select,
-        titleFilterInput: TITLE_FILTER.input,
-    };
+    const CONTROLS = toolbarControls();
+    replaceToolbarChildren(WRAP, CONTROLS);
+    return toolbarControlRefs(CONTROLS);
 }

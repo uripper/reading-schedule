@@ -21,6 +21,59 @@ export function selectedBook(state: PickerState): Book | null {
     );
 }
 
+function optionId(index: number): string {
+    return `after-book-option-${index}`;
+}
+
+function setExpandedState(refs: BookFormRefs, expanded: boolean): void {
+    refs.afterBookInput.setAttribute("aria-expanded", String(expanded));
+}
+
+function clearActiveDescendant(refs: BookFormRefs): void {
+    refs.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
+}
+
+function renderEmptyResults(refs: BookFormRefs): void {
+    refs.afterBookResults.classList.remove("has-items");
+    setExpandedState(refs, false);
+    clearActiveDescendant(refs);
+}
+
+function resultButton(
+    book: Book,
+    index: number,
+    activeIndex: number,
+): HTMLButtonElement {
+    const BUTTON = document.createElement("button");
+    const IS_ACTIVE = activeIndex === index;
+    BUTTON.type = "button";
+    BUTTON.className = "book-result book-result-inline";
+    BUTTON.id = optionId(index);
+    BUTTON.dataset.resultIndex = String(index);
+    BUTTON.setAttribute("role", "option");
+    BUTTON.setAttribute("aria-selected", String(IS_ACTIVE));
+    BUTTON.textContent = optionLabel(book);
+    BUTTON.classList.toggle("is-active", IS_ACTIVE);
+    return BUTTON;
+}
+
+function renderResultButtons(state: PickerState): HTMLButtonElement[] {
+    return state.filtered.map((book, index) => {
+        return resultButton(book, index, state.activeIndex);
+    });
+}
+
+function syncActiveDescendant(refs: BookFormRefs, activeIndex: number): void {
+    if (activeIndex > NO_ACTIVE_INDEX) {
+        refs.afterBookInput.setAttribute(
+            ARIA_ACTIVE_DESCENDANT_ATTR,
+            optionId(activeIndex),
+        );
+        return;
+    }
+    clearActiveDescendant(refs);
+}
+
 /**
  * Renders after-book picker result options and combobox accessibility attributes.
  * @param refs - Form references for picker controls.
@@ -33,37 +86,13 @@ export function renderAfterBookResults(
     const FORM_REFS = refs;
     FORM_REFS.afterBookResults.innerHTML = "";
     if (!state.filtered.length) {
-        FORM_REFS.afterBookResults.classList.remove("has-items");
-        FORM_REFS.afterBookInput.setAttribute("aria-expanded", "false");
-        FORM_REFS.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
+        renderEmptyResults(FORM_REFS);
         return;
     }
-    const ITEMS = state.filtered.map((book, index) => {
-        const BUTTON = document.createElement("button");
-        BUTTON.type = "button";
-        BUTTON.className = "book-result book-result-inline";
-        BUTTON.id = `after-book-option-${index}`;
-        BUTTON.dataset.resultIndex = String(index);
-        BUTTON.setAttribute("role", "option");
-        BUTTON.setAttribute(
-            "aria-selected",
-            String(state.activeIndex === index),
-        );
-        BUTTON.textContent = optionLabel(book);
-        BUTTON.classList.toggle("is-active", state.activeIndex === index);
-        return BUTTON;
-    });
-    FORM_REFS.afterBookResults.replaceChildren(...ITEMS);
+    FORM_REFS.afterBookResults.replaceChildren(...renderResultButtons(state));
     FORM_REFS.afterBookResults.classList.add("has-items");
-    FORM_REFS.afterBookInput.setAttribute("aria-expanded", "true");
-    if (state.activeIndex > NO_ACTIVE_INDEX) {
-        FORM_REFS.afterBookInput.setAttribute(
-            ARIA_ACTIVE_DESCENDANT_ATTR,
-            `after-book-option-${state.activeIndex}`,
-        );
-        return;
-    }
-    FORM_REFS.afterBookInput.removeAttribute(ARIA_ACTIVE_DESCENDANT_ATTR);
+    setExpandedState(FORM_REFS, true);
+    syncActiveDescendant(FORM_REFS, state.activeIndex);
 }
 
 /**

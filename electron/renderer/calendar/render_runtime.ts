@@ -60,11 +60,16 @@ export function renderMonth(
  * @param rerenderMonth - Callback to rerender month grid.
  * @param jumpToToday - Callback to focus today's date.
  */
-export function renderControls(
-    state: CalendarRuntimeState,
-    rerenderControls: () => void,
-    rerenderMonth: () => void,
-    jumpToToday: () => void,
-): void {
-    renderCalendarControls(state, rerenderControls, rerenderMonth, jumpToToday);
+export function renderControls(args: {
+    jumpToToday: () => void;
+    rerenderControls: () => void;
+    rerenderMonth: () => void;
+    state: CalendarRuntimeState;
+}): void {
+    renderCalendarControls({
+        jumpToToday: args.jumpToToday,
+        renderControls: args.rerenderControls,
+        renderMonth: args.rerenderMonth,
+        state: args.state,
+    });
 }

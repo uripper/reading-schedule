@@ -81,7 +81,12 @@ function createBookSelectControl(
     const SELECT = document.createElement("select");
     SELECT.required = true;
     const INITIAL_BOOK_ID = initialPreferredBookId(defaultBookId, books);
-    refreshBookOptions(SELECT, books, EMPTY_TEXT, INITIAL_BOOK_ID);
+    refreshBookOptions({
+        bookSelect: SELECT,
+        books,
+        preferredBookId: INITIAL_BOOK_ID,
+        query: EMPTY_TEXT,
+    });
     LABEL.append(SELECT);
     return { label: LABEL, select: SELECT };
 }
@@ -95,12 +100,12 @@ function bindBookTitleFilter(options: {
         const PREFERRED_BOOK_ID = String(
             options.bookSelect.value || EMPTY_TEXT,
         ).trim();
-        refreshBookOptions(
-            options.bookSelect,
-            options.books,
-            options.titleFilterInput.value,
-            PREFERRED_BOOK_ID,
-        );
+        refreshBookOptions({
+            bookSelect: options.bookSelect,
+            books: options.books,
+            preferredBookId: PREFERRED_BOOK_ID,
+            query: options.titleFilterInput.value,
+        });
     });
 }
 

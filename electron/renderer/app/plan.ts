@@ -2,6 +2,7 @@
  * Normalizes settings and submits desktop planner generation requests.
  */
 
+import { logDebug } from "../../types/logger.ts";
 import type {
     Book,
     PlanGeneratePayload,
@@ -9,7 +10,6 @@ import type {
     PlannerSummary,
     RunPlanGenerationArgs,
 } from "../../types/types.ts";
-import { logDebug } from "../logger.ts";
 import { todayDayKey } from "./date_keys.ts";
 import {
     normalizePlannerEndDate,

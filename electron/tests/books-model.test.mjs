@@ -1,6 +1,7 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
-import { normalizeBook } from "../dist/renderer/books/model.js";
+import { normalizeBook } from "../dist/renderer/books/model_normalize.js";
 import {
     BOOK_STATUS_IN_PROGRESS,
     BOOK_STATUS_READ,

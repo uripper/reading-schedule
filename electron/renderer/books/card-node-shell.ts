@@ -19,7 +19,7 @@ const NO_COVER_LABEL = "No Cover";
  * @param status - Book status value.
  * @returns Class-name text for card root element.
  */
-function cardClassNameForStatus(status: Book["status"]): string {
+export function cardClassNameForStatus(status: Book["status"]): string {
     if (status === BOOK_STATUS_READ) {
         return `${CARD_CLASS} ${READ_CARD_CLASS}`;
     }

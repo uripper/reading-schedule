@@ -1,0 +1,123 @@
+.splash-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    background: var(--neo-app-background);
+    opacity: 1;
+    perspective: 300px;
+    perspective-origin: 50% 35%;
+    transition: opacity 560ms var(--token-motion-easing-standard);
+}
+
+.splash-inner {
+    position: relative;
+    display: grid;
+    gap: var(--token-space-4);
+    justify-items: center;
+    width: 100%;
+}
+
+.splash-title {
+    inset: 0;
+    z-index: 1;
+    display: grid;
+    margin: 0;
+    pointer-events: none;
+}
+
+.splash-title-text {
+    display: inline-block;
+    font-family: var(--header-font);
+    font-size: clamp(1.8rem, 5.6vw, 3.8rem);
+    font-variation-settings: "slnt" 0;
+    font-style: normal;
+    font-weight: var(--token-typography-weight-bold);
+    line-height: 1;
+    color: transparent;
+    text-align: center;
+    white-space: nowrap;
+    text-shadow:
+        0 0 18px color-mix(in srgb, var(--neo-active-color) 30%, transparent),
+        0 6px 20px rgba(0, 0, 0, 0.35);
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(223, 239, 255, 0.88) 45%,
+        color-mix(in srgb, var(--neo-active-color) 55%, white 45%) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    transform-origin: center center;
+    animation: splashTitleEnter 1200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity, filter, letter-spacing;
+}
+
+.splash-title-wrap {
+    position: relative;
+    display: inline-block;
+    isolation: isolate;
+}
+
+.splash-title-wrap::before {
+    position: absolute;
+    inset: -0.5rem -1.25rem;
+    z-index: 0; /* not -1 */
+    content: "";
+    background: radial-gradient(
+        ellipse at center,
+        color-mix(in srgb, var(--neo-active-color) 20%, transparent) 0%,
+        rgba(255, 255, 255, 0.04) 35%,
+        transparent 75%
+    );
+    border-radius: 999px;
+    opacity: 0.75;
+    filter: blur(10px);
+}
+
+.splash-logo {
+    display: block;
+    margin-inline: auto;
+    opacity: 1;
+    transform-origin: center center;
+    backface-visibility: hidden;
+    animation: splashLogoEntrance 2200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
+}
+
+body.splash-exit .splash-screen {
+    opacity: 0;
+}
+
+@keyframes splashTitleEnter {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+        letter-spacing: 0.26em;
+        filter: blur(8px);
+    }
+    to {
+        opacity: 0.78;
+        transform: translateY(0);
+        letter-spacing: 0.2em;
+        filter: blur(0);
+    }
+}
+
+@keyframes splashLogoEntrance {
+    0% {
+        opacity: 0;
+        transform: scale(1) rotateX(45deg);
+    }
+
+    60% {
+        opacity: 1;
+        transform: translate3d(0px, 120px, 90px) scale(8) rotateZ(45deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}

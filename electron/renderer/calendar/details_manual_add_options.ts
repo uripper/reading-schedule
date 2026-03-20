@@ -55,19 +55,19 @@ function renderEmptyBookOptions(bookSelect: HTMLSelectElement): void {
 
 /**
  * Rebuilds manual-add select options from title filter and preferred selection.
- * @param bookSelect - Manual-add select element.
- * @param books - Available manual-session books.
- * @param query - Title filter query text.
- * @param preferredBookId - Book id to preserve when still visible.
+ * @param options - Manual-add option refresh inputs.
  */
-export function refreshBookOptions(
-    bookSelect: HTMLSelectElement,
-    books: ManualSessionBook[],
-    query: string,
-    preferredBookId: string,
-): void {
-    const NEXT_BOOK_SELECT = bookSelect;
-    const FILTERED_BOOKS = booksMatchingTitleQuery(books, query);
+export function refreshBookOptions(options: {
+    bookSelect: HTMLSelectElement;
+    books: ManualSessionBook[];
+    preferredBookId: string;
+    query: string;
+}): void {
+    const NEXT_BOOK_SELECT = options.bookSelect;
+    const FILTERED_BOOKS = booksMatchingTitleQuery(
+        options.books,
+        options.query,
+    );
     if (FILTERED_BOOKS.length === 0) {
         renderEmptyBookOptions(NEXT_BOOK_SELECT);
         return;
@@ -77,10 +77,10 @@ export function refreshBookOptions(
     NEXT_BOOK_SELECT.replaceChildren(...OPTIONS);
 
     const HAS_PREFERRED_BOOK_ID =
-        preferredBookId !== "" &&
-        FILTERED_BOOKS.some((book) => book.bookId === preferredBookId);
+        options.preferredBookId !== "" &&
+        FILTERED_BOOKS.some((book) => book.bookId === options.preferredBookId);
     if (HAS_PREFERRED_BOOK_ID) {
-        NEXT_BOOK_SELECT.value = preferredBookId;
+        NEXT_BOOK_SELECT.value = options.preferredBookId;
         return;
     }
     NEXT_BOOK_SELECT.value = FILTERED_BOOKS[0].bookId;

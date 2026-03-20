@@ -61,6 +61,53 @@ function applyVars(button: HTMLButtonElement, vars: HoloPointerVars): void {
     button.style.setProperty("--bg-shift-y", vars.bgShiftY);
 }
 
+function activateButtonFromPoint(
+    button: HTMLButtonElement,
+    clientX: number,
+    clientY: number,
+): void {
+    button.style.setProperty("--holo-active", ACTIVE_HOLO);
+    applyVars(
+        button,
+        holoVarsForPointer(button.getBoundingClientRect(), clientX, clientY),
+    );
+}
+
+function mouseMoveHandler(
+    button: HTMLButtonElement,
+): (event: MouseEvent) => void {
+    return (event: MouseEvent): void => {
+        activateButtonFromPoint(button, event.clientX, event.clientY);
+    };
+}
+
+function pointerMoveHandler(
+    button: HTMLButtonElement,
+): (event: PointerEvent) => void {
+    return (event: PointerEvent): void => {
+        activateButtonFromPoint(button, event.clientX, event.clientY);
+    };
+}
+
+function leaveHandler(button: HTMLButtonElement): () => void {
+    return (): void => {
+        defaultVars(button);
+    };
+}
+
+function bindButtonHandlers(button: HTMLButtonElement): void {
+    const BUTTON = button;
+    const ON_POINTER_MOVE = pointerMoveHandler(button);
+    const ON_MOUSE_MOVE = mouseMoveHandler(button);
+    const ON_LEAVE = leaveHandler(button);
+    BUTTON.onpointerenter = ON_POINTER_MOVE;
+    BUTTON.onpointermove = ON_POINTER_MOVE;
+    BUTTON.onpointerleave = ON_LEAVE;
+    BUTTON.onmouseenter = ON_MOUSE_MOVE;
+    BUTTON.onmousemove = ON_MOUSE_MOVE;
+    BUTTON.onmouseleave = ON_LEAVE;
+}
+
 /**
  * Computes pointer-driven CSS variable values for holo layers.
  * @param rect - Cover-button bounding rect.
@@ -68,7 +115,7 @@ function applyVars(button: HTMLButtonElement, vars: HoloPointerVars): void {
  * @param clientY - Pointer client y-coordinate.
  * @returns CSS variable value object.
  */
-function holoVarsForPointer(
+export function holoVarsForPointer(
     rect: Pick<DOMRect, "left" | "top" | "width" | "height">,
     clientX: number,
     clientY: number,
@@ -101,31 +148,6 @@ function holoVarsForPointer(
  */
 export function bindReadCardHolo(button: HTMLButtonElement): void {
     const TARGET_BUTTON = button;
-    const ACTIVATE_FROM_POINT = (clientX: number, clientY: number): void => {
-        TARGET_BUTTON.style.setProperty("--holo-active", ACTIVE_HOLO);
-        const VARS = holoVarsForPointer(
-            TARGET_BUTTON.getBoundingClientRect(),
-            clientX,
-            clientY,
-        );
-        applyVars(TARGET_BUTTON, VARS);
-    };
-
-    const ON_POINTER_MOVE = (event: PointerEvent): void => {
-        ACTIVATE_FROM_POINT(event.clientX, event.clientY);
-    };
-    const ON_MOUSE_MOVE = (event: MouseEvent): void => {
-        ACTIVATE_FROM_POINT(event.clientX, event.clientY);
-    };
-    const ON_LEAVE = (): void => {
-        defaultVars(TARGET_BUTTON);
-    };
-
-    TARGET_BUTTON.onpointerenter = ON_POINTER_MOVE;
-    TARGET_BUTTON.onpointermove = ON_POINTER_MOVE;
-    TARGET_BUTTON.onpointerleave = ON_LEAVE;
-    TARGET_BUTTON.onmouseenter = ON_MOUSE_MOVE;
-    TARGET_BUTTON.onmousemove = ON_MOUSE_MOVE;
-    TARGET_BUTTON.onmouseleave = ON_LEAVE;
+    bindButtonHandlers(TARGET_BUTTON);
     defaultVars(TARGET_BUTTON);
 }

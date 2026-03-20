@@ -18,7 +18,7 @@ import { statusFilterMatches } from "./status.ts";
  * @param titleFilter - Active title filter text.
  * @returns `true` when filter is empty or title contains the filter substring.
  */
-function matchesTitleFilter(book: Book, titleFilter: string): boolean {
+export function matchesTitleFilter(book: Book, titleFilter: string): boolean {
     const NORMALIZED_FILTER = normalizeTitleFilterQuery(titleFilter);
     return titleMatchesNormalizedQuery(book.title, NORMALIZED_FILTER);
 }

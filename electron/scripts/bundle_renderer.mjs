@@ -1,6 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import esbuild from "esbuild";
+import { build } from "esbuild";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(path.join(SCRIPT_DIR, ".."));
@@ -11,7 +11,7 @@ const OUTFILE_PATH = path.join(ROOT, "dist", "renderer", "app.js");
  * Bundles renderer entrypoint so browser runtime never resolves bare npm specifiers.
  */
 async function bundleRenderer() {
-    await esbuild.build({
+    await build({
         bundle: true,
         entryPoints: [ENTRY_PATH],
         format: "esm",

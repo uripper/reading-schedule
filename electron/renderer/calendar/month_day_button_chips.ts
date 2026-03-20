@@ -17,7 +17,7 @@ function plannedSessionText(rowCount: number): string {
  * @param row - Day row to style.
  * @returns Class string for chip styling.
  */
-function chipClassNameForRow(row: CalendarDisplayRow): string {
+export function chipClassNameForRow(row: CalendarDisplayRow): string {
     if (row.finish === true) {
         return "day-chip finish";
     }

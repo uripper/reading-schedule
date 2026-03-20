@@ -19,7 +19,7 @@ import {
 } from "../../calendar.ts";
 import { addLog, bindHelpDialog } from "../../help.ts";
 import { collectSettings, initSettingsGrid } from "../../settings.ts";
-import { bindDesktopShortcuts } from "../../shortcuts/index.ts";
+import { bindDesktopShortcuts } from "../../shortcuts/desktop_shortcuts.ts";
 import { activateTab, bindTabs } from "../../tabs.ts";
 import { configureAppCalendarInteractions } from "../calendar_interactions/calendar-interactions.ts";
 import { bindExperienceSettings } from "../experience/bindings.ts";

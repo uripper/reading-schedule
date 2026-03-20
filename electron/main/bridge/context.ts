@@ -13,7 +13,7 @@ import {
     PYTHONPATH_SEGMENT,
 } from "./constants.ts";
 import { hasBundledPlanner } from "./runtime.ts";
-import type { BridgeExecutionContext, BridgeRunContext } from "./types.ts";
+import type { BridgeExecutionContext, BridgeRunContext } from "./types.d.ts";
 
 const ROOT_MARKER_FILE = "pyproject.toml";
 const ROOT_MARKER_PATH_SEGMENTS = ["src", "reading_plan"];

@@ -38,12 +38,13 @@ function normalizeError(error) {
 
 /**
  * Writes a formatted log line to the selected stream.
- * @param {NodeJS.WriteStream} stream - Destination stream.
- * @param {string} prefix - Level prefix.
- * @param {string} message - Log message.
- * @param {unknown} payload - Optional payload.
+ * @param {object} root0 - Log line inputs.
+ * @param {string} root0.message - Log message.
+ * @param {unknown} root0.payload - Optional payload.
+ * @param {string} root0.prefix - Level prefix.
+ * @param {NodeJS.WriteStream} root0.stream - Destination stream.
  */
-function writeLogLine(stream, prefix, message, payload) {
+function writeLogLine({ message, payload, prefix, stream }) {
     let line = `${prefix} ${message}`;
     if (payload !== undefined) {
         line = `${line} ${safeSerialize(payload)}`;
@@ -52,12 +53,38 @@ function writeLogLine(stream, prefix, message, payload) {
 }
 
 /**
+ * Builds an error payload object only when error details exist.
+ * @param {unknown} error - Optional thrown value.
+ * @param {unknown} context - Optional context payload.
+ * @returns {unknown} Structured payload or `undefined`.
+ */
+function errorPayload(error, context) {
+    if (error === undefined && context === undefined) {
+        return undefined;
+    }
+
+    const PAYLOAD = {};
+    if (error !== undefined) {
+        PAYLOAD.error = normalizeError(error);
+    }
+    if (context !== undefined) {
+        PAYLOAD.context = context;
+    }
+    return PAYLOAD;
+}
+
+/**
  * Emits an info-level log line.
  * @param {string} message - Log message.
  * @param {unknown} payload - Optional context payload.
  */
 export function logInfo(message, payload) {
-    writeLogLine(process.stdout, INFO_PREFIX, message, payload);
+    writeLogLine({
+        message,
+        payload,
+        prefix: INFO_PREFIX,
+        stream: process.stdout,
+    });
 }
 
 /**
@@ -67,15 +94,10 @@ export function logInfo(message, payload) {
  * @param {unknown} context - Optional context payload.
  */
 export function logError(message, error, context) {
-    let payload;
-    if (error !== undefined || context !== undefined) {
-        payload = {};
-    }
-    if (error !== undefined && payload !== undefined) {
-        payload.error = normalizeError(error);
-    }
-    if (context !== undefined && payload !== undefined) {
-        payload.context = context;
-    }
-    writeLogLine(process.stderr, ERROR_PREFIX, message, payload);
+    writeLogLine({
+        message,
+        payload: errorPayload(error, context),
+        prefix: ERROR_PREFIX,
+        stream: process.stderr,
+    });
 }

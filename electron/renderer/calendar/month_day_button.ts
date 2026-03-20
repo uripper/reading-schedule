@@ -43,6 +43,36 @@ export function createWeekdayHeader(): HTMLSpanElement[] {
     });
 }
 
+function ariaSelectedValue(selected: boolean): string {
+    if (selected) {
+        return "true";
+    }
+    return "false";
+}
+
+function applyDayFlagClasses(
+    button: HTMLButtonElement,
+    flags: DayStyleFlags,
+): void {
+    if (flags.hasFinishRow) {
+        button.classList.add("has-finish");
+    }
+    if (flags.isMuted) {
+        button.classList.add("is-muted");
+    }
+    if (flags.isSelected) {
+        button.classList.add("is-selected");
+    }
+    if (flags.isPast) {
+        button.classList.add("is-past");
+    }
+    if (!flags.isToday) {
+        return;
+    }
+    button.classList.add("is-today");
+    button.setAttribute("aria-current", "date");
+}
+
 /**
  * Creates one interactive day button with row summary chips and aria state.
  * @param args - Day-button render input values.
@@ -59,28 +89,13 @@ export function createDayButton(args: DayStyleFlagsArgs): HTMLButtonElement {
     DAY_BUTTON.type = "button";
     DAY_BUTTON.className = "day";
     const FLAGS = dayStyleFlags(args);
-    if (FLAGS.hasFinishRow) {
-        DAY_BUTTON.classList.add("has-finish");
-    }
-    if (FLAGS.isMuted) {
-        DAY_BUTTON.classList.add("is-muted");
-    }
-    if (FLAGS.isSelected) {
-        DAY_BUTTON.classList.add("is-selected");
-    }
-    if (FLAGS.isPast) {
-        DAY_BUTTON.classList.add("is-past");
-    }
-    if (FLAGS.isToday) {
-        DAY_BUTTON.classList.add("is-today");
-        DAY_BUTTON.setAttribute("aria-current", "date");
-    }
+    applyDayFlagClasses(DAY_BUTTON, FLAGS);
     DAY_BUTTON.dataset.calendarDay = args.keyForDay;
     DAY_BUTTON.setAttribute("role", "gridcell");
-    DAY_BUTTON.setAttribute("aria-selected", "false");
-    if (FLAGS.isSelected) {
-        DAY_BUTTON.setAttribute("aria-selected", "true");
-    }
+    DAY_BUTTON.setAttribute(
+        "aria-selected",
+        ariaSelectedValue(FLAGS.isSelected),
+    );
     const DAY_DATE = document.createElement("span");
     DAY_DATE.className = "day-date";
     DAY_DATE.textContent = String(args.date.getDate());

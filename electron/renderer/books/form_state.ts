@@ -1,3 +1,7 @@
+/**
+ * Builds, clears, and normalizes the desktop book form state used by the
+ * add-book and edit-book flows.
+ */
 import type {
     Book,
     BookFormRefs,
@@ -30,11 +34,22 @@ import { bookCoverSrc, normalizeBook } from "./model_normalize.ts";
 import { BOOK_STATUS_READ } from "./status_catalog.ts";
 import { toOptionalInt } from "./utils.ts";
 
+/**
+ * Parsed reading-length values derived from the current form inputs.
+ */
 type ParsedReadingState = ReturnType<typeof deriveLengthAndProgress>;
+
+/**
+ * Normalized progress values ready for persistence.
+ */
 type NormalizedProgress = {
     progress: number;
     pagesRead: number | null;
 };
+
+/**
+ * Inputs needed to assemble the planning-related portion of a saved book.
+ */
 type NormalizedPlanningFieldsArgs = {
     refs: BookFormRefs;
     parsed: ParsedReadingState;
@@ -51,6 +66,10 @@ export function syncFinishedAtField(refs: BookFormRefs): void {
     syncFinishedAtFieldState(refs);
 }
 
+/**
+ * Clears lookup-driven metadata and relationship fields from the form.
+ * @param refs - Book form references containing the lookup controls.
+ */
 function clearLookupFields(refs: BookFormRefs): void {
     const FORM_REFS = refs;
     FORM_REFS.author.value = "";
@@ -60,6 +79,10 @@ function clearLookupFields(refs: BookFormRefs): void {
     FORM_REFS.blockedByInput.value = "";
 }
 
+/**
+ * Restores numeric form inputs to their default add-book values.
+ * @param refs - Book form references containing numeric controls.
+ */
 function clearNumericDefaults(refs: BookFormRefs): void {
     const FORM_REFS = refs;
     FORM_REFS.progressInput.value = DEFAULT_PROGRESS;
@@ -68,6 +91,10 @@ function clearNumericDefaults(refs: BookFormRefs): void {
     FORM_REFS.minBlocksInput.value = DEFAULT_MIN_BLOCKS;
 }
 
+/**
+ * Resets select-like fields and scheduled-day controls back to defaults.
+ * @param refs - Book form references containing status and scheduling inputs.
+ */
 function clearSelectionFields(refs: BookFormRefs): void {
     const FORM_REFS = refs;
     FORM_REFS.statusSelectInput.value = DEFAULT_STATUS;
@@ -77,6 +104,10 @@ function clearSelectionFields(refs: BookFormRefs): void {
     resetScheduledDayControls(FORM_REFS);
 }
 
+/**
+ * Clears local and remote cover values and removes the preview image.
+ * @param refs - Book form references containing cover inputs.
+ */
 function clearCoverFields(refs: BookFormRefs): void {
     const FORM_REFS = refs;
     FORM_REFS.coverUrl.value = "";
@@ -104,6 +135,11 @@ export function clearForm(
     lookupControl.clearResults();
 }
 
+/**
+ * Fills the length and progress fields from an existing book record.
+ * @param refs - Book form references containing length-related controls.
+ * @param book - Existing book record used to seed the form.
+ */
 function fillLengthFields(refs: BookFormRefs, book: Book): void {
     const FORM_REFS = refs;
     setOptionalIntegerInputValue(FORM_REFS.wordsInput, book.words_total);
@@ -115,6 +151,11 @@ function fillLengthFields(refs: BookFormRefs, book: Book): void {
     );
 }
 
+/**
+ * Fills priority and reading-difficulty controls from an existing book.
+ * @param refs - Book form references containing planning inputs.
+ * @param book - Existing book record used to seed the form.
+ */
 function fillPriorityFields(refs: BookFormRefs, book: Book): void {
     const FORM_REFS = refs;
     FORM_REFS.priorityInput.value = fallbackNumberText(
@@ -131,6 +172,11 @@ function fillPriorityFields(refs: BookFormRefs, book: Book): void {
     );
 }
 
+/**
+ * Fills deadline-related planning inputs from an existing book.
+ * @param refs - Book form references containing deadline inputs.
+ * @param book - Existing book record used to seed the form.
+ */
 function fillDeadlineFields(refs: BookFormRefs, book: Book): void {
     const FORM_REFS = refs;
     setOptionalIntegerInputValue(
@@ -140,11 +186,21 @@ function fillDeadlineFields(refs: BookFormRefs, book: Book): void {
     FORM_REFS.deadlineInput.value = fallbackText(book.deadline);
 }
 
+/**
+ * Fills planning-related controls from an existing book record.
+ * @param refs - Book form references containing planning inputs.
+ * @param book - Existing book record used to seed the form.
+ */
 function fillPlanningFields(refs: BookFormRefs, book: Book): void {
     fillPriorityFields(refs, book);
     fillDeadlineFields(refs, book);
 }
 
+/**
+ * Fills status, completion, and scheduled-day controls from an existing book.
+ * @param refs - Book form references containing status-related inputs.
+ * @param book - Existing book record used to seed the form.
+ */
 function fillStatusFields(refs: BookFormRefs, book: Book): void {
     const FORM_REFS = refs;
     FORM_REFS.blockedByInput.value = fallbackText(book.blocked_by);
@@ -157,6 +213,11 @@ function fillStatusFields(refs: BookFormRefs, book: Book): void {
     fillScheduledDayControls(FORM_REFS, book.scheduled_days);
 }
 
+/**
+ * Fills lookup and cover fields from an existing book record.
+ * @param refs - Book form references containing lookup-related inputs.
+ * @param book - Existing book record used to seed the form.
+ */
 function fillLookupFields(refs: BookFormRefs, book: Book): void {
     const FORM_REFS = refs;
     FORM_REFS.coverUrl.value = fallbackText(book.cover_url);
@@ -183,6 +244,11 @@ export function fillForm(refs: BookFormRefs, book: Book): void {
     fillLookupFields(FORM_REFS, book);
 }
 
+/**
+ * Reads the selected scheduled days and enforces the minimum save constraint.
+ * @param refs - Book form references containing scheduled-day controls.
+ * @returns The validated scheduled-day selection.
+ */
 function validatedScheduledDays(refs: BookFormRefs): BookWeekday[] {
     const SCHEDULED_DAYS = readScheduledDaySelection(refs);
     if (SCHEDULED_DAYS.length === 0) {
@@ -191,6 +257,12 @@ function validatedScheduledDays(refs: BookFormRefs): BookWeekday[] {
     return SCHEDULED_DAYS;
 }
 
+/**
+ * Normalizes progress fields for save, forcing completed books to 100%.
+ * @param parsed - Parsed reading-length state from the form.
+ * @param status - Selected book status for the current save.
+ * @returns Normalized progress values for persistence.
+ */
 function normalizedProgressState(
     parsed: ParsedReadingState,
     status: Book["status"],
@@ -205,6 +277,11 @@ function normalizedProgressState(
     return { pagesRead, progress: 100 };
 }
 
+/**
+ * Normalizes author, title, lookup, and cover fields into a partial book.
+ * @param refs - Book form references containing identity-related controls.
+ * @returns Identity and metadata fields ready to merge into a saved book.
+ */
 function normalizedIdentityFields(refs: BookFormRefs): Partial<Book> {
     return {
         author: refs.author.value.trim(),
@@ -219,6 +296,11 @@ function normalizedIdentityFields(refs: BookFormRefs): Partial<Book> {
     };
 }
 
+/**
+ * Normalizes planning, progress, and scheduling fields into a partial book.
+ * @param args - Normalized planning inputs derived from the current form state.
+ * @returns Planning-related fields ready to merge into a saved book.
+ */
 function normalizedPlanningFields({
     refs,
     parsed,

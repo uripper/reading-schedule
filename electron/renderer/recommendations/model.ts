@@ -1,13 +1,37 @@
+/**
+ * Static recommendation catalog helpers for deriving read-author suggestions from shelf history.
+ */
 import type {
     Book,
     RecommendationItem,
     RecommendationSeed,
 } from "../../types/types.ts";
 import { BOOK_STATUS_READ } from "../books/status_catalog.ts";
-import { AUTHOR_RECOMMENDATION_CATALOG } from "./catalog.ts";
 
 const AUTHOR_LIST_LOCALE = "en";
+/**
+ * Normalized author key to ordered recommendation seed list.
+ */
 type RecommendationCatalog = Record<string, RecommendationSeed[]>;
+
+const AUTHOR_RECOMMENDATION_CATALOG: RecommendationCatalog = {
+    "george orwell": [
+        { title: "Homage to Catalonia", wordsTotal: 73000 },
+        { title: "Keep the Aspidistra Flying", wordsTotal: 89000 },
+    ],
+    "jane austen": [
+        { title: "Persuasion", wordsTotal: 86500 },
+        { title: "Mansfield Park", wordsTotal: 160000 },
+    ],
+    "toni morrison": [
+        { title: "Beloved", wordsTotal: 98000 },
+        { title: "Sula", wordsTotal: 54000 },
+    ],
+    "ursula k. le guin": [
+        { title: "The Left Hand of Darkness", wordsTotal: 96000 },
+        { title: "A Wizard of Earthsea", wordsTotal: 56000 },
+    ],
+};
 
 /**
  * Normalizes text for case-insensitive recommendation matching.

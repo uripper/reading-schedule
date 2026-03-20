@@ -1,12 +1,26 @@
+/**
+ * Derives yearly reading metrics for the stats screen from planner results and
+ * persisted book progress state.
+ */
 import type { Book, PlannerResult } from "../../types/types.ts";
 import { finishDatesByBookId } from "../books/finish-dates.ts";
 import { sessionKeyFor } from "../calendar/utils.ts";
 import { todayKey } from "../sessions/utils.ts";
 import { monthIndexFromDateKey, yearFromDateKey } from "./helpers.ts";
 
+/**
+ * Keeps monthly metric arrays aligned to the calendar year.
+ */
 const MONTHS_PER_YEAR = 12;
+
+/**
+ * Converts fractional completion rates into percentages for the stats view.
+ */
 const PERCENT_MAX = 100;
 
+/**
+ * Checks whether a book's planner summary still allows a projected finish date.
+ */
 function summaryAllowsPlannedFinish(options: {
     bookId: string;
     perBookSummary:
@@ -22,6 +36,9 @@ function summaryAllowsPlannedFinish(options: {
     return options.perBookSummary[options.bookId].finished !== false;
 }
 
+/**
+ * Returns the finish month for a planned book when it still applies to the requested year.
+ */
 function plannedFinishMonthIndex(options: {
     bookId: string;
     dateKey: string;
@@ -39,6 +56,9 @@ function plannedFinishMonthIndex(options: {
     return monthIndexFromDateKey(options.dateKey);
 }
 
+/**
+ * Converts a valid planned finish into a `[bookId, monthIndex]` entry.
+ */
 function plannedFinishEntry(options: {
     bookId: string;
     dateKey: string;
@@ -54,6 +74,9 @@ function plannedFinishEntry(options: {
     return [options.bookId, MONTH_INDEX];
 }
 
+/**
+ * Wraps an optional planned finish entry in a list for flat-map usage.
+ */
 function plannedFinishEntryList(options: {
     bookId: string;
     dateKey: string;
@@ -69,6 +92,9 @@ function plannedFinishEntryList(options: {
     return [ENTRY];
 }
 
+/**
+ * Collects all planned finish entries for the requested calendar year.
+ */
 function plannedFinishEntries(
     lastResult: PlannerResult | null,
     year: number,
@@ -85,6 +111,9 @@ function plannedFinishEntries(
     });
 }
 
+/**
+ * Builds the set and lookup map used by the stats view for planned finishes.
+ */
 function plannedFinishMaps(entries: Array<[string, number]>): {
     ids: Set<string>;
     monthByBookId: Map<string, number>;
@@ -98,6 +127,9 @@ function plannedFinishMaps(entries: Array<[string, number]>): {
     return { ids: IDS, monthByBookId: MONTH_BY_BOOK_ID };
 }
 
+/**
+ * Returns the books with planned finishes this year plus their finish month index.
+ */
 export function plannedFinishBookIds(
     lastResult: PlannerResult | null,
     year: number,
@@ -105,6 +137,9 @@ export function plannedFinishBookIds(
     return plannedFinishMaps(plannedFinishEntries(lastResult, year));
 }
 
+/**
+ * Returns a row date only when the session belongs to the requested year and is not in the future.
+ */
 function rowDateIfScheduledInRange(options: {
     row: PlannerResult["schedule"][number];
     today: string;
@@ -121,6 +156,9 @@ function rowDateIfScheduledInRange(options: {
     return ROW_DATE;
 }
 
+/**
+ * Checks whether a scheduled row in the requested range has already been marked complete.
+ */
 function isCompletedScheduledRow(options: {
     row: PlannerResult["schedule"][number];
     scheduleCompletions: Record<string, boolean>;
@@ -138,6 +176,9 @@ function isCompletedScheduledRow(options: {
     return options.scheduleCompletions[sessionKeyFor(options.row)] === true;
 }
 
+/**
+ * Calculates the scheduled and completed contribution for a single schedule row.
+ */
 function scheduledCompletionDelta(options: {
     row: PlannerResult["schedule"][number];
     scheduleCompletions: Record<string, boolean>;
@@ -154,6 +195,9 @@ function scheduledCompletionDelta(options: {
     return { completed: 0, scheduled: 1 };
 }
 
+/**
+ * Totals completed and scheduled sessions for the requested year through today.
+ */
 function countScheduledCompletions(options: {
     rows: PlannerResult["schedule"];
     scheduleCompletions: Record<string, boolean>;
@@ -175,6 +219,9 @@ function countScheduledCompletions(options: {
     return { completed, scheduled };
 }
 
+/**
+ * Converts completed and scheduled counts into a percentage.
+ */
 function completionRatePercent(completed: number, scheduled: number): number {
     if (scheduled === 0) {
         return 0;
@@ -182,6 +229,9 @@ function completionRatePercent(completed: number, scheduled: number): number {
     return (completed / scheduled) * PERCENT_MAX;
 }
 
+/**
+ * Summarizes scheduled-session completion totals for the stats view.
+ */
 export function completionStats(
     lastResult: PlannerResult | null,
     scheduleCompletions: Record<string, boolean>,
@@ -202,6 +252,9 @@ export function completionStats(
     };
 }
 
+/**
+ * Sums book progress and counts how many books have been started.
+ */
 function progressTotals(books: Book[]): {
     startedCount: number;
     totalPercent: number;
@@ -218,6 +271,9 @@ function progressTotals(books: Book[]): {
     return { startedCount, totalPercent };
 }
 
+/**
+ * Computes the average completion percentage across the provided books.
+ */
 export function averageProgress(books: Book[]): {
     startedCount: number;
     averagePercent: number;
@@ -233,10 +289,16 @@ export function averageProgress(books: Book[]): {
     };
 }
 
+/**
+ * Reads the finished month index from a book record.
+ */
 function monthIndexFromFinishedBook(book: Book): number | null {
     return monthIndexFromDateKey(String(book.finished_at ?? ""));
 }
 
+/**
+ * Returns a finished month only for books counted as read this year.
+ */
 function completedReadMonth(
     book: Book,
     readThisYearIds: Set<string>,
@@ -247,6 +309,9 @@ function completedReadMonth(
     return monthIndexFromFinishedBook(book);
 }
 
+/**
+ * Collects the finished month indexes for books completed this year.
+ */
 function completedReadMonths(
     books: Book[],
     readThisYearIds: Set<string>,
@@ -261,6 +326,9 @@ function completedReadMonths(
     return MONTHS;
 }
 
+/**
+ * Adds one count for each supplied month index without mutating the input array.
+ */
 function incrementMonthlyCounts(
     counts: number[],
     monthIndexes: Iterable<number>,
@@ -272,6 +340,9 @@ function incrementMonthlyCounts(
     return NEXT_COUNTS;
 }
 
+/**
+ * Builds per-month finish counts from planned and completed books.
+ */
 export function monthlyFinishCounts(
     readThisYearIds: Set<string>,
     books: Book[],

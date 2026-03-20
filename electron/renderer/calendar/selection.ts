@@ -67,6 +67,13 @@ export function applyTodayFocus(state: CalendarRuntimeState): void {
     }
 }
 
+function focusSelectedDate(dateKey: string): void {
+    const BUTTON = document.querySelector(`[data-calendar-day='${dateKey}']`);
+    if (BUTTON instanceof HTMLElement) {
+        BUTTON.focus();
+    }
+}
+
 /**
  * Selects a date, refreshes month UI, and optionally focuses its day button.
  * @param state - Mutable calendar runtime state.
@@ -75,49 +82,53 @@ export function applyTodayFocus(state: CalendarRuntimeState): void {
  * @param options - Optional selection behavior.
  * @param focus - Whether to focus selected day button.
  */
-export function selectDate(
-    state: CalendarRuntimeState,
-    dateKey: string,
-    renderMonth: () => void,
-    options: { focus?: boolean } = {},
-): void {
-    const CALENDAR_STATE = state;
-    CALENDAR_STATE.selectedDate = dateKey;
-    CALENDAR_STATE.expectedFinishHighlightDate = dateKey;
-    renderMonth();
-    if (options.focus === true) {
-        const BUTTON = document.querySelector(
-            `[data-calendar-day='${dateKey}']`,
-        );
-        if (BUTTON instanceof HTMLElement) {
-            BUTTON.focus();
-        }
+export function selectDate(args: {
+    dateKey: string;
+    options?: { focus?: boolean };
+    renderMonth: () => void;
+    state: CalendarRuntimeState;
+}): void {
+    const CALENDAR_STATE = args.state;
+    CALENDAR_STATE.selectedDate = args.dateKey;
+    CALENDAR_STATE.expectedFinishHighlightDate = args.dateKey;
+    args.renderMonth();
+    if (args.options?.focus === true) {
+        focusSelectedDate(args.dateKey);
     }
+}
+
+function boundedSelectionIndex(
+    monthCellKeys: string[],
+    currentIndex: number,
+    delta: number,
+): number {
+    return Math.min(
+        monthCellKeys.length - 1,
+        Math.max(0, currentIndex + delta),
+    );
 }
 
 /**
  * Moves day-cell selection by offset and focuses resulting day.
- * @param state - Mutable calendar runtime state.
- * @param delta - Positive/negative index delta.
- * @param currentIndex - Current cell index.
- * @param selectDateWithOptions - Date selection callback with focus option.
+ * @param args - Selection movement inputs.
  */
-export function moveSelectionBy(
-    state: CalendarRuntimeState,
-    delta: number,
-    currentIndex: number,
+export function moveSelectionBy(args: {
+    currentIndex: number;
+    delta: number;
     selectDateWithOptions: (
         dateKey: string,
         options?: { focus?: boolean },
-    ) => void,
-): void {
-    const NEXT_INDEX = Math.min(
-        state.monthCellKeys.length - 1,
-        Math.max(0, currentIndex + delta),
+    ) => void;
+    state: CalendarRuntimeState;
+}): void {
+    const NEXT_INDEX = boundedSelectionIndex(
+        args.state.monthCellKeys,
+        args.currentIndex,
+        args.delta,
     );
-    const NEXT_KEY = state.monthCellKeys[NEXT_INDEX];
+    const NEXT_KEY = args.state.monthCellKeys[NEXT_INDEX];
     if (!NEXT_KEY) {
         return;
     }
-    selectDateWithOptions(NEXT_KEY, { focus: true });
+    args.selectDateWithOptions(NEXT_KEY, { focus: true });
 }

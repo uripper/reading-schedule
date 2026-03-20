@@ -1,10 +1,11 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
     normalizeFeatureFlags,
     normalizePreferences,
-} from "../dist/renderer/app/experience.js";
+} from "../dist/renderer/app/experience/model.js";
 
 test("normalizeFeatureFlags keeps shipped gamification flag", () => {
     const FLAGS = normalizeFeatureFlags({

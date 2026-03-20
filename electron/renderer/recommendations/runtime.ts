@@ -1,7 +1,7 @@
+import { logError } from "../../types/logger.ts";
 import { getPlannerApi } from "../app/planner_api.ts";
 import { collectAllBooks } from "../books/controller.ts";
 import { el } from "../dom.ts";
-import { logError } from "../logger.ts";
 import { addRecommendationToShelf } from "./add_to_shelf.ts";
 import { renderRecommendationsPanel } from "./render.ts";
 import { findRecommendations } from "./search.ts";

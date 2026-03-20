@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -44,6 +45,56 @@ function row(args) {
     };
 }
 
+function todayRows() {
+    const DATE = todayKey();
+    return {
+        first: row({
+            bookId: "book-1",
+            date: DATE,
+            minutes: 10,
+            sessionIndex: 1,
+            title: "The Book",
+        }),
+        second: row({
+            bookId: "book-1",
+            date: DATE,
+            minutes: 20,
+            sessionIndex: 2,
+            title: "The Book",
+        }),
+        third: row({
+            bookId: "book-2",
+            date: DATE,
+            minutes: 30,
+            sessionIndex: 3,
+            title: "Another Book",
+        }),
+    };
+}
+
+function snapshotBooks() {
+    return [
+        {
+            book_id: "book-1",
+            cover_local_path: "",
+            cover_url: "https://example.com/one.jpg",
+        },
+        { book_id: "book-2", cover_local_path: "/tmp/two.jpg", cover_url: "" },
+    ];
+}
+
+function assertSnapshotTotals(snapshot) {
+    assert.equal(snapshot.scheduledSessions, 3);
+    assert.equal(snapshot.completedSessions, 1);
+    assert.equal(snapshot.completedPlannedMinutes, 10);
+    assert.equal(snapshot.books.length, 2);
+}
+
+function assertSnapshotBookOrder(snapshot) {
+    assert.equal(snapshot.books[0].title, "Another Book");
+    assert.equal(snapshot.books[1].title, "The Book");
+}
+
 test("nextUncompletedPlannedRow skips already completed rows", () => {
     const DATE = todayKey();
     const FIRST = row({
@@ -71,50 +122,16 @@ test("nextUncompletedPlannedRow skips already completed rows", () => {
 });
 
 test("buildTodayScheduleSnapshot returns per-book and overall completion counts", () => {
-    const DATE = todayKey();
-    const FIRST = row({
-        bookId: "book-1",
-        date: DATE,
-        minutes: 10,
-        sessionIndex: 1,
-        title: "The Book",
-    });
-    const SECOND = row({
-        bookId: "book-1",
-        date: DATE,
-        minutes: 20,
-        sessionIndex: 2,
-        title: "The Book",
-    });
-    const THIRD = row({
-        bookId: "book-2",
-        date: DATE,
-        minutes: 30,
-        sessionIndex: 3,
-        title: "Another Book",
-    });
+    const ROWS = todayRows();
     const COMPLETIONS = {};
-    COMPLETIONS[sessionKeyFor(FIRST)] = true;
-
-    const BOOKS = [
-        {
-            book_id: "book-1",
-            cover_local_path: "",
-            cover_url: "https://example.com/one.jpg",
-        },
-        { book_id: "book-2", cover_local_path: "/tmp/two.jpg", cover_url: "" },
-    ];
+    COMPLETIONS[sessionKeyFor(ROWS.first)] = true;
 
     const SNAPSHOT = buildTodayScheduleSnapshot(
-        plannerResult([FIRST, SECOND, THIRD]),
+        plannerResult([ROWS.first, ROWS.second, ROWS.third]),
         COMPLETIONS,
-        BOOKS,
+        snapshotBooks(),
     );
 
-    assert.equal(SNAPSHOT.scheduledSessions, 3);
-    assert.equal(SNAPSHOT.completedSessions, 1);
-    assert.equal(SNAPSHOT.completedPlannedMinutes, 10);
-    assert.equal(SNAPSHOT.books.length, 2);
-    assert.equal(SNAPSHOT.books[0].title, "Another Book");
-    assert.equal(SNAPSHOT.books[1].title, "The Book");
+    assertSnapshotTotals(SNAPSHOT);
+    assertSnapshotBookOrder(SNAPSHOT);
 });

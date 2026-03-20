@@ -1,11 +1,11 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
-
+import { wordsPlannedForManualSession } from "../dist/renderer/app/calendar_interactions/calendar_interactions_manual_helpers.js";
 import {
     nextSessionIndexForDate,
     rowsWithoutSession,
-    wordsPlannedForManualSession,
-} from "../dist/renderer/app/calendar_interactions.js";
+} from "../dist/renderer/app/calendar_interactions/calendar_interactions_row_helpers.js";
 import {
     historicalPaceRowsFixture,
     indexRowsFixture,

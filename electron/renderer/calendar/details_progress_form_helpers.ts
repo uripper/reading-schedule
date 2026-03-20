@@ -51,6 +51,55 @@ function syncInputValue(
     return String(TARGET_INPUT.value).trim();
 }
 
+function unchangedProgressResult(
+    initialPagesValue: string,
+    initialPercentValue: string,
+): {
+    initialPagesValue: string;
+    initialPercentValue: string;
+    applied: boolean;
+} {
+    return { applied: true, initialPagesValue, initialPercentValue };
+}
+
+function syncUpdatedProgressValues(
+    args: Pick<SubmitProgressUpdateArgs, "pagesInput" | "pctInput"> & {
+        updated: {
+            pages_read?: number | null;
+            progress_percent?: number | null;
+        };
+    },
+): {
+    initialPagesValue: string;
+    initialPercentValue: string;
+    applied: boolean;
+} {
+    return {
+        applied: true,
+        initialPagesValue: syncInputValue(
+            args.pagesInput,
+            args.updated.pages_read,
+        ),
+        initialPercentValue: syncInputValue(
+            args.pctInput,
+            args.updated.progress_percent,
+        ),
+    };
+}
+
+function progressUpdateResult(
+    args: SubmitProgressUpdateArgs,
+    pagesRead: number | null,
+    progressPercent: number | null,
+) {
+    return args.interactionHandlers.onSessionProgressUpdated({
+        bookId: args.row.book_id,
+        pagesRead,
+        progressPercent,
+        row: args.row,
+    });
+}
+
 /**
  * Submits progress update and returns updated baseline form values.
  * @param args - Form submission payload for the progress editor.
@@ -70,33 +119,26 @@ export function submitProgressUpdate(args: SubmitProgressUpdateArgs): {
 } {
     const {
         event,
-        row,
         pagesInput,
         pctInput,
         initialPagesValue,
         initialPercentValue,
-        interactionHandlers,
     } = args;
     event.preventDefault();
     const PAGES_READ = changedNumberValue(pagesInput, initialPagesValue);
     const PROGRESS_PERCENT = changedNumberValue(pctInput, initialPercentValue);
     if (PAGES_READ === null && PROGRESS_PERCENT === null) {
-        return { applied: true, initialPagesValue, initialPercentValue };
+        return unchangedProgressResult(initialPagesValue, initialPercentValue);
     }
 
-    const UPDATED = interactionHandlers.onSessionProgressUpdated({
-        bookId: row.book_id,
-        pagesRead: PAGES_READ,
-        progressPercent: PROGRESS_PERCENT,
-        row,
-    });
+    const UPDATED = progressUpdateResult(args, PAGES_READ, PROGRESS_PERCENT);
     if (!UPDATED) {
         return { applied: false, initialPagesValue, initialPercentValue };
     }
 
-    return {
-        applied: true,
-        initialPagesValue: syncInputValue(pagesInput, UPDATED.pages_read),
-        initialPercentValue: syncInputValue(pctInput, UPDATED.progress_percent),
-    };
+    return syncUpdatedProgressValues({
+        pagesInput,
+        pctInput,
+        updated: UPDATED,
+    });
 }

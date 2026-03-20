@@ -1,9 +1,33 @@
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { normalizeBook } from "../dist/renderer/books/model.js";
+import { normalizeBook } from "../dist/renderer/books/model_normalize.js";
 import { applyScheduledDaysToShelfBooks } from "../dist/renderer/books/save_scheduled_days.js";
 import { BOOK_WEEKDAYS } from "../dist/renderer/books/scheduled_days.js";
+
+const BASE_BOOK = {
+    author: "",
+    blocked_by: null,
+    book_id: "book-1",
+    cover_local_path: "",
+    cover_url: "",
+    deadline: null,
+    difficulty: 3,
+    finished_at: null,
+    lookup_note: "",
+    max_minutes_per_day: null,
+    min_blocks_per_session: 1,
+    pages_read: null,
+    pages_total: null,
+    priority: 3,
+    progress_percent: 0,
+    scheduled_days: [...BOOK_WEEKDAYS],
+    shelf: "",
+    status: "to_read",
+    title: "Book",
+    words_total: 1000,
+};
 
 /**
  * Builds canonical book fixture with override support.
@@ -12,26 +36,7 @@ import { BOOK_WEEKDAYS } from "../dist/renderer/books/scheduled_days.js";
  */
 function book(overrides = {}) {
     return {
-        author: "",
-        blocked_by: null,
-        book_id: "book-1",
-        cover_local_path: "",
-        cover_url: "",
-        deadline: null,
-        difficulty: 3,
-        finished_at: null,
-        lookup_note: "",
-        max_minutes_per_day: null,
-        min_blocks_per_session: 1,
-        pages_read: null,
-        pages_total: null,
-        priority: 3,
-        progress_percent: 0,
-        scheduled_days: [...BOOK_WEEKDAYS],
-        shelf: "",
-        status: "to_read",
-        title: "Book",
-        words_total: 1000,
+        ...BASE_BOOK,
         ...overrides,
     };
 }
