@@ -87,7 +87,7 @@ function projectedFinishCard(snapshot: StatsSnapshot): HTMLElement {
     return card(
         `Projected Finishes ${snapshot.year}`,
         numberText(snapshot.projectedFinishCount),
-        `${snapshot.plannedFinishCount} planned + ${snapshot.finishedThisYearCount} already read`,
+        `${numberText(Math.max(0, snapshot.projectedFinishCount - snapshot.finishedThisYearCount))} planned remaining + ${numberText(snapshot.finishedThisYearCount)} already read`,
     );
 }
 
