@@ -89,22 +89,40 @@ function renderDetailsForDate(
     renderFinishedBooksSummary(completedBookRowsForDate(STATE.selectedDate));
 }
 
+function selectDateWithMonthView(
+    dateKey: string,
+    options?: { focus?: boolean },
+): void {
+    selectDate({
+        dateKey,
+        options,
+        renderMonth: renderMonthView,
+        state: STATE,
+    });
+}
+
+function moveSelectionByWithMonthView(
+    delta: number,
+    currentIndex: number,
+): void {
+    moveSelectionBy({
+        currentIndex,
+        delta,
+        selectDateWithOptions: selectDateWithMonthView,
+        state: STATE,
+    });
+}
+
 function renderMonthActions(
     completedBookRowsForDate: (dateKey: string) => CompletedBookRow[],
 ) {
     return {
         completedBookRowsForDate,
-        moveSelectionBy: (delta: number, currentIndex: number) => {
-            moveSelectionBy(STATE, delta, currentIndex, (dateKey, options) => {
-                selectDate(STATE, dateKey, renderMonthView, options);
-            });
-        },
+        moveSelectionBy: moveSelectionByWithMonthView,
         renderDetails: () => {
             renderDetailsForDate(completedBookRowsForDate);
         },
-        selectDate: (dateKey: string, options?: { focus?: boolean }) => {
-            selectDate(STATE, dateKey, renderMonthView, options);
-        },
+        selectDate: selectDateWithMonthView,
     };
 }
 
@@ -126,7 +144,12 @@ function renderControlsView(): void {
         renderControlsView();
         renderMonthView();
     };
-    renderControls(STATE, renderControlsView, renderMonthView, JUMP_TO_TODAY);
+    renderControls({
+        jumpToToday: JUMP_TO_TODAY,
+        rerenderControls: renderControlsView,
+        rerenderMonth: renderMonthView,
+        state: STATE,
+    });
 }
 
 function previousMonthKey(): string {
@@ -206,7 +229,7 @@ export function focusCalendarDate(dateKey: string): void {
     const MONTH_KEY = monthKeyForDateKey(dateKey);
     STATE.index = indexForMonth(STATE.months, MONTH_KEY);
     renderControlsView();
-    selectDate(STATE, dateKey, renderMonthView);
+    selectDate({ dateKey, renderMonth: renderMonthView, state: STATE });
 }
 
 /**

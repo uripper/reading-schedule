@@ -1,7 +1,7 @@
 import { parseSettings, safeParseSettings } from "@reading-schedule/contracts";
+import { logDebug } from "../types/logger.ts";
 import type { PlannerSettings } from "../types/types.ts";
-import { logDebug } from "./logger.ts";
-import { FIELDS } from "./settings/config.ts";
+import { FIELDS } from "./settings/config_fields.ts";
 import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.ts";
 import {
     renderDifficultyRows,
