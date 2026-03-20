@@ -105,8 +105,8 @@ function legacyLastResult() {
 
 function legacyState() {
     return {
-        blockedDayBooks: {
-            "2026-05-01|book-1": 1,
+        blocked_day_books: {
+            "2026-05-01|book-1": true,
         },
         books: [],
         featureFlags: {
