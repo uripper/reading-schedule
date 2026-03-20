@@ -73,7 +73,7 @@ const CONTRACTS_FIRST_AUDIT_PREFIXES = [
 ];
 const DISALLOWED_CONSOLE_PATTERN = /\bconsole\.(error|warn|log|debug)\s*\(/g;
 const LOCAL_TYPE_AUDIT_ALLOW_PATTERN =
-	/\baudit-allow-local-types\s*:\s*([^\n*]+)/;
+    /(?:\/\/|\/\*+|\*)\s*audit-allow-local-types\s*:\s*([^\n*]+)/;
 const TYPE_COVERAGE_CHECKS = [
 	{
 		label: "electron main strict",
