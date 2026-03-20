@@ -137,7 +137,11 @@ export function applyPreferencesToDocument(
 ): void {
     const ROOT = document.documentElement;
     ROOT.dataset.theme = resolvedDocumentTheme(preferences);
-    ROOT.dataset.reduceMotion = String(preferences.reduceMotion);
+    const reduceMotion =
+        preferences.reduceMotion === undefined
+            ? false
+            : Boolean(preferences.reduceMotion);
+    ROOT.dataset.reduceMotion = String(reduceMotion);
 }
 
 export { bindDialogFocus };
