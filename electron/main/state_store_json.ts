@@ -162,8 +162,7 @@ function backupJsonLoadResult(
         state,
         warningCode: "RECOVERED_FROM_BACKUP",
         warningMessage:
-            "Recovered saved data from backup copy. Recent unsaved changes may\
-            be missing.",
+            "Recovered saved data from backup copy. Recent unsaved changes may be missing.",
     };
 }
 
