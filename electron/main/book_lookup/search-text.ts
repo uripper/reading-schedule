@@ -1,5 +1,5 @@
 /**
- * @file Text normalization helpers for search matching and scoring.
+ * Text normalization helpers for search matching and scoring.
  */
 import type { SearchDoc } from "@reading-schedule/contracts";
 
