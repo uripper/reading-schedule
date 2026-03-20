@@ -47,7 +47,9 @@ export function createStatusSetter(
 }
 
 function normalizedWordCount(value: unknown): number | null {
-    const PARSED = Number(value);
+    if (value === null || value === undefined || value === "") {
+        return null;
+    }
     if (!Number.isFinite(PARSED)) {
         return null;
     }
