@@ -168,6 +168,7 @@ async function downloadedCoverBytes(
 
     if (totalBytes === null || totalBytes === 0) {
         await response.body?.cancel();
+        return null;
     }
 
     return combinedChunks(CHUNKS, totalBytes);
