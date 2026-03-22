@@ -9,6 +9,12 @@ import type {
     PlannerStateLoadResult,
 } from "../types/types.ts";
 import { readStateFromJson, writeStateToJson } from "./state_store_json.ts";
+import type { MigrationResult } from "./state_store_migrations.ts";
+import {
+    migrateLoadedState,
+    versionedSnapshot,
+    withMigrationWarning,
+} from "./state_store_migrations.ts";
 import {
     jsonStateBackupPath,
     jsonStatePath,
@@ -73,6 +79,40 @@ function migratedPrimaryJsonResult(
     };
 }
 
+function rewriteMigratedState(
+    userDataDir: string,
+    loadResult: PlannerStateLoadResult,
+): PlannerStateLoadResult | null {
+    const STATE = loadResult.state;
+    let migration: MigrationResult | null;
+    try {
+        migration = migrateLoadedState(STATE);
+    } catch {
+        return null;
+    }
+    if (migration === null) {
+        return loadResult;
+    }
+    if (!migration.shouldRewrite) {
+        return {
+            ...loadResult,
+            state: migration.migratedState,
+        };
+    }
+    const SNAPSHOT = versionedSnapshot(migration.migratedState);
+    const SAVE_RESULT = writeState(
+        userDataDir,
+        SNAPSHOT as unknown as JsonValue,
+    );
+    if (SAVE_RESULT.ok === false) {
+        return null;
+    }
+    return withMigrationWarning({
+        ...loadResult,
+        state: SNAPSHOT,
+    });
+}
+
 /**
  * Backfills SQLite from JSON state and decorates warnings when migration fails.
  * @param userDataDir - Base Electron user-data directory for this profile.
@@ -101,11 +141,12 @@ function preferredStateResult(
     sqliteResult: PlannerStateLoadResult | null,
 ): PlannerStateLoadResult | null {
     if (sqliteResult !== null && hasBootstrapState(sqliteResult.state)) {
-        return sqliteResult;
+        return rewriteMigratedState(userDataDir, sqliteResult);
     }
     const JSON_RESULT = readStateFromJson(userDataDir);
     if (JSON_RESULT !== null) {
-        return migratedJsonResult(userDataDir, JSON_RESULT);
+        const MIGRATED_JSON = migratedJsonResult(userDataDir, JSON_RESULT);
+        return rewriteMigratedState(userDataDir, MIGRATED_JSON);
     }
     return sqliteResult;
 }

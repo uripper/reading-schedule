@@ -1,8 +1,8 @@
 import type { UUID } from "node:crypto";
-import type { Book } from "./types_books.js";
-import type { JsonValue, Session } from "./types_core.js";
-import type { FeatureFlags, Preferences } from "./types_experience.js";
-import type { BookLookupItem } from "./types_lookup.js";
+import type { Book } from "./types_books.ts";
+import type { JsonValue, Session } from "./types_core.ts";
+import type { FeatureFlags, Preferences } from "./types_experience.ts";
+import type { BookLookupItem } from "./types_lookup.ts";
 
 /**
  * Types related to the reading schedule planner feature.
@@ -147,6 +147,7 @@ export interface PlannerStateSnapshot {
     schedule_completions: Record<string, boolean>;
     sessions: Session[];
     settings: PlannerSettings;
+    state_version: number;
 }
 
 export interface LoadedPlannerState {
@@ -158,6 +159,7 @@ export interface LoadedPlannerState {
     schedule_completions?: Record<string, boolean>;
     sessions?: Session[];
     settings?: PlannerSettings;
+    state_version?: number;
 }
 
 export interface PlanGeneratePayload {
@@ -177,7 +179,8 @@ export type PlannerStateLoadWarningCode =
     | "RECOVERED_FROM_BACKUP"
     | "RECOVERED_FROM_JOURNAL"
     | "STATE_RESET_FRESH"
-    | "MIGRATED_JSON_TO_SQLITE";
+    | "MIGRATED_JSON_TO_SQLITE"
+    | "MIGRATED_STATE_VERSION";
 
 export interface PlannerStateLoadResult {
     source: PlannerStateLoadSource;

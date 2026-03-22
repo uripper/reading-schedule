@@ -5,6 +5,8 @@ import type {
     PlannerStateSnapshot,
 } from "../../types/types.ts";
 
+const CURRENT_STATE_VERSION = 1;
+
 /**
  * Builds the planner snapshot payload used for durable state persistence.
  * @param args - Current runtime values and collectors needed for serialization.
@@ -28,6 +30,7 @@ export function draftData(args: DraftDataParams): PlannerStateSnapshot {
         schedule_completions: args.scheduleCompletions,
         sessions: args.sessions,
         settings: args.collectSettings(),
+        state_version: CURRENT_STATE_VERSION,
     };
 }
 
