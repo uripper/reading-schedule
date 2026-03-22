@@ -50,6 +50,7 @@ function normalizedWordCount(value: unknown): number | null {
     if (value === null || value === undefined || value === "") {
         return null;
     }
+    const PARSED = Number(value);
     if (!Number.isFinite(PARSED)) {
         return null;
     }

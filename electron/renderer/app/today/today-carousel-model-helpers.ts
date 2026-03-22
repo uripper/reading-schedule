@@ -182,14 +182,28 @@ function carouselBookItems(options: {
     return OUTPUT;
 }
 
+
+
+function bookDone(book: TodayCarouselBookItem): number {
+    if (book.sessions.every((session) => session.completed)) {
+        return 1;
+    }
+    return 0;
+}
+
 function sortedCarouselBooks(
     books: TodayCarouselBookItem[],
 ): TodayCarouselBookItem[] {
-    return books.toSorted((left, right) =>
-        left.title.localeCompare(right.title, undefined, {
+    return books.toSorted((left, right) => {
+        const COMPLETION_ORDER = bookDone(left) - bookDone(right);
+        if (COMPLETION_ORDER !== 0) {
+            return COMPLETION_ORDER;
+        }
+
+        return left.title.localeCompare(right.title, undefined, {
             sensitivity: "base",
-        }),
-    );
+        });
+    });
 }
 
 export function buildTodayCarouselBooks(options: {
