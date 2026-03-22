@@ -194,8 +194,8 @@ def run_precheck(books: list[Book], settings: Settings) -> PrecheckResult:
     )
     if required_capacity > total_capacity:
         note = (
-            "Precheck infeasible: required blocks exceed total capacity; " +
-            "fell back to greedy planner."
+            "Precheck infeasible: required blocks exceed total capacity; "
+            + "fell back to greedy planner."
         )
         return PrecheckResult(is_feasible=False, note=note)
     return _deadline_precheck(books, context)
@@ -222,11 +222,11 @@ def _deadline_capacity_note(
         if not book_is_scheduled_for_day(book, day):
             continue
         available += min(context.caps[day], per_book_limit)
-    if available >= required:
-        return None
     return (
-        f"Precheck infeasible for deadline-bound book {book.book_id}; " +
-        "fell back to greedy planner."
+        None
+        if available >= required
+        else f"Precheck infeasible for deadline-bound book {book.book_id}; "
+        + "fell back to greedy planner."
     )
 
 
