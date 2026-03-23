@@ -6,7 +6,6 @@ from reading_plan.planner_types import (
     PLAN_MODE_FINISH_SOON,
     PLAN_MODE_SPREAD_OUT,
     WEEKDAYS,
-    PlanModes,
 )
 
 
@@ -23,6 +22,10 @@ BOOK_PRIORITY_RANGE = range(1, 6)
 BOOK_DIFFICULTY_RANGE = range(1, 11)
 VALID_WEEKDAYS = frozenset(WEEKDAYS)
 VALID_DIFFICULTY_KEYS = frozenset(BOOK_DIFFICULTY_RANGE)
+VALID_PLAN_MODES = (
+    PLAN_MODE_FINISH_SOON,
+    PLAN_MODE_SPREAD_OUT,
+)
 
 
 def check_condition(
@@ -199,5 +202,5 @@ def _validate_settings_plan_mode(settings: Settings) -> None:
     check_condition(
         "plan_mode must be set to one of:"
         + f"{PLAN_MODE_FINISH_SOON}, {PLAN_MODE_SPREAD_OUT}",
-        condition=settings.plan_mode in PlanModes,
+        condition=settings.plan_mode in VALID_PLAN_MODES,
     )

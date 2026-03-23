@@ -18,7 +18,7 @@ Definition of done:
 - Keep each touched file under the 300-line hard limit and improve margin under the 200-line soft target.
 - Prefer extracting focused helpers/modules over moving complexity sideways into equally large sibling files.
 - Run relevant tests for touched areas after each split.
-- Re-run `pnpm run audit` and improve percentage of files under 200 lines beyond the current baseline.
+- Re-run `pnpm run styleaudit` and improve percentage of files under 200 lines beyond the current baseline.
 
 Critical hard-limit violations:
 
