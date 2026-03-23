@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypeGuard
 
-from reading_plan.input.builders import WORDS_PER_PAGE
 from reading_plan.input.builders_coerce import optional_int, to_float
+from reading_plan.input.builders_constants import WORDS_PER_PAGE
 from reading_plan.input.validate import check_condition
 
 

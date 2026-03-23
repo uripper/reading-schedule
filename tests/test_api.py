@@ -6,6 +6,7 @@ from reading_plan.api import generate_plan
 from reading_plan.input.serializers import book_to_data, settings_to_data
 from tests.helpers import demo_books, demo_settings
 
+
 if TYPE_CHECKING:
     from reading_plan.api import PlannerInputPayload
 
