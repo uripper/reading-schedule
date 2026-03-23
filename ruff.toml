@@ -1,5 +1,5 @@
 target-version = "py314"
-required-version = "==0.15.6"
+required-version = "==0.15.7"
 line-length = 80
 indent-width = 4
 src = ["src", "tests"]

@@ -12,6 +12,7 @@ dependencies = [
     "fastapi>=0.115",
     "ortools>=9.10",
     "pytest>=8.0",
+    "pytest-cov>=7.1.0",
     "ruff>=0.15.4",
     "ty>=0.0.20",
     "uvicorn>=0.30",

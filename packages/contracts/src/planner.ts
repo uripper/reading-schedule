@@ -17,7 +17,6 @@ const BRIDGE_RESPONSE_ENVELOPE_SCHEMA = z.looseObject({
 
 const PLAN_GENERATE_PAYLOAD_SCHEMA = z.object({
     books: z.array(z.unknown()),
-    planner: z.enum(["mip", "mip-fast", "mip-balanced", "mip-thorough"]),
     settings: plannerSettingsSchema(),
 });
 

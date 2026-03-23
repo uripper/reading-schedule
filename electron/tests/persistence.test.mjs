@@ -53,6 +53,7 @@ test("draftData persists sessions from runtime state", () => {
     const SESSIONS = [session()];
     const SNAPSHOT = draftData(runtimeStateForDraft(SESSIONS));
 
+    assert.equal(SNAPSHOT.state_version, 1);
     assert.equal(SNAPSHOT.sessions.length, 1);
     assert.equal(SNAPSHOT.sessions[0].id, "session-1");
     assert.equal(SNAPSHOT.blocked_day_books["2026-02-22|book-2"], true);

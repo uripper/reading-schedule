@@ -73,6 +73,8 @@ DEFAULT_STATE_FILE = "mobile_state.json"
 OPEN_LIBRARY_SEARCH_URL = "https://openlibrary.org/search.json"
 SEARCH_TIMEOUT_SECONDS = 8
 SEARCH_OUTPUT_LIMIT = 20
+STATUS_OK = 200
+STATUS_BAD_GATEWAY = 502
 
 LOGGER = get_bridge_logger(__name__)
 # TODO: Is there a reason we are so reliant on "object" types for everything?
@@ -215,7 +217,7 @@ def _cover_url(cover_id: object) -> str | None:
     return f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg"
 
 
-# TODO: What is the work-id segment?
+# TODO: What is the work-id segment this is returning?
 
 
 def _work_id(raw_key: object) -> str:
@@ -258,11 +260,11 @@ def _open_library_query_string(request_url: str) -> str:
     return request_url.removeprefix(prefix)
 
 
+# TODO: Fix return type or explicitly return something.
+
+
 def _fetch_open_library_payload(query: str) -> object:
     """Fetch raw Open Library payload using a fixed HTTPS host/path.
-
-    Returns:
-        Parsed Open Library payload.
 
     Raises:
         HTTPException: Open Library request failed.
@@ -273,10 +275,11 @@ def _fetch_open_library_payload(query: str) -> object:
         ) as connection:
             connection.request("GET", f"/search.json?{query}")
             response = connection.getresponse()
-            if response.status != 200:
+            if response.status != STATUS_OK:
                 raise HTTPException(
-                    status_code=502,
-                    detail=f"Book search failed: Open Library responded with {response.status}",
+                    status_code=STATUS_BAD_GATEWAY,
+                    detail="Book search failed:" +
+                    f"Open Library responded with {response.status}",
                 )
     except (
         ClientHTTPException,
@@ -286,7 +289,7 @@ def _fetch_open_library_payload(query: str) -> object:
         UnicodeDecodeError,
     ) as error:
         raise HTTPException(
-            status_code=502,
+            status_code=STATUS_BAD_GATEWAY,
             detail=f"Book search failed: {error}",
         ) from error
 
@@ -295,8 +298,8 @@ def _request_json(request_url: str) -> dict[str, object]:
     """Fetch JSON from Open Library and return an object payload.
 
     Network and timeout failures are converted into
-    `HTTPException(status_code=502)`. If the remote JSON is not an object, the
-    function returns an empty dictionary.
+    `HTTPException(status_code=STATUS_BAD_GATEWAY)`. If the remote JSON is not
+    an object, the function returns an empty dictionary.
 
     Returns:
         Open Library JSON object, or an empty dictionary.
@@ -379,23 +382,17 @@ def _search_open_library(
 def _planner_input_payload(payload: dict[str, object]) -> PlannerInputPayload:
     """Validate the top-level planner payload shape before generation.
 
-    The HTTP layer expects `books` and `settings` fields compatible with the
-    shared planner payload contracts. An optional `planner` string is allowed
-    to select a solver profile.
+    The HTTP layer expects ``books`` and ``settings`` fields compatible with the
+    shared planner payload contracts. The solver profile is read from
+    ``settings.planner_solver_profile`` by the downstream planner.
 
     Returns:
         Validated planner input payload.
     """
-    books = _planner_books(payload)
-    settings = _planner_settings(payload)
-    request_payload: PlannerInputPayload = {
-        "books": books,
-        "settings": settings,
+    return {
+        "books": _planner_books(payload),
+        "settings": _planner_settings(payload),
     }
-    planner = _planner_name(payload)
-    if planner is not None:
-        request_payload["planner"] = planner
-    return request_payload
 
 
 def _planner_books(payload: dict[str, object]) -> list[BookData]:
@@ -427,24 +424,6 @@ def _planner_settings(payload: dict[str, object]) -> SettingsData:
     if is_settings_data(settings):
         return settings
     msg = "Planner payload field 'settings' must be an object."
-    raise TypeError(msg)
-
-
-def _planner_name(payload: dict[str, object]) -> str | None:
-    """Return validated optional planner name.
-
-    Returns:
-        Validated planner name or ``None``.
-
-    Raises:
-        TypeError: Payload field isn't a string
-    """
-    planner = payload.get("planner")
-    if planner is None:
-        return None
-    if isinstance(planner, str):
-        return planner
-    msg = "Planner payload field 'planner' must be a string."
     raise TypeError(msg)
 
 
@@ -494,9 +473,6 @@ def _api_state_sample(_payload: dict[str, object]) -> dict[str, object]:
         entrypoint="_api_state_sample",
     )
     return _sample_payload()
-
-
-# TODO: Why are these also generalized as HTTPException?
 
 
 def _api_state_save(state: dict[str, object]) -> dict[str, object]:

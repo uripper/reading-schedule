@@ -126,8 +126,10 @@ def _parse_books(books_raw: list[BookData]) -> list[Book]:
     parse_started = perf_counter()
     books: list[Book] = []
     for idx, row in enumerate(books_raw):
+        # TODO: This seems like a bad way of doing this, just checking if
+        # it's a dictionary instead of a JSON object.
         if not isinstance(row, dict):
-            msg = f"book at index {idx} must be an object"
+            msg = f"book at index {idx} must be a JSON object"
             raise TypeError(msg)
         books.append(book_from_data(row))
     LOGGER.debug(
@@ -274,17 +276,23 @@ def _payload_books_and_settings(
     return books_raw, settings_raw
 
 
-def _planner_name(payload: PlannerInputPayload) -> str:
-    """Return the requested planner name or the default solver.
+_SOLVER_PROFILE_TOKEN_MAP = {
+    "fast": "mip-fast",
+    "balanced": "mip-balanced",
+    "thorough": "mip-thorough",
+}
 
-    Notes:
-        Values are string-coerced for compatibility with loosely typed JSON
-        payloads.
+
+def _planner_name(settings_raw: SettingsData) -> str:
+    """Return the solver token for the requested profile, or the default.
 
     Returns:
-        Planner identifier.
+        Solver token mapped from ``planner_solver_profile`` in settings.
     """
-    return str(payload.get("planner", "mip"))
+    profile = settings_raw.get("planner_solver_profile", "")
+    if isinstance(profile, str) and profile in _SOLVER_PROFILE_TOKEN_MAP:
+        return _SOLVER_PROFILE_TOKEN_MAP[profile]
+    return "mip"
 
 
 def generate_plan(payload: PlannerInputPayload) -> PlannerOutputPayload:
@@ -303,7 +311,7 @@ def generate_plan(payload: PlannerInputPayload) -> PlannerOutputPayload:
     books = _parse_books(books_raw)
     _validate_blockers_with_logging(books)
     settings = _parse_settings(settings_raw)
-    planner = _planner_name(payload)
+    planner = _planner_name(settings_raw)
     result = _solve_with_logging(books, planner, settings)
     return _build_output_with_logging(
         books,

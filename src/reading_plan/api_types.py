@@ -5,7 +5,7 @@ UI clients and planner backends. Validation is performed by parser and builder
 layers; this module defines the stable structural contract.
 """
 
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, NotRequired, TypedDict
 
 
 if TYPE_CHECKING:
@@ -57,6 +57,7 @@ class SettingsData(TypedDict):
     max_blocks_per_book_per_day: int
     plan_mode: str
     difficulty_multiplier: dict[str, float]
+    planner_solver_profile: NotRequired[str]
 
 
 class ScheduleRow(TypedDict):
@@ -77,13 +78,8 @@ class _PlannerInputRequired(TypedDict):
     settings: SettingsData
 
 
-class PlannerInputPayload(_PlannerInputRequired, total=False):
-    """Planner request payload.
-
-    ``planner`` is optional and selects a solver profile by name.
-    """
-
-    planner: str
+class PlannerInputPayload(_PlannerInputRequired):
+    """Planner request payload with books and settings."""
 
 
 class PlannerOutputPayload(TypedDict):

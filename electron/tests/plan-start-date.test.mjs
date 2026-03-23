@@ -8,7 +8,6 @@ import test from "node:test";
 import {
     normalizePlannerEndDate,
     normalizePlannerStartDate,
-    plannerTokenFromProfile,
 } from "../dist/renderer/app/plan_normalize.js";
 
 const MINIMUM_START_DATE = "2026-03-07";
@@ -39,11 +38,4 @@ test("normalizePlannerEndDate keeps valid future end dates", () => {
         normalizePlannerEndDate("2099-01-01", MINIMUM_START_DATE),
         "2099-01-01",
     );
-});
-
-test("plannerTokenFromProfile keeps solver profile mapping intact", () => {
-    assert.equal(plannerTokenFromProfile(undefined), "mip");
-    assert.equal(plannerTokenFromProfile("fast"), "mip-fast");
-    assert.equal(plannerTokenFromProfile("balanced"), "mip-balanced");
-    assert.equal(plannerTokenFromProfile("thorough"), "mip-thorough");
 });

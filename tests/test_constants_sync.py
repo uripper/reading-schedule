@@ -3,7 +3,7 @@
 from pathlib import Path
 import re
 
-from reading_plan.input.builders_shared import WORDS_PER_PAGE
+from reading_plan.input.builders import WORDS_PER_PAGE
 
 
 def test_words_per_page_matches_renderer_constant() -> None:

@@ -6,6 +6,7 @@ from reading_plan.api import generate_plan
 from reading_plan.input.serializers import book_to_data, settings_to_data
 from tests.helpers import demo_books, demo_settings
 
+
 if TYPE_CHECKING:
     from reading_plan.api import PlannerInputPayload
 
@@ -15,7 +16,6 @@ def test_generate_plan_from_json_payload() -> None:
     books = [book_to_data(b) for b in demo_books()]
     settings = settings_to_data(demo_settings())
     payload: PlannerInputPayload = {
-        "planner": "greedy",
         "books": books,
         "settings": settings,
     }
@@ -34,7 +34,6 @@ def test_generate_plan_allows_missing_book_id() -> None:
     data = cast(
         "dict[str, Any]",
         generate_plan({
-            "planner": "greedy",
             "books": [book],
             "settings": settings,
         }),
@@ -52,7 +51,6 @@ def test_generate_plan_rejects_missing_blocker() -> None:
         cast(
             "dict[str, Any]",
             generate_plan({
-                "planner": "greedy",
                 "books": books,
                 "settings": settings,
             }),
@@ -73,7 +71,6 @@ def test_generate_plan_rejects_blocker_cycles() -> None:
         cast(
             "dict[str, Any]",
             generate_plan({
-                "planner": "greedy",
                 "books": books,
                 "settings": settings,
             }),

@@ -5,7 +5,7 @@ payload parsing. They are intentionally stricter than API boundary types.
 """
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final, Literal
 
 
 if TYPE_CHECKING:
@@ -26,9 +26,17 @@ DEFAULT_DIFFICULTY_MULTIPLIER = {
     10: 0.10,
 }
 WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-PLAN_MODE_FINISH_SOON = "finish_soon"
-PLAN_MODE_SPREAD_OUT = "spread_out"
-PLAN_MODES = (PLAN_MODE_FINISH_SOON, PLAN_MODE_SPREAD_OUT)
+
+type PlanModes = Literal["finish_soon", "spread_out"]
+
+PLAN_MODE_FINISH_SOON: Final[PlanModes] = "finish_soon"
+PLAN_MODE_SPREAD_OUT: Final[PlanModes] = "spread_out"
+
+type SolverProfile = Literal["fast", "balanced", "thorough"]
+
+FAST_PLAN: Final[SolverProfile] = "fast"
+BALANCED_PLAN: Final[SolverProfile] = "balanced"
+THOROUGH_PLAN: Final[SolverProfile] = "thorough"
 
 
 def default_scheduled_days() -> frozenset[str]:
@@ -75,6 +83,8 @@ class Book:
         default_factory=default_scheduled_days
     )
 
+# TODO: Why is planner not here? Isn't it from Settings?
+
 
 @dataclass
 class Settings:
@@ -115,7 +125,9 @@ class Settings:
     # Maximum number of blocks one book can receive in a single day.
     max_blocks_per_book_per_day: int = 12
     # Planner mode that controls how work is distributed across days.
-    plan_mode: str = PLAN_MODE_FINISH_SOON
+    plan_mode: PlanModes = PLAN_MODE_FINISH_SOON
+    # Planner solve profile which determines which planning algorithm to use.
+    planner_solver_profile: SolverProfile = FAST_PLAN
 
 
 @dataclass

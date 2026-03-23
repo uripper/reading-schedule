@@ -6,7 +6,7 @@
 
 Problem:
 
-`pnpm run audit` currently fails because `electron/types/types.ts` has only 1 code line, below the 30-line minimum enforced for `electron/types`. Tiny shim files like this create indirection without pulling their weight and leave the audit red.
+`pnpm run styleaudit` currently fails because `electron/types/types.ts` has only 1 code line, below the 30-line minimum enforced for `electron/types`. Tiny shim files like this create indirection without pulling their weight and leave the audit red.
 
 Expected:
 
@@ -16,7 +16,7 @@ Definition of done:
 
 - Decide whether `electron/types/types.ts` should be removed, merged, or expanded into a real type module.
 - Keep import paths coherent for callers after the change.
-- Re-run `pnpm run audit` and clear the undersized-file failure.
+- Re-run `pnpm run styleaudit` and clear the undersized-file failure.
 - Document the intended role of tiny type-shim files if any exceptions remain.
 
 Context:

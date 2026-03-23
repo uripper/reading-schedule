@@ -2,26 +2,6 @@
  * Normalizes planner request dates and solver-token selection for desktop plan
  * generation.
  */
-import type { PlannerToken } from "../../types/types.ts";
-
-/**
- * Maps settings solver profile to planner token accepted by the bridge.
- * @param profileRaw - Raw settings profile value.
- * @returns Planner token for Python solve strategy selection.
- */
-export function plannerTokenFromProfile(profileRaw: unknown): PlannerToken {
-    if (profileRaw === "fast") {
-        return "mip-fast";
-    }
-    if (profileRaw === "thorough") {
-        return "mip-thorough";
-    }
-    if (profileRaw === "balanced") {
-        return "mip-balanced";
-    }
-    return "mip";
-}
-
 /**
  * Resolves the effective planner start date, defaulting and clamping to the
  * provided minimum date.

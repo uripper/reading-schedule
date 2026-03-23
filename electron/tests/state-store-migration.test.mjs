@@ -54,10 +54,12 @@ test("Facade reads JSON fallback once, migrates to SQLite, then reads SQLite", (
         const FIRST_READ = readState(userDataDir);
         assert.equal(FIRST_READ.source, "json_primary");
         assert.equal(FIRST_READ.warningCode, "MIGRATED_JSON_TO_SQLITE");
+        assert.equal(FIRST_READ.state?.state_version, 1);
         assert.equal(FIRST_READ.state?.settings?.start_date, "2026-03-01");
         assert.equal(fs.existsSync(sqliteStatePath(userDataDir)), true);
         const SECOND_READ = readState(userDataDir);
         assert.equal(SECOND_READ.source, "sqlite");
+        assert.equal(SECOND_READ.state?.state_version, 1);
         assert.equal(SECOND_READ.state?.settings?.start_date, "2026-03-01");
     });
 });
@@ -76,5 +78,37 @@ test("Facade prefers SQLite source when both SQLite and JSON are present", () =>
         assert.equal(RESULT.source, "sqlite");
         assert.equal(RESULT.state?.settings?.start_date, "2026-03-02");
         assert.equal(RESULT.state?.books?.[0]?.book_id, "book-sqlite");
+    });
+});
+
+test("Facade migrates unversioned SQLite state and rewrites it with a version", () => {
+    withTempUserData((userDataDir) => {
+        assertSqliteWrite(userDataDir, {
+            books: [{ book_id: "book-sqlite", title: "SQLite Source" }],
+            settings: { start_date: "2026-03-02" },
+        });
+        const FIRST_READ = readState(userDataDir);
+        assert.equal(FIRST_READ.source, "sqlite");
+        assert.equal(FIRST_READ.warningCode, "MIGRATED_STATE_VERSION");
+        assert.equal(FIRST_READ.state?.state_version, 1);
+
+        const SECOND_READ = readState(userDataDir);
+        assert.equal(SECOND_READ.source, "sqlite");
+        assert.equal(SECOND_READ.warningCode, undefined);
+        assert.equal(SECOND_READ.state?.state_version, 1);
+    });
+});
+
+test("Facade resets to fresh state when persisted version is unsupported", () => {
+    withTempUserData((userDataDir) => {
+        assertSqliteWrite(userDataDir, {
+            state_version: 999,
+            books: [{ book_id: "book-sqlite", title: "SQLite Source" }],
+            settings: { start_date: "2026-03-02" },
+        });
+        const RESULT = readState(userDataDir);
+        assert.equal(RESULT.source, "fresh");
+        assert.equal(RESULT.warningCode, "STATE_RESET_FRESH");
+        assert.equal(RESULT.state, null);
     });
 });

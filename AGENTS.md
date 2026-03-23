@@ -79,7 +79,7 @@ Run commands relevant to touched areas before finishing:
 
 Helpful aggregate checks:
 
-- Style audit: `pnpm run audit`
+- Style audit: `pnpm run styleaudit`
 - Repo desktop dev entrypoint: `pnpm run dev:desktop`
 - Root desktop wrappers:
   - `pnpm run lint:desktop`
@@ -89,7 +89,7 @@ Helpful aggregate checks:
 
 For broad refactors or project-wide cleanup work, run these repo-level checks by default unless the user explicitly asks you not to:
 
-- `pnpm run audit`
+- `pnpm run styleaudit`
 - `pnpm run lint:desktop`
 
 If a required command fails, the change is not done.

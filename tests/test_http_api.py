@@ -132,7 +132,6 @@ def test_state_save_rejects_invalid_snapshot(
 
 def test_plan_generate_endpoint() -> None:
     payload: PlannerInputPayload = {
-        "planner": "greedy",
         "books": [book_to_data(book) for book in demo_books()],
         "settings": settings_to_data(demo_settings()),
     }

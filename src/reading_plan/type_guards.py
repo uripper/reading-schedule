@@ -6,9 +6,23 @@ full schema validators and should be paired with parser-level validation.
 
 from typing import TYPE_CHECKING, TypeGuard
 
+from reading_plan.planner_types import (
+    PLAN_MODE_FINISH_SOON,
+    PLAN_MODE_SPREAD_OUT,
+)
+
 
 if TYPE_CHECKING:
     from reading_plan.api_types import BookData, SettingsData
+    from reading_plan.planner_types import PlanModes
+
+# TODO: Most of these are so fucking stupid. Why are we doing this instead of
+# just using proper narrow types when we know EXACTLY what is going to be sent
+# and received? There is no mystery as to what information we will receive due
+# to validation on the front and back ends of the applications. We do not need
+# to prepare for arbitrary JSONs sent by rogue CLI exposure, so why the fuck
+# are we type narrowing instead of fucking using the right types that we know
+# we will use? This is so fucking dumb.
 
 
 def is_object_mapping(value: object) -> TypeGuard[dict[object, object]]:
@@ -71,3 +85,8 @@ def is_settings_data(value: object) -> TypeGuard[SettingsData]:
         True when ``value`` matches the shallow settings boundary.
     """
     return is_str_object_dict(value)
+
+
+def is_plan_mode(value: str) -> TypeGuard[PlanModes]:
+    """Return whether a runtime value is a valid plan mode string."""
+    return value in {PLAN_MODE_FINISH_SOON, PLAN_MODE_SPREAD_OUT}

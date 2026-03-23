@@ -125,7 +125,7 @@ ci:
 
 # Analysis / maintenance
 audit:
-  pnpm run audit
+  pnpm run styleaudit
 
 knip:
   pnpm run knip
