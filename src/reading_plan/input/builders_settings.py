@@ -1,5 +1,7 @@
 """Normalize raw settings payloads into validated planner settings models."""
 
+from reading_plan.type_guards import is_plan_mode
+
 from datetime import UTC, datetime
 from time import time
 from typing import TYPE_CHECKING
@@ -18,6 +20,8 @@ if TYPE_CHECKING:
     from datetime import date
 
     from src.reading_plan.api_types import SettingsData
+
+    from reading_plan.planner_types import PlanModes
 
 
 def _minutes_by_weekday(data: SettingsData) -> dict[str, int]:
@@ -93,16 +97,17 @@ def _minutes_per_day(
     return to_int(minutes_per_day, "minutes_per_day")
 
 
-def _plan_mode(data: SettingsData) -> str:
-    """Normalize the planner mode value.
+def _plan_mode(data: SettingsData) -> PlanModes:
+    """Gets the plan mode and normalizes it.
 
     Args:
-        data: Raw settings payload.
+        data: Raw settings payload
 
     Returns:
-        Lower-cased planner mode with the default applied.
+        PlanModes: either "finish_soon" or "spread_out"
+
     """
-    return (
+    raw = (
         str(
             data.get("plan_mode", PLAN_MODE_FINISH_SOON)
             or PLAN_MODE_FINISH_SOON
@@ -110,6 +115,9 @@ def _plan_mode(data: SettingsData) -> str:
         .strip()
         .lower()
     )
+    if is_plan_mode(raw):
+        return raw
+    return PLAN_MODE_FINISH_SOON
 
 
 def settings_from_data(data: SettingsData) -> Settings:

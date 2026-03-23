@@ -6,9 +6,15 @@ full schema validators and should be paired with parser-level validation.
 
 from typing import TYPE_CHECKING, TypeGuard
 
+from reading_plan.planner_types import (
+    PLAN_MODE_FINISH_SOON,
+    PLAN_MODE_SPREAD_OUT,
+)
+
 
 if TYPE_CHECKING:
     from reading_plan.api_types import BookData, SettingsData
+    from reading_plan.planner_types import PlanModes
 
 # TODO: This is so fucking stupid. Why are we doing this instead of just using
 # proper narrow types when we know EXACTLY what is going to be sent and
@@ -79,3 +85,7 @@ def is_settings_data(value: object) -> TypeGuard[SettingsData]:
         True when ``value`` matches the shallow settings boundary.
     """
     return is_str_object_dict(value)
+
+
+def is_plan_mode(value: str) -> TypeGuard[PlanModes]:
+    return value in {PLAN_MODE_FINISH_SOON, PLAN_MODE_SPREAD_OUT}
