@@ -1,7 +1,5 @@
 """Normalize raw settings payloads into validated planner settings models."""
 
-from reading_plan.type_guards import is_plan_mode
-
 from datetime import UTC, datetime
 from time import time
 from typing import TYPE_CHECKING
@@ -14,6 +12,7 @@ from reading_plan.planner_types import (
     Settings,
 )
 from reading_plan.reading_calendar import parse_date
+from reading_plan.type_guards import is_plan_mode
 
 
 if TYPE_CHECKING:

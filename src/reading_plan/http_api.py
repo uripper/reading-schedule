@@ -260,15 +260,11 @@ def _open_library_query_string(request_url: str) -> str:
     return request_url.removeprefix(prefix)
 
 
-# TODO: Fix documentation and return type.
-# This doesn't return anything explicitly.
+# TODO: Fix return type or explicitly return something.
 
 
 def _fetch_open_library_payload(query: str) -> object:
     """Fetch raw Open Library payload using a fixed HTTPS host/path.
-
-    Returns:
-        Parsed Open Library payload.
 
     Raises:
         HTTPException: Open Library request failed.
@@ -282,7 +278,8 @@ def _fetch_open_library_payload(query: str) -> object:
             if response.status != STATUS_OK:
                 raise HTTPException(
                     status_code=STATUS_BAD_GATEWAY,
-                    detail=f"Book search failed: Open Library responded with {response.status}",
+                    detail="Book search failed:" +
+                    f"Open Library responded with {response.status}",
                 )
     except (
         ClientHTTPException,

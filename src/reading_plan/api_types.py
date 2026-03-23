@@ -77,6 +77,7 @@ class _PlannerInputRequired(TypedDict):
     books: list[BookData]
     settings: SettingsData
 
+
 class PlannerInputPayload(_PlannerInputRequired):
     """Planner request payload with books and settings."""
 

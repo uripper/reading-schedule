@@ -3,10 +3,6 @@
 from typing import SupportsFloat, SupportsIndex, SupportsInt
 
 
-# TODO: Address the following:
-# How many of these are covered by SupportsInt/SupportsFloat? 
-# Is this just useless?
-
 IntInput = str | bytes | bytearray | SupportsInt | SupportsIndex
 FloatInput = str | bytes | bytearray | SupportsFloat | SupportsIndex
 

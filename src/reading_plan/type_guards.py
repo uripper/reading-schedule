@@ -88,4 +88,5 @@ def is_settings_data(value: object) -> TypeGuard[SettingsData]:
 
 
 def is_plan_mode(value: str) -> TypeGuard[PlanModes]:
+    """Return whether a runtime value is a valid plan mode string."""
     return value in {PLAN_MODE_FINISH_SOON, PLAN_MODE_SPREAD_OUT}
