@@ -76,6 +76,11 @@ class _PlannerInputRequired(TypedDict):
     books: list[BookData]
     settings: SettingsData
 
+# TODO: This seems poorly named for what it's doing, i.e. just returning
+# a planner string? PlannerInputPayload also doesn't match the
+# PlannerOutputPayload in type which is fairly confusing. We could probably
+# rename one or both.
+
 
 class PlannerInputPayload(_PlannerInputRequired, total=False):
     """Planner request payload.
@@ -83,6 +88,11 @@ class PlannerInputPayload(_PlannerInputRequired, total=False):
     ``planner`` is optional and selects a solver profile by name.
     """
 
+    # TODO: Is this ever used anywhere in the code by the user in their
+    # settings? It appears to be different from "greedy" and "standard"
+    # (plan_mode), so what use is this? If it is correct and we do use it, where
+    # is "mip", as set as default in api.py, an option? Should we not allow only
+    # a set number of enums or string literals that are valid?
     planner: str
 
 

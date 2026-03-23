@@ -10,6 +10,14 @@ from typing import TYPE_CHECKING, TypeGuard
 if TYPE_CHECKING:
     from reading_plan.api_types import BookData, SettingsData
 
+# TODO: This is so fucking stupid. Why are we doing this instead of just using
+# proper narrow types when we know EXACTLY what is going to be sent and
+# received? There is no mystery as to what information we will receive due
+# to validation on the front and back ends of the applications. We do not need
+# to prepare for arbitrary JSONs sent by rogue CLI exposure, so why the fuck
+# are we type narrowing instead of fucking using the right types that we know
+# we will use? This is so fucking dumb.
+
 
 def is_object_mapping(value: object) -> TypeGuard[dict[object, object]]:
     """Return whether a runtime value is a dictionary.

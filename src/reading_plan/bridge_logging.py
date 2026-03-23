@@ -61,11 +61,12 @@ class StructuredBridgeFormatter(logging.Formatter):
 def configure_bridge_logger(
     request_id: str | None = None,
     log_path: str | Path | None = None,
+    log_level: int = logging.DEBUG,
 ) -> logging.Logger:
     """Configure the shared bridge logger with file output.
 
-    The logger is configured at DEBUG level with a single managed file
-    handler. Reconfiguration updates the formatter request id and reuses
+    The logger is configured at DEBUG level by default with a single managed
+    file handler. Reconfiguration updates the formatter request id and reuses
     existing handlers when possible.
 
     Returns:
@@ -76,7 +77,7 @@ def configure_bridge_logger(
     resolved_log_path.parent.mkdir(parents=True, exist_ok=True)
 
     logger = logging.getLogger(BRIDGE_LOGGER_NAME)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(log_level)
     logger.propagate = False
     _configure_file_handler(
         logger,

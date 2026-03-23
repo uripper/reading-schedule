@@ -126,8 +126,10 @@ def _parse_books(books_raw: list[BookData]) -> list[Book]:
     parse_started = perf_counter()
     books: list[Book] = []
     for idx, row in enumerate(books_raw):
+        # TODO: This seems like a bad way of doing this, just checking if
+        # it's a dictionary instead of a JSON object.
         if not isinstance(row, dict):
-            msg = f"book at index {idx} must be an object"
+            msg = f"book at index {idx} must be a JSON object"
             raise TypeError(msg)
         books.append(book_from_data(row))
     LOGGER.debug(
@@ -277,13 +279,11 @@ def _payload_books_and_settings(
 def _planner_name(payload: PlannerInputPayload) -> str:
     """Return the requested planner name or the default solver.
 
-    Notes:
-        Values are string-coerced for compatibility with loosely typed JSON
-        payloads.
-
     Returns:
         Planner identifier.
     """
+    # TODO: where is "mip" defined by a user as a planner type? Why is this
+    # a default?
     return str(payload.get("planner", "mip"))
 
 
