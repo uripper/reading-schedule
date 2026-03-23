@@ -104,7 +104,6 @@ function parsePlannerGenerationRequest(
     const REQUEST = parsePlanGeneratePayload(payload);
     logDebug("Planner request payload parsed.", {
         bookCount: REQUEST.books.length,
-        planner: REQUEST.planner,
         requestId,
     });
     return REQUEST;

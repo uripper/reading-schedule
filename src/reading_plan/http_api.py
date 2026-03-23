@@ -385,23 +385,17 @@ def _search_open_library(
 def _planner_input_payload(payload: dict[str, object]) -> PlannerInputPayload:
     """Validate the top-level planner payload shape before generation.
 
-    The HTTP layer expects `books` and `settings` fields compatible with the
-    shared planner payload contracts. An optional `planner` string is allowed
-    to select a solver profile.
+    The HTTP layer expects ``books`` and ``settings`` fields compatible with the
+    shared planner payload contracts. The solver profile is read from
+    ``settings.planner_solver_profile`` by the downstream planner.
 
     Returns:
         Validated planner input payload.
     """
-    books = _planner_books(payload)
-    settings = _planner_settings(payload)
-    request_payload: PlannerInputPayload = {
-        "books": books,
-        "settings": settings,
+    return {
+        "books": _planner_books(payload),
+        "settings": _planner_settings(payload),
     }
-    planner = _planner_name(payload)
-    if planner is not None:
-        request_payload["planner"] = planner
-    return request_payload
 
 
 def _planner_books(payload: dict[str, object]) -> list[BookData]:
@@ -433,24 +427,6 @@ def _planner_settings(payload: dict[str, object]) -> SettingsData:
     if is_settings_data(settings):
         return settings
     msg = "Planner payload field 'settings' must be an object."
-    raise TypeError(msg)
-
-
-def _planner_name(payload: dict[str, object]) -> str | None:
-    """Return validated optional planner name.
-
-    Returns:
-        Validated planner name or ``None``.
-
-    Raises:
-        TypeError: Payload field isn't a string
-    """
-    planner = payload.get("planner")
-    if planner is None:
-        return None
-    if isinstance(planner, str):
-        return planner
-    msg = "Planner payload field 'planner' must be a string."
     raise TypeError(msg)
 
 

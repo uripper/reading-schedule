@@ -113,8 +113,6 @@ export interface PlannerResult {
  */
 export type PlannerSolverProfile = "fast" | "balanced" | "thorough";
 
-export type PlannerToken = "mip" | "mip-fast" | "mip-balanced" | "mip-thorough";
-
 export type PlannerSettings = {
     start_date?: string;
     end_date?: string;
@@ -164,7 +162,6 @@ export interface LoadedPlannerState {
 
 export interface PlanGeneratePayload {
     books: Book[];
-    planner: PlannerToken;
     settings: PlannerSettings;
 }
 

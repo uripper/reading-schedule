@@ -276,15 +276,23 @@ def _payload_books_and_settings(
     return books_raw, settings_raw
 
 
-def _planner_name(payload: PlannerInputPayload) -> str:
-    """Return the requested planner name or the default solver.
+_SOLVER_PROFILE_TOKEN_MAP = {
+    "fast": "mip-fast",
+    "balanced": "mip-balanced",
+    "thorough": "mip-thorough",
+}
+
+
+def _planner_name(settings_raw: SettingsData) -> str:
+    """Return the solver token for the requested profile, or the default.
 
     Returns:
-        Planner identifier.
+        Solver token mapped from ``planner_solver_profile`` in settings.
     """
-    # TODO: where is "mip" defined by a user as a planner type? Why is this
-    # a default?
-    return str(payload.get("planner", "mip"))
+    profile = settings_raw.get("planner_solver_profile", "")
+    if isinstance(profile, str) and profile in _SOLVER_PROFILE_TOKEN_MAP:
+        return _SOLVER_PROFILE_TOKEN_MAP[profile]
+    return "mip"
 
 
 def generate_plan(payload: PlannerInputPayload) -> PlannerOutputPayload:
@@ -303,7 +311,7 @@ def generate_plan(payload: PlannerInputPayload) -> PlannerOutputPayload:
     books = _parse_books(books_raw)
     _validate_blockers_with_logging(books)
     settings = _parse_settings(settings_raw)
-    planner = _planner_name(payload)
+    planner = _planner_name(settings_raw)
     result = _solve_with_logging(books, planner, settings)
     return _build_output_with_logging(
         books,

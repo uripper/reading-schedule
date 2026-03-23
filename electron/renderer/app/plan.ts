@@ -14,7 +14,6 @@ import { todayDayKey } from "./date_keys.ts";
 import {
     normalizePlannerEndDate,
     normalizePlannerStartDate,
-    plannerTokenFromProfile,
 } from "./plan_normalize.ts";
 
 interface GeneratePayloadArgs {
@@ -312,12 +311,8 @@ function generatePayload({
         customStartDate,
         normalizedEndDate,
     );
-    const PLANNER_TOKEN = plannerTokenFromProfile(
-        PAYLOAD_SETTINGS.planner_solver_profile,
-    );
     const PAYLOAD: PlanGeneratePayload = {
         books: payloadBooks,
-        planner: PLANNER_TOKEN,
         settings: PAYLOAD_SETTINGS,
     };
     logPlannerPayload(PAYLOAD);
@@ -328,7 +323,7 @@ function logPlannerPayload(payload: PlanGeneratePayload): void {
     logDebug("Submitting planner payload.", {
         bookCount: payload.books.length,
         endDate: payload.settings.end_date ?? null,
-        planner: payload.planner,
+        solverProfile: payload.settings.planner_solver_profile ?? null,
         startDate: payload.settings.start_date,
     });
 }
