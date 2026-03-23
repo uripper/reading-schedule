@@ -15,9 +15,14 @@ const { scoreDoc } = Require("../dist/main/book_lookup/search-scoring.js");
 const PNG_1X1_BASE64 =
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO2+3wAAAABJRU5ErkJggg==";
 const PNG_1X1_BYTES = Uint8Array.from(Buffer.from(PNG_1X1_BASE64, "base64"));
+const JPEG_1X1_BYTES = Uint8Array.from([0xff, 0xd8, 0xff, 0xd9]);
 const TEMP_DIRECTORY_PREFIX = "bartleby-cover-download-";
 const COVER_DIRECTORY = "book_covers";
 const OVERSIZED_CONTENT_LENGTH_BYTES = String(6 * 1024 * 1024);
+const OPEN_LIBRARY_COVER_URL =
+    "https://covers.openlibrary.org/b/id/12547191-L.jpg";
+const OPEN_LIBRARY_REDIRECT_URL =
+    "https://archive.org/download/l_covers_0012/l_covers_0012_54.zip/0012547191-L.jpg";
 
 function tempUserDataDir() {
     return fs.mkdtempSync(path.join(os.tmpdir(), TEMP_DIRECTORY_PREFIX));
@@ -57,12 +62,31 @@ function pngResponse(headers = {}) {
     });
 }
 
-function assertSavedPngCover(result) {
+function jpegResponse(headers = {}) {
+    return new Response(JPEG_1X1_BYTES, {
+        headers: {
+            "content-length": String(JPEG_1X1_BYTES.byteLength),
+            "content-type": "image/jpeg",
+            ...headers,
+        },
+        status: 200,
+    });
+}
+
+function assertSavedCover(result, extension) {
     assert.ok(result.startsWith("file://"));
     const FILE_PATH = fileURLToPath(result);
     assert.ok(fs.existsSync(FILE_PATH));
-    assert.equal(path.extname(FILE_PATH), ".png");
+    assert.equal(path.extname(FILE_PATH), extension);
     assert.equal(path.basename(path.dirname(FILE_PATH)), COVER_DIRECTORY);
+}
+
+function assertSavedPngCover(result) {
+    assertSavedCover(result, ".png");
+}
+
+function assertSavedJpegCover(result) {
+    assertSavedCover(result, ".jpg");
 }
 
 async function assertRejectedDownload(coverUrl, userDataDirectory) {
@@ -108,6 +132,30 @@ function redirectThenOversizedFetch() {
     };
 }
 
+function openLibraryRedirectFetch() {
+    const REQUEST_URLS = [];
+
+    return {
+        fetchImpl(requestUrl) {
+            REQUEST_URLS.push(requestUrl);
+
+            if (REQUEST_URLS.length === 1) {
+                return new Response(null, {
+                    headers: {
+                        location: OPEN_LIBRARY_REDIRECT_URL,
+                    },
+                    status: 302,
+                });
+            }
+
+            return jpegResponse();
+        },
+        getRequestUrls() {
+            return REQUEST_URLS;
+        },
+    };
+}
+
 test("downloadCover saves a validated remote image", async () => {
     await withMockedFetch(
         () => pngResponse(),
@@ -122,6 +170,25 @@ test("downloadCover saves a validated remote image", async () => {
             });
         },
     );
+});
+
+test("downloadCover follows the OpenLibrary cover redirect chain", async () => {
+    const FETCH = openLibraryRedirectFetch();
+
+    await withMockedFetch(FETCH.fetchImpl, async () => {
+        await withTempUserDataDirectory(async (userDataDirectory) => {
+            const RESULT = await downloadCover(
+                OPEN_LIBRARY_COVER_URL,
+                "book-test",
+                userDataDirectory,
+            );
+            assertSavedJpegCover(RESULT);
+            assert.deepEqual(FETCH.getRequestUrls(), [
+                OPEN_LIBRARY_COVER_URL,
+                OPEN_LIBRARY_REDIRECT_URL,
+            ]);
+        });
+    });
 });
 
 test("downloadCover rejects blocked hosts and explicit ports before fetching", async () => {

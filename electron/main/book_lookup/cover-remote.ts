@@ -16,6 +16,7 @@ const KIBIBYTES_PER_MEBIBYTE = 1024;
 const MAX_REMOTE_COVER_MEBIBYTES = 5;
 const MAX_REMOTE_COVER_BYTES =
     MAX_REMOTE_COVER_MEBIBYTES * KIBIBYTES_PER_MEBIBYTE * BYTES_PER_KIBIBYTE;
+const MAX_REMOTE_COVER_REDIRECTS = 5;
 const HTTP_STATUS_REDIRECT_MIN = 300;
 const HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE = 400;
 
@@ -70,6 +71,28 @@ function hasBlockedCoverDestination(parsedUrl: URL): boolean {
         hasBlockedCoverCredentials(parsedUrl) ||
         hasBlockedCoverHostname(parsedUrl.hostname)
     );
+}
+
+function redirectedCoverUrlOrNull(
+    location: string | null,
+    baseUrl: URL,
+): URL | null {
+    if (location === null) {
+        return null;
+    }
+
+    const NEXT_URL = parsedUrlOrNull(new URL(location, baseUrl).toString());
+    if (NEXT_URL === null) {
+        return null;
+    }
+    if (!isHttpProtocol(NEXT_URL.protocol)) {
+        return null;
+    }
+    if (hasBlockedCoverDestination(NEXT_URL)) {
+        return null;
+    }
+
+    return NEXT_URL;
 }
 
 /**
@@ -178,32 +201,86 @@ function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
     return Uint8Array.from(bytes).buffer;
 }
 
+async function fetchCoverResponseOnce(
+    parsedUrl: URL,
+): Promise<Response | null> {
+    try {
+        return await globalThis.fetch(parsedUrl.toString(), {
+            redirect: "manual",
+        });
+    } catch {
+        return null;
+    }
+}
+
+async function fetchRedirectCoverResponse(
+    response: Response,
+    currentUrl: URL,
+    remainingRedirects: number,
+): Promise<{ parsedUrl: URL; response: Response } | null> {
+    const NEXT_URL = redirectedCoverUrlOrNull(
+        response.headers.get("location"),
+        currentUrl,
+    );
+    await response.body?.cancel();
+    if (NEXT_URL === null) {
+        return null;
+    }
+    if (remainingRedirects === 0) {
+        return null;
+    }
+    return fetchCoverResponseAt(NEXT_URL, remainingRedirects - 1);
+}
+
+async function fetchCoverResponseAt(
+    currentUrl: URL,
+    remainingRedirects: number,
+): Promise<{ parsedUrl: URL; response: Response } | null> {
+    const RESPONSE = await fetchCoverResponseOnce(currentUrl);
+    if (RESPONSE === null) {
+        return null;
+    }
+    if (isRedirectStatus(RESPONSE.status)) {
+        return fetchRedirectCoverResponse(
+            RESPONSE,
+            currentUrl,
+            remainingRedirects,
+        );
+    }
+    if (!RESPONSE.ok) {
+        await RESPONSE.body?.cancel();
+        return null;
+    }
+    return {
+        parsedUrl: currentUrl,
+        response: RESPONSE,
+    };
+}
+
+function fetchCoverResponse(
+    parsedUrl: URL,
+): Promise<{ parsedUrl: URL; response: Response } | null> {
+    return fetchCoverResponseAt(parsedUrl, MAX_REMOTE_COVER_REDIRECTS);
+}
+
 /**
  * Downloads and validates a remote cover response before it reaches disk.
  */
 export async function fetchRemoteCover(
     parsedUrl: URL,
 ): Promise<DownloadedCover | null> {
-    let response: Response;
-    try {
-        response = await globalThis.fetch(parsedUrl.toString(), {
-            redirect: "manual",
-        });
-    } catch {
+    const FETCHED_COVER = await fetchCoverResponse(parsedUrl);
+    if (FETCHED_COVER === null) {
         return null;
     }
 
-    if (isRedirectStatus(response.status) || !response.ok) {
-        await response.body?.cancel();
-    }
-
-    const BYTES = await downloadedCoverBytes(response);
+    const BYTES = await downloadedCoverBytes(FETCHED_COVER.response);
     if (BYTES === null) {
         return null;
     }
 
-    const CONTENT_TYPE = response.headers.get("content-type");
-    const EXTENSION = extensionFor(CONTENT_TYPE, parsedUrl);
+    const CONTENT_TYPE = FETCHED_COVER.response.headers.get("content-type");
+    const EXTENSION = extensionFor(CONTENT_TYPE, FETCHED_COVER.parsedUrl);
     if (!bytesMatchCoverExtension(BYTES, EXTENSION)) {
         return null;
     }

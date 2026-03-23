@@ -7,7 +7,7 @@ from reading_plan.planner_types import WEEKDAYS
 
 def parse_date(value: str) -> date:
     """Return a parsed ISO calendar date."""
-    return date.fromisoformat(value)
+    return value if isinstance(value, date) else date.fromisoformat(value)
 
 
 def date_range(start: date, end: date) -> list[date]:
