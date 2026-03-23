@@ -1,7 +1,11 @@
 """Test cases for helpers."""
 
 from datetime import date
+from typing import cast
 
+from reading_plan.api_types import SettingsData
+from reading_plan.input.builders_settings import settings_from_data
+from reading_plan.input.serializers import settings_to_data
 from reading_plan.planner_types import (
     DEFAULT_DIFFICULTY_MULTIPLIER,
     Book,
@@ -39,5 +43,5 @@ def demo_settings(**overrides: object) -> Settings:
     )
     if not overrides:
         return base
-    data = base.__dict__ | overrides
-    return Settings(**data)
+    data = settings_to_data(base) | overrides
+    return settings_from_data(cast(SettingsData, data))

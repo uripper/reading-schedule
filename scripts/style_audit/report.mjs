@@ -28,6 +28,17 @@ const writeHitSection = (title, hits) => {
 	}
 };
 
+const writeTextSection = (title, lines) => {
+	if (lines.length === 0) {
+		return;
+	}
+
+	process.stdout.write(`\n${title}\n`);
+	for (const line of lines) {
+		process.stdout.write(`${line}\n`);
+	}
+};
+
 const formatPercent = (value) => {
 	return value.toFixed(1);
 };
@@ -45,7 +56,12 @@ const addFailure = (failures, condition, message) => {
 	}
 };
 
-const buildSummaryLines = (analysis, typeCoverageAudit, testCoverageAudit) => {
+const buildSummaryLines = (
+	analysis,
+	typeCoverageAudit,
+	testCoverageAudit,
+	executionCoverageAudit,
+) => {
 	const underSoftPercent = percentageFromCounts(
 		analysis.underSoft,
 		analysis.analyzed,
@@ -81,10 +97,30 @@ const buildSummaryLines = (analysis, typeCoverageAudit, testCoverageAudit) => {
 		`Test coverage surface: ${testCoverageAudit.totalTestCount} test files for ${testCoverageAudit.totalSourceCount} source files (${formatTestCoveragePercent(testCoverageAudit.totalTestCount, testCoverageAudit.totalSourceCount)}%), ${testCoverageAudit.zeroTestAreas} areas with zero tests`,
 	);
 
+	if (executionCoverageAudit.summary === null) {
+		summaryLines.push(
+			`Electron node test execution coverage: ${executionCoverageAudit.failures.length} coverage command failures`,
+		);
+	} else {
+		let statusNote = "";
+		if (executionCoverageAudit.status !== null && executionCoverageAudit.status !== 0) {
+			statusNote = ` (command exited with status ${executionCoverageAudit.status})`;
+		}
+
+		summaryLines.push(
+			`Electron node test execution coverage: ${executionCoverageAudit.summary.testsCount} tests, ${executionCoverageAudit.summary.linePercent}% line, ${executionCoverageAudit.summary.branchPercent}% branch, ${executionCoverageAudit.summary.functionPercent}% funcs${statusNote}`,
+		);
+	}
+
 	return summaryLines;
 };
 
-const buildFailureMessages = (analysis, typeCoverageAudit, testCoverageAudit) => {
+const buildFailureMessages = (
+	analysis,
+	typeCoverageAudit,
+	testCoverageAudit,
+	executionCoverageAudit,
+) => {
 	const failures = [];
 	const underSoftPercent = percentageFromCounts(
 		analysis.underSoft,
@@ -157,6 +193,7 @@ const buildFailureMessages = (analysis, typeCoverageAudit, testCoverageAudit) =>
 		testCoveragePercent < MIN_TEST_COVERAGE_PERCENT,
 		`Test coverage surface below ${MIN_TEST_COVERAGE_PERCENT}%: ${formatTestCoveragePercent(testCoverageAudit.totalTestCount, testCoverageAudit.totalSourceCount)}%`,
 	);
+	failures.push(...executionCoverageAudit.failures);
 
 	return failures;
 };
@@ -165,17 +202,20 @@ export const buildAuditOutcome = (
 	analysis,
 	typeCoverageAudit,
 	testCoverageAudit,
+	executionCoverageAudit,
 ) => {
 	return {
 		failures: buildFailureMessages(
 			analysis,
 			typeCoverageAudit,
 			testCoverageAudit,
+			executionCoverageAudit,
 		),
 		summaryLines: buildSummaryLines(
 			analysis,
 			typeCoverageAudit,
 			testCoverageAudit,
+			executionCoverageAudit,
 		),
 	};
 };
@@ -184,6 +224,7 @@ export const printAuditReport = (
 	analysis,
 	typeCoverageAudit,
 	testCoverageAudit,
+	executionCoverageAudit,
 	outcome,
 ) => {
 	process.stdout.write("Style audit report\n");
@@ -213,6 +254,10 @@ export const printAuditReport = (
 	);
 	writeHitSection("Type coverage", typeCoverageAudit.hits);
 	writeHitSection("Test coverage surface", testCoverageAudit.hits);
+	writeTextSection(
+		"Electron node test execution coverage report",
+		executionCoverageAudit.reportLines,
+	);
 	writeHitSection("Probable documentation gaps", analysis.documentationHits);
 
 	if (outcome.failures.length > 0) {
