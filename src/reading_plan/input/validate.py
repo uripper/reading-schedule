@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING
 
-from reading_plan.planner_types import PLAN_MODES, WEEKDAYS
+from reading_plan.planner_types import PlanModes, WEEKDAYS, PLAN_MODE_FINISH_SOON, PLAN_MODE_SPREAD_OUT
 
 
 if TYPE_CHECKING:
@@ -192,6 +192,7 @@ def _validate_settings_difficulty_multiplier(settings: Settings) -> None:
 def _validate_settings_plan_mode(settings: Settings) -> None:
     """Validate planner mode selection."""
     check_condition(
-        f"plan_mode must be set to one of: {', '.join(PLAN_MODES)}",
-        condition=settings.plan_mode in PLAN_MODES,
+        "plan_mode must be set to one of:" +
+        f"{PLAN_MODE_FINISH_SOON}, {PLAN_MODE_SPREAD_OUT}",
+        condition=settings.plan_mode in PlanModes,
     )
