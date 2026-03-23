@@ -5,6 +5,7 @@ import test from "node:test";
 
 const Require = createRequire(import.meta.url);
 const { dedupeDocs } = Require("../dist/main/book_lookup/search-dedupe.js");
+const { searchUrls } = Require("../dist/main/book_lookup/search-transport.js");
 const { hasEnglishLanguage, normalizeSearchText, primaryAuthor, queryTokens } =
     Require("../dist/main/book_lookup/search-text.js");
 const { scoreDoc } = Require("../dist/main/book_lookup/search-scoring.js");
@@ -120,4 +121,18 @@ test("scoreDoc keeps exact author-only matches above partial matches", () => {
     assert.ok(PARTIAL_SCORE > 0);
     assert.ok(PARTIAL_SCORE < EXACT_SCORE);
     assert.equal(scoreAuthorOnlyDoc("Jane Austen", "George Orwell"), 0);
+});
+
+test("searchUrls normalizes transliterated author aliases for author-only lookups", () => {
+    const URLS = searchUrls("Doestoevsky", true);
+
+    assert.ok(
+        URLS.some((url) => url.toLowerCase().includes("author=dostoevsky")),
+    );
+});
+
+test("scoreDoc treats transliterated author aliases as author-only matches", () => {
+    const SCORE = scoreAuthorOnlyDoc("Fyodor Dostoevsky", "Doestoevsky");
+
+    assert.ok(SCORE > 0);
 });
