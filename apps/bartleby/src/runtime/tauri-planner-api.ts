@@ -1,0 +1,239 @@
+/**
+ * Tauri-backed planner API adapter for the shared Bartleby frontend.
+ */
+
+import type {
+    BookLookupItem,
+    PlanGeneratePayload,
+    PlannerApi,
+    PlannerApiGlobal,
+    PlannerResult,
+    PlannerSaveResult,
+    PlannerStateLoadResult,
+    PlannerStateSnapshot,
+} from "@reading-schedule/contracts";
+import {
+    parsePlanGenerateResult,
+    parseSamplePayload,
+} from "@reading-schedule/contracts";
+import { convertFileSrc, invoke, isTauri } from "@tauri-apps/api/core";
+import type { TauriPlannerCommand } from "./tauri-commands.ts";
+import { TAURI_COMMANDS } from "./tauri-commands.ts";
+
+const FILE_PROTOCOL = "file:";
+const LOCAL_WINDOWS_PATH_PATTERN = /^[a-zA-Z]:[\\/]/;
+
+function filePathFromUrl(src: string): string {
+    try {
+        const URL_VALUE = new URL(src);
+        if (URL_VALUE.protocol !== FILE_PROTOCOL) {
+            return "";
+        }
+
+        const NORMALIZED_PATH = decodeURIComponent(URL_VALUE.pathname);
+        if (URL_VALUE.host.length > 0) {
+            return `//${URL_VALUE.host}${NORMALIZED_PATH}`;
+        }
+        if (
+            NORMALIZED_PATH.startsWith("/") &&
+            LOCAL_WINDOWS_PATH_PATTERN.test(NORMALIZED_PATH.slice(1))
+        ) {
+            return NORMALIZED_PATH.slice(1);
+        }
+        return NORMALIZED_PATH;
+    } catch {
+        return "";
+    }
+}
+
+function isFileSystemPath(value: string): boolean {
+    if (value.startsWith("/")) {
+        return true;
+    }
+    if (value.startsWith("\\\\")) {
+        return true;
+    }
+    return LOCAL_WINDOWS_PATH_PATTERN.test(value);
+}
+
+function isAlreadyResolvedSource(value: string): boolean {
+    if (value.startsWith("asset:")) {
+        return true;
+    }
+    if (value.startsWith("blob:")) {
+        return true;
+    }
+    if (value.startsWith("data:")) {
+        return true;
+    }
+    if (value.startsWith("http://")) {
+        return true;
+    }
+    if (value.startsWith("https://")) {
+        return true;
+    }
+    if (value.startsWith("tauri:")) {
+        return true;
+    }
+    return false;
+}
+
+function resolveTauriCoverSrc(src: string | undefined): string {
+    const NORMALIZED_SRC = String(src ?? "").trim();
+    if (NORMALIZED_SRC.length === 0) {
+        return "";
+    }
+    if (!isTauri()) {
+        return NORMALIZED_SRC;
+    }
+    if (isAlreadyResolvedSource(NORMALIZED_SRC)) {
+        return NORMALIZED_SRC;
+    }
+
+    const LOCAL_FILE_PATH = filePathFromUrl(NORMALIZED_SRC);
+    if (LOCAL_FILE_PATH.length > 0) {
+        return convertFileSrc(LOCAL_FILE_PATH);
+    }
+    if (isFileSystemPath(NORMALIZED_SRC)) {
+        return convertFileSrc(NORMALIZED_SRC);
+    }
+    return NORMALIZED_SRC;
+}
+
+async function invokeCommand<T>(
+    command: TauriPlannerCommand,
+    args?: Record<string, unknown>,
+): Promise<T> {
+    return await invoke<T>(command, args);
+}
+
+function globalPlannerApi(): PlannerApiGlobal {
+    return globalThis as PlannerApiGlobal;
+}
+
+function createCoverApi(): Pick<
+    PlannerApi,
+    "downloadCover" | "resolveCoverSrc" | "saveUploadedCover"
+> {
+    return {
+        async downloadCover(
+            url: string | undefined,
+            bookId: string | undefined,
+        ): Promise<string> {
+            const COVER_PATH = await invokeCommand<string>(
+                TAURI_COMMANDS.coverDownload,
+                {
+                    bookId,
+                    url,
+                },
+            );
+            return resolveTauriCoverSrc(COVER_PATH);
+        },
+        resolveCoverSrc: (src: string | undefined): string =>
+            resolveTauriCoverSrc(src),
+        async saveUploadedCover(
+            dataUrl: string | undefined,
+            bookId: string | undefined,
+        ): Promise<string> {
+            const COVER_PATH = await invokeCommand<string>(
+                TAURI_COMMANDS.coverImport,
+                {
+                    bookId,
+                    dataUrl,
+                },
+            );
+            return resolveTauriCoverSrc(COVER_PATH);
+        },
+    };
+}
+
+function createPlanApi(): Pick<PlannerApi, "generate" | "sample"> {
+    return {
+        async generate(
+            payload: PlanGeneratePayload,
+        ): Promise<Pick<PlannerResult, "schedule" | "summary">> {
+            const RESULT = await invokeCommand<unknown>(
+                TAURI_COMMANDS.planGenerate,
+                {
+                    payload,
+                },
+            );
+            return parsePlanGenerateResult(RESULT);
+        },
+        async sample(): Promise<
+            Pick<PlannerStateSnapshot, "books" | "settings">
+        > {
+            const RESULT = await invokeCommand<unknown>(
+                TAURI_COMMANDS.planSample,
+            );
+            return parseSamplePayload(RESULT);
+        },
+    };
+}
+
+function createStateApi(): Pick<PlannerApi, "loadState" | "saveState"> {
+    return {
+        async loadState(): Promise<PlannerStateLoadResult> {
+            return await invokeCommand<PlannerStateLoadResult>(
+                TAURI_COMMANDS.stateLoad,
+            );
+        },
+        async saveState(
+            state: PlannerStateSnapshot,
+        ): Promise<PlannerSaveResult> {
+            return await invokeCommand<PlannerSaveResult>(
+                TAURI_COMMANDS.stateSave,
+                {
+                    state,
+                },
+            );
+        },
+    };
+}
+
+function createSearchApi(): Pick<PlannerApi, "searchBooks"> {
+    return {
+        async searchBooks(
+            query: string,
+            author = false,
+        ): Promise<BookLookupItem[]> {
+            return await invokeCommand<BookLookupItem[]>(
+                TAURI_COMMANDS.booksSearch,
+                {
+                    author,
+                    query,
+                },
+            );
+        },
+    };
+}
+
+function createZoomApi(): Pick<PlannerApi, "zoomIn" | "zoomOut" | "zoomReset"> {
+    return {
+        async zoomIn(): Promise<number> {
+            return await invokeCommand<number>(TAURI_COMMANDS.windowZoomIn);
+        },
+        async zoomOut(): Promise<number> {
+            return await invokeCommand<number>(TAURI_COMMANDS.windowZoomOut);
+        },
+        async zoomReset(): Promise<number> {
+            return await invokeCommand<number>(TAURI_COMMANDS.windowZoomReset);
+        },
+    };
+}
+
+export function createTauriPlannerApi(): PlannerApi {
+    return {
+        ...createCoverApi(),
+        ...createPlanApi(),
+        ...createSearchApi(),
+        ...createStateApi(),
+        ...createZoomApi(),
+    };
+}
+
+export function installTauriPlannerApi(): PlannerApi {
+    const API = createTauriPlannerApi();
+    globalPlannerApi().plannerApi = API;
+    return API;
+}

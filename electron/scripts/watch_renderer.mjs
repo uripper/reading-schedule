@@ -4,7 +4,8 @@ import { context } from "esbuild";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(path.join(SCRIPT_DIR, ".."));
-const ENTRY_PATH = path.join(ROOT, "renderer", "app.ts");
+const FRONTEND_ROOT = path.resolve(ROOT, "..", "packages", "frontend");
+const ENTRY_PATH = path.join(FRONTEND_ROOT, "src", "renderer", "app.ts");
 const OUTFILE_PATH = path.join(ROOT, "dist", "renderer", "app.js");
 
 /**
@@ -19,7 +20,7 @@ async function watchRenderer() {
         platform: "browser",
         sourcemap: true,
         target: ["chrome120"],
-        tsconfig: path.join(ROOT, "tsconfig.renderer.json"),
+        tsconfig: path.join(FRONTEND_ROOT, "tsconfig.json"),
     });
     await CONTEXT.watch();
     process.stdout.write("Renderer bundle watch started.\n");

@@ -1,0 +1,78 @@
+import type { CalendarRuntimeState } from "../../types/types.ts";
+import { renderCalendarControls } from "./controls.ts";
+import { enrichRows, groupRowsByDate, monthKeysFromRows } from "./data.ts";
+import { renderCalendarMonth } from "./month.ts";
+import { buildMonthWindow } from "./month_window.ts";
+
+/**
+ * Recomputes derived calendar collections from current raw rows and handlers.
+ * @param state - Mutable calendar runtime state.
+ * @param isSessionCompleted - Completion checker by session key.
+ */
+export function refreshDerivedRows(
+    state: CalendarRuntimeState,
+    isSessionCompleted: (sessionKey: string) => boolean,
+): void {
+    const CALENDAR_STATE = state;
+    const ENRICHED_ROWS = enrichRows(
+        CALENDAR_STATE.rawRows,
+        CALENDAR_STATE.totalsByBookId,
+        isSessionCompleted,
+    );
+    CALENDAR_STATE.rows = ENRICHED_ROWS;
+    CALENDAR_STATE.dates = groupRowsByDate(ENRICHED_ROWS);
+    CALENDAR_STATE.months = buildMonthWindow(monthKeysFromRows(ENRICHED_ROWS));
+}
+
+/**
+ * Delegates month rendering with required keyboard/selection actions.
+ * @param state - Mutable calendar runtime state.
+ * @param actions - Month action callbacks.
+ * @param actions.completedBookRowsForDate - Returns synthetic rows for books completed on the given day.
+ * @param actions.moveSelectionBy - Keyboard/grid movement handler.
+ * @param actions.renderDetails - Details rerender callback.
+ * @param actions.selectDate - Date selection callback.
+ */
+export function renderMonth(
+    state: CalendarRuntimeState,
+    actions: {
+        completedBookRowsForDate(dateKey: string): Array<{
+            book_id?: string;
+            completed?: boolean;
+            date?: string;
+            finish?: boolean;
+            minutes?: number;
+            session_index?: string | number;
+            title?: string;
+        }>;
+        moveSelectionBy(delta: number, currentIndex: number): void;
+        renderDetails(): void;
+        selectDate(
+            dateKey: string,
+            options?: { focus?: boolean; preserveSelection?: boolean },
+        ): void;
+    },
+): void {
+    renderCalendarMonth(state, actions);
+}
+
+/**
+ * Delegates controls rendering for month navigation and today jump.
+ * @param state - Mutable calendar runtime state.
+ * @param rerenderControls - Callback to rerender controls.
+ * @param rerenderMonth - Callback to rerender month grid.
+ * @param jumpToToday - Callback to focus today's date.
+ */
+export function renderControls(args: {
+    jumpToToday: () => void;
+    rerenderControls: () => void;
+    rerenderMonth: () => void;
+    state: CalendarRuntimeState;
+}): void {
+    renderCalendarControls({
+        jumpToToday: args.jumpToToday,
+        renderControls: args.rerenderControls,
+        renderMonth: args.rerenderMonth,
+        state: args.state,
+    });
+}

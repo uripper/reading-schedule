@@ -2,6 +2,7 @@
  * @file Preload bridge exposing a typed planner API to the renderer.
  */
 import { contextBridge, ipcRenderer } from "electron";
+import { pathToFileURL } from "node:url";
 import type {
     BookLookupItem,
     PlanGeneratePayload,
@@ -11,6 +12,29 @@ import type {
     PlannerStateLoadResult,
     PlannerStateSnapshot,
 } from "./types/types.ts";
+
+const LOCAL_WINDOWS_PATH_PATTERN = /^[a-zA-Z]:[\\/]/;
+
+function isFileSystemPath(value: string): boolean {
+    if (value.startsWith("/")) {
+        return true;
+    }
+    if (value.startsWith("\\\\")) {
+        return true;
+    }
+    return LOCAL_WINDOWS_PATH_PATTERN.test(value);
+}
+
+function resolveElectronCoverSrc(src: string | undefined): string {
+    const NORMALIZED_SRC = String(src ?? "").trim();
+    if (NORMALIZED_SRC.length === 0) {
+        return "";
+    }
+    if (!isFileSystemPath(NORMALIZED_SRC)) {
+        return NORMALIZED_SRC;
+    }
+    return pathToFileURL(NORMALIZED_SRC).href;
+}
 
 /**
  * Invokes an IPC channel and narrows the resolved payload to the expected type.
@@ -52,6 +76,8 @@ const PLANNER_API: PlannerApi = {
         bookId: string | undefined,
     ): Promise<string> =>
         await invokeIpc<string>("book:saveUploadedCover", { bookId, dataUrl }),
+    resolveCoverSrc: (src: string | undefined): string =>
+        resolveElectronCoverSrc(src),
     searchBooks: async (
         query: string,
         author = false,

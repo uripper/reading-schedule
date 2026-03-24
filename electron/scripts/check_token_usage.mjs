@@ -5,7 +5,8 @@ import { fileURLToPath } from "node:url";
 const Filename = fileURLToPath(import.meta.url);
 const Dirname = path.dirname(Filename);
 const ELECTRON_ROOT = path.resolve(Dirname, "..");
-const STYLES_ROOT = path.join(ELECTRON_ROOT, "styles");
+const FRONTEND_ROOT = path.resolve(ELECTRON_ROOT, "..", "packages", "frontend");
+const STYLES_ROOT = path.join(FRONTEND_ROOT, "styles");
 const IGNORE_FILES = new Set([
     path.join(STYLES_ROOT, "generated", "tokens.css"),
 ]);

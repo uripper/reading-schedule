@@ -52,11 +52,14 @@ coverage/
 # Project build outputs
 /dist/
 electron/styles/generated/
+packages/frontend/styles/generated/
 electron/tokens/dist/
 electron/dist/
 electron/release/
 apps/*/dist/
 apps/*/dist-tests/
+apps/*/src-tauri/gen/
+apps/*/src-tauri/target/
 packages/*/dist/
 services/*/dist/
 apps/client/.vite/
@@ -105,3 +108,4 @@ reading-schedule-0.2.0.tgz
 *.tgz
 
 /Issues/Meta-Issues/*
+apps/bartleby/src-tauri/Cargo.lock

@@ -1,9 +1,20 @@
 {
     "compilerOptions": {
-        "lib": ["ES2023", "DOM", "Dom.Iterable"],
+        "allowImportingTsExtensions": true,
+        "lib": ["ES2023", "DOM", "DOM.Iterable"],
         "module": "ESNext",
-        "moduleResolution": "Bundler"
+        "moduleResolution": "Bundler",
+        "noEmitOnError": true,
+        "noUncheckedIndexedAccess": false,
+        "outDir": "dist",
+        "rewriteRelativeImportExtensions": true,
+        "rootDir": "../packages/frontend/src",
+        "skipLibCheck": true,
+        "strict": true,
+        "target": "ES2023"
     },
-    "extends": "./tsconfig.json",
-    "include": ["renderer/**/*.ts", "renderer/**/*.d.ts", "types/**/*.ts"]
+    "include": [
+        "../packages/frontend/src/**/*.ts",
+        "../packages/frontend/src/**/*.d.ts"
+    ]
 }

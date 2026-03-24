@@ -209,6 +209,7 @@ export interface PlannerApi {
         dataUrl: string | undefined,
         bookId: string | undefined,
     ): Promise<string>;
+    resolveCoverSrc(src: string | undefined): string;
     searchBooks(query: string, author?: boolean): Promise<BookLookupItem[]>;
     zoomIn(): Promise<number>;
     zoomOut(): Promise<number>;

@@ -1,0 +1,27 @@
+{
+    "dependencies": {
+        "@reading-schedule/contracts": "workspace:*",
+        "@tauri-apps/api": "^2",
+        "@tauri-apps/plugin-opener": "^2"
+    },
+    "devDependencies": {
+        "@tauri-apps/cli": "^2",
+        "typescript": "^5.9.3",
+        "vite": "8.0.0"
+    },
+    "name": "bartleby-app",
+    "private": true,
+    "scripts": {
+        "build": "pnpm run prepare:frontend && pnpm --dir ../.. exec tsc -p apps/bartleby/tsconfig.json --noEmit && vite build",
+        "dev": "pnpm run prepare:frontend && vite",
+        "dev:android": "tauri android dev",
+        "dev:ios": "tauri ios dev",
+        "lint": "pnpm --dir ../.. exec biome check apps/bartleby",
+        "prepare:frontend": "pnpm -C ../../packages/frontend run build",
+        "preview": "vite preview",
+        "tauri": "tauri",
+        "typecheck": "pnpm run prepare:frontend && pnpm --dir ../.. exec tsc -p apps/bartleby/tsconfig.json --noEmit"
+    },
+    "type": "module",
+    "version": "0.1.0"
+}

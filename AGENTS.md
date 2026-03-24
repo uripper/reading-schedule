@@ -8,8 +8,10 @@ A CHAT! NEVER TOUCH THE README.md!!!!
 ## 1) Project Snapshot
 
 - Product: Bartleby reading scheduler.
-- Primary runtime: Electron desktop app in `electron/`.
-- Planner engine source of truth: Python package in `src/reading_plan/`.
+- Desktop host: Electron app in `electron/`.
+- Tauri host: `apps/bartleby/`.
+- Shared web frontend source of truth: `packages/frontend/`.
+- Planner engine source of truth: Python package in `src/reading_plan/` until the Rust port reaches parity.
 - Tests:
   - Python: `tests/`
   - Electron logic tests: `electron/tests/`
@@ -18,7 +20,7 @@ A CHAT! NEVER TOUCH THE README.md!!!!
 
 - `src/reading_plan/`: planner/domain logic and API bridge.
 - `electron/main*.ts`: Electron main process entry points and IPC wiring.
-- `electron/renderer/`: UI/runtime logic by feature area.
+- `packages/frontend/`: shared UI/runtime logic by feature area.
 - `scripts/`: style audit, issue sync, Windows helper scripts.
 - `STYLEGUIDE.md`: non-negotiable engineering rules (must follow).
 - `Issues/`: issue catalog synced to GitHub with `scripts/sync_issues.sh` (`Open/` and `Closed/`).

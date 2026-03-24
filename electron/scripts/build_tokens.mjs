@@ -5,13 +5,14 @@ import { fileURLToPath } from "node:url";
 const Filename = fileURLToPath(import.meta.url);
 const Dirname = path.dirname(Filename);
 const ELECTRON_ROOT = path.resolve(Dirname, "..");
+const FRONTEND_ROOT = path.resolve(ELECTRON_ROOT, "..", "packages", "frontend");
 const TOKEN_SOURCE_PATH = path.join(
     ELECTRON_ROOT,
     "tokens",
     "dtcg.tokens.json",
 );
 const OUTPUT_CSS_PATH = path.join(
-    ELECTRON_ROOT,
+    FRONTEND_ROOT,
     "styles",
     "generated",
     "tokens.css",

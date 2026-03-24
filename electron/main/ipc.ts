@@ -1,7 +1,6 @@
 import type {
     DownloadCoverPayload,
     JsonValue,
-    RegisterIpcHandlersArgs,
     UploadCoverPayload,
 } from "@reading-schedule/contracts";
 import {
@@ -15,6 +14,7 @@ import {
     asDownloadCoverPayload,
     asUploadCoverPayload,
 } from "./ipc_payloads.ts";
+import type { RegisterIpcHandlersArgs } from "./runtime-contracts.ts";
 import { UI_SCALE_STEP } from "./zoom.ts";
 
 let plannerRequestCounter = 0;

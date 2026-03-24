@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { bindBookDialogSubmit } from "../dist/renderer/books/dialog_submit.js";
+import { clearForm } from "../dist/renderer/books/form-state.js";
 
 const NOOP = () => undefined;
 const MICROTASK_FLUSH_COUNT = 5;
@@ -23,6 +24,14 @@ fakeHtmlElement.prototype.querySelector = () => null;
 
 fakeHtmlElement.prototype.querySelectorAll = () => [];
 
+function createClassList() {
+    return {
+        toggle() {
+            return undefined;
+        },
+    };
+}
+
 function fakeFormElement() {
     fakeHtmlElement.call(this);
     this.handlers = new Map();
@@ -33,6 +42,10 @@ fakeFormElement.prototype.constructor = fakeFormElement;
 
 fakeFormElement.prototype.addEventListener = function (type, handler) {
     this.handlers.set(type, handler);
+};
+
+fakeFormElement.prototype.reset = function () {
+    return undefined;
 };
 
 fakeFormElement.prototype.submit = function () {
@@ -75,7 +88,11 @@ async function withFakeHtmlElement(work) {
 
 function fakeInput(value = "") {
     const INPUT = new fakeHtmlElement();
+    INPUT.defaultValue = "";
+    INPUT.disabled = false;
+    INPUT.classList = createClassList();
     INPUT.value = value;
+    INPUT.valueAsDate = null;
     return INPUT;
 }
 
@@ -145,6 +162,16 @@ function createRefs(form, overrides = {}) {
         saveBtn: SAVE_BUTTON,
         scheduledDaysField: checkedScheduledDaysField(),
         ...overrides,
+    };
+}
+
+function createClearFormRefs(form, overrides = {}) {
+    return {
+        ...createRefs(form, overrides),
+        afterBookInput: fakeInput("previous-link"),
+        coverPreview: { classList: createClassList(), src: "" },
+        coverUploadInput: fakeInput("selected-file"),
+        finishedAtField: { hidden: false },
     };
 }
 
@@ -257,4 +284,28 @@ test("bindBookDialogSubmit restores save state after sync submit failure", async
     });
     await submitFailureDialog(CONTEXT);
     assertSubmitFailure(CONTEXT);
+});
+
+test("clearForm clears optional date inputs instead of preserving stale values", () => {
+    const FORM = new fakeFormElement();
+    const DEADLINE_INPUT = fakeInput("2026-03-23");
+    const FINISHED_AT_INPUT = fakeInput("2026-03-23");
+    let clearResultsCalls = 0;
+
+    clearForm(
+        createClearFormRefs(FORM, {
+            deadlineInput: DEADLINE_INPUT,
+            finishedAtInput: FINISHED_AT_INPUT,
+        }),
+        {
+            clearResults() {
+                clearResultsCalls += 1;
+            },
+        },
+    );
+
+    assert.equal(DEADLINE_INPUT.value, "");
+    assert.equal(DEADLINE_INPUT.defaultValue, "");
+    assert.equal(FINISHED_AT_INPUT.value, "");
+    assert.equal(clearResultsCalls, 1);
 });

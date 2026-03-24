@@ -63,6 +63,7 @@ export const CONTRACTS_FIRST_AUDIT_PREFIXES = [
 	"electron/",
 	"apps/website/src/",
 	"mobile/src/",
+	"packages/frontend/src/",
 ];
 
 export const DISALLOWED_CONSOLE_PATTERN = /\bconsole\.(error|warn|log|debug)\s*\(/g;
@@ -73,6 +74,10 @@ export const TYPE_COVERAGE_CHECKS = [
 	{
 		label: "electron main strict",
 		project: "electron/tsconfig.main.json",
+	},
+	{
+		label: "shared frontend strict",
+		project: "packages/frontend/tsconfig.json",
 	},
 	{
 		label: "electron renderer strict",
@@ -88,7 +93,7 @@ export const TEST_COVERAGE_AREAS = [
 	},
 	{
 		label: "Electron desktop",
-		sourcePrefixes: ["electron/main/", "electron/renderer/"],
+		sourcePrefixes: ["electron/main/", "packages/frontend/src/"],
 		testPrefixes: ["electron/tests/"],
 	},
 	{

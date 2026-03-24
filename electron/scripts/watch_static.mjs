@@ -11,10 +11,12 @@ import { logInfo } from "./logger.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(path.join(SCRIPT_DIR, ".."));
+const FRONTEND_ROOT = path.resolve(ROOT, "..", "packages", "frontend");
 const WATCH_PATHS = [
-    path.join(ROOT, "styles"),
-    path.join(ROOT, "assets"),
-    path.join(ROOT, "index.html"),
+    path.join(FRONTEND_ROOT, "index.html"),
+    path.join(FRONTEND_ROOT, "public", "assets"),
+    path.join(FRONTEND_ROOT, "styles"),
+    path.join(FRONTEND_ROOT, "styles.css"),
 ];
 
 /**
