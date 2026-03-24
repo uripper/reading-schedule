@@ -1,0 +1,121 @@
+@font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 400;
+    src: url("../assets/fonts/Archivo-Regular.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 500;
+    src: url("../assets/fonts/Archivo-Medium.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 700;
+    src: url("../assets/fonts/Archivo-Bold.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Plus Jakarta Sans";
+    font-style: normal;
+    font-weight: 400;
+    src: url("../assets/fonts/PlusJakartaSans-Regular.ttf")
+        format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Plus Jakarta Sans";
+    font-style: normal;
+    font-weight: 500;
+    src: url("../assets/fonts/PlusJakartaSans-Medium.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Plus Jakarta Sans";
+    font-style: normal;
+    font-weight: 700;
+    src: url("../assets/fonts/PlusJakartaSans-Bold.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Plus Jakarta Sans";
+    font-style: normal;
+    font-weight: 800;
+    src: url("../assets/fonts/PlusJakartaSans-ExtraBold.ttf")
+        format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Poppins";
+    font-style: normal;
+    font-weight: 200;
+    src: url("../assets/fonts/Poppins-ExtraLight.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Poppins";
+    font-style: normal;
+    font-weight: 600;
+    src: url("../assets/fonts/Poppins-SemiBold.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Poor Story";
+    font-style: normal;
+    font-weight: 400;
+    src: url("../assets/fonts/PoorStory-Regular.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Space Grotesk";
+    font-style: normal;
+    font-weight: 400;
+    src: url("../assets/fonts/SpaceGrotesk-Regular.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Space Grotesk";
+    font-style: normal;
+    font-weight: 500;
+    src: url("../assets/fonts/SpaceGrotesk-Medium.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Space Grotesk";
+    font-style: normal;
+    font-weight: 700;
+    src: url("../assets/fonts/SpaceGrotesk-Bold.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Space Mono";
+    font-style: normal;
+    font-weight: 400;
+    src: url("../assets/fonts/SpaceMono-Regular.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Space Mono";
+    font-style: normal;
+    font-weight: 700;
+    src: url("../assets/fonts/SpaceMono-Bold.ttf") format("truetype");
+    font-display: swap;
+}

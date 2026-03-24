@@ -2,6 +2,15 @@
     "$schema": "https://schema.tauri.app/config/2",
     "app": {
         "security": {
+            "assetProtocol": {
+                "enable": true,
+                "scope": [
+                    "$APPDATA/book_covers/**",
+                    "$APPDATA/covers/**",
+                    "$APPLOCALDATA/book_covers/**",
+                    "$APPLOCALDATA/covers/**"
+                ]
+            },
             "csp": null
         },
         "windows": [

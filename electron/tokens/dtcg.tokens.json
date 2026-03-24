@@ -123,15 +123,15 @@
         "family": {
             "heading": {
                 "$type": "fontFamily",
-                "$value": "\"Space Grotesk\", \"IBM Plex Sans\", sans-serif"
+                "$value": "\"Space Grotesk\", \"Plus Jakarta Sans\", sans-serif"
             },
             "mono": {
                 "$type": "fontFamily",
-                "$value": "\"IBM Plex Mono\", \"Cascadia Code\", monospace"
+                "$value": "\"Space Mono\", monospace"
             },
             "sans": {
                 "$type": "fontFamily",
-                "$value": "\"IBM Plex Sans\", \"Segoe UI Variable\", \"Segoe UI\", sans-serif"
+                "$value": "\"Plus Jakarta Sans\", \"Archivo\", sans-serif"
             }
         },
         "lineHeight": {

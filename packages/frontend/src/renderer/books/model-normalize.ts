@@ -146,5 +146,11 @@ export function normalizeBook(book: BookInput = {}): Book {
  * @returns Local cover path when available, otherwise remote URL or empty string.
  */
 export function bookCoverSrc(book: BookInput): string {
-    return resolveCoverSource(book.cover_local_path ?? book.cover_url ?? "");
+    const LOCAL_COVER_PATH = String(book.cover_local_path ?? "").trim();
+    if (LOCAL_COVER_PATH !== "") {
+        return resolveCoverSource(LOCAL_COVER_PATH);
+    }
+
+    const REMOTE_COVER_URL = String(book.cover_url ?? "").trim();
+    return resolveCoverSource(REMOTE_COVER_URL);
 }
