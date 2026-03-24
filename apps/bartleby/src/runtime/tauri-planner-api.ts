@@ -22,6 +22,14 @@ import { TAURI_COMMANDS } from "./tauri-commands.ts";
 
 const FILE_PROTOCOL = "file:";
 const LOCAL_WINDOWS_PATH_PATTERN = /^[a-zA-Z]:[\\/]/;
+const RESOLVED_SOURCE_PREFIXES = [
+    "asset:",
+    "blob:",
+    "data:",
+    "http://",
+    "https://",
+    "tauri:",
+];
 
 function filePathFromUrl(src: string): string {
     try {
@@ -57,45 +65,37 @@ function isFileSystemPath(value: string): boolean {
 }
 
 function isAlreadyResolvedSource(value: string): boolean {
-    if (value.startsWith("asset:")) {
-        return true;
-    }
-    if (value.startsWith("blob:")) {
-        return true;
-    }
-    if (value.startsWith("data:")) {
-        return true;
-    }
-    if (value.startsWith("http://")) {
-        return true;
-    }
-    if (value.startsWith("https://")) {
-        return true;
-    }
-    if (value.startsWith("tauri:")) {
-        return true;
+    for (const PREFIX of RESOLVED_SOURCE_PREFIXES) {
+        if (value.startsWith(PREFIX)) {
+            return true;
+        }
     }
     return false;
 }
 
+function tauriConvertiblePath(src: string): string {
+    const FILE_PATH_FROM_URL = filePathFromUrl(src);
+    if (FILE_PATH_FROM_URL.length > 0) {
+        return FILE_PATH_FROM_URL;
+    }
+    if (isFileSystemPath(src)) {
+        return src;
+    }
+    return "";
+}
+
 function resolveTauriCoverSrc(src: string | undefined): string {
     const NORMALIZED_SRC = String(src ?? "").trim();
-    if (NORMALIZED_SRC.length === 0) {
-        return "";
-    }
-    if (!isTauri()) {
+    if (NORMALIZED_SRC.length === 0 || !isTauri()) {
         return NORMALIZED_SRC;
     }
     if (isAlreadyResolvedSource(NORMALIZED_SRC)) {
         return NORMALIZED_SRC;
     }
 
-    const LOCAL_FILE_PATH = filePathFromUrl(NORMALIZED_SRC);
-    if (LOCAL_FILE_PATH.length > 0) {
-        return convertFileSrc(LOCAL_FILE_PATH);
-    }
-    if (isFileSystemPath(NORMALIZED_SRC)) {
-        return convertFileSrc(NORMALIZED_SRC);
+    const CONVERTIBLE_PATH = tauriConvertiblePath(NORMALIZED_SRC);
+    if (CONVERTIBLE_PATH.length > 0) {
+        return convertFileSrc(CONVERTIBLE_PATH);
     }
     return NORMALIZED_SRC;
 }
@@ -111,39 +111,43 @@ function globalPlannerApi(): PlannerApiGlobal {
     return globalThis as PlannerApiGlobal;
 }
 
+async function downloadCover(
+    url: string | undefined,
+    bookId: string | undefined,
+): Promise<string> {
+    const COVER_PATH = await invokeCommand<string>(
+        TAURI_COMMANDS.coverDownload,
+        {
+            bookId,
+            url,
+        },
+    );
+    return resolveTauriCoverSrc(COVER_PATH);
+}
+
+function resolveCoverSrc(src: string | undefined): string {
+    return resolveTauriCoverSrc(src);
+}
+
+async function saveUploadedCover(
+    dataUrl: string | undefined,
+    bookId: string | undefined,
+): Promise<string> {
+    const COVER_PATH = await invokeCommand<string>(TAURI_COMMANDS.coverImport, {
+        bookId,
+        dataUrl,
+    });
+    return resolveTauriCoverSrc(COVER_PATH);
+}
+
 function createCoverApi(): Pick<
     PlannerApi,
     "downloadCover" | "resolveCoverSrc" | "saveUploadedCover"
 > {
     return {
-        async downloadCover(
-            url: string | undefined,
-            bookId: string | undefined,
-        ): Promise<string> {
-            const COVER_PATH = await invokeCommand<string>(
-                TAURI_COMMANDS.coverDownload,
-                {
-                    bookId,
-                    url,
-                },
-            );
-            return resolveTauriCoverSrc(COVER_PATH);
-        },
-        resolveCoverSrc: (src: string | undefined): string =>
-            resolveTauriCoverSrc(src),
-        async saveUploadedCover(
-            dataUrl: string | undefined,
-            bookId: string | undefined,
-        ): Promise<string> {
-            const COVER_PATH = await invokeCommand<string>(
-                TAURI_COMMANDS.coverImport,
-                {
-                    bookId,
-                    dataUrl,
-                },
-            );
-            return resolveTauriCoverSrc(COVER_PATH);
-        },
+        downloadCover,
+        resolveCoverSrc,
+        saveUploadedCover,
     };
 }
 
