@@ -33,7 +33,11 @@ function summaryAllowsPlannedFinish(options: {
     ) {
         return true;
     }
-    return options.perBookSummary[options.bookId].finished !== false;
+    const BOOK_SUMMARY = options.perBookSummary[options.bookId];
+    if (BOOK_SUMMARY === undefined) {
+        return true;
+    }
+    return BOOK_SUMMARY.finished !== false;
 }
 
 /**
@@ -335,7 +339,14 @@ function incrementMonthlyCounts(
 ): number[] {
     const NEXT_COUNTS = [...counts];
     for (const MONTH_INDEX of monthIndexes) {
-        NEXT_COUNTS[MONTH_INDEX] += 1;
+        if (!(MONTH_INDEX in NEXT_COUNTS)) {
+            continue;
+        }
+        const CURRENT_COUNT = NEXT_COUNTS[MONTH_INDEX];
+        if (CURRENT_COUNT === undefined) {
+            continue;
+        }
+        NEXT_COUNTS[MONTH_INDEX] = CURRENT_COUNT + 1;
     }
     return NEXT_COUNTS;
 }

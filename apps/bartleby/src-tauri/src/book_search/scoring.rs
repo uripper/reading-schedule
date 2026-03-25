@@ -18,17 +18,21 @@ fn normalize_search_text(value: &str) -> String {
     let mut out = String::new();
     let mut last_was_space = true;
     for character in value.chars().flat_map(char::to_lowercase) {
-        if character.is_alphanumeric() {
-            out.push(character);
-            last_was_space = false;
-            continue;
-        }
-        if character.is_whitespace() && !last_was_space {
-            out.push(' ');
-            last_was_space = true;
-        }
+        apply_normalized_character(&mut out, &mut last_was_space, character);
     }
     out.trim().to_string()
+}
+
+fn apply_normalized_character(out: &mut String, last_was_space: &mut bool, character: char) {
+    if character.is_alphanumeric() {
+        out.push(character);
+        *last_was_space = false;
+        return;
+    }
+    if character.is_whitespace() && !*last_was_space {
+        out.push(' ');
+        *last_was_space = true;
+    }
 }
 
 fn query_tokens(query: &str) -> Vec<String> {
@@ -130,16 +134,20 @@ fn metadata_score(doc: &SearchDoc) -> i64 {
     score
 }
 
+fn author_only_score(doc: &SearchDoc, query_norm: &str, tokens: &[String]) -> i64 {
+    let author_norm = normalize_search_text(&primary_author(doc));
+    let author_score = author_match_score(&author_norm, query_norm, tokens);
+    if author_score <= 0 {
+        return 0;
+    }
+    author_score + metadata_score(doc)
+}
+
 pub fn score_doc(doc: &SearchDoc, query: &str, author_only: bool) -> i64 {
     let query_norm = normalize_search_text(query);
     let tokens = query_tokens(query);
     if author_only {
-        let author_norm = normalize_search_text(&primary_author(doc));
-        let author_score = author_match_score(&author_norm, &query_norm, &tokens);
-        if author_score <= 0 {
-            return 0;
-        }
-        return author_score + metadata_score(doc);
+        return author_only_score(doc, &query_norm, &tokens);
     }
     let title_norm = normalize_search_text(doc.title.as_deref().unwrap_or_default());
     let author_norm = normalize_search_text(&primary_author(doc));

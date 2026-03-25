@@ -37,7 +37,11 @@ function shuffledCopy<T>(values: T[], randomFn: () => number): T[] {
     for (let index = NEXT_VALUES.length - 1; index > 0; index -= 1) {
         const SWAP_INDEX = Math.floor(randomFn() * (index + 1));
         const CURRENT = NEXT_VALUES[index];
-        NEXT_VALUES[index] = NEXT_VALUES[SWAP_INDEX];
+        const SWAP_VALUE = NEXT_VALUES[SWAP_INDEX];
+        if (CURRENT === undefined || SWAP_VALUE === undefined) {
+            continue;
+        }
+        NEXT_VALUES[index] = SWAP_VALUE;
         NEXT_VALUES[SWAP_INDEX] = CURRENT;
     }
     return NEXT_VALUES;

@@ -117,6 +117,9 @@ export function buildMonthWindow(
     const LOOKBACK_START_KEY = monthKeyFromDate(LOOKBACK_START_DATE);
     const SCHEDULE_START = SCHEDULE_MONTHS[0];
     const SCHEDULE_END = SCHEDULE_MONTHS[SCHEDULE_MONTHS.length - 1];
+    if (SCHEDULE_START === undefined || SCHEDULE_END === undefined) {
+        return [];
+    }
     const RANGE_START = earlierMonthKey(SCHEDULE_START, LOOKBACK_START_KEY);
     const RANGE_END = laterMonthKey(SCHEDULE_END, TODAY_MONTH_KEY);
     return contiguousMonthRange(RANGE_START, RANGE_END);

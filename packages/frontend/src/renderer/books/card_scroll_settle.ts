@@ -1,7 +1,7 @@
 import type { ScrollSettleState } from "../../types/types.ts";
 
 const RAF_FALLBACK_DELAY_MS = 16;
-const _SCROLL_SETTLE_DELTA_PX = 0.5;
+const SCROLL_SETTLE_DELTA_PX = 0.5;
 const SCROLL_SETTLE_MAX_WAIT_MS = 1800;
 const SCROLL_SETTLE_REQUIRED_FRAMES = 3;
 
@@ -60,12 +60,15 @@ function nextSettleState(
     const RECT = card.getBoundingClientRect();
     const DELTA_TOP = Math.abs(RECT.top - state.lastTop);
     const DELTA_LEFT = Math.abs(RECT.left - state.lastLeft);
-    const _MAX_DELTA = Math.max(DELTA_TOP, DELTA_LEFT);
-    const STABLE_FRAMES = 0;
+    const MAX_DELTA = Math.max(DELTA_TOP, DELTA_LEFT);
+    let stableFrames = 0;
+    if (MAX_DELTA <= SCROLL_SETTLE_DELTA_PX) {
+        stableFrames = state.stableFrames + 1;
+    }
     return {
         lastLeft: RECT.left,
         lastTop: RECT.top,
-        stableFrames: STABLE_FRAMES,
+        stableFrames,
         startedAtMs: state.startedAtMs,
     };
 }

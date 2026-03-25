@@ -1,7 +1,9 @@
 mod calendar;
 mod coerce;
+mod greedy_support;
 mod models;
 mod parse;
+mod profile;
 mod report;
 mod solve;
 mod validate;
@@ -14,7 +16,7 @@ const SETTINGS_SAMPLE_JSON: &str = include_str!("../../../../../data/settings.js
 
 pub fn generate_plan(payload: Value) -> Result<Value, String> {
     let planner_input = parse::planner_input(payload)?;
-    let result = solve::solve(&planner_input.books, &planner_input.settings)?;
+    let result = profile::solve(&planner_input.books, &planner_input.settings)?;
     report::build_output(&planner_input.books, &planner_input.settings, &result)
 }
 
@@ -102,5 +104,59 @@ mod tests {
             .and_then(Value::as_object)
             .expect("expected first schedule row");
         assert!(first_row.get("book_id").and_then(Value::as_str).is_some());
+    }
+
+    #[test]
+    fn generate_plan_uses_fast_profile_note() {
+        let mut payload = sample_payload().expect("expected sample payload");
+        payload
+            .get_mut("settings")
+            .and_then(Value::as_object_mut)
+            .expect("expected settings")
+            .insert(
+                "planner_solver_profile".to_string(),
+                Value::String("fast".to_string()),
+            );
+        let generated = generate_plan(payload).expect("expected generated plan");
+        let summary = generated
+            .get("summary")
+            .and_then(Value::as_object)
+            .expect("expected summary");
+        assert_eq!(
+            summary.get("planner").and_then(Value::as_str),
+            Some("greedy")
+        );
+        assert_eq!(
+            summary.get("note").and_then(Value::as_str),
+            Some("Fast mode uses greedy planner.")
+        );
+    }
+
+    #[test]
+    fn generate_plan_falls_back_for_balanced_profile() {
+        let mut payload = sample_payload().expect("expected sample payload");
+        payload
+            .get_mut("settings")
+            .and_then(Value::as_object_mut)
+            .expect("expected settings")
+            .insert(
+                "planner_solver_profile".to_string(),
+                Value::String("balanced".to_string()),
+            );
+        let generated = generate_plan(payload).expect("expected generated plan");
+        let summary = generated
+            .get("summary")
+            .and_then(Value::as_object)
+            .expect("expected summary");
+        assert_eq!(
+            summary.get("planner").and_then(Value::as_str),
+            Some("greedy")
+        );
+        assert_eq!(
+            summary.get("note").and_then(Value::as_str),
+            Some(
+                "Rust staged planner produced no feasible solution (INFEASIBLE); fell back to greedy planner.",
+            )
+        );
     }
 }

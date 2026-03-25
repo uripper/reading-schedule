@@ -7,25 +7,23 @@ use crate::native_planner::models::{
 const MAX_PROGRESS_PERCENT: f64 = 100.0;
 const MIN_PROGRESS_PERCENT: f64 = 0.0;
 
+struct BlockerWalk<'a> {
+    by_id: HashMap<&'a str, &'a Book>,
+    visited: HashSet<&'a str>,
+    visiting: HashSet<&'a str>,
+}
+
 pub fn validate_blockers(books: &[Book]) -> Result<(), String> {
-    let by_id: HashMap<&str, &Book> = books
+    let by_id = books
         .iter()
         .map(|book| (book.book_id.as_str(), book))
         .collect();
     for book in books {
-        if let Some(blocked_by) = &book.blocked_by {
-            if !by_id.contains_key(blocked_by.as_str()) {
-                return Err(format!(
-                    "book {} is blocked by missing book_id {}",
-                    book.book_id, blocked_by
-                ));
-            }
-        }
+        validate_blocker_reference(book, &by_id)?;
     }
-    let mut visiting = HashSet::new();
-    let mut visited = HashSet::new();
+    let mut blocker_walk = BlockerWalk::new(by_id);
     for book in books {
-        walk_blockers(book.book_id.as_str(), &by_id, &mut visiting, &mut visited)?;
+        blocker_walk.walk(book.book_id.as_str())?;
     }
     Ok(())
 }
@@ -58,13 +56,15 @@ pub fn validate_book(book: &Book) -> Result<(), String> {
             book.book_id
         ));
     }
-    if let Some(words_total) = book.words_total {
-        if words_total < book.remaining_words {
-            return Err(format!(
-                "words_total cannot be less than remaining_words for {}",
-                book.book_id
-            ));
-        }
+    if book
+        .words_total
+        .filter(|words_total| *words_total < book.remaining_words)
+        .is_some()
+    {
+        return Err(format!(
+            "words_total cannot be less than remaining_words for {}",
+            book.book_id
+        ));
     }
     if !(MIN_PROGRESS_PERCENT..=MAX_PROGRESS_PERCENT).contains(&book.progress_percent) {
         return Err(format!(
@@ -72,13 +72,15 @@ pub fn validate_book(book: &Book) -> Result<(), String> {
             book.book_id
         ));
     }
-    if let Some(max_minutes_per_day) = book.max_minutes_per_day {
-        if max_minutes_per_day <= 0 {
-            return Err(format!(
-                "max_minutes_per_day must be > 0 for {}",
-                book.book_id
-            ));
-        }
+    if book
+        .max_minutes_per_day
+        .filter(|value| *value <= 0)
+        .is_some()
+    {
+        return Err(format!(
+            "max_minutes_per_day must be > 0 for {}",
+            book.book_id
+        ));
     }
     if book.blocked_by.as_deref() == Some(book.book_id.as_str()) {
         return Err(format!("book {} cannot block itself", book.book_id));
@@ -140,22 +142,62 @@ fn validate_scheduled_days(days: &BTreeSet<String>, book_id: &str) -> Result<(),
     Ok(())
 }
 
-fn walk_blockers<'a>(
-    book_id: &'a str,
-    by_id: &HashMap<&'a str, &'a Book>,
-    visiting: &mut HashSet<&'a str>,
-    visited: &mut HashSet<&'a str>,
-) -> Result<(), String> {
-    if visited.contains(book_id) {
+fn validate_blocker_reference(book: &Book, by_id: &HashMap<&str, &Book>) -> Result<(), String> {
+    let Some(blocked_by) = &book.blocked_by else {
+        return Ok(());
+    };
+    if by_id.contains_key(blocked_by.as_str()) {
         return Ok(());
     }
-    if !visiting.insert(book_id) {
-        return Err("blockers contain a cycle; remove circular dependencies".to_string());
+    Err(format!(
+        "book {} is blocked by missing book_id {}",
+        book.book_id, blocked_by
+    ))
+}
+
+impl<'a> BlockerWalk<'a> {
+    fn new(by_id: HashMap<&'a str, &'a Book>) -> Self {
+        Self {
+            by_id,
+            visited: HashSet::new(),
+            visiting: HashSet::new(),
+        }
     }
-    if let Some(blocker) = &by_id[book_id].blocked_by {
-        walk_blockers(blocker.as_str(), by_id, visiting, visited)?;
+
+    fn walk(&mut self, book_id: &'a str) -> Result<(), String> {
+        match already_walked(&self.visited, book_id) {
+            true => Ok(()),
+            false => self.walk_unvisited(book_id),
+        }
     }
-    visiting.remove(book_id);
-    visited.insert(book_id);
-    Ok(())
+
+    fn walk_unvisited(&mut self, book_id: &'a str) -> Result<(), String> {
+        ensure_not_visiting(&mut self.visiting, book_id)?;
+        walk_blocker(self, book_id)?;
+        self.visiting.remove(book_id);
+        self.visited.insert(book_id);
+        Ok(())
+    }
+}
+
+fn already_walked(visited: &HashSet<&str>, book_id: &str) -> bool {
+    visited.contains(book_id)
+}
+
+fn ensure_not_visiting<'a>(
+    visiting: &mut HashSet<&'a str>,
+    book_id: &'a str,
+) -> Result<(), String> {
+    if visiting.insert(book_id) {
+        return Ok(());
+    }
+    Err("blockers contain a cycle; remove circular dependencies".to_string())
+}
+
+fn walk_blocker<'a>(blocker_walk: &mut BlockerWalk<'a>, book_id: &'a str) -> Result<(), String> {
+    let blocker = blocker_walk.by_id[book_id].blocked_by.as_deref();
+    let Some(blocker) = blocker else {
+        return Ok(());
+    };
+    blocker_walk.walk(blocker)
 }

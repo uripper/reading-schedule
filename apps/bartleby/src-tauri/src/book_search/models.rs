@@ -5,6 +5,8 @@ const COVER_ID_MIN: i64 = 1;
 const WORDS_PER_PAGE_ESTIMATE: i64 = 300;
 const SOURCE_NAME: &str = "Open Library";
 
+type ReadingSize = (Option<i64>, Option<i64>);
+
 #[derive(Clone, Debug, Deserialize)]
 pub struct SearchDoc {
     pub author_name: Option<Vec<String>>,
@@ -48,7 +50,7 @@ pub fn primary_author(doc: &SearchDoc) -> String {
         .unwrap_or_default()
 }
 
-fn estimate_reading_size(doc: &SearchDoc) -> (Option<i64>, Option<i64>) {
+fn estimate_reading_size(doc: &SearchDoc) -> ReadingSize {
     match doc.number_of_pages_median.filter(|pages| *pages > 0) {
         Some(pages) => (Some(pages), Some(pages * WORDS_PER_PAGE_ESTIMATE)),
         None => (None, None),

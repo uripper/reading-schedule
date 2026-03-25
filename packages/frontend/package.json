@@ -11,9 +11,11 @@
     "name": "@reading-schedule/frontend",
     "private": true,
     "scripts": {
-        "build": "pnpm -C ../contracts run build && node ../../electron/scripts/build_tokens.mjs && pnpm run clean:dist && pnpm --dir ../.. exec tsc -p packages/frontend/tsconfig.json && node ./scripts/bundle-renderer.mjs && node ./scripts/copy-static.mjs",
+        "build": "pnpm -C ../contracts run build && pnpm run build:tokens && pnpm run clean:dist && pnpm --dir ../.. exec tsc -p packages/frontend/tsconfig.json && node ./scripts/bundle-renderer.mjs && node ./scripts/copy-static.mjs",
+        "build:tokens": "node ./scripts/build_tokens.mjs",
         "clean:dist": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
         "lint": "pnpm --dir ../.. exec biome check packages/frontend",
+        "test": "pnpm run build && node --test tests/*.test.mjs",
         "typecheck": "pnpm -C ../contracts run build && pnpm --dir ../.. exec tsc -p packages/frontend/tsconfig.json --noEmit"
     },
     "type": "module",

@@ -226,7 +226,7 @@ function createZoomApi(): Pick<PlannerApi, "zoomIn" | "zoomOut" | "zoomReset"> {
     };
 }
 
-export function createTauriPlannerApi(): PlannerApi {
+function createTauriPlannerApi(): PlannerApi {
     return {
         ...createCoverApi(),
         ...createPlanApi(),

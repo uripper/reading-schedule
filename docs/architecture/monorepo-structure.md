@@ -207,6 +207,18 @@ state persistence, but the migration is still intermediate overall because
 import, richer persistence behavior, and broader shared domain logic still need
 to move into reusable Rust crates.
 
+The current parity baseline is:
+
+1. planner profiles are routed natively in Rust, with fast-mode greedy behavior
+   and staged-profile fallback metadata matching what the shared frontend expects
+2. saved-state loading prefers the Tauri canonical store, but desktop builds
+   also probe the legacy Electron `reading-plan-gui` data directory and migrate
+   recoverable state forward into the Tauri store
+3. cover download and upload validation now follows the stricter Electron-era
+   host, redirect, size, and image-signature rules
+4. desktop recovery is available through the Tauri host via the
+   `state:recover:app` wrapper and the app-local Rust recovery binary
+
 ## Migration Order
 
 These are the no-regret moves:

@@ -13,12 +13,22 @@ pub struct WordStats {
     pub words_total: i64,
 }
 
+struct WordResolution<'a> {
+    data: &'a Map<String, Value>,
+    pages_total: Option<i64>,
+    words_total: i64,
+}
+
 pub fn word_stats_from_data(data: &Map<String, Value>) -> Result<WordStats, String> {
     let remaining_words = optional_i64_field(data, "remaining_words")?;
     let pages_total = optional_i64_field(data, "pages_total")?;
     let words_total = resolved_words_total(data, remaining_words, pages_total)?;
-    let remaining_words =
-        resolved_remaining_words(data, words_total, pages_total, remaining_words)?;
+    let remaining_words = WordResolution {
+        data,
+        pages_total,
+        words_total,
+    }
+    .resolved_remaining_words(remaining_words)?;
     Ok(WordStats {
         progress_percent: progress_percent(words_total, remaining_words),
         remaining_words,
@@ -34,10 +44,8 @@ fn resolved_words_total(
     if let Some(words_total) = optional_i64_field(data, "words_total")? {
         return require_positive_int(words_total, "words_total");
     }
-    if let Some(pages_total) = pages_total {
-        if remaining_words.is_none() {
-            return require_positive_int(pages_total, "pages_total");
-        }
+    if let Some(pages_total) = pages_total.filter(|_| remaining_words.is_none()) {
+        return require_positive_int(pages_total, "pages_total");
     }
     let Some(remaining_words) = remaining_words else {
         return Err("book requires remaining_words, words_total, or pages_total".to_string());
@@ -102,39 +110,6 @@ fn derived_total_from_progress(
     Ok(remaining_words.max(derived_total))
 }
 
-fn resolved_remaining_words(
-    data: &Map<String, Value>,
-    words_total: i64,
-    pages_total: Option<i64>,
-    remaining_words: Option<i64>,
-) -> Result<i64, String> {
-    if let Some(remaining_words) = remaining_words {
-        return require_non_negative_int(remaining_words, "remaining_words");
-    }
-    let words_read = resolved_words_read(data, words_total, pages_total)?;
-    Ok((words_total - words_read).max(0))
-}
-
-fn resolved_words_read(
-    data: &Map<String, Value>,
-    words_total: i64,
-    pages_total: Option<i64>,
-) -> Result<i64, String> {
-    if let Some(words_read) = optional_i64_field(data, "words_read")? {
-        return Ok(bounded_words_read(words_read, words_total));
-    }
-    if let Some(pages_read) = optional_i64_field(data, "pages_read")? {
-        return Ok(bounded_words_read(
-            estimated_words_read_from_pages(pages_read, words_total, pages_total),
-            words_total,
-        ));
-    }
-    let progress_percent = raw_progress_percent(data)?;
-    let derived_words_read =
-        (words_total as f64 * progress_percent / MAX_PROGRESS_PERCENT).round() as i64;
-    Ok(bounded_words_read(derived_words_read, words_total))
-}
-
 fn estimated_words_read_from_pages(
     pages_read: i64,
     words_total: i64,
@@ -186,4 +161,42 @@ fn require_positive_int(value: i64, field: &str) -> Result<i64, String> {
         return Err(format!("{field} must be > 0"));
     }
     Ok(value)
+}
+
+impl<'a> WordResolution<'a> {
+    fn resolved_remaining_words(&self, remaining_words: Option<i64>) -> Result<i64, String> {
+        match remaining_words {
+            Some(remaining_words) => require_non_negative_int(remaining_words, "remaining_words"),
+            None => self.derived_remaining_words(),
+        }
+    }
+
+    fn resolved_words_read(&self) -> Result<i64, String> {
+        match optional_i64_field(self.data, "words_read")? {
+            Some(words_read) => Ok(bounded_words_read(words_read, self.words_total)),
+            None => self.resolved_words_read_without_words_read(),
+        }
+    }
+
+    fn derived_remaining_words(&self) -> Result<i64, String> {
+        let words_read = self.resolved_words_read()?;
+        Ok((self.words_total - words_read).max(0))
+    }
+
+    fn resolved_words_read_without_words_read(&self) -> Result<i64, String> {
+        match optional_i64_field(self.data, "pages_read")? {
+            Some(pages_read) => Ok(bounded_words_read(
+                estimated_words_read_from_pages(pages_read, self.words_total, self.pages_total),
+                self.words_total,
+            )),
+            None => self.derived_words_read_from_progress(),
+        }
+    }
+
+    fn derived_words_read_from_progress(&self) -> Result<i64, String> {
+        let progress_percent = raw_progress_percent(self.data)?;
+        let derived_words_read =
+            (self.words_total as f64 * progress_percent / MAX_PROGRESS_PERCENT).round() as i64;
+        Ok(bounded_words_read(derived_words_read, self.words_total))
+    }
 }

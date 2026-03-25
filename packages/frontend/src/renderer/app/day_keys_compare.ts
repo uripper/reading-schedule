@@ -27,6 +27,17 @@ function matchesCalendarDay(year: number, month: number, day: number): boolean {
     return PARSED.getDate() === day;
 }
 
+function parsedDayKeyParts(dayKey: string): [number, number, number] | null {
+    const PARTS = dayKey.split("-");
+    if (PARTS.length !== 3) {
+        return null;
+    }
+    const YEAR = Number(PARTS[0]);
+    const MONTH = Number(PARTS[1]);
+    const DAY = Number(PARTS[2]);
+    return [YEAR, MONTH, DAY];
+}
+
 /**
  * Validates strict local day-key format (`YYYY-MM-DD`) and calendar date ranges.
  * @param dayKey - Candidate day key.
@@ -36,7 +47,11 @@ export function isValidDayKey(dayKey: string): boolean {
     if (!DAY_KEY_PATTERN.test(dayKey)) {
         return false;
     }
-    const [YEAR, MONTH, DAY] = dayKey.split("-").map(Number);
+    const PARTS = parsedDayKeyParts(dayKey);
+    if (PARTS === null) {
+        return false;
+    }
+    const [YEAR, MONTH, DAY] = PARTS;
     if (!hasIntegerDateParts(YEAR, MONTH, DAY)) {
         return false;
     }

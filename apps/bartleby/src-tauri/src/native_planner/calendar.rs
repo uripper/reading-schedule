@@ -1,8 +1,6 @@
-use std::collections::HashMap;
-
 use chrono::{Datelike, Local, NaiveDate};
 
-use crate::native_planner::models::{Book, Settings, WEEKDAYS};
+use crate::native_planner::models::{Book, CalendarMinutes, Settings, WEEKDAYS};
 
 pub fn date_range(start: NaiveDate, end: NaiveDate) -> Result<Vec<NaiveDate>, String> {
     if end < start {
@@ -10,14 +8,12 @@ pub fn date_range(start: NaiveDate, end: NaiveDate) -> Result<Vec<NaiveDate>, St
     }
     let mut days = Vec::new();
     let mut current = start;
-    loop {
-        days.push(current);
-        if current >= end {
-            break;
-        }
+    days.push(current);
+    while current < end {
         current = current
             .succ_opt()
             .ok_or_else(|| "Unable to advance calendar day range.".to_string())?;
+        days.push(current);
     }
     Ok(days)
 }
@@ -48,7 +44,7 @@ pub fn minutes_for_day(settings: &Settings, day: NaiveDate) -> i64 {
     settings.minutes_per_day.unwrap_or(0)
 }
 
-pub fn calendar_minutes(settings: &Settings) -> Result<HashMap<NaiveDate, i64>, String> {
+pub fn calendar_minutes(settings: &Settings) -> Result<CalendarMinutes, String> {
     let days = date_range(settings.start_date, settings.end_date)?;
     Ok(days
         .into_iter()

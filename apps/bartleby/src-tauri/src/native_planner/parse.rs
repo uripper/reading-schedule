@@ -9,9 +9,10 @@ use crate::native_planner::coerce::{
     parse_i64_value, required_string_field, string_list_or_csv_field,
 };
 use crate::native_planner::models::{
-    default_difficulty_multiplier, default_scheduled_days, Book, PlannerInput, Settings,
-    DEFAULT_DIFFICULTY, DEFAULT_MIN_BLOCKS_PER_SESSION, DEFAULT_PRIORITY, PLAN_MODE_FINISH_SOON,
-    PLAN_MODE_SPREAD_OUT,
+    default_difficulty_multiplier, default_scheduled_days, Book, DifficultyMultiplier,
+    MinutesByWeekday, PlannerInput, Settings, SolverProfile, DEFAULT_DIFFICULTY,
+    DEFAULT_MIN_BLOCKS_PER_SESSION, DEFAULT_PRIORITY, DEFAULT_SOLVER_PROFILE,
+    PLAN_MODE_FINISH_SOON, PLAN_MODE_SPREAD_OUT,
 };
 use crate::native_planner::validate::{validate_blockers, validate_book, validate_settings};
 use crate::native_planner::word_stats::word_stats_from_data;
@@ -93,6 +94,7 @@ fn parse_settings(data: &Map<String, Value>) -> Result<Settings, String> {
         minutes_by_weekday,
         minutes_per_day: Some(minutes_per_day),
         plan_mode: plan_mode(data),
+        solver_profile: solver_profile(data),
         start_date: start_date(data)?,
         time_quantum_minutes: int_with_default(
             data,
@@ -149,7 +151,7 @@ fn deadline(data: &Map<String, Value>) -> Result<Option<chrono::NaiveDate>, Stri
     Ok(Some(parse_date(&deadline)?))
 }
 
-fn difficulty_multiplier(data: &Map<String, Value>) -> Result<HashMap<i64, f64>, String> {
+fn difficulty_multiplier(data: &Map<String, Value>) -> Result<DifficultyMultiplier, String> {
     let Some(raw_multiplier) = data.get("difficulty_multiplier") else {
         return Ok(default_difficulty_multiplier());
     };
@@ -182,7 +184,7 @@ fn int_with_default(data: &Map<String, Value>, field: &str, default: i64) -> Res
     }
 }
 
-fn minutes_by_weekday(data: &Map<String, Value>) -> Result<HashMap<String, i64>, String> {
+fn minutes_by_weekday(data: &Map<String, Value>) -> Result<MinutesByWeekday, String> {
     let Some(raw_minutes_by_weekday) = data.get("minutes_by_weekday") else {
         return Ok(HashMap::new());
     };
@@ -192,20 +194,17 @@ fn minutes_by_weekday(data: &Map<String, Value>) -> Result<HashMap<String, i64>,
     let minutes_by_weekday = as_object(raw_minutes_by_weekday, "minutes_by_weekday")?;
     let mut parsed = HashMap::new();
     for (key, value) in minutes_by_weekday {
-        let normalized = key.chars().take(3).collect::<String>();
-        let normalized = if normalized.is_empty() {
-            key.clone()
-        } else {
-            normalized[..1].to_uppercase() + &normalized[1..].to_lowercase()
-        };
-        parsed.insert(normalized, parse_i64_value(value, "minutes_by_weekday")?);
+        parsed.insert(
+            normalized_weekday_key(key),
+            parse_i64_value(value, "minutes_by_weekday")?,
+        );
     }
     Ok(parsed)
 }
 
 fn minutes_per_day(
     data: &Map<String, Value>,
-    minutes_by_weekday: &HashMap<String, i64>,
+    minutes_by_weekday: &MinutesByWeekday,
 ) -> Result<i64, String> {
     let Some(raw_minutes_per_day) = data.get("minutes_per_day") else {
         return Ok(default_minutes_per_day(minutes_by_weekday));
@@ -232,6 +231,27 @@ fn plan_mode(data: &Map<String, Value>) -> String {
         return raw_mode;
     }
     PLAN_MODE_FINISH_SOON.to_string()
+}
+
+fn normalized_weekday_key(key: &str) -> String {
+    let normalized = key.chars().take(3).collect::<String>();
+    if normalized.is_empty() {
+        return key.to_string();
+    }
+    normalized[..1].to_uppercase() + &normalized[1..].to_lowercase()
+}
+
+fn solver_profile(data: &Map<String, Value>) -> SolverProfile {
+    let raw_profile = optional_string_field(data, "planner_solver_profile")
+        .ok()
+        .flatten()
+        .map(|value| value.to_lowercase());
+    match raw_profile.as_deref() {
+        Some("fast") => SolverProfile::Fast,
+        Some("thorough") => SolverProfile::Thorough,
+        Some("balanced") => SolverProfile::Balanced,
+        _ => DEFAULT_SOLVER_PROFILE,
+    }
 }
 
 fn required_int_field(data: &Map<String, Value>, field: &str) -> Result<i64, String> {

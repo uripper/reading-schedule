@@ -205,12 +205,20 @@ export function groupRowsByDate(
         if (!(row.date in NEXT_ACCUMULATOR)) {
             NEXT_ACCUMULATOR[row.date] = [];
         }
-        NEXT_ACCUMULATOR[row.date].push(row);
+        const EXISTING_ROWS = NEXT_ACCUMULATOR[row.date];
+        if (EXISTING_ROWS === undefined) {
+            return NEXT_ACCUMULATOR;
+        }
+        EXISTING_ROWS.push(row);
         return NEXT_ACCUMULATOR;
     }, {} as RowsByDate);
 
     for (const DATE_KEY of Object.keys(GROUPED_ROWS)) {
-        GROUPED_ROWS[DATE_KEY] = rowsWithFinishFirst(GROUPED_ROWS[DATE_KEY]);
+        const ROWS = GROUPED_ROWS[DATE_KEY];
+        if (ROWS === undefined) {
+            continue;
+        }
+        GROUPED_ROWS[DATE_KEY] = rowsWithFinishFirst(ROWS);
     }
     return GROUPED_ROWS;
 }

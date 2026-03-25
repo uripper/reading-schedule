@@ -129,7 +129,7 @@ const IS_COMPLETED = (
     if (FALLBACK_KEY === "") {
         return false;
     }
-    return completionState[FALLBACK_KEY];
+    return completionState[FALLBACK_KEY] === true;
 };
 
 /**

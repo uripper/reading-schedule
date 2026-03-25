@@ -116,7 +116,11 @@ function resolvedTargetRow(options: {
     if (INCOMPLETE !== null) {
         return INCOMPLETE;
     }
-    return options.sessions[0];
+    const FIRST_SESSION = options.sessions[0];
+    if (FIRST_SESSION === undefined) {
+        throw new Error("Today carousel requires at least one session.");
+    }
+    return FIRST_SESSION;
 }
 
 function groupedSessionsByBookId(options: {
@@ -149,6 +153,10 @@ function carouselBookItem(options: {
     pinnedRowKeyByBookId: Record<string, string>;
     sessions: TodayCarouselSessionItem[];
 }): TodayCarouselBookItem {
+    const FIRST_SESSION = resolvedTargetRow({
+        pinnedRowKey: EMPTY_TEXT,
+        sessions: options.sessions,
+    });
     return {
         author: resolveAuthor(options.book),
         bookId: options.bookId,
@@ -159,7 +167,7 @@ function carouselBookItem(options: {
                 options.pinnedRowKeyByBookId[options.bookId] ?? EMPTY_TEXT,
             sessions: options.sessions,
         }),
-        title: resolveBookTitle(options.sessions[0].row, options.book),
+        title: resolveBookTitle(FIRST_SESSION.row, options.book),
     };
 }
 

@@ -7,35 +7,42 @@ use crate::native_planner::calendar::{
     book_day_block_limit, book_is_scheduled_for_day, date_range, day_capacity_blocks,
     words_per_block,
 };
-use crate::native_planner::models::{
-    Assignments, Book, PlanResult, Settings, FEASIBLE_STATUS_NAME, NATIVE_PLANNER_NAME,
-    NATIVE_PLANNER_NOTE, PLAN_MODE_SPREAD_OUT,
+use crate::native_planner::greedy_support::{
+    active_book, assign_blocks, books_by_id, can_start_book, day_book_limit_reached,
+    deadline_sort_key, is_unlocked, next_book,
 };
+use crate::native_planner::models::{Assignments, Book, Settings, PLAN_MODE_SPREAD_OUT};
 
-struct DayState<'a> {
-    assignments: &'a mut Assignments,
+pub struct DayState<'a> {
+    pub assignments: &'a mut Assignments,
+    pub books: &'a HashMap<String, Book>,
+    pub cap: i64,
+    pub daily_book_cap: i64,
+    pub day: NaiveDate,
+    pub limits: &'a HashMap<String, i64>,
+    pub remaining: &'a mut HashMap<String, f64>,
+    pub used: Vec<String>,
+    pub wpb: &'a HashMap<String, i64>,
+}
+
+struct OrderedBookContext<'a> {
+    books: &'a [Book],
+    remaining: &'a HashMap<String, f64>,
+}
+
+struct CapContext<'a> {
     books: &'a HashMap<String, Book>,
-    cap: i64,
-    daily_book_cap: i64,
+    caps: &'a HashMap<NaiveDate, i64>,
     day: NaiveDate,
-    limits: &'a HashMap<String, i64>,
-    remaining: &'a mut HashMap<String, f64>,
-    used: Vec<String>,
+    day_index: usize,
+    days: &'a [NaiveDate],
+    ordered: &'a [String],
+    remaining: &'a HashMap<String, f64>,
+    settings: &'a Settings,
     wpb: &'a HashMap<String, i64>,
 }
 
-pub fn solve(books: &[Book], settings: &Settings) -> Result<PlanResult, String> {
-    let assignments = plan_greedy(books, settings)?;
-    Ok(PlanResult {
-        assignments,
-        note: NATIVE_PLANNER_NOTE.to_string(),
-        objective: None,
-        planner: NATIVE_PLANNER_NAME.to_string(),
-        status: FEASIBLE_STATUS_NAME.to_string(),
-    })
-}
-
-fn plan_greedy(books: &[Book], settings: &Settings) -> Result<Assignments, String> {
+pub fn plan_greedy(books: &[Book], settings: &Settings) -> Result<Assignments, String> {
     let days = date_range(settings.start_date, settings.end_date)?;
     let books_by_id = books_by_id(books);
     let mut assignments = Assignments::new();
@@ -61,21 +68,19 @@ fn plan_greedy(books: &[Book], settings: &Settings) -> Result<Assignments, Strin
         .min(settings.max_sessions_per_day);
     for (day_index, day) in days.iter().copied().enumerate() {
         let ordered = ordered_books(books, &remaining);
-        let cap = greedy_cap_for_day(
-            settings,
+        let cap = greedy_cap_for_day(&CapContext {
+            books: &books_by_id,
+            caps: &caps,
             day,
             day_index,
-            &days,
-            &caps,
-            &books_by_id,
-            &remaining,
-            &wpb,
-            &ordered,
-        );
-        if cap <= 0 {
-            continue;
-        }
-        plan_day(
+            days: &days,
+            ordered: &ordered,
+            remaining: &remaining,
+            settings,
+            wpb: &wpb,
+        });
+        plan_day_with_cap(
+            cap,
             &ordered,
             DayState {
                 assignments: &mut assignments,
@@ -102,32 +107,14 @@ fn plan_day(ordered: &[String], mut state: DayState<'_>) {
 }
 
 fn seed_day(ordered: &[String], state: &mut DayState<'_>) {
-    for book_id in ordered {
-        if day_book_limit_reached(state) {
-            return;
-        }
-        if !can_start_book(state, book_id) {
-            continue;
-        }
-        let min_blocks = state.books[book_id].min_blocks_per_session;
-        assign_blocks(state, book_id, min_blocks);
-        state.used.push(book_id.clone());
+    let mut index = 0;
+    while index < ordered.len() && seed_day_step(state, &ordered[index]) {
+        index += 1;
     }
 }
 
 fn fill_day(ordered: &[String], state: &mut DayState<'_>) {
-    while state.cap > 0 {
-        if let Some(book_id) = active_book(state) {
-            assign_blocks(state, &book_id, 1);
-            continue;
-        }
-        let Some(next_book) = next_book(ordered, state) else {
-            return;
-        };
-        let min_blocks = state.books[&next_book].min_blocks_per_session;
-        assign_blocks(state, &next_book, min_blocks);
-        state.used.push(next_book);
-    }
+    while state.cap > 0 && fill_day_step(ordered, state) {}
 }
 
 fn ordered_books(books: &[Book], remaining: &HashMap<String, f64>) -> Vec<String> {
@@ -135,93 +122,44 @@ fn ordered_books(books: &[Book], remaining: &HashMap<String, f64>) -> Vec<String
         .iter()
         .map(|book| book.book_id.clone())
         .collect::<Vec<_>>();
-    ordered.sort_by(|left, right| compare_books(left, right, books, remaining));
+    let context = OrderedBookContext { books, remaining };
+    ordered.sort_by(|left, right| context.compare(left, right));
     ordered
 }
 
-fn compare_books(
-    left: &str,
-    right: &str,
-    books: &[Book],
-    remaining: &HashMap<String, f64>,
-) -> Ordering {
-    let left_book = books
-        .iter()
-        .find(|book| book.book_id == left)
-        .expect("missing book");
-    let right_book = books
-        .iter()
-        .find(|book| book.book_id == right)
-        .expect("missing book");
-    left_book
-        .priority
-        .cmp(&right_book.priority)
-        .then_with(|| {
-            deadline_sort_key(left_book.deadline).cmp(&deadline_sort_key(right_book.deadline))
-        })
-        .then_with(|| {
-            remaining[right]
-                .partial_cmp(&remaining[left])
-                .unwrap_or(Ordering::Equal)
-        })
-        .then_with(|| left.cmp(right))
-}
-
-fn greedy_cap_for_day(
-    settings: &Settings,
-    day: NaiveDate,
-    day_index: usize,
-    days: &[NaiveDate],
-    caps: &HashMap<NaiveDate, i64>,
-    books: &HashMap<String, Book>,
-    remaining: &HashMap<String, f64>,
-    wpb: &HashMap<String, i64>,
-    ordered: &[String],
-) -> i64 {
-    let cap = *caps.get(&day).unwrap_or(&0);
-    if cap <= 0 || settings.plan_mode != PLAN_MODE_SPREAD_OUT {
+fn greedy_cap_for_day(context: &CapContext<'_>) -> i64 {
+    let cap = *context.caps.get(&context.day).unwrap_or(&0);
+    if cap <= 0 || context.settings.plan_mode != PLAN_MODE_SPREAD_OUT {
         return cap.max(0);
     }
-    cap.min(spread_cap_for_day(
-        day, day_index, days, caps, books, remaining, wpb, ordered,
-    ))
+    cap.min(spread_cap_for_day(context))
 }
 
-fn spread_cap_for_day(
-    day: NaiveDate,
-    day_index: usize,
-    days: &[NaiveDate],
-    caps: &HashMap<NaiveDate, i64>,
-    books: &HashMap<String, Book>,
-    remaining: &HashMap<String, f64>,
-    wpb: &HashMap<String, i64>,
-    ordered: &[String],
-) -> i64 {
-    let remaining_blocks = remaining
+fn spread_cap_for_day(context: &CapContext<'_>) -> i64 {
+    let remaining_blocks = context
+        .remaining
         .iter()
-        .filter_map(|(book_id, words_left)| {
-            if *words_left <= 0.0 || *wpb.get(book_id).unwrap_or(&0) <= 0 {
-                return None;
-            }
-            Some((words_left / *wpb.get(book_id).unwrap_or(&1) as f64).ceil() as i64)
-        })
+        .filter_map(|(book_id, words_left)| remaining_book_blocks(context, book_id, *words_left))
         .sum::<i64>();
     if remaining_blocks <= 0 {
         return 0;
     }
-    let active_days_left = days[day_index..]
+    let active_days_left = context.days[context.day_index..]
         .iter()
-        .filter(|day| *caps.get(day).unwrap_or(&0) > 0)
+        .filter(|day| *context.caps.get(day).unwrap_or(&0) > 0)
         .count() as i64;
     if active_days_left <= 0 {
         return remaining_blocks;
     }
     let mut target = (remaining_blocks as f64 / active_days_left as f64).ceil() as i64;
-    if let Some(min_seed) = ordered
+    if let Some(min_seed) = context
+        .ordered
         .iter()
-        .filter(|book_id| remaining[*book_id] > 0.0)
-        .filter_map(|book_id| books.get(book_id))
-        .filter(|book| is_unlocked(book, remaining) && book_is_scheduled_for_day(book, day))
+        .filter(|book_id| context.remaining[*book_id] > 0.0)
+        .filter_map(|book_id| context.books.get(book_id))
+        .filter(|book| {
+            is_unlocked(book, context.remaining) && book_is_scheduled_for_day(book, context.day)
+        })
         .map(|book| book.min_blocks_per_session)
         .next()
     {
@@ -233,90 +171,78 @@ fn spread_cap_for_day(
     target
 }
 
-fn active_book(state: &DayState<'_>) -> Option<String> {
-    let mut active = state
-        .used
-        .iter()
-        .filter(|book_id| is_active_book(state, book_id))
-        .cloned()
-        .collect::<Vec<_>>();
-    active.sort_by(|left, right| {
-        let left_book = &state.books[left];
-        let right_book = &state.books[right];
+fn remaining_book_blocks(context: &CapContext<'_>, book_id: &str, words_left: f64) -> Option<i64> {
+    let words_per_block = *context.wpb.get(book_id).unwrap_or(&0);
+    if words_left <= 0.0 || words_per_block <= 0 {
+        return None;
+    }
+    Some((words_left / words_per_block as f64).ceil() as i64)
+}
+
+fn start_next_book(state: &mut DayState<'_>, next_book_id: &str) {
+    let min_blocks = state.books[next_book_id].min_blocks_per_session;
+    assign_blocks(state, next_book_id, min_blocks);
+    state.used.push(next_book_id.to_string());
+}
+
+fn fill_day_step(ordered: &[String], state: &mut DayState<'_>) -> bool {
+    if let Some(book_id) = active_book(state) {
+        assign_blocks(state, &book_id, 1);
+        return true;
+    }
+    let Some(next_book_id) = next_book(ordered, state) else {
+        return false;
+    };
+    start_next_book(state, &next_book_id);
+    true
+}
+
+fn plan_day_with_cap(cap: i64, ordered: &[String], state: DayState<'_>) {
+    if cap <= 0 {
+        return;
+    }
+    plan_day(ordered, state);
+}
+
+fn seed_book(state: &mut DayState<'_>, book_id: &str) {
+    if !can_start_book(state, book_id) {
+        return;
+    }
+    let min_blocks = state.books[book_id].min_blocks_per_session;
+    assign_blocks(state, book_id, min_blocks);
+    state.used.push(book_id.to_string());
+}
+
+impl OrderedBookContext<'_> {
+    fn compare(&self, left: &str, right: &str) -> Ordering {
+        let left_book = self
+            .books
+            .iter()
+            .find(|book| book.book_id == left)
+            .expect("missing book");
+        let right_book = self
+            .books
+            .iter()
+            .find(|book| book.book_id == right)
+            .expect("missing book");
+        let deadline_order =
+            deadline_sort_key(left_book.deadline).cmp(&deadline_sort_key(right_book.deadline));
+        let remaining_order = self.remaining[right]
+            .partial_cmp(&self.remaining[left])
+            .unwrap_or(Ordering::Equal);
         left_book
             .priority
             .cmp(&right_book.priority)
-            .then_with(|| left_book.difficulty.cmp(&right_book.difficulty))
+            .then(deadline_order)
+            .then(remaining_order)
             .then_with(|| left.cmp(right))
-    });
-    active.into_iter().next()
+    }
 }
 
-fn next_book(ordered: &[String], state: &DayState<'_>) -> Option<String> {
+fn seed_day_step(state: &mut DayState<'_>, book_id: &str) -> bool {
     if day_book_limit_reached(state) {
-        return None;
+        return false;
     }
-    ordered
-        .iter()
-        .find(|book_id| can_start_book(state, book_id))
-        .cloned()
-}
-
-fn assign_blocks(state: &mut DayState<'_>, book_id: &str, blocks: i64) {
-    let key = (book_id.to_string(), state.day);
-    *state.assignments.entry(key).or_insert(0) += blocks;
-    *state.remaining.entry(book_id.to_string()).or_insert(0.0) =
-        (*state.remaining.get(book_id).unwrap_or(&0.0)
-            - blocks as f64 * *state.wpb.get(book_id).unwrap_or(&0) as f64)
-            .max(0.0);
-    state.cap -= blocks;
-}
-
-fn can_start_book(state: &DayState<'_>, book_id: &str) -> bool {
-    !state.used.contains(&book_id.to_string())
-        && *state.remaining.get(book_id).unwrap_or(&0.0) > 0.0
-        && is_unlocked(&state.books[book_id], state.remaining)
-        && book_is_scheduled_for_day(&state.books[book_id], state.day)
-        && state.cap >= state.books[book_id].min_blocks_per_session
-        && room(state, book_id) >= state.books[book_id].min_blocks_per_session
-}
-
-fn day_book_limit_reached(state: &DayState<'_>) -> bool {
-    state.used.len() as i64 >= state.daily_book_cap
-}
-
-fn is_active_book(state: &DayState<'_>, book_id: &str) -> bool {
-    *state.remaining.get(book_id).unwrap_or(&0.0) > 0.0
-        && is_unlocked(&state.books[book_id], state.remaining)
-        && book_is_scheduled_for_day(&state.books[book_id], state.day)
-        && room(state, book_id) > 0
-}
-
-fn is_unlocked(book: &Book, remaining: &HashMap<String, f64>) -> bool {
-    match &book.blocked_by {
-        Some(blocker) => remaining.get(blocker).copied().unwrap_or(0.0) <= 0.0,
-        None => true,
-    }
-}
-
-fn room(state: &DayState<'_>, book_id: &str) -> i64 {
-    let assigned = state
-        .assignments
-        .get(&(book_id.to_string(), state.day))
-        .copied()
-        .unwrap_or(0);
-    state.limits.get(book_id).copied().unwrap_or(0) - assigned
-}
-
-fn books_by_id(books: &[Book]) -> HashMap<String, Book> {
-    books
-        .iter()
-        .cloned()
-        .map(|book| (book.book_id.clone(), book))
-        .collect()
-}
-
-fn deadline_sort_key(deadline: Option<NaiveDate>) -> NaiveDate {
-    deadline
-        .unwrap_or_else(|| NaiveDate::from_ymd_opt(9999, 12, 31).expect("valid far future date"))
+    seed_book(state, book_id);
+    true
 }

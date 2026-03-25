@@ -93,7 +93,9 @@ export function monthLabel(key: string): string {
     if (!key) {
         return "No Schedule";
     }
-    const [YEAR, MONTH] = key.split("-").map(Number);
+    const PARTS = key.split("-");
+    const YEAR = Number(PARTS[0]);
+    const MONTH = Number(PARTS[1]);
     const FORMATTER = new Intl.DateTimeFormat(undefined, {
         month: "long",
         year: "numeric",
@@ -119,7 +121,9 @@ export function dayKey(date: Date): string {
  * @returns Date cells used for calendar month rendering.
  */
 export function monthCells(monthKey: string): Date[] {
-    const [YEAR, MONTH] = monthKey.split("-").map(Number);
+    const PARTS = monthKey.split("-");
+    const YEAR = Number(PARTS[0]);
+    const MONTH = Number(PARTS[1]);
     const FIRST = new Date(YEAR, MONTH - MONTH_INDEX_OFFSET, 1);
     const START = new Date(FIRST);
     const WEEKDAY_OFFSET =

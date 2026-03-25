@@ -46,7 +46,11 @@ function appendRowByDate(
     if (!(finishedAt in ROWS_BY_DATE)) {
         ROWS_BY_DATE[finishedAt] = [];
     }
-    ROWS_BY_DATE[finishedAt].push(row);
+    const EXISTING_ROWS = ROWS_BY_DATE[finishedAt];
+    if (EXISTING_ROWS === undefined) {
+        return;
+    }
+    EXISTING_ROWS.push(row);
 }
 
 function uniqueFinishedTitles(rows: CompletedBookRow[]): string[] {

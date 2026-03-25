@@ -136,8 +136,11 @@ export function updateBookProgress(
     if (IDX < 0) {
         return null;
     }
-
-    const NEXT = withUpdatedProgress(books[IDX], updates);
+    const CURRENT_BOOK = books[IDX];
+    if (CURRENT_BOOK === undefined) {
+        return null;
+    }
+    const NEXT = withUpdatedProgress(CURRENT_BOOK, updates);
     books[IDX] = normalizeBook(NEXT);
     onBooksCommitted(books);
     render();
@@ -145,7 +148,11 @@ export function updateBookProgress(
     if (options.notifyBooksChanged !== false) {
         onBooksChanged();
     }
-    return { ...books[IDX] };
+    const UPDATED_BOOK = books[IDX];
+    if (UPDATED_BOOK === undefined) {
+        return null;
+    }
+    return { ...UPDATED_BOOK };
 }
 
 /**

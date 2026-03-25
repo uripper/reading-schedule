@@ -17,6 +17,28 @@ struct Session {
     words_planned: i64,
 }
 
+struct SessionBuilder<'a> {
+    books_by_id: &'a HashMap<&'a str, &'a Book>,
+    day: NaiveDate,
+    remaining: &'a mut HashMap<String, i64>,
+    session_index: &'a mut i64,
+    settings: &'a Settings,
+}
+
+struct SessionClip<'a> {
+    blocks: i64,
+    book: &'a Book,
+    remaining_words: i64,
+}
+
+struct DaySessions<'a> {
+    assignments: &'a Assignments,
+    books_by_id: &'a HashMap<&'a str, &'a Book>,
+    day: NaiveDate,
+    remaining: &'a mut HashMap<String, i64>,
+    settings: &'a Settings,
+}
+
 pub fn build_output(
     books: &[Book],
     settings: &Settings,
@@ -82,7 +104,10 @@ pub fn build_output(
     }))
 }
 
-fn clip_session(book: &Book, settings: &Settings, blocks: i64, remaining_words: i64) -> (i64, i64) {
+fn clip_session(settings: &Settings, clip: SessionClip<'_>) -> (i64, i64) {
+    let book = clip.book;
+    let blocks = clip.blocks;
+    let remaining_words = clip.remaining_words;
     if remaining_words <= 0 {
         return (0, 0);
     }
@@ -130,32 +155,13 @@ fn sessions(
         .collect::<HashMap<_, _>>();
     let mut sessions = Vec::new();
     for day in date_range(settings.start_date, settings.end_date)? {
-        let items = day_assignment_items(assignments, &books_by_id, day);
-        let mut session_index = 0;
-        for (book_id, blocks) in items {
-            let book = books_by_id[book_id.as_str()];
-            let (minutes, words_planned) = clip_session(
-                book,
-                settings,
-                blocks,
-                *remaining.get(book_id.as_str()).unwrap_or(&0),
-            );
-            if words_planned <= 0 {
-                continue;
-            }
-            if let Some(remaining_words) = remaining.get_mut(book_id.as_str()) {
-                *remaining_words -= words_planned;
-            }
-            session_index += 1;
-            sessions.push(Session {
-                book_id: book.book_id.clone(),
-                date: day,
-                minutes,
-                session_index,
-                title: book.title.clone(),
-                words_planned,
-            });
-        }
+        sessions.extend(sessions_for_day(DaySessions {
+            assignments,
+            books_by_id: &books_by_id,
+            day,
+            remaining: &mut remaining,
+            settings,
+        }));
     }
     Ok(sessions)
 }
@@ -166,9 +172,77 @@ fn per_book_totals(books: &[Book], sessions: &[Session]) -> HashMap<String, i64>
         .map(|book| (book.book_id.clone(), 0))
         .collect::<HashMap<_, _>>();
     for session in sessions {
-        if let Some(total) = totals.get_mut(session.book_id.as_str()) {
-            *total += session.words_planned;
-        }
+        add_session_words(&mut totals, session);
     }
     totals
+}
+
+fn add_session_words(totals: &mut HashMap<String, i64>, session: &Session) {
+    let Some(total) = totals.get_mut(session.book_id.as_str()) else {
+        return;
+    };
+    *total += session.words_planned;
+}
+
+fn subtract_remaining_words(
+    remaining: &mut HashMap<String, i64>,
+    book_id: &str,
+    words_planned: i64,
+) {
+    let Some(remaining_words) = remaining.get_mut(book_id) else {
+        return;
+    };
+    *remaining_words -= words_planned;
+}
+
+impl<'a> SessionBuilder<'a> {
+    fn build(&mut self, book_id: &str, blocks: i64) -> Option<Session> {
+        let book = self.books_by_id[book_id];
+        let (minutes, words_planned) = planned_session(
+            self.settings,
+            SessionClip {
+                blocks,
+                book,
+                remaining_words: *self.remaining.get(book_id).unwrap_or(&0),
+            },
+        )?;
+        subtract_remaining_words(self.remaining, book_id, words_planned);
+        *self.session_index += 1;
+        Some(Session {
+            book_id: book.book_id.clone(),
+            date: self.day,
+            minutes,
+            session_index: *self.session_index,
+            title: book.title.clone(),
+            words_planned,
+        })
+    }
+}
+
+fn planned_session(settings: &Settings, session_clip: SessionClip<'_>) -> Option<(i64, i64)> {
+    let session = clip_session(settings, session_clip);
+    if session.1 <= 0 {
+        return None;
+    }
+    Some(session)
+}
+
+fn sessions_for_day(day_sessions: DaySessions<'_>) -> Vec<Session> {
+    let items = day_assignment_items(
+        day_sessions.assignments,
+        day_sessions.books_by_id,
+        day_sessions.day,
+    );
+    let mut session_index = 0;
+    let mut session_builder = SessionBuilder {
+        books_by_id: day_sessions.books_by_id,
+        day: day_sessions.day,
+        remaining: day_sessions.remaining,
+        session_index: &mut session_index,
+        settings: day_sessions.settings,
+    };
+    items
+        .into_iter()
+        .filter_map(|(book_id, blocks)| session_builder.build(&book_id, blocks))
+        .collect()
 }

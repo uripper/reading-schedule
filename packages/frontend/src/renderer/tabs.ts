@@ -117,6 +117,9 @@ export function activateTab(
  */
 function activateTabByIndex(tabs: HTMLElement[], index: number): void {
     const TARGET = tabs[index];
+    if (TARGET === undefined) {
+        return;
+    }
     TARGET.focus();
     activateTab(tabNameFromButton(TARGET));
 }

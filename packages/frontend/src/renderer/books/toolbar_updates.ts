@@ -46,7 +46,11 @@ export function updateShelfFilterOptions(
     NEXT_SHELF_FILTER_SELECT.replaceChildren(
         ...OPTIONS.map((option) => createOption(option.value, option.label)),
     );
-    let nextValue = OPTIONS[0].value;
+    let nextValue = selectedValue;
+    const FIRST_OPTION = OPTIONS[0];
+    if (FIRST_OPTION !== undefined) {
+        nextValue = FIRST_OPTION.value;
+    }
     if (OPTIONS.some((option) => option.value === selectedValue)) {
         nextValue = selectedValue;
     }
@@ -71,7 +75,11 @@ export function updateStatusFilterOptions(
     );
     const NORMALIZED = normalizeStatusFilter(selectedValue);
     const SELECTED = OPTIONS.find((option) => option.value === NORMALIZED);
-    let nextValue: BookStatusFilter = OPTIONS[0].value;
+    let nextValue = NORMALIZED;
+    const FIRST_OPTION = OPTIONS[0];
+    if (FIRST_OPTION !== undefined) {
+        nextValue = FIRST_OPTION.value;
+    }
     if (SELECTED) {
         nextValue = SELECTED.value;
     }

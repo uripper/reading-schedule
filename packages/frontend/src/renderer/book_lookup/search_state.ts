@@ -101,6 +101,9 @@ function selectLookupItem(deps: LookupControllerDeps, index: number): void {
         return;
     }
     const ITEM = deps.state.currentItems[index];
+    if (ITEM === undefined) {
+        return;
+    }
     applySelectedLookupItem(ITEM, deps.searchInput, deps.metaEl);
     clearLookupResults(deps);
     deps.onPick(ITEM);

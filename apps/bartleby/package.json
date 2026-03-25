@@ -12,15 +12,18 @@
     "name": "bartleby-app",
     "private": true,
     "scripts": {
-        "build": "pnpm run prepare:frontend && pnpm --dir ../.. exec tsc -p apps/bartleby/tsconfig.json --noEmit && vite build",
-        "dev": "pnpm run prepare:frontend && vite",
+        "build": "pnpm run prepare:app && pnpm --dir ../.. exec tsc -p apps/bartleby/tsconfig.json --noEmit && vite build",
+        "dev": "pnpm run prepare:app && vite",
         "dev:android": "tauri android dev",
         "dev:ios": "tauri ios dev",
+        "dist": "tauri build",
         "lint": "pnpm --dir ../.. exec biome check apps/bartleby",
-        "prepare:frontend": "pnpm -C ../../packages/frontend run build",
+        "prepare:app": "pnpm -C ../../packages/contracts run build && pnpm -C ../../packages/frontend run build:tokens && node ./scripts/sync-shell.mjs",
         "preview": "vite preview",
+        "state:recover": "cargo run --manifest-path src-tauri/Cargo.toml --bin state_recover --",
         "tauri": "tauri",
-        "typecheck": "pnpm run prepare:frontend && pnpm --dir ../.. exec tsc -p apps/bartleby/tsconfig.json --noEmit"
+        "test": "cargo test --manifest-path src-tauri/Cargo.toml",
+        "typecheck": "pnpm run prepare:app && pnpm --dir ../.. exec tsc -p apps/bartleby/tsconfig.json --noEmit"
     },
     "type": "module",
     "version": "0.1.0"

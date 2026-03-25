@@ -17,6 +17,18 @@ const SEARCH_FETCH_LIMIT: usize = 24;
 const SEARCH_OUTPUT_LIMIT: usize = 12;
 const MIN_QUERY_LENGTH: usize = 2;
 
+struct RankedDocsBuilder<'a> {
+    author_only: bool,
+    normalized_query: &'a str,
+    seen: HashSet<String>,
+}
+
+struct SearchAccumulator {
+    docs: Vec<SearchDoc>,
+    last_error: String,
+    successful_requests: usize,
+}
+
 fn normalized_search_query(query: &str) -> String {
     let normalized = query.trim();
     if normalized.len() < MIN_QUERY_LENGTH {
@@ -36,6 +48,10 @@ fn dedupe_key(doc: &SearchDoc) -> String {
         return String::new();
     }
     format!("{title}|{author}")
+}
+
+fn title_sort_key(doc: &SearchDoc) -> String {
+    doc.title.as_deref().unwrap_or_default().to_lowercase()
 }
 
 fn search_urls(query: &str, author_only: bool) -> Vec<String> {
@@ -59,37 +75,36 @@ fn search_urls(query: &str, author_only: bool) -> Vec<String> {
 }
 
 fn ranked_docs(docs: Vec<SearchDoc>, normalized_query: &str, author_only: bool) -> Vec<ScoredDoc> {
-    let mut ranked_docs = Vec::new();
-    let mut seen = HashSet::new();
-    for doc in docs {
-        let key = dedupe_key(&doc);
-        if key.is_empty() || seen.contains(&key) {
-            continue;
-        }
-        seen.insert(key);
-        let score = score_doc(&doc, normalized_query, author_only);
-        if score > 0 {
-            ranked_docs.push(ScoredDoc { doc, score });
-        }
-    }
+    let mut builder = RankedDocsBuilder::new(normalized_query, author_only);
+    let mut ranked_docs = docs
+        .into_iter()
+        .filter_map(|doc| builder.ranked_doc(doc))
+        .collect::<Vec<_>>();
     ranked_docs.sort_by(|left, right| {
-        right.score.cmp(&left.score).then_with(|| {
-            left.doc
-                .title
-                .as_deref()
-                .unwrap_or_default()
-                .to_lowercase()
-                .cmp(
-                    &right
-                        .doc
-                        .title
-                        .as_deref()
-                        .unwrap_or_default()
-                        .to_lowercase(),
-                )
-        })
+        let left_title = title_sort_key(&left.doc);
+        let right_title = title_sort_key(&right.doc);
+        right
+            .score
+            .cmp(&left.score)
+            .then_with(|| left_title.cmp(&right_title))
     });
     ranked_docs
+}
+
+async fn fetched_docs(client: &Client, url: String) -> Result<Vec<SearchDoc>, String> {
+    let response = client
+        .get(url)
+        .send()
+        .await
+        .map_err(|error| format!("Book search failed: {error}"))?;
+    let ok_response = response
+        .error_for_status()
+        .map_err(|error| format!("Book search failed: {error}"))?;
+    let payload = ok_response
+        .json::<SearchResponse>()
+        .await
+        .map_err(|error| format!("Unable to decode search response: {error}"))?;
+    Ok(payload.docs.unwrap_or_default())
 }
 
 pub async fn search_books(query: &str, author_only: bool) -> Result<Vec<SearchItem>, String> {
@@ -98,45 +113,84 @@ pub async fn search_books(query: &str, author_only: bool) -> Result<Vec<SearchIt
         return Ok(Vec::new());
     }
     let client = Client::new();
-    let mut docs = Vec::new();
-    let mut successful_requests = 0usize;
-    let mut last_error = String::from("Book search failed.");
+    let mut accumulator = SearchAccumulator::new();
     for url in search_urls(&normalized_query, author_only) {
-        match client.get(url).send().await {
-            Ok(response) => match response.error_for_status() {
-                Ok(ok_response) => match ok_response.json::<SearchResponse>().await {
-                    Ok(payload) => {
-                        docs.extend(payload.docs.unwrap_or_default());
-                        successful_requests += 1;
-                    }
-                    Err(error) => {
-                        last_error = format!("Unable to decode search response: {error}");
-                    }
-                },
-                Err(error) => {
-                    last_error = format!("Book search failed: {error}");
-                }
-            },
-            Err(error) => {
-                last_error = format!("Book search failed: {error}");
-            }
+        accumulator.record(fetched_docs(&client, url).await);
+    }
+    if accumulator.successful_requests == 0 {
+        return Err(accumulator.last_error);
+    }
+    Ok(
+        ranked_docs(accumulator.docs, &normalized_query, author_only)
+            .into_iter()
+            .take(SEARCH_OUTPUT_LIMIT)
+            .filter(|entry| {
+                !entry
+                    .doc
+                    .title
+                    .as_deref()
+                    .unwrap_or_default()
+                    .trim()
+                    .is_empty()
+            })
+            .map(|entry| to_search_item(entry.doc))
+            .collect(),
+    )
+}
+
+impl<'a> RankedDocsBuilder<'a> {
+    fn new(normalized_query: &'a str, author_only: bool) -> Self {
+        Self {
+            author_only,
+            normalized_query,
+            seen: HashSet::new(),
         }
     }
-    if successful_requests == 0 {
-        return Err(last_error);
+
+    fn ranked_doc(&mut self, doc: SearchDoc) -> Option<ScoredDoc> {
+        require_unique_doc(&mut self.seen, &doc)?;
+        scored_doc(doc, self.normalized_query, self.author_only)
     }
-    Ok(ranked_docs(docs, &normalized_query, author_only)
-        .into_iter()
-        .take(SEARCH_OUTPUT_LIMIT)
-        .filter(|entry| {
-            !entry
-                .doc
-                .title
-                .as_deref()
-                .unwrap_or_default()
-                .trim()
-                .is_empty()
-        })
-        .map(|entry| to_search_item(entry.doc))
-        .collect())
+}
+
+impl SearchAccumulator {
+    fn new() -> Self {
+        Self {
+            docs: Vec::new(),
+            last_error: String::from("Book search failed."),
+            successful_requests: 0,
+        }
+    }
+
+    fn record(&mut self, result: Result<Vec<SearchDoc>, String>) {
+        match result {
+            Ok(found_docs) => self.record_success(found_docs),
+            Err(error) => self.record_error(error),
+        }
+    }
+
+    fn record_error(&mut self, error: String) {
+        self.last_error = error;
+    }
+
+    fn record_success(&mut self, found_docs: Vec<SearchDoc>) {
+        self.docs.extend(found_docs);
+        self.successful_requests += 1;
+    }
+}
+
+fn require_unique_doc(seen: &mut HashSet<String>, doc: &SearchDoc) -> Option<()> {
+    let key = dedupe_key(doc);
+    if key.is_empty() || !seen.insert(key) {
+        return None;
+    }
+    Some(())
+}
+
+fn scored_doc(doc: SearchDoc, normalized_query: &str, author_only: bool) -> Option<ScoredDoc> {
+    let score = score_doc(&doc, normalized_query, author_only);
+    if score <= 0 {
+        return None;
+    }
+    Some(ScoredDoc { doc, score })
 }

@@ -51,6 +51,14 @@ function normalizeFinishedAt(value: string | null | undefined): string | null {
     return TRIMMED;
 }
 
+function todayDayKey(): string {
+    const TODAY = new Date();
+    const YEAR = String(TODAY.getFullYear());
+    const MONTH = String(TODAY.getMonth() + 1).padStart(2, "0");
+    const DAY = String(TODAY.getDate()).padStart(2, "0");
+    return `${YEAR}-${MONTH}-${DAY}`;
+}
+
 /**
  * Trims optional text values and normalizes nullish input to empty string.
  * @param value - Optional text value.
@@ -129,7 +137,10 @@ export function finishedAtForStatus(
     if (status !== BOOK_STATUS_READ) {
         return null;
     }
-    return FINISHED_AT;
+    if (FINISHED_AT !== null) {
+        return FINISHED_AT;
+    }
+    return todayDayKey();
 }
 
 function pagesTotalState(pagesTotal: number | null): PagesTotalState {

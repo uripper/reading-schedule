@@ -96,10 +96,12 @@ function difficultyMultiplierValue(
     level: number,
 ): number {
     const DIFFICULTY_KEY = String(level);
-    if (Object.hasOwn(difficultyMultiplier, DIFFICULTY_KEY)) {
-        return difficultyMultiplier[DIFFICULTY_KEY];
+    if (!Object.hasOwn(difficultyMultiplier, DIFFICULTY_KEY)) {
+        return DEFAULT_DIFFICULTY_MULTIPLIER;
     }
-    return DEFAULT_DIFFICULTY_MULTIPLIER;
+    return (
+        difficultyMultiplier[DIFFICULTY_KEY] ?? DEFAULT_DIFFICULTY_MULTIPLIER
+    );
 }
 
 function populateDifficultyMultipliers(settings: PlannerSettings): void {

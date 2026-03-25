@@ -53,6 +53,19 @@ function renderEmptyBookOptions(bookSelect: HTMLSelectElement): void {
     NEXT_BOOK_SELECT.replaceChildren(OPTION);
 }
 
+function selectedBookId(
+    filteredBooks: ManualSessionBook[],
+    preferredBookId: string,
+): string {
+    const HAS_PREFERRED_BOOK_ID =
+        preferredBookId !== "" &&
+        filteredBooks.some((book) => book.bookId === preferredBookId);
+    if (HAS_PREFERRED_BOOK_ID) {
+        return preferredBookId;
+    }
+    return filteredBooks[0]?.bookId ?? EMPTY_BOOK_OPTION_VALUE;
+}
+
 /**
  * Rebuilds manual-add select options from title filter and preferred selection.
  * @param options - Manual-add option refresh inputs.
@@ -75,13 +88,12 @@ export function refreshBookOptions(options: {
     const OPTIONS = FILTERED_BOOKS.map((book) => optionForBook(book));
     NEXT_BOOK_SELECT.disabled = false;
     NEXT_BOOK_SELECT.replaceChildren(...OPTIONS);
-
-    const HAS_PREFERRED_BOOK_ID =
-        options.preferredBookId !== "" &&
-        FILTERED_BOOKS.some((book) => book.bookId === options.preferredBookId);
-    if (HAS_PREFERRED_BOOK_ID) {
-        NEXT_BOOK_SELECT.value = options.preferredBookId;
+    const SELECTED_BOOK_ID = selectedBookId(
+        FILTERED_BOOKS,
+        options.preferredBookId,
+    );
+    if (SELECTED_BOOK_ID === EMPTY_BOOK_OPTION_VALUE) {
         return;
     }
-    NEXT_BOOK_SELECT.value = FILTERED_BOOKS[0].bookId;
+    NEXT_BOOK_SELECT.value = SELECTED_BOOK_ID;
 }

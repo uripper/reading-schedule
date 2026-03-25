@@ -36,10 +36,18 @@ function ensureSelectedDateInMonth(state: CalendarState): void {
         if (!(cellKey in CALENDAR_STATE.dates)) {
             return false;
         }
-        return CALENDAR_STATE.dates[cellKey].length > 0;
+        const ROWS = CALENDAR_STATE.dates[cellKey];
+        if (ROWS === undefined) {
+            return false;
+        }
+        return ROWS.length > 0;
     });
-    CALENDAR_STATE.selectedDate =
-        FIRST_WITH_ROWS ?? CALENDAR_STATE.monthCellKeys[0];
+    const FALLBACK_KEY = CALENDAR_STATE.monthCellKeys[0];
+    if (FIRST_WITH_ROWS !== undefined) {
+        CALENDAR_STATE.selectedDate = FIRST_WITH_ROWS;
+        return;
+    }
+    CALENDAR_STATE.selectedDate = FALLBACK_KEY ?? "";
 }
 
 /**
@@ -84,7 +92,9 @@ function monthContext(monthKey: string): {
     cells: Date[];
     firstDate: Date;
 } {
-    const [YEAR, MONTH] = monthKey.split("-").map(Number);
+    const PARTS = monthKey.split("-");
+    const YEAR = Number(PARTS[0]);
+    const MONTH = Number(PARTS[1]);
     return {
         cells: monthCells(monthKey),
         firstDate: new Date(YEAR, MONTH - 1, 1),
@@ -239,7 +249,9 @@ function calendarDayButton(options: {
     date: Date;
     index: number;
 }): HTMLButtonElement {
-    const KEY_FOR_DAY = options.args.calendarState.monthCellKeys[options.index];
+    const KEY_FOR_DAY =
+        options.args.calendarState.monthCellKeys[options.index] ??
+        dayKey(options.date);
     const DAY_BUTTON = dayButtonElement({
         args: options.args,
         date: options.date,

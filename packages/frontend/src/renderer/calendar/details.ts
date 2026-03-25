@@ -41,7 +41,7 @@ function rowsForSelectedDate(
     if (!(KEY in state.dates)) {
         return [];
     }
-    return state.dates[KEY];
+    return state.dates[KEY] ?? [];
 }
 
 /**
@@ -70,9 +70,13 @@ function defaultManualAddValues(rows: CalendarDetailsState["dates"][string]): {
     if (rows.length === 0) {
         return { firstBookId: "", firstMinutes: null };
     }
+    const FIRST_ROW = rows[0];
+    if (FIRST_ROW === undefined) {
+        return { firstBookId: "", firstMinutes: null };
+    }
     return {
-        firstBookId: rows[0].book_id,
-        firstMinutes: rows[0].minutes,
+        firstBookId: FIRST_ROW.book_id,
+        firstMinutes: FIRST_ROW.minutes,
     };
 }
 

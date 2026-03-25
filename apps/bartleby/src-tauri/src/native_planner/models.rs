@@ -3,16 +3,25 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 use chrono::NaiveDate;
 
 pub type Assignments = HashMap<(String, NaiveDate), i64>;
+pub type CalendarMinutes = HashMap<NaiveDate, i64>;
+pub type DifficultyMultiplier = HashMap<i64, f64>;
+pub type MinutesByWeekday = HashMap<String, i64>;
 
 pub const DEFAULT_DIFFICULTY: i64 = 1;
 pub const DEFAULT_MIN_BLOCKS_PER_SESSION: i64 = 2;
 pub const DEFAULT_PRIORITY: i64 = 3;
+pub const DEFAULT_SOLVER_PROFILE: SolverProfile = SolverProfile::Balanced;
 pub const FEASIBLE_STATUS_NAME: &str = "FEASIBLE";
-pub const NATIVE_PLANNER_NAME: &str = "rust-greedy";
-pub const NATIVE_PLANNER_NOTE: &str = "Native Rust greedy planner.";
 pub const PLAN_MODE_FINISH_SOON: &str = "finish_soon";
 pub const PLAN_MODE_SPREAD_OUT: &str = "spread_out";
 pub const WEEKDAYS: [&str; 7] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum SolverProfile {
+    Fast,
+    Balanced,
+    Thorough,
+}
 
 #[derive(Clone, Debug)]
 pub struct Book {
@@ -33,14 +42,15 @@ pub struct Book {
 #[derive(Clone, Debug)]
 pub struct Settings {
     pub days_off: HashSet<NaiveDate>,
-    pub difficulty_multiplier: HashMap<i64, f64>,
+    pub difficulty_multiplier: DifficultyMultiplier,
     pub end_date: NaiveDate,
     pub max_blocks_per_book_per_day: i64,
     pub max_books_per_day: i64,
     pub max_sessions_per_day: i64,
-    pub minutes_by_weekday: HashMap<String, i64>,
+    pub minutes_by_weekday: MinutesByWeekday,
     pub minutes_per_day: Option<i64>,
     pub plan_mode: String,
+    pub solver_profile: SolverProfile,
     pub start_date: NaiveDate,
     pub time_quantum_minutes: i64,
     pub w_finish: f64,
@@ -65,7 +75,7 @@ pub struct PlanResult {
     pub status: String,
 }
 
-pub fn default_difficulty_multiplier() -> HashMap<i64, f64> {
+pub fn default_difficulty_multiplier() -> DifficultyMultiplier {
     HashMap::from([
         (1, 1.0),
         (2, 0.9),

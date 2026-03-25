@@ -1,4 +1,5 @@
 import type { Book, BookInput, BookStatus } from "../../types/types.ts";
+import { resolveCoverSource } from "./cover-source.ts";
 import {
     DEFAULT_DIFFICULTY,
     DEFAULT_PRIORITY,
@@ -14,7 +15,6 @@ import {
     toTrimmedText,
     withNullableString,
 } from "./model-normalize-helpers.ts";
-import { resolveCoverSource } from "./cover-source.ts";
 import { normalizeScheduledDays } from "./scheduled_days.ts";
 import { normalizeShelfName } from "./shelf.ts";
 import { statusFromRaw } from "./status.ts";

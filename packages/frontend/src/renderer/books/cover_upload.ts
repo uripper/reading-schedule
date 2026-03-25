@@ -71,7 +71,7 @@ function selectedCoverFile(refs: BookFormRefs): File | null {
     if (!files || files.length <= 0) {
         return null;
     }
-    return files[0];
+    return files.item(0);
 }
 
 /**

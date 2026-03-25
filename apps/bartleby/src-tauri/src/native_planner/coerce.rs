@@ -1,6 +1,9 @@
 use serde_json::{Map, Value};
 
-pub fn as_object<'a>(value: &'a Value, name: &str) -> Result<&'a Map<String, Value>, String> {
+type JsonObject = Map<String, Value>;
+type StringList = Vec<String>;
+
+pub fn as_object<'a>(value: &'a Value, name: &str) -> Result<&'a JsonObject, String> {
     value
         .as_object()
         .ok_or_else(|| format!("{name} must be a JSON object"))
@@ -39,9 +42,8 @@ pub fn parse_i64_value(value: &Value, field: &str) -> Result<i64, String> {
         return i64::try_from(parsed).map_err(|_| format!("invalid integer for {field}: {parsed}"));
     }
     if let Some(parsed) = value.as_f64() {
-        if parsed.is_finite() && parsed.fract() == 0.0 {
-            return Ok(parsed as i64);
-        }
+        return integral_f64_value(parsed)
+            .ok_or_else(|| format!("invalid integer for {field}: {parsed}"));
     }
     if let Some(text) = value.as_str() {
         return text
@@ -65,14 +67,8 @@ pub fn optional_string_field(
 ) -> Result<Option<String>, String> {
     match data.get(field) {
         Some(Value::Null) | None => Ok(None),
-        Some(Value::String(value)) => {
-            let trimmed = value.trim();
-            if trimmed.is_empty() {
-                return Ok(None);
-            }
-            Ok(Some(trimmed.to_string()))
-        }
-        Some(value) => Ok(Some(value.to_string().trim_matches('"').trim().to_string())),
+        Some(Value::String(value)) => Ok(normalized_optional_string(value)),
+        Some(value) => Ok(normalized_optional_string(&value.to_string())),
     }
 }
 
@@ -93,7 +89,7 @@ pub fn required_string_field(data: &Map<String, Value>, field: &str) -> Result<S
 pub fn string_list_or_csv_field(
     data: &Map<String, Value>,
     field: &str,
-) -> Result<Option<Vec<String>>, String> {
+) -> Result<Option<StringList>, String> {
     let Some(raw) = data.get(field) else {
         return Ok(None);
     };
@@ -114,4 +110,23 @@ pub fn string_list_or_csv_field(
             .map(|item| item.as_str().unwrap_or("").trim().to_string())
             .collect(),
     ))
+}
+
+fn is_integral_f64(value: f64) -> bool {
+    value.is_finite() && value.fract() == 0.0
+}
+
+fn integral_f64_value(value: f64) -> Option<i64> {
+    if !is_integral_f64(value) {
+        return None;
+    }
+    Some(value as i64)
+}
+
+fn normalized_optional_string(value: &str) -> Option<String> {
+    let trimmed = value.trim().trim_matches('"').trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    Some(trimmed.to_string())
 }

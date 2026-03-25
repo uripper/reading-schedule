@@ -56,6 +56,14 @@ function selectedIndex(model: TodayCarouselModel): number {
     return INDEX;
 }
 
+function bookIdAt(model: TodayCarouselModel, index: number): string | null {
+    const BOOK = model.books[index];
+    if (BOOK === undefined) {
+        return null;
+    }
+    return BOOK.bookId;
+}
+
 function moveSelection(
     model: TodayCarouselModel,
     selectBook: SelectTodayBook,
@@ -66,7 +74,11 @@ function moveSelection(
     }
     const CURRENT_INDEX = selectedIndex(model);
     const NEXT_INDEX = wrappedIndex(CURRENT_INDEX, delta, model.books.length);
-    selectBook(model.books[NEXT_INDEX].bookId);
+    const BOOK_ID = bookIdAt(model, NEXT_INDEX);
+    if (BOOK_ID === null) {
+        return;
+    }
+    selectBook(BOOK_ID);
 }
 
 function selectEdgeBook(
@@ -77,7 +89,11 @@ function selectEdgeBook(
     if (!model.books.length) {
         return false;
     }
-    selectBook(model.books[index].bookId);
+    const BOOK_ID = bookIdAt(model, index);
+    if (BOOK_ID === null) {
+        return false;
+    }
+    selectBook(BOOK_ID);
     return true;
 }
 

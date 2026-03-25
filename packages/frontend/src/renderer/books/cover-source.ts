@@ -17,10 +17,7 @@ export function resolveCoverSource(src: string | null | undefined): string {
     }
 
     const PLANNER_API = plannerApiFromGlobal();
-    if (
-        PLANNER_API &&
-        typeof PLANNER_API.resolveCoverSrc === "function"
-    ) {
+    if (PLANNER_API && typeof PLANNER_API.resolveCoverSrc === "function") {
         return PLANNER_API.resolveCoverSrc(NORMALIZED_SRC);
     }
 

@@ -59,9 +59,7 @@ export function setOptionalIntegerInputValue(
  * Clears optional date inputs using both string and date-value channels.
  * @param inputNode - Date input node to clear.
  */
-export function clearOptionalDateInputValue(
-    inputNode: HTMLInputElement,
-): void {
+export function clearOptionalDateInputValue(inputNode: HTMLInputElement): void {
     const TARGET_INPUT = inputNode;
     TARGET_INPUT.defaultValue = "";
     TARGET_INPUT.value = "";
@@ -80,11 +78,12 @@ export function setOptionalDateInputValue(
     value: string | null | undefined,
 ): void {
     clearOptionalDateInputValue(inputNode);
+    const TARGET_INPUT = inputNode;
     const NORMALIZED_VALUE = fallbackText(value).trim();
     if (NORMALIZED_VALUE === "") {
         return;
     }
-    inputNode.value = NORMALIZED_VALUE;
+    TARGET_INPUT.value = NORMALIZED_VALUE;
 }
 
 /**
