@@ -99,7 +99,7 @@ const buildSummaryLines = (
 
 	if (executionCoverageAudit.summary === null) {
 		summaryLines.push(
-			`Electron node test execution coverage: ${executionCoverageAudit.failures.length} coverage command failures`,
+			`Desktop frontend node test execution coverage: ${executionCoverageAudit.failures.length} coverage command failures`,
 		);
 	} else {
 		let statusNote = "";
@@ -108,7 +108,7 @@ const buildSummaryLines = (
 		}
 
 		summaryLines.push(
-			`Electron node test execution coverage: ${executionCoverageAudit.summary.testsCount} tests, ${executionCoverageAudit.summary.linePercent}% line, ${executionCoverageAudit.summary.branchPercent}% branch, ${executionCoverageAudit.summary.functionPercent}% funcs${statusNote}`,
+			`Desktop frontend node test execution coverage: ${executionCoverageAudit.summary.testsCount} tests, ${executionCoverageAudit.summary.linePercent}% line, ${executionCoverageAudit.summary.branchPercent}% branch, ${executionCoverageAudit.summary.functionPercent}% funcs${statusNote}`,
 		);
 	}
 
@@ -255,7 +255,7 @@ export const printAuditReport = (
 	writeHitSection("Type coverage", typeCoverageAudit.hits);
 	writeHitSection("Test coverage surface", testCoverageAudit.hits);
 	writeTextSection(
-		"Electron node test execution coverage report",
+		"Desktop frontend node test execution coverage report",
 		executionCoverageAudit.reportLines,
 	);
 	writeHitSection("Probable documentation gaps", analysis.documentationHits);

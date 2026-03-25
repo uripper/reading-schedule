@@ -80,10 +80,6 @@ const localTypeAuditWaiverReason = (content) => {
 };
 
 const typeDeclarationSummary = (relativePath, sourceFile) => {
-	if (relativePath.startsWith("electron/tokens/dist/")) {
-		return null;
-	}
-
 	let declarationCount = 0;
 	let exportedDeclarationCount = 0;
 	let firstLine = 0;

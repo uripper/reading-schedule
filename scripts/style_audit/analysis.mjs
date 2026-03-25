@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { JS_TS_EXTENSIONS, MIN_LINE_LIMIT, SOFT_LINE_LIMIT, HARD_LINE_LIMIT } from "./config.mjs";
 import {
-	isElectronTypesPath,
+	isTypeDirectoryPath,
 	shouldSkipFile,
 	toRelative,
 } from "./path_rules.mjs";
@@ -42,7 +42,7 @@ const updateLineMetrics = (state, relativePath, lineCount) => {
 	if (lineCount > SOFT_LINE_LIMIT) {
 		state.overSoftLimit.push({ lines: lineCount, path: relativePath });
 	}
-	if (lineCount > HARD_LINE_LIMIT && !isElectronTypesPath(relativePath)) {
+	if (lineCount > HARD_LINE_LIMIT && !isTypeDirectoryPath(relativePath)) {
 		state.overHardLimit.push({ lines: lineCount, path: relativePath });
 	}
 };

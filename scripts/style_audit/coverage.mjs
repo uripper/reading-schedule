@@ -11,8 +11,11 @@ import {
 	isTestCoverageTestFile,
 } from "./path_rules.mjs";
 
-const ELECTRON_ROOT = path.join(process.cwd(), "electron");
-const ELECTRON_PACKAGE_JSON_PATH = path.join(ELECTRON_ROOT, "package.json");
+const DESKTOP_FRONTEND_ROOT = path.join(process.cwd(), "packages", "frontend");
+const DESKTOP_FRONTEND_PACKAGE_JSON_PATH = path.join(
+	DESKTOP_FRONTEND_ROOT,
+	"package.json",
+);
 const NODE_TEST_COVERAGE_ARGS = [
 	"--no-warnings",
 	"--experimental-test-coverage",
@@ -70,18 +73,21 @@ export const extractNodeTestPaths = (script) => {
 	return matches;
 };
 
-const readElectronTestNodePaths = () => {
-	const packageJsonText = fs.readFileSync(ELECTRON_PACKAGE_JSON_PATH, "utf8");
+const readDesktopFrontendNodePaths = () => {
+	const packageJsonText = fs.readFileSync(
+		DESKTOP_FRONTEND_PACKAGE_JSON_PATH,
+		"utf8",
+	);
 	const packageJson = JSON.parse(packageJsonText);
-	const script = packageJson.scripts?.["test:node"];
+	const script = packageJson.scripts?.test;
 
 	if (typeof script !== "string") {
-		throw new Error("electron/package.json is missing scripts.test:node");
+		throw new Error("packages/frontend/package.json is missing scripts.test");
 	}
 
 	const testPaths = extractNodeTestPaths(script);
 	if (testPaths.length === 0) {
-		throw new Error("electron/package.json test:node script has no test files");
+		throw new Error("packages/frontend/package.json test script has no test files");
 	}
 
 	return testPaths;
@@ -146,22 +152,22 @@ export const parseNodeCoverageSummary = (output) => {
 	};
 };
 
-const runElectronNodeCoverageCommand = (testPaths) => {
+const runDesktopNodeCoverageCommand = (testPaths) => {
 	return spawnSync(
 		process.execPath,
 		[...NODE_TEST_COVERAGE_ARGS, ...testPaths],
 		{
-			cwd: ELECTRON_ROOT,
+			cwd: DESKTOP_FRONTEND_ROOT,
 			encoding: "utf8",
 			maxBuffer: COVERAGE_OUTPUT_MAX_BUFFER_BYTES,
 		},
 	);
 };
 
-export const runElectronExecutionCoverageAudit = () => {
+export const runDesktopExecutionCoverageAudit = () => {
 	try {
-		const testPaths = readElectronTestNodePaths();
-		const result = runElectronNodeCoverageCommand(testPaths);
+		const testPaths = readDesktopFrontendNodePaths();
+		const result = runDesktopNodeCoverageCommand(testPaths);
 		const stdout = result.stdout ?? "";
 		const reportLines = extractCoverageReportLines(stdout);
 		const summary = parseNodeCoverageSummary(stdout);
@@ -169,16 +175,16 @@ export const runElectronExecutionCoverageAudit = () => {
 
 		if (result.error !== undefined) {
 			failures.push(
-				`Electron node coverage command failed to start: ${formatErrorMessage(result.error)}`,
+				`Desktop frontend node coverage command failed to start: ${formatErrorMessage(result.error)}`,
 			);
 		}
 
 		if (reportLines.length === 0) {
-			failures.push("Electron node coverage report was not emitted.");
+			failures.push("Desktop frontend node coverage report was not emitted.");
 		}
 
 		if (summary === null) {
-			failures.push("Electron node coverage summary could not be parsed.");
+			failures.push("Desktop frontend node coverage summary could not be parsed.");
 		}
 
 		return {
@@ -189,7 +195,9 @@ export const runElectronExecutionCoverageAudit = () => {
 		};
 	} catch (error) {
 		return {
-			failures: [`Electron node coverage audit failed: ${formatErrorMessage(error)}`],
+			failures: [
+				`Desktop frontend node coverage audit failed: ${formatErrorMessage(error)}`,
+			],
 			reportLines: [],
 			status: null,
 			summary: null,

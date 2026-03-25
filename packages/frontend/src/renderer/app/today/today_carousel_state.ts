@@ -12,8 +12,6 @@ interface MinutesEditorState {
     valueText: string;
 }
 
-// TODO: Move these Today UI-only state contracts into `electron/types` when
-// the Today renderer state shape is shared across modules.
 interface TodayCarouselUiState {
     minutesEditor: MinutesEditorState | null;
     pinnedRowKeyByBookId: Record<string, string>;

@@ -28,10 +28,8 @@ import { createRuntimeState } from "./runtime_state.ts";
 import { updateTodayDashboard } from "./today/today.ts";
 
 /**
- * Retrieves the Planner API from the global context. This function assumes that the `plannerApi`
- * has been exposed on the global object, which is typically done in the preload script of an Electron
- * application.
- * @returns The Planner API instance available on the global context
+ * Retrieves the Planner API from the global context after the desktop host installs it.
+ * @returns The Planner API instance available on the global context.
  */
 function plannerApiFromGlobal(): PlannerApi {
     const GLOBALS = globalThis as typeof globalThis & {

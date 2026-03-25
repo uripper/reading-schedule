@@ -29,7 +29,7 @@ fn apply_normalized_character(out: &mut String, last_was_space: &mut bool, chara
         *last_was_space = false;
         return;
     }
-    if character.is_whitespace() && !*last_was_space {
+    if !*last_was_space {
         out.push(' ');
         *last_was_space = true;
     }
@@ -161,7 +161,10 @@ pub fn score_doc(doc: &SearchDoc, query: &str, author_only: bool) -> i64 {
 
 #[cfg(test)]
 mod tests {
-    use super::{score_doc, SearchDoc};
+    use super::{
+        has_english_language, normalize_search_text, primary_author, query_tokens, score_doc,
+        SearchDoc,
+    };
 
     #[test]
     fn page_counts_raise_ranked_score() {
@@ -197,5 +200,87 @@ mod tests {
         };
 
         assert_eq!(score_doc(&doc, "octavia butler", true), 0);
+    }
+
+    #[test]
+    fn normalize_search_text_lowercases_and_strips_punctuation_noise() {
+        assert_eq!(
+            normalize_search_text("  L'etranger: A Novel?!  "),
+            "l etranger a novel"
+        );
+    }
+
+    #[test]
+    fn query_tokens_returns_only_normalized_non_empty_tokens() {
+        assert_eq!(query_tokens("  Deep   Work!!!  "), vec!["deep", "work"]);
+    }
+
+    #[test]
+    fn primary_author_returns_first_author_and_handles_missing_authors() {
+        let doc = SearchDoc {
+            author_name: Some(vec!["Cal Newport".to_string(), "Ghost".to_string()]),
+            cover_i: None,
+            edition_count: None,
+            first_publish_year: None,
+            key: None,
+            language: None,
+            number_of_pages_median: None,
+            title: None,
+        };
+        assert_eq!(primary_author(&doc), "Cal Newport");
+        assert!(primary_author(&SearchDoc {
+            author_name: Some(Vec::new()),
+            cover_i: None,
+            edition_count: None,
+            first_publish_year: None,
+            key: None,
+            language: None,
+            number_of_pages_median: None,
+            title: None,
+        })
+        .is_empty());
+    }
+
+    #[test]
+    fn has_english_language_recognizes_canonical_and_namespaced_tags() {
+        assert!(has_english_language(&SearchDoc {
+            author_name: None,
+            cover_i: None,
+            edition_count: None,
+            first_publish_year: None,
+            key: None,
+            language: Some(vec!["eng".to_string()]),
+            number_of_pages_median: None,
+            title: None,
+        }));
+        assert!(has_english_language(&SearchDoc {
+            author_name: None,
+            cover_i: None,
+            edition_count: None,
+            first_publish_year: None,
+            key: None,
+            language: Some(vec!["/languages/eng".to_string()]),
+            number_of_pages_median: None,
+            title: None,
+        }));
+    }
+
+    #[test]
+    fn score_doc_keeps_author_token_matches_when_title_is_missing() {
+        let score = score_doc(
+            &SearchDoc {
+                author_name: Some(vec!["George Orwell".to_string()]),
+                cover_i: None,
+                edition_count: Some(3),
+                first_publish_year: None,
+                key: None,
+                language: Some(vec!["eng".to_string()]),
+                number_of_pages_median: None,
+                title: None,
+            },
+            "George Orwell",
+            false,
+        );
+        assert!(score > 0);
     }
 }

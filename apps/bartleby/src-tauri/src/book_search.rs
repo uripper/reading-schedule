@@ -3,7 +3,7 @@ mod scoring;
 
 use std::collections::HashSet;
 
-use models::{primary_author, to_search_item, ScoredDoc, SearchDoc, SearchResponse};
+use models::{primary_author, search_docs_from_value, to_search_item, ScoredDoc, SearchDoc};
 use reqwest::Client;
 use scoring::score_doc;
 
@@ -101,10 +101,10 @@ async fn fetched_docs(client: &Client, url: String) -> Result<Vec<SearchDoc>, St
         .error_for_status()
         .map_err(|error| format!("Book search failed: {error}"))?;
     let payload = ok_response
-        .json::<SearchResponse>()
+        .json::<serde_json::Value>()
         .await
         .map_err(|error| format!("Unable to decode search response: {error}"))?;
-    Ok(payload.docs.unwrap_or_default())
+    Ok(search_docs_from_value(payload))
 }
 
 pub async fn search_books(query: &str, author_only: bool) -> Result<Vec<SearchItem>, String> {

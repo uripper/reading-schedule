@@ -1,4 +1,4 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built Electron artifacts from dist.
+// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 /**
  * Verifies removed sessions stay blocked from future replan merges.
  */

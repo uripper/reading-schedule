@@ -16,8 +16,6 @@ import { buildManualSessionAddPanel } from "./details_manual_add.ts";
 import { emptyMessageForMode, rowsForMode } from "./details_render_helpers.ts";
 import { dateHeading } from "./utils.ts";
 
-// TODO: Move these calendar detail view-only interfaces into `electron/types`
-// when the renderer detail contracts are consolidated.
 /**
  * Collects the inputs needed to build the manual-session add panel.
  */
@@ -127,8 +125,6 @@ function renderHintOnly(
     clearExpectedFinishHighlight(state);
 }
 
-// TODO: Move these calendar detail view-only interfaces into `electron/types`
-// when the renderer detail contracts are consolidated.
 /**
  * Describes the inputs required to build the selected-day details list.
  */
@@ -160,8 +156,6 @@ function detailsListNode(args: DetailsListArgs): HTMLElement {
     return LIST;
 }
 
-// TODO: Move these calendar detail view-only interfaces into `electron/types`
-// when the renderer detail contracts are consolidated.
 /**
  * Collects the elements and state needed to render the empty selected-day view.
  */

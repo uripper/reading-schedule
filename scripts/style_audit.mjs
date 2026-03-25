@@ -3,7 +3,7 @@
 import { analyzeFiles } from "./style_audit/analysis.mjs";
 import { collectFiles } from "./style_audit/files.mjs";
 import {
-	runElectronExecutionCoverageAudit,
+	runDesktopExecutionCoverageAudit,
 	runTestCoverageAudit,
 	runTypeCoverageAudit,
 } from "./style_audit/coverage.mjs";
@@ -14,7 +14,7 @@ const runStyleAudit = async () => {
 	const analysis = analyzeFiles(filePaths);
 	const typeCoverageAudit = await runTypeCoverageAudit();
 	const testCoverageAudit = runTestCoverageAudit(analysis.analyzedRelativePaths);
-	const executionCoverageAudit = runElectronExecutionCoverageAudit();
+	const executionCoverageAudit = runDesktopExecutionCoverageAudit();
 	const outcome = buildAuditOutcome(
 		analysis,
 		typeCoverageAudit,

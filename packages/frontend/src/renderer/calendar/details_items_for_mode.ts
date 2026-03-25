@@ -12,8 +12,6 @@ import { buildPastSessionItem } from "./details_session_past.ts";
 import type { BuildTodaySessionItemArgs } from "./details_session_today.ts";
 import { buildTodaySessionItem } from "./details_session_today.ts";
 
-// TODO: Move these detail-renderer contracts into `electron/types` when the
-// calendar details modules are normalized.
 /**
  * Session-item builder implementations grouped by calendar day mode.
  */
@@ -32,8 +30,6 @@ interface DetailsItemBuilders<TNode> {
     today(args: BuildTodaySessionItemArgs): TNode;
 }
 
-// TODO: Move these detail-renderer contracts into `electron/types` when the
-// calendar details modules are normalized.
 interface BuildSessionItemsArgs<TNode> {
     builders: DetailsItemBuilders<TNode>;
     interactionHandlers: DetailInteractionHandlers;

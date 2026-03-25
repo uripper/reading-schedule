@@ -8,18 +8,17 @@ A CHAT! NEVER TOUCH THE README.md!!!!
 ## 1) Project Snapshot
 
 - Product: Bartleby reading scheduler.
-- Desktop host: Electron app in `electron/`.
-- Tauri host: `apps/bartleby/`.
+- Desktop host: Tauri app in `apps/bartleby/`.
 - Shared web frontend source of truth: `packages/frontend/`.
-- Planner engine source of truth: Python package in `src/reading_plan/` until the Rust port reaches parity.
+- Planner, search, storage, and cover runtime source of truth: Rust crate in `apps/bartleby/src-tauri/`.
 - Tests:
-  - Python: `tests/`
-  - Electron logic tests: `electron/tests/`
+  - Shared frontend: `packages/frontend/tests/`
+  - Native desktop/runtime: `apps/bartleby/src-tauri/` unit tests
 
 ## 2) High-Value Paths
 
-- `src/reading_plan/`: planner/domain logic and API bridge.
-- `electron/main*.ts`: Electron main process entry points and IPC wiring.
+- `apps/bartleby/src-tauri/src/`: native planner, search, cover, state, and recovery logic.
+- `apps/bartleby/src/`: desktop host bootstrap and Tauri adapter wiring.
 - `packages/frontend/`: shared UI/runtime logic by feature area.
 - `scripts/`: style audit, issue sync, Windows helper scripts.
 - `STYLEGUIDE.md`: non-negotiable engineering rules (must follow).
@@ -70,14 +69,12 @@ These are enforced standards from `STYLEGUIDE.md`.
 
 Run commands relevant to touched areas before finishing:
 
-- Electron:
+- Desktop:
   - `pnpm run lint:desktop`
   - `pnpm run typecheck:desktop`
   - `pnpm run build:desktop`
-- Python planner:
-  - `pnpm run lint:python`
-  - `pnpm run typecheck:python`
-  - `.venv/bin/pytest -q`
+  - `pnpm run test:desktop`
+  - `cargo clippy --manifest-path apps/bartleby/src-tauri/Cargo.toml -- -D warnings`
 
 Helpful aggregate checks:
 
@@ -85,9 +82,9 @@ Helpful aggregate checks:
 - Repo desktop dev entrypoint: `pnpm run dev:desktop`
 - Root desktop wrappers:
   - `pnpm run lint:desktop`
-  - `pnpm run typecheck:python`
   - `pnpm run typecheck:desktop`
   - `pnpm run build:desktop`
+  - `pnpm run test:desktop`
 
 For broad refactors or project-wide cleanup work, run these repo-level checks by default unless the user explicitly asks you not to:
 

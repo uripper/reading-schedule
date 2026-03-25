@@ -17,8 +17,6 @@ import {
     setMinutesEditorValue,
 } from "./today_carousel_state.ts";
 
-// TODO: Move Today carousel binding contracts into `electron/types` once the
-// renderer Today modules settle.
 /**
  * Schedule and progress callbacks exposed to the Today carousel UI.
  */

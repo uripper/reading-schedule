@@ -10,8 +10,6 @@ const HOME_INDEX = 0;
 const STEP_PREVIOUS = -1;
 const STEP_NEXT = 1;
 
-// TODO: Move shared Today carousel callback types into `electron/types` when
-// the track/panel renderer boundary is finalized.
 /**
  * Callback used when the carousel selects a different book.
  */

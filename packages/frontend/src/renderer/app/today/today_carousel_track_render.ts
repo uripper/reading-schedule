@@ -10,8 +10,6 @@ import type {
 const MIN_VISIBLE_OFFSET = -2;
 const MAX_VISIBLE_OFFSET = 2;
 
-// TODO: Move shared Today carousel view types into `electron/types` when the
-// track renderer and model boundary is stabilized.
 type TodayCarouselTrackBook = TodayCarouselModel["books"][number];
 
 /**

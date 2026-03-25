@@ -44,16 +44,12 @@ const EMPTY_MINUTES_TEXT = "0";
 const EMPTY_PROGRESS_TOTAL_TEXT = "--";
 const EMPTY_SESSION_SUMMARY_TEXT = "-- pages\n--%";
 
-// TODO: Move Today carousel render contracts into `electron/types` when the
-// renderer Today surface is stabilized.
 interface TodayCarouselRenderArgs {
     books: Book[];
     lastResult: PlannerResult | null;
     scheduleCompletions: Record<string, boolean>;
 }
 
-// TODO: Move Today carousel render contracts into `electron/types` when the
-// renderer Today surface is stabilized.
 interface TodayInteractionBindings {
     onSessionCompletionChanged: TodayCarouselActionBindings["onSessionCompletionChanged"];
     onSessionMinutesUpdated: TodayCarouselActionBindings["onSessionMinutesUpdated"];

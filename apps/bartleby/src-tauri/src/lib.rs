@@ -14,6 +14,8 @@ pub use state_store::RecoverySummary;
 mod state_store_tests;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
+// Tauri expands this macro into generated support code we do not own.
+#[allow(clippy::disallowed_macros, clippy::disallowed_types)]
 pub fn run() {
     let context = tauri::generate_context!();
     tauri::Builder::default()

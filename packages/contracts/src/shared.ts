@@ -2,6 +2,8 @@ import { z } from "zod";
 import type { JsonValue } from "./types_subfolders/types_core.js";
 
 type ZodIssue = z.core.$ZodIssue;
+export const WORDS_PER_PAGE = 300;
+
 const JSON_PRIMITIVE_SCHEMA = z.union([
     z.string(),
     z.number(),
