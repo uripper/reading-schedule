@@ -12,6 +12,7 @@ import type {
 } from "../../types/types.ts";
 import { bindDialogFocus } from "../accessibility/a11y.ts";
 import { bindBookLookup } from "../book_lookup/search.ts";
+import { bindDateInput } from "../date_control.ts";
 import { createAfterBookPicker } from "./after_book_picker.ts";
 import { bindCoverUpload } from "./cover_upload.ts";
 import { bindBookDialogProgressSync } from "./dialog_progress_sync.ts";
@@ -77,6 +78,12 @@ function bindBookDialogCloseHandlers(
 function initializeBookDialogRefs(): ReturnType<typeof getBookFormRefs> {
     ensureBookFormLayoutFields();
     const REFS = getBookFormRefs();
+    bindDateInput(REFS.deadlineInput, {
+        placeholder: "No deadline selected",
+    });
+    bindDateInput(REFS.finishedAtInput, {
+        placeholder: "No finish date selected",
+    });
     bindShelfPicker(REFS);
     bindCoverUpload(REFS);
     return REFS;

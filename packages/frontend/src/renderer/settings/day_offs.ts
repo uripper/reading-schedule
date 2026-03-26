@@ -35,7 +35,8 @@ export function bindDayOffAddButton(
     setDayOffs: (nextDayOffs: string[]) => void,
 ): void {
     el<HTMLButtonElement>("addDayOffBtn").onclick = () => {
-        const SELECTED_DAY = el<HTMLInputElement>("dayOffPicker").value;
+        const DAY_OFF_INPUT = el<HTMLInputElement>("dayOffPicker");
+        const SELECTED_DAY = DAY_OFF_INPUT.value;
         const EXISTING = getDayOffs();
         if (!SELECTED_DAY || EXISTING.includes(SELECTED_DAY)) {
             return;
@@ -44,5 +45,6 @@ export function bindDayOffAddButton(
             left.localeCompare(right),
         );
         setDayOffs(SORTED);
+        DAY_OFF_INPUT.value = "";
     };
 }

@@ -1,4 +1,6 @@
 .book-dialog {
+    position: relative;
+    overflow: visible;
     width: min(1040px, 94vw);
     padding: var(--token-space-4);
     color: var(--app-text);

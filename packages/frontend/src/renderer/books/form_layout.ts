@@ -57,7 +57,7 @@ function createFinishedAtLabel(): HTMLLabelElement {
 
     const INPUT = document.createElement("input");
     INPUT.id = "bookFinishedAtInput";
-    INPUT.type = "date";
+    INPUT.type = "text";
 
     LABEL.append(INPUT);
     return LABEL;

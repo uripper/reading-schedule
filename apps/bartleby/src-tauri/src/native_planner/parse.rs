@@ -247,9 +247,7 @@ fn solver_profile(data: &Map<String, Value>) -> SolverProfile {
         .flatten()
         .map(|value| value.to_lowercase());
     match raw_profile.as_deref() {
-        Some("fast") => SolverProfile::Fast,
-        Some("thorough") => SolverProfile::Thorough,
-        Some("balanced") => SolverProfile::Balanced,
+        Some("fast") | Some("thorough") | Some("balanced") => SolverProfile::Fast,
         _ => DEFAULT_SOLVER_PROFILE,
     }
 }

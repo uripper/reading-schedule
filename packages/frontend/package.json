@@ -1,6 +1,7 @@
 {
     "dependencies": {
         "@reading-schedule/contracts": "workspace:*",
+        "flatpickr": "^4.6.13",
         "tslog": "^4.10.2"
     },
     "devDependencies": {

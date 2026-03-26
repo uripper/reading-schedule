@@ -13,7 +13,6 @@ export const CODE_EXTENSIONS = new Set([
 	".jsx",
 	".mjs",
 	".cjs",
-	".py",
 ]);
 
 export const JS_TS_EXTENSIONS = new Set([
@@ -30,12 +29,8 @@ export const TS_EXTENSIONS = new Set([".ts", ".tsx"]);
 export const IGNORED_DIRECTORIES = new Set([
 	".git",
 	".pnpm-store",
-	".pytest_cache",
 	".scannerwork",
 	".sonarlint",
-	".tmp-pycompat",
-	".venv",
-	".venv-py311-backup",
 	"node_modules",
 	"dist",
 	"build",

@@ -5,7 +5,7 @@ use directories::BaseDirs;
 use tauri::{AppHandle, Manager};
 
 const BOOK_COVERS_DIRECTORY_NAME: &str = "book_covers";
-const LEGACY_ELECTRON_APP_NAME: &str = "reading-plan-gui";
+const LEGACY_DESKTOP_APP_NAME: &str = "reading-plan-gui";
 const LEGACY_TAURI_COVERS_DIRECTORY_NAME: &str = "covers";
 
 pub fn canonical_data_directory(app: &AppHandle) -> Result<PathBuf, String> {
@@ -33,27 +33,27 @@ pub fn ensure_directory(directory: &Path) -> Result<(), String> {
 }
 
 #[cfg(any(target_os = "android", target_os = "ios"))]
-pub fn legacy_electron_data_directory() -> Option<PathBuf> {
+pub fn legacy_desktop_data_directory() -> Option<PathBuf> {
     None
 }
 
 #[cfg(target_os = "linux")]
-fn legacy_electron_root_directory(base_dirs: &BaseDirs) -> PathBuf {
+fn legacy_desktop_root_directory(base_dirs: &BaseDirs) -> PathBuf {
     base_dirs.config_dir().to_path_buf()
 }
 
 #[cfg(target_os = "macos")]
-fn legacy_electron_root_directory(base_dirs: &BaseDirs) -> PathBuf {
+fn legacy_desktop_root_directory(base_dirs: &BaseDirs) -> PathBuf {
     base_dirs.data_dir().to_path_buf()
 }
 
 #[cfg(target_os = "windows")]
-fn legacy_electron_root_directory(base_dirs: &BaseDirs) -> PathBuf {
+fn legacy_desktop_root_directory(base_dirs: &BaseDirs) -> PathBuf {
     base_dirs.data_dir().to_path_buf()
 }
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
-pub fn legacy_electron_data_directory() -> Option<PathBuf> {
+pub fn legacy_desktop_data_directory() -> Option<PathBuf> {
     let base_dirs = BaseDirs::new()?;
-    Some(legacy_electron_root_directory(&base_dirs).join(LEGACY_ELECTRON_APP_NAME))
+    Some(legacy_desktop_root_directory(&base_dirs).join(LEGACY_DESKTOP_APP_NAME))
 }

@@ -1,7 +1,0 @@
-# Optional dependency for MIP optimizer mode
-fastapi>=0.115
-ortools>=9.10
-uvicorn>=0.30
-
-# Testing
-pytest>=8.0

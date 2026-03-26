@@ -9,10 +9,9 @@ The live desktop product is now organized around three primary roots:
 - `apps/bartleby/src-tauri/` is the native Rust runtime for planner, state,
   cover handling, migration, and desktop shell behavior.
 
-The migration goal is no longer “move frontend out of Electron.” That split is
-already done for the shipped desktop flow. The remaining work is final semantic
-parity validation for the native planner and then deleting the legacy Electron
-and Python trees once they are no longer needed as reference oracles.
+The legacy Electron and Python trees have been removed from the live repository
+layout. The active desktop product is now fully hosted by the Tauri shell plus
+the shared frontend package and the native Rust runtime.
 
 ## Live Layout
 
@@ -104,18 +103,18 @@ These root commands are the stable desktop workflow:
 - `pnpm run test:desktop`
 - `pnpm run dist:desktop`
 
-They already work without the legacy trees participating in the live desktop
-build graph.
+They already work with no Electron or Python roots participating in the live
+desktop build graph.
 
-## Legacy Status
+## Legacy Compatibility
 
-Legacy directories may still exist in the repository during the cutover window,
-but they are no longer intended to be part of the live desktop build graph.
+The only remaining legacy-facing behavior is runtime compatibility for existing
+desktop users:
 
-- `electron/` should be treated as migration residue, not an active app root.
-- `src/reading_plan/` should be treated as a planner-behavior reference only
-  until the last semantic parity checks are complete.
+- `apps/bartleby/src-tauri/src/state_store/` can import saved data from the old
+  Electron user-data location.
+- `apps/bartleby/src-tauri/src/cover_store/` normalizes older cover file paths
+  into the canonical Tauri-managed `book_covers/` directory.
 
-Any new desktop behavior, bug fix, styling change, or tooling update should be
-implemented in `apps/bartleby/`, `packages/frontend/`, or
-`apps/bartleby/src-tauri/` rather than extending the legacy trees.
+Any new desktop behavior, bug fix, styling change, or tooling update belongs in
+`apps/bartleby/`, `packages/frontend/`, or `apps/bartleby/src-tauri/`.

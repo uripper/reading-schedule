@@ -10,7 +10,7 @@ pub type MinutesByWeekday = HashMap<String, i64>;
 pub const DEFAULT_DIFFICULTY: i64 = 1;
 pub const DEFAULT_MIN_BLOCKS_PER_SESSION: i64 = 2;
 pub const DEFAULT_PRIORITY: i64 = 3;
-pub const DEFAULT_SOLVER_PROFILE: SolverProfile = SolverProfile::Balanced;
+pub const DEFAULT_SOLVER_PROFILE: SolverProfile = SolverProfile::Fast;
 pub const FEASIBLE_STATUS_NAME: &str = "FEASIBLE";
 pub const PLAN_MODE_FINISH_SOON: &str = "finish_soon";
 pub const PLAN_MODE_SPREAD_OUT: &str = "spread_out";
@@ -19,8 +19,6 @@ pub const WEEKDAYS: [&str; 7] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum SolverProfile {
     Fast,
-    Balanced,
-    Thorough,
 }
 
 #[derive(Clone, Debug)]

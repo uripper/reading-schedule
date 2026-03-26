@@ -166,10 +166,12 @@ function populateStartDateField(
     minimumStartDate: string,
     value: unknown,
 ): void {
-    inputEl("start_date").value = normalizePlannerStartDate(
-        value,
-        minimumStartDate,
-    );
+    const START_DATE_INPUT = inputEl("start_date");
+    if (typeof value !== "string" || value.trim() === "") {
+        START_DATE_INPUT.value = "";
+        return;
+    }
+    START_DATE_INPUT.value = normalizePlannerStartDate(value, minimumStartDate);
 }
 
 function populateWeekdayMinutes(settings: PlannerSettings): void {

@@ -20,6 +20,8 @@ fakeHtmlElement.prototype.focus = function () {
     this.focusCalls += 1;
 };
 
+fakeHtmlElement.prototype.closest = () => null;
+
 fakeHtmlElement.prototype.querySelector = () => null;
 
 fakeHtmlElement.prototype.querySelectorAll = () => [];

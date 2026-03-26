@@ -1,4 +1,5 @@
 import type { BookFormRefs, BookStatus } from "@reading-schedule/contracts";
+import { syncDateInputDisabled } from "../date_control.ts";
 import { COVER_PLACEHOLDER } from "./constants.ts";
 import { resolveCoverSource } from "./cover-source.ts";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
@@ -63,7 +64,7 @@ export function clearOptionalDateInputValue(inputNode: HTMLInputElement): void {
     const TARGET_INPUT = inputNode;
     TARGET_INPUT.defaultValue = "";
     TARGET_INPUT.value = "";
-    if ("valueAsDate" in TARGET_INPUT) {
+    if (TARGET_INPUT.type === "date" && "valueAsDate" in TARGET_INPUT) {
         TARGET_INPUT.valueAsDate = null;
     }
 }
@@ -160,7 +161,7 @@ function toggleFinishedAtInput(refs: BookFormRefs, status: BookStatus): void {
     const { finishedAtField, finishedAtInput } = refs;
     const IS_READ = status === BOOK_STATUS_READ;
     finishedAtField.hidden = !IS_READ;
-    finishedAtInput.disabled = !IS_READ;
+    syncDateInputDisabled(finishedAtInput, !IS_READ);
 }
 
 /**

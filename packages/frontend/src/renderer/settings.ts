@@ -1,6 +1,7 @@
 import { parseSettings, safeParseSettings } from "@reading-schedule/contracts";
 import { logDebug } from "../types/logger.ts";
 import type { PlannerSettings } from "../types/types.ts";
+import { bindDateInput } from "./date_control.ts";
 import { FIELDS } from "./settings/config_fields.ts";
 import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.ts";
 import {
@@ -11,6 +12,7 @@ import {
 import { bindSettingsSectionTabs } from "./settings/section_tabs.ts";
 import { collectSettingsForm } from "./settings/serialize_collect.ts";
 import { fillSettingsForm } from "./settings/serialize_fill.ts";
+import { minimumPlannerStartDate } from "./settings/start_date.ts";
 
 let dayOffs: string[] = [];
 
@@ -21,6 +23,20 @@ let dayOffs: string[] = [];
 function setDayOffs(nextDayOffs: string[]): void {
     dayOffs = [...nextDayOffs];
     renderDayOffs(dayOffs, setDayOffs);
+}
+
+function bindSettingsDateInputs(): void {
+    bindDateInput(document.getElementById("dayOffPicker") as HTMLInputElement, {
+        placeholder: "Add a day off",
+    });
+    bindDateInput(document.getElementById("start_date") as HTMLInputElement, {
+        minimumDate: minimumPlannerStartDate(),
+        placeholder: "Default: today",
+    });
+    bindDateInput(document.getElementById("end_date") as HTMLInputElement, {
+        minimumDate: minimumPlannerStartDate(),
+        placeholder: "No end date selected",
+    });
 }
 
 /**
@@ -34,6 +50,7 @@ export function initSettingsGrid(): void {
     renderGrid("displayGrid", FIELDS.display);
     renderWeekdayGrid();
     renderDifficultyRows();
+    bindSettingsDateInputs();
     bindDayOffAddButton(() => dayOffs, setDayOffs);
 }
 

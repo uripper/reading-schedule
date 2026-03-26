@@ -133,7 +133,7 @@ mod tests {
     }
 
     #[test]
-    fn generate_plan_falls_back_for_balanced_profile() {
+    fn generate_plan_treats_balanced_profile_as_fast() {
         let mut payload = sample_payload().expect("expected sample payload");
         payload
             .get_mut("settings")
@@ -154,9 +154,33 @@ mod tests {
         );
         assert_eq!(
             summary.get("note").and_then(Value::as_str),
-            Some(
-                "Rust staged planner produced no feasible solution (INFEASIBLE); fell back to greedy planner.",
-            )
+            Some("Fast mode uses greedy planner.")
+        );
+    }
+
+    #[test]
+    fn generate_plan_treats_thorough_profile_as_fast() {
+        let mut payload = sample_payload().expect("expected sample payload");
+        payload
+            .get_mut("settings")
+            .and_then(Value::as_object_mut)
+            .expect("expected settings")
+            .insert(
+                "planner_solver_profile".to_string(),
+                Value::String("thorough".to_string()),
+            );
+        let generated = generate_plan(payload).expect("expected generated plan");
+        let summary = generated
+            .get("summary")
+            .and_then(Value::as_object)
+            .expect("expected summary");
+        assert_eq!(
+            summary.get("planner").and_then(Value::as_str),
+            Some("greedy")
+        );
+        assert_eq!(
+            summary.get("note").and_then(Value::as_str),
+            Some("Fast mode uses greedy planner.")
         );
     }
 }

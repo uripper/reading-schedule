@@ -6,7 +6,6 @@ import {
     BOOK_STATUS_IN_PROGRESS,
     BOOK_STATUS_READ,
 } from "../dist/renderer/books/status_catalog.js";
-import { dayKey } from "../dist/renderer/calendar/utils.js";
 
 test("normalizeBook keeps explicit finish date for read books", () => {
     const NORMALIZED = normalizeBook({
@@ -19,8 +18,7 @@ test("normalizeBook keeps explicit finish date for read books", () => {
     assert.equal(NORMALIZED.finished_at, "2026-02-10");
 });
 
-test("normalizeBook defaults finish date to today for read books", () => {
-    const TODAY = dayKey(new Date());
+test("normalizeBook keeps finish date empty for read books until chosen", () => {
     const NORMALIZED = normalizeBook({
         finished_at: "",
         status: BOOK_STATUS_READ,
@@ -28,7 +26,7 @@ test("normalizeBook defaults finish date to today for read books", () => {
         words_total: 1000,
     });
 
-    assert.equal(NORMALIZED.finished_at, TODAY);
+    assert.equal(NORMALIZED.finished_at, null);
 });
 
 test("normalizeBook clears finish date for non-read books", () => {

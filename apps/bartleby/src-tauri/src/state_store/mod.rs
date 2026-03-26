@@ -27,7 +27,7 @@ pub fn load_state(app: &AppHandle) -> Result<Value, String> {
     if has_persisted_artifacts(&canonical_directory) {
         return Ok(load_canonical_state(&canonical_directory).into_value());
     }
-    let Some(legacy_directory) = app_paths::legacy_electron_data_directory() else {
+    let Some(legacy_directory) = app_paths::legacy_desktop_data_directory() else {
         return Ok(fresh_state_result(&canonical_directory).into_value());
     };
     Ok(load_legacy_state(&canonical_directory, &legacy_directory)?.into_value())
