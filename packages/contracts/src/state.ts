@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { PLAN_GENERATE_RESULT_SCHEMA } from "./planner_result.js";
-import { plannerSettingsSchema } from "./settings.js";
+import { PLAN_GENERATE_RESULT_SCHEMA } from "./planner_result.ts";
+import { plannerSettingsSchema } from "./settings.ts";
 import type {
     LoadedPlannerState,
     PlannerStateSnapshot,
-} from "./types_subfolders/types_planner.js";
+} from "./types_subfolders/types_planner.ts";
 
 const BOOL_RECORD_SCHEMA = z.record(z.string(), z.boolean());
 
@@ -47,6 +47,7 @@ const PLANNER_STATE_SNAPSHOT_SCHEMA = z.object({
     schedule_completions: BOOL_RECORD_SCHEMA,
     sessions: z.array(SESSION_SCHEMA),
     settings: plannerSettingsSchema(),
+    state_version: z.number().int().nonnegative(),
 });
 
 const LOADED_PLANNER_STATE_SCHEMA = z.looseObject({
@@ -58,6 +59,7 @@ const LOADED_PLANNER_STATE_SCHEMA = z.looseObject({
     schedule_completions: BOOL_RECORD_SCHEMA.optional(),
     sessions: z.array(z.record(z.string(), z.unknown())).optional(),
     settings: plannerSettingsSchema().optional(),
+    state_version: z.number().int().nonnegative().optional(),
 });
 
 export function parsePlannerStateSnapshot(

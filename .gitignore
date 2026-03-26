@@ -11,30 +11,6 @@ Thumbs.db
 .envrc
 *.local
 
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.hypothesis/
-.tox/
-.nox/
-.coverage
-.coverage.*
-htmlcov/
-.eggs/
-*.egg-info/
-.venv/
-venv/
-.venv*/
-env/
-build/
-pip-wheel-metadata/
-.python-version
-
 # Node / TypeScript
 node_modules/
 package-lock.json
@@ -51,12 +27,11 @@ coverage/
 
 # Project build outputs
 /dist/
-electron/styles/generated/
-electron/tokens/dist/
-electron/dist/
-electron/release/
+packages/frontend/styles/generated/
 apps/*/dist/
 apps/*/dist-tests/
+apps/*/src-tauri/gen/
+apps/*/src-tauri/target/
 packages/*/dist/
 services/*/dist/
 apps/client/.vite/
@@ -105,3 +80,5 @@ reading-schedule-0.2.0.tgz
 *.tgz
 
 /Issues/Meta-Issues/*
+apps/bartleby/src-tauri/Cargo.lock
+.coverage

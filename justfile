@@ -20,9 +20,6 @@ android:
 ios:
   pnpm run dev:mobile:ios
 
-planner-api:
-  pnpm run dev:planner-api
-
 windows:
   pnpm run dev:windows
 
@@ -45,14 +42,7 @@ build-mobile:
 
 # Lint / format
 lint:
-  just lint-py
   just lint-ts
-
-lint-py:
-  pnpm run lint:python
-
-lint-py-all:
-  pnpm run lint:python:all
 
 lint-ts:
   pnpm run lint:desktop
@@ -60,37 +50,17 @@ lint-ts:
   pnpm run lint:mobile
 
 fix:
-  just fix-py
   just fix-ts
-
-fix-py:
-  pnpm run lint:python:fix
-
-fix-py-unsafe:
-  pnpm run lint:python:fix:unsafe
 
 fix-ts:
   pnpm run format:typescript
-
-format-py:
-  pnpm run format:python
-
-jsdoc:
-  pnpm run lint:desktop:jsdoc
-
-jsdoc-fix:
-  pnpm run lint:desktop:jsdoc:fix
 
 # Type checking
 check:
   just typecheck
 
 typecheck:
-  just typecheck-py
   just typecheck-ts
-
-typecheck-py:
-  pnpm run typecheck:python
 
 typecheck-ts:
   pnpm run typecheck:contracts
@@ -105,11 +75,7 @@ typecov-strict:
 
 # Tests
 test:
-  just test-py
   just test-desktop
-
-test-py:
-  pnpm run test:python
 
 test-desktop:
   pnpm run test:desktop
@@ -125,7 +91,7 @@ ci:
 
 # Analysis / maintenance
 audit:
-  pnpm run audit
+  pnpm run styleaudit
 
 knip:
   pnpm run knip

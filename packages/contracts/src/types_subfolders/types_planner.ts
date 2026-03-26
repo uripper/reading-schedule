@@ -1,8 +1,8 @@
 import type { UUID } from "node:crypto";
-import type { Book } from "./types_books.js";
-import type { JsonValue, Session } from "./types_core.js";
-import type { FeatureFlags, Preferences } from "./types_experience.js";
-import type { BookLookupItem } from "./types_lookup.js";
+import type { Book } from "./types_books.ts";
+import type { JsonValue, Session } from "./types_core.ts";
+import type { FeatureFlags, Preferences } from "./types_experience.ts";
+import type { BookLookupItem } from "./types_lookup.ts";
 
 /**
  * Types related to the reading schedule planner feature.
@@ -113,8 +113,6 @@ export interface PlannerResult {
  */
 export type PlannerSolverProfile = "fast" | "balanced" | "thorough";
 
-export type PlannerToken = "mip" | "mip-fast" | "mip-balanced" | "mip-thorough";
-
 export type PlannerSettings = {
     start_date?: string;
     end_date?: string;
@@ -147,6 +145,7 @@ export interface PlannerStateSnapshot {
     schedule_completions: Record<string, boolean>;
     sessions: Session[];
     settings: PlannerSettings;
+    state_version: number;
 }
 
 export interface LoadedPlannerState {
@@ -158,11 +157,11 @@ export interface LoadedPlannerState {
     schedule_completions?: Record<string, boolean>;
     sessions?: Session[];
     settings?: PlannerSettings;
+    state_version?: number;
 }
 
 export interface PlanGeneratePayload {
     books: Book[];
-    planner: PlannerToken;
     settings: PlannerSettings;
 }
 
@@ -177,7 +176,8 @@ export type PlannerStateLoadWarningCode =
     | "RECOVERED_FROM_BACKUP"
     | "RECOVERED_FROM_JOURNAL"
     | "STATE_RESET_FRESH"
-    | "MIGRATED_JSON_TO_SQLITE";
+    | "MIGRATED_JSON_TO_SQLITE"
+    | "MIGRATED_STATE_VERSION";
 
 export interface PlannerStateLoadResult {
     source: PlannerStateLoadSource;
@@ -209,6 +209,7 @@ export interface PlannerApi {
         dataUrl: string | undefined,
         bookId: string | undefined,
     ): Promise<string>;
+    resolveCoverSrc(src: string | undefined): string;
     searchBooks(query: string, author?: boolean): Promise<BookLookupItem[]>;
     zoomIn(): Promise<number>;
     zoomOut(): Promise<number>;

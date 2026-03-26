@@ -1,0 +1,258 @@
+:root {
+    --neo-header-border-color: #000;
+    --neo-header-height: 8vh;
+    --neo-header-gap: 0.5vw;
+    --neo-header-padding-x: 1vw;
+    --neo-header-padding-y: 1vh;
+    --neo-indicator-size: 44px;
+    --neo-dot-size: 12px;
+    --neo-dot-gap: 6px;
+    --neo-dot-columns: 8;
+}
+
+.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    display: grid;
+    grid-template-areas: "brand metrics actions";
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--neo-header-gap);
+    align-items: center;
+    min-height: var(--neo-header-height);
+    padding: var(--neo-header-padding-y) var(--neo-header-padding-x);
+    margin: 0;
+    background: var(--neo-header-color);
+    border-top: 2px solid var(--neo-header-border-color);
+    border-bottom: 2px solid var(--neo-header-border-color);
+    box-shadow: 0 4px 0 #000;
+    backdrop-filter: none;
+}
+
+.neo-brand-wrap {
+    display: flex;
+    grid-area: brand;
+    gap: 14px;
+    align-items: center;
+}
+
+.neo-brand-logo {
+    width: 6.5rem;
+    height: 6.5rem;
+    object-fit: contain;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
+}
+
+.neo-brand-text {
+    margin: 0;
+    font-family: var(--header-font);
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1;
+    color: #f3f3f3;
+    letter-spacing: 0.03em;
+}
+
+.neo-metrics {
+    display: flex;
+    flex-wrap: nowrap;
+    grid-area: metrics;
+    gap: 2vw;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding-inline: 1vw;
+}
+
+.neo-metric {
+    display: flex;
+    gap: 1vw;
+    align-items: center;
+    min-width: 0;
+    min-height: 2rem;
+    color: #f9f9f9;
+}
+
+.neo-metric-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 999px;
+    transition:
+        background-color var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard),
+        box-shadow var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard);
+}
+
+#headerStreakFlame.is-goal-complete {
+    background: #d21830;
+    box-shadow: 0 0 0 5px color-mix(in srgb, #d21830 35%, transparent);
+}
+
+.neo-metric-copy {
+    display: grid;
+    gap: 4px;
+}
+
+.neo-metric-goal {
+    min-width: 2rem;
+}
+
+.neo-metric-sessions {
+    align-items: center;
+    min-width: 2rem;
+}
+
+.neo-metric-title {
+    margin: 0;
+    font-family: var(--sub-header-font);
+    font-size: clamp(1.2rem, 2.2vw, 2.7rem);
+    font-weight: 600;
+    line-height: 0.95;
+    color: #fff;
+}
+
+.neo-metric-value,
+.neo-metric-streak-value {
+    margin: 0;
+    font-family: var(--sub-header-font);
+    font-size: clamp(1.2rem, 2.05vw, 2.7rem);
+    line-height: 1;
+    color: #f8f8f8;
+}
+.neo-metric-streak-text {
+    margin: 0;
+    font-family: var(--sub-header-font);
+    font-size: clamp(1.2rem, 2.05vw, 2.7rem);
+    font-weight: 100;
+    line-height: 1;
+    color: #f8f8f8;
+}
+
+.neo-metric-streak-value {
+    font-size: clamp(1.2rem, 2.05vw, 2.7rem);
+    font-weight: 800;
+}
+
+.neo-metric-indicator {
+    width: var(--neo-indicator-size);
+    height: var(--neo-indicator-size);
+    background: transparent;
+    border: 0;
+    border-radius: 10px;
+}
+
+.neo-metric-indicator.is-complete {
+    background-color: transparent;
+    background-image: url("../assets/checkbox_complete.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 92% 92%;
+}
+
+.neo-session-dots {
+    display: grid;
+    grid-template-columns: repeat(var(--neo-dot-columns), var(--neo-dot-size));
+    gap: var(--neo-dot-gap);
+    width: fit-content;
+    margin-top: 6px;
+}
+
+.neo-session-dot {
+    width: var(--neo-dot-size);
+    height: var(--neo-dot-size);
+    border: 2px solid rgba(255, 255, 255, 0.95);
+    border-radius: 999px;
+}
+
+.neo-session-dot.is-complete {
+    background: #fff;
+    border-color: #fff;
+}
+
+.neo-header-actions {
+    display: flex;
+    grid-area: actions;
+    justify-content: flex-end;
+}
+
+.neo-help-btn {
+    min-height: 2rem;
+    padding: 10px 24px;
+    font-family: var(--main-font);
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1;
+    color: #000;
+    background: #d9d9d9;
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 4px 4px 0 #000;
+}
+
+.neo-help-btn:hover {
+    text-decoration: none;
+    border-color: #000;
+}
+
+@media (max-width: 1280px) {
+    .neo-metrics {
+        gap: 1.25vw;
+    }
+
+    .neo-metric-title {
+        font-size: clamp(1.3rem, 1.9vw, 1.85rem);
+    }
+
+    .neo-metric-value,
+    .neo-metric-streak-value {
+        font-size: clamp(1.2rem, 1.75vw, 1.6rem);
+    }
+}
+
+@media (max-width: 1080px) {
+    .app-header {
+        grid-template-areas:
+            "brand actions"
+            "metrics metrics";
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .neo-metrics {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        padding-inline: 0;
+    }
+}
+
+@media (max-width: 920px) {
+    .app-header {
+        position: static;
+    }
+
+    .neo-brand-logo {
+        width: min(8vh, 8vw);
+        height: min(8vh, 8vw);
+    }
+
+    .neo-brand-text {
+        font-size: min(8vh, 8vw);
+    }
+
+    .neo-metrics {
+        gap: 1vw;
+        padding-inline: 0;
+    }
+
+    .neo-help-btn {
+        min-height: 2vh;
+        padding: 8px 14px;
+        font-size: 1rem;
+        box-shadow: 2px 2px 0 #000;
+    }
+}

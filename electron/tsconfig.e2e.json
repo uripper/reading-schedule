@@ -1,9 +1,0 @@
-{
-    "compilerOptions": {
-        "module": "ESNext",
-        "moduleResolution": "Bundler",
-        "types": ["node"]
-    },
-    "extends": "./tsconfig.json",
-    "include": ["e2e/**/*.ts", "playwright.config.ts"]
-}

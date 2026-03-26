@@ -1,7 +1,6 @@
 param(
   [string]$SourcePath,
   [string]$InstallPath = "$env:LOCALAPPDATA\ReadingPlanOptimizer",
-  [string]$PythonSpec = "3",
   [switch]$Hot
 )
 
@@ -21,14 +20,6 @@ function Sync-SourceTree {
   if ($robocopyExitCode -ge 8) {
     throw "robocopy failed with exit code $robocopyExitCode"
   }
-}
-
-function Get-PythonMajorMinor([string]$pythonExe) {
-  return (& $pythonExe -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')").Trim()
-}
-
-function Get-LauncherMajorMinor([string]$spec) {
-  return (& py -$spec -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')").Trim()
 }
 
 function Invoke-Pnpm {
@@ -100,12 +91,7 @@ New-Item -ItemType Directory -Force -Path $InstallPath | Out-Null
 
 $exclude = @(
   '.git',
-  '.venv',
-  '.venv-py311-backup',
-  '.tmp-pycompat',
   'node_modules',
-  '__pycache__',
-  '.pytest_cache',
   'dist',
   'build'
 )
@@ -127,44 +113,10 @@ if ($Hot) {
 
 Push-Location $InstallPath
 try {
-  $venvPython = ".venv\Scripts\python.exe"
-  $targetVersion = Get-LauncherMajorMinor $PythonSpec
-  $needsCreate = -not (Test-Path $venvPython)
-
-  if (-not $needsCreate) {
-    $currentVersion = Get-PythonMajorMinor $venvPython
-    if ($currentVersion -ne $targetVersion) {
-      Write-Host "Recreating .venv: current Python $currentVersion, requested $targetVersion"
-      Remove-Item -Recurse -Force ".venv"
-      $needsCreate = $true
-    }
-  }
-
-  if ($needsCreate) {
-    Write-Host "Creating .venv with py -$PythonSpec"
-    & py -$PythonSpec -m venv .venv
-  }
-
   # Install all workspace dependencies so shared packages
   # (e.g. packages/contracts) have their own node_modules available.
   Invoke-Pnpm @("install", "-r", "--include-workspace-root", "--ignore-scripts=false")
-  Invoke-Pnpm @("-C", "packages/contracts", "run", "build")
-
-  & .\.venv\Scripts\python.exe -m pip install --upgrade pip | Out-Null
-  & .\.venv\Scripts\python.exe -m pip install -e . | Out-Null
-
-  Push-Location .\electron
-  try {
-    $env:PYTHON_BIN = (Resolve-Path ..\.venv\Scripts\python.exe).Path
-    $env:UI_SCALE = "1.65"
-    if ($Hot) {
-      Invoke-Pnpm @("run", "dev")
-    } else {
-      Invoke-Pnpm @("run", "start")
-    }
-  } finally {
-    Pop-Location
-  }
+  Invoke-Pnpm @("run", "dev:desktop")
 } finally {
   Pop-Location
   if ($null -ne $syncJob) {

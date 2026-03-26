@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en" data-theme="system" data-reduce-motion="false">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bartleby</title>
+    <link rel="icon" type="image/png" href="assets/logo.svg" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="splashScreen" class="splash-screen" aria-hidden="true">
+      <div class="splash-inner">
+        <div class="splash-title-wrap">
+          <h1 class="splash-title">
+            <span class="splash-title-text">BARTLEBY</span>
+          </h1>
+        </div>
+
+        <img class="splash-logo" src="assets/logo.svg" alt="" />
+      </div>
+    </div>
+
+    <a class="skip-link" href="#mainContent">Skip to main content</a>
+
+    <header class="app-header" role="banner">
+      <div class="neo-brand-wrap">
+        <img class="neo-brand-logo" src="assets/logo.svg" alt="Bartleby logo" />
+        <p class="neo-brand-text">BARTLEBY</p>
+      </div>
+      <div class="neo-metrics" aria-label="Today Metrics">
+        <section id="headerStreakMetric" class="neo-metric neo-metric-streak">
+          <img
+            id="headerStreakFlame"
+            class="neo-metric-icon"
+            src="assets/flame.svg"
+            alt=""
+            aria-hidden="true"
+          />
+          <p id="streakText" class="neo-metric-streak-value">
+            <span class="neo-metric-streak-value">0</span>
+            <span class="neo-metric-streak-text">Day Streak</span>
+          </p>
+        </section>
+        <section class="neo-metric neo-metric-goal">
+          <span
+            id="headerGoalIndicator"
+            class="neo-metric-indicator"
+            aria-hidden="true"
+          ></span>
+          <div class="neo-metric-copy">
+            <p class="neo-metric-title">Daily Goal</p>
+            <p id="todayGoalText" class="neo-metric-value">
+              0/30 Minutes
+            </p>
+          </div>
+        </section>
+        <section id="headerSessionsMetric" class="neo-metric neo-metric-sessions">
+          <span
+            id="headerSessionsIndicator"
+            class="neo-metric-indicator"
+            aria-hidden="true"
+          ></span>
+          <div class="neo-metric-copy">
+            <p class="neo-metric-title">Sessions</p>
+            <div id="headerSessionsDots" class="neo-session-dots"></div>
+            <p id="headerSessionsStatus" class="visually-hidden">0/0 logged</p>
+          </div>
+        </section>
+      </div>
+      <div class="neo-header-actions">
+        <button id="helpBtn" class="btn neo-help-btn" type="button">
+          Help/Logs
+        </button>
+        <output id="status" class="visually-hidden" aria-live="polite"></output>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Main Tabs" id="primaryTabs">
+      <button
+        id="tab-btn-today"
+        class="tab is-active"
+        type="button"
+        data-tab="today"
+        role="tablist"
+        aria-selected="true"
+        aria-controls="tab-today"
+        tabindex="0"
+      >
+        Today
+      </button>
+      <button
+        id="tab-btn-books"
+        class="tab"
+        type="button"
+        data-tab="books"
+        role="tab"
+        aria-selected="false"
+        aria-controls="tab-books"
+        tabindex="-1"
+      >
+        Library
+      </button>
+      <button
+        id="tab-btn-schedule"
+        class="tab"
+        type="button"
+        data-tab="schedule"
+        role="tab"
+        aria-selected="false"
+        aria-controls="tab-schedule"
+        tabindex="-1"
+      >
+        Schedule
+      </button>      
+      <button
+        id="tab-btn-recommendations"
+        class="tab"
+        type="button"
+        data-tab="recommendations"
+        role="tab"
+        aria-selected="false"
+        aria-controls="tab-recommendations"
+        tabindex="-1"
+      >
+        Recs
+      </button>
+      <button
+        id="tab-btn-stats"
+        class="tab"
+        type="button"
+        data-tab="stats"
+        role="tab"
+        aria-selected="false"
+        aria-controls="tab-stats"
+        tabindex="-1"
+      >
+        Stats
+      </button>
+      <button
+        id="tab-btn-settings"
+        class="tab"
+        type="button"
+        data-tab="settings"
+        role="tab"
+        aria-selected="false"
+        aria-controls="tab-settings"
+        tabindex="-1"
+      >
+        Settings
+      </button>
+    </nav>
+
+    <main id="mainContent" tabindex="-1">
+      <section
+        id="tab-today"
+        class="panel is-active"
+        role="tabpanel"
+        aria-labelledby="tab-btn-today"
+        tabindex="-1"
+      >
+        <div id="todayCarouselSection" class="today-carousel-shell">
+          <div class="today-carousel-row">
+            <button
+              id="todayCarouselPrev"
+              class="btn today-carousel-nav"
+              type="button"
+              aria-label="Previous book"
+            >
+              <img src="assets/arrows.svg" alt="" aria-hidden="true" />
+            </button>
+            <div
+              id="todayCarouselTrack"
+              class="today-carousel-track"
+              tabindex="0"
+              role="listbox"
+              aria-label="Today's scheduled books"
+            ></div>
+            <button
+              id="todayCarouselNext"
+              class="btn today-carousel-nav"
+              type="button"
+              aria-label="Next book"
+            >
+              <img src="assets/arrows.svg" alt="" aria-hidden="true" />
+            </button>
+          </div>
+          <p id="todayCarouselEmpty" class="hint-text" hidden>
+            No sessions scheduled for today. Add books and update your plan to
+            see today&apos;s carousel.
+          </p>
+          <p id="todayActiveBookBar" class="today-active-book-bar">
+            No book selected
+          </p>
+          <section id="todayFocusPanel" class="today-focus-panel">
+            <article id="todayMinutesOval" class="today-minutes-oval">
+              <p class="today-minutes-label">Minutes:</p>
+              <div class="today-minutes-value-row">
+                <span id="todayMinutesValue" class="today-minutes-value">0</span>
+                <input
+                  id="todayMinutesInput"
+                  class="today-minutes-inline-input"
+                  type="number"
+                  min="0"
+                  step="1"
+                  hidden
+                  aria-label="Planned minutes"
+                />
+                <button
+                  id="todayMinutesEditBtn"
+                  class="btn today-minutes-edit-btn"
+                  type="button"
+                  aria-label="Edit planned minutes"
+                >
+                  &#9998;
+                </button>
+              </div>
+              <p id="todayAfterSessionText" class="today-after-session-text">
+                After session: --
+              </p>
+            </article>
+            <article id="todayProgressPanel" class="today-progress-panel">
+              <p class="today-progress-title">Progress</p>
+              <div id="todayProgressPagesChip" class="today-progress-chip">
+                <input
+                  id="todayPagesInput"
+                  class="today-progress-pages-input"
+                  type="number"
+                  min="0"
+                  step="1"
+                  aria-label="Pages read"
+                />
+                <span class="today-progress-pages-separator" aria-hidden="true"
+                  >/</span
+                >
+                <span id="todayProgressPagesTotalText">--</span>
+              </div>
+              <div id="todayProgressPercentChip" class="today-progress-chip">
+                <input
+                  id="todayPercentInput"
+                  class="today-progress-percent-input"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  aria-label="Complete percent"
+                />
+                <span class="today-progress-percent-suffix" aria-hidden="true"
+                  >%</span
+                >
+              </div>
+            </article>
+            <div class="today-focus-actions">
+              <button
+                id="todayLogSessionBtn"
+                class="btn today-log-session-btn"
+                type="button"
+              >
+                Log Session
+              </button>
+              <button
+                id="todayRemoveSessionBtn"
+                class="btn today-remove-session-btn"
+                type="button"
+              >
+                Remove
+              </button>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section
+        id="tab-stats"
+        class="panel"
+        role="tabpanel"
+        aria-labelledby="tab-btn-stats"
+        tabindex="-1"
+        hidden
+      >
+        <div class="stats-shell">
+          <div id="statsDashboard" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section
+        id="tab-settings"
+        class="panel"
+        role="tabpanel"
+        aria-labelledby="tab-btn-settings"
+        tabindex="-1"
+        hidden
+      >
+        <div class="settings-shell">
+          <nav
+            id="settingsSectionTabs"
+            class="settings-section-tabs"
+            aria-label="Settings sections"
+          >
+            <button
+              class="settings-section-tab is-active"
+              type="button"
+              data-settings-section-target="plan-budget"
+            >
+              Plan & Budget
+            </button>
+            <button
+              class="settings-section-tab"
+              type="button"
+              data-settings-section-target="weights"
+            >
+              Optimization
+            </button>
+            <button
+              class="settings-section-tab"
+              type="button"
+              data-settings-section-target="difficulty"
+            >
+              Difficulty
+            </button>
+            <button
+              class="settings-section-tab"
+              type="button"
+              data-settings-section-target="experience"
+            >
+              Experience
+            </button>
+          </nav>
+          <div class="settings-layout">
+            <article class="settings-card" data-settings-section="plan-budget">
+              <h2>Plan & Budget</h2>
+              <h3>Plan Until</h3>
+              <div id="windowGrid" class="settings-grid"></div>
+              <h3>Daily Budget</h3>
+              <div id="budgetGrid" class="settings-grid"></div>
+              <h3>Minutes by Weekday</h3>
+              <div id="weekdayGrid" class="settings-grid"></div>
+              <h3>Days Off</h3>
+              <div class="row wrap-row">
+                <input id="dayOffPicker" type="text" />
+                <button id="addDayOffBtn" class="btn" type="button">
+                  Add Day Off
+                </button>
+              </div>
+              <div id="dayOffList" class="chip-list"></div>
+            </article>
+            <article
+              class="settings-card"
+              data-settings-section="weights"
+              hidden
+            >
+              <h2>Optimization Weights</h2>
+              <div id="weightsGrid" class="settings-grid"></div>
+            </article>
+            <article
+              class="settings-card"
+              data-settings-section="difficulty"
+              hidden
+            >
+              <h2>Reading Speed by Difficulty</h2>
+              <p class="hint-text">
+                Multiplier applies to base WPM: effective WPM = base *
+                multiplier.
+              </p>
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Difficulty</th>
+                    <th scope="col">Multiplier</th>
+                  </tr>
+                </thead>
+                <tbody id="difficultyBody"></tbody>
+              </table>
+            </article>
+            <article
+              class="settings-card"
+              data-settings-section="experience"
+              hidden
+            >
+              <h2>Experience</h2>
+              <div class="settings-grid">
+                <label
+                  >Theme
+                  <select id="themeSelect">
+                    <option value="system">System</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                  </select>
+                </label>
+                <label
+                  >Daily Goal Minutes<input
+                    id="dailyGoalInput"
+                    type="number"
+                    min="1"
+                    max="600"
+                    step="1"
+                    value="30"
+                /></label>
+                <label class="toggle-row"
+                  ><input id="reduceMotionToggle" type="checkbox" /> Reduce
+                  Motion</label
+                >
+                <label class="toggle-row"
+                  ><input id="reminderEnabledToggle" type="checkbox" /> Daily
+                  Reminder</label
+                >
+                <label
+                  >Reminder Time<input
+                    id="reminderTimeInput"
+                    type="time"
+                    value="20:00"
+                /></label>
+              </div>
+              <h3>Feature Flags</h3>
+              <div class="settings-grid">
+                <label class="toggle-row"
+                  ><input id="flagGamification" type="checkbox" /> Enable
+                  gamification</label
+                >
+                <label class="toggle-row"
+                  ><input id="flagSocial" type="checkbox" /> Enable social
+                  features</label
+                >
+                <label class="toggle-row"
+                  ><input id="flagRecommendations" type="checkbox" /> Enable
+                  recommendations</label
+                >
+              </div>
+              <h3>Books Display</h3>
+              <div id="displayGrid" class="settings-grid"></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="tab-books"
+        class="panel"
+        role="tabpanel"
+        aria-labelledby="tab-btn-books"
+        tabindex="-1"
+        hidden
+      >
+        <div class="row books-toolbar wrap-row">
+          <button id="addBookBtn" class="btn" type="button">Add Book</button>
+          <span class="hint-text">Click a book card to edit details.</span>
+        </div>
+        <div id="booksGrid" class="books-grid" aria-live="polite"></div>
+        <p id="booksEmpty" class="books-empty">
+          No books yet. Add your first book to start planning.
+        </p>
+      </section>
+
+      <section
+        id="tab-recommendations"
+        class="panel"
+        role="tabpanel"
+        aria-labelledby="tab-btn-recommendations"
+        tabindex="-1"
+        hidden
+      >
+        <article class="surface-card">
+          <h2>Recommendations</h2>
+          <p id="recommendationsSummary" class="hint-text">
+            Read books by your favorite authors to unlock recommendations.
+          </p>
+          <button
+            id="getRecommendationsBtn"
+            type="button"
+            class="btn btn-primary"
+          >
+            Get Recommendations
+          </button>
+          <div id="recommendationsList" class="books-grid"></div>
+          <p id="recommendationsEmpty" class="books-empty" hidden>
+            No recommendations yet.
+          </p>
+        </article>
+      </section>
+
+      <section
+        id="tab-schedule"
+        class="panel"
+        role="tabpanel"
+        aria-labelledby="tab-btn-schedule"
+        tabindex="-1"
+        hidden
+      >
+        <div id="calendarControls" class="row wrap-row"></div>
+        <div class="schedule-layout">
+          <div id="calendar" class="calendar"></div>
+          <aside id="calendarDayDetails" class="day-details" aria-live="polite">
+            <h2>Selected Day</h2>
+            <p class="hint-text">
+              Select a day in the schedule grid to view details.
+            </p>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <nav class="mobile-nav" aria-label="Primary">
+      <button class="tab mobile-tab is-active" data-tab="today" type="button">
+        Today
+      </button>
+      <button class="tab mobile-tab" data-tab="stats" type="button">
+        Stats
+      </button>
+      <button class="tab mobile-tab" data-tab="settings" type="button">
+        Settings
+      </button>
+      <button class="tab mobile-tab" data-tab="books" type="button">
+        Books
+      </button>
+      <button class="tab mobile-tab" data-tab="recommendations" type="button">
+        Recs
+      </button>
+      <button class="tab mobile-tab" data-tab="schedule" type="button">
+        Schedule
+      </button>
+    </nav>
+
+    <div
+      id="liveRegion"
+      class="visually-hidden"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
+    <dialog
+      id="helpDialog"
+      class="help-dialog"
+      aria-labelledby="helpDialogHeading"
+    >
+      <h2 id="helpDialogHeading">Help</h2>
+      <p>
+        Use Settings and Books tabs and Bartleby updates the calendar plan
+        automatically.
+      </p>
+      <h3>Logs</h3>
+      <pre id="logOutput"></pre>
+      <div class="row">
+        <button id="closeHelpBtn" class="btn" type="button">Close</button>
+      </div>
+    </dialog>
+
+    <dialog
+      id="bookDialog"
+      class="book-dialog"
+      aria-labelledby="bookDialogTitle"
+    >
+      <form id="bookForm" class="book-form" method="dialog" novalidate>
+        <h2 id="bookDialogTitle">Add Book</h2>
+        <input id="bookFormId" type="hidden" />
+        <input id="bookFormCoverUrl" type="hidden" />
+        <input id="bookFormCoverLocal" type="hidden" />
+        <div class="book-form-layout">
+          <section class="book-search-panel">
+            <label for="bookSearchInput">Find Book (Open Library)</label>
+            <input
+              id="bookSearchInput"
+              type="text"
+              autocomplete="off"
+              placeholder="Search by title or author"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded="false"
+              aria-controls="bookSearchResults"
+              aria-haspopup="listbox"
+            />
+            <datalist
+              id="bookSearchResults"
+              class="book-search-results"
+              aria-label="Book suggestions"
+            ></datalist>
+            <p id="bookLookupMeta" class="lookup-meta"></p>
+          </section>
+          <button
+            id="bookCoverPanel"
+            class="book-cover-panel"
+            type="button"
+            tabindex="0"
+            aria-label="Upload custom cover"
+          >
+            <img id="bookCoverPreview" alt="Book cover preview" src="" />
+            <p class="book-cover-upload-hint">
+              Click cover to upload your own image
+            </p>
+          </button>
+          <input
+            id="bookCoverUploadInput"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            hidden
+          />
+          <section class="book-fields">
+            <div class="settings-grid">
+              <label
+                >Title<input
+                  id="bookTitleInput"
+                  required
+                  placeholder="Book title"
+              /></label>
+              <label
+                >Author<input id="bookFormAuthor" placeholder="Author name"
+              /></label>
+              <label
+                >Estimated Words<input
+                  id="bookWordsInput"
+                  type="number"
+                  min="1"
+                  step="1"
+                  placeholder="e.g. 85000"
+              /></label>
+              <label
+                >Total Pages<input
+                  id="bookPagesTotalInput"
+                  type="number"
+                  min="1"
+                  step="1"
+                  placeholder="e.g. 300"
+              /></label>
+              <label
+                >Pages Read<input
+                  id="bookPagesReadInput"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="e.g. 125"
+              /></label>
+              <label
+                >Progress %<input
+                  id="bookProgressInput"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value="0"
+              /></label>
+              <label
+                >Priority (1 highest, 5 lowest)<input
+                  id="bookPriorityInput"
+                  type="number"
+                  min="1"
+                  max="5"
+                  value="3"
+              /></label>
+              <label
+                >Difficulty (1-10)<input
+                  id="bookDifficultyInput"
+                  type="number"
+                  min="1"
+                  max="10"
+                  value="3"
+              /></label>
+              <label
+                >Min Blocks<input
+                  id="bookMinBlocksInput"
+                  type="number"
+                  min="1"
+                  value="1"
+              /></label>
+              <label
+                >Max min/day<input
+                  id="bookMaxMinutesInput"
+                  type="number"
+                  min="1"
+              /></label>
+              <label
+                >Deadline<input id="bookDeadlineInput" type="text"
+              /></label>
+              <label class="book-after-book-picker"
+                >After Book
+                <input
+                  id="bookAfterBookInput"
+                  type="text"
+                  placeholder="Search by title or author"
+                  autocomplete="off"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-expanded="false"
+                  aria-controls="bookAfterBookResults"
+                  aria-haspopup="listbox"
+                />
+                <input id="bookBlockedByInput" type="hidden" />
+                <datalist
+                  id="bookAfterBookResults"
+                  class="book-search-results"
+                  aria-label="After book options"
+                ></datalist>
+              </label>
+            </div>
+          </section>
+        </div>
+        <div class="row wrap-row">
+          <button id="cancelBookBtn" class="btn" type="button">Cancel</button>
+          <button id="saveBookBtn" class="btn btn-primary" type="submit">
+            Save Book
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog
+      id="bookShelfPromptDialog"
+      class="book-shelf-prompt-dialog"
+      aria-labelledby="bookShelfPromptTitle"
+    >
+      <form
+        id="bookShelfPromptForm"
+        class="book-shelf-prompt-form"
+        method="dialog"
+      >
+        <h2 id="bookShelfPromptTitle">Create New Shelf</h2>
+        <label
+          >Shelf Name
+          <input id="bookShelfPromptInput" placeholder="e.g. History" />
+        </label>
+        <div class="row wrap-row">
+          <button
+            id="bookShelfPromptCancelBtn"
+            class="btn"
+            type="submit"
+            value="cancel"
+          >
+            Cancel
+          </button>
+          <button
+            id="bookShelfPromptSaveBtn"
+            class="btn btn-primary"
+            type="submit"
+            value="confirm"
+          >
+            Create Shelf
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "@renderer/": "./renderer/",
+          "@shared/": "./types/"
+        }
+      }
+    </script>
+    <script type="module" src="renderer/app.js"></script>
+  </body>
+</html>
