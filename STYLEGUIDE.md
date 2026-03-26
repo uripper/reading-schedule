@@ -7,13 +7,12 @@ If a rule here conflicts with convenience, the rule wins.
 
 Applies to all code and docs in:
 
-- `src/`
-- `electron/`
 - `apps/`
 - `packages/`
 - `services/`
 - `scripts/`
-- `tests/`
+- `mobile/`
+- `docs/`
 
 ## Non-Negotiable Rules (MUST)
 
@@ -28,7 +27,7 @@ Applies to all code and docs in:
 - `noImplicitAny` and `strictNullChecks` must remain enabled in all primary project tsconfig files.
 - Always perform lint checks.
 - Always run required type checks for all languages; zero type errors is mandatory.
-- Python type errors must be resolved using `ty check` before merge.
+- Rust warnings must be resolved using `cargo clippy -- -D warnings` before merge.
 
 ## Merge Blockers
 
@@ -58,7 +57,7 @@ A PR must not merge if any of the following is true:
 - Prefer many small focused modules over large mixed-purpose files.
 - Split by responsibility, not by arbitrary type groupings.
 - Avoid circular dependencies.
-- For feature directories (for example under `electron/renderer/app/*`), expose cross-feature APIs through a local `index.ts` barrel and prefer importing from that barrel instead of deep relative file paths.
+- For feature directories (for example under `packages/frontend/src/renderer/app/*`), expose cross-feature APIs through a local `index.ts` barrel and prefer importing from that barrel instead of deep relative file paths.
 - Keep feature module naming predictable by role when practical (for example `model`, `ui`, `bindings`, `availability`, `schedule_completions`) instead of mixed naming styles.
 - Export all named types that appear in public APIs (parameters, return types, exported object shapes). Do not rely on private/local-only named types leaking into emitted declarations.
 
@@ -92,11 +91,11 @@ A PR must not merge if any of the following is true:
 - Prefer more precise alternatives to broad string types for constrained values (literal unions, template literal types, branded/distinct types when justified).
 - Use `Record<...>` for exhaustive key-to-value mappings (labels, status renderers, config maps) when the keyspace is known and should stay in sync.
 - Prefer `interface` for object-shaped types when either `type` or `interface` would work; use `type` when you need unions/intersections/tuples/aliases or when it is more ergonomic.
-- Default to `packages/contracts` for TypeScript types and reusable inference-backed contract shapes so Electron, mobile, website, and future applications import the same source of truth.
+- Default to `packages/contracts` for TypeScript types and reusable inference-backed contract shapes so desktop, mobile, website, and future applications import the same source of truth.
 - If a type can be expressed without application-specific runtime dependencies, promote it into `packages/contracts` even if it currently has only one consumer.
 - Keep a type local only when it is purely transient implementation state or when moving it into `packages/contracts` would force the shared package to depend on app-specific platform/runtime libraries.
 - Do not duplicate or re-derive cross-application shapes in app code; centralize them in `packages/contracts` first and import them outward.
-- For any new `.d.ts` files under `mobile/src/`, `electron/`, or other app folders, explicitly decide whether each type belongs in `packages/contracts`. If you keep a type app-local, add a brief comment in that file explaining why it is not shared (for example, because it depends on React Native or Electron runtime/platform types).
+- For any new `.d.ts` files under `mobile/src/`, `apps/`, or other app folders, explicitly decide whether each type belongs in `packages/contracts`. If you keep a type app-local, add a brief comment in that file explaining why it is not shared (for example, because it depends on React Native or Tauri runtime/platform types).
 
 ### Runtime and Platform Safety
 
@@ -167,8 +166,7 @@ A PR must not merge if any of the following is true:
 
 - IDE-only diagnostics are advisory unless they map to required validation commands.
 - Keep analyzer scope aligned with real commands. Do not enable file patterns in config that are not validated in CI/local required commands.
-- Electron main-process TypeScript is enforced by `tsc` (`npm --prefix electron run typecheck`), not by ESLint parsing.
-- `electron/tsconfig.main.json` must include all main-process entry files via wildcard patterns (for example `*.ts`) instead of hand-maintained per-file include lists.
+- Desktop host TypeScript is enforced by `pnpm run typecheck:desktop`, and the native desktop runtime is enforced by `cargo clippy --manifest-path apps/bartleby/src-tauri/Cargo.toml -- -D warnings`.
 - `npm run audit` measures code lines after removing blank/comment lines, reports files under 20 lines as combination candidates, reports `interface`/`type` declarations outside `types/` directories, and detects ternaries via AST `ConditionalExpression` nodes.
 - If you add a new checker or rule set, wire it into a required command in this guide in the same change.
 - After changing lint/parser config, run the target command once on representative files and confirm there are no parser crashes.
@@ -186,11 +184,11 @@ A PR must not merge if any of the following is true:
 
 ### Code Documentation
 
-Documentation is required in both Python and TypeScript. The following must be documented:
+Documentation is required in TypeScript and Rust. The following must be documented:
 
-- **Modules**: Every module must have a top-level docstring (Python) or a TSDoc/JSDoc block comment (TypeScript) describing its purpose and responsibility.
-- **Classes**: Every class must have a docstring or TSDoc comment explaining what it represents and its invariants.
-- **Functions**: Every non-trivial function must have a docstring or TSDoc comment describing behavior and intent. Do not duplicate type information that already exists in TypeScript signatures.
+- **Modules**: Every module must have a top-level doc comment or TSDoc/JSDoc block describing its purpose and responsibility.
+- **Classes**: Every class must have a doc comment explaining what it represents and its invariants.
+- **Functions**: Every non-trivial function must have a doc comment describing behavior and intent. Do not duplicate type information that already exists in TypeScript signatures.
 - **Hard-to-determine logic**: Any block of code whose intent is not immediately clear must have a comment explaining the why, not just the what.
 
 Write comments for intent and constraints, not obvious mechanics.
@@ -208,11 +206,13 @@ Line comments must always appear on the line immediately above the code they des
 
 Run all commands relevant to touched areas before merge.
 
-### Electron
+### Desktop
 
-- `npm --prefix electron run lint`
-- `npm --prefix electron run typecheck`
-- `npm --prefix electron run build`
+- `pnpm run lint:desktop`
+- `pnpm run typecheck:desktop`
+- `pnpm run build:desktop`
+- `pnpm run test:desktop`
+- `cargo clippy --manifest-path apps/bartleby/src-tauri/Cargo.toml -- -D warnings`
 
 ### Website
 
@@ -222,11 +222,6 @@ Run all commands relevant to touched areas before merge.
 - `pnpm -C apps/website run test`
 - `pnpm run dev:website` for standard preview
 - `pnpm run dev:website:hot` for Vite hot reload
-
-### Python Planner
-
-- `npm run lint:python`
-- `.venv/bin/pytest -q`
 
 ### Type Safety (TypeScript)
 

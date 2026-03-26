@@ -1,0 +1,154 @@
+{
+    "$description": "Reading Schedule design tokens (DTCG style)",
+    "$schema": "https://www.designtokens.org/schema.json",
+    "color": {
+        "brand": {
+            "300": { "$type": "color", "$value": "#8dd0ff" },
+            "500": { "$type": "color", "$value": "#3f9ef4" },
+            "700": { "$type": "color", "$value": "#1566bf" }
+        },
+        "danger": {
+            "400": { "$type": "color", "$value": "#ff7f92" },
+            "500": { "$type": "color", "$value": "#e85f75" }
+        },
+        "neutral": {
+            "0": { "$type": "color", "$value": "#ffffff" },
+            "50": { "$type": "color", "$value": "#f5f8fc" },
+            "100": { "$type": "color", "$value": "#e9eef7" },
+            "200": { "$type": "color", "$value": "#d6dfed" },
+            "300": { "$type": "color", "$value": "#b8c6dc" },
+            "500": { "$type": "color", "$value": "#70829f" },
+            "700": { "$type": "color", "$value": "#32435d" },
+            "850": { "$type": "color", "$value": "#1d2940" },
+            "900": { "$type": "color", "$value": "#131d2f" },
+            "950": { "$type": "color", "$value": "#0c1321" }
+        },
+        "overlay": {
+            "60": { "$type": "color", "$value": "rgba(5, 10, 18, 0.6)" }
+        },
+        "success": {
+            "400": { "$type": "color", "$value": "#3ecf8e" },
+            "500": { "$type": "color", "$value": "#22b86f" }
+        },
+        "warning": {
+            "500": { "$type": "color", "$value": "#f3ad3d" }
+        }
+    },
+    "elevation": {
+        "md": {
+            "$type": "shadow",
+            "$value": "0 10px 20px rgba(0, 0, 0, 0.25)"
+        },
+        "sm": { "$type": "shadow", "$value": "0 1px 2px rgba(0, 0, 0, 0.26)" }
+    },
+    "motion": {
+        "duration": {
+            "base": { "$type": "duration", "$value": "180ms" },
+            "fast": { "$type": "duration", "$value": "120ms" },
+            "slow": { "$type": "duration", "$value": "260ms" }
+        },
+        "easing": {
+            "standard": {
+                "$type": "cubicBezier",
+                "$value": "cubic-bezier(0.2, 0, 0, 1)"
+            }
+        }
+    },
+    "radius": {
+        "lg": { "$type": "dimension", "$value": "16px" },
+        "md": { "$type": "dimension", "$value": "12px" },
+        "pill": { "$type": "dimension", "$value": "999px" },
+        "sm": { "$type": "dimension", "$value": "8px" }
+    },
+    "semantic": {
+        "dark": {
+            "bg": { "$type": "color", "$value": "{color.neutral.950}" },
+            "bgElevated": { "$type": "color", "$value": "{color.neutral.900}" },
+            "border": { "$type": "color", "$value": "{color.neutral.700}" },
+            "brand": { "$type": "color", "$value": "{color.brand.300}" },
+            "brandStrong": { "$type": "color", "$value": "{color.brand.500}" },
+            "danger": { "$type": "color", "$value": "{color.danger.400}" },
+            "focusRing": { "$type": "color", "$value": "{color.brand.300}" },
+            "overlay": { "$type": "color", "$value": "{color.overlay.60}" },
+            "success": { "$type": "color", "$value": "{color.success.400}" },
+            "surface": { "$type": "color", "$value": "{color.neutral.900}" },
+            "surfaceMuted": {
+                "$type": "color",
+                "$value": "{color.neutral.850}"
+            },
+            "text": { "$type": "color", "$value": "{color.neutral.50}" },
+            "textMuted": { "$type": "color", "$value": "{color.neutral.300}" },
+            "warning": { "$type": "color", "$value": "{color.warning.500}" }
+        },
+        "light": {
+            "bg": { "$type": "color", "$value": "{color.neutral.50}" },
+            "bgElevated": { "$type": "color", "$value": "{color.neutral.0}" },
+            "border": { "$type": "color", "$value": "{color.neutral.200}" },
+            "brand": { "$type": "color", "$value": "{color.brand.700}" },
+            "brandStrong": { "$type": "color", "$value": "{color.brand.500}" },
+            "danger": { "$type": "color", "$value": "{color.danger.500}" },
+            "focusRing": { "$type": "color", "$value": "{color.brand.500}" },
+            "overlay": { "$type": "color", "$value": "rgba(8, 15, 26, 0.35)" },
+            "success": { "$type": "color", "$value": "{color.success.500}" },
+            "surface": { "$type": "color", "$value": "{color.neutral.0}" },
+            "surfaceMuted": {
+                "$type": "color",
+                "$value": "{color.neutral.100}"
+            },
+            "text": { "$type": "color", "$value": "{color.neutral.950}" },
+            "textMuted": { "$type": "color", "$value": "{color.neutral.700}" },
+            "warning": { "$type": "color", "$value": "{color.warning.500}" }
+        }
+    },
+    "size": {
+        "header": {
+            "height": { "$type": "dimension", "$value": "72px" }
+        },
+        "target": {
+            "minimum": { "$type": "dimension", "$value": "44px" }
+        }
+    },
+    "space": {
+        "0": { "$type": "dimension", "$value": "0px" },
+        "1": { "$type": "dimension", "$value": "4px" },
+        "2": { "$type": "dimension", "$value": "8px" },
+        "3": { "$type": "dimension", "$value": "12px" },
+        "4": { "$type": "dimension", "$value": "16px" },
+        "5": { "$type": "dimension", "$value": "20px" },
+        "6": { "$type": "dimension", "$value": "24px" },
+        "8": { "$type": "dimension", "$value": "32px" },
+        "10": { "$type": "dimension", "$value": "40px" }
+    },
+    "typography": {
+        "family": {
+            "heading": {
+                "$type": "fontFamily",
+                "$value": "\"Space Grotesk\", \"Plus Jakarta Sans\", sans-serif"
+            },
+            "mono": {
+                "$type": "fontFamily",
+                "$value": "\"Space Mono\", monospace"
+            },
+            "sans": {
+                "$type": "fontFamily",
+                "$value": "\"Plus Jakarta Sans\", \"Archivo\", sans-serif"
+            }
+        },
+        "lineHeight": {
+            "base": { "$type": "number", "$value": "1.5" },
+            "tight": { "$type": "number", "$value": "1.2" }
+        },
+        "size": {
+            "lg": { "$type": "fontSize", "$value": "1.2rem" },
+            "md": { "$type": "fontSize", "$value": "1rem" },
+            "sm": { "$type": "fontSize", "$value": "0.875rem" },
+            "xl": { "$type": "fontSize", "$value": "1.6rem" },
+            "xs": { "$type": "fontSize", "$value": "0.75rem" }
+        },
+        "weight": {
+            "bold": { "$type": "fontWeight", "$value": "700" },
+            "medium": { "$type": "fontWeight", "$value": "500" },
+            "regular": { "$type": "fontWeight", "$value": "400" }
+        }
+    }
+}

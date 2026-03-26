@@ -13,14 +13,7 @@ Bartleby was mainly built for myself. I wanted to visually see just how many boo
 
 ## Current Status
 
-This repository now includes an Electron desktop app and an Expo mobile app shell.
-
-- Desktop runtime: `electron/`
-- Mobile runtime: `mobile/`
-- Shared TypeScript contracts: `packages/contracts/`
-- Planner engine source of truth: `src/reading_plan`
-
-Mobile is currently non-functional and rather just a proof of concept for testing a UI I designed. The desktop app is the main focus for now, and the planner engine will be shared between both.
+The app is in a very early stage of a Tauri application. The algorithm is very basic, and the UI is still undesigned. Core features are there but it is missing a ton of polish and quality of life features which can sometimes make it frustrating to be used.
 
 ## Issue Information
 

@@ -1,0 +1,30 @@
+{
+    "dependencies": {
+        "@reading-schedule/contracts": "workspace:*",
+        "@tauri-apps/api": "^2",
+        "@tauri-apps/plugin-opener": "^2"
+    },
+    "devDependencies": {
+        "@tauri-apps/cli": "^2",
+        "typescript": "^5.9.3",
+        "vite": "8.0.0"
+    },
+    "name": "bartleby-app",
+    "private": true,
+    "scripts": {
+        "build": "pnpm run prepare:app && pnpm --dir ../.. exec tsc -p apps/bartleby/tsconfig.json --noEmit && vite build",
+        "dev": "pnpm run prepare:app && vite",
+        "dev:android": "tauri android dev",
+        "dev:ios": "tauri ios dev",
+        "dist": "tauri build",
+        "lint": "pnpm --dir ../.. exec biome check apps/bartleby",
+        "prepare:app": "pnpm -C ../../packages/contracts run build && pnpm -C ../../packages/frontend run build:tokens && node ./scripts/sync-shell.mjs",
+        "preview": "vite preview",
+        "state:recover": "cargo run --manifest-path src-tauri/Cargo.toml --bin state_recover --",
+        "tauri": "tauri",
+        "test": "cargo test --manifest-path src-tauri/Cargo.toml",
+        "typecheck": "pnpm run prepare:app && pnpm --dir ../.. exec tsc -p apps/bartleby/tsconfig.json --noEmit"
+    },
+    "type": "module",
+    "version": "0.1.0"
+}

@@ -1,9 +1,7 @@
 packages:
   - "apps/*"
-  - "electron"
   - "mobile"
   - "packages/*"
 
 onlyBuiltDependencies:
-  - "electron"
   - "inotify"

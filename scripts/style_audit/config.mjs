@@ -1,12 +1,8 @@
 /** Shared constants for the style audit pipeline. */
 export const SOURCE_ROOTS = [
-	"src",
-	"electron",
 	"apps",
 	"packages",
-	"services",
 	"scripts",
-	"tests",
 	"mobile/src",
 ];
 
@@ -17,7 +13,6 @@ export const CODE_EXTENSIONS = new Set([
 	".jsx",
 	".mjs",
 	".cjs",
-	".py",
 ]);
 
 export const JS_TS_EXTENSIONS = new Set([
@@ -34,12 +29,8 @@ export const TS_EXTENSIONS = new Set([".ts", ".tsx"]);
 export const IGNORED_DIRECTORIES = new Set([
 	".git",
 	".pnpm-store",
-	".pytest_cache",
 	".scannerwork",
 	".sonarlint",
-	".tmp-pycompat",
-	".venv",
-	".venv-py311-backup",
 	"node_modules",
 	"dist",
 	"build",
@@ -60,9 +51,10 @@ export const MIN_TEST_COVERAGE_PERCENT = 90;
 export const AUDIT_SELF_PATH = "scripts/style_audit.mjs";
 export const CONTRACTS_ROOT = "packages/contracts/";
 export const CONTRACTS_FIRST_AUDIT_PREFIXES = [
-	"electron/",
+	"apps/bartleby/src/",
 	"apps/website/src/",
 	"mobile/src/",
+	"packages/frontend/src/",
 ];
 
 export const DISALLOWED_CONSOLE_PATTERN = /\bconsole\.(error|warn|log|debug)\s*\(/g;
@@ -71,25 +63,24 @@ export const LOCAL_TYPE_AUDIT_ALLOW_PATTERN =
 
 export const TYPE_COVERAGE_CHECKS = [
 	{
-		label: "electron main strict",
-		project: "electron/tsconfig.main.json",
+		label: "bartleby app strict",
+		project: "apps/bartleby/tsconfig.json",
 	},
 	{
-		label: "electron renderer strict",
-		project: "electron/tsconfig.renderer.json",
+		label: "shared frontend strict",
+		project: "packages/frontend/tsconfig.json",
+	},
+	{
+		label: "website strict",
+		project: "apps/website/tsconfig.json",
 	},
 ];
 
 export const TEST_COVERAGE_AREAS = [
 	{
-		label: "Python planner",
-		sourcePrefixes: ["src/reading_plan/"],
-		testPrefixes: ["tests/"],
-	},
-	{
-		label: "Electron desktop",
-		sourcePrefixes: ["electron/main/", "electron/renderer/"],
-		testPrefixes: ["electron/tests/"],
+		label: "Desktop frontend",
+		sourcePrefixes: ["apps/bartleby/src/", "packages/frontend/src/"],
+		testPrefixes: ["packages/frontend/tests/"],
 	},
 	{
 		label: "Website",

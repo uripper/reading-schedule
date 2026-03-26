@@ -23,14 +23,14 @@ export const isContractsPath = (relativePath) => {
 	return relativePath.startsWith(CONTRACTS_ROOT);
 };
 
-export const isElectronTypesPath = (relativePath) => {
-	return relativePath.startsWith("electron/types/");
-};
-
-export const isInTypesDirectory = (relativePath) => {
+export const isTypeDirectoryPath = (relativePath) => {
 	return relativePath.split("/").some((segment) => {
 		return segment === "types" || segment.startsWith("types_");
 	});
+};
+
+export const isInTypesDirectory = (relativePath) => {
+	return isTypeDirectoryPath(relativePath);
 };
 
 export const isPathUnderPrefixes = (relativePath, prefixes) => {

@@ -1,0 +1,32 @@
+[package]
+name = "bartleby_app"
+version = "0.1.0"
+description = "Bartleby is a reading schedule optimizer"
+authors = ["uripper"]
+default-run = "bartleby_app"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "bartleby_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.5.6", features = [] }
+
+[dependencies]
+base64 = "0.22.1"
+chrono = { version = "0.4.44", features = ["clock"] }
+directories = "6.0.0"
+reqwest = { version = "0.13.2", features = ["json"] }
+rusqlite = { version = "0.39.0", features = ["bundled"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+tauri = { version = "2.10.3", features = ["protocol-asset"] }
+tauri-plugin-opener = "2.5.3"
+urlencoding = "2.1.3"
+uuid = { version = "1.22.0", features = ["v4"] }

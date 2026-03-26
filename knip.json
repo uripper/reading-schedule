@@ -15,29 +15,9 @@
             },
             "project": ["src/*/*.ts", "!node_modules/**"]
         },
-        "electron": {
-            "entry": [
-                "main.ts",
-                "preload.ts",
-                "renderer/app.ts",
-                "scripts/*.mjs",
-                "tests/*.mjs"
-            ],
-            "paths": {
-                "@main/*": ["./main/*"],
-                "@reading-schedule/contracts": [
-                    "../packages/contracts/src/index.ts"
-                ],
-                "@renderer/*": ["./renderer/*"],
-                "@shared/*": ["./types/*"]
-            },
-            "project": [
-                "**/*.ts",
-                "**/*.mjs",
-                "!**/*.md",
-                "!dist/**",
-                "!node_modules/**"
-            ]
+        "apps/bartleby": {
+            "entry": ["src/main.ts", "src/runtime/*.ts", "scripts/*.mjs"],
+            "project": ["src/**/*.ts", "scripts/**/*.mjs", "!node_modules/**"]
         },
         "mobile": {
             "entry": ["src/**/*.ts", "src/**/*.tsx"],
@@ -50,6 +30,16 @@
                 "App.tsx",
                 "src/**/*.ts",
                 "src/**/*.tsx",
+                "!node_modules/**"
+            ]
+        },
+        "packages/frontend": {
+            "entry": ["src/renderer/app.ts", "scripts/*.mjs", "tests/*.mjs"],
+            "project": [
+                "src/**/*.ts",
+                "scripts/**/*.mjs",
+                "tests/**/*.mjs",
+                "!dist/**",
                 "!node_modules/**"
             ]
         },

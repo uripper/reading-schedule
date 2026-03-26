@@ -1,0 +1,205 @@
+import { uid } from "../dom.ts";
+import { BOOK_STATUS_READ } from "./status_catalog.ts";
+import { clamp, toInt } from "./utils.ts";
+
+const DEFAULT_MIN_BLOCKS = 1;
+const PROGRESS_MAX = 100;
+const PROGRESS_SCALE = 10;
+
+export const DEFAULT_PRIORITY = 3;
+export const DEFAULT_DIFFICULTY = 3;
+export const MIN_PRIORITY = 1;
+export const MAX_PRIORITY = 5;
+export const MIN_DIFFICULTY = 1;
+export const MAX_DIFFICULTY = 10;
+
+type ToClampedIntArgs = {
+    value: number | undefined;
+    fallback: number;
+    minValue: number;
+    maxValue: number;
+};
+
+type PagesTotalState = {
+    hasPagesTotal: boolean;
+    totalPages: number;
+};
+
+/**
+ * Converts a numeric input to integer, defaulting when undefined/invalid.
+ * @param value - Raw numeric value from a book field.
+ * @param fallback - Default integer when value is missing.
+ * @returns Parsed integer constrained by `toInt` fallback behavior.
+ */
+function toIntWithFallback(
+    value: number | undefined,
+    fallback: number,
+): number {
+    return toInt(value ?? fallback, fallback);
+}
+
+/**
+ * Normalizes optional finished date text into nullable trimmed form.
+ * @param value - Raw finished date text.
+ * @returns Trimmed date string or `null` when empty.
+ */
+function normalizeFinishedAt(value: string | null | undefined): string | null {
+    const TRIMMED = String(value ?? "").trim();
+    if (TRIMMED === "") {
+        return null;
+    }
+    return TRIMMED;
+}
+
+/**
+ * Trims optional text values and normalizes nullish input to empty string.
+ * @param value - Optional text value.
+ * @returns Trimmed text.
+ */
+export function toTrimmedText(value?: string | null): string {
+    return String(value ?? "").trim();
+}
+
+/**
+ * Returns a stable book id, generating one when input is blank.
+ * @param value - Existing book id candidate.
+ * @returns Existing trimmed id or generated uid.
+ */
+export function toBookId(value?: string): string {
+    const TEXT = toTrimmedText(value);
+    if (TEXT) {
+        return TEXT;
+    }
+    return uid();
+}
+
+/**
+ * Parses integer input and clamps it to an allowed range.
+ * @param value - Raw numeric value from book data.
+ * @param fallback - Integer used when value is missing/invalid.
+ * @param minValue - Inclusive minimum.
+ * @param maxValue - Inclusive maximum.
+ * @returns Clamped integer value.
+ */
+export function toClampedInt(args: ToClampedIntArgs): number {
+    return clamp(
+        toIntWithFallback(args.value, args.fallback),
+        args.minValue,
+        args.maxValue,
+    );
+}
+
+/**
+ * Ensures minimum blocks per session is at least one.
+ * @param value - Raw configured minimum blocks.
+ * @returns Valid minimum blocks value.
+ */
+export function minBlocksPerSession(value: number | undefined): number {
+    return Math.max(
+        DEFAULT_MIN_BLOCKS,
+        toIntWithFallback(value, DEFAULT_MIN_BLOCKS),
+    );
+}
+
+/**
+ * Converts optional strings to nullable values used by persistence payloads.
+ * @param value - Optional string value.
+ * @returns String when truthy; otherwise `null`.
+ */
+export function withNullableString(
+    value: string | null | undefined,
+): string | null {
+    if (value !== null && value !== undefined && value !== "") {
+        return value;
+    }
+    return null;
+}
+
+/**
+ * Resolves `finished_at` value based on current status semantics.
+ * @param status - Normalized book status value.
+ * @param finishedAtRaw - Raw finished date text from source model.
+ * @returns `null` for non-read status or explicit date when provided.
+ */
+export function finishedAtForStatus(
+    status: string,
+    finishedAtRaw: string | null | undefined,
+): string | null {
+    if (status !== BOOK_STATUS_READ) {
+        return null;
+    }
+    return normalizeFinishedAt(finishedAtRaw);
+}
+
+function pagesTotalState(pagesTotal: number | null): PagesTotalState {
+    if (pagesTotal === null || pagesTotal <= 0) {
+        return { hasPagesTotal: false, totalPages: 0 };
+    }
+    return { hasPagesTotal: true, totalPages: pagesTotal };
+}
+
+function roundedProgress(progressRaw: number): number {
+    return Math.round(progressRaw * PROGRESS_SCALE) / PROGRESS_SCALE;
+}
+
+function pagesReadFromProgress(
+    progressRaw: number,
+    totalPages: number,
+): number {
+    return Math.round((progressRaw / PROGRESS_MAX) * totalPages);
+}
+
+function normalizedPagesRead(
+    pageState: PagesTotalState,
+    pagesRead: number | null,
+    progressRaw: number,
+): number | null {
+    if (!pageState.hasPagesTotal) {
+        return pagesRead;
+    }
+    let nextPagesRead = pagesRead;
+    if (nextPagesRead === null) {
+        nextPagesRead = pagesReadFromProgress(
+            progressRaw,
+            pageState.totalPages,
+        );
+    }
+    return clamp(nextPagesRead, 0, pageState.totalPages);
+}
+
+function normalizedProgress(
+    pageState: PagesTotalState,
+    pagesRead: number | null,
+    progressRaw: number,
+): number {
+    if (!pageState.hasPagesTotal) {
+        return roundedProgress(progressRaw);
+    }
+    return roundedProgress(
+        ((pagesRead ?? 0) / pageState.totalPages) * PROGRESS_MAX,
+    );
+}
+
+/**
+ * Normalizes pages read and progress so both fields stay consistent.
+ * @param pagesTotal - Total pages when known.
+ * @param pagesRead - Pages read when provided.
+ * @param progressRaw - Raw progress percent value.
+ * @returns Normalized pages read and progress percent pair.
+ */
+export function normalizeProgressAndPages(
+    pagesTotal: number | null,
+    pagesRead: number | null,
+    progressRaw: number,
+): { pagesRead: number | null; progress: number } {
+    const PAGE_STATE = pagesTotalState(pagesTotal);
+    const NEXT_PAGES_READ = normalizedPagesRead(
+        PAGE_STATE,
+        pagesRead,
+        progressRaw,
+    );
+    return {
+        pagesRead: NEXT_PAGES_READ,
+        progress: normalizedProgress(PAGE_STATE, NEXT_PAGES_READ, progressRaw),
+    };
+}
