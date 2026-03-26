@@ -1,5 +1,5 @@
 :root {
-    --neo-header-border-color: #000000;
+    --neo-header-border-color: #000;
     --neo-header-height: 8vh;
     --neo-header-gap: 0.5vw;
     --neo-header-padding-x: 1vw;
@@ -25,7 +25,7 @@
     background: var(--neo-header-color);
     border-top: 2px solid var(--neo-header-border-color);
     border-bottom: 2px solid var(--neo-header-border-color);
-    box-shadow: 0 4px 0 #000000;
+    box-shadow: 0 4px 0 #000;
     backdrop-filter: none;
 }
 
@@ -37,8 +37,8 @@
 }
 
 .neo-brand-logo {
-    width: 86px;
-    height: 86px;
+    width: 6.5rem;
+    height: 6.5rem;
     object-fit: contain;
     background: transparent;
     border: 0;
@@ -50,7 +50,7 @@
 .neo-brand-text {
     margin: 0;
     font-family: var(--header-font);
-    font-size: min(5vh, 5vw);
+    font-size: 4rem;
     font-weight: 800;
     line-height: 1;
     color: #f3f3f3;
@@ -73,7 +73,7 @@
     gap: 1vw;
     align-items: center;
     min-width: 0;
-    min-height: 2vh;
+    min-height: 2rem;
     color: #f9f9f9;
 }
 
@@ -100,42 +100,42 @@
 }
 
 .neo-metric-goal {
-    min-width: 2vw;
+    min-width: 2rem;
 }
 
 .neo-metric-sessions {
     align-items: center;
-    min-width: 2vw;
+    min-width: 2rem;
 }
 
 .neo-metric-title {
     margin: 0;
     font-family: var(--sub-header-font);
-    font-size: clamp(1.8rem, 2.2vw, 3.1rem);
+    font-size: clamp(1.2rem, 2.2vw, 2.7rem);
     font-weight: 600;
     line-height: 0.95;
-    color: #ffffff;
+    color: #fff;
 }
 
 .neo-metric-value,
 .neo-metric-streak-value {
     margin: 0;
     font-family: var(--sub-header-font);
-    font-size: clamp(1.8rem, 2.05vw, 2.7rem);
+    font-size: clamp(1.2rem, 2.05vw, 2.7rem);
     line-height: 1;
     color: #f8f8f8;
 }
 .neo-metric-streak-text {
     margin: 0;
     font-family: var(--sub-header-font);
-    font-size: clamp(1.8rem, 2.05vw, 2.7rem);
+    font-size: clamp(1.2rem, 2.05vw, 2.7rem);
     font-weight: 100;
     line-height: 1;
     color: #f8f8f8;
 }
 
 .neo-metric-streak-value {
-    font-size: clamp(2rem, 2.05vw, 2.8rem);
+    font-size: clamp(1.2rem, 2.05vw, 2.7rem);
     font-weight: 800;
 }
 
@@ -171,8 +171,8 @@
 }
 
 .neo-session-dot.is-complete {
-    background: #ffffff;
-    border-color: #ffffff;
+    background: #fff;
+    border-color: #fff;
 }
 
 .neo-header-actions {
@@ -182,22 +182,22 @@
 }
 
 .neo-help-btn {
-    min-height: 2vh;
+    min-height: 2rem;
     padding: 10px 24px;
     font-family: var(--main-font);
-    font-size: 2vw;
+    font-size: 2rem;
     font-weight: 600;
     line-height: 1;
-    color: #000000;
+    color: #000;
     background: #d9d9d9;
-    border: 3px solid #000000;
+    border: 3px solid #000;
     border-radius: 0;
-    box-shadow: 4px 4px 0 #000000;
+    box-shadow: 4px 4px 0 #000;
 }
 
 .neo-help-btn:hover {
     text-decoration: none;
-    border-color: #000000;
+    border-color: #000;
 }
 
 @media (max-width: 1280px) {
@@ -253,6 +253,6 @@
         min-height: 2vh;
         padding: 8px 14px;
         font-size: 1rem;
-        box-shadow: 2px 2px 0 #000000;
+        box-shadow: 2px 2px 0 #000;
     }
 }
