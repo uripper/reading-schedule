@@ -85,3 +85,4 @@ apps/bartleby/src-tauri/Cargo.lock
 __pycache__
 *.egg-info
 .python-version
+.fallow
