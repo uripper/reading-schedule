@@ -128,7 +128,10 @@ function markBookReadForFinishedRow(
     args: AppCalendarInteractionArgs,
     payload: CompletionUpdate,
 ): void {
-    if (!payload.completed || !isProjectedFinishRow(payload.row)) {
+    if (!payload.completed) {
+        return;
+    }
+    if (!isProjectedFinishRow(payload.row)) {
         return;
     }
     const BOOK_ID = rowText(payload.row?.book_id);
