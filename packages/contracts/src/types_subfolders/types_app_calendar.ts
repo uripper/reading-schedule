@@ -10,7 +10,7 @@ import type {
     ScheduleCompletionState,
     SetStatus,
 } from "./types_app_shared.js";
-import type { Book, BookProgressUpdates } from "./types_books.js";
+import type { Book, BookProgressUpdates, UpdateBookProgressOptions } from "./types_books.js";
 import type { CalendarHandlers } from "./types_calendar.js";
 import type { PlannerScheduleRow, PlannerSettings } from "./types_planner.js";
 
@@ -18,8 +18,10 @@ import type { PlannerScheduleRow, PlannerSettings } from "./types_planner.js";
 export interface ScheduleRow {
     /** Book id referenced by this lightweight schedule row payload. */
     book_id?: string;
-    /** ISO date associated with the schedule row metadata. */
+    /** ISO date associated with the row metadata. */
     date?: string;
+    /** Whether this row represents a projected finish session. */
+    finish?: boolean;
     /** Book title associated with the row or summary item. */
     title?: string;
 }
@@ -87,7 +89,7 @@ export interface AppCalendarInteractionArgs extends SharedUpdateArgs {
     updateBookProgress(
         bookId: string,
         updates: BookProgressUpdates,
-        options: { notifyBooksChanged?: boolean },
+        options: UpdateBookProgressOptions,
     ): UpdatedBook | null;
 }
 

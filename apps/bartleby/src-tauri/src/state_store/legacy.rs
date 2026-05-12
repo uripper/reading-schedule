@@ -1,8 +1,11 @@
+use std::fs;
 use std::path::{Path, PathBuf};
 
 use super::json_store::read_state_from_json_result;
 use super::migrations::{migrate_loaded_state, with_migration_warning, MigrationResult};
-use super::paths::{json_state_backup_path, json_state_path, sqlite_state_path};
+use super::paths::{
+    json_state_backup_path, json_state_path, legacy_migration_marker_path, sqlite_state_path,
+};
 use super::sqlite_store::read_state_from_sqlite_read_only_result;
 use super::types::{path_string, LoadResult, SOURCE_FRESH};
 use super::{
@@ -15,12 +18,19 @@ pub fn load_preferred_state(
     canonical_directory: &Path,
     legacy_directories: &[PathBuf],
 ) -> Result<LoadResult, String> {
+    let canonical_result = load_canonical_state(canonical_directory);
+    if migration_marker_exists(canonical_directory) {
+        return Ok(canonical_result);
+    }
+    if canonical_result.source != SOURCE_FRESH {
+        return Ok(with_migration_marker(canonical_result, canonical_directory));
+    }
     let legacy_result = first_legacy_state(canonical_directory, legacy_directories);
     if let Some(load_result) = legacy_result.load_result {
         return Ok(load_result);
     }
     Ok(with_legacy_probe_message(
-        load_canonical_state(canonical_directory),
+        canonical_result,
         legacy_directories,
         &legacy_result.failures,
     ))
@@ -73,9 +83,12 @@ fn load_legacy_state_if_available(
         migrated_result = append_warning(migrated_result, warning_message);
     }
     match persist_state_to_directory(canonical_directory, &normalized_state) {
-        Ok(None) => Ok(Some(migrated_result)),
+        Ok(None) => Ok(Some(with_migration_marker(migrated_result, canonical_directory))),
         Ok(Some(warning_message)) => {
-            Ok(Some(append_warning(migrated_result, warning_message)))
+            Ok(Some(with_migration_marker(
+                append_warning(migrated_result, warning_message),
+                canonical_directory,
+            )))
         }
         Err(error) => Ok(Some(append_warning(
             migrated_result,
@@ -92,6 +105,25 @@ fn normalize_legacy_cover_paths(state: &serde_json::Value, data_directory: &Path
             Some(format!(
                 "Loaded legacy saved data but skipped cover migration: {error}"
             )),
+        ),
+    }
+}
+
+fn migration_marker_exists(canonical_directory: &Path) -> bool {
+    legacy_migration_marker_path(canonical_directory).is_file()
+}
+
+fn with_migration_marker(load_result: LoadResult, canonical_directory: &Path) -> LoadResult {
+    if migration_marker_exists(canonical_directory) {
+        return load_result;
+    }
+    match fs::write(legacy_migration_marker_path(canonical_directory), b"done\n") {
+        Ok(()) => load_result,
+        Err(error) => append_warning(
+            load_result,
+            format!(
+                "Loaded state but could not persist legacy migration marker: {error}"
+            ),
         ),
     }
 }

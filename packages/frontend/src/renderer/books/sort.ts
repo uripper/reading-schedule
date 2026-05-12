@@ -49,7 +49,9 @@ function compareNumbers(left: OptionalNumber, right: OptionalNumber): number {
     if (MISSING_TEXT !== null) {
         return MISSING_TEXT;
     }
-    return 0;
+    const LEFT_NUMBER = Number(left);
+    const RIGHT_NUMBER = Number(right);
+    return LEFT_NUMBER - RIGHT_NUMBER;
 }
 
 /**

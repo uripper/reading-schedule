@@ -4,7 +4,9 @@ use std::fs;
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::state_store::paths::{json_state_backup_path, json_state_path, sqlite_state_path};
+use crate::state_store::paths::{
+    json_state_backup_path, json_state_path, legacy_migration_marker_path, sqlite_state_path,
+};
 use crate::state_store::{
     load_canonical_state_for_test, load_legacy_state_for_test, load_preferred_state_for_test,
     save_state_to_directory,
@@ -63,12 +65,13 @@ fn load_legacy_state_migrates_into_canonical_directory() {
         .expect("expected legacy migration");
     assert_eq!(load_result.source, "json_primary");
     assert!(fs::exists(sqlite_state_path(&canonical_directory)).unwrap_or(false));
+    assert!(fs::exists(legacy_migration_marker_path(&canonical_directory)).unwrap_or(false));
     let _ = fs::remove_dir_all(&canonical_directory);
     let _ = fs::remove_dir_all(&legacy_directory);
 }
 
 #[test]
-fn load_preferred_state_uses_legacy_before_canonical() {
+fn load_preferred_state_prefers_canonical_after_data_exists() {
     let canonical_directory = temp_state_directory("preferred-canonical");
     let legacy_directory = temp_state_directory("preferred-legacy");
     fs::create_dir_all(&canonical_directory).expect("expected canonical directory");
@@ -99,7 +102,7 @@ fn load_preferred_state_uses_legacy_before_canonical() {
     assert_eq!(load_result.source, "json_primary");
     assert_eq!(
         load_result.source_path,
-        json_state_path(&legacy_directory)
+        json_state_path(&canonical_directory)
             .to_string_lossy()
             .into_owned()
     );
@@ -109,14 +112,14 @@ fn load_preferred_state_uses_legacy_before_canonical() {
             .get("settings")
             .and_then(|settings| settings.get("start_date"))
             .and_then(serde_json::Value::as_str),
-        Some("2026-04-01"),
+        Some("2026-05-01"),
     );
     let _ = fs::remove_dir_all(&canonical_directory);
     let _ = fs::remove_dir_all(&legacy_directory);
 }
 
 #[test]
-fn load_preferred_state_uses_legacy_sqlite_before_canonical() {
+fn load_preferred_state_prefers_canonical_sqlite_after_data_exists() {
     let canonical_directory = temp_state_directory("preferred-canonical-sqlite");
     let legacy_directory = temp_state_directory("preferred-legacy-sqlite");
     save_state_to_directory(
@@ -144,7 +147,7 @@ fn load_preferred_state_uses_legacy_sqlite_before_canonical() {
     assert_eq!(load_result.source, "sqlite");
     assert_eq!(
         load_result.source_path,
-        sqlite_state_path(&legacy_directory)
+        sqlite_state_path(&canonical_directory)
             .to_string_lossy()
             .into_owned()
     );
@@ -154,7 +157,7 @@ fn load_preferred_state_uses_legacy_sqlite_before_canonical() {
             .get("settings")
             .and_then(|settings| settings.get("start_date"))
             .and_then(serde_json::Value::as_str),
-        Some("2026-04-01"),
+        Some("2026-05-01"),
     );
     let _ = fs::remove_dir_all(&canonical_directory);
     let _ = fs::remove_dir_all(&legacy_directory);
