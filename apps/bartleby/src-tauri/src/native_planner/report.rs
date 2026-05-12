@@ -11,6 +11,7 @@ use crate::native_planner::models::{Assignments, Book, PlanResult, Settings};
 struct Session {
     book_id: String,
     date: NaiveDate,
+    finish: bool,
     minutes: i64,
     session_index: i64,
     title: String,
@@ -20,6 +21,7 @@ struct Session {
 struct SessionBuilder<'a> {
     books_by_id: &'a HashMap<&'a str, &'a Book>,
     day: NaiveDate,
+    finished_books: &'a mut HashMap<String, bool>,
     remaining: &'a mut HashMap<String, i64>,
     session_index: &'a mut i64,
     settings: &'a Settings,
@@ -35,6 +37,7 @@ struct DaySessions<'a> {
     assignments: &'a Assignments,
     books_by_id: &'a HashMap<&'a str, &'a Book>,
     day: NaiveDate,
+    finished_books: &'a mut HashMap<String, bool>,
     remaining: &'a mut HashMap<String, i64>,
     settings: &'a Settings,
 }
@@ -77,6 +80,7 @@ pub fn build_output(
             json!({
                 "book_id": session.book_id,
                 "date": session.date.format("%Y-%m-%d").to_string(),
+                "finish": session.finish,
                 "minutes": session.minutes,
                 "session_index": session.session_index,
                 "title": session.title,
@@ -153,12 +157,14 @@ fn sessions(
         .iter()
         .map(|book| (book.book_id.clone(), book.remaining_words))
         .collect::<HashMap<_, _>>();
+    let mut finished_books = HashMap::new();
     let mut sessions = Vec::new();
     for day in date_range(settings.start_date, settings.end_date)? {
         sessions.extend(sessions_for_day(DaySessions {
             assignments,
             books_by_id: &books_by_id,
             day,
+            finished_books: &mut finished_books,
             remaining: &mut remaining,
             settings,
         }));
@@ -207,15 +213,30 @@ impl<'a> SessionBuilder<'a> {
             },
         )?;
         subtract_remaining_words(self.remaining, book_id, words_planned);
+        let finish = self.calculate_finish(book_id);
         *self.session_index += 1;
         Some(Session {
             book_id: book.book_id.clone(),
             date: self.day,
+            finish,
             minutes,
             session_index: *self.session_index,
             title: book.title.clone(),
             words_planned,
         })
+    }
+
+    fn calculate_finish(&mut self, book_id: &str) -> bool {
+        if self.finished_books.get(book_id).copied().unwrap_or(false) {
+            return false;
+        }
+        let book = self.books_by_id[book_id];
+        let remaining = *self.remaining.get(book_id).unwrap_or(&0);
+        if remaining <= 0 {
+            self.finished_books.insert(book_id.to_string(), true);
+            return true;
+        }
+        false
     }
 }
 
@@ -237,6 +258,7 @@ fn sessions_for_day(day_sessions: DaySessions<'_>) -> Vec<Session> {
     let mut session_builder = SessionBuilder {
         books_by_id: day_sessions.books_by_id,
         day: day_sessions.day,
+        finished_books: day_sessions.finished_books,
         remaining: day_sessions.remaining,
         session_index: &mut session_index,
         settings: day_sessions.settings,

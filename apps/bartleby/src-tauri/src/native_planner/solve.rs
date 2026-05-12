@@ -13,6 +13,9 @@ use crate::native_planner::greedy_support::{
 };
 use crate::native_planner::models::{Assignments, Book, Settings, PLAN_MODE_SPREAD_OUT};
 
+const MAX_FILL_DAY_ITERATIONS: i64 = 10000;
+const MAX_SEED_DAY_ITERATIONS: i64 = 1000;
+
 pub struct DayState<'a> {
     pub assignments: &'a mut Assignments,
     pub books: &'a HashMap<String, Book>,
@@ -108,13 +111,28 @@ fn plan_day(ordered: &[String], mut state: DayState<'_>) {
 
 fn seed_day(ordered: &[String], state: &mut DayState<'_>) {
     let mut index = 0;
-    while index < ordered.len() && seed_day_step(state, &ordered[index]) {
+    let mut iterations = 0;
+    while index < ordered.len() && iterations < MAX_SEED_DAY_ITERATIONS {
+        iterations += 1;
+        if !seed_day_step(state, &ordered[index]) {
+            break;
+        }
         index += 1;
     }
 }
 
 fn fill_day(ordered: &[String], state: &mut DayState<'_>) {
-    while state.cap > 0 && fill_day_step(ordered, state) {}
+    let mut iterations = 0;
+    while state.cap > 0 && iterations < MAX_FILL_DAY_ITERATIONS {
+        let previous_cap = state.cap;
+        if !fill_day_step(ordered, state) {
+            break;
+        }
+        if state.cap == previous_cap {
+            break;
+        }
+        iterations += 1;
+    }
 }
 
 fn ordered_books(books: &[Book], remaining: &HashMap<String, f64>) -> Vec<String> {

@@ -29,8 +29,10 @@ pub fn cover_import(
 }
 
 #[tauri::command]
-pub fn plan_generate(payload: Value) -> Result<Value, String> {
-    native_planner::generate_plan(payload)
+pub async fn plan_generate(payload: Value) -> Result<Value, String> {
+    tauri::async_runtime::spawn_blocking(move || native_planner::generate_plan(payload))
+        .await
+        .map_err(|error| format!("Planner task join error: {error}"))?
 }
 
 #[tauri::command]
