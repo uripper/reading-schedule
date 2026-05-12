@@ -165,7 +165,10 @@ mod tests {
             payload.get("cover_url").and_then(Value::as_str),
             Some("https://covers.openlibrary.org/b/id/12-L.jpg")
         );
-        assert_eq!(payload.get("pages_estimate").and_then(Value::as_i64), Some(412));
+        assert_eq!(
+            payload.get("pages_estimate").and_then(Value::as_i64),
+            Some(412)
+        );
         assert_eq!(
             payload.get("words_estimate").and_then(Value::as_i64),
             Some(123_600)

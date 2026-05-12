@@ -5,7 +5,8 @@ use directories::BaseDirs;
 use tauri::{AppHandle, Manager};
 
 const BOOK_COVERS_DIRECTORY_NAME: &str = "book_covers";
-const LEGACY_DESKTOP_APP_NAME: &str = "reading-plan-gui";
+const LEGACY_BARTLEBY_APP_NAME: &str = "Bartleby";
+const LEGACY_READING_PLAN_APP_NAME: &str = "reading-plan-gui";
 const LEGACY_TAURI_COVERS_DIRECTORY_NAME: &str = "covers";
 
 pub fn canonical_data_directory(app: &AppHandle) -> Result<PathBuf, String> {
@@ -33,8 +34,8 @@ pub fn ensure_directory(directory: &Path) -> Result<(), String> {
 }
 
 #[cfg(any(target_os = "android", target_os = "ios"))]
-pub fn legacy_desktop_data_directory() -> Option<PathBuf> {
-    None
+pub fn legacy_desktop_data_directories() -> Vec<PathBuf> {
+    Vec::new()
 }
 
 #[cfg(target_os = "linux")]
@@ -52,8 +53,39 @@ fn legacy_desktop_root_directory(base_dirs: &BaseDirs) -> PathBuf {
     base_dirs.data_dir().to_path_buf()
 }
 
-#[cfg(not(any(target_os = "android", target_os = "ios")))]
-pub fn legacy_desktop_data_directory() -> Option<PathBuf> {
-    let base_dirs = BaseDirs::new()?;
-    Some(legacy_desktop_root_directory(&base_dirs).join(LEGACY_DESKTOP_APP_NAME))
+fn append_legacy_app_directories(directories: &mut Vec<PathBuf>, root_directory: PathBuf) {
+    append_unique_directory(directories, root_directory.join(LEGACY_BARTLEBY_APP_NAME));
+    append_unique_directory(
+        directories,
+        root_directory.join(LEGACY_READING_PLAN_APP_NAME),
+    );
+}
+
+fn append_unique_directory(directories: &mut Vec<PathBuf>, directory: PathBuf) {
+    if directories.contains(&directory) {
+        return;
+    }
+    directories.push(directory);
+}
+
+#[cfg(target_os = "windows")]
+pub fn legacy_desktop_data_directories() -> Vec<PathBuf> {
+    let mut directories = Vec::new();
+    if let Some(app_data) = std::env::var_os("APPDATA") {
+        append_legacy_app_directories(&mut directories, PathBuf::from(app_data));
+    }
+    if let Some(base_dirs) = BaseDirs::new() {
+        append_legacy_app_directories(&mut directories, legacy_desktop_root_directory(&base_dirs));
+    }
+    directories
+}
+
+#[cfg(not(any(target_os = "android", target_os = "ios", target_os = "windows")))]
+pub fn legacy_desktop_data_directories() -> Vec<PathBuf> {
+    let Some(base_dirs) = BaseDirs::new() else {
+        return Vec::new();
+    };
+    let mut directories = Vec::new();
+    append_legacy_app_directories(&mut directories, legacy_desktop_root_directory(&base_dirs));
+    directories
 }
