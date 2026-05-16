@@ -253,10 +253,12 @@
     background: #9fbbe0;
 }
 .book-status-pill.is-to_read::before {
-    background: repeating-linear-gradient(
+    background: linear-gradient(
         90deg,
-        #111 0 3px,
-        transparent 3px 5px
+        #111 0 4px,
+        transparent 4px 7px,
+        #111 7px 11px,
+        transparent 11px 14px
     );
     border: 0;
 }
@@ -267,6 +269,7 @@
     width: 0;
     height: 0;
     background: transparent;
+    border: 0;
     border-top: 8px solid transparent;
     border-bottom: 8px solid transparent;
     border-left: 14px solid #111;
