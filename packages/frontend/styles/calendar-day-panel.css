@@ -4,25 +4,22 @@
     display: grid;
     gap: var(--token-space-3);
     align-content: start;
-    max-height: calc(100dvh - 140px);
-    padding: var(--token-space-3);
+    max-height: calc(100dvh - 132px);
+    padding: 16px;
     overflow: auto;
-    background:
-        linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--app-brand) 8%, transparent),
-            transparent 26%
-        ),
-        color-mix(in srgb, var(--app-surfaceMuted) 86%, transparent);
-    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
-    border-radius: var(--token-radius-md);
+    color: #111;
+    background: #d9f0c3;
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 7px 7px 0 #000;
 }
 
 .day-details > h2 {
-    padding-bottom: var(--token-space-2);
+    padding-bottom: 12px;
     margin: 0;
-    border-bottom: 1px solid
-        color-mix(in srgb, var(--app-border) 80%, transparent);
+    font-family: var(--header-font);
+    text-transform: uppercase;
+    border-bottom: 3px solid #000;
 }
 
 .day-finished-summary {
@@ -30,11 +27,10 @@
     margin: 0;
     font-size: var(--token-typography-size-sm);
     font-weight: var(--token-typography-weight-medium);
-    color: color-mix(in srgb, var(--app-warning) 90%, var(--app-text));
-    background: color-mix(in srgb, var(--app-warning) 14%, var(--app-surface));
-    border: 1px solid
-        color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
-    border-radius: var(--token-radius-sm);
+    color: #111;
+    background: #ffe38b;
+    border: 2px solid #000;
+    border-radius: 0;
 }
 
 .day-details-list {
@@ -51,28 +47,36 @@
 }
 
 .day-scheduled-book-item {
-    padding: var(--token-space-1) var(--token-space-2);
-    font-size: var(--token-typography-size-sm);
-    color: var(--app-text);
-    background: color-mix(in srgb, var(--app-surface) 82%, transparent);
-    border: 1px solid color-mix(in srgb, var(--app-border) 86%, transparent);
-    border-radius: var(--token-radius-sm);
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #111;
+    background: #eef9da;
+    border: 2px solid #000;
+    border-radius: 0;
 }
 
 .day-manual-add {
     display: grid;
-    gap: var(--token-space-2);
-    padding: var(--token-space-2);
-    background: color-mix(in srgb, var(--app-surface) 84%, transparent);
-    border: 1px solid color-mix(in srgb, var(--app-border) 86%, transparent);
-    border-radius: var(--token-radius-sm);
+    gap: 12px;
+    padding: 14px;
+    background: #f3e77d;
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 6px 6px 0 #000;
 }
 
 .day-manual-add > h3 {
     margin: 0;
-    font-size: var(--token-typography-size-sm);
-    font-weight: var(--token-typography-weight-semibold);
-    color: var(--app-textMuted);
+    font-size: 1rem;
+    font-weight: 900;
+    color: #111;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.day-manual-add .btn {
+    width: 100%;
 }
 
 .day-manual-add-form {
@@ -91,7 +95,7 @@
     gap: var(--token-space-2);
     align-items: center;
     font-size: var(--token-typography-size-sm);
-    color: var(--app-textMuted);
+    color: #111;
 }
 
 .day-complete-toggle input[type="checkbox"] {
@@ -112,7 +116,21 @@
     display: grid;
     gap: var(--token-space-1);
     font-size: var(--token-typography-size-xs);
-    color: var(--app-textMuted);
+    color: #111;
+}
+
+.day-details input,
+.day-details select,
+.day-details textarea,
+.day-details .btn {
+    color: #f8f4e8;
+    background: #13213a;
+    border: 3px solid #000;
+    border-radius: 16px;
+}
+
+.day-details .btn {
+    font-weight: 800;
 }
 
 .day-progress-field input {
@@ -122,6 +140,17 @@
 .day-manual-add-form .day-progress-field select,
 .day-manual-add-form .day-progress-field input {
     width: 100%;
+}
+
+.day-details .hint-text {
+    color: #1f2a1d;
+}
+
+.day-details input:focus-visible,
+.day-details select:focus-visible,
+.day-details textarea:focus-visible,
+.day-details .btn:hover {
+    filter: brightness(1.08);
 }
 
 @media (max-width: 1180px) {

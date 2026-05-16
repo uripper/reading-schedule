@@ -72,6 +72,8 @@ function configureTodayUi(
     calendarHandlers: CalendarHandlers,
 ): void {
     configureTodayInteractions({
+        listSessionBooks: calendarHandlers.listSessionBooks,
+        onManualSessionAdded: calendarHandlers.onManualSessionAdded,
         onSessionCompletionChanged: calendarHandlers.onSessionCompletionChanged,
         onSessionMinutesUpdated: calendarHandlers.onSessionMinutesUpdated,
         onSessionProgressUpdated: calendarHandlers.onSessionProgressUpdated,

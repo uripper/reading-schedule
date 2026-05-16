@@ -21,6 +21,8 @@ import {
  * Schedule and progress callbacks exposed to the Today carousel UI.
  */
 export interface TodayCarouselActionBindings {
+    listSessionBooks: CalendarHandlers["listSessionBooks"];
+    onManualSessionAdded: CalendarHandlers["onManualSessionAdded"];
     onSessionCompletionChanged: CalendarHandlers["onSessionCompletionChanged"];
     onSessionMinutesUpdated: CalendarHandlers["onSessionMinutesUpdated"];
     onSessionProgressUpdated: CalendarHandlers["onSessionProgressUpdated"];

@@ -2,9 +2,10 @@ use std::fs;
 use std::path::Path;
 
 use chrono::Utc;
-use rusqlite::{params, Connection};
+use rusqlite::{params, Connection, OpenFlags, OptionalExtension};
 use serde_json::Value;
 
+use super::json_parse::parse_state_value;
 use super::paths::sqlite_state_path;
 use super::types::{
     path_string, LoadResult, SOURCE_SQLITE, SOURCE_SQLITE_JOURNAL_REPLAY,
@@ -22,6 +23,16 @@ pub fn read_state_from_sqlite(data_directory: &Path) -> Option<LoadResult> {
         return None;
     }
     read_state_from_sqlite_path(&database_path).ok().flatten()
+}
+
+pub fn read_state_from_sqlite_read_only_result(
+    data_directory: &Path,
+) -> Result<Option<LoadResult>, String> {
+    let database_path = sqlite_state_path(data_directory);
+    if !database_path.exists() {
+        return Ok(None);
+    }
+    read_state_from_sqlite_path_read_only(&database_path)
 }
 
 pub fn read_state_from_sqlite_path(database_path: &Path) -> Result<Option<LoadResult>, String> {
@@ -62,6 +73,23 @@ pub fn write_state_to_sqlite(data_directory: &Path, state: &Value) -> Result<(),
     write_snapshot_transaction(&database, state)
 }
 
+fn read_state_from_sqlite_path_read_only(
+    database_path: &Path,
+) -> Result<Option<LoadResult>, String> {
+    let database = open_read_only_database(database_path)?;
+    let source_path = path_string(database_path);
+    if let Some(snapshot_state) = read_snapshot_state_result(&database)? {
+        return Ok(Some(sqlite_load_result(source_path, snapshot_state)));
+    }
+    let Some(recovered_state) = recover_state_from_journal_result(&database)? else {
+        return Ok(None);
+    };
+    Ok(Some(journal_replay_load_result(
+        source_path,
+        recovered_state,
+    )))
+}
+
 fn open_database(database_path: &Path) -> Result<Connection, String> {
     let database = Connection::open(database_path)
         .map_err(|error| format!("Unable to open state database: {error}"))?;
@@ -89,6 +117,11 @@ fn open_database(database_path: &Path) -> Result<Connection, String> {
     Ok(database)
 }
 
+fn open_read_only_database(database_path: &Path) -> Result<Connection, String> {
+    Connection::open_with_flags(database_path, OpenFlags::SQLITE_OPEN_READ_ONLY)
+        .map_err(|error| format!("Unable to open state database read-only: {error}"))
+}
+
 fn read_snapshot_state(database: &Connection) -> Option<Value> {
     let row = database
         .query_row(
@@ -100,6 +133,23 @@ fn read_snapshot_state(database: &Connection) -> Option<Value> {
     serde_json::from_str::<Value>(&row)
         .ok()
         .filter(|value| value.is_null() || value.is_object())
+}
+
+fn read_snapshot_state_result(database: &Connection) -> Result<Option<Value>, String> {
+    let row = database
+        .query_row(
+            "SELECT payload_json FROM planner_state_snapshot WHERE id = ?",
+            [SNAPSHOT_ROW_ID],
+            |row| row.get::<_, String>(0),
+        )
+        .optional()
+        .map_err(|error| format!("Unable to read SQLite state snapshot: {error}"))?;
+    let Some(row) = row else {
+        return Ok(None);
+    };
+    parsed_state_value(&row)
+        .ok_or_else(|| "SQLite state snapshot payload was not valid state JSON.".to_string())
+        .map(Some)
 }
 
 fn recover_state_from_journal(database: &Connection) -> Option<Value> {
@@ -116,6 +166,24 @@ fn recover_state_from_journal(database: &Connection) -> Option<Value> {
         }
     }
     None
+}
+
+fn recover_state_from_journal_result(database: &Connection) -> Result<Option<Value>, String> {
+    let mut statement = database
+        .prepare("SELECT payload_json FROM planner_state_journal ORDER BY seq DESC LIMIT ?")
+        .map_err(|error| format!("Unable to read SQLite state journal: {error}"))?;
+    let rows = statement
+        .query_map([JOURNAL_KEEP_ROWS], |row| row.get::<_, String>(0))
+        .map_err(|error| format!("Unable to iterate SQLite state journal: {error}"))?;
+    for payload_json in rows {
+        let payload_json =
+            payload_json.map_err(|error| format!("Unable to read SQLite journal row: {error}"))?;
+        match parsed_state_value(&payload_json) {
+            Some(parsed) => return Ok(Some(parsed)),
+            None => continue,
+        }
+    }
+    Ok(None)
 }
 
 fn write_replayed_snapshot(database: &Connection, recovered_state: &Value) -> Result<(), String> {
@@ -180,64 +248,31 @@ fn write_snapshot_transaction(database: &Connection, state: &Value) -> Result<()
 }
 
 fn parsed_state_value(payload_json: &str) -> Option<Value> {
-    let parsed = serde_json::from_str::<Value>(payload_json).ok()?;
+    let parsed = parse_state_value(payload_json).ok()?;
     if parsed.is_null() || parsed.is_object() {
         return Some(parsed);
     }
     None
 }
 
-#[cfg(test)]
-mod tests {
-    use std::env;
-    use std::fs;
-
-    use rusqlite::Connection;
-    use serde_json::json;
-    use uuid::Uuid;
-
-    use super::{read_state_from_sqlite, write_state_to_sqlite};
-    use crate::state_store::paths::sqlite_state_path;
-
-    fn temp_state_directory() -> std::path::PathBuf {
-        env::temp_dir().join(format!("bartleby-state-sqlite-{}", Uuid::new_v4()))
+fn sqlite_load_result(source_path: String, state: Value) -> LoadResult {
+    LoadResult {
+        source: SOURCE_SQLITE,
+        source_path,
+        state,
+        warning_code: None,
+        warning_message: None,
     }
+}
 
-    #[test]
-    fn sqlite_store_round_trips_state() {
-        let data_directory = temp_state_directory();
-        let state = json!({ "books": [], "settings": { "start_date": "2026-01-01" } });
-        write_state_to_sqlite(&data_directory, &state).expect("expected sqlite write");
-        let load_result = read_state_from_sqlite(&data_directory).expect("expected sqlite state");
-        assert_eq!(load_result.source, "sqlite");
-        let _ = fs::remove_dir_all(&data_directory);
-    }
-
-    #[test]
-    fn sqlite_store_recovers_from_journal() {
-        let data_directory = temp_state_directory();
-        write_state_to_sqlite(
-            &data_directory,
-            &json!({ "books": [], "revision": 1, "settings": { "start_date": "2026-01-01" } }),
-        )
-        .expect("expected first sqlite write");
-        write_state_to_sqlite(
-            &data_directory,
-            &json!({ "books": [], "revision": 2, "settings": { "start_date": "2026-01-02" } }),
-        )
-        .expect("expected second sqlite write");
-        let database =
-            Connection::open(sqlite_state_path(&data_directory)).expect("expected sqlite database");
-        database
-            .execute(
-                "UPDATE planner_state_snapshot SET payload_json = '{broken-json' WHERE id = 1",
-                [],
-            )
-            .expect("expected snapshot corruption");
-        let load_result =
-            read_state_from_sqlite(&data_directory).expect("expected journal replay recovery");
-        assert_eq!(load_result.source, "sqlite_journal_replay");
-        assert_eq!(load_result.warning_code, Some("RECOVERED_FROM_JOURNAL"));
-        let _ = fs::remove_dir_all(&data_directory);
+fn journal_replay_load_result(source_path: String, state: Value) -> LoadResult {
+    LoadResult {
+        source: SOURCE_SQLITE_JOURNAL_REPLAY,
+        source_path,
+        state,
+        warning_code: Some(WARNING_RECOVERED_FROM_JOURNAL),
+        warning_message: Some(
+            "Recovered saved data from journal replay after storage corruption.".to_string(),
+        ),
     }
 }

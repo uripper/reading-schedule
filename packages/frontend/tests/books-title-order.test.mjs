@@ -10,6 +10,7 @@ import {
 } from "../dist/renderer/books/grouping.js";
 import { metaLabel } from "../dist/renderer/books/presenters.js";
 import {
+    SORT_BY_PROGRESS,
     SORT_BY_ESTIMATED_FINISH,
     SORT_BY_TITLE,
     sortBooks,
@@ -158,5 +159,23 @@ test("groupsForEstimatedFinish orders sections as dropped, read, then active", (
     assert.deepEqual(
         GROUPS.map((group) => group.books.map((book) => book.book_id)),
         [["book-1"], ["book-2"], ["book-3", "book-4"]],
+    );
+});
+
+test("sortBooks sorts numeric fields such as progress_percent", () => {
+    const BOOKS = [
+        baseBook({ book_id: "book-1", progress_percent: 80, title: "B" }),
+        baseBook({ book_id: "book-2", progress_percent: 10, title: "A" }),
+        baseBook({ book_id: "book-3", progress_percent: 40, title: "C" }),
+    ];
+    const SORTED = sortBooks({
+        books: BOOKS,
+        finishDateByBookId: {},
+        sortBy: SORT_BY_PROGRESS,
+        sortDirection: "asc",
+    });
+    assert.deepEqual(
+        SORTED.map((book) => book.book_id),
+        ["book-2", "book-3", "book-1"],
     );
 });

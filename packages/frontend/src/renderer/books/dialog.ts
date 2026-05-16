@@ -26,6 +26,16 @@ import { clearForm, fillForm } from "./form-state.ts";
 import { applyLookupItem } from "./form-state-lookup.ts";
 import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.ts";
 
+const BOOK_DIALOG_OPEN_CLASS = "book-dialog-open";
+
+function lockBookDialogScroll(): void {
+    document.body.classList.add(BOOK_DIALOG_OPEN_CLASS);
+}
+
+function unlockBookDialogScroll(): void {
+    document.body.classList.remove(BOOK_DIALOG_OPEN_CLASS);
+}
+
 /**
  * Resolves the live books getter from optional dialog options.
  * @param options - Optional dialog dependencies.
@@ -53,6 +63,7 @@ function openBookDialog(args: OpenBookDialogArgs): void {
     renderShelfPicker(FORM_REFS, args.getBooks(), selectedShelfForDialog(args));
     applyDialogBookState(FORM_REFS, book);
     resetBookDialogSubmitState(FORM_REFS);
+    lockBookDialogScroll();
     FORM_REFS.dialog.showModal();
     args.dialogFocus.focusInitialTarget();
 }
@@ -72,6 +83,9 @@ function bindBookDialogCloseHandlers(
     dialog.addEventListener("cancel", (event) => {
         event.preventDefault();
         onClose();
+    });
+    dialog.addEventListener("close", () => {
+        unlockBookDialogScroll();
     });
 }
 

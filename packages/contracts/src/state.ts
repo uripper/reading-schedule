@@ -10,7 +10,6 @@ const BOOL_RECORD_SCHEMA = z.record(z.string(), z.boolean());
 
 const FEATURE_FLAGS_SCHEMA = z.object({
     gamificationEnabled: z.boolean(),
-    recommendationsEnabled: z.boolean(),
     socialEnabled: z.boolean(),
 });
 

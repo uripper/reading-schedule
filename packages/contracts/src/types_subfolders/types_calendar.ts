@@ -158,6 +158,7 @@ export interface BuildManualSessionAddPanelArgs {
     dateKey: string;
     defaultBookId?: string;
     defaultMinutes?: number;
+    existingBookIds?: string[];
     interactionHandlers: DetailInteractionHandlers;
     mode: DayMode;
     rerenderDetails(): void;

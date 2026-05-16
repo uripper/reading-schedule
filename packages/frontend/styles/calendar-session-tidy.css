@@ -10,19 +10,19 @@
 }
 
 .day-details-item.is-complete {
-    background: color-mix(in srgb, var(--app-success) 8%, var(--app-surface));
-    border-color: color-mix(in srgb, var(--app-success) 62%, var(--app-border));
+    background: #c9efb8;
+    border-color: #000;
 }
 
 .day-details-item.is-finish.is-complete {
     background:
         radial-gradient(
             circle at top right,
-            color-mix(in srgb, var(--app-success) 8%, transparent),
+            color-mix(in srgb, #f4ffd6 78%, transparent),
             transparent 56%
         ),
-        color-mix(in srgb, var(--app-success) 10%, var(--app-surface));
-    border-color: color-mix(in srgb, var(--app-success) 68%, var(--app-border));
+        #c9efb8;
+    border-color: #000;
 }
 
 .day-minutes-summary {
@@ -33,6 +33,16 @@
 .day-minutes-value {
     font-size: var(--token-typography-size-medium);
     letter-spacing: 0;
+}
+
+.day-details-item.is-complete,
+.day-details-item.is-complete .day-session-title,
+.day-details-item.is-complete .day-minutes-value,
+.day-details-item.is-complete .day-session-status,
+.day-details-item.is-complete .day-session-estimate,
+.day-details-item.is-complete .day-details-meta,
+.day-details-item.is-complete label {
+    color: #111;
 }
 
 .btn-minutes-edit {

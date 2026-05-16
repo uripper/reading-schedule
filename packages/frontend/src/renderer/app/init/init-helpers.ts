@@ -4,6 +4,7 @@ import type {
     FinalizeInitialLoadArgs,
 } from "../../../types/types.ts";
 import { el } from "../../dom.ts";
+import { readLoadedResult, toSavedRecord } from "../load_state_compat.ts";
 import { createPlanController } from "../plan_controller.ts";
 import { bindSettingsAutoPlanListeners } from "../runtime_helpers.ts";
 
@@ -25,10 +26,11 @@ function shouldShowLoadedStatus(args: FinalizeInitialLoadArgs): boolean {
 /**
  * Returns true when loaded payload contains one or more persisted schedule rows.
  * @param saved - Loaded persisted payload from startup state load.
- * @returns True when `last_result.schedule` exists and has rows.
+ * @returns True when canonical or legacy planner result schedule rows exist.
  */
 function hasSavedSchedule(saved: FinalizeInitialLoadArgs["saved"]): boolean {
-    const ROWS = saved?.last_result?.schedule;
+    const LOADED_RESULT = readLoadedResult(saved, toSavedRecord(saved));
+    const ROWS = LOADED_RESULT?.schedule;
     return Array.isArray(ROWS) && ROWS.length > 0;
 }
 

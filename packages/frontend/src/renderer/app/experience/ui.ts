@@ -1,7 +1,6 @@
 import type { FeatureFlags, Preferences } from "../../../types/types.ts";
 import { el } from "../../dom.ts";
 import {
-    RECOMMENDATIONS_AVAILABLE,
     REMINDERS_AVAILABLE,
     SOCIAL_FEATURES_AVAILABLE,
     shippedFeatureFlag,
@@ -94,10 +93,6 @@ export function collectPreferencesFromUI(): Preferences {
 export function collectFeatureFlagsFromUI(): FeatureFlags {
     return {
         gamificationEnabled: checkboxValue("flagGamification"),
-        recommendationsEnabled: shippedFeatureFlag(
-            checkboxValue("flagRecommendations"),
-            RECOMMENDATIONS_AVAILABLE,
-        ),
         socialEnabled: shippedFeatureFlag(
             checkboxValue("flagSocial"),
             SOCIAL_FEATURES_AVAILABLE,

@@ -15,7 +15,6 @@ const NON_PLANNING_SETTING_IDS = new Set([
     "reminderTimeInput",
     "flagGamification",
     "flagSocial",
-    "flagRecommendations",
 ]);
 
 interface PersistTimerState {

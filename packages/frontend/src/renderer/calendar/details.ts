@@ -62,17 +62,21 @@ function titleForSelectedDate(key: string): HTMLHeadingElement {
  * @returns Default book id and minutes for the add panel.
  */
 function defaultManualAddValues(rows: CalendarDetailsState["dates"][string]): {
+    existingBookIds: string[];
     firstBookId: string;
     firstMinutes: number | null;
 } {
     if (rows.length === 0) {
-        return { firstBookId: "", firstMinutes: null };
+        return { existingBookIds: [], firstBookId: "", firstMinutes: null };
     }
     const FIRST_ROW = rows[0];
     if (FIRST_ROW === undefined) {
-        return { firstBookId: "", firstMinutes: null };
+        return { existingBookIds: [], firstBookId: "", firstMinutes: null };
     }
     return {
+        existingBookIds: rows.map((row) => {
+            return row.book_id;
+        }),
         firstBookId: FIRST_ROW.book_id,
         firstMinutes: FIRST_ROW.minutes,
     };
@@ -92,6 +96,7 @@ function manualAddPanel(args: ManualAddPanelArgs): HTMLElement {
         dateKey: args.key,
         defaultBookId: args.defaults.firstBookId,
         defaultMinutes,
+        existingBookIds: args.defaults.existingBookIds,
         interactionHandlers: args.interactionHandlers,
         mode: args.mode,
         rerenderDetails: args.rerenderDetails,

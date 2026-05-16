@@ -74,6 +74,12 @@ function appendLoadSourceLog(
         sourceMessage = `${sourceMessage} (${loadResult.sourcePath})`;
     }
     addLog(`State load source: ${sourceMessage}`);
+    if (
+        typeof loadResult.warningMessage === "string" &&
+        loadResult.warningMessage.length > 0
+    ) {
+        addLog(loadResult.warningMessage);
+    }
 }
 
 /**

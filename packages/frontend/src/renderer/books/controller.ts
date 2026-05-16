@@ -25,7 +25,7 @@ import { withUpdatedProgress } from "./progress.ts";
 import { hydrateBookCover, upsertBookById } from "./save.ts";
 import { applyScheduledDaysToShelfBooks } from "./save_scheduled_days.ts";
 import { schedulableBook } from "./status.ts";
-import { BOOK_STATUS_FILTER_ALL } from "./status_catalog.ts";
+import { BOOK_STATUS_FILTER_ALL, BOOK_STATUS_READ } from "./status_catalog.ts";
 import {
     ensureBooksToolbarControls,
     SORT_BY_TITLE,
@@ -70,6 +70,40 @@ const VIEW_STATE: BooksViewState = {
     statusFilter: BOOK_STATUS_FILTER_ALL,
     titleFilter: "",
 };
+
+function normalizedCompletedAt(value: string | undefined): string | null {
+    const TEXT = String(value ?? "").trim();
+    if (TEXT === "") {
+        return null;
+    }
+    return TEXT;
+}
+
+function todayDateKey(): string {
+    return new Date().toISOString().slice(0, 10);
+}
+
+function resolvedFinishedAt(options: {
+    completedAt: string | undefined;
+    currentBook: Book;
+    nextBook: Book;
+}): string | null {
+    if (options.nextBook.status !== BOOK_STATUS_READ) {
+        return null;
+    }
+    const EXISTING = normalizedCompletedAt(options.nextBook.finished_at ?? undefined);
+    if (EXISTING !== null) {
+        return EXISTING;
+    }
+    const PROVIDED = normalizedCompletedAt(options.completedAt);
+    if (PROVIDED !== null) {
+        return PROVIDED;
+    }
+    if (options.currentBook.status !== BOOK_STATUS_READ) {
+        return todayDateKey();
+    }
+    return null;
+}
 
 /**
  * Replaces the in-memory books collection used by the books controller.
@@ -141,7 +175,15 @@ export function updateBookProgress(
         return null;
     }
     const NEXT = withUpdatedProgress(CURRENT_BOOK, updates);
-    books[IDX] = normalizeBook(NEXT);
+    const NORMALIZED = normalizeBook(NEXT);
+    books[IDX] = {
+        ...NORMALIZED,
+        finished_at: resolvedFinishedAt({
+            completedAt: options.completedAt,
+            currentBook: CURRENT_BOOK,
+            nextBook: NORMALIZED,
+        }),
+    };
     onBooksCommitted(books);
     render();
 
