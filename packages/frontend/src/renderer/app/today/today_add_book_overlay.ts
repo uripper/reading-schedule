@@ -6,9 +6,6 @@ const DIALOG_ID = "todayAddBookDialog";
 const QUERY_INPUT_ID = "todayAddBookQuery";
 const RESULTS_ID = "todayAddBookResults";
 const CLOSE_BUTTON_ID = "todayAddBookClose";
-const PREVIEW_COVER_ID = "todayAddBookPreviewCover";
-const PREVIEW_PICK_ID = "todayAddBookPreviewPick";
-const PREVIEW_TITLE_ID = "todayAddBookPreviewTitle";
 
 export interface TodayAddBookOption {
     bookId: string;
@@ -19,9 +16,6 @@ export interface TodayAddBookOption {
 interface OverlayDomRefs {
     closeButton: HTMLButtonElement;
     dialog: HTMLDialogElement;
-    previewCover: HTMLElement;
-    previewPick: HTMLButtonElement;
-    previewTitle: HTMLElement;
     queryInput: HTMLInputElement;
     results: HTMLElement;
 }
@@ -50,19 +44,6 @@ function createDialogShell(): HTMLDialogElement {
         </header>
         <label class="today-add-query-label" for="${QUERY_INPUT_ID}">Search library</label>
         <input id="${QUERY_INPUT_ID}" class="today-add-query" type="search" autocomplete="off" placeholder="Start typing a title" />
-                                <button
-                                    id="${PREVIEW_PICK_ID}"
-                                    class="today-add-preview"
-                                    type="button"
-                                    aria-live="polite"
-                                    aria-label="Add selected book"
-                                >
-                    <div class="today-add-preview-cover" id="${PREVIEW_COVER_ID}"></div>
-                                        <div class="today-add-preview-meta">
-                                            <p class="today-add-preview-label">Selected - click to add</p>
-                                            <p class="today-add-preview-title" id="${PREVIEW_TITLE_ID}"></p>
-                                        </div>
-                                </button>
         <div id="${RESULTS_ID}" class="today-add-results" role="listbox" aria-label="Books to add"></div>
         <footer class="today-add-footer">
           <button id="${CLOSE_BUTTON_ID}" class="btn" type="button">Cancel</button>
@@ -86,9 +67,6 @@ function overlayRefs(): OverlayDomRefs {
     return {
         closeButton: el<HTMLButtonElement>(CLOSE_BUTTON_ID),
         dialog: DIALOG,
-        previewCover: el<HTMLElement>(PREVIEW_COVER_ID),
-        previewPick: el<HTMLButtonElement>(PREVIEW_PICK_ID),
-        previewTitle: el<HTMLElement>(PREVIEW_TITLE_ID),
         queryInput: el<HTMLInputElement>(QUERY_INPUT_ID),
         results: el<HTMLElement>(RESULTS_ID),
     };
@@ -162,18 +140,6 @@ function rowNode(
     return ROW;
 }
 
-function renderPreview(refs: OverlayDomRefs, visible: TodayAddBookOption[]): void {
-    const INDEX = normalizedActiveIndex(currentState().activeIndex, visible.length);
-    const ACTIVE = visible[INDEX];
-    const PREVIEW_TITLE = refs.previewTitle;
-    refs.previewCover.replaceChildren();
-    if (ACTIVE === undefined) {
-        PREVIEW_TITLE.textContent = NO_RESULTS_TEXT;
-        return;
-    }
-    PREVIEW_TITLE.textContent = ACTIVE.title;
-    refs.previewCover.append(optionCover(ACTIVE));
-}
 
 function normalizedActiveIndex(activeIndex: number, total: number): number {
     if (total <= 0) {
@@ -190,7 +156,6 @@ function normalizedActiveIndex(activeIndex: number, total: number): number {
 
 function renderRows(refs: OverlayDomRefs): void {
     const VISIBLE = visibleOptions(refs.queryInput);
-    renderPreview(refs, VISIBLE);
     if (VISIBLE.length === 0) {
         refs.results.replaceChildren(noResultsRow());
         return;
@@ -274,13 +239,9 @@ function openDialog(dialog: HTMLDialogElement): void {
 
 function bindOverlayHandlers(refs: OverlayDomRefs): void {
     const CLOSE_BUTTON = refs.closeButton;
-    const PREVIEW_PICK = refs.previewPick;
     const QUERY_INPUT = refs.queryInput;
     CLOSE_BUTTON.onclick = () => {
         refs.dialog.close();
-    };
-    PREVIEW_PICK.onclick = () => {
-        selectActive(refs);
     };
     QUERY_INPUT.oninput = () => {
         handleQueryInput(refs);
