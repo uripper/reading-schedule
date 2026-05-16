@@ -113,18 +113,6 @@
         Schedule
       </button>      
       <button
-        id="tab-btn-recommendations"
-        class="tab"
-        type="button"
-        data-tab="recommendations"
-        role="tab"
-        aria-selected="false"
-        aria-controls="tab-recommendations"
-        tabindex="-1"
-      >
-        Recs
-      </button>
-      <button
         id="tab-btn-stats"
         class="tab"
         type="button"
@@ -420,10 +408,6 @@
                   ><input id="flagSocial" type="checkbox" /> Enable social
                   features</label
                 >
-                <label class="toggle-row"
-                  ><input id="flagRecommendations" type="checkbox" /> Enable
-                  recommendations</label
-                >
               </div>
               <h3>Books Display</h3>
               <div id="displayGrid" class="settings-grid"></div>
@@ -450,32 +434,6 @@
         </p>
       </section>
 
-      <section
-        id="tab-recommendations"
-        class="panel"
-        role="tabpanel"
-        aria-labelledby="tab-btn-recommendations"
-        tabindex="-1"
-        hidden
-      >
-        <article class="surface-card">
-          <h2>Recommendations</h2>
-          <p id="recommendationsSummary" class="hint-text">
-            Read books by your favorite authors to unlock recommendations.
-          </p>
-          <button
-            id="getRecommendationsBtn"
-            type="button"
-            class="btn btn-primary"
-          >
-            Get Recommendations
-          </button>
-          <div id="recommendationsList" class="books-grid"></div>
-          <p id="recommendationsEmpty" class="books-empty" hidden>
-            No recommendations yet.
-          </p>
-        </article>
-      </section>
 
       <section
         id="tab-schedule"
@@ -510,9 +468,6 @@
       </button>
       <button class="tab mobile-tab" data-tab="books" type="button">
         Books
-      </button>
-      <button class="tab mobile-tab" data-tab="recommendations" type="button">
-        Recs
       </button>
       <button class="tab mobile-tab" data-tab="schedule" type="button">
         Schedule

@@ -9,13 +9,11 @@ const EXPERIENCE_SETTING_IDS: readonly string[] = [
     "reminderTimeInput",
     "flagGamification",
     "flagSocial",
-    "flagRecommendations",
 ];
 const HIDDEN_EXPERIENCE_CONTROL_IDS: readonly string[] = [
     "reminderEnabledToggle",
     "reminderTimeInput",
     "flagSocial",
-    "flagRecommendations",
 ];
 const DEFAULT_REMINDER_TIME = "20:00";
 

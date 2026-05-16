@@ -1,7 +1,6 @@
 import type { FeatureFlags, Preferences } from "../../../types/types.ts";
 import { el } from "../../dom.ts";
 import {
-    RECOMMENDATIONS_AVAILABLE,
     REMINDERS_AVAILABLE,
     SOCIAL_FEATURES_AVAILABLE,
     shippedFeatureFlag,
@@ -38,10 +37,6 @@ function fillFeatureFlagControls(featureFlags: FeatureFlags): void {
     el<HTMLInputElement>("flagSocial").checked = shippedFeatureFlag(
         featureFlags.socialEnabled,
         SOCIAL_FEATURES_AVAILABLE,
-    );
-    el<HTMLInputElement>("flagRecommendations").checked = shippedFeatureFlag(
-        featureFlags.recommendationsEnabled,
-        RECOMMENDATIONS_AVAILABLE,
     );
 }
 

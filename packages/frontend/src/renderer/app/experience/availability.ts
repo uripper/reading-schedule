@@ -4,7 +4,6 @@ import type {
 } from "../../../types/types.ts";
 export const REMINDERS_AVAILABLE = false;
 export const SOCIAL_FEATURES_AVAILABLE = false;
-export const RECOMMENDATIONS_AVAILABLE = false;
 
 /**
  * Normalizes a string to a boolean or returns undefined if not recognized.
