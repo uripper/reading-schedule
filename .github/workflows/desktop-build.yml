@@ -51,10 +51,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Validate desktop app
+      - name: Validate build prerequisites
         run: |
-          pnpm run lint:desktop
           pnpm run typecheck:desktop
+          pnpm run build:desktop
           pnpm run test:desktop
 
       - name: Build desktop bundles
