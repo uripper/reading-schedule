@@ -3,6 +3,7 @@
 @import "./styles/base.css";
 @import "./styles/today-header.css";
 @import "./styles/today-carousel.css";
+@import "./styles/today-add-overlay.css";
 @import "./styles/today-focus-controls.css";
 @import "./styles/date-controls.css";
 @import "./styles/settings.css";

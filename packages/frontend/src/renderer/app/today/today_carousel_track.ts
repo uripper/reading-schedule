@@ -202,6 +202,7 @@ export function bindCarouselNavigation(
 export function renderCarouselTrack(
     model: TodayCarouselModel,
     selectBook: SelectTodayBook,
+    onAddBook?: () => void,
 ): void {
-    renderTrackState(model, selectBook);
+    renderTrackState(model, selectBook, onAddBook);
 }

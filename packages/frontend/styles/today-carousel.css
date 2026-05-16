@@ -39,7 +39,7 @@
     height: 90px;
     padding: 0;
     background: color-mix(in srgb, #130820 60%, transparent);
-    border: 1px solid color-mix(in srgb, #ffffff 30%, transparent);
+    border: 1px solid color-mix(in srgb, #fff 30%, transparent);
     border-radius: 4px;
     box-shadow: none;
     transform: scale(0.85);
@@ -104,8 +104,8 @@
     overflow: hidden;
     cursor: pointer;
     scroll-snap-align: center;
-    background: #ffffff;
-    border: 1px solid #000000;
+    background: #fff;
+    border: 1px solid #000;
     border-radius: 2px;
     box-shadow: 8px 8px 4px rgba(0, 0, 0, 1);
     transform: translateY(50px);
