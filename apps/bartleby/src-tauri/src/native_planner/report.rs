@@ -7,6 +7,7 @@ use crate::native_planner::calendar::{
     calendar_minutes, date_range, required_total_minutes, words_per_block, words_per_minute,
 };
 use crate::native_planner::models::{Assignments, Book, PlanResult, Settings};
+use crate::native_planner::report_status::{feasibility_warning, incomplete_books, summary_status};
 
 struct Session {
     book_id: String,
@@ -52,13 +53,12 @@ pub fn build_output(
     let total_planned_minutes = sessions.iter().map(|session| session.minutes).sum::<i64>();
     let total_available_minutes = calendar_minutes(settings)?.values().sum::<i64>();
     let total_required_minutes = required_total_minutes(books, settings);
-    let feasibility_warning = if total_required_minutes > total_available_minutes {
-        Some(format!(
-            "Required minutes ({total_required_minutes}) exceed available minutes ({total_available_minutes})."
-        ))
-    } else {
-        None
-    };
+    let incomplete_books = incomplete_books(books, &per_book_totals);
+    let feasibility_warning = feasibility_warning(
+        total_required_minutes,
+        total_available_minutes,
+        &incomplete_books,
+    );
     let per_book = books
         .iter()
         .map(|book| {
@@ -96,7 +96,7 @@ pub fn build_output(
             "objective": result.objective,
             "per_book": per_book,
             "planner": result.planner,
-            "status": result.status,
+            "status": summary_status(result, &incomplete_books),
             "total_available_minutes": total_available_minutes,
             "total_planned_minutes": total_planned_minutes,
             "total_required_minutes": total_required_minutes,
@@ -227,16 +227,15 @@ impl<'a> SessionBuilder<'a> {
     }
 
     fn calculate_finish(&mut self, book_id: &str) -> bool {
-        if self.finished_books.get(book_id).copied().unwrap_or(false) {
-            return false;
-        }
-        let book = self.books_by_id[book_id];
-        let remaining = *self.remaining.get(book_id).unwrap_or(&0);
-        if remaining <= 0 {
-            self.finished_books.insert(book_id.to_string(), true);
-            return true;
-        }
-        false
+        let already_finished = self.finished_books.get(book_id).copied().unwrap_or(false);
+        !already_finished && self.mark_finished_when_depleted(book_id)
+    }
+
+    fn mark_finished_when_depleted(&mut self, book_id: &str) -> bool {
+        let is_depleted = *self.remaining.get(book_id).unwrap_or(&0) <= 0;
+        is_depleted
+            .then(|| self.finished_books.insert(book_id.to_string(), true))
+            .is_some()
     }
 }
 

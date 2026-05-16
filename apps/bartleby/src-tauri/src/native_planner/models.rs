@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 use chrono::NaiveDate;
@@ -12,6 +13,7 @@ pub const DEFAULT_MIN_BLOCKS_PER_SESSION: i64 = 2;
 pub const DEFAULT_PRIORITY: i64 = 3;
 pub const DEFAULT_SOLVER_PROFILE: SolverProfile = SolverProfile::Fast;
 pub const FEASIBLE_STATUS_NAME: &str = "FEASIBLE";
+pub const INCOMPLETE_STATUS_NAME: &str = "INCOMPLETE";
 pub const PLAN_MODE_FINISH_SOON: &str = "finish_soon";
 pub const PLAN_MODE_SPREAD_OUT: &str = "spread_out";
 pub const WEEKDAYS: [&str; 7] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -90,4 +92,9 @@ pub fn default_difficulty_multiplier() -> DifficultyMultiplier {
 
 pub fn default_scheduled_days() -> BTreeSet<String> {
     WEEKDAYS.iter().map(|day| (*day).to_string()).collect()
+}
+
+/// Sorts lower numeric priority values before higher values.
+pub fn priority_order(left: i64, right: i64) -> Ordering {
+    left.cmp(&right)
 }
