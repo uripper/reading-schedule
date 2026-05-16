@@ -58,20 +58,25 @@
 
 .day-manual-add {
     display: grid;
-    gap: var(--token-space-2);
+    gap: 12px;
     padding: 14px;
     background: #f3e77d;
     border: 3px solid #000;
     border-radius: 0;
+    box-shadow: 6px 6px 0 #000;
 }
 
 .day-manual-add > h3 {
     margin: 0;
-    font-size: 0.8rem;
+    font-size: 1rem;
     font-weight: 900;
     color: #111;
     text-transform: uppercase;
     letter-spacing: 0.08em;
+}
+
+.day-manual-add .btn {
+    width: 100%;
 }
 
 .day-manual-add-form {

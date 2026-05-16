@@ -178,7 +178,7 @@ function statusRow(
     total: number,
 ): HTMLElement {
     const ROW = document.createElement("div");
-    ROW.className = "status-row";
+    ROW.className = `status-row is-${status}`;
 
     const LABEL = document.createElement("span");
     LABEL.className = "status-label";

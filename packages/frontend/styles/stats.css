@@ -97,6 +97,11 @@
     color: #111;
 }
 
+.status-row.is-read .status-label,
+.status-row.is-read .status-count {
+    color: color-mix(in srgb, var(--app-success) 82%, #0d2614);
+}
+
 .status-bar-wrap {
     height: 20px;
     overflow: hidden;
@@ -138,6 +143,7 @@
     grid-template-rows: 220px auto;
     gap: var(--token-space-2);
     justify-items: center;
+    color: #111;
 }
 
 .month-bar-track {

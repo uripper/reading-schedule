@@ -31,7 +31,7 @@ function futureEstimateElement(
     args: BuildFutureSessionItemArgs,
 ): HTMLParagraphElement {
     const ESTIMATE = document.createElement("p");
-    ESTIMATE.className = DAY_DETAILS_META_CLASS;
+    ESTIMATE.className = `${DAY_DETAILS_META_CLASS} day-session-estimate`;
     ESTIMATE.textContent = futureEstimateText(args);
     return ESTIMATE;
 }

@@ -48,7 +48,7 @@ function completionToggle(checked: boolean): {
 
 function completionStatusNode(): HTMLElement {
     const STATUS = document.createElement("p");
-    STATUS.className = DAY_DETAILS_META_CLASS;
+    STATUS.className = `${DAY_DETAILS_META_CLASS} day-session-status`;
     return STATUS;
 }
 
