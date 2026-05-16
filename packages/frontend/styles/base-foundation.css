@@ -54,6 +54,10 @@ body {
     background: var(--neo-app-background);
 }
 
+body.book-dialog-open {
+    overflow: hidden;
+}
+
 body::before {
     position: fixed;
     inset: 0;

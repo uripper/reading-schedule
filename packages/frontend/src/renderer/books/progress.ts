@@ -5,7 +5,15 @@ import type {
     PercentUpdateContext,
     ProgressTotals,
 } from "../../types/types.ts";
+import {
+    BOOK_STATUS_IN_PROGRESS,
+    BOOK_STATUS_READ,
+    BOOK_STATUS_TO_READ,
+} from "./status_catalog.ts";
 import { clamp } from "./utils.ts";
+
+const COMPLETE_PROGRESS_PERCENT = 100;
+const STARTED_PROGRESS_PERCENT = 0;
 
 /**
  * Parses numeric-like input and rejects blank/non-finite values.
@@ -98,6 +106,38 @@ function reconcilePercentFromPages(book: Book, totals: ProgressTotals): Book {
     return { ...book, progress_percent: PROGRESS_PERCENT };
 }
 
+function finiteProgressPercent(book: Book): number {
+    const PROGRESS_PERCENT = Number(book.progress_percent ?? 0);
+    if (!Number.isFinite(PROGRESS_PERCENT)) {
+        return STARTED_PROGRESS_PERCENT;
+    }
+    return PROGRESS_PERCENT;
+}
+
+function readStatusForProgress(progressPercent: number): Book["status"] {
+    if (progressPercent >= COMPLETE_PROGRESS_PERCENT) {
+        return BOOK_STATUS_READ;
+    }
+    if (progressPercent > STARTED_PROGRESS_PERCENT) {
+        return BOOK_STATUS_IN_PROGRESS;
+    }
+    return BOOK_STATUS_TO_READ;
+}
+
+function statusAfterProgressUpdate(book: Book): Book["status"] {
+    if (book.status !== BOOK_STATUS_READ) {
+        return book.status;
+    }
+    return readStatusForProgress(finiteProgressPercent(book));
+}
+
+function withProgressStatus(book: Book): Book {
+    return {
+        ...book,
+        status: statusAfterProgressUpdate(book),
+    };
+}
+
 /**
  * Applies progress-related updates and keeps page/percent fields consistent.
  * @param book - Source book to update.
@@ -127,6 +167,5 @@ export function withUpdatedProgress(
         hasPagesUpdate: PAGES_UPDATE_RESULT.hasPagesUpdate,
         pagesTotal: TOTALS.pagesTotal,
     });
-    nextBook = reconcilePercentFromPages(nextBook, TOTALS);
-    return nextBook;
+    return withProgressStatus(reconcilePercentFromPages(nextBook, TOTALS));
 }

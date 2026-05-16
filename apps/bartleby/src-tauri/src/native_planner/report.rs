@@ -7,10 +7,12 @@ use crate::native_planner::calendar::{
     calendar_minutes, date_range, required_total_minutes, words_per_block, words_per_minute,
 };
 use crate::native_planner::models::{Assignments, Book, PlanResult, Settings};
+use crate::native_planner::report_status::{feasibility_warning, incomplete_books, summary_status};
 
 struct Session {
     book_id: String,
     date: NaiveDate,
+    finish: bool,
     minutes: i64,
     session_index: i64,
     title: String,
@@ -20,6 +22,7 @@ struct Session {
 struct SessionBuilder<'a> {
     books_by_id: &'a HashMap<&'a str, &'a Book>,
     day: NaiveDate,
+    finished_books: &'a mut HashMap<String, bool>,
     remaining: &'a mut HashMap<String, i64>,
     session_index: &'a mut i64,
     settings: &'a Settings,
@@ -35,6 +38,7 @@ struct DaySessions<'a> {
     assignments: &'a Assignments,
     books_by_id: &'a HashMap<&'a str, &'a Book>,
     day: NaiveDate,
+    finished_books: &'a mut HashMap<String, bool>,
     remaining: &'a mut HashMap<String, i64>,
     settings: &'a Settings,
 }
@@ -49,13 +53,12 @@ pub fn build_output(
     let total_planned_minutes = sessions.iter().map(|session| session.minutes).sum::<i64>();
     let total_available_minutes = calendar_minutes(settings)?.values().sum::<i64>();
     let total_required_minutes = required_total_minutes(books, settings);
-    let feasibility_warning = if total_required_minutes > total_available_minutes {
-        Some(format!(
-            "Required minutes ({total_required_minutes}) exceed available minutes ({total_available_minutes})."
-        ))
-    } else {
-        None
-    };
+    let incomplete_books = incomplete_books(books, &per_book_totals);
+    let feasibility_warning = feasibility_warning(
+        total_required_minutes,
+        total_available_minutes,
+        &incomplete_books,
+    );
     let per_book = books
         .iter()
         .map(|book| {
@@ -77,6 +80,7 @@ pub fn build_output(
             json!({
                 "book_id": session.book_id,
                 "date": session.date.format("%Y-%m-%d").to_string(),
+                "finish": session.finish,
                 "minutes": session.minutes,
                 "session_index": session.session_index,
                 "title": session.title,
@@ -92,7 +96,7 @@ pub fn build_output(
             "objective": result.objective,
             "per_book": per_book,
             "planner": result.planner,
-            "status": result.status,
+            "status": summary_status(result, &incomplete_books),
             "total_available_minutes": total_available_minutes,
             "total_planned_minutes": total_planned_minutes,
             "total_required_minutes": total_required_minutes,
@@ -153,12 +157,14 @@ fn sessions(
         .iter()
         .map(|book| (book.book_id.clone(), book.remaining_words))
         .collect::<HashMap<_, _>>();
+    let mut finished_books = HashMap::new();
     let mut sessions = Vec::new();
     for day in date_range(settings.start_date, settings.end_date)? {
         sessions.extend(sessions_for_day(DaySessions {
             assignments,
             books_by_id: &books_by_id,
             day,
+            finished_books: &mut finished_books,
             remaining: &mut remaining,
             settings,
         }));
@@ -207,15 +213,29 @@ impl<'a> SessionBuilder<'a> {
             },
         )?;
         subtract_remaining_words(self.remaining, book_id, words_planned);
+        let finish = self.calculate_finish(book_id);
         *self.session_index += 1;
         Some(Session {
             book_id: book.book_id.clone(),
             date: self.day,
+            finish,
             minutes,
             session_index: *self.session_index,
             title: book.title.clone(),
             words_planned,
         })
+    }
+
+    fn calculate_finish(&mut self, book_id: &str) -> bool {
+        let already_finished = self.finished_books.get(book_id).copied().unwrap_or(false);
+        !already_finished && self.mark_finished_when_depleted(book_id)
+    }
+
+    fn mark_finished_when_depleted(&mut self, book_id: &str) -> bool {
+        let is_depleted = *self.remaining.get(book_id).unwrap_or(&0) <= 0;
+        is_depleted
+            .then(|| self.finished_books.insert(book_id.to_string(), true))
+            .is_some()
     }
 }
 
@@ -237,6 +257,7 @@ fn sessions_for_day(day_sessions: DaySessions<'_>) -> Vec<Session> {
     let mut session_builder = SessionBuilder {
         books_by_id: day_sessions.books_by_id,
         day: day_sessions.day,
+        finished_books: day_sessions.finished_books,
         remaining: day_sessions.remaining,
         session_index: &mut session_index,
         settings: day_sessions.settings,

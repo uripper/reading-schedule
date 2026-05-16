@@ -32,7 +32,6 @@ function runtimeStateForDraft(sessions) {
         collectSettings: () => ({}),
         featureFlags: {
             gamificationEnabled: true,
-            recommendationsEnabled: true,
             socialEnabled: true,
         },
         lastResult: null,

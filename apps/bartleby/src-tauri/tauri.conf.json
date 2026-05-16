@@ -16,6 +16,7 @@
         "windows": [
             {
                 "height": 1100,
+                "maximized": true,
                 "title": "Bartleby",
                 "width": 1800
             }

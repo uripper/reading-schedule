@@ -15,7 +15,6 @@ const DEFAULT_PREFERENCES = {
 
 const DEFAULT_FEATURE_FLAGS = {
     gamificationEnabled: true,
-    recommendationsEnabled: true,
     socialEnabled: true,
 };
 
@@ -133,4 +132,19 @@ test("loadInitialData logs migration info for json-primary loads", async () => {
     assert.equal(hasLog(CAPTURE, "Migrated saved data from JSON"), true);
     assert.equal(hasLog(CAPTURE, "State load source: json_primary"), true);
     assert.equal(hasLog(CAPTURE, "/tmp/planner_state.json"), true);
+});
+
+test("loadInitialData logs native warning messages", async () => {
+    const CAPTURE = createLoadCapture();
+
+    await runLoad(CAPTURE, {
+        source: "fresh",
+        sourcePath: "C:/Users/example/AppData/Local/com.bartleby.app",
+        state: null,
+        warningMessage:
+            "Checked legacy state directories: C:/Users/example/AppData/Roaming/Bartleby",
+    });
+
+    assert.equal(hasLog(CAPTURE, "State load source: fresh"), true);
+    assert.equal(hasLog(CAPTURE, "Roaming/Bartleby"), true);
 });

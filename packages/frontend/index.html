@@ -113,18 +113,6 @@
         Schedule
       </button>      
       <button
-        id="tab-btn-recommendations"
-        class="tab"
-        type="button"
-        data-tab="recommendations"
-        role="tab"
-        aria-selected="false"
-        aria-controls="tab-recommendations"
-        tabindex="-1"
-      >
-        Recs
-      </button>
-      <button
         id="tab-btn-stats"
         class="tab"
         type="button"
@@ -271,26 +259,26 @@
 
       <section
         id="tab-stats"
-        class="panel"
+        class="panel neo-screen-panel neo-screen-stats"
         role="tabpanel"
         aria-labelledby="tab-btn-stats"
         tabindex="-1"
         hidden
       >
-        <div class="stats-shell">
+        <div class="stats-shell neo-screen-content">
           <div id="statsDashboard" aria-live="polite"></div>
         </div>
       </section>
 
       <section
         id="tab-settings"
-        class="panel"
+        class="panel neo-screen-panel neo-screen-settings"
         role="tabpanel"
         aria-labelledby="tab-btn-settings"
         tabindex="-1"
         hidden
       >
-        <div class="settings-shell">
+        <div class="settings-shell neo-screen-content">
           <nav
             id="settingsSectionTabs"
             class="settings-section-tabs"
@@ -420,10 +408,6 @@
                   ><input id="flagSocial" type="checkbox" /> Enable social
                   features</label
                 >
-                <label class="toggle-row"
-                  ><input id="flagRecommendations" type="checkbox" /> Enable
-                  recommendations</label
-                >
               </div>
               <h3>Books Display</h3>
               <div id="displayGrid" class="settings-grid"></div>
@@ -434,66 +418,44 @@
 
       <section
         id="tab-books"
-        class="panel"
+        class="panel neo-screen-panel neo-screen-books"
         role="tabpanel"
         aria-labelledby="tab-btn-books"
         tabindex="-1"
         hidden
       >
-        <div class="row books-toolbar wrap-row">
-          <button id="addBookBtn" class="btn" type="button">Add Book</button>
-          <span class="hint-text">Click a book card to edit details.</span>
+        <div class="neo-screen-content">
+          <div class="row books-toolbar wrap-row">
+            <button id="addBookBtn" class="btn" type="button">Add Book</button>
+            <span class="hint-text">Click a book card to edit details.</span>
+          </div>
+          <div id="booksGrid" class="books-grid" aria-live="polite"></div>
+          <p id="booksEmpty" class="books-empty">
+            No books yet. Add your first book to start planning.
+          </p>
         </div>
-        <div id="booksGrid" class="books-grid" aria-live="polite"></div>
-        <p id="booksEmpty" class="books-empty">
-          No books yet. Add your first book to start planning.
-        </p>
       </section>
 
-      <section
-        id="tab-recommendations"
-        class="panel"
-        role="tabpanel"
-        aria-labelledby="tab-btn-recommendations"
-        tabindex="-1"
-        hidden
-      >
-        <article class="surface-card">
-          <h2>Recommendations</h2>
-          <p id="recommendationsSummary" class="hint-text">
-            Read books by your favorite authors to unlock recommendations.
-          </p>
-          <button
-            id="getRecommendationsBtn"
-            type="button"
-            class="btn btn-primary"
-          >
-            Get Recommendations
-          </button>
-          <div id="recommendationsList" class="books-grid"></div>
-          <p id="recommendationsEmpty" class="books-empty" hidden>
-            No recommendations yet.
-          </p>
-        </article>
-      </section>
 
       <section
         id="tab-schedule"
-        class="panel"
+        class="panel neo-screen-panel neo-screen-schedule"
         role="tabpanel"
         aria-labelledby="tab-btn-schedule"
         tabindex="-1"
         hidden
       >
-        <div id="calendarControls" class="row wrap-row"></div>
-        <div class="schedule-layout">
-          <div id="calendar" class="calendar"></div>
-          <aside id="calendarDayDetails" class="day-details" aria-live="polite">
-            <h2>Selected Day</h2>
-            <p class="hint-text">
-              Select a day in the schedule grid to view details.
-            </p>
-          </aside>
+        <div class="neo-screen-content">
+          <div id="calendarControls" class="row wrap-row"></div>
+          <div class="schedule-layout">
+            <div id="calendar" class="calendar"></div>
+            <aside id="calendarDayDetails" class="day-details" aria-live="polite">
+              <h2>Selected Day</h2>
+              <p class="hint-text">
+                Select a day in the schedule grid to view details.
+              </p>
+            </aside>
+          </div>
         </div>
       </section>
     </main>
@@ -510,9 +472,6 @@
       </button>
       <button class="tab mobile-tab" data-tab="books" type="button">
         Books
-      </button>
-      <button class="tab mobile-tab" data-tab="recommendations" type="button">
-        Recs
       </button>
       <button class="tab mobile-tab" data-tab="schedule" type="button">
         Schedule

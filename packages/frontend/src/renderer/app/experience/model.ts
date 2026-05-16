@@ -5,7 +5,6 @@ import type {
     PreferencesInput,
 } from "../../../types/types.ts";
 import {
-    RECOMMENDATIONS_AVAILABLE,
     REMINDERS_AVAILABLE,
     SOCIAL_FEATURES_AVAILABLE,
     shippedFeatureFlag,
@@ -23,7 +22,6 @@ export const DEFAULT_PREFERENCES: Preferences = {
 
 export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
     gamificationEnabled: false,
-    recommendationsEnabled: false,
     socialEnabled: false,
 };
 
@@ -91,10 +89,6 @@ export function normalizeFeatureFlags(
 ): FeatureFlags {
     return {
         gamificationEnabled: Boolean(raw.gamificationEnabled),
-        recommendationsEnabled: shippedFeatureFlag(
-            raw.recommendationsEnabled,
-            RECOMMENDATIONS_AVAILABLE,
-        ),
         socialEnabled: shippedFeatureFlag(
             raw.socialEnabled,
             SOCIAL_FEATURES_AVAILABLE,

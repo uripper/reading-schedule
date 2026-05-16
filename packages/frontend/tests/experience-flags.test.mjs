@@ -18,12 +18,10 @@ test("normalizeFeatureFlags keeps shipped gamification flag", () => {
 test("normalizeFeatureFlags disables hidden placeholder flags", () => {
     const FLAGS = normalizeFeatureFlags({
         gamificationEnabled: false,
-        recommendationsEnabled: true,
         socialEnabled: true,
     });
 
     assert.equal(FLAGS.socialEnabled, false);
-    assert.equal(FLAGS.recommendationsEnabled, false);
 });
 
 test("normalizePreferences disables hidden reminder settings", () => {

@@ -89,6 +89,16 @@ pub fn normalize_state_cover_paths(state: &Value, data_directory: &Path) -> Resu
 }
 
 fn detected_cover_extension(path: &Path, bytes: &[u8]) -> Result<&'static str, String> {
+    if data_url::bytes_match_cover_extension(bytes, EXTENSION_PNG) {
+        return Ok(EXTENSION_PNG);
+    }
+    if data_url::bytes_match_cover_extension(bytes, EXTENSION_WEBP) {
+        return Ok(EXTENSION_WEBP);
+    }
+    if data_url::bytes_match_cover_extension(bytes, EXTENSION_JPG) {
+        return Ok(EXTENSION_JPG);
+    }
+
     let extension = match path
         .extension()
         .and_then(|value| value.to_str())
@@ -106,9 +116,6 @@ fn detected_cover_extension(path: &Path, bytes: &[u8]) -> Result<&'static str, S
             return Err("Stored cover asset has an unsupported format.".to_string());
         }
     };
-    if !data_url::bytes_match_cover_extension(bytes, extension) {
-        return Err("Stored cover asset bytes do not match its file type.".to_string());
-    }
     Ok(extension)
 }
 

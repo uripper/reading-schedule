@@ -109,6 +109,51 @@ function completionStatusText(
     return `Marked "${title}" incomplete on ${date}.`;
 }
 
+function completionDate(row: CompletionRow | undefined): string | undefined {
+    const DATE = rowText(row?.date);
+    if (DATE === "") {
+        return undefined;
+    }
+    return DATE;
+}
+
+function isProjectedFinishRow(row: CompletionRow | undefined): boolean {
+    if (row === undefined) {
+        return false;
+    }
+    return row.finish === true;
+}
+
+function markBookReadForFinishedRow(
+    args: AppCalendarInteractionArgs,
+    payload: CompletionUpdate,
+): void {
+    if (!payload.completed) {
+        return;
+    }
+    if (!isProjectedFinishRow(payload.row)) {
+        return;
+    }
+    const BOOK_ID = rowText(payload.row?.book_id);
+    if (BOOK_ID === "") {
+        return;
+    }
+    const UPDATED = args.updateBookProgress(
+        BOOK_ID,
+        { progressPercent: 100 },
+        {
+            completedAt: completionDate(payload.row),
+            notifyBooksChanged: false,
+        },
+    );
+    if (UPDATED === null) {
+        return;
+    }
+    if (args.onProgressUpdated !== undefined) {
+        args.onProgressUpdated(UPDATED);
+    }
+}
+
 /**
  * Determines whether a session (or its day-book fallback session) is marked complete in the provided completion state.
  * @example
@@ -145,6 +190,7 @@ const HANDLE_COMPLETION_CHANGED = (
     args: AppCalendarInteractionArgs,
     payload: CompletionUpdate,
 ): void => {
+    markBookReadForFinishedRow(args, payload);
     applyCompletionChangedState(args, payload);
     applyCompletionChangedStatus(args, payload);
     notifySessionCompletionUpdated(args, payload);
@@ -244,7 +290,10 @@ const HANDLE_PROGRESS_UPDATED = (
             pagesRead: payload.pagesRead,
             progressPercent: payload.progressPercent,
         },
-        { notifyBooksChanged: false },
+        {
+            completedAt: rowText(payload.row?.date),
+            notifyBooksChanged: false,
+        },
     );
     if (UPDATED_BOOK === null) {
         args.setStatus("Could not find that book to update progress.", true);

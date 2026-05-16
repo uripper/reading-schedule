@@ -1,33 +1,37 @@
 .settings-shell {
     display: grid;
-    gap: var(--token-space-3);
+    gap: 18px;
+    color: #111;
 }
 
 .settings-section-tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--token-space-2);
-    padding: var(--token-space-2);
-    background: color-mix(in srgb, var(--app-surfaceMuted) 82%, transparent);
-    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
-    border-radius: var(--token-radius-md);
+    gap: 12px;
+    padding: 18px;
+    background: #f0cb58;
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 7px 7px 0 #000;
 }
 
 .settings-section-tab {
     min-height: var(--token-size-target-minimum);
-    padding: var(--token-space-2) var(--token-space-3);
+    padding: 10px 16px;
     font: inherit;
-    font-size: var(--token-typography-size-sm);
-    color: var(--app-textMuted);
-    background: var(--app-surface);
-    border: 1px solid var(--app-border);
-    border-radius: var(--token-radius-pill);
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: #111;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: #ffe58a;
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 4px 4px 0 #000;
 }
 
 .settings-section-tab.is-active {
-    color: var(--app-text);
-    background: color-mix(in srgb, var(--app-brand) 14%, var(--app-surface));
-    border-color: var(--app-brandStrong);
+    background: #f2d14c;
 }
 
 .settings-layout {
@@ -37,40 +41,38 @@
 
 .settings-card {
     display: grid;
-    gap: var(--token-space-3);
+    gap: 18px;
     align-content: start;
     width: 100%;
-    padding: var(--token-space-4);
-    background:
-        linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--app-brand) 8%, transparent),
-            transparent 28%
-        ),
-        color-mix(in srgb, var(--app-surfaceMuted) 86%, transparent);
-    border: 1px solid
-        color-mix(in srgb, var(--app-border) 88%, var(--app-brandStrong));
-    border-radius: var(--token-radius-lg);
-    box-shadow: var(--token-elevation-sm);
+    padding: 22px;
+    background: #f7de72;
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 8px 8px 0 #000;
 }
 
 .settings-card > h2 {
-    padding-bottom: var(--token-space-2);
+    padding-bottom: 12px;
     margin: 0;
-    border-bottom: 1px solid
-        color-mix(in srgb, var(--app-border) 86%, transparent);
+    font-family: var(--header-font);
+    font-size: clamp(1.2rem, 2vw, 1.6rem);
+    color: #111;
+    text-transform: uppercase;
+    border-bottom: 3px solid #000;
 }
 
 .settings-card > h3 {
     margin: 0;
-    font-size: var(--token-typography-size-sm);
-    font-weight: var(--token-typography-weight-medium);
-    color: var(--app-text);
-    letter-spacing: 0.02em;
+    font-size: 0.82rem;
+    font-weight: 900;
+    color: #111;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
 }
 
 .settings-card .hint-text {
     margin-top: calc(var(--token-space-2) * -1);
+    color: #3d3521;
 }
 
 .settings-grid {
@@ -81,9 +83,11 @@
 
 .settings-card .settings-grid > label {
     display: grid;
-    gap: var(--token-space-1);
+    gap: 6px;
     align-content: start;
     margin: 0;
+    font-weight: 800;
+    color: #111;
 }
 
 .settings-card .settings-grid > label.toggle-row {
@@ -106,6 +110,10 @@
 .settings-card .settings-grid > label textarea,
 .settings-card .settings-grid > label select {
     margin-top: 0;
+    color: #f8f4e8;
+    background: #13213a;
+    border: 3px solid #000;
+    border-radius: 16px;
 }
 
 #tab-settings .row.wrap-row {
@@ -121,7 +129,7 @@
 .lookup-meta {
     margin-top: var(--token-space-1);
     font-size: var(--token-typography-size-xs);
-    color: var(--app-textMuted);
+    color: #3d3521;
 }
 
 .hint-dot {
@@ -133,10 +141,10 @@
     height: 20px;
     margin-left: var(--token-space-1);
     font-size: var(--token-typography-size-xs);
-    color: var(--app-textMuted);
+    color: #111;
     cursor: help;
-    border: 1px solid var(--app-border);
-    border-radius: var(--token-radius-pill);
+    border: 2px solid #000;
+    border-radius: 0;
 }
 
 .hint-dot::after {
@@ -148,12 +156,12 @@
     padding: var(--token-space-2);
     font-size: var(--token-typography-size-xs);
     line-height: var(--token-typography-lineHeight-base);
-    color: var(--app-text);
+    color: #f8f4e8;
     pointer-events: none;
     content: attr(data-tip);
-    background: var(--app-bgElevated);
-    border: 1px solid var(--app-border);
-    border-radius: var(--token-radius-sm);
+    background: #13213a;
+    border: 2px solid #000;
+    border-radius: 12px;
     opacity: 0;
     transform: translateY(-50%);
     transition: opacity var(--token-motion-duration-fast)
@@ -175,12 +183,13 @@
 .chip-btn {
     min-height: var(--token-size-target-minimum);
     padding: var(--token-space-1) var(--token-space-3);
-    font-size: var(--token-typography-size-xs);
-    color: var(--app-text);
-    background: color-mix(in srgb, var(--app-brand) 12%, var(--app-surface));
-    border: 1px solid
-        color-mix(in srgb, var(--app-brandStrong) 36%, var(--app-border));
-    border-radius: var(--token-radius-pill);
+    font-size: 0.78rem;
+    font-weight: 900;
+    color: #111;
+    background: #f2d14c;
+    border: 2px solid #000;
+    border-radius: 0;
+    box-shadow: 3px 3px 0 #000;
     transition:
         background-color var(--token-motion-duration-fast)
         var(--token-motion-easing-standard),
@@ -190,8 +199,8 @@
 
 .chip-btn:hover {
     cursor: pointer;
-    background: color-mix(in srgb, var(--app-brand) 20%, var(--app-surface));
-    border-color: var(--app-brandStrong);
+    background: #ffd95c;
+    border-color: #000;
 }
 
 #tab-settings table {
@@ -199,8 +208,9 @@
     overflow: hidden;
     border-spacing: 0;
     border-collapse: separate;
-    border: 1px solid color-mix(in srgb, var(--app-border) 90%, transparent);
-    border-radius: var(--token-radius-md);
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 6px 6px 0 #000;
 }
 
 #tab-settings th,
@@ -212,16 +222,35 @@
 }
 
 #tab-settings th {
-    font-size: var(--token-typography-size-xs);
-    font-weight: var(--token-typography-weight-medium);
-    color: var(--app-text);
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: #111;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    background: color-mix(in srgb, var(--app-brand) 8%, var(--app-surface));
+    background: #f2d14c;
 }
 
 #tab-settings td {
     font-size: var(--token-typography-size-sm);
+    color: #111;
+}
+
+#tab-settings input,
+#tab-settings select,
+#tab-settings textarea,
+#tab-settings .btn {
+    color: #f8f4e8;
+    background: #13213a;
+    border: 3px solid #000;
+    border-radius: 16px;
+}
+
+#tab-settings .btn:hover,
+#tab-settings input:focus-visible,
+#tab-settings select:focus-visible,
+#tab-settings textarea:focus-visible {
+    border-color: #000;
+    filter: brightness(1.08);
 }
 
 #tab-settings tbody tr:last-child td {

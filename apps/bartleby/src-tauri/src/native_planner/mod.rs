@@ -4,7 +4,10 @@ mod greedy_support;
 mod models;
 mod parse;
 mod profile;
+#[cfg(test)]
+mod regression_tests;
 mod report;
+mod report_status;
 mod solve;
 mod validate;
 mod word_stats;

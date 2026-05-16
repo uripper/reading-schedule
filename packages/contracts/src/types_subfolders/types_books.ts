@@ -283,6 +283,7 @@ export interface StatusGroupDefinition {
 }
 
 export interface UpdateBookProgressOptions {
+    completedAt?: string;
     notifyBooksChanged?: boolean;
 }
 

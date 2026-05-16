@@ -1,8 +1,12 @@
+mod json_parse;
 mod json_store;
+mod legacy;
 mod migrations;
 pub(crate) mod paths;
 mod recovery;
 mod sqlite_store;
+#[cfg(test)]
+mod sqlite_store_tests;
 mod types;
 
 use std::fs;
@@ -24,13 +28,11 @@ use types::{
 
 pub fn load_state(app: &AppHandle) -> Result<Value, String> {
     let canonical_directory = app_paths::canonical_data_directory(app)?;
-    if has_persisted_artifacts(&canonical_directory) {
-        return Ok(load_canonical_state(&canonical_directory).into_value());
-    }
-    let Some(legacy_directory) = app_paths::legacy_desktop_data_directory() else {
-        return Ok(fresh_state_result(&canonical_directory).into_value());
-    };
-    Ok(load_legacy_state(&canonical_directory, &legacy_directory)?.into_value())
+    Ok(legacy::load_preferred_state(
+        &canonical_directory,
+        &app_paths::legacy_desktop_data_directories(),
+    )?
+    .into_value())
 }
 
 pub fn save_state(app: &AppHandle, state: &Value) -> Result<Value, String> {
@@ -43,7 +45,7 @@ pub fn save_state_to_directory(data_directory: &Path, state: &Value) -> Result<V
     Ok(save_result_value(warning_message))
 }
 
-fn decorate_primary_json_migration(load_result: LoadResult) -> LoadResult {
+pub(super) fn decorate_primary_json_migration(load_result: LoadResult) -> LoadResult {
     if load_result.source != types::SOURCE_JSON_PRIMARY {
         return load_result;
     }
@@ -54,7 +56,7 @@ fn decorate_primary_json_migration(load_result: LoadResult) -> LoadResult {
     }
 }
 
-fn fresh_state_result(data_directory: &Path) -> LoadResult {
+pub(super) fn fresh_state_result(data_directory: &Path) -> LoadResult {
     LoadResult {
         source: SOURCE_FRESH,
         source_path: path_string(data_directory),
@@ -64,7 +66,7 @@ fn fresh_state_result(data_directory: &Path) -> LoadResult {
     }
 }
 
-fn has_bootstrap_state(state: &Value) -> bool {
+pub(super) fn has_bootstrap_state(state: &Value) -> bool {
     let Some(state_object) = state.as_object() else {
         return false;
     };
@@ -77,11 +79,11 @@ fn has_persisted_artifacts(data_directory: &Path) -> bool {
         || fs::exists(json_state_backup_path(data_directory)).unwrap_or(false)
 }
 
-fn legacy_migration_message(error: &str) -> String {
+pub(super) fn legacy_migration_message(error: &str) -> String {
     format!("Loaded legacy saved data but could not migrate it to Tauri storage: {error}")
 }
 
-fn load_canonical_state(data_directory: &Path) -> LoadResult {
+pub(super) fn load_canonical_state(data_directory: &Path) -> LoadResult {
     if let Some(load_result) = preferred_state_result_in_place(data_directory) {
         return normalize_cover_state_in_place(data_directory, load_result);
     }
@@ -89,29 +91,6 @@ fn load_canonical_state(data_directory: &Path) -> LoadResult {
         return reset_fresh_state_result(data_directory);
     }
     fresh_state_result(data_directory)
-}
-
-fn load_legacy_state(
-    canonical_directory: &Path,
-    legacy_directory: &Path,
-) -> Result<LoadResult, String> {
-    if !has_persisted_artifacts(legacy_directory) {
-        return Ok(fresh_state_result(canonical_directory));
-    }
-    let Some(load_result) = preferred_state_result_read_only(legacy_directory) else {
-        return Ok(reset_fresh_state_result(canonical_directory));
-    };
-    if !has_bootstrap_state(&load_result.state) {
-        return Ok(load_result);
-    }
-    let normalized_state =
-        cover_store::normalize_state_cover_paths(&load_result.state, canonical_directory)?;
-    let migrated_result = load_result.clone().with_state(normalized_state.clone());
-    match persist_state_to_directory(canonical_directory, &normalized_state) {
-        Ok(None) => Ok(migrated_result),
-        Ok(Some(warning_message)) => Ok(migrated_result.with_warning_message(warning_message)),
-        Err(error) => Ok(migrated_result.with_warning_message(legacy_migration_message(&error))),
-    }
 }
 
 fn normalize_cover_state_in_place(data_directory: &Path, load_result: LoadResult) -> LoadResult {
@@ -134,7 +113,7 @@ fn normalize_cover_state_in_place(data_directory: &Path, load_result: LoadResult
     load_result.with_state(normalized_state)
 }
 
-fn persist_state_to_directory(
+pub(super) fn persist_state_to_directory(
     data_directory: &Path,
     state: &Value,
 ) -> Result<Option<String>, String> {
@@ -156,19 +135,6 @@ fn preferred_state_result_in_place(data_directory: &Path) -> Option<LoadResult> 
     if let Some(load_result) = json_result {
         let load_result = migrated_json_result_in_place(data_directory, load_result);
         return rewrite_migrated_state_in_place(data_directory, load_result);
-    }
-    sqlite_result
-}
-
-fn preferred_state_result_read_only(data_directory: &Path) -> Option<LoadResult> {
-    let sqlite_result = read_state_from_sqlite(data_directory);
-    if let Some(load_result) = bootstrap_state_result(&sqlite_result) {
-        return rewrite_migrated_state_read_only(load_result);
-    }
-    let json_result = read_state_from_json(data_directory);
-    if let Some(load_result) = json_result {
-        let load_result = decorate_primary_json_migration(load_result);
-        return rewrite_migrated_state_read_only(load_result);
     }
     sqlite_result
 }
@@ -208,17 +174,6 @@ fn rewrite_migrated_state_in_place(
     Some(with_migration_warning(migrated_result))
 }
 
-fn rewrite_migrated_state_read_only(load_result: LoadResult) -> Option<LoadResult> {
-    let Some(migration) = migrate_loaded_state(&load_result.state).ok()? else {
-        return Some(load_result);
-    };
-    let migrated_result = load_result.with_state(migration.migrated_state);
-    if !migration.should_rewrite {
-        return Some(migrated_result);
-    }
-    Some(with_migration_warning(migrated_result))
-}
-
 fn save_result_value(warning_message: Option<String>) -> Value {
     let mut payload = Map::new();
     payload.insert("ok".to_string(), Value::Bool(true));
@@ -238,7 +193,15 @@ pub fn load_legacy_state_for_test(
     canonical_directory: &Path,
     legacy_directory: &Path,
 ) -> Result<LoadResult, String> {
-    load_legacy_state(canonical_directory, legacy_directory)
+    legacy::load_legacy_state(canonical_directory, legacy_directory)
+}
+
+#[cfg(test)]
+pub fn load_preferred_state_for_test(
+    canonical_directory: &Path,
+    legacy_directories: &[std::path::PathBuf],
+) -> Result<LoadResult, String> {
+    legacy::load_preferred_state(canonical_directory, legacy_directories)
 }
 
 fn bootstrap_state_result(load_result: &Option<LoadResult>) -> Option<LoadResult> {

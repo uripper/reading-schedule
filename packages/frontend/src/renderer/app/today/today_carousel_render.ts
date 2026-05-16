@@ -2,14 +2,21 @@
  * Renders the Today carousel shell and active-session control panel.
  */
 import type { Book, PlannerResult } from "../../../types/types.ts";
+import { bookCoverSrc } from "../../books/model-normalize.ts";
 import { el } from "../../dom.ts";
+import { todayKey } from "../../sessions/utils.ts";
+import type { TodayAddBookOption } from "./today_add_book_overlay.ts";
+import { openTodayAddBookOverlay } from "./today_add_book_overlay.ts";
 import type { TodayCarouselActionBindings } from "./today_carousel_action_bindings.ts";
 import {
     bindMinutesEditor,
     bindRemoveButton,
     bindToggleButton,
 } from "./today_carousel_action_bindings.ts";
-import type { TodayCarouselActiveItem } from "./today_carousel_model.ts";
+import type {
+    TodayCarouselActiveItem,
+    TodayCarouselBookItem,
+} from "./today_carousel_model.ts";
 import { buildTodayCarouselModel } from "./today_carousel_model.ts";
 import {
     afterSessionText,
@@ -43,6 +50,10 @@ const EMPTY_BOOK_LABEL = "No book selected";
 const EMPTY_MINUTES_TEXT = "0";
 const EMPTY_PROGRESS_TOTAL_TEXT = "--";
 const EMPTY_SESSION_SUMMARY_TEXT = "-- pages\n--%";
+const DEFAULT_MANUAL_ADD_MINUTES = 10;
+type CandidateBook = ReturnType<
+    TodayInteractionBindings["listSessionBooks"]
+>[number];
 
 interface TodayCarouselRenderArgs {
     books: Book[];
@@ -51,6 +62,8 @@ interface TodayCarouselRenderArgs {
 }
 
 interface TodayInteractionBindings {
+    listSessionBooks: TodayCarouselActionBindings["listSessionBooks"];
+    onManualSessionAdded: TodayCarouselActionBindings["onManualSessionAdded"];
     onSessionCompletionChanged: TodayCarouselActionBindings["onSessionCompletionChanged"];
     onSessionMinutesUpdated: TodayCarouselActionBindings["onSessionMinutesUpdated"];
     onSessionProgressUpdated: TodayCarouselActionBindings["onSessionProgressUpdated"];
@@ -203,6 +216,107 @@ function bindActiveActions(active: TodayCarouselActiveItem): void {
     });
 }
 
+function addBookCandidates(options: {
+    booksInTodayCarousel: string[];
+    listSessionBooks: TodayInteractionBindings["listSessionBooks"];
+}): ReturnType<TodayInteractionBindings["listSessionBooks"]> {
+    const BOOK_IDS_IN_TODAY = new Set(options.booksInTodayCarousel);
+    return options.listSessionBooks().filter((book) => {
+        return !BOOK_IDS_IN_TODAY.has(book.bookId);
+    });
+}
+
+function addManualSessionForBook(options: {
+    bindings: TodayInteractionBindings;
+    book: CandidateBook;
+}): void {
+    const ADDED = options.bindings.onManualSessionAdded({
+        bookId: options.book.bookId,
+        completed: false,
+        date: todayKey(),
+        minutes: DEFAULT_MANUAL_ADD_MINUTES,
+    });
+    if (!ADDED) {
+        return;
+    }
+    options.bindings.rerender();
+}
+
+function bookMap(books: Book[]): Map<string, Book> {
+    const BY_ID = new Map<string, Book>();
+    for (const BOOK of books) {
+        const BOOK_ID = String(BOOK.book_id || EMPTY_TEXT).trim();
+        if (BOOK_ID === EMPTY_TEXT) {
+            continue;
+        }
+        BY_ID.set(BOOK_ID, BOOK);
+    }
+    return BY_ID;
+}
+
+function overlayOptions(
+    candidates: CandidateBook[],
+    books: Book[],
+): TodayAddBookOption[] {
+    const BOOKS_BY_ID = bookMap(books);
+    return candidates.map((candidate) => {
+        const BOOK = BOOKS_BY_ID.get(candidate.bookId);
+        let coverSrc = EMPTY_TEXT;
+        if (BOOK !== undefined) {
+            coverSrc = bookCoverSrc(BOOK);
+        }
+        return {
+            bookId: candidate.bookId,
+            coverSrc,
+            title: candidate.title,
+        };
+    });
+}
+
+function candidateBooksForToday(
+    bindings: TodayInteractionBindings,
+    modelBooks: TodayCarouselBookItem[],
+): CandidateBook[] {
+    return addBookCandidates({
+        booksInTodayCarousel: modelBooks.map((book) => {
+            return book.bookId;
+        }),
+        listSessionBooks: bindings.listSessionBooks,
+    });
+}
+
+function addLibraryBookToToday(options: {
+    books: Book[];
+    modelBooks: TodayCarouselBookItem[];
+}): void {
+    const BINDINGS = interactionBindings();
+    if (BINDINGS === null) {
+        return;
+    }
+    const CANDIDATES = candidateBooksForToday(BINDINGS, options.modelBooks);
+    if (CANDIDATES.length === 0) {
+        BINDINGS.setStatus(
+            "All library books are already scheduled for today.",
+        );
+        return;
+    }
+    openTodayAddBookOverlay({
+        onPick: (bookId) => {
+            const SELECTED_BOOK = CANDIDATES.find((candidate) => {
+                return candidate.bookId === bookId;
+            });
+            if (SELECTED_BOOK === undefined) {
+                return;
+            }
+            addManualSessionForBook({
+                bindings: BINDINGS,
+                book: SELECTED_BOOK,
+            });
+        },
+        options: overlayOptions(CANDIDATES, options.books),
+    });
+}
+
 /**
  * Configures the shared Today callbacks used by the carousel renderer.
  * @param bindings - Mutation and status callbacks for Today actions.
@@ -226,7 +340,12 @@ export function renderTodayCarousel(args: TodayCarouselRenderArgs): void {
         selectedBookId: selectedBookId(),
     });
     setSelectedBookId(MODEL.selectedBookId);
-    renderCarouselTrack(MODEL, selectBook);
+    renderCarouselTrack(MODEL, selectBook, () => {
+        addLibraryBookToToday({
+            books: args.books,
+            modelBooks: MODEL.books,
+        });
+    });
     bindCarouselNavigation(MODEL, selectBook);
     if (MODEL.active === null) {
         renderNoData();

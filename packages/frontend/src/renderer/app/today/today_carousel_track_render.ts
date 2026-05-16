@@ -9,6 +9,14 @@ import type {
 
 const MIN_VISIBLE_OFFSET = -2;
 const MAX_VISIBLE_OFFSET = 2;
+const ADD_BOOK_ITEM_ID = "__today-add-book__";
+const ADD_BOOK_LABEL = "Add book to Today";
+const ADD_BOOK_SYMBOL = "+";
+const ADD_CARD_BACKGROUND = "#f7e474";
+const ADD_CARD_BORDER = "2px solid #000";
+const ADD_CARD_SHADOW = "10px 10px 0 #000";
+const ADD_CARD_TEXT_SIZE = "clamp(3rem, 5vw, 4.5rem)";
+const ADD_CARD_TEXT_WEIGHT = "900";
 
 type TodayCarouselTrackBook = TodayCarouselModel["books"][number];
 
@@ -69,14 +77,53 @@ function carouselItems(track: HTMLElement): HTMLButtonElement[] {
  */
 function hasSameTrackOrder(
     items: HTMLButtonElement[],
-    books: TodayCarouselTrackBook[],
+    expectedIds: string[],
 ): boolean {
-    if (items.length !== books.length) {
+    if (items.length !== expectedIds.length) {
         return false;
     }
-    return books.every((book, index) => {
-        return items[index]?.dataset.bookId === book.bookId;
+    return expectedIds.every((bookId, index) => {
+        return items[index]?.dataset.bookId === bookId;
     });
+}
+
+function buildAddBookItem(onAddBook: () => void): HTMLButtonElement {
+    const ITEM = document.createElement("button");
+    ITEM.type = "button";
+    ITEM.className = "today-carousel-item is-add-book";
+    ITEM.dataset.bookId = ADD_BOOK_ITEM_ID;
+    ITEM.setAttribute("role", "option");
+    ITEM.setAttribute("aria-label", ADD_BOOK_LABEL);
+    ITEM.onclick = () => {
+        onAddBook();
+    };
+
+    const SYMBOL = document.createElement("span");
+    SYMBOL.className = "today-carousel-fallback";
+    SYMBOL.textContent = ADD_BOOK_SYMBOL;
+    SYMBOL.style.fontSize = ADD_CARD_TEXT_SIZE;
+    SYMBOL.style.fontWeight = ADD_CARD_TEXT_WEIGHT;
+    SYMBOL.style.background = ADD_CARD_BACKGROUND;
+    SYMBOL.style.color = "#000";
+
+    ITEM.style.background = ADD_CARD_BACKGROUND;
+    ITEM.style.border = ADD_CARD_BORDER;
+    ITEM.style.boxShadow = ADD_CARD_SHADOW;
+    ITEM.append(SYMBOL);
+    return ITEM;
+}
+
+function expectedTrackIds(
+    books: TodayCarouselTrackBook[],
+    onAddBook?: () => void,
+): string[] {
+    const IDS = books.map((book) => {
+        return book.bookId;
+    });
+    if (onAddBook !== undefined) {
+        IDS.push(ADD_BOOK_ITEM_ID);
+    }
+    return IDS;
 }
 
 /**
@@ -129,19 +176,24 @@ function setCarouselItems(
  * @param books - Current carousel book list.
  * @param selectBook - Selection callback for items.
  */
-function renderTrackItems(
-    track: HTMLElement,
-    books: TodayCarouselTrackBook[],
-    selectBook: (bookId: string) => void,
-): void {
-    const ITEMS = carouselItems(track);
-    if (hasSameTrackOrder(ITEMS, books)) {
+function renderTrackItems(options: {
+    onAddBook?: () => void;
+    selectBook: (bookId: string) => void;
+    books: TodayCarouselTrackBook[];
+    track: HTMLElement;
+}): void {
+    const ITEMS = carouselItems(options.track);
+    const EXPECTED_IDS = expectedTrackIds(options.books, options.onAddBook);
+    if (hasSameTrackOrder(ITEMS, EXPECTED_IDS)) {
         return;
     }
-    const NODES = books.map((book) => {
-        return buildCarouselItem(book, selectBook);
+    const NODES = options.books.map((book) => {
+        return buildCarouselItem(book, options.selectBook);
     });
-    track.replaceChildren(...NODES);
+    if (options.onAddBook !== undefined) {
+        NODES.push(buildAddBookItem(options.onAddBook));
+    }
+    options.track.replaceChildren(...NODES);
 }
 
 /**
@@ -181,9 +233,15 @@ function applySelectedItemState(
 export function renderTrackState(
     model: TodayCarouselModel,
     selectBook: (bookId: string) => void,
+    onAddBook?: () => void,
 ): void {
     const TRACK = el<HTMLElement>("todayCarouselTrack");
-    renderTrackItems(TRACK, model.books, selectBook);
+    renderTrackItems({
+        books: model.books,
+        onAddBook,
+        selectBook,
+        track: TRACK,
+    });
 
     const SELECTED_INDEX = model.books.findIndex((book) => {
         return book.bookId === model.selectedBookId;

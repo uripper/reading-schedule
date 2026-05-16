@@ -12,7 +12,6 @@ function assertDefaultStateValues(state) {
     assert.equal(state.ready, false);
     assert.deepEqual(state.featureFlags, {
         gamificationEnabled: false,
-        recommendationsEnabled: false,
         socialEnabled: false,
     });
     assert.deepEqual(state.preferences, {
