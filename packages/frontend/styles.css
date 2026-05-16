@@ -1,6 +1,7 @@
 @import "./styles/fonts-local.css";
 @import "./styles/generated/tokens.css";
 @import "./styles/base.css";
+@import "./styles/desktop-sections.css";
 @import "./styles/today-header.css";
 @import "./styles/today-carousel.css";
 @import "./styles/today-add-overlay.css";

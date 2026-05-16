@@ -3,7 +3,7 @@ use std::sync::Mutex;
 
 use tauri::{AppHandle, Manager, State, WebviewWindow};
 
-const DEFAULT_UI_SCALE: f64 = 1.55;
+const DEFAULT_UI_SCALE: f64 = 1.2;
 const MIN_UI_SCALE: f64 = 0.7;
 const MAX_UI_SCALE: f64 = 3.0;
 const UI_SCALE_STEP: f64 = 0.1;

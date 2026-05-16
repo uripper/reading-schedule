@@ -1,33 +1,44 @@
 .day-details-item {
     position: relative;
     display: grid;
-    gap: var(--token-space-1);
-    padding: var(--token-space-2);
-    padding-right: calc(var(--token-space-2) + var(--token-space-6));
-    background: color-mix(in srgb, var(--app-surface) 84%, transparent);
-    border: 1px solid color-mix(in srgb, var(--app-border) 86%, transparent);
-    border-radius: var(--token-radius-sm);
+    gap: 10px;
+    padding: 16px;
+    padding-right: 48px;
+    color: #111;
+    background: #f5efb2;
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 5px 5px 0 #000;
+}
+
+.day-session-title {
+    display: block;
+    padding-right: 10px;
+    font-family: var(--header-font);
+    font-size: clamp(1.15rem, 1.5vw, 1.55rem);
+    line-height: 1.05;
+    color: #111;
 }
 
 .day-details-item.is-finish {
-    background:
-        radial-gradient(
-            circle at top right,
-            color-mix(in srgb, var(--app-warning) 18%, transparent),
-            transparent 56%
-        ),
-        color-mix(in srgb, var(--app-surface) 84%, transparent);
-    border-color: color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
+    background: #ffd67d;
+    border-color: #000;
 }
 
 .day-details-item.is-finish.is-complete {
-    background: color-mix(in srgb, var(--app-warning) 20%, var(--app-surface));
-    border-color: color-mix(in srgb, var(--app-warning) 82%, var(--app-border));
+    background: #d6efc8;
+    border-color: #000;
 }
 
 .day-details-item.is-complete {
-    background: color-mix(in srgb, var(--app-success) 14%, var(--app-surface));
-    border-color: color-mix(in srgb, var(--app-success) 72%, var(--app-border));
+    background: #d9f0cb;
+    border-color: #000;
+}
+
+.day-details-item > h3,
+.day-details-item > p,
+.day-details-item label {
+    color: #111;
 }
 
 .day-finish-badge {
@@ -68,14 +79,18 @@
 
 .day-details-meta {
     font-size: var(--token-typography-size-xs);
-    color: var(--app-textMuted);
+    color: #303030;
 }
 
 .day-progress-form {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--token-space-2);
-    align-items: end;
+    align-items: start;
+}
+
+.day-progress-form[hidden] {
+    display: none;
 }
 
 .day-minutes-editor {
@@ -85,7 +100,8 @@
 
 .day-minutes-summary {
     display: flex;
-    gap: var(--token-space-1);
+    flex-wrap: wrap;
+    gap: 10px;
     align-items: center;
     justify-content: flex-start;
 }
@@ -94,39 +110,61 @@
     font-family: var(--token-typography-family-heading);
     font-size: var(--token-typography-size-md);
     line-height: var(--token-typography-lineHeight-tight);
-    color: var(--app-text);
+    color: #111;
 }
 
 .btn-minutes-edit {
-    display: grid;
-    place-items: center;
-    inline-size: calc(var(--token-size-target-minimum) - var(--token-space-1));
-    block-size: calc(var(--token-size-target-minimum) - var(--token-space-1));
-    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 14px;
     font: inherit;
     font-size: var(--token-typography-size-sm);
-    color: var(--app-textMuted);
+    color: #f8f4e8;
     cursor: pointer;
-    background: color-mix(in srgb, var(--app-surface) 78%, transparent);
-    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
-    border-radius: var(--token-radius-pill);
+    background: #1d3152;
+    border: 2px solid #000;
+    border-radius: 16px;
 }
 
 .btn-minutes-edit:hover {
-    color: var(--app-text);
-    border-color: color-mix(
-        in srgb,
-        var(--app-brandStrong) 68%,
-        var(--app-border)
-    );
+    color: #fff;
+    border-color: #5e8fd3;
 }
 
 .day-minutes-form {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: 1fr;
 }
 
 .day-progress-form .btn {
     min-height: var(--token-size-target-minimum);
+    width: 100%;
+}
+
+.day-progress-form label {
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.day-progress-field {
+    min-width: 0;
+}
+
+.day-progress-field input {
+    width: 100%;
+}
+
+.day-minutes-form > .day-progress-field,
+.day-minutes-form > .row,
+.day-progress-form > .btn {
+    grid-column: 1 / -1;
+}
+
+.day-minutes-form > .row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--token-space-2);
 }
 
 .btn-session-remove {
@@ -142,11 +180,11 @@
     font-size: var(--token-typography-size-sm);
     font-weight: var(--token-typography-weight-bold);
     line-height: 1;
-    color: color-mix(in srgb, var(--app-danger) 68%, var(--app-textMuted));
+    color: #8d2f2f;
     cursor: pointer;
     background: transparent;
     border: 0;
-    border-radius: var(--token-radius-pill);
+    border-radius: 0;
     transition:
         border-color var(--token-motion-duration-fast)
         var(--token-motion-easing-standard),
@@ -157,8 +195,8 @@
 }
 
 .btn-session-remove:hover {
-    color: color-mix(in srgb, var(--app-danger) 86%, var(--app-text));
-    background: color-mix(in srgb, var(--app-danger) 14%, transparent);
+    color: #5d1515;
+    background: rgb(180 48 74 / 12%);
 }
 
 .btn-session-remove:active {

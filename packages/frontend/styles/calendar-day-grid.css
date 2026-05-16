@@ -1,7 +1,7 @@
 .schedule-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
-    gap: var(--token-space-3);
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 314px);
+    gap: 20px;
     align-items: start;
 }
 
@@ -9,11 +9,12 @@
     display: flex;
     gap: var(--token-space-2);
     align-items: center;
-    padding: var(--token-space-2);
-    margin-bottom: var(--token-space-3);
-    background: color-mix(in srgb, var(--app-surfaceMuted) 82%, transparent);
-    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
-    border-radius: var(--token-radius-md);
+    padding: 18px;
+    margin-bottom: 0;
+    background: #8fdda4;
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 7px 7px 0 #000;
 }
 
 #calendarControls strong {
@@ -21,6 +22,7 @@
     font-family: var(--token-typography-family-heading);
     font-size: var(--token-typography-size-lg);
     line-height: var(--token-typography-lineHeight-tight);
+    color: #111;
 }
 
 #calendarControls .btn-calendar-today {
@@ -42,7 +44,7 @@
     padding: 0 var(--token-space-1);
     font-size: var(--token-typography-size-xs);
     font-weight: var(--token-typography-weight-medium);
-    color: var(--app-textMuted);
+    color: #6b765e;
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
@@ -58,19 +60,14 @@
     display: grid;
     gap: var(--token-space-1);
     align-content: start;
-    min-height: 158px;
-    padding: var(--token-space-2);
-    color: var(--app-text);
+    min-height: 164px;
+    padding: 14px;
+    color: #111;
     text-align: left;
-    background:
-        linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--app-brand) 6%, transparent),
-            transparent 36%
-        ),
-        color-mix(in srgb, var(--app-surface) 90%, transparent);
-    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
-    border-radius: var(--token-radius-md);
+    background: #bfecc7;
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 6px 6px 0 #000;
     transition:
         border-color var(--token-motion-duration-fast)
         var(--token-motion-easing-standard),
@@ -81,13 +78,9 @@
 }
 
 .day:hover {
-    background: color-mix(in srgb, var(--app-brand) 12%, var(--app-surface));
-    border-color: color-mix(
-        in srgb,
-        var(--app-brandStrong) 62%,
-        var(--app-border)
-    );
-    transform: translateY(-1px);
+    background: #d6f5dc;
+    border-color: #000;
+    transform: translate(-4px, -4px);
 }
 
 .day.is-muted {
@@ -95,28 +88,16 @@
 }
 
 .day.is-past {
-    background: color-mix(in srgb, var(--app-surfaceMuted) 82%, var(--app-bg));
-    border-color: color-mix(in srgb, var(--app-border) 96%, transparent);
-    opacity: 0.74;
+    background: #9db39f;
+    border-color: #000;
+    opacity: 0.9;
 }
 
 .day.is-today {
-    outline: 2px solid color-mix(in srgb, var(--app-focusRing) 52%, transparent);
-    outline-offset: -2px;
-    background:
-        radial-gradient(
-            circle at top right,
-            color-mix(in srgb, var(--app-focusRing) 22%, transparent),
-            transparent 62%
-        ),
-        color-mix(in srgb, var(--app-brand) 14%, var(--app-surface));
-    border-color: color-mix(
-        in srgb,
-        var(--app-focusRing) 72%,
-        var(--app-border)
-    );
-    box-shadow: inset 0 0 0 1px
-        color-mix(in srgb, var(--app-focusRing) 50%, transparent);
+    outline: 0;
+    background: #f4f08c;
+    border-color: #000;
+    box-shadow: 6px 6px 0 #000, inset 0 0 0 3px #111;
     opacity: 1;
 }
 
@@ -128,71 +109,54 @@
 
 .day-event-count {
     font-size: var(--token-typography-size-xs);
-    color: var(--app-textMuted);
+    color: #52614b;
 }
 
 .day.is-today .day-date {
-    color: color-mix(in srgb, var(--app-focusRing) 78%, var(--app-text));
+    color: #111;
 }
 
 .day.is-today .day-event-count {
-    color: color-mix(in srgb, var(--app-focusRing) 70%, var(--app-textMuted));
+    color: #343434;
 }
 
 .day.has-finish {
-    background:
-        radial-gradient(
-            circle at top right,
-            color-mix(in srgb, var(--app-warning) 18%, transparent),
-            transparent 54%
-        ),
-        linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--app-brand) 6%, transparent),
-            transparent 36%
-        ),
-        color-mix(in srgb, var(--app-surface) 90%, transparent);
-    border-color: color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
+    background: #ffd67d;
+    border-color: #000;
 }
 
 .day.has-finish .day-event-count {
-    color: color-mix(in srgb, var(--app-warning) 84%, var(--app-text));
+    color: #111;
 }
 
 .day.is-selected {
-    border-color: color-mix(
-        in srgb,
-        var(--app-brandStrong) 84%,
-        var(--app-border)
-    );
-    box-shadow: 0 0 0 1px
-        color-mix(in srgb, var(--app-brandStrong) 54%, transparent);
+    background: #9fd7ff;
+    border-color: #000;
+    box-shadow: 6px 6px 0 #000, inset 0 0 0 3px #111;
 }
 
 .day.is-today.is-selected {
-    box-shadow:
-        inset 0 0 0 1px
-        color-mix(in srgb, var(--app-focusRing) 50%, transparent),
-        0 0 0 1px color-mix(in srgb, var(--app-brandStrong) 54%, transparent);
+    box-shadow: 6px 6px 0 #000, inset 0 0 0 3px #2d67a3;
 }
 
 .day-chip {
-    padding: var(--token-space-1) var(--token-space-2);
+    padding: 6px 8px;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: var(--token-typography-size-xs);
-    color: var(--app-textMuted);
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #111;
     white-space: nowrap;
-    background: color-mix(in srgb, var(--app-surfaceMuted) 72%, transparent);
-    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
-    border-radius: var(--token-radius-sm);
+    background: #edfced;
+    border: 2px solid #000;
+    border-radius: 0;
 }
 
 .day-chip.finish {
-    font-weight: var(--token-typography-weight-medium);
-    color: color-mix(in srgb, var(--app-warning) 88%, var(--app-text));
-    background: color-mix(in srgb, var(--app-warning) 16%, var(--app-surface));
-    border-color: color-mix(in srgb, var(--app-warning) 78%, var(--app-border));
+    font-weight: 900;
+    color: #111;
+    background: #ffe798;
+    border-color: #000;
 }
 
 .day-chip.is-more {

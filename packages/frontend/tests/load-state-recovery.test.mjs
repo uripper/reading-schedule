@@ -15,7 +15,6 @@ const DEFAULT_PREFERENCES = {
 
 const DEFAULT_FEATURE_FLAGS = {
     gamificationEnabled: true,
-    recommendationsEnabled: true,
     socialEnabled: true,
 };
 
