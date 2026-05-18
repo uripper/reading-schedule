@@ -1,5 +1,5 @@
 //! Tauri command handlers for the Bartleby migration foundation.
-use crate::{book_search, cover_store, native_planner, state_store, window_zoom};
+use crate::{app_paths, book_search, cover_store, native_planner, state_store, window_zoom};
 use serde_json::Value;
 
 #[tauri::command]
@@ -26,6 +26,18 @@ pub fn cover_import(
     book_id: Option<String>,
 ) -> Result<String, String> {
     cover_store::import_cover(&app, data_url, book_id)
+}
+
+#[tauri::command]
+pub async fn cover_normalize_saved_state(
+    app: tauri::AppHandle,
+) -> Result<state_store::CoverNormalizationResult, String> {
+    let data_directory = app_paths::canonical_data_directory(&app)?;
+    tauri::async_runtime::spawn_blocking(move || {
+        state_store::normalize_cover_state_to_directory(&data_directory)
+    })
+    .await
+    .map_err(|error| format!("Cover normalization task join error: {error}"))?
 }
 
 #[tauri::command]

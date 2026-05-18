@@ -31,6 +31,10 @@ const RESOLVED_SOURCE_PREFIXES = [
     "tauri:",
 ];
 
+export interface CoverMaintenanceResult {
+    changed: boolean;
+}
+
 function filePathFromUrl(src: string): string {
     try {
         const URL_VALUE = new URL(src);
@@ -138,6 +142,12 @@ async function saveUploadedCover(
         dataUrl,
     });
     return resolveTauriCoverSrc(COVER_PATH);
+}
+
+export async function normalizeSavedCovers(): Promise<CoverMaintenanceResult> {
+    return await invokeCommand<CoverMaintenanceResult>(
+        TAURI_COMMANDS.coverNormalizeSavedState,
+    );
 }
 
 function createCoverApi(): Pick<

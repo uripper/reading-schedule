@@ -31,6 +31,7 @@ pub fn run() {
             commands::books_search,
             commands::cover_download,
             commands::cover_import,
+            commands::cover_normalize_saved_state,
             commands::plan_generate,
             commands::plan_sample,
             commands::state_load,
