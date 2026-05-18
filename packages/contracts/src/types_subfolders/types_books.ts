@@ -328,6 +328,7 @@ export interface RenderableBooksRefs {
     grid: HTMLElement;
     groupBySelect: HTMLSelectElement;
     shelfFilterSelect: HTMLSelectElement;
+    sortBySelect: HTMLSelectElement;
     sortDirectionBtn: HTMLButtonElement;
     statusFilterSelect: HTMLSelectElement;
 }

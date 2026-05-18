@@ -23,6 +23,7 @@ import { SORT_BY_ESTIMATED_FINISH } from "./sort.ts";
 import {
     updateGroupByOptions,
     updateShelfFilterOptions,
+    updateSortBySelection,
     updateSortDirectionButton,
     updateStatusFilterOptions,
 } from "./toolbar.ts";
@@ -54,6 +55,7 @@ function updateBooksViewFilters(
         NEXT_VIEW_STATE.groupBy,
         NEXT_VIEW_STATE.shelfFilter,
     );
+    updateSortBySelection(refs.sortBySelect, NEXT_VIEW_STATE.sortBy);
     updateSortDirectionButton(
         refs.sortDirectionBtn,
         NEXT_VIEW_STATE.sortDirection,

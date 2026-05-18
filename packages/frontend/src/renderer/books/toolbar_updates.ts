@@ -2,6 +2,7 @@ import type {
     Book,
     BookGroupBy,
     BookStatusFilter,
+    SortBy,
     SortDirection,
 } from "../../types/types.ts";
 import { GROUP_BY_NONE } from "./grouping.ts";
@@ -110,4 +111,17 @@ export function updateGroupByOptions(
     }
     NEXT_GROUP_BY_SELECT.value = nextValue;
     return nextValue;
+}
+
+/**
+ * Syncs the sort-by select with the current controller sort state.
+ * @param sortBySelect - Sort-by select element.
+ * @param selectedValue - Active sort value from controller state.
+ */
+export function updateSortBySelection(
+    sortBySelect: HTMLSelectElement,
+    selectedValue: SortBy,
+): void {
+    const NEXT_SORT_BY_SELECT = sortBySelect;
+    NEXT_SORT_BY_SELECT.value = selectedValue;
 }

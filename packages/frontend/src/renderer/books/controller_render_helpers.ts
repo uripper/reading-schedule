@@ -35,6 +35,9 @@ function hasRenderableToolbarRefs(refs: BooksControllerRefs): boolean {
     if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
         return false;
     }
+    if (!(refs.sortBySelect instanceof HTMLSelectElement)) {
+        return false;
+    }
     if (!(refs.statusFilterSelect instanceof HTMLSelectElement)) {
         return false;
     }
@@ -71,6 +74,7 @@ export function resolveRenderableRefs(
         grid: refs.grid as HTMLElement,
         groupBySelect: refs.groupBySelect as HTMLSelectElement,
         shelfFilterSelect: refs.shelfFilterSelect as HTMLSelectElement,
+        sortBySelect: refs.sortBySelect as HTMLSelectElement,
         sortDirectionBtn: refs.sortDirectionBtn as HTMLButtonElement,
         statusFilterSelect: refs.statusFilterSelect as HTMLSelectElement,
     };

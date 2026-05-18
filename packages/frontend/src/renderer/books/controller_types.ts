@@ -17,9 +17,9 @@ import {
     SORT_BY_PRIORITY,
     SORT_BY_PROGRESS,
     SORT_BY_SHELF,
+    SORT_BY_TITLE,
     SORT_BY_WORDS_TOTAL,
 } from "./sort.ts";
-import { SORT_BY_TITLE } from "./toolbar.ts";
 
 const SORT_BY_OPTIONS: SortBy[] = [
     SORT_BY_TITLE,
@@ -53,7 +53,7 @@ export function toSortBy(value: string): SortBy {
     if (MATCHED) {
         return MATCHED;
     }
-    return SORT_BY_TITLE;
+    return SORT_BY_ESTIMATED_FINISH;
 }
 
 /**

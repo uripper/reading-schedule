@@ -15,6 +15,9 @@ import {
     SORT_BY_TITLE,
     sortBooks,
 } from "../dist/renderer/books/sort.js";
+import { ensureBooksToolbarControls } from "../dist/renderer/books/toolbar_dom.js";
+import { updateSortBySelection } from "../dist/renderer/books/toolbar_updates.js";
+import { installFakeDom } from "./helpers/fake-dom.mjs";
 
 const DEFAULT_BOOK = {
     author: "",
@@ -178,4 +181,25 @@ test("sortBooks sorts numeric fields such as progress_percent", () => {
         SORTED.map((book) => book.book_id),
         ["book-2", "book-3", "book-1"],
     );
+});
+
+test("updateSortBySelection keeps toolbar sort aligned with controller state", () => {
+    const DOM = installFakeDom();
+    try {
+        const TOOLBAR = DOM.createElement("div");
+        const CONTROLS = ensureBooksToolbarControls(TOOLBAR);
+        CONTROLS.sortBySelect.value = SORT_BY_TITLE;
+
+        updateSortBySelection(
+            CONTROLS.sortBySelect,
+            SORT_BY_ESTIMATED_FINISH,
+        );
+
+        assert.equal(
+            CONTROLS.sortBySelect.value,
+            SORT_BY_ESTIMATED_FINISH,
+        );
+    } finally {
+        DOM.restore();
+    }
 });

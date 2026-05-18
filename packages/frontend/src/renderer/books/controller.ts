@@ -26,9 +26,9 @@ import { hydrateBookCover, upsertBookById } from "./save.ts";
 import { applyScheduledDaysToShelfBooks } from "./save_scheduled_days.ts";
 import { schedulableBook } from "./status.ts";
 import { BOOK_STATUS_FILTER_ALL, BOOK_STATUS_READ } from "./status_catalog.ts";
+import { SORT_BY_ESTIMATED_FINISH } from "./sort.ts";
 import {
     ensureBooksToolbarControls,
-    SORT_BY_TITLE,
     SORT_DIRECTION_ASC,
 } from "./toolbar.ts";
 
@@ -65,7 +65,7 @@ const REFS: BooksControllerRefs = {
 const VIEW_STATE: BooksViewState = {
     groupBy: GROUP_BY_NONE,
     shelfFilter: "",
-    sortBy: SORT_BY_TITLE,
+    sortBy: SORT_BY_ESTIMATED_FINISH,
     sortDirection: SORT_DIRECTION_ASC,
     statusFilter: BOOK_STATUS_FILTER_ALL,
     titleFilter: "",
@@ -77,6 +77,22 @@ function normalizedCompletedAt(value: string | undefined): string | null {
         return null;
     }
     return TEXT;
+}
+
+function updatedProgressBook(
+    currentBook: Book,
+    updates: BookProgressUpdates,
+    completedAt: string | undefined,
+): Book {
+    const NORMALIZED = normalizeBook(withUpdatedProgress(currentBook, updates));
+    return {
+        ...NORMALIZED,
+        finished_at: resolvedFinishedAt({
+            completedAt,
+            currentBook,
+            nextBook: NORMALIZED,
+        }),
+    };
 }
 
 function todayDateKey(): string {
@@ -174,27 +190,18 @@ export function updateBookProgress(
     if (CURRENT_BOOK === undefined) {
         return null;
     }
-    const NEXT = withUpdatedProgress(CURRENT_BOOK, updates);
-    const NORMALIZED = normalizeBook(NEXT);
-    books[IDX] = {
-        ...NORMALIZED,
-        finished_at: resolvedFinishedAt({
-            completedAt: options.completedAt,
-            currentBook: CURRENT_BOOK,
-            nextBook: NORMALIZED,
-        }),
-    };
+    books[IDX] = updatedProgressBook(
+        CURRENT_BOOK,
+        updates,
+        options.completedAt,
+    );
     onBooksCommitted(books);
     render();
 
     if (options.notifyBooksChanged !== false) {
         onBooksChanged();
     }
-    const UPDATED_BOOK = books[IDX];
-    if (UPDATED_BOOK === undefined) {
-        return null;
-    }
-    return { ...UPDATED_BOOK };
+    return getBookById(bookId);
 }
 
 /**

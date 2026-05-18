@@ -26,9 +26,9 @@ import {
 } from "./sort.ts";
 
 export const SORT_OPTIONS: OptionDefinition[] = [
+    { label: "Estimated Finish", value: SORT_BY_ESTIMATED_FINISH },
     { label: "Title", value: SORT_BY_TITLE },
     { label: "Author", value: SORT_BY_AUTHOR },
-    { label: "Estimated Finish", value: SORT_BY_ESTIMATED_FINISH },
     { label: "Pages", value: SORT_BY_PAGES_TOTAL },
     { label: "Pages Read", value: SORT_BY_PAGES_READ },
     { label: "Words", value: SORT_BY_WORDS_TOTAL },
