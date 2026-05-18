@@ -41,36 +41,53 @@ function cardContext() {
     };
 }
 
+function renderedCard(environment) {
+    const ROOT = environment.createElement("div");
+    const CARD = createCardNode(bookFixture(), cardContext());
+    ROOT.append(CARD);
+    return { card: CARD, root: ROOT };
+}
+
+function bindAndCaptureEvents(root) {
+    const EVENTS = { edited: [], removed: [] };
+    bindCardEvents(root, {
+        onEdit(bookId) {
+            EVENTS.edited.push(bookId);
+        },
+        onRemove(bookId) {
+            EVENTS.removed.push(bookId);
+        },
+    });
+    return EVENTS;
+}
+
+function cardActionNodes(card) {
+    const STACK = card.querySelector(".book-card-command-stack");
+    return {
+        coverButton: card.querySelector(".book-cover-btn"),
+        editButton: STACK.querySelector(".edit-book-btn"),
+        removeButton: STACK.querySelector(".remove-book-btn"),
+        stack: STACK,
+    };
+}
+
+function clickCardActions(nodes) {
+    nodes.editButton.click();
+    nodes.coverButton.click();
+    nodes.removeButton.click();
+}
+
 test("book cards render stacked edit and remove actions", () => {
     const ENVIRONMENT = installFakeDom();
     try {
-        const ROOT = ENVIRONMENT.createElement("div");
-        const CARD = createCardNode(bookFixture(), cardContext());
-        ROOT.append(CARD);
-        const EDITED = [];
-        const REMOVED = [];
-        bindCardEvents(ROOT, {
-            onEdit(bookId) {
-                EDITED.push(bookId);
-            },
-            onRemove(bookId) {
-                REMOVED.push(bookId);
-            },
-        });
-
-        const STACK = CARD.querySelector(".book-card-command-stack");
-        const EDIT_BUTTON = STACK.querySelector(".edit-book-btn");
-        const REMOVE_BUTTON = STACK.querySelector(".remove-book-btn");
-        const COVER_BUTTON = CARD.querySelector(".book-cover-btn");
-
-        assert.equal(STACK.children[0], EDIT_BUTTON);
-        assert.equal(STACK.children[1], REMOVE_BUTTON);
-        EDIT_BUTTON.click();
-        COVER_BUTTON.click();
-        REMOVE_BUTTON.click();
-
-        assert.deepEqual(EDITED, [BOOK_ID, BOOK_ID]);
-        assert.deepEqual(REMOVED, [BOOK_ID]);
+        const { card, root } = renderedCard(ENVIRONMENT);
+        const EVENTS = bindAndCaptureEvents(root);
+        const NODES = cardActionNodes(card);
+        assert.equal(NODES.stack.children[0], NODES.editButton);
+        assert.equal(NODES.stack.children[1], NODES.removeButton);
+        clickCardActions(NODES);
+        assert.deepEqual(EVENTS.edited, [BOOK_ID, BOOK_ID]);
+        assert.deepEqual(EVENTS.removed, [BOOK_ID]);
     } finally {
         ENVIRONMENT.restore();
     }
