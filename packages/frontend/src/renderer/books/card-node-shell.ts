@@ -12,7 +12,7 @@ import {
 
 const CARD_CLASS = "book-card";
 const READ_CARD_CLASS = "is-read-card";
-const NO_COVER_LABEL = "No Cover";
+const NO_COVER_LABEL = "Click to Add Cover";
 
 /**
  * Builds class-name text for a card based on book status.
@@ -163,6 +163,20 @@ export function cardSubtitleNode(book: Book): HTMLParagraphElement {
 }
 
 /**
+ * Creates the edit button for a book card.
+ * @param bookId - Book identifier used by card actions.
+ * @returns Configured edit button element.
+ */
+function editBookButton(bookId: string): HTMLButtonElement {
+    const EDIT_BTN = document.createElement("button");
+    EDIT_BTN.className = "btn edit-btn edit-book-btn";
+    EDIT_BTN.type = "button";
+    EDIT_BTN.dataset.bookId = bookId;
+    EDIT_BTN.textContent = "Edit";
+    return EDIT_BTN;
+}
+
+/**
  * Creates the remove button for a book card.
  * @param bookId - Book identifier used by card actions.
  * @returns Configured remove button element.
@@ -174,6 +188,18 @@ function removeBookButton(bookId: string): HTMLButtonElement {
     REMOVE_BTN.dataset.bookId = bookId;
     REMOVE_BTN.textContent = "Remove";
     return REMOVE_BTN;
+}
+
+/**
+ * Creates the stacked card command buttons.
+ * @param bookId - Book identifier used by card actions.
+ * @returns Configured command stack element.
+ */
+function cardCommandStackNode(bookId: string): HTMLDivElement {
+    const STACK = document.createElement("div");
+    STACK.className = "book-card-command-stack";
+    STACK.append(editBookButton(bookId), removeBookButton(bookId));
+    return STACK;
 }
 
 /**
@@ -194,7 +220,7 @@ export function cardActionsNode(
     if (FINISH_DATE !== null) {
         ACTIONS.append(estimatedFinishButton(FINISH_DATE, context));
     }
-    ACTIONS.append(removeBookButton(bookId));
+    ACTIONS.append(cardCommandStackNode(bookId));
     return ACTIONS;
 }
 

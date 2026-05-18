@@ -11,14 +11,20 @@ use super::normalization::{COVER_MAX_HEIGHT_PX, COVER_MAX_WIDTH_PX, NORMALIZED_C
 use super::{normalize_state_cover_paths, persist_cover_bytes, CoverAsset};
 use crate::app_paths::canonical_cover_directory;
 
+const FIXTURE_COVER_RGB: [u8; 3] = [24, 96, 140];
 const OVERSIZED_MULTIPLIER: u32 = 2;
+const SECOND_BOOK_INDEX: usize = 1;
 
 fn temp_cover_directory(name: &str) -> PathBuf {
     env::temp_dir().join(format!("bartleby-cover-{name}-{}", Uuid::new_v4()))
 }
 
 fn png_cover_bytes(width: u32, height: u32) -> Vec<u8> {
-    let image = DynamicImage::ImageRgb8(ImageBuffer::from_pixel(width, height, Rgb([24, 96, 140])));
+    let image = DynamicImage::ImageRgb8(ImageBuffer::from_pixel(
+        width,
+        height,
+        Rgb(FIXTURE_COVER_RGB),
+    ));
     let mut bytes = Cursor::new(Vec::new());
     image
         .write_to(&mut bytes, ImageFormat::Png)
@@ -41,7 +47,7 @@ fn second_book_cover_path(state: &Value) -> String {
     state
         .get("books")
         .and_then(Value::as_array)
-        .and_then(|books| books.get(1))
+        .and_then(|books| books.get(SECOND_BOOK_INDEX))
         .and_then(|book| book.get("cover_local_path"))
         .and_then(Value::as_str)
         .expect("expected second cover path")

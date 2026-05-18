@@ -81,11 +81,9 @@ pub fn normalize_state_cover_paths(state: &Value, data_directory: &Path) -> Resu
     let canonical_cover_directory = app_paths::canonical_cover_directory(data_directory)?;
     let mut retired_paths = Vec::new();
     for book in books.iter_mut() {
-        if let Some(retired_path) =
-            migrate_book_cover_path(book, data_directory, &canonical_cover_directory)?
-        {
-            retired_paths.push(retired_path);
-        }
+        let retired_path =
+            migrate_book_cover_path(book, data_directory, &canonical_cover_directory)?;
+        append_retired_cover_path(&mut retired_paths, retired_path);
     }
     remove_retired_canonical_covers(retired_paths, books, &canonical_cover_directory)?;
     Ok(Value::Object(next_state))
@@ -229,17 +227,28 @@ fn remove_retired_canonical_covers(
     canonical_cover_directory: &Path,
 ) -> Result<(), String> {
     let referenced_paths = referenced_cover_paths(books);
-    for retired_path in retired_paths {
-        if referenced_paths.contains(&retired_path) {
-            continue;
-        }
-        if !retired_path.starts_with(canonical_cover_directory) {
-            continue;
-        }
+    for retired_path in retired_paths.into_iter().filter(|path| {
+        should_remove_retired_path(path, &referenced_paths, canonical_cover_directory)
+    }) {
         fs::remove_file(retired_path)
             .map_err(|error| format!("Unable to remove duplicate cover asset: {error}"))?;
     }
     Ok(())
+}
+
+fn append_retired_cover_path(retired_paths: &mut Vec<PathBuf>, retired_path: Option<PathBuf>) {
+    let Some(retired_path) = retired_path else {
+        return;
+    };
+    retired_paths.push(retired_path);
+}
+
+fn should_remove_retired_path(
+    retired_path: &Path,
+    referenced_paths: &HashSet<PathBuf>,
+    canonical_cover_directory: &Path,
+) -> bool {
+    retired_path.starts_with(canonical_cover_directory) && !referenced_paths.contains(retired_path)
 }
 
 fn normalized_file_url_path(path: &str) -> &str {

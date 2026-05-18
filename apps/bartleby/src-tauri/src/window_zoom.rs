@@ -39,17 +39,18 @@ fn normalized_zoom_factor(value: f64) -> f64 {
     (clamp_zoom_factor(value) * ZOOM_PRECISION).round() / ZOOM_PRECISION
 }
 
-fn initial_zoom_factor() -> f64 {
-    let requested_scale_raw = env::var(USER_SET_UI_SCALE_ENV_NAME)
-        .ok()
-        .unwrap_or_else(|| {
-            env::var(UI_SCALE_ENV_NAME).unwrap_or_else(|_| DEFAULT_UI_SCALE.to_string())
-        });
-    let requested_scale = requested_scale_raw
-        .trim()
-        .parse::<f64>()
+fn initial_zoom_factor_from_values(user_set_scale: Option<&str>, ui_scale: Option<&str>) -> f64 {
+    let requested_scale = user_set_scale
+        .or(ui_scale)
+        .and_then(|value| value.trim().parse::<f64>().ok())
         .unwrap_or(DEFAULT_UI_SCALE);
     normalized_zoom_factor(requested_scale)
+}
+
+fn initial_zoom_factor() -> f64 {
+    let user_set_scale = env::var(USER_SET_UI_SCALE_ENV_NAME).ok();
+    let ui_scale = env::var(UI_SCALE_ENV_NAME).ok();
+    initial_zoom_factor_from_values(user_set_scale.as_deref(), ui_scale.as_deref())
 }
 
 fn apply_zoom(window: &WebviewWindow, value: f64) -> Result<f64, String> {
@@ -110,7 +111,8 @@ pub fn zoom_reset(state: State<'_, ZoomState>, window: WebviewWindow) -> Result<
 #[cfg(test)]
 mod tests {
     use super::{
-        clamp_zoom_factor, normalized_zoom_factor, DEFAULT_UI_SCALE, MAX_UI_SCALE, MIN_UI_SCALE,
+        clamp_zoom_factor, initial_zoom_factor_from_values, normalized_zoom_factor,
+        DEFAULT_UI_SCALE, MAX_UI_SCALE, MIN_UI_SCALE,
     };
 
     #[test]
@@ -123,5 +125,26 @@ mod tests {
         assert_eq!(normalized_zoom_factor(MAX_UI_SCALE + 1.0), MAX_UI_SCALE);
         assert_eq!(normalized_zoom_factor(MIN_UI_SCALE - 1.0), MIN_UI_SCALE);
         assert_eq!(normalized_zoom_factor(1.234), 1.23);
+    }
+
+    #[test]
+    fn user_set_zoom_value_wins_over_default_ui_scale() {
+        assert_eq!(
+            initial_zoom_factor_from_values(Some("0.9"), Some("1.4")),
+            0.9
+        );
+    }
+
+    #[test]
+    fn ui_scale_value_is_used_when_user_scale_is_missing() {
+        assert_eq!(initial_zoom_factor_from_values(None, Some("1.1")), 1.1);
+    }
+
+    #[test]
+    fn invalid_initial_zoom_values_fall_back_to_default() {
+        assert_eq!(
+            initial_zoom_factor_from_values(Some("nope"), Some("1.1")),
+            DEFAULT_UI_SCALE,
+        );
     }
 }

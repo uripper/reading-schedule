@@ -9,6 +9,7 @@ use uuid::Uuid;
 use crate::state_store::load_preferred_state_for_test;
 use crate::state_store::paths::json_state_path;
 
+const FIXTURE_COVER_RGB: [u8; 3] = [24, 96, 140];
 const FIXTURE_COVER_SIZE_PX: u32 = 1;
 
 fn temp_state_directory(name: &str) -> std::path::PathBuf {
@@ -19,7 +20,7 @@ fn legacy_png_cover_bytes() -> Vec<u8> {
     let image = DynamicImage::ImageRgb8(ImageBuffer::from_pixel(
         FIXTURE_COVER_SIZE_PX,
         FIXTURE_COVER_SIZE_PX,
-        Rgb([24, 96, 140]),
+        Rgb(FIXTURE_COVER_RGB),
     ));
     let mut bytes = Cursor::new(Vec::new());
     image
