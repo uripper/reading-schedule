@@ -95,12 +95,11 @@ pub fn remove_orphaned_covers(state: &Value, data_directory: &Path) -> Result<us
         let path = entry
             .map_err(|error| format!("Unable to inspect cover asset: {error}"))?
             .path();
-        if !should_remove_orphaned_cover(&path, &referenced_paths, &canonical_cover_directory) {
-            continue;
-        }
-        fs::remove_file(path)
-            .map_err(|error| format!("Unable to remove orphaned cover asset: {error}"))?;
-        removed_count += 1;
+        removed_count += usize::from(remove_orphaned_cover_path(
+            path,
+            &referenced_paths,
+            &canonical_cover_directory,
+        )?);
     }
     Ok(removed_count)
 }
@@ -256,6 +255,19 @@ fn should_remove_orphaned_cover(
         && cover_path.starts_with(canonical_cover_directory)
         && has_cover_file_extension(cover_path)
         && !referenced_paths.contains(cover_path)
+}
+
+fn remove_orphaned_cover_path(
+    cover_path: PathBuf,
+    referenced_paths: &HashSet<PathBuf>,
+    canonical_cover_directory: &Path,
+) -> Result<bool, String> {
+    if !should_remove_orphaned_cover(&cover_path, referenced_paths, canonical_cover_directory) {
+        return Ok(false);
+    }
+    fs::remove_file(cover_path)
+        .map_err(|error| format!("Unable to remove orphaned cover asset: {error}"))?;
+    Ok(true)
 }
 
 fn has_cover_file_extension(path: &Path) -> bool {
