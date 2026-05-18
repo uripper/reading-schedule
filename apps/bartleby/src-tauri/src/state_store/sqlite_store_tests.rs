@@ -10,6 +10,9 @@ use super::sqlite_store::{
     read_state_from_sqlite, read_state_from_sqlite_read_only_result, write_state_to_sqlite,
 };
 
+const EXPECTED_JOURNAL_ROWS: i64 = 5;
+const EXTRA_WRITES: i64 = 3;
+
 fn temp_state_directory() -> std::path::PathBuf {
     env::temp_dir().join(format!("bartleby-state-sqlite-{}", Uuid::new_v4()))
 }
@@ -90,5 +93,31 @@ fn sqlite_store_recovers_from_journal() {
         read_state_from_sqlite(&data_directory).expect("expected journal replay recovery");
     assert_eq!(load_result.source, "sqlite_journal_replay");
     assert_eq!(load_result.warning_code, Some("RECOVERED_FROM_JOURNAL"));
+    let _ = fs::remove_dir_all(&data_directory);
+}
+
+#[test]
+fn sqlite_store_keeps_small_recovery_journal() {
+    let data_directory = temp_state_directory();
+    let write_count = EXPECTED_JOURNAL_ROWS + EXTRA_WRITES;
+    for revision in 0..write_count {
+        write_state_to_sqlite(
+            &data_directory,
+            &json!({
+                "books": [],
+                "revision": revision,
+                "settings": { "start_date": "2026-01-01" }
+            }),
+        )
+        .expect("expected sqlite write");
+    }
+    let database =
+        Connection::open(sqlite_state_path(&data_directory)).expect("expected sqlite database");
+    let row_count = database
+        .query_row("SELECT COUNT(*) FROM planner_state_journal", [], |row| {
+            row.get::<_, i64>(0)
+        })
+        .expect("expected journal row count");
+    assert_eq!(row_count, EXPECTED_JOURNAL_ROWS);
     let _ = fs::remove_dir_all(&data_directory);
 }

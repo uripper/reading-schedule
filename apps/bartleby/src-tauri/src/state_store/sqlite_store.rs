@@ -12,7 +12,7 @@ use super::types::{
     WARNING_RECOVERED_FROM_JOURNAL,
 };
 
-const JOURNAL_KEEP_ROWS: i64 = 200;
+const JOURNAL_KEEP_ROWS: i64 = 5;
 const SAVE_OPERATION: &str = "save_snapshot";
 const SNAPSHOT_ROW_ID: i64 = 1;
 const STATE_SCHEMA_VERSION: i64 = 1;
