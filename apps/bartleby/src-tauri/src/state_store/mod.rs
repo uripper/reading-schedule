@@ -17,7 +17,7 @@ use serde_json::{Map, Value};
 use tauri::AppHandle;
 
 use crate::app_paths;
-pub use cover_normalization::{normalize_cover_state_to_directory, CoverNormalizationResult};
+pub use cover_normalization::{run_state_maintenance, StateMaintenanceResult};
 use json_store::{read_state_from_json, write_state_to_json};
 use migrations::{migrate_loaded_state, with_migration_warning};
 use paths::{json_state_backup_path, json_state_path, sqlite_state_path};

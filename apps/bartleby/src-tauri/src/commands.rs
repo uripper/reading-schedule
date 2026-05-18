@@ -29,15 +29,15 @@ pub fn cover_import(
 }
 
 #[tauri::command]
-pub async fn cover_normalize_saved_state(
+pub async fn state_run_maintenance(
     app: tauri::AppHandle,
-) -> Result<state_store::CoverNormalizationResult, String> {
+) -> Result<state_store::StateMaintenanceResult, String> {
     let data_directory = app_paths::canonical_data_directory(&app)?;
     tauri::async_runtime::spawn_blocking(move || {
-        state_store::normalize_cover_state_to_directory(&data_directory)
+        state_store::run_state_maintenance(&data_directory)
     })
     .await
-    .map_err(|error| format!("Cover normalization task join error: {error}"))?
+    .map_err(|error| format!("State maintenance task join error: {error}"))?
 }
 
 #[tauri::command]

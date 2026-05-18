@@ -8,7 +8,7 @@ use serde_json::{json, Value};
 use uuid::Uuid;
 
 use super::normalization::{COVER_MAX_HEIGHT_PX, COVER_MAX_WIDTH_PX, NORMALIZED_COVER_EXTENSION};
-use super::{normalize_state_cover_paths, persist_cover_bytes, CoverAsset};
+use super::{normalize_state_cover_paths, persist_cover_bytes, remove_orphaned_covers, CoverAsset};
 use crate::app_paths::canonical_cover_directory;
 
 const FIXTURE_COVER_RGB: [u8; 3] = [24, 96, 140];
@@ -114,8 +114,13 @@ fn normalize_state_cover_paths_collapses_duplicate_canonical_files() {
     let second_path = second_book_cover_path(&normalized);
     assert_eq!(first_path, second_path);
     assert!(first_path.ends_with(NORMALIZED_COVER_EXTENSION));
+    assert!(first_source.exists());
+    assert!(second_source.exists());
+    assert!(PathBuf::from(first_path).exists());
+    let removed_count = remove_orphaned_covers(&normalized, &data_directory)
+        .expect("expected orphaned cover cleanup");
+    assert_eq!(removed_count, SECOND_BOOK_INDEX + 1);
     assert!(!first_source.exists());
     assert!(!second_source.exists());
-    assert!(PathBuf::from(first_path).exists());
     let _ = fs::remove_dir_all(&data_directory);
 }

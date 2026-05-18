@@ -1,3 +1,4 @@
+import { logError } from "../../types/logger.ts";
 import type {
     Book,
     BookGroup,
@@ -7,6 +8,7 @@ import type {
     RenderBooksControllerArgs,
 } from "../../types/types.ts";
 import { collectSettings } from "../settings.ts";
+import { booksAfterRemovingBook } from "./blocker-lineage.ts";
 import { renderBookGrid } from "./card_view.ts";
 import {
     resolveRenderableRefs,
@@ -15,6 +17,7 @@ import {
 import { groupsForEstimatedFinish } from "./estimated_finish_groups.ts";
 import { finishDatesByBookId } from "./finish-dates.ts";
 import { GROUP_BY_NONE, groupBooks } from "./grouping.ts";
+import { confirmRemoveBook } from "./remove-confirm.ts";
 import { SHELF_FILTER_ALL } from "./shelf.ts";
 import { SORT_BY_ESTIMATED_FINISH } from "./sort.ts";
 import {
@@ -93,14 +96,33 @@ function createRemoveHandler(
     args: RenderBooksControllerArgs,
 ): RenderBookGridOptions["onRemove"] {
     return (bookId: string): void => {
-        const NEXT_BOOKS = args.books.filter((book) => book.book_id !== bookId);
-        if (NEXT_BOOKS.length === args.books.length) {
+        const BOOK = args.findBook(bookId);
+        if (BOOK === null) {
             return;
         }
-        args.setBooks(NEXT_BOOKS);
-        args.rerender();
-        args.onBooksChanged();
+        confirmRemoveBook(BOOK)
+            .then((confirmed) => {
+                if (!confirmed) {
+                    return;
+                }
+                removeBookById(args, bookId);
+            })
+            .catch(reportRemoveBookConfirmError);
     };
+}
+
+function removeBookById(args: RenderBooksControllerArgs, bookId: string): void {
+    const NEXT_BOOKS = booksAfterRemovingBook(args.books, bookId);
+    if (NEXT_BOOKS.length === args.books.length) {
+        return;
+    }
+    args.setBooks(NEXT_BOOKS);
+    args.rerender();
+    args.onBooksChanged();
+}
+
+function reportRemoveBookConfirmError(error: unknown): void {
+    logError("Could not confirm book removal.", error);
 }
 
 function buildRenderBookGridArgs(

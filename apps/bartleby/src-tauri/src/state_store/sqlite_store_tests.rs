@@ -7,7 +7,8 @@ use uuid::Uuid;
 
 use super::paths::sqlite_state_path;
 use super::sqlite_store::{
-    read_state_from_sqlite, read_state_from_sqlite_read_only_result, write_state_to_sqlite,
+    maintain_sqlite_storage, read_state_from_sqlite, read_state_from_sqlite_read_only_result,
+    write_state_to_sqlite,
 };
 
 const EXPECTED_JOURNAL_ROWS: i64 = 5;
@@ -119,5 +120,42 @@ fn sqlite_store_keeps_small_recovery_journal() {
         })
         .expect("expected journal row count");
     assert_eq!(row_count, EXPECTED_JOURNAL_ROWS);
+    let _ = fs::remove_dir_all(&data_directory);
+}
+
+#[test]
+fn sqlite_maintenance_trims_legacy_extra_journal_rows() {
+    let data_directory = temp_state_directory();
+    write_state_to_sqlite(
+        &data_directory,
+        &json!({ "books": [], "settings": { "start_date": "2026-01-01" } }),
+    )
+    .expect("expected sqlite write");
+    {
+        let database =
+            Connection::open(sqlite_state_path(&data_directory)).expect("expected sqlite database");
+        for revision in 0..(EXPECTED_JOURNAL_ROWS + EXTRA_WRITES) {
+            database
+                .execute(
+                    "
+                    INSERT INTO planner_state_journal (created_at, operation, payload_json)
+                    VALUES ('now', 'legacy_extra', ?)
+                    ",
+                    [json!({ "revision": revision }).to_string()],
+                )
+                .expect("expected legacy journal row");
+        }
+    }
+    let deleted_rows =
+        maintain_sqlite_storage(&data_directory).expect("expected sqlite maintenance");
+    assert!(deleted_rows > 0);
+    let database =
+        Connection::open(sqlite_state_path(&data_directory)).expect("expected sqlite database");
+    let row_count = database
+        .query_row("SELECT COUNT(*) FROM planner_state_journal", [], |row| {
+            row.get::<_, i64>(0)
+        })
+        .expect("expected journal row count");
+    assert!(row_count <= EXPECTED_JOURNAL_ROWS);
     let _ = fs::remove_dir_all(&data_directory);
 }

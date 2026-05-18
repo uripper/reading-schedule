@@ -79,14 +79,30 @@ pub fn normalize_state_cover_paths(state: &Value, data_directory: &Path) -> Resu
         return Ok(Value::Object(next_state));
     };
     let canonical_cover_directory = app_paths::canonical_cover_directory(data_directory)?;
-    let mut retired_paths = Vec::new();
     for book in books.iter_mut() {
-        let retired_path =
-            migrate_book_cover_path(book, data_directory, &canonical_cover_directory)?;
-        append_retired_cover_path(&mut retired_paths, retired_path);
+        migrate_book_cover_path(book, data_directory, &canonical_cover_directory)?;
     }
-    remove_retired_canonical_covers(retired_paths, books, &canonical_cover_directory)?;
     Ok(Value::Object(next_state))
+}
+
+pub fn remove_orphaned_covers(state: &Value, data_directory: &Path) -> Result<usize, String> {
+    let canonical_cover_directory = app_paths::canonical_cover_directory(data_directory)?;
+    let referenced_paths = referenced_cover_paths_from_state(state);
+    let entries = fs::read_dir(&canonical_cover_directory)
+        .map_err(|error| format!("Unable to inspect cover assets: {error}"))?;
+    let mut removed_count = 0;
+    for entry in entries {
+        let path = entry
+            .map_err(|error| format!("Unable to inspect cover asset: {error}"))?
+            .path();
+        if !should_remove_orphaned_cover(&path, &referenced_paths, &canonical_cover_directory) {
+            continue;
+        }
+        fs::remove_file(path)
+            .map_err(|error| format!("Unable to remove orphaned cover asset: {error}"))?;
+        removed_count += 1;
+    }
+    Ok(removed_count)
 }
 
 fn detected_cover_extension(path: &Path, bytes: &[u8]) -> Result<&'static str, String> {
@@ -124,6 +140,9 @@ fn file_system_path_from_cover_source(source: &str) -> Option<PathBuf> {
     if let Some(stripped) = source.strip_prefix("file://") {
         let decoded = urlencoding::decode(stripped).ok()?;
         return Some(PathBuf::from(normalized_file_url_path(decoded.as_ref())));
+    }
+    if let Some(url_path) = decoded_url_path(source) {
+        return Some(PathBuf::from(normalized_file_url_path(&url_path)));
     }
     Some(PathBuf::from(source))
 }
@@ -221,34 +240,51 @@ fn referenced_cover_paths(books: &[Value]) -> HashSet<PathBuf> {
         .collect()
 }
 
-fn remove_retired_canonical_covers(
-    retired_paths: Vec<PathBuf>,
-    books: &[Value],
-    canonical_cover_directory: &Path,
-) -> Result<(), String> {
-    let referenced_paths = referenced_cover_paths(books);
-    for retired_path in retired_paths.into_iter().filter(|path| {
-        should_remove_retired_path(path, &referenced_paths, canonical_cover_directory)
-    }) {
-        fs::remove_file(retired_path)
-            .map_err(|error| format!("Unable to remove duplicate cover asset: {error}"))?;
-    }
-    Ok(())
-}
-
-fn append_retired_cover_path(retired_paths: &mut Vec<PathBuf>, retired_path: Option<PathBuf>) {
-    let Some(retired_path) = retired_path else {
-        return;
+fn referenced_cover_paths_from_state(state: &Value) -> HashSet<PathBuf> {
+    let Some(books) = state.get("books").and_then(Value::as_array) else {
+        return HashSet::new();
     };
-    retired_paths.push(retired_path);
+    referenced_cover_paths(books)
 }
 
-fn should_remove_retired_path(
-    retired_path: &Path,
+fn should_remove_orphaned_cover(
+    cover_path: &Path,
     referenced_paths: &HashSet<PathBuf>,
     canonical_cover_directory: &Path,
 ) -> bool {
-    retired_path.starts_with(canonical_cover_directory) && !referenced_paths.contains(retired_path)
+    cover_path.is_file()
+        && cover_path.starts_with(canonical_cover_directory)
+        && has_cover_file_extension(cover_path)
+        && !referenced_paths.contains(cover_path)
+}
+
+fn has_cover_file_extension(path: &Path) -> bool {
+    matches!(
+        path.extension()
+            .and_then(|value| value.to_str())
+            .map(|value| value.trim().to_lowercase())
+            .as_deref(),
+        Some("jpg" | "jpeg" | "png" | "webp")
+    )
+}
+
+fn decoded_url_path(source: &str) -> Option<String> {
+    let (_scheme, rest) = source.split_once("://")?;
+    let path_start = rest.find('/')?;
+    let decoded = urlencoding::decode(&rest[path_start..]).ok()?;
+    Some(normalized_url_path(decoded.as_ref()).to_string())
+}
+
+fn normalized_url_path(path: &str) -> &str {
+    if path.starts_with("//") && !windows_drive_path_after_slash(path) {
+        return &path[1..];
+    }
+    path
+}
+
+fn windows_drive_path_after_slash(path: &str) -> bool {
+    let bytes = path.as_bytes();
+    bytes.len() >= 4 && bytes[0] == b'/' && bytes[2] == b':' && bytes[1].is_ascii_alphabetic()
 }
 
 fn normalized_file_url_path(path: &str) -> &str {

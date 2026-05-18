@@ -1,7 +1,9 @@
+import { logError } from "../../types/logger.ts";
 import type {
     CalendarRowWithFinish,
     DetailInteractionHandlers,
 } from "../../types/types.ts";
+import { confirmRemoveSession } from "./remove-session-confirm.ts";
 
 export const DAY_DETAILS_META_CLASS = "day-details-meta";
 export const COMPLETE_ITEM_CLASS = "is-complete";
@@ -52,11 +54,30 @@ export function removeSessionButton(
     REMOVE_BUTTON.setAttribute("aria-label", REMOVE_SESSION_LABEL);
     REMOVE_BUTTON.title = REMOVE_SESSION_LABEL;
     REMOVE_BUTTON.onclick = () => {
-        const REMOVED = interactionHandlers.onSessionRemoved({ row });
-        if (!REMOVED) {
-            return;
-        }
-        rerenderDetails();
+        confirmRemoveSession(row)
+            .then((confirmed) => {
+                if (!confirmed) {
+                    return;
+                }
+                removeSession(row, interactionHandlers, rerenderDetails);
+            })
+            .catch(reportRemoveSessionConfirmError);
     };
     return REMOVE_BUTTON;
+}
+
+function removeSession(
+    row: CalendarRowWithFinish,
+    interactionHandlers: DetailInteractionHandlers,
+    rerenderDetails: () => void,
+): void {
+    const REMOVED = interactionHandlers.onSessionRemoved({ row });
+    if (!REMOVED) {
+        return;
+    }
+    rerenderDetails();
+}
+
+function reportRemoveSessionConfirmError(error: unknown): void {
+    logError("Could not confirm schedule removal.", error);
 }

@@ -8,8 +8,8 @@ use uuid::Uuid;
 
 use crate::state_store::paths::json_state_path;
 use crate::state_store::{
-    load_canonical_state_for_test, load_preferred_state_for_test,
-    normalize_cover_state_to_directory, save_state_to_directory,
+    load_canonical_state_for_test, load_preferred_state_for_test, run_state_maintenance,
+    save_state_to_directory,
 };
 
 const FIXTURE_COVER_RGB: [u8; 3] = [24, 96, 140];
@@ -77,9 +77,9 @@ fn load_preferred_state_defers_legacy_cover_extension_mismatch() {
         loaded_cover_path,
         legacy_cover_path.to_string_lossy().as_ref()
     );
-    let normalization_result = normalize_cover_state_to_directory(&canonical_directory)
-        .expect("expected background cover normalization");
-    assert!(normalization_result.changed);
+    let maintenance_result =
+        run_state_maintenance(&canonical_directory).expect("expected background maintenance");
+    assert!(maintenance_result.changed);
     let canonical_result = load_canonical_state_for_test(&canonical_directory);
     let migrated_cover_path = canonical_result
         .state
@@ -133,5 +133,42 @@ fn load_canonical_state_defers_existing_cover_normalization() {
         .and_then(serde_json::Value::as_str)
         .unwrap_or_default();
     assert_eq!(loaded_cover_path, cover_path.to_string_lossy().as_ref());
+    let _ = fs::remove_dir_all(&canonical_directory);
+}
+
+#[test]
+fn state_maintenance_repairs_orphaned_blockers() {
+    let canonical_directory = temp_state_directory("state-maintenance-blockers");
+    save_state_to_directory(
+        &canonical_directory,
+        &json!({
+            "blocked_day_books": {
+                "2026-04-03|book-a": true,
+                "2026-04-03|missing-book": true
+            },
+            "books": [
+                { "book_id": "book-a", "blocked_by": "missing-book" },
+                { "book_id": "book-b", "blocked_by": "book-a" }
+            ],
+            "settings": { "start_date": "2026-04-03" }
+        }),
+    )
+    .expect("expected canonical state write");
+    let maintenance_result =
+        run_state_maintenance(&canonical_directory).expect("expected background maintenance");
+    assert!(maintenance_result.state_repaired);
+    let load_result = load_canonical_state_for_test(&canonical_directory);
+    assert_eq!(
+        load_result.state["books"][0]["blocked_by"],
+        serde_json::Value::Null,
+    );
+    assert_eq!(load_result.state["books"][1]["blocked_by"], "book-a");
+    assert!(load_result.state["blocked_day_books"]
+        .get("2026-04-03|missing-book")
+        .is_none());
+    assert_eq!(
+        load_result.state["blocked_day_books"]["2026-04-03|book-a"],
+        true,
+    );
     let _ = fs::remove_dir_all(&canonical_directory);
 }

@@ -73,6 +73,25 @@ pub fn write_state_to_sqlite(data_directory: &Path, state: &Value) -> Result<(),
     write_snapshot_transaction(&database, state)
 }
 
+pub fn maintain_sqlite_storage(data_directory: &Path) -> Result<usize, String> {
+    let database_path = sqlite_state_path(data_directory);
+    if !database_path.exists() {
+        return Ok(0);
+    }
+    let database = open_database(&database_path)?;
+    let deleted_rows = trim_journal_rows(&database)?;
+    database
+        .execute_batch(
+            "
+            PRAGMA wal_checkpoint(TRUNCATE);
+            VACUUM;
+            PRAGMA optimize;
+            ",
+        )
+        .map_err(|error| format!("Unable to compact SQLite state database: {error}"))?;
+    Ok(deleted_rows)
+}
+
 fn read_state_from_sqlite_path_read_only(
     database_path: &Path,
 ) -> Result<Option<LoadResult>, String> {
@@ -230,7 +249,15 @@ fn write_snapshot_transaction(database: &Connection, state: &Value) -> Result<()
         )
         .map_err(|error| format!("Unable to write SQLite journal: {error}"))?;
     upsert_snapshot(&transaction, state)?;
+    trim_journal_rows(&transaction)?;
     transaction
+        .commit()
+        .map_err(|error| format!("Unable to commit SQLite transaction: {error}"))?;
+    Ok(())
+}
+
+fn trim_journal_rows(database: &Connection) -> Result<usize, String> {
+    database
         .execute(
             "
             DELETE FROM planner_state_journal
@@ -240,11 +267,7 @@ fn write_snapshot_transaction(database: &Connection, state: &Value) -> Result<()
             ",
             [JOURNAL_KEEP_ROWS],
         )
-        .map_err(|error| format!("Unable to trim SQLite journal: {error}"))?;
-    transaction
-        .commit()
-        .map_err(|error| format!("Unable to commit SQLite transaction: {error}"))?;
-    Ok(())
+        .map_err(|error| format!("Unable to trim SQLite journal: {error}"))
 }
 
 fn parsed_state_value(payload_json: &str) -> Option<Value> {

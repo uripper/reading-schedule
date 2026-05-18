@@ -5,33 +5,37 @@ import {
 } from "../../../packages/frontend/src/types/logger.ts";
 import {
     installTauriPlannerApi,
-    normalizeSavedCovers,
+    runStateMaintenance,
 } from "./runtime/tauri-planner-api.ts";
 
-function reportCoverMaintenanceResult(
-    result: Awaited<ReturnType<typeof normalizeSavedCovers>>,
+function reportStateMaintenanceResult(
+    result: Awaited<ReturnType<typeof runStateMaintenance>>,
 ): void {
     if (!result.changed) {
         return;
     }
-    logInfo("Normalized saved cover assets in the background.");
+    logInfo("Cleaned saved state in the background.", {
+        coversDeleted: result.coversDeleted,
+        sqliteJournalRowsDeleted: result.sqliteJournalRowsDeleted,
+        stateRepaired: result.stateRepaired,
+    });
 }
 
-function reportCoverMaintenanceError(error: unknown): void {
-    logError("Skipped background cover normalization.", error);
+function reportStateMaintenanceError(error: unknown): void {
+    logError("Skipped background state maintenance.", error);
 }
 
-function startCoverMaintenance(): void {
-    const COVER_MAINTENANCE = normalizeSavedCovers();
-    COVER_MAINTENANCE.then(reportCoverMaintenanceResult).catch(
-        reportCoverMaintenanceError,
+function startStateMaintenance(): void {
+    const STATE_MAINTENANCE = runStateMaintenance();
+    STATE_MAINTENANCE.then(reportStateMaintenanceResult).catch(
+        reportStateMaintenanceError,
     );
 }
 
 async function bootstrapApp(): Promise<void> {
     installTauriPlannerApi();
     await import("../../../packages/frontend/src/renderer/app.ts");
-    startCoverMaintenance();
+    startStateMaintenance();
 }
 
 await bootstrapApp();
