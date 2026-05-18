@@ -7,7 +7,6 @@ use tauri::{AppHandle, Manager};
 const BOOK_COVERS_DIRECTORY_NAME: &str = "book_covers";
 const LEGACY_BARTLEBY_APP_NAME: &str = "Bartleby";
 const LEGACY_READING_PLAN_APP_NAME: &str = "reading-plan-gui";
-const LEGACY_TAURI_COVERS_DIRECTORY_NAME: &str = "covers";
 
 pub fn canonical_data_directory(app: &AppHandle) -> Result<PathBuf, String> {
     let directory = app
@@ -22,10 +21,6 @@ pub fn canonical_cover_directory(data_directory: &Path) -> Result<PathBuf, Strin
     let directory = data_directory.join(BOOK_COVERS_DIRECTORY_NAME);
     ensure_directory(&directory)?;
     Ok(directory)
-}
-
-pub fn legacy_tauri_cover_directory(data_directory: &Path) -> PathBuf {
-    data_directory.join(LEGACY_TAURI_COVERS_DIRECTORY_NAME)
 }
 
 pub fn ensure_directory(directory: &Path) -> Result<(), String> {

@@ -3,13 +3,15 @@ use std::sync::Mutex;
 
 use tauri::{AppHandle, Manager, State, WebviewWindow};
 
-const DEFAULT_UI_SCALE: f64 = 1.2;
+const DEFAULT_UI_SCALE: f64 = 1.0;
 const MIN_UI_SCALE: f64 = 0.7;
 const MAX_UI_SCALE: f64 = 3.0;
 const UI_SCALE_STEP: f64 = 0.1;
 const ZOOM_PRECISION: f64 = 100.0;
 const MAIN_WINDOW_LABEL: &str = "main";
 const UI_SCALE_ENV_NAME: &str = "UI_SCALE";
+
+const USER_SET_UI_SCALE_ENV_NAME: &str = "USER_SET_UI_SCALE";
 
 pub struct ZoomState {
     current_factor: Mutex<f64>,
@@ -38,9 +40,11 @@ fn normalized_zoom_factor(value: f64) -> f64 {
 }
 
 fn initial_zoom_factor() -> f64 {
-    let requested_scale_raw = env::var(UI_SCALE_ENV_NAME)
+    let requested_scale_raw = env::var(USER_SET_UI_SCALE_ENV_NAME)
         .ok()
-        .unwrap_or_else(|| DEFAULT_UI_SCALE.to_string());
+        .unwrap_or_else(|| {
+            env::var(UI_SCALE_ENV_NAME).unwrap_or_else(|_| DEFAULT_UI_SCALE.to_string())
+        });
     let requested_scale = requested_scale_raw
         .trim()
         .parse::<f64>()

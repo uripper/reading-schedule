@@ -11,6 +11,8 @@ pub use state_recover_cli::recover_state_from_args;
 pub use state_store::RecoverySummary;
 
 #[cfg(test)]
+mod state_store_cover_tests;
+#[cfg(test)]
 mod state_store_tests;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

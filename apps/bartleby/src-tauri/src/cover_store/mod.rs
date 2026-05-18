@@ -1,25 +1,29 @@
+use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
 use reqwest::Client;
 use serde_json::Value;
 use tauri::AppHandle;
-use uuid::Uuid;
 
 use crate::app_paths;
 
 mod data_url;
+mod normalization;
 mod remote;
+#[cfg(test)]
+mod tests;
 
-const COVER_FILE_FALLBACK_PREFIX: &str = "cover";
+const COVER_FILE_PREFIX: &str = "cover";
+const COVER_FILE_NAME_PREFIX: &str = "cover-";
 const EXTENSION_JPG: &str = ".jpg";
 const EXTENSION_PNG: &str = ".png";
 const EXTENSION_WEBP: &str = ".webp";
+const SHA256_HEX_LENGTH: usize = 64;
 const MAX_REMOTE_COVER_REDIRECTS: usize = 5;
 
 struct CoverAsset<'a> {
     bytes: &'a [u8],
-    extension: &'a str,
 }
 
 pub async fn download_cover(
@@ -34,21 +38,16 @@ pub async fn download_cover(
         .redirect(reqwest::redirect::Policy::none())
         .build()
         .map_err(|error| format!("Unable to build cover download client: {error}"))?;
-    let Some((_resolved_url, bytes, content_type)) =
+    let Some((_resolved_url, bytes, _content_type)) =
         remote::fetch_remote_cover(&client, parsed_url, MAX_REMOTE_COVER_REDIRECTS).await?
     else {
         return Ok(String::new());
     };
     let data_directory = app_paths::canonical_data_directory(app)?;
-    let extension =
-        remote::extension_for_content_type_and_url(content_type.as_deref(), &_resolved_url);
     persist_cover_bytes(
         &data_directory,
         book_id.as_deref(),
-        CoverAsset {
-            bytes: &bytes,
-            extension,
-        },
+        CoverAsset { bytes: &bytes },
     )
 }
 
@@ -57,17 +56,14 @@ pub fn import_cover(
     data_url: Option<String>,
     book_id: Option<String>,
 ) -> Result<String, String> {
-    let Some((bytes, extension)) = data_url::parse_cover_data_url(data_url.as_deref()) else {
+    let Some((bytes, _extension)) = data_url::parse_cover_data_url(data_url.as_deref()) else {
         return Ok(String::new());
     };
     let data_directory = app_paths::canonical_data_directory(app)?;
     persist_cover_bytes(
         &data_directory,
         book_id.as_deref(),
-        CoverAsset {
-            bytes: &bytes,
-            extension,
-        },
+        CoverAsset { bytes: &bytes },
     )
 }
 
@@ -82,9 +78,16 @@ pub fn normalize_state_cover_paths(state: &Value, data_directory: &Path) -> Resu
     let Some(books) = books_value.as_array_mut() else {
         return Ok(Value::Object(next_state));
     };
-    for book in books {
-        migrate_book_cover_path(book, data_directory)?;
+    let canonical_cover_directory = app_paths::canonical_cover_directory(data_directory)?;
+    let mut retired_paths = Vec::new();
+    for book in books.iter_mut() {
+        if let Some(retired_path) =
+            migrate_book_cover_path(book, data_directory, &canonical_cover_directory)?
+        {
+            retired_paths.push(retired_path);
+        }
     }
+    remove_retired_canonical_covers(retired_paths, books, &canonical_cover_directory)?;
     Ok(Value::Object(next_state))
 }
 
@@ -127,9 +130,13 @@ fn file_system_path_from_cover_source(source: &str) -> Option<PathBuf> {
     Some(PathBuf::from(source))
 }
 
-fn migrate_book_cover_path(book: &mut Value, data_directory: &Path) -> Result<(), String> {
+fn migrate_book_cover_path(
+    book: &mut Value,
+    data_directory: &Path,
+    canonical_cover_directory: &Path,
+) -> Result<Option<PathBuf>, String> {
     let Some(book_object) = book.as_object_mut() else {
-        return Ok(());
+        return Ok(None);
     };
     let cover_value = book_object
         .get("cover_local_path")
@@ -137,83 +144,102 @@ fn migrate_book_cover_path(book: &mut Value, data_directory: &Path) -> Result<()
         .map(str::trim)
         .unwrap_or_default();
     if cover_value.is_empty() {
-        return Ok(());
+        return Ok(None);
     }
     let Some(source_path) = file_system_path_from_cover_source(cover_value) else {
-        return Ok(());
+        return Ok(None);
     };
     if !source_path.exists() || !source_path.is_file() {
-        return Ok(());
+        return Ok(None);
     }
-    let canonical_cover_directory = app_paths::canonical_cover_directory(data_directory)?;
-    let legacy_tauri_cover_directory = app_paths::legacy_tauri_cover_directory(data_directory);
-    if source_path.starts_with(&canonical_cover_directory)
-        && !source_path.starts_with(&legacy_tauri_cover_directory)
-    {
-        return Ok(());
+    if is_normalized_canonical_cover_path(&source_path, canonical_cover_directory) {
+        return Ok(None);
     }
     let bytes = fs::read(&source_path)
         .map_err(|error| format!("Unable to read stored cover asset: {error}"))?;
-    let extension = detected_cover_extension(&source_path, &bytes)?;
-    let destination = migrated_cover_destination(
-        data_directory,
-        book_object.get("book_id").and_then(Value::as_str),
-        extension,
-    )?;
-    if destination != source_path {
-        fs::copy(&source_path, &destination)
+    detected_cover_extension(&source_path, &bytes)?;
+    let normalized = normalization::normalize_cover_bytes(&bytes)?;
+    let destination = normalized_cover_destination(data_directory, &normalized.hash)?;
+    if !destination.exists() {
+        fs::write(&destination, normalized.bytes)
             .map_err(|error| format!("Unable to migrate stored cover asset: {error}"))?;
     }
     book_object.insert(
         "cover_local_path".to_string(),
         Value::String(destination.to_string_lossy().into_owned()),
     );
-    Ok(())
+    if source_path == destination || !source_path.starts_with(canonical_cover_directory) {
+        return Ok(None);
+    }
+    Ok(Some(source_path))
 }
 
-fn migrated_cover_destination(
-    data_directory: &Path,
-    book_id: Option<&str>,
-    extension: &str,
-) -> Result<PathBuf, String> {
+fn normalized_cover_destination(data_directory: &Path, hash: &str) -> Result<PathBuf, String> {
     let cover_directory = app_paths::canonical_cover_directory(data_directory)?;
     let file_name = format!(
-        "{}-{}{}",
-        sanitize_file_stem(book_id),
-        Uuid::new_v4(),
-        extension
+        "{COVER_FILE_PREFIX}-{hash}{}",
+        normalization::NORMALIZED_COVER_EXTENSION
     );
     Ok(cover_directory.join(file_name))
 }
 
 fn persist_cover_bytes(
     data_directory: &Path,
-    book_id: Option<&str>,
+    _book_id: Option<&str>,
     asset: CoverAsset<'_>,
 ) -> Result<String, String> {
-    let file_path = migrated_cover_destination(data_directory, book_id, asset.extension)?;
-    fs::write(&file_path, asset.bytes)
-        .map_err(|error| format!("Unable to write cover asset: {error}"))?;
+    let normalized = normalization::normalize_cover_bytes(asset.bytes)?;
+    let file_path = normalized_cover_destination(data_directory, &normalized.hash)?;
+    if !file_path.exists() {
+        fs::write(&file_path, normalized.bytes)
+            .map_err(|error| format!("Unable to write cover asset: {error}"))?;
+    }
     Ok(file_path.to_string_lossy().into_owned())
 }
 
-fn safe_file_stem_character(character: char) -> char {
-    if character.is_ascii_alphanumeric() || character == '-' || character == '_' {
-        return character;
+fn is_normalized_canonical_cover_path(path: &Path, canonical_cover_directory: &Path) -> bool {
+    if !path.starts_with(canonical_cover_directory) {
+        return false;
     }
-    '_'
+    if path.extension().and_then(|value| value.to_str()) != Some("jpg") {
+        return false;
+    }
+    path.file_stem()
+        .and_then(|value| value.to_str())
+        .and_then(|value| value.strip_prefix(COVER_FILE_NAME_PREFIX))
+        .is_some_and(is_sha256_hex)
 }
 
-fn sanitize_file_stem(book_id: Option<&str>) -> String {
-    let normalized = String::from(book_id.unwrap_or_default()).trim().to_string();
-    let safe = normalized
-        .chars()
-        .map(safe_file_stem_character)
-        .collect::<String>();
-    if safe.is_empty() {
-        return format!("{COVER_FILE_FALLBACK_PREFIX}-{}", Uuid::new_v4());
+fn is_sha256_hex(value: &str) -> bool {
+    value.len() == SHA256_HEX_LENGTH && value.as_bytes().iter().all(u8::is_ascii_hexdigit)
+}
+
+fn referenced_cover_paths(books: &[Value]) -> HashSet<PathBuf> {
+    books
+        .iter()
+        .filter_map(|book| book.get("cover_local_path"))
+        .filter_map(Value::as_str)
+        .filter_map(file_system_path_from_cover_source)
+        .collect()
+}
+
+fn remove_retired_canonical_covers(
+    retired_paths: Vec<PathBuf>,
+    books: &[Value],
+    canonical_cover_directory: &Path,
+) -> Result<(), String> {
+    let referenced_paths = referenced_cover_paths(books);
+    for retired_path in retired_paths {
+        if referenced_paths.contains(&retired_path) {
+            continue;
+        }
+        if !retired_path.starts_with(canonical_cover_directory) {
+            continue;
+        }
+        fs::remove_file(retired_path)
+            .map_err(|error| format!("Unable to remove duplicate cover asset: {error}"))?;
     }
-    safe
+    Ok(())
 }
 
 fn normalized_file_url_path(path: &str) -> &str {
