@@ -64,24 +64,27 @@ pub fn state_save(app: tauri::AppHandle, state: Value) -> Result<Value, String> 
 
 #[tauri::command]
 pub fn window_zoom_in(
+    app: tauri::AppHandle,
     window: tauri::WebviewWindow,
     zoom_state: tauri::State<'_, window_zoom::ZoomState>,
 ) -> Result<f64, String> {
-    window_zoom::zoom_in(zoom_state, window)
+    window_zoom::zoom_in(app, zoom_state, window)
 }
 
 #[tauri::command]
 pub fn window_zoom_out(
+    app: tauri::AppHandle,
     window: tauri::WebviewWindow,
     zoom_state: tauri::State<'_, window_zoom::ZoomState>,
 ) -> Result<f64, String> {
-    window_zoom::zoom_out(zoom_state, window)
+    window_zoom::zoom_out(app, zoom_state, window)
 }
 
 #[tauri::command]
 pub fn window_zoom_reset(
+    app: tauri::AppHandle,
     window: tauri::WebviewWindow,
     zoom_state: tauri::State<'_, window_zoom::ZoomState>,
 ) -> Result<f64, String> {
-    window_zoom::zoom_reset(zoom_state, window)
+    window_zoom::zoom_reset(app, zoom_state, window)
 }

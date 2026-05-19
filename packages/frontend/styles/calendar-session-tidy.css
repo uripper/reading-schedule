@@ -2,11 +2,12 @@
     font-size: var(--token-typography-size-lg);
     font-weight: var(--token-typography-weight-light);
     color: var(--app-text);
+    overflow-wrap: anywhere;
 }
 
 .day-details-item {
     gap: var(--token-space-1);
-    padding-right: var(--token-space-2);
+    padding-right: 56px;
 }
 
 .day-details-item.is-complete {

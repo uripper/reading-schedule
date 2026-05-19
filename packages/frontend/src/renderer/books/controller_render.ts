@@ -20,6 +20,7 @@ import { GROUP_BY_NONE, groupBooks } from "./grouping.ts";
 import { confirmRemoveBook } from "./remove-confirm.ts";
 import { SHELF_FILTER_ALL } from "./shelf.ts";
 import { SORT_BY_ESTIMATED_FINISH } from "./sort.ts";
+import { BOOK_STATUS_FILTER_ALL } from "./status_catalog.ts";
 import {
     updateGroupByOptions,
     updateShelfFilterOptions,
@@ -209,6 +210,66 @@ function renderGridParams(
     return VIEW_SETTINGS;
 }
 
+function hasActiveFilters(viewState: BooksViewState): boolean {
+    if (viewState.titleFilter.trim() !== "") {
+        return true;
+    }
+    if (viewState.shelfFilter !== SHELF_FILTER_ALL) {
+        return true;
+    }
+    return viewState.statusFilter !== BOOK_STATUS_FILTER_ALL;
+}
+
+function resetBookFilters(args: RenderBooksControllerArgs): void {
+    const NEXT_VIEW_STATE = args.viewState;
+    NEXT_VIEW_STATE.titleFilter = "";
+    NEXT_VIEW_STATE.shelfFilter = SHELF_FILTER_ALL;
+    NEXT_VIEW_STATE.statusFilter = BOOK_STATUS_FILTER_ALL;
+    if (args.refs.titleFilterInput) {
+        args.refs.titleFilterInput.value = "";
+    }
+    args.rerender();
+}
+
+function renderFilteredEmptyState(args: RenderBooksControllerArgs): void {
+    const EMPTY = args.refs.empty;
+    if (!EMPTY) {
+        return;
+    }
+    const MESSAGE = document.createElement("span");
+    MESSAGE.textContent = "No books found with current filters.";
+    const BUTTON = document.createElement("button");
+    BUTTON.type = "button";
+    BUTTON.className = "books-empty-clear";
+    BUTTON.textContent = "Clear Filters";
+    BUTTON.onclick = () => {
+        resetBookFilters(args);
+    };
+    EMPTY.replaceChildren(MESSAGE, BUTTON);
+}
+
+function renderDefaultEmptyState(args: RenderBooksControllerArgs): void {
+    const EMPTY = args.refs.empty;
+    if (!EMPTY) {
+        return;
+    }
+    EMPTY.textContent = "No books yet. Add your first book to start planning.";
+}
+
+function renderEmptyStateCopy(
+    args: RenderBooksControllerArgs,
+    params: RenderBookGridParams,
+): void {
+    if (params.visibleBooks.length > 0) {
+        return;
+    }
+    if (args.books.length > 0 && hasActiveFilters(args.viewState)) {
+        renderFilteredEmptyState(args);
+        return;
+    }
+    renderDefaultEmptyState(args);
+}
+
 export function renderBooksController(args: RenderBooksControllerArgs): void {
     const { viewState } = args;
     const RENDER_REFS = resolveRenderableRefs(args.refs);
@@ -216,7 +277,7 @@ export function renderBooksController(args: RenderBooksControllerArgs): void {
         return;
     }
     updateBooksViewFilters(RENDER_REFS, args.books, viewState);
-    renderBookGrid(
-        buildRenderBookGridArgs(args, renderGridParams(args, viewState)),
-    );
+    const GRID_PARAMS = renderGridParams(args, viewState);
+    renderBookGrid(buildRenderBookGridArgs(args, GRID_PARAMS));
+    renderEmptyStateCopy(args, GRID_PARAMS);
 }
