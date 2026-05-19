@@ -8,6 +8,7 @@ import { confirmRemoveSession } from "./remove-session-confirm.ts";
 export const DAY_DETAILS_META_CLASS = "day-details-meta";
 export const COMPLETE_ITEM_CLASS = "is-complete";
 export const COMPLETE_TOGGLE_LABEL = " Complete session";
+const FINISH_BADGE_TEXT = "Expected finish";
 const REMOVE_SESSION_LABEL = "Remove session";
 
 /**
@@ -27,7 +28,7 @@ export function baseSessionItem(row: CalendarRowWithFinish): HTMLElement {
     if (row.finish) {
         const FINISH_BADGE = document.createElement("span");
         FINISH_BADGE.className = "day-finish-badge";
-        FINISH_BADGE.textContent = "Expected finish";
+        FINISH_BADGE.textContent = FINISH_BADGE_TEXT;
         ITEM.append(HEAD, FINISH_BADGE);
     } else {
         ITEM.append(HEAD);

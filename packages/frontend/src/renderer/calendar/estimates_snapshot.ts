@@ -24,6 +24,7 @@ type EstimateBookContext = {
     bookId: string;
     book: ReturnType<BookGetter>;
     fullWords: number;
+    remainingWords: number;
 };
 
 type EstimatePercentages = {
@@ -56,17 +57,33 @@ function estimateBookContext(
     if (FULL_WORDS <= 0) {
         return null;
     }
-    return { book: BOOK, bookId: BOOK_ID, fullWords: FULL_WORDS };
+    return {
+        book: BOOK,
+        bookId: BOOK_ID,
+        fullWords: FULL_WORDS,
+        remainingWords: REMAINING_WORDS,
+    };
+}
+
+function wordsReadFromScheduler(
+    context: EstimateBookContext,
+): number | null {
+    if (
+        context.remainingWords <= 0 ||
+        context.remainingWords >= context.fullWords
+    ) {
+        return null;
+    }
+    return Math.max(0, context.fullWords - context.remainingWords);
 }
 
 function estimatePercentages(
     args: EstimateSnapshotArgs,
     context: EstimateBookContext,
 ): EstimatePercentages {
-    const CURRENT_WORDS_READ = wordsReadFromBook(
-        context.book,
-        context.fullWords,
-    );
+    const CURRENT_WORDS_READ =
+        wordsReadFromScheduler(context) ??
+        wordsReadFromBook(context.book, context.fullWords);
     const PAGES_TOTAL = Number(context.book?.pages_total ?? 0);
     const WORD_RANGE = estimateWordRange(args, context, CURRENT_WORDS_READ);
     const PERCENTS = estimateRangePercents(WORD_RANGE, context.fullWords);
