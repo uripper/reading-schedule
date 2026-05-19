@@ -50,3 +50,15 @@ test("toPayloadBook treats 100 percent progress as read", () => {
 
     assert.equal(PAYLOAD.status, "read");
 });
+
+test("toPayloadBook treats pages read as in-progress", () => {
+    const PAYLOAD = toPayloadBook(
+        book({
+            pages_read: 12,
+            progress_percent: 0,
+            status: "to_read",
+        }),
+    );
+
+    assert.equal(PAYLOAD.status, "in_progress");
+});

@@ -10,8 +10,8 @@ import {
 } from "../dist/renderer/books/grouping.js";
 import { metaLabel } from "../dist/renderer/books/presenters.js";
 import {
-    SORT_BY_PROGRESS,
     SORT_BY_ESTIMATED_FINISH,
+    SORT_BY_PROGRESS,
     SORT_BY_TITLE,
     sortBooks,
 } from "../dist/renderer/books/sort.js";
@@ -190,15 +190,9 @@ test("updateSortBySelection keeps toolbar sort aligned with controller state", (
         const CONTROLS = ensureBooksToolbarControls(TOOLBAR);
         CONTROLS.sortBySelect.value = SORT_BY_TITLE;
 
-        updateSortBySelection(
-            CONTROLS.sortBySelect,
-            SORT_BY_ESTIMATED_FINISH,
-        );
+        updateSortBySelection(CONTROLS.sortBySelect, SORT_BY_ESTIMATED_FINISH);
 
-        assert.equal(
-            CONTROLS.sortBySelect.value,
-            SORT_BY_ESTIMATED_FINISH,
-        );
+        assert.equal(CONTROLS.sortBySelect.value, SORT_BY_ESTIMATED_FINISH);
     } finally {
         DOM.restore();
     }

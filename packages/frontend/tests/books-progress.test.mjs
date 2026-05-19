@@ -36,3 +36,31 @@ test("withUpdatedProgress demotes stale read status to to-read at zero progress"
 
     assert.equal(UPDATED.status, BOOK_STATUS_TO_READ);
 });
+
+test("withUpdatedProgress promotes to-read when pages read are set", () => {
+    const UPDATED = withUpdatedProgress(
+        book({
+            pages_read: 0,
+            pages_total: 340,
+            progress_percent: 0,
+            status: BOOK_STATUS_TO_READ,
+        }),
+        { pagesRead: 17 },
+    );
+
+    assert.equal(UPDATED.status, BOOK_STATUS_IN_PROGRESS);
+});
+
+test("withUpdatedProgress promotes to-read when percent is set", () => {
+    const UPDATED = withUpdatedProgress(
+        book({
+            pages_read: null,
+            pages_total: null,
+            progress_percent: 0,
+            status: BOOK_STATUS_TO_READ,
+        }),
+        { progressPercent: 4 },
+    );
+
+    assert.equal(UPDATED.status, BOOK_STATUS_IN_PROGRESS);
+});

@@ -5,6 +5,7 @@ import { normalizeBook } from "../dist/renderer/books/model-normalize.js";
 import {
     BOOK_STATUS_IN_PROGRESS,
     BOOK_STATUS_READ,
+    BOOK_STATUS_TO_READ,
 } from "../dist/renderer/books/status_catalog.js";
 
 test("normalizeBook keeps explicit finish date for read books", () => {
@@ -38,4 +39,17 @@ test("normalizeBook clears finish date for non-read books", () => {
     });
 
     assert.equal(NORMALIZED.finished_at, null);
+});
+
+test("normalizeBook promotes books with pages read to in-progress", () => {
+    const NORMALIZED = normalizeBook({
+        pages_read: 50,
+        pages_total: null,
+        progress_percent: 0,
+        status: BOOK_STATUS_TO_READ,
+        title: "Started Book",
+        words_total: 1000,
+    });
+
+    assert.equal(NORMALIZED.status, BOOK_STATUS_IN_PROGRESS);
 });

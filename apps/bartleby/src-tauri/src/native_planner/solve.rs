@@ -8,15 +8,14 @@ use crate::native_planner::calendar::{
     words_per_block,
 };
 use crate::native_planner::greedy_support::{
-    active_book, assign_blocks, books_by_id, can_start_book, day_book_limit_reached,
-    deadline_sort_key, is_unlocked, next_book, start_blocks_for_book,
+    active_book, assign_blocks, books_by_id, deadline_sort_key, is_unlocked, next_book,
+    progress_order, start_blocks_for_book,
 };
 use crate::native_planner::models::{
     priority_order, Assignments, Book, Settings, PLAN_MODE_SPREAD_OUT,
 };
 
 const MAX_FILL_DAY_ITERATIONS: i64 = 10000;
-const MAX_SEED_DAY_ITERATIONS: i64 = 1000;
 
 pub struct DayState<'a> {
     pub assignments: &'a mut Assignments,
@@ -107,19 +106,7 @@ pub fn plan_greedy(books: &[Book], settings: &Settings) -> Result<Assignments, S
 }
 
 fn plan_day(ordered: &[String], mut state: DayState<'_>) {
-    seed_day(ordered, &mut state);
     fill_day(ordered, &mut state);
-}
-
-fn seed_day(ordered: &[String], state: &mut DayState<'_>) {
-    let mut index = 0;
-    let mut iterations = 0;
-    while index < ordered.len()
-        && iterations < MAX_SEED_DAY_ITERATIONS
-        && seed_day_iteration(ordered, state, &mut index)
-    {
-        iterations += 1;
-    }
 }
 
 fn fill_day(ordered: &[String], state: &mut DayState<'_>) {
@@ -219,27 +206,9 @@ fn plan_day_with_cap(cap: i64, ordered: &[String], state: DayState<'_>) {
     plan_day(ordered, state);
 }
 
-fn seed_book(state: &mut DayState<'_>, book_id: &str) {
-    if !can_start_book(state, book_id) {
-        return;
-    }
-    let start_blocks = start_blocks_for_book(state, book_id);
-    assign_blocks(state, book_id, start_blocks);
-    state.used.push(book_id.to_string());
-}
-
 fn fill_day_iteration(ordered: &[String], state: &mut DayState<'_>) -> bool {
     let previous_cap = state.cap;
     fill_day_step(ordered, state) && state.cap != previous_cap
-}
-
-fn seed_day_iteration(ordered: &[String], state: &mut DayState<'_>, index: &mut usize) -> bool {
-    let book_id = &ordered[*index];
-    if !seed_day_step(state, book_id) {
-        return false;
-    }
-    *index += 1;
-    true
 }
 
 impl OrderedBookContext<'_> {
@@ -256,20 +225,17 @@ impl OrderedBookContext<'_> {
             .expect("missing book");
         let deadline_order =
             deadline_sort_key(left_book.deadline).cmp(&deadline_sort_key(right_book.deadline));
+        let progress_comparison = progress_order(
+            (left_book, self.remaining[left]),
+            (right_book, self.remaining[right]),
+        );
         let remaining_order = self.remaining[right]
             .partial_cmp(&self.remaining[left])
             .unwrap_or(Ordering::Equal);
         priority_order(left_book.priority, right_book.priority)
+            .then(progress_comparison)
             .then(deadline_order)
             .then(remaining_order)
             .then_with(|| left.cmp(right))
     }
-}
-
-fn seed_day_step(state: &mut DayState<'_>, book_id: &str) -> bool {
-    if day_book_limit_reached(state) {
-        return false;
-    }
-    seed_book(state, book_id);
-    true
 }

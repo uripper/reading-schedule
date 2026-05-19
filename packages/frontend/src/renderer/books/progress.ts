@@ -6,6 +6,7 @@ import type {
     ProgressTotals,
 } from "../../types/types.ts";
 import {
+    BOOK_STATUS_DROPPED,
     BOOK_STATUS_IN_PROGRESS,
     BOOK_STATUS_READ,
     BOOK_STATUS_TO_READ,
@@ -14,6 +15,7 @@ import { clamp } from "./utils.ts";
 
 const COMPLETE_PROGRESS_PERCENT = 100;
 const STARTED_PROGRESS_PERCENT = 0;
+const STARTED_PAGES_READ = 0;
 
 /**
  * Parses numeric-like input and rejects blank/non-finite values.
@@ -114,21 +116,41 @@ function finiteProgressPercent(book: Book): number {
     return PROGRESS_PERCENT;
 }
 
-function readStatusForProgress(progressPercent: number): Book["status"] {
-    if (progressPercent >= COMPLETE_PROGRESS_PERCENT) {
+function finitePagesRead(book: Book): number {
+    const PAGES_READ = Number(book.pages_read ?? 0);
+    if (!Number.isFinite(PAGES_READ)) {
+        return STARTED_PAGES_READ;
+    }
+    return PAGES_READ;
+}
+
+function progressShowsStarted(book: Book): boolean {
+    return (
+        finiteProgressPercent(book) > STARTED_PROGRESS_PERCENT ||
+        finitePagesRead(book) > STARTED_PAGES_READ
+    );
+}
+
+function readStatusForProgress(book: Book): Book["status"] {
+    const PROGRESS_PERCENT = finiteProgressPercent(book);
+    if (PROGRESS_PERCENT >= COMPLETE_PROGRESS_PERCENT) {
         return BOOK_STATUS_READ;
     }
-    if (progressPercent > STARTED_PROGRESS_PERCENT) {
+    if (progressShowsStarted(book)) {
         return BOOK_STATUS_IN_PROGRESS;
     }
     return BOOK_STATUS_TO_READ;
 }
 
 function statusAfterProgressUpdate(book: Book): Book["status"] {
-    if (book.status !== BOOK_STATUS_READ) {
+    if (book.status === BOOK_STATUS_DROPPED) {
         return book.status;
     }
-    return readStatusForProgress(finiteProgressPercent(book));
+    const STATUS = readStatusForProgress(book);
+    if (STATUS === BOOK_STATUS_TO_READ && book.status !== BOOK_STATUS_READ) {
+        return book.status;
+    }
+    return STATUS;
 }
 
 function withProgressStatus(book: Book): Book {

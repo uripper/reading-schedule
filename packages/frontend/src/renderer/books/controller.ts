@@ -24,13 +24,15 @@ import {
 import { withUpdatedProgress } from "./progress.ts";
 import { hydrateBookCover, upsertBookById } from "./save.ts";
 import { applyScheduledDaysToShelfBooks } from "./save_scheduled_days.ts";
-import { schedulableBook } from "./status.ts";
-import { BOOK_STATUS_FILTER_ALL, BOOK_STATUS_READ } from "./status_catalog.ts";
 import { SORT_BY_ESTIMATED_FINISH } from "./sort.ts";
+import { schedulableBook } from "./status.ts";
 import {
-    ensureBooksToolbarControls,
-    SORT_DIRECTION_ASC,
-} from "./toolbar.ts";
+    BOOK_STATUS_FILTER_ALL,
+    BOOK_STATUS_IN_PROGRESS,
+    BOOK_STATUS_READ,
+    BOOK_STATUS_TO_READ,
+} from "./status_catalog.ts";
+import { ensureBooksToolbarControls, SORT_DIRECTION_ASC } from "./toolbar.ts";
 
 let books: Book[] = [];
 let scheduleRows: PlannerScheduleRow[] = [];
@@ -82,16 +84,30 @@ function normalizedCompletedAt(value: string | undefined): string | null {
 function updatedProgressBook(
     currentBook: Book,
     updates: BookProgressUpdates,
-    completedAt: string | undefined,
+    options: UpdateBookProgressOptions,
 ): Book {
-    const NORMALIZED = normalizeBook(withUpdatedProgress(currentBook, updates));
+    const STARTED_BOOK = withStartedStatus(
+        withUpdatedProgress(currentBook, updates),
+        options.markStarted === true,
+    );
+    const NORMALIZED = normalizeBook(STARTED_BOOK);
     return {
         ...NORMALIZED,
         finished_at: resolvedFinishedAt({
-            completedAt,
+            completedAt: options.completedAt,
             currentBook,
             nextBook: NORMALIZED,
         }),
+    };
+}
+
+function withStartedStatus(book: Book, markStarted: boolean): Book {
+    if (!markStarted || book.status !== BOOK_STATUS_TO_READ) {
+        return book;
+    }
+    return {
+        ...book,
+        status: BOOK_STATUS_IN_PROGRESS,
     };
 }
 
@@ -107,7 +123,9 @@ function resolvedFinishedAt(options: {
     if (options.nextBook.status !== BOOK_STATUS_READ) {
         return null;
     }
-    const EXISTING = normalizedCompletedAt(options.nextBook.finished_at ?? undefined);
+    const EXISTING = normalizedCompletedAt(
+        options.nextBook.finished_at ?? undefined,
+    );
     if (EXISTING !== null) {
         return EXISTING;
     }
@@ -190,11 +208,7 @@ export function updateBookProgress(
     if (CURRENT_BOOK === undefined) {
         return null;
     }
-    books[IDX] = updatedProgressBook(
-        CURRENT_BOOK,
-        updates,
-        options.completedAt,
-    );
+    books[IDX] = updatedProgressBook(CURRENT_BOOK, updates, options);
     onBooksCommitted(books);
     render();
 
