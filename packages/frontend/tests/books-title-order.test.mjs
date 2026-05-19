@@ -146,7 +146,7 @@ test("metaLabel shows finished date for read books", () => {
     assert.equal(LABEL.includes("Est. finish"), false);
 });
 
-test("groupsForEstimatedFinish orders sections as dropped, read, then active", () => {
+test("groupsForEstimatedFinish orders active sections before read and dropped", () => {
     const SORTED_BOOKS = [
         baseBook({ book_id: "book-1", status: "dropped", title: "Drop A" }),
         baseBook({ book_id: "book-2", status: "read", title: "Read A" }),
@@ -157,11 +157,11 @@ test("groupsForEstimatedFinish orders sections as dropped, read, then active", (
     const GROUPS = groupsForEstimatedFinish(SORTED_BOOKS);
     assert.deepEqual(
         GROUPS.map((group) => group.label),
-        ["Dropped", "Read", "In Progress / To Read"],
+        ["In Progress / To Read", "Read", "Dropped"],
     );
     assert.deepEqual(
         GROUPS.map((group) => group.books.map((book) => book.book_id)),
-        [["book-1"], ["book-2"], ["book-3", "book-4"]],
+        [["book-3", "book-4"], ["book-2"], ["book-1"]],
     );
 });
 
