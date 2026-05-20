@@ -143,7 +143,6 @@ export interface BookFormRefs {
     form: HTMLFormElement;
     lookupMeta: HTMLElement;
     maxMinutesInput: HTMLInputElement;
-    minBlocksInput: HTMLInputElement;
     pagesReadInput: HTMLInputElement;
     pagesTotalInput: HTMLInputElement;
     priorityInput: HTMLInputElement;

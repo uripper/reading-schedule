@@ -40,7 +40,6 @@ function scheduleRefs() {
         finishedAtField: el("bookFinishedAtField"),
         finishedAtInput: el<HTMLInputElement>("bookFinishedAtInput"),
         maxMinutesInput: el<HTMLInputElement>("bookMaxMinutesInput"),
-        minBlocksInput: el<HTMLInputElement>("bookMinBlocksInput"),
         pagesReadInput: el<HTMLInputElement>("bookPagesReadInput"),
         pagesTotalInput: el<HTMLInputElement>("bookPagesTotalInput"),
         progressInput: el<HTMLInputElement>("bookProgressInput"),
