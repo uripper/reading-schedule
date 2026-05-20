@@ -36,9 +36,10 @@ pub fn sample_payload() -> Result<Value, String> {
 
 #[cfg(test)]
 mod tests {
-    use serde_json::Value;
+    use chrono::NaiveDate;
+    use serde_json::{json, Value};
 
-    use super::{generate_plan, sample_payload};
+    use super::{calendar::minutes_for_day, generate_plan, parse::planner_input, sample_payload};
 
     #[test]
     fn generate_plan_returns_schedule_rows() {
@@ -49,6 +50,47 @@ mod tests {
             .and_then(Value::as_array)
             .expect("expected schedule rows");
         assert!(!schedule.is_empty(), "expected generated schedule rows");
+    }
+
+    #[test]
+    fn planner_input_uses_minutes_per_day_for_missing_weekdays() {
+        let mut payload = sample_payload().expect("expected sample payload");
+        let settings = payload
+            .get_mut("settings")
+            .and_then(Value::as_object_mut)
+            .expect("expected settings");
+        settings.insert(
+            "minutes_by_weekday".to_string(),
+            json!({
+                "Mon": 60,
+            }),
+        );
+        settings.insert("minutes_per_day".to_string(), Value::Number(45.into()));
+        let planner_input = planner_input(payload).expect("expected planner input");
+        let monday = NaiveDate::from_ymd_opt(2026, 5, 18).expect("expected Monday date");
+        let tuesday = NaiveDate::from_ymd_opt(2026, 5, 19).expect("expected Tuesday date");
+        assert_eq!(minutes_for_day(&planner_input.settings, monday), 60);
+        assert_eq!(minutes_for_day(&planner_input.settings, tuesday), 45);
+    }
+
+    #[test]
+    fn planner_input_rejects_invalid_minutes_by_weekday_keys() {
+        let mut payload = sample_payload().expect("expected sample payload");
+        let settings = payload
+            .get_mut("settings")
+            .and_then(Value::as_object_mut)
+            .expect("expected settings");
+        settings.insert(
+            "minutes_by_weekday".to_string(),
+            json!({
+                "Funday": 45,
+            }),
+        );
+        let error = planner_input(payload).expect_err("expected invalid weekday error");
+        assert!(
+            error.contains("minutes_by_weekday keys must be Mon..Sun when provided"),
+            "expected invalid weekday error, got {error}"
+        );
     }
 
     #[test]

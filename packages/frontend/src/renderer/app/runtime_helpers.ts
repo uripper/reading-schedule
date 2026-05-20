@@ -8,7 +8,6 @@ import { draftData, saveStateSafe } from "./persistence.ts";
 const PERSIST_DELAY_MS = 300;
 const NO_WORDS = 0;
 const NON_PLANNING_SETTING_IDS = new Set([
-    "themeSelect",
     "reduceMotionToggle",
     "dailyGoalInput",
     "reminderEnabledToggle",

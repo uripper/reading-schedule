@@ -81,6 +81,11 @@
     gap: var(--token-space-2) var(--token-space-3);
 }
 
+.settings-minutes-grid {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.settings-field,
 .settings-card .settings-grid > label {
     display: grid;
     gap: 6px;
@@ -90,27 +95,39 @@
     color: #111;
 }
 
+.settings-field-checkbox,
 .settings-card .settings-grid > label.toggle-row {
     display: flex;
     gap: var(--token-space-2);
     align-items: center;
+    min-height: var(--token-size-target-minimum);
+    font-weight: 900;
 }
 
-.settings-card .settings-grid > label.toggle-row input[type="checkbox"] {
-    width: auto;
-    min-height: 0;
-    margin: 0;
+.settings-field-label-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    color: #000;
 }
 
-.settings-card .settings-grid > label[hidden] {
-    display: none;
-}
-
-.settings-link-row a {
+.settings-field-link {
+    font-size: 0.9rem;
     font-weight: 900;
     color: #111;
     text-decoration-thickness: 3px;
     text-underline-offset: 4px;
+}
+
+.settings-divider {
+    height: 4px;
+    background: #000;
+    box-shadow: 0 6px 0 #f0cb58;
+}
+
+.settings-card .settings-grid > label[hidden] {
+    display: none;
 }
 
 .settings-details {
@@ -134,14 +151,71 @@
     margin-bottom: var(--token-space-3);
 }
 
-.settings-card .settings-grid > label input,
-.settings-card .settings-grid > label textarea,
-.settings-card .settings-grid > label select {
+#tab-settings input,
+#tab-settings textarea,
+#tab-settings select {
+    min-height: var(--token-size-target-minimum);
+    padding: 10px 14px;
     margin-top: 0;
     color: #f8f4e8;
     background: #13213a;
     border: 3px solid #000;
-    border-radius: 16px;
+    border-radius: 0;
+    box-shadow: 4px 4px 0 #000;
+}
+
+#tab-settings input:disabled {
+    color: #111;
+    background: #d8c86a;
+    opacity: 1;
+}
+
+#tab-settings input[type="checkbox"] {
+    position: relative;
+    flex: 0 0 auto;
+    width: 26px;
+    min-height: 26px;
+    padding: 0;
+    appearance: none;
+    cursor: pointer;
+    background: #fff8d6;
+}
+
+#tab-settings input[type="checkbox"]:checked {
+    background: #9bdeac;
+}
+
+#tab-settings input[type="checkbox"]:checked::after {
+    position: absolute;
+    top: -6px;
+    left: 3px;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #000;
+    content: "\2713";
+}
+
+.weekday-custom-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--token-space-3);
+}
+
+.weekday-custom-row {
+    display: grid;
+    grid-template-columns: minmax(150px, 0.4fr) minmax(0, 1fr);
+    gap: var(--token-space-2);
+    align-items: center;
+}
+
+.weekday-custom-toggle {
+    display: flex;
+    gap: var(--token-space-2);
+    align-items: center;
+    min-height: var(--token-size-target-minimum);
+    margin: 0;
+    font-weight: 900;
+    color: #111;
 }
 
 #tab-settings .row.wrap-row {
@@ -152,146 +226,4 @@
 #dayOffPicker {
     flex: 0 1 220px;
     max-width: 220px;
-}
-
-.lookup-meta {
-    margin-top: var(--token-space-1);
-    font-size: var(--token-typography-size-xs);
-    color: #3d3521;
-}
-
-.hint-dot {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    margin-left: var(--token-space-1);
-    font-size: var(--token-typography-size-xs);
-    color: #111;
-    cursor: help;
-    border: 2px solid #000;
-    border-radius: 0;
-}
-
-.hint-dot::after {
-    position: absolute;
-    top: 50%;
-    left: 24px;
-    z-index: 20;
-    width: min(300px, 70vw);
-    padding: var(--token-space-2);
-    font-size: var(--token-typography-size-xs);
-    line-height: var(--token-typography-lineHeight-base);
-    color: #f8f4e8;
-    pointer-events: none;
-    content: attr(data-tip);
-    background: #13213a;
-    border: 2px solid #000;
-    border-radius: 12px;
-    opacity: 0;
-    transform: translateY(-50%);
-    transition: opacity var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard);
-}
-
-.hint-dot:hover::after,
-.hint-dot:focus-visible::after {
-    opacity: 1;
-}
-
-.chip-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--token-space-2);
-    min-height: var(--token-size-target-minimum);
-}
-
-.chip-btn {
-    min-height: var(--token-size-target-minimum);
-    padding: var(--token-space-1) var(--token-space-3);
-    font-size: 0.78rem;
-    font-weight: 900;
-    color: #111;
-    background: #f2d14c;
-    border: 2px solid #000;
-    border-radius: 0;
-    box-shadow: 3px 3px 0 #000;
-    transition:
-        background-color var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard),
-        border-color var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard);
-}
-
-.chip-btn:hover {
-    cursor: pointer;
-    background: #ffd95c;
-    border-color: #000;
-}
-
-#tab-settings table {
-    width: 100%;
-    overflow: hidden;
-    border-spacing: 0;
-    border-collapse: separate;
-    border: 3px solid #000;
-    border-radius: 0;
-    box-shadow: 6px 6px 0 #000;
-}
-
-#tab-settings th,
-#tab-settings td {
-    padding: var(--token-space-2);
-    text-align: left;
-    border-bottom: 1px solid
-        color-mix(in srgb, var(--app-border) 80%, transparent);
-}
-
-#tab-settings th {
-    font-size: 0.72rem;
-    font-weight: 900;
-    color: #111;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    background: #f2d14c;
-}
-
-#tab-settings td {
-    font-size: var(--token-typography-size-sm);
-    color: #111;
-}
-
-#tab-settings input,
-#tab-settings select,
-#tab-settings textarea,
-#tab-settings .btn {
-    color: #f8f4e8;
-    background: #13213a;
-    border: 3px solid #000;
-    border-radius: 16px;
-}
-
-#tab-settings .btn:hover,
-#tab-settings input:focus-visible,
-#tab-settings select:focus-visible,
-#tab-settings textarea:focus-visible {
-    border-color: #000;
-    filter: brightness(1.08);
-}
-
-#tab-settings tbody tr:last-child td {
-    border-bottom: 0;
-}
-
-@media (max-width: 1200px) {
-    .settings-grid {
-        grid-template-columns: 1fr;
-    }
-
-    #dayOffPicker {
-        flex: 1 1 auto;
-        max-width: none;
-    }
 }

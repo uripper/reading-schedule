@@ -1,32 +1,6 @@
 import type { FieldDefinition, FieldGroupName } from "../../types/types.ts";
 
 export const FIELDS: Record<FieldGroupName, FieldDefinition[]> = {
-    budget: [
-        {
-            id: "minutes_per_day",
-            label: "Minutes per day",
-            max: 1440,
-            min: 1,
-            step: "1",
-            type: "number",
-        },
-        {
-            id: "wpm_base",
-            label: "Base reading speed (words/minute)",
-            max: 9999,
-            min: 1,
-            step: "1",
-            type: "number",
-        },
-        {
-            id: "max_books_per_day",
-            label: "Maximum books per day",
-            max: 9999,
-            min: 1,
-            step: "1",
-            type: "number",
-        },
-    ],
     display: [
         {
             hint: "Toggles the words/estimate row shown under reading progress.",
@@ -45,6 +19,34 @@ export const FIELDS: Record<FieldGroupName, FieldDefinition[]> = {
             id: "books_show_shelf_meta",
             label: "Show shelf metadata (Shelf: ...)",
             type: "checkbox",
+        },
+    ],
+    minutes: [
+        {
+            id: "minutes_per_day",
+            label: "Minutes per day",
+            max: 1440,
+            min: 1,
+            step: "1",
+            type: "number",
+        },
+    ],
+    plan: [
+        {
+            id: "wpm_base",
+            label: "Base reading speed (words/minute)",
+            max: 9999,
+            min: 1,
+            step: "1",
+            type: "number",
+        },
+        {
+            id: "max_books_per_day",
+            label: "Maximum books per day",
+            max: 9999,
+            min: 1,
+            step: "1",
+            type: "number",
         },
     ],
 };

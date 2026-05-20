@@ -8,7 +8,6 @@ import {
 import { DEFAULT_PREFERENCES } from "./model.ts";
 
 function fillCorePreferenceControls(preferences: Preferences): void {
-    el<HTMLSelectElement>("themeSelect").value = preferences.theme;
     el<HTMLInputElement>("reduceMotionToggle").checked = Boolean(
         preferences.reduceMotion,
     );

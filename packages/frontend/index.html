@@ -309,19 +309,12 @@
           <div class="settings-layout">
             <article class="settings-card" data-settings-section="plan-budget">
               <h2>Reading Plan</h2>
-              <div id="budgetGrid" class="settings-grid"></div>
-              <p class="settings-link-row">
-                <a
-                  href="https://www.readinglength.com/wpm"
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  Test reading speed
-                </a>
-              </p>
+              <div id="planGrid" class="settings-grid settings-plan-grid"></div>
+              <div class="settings-divider" aria-hidden="true"></div>
+              <div id="minutesGrid" class="settings-grid settings-minutes-grid"></div>
               <details class="settings-details">
                 <summary>Custom weekday minutes</summary>
-                <div id="weekdayGrid" class="settings-grid"></div>
+                <div id="weekdayGrid" class="weekday-custom-grid"></div>
               </details>
             </article>
             <article class="settings-card" data-settings-section="days-off" hidden>
@@ -341,13 +334,6 @@
             >
               <h2>Experience</h2>
               <div class="settings-grid">
-                <label
-                  >Theme
-                  <select id="themeSelect">
-                    <option value="system">System</option>
-                    <option value="dark">Dark</option>
-                  </select>
-                </label>
                 <label
                   >Daily Goal Minutes<input
                     id="dailyGoalInput"

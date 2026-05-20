@@ -4,10 +4,11 @@ import type { PlannerSettings } from "../types/types.ts";
 import { bindDateInput } from "./date_control.ts";
 import { FIELDS } from "./settings/config_fields.ts";
 import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.ts";
-import { renderGrid, renderWeekdayGrid } from "./settings/render.ts";
+import { renderGrid } from "./settings/render.ts";
 import { bindSettingsSectionTabs } from "./settings/section_tabs.ts";
 import { collectSettingsForm } from "./settings/serialize_collect.ts";
 import { fillSettingsForm } from "./settings/serialize_fill.ts";
+import { renderWeekdayGrid } from "./settings/weekday-minutes.ts";
 
 let dayOffs: string[] = [];
 
@@ -31,7 +32,8 @@ function bindSettingsDateInputs(): void {
  */
 export function initSettingsGrid(): void {
     bindSettingsSectionTabs();
-    renderGrid("budgetGrid", FIELDS.budget);
+    renderGrid("planGrid", FIELDS.plan);
+    renderGrid("minutesGrid", FIELDS.minutes);
     renderGrid("displayGrid", FIELDS.display);
     renderWeekdayGrid();
     bindSettingsDateInputs();

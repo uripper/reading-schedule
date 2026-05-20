@@ -13,3 +13,11 @@ export const WEEKDAYS: [string, string][] = [
 ];
 
 export const DEFAULT_DIFFICULTY_MULTIPLIER = 1;
+
+export function weekdayMinutesEnabledId(key: string): string {
+    return `minutes_${key}_enabled`;
+}
+
+export function weekdayMinutesInputId(key: string): string {
+    return `minutes_${key}`;
+}

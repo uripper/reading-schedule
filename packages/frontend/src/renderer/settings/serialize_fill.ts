@@ -2,7 +2,11 @@
  * Fills settings form controls from persisted planner settings.
  */
 import type { PlannerSettings } from "../../types/types.ts";
-import { WEEKDAYS } from "./config.ts";
+import {
+    WEEKDAYS,
+    weekdayMinutesEnabledId,
+    weekdayMinutesInputId,
+} from "./config.ts";
 import { DEFAULT_MINUTES_PER_DAY, DEFAULT_WPM_BASE } from "./defaults.ts";
 import { allFieldDefinitions, inputEl, selectEl } from "./field_io.ts";
 
@@ -117,7 +121,11 @@ function populateWeekdayMinutes(settings: PlannerSettings): void {
     const MINUTES_BY_WEEKDAY = settings.minutes_by_weekday ?? {};
     for (const [KEY] of WEEKDAYS) {
         const VALUE = MINUTES_BY_WEEKDAY[KEY];
-        inputEl(`minutes_${KEY}`).value = settingValueText(VALUE);
+        const ENABLED_INPUT = inputEl(weekdayMinutesEnabledId(KEY));
+        const MINUTES_INPUT = inputEl(weekdayMinutesInputId(KEY));
+        ENABLED_INPUT.checked = VALUE !== undefined;
+        MINUTES_INPUT.disabled = !ENABLED_INPUT.checked;
+        MINUTES_INPUT.value = settingValueText(VALUE);
     }
 }
 

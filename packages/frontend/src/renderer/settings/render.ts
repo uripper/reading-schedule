@@ -1,10 +1,5 @@
-/**
- * Renders the desktop settings form controls from field metadata so the
- * settings screen and its numeric constraints stay in one place.
- */
 import type { FieldDefinition } from "../../types/types.ts";
 import { el } from "../dom.ts";
-import { WEEKDAYS } from "./config.ts";
 
 type InputFieldDefinition = Extract<
     FieldDefinition,
@@ -14,8 +9,8 @@ type SelectFieldDefinition = Extract<FieldDefinition, { type: "select" }>;
 
 const INTEGER_STEP = "1";
 const INTEGER_INPUT_INVALID_KEYS = new Set(["+", "-", ".", ",", "e", "E"]);
-const WEEKDAY_MINUTES_MIN = "0";
-const WEEKDAY_MINUTES_MAX = "1440";
+const READING_SPEED_FIELD_ID = "wpm_base";
+const READING_SPEED_TEST_URL = "https://www.readinglength.com/wpm";
 
 function hintDot(text?: string): HTMLSpanElement | null {
     const NORMALIZED_TEXT = String(text ?? "").trim();
@@ -49,14 +44,6 @@ function sanitizeIntegerInput(inputNode: HTMLInputElement): void {
     if (INPUT_NODE.value !== SANITIZED) {
         INPUT_NODE.value = SANITIZED;
     }
-}
-
-function finiteInputValue(rawValue: string): number | null {
-    const VALUE = Number(rawValue);
-    if (!Number.isFinite(VALUE)) {
-        return null;
-    }
-    return VALUE;
 }
 
 function roundedInputValue(value: number, step: string): number {
@@ -93,8 +80,8 @@ function clampedNumericValue(inputNode: HTMLInputElement): string | null {
     if (RAW === "") {
         return null;
     }
-    const VALUE = finiteInputValue(RAW);
-    if (VALUE === null) {
+    const VALUE = Number(RAW);
+    if (!Number.isFinite(VALUE)) {
         return "";
     }
     const ROUNDED = roundedInputValue(VALUE, inputNode.step);
@@ -117,13 +104,9 @@ function preventInvalidIntegerKeys(event: KeyboardEvent): void {
     }
 }
 
-function setNumericInputMode(inputNode: HTMLInputElement): void {
+function bindIntegerInputConstraints(inputNode: HTMLInputElement): void {
     const INPUT_NODE = inputNode;
     INPUT_NODE.inputMode = "numeric";
-}
-
-function bindIntegerInputConstraints(inputNode: HTMLInputElement): void {
-    setNumericInputMode(inputNode);
     inputNode.addEventListener("keydown", preventInvalidIntegerKeys);
     inputNode.addEventListener("input", () => {
         sanitizeIntegerInput(inputNode);
@@ -165,36 +148,10 @@ function bindNumberConstraints(
     bindNumericNormalization(inputNode, field);
 }
 
-function applyWeekdayMinuteBounds(inputNode: HTMLInputElement): void {
-    const INPUT_NODE = inputNode;
-    INPUT_NODE.type = "number";
-    INPUT_NODE.min = WEEKDAY_MINUTES_MIN;
-    INPUT_NODE.max = WEEKDAY_MINUTES_MAX;
-    INPUT_NODE.step = INTEGER_STEP;
-}
-
-function bindWeekdayMinuteNormalization(inputNode: HTMLInputElement): void {
-    inputNode.addEventListener("blur", () => {
-        clampNumericInput(inputNode);
-    });
-    inputNode.addEventListener("change", () => {
-        clampNumericInput(inputNode);
-    });
-}
-
-function createWeekdayMinutesInput(key: string): HTMLInputElement {
-    const INPUT_NODE = document.createElement("input");
-    INPUT_NODE.id = `minutes_${key}`;
-    applyWeekdayMinuteBounds(INPUT_NODE);
-    bindIntegerInputConstraints(INPUT_NODE);
-    bindWeekdayMinuteNormalization(INPUT_NODE);
-    return INPUT_NODE;
-}
-
-function appendHint(label: HTMLLabelElement, hint?: string): void {
+function appendHint(label: HTMLElement, hint?: string): void {
     const DOT = hintDot(hint);
     if (DOT !== null) {
-        label.append(" ", DOT);
+        label.append(DOT);
     }
 }
 
@@ -233,62 +190,100 @@ function applyFieldStep(
     }
 }
 
-function createInputFieldInput(
-    field: InputFieldDefinition,
-    label: HTMLLabelElement,
-): HTMLInputElement {
+function createInputFieldInput(field: InputFieldDefinition): HTMLInputElement {
     const INPUT_NODE = document.createElement("input");
     INPUT_NODE.type = field.type;
     applyFieldStep(INPUT_NODE, field);
     applyFieldRange(INPUT_NODE, field);
     bindNumberConstraints(INPUT_NODE, field);
-    if (field.type === "checkbox") {
-        label.classList.add("toggle-row");
-    }
     return INPUT_NODE;
 }
 
 function createFieldInputNode(
     field: FieldDefinition,
-    label: HTMLLabelElement,
 ): HTMLInputElement | HTMLSelectElement {
     if (field.type === "select") {
         const SELECT_NODE = document.createElement("select");
         appendSelectOptions(SELECT_NODE, field.options);
         return SELECT_NODE;
     }
-    return createInputFieldInput(field, label);
+    return createInputFieldInput(field);
 }
 
-function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
+function fieldLabelText(field: FieldDefinition): HTMLSpanElement {
+    const TEXT = document.createElement("span");
+    TEXT.textContent = field.label;
+    return TEXT;
+}
+
+function readingSpeedLink(): HTMLAnchorElement {
+    const LINK = document.createElement("a");
+    LINK.className = "settings-field-link";
+    LINK.rel = "noreferrer";
+    LINK.target = "_blank";
+    LINK.setAttribute("href", READING_SPEED_TEST_URL);
+    LINK.textContent = "Test reading speed";
+    return LINK;
+}
+
+function appendFieldLabelContents(
+    label: HTMLLabelElement,
+    field: FieldDefinition,
+): void {
+    const LABEL_ROW = document.createElement("span");
+    LABEL_ROW.className = "settings-field-label-row";
+    LABEL_ROW.append(fieldLabelText(field));
+    appendHint(LABEL_ROW, field.hint);
+    if (field.id === READING_SPEED_FIELD_ID) {
+        LABEL_ROW.append(readingSpeedLink());
+    }
+    label.append(LABEL_ROW);
+}
+
+function fieldWrapper(field: FieldDefinition): HTMLElement {
+    const WRAPPER = document.createElement("div");
+    WRAPPER.className = "settings-field";
+    WRAPPER.dataset.settingField = field.id;
+    return WRAPPER;
+}
+
+function checkboxLabel(
+    field: FieldDefinition,
+    inputNode: HTMLInputElement,
+): HTMLLabelElement {
     const LABEL = document.createElement("label");
-    LABEL.append(field.label);
+    LABEL.className = "settings-field-checkbox";
+    LABEL.append(inputNode, fieldLabelText(field));
     appendHint(LABEL, field.hint);
-    const INPUT_NODE = createFieldInputNode(field, LABEL);
-    INPUT_NODE.id = field.id;
-    LABEL.append(INPUT_NODE);
     return LABEL;
 }
 
-/** Renders the metadata-driven settings grid into the requested container. */
+function appendNonCheckboxField(
+    wrapper: HTMLElement,
+    field: FieldDefinition,
+    inputNode: HTMLInputElement | HTMLSelectElement,
+): void {
+    const LABEL = document.createElement("label");
+    LABEL.htmlFor = field.id;
+    appendFieldLabelContents(LABEL, field);
+    wrapper.append(LABEL, inputNode);
+}
+
+function renderFieldInput(field: FieldDefinition): HTMLElement {
+    const WRAPPER = fieldWrapper(field);
+    const INPUT_NODE = createFieldInputNode(field);
+    INPUT_NODE.id = field.id;
+    if (field.type === "checkbox" && INPUT_NODE instanceof HTMLInputElement) {
+        WRAPPER.append(checkboxLabel(field, INPUT_NODE));
+        return WRAPPER;
+    }
+    appendNonCheckboxField(WRAPPER, field, INPUT_NODE);
+    return WRAPPER;
+}
+
 export function renderGrid(
     id: string,
     fieldDefinitions: FieldDefinition[],
 ): void {
     el(id).replaceChildren(...fieldDefinitions.map(renderFieldInput));
-}
-
-function weekdayMinutesLabel([
-    key,
-    name,
-]: (typeof WEEKDAYS)[number]): HTMLLabelElement {
-    const LABEL = document.createElement("label");
-    LABEL.append(`${name} minutes`);
-    LABEL.append(createWeekdayMinutesInput(key));
-    return LABEL;
-}
-
-/** Renders the weekday minutes grid used by the planner settings panel. */
-export function renderWeekdayGrid(): void {
-    el("weekdayGrid").replaceChildren(...WEEKDAYS.map(weekdayMinutesLabel));
 }

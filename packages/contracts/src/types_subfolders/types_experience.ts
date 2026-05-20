@@ -50,4 +50,4 @@ export type InputFieldDefinition = BaseFieldDefinition & {
 
 export type FieldDefinition = SelectFieldDefinition | InputFieldDefinition;
 
-export type FieldGroupName = "budget" | "display";
+export type FieldGroupName = "display" | "minutes" | "plan";

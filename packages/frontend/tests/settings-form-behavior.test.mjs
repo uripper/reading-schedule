@@ -6,9 +6,8 @@ import test, { after } from "node:test";
 import { installFakeDom } from "./helpers/fake-dom.mjs";
 
 const HARNESS = installFakeDom();
-const { FIELDS, WEEKDAYS } = await import(
-    "../dist/renderer/settings/config.js"
-);
+const { FIELDS, WEEKDAYS, weekdayMinutesEnabledId, weekdayMinutesInputId } =
+    await import("../dist/renderer/settings/config.js");
 const { bindDayOffAddButton } = await import(
     "../dist/renderer/settings/day_offs.js"
 );
@@ -18,6 +17,10 @@ const { collectSettingsForm } = await import(
 );
 const { fillSettingsForm } = await import(
     "../dist/renderer/settings/serialize_fill.js"
+);
+const { renderGrid } = await import("../dist/renderer/settings/render.js");
+const { renderWeekdayGrid } = await import(
+    "../dist/renderer/settings/weekday-minutes.js"
 );
 const {
     DEFAULT_MAX_BLOCKS_PER_BOOK_PER_DAY,
@@ -70,7 +73,8 @@ function installSettingsDom() {
     appendNode("div", "dayOffList");
     appendSettingsFieldNodes();
     for (const [KEY] of WEEKDAYS) {
-        appendNode("input", `minutes_${KEY}`, "text");
+        appendNode("input", weekdayMinutesEnabledId(KEY), "checkbox");
+        appendNode("input", weekdayMinutesInputId(KEY), "text");
     }
 }
 
@@ -108,15 +112,42 @@ test("collectSettingsForm applies hidden planner defaults", () => {
     assert.equal(SETTINGS.time_quantum_minutes, DEFAULT_TIME_QUANTUM_MINUTES);
 });
 
-test("collectSettingsForm leaves blank weekday minutes as default-day budget", () => {
+test("collectSettingsForm only saves checked custom weekday minutes", () => {
     installSettingsDom();
-    HARNESS.document.getElementById("minutes_Mon").value = "";
-    HARNESS.document.getElementById("minutes_Tue").value = "45";
+    HARNESS.document.getElementById(weekdayMinutesInputId("Mon")).value = "90";
+    HARNESS.document.getElementById(weekdayMinutesEnabledId("Tue")).checked =
+        true;
+    HARNESS.document.getElementById(weekdayMinutesInputId("Tue")).value = "45";
 
     const SETTINGS = collectSettingsForm([]);
 
     assert.deepEqual(SETTINGS.minutes_by_weekday, { Tue: 45 });
     assert.deepEqual(parseSettings(SETTINGS).minutes_by_weekday, { Tue: 45 });
+});
+
+test("fillSettingsForm checks and enables persisted weekday overrides", () => {
+    installSettingsDom();
+    fillSettingsForm(
+        {
+            minutes_by_weekday: {
+                Fri: 25,
+            },
+        },
+        () => undefined,
+    );
+
+    assert.equal(
+        HARNESS.document.getElementById(weekdayMinutesEnabledId("Fri")).checked,
+        true,
+    );
+    assert.equal(
+        HARNESS.document.getElementById(weekdayMinutesInputId("Fri")).disabled,
+        false,
+    );
+    assert.equal(
+        HARNESS.document.getElementById(weekdayMinutesInputId("Mon")).disabled,
+        true,
+    );
 });
 
 test("bindDayOffAddButton clears the picker after adding a day off", () => {
@@ -139,7 +170,9 @@ test("bindDayOffAddButton clears the picker after adding a day off", () => {
 
 test("settings UI no longer exposes planner solver profile choices", () => {
     assert.equal(
-        FIELDS.budget.some((field) => field.id === "planner_solver_profile"),
+        Object.values(FIELDS)
+            .flat()
+            .some((field) => field.id === "planner_solver_profile"),
         false,
     );
 });
@@ -153,10 +186,33 @@ function assertHtmlRemovedOldSettings(html) {
     assert.equal(html.includes("Optimization"), false);
     assert.equal(html.includes("Reading Speed by Difficulty"), false);
     assert.equal(html.includes('id="flagGamification"'), false);
+    assert.equal(html.includes('id="themeSelect"'), false);
     assert.equal(html.includes('value="light"'), false);
     assert.equal(html.includes('id="windowGrid"'), false);
     assert.equal(html.includes('id="weightsGrid"'), false);
 }
+
+test("rendered planning fields put reading-speed help beside WPM", () => {
+    const PLAN_GRID = appendNode("div", "planGrid");
+
+    renderGrid("planGrid", FIELDS.plan);
+
+    const LINK = PLAN_GRID.querySelector("a");
+    assert.ok(LINK);
+    assert.equal(
+        LINK.attributes.get("href"),
+        "https://www.readinglength.com/wpm",
+    );
+});
+
+test("rendered weekday overrides include explicit custom checkboxes", () => {
+    appendNode("div", "weekdayGrid");
+
+    renderWeekdayGrid();
+
+    assert.ok(HARNESS.document.getElementById(weekdayMinutesEnabledId("Mon")));
+    assert.ok(HARNESS.document.getElementById(weekdayMinutesInputId("Mon")));
+});
 
 test("shared desktop html only ships simplified settings controls", () => {
     const FRONTEND_HTML = readFileSync(
@@ -170,11 +226,10 @@ test("shared desktop html only ships simplified settings controls", () => {
 
     assert.equal(FRONTEND_HTML.includes('type="date"'), false);
     assert.equal(APP_HTML.includes('type="date"'), false);
-    assert.equal(
-        FRONTEND_HTML.includes("https://www.readinglength.com/wpm"),
-        true,
-    );
-    assert.equal(APP_HTML.includes("https://www.readinglength.com/wpm"), true);
+    assert.equal(FRONTEND_HTML.includes('id="planGrid"'), true);
+    assert.equal(FRONTEND_HTML.includes('id="minutesGrid"'), true);
+    assert.equal(APP_HTML.includes('id="planGrid"'), true);
+    assert.equal(APP_HTML.includes('id="minutesGrid"'), true);
     assertHtmlRemovedOldSettings(FRONTEND_HTML);
     assertHtmlRemovedOldSettings(APP_HTML);
 });

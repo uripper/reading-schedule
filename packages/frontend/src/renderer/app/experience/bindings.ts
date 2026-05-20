@@ -2,7 +2,6 @@ import type { ExperienceSettingsApplyHandler } from "../../../types/types.ts";
 import { el } from "../../dom.ts";
 
 const EXPERIENCE_SETTING_IDS: readonly string[] = [
-    "themeSelect",
     "reduceMotionToggle",
     "dailyGoalInput",
     "reminderEnabledToggle",

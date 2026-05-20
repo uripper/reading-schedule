@@ -2,7 +2,11 @@
  * Serializes settings form state into planner settings payloads.
  */
 import type { FieldDefinition, PlannerSettings } from "../../types/types.ts";
-import { WEEKDAYS } from "./config.ts";
+import {
+    WEEKDAYS,
+    weekdayMinutesEnabledId,
+    weekdayMinutesInputId,
+} from "./config.ts";
 import {
     automaticPlannerEndDate,
     DEFAULT_MAX_BLOCKS_PER_BOOK_PER_DAY,
@@ -113,7 +117,10 @@ function collectFieldSettings(): PlannerSettings {
 }
 
 function positiveWeekdayMinutes(key: string): number | null {
-    const VALUE = Number(inputEl(`minutes_${key}`).value || 0);
+    if (!inputEl(weekdayMinutesEnabledId(key)).checked) {
+        return null;
+    }
+    const VALUE = Number(inputEl(weekdayMinutesInputId(key)).value || 0);
     if (!Number.isFinite(VALUE) || VALUE <= 0) {
         return null;
     }
