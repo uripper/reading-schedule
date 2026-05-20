@@ -28,6 +28,25 @@ import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.ts";
 
 const BOOK_DIALOG_OPEN_CLASS = "book-dialog-open";
 
+interface ViewportScrollPosition {
+    scrollX: number;
+    scrollY: number;
+}
+
+function currentViewportScroll(): ViewportScrollPosition {
+    return {
+        scrollX: globalThis.scrollX,
+        scrollY: globalThis.scrollY,
+    };
+}
+
+function restoreViewportScroll(position: ViewportScrollPosition): void {
+    if (typeof globalThis.scrollTo !== "function") {
+        return;
+    }
+    globalThis.scrollTo(position.scrollX, position.scrollY);
+}
+
 function lockBookDialogScroll(): void {
     document.body.classList.add(BOOK_DIALOG_OPEN_CLASS);
 }
@@ -57,6 +76,7 @@ function booksGetter(options: BookDialogOptions): () => Book[] {
 function openBookDialog(args: OpenBookDialogArgs): void {
     const FORM_REFS = args.refs;
     const { book } = args;
+    const SCROLL_POSITION = currentViewportScroll();
     args.dialogFocus.rememberOpener();
     clearForm(FORM_REFS, args.lookupControl);
     args.afterBookPicker.openForBook(book);
@@ -66,6 +86,7 @@ function openBookDialog(args: OpenBookDialogArgs): void {
     lockBookDialogScroll();
     FORM_REFS.dialog.showModal();
     args.dialogFocus.focusInitialTarget();
+    restoreViewportScroll(SCROLL_POSITION);
 }
 
 /**

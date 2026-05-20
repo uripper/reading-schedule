@@ -2,6 +2,8 @@ import { BOOK_WEEKDAYS } from "./scheduled_days.ts";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
 import { statusOptions } from "./status_catalog.ts";
 
+const LEGACY_MIN_BLOCKS_INPUT_ID = "bookMinBlocksInput";
+
 /**
  * Creates shelf select field with built-in create-shelf option.
  * @returns Labeled shelf select node for form grid insertion.
@@ -121,6 +123,7 @@ function createApplyScheduledDaysToShelfLabel(): HTMLLabelElement {
  * Ensures dynamic book form fields are present in the settings grid.
  */
 export function ensureBookFormLayoutFields(): void {
+    hideLegacyMinBlocksField();
     const EXISTING = document.getElementById("bookShelfSelectInput");
     if (EXISTING) {
         return;
@@ -140,4 +143,16 @@ export function ensureBookFormLayoutFields(): void {
         createScheduledDaysField(),
         createApplyScheduledDaysToShelfLabel(),
     );
+}
+
+function hideLegacyMinBlocksField(): void {
+    const INPUT = document.getElementById(LEGACY_MIN_BLOCKS_INPUT_ID);
+    if (!(INPUT instanceof HTMLInputElement)) {
+        return;
+    }
+    const LABEL = INPUT.closest("label");
+    if (!(LABEL instanceof HTMLElement)) {
+        return;
+    }
+    LABEL.hidden = true;
 }
