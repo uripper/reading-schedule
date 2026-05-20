@@ -13,8 +13,6 @@ const NON_PLANNING_SETTING_IDS = new Set([
     "dailyGoalInput",
     "reminderEnabledToggle",
     "reminderTimeInput",
-    "flagGamification",
-    "flagSocial",
 ]);
 
 interface PersistTimerState {

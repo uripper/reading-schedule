@@ -2,11 +2,14 @@ import type { FeatureFlags, Preferences } from "../../../types/types.ts";
 import { el } from "../../dom.ts";
 import {
     REMINDERS_AVAILABLE,
-    SOCIAL_FEATURES_AVAILABLE,
     shippedFeatureFlag,
     shippedReminderTime,
 } from "./availability.ts";
-import { DEFAULT_PREFERENCES, isSupportedTheme } from "./model.ts";
+import {
+    DEFAULT_FEATURE_FLAGS,
+    DEFAULT_PREFERENCES,
+    isSupportedTheme,
+} from "./model.ts";
 
 /**
  * Reads a numeric input and normalizes empty or invalid values to 0.
@@ -91,11 +94,5 @@ export function collectPreferencesFromUI(): Preferences {
  * @returns An object containing the feature flag settings.
  */
 export function collectFeatureFlagsFromUI(): FeatureFlags {
-    return {
-        gamificationEnabled: checkboxValue("flagGamification"),
-        socialEnabled: shippedFeatureFlag(
-            checkboxValue("flagSocial"),
-            SOCIAL_FEATURES_AVAILABLE,
-        ),
-    };
+    return { ...DEFAULT_FEATURE_FLAGS };
 }

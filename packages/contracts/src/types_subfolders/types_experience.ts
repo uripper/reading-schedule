@@ -1,10 +1,9 @@
-
 export interface Preferences {
     dailyGoalMinutes: number;
     reduceMotion: boolean;
     reminderEnabled: boolean;
     reminderTime: string;
-    theme: "system" | "light" | "dark";
+    theme: "system" | "dark";
     timezone: string;
 }
 
@@ -51,5 +50,4 @@ export type InputFieldDefinition = BaseFieldDefinition & {
 
 export type FieldDefinition = SelectFieldDefinition | InputFieldDefinition;
 
-export type FieldGroupName = "window" | "budget" | "weights" | "display";
-
+export type FieldGroupName = "budget" | "display";

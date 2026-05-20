@@ -66,8 +66,8 @@
     font-size: 0.82rem;
     font-weight: 900;
     color: #111;
-    letter-spacing: 0.1em;
     text-transform: uppercase;
+    letter-spacing: 0.1em;
 }
 
 .settings-card .hint-text {
@@ -104,6 +104,34 @@
 
 .settings-card .settings-grid > label[hidden] {
     display: none;
+}
+
+.settings-link-row a {
+    font-weight: 900;
+    color: #111;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 4px;
+}
+
+.settings-details {
+    display: grid;
+    gap: var(--token-space-3);
+}
+
+.settings-details > summary {
+    min-height: var(--token-size-target-minimum);
+    padding: 10px 14px;
+    font-weight: 900;
+    color: #111;
+    cursor: pointer;
+    background: #ffe58a;
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 4px 4px 0 #000;
+}
+
+.settings-details[open] > summary {
+    margin-bottom: var(--token-space-3);
 }
 
 .settings-card .settings-grid > label input,

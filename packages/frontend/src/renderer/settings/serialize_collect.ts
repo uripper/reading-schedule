@@ -2,13 +2,17 @@
  * Serializes settings form state into planner settings payloads.
  */
 import type { FieldDefinition, PlannerSettings } from "../../types/types.ts";
-import { DEFAULT_DIFFICULTY_MULTIPLIER, WEEKDAYS } from "./config.ts";
+import { WEEKDAYS } from "./config.ts";
 import {
-    allFieldDefinitions,
-    inputEl,
-    numberLevels,
-    selectEl,
-} from "./field_io.ts";
+    automaticPlannerEndDate,
+    DEFAULT_MAX_BLOCKS_PER_BOOK_PER_DAY,
+    DEFAULT_MAX_BOOKS_PER_DAY,
+    DEFAULT_MINUTES_PER_DAY,
+    DEFAULT_PLAN_MODE,
+    DEFAULT_TIME_QUANTUM_MINUTES,
+    DEFAULT_WPM_BASE,
+} from "./defaults.ts";
+import { allFieldDefinitions, inputEl, selectEl } from "./field_io.ts";
 import { normalizePlannerStartDate } from "./start_date.ts";
 
 /**
@@ -108,23 +112,50 @@ function collectFieldSettings(): PlannerSettings {
     return OUTPUT;
 }
 
-function weekdayMinutesByDay(): Record<string, number> {
-    return Object.fromEntries(
-        WEEKDAYS.map(([key]) => {
-            return [key, Number(inputEl(`minutes_${key}`).value || 0)];
-        }),
-    );
+function positiveWeekdayMinutes(key: string): number | null {
+    const VALUE = Number(inputEl(`minutes_${key}`).value || 0);
+    if (!Number.isFinite(VALUE) || VALUE <= 0) {
+        return null;
+    }
+    return Math.round(VALUE);
 }
 
-function difficultyMultipliersByLevel(): Record<string, number> {
-    return Object.fromEntries(
-        numberLevels().map((level) => {
-            const VALUE = Number(
-                inputEl(`diff_${level}`).value || DEFAULT_DIFFICULTY_MULTIPLIER,
-            );
-            return [String(level), VALUE];
-        }),
+function weekdayMinutesByDay(): Record<string, number> {
+    const MINUTES_BY_WEEKDAY: Record<string, number> = {};
+    for (const [KEY] of WEEKDAYS) {
+        const MINUTES = positiveWeekdayMinutes(KEY);
+        if (MINUTES === null) {
+            continue;
+        }
+        MINUTES_BY_WEEKDAY[KEY] = MINUTES;
+    }
+    return MINUTES_BY_WEEKDAY;
+}
+
+function normalizedMaxBooksPerDay(settings: PlannerSettings): number {
+    const VALUE = Number(
+        settings.max_books_per_day ?? DEFAULT_MAX_BOOKS_PER_DAY,
     );
+    if (!Number.isFinite(VALUE) || VALUE <= 0) {
+        return DEFAULT_MAX_BOOKS_PER_DAY;
+    }
+    return Math.round(VALUE);
+}
+
+function applyHiddenPlannerDefaults(settings: PlannerSettings): void {
+    const SETTINGS = settings;
+    const START_DATE = normalizePlannerStartDate(SETTINGS.start_date);
+    const MAX_BOOKS_PER_DAY = normalizedMaxBooksPerDay(SETTINGS);
+    SETTINGS.end_date = automaticPlannerEndDate(START_DATE);
+    SETTINGS.max_blocks_per_book_per_day = DEFAULT_MAX_BLOCKS_PER_BOOK_PER_DAY;
+    SETTINGS.max_books_per_day = MAX_BOOKS_PER_DAY;
+    SETTINGS.max_sessions_per_day = MAX_BOOKS_PER_DAY;
+    SETTINGS.minutes_per_day =
+        clampedOptionalNumber("minutes_per_day") ?? DEFAULT_MINUTES_PER_DAY;
+    SETTINGS.plan_mode = DEFAULT_PLAN_MODE;
+    SETTINGS.start_date = START_DATE;
+    SETTINGS.time_quantum_minutes = DEFAULT_TIME_QUANTUM_MINUTES;
+    SETTINGS.wpm_base = clampedOptionalNumber("wpm_base") ?? DEFAULT_WPM_BASE;
 }
 
 /**
@@ -134,9 +165,8 @@ function difficultyMultipliersByLevel(): Record<string, number> {
  */
 export function collectSettingsForm(dayOffs: string[]): PlannerSettings {
     const OUTPUT = collectFieldSettings();
-    OUTPUT.minutes_per_day = clampedOptionalNumber("minutes_per_day");
     OUTPUT.minutes_by_weekday = weekdayMinutesByDay();
     OUTPUT.days_off = [...dayOffs];
-    OUTPUT.difficulty_multiplier = difficultyMultipliersByLevel();
+    applyHiddenPlannerDefaults(OUTPUT);
     return OUTPUT;
 }

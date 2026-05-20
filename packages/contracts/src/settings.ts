@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { JSON_VALUE_SCHEMA } from "./shared.js";
-import type { PlannerSettings } from "./types_subfolders/types_planner.js";
+import { JSON_VALUE_SCHEMA } from "./shared.ts";
+import type { PlannerSettings } from "./types_subfolders/types_planner.ts";
 
 const WEEKDAY_KEYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 
 const WEEKDAY_SCHEMA = z.enum(WEEKDAY_KEYS);
 
-const MINUTES_BY_WEEKDAY_SCHEMA = z.record(WEEKDAY_SCHEMA, z.number());
+const MINUTES_BY_WEEKDAY_SCHEMA = z.partialRecord(WEEKDAY_SCHEMA, z.number());
 
 const DIFFICULTY_MULTIPLIER_SCHEMA = z.record(z.string(), z.number());
 const SOLVER_PROFILE_SCHEMA = z.enum(["fast", "balanced", "thorough"]);
