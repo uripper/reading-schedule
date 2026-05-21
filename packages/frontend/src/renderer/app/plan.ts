@@ -7,7 +7,6 @@ import type {
     Book,
     PlanGeneratePayload,
     PlannerSettings,
-    PlannerSummary,
     RunPlanGenerationArgs,
 } from "../../types/types.ts";
 import { todayDayKey } from "./date_keys.ts";
@@ -15,6 +14,9 @@ import {
     normalizePlannerEndDate,
     normalizePlannerStartDate,
 } from "./plan_normalize.ts";
+import { errorMessage, isPlannerSupersededError } from "./plan-errors.ts";
+import type { PlanMessages } from "./plan-feedback.ts";
+import { logPlanSummary, resolvedPlanMessages } from "./plan-feedback.ts";
 
 interface GeneratePayloadArgs {
     customStartDate: string;
@@ -32,7 +34,7 @@ interface PlanSuccessArgs {
             ReturnType<RunPlanGenerationArgs["plannerApi"]["generate"]>
         >,
     ): Promise<void>;
-    setStatus(message: string, isError?: boolean): void;
+    setStatus: RunPlanGenerationArgs["setStatus"];
     statusSuccessMessage: string;
     successAnnouncement: string;
 }
@@ -41,102 +43,7 @@ interface PlanFailureArgs {
     addLog(message: string): void;
     announce(message: string, politeness?: "polite" | "assertive"): void;
     error: unknown;
-    setStatus(message: string, isError?: boolean): void;
-}
-
-interface PlanMessages {
-    statusGeneratingMessage: string;
-    statusSuccessMessage: string;
-    successAnnouncement: string;
-}
-
-/**
- * Generates a summary log message based on the planner summary data.
- * @param summary - The planner summary data to generate the log message from.
- * @returns A string containing the status and planned/available minutes.
- */
-function summaryLog(summary: PlannerSummary | null): string {
-    const STATUS = summary?.status ?? "not-set";
-    const PLANNED = Number(summary?.total_planned_minutes ?? 0);
-    const AVAILABLE = Number(summary?.total_available_minutes ?? 0);
-    return `Status ${STATUS}. Planned ${PLANNED}/${AVAILABLE} minutes.`;
-}
-
-/**
- * Logs planner summary details and optional feasibility warning.
- * @param summary - Planner summary payload from the generated plan.
- * @param addLog - Log sink used for planner status output.
- */
-function logPlanSummary(
-    summary: PlannerSummary | null | undefined,
-    addLog: (message: string) => void,
-): void {
-    const FEASIBILITY_WARNING = summary?.feasibility_warning;
-    if (typeof FEASIBILITY_WARNING === "string" && FEASIBILITY_WARNING !== "") {
-        addLog(FEASIBILITY_WARNING);
-    }
-    addLog(summaryLog(summary ?? null));
-}
-
-/**
- * Trims a string value or returns an empty string if the input is not a valid string.
- * @param value - The value to trim or validate.
- * @returns A trimmed string or an empty string if the input is invalid.
- */
-function trimmedStringOrEmpty(value: unknown): string {
-    if (typeof value !== "string") {
-        return "";
-    }
-    return value.trim();
-}
-
-/**
- * Extracts a message from an error-like object that has a "message" property.
- * @param error - The error-like object to extract the message from.
- * @returns A trimmed message string or an empty string if the input is not a valid error-like object.
- */
-function messageFromErrorLikeObject(error: unknown): string {
-    if (typeof error !== "object" || error === null || !("message" in error)) {
-        return "";
-    }
-    return trimmedStringOrEmpty(error.message);
-}
-
-function namedErrorMessage(error: Error): string {
-    const DETAIL = trimmedStringOrEmpty(error.message);
-    if (DETAIL !== "") {
-        return DETAIL;
-    }
-    if (error.name !== "") {
-        return error.name;
-    }
-    return "Unknown error";
-}
-
-function detailFromUnknownError(error: unknown): string {
-    const STRING_DETAIL = trimmedStringOrEmpty(error);
-    if (STRING_DETAIL !== "") {
-        return STRING_DETAIL;
-    }
-    return messageFromErrorLikeObject(error);
-}
-
-/**
- * Extracts a user-friendly error message from an unknown error object,
- * handling various cases such as Error instances, strings, and error-like
- * objects with a "message" property.
- * @param error - The unknown error object to extract the message from.
- * @returns A user-friendly error message string.
- */
-function errorMessage(error: unknown): string {
-    if (error instanceof Error) {
-        return namedErrorMessage(error);
-    }
-    const DETAIL = detailFromUnknownError(error);
-    if (DETAIL !== "") {
-        return DETAIL;
-    }
-    return "Unknown planner error";
+    setStatus: RunPlanGenerationArgs["setStatus"];
 }
 
 function buildPlanPayload(
@@ -176,7 +83,7 @@ async function handlePlanSuccess({
         scheduleRows: data.schedule.length,
         status: data.summary?.status ?? null,
     });
-    setStatus(statusSuccessMessage);
+    setStatus(statusSuccessMessage, false, "success");
 
     if (successAnnouncement !== "") {
         announce(successAnnouncement);
@@ -191,22 +98,12 @@ function handlePlanFailure({
 }: PlanFailureArgs): void {
     const MESSAGE = "Failed to generate plan";
 
-    setStatus(MESSAGE, true);
+    setStatus(MESSAGE, true, "error");
     addLog(`Plan generation error: ${errorMessage(error)}`);
     logDebug("Planner payload failed.", {
         detail: errorMessage(error),
     });
     announce(MESSAGE, "assertive");
-}
-
-function resolvedPlanMessages(args: RunPlanGenerationArgs): PlanMessages {
-    return {
-        statusGeneratingMessage:
-            args.statusGeneratingMessage ?? "Generating plan...",
-        statusSuccessMessage: args.statusSuccessMessage ?? "Plan generated.",
-        successAnnouncement:
-            args.successAnnouncement ?? "Plan generated and schedule updated.",
-    };
 }
 
 function logPlanGenerationStarted(payloadBooks: Book[]): void {
@@ -215,12 +112,29 @@ function logPlanGenerationStarted(payloadBooks: Book[]): void {
     });
 }
 
+function currentRunFromCallback(
+    isRunCurrent: RunPlanGenerationArgs["isRunCurrent"],
+): boolean {
+    if (isRunCurrent === undefined) {
+        return true;
+    }
+    return isRunCurrent();
+}
+
+function runIsCurrent(args: RunPlanGenerationArgs): boolean {
+    return currentRunFromCallback(args.isRunCurrent);
+}
+
 async function handleNoSchedulableBooks(args: {
+    isRunCurrent?: RunPlanGenerationArgs["isRunCurrent"];
     onSuccess: RunPlanGenerationArgs["onSuccess"];
     setStatus: RunPlanGenerationArgs["setStatus"];
 }): Promise<void> {
+    if (!currentRunFromCallback(args.isRunCurrent)) {
+        return;
+    }
     await args.onSuccess({ schedule: [], summary: null });
-    args.setStatus("No schedulable books to plan.");
+    args.setStatus("No schedulable books to plan.", false, "success");
 }
 
 function requestGeneratedPlan(
@@ -230,7 +144,9 @@ function requestGeneratedPlan(
 ): Promise<
     Awaited<ReturnType<RunPlanGenerationArgs["plannerApi"]["generate"]>>
 > {
-    args.setStatus(messages.statusGeneratingMessage);
+    if (runIsCurrent(args)) {
+        args.setStatus(messages.statusGeneratingMessage, false, "loading");
+    }
     const PAYLOAD = buildPlanPayload(args.collectSettings(), payloadBooks);
     return args.plannerApi.generate(PAYLOAD);
 }
@@ -249,6 +165,33 @@ function planSuccessArgs(
         statusSuccessMessage: messages.statusSuccessMessage,
         successAnnouncement: messages.successAnnouncement,
     };
+}
+
+async function runPlanGenerationAttempt(
+    args: RunPlanGenerationArgs,
+): Promise<void> {
+    const PAYLOAD_BOOKS = args.collectBooks();
+    const MESSAGES = resolvedPlanMessages(args);
+    logPlanGenerationStarted(PAYLOAD_BOOKS);
+    if (!PAYLOAD_BOOKS.length) {
+        await handleNoSchedulableBooks(args);
+        return;
+    }
+    const DATA = await requestGeneratedPlan(args, PAYLOAD_BOOKS, MESSAGES);
+    if (!runIsCurrent(args)) {
+        return;
+    }
+    await handlePlanSuccess(planSuccessArgs(args, DATA, MESSAGES));
+}
+
+function shouldIgnorePlanFailure(
+    args: RunPlanGenerationArgs,
+    error: unknown,
+): boolean {
+    if (!runIsCurrent(args)) {
+        return true;
+    }
+    return isPlannerSupersededError(error);
 }
 
 /**
@@ -273,16 +216,11 @@ export async function runPlanGeneration(
     args: RunPlanGenerationArgs,
 ): Promise<void> {
     try {
-        const PAYLOAD_BOOKS = args.collectBooks();
-        const MESSAGES = resolvedPlanMessages(args);
-        logPlanGenerationStarted(PAYLOAD_BOOKS);
-        if (!PAYLOAD_BOOKS.length) {
-            await handleNoSchedulableBooks(args);
+        await runPlanGenerationAttempt(args);
+    } catch (error) {
+        if (shouldIgnorePlanFailure(args, error)) {
             return;
         }
-        const DATA = await requestGeneratedPlan(args, PAYLOAD_BOOKS, MESSAGES);
-        await handlePlanSuccess(planSuccessArgs(args, DATA, MESSAGES));
-    } catch (error) {
         handlePlanFailure({
             addLog: args.addLog,
             announce: args.announce,

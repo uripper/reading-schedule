@@ -12,25 +12,12 @@ const MAX_PROGRESS_PERCENT: f64 = 100.0;
 const MIN_PROGRESS_PERCENT: f64 = 0.0;
 
 pub fn active_book(state: &DayState<'_>) -> Option<String> {
-    let mut active = state
+    state
         .used
         .iter()
         .filter(|book_id| is_active_book(state, book_id))
+        .min_by(|left, right| compare_active_books(state, left, right))
         .cloned()
-        .collect::<Vec<_>>();
-    active.sort_by(|left, right| {
-        let left_book = &state.books[left];
-        let right_book = &state.books[right];
-        let left_remaining = *state.remaining.get(left).unwrap_or(&0.0);
-        let right_remaining = *state.remaining.get(right).unwrap_or(&0.0);
-        let progress_comparison =
-            progress_order((left_book, left_remaining), (right_book, right_remaining));
-        priority_order(left_book.priority, right_book.priority)
-            .then(progress_comparison)
-            .then_with(|| left_book.difficulty.cmp(&right_book.difficulty))
-            .then_with(|| left.cmp(right))
-    });
-    active.into_iter().next()
 }
 
 pub fn assign_blocks(state: &mut DayState<'_>, book_id: &str, blocks: i64) {
@@ -53,7 +40,7 @@ pub fn books_by_id(books: &[Book]) -> HashMap<String, Book> {
 
 pub fn can_start_book(state: &DayState<'_>, book_id: &str) -> bool {
     let start_blocks = start_blocks_for_book(state, book_id);
-    !state.used.contains(&book_id.to_string())
+    !book_already_used(state, book_id)
         && *state.remaining.get(book_id).unwrap_or(&0.0) > 0.0
         && is_unlocked(&state.books[book_id], state.remaining)
         && book_is_scheduled_for_day(&state.books[book_id], state.day)
@@ -75,6 +62,23 @@ fn is_active_book(state: &DayState<'_>, book_id: &str) -> bool {
         && is_unlocked(&state.books[book_id], state.remaining)
         && book_is_scheduled_for_day(&state.books[book_id], state.day)
         && room(state, book_id) > 0
+}
+
+fn book_already_used(state: &DayState<'_>, book_id: &str) -> bool {
+    state.used.iter().any(|used| used == book_id)
+}
+
+fn compare_active_books(state: &DayState<'_>, left: &str, right: &str) -> Ordering {
+    let left_book = &state.books[left];
+    let right_book = &state.books[right];
+    let left_remaining = *state.remaining.get(left).unwrap_or(&0.0);
+    let right_remaining = *state.remaining.get(right).unwrap_or(&0.0);
+    let progress_comparison =
+        progress_order((left_book, left_remaining), (right_book, right_remaining));
+    priority_order(left_book.priority, right_book.priority)
+        .then(progress_comparison)
+        .then_with(|| left_book.difficulty.cmp(&right_book.difficulty))
+        .then_with(|| left.cmp(right))
 }
 
 pub fn is_unlocked(book: &Book, remaining: &HashMap<String, f64>) -> bool {

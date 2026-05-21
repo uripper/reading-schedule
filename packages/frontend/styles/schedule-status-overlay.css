@@ -1,0 +1,93 @@
+.schedule-status-overlay {
+    position: fixed;
+    right: calc(env(safe-area-inset-right) + var(--token-space-4));
+    bottom: calc(env(safe-area-inset-bottom) + var(--token-space-4));
+    z-index: 60;
+    display: inline-flex;
+    gap: var(--token-space-2);
+    align-items: center;
+    max-width: min(320px, calc(100vw - var(--token-space-8)));
+    min-height: var(--token-size-target-minimum);
+    padding: var(--token-space-2) var(--token-space-3);
+    color: var(--app-text);
+    pointer-events: none;
+    background: color-mix(in srgb, var(--app-surface) 94%, var(--app-brand) 6%);
+    border: 1px solid var(--app-border);
+    border-radius: var(--token-radius-sm);
+    box-shadow: var(--token-elevation-md);
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+        opacity var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard),
+        transform var(--token-motion-duration-fast)
+        var(--token-motion-easing-standard);
+}
+
+.schedule-status-overlay[hidden] {
+    display: none;
+}
+
+.schedule-status-overlay.is-hiding {
+    opacity: 0;
+    transform: translateY(var(--token-space-2));
+}
+
+.schedule-status-overlay-icon {
+    flex: 0 0 auto;
+    width: 3rem;
+    height: 3rem;
+    border: 2px solid currentColor;
+    border-radius: 999px;
+}
+
+.schedule-status-overlay.is-updating .schedule-status-overlay-icon {
+    border-top-color: transparent;
+    animation: schedule-status-spin 850ms linear infinite;
+}
+
+.schedule-status-overlay.is-updated .schedule-status-overlay-icon,
+.schedule-status-overlay.is-failed .schedule-status-overlay-icon {
+    display: grid;
+    place-items: center;
+    border-color: currentColor;
+}
+
+.schedule-status-overlay.is-updated .schedule-status-overlay-icon::before {
+    width: 0.35rem;
+    height: 0.6rem;
+    content: "";
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(40deg);
+}
+
+.schedule-status-overlay.is-failed .schedule-status-overlay-icon::before {
+    font-size: var(--token-typography-size-xs);
+    font-weight: var(--token-typography-weight-bold);
+    line-height: 1;
+    content: "!";
+}
+
+.schedule-status-overlay-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: var(--token-typography-size-lg);
+    font-weight: var(--token-typography-weight-medium);
+    white-space: nowrap;
+}
+
+@keyframes schedule-status-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+:root[data-reduce-motion="true"] .schedule-status-overlay {
+    transition-duration: 0ms;
+}
+
+:root[data-reduce-motion="true"] .schedule-status-overlay-icon {
+    animation-duration: 0ms;
+}

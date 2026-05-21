@@ -17,9 +17,9 @@ import {
 
 const AUTO_PLAN_DELAY_MS = 450;
 const AUTO_PLAN_FAILURE_MESSAGE = "Automatic plan refresh failed.";
-const AUTO_PLAN_GENERATING_MESSAGE = "Updating plan...";
+const AUTO_PLAN_GENERATING_MESSAGE = "Updating Schedule";
 const AUTO_PLAN_SUCCESS_ANNOUNCEMENT = "";
-const AUTO_PLAN_SUCCESS_MESSAGE = "Plan updated.";
+const AUTO_PLAN_SUCCESS_MESSAGE = "Schedule Updated";
 const DEFAULT_LAST_RESULT: PlannerResult = {
     created_at: "",
     schedule: [],
@@ -49,9 +49,12 @@ function createAutoPlanSuccessHandler(
 
 function autoPlanGenerationArgs(
     args: RunAutoPlanFactoryArgs,
+    runVersion: number,
 ): RunPlanGenerationArgs {
     return {
         ...args,
+        isRunCurrent: (): boolean =>
+            autoPlanRunIsCurrent(args.state, runVersion),
         onSuccess: createAutoPlanSuccessHandler(args),
         statusGeneratingMessage: AUTO_PLAN_GENERATING_MESSAGE,
         statusSuccessMessage: AUTO_PLAN_SUCCESS_MESSAGE,
@@ -59,36 +62,41 @@ function autoPlanGenerationArgs(
     };
 }
 
-async function executeAutoPlan(args: RunAutoPlanFactoryArgs): Promise<void> {
-    await runPlanGeneration(autoPlanGenerationArgs(args));
+async function executeAutoPlan(
+    args: RunAutoPlanFactoryArgs,
+    runVersion: number,
+): Promise<void> {
+    await runPlanGeneration(autoPlanGenerationArgs(args, runVersion));
 }
 
-function markAutoPlanPending(state: AutoPlanState): boolean {
-    if (!state.autoRunInFlight) {
-        return false;
-    }
+function markAutoPlanQueued(state: AutoPlanState): void {
     const STATE = state;
     STATE.autoRunPending = true;
-    return true;
+    STATE.autoRunVersion += 1;
 }
 
-function markAutoPlanInFlight(state: AutoPlanState): void {
+function startAutoPlanRun(state: AutoPlanState): number {
     const STATE = state;
+    STATE.activeRunCount += 1;
     STATE.autoRunInFlight = true;
+    STATE.autoRunPending = false;
+    return STATE.autoRunVersion;
 }
 
-function finalizeAutoPlanRun(
-    state: AutoPlanState,
-    scheduleAutoPlan: RunAutoPlanFactoryArgs["scheduleAutoPlan"],
-    runner: () => Promise<void>,
-): void {
+function finalizeAutoPlanRun(state: AutoPlanState): void {
     const STATE = state;
-    STATE.autoRunInFlight = false;
-    if (!STATE.autoRunPending) {
+    STATE.activeRunCount = Math.max(0, STATE.activeRunCount - 1);
+    if (STATE.activeRunCount > 0) {
         return;
     }
-    STATE.autoRunPending = false;
-    scheduleAutoPlan(runner);
+    STATE.autoRunInFlight = false;
+}
+
+function autoPlanRunIsCurrent(
+    state: AutoPlanState,
+    runVersion: number,
+): boolean {
+    return state.autoRunVersion === runVersion;
 }
 
 function autoPlanFailureHandler(
@@ -97,7 +105,7 @@ function autoPlanFailureHandler(
 ): (_error: unknown) => void {
     return (_error: unknown): void => {
         addLog(AUTO_PLAN_FAILURE_MESSAGE);
-        setStatus(AUTO_PLAN_FAILURE_MESSAGE, true);
+        setStatus(AUTO_PLAN_FAILURE_MESSAGE, true, "error");
     };
 }
 
@@ -125,20 +133,22 @@ function createScheduleAutoPlan(
 }
 
 function autoPlanState(): AutoPlanState {
-    return { autoRunInFlight: false, autoRunPending: false };
+    return {
+        activeRunCount: 0,
+        autoRunInFlight: false,
+        autoRunPending: false,
+        autoRunVersion: 0,
+    };
 }
 
 function createRunAutoPlan(args: RunAutoPlanFactoryArgs): () => Promise<void> {
     const STATE = args.state;
     const RUN = async (): Promise<void> => {
-        if (markAutoPlanPending(STATE)) {
-            return;
-        }
-        markAutoPlanInFlight(STATE);
+        const RUN_VERSION = startAutoPlanRun(STATE);
         try {
-            await executeAutoPlan(args);
+            await executeAutoPlan(args, RUN_VERSION);
         } finally {
-            finalizeAutoPlanRun(STATE, args.scheduleAutoPlan, RUN);
+            finalizeAutoPlanRun(STATE);
         }
     };
     return RUN;
@@ -149,12 +159,18 @@ function createAutoPlanRunner(args: PlanControllerArgs): AutoPlanRunner {
         args.addLog,
         args.setStatus,
     );
-    const RUN_AUTO_PLAN = createRunAutoPlan({
+    const RUN_AUTO_PLAN_ARGS = {
         ...args,
         scheduleAutoPlan: SCHEDULE_AUTO_PLAN,
         state: autoPlanState(),
-    });
-    return { queueAutoPlan: (): void => SCHEDULE_AUTO_PLAN(RUN_AUTO_PLAN) };
+    };
+    const RUN_AUTO_PLAN = createRunAutoPlan(RUN_AUTO_PLAN_ARGS);
+    return {
+        queueAutoPlan: (): void => {
+            markAutoPlanQueued(RUN_AUTO_PLAN_ARGS.state);
+            SCHEDULE_AUTO_PLAN(RUN_AUTO_PLAN);
+        },
+    };
 }
 
 function applySavedResult(

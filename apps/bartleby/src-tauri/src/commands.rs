@@ -1,7 +1,6 @@
 //! Tauri command handlers for the Bartleby migration foundation.
 use crate::{
-    app_paths, book_search, cover_store, native_planner, plan_cache, state_store,
-    window_zoom,
+    app_paths, book_search, cover_store, native_planner, plan_cache, state_store, window_zoom,
 };
 use serde_json::Value;
 
@@ -49,9 +48,14 @@ pub async fn plan_generate(
     plan_cache_state: tauri::State<'_, plan_cache::PlanCacheState>,
 ) -> Result<Value, String> {
     let shared_cache = plan_cache_state.shared();
-    tauri::async_runtime::spawn_blocking(move || plan_cache::generate_plan(&shared_cache, payload))
-        .await
-        .map_err(|error| format!("Planner task join error: {error}"))?
+    let latest_request_id = plan_cache_state.latest_request_id();
+    let request_id = plan_cache_state.next_request_id();
+    tauri::async_runtime::spawn_blocking(move || {
+        let request = plan_cache::PlanRequest::new(&latest_request_id, request_id);
+        plan_cache::generate_plan(&shared_cache, request, payload)
+    })
+    .await
+    .map_err(|error| format!("Planner task join error: {error}"))?
 }
 
 #[tauri::command]

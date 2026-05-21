@@ -91,6 +91,7 @@ pub fn build_output(
     Ok(json!({
         "schedule": schedule,
         "summary": {
+            "deprecation_notice": result.deprecation_notice,
             "feasibility_warning": feasibility_warning,
             "note": result.note,
             "objective": result.objective,
