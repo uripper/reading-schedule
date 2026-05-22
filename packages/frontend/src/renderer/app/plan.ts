@@ -78,7 +78,7 @@ async function handlePlanSuccess({
     successAnnouncement,
 }: PlanSuccessArgs): Promise<void> {
     await onSuccess(data);
-    logPlanSummary(data.summary, addLog);
+    logPlanSummary(data.summary, data.schedule, addLog);
     logDebug("Planner payload resolved successfully.", {
         scheduleRows: data.schedule.length,
         status: data.summary?.status ?? null,

@@ -1,7 +1,10 @@
 import type {
+    PlannerScheduleRow,
     PlannerSummary,
     RunPlanGenerationArgs,
 } from "../../types/types.ts";
+
+const SINGULAR_COUNT = 1;
 
 export interface PlanMessages {
     statusGeneratingMessage: string;
@@ -9,11 +12,44 @@ export interface PlanMessages {
     successAnnouncement: string;
 }
 
-function summaryLog(summary: PlannerSummary | null): string {
+function pluralized(value: number, unit: string): string {
+    if (value === SINGULAR_COUNT) {
+        return unit;
+    }
+    return `${unit}s`;
+}
+
+function scheduledBookCount(schedule: PlannerScheduleRow[]): number {
+    const BOOK_IDS = new Set<string>();
+    for (const ROW of schedule) {
+        BOOK_IDS.add(ROW.book_id);
+    }
+    return BOOK_IDS.size;
+}
+
+function scheduledDayCount(schedule: PlannerScheduleRow[]): number {
+    const DAYS = new Set<string>();
+    for (const ROW of schedule) {
+        DAYS.add(ROW.date);
+    }
+    return DAYS.size;
+}
+
+function summaryLog(
+    summary: PlannerSummary | null,
+    schedule: PlannerScheduleRow[],
+): string {
     const STATUS = summary?.status ?? "not-set";
     const PLANNED = Number(summary?.total_planned_minutes ?? 0);
-    const AVAILABLE = Number(summary?.total_available_minutes ?? 0);
-    return `Status ${STATUS}. Planned ${PLANNED}/${AVAILABLE} minutes.`;
+    const BOOKS = scheduledBookCount(schedule);
+    const DAYS = scheduledDayCount(schedule);
+    return `Status ${STATUS}. Planned ${PLANNED} ${pluralized(
+        PLANNED,
+        "minute",
+    )}, ${BOOKS} ${pluralized(BOOKS, "book")}, across ${DAYS} ${pluralized(
+        DAYS,
+        "day",
+    )}.`;
 }
 
 function logOptionalSummaryText(
@@ -31,11 +67,12 @@ function logOptionalSummaryText(
 
 export function logPlanSummary(
     summary: PlannerSummary | null | undefined,
+    schedule: PlannerScheduleRow[],
     addLog: (message: string) => void,
 ): void {
     logOptionalSummaryText(summary?.deprecation_notice, addLog);
     logOptionalSummaryText(summary?.feasibility_warning, addLog);
-    addLog(summaryLog(summary ?? null));
+    addLog(summaryLog(summary ?? null, schedule));
 }
 
 export function resolvedPlanMessages(

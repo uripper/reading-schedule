@@ -1,8 +1,11 @@
 use serde_json::{json, Value};
+use std::cell::Cell;
 
-use super::generate_plan;
+use super::{generate_plan, generate_plan_with_cancel};
 
+const CANCEL_AFTER_EARLY_EXIT_CHECKS: u32 = 6;
 const FINAL_FRAGMENT_WORDS: i64 = 100;
+const FAR_FUTURE_DATE: &str = "2036-05-18";
 const HIGHEST_PRIORITY: i64 = 1;
 const LOWEST_PRIORITY: i64 = 5;
 const MAX_BLOCKS_PER_BOOK_PER_DAY: i64 = 100;
@@ -222,4 +225,34 @@ fn incomplete_plan_reports_incomplete_status() {
 
     assert_eq!(summary_status(&generated), Some("INCOMPLETE"));
     assert!(warning.contains("Wrong Day"));
+}
+
+#[test]
+fn greedy_stops_when_all_words_are_scheduled_before_end_date() {
+    let cancellation_checks = Cell::new(0);
+    let generated = generate_plan_with_cancel(
+        json!({
+            "books": [
+                book("short-book", "Short Book", HIGHEST_PRIORITY, WORDS_FOR_ONE_BLOCK),
+            ],
+            "settings": planner_settings(
+                MONDAY_DATE,
+                FAR_FUTURE_DATE,
+                MINUTES_PER_SINGLE_BLOCK_DAY
+            ),
+        }),
+        &|| {
+            let next_count = cancellation_checks.get() + 1;
+            cancellation_checks.set(next_count);
+            next_count > CANCEL_AFTER_EARLY_EXIT_CHECKS
+        },
+    )
+    .expect("expected early-exited plan");
+    let rows = generated
+        .get("schedule")
+        .and_then(Value::as_array)
+        .expect("expected schedule rows");
+
+    assert_eq!(rows.len(), 1);
+    assert_eq!(summary_status(&generated), Some("FEASIBLE"));
 }

@@ -52,18 +52,15 @@ pub fn plan_greedy(
         .iter()
         .map(|book| (book.book_id.clone(), words_per_block(book, settings)))
         .collect::<HashMap<_, _>>();
-    let caps = days
-        .iter()
-        .copied()
-        .map(|day| (day, day_capacity_blocks(settings, day)))
-        .collect::<HashMap<_, _>>();
     let daily_book_cap = settings
         .max_books_per_day
         .min(settings.max_sessions_per_day);
-    for day in days.iter().copied() {
+    let mut day_index = 0;
+    while day_index < days.len() && !remaining_words_are_scheduled(&remaining) {
         fail_if_cancelled(should_cancel)?;
+        let day = days[day_index];
         let ordered = ordered_books(books, &books_by_id, &remaining);
-        let cap = day_cap(&caps, day);
+        let cap = day_capacity_blocks(settings, day).max(0);
         plan_day_with_cap(
             &ordered,
             DayState {
@@ -79,11 +76,16 @@ pub fn plan_greedy(
             },
             should_cancel,
         )?;
+        day_index += 1;
     }
     Ok(assignments
         .into_iter()
         .filter(|(_, blocks)| *blocks > 0)
         .collect())
+}
+
+fn remaining_words_are_scheduled(remaining: &HashMap<String, f64>) -> bool {
+    remaining.values().all(|words| *words <= 0.0)
 }
 
 fn plan_day(
@@ -125,10 +127,6 @@ fn ordered_books(
     };
     ordered.sort_by(|left, right| context.compare(left, right));
     ordered
-}
-
-fn day_cap(caps: &HashMap<NaiveDate, i64>, day: NaiveDate) -> i64 {
-    caps.get(&day).copied().unwrap_or(0).max(0)
 }
 
 fn start_next_book(state: &mut DayState<'_>, next_book_id: &str) {
