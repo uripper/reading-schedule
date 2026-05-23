@@ -43,7 +43,10 @@ function setBulkOnlyFieldState(refs: BookFormRefs, bulkMode: boolean): void {
 }
 
 export function isBulkDialogMode(options: OpenDialogOptions): boolean {
-    return options.mode === "bulk";
+    if (options.mode === "bulk") {
+        return true;
+    }
+    return (options.bulkBookIds?.length ?? 0) > 1;
 }
 
 export function applyBookDialogDisplayMode(

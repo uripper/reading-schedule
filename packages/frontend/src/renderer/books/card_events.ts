@@ -1,6 +1,8 @@
 import type { CardHandlers } from "../../types/types.ts";
 import { COVER_PLACEHOLDER } from "./constants.ts";
 
+const MASS_SELECTED_CLASS = "is-mass-selected";
+
 function bindRemoveButtons(
     rootNode: HTMLElement,
     handlers: CardHandlers,
@@ -34,6 +36,10 @@ function bindMassEditInputs(
         INPUT.addEventListener("change", () => {
             handlers.onMassEditSelection?.(
                 INPUT.dataset.bookId ?? "",
+                INPUT.checked,
+            );
+            INPUT.closest<HTMLElement>(".book-card")?.classList.toggle(
+                MASS_SELECTED_CLASS,
                 INPUT.checked,
             );
         });

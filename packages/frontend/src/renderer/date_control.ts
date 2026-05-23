@@ -144,6 +144,14 @@ function normalizedPickerMinimumDate(
     return options.minimumDate;
 }
 
+function pickerHost(input: HTMLInputElement): HTMLElement {
+    const DIALOG = input.closest<HTMLElement>("dialog");
+    if (DIALOG instanceof HTMLElement) {
+        return DIALOG;
+    }
+    return document.body;
+}
+
 function pickerLifecycle(input: HTMLInputElement) {
     return {
         onChange: () => {
@@ -173,7 +181,7 @@ function bindStaticPickerForInput(
     const SHELL = inputShell(input);
     bindStaticDatePicker({
         ...pickerLifecycle(input),
-        host: SHELL ?? document.body,
+        host: pickerHost(input),
         input,
         minimumDate: normalizedPickerMinimumDate(options),
         positionElement: SHELL ?? input,

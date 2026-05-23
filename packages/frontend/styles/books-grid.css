@@ -1,13 +1,21 @@
 .books-toolbar {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: 1fr;
     gap: 12px 18px;
-    align-items: center;
+    align-items: start;
     padding: 18px;
     margin-bottom: var(--token-space-1);
     background: #f3ba78;
     border: 3px solid #000;
     box-shadow: 7px 7px 0 #000;
+}
+
+.books-toolbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-self: start;
 }
 
 .books-controls {
@@ -32,6 +40,7 @@
 .books-control-search {
     min-width: min(240px, 100%);
 }
+
 .books-control-input {
     margin-top: 0;
 }
@@ -39,7 +48,8 @@
 .books-control-input,
 .books-control-select,
 .books-controls .btn,
-.books-toolbar > .btn {
+.books-toolbar > .btn,
+.books-toolbar-actions .btn {
     min-height: 48px;
     padding: 10px 14px;
     margin-top: 0;
@@ -53,14 +63,29 @@
 }
 
 .books-controls .btn,
-.books-toolbar > .btn {
+.books-toolbar > .btn,
+.books-toolbar-actions .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
 }
 
+.books-toolbar .btn[hidden] {
+    display: none;
+}
+
+.books-toolbar-actions .btn {
+    flex: 0 1 auto;
+    width: auto;
+}
+
+.books-toolbar-add-btn {
+    min-width: clamp(152px, 12vw, 188px);
+}
+
 .books-controls .btn:hover,
 .books-toolbar > .btn:hover,
+.books-toolbar-actions .btn:hover,
 .books-control-input:hover,
 .books-control-select:hover,
 .books-control-input:focus-visible,
@@ -72,6 +97,7 @@
 .books-toolbar > .hint-text {
     display: none;
 }
+
 .books-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -88,6 +114,7 @@
     display: grid;
     gap: var(--token-space-2);
 }
+
 .books-group-heading {
     display: inline-flex;
     align-items: center;
@@ -110,11 +137,11 @@
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: var(--token-space-3);
 }
+
 .books-empty {
     display: grid;
     gap: 12px;
-    align-items: center;
-    justify-items: start;
+    place-items: center start;
     padding: 18px;
     margin-top: var(--token-space-2);
     font-weight: 700;
@@ -137,8 +164,8 @@
 }
 
 @media (width <= 1380px) {
-    .books-toolbar {
-        grid-template-columns: 1fr;
+    .books-toolbar-actions {
+        justify-self: stretch;
     }
 
     .books-controls {
@@ -147,6 +174,11 @@
 }
 
 @media (width <= 920px) {
+    .books-toolbar-actions .btn {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
     .books-controls {
         grid-template-columns: 1fr;
     }

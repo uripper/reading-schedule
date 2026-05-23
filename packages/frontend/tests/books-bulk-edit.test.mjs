@@ -4,6 +4,7 @@ import test from "node:test";
 
 import { applyBulkBookUpdates } from "../dist/renderer/books/bulk-edit-updates.js";
 import { nextBooksAfterDialogSave } from "../dist/renderer/books/controller-save.js";
+import { isBulkDialogMode } from "../dist/renderer/books/dialog-display.js";
 import { wrappedBookDialogIndex } from "../dist/renderer/books/dialog-navigation.js";
 
 const BASE_BOOK = {
@@ -107,4 +108,13 @@ test("wrappedBookDialogIndex wraps visible edit navigation", () => {
     assert.equal(wrappedBookDialogIndex(IDS, "book-1", -1), 2);
     assert.equal(wrappedBookDialogIndex(IDS, "book-3", 1), 0);
     assert.equal(wrappedBookDialogIndex(IDS, "missing", 1), -1);
+});
+
+test("isBulkDialogMode treats multi-book selections as bulk edits", () => {
+    assert.equal(isBulkDialogMode({ mode: "bulk" }), true);
+    assert.equal(
+        isBulkDialogMode({ bulkBookIds: ["book-1", "book-2"] }),
+        true,
+    );
+    assert.equal(isBulkDialogMode({ bulkBookIds: ["book-1"] }), false);
 });

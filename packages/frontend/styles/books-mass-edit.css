@@ -1,8 +1,20 @@
 .books-mass-edit-btn {
+    min-width: clamp(190px, 16vw, 240px);
+    color: #111;
     background: #f2d14c;
 }
 
+.books-mass-edit-add-btn {
+    min-width: clamp(180px, 15vw, 228px);
+}
+
+.books-mass-edit-add-btn:disabled {
+    cursor: default;
+    opacity: 0.62;
+}
+
 .books-mass-edit-btn.is-mass-editing {
+    min-width: clamp(236px, 22vw, 320px);
     color: #111;
     background: #b9e2ba;
     box-shadow: 5px 5px 0 #000;
@@ -10,11 +22,13 @@
 
 .books-mass-edit-floating {
     position: fixed;
-    right: 28px;
-    bottom: 28px;
+    right: 24px;
+    bottom: 24px;
     z-index: 420;
-    min-height: 54px;
-    padding: 12px 18px;
+    min-width: clamp(220px, 22vw, 320px);
+    min-height: 64px;
+    padding: 14px 22px;
+    font-size: 1.05rem;
     font-weight: 950;
     color: #111;
     text-transform: uppercase;
@@ -66,7 +80,12 @@
     display: none;
 }
 
-@media (max-width: 700px) {
+@media (width <= 700px) {
+    .books-mass-edit-btn,
+    .books-mass-edit-add-btn {
+        min-width: 0;
+    }
+
     .books-mass-edit-floating {
         right: 16px;
         bottom: 82px;

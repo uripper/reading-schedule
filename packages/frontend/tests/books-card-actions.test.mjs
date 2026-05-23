@@ -41,9 +41,29 @@ function cardContext() {
     };
 }
 
+function massEditCardContext() {
+    return {
+        ...cardContext(),
+        massEdit: {
+            active: true,
+            onBookSelectionChange() {
+                return undefined;
+            },
+            selectedBookIds: new Set([BOOK_ID]),
+        },
+    };
+}
+
 function renderedCard(environment) {
     const ROOT = environment.createElement("div");
     const CARD = createCardNode(bookFixture(), cardContext());
+    ROOT.append(CARD);
+    return { card: CARD, root: ROOT };
+}
+
+function renderedMassEditCard(environment) {
+    const ROOT = environment.createElement("div");
+    const CARD = createCardNode(bookFixture(), massEditCardContext());
     ROOT.append(CARD);
     return { card: CARD, root: ROOT };
 }
@@ -88,6 +108,32 @@ test("book cards render stacked edit and remove actions", () => {
         clickCardActions(NODES);
         assert.deepEqual(EVENTS.edited, [BOOK_ID, BOOK_ID]);
         assert.deepEqual(EVENTS.removed, [BOOK_ID]);
+    } finally {
+        ENVIRONMENT.restore();
+    }
+});
+
+test("mass-edit cards clear selected highlight when a checkbox is unchecked", () => {
+    const ENVIRONMENT = installFakeDom();
+    try {
+        const { card, root } = renderedMassEditCard(ENVIRONMENT);
+        bindCardEvents(root, {
+            onEdit() {
+                return undefined;
+            },
+            onMassEditSelection() {
+                return undefined;
+            },
+            onRemove() {
+                return undefined;
+            },
+        });
+        const CHECKBOX = card.querySelector(".book-mass-select");
+        assert.ok(CHECKBOX);
+        assert.equal(card.classList.contains("is-mass-selected"), true);
+        CHECKBOX.checked = false;
+        CHECKBOX.dispatch("change");
+        assert.equal(card.classList.contains("is-mass-selected"), false);
     } finally {
         ENVIRONMENT.restore();
     }

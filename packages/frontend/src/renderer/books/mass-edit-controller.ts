@@ -1,8 +1,10 @@
 import type { Book, BookMassEditOptions } from "../../types/types.ts";
 
+const ADD_VISIBLE_BUTTON_ID = "booksMassEditAddVisibleBtn";
 const MASS_EDIT_BUTTON_ID = "booksMassEditBtn";
 const FLOATING_BUTTON_ID = "booksMassEditFloatingBtn";
 const ACTIVE_CLASS = "is-mass-editing";
+const ADD_VISIBLE_LABEL_SINGLE = "Add 1 Book";
 const SELECTED_LABEL_SINGLE = "Edit 1 Book";
 const INACTIVE_LABEL = "Mass Edit";
 const ACTIVE_LABEL = "Cancel Mass Edit";
@@ -11,6 +13,12 @@ interface MassEditState {
     active: boolean;
     selectedBookIds: Set<string>;
     visibleBookIds: string[];
+}
+
+interface MassEditButtons {
+    addVisible: HTMLButtonElement;
+    floating: HTMLButtonElement;
+    toolbar: HTMLButtonElement;
 }
 
 export interface MassEditController extends BookMassEditOptions {
@@ -28,6 +36,16 @@ function bookId(book: Book): string {
     return String(book.book_id || "");
 }
 
+function toolbarActions(toolbar: HTMLElement): HTMLElement {
+    const EXISTING = toolbar.querySelector<HTMLElement>(
+        ".books-toolbar-actions",
+    );
+    if (EXISTING instanceof HTMLElement) {
+        return EXISTING;
+    }
+    return toolbar;
+}
+
 function ensureToolbarButton(toolbar: HTMLElement): HTMLButtonElement {
     const EXISTING = document.getElementById(MASS_EDIT_BUTTON_ID);
     if (EXISTING instanceof HTMLButtonElement) {
@@ -38,7 +56,21 @@ function ensureToolbarButton(toolbar: HTMLElement): HTMLButtonElement {
     BUTTON.type = "button";
     BUTTON.className = "btn books-mass-edit-btn";
     BUTTON.textContent = INACTIVE_LABEL;
-    toolbar.insertBefore(BUTTON, toolbar.children[1] ?? null);
+    toolbar.append(BUTTON);
+    return BUTTON;
+}
+
+function ensureAddVisibleButton(toolbar: HTMLElement): HTMLButtonElement {
+    const EXISTING = document.getElementById(ADD_VISIBLE_BUTTON_ID);
+    if (EXISTING instanceof HTMLButtonElement) {
+        return EXISTING;
+    }
+    const BUTTON = document.createElement("button");
+    BUTTON.id = ADD_VISIBLE_BUTTON_ID;
+    BUTTON.type = "button";
+    BUTTON.className = "btn books-mass-edit-add-btn";
+    BUTTON.hidden = true;
+    toolbar.append(BUTTON);
     return BUTTON;
 }
 
@@ -69,21 +101,59 @@ function floatingLabel(count: number): string {
     return `Edit ${count} Books`;
 }
 
-function updateButtons(
-    state: MassEditState,
-    toolbarButton: HTMLButtonElement,
-    floatingButton: HTMLButtonElement,
-): void {
-    const SELECTED_COUNT = selectedVisibleBookIds(state).length;
-    const TOOLBAR_BUTTON = toolbarButton;
-    const FLOATING_BUTTON = floatingButton;
-    TOOLBAR_BUTTON.textContent = INACTIVE_LABEL;
-    if (state.active) {
-        TOOLBAR_BUTTON.textContent = ACTIVE_LABEL;
+function addVisibleLabel(count: number): string {
+    if (count === 1) {
+        return ADD_VISIBLE_LABEL_SINGLE;
     }
-    TOOLBAR_BUTTON.classList.toggle(ACTIVE_CLASS, state.active);
-    FLOATING_BUTTON.hidden = !state.active || SELECTED_COUNT === 0;
-    FLOATING_BUTTON.textContent = floatingLabel(SELECTED_COUNT);
+    return `Add ${count} Books`;
+}
+
+function allVisibleBooksSelected(state: MassEditState): boolean {
+    if (state.visibleBookIds.length === 0) {
+        return false;
+    }
+    return state.visibleBookIds.every((bookIdValue) => {
+        return state.selectedBookIds.has(bookIdValue);
+    });
+}
+
+function setToolbarButtonState(
+    state: MassEditState,
+    buttons: MassEditButtons,
+): void {
+    const TOOLBAR = buttons.toolbar;
+    TOOLBAR.textContent = INACTIVE_LABEL;
+    if (state.active) {
+        TOOLBAR.textContent = ACTIVE_LABEL;
+    }
+    TOOLBAR.classList.toggle(ACTIVE_CLASS, state.active);
+}
+
+function setAddVisibleButtonState(
+    state: MassEditState,
+    buttons: MassEditButtons,
+): void {
+    const ADD_VISIBLE = buttons.addVisible;
+    const VISIBLE_COUNT = state.visibleBookIds.length;
+    ADD_VISIBLE.hidden = !state.active || VISIBLE_COUNT === 0;
+    ADD_VISIBLE.disabled = allVisibleBooksSelected(state);
+    ADD_VISIBLE.textContent = addVisibleLabel(VISIBLE_COUNT);
+}
+
+function setFloatingButtonState(
+    state: MassEditState,
+    buttons: MassEditButtons,
+): void {
+    const FLOATING = buttons.floating;
+    const SELECTED_COUNT = selectedVisibleBookIds(state).length;
+    FLOATING.hidden = !state.active || SELECTED_COUNT === 0;
+    FLOATING.textContent = floatingLabel(SELECTED_COUNT);
+}
+
+function updateButtons(state: MassEditState, buttons: MassEditButtons): void {
+    setToolbarButtonState(state, buttons);
+    setAddVisibleButtonState(state, buttons);
+    setFloatingButtonState(state, buttons);
 }
 
 function pruneHiddenSelections(state: MassEditState): void {
@@ -120,6 +190,33 @@ function toggleSelection(
     state.selectedBookIds.delete(bookIdValue);
 }
 
+function addVisibleBooks(state: MassEditState): void {
+    for (const BOOK_ID of state.visibleBookIds) {
+        state.selectedBookIds.add(BOOK_ID);
+    }
+}
+
+function handleBookSelectionChange(options: {
+    bookIdValue: string;
+    buttons: MassEditButtons;
+    selected: boolean;
+    state: MassEditState;
+}): void {
+    toggleSelection(options.state, options.bookIdValue, options.selected);
+    updateButtons(options.state, options.buttons);
+}
+
+function syncVisibleState(
+    state: MassEditState,
+    buttons: MassEditButtons,
+    books: Book[],
+): void {
+    const NEXT_STATE = state;
+    NEXT_STATE.visibleBookIds = books.map(bookId).filter(Boolean);
+    pruneHiddenSelections(NEXT_STATE);
+    updateButtons(NEXT_STATE, buttons);
+}
+
 function submitSelection(
     state: MassEditState,
     args: CreateMassEditControllerArgs,
@@ -146,25 +243,25 @@ function createMassEditState(): MassEditState {
 
 function bindMassEditButtons(options: {
     args: CreateMassEditControllerArgs;
-    floatingButton: HTMLButtonElement;
+    buttons: MassEditButtons;
     state: MassEditState;
-    toolbarButton: HTMLButtonElement;
 }): void {
     const STATE = options.state;
-    const TOOLBAR_BUTTON = options.toolbarButton;
-    const FLOATING_BUTTON = options.floatingButton;
-    TOOLBAR_BUTTON.onclick = (): void => {
+    options.buttons.toolbar.onclick = (): void => {
         setActive(STATE, !STATE.active, options.args.rerender);
     };
-    FLOATING_BUTTON.onclick = (): void => {
+    options.buttons.addVisible.onclick = (): void => {
+        addVisibleBooks(STATE);
+        options.args.rerender();
+    };
+    options.buttons.floating.onclick = (): void => {
         submitSelection(STATE, options.args);
     };
 }
 
 function massEditControllerApi(
     state: MassEditState,
-    toolbarButton: HTMLButtonElement,
-    floatingButton: HTMLButtonElement,
+    buttons: MassEditButtons,
 ): MassEditController {
     const STATE = state;
     return {
@@ -172,16 +269,18 @@ function massEditControllerApi(
             return STATE.active;
         },
         onBookSelectionChange(bookIdValue, selected): void {
-            toggleSelection(STATE, bookIdValue, selected);
-            updateButtons(STATE, toolbarButton, floatingButton);
+            handleBookSelectionChange({
+                bookIdValue,
+                buttons,
+                selected,
+                state: STATE,
+            });
         },
         get selectedBookIds(): ReadonlySet<string> {
             return new Set(STATE.selectedBookIds);
         },
         syncVisibleBooks(books: Book[]): void {
-            STATE.visibleBookIds = books.map(bookId).filter(Boolean);
-            pruneHiddenSelections(STATE);
-            updateButtons(STATE, toolbarButton, floatingButton);
+            syncVisibleState(STATE, buttons, books);
         },
     };
 }
@@ -190,13 +289,16 @@ export function createMassEditController(
     args: CreateMassEditControllerArgs,
 ): MassEditController {
     const STATE = createMassEditState();
-    const TOOLBAR_BUTTON = ensureToolbarButton(args.toolbar);
-    const FLOATING_BUTTON = ensureFloatingButton();
+    const TOOLBAR_ACTIONS = toolbarActions(args.toolbar);
+    const BUTTONS: MassEditButtons = {
+        addVisible: ensureAddVisibleButton(TOOLBAR_ACTIONS),
+        floating: ensureFloatingButton(),
+        toolbar: ensureToolbarButton(TOOLBAR_ACTIONS),
+    };
     bindMassEditButtons({
         args,
-        floatingButton: FLOATING_BUTTON,
+        buttons: BUTTONS,
         state: STATE,
-        toolbarButton: TOOLBAR_BUTTON,
     });
-    return massEditControllerApi(STATE, TOOLBAR_BUTTON, FLOATING_BUTTON);
+    return massEditControllerApi(STATE, BUTTONS);
 }

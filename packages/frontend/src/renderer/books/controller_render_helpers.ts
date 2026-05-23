@@ -5,22 +5,25 @@ import type {
     RenderableBooksRefs,
 } from "../../types/types.ts";
 import {
+    anyFieldMatchesNormalizedQuery,
     normalizeTitleFilterQuery,
-    titleMatchesNormalizedQuery,
 } from "../title_filter.ts";
 import { shelfFilterMatches } from "./shelf.ts";
 import { sortBooks } from "./sort.ts";
 import { statusFilterMatches } from "./status.ts";
 
 /**
- * Checks whether a book title matches the active case-insensitive text filter.
+ * Checks whether a book matches the active case-insensitive keyword filter.
  * @param book - Book to test.
- * @param titleFilter - Active title filter text.
- * @returns `true` when filter is empty or title contains the filter substring.
+ * @param titleFilter - Active keyword filter text.
+ * @returns `true` when filter is empty or title/author contains the filter substring.
  */
 export function matchesTitleFilter(book: Book, titleFilter: string): boolean {
     const NORMALIZED_FILTER = normalizeTitleFilterQuery(titleFilter);
-    return titleMatchesNormalizedQuery(book.title, NORMALIZED_FILTER);
+    return anyFieldMatchesNormalizedQuery(
+        [book.title, book.author],
+        NORMALIZED_FILTER,
+    );
 }
 
 /**

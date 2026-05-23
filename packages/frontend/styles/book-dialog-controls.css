@@ -27,8 +27,18 @@
     letter-spacing: 0.05em;
 }
 
+.book-shelf-prompt-form > label {
+    display: grid;
+    gap: var(--token-space-1);
+    color: #f8f4e8;
+}
+
 .book-form.is-bulk-book-form .book-form-layout {
     grid-template-columns: 1fr;
+}
+
+.book-form.is-bulk-book-form .book-search-panel {
+    display: none;
 }
 
 .book-form.is-bulk-book-form .book-fields {
