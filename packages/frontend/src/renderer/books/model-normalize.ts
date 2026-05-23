@@ -62,7 +62,11 @@ function normalizedBookState(book: BookInput): NormalizedBookState {
     return {
         normalized: NORMALIZED,
         pagesTotal: TOTALS.pagesTotal,
-        status: statusFromRaw(book.status, NORMALIZED.progress),
+        status: statusFromRaw(
+            book.status,
+            NORMALIZED.progress,
+            NORMALIZED.pagesRead,
+        ),
         wordsTotal: TOTALS.wordsTotal,
     };
 }

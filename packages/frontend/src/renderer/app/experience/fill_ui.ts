@@ -1,15 +1,13 @@
-import type { FeatureFlags, Preferences } from "../../../types/types.ts";
+import type { Preferences } from "../../../types/types.ts";
 import { el } from "../../dom.ts";
 import {
     REMINDERS_AVAILABLE,
-    SOCIAL_FEATURES_AVAILABLE,
     shippedFeatureFlag,
     shippedReminderTime,
 } from "./availability.ts";
 import { DEFAULT_PREFERENCES } from "./model.ts";
 
 function fillCorePreferenceControls(preferences: Preferences): void {
-    el<HTMLSelectElement>("themeSelect").value = preferences.theme;
     el<HTMLInputElement>("reduceMotionToggle").checked = Boolean(
         preferences.reduceMotion,
     );
@@ -30,26 +28,11 @@ function fillReminderControls(preferences: Preferences): void {
     );
 }
 
-function fillFeatureFlagControls(featureFlags: FeatureFlags): void {
-    el<HTMLInputElement>("flagGamification").checked = Boolean(
-        featureFlags.gamificationEnabled,
-    );
-    el<HTMLInputElement>("flagSocial").checked = shippedFeatureFlag(
-        featureFlags.socialEnabled,
-        SOCIAL_FEATURES_AVAILABLE,
-    );
-}
-
 /**
  * Fills the experience settings UI controls based on the provided preferences and feature flags.
  * @param preferences - User preferences to populate the UI with.
- * @param featureFlags - Current feature flags to determine which features are enabled in the UI.
  */
-export function fillPreferencesUI(
-    preferences: Preferences,
-    featureFlags: FeatureFlags,
-): void {
+export function fillPreferencesUI(preferences: Preferences): void {
     fillCorePreferenceControls(preferences);
     fillReminderControls(preferences);
-    fillFeatureFlagControls(featureFlags);
 }

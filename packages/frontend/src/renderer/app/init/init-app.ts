@@ -81,9 +81,7 @@ function configureTodayUi(
         rerender: (): void => {
             context.dashboards.updateDashboards();
         },
-        setStatus: (message: string, isError = false): void => {
-            context.setStatus(message, isError);
-        },
+        setStatus: context.setStatus,
     });
 }
 
@@ -179,9 +177,7 @@ function createPlanControllerActions(
         plannerApi: appContext.plannerApi,
         setLastResult: options.setLastResult,
         setScheduleCompletions: options.setScheduleCompletions,
-        setStatus: (message: string, isError = false): void => {
-            appContext.setStatus(message, isError);
-        },
+        setStatus: appContext.setStatus,
         updateTodayView: options.updateTodayView,
     };
 }
@@ -264,9 +260,7 @@ function buildCalendarInteractionArgs(options: {
         renderCalendar,
         setBookScheduleRows,
         setLastResult: options.setLastResult,
-        setStatus: (message: string, isError = false): void => {
-            options.appContext.setStatus(message, isError);
-        },
+        setStatus: options.appContext.setStatus,
         state: options.runtimeState,
         totalsFromSummary,
         updateBookProgress,

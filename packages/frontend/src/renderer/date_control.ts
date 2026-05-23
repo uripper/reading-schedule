@@ -1,11 +1,15 @@
-import flatpickr from "flatpickr";
-import type { Instance } from "flatpickr/dist/types/instance";
+import {
+    bindStaticDatePicker,
+    clearDatePicker,
+    closeDatePicker,
+    openDatePicker,
+    syncDatePickerDisabled,
+    syncDatePickerValue,
+} from "./date-control-flatpickr.ts";
+
 const CLEAR_BUTTON_LABEL = "Clear";
-const DATE_FORMAT = "Y-m-d";
 const DATE_INPUT_BOUND = "true";
 const OPEN_CLASS = "is-open";
-const PREVIOUS_MONTH_LABEL = "Prev";
-const NEXT_MONTH_LABEL = "Next";
 
 type BoundDateInputOptions = {
     allowEmpty: boolean;
@@ -13,27 +17,16 @@ type BoundDateInputOptions = {
     placeholder: string;
 };
 
-const PICKERS = new WeakMap<HTMLInputElement, Instance>();
-
 function inputShell(input: HTMLInputElement): HTMLElement | null {
     return input.closest<HTMLElement>(".date-input-shell");
 }
 
-function pickerHost(input: HTMLInputElement): HTMLElement {
-    let current = input.parentElement;
-    while (current !== null) {
-        if (current.tagName === "DIALOG") {
-            return current;
-        }
-        current = current.parentElement;
-    }
-    return document.body;
-}
-
 function clearButton(input: HTMLInputElement): HTMLButtonElement | null {
-    return inputShell(input)?.querySelector<HTMLButtonElement>(
-        ".date-input-clear",
-    ) ?? null;
+    return (
+        inputShell(input)?.querySelector<HTMLButtonElement>(
+            ".date-input-clear",
+        ) ?? null
+    );
 }
 
 function normalizedMinimumDate(value: string | undefined): string {
@@ -57,44 +50,40 @@ function dispatchDateChange(input: HTMLInputElement): void {
     input.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
-function pickerInstance(input: HTMLInputElement): Instance | null {
-    return PICKERS.get(input) ?? null;
-}
-
-function currentPickerValue(picker: Instance): string {
-    const SELECTED = picker.selectedDates[0];
-    if (SELECTED === undefined) {
-        return "";
-    }
-    return picker.formatDate(SELECTED, DATE_FORMAT);
-}
-
 function syncPickerValue(input: HTMLInputElement): void {
-    const PICKER = pickerInstance(input);
-    if (PICKER === null) {
-        return;
-    }
-    const VALUE = input.value.trim();
-    if (VALUE === "") {
-        if (PICKER.selectedDates.length > 0) {
-            PICKER.clear(false);
-        }
+    syncDatePickerValue(input, () => {
         syncClearButton(input);
-        return;
-    }
-    if (currentPickerValue(PICKER) === VALUE) {
-        syncClearButton(input);
-        return;
-    }
-    PICKER.setDate(VALUE, false, DATE_FORMAT);
-    syncClearButton(input);
+    });
 }
 
 function clearDateInputValue(input: HTMLInputElement): void {
-    input.value = "";
-    pickerInstance(input)?.clear(false);
-    syncClearButton(input);
-    dispatchDateChange(input);
+    const TARGET_INPUT = input;
+    TARGET_INPUT.value = "";
+    clearDatePicker(TARGET_INPUT);
+    syncClearButton(TARGET_INPUT);
+    dispatchDateChange(TARGET_INPUT);
+}
+
+function shouldOpenPickerKey(
+    event: KeyboardEvent,
+    openPicker: (() => void) | null,
+): boolean {
+    if (openPicker === null) {
+        return false;
+    }
+    return (
+        event.key === "ArrowDown" || event.key === "Enter" || event.key === " "
+    );
+}
+
+function shouldClearDateKey(
+    event: KeyboardEvent,
+    options: BoundDateInputOptions,
+): boolean {
+    if (!options.allowEmpty) {
+        return false;
+    }
+    return event.key === "Backspace" || event.key === "Delete";
 }
 
 function bindInputKeys(
@@ -103,19 +92,13 @@ function bindInputKeys(
     openPicker: (() => void) | null,
 ): void {
     input.addEventListener("keydown", (event) => {
-        if (
-            openPicker !== null &&
-            (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ")
-        ) {
+        if (shouldOpenPickerKey(event, openPicker)) {
             event.preventDefault();
             syncPickerValue(input);
-            openPicker();
+            openPicker?.();
             return;
         }
-        if (!options.allowEmpty) {
-            return;
-        }
-        if (event.key !== "Backspace" && event.key !== "Delete") {
+        if (!shouldClearDateKey(event, options)) {
             return;
         }
         event.preventDefault();
@@ -128,11 +111,12 @@ function decorateInput(
     options: BoundDateInputOptions,
 ): HTMLButtonElement | null {
     const SHELL = document.createElement("div");
+    const TARGET_INPUT = input;
     SHELL.className = "date-input-shell";
-    input.replaceWith(SHELL);
-    SHELL.append(input);
+    TARGET_INPUT.replaceWith(SHELL);
+    SHELL.append(TARGET_INPUT);
 
-    let clear = null;
+    let clear: HTMLButtonElement | null = null;
     if (options.allowEmpty) {
         clear = document.createElement("button");
         clear.className = "btn date-input-clear";
@@ -142,34 +126,34 @@ function decorateInput(
         SHELL.append(clear);
     }
 
-    input.classList.add("date-input-field");
-    input.placeholder = options.placeholder;
-    input.readOnly = true;
-    input.spellcheck = false;
-    input.type = "text";
+    TARGET_INPUT.classList.add("date-input-field");
+    TARGET_INPUT.placeholder = options.placeholder;
+    TARGET_INPUT.readOnly = true;
+    TARGET_INPUT.spellcheck = false;
+    TARGET_INPUT.type = "text";
 
     return clear;
 }
 
-function createPicker(
-    input: HTMLInputElement,
+function normalizedPickerMinimumDate(
     options: BoundDateInputOptions,
-): Instance {
-    const HOST = pickerHost(input);
-    const POSITION_ELEMENT = inputShell(input) ?? input;
-    const PICKER = flatpickr(input, {
-        allowInput: false,
-        appendTo: HOST,
-        clickOpens: true,
-        closeOnSelect: true,
-        dateFormat: DATE_FORMAT,
-        disableMobile: true,
-        minDate: options.minimumDate === "" ? undefined : options.minimumDate,
-        monthSelectorType: "static",
-        nextArrow: NEXT_MONTH_LABEL,
-        position: "auto left",
-        positionElement: POSITION_ELEMENT,
-        prevArrow: PREVIOUS_MONTH_LABEL,
+): string | undefined {
+    if (options.minimumDate === "") {
+        return undefined;
+    }
+    return options.minimumDate;
+}
+
+function pickerHost(input: HTMLInputElement): HTMLElement {
+    const DIALOG = input.closest<HTMLElement>("dialog");
+    if (DIALOG instanceof HTMLElement) {
+        return DIALOG;
+    }
+    return document.body;
+}
+
+function pickerLifecycle(input: HTMLInputElement) {
+    return {
         onChange: () => {
             syncClearButton(input);
             dispatchDateChange(input);
@@ -187,40 +171,62 @@ function createPicker(
         onValueUpdate: () => {
             syncClearButton(input);
         },
+    };
+}
+
+function bindStaticPickerForInput(
+    input: HTMLInputElement,
+    options: BoundDateInputOptions,
+): void {
+    const SHELL = inputShell(input);
+    bindStaticDatePicker({
+        ...pickerLifecycle(input),
+        host: pickerHost(input),
+        input,
+        minimumDate: normalizedPickerMinimumDate(options),
+        positionElement: SHELL ?? input,
     });
-    return PICKER;
+}
+
+function bindBrowserPickerEvents(
+    input: HTMLInputElement,
+    clearButton: HTMLButtonElement | null,
+    options: BoundDateInputOptions,
+): void {
+    input.addEventListener("click", () => {
+        syncPickerValue(input);
+        openDatePicker(input);
+    });
+    clearButton?.addEventListener("click", () => {
+        clearDateInputValue(input);
+        closeDatePicker(input);
+    });
+    bindInputKeys(input, options, () => {
+        openDatePicker(input);
+    });
 }
 
 function bindBrowserDateInput(
     input: HTMLInputElement,
     options: BoundDateInputOptions,
 ): void {
+    const TARGET_INPUT = input;
     const CLEAR_BUTTON = decorateInput(input, options);
-    const PICKER = createPicker(input, options);
-    PICKERS.set(input, PICKER);
-    input.dataset.dateInputBound = DATE_INPUT_BOUND;
-    input.addEventListener("click", () => {
-        syncPickerValue(input);
-        PICKER.open();
-    });
-    CLEAR_BUTTON?.addEventListener("click", () => {
-        clearDateInputValue(input);
-        PICKER.close();
-    });
-    bindInputKeys(input, options, () => {
-        pickerInstance(input)?.open();
-    });
-    syncPickerValue(input);
+    bindStaticPickerForInput(TARGET_INPUT, options);
+    TARGET_INPUT.dataset.dateInputBound = DATE_INPUT_BOUND;
+    bindBrowserPickerEvents(TARGET_INPUT, CLEAR_BUTTON, options);
+    syncPickerValue(TARGET_INPUT);
 }
 
 function bindFallbackDateInput(
     input: HTMLInputElement,
     options: BoundDateInputOptions,
 ): void {
+    const TARGET_INPUT = input;
     const CLEAR_BUTTON = decorateInput(input, options);
-    input.dataset.dateInputBound = DATE_INPUT_BOUND;
+    TARGET_INPUT.dataset.dateInputBound = DATE_INPUT_BOUND;
     CLEAR_BUTTON?.addEventListener("click", () => {
-        clearDateInputValue(input);
+        clearDateInputValue(TARGET_INPUT);
     });
     bindInputKeys(input, options, null);
     syncClearButton(input);
@@ -261,18 +267,14 @@ export function syncDateInputDisabled(
     input: HTMLInputElement,
     disabled: boolean,
 ): void {
-    input.disabled = disabled;
-    const CLEAR = clearButton(input);
+    const TARGET_INPUT = input;
+    TARGET_INPUT.disabled = disabled;
+    const CLEAR = clearButton(TARGET_INPUT);
     if (CLEAR !== null) {
         CLEAR.disabled = disabled || input.value.trim() === "";
     }
-    const PICKER = pickerInstance(input);
-    if (PICKER === null) {
-        return;
-    }
-    PICKER.set("clickOpens", !disabled);
+    syncDatePickerDisabled(TARGET_INPUT, disabled);
     if (disabled) {
-        PICKER.close();
         return;
     }
     syncPickerValue(input);

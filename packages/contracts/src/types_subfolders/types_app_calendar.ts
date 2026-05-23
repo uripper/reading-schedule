@@ -2,17 +2,21 @@
  * Calendar interaction and schedule mutation contract types for the app runtime.
  */
 
-import type { AppStateMutation } from "./types_app_runtime.js";
+import type { AppStateMutation } from "./types_app_runtime.ts";
 import type {
     BlockedDayBookState,
     PlannerCalendarBindings,
     PlannerResultState,
     ScheduleCompletionState,
     SetStatus,
-} from "./types_app_shared.js";
-import type { Book, BookProgressUpdates, UpdateBookProgressOptions } from "./types_books.js";
-import type { CalendarHandlers } from "./types_calendar.js";
-import type { PlannerScheduleRow, PlannerSettings } from "./types_planner.js";
+} from "./types_app_shared.ts";
+import type {
+    Book,
+    BookProgressUpdates,
+    UpdateBookProgressOptions,
+} from "./types_books.ts";
+import type { CalendarHandlers } from "./types_calendar.ts";
+import type { PlannerScheduleRow, PlannerSettings } from "./types_planner.ts";
 
 /** Minimal schedule-row shape used by completion and progress events. */
 export interface ScheduleRow {
@@ -107,6 +111,8 @@ export interface SharedScheduleBindings {
     collectSettings: AppCalendarInteractionArgs["collectSettings"];
     /** Shared book lookup used by schedule mutation handlers. */
     getBookById: AppCalendarInteractionArgs["getBookById"];
+    /** Optional callback fired after book progress has been updated. */
+    onProgressUpdated?(book: UpdatedBook): void;
     /** Notifies listeners that schedule rows have changed. */
     onScheduleRowsUpdated(this: void): void;
     /** Queues persist work for deferred execution. */
@@ -123,6 +129,8 @@ export interface SharedScheduleBindings {
     state: AppCalendarInteractionArgs["state"];
     /** Shared helper that builds day totals from planner summary data. */
     totalsFromSummary: AppCalendarInteractionArgs["totalsFromSummary"];
+    /** Applies progress updates to a book and returns the updated book if found. */
+    updateBookProgress: AppCalendarInteractionArgs["updateBookProgress"];
 }
 
 /** Arguments required to append a manual session to the current schedule. */
@@ -139,6 +147,10 @@ export interface AddManualSessionArgs extends SharedUpdateArgs {
     getBookById(this: void, bookId: string): Book | null;
     /** Session duration in minutes. */
     minutes: number;
+    /** Optional callback fired after book progress has been updated. */
+    onProgressUpdated?(book: UpdatedBook): void;
+    /** Applies progress updates to a book and returns the updated book if found. */
+    updateBookProgress: AppCalendarInteractionArgs["updateBookProgress"];
 }
 
 /** Arguments required to remove a scheduled session row. */

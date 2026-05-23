@@ -11,8 +11,7 @@
 }
 
 .app-header {
-    position: sticky;
-    top: 0;
+    position: relative;
     z-index: 90;
     display: grid;
     grid-template-areas: "brand metrics actions";

@@ -7,9 +7,9 @@ import {
     normalizePreferences,
 } from "../dist/renderer/app/experience/model.js";
 
-test("normalizeFeatureFlags keeps shipped gamification flag", () => {
+test("normalizeFeatureFlags always keeps gamification enabled", () => {
     const FLAGS = normalizeFeatureFlags({
-        gamificationEnabled: true,
+        gamificationEnabled: false,
     });
 
     assert.equal(FLAGS.gamificationEnabled, true);
@@ -21,7 +21,16 @@ test("normalizeFeatureFlags disables hidden placeholder flags", () => {
         socialEnabled: true,
     });
 
+    assert.equal(FLAGS.gamificationEnabled, true);
     assert.equal(FLAGS.socialEnabled, false);
+});
+
+test("normalizePreferences rejects removed light theme", () => {
+    const PREFERENCES = normalizePreferences({
+        theme: "light",
+    });
+
+    assert.equal(PREFERENCES.theme, "system");
 });
 
 test("normalizePreferences disables hidden reminder settings", () => {

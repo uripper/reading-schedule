@@ -11,7 +11,7 @@ function assertDefaultStateValues(state) {
     assert.equal(state.lastResult, null);
     assert.equal(state.ready, false);
     assert.deepEqual(state.featureFlags, {
-        gamificationEnabled: false,
+        gamificationEnabled: true,
         socialEnabled: false,
     });
     assert.deepEqual(state.preferences, {
@@ -49,7 +49,7 @@ test("createRuntimeState clones nested defaults for each call", () => {
     FIRST_STATE.derived.completionBySessionKey["session-1"] = true;
 
     assert.deepEqual(SECOND_STATE.blockedDayBooks, {});
-    assert.equal(SECOND_STATE.featureFlags.gamificationEnabled, false);
+    assert.equal(SECOND_STATE.featureFlags.gamificationEnabled, true);
     assert.equal(SECOND_STATE.preferences.dailyGoalMinutes, 30);
     assert.deepEqual(SECOND_STATE.derived.completionBySessionKey, {});
 });

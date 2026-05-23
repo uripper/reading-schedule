@@ -6,35 +6,33 @@ import type {
     Book,
     BookDialogController,
     BookDialogOptions,
-    BookSubmitPayload,
-    OpenBookDialogArgs,
+    BookDialogSubmitPayload,
     OpenDialogOptions,
 } from "../../types/types.ts";
 import { bindDialogFocus } from "../accessibility/a11y.ts";
 import { bindBookLookup } from "../book_lookup/search.ts";
 import { bindDateInput } from "../date_control.ts";
 import { createAfterBookPicker } from "./after_book_picker.ts";
+import { bindBulkEditDirtyTracking } from "./bulk-edit-form.ts";
 import { bindCoverUpload } from "./cover_upload.ts";
 import { bindBookDialogProgressSync } from "./dialog_progress_sync.ts";
+import { bindBookDialogSubmit } from "./dialog_submit.ts";
+import type { BookDialogNavigationRefs } from "./dialog-navigation.ts";
 import {
-    bindBookDialogSubmit,
-    resetBookDialogSubmitState,
-} from "./dialog_submit.ts";
+    bindBookDialogNavigation,
+    ensureBookDialogNavigation,
+} from "./dialog-navigation.ts";
+import { navigateVisibleBook } from "./dialog-navigation-flow.ts";
+import { openBookDialog, unlockBookDialogScroll } from "./dialog-open.ts";
+import type { DialogSessionState } from "./dialog-session.ts";
+import {
+    createDialogSessionState,
+    dialogSubmitPayload,
+} from "./dialog-session.ts";
 import { ensureBookFormLayoutFields } from "./form_layout.ts";
 import { getBookFormRefs } from "./form_refs.ts";
-import { clearForm, fillForm } from "./form-state.ts";
 import { applyLookupItem } from "./form-state-lookup.ts";
-import { bindShelfPicker, renderShelfPicker } from "./shelf_picker.ts";
-
-const BOOK_DIALOG_OPEN_CLASS = "book-dialog-open";
-
-function lockBookDialogScroll(): void {
-    document.body.classList.add(BOOK_DIALOG_OPEN_CLASS);
-}
-
-function unlockBookDialogScroll(): void {
-    document.body.classList.remove(BOOK_DIALOG_OPEN_CLASS);
-}
+import { bindShelfPicker } from "./shelf_picker.ts";
 
 /**
  * Resolves the live books getter from optional dialog options.
@@ -48,24 +46,6 @@ function booksGetter(options: BookDialogOptions): () => Book[] {
         }
         return [];
     };
-}
-
-/**
- * Opens dialog UI and applies add/edit form state.
- * @param args - Dialog open dependencies and target book state.
- */
-function openBookDialog(args: OpenBookDialogArgs): void {
-    const FORM_REFS = args.refs;
-    const { book } = args;
-    args.dialogFocus.rememberOpener();
-    clearForm(FORM_REFS, args.lookupControl);
-    args.afterBookPicker.openForBook(book);
-    renderShelfPicker(FORM_REFS, args.getBooks(), selectedShelfForDialog(args));
-    applyDialogBookState(FORM_REFS, book);
-    resetBookDialogSubmitState(FORM_REFS);
-    lockBookDialogScroll();
-    FORM_REFS.dialog.showModal();
-    args.dialogFocus.focusInitialTarget();
 }
 
 /**
@@ -100,6 +80,7 @@ function initializeBookDialogRefs(): ReturnType<typeof getBookFormRefs> {
     });
     bindShelfPicker(REFS);
     bindCoverUpload(REFS);
+    bindBulkEditDirtyTracking(REFS);
     return REFS;
 }
 
@@ -116,33 +97,14 @@ function createLookupControl(
     });
 }
 
-function selectedShelfForDialog(args: OpenBookDialogArgs): string {
-    const SELECTED_SHELF = String(args.dialogOptions.defaultShelf ?? "").trim();
-    if (args.book !== null && args.book.shelf !== "") {
-        return args.book.shelf;
-    }
-    return SELECTED_SHELF;
-}
-
-function applyDialogBookState(
-    refs: ReturnType<typeof getBookFormRefs>,
-    book: Book | null,
-): void {
-    const FORM_REFS = refs;
-    FORM_REFS.dialogTitle.textContent = "Add Book";
-    if (book === null) {
-        return;
-    }
-    FORM_REFS.dialogTitle.textContent = "Edit Book";
-    fillForm(FORM_REFS, book);
-}
-
 function createOpenHandler(options: {
     afterBookPicker: ReturnType<typeof createAfterBookPicker>;
     dialogFocus: ReturnType<typeof bindDialogFocus>;
     getBooks: () => Book[];
     lookupControl: ReturnType<typeof bindBookLookup>;
+    navigation: BookDialogNavigationRefs;
     refs: ReturnType<typeof getBookFormRefs>;
+    sessionState: DialogSessionState;
 }): BookDialogController["open"] {
     return (
         book: Book | null = null,
@@ -155,42 +117,75 @@ function createOpenHandler(options: {
             dialogOptions,
             getBooks: options.getBooks,
             lookupControl: options.lookupControl,
+            navigation: options.navigation,
             refs: options.refs,
+            sessionState: options.sessionState,
         });
     };
 }
 
-function createBookDialogHandlers(
-    refs: ReturnType<typeof getBookFormRefs>,
-    getBooks: () => Book[],
-): {
+function createBookDialogHandlers(options: {
+    getBooks: () => Book[];
+    onSubmit: (payload: BookDialogSubmitPayload) => Promise<void> | void;
+    refs: ReturnType<typeof getBookFormRefs>;
+    sessionState: DialogSessionState;
+}): {
     close: () => void;
     open: BookDialogController["open"];
 } {
-    const AFTER_BOOK_PICKER = createAfterBookPicker(refs, getBooks);
-    const DIALOG_FOCUS = bindDialogFocus(refs.dialog, {
+    const REFS = options.refs;
+    const AFTER_BOOK_PICKER = createAfterBookPicker(REFS, options.getBooks);
+    const DIALOG_FOCUS = bindDialogFocus(REFS.dialog, {
         initialFocusSelector: "#bookTitleInput",
     });
-    const LOOKUP_CONTROL = createLookupControl(refs);
+    const LOOKUP_CONTROL = createLookupControl(REFS);
+    const NAVIGATION = ensureBookDialogNavigation(REFS);
     const CLOSE = (): void => {
         DIALOG_FOCUS.closeAndReturnFocus();
     };
     const OPEN = createOpenHandler({
         afterBookPicker: AFTER_BOOK_PICKER,
         dialogFocus: DIALOG_FOCUS,
-        getBooks,
+        getBooks: options.getBooks,
         lookupControl: LOOKUP_CONTROL,
-        refs,
+        navigation: NAVIGATION,
+        refs: REFS,
+        sessionState: options.sessionState,
     });
+    bindNavigationHandler({ ...options, navigation: NAVIGATION, open: OPEN });
     return { close: CLOSE, open: OPEN };
+}
+
+function bindNavigationHandler(options: {
+    getBooks: () => Book[];
+    navigation: BookDialogNavigationRefs;
+    onSubmit: (payload: BookDialogSubmitPayload) => Promise<void> | void;
+    open: BookDialogController["open"];
+    refs: ReturnType<typeof getBookFormRefs>;
+    sessionState: DialogSessionState;
+}): void {
+    bindBookDialogNavigation(options.navigation, (direction) => {
+        navigateVisibleBook({
+            direction,
+            getBooks: options.getBooks,
+            onSubmit: options.onSubmit,
+            open: options.open,
+            refs: options.refs,
+            sessionState: options.sessionState,
+        }).catch(() => {
+            return undefined;
+        });
+    });
 }
 
 function bindDialogInteractions(options: {
     close: () => void;
-    onSubmit: (payload: BookSubmitPayload) => Promise<void> | void;
+    createPayload: () => BookDialogSubmitPayload;
+    onSubmit: (payload: BookDialogSubmitPayload) => Promise<void> | void;
     refs: ReturnType<typeof getBookFormRefs>;
 }): void {
     bindBookDialogSubmit({
+        createPayload: options.createPayload,
         form: options.refs.form,
         onComplete: options.close,
         onSubmit: options.onSubmit,
@@ -211,12 +206,23 @@ function bindDialogInteractions(options: {
  * @returns Dialog API exposing the `open` function.
  */
 export function createBookDialog(
-    onSubmit: (payload: BookSubmitPayload) => Promise<void> | void,
+    onSubmit: (payload: BookDialogSubmitPayload) => Promise<void> | void,
     options: BookDialogOptions = {},
 ): BookDialogController {
     const GET_BOOKS = booksGetter(options);
     const REFS = initializeBookDialogRefs();
-    const HANDLERS = createBookDialogHandlers(REFS, GET_BOOKS);
-    bindDialogInteractions({ close: HANDLERS.close, onSubmit, refs: REFS });
+    const SESSION_STATE = createDialogSessionState();
+    const HANDLERS = createBookDialogHandlers({
+        getBooks: GET_BOOKS,
+        onSubmit,
+        refs: REFS,
+        sessionState: SESSION_STATE,
+    });
+    bindDialogInteractions({
+        close: HANDLERS.close,
+        createPayload: () => dialogSubmitPayload(REFS, SESSION_STATE),
+        onSubmit,
+        refs: REFS,
+    });
     return { open: HANDLERS.open };
 }

@@ -21,7 +21,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
 };
 
 export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
-    gamificationEnabled: false,
+    gamificationEnabled: true,
     socialEnabled: false,
 };
 
@@ -31,7 +31,7 @@ export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
  * @returns True if the value is a supported theme, false otherwise.
  */
 export function isSupportedTheme(value: string): value is Preferences["theme"] {
-    return value === "system" || value === "light" || value === "dark";
+    return value === "system" || value === "dark";
 }
 
 function normalizedTheme(raw: PreferencesInput): Preferences["theme"] {
@@ -88,7 +88,7 @@ export function normalizeFeatureFlags(
     raw: FeatureFlagsInput = {},
 ): FeatureFlags {
     return {
-        gamificationEnabled: Boolean(raw.gamificationEnabled),
+        gamificationEnabled: true,
         socialEnabled: shippedFeatureFlag(
             raw.socialEnabled,
             SOCIAL_FEATURES_AVAILABLE,

@@ -184,6 +184,24 @@ function applyManualSessionCompletion(
     );
 }
 
+function markManualSessionBookStarted(
+    options: AddManualSessionArgs,
+    row: PlannerScheduleRow,
+): void {
+    const UPDATED = options.updateBookProgress(
+        row.book_id,
+        {},
+        {
+            markStarted: true,
+            notifyBooksChanged: false,
+        },
+    );
+    if (UPDATED === null || options.onProgressUpdated === undefined) {
+        return;
+    }
+    options.onProgressUpdated(UPDATED);
+}
+
 function addedManualSessionMessage(result: ManualSessionAddResult): string {
     return `Added ${result.row.minutes} minute session for "${result.row.title}" on ${result.normalizedDate}.`;
 }
@@ -202,6 +220,7 @@ export function finalizeManualSessionAdd(
     options: AddManualSessionArgs,
     result: ManualSessionAddResult,
 ): void {
+    markManualSessionBookStarted(options, result.row);
     applyManualSessionCompletion(options, result.row);
     applyNextResult(options, result.nextResult);
     setBlockedDayBook(options.applyStateMutation, result.row, false);

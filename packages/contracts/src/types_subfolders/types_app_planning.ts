@@ -2,7 +2,7 @@
  * Planning, initialization, and load-state contract types for the app runtime.
  */
 
-import type { AppBootstrapContext } from "./types_app_runtime.js";
+import type { AppBootstrapContext } from "./types_app_runtime.ts";
 import type {
     AddLog,
     AnnouncePoliteness,
@@ -14,17 +14,17 @@ import type {
     ScheduleCompletions,
     ScheduleCompletionWriter,
     SetStatus,
-} from "./types_app_shared.js";
-import type { Book } from "./types_books.js";
-import type { Session } from "./types_core.js";
-import type { FeatureFlags, Preferences } from "./types_experience.js";
+} from "./types_app_shared.ts";
+import type { Book } from "./types_books.ts";
+import type { Session } from "./types_core.ts";
+import type { FeatureFlags, Preferences } from "./types_experience.ts";
 import type {
     LoadedPlannerState,
     PlannerApi,
     PlannerResult,
     PlannerSettings,
     PlannerStateLoadResult,
-} from "./types_planner.js";
+} from "./types_planner.ts";
 
 /** Planner result subset needed when applying newly generated schedules. */
 export type PlannerRunData = Pick<PlannerResult, "schedule" | "summary">;
@@ -73,6 +73,8 @@ export interface PlanCommonArgs extends PlannerInputCollectors {
 
 /** Inputs required to run plan generation with status and announcement handling. */
 export interface RunPlanGenerationArgs extends PlanCommonArgs {
+    /** Returns false after this run has been superseded by newer planning input. */
+    isRunCurrent?(this: void): boolean;
     /** Runs after successful generation to apply the generated schedule. */
     onSuccess(this: void, data: PlannerRunData): Promise<void>;
     /** Optional status text shown while plan generation is in progress. */
@@ -115,10 +117,14 @@ export interface AutoPlanRunner {
 
 /** Mutable flags tracking automatic-plan queue and execution state. */
 export interface AutoPlanState {
+    /** Count of automatic planner requests still awaiting completion. */
+    activeRunCount: number;
     /** True while an automatic plan run is currently executing. */
     autoRunInFlight: boolean;
     /** True when an automatic plan run has been queued but not started yet. */
     autoRunPending: boolean;
+    /** Monotonic request version used to ignore superseded auto-plan results. */
+    autoRunVersion: number;
 }
 
 /** Extra inputs for creating the deferred auto-plan runner. */

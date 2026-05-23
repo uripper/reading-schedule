@@ -18,26 +18,18 @@
 }
 
 .book-estimated-finish-btn {
-    justify-self: auto;
-    padding: 4px var(--token-space-2);
-    font-size: var(--token-typography-size-xs);
-    color: var(--app-textMuted);
-    letter-spacing: 0.02em;
-    white-space: nowrap;
-    background: color-mix(in srgb, var(--app-brand) 14%, var(--app-surface));
-    border: 1px solid
-        color-mix(in srgb, var(--app-brandStrong) 36%, var(--app-border));
-    border-radius: var(--token-radius-pill);
+    align-self: end;
+    justify-self: start;
+    max-width: 100%;
+    color: #f7dfbf;
+    text-align: left;
+    white-space: normal;
+    background: #13213a;
 }
 
 .book-estimated-finish-btn:hover,
 .book-estimated-finish-btn:focus-visible {
-    color: var(--app-text);
-    border-color: color-mix(
-        in srgb,
-        var(--app-brandStrong) 56%,
-        var(--app-border)
-    );
+    color: #ffffff;
 }
 
 .book-card.is-read-card .book-cover-btn.has-cover {

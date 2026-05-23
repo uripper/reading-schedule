@@ -1,37 +1,17 @@
-/**
- * Renders the desktop settings form controls from field metadata so the
- * settings screen and its numeric constraints stay in one place.
- */
 import type { FieldDefinition } from "../../types/types.ts";
 import { el } from "../dom.ts";
-import { DIFFICULTY_LEVEL_COUNT, WEEKDAYS } from "./config.ts";
 
-/** Narrows generic settings fields to input-backed controls. */
 type InputFieldDefinition = Extract<
     FieldDefinition,
     { type: "number" | "date" | "checkbox" }
 >;
-/** Narrows generic settings fields to select-backed controls. */
 type SelectFieldDefinition = Extract<FieldDefinition, { type: "select" }>;
 
-/** String form of an integer step for numeric inputs that should reject decimals. */
 const INTEGER_STEP = "1";
-/** Keys that browsers otherwise accept in `type="number"` inputs but this UI rejects. */
 const INTEGER_INPUT_INVALID_KEYS = new Set(["+", "-", ".", ",", "e", "E"]);
-/** Lower bound for per-weekday minute targets. */
-const WEEKDAY_MINUTES_MIN = "0";
-/** Upper bound for per-weekday minute targets. */
-const WEEKDAY_MINUTES_MAX = "1440";
-/** Step size for difficulty multipliers. */
-const DIFFICULTY_STEP = "0.05";
-/** Lower bound for difficulty multipliers. */
-const DIFFICULTY_MIN = "0.05";
-/** Upper bound for difficulty multipliers. */
-const DIFFICULTY_MAX = "2";
-/** Stored difficulty levels are one-indexed in the settings table. */
-const FIRST_DIFFICULTY_LEVEL = 1;
+const READING_SPEED_FIELD_ID = "wpm_base";
+const READING_SPEED_TEST_URL = "https://www.readinglength.com/wpm";
 
-/** Builds the small keyboard-focusable hint marker shown beside labeled fields. */
 function hintDot(text?: string): HTMLSpanElement | null {
     const NORMALIZED_TEXT = String(text ?? "").trim();
     if (NORMALIZED_TEXT.length === 0) {
@@ -46,12 +26,10 @@ function hintDot(text?: string): HTMLSpanElement | null {
     return DOT;
 }
 
-/** Returns whether a field expects whole-number input only. */
 function isIntegerField(field: FieldDefinition): boolean {
     return field.type === "number" && field.step === INTEGER_STEP;
 }
 
-/** Keeps only the first run of digits entered into an integer-only field. */
 function integerDigitsOnly(value: string): string {
     const MATCH = value.match(/\d+/);
     if (MATCH === null) {
@@ -60,7 +38,6 @@ function integerDigitsOnly(value: string): string {
     return MATCH[0];
 }
 
-/** Rewrites an integer field in place when the browser accepts disallowed characters. */
 function sanitizeIntegerInput(inputNode: HTMLInputElement): void {
     const INPUT_NODE = inputNode;
     const SANITIZED = integerDigitsOnly(INPUT_NODE.value);
@@ -69,16 +46,6 @@ function sanitizeIntegerInput(inputNode: HTMLInputElement): void {
     }
 }
 
-/** Parses a numeric input string and rejects `NaN` or infinity values. */
-function finiteInputValue(rawValue: string): number | null {
-    const VALUE = Number(rawValue);
-    if (!Number.isFinite(VALUE)) {
-        return null;
-    }
-    return VALUE;
-}
-
-/** Rounds integer-only fields after parsing while leaving decimal inputs untouched. */
 function roundedInputValue(value: number, step: string): number {
     if (step !== INTEGER_STEP) {
         return value;
@@ -86,7 +53,6 @@ function roundedInputValue(value: number, step: string): number {
     return Math.round(value);
 }
 
-/** Applies a configured minimum bound when the input declares one. */
 function clampedMinValue(value: number, minValue: string): number {
     if (minValue === "") {
         return value;
@@ -98,7 +64,6 @@ function clampedMinValue(value: number, minValue: string): number {
     return value;
 }
 
-/** Applies a configured maximum bound when the input declares one. */
 function clampedMaxValue(value: number, maxValue: string): number {
     if (maxValue === "") {
         return value;
@@ -110,14 +75,13 @@ function clampedMaxValue(value: number, maxValue: string): number {
     return value;
 }
 
-/** Converts an input's current text to its normalized bounded string value. */
 function clampedNumericValue(inputNode: HTMLInputElement): string | null {
     const RAW = inputNode.value.trim();
     if (RAW === "") {
         return null;
     }
-    const VALUE = finiteInputValue(RAW);
-    if (VALUE === null) {
+    const VALUE = Number(RAW);
+    if (!Number.isFinite(VALUE)) {
         return "";
     }
     const ROUNDED = roundedInputValue(VALUE, inputNode.step);
@@ -125,7 +89,6 @@ function clampedNumericValue(inputNode: HTMLInputElement): string | null {
     return String(clampedMaxValue(MIN_CLAMPED, inputNode.max));
 }
 
-/** Writes the normalized bounded numeric value back to the input when present. */
 function clampNumericInput(inputNode: HTMLInputElement): void {
     const INPUT_NODE = inputNode;
     const VALUE = clampedNumericValue(INPUT_NODE);
@@ -135,29 +98,21 @@ function clampNumericInput(inputNode: HTMLInputElement): void {
     INPUT_NODE.value = VALUE;
 }
 
-/** Stops browser number inputs from accepting scientific notation and sign keys. */
 function preventInvalidIntegerKeys(event: KeyboardEvent): void {
     if (INTEGER_INPUT_INVALID_KEYS.has(event.key)) {
         event.preventDefault();
     }
 }
 
-/** Hints numeric keyboards on platforms that honor `inputMode`. */
-function setNumericInputMode(inputNode: HTMLInputElement): void {
+function bindIntegerInputConstraints(inputNode: HTMLInputElement): void {
     const INPUT_NODE = inputNode;
     INPUT_NODE.inputMode = "numeric";
-}
-
-/** Binds key and input guards for integer-only settings fields. */
-function bindIntegerInputConstraints(inputNode: HTMLInputElement): void {
-    setNumericInputMode(inputNode);
     inputNode.addEventListener("keydown", preventInvalidIntegerKeys);
     inputNode.addEventListener("input", () => {
         sanitizeIntegerInput(inputNode);
     });
 }
 
-/** Applies the full numeric normalization pipeline for a field definition. */
 function normalizeNumericInput(
     inputNode: HTMLInputElement,
     field: FieldDefinition,
@@ -168,7 +123,6 @@ function normalizeNumericInput(
     clampNumericInput(inputNode);
 }
 
-/** Normalizes numeric values when the browser commits or blurs a field. */
 function bindNumericNormalization(
     inputNode: HTMLInputElement,
     field: FieldDefinition,
@@ -181,7 +135,6 @@ function bindNumericNormalization(
     });
 }
 
-/** Hooks numeric-specific behavior only for number fields. */
 function bindNumberConstraints(
     inputNode: HTMLInputElement,
     field: FieldDefinition,
@@ -195,44 +148,13 @@ function bindNumberConstraints(
     bindNumericNormalization(inputNode, field);
 }
 
-/** Applies the fixed bounds for weekday reading-minute inputs. */
-function applyWeekdayMinuteBounds(inputNode: HTMLInputElement): void {
-    const INPUT_NODE = inputNode;
-    INPUT_NODE.type = "number";
-    INPUT_NODE.min = WEEKDAY_MINUTES_MIN;
-    INPUT_NODE.max = WEEKDAY_MINUTES_MAX;
-    INPUT_NODE.step = INTEGER_STEP;
-}
-
-/** Re-clamps weekday minute fields after direct edits. */
-function bindWeekdayMinuteNormalization(inputNode: HTMLInputElement): void {
-    inputNode.addEventListener("blur", () => {
-        clampNumericInput(inputNode);
-    });
-    inputNode.addEventListener("change", () => {
-        clampNumericInput(inputNode);
-    });
-}
-
-/** Creates a weekday minutes input with its id and numeric guards wired in. */
-function createWeekdayMinutesInput(key: string): HTMLInputElement {
-    const INPUT_NODE = document.createElement("input");
-    INPUT_NODE.id = `minutes_${key}`;
-    applyWeekdayMinuteBounds(INPUT_NODE);
-    bindIntegerInputConstraints(INPUT_NODE);
-    bindWeekdayMinuteNormalization(INPUT_NODE);
-    return INPUT_NODE;
-}
-
-/** Adds a hint marker when the field definition includes one. */
-function appendHint(label: HTMLLabelElement, hint?: string): void {
+function appendHint(label: HTMLElement, hint?: string): void {
     const DOT = hintDot(hint);
     if (DOT !== null) {
-        label.append(" ", DOT);
+        label.append(DOT);
     }
 }
 
-/** Appends all configured select options to the created field node. */
 function appendSelectOptions(
     selectNode: HTMLSelectElement,
     options: SelectFieldDefinition["options"],
@@ -245,7 +167,6 @@ function appendSelectOptions(
     }
 }
 
-/** Copies optional numeric bounds from field metadata to the input element. */
 function applyFieldRange(
     inputNode: HTMLInputElement,
     field: InputFieldDefinition,
@@ -259,7 +180,6 @@ function applyFieldRange(
     }
 }
 
-/** Copies an explicit input step value from field metadata when present. */
 function applyFieldStep(
     inputNode: HTMLInputElement,
     field: InputFieldDefinition,
@@ -270,92 +190,100 @@ function applyFieldStep(
     }
 }
 
-/** Builds the correct input element for non-select field definitions. */
-function createInputFieldInput(
-    field: InputFieldDefinition,
-    label: HTMLLabelElement,
-): HTMLInputElement {
+function createInputFieldInput(field: InputFieldDefinition): HTMLInputElement {
     const INPUT_NODE = document.createElement("input");
     INPUT_NODE.type = field.type;
     applyFieldStep(INPUT_NODE, field);
     applyFieldRange(INPUT_NODE, field);
     bindNumberConstraints(INPUT_NODE, field);
-    if (field.type === "checkbox") {
-        label.classList.add("toggle-row");
-    }
     return INPUT_NODE;
 }
 
-/** Creates the control node for a field while preserving label-specific styling. */
 function createFieldInputNode(
     field: FieldDefinition,
-    label: HTMLLabelElement,
 ): HTMLInputElement | HTMLSelectElement {
     if (field.type === "select") {
         const SELECT_NODE = document.createElement("select");
         appendSelectOptions(SELECT_NODE, field.options);
         return SELECT_NODE;
     }
-    return createInputFieldInput(field, label);
+    return createInputFieldInput(field);
 }
 
-/** Renders a single settings field label and its bound control node. */
-function renderFieldInput(field: FieldDefinition): HTMLLabelElement {
+function fieldLabelText(field: FieldDefinition): HTMLSpanElement {
+    const TEXT = document.createElement("span");
+    TEXT.textContent = field.label;
+    return TEXT;
+}
+
+function readingSpeedLink(): HTMLAnchorElement {
+    const LINK = document.createElement("a");
+    LINK.className = "settings-field-link";
+    LINK.rel = "noreferrer";
+    LINK.target = "_blank";
+    LINK.setAttribute("href", READING_SPEED_TEST_URL);
+    LINK.textContent = "Test reading speed";
+    return LINK;
+}
+
+function appendFieldLabelContents(
+    label: HTMLLabelElement,
+    field: FieldDefinition,
+): void {
+    const LABEL_ROW = document.createElement("span");
+    LABEL_ROW.className = "settings-field-label-row";
+    LABEL_ROW.append(fieldLabelText(field));
+    appendHint(LABEL_ROW, field.hint);
+    if (field.id === READING_SPEED_FIELD_ID) {
+        LABEL_ROW.append(readingSpeedLink());
+    }
+    label.append(LABEL_ROW);
+}
+
+function fieldWrapper(field: FieldDefinition): HTMLElement {
+    const WRAPPER = document.createElement("div");
+    WRAPPER.className = "settings-field";
+    WRAPPER.dataset.settingField = field.id;
+    return WRAPPER;
+}
+
+function checkboxLabel(
+    field: FieldDefinition,
+    inputNode: HTMLInputElement,
+): HTMLLabelElement {
     const LABEL = document.createElement("label");
-    LABEL.append(field.label);
+    LABEL.className = "settings-field-checkbox";
+    LABEL.append(inputNode, fieldLabelText(field));
     appendHint(LABEL, field.hint);
-    const INPUT_NODE = createFieldInputNode(field, LABEL);
-    INPUT_NODE.id = field.id;
-    LABEL.append(INPUT_NODE);
     return LABEL;
 }
 
-/** Renders the metadata-driven settings grid into the requested container. */
+function appendNonCheckboxField(
+    wrapper: HTMLElement,
+    field: FieldDefinition,
+    inputNode: HTMLInputElement | HTMLSelectElement,
+): void {
+    const LABEL = document.createElement("label");
+    LABEL.htmlFor = field.id;
+    appendFieldLabelContents(LABEL, field);
+    wrapper.append(LABEL, inputNode);
+}
+
+function renderFieldInput(field: FieldDefinition): HTMLElement {
+    const WRAPPER = fieldWrapper(field);
+    const INPUT_NODE = createFieldInputNode(field);
+    INPUT_NODE.id = field.id;
+    if (field.type === "checkbox" && INPUT_NODE instanceof HTMLInputElement) {
+        WRAPPER.append(checkboxLabel(field, INPUT_NODE));
+        return WRAPPER;
+    }
+    appendNonCheckboxField(WRAPPER, field, INPUT_NODE);
+    return WRAPPER;
+}
+
 export function renderGrid(
     id: string,
     fieldDefinitions: FieldDefinition[],
 ): void {
     el(id).replaceChildren(...fieldDefinitions.map(renderFieldInput));
-}
-
-/** Renders one weekday row that captures target reading minutes for that day. */
-function weekdayMinutesLabel([
-    key,
-    name,
-]: (typeof WEEKDAYS)[number]): HTMLLabelElement {
-    const LABEL = document.createElement("label");
-    LABEL.append(`${name} minutes`);
-    LABEL.append(createWeekdayMinutesInput(key));
-    return LABEL;
-}
-
-/** Renders the weekday minutes grid used by the planner settings panel. */
-export function renderWeekdayGrid(): void {
-    el("weekdayGrid").replaceChildren(...WEEKDAYS.map(weekdayMinutesLabel));
-}
-
-/** Builds one table row pairing a difficulty level label with its input. */
-function createDifficultyRow(level: number): HTMLTableRowElement {
-    const ROW = document.createElement("tr");
-    const LABEL_CELL = document.createElement("td");
-    LABEL_CELL.textContent = String(level);
-    const INPUT_CELL = document.createElement("td");
-    const INPUT_NODE = document.createElement("input");
-    INPUT_NODE.id = `diff_${level}`;
-    INPUT_NODE.type = "number";
-    INPUT_NODE.step = DIFFICULTY_STEP;
-    INPUT_NODE.min = DIFFICULTY_MIN;
-    INPUT_NODE.max = DIFFICULTY_MAX;
-    INPUT_CELL.append(INPUT_NODE);
-    ROW.append(LABEL_CELL, INPUT_CELL);
-    return ROW;
-}
-
-/** Renders all configured difficulty rows into the difficulty table body. */
-export function renderDifficultyRows(): void {
-    const DIFF_ROWS = Array.from(
-        { length: DIFFICULTY_LEVEL_COUNT },
-        (_value, index) => createDifficultyRow(index + FIRST_DIFFICULTY_LEVEL),
-    );
-    el("difficultyBody").replaceChildren(...DIFF_ROWS);
 }

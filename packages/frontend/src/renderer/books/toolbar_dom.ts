@@ -41,7 +41,7 @@ function createLabeledSelect(
 }
 
 /**
- * Creates a labeled toolbar title-filter `<input>` control.
+ * Creates a labeled toolbar keyword-filter `<input>` control.
  * @param labelText - Visible label text.
  * @param inputId - DOM id assigned to input element.
  * @returns Label/input pair ready for toolbar insertion.
@@ -58,7 +58,7 @@ function createLabeledSearchInput(
     INPUT.id = inputId;
     INPUT.autocomplete = "off";
     INPUT.className = "books-control-input";
-    INPUT.placeholder = "Type a title";
+    INPUT.placeholder = "Search title or author";
     LABEL.append(INPUT);
     return { input: INPUT, label: LABEL };
 }
@@ -89,7 +89,7 @@ function sortDirectionButton(): HTMLButtonElement {
 
 function filterControls() {
     const TITLE_FILTER = createLabeledSearchInput(
-        "Title",
+        "Keyword",
         "booksTitleFilterInput",
     );
     const SHELF = createLabeledSelect("Shelf", "booksShelfFilterSelect", []);

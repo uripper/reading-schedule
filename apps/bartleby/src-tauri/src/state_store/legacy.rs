@@ -12,7 +12,6 @@ use super::{
     decorate_primary_json_migration, has_bootstrap_state, legacy_migration_message,
     load_canonical_state, persist_state_to_directory,
 };
-use crate::cover_store;
 
 pub fn load_preferred_state(
     canonical_directory: &Path,
@@ -76,36 +75,20 @@ fn load_legacy_state_if_available(
     if !has_bootstrap_state(&load_result.state) {
         return Ok(Some(load_result));
     }
-    let (normalized_state, cover_warning) =
-        normalize_legacy_cover_paths(&load_result.state, canonical_directory);
-    let mut migrated_result = load_result.clone().with_state(normalized_state.clone());
-    if let Some(warning_message) = cover_warning {
-        migrated_result = append_warning(migrated_result, warning_message);
-    }
-    match persist_state_to_directory(canonical_directory, &normalized_state) {
-        Ok(None) => Ok(Some(with_migration_marker(migrated_result, canonical_directory))),
-        Ok(Some(warning_message)) => {
-            Ok(Some(with_migration_marker(
-                append_warning(migrated_result, warning_message),
-                canonical_directory,
-            )))
-        }
+    let migrated_result = load_result.clone();
+    match persist_state_to_directory(canonical_directory, &load_result.state) {
+        Ok(None) => Ok(Some(with_migration_marker(
+            migrated_result,
+            canonical_directory,
+        ))),
+        Ok(Some(warning_message)) => Ok(Some(with_migration_marker(
+            append_warning(migrated_result, warning_message),
+            canonical_directory,
+        ))),
         Err(error) => Ok(Some(append_warning(
             migrated_result,
             legacy_migration_message(&error),
         ))),
-    }
-}
-
-fn normalize_legacy_cover_paths(state: &serde_json::Value, data_directory: &Path) -> (serde_json::Value, Option<String>) {
-    match cover_store::normalize_state_cover_paths(state, data_directory) {
-        Ok(normalized_state) => (normalized_state, None),
-        Err(error) => (
-            state.clone(),
-            Some(format!(
-                "Loaded legacy saved data but skipped cover migration: {error}"
-            )),
-        ),
     }
 }
 
@@ -121,9 +104,7 @@ fn with_migration_marker(load_result: LoadResult, canonical_directory: &Path) ->
         Ok(()) => load_result,
         Err(error) => append_warning(
             load_result,
-            format!(
-                "Loaded state but could not persist legacy migration marker: {error}"
-            ),
+            format!("Loaded state but could not persist legacy migration marker: {error}"),
         ),
     }
 }

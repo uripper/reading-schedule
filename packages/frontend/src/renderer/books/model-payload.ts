@@ -162,6 +162,7 @@ export function toPayloadBook(book: Book): PlannerPayloadBook {
     const STATUS = statusFromRaw(
         book.status,
         Number(book.progress_percent || 0),
+        book.pages_read ?? null,
     );
     return {
         ...payloadTextFields(book, STATUS),

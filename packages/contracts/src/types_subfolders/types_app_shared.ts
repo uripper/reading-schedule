@@ -3,18 +3,25 @@
  * and calendar type modules.
  */
 
-import type { Book } from "./types_books.js";
-import type { Session } from "./types_core.js";
+import type { Book } from "./types_books.ts";
+import type { Session } from "./types_core.ts";
 import type {
     PlannerApi,
     PlannerResult,
     PlannerScheduleRow,
     PlannerSettings,
     PlannerSummary,
-} from "./types_planner.js";
+} from "./types_planner.ts";
+
+/** Visual status phases used by transient planner status overlays. */
+export type StatusPhase = "loading" | "success" | "error";
 
 /** Callback used to publish status text to the UI; set isError for failure state styling. */
-export type SetStatus = (message: string, isError?: boolean) => void;
+export type SetStatus = (
+    message: string,
+    isError?: boolean,
+    phase?: StatusPhase,
+) => void;
 
 /** ARIA live-region politeness used when announcing messages to assistive technologies. */
 export type AnnouncePoliteness = "polite" | "assertive";

@@ -12,7 +12,7 @@ use super::types::{
     WARNING_RECOVERED_FROM_JOURNAL,
 };
 
-const JOURNAL_KEEP_ROWS: i64 = 200;
+const JOURNAL_KEEP_ROWS: i64 = 5;
 const SAVE_OPERATION: &str = "save_snapshot";
 const SNAPSHOT_ROW_ID: i64 = 1;
 const STATE_SCHEMA_VERSION: i64 = 1;
@@ -71,6 +71,25 @@ pub fn write_state_to_sqlite(data_directory: &Path, state: &Value) -> Result<(),
         .map_err(|error| format!("Unable to create app data directory: {error}"))?;
     let database = open_database(&sqlite_state_path(data_directory))?;
     write_snapshot_transaction(&database, state)
+}
+
+pub fn maintain_sqlite_storage(data_directory: &Path) -> Result<usize, String> {
+    let database_path = sqlite_state_path(data_directory);
+    if !database_path.exists() {
+        return Ok(0);
+    }
+    let database = open_database(&database_path)?;
+    let deleted_rows = trim_journal_rows(&database)?;
+    database
+        .execute_batch(
+            "
+            PRAGMA wal_checkpoint(TRUNCATE);
+            VACUUM;
+            PRAGMA optimize;
+            ",
+        )
+        .map_err(|error| format!("Unable to compact SQLite state database: {error}"))?;
+    Ok(deleted_rows)
 }
 
 fn read_state_from_sqlite_path_read_only(
@@ -230,7 +249,15 @@ fn write_snapshot_transaction(database: &Connection, state: &Value) -> Result<()
         )
         .map_err(|error| format!("Unable to write SQLite journal: {error}"))?;
     upsert_snapshot(&transaction, state)?;
+    trim_journal_rows(&transaction)?;
     transaction
+        .commit()
+        .map_err(|error| format!("Unable to commit SQLite transaction: {error}"))?;
+    Ok(())
+}
+
+fn trim_journal_rows(database: &Connection) -> Result<usize, String> {
+    database
         .execute(
             "
             DELETE FROM planner_state_journal
@@ -240,11 +267,7 @@ fn write_snapshot_transaction(database: &Connection, state: &Value) -> Result<()
             ",
             [JOURNAL_KEEP_ROWS],
         )
-        .map_err(|error| format!("Unable to trim SQLite journal: {error}"))?;
-    transaction
-        .commit()
-        .map_err(|error| format!("Unable to commit SQLite transaction: {error}"))?;
-    Ok(())
+        .map_err(|error| format!("Unable to trim SQLite journal: {error}"))
 }
 
 fn parsed_state_value(payload_json: &str) -> Option<Value> {

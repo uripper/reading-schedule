@@ -69,6 +69,7 @@ pub struct PlannerInput {
 #[derive(Debug)]
 pub struct PlanResult {
     pub assignments: Assignments,
+    pub deprecation_notice: Option<String>,
     pub note: String,
     pub objective: Option<i64>,
     pub planner: String,

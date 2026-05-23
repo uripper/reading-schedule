@@ -10,6 +10,10 @@ import {
     statusOptions,
 } from "./status_catalog.ts";
 
+const COMPLETE_PROGRESS_PERCENT = 100;
+const STARTED_PROGRESS_PERCENT = 0;
+const STARTED_PAGES_READ = 0;
+
 /**
  * Normalizes a raw status string into an internal status value.
  * Progress is used as a fallback signal when status text is absent/invalid.
@@ -20,6 +24,7 @@ import {
 function resolvedKnownStatus(
     knownStatus: BookStatus | null,
     progressPercent: number,
+    pagesRead: number | null,
 ): BookStatus | null {
     if (knownStatus === null) {
         return null;
@@ -30,17 +35,41 @@ function resolvedKnownStatus(
     if (knownStatus === BOOK_STATUS_DROPPED) {
         return BOOK_STATUS_DROPPED;
     }
-    if (progressPercent >= 100) {
+    if (progressPercent >= COMPLETE_PROGRESS_PERCENT) {
         return BOOK_STATUS_READ;
+    }
+    if (hasStartedProgress(progressPercent, pagesRead)) {
+        return BOOK_STATUS_IN_PROGRESS;
     }
     return knownStatus;
 }
 
-function statusFromProgress(progressPercent: number): BookStatus {
-    if (progressPercent >= 100) {
+function normalizedPagesRead(pagesRead: number | null | undefined): number {
+    const PAGES_READ = Number(pagesRead ?? 0);
+    if (!Number.isFinite(PAGES_READ)) {
+        return STARTED_PAGES_READ;
+    }
+    return PAGES_READ;
+}
+
+function hasStartedProgress(
+    progressPercent: number,
+    pagesRead: number | null | undefined,
+): boolean {
+    return (
+        progressPercent > STARTED_PROGRESS_PERCENT ||
+        normalizedPagesRead(pagesRead) > STARTED_PAGES_READ
+    );
+}
+
+function statusFromProgress(
+    progressPercent: number,
+    pagesRead: number | null,
+): BookStatus {
+    if (progressPercent >= COMPLETE_PROGRESS_PERCENT) {
         return BOOK_STATUS_READ;
     }
-    if (progressPercent > 0) {
+    if (hasStartedProgress(progressPercent, pagesRead)) {
         return BOOK_STATUS_IN_PROGRESS;
     }
     return BOOK_STATUS_TO_READ;
@@ -49,16 +78,17 @@ function statusFromProgress(progressPercent: number): BookStatus {
 export function statusFromRaw(
     value: string | null | undefined,
     progressPercent: number,
+    pagesRead: number | null = null,
 ): BookStatus {
     const RAW = String(value ?? "")
         .trim()
         .toLowerCase();
     const KNOWN = normalizedStatus(RAW);
-    const KNOWN_STATUS = resolvedKnownStatus(KNOWN, progressPercent);
+    const KNOWN_STATUS = resolvedKnownStatus(KNOWN, progressPercent, pagesRead);
     if (KNOWN_STATUS !== null) {
         return KNOWN_STATUS;
     }
-    return statusFromProgress(progressPercent);
+    return statusFromProgress(progressPercent, pagesRead);
 }
 
 /**

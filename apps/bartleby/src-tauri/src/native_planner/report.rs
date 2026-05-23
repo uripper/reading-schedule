@@ -4,7 +4,7 @@ use chrono::NaiveDate;
 use serde_json::{json, Value};
 
 use crate::native_planner::calendar::{
-    calendar_minutes, date_range, required_total_minutes, words_per_block, words_per_minute,
+    calendar_minutes, required_total_minutes, words_per_block, words_per_minute,
 };
 use crate::native_planner::models::{Assignments, Book, PlanResult, Settings};
 use crate::native_planner::report_status::{feasibility_warning, incomplete_books, summary_status};
@@ -91,6 +91,7 @@ pub fn build_output(
     Ok(json!({
         "schedule": schedule,
         "summary": {
+            "deprecation_notice": result.deprecation_notice,
             "feasibility_warning": feasibility_warning,
             "note": result.note,
             "objective": result.objective,
@@ -159,7 +160,7 @@ fn sessions(
         .collect::<HashMap<_, _>>();
     let mut finished_books = HashMap::new();
     let mut sessions = Vec::new();
-    for day in date_range(settings.start_date, settings.end_date)? {
+    for day in assignment_dates(assignments) {
         sessions.extend(sessions_for_day(DaySessions {
             assignments,
             books_by_id: &books_by_id,
@@ -170,6 +171,17 @@ fn sessions(
         }));
     }
     Ok(sessions)
+}
+
+fn assignment_dates(assignments: &Assignments) -> Vec<NaiveDate> {
+    let mut days = assignments
+        .iter()
+        .filter(|(_, blocks)| **blocks > 0)
+        .map(|((_, day), _)| *day)
+        .collect::<Vec<_>>();
+    days.sort();
+    days.dedup();
+    days
 }
 
 fn per_book_totals(books: &[Book], sessions: &[Session]) -> HashMap<String, i64> {

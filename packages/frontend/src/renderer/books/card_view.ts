@@ -9,6 +9,7 @@ function createCardRenderContext(
 ): Parameters<typeof renderFlatBooks>[2] {
     return {
         finishDateByBookId: args.finishDateByBookId ?? {},
+        massEdit: args.massEdit,
         onEstimatedFinishNavigate: (dateKey: string): void => {
             args.onEstimatedFinishNavigate(dateKey);
         },
@@ -46,17 +47,19 @@ function showEmptyState(
     }
 }
 
-function bindBookActions(
-    grid: HTMLElement,
-    onEdit: RenderBookGridOptions["onEdit"],
-    onRemove: RenderBookGridOptions["onRemove"],
-): void {
-    bindCardEvents(grid, {
+function bindBookActions(args: {
+    grid: HTMLElement;
+    massEdit: RenderBookGridOptions["massEdit"];
+    onEdit: RenderBookGridOptions["onEdit"];
+    onRemove: RenderBookGridOptions["onRemove"];
+}): void {
+    bindCardEvents(args.grid, {
         onEdit: (bookId: string): void => {
-            onEdit(bookId);
+            args.onEdit(bookId);
         },
+        onMassEditSelection: args.massEdit?.onBookSelectionChange,
         onRemove: (bookId: string): void => {
-            onRemove(bookId);
+            args.onRemove(bookId);
         },
     });
 }
@@ -76,5 +79,10 @@ export function renderBookGrid(args: RenderBookGridOptions): void {
         groups: GROUPS,
     });
     showEmptyState(args.empty, args.books);
-    bindBookActions(args.grid, args.onEdit, args.onRemove);
+    bindBookActions({
+        grid: args.grid,
+        massEdit: args.massEdit,
+        onEdit: args.onEdit,
+        onRemove: args.onRemove,
+    });
 }

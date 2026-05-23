@@ -10,13 +10,9 @@ import type {
 const MIN_VISIBLE_OFFSET = -2;
 const MAX_VISIBLE_OFFSET = 2;
 const ADD_BOOK_ITEM_ID = "__today-add-book__";
+const ADD_BOOK_ONLY_TRACK_CLASS = "is-add-book-only";
 const ADD_BOOK_LABEL = "Add book to Today";
 const ADD_BOOK_SYMBOL = "+";
-const ADD_CARD_BACKGROUND = "#f7e474";
-const ADD_CARD_BORDER = "2px solid #000";
-const ADD_CARD_SHADOW = "10px 10px 0 #000";
-const ADD_CARD_TEXT_SIZE = "clamp(3rem, 5vw, 4.5rem)";
-const ADD_CARD_TEXT_WEIGHT = "900";
 
 type TodayCarouselTrackBook = TodayCarouselModel["books"][number];
 
@@ -101,16 +97,27 @@ function buildAddBookItem(onAddBook: () => void): HTMLButtonElement {
     const SYMBOL = document.createElement("span");
     SYMBOL.className = "today-carousel-fallback";
     SYMBOL.textContent = ADD_BOOK_SYMBOL;
-    SYMBOL.style.fontSize = ADD_CARD_TEXT_SIZE;
-    SYMBOL.style.fontWeight = ADD_CARD_TEXT_WEIGHT;
-    SYMBOL.style.background = ADD_CARD_BACKGROUND;
-    SYMBOL.style.color = "#000";
-
-    ITEM.style.background = ADD_CARD_BACKGROUND;
-    ITEM.style.border = ADD_CARD_BORDER;
-    ITEM.style.boxShadow = ADD_CARD_SHADOW;
     ITEM.append(SYMBOL);
     return ITEM;
+}
+
+function addBookOnlyTrackState(
+    model: TodayCarouselModel,
+    onAddBook?: () => void,
+): boolean {
+    return model.books.length === 0 && onAddBook !== undefined;
+}
+
+function syncTrackLayout(
+    track: HTMLElement,
+    model: TodayCarouselModel,
+    onAddBook?: () => void,
+): void {
+    const IS_ADD_BOOK_ONLY = addBookOnlyTrackState(model, onAddBook);
+    track.classList.toggle(ADD_BOOK_ONLY_TRACK_CLASS, IS_ADD_BOOK_ONLY);
+    if (IS_ADD_BOOK_ONLY) {
+        track.scrollLeft = 0;
+    }
 }
 
 function expectedTrackIds(
@@ -242,6 +249,7 @@ export function renderTrackState(
         selectBook,
         track: TRACK,
     });
+    syncTrackLayout(TRACK, model, onAddBook);
 
     const SELECTED_INDEX = model.books.findIndex((book) => {
         return book.bookId === model.selectedBookId;

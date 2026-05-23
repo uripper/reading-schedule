@@ -2,8 +2,8 @@ import type {
     BindBooksUIOptions,
     Book,
     BookDialogController,
+    BookDialogSubmitPayload,
     BookProgressUpdates,
-    BookSubmitPayload,
     BooksControllerRefs,
     BooksViewState,
     PlannerScheduleRow,
@@ -13,24 +13,22 @@ import { el } from "../dom.ts";
 import { bindToolbarEvents } from "./controller_bindings.ts";
 import { renderBooksController } from "./controller_render.ts";
 import { defaultShelfForAddDialog } from "./controller_types.ts";
+import { bindControllerMassEdit } from "./controller-mass-edit.ts";
+import { updatedProgressBook } from "./controller-progress.ts";
+import { nextBooksAfterDialogSave } from "./controller-save.ts";
 import { createBookDialog } from "./dialog.ts";
 import { GROUP_BY_NONE } from "./grouping.ts";
+import type { MassEditController } from "./mass-edit-controller.ts";
 import { normalizeBook } from "./model-normalize.ts";
 import {
     clearMissingBlockedBy,
     hasSchedulableLength,
     toPayloadBook,
 } from "./model-payload.ts";
-import { withUpdatedProgress } from "./progress.ts";
-import { hydrateBookCover, upsertBookById } from "./save.ts";
-import { applyScheduledDaysToShelfBooks } from "./save_scheduled_days.ts";
+import { SORT_BY_ESTIMATED_FINISH } from "./sort.ts";
 import { schedulableBook } from "./status.ts";
-import { BOOK_STATUS_FILTER_ALL, BOOK_STATUS_READ } from "./status_catalog.ts";
-import {
-    ensureBooksToolbarControls,
-    SORT_BY_TITLE,
-    SORT_DIRECTION_ASC,
-} from "./toolbar.ts";
+import { BOOK_STATUS_FILTER_ALL } from "./status_catalog.ts";
+import { ensureBooksToolbarControls, SORT_DIRECTION_ASC } from "./toolbar.ts";
 
 let books: Book[] = [];
 let scheduleRows: PlannerScheduleRow[] = [];
@@ -48,6 +46,7 @@ let onBooksCommitted: (books: Book[]) => void = DEFAULT_ON_BOOKS_COMMITTED;
 let onEstimatedFinishNavigate: (dateKey: string) => void =
     DEFAULT_ON_ESTIMATED_FINISH_NAVIGATE;
 let dialog: BookDialogController | null = null;
+let massEdit: MassEditController | null = null;
 
 const REFS: BooksControllerRefs = {
     addBtn: null,
@@ -65,45 +64,11 @@ const REFS: BooksControllerRefs = {
 const VIEW_STATE: BooksViewState = {
     groupBy: GROUP_BY_NONE,
     shelfFilter: "",
-    sortBy: SORT_BY_TITLE,
+    sortBy: SORT_BY_ESTIMATED_FINISH,
     sortDirection: SORT_DIRECTION_ASC,
     statusFilter: BOOK_STATUS_FILTER_ALL,
     titleFilter: "",
 };
-
-function normalizedCompletedAt(value: string | undefined): string | null {
-    const TEXT = String(value ?? "").trim();
-    if (TEXT === "") {
-        return null;
-    }
-    return TEXT;
-}
-
-function todayDateKey(): string {
-    return new Date().toISOString().slice(0, 10);
-}
-
-function resolvedFinishedAt(options: {
-    completedAt: string | undefined;
-    currentBook: Book;
-    nextBook: Book;
-}): string | null {
-    if (options.nextBook.status !== BOOK_STATUS_READ) {
-        return null;
-    }
-    const EXISTING = normalizedCompletedAt(options.nextBook.finished_at ?? undefined);
-    if (EXISTING !== null) {
-        return EXISTING;
-    }
-    const PROVIDED = normalizedCompletedAt(options.completedAt);
-    if (PROVIDED !== null) {
-        return PROVIDED;
-    }
-    if (options.currentBook.status !== BOOK_STATUS_READ) {
-        return todayDateKey();
-    }
-    return null;
-}
 
 /**
  * Replaces the in-memory books collection used by the books controller.
@@ -131,6 +96,7 @@ function render(): void {
         books,
         dialog,
         findBook,
+        massEdit: massEdit ?? undefined,
         onBooksChanged,
         onEstimatedFinishNavigate,
         refs: REFS,
@@ -174,40 +140,22 @@ export function updateBookProgress(
     if (CURRENT_BOOK === undefined) {
         return null;
     }
-    const NEXT = withUpdatedProgress(CURRENT_BOOK, updates);
-    const NORMALIZED = normalizeBook(NEXT);
-    books[IDX] = {
-        ...NORMALIZED,
-        finished_at: resolvedFinishedAt({
-            completedAt: options.completedAt,
-            currentBook: CURRENT_BOOK,
-            nextBook: NORMALIZED,
-        }),
-    };
+    books[IDX] = updatedProgressBook(CURRENT_BOOK, updates, options);
     onBooksCommitted(books);
     render();
 
     if (options.notifyBooksChanged !== false) {
         onBooksChanged();
     }
-    const UPDATED_BOOK = books[IDX];
-    if (UPDATED_BOOK === undefined) {
-        return null;
-    }
-    return { ...UPDATED_BOOK };
+    return getBookById(bookId);
 }
 
 /**
  * Persists an edited book, including optional cover hydration, then rerenders.
  * @param payload - Book save payload including optional shelf-day propagation flag.
  */
-async function saveBook(payload: BookSubmitPayload): Promise<void> {
-    const HYDRATED = await hydrateBookCover(payload.book);
-    let nextBooks = upsertBookById(books, HYDRATED);
-    if (payload.applyScheduledDaysToShelf) {
-        nextBooks = applyScheduledDaysToShelfBooks(nextBooks, HYDRATED);
-    }
-    books = nextBooks;
+async function saveBook(payload: BookDialogSubmitPayload): Promise<void> {
+    books = await nextBooksAfterDialogSave(books, payload);
     onBooksCommitted(books);
     render();
     onBooksChanged();
@@ -317,6 +265,12 @@ export function bindBooksUI(
     const ADD_BUTTON = initializeBooksUiRefs(TOOLBAR);
     bindToolbarEvents({ refs: REFS, rerender: render, viewState: VIEW_STATE });
     dialog = createBookDialog(saveBook, { getBooks: () => books });
+    massEdit = bindControllerMassEdit({
+        findBook,
+        getDialog: () => dialog,
+        rerender: render,
+        toolbar: TOOLBAR,
+    });
     bindAddBookButton(ADD_BUTTON);
     render();
 }

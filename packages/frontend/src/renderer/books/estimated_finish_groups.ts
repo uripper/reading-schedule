@@ -11,12 +11,12 @@ import {
 } from "./status_catalog.ts";
 
 const STATUS_GROUPS: StatusGroupDefinition[] = [
-    { label: "Dropped", statuses: [BOOK_STATUS_DROPPED] },
-    { label: "Read", statuses: [BOOK_STATUS_READ] },
     {
         label: "In Progress / To Read",
         statuses: [BOOK_STATUS_IN_PROGRESS, BOOK_STATUS_TO_READ],
     },
+    { label: "Read", statuses: [BOOK_STATUS_READ] },
+    { label: "Dropped", statuses: [BOOK_STATUS_DROPPED] },
 ];
 
 /**

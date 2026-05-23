@@ -2,19 +2,20 @@ import type {
     PersistQueue,
     PersistQueueArgs,
     PlannerSummary,
+    StatusPhase,
 } from "../../types/types.ts";
 import { draftData, saveStateSafe } from "./persistence.ts";
+import type { ScheduleStatusOverlay } from "./schedule-status-overlay.ts";
+import { createScheduleStatusOverlay } from "./schedule-status-overlay.ts";
+import { applyStatusPhase, statusColor } from "./status-phase.ts";
 
 const PERSIST_DELAY_MS = 300;
 const NO_WORDS = 0;
 const NON_PLANNING_SETTING_IDS = new Set([
-    "themeSelect",
     "reduceMotionToggle",
     "dailyGoalInput",
     "reminderEnabledToggle",
     "reminderTimeInput",
-    "flagGamification",
-    "flagSocial",
 ]);
 
 interface PersistTimerState {
@@ -33,14 +34,13 @@ type QueuePersistFn = PersistQueue["queuePersist"];
 export function createStatusSetter(
     statusNode: HTMLElement,
     addLog: (message: string) => void,
-): (message: string, isError?: boolean) => void {
+    overlay: ScheduleStatusOverlay = createScheduleStatusOverlay(),
+): (message: string, isError?: boolean, phase?: StatusPhase) => void {
     const NODE = statusNode;
-    return (message: string, isError = false): void => {
+    return (message: string, isError = false, phase?: StatusPhase): void => {
         NODE.textContent = message;
-        NODE.style.color = "var(--app-textMuted)";
-        if (isError) {
-            NODE.style.color = "var(--app-danger)";
-        }
+        NODE.style.color = statusColor(isError);
+        applyStatusPhase(overlay, phase);
         addLog(message);
     };
 }

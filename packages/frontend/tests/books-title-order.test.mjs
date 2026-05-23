@@ -10,11 +10,14 @@ import {
 } from "../dist/renderer/books/grouping.js";
 import { metaLabel } from "../dist/renderer/books/presenters.js";
 import {
-    SORT_BY_PROGRESS,
     SORT_BY_ESTIMATED_FINISH,
+    SORT_BY_PROGRESS,
     SORT_BY_TITLE,
     sortBooks,
 } from "../dist/renderer/books/sort.js";
+import { ensureBooksToolbarControls } from "../dist/renderer/books/toolbar_dom.js";
+import { updateSortBySelection } from "../dist/renderer/books/toolbar_updates.js";
+import { installFakeDom } from "./helpers/fake-dom.mjs";
 
 const DEFAULT_BOOK = {
     author: "",
@@ -143,7 +146,7 @@ test("metaLabel shows finished date for read books", () => {
     assert.equal(LABEL.includes("Est. finish"), false);
 });
 
-test("groupsForEstimatedFinish orders sections as dropped, read, then active", () => {
+test("groupsForEstimatedFinish orders active sections before read and dropped", () => {
     const SORTED_BOOKS = [
         baseBook({ book_id: "book-1", status: "dropped", title: "Drop A" }),
         baseBook({ book_id: "book-2", status: "read", title: "Read A" }),
@@ -154,11 +157,11 @@ test("groupsForEstimatedFinish orders sections as dropped, read, then active", (
     const GROUPS = groupsForEstimatedFinish(SORTED_BOOKS);
     assert.deepEqual(
         GROUPS.map((group) => group.label),
-        ["Dropped", "Read", "In Progress / To Read"],
+        ["In Progress / To Read", "Read", "Dropped"],
     );
     assert.deepEqual(
         GROUPS.map((group) => group.books.map((book) => book.book_id)),
-        [["book-1"], ["book-2"], ["book-3", "book-4"]],
+        [["book-3", "book-4"], ["book-2"], ["book-1"]],
     );
 });
 
@@ -178,4 +181,19 @@ test("sortBooks sorts numeric fields such as progress_percent", () => {
         SORTED.map((book) => book.book_id),
         ["book-2", "book-3", "book-1"],
     );
+});
+
+test("updateSortBySelection keeps toolbar sort aligned with controller state", () => {
+    const DOM = installFakeDom();
+    try {
+        const TOOLBAR = DOM.createElement("div");
+        const CONTROLS = ensureBooksToolbarControls(TOOLBAR);
+        CONTROLS.sortBySelect.value = SORT_BY_TITLE;
+
+        updateSortBySelection(CONTROLS.sortBySelect, SORT_BY_ESTIMATED_FINISH);
+
+        assert.equal(CONTROLS.sortBySelect.value, SORT_BY_ESTIMATED_FINISH);
+    } finally {
+        DOM.restore();
+    }
 });

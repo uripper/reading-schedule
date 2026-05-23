@@ -24,6 +24,20 @@ test("statusFromRaw upgrades in_progress to read at 100 percent", () => {
     assert.equal(statusFromRaw(BOOK_STATUS_IN_PROGRESS, 100), BOOK_STATUS_READ);
 });
 
+test("statusFromRaw promotes to_read when progress is nonzero", () => {
+    assert.equal(
+        statusFromRaw(BOOK_STATUS_TO_READ, 12),
+        BOOK_STATUS_IN_PROGRESS,
+    );
+});
+
+test("statusFromRaw promotes to_read when pages read are nonzero", () => {
+    assert.equal(
+        statusFromRaw(BOOK_STATUS_TO_READ, 0, 23),
+        BOOK_STATUS_IN_PROGRESS,
+    );
+});
+
 test("dropped status remains dropped at 100 percent", () => {
     assert.equal(statusFromRaw(BOOK_STATUS_DROPPED, 100), BOOK_STATUS_DROPPED);
 });

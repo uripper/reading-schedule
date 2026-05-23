@@ -5,6 +5,7 @@ import test from "node:test";
 import {
     buildSessionDotStates,
     formatHeaderSessionsText,
+    formatStreakText,
     isHeaderGoalComplete,
     isHeaderSessionsComplete,
 } from "../dist/renderer/app/today/today_header.js";
@@ -15,6 +16,12 @@ test("header sessions text formats zero counts", () => {
 
 test("header sessions text formats in-progress counts", () => {
     assert.equal(formatHeaderSessionsText(3, 5), "3/5 logged");
+});
+
+test("header streak text stays numeric", () => {
+    assert.equal(formatStreakText(0), "0");
+    assert.equal(formatStreakText(1), "1");
+    assert.equal(formatStreakText(4), "4");
 });
 
 test("header session dots returns no dots when no sessions are scheduled", () => {

@@ -111,7 +111,7 @@ pub fn validate_settings(settings: &Settings) -> Result<(), String> {
         .map(String::as_str)
         .collect();
     let valid_weekdays: BTreeSet<&str> = WEEKDAYS.into_iter().collect();
-    if !weekday_keys.is_empty() && weekday_keys != valid_weekdays {
+    if !weekday_keys.is_subset(&valid_weekdays) {
         return Err("minutes_by_weekday keys must be Mon..Sun when provided".to_string());
     }
     let difficulty_keys: BTreeSet<i64> = settings.difficulty_multiplier.keys().copied().collect();

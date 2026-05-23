@@ -17,6 +17,8 @@ import {
 } from "./presenters.ts";
 
 const PRE_LINE_WHITESPACE = "pre-line";
+const MASS_EDITABLE_CLASS = "is-mass-editable";
+const MASS_SELECTED_CLASS = "is-mass-selected";
 
 type CardMetaNodeArgs = {
     book: Book;
@@ -162,6 +164,40 @@ function cardMetaNode({
     return META;
 }
 
+function massEditSelectNode(
+    bookId: string,
+    context: CardRenderContext,
+): HTMLLabelElement | null {
+    if (context.massEdit?.active !== true) {
+        return null;
+    }
+    const LABEL = document.createElement("label");
+    LABEL.className = "book-mass-select-control";
+    const INPUT = document.createElement("input");
+    INPUT.type = "checkbox";
+    INPUT.className = "book-mass-select";
+    INPUT.dataset.bookId = bookId;
+    INPUT.checked = context.massEdit.selectedBookIds.has(bookId);
+    INPUT.setAttribute("aria-label", "Select book for mass edit");
+    const INDICATOR = document.createElement("span");
+    INDICATOR.className = "book-mass-select-indicator";
+    LABEL.append(INPUT, INDICATOR);
+    return LABEL;
+}
+
+function applyMassEditState(
+    card: HTMLElement,
+    bookId: string,
+    context: CardRenderContext,
+): void {
+    const ACTIVE = context.massEdit?.active === true;
+    card.classList.toggle(MASS_EDITABLE_CLASS, ACTIVE);
+    card.classList.toggle(
+        MASS_SELECTED_CLASS,
+        context.massEdit?.selectedBookIds.has(bookId) === true,
+    );
+}
+
 /**
  * Creates a full book card node including cover, metadata, and actions.
  * @param book - Book model to render.
@@ -177,6 +213,11 @@ export function createCardNode(
     const CARD = cardRootNode(book, BOOK_ID);
     const COVER_BUTTON = coverButtonForBook(book, TITLE);
     const META = cardMetaNode({ book, bookId: BOOK_ID, context, title: TITLE });
+    const MASS_SELECT = massEditSelectNode(BOOK_ID, context);
+    applyMassEditState(CARD, BOOK_ID, context);
+    if (MASS_SELECT !== null) {
+        CARD.append(MASS_SELECT);
+    }
     CARD.append(COVER_BUTTON, META);
     return CARD;
 }
