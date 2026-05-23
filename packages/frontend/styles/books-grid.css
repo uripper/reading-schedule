@@ -96,6 +96,7 @@
 
 .books-toolbar > .hint-text {
     display: none;
+    color: #fff;
 }
 
 .books-grid {

@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use serde_json::Value;
 
@@ -8,27 +8,11 @@ pub fn prepare_directory_for_export(data_directory: &Path) -> Result<(), String>
     state_store::run_state_maintenance(data_directory).map(|_| ())
 }
 
-pub fn repair_imported_state(data_directory: &Path) -> Result<(), String> {
-    let state = state_store::load_state_value_from_directory(data_directory);
-    if !has_bootstrap_state(&state) {
-        return Ok(());
-    }
-    let repaired_state = repaired_cover_paths(&state, data_directory)?;
-    if repaired_state == state {
-        return Ok(());
-    }
-    state_store::save_state_to_directory(data_directory, &repaired_state)?;
-    Ok(())
+pub fn load_imported_state(data_directory: &Path) -> Result<Value, String> {
+    state_store::load_imported_state_value_from_directory(data_directory)
 }
 
-fn has_bootstrap_state(state: &Value) -> bool {
-    let Some(state_object) = state.as_object() else {
-        return false;
-    };
-    state_object.contains_key("books") && state_object.contains_key("settings")
-}
-
-fn repaired_cover_paths(state: &Value, data_directory: &Path) -> Result<Value, String> {
+pub fn repaired_cover_paths(state: &Value, data_directory: &Path) -> Result<Value, String> {
     let Some(state_object) = state.as_object() else {
         return Ok(state.clone());
     };
@@ -57,14 +41,17 @@ fn repair_book_cover_path(book: &mut Value, canonical_cover_directory: &Path) {
     else {
         return;
     };
-    if current_cover_path.is_empty() || current_cover_path_exists(current_cover_path) {
+    if current_cover_path.is_empty() {
         return;
     }
     let Some(file_name) = Path::new(current_cover_path).file_name() else {
         return;
     };
     let candidate = canonical_cover_directory.join(file_name);
-    if !candidate.exists() || !candidate.is_file() {
+    if !candidate.exists()
+        || !candidate.is_file()
+        || current_cover_path_matches(&candidate, current_cover_path)
+    {
         return;
     }
     book_object.insert(
@@ -73,6 +60,6 @@ fn repair_book_cover_path(book: &mut Value, canonical_cover_directory: &Path) {
     );
 }
 
-fn current_cover_path_exists(current_cover_path: &str) -> bool {
-    PathBuf::from(current_cover_path).is_file()
+fn current_cover_path_matches(candidate: &Path, current_cover_path: &str) -> bool {
+    Path::new(current_cover_path) == candidate
 }

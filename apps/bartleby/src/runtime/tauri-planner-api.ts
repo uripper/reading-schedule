@@ -166,9 +166,7 @@ function createDataTransferApi(): Pick<
                 TAURI_COMMANDS.appDataExport,
             );
         },
-        async importAppData(
-            payloadJson: string,
-        ): Promise<AppDataImportResult> {
+        async importAppData(payloadJson: string): Promise<AppDataImportResult> {
             return await invokeCommand<AppDataImportResult>(
                 TAURI_COMMANDS.appDataImport,
                 {

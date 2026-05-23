@@ -201,8 +201,12 @@ export interface PlannerDataExport {
 }
 
 export interface PlannerDataImportResult {
+    booksRestored: number;
+    completionEntriesRestored: number;
     directoriesRestored: number;
     filesRestored: number;
+    scheduleRowsRestored: number;
+    sessionsRestored: number;
 }
 
 export interface PlannerApi {

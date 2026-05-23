@@ -18,7 +18,7 @@ use tauri::AppHandle;
 
 use crate::app_paths;
 pub use cover_normalization::{run_state_maintenance, StateMaintenanceResult};
-use json_store::{read_state_from_json, write_state_to_json};
+use json_store::{read_state_from_json, read_state_from_json_result, write_state_to_json};
 use migrations::{migrate_loaded_state, with_migration_warning};
 use paths::{json_state_backup_path, json_state_path, sqlite_state_path};
 pub use recovery::{recover_state_from_input_path, RecoverySummary};
@@ -49,6 +49,16 @@ pub fn save_state_to_directory(data_directory: &Path, state: &Value) -> Result<V
 
 pub(crate) fn load_state_value_from_directory(data_directory: &Path) -> Value {
     load_canonical_state(data_directory).state
+}
+
+pub(crate) fn load_imported_state_value_from_directory(
+    data_directory: &Path,
+) -> Result<Value, String> {
+    let load_result = imported_state_result(data_directory)?;
+    if !has_bootstrap_state(&load_result.state) {
+        return Err("Imported planner state is missing books or settings.".to_string());
+    }
+    Ok(load_result.state)
 }
 
 pub(super) fn decorate_primary_json_migration(load_result: LoadResult) -> LoadResult {
@@ -123,6 +133,28 @@ fn preferred_state_result_in_place(data_directory: &Path) -> Option<LoadResult> 
         return rewrite_migrated_state_in_place(data_directory, load_result);
     }
     sqlite_result
+}
+
+fn imported_state_result(data_directory: &Path) -> Result<LoadResult, String> {
+    let load_result = read_state_from_json_result(data_directory)?
+        .ok_or_else(|| "Imported data archive did not contain planner_state.json.".to_string())?;
+    let load_result = decorate_primary_json_migration(load_result);
+    migrate_imported_state_result(data_directory, load_result)
+}
+
+fn migrate_imported_state_result(
+    data_directory: &Path,
+    load_result: LoadResult,
+) -> Result<LoadResult, String> {
+    let Some(migration) = migrate_loaded_state(&load_result.state)? else {
+        return Ok(load_result);
+    };
+    let migrated_result = load_result.with_state(migration.migrated_state);
+    if !migration.should_rewrite {
+        return Ok(migrated_result);
+    }
+    persist_state_to_directory(data_directory, &migrated_result.state)?;
+    Ok(with_migration_warning(migrated_result))
 }
 
 fn migrated_json_result_in_place(data_directory: &Path, load_result: LoadResult) -> LoadResult {

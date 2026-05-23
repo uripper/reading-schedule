@@ -1,12 +1,24 @@
-import { bindDialogFocus } from "./accessibility/a11y.ts";
-import { el } from "./dom.ts";
 import type { PlannerApi, PlannerApiGlobal } from "../types/types.ts";
+import { bindDialogFocus } from "./accessibility/a11y.ts";
 import { errorMessage } from "./app/plan-errors.ts";
+import { el } from "./dom.ts";
+import {
+    importHasVisiblePlannerData,
+    importLoadSourceSummary,
+    importResultSummary,
+    importVerificationError,
+} from "./help-import.ts";
 
 const LOGS: string[] = [];
 const MAX_LOG_LINES = 250;
 
-type HelpDataActionsApi = Pick<PlannerApi, "exportAppData" | "importAppData">;
+type HelpDataActionsApi = Pick<
+    PlannerApi,
+    "exportAppData" | "importAppData" | "loadState"
+>;
+type AppDataImportResult = Awaited<
+    ReturnType<HelpDataActionsApi["importAppData"]>
+>;
 
 interface HelpDataActionRefs {
     actions: HTMLElement;
@@ -99,19 +111,13 @@ function dataActionRefs(): HelpDataActionRefs {
 }
 
 function setDataActionsBusy(refs: HelpDataActionRefs, busy: boolean): void {
-    const {
-        exportButton: EXPORT_BUTTON,
-        importButton: IMPORT_BUTTON,
-    } = refs;
+    const { exportButton: EXPORT_BUTTON, importButton: IMPORT_BUTTON } = refs;
     EXPORT_BUTTON.disabled = busy;
     IMPORT_BUTTON.disabled = busy;
 }
 
 function hideDataActions(refs: HelpDataActionRefs): void {
-    const {
-        actions: ACTIONS,
-        importInput: IMPORT_INPUT,
-    } = refs;
+    const { actions: ACTIONS, importInput: IMPORT_INPUT } = refs;
     ACTIONS.hidden = true;
     IMPORT_INPUT.value = "";
 }
@@ -210,6 +216,25 @@ async function exportAppDataBackup(
     }
 }
 
+async function shouldReloadAfterImport(
+    api: HelpDataActionsApi,
+    importResult: AppDataImportResult,
+): Promise<boolean> {
+    addLog(importResultSummary(importResult));
+    const LOAD_RESULT = await api.loadState();
+    addLog(importLoadSourceSummary(LOAD_RESULT));
+    const VERIFY_ERROR = importVerificationError(importResult, LOAD_RESULT);
+    if (VERIFY_ERROR.length > 0) {
+        addLog(VERIFY_ERROR);
+        return false;
+    }
+    if (importHasVisiblePlannerData(importResult)) {
+        return true;
+    }
+    addLog("Import verified, but no books or schedule data were restored.");
+    return false;
+}
+
 async function importSelectedAppData(
     api: HelpDataActionsApi,
     refs: HelpDataActionRefs,
@@ -223,7 +248,12 @@ async function importSelectedAppData(
     setDataActionsBusy(refs, true);
     try {
         const PAYLOAD_JSON = await FILE.text();
-        await api.importAppData(PAYLOAD_JSON);
+        const IMPORT_RESULT = await api.importAppData(PAYLOAD_JSON);
+        const SHOULD_RELOAD = await shouldReloadAfterImport(api, IMPORT_RESULT);
+        if (!SHOULD_RELOAD) {
+            setDataActionsBusy(refs, false);
+            return;
+        }
         globalThis.location.reload();
     } catch (error) {
         addLog(`Failed to import app data: ${dataActionErrorMessage(error)}`);
@@ -244,7 +274,8 @@ function bindHelpDataActions(): void {
     REFS.importButton.onclick = (): void => {
         REFS.importInput.click();
     };
-    REFS.importInput.onchange = async (): Promise<void> => {
+    REFS.importInput.onchange = async (event): Promise<void> => {
+        event.stopPropagation();
         await importSelectedAppData(API, REFS);
     };
 }

@@ -1,7 +1,7 @@
 //! Tauri command handlers for the Bartleby migration foundation.
 use crate::{
-    app_paths, book_search, cover_store, data_archive, native_planner, plan_cache,
-    state_store, window_zoom,
+    app_paths, book_search, cover_store, data_archive, native_planner, plan_cache, state_store,
+    window_zoom,
 };
 use serde_json::Value;
 
