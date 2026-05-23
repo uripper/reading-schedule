@@ -1,4 +1,8 @@
+use std::path::Path;
+
 use serde_json::Value;
+
+use crate::state_store;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) struct ImportVerification {
@@ -18,6 +22,22 @@ pub(super) fn verify_imported_state(state: &Value) -> Result<ImportVerification,
         schedule_rows_restored: schedule_rows_restored(state),
         sessions_restored: array_len(state, "sessions"),
     })
+}
+
+pub(super) fn verify_persisted_state(
+    data_directory: &Path,
+    expected: ImportVerification,
+) -> Result<(), String> {
+    let loaded_state = state_store::load_state_value_from_directory(data_directory);
+    let actual = verify_imported_state(&loaded_state)?;
+    if actual == expected {
+        return Ok(());
+    }
+    Err(format!(
+        "Post-import storage verification failed. Native import restored {}. Immediate storage load returned {}.",
+        import_counts_summary(expected),
+        import_counts_summary(actual)
+    ))
 }
 
 fn state_has_bootstrap_shape(state: &Value) -> bool {
@@ -45,4 +65,14 @@ fn schedule_rows_restored(state: &Value) -> usize {
         .and_then(|result| result.get("schedule"))
         .and_then(Value::as_array)
         .map_or(0, Vec::len)
+}
+
+fn import_counts_summary(counts: ImportVerification) -> String {
+    format!(
+        "{} books, {} schedule rows, {} sessions, {} completion entries",
+        counts.books_restored,
+        counts.schedule_rows_restored,
+        counts.sessions_restored,
+        counts.completion_entries_restored
+    )
 }

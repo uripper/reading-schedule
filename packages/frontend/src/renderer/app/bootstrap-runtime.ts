@@ -23,7 +23,8 @@ import {
     collectPreferencesFromUI as collectPreferencesFromUi,
 } from "./experience/ui.ts";
 import { createInitRuntime } from "./init/init_runtime.ts";
-import { createPersistQueue, createStatusSetter } from "./runtime_helpers.ts";
+import { createPersistQueue } from "./persist-queue.ts";
+import { createStatusSetter } from "./runtime_helpers.ts";
 import { createRuntimeState } from "./runtime_state.ts";
 import { updateTodayDashboard } from "./today/today.ts";
 
@@ -58,6 +59,7 @@ function createPersistActions(
     plannerApi: PlannerApi,
 ): {
     persistDraft(): Promise<boolean>;
+    prepareForDataImport(): Promise<void>;
     queuePersist(): void;
 } {
     const PERSIST_QUEUE = createPersistQueue({
@@ -72,6 +74,9 @@ function createPersistActions(
     return {
         persistDraft: async (): Promise<boolean> =>
             await PERSIST_QUEUE.persistDraft(),
+        prepareForDataImport: async (): Promise<void> => {
+            await PERSIST_QUEUE.prepareForStateImport();
+        },
         queuePersist: (): void => {
             PERSIST_QUEUE.queuePersist();
         },
@@ -154,6 +159,7 @@ function buildBootstrapContext(options: {
         dashboards: options.dashboards,
         persistDraft: options.persistActions.persistDraft,
         plannerApi: options.plannerApi,
+        prepareForDataImport: options.persistActions.prepareForDataImport,
         queuePersist: options.persistActions.queuePersist,
         runtime: options.runtime,
         setStatus: options.setStatus,

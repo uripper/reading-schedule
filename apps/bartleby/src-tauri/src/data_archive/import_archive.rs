@@ -136,6 +136,7 @@ fn apply_staged_archive(
     let imported_state = portable_state::repaired_cover_paths(&staged_state, data_directory)?;
     let verification = import_verify::verify_imported_state(&imported_state)?;
     state_store::save_state_to_directory(data_directory, &imported_state)?;
+    import_verify::verify_persisted_state(data_directory, verification)?;
     Ok(verification)
 }
 

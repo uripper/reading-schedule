@@ -27,6 +27,10 @@ interface HelpDataActionRefs {
     importInput: HTMLInputElement;
 }
 
+interface HelpDialogOptions {
+    beforeImport?(): Promise<void>;
+}
+
 interface SaveFilePickerAcceptType {
     accept: Record<string, string[]>;
     description?: string;
@@ -51,25 +55,14 @@ type SavePickerFunction = (
 ) => Promise<SaveFilePickerHandle>;
 type ExportSaveResult = "saved" | "downloaded" | "canceled";
 
-/**
- * Returns localized current time string for help-panel logs.
- * @returns Time string for log prefix.
- */
 function ts(): string {
     return new Date().toLocaleTimeString();
 }
 
-/**
- * Checks whether DOM APIs needed for log rendering are available.
- * @returns True when a browser document is available.
- */
 function canRenderLogs(): boolean {
     return typeof document !== "undefined";
 }
 
-/**
- * Renders in-memory log lines into help dialog output panel.
- */
 function renderLogs(): void {
     if (!canRenderLogs()) {
         return;
@@ -81,10 +74,6 @@ function renderLogs(): void {
     LOG_OUTPUT.textContent = LOGS.join("\n") || "No logs yet.";
 }
 
-/**
- * Adds a log line to help dialog output with timestamp prefix.
- * @param message - Log message text to append.
- */
 export function addLog(message: string): void {
     LOGS.unshift(`[${ts()}] ${message}`);
     if (LOGS.length > MAX_LOG_LINES) {
@@ -238,6 +227,7 @@ async function shouldReloadAfterImport(
 async function importSelectedAppData(
     api: HelpDataActionsApi,
     refs: HelpDataActionRefs,
+    options: HelpDialogOptions,
 ): Promise<void> {
     const { importInput: IMPORT_INPUT } = refs;
     const FILE = IMPORT_INPUT.files?.item(0);
@@ -247,6 +237,7 @@ async function importSelectedAppData(
     }
     setDataActionsBusy(refs, true);
     try {
+        await options.beforeImport?.();
         const PAYLOAD_JSON = await FILE.text();
         const IMPORT_RESULT = await api.importAppData(PAYLOAD_JSON);
         const SHOULD_RELOAD = await shouldReloadAfterImport(api, IMPORT_RESULT);
@@ -261,7 +252,7 @@ async function importSelectedAppData(
     }
 }
 
-function bindHelpDataActions(): void {
+function bindHelpDataActions(options: HelpDialogOptions): void {
     const REFS = dataActionRefs();
     const API = dataActionsApi();
     if (!API) {
@@ -276,19 +267,19 @@ function bindHelpDataActions(): void {
     };
     REFS.importInput.onchange = async (event): Promise<void> => {
         event.stopPropagation();
-        await importSelectedAppData(API, REFS);
+        await importSelectedAppData(API, REFS, options);
     };
 }
 
 /**
  * Binds help dialog open/close controls with focus restoration behavior.
  */
-export function bindHelpDialog(): void {
+export function bindHelpDialog(options: HelpDialogOptions = {}): void {
     const DLG = el<HTMLDialogElement>("helpDialog");
     const FOCUS = bindDialogFocus(DLG, {
         initialFocusSelector: "#closeHelpBtn",
     });
-    bindHelpDataActions();
+    bindHelpDataActions(options);
     el<HTMLButtonElement>("helpBtn").onclick = () => {
         FOCUS.rememberOpener();
         DLG.showModal();
