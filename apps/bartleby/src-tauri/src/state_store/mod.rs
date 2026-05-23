@@ -47,6 +47,10 @@ pub fn save_state_to_directory(data_directory: &Path, state: &Value) -> Result<V
     Ok(save_result_value(warning_message))
 }
 
+pub(crate) fn load_state_value_from_directory(data_directory: &Path) -> Value {
+    load_canonical_state(data_directory).state
+}
+
 pub(super) fn decorate_primary_json_migration(load_result: LoadResult) -> LoadResult {
     if load_result.source != types::SOURCE_JSON_PRIMARY {
         return load_result;

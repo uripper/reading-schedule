@@ -153,6 +153,32 @@ export async function runStateMaintenance(): Promise<StateMaintenanceResult> {
     );
 }
 
+type AppDataExportResult = Awaited<ReturnType<PlannerApi["exportAppData"]>>;
+type AppDataImportResult = Awaited<ReturnType<PlannerApi["importAppData"]>>;
+
+function createDataTransferApi(): Pick<
+    PlannerApi,
+    "exportAppData" | "importAppData"
+> {
+    return {
+        async exportAppData(): Promise<AppDataExportResult> {
+            return await invokeCommand<AppDataExportResult>(
+                TAURI_COMMANDS.appDataExport,
+            );
+        },
+        async importAppData(
+            payloadJson: string,
+        ): Promise<AppDataImportResult> {
+            return await invokeCommand<AppDataImportResult>(
+                TAURI_COMMANDS.appDataImport,
+                {
+                    payloadJson,
+                },
+            );
+        },
+    };
+}
+
 function createCoverApi(): Pick<
     PlannerApi,
     "downloadCover" | "resolveCoverSrc" | "saveUploadedCover"
@@ -241,6 +267,7 @@ function createZoomApi(): Pick<PlannerApi, "zoomIn" | "zoomOut" | "zoomReset"> {
 
 function createTauriPlannerApi(): PlannerApi {
     return {
+        ...createDataTransferApi(),
         ...createCoverApi(),
         ...createPlanApi(),
         ...createSearchApi(),

@@ -95,6 +95,20 @@ function notImplemented(name: string): Promise<never> {
     );
 }
 
+function createUnsupportedDataTransferApi(): Pick<
+    PlannerApi,
+    "exportAppData" | "importAppData"
+> {
+    return {
+        exportAppData() {
+            return notImplemented("exportAppData");
+        },
+        importAppData(_payloadJson: string) {
+            return notImplemented("importAppData");
+        },
+    };
+}
+
 function createUnsupportedPlannerApi(): Pick<
     PlannerApi,
     "downloadCover" | "saveUploadedCover" | "zoomIn" | "zoomOut" | "zoomReset"
@@ -189,6 +203,7 @@ function createSearchRequestApi(
  */
 export function createMobilePlannerApi(baseUrl: string): PlannerApi {
     return {
+        ...createUnsupportedDataTransferApi(),
         ...createUnsupportedPlannerApi(),
         ...createPlanRequestApi(baseUrl),
         ...createStateRequestApi(baseUrl),

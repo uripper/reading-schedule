@@ -1,8 +1,22 @@
 //! Tauri command handlers for the Bartleby migration foundation.
 use crate::{
-    app_paths, book_search, cover_store, native_planner, plan_cache, state_store, window_zoom,
+    app_paths, book_search, cover_store, data_archive, native_planner, plan_cache,
+    state_store, window_zoom,
 };
 use serde_json::Value;
+
+#[tauri::command]
+pub fn app_data_export(app: tauri::AppHandle) -> Result<data_archive::AppDataExport, String> {
+    data_archive::export_app_data(&app)
+}
+
+#[tauri::command]
+pub fn app_data_import(
+    app: tauri::AppHandle,
+    payload_json: String,
+) -> Result<data_archive::AppDataImportResult, String> {
+    data_archive::import_app_data(&app, &payload_json)
+}
 
 #[tauri::command]
 pub async fn books_search(
