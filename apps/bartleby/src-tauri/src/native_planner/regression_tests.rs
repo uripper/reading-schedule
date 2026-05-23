@@ -1,8 +1,11 @@
 use serde_json::{json, Value};
+use std::cell::Cell;
 
-use super::generate_plan;
+use super::{generate_plan, generate_plan_with_cancel};
 
+const CANCEL_AFTER_EARLY_EXIT_CHECKS: u32 = 6;
 const FINAL_FRAGMENT_WORDS: i64 = 100;
+const FAR_FUTURE_DATE: &str = "2036-05-18";
 const HIGHEST_PRIORITY: i64 = 1;
 const LOWEST_PRIORITY: i64 = 5;
 const MAX_BLOCKS_PER_BOOK_PER_DAY: i64 = 100;
@@ -11,8 +14,12 @@ const MAX_SESSIONS_PER_DAY: i64 = 1;
 const MINUTES_FOR_ONE_BLOCK: i64 = 5;
 const MINUTES_PER_SINGLE_BLOCK_DAY: i64 = 5;
 const MONDAY_DATE: &str = "2026-05-18";
+const MORE_PROGRESS_REMAINING_WORDS: i64 = 400;
+const PARTIAL_REMAINING_WORDS: i64 = 500;
+const TUESDAY_DATE: &str = "2026-05-19";
 const THREE_BLOCK_MINIMUM: i64 = 3;
 const WORDS_FOR_ONE_BLOCK: i64 = 500;
+const LESS_PROGRESS_REMAINING_WORDS: i64 = 700;
 const WORDS_TOTAL: i64 = 1000;
 const WPM_BASE: i64 = 100;
 
@@ -50,6 +57,18 @@ fn first_schedule_book_id(generated: &Value) -> Option<&str> {
         .and_then(Value::as_str)
 }
 
+fn schedule_book_ids(generated: &Value) -> Vec<String> {
+    generated
+        .get("schedule")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(|row| row.get("book_id"))
+        .filter_map(Value::as_str)
+        .map(str::to_string)
+        .collect()
+}
+
 fn summary_status(generated: &Value) -> Option<&str> {
     generated
         .get("summary")
@@ -73,6 +92,75 @@ fn lower_numeric_priority_schedules_first() {
     .expect("expected generated plan");
 
     assert_eq!(first_schedule_book_id(&generated), Some("low-number"));
+}
+
+#[test]
+fn equal_priority_continues_book_started_by_plan() {
+    let generated = generate_plan(json!({
+        "books": [
+            book("alpha", "Alpha", HIGHEST_PRIORITY, WORDS_TOTAL),
+            book("beta", "Beta", HIGHEST_PRIORITY, WORDS_TOTAL),
+        ],
+        "settings": planner_settings(
+            MONDAY_DATE,
+            TUESDAY_DATE,
+            MINUTES_PER_SINGLE_BLOCK_DAY
+        ),
+    }))
+    .expect("expected generated plan");
+
+    assert_eq!(schedule_book_ids(&generated), vec!["alpha", "alpha"]);
+}
+
+#[test]
+fn equal_priority_prefers_started_book_over_unstarted_book() {
+    let generated = generate_plan(json!({
+        "books": [
+            book(
+                "started",
+                "Started",
+                HIGHEST_PRIORITY,
+                PARTIAL_REMAINING_WORDS
+            ),
+            book("unstarted", "Unstarted", HIGHEST_PRIORITY, WORDS_TOTAL),
+        ],
+        "settings": planner_settings(
+            MONDAY_DATE,
+            MONDAY_DATE,
+            MINUTES_PER_SINGLE_BLOCK_DAY
+        ),
+    }))
+    .expect("expected generated plan");
+
+    assert_eq!(first_schedule_book_id(&generated), Some("started"));
+}
+
+#[test]
+fn equal_priority_prefers_book_with_more_progress() {
+    let generated = generate_plan(json!({
+        "books": [
+            book(
+                "less-progress",
+                "Less Progress",
+                HIGHEST_PRIORITY,
+                LESS_PROGRESS_REMAINING_WORDS
+            ),
+            book(
+                "more-progress",
+                "More Progress",
+                HIGHEST_PRIORITY,
+                MORE_PROGRESS_REMAINING_WORDS
+            ),
+        ],
+        "settings": planner_settings(
+            MONDAY_DATE,
+            MONDAY_DATE,
+            MINUTES_PER_SINGLE_BLOCK_DAY
+        ),
+    }))
+    .expect("expected generated plan");
+
+    assert_eq!(first_schedule_book_id(&generated), Some("more-progress"));
 }
 
 #[test]
@@ -137,4 +225,34 @@ fn incomplete_plan_reports_incomplete_status() {
 
     assert_eq!(summary_status(&generated), Some("INCOMPLETE"));
     assert!(warning.contains("Wrong Day"));
+}
+
+#[test]
+fn greedy_stops_when_all_words_are_scheduled_before_end_date() {
+    let cancellation_checks = Cell::new(0);
+    let generated = generate_plan_with_cancel(
+        json!({
+            "books": [
+                book("short-book", "Short Book", HIGHEST_PRIORITY, WORDS_FOR_ONE_BLOCK),
+            ],
+            "settings": planner_settings(
+                MONDAY_DATE,
+                FAR_FUTURE_DATE,
+                MINUTES_PER_SINGLE_BLOCK_DAY
+            ),
+        }),
+        &|| {
+            let next_count = cancellation_checks.get() + 1;
+            cancellation_checks.set(next_count);
+            next_count > CANCEL_AFTER_EARLY_EXIT_CHECKS
+        },
+    )
+    .expect("expected early-exited plan");
+    let rows = generated
+        .get("schedule")
+        .and_then(Value::as_array)
+        .expect("expected schedule rows");
+
+    assert_eq!(rows.len(), 1);
+    assert_eq!(summary_status(&generated), Some("FEASIBLE"));
 }

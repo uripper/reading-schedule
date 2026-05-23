@@ -1,0 +1,95 @@
+.books-mass-edit-btn {
+    min-width: clamp(190px, 16vw, 240px);
+    color: #111;
+    background: #f2d14c;
+}
+
+.books-mass-edit-add-btn {
+    min-width: clamp(180px, 15vw, 228px);
+}
+
+.books-mass-edit-add-btn:disabled {
+    cursor: default;
+    opacity: 0.62;
+}
+
+.books-mass-edit-btn.is-mass-editing {
+    min-width: clamp(236px, 22vw, 320px);
+    color: #111;
+    background: #b9e2ba;
+    box-shadow: 5px 5px 0 #000;
+}
+
+.books-mass-edit-floating {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 420;
+    min-width: clamp(220px, 22vw, 320px);
+    min-height: 64px;
+    padding: 14px 22px;
+    font-size: 1.05rem;
+    font-weight: 950;
+    color: #111;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #f2d14c;
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 7px 7px 0 #000;
+}
+
+.books-mass-edit-floating:hover,
+.books-mass-edit-floating:focus-visible {
+    filter: brightness(1.04);
+    transform: translate(-2px, -2px);
+}
+
+.book-card.is-mass-editable {
+    position: relative;
+}
+
+.book-card.is-mass-selected {
+    outline: 5px solid #f2d14c;
+    outline-offset: 3px;
+}
+
+.book-mass-select-control {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 6;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    cursor: pointer;
+    background: #f8f4e8;
+    border: 3px solid #000;
+    box-shadow: 4px 4px 0 #000;
+}
+
+.book-mass-select {
+    width: 20px;
+    min-height: 20px;
+    margin: 0;
+    accent-color: #13213a;
+}
+
+.book-mass-select-indicator {
+    display: none;
+}
+
+@media (width <= 700px) {
+    .books-mass-edit-btn,
+    .books-mass-edit-add-btn {
+        min-width: 0;
+    }
+
+    .books-mass-edit-floating {
+        right: 16px;
+        bottom: 82px;
+        left: 16px;
+        width: auto;
+    }
+}

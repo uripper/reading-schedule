@@ -113,10 +113,10 @@ export function activeDayCount(dayMinutes: DayMinutesMap): number {
 
 /**
  * Computes the current backward-looking streak in days that meet the goal.
- * Streak evaluation starts at today and walks back one day at a time.
+ * A not-yet-complete current day preserves the previous completed streak.
  * @param dayMinutes - Day-minutes lookup map.
  * @param minimumMinutesPerDay - Daily threshold required to count a streak day.
- * @returns Consecutive number of qualifying days ending today.
+ * @returns Consecutive number of qualifying days ending today or yesterday.
  */
 export function streakFromDayMinutes(
     dayMinutes: DayMinutesMap,
@@ -124,7 +124,7 @@ export function streakFromDayMinutes(
 ): number {
     const GOAL_MINUTES = normalizedStreakGoalMinutes(minimumMinutesPerDay);
     let streakDays = 0;
-    const CURSOR = new Date();
+    const CURSOR = streakStartDate(dayMinutes, GOAL_MINUTES);
     for (;;) {
         if (!isStreakDay(dayMinutes, CURSOR, GOAL_MINUTES)) {
             break;
@@ -140,6 +140,15 @@ function normalizedStreakGoalMinutes(minimumMinutesPerDay: number): number {
         MIN_STREAK_MINUTES,
         Number(minimumMinutesPerDay || MIN_STREAK_MINUTES),
     );
+}
+
+function streakStartDate(dayMinutes: DayMinutesMap, goalMinutes: number): Date {
+    const CURSOR = new Date();
+    if (isStreakDay(dayMinutes, CURSOR, goalMinutes)) {
+        return CURSOR;
+    }
+    moveToPreviousDay(CURSOR);
+    return CURSOR;
 }
 
 function dayKeyForDate(date: Date): string {

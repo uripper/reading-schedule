@@ -6,11 +6,90 @@ import {
     nextSessionIndexForDate,
     rowsWithoutSession,
 } from "../dist/renderer/app/calendar_interactions/calendar_interactions_row_helpers.js";
+import { addManualSessionRow } from "../dist/renderer/app/calendar_interactions/calendar_interactions_schedule_updates.js";
 import {
     historicalPaceRowsFixture,
     indexRowsFixture,
     removableRowsFixture,
 } from "./calendar-manual-session.fixtures.mjs";
+
+function manualSessionBook() {
+    return {
+        book_id: "book-1",
+        difficulty: 3,
+        title: "Manual Book",
+    };
+}
+
+function manualSessionState() {
+    return {
+        blockedDayBooks: {},
+        lastResult: { schedule: [], summary: null },
+        scheduleCompletions: {},
+    };
+}
+
+function noopManualSessionBindings(lifecycle) {
+    return {
+        applyStateMutation(mutation) {
+            lifecycle.push(mutation.type);
+        },
+        onScheduleRowsUpdated() {
+            lifecycle.push("schedule_rows_updated");
+        },
+        queuePersist() {
+            lifecycle.push("persist");
+        },
+        renderCalendar() {
+            lifecycle.push("render_calendar");
+        },
+        setBookScheduleRows() {
+            lifecycle.push("set_book_schedule_rows");
+        },
+    };
+}
+
+function manualSessionCoreOptions(context) {
+    return {
+        bookId: context.book.book_id,
+        collectSettings: () => {
+            return { difficulty_multiplier: { 3: 1 }, wpm_base: 100 };
+        },
+        date: "2026-02-20",
+        getBookById: () => context.book,
+        minutes: 15,
+        setLastResult(result) {
+            context.lifecycle.push(`result:${result.schedule.length}`);
+        },
+        setStatus(message) {
+            context.statusMessages.push(message);
+        },
+        state: context.state,
+        totalsFromSummary: () => {
+            return {};
+        },
+    };
+}
+
+function manualSessionProgressOptions(context) {
+    return {
+        onProgressUpdated: (book) => {
+            context.progressUpdates.push(book);
+        },
+        updateBookProgress(bookId, updates, options) {
+            context.progressUpdates.push({ bookId, options, updates });
+            return { ...context.book, status: "in_progress" };
+        },
+    };
+}
+
+function manualSessionOptions(context) {
+    return {
+        ...noopManualSessionBindings(context.lifecycle),
+        ...manualSessionCoreOptions(context),
+        ...manualSessionProgressOptions(context),
+    };
+}
 
 test("nextSessionIndexForDate appends after highest index on the same day", () => {
     const ROWS = indexRowsFixture();
@@ -74,4 +153,25 @@ test("rowsWithoutSession preserves rows when session key is not found", () => {
 
     assert.notEqual(NEXT_ROWS, ROWS);
     assert.deepEqual(NEXT_ROWS, ROWS);
+});
+
+test("addManualSessionRow marks the book started", () => {
+    const PROGRESS_UPDATES = [];
+    const STATUS_MESSAGES = [];
+    const LIFECYCLE = [];
+    const ADDED = addManualSessionRow(
+        manualSessionOptions({
+            book: manualSessionBook(),
+            lifecycle: LIFECYCLE,
+            progressUpdates: PROGRESS_UPDATES,
+            state: manualSessionState(),
+            statusMessages: STATUS_MESSAGES,
+        }),
+    );
+
+    assert.equal(ADDED, true);
+    assert.equal(PROGRESS_UPDATES[0].bookId, "book-1");
+    assert.equal(PROGRESS_UPDATES[0].options.markStarted, true);
+    assert.equal(PROGRESS_UPDATES[1].status, "in_progress");
+    assert.match(STATUS_MESSAGES[0], /Added 15 minute session/);
 });

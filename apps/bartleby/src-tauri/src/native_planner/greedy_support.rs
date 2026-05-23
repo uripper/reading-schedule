@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::collections::HashMap;
 
 use chrono::NaiveDate;
@@ -7,22 +8,16 @@ use crate::native_planner::models::{priority_order, Book};
 use crate::native_planner::solve::DayState;
 
 const MIN_START_BLOCKS: i64 = 1;
+const MAX_PROGRESS_PERCENT: f64 = 100.0;
+const MIN_PROGRESS_PERCENT: f64 = 0.0;
 
 pub fn active_book(state: &DayState<'_>) -> Option<String> {
-    let mut active = state
+    state
         .used
         .iter()
         .filter(|book_id| is_active_book(state, book_id))
+        .min_by(|left, right| compare_active_books(state, left, right))
         .cloned()
-        .collect::<Vec<_>>();
-    active.sort_by(|left, right| {
-        let left_book = &state.books[left];
-        let right_book = &state.books[right];
-        priority_order(left_book.priority, right_book.priority)
-            .then_with(|| left_book.difficulty.cmp(&right_book.difficulty))
-            .then_with(|| left.cmp(right))
-    });
-    active.into_iter().next()
 }
 
 pub fn assign_blocks(state: &mut DayState<'_>, book_id: &str, blocks: i64) {
@@ -45,7 +40,7 @@ pub fn books_by_id(books: &[Book]) -> HashMap<String, Book> {
 
 pub fn can_start_book(state: &DayState<'_>, book_id: &str) -> bool {
     let start_blocks = start_blocks_for_book(state, book_id);
-    !state.used.contains(&book_id.to_string())
+    !book_already_used(state, book_id)
         && *state.remaining.get(book_id).unwrap_or(&0.0) > 0.0
         && is_unlocked(&state.books[book_id], state.remaining)
         && book_is_scheduled_for_day(&state.books[book_id], state.day)
@@ -69,6 +64,23 @@ fn is_active_book(state: &DayState<'_>, book_id: &str) -> bool {
         && room(state, book_id) > 0
 }
 
+fn book_already_used(state: &DayState<'_>, book_id: &str) -> bool {
+    state.used.iter().any(|used| used == book_id)
+}
+
+fn compare_active_books(state: &DayState<'_>, left: &str, right: &str) -> Ordering {
+    let left_book = &state.books[left];
+    let right_book = &state.books[right];
+    let left_remaining = *state.remaining.get(left).unwrap_or(&0.0);
+    let right_remaining = *state.remaining.get(right).unwrap_or(&0.0);
+    let progress_comparison =
+        progress_order((left_book, left_remaining), (right_book, right_remaining));
+    priority_order(left_book.priority, right_book.priority)
+        .then(progress_comparison)
+        .then_with(|| left_book.difficulty.cmp(&right_book.difficulty))
+        .then_with(|| left.cmp(right))
+}
+
 pub fn is_unlocked(book: &Book, remaining: &HashMap<String, f64>) -> bool {
     match &book.blocked_by {
         Some(blocker) => remaining.get(blocker).copied().unwrap_or(0.0) <= 0.0,
@@ -86,6 +98,14 @@ pub fn next_book(ordered: &[String], state: &DayState<'_>) -> Option<String> {
         .cloned()
 }
 
+pub fn progress_order(left: (&Book, f64), right: (&Book, f64)) -> Ordering {
+    let left_progress = effective_progress_percent(left.0, left.1);
+    let right_progress = effective_progress_percent(right.0, right.1);
+    right_progress
+        .partial_cmp(&left_progress)
+        .unwrap_or(Ordering::Equal)
+}
+
 /// Returns the block count needed to start or finish a book on a day.
 pub fn start_blocks_for_book(state: &DayState<'_>, book_id: &str) -> i64 {
     let min_blocks = state.books[book_id].min_blocks_per_session;
@@ -94,6 +114,18 @@ pub fn start_blocks_for_book(state: &DayState<'_>, book_id: &str) -> i64 {
         return min_blocks;
     }
     min_blocks.min(remaining_blocks).max(MIN_START_BLOCKS)
+}
+
+fn effective_progress_percent(book: &Book, remaining_words: f64) -> f64 {
+    let base_progress = book
+        .progress_percent
+        .clamp(MIN_PROGRESS_PERCENT, MAX_PROGRESS_PERCENT);
+    let Some(words_total) = book.words_total.filter(|words_total| *words_total > 0) else {
+        return base_progress;
+    };
+    let words_read = (words_total as f64 - remaining_words).max(0.0);
+    let progress = (words_read / words_total as f64) * MAX_PROGRESS_PERCENT;
+    base_progress.max(progress.clamp(MIN_PROGRESS_PERCENT, MAX_PROGRESS_PERCENT))
 }
 
 fn remaining_blocks_for_book(state: &DayState<'_>, book_id: &str) -> i64 {

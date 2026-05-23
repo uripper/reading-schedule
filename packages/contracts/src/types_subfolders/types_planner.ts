@@ -71,6 +71,7 @@ export interface PlannerSummaryBook {
  * per_book gives a breakdown of the summary information for each book in the plan, keyed by book id
  */
 export type PlannerSummary = {
+    deprecation_notice?: string | null;
     feasibility_warning?: string | null;
     status?: string;
     total_planned_minutes?: number;
@@ -203,13 +204,13 @@ export interface PlannerApi {
         payload: PlanGeneratePayload,
     ): Promise<Pick<PlannerResult, "schedule" | "summary">>;
     loadState(): Promise<PlannerStateLoadResult>;
+    resolveCoverSrc(src: string | undefined): string;
     sample(): Promise<Pick<PlannerStateSnapshot, "settings" | "books">>;
     saveState(state: PlannerStateSnapshot): Promise<PlannerSaveResult>;
     saveUploadedCover(
         dataUrl: string | undefined,
         bookId: string | undefined,
     ): Promise<string>;
-    resolveCoverSrc(src: string | undefined): string;
     searchBooks(query: string, author?: boolean): Promise<BookLookupItem[]>;
     zoomIn(): Promise<number>;
     zoomOut(): Promise<number>;

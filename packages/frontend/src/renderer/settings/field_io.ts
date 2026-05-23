@@ -1,6 +1,6 @@
 import type { FieldDefinition } from "../../types/types.ts";
 import { el } from "../dom.ts";
-import { DIFFICULTY_LEVEL_COUNT, FIELDS } from "./config.ts";
+import { FIELDS } from "./config.ts";
 
 /**
  * Returns typed input element by id.
@@ -26,15 +26,4 @@ export function selectEl(id: string): HTMLSelectElement {
  */
 export function allFieldDefinitions(): FieldDefinition[] {
     return Object.values(FIELDS).flat();
-}
-
-/**
- * Returns difficulty level numbers used for multiplier rows.
- * @returns Sequential level numbers starting at 1.
- */
-export function numberLevels(): number[] {
-    return Array.from(
-        { length: DIFFICULTY_LEVEL_COUNT },
-        (_, index) => index + 1,
-    );
 }

@@ -1,5 +1,7 @@
 //! Tauri command handlers for the Bartleby migration foundation.
-use crate::{book_search, cover_store, native_planner, state_store, window_zoom};
+use crate::{
+    app_paths, book_search, cover_store, native_planner, plan_cache, state_store, window_zoom,
+};
 use serde_json::Value;
 
 #[tauri::command]
@@ -29,10 +31,31 @@ pub fn cover_import(
 }
 
 #[tauri::command]
-pub async fn plan_generate(payload: Value) -> Result<Value, String> {
-    tauri::async_runtime::spawn_blocking(move || native_planner::generate_plan(payload))
-        .await
-        .map_err(|error| format!("Planner task join error: {error}"))?
+pub async fn state_run_maintenance(
+    app: tauri::AppHandle,
+) -> Result<state_store::StateMaintenanceResult, String> {
+    let data_directory = app_paths::canonical_data_directory(&app)?;
+    tauri::async_runtime::spawn_blocking(move || {
+        state_store::run_state_maintenance(&data_directory)
+    })
+    .await
+    .map_err(|error| format!("State maintenance task join error: {error}"))?
+}
+
+#[tauri::command]
+pub async fn plan_generate(
+    payload: Value,
+    plan_cache_state: tauri::State<'_, plan_cache::PlanCacheState>,
+) -> Result<Value, String> {
+    let shared_cache = plan_cache_state.shared();
+    let latest_request_id = plan_cache_state.latest_request_id();
+    let request_id = plan_cache_state.next_request_id();
+    tauri::async_runtime::spawn_blocking(move || {
+        let request = plan_cache::PlanRequest::new(&latest_request_id, request_id);
+        plan_cache::generate_plan(&shared_cache, request, payload)
+    })
+    .await
+    .map_err(|error| format!("Planner task join error: {error}"))?
 }
 
 #[tauri::command]
@@ -52,24 +75,27 @@ pub fn state_save(app: tauri::AppHandle, state: Value) -> Result<Value, String> 
 
 #[tauri::command]
 pub fn window_zoom_in(
+    app: tauri::AppHandle,
     window: tauri::WebviewWindow,
     zoom_state: tauri::State<'_, window_zoom::ZoomState>,
 ) -> Result<f64, String> {
-    window_zoom::zoom_in(zoom_state, window)
+    window_zoom::zoom_in(app, zoom_state, window)
 }
 
 #[tauri::command]
 pub fn window_zoom_out(
+    app: tauri::AppHandle,
     window: tauri::WebviewWindow,
     zoom_state: tauri::State<'_, window_zoom::ZoomState>,
 ) -> Result<f64, String> {
-    window_zoom::zoom_out(zoom_state, window)
+    window_zoom::zoom_out(app, zoom_state, window)
 }
 
 #[tauri::command]
 pub fn window_zoom_reset(
+    app: tauri::AppHandle,
     window: tauri::WebviewWindow,
     zoom_state: tauri::State<'_, window_zoom::ZoomState>,
 ) -> Result<f64, String> {
-    window_zoom::zoom_reset(zoom_state, window)
+    window_zoom::zoom_reset(app, zoom_state, window)
 }

@@ -1,6 +1,6 @@
 import type { BookFormRefs, BookStatus } from "@reading-schedule/contracts";
 import { syncDateInputDisabled } from "../date_control.ts";
-import { COVER_PLACEHOLDER } from "./constants.ts";
+import { COVER_PLACEHOLDER, WORDS_PER_PAGE } from "./constants.ts";
 import { resolveCoverSource } from "./cover-source.ts";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
 import {
@@ -221,6 +221,16 @@ function normalizedPageProgress(
     };
 }
 
+function estimatedWordsTotal(
+    wordsTotal: number | null,
+    pagesTotal: number,
+): number {
+    if (wordsTotal !== null && wordsTotal > 0) {
+        return wordsTotal;
+    }
+    return pagesTotal * WORDS_PER_PAGE;
+}
+
 /**
  * Parses and validates length/progress inputs into normalized numeric values.
  * @param refs - Form DOM references for the book dialog.
@@ -247,7 +257,7 @@ export function deriveLengthAndProgress(refs: BookFormRefs): {
             pagesRead: NORMALIZED.pagesRead,
             pagesTotal: PAGES_TOTAL,
             progress: NORMALIZED.progress,
-            wordsTotal: INPUTS.wordsTotal,
+            wordsTotal: estimatedWordsTotal(INPUTS.wordsTotal, PAGES_TOTAL),
         };
     }
 

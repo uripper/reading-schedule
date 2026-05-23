@@ -3,6 +3,7 @@ mod book_search;
 mod commands;
 mod cover_store;
 mod native_planner;
+mod plan_cache;
 mod state_recover_cli;
 mod state_store;
 mod window_zoom;
@@ -10,6 +11,8 @@ mod window_zoom;
 pub use state_recover_cli::recover_state_from_args;
 pub use state_store::RecoverySummary;
 
+#[cfg(test)]
+mod state_store_cover_tests;
 #[cfg(test)]
 mod state_store_tests;
 
@@ -19,6 +22,7 @@ mod state_store_tests;
 pub fn run() {
     let context = tauri::generate_context!();
     tauri::Builder::default()
+        .manage(plan_cache::PlanCacheState::default())
         .manage(window_zoom::ZoomState::default())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
@@ -31,6 +35,7 @@ pub fn run() {
             commands::cover_import,
             commands::plan_generate,
             commands::plan_sample,
+            commands::state_run_maintenance,
             commands::state_load,
             commands::state_save,
             commands::window_zoom_in,

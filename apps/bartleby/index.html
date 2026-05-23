@@ -289,21 +289,14 @@
               type="button"
               data-settings-section-target="plan-budget"
             >
-              Plan & Budget
+              Reading Plan
             </button>
             <button
               class="settings-section-tab"
               type="button"
-              data-settings-section-target="weights"
+              data-settings-section-target="days-off"
             >
-              Optimization
-            </button>
-            <button
-              class="settings-section-tab"
-              type="button"
-              data-settings-section-target="difficulty"
-            >
-              Difficulty
+              Days Off
             </button>
             <button
               class="settings-section-tab"
@@ -315,14 +308,17 @@
           </nav>
           <div class="settings-layout">
             <article class="settings-card" data-settings-section="plan-budget">
-              <h2>Plan & Budget</h2>
-              <h3>Plan Until</h3>
-              <div id="windowGrid" class="settings-grid"></div>
-              <h3>Daily Budget</h3>
-              <div id="budgetGrid" class="settings-grid"></div>
-              <h3>Minutes by Weekday</h3>
-              <div id="weekdayGrid" class="settings-grid"></div>
-              <h3>Days Off</h3>
+              <h2>Reading Plan</h2>
+              <div id="planGrid" class="settings-grid settings-plan-grid"></div>
+              <div class="settings-divider" aria-hidden="true"></div>
+              <div id="minutesGrid" class="settings-grid settings-minutes-grid"></div>
+              <details class="settings-details">
+                <summary>Custom weekday minutes</summary>
+                <div id="weekdayGrid" class="weekday-custom-grid"></div>
+              </details>
+            </article>
+            <article class="settings-card" data-settings-section="days-off" hidden>
+              <h2>Days Off</h2>
               <div class="row wrap-row">
                 <input id="dayOffPicker" type="text" />
                 <button id="addDayOffBtn" class="btn" type="button">
@@ -333,47 +329,11 @@
             </article>
             <article
               class="settings-card"
-              data-settings-section="weights"
-              hidden
-            >
-              <h2>Optimization Weights</h2>
-              <div id="weightsGrid" class="settings-grid"></div>
-            </article>
-            <article
-              class="settings-card"
-              data-settings-section="difficulty"
-              hidden
-            >
-              <h2>Reading Speed by Difficulty</h2>
-              <p class="hint-text">
-                Multiplier applies to base WPM: effective WPM = base *
-                multiplier.
-              </p>
-              <table>
-                <thead>
-                  <tr>
-                    <th scope="col">Difficulty</th>
-                    <th scope="col">Multiplier</th>
-                  </tr>
-                </thead>
-                <tbody id="difficultyBody"></tbody>
-              </table>
-            </article>
-            <article
-              class="settings-card"
               data-settings-section="experience"
               hidden
             >
               <h2>Experience</h2>
               <div class="settings-grid">
-                <label
-                  >Theme
-                  <select id="themeSelect">
-                    <option value="system">System</option>
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                  </select>
-                </label>
                 <label
                   >Daily Goal Minutes<input
                     id="dailyGoalInput"
@@ -398,17 +358,6 @@
                     value="20:00"
                 /></label>
               </div>
-              <h3>Feature Flags</h3>
-              <div class="settings-grid">
-                <label class="toggle-row"
-                  ><input id="flagGamification" type="checkbox" /> Enable
-                  gamification</label
-                >
-                <label class="toggle-row"
-                  ><input id="flagSocial" type="checkbox" /> Enable social
-                  features</label
-                >
-              </div>
               <h3>Books Display</h3>
               <div id="displayGrid" class="settings-grid"></div>
             </article>
@@ -426,7 +375,15 @@
       >
         <div class="neo-screen-content">
           <div class="row books-toolbar wrap-row">
-            <button id="addBookBtn" class="btn" type="button">Add Book</button>
+            <div class="books-toolbar-actions">
+              <button
+                id="addBookBtn"
+                class="btn books-toolbar-add-btn"
+                type="button"
+              >
+                Add Book
+              </button>
+            </div>
             <span class="hint-text">Click a book card to edit details.</span>
           </div>
           <div id="booksGrid" class="books-grid" aria-live="polite"></div>
@@ -610,13 +567,6 @@
                   min="1"
                   max="10"
                   value="3"
-              /></label>
-              <label
-                >Min Blocks<input
-                  id="bookMinBlocksInput"
-                  type="number"
-                  min="1"
-                  value="1"
               /></label>
               <label
                 >Max min/day<input

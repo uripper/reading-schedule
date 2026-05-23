@@ -31,6 +31,13 @@ const RESOLVED_SOURCE_PREFIXES = [
     "tauri:",
 ];
 
+export interface StateMaintenanceResult {
+    changed: boolean;
+    coversDeleted: number;
+    sqliteJournalRowsDeleted: number;
+    stateRepaired: boolean;
+}
+
 function filePathFromUrl(src: string): string {
     try {
         const URL_VALUE = new URL(src);
@@ -138,6 +145,12 @@ async function saveUploadedCover(
         dataUrl,
     });
     return resolveTauriCoverSrc(COVER_PATH);
+}
+
+export async function runStateMaintenance(): Promise<StateMaintenanceResult> {
+    return await invokeCommand<StateMaintenanceResult>(
+        TAURI_COMMANDS.stateRunMaintenance,
+    );
 }
 
 function createCoverApi(): Pick<

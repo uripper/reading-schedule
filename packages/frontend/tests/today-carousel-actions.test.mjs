@@ -7,6 +7,7 @@ import {
     logSessionButtonText,
     parseMinutesInput,
 } from "../dist/renderer/app/today/today_carousel_actions.js";
+import { addBookHandler } from "../dist/renderer/app/today/today_carousel_add_book.js";
 
 const ROW = {
     book_id: "book-1",
@@ -16,6 +17,7 @@ const ROW = {
     title: "Ulysses",
     words_planned: 2500,
 };
+const NOOP = () => undefined;
 
 test("buildProgressUpdatePayload includes changed pages and percent", () => {
     const RESULT = buildProgressUpdatePayload({
@@ -118,4 +120,38 @@ test("parseMinutesInput enforces integer minimum", () => {
     const INVALID = parseMinutesInput("0");
     assert.equal(INVALID.minutes, null);
     assert.match(INVALID.error, /at least 1/);
+});
+
+test("addBookHandler appears when library books are available for Today", () => {
+    const HANDLER = addBookHandler({
+        bindings: {
+            listSessionBooks: () => {
+                return [{ bookId: "book-1", title: "Book 1" }];
+            },
+            onManualSessionAdded: () => true,
+            rerender: NOOP,
+            setStatus: NOOP,
+        },
+        books: [{ book_id: "book-1", title: "Book 1" }],
+        modelBooks: [],
+    });
+
+    assert.equal(typeof HANDLER, "function");
+});
+
+test("addBookHandler is hidden when every library book is already in Today", () => {
+    const HANDLER = addBookHandler({
+        bindings: {
+            listSessionBooks: () => {
+                return [{ bookId: "book-1", title: "Book 1" }];
+            },
+            onManualSessionAdded: () => true,
+            rerender: NOOP,
+            setStatus: NOOP,
+        },
+        books: [{ book_id: "book-1", title: "Book 1" }],
+        modelBooks: [{ bookId: "book-1" }],
+    });
+
+    assert.equal(HANDLER, undefined);
 });

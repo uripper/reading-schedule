@@ -23,6 +23,7 @@ function createSharedScheduleBindings(
         applyStateMutation: args.applyStateMutation,
         collectSettings: args.collectSettings,
         getBookById: args.getBookById,
+        onProgressUpdated: args.onProgressUpdated,
         onScheduleRowsUpdated: args.onScheduleRowsUpdated ?? NO_OP,
         queuePersist: args.queuePersist,
         renderCalendar: args.renderCalendar,
@@ -31,6 +32,7 @@ function createSharedScheduleBindings(
         setStatus: args.setStatus,
         state: args.state,
         totalsFromSummary: args.totalsFromSummary,
+        updateBookProgress: args.updateBookProgress,
     };
 }
 
@@ -44,6 +46,8 @@ function sharedUpdateArgs(
     | "date"
     | "getBookById"
     | "minutes"
+    | "onProgressUpdated"
+    | "updateBookProgress"
 > {
     return {
         applyStateMutation: bindings.applyStateMutation,
@@ -70,6 +74,8 @@ function manualSessionArgs(
         date: payload.date,
         getBookById: bindings.getBookById,
         minutes: payload.minutes,
+        onProgressUpdated: bindings.onProgressUpdated,
+        updateBookProgress: bindings.updateBookProgress,
     };
 }
 

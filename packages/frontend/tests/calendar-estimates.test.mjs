@@ -197,3 +197,54 @@ test("estimateProgressLabel projects end-of-session pages for incomplete current
         "Estimated by end of this session: 200 pages read (50% complete)",
     );
 });
+
+test("estimateProgressLabel prefers scheduler remaining words over live progress percent", () => {
+    const TODAY = dayKey(new Date());
+    const TARGET_ROW = row({
+        date: plusDays(TODAY, 2),
+        session_index: 1,
+        words_planned: 250,
+    });
+    const STATE = {
+        rows: [TARGET_ROW],
+        totalsByBookId: { "book-1": 500 },
+    };
+
+    const LABEL = estimateProgressLabel({
+        getBookById: () => book({ progress_percent: 10, words_total: 1000 }),
+        isSessionCompleted: () => false,
+        row: TARGET_ROW,
+        state: STATE,
+    });
+
+    assert.equal(
+        LABEL,
+        "Estimated by end of this session: 300 pages read (75% complete)",
+    );
+});
+
+test("estimateProgressLabel shows finish rows as 100 percent complete", () => {
+    const TODAY = dayKey(new Date());
+    const TARGET_ROW = row({
+        date: plusDays(TODAY, 2),
+        finish: true,
+        session_index: 1,
+        words_planned: 25,
+    });
+    const STATE = {
+        rows: [TARGET_ROW],
+        totalsByBookId: { "book-1": 500 },
+    };
+
+    const LABEL = estimateProgressLabel({
+        getBookById: () => book({ pages_total: 740, progress_percent: 10 }),
+        isSessionCompleted: () => false,
+        row: TARGET_ROW,
+        state: STATE,
+    });
+
+    assert.equal(
+        LABEL,
+        "Estimated by end of this session: 740 pages read (100% complete)",
+    );
+});

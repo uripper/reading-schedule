@@ -135,3 +135,15 @@ test("enrichRows moves expected-finish forward when today row is marked complete
     assert.equal(ENRICHED[0]?.finish, false);
     assert.equal(ENRICHED[1]?.finish, true);
 });
+
+test("enrichRows marks the last scheduled row as expected finish for calendar display", () => {
+    const TODAY = dayKey(new Date());
+    const TOMORROW = tomorrowDayKey(TODAY);
+    const [TODAY_ROW, TOMORROW_ROW] = todayAndTomorrowRows(TODAY, TOMORROW);
+    const TOTALS = { "book-1": 1000 };
+
+    const ENRICHED = enrichRows([TODAY_ROW, TOMORROW_ROW], TOTALS, () => false);
+
+    assert.equal(ENRICHED[0]?.finish, false);
+    assert.equal(ENRICHED[1]?.finish, true);
+});

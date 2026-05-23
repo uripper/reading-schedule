@@ -207,65 +207,6 @@ fn load_preferred_state_uses_legacy_json_when_sqlite_fails() {
 }
 
 #[test]
-fn load_preferred_state_tolerates_legacy_cover_extension_mismatch() {
-    let canonical_directory = temp_state_directory("preferred-cover-mismatch-canonical");
-    let legacy_directory = temp_state_directory("preferred-cover-mismatch-legacy");
-    fs::create_dir_all(&legacy_directory).expect("expected legacy directory");
-    let legacy_cover_path = legacy_directory.join("legacy-cover.jpg");
-    fs::write(
-        &legacy_cover_path,
-        [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a],
-    )
-    .expect("expected legacy cover file");
-    fs::write(
-        json_state_path(&legacy_directory),
-        serde_json::to_string_pretty(&json!({
-            "books": [
-                {
-                    "book_id": "book-1",
-                    "cover_local_path": legacy_cover_path.to_string_lossy().into_owned()
-                }
-            ],
-            "settings": { "start_date": "2026-04-03" }
-        }))
-        .expect("expected legacy json"),
-    )
-    .expect("expected legacy json state write");
-    let load_result = load_preferred_state_for_test(
-        &canonical_directory,
-        std::slice::from_ref(&legacy_directory),
-    )
-    .expect("expected preferred state load");
-    assert_eq!(load_result.source, "json_primary");
-    assert!(!load_result
-        .warning_message
-        .as_deref()
-        .unwrap_or_default()
-        .contains("skipped cover migration"));
-    let migrated_cover_path = load_result
-        .state
-        .get("books")
-        .and_then(serde_json::Value::as_array)
-        .and_then(|books| books.first())
-        .and_then(|book| book.get("cover_local_path"))
-        .and_then(serde_json::Value::as_str)
-        .unwrap_or_default()
-        .to_string();
-    assert!(migrated_cover_path.ends_with(".png"));
-    assert!(fs::exists(std::path::Path::new(&migrated_cover_path)).unwrap_or(false));
-    assert_eq!(
-        load_result
-            .state
-            .get("settings")
-            .and_then(|settings| settings.get("start_date"))
-            .and_then(serde_json::Value::as_str),
-        Some("2026-04-03"),
-    );
-    let _ = fs::remove_dir_all(&canonical_directory);
-    let _ = fs::remove_dir_all(&legacy_directory);
-}
-
-#[test]
 fn load_preferred_state_reports_checked_legacy_paths_when_fresh() {
     let canonical_directory = temp_state_directory("preferred-fresh");
     let legacy_directory = temp_state_directory("missing-legacy");

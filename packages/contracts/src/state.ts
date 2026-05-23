@@ -18,7 +18,7 @@ const PREFERENCES_SCHEMA = z.object({
     reduceMotion: z.boolean(),
     reminderEnabled: z.boolean(),
     reminderTime: z.string(),
-    theme: z.enum(["system", "light", "dark"]),
+    theme: z.enum(["system", "dark"]),
     timezone: z.string(),
 });
 

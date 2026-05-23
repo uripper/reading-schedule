@@ -35,11 +35,8 @@ pub fn minutes_for_day(settings: &Settings, day: NaiveDate) -> i64 {
     if settings.days_off.contains(&day) {
         return 0;
     }
-    if !settings.minutes_by_weekday.is_empty() {
-        return *settings
-            .minutes_by_weekday
-            .get(weekday_key(day))
-            .unwrap_or(&0);
+    if let Some(minutes) = settings.minutes_by_weekday.get(weekday_key(day)) {
+        return *minutes;
     }
     settings.minutes_per_day.unwrap_or(0)
 }

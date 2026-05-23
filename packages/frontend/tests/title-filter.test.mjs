@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+    anyFieldMatchesNormalizedQuery,
     normalizeTitleFilterQuery,
     titleMatchesNormalizedQuery,
 } from "../dist/renderer/title_filter.js";
@@ -23,6 +24,23 @@ test("titleMatchesNormalizedQuery supports empty query and substring matching", 
     );
     assert.equal(
         titleMatchesNormalizedQuery("Against Interpretation", "orwell"),
+        false,
+    );
+});
+
+test("anyFieldMatchesNormalizedQuery matches across multiple candidate fields", () => {
+    assert.equal(
+        anyFieldMatchesNormalizedQuery(
+            ["Against Interpretation", "Susan Sontag"],
+            "sontag",
+        ),
+        true,
+    );
+    assert.equal(
+        anyFieldMatchesNormalizedQuery(
+            ["Against Interpretation", "Susan Sontag"],
+            "orwell",
+        ),
         false,
     );
 });

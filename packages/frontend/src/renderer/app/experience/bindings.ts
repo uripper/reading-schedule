@@ -2,18 +2,14 @@ import type { ExperienceSettingsApplyHandler } from "../../../types/types.ts";
 import { el } from "../../dom.ts";
 
 const EXPERIENCE_SETTING_IDS: readonly string[] = [
-    "themeSelect",
     "reduceMotionToggle",
     "dailyGoalInput",
     "reminderEnabledToggle",
     "reminderTimeInput",
-    "flagGamification",
-    "flagSocial",
 ];
 const HIDDEN_EXPERIENCE_CONTROL_IDS: readonly string[] = [
     "reminderEnabledToggle",
     "reminderTimeInput",
-    "flagSocial",
 ];
 const DEFAULT_REMINDER_TIME = "20:00";
 

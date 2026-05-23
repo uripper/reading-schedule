@@ -17,9 +17,35 @@ use serde_json::{json, Value};
 const BOOKS_SAMPLE_JSON: &str = include_str!("../../../../../data/books.sample.json");
 const SETTINGS_SAMPLE_JSON: &str = include_str!("../../../../../data/settings.json");
 
+pub(crate) type CancellationCheck<'a> = dyn Fn() -> bool + 'a;
+pub(crate) const PLANNER_SUPERSEDED_MESSAGE: &str = "Planner request superseded.";
+
+#[cfg(test)]
+fn never_cancel() -> bool {
+    false
+}
+
+pub(crate) fn fail_if_cancelled(should_cancel: &CancellationCheck<'_>) -> Result<(), String> {
+    if should_cancel() {
+        return Err(PLANNER_SUPERSEDED_MESSAGE.to_string());
+    }
+    Ok(())
+}
+
+#[cfg(test)]
 pub fn generate_plan(payload: Value) -> Result<Value, String> {
+    generate_plan_with_cancel(payload, &never_cancel)
+}
+
+pub(crate) fn generate_plan_with_cancel(
+    payload: Value,
+    should_cancel: &CancellationCheck<'_>,
+) -> Result<Value, String> {
+    fail_if_cancelled(should_cancel)?;
     let planner_input = parse::planner_input(payload)?;
-    let result = profile::solve(&planner_input.books, &planner_input.settings)?;
+    fail_if_cancelled(should_cancel)?;
+    let result = profile::solve(&planner_input.books, &planner_input.settings, should_cancel)?;
+    fail_if_cancelled(should_cancel)?;
     report::build_output(&planner_input.books, &planner_input.settings, &result)
 }
 
@@ -36,9 +62,13 @@ pub fn sample_payload() -> Result<Value, String> {
 
 #[cfg(test)]
 mod tests {
-    use serde_json::Value;
+    use chrono::NaiveDate;
+    use serde_json::{json, Value};
 
-    use super::{generate_plan, sample_payload};
+    use super::{
+        calendar::minutes_for_day, generate_plan, generate_plan_with_cancel, parse::planner_input,
+        sample_payload, PLANNER_SUPERSEDED_MESSAGE,
+    };
 
     #[test]
     fn generate_plan_returns_schedule_rows() {
@@ -49,6 +79,47 @@ mod tests {
             .and_then(Value::as_array)
             .expect("expected schedule rows");
         assert!(!schedule.is_empty(), "expected generated schedule rows");
+    }
+
+    #[test]
+    fn planner_input_uses_minutes_per_day_for_missing_weekdays() {
+        let mut payload = sample_payload().expect("expected sample payload");
+        let settings = payload
+            .get_mut("settings")
+            .and_then(Value::as_object_mut)
+            .expect("expected settings");
+        settings.insert(
+            "minutes_by_weekday".to_string(),
+            json!({
+                "Mon": 60,
+            }),
+        );
+        settings.insert("minutes_per_day".to_string(), Value::Number(45.into()));
+        let planner_input = planner_input(payload).expect("expected planner input");
+        let monday = NaiveDate::from_ymd_opt(2026, 5, 18).expect("expected Monday date");
+        let tuesday = NaiveDate::from_ymd_opt(2026, 5, 19).expect("expected Tuesday date");
+        assert_eq!(minutes_for_day(&planner_input.settings, monday), 60);
+        assert_eq!(minutes_for_day(&planner_input.settings, tuesday), 45);
+    }
+
+    #[test]
+    fn planner_input_rejects_invalid_minutes_by_weekday_keys() {
+        let mut payload = sample_payload().expect("expected sample payload");
+        let settings = payload
+            .get_mut("settings")
+            .and_then(Value::as_object_mut)
+            .expect("expected settings");
+        settings.insert(
+            "minutes_by_weekday".to_string(),
+            json!({
+                "Funday": 45,
+            }),
+        );
+        let error = planner_input(payload).expect_err("expected invalid weekday error");
+        assert!(
+            error.contains("minutes_by_weekday keys must be Mon..Sun when provided"),
+            "expected invalid weekday error, got {error}"
+        );
     }
 
     #[test]
@@ -133,6 +204,39 @@ mod tests {
             summary.get("note").and_then(Value::as_str),
             Some("Fast mode uses greedy planner.")
         );
+    }
+
+    #[test]
+    fn generate_plan_reports_spread_out_deprecation_notice() {
+        let mut payload = sample_payload().expect("expected sample payload");
+        payload
+            .get_mut("settings")
+            .and_then(Value::as_object_mut)
+            .expect("expected settings")
+            .insert(
+                "plan_mode".to_string(),
+                Value::String("spread_out".to_string()),
+            );
+        let generated = generate_plan(payload).expect("expected generated plan");
+        let summary = generated
+            .get("summary")
+            .and_then(Value::as_object)
+            .expect("expected summary");
+        let notice = summary
+            .get("deprecation_notice")
+            .and_then(Value::as_str)
+            .expect("expected deprecation notice");
+
+        assert!(notice.contains("Spread Out mode is deprecated"));
+    }
+
+    #[test]
+    fn generate_plan_can_be_cancelled_before_solve() {
+        let payload = sample_payload().expect("expected sample payload");
+        let error = generate_plan_with_cancel(payload, &|| true)
+            .expect_err("expected superseded planner error");
+
+        assert_eq!(error, PLANNER_SUPERSEDED_MESSAGE);
     }
 
     #[test]

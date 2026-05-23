@@ -1,3 +1,4 @@
+import { logError } from "../../types/logger.ts";
 import type {
     Book,
     BookGroup,
@@ -7,6 +8,7 @@ import type {
     RenderBooksControllerArgs,
 } from "../../types/types.ts";
 import { collectSettings } from "../settings.ts";
+import { booksAfterRemovingBook } from "./blocker-lineage.ts";
 import { renderBookGrid } from "./card_view.ts";
 import {
     resolveRenderableRefs,
@@ -15,11 +17,14 @@ import {
 import { groupsForEstimatedFinish } from "./estimated_finish_groups.ts";
 import { finishDatesByBookId } from "./finish-dates.ts";
 import { GROUP_BY_NONE, groupBooks } from "./grouping.ts";
+import { confirmRemoveBook } from "./remove-confirm.ts";
 import { SHELF_FILTER_ALL } from "./shelf.ts";
 import { SORT_BY_ESTIMATED_FINISH } from "./sort.ts";
+import { BOOK_STATUS_FILTER_ALL } from "./status_catalog.ts";
 import {
     updateGroupByOptions,
     updateShelfFilterOptions,
+    updateSortBySelection,
     updateSortDirectionButton,
     updateStatusFilterOptions,
 } from "./toolbar.ts";
@@ -51,6 +56,7 @@ function updateBooksViewFilters(
         NEXT_VIEW_STATE.groupBy,
         NEXT_VIEW_STATE.shelfFilter,
     );
+    updateSortBySelection(refs.sortBySelect, NEXT_VIEW_STATE.sortBy);
     updateSortDirectionButton(
         refs.sortDirectionBtn,
         NEXT_VIEW_STATE.sortDirection,
@@ -80,11 +86,15 @@ function requiredGridRefs(
 
 function createEditHandler(
     args: RenderBooksControllerArgs,
+    visibleBooks: Book[],
 ): RenderBookGridOptions["onEdit"] {
+    const NAVIGATION_BOOK_IDS = visibleBooks.map((book) =>
+        String(book.book_id || ""),
+    );
     return (bookId: string): void => {
         const BOOK = args.findBook(bookId);
         if (BOOK && args.dialog) {
-            args.dialog.open(BOOK);
+            args.dialog.open(BOOK, { navigationBookIds: NAVIGATION_BOOK_IDS });
         }
     };
 }
@@ -93,14 +103,33 @@ function createRemoveHandler(
     args: RenderBooksControllerArgs,
 ): RenderBookGridOptions["onRemove"] {
     return (bookId: string): void => {
-        const NEXT_BOOKS = args.books.filter((book) => book.book_id !== bookId);
-        if (NEXT_BOOKS.length === args.books.length) {
+        const BOOK = args.findBook(bookId);
+        if (BOOK === null) {
             return;
         }
-        args.setBooks(NEXT_BOOKS);
-        args.rerender();
-        args.onBooksChanged();
+        confirmRemoveBook(BOOK)
+            .then((confirmed) => {
+                if (!confirmed) {
+                    return;
+                }
+                removeBookById(args, bookId);
+            })
+            .catch(reportRemoveBookConfirmError);
     };
+}
+
+function removeBookById(args: RenderBooksControllerArgs, bookId: string): void {
+    const NEXT_BOOKS = booksAfterRemovingBook(args.books, bookId);
+    if (NEXT_BOOKS.length === args.books.length) {
+        return;
+    }
+    args.setBooks(NEXT_BOOKS);
+    args.rerender();
+    args.onBooksChanged();
+}
+
+function reportRemoveBookConfirmError(error: unknown): void {
+    logError("Could not confirm book removal.", error);
 }
 
 function buildRenderBookGridArgs(
@@ -114,7 +143,8 @@ function buildRenderBookGridArgs(
         finishDateByBookId: params.finishDateByBookId,
         grid: requiredGridRefs(args.refs).grid,
         groups: params.groups,
-        onEdit: createEditHandler(args),
+        massEdit: args.massEdit,
+        onEdit: createEditHandler(args, params.visibleBooks),
         onEstimatedFinishNavigate: args.onEstimatedFinishNavigate,
         onRemove: createRemoveHandler(args),
         showBlockerMeta: params.showBlockerMeta,
@@ -185,6 +215,66 @@ function renderGridParams(
     return VIEW_SETTINGS;
 }
 
+function hasActiveFilters(viewState: BooksViewState): boolean {
+    if (viewState.titleFilter.trim() !== "") {
+        return true;
+    }
+    if (viewState.shelfFilter !== SHELF_FILTER_ALL) {
+        return true;
+    }
+    return viewState.statusFilter !== BOOK_STATUS_FILTER_ALL;
+}
+
+function resetBookFilters(args: RenderBooksControllerArgs): void {
+    const NEXT_VIEW_STATE = args.viewState;
+    NEXT_VIEW_STATE.titleFilter = "";
+    NEXT_VIEW_STATE.shelfFilter = SHELF_FILTER_ALL;
+    NEXT_VIEW_STATE.statusFilter = BOOK_STATUS_FILTER_ALL;
+    if (args.refs.titleFilterInput) {
+        args.refs.titleFilterInput.value = "";
+    }
+    args.rerender();
+}
+
+function renderFilteredEmptyState(args: RenderBooksControllerArgs): void {
+    const EMPTY = args.refs.empty;
+    if (!EMPTY) {
+        return;
+    }
+    const MESSAGE = document.createElement("span");
+    MESSAGE.textContent = "No books found with current filters.";
+    const BUTTON = document.createElement("button");
+    BUTTON.type = "button";
+    BUTTON.className = "books-empty-clear";
+    BUTTON.textContent = "Clear Filters";
+    BUTTON.onclick = () => {
+        resetBookFilters(args);
+    };
+    EMPTY.replaceChildren(MESSAGE, BUTTON);
+}
+
+function renderDefaultEmptyState(args: RenderBooksControllerArgs): void {
+    const EMPTY = args.refs.empty;
+    if (!EMPTY) {
+        return;
+    }
+    EMPTY.textContent = "No books yet. Add your first book to start planning.";
+}
+
+function renderEmptyStateCopy(
+    args: RenderBooksControllerArgs,
+    params: RenderBookGridParams,
+): void {
+    if (params.visibleBooks.length > 0) {
+        return;
+    }
+    if (args.books.length > 0 && hasActiveFilters(args.viewState)) {
+        renderFilteredEmptyState(args);
+        return;
+    }
+    renderDefaultEmptyState(args);
+}
+
 export function renderBooksController(args: RenderBooksControllerArgs): void {
     const { viewState } = args;
     const RENDER_REFS = resolveRenderableRefs(args.refs);
@@ -192,7 +282,8 @@ export function renderBooksController(args: RenderBooksControllerArgs): void {
         return;
     }
     updateBooksViewFilters(RENDER_REFS, args.books, viewState);
-    renderBookGrid(
-        buildRenderBookGridArgs(args, renderGridParams(args, viewState)),
-    );
+    const GRID_PARAMS = renderGridParams(args, viewState);
+    args.massEdit?.syncVisibleBooks(GRID_PARAMS.visibleBooks);
+    renderBookGrid(buildRenderBookGridArgs(args, GRID_PARAMS));
+    renderEmptyStateCopy(args, GRID_PARAMS);
 }

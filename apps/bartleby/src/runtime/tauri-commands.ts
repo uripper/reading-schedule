@@ -8,6 +8,7 @@ export const TAURI_COMMANDS = {
     planGenerate: "plan_generate",
     planSample: "plan_sample",
     stateLoad: "state_load",
+    stateRunMaintenance: "state_run_maintenance",
     stateSave: "state_save",
     windowZoomIn: "window_zoom_in",
     windowZoomOut: "window_zoom_out",

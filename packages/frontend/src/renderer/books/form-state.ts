@@ -90,7 +90,6 @@ function clearNumericDefaults(refs: BookFormRefs): void {
     FORM_REFS.progressInput.value = DEFAULT_PROGRESS;
     FORM_REFS.priorityInput.value = DEFAULT_PRIORITY;
     FORM_REFS.difficultyInput.value = DEFAULT_DIFFICULTY;
-    FORM_REFS.minBlocksInput.value = DEFAULT_MIN_BLOCKS;
 }
 
 /**
@@ -168,10 +167,6 @@ function fillPriorityFields(refs: BookFormRefs, book: Book): void {
     FORM_REFS.difficultyInput.value = fallbackNumberText(
         book.difficulty,
         DEFAULT_DIFFICULTY,
-    );
-    FORM_REFS.minBlocksInput.value = fallbackNumberText(
-        book.min_blocks_per_session,
-        DEFAULT_MIN_BLOCKS,
     );
 }
 
@@ -315,9 +310,7 @@ function normalizedPlanningFields({
     return {
         difficulty: Number(refs.difficultyInput.value || DEFAULT_DIFFICULTY),
         max_minutes_per_day: toOptionalInt(refs.maxMinutesInput.value),
-        min_blocks_per_session: Number(
-            refs.minBlocksInput.value || DEFAULT_MIN_BLOCKS,
-        ),
+        min_blocks_per_session: Number(DEFAULT_MIN_BLOCKS),
         pages_read: PROGRESS_STATE.pagesRead,
         pages_total: parsed.pagesTotal,
         priority: Number(refs.priorityInput.value || DEFAULT_PRIORITY),

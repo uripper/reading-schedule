@@ -1,3 +1,4 @@
+mod cover_normalization;
 mod json_parse;
 mod json_store;
 mod legacy;
@@ -15,7 +16,8 @@ use std::path::Path;
 use serde_json::{Map, Value};
 use tauri::AppHandle;
 
-use crate::{app_paths, cover_store};
+use crate::app_paths;
+pub use cover_normalization::{run_state_maintenance, StateMaintenanceResult};
 use json_store::{read_state_from_json, write_state_to_json};
 use migrations::{migrate_loaded_state, with_migration_warning};
 use paths::{json_state_backup_path, json_state_path, sqlite_state_path};
@@ -85,32 +87,12 @@ pub(super) fn legacy_migration_message(error: &str) -> String {
 
 pub(super) fn load_canonical_state(data_directory: &Path) -> LoadResult {
     if let Some(load_result) = preferred_state_result_in_place(data_directory) {
-        return normalize_cover_state_in_place(data_directory, load_result);
+        return load_result;
     }
     if has_persisted_artifacts(data_directory) {
         return reset_fresh_state_result(data_directory);
     }
     fresh_state_result(data_directory)
-}
-
-fn normalize_cover_state_in_place(data_directory: &Path, load_result: LoadResult) -> LoadResult {
-    if !has_bootstrap_state(&load_result.state) {
-        return load_result;
-    }
-    let normalized_state =
-        match cover_store::normalize_state_cover_paths(&load_result.state, data_directory) {
-            Ok(normalized_state) => normalized_state,
-            Err(_) => {
-                return load_result;
-            }
-        };
-    if normalized_state == load_result.state {
-        return load_result;
-    }
-    if persist_state_to_directory(data_directory, &normalized_state).is_err() {
-        return load_result;
-    }
-    load_result.with_state(normalized_state)
 }
 
 pub(super) fn persist_state_to_directory(

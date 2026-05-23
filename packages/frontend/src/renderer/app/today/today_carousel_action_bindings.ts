@@ -1,7 +1,9 @@
 /**
  * Binds Today carousel controls to shared schedule and progress mutations.
  */
+import { logError } from "../../../types/logger.ts";
 import type { CalendarHandlers } from "../../../types/types.ts";
+import { confirmRemoveSession } from "../../calendar/remove-session-confirm.ts";
 import { el } from "../../dom.ts";
 import {
     buildProgressUpdatePayload,
@@ -29,6 +31,11 @@ export interface TodayCarouselActionBindings {
     onSessionRemoved: CalendarHandlers["onSessionRemoved"];
     rerender(): void;
     setStatus(message: string, isError?: boolean): void;
+}
+
+interface RemoveActiveSessionOptions {
+    active: TodayCarouselActiveItem;
+    bindings: TodayCarouselActionBindings;
 }
 
 interface MinutesEditorOptions {
@@ -232,16 +239,35 @@ export function bindRemoveButton(options: {
         if (options.bindings === null) {
             return;
         }
-        const REMOVED = options.bindings.onSessionRemoved({
-            row: options.active.row.row,
-        });
-        if (!REMOVED) {
-            return;
-        }
-        clearTodayCarouselRowState(
-            options.active.book.bookId,
-            options.active.row.rowKey,
-        );
-        options.bindings.rerender();
+        const BINDINGS = options.bindings;
+        confirmRemoveSession(options.active.row.row)
+            .then((confirmed) => {
+                if (!confirmed) {
+                    return;
+                }
+                removeActiveSession({
+                    active: options.active,
+                    bindings: BINDINGS,
+                });
+            })
+            .catch(reportRemoveSessionConfirmError);
     };
+}
+
+function removeActiveSession(options: RemoveActiveSessionOptions): void {
+    const REMOVED = options.bindings.onSessionRemoved({
+        row: options.active.row.row,
+    });
+    if (!REMOVED) {
+        return;
+    }
+    clearTodayCarouselRowState(
+        options.active.book.bookId,
+        options.active.row.rowKey,
+    );
+    options.bindings.rerender();
+}
+
+function reportRemoveSessionConfirmError(error: unknown): void {
+    logError("Could not confirm Today session removal.", error);
 }

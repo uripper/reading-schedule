@@ -46,9 +46,7 @@ fakeFormElement.prototype.addEventListener = function (type, handler) {
     this.handlers.set(type, handler);
 };
 
-fakeFormElement.prototype.reset = function () {
-    return undefined;
-};
+fakeFormElement.prototype.reset = () => undefined;
 
 fakeFormElement.prototype.submit = function () {
     const HANDLER = this.handlers.get("submit");
@@ -135,7 +133,6 @@ function createPlanningRefs() {
         difficultyInput: fakeInput("3"),
         finishedAtInput: fakeInput(""),
         maxMinutesInput: fakeInput(""),
-        minBlocksInput: fakeInput("1"),
         priorityInput: fakeInput("3"),
     };
 }

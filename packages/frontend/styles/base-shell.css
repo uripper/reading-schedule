@@ -55,6 +55,9 @@
 }
 
 .tabs {
+    position: sticky;
+    top: 0;
+    z-index: 95;
     display: flex;
     gap: var(--token-space-2);
     align-items: center;
