@@ -23,6 +23,14 @@ import {
     renderAfterBookResults,
     selectedBook,
 } from "./after_book_picker_render.ts";
+import type {
+    BindPickerEventsArgs,
+    CreateRefreshFilteredArgs,
+    OpenForBookArgs,
+    PickerActionDeps,
+    PickerActions,
+    SelectBookArgs,
+} from "./after-book-picker-types.ts";
 
 /** Returns sorted picker candidates other than the book currently being edited. */
 function availablePickerOptions(
@@ -43,60 +51,6 @@ function availablePickerOptions(
 function refreshPickerOptions(state: PickerState, getBooks: GetBooks): void {
     const STATE = state;
     STATE.options = availablePickerOptions(STATE.currentBookId, getBooks);
-}
-
-/** Bundles the dependencies needed to recompute filtered picker results. */
-interface CreateRefreshFilteredArgs {
-    clearSelection: () => void;
-    refs: BookFormRefs;
-    render: () => void;
-    state: PickerState;
-}
-
-/** Bundles the dependencies needed to apply a selected blocking book. */
-interface SelectBookArgs {
-    clearResults: () => void;
-    refs: BookFormRefs;
-    render: () => void;
-    state: PickerState;
-}
-
-/** Bundles the dependencies needed to reopen the picker for a specific book. */
-interface OpenForBookArgs {
-    clearResults: () => void;
-    refreshOptions: () => void;
-    refs: BookFormRefs;
-    render: () => void;
-    state: PickerState;
-}
-
-/** Bundles the callbacks that the DOM event binding layer needs. */
-interface BindPickerEventsArgs {
-    clearResults: () => void;
-    refreshFiltered: (clearChangedSelection: boolean) => void;
-    refs: BookFormRefs;
-    render: () => void;
-    selectBook: (book: Book | null | undefined) => void;
-    state: PickerState;
-}
-
-/** Groups the picker operations exposed to the rest of the form flow. */
-interface PickerActions {
-    clearResults: () => void;
-    openForBook: (book?: Book | null) => void;
-    refreshFiltered: (clearChangedSelection: boolean) => void;
-    render: () => void;
-    selectBook: (book: Book | null | undefined) => void;
-}
-
-/** Carries the shared picker state and helper callbacks used to build actions. */
-interface PickerActionDeps {
-    clearResults: () => void;
-    clearSelection: () => void;
-    getBooks: GetBooks;
-    refs: BookFormRefs;
-    render: () => void;
-    state: PickerState;
 }
 
 /** Preserves the picker action shape while letting inference stay local. */
@@ -120,6 +74,11 @@ function nextActiveIndex(filtered: Book[]): number {
         return NO_ACTIVE_INDEX;
     }
     return FIRST_RESULT_INDEX;
+}
+
+function dispatchBlockedByChange(refs: BookFormRefs): void {
+    refs.blockedByInput.dispatchEvent(new Event("input", { bubbles: true }));
+    refs.blockedByInput.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
 /** Decides whether a query change invalidates the current selection. */
@@ -194,6 +153,7 @@ function createClearSelection(
         const REFS = refs;
         STATE.selectedBookId = "";
         REFS.blockedByInput.value = "";
+        dispatchBlockedByChange(REFS);
     };
 }
 
@@ -210,6 +170,7 @@ function createSelectBook(
         STATE.selectedBookId = String(book.book_id || "");
         REFS.blockedByInput.value = STATE.selectedBookId;
         REFS.afterBookInput.value = optionLabel(book);
+        dispatchBlockedByChange(REFS);
         args.clearResults();
         args.render();
     };

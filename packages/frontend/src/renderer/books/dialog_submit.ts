@@ -1,7 +1,11 @@
 /**
  * Handles book-dialog submit orchestration, validation recovery, and save state UI.
  */
-import type { BookFormRefs, BookSubmitPayload } from "../../types/types.ts";
+import type {
+    BookDialogSubmitPayload,
+    BookFormRefs,
+    BookSubmitPayload,
+} from "../../types/types.ts";
 import { focusFirstError } from "../accessibility/a11y.ts";
 import { parseFormBook } from "./form-state.ts";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
@@ -12,23 +16,24 @@ const SAVE_BUTTON_BUSY_LABEL = "Saving...";
 const EMPTY_TEXT = "";
 
 type BookDialogSubmitFlow = Readonly<{
-    createPayload(): BookSubmitPayload;
+    createPayload(): BookDialogSubmitPayload;
     onComplete(): void;
     onError(error: unknown): void;
-    onSubmit(payload: BookSubmitPayload): Promise<void> | void;
+    onSubmit(payload: BookDialogSubmitPayload): Promise<void> | void;
     setSavingState(busy: boolean): void;
 }>;
 
 type BindBookDialogSubmitArgs = {
     form: HTMLFormElement;
     refs: BookFormRefs;
-    onSubmit: (payload: BookSubmitPayload) => Promise<void> | void;
+    createPayload?: () => BookDialogSubmitPayload;
+    onSubmit: (payload: BookDialogSubmitPayload) => Promise<void> | void;
     onComplete: () => void;
 };
 
-function submitBookDialogPayload(
+function submitBookDialogFlowPayload(
     flow: BookDialogSubmitFlow,
-    payload: BookSubmitPayload,
+    payload: BookDialogSubmitPayload,
 ): void {
     Promise.resolve()
         .then(() => {
@@ -52,7 +57,7 @@ function submitBookDialogPayload(
 function runBookDialogSubmitFlow(flow: BookDialogSubmitFlow): void {
     flow.setSavingState(true);
     try {
-        submitBookDialogPayload(flow, flow.createPayload());
+        submitBookDialogFlowPayload(flow, flow.createPayload());
     } catch (error: unknown) {
         flow.onError(error);
         flow.setSavingState(false);
@@ -68,6 +73,9 @@ function setBookDialogSavingState(refs: BookFormRefs, busy: boolean): void {
     const SAVE_BUTTON = refs.saveBtn;
     SAVE_BUTTON.disabled = busy;
     SAVE_BUTTON.textContent = SAVE_BUTTON_IDLE_LABEL;
+    if (SAVE_BUTTON.dataset?.idleLabel !== undefined) {
+        SAVE_BUTTON.textContent = SAVE_BUTTON.dataset.idleLabel;
+    }
     if (busy) {
         SAVE_BUTTON.textContent = SAVE_BUTTON_BUSY_LABEL;
     }
@@ -149,7 +157,7 @@ function focusCustomValidationTarget(refs: BookFormRefs): void {
  * @param refs - Resolved DOM references for the book dialog.
  * @param error - Unknown error thrown during payload creation or save.
  */
-function showSubmitError(refs: BookFormRefs, error: unknown): void {
+export function showSubmitError(refs: BookFormRefs, error: unknown): void {
     const FORM_REFS = refs;
     FORM_REFS.lookupMeta.textContent = saveErrorMessage(error);
     if (focusFirstError(FORM_REFS.form)) {
@@ -162,7 +170,7 @@ function showSubmitError(refs: BookFormRefs, error: unknown): void {
  * @param refs - Resolved DOM references for the book dialog.
  * @returns Parsed payload ready for save handling.
  */
-function createBookSubmitPayload(refs: BookFormRefs): BookSubmitPayload {
+export function createBookSubmitPayload(refs: BookFormRefs): BookSubmitPayload {
     return {
         applyScheduledDaysToShelf: refs.applyScheduledDaysToShelfInput.checked,
         book: parseFormBook(refs),
@@ -178,6 +186,30 @@ export function resetBookDialogSubmitState(refs: BookFormRefs): void {
     setBookDialogSavingState(refs, false);
 }
 
+export function setBookDialogIdleLabel(
+    refs: BookFormRefs,
+    label: string,
+): void {
+    refs.saveBtn.dataset.idleLabel = label;
+    setBookDialogSavingState(refs, false);
+}
+
+export async function submitBookDialogPayload(args: {
+    refs: BookFormRefs;
+    onSubmit: (payload: BookDialogSubmitPayload) => Promise<void> | void;
+    payload: BookDialogSubmitPayload;
+}): Promise<void> {
+    setBookDialogSavingState(args.refs, true);
+    try {
+        await args.onSubmit(args.payload);
+    } catch (error: unknown) {
+        showSubmitError(args.refs, error);
+        throw error;
+    } finally {
+        setBookDialogSavingState(args.refs, false);
+    }
+}
+
 function handleBookDialogSubmit(
     args: BindBookDialogSubmitArgs,
     event: SubmitEvent,
@@ -186,6 +218,9 @@ function handleBookDialogSubmit(
     restoreLookupMetaText(args.refs);
     runBookDialogSubmitFlow({
         createPayload() {
+            if (args.createPayload !== undefined) {
+                return args.createPayload();
+            }
             return createBookSubmitPayload(args.refs);
         },
         onComplete: args.onComplete,

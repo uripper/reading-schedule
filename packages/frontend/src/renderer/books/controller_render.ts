@@ -86,11 +86,15 @@ function requiredGridRefs(
 
 function createEditHandler(
     args: RenderBooksControllerArgs,
+    visibleBooks: Book[],
 ): RenderBookGridOptions["onEdit"] {
+    const NAVIGATION_BOOK_IDS = visibleBooks.map((book) =>
+        String(book.book_id || ""),
+    );
     return (bookId: string): void => {
         const BOOK = args.findBook(bookId);
         if (BOOK && args.dialog) {
-            args.dialog.open(BOOK);
+            args.dialog.open(BOOK, { navigationBookIds: NAVIGATION_BOOK_IDS });
         }
     };
 }
@@ -139,7 +143,8 @@ function buildRenderBookGridArgs(
         finishDateByBookId: params.finishDateByBookId,
         grid: requiredGridRefs(args.refs).grid,
         groups: params.groups,
-        onEdit: createEditHandler(args),
+        massEdit: args.massEdit,
+        onEdit: createEditHandler(args, params.visibleBooks),
         onEstimatedFinishNavigate: args.onEstimatedFinishNavigate,
         onRemove: createRemoveHandler(args),
         showBlockerMeta: params.showBlockerMeta,
@@ -278,6 +283,7 @@ export function renderBooksController(args: RenderBooksControllerArgs): void {
     }
     updateBooksViewFilters(RENDER_REFS, args.books, viewState);
     const GRID_PARAMS = renderGridParams(args, viewState);
+    args.massEdit?.syncVisibleBooks(GRID_PARAMS.visibleBooks);
     renderBookGrid(buildRenderBookGridArgs(args, GRID_PARAMS));
     renderEmptyStateCopy(args, GRID_PARAMS);
 }

@@ -1,0 +1,44 @@
+.book-dialog-navigation {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 10px;
+    border-bottom: 4px solid #000;
+}
+
+.book-form > h2 + .book-dialog-navigation {
+    margin-top: -4px;
+}
+
+.book-dialog-nav-btn {
+    min-width: 48px;
+    padding: 8px 12px;
+    font-size: 1rem;
+}
+
+.book-dialog-nav-status {
+    min-width: 72px;
+    font-size: 0.82rem;
+    font-weight: 900;
+    color: #111;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.book-form.is-bulk-book-form .book-form-layout {
+    grid-template-columns: 1fr;
+}
+
+.book-form.is-bulk-book-form .book-fields {
+    grid-column: 1;
+}
+
+.book-scheduled-days[data-bulk-mixed="true"] > legend::after {
+    content: " (mixed)";
+}
+
+.book-shelf-prompt-dialog .btn-primary {
+    color: #fff;
+}
