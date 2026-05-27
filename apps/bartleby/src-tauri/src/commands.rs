@@ -23,7 +23,7 @@ pub fn app_data_import(
 pub async fn books_search(
     query: String,
     author: bool,
-) -> Result<Vec<book_search::SearchItem>, String> {
+) -> Result<book_search::SearchResponse, String> {
     book_search::search_books(&query, author).await
 }
 

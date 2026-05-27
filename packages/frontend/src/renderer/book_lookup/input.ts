@@ -2,6 +2,7 @@ import type { LookupInputHandlerArgs } from "../../types/types.ts";
 import { getPlannerApi } from "../app/planner_api.ts";
 
 const LOOKUP_DELAY_MS = 260;
+const LOOKUP_SEARCHING_TEXT = "Searching Open Library...";
 const RESULT_LIMIT = 12;
 const MIN_QUERY_LENGTH = 2;
 
@@ -12,9 +13,11 @@ type LookupInputDeps = Pick<
 
 interface RunLookupSearchArgs {
     clearResults: () => void;
+    currentToken: number;
     lookupState: LookupInputHandlerArgs["state"];
     query: string;
     refreshResults: () => void;
+    searchInput: HTMLInputElement;
     statusElement: HTMLElement;
 }
 
@@ -25,15 +28,30 @@ function clearPendingLookupTimer(
         return;
     }
     clearTimeout(lookupState.timer);
+    const LOOKUP_STATE = lookupState;
+    LOOKUP_STATE.timer = null;
 }
 
 function clearLookupStatus(
     clearResults: () => void,
+    searchInput: HTMLInputElement,
     statusElement: HTMLElement,
 ): void {
     const STATUS_ELEMENT = statusElement;
     clearResults();
+    searchInput.removeAttribute("aria-busy");
     STATUS_ELEMENT.textContent = "";
+}
+
+function applyLookupSearchingStatus(
+    clearResults: () => void,
+    searchInput: HTMLInputElement,
+    statusElement: HTMLElement,
+): void {
+    const STATUS_ELEMENT = statusElement;
+    clearResults();
+    searchInput.setAttribute("aria-busy", "true");
+    STATUS_ELEMENT.textContent = LOOKUP_SEARCHING_TEXT;
 }
 
 function isStaleLookupToken(
@@ -72,12 +90,14 @@ function applyLookupSuccess(options: {
     >;
     lookupState: LookupInputHandlerArgs["state"];
     refreshResults: () => void;
+    searchInput: HTMLInputElement;
     statusElement: HTMLElement;
 }): void {
     const STATUS_ELEMENT = options.statusElement;
     if (isStaleLookupToken(options.currentToken, options.lookupState)) {
         return;
     }
+    options.searchInput.removeAttribute("aria-busy");
     const ITEMS = options.fetchedItems.slice(0, RESULT_LIMIT);
     applyLookupItems(ITEMS, options.lookupState);
     if (ITEMS.length === 0) {
@@ -92,6 +112,7 @@ function applyLookupFailure(options: {
     clearResults: () => void;
     currentToken: number;
     lookupState: LookupInputHandlerArgs["state"];
+    searchInput: HTMLInputElement;
     statusElement: HTMLElement;
 }): void {
     const STATUS_ELEMENT = options.statusElement;
@@ -99,6 +120,7 @@ function applyLookupFailure(options: {
         return;
     }
     options.clearResults();
+    options.searchInput.removeAttribute("aria-busy");
     STATUS_ELEMENT.textContent = "Lookup unavailable; enter values manually.";
 }
 
@@ -123,6 +145,7 @@ function lookupSearchSuccessHandler(
             fetchedItems,
             lookupState: args.lookupState,
             refreshResults: args.refreshResults,
+            searchInput: args.searchInput,
             statusElement: args.statusElement,
         });
     };
@@ -137,6 +160,7 @@ function lookupSearchFailureHandler(
             clearResults: args.clearResults,
             currentToken,
             lookupState: args.lookupState,
+            searchInput: args.searchInput,
             statusElement: args.statusElement,
         });
     };
@@ -153,12 +177,13 @@ function fetchLookupSearch(
 }
 
 function runLookupSearch(args: RunLookupSearchArgs): void {
-    fetchLookupSearch(args, nextLookupToken(args.lookupState));
+    fetchLookupSearch(args, args.currentToken);
 }
 
 function scheduleLookupSearch(args: RunLookupSearchArgs): void {
     const LOOKUP_STATE = args.lookupState;
     LOOKUP_STATE.timer = setTimeout((): void => {
+        LOOKUP_STATE.timer = null;
         runLookupSearch(args);
     }, LOOKUP_DELAY_MS);
 }
@@ -166,15 +191,23 @@ function scheduleLookupSearch(args: RunLookupSearchArgs): void {
 function handleLookupInput(deps: LookupInputDeps): void {
     const QUERY = deps.searchInput.value.trim();
     clearPendingLookupTimer(deps.state);
+    const CURRENT_TOKEN = nextLookupToken(deps.state);
     if (QUERY.length < MIN_QUERY_LENGTH) {
-        clearLookupStatus(deps.clearResults, deps.metaEl);
+        clearLookupStatus(deps.clearResults, deps.searchInput, deps.metaEl);
         return;
     }
+    applyLookupSearchingStatus(
+        deps.clearResults,
+        deps.searchInput,
+        deps.metaEl,
+    );
     scheduleLookupSearch({
         clearResults: deps.clearResults,
+        currentToken: CURRENT_TOKEN,
         lookupState: deps.state,
         query: QUERY,
         refreshResults: deps.refreshResults,
+        searchInput: deps.searchInput,
         statusElement: deps.metaEl,
     });
 }
