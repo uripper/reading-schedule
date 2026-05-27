@@ -90,14 +90,17 @@ function dialogOffsets(args: DialogCalendarPlacementArgs): DialogOffsets {
             args.inputBounds.left -
             args.dialogBounds.left +
             args.dialogScrollLeft,
-        top: args.inputBounds.top - args.dialogBounds.top + args.dialogScrollTop,
+        top:
+            args.inputBounds.top - args.dialogBounds.top + args.dialogScrollTop,
     };
 }
 
 function showCalendarOnTop(args: DialogCalendarPlacementArgs): boolean {
     const SPACE_ABOVE = args.inputBounds.top - args.dialogBounds.top;
     const SPACE_BELOW = args.dialogBounds.bottom - args.inputBounds.bottom;
-    return SPACE_BELOW < args.calendarHeight && SPACE_ABOVE > args.calendarHeight;
+    return (
+        SPACE_BELOW < args.calendarHeight && SPACE_ABOVE > args.calendarHeight
+    );
 }
 
 function dialogCalendarTop(
@@ -205,6 +208,22 @@ export function bindStaticDatePicker(args: StaticDatePickerArgs): void {
 
 export function clearDatePicker(input: HTMLInputElement): void {
     pickerInstance(input)?.clear(false);
+}
+
+export function setDatePickerValue(
+    input: HTMLInputElement,
+    value: string,
+): boolean {
+    const PICKER = pickerInstance(input);
+    if (PICKER === null) {
+        return false;
+    }
+    if (value === "") {
+        PICKER.clear(false);
+        return true;
+    }
+    PICKER.setDate(value, false, DATE_FORMAT);
+    return true;
 }
 
 export function closeDatePicker(input: HTMLInputElement): void {

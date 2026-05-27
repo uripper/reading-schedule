@@ -3,6 +3,7 @@ import {
     clearDatePicker,
     closeDatePicker,
     openDatePicker,
+    setDatePickerValue,
     syncDatePickerDisabled,
     syncDatePickerValue,
 } from "./date-control-flatpickr.ts";
@@ -57,11 +58,24 @@ function syncPickerValue(input: HTMLInputElement): void {
 }
 
 function clearDateInputValue(input: HTMLInputElement): void {
+    setDateInputValue(input, "");
+    dispatchDateChange(input);
+}
+
+export function setDateInputValue(
+    input: HTMLInputElement,
+    value: string,
+): void {
     const TARGET_INPUT = input;
-    TARGET_INPUT.value = "";
-    clearDatePicker(TARGET_INPUT);
+    TARGET_INPUT.defaultValue = "";
+    TARGET_INPUT.value = value;
+    if (TARGET_INPUT.type === "date" && value === "") {
+        TARGET_INPUT.valueAsDate = null;
+    }
+    if (!setDatePickerValue(TARGET_INPUT, value)) {
+        clearDatePicker(TARGET_INPUT);
+    }
     syncClearButton(TARGET_INPUT);
-    dispatchDateChange(TARGET_INPUT);
 }
 
 function shouldOpenPickerKey(
