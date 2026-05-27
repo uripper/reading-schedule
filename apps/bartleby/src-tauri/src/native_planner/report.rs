@@ -35,13 +35,16 @@ struct SessionClip<'a> {
 }
 
 struct DaySessions<'a> {
-    assignments: &'a Assignments,
     books_by_id: &'a HashMap<&'a str, &'a Book>,
     day: NaiveDate,
     finished_books: &'a mut HashMap<String, bool>,
+    items: AssignmentItems,
     remaining: &'a mut HashMap<String, i64>,
     settings: &'a Settings,
 }
+
+type AssignmentItems = Vec<(String, i64)>;
+type AssignmentsByDay = Vec<(NaiveDate, AssignmentItems)>;
 
 pub fn build_output(
     books: &[Book],
@@ -126,23 +129,13 @@ fn clip_session(settings: &Settings, clip: SessionClip<'_>) -> (i64, i64) {
     (minutes, words)
 }
 
-fn day_assignment_items(
-    assignments: &Assignments,
-    books_by_id: &HashMap<&str, &Book>,
-    day: NaiveDate,
-) -> Vec<(String, i64)> {
-    let mut items = assignments
-        .iter()
-        .filter(|((_, assigned_day), blocks)| *assigned_day == day && **blocks > 0)
-        .map(|((book_id, _), blocks)| (book_id.clone(), *blocks))
-        .collect::<Vec<_>>();
+fn day_assignment_items(items: &mut [(String, i64)], books_by_id: &HashMap<&str, &Book>) {
     items.sort_by(|(left_id, _), (right_id, _)| {
         books_by_id[left_id.as_str()]
             .priority
             .cmp(&books_by_id[right_id.as_str()].priority)
             .then_with(|| left_id.cmp(right_id))
     });
-    items
 }
 
 fn sessions(
@@ -160,12 +153,12 @@ fn sessions(
         .collect::<HashMap<_, _>>();
     let mut finished_books = HashMap::new();
     let mut sessions = Vec::new();
-    for day in assignment_dates(assignments) {
+    for (day, items) in assignments_by_day(assignments, &books_by_id) {
         sessions.extend(sessions_for_day(DaySessions {
-            assignments,
             books_by_id: &books_by_id,
             day,
             finished_books: &mut finished_books,
+            items,
             remaining: &mut remaining,
             settings,
         }));
@@ -173,14 +166,22 @@ fn sessions(
     Ok(sessions)
 }
 
-fn assignment_dates(assignments: &Assignments) -> Vec<NaiveDate> {
-    let mut days = assignments
-        .iter()
-        .filter(|(_, blocks)| **blocks > 0)
-        .map(|((_, day), _)| *day)
-        .collect::<Vec<_>>();
-    days.sort();
-    days.dedup();
+fn assignments_by_day(
+    assignments: &Assignments,
+    books_by_id: &HashMap<&str, &Book>,
+) -> AssignmentsByDay {
+    let mut by_day = HashMap::<NaiveDate, AssignmentItems>::new();
+    for ((book_id, day), blocks) in assignments.iter().filter(|(_, blocks)| **blocks > 0) {
+        by_day
+            .entry(*day)
+            .or_default()
+            .push((book_id.clone(), *blocks));
+    }
+    let mut days = by_day.into_iter().collect::<Vec<_>>();
+    days.sort_by_key(|(day, _)| *day);
+    for (_, items) in &mut days {
+        day_assignment_items(items, books_by_id);
+    }
     days
 }
 
@@ -260,11 +261,6 @@ fn planned_session(settings: &Settings, session_clip: SessionClip<'_>) -> Option
 }
 
 fn sessions_for_day(day_sessions: DaySessions<'_>) -> Vec<Session> {
-    let items = day_assignment_items(
-        day_sessions.assignments,
-        day_sessions.books_by_id,
-        day_sessions.day,
-    );
     let mut session_index = 0;
     let mut session_builder = SessionBuilder {
         books_by_id: day_sessions.books_by_id,
@@ -274,7 +270,8 @@ fn sessions_for_day(day_sessions: DaySessions<'_>) -> Vec<Session> {
         session_index: &mut session_index,
         settings: day_sessions.settings,
     };
-    items
+    day_sessions
+        .items
         .into_iter()
         .filter_map(|(book_id, blocks)| session_builder.build(&book_id, blocks))
         .collect()
