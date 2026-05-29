@@ -12,10 +12,13 @@ const CLEAR_BUTTON_LABEL = "Clear";
 const DATE_INPUT_BOUND = "true";
 const OPEN_CLASS = "is-open";
 
+type DatePickerSelectionMode = "single" | "range";
+
 type BoundDateInputOptions = {
     allowEmpty: boolean;
     minimumDate: string;
     placeholder: string;
+    selectionMode: DatePickerSelectionMode;
 };
 
 function inputShell(input: HTMLInputElement): HTMLElement | null {
@@ -199,6 +202,7 @@ function bindStaticPickerForInput(
         input,
         minimumDate: normalizedPickerMinimumDate(options),
         positionElement: SHELL ?? input,
+        selectionMode: options.selectionMode,
     });
 }
 
@@ -252,23 +256,17 @@ export function bindDateInput(
         allowEmpty?: boolean;
         minimumDate?: string;
         placeholder?: string;
+        selectionMode?: DatePickerSelectionMode;
     } = {},
 ): void {
     if (input.dataset.dateInputBound === DATE_INPUT_BOUND) {
         return;
     }
-    let allowEmpty = true;
-    if (options.allowEmpty === false) {
-        allowEmpty = false;
-    }
-    let placeholder = "";
-    if (options.placeholder !== undefined) {
-        placeholder = options.placeholder;
-    }
     const NORMALIZED_OPTIONS: BoundDateInputOptions = {
-        allowEmpty,
+        allowEmpty: options.allowEmpty !== false,
         minimumDate: normalizedMinimumDate(options.minimumDate),
-        placeholder,
+        placeholder: options.placeholder ?? "",
+        selectionMode: options.selectionMode ?? "single",
     };
     if (typeof globalThis.navigator !== "undefined") {
         bindBrowserDateInput(input, NORMALIZED_OPTIONS);

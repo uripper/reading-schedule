@@ -9,6 +9,8 @@ const PREVIOUS_MONTH_LABEL = "Prev";
 
 const PICKERS = new WeakMap<HTMLInputElement, Instance>();
 
+export type DatePickerSelectionMode = "single" | "range";
+
 interface BoundsLike {
     bottom: number;
     left: number;
@@ -26,6 +28,7 @@ interface StaticDatePickerArgs {
     onReady(): void;
     onValueUpdate(): void;
     positionElement: HTMLElement;
+    selectionMode: DatePickerSelectionMode;
 }
 
 interface DialogCalendarPlacementArgs {
@@ -55,11 +58,10 @@ function pickerInstance(input: HTMLInputElement): Instance | null {
 }
 
 function currentPickerValue(picker: Instance): string {
-    const SELECTED = picker.selectedDates[0];
-    if (SELECTED === undefined) {
+    if (picker.selectedDates.length === 0) {
         return "";
     }
-    return picker.formatDate(SELECTED, DATE_FORMAT);
+    return picker.input.value.trim();
 }
 
 function dialogHost(host: HTMLElement): boolean {
@@ -175,6 +177,7 @@ function pickerBaseOptions(args: StaticDatePickerArgs): Partial<Options> {
         dateFormat: DATE_FORMAT,
         disableMobile: true,
         minDate: args.minimumDate,
+        mode: args.selectionMode,
         monthSelectorType: "dropdown",
         nextArrow: NEXT_MONTH_LABEL,
         position: pickerPosition(args),

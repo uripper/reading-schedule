@@ -167,7 +167,7 @@ function applyHiddenPlannerDefaults(settings: PlannerSettings): void {
 
 /**
  * Serializes settings form controls and derived values into planner settings.
- * @param dayOffs - Current day-off weekday keys.
+ * @param dayOffs - Current day-off date keys.
  * @returns Planner settings payload.
  */
 export function collectSettingsForm(dayOffs: string[]): PlannerSettings {

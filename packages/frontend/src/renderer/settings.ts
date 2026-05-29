@@ -14,7 +14,7 @@ let dayOffs: string[] = [];
 
 /**
  * Replaces day-off state and refreshes chip UI.
- * @param nextDayOffs - Updated day-off weekday keys.
+ * @param nextDayOffs - Updated day-off date keys.
  */
 function setDayOffs(nextDayOffs: string[]): void {
     dayOffs = [...nextDayOffs];
@@ -23,7 +23,8 @@ function setDayOffs(nextDayOffs: string[]): void {
 
 function bindSettingsDateInputs(): void {
     bindDateInput(document.getElementById("dayOffPicker") as HTMLInputElement, {
-        placeholder: "Add a day off",
+        placeholder: "Add date or date range",
+        selectionMode: "range",
     });
 }
 
