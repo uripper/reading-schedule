@@ -278,7 +278,9 @@ export async function initApp(context: AppBootstrapContext): Promise<void> {
     initSettingsGrid();
     bindRuntimeTabs(context);
     bindBooksRuntime(context);
-    bindHelpDialog();
+    bindHelpDialog({
+        beforeImport: context.prepareForDataImport,
+    });
     const PLAN_CONTROLLER = buildPlanController(context);
     context.runtime.setPlanController(PLAN_CONTROLLER);
     bindExperienceSettings((): void => {

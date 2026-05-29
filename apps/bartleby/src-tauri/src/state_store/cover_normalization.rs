@@ -146,9 +146,11 @@ fn apply_cover_path_changes(state: &mut Value, changes: &CoverPathChanges) -> bo
     let Some(books) = state.get_mut("books").and_then(Value::as_array_mut) else {
         return false;
     };
-    books.iter_mut().fold(false, |has_changed, book| {
-        apply_book_cover_path_change(book, changes) || has_changed
-    })
+    let mut has_changed = false;
+    for book in books {
+        has_changed = apply_book_cover_path_change(book, changes) || has_changed;
+    }
+    has_changed
 }
 
 fn apply_book_cover_path_change(book: &mut Value, changes: &CoverPathChanges) -> bool {
@@ -193,9 +195,11 @@ fn repair_book_blockers(state: &mut Value, book_ids: &HashSet<String>) -> bool {
     let Some(books) = state.get_mut("books").and_then(Value::as_array_mut) else {
         return false;
     };
-    books.iter_mut().fold(false, |has_changed, book| {
-        repair_book_blocker(book, book_ids) || has_changed
-    })
+    let mut has_changed = false;
+    for book in books {
+        has_changed = repair_book_blocker(book, book_ids) || has_changed;
+    }
+    has_changed
 }
 
 fn repair_book_blocker(book: &mut Value, book_ids: &HashSet<String>) -> bool {

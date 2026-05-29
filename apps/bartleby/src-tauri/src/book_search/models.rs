@@ -37,6 +37,30 @@ pub struct SearchItem {
     year: Value,
 }
 
+#[derive(Clone, Debug, Serialize)]
+pub struct SearchDiagnostic {
+    pub detail: String,
+    pub elapsed_ms: Option<u64>,
+    pub reason: String,
+    pub request_kind: String,
+    pub retry_after: Option<String>,
+    pub status: Option<u16>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct SearchResponse {
+    pub diagnostics: Vec<SearchDiagnostic>,
+    pub items: Vec<SearchItem>,
+}
+
+#[derive(Clone, Debug)]
+pub struct SearchDocsParseResult {
+    pub docs: Vec<SearchDoc>,
+    pub docs_field_present: bool,
+    pub raw_doc_count: usize,
+    pub skipped_doc_count: usize,
+}
+
 pub fn primary_author(doc: &SearchDoc) -> String {
     doc.author_name
         .as_ref()
@@ -45,15 +69,25 @@ pub fn primary_author(doc: &SearchDoc) -> String {
         .unwrap_or_default()
 }
 
-pub fn search_docs_from_value(payload: Value) -> Vec<SearchDoc> {
+pub fn search_docs_parse_result(payload: Value) -> SearchDocsParseResult {
     let Some(payload_object) = payload.as_object() else {
-        return Vec::new();
+        return SearchDocsParseResult::missing_docs_field();
     };
-    payload_object
-        .get("docs")
-        .and_then(Value::as_array)
-        .map(|docs| search_docs_from_array(docs))
-        .unwrap_or_default()
+    let Some(docs) = payload_object.get("docs").and_then(Value::as_array) else {
+        return SearchDocsParseResult::missing_docs_field();
+    };
+    let parsed_docs = search_docs_from_array(docs);
+    SearchDocsParseResult {
+        raw_doc_count: docs.len(),
+        skipped_doc_count: docs.len().saturating_sub(parsed_docs.len()),
+        docs: parsed_docs,
+        docs_field_present: true,
+    }
+}
+
+#[cfg(test)]
+pub fn search_docs_from_value(payload: Value) -> Vec<SearchDoc> {
+    search_docs_parse_result(payload).docs
 }
 
 fn estimate_reading_size(doc: &SearchDoc) -> ReadingSize {
@@ -106,11 +140,25 @@ pub fn to_search_item(doc: SearchDoc) -> SearchItem {
     }
 }
 
+impl SearchDocsParseResult {
+    fn missing_docs_field() -> Self {
+        Self {
+            docs: Vec::new(),
+            docs_field_present: false,
+            raw_doc_count: 0,
+            skipped_doc_count: 0,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use serde_json::json;
 
-    use super::{primary_author, search_docs_from_value, to_search_item, SearchDoc, Value};
+    use super::{
+        primary_author, search_docs_from_value, search_docs_parse_result, to_search_item,
+        SearchDoc, Value,
+    };
 
     fn search_doc(author_name: Vec<&str>, title: Option<&str>) -> SearchDoc {
         SearchDoc {
@@ -137,6 +185,21 @@ mod tests {
             ]
         }));
         assert_eq!(docs.len(), 2);
+    }
+
+    #[test]
+    fn search_docs_parse_result_counts_malformed_rows() {
+        let result = search_docs_parse_result(json!({
+            "docs": [
+                { "author_name": ["George Orwell"], "title": "1984" },
+                null,
+                { "title": "Animal Farm", "author_name": ["George Orwell"] }
+            ]
+        }));
+        assert!(result.docs_field_present);
+        assert_eq!(result.raw_doc_count, 3);
+        assert_eq!(result.skipped_doc_count, 1);
+        assert_eq!(result.docs.len(), 2);
     }
 
     #[test]

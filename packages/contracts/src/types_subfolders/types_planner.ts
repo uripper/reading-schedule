@@ -195,14 +195,30 @@ export interface PlannerSaveResult {
     warningMessage?: string;
 }
 
+export interface PlannerDataExport {
+    fileName: string;
+    payloadJson: string;
+}
+
+export interface PlannerDataImportResult {
+    booksRestored: number;
+    completionEntriesRestored: number;
+    directoriesRestored: number;
+    filesRestored: number;
+    scheduleRowsRestored: number;
+    sessionsRestored: number;
+}
+
 export interface PlannerApi {
     downloadCover(
         url: string | undefined,
         bookId: string | undefined,
     ): Promise<string>;
+    exportAppData(): Promise<PlannerDataExport>;
     generate(
         payload: PlanGeneratePayload,
     ): Promise<Pick<PlannerResult, "schedule" | "summary">>;
+    importAppData(payloadJson: string): Promise<PlannerDataImportResult>;
     loadState(): Promise<PlannerStateLoadResult>;
     resolveCoverSrc(src: string | undefined): string;
     sample(): Promise<Pick<PlannerStateSnapshot, "settings" | "books">>;

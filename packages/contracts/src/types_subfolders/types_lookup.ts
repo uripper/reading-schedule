@@ -8,6 +8,20 @@ export interface BookLookupItem {
     year?: string | number;
 }
 
+export interface BookSearchDiagnostic {
+    detail: string;
+    elapsed_ms?: number;
+    reason: string;
+    request_kind: string;
+    retry_after?: string;
+    status?: number;
+}
+
+export interface BookSearchResponse {
+    diagnostics: BookSearchDiagnostic[];
+    items: BookLookupItem[];
+}
+
 export interface LookupSearchState {
     activeIndex: number;
     currentItems: BookLookupItem[];

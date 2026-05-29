@@ -1,5 +1,5 @@
 import type { BookFormRefs, BookStatus } from "@reading-schedule/contracts";
-import { syncDateInputDisabled } from "../date_control.ts";
+import { setDateInputValue, syncDateInputDisabled } from "../date_control.ts";
 import { COVER_PLACEHOLDER, WORDS_PER_PAGE } from "./constants.ts";
 import { resolveCoverSource } from "./cover-source.ts";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
@@ -61,12 +61,7 @@ export function setOptionalIntegerInputValue(
  * @param inputNode - Date input node to clear.
  */
 export function clearOptionalDateInputValue(inputNode: HTMLInputElement): void {
-    const TARGET_INPUT = inputNode;
-    TARGET_INPUT.defaultValue = "";
-    TARGET_INPUT.value = "";
-    if (TARGET_INPUT.type === "date" && "valueAsDate" in TARGET_INPUT) {
-        TARGET_INPUT.valueAsDate = null;
-    }
+    setDateInputValue(inputNode, "");
 }
 
 /**
@@ -78,13 +73,8 @@ export function setOptionalDateInputValue(
     inputNode: HTMLInputElement,
     value: string | null | undefined,
 ): void {
-    clearOptionalDateInputValue(inputNode);
-    const TARGET_INPUT = inputNode;
     const NORMALIZED_VALUE = fallbackText(value).trim();
-    if (NORMALIZED_VALUE === "") {
-        return;
-    }
-    TARGET_INPUT.value = NORMALIZED_VALUE;
+    setDateInputValue(inputNode, NORMALIZED_VALUE);
 }
 
 /**

@@ -1,0 +1,40 @@
+/* stylelint-disable selector-class-pattern */
+
+.date-picker-range .flatpickr-day.inRange,
+.date-picker-range .flatpickr-day.prevMonthDay.inRange,
+.date-picker-range .flatpickr-day.nextMonthDay.inRange {
+    color: #111;
+    background: #fff0b8;
+    border-color: #c9a937;
+    border-radius: 2px;
+    box-shadow:
+        inset 0 2px 0 #f2d14c,
+        inset 0 -2px 0 #f2d14c;
+}
+
+.date-picker-range .flatpickr-day.startRange {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.date-picker-range .flatpickr-day.endRange {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+.date-picker-range .flatpickr-day.startRange.endRange,
+.date-picker-range .flatpickr-day.selected {
+    border-radius: 10px;
+}
+
+.date-picker-range-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: var(--token-space-3);
+    margin-top: var(--token-space-3);
+    border-top: 2px solid #d6c4ad;
+}
+
+.date-picker-range-done {
+    min-width: 5.5rem;
+}

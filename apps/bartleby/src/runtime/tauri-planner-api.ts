@@ -3,7 +3,6 @@
  */
 
 import type {
-    BookLookupItem,
     PlanGeneratePayload,
     PlannerApi,
     PlannerApiGlobal,
@@ -19,6 +18,7 @@ import {
 import { convertFileSrc, invoke, isTauri } from "@tauri-apps/api/core";
 import type { TauriPlannerCommand } from "./tauri-commands.ts";
 import { TAURI_COMMANDS } from "./tauri-commands.ts";
+import { createSearchApi } from "./tauri-search-api.ts";
 
 const FILE_PROTOCOL = "file:";
 const LOCAL_WINDOWS_PATH_PATTERN = /^[a-zA-Z]:[\\/]/;
@@ -153,6 +153,30 @@ export async function runStateMaintenance(): Promise<StateMaintenanceResult> {
     );
 }
 
+type AppDataExportResult = Awaited<ReturnType<PlannerApi["exportAppData"]>>;
+type AppDataImportResult = Awaited<ReturnType<PlannerApi["importAppData"]>>;
+
+function createDataTransferApi(): Pick<
+    PlannerApi,
+    "exportAppData" | "importAppData"
+> {
+    return {
+        async exportAppData(): Promise<AppDataExportResult> {
+            return await invokeCommand<AppDataExportResult>(
+                TAURI_COMMANDS.appDataExport,
+            );
+        },
+        async importAppData(payloadJson: string): Promise<AppDataImportResult> {
+            return await invokeCommand<AppDataImportResult>(
+                TAURI_COMMANDS.appDataImport,
+                {
+                    payloadJson,
+                },
+            );
+        },
+    };
+}
+
 function createCoverApi(): Pick<
     PlannerApi,
     "downloadCover" | "resolveCoverSrc" | "saveUploadedCover"
@@ -208,23 +232,6 @@ function createStateApi(): Pick<PlannerApi, "loadState" | "saveState"> {
     };
 }
 
-function createSearchApi(): Pick<PlannerApi, "searchBooks"> {
-    return {
-        async searchBooks(
-            query: string,
-            author = false,
-        ): Promise<BookLookupItem[]> {
-            return await invokeCommand<BookLookupItem[]>(
-                TAURI_COMMANDS.booksSearch,
-                {
-                    author,
-                    query,
-                },
-            );
-        },
-    };
-}
-
 function createZoomApi(): Pick<PlannerApi, "zoomIn" | "zoomOut" | "zoomReset"> {
     return {
         async zoomIn(): Promise<number> {
@@ -241,9 +248,10 @@ function createZoomApi(): Pick<PlannerApi, "zoomIn" | "zoomOut" | "zoomReset"> {
 
 function createTauriPlannerApi(): PlannerApi {
     return {
+        ...createDataTransferApi(),
         ...createCoverApi(),
         ...createPlanApi(),
-        ...createSearchApi(),
+        ...createSearchApi(invokeCommand),
         ...createStateApi(),
         ...createZoomApi(),
     };

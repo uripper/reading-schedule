@@ -2,7 +2,7 @@
     width: min(980px, 92vw);
     padding: var(--token-space-4);
     color: var(--app-text);
-    background: var(--app-bgElevated);
+    background: var(--app-surface);
     border: 1px solid var(--app-border);
     border-radius: var(--token-radius-lg);
     box-shadow: var(--token-elevation-md);
@@ -10,6 +10,14 @@
 
 .help-dialog::backdrop {
     background: var(--app-overlay);
+}
+
+.help-dialog h3 {
+    color: var(--app-text);
+}
+
+.help-dialog-actions {
+    margin: var(--token-space-3) 0;
 }
 
 pre {
