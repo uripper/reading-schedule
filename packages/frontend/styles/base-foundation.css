@@ -271,7 +271,7 @@ select:focus-visible,
 
 .hint-text {
     font-size: var(--token-typography-size-sm);
-    color: var(--app-textMuted);
+    color: #fff;
 }
 
 #status {

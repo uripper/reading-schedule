@@ -1,6 +1,7 @@
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
+use std::time::Instant;
 
 use serde_json::Value;
 
@@ -92,22 +93,49 @@ pub(crate) fn generate_plan(
     request: PlanRequest<'_>,
     payload: Value,
 ) -> Result<Value, String> {
+    let total_started_at = Instant::now();
     request.ensure_current()?;
-    if let Some(result) = shared_cache
+    let lookup_started_at = Instant::now();
+    if let Some(mut result) = shared_cache
         .lock()
         .map_err(|_| "Plan cache lock poisoned".to_string())?
         .cached_result(&payload)
     {
+        native_planner::set_summary_timing(
+            &mut result,
+            "cache_lookup_ms",
+            lookup_started_at.elapsed().as_millis(),
+        );
+        native_planner::set_summary_timing(
+            &mut result,
+            "cache_total_ms",
+            total_started_at.elapsed().as_millis(),
+        );
+        native_planner::set_summary_timing_flag(&mut result, "cache_hit", true);
         request.ensure_current()?;
         return Ok(result);
     }
-    let result =
+    let cache_lookup_ms = lookup_started_at.elapsed().as_millis();
+    let mut result =
         native_planner::generate_plan_with_cancel(payload.clone(), &|| request.is_superseded())?;
     request.ensure_current()?;
+    let insert_started_at = Instant::now();
     shared_cache
         .lock()
         .map_err(|_| "Plan cache lock poisoned".to_string())?
         .insert(payload, result.clone());
+    native_planner::set_summary_timing(&mut result, "cache_lookup_ms", cache_lookup_ms);
+    native_planner::set_summary_timing(
+        &mut result,
+        "cache_insert_ms",
+        insert_started_at.elapsed().as_millis(),
+    );
+    native_planner::set_summary_timing(
+        &mut result,
+        "cache_total_ms",
+        total_started_at.elapsed().as_millis(),
+    );
+    native_planner::set_summary_timing_flag(&mut result, "cache_hit", false);
     Ok(result)
 }
 
@@ -144,7 +172,11 @@ mod tests {
         let latest_request_id = current_request_id();
         let request = PlanRequest::new(&latest_request_id, CURRENT_REQUEST_ID);
         let actual = generate_plan(&cache, request, payload).expect("expected cached result");
-        assert_eq!(actual, expected);
+        assert_eq!(actual["schedule"], expected["schedule"]);
+        assert_eq!(actual["summary"]["note"], expected["summary"]["note"]);
+        assert_eq!(actual["summary"]["planner"], expected["summary"]["planner"]);
+        assert_eq!(actual["summary"]["status"], expected["summary"]["status"]);
+        assert_eq!(actual["summary"]["timings_ms"]["cache_hit"], true);
     }
 
     #[test]

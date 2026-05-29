@@ -2,6 +2,7 @@ mod app_paths;
 mod book_search;
 mod commands;
 mod cover_store;
+mod data_archive;
 mod native_planner;
 mod plan_cache;
 mod state_recover_cli;
@@ -11,6 +12,8 @@ mod window_zoom;
 pub use state_recover_cli::recover_state_from_args;
 pub use state_store::RecoverySummary;
 
+#[cfg(test)]
+mod data_archive_tests;
 #[cfg(test)]
 mod state_store_cover_tests;
 #[cfg(test)]
@@ -30,6 +33,8 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            commands::app_data_export,
+            commands::app_data_import,
             commands::books_search,
             commands::cover_download,
             commands::cover_import,

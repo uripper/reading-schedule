@@ -1,15 +1,8 @@
-import type {
-    PersistQueue,
-    PersistQueueArgs,
-    PlannerSummary,
-    StatusPhase,
-} from "../../types/types.ts";
-import { draftData, saveStateSafe } from "./persistence.ts";
+import type { PlannerSummary, StatusPhase } from "../../types/types.ts";
 import type { ScheduleStatusOverlay } from "./schedule-status-overlay.ts";
 import { createScheduleStatusOverlay } from "./schedule-status-overlay.ts";
 import { applyStatusPhase, statusColor } from "./status-phase.ts";
 
-const PERSIST_DELAY_MS = 300;
 const NO_WORDS = 0;
 const NON_PLANNING_SETTING_IDS = new Set([
     "reduceMotionToggle",
@@ -17,13 +10,6 @@ const NON_PLANNING_SETTING_IDS = new Set([
     "reminderEnabledToggle",
     "reminderTimeInput",
 ]);
-
-interface PersistTimerState {
-    timer: ReturnType<typeof setTimeout> | null;
-}
-
-type PersistDraftFn = PersistQueue["persistDraft"];
-type QueuePersistFn = PersistQueue["queuePersist"];
 
 /**
  * Builds a status setter that updates UI status text and mirrors messages to logs.
@@ -85,101 +71,6 @@ export function totalsFromSummary(
         TOTALS[ID] = summaryWordsRemaining(INFO);
     }
     return TOTALS;
-}
-
-/**
- * Creates persistence helpers for saving draft state with debounced writes.
- * @param root0 - Dependencies and state required for persistence queue management.
- * @param plannerApi - Planner API subset used to save state snapshots.
- * @param state - Mutable runtime state used to compose saved payload data.
- * @param getSessions - Returns normalized session records from runtime state.
- * @param collectBooks - Returns current book list for persistence snapshots.
- * @param collectSettings - Returns planner settings values from the UI.
- * @param addLog - Callback used to record persistence errors.
- * @returns Draft persistence functions for immediate save and queued save.
- */
-export function createPersistQueue({
-    plannerApi,
-    state,
-    getSessions,
-    collectBooks,
-    collectSettings,
-    addLog,
-}: PersistQueueArgs): PersistQueue {
-    const TIMER_STATE: PersistTimerState = { timer: null };
-    const PERSIST_DRAFT = persistDraftFn({
-        addLog,
-        collectBooks,
-        collectSettings,
-        getSessions,
-        plannerApi,
-        state,
-    });
-    const QUEUE_PERSIST = queuePersistFn({
-        addLog,
-        persistDraft: PERSIST_DRAFT,
-        state,
-        timerState: TIMER_STATE,
-    });
-    return persistQueueResult(PERSIST_DRAFT, QUEUE_PERSIST);
-}
-
-function persistQueueResult(
-    persistDraft: PersistDraftFn,
-    queuePersist: QueuePersistFn,
-): PersistQueue {
-    return { persistDraft, queuePersist };
-}
-
-function persistDraftPayload(args: PersistQueueArgs) {
-    return draftData({
-        blockedDayBooks: args.state.blockedDayBooks,
-        collectBooks: args.collectBooks,
-        collectSettings: args.collectSettings,
-        featureFlags: args.state.featureFlags,
-        lastResult: args.state.lastResult,
-        preferences: args.state.preferences,
-        scheduleCompletions: args.state.scheduleCompletions,
-        sessions: args.getSessions(),
-    });
-}
-
-function persistDraftFn(args: PersistQueueArgs): PersistDraftFn {
-    return async (): Promise<boolean> => {
-        const PAYLOAD = persistDraftPayload(args);
-        return await saveStateSafe(args.plannerApi, PAYLOAD, args.addLog);
-    };
-}
-
-function clearPersistTimer(timerState: PersistTimerState): void {
-    if (timerState.timer === null) {
-        return;
-    }
-    clearTimeout(timerState.timer);
-}
-
-function persistDraftFailure(addLog: (message: string) => void): void {
-    addLog("Failed to persist draft state.");
-}
-
-function queuePersistFn(options: {
-    addLog: (message: string) => void;
-    persistDraft: PersistDraftFn;
-    state: PersistQueueArgs["state"];
-    timerState: PersistTimerState;
-}): QueuePersistFn {
-    return (): void => {
-        if (!options.state.ready) {
-            return;
-        }
-        clearPersistTimer(options.timerState);
-        const TIMER_STATE = options.timerState;
-        TIMER_STATE.timer = setTimeout(() => {
-            options.persistDraft().catch(() => {
-                persistDraftFailure(options.addLog);
-            });
-        }, PERSIST_DELAY_MS);
-    };
 }
 
 /**

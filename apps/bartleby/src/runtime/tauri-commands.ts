@@ -2,6 +2,8 @@
  * Typed Tauri command names used by the Bartleby frontend adapter.
  */
 export const TAURI_COMMANDS = {
+    appDataExport: "app_data_export",
+    appDataImport: "app_data_import",
     booksSearch: "books_search",
     coverDownload: "cover_download",
     coverImport: "cover_import",

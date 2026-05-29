@@ -8,9 +8,6 @@ import { installFakeDom } from "./helpers/fake-dom.mjs";
 const HARNESS = installFakeDom();
 const { FIELDS, WEEKDAYS, weekdayMinutesEnabledId, weekdayMinutesInputId } =
     await import("../dist/renderer/settings/config.js");
-const { bindDayOffAddButton } = await import(
-    "../dist/renderer/settings/day_offs.js"
-);
 const { parseSettings } = await import("@reading-schedule/contracts");
 const { collectSettingsForm } = await import(
     "../dist/renderer/settings/serialize_collect.js"
@@ -148,24 +145,6 @@ test("fillSettingsForm checks and enables persisted weekday overrides", () => {
         HARNESS.document.getElementById(weekdayMinutesInputId("Mon")).disabled,
         true,
     );
-});
-
-test("bindDayOffAddButton clears the picker after adding a day off", () => {
-    installSettingsDom();
-    let dayOffs = [];
-    const INPUT = HARNESS.document.getElementById("dayOffPicker");
-    INPUT.value = "Mon";
-
-    bindDayOffAddButton(
-        () => dayOffs,
-        (nextDayOffs) => {
-            dayOffs = nextDayOffs;
-        },
-    );
-    HARNESS.document.getElementById("addDayOffBtn").click();
-
-    assert.deepEqual(dayOffs, ["Mon"]);
-    assert.equal(INPUT.value, "");
 });
 
 test("settings UI no longer exposes planner solver profile choices", () => {

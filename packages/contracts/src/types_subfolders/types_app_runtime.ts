@@ -110,6 +110,8 @@ export interface PersistQueueArgs
 export interface PersistQueue {
     /** Attempts an immediate draft save and resolves true on success. */
     persistDraft(): Promise<boolean>;
+    /** Cancels queued draft saves and waits for any active save before replacing state externally. */
+    prepareForStateImport(): Promise<void>;
     /** Enqueues a debounced draft save. */
     queuePersist(): void;
 }
@@ -160,6 +162,8 @@ export interface AppBootstrapContext {
     dashboards: DashboardRuntime;
     /** Persists draft state to durable storage. */
     persistDraft(): Promise<boolean>;
+    /** Waits for autosave to settle before importing an external state archive. */
+    prepareForDataImport(): Promise<void>;
     /** Planner API dependency used to call planner-side operations. */
     plannerApi: PlannerApi;
     /** Queues persist work for deferred execution. */

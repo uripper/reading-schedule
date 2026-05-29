@@ -14,7 +14,7 @@ const SCORE_ENGLISH_LANGUAGE: i64 = 45;
 const SCORE_HAS_PAGE_COUNT: i64 = 5;
 const SCORE_MAX_EDITION_COUNT: i64 = 20;
 
-fn normalize_search_text(value: &str) -> String {
+pub(crate) fn normalize_search_text(value: &str) -> String {
     let mut out = String::new();
     let mut last_was_space = true;
     for character in value.chars().flat_map(char::to_lowercase) {

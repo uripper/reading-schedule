@@ -10,6 +10,7 @@ import {
 } from "../dist/renderer/books/grouping.js";
 import { metaLabel } from "../dist/renderer/books/presenters.js";
 import {
+    SORT_BY_AUTHOR,
     SORT_BY_ESTIMATED_FINISH,
     SORT_BY_PROGRESS,
     SORT_BY_TITLE,
@@ -70,6 +71,20 @@ function baseBook(overrides) {
     return { ...DEFAULT_BOOK, ...overrides };
 }
 
+/**
+ * Builds a book fixture whose title does not affect author-sort assertions.
+ * @param {string} bookId - Stable fixture id.
+ * @param {string} author - Author display name.
+ * @returns {Record<string, unknown>} Book fixture object.
+ */
+function authorBook(bookId, author) {
+    return baseBook({
+        author,
+        book_id: bookId,
+        title: author,
+    });
+}
+
 test('groupBooks groups "The ..." by the next word letter', () => {
     const BOOKS = [
         baseBook({ book_id: "book-1", title: "The Book of Disquiet" }),
@@ -94,6 +109,24 @@ test('sortBooks sorts titles using key without leading "The "', () => {
     });
     assert.equal(SORTED[0].title, "The Book of Disquiet");
     assert.equal(SORTED[1].title, "The Odyssey");
+});
+
+test("sortBooks sorts canonical authors by last name then first name", () => {
+    const BOOKS = [
+        authorBook("book-1", "Virginia Woolf"),
+        authorBook("book-2", "Charlotte Bronte"),
+        authorBook("book-3", "James Baldwin"),
+        authorBook("book-4", "Anne Bronte"),
+    ];
+    const SORTED = sortBooks({
+        books: BOOKS,
+        sortBy: SORT_BY_AUTHOR,
+        sortDirection: "asc",
+    });
+    assert.deepEqual(
+        SORTED.map((book) => book.author),
+        ["James Baldwin", "Anne Bronte", "Charlotte Bronte", "Virginia Woolf"],
+    );
 });
 
 test("finishDatesByBookId uses explicit finished_at for read books", () => {

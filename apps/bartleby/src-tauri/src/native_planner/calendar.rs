@@ -61,10 +61,6 @@ pub fn book_day_block_limit(book: &Book, settings: &Settings) -> i64 {
     limit.max(0)
 }
 
-pub fn book_is_scheduled_for_day(book: &Book, day: NaiveDate) -> bool {
-    book.scheduled_days.contains(weekday_key(day))
-}
-
 pub fn words_per_minute(book: &Book, settings: &Settings) -> f64 {
     let multiplier = settings
         .difficulty_multiplier

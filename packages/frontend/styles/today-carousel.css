@@ -171,7 +171,9 @@
     transform: translateY(0);
 }
 
-.today-carousel-track.is-add-book-only .today-carousel-item.is-add-book > .today-carousel-fallback {
+.today-carousel-track.is-add-book-only
+    .today-carousel-item.is-add-book
+    > .today-carousel-fallback {
     font-size: clamp(4rem, 8vw, 6rem);
 }
 
@@ -186,7 +188,7 @@
     margin: 0 auto;
     font-family: var(--main-font);
     font-size: clamp(1rem, 1vw, 1.2rem);
-    color: #2e2450;
+    color: #ffffff;
 }
 
 .today-active-book-bar {
