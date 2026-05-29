@@ -1,6 +1,7 @@
 import flatpickr from "flatpickr";
 import type { Instance } from "flatpickr/dist/types/instance";
 import type { Options } from "flatpickr/dist/types/options";
+import { attachRangePickerFooter } from "./date-control-range-footer.ts";
 
 const DATE_FORMAT = "Y-m-d";
 const NEXT_MONTH_LABEL = "Next";
@@ -173,7 +174,7 @@ function pickerBaseOptions(args: StaticDatePickerArgs): Partial<Options> {
         allowInput: false,
         appendTo: args.host,
         clickOpens: true,
-        closeOnSelect: true,
+        closeOnSelect: args.selectionMode === "single",
         dateFormat: DATE_FORMAT,
         disableMobile: true,
         minDate: args.minimumDate,
@@ -187,12 +188,21 @@ function pickerBaseOptions(args: StaticDatePickerArgs): Partial<Options> {
     };
 }
 
+function handlePickerReady(args: StaticDatePickerArgs, picker: Instance): void {
+    args.onReady();
+    if (args.selectionMode === "range") {
+        attachRangePickerFooter(picker);
+    }
+}
+
 function pickerLifecycleOptions(args: StaticDatePickerArgs): Partial<Options> {
     return {
         onChange: args.onChange,
         onClose: args.onClose,
         onOpen: args.onOpen,
-        onReady: args.onReady,
+        onReady: (_selectedDates, _dateText, picker) => {
+            handlePickerReady(args, picker);
+        },
         onValueUpdate: args.onValueUpdate,
     };
 }
