@@ -136,7 +136,7 @@ test("enrichRows moves expected-finish forward when today row is marked complete
     assert.equal(ENRICHED[1]?.finish, true);
 });
 
-test("enrichRows marks the last scheduled row as expected finish for calendar display", () => {
+test("enrichRows does not mark partial last scheduled row as expected finish", () => {
     const TODAY = dayKey(new Date());
     const TOMORROW = tomorrowDayKey(TODAY);
     const [TODAY_ROW, TOMORROW_ROW] = todayAndTomorrowRows(TODAY, TOMORROW);
@@ -145,5 +145,5 @@ test("enrichRows marks the last scheduled row as expected finish for calendar di
     const ENRICHED = enrichRows([TODAY_ROW, TOMORROW_ROW], TOTALS, () => false);
 
     assert.equal(ENRICHED[0]?.finish, false);
-    assert.equal(ENRICHED[1]?.finish, true);
+    assert.equal(ENRICHED[1]?.finish, false);
 });

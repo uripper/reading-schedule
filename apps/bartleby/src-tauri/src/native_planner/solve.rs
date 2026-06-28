@@ -162,9 +162,9 @@ impl OrderedBookContext<'_> {
             (left_book, left_state.remaining),
             (right_book, right_state.remaining),
         );
-        let remaining_order = right_state
+        let remaining_order = left_state
             .remaining
-            .partial_cmp(&left_state.remaining)
+            .partial_cmp(&right_state.remaining)
             .unwrap_or(Ordering::Equal);
         priority_order(left_book.priority, right_book.priority)
             .then(progress_comparison)
