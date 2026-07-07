@@ -20,35 +20,9 @@ interface FinishRowArgs {
 interface EnrichRowsState {
     finishedByBookId: Record<string, boolean>;
     isSessionCompleted: CompletionChecker;
-    lastScheduledRowByBookId: Record<string, CalendarRow>;
     progressByBookId: Record<string, number>;
     today: string;
     totals: Record<string, number>;
-}
-
-function lastScheduledRowsByBookId(
-    rows: CalendarRow[],
-): Record<string, CalendarRow> {
-    const LAST_SCHEDULED_ROW_BY_BOOK_ID: Record<string, CalendarRow> = {};
-    for (const ROW of rows) {
-        const BOOK_ID = String(ROW.book_id || "");
-        if (BOOK_ID === "") {
-            continue;
-        }
-        LAST_SCHEDULED_ROW_BY_BOOK_ID[BOOK_ID] = ROW;
-    }
-    return LAST_SCHEDULED_ROW_BY_BOOK_ID;
-}
-
-function hasScheduledFinishOverride(
-    row: CalendarRow,
-    state: EnrichRowsState,
-    bookId: string,
-): boolean {
-    if (bookId === "") {
-        return false;
-    }
-    return state.lastScheduledRowByBookId[bookId] === row;
 }
 
 /**
@@ -168,18 +142,10 @@ function enrichRow(
         return unfinishedDisplayRow(row);
     }
     const BOOK_ID = String(row.book_id || "");
-    const HAS_SCHEDULED_FINISH_OVERRIDE = hasScheduledFinishOverride(
-        row,
-        state,
-        BOOK_ID,
-    );
     if (isCompletedToday(row, state.today, state.isSessionCompleted)) {
-        return finishedDisplayRow(row, HAS_SCHEDULED_FINISH_OVERRIDE);
+        return unfinishedDisplayRow(row);
     }
-    return finishedDisplayRow(
-        row,
-        HAS_SCHEDULED_FINISH_OVERRIDE || rowFinishState(row, state, BOOK_ID),
-    );
+    return finishedDisplayRow(row, rowFinishState(row, state, BOOK_ID));
 }
 
 /**
@@ -198,7 +164,6 @@ export function enrichRows(
     const STATE: EnrichRowsState = {
         finishedByBookId: {},
         isSessionCompleted,
-        lastScheduledRowByBookId: lastScheduledRowsByBookId(SORTED_ROWS),
         progressByBookId: {},
         today: todayDateKey(),
         totals,

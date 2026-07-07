@@ -9,7 +9,7 @@ const PROGRESS_SCALE = 10;
 export const DEFAULT_PRIORITY = 3;
 export const DEFAULT_DIFFICULTY = 3;
 export const MIN_PRIORITY = 1;
-export const MAX_PRIORITY = 5;
+export const MAX_PRIORITY = Number.MAX_SAFE_INTEGER;
 export const MIN_DIFFICULTY = 1;
 export const MAX_DIFFICULTY = 10;
 

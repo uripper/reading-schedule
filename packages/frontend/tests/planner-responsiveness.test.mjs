@@ -26,6 +26,14 @@ const SETTINGS = {
     wpm_base: 250,
 };
 const EMPTY_RESULT = { schedule: [], summary: null };
+const INCOMPLETE_WARNING = "Planner could not schedule all remaining words.";
+const INCOMPLETE_RESULT = {
+    schedule: [],
+    summary: {
+        feasibility_warning: INCOMPLETE_WARNING,
+        status: "INCOMPLETE",
+    },
+};
 
 function deferred() {
     let resolve;
@@ -106,6 +114,33 @@ test("runPlanGeneration ignores stale success results", async () => {
     assert.equal(applied, 0);
     assert.deepEqual(Statuses, [
         { message: "Generating plan...", phase: "loading" },
+    ]);
+});
+
+test("runPlanGeneration surfaces incomplete plans as errors", async () => {
+    const Statuses = [];
+    await runPlanGeneration(
+        planArgs({
+            plannerApi: {
+                generate: () => Promise.resolve(INCOMPLETE_RESULT),
+            },
+            setStatus: (message, isError, phase) => {
+                Statuses.push({ isError, message, phase });
+            },
+        }),
+    );
+
+    assert.deepEqual(Statuses, [
+        {
+            isError: false,
+            message: "Generating plan...",
+            phase: "loading",
+        },
+        {
+            isError: true,
+            message: INCOMPLETE_WARNING,
+            phase: "error",
+        },
     ]);
 });
 

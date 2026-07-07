@@ -2,6 +2,8 @@ mod calendar;
 mod coerce;
 mod greedy_support;
 mod models;
+#[cfg(test)]
+mod order_tests;
 mod parse;
 mod profile;
 #[cfg(test)]
