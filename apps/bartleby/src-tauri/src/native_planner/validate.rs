@@ -41,11 +41,8 @@ pub fn validate_book(book: &Book) -> Result<(), String> {
             book.book_id
         ));
     }
-    if !(1..=5).contains(&book.priority) {
-        return Err(format!(
-            "priority must be between 1 and 5 for {}",
-            book.book_id
-        ));
+    if book.priority < 1 {
+        return Err(format!("priority must be >= 1 for {}", book.book_id));
     }
     if !(1..=10).contains(&book.difficulty) {
         return Err(format!("difficulty must be 1..10 for {}", book.book_id));

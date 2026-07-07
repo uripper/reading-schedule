@@ -8,12 +8,15 @@ import {
     BOOK_STATUS_TO_READ,
 } from "../dist/renderer/books/status_catalog.js";
 
+const FINE_GRAINED_PRIORITY = 500;
+const WORDS_TOTAL = 1000;
+
 test("normalizeBook keeps explicit finish date for read books", () => {
     const NORMALIZED = normalizeBook({
         finished_at: "2026-02-10",
         status: BOOK_STATUS_READ,
         title: "Read Book",
-        words_total: 1000,
+        words_total: WORDS_TOTAL,
     });
 
     assert.equal(NORMALIZED.finished_at, "2026-02-10");
@@ -24,7 +27,7 @@ test("normalizeBook keeps finish date empty for read books until chosen", () => 
         finished_at: "",
         status: BOOK_STATUS_READ,
         title: "Read Book",
-        words_total: 1000,
+        words_total: WORDS_TOTAL,
     });
 
     assert.equal(NORMALIZED.finished_at, null);
@@ -35,7 +38,7 @@ test("normalizeBook clears finish date for non-read books", () => {
         finished_at: "2026-02-10",
         status: BOOK_STATUS_IN_PROGRESS,
         title: "In Progress Book",
-        words_total: 1000,
+        words_total: WORDS_TOTAL,
     });
 
     assert.equal(NORMALIZED.finished_at, null);
@@ -48,8 +51,18 @@ test("normalizeBook promotes books with pages read to in-progress", () => {
         progress_percent: 0,
         status: BOOK_STATUS_TO_READ,
         title: "Started Book",
-        words_total: 1000,
+        words_total: WORDS_TOTAL,
     });
 
     assert.equal(NORMALIZED.status, BOOK_STATUS_IN_PROGRESS);
+});
+
+test("normalizeBook preserves fine-grained priorities", () => {
+    const NORMALIZED = normalizeBook({
+        priority: FINE_GRAINED_PRIORITY,
+        title: "Priority Book",
+        words_total: WORDS_TOTAL,
+    });
+
+    assert.equal(NORMALIZED.priority, FINE_GRAINED_PRIORITY);
 });

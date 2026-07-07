@@ -7,7 +7,9 @@ use crate::native_planner::calendar::{
     calendar_minutes, required_total_minutes, words_per_block, words_per_minute,
 };
 use crate::native_planner::models::{Assignments, Book, PlanResult, Settings};
-use crate::native_planner::report_status::{feasibility_warning, incomplete_books, summary_status};
+use crate::native_planner::report_status::{
+    feasibility_warning, incomplete_books, summary_status, FeasibilityWarningContext,
+};
 
 struct Session {
     book_id: String,
@@ -57,11 +59,12 @@ pub fn build_output(
     let total_available_minutes = calendar_minutes(settings)?.values().sum::<i64>();
     let total_required_minutes = required_total_minutes(books, settings);
     let incomplete_books = incomplete_books(books, &per_book_totals);
-    let feasibility_warning = feasibility_warning(
+    let feasibility_warning = feasibility_warning(FeasibilityWarningContext {
+        incomplete_books: &incomplete_books,
+        per_book_totals: &per_book_totals,
         total_required_minutes,
         total_available_minutes,
-        &incomplete_books,
-    );
+    });
     let per_book = books
         .iter()
         .map(|book| {

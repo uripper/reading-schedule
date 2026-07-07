@@ -17,6 +17,7 @@ import {
 import { errorMessage, isPlannerSupersededError } from "./plan-errors.ts";
 import type { PlanMessages } from "./plan-feedback.ts";
 import { logPlanSummary, resolvedPlanMessages } from "./plan-feedback.ts";
+import { applyPlanResultStatus } from "./plan-status.ts";
 
 interface GeneratePayloadArgs {
     customStartDate: string;
@@ -83,7 +84,7 @@ async function handlePlanSuccess({
         scheduleRows: data.schedule.length,
         status: data.summary?.status ?? null,
     });
-    setStatus(statusSuccessMessage, false, "success");
+    applyPlanResultStatus({ data, setStatus, statusSuccessMessage });
 
     if (successAnnouncement !== "") {
         announce(successAnnouncement);
