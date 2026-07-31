@@ -1,0 +1,93 @@
+name: Desktop Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-release
+  cancel-in-progress: false
+
+jobs:
+  release-desktop:
+    name: Release ${{ matrix.label }}
+    if: github.ref == 'refs/heads/main'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: Windows x64
+            os: windows-latest
+            rust_target: ""
+            args: --bundles nsis
+            asset_name: Bartleby.Setup[ext]
+            apple_signing_identity: ""
+          - label: macOS Apple Silicon
+            os: macos-latest
+            rust_target: aarch64-apple-darwin
+            args: --target aarch64-apple-darwin
+            asset_name: Bartleby.[arch][ext]
+            apple_signing_identity: "-"
+          - label: macOS Intel
+            os: macos-latest
+            rust_target: x86_64-apple-darwin
+            args: --target x86_64-apple-darwin
+            asset_name: Bartleby.[arch][ext]
+            apple_signing_identity: "-"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_target }}
+
+      - name: Cache Rust build outputs
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            apps/bartleby/src-tauri -> target
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify centralized version
+        run: pnpm run version:check
+
+      - name: Build signed update and draft release
+        uses: tauri-apps/tauri-action@v1
+        env:
+          APPLE_SIGNING_IDENTITY: ${{ matrix.apple_signing_identity }}
+          GITHUB_TOKEN: ${{ secrets.BARTLEBY_RELEASE_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        with:
+          args: ${{ matrix.args }}
+          owner: uripper
+          projectPath: apps/bartleby
+          releaseAssetNamePattern: ${{ matrix.asset_name }}
+          releaseBody: Review and expand these notes before publishing this draft.
+          releaseCommitish: main
+          releaseDraft: true
+          releaseName: Bartleby __VERSION__
+          repo: Bartleby
+          retryAttempts: 2
+          tagName: Bartleby-v__VERSION__
+          tauriScript: pnpm tauri
+          updaterJsonPreferNsis: true
+          uploadUpdaterJson: true

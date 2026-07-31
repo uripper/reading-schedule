@@ -92,3 +92,45 @@ test("prepareForStateImport waits for active draft saves", async () => {
     await SAVE_PROMISE;
     assert.equal(prepared, true);
 });
+
+test("persistDraft serializes overlapping saves", async () => {
+    const FIRST_SAVE = deferredSaveResult();
+    let saveCalls = 0;
+    const QUEUE = createPersistQueue(
+        baseQueueArgs(() => {
+            saveCalls += 1;
+            if (saveCalls === 1) {
+                return FIRST_SAVE.promise;
+            }
+            return Promise.resolve({ ok: true });
+        }),
+    );
+
+    const FIRST_PERSIST = QUEUE.persistDraft();
+    const SECOND_PERSIST = QUEUE.persistDraft();
+    await Promise.resolve();
+    assert.equal(saveCalls, 1);
+
+    FIRST_SAVE.resolveSave({ ok: true });
+    await Promise.all([FIRST_PERSIST, SECOND_PERSIST]);
+    assert.equal(saveCalls, 2);
+});
+
+test("flushPendingState replaces a queued save with one immediate snapshot", async () => {
+    let saveCalls = 0;
+    const QUEUE = createPersistQueue(
+        baseQueueArgs(() => {
+            saveCalls += 1;
+            return Promise.resolve({ ok: true });
+        }),
+    );
+
+    QUEUE.queuePersist();
+    const SAVED = await QUEUE.flushPendingState();
+    await new Promise((resolve) => {
+        setTimeout(resolve, QUEUED_SAVE_WAIT_MS);
+    });
+
+    assert.equal(SAVED, true);
+    assert.equal(saveCalls, 1);
+});

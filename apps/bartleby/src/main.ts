@@ -1,4 +1,9 @@
+/**
+ * Boots the Tauri desktop shell, shared frontend, maintenance, and updater.
+ */
+
 import "../../../packages/frontend/styles.css";
+import "./styles/update-dialog.css";
 import {
     logError,
     logInfo,
@@ -7,7 +12,9 @@ import {
     installTauriPlannerApi,
     runStateMaintenance,
 } from "./runtime/tauri-planner-api.ts";
+import { startTauriUpdater } from "./updater/tauri-updater.ts";
 
+/** Reports completed background state maintenance when data changed. */
 function reportStateMaintenanceResult(
     result: Awaited<ReturnType<typeof runStateMaintenance>>,
 ): void {
@@ -21,10 +28,12 @@ function reportStateMaintenanceResult(
     });
 }
 
+/** Reports a recoverable background state-maintenance failure. */
 function reportStateMaintenanceError(error: unknown): void {
     logError("Skipped background state maintenance.", error);
 }
 
+/** Starts non-blocking state maintenance after the frontend is ready. */
 function startStateMaintenance(): void {
     const STATE_MAINTENANCE = runStateMaintenance();
     STATE_MAINTENANCE.then(reportStateMaintenanceResult).catch(
@@ -32,9 +41,15 @@ function startStateMaintenance(): void {
     );
 }
 
+/** Installs native adapters and starts the shared frontend runtime. */
 async function bootstrapApp(): Promise<void> {
     installTauriPlannerApi();
-    await import("../../../packages/frontend/src/renderer/app.ts");
+    const FRONTEND = await import(
+        "../../../packages/frontend/src/renderer/app.ts"
+    );
+    startTauriUpdater({
+        flushPendingState: FRONTEND.flushPendingState,
+    });
     startStateMaintenance();
 }
 

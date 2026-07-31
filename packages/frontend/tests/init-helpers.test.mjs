@@ -35,32 +35,41 @@ function loadResult() {
     };
 }
 
-test("finalizeInitialLoad preserves legacy lastResult schedules", () => {
+function finalizeLoadedSchedule() {
+    const STATE = {
+        autoPlanCount: 0,
+        logs: [],
+        ready: false,
+    };
+    finalizeInitialLoad({
+        addLog: (message) => {
+            STATE.logs.push(message);
+        },
+        loadResult: loadResult(),
+        queueAutoPlan: () => {
+            assert.equal(STATE.ready, true);
+            STATE.autoPlanCount += 1;
+        },
+        queuePersist: () => undefined,
+        saved: legacySavedState(),
+        setReady: () => {
+            STATE.ready = true;
+        },
+        setStatus: () => undefined,
+    });
+    return STATE;
+}
+
+test("finalizeInitialLoad replans after restoring a saved schedule", () => {
     const DOM = installFakeDom();
     try {
         const SETTINGS_PANEL = DOM.createElement("section", "tab-settings");
         DOM.document.body.append(SETTINGS_PANEL);
-        const LOGS = [];
-        let autoPlanCount = 0;
-
-        finalizeInitialLoad({
-            addLog: (message) => {
-                LOGS.push(message);
-            },
-            loadResult: loadResult(),
-            queueAutoPlan: () => {
-                autoPlanCount += 1;
-            },
-            queuePersist: () => undefined,
-            saved: legacySavedState(),
-            setReady: () => undefined,
-            setStatus: () => undefined,
-        });
-
-        assert.equal(autoPlanCount, 0);
+        const STATE = finalizeLoadedSchedule();
+        assert.equal(STATE.autoPlanCount, 1);
         assert.equal(
-            LOGS.some((entry) =>
-                entry.includes("Skipped startup auto-plan"),
+            STATE.logs.some((entry) =>
+                entry.includes("Queued startup reschedule"),
             ),
             true,
         );
