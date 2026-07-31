@@ -27,9 +27,25 @@ pnpm run version:set -- 0.1.4-alpha
 pnpm run version:check
 ```
 
-The command updates every package, application config, mobile config, and the
-Rust crate version together. Use SemVer; `-alpha` can be removed for a stable
-release.
+The command updates the desktop app, website, shared packages, Tauri config,
+Rust crate, and committed Cargo lock version together. Use SemVer; `-alpha`
+can be removed for a stable release. Mobile is not part of this release path.
+
+## Verify dependency alignment
+
+Run this after changing a JavaScript or Rust dependency:
+
+```sh
+pnpm run deps:check
+```
+
+The check keeps shared JavaScript tooling on identical declarations, ensures
+the Tauri opener, process, and updater plugins match across JavaScript and
+Rust, and rejects installing pnpm as an application dependency. The pnpm
+version comes only from the root `packageManager` field; Windows bootstrap
+scripts read that field instead of maintaining another copy. The desktop
+`Cargo.lock` is committed, and release commands use Cargo's `--locked` mode so
+a release cannot silently resolve a different Rust graph.
 
 ## Release setup
 

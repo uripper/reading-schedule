@@ -20,36 +20,60 @@
     letter-spacing: -0.065em;
 }
 
-.codex-workflow__heading::after {
+.codex-workflow__controls {
     position: absolute;
-    top: 0;
+    top: 1rem;
     right: 0;
+    display: grid;
+    gap: 2rem;
     width: 27%;
-    height: 8rem;
-    content: "";
-    background:
-        radial-gradient(
-            circle at 23% 18%,
-            var(--color-marigold) 0 0.8rem,
-            var(--color-aubergine) 0.85rem 1rem,
-            transparent 1.05rem
-        ),
-        radial-gradient(
-            circle at 72% 50%,
-            var(--color-lilac) 0 0.8rem,
-            var(--color-aubergine) 0.85rem 1rem,
-            transparent 1.05rem
-        ),
-        radial-gradient(
-            circle at 42% 82%,
-            var(--color-orange) 0 0.8rem,
-            var(--color-aubergine) 0.85rem 1rem,
-            transparent 1.05rem
-        ),
-        linear-gradient(var(--color-aqua) 0 0) 0 18% / 100% 0.3rem no-repeat,
-        linear-gradient(var(--color-chartreuse) 0 0) 0 50% / 100% 0.3rem
-        no-repeat,
-        linear-gradient(var(--color-paper) 0 0) 0 82% / 100% 0.3rem no-repeat;
+    padding-block: 0.8rem;
+}
+
+.codex-workflow__track {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 0.3rem;
+}
+
+.codex-workflow__track--reading {
+    color: var(--color-marigold);
+    background: var(--color-aqua);
+}
+
+.codex-workflow__track--pace {
+    color: var(--color-lilac);
+    background: var(--color-chartreuse);
+}
+
+.codex-workflow__track--finish {
+    color: var(--color-orange);
+    background: var(--color-paper);
+}
+
+.codex-workflow__knob {
+    position: absolute;
+    top: 50%;
+    display: block;
+    width: 2.1rem;
+    aspect-ratio: 1;
+    background: currentcolor;
+    border: 0.25rem solid var(--color-aubergine);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.codex-workflow__track--reading .codex-workflow__knob {
+    left: 23%;
+}
+
+.codex-workflow__track--pace .codex-workflow__knob {
+    left: 72%;
+}
+
+.codex-workflow__track--finish .codex-workflow__knob {
+    left: 42%;
 }
 
 .codex-workflow__grid {
@@ -168,6 +192,18 @@
 
 .codex-download .button-link--ghost {
     background: var(--color-white);
+}
+
+.codex-download__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    justify-content: end;
+}
+
+.codex-download__actions .button-link {
+    padding: 0.65rem 0.9rem;
+    white-space: nowrap;
 }
 
 .codex-download__logo {

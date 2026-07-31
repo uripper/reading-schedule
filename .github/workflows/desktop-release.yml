@@ -6,6 +6,14 @@ on:
       - main
     paths:
       - package.json
+      - apps/bartleby/package.json
+      - apps/bartleby/src-tauri/Cargo.lock
+      - apps/bartleby/src-tauri/Cargo.toml
+      - apps/website/package.json
+      - packages/contracts/package.json
+      - packages/frontend/package.json
+      - pnpm-lock.yaml
+      - scripts/check-dependency-versions.mjs
 
 permissions:
   contents: read
@@ -36,6 +44,9 @@ jobs:
 
       - name: Verify centralized version
         run: node ./scripts/set-app-version.mjs --check
+
+      - name: Verify dependency alignment
+        run: node ./scripts/check-dependency-versions.mjs
 
       - name: Compare desktop versions
         id: version
@@ -105,7 +116,7 @@ jobs:
           pnpm run typecheck:desktop
           pnpm run build:desktop
           pnpm run test:desktop
-          cargo clippy \
+          cargo clippy --locked \
             --manifest-path apps/bartleby/src-tauri/Cargo.toml \
             -- -D warnings
 
@@ -121,19 +132,19 @@ jobs:
           - label: Windows x64
             os: windows-latest
             rust_target: ""
-            args: --bundles nsis
+            args: --bundles nsis -- --locked
             asset_name: Bartleby.Setup[ext]
             apple_signing_identity: ""
           - label: macOS Apple Silicon
             os: macos-latest
             rust_target: aarch64-apple-darwin
-            args: --target aarch64-apple-darwin
+            args: --target aarch64-apple-darwin -- --locked
             asset_name: Bartleby.[arch][ext]
             apple_signing_identity: "-"
           - label: macOS Intel
             os: macos-latest
             rust_target: x86_64-apple-darwin
-            args: --target x86_64-apple-darwin
+            args: --target x86_64-apple-darwin -- --locked
             asset_name: Bartleby.[arch][ext]
             apple_signing_identity: "-"
 

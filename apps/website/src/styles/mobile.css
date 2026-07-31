@@ -99,19 +99,18 @@
     }
 
     .codex-stage {
-        padding: 1rem 0.65rem;
+        padding: 0.75rem;
     }
 
     .codex-stage__pages {
-        max-height: calc(100svh - 2rem);
+        max-height: calc(100svh - 1.5rem);
     }
 
     .codex-stage__pages::before {
-        inset: 0.65rem -0.65rem -0.65rem 0.65rem;
+        inset: 0.45rem -0.45rem -0.45rem 0.45rem;
     }
 
-    .codex-scene--manifesto,
-    .codex-scene--feature {
+    .codex-scene--manifesto {
         padding: 2rem;
     }
 
@@ -119,17 +118,52 @@
         font-size: clamp(5rem, 22vw, 7.5rem);
     }
 
-    .codex-scene__number {
-        font-size: clamp(9rem, 48vw, 15rem);
+    .codex-manifesto__mark {
+        top: 3%;
+        right: -7%;
+        width: 38vw;
+        border-width: clamp(1.5rem, 7vw, 2.5rem);
     }
 
-    .codex-scene__copy h2 {
+    .codex-scene.codex-scene--feature {
+        padding: clamp(1.5rem, 6vw, 2.25rem);
+    }
+
+    .codex-scene.codex-scene--feature .codex-scene__number {
+        top: -0.06em;
+        right: 0.04em;
+        left: auto;
+        font-size: clamp(8rem, 38vw, 12rem);
+    }
+
+    .codex-scene.codex-scene--feature .codex-scene__copy {
+        gap: 1.25rem;
+    }
+
+    .codex-scene.codex-scene--feature .codex-scene__copy h2 {
         align-self: end;
-        font-size: clamp(4.5rem, 19vw, 7rem);
+        justify-self: start;
+        max-width: 8ch;
+        margin-top: 0;
+        font-size: clamp(4rem, 15vw, 6.25rem);
+        text-align: left;
     }
 
-    .codex-scene__copy > p {
-        width: min(100%, 23rem);
+    .codex-scene.codex-scene--feature .codex-scene__copy > p {
+        justify-self: start;
+        width: min(72%, 23rem);
+        padding: 0.9rem 1rem;
+        font-size: clamp(0.95rem, 4vw, 1.15rem);
+        line-height: 1.45;
+    }
+
+    .codex-scene.codex-scene--feature-02 .codex-scene__copy > p {
+        justify-self: end;
+    }
+
+    .codex-scene.codex-scene--feature-04 .codex-scene__copy > p {
+        justify-self: end;
+        width: min(65%, 20rem);
     }
 
     .codex-scene--workflow {
@@ -137,7 +171,26 @@
     }
 
     .codex-workflow__heading h2 {
-        font-size: clamp(3.5rem, 14vw, 5rem);
+        max-width: 8ch;
+        font-size: clamp(3.4rem, 13vw, 5rem);
+    }
+
+    .codex-workflow__controls {
+        position: static;
+        gap: 1.25rem;
+        justify-self: end;
+        width: 48%;
+        padding-block: 0;
+        margin-top: 1rem;
+    }
+
+    .codex-workflow__track {
+        height: 0.24rem;
+    }
+
+    .codex-workflow__knob {
+        width: 1.65rem;
+        border-width: 0.2rem;
     }
 
     .codex-workflow__grid {
@@ -164,9 +217,16 @@
         padding: 2rem 1.5rem;
     }
 
+    .codex-scene--download::before {
+        top: -12%;
+        left: -16%;
+        width: 44vw;
+        border-width: clamp(1.5rem, 7vw, 2.5rem);
+    }
+
     .codex-scene--download h2 {
         align-self: start;
-        font-size: clamp(5rem, 21vw, 7rem);
+        font-size: clamp(4.5rem, 18vw, 6rem);
     }
 
     .codex-download {
@@ -211,5 +271,14 @@
 
     .codex-workflow__step h3 {
         font-size: 1rem;
+    }
+
+    .codex-download {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .codex-download__actions {
+        justify-content: start;
     }
 }

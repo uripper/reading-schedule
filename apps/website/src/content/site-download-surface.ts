@@ -3,34 +3,51 @@
  */
 
 import type { DownloadCard } from "../types/site-content.ts";
-import { DOWNLOAD_SECTION_URL, WINDOWS_DOWNLOAD_URL } from "./site-urls.ts";
+import {
+    DOWNLOAD_SECTION_URL,
+    MACOS_APPLE_SILICON_DOWNLOAD_URL,
+    MACOS_INTEL_DOWNLOAD_URL,
+    WINDOWS_DOWNLOAD_URL,
+} from "./site-urls.ts";
 
 export const DOWNLOAD_CARDS: readonly DownloadCard[] = [
     {
-        action: {
-            ariaLabel: "Download Bartleby for Windows",
-            href: WINDOWS_DOWNLOAD_URL,
-            label: "Download",
-            variant: "primary",
-        },
+        actions: [
+            {
+                ariaLabel: "Download Bartleby for Windows",
+                href: WINDOWS_DOWNLOAD_URL,
+                label: "Download",
+                variant: "primary",
+            },
+        ],
         platform: "Windows",
     },
     {
-        action: {
-            ariaLabel: "Bartleby for macOS is coming soon",
-            href: DOWNLOAD_SECTION_URL,
-            label: "Coming soon",
-            variant: "ghost",
-        },
+        actions: [
+            {
+                ariaLabel: "Download Bartleby for Mac with Apple silicon",
+                href: MACOS_APPLE_SILICON_DOWNLOAD_URL,
+                label: "Apple silicon",
+                variant: "primary",
+            },
+            {
+                ariaLabel: "Download Bartleby for Intel Mac",
+                href: MACOS_INTEL_DOWNLOAD_URL,
+                label: "Intel",
+                variant: "primary",
+            },
+        ],
         platform: "macOS",
     },
     {
-        action: {
-            ariaLabel: "Bartleby for Linux is coming soon",
-            href: DOWNLOAD_SECTION_URL,
-            label: "Coming soon",
-            variant: "ghost",
-        },
+        actions: [
+            {
+                ariaLabel: "Bartleby for Linux is coming soon",
+                href: DOWNLOAD_SECTION_URL,
+                label: "Coming soon",
+                variant: "ghost",
+            },
+        ],
         platform: "Linux",
     },
 ];
