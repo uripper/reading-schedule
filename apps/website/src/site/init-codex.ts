@@ -35,7 +35,9 @@ function sceneTurn(position: number, index: number): number {
         return COMPLETE_TURN;
     }
 
-    return (RAW_TURN - TURN_START) / TURN_TRAVEL;
+    const LINEAR_PROGRESS = (RAW_TURN - TURN_START) / TURN_TRAVEL;
+
+    return LINEAR_PROGRESS * LINEAR_PROGRESS * (3 - 2 * LINEAR_PROGRESS);
 }
 
 function visibleTurn(turn: number): number {
@@ -62,6 +64,7 @@ function updateScene(scene: HTMLElement, turn: number): void {
 
     scene.style.setProperty("--turn-angle", `${ANGLE}deg`);
     scene.style.setProperty("--turn-shadow", `${SHADOW}`);
+    scene.style.setProperty("--turn-progress", `${RENDERED_TURN}`);
     scene.setAttribute("data-turn-state", turnState);
 }
 

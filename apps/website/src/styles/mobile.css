@@ -234,15 +234,15 @@
     }
 
     .platform-logo--windows {
-        max-height: 3rem;
+        max-height: 5rem;
     }
 
     .platform-logo--macos {
-        width: 7rem;
+        width: 8rem;
     }
 
     .platform-logo--linux {
-        max-height: 3.8rem;
+        max-height: 7.5rem;
     }
 
     .site-footer {

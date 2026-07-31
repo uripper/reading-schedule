@@ -43,6 +43,7 @@
 
     .hero__copy {
         padding-block: 2rem;
+        opacity: 0.5;
     }
 
     .hero__title {
