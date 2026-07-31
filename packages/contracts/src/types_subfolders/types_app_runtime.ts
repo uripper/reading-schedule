@@ -108,6 +108,8 @@ export interface PersistQueueArgs
 
 /** Persistence queue API used by runtime modules. */
 export interface PersistQueue {
+    /** Flushes queued and active work, then persists the newest state snapshot. */
+    flushPendingState(): Promise<boolean>;
     /** Attempts an immediate draft save and resolves true on success. */
     persistDraft(): Promise<boolean>;
     /** Cancels queued draft saves and waits for any active save before replacing state externally. */
@@ -160,6 +162,8 @@ export interface AppBootstrapContext {
     announceForPlanController(message: string, politeness?: string): void;
     /** Dashboard runtime used to refresh dashboard views. */
     dashboards: DashboardRuntime;
+    /** Flushes pending persistence before an app lifecycle transition. */
+    flushPendingState(): Promise<boolean>;
     /** Persists draft state to durable storage. */
     persistDraft(): Promise<boolean>;
     /** Waits for autosave to settle before importing an external state archive. */

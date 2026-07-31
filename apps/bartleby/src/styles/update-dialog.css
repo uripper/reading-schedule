@@ -1,0 +1,139 @@
+.app-update-dialog {
+    width: min(560px, 92vw);
+    padding: 0;
+    color: #111;
+    background: #fff7da;
+    border: 4px solid #000;
+    border-radius: 0;
+    box-shadow: 12px 12px 0 #000;
+}
+
+.app-update-dialog::backdrop {
+    background: rgb(44 0 102 / 72%);
+}
+
+.app-update-dialog-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 48px;
+    align-items: stretch;
+    background: #ff4911;
+    border-bottom: 4px solid #000;
+}
+
+.app-update-dialog-title {
+    padding: 14px 18px;
+    margin: 0;
+    font-family: var(--header-font);
+    font-size: var(--token-typography-size-lg);
+    font-weight: 900;
+    color: #000;
+}
+
+.app-update-dialog-close,
+.app-update-dialog-button {
+    font: inherit;
+    font-weight: 900;
+    color: #000;
+    cursor: pointer;
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 4px 4px 0 #000;
+}
+
+.app-update-dialog-close {
+    margin: 6px;
+    font-size: 28px;
+    line-height: 1;
+    background: #e87ddb;
+    box-shadow: 3px 3px 0 #000;
+}
+
+.app-update-dialog-body {
+    display: grid;
+    gap: 12px;
+    padding: 24px 22px;
+}
+
+.app-update-dialog-version {
+    font-family: var(--header-font);
+    font-size: var(--token-typography-size-xl);
+    font-weight: 900;
+}
+
+.app-update-dialog-current {
+    font-family: var(--token-typography-family-mono);
+    font-size: var(--token-typography-size-xs);
+}
+
+.app-update-dialog-notes {
+    max-height: 180px;
+    overflow: auto;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.app-update-dialog-status {
+    min-height: 24px;
+    font-weight: 800;
+}
+
+.app-update-dialog-progress {
+    width: 100%;
+    height: 24px;
+    accent-color: #50c878;
+    border: 3px solid #000;
+    border-radius: 0;
+}
+
+.app-update-dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: flex-end;
+    padding: 18px 22px 22px;
+    background: #f6d6f0;
+    border-top: 4px solid #000;
+}
+
+.app-update-dialog-button {
+    min-height: 48px;
+    padding: 10px 16px;
+    text-transform: uppercase;
+}
+
+.app-update-dialog-later {
+    background: #fff;
+}
+
+.app-update-dialog-install {
+    background: #50c878;
+}
+
+.app-update-dialog-close:hover,
+.app-update-dialog-close:focus-visible,
+.app-update-dialog-button:hover,
+.app-update-dialog-button:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: -6px;
+    box-shadow: 6px 6px 0 #000;
+    transform: translate(-2px, -2px);
+}
+
+.app-update-dialog-close:active,
+.app-update-dialog-button:active {
+    box-shadow: 1px 1px 0 #000;
+    transform: translate(2px, 2px);
+}
+
+.app-update-dialog-close:disabled,
+.app-update-dialog-button:disabled {
+    cursor: wait;
+    opacity: 0.58;
+}
+
+@media (max-width: 520px) {
+    .app-update-dialog-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+}

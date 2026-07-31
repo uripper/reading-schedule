@@ -13,3 +13,11 @@ const CONTEXT = createAppBootstrapContext();
 
 await initApp(CONTEXT);
 SPLASH.completeWhenReady();
+
+/**
+ * Flushes the latest renderer state before the desktop host restarts the app.
+ * @returns True when the final durable save succeeds.
+ */
+export async function flushPendingState(): Promise<boolean> {
+    return await CONTEXT.flushPendingState();
+}

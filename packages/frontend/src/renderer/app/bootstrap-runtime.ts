@@ -58,6 +58,7 @@ function createPersistActions(
     state: AppBootstrapContext["state"],
     plannerApi: PlannerApi,
 ): {
+    flushPendingState(): Promise<boolean>;
     persistDraft(): Promise<boolean>;
     prepareForDataImport(): Promise<void>;
     queuePersist(): void;
@@ -72,6 +73,8 @@ function createPersistActions(
     });
 
     return {
+        flushPendingState: async (): Promise<boolean> =>
+            await PERSIST_QUEUE.flushPendingState(),
         persistDraft: async (): Promise<boolean> =>
             await PERSIST_QUEUE.persistDraft(),
         prepareForDataImport: async (): Promise<void> => {
@@ -157,6 +160,7 @@ function buildBootstrapContext(options: {
         announce: options.announce,
         announceForPlanController: options.announceForPlanController,
         dashboards: options.dashboards,
+        flushPendingState: options.persistActions.flushPendingState,
         persistDraft: options.persistActions.persistDraft,
         plannerApi: options.plannerApi,
         prepareForDataImport: options.persistActions.prepareForDataImport,

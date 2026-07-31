@@ -10,6 +10,7 @@ Thumbs.db
 !.env.example
 .envrc
 *.local
+apps/bartleby/.tauri/
 
 # Node / TypeScript
 node_modules/

@@ -39,6 +39,7 @@ function renderHeroVisual(): string {
     return joinMarkup([
         '<div aria-hidden="true" class="hero__visual">',
         '<div class="hero-portrait">',
+        '<div class="hero-portrait__orbit"></div>',
         '<img class="hero-portrait__image" src="./j.png" alt="" />',
         "</div>",
         "</div>",
@@ -51,6 +52,7 @@ function renderHeroVisual(): string {
 export function renderHero(hero: HeroContent): string {
     return joinMarkup([
         '<section class="section-shell hero panel" id="top">',
+        '<div class="hero__registration" aria-hidden="true"></div>',
         renderHeroCopy(hero),
         renderHeroVisual(),
         "</section>",
