@@ -46,9 +46,18 @@ not a substitute for a secure backup. Installed clients cannot accept later
 releases signed by a replacement key. This repository currently uses a
 passwordless key, so no password secret is required.
 
-Run the `Desktop Release` workflow from the private source repository on
-`main`. It creates a draft release in the public repository with Windows and
-macOS installers, signatures, and `latest.json`. Edit the release notes, verify
-the assets, and publish the draft. Alpha-version releases must remain ordinary
-GitHub releases rather than GitHub prereleases because the app reads
-`releases/latest`.
+`Desktop Release` is the only desktop build-and-release workflow. On a push to
+`main`, GitHub starts it only when the root `package.json` changed. A small
+gate compares the old and new canonical versions; an unrelated package edit
+stops there, without starting Windows or macOS runners.
+
+When the canonical version changed, the workflow validates the desktop app
+once, builds each signed platform bundle once, and uploads the results to a
+draft release in the public repository. A final job verifies that
+`latest.json` contains Windows x64, macOS Apple Silicon, and macOS Intel
+updates before publishing the release as `Latest`. Any failed validation,
+build, or manifest check leaves the release unpublished. Website-only pushes
+do not trigger the workflow.
+
+Alpha-version releases remain ordinary GitHub releases rather than GitHub
+prereleases because the app reads `releases/latest`.
