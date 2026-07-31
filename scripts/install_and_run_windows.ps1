@@ -56,34 +56,49 @@ function Sync-SourceTree {
   }
 }
 
+function Get-WorkspacePnpmVersion {
+  param(
+    [string]$Root
+  )
+  $manifestPath = Join-Path $Root 'package.json'
+  $manifest = Get-Content -Raw -Path $manifestPath | ConvertFrom-Json
+  $versionMatch = [regex]::Match(
+    $manifest.packageManager,
+    '^pnpm@(?<version>\d+\.\d+\.\d+)(?:\+.+)?$'
+  )
+  if (-not $versionMatch.Success) {
+    throw "package.json must contain a valid pnpm packageManager field."
+  }
+  return $versionMatch.Groups['version'].Value
+}
+
 function Invoke-Pnpm {
   param(
     [string[]]$Arguments
   )
 
-  $pnpmVersion = "10.30.3"
-
-  $pnpmCmd = Get-Command pnpm.cmd -ErrorAction SilentlyContinue
-  if ($null -ne $pnpmCmd) {
-    Write-Step "Running pnpm.cmd $($Arguments -join ' ')"
-    & $pnpmCmd.Source @Arguments
-    if ($LASTEXITCODE -ne 0) {
-      throw "pnpm failed with exit code $LASTEXITCODE"
-    }
-    return
-  }
-
-  $pnpm = Get-Command pnpm -ErrorAction SilentlyContinue
-  if ($null -ne $pnpm) {
-    Write-Step "Running pnpm $($Arguments -join ' ')"
-    & $pnpm.Source @Arguments
-    if ($LASTEXITCODE -ne 0) {
-      throw "pnpm failed with exit code $LASTEXITCODE"
-    }
-    return
-  }
+  $pnpmVersion = Get-WorkspacePnpmVersion -Root (Get-Location).Path
 
   $corepackCmd = Get-Command corepack.cmd -ErrorAction SilentlyContinue
+  if ($null -ne $corepackCmd) {
+    Write-Step "Running corepack.cmd pnpm $($Arguments -join ' ')"
+    & $corepackCmd.Source pnpm @Arguments
+    if ($LASTEXITCODE -ne 0) {
+      throw "corepack pnpm failed with exit code $LASTEXITCODE"
+    }
+    return
+  }
+
+  $corepack = Get-Command corepack -ErrorAction SilentlyContinue
+  if ($null -ne $corepack) {
+    Write-Step "Running corepack pnpm $($Arguments -join ' ')"
+    & $corepack.Source pnpm @Arguments
+    if ($LASTEXITCODE -ne 0) {
+      throw "corepack pnpm failed with exit code $LASTEXITCODE"
+    }
+    return
+  }
+
   $npmCmd = Get-Command npm.cmd -ErrorAction SilentlyContinue
   if ($null -ne $npmCmd) {
     Write-Step "Running npm.cmd exec pnpm@$pnpmVersion $($Arguments -join ' ')"
@@ -104,21 +119,30 @@ function Invoke-Pnpm {
     return
   }
 
-  if ($null -ne $corepackCmd) {
-    Write-Step "Running corepack.cmd pnpm $($Arguments -join ' ')"
-    & $corepackCmd.Source pnpm @Arguments
+  $pnpmCmd = Get-Command pnpm.cmd -ErrorAction SilentlyContinue
+  if ($null -ne $pnpmCmd) {
+    $actualVersion = & $pnpmCmd.Source --version
+    if ($actualVersion -ne $pnpmVersion) {
+      throw "pnpm $actualVersion is installed, but package.json requires $pnpmVersion."
+    }
+    Write-Step "Running pnpm.cmd $($Arguments -join ' ')"
+    & $pnpmCmd.Source @Arguments
     if ($LASTEXITCODE -ne 0) {
-      throw "corepack pnpm failed with exit code $LASTEXITCODE"
+      throw "pnpm failed with exit code $LASTEXITCODE"
     }
     return
   }
 
-  $corepack = Get-Command corepack -ErrorAction SilentlyContinue
-  if ($null -ne $corepack) {
-    Write-Step "Running corepack pnpm $($Arguments -join ' ')"
-    & $corepack.Source pnpm @Arguments
+  $pnpm = Get-Command pnpm -ErrorAction SilentlyContinue
+  if ($null -ne $pnpm) {
+    $actualVersion = & $pnpm.Source --version
+    if ($actualVersion -ne $pnpmVersion) {
+      throw "pnpm $actualVersion is installed, but package.json requires $pnpmVersion."
+    }
+    Write-Step "Running pnpm $($Arguments -join ' ')"
+    & $pnpm.Source @Arguments
     if ($LASTEXITCODE -ne 0) {
-      throw "corepack pnpm failed with exit code $LASTEXITCODE"
+      throw "pnpm failed with exit code $LASTEXITCODE"
     }
     return
   }

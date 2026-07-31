@@ -56,8 +56,8 @@
     max-width: 7.5ch;
     margin-top: clamp(6rem, 14vh, 9rem);
     font-size: clamp(5.25rem, 8.8vw, 9.5rem);
-    text-align: right;
     color: var(--color-peony);
+    text-align: right;
 }
 
 .codex-scene--feature-02 .codex-scene__copy > p {

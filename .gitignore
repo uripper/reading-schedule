@@ -80,7 +80,6 @@ reading-schedule-0.2.0.tgz
 *.tgz
 
 /Issues/Meta-Issues/*
-apps/bartleby/src-tauri/Cargo.lock
 .coverage
 planner_state.sqlite3
 __pycache__
