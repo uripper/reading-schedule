@@ -11,8 +11,10 @@ import { DOWNLOAD_SECTION_URL } from "./site-urls.ts";
 
 export const FEATURE_ITEMS: readonly FeatureItem[] = [
     {
-        description: "Transform your backlog from intimidating to manageable.",
-        title: "Domesticate your backlog",
+        description:
+            "Do you have 10 To-Be-Read books? A hundred? A thousand?\
+                        Bartleby will help you get through them all. Maybe.",
+        title: "Move your books off your TBR list",
     },
     {
         description:
@@ -23,8 +25,8 @@ export const FEATURE_ITEMS: readonly FeatureItem[] = [
     {
         description:
             "Bartleby was designed to make reading\
-            a bit easier. Conquer the paralysis of choice.",
-        title: "Stay motivated",
+            a bit easier and help you achieve your reading goals.",
+        title: "Get motivated. Stay motivated.",
     },
     {
         description:

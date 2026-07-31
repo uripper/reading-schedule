@@ -3,6 +3,7 @@
  */
 
 import { SITE_CONTENT } from "./content/site-content.ts";
+import { initializeCodex } from "./site/init-codex.ts";
 import { renderRoadmapPage } from "./site/render-roadmap.ts";
 import { renderSite } from "./site/render-site.ts";
 import { resolveSitePage } from "./site/resolve-site-page.ts";
@@ -61,9 +62,27 @@ function renderRequestedPage(page: SitePage, currentYear: number): string {
     return renderRoadmapPage(SITE_CONTENT);
 }
 
+function scrollToInitialFragment(): void {
+    const FRAGMENT = globalThis.location.hash.slice(1);
+
+    if (FRAGMENT.length === 0) {
+        return;
+    }
+
+    const FRAGMENT_TARGET = globalThis.document.getElementById(FRAGMENT);
+
+    if (FRAGMENT_TARGET === null) {
+        return;
+    }
+
+    FRAGMENT_TARGET.scrollIntoView();
+}
+
 const CURRENT_YEAR = new Date().getFullYear();
 const CURRENT_PAGE = getSitePage();
 const ROOT_ELEMENT = getRootElement();
 const CURRENT_PAGE_MARKUP = renderRequestedPage(CURRENT_PAGE, CURRENT_YEAR);
 
 mountRequestedPage(ROOT_ELEMENT, CURRENT_PAGE_MARKUP);
+initializeCodex();
+globalThis.requestAnimationFrame(scrollToInitialFragment);

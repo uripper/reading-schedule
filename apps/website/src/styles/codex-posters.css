@@ -1,0 +1,184 @@
+.codex-scene--feature-01 {
+    color: var(--color-aubergine);
+    background: var(--color-marigold);
+}
+
+.codex-scene--feature-01 .codex-scene__number {
+    color: var(--color-chartreuse);
+}
+
+.codex-scene--feature-01 .codex-scene__copy h2 {
+    max-width: 8ch;
+    font-size: clamp(5.25rem, 8.7vw, 9.25rem);
+}
+
+.codex-scene--feature-01 .codex-scene__copy > p {
+    width: min(34rem, 42%);
+    padding: 1.1rem 1.3rem;
+    color: var(--color-white);
+    background: var(--color-aubergine);
+    border: 0;
+}
+
+.codex-scene--feature-01 .codex-scene__geometry {
+    top: 45%;
+    right: 10%;
+    width: 22%;
+    height: 30%;
+    background: var(--color-aqua);
+    border: 0.35rem solid var(--color-aubergine);
+    box-shadow:
+        1.25rem 1.25rem 0 var(--color-chartreuse),
+        2.5rem 2.5rem 0 var(--color-cobalt);
+    transform: rotate(4deg);
+}
+
+.codex-scene--feature-01 .codex-scene__geometry::before {
+    position: absolute;
+    inset: 13%;
+    content: "";
+    border: 0.3rem solid var(--color-aubergine);
+}
+
+.codex-scene--feature-02 {
+    color: var(--color-white);
+    background: var(--color-cobalt);
+}
+
+.codex-scene--feature-02 .codex-scene__number {
+    right: auto;
+    left: 0.04em;
+    color: var(--color-yellow);
+}
+
+.codex-scene--feature-02 .codex-scene__copy h2 {
+    justify-self: end;
+    max-width: 7.5ch;
+    margin-top: clamp(6rem, 14vh, 9rem);
+    font-size: clamp(5.25rem, 8.8vw, 9.5rem);
+    text-align: right;
+    color: var(--color-peony);
+}
+
+.codex-scene--feature-02 .codex-scene__copy > p {
+    justify-self: end;
+    width: min(34rem, 39%);
+    padding: 1.1rem 1.3rem;
+    color: var(--color-aubergine);
+    background: var(--color-aqua);
+    border: 0;
+}
+
+.codex-scene--feature-02 .codex-scene__geometry {
+    bottom: -7%;
+    left: 25%;
+    width: 22%;
+    aspect-ratio: 1;
+    background: var(--color-orange);
+    transform: rotate(45deg);
+}
+
+.codex-scene--feature-02 .codex-scene__geometry::before {
+    position: absolute;
+    inset: 22%;
+    content: "";
+    background: var(--color-aqua);
+    border: 0.3rem solid var(--color-white);
+    border-radius: 50%;
+}
+
+.codex-scene--feature-02 .codex-scene__geometry::after {
+    position: absolute;
+    top: -12%;
+    right: -12%;
+    width: 24%;
+    aspect-ratio: 1;
+    content: "";
+    background: var(--color-chartreuse);
+    border: 0.25rem solid var(--color-cobalt);
+    transform: rotate(-45deg);
+}
+
+.codex-scene--feature-03 {
+    color: var(--color-chartreuse);
+    background: var(--color-aubergine);
+}
+
+.codex-scene--feature-03 .codex-scene__number {
+    color: var(--color-orange);
+}
+
+.codex-scene--feature-03 .codex-scene__copy h2 {
+    max-width: 10ch;
+    font-size: clamp(5rem, 7.9vw, 8.5rem);
+}
+
+.codex-scene--feature-03 .codex-scene__copy > p {
+    width: min(34rem, 40%);
+    padding: 1.2rem 1.4rem;
+    color: var(--color-aubergine);
+    background: var(--color-aqua);
+    border: 0;
+}
+
+.codex-scene--feature-03 .codex-scene__geometry {
+    top: auto;
+    right: 8%;
+    bottom: 7%;
+    width: 18%;
+    aspect-ratio: 1;
+    background: repeating-conic-gradient(
+        var(--color-marigold) 0 9deg,
+        transparent 9deg 18deg
+    );
+    border-radius: 50%;
+}
+
+.codex-scene--feature-03 .codex-scene__geometry::before {
+    position: absolute;
+    inset: 29%;
+    content: "";
+    background: var(--color-aubergine);
+    border: 0.3rem solid var(--color-aqua);
+    border-radius: 50%;
+}
+
+.codex-scene--feature-04 {
+    color: var(--color-aubergine);
+    background: var(--color-blue);
+}
+
+.codex-scene--feature-04 .codex-scene__number {
+    right: auto;
+    left: 0.04em;
+    color: var(--color-paper);
+}
+
+.codex-scene--feature-04 .codex-scene__copy h2 {
+    justify-self: end;
+    max-width: 8ch;
+    font-size: clamp(5.25rem, 8.8vw, 9.5rem);
+    text-align: right;
+}
+
+.codex-scene--feature-04 .codex-scene__copy > p {
+    justify-self: end;
+    width: min(34rem, 39%);
+    padding: 1.1rem 1.3rem;
+    background: var(--color-yellow);
+    border: 0;
+}
+
+.codex-scene--feature-04 .codex-scene__geometry {
+    bottom: 6%;
+    left: 7%;
+    width: 34%;
+    height: 37%;
+    background:
+        linear-gradient(var(--color-aubergine) 0 0) 0 100% / 20% 35% no-repeat,
+        linear-gradient(var(--color-orange) 0 0) 27% 100% / 20% 56% no-repeat,
+        linear-gradient(var(--color-chartreuse) 0 0) 54% 100% / 20% 76%
+        no-repeat,
+        linear-gradient(var(--color-cobalt) 0 0) 81% 100% / 20% 100% no-repeat;
+    border-bottom: 0.35rem solid var(--color-aubergine);
+}

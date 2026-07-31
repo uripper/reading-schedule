@@ -6,26 +6,19 @@
 
 html {
     scroll-behavior: smooth;
-    background: #020202;
+    background: var(--color-background);
 }
 
 body {
     min-height: 100vh;
     margin: 0;
     font-family: var(--body-font);
-    color: var(--color-paper);
+    color: var(--color-white);
     background:
-        radial-gradient(
-            circle at top right,
-            rgb(106 199 255 / 0.24),
-            transparent 26%
-        ),
-        radial-gradient(
-            circle at bottom left,
-            rgb(214 255 47 / 0.16),
-            transparent 24%
-        ),
-        linear-gradient(180deg, #020202 0%, #090909 100%);
+        linear-gradient(var(--color-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--color-grid) 1px, transparent 1px),
+        var(--color-background);
+    background-size: 6.5rem 6.5rem;
 }
 
 main,
@@ -80,16 +73,15 @@ a:focus-visible {
 }
 
 .skip-link {
-    position: absolute;
+    position: fixed;
     top: var(--space-sm);
     left: var(--space-sm);
-    z-index: 30;
+    z-index: 100;
     padding: 0.85rem 1.15rem;
     font-weight: 700;
     color: var(--color-ink);
     background: var(--color-paper);
     border: var(--border-width) solid var(--color-line);
-    border-radius: var(--radius-pill);
     transform: translateY(-180%);
 }
 
@@ -100,38 +92,38 @@ a:focus-visible {
 
 .page-shell {
     position: relative;
-    overflow: hidden;
+    min-height: 100vh;
+    overflow: clip;
+    isolation: isolate;
 }
 
-.page-shell::before,
-.page-shell::after {
+body[data-page="landing"] .page-shell::before {
     position: absolute;
     inset: 0;
+    z-index: -1;
     pointer-events: none;
     content: "";
-}
-
-.page-shell::before {
-    background:
-        linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px),
-        linear-gradient(180deg, rgb(255 255 255 / 0.04) 1px, transparent 1px);
-    background-position: center;
-    background-size: 72px 72px;
-    mask-image: linear-gradient(180deg, rgb(0 0 0 / 0.18), transparent 82%);
-}
-
-.page-shell::after {
     background:
         radial-gradient(
-            circle at 18% 18%,
-            rgb(255 124 42 / 0.12),
-            transparent 12%
+            circle at 94% 8rem,
+            transparent 0 9.9rem,
+            rgb(232 226 216 / 0.1) 10rem 10.12rem,
+            transparent 10.2rem 14.9rem,
+            rgb(232 226 216 / 0.06) 15rem 15.12rem,
+            transparent 15.2rem
         ),
-        radial-gradient(
-            circle at 80% 72%,
-            rgb(217 200 255 / 0.14),
-            transparent 14%
+        linear-gradient(
+            112deg,
+            transparent 0 72%,
+            rgb(255 111 145 / 0.04) 72.1% 72.25%,
+            transparent 72.35%
         );
+    mask-image: linear-gradient(180deg, black, transparent 66rem);
+}
+
+.page-shell > main {
+    position: relative;
+    z-index: 1;
 }
 
 .panel,
@@ -143,7 +135,9 @@ a:focus-visible {
 .offset-card {
     position: relative;
     color: var(--color-white);
-    background: var(--color-panel);
+    background: var(--color-background-raised);
+    border-color: var(--color-outline);
+    isolation: isolate;
 }
 
 .offset-card::after {
@@ -151,8 +145,7 @@ a:focus-visible {
     inset: 0;
     z-index: -1;
     content: "";
-    background: var(--color-ink);
     border-radius: inherit;
-    box-shadow: 10px 10px var(--color-acid);
-    transform: translate(var(--shadow-offset-x), var(--shadow-offset-y));
+    box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0
+        var(--color-paper);
 }
