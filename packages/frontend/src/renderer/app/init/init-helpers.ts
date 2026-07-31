@@ -35,20 +35,6 @@ function hasSavedSchedule(saved: FinalizeInitialLoadArgs["saved"]): boolean {
 }
 
 /**
- * Determines whether startup should queue an immediate auto-plan run.
- * @param args - Startup load context with saved payload and load metadata.
- * @returns True when startup should auto-plan; false when loaded plan should be preserved.
- */
-function shouldAutoPlanOnStartup(
-    args: Pick<FinalizeInitialLoadArgs, "saved" | "loadResult">,
-): boolean {
-    if (args.loadResult.source === "fresh") {
-        return true;
-    }
-    return !hasSavedSchedule(args.saved);
-}
-
-/**
  * Wires the skip-link element to focus the main content region.
  */
 export function setupSkipLink(): void {
@@ -74,7 +60,7 @@ export function createAppPlanControllerInstance(
 }
 
 /**
- * Finalizes post-load wiring and kicks off auto-plan after initial state load.
+ * Finalizes post-load wiring and queues a replan after state is fully loaded.
  * @param args - Initial-load completion dependencies.
  * @param saved - Loaded persisted payload, if available.
  * @param setReady - Marks runtime ready state.
@@ -89,7 +75,6 @@ export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
     const QUEUE_AUTO_PLAN = (): void => {
         args.queueAutoPlan();
     };
-    const SHOULD_AUTO_PLAN = shouldAutoPlanOnStartup(args);
     const SETTINGS_PANEL = el("tab-settings");
     args.setReady();
     logLoadingSetEventListeners(args, QUEUE_PERSIST);
@@ -98,13 +83,9 @@ export function finalizeInitialLoad(args: FinalizeInitialLoadArgs): void {
 
     setLoadStatus(args);
 
-    logAutoStartup(args, SHOULD_AUTO_PLAN);
-
-    if (SHOULD_AUTO_PLAN) {
-        QUEUE_AUTO_PLAN();
-        return;
-    }
-    args.addLog?.("Skipped startup auto-plan to preserve loaded schedule.");
+    logAutoStartup(args);
+    args.addLog?.("Queued startup reschedule.");
+    QUEUE_AUTO_PLAN();
 }
 
 function logLoadingSetEventListeners(
@@ -120,15 +101,12 @@ function logLoadingSetEventListeners(
     document.addEventListener("change", queuePersist);
 }
 
-function logAutoStartup(
-    args: FinalizeInitialLoadArgs,
-    shouldAutoPlan: boolean,
-) {
+function logAutoStartup(args: FinalizeInitialLoadArgs) {
     const HAS_SAVED_SCHEDULE = hasSavedSchedule(args.saved);
     logDebug("Evaluated startup auto-plan decision.", {
         hasSavedSchedule: HAS_SAVED_SCHEDULE,
         loadSource: args.loadResult.source,
-        shouldAutoPlan,
+        shouldAutoPlan: true,
     });
 }
 

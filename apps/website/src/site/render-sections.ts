@@ -1,5 +1,5 @@
 /**
- * Renders the remaining website sections after the hero.
+ * Renders the landing page as one scroll-driven codex.
  */
 
 import type {
@@ -17,104 +17,73 @@ type RenderSectionsContent = Readonly<{
     workflow: readonly WorkflowStep[];
 }>;
 
-/**
- * Render a section wrapper with the provided CSS class and inner content.
- * @example
- * renderSectionShell("hero", "<h1>Title</h1>")
- * '<section class="section-shell hero"><h1>Title</h1></section>'
- * @param className - The CSS class to append to "section-shell".
- * @param content - The HTML content to place inside the section.
- * @param id - Optional id for the section; if provided it will be HTML-escaped and added as an id attribute.
- * @returns The HTML string for the section element.
- **/
-function renderSectionShell(
-    className: string,
-    content: string,
-    id?: string,
-): string {
-    let idAttribute = "";
+const DISPLAY_INDEX_OFFSET = 1;
+const INDEX_PADDING = 2;
 
-    if (id !== undefined) {
-        idAttribute = ` id="${escapeHtml(id)}"`;
-    }
-
-    return joinMarkup([
-        `<section class="section-shell ${className}"${idAttribute}>`,
-        content,
-        "</section>",
-    ]);
+function displayIndex(index: number): string {
+    return String(index + DISPLAY_INDEX_OFFSET).padStart(INDEX_PADDING, "0");
 }
 
-function renderSectionHeader(title: string): string {
-    return joinMarkup([
-        '<div class="section-copy__header">',
-        `<h2>${escapeHtml(title)}</h2>`,
-        "</div>",
-    ]);
-}
+function renderFeatureScene(feature: FeatureItem, index: number): string {
+    const SCENE_CLASS = [
+        "codex-scene",
+        "codex-scene--feature",
+        `codex-scene--feature-${displayIndex(index)}`,
+    ].join(" ");
 
-function renderFeatureCard(feature: FeatureItem): string {
     return joinMarkup([
-        '<article class="feature-card step-card offset-card">',
+        `<article class="${SCENE_CLASS}" data-codex-scene>`,
+        '<div class="codex-scene__geometry" aria-hidden="true"></div>',
+        `<p class="codex-scene__number" aria-hidden="true">${displayIndex(index)}</p>`,
+        '<div class="codex-scene__copy">',
         `<h2>${escapeHtml(feature.title)}</h2>`,
         `<p>${escapeHtml(feature.description)}</p>`,
+        "</div>",
         "</article>",
     ]);
 }
 
-/**
- * Render a features section composed of feature cards as an HTML string.
- * @example
- * renderFeatures([{ id: 'f1', title: 'Sample Feature', description: 'Desc' }])
- * '<section class="section-copy" id="features">...</section>'
- * @param features - Array of feature items to render into cards.
- * @returns HTML string for the complete features section.
- **/
-function renderFeatures(features: readonly FeatureItem[]): string {
-    const MARKUP = features.map((feature) => {
-        return renderFeatureCard(feature);
-    });
-    const CONTENT = joinMarkup([
-        renderSectionHeader("Make real reading progress."),
-        '<div class="feature-grid">',
-        joinMarkup(MARKUP),
-        "</div>",
+function renderManifestoScene(): string {
+    return joinMarkup([
+        '<article class="codex-scene codex-scene--manifesto" data-codex-scene>',
+        '<div class="codex-manifesto__mark" aria-hidden="true"></div>',
+        "<h2>Make real reading progress.</h2>",
+        '<div class="codex-manifesto__rule" aria-hidden="true"></div>',
+        "</article>",
     ]);
-
-    return renderSectionShell("section-copy", CONTENT, "features");
 }
 
-function renderWorkflowStepCard(step: WorkflowStep): string {
+function renderWorkflowStep(step: WorkflowStep, index: number): string {
     return joinMarkup([
-        '<article class="step-card offset-card">',
-        `<h2>${escapeHtml(step.title)}</h2>`,
+        '<article class="codex-workflow__step">',
+        `<p class="codex-workflow__number" aria-hidden="true">${displayIndex(index)}</p>`,
+        `<h3>${escapeHtml(step.title)}</h3>`,
         `<p>${escapeHtml(step.description)}</p>`,
         "</article>",
     ]);
 }
 
-/**
- * Render a workflow section as HTML markup from an array of WorkflowStep objects.
- * @example
- * renderWorkflow([{ title: "Analyze", description: "Adjust settings", /* ... */
-function renderWorkflow(workflow: readonly WorkflowStep[]): string {
-    const MARKUP = workflow.map((step) => {
-        return renderWorkflowStepCard(step);
+function renderWorkflowScene(workflow: readonly WorkflowStep[]): string {
+    const STEP_MARKUP = workflow.map((step, index) => {
+        return renderWorkflowStep(step, index);
     });
-    const CONTENT = joinMarkup([
-        renderSectionHeader("Optimize based on your preferences."),
-        '<div class="workflow-grid">',
-        joinMarkup(MARKUP),
-        "</div>",
-    ]);
 
-    return renderSectionShell("workflow-shell", CONTENT, "workflow");
+    return joinMarkup([
+        '<article class="codex-scene codex-scene--workflow" data-codex-scene>',
+        '<div class="codex-workflow__heading">',
+        "<h2>Optimize based on your preferences.</h2>",
+        "</div>",
+        '<div class="codex-workflow__grid">',
+        joinMarkup(STEP_MARKUP),
+        "</div>",
+        "</article>",
+    ]);
 }
 
 function renderDownloadCard(card: DownloadCard): string {
     return joinMarkup([
-        '<article class="download-card panel">',
-        '<div class="download-card__logo" aria-hidden="true">',
+        '<article class="codex-download">',
+        '<div class="codex-download__logo" aria-hidden="true">',
         renderPlatformLogo(card.platform),
         "</div>",
         renderButtonLink(card.action),
@@ -122,49 +91,56 @@ function renderDownloadCard(card: DownloadCard): string {
     ]);
 }
 
-/**
- * Renders the "Get Bartleby." downloads section as an HTML string.
- * @example
- * renderDownloadSection([{ id: "mac", title: "macOS", links: [{ platform: "mac", url: "https://example.com" }] }])
- * '<section id="download" class="download-shell">...<div class="download-grid">...'
- * @param downloads - Array of DownloadCard objects used to build each download card.
- * @returns HTML markup for the complete download section.
- **/
-function renderDownloadSection(downloads: readonly DownloadCard[]): string {
+function renderDownloadScene(downloads: readonly DownloadCard[]): string {
     const DOWNLOAD_MARKUP = downloads.map((card) => {
         return renderDownloadCard(card);
     });
-    const CONTENT = joinMarkup([
-        renderSectionHeader("Get Bartleby."),
-        '<div class="download-grid">',
-        joinMarkup(DOWNLOAD_MARKUP),
-        "</div>",
-    ]);
-
-    return renderSectionShell("download-shell", CONTENT, "download");
-}
-
-/**
- * Render the site's footer HTML markup with the provided year.
- * @example
- * renderFooter(2026)
- * '<footer class="section-shell site-footer panel"><div><h2>Read more books.</h2></div><div class="site-footer__meta"><p>&copy; 2026 Bartleby</p></div></footer>'
- * @param currentYear - Current year to display in the footer.
- * @returns Footer HTML markup as a string.
- **/
-function renderFooter(currentYear: number) {
-    const FOOTER_META = joinMarkup([
-        '<div class="site-footer__meta">',
-        `<p>&copy; ${currentYear} Bartleby</p>`,
-        "</div>",
-    ]);
 
     return joinMarkup([
+        '<article class="codex-scene codex-scene--download" data-codex-scene>',
+        "<h2>Get Bartleby.</h2>",
+        '<div class="codex-downloads">',
+        joinMarkup(DOWNLOAD_MARKUP),
+        "</div>",
+        "</article>",
+    ]);
+}
+
+function renderCodex(content: RenderSectionsContent): string {
+    const FEATURE_MARKUP = content.features.map((feature, index) => {
+        return renderFeatureScene(feature, index);
+    });
+    const SCENES = [
+        renderManifestoScene(),
+        ...FEATURE_MARKUP,
+        renderWorkflowScene(content.workflow),
+        renderDownloadScene(content.downloads),
+    ];
+
+    return joinMarkup([
+        '<section class="codex-scroll" id="features" data-codex-scroll>',
+        '<span class="codex-anchor codex-anchor--workflow" id="workflow"></span>',
+        '<span class="codex-anchor codex-anchor--download" id="download"></span>',
+        '<div class="codex-stage" data-codex-stage>',
+        '<div class="codex-stage__pages">',
+        '<div class="codex-stage__edge" aria-hidden="true"></div>',
+        joinMarkup(SCENES),
+        "</div>",
+        "</div>",
+        "</section>",
+    ]);
+}
+
+function renderFooter(currentYear: number): string {
+    return joinMarkup([
         '<footer class="section-shell site-footer panel">',
+        '<div class="site-footer__mark" aria-hidden="true"></div>',
         "<div>",
         "<h2>Read more books.</h2>",
         "</div>",
-        FOOTER_META,
+        '<div class="site-footer__meta">',
+        `<p>&copy; ${currentYear} Bartleby</p>`,
+        "</div>",
         "</footer>",
     ]);
 }
@@ -174,9 +150,7 @@ function renderFooter(currentYear: number) {
  */
 export function renderSections(content: RenderSectionsContent): string {
     return joinMarkup([
-        renderFeatures(content.features),
-        renderWorkflow(content.workflow),
-        renderDownloadSection(content.downloads),
+        renderCodex(content),
         renderFooter(content.currentYear),
     ]);
 }

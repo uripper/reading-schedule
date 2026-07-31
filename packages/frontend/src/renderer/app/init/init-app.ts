@@ -28,6 +28,7 @@ import { applyAppStateMutation } from "../state_mutations.ts";
 import { configureTodayInteractions } from "../today/today_carousel_render.ts";
 import { resetTodayCarouselUiState } from "../today/today_carousel_state.ts";
 import { bindTodayDayRollover } from "../today/today_rollover.ts";
+import { refreshForLocalDayRollover } from "../today/today-rollover-refresh.ts";
 import { loadStateAndBindTodayActions } from "./init-app-load.ts";
 import {
     createAppPlanControllerInstance,
@@ -88,12 +89,23 @@ function configureTodayUi(
 function bindDayRollover(context: AppBootstrapContext): void {
     bindTodayDayRollover({
         onDayChanged: (): void => {
-            resetTodayCarouselUiState();
-            renderCalendar(
-                context.state.lastResult?.schedule ?? [],
-                totalsFromSummary(context.state.lastResult?.summary ?? null),
-            );
-            context.dashboards.updateDashboards();
+            refreshForLocalDayRollover({
+                queueAutoPlan: context.runtime.queueAutoPlanIfReady.bind(
+                    context.runtime,
+                ),
+                renderCurrentSchedule: (): void => {
+                    renderCalendar(
+                        context.state.lastResult?.schedule ?? [],
+                        totalsFromSummary(
+                            context.state.lastResult?.summary ?? null,
+                        ),
+                    );
+                },
+                resetTodayUi: resetTodayCarouselUiState,
+                updateDashboards: context.dashboards.updateDashboards.bind(
+                    context.dashboards,
+                ),
+            });
         },
     });
 }

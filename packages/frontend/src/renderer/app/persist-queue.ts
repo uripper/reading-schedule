@@ -4,10 +4,11 @@ import { draftData, saveStateSafe } from "./persistence.ts";
 const PERSIST_DELAY_MS = 300;
 
 interface PersistTimerState {
-    activePersists: Set<Promise<boolean>>;
+    activePersist: Promise<boolean> | null;
     timer: ReturnType<typeof setTimeout> | null;
 }
 
+type FlushPendingStateFn = PersistQueue["flushPendingState"];
 type PersistDraftFn = PersistQueue["persistDraft"];
 type PrepareForStateImportFn = PersistQueue["prepareForStateImport"];
 type QueuePersistFn = PersistQueue["queuePersist"];
@@ -22,6 +23,7 @@ export function createPersistQueue(args: PersistQueueArgs): PersistQueue {
         timerState: TIMER_STATE,
     });
     return {
+        flushPendingState: flushPendingStateFn(TIMER_STATE, PERSIST_DRAFT),
         persistDraft: PERSIST_DRAFT,
         prepareForStateImport: prepareForStateImportFn(TIMER_STATE),
         queuePersist: QUEUE_PERSIST,
@@ -30,7 +32,7 @@ export function createPersistQueue(args: PersistQueueArgs): PersistQueue {
 
 function persistTimerState(): PersistTimerState {
     return {
-        activePersists: new Set(),
+        activePersist: null,
         timer: null,
     };
 }
@@ -53,19 +55,32 @@ function persistDraftFn(
     timerState: PersistTimerState,
 ): PersistDraftFn {
     return async (): Promise<boolean> => {
-        const PAYLOAD = persistDraftPayload(args);
-        const ACTIVE_PERSIST = saveStateSafe(
-            args.plannerApi,
-            PAYLOAD,
-            args.addLog,
-        );
-        timerState.activePersists.add(ACTIVE_PERSIST);
+        const TIMER_STATE = timerState;
+        const PREVIOUS_PERSIST = TIMER_STATE.activePersist;
+        const NEXT_PERSIST = persistAfterPrevious(args, PREVIOUS_PERSIST);
+        TIMER_STATE.activePersist = NEXT_PERSIST;
         try {
-            return await ACTIVE_PERSIST;
+            return await NEXT_PERSIST;
         } finally {
-            timerState.activePersists.delete(ACTIVE_PERSIST);
+            if (TIMER_STATE.activePersist === NEXT_PERSIST) {
+                TIMER_STATE.activePersist = null;
+            }
         }
     };
+}
+
+async function persistAfterPrevious(
+    args: PersistQueueArgs,
+    previousPersist: Promise<boolean> | null,
+): Promise<boolean> {
+    if (previousPersist !== null) {
+        await previousPersist;
+    }
+    return await saveStateSafe(
+        args.plannerApi,
+        persistDraftPayload(args),
+        args.addLog,
+    );
 }
 
 function clearPersistTimer(timerState: PersistTimerState): void {
@@ -89,12 +104,23 @@ function prepareForStateImportFn(
 async function waitForActivePersists(
     timerState: PersistTimerState,
 ): Promise<void> {
-    const ACTIVE_PERSISTS = [...timerState.activePersists];
-    if (ACTIVE_PERSISTS.length === 0) {
+    const ACTIVE_PERSIST = timerState.activePersist;
+    if (ACTIVE_PERSIST === null) {
         return;
     }
-    await Promise.all(ACTIVE_PERSISTS);
+    await ACTIVE_PERSIST;
     return waitForActivePersists(timerState);
+}
+
+function flushPendingStateFn(
+    timerState: PersistTimerState,
+    persistDraft: PersistDraftFn,
+): FlushPendingStateFn {
+    return async (): Promise<boolean> => {
+        clearPersistTimer(timerState);
+        await waitForActivePersists(timerState);
+        return await persistDraft();
+    };
 }
 
 function persistDraftFailure(addLog: (message: string) => void): void {

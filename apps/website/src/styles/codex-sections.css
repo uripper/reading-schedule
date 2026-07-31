@@ -1,0 +1,195 @@
+.codex-scene--workflow {
+    grid-template-rows: auto 1fr;
+    padding: clamp(2rem, 4vw, 4rem);
+    color: var(--color-aubergine);
+    background: var(--color-petrol);
+}
+
+.codex-workflow__heading {
+    position: relative;
+}
+
+.codex-workflow__heading h2 {
+    position: relative;
+    z-index: 2;
+    max-width: 10.5ch;
+    font-family: var(--display-font);
+    font-size: clamp(4rem, 6.8vw, 7rem);
+    line-height: 0.8;
+    color: var(--color-marigold);
+    letter-spacing: -0.065em;
+}
+
+.codex-workflow__heading::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 27%;
+    height: 8rem;
+    content: "";
+    background:
+        radial-gradient(
+            circle at 23% 18%,
+            var(--color-marigold) 0 0.8rem,
+            var(--color-aubergine) 0.85rem 1rem,
+            transparent 1.05rem
+        ),
+        radial-gradient(
+            circle at 72% 50%,
+            var(--color-lilac) 0 0.8rem,
+            var(--color-aubergine) 0.85rem 1rem,
+            transparent 1.05rem
+        ),
+        radial-gradient(
+            circle at 42% 82%,
+            var(--color-orange) 0 0.8rem,
+            var(--color-aubergine) 0.85rem 1rem,
+            transparent 1.05rem
+        ),
+        linear-gradient(var(--color-aqua) 0 0) 0 18% / 100% 0.3rem no-repeat,
+        linear-gradient(var(--color-chartreuse) 0 0) 0 50% / 100% 0.3rem
+        no-repeat,
+        linear-gradient(var(--color-paper) 0 0) 0 82% / 100% 0.3rem no-repeat;
+}
+
+.codex-workflow__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.65rem;
+    align-self: end;
+    margin-top: var(--space-xl);
+}
+
+.codex-workflow__step {
+    min-height: 19rem;
+    padding: 1.5rem;
+    border: var(--border-width) solid var(--color-ink);
+    box-shadow: 0.45rem 0.45rem 0 var(--color-ink);
+}
+
+.codex-workflow__step:nth-child(1) {
+    background: var(--color-marigold);
+}
+
+.codex-workflow__step:nth-child(2) {
+    background: var(--color-aqua);
+}
+
+.codex-workflow__step:nth-child(3) {
+    background: var(--color-lilac);
+}
+
+.codex-workflow__step:nth-child(4) {
+    background: var(--color-chartreuse);
+}
+
+.codex-workflow__number {
+    margin-bottom: 2rem;
+    font-family: var(--display-font);
+    font-size: 3.4rem;
+    line-height: 1;
+}
+
+.codex-workflow__step h3 {
+    margin-bottom: 0.7rem;
+    font-size: 1.35rem;
+    line-height: 1.05;
+}
+
+.codex-workflow__step > p:last-child {
+    font-size: 0.88rem;
+    line-height: 1.45;
+}
+
+.codex-scene--download {
+    position: absolute;
+    grid-template-columns: minmax(0, 0.9fr) minmax(30rem, 1.1fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: stretch;
+    padding: clamp(2.5rem, 5vw, 5rem);
+    color: var(--color-chartreuse);
+    background: var(--color-background-raised);
+}
+
+.codex-scene--download::before {
+    position: absolute;
+    top: -57%;
+    left: -18%;
+    width: min(55vw, 49rem);
+    aspect-ratio: 1;
+    pointer-events: none;
+    content: "";
+    border: clamp(3rem, 6vw, 6rem) solid var(--color-marigold);
+    border-radius: 50%;
+}
+
+.codex-scene--download h2 {
+    position: relative;
+    z-index: 2;
+    align-self: end;
+    max-width: 5ch;
+    font-family: var(--display-font);
+    font-size: clamp(6rem, 11vw, 11rem);
+    line-height: 0.72;
+    letter-spacing: -0.07em;
+    text-shadow: 0.035em 0.035em 0 var(--color-background-raised);
+}
+
+.codex-downloads {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-rows: repeat(3, 1fr);
+    gap: 0.65rem;
+}
+
+.codex-download {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-lg);
+    align-items: center;
+    padding: 1.25rem;
+    color: var(--color-aubergine);
+    border: var(--border-width) solid var(--color-ink);
+    box-shadow: 0.45rem 0.45rem 0 var(--color-ink);
+}
+
+.codex-download:first-child {
+    background: var(--color-chartreuse);
+}
+
+.codex-download:nth-child(2) {
+    background: var(--color-marigold);
+}
+
+.codex-download:nth-child(3) {
+    background: var(--color-aqua);
+}
+
+.codex-download .button-link--ghost {
+    background: var(--color-white);
+}
+
+.codex-download__logo {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.platform-logo {
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.platform-logo--windows {
+    max-height: 4.4rem;
+}
+
+.platform-logo--macos {
+    width: 10rem;
+}
+
+.platform-logo--linux {
+    max-height: 5.2rem;
+}

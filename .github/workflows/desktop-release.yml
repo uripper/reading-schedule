@@ -1,0 +1,237 @@
+name: Desktop Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - package.json
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  detect-version:
+    name: Detect desktop version change
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    outputs:
+      changed: ${{ steps.version.outputs.changed }}
+      current: ${{ steps.version.outputs.current }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify centralized version
+        run: node ./scripts/set-app-version.mjs --check
+
+      - name: Compare desktop versions
+        id: version
+        shell: bash
+        env:
+          PREVIOUS_COMMIT: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          CURRENT_VERSION="$(node -p "require('./package.json').version")"
+          PREVIOUS_VERSION="$(
+            git show "${PREVIOUS_COMMIT}:package.json" |
+              node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version"
+          )"
+          echo "current=${CURRENT_VERSION}" >> "${GITHUB_OUTPUT}"
+          if [[ "${CURRENT_VERSION}" == "${PREVIOUS_VERSION}" ]]; then
+            echo "changed=false" >> "${GITHUB_OUTPUT}"
+            echo "Desktop version is unchanged at ${CURRENT_VERSION}; skipping release."
+            exit 0
+          fi
+          echo "changed=true" >> "${GITHUB_OUTPUT}"
+          echo "Desktop version changed from ${PREVIOUS_VERSION} to ${CURRENT_VERSION}."
+
+  validate-desktop:
+    name: Validate desktop release
+    needs: detect-version
+    if: needs.detect-version.outputs.changed == 'true'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install desktop system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libappindicator3-dev \
+            librsvg2-dev \
+            libwebkit2gtk-4.1-dev \
+            patchelf
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build outputs
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            apps/bartleby/src-tauri -> target
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate desktop release
+        run: |
+          pnpm run typecheck:desktop
+          pnpm run build:desktop
+          pnpm run test:desktop
+          cargo clippy \
+            --manifest-path apps/bartleby/src-tauri/Cargo.toml \
+            -- -D warnings
+
+  release-desktop:
+    name: Release ${{ matrix.label }}
+    needs: validate-desktop
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: Windows x64
+            os: windows-latest
+            rust_target: ""
+            args: --bundles nsis
+            asset_name: Bartleby.Setup[ext]
+            apple_signing_identity: ""
+          - label: macOS Apple Silicon
+            os: macos-latest
+            rust_target: aarch64-apple-darwin
+            args: --target aarch64-apple-darwin
+            asset_name: Bartleby.[arch][ext]
+            apple_signing_identity: "-"
+          - label: macOS Intel
+            os: macos-latest
+            rust_target: x86_64-apple-darwin
+            args: --target x86_64-apple-darwin
+            asset_name: Bartleby.[arch][ext]
+            apple_signing_identity: "-"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_target }}
+
+      - name: Cache Rust build outputs
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            apps/bartleby/src-tauri -> target
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build signed update and draft release
+        uses: tauri-apps/tauri-action@v1
+        env:
+          APPLE_SIGNING_IDENTITY: ${{ matrix.apple_signing_identity }}
+          GITHUB_TOKEN: ${{ secrets.BARTLEBY_RELEASE_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        with:
+          args: ${{ matrix.args }}
+          owner: uripper
+          projectPath: apps/bartleby
+          releaseAssetNamePattern: ${{ matrix.asset_name }}
+          releaseBody: Download the installer for your platform from the assets below.
+          releaseCommitish: main
+          releaseDraft: true
+          releaseName: Bartleby __VERSION__
+          prerelease: false
+          repo: Bartleby
+          retryAttempts: 2
+          tagName: Bartleby-v__VERSION__
+          tauriScript: pnpm tauri
+          updaterJsonPreferNsis: true
+          uploadUpdaterJson: true
+
+  publish-release:
+    name: Publish complete desktop update
+    needs:
+      - detect-version
+      - release-desktop
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ secrets.BARTLEBY_RELEASE_TOKEN }}
+      RELEASE_TAG: Bartleby-v${{ needs.detect-version.outputs.current }}
+      RELEASE_VERSION: ${{ needs.detect-version.outputs.current }}
+
+    steps:
+      - name: Download updater manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/bartleby-release"
+          gh release download "${RELEASE_TAG}" \
+            --repo uripper/Bartleby \
+            --pattern latest.json \
+            --dir "${RUNNER_TEMP}/bartleby-release"
+
+      - name: Verify updater platforms
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq --exit-status \
+            --arg version "${RELEASE_VERSION}" \
+            '
+              .version == $version
+              and (.platforms["windows-x86_64"].url | length > 0)
+              and (.platforms["windows-x86_64"].signature | length > 0)
+              and (.platforms["darwin-aarch64"].url | length > 0)
+              and (.platforms["darwin-aarch64"].signature | length > 0)
+              and (.platforms["darwin-x86_64"].url | length > 0)
+              and (.platforms["darwin-x86_64"].signature | length > 0)
+            ' \
+            "${RUNNER_TEMP}/bartleby-release/latest.json"
+
+      - name: Publish latest release
+        run: |
+          gh release edit "${RELEASE_TAG}" \
+            --repo uripper/Bartleby \
+            --draft=false \
+            --prerelease=false \
+            --latest

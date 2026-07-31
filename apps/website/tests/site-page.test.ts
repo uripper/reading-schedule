@@ -6,9 +6,14 @@ import { fileURLToPath } from "node:url";
 import { SITE_CONTENT } from "../src/content/site-content.ts";
 import { DOWNLOAD_CARDS } from "../src/content/site-download-surface.ts";
 import { WINDOWS_DOWNLOAD_URL } from "../src/content/site-urls.ts";
+import { escapeHtml } from "../src/site/render-helpers.ts";
 import { renderPlatformLogo } from "../src/site/render-platform-logo.ts";
 import { renderRoadmapPage } from "../src/site/render-roadmap.ts";
+import { renderSite } from "../src/site/render-site.ts";
 import { resolveSitePage } from "../src/site/resolve-site-page.ts";
+
+const CODEX_NON_FEATURE_SCENE_COUNT = 3;
+const TEST_YEAR = 2026;
 
 test("resolveSitePage defaults to landing when data-page is absent", () => {
     assert.equal(resolveSitePage(undefined), "landing");
@@ -52,4 +57,28 @@ test("renderRoadmapPage renders alternating roadmap cards with details", () => {
     assert.match(ROADMAP_MARKUP, /roadmap-stage--right/);
     assert.match(ROADMAP_MARKUP, /Add books/);
     assert.equal(STAGE_COUNT, SITE_CONTENT.roadmap.stages.length);
+});
+
+test("landing page renders one continuous codex with every feature", () => {
+    const LANDING_MARKUP = renderSite(SITE_CONTENT, TEST_YEAR);
+    const SCENE_COUNT = LANDING_MARKUP.match(/data-codex-scene/g)?.length ?? 0;
+    const EXPECTED_SCENE_COUNT =
+        SITE_CONTENT.features.length + CODEX_NON_FEATURE_SCENE_COUNT;
+
+    assert.equal(SCENE_COUNT, EXPECTED_SCENE_COUNT);
+    assert.match(LANDING_MARKUP, /class="codex-scroll"/);
+    assert.match(LANDING_MARKUP, /id="workflow"/);
+    assert.match(LANDING_MARKUP, /id="download"/);
+});
+
+test("landing codex preserves feature titles and descriptions", () => {
+    const LANDING_MARKUP = renderSite(SITE_CONTENT, TEST_YEAR);
+
+    for (const FEATURE of SITE_CONTENT.features) {
+        assert.equal(LANDING_MARKUP.includes(escapeHtml(FEATURE.title)), true);
+        assert.equal(
+            LANDING_MARKUP.includes(escapeHtml(FEATURE.description)),
+            true,
+        );
+    }
 });
