@@ -160,7 +160,7 @@
     width: min(82%, 35rem);
     max-width: none;
     height: auto;
-    filter: drop-shadow(1.25rem 1.25rem 0 rgb(8 9 10 / 0.16));
+    filter: drop-shadow(1.25rem 1.25rem 0 rgb(8 9 10 / 16%));
 }
 
 .hero__registration {
@@ -186,11 +186,11 @@
 
 .site-footer__mark {
     position: absolute;
-    top: -24%;
-    right: -6%;
-    width: min(58vw, 52rem);
+    top: -25%;
+    right: -14%;
+    width: min(50vw, 52rem);
     aspect-ratio: 1;
-    border: clamp(3rem, 7vw, 7rem) solid var(--color-ink);
+    border: clamp(3rem, 8vw, 7rem) solid var(--color-white);
     border-radius: 50%;
 }
 

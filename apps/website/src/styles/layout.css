@@ -41,7 +41,7 @@
     padding: 0;
     overflow: hidden;
     color: var(--color-white);
-    background: var(--color-background);
+    background-color: transparent;
     border: 0;
     border-radius: 0;
 }
@@ -57,7 +57,7 @@
     z-index: 3;
     align-content: center;
     padding: clamp(3rem, 6vw, 6.5rem) 0 clamp(3rem, 6vw, 6.5rem)
-        clamp(1rem, 3vw, 3.5rem);
+        clamp(1rem, 3vw, 3.5rem)
 }
 
 .hero__visual {
@@ -74,7 +74,7 @@
 
 .codex-scroll {
     position: relative;
-    height: 700svh;
+    height: 1000svh;
 }
 
 .codex-anchor {
@@ -86,11 +86,11 @@
 }
 
 .codex-anchor--workflow {
-    top: 500svh;
+    top: 714svh;
 }
 
 .codex-anchor--download {
-    top: 600svh;
+    top: 857svh;
 }
 
 .codex-stage {

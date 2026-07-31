@@ -149,7 +149,7 @@
 
 .codex-scene--download h2 {
     position: relative;
-    z-index: 2;
+    z-index: 20;
     align-self: end;
     max-width: 5ch;
     font-family: var(--display-font);
@@ -219,7 +219,7 @@
 }
 
 .platform-logo--windows {
-    max-height: 4.4rem;
+    max-height: 7rem;
 }
 
 .platform-logo--macos {
@@ -227,5 +227,5 @@
 }
 
 .platform-logo--linux {
-    max-height: 5.2rem;
+    max-height: 10rem;
 }
