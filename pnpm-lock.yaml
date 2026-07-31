@@ -61,10 +61,10 @@ importers:
         specifier: workspace:*
         version: link:../../packages/contracts
       '@tauri-apps/api':
-        specifier: ^2
+        specifier: 2.11.0
         version: 2.11.0
       '@tauri-apps/plugin-opener':
-        specifier: ^2
+        specifier: 2.5.4
         version: 2.5.4
       '@tauri-apps/plugin-process':
         specifier: ^2.3.1
