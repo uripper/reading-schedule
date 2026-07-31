@@ -1,0 +1,292 @@
+@media (orientation: landscape) and (max-height: 48rem) {
+    html {
+        font-size: clamp(11px, 1.85vh, 14px);
+    }
+
+    .site-header {
+        grid-template-columns: auto 1fr auto;
+        gap: 1rem;
+        min-height: 3.75rem;
+        padding-block: 0.4rem;
+    }
+
+    .brand-mark {
+        padding: 0.5rem 0.9rem;
+    }
+
+    .site-nav {
+        grid-row: 1;
+        grid-column: 2;
+        gap: clamp(1.5rem, 4vw, 3.5rem);
+        justify-content: center;
+        width: auto;
+    }
+
+    .button-link {
+        padding: 0.65rem 1rem;
+    }
+
+    .site-header > .button-link {
+        grid-row: 1;
+        grid-column: 3;
+    }
+
+    .hero,
+    .hero__copy,
+    .hero__visual {
+        min-height: calc(100svh - 3.75rem);
+    }
+
+    .hero {
+        grid-template-columns: minmax(0, 0.9fr) minmax(22rem, 1.1fr);
+    }
+
+    .hero__copy {
+        padding-block: 2rem;
+    }
+
+    .hero__title {
+        font-size: clamp(4.5rem, 17vh, 7.25rem);
+    }
+
+    .hero__body {
+        margin-top: 1.25rem;
+    }
+
+    .hero__visual {
+        margin-left: -2rem;
+        clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%);
+    }
+
+    .hero__registration {
+        right: auto;
+        bottom: 1.5rem;
+        left: 48%;
+    }
+
+    .hero-portrait__image {
+        width: auto;
+        max-height: calc(100svh - 3.75rem);
+    }
+
+    .hero-portrait__orbit {
+        width: 14rem;
+    }
+
+    .codex-stage {
+        padding: 4.25rem 0.75rem 0.75rem;
+    }
+
+    .codex-stage__pages {
+        max-height: calc(100svh - 5rem);
+    }
+
+    .codex-stage__pages::before {
+        inset: 0.45rem -0.45rem -0.45rem 0.45rem;
+    }
+
+    .codex-scene--manifesto {
+        padding: 1.75rem 2.25rem 2.5rem;
+    }
+
+    .codex-scene--manifesto h2 {
+        font-size: clamp(4rem, 18vh, 8rem);
+    }
+
+    .codex-manifesto__mark {
+        top: -34%;
+        right: 4%;
+        width: min(28vw, 28rem);
+        border-width: clamp(1.5rem, 6vh, 3rem);
+    }
+
+    .codex-scene.codex-scene--feature {
+        padding: 1.5rem 2.25rem;
+    }
+
+    .codex-scene.codex-scene--feature::before {
+        position: absolute;
+        top: 31%;
+        right: 4%;
+        left: 4%;
+        height: var(--border-width);
+        content: "";
+        background: currentcolor;
+    }
+
+    .codex-scene.codex-scene--feature .codex-scene__number {
+        top: -0.12em;
+        right: 0.04em;
+        left: auto;
+        font-size: clamp(7rem, 32vh, 12rem);
+    }
+
+    .codex-scene.codex-scene--feature .codex-scene__geometry {
+        top: 5%;
+        right: auto;
+        bottom: auto;
+        left: 4%;
+    }
+
+    .codex-scene.codex-scene--feature-01 .codex-scene__geometry {
+        width: min(9vw, 6rem);
+        height: auto;
+        aspect-ratio: 0.76;
+        box-shadow:
+            0.45rem 0.45rem 0 var(--color-chartreuse),
+            0.9rem 0.9rem 0 var(--color-cobalt);
+    }
+
+    .codex-scene.codex-scene--feature-02 .codex-scene__geometry {
+        width: min(8vw, 5.5rem);
+    }
+
+    .codex-scene.codex-scene--feature-03 .codex-scene__geometry {
+        width: min(7vw, 5rem);
+    }
+
+    .codex-scene.codex-scene--feature-04 .codex-scene__geometry {
+        width: min(9vw, 6rem);
+        height: 20%;
+    }
+
+    .codex-scene.codex-scene--feature .codex-scene__copy {
+        grid-template-rows: 1fr;
+        grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
+        gap: 2rem;
+        align-items: end;
+        height: auto;
+    }
+
+    .codex-scene.codex-scene--feature .codex-scene__copy h2 {
+        align-self: end;
+        justify-self: start;
+        max-width: 12ch;
+        margin-top: 0;
+        font-size: clamp(3rem, 10vh, 5.25rem);
+        text-align: left;
+    }
+
+    .codex-scene.codex-scene--feature .codex-scene__copy > p {
+        align-self: end;
+        justify-self: end;
+        width: min(100%, 27rem);
+        padding: 0.75rem 1rem;
+        font-size: clamp(0.85rem, 2.2vh, 1.1rem);
+        line-height: 1.4;
+    }
+
+    .codex-scene--workflow {
+        padding: 1.25rem 2rem;
+    }
+
+    .codex-workflow__heading h2 {
+        max-width: 10ch;
+        font-size: clamp(3rem, 9vh, 4.75rem);
+    }
+
+    .codex-workflow__controls {
+        position: absolute;
+        top: 0.5rem;
+        gap: 1.25rem;
+        justify-self: auto;
+        width: 25%;
+        padding-block: 0.5rem;
+        margin-top: 0;
+    }
+
+    .codex-workflow__knob {
+        width: 1.55rem;
+        border-width: 0.2rem;
+    }
+
+    .codex-workflow__grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .codex-workflow__step {
+        min-height: 0;
+        padding: 0.85rem;
+    }
+
+    .codex-workflow__number {
+        margin-bottom: 0.5rem;
+        font-size: 2.4rem;
+    }
+
+    .codex-workflow__step h3 {
+        margin-bottom: 0.45rem;
+        font-size: 1.05rem;
+    }
+
+    .codex-workflow__step > p:last-child {
+        font-size: 0.75rem;
+        line-height: 1.35;
+    }
+
+    .codex-scene--download {
+        grid-template-columns: minmax(0, 0.75fr) minmax(28rem, 1.25fr);
+        gap: 2rem;
+        padding: 1.5rem 2.25rem;
+    }
+
+    .codex-scene--download::before {
+        top: -26%;
+        left: -8%;
+        width: min(32vw, 24rem);
+        border-width: 2rem;
+    }
+
+    .codex-scene--download h2 {
+        align-self: end;
+        font-size: clamp(4rem, 15vh, 7rem);
+    }
+
+    .codex-downloads {
+        gap: 0.45rem;
+    }
+
+    .codex-download {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .codex-download__actions {
+        justify-content: end;
+    }
+
+    .platform-logo--windows {
+        max-height: 3rem;
+    }
+
+    .platform-logo--macos {
+        width: 7rem;
+    }
+
+    .platform-logo--linux {
+        max-height: 3.5rem;
+    }
+
+    .site-footer {
+        grid-template-columns: minmax(0, 1fr) auto;
+        min-height: calc(100svh - 0.75rem);
+        padding: 2.25rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .site-footer h2 {
+        font-size: clamp(6rem, 28vh, 11rem);
+    }
+
+    .site-footer__mark {
+        width: min(40vw, 24rem);
+        border-width: clamp(2rem, 7vh, 3.5rem);
+    }
+
+    .site-footer__meta {
+        text-align: right;
+    }
+}

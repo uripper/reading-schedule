@@ -182,3 +182,44 @@
         linear-gradient(var(--color-cobalt) 0 0) 81% 100% / 20% 100% no-repeat;
     border-bottom: 0.35rem solid var(--color-aubergine);
 }
+
+@media (max-width: 70rem) {
+    .codex-scene.codex-scene--feature::before {
+        position: absolute;
+        top: 24%;
+        right: 6%;
+        left: 6%;
+        height: var(--border-width);
+        content: "";
+        background: currentcolor;
+    }
+
+    .codex-scene--feature .codex-scene__geometry {
+        top: 7%;
+        right: auto;
+        bottom: auto;
+        left: 7%;
+    }
+
+    .codex-scene--feature-01 .codex-scene__geometry {
+        width: min(22vw, 7rem);
+        height: auto;
+        aspect-ratio: 0.76;
+        box-shadow:
+            0.65rem 0.65rem 0 var(--color-chartreuse),
+            1.3rem 1.3rem 0 var(--color-cobalt);
+    }
+
+    .codex-scene--feature-02 .codex-scene__geometry {
+        width: min(16%, 10rem);
+    }
+
+    .codex-scene--feature-03 .codex-scene__geometry {
+        width: min(15%, 9rem);
+    }
+
+    .codex-scene--feature-04 .codex-scene__geometry {
+        width: min(17%, 10rem);
+        height: min(16%, 9rem);
+    }
+}

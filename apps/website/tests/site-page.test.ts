@@ -5,7 +5,11 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { SITE_CONTENT } from "../src/content/site-content.ts";
 import { DOWNLOAD_CARDS } from "../src/content/site-download-surface.ts";
-import { WINDOWS_DOWNLOAD_URL } from "../src/content/site-urls.ts";
+import {
+    MACOS_APPLE_SILICON_DOWNLOAD_URL,
+    MACOS_INTEL_DOWNLOAD_URL,
+    WINDOWS_DOWNLOAD_URL,
+} from "../src/content/site-urls.ts";
 import { escapeHtml } from "../src/site/render-helpers.ts";
 import { renderPlatformLogo } from "../src/site/render-platform-logo.ts";
 import { renderRoadmapPage } from "../src/site/render-roadmap.ts";
@@ -14,6 +18,7 @@ import { resolveSitePage } from "../src/site/resolve-site-page.ts";
 
 const CODEX_NON_FEATURE_SCENE_COUNT = 3;
 const TEST_YEAR = 2026;
+const WORKFLOW_CONTROL_COUNT = 3;
 
 test("resolveSitePage defaults to landing when data-page is absent", () => {
     assert.equal(resolveSitePage(undefined), "landing");
@@ -45,7 +50,20 @@ test("website ships the copied app icon asset", () => {
 
 test("windows download card uses the GitHub release installer url", () => {
     assert.equal(DOWNLOAD_CARDS[0]?.platform, "Windows");
-    assert.equal(DOWNLOAD_CARDS[0]?.action.href, WINDOWS_DOWNLOAD_URL);
+    assert.equal(DOWNLOAD_CARDS[0]?.actions[0]?.href, WINDOWS_DOWNLOAD_URL);
+});
+
+test("macOS download card links both supported architectures", () => {
+    const MAC_OS_CARD = DOWNLOAD_CARDS.find((card) => {
+        return card.platform === "macOS";
+    });
+
+    assert.ok(MAC_OS_CARD);
+    assert.equal(
+        MAC_OS_CARD.actions[0]?.href,
+        MACOS_APPLE_SILICON_DOWNLOAD_URL,
+    );
+    assert.equal(MAC_OS_CARD.actions[1]?.href, MACOS_INTEL_DOWNLOAD_URL);
 });
 
 test("renderRoadmapPage renders alternating roadmap cards with details", () => {
@@ -81,4 +99,12 @@ test("landing codex preserves feature titles and descriptions", () => {
             true,
         );
     }
+});
+
+test("workflow renders one explicit knob for each visual control", () => {
+    const LANDING_MARKUP = renderSite(SITE_CONTENT, TEST_YEAR);
+    const KNOB_COUNT =
+        LANDING_MARKUP.match(/class="codex-workflow__knob"/g)?.length ?? 0;
+
+    assert.equal(KNOB_COUNT, WORKFLOW_CONTROL_COUNT);
 });
