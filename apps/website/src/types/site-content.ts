@@ -25,7 +25,7 @@ export interface WorkflowStep {
 }
 
 export interface DownloadCard {
-    readonly action: ActionLink;
+    readonly actions: readonly ActionLink[];
     readonly platform: "Linux" | "Windows" | "macOS";
 }
 

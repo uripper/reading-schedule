@@ -63,6 +63,22 @@ function renderWorkflowStep(step: WorkflowStep, index: number): string {
     ]);
 }
 
+function renderWorkflowControls(): string {
+    return joinMarkup([
+        '<div class="codex-workflow__controls" aria-hidden="true">',
+        '<span class="codex-workflow__track codex-workflow__track--reading">',
+        '<span class="codex-workflow__knob"></span>',
+        "</span>",
+        '<span class="codex-workflow__track codex-workflow__track--pace">',
+        '<span class="codex-workflow__knob"></span>',
+        "</span>",
+        '<span class="codex-workflow__track codex-workflow__track--finish">',
+        '<span class="codex-workflow__knob"></span>',
+        "</span>",
+        "</div>",
+    ]);
+}
+
 function renderWorkflowScene(workflow: readonly WorkflowStep[]): string {
     const STEP_MARKUP = workflow.map((step, index) => {
         return renderWorkflowStep(step, index);
@@ -72,6 +88,7 @@ function renderWorkflowScene(workflow: readonly WorkflowStep[]): string {
         '<article class="codex-scene codex-scene--workflow" data-codex-scene>',
         '<div class="codex-workflow__heading">',
         "<h2>Optimize based on your preferences.</h2>",
+        renderWorkflowControls(),
         "</div>",
         '<div class="codex-workflow__grid">',
         joinMarkup(STEP_MARKUP),
@@ -81,12 +98,18 @@ function renderWorkflowScene(workflow: readonly WorkflowStep[]): string {
 }
 
 function renderDownloadCard(card: DownloadCard): string {
+    const ACTION_MARKUP = card.actions.map((action) => {
+        return renderButtonLink(action);
+    });
+
     return joinMarkup([
         '<article class="codex-download">',
         '<div class="codex-download__logo" aria-hidden="true">',
         renderPlatformLogo(card.platform),
         "</div>",
-        renderButtonLink(card.action),
+        '<div class="codex-download__actions">',
+        joinMarkup(ACTION_MARKUP),
+        "</div>",
         "</article>",
     ]);
 }
