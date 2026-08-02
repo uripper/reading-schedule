@@ -15,6 +15,7 @@
 .codex-scene--feature-01 .codex-scene__copy > p {
     width: min(34rem, 42%);
     padding: 1.1rem 1.3rem;
+    font-size: clamp(0.25rem, 1.5vw, 2.4rem);
     color: var(--color-white);
     background: var(--color-aubergine);
     border: 0;
@@ -42,7 +43,7 @@
 
 .codex-scene--feature-02 {
     color: var(--color-white);
-    background: var(--color-cobalt);
+    background: var(--color-gray-purple);
 }
 
 .codex-scene--feature-02 .codex-scene__number {
@@ -55,8 +56,8 @@
     justify-self: end;
     max-width: 7.5ch;
     margin-top: clamp(6rem, 14vh, 9rem);
-    font-size: clamp(5.25rem, 8.8vw, 9.5rem);
-    color: var(--color-peony);
+    font-size: clamp(5.25rem, 10.8vw, 19.5rem);
+    color: var(--color-v-green);
     text-align: right;
 }
 
@@ -64,6 +65,7 @@
     justify-self: end;
     width: min(34rem, 39%);
     padding: 1.1rem 1.3rem;
+    font-size: clamp(0.25rem, 1.3vw, 2.4rem);
     color: var(--color-aubergine);
     background: var(--color-aqua);
     border: 0;
@@ -74,7 +76,7 @@
     left: 25%;
     width: 22%;
     aspect-ratio: 1;
-    background: var(--color-orange);
+    background: var(--color-lilac-gray);
     transform: rotate(45deg);
 }
 
@@ -95,7 +97,6 @@
     aspect-ratio: 1;
     content: "";
     background: var(--color-chartreuse);
-    border: 0.25rem solid var(--color-cobalt);
     transform: rotate(-45deg);
 }
 
@@ -110,12 +111,13 @@
 
 .codex-scene--feature-03 .codex-scene__copy h2 {
     max-width: 10ch;
-    font-size: clamp(5rem, 7.9vw, 8.5rem);
+    font-size: clamp(5.25rem, 10.8vw, 11.5rem);
 }
 
 .codex-scene--feature-03 .codex-scene__copy > p {
     width: min(34rem, 40%);
     padding: 1.2rem 1.4rem;
+    font-size: clamp(0.25rem, 1.7vw, 2.4rem);
     color: var(--color-aubergine);
     background: var(--color-aqua);
     border: 0;
@@ -157,7 +159,7 @@
 .codex-scene--feature-04 .codex-scene__copy h2 {
     justify-self: end;
     max-width: 8ch;
-    font-size: clamp(5.25rem, 8.8vw, 9.5rem);
+    font-size: clamp(5.25rem, 10.8vw, 11.5rem);
     text-align: right;
 }
 
@@ -165,6 +167,7 @@
     justify-self: end;
     width: min(34rem, 39%);
     padding: 1.1rem 1.3rem;
+    font-size: clamp(0.25rem, 1.7vw, 2.4rem);
     background: var(--color-yellow);
     border: 0;
 }
