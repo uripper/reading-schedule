@@ -57,7 +57,7 @@
     z-index: 3;
     align-content: center;
     padding: clamp(3rem, 6vw, 6.5rem) 0 clamp(3rem, 6vw, 6.5rem)
-        clamp(1rem, 3vw, 3.5rem)
+        clamp(1rem, 3vw, 3.5rem);
 }
 
 .hero__visual {
