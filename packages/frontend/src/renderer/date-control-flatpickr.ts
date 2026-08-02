@@ -10,7 +10,7 @@ const PREVIOUS_MONTH_LABEL = "Prev";
 
 const PICKERS = new WeakMap<HTMLInputElement, Instance>();
 
-export type DatePickerSelectionMode = "single" | "range";
+type DatePickerSelectionMode = "single" | "range";
 
 interface BoundsLike {
     bottom: number;
