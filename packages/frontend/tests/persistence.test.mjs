@@ -40,7 +40,6 @@ function runtimeStateForDraft(sessions) {
             reduceMotion: false,
             reminderEnabled: false,
             reminderTime: "20:00",
-            theme: "system",
             timezone: "UTC",
         },
         scheduleCompletions: {},

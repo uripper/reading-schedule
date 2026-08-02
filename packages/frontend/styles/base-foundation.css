@@ -33,6 +33,7 @@
 
     /* Effects */
     --neo-brutalist-shadow: 6px 8px 0 #000;
+    color-scheme: dark;
 }
 
 * {
@@ -203,26 +204,6 @@ select option,
 select optgroup {
     color: var(--app-selectMenuText);
     background: var(--app-selectMenuSurface);
-}
-
-:root[data-theme="dark"] select {
-    color-scheme: dark;
-}
-
-:root[data-theme="light"] select {
-    color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-    :root[data-theme="system"] select {
-        color-scheme: dark;
-    }
-}
-
-@media (prefers-color-scheme: light) {
-    :root[data-theme="system"] select {
-        color-scheme: light;
-    }
 }
 
 textarea {

@@ -6,9 +6,6 @@ import { el } from "../dom.ts";
 import { bindDialogFocus } from "./a11y-dialog-focus.ts";
 
 const ANNOUNCE_DELAY_MS = 30;
-const THEME_SYSTEM = "system";
-const THEME_DARK = "dark";
-const THEME_LIGHT = "light";
 
 // TODO: Move interfaces and types to our contracts package
 interface AnnouncementArgs {
@@ -116,27 +113,14 @@ function announceMessage(
     });
 }
 
-function resolvedDocumentTheme(preferences: DocumentPreferencesInput): string {
-    const THEME = preferences.theme;
-    if (
-        THEME === THEME_SYSTEM ||
-        THEME === THEME_LIGHT ||
-        THEME === THEME_DARK
-    ) {
-        return THEME;
-    }
-    return THEME_SYSTEM;
-}
-
 /**
- * Applies theme and reduced-motion preferences to document data attributes.
+ * Applies reduced-motion preferences to the document data attributes.
  * @param preferences - User preference values to apply.
  */
 export function applyPreferencesToDocument(
     preferences: DocumentPreferencesInput = {},
 ): void {
     const ROOT = document.documentElement;
-    ROOT.dataset.theme = resolvedDocumentTheme(preferences);
     let reduceMotion = false;
     if (preferences.reduceMotion !== undefined) {
         reduceMotion = Boolean(preferences.reduceMotion);
