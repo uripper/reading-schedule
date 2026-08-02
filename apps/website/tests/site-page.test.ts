@@ -17,6 +17,19 @@ import { renderSite } from "../src/site/render-site.ts";
 import { resolveSitePage } from "../src/site/resolve-site-page.ts";
 
 const CODEX_NON_FEATURE_SCENE_COUNT = 3;
+const TESTS_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
+const WEBSITE_ROOT_DIRECTORY = path.join(TESTS_DIRECTORY, "..", "..");
+const WEBSITE_ICON_PATH = path.join(
+    WEBSITE_ROOT_DIRECTORY,
+    "public",
+    "icon.ico",
+);
+const POSTER_STYLES_PATH = path.join(
+    WEBSITE_ROOT_DIRECTORY,
+    "src",
+    "styles",
+    "codex-posters.css",
+);
 const TEST_YEAR = 2026;
 const WORKFLOW_CONTROL_COUNT = 3;
 
@@ -42,10 +55,7 @@ test("renderPlatformLogo uses public asset urls", () => {
 });
 
 test("website ships the copied app icon asset", () => {
-    const TESTS_DIR = path.dirname(fileURLToPath(import.meta.url));
-    const ICON_PATH = path.join(TESTS_DIR, "..", "..", "public", "icon.ico");
-
-    assert.equal(fs.existsSync(ICON_PATH), true);
+    assert.equal(fs.existsSync(WEBSITE_ICON_PATH), true);
 });
 
 test("windows download card uses the GitHub release installer url", () => {
@@ -99,6 +109,22 @@ test("landing codex preserves feature titles and descriptions", () => {
             true,
         );
     }
+});
+
+test("second feature poster sizes text against its own page", () => {
+    const POSTER_STYLES = fs.readFileSync(POSTER_STYLES_PATH, "utf8");
+
+    assert.match(
+        POSTER_STYLES,
+        /\.codex-scene--feature-02\s*\{[^}]*container-type:\s*size;/s,
+    );
+    assert.match(POSTER_STYLES, /min\(15\.5cqw, 26cqh\)/);
+    assert.match(POSTER_STYLES, /min\(1\.85cqw, 3\.1cqh\)/);
+    assert.match(POSTER_STYLES, /clamp\(9rem, 22cqw, 12rem\)/);
+    assert.match(
+        POSTER_STYLES,
+        /\.codex-scene--feature-02 \.codex-scene__number\s*\{[^}]*left:\s*auto;/s,
+    );
 });
 
 test("workflow renders one explicit knob for each visual control", () => {

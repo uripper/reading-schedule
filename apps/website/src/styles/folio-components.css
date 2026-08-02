@@ -31,8 +31,7 @@
     color: var(--color-ink);
     background: var(--color-white);
     border: var(--border-width) solid var(--color-ink);
-    transform:
-        translateX(calc(var(--turn-progress) * -0.75rem))
+    transform: translateX(calc(var(--turn-progress) * -0.75rem))
         rotateY(var(--turn-angle));
     transform-origin: left center;
     transform-style: preserve-3d;
@@ -47,11 +46,7 @@
     width: 15.25rem;
     pointer-events: none;
     content: "";
-    background: linear-gradient(
-        90deg,
-        rgb(50 0 0 / 28%),
-        transparent
-    );
+    background: linear-gradient(90deg, rgb(50 0 0 / 28%), transparent);
 }
 
 .codex-scene::after {
@@ -63,7 +58,7 @@
         90deg,
         rgb(0 0 0 / calc(var(--turn-shadow) * 0.5)),
         transparent 28%,
-        rgb(255 255 255 / calc(var(--turn-shadow) * .25))
+        rgb(255 255 255 / calc(var(--turn-shadow) * 0.25))
     );
 }
 
