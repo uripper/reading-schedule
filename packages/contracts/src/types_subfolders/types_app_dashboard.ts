@@ -33,7 +33,7 @@ export type UpdateTodayDashboardArgs = TodayDashboardPayload;
 
 /** Inputs used to construct dashboard update behavior. */
 export interface DashboardRuntimeArgs {
-    /** Applies normalized preferences to document/theme settings. */
+    /** Applies normalized preferences to document settings. */
     applyPreferencesToDocument(
         this: void,
         preferences: AppRuntimeState["preferences"],

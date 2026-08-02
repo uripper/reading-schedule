@@ -8,12 +8,17 @@ import {
 
 function mockElement() {
     const CALLS = [];
+    const ATTRIBUTES = [];
     return {
+        attributes: ATTRIBUTES,
         classList: {
             calls: CALLS,
             toggle(className, enabled) {
                 CALLS.push([className, enabled]);
             },
+        },
+        setAttribute(name, value) {
+            ATTRIBUTES.push([name, value]);
         },
         textContent: "",
     };
@@ -39,7 +44,7 @@ function withMockDom(elements, action) {
 test("afterSessionText formats placeholder pages and rounded percent", () => {
     assert.equal(
         afterSessionText({ afterPagesRead: null, afterPercent: 12.34 }),
-        "-- pages\n12.3%",
+        "-- pages • 12.3%",
     );
 });
 
@@ -48,7 +53,8 @@ test("setLogButtonState updates a tiny mocked DOM", () => {
     const PANEL = mockElement();
     withMockDom({ todayFocusPanel: PANEL, todayLogSessionBtn: BUTTON }, () => {
         setLogButtonState(true);
-        assert.equal(BUTTON.textContent, "Completed");
+        assert.equal(BUTTON.textContent, "Reopen session");
+        assert.deepEqual(BUTTON.attributes, [["aria-pressed", "true"]]);
         assert.deepEqual(BUTTON.classList.calls, [["is-complete", true]]);
         assert.deepEqual(PANEL.classList.calls, [["is-complete", true]]);
     });

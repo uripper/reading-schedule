@@ -6,6 +6,8 @@
 @import "./styles/today-carousel.css";
 @import "./styles/today-add-overlay.css";
 @import "./styles/today-focus-controls.css";
+@import "./styles/today-focus-actions.css";
+@import "./styles/today-focus-controls-responsive.css";
 @import "./styles/schedule-status-overlay.css";
 @import "./styles/date-controls.css";
 @import "./styles/date-picker-range.css";

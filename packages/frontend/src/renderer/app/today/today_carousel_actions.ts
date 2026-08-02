@@ -64,9 +64,9 @@ function changedValue(
 
 export function logSessionButtonText(activeCompleted: boolean): string {
     if (activeCompleted) {
-        return "Completed";
+        return "Reopen session";
     }
-    return "Log Session";
+    return "Complete session";
 }
 
 function progressPayloadBase(

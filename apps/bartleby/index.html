@@ -1,7 +1,8 @@
 <!doctype html>
-<html lang="en" data-theme="system" data-reduce-motion="false">
+<html lang="en" data-reduce-motion="false">
   <head>
     <meta charset="UTF-8" />
+    <meta name="color-scheme" content="dark" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bartleby</title>
     <link rel="icon" type="image/png" href="assets/logo.svg" />
@@ -180,8 +181,8 @@
             No book selected
           </p>
           <section id="todayFocusPanel" class="today-focus-panel">
-            <article id="todayMinutesOval" class="today-minutes-oval">
-              <p class="today-minutes-label">Minutes:</p>
+            <article id="todayMinutesOval" class="today-session-time">
+              <p class="today-control-label">Planned time</p>
               <div class="today-minutes-value-row">
                 <span id="todayMinutesValue" class="today-minutes-value">0</span>
                 <input
@@ -201,56 +202,76 @@
                 >
                   &#9998;
                 </button>
+                <span class="today-minutes-unit" aria-hidden="true">min</span>
               </div>
               <p id="todayAfterSessionText" class="today-after-session-text">
                 After session: --
               </p>
             </article>
             <article id="todayProgressPanel" class="today-progress-panel">
-              <p class="today-progress-title">Progress</p>
-              <div id="todayProgressPagesChip" class="today-progress-chip">
-                <input
-                  id="todayPagesInput"
-                  class="today-progress-pages-input"
-                  type="number"
-                  min="0"
-                  step="1"
-                  aria-label="Pages read"
-                />
-                <span class="today-progress-pages-separator" aria-hidden="true"
-                  >/</span
-                >
-                <span id="todayProgressPagesTotalText">--</span>
+              <div class="today-progress-heading">
+                <p class="today-control-label">Reading progress</p>
+                <span>Current position</span>
               </div>
-              <div id="todayProgressPercentChip" class="today-progress-chip">
-                <input
-                  id="todayPercentInput"
-                  class="today-progress-percent-input"
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="0.1"
-                  aria-label="Complete percent"
-                />
-                <span class="today-progress-percent-suffix" aria-hidden="true"
-                  >%</span
-                >
+              <div class="today-progress-fields">
+                <label class="today-progress-field" for="todayPagesInput">
+                  <span>Current page</span>
+                  <span
+                    id="todayProgressPagesChip"
+                    class="today-progress-chip"
+                  >
+                    <input
+                      id="todayPagesInput"
+                      class="today-progress-pages-input"
+                      type="number"
+                      min="0"
+                      step="1"
+                    />
+                    <span class="today-progress-pages-separator">of</span>
+                    <span id="todayProgressPagesTotalText">--</span>
+                  </span>
+                </label>
+                <label class="today-progress-field" for="todayPercentInput">
+                  <span>Complete</span>
+                  <span
+                    id="todayProgressPercentChip"
+                    class="today-progress-chip"
+                  >
+                    <input
+                      id="todayPercentInput"
+                      class="today-progress-percent-input"
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                    />
+                    <span class="today-progress-percent-suffix">%</span>
+                  </span>
+                </label>
               </div>
+              <progress
+                id="todayProgressIndicator"
+                class="today-progress-indicator"
+                max="100"
+                value="0"
+                aria-label="Current reading progress"
+              ></progress>
             </article>
             <div class="today-focus-actions">
-              <button
-                id="todayLogSessionBtn"
-                class="btn today-log-session-btn"
-                type="button"
-              >
-                Log Session
-              </button>
               <button
                 id="todayRemoveSessionBtn"
                 class="btn today-remove-session-btn"
                 type="button"
               >
-                Remove
+                Remove session
+              </button>
+              <button
+                id="todayLogSessionBtn"
+                class="btn today-log-session-btn"
+                type="button"
+                aria-pressed="false"
+              >
+                Complete session
               </button>
             </div>
           </section>

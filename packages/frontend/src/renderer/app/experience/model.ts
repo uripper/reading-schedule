@@ -16,7 +16,6 @@ export const DEFAULT_PREFERENCES: Preferences = {
     reduceMotion: false,
     reminderEnabled: false,
     reminderTime: "20:00",
-    theme: "system",
     timezone: new Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
 };
 
@@ -24,23 +23,6 @@ export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
     gamificationEnabled: true,
     socialEnabled: false,
 };
-
-/**
- * Check if a given value is a supported theme.
- * @param value - The value to check.
- * @returns True if the value is a supported theme, false otherwise.
- */
-export function isSupportedTheme(value: string): value is Preferences["theme"] {
-    return value === "system" || value === "dark";
-}
-
-function normalizedTheme(raw: PreferencesInput): Preferences["theme"] {
-    const THEME_INPUT = String(raw.theme ?? "").trim();
-    if (isSupportedTheme(THEME_INPUT)) {
-        return THEME_INPUT;
-    }
-    return DEFAULT_PREFERENCES.theme;
-}
 
 function normalizedDailyGoalMinutes(raw: PreferencesInput): number {
     const DAILY_GOAL_RAW =
@@ -73,7 +55,6 @@ export function normalizePreferences(raw: PreferencesInput = {}): Preferences {
             REMINDERS_AVAILABLE,
             DEFAULT_PREFERENCES.reminderTime,
         ),
-        theme: normalizedTheme(raw),
         timezone: String(raw.timezone ?? DEFAULT_PREFERENCES.timezone),
     };
 }
