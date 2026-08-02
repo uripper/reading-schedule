@@ -108,8 +108,8 @@ test("buildProgressUpdatePayload rejects pages above the known total", () => {
 });
 
 test("button and disable helpers mirror completed state", () => {
-    assert.equal(logSessionButtonText(false), "Log Session");
-    assert.equal(logSessionButtonText(true), "Completed");
+    assert.equal(logSessionButtonText(false), "Complete session");
+    assert.equal(logSessionButtonText(true), "Reopen session");
 });
 
 test("parseMinutesInput enforces integer minimum", () => {

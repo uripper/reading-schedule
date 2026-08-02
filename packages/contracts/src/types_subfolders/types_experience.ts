@@ -3,7 +3,6 @@ export interface Preferences {
     reduceMotion: boolean;
     reminderEnabled: boolean;
     reminderTime: string;
-    theme: "system" | "dark";
     timezone: string;
 }
 

@@ -1,4 +1,4 @@
-export interface DestructiveConfirmOptions {
+interface DestructiveConfirmOptions {
     cancelLabel?: string;
     confirmLabel: string;
     message: string;

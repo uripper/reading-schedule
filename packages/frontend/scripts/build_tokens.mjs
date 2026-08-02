@@ -6,8 +6,7 @@ const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(SCRIPT_DIR, "..");
 const TOKEN_SOURCE_PATH = path.join(ROOT, "tokens", "dtcg.tokens.json");
 const OUTPUT_CSS_PATH = path.join(ROOT, "styles", "generated", "tokens.css");
-const DARK_PREFIX = "semantic.dark.";
-const LIGHT_PREFIX = "semantic.light.";
+const SEMANTIC_PREFIX = "semantic.";
 
 function isObject(value) {
     if (value === null) {
@@ -100,34 +99,16 @@ function semanticEntries(tokenEntries, prefix) {
         .map(([key, value]) => [key.replace(prefix, ""), value]);
 }
 
-function systemThemeLines(entries, theme) {
-    return [
-        `@media (prefers-color-scheme: ${theme}) {`,
-        '  :root[data-theme="system"] {',
-        ...entries.map(([key, value]) => `    ${appVarName(key)}: ${value};`),
-        "  }",
-        "}",
-        "",
-    ];
-}
-
-function themeLines(entries, theme) {
-    return [
-        `:root[data-theme="${theme}"] {`,
-        ...entries.map(([key, value]) => `  ${appVarName(key)}: ${value};`),
-        "}",
-        "",
-    ];
-}
-
-function rootTokenLines(tokenEntries, darkEntries) {
+function rootTokenLines(tokenEntries, semanticTokenEntries) {
     return [
         "/* Auto-generated from tokens/dtcg.tokens.json. Do not edit by hand. */",
         ":root {",
         ...tokenEntries.map(
             ([key, value]) => `  ${cssVarName(key)}: ${value};`,
         ),
-        ...darkEntries.map(([key, value]) => `  ${appVarName(key)}: ${value};`),
+        ...semanticTokenEntries.map(
+            ([key, value]) => `  ${appVarName(key)}: ${value};`,
+        ),
         "}",
         "",
     ];
@@ -147,14 +128,9 @@ function reducedMotionLines() {
 }
 
 function cssLines(tokenEntries) {
-    const DARK_ENTRIES = semanticEntries(tokenEntries, DARK_PREFIX);
-    const LIGHT_ENTRIES = semanticEntries(tokenEntries, LIGHT_PREFIX);
+    const SEMANTIC_ENTRIES = semanticEntries(tokenEntries, SEMANTIC_PREFIX);
     return [
-        ...rootTokenLines(tokenEntries, DARK_ENTRIES),
-        ...themeLines(DARK_ENTRIES, "dark"),
-        ...themeLines(LIGHT_ENTRIES, "light"),
-        ...systemThemeLines(DARK_ENTRIES, "dark"),
-        ...systemThemeLines(LIGHT_ENTRIES, "light"),
+        ...rootTokenLines(tokenEntries, SEMANTIC_ENTRIES),
         ...reducedMotionLines(),
     ].join("\n");
 }

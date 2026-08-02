@@ -19,8 +19,7 @@ interface ViewportScrollPosition {
     scrollX: number;
     scrollY: number;
 }
-
-export type InternalOpenBookDialogArgs = OpenBookDialogArgs & {
+type InternalOpenBookDialogArgs = OpenBookDialogArgs & {
     navigation: BookDialogNavigationRefs;
     sessionState: DialogSessionState;
 };

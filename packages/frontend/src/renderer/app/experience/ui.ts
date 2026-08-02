@@ -63,7 +63,6 @@ export function collectPreferencesFromUI(): Preferences {
             REMINDERS_AVAILABLE,
             DEFAULT_PREFERENCES.reminderTime,
         ),
-        theme: DEFAULT_PREFERENCES.theme,
         timezone: DEFAULT_PREFERENCES.timezone,
     };
 }

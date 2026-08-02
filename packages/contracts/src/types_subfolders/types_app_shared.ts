@@ -39,8 +39,6 @@ export type AddLog = (message: string) => void;
 export interface DocumentPreferencesInput {
     /** Optional reduced-motion preference captured from UI controls before normalization. */
     reduceMotion?: boolean;
-    /** Optional theme key captured from UI controls before normalization. */
-    theme?: string;
 }
 
 /** Options that control which element receives focus when a dialog opens. */

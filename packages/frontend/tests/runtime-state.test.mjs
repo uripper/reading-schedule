@@ -19,7 +19,6 @@ function assertDefaultStateValues(state) {
         reduceMotion: false,
         reminderEnabled: false,
         reminderTime: "20:00",
-        theme: "system",
         timezone: state.preferences.timezone,
     });
     assert.match(state.preferences.timezone, /\S/u);

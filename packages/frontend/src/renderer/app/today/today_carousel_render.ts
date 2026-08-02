@@ -17,6 +17,7 @@ import {
     clearNoDataHandlers,
     renderAfterSessionText,
     renderProgressSummary,
+    resetProgressIndicator,
     setActionButtonsDisabled,
     setLogButtonState,
     setMinutesEditDisabled,
@@ -43,7 +44,7 @@ const EMPTY_TEXT = "";
 const EMPTY_BOOK_LABEL = "No book selected";
 const EMPTY_MINUTES_TEXT = "0";
 const EMPTY_PROGRESS_TOTAL_TEXT = "--";
-const EMPTY_SESSION_SUMMARY_TEXT = "-- pages\n--%";
+const EMPTY_SESSION_SUMMARY_TEXT = "-- pages • --%";
 
 interface TodayCarouselRenderArgs {
     books: Book[];
@@ -99,6 +100,7 @@ function resetNoDataProgressUi(): void {
     renderAfterSessionText(EMPTY_SESSION_SUMMARY_TEXT);
     el<HTMLElement>("todayProgressPagesTotalText").textContent =
         EMPTY_PROGRESS_TOTAL_TEXT;
+    resetProgressIndicator();
     resetTodayProgressInputs();
     setMinutesEditDisabled(true);
     setActionButtonsDisabled(true);

@@ -16,6 +16,7 @@ export function setLogButtonState(completed: boolean): void {
     const BUTTON = el<HTMLButtonElement>("todayLogSessionBtn");
     const PANEL = el<HTMLElement>("todayFocusPanel");
     BUTTON.textContent = logSessionButtonText(completed);
+    BUTTON.setAttribute("aria-pressed", String(completed));
     BUTTON.classList.toggle("is-complete", completed);
     PANEL.classList.toggle("is-complete", completed);
 }
@@ -76,7 +77,7 @@ export function afterSessionText(active: TodayCarouselActiveItem): string {
         pages = String(active.afterPagesRead);
     }
     const PERCENT = `${Math.round(active.afterPercent * 10) / 10}%`;
-    return `${pages} pages\n${PERCENT}`;
+    return `${pages} pages • ${PERCENT}`;
 }
 
 /**
@@ -101,4 +102,11 @@ export function renderAfterSessionText(text: string): void {
 export function renderProgressSummary(active: TodayCarouselActiveItem): void {
     el<HTMLElement>("todayProgressPagesTotalText").textContent =
         formatPagesTotalText(active.pagesTotal);
+    el<HTMLProgressElement>("todayProgressIndicator").value =
+        active.progressPercent;
+}
+
+/** Resets the visual progress indicator when no Today session is selected. */
+export function resetProgressIndicator(): void {
+    el<HTMLProgressElement>("todayProgressIndicator").value = 0;
 }
