@@ -42,6 +42,7 @@
 }
 
 .codex-scene--feature-02 {
+    container-type: size;
     color: var(--color-white);
     background: var(--color-gray-purple);
 }
@@ -55,8 +56,8 @@
 .codex-scene--feature-02 .codex-scene__copy h2 {
     justify-self: end;
     max-width: 7.5ch;
-    margin-top: clamp(6rem, 14vh, 9rem);
-    font-size: clamp(5.25rem, 10.8vw, 19.5rem);
+    margin-top: clamp(5rem, 12cqh, 8rem);
+    font-size: clamp(5.25rem, min(15.5cqw, 26cqh), 19.5rem);
     color: var(--color-v-green);
     text-align: right;
 }
@@ -65,7 +66,7 @@
     justify-self: end;
     width: min(34rem, 39%);
     padding: 1.1rem 1.3rem;
-    font-size: clamp(0.25rem, 1.3vw, 2.4rem);
+    font-size: clamp(1rem, min(1.85cqw, 3.1cqh), 2.4rem);
     color: var(--color-aubergine);
     background: var(--color-aqua);
     border: 0;
@@ -215,6 +216,12 @@
 
     .codex-scene--feature-02 .codex-scene__geometry {
         width: min(16%, 10rem);
+    }
+
+    .codex-scene--feature-02 .codex-scene__number {
+        right: 0.04em;
+        left: auto;
+        font-size: clamp(9rem, 22cqw, 12rem);
     }
 
     .codex-scene--feature-03 .codex-scene__geometry {
