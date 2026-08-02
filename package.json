@@ -95,5 +95,5 @@
         "version:check": "node ./scripts/set-app-version.mjs --check",
         "version:set": "node ./scripts/set-app-version.mjs"
     },
-    "version": "0.1.4-alpha"
+    "version": "0.1.5-alpha"
 }

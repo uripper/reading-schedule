@@ -16,5 +16,5 @@
         "typecheck": "pnpm --dir ../.. exec tsc -p apps/website/tsconfig.json --noEmit"
     },
     "type": "module",
-    "version": "0.1.4-alpha"
+    "version": "0.1.5-alpha"
 }

@@ -1,0 +1,68 @@
+.today-focus-actions {
+    display: flex;
+    grid-column: 1 / -1;
+    gap: 1rem;
+    align-items: center;
+    justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 3px solid #000;
+}
+
+.today-log-session-btn,
+.today-remove-session-btn {
+    min-height: 3rem;
+    padding: 0.7rem 1.25rem;
+    font-family: var(--main-font);
+    font-weight: 800;
+    color: #000;
+    border: 3px solid #000;
+    border-radius: 0.35rem;
+    box-shadow: 4px 4px 0 #000;
+}
+
+.today-log-session-btn {
+    min-width: 12rem;
+    font-size: 1.05rem;
+    background: var(--neo-today-yellow);
+}
+
+.today-remove-session-btn {
+    background: #ff9b84;
+}
+
+.today-remove-session-btn:hover:not(:disabled) {
+    background: #ff7f67;
+}
+
+.today-focus-panel :is(input, button):focus-visible {
+    outline: 3px solid #2458d3;
+    outline-offset: 3px;
+}
+
+.today-minutes-inline-input::-webkit-outer-spin-button,
+.today-minutes-inline-input::-webkit-inner-spin-button,
+.today-progress-pages-input::-webkit-outer-spin-button,
+.today-progress-pages-input::-webkit-inner-spin-button,
+.today-progress-percent-input::-webkit-outer-spin-button,
+.today-progress-percent-input::-webkit-inner-spin-button {
+    margin: 0;
+    appearance: none;
+}
+
+.today-focus-actions .btn:disabled,
+.today-minutes-edit-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.today-log-session-btn.is-complete {
+    background: color-mix(in srgb, var(--neo-today-green) 82%, #fff);
+}
+
+.today-focus-panel.is-complete #todayPagesInput,
+.today-focus-panel.is-complete #todayPercentInput {
+    color: #000;
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 1;
+}
