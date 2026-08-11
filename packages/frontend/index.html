@@ -240,15 +240,21 @@
                     <input
                       id="todayPercentInput"
                       class="today-progress-percent-input"
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.1"
+                      type="text"
+                      inputmode="decimal"
+                      pattern="[0-9]*([.,][0-9]*)?"
+                      aria-describedby="todayPercentInputHint"
+                      autocomplete="off"
+                      spellcheck="false"
                     />
                     <span class="today-progress-percent-suffix">%</span>
                   </span>
                 </label>
               </div>
+              <span id="todayPercentInputHint" class="visually-hidden">
+                Enter a percentage from 0 to 100. A decimal point or comma can
+                be used.
+              </span>
               <progress
                 id="todayProgressIndicator"
                 class="today-progress-indicator"
@@ -259,20 +265,34 @@
             </article>
             <div class="today-focus-actions">
               <button
-                id="todayRemoveSessionBtn"
-                class="btn today-remove-session-btn"
+                id="todayReplanBtn"
+                class="btn today-replan-btn"
                 type="button"
+                title="Rebuild unfinished sessions for today"
               >
-                Remove session
+                Replan Today
               </button>
-              <button
-                id="todayLogSessionBtn"
-                class="btn today-log-session-btn"
-                type="button"
-                aria-pressed="false"
+              <div
+                class="today-session-actions"
+                role="group"
+                aria-label="Current session actions"
               >
-                Complete session
-              </button>
+                <button
+                  id="todayRemoveSessionBtn"
+                  class="btn today-remove-session-btn"
+                  type="button"
+                >
+                  Remove session
+                </button>
+                <button
+                  id="todayLogSessionBtn"
+                  class="btn today-log-session-btn"
+                  type="button"
+                  aria-pressed="false"
+                >
+                  Complete session
+                </button>
+              </div>
             </div>
           </section>
         </div>

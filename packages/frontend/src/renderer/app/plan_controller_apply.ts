@@ -52,14 +52,12 @@ export async function applyPlannedData(
 
 function plannedScheduleRows(args: ApplyPlannedDataArgs): PlannerScheduleRow[] {
     const PREVIOUS_ROWS = args.getLastResult()?.schedule ?? [];
-    if (!args.preserveLockedDays) {
-        return args.data.schedule;
-    }
     return mergeScheduleRows({
         blockedDayBooks: args.getBlockedDayBooks(),
         nextRows: args.data.schedule,
+        preservationMode: args.preservationMode,
         previousRows: PREVIOUS_ROWS,
-        sessions: args.getSessions(),
+        scheduleCompletions: args.getScheduleCompletions(),
     });
 }
 

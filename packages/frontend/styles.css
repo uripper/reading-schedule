@@ -25,5 +25,5 @@
 @import "./styles/book-dialog.css";
 @import "./styles/book-dialog-controls.css";
 @import "./styles/book-dialog-position.css";
-@import "./styles/destructive-confirm.css";
+@import "./styles/action-confirm.css";
 @import "./styles/dialogs.css";

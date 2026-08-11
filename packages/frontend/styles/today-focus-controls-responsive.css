@@ -1,8 +1,11 @@
 @media (max-width: 980px) {
+    .today-carousel-shell {
+        --today-focus-width: 36rem;
+    }
+
     .today-focus-panel {
         grid-template-columns: 1fr;
         gap: 1.25rem;
-        width: min(calc(100% - 2rem), 36rem);
     }
 
     .today-session-time {
@@ -19,8 +22,11 @@
 }
 
 @media (max-width: 560px) {
+    .today-carousel-shell {
+        --today-focus-gutter: 1rem;
+    }
+
     .today-focus-panel {
-        width: min(calc(100% - 1rem), 36rem);
         padding: 1rem;
         margin-top: 0.5rem;
         box-shadow: 6px 6px 0 #000;
@@ -35,27 +41,26 @@
         grid-template-columns: 1fr;
     }
 
-    .today-focus-actions {
+    .today-focus-actions,
+    .today-session-actions {
         display: grid;
     }
 
+    .today-session-actions {
+        margin-left: 0;
+    }
+
+    .today-replan-btn,
     .today-log-session-btn,
     .today-remove-session-btn {
         width: 100%;
-    }
-
-    .today-log-session-btn {
-        grid-row: 1;
-    }
-
-    .today-remove-session-btn {
-        grid-row: 2;
     }
 }
 
 @media (prefers-reduced-motion: no-preference) {
     .today-log-session-btn,
     .today-minutes-edit-btn,
+    .today-replan-btn,
     .today-remove-session-btn {
         transition:
             transform 120ms ease,
@@ -64,12 +69,14 @@
     }
 
     .today-log-session-btn:hover:not(:disabled),
-    .today-minutes-edit-btn:hover:not(:disabled) {
+    .today-minutes-edit-btn:hover:not(:disabled),
+    .today-replan-btn:hover:not(:disabled) {
         transform: translate(-1px, -1px);
     }
 
     .today-log-session-btn:active:not(:disabled),
-    .today-minutes-edit-btn:active:not(:disabled) {
+    .today-minutes-edit-btn:active:not(:disabled),
+    .today-replan-btn:active:not(:disabled) {
         box-shadow: 1px 1px 0 #000;
         transform: translate(2px, 2px);
     }

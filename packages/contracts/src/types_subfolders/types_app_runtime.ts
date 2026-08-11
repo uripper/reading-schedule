@@ -14,11 +14,11 @@ import type {
     SessionReader,
     SessionState,
     SetStatus,
-} from "./types_app_shared.js";
-import type { Book } from "./types_books.js";
-import type { Session } from "./types_core.js";
-import type { FeatureFlags, Preferences } from "./types_experience.js";
-import type { PlannerApi, PlannerResult } from "./types_planner.js";
+} from "./types_app_shared.ts";
+import type { Book } from "./types_books.ts";
+import type { Session } from "./types_core.ts";
+import type { FeatureFlags, Preferences } from "./types_experience.ts";
+import type { PlannerApi, PlannerResult } from "./types_planner.ts";
 
 /** State snapshot consumed by the persistence queue. */
 export interface PersistQueueState
@@ -166,10 +166,10 @@ export interface AppBootstrapContext {
     flushPendingState(): Promise<boolean>;
     /** Persists draft state to durable storage. */
     persistDraft(): Promise<boolean>;
-    /** Waits for autosave to settle before importing an external state archive. */
-    prepareForDataImport(): Promise<void>;
     /** Planner API dependency used to call planner-side operations. */
     plannerApi: PlannerApi;
+    /** Waits for autosave to settle before importing an external state archive. */
+    prepareForDataImport(): Promise<void>;
     /** Queues persist work for deferred execution. */
     queuePersist(): void;
     /** Initialization runtime handlers used by bootstrap wiring. */
@@ -184,4 +184,6 @@ export interface AppBootstrapContext {
 export interface AutoPlanController {
     /** Queues auto plan work for deferred execution. */
     queueAutoPlan(): void;
+    /** Rebuilds today's unfinished schedule without discarding completed sessions. */
+    replanToday(): void;
 }
