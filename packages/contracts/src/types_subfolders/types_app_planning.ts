@@ -22,12 +22,55 @@ import type {
     LoadedPlannerState,
     PlannerApi,
     PlannerResult,
+    PlannerScheduleRow,
     PlannerSettings,
     PlannerStateLoadResult,
 } from "./types_planner.ts";
 
 /** Planner result subset needed when applying newly generated schedules. */
 export type PlannerRunData = Pick<PlannerResult, "schedule" | "summary">;
+
+/** Existing schedule rows retained while newly planned rows are applied. */
+export type SchedulePreservationMode = "completed_today" | "through_today";
+
+/** Inputs used to build a normalized planner request payload. */
+export interface BuildPlanPayloadArgs {
+    minimumStartDate: string;
+    payloadBooks: Book[];
+    settings: PlannerSettings;
+    settingsOverrides: PlannerSettings;
+}
+
+/** A queued planner execution and its replan scope. */
+export interface AutoPlanRun {
+    explicitToday: boolean;
+    version: number;
+}
+
+/** Inputs used to derive the schedule policy for one replan. */
+export interface ReplanPolicyArgs {
+    completions: ScheduleCompletions;
+    explicitToday: boolean;
+    previousRows: PlannerScheduleRow[];
+    todayKey?: string;
+}
+
+/** Date boundary, merge policy, and constraints selected for a replan. */
+export interface ReplanPolicy {
+    minimumStartDate: string;
+    preservationMode: SchedulePreservationMode;
+    settingsOverrides: PlannerSettings;
+    statusSuccessMessage: string;
+}
+
+/** Inputs used when merging generated and preserved schedule rows. */
+export interface MergeScheduleRowsArgs {
+    blockedDayBooks?: BlockedDayBooks;
+    nextRows?: PlannerScheduleRow[];
+    preservationMode?: SchedulePreservationMode;
+    previousRows?: PlannerScheduleRow[];
+    scheduleCompletions?: ScheduleCompletions;
+}
 
 /** Dependencies used when applying generated planner output to runtime state. */
 export interface ApplyPlannedDataArgs
@@ -39,8 +82,8 @@ export interface ApplyPlannedDataArgs
     data: PlannerRunData;
     /** Persists updated runtime state after planned data is applied. */
     persistDraft(this: void): Promise<boolean>;
-    /** When true, blocked day-book pairs are preserved while applying new planner output. */
-    preserveLockedDays: boolean;
+    /** Policy controlling which existing rows survive this planning run. */
+    preservationMode: SchedulePreservationMode;
     /** Updates today view after related state changes. */
     updateTodayView(this: void): void;
 }
@@ -75,8 +118,12 @@ export interface PlanCommonArgs extends PlannerInputCollectors {
 export interface RunPlanGenerationArgs extends PlanCommonArgs {
     /** Returns false after this run has been superseded by newer planning input. */
     isRunCurrent?(this: void): boolean;
+    /** Earliest date the planner may use for this run. */
+    minimumStartDate?: string;
     /** Runs after successful generation to apply the generated schedule. */
     onSuccess(this: void, data: PlannerRunData): Promise<void>;
+    /** Transient constraints merged into settings only for this planner request. */
+    settingsOverrides?: PlannerSettings;
     /** Optional status text shown while plan generation is in progress. */
     statusGeneratingMessage?: string;
     /** Optional status text shown after plan generation succeeds. */
@@ -107,12 +154,16 @@ export interface PlanController {
     applyLoadedResult(savedResult: PlannerResult | null): void;
     /** Queues an automatic plan run if one is needed. */
     queueAutoPlan(): void;
+    /** Rebuilds unfinished work for today while retaining completed sessions. */
+    replanToday(): void;
 }
 
 /** Minimal contract for queueing automatic plan runs. */
 export interface AutoPlanRunner {
     /** Queues auto plan work for deferred execution. */
     queueAutoPlan(): void;
+    /** Queues an explicit same-day replan that retains completed sessions. */
+    replanToday(): void;
 }
 
 /** Mutable flags tracking automatic-plan queue and execution state. */
@@ -125,6 +176,8 @@ export interface AutoPlanState {
     autoRunPending: boolean;
     /** Monotonic request version used to ignore superseded auto-plan results. */
     autoRunVersion: number;
+    /** True when the next queued run must explicitly rebuild today. */
+    replanTodayPending: boolean;
 }
 
 /** Extra inputs for creating the deferred auto-plan runner. */

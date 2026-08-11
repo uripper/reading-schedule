@@ -1,5 +1,5 @@
 import type { CalendarRowWithFinish } from "../../types/types.ts";
-import { confirmDestructiveAction } from "../confirm/destructive-confirm.ts";
+import { confirmDestructiveAction } from "../confirm/action-confirm.ts";
 
 export function confirmRemoveSession(
     row: CalendarRowWithFinish,

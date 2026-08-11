@@ -1,4 +1,4 @@
-.danger-confirm-dialog {
+.action-confirm-dialog {
     width: min(430px, 92vw);
     padding: 0;
     color: #111;
@@ -8,11 +8,11 @@
     box-shadow: 8px 8px 0 #000;
 }
 
-.danger-confirm-dialog::backdrop {
+.action-confirm-dialog::backdrop {
     background: rgb(0 0 0 / 58%);
 }
 
-.danger-confirm-titlebar {
+.action-confirm-titlebar {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 26px;
     gap: 8px;
@@ -25,8 +25,8 @@
     border-bottom: 3px solid #000;
 }
 
-.danger-confirm-close,
-.danger-confirm-btn {
+.action-confirm-close,
+.action-confirm-btn {
     font: inherit;
     font-weight: 900;
     color: #111;
@@ -38,7 +38,7 @@
     border-radius: 0;
 }
 
-.danger-confirm-close {
+.action-confirm-close {
     display: grid;
     place-items: center;
     inline-size: 24px;
@@ -47,7 +47,7 @@
     line-height: 1;
 }
 
-.danger-confirm-body {
+.action-confirm-body {
     display: grid;
     gap: 10px;
     padding: 20px 18px 12px;
@@ -56,17 +56,17 @@
     border-top: 0;
 }
 
-.danger-confirm-message,
-.danger-confirm-warning {
+.action-confirm-message,
+.action-confirm-warning {
     margin: 0;
     line-height: 1.35;
 }
 
-.danger-confirm-warning {
+.action-confirm-warning {
     font-weight: 900;
 }
 
-.danger-confirm-actions {
+.action-confirm-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
@@ -75,7 +75,7 @@
     border-top: 2px solid #808080;
 }
 
-.danger-confirm-btn {
+.action-confirm-btn {
     min-width: 132px;
     min-height: 38px;
     padding: 6px 14px;
@@ -83,20 +83,20 @@
     letter-spacing: 0;
 }
 
-.danger-confirm-accept {
+.action-confirm-accept {
     background: #f07e67;
 }
 
-.danger-confirm-btn:hover,
-.danger-confirm-btn:focus-visible,
-.danger-confirm-close:hover,
-.danger-confirm-close:focus-visible {
+.action-confirm-btn:hover,
+.action-confirm-btn:focus-visible,
+.action-confirm-close:hover,
+.action-confirm-close:focus-visible {
     outline: 2px dotted #111;
     outline-offset: -5px;
     filter: brightness(1.04);
 }
 
-.danger-confirm-btn:active,
-.danger-confirm-close:active {
+.action-confirm-btn:active,
+.action-confirm-close:active {
     border-color: #404040 #fff #fff #404040;
 }

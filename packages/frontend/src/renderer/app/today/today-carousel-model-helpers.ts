@@ -4,7 +4,7 @@ import type {
     PlannerScheduleRow,
 } from "../../../types/types.ts";
 import { bookCoverSrc } from "../../books/model-normalize.ts";
-import { sessionKeyFor } from "../../calendar/utils.ts";
+import { isScheduleRowCompleted, sessionKeyFor } from "../../calendar/utils.ts";
 import type {
     TodayCarouselBookItem,
     TodayCarouselSessionItem,
@@ -16,18 +16,6 @@ const UNKNOWN_AUTHOR = "Unknown Author";
 
 function normalizedBookId(value: unknown): string {
     return String(value || EMPTY_TEXT).trim();
-}
-
-function isSessionCompleted(options: {
-    row: PlannerScheduleRow;
-    scheduleCompletions: Record<string, boolean>;
-}): boolean {
-    const SESSION_KEY = sessionKeyFor(options.row);
-    if (options.scheduleCompletions[SESSION_KEY]) {
-        return true;
-    }
-    const FALLBACK_KEY = `${options.row.date}|${options.row.book_id}`;
-    return Boolean(options.scheduleCompletions[FALLBACK_KEY]);
 }
 
 export function booksById(books: Book[]): Map<string, Book> {
@@ -74,7 +62,7 @@ function toSessionItem(
         finish: Boolean(row.finish),
     };
     return {
-        completed: isSessionCompleted({ row, scheduleCompletions }),
+        completed: isScheduleRowCompleted(row, scheduleCompletions),
         minutes: Math.max(1, Math.round(Number(row.minutes || 0))),
         row: ROW_WITH_FINISH,
         rowKey: sessionKeyFor(row),

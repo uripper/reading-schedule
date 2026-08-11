@@ -1,7 +1,14 @@
+/**
+ * Builds and validates the paired page and percentage progress drafts.
+ */
+import {
+    boundedPercentDraftText,
+    MAX_PROGRESS_PERCENT,
+    roundedPercent,
+} from "./today-progress-percent.ts";
+
 const EMPTY_TEXT = "";
-const MAX_PERCENT = 100;
 const MIN_PROGRESS = 0;
-const PERCENT_PRECISION_FACTOR = 10;
 const UNKNOWN_PAGES_TOTAL = "--";
 const EMPTY_PROGRESS_DRAFT: TodayProgressDraft = {
     pagesText: EMPTY_TEXT,
@@ -45,12 +52,6 @@ function parseOptionalNumber(valueRaw: string): number | null {
 
 function roundedPages(value: number): number {
     return Math.round(value);
-}
-
-function roundedPercent(value: number): number {
-    return (
-        Math.round(value * PERCENT_PRECISION_FACTOR) / PERCENT_PRECISION_FACTOR
-    );
 }
 
 function formattedPagesValue(pagesRead: number | null): string {
@@ -109,10 +110,6 @@ function boundedPagesText(
     return boundedText(pagesText, roundedPages(pagesTotal));
 }
 
-function boundedPercentText(percentText: string): string {
-    return boundedText(percentText, MAX_PERCENT);
-}
-
 function boundedDraftOrEmpty(
     draft: TodayProgressDraft | null,
     pagesTotal: number | null,
@@ -140,7 +137,7 @@ export function boundedTodayProgressDraft(options: {
             options.draft.pagesText,
             options.pagesTotal,
         ),
-        percentText: boundedPercentText(options.draft.percentText),
+        percentText: boundedPercentDraftText(options.draft.percentText),
     };
 }
 
@@ -153,7 +150,9 @@ function derivedPagesPlaceholder(options: {
     if (PERCENT === null || options.pagesTotal === null) {
         return formattedPagesValue(options.currentPagesRead);
     }
-    return String(roundedPages((PERCENT / MAX_PERCENT) * options.pagesTotal));
+    return String(
+        roundedPages((PERCENT / MAX_PROGRESS_PERCENT) * options.pagesTotal),
+    );
 }
 
 /**
@@ -177,7 +176,9 @@ function derivedPercentPlaceholder(options: {
     ) {
         return formattedPercentValue(options.currentPercent);
     }
-    return formattedPercentValue((PAGES / options.pagesTotal) * MAX_PERCENT);
+    return formattedPercentValue(
+        (PAGES / options.pagesTotal) * MAX_PROGRESS_PERCENT,
+    );
 }
 
 function pagesMaxText(pagesTotal: number | null): string {
@@ -188,22 +189,10 @@ function pagesMaxText(pagesTotal: number | null): string {
 }
 
 /**
- * Build a view model for today's progress input fields from the current state and an optional draft.
- * @example
- * buildTodayProgressInputViewModel({
- *   currentPagesRead: 10,
- *   currentPercent: 25,
- *   draft: null,
- *   pagesTotal: 300,
- * })
- * { pagesMax: "300", pagesPlaceholder: "...", pagesText: "", percentPlaceholder: "...", percentText: "" }
- * @param {{Object}} {{options}} - Options used to construct the input view model.
- * @param {{number|null}} {{options.currentPagesRead}} - Current number of pages read or null if unknown.
- * @param {{number}} {{options.currentPercent}} - Current percent complete (0-100).
- * @param {{TodayProgressDraft|null}} {{options.draft}} - Optional draft containing user-entered pages/percent text.
- * @param {{number|null}} {{options.pagesTotal}} - Total number of pages or null if unknown.
- * @returns {{TodayProgressInputViewModel}} Return object with pagesMax, pagesPlaceholder, pagesText, percentPlaceholder, and percentText.
- **/
+ * Builds the editable values and reciprocal hints for Today progress.
+ * @param options - Saved progress, page total, and optional live draft.
+ * @returns Input values, placeholders, and the page-input maximum.
+ */
 export function buildTodayProgressInputViewModel(options: {
     currentPagesRead: number | null;
     currentPercent: number;
@@ -296,38 +285,4 @@ function validatedPagesValue(
         return invalidPagesValue(ERROR);
     }
     return { error: EMPTY_TEXT, value: pages };
-}
-
-/**
- * Normalize and validate a percentage input from text, returning an error message (if any) and a numeric percent value.
- * @example
- * normalizedPercentValue({ currentPercent: 10, percentText: "75" })
- * { error: "", value: 75 }
- * @param {{Object}} {{options}} - Contains currentPercent (number fallback) and percentText (user-entered string to parse).
- * @returns {{Object}} Return object with error (string) and value (number).
- **/
-export function normalizedPercentValue(options: {
-    currentPercent: number;
-    percentText: string;
-}): {
-    error: string;
-    value: number;
-} {
-    if (isBlankText(options.percentText)) {
-        return {
-            error: EMPTY_TEXT,
-            value: roundedPercent(options.currentPercent),
-        };
-    }
-    const PARSED = parseOptionalNumber(options.percentText);
-    if (PARSED === null) {
-        return { error: "Complete % must be a number.", value: MIN_PROGRESS };
-    }
-    if (PARSED < MIN_PROGRESS || PARSED > MAX_PERCENT) {
-        return {
-            error: "Complete % must be between 0 and 100.",
-            value: MIN_PROGRESS,
-        };
-    }
-    return { error: EMPTY_TEXT, value: roundedPercent(PARSED) };
 }

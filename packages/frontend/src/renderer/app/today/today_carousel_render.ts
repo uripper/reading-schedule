@@ -2,7 +2,9 @@
  * Renders the Today carousel shell and active-session control panel.
  */
 import type { Book, PlannerResult } from "../../../types/types.ts";
+import { confirmAction } from "../../confirm/action-confirm.ts";
 import { el } from "../../dom.ts";
+import { errorMessage } from "../plan-errors.ts";
 import type { TodayCarouselActionBindings } from "./today_carousel_action_bindings.ts";
 import {
     bindMinutesEditor,
@@ -40,11 +42,15 @@ import {
     renderCarouselTrack,
 } from "./today_carousel_track.ts";
 
+// audit-allow-local-types: These bindings are private Today renderer state.
+
 const EMPTY_TEXT = "";
 const EMPTY_BOOK_LABEL = "No book selected";
 const EMPTY_MINUTES_TEXT = "0";
 const EMPTY_PROGRESS_TOTAL_TEXT = "--";
 const EMPTY_SESSION_SUMMARY_TEXT = "-- pages • --%";
+const REPLAN_TODAY_MESSAGE =
+    "Replan Today's unfinished sessions.  If your Library hasn't changed, your plan likely won't either (For example, changing a scheduled book to have a lower priority may cause it to not be scheduled). This will also update your future reading plan.";
 
 interface TodayCarouselRenderArgs {
     books: Book[];
@@ -55,6 +61,7 @@ interface TodayCarouselRenderArgs {
 interface TodayInteractionBindings {
     listSessionBooks: TodayCarouselActionBindings["listSessionBooks"];
     onManualSessionAdded: TodayCarouselActionBindings["onManualSessionAdded"];
+    onReplanToday(): void;
     onSessionCompletionChanged: TodayCarouselActionBindings["onSessionCompletionChanged"];
     onSessionMinutesUpdated: TodayCarouselActionBindings["onSessionMinutesUpdated"];
     onSessionProgressUpdated: TodayCarouselActionBindings["onSessionProgressUpdated"];
@@ -216,6 +223,37 @@ function bindActiveActions(active: TodayCarouselActiveItem): void {
     });
 }
 
+function bindReplanTodayAction(): void {
+    const BUTTON = globalThis.document.getElementById("todayReplanBtn");
+    if (!(BUTTON instanceof HTMLButtonElement)) {
+        return;
+    }
+    BUTTON.onclick = handleReplanTodayClick;
+}
+
+function handleReplanTodayClick(): void {
+    confirmAction({
+        cancelLabel: "CANCEL",
+        confirmLabel: "REPLAN TODAY",
+        message: REPLAN_TODAY_MESSAGE,
+        title: "Replan Today",
+    })
+        .then(applyReplanTodayConfirmation)
+        .catch(reportReplanTodayConfirmError);
+}
+
+function applyReplanTodayConfirmation(confirmed: boolean): void {
+    if (!confirmed) {
+        return;
+    }
+    interactionBindings()?.onReplanToday();
+}
+
+function reportReplanTodayConfirmError(error: unknown): void {
+    const MESSAGE = `Could not confirm today replanning: ${errorMessage(error)}`;
+    interactionBindings()?.setStatus(MESSAGE, true);
+}
+
 /**
  * Configures the shared Today callbacks used by the carousel renderer.
  * @param bindings - Mutation and status callbacks for Today actions.
@@ -224,6 +262,7 @@ export function configureTodayInteractions(
     bindings: TodayInteractionBindings,
 ): void {
     interactions = bindings;
+    bindReplanTodayAction();
 }
 
 /**

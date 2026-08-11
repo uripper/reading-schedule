@@ -1,12 +1,23 @@
 // biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { bindTodayProgressInputs } from "../dist/renderer/app/today/today_carousel_progress_bindings.js";
 import { resetTodayCarouselUiState } from "../dist/renderer/app/today/today_carousel_state.js";
 
+const FOCUS_CONTROLS_CSS = readFileSync(
+    new URL("../styles/today-focus-controls.css", import.meta.url),
+    "utf8",
+);
+const INDEX_HTML = readFileSync(
+    new URL("../index.html", import.meta.url),
+    "utf8",
+);
+
 function fakeInputElement() {
     this.max = "";
+    this.onblur = null;
     this.oninput = null;
     this.placeholder = "";
     this.value = "";
@@ -18,16 +29,36 @@ fakeInputElement.prototype.removeAttribute = function (name) {
     }
 };
 
-function fakeTodayInputsDocument(pagesInput, percentInput) {
+function fakePanelElement() {
+    const CLASSES = new Set();
+    const PANEL = new fakeInputElement();
+    PANEL.classList = {
+        contains(name) {
+            return CLASSES.has(name);
+        },
+        remove(name) {
+            CLASSES.delete(name);
+        },
+        toggle(name, enabled) {
+            if (enabled) {
+                CLASSES.add(name);
+                return;
+            }
+            CLASSES.delete(name);
+        },
+    };
+    return PANEL;
+}
+
+function fakeTodayInputsDocument(pagesInput, percentInput, progressPanel) {
+    const ELEMENTS = {
+        todayPagesInput: pagesInput,
+        todayPercentInput: percentInput,
+        todayProgressPanel: progressPanel,
+    };
     return {
         getElementById(id) {
-            if (id === "todayPagesInput") {
-                return pagesInput;
-            }
-            if (id === "todayPercentInput") {
-                return percentInput;
-            }
-            return null;
+            return ELEMENTS[id] ?? null;
         },
     };
 }
@@ -44,6 +75,7 @@ function progressInputFixtures() {
     return {
         pagesInput: new fakeInputElement(),
         percentInput: new fakeInputElement(),
+        progressPanel: fakePanelElement(),
     };
 }
 
@@ -57,6 +89,7 @@ function installTodayProgressGlobals(fixtures) {
     globalThis.document = fakeTodayInputsDocument(
         fixtures.pagesInput,
         fixtures.percentInput,
+        fixtures.progressPanel,
     );
 }
 
@@ -124,4 +157,44 @@ test("bindTodayProgressInputs clamps oversize page and percent values while typi
             assert.equal(pagesInput.placeholder, "336");
         },
     );
+});
+
+test("bindTodayProgressInputs preserves a trailing decimal and finalizes on blur", () => {
+    bindTodayProgressInputFixtures({ pagesTotal: 336 }, ({ percentInput }) => {
+        percentInput.value = "9,";
+        percentInput.oninput();
+        assert.equal(percentInput.value, "9.");
+
+        percentInput.value = "9.95";
+        percentInput.oninput();
+        assert.equal(percentInput.value, "9.95");
+        percentInput.onblur();
+        assert.equal(percentInput.value, "10");
+    });
+});
+
+test("either entered progress field activates black reciprocal hints", () => {
+    bindTodayProgressInputFixtures(
+        { pagesTotal: 336 },
+        ({ pagesInput, progressPanel }) => {
+            assert.equal(
+                progressPanel.classList.contains("has-progress-entry"),
+                false,
+            );
+            pagesInput.value = "100";
+            pagesInput.oninput();
+            assert.equal(
+                progressPanel.classList.contains("has-progress-entry"),
+                true,
+            );
+        },
+    );
+});
+
+test("Today progress markup and styles expose decimal help and readable states", () => {
+    assert.match(INDEX_HTML, /pattern="\[0-9\]\*\(\[\.,\]\[0-9\]\*\)\?"/u);
+    assert.match(INDEX_HTML, /aria-describedby="todayPercentInputHint"/u);
+    assert.match(FOCUS_CONTROLS_CSS, /\.has-progress-entry/u);
+    assert.match(FOCUS_CONTROLS_CSS, /\.today-focus-panel\.is-complete/u);
+    assert.doesNotMatch(FOCUS_CONTROLS_CSS, /font-size:\s*0\./u);
 });

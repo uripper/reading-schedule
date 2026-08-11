@@ -165,7 +165,7 @@ export interface SessionReader {
 }
 
 /** Shared readers used to pull planner state from runtime state. */
-export interface PlannerStateReaders extends SessionReader {
+export interface PlannerStateReaders {
     /** Returns last result from current runtime state. */
     getLastResult(this: void): PlannerResult | null;
     /** Returns schedule completions from current runtime state. */

@@ -1,325 +1,190 @@
-import type { PlannerScheduleRow, Session } from "../../types/types.ts";
-import { dayKeyFromDate, localDayKeyFromIso } from "./date_keys.ts";
+/**
+ * Preserves historical or completed schedule rows while applying replans.
+ */
+
+import type {
+    MergeScheduleRowsArgs,
+    PlannerScheduleRow,
+    SchedulePreservationMode,
+} from "../../types/types.ts";
+import {
+    dayBookCompletionKey,
+    isScheduleRowCompleted,
+    sessionKeyFor,
+    sortRowsByDateAndSession,
+} from "../calendar/utils.ts";
+import { dayKeyFromDate } from "./date_keys.ts";
 import { isOnOrBeforeDay, isValidDayKey } from "./day_keys_compare.ts";
 
-const SESSION_INDEX_PAD = 3;
-
-type MergeScheduleRowsArgs = {
-    previousRows?: PlannerScheduleRow[];
-    nextRows?: PlannerScheduleRow[];
-    sessions?: Session[];
-    blockedDayBooks?: Record<string, boolean>;
-};
-
-type LockedDateState = {
-    locked: Set<string>;
-    previousDates: Set<string>;
-};
-
-/**
- * Builds a sortable key for stable schedule ordering by day and session index.
- * @param row - Planner schedule row.
- * @returns Lexicographic key used for deterministic row sorting.
- */
-function rowSortKey(row: PlannerScheduleRow): string {
-    const SESSION = String(row.session_index || 0).padStart(
-        SESSION_INDEX_PAD,
-        "0",
-    );
-    return `${String(row.date || "")}-${SESSION}`;
-}
-
-function validDayKey(value: string): string | null {
-    if (!isValidDayKey(value)) {
-        return null;
-    }
-    return value;
-}
-
-function rowDayKey(row: PlannerScheduleRow): string | null {
-    return validDayKey(String(row.date || ""));
-}
-
-function sessionDayKey(session: Session): string | null {
-    const KEY = localDayKeyFromIso(String(session.ended_at || "")) ?? "";
-    return validDayKey(KEY);
-}
+const DEFAULT_PRESERVATION_MODE: SchedulePreservationMode = "through_today";
 
 /**
  * Returns schedule rows sorted by day and session index.
- * @param rows - Unsanitized schedule rows.
+ * @param rows - Unsorted schedule rows.
  * @returns New sorted row array.
  */
 export function sortedRows(
     rows: PlannerScheduleRow[] = [],
 ): PlannerScheduleRow[] {
-    return [...rows].sort((left, right) => {
-        return rowSortKey(left).localeCompare(rowSortKey(right));
-    });
+    return sortRowsByDateAndSession(rows);
 }
 
-/**
- * Computes days that should remain fixed when regenerating schedules.
- * A day is locked when it already exists in the prior plan and is today/past,
- * or when an ended session occurred on that day.
- * @param previousRows - Previously planned rows.
- * @param sessions - Recorded reading sessions.
- * @returns Set of locked day keys.
- */
-function lockedDates(
-    previousRows: PlannerScheduleRow[] = [],
-    sessions: Session[] = [],
-): Set<string> {
-    const TODAY_KEY = dayKeyFromDate(new Date());
-    const STATE = previousLockedDates(previousRows, TODAY_KEY);
-    addLockedSessionDates({
-        sessions,
-        state: STATE,
-        todayKey: TODAY_KEY,
-    });
-    return STATE.locked;
+function isPastDay(row: PlannerScheduleRow, todayKey: string): boolean {
+    if (row.date === todayKey) {
+        return false;
+    }
+    return isOnOrBeforeDay(row.date, todayKey);
 }
 
-function previousLockedDates(
-    previousRows: PlannerScheduleRow[],
+function preservePreviousRow(options: {
+    completions: Record<string, boolean>;
+    mode: SchedulePreservationMode;
+    row: PlannerScheduleRow;
+    todayKey: string;
+}): boolean {
+    if (isPastDay(options.row, options.todayKey)) {
+        return true;
+    }
+    if (options.row.date !== options.todayKey) {
+        return false;
+    }
+    if (options.mode === "through_today") {
+        return true;
+    }
+    return isScheduleRowCompleted(options.row, options.completions);
+}
+
+function acceptPlannedRow(options: {
+    blockedDayBooks: Record<string, boolean>;
+    lockToday: boolean;
+    mode: SchedulePreservationMode;
+    row: PlannerScheduleRow;
+    todayKey: string;
+}): boolean {
+    if (!isValidDayKey(options.row.date)) {
+        return false;
+    }
+    const BLOCK_KEY = dayBookCompletionKey(
+        options.row.date,
+        String(options.row.book_id),
+    );
+    if (options.blockedDayBooks[BLOCK_KEY] === true) {
+        return false;
+    }
+    if (options.mode === "completed_today") {
+        return !isPastDay(options.row, options.todayKey);
+    }
+    if (options.row.date === options.todayKey) {
+        return !options.lockToday;
+    }
+    return !isOnOrBeforeDay(options.row.date, options.todayKey);
+}
+
+function appendAcceptedNextRows(
+    args: Required<MergeScheduleRowsArgs>,
     todayKey: string,
-): LockedDateState {
-    const PREVIOUS_DATES = new Set<string>();
-    collectPreviousDates(previousRows, PREVIOUS_DATES);
+    merged: Map<string, PlannerScheduleRow>,
+): void {
+    const LOCK_TODAY = locksToday(args, todayKey);
+    for (const ROW of args.nextRows) {
+        if (
+            acceptPlannedRow({
+                blockedDayBooks: args.blockedDayBooks,
+                lockToday: LOCK_TODAY,
+                mode: args.preservationMode,
+                row: ROW,
+                todayKey,
+            })
+        ) {
+            merged.set(sessionKeyFor(ROW), ROW);
+        }
+    }
+}
+
+function locksToday(
+    args: Required<MergeScheduleRowsArgs>,
+    todayKey: string,
+): boolean {
+    if (args.preservationMode !== "through_today") {
+        return false;
+    }
+    return args.previousRows.some((row) => row.date === todayKey);
+}
+
+function appendPreservedPreviousRows(
+    args: Required<MergeScheduleRowsArgs>,
+    todayKey: string,
+    merged: Map<string, PlannerScheduleRow>,
+): void {
+    for (const ROW of args.previousRows) {
+        if (
+            preservePreviousRow({
+                completions: args.scheduleCompletions,
+                mode: args.preservationMode,
+                row: ROW,
+                todayKey,
+            })
+        ) {
+            merged.set(sessionKeyFor(ROW), ROW);
+        }
+    }
+}
+
+function mergedRowsByKey(
+    args: Required<MergeScheduleRowsArgs>,
+): Map<string, PlannerScheduleRow> {
+    const TODAY_KEY = dayKeyFromDate(new Date());
+    const MERGED = new Map<string, PlannerScheduleRow>();
+    appendAcceptedNextRows(args, TODAY_KEY, MERGED);
+    appendPreservedPreviousRows(args, TODAY_KEY, MERGED);
+    return MERGED;
+}
+
+function resolvedArgs(
+    args: MergeScheduleRowsArgs,
+): Required<MergeScheduleRowsArgs> {
     return {
-        locked: lockedPreviousDates(PREVIOUS_DATES, todayKey),
-        previousDates: PREVIOUS_DATES,
+        blockedDayBooks: args.blockedDayBooks ?? {},
+        nextRows: args.nextRows ?? [],
+        preservationMode: args.preservationMode ?? DEFAULT_PRESERVATION_MODE,
+        previousRows: args.previousRows ?? [],
+        scheduleCompletions: args.scheduleCompletions ?? {},
     };
 }
 
-function collectPreviousDates(
-    previousRows: PlannerScheduleRow[],
-    previousDates: Set<string>,
-): void {
-    for (const ROW of previousRows) {
-        const ROW_DATE = rowDayKey(ROW);
-        if (ROW_DATE !== null) {
-            previousDates.add(ROW_DATE);
-        }
-    }
-}
-
-function lockedPreviousDates(
-    previousDates: Set<string>,
-    todayKey: string,
-): Set<string> {
-    const LOCKED = new Set<string>();
-    for (const PREVIOUS_DATE of previousDates) {
-        if (isOnOrBeforeDay(PREVIOUS_DATE, todayKey)) {
-            LOCKED.add(PREVIOUS_DATE);
-        }
-    }
-    return LOCKED;
-}
-
-function addLockedSessionDates(args: {
-    sessions: Session[];
-    state: LockedDateState;
-    todayKey: string;
-}): void {
-    for (const SESSION of args.sessions) {
-        addLockedSessionDate(SESSION, args.state, args.todayKey);
-    }
-}
-
-function shouldLockSessionDate(
-    key: string | null,
-    state: LockedDateState,
-    todayKey: string,
-): key is string {
-    if (key === null) {
-        return false;
-    }
-    if (!state.previousDates.has(key)) {
-        return false;
-    }
-    return isOnOrBeforeDay(key, todayKey);
-}
-
-function addLockedSessionDate(
-    session: Session,
-    state: LockedDateState,
-    todayKey: string,
-): void {
-    const KEY = sessionDayKey(session);
-    if (!shouldLockSessionDate(KEY, state, todayKey)) {
-        return;
-    }
-    state.locked.add(KEY);
-}
-
 /**
- * Builds a completion key scoped to exact schedule row identity.
- * @param row - Planner schedule row.
- * @returns Key combining date, session index, and book id.
- */
-function scheduleKey(row: PlannerScheduleRow): string {
-    return `${row.date}|${row.session_index}|${row.book_id}`;
-}
-
-/**
- * Builds a completion key scoped to day and book only.
- * @param row - Planner schedule row.
- * @returns Key combining date and book id.
- */
-function dayBookCompletionKey(row: PlannerScheduleRow): string {
-    return `${row.date}|${row.book_id}`;
-}
-
-/**
- * Removes rows whose day-book key has been manually blocked by the user.
- * @param rows - Candidate schedule rows.
- * @param blockedDayBooks - Block map keyed by `YYYY-MM-DD|book_id`.
- * @returns Rows that are still allowed for scheduling.
- */
-function rowsWithoutBlockedDayBooks(
-    rows: PlannerScheduleRow[],
-    blockedDayBooks: Record<string, boolean>,
-): PlannerScheduleRow[] {
-    return rows.filter((row) => {
-        const KEY = dayBookCompletionKey(row);
-        return !blockedDayBooks[KEY];
-    });
-}
-
-/**
- * Merges new plan rows with locked rows from the previous plan.
- * Locked days are preserved from `previousRows`; other days come from `nextRows`.
- * @param args - Previous rows, new rows, sessions, and blocked day-book keys.
- * @returns Sorted merged schedule rows with duplicate keys removed.
+ * Merges generated rows with schedule history selected by the replan policy.
+ * Past rows always survive. Automatic runs retain all of today, while an
+ * explicit Today replan retains only completed sessions from today.
+ * @param args - Existing rows, generated rows, completion state, and policy.
+ * @returns Sorted merged rows with preserved rows winning identity conflicts.
  */
 export function mergeScheduleRows(
     args: MergeScheduleRowsArgs = {},
 ): PlannerScheduleRow[] {
-    const INPUTS = mergeScheduleRowsInputs(args);
-    const LOCKED = lockedDates(INPUTS.previousRows, INPUTS.sessions);
-    if (!LOCKED.size) {
-        return sortedRows(INPUTS.nextRows);
-    }
-    return sortedRows([
-        ...mergedRowsByKey(
-            INPUTS.previousRows,
-            INPUTS.nextRows,
-            LOCKED,
-        ).values(),
-    ]);
-}
-
-function mergeScheduleRowsInputs(
-    args: MergeScheduleRowsArgs,
-): Required<MergeScheduleRowsArgs> {
-    const BLOCKED_DAY_BOOKS = resolvedBlockedDayBooks(args.blockedDayBooks);
-    return {
-        blockedDayBooks: BLOCKED_DAY_BOOKS,
-        nextRows: rowsWithoutBlockedDayBooks(
-            resolvedScheduleRows(args.nextRows),
-            BLOCKED_DAY_BOOKS,
-        ),
-        previousRows: resolvedScheduleRows(args.previousRows),
-        sessions: resolvedSessions(args.sessions),
-    };
-}
-
-function resolvedScheduleRows(
-    rows: PlannerScheduleRow[] | undefined,
-): PlannerScheduleRow[] {
-    if (rows === undefined) {
-        return [];
-    }
-    return rows;
-}
-
-function resolvedSessions(sessions: Session[] | undefined): Session[] {
-    if (sessions === undefined) {
-        return [];
-    }
-    return sessions;
-}
-
-function resolvedBlockedDayBooks(
-    blockedDayBooks: Record<string, boolean> | undefined,
-): Record<string, boolean> {
-    if (blockedDayBooks === undefined) {
-        return {};
-    }
-    return blockedDayBooks;
-}
-
-function mergedRowsByKey(
-    previousRows: PlannerScheduleRow[],
-    nextRows: PlannerScheduleRow[],
-    locked: Set<string>,
-): Map<string, PlannerScheduleRow> {
-    const MERGED_BY_KEY = new Map<string, PlannerScheduleRow>();
-    appendMergedRows({
-        keepLocked: true,
-        locked,
-        mergedByKey: MERGED_BY_KEY,
-        rows: previousRows,
-    });
-    appendMergedRows({
-        keepLocked: false,
-        locked,
-        mergedByKey: MERGED_BY_KEY,
-        rows: nextRows,
-    });
-    return MERGED_BY_KEY;
-}
-
-function appendMergedRows(args: {
-    mergedByKey: Map<string, PlannerScheduleRow>;
-    rows: PlannerScheduleRow[];
-    locked: Set<string>;
-    keepLocked: boolean;
-}): void {
-    for (const ROW of args.rows) {
-        if (shouldSkipMergedRow(ROW, args.locked, args.keepLocked)) {
-            continue;
-        }
-        args.mergedByKey.set(scheduleKey(ROW), ROW);
-    }
-}
-
-function shouldSkipMergedRow(
-    row: PlannerScheduleRow,
-    locked: Set<string>,
-    keepLocked: boolean,
-): boolean {
-    const IS_LOCKED = locked.has(String(row.date || ""));
-    if (keepLocked) {
-        return !IS_LOCKED;
-    }
-    return IS_LOCKED;
+    return sortedRows([...mergedRowsByKey(resolvedArgs(args)).values()]);
 }
 
 /**
- * Removes completion entries that no longer map to rows in the current schedule.
- * Supports both full session keys and day-book aggregate keys.
- * @param scheduleCompletions - Existing completion map.
+ * Removes completion entries that no longer map to the current schedule.
+ * @param scheduleCompletions - Existing exact or legacy completion flags.
  * @param rows - Current schedule rows.
- * @returns Pruned completion map containing only valid keys.
+ * @returns Completion state restricted to existing rows.
  */
 export function pruneScheduleCompletions(
     scheduleCompletions: Record<string, boolean> = {},
     rows: PlannerScheduleRow[] = [],
 ): Record<string, boolean> {
-    const ALLOWED_SESSION_KEYS = new Set(rows.map((row) => scheduleKey(row)));
-    const ALLOWED_DAY_BOOK_KEYS = new Set(
-        rows.map((row) => dayBookCompletionKey(row)),
-    );
-    const OUT: Record<string, boolean> = {};
-    for (const [KEY, VALUE] of Object.entries(scheduleCompletions)) {
-        if (
-            !(ALLOWED_SESSION_KEYS.has(KEY) || ALLOWED_DAY_BOOK_KEYS.has(KEY))
-        ) {
-            continue;
-        }
-        OUT[KEY] = Boolean(VALUE);
+    const ALLOWED_KEYS = new Set<string>();
+    for (const ROW of rows) {
+        ALLOWED_KEYS.add(sessionKeyFor(ROW));
+        ALLOWED_KEYS.add(dayBookCompletionKey(ROW.date, String(ROW.book_id)));
     }
-    return OUT;
+    const OUTPUT: Record<string, boolean> = {};
+    for (const [KEY, VALUE] of Object.entries(scheduleCompletions)) {
+        if (ALLOWED_KEYS.has(KEY)) {
+            OUTPUT[KEY] = Boolean(VALUE);
+        }
+    }
+    return OUTPUT;
 }

@@ -64,6 +64,7 @@ export function clearNoDataHandlers(): void {
     el<HTMLInputElement>("todayMinutesInput").onkeydown = null;
     el<HTMLInputElement>("todayPagesInput").oninput = null;
     el<HTMLInputElement>("todayPercentInput").oninput = null;
+    el<HTMLInputElement>("todayPercentInput").onblur = null;
 }
 
 /**

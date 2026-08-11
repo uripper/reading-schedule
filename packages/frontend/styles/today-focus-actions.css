@@ -3,21 +3,45 @@
     grid-column: 1 / -1;
     gap: 1rem;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     padding-top: 1rem;
     border-top: 3px solid #000;
 }
 
+.today-session-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-left: auto;
+}
+
+.today-replan-btn,
 .today-log-session-btn,
 .today-remove-session-btn {
     min-height: 3rem;
     padding: 0.7rem 1.25rem;
     font-family: var(--main-font);
+    font-size: 1rem;
     font-weight: 800;
     color: #000;
     border: 3px solid #000;
     border-radius: 0.35rem;
     box-shadow: 4px 4px 0 #000;
+}
+
+.today-replan-btn {
+    background: #fff6c7;
+}
+
+.today-replan-btn:hover {
+    background: var(--neo-today-yellow);
+    box-shadow: 5px 5px 0 #000;
+    transform: translate(-1px, -1px);
+}
+
+.today-replan-btn:active {
+    box-shadow: 2px 2px 0 #000;
+    transform: translate(2px, 2px);
 }
 
 .today-log-session-btn {
@@ -62,6 +86,7 @@
 .today-focus-panel.is-complete #todayPagesInput,
 .today-focus-panel.is-complete #todayPercentInput {
     color: #000;
+    -webkit-text-fill-color: #000;
     pointer-events: none;
     cursor: not-allowed;
     opacity: 1;

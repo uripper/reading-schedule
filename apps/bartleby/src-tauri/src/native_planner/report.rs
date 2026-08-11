@@ -264,7 +264,12 @@ fn planned_session(settings: &Settings, session_clip: SessionClip<'_>) -> Option
 }
 
 fn sessions_for_day(day_sessions: DaySessions<'_>) -> Vec<Session> {
-    let mut session_index = 0;
+    let mut session_index = day_sessions
+        .settings
+        .reserved_sessions_by_date
+        .get(&day_sessions.day)
+        .copied()
+        .unwrap_or(0);
     let mut session_builder = SessionBuilder {
         books_by_id: day_sessions.books_by_id,
         day: day_sessions.day,

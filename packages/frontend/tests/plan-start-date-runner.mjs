@@ -29,6 +29,8 @@ export function recordingGenerate(calls, result = DEFAULT_RESULT) {
  * @param {() => Record<string, unknown>} root0.collectSettings - Settings collector.
  * @param {(status: string) => void} root0.setStatus - Status sink.
  * @param {(message: string) => void} root0.addLog - Log sink.
+ * @param {string | undefined} root0.minimumStartDate - Earliest allowed date.
+ * @param {Record<string, unknown> | undefined} root0.settingsOverrides - Transient settings.
  * @returns {Promise<void>} Promise that resolves when generation completes.
  */
 export async function runPlanGenerationForTest({
@@ -36,15 +38,19 @@ export async function runPlanGenerationForTest({
     collectSettings,
     setStatus = NOOP,
     addLog = NOOP,
+    minimumStartDate,
+    settingsOverrides,
 }) {
     await runPlanGeneration({
         addLog,
         announce: NOOP,
         collectBooks: () => BOOKS,
         collectSettings,
+        minimumStartDate,
         onSuccess: NOOP_ASYNC,
         plannerApi: { generate },
         setStatus,
+        settingsOverrides,
         successAnnouncement: "",
     });
 }

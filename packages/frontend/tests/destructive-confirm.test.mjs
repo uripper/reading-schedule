@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { confirmDestructiveAction } from "../dist/renderer/confirm/destructive-confirm.js";
+import { confirmDestructiveAction } from "../dist/renderer/confirm/action-confirm.js";
 import { installFakeDom } from "./helpers/fake-dom.mjs";
 
 function confirmOptions() {
@@ -27,12 +27,16 @@ test("destructive confirmation resolves true only after confirm action", async (
         installRemoveChild(ENVIRONMENT);
         const CONFIRMATION = confirmDestructiveAction(confirmOptions());
         const DIALOG = ENVIRONMENT.document.body.querySelector(
-            ".danger-confirm-dialog",
+            ".action-confirm-dialog",
         );
-        DIALOG.querySelector(".danger-confirm-accept").click();
+        assert.equal(
+            DIALOG.querySelector(".action-confirm-warning").textContent,
+            "This action cannot be undone.",
+        );
+        DIALOG.querySelector(".action-confirm-accept").click();
         assert.equal(await CONFIRMATION, true);
         assert.equal(
-            ENVIRONMENT.document.body.querySelector(".danger-confirm-dialog"),
+            ENVIRONMENT.document.body.querySelector(".action-confirm-dialog"),
             null,
         );
     } finally {
@@ -46,9 +50,9 @@ test("destructive confirmation cancel resolves false", async () => {
         installRemoveChild(ENVIRONMENT);
         const CONFIRMATION = confirmDestructiveAction(confirmOptions());
         const DIALOG = ENVIRONMENT.document.body.querySelector(
-            ".danger-confirm-dialog",
+            ".action-confirm-dialog",
         );
-        DIALOG.querySelector(".danger-confirm-cancel").click();
+        DIALOG.querySelector(".action-confirm-cancel").click();
         assert.equal(await CONFIRMATION, false);
     } finally {
         ENVIRONMENT.restore();

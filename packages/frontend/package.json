@@ -20,5 +20,5 @@
         "typecheck": "pnpm -C ../contracts run build && pnpm --dir ../.. exec tsc -p packages/frontend/tsconfig.json --noEmit"
     },
     "type": "module",
-    "version": "0.1.5-alpha"
+    "version": "0.1.6-alpha"
 }

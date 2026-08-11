@@ -1,3 +1,5 @@
+/** Runtime validation for persisted and transient planner settings. */
+
 import { z } from "zod";
 import { JSON_VALUE_SCHEMA } from "./shared.ts";
 import type { PlannerSettings } from "./types_subfolders/types_planner.ts";
@@ -16,6 +18,11 @@ const DAY_OFF_DATE_SCHEMA = z
     .refine(isCalendarDayKey);
 
 const DIFFICULTY_MULTIPLIER_SCHEMA = z.record(z.string(), z.number());
+const RESERVED_BOOK_IDS_SCHEMA = z.record(
+    DAY_OFF_DATE_SCHEMA,
+    z.array(z.string()),
+);
+const RESERVED_COUNT_SCHEMA = z.record(DAY_OFF_DATE_SCHEMA, z.number());
 const SOLVER_PROFILE_SCHEMA = z.enum(["fast", "balanced", "thorough"]);
 
 function dayKeyParts(dayKey: string): [number, number, number] | null {
@@ -61,6 +68,9 @@ const PLANNER_SETTINGS_SCHEMA = z
         minutes_per_day: z.number().nullable().optional(),
         plan_mode: z.string().optional(),
         planner_solver_profile: SOLVER_PROFILE_SCHEMA.optional(),
+        reserved_book_ids_by_date: RESERVED_BOOK_IDS_SCHEMA.optional(),
+        reserved_minutes_by_date: RESERVED_COUNT_SCHEMA.optional(),
+        reserved_sessions_by_date: RESERVED_COUNT_SCHEMA.optional(),
         start_date: z.string().optional(),
         time_quantum_minutes: z.number().optional(),
         w_finish: z.number().optional(),
@@ -71,14 +81,17 @@ const PLANNER_SETTINGS_SCHEMA = z
     })
     .catchall(JSON_VALUE_SCHEMA);
 
+/** Returns the canonical planner-settings schema. */
 export function plannerSettingsSchema() {
     return PLANNER_SETTINGS_SCHEMA;
 }
 
+/** Parses planner settings and throws a structured validation error on failure. */
 export function parseSettings(input: unknown): PlannerSettings {
     return PLANNER_SETTINGS_SCHEMA.parse(input);
 }
 
+/** Parses planner settings without throwing. */
 export function safeParseSettings(input: unknown) {
     return PLANNER_SETTINGS_SCHEMA.safeParse(input);
 }

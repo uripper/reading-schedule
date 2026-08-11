@@ -118,6 +118,9 @@ fn is_active_book(state: &DayState<'_, '_>, book_index: usize) -> bool {
 
 fn book_already_used(state: &DayState<'_, '_>, book_index: usize) -> bool {
     state.books[book_index].used_today
+        || state
+            .reserved_book_ids
+            .contains(&state.books[book_index].book.book_id)
 }
 
 fn book_is_scheduled_for_day(state: &DayState<'_, '_>, book_index: usize) -> bool {

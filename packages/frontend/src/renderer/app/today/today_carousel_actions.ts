@@ -1,8 +1,6 @@
 import type { CalendarRowWithFinish } from "../../../types/types.ts";
-import {
-    normalizedPagesValue,
-    normalizedPercentValue,
-} from "./today_carousel_progress.ts";
+import { normalizedPagesValue } from "./today_carousel_progress.ts";
+import { normalizedPercentValue } from "./today-progress-percent.ts";
 
 const EMPTY_TEXT = "";
 const MIN_MINUTES = 1;

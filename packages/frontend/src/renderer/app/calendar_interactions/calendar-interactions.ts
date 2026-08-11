@@ -5,17 +5,14 @@ import type {
     CompletionUpdate,
     ProgressUpdateInput,
 } from "../../../types/types.ts";
-import { sessionKeyFor } from "../../calendar/utils.ts";
-import { manualSessionBooks } from "./calendar_interactions_helpers.ts";
 import {
     dayBookCompletionKey,
     dayBookCompletionKeyFromSession,
-} from "./calendar_interactions_key_helpers.ts";
+    sessionKeyFor,
+} from "../../calendar/utils.ts";
+import { manualSessionBooks } from "./calendar_interactions_helpers.ts";
 import { BUILD_SCHEDULE_MUTATION_HANDLERS } from "./calendar_interactions_schedule_handlers.ts";
-import {
-    markBookReadForFinishedRow,
-    markBookStartedForCompletedRow,
-} from "./calendar-interactions-completion-books.ts";
+import { markBookStartedForCompletedRow } from "./calendar-interactions-completion-books.ts";
 
 interface CompletionStateUpdateArgs {
     completed: boolean;
@@ -104,7 +101,6 @@ const HANDLE_COMPLETION_CHANGED = (
     payload: CompletionUpdate,
 ): void => {
     markBookStartedForCompletedRow(args, payload);
-    markBookReadForFinishedRow(args, payload);
     applyCompletionChangedState(args, payload);
     applyCompletionChangedStatus(args, payload);
     notifySessionCompletionUpdated(args, payload);
