@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::collections::HashSet;
 
 use chrono::NaiveDate;
 
@@ -19,6 +20,7 @@ pub struct DayState<'books, 'state> {
     pub cap: i64,
     pub daily_book_cap: i64,
     pub day: NaiveDate,
+    pub reserved_book_ids: HashSet<String>,
     pub unfinished_count: &'state mut usize,
     pub used: Vec<usize>,
     pub weekday_bit: u8,
@@ -40,9 +42,6 @@ pub fn plan_greedy(
         .iter()
         .filter(|book_state| book_state.remaining > 0.0)
         .count();
-    let daily_book_cap = settings
-        .max_books_per_day
-        .min(settings.max_sessions_per_day);
     let mut day_index = 0;
     while day_index < days.len() && unfinished_count > 0 {
         fail_if_cancelled(should_cancel)?;
@@ -50,6 +49,7 @@ pub fn plan_greedy(
         reset_day_state(&mut book_states);
         let ordered = ordered_books(&book_states);
         let cap = day_capacity_blocks(settings, day).max(0);
+        let daily_book_cap = available_book_slots(settings, day);
         plan_day_with_cap(
             &ordered,
             DayState {
@@ -58,6 +58,11 @@ pub fn plan_greedy(
                 cap,
                 daily_book_cap,
                 day,
+                reserved_book_ids: settings
+                    .reserved_book_ids_by_date
+                    .get(&day)
+                    .cloned()
+                    .unwrap_or_default(),
                 unfinished_count: &mut unfinished_count,
                 used: Vec::new(),
                 weekday_bit: day_weekday_bit(day),
@@ -70,6 +75,22 @@ pub fn plan_greedy(
         .into_iter()
         .filter(|(_, blocks)| *blocks > 0)
         .collect())
+}
+
+fn available_book_slots(settings: &Settings, day: NaiveDate) -> i64 {
+    let reserved_books = settings
+        .reserved_book_ids_by_date
+        .get(&day)
+        .map(|book_ids| book_ids.len() as i64)
+        .unwrap_or(0);
+    let reserved_sessions = settings
+        .reserved_sessions_by_date
+        .get(&day)
+        .copied()
+        .unwrap_or(0);
+    let book_slots = settings.max_books_per_day - reserved_books;
+    let session_slots = settings.max_sessions_per_day - reserved_sessions;
+    book_slots.min(session_slots).max(0)
 }
 
 fn plan_day(

@@ -5,12 +5,17 @@ mod models;
 #[cfg(test)]
 mod order_tests;
 mod parse;
+mod parse_reservations;
 mod profile;
 #[cfg(test)]
 mod regression_tests;
 mod report;
 mod report_status;
+#[cfg(test)]
+mod reservation_tests;
 mod solve;
+#[cfg(test)]
+mod test_support;
 #[cfg(test)]
 mod tests;
 mod timings;

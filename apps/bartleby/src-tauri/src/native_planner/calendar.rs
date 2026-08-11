@@ -45,12 +45,21 @@ pub fn calendar_minutes(settings: &Settings) -> Result<CalendarMinutes, String> 
     let days = date_range(settings.start_date, settings.end_date)?;
     Ok(days
         .into_iter()
-        .map(|day| (day, minutes_for_day(settings, day)))
+        .map(|day| (day, available_minutes_for_day(settings, day)))
         .collect())
 }
 
 pub fn day_capacity_blocks(settings: &Settings, day: NaiveDate) -> i64 {
-    minutes_for_day(settings, day) / settings.time_quantum_minutes
+    available_minutes_for_day(settings, day) / settings.time_quantum_minutes
+}
+
+fn available_minutes_for_day(settings: &Settings, day: NaiveDate) -> i64 {
+    let reserved = settings
+        .reserved_minutes_by_date
+        .get(&day)
+        .copied()
+        .unwrap_or(0);
+    (minutes_for_day(settings, day) - reserved).max(0)
 }
 
 pub fn book_day_block_limit(book: &Book, settings: &Settings) -> i64 {

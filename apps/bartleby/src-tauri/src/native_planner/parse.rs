@@ -14,6 +14,9 @@ use crate::native_planner::models::{
     DEFAULT_MIN_BLOCKS_PER_SESSION, DEFAULT_PRIORITY, DEFAULT_SOLVER_PROFILE,
     PLAN_MODE_FINISH_SOON, PLAN_MODE_SPREAD_OUT,
 };
+use crate::native_planner::parse_reservations::{
+    reserved_book_ids_by_date, reserved_minutes_by_date, reserved_sessions_by_date,
+};
 use crate::native_planner::validate::{validate_blockers, validate_book, validate_settings};
 use crate::native_planner::word_stats::word_stats_from_data;
 
@@ -94,6 +97,9 @@ fn parse_settings(data: &Map<String, Value>) -> Result<Settings, String> {
         minutes_by_weekday,
         minutes_per_day: Some(minutes_per_day),
         plan_mode: plan_mode(data),
+        reserved_book_ids_by_date: reserved_book_ids_by_date(data)?,
+        reserved_minutes_by_date: reserved_minutes_by_date(data)?,
+        reserved_sessions_by_date: reserved_sessions_by_date(data)?,
         solver_profile: solver_profile(data),
         start_date: start_date(data)?,
         time_quantum_minutes: int_with_default(

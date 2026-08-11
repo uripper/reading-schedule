@@ -7,6 +7,8 @@ pub type Assignments = HashMap<(String, NaiveDate), i64>;
 pub type CalendarMinutes = HashMap<NaiveDate, i64>;
 pub type DifficultyMultiplier = HashMap<i64, f64>;
 pub type MinutesByWeekday = HashMap<String, i64>;
+pub type ReservedBookIdsByDate = HashMap<NaiveDate, HashSet<String>>;
+pub type ReservedCountsByDate = HashMap<NaiveDate, i64>;
 
 pub const DEFAULT_DIFFICULTY: i64 = 1;
 pub const DEFAULT_MIN_BLOCKS_PER_SESSION: i64 = 2;
@@ -50,6 +52,9 @@ pub struct Settings {
     pub minutes_by_weekday: MinutesByWeekday,
     pub minutes_per_day: Option<i64>,
     pub plan_mode: String,
+    pub reserved_book_ids_by_date: ReservedBookIdsByDate,
+    pub reserved_minutes_by_date: ReservedCountsByDate,
+    pub reserved_sessions_by_date: ReservedCountsByDate,
     pub solver_profile: SolverProfile,
     pub start_date: NaiveDate,
     pub time_quantum_minutes: i64,
