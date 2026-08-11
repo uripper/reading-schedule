@@ -1,3 +1,5 @@
+const NEXT_DAY_OFFSET = 1;
+
 /**
  * Formats a Date into a local calendar day key (`YYYY-MM-DD`).
  * @param date - Date value in local time.
@@ -16,6 +18,20 @@ export function dayKeyFromDate(date: Date): string {
  */
 export function todayDayKey(): string {
     return dayKeyFromDate(new Date());
+}
+
+/**
+ * Returns the local calendar day immediately after a valid day key.
+ * @param dayKey - Base day in `YYYY-MM-DD` format.
+ * @returns Following local day key.
+ */
+export function nextDayKey(dayKey: string): string {
+    const DATE = new Date(`${dayKey}T00:00:00`);
+    if (Number.isNaN(DATE.getTime())) {
+        throw new Error(`Cannot advance invalid day key: ${dayKey}`);
+    }
+    DATE.setDate(DATE.getDate() + NEXT_DAY_OFFSET);
+    return dayKeyFromDate(DATE);
 }
 
 /**

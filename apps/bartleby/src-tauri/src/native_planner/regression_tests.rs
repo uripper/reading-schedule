@@ -1,52 +1,19 @@
 use serde_json::{json, Value};
 use std::cell::Cell;
 
+use super::test_support::{
+    book, planner_settings, HIGHEST_PRIORITY, LOWEST_PRIORITY, MINUTES_PER_SINGLE_BLOCK_DAY,
+    MONDAY_DATE, TUESDAY_DATE, WORDS_FOR_ONE_BLOCK, WORDS_TOTAL,
+};
 use super::{generate_plan, generate_plan_with_cancel};
 
 const CANCEL_AFTER_EARLY_EXIT_CHECKS: u32 = 6;
 const FINAL_FRAGMENT_WORDS: i64 = 100;
 const FAR_FUTURE_DATE: &str = "2036-05-18";
-const HIGHEST_PRIORITY: i64 = 1;
-const LOWEST_PRIORITY: i64 = 5;
-const MAX_BLOCKS_PER_BOOK_PER_DAY: i64 = 100;
-const MAX_BOOKS_PER_DAY: i64 = 1;
-const MAX_SESSIONS_PER_DAY: i64 = 1;
-const MINUTES_FOR_ONE_BLOCK: i64 = 5;
-const MINUTES_PER_SINGLE_BLOCK_DAY: i64 = 5;
-const MONDAY_DATE: &str = "2026-05-18";
 const MORE_PROGRESS_REMAINING_WORDS: i64 = 400;
 const PARTIAL_REMAINING_WORDS: i64 = 500;
-const TUESDAY_DATE: &str = "2026-05-19";
 const THREE_BLOCK_MINIMUM: i64 = 3;
-const WORDS_FOR_ONE_BLOCK: i64 = 500;
 const LESS_PROGRESS_REMAINING_WORDS: i64 = 700;
-const WORDS_TOTAL: i64 = 1000;
-const WPM_BASE: i64 = 100;
-
-fn planner_settings(start_date: &str, end_date: &str, minutes_per_day: i64) -> Value {
-    json!({
-        "end_date": end_date,
-        "max_blocks_per_book_per_day": MAX_BLOCKS_PER_BOOK_PER_DAY,
-        "max_books_per_day": MAX_BOOKS_PER_DAY,
-        "max_sessions_per_day": MAX_SESSIONS_PER_DAY,
-        "minutes_per_day": minutes_per_day,
-        "start_date": start_date,
-        "time_quantum_minutes": MINUTES_FOR_ONE_BLOCK,
-        "wpm_base": WPM_BASE,
-    })
-}
-
-fn book(book_id: &str, title: &str, priority: i64, remaining_words: i64) -> Value {
-    json!({
-        "book_id": book_id,
-        "min_blocks_per_session": 1,
-        "priority": priority,
-        "remaining_words": remaining_words,
-        "scheduled_days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-        "title": title,
-        "words_total": WORDS_TOTAL,
-    })
-}
 
 fn first_schedule_book_id(generated: &Value) -> Option<&str> {
     generated

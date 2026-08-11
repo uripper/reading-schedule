@@ -1,11 +1,13 @@
 import type {
     ApplyPlannedDataArgs,
+    AutoPlanRun,
     AutoPlanRunner,
     AutoPlanState,
     PlanController,
     PlanControllerArgs,
     PlannerResult,
     PlannerRunData,
+    ReplanPolicy,
     RunAutoPlanFactoryArgs,
     RunPlanGenerationArgs,
 } from "../../types/types.ts";
@@ -14,12 +16,12 @@ import {
     applyLoadedResult,
     applyPlannedData,
 } from "./plan_controller_apply.ts";
+import { replanPolicy } from "./plan-replan-policy.ts";
 
 const AUTO_PLAN_DELAY_MS = 450;
 const AUTO_PLAN_FAILURE_MESSAGE = "Automatic plan refresh failed.";
 const AUTO_PLAN_GENERATING_MESSAGE = "Updating Schedule";
 const AUTO_PLAN_SUCCESS_ANNOUNCEMENT = "";
-const AUTO_PLAN_SUCCESS_MESSAGE = "Schedule Updated";
 const DEFAULT_LAST_RESULT: PlannerResult = {
     created_at: "",
     schedule: [],
@@ -29,58 +31,84 @@ const DEFAULT_LAST_RESULT: PlannerResult = {
 function autoPlanApplyArgs(
     args: RunAutoPlanFactoryArgs,
     data: PlannerRunData,
+    policy: ReplanPolicy,
 ): ApplyPlannedDataArgs {
-    return { ...args, data, preserveLockedDays: true };
+    return {
+        ...args,
+        data,
+        preservationMode: policy.preservationMode,
+    };
 }
 
 async function applyAutoPlanSuccess(
     args: RunAutoPlanFactoryArgs,
     data: PlannerRunData,
+    policy: ReplanPolicy,
 ): Promise<void> {
-    await applyPlannedData(autoPlanApplyArgs(args, data));
+    await applyPlannedData(autoPlanApplyArgs(args, data, policy));
 }
 
 function createAutoPlanSuccessHandler(
     args: RunAutoPlanFactoryArgs,
+    policy: ReplanPolicy,
 ): (data: PlannerRunData) => Promise<void> {
     return async (data: PlannerRunData): Promise<void> =>
-        await applyAutoPlanSuccess(args, data);
+        await applyAutoPlanSuccess(args, data, policy);
 }
 
 function autoPlanGenerationArgs(
     args: RunAutoPlanFactoryArgs,
-    runVersion: number,
+    run: AutoPlanRun,
+    policy: ReplanPolicy,
 ): RunPlanGenerationArgs {
     return {
         ...args,
         isRunCurrent: (): boolean =>
-            autoPlanRunIsCurrent(args.state, runVersion),
-        onSuccess: createAutoPlanSuccessHandler(args),
+            autoPlanRunIsCurrent(args.state, run.version),
+        minimumStartDate: policy.minimumStartDate,
+        onSuccess: createAutoPlanSuccessHandler(args, policy),
+        settingsOverrides: policy.settingsOverrides,
         statusGeneratingMessage: AUTO_PLAN_GENERATING_MESSAGE,
-        statusSuccessMessage: AUTO_PLAN_SUCCESS_MESSAGE,
+        statusSuccessMessage: policy.statusSuccessMessage,
         successAnnouncement: AUTO_PLAN_SUCCESS_ANNOUNCEMENT,
     };
 }
 
 async function executeAutoPlan(
     args: RunAutoPlanFactoryArgs,
-    runVersion: number,
+    run: AutoPlanRun,
 ): Promise<void> {
-    await runPlanGeneration(autoPlanGenerationArgs(args, runVersion));
+    const POLICY = replanPolicy({
+        completions: args.getScheduleCompletions(),
+        explicitToday: run.explicitToday,
+        previousRows: args.getLastResult()?.schedule ?? [],
+    });
+    await runPlanGeneration(autoPlanGenerationArgs(args, run, POLICY));
 }
 
-function markAutoPlanQueued(state: AutoPlanState): void {
+function markAutoPlanQueued(
+    state: AutoPlanState,
+    explicitToday: boolean,
+): void {
     const STATE = state;
     STATE.autoRunPending = true;
     STATE.autoRunVersion += 1;
+    if (explicitToday) {
+        STATE.replanTodayPending = true;
+    }
 }
 
-function startAutoPlanRun(state: AutoPlanState): number {
+function startAutoPlanRun(state: AutoPlanState): AutoPlanRun {
     const STATE = state;
     STATE.activeRunCount += 1;
     STATE.autoRunInFlight = true;
     STATE.autoRunPending = false;
-    return STATE.autoRunVersion;
+    const RUN = {
+        explicitToday: STATE.replanTodayPending,
+        version: STATE.autoRunVersion,
+    };
+    STATE.replanTodayPending = false;
+    return RUN;
 }
 
 function finalizeAutoPlanRun(state: AutoPlanState): void {
@@ -138,20 +166,20 @@ function autoPlanState(): AutoPlanState {
         autoRunInFlight: false,
         autoRunPending: false,
         autoRunVersion: 0,
+        replanTodayPending: false,
     };
 }
 
 function createRunAutoPlan(args: RunAutoPlanFactoryArgs): () => Promise<void> {
     const STATE = args.state;
-    const RUN = async (): Promise<void> => {
-        const RUN_VERSION = startAutoPlanRun(STATE);
-        try {
-            await executeAutoPlan(args, RUN_VERSION);
-        } finally {
-            finalizeAutoPlanRun(STATE);
-        }
-    };
-    return RUN;
+    return async (): Promise<void> => {
+            const RUN_CONTEXT = startAutoPlanRun(STATE);
+            try {
+                await executeAutoPlan(args, RUN_CONTEXT);
+            } finally {
+                finalizeAutoPlanRun(STATE);
+            }
+        };
 }
 
 function createAutoPlanRunner(args: PlanControllerArgs): AutoPlanRunner {
@@ -165,10 +193,16 @@ function createAutoPlanRunner(args: PlanControllerArgs): AutoPlanRunner {
         state: autoPlanState(),
     };
     const RUN_AUTO_PLAN = createRunAutoPlan(RUN_AUTO_PLAN_ARGS);
+    const QUEUE = (explicitToday: boolean): void => {
+        markAutoPlanQueued(RUN_AUTO_PLAN_ARGS.state, explicitToday);
+        SCHEDULE_AUTO_PLAN(RUN_AUTO_PLAN);
+    };
     return {
         queueAutoPlan: (): void => {
-            markAutoPlanQueued(RUN_AUTO_PLAN_ARGS.state);
-            SCHEDULE_AUTO_PLAN(RUN_AUTO_PLAN);
+            QUEUE(false);
+        },
+        replanToday: (): void => {
+            QUEUE(true);
         },
     };
 }
@@ -197,5 +231,6 @@ export function createPlanController(
             applySavedResult(root0, savedResult);
         },
         queueAutoPlan: AUTO_PLAN_RUNNER.queueAutoPlan,
+        replanToday: AUTO_PLAN_RUNNER.replanToday,
     };
 }

@@ -1,5 +1,5 @@
 import type { Book } from "../../types/types.ts";
-import { confirmDestructiveAction } from "../confirm/destructive-confirm.ts";
+import { confirmDestructiveAction } from "../confirm/action-confirm.ts";
 
 export function confirmRemoveBook(book: Book): Promise<boolean> {
     return confirmDestructiveAction({

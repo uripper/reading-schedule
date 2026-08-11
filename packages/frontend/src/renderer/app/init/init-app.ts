@@ -6,7 +6,6 @@ import type {
 import {
     bindBooksUI,
     collectAllBooks,
-    collectBooks,
     getBookById,
     setBookCommitHook,
     setBookScheduleRows,
@@ -17,7 +16,7 @@ import {
     focusCalendarDate,
     renderCalendar,
 } from "../../calendar.ts";
-import { addLog, bindHelpDialog } from "../../help.ts";
+import { bindHelpDialog } from "../../help.ts";
 import { collectSettings, initSettingsGrid } from "../../settings.ts";
 import { bindDesktopShortcuts } from "../../shortcuts/desktop_shortcuts.ts";
 import { activateTab, bindTabs } from "../../tabs.ts";
@@ -30,10 +29,8 @@ import { resetTodayCarouselUiState } from "../today/today_carousel_state.ts";
 import { bindTodayDayRollover } from "../today/today_rollover.ts";
 import { refreshForLocalDayRollover } from "../today/today-rollover-refresh.ts";
 import { loadStateAndBindTodayActions } from "./init-app-load.ts";
-import {
-    createAppPlanControllerInstance,
-    setupSkipLink,
-} from "./init-helpers.ts";
+import { setupSkipLink } from "./init-helpers.ts";
+import { buildPlanController } from "./init-plan-controller.ts";
 
 function bindAppShortcuts(context: AppBootstrapContext): void {
     bindDesktopShortcuts({
@@ -71,10 +68,12 @@ function bindBooksRuntime(context: AppBootstrapContext): void {
 function configureTodayUi(
     context: AppBootstrapContext,
     calendarHandlers: CalendarHandlers,
+    planController: ReturnType<typeof buildPlanController>,
 ): void {
     configureTodayInteractions({
         listSessionBooks: calendarHandlers.listSessionBooks,
         onManualSessionAdded: calendarHandlers.onManualSessionAdded,
+        onReplanToday: planController.replanToday,
         onSessionCompletionChanged: calendarHandlers.onSessionCompletionChanged,
         onSessionMinutesUpdated: calendarHandlers.onSessionMinutesUpdated,
         onSessionProgressUpdated: calendarHandlers.onSessionProgressUpdated,
@@ -111,139 +110,28 @@ function bindDayRollover(context: AppBootstrapContext): void {
 }
 
 /**
- * Creates the app-level plan controller instance with runtime-bound callbacks.
- * @param appContext - Shared bootstrap context.
- * @returns Plan controller instance.
- */
-function buildPlanController(
-    appContext: AppBootstrapContext,
-): ReturnType<typeof createAppPlanControllerInstance> {
-    return createAppPlanControllerInstance(
-        buildPlanControllerArgs({
-            appContext,
-            ...createPlanControllerStateBindings(appContext),
-        }),
-    );
-}
-
-function createPlanControllerStateBindings(appContext: AppBootstrapContext): {
-    runtimeState: AppBootstrapContext["state"];
-    setLastResult: (nextResult: PlannerResult) => void;
-    setScheduleCompletions: (nextCompletions: Record<string, boolean>) => void;
-    updateTodayView: () => void;
-} {
-    const RUNTIME_STATE = appContext.state;
-
-    return {
-        runtimeState: RUNTIME_STATE,
-        setLastResult: (nextResult: PlannerResult): void => {
-            applyAppStateMutation(RUNTIME_STATE, {
-                lastResult: nextResult,
-                type: "set_last_result",
-            });
-        },
-        setScheduleCompletions: (
-            nextCompletions: Record<string, boolean>,
-        ): void => {
-            applyAppStateMutation(RUNTIME_STATE, {
-                scheduleCompletions: nextCompletions,
-                type: "set_schedule_completions",
-            });
-        },
-        updateTodayView: (): void => {
-            appContext.dashboards.updateDashboards();
-        },
-    };
-}
-
-function createPlanControllerSelectors(
-    runtimeState: AppBootstrapContext["state"],
-) {
-    return {
-        getBlockedDayBooks: (): Record<string, boolean> =>
-            runtimeState.blockedDayBooks,
-        getLastResult: (): PlannerResult | null => runtimeState.lastResult,
-        getScheduleCompletions: (): Record<string, boolean> =>
-            runtimeState.scheduleCompletions,
-        getSessions: (): AppBootstrapContext["state"]["sessions"] =>
-            runtimeState.sessions,
-    };
-}
-
-function createPlanControllerActions(
-    appContext: AppBootstrapContext,
-    options: Pick<
-        ReturnType<typeof createPlanControllerStateBindings>,
-        "setLastResult" | "setScheduleCompletions" | "updateTodayView"
-    >,
-) {
-    return {
-        announce: (
-            message: string,
-            politeness?: "polite" | "assertive",
-        ): void => {
-            appContext.announceForPlanController(message, politeness);
-        },
-        persistDraft: async (): Promise<boolean> =>
-            await appContext.persistDraft(),
-        plannerApi: appContext.plannerApi,
-        setLastResult: options.setLastResult,
-        setScheduleCompletions: options.setScheduleCompletions,
-        setStatus: appContext.setStatus,
-        updateTodayView: options.updateTodayView,
-    };
-}
-
-function buildPlanControllerArgs(options: {
-    appContext: AppBootstrapContext;
-    runtimeState: AppBootstrapContext["state"];
-    setLastResult: (nextResult: PlannerResult) => void;
-    setScheduleCompletions: (nextCompletions: Record<string, boolean>) => void;
-    updateTodayView: () => void;
-}): Parameters<typeof createAppPlanControllerInstance>[0] {
-    return {
-        addLog,
-        collectBooks,
-        collectSettings,
-        renderCalendar,
-        setBookScheduleRows,
-        totalsFromSummary,
-        ...createPlanControllerSelectors(options.runtimeState),
-        ...createPlanControllerActions(options.appContext, options),
-    };
-}
-
-/**
  * Wires calendar interaction handlers against app runtime callbacks/state.
  * @param appContext - Shared bootstrap context.
  */
 function configureCalendarAppInteractions(
     appContext: AppBootstrapContext,
 ): CalendarHandlers {
-    const RUNTIME_STATE = appContext.state;
-
-    function handleScheduleMutation(): void {
-        appContext.runtime.handleScheduleMutation();
-    }
-
-    function updateDashboards(): void {
-        appContext.dashboards.updateDashboards();
-    }
-
-    function setLastResult(nextResult: PlannerResult): void {
-        applyAppStateMutation(RUNTIME_STATE, {
-            lastResult: nextResult,
-            type: "set_last_result",
-        });
-    }
-
     return configureAppCalendarInteractions(
         buildCalendarInteractionArgs({
             appContext,
-            handleScheduleMutation,
-            runtimeState: RUNTIME_STATE,
-            setLastResult,
-            updateDashboards,
+            handleScheduleMutation: (): void => {
+                appContext.runtime.handleScheduleMutation();
+            },
+            runtimeState: appContext.state,
+            setLastResult: (nextResult: PlannerResult): void => {
+                applyAppStateMutation(appContext.state, {
+                    lastResult: nextResult,
+                    type: "set_last_result",
+                });
+            },
+            updateDashboards: (): void => {
+                appContext.dashboards.updateDashboards();
+            },
         }),
     );
 }
@@ -299,7 +187,7 @@ export async function initApp(context: AppBootstrapContext): Promise<void> {
         context.dashboards.applyExperienceSettings();
     });
     const CALENDAR_HANDLERS = configureCalendarAppInteractions(context);
-    configureTodayUi(context, CALENDAR_HANDLERS);
+    configureTodayUi(context, CALENDAR_HANDLERS, PLAN_CONTROLLER);
     await loadStateAndBindTodayActions(context, PLAN_CONTROLLER);
     bindDayRollover(context);
 }

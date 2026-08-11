@@ -5,6 +5,7 @@
 import { logDebug } from "../../types/logger.ts";
 import type {
     Book,
+    BuildPlanPayloadArgs,
     PlanGeneratePayload,
     PlannerSettings,
     RunPlanGenerationArgs,
@@ -18,6 +19,8 @@ import { errorMessage, isPlannerSupersededError } from "./plan-errors.ts";
 import type { PlanMessages } from "./plan-feedback.ts";
 import { logPlanSummary, resolvedPlanMessages } from "./plan-feedback.ts";
 import { applyPlanResultStatus } from "./plan-status.ts";
+
+// audit-allow-local-types: These shapes are private planner request orchestration.
 
 interface GeneratePayloadArgs {
     customStartDate: string;
@@ -47,25 +50,25 @@ interface PlanFailureArgs {
     setStatus: RunPlanGenerationArgs["setStatus"];
 }
 
-function buildPlanPayload(
-    settings: PlannerSettings,
-    payloadBooks: Book[],
-): PlanGeneratePayload {
-    const FORCED_START_DATE = todayDayKey();
+function buildPlanPayload(args: BuildPlanPayloadArgs): PlanGeneratePayload {
+    const EFFECTIVE_SETTINGS = {
+        ...args.settings,
+        ...args.settingsOverrides,
+    };
     const CUSTOM_START_DATE = normalizePlannerStartDate(
-        settings.start_date,
-        FORCED_START_DATE,
+        EFFECTIVE_SETTINGS.start_date,
+        args.minimumStartDate,
     );
     const NORMALIZED_END_DATE = normalizePlannerEndDate(
-        settings.end_date,
+        EFFECTIVE_SETTINGS.end_date,
         CUSTOM_START_DATE,
     );
 
     return generatePayload({
         customStartDate: CUSTOM_START_DATE,
         normalizedEndDate: NORMALIZED_END_DATE,
-        payloadBooks,
-        settings,
+        payloadBooks: args.payloadBooks,
+        settings: EFFECTIVE_SETTINGS,
     });
 }
 
@@ -148,7 +151,12 @@ function requestGeneratedPlan(
     if (runIsCurrent(args)) {
         args.setStatus(messages.statusGeneratingMessage, false, "loading");
     }
-    const PAYLOAD = buildPlanPayload(args.collectSettings(), payloadBooks);
+    const PAYLOAD = buildPlanPayload({
+        minimumStartDate: args.minimumStartDate ?? todayDayKey(),
+        payloadBooks,
+        settings: args.collectSettings(),
+        settingsOverrides: args.settingsOverrides ?? {},
+    });
     return args.plannerApi.generate(PAYLOAD);
 }
 

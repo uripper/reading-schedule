@@ -9,6 +9,10 @@ import {
     normalizePlannerEndDate,
     normalizePlannerStartDate,
 } from "../dist/renderer/app/plan_normalize.js";
+import {
+    recordingGenerate,
+    runPlanGenerationForTest,
+} from "./plan-start-date-runner.mjs";
 
 const MINIMUM_START_DATE = "2026-03-07";
 
@@ -38,4 +42,19 @@ test("normalizePlannerEndDate keeps valid future end dates", () => {
         normalizePlannerEndDate("2099-01-01", MINIMUM_START_DATE),
         "2099-01-01",
     );
+});
+
+test("plan generation honors a later replan boundary", async () => {
+    const CALLS = [];
+    await runPlanGenerationForTest({
+        collectSettings: () => ({
+            end_date: "2026-03-01",
+            start_date: "2026-03-01",
+        }),
+        generate: recordingGenerate(CALLS),
+        minimumStartDate: MINIMUM_START_DATE,
+    });
+
+    assert.equal(CALLS[0].settings.start_date, MINIMUM_START_DATE);
+    assert.equal(CALLS[0].settings.end_date, MINIMUM_START_DATE);
 });

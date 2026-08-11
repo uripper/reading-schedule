@@ -135,6 +135,26 @@ function rebuiltTomorrowScenario(today, tomorrow) {
     };
 }
 
+function replanTodayScenario(today) {
+    return {
+        completed: row({
+            book_id: "book-complete",
+            date: today,
+            session_index: 1,
+        }),
+        incomplete: row({
+            book_id: "book-old",
+            date: today,
+            session_index: 2,
+        }),
+        replacement: row({
+            book_id: "book-new",
+            date: today,
+            session_index: 2,
+        }),
+    };
+}
+
 test("pruneScheduleCompletions keeps day-book fallback keys for rows that still exist", () => {
     const KEPT_ROW = row();
     const DROPPED_ROW = row({
@@ -200,11 +220,44 @@ test("mergeScheduleRows preserves today rows while still rebuilding tomorrow onw
     assert.equal(TOMORROW_ROWS[0].words_planned, 700);
 });
 
+test("automatic replanning can create today when no today plan exists", () => {
+    const { today, yesterday } = todayRange();
+    const TODAY_ROW = row({ date: today });
+    const MERGED = mergedRows({
+        nextRows: [TODAY_ROW],
+        previousRows: [row({ date: yesterday })],
+    });
+
+    assert.equal(
+        MERGED.some((entry) => entry.date === today),
+        true,
+    );
+});
+
+test("Replan Today keeps completed rows and replaces incomplete rows", () => {
+    const { today } = todayRange();
+    const SCENARIO = replanTodayScenario(today);
+    const MERGED = mergedRows({
+        nextRows: [SCENARIO.replacement],
+        preservationMode: "completed_today",
+        previousRows: [SCENARIO.completed, SCENARIO.incomplete],
+        scheduleCompletions: {
+            [`${today}|1|book-complete`]: true,
+        },
+    });
+
+    assert.deepEqual(
+        MERGED.map((entry) => entry.book_id),
+        ["book-complete", "book-new"],
+    );
+});
+
 test("mergeScheduleRows excludes day-book pairs that were manually blocked", () => {
-    const BLOCKED_KEY = "2026-02-24|book-1";
+    const { tomorrow } = todayRange();
+    const BLOCKED_KEY = `${tomorrow}|book-1`;
     const NEXT_ROWS = [
-        row({ book_id: "book-1", date: "2026-02-24", session_index: 1 }),
-        row({ book_id: "book-2", date: "2026-02-24", session_index: 2 }),
+        row({ book_id: "book-1", date: tomorrow, session_index: 1 }),
+        row({ book_id: "book-2", date: tomorrow, session_index: 2 }),
     ];
     const MERGED = mergedRows({
         blockedDayBooks: {

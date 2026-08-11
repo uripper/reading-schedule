@@ -7,6 +7,10 @@ import {
     buildTodayProgressInputViewModel,
     formatPagesTotalText,
 } from "../dist/renderer/app/today/today_carousel_progress.js";
+import {
+    finalizedPercentDraftText,
+    normalizedPercentValue,
+} from "../dist/renderer/app/today/today-progress-percent.js";
 
 test("formatPagesTotalText renders known total", () => {
     assert.equal(formatPagesTotalText(328), "328");
@@ -85,4 +89,47 @@ test("boundedTodayProgressDraft clamps negative values to zero", () => {
 
     assert.equal(DRAFT.pagesText, "0");
     assert.equal(DRAFT.percentText, "0");
+});
+
+test("percentage drafts preserve one trailing decimal separator", () => {
+    const PERIOD_DRAFT = boundedTodayProgressDraft({
+        draft: { pagesText: "", percentText: "9." },
+        pagesTotal: 336,
+    });
+    const COMMA_DRAFT = boundedTodayProgressDraft({
+        draft: { pagesText: "", percentText: "9," },
+        pagesTotal: 336,
+    });
+
+    assert.equal(PERIOD_DRAFT.percentText, "9.");
+    assert.equal(COMMA_DRAFT.percentText, "9.");
+});
+
+test("percentage drafts discard additional decimal separators", () => {
+    const DRAFT = boundedTodayProgressDraft({
+        draft: { pagesText: "", percentText: "9.,2" },
+        pagesTotal: 336,
+    });
+
+    assert.equal(DRAFT.percentText, "9.2");
+});
+
+test("percentage drafts finalize to one decimal place on blur", () => {
+    assert.equal(finalizedPercentDraftText("9."), "9");
+    assert.equal(finalizedPercentDraftText("9,95"), "10");
+    assert.equal(finalizedPercentDraftText("."), "");
+});
+
+test("committed percentage validation accepts commas and rejects malformed decimals", () => {
+    const COMMA = normalizedPercentValue({
+        currentPercent: 0,
+        percentText: "12,55",
+    });
+    const MALFORMED = normalizedPercentValue({
+        currentPercent: 0,
+        percentText: "12..5",
+    });
+
+    assert.deepEqual(COMMA, { error: "", value: 12.6 });
+    assert.match(MALFORMED.error, /must be a number/i);
 });

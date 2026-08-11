@@ -1,4 +1,4 @@
-import type { SortableRow } from "../../types/types.ts";
+import type { PlannerScheduleRow, SortableRow } from "../../types/types.ts";
 import {
     CALENDAR_COLUMN_COUNT,
     SESSION_INDEX_PAD,
@@ -198,6 +198,46 @@ export function sessionKeyFor(row: {
     book_id: string | number;
 }): string {
     return `${row.date}|${row.session_index}|${row.book_id}`;
+}
+
+/**
+ * Builds a day-and-book completion key.
+ * @param rowDate - ISO calendar date.
+ * @param bookId - Stable book identifier.
+ * @returns Day-book completion key.
+ */
+export function dayBookCompletionKey(rowDate: string, bookId: string): string {
+    return `${rowDate}|${bookId}`;
+}
+
+/**
+ * Converts an exact session key into its day-book fallback key.
+ * @param sessionKey - Exact planned-session key.
+ * @returns Day-book key, or an empty string for invalid input.
+ */
+export function dayBookCompletionKeyFromSession(sessionKey: string): string {
+    const [DATE, , BOOK_ID] = sessionKey.split("|");
+    if (!(DATE && BOOK_ID)) {
+        return "";
+    }
+    return dayBookCompletionKey(DATE, BOOK_ID);
+}
+
+/**
+ * Checks exact and legacy day-book completion state for a schedule row.
+ * @param row - Planned schedule row.
+ * @param completions - Completion flags keyed by schedule identity.
+ * @returns True when the planned session is complete.
+ */
+export function isScheduleRowCompleted(
+    row: PlannerScheduleRow,
+    completions: Record<string, boolean>,
+): boolean {
+    if (completions[sessionKeyFor(row)] === true) {
+        return true;
+    }
+    const FALLBACK_KEY = dayBookCompletionKey(row.date, String(row.book_id));
+    return completions[FALLBACK_KEY] === true;
 }
 
 /**

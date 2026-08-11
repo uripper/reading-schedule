@@ -1,3 +1,5 @@
+/** Planner request, schedule, result, and settings contract types. */
+
 import type { UUID } from "node:crypto";
 import type { Book } from "./types_books.ts";
 import type { JsonValue, Session } from "./types_core.ts";
@@ -5,7 +7,7 @@ import type { FeatureFlags, Preferences } from "./types_experience.ts";
 import type { BookLookupItem } from "./types_lookup.ts";
 
 /**
- * Types related to the reading schedule planner feature.
+ * A reading session projected by the planner.
  */
 export interface PlannerScheduleRow {
     /**
@@ -17,7 +19,8 @@ export interface PlannerScheduleRow {
      */
     date: string;
     /**
-     * Whether the book is finished this session or not
+     * Whether the planner projects that this session will finish the book.
+     * Actual completion still depends on recorded reader progress.
      */
     finish?: boolean;
     /**
@@ -135,6 +138,9 @@ export type PlannerSettings = {
     books_show_blocker_meta?: boolean;
     books_show_shelf_meta?: boolean;
     planner_solver_profile?: PlannerSolverProfile;
+    reserved_book_ids_by_date?: Record<string, string[]>;
+    reserved_minutes_by_date?: Record<string, number>;
+    reserved_sessions_by_date?: Record<string, number>;
 } & Record<string, JsonValue>;
 
 export interface PlannerStateSnapshot {

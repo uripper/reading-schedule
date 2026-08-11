@@ -15,8 +15,22 @@ snapshot. A failed save stops the update instead of risking state loss.
 Bartleby restores books, settings, sessions, completions, and the saved
 schedule before marking the renderer ready. It then queues an automatic plan
 refresh. Automatic planning preserves today, past days, and recorded-session
-history while replacing the future schedule, then persists the completed
-result through the serialized save queue.
+history while replacing the future schedule. When a saved plan already has
+rows for today, the replacement plan starts tomorrow. The result is then
+persisted through the serialized save queue.
+
+## Replanning today
+
+The Today screen includes an explicit **Replan Today** action. It keeps past
+rows and sessions already marked complete today, then rebuilds unfinished work
+for today and the future. Completed rows reserve their minutes, book slots, and
+session slots during the planner run so the rebuilt day cannot exceed the
+configured limits.
+
+A planner `finish` marker is a projection, not recorded completion. Completing
+that session starts the book if needed but does not force its progress to 100%;
+the reader's recorded pages or percentage determine whether the book remains
+schedulable.
 
 ## Set the next version
 

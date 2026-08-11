@@ -18,6 +18,9 @@
 }
 
 .today-carousel-shell {
+    --today-focus-gutter: 2rem;
+    --today-focus-width: 54rem;
+
     display: grid;
     align-items: start;
     width: 100vw;
