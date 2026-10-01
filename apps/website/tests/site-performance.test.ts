@@ -1,7 +1,3 @@
-/**
- * Verifies the performance copy, benchmark measurements, and accessible chart.
- */
-
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -23,18 +19,6 @@ const WEBSITE_DIRECTORY = path.resolve(TESTS_DIRECTORY, "..", "..");
 const REPOSITORY_DIRECTORY = path.resolve(WEBSITE_DIRECTORY, "..", "..");
 const BENCHMARK_FILENAME = "bartleby_schedule_benchmark.svg";
 const TEST_YEAR = 2026;
-const BENCHMARK_MEASUREMENTS = [
-    [100, 1],
-    [200, 4],
-    [400, 16],
-    [800, 70],
-    [1600, 295],
-    [2400, 817],
-    [2600, 996],
-    [2700, 1134],
-    [2800, 1263],
-    [3200, 1747],
-];
 
 test("performance section preserves the README heading and entire paragraph", () => {
     const README = fs.readFileSync(
@@ -60,27 +44,15 @@ test("performance section preserves the README heading and entire paragraph", ()
     );
 });
 
-test("performance chart preserves the original benchmark measurements", () => {
+test("performance chart preserves the original SVG without any changes", () => {
     const WEBSITE_CHART = fs.readFileSync(
         path.join(WEBSITE_DIRECTORY, "public", BENCHMARK_FILENAME),
-        "utf8",
+    );
+    const ORIGINAL_CHART = fs.readFileSync(
+        path.join(REPOSITORY_DIRECTORY, BENCHMARK_FILENAME),
     );
 
-    for (const [BOOKS, DURATION_MS] of BENCHMARK_MEASUREMENTS) {
-        assert.ok(
-            WEBSITE_CHART.includes(
-                `data-books="${BOOKS}" data-duration-ms="${DURATION_MS}"`,
-            ),
-        );
-    }
-    assert.match(WEBSITE_CHART, /viewBox="0 0 1120 680"/);
-    assert.match(
-        WEBSITE_CHART,
-        /aria-labelledby="chart-title chart-description"/,
-    );
-    assert.match(WEBSITE_CHART, /1,600 books · 295 ms/);
-    assert.match(WEBSITE_CHART, /2,600 books · 996 ms/);
-    assert.match(WEBSITE_CHART, /1-second threshold/);
+    assert.deepEqual(WEBSITE_CHART, ORIGINAL_CHART);
 });
 
 test("performance chart supports keyboard scrolling and a full-size view", () => {

@@ -24,7 +24,7 @@ function renderPerformanceSection(): string {
         '<figure class="performance__figure">',
         '<div class="performance__chart-viewport" role="region" tabindex="0" aria-label="Schedule generation benchmark; scroll horizontally on smaller screens">',
         '<a class="performance__chart" href="./bartleby_schedule_benchmark.svg" aria-label="View the full-size Bartleby benchmark chart">',
-        '<img src="./bartleby_schedule_benchmark.svg" alt="Bartleby benchmark: time to generate 10 years of daily reading schedules by number of books; 1,600 books in 295 ms and 2,600 books in 996 ms" width="1120" height="680" />',
+        '<img src="./bartleby_schedule_benchmark.svg" alt="Bartleby benchmark: time to generate 10 years of daily reading schedules by number of books; 1,600 books in 295 ms and 2,600 books in 996 ms" width="1151" height="721" />',
         "</a>",
         "</div>",
         '<figcaption class="performance__chart-hint">Scroll horizontally to read the chart.</figcaption>',
