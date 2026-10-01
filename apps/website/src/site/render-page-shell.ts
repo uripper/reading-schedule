@@ -15,6 +15,7 @@ import {
  */
 interface PageShellContent {
     readonly brandHref: string;
+    readonly currentPageHref?: string;
     readonly navItems: readonly NavItem[];
     readonly primaryAction?: ActionLink;
 }
@@ -23,9 +24,18 @@ function renderBrandLink(brandHref: string): string {
     return `<a class="brand-mark" href="${escapeHtml(brandHref)}">Bartleby</a>`;
 }
 
-function renderPrimaryNav(navItems: readonly NavItem[]): string {
+function renderPrimaryNav(
+    navItems: readonly NavItem[],
+    currentPageHref: string | undefined,
+): string {
     const NAV_LINKS = navItems.map((navItem) => {
-        return renderActionLink(navItem, "nav-link");
+        const LINK = renderActionLink(navItem, "nav-link");
+
+        if (navItem.href === currentPageHref) {
+            return LINK.replace("<a ", '<a aria-current="page" ');
+        }
+
+        return LINK;
     });
 
     return joinMarkup([
@@ -53,7 +63,7 @@ function renderHeader(content: PageShellContent): string {
     return joinMarkup([
         '<header class="section-shell site-header panel">',
         renderBrandLink(content.brandHref),
-        renderPrimaryNav(content.navItems),
+        renderPrimaryNav(content.navItems, content.currentPageHref),
         actionMarkup,
         "</header>",
     ]);

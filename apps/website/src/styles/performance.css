@@ -1,0 +1,150 @@
+.performance {
+    --performance-fade-duration: 800ms;
+    --performance-copy-delay: 100ms;
+    --performance-chart-delay: 220ms;
+    --performance-rise-distance: 1.5rem;
+    --performance-easing: cubic-bezier(0.16, 1, 0.3, 1);
+    --performance-chart-readable-width: 832px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-xl);
+    padding: clamp(1.25rem, 3vw, 3rem);
+    margin-block: var(--space-xl) var(--space-3xl);
+    color: var(--color-aubergine);
+    background: var(--color-marigold);
+    border-radius: var(--radius-card);
+}
+
+/* Give the oversized desktop heading and right-aligned explanation equal room. */
+.performance__copy {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-xl);
+    align-items: start;
+}
+
+.performance__copy h1 {
+    max-width: 10ch;
+    font-family: var(--display-font);
+    font-size: clamp(4.5rem, 8.5vw, 8.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.055em;
+}
+
+.performance__copy > p:last-child {
+    justify-self: end;
+    max-width: 55ch;
+    font-size: clamp(1rem, 1.2vw, 1.15rem);
+    line-height: 1.65;
+}
+
+.performance__figure {
+    min-width: 0;
+    margin: 0;
+}
+
+.performance__chart-hint {
+    display: none;
+    margin-top: var(--space-md);
+    font-size: 1rem;
+}
+
+.performance__chart-viewport {
+    min-width: 0;
+    overflow-x: auto;
+    background: var(--color-white);
+    border: var(--border-width) solid var(--color-ink);
+    box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0 var(--color-ink);
+}
+
+.performance__chart-viewport:focus-visible {
+    outline: var(--border-width) solid var(--color-aubergine);
+    outline-offset: var(--space-2xs);
+}
+
+.performance__chart {
+    display: block;
+    min-width: var(--performance-chart-readable-width);
+}
+
+.performance__chart:hover,
+.performance__chart:focus-visible {
+    transform: none;
+}
+
+.performance__chart:focus-visible {
+    outline-color: var(--color-aubergine);
+    outline-offset: calc(-1 * var(--space-2xs));
+}
+
+.performance__chart img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+@media (max-width: 60rem) {
+    .performance__copy {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+    }
+
+    .performance__copy h1 {
+        max-width: none;
+        font-size: clamp(3.5rem, 12vw, 6rem);
+    }
+
+    .performance__copy > p:last-child {
+        justify-self: start;
+        max-width: none;
+    }
+
+    .performance__chart-hint {
+        display: block;
+    }
+}
+
+@media (max-width: 48rem) {
+    .performance {
+        padding: var(--space-lg) var(--space-md);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .performance {
+        animation: performance-fade-in var(--performance-fade-duration)
+            var(--performance-easing) backwards;
+    }
+
+    .performance__copy {
+        animation: performance-fade-up var(--performance-fade-duration)
+            var(--performance-copy-delay) var(--performance-easing) backwards;
+    }
+
+    .performance__chart-viewport {
+        animation: performance-fade-up var(--performance-fade-duration)
+            var(--performance-chart-delay) var(--performance-easing) backwards;
+    }
+}
+
+@keyframes performance-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes performance-fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(var(--performance-rise-distance));
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

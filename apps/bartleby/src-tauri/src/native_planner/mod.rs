@@ -1,3 +1,4 @@
+pub(crate) mod benchmark;
 mod calendar;
 mod coerce;
 mod greedy_support;
