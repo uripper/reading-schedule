@@ -5,6 +5,7 @@
 import type { SitePage } from "../types/site-content.ts";
 
 const DEFAULT_SITE_PAGE: SitePage = "landing";
+const PERFORMANCE_PAGE: SitePage = "performance";
 const ROADMAP_PAGE: SitePage = "roadmap";
 
 /**
@@ -21,6 +22,10 @@ export function resolveSitePage(pageId: string | undefined): SitePage {
     }
 
     if (pageId === DEFAULT_SITE_PAGE) {
+        return pageId;
+    }
+
+    if (pageId === PERFORMANCE_PAGE) {
         return pageId;
     }
 

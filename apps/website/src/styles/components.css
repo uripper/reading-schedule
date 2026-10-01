@@ -36,7 +36,8 @@
 }
 
 .nav-link:hover::after,
-.nav-link:focus-visible::after {
+.nav-link:focus-visible::after,
+.nav-link[aria-current="page"]::after {
     transform: scaleX(1);
     transform-origin: left;
 }

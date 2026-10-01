@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="680" viewBox="0 0 1120 680" role="img" aria-labelledby="chart-title chart-description">
+  <title id="chart-title">Bartleby Schedule Generation Time</title>
+  <desc id="chart-description">Time to generate 10 years of daily reading schedules. 1,600 books take 295 milliseconds; 2,600 books take 996 milliseconds, below the one-second threshold. Slowest of up to 3 runs per workload.</desc>
+  <style>
+    text { font-family: "Trebuchet MS", Arial, sans-serif; font-size: 18px; fill: #35144f; }
+    .heading { font-family: Georgia, serif; font-size: 32px; font-weight: 700; }
+    .subtitle { font-size: 20px; }
+    .label { font-weight: 700; }
+    .grid { fill: none; stroke: #35144f; stroke-opacity: 0.12; }
+    .point { fill: #f2eee6; stroke: #35144f; stroke-width: 3; }
+    .highlight { fill: #f4dc54; stroke: #35144f; stroke-width: 3; }
+  </style>
+  <rect width="1120" height="680" fill="#f2eee6"/>
+  <text class="heading" x="40" y="57">Schedule generation time</text>
+  <text class="subtitle" x="40" y="91">10 years of daily reading schedules, planned in milliseconds.</text>
+  <text class="label" x="108" y="147">Planning time (ms)</text>
+  <rect x="108" y="354.737" width="952" height="205.263" fill="#9ee6af" fill-opacity="0.2"/>
+  <g class="grid">
+    <path d="M 108 560.000 H 1060"/>
+    <path d="M 108 508.684 H 1060"/>
+    <path d="M 108 457.368 H 1060"/>
+    <path d="M 108 406.053 H 1060"/>
+    <path d="M 108 354.737 H 1060"/>
+    <path d="M 108 303.421 H 1060"/>
+    <path d="M 108 252.105 H 1060"/>
+    <path d="M 108 200.789 H 1060"/>
+  </g>
+  <g text-anchor="end">
+    <text x="90" y="566.000">0</text>
+    <text x="90" y="514.684">250</text>
+    <text x="90" y="463.368">500</text>
+    <text x="90" y="412.053">750</text>
+    <text x="90" y="360.737">1,000</text>
+    <text x="90" y="309.421">1,250</text>
+    <text x="90" y="258.105">1,500</text>
+    <text x="90" y="206.789">1,750</text>
+  </g>
+  <g text-anchor="middle">
+    <text x="108.000" y="591">0</text>
+    <text x="220.000" y="591">400</text>
+    <text x="332.000" y="591">800</text>
+    <text x="444.000" y="591">1,200</text>
+    <text x="556.000" y="591">1,600</text>
+    <text x="668.000" y="591">2,000</text>
+    <text x="780.000" y="591">2,400</text>
+    <text x="892.000" y="591">2,800</text>
+    <text x="1004.000" y="591">3,200</text>
+    <text class="label" x="584" y="627">Number of books to schedule</text>
+  </g>
+  <path d="M 108 354.737 H 1060" fill="none" stroke="#25783b" stroke-width="2" stroke-dasharray="10 8"/>
+  <text class="label" x="1060" y="340.737" text-anchor="end" fill="#25783b" style="fill: #25783b">1-second threshold</text>
+  <path d="M 136.000 559.795 L 164.000 559.179 L 220.000 556.716 L 332.000 545.632 L 556.000 499.447 L 780.000 392.300 L 836.000 355.558 L 864.000 327.232 L 892.000 300.753 L 1004.000 201.405" fill="none" stroke="#35144f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <g id="benchmark-points">
+    <circle class="point" cx="136.000" cy="559.795" r="4.5" data-books="100" data-duration-ms="1"/>
+    <circle class="point" cx="164.000" cy="559.179" r="4.5" data-books="200" data-duration-ms="4"/>
+    <circle class="point" cx="220.000" cy="556.716" r="4.5" data-books="400" data-duration-ms="16"/>
+    <circle class="point" cx="332.000" cy="545.632" r="4.5" data-books="800" data-duration-ms="70"/>
+    <circle class="point" cx="556.000" cy="499.447" r="4.5" data-books="1600" data-duration-ms="295"/>
+    <circle class="point" cx="780.000" cy="392.300" r="4.5" data-books="2400" data-duration-ms="817"/>
+    <circle class="point" cx="836.000" cy="355.558" r="4.5" data-books="2600" data-duration-ms="996"/>
+    <circle class="point" cx="864.000" cy="327.232" r="4.5" data-books="2700" data-duration-ms="1134"/>
+    <circle class="point" cx="892.000" cy="300.753" r="4.5" data-books="2800" data-duration-ms="1263"/>
+    <circle class="point" cx="1004.000" cy="201.405" r="4.5" data-books="3200" data-duration-ms="1747"/>
+  </g>
+  <path d="M 536 437 H 546 Q 556 437 556 447 V 499.447" fill="none" stroke="#35144f" stroke-width="2"/>
+  <rect x="256" y="413" width="280" height="48" rx="4" fill="#f4dc54" stroke="#35144f" stroke-width="2"/>
+  <text class="label" x="396" y="443" text-anchor="middle">1,600 books · 295 ms</text>
+  <circle class="highlight" cx="556" cy="499.447" r="7"/>
+  <path d="M 816 251 H 826 Q 836 251 836 261 V 355.558" fill="none" stroke="#35144f" stroke-width="2"/>
+  <rect x="536" y="227" width="280" height="48" rx="4" fill="#9ee6af" stroke="#35144f" stroke-width="2"/>
+  <text class="label" x="676" y="257" text-anchor="middle">2,600 books · 996 ms</text>
+  <circle class="highlight" cx="836" cy="355.558" r="7"/>
+  <text x="40" y="659">Slowest of up to 3 runs per workload</text>
+  <text class="label" x="1080" y="659" text-anchor="end">BARTLEBY / GREEDY PLANNER</text>
+</svg>
