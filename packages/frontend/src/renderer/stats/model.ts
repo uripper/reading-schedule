@@ -5,6 +5,7 @@ import {
     streakFromDayMinutes,
     totalMinutes,
 } from "../activity/day-minutes.ts";
+import { plannedFinishesForUnreadBooks } from "./finish-summary.ts";
 import { readBooksFinishedThisYear, statusBreakdown } from "./helpers.ts";
 import {
     averageProgress,
@@ -46,7 +47,10 @@ function buildFinishSummary(
     readThisYearIds: Set<string>;
 } {
     const READ_THIS_YEAR_IDS = readBooksFinishedThisYear(books, year);
-    const PLANNED = plannedFinishBookIds(lastResult, year);
+    const PLANNED = plannedFinishesForUnreadBooks(
+        books,
+        plannedFinishBookIds(lastResult, year),
+    );
     const PROJECTED = new Set([...READ_THIS_YEAR_IDS, ...PLANNED.ids]);
 
     return {

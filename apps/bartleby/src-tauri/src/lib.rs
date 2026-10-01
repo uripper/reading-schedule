@@ -9,6 +9,7 @@ mod state_recover_cli;
 mod state_store;
 mod window_zoom;
 
+pub use native_planner::benchmark::run_planner_benchmark;
 pub use state_recover_cli::recover_state_from_args;
 pub use state_store::RecoverySummary;
 

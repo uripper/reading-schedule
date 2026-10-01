@@ -8,6 +8,9 @@
     "exports": {
         ".": {
             "default": "./dist/index.js"
+        },
+        "./website": {
+            "default": "./dist/types_subfolders/types-website.js"
         }
     },
     "files": [

@@ -29,6 +29,7 @@
     },
     "private": true,
     "scripts": {
+        "bench:planner": "cargo run --release --locked --manifest-path apps/bartleby/src-tauri/Cargo.toml --bin planner_benchmark --",
         "build:app": "pnpm -C apps/bartleby run build",
         "build:contracts": "pnpm -C packages/contracts run build",
         "build:desktop": "pnpm run build:app",

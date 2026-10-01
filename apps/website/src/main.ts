@@ -4,6 +4,7 @@
 
 import { SITE_CONTENT } from "./content/site-content.ts";
 import { initializeCodex } from "./site/init-codex.ts";
+import { renderPerformancePage } from "./site/render-performance.ts";
 import { renderRoadmapPage } from "./site/render-roadmap.ts";
 import { renderSite } from "./site/render-site.ts";
 import { resolveSitePage } from "./site/resolve-site-page.ts";
@@ -57,6 +58,10 @@ function mountRequestedPage(rootElement: HTMLElement, markup: string): void {
 function renderRequestedPage(page: SitePage, currentYear: number): string {
     if (page === "landing") {
         return renderSite(SITE_CONTENT, currentYear);
+    }
+
+    if (page === "performance") {
+        return renderPerformancePage(SITE_CONTENT);
     }
 
     return renderRoadmapPage(SITE_CONTENT);
