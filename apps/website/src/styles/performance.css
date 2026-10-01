@@ -15,9 +15,10 @@
     border-radius: var(--radius-card);
 }
 
+/* Give the oversized desktop heading and right-aligned explanation equal room. */
 .performance__copy {
     display: grid;
-    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-xl);
     align-items: start;
 }
@@ -25,12 +26,13 @@
 .performance__copy h1 {
     max-width: 10ch;
     font-family: var(--display-font);
-    font-size: clamp(3.5rem, 5.5vw, 6rem);
+    font-size: clamp(4.5rem, 8.5vw, 8.5rem);
     line-height: 0.9;
     letter-spacing: -0.055em;
 }
 
 .performance__copy > p:last-child {
+    justify-self: end;
     max-width: 55ch;
     font-size: clamp(1rem, 1.2vw, 1.15rem);
     line-height: 1.65;
@@ -89,9 +91,11 @@
 
     .performance__copy h1 {
         max-width: none;
+        font-size: clamp(3.5rem, 12vw, 6rem);
     }
 
     .performance__copy > p:last-child {
+        justify-self: start;
         max-width: none;
     }
 
