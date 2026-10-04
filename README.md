@@ -9,7 +9,7 @@ Bartleby is a personal **reading schedule optimizer** that generates a daily rea
 
 ## Where do I get Bartleby?
 
-You can download Bartleby from the [official website]((https://www.readbartleby.com/)).
+You can download Bartleby from the [official website](https://www.readbartleby.com/).
 
 You can also try it out at [the live demo](https://www.readbartleby.com/demo).
 
