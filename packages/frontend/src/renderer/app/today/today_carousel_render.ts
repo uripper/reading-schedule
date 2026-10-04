@@ -50,7 +50,7 @@ const EMPTY_MINUTES_TEXT = "0";
 const EMPTY_PROGRESS_TOTAL_TEXT = "--";
 const EMPTY_SESSION_SUMMARY_TEXT = "-- pages • --%";
 const REPLAN_TODAY_MESSAGE =
-    "Replan Today's unfinished sessions.  If your Library hasn't changed, your plan likely won't either (For example, changing a scheduled book to have a lower priority may cause it to not be scheduled). This will also update your future reading plan.";
+    "Rebuild today's unfinished sessions and the future schedule using your current library and reading budget. Completed sessions stay in place. Removed books can be scheduled again, and unfinished sessions you added manually may be replaced. If no books are eligible today, today may be left empty.";
 
 interface TodayCarouselRenderArgs {
     books: Book[];

@@ -83,6 +83,9 @@ export function createZoomShortcutHandler(
     plannerApi: ZoomApi,
     announce: (message: string, politeness?: "polite" | "assertive") => void,
 ): (event: KeyboardEvent) => boolean {
+    if (plannerApi.nativeZoom === false) {
+        return ignoreBrowserShortcut;
+    }
     return (event: KeyboardEvent): boolean => {
         if (!isCommandPressed(event)) {
             return false;
@@ -95,4 +98,9 @@ export function createZoomShortcutHandler(
 
         return handleZoomShortcut(event, announce, OPERATION);
     };
+}
+
+/** Leaves zoom keyboard shortcuts to hosts that provide browser zoom. */
+function ignoreBrowserShortcut(): boolean {
+    return false;
 }

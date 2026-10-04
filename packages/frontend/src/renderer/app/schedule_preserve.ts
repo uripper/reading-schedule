@@ -55,20 +55,12 @@ function preservePreviousRow(options: {
 }
 
 function acceptPlannedRow(options: {
-    blockedDayBooks: Record<string, boolean>;
     lockToday: boolean;
     mode: SchedulePreservationMode;
     row: PlannerScheduleRow;
     todayKey: string;
 }): boolean {
     if (!isValidDayKey(options.row.date)) {
-        return false;
-    }
-    const BLOCK_KEY = dayBookCompletionKey(
-        options.row.date,
-        String(options.row.book_id),
-    );
-    if (options.blockedDayBooks[BLOCK_KEY] === true) {
         return false;
     }
     if (options.mode === "completed_today") {
@@ -89,7 +81,6 @@ function appendAcceptedNextRows(
     for (const ROW of args.nextRows) {
         if (
             acceptPlannedRow({
-                blockedDayBooks: args.blockedDayBooks,
                 lockToday: LOCK_TODAY,
                 mode: args.preservationMode,
                 row: ROW,
@@ -156,6 +147,7 @@ function resolvedArgs(
  * Merges generated rows with schedule history selected by the replan policy.
  * Past rows always survive. Automatic runs retain all of today, while an
  * explicit Today replan retains only completed sessions from today.
+ * Legacy removal blocks are ignored so removed books can be scheduled again.
  * @param args - Existing rows, generated rows, completion state, and policy.
  * @returns Sorted merged rows with preserved rows winning identity conflicts.
  */

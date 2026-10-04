@@ -69,7 +69,10 @@ export interface ActivateTabOptions {
 }
 
 /** Subset of PlannerApi exposing only zoom controls for keyboard shortcuts. */
-export type ZoomApi = Pick<PlannerApi, "zoomIn" | "zoomOut" | "zoomReset">;
+export type ZoomApi = Pick<
+    PlannerApi,
+    "nativeZoom" | "zoomIn" | "zoomOut" | "zoomReset"
+>;
 
 /** Dependencies required by keyboard shortcut handlers. */
 export interface ShortcutBindings {

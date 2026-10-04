@@ -1,4 +1,7 @@
-pub(crate) mod benchmark;
+//! Shared scheduling core for native and browser hosts.
+
+#[cfg(not(target_arch = "wasm32"))]
+pub mod benchmark;
 mod calendar;
 mod coerce;
 mod greedy_support;
@@ -23,19 +26,18 @@ mod timings;
 mod validate;
 mod word_stats;
 
-use std::time::Instant;
+use web_time::Instant;
 
 use serde_json::{json, Value};
 
-pub(crate) use timings::{set_summary_timing, set_summary_timing_flag};
+pub use timings::{set_summary_timing, set_summary_timing_flag};
 
-const BOOKS_SAMPLE_JSON: &str = include_str!("../../../../../data/books.sample.json");
-const SETTINGS_SAMPLE_JSON: &str = include_str!("../../../../../data/settings.json");
+const BOOKS_SAMPLE_JSON: &str = include_str!("../../../../data/books.sample.json");
+const SETTINGS_SAMPLE_JSON: &str = include_str!("../../../../data/settings.json");
 
-pub(crate) type CancellationCheck<'a> = dyn Fn() -> bool + 'a;
-pub(crate) const PLANNER_SUPERSEDED_MESSAGE: &str = "Planner request superseded.";
+pub type CancellationCheck<'a> = dyn Fn() -> bool + 'a;
+pub const PLANNER_SUPERSEDED_MESSAGE: &str = "Planner request superseded.";
 
-#[cfg(test)]
 fn never_cancel() -> bool {
     false
 }
@@ -47,12 +49,11 @@ pub(crate) fn fail_if_cancelled(should_cancel: &CancellationCheck<'_>) -> Result
     Ok(())
 }
 
-#[cfg(test)]
 pub fn generate_plan(payload: Value) -> Result<Value, String> {
     generate_plan_with_cancel(payload, &never_cancel)
 }
 
-pub(crate) fn generate_plan_with_cancel(
+pub fn generate_plan_with_cancel(
     payload: Value,
     should_cancel: &CancellationCheck<'_>,
 ) -> Result<Value, String> {

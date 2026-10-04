@@ -1,0 +1,43 @@
+/* Keeps demo controls distinct while preserving the shared application's UI. */
+.demo-bar {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.85rem;
+    color: #f7f1df;
+    background: #171a20;
+    border-bottom: 1px solid #5e6853;
+}
+
+.demo-bar a {
+    color: #dbfa87;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+}
+
+.demo-bar p {
+    margin: 0;
+}
+
+#demoNotice:empty {
+    display: none;
+}
+
+#demoNotice {
+    flex-basis: 100%;
+    color: #ffdf91;
+}
+
+@media (width <= 600px) {
+    .demo-bar {
+        gap: 0.65rem;
+    }
+
+    .demo-bar > p {
+        flex-basis: 100%;
+    }
+}

@@ -11,6 +11,7 @@ use super::output::{grouped, time_bar};
 use super::search::{next_count, Search};
 use crate::native_planner::{calendar, parse};
 
+const EXPECTED_DEFAULT_YEARS: u32 = 10;
 const TEST_BOOKS: usize = 1000;
 const PREFIX_BOOKS: usize = 20;
 const DIFFERENT_SEED: u64 = 123;
@@ -28,12 +29,12 @@ fn options(values: &[&str]) -> Vec<String> {
 fn rejects_invalid_and_incomplete_options() {
     let invalid = [
         vec!["--years", "0"],
-        vec!["--years", "11"],
+        vec!["--years", "1001"],
         vec!["--years", "1.5"],
         vec!["--seed", "-1"],
         vec!["--start-books", "0"],
         vec!["--samples", "0"],
-        vec!["--samples", "11"],
+        vec!["--samples", "1001"],
         vec!["--max-books", "1"],
         vec!["--years"],
         vec!["--unknown", "1"],
@@ -93,7 +94,8 @@ fn assert_coherent_book(book: &Value) -> Result<(), String> {
 #[test]
 fn horizon_has_full_daily_capacity_including_leap_days() -> Result<(), String> {
     let config = Config::default();
-    assert_eq!(config.years, MAX_YEARS);
+    assert_eq!(config.years, EXPECTED_DEFAULT_YEARS);
+    assert!(config.years <= MAX_YEARS);
     let input = parse::planner_input(payload(&config, PREFIX_BOOKS)?)?;
     let days = calendar::date_range(config.start_date(), config.end_date())?;
     let expected_days = (config.end_date() - config.start_date()).num_days() + 1;
