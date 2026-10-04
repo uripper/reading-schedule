@@ -7,7 +7,7 @@ import type {
     HeroContent,
     WorkflowStep,
 } from "../types/site-content.ts";
-import { DOWNLOAD_SECTION_URL } from "./site-urls.ts";
+import { DEMO_PAGE_URL, DOWNLOAD_SECTION_URL } from "./site-urls.ts";
 
 export const FEATURE_ITEMS: readonly FeatureItem[] = [
     {
@@ -44,6 +44,11 @@ export const HERO_CONTENT: HeroContent = {
         href: DOWNLOAD_SECTION_URL,
         label: "Download",
         variant: "primary",
+    },
+    secondaryAction: {
+        href: DEMO_PAGE_URL,
+        label: "Try Bartleby",
+        variant: "ghost",
     },
 };
 

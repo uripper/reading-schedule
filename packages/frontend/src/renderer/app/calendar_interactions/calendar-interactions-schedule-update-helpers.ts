@@ -140,7 +140,6 @@ export function finalizeRemovedSession(
         scheduleCompletions: result.nextCompletions,
         type: "set_schedule_completions",
     });
-    setBlockedDayBook(options.applyStateMutation, options.row, true);
     applyNextResult(options, result.nextResult);
     finishScheduleUpdate(
         options,

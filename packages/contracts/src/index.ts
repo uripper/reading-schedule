@@ -14,3 +14,4 @@ export * from "./types_subfolders/types_planner.js";
 export * from "./types_subfolders/types_stats.js";
 export * from "./types_subfolders/types-books-ui.js";
 export * from "./types_subfolders/types-mobile-today.js";
+export * from "./browser-planner.js";

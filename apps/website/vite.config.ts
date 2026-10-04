@@ -4,6 +4,7 @@ import { defineConfig } from "vite";
 const WEBSITE_HOST = "127.0.0.1";
 const WEBSITE_PORT = 4173;
 const WEBSITE_INPUT = {
+    demo: fileURLToPath(new URL("./demo.html", import.meta.url)),
     index: fileURLToPath(new URL("./index.html", import.meta.url)),
     performance: fileURLToPath(new URL("./performance.html", import.meta.url)),
     roadmap: fileURLToPath(new URL("./roadmap.html", import.meta.url)),

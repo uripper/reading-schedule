@@ -3,7 +3,7 @@ mod book_search;
 mod commands;
 mod cover_store;
 mod data_archive;
-mod native_planner;
+use bartleby_planner as native_planner;
 mod plan_cache;
 mod state_recover_cli;
 mod state_store;
