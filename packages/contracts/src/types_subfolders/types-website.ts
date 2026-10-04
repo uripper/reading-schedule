@@ -34,6 +34,7 @@ export interface HeroContent {
     readonly headlineAccent: string;
     readonly headlineLead: string;
     readonly primaryAction: ActionLink;
+    readonly secondaryAction?: ActionLink;
 }
 
 export interface RoadmapStage {

@@ -134,3 +134,15 @@ test("workflow renders one explicit knob for each visual control", () => {
 
     assert.equal(KNOB_COUNT, WORKFLOW_CONTROL_COUNT);
 });
+
+test("landing page links directly to the live browser demo", () => {
+    const LANDING_MARKUP = renderSite(SITE_CONTENT, TEST_YEAR);
+    assert.match(
+        LANDING_MARKUP,
+        /href="\.\/demo\.html"[^>]*>Try Bartleby<\/a>/,
+    );
+    assert.match(
+        LANDING_MARKUP,
+        /class="nav-link" href="\.\/demo\.html">Demo ↗<\/a>/,
+    );
+});

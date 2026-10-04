@@ -1,12 +1,16 @@
 // biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 /**
- * Verifies removed sessions stay blocked from future replan merges.
+ * Verifies removals delete current entries without preventing later replanning.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
 
 import { removeSessionRow } from "../dist/renderer/app/calendar_interactions/calendar_interactions_schedule_updates.js";
+import { nextDayKey, todayDayKey } from "../dist/renderer/app/date_keys.js";
 import { mergeScheduleRows } from "../dist/renderer/app/schedule_preserve.js";
+
+const TODAY = todayDayKey();
+const TOMORROW = nextDayKey(TODAY);
 
 /**
  * Builds schedule row fixture with override support.
@@ -16,7 +20,7 @@ import { mergeScheduleRows } from "../dist/renderer/app/schedule_preserve.js";
 function row(overrides = {}) {
     return {
         book_id: "book-1",
-        date: "2026-02-24",
+        date: TODAY,
         minutes: 15,
         session_index: 1,
         title: "Book 1",
@@ -29,7 +33,7 @@ function createScenarioRows() {
     return {
         keepRow: row({
             book_id: "book-2",
-            date: "2026-02-25",
+            date: TOMORROW,
             session_index: 1,
             title: "Book 2",
         }),
@@ -110,19 +114,21 @@ function mergeReplannedRows(state, rows) {
     return mergeScheduleRows({
         blockedDayBooks: state.blockedDayBooks,
         nextRows: rows,
+        preservationMode: "completed_today",
         previousRows: [],
         sessions: [],
     });
 }
 
-test("removeSessionRow blocks the same day-book pair from future replan merges", () => {
+test("removed sessions can be scheduled again by Replan Today", () => {
     const SCENARIO = createScenarioRows();
     const STATE = createRemovalState(SCENARIO.removedRow, SCENARIO.keepRow);
     const COUNTER = { count: 0 };
     const REMOVED = removeRowFromState(STATE, SCENARIO.removedRow, COUNTER);
 
     assert.equal(REMOVED, true);
-    assert.equal(STATE.blockedDayBooks["2026-02-24|book-1"], true);
+    assert.deepEqual(STATE.blockedDayBooks, {});
+    assert.deepEqual(STATE.lastResult.schedule, [SCENARIO.keepRow]);
     assert.ok(COUNTER.count > 0);
 
     const MERGED = mergeReplannedRows(STATE, [
@@ -132,9 +138,16 @@ test("removeSessionRow blocks the same day-book pair from future replan merges",
 
     assert.equal(
         MERGED.some(
-            (entry) =>
-                entry.date === "2026-02-24" && entry.book_id === "book-1",
+            (entry) => entry.date === TODAY && entry.book_id === "book-1",
         ),
-        false,
+        true,
     );
+});
+
+test("legacy saved removal blocks do not discard a regenerated session", () => {
+    const SCENARIO = createScenarioRows();
+    const STATE = createRemovalState(SCENARIO.removedRow, SCENARIO.keepRow);
+    STATE.blockedDayBooks[`${TODAY}|book-1`] = true;
+    const MERGED = mergeReplannedRows(STATE, [SCENARIO.removedRow]);
+    assert.deepEqual(MERGED, [SCENARIO.removedRow]);
 });

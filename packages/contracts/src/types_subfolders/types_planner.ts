@@ -173,6 +173,7 @@ export interface PlanGeneratePayload {
 }
 
 export type PlannerStateLoadSource =
+    | "browser_storage"
     | "sqlite"
     | "sqlite_journal_replay"
     | "json_primary"
@@ -226,6 +227,8 @@ export interface PlannerApi {
     ): Promise<Pick<PlannerResult, "schedule" | "summary">>;
     importAppData(payloadJson: string): Promise<PlannerDataImportResult>;
     loadState(): Promise<PlannerStateLoadResult>;
+    /** False when the host leaves zoom shortcuts to the browser itself. */
+    nativeZoom?: boolean;
     resolveCoverSrc(src: string | undefined): string;
     sample(): Promise<Pick<PlannerStateSnapshot, "settings" | "books">>;
     saveState(state: PlannerStateSnapshot): Promise<PlannerSaveResult>;

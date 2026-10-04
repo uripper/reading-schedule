@@ -34,6 +34,10 @@ apps/*/dist-tests/
 apps/*/src-tauri/gen/
 apps/*/src-tauri/target/
 packages/*/dist/
+packages/*/target/
+apps/website/public/assets/
+apps/website/demo.html
+apps/website/src/demo/generated/
 services/*/dist/
 apps/client/.vite/
 /.scratch/

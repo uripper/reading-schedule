@@ -6,9 +6,14 @@ import type { HeroContent } from "../types/site-content.ts";
 import { escapeHtml, joinMarkup, renderButtonLink } from "./render-helpers.ts";
 
 function renderActionRow(hero: HeroContent): string {
+    let secondaryAction = "";
+    if (hero.secondaryAction) {
+        secondaryAction = renderButtonLink(hero.secondaryAction);
+    }
     return joinMarkup([
         '<div class="action-row">',
         renderButtonLink(hero.primaryAction),
+        secondaryAction,
         "</div>",
     ]);
 }

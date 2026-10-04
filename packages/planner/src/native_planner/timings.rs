@@ -1,4 +1,5 @@
-use std::time::Instant;
+//! Portable planner timing and summary instrumentation.
+use web_time::Instant;
 
 use serde_json::{json, Value};
 
@@ -6,7 +7,7 @@ pub(crate) fn elapsed_ms(started_at: Instant) -> u128 {
     started_at.elapsed().as_millis()
 }
 
-pub(crate) fn set_summary_timing(output: &mut Value, key: &str, milliseconds: u128) {
+pub fn set_summary_timing(output: &mut Value, key: &str, milliseconds: u128) {
     let Some(summary) = summary_object_mut(output) else {
         return;
     };
@@ -20,7 +21,7 @@ pub(crate) fn set_summary_timing(output: &mut Value, key: &str, milliseconds: u1
     timings.insert(key.to_string(), json!(milliseconds));
 }
 
-pub(crate) fn set_summary_timing_flag(output: &mut Value, key: &str, value: bool) {
+pub fn set_summary_timing_flag(output: &mut Value, key: &str, value: bool) {
     let Some(summary) = summary_object_mut(output) else {
         return;
     };

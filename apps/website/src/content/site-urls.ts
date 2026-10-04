@@ -3,6 +3,7 @@
  */
 
 export const HOME_PAGE_URL = "./index.html";
+export const DEMO_PAGE_URL = "./demo.html";
 export const PERFORMANCE_PAGE_URL = "./performance.html";
 export const ROADMAP_PAGE_URL = "./roadmap.html";
 export const FEATURES_SECTION_URL = `${HOME_PAGE_URL}#features`;

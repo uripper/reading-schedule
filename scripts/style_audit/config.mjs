@@ -33,9 +33,11 @@ export const IGNORED_DIRECTORIES = new Set([
 	".sonarlint",
 	"node_modules",
 	"dist",
+	"dist-tests",
 	"build",
 	"coverage",
 	"generated",
+	"target",
 ]);
 
 export const IGNORED_FILES = new Set(["eslint.config.mjs", "style_audit.mjs"]);
