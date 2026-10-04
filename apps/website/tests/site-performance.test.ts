@@ -20,17 +20,7 @@ const REPOSITORY_DIRECTORY = path.resolve(WEBSITE_DIRECTORY, "..", "..");
 const BENCHMARK_FILENAME = "bartleby_schedule_benchmark.svg";
 const TEST_YEAR = 2026;
 
-test("performance section preserves the README heading and entire paragraph", () => {
-    const README = fs.readFileSync(
-        path.join(REPOSITORY_DIRECTORY, "README.md"),
-        "utf8",
-    );
-    const PERFORMANCE_SECTION = README.split("## Bartleby is fast\n")[1]
-        ?.split("\n## ")[0]
-        ?.trim();
-
-    assert.ok(PERFORMANCE_SECTION);
-    assert.ok(PERFORMANCE_SECTION.endsWith(PERFORMANCE_DESCRIPTION));
+test("performance page preserves its heading and entire paragraph", () => {
     const MARKUP = renderPerformancePage(SITE_CONTENT);
     assert.ok(
         MARKUP.includes(

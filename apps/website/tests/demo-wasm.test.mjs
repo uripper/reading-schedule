@@ -12,6 +12,7 @@ import initPlanner, {
 } from "../../../packages/planner/dist/bartleby_planner.js";
 
 const ROOT = new URL("../../../", import.meta.url);
+const REDUCED_DAILY_BUDGET_MINUTES = 30;
 const SETTINGS = JSON.parse(
     fs.readFileSync(new URL("data/settings.json", ROOT), "utf8"),
 );
@@ -75,7 +76,11 @@ test("WebAssembly and native builds produce identical schedules and summaries", 
 test("editing reading budgets regenerates a different schedule with native parity", () => {
     const PAYLOAD = {
         books: BOOKS,
-        settings: { ...SETTINGS, minutes_by_weekday: {}, minutes_per_day: 120 },
+        settings: {
+            ...SETTINGS,
+            minutes_by_weekday: {},
+            minutes_per_day: REDUCED_DAILY_BUDGET_MINUTES,
+        },
     };
     const BROWSER = JSON.parse(generatePlanJson(JSON.stringify(PAYLOAD)));
     const ORIGINAL = JSON.parse(
