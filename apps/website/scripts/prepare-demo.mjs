@@ -1,29 +1,12 @@
 /** Builds the shared Rust core and derives the demo shell from the frontend. */
-import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
+import { prepareDemoToolchain, runTool } from "./demo-toolchain.mjs";
 
 const REPO_ROOT = fileURLToPath(new URL("../../../", import.meta.url));
 const WEBSITE_ROOT = fileURLToPath(new URL("../", import.meta.url));
 const PLANNER_ROOT = `${REPO_ROOT}packages/planner`;
 const OUTPUT_ROOT = `${PLANNER_ROOT}/dist`;
-
-/** Runs a build tool with inherited diagnostics and actionable failures. */
-function runTool(command, args) {
-    const RESULT = spawnSync(command, args, {
-        cwd: REPO_ROOT,
-        stdio: "inherit",
-    });
-    if (RESULT.error) {
-        throw new Error(
-            `Unable to run ${command}. See docs/architecture/browser-demo.md for setup.`,
-            { cause: RESULT.error },
-        );
-    }
-    if (RESULT.status !== 0) {
-        throw new Error(`${command} failed with status ${RESULT.status}.`);
-    }
-}
 
 /** Generates a thin browser host without maintaining a second UI shell. */
 function prepareShell() {
@@ -67,22 +50,31 @@ function prepareSampleData() {
     );
 }
 
-runTool("cargo", [
-    "build",
-    "--lib",
-    "--locked",
-    "--release",
-    "--target",
-    "wasm32-unknown-unknown",
-    "--manifest-path",
-    `${PLANNER_ROOT}/Cargo.toml`,
-]);
-runTool("wasm-bindgen", [
-    "--target",
-    "web",
-    "--out-dir",
-    OUTPUT_ROOT,
-    `${PLANNER_ROOT}/target/wasm32-unknown-unknown/release/bartleby_planner.wasm`,
-]);
+const TOOL_ENV = await prepareDemoToolchain(PLANNER_ROOT);
+runTool(
+    "cargo",
+    [
+        "build",
+        "--lib",
+        "--locked",
+        "--release",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--manifest-path",
+        `${PLANNER_ROOT}/Cargo.toml`,
+    ],
+    TOOL_ENV,
+);
+runTool(
+    "wasm-bindgen",
+    [
+        "--target",
+        "web",
+        "--out-dir",
+        OUTPUT_ROOT,
+        `${PLANNER_ROOT}/target/wasm32-unknown-unknown/release/bartleby_planner.wasm`,
+    ],
+    TOOL_ENV,
+);
 prepareShell();
 prepareSampleData();
