@@ -8,7 +8,7 @@ export function mountDemoControls(storage: DemoStorage): void {
     BAR.className = "demo-bar";
     BAR.setAttribute("aria-label", "Browser demo controls");
     BAR.innerHTML =
-        '<a href="./index.html">Bartleby</a><p>Live demo · Your changes stay in this browser.</p><a href="./index.html#download">Download the app</a><span>Covers from <a href="https://www.penguinrandomhouse.com/">Penguin</a></span><button type="button" class="btn" id="demoReset">Reset demo</button><p id="demoNotice" role="status"></p>';
+        '<a href="./index.html">Bartleby</a><p>Live demo · Your changes will only be in this browser and may be lost on reload.</p><a href="./index.html#download">Download the app</a><span>Covers from <a href="https://www.penguinrandomhouse.com/">Penguin</a></span><button type="button" class="btn" id="demoReset">Reset demo</button><p id="demoNotice" role="status"></p>';
     BAR.querySelector("#demoReset")?.addEventListener("click", () => {
         resetDemo(storage);
     });
