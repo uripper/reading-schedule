@@ -249,6 +249,7 @@ dependencies = [
 name = "bartleby_app"
 version = "0.1.6-alpha"
 dependencies = [
+ "bartleby_planner",
  "base64 0.22.1",
  "chrono",
  "directories",
@@ -265,6 +266,18 @@ dependencies = [
  "tauri-plugin-updater",
  "urlencoding",
  "uuid",
+]
+
+[[package]]
+name = "bartleby_planner"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "uuid",
+ "wasm-bindgen",
+ "web-time",
 ]
 
 [[package]]

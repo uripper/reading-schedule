@@ -24,7 +24,7 @@
         "preview": "vite preview",
         "state:recover": "cargo run --locked --manifest-path src-tauri/Cargo.toml --bin state_recover --",
         "tauri": "tauri",
-        "test": "pnpm run test:unit && cargo test --locked --manifest-path src-tauri/Cargo.toml",
+        "test": "pnpm run test:unit && cargo test --locked --manifest-path ../../packages/planner/Cargo.toml && cargo test --locked --manifest-path src-tauri/Cargo.toml",
         "test:unit": "node --experimental-strip-types --test tests/*.test.mjs",
         "typecheck": "pnpm run prepare:app && pnpm --dir ../.. exec tsc -p apps/bartleby/tsconfig.json --noEmit"
     },
