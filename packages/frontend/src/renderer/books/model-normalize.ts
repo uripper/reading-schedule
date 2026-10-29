@@ -1,3 +1,4 @@
+/** Normalizes library book fields and validated optional progress history. */
 import type { Book, BookInput, BookStatus } from "../../types/types.ts";
 import { resolveCoverSource } from "./cover-source.ts";
 import {
@@ -15,6 +16,7 @@ import {
     toTrimmedText,
     withNullableString,
 } from "./model-normalize-helpers.ts";
+import { progressHistory } from "./progress-history.ts";
 import { normalizeScheduledDays } from "./scheduled_days.ts";
 import { normalizeShelfName } from "./shelf.ts";
 import { statusFromRaw } from "./status.ts";
@@ -141,6 +143,7 @@ export function normalizeBook(book: BookInput = {}): Book {
         ...normalizedTextFields(book, NORMALIZED_STATE.status),
         ...normalizedNumericMetrics(book, NORMALIZED_STATE),
         ...normalizedScheduleFields(book),
+        ...progressHistory(book),
     } as Book;
 }
 

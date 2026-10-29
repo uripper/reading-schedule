@@ -56,9 +56,10 @@ function createApplyExperienceSettings(
 ): () => void {
     const APPLY_SETTINGS = (): void => {
         const STATE = args.state;
-        STATE.preferences = args.normalizePreferences(
-            args.collectPreferencesFromUI(),
-        );
+        STATE.preferences = args.normalizePreferences({
+            ...STATE.preferences,
+            ...args.collectPreferencesFromUI(),
+        });
         STATE.featureFlags = args.normalizeFeatureFlags(
             args.collectFeatureFlagsFromUI(),
         );

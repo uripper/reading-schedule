@@ -21,6 +21,7 @@ const CARGO_MANIFEST_PATH = "apps/bartleby/src-tauri/Cargo.toml";
 const CARGO_LOCK_PATH = "apps/bartleby/src-tauri/Cargo.lock";
 const TAURI_PACKAGE_PATH = "apps/bartleby/package.json";
 const TAURI_PLUGIN_PAIRS = [
+    ["@tauri-apps/plugin-dialog", "tauri-plugin-dialog"],
     ["@tauri-apps/plugin-opener", "tauri-plugin-opener"],
     ["@tauri-apps/plugin-process", "tauri-plugin-process"],
     ["@tauri-apps/plugin-updater", "tauri-plugin-updater"],

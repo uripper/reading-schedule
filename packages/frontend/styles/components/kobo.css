@@ -1,0 +1,182 @@
+/** Kobo configuration and progress-review controls. */
+.kobo-settings {
+    color: #111;
+}
+
+.kobo-provider-switch {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    min-height: var(--token-size-target-minimum);
+    font-weight: 800;
+    color: inherit;
+}
+
+.kobo-sync-controls {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1rem 0 0 2rem;
+}
+
+.kobo-sync-controls[hidden] {
+    display: none;
+}
+
+.kobo-selected-file {
+    overflow-wrap: anywhere;
+}
+
+.kobo-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.kobo-review {
+    width: calc(100% - 2rem);
+    max-width: 50rem;
+    max-height: 85dvh;
+    padding: 1.5rem;
+    overflow: hidden;
+    color: #111;
+    background: #fff7da;
+    border: 4px solid #000;
+    box-shadow: 12px 12px 0 #000;
+}
+
+.kobo-review::backdrop {
+    background: #0008;
+}
+
+.kobo-review[open] {
+    display: flex;
+    flex-direction: column;
+}
+
+.kobo-review h2,
+.kobo-review .kobo-actions,
+.kobo-review > [role="status"] {
+    flex-shrink: 0;
+}
+
+.kobo-review ul {
+    flex: 1;
+    min-height: 0;
+    padding: 0;
+    overflow: auto;
+    list-style: none;
+}
+
+.kobo-review li {
+    padding: 1rem 0;
+    border-top: 1px solid currentcolor;
+}
+
+.kobo-review label {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    font-weight: bold;
+    color: inherit;
+}
+
+.kobo-review input[type="checkbox"] {
+    flex: 0 0 auto;
+    width: 1.25rem;
+    height: 1.25rem;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+    accent-color: #ff4911;
+}
+
+#tab-settings .kobo-provider-switch input[type="checkbox"] {
+    width: 26px;
+    height: 26px;
+    min-height: 26px;
+    padding: 0;
+    margin: 0;
+}
+
+#tab-settings .kobo-provider-switch input[type="checkbox"]:checked::after {
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.kobo-actions .btn {
+    font-weight: 800;
+    color: #111;
+    background: #ffe58a;
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 4px 4px 0 #000;
+}
+
+.kobo-review select {
+    max-width: 100%;
+    margin-top: 0.5rem;
+}
+
+.kobo-review-header {
+    display: flex;
+    flex-shrink: 0;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.kobo-review-header h2 {
+    flex: 1;
+    margin: 0;
+}
+
+.kobo-review-close {
+    flex: 0 0 auto;
+}
+
+.kobo-row-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.kobo-library-search {
+    position: relative;
+}
+
+.kobo-library-results {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    z-index: 2;
+    max-height: 14rem;
+    margin: 0;
+    color: #111;
+    background: #fff7da;
+    border: 3px solid #000;
+    box-shadow: 4px 4px 0 #000;
+}
+
+.kobo-library-results[hidden],
+.kobo-review li[hidden] {
+    display: none;
+}
+
+.kobo-library-results.opens-up {
+    top: auto;
+    bottom: 100%;
+}
+
+.kobo-library-results > li {
+    padding: 0.75rem;
+    cursor: pointer;
+    border: 0;
+}
+
+.kobo-library-results > [aria-selected="true"],
+.kobo-library-results > li:hover {
+    background: #ffe58a;
+}

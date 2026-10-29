@@ -75,6 +75,8 @@ export interface AfterBookPickerControl {
 export interface OpenDialogOptions {
     bulkBookIds?: string[];
     defaultShelf?: string;
+    /** Prefills a new book without changing the dialog into edit mode. */
+    initialBook?: Book;
     mode?: "single" | "bulk";
     navigationBookIds?: string[];
 }

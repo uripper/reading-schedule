@@ -1,6 +1,8 @@
+/** Serializes books for persistence and planning while retaining progress history. */
 import type { Book } from "../../types/types.ts";
 import { WORDS_PER_PAGE } from "./constants.ts";
 import { withNullableString } from "./model-normalize-helpers.ts";
+import { progressHistory } from "./progress-history.ts";
 import { normalizeScheduledDays } from "./scheduled_days.ts";
 import { statusFromRaw } from "./status.ts";
 
@@ -167,6 +169,7 @@ export function toPayloadBook(book: Book): PlannerPayloadBook {
     return {
         ...payloadTextFields(book, STATUS),
         ...payloadNumericFields(book),
+        ...progressHistory(book),
     } as PlannerPayloadBook;
 }
 

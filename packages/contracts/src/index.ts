@@ -1,3 +1,5 @@
+export * from "./browser-planner.js";
+export * from "./kobo.js";
 export * from "./planner.js";
 export * from "./planner_result.js";
 export * from "./settings.js";
@@ -13,5 +15,5 @@ export * from "./types_subfolders/types_main.js";
 export * from "./types_subfolders/types_planner.js";
 export * from "./types_subfolders/types_stats.js";
 export * from "./types_subfolders/types-books-ui.js";
+export * from "./types_subfolders/types-kobo.js";
 export * from "./types_subfolders/types-mobile-today.js";
-export * from "./browser-planner.js";

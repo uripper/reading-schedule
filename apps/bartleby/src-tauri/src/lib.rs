@@ -3,6 +3,7 @@ mod book_search;
 mod commands;
 mod cover_store;
 mod data_archive;
+mod kobo;
 use bartleby_planner as native_planner;
 mod plan_cache;
 mod state_recover_cli;
@@ -30,6 +31,7 @@ pub fn run() {
         .manage(window_zoom::ZoomState::default())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             #[cfg(all(desktop, not(debug_assertions)))]
             app.handle()
@@ -43,6 +45,7 @@ pub fn run() {
             commands::books_search,
             commands::cover_download,
             commands::cover_import,
+            commands::kobo_read_progress,
             commands::plan_generate,
             commands::plan_sample,
             commands::state_run_maintenance,

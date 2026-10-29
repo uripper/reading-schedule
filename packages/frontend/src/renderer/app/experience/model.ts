@@ -11,6 +11,21 @@ import {
     shippedReminderTime,
 } from "./availability.ts";
 
+/** Retains a configured device path without adding fields to legacy preferences. */
+function koboPreference(raw: PreferencesInput): Partial<Preferences> {
+    const PREFERENCES: Partial<Preferences> = {};
+    if (typeof raw.koboDatabasePath === "string") {
+        PREFERENCES.koboDatabasePath = raw.koboDatabasePath.trim();
+    }
+    if (typeof raw.koboSyncEnabled === "boolean") {
+        PREFERENCES.koboSyncEnabled = raw.koboSyncEnabled;
+    }
+    if (Array.isArray(raw.koboIgnoredContentIds)) {
+        PREFERENCES.koboIgnoredContentIds = [...new Set(raw.koboIgnoredContentIds.filter((id) => typeof id === "string" && id.trim() !== ""))];
+    }
+    return PREFERENCES;
+}
+
 export const DEFAULT_PREFERENCES: Preferences = {
     dailyGoalMinutes: 30,
     reduceMotion: false,
@@ -44,6 +59,7 @@ function normalizedDailyGoalMinutes(raw: PreferencesInput): number {
  */
 export function normalizePreferences(raw: PreferencesInput = {}): Preferences {
     return {
+        ...koboPreference(raw),
         dailyGoalMinutes: normalizedDailyGoalMinutes(raw),
         reduceMotion: Boolean(raw.reduceMotion),
         reminderEnabled: shippedFeatureFlag(

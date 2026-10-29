@@ -10,6 +10,7 @@ import type {
     UpdateBookProgressOptions,
 } from "../../types/types.ts";
 import { el } from "../dom.ts";
+import { configureAddBookFlow } from "./add-book-flow.ts";
 import { bindToolbarEvents } from "./controller_bindings.ts";
 import { renderBooksController } from "./controller_render.ts";
 import { defaultShelfForAddDialog } from "./controller_types.ts";
@@ -265,6 +266,11 @@ export function bindBooksUI(
     const ADD_BUTTON = initializeBooksUiRefs(TOOLBAR);
     bindToolbarEvents({ refs: REFS, rerender: render, viewState: VIEW_STATE });
     dialog = createBookDialog(saveBook, { getBooks: () => books });
+    configureAddBookFlow({
+        element: el<HTMLDialogElement>("bookDialog"),
+        getBook: getBookById,
+        getDialog: () => dialog,
+    });
     massEdit = bindControllerMassEdit({
         findBook,
         getDialog: () => dialog,

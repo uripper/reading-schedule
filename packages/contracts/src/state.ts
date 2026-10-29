@@ -15,6 +15,9 @@ const FEATURE_FLAGS_SCHEMA = z.object({
 
 const PREFERENCES_SCHEMA = z.object({
     dailyGoalMinutes: z.number(),
+    koboDatabasePath: z.string().optional(),
+    koboSyncEnabled: z.boolean().optional(),
+    koboIgnoredContentIds: z.array(z.string().min(1)).optional(),
     reduceMotion: z.boolean(),
     reminderEnabled: z.boolean(),
     reminderTime: z.string(),

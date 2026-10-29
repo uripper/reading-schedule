@@ -1,3 +1,4 @@
+/** Applies progress changes with consistent status, finish date, and source history. */
 import type {
     Book,
     BookProgressUpdates,
@@ -5,6 +6,7 @@ import type {
 } from "../../types/types.ts";
 import { normalizeBook } from "./model-normalize.ts";
 import { withUpdatedProgress } from "./progress.ts";
+import { withProgressHistory } from "./progress-history.ts";
 import {
     BOOK_STATUS_IN_PROGRESS,
     BOOK_STATUS_READ,
@@ -66,13 +68,28 @@ export function updatedProgressBook(
         withUpdatedProgress(currentBook, updates),
         options.markStarted === true,
     );
-    const NORMALIZED = normalizeBook(STARTED_BOOK);
+    const NORMALIZED = withProgressHistory(
+        currentBook,
+        normalizeBook(STARTED_BOOK),
+    );
     return {
         ...NORMALIZED,
+        ...importedHistory(options),
         finished_at: resolvedFinishedAt({
             completedAt: options.completedAt,
             currentBook,
             nextBook: NORMALIZED,
         }),
+    };
+}
+
+/** Uses source time for imports so later Kobo reading can be compared correctly. */
+function importedHistory(options: UpdateBookProgressOptions): Partial<Book> {
+    if (options.koboProgress === undefined) {
+        return {};
+    }
+    return {
+        kobo_progress: options.koboProgress,
+        progress_updated_at: options.koboProgress.dateLastRead,
     };
 }
