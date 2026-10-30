@@ -3,12 +3,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { normalizeBook } from "../dist/renderer/books/model-normalize.js";
-import { applyKoboImport } from "../dist/renderer/kobo/import.js";
+import { applySyncImport } from "../dist/renderer/sync/import.js";
 
 const SOURCE = {
-    contentId: "source",
     dateLastRead: "2026-02-01T12:00:00Z",
     percentRead: 60,
+    provider: "kobo",
+    sourceId: "source",
     title: "Book",
 };
 const CHOICES = [{ bookId: "book", record: SOURCE }];
@@ -50,29 +51,29 @@ function fixture() {
 
 test("progress and its source receipt are saved in the same durable snapshot", async () => {
     const { state: STATE, store: STORE } = fixture();
-    const RESULT = await applyKoboImport(STORE, CHOICES);
+    const RESULT = await applySyncImport(STORE, CHOICES);
     assert.equal(RESULT.imported, 1);
     assert.equal(STATE.changed, 1);
     assert.equal(STATE.durable[0].progress_percent, SOURCE.percentRead);
-    assert.deepEqual(STATE.durable[0].kobo_progress, SOURCE);
+    assert.deepEqual(STATE.durable[0].sync_links, [SOURCE]);
 });
 
 test("failed persistence restores original progress and leaves the source importable", async () => {
     const { state: STATE, store: STORE } = fixture();
     STATE.saveOk = false;
-    await assert.rejects(applyKoboImport(STORE, CHOICES), /restored/);
+    await assert.rejects(applySyncImport(STORE, CHOICES), /restored/);
     assert.equal(STATE.books[0].progress_percent, 0);
-    assert.equal(STATE.books[0].kobo_progress, undefined);
+    assert.equal(STATE.books[0].sync_links, undefined);
     assert.equal(STATE.books[0].progress_updated_at, undefined);
     STATE.saveOk = true;
-    assert.equal((await applyKoboImport(STORE, CHOICES)).imported, 1);
+    assert.equal((await applySyncImport(STORE, CHOICES)).imported, 1);
 });
 
 test("a failed pre-import flush leaves all library state untouched", async () => {
     const { state: STATE, store: STORE } = fixture();
     const BEFORE = STATE.books;
     STATE.flushOk = false;
-    await assert.rejects(applyKoboImport(STORE, CHOICES), /current progress/);
+    await assert.rejects(applySyncImport(STORE, CHOICES), /current progress/);
     assert.equal(STATE.books, BEFORE);
     assert.equal(STATE.changed, 0);
 });
@@ -87,7 +88,7 @@ test("rollback preserves unrelated edits and newly added books", async () => {
         ];
         return false;
     };
-    await assert.rejects(applyKoboImport(STORE, CHOICES), /restored/);
+    await assert.rejects(applySyncImport(STORE, CHOICES), /restored/);
     assert.equal(STATE.books[0].progress_percent, 0);
     assert.equal(STATE.books[0].title, "Renamed during save");
     assert.equal(STATE.books[1].book_id, "new");
@@ -106,6 +107,6 @@ test("rollback does not overwrite newer reading progress entered during a failed
         ];
         throw new Error("disk full");
     };
-    await assert.rejects(applyKoboImport(STORE, CHOICES), /restored/);
+    await assert.rejects(applySyncImport(STORE, CHOICES), /restored/);
     assert.equal(STATE.books[0].progress_percent, 80);
 });

@@ -3,14 +3,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { normalizeBook } from "../dist/renderer/books/model-normalize.js";
-import { matchKoboRecord } from "../dist/renderer/kobo/matching.js";
-import { createKoboReviewRow } from "../dist/renderer/kobo/review-row.js";
+import { matchSyncRecord } from "../dist/renderer/sync/matching.js";
+import { createSyncReviewRow } from "../dist/renderer/sync/review-row.js";
 import { installFakeDom } from "./helpers/fake-dom.mjs";
 
 const SOURCE = {
-    contentId: "source",
     dateLastRead: "2026-02-02T12:00:00Z",
     percentRead: 60,
+    provider: "kobo",
+    sourceId: "source",
     title: "Book",
 };
 const BOOK = normalizeBook({ book_id: "book", title: "Book" });
@@ -38,69 +39,79 @@ function withDom(check) {
 
 test("safe unique matches default to checked and respect selection actions", () => {
     withDom(() => {
-        const ROW = createKoboReviewRow(matchKoboRecord(SOURCE, [BOOK]));
-        assert.equal(ROW.choice(false).length, 1);
+        const ROW = createSyncReviewRow(matchSyncRecord(SOURCE, [BOOK]));
+        assert.equal(ROW.choice().length, 1);
         ROW.selectSafe(false);
-        assert.equal(ROW.choice(false).length, 0);
-        assert.equal(ROW.choice(true).length, 1);
+        assert.equal(ROW.choice().length, 0);
         ROW.selectSafe(true);
-        assert.equal(ROW.choice(false).length, 1);
+        assert.equal(ROW.choice().length, 1);
     });
 });
 
-test("bulk actions cannot approve a decrease; an individual checkbox can", () => {
+test("Select all cannot approve a decrease; an individual checkbox can", () => {
     withDom(() => {
         const READ = normalizeBook({ ...BOOK, progress_percent: 80 });
-        const ROW = createKoboReviewRow(matchKoboRecord(SOURCE, [READ]));
+        const ROW = createSyncReviewRow(matchSyncRecord(SOURCE, [READ]));
         ROW.selectSafe(true);
-        assert.equal(ROW.choice(true).length, 0);
-        assert.equal(ROW.choice(false).length, 0);
+        assert.equal(ROW.choice().length, 0);
         ROW.element.querySelector("input").checked = true;
-        assert.equal(ROW.choice(false).length, 1);
+        assert.equal(ROW.choice().length, 1);
+    });
+});
+
+test("Select all keeps an individual conflict approval; Deselect all clears it", () => {
+    withDom(() => {
+        const READ = normalizeBook({ ...BOOK, progress_percent: 80 });
+        const ROW = createSyncReviewRow(matchSyncRecord(SOURCE, [READ]));
+        ROW.element.querySelector("input").checked = true;
+        ROW.selectSafe(true);
+        assert.equal(ROW.choice().length, 1);
+        ROW.selectSafe(false);
+        assert.equal(ROW.choice().length, 0);
     });
 });
 
 test("duplicate titles require both a chosen match and an explicit check", () => {
     withDom(() => {
         const OTHER = { ...BOOK, book_id: "other" };
-        const ROW = createKoboReviewRow({
+        const ROW = createSyncReviewRow({
             matches: [BOOK, OTHER],
             record: SOURCE,
         });
-        assert.equal(ROW.choice(true).length, 0);
+        ROW.selectSafe(true);
+        assert.equal(ROW.choice().length, 0);
         const SELECT = ROW.element.querySelector("select");
         SELECT.value = "other";
         SELECT.dispatch("change");
-        assert.equal(ROW.choice(false).length, 0);
+        ROW.selectSafe(true);
+        assert.equal(ROW.choice().length, 0);
         ROW.element.querySelector("input").checked = true;
-        assert.equal(ROW.choice(false)[0].bookId, "other");
-        assert.equal(ROW.choice(true).length, 0);
+        assert.equal(ROW.choice()[0].bookId, "other");
     });
 });
 
 test("unmatched and stale records cannot be approved", () => {
     withDom(() => {
-        const MISSING = createKoboReviewRow(matchKoboRecord(SOURCE, []));
+        const MISSING = createSyncReviewRow(matchSyncRecord(SOURCE, []));
         MISSING.selectSafe(true);
-        assert.equal(MISSING.choice(true).length, 0);
+        assert.equal(MISSING.choice().length, 0);
         const NEWER = { ...BOOK, progress_updated_at: "2026-02-03T12:00:00Z" };
-        const STALE = createKoboReviewRow(matchKoboRecord(SOURCE, [NEWER]));
+        const STALE = createSyncReviewRow(matchSyncRecord(SOURCE, [NEWER]));
         STALE.element.querySelector("input").checked = true;
-        assert.equal(STALE.choice(false).length, 0);
+        assert.equal(STALE.choice().length, 0);
     });
 });
 
 test("source collisions are excluded from bulk approval", () => {
     withDom(() => {
-        const ROW = createKoboReviewRow({
-            ...matchKoboRecord(SOURCE, [BOOK]),
+        const ROW = createSyncReviewRow({
+            ...matchSyncRecord(SOURCE, [BOOK]),
             requiresSourceReview: true,
         });
         ROW.selectSafe(true);
-        assert.equal(ROW.choice(true).length, 0);
-        assert.equal(ROW.choice(false).length, 0);
+        assert.equal(ROW.choice().length, 0);
         ROW.element.querySelector("input").checked = true;
-        assert.equal(ROW.choice(false).length, 1);
+        assert.equal(ROW.choice().length, 1);
     });
 });
 
@@ -129,7 +140,7 @@ test("an unmatched Kobo title can search and select any library book", () => {
             book_id: "target",
             title: "Library edition",
         });
-        const ROW = createKoboReviewRow(matchKoboRecord(SOURCE, []), [TARGET]);
+        const ROW = createSyncReviewRow(matchSyncRecord(SOURCE, []), [TARGET]);
         searchRow(ROW, "le guin");
         const SELECT = ROW.element.querySelector("select");
         assert.equal(
@@ -139,20 +150,19 @@ test("an unmatched Kobo title can search and select any library book", () => {
         chooseResult(ROW, "Library edition");
         assert.equal(SELECT.value, "target");
         ROW.element.querySelector("input").checked = true;
-        assert.equal(ROW.choice(false)[0].bookId, "target");
-        assert.equal(ROW.choice(true).length, 0);
+        assert.equal(ROW.choice()[0].bookId, "target");
     });
 });
 
 test("editing the search query resets approval of the previous suggestion", () => {
     withDom(() => {
-        const ROW = createKoboReviewRow(matchKoboRecord(SOURCE, [BOOK]));
-        assert.equal(ROW.choice(false).length, 1);
+        const ROW = createSyncReviewRow(matchSyncRecord(SOURCE, [BOOK]));
+        assert.equal(ROW.choice().length, 1);
         const SEARCH = ROW.element
             .querySelectorAll("input")
             .find((input) => input.type === "search");
         SEARCH.value = BOOK.title;
         SEARCH.dispatch("input");
-        assert.equal(ROW.choice(false).length, 0);
+        assert.equal(ROW.choice().length, 0);
     });
 });

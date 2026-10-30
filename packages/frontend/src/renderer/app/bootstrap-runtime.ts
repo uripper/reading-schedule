@@ -1,3 +1,4 @@
+/** Assembles renderer services, persistence, and visible operation feedback. */
 import type {
     AnnouncePoliteness,
     AppBootstrapContext,
@@ -10,9 +11,14 @@ import {
 import { collectAllBooks } from "../books/controller.ts";
 import { focusCalendarToday } from "../calendar.ts";
 import { el } from "../dom.ts";
+import { createAppErrorSurface } from "../errors/index.ts";
 import { addLog } from "../help.ts";
 import { collectSettings } from "../settings.ts";
 import { updateStatsView } from "../stats.ts";
+import {
+    createCriticalStatusSetter,
+    createPersistFeedback,
+} from "./critical-feedback.ts";
 import { createDashboardRuntime } from "./dashboard_runtime.ts";
 import {
     normalizeFeatureFlags,
@@ -33,6 +39,7 @@ import { updateTodayDashboard } from "./today/today.ts";
  * @returns The Planner API instance available on the global context.
  */
 function plannerApiFromGlobal(): PlannerApi {
+    // The desktop host installs this API before the shared renderer starts.
     const GLOBALS = globalThis as typeof globalThis & {
         plannerApi: PlannerApi;
     };
@@ -54,9 +61,11 @@ function createPlanControllerAnnouncer(
     };
 }
 
+/** Connects serialized saves to runtime feedback and import preparation. */
 function createPersistActions(
     state: AppBootstrapContext["state"],
     plannerApi: PlannerApi,
+    onPersistResult: (saved: boolean) => void,
 ): {
     flushPendingState(): Promise<boolean>;
     persistDraft(): Promise<boolean>;
@@ -68,6 +77,7 @@ function createPersistActions(
         collectBooks: collectAllBooks,
         collectSettings,
         getSessions: () => state.sessions,
+        onPersistResult,
         plannerApi,
         state,
     });
@@ -171,9 +181,17 @@ function buildBootstrapContext(options: {
     };
 }
 
-function createBootstrapDependencies(state: AppBootstrapContext["state"]) {
+/** Builds runtime services after their persistence feedback has been installed. */
+function createBootstrapDependencies(
+    state: AppBootstrapContext["state"],
+    onPersistResult: (saved: boolean) => void,
+) {
     const PLANNER_API = plannerApiFromGlobal();
-    const PERSIST_ACTIONS = createPersistActions(state, PLANNER_API);
+    const PERSIST_ACTIONS = createPersistActions(
+        state,
+        PLANNER_API,
+        onPersistResult,
+    );
     const DASHBOARDS = createDashboards(PERSIST_ACTIONS.queuePersist, state);
 
     return {
@@ -182,6 +200,15 @@ function createBootstrapDependencies(state: AppBootstrapContext["state"]) {
         plannerApi: PLANNER_API,
         runtime: createRuntime(DASHBOARDS, PERSIST_ACTIONS.queuePersist, state),
     };
+}
+
+/** Mounts empty live regions before any persistence or planning can fail. */
+function createAppErrors(): ReturnType<typeof createAppErrorSurface> {
+    const CONTAINER = document.createElement("section");
+    CONTAINER.className = "critical-errors";
+    const MAIN = el("mainContent");
+    MAIN.before(CONTAINER);
+    return createAppErrorSurface(CONTAINER, MAIN);
 }
 
 /**
@@ -193,14 +220,18 @@ function createBootstrapDependencies(state: AppBootstrapContext["state"]) {
 export function createAppBootstrapContext(): AppBootstrapContext {
     const STATE = createRuntimeState();
     const ANNOUNCE = createAnnouncer();
-    const ANNOUNCE_FOR_PLAN_CONTROLLER =
-        createPlanControllerAnnouncer(ANNOUNCE);
-    const SET_STATUS = createStatusSetter(el("status"), addLog);
-    const DEPENDENCIES = createBootstrapDependencies(STATE);
+    const RAW_STATUS = createStatusSetter(el("status"), addLog);
+    const ERRORS = createAppErrors();
+    const SET_STATUS = createCriticalStatusSetter(ERRORS.errors, RAW_STATUS);
+    const DEPENDENCIES = createBootstrapDependencies(
+        STATE,
+        createPersistFeedback(ERRORS.errors, RAW_STATUS),
+    );
+    ERRORS.bindRetrySave(DEPENDENCIES.persistActions.flushPendingState);
 
     return buildBootstrapContext({
         announce: ANNOUNCE,
-        announceForPlanController: ANNOUNCE_FOR_PLAN_CONTROLLER,
+        announceForPlanController: createPlanControllerAnnouncer(ANNOUNCE),
         dashboards: DEPENDENCIES.dashboards,
         persistActions: DEPENDENCIES.persistActions,
         plannerApi: DEPENDENCIES.plannerApi,

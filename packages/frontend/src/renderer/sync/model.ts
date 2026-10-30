@@ -1,19 +1,21 @@
-/** Matches Kobo book records and protects newer or uncertain Bartleby progress. */
+/** Matches synced book records and protects newer or uncertain Bartleby progress. */
 import type {
     Book,
-    KoboAssessment,
-    KoboProgress,
-    KoboReviewEntry,
+    SyncAssessment,
+    SyncRecord,
+    SyncReviewEntry,
 } from "@reading-schedule/contracts";
-import { koboReadTime } from "@reading-schedule/contracts";
-import { matchKoboRecord } from "./matching.ts";
+import { syncReadTime } from "@reading-schedule/contracts";
+import { completionDateAssessment, finishDateConflict } from "./completion.ts";
+import { linkedSyncRecord } from "./links.ts";
+import { matchSyncRecord } from "./matching.ts";
 
 /** Builds review rows without choosing among duplicate titles. */
-export function koboReviewEntries(
-    records: readonly KoboProgress[],
+export function syncReviewEntries(
+    records: readonly SyncRecord[],
     books: readonly Book[],
-): KoboReviewEntry[] {
-    const ENTRIES = records.map((record) => matchKoboRecord(record, books));
+): SyncReviewEntry[] {
+    const ENTRIES = records.map((record) => matchSyncRecord(record, books));
     const TARGETS = targetRecords(ENTRIES);
     return ENTRIES.map((entry) => {
         const OTHERS = (TARGETS.get(entry.suggestedBookId ?? "") ?? []).filter(
@@ -29,9 +31,9 @@ export function koboReviewEntries(
 
 /** Retains the actual competing device records for precise conflict messages. */
 function targetRecords(
-    entries: readonly KoboReviewEntry[],
-): Map<string, KoboProgress[]> {
-    const TARGETS = new Map<string, KoboProgress[]>();
+    entries: readonly SyncReviewEntry[],
+): Map<string, SyncRecord[]> {
+    const TARGETS = new Map<string, SyncRecord[]>();
     for (const ENTRY of entries) {
         const ID = ENTRY.suggestedBookId;
         if (ID === null) {
@@ -45,28 +47,22 @@ function targetRecords(
 }
 
 /** Detects exact source replays even when page rounding changed the stored percentage. */
-export function isKoboRecordImported(
-    record: KoboProgress,
-    book: Book,
-): boolean {
-    const PREVIOUS = book.kobo_progress;
+export function isSyncRecordImported(record: SyncRecord, book: Book): boolean {
+    const PREVIOUS = linkedSyncRecord(book.sync_links, record);
     return (
-        PREVIOUS?.contentId === record.contentId &&
+        PREVIOUS !== undefined &&
         PREVIOUS.dateLastRead === record.dateLastRead &&
         PREVIOUS.percentRead === record.percentRead
     );
 }
 
 /** Explains unsafe time comparisons before any progress can be applied. */
-function timeAssessment(
-    record: KoboProgress,
-    book: Book,
-): KoboAssessment | null {
-    const SOURCE_TIME = koboReadTime(record.dateLastRead);
+function timeAssessment(record: SyncRecord, book: Book): SyncAssessment | null {
+    const SOURCE_TIME = syncReadTime(record.dateLastRead);
     if (SOURCE_TIME === null || SOURCE_TIME > Date.now()) {
         return {
             kind: "blocked",
-            reason: "Invalid or future Kobo reading time. Check the device clock and retry.",
+            reason: "Invalid or future source reading time. Check the source's clock and retry.",
         };
     }
     if (book.progress_updated_at === undefined) {
@@ -79,8 +75,8 @@ function timeAssessment(
 function compareProgressTimes(
     sourceTime: number,
     updatedAt: string,
-): KoboAssessment | null {
-    const LOCAL_TIME = koboReadTime(updatedAt);
+): SyncAssessment | null {
+    const LOCAL_TIME = syncReadTime(updatedAt);
     if (LOCAL_TIME === null) {
         return {
             kind: "blocked",
@@ -102,33 +98,42 @@ function compareProgressTimes(
     return null;
 }
 
-/** Classifies one proposed update; review entries are excluded from Update all. */
-export function assessKoboProgress(
-    record: KoboProgress,
+/** Classifies one proposed update; review entries are excluded from Select all. */
+export function assessSyncProgress(
+    record: SyncRecord,
     book: Book,
-): KoboAssessment {
+): SyncAssessment {
     if (record.percentRead === book.progress_percent) {
-        return {
-            kind: "link",
-            reason: "",
-        };
+        return equalProgressAssessment(record, book);
     }
-    if (isKoboRecordImported(record, book)) {
+    if (isSyncRecordImported(record, book)) {
         return { kind: "unchanged", reason: "Already imported or unchanged." };
     }
     const TIME_ASSESSMENT = timeAssessment(record, book);
     if (TIME_ASSESSMENT !== null) {
         return TIME_ASSESSMENT;
     }
-    return progressAssessment(record, book);
+    return finishDateConflict(record, book) ?? progressAssessment(record, book);
+}
+
+/** Links equal progress, offering a missing or different finish date only once per source record. */
+function equalProgressAssessment(
+    record: SyncRecord,
+    book: Book,
+): SyncAssessment {
+    const LINK: SyncAssessment = { kind: "link", reason: "" };
+    if (isSyncRecordImported(record, book)) {
+        return LINK;
+    }
+    return completionDateAssessment(record, book) ?? LINK;
 }
 
 /** Distinguishes first imports from decreases and legacy progress with unknown ordering. */
-function progressAssessment(record: KoboProgress, book: Book): KoboAssessment {
+function progressAssessment(record: SyncRecord, book: Book): SyncAssessment {
     if (record.percentRead < book.progress_percent) {
         return {
             kind: "review",
-            reason: "Kobo progress is lower than Bartleby's.",
+            reason: "Source progress is lower than Bartleby's.",
         };
     }
     if (book.progress_updated_at === undefined && book.progress_percent > 0) {
@@ -141,9 +146,9 @@ function progressAssessment(record: KoboProgress, book: Book): KoboAssessment {
 }
 
 /** Keeps unmatched and ambiguous rows visible but omits exact no-op updates. */
-export function actionableKoboEntries(
-    entries: readonly KoboReviewEntry[],
-): KoboReviewEntry[] {
+export function actionableSyncEntries(
+    entries: readonly SyncReviewEntry[],
+): SyncReviewEntry[] {
     return entries.filter((entry) => {
         const BOOK = entry.matches.find(
             (book) => book.book_id === entry.suggestedBookId,
@@ -151,15 +156,15 @@ export function actionableKoboEntries(
         if (BOOK === undefined) {
             return true;
         }
-        return !isKoboRecordImported(entry.record, BOOK);
+        return !isSyncRecordImported(entry.record, BOOK);
     });
 }
 
 /** Automatic popups require an importable change, including one needing review. */
-export function hasKoboUpdates(entries: readonly KoboReviewEntry[]): boolean {
+export function hasSyncUpdates(entries: readonly SyncReviewEntry[]): boolean {
     return entries.some((entry) =>
         entry.matches.some((book) => {
-            const KIND = assessKoboProgress(entry.record, book).kind;
+            const KIND = assessSyncProgress(entry.record, book).kind;
             return KIND === "ready" || KIND === "link" || KIND === "review";
         }),
     );

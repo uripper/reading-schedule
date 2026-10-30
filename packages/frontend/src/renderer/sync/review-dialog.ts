@@ -1,30 +1,29 @@
-/** Shows a single accessible review dialog before approved Kobo progress is imported. */
+/** Shows a single accessible review dialog before approved synced progress is imported. */
 import type {
-    KoboImportChoice,
-    KoboReviewPresentation,
+    SyncImportChoice,
+    SyncReviewPresentation,
 } from "@reading-schedule/contracts";
 import { bindDialogFocus } from "../accessibility/a11y-dialog-focus.ts";
-import { koboButton, koboElement } from "./dom.ts";
-import { koboErrorMessage } from "./monitor.ts";
-import { bindKoboRowActions } from "./review-actions.ts";
-import { bindKoboRowCollisions } from "./review-collisions.ts";
-import { createKoboReviewRow } from "./review-row.ts";
+import { syncButton, syncElement, syncErrorMessage } from "./dom.ts";
+import { bindSyncRowActions } from "./review-actions.ts";
+import { bindSyncRowCollisions } from "./review-collisions.ts";
+import { createSyncReviewRow } from "./review-row.ts";
 
 // audit-allow-local-types: Private DOM state derived from this renderer's NODES.
 type ReviewNodes = ReturnType<typeof createReviewNodes>;
 
 /** Builds the dialog shell with an accessible result area. */
-function createDialogShell() {
-    const DIALOG = koboElement("dialog");
-    DIALOG.className = "kobo-review";
-    DIALOG.setAttribute("aria-labelledby", "kobo-review-title");
-    const TITLE = koboElement("h2", "Update progress from Kobo?");
-    TITLE.id = "kobo-review-title";
-    const STATUS = koboElement("p");
+function createDialogShell(sourceLabel: string) {
+    const DIALOG = syncElement("dialog");
+    DIALOG.className = "sync-review";
+    DIALOG.setAttribute("aria-labelledby", "sync-review-title");
+    const TITLE = syncElement("h2", `Update progress from ${sourceLabel}?`);
+    TITLE.id = "sync-review-title";
+    const STATUS = syncElement("p");
     STATUS.setAttribute("role", "status");
-    const ACTIONS = koboElement("div");
-    ACTIONS.className = "kobo-actions";
-    DIALOG.append(dialogHeader(DIALOG, TITLE));
+    const ACTIONS = syncElement("div");
+    ACTIONS.className = "sync-actions";
+    DIALOG.append(dialogHeader(DIALOG, TITLE, sourceLabel));
     return { actions: ACTIONS, dialog: DIALOG, status: STATUS };
 }
 
@@ -32,33 +31,34 @@ function createDialogShell() {
 function dialogHeader(
     dialog: HTMLDialogElement,
     title: HTMLElement,
+    sourceLabel: string,
 ): HTMLElement {
-    const HEADER = koboElement("header");
-    HEADER.className = "kobo-review-header";
-    const CLOSE = koboButton("X", () => {
+    const HEADER = syncElement("header");
+    HEADER.className = "sync-review-header";
+    const CLOSE = syncButton("X", () => {
         dialog.close();
     });
-    CLOSE.className = "action-confirm-close kobo-review-close";
-    CLOSE.setAttribute("aria-label", "Close Kobo sync");
+    CLOSE.className = "action-confirm-close sync-review-close";
+    CLOSE.setAttribute("aria-label", `Close ${sourceLabel} sync`);
     HEADER.append(title, CLOSE);
     return HEADER;
 }
 
 /** Builds rows without interpreting device strings as HTML. */
-function createReviewNodes(options: KoboReviewPresentation) {
-    const NODES = createDialogShell();
+function createReviewNodes(options: SyncReviewPresentation) {
+    const NODES = createDialogShell(options.sourceLabel);
     const ROWS = options.entries.map((entry) =>
-        createKoboReviewRow(entry, options.books),
+        createSyncReviewRow(entry, options.books),
     );
-    const LIST = koboElement("ul");
-    LIST.className = "kobo-review-list";
-    bindKoboRowCollisions(ROWS);
+    const LIST = syncElement("ul");
+    LIST.className = "sync-review-list";
+    bindSyncRowCollisions(ROWS);
     LIST.append(...ROWS.map((row) => row.element));
     if (options.invalidRows > 0) {
-        NODES.status.textContent = `${options.invalidRows} invalid Kobo records were skipped.`;
+        NODES.status.textContent = `${options.invalidRows} invalid ${options.sourceLabel} records were skipped.`;
     }
     NODES.dialog.append(LIST, NODES.status, NODES.actions);
-    return { ...NODES, rows: ROWS };
+    return { ...NODES, rows: ROWS, sourceLabel: options.sourceLabel };
 }
 
 /** Disables cancellation and import controls while saving a reviewed batch. */
@@ -104,11 +104,10 @@ function lockRowControls(dialog: HTMLDialogElement, busy: boolean): void {
 /** Applies selected updates and leaves failures visible for retry. */
 async function applyChoices(
     nodes: ReviewNodes,
-    apply: (choices: KoboImportChoice[]) => Promise<string>,
-    all: boolean,
+    apply: (choices: SyncImportChoice[]) => Promise<string>,
 ): Promise<void> {
     const NODES = nodes;
-    const CHOICES = NODES.rows.flatMap((row) => row.choice(all));
+    const CHOICES = NODES.rows.flatMap((row) => row.choice());
     if (CHOICES.length === 0) {
         NODES.status.textContent = "Select a book to sync.";
         return;
@@ -119,7 +118,7 @@ async function applyChoices(
         NODES.status.textContent = await apply(CHOICES);
         NODES.dialog.close();
     } catch (error) {
-        NODES.status.textContent = koboErrorMessage(error);
+        NODES.status.textContent = syncErrorMessage(error, NODES.sourceLabel);
     } finally {
         setBusy(nodes, false);
     }
@@ -128,24 +127,23 @@ async function applyChoices(
 /** Starts an import action with an explicit terminal error handler. */
 function runApply(
     nodes: ReviewNodes,
-    apply: (choices: KoboImportChoice[]) => Promise<string>,
-    all: boolean,
+    apply: (choices: SyncImportChoice[]) => Promise<string>,
 ): void {
     const NODES = nodes;
-    applyChoices(nodes, apply, all).catch((error: unknown) => {
-        NODES.status.textContent = koboErrorMessage(error);
+    applyChoices(nodes, apply).catch((error: unknown) => {
+        NODES.status.textContent = syncErrorMessage(error, NODES.sourceLabel);
         setBusy(nodes, false);
     });
 }
 
-/** Creates select/deselect controls that preserve explicit conflict approval. */
+/** Select all adds safe rows; individual conflict approvals survive it until Deselect all. */
 function selectionButtons(nodes: ReviewNodes): HTMLButtonElement[] {
     return [true, false].map((selected) => {
         let label = "Deselect all";
         if (selected) {
             label = "Select all";
         }
-        return koboButton(label, () => {
+        return syncButton(label, () => {
             for (const ROW of nodes.rows) {
                 ROW.selectSafe(selected);
             }
@@ -153,22 +151,16 @@ function selectionButtons(nodes: ReviewNodes): HTMLButtonElement[] {
     });
 }
 
-/** Adds bulk controls and a cancel action that retains unimported records. */
+/** Imports only checked rows; the header X and Escape dismiss without importing. */
 function bindActions(
     nodes: ReviewNodes,
-    apply: (choices: KoboImportChoice[]) => Promise<string>,
+    apply: (choices: SyncImportChoice[]) => Promise<string>,
 ): void {
     const NODES = nodes;
     NODES.actions.append(
         ...selectionButtons(NODES),
-        koboButton("Update all", () => {
-            runApply(NODES, apply, true);
-        }),
-        koboButton("Update selected", () => {
-            runApply(NODES, apply, false);
-        }),
-        koboButton("Not now", () => {
-            NODES.dialog.close();
+        syncButton("Update selected", () => {
+            runApply(NODES, apply);
         }),
     );
     NODES.dialog.addEventListener("cancel", (event) => {
@@ -179,15 +171,16 @@ function bindActions(
 }
 
 /** Presents a modal with focus restoration and removes its nodes after dismissal. */
-export function showKoboReview(options: KoboReviewPresentation): void {
+export function showSyncReview(options: SyncReviewPresentation): void {
     const NODES = createReviewNodes(options);
     const FOCUS = bindDialogFocus(NODES.dialog, {
-        initialFocusSelector: ".kobo-review-close",
+        initialFocusSelector: ".sync-review-close",
     });
-    bindKoboRowActions(NODES.rows, options, {
+    bindSyncRowActions(NODES.rows, options, {
         setBusy: (busy) => {
             setBusy(NODES, busy);
         },
+        sourceLabel: options.sourceLabel,
         status: (message) => {
             NODES.status.textContent = message;
         },

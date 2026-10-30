@@ -4,6 +4,7 @@ import type {
     BookProgressUpdates,
     UpdateBookProgressOptions,
 } from "../../types/types.ts";
+import { withSyncLink } from "../sync/links.ts";
 import { normalizeBook } from "./model-normalize.ts";
 import { withUpdatedProgress } from "./progress.ts";
 import { withProgressHistory } from "./progress-history.ts";
@@ -74,7 +75,7 @@ export function updatedProgressBook(
     );
     return {
         ...NORMALIZED,
-        ...importedHistory(options),
+        ...importedHistory(currentBook, options),
         finished_at: resolvedFinishedAt({
             completedAt: options.completedAt,
             currentBook,
@@ -83,13 +84,16 @@ export function updatedProgressBook(
     };
 }
 
-/** Uses source time for imports so later Kobo reading can be compared correctly. */
-function importedHistory(options: UpdateBookProgressOptions): Partial<Book> {
-    if (options.koboProgress === undefined) {
+/** Uses source time for imports so later synced reading can be compared correctly. */
+function importedHistory(
+    currentBook: Book,
+    options: UpdateBookProgressOptions,
+): Partial<Book> {
+    if (options.syncRecord === undefined) {
         return {};
     }
     return {
-        kobo_progress: options.koboProgress,
-        progress_updated_at: options.koboProgress.dateLastRead,
+        progress_updated_at: options.syncRecord.dateLastRead,
+        sync_links: withSyncLink(currentBook.sync_links, options.syncRecord),
     };
 }

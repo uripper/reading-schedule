@@ -1,27 +1,32 @@
 /** Renders suggested or manually searched library matches with progress approval. */
 import type {
     Book,
-    KoboImportChoice,
-    KoboReviewEntry,
+    SyncImportChoice,
+    SyncReviewEntry,
 } from "@reading-schedule/contracts";
-import { koboButton, koboElement } from "./dom.ts";
-import { createKoboMatchPicker } from "./match-picker.ts";
-import { assessKoboProgress } from "./model.ts";
-import { koboReadDateLabel, koboReviewConflicts } from "./review-conflicts.ts";
+import { syncButton, syncElement } from "./dom.ts";
+import { syncProviderLabel } from "./links.ts";
+import { createSyncMatchPicker } from "./match-picker.ts";
+import { assessSyncProgress } from "./model.ts";
+import {
+    syncReadDateLabel,
+    syncRecordName,
+    syncReviewConflicts,
+} from "./review-conflicts.ts";
 
 // audit-allow-local-types: Private DOM state derived from the row renderer.
 type RowNodes = ReturnType<typeof createRowNodes>;
 
 /** Constructs the source label, library search, and selection controls. */
-function createRowNodes(entry: KoboReviewEntry, books: readonly Book[]) {
-    const ROW = koboElement("li");
-    const CHECK = koboElement("input");
+function createRowNodes(entry: SyncReviewEntry, books: readonly Book[]) {
+    const ROW = syncElement("li");
+    const CHECK = syncElement("input");
     CHECK.type = "checkbox";
-    const LABEL = koboElement("label");
-    LABEL.append(CHECK, koboElement("span", entry.record.title));
-    const PICKER = createKoboMatchPicker(entry, books);
-    const DETAILS = koboElement("p");
-    const REASON = koboElement("p");
+    const LABEL = syncElement("label");
+    LABEL.append(CHECK, syncElement("span", syncRecordName(entry.record)));
+    const PICKER = createSyncMatchPicker(entry, books);
+    const DETAILS = syncElement("p");
+    const REASON = syncElement("p");
     ROW.append(LABEL, PICKER.search, PICKER.select, DETAILS, REASON);
     return {
         check: CHECK,
@@ -34,8 +39,8 @@ function createRowNodes(entry: KoboReviewEntry, books: readonly Book[]) {
 }
 
 /** Exposes approval actions while leaving uncertain matches unchecked. */
-export function createKoboReviewRow(
-    entry: KoboReviewEntry,
+export function createSyncReviewRow(
+    entry: SyncReviewEntry,
     books: readonly Book[] = entry.matches,
 ) {
     const NODES = createRowNodes(entry, books);
@@ -53,7 +58,7 @@ function rowController(nodes: RowNodes) {
         bindActions: (actions: { add(): void; ignore(): void }): void => {
             appendActions(NODES, actions);
         },
-        conflicts: (records: KoboReviewEntry["conflictingRecords"]): void => {
+        conflicts: (records: SyncReviewEntry["conflictingRecords"]): void => {
             updateConflicts(NODES, records);
         },
         dismiss: (): void => {
@@ -79,12 +84,12 @@ function rowController(nodes: RowNodes) {
 function approvalControls(nodes: RowNodes) {
     const NODES = nodes;
     return {
-        choice: (all: boolean): KoboImportChoice[] => rowChoice(NODES, all),
+        choice: (): SyncImportChoice[] => rowChoice(NODES),
         refresh: (): void => {
             refreshApproval(NODES);
         },
         selectSafe: (selected: boolean): void => {
-            NODES.check.checked = selected && isSafeChoice(NODES);
+            selectRow(NODES, selected);
         },
     };
 }
@@ -100,7 +105,7 @@ function activeMatchId(nodes: RowNodes): string {
 /** Refreshes conflict details without clearing the user's approval checkbox. */
 function updateConflicts(
     nodes: RowNodes,
-    records: KoboReviewEntry["conflictingRecords"],
+    records: SyncReviewEntry["conflictingRecords"],
 ): void {
     const ENTRY = nodes.entry;
     ENTRY.conflictingRecords = records;
@@ -116,11 +121,11 @@ function appendActions(
     nodes: RowNodes,
     actions: { add(): void; ignore(): void },
 ): void {
-    const ACTIONS = koboElement("div");
-    ACTIONS.className = "kobo-row-actions";
+    const ACTIONS = syncElement("div");
+    ACTIONS.className = "sync-row-actions";
     ACTIONS.append(
-        koboButton("Add book", actions.add),
-        koboButton("Ignore", actions.ignore),
+        syncButton("Add book", actions.add),
+        syncButton("Ignore", actions.ignore),
     );
     nodes.row.append(ACTIONS);
 }
@@ -131,7 +136,7 @@ function refreshRow(nodes: RowNodes, initial: boolean): void {
     const BOOK = NODES.picker.selectedBook();
     NODES.check.checked = false;
     NODES.check.disabled = true;
-    NODES.details.textContent = `Kobo: ${NODES.entry.record.percentRead}% · ${koboReadDateLabel(NODES.entry.record.dateLastRead)}`;
+    NODES.details.textContent = `${sourceLabel(NODES)}: ${NODES.entry.record.percentRead}% · ${syncReadDateLabel(NODES.entry.record.dateLastRead)}`;
     NODES.reason.textContent = "";
     if (BOOK !== undefined) {
         renderMatchedBook(NODES, BOOK);
@@ -139,12 +144,17 @@ function refreshRow(nodes: RowNodes, initial: boolean): void {
     }
 }
 
+/** Names the actual source in progress comparisons. */
+function sourceLabel(nodes: RowNodes): string {
+    return syncProviderLabel(nodes.entry.record.provider);
+}
+
 /** Displays progress differences and only the warnings relevant to the chosen book. */
 function renderMatchedBook(nodes: RowNodes, book: Book): void {
     const NODES = nodes;
-    const ASSESSMENT = assessKoboProgress(NODES.entry.record, book);
-    NODES.details.textContent = `Bartleby: ${book.progress_percent}% → Kobo: ${NODES.entry.record.percentRead}% · ${koboReadDateLabel(NODES.entry.record.dateLastRead)}`;
-    NODES.reason.textContent = koboReviewConflicts(
+    const ASSESSMENT = assessSyncProgress(NODES.entry.record, book);
+    NODES.details.textContent = `Bartleby: ${book.progress_percent}% → ${sourceLabel(NODES)}: ${NODES.entry.record.percentRead}% · ${syncReadDateLabel(NODES.entry.record.dateLastRead)}`;
+    NODES.reason.textContent = syncReviewConflicts(
         NODES.entry,
         book,
         ASSESSMENT,
@@ -153,7 +163,7 @@ function renderMatchedBook(nodes: RowNodes, book: Book): void {
         ASSESSMENT.kind === "blocked" || ASSESSMENT.kind === "unchanged";
 }
 
-/** Bulk approval includes only clear suggestions without progress conflicts. */
+/** Select all includes only clear suggestions without progress conflicts. */
 function isSafeChoice(nodes: RowNodes): boolean {
     const BOOK = nodes.picker.selectedBook();
     return (
@@ -166,30 +176,29 @@ function isSafeChoice(nodes: RowNodes): boolean {
 }
 
 /** Equal progress is a valid association confirmation without rewriting reading history. */
-function canApproveSuggestion(entry: KoboReviewEntry, book: Book): boolean {
-    const KIND = assessKoboProgress(entry.record, book).kind;
+function canApproveSuggestion(entry: SyncReviewEntry, book: Book): boolean {
+    const KIND = assessSyncProgress(entry.record, book).kind;
     return KIND === "ready" || KIND === "link";
 }
 
-/** Uses explicitly checked matches for manual choices, including books found through search. */
-function rowChoice(nodes: RowNodes, all: boolean): KoboImportChoice[] {
-    if (nodes.check.disabled || nodes.row.hidden) {
+/** Uses explicitly checked matches, including books found through search. */
+function rowChoice(nodes: RowNodes): SyncImportChoice[] {
+    if (nodes.check.disabled || nodes.row.hidden || !nodes.check.checked) {
         return [];
     }
-    if (approvedChoice(nodes, all)) {
-        return [
-            { bookId: nodes.picker.select.value, record: nodes.entry.record },
-        ];
-    }
-    return [];
+    return [{ bookId: nodes.picker.select.value, record: nodes.entry.record }];
 }
 
-/** Bulk confirmation uses safe suggestions; manual confirmation uses the checkbox. */
-function approvedChoice(nodes: RowNodes, all: boolean): boolean {
-    if (all) {
-        return isSafeChoice(nodes);
+/** Select all checks safe rows without clearing individually approved conflicts. */
+function selectRow(nodes: RowNodes, selected: boolean): void {
+    const NODES = nodes;
+    if (!selected) {
+        NODES.check.checked = false;
+        return;
     }
-    return nodes.check.checked;
+    if (isSafeChoice(NODES)) {
+        NODES.check.checked = true;
+    }
 }
 
 /** Excluded rows cannot contribute hidden selections to a later import. */

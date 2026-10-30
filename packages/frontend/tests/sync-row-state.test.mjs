@@ -3,19 +3,21 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { normalizeBook } from "../dist/renderer/books/model-normalize.js";
-import { matchKoboRecord } from "../dist/renderer/kobo/matching.js";
-import { bindKoboRowCollisions } from "../dist/renderer/kobo/review-collisions.js";
-import { createKoboReviewRow } from "../dist/renderer/kobo/review-row.js";
+import { matchSyncRecord } from "../dist/renderer/sync/matching.js";
+import { bindSyncRowCollisions } from "../dist/renderer/sync/review-collisions.js";
+import { createSyncReviewRow } from "../dist/renderer/sync/review-row.js";
 import { installFakeDom } from "./helpers/fake-dom.mjs";
 
 const RECORD = {
-    contentId: "one",
-    dateLastRead: "2026-01-28T07:23:04Z",
+    dateLastRead: "2026-01-28T12:00:00Z",
     percentRead: 100,
+    provider: "kobo",
+    sourceId: "one",
     title: "Hamlet",
 };
 const BOOK = normalizeBook({
     book_id: "hamlet",
+    finished_at: "2026-01-28",
     progress_percent: 100,
     title: "Hamlet",
 });
@@ -39,32 +41,32 @@ function setup(t) {
 
 test("an equal-percent match is checked and remains selectable", (t) => {
     setup(t);
-    const ROW = createKoboReviewRow(matchKoboRecord(RECORD, [BOOK]));
+    const ROW = createSyncReviewRow(matchSyncRecord(RECORD, [BOOK]));
     assert.equal(ROW.element.querySelector("input").disabled, false);
-    assert.equal(ROW.choice(false).length, 1);
+    assert.equal(ROW.choice().length, 1);
     ROW.selectSafe(false);
-    assert.equal(ROW.choice(false).length, 0);
+    assert.equal(ROW.choice().length, 0);
     ROW.selectSafe(true);
-    assert.equal(ROW.choice(false).length, 1);
+    assert.equal(ROW.choice().length, 1);
 });
 
 test("returning from Add Book keeps the new match enabled and approved", (t) => {
     setup(t);
-    const ROW = createKoboReviewRow(matchKoboRecord(RECORD, []), []);
+    const ROW = createSyncReviewRow(matchSyncRecord(RECORD, []), []);
     assert.equal(ROW.element.querySelector("input").disabled, true);
     ROW.setBook(BOOK);
     ROW.refresh();
     assert.equal(ROW.element.querySelector("select").value, BOOK.book_id);
     assert.equal(ROW.element.querySelector("input").disabled, false);
-    assert.equal(ROW.choice(false)[0].bookId, BOOK.book_id);
+    assert.equal(ROW.choice()[0].bookId, BOOK.book_id);
 });
 
 test("a new book becomes searchable without changing another row's match", (t) => {
     setup(t);
-    const ROW = createKoboReviewRow(matchKoboRecord(RECORD, [BOOK]));
+    const ROW = createSyncReviewRow(matchSyncRecord(RECORD, [BOOK]));
     const NEW_BOOK = normalizeBook({ book_id: "new", title: "New book" });
     ROW.registerBook(NEW_BOOK);
-    assert.equal(ROW.choice(false)[0].bookId, BOOK.book_id);
+    assert.equal(ROW.choice()[0].bookId, BOOK.book_id);
     const SEARCH = ROW.element
         .querySelectorAll("input")
         .find((input) => input.type === "search");
@@ -90,22 +92,23 @@ test("live collision messages name the other record without duplicating progress
     assert.ok(TEXT.includes("Other"));
     assert.equal(TEXT.match(/Bartleby:/g).length, 1);
     SECOND.dismiss();
-    assert.equal(SECOND.choice(true).length, 0);
+    SECOND.selectSafe(true);
+    assert.equal(SECOND.choice().length, 0);
     assert.equal(FIRST.element.querySelectorAll("p")[1].textContent, "");
 });
 
 /** Creates two independent rows before manually assigning them to one library book. */
 function collisionRows() {
     const OTHER_BOOK = normalizeBook({ book_id: "other", title: "Other" });
-    const OTHER_RECORD = { ...RECORD, contentId: "two", title: "Other" };
-    const FIRST = createKoboReviewRow(matchKoboRecord(RECORD, [BOOK]), [
+    const OTHER_RECORD = { ...RECORD, sourceId: "two", title: "Other" };
+    const FIRST = createSyncReviewRow(matchSyncRecord(RECORD, [BOOK]), [
         BOOK,
         OTHER_BOOK,
     ]);
-    const SECOND = createKoboReviewRow(
-        matchKoboRecord(OTHER_RECORD, [OTHER_BOOK]),
+    const SECOND = createSyncReviewRow(
+        matchSyncRecord(OTHER_RECORD, [OTHER_BOOK]),
         [BOOK, OTHER_BOOK],
     );
-    bindKoboRowCollisions([FIRST, SECOND]);
+    bindSyncRowCollisions([FIRST, SECOND]);
     return { first: FIRST, second: SECOND };
 }

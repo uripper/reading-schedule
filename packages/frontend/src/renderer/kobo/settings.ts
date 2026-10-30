@@ -1,6 +1,6 @@
 /** Renders the Kobo provider switch and file selection in Sync settings. */
 import type { Preferences } from "@reading-schedule/contracts";
-import { koboActionButton, koboElement } from "./dom.ts";
+import { syncActionButton, syncElement } from "../sync/dom.ts";
 
 /** Keeps existing configured readers enabled when upgrading from path-only settings. */
 export function koboSyncEnabled(preferences: Partial<Preferences>): boolean {
@@ -9,28 +9,28 @@ export function koboSyncEnabled(preferences: Partial<Preferences>): boolean {
 
 /** Creates the provider checkbox, with its associated controls revealed on enable. */
 function providerSwitch(enabled: boolean) {
-    const LABEL = koboElement("label");
+    const LABEL = syncElement("label");
     LABEL.className = "kobo-provider-switch";
-    const ENABLE = koboElement("input");
+    const ENABLE = syncElement("input");
     ENABLE.type = "checkbox";
     ENABLE.checked = enabled;
     ENABLE.setAttribute("aria-controls", "koboSyncControls");
-    LABEL.append(ENABLE, koboElement("span", "Kobo"));
+    LABEL.append(ENABLE, syncElement("span", "Kobo"));
     return { enable: ENABLE, label: LABEL };
 }
 
 /** Creates the minimal file and retry controls, leaving persistence to the runtime. */
 function providerControls() {
-    const PANEL = koboElement("div");
+    const PANEL = syncElement("div");
     PANEL.id = "koboSyncControls";
     PANEL.className = "kobo-sync-controls";
-    const FILE = koboElement("p");
+    const FILE = syncElement("p");
     FILE.className = "kobo-selected-file";
-    const BROWSE = koboActionButton("Browse…");
-    const CHECK = koboActionButton("Check now");
-    const ACTIONS = koboElement("div");
-    ACTIONS.className = "kobo-actions";
-    const STATUS = koboElement("p");
+    const BROWSE = syncActionButton("Browse…");
+    const CHECK = syncActionButton("Check now");
+    const ACTIONS = syncElement("div");
+    ACTIONS.className = "sync-actions";
+    const STATUS = syncElement("p");
     STATUS.setAttribute("role", "status");
     ACTIONS.append(BROWSE, CHECK);
     PANEL.append(FILE, ACTIONS);
@@ -45,7 +45,7 @@ function providerControls() {
 
 /** Populates the Sync tab without exposing device controls on browser-only hosts. */
 export function createKoboSettings(preferences: Preferences) {
-    const SECTION = koboElement("section");
+    const SECTION = syncElement("section");
     SECTION.className = "kobo-settings";
     const SWITCH = providerSwitch(koboSyncEnabled(preferences));
     const CONTROLS = providerControls();

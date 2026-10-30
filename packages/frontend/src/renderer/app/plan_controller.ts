@@ -1,3 +1,4 @@
+/** Coordinates automatic planning and applies only current generation results. */
 import type {
     ApplyPlannedDataArgs,
     AutoPlanRun,
@@ -11,6 +12,7 @@ import type {
     RunAutoPlanFactoryArgs,
     RunPlanGenerationArgs,
 } from "../../types/types.ts";
+import { PLAN_FAILURE_MESSAGE } from "../errors/index.ts";
 import { runPlanGeneration } from "./plan.ts";
 import {
     applyLoadedResult,
@@ -19,7 +21,7 @@ import {
 import { replanPolicy } from "./plan-replan-policy.ts";
 
 const AUTO_PLAN_DELAY_MS = 450;
-const AUTO_PLAN_FAILURE_MESSAGE = "Automatic plan refresh failed.";
+const AUTO_PLAN_FAILURE_MESSAGE = PLAN_FAILURE_MESSAGE;
 const AUTO_PLAN_GENERATING_MESSAGE = "Updating Schedule";
 const AUTO_PLAN_SUCCESS_ANNOUNCEMENT = "";
 const DEFAULT_LAST_RESULT: PlannerResult = {
@@ -40,19 +42,21 @@ function autoPlanApplyArgs(
     };
 }
 
+/** Propagates persistence failure without discarding the generated in-memory plan. */
 async function applyAutoPlanSuccess(
     args: RunAutoPlanFactoryArgs,
     data: PlannerRunData,
     policy: ReplanPolicy,
-): Promise<void> {
-    await applyPlannedData(autoPlanApplyArgs(args, data, policy));
+): Promise<boolean> {
+    return await applyPlannedData(autoPlanApplyArgs(args, data, policy));
 }
 
+/** Preserves the save outcome across the generation callback boundary. */
 function createAutoPlanSuccessHandler(
     args: RunAutoPlanFactoryArgs,
     policy: ReplanPolicy,
-): (data: PlannerRunData) => Promise<void> {
-    return async (data: PlannerRunData): Promise<void> =>
+): (data: PlannerRunData) => Promise<boolean> {
+    return async (data: PlannerRunData): Promise<boolean> =>
         await applyAutoPlanSuccess(args, data, policy);
 }
 
@@ -173,13 +177,13 @@ function autoPlanState(): AutoPlanState {
 function createRunAutoPlan(args: RunAutoPlanFactoryArgs): () => Promise<void> {
     const STATE = args.state;
     return async (): Promise<void> => {
-            const RUN_CONTEXT = startAutoPlanRun(STATE);
-            try {
-                await executeAutoPlan(args, RUN_CONTEXT);
-            } finally {
-                finalizeAutoPlanRun(STATE);
-            }
-        };
+        const RUN_CONTEXT = startAutoPlanRun(STATE);
+        try {
+            await executeAutoPlan(args, RUN_CONTEXT);
+        } finally {
+            finalizeAutoPlanRun(STATE);
+        }
+    };
 }
 
 function createAutoPlanRunner(args: PlanControllerArgs): AutoPlanRunner {

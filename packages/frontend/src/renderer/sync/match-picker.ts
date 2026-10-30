@@ -1,7 +1,7 @@
 /** Connects the ranked match selector to a real full-library search dropdown. */
-import type { Book, KoboReviewEntry } from "@reading-schedule/contracts";
-import { koboElement } from "./dom.ts";
-import { createKoboLibrarySearch } from "./library-search.ts";
+import type { Book, SyncReviewEntry } from "@reading-schedule/contracts";
+import { syncElement } from "./dom.ts";
+import { createSyncLibrarySearch } from "./library-search.ts";
 
 /** Gives each option enough detail to distinguish duplicate editions. */
 function bookOption(book: Book): HTMLOptionElement {
@@ -38,8 +38,8 @@ function registerBook(library: Book[], book: Book): void {
 }
 
 /** Starts with the highest ranked option, retaining all candidate choices. */
-function matchSelect(entry: KoboReviewEntry): HTMLSelectElement {
-    const SELECT = koboElement("select");
+function matchSelect(entry: SyncReviewEntry): HTMLSelectElement {
+    const SELECT = syncElement("select");
     SELECT.setAttribute(
         "aria-label",
         `Library match for ${entry.record.title}`,
@@ -50,23 +50,34 @@ function matchSelect(entry: KoboReviewEntry): HTMLSelectElement {
     return SELECT;
 }
 
-/** Keeps a live row-local library so the add-book flow can immediately select its result. */
-export function createKoboMatchPicker(
-    entry: KoboReviewEntry,
-    books: readonly Book[],
+/** Searches with the device title and author; typing resets the row's approval. */
+function librarySearch(
+    entry: SyncReviewEntry,
+    select: HTMLSelectElement,
+    library: Book[],
 ) {
-    const LIBRARY = [...books];
-    const SELECT = matchSelect(entry);
-    const SEARCH = createKoboLibrarySearch({
-        getBooks: () => LIBRARY,
+    const SEARCH = createSyncLibrarySearch({
+        author: entry.record.author,
+        getBooks: () => library,
         onPick: (book) => {
-            selectBook(SELECT, LIBRARY, book);
+            selectBook(select, library, book);
         },
         title: entry.record.title,
     });
     SEARCH.input.addEventListener("input", () => {
-        SELECT.dispatchEvent(new Event("change"));
+        select.dispatchEvent(new Event("change"));
     });
+    return SEARCH;
+}
+
+/** Keeps a live row-local library so the add-book flow can immediately select its result. */
+export function createSyncMatchPicker(
+    entry: SyncReviewEntry,
+    books: readonly Book[],
+) {
+    const LIBRARY = [...books];
+    const SELECT = matchSelect(entry);
+    const SEARCH = librarySearch(entry, SELECT, LIBRARY);
     return {
         addBook: (book: Book): void => {
             selectBook(SELECT, LIBRARY, book);

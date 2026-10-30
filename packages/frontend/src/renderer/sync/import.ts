@@ -1,16 +1,20 @@
 /** Validates reviewed choices again and saves imports with their source history in one snapshot. */
 import type {
     Book,
-    KoboImportChoice,
-    KoboImportStore,
+    SyncImportChoice,
+    SyncImportStore,
+    SyncRecord,
 } from "@reading-schedule/contracts";
 import { updatedProgressBook } from "../books/controller-progress.ts";
 import { progressHistory } from "../books/progress-history.ts";
-import { assessKoboProgress } from "./model.ts";
+import { BOOK_STATUS_READ } from "../books/status_catalog.ts";
+import { syncFinishedDay } from "./completion.ts";
+import { withSyncLink } from "./links.ts";
+import { assessSyncProgress } from "./model.ts";
 
 /** Refuses batches that assign multiple device records to the same library book. */
 function ensureUniqueTargets(
-    choices: readonly KoboImportChoice[],
+    choices: readonly SyncImportChoice[],
     books: readonly Book[],
 ): void {
     const COUNTS = new Map<string, number>();
@@ -30,44 +34,62 @@ function ensureUniqueTargets(
         return `“${choice.record.title}” (${choice.record.percentRead}%) → “${TITLE}”`;
     });
     throw new Error(
-        `Kobo records select the same book: ${DETAILS.join("; ")}.`,
+        `Synced records select the same book: ${DETAILS.join("; ")}.`,
     );
 }
 
 /** Rechecks freshness at approval time, including edits made since the popup opened. */
 function approvedBook(
-    choice: KoboImportChoice,
+    choice: SyncImportChoice,
     books: readonly Book[],
 ): Book | null {
     const BOOK = books.find((book) => book.book_id === choice.bookId);
     if (BOOK === undefined) {
         return null;
     }
-    const ASSESSMENT = assessKoboProgress(choice.record, BOOK);
+    const ASSESSMENT = assessSyncProgress(choice.record, BOOK);
     if (ASSESSMENT.kind === "blocked" || ASSESSMENT.kind === "unchanged") {
         return null;
     }
     if (ASSESSMENT.kind === "link") {
-        return { ...BOOK, kobo_progress: choice.record };
+        return linkedBook(BOOK, choice.record);
     }
-    return updatedProgressBook(
-        BOOK,
-        { progressPercent: choice.record.percentRead },
+    return importedBook(choice.record, BOOK);
+}
+
+/** Records this device's link without rewriting progress or other devices' links. */
+function linkedBook(book: Book, record: SyncRecord): Book {
+    return { ...book, sync_links: withSyncLink(book.sync_links, record) };
+}
+
+/** Applies progress and an approved source finish date, replacing any reviewed existing date. */
+function importedBook(record: SyncRecord, book: Book): Book {
+    const DAY = syncFinishedDay(record);
+    if (record.percentRead === book.progress_percent) {
+        return {
+            ...linkedBook(book, record),
+            finished_at: DAY ?? book.finished_at,
+        };
+    }
+    const UPDATED = updatedProgressBook(
+        book,
+        { progressPercent: record.percentRead },
         {
-            completedAt: choice.record.dateLastRead.slice(
-                0,
-                "YYYY-MM-DD".length,
-            ),
-            koboProgress: choice.record,
+            completedAt: DAY ?? undefined,
             markStarted: true,
+            syncRecord: record,
         },
     );
+    if (DAY === null || UPDATED.status !== BOOK_STATUS_READ) {
+        return UPDATED;
+    }
+    return { ...UPDATED, finished_at: DAY };
 }
 
 /** Builds an import batch without mutating library books or recording failed choices. */
-export function prepareKoboImport(
+export function prepareSyncImport(
     books: readonly Book[],
-    choices: readonly KoboImportChoice[],
+    choices: readonly SyncImportChoice[],
 ) {
     ensureUniqueTargets(choices, books);
     const UPDATED = new Map<string, Book>();
@@ -103,14 +125,14 @@ function restoredBook(current: Book, previous: Book, staged: Book): Book {
         progress_percent: previous.progress_percent,
         status: previous.status,
     };
-    delete RESTORED.kobo_progress;
+    delete RESTORED.sync_links;
     delete RESTORED.progress_updated_at;
     return { ...RESTORED, ...progressHistory(previous) };
 }
 
 /** Rolls back staged values without replacing books edited or added during persistence. */
 function rollbackImport(
-    store: KoboImportStore,
+    store: SyncImportStore,
     before: readonly Book[],
     staged: readonly Book[],
 ): void {
@@ -130,7 +152,7 @@ function rollbackImport(
 
 /** Makes progress and source receipts durable together, restoring staged changes on failure. */
 async function saveImport(
-    store: KoboImportStore,
+    store: SyncImportStore,
     before: readonly Book[],
     staged: Book[],
 ): Promise<void> {
@@ -142,7 +164,7 @@ async function saveImport(
     } catch (error) {
         rollbackImport(store, before, staged);
         throw new Error(
-            "Could not save Kobo progress. Changes were restored; retry the import.",
+            "Could not save synced progress. Changes were restored; retry the import.",
             { cause: error },
         );
     }
@@ -150,17 +172,17 @@ async function saveImport(
 }
 
 /** Flushes prior changes, revalidates choices, and commits a reviewed batch. */
-export async function applyKoboImport(
-    store: KoboImportStore,
-    choices: readonly KoboImportChoice[],
+export async function applySyncImport(
+    store: SyncImportStore,
+    choices: readonly SyncImportChoice[],
 ) {
     if (!(await store.flush())) {
         throw new Error(
-            "Could not save current progress. Retry before importing from Kobo.",
+            "Could not save current progress. Retry before importing synced progress.",
         );
     }
     const BEFORE = store.getBooks();
-    const BATCH = prepareKoboImport(BEFORE, choices);
+    const BATCH = prepareSyncImport(BEFORE, choices);
     await saveImport(store, BEFORE, BATCH.books);
     return BATCH;
 }

@@ -1,4 +1,5 @@
 import type { Book, OpenBookDialogArgs } from "../../types/types.ts";
+import { renderSyncLinks } from "../sync/links-panel.ts";
 import { fillBulkEditForm } from "./bulk-edit-fill.ts";
 import { resetBookDialogSubmitState } from "./dialog_submit.ts";
 import {
@@ -65,6 +66,7 @@ function applyDialogBookState(args: {
     refs: ReturnType<typeof getBookFormRefs>;
 }): void {
     const FORM_REFS = args.refs;
+    renderSyncLinks(singleBook(args.book, args.bulkBooks));
     FORM_REFS.dialogTitle.textContent = "Add Book";
     if (args.bulkBooks.length > 0) {
         FORM_REFS.dialogTitle.textContent = `Edit ${args.bulkBooks.length} Books`;
@@ -115,6 +117,17 @@ export function openBookDialog(args: InternalOpenBookDialogArgs): void {
     });
     finishBookDialogOpen(args);
     restoreViewportScroll(SCROLL_POSITION);
+}
+
+/** Sync links describe one saved book, never a bulk selection or a draft. */
+function singleBook(
+    book: Book | null,
+    bulkBooks: readonly Book[],
+): Book | null {
+    if (bulkBooks.length > 0) {
+        return null;
+    }
+    return book;
 }
 
 function openAfterBookPicker(

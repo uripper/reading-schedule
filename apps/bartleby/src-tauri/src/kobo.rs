@@ -6,7 +6,8 @@ use std::{fs, io::ErrorKind, path::Path, time::Duration};
 const BUSY_TIMEOUT: Duration = Duration::from_secs(1);
 const MAX_RECORDS: usize = 10_000;
 const PROGRESS_MAX: f64 = 100.0;
-const PROGRESS_QUERY: &str = "SELECT ContentID, Title, DateLastRead, ___PercentRead
+const VERSION_FILE: &str = "version";
+const PROGRESS_QUERY: &str = "SELECT ContentID, Title, Attribution, DateLastRead, ___PercentRead
     FROM content WHERE BookID IS NULL AND ___PercentRead > 0
     AND DateLastRead IS NOT NULL ORDER BY DateLastRead DESC";
 
@@ -15,6 +16,8 @@ const PROGRESS_QUERY: &str = "SELECT ContentID, Title, DateLastRead, ___PercentR
 pub struct KoboProgress {
     content_id: String,
     title: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    author: Option<String>,
     date_last_read: String,
     percent_read: f64,
 }
@@ -24,6 +27,8 @@ pub struct KoboProgress {
 pub enum KoboSnapshot {
     Disconnected,
     Connected {
+        #[serde(rename = "deviceId", skip_serializing_if = "Option::is_none")]
+        device_id: Option<String>,
         records: Vec<KoboProgress>,
         #[serde(rename = "invalidRows")]
         invalid_rows: usize,
@@ -42,13 +47,23 @@ fn database_available(path: &Path) -> Result<bool, String> {
     }
 }
 
+/// Treats NULL and blank `Attribution` values as unknown so matching can fall back to titles.
+fn credited_author(value: Option<String>) -> Option<String> {
+    let author = value?.trim().to_string();
+    if author.is_empty() {
+        return None;
+    }
+    Some(author)
+}
+
 /// Rejects malformed records without discarding valid books in the same scan.
 fn read_record(row: &rusqlite::Row<'_>) -> rusqlite::Result<Option<KoboProgress>> {
     let record = KoboProgress {
         content_id: row.get(0)?,
         title: row.get(1)?,
-        date_last_read: row.get(2)?,
-        percent_read: row.get(3)?,
+        author: credited_author(row.get(2)?),
+        date_last_read: row.get(3)?,
+        percent_read: row.get(4)?,
     };
     if record.content_id.trim().is_empty() || record.title.trim().is_empty() {
         return Ok(None);
@@ -60,7 +75,10 @@ fn read_record(row: &rusqlite::Row<'_>) -> rusqlite::Result<Option<KoboProgress>
 }
 
 /// Holds one read transaction so disconnects and database changes cannot mix scan results.
-fn read_records(connection: &Connection) -> Result<KoboSnapshot, String> {
+fn read_records(
+    connection: &Connection,
+    device_id: Option<String>,
+) -> Result<KoboSnapshot, String> {
     let mut statement = connection.prepare(PROGRESS_QUERY).map_err(prepare_error)?;
     let rows = statement
         .query_map([], read_record)
@@ -72,6 +90,7 @@ fn read_records(connection: &Connection) -> Result<KoboSnapshot, String> {
         collect_row(row, &mut records, &mut invalid_rows)?;
     }
     Ok(KoboSnapshot::Connected {
+        device_id,
         records,
         invalid_rows,
     })
@@ -138,7 +157,24 @@ pub fn read_progress(database_path: &str) -> Result<KoboSnapshot, String> {
     connection
         .busy_timeout(BUSY_TIMEOUT)
         .map_err(|error| format!("Cannot configure Kobo read timeout: {error}"))?;
-    read_records(&connection)
+    read_records(&connection, device_serial(path))
+}
+
+/// Reads the serial from Kobo's `.kobo/version` file beside the database.
+///
+/// The serial only labels source links, so a missing or malformed file leaves the device unknown
+/// instead of failing the progress scan.
+fn device_serial(database_path: &Path) -> Option<String> {
+    let contents = fs::read_to_string(database_path.parent()?.join(VERSION_FILE)).ok()?;
+    let serial = contents.split(',').next()?.trim();
+    if serial.is_empty()
+        || !serial
+            .chars()
+            .all(|character| character.is_ascii_alphanumeric())
+    {
+        return None;
+    }
+    Some(serial.to_string())
 }
 
 #[cfg(test)]

@@ -3,17 +3,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { normalizeBook } from "../dist/renderer/books/model-normalize.js";
-import { prepareKoboImport } from "../dist/renderer/kobo/import.js";
+import { prepareSyncImport } from "../dist/renderer/sync/import.js";
 import {
-    actionableKoboEntries,
-    assessKoboProgress,
-    koboReviewEntries,
-} from "../dist/renderer/kobo/model.js";
+    actionableSyncEntries,
+    assessSyncProgress,
+    syncReviewEntries,
+} from "../dist/renderer/sync/model.js";
 
 const RECORD = {
-    contentId: "hamlet",
-    dateLastRead: "2026-01-28T07:23:04Z",
+    dateLastRead: "2026-10-01T12:00:00Z",
     percentRead: 100,
+    provider: "kobo",
+    sourceId: "hamlet",
     title: "Hamlet",
 };
 const BOOK = normalizeBook({
@@ -27,15 +28,15 @@ const BOOK = normalizeBook({
 });
 
 test("equal percentages remain actionable even when Kobo's record is older", () => {
-    assert.equal(assessKoboProgress(RECORD, BOOK).kind, "link");
+    assert.equal(assessSyncProgress(RECORD, BOOK).kind, "link");
     assert.equal(
-        actionableKoboEntries(koboReviewEntries([RECORD], [BOOK])).length,
+        actionableSyncEntries(syncReviewEntries([RECORD], [BOOK])).length,
         1,
     );
 });
 
 test("confirmation saves the association without rewriting pages, finish date, or update time", () => {
-    const RESULT = prepareKoboImport(
+    const RESULT = prepareSyncImport(
         [BOOK],
         [{ bookId: BOOK.book_id, record: RECORD }],
     );
@@ -45,16 +46,16 @@ test("confirmation saves the association without rewriting pages, finish date, o
     assert.equal(LINKED.pages_read, BOOK.pages_read);
     assert.equal(LINKED.finished_at, BOOK.finished_at);
     assert.equal(LINKED.progress_updated_at, BOOK.progress_updated_at);
-    assert.deepEqual(LINKED.kobo_progress, RECORD);
+    assert.deepEqual(LINKED.sync_links, [RECORD]);
     assert.equal(
-        actionableKoboEntries(koboReviewEntries([RECORD], [LINKED])).length,
+        actionableSyncEntries(syncReviewEntries([RECORD], [LINKED])).length,
         0,
     );
 });
 
 test("equal-progress linking does not require inventing a timezone for the device", () => {
     const SOURCE = { ...RECORD, dateLastRead: "2026-10-01T01:33:46.651" };
-    const RESULT = prepareKoboImport(
+    const RESULT = prepareSyncImport(
         [BOOK],
         [{ bookId: BOOK.book_id, record: SOURCE }],
     );
@@ -63,10 +64,10 @@ test("equal-progress linking does not require inventing a timezone for the devic
 });
 
 test("equal percentages can be confirmed again if explicitly selected in a review", () => {
-    const LINKED = { ...BOOK, kobo_progress: RECORD };
-    assert.equal(assessKoboProgress(RECORD, LINKED).kind, "link");
+    const LINKED = { ...BOOK, sync_links: [RECORD] };
+    assert.equal(assessSyncProgress(RECORD, LINKED).kind, "link");
     assert.equal(
-        prepareKoboImport([LINKED], [{ bookId: BOOK.book_id, record: RECORD }])
+        prepareSyncImport([LINKED], [{ bookId: BOOK.book_id, record: RECORD }])
             .imported,
         1,
     );

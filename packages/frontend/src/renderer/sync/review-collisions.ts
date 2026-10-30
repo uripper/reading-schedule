@@ -1,15 +1,13 @@
 /** Keeps conflict messages aligned with the books currently chosen in every row. */
-import type { KoboProgress } from "@reading-schedule/contracts";
-import type { createKoboReviewRow } from "./review-row.ts";
+import type { SyncRecord } from "@reading-schedule/contracts";
+import type { createSyncReviewRow } from "./review-row.ts";
 
 // audit-allow-local-types: Private row controls are derived from the renderer's DOM API.
-type ReviewRow = ReturnType<typeof createKoboReviewRow>;
+type ReviewRow = ReturnType<typeof createSyncReviewRow>;
 
 /** Groups source records by their current visible library selection. */
-function groupedRecords(
-    rows: readonly ReviewRow[],
-): Map<string, KoboProgress[]> {
-    const GROUPS = new Map<string, KoboProgress[]>();
+function groupedRecords(rows: readonly ReviewRow[]): Map<string, SyncRecord[]> {
+    const GROUPS = new Map<string, SyncRecord[]>();
     for (const ROW of rows) {
         const ID = ROW.matchId();
         if (ID === "") {
@@ -35,7 +33,7 @@ function refreshConflicts(rows: readonly ReviewRow[]): void {
 }
 
 /** Recomputes collisions after manual matching, adding a book, or ignoring a source. */
-export function bindKoboRowCollisions(rows: readonly ReviewRow[]): void {
+export function bindSyncRowCollisions(rows: readonly ReviewRow[]): void {
     const REFRESH = (): void => {
         refreshConflicts(rows);
     };

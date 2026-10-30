@@ -22,14 +22,15 @@ impl DatabaseFixture {
         database
             .execute_batch(
                 "CREATE TABLE content (
-            ContentID TEXT, Title TEXT, DateLastRead TEXT, ___PercentRead REAL, BookID TEXT
+            ContentID TEXT, Title TEXT, Attribution TEXT, DateLastRead TEXT,
+            ___PercentRead REAL, BookID TEXT
         );
         INSERT INTO content VALUES
-            ('old', 'Older', '2026-01-01T12:00:00Z', 20, NULL),
-            ('new', 'Newer', '2026-02-01T12:00:00Z', 60, NULL),
-            ('unread', 'Unread', '2026-02-01T12:00:00Z', 0, NULL),
-            ('no-date', 'No date', NULL, 50, NULL),
-            ('chapter', 'Chapter', '2026-02-01T12:00:00Z', 80, 'new');",
+            ('old', 'Older', NULL, '2026-01-01T12:00:00Z', 20, NULL),
+            ('new', 'Newer', '  Ursula K. Le Guin ', '2026-02-01T12:00:00Z', 60, NULL),
+            ('unread', 'Unread', 'Author', '2026-02-01T12:00:00Z', 0, NULL),
+            ('no-date', 'No date', 'Author', NULL, 50, NULL),
+            ('chapter', 'Chapter', 'Author', '2026-02-01T12:00:00Z', 80, 'new');",
             )
             .expect("fixture schema and records");
         database
@@ -54,6 +55,7 @@ fn reads_only_book_progress_in_last_read_order_without_changing_database() {
     let KoboSnapshot::Connected {
         records,
         invalid_rows,
+        ..
     } = fixture.read().expect("read progress")
     else {
         panic!("expected connection");
@@ -61,6 +63,8 @@ fn reads_only_book_progress_in_last_read_order_without_changing_database() {
     assert_eq!(records.len(), 2);
     assert_eq!(records[0].content_id, "new");
     assert_eq!(records[1].title, "Older");
+    assert_eq!(records[0].author.as_deref(), Some("Ursula K. Le Guin"));
+    assert_eq!(records[1].author, None);
     assert_eq!(invalid_rows, 0);
     assert_eq!(
         before,
@@ -70,6 +74,35 @@ fn reads_only_book_progress_in_last_read_order_without_changing_database() {
         fs::read_dir(&fixture.directory).expect("directory").count(),
         1
     );
+}
+
+#[test]
+fn omits_unknown_authors_from_the_native_payload() {
+    let fixture = DatabaseFixture::new();
+    drop(fixture.database());
+    let payload = serde_json::to_value(fixture.read().expect("read progress")).expect("payload");
+    assert_eq!(payload["records"][0]["author"], "Ursula K. Le Guin");
+    assert!(payload["records"][1].get("author").is_none());
+}
+
+#[test]
+fn reads_the_device_serial_from_the_version_file_when_present() {
+    let fixture = DatabaseFixture::new();
+    drop(fixture.database());
+    let read_device = || match fixture.read().expect("read progress") {
+        KoboSnapshot::Connected { device_id, .. } => device_id,
+        KoboSnapshot::Disconnected => panic!("expected connection"),
+    };
+    assert_eq!(read_device(), None);
+    let version = fixture.directory.join("version");
+    fs::write(
+        &version,
+        "N4181234567890,4.1.15,4.38.21908,4.1.15,4.1.15,00000000-0000-0000-0000-000000000390",
+    )
+    .expect("version file");
+    assert_eq!(read_device().as_deref(), Some("N4181234567890"));
+    fs::write(&version, " ../bad,4.1.15").expect("malformed version file");
+    assert_eq!(read_device(), None);
 }
 
 #[test]
@@ -98,20 +131,27 @@ fn skips_malformed_rows_without_losing_valid_progress() {
     database
         .execute_batch(
             "INSERT INTO content VALUES
-        ('bad', 'Bad percent', '2026-02-01T12:00:00Z', 150, NULL),
-        ('blank', '', '2026-02-01T12:00:00Z', 50, NULL),
-        ('text', 'Wrong type', '2026-02-01T12:00:00Z', 'invalid', NULL);",
+        ('bad', 'Bad percent', 'Author', '2026-02-01T12:00:00Z', 150, NULL),
+        ('blank', '', 'Author', '2026-02-01T12:00:00Z', 50, NULL),
+        ('text', 'Wrong type', 'Author', '2026-02-01T12:00:00Z', 'invalid', NULL),
+        ('blank-author', 'Blank author', '   ', '2026-02-01T12:00:00Z', 40, NULL);",
         )
         .expect("invalid fixture rows");
     let KoboSnapshot::Connected {
         records,
         invalid_rows,
+        ..
     } = fixture.read().expect("read valid rows")
     else {
         panic!("expected connection");
     };
-    assert_eq!(records.len(), 2);
+    assert_eq!(records.len(), 3);
     assert_eq!(invalid_rows, 3);
+    let blank = records
+        .iter()
+        .find(|record| record.content_id == "blank-author")
+        .expect("blank author keeps progress");
+    assert_eq!(blank.author, None);
 }
 
 #[test]

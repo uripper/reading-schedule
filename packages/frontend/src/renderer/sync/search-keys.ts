@@ -1,7 +1,7 @@
 /** Keyboard behavior for the library search combobox. */
 
 // audit-allow-local-types: Private callbacks for DOM keyboard interaction.
-type SearchActions = Parameters<typeof bindKoboSearchKeys>[1];
+type SearchActions = Parameters<typeof bindSyncSearchKeys>[1];
 
 /** Handles keys only while the dropdown owns the interaction. */
 function handleKey(event: KeyboardEvent, actions: SearchActions): void {
@@ -48,7 +48,7 @@ function handleOpenKey(event: KeyboardEvent, actions: SearchActions): void {
 }
 
 /** Wires an accessible input to its dropdown actions. */
-export function bindKoboSearchKeys(
+export function bindSyncSearchKeys(
     input: HTMLInputElement,
     actions: {
         close(): void;

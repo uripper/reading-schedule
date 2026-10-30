@@ -6,44 +6,7 @@ import { createPersistQueue } from "../dist/renderer/app/persist-queue.js";
 
 const QUEUED_SAVE_WAIT_MS = 350;
 
-function testFeatureFlags() {
-    return {
-        gamificationEnabled: true,
-        socialEnabled: true,
-    };
-}
-
-function testPreferences() {
-    return {
-        dailyGoalMinutes: 30,
-        reduceMotion: false,
-        reminderEnabled: false,
-        reminderTime: "20:00",
-        timezone: "UTC",
-    };
-}
-
-function ignoreLog() {
-    return undefined;
-}
-
-function baseQueueArgs(saveState) {
-    return {
-        addLog: ignoreLog,
-        collectBooks: () => [],
-        collectSettings: () => ({}),
-        getSessions: () => [],
-        plannerApi: { saveState },
-        state: {
-            blockedDayBooks: {},
-            featureFlags: testFeatureFlags(),
-            lastResult: null,
-            preferences: testPreferences(),
-            ready: true,
-            scheduleCompletions: {},
-        },
-    };
-}
+import { baseQueueArgs } from "./helpers/persistence.mjs";
 
 function deferredSaveResult() {
     let resolveSave;

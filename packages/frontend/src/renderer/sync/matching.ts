@@ -1,12 +1,18 @@
 /** Ranks local library titles without network requests or fuzzy-search dependencies. */
 import type {
     Book,
-    KoboLibraryMatch,
-    KoboProgress,
-    KoboReviewEntry,
+    SyncLibraryMatch,
+    SyncRecord,
+    SyncReviewEntry,
 } from "@reading-schedule/contracts";
 
-import { koboTitleSimilarity, normalizeKoboTitle } from "./match-score.ts";
+import {
+    byAuthorAgreement,
+    isClearTitleChoice,
+    withAuthorScore,
+} from "./author-match.ts";
+import { isSameSyncSource } from "./links.ts";
+import { normalizeSyncTitle, syncTitleSimilarity } from "./match-score.ts";
 
 const MIN_SEARCH_SCORE = 0.2;
 const MIN_SUGGESTION_SCORE = 0.45;
@@ -16,29 +22,37 @@ const MAX_SUGGESTIONS = 5;
 
 /** Manual searching accepts partial titles and author names in addition to fuzzy terms. */
 function libraryScore(query: string, book: Book, manual: boolean): number {
-    const TITLE = normalizeKoboTitle(book.title);
+    const TITLE = normalizeSyncTitle(book.title);
     if (!manual) {
-        return koboTitleSimilarity(query, TITLE);
+        return syncTitleSimilarity(query, TITLE);
     }
-    const AUTHOR = normalizeKoboTitle(book.author);
+    const AUTHOR = normalizeSyncTitle(book.author);
     if (query !== "" && (TITLE.includes(query) || AUTHOR.includes(query))) {
         return 1;
     }
     return Math.max(
-        koboTitleSimilarity(query, TITLE),
-        koboTitleSimilarity(query, AUTHOR),
+        syncTitleSimilarity(query, TITLE),
+        syncTitleSimilarity(query, AUTHOR),
     );
 }
 
 /** Returns deterministic ranked results; an empty query browses the library alphabetically. */
-export function rankKoboLibrary(
+export function rankSyncLibrary(
     query: string,
     books: readonly Book[],
-    manual = true,
-): KoboLibraryMatch[] {
-    const QUERY = normalizeKoboTitle(query);
+    options: { author?: string; manual?: boolean } = {},
+): SyncLibraryMatch[] {
+    const QUERY = normalizeSyncTitle(query);
+    const MANUAL = options.manual ?? true;
     const RANKED = books
-        .map((book) => ({ book, score: libraryScore(QUERY, book, manual) }))
+        .map((book) => ({
+            book,
+            score: withAuthorScore(
+                libraryScore(QUERY, book, MANUAL),
+                options.author,
+                book.author,
+            ),
+        }))
         .filter((match) => QUERY === "" || match.score >= MIN_SEARCH_SCORE);
     RANKED.sort(
         (left, right) =>
@@ -50,13 +64,16 @@ export function rankKoboLibrary(
 
 /** Keeps only plausible automatic suggestions and selects a clear best candidate. */
 function fuzzyEntry(
-    record: KoboProgress,
+    record: SyncRecord,
     books: readonly Book[],
-): KoboReviewEntry {
-    const RANKED = rankKoboLibrary(record.title, books, false)
+): SyncReviewEntry {
+    const RANKED = rankSyncLibrary(record.title, books, {
+        author: record.author,
+        manual: false,
+    })
         .filter((match) => match.score >= MIN_SUGGESTION_SCORE)
         .slice(0, MAX_SUGGESTIONS);
-    let matchKind: KoboReviewEntry["matchKind"] = "none";
+    let matchKind: SyncReviewEntry["matchKind"] = "none";
     if (RANKED.length > 0) {
         matchKind = "fuzzy";
     }
@@ -72,7 +89,7 @@ function fuzzyEntry(
 }
 
 /** Chooses a best match only when its score clearly exceeds alternatives. */
-function bestSuggestion(ranked: readonly KoboLibraryMatch[]): string | null {
+function bestSuggestion(ranked: readonly SyncLibraryMatch[]): string | null {
     const FIRST = ranked[0];
     const NEXT_SCORE = ranked[1]?.score ?? 0;
     if (
@@ -86,32 +103,44 @@ function bestSuggestion(ranked: readonly KoboLibraryMatch[]): string | null {
 }
 
 /** Prefers approved source links, then normalized exact titles, then ranked suggestions. */
-export function matchKoboRecord(
-    record: KoboProgress,
+export function matchSyncRecord(
+    record: SyncRecord,
     books: readonly Book[],
-): KoboReviewEntry {
-    const LINKED = books.filter(
-        (book) => book.kobo_progress?.contentId === record.contentId,
+): SyncReviewEntry {
+    const LINKED = books.filter((book) =>
+        (book.sync_links ?? []).some((link) => isSameSyncSource(link, record)),
     );
     if (LINKED.length > 0) {
         return exactEntry(record, LINKED, "linked");
     }
-    const TITLE = normalizeKoboTitle(record.title);
+    const TITLE = normalizeSyncTitle(record.title);
     const EXACT = books.filter(
-        (book) => TITLE !== "" && normalizeKoboTitle(book.title) === TITLE,
+        (book) => TITLE !== "" && normalizeSyncTitle(book.title) === TITLE,
     );
     if (EXACT.length > 0) {
-        return exactEntry(record, EXACT, "exact");
+        return exactTitleEntry(record, EXACT);
     }
     return fuzzyEntry(record, books);
 }
 
+/** Uses authors to choose among same-title books and to question a lone different author. */
+function exactTitleEntry(
+    record: SyncRecord,
+    matches: readonly Book[],
+): SyncReviewEntry {
+    const RANKED = byAuthorAgreement(record, matches);
+    return {
+        ...exactEntry(record, RANKED, "exact"),
+        requiresMatchReview: !isClearTitleChoice(record, RANKED),
+    };
+}
+
 /** Selects only unique exact or previously linked matches. */
 function exactEntry(
-    record: KoboProgress,
+    record: SyncRecord,
     matches: Book[],
     matchKind: "exact" | "linked",
-): KoboReviewEntry {
+): SyncReviewEntry {
     return {
         conflictingRecords: [],
         matches,

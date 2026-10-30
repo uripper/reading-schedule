@@ -7,6 +7,8 @@ import type {
     BookSubmitPayload,
 } from "../../types/types.ts";
 import { focusFirstError } from "../accessibility/a11y.ts";
+import { BOOK_SAVE_FAILURE_MESSAGE } from "../errors/index.ts";
+import { addLog } from "../help.ts";
 import { parseFormBook } from "./form-state.ts";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
 
@@ -18,7 +20,7 @@ const EMPTY_TEXT = "";
 type BookDialogSubmitFlow = Readonly<{
     createPayload(): BookDialogSubmitPayload;
     onComplete(): void;
-    onError(error: unknown): void;
+    onError(error: unknown, isValidationError: boolean): void;
     onSubmit(payload: BookDialogSubmitPayload): Promise<void> | void;
     setSavingState(busy: boolean): void;
 }>;
@@ -43,7 +45,7 @@ function submitBookDialogFlowPayload(
             flow.onComplete();
         })
         .catch((error: unknown) => {
-            flow.onError(error);
+            flow.onError(error, false);
         })
         .finally(() => {
             flow.setSavingState(false);
@@ -59,7 +61,7 @@ function runBookDialogSubmitFlow(flow: BookDialogSubmitFlow): void {
     try {
         submitBookDialogFlowPayload(flow, flow.createPayload());
     } catch (error: unknown) {
-        flow.onError(error);
+        flow.onError(error, true);
         flow.setSavingState(false);
     }
 }
@@ -157,9 +159,18 @@ function focusCustomValidationTarget(refs: BookFormRefs): void {
  * @param refs - Resolved DOM references for the book dialog.
  * @param error - Unknown error thrown during payload creation or save.
  */
-export function showSubmitError(refs: BookFormRefs, error: unknown): void {
+export function showSubmitError(
+    refs: BookFormRefs,
+    error: unknown,
+    isValidationError = true,
+): void {
     const FORM_REFS = refs;
-    FORM_REFS.lookupMeta.textContent = saveErrorMessage(error);
+    if (!isValidationError) {
+        addLog(saveErrorMessage(error));
+        FORM_REFS.submitError.textContent = BOOK_SAVE_FAILURE_MESSAGE;
+        return;
+    }
+    FORM_REFS.submitError.textContent = saveErrorMessage(error);
     if (focusFirstError(FORM_REFS.form)) {
         return;
     }
@@ -182,6 +193,8 @@ export function createBookSubmitPayload(refs: BookFormRefs): BookSubmitPayload {
  * @param refs - Resolved DOM references for the book dialog.
  */
 export function resetBookDialogSubmitState(refs: BookFormRefs): void {
+    const MESSAGE = refs.submitError;
+    MESSAGE.textContent = "";
     restoreLookupMetaText(refs);
     setBookDialogSavingState(refs, false);
 }
@@ -203,7 +216,7 @@ export async function submitBookDialogPayload(args: {
     try {
         await args.onSubmit(args.payload);
     } catch (error: unknown) {
-        showSubmitError(args.refs, error);
+        showSubmitError(args.refs, error, false);
         throw error;
     } finally {
         setBookDialogSavingState(args.refs, false);
@@ -224,8 +237,8 @@ function handleBookDialogSubmit(
             return createBookSubmitPayload(args.refs);
         },
         onComplete: args.onComplete,
-        onError(error: unknown) {
-            showSubmitError(args.refs, error);
+        onError(error: unknown, isValidationError: boolean) {
+            showSubmitError(args.refs, error, isValidationError);
         },
         onSubmit: args.onSubmit,
         setSavingState(busy: boolean) {

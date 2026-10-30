@@ -14,7 +14,7 @@ const EDITION_WORDS = new Set([
 ]);
 
 /** Treats punctuation, accents, and common connecting words consistently. */
-export function normalizeKoboTitle(value: string): string {
+export function normalizeSyncTitle(value: string): string {
     return value
         .normalize("NFKD")
         .replace(/\p{M}/gu, "")
@@ -67,7 +67,7 @@ function singleTitleContained(
 }
 
 /** Combines word overlap with character similarity for misspellings and transpositions. */
-export function koboTitleSimilarity(query: string, candidate: string): number {
+export function syncTitleSimilarity(query: string, candidate: string): number {
     if (query === "" || candidate === "") {
         return 0;
     }

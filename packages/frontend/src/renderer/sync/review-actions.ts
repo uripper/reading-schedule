@@ -1,12 +1,12 @@
 /** Coordinates per-book add and ignore actions while preserving pending review selections. */
-import type { KoboReviewPresentation } from "@reading-schedule/contracts";
-import { koboErrorMessage } from "./monitor.ts";
-import type { createKoboReviewRow } from "./review-row.ts";
+import type { SyncReviewPresentation } from "@reading-schedule/contracts";
+import { syncErrorMessage } from "./dom.ts";
+import type { createSyncReviewRow } from "./review-row.ts";
 
 // audit-allow-local-types: Private row controls are inferred from this renderer's DOM API.
-type ReviewRow = ReturnType<typeof createKoboReviewRow>;
+type ReviewRow = ReturnType<typeof createSyncReviewRow>;
 // audit-allow-local-types: Callbacks apply to the current dialog's DOM lifecycle only.
-type ActionHost = Parameters<typeof bindKoboRowActions>[2];
+type ActionHost = Parameters<typeof bindSyncRowActions>[2];
 
 /** Locks only the review while its nested book or confirmation dialog is active. */
 async function runAction(
@@ -18,7 +18,7 @@ async function runAction(
     try {
         await action();
     } catch (error) {
-        host.status(koboErrorMessage(error));
+        host.status(syncErrorMessage(error, host.sourceLabel));
     } finally {
         host.setBusy(false);
         restoreActionFocus(OPENER);
@@ -40,14 +40,14 @@ function restoreActionFocus(opener: Element | null): void {
 function startAction(action: () => Promise<void>, host: ActionHost): void {
     runAction(action, host).catch((error: unknown) => {
         host.setBusy(false);
-        host.status(koboErrorMessage(error));
+        host.status(syncErrorMessage(error, host.sourceLabel));
     });
 }
 
 /** Uses the normal add-book form, then selects the saved book in this existing review. */
 async function addBook(
     row: ReviewRow,
-    options: KoboReviewPresentation,
+    options: SyncReviewPresentation,
     rows: readonly ReviewRow[],
 ): Promise<void> {
     const BOOK = await options.addBook(row.record);
@@ -62,7 +62,7 @@ async function addBook(
 /** Hides an ignored row only after its persistent exclusion succeeds. */
 async function ignoreBook(
     row: ReviewRow,
-    options: KoboReviewPresentation,
+    options: SyncReviewPresentation,
 ): Promise<void> {
     if (await options.ignore(row.record)) {
         row.dismiss();
@@ -70,11 +70,12 @@ async function ignoreBook(
 }
 
 /** Supplies row controls without closing or rebuilding the user's review. */
-export function bindKoboRowActions(
+export function bindSyncRowActions(
     rows: readonly ReviewRow[],
-    options: KoboReviewPresentation,
+    options: SyncReviewPresentation,
     host: {
         setBusy(busy: boolean): void;
+        sourceLabel: string;
         status(message: string): void;
     },
 ): void {

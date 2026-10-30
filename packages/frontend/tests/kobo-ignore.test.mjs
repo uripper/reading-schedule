@@ -7,6 +7,7 @@ import {
     ignoreKoboRecord,
     visibleKoboRecords,
 } from "../dist/renderer/kobo/ignored.js";
+import { toKoboSyncRecord } from "../dist/renderer/kobo/records.js";
 
 const RECORD = {
     contentId: "device-book",
@@ -14,6 +15,7 @@ const RECORD = {
     percentRead: 20,
     title: "Unwanted book",
 };
+const SYNC_RECORD = toKoboSyncRecord(RECORD, "N418");
 
 function context() {
     return {
@@ -32,7 +34,10 @@ async function confirmIgnore() {
 
 test("confirmed ignore persists by source ID and survives preference reload", async () => {
     const CONTEXT = context();
-    assert.equal(await ignoreKoboRecord(CONTEXT, RECORD, confirmIgnore), true);
+    assert.equal(
+        await ignoreKoboRecord(CONTEXT, SYNC_RECORD, confirmIgnore),
+        true,
+    );
     const RELOADED = normalizePreferences(
         JSON.parse(JSON.stringify(CONTEXT.state.preferences)),
     );
@@ -56,7 +61,7 @@ test("cancel leaves the source visible and saves nothing", async () => {
         await Promise.resolve();
         return false;
     };
-    assert.equal(await ignoreKoboRecord(CONTEXT, RECORD, CANCEL), false);
+    assert.equal(await ignoreKoboRecord(CONTEXT, SYNC_RECORD, CANCEL), false);
     assert.equal(CONTEXT.state.preferences.koboIgnoredContentIds, undefined);
     assert.equal(
         visibleKoboRecords([RECORD], CONTEXT.state.preferences).length,
@@ -72,7 +77,7 @@ test("failed saves restore the previous ignored list", async () => {
         return false;
     };
     await assert.rejects(
-        ignoreKoboRecord(CONTEXT, RECORD, confirmIgnore),
+        ignoreKoboRecord(CONTEXT, SYNC_RECORD, confirmIgnore),
         /retry/,
     );
     assert.deepEqual(CONTEXT.state.preferences.koboIgnoredContentIds, [
@@ -86,8 +91,8 @@ test("failed saves restore the previous ignored list", async () => {
 
 test("repeat confirmations do not duplicate excluded source IDs", async () => {
     const CONTEXT = context();
-    await ignoreKoboRecord(CONTEXT, RECORD, confirmIgnore);
-    await ignoreKoboRecord(CONTEXT, RECORD, confirmIgnore);
+    await ignoreKoboRecord(CONTEXT, SYNC_RECORD, confirmIgnore);
+    await ignoreKoboRecord(CONTEXT, SYNC_RECORD, confirmIgnore);
     assert.deepEqual(CONTEXT.state.preferences.koboIgnoredContentIds, [
         RECORD.contentId,
     ]);

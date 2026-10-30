@@ -1,5 +1,5 @@
 import type { UUID } from "node:crypto";
-import type { KoboProgress } from "../kobo.ts";
+import type { SyncRecord } from "../sync.ts";
 
 export type BookStatusFilter = "all" | BookStatus;
 
@@ -35,8 +35,6 @@ export interface Book {
     deadline: string | null;
     difficulty: number;
     finished_at: string | null;
-    /** Last imported source record, retained independently of manual edits. */
-    kobo_progress?: KoboProgress;
     lookup_note: string;
     max_minutes_per_day: number | null;
     min_blocks_per_session: number;
@@ -50,6 +48,8 @@ export interface Book {
     scheduled_days: string[];
     shelf: string;
     status: BookStatus;
+    /** Last imported record per provider, device, and source book; kept through manual edits. */
+    sync_links?: SyncRecord[];
     title: string;
     words_total: number | null;
 }
@@ -115,8 +115,8 @@ export type BookWeekday = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
 
 export interface UpdateBookProgressOptions {
     completedAt?: string;
-    /** Approved source record; its reading time becomes the progress timestamp. */
-    koboProgress?: KoboProgress;
     markStarted?: boolean;
     notifyBooksChanged?: boolean;
+    /** Approved source record; its reading time becomes the progress timestamp. */
+    syncRecord?: SyncRecord;
 }

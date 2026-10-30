@@ -2,12 +2,12 @@
 /** Verifies dropdown keyboard selection and Escape containment. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { bindKoboSearchKeys } from "../dist/renderer/kobo/search-keys.js";
+import { bindSyncSearchKeys } from "../dist/renderer/sync/search-keys.js";
 
 function fixture() {
     const INPUT = new EventTarget();
     const STATE = { moves: [], open: false, picked: 0 };
-    bindKoboSearchKeys(INPUT, {
+    bindSyncSearchKeys(INPUT, {
         close: () => {
             STATE.open = false;
         },

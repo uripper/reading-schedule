@@ -1,12 +1,12 @@
 /** Accessible ranked search dropdown for all books in the local library. */
 import type {
     Book,
-    KoboLibrarySearchOptions,
+    SyncLibrarySearchOptions,
 } from "@reading-schedule/contracts";
 import { uid } from "../dom.ts";
-import { koboElement } from "./dom.ts";
-import { rankKoboLibrary } from "./matching.ts";
-import { bindKoboSearchKeys } from "./search-keys.ts";
+import { syncElement } from "./dom.ts";
+import { rankSyncLibrary } from "./matching.ts";
+import { bindSyncSearchKeys } from "./search-keys.ts";
 
 const MAX_SEARCH_RESULTS = 20;
 const MIN_RESULT_SPACE_PX = 96;
@@ -16,15 +16,15 @@ type SearchNodes = ReturnType<typeof searchNodes>;
 
 /** Creates the input and its hidden listbox with unique accessible associations. */
 function searchNodes(title: string) {
-    const ROOT = koboElement("div");
-    ROOT.className = "kobo-library-search";
-    const INPUT = koboElement("input");
+    const ROOT = syncElement("div");
+    ROOT.className = "sync-library-search";
+    const INPUT = syncElement("input");
     INPUT.type = "search";
     INPUT.placeholder = "Search library by title or author";
     INPUT.setAttribute("aria-label", `Search library for ${title}`);
-    const RESULTS = koboElement("ul");
-    RESULTS.id = `kobo-library-${uid()}`;
-    RESULTS.className = "kobo-library-results";
+    const RESULTS = syncElement("ul");
+    RESULTS.id = `sync-library-${uid()}`;
+    RESULTS.className = "sync-library-results";
     RESULTS.hidden = true;
     RESULTS.setAttribute("role", "listbox");
     RESULTS.setAttribute("aria-label", "Matching library books");
@@ -50,9 +50,9 @@ function configureInput(input: HTMLInputElement, resultsId: string): void {
 function resultOption(
     book: Book,
     nodes: SearchNodes,
-    options: KoboLibrarySearchOptions,
+    options: SyncLibrarySearchOptions,
 ): HTMLLIElement {
-    const ITEM = koboElement(
+    const ITEM = syncElement(
         "li",
         `${book.title} — ${book.author || "Unknown author"}`,
     );
@@ -66,14 +66,26 @@ function resultOption(
     return ITEM;
 }
 
+/** Typed queries rank as entered; the device title browses with its author as context. */
+function searchQuery(
+    typed: string,
+    options: SyncLibrarySearchOptions,
+): Parameters<typeof rankSyncLibrary> {
+    if (typed !== "") {
+        return [typed, options.getBooks()];
+    }
+    return [options.title, options.getBooks(), { author: options.author }];
+}
+
 /** Shows ranked results directly below the query instead of modifying the match selector. */
 function showResults(
     nodes: SearchNodes,
-    options: KoboLibrarySearchOptions,
+    options: SyncLibrarySearchOptions,
 ): void {
     const NODES = nodes;
-    const QUERY = NODES.input.value || options.title;
-    NODES.state.matches = rankKoboLibrary(QUERY, options.getBooks())
+    NODES.state.matches = rankSyncLibrary(
+        ...searchQuery(NODES.input.value, options),
+    )
         .slice(0, MAX_SEARCH_RESULTS)
         .map((match) => match.book);
     NODES.state.activeIndex = 0;
@@ -83,7 +95,7 @@ function showResults(
         ),
     );
     if (NODES.state.matches.length === 0) {
-        NODES.results.append(koboElement("li", "No matching library books"));
+        NODES.results.append(syncElement("li", "No matching library books"));
     }
     NODES.results.hidden = false;
     NODES.input.setAttribute("aria-expanded", "true");
@@ -95,7 +107,7 @@ function showResults(
 function positionResults(nodes: SearchNodes): void {
     const FIELD = nodes.input.getBoundingClientRect();
     const BOUNDS = nodes.root
-        .closest<HTMLElement>(".kobo-review-list")
+        .closest<HTMLElement>(".sync-review-list")
         ?.getBoundingClientRect();
     const BELOW = (BOUNDS?.bottom ?? globalThis.innerHeight) - FIELD.bottom;
     const ABOVE = FIELD.top - (BOUNDS?.top ?? 0);
@@ -138,7 +150,7 @@ function hideResults(nodes: SearchNodes): void {
 /** Confirms one result and reflects its title in the search field. */
 function chooseBook(
     nodes: SearchNodes,
-    options: KoboLibrarySearchOptions,
+    options: SyncLibrarySearchOptions,
     book: Book,
 ): void {
     const NODES = nodes;
@@ -162,7 +174,7 @@ function moveResult(nodes: SearchNodes, step: number): void {
 /** Binds pointer, query, and keyboard interactions without global event listeners. */
 function bindSearch(
     nodes: SearchNodes,
-    options: KoboLibrarySearchOptions,
+    options: SyncLibrarySearchOptions,
 ): void {
     nodes.input.addEventListener("input", () => {
         showResults(nodes, options);
@@ -173,7 +185,7 @@ function bindSearch(
     nodes.root.addEventListener("focusout", () => {
         hideResults(nodes);
     });
-    bindKoboSearchKeys(nodes.input, {
+    bindSyncSearchKeys(nodes.input, {
         close: () => {
             hideResults(nodes);
         },
@@ -193,7 +205,7 @@ function bindSearch(
 /** Ignores Enter on an empty list and confirms a real result otherwise. */
 function pickActiveResult(
     nodes: SearchNodes,
-    options: KoboLibrarySearchOptions,
+    options: SyncLibrarySearchOptions,
 ): void {
     const BOOK = nodes.state.matches[nodes.state.activeIndex];
     if (BOOK !== undefined) {
@@ -202,7 +214,7 @@ function pickActiveResult(
 }
 
 /** Returns a self-contained combobox for the current library. */
-export function createKoboLibrarySearch(options: KoboLibrarySearchOptions) {
+export function createSyncLibrarySearch(options: SyncLibrarySearchOptions) {
     const NODES = searchNodes(options.title);
     bindSearch(NODES, options);
     return { element: NODES.root, input: NODES.input, results: NODES.results };

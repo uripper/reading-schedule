@@ -3,33 +3,35 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { normalizeBook } from "../dist/renderer/books/model-normalize.js";
-import { prepareKoboImport } from "../dist/renderer/kobo/import.js";
+import { prepareSyncImport } from "../dist/renderer/sync/import.js";
 import {
-    assessKoboProgress,
-    koboReviewEntries,
-} from "../dist/renderer/kobo/model.js";
-import { koboReviewConflicts } from "../dist/renderer/kobo/review-conflicts.js";
+    assessSyncProgress,
+    syncReviewEntries,
+} from "../dist/renderer/sync/model.js";
+import { syncReviewConflicts } from "../dist/renderer/sync/review-conflicts.js";
 
 const BOOK = normalizeBook({ book_id: "frank", title: "Frankenstein" });
 const RECORD = {
-    contentId: "one",
     dateLastRead: "2026-02-01T12:00:00Z",
     percentRead: 60,
+    provider: "kobo",
+    sourceId: "one",
     title: "Frankenstien",
 };
 const OTHER = {
     ...RECORD,
-    contentId: "two",
     percentRead: 80,
+    provider: "kobo",
+    sourceId: "two",
     title: "Frankenstein: Illustrated Edition",
 };
 
 test("source collisions name the other source title and its percentage", () => {
-    const ENTRIES = koboReviewEntries([RECORD, OTHER], [BOOK]);
-    const NOTE = koboReviewConflicts(
+    const ENTRIES = syncReviewEntries([RECORD, OTHER], [BOOK]);
+    const NOTE = syncReviewConflicts(
         ENTRIES[0],
         BOOK,
-        assessKoboProgress(RECORD, BOOK),
+        assessSyncProgress(RECORD, BOOK),
     );
     assert.ok(NOTE.includes(BOOK.title));
     assert.ok(NOTE.includes(OTHER.title));
@@ -45,11 +47,11 @@ test("ambiguous editions name the alternative author and shelf", () => {
         book_id: "edition",
         shelf: "Classics",
     });
-    const ENTRY = koboReviewEntries(
+    const ENTRY = syncReviewEntries(
         [{ ...RECORD, title: "Frankenstein" }],
         [BOOK, OTHER_BOOK],
     )[0];
-    const NOTE = koboReviewConflicts(ENTRY, BOOK, {
+    const NOTE = syncReviewConflicts(ENTRY, BOOK, {
         kind: "ready",
         reason: "",
     });
@@ -58,13 +60,13 @@ test("ambiguous editions name the alternative author and shelf", () => {
 });
 
 test("ordinary and equal-progress matches have no instructional copy", () => {
-    const ENTRY = koboReviewEntries([RECORD], [BOOK])[0];
+    const ENTRY = syncReviewEntries([RECORD], [BOOK])[0];
     assert.equal(
-        koboReviewConflicts(ENTRY, BOOK, { kind: "ready", reason: "" }),
+        syncReviewConflicts(ENTRY, BOOK, { kind: "ready", reason: "" }),
         "",
     );
     assert.equal(
-        koboReviewConflicts(ENTRY, BOOK, { kind: "link", reason: "" }),
+        syncReviewConflicts(ENTRY, BOOK, { kind: "link", reason: "" }),
         "",
     );
 });
@@ -72,7 +74,7 @@ test("ordinary and equal-progress matches have no instructional copy", () => {
 test("import conflict errors identify the competing Kobo titles and selected library book", () => {
     assert.throws(
         () =>
-            prepareKoboImport(
+            prepareSyncImport(
                 [BOOK],
                 [
                     { bookId: BOOK.book_id, record: RECORD },
