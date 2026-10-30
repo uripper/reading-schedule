@@ -10,6 +10,7 @@ import type {
 } from "@reading-schedule/contracts";
 import { addLibraryBook } from "../books/add-book-flow.ts";
 import { collectAllBooks, fillBooks } from "../books/controller.ts";
+import { collectSettings } from "../settings.ts";
 import type { prepareSyncImport } from "../sync/import.ts";
 import { applySyncImport } from "../sync/import.ts";
 import { configureSyncLinks } from "../sync/links-panel.ts";
@@ -20,6 +21,7 @@ import {
 } from "../sync/model.ts";
 import { showSyncNotice } from "../sync/notice.ts";
 import { showSyncReview } from "../sync/review-dialog.ts";
+import { renderSyncSessions, stageSyncSessions } from "../sync/sessions.ts";
 import { bindKoboConfiguration } from "./configuration.ts";
 import { ignoreKoboRecord } from "./ignored.ts";
 import { createKoboMonitor, startKoboMonitor } from "./monitor.ts";
@@ -36,12 +38,19 @@ const KOBO_SOURCE_LABEL = "Kobo";
 function libraryStore(context: AppBootstrapContext): SyncImportStore {
     return {
         changed: () => {
+            renderSyncSessions(context);
             context.runtime.handleBooksChanged();
         },
         flush: context.flushPendingState,
         getBooks: collectAllBooks,
         replaceBooks: fillBooks,
         save: context.persistDraft,
+        stageSessions: (choices) =>
+            stageSyncSessions(context.state, {
+                books: collectAllBooks(),
+                choices,
+                settings: collectSettings(),
+            }),
     };
 }
 

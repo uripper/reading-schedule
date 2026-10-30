@@ -1,6 +1,25 @@
 /** Shared review contracts for user-approved imports from any sync provider. */
 import type { SyncImportChoice, SyncRecord } from "../sync.ts";
+import type {
+    BlockedDayBookState,
+    PlannerResultState,
+    ScheduleCompletionState,
+} from "./types_app_shared.ts";
 import type { Book } from "./types_books.ts";
+import type { PlannerSettings } from "./types_planner.ts";
+
+/** Schedule fields staged together when a sync also records completed reading time. */
+export interface SyncSessionState
+    extends BlockedDayBookState,
+        PlannerResultState,
+        ScheduleCompletionState {}
+
+/** Accepted source choices and library metadata used to log their completed sessions. */
+export interface SyncSessionImport {
+    books: readonly Book[];
+    choices: readonly SyncImportChoice[];
+    settings: PlannerSettings;
+}
 
 export interface SyncReviewEntry {
     conflictingRecords: SyncRecord[];
@@ -41,4 +60,6 @@ export interface SyncImportStore {
     getBooks(): Book[];
     replaceBooks(books: Book[]): void;
     save(): Promise<boolean>;
+    /** Stages completed sessions for accepted choices; returns rollback for a failed save. */
+    stageSessions?(choices: readonly SyncImportChoice[]): () => void;
 }

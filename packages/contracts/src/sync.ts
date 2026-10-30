@@ -2,6 +2,17 @@
 import { z } from "zod";
 
 const SYNC_MAX_PROGRESS_PERCENT = 100;
+const HOURS_PER_DAY = 24;
+const MINUTES_PER_HOUR = 60;
+export const MIN_SYNC_SESSION_MINUTES = 1;
+export const MAX_SYNC_SESSION_MINUTES = HOURS_PER_DAY * MINUTES_PER_HOUR;
+
+/** Manual reading time must fit within one local calendar day. */
+export const SYNC_SESSION_MINUTES_SCHEMA = z
+    .number()
+    .int()
+    .min(MIN_SYNC_SESSION_MINUTES)
+    .max(MAX_SYNC_SESSION_MINUTES);
 
 /** Fields every provider reports for one source book. */
 export const SYNC_SOURCE_FIELDS = {
@@ -42,4 +53,6 @@ export interface SyncAssessment {
 export interface SyncImportChoice {
     bookId: string;
     record: SyncRecord;
+    /** When present, records a completed session on the local day of import. */
+    sessionMinutes?: number;
 }

@@ -9,6 +9,7 @@ import { updatedProgressBook } from "../books/controller-progress.ts";
 import { progressHistory } from "../books/progress-history.ts";
 import { BOOK_STATUS_READ } from "../books/status_catalog.ts";
 import { syncFinishedDay } from "./completion.ts";
+import { noSessionChanges, stageImportSessions } from "./import-sessions.ts";
 import { withSyncLink } from "./links.ts";
 import { assessSyncProgress } from "./model.ts";
 
@@ -103,6 +104,7 @@ export function prepareSyncImport(
         }
     }
     return {
+        accepted: choices.filter((choice) => UPDATED.has(choice.bookId)),
         books: books.map((book) => UPDATED.get(book.book_id) ?? book),
         failed: FAILED,
         imported: UPDATED.size,
@@ -154,15 +156,19 @@ function rollbackImport(
 async function saveImport(
     store: SyncImportStore,
     before: readonly Book[],
-    staged: Book[],
+    batch: ReturnType<typeof prepareSyncImport>,
 ): Promise<void> {
+    const STAGED = batch.books;
+    let restoreSessions = noSessionChanges;
     try {
-        store.replaceBooks(staged);
+        store.replaceBooks(STAGED);
+        restoreSessions = stageImportSessions(store, before, batch.accepted);
         if (!(await store.save())) {
             throw new Error("State persistence failed.");
         }
     } catch (error) {
-        rollbackImport(store, before, staged);
+        restoreSessions();
+        rollbackImport(store, before, STAGED);
         throw new Error(
             "Could not save synced progress. Changes were restored; retry the import.",
             { cause: error },
@@ -183,6 +189,6 @@ export async function applySyncImport(
     }
     const BEFORE = store.getBooks();
     const BATCH = prepareSyncImport(BEFORE, choices);
-    await saveImport(store, BEFORE, BATCH.books);
+    await saveImport(store, BEFORE, BATCH);
     return BATCH;
 }

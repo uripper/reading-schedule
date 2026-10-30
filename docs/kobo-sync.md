@@ -36,6 +36,17 @@ source IDs retain the match on subsequent connections, even if titles differ.
 **Select all** checks clear suggestions without progress conflicts and keeps
 any rows already approved individually; **Deselect all** clears every check.
 **Update selected** imports checked rows, including manual matches.
+Each approved book also offers an unchecked **Add session to today?** checkbox.
+Check it to reveal **Minutes read**, then enter a whole number from 1 to 1440.
+**Update selected** records those minutes as a completed session on the local
+day of import, even if the Kobo's last-read date is earlier. Each selected book
+can have its own duration. Unchecked, deselected, ignored, and failed matches
+add no reading time. Closing the review without updating records no sessions.
+Sessions count toward today's completed reading time and statistics without
+increasing the book's progress again. Progress, source links, and sessions save
+together; a failed save restores them for retry. Reconfirming the same source
+record does not add another session.
+
 Decreases, tied timestamps, undated existing progress, and multiple device
 records targeting one library book require individual approval. No library
 entries are created automatically. The shared **X** in the top right or Escape
@@ -112,6 +123,11 @@ The review, matching, import, and link code in
 `packages/frontend/src/renderer/kobo/` owns settings, polling, ignored IDs, and
 conversion of native rows (`ContentID`) to sync records. The review title,
 progress comparisons, conflicts, and errors name the record's provider.
+`SyncImportChoice.sessionMinutes` is optional and validated by the shared
+`SYNC_SESSION_MINUTES_SCHEMA`. Hosts supporting session logging implement
+`SyncImportStore.stageSessions`; it stages completed schedule rows and returns
+a rollback callback used if the same snapshot's save fails. New providers must
+reuse these contracts so session validation and rollback remain consistent.
 
 This version imports from Kobo into Bartleby. It does not write to the reader,
 run while Bartleby is closed, or discover devices without a configured path.

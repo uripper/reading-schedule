@@ -108,6 +108,39 @@
     margin-top: 0.75rem;
 }
 
+.sync-session {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+    background: #ffe58a;
+    border: 2px solid #000;
+}
+
+.sync-review .sync-session-minutes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.sync-review .sync-session-minutes[hidden] {
+    display: none;
+}
+
+.sync-session input[type="number"] {
+    width: 7rem;
+    min-height: var(--token-size-target-minimum);
+    padding: 0.5rem;
+    font: inherit;
+    color: #111;
+    background: #fff7da;
+    border: 2px solid #000;
+    border-radius: 0;
+    box-shadow: 3px 3px 0 #000;
+}
+
 .sync-library-search {
     position: relative;
 }

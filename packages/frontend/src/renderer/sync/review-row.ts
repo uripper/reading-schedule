@@ -13,13 +13,13 @@ import {
     syncRecordName,
     syncReviewConflicts,
 } from "./review-conflicts.ts";
+import { createSyncSessionControl } from "./review-session.ts";
 
 // audit-allow-local-types: Private DOM state derived from the row renderer.
 type RowNodes = ReturnType<typeof createRowNodes>;
 
 /** Constructs the source label, library search, and selection controls. */
-function createRowNodes(entry: SyncReviewEntry, books: readonly Book[]) {
-    const ROW = syncElement("li");
+function createRowControls(entry: SyncReviewEntry, books: readonly Book[]) {
     const CHECK = syncElement("input");
     CHECK.type = "checkbox";
     const LABEL = syncElement("label");
@@ -27,15 +27,31 @@ function createRowNodes(entry: SyncReviewEntry, books: readonly Book[]) {
     const PICKER = createSyncMatchPicker(entry, books);
     const DETAILS = syncElement("p");
     const REASON = syncElement("p");
-    ROW.append(LABEL, PICKER.search, PICKER.select, DETAILS, REASON);
+    const SESSION = createSyncSessionControl(syncRecordName(entry.record));
     return {
         check: CHECK,
         details: DETAILS,
         entry,
+        label: LABEL,
         picker: PICKER,
         reason: REASON,
-        row: ROW,
+        session: SESSION,
     };
+}
+
+/** Groups the source controls in a single review row. */
+function createRowNodes(entry: SyncReviewEntry, books: readonly Book[]) {
+    const ROW = syncElement("li");
+    const CONTROLS = createRowControls(entry, books);
+    ROW.append(
+        CONTROLS.label,
+        CONTROLS.picker.search,
+        CONTROLS.picker.select,
+        CONTROLS.details,
+        CONTROLS.reason,
+        CONTROLS.session.element,
+    );
+    return { ...CONTROLS, row: ROW };
 }
 
 /** Exposes approval actions while leaving uncertain matches unchecked. */
@@ -46,6 +62,9 @@ export function createSyncReviewRow(
     const NODES = createRowNodes(entry, books);
     NODES.picker.select.addEventListener("change", () => {
         refreshRow(NODES, false);
+    });
+    NODES.check.addEventListener("change", () => {
+        refreshSession(NODES);
     });
     refreshRow(NODES, true);
     return rowController(NODES);
@@ -114,6 +133,12 @@ function updateConflicts(
     if (BOOK !== undefined) {
         renderMatchedBook(nodes, BOOK);
     }
+    refreshSession(nodes);
+}
+
+/** Session entry follows the explicit approval of this source book. */
+function refreshSession(nodes: RowNodes): void {
+    nodes.session.setEnabled(nodes.check.checked && !nodes.check.disabled);
 }
 
 /** Keeps add and ignore available even when a progress change cannot be applied. */
@@ -142,6 +167,7 @@ function refreshRow(nodes: RowNodes, initial: boolean): void {
         renderMatchedBook(NODES, BOOK);
         NODES.check.checked = initial && isSafeChoice(NODES);
     }
+    refreshSession(NODES);
 }
 
 /** Names the actual source in progress comparisons. */
@@ -186,7 +212,15 @@ function rowChoice(nodes: RowNodes): SyncImportChoice[] {
     if (nodes.check.disabled || nodes.row.hidden || !nodes.check.checked) {
         return [];
     }
-    return [{ bookId: nodes.picker.select.value, record: nodes.entry.record }];
+    const CHOICE: SyncImportChoice = {
+        bookId: nodes.picker.select.value,
+        record: nodes.entry.record,
+    };
+    const MINUTES = nodes.session.minutes();
+    if (MINUTES !== undefined) {
+        CHOICE.sessionMinutes = MINUTES;
+    }
+    return [CHOICE];
 }
 
 /** Select all checks safe rows without clearing individually approved conflicts. */
@@ -194,11 +228,13 @@ function selectRow(nodes: RowNodes, selected: boolean): void {
     const NODES = nodes;
     if (!selected) {
         NODES.check.checked = false;
+        refreshSession(NODES);
         return;
     }
     if (isSafeChoice(NODES)) {
         NODES.check.checked = true;
     }
+    refreshSession(NODES);
 }
 
 /** Excluded rows cannot contribute hidden selections to a later import. */
@@ -215,6 +251,7 @@ function refreshApproval(nodes: RowNodes): void {
     const CHECKED = NODES.check.checked;
     refreshRow(NODES, false);
     NODES.check.checked = CHECKED && !NODES.check.disabled;
+    refreshSession(NODES);
 }
 
 /** Selects and approves the book just saved through the normal form. */
@@ -222,4 +259,5 @@ function setAddedBook(nodes: RowNodes, book: Book): void {
     const NODES = nodes;
     NODES.picker.addBook(book);
     NODES.check.checked = !NODES.check.disabled;
+    refreshSession(NODES);
 }
