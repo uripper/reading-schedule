@@ -42,7 +42,7 @@ Expected flow:
 - Compare each book's `DateLastRead` and percentage with its latest Bartleby reading-progress update, if any, and its last successfully imported Kobo record. Track progress-update timestamps separately from unrelated book edits if needed.
 - A matched book with no existing progress update can be proposed as an initial import. Otherwise, propose a changed Kobo record when it is newer than the Bartleby progress update. Skip unchanged or already imported records.
 - Normalize timestamps before comparison. Flag unparseable dates, uncertain ordering, and progress decreases for explicit review; do not silently overwrite newer Bartleby progress.
-- When updates are available, show one popup listing books with current Bartleby progress, proposed Kobo progress, and the Kobo last-read time. Include per-book checkboxes, select/deselect all, **Update all**, **Update selected**, and **Not now** actions.
+- When updates are available, show one popup listing books with current Bartleby progress, proposed Kobo progress, and the Kobo last-read time. Include per-book checkboxes, select/deselect all, **Update selected**, and the shared top-right **X**. Remove redundant **Update all** and **Not now** actions as tracked in ISSUE-126.
 - Apply only the approved updates through Bartleby's existing progress-update flow so schedules and stats stay consistent. Confirm successful updates and identify any failures that can be retried.
 - Persist the imported source timestamp and percentage only after a successful update. Reconnecting without new progress must not reapply it. Dismissing the popup or leaving a book unchecked must not mark it as imported; avoid repeatedly opening the same popup during one connection.
 - Automatic checking is triggered by connection; importing progress requires the user's approval. Write-back to Kobo is outside this first implementation.
@@ -57,3 +57,12 @@ Definition of done:
 - A configured Kobo connection automatically checks for updates and opens the review popup only when there are actionable changes.
 - Users can import all eligible updates, only checked books, or dismiss without changing progress.
 - Tests cover first import, newer/older/equal timestamps, unchanged progress, repeated connections, duplicate/unmatched titles, invalid percentages/dates, progress decreases, database failures, and partial import failures.
+
+Follow-ups from testing the initial implementation:
+
+- [ISSUE-124: Share sync language and review flow across providers.](https://github.com/uripper/reading-schedule/issues/261)
+- [ISSUE-125: Read Kobo authors to improve book matching.](https://github.com/uripper/reading-schedule/issues/262)
+- [ISSUE-126: Remove redundant sync review actions.](https://github.com/uripper/reading-schedule/issues/263)
+- [ISSUE-127: Use source last-read date when syncing a finished book.](https://github.com/uripper/reading-schedule/issues/264)
+- [ISSUE-128: Show and remove synced book links in Library, including multiple devices.](https://github.com/uripper/reading-schedule/issues/265)
+- [ISSUE-129: Investigate importing reading time and sessions from device history; larger research follow-up.](https://github.com/uripper/reading-schedule/issues/266)

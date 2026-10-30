@@ -99,7 +99,7 @@ If a required command fails, the change is not done.
 - Add/adjust tests for new behavior and bug fixes (regression tests when practical).
 - Update docs in the same change when behavior, command, config, or contract changes.
 - When introducing or changing a shared or potentially reusable contract, update `packages/contracts` first and treat app-local copies as a design smell unless the type is transient implementation state or depends on app-specific runtime libraries.
-- For UI changes, include screenshots in PR/hand-off notes when applicable.
+- Do not add screenshots to the repository. Keep any UI captures outside the repository and share them in hand-off notes when applicable.
 - If you add new tooling checks, wire them into required commands in the same change.
 
 ## 8) Sonar / Config Consistency

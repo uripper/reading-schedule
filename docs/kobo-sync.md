@@ -64,9 +64,3 @@ run while Bartleby is closed, or discover devices without a configured path.
 Automated database coverage uses synthetic SQLite fixtures. File-picker tests
 mock the native dialog boundary, and browser checks exercise the actual review
 and settings controls. The desktop host enables only the dialog open permission.
-
-![Sync settings with Kobo enabled](screenshots/kobo-settings.png)
-
-![Kobo review with synthetic book data](screenshots/kobo-review.png)
-
-![Search library dropdown](screenshots/kobo-search.png)
