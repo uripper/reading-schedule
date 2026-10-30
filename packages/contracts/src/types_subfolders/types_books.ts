@@ -1,4 +1,5 @@
 import type { UUID } from "node:crypto";
+import type { SyncRecord } from "../sync.ts";
 
 export type BookStatusFilter = "all" | BookStatus;
 
@@ -41,10 +42,14 @@ export interface Book {
     pages_total: number | null;
     priority: number;
     progress_percent: number;
+    /** Time of the last reading-progress change; absent on legacy books. */
+    progress_updated_at?: string;
     remaining_words?: number | null;
     scheduled_days: string[];
     shelf: string;
     status: BookStatus;
+    /** Last imported record per provider, device, and source book; kept through manual edits. */
+    sync_links?: SyncRecord[];
     title: string;
     words_total: number | null;
 }
@@ -112,4 +117,6 @@ export interface UpdateBookProgressOptions {
     completedAt?: string;
     markStarted?: boolean;
     notifyBooksChanged?: boolean;
+    /** Approved source record; its reading time becomes the progress timestamp. */
+    syncRecord?: SyncRecord;
 }

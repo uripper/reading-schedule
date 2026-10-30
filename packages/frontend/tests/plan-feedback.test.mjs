@@ -3,17 +3,25 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 const { runPlanGeneration } = await import("../dist/renderer/app/plan.js");
+const { applyPlannedData } = await import(
+    "../dist/renderer/app/plan_controller_apply.js"
+);
+
+const { todayDayKey, nextDayKey } = await import(
+    "../dist/renderer/app/date_keys.js"
+);
+const TODAY = todayDayKey();
 
 const BOOKS = [{ book_id: "book-1", title: "Book 1" }];
 const SETTINGS = {
     end_date: "2026-06-01",
-    start_date: "2026-05-21",
+    start_date: TODAY,
     wpm_base: 250,
 };
 const GENERATED_SCHEDULE = [
     {
         book_id: "book-1",
-        date: "2026-05-21",
+        date: TODAY,
         minutes: 30,
         session_index: 1,
         title: "Book 1",
@@ -21,7 +29,7 @@ const GENERATED_SCHEDULE = [
     },
     {
         book_id: "book-2",
-        date: "2026-05-22",
+        date: nextDayKey(TODAY),
         minutes: 15,
         session_index: 1,
         title: "Book 2",
@@ -81,4 +89,56 @@ test("plan summary log omits horizon capacity", async () => {
         Logs.some((message) => message.includes("45/99999")),
         false,
     );
+});
+
+test("a failed schedule save suppresses success status and announcements", async () => {
+    const STATUSES = [];
+    const ANNOUNCEMENTS = [];
+    await runPlanGeneration(
+        planArgs({
+            announce: (message) => ANNOUNCEMENTS.push(message),
+            onSuccess: async () => false,
+            setStatus: (...args) => STATUSES.push(args),
+            successAnnouncement: "Plan generated and schedule updated.",
+        }),
+    );
+    assert.equal(
+        STATUSES.some((args) => args[2] === "success"),
+        false,
+    );
+    assert.deepEqual(ANNOUNCEMENTS, []);
+});
+
+test("an empty library also suppresses success when its updated state is unsaved", async () => {
+    const STATUSES = [];
+    await runPlanGeneration(
+        planArgs({
+            collectBooks: () => [],
+            onSuccess: async () => false,
+            setStatus: (...args) => STATUSES.push(args),
+        }),
+    );
+    assert.deepEqual(STATUSES, []);
+});
+
+test("applying a generated plan keeps it in memory while reporting a failed save", async () => {
+    let result;
+    const SAVED = await applyPlannedData({
+        data: { schedule: GENERATED_SCHEDULE, summary: GENERATED_SUMMARY },
+        getBlockedDayBooks: () => ({}),
+        getLastResult: () => null,
+        getScheduleCompletions: () => ({}),
+        persistDraft: () => Promise.resolve(false),
+        preservationMode: "completed_today",
+        renderCalendar: () => undefined,
+        setBookScheduleRows: () => undefined,
+        setLastResult: (next) => {
+            result = next;
+        },
+        setScheduleCompletions: () => undefined,
+        totalsFromSummary: () => ({}),
+        updateTodayView: () => undefined,
+    });
+    assert.equal(SAVED, false);
+    assert.deepEqual(result.schedule, GENERATED_SCHEDULE);
 });

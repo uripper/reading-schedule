@@ -1,3 +1,4 @@
+/** Applies generated and loaded schedules while preserving persistence results. */
 import type {
     ApplyLoadedResultArgs,
     ApplyPlannedDataArgs,
@@ -35,11 +36,11 @@ function resultFromData(data: PlannerRunData): PlannerResult {
 /**
  * Applies generated schedule data into runtime state and persists it.
  * @param args - Planner data and runtime dependencies.
- * @returns Promise that resolves after state persistence completes.
+ * @returns Whether the applied schedule was saved durably.
  */
 export async function applyPlannedData(
     args: ApplyPlannedDataArgs,
-): Promise<void> {
+): Promise<boolean> {
     const NEXT_ROWS = plannedScheduleRows(args);
     const FILTERED_COMPLETIONS = pruneScheduleCompletions(
         args.getScheduleCompletions(),
@@ -47,7 +48,7 @@ export async function applyPlannedData(
     );
     args.setScheduleCompletions(FILTERED_COMPLETIONS);
     applyPlannedRows(args, NEXT_ROWS);
-    await args.persistDraft();
+    return await args.persistDraft();
 }
 
 function plannedScheduleRows(args: ApplyPlannedDataArgs): PlannerScheduleRow[] {

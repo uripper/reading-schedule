@@ -1,5 +1,11 @@
 export interface Preferences {
     dailyGoalMinutes: number;
+    /** Local database path; an empty value disables connection checks. */
+    koboDatabasePath?: string;
+    /** Kobo content IDs explicitly excluded from future sync checks. */
+    koboIgnoredContentIds?: string[];
+    /** Disables checks without forgetting the selected file. */
+    koboSyncEnabled?: boolean;
     reduceMotion: boolean;
     reminderEnabled: boolean;
     reminderTime: string;

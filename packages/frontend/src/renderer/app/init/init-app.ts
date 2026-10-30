@@ -17,6 +17,7 @@ import {
     renderCalendar,
 } from "../../calendar.ts";
 import { bindHelpDialog } from "../../help.ts";
+import { startKoboSync } from "../../kobo/runtime.ts";
 import { collectSettings, initSettingsGrid } from "../../settings.ts";
 import { bindDesktopShortcuts } from "../../shortcuts/desktop_shortcuts.ts";
 import { activateTab, bindTabs } from "../../tabs.ts";
@@ -189,5 +190,6 @@ export async function initApp(context: AppBootstrapContext): Promise<void> {
     const CALENDAR_HANDLERS = configureCalendarAppInteractions(context);
     configureTodayUi(context, CALENDAR_HANDLERS, PLAN_CONTROLLER);
     await loadStateAndBindTodayActions(context, PLAN_CONTROLLER);
+    startKoboSync(context);
     bindDayRollover(context);
 }

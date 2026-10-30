@@ -1,5 +1,22 @@
+/** Resolves book-dialog controls and its independent critical-error region. */
 import type { BookFormRefs } from "../../types/types.ts";
 import { el } from "../dom.ts";
+import { createErrorHelpButton, createErrorMessage } from "../errors/index.ts";
+
+/** Reuses one empty alert throughout add, edit, and dialog-navigation sessions. */
+function submitError(): HTMLElement {
+    const FORM = el<HTMLFormElement>("bookForm");
+    const EXISTING = FORM.querySelector(".critical-error-message");
+    if (EXISTING instanceof HTMLElement) {
+        return EXISTING;
+    }
+    const CONTAINER = document.createElement("div");
+    CONTAINER.className = "book-submit-error";
+    const MESSAGE = createErrorMessage();
+    CONTAINER.append(MESSAGE, createErrorHelpButton());
+    FORM.append(CONTAINER);
+    return MESSAGE;
+}
 
 function dialogRefs() {
     return {
@@ -8,6 +25,7 @@ function dialogRefs() {
         dialogTitle: el("bookDialogTitle"),
         form: el<HTMLFormElement>("bookForm"),
         saveBtn: el<HTMLButtonElement>("saveBookBtn"),
+        submitError: submitError(),
     };
 }
 

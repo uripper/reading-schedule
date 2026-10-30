@@ -1,5 +1,7 @@
+/** Serializes snapshot saves and publishes recoverable persistence failures. */
 import type { PersistQueue, PersistQueueArgs } from "../../types/types.ts";
 import { draftData, saveStateSafe } from "./persistence.ts";
+import { errorMessage } from "./plan-errors.ts";
 
 const PERSIST_DELAY_MS = 300;
 
@@ -13,6 +15,7 @@ type PersistDraftFn = PersistQueue["persistDraft"];
 type PrepareForStateImportFn = PersistQueue["prepareForStateImport"];
 type QueuePersistFn = PersistQueue["queuePersist"];
 
+/** Creates one save queue with debouncing, serialization, and recovery feedback. */
 export function createPersistQueue(args: PersistQueueArgs): PersistQueue {
     const TIMER_STATE = persistTimerState();
     const PERSIST_DRAFT = persistDraftFn(args, TIMER_STATE);
@@ -69,6 +72,7 @@ function persistDraftFn(
     };
 }
 
+/** Collects the latest snapshot only after earlier writes have finished. */
 async function persistAfterPrevious(
     args: PersistQueueArgs,
     previousPersist: Promise<boolean> | null,
@@ -76,11 +80,24 @@ async function persistAfterPrevious(
     if (previousPersist !== null) {
         await previousPersist;
     }
-    return await saveStateSafe(
-        args.plannerApi,
-        persistDraftPayload(args),
-        args.addLog,
-    );
+    const SAVED = await persistCurrentDraft(args);
+    args.onPersistResult?.(SAVED);
+    return SAVED;
+}
+
+/** Converts snapshot-collection errors into recoverable save failures as well. */
+async function persistCurrentDraft(args: PersistQueueArgs): Promise<boolean> {
+    try {
+        return await saveStateSafe(
+            args.plannerApi,
+            persistDraftPayload(args),
+            args.addLog,
+        );
+    } catch (error) {
+        persistDraftFailure(args.addLog);
+        args.addLog(errorMessage(error));
+        return false;
+    }
 }
 
 function clearPersistTimer(timerState: PersistTimerState): void {

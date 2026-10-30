@@ -1,10 +1,13 @@
+/** Applies progress changes with consistent status, finish date, and source history. */
 import type {
     Book,
     BookProgressUpdates,
     UpdateBookProgressOptions,
 } from "../../types/types.ts";
+import { withSyncLink } from "../sync/links.ts";
 import { normalizeBook } from "./model-normalize.ts";
 import { withUpdatedProgress } from "./progress.ts";
+import { withProgressHistory } from "./progress-history.ts";
 import {
     BOOK_STATUS_IN_PROGRESS,
     BOOK_STATUS_READ,
@@ -66,13 +69,31 @@ export function updatedProgressBook(
         withUpdatedProgress(currentBook, updates),
         options.markStarted === true,
     );
-    const NORMALIZED = normalizeBook(STARTED_BOOK);
+    const NORMALIZED = withProgressHistory(
+        currentBook,
+        normalizeBook(STARTED_BOOK),
+    );
     return {
         ...NORMALIZED,
+        ...importedHistory(currentBook, options),
         finished_at: resolvedFinishedAt({
             completedAt: options.completedAt,
             currentBook,
             nextBook: NORMALIZED,
         }),
+    };
+}
+
+/** Uses source time for imports so later synced reading can be compared correctly. */
+function importedHistory(
+    currentBook: Book,
+    options: UpdateBookProgressOptions,
+): Partial<Book> {
+    if (options.syncRecord === undefined) {
+        return {};
+    }
+    return {
+        progress_updated_at: options.syncRecord.dateLastRead,
+        sync_links: withSyncLink(currentBook.sync_links, options.syncRecord),
     };
 }
