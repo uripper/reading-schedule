@@ -1,7 +1,8 @@
 # Importing reading time and sessions from devices (research)
 
 Research for ISSUE-129. **Recommendation: do not create sessions
-automatically from Kobo data.** No Kobo source is both complete and
+automatically from Kobo data.** A real device confirmed that progress history
+persists in `content`, while the per-session log is empty after cloud sync. No Kobo source is both complete and
 documented. One source, the `AnalyticsEvents` table, could later feed
 user-reviewed session suggestions when it happens to be present, as described
 below.
@@ -9,16 +10,18 @@ below.
 ## What Kobo stores
 
 None of this is documented by Kobo. The findings come from the calibre Kobo
-driver and from community tools that parse `KoboReader.sqlite`. They have not
-yet been checked against real databases from several firmware versions.
+driver and from community tools that parse `KoboReader.sqlite`, and they were
+checked read-only against one real database (2026-10-30, a device with Kobo
+cloud sync turned on and about 160 books with reading history). Other firmware
+versions have not been checked.
 
 | Source | What it holds | Usable for sessions? |
 | --- | --- | --- |
-| `content.TimeSpentReading` | One cumulative reading-time counter per book. Community importers convert it to minutes, but its unit is not confirmed. | **No.** It is a running total with no dates. The difference between two syncs gives time read in that interval, not when or on which days. |
-| `content.LastTimeStartedReading`, `content.LastTimeFinishedReading` | Timestamps of the most recent start and finish. | **No.** They are points in time without durations, and they are overwritten. |
+| `content.TimeSpentReading` | One cumulative reading-time counter per book, apparently in seconds: a finished short novella showed 5046, about 84 minutes. | **No.** It is a running total with no dates. The difference between two syncs gives time read in that interval, not when or on which days. |
+| `content.LastTimeStartedReading`, `content.LastTimeFinishedReading`, `content.TimesStartedReading` | Intended as start/finish timestamps and a start count. | **No.** They were empty or 0 for every sampled book on the checked device. |
 | `content.ReadStatus`, `___PercentRead`, `DateLastRead` | Latest state, already imported by progress sync. | No new session information. |
-| `AnalyticsEvents` (for example `LeaveContent` rows with seconds read, pages turned, and timestamps) | Per-visit reading events. | **Partially.** This is the only per-session source, but Kobo clears it whenever the device goes online. It is complete only on devices that never sync with Kobo's cloud, or where users install a trigger that blocks the deletion. Bartleby opens the database read-only and must not install that trigger. |
-| `Event.ExtraData` | Binary blobs that remain after `AnalyticsEvents` is cleared. | **No.** The format is undocumented, and community parsers do not decode it. |
+| `AnalyticsEvents` (columns `Id`, `Type`, `Timestamp`, `Attributes`, `Metrics`, `TestGroups`, `ClientApplicationVersion`, `Mandatory`; community tools describe `LeaveContent` rows with seconds read) | Per-visit reading events. | **Partially at best.** This is the only per-session source, but Kobo clears it when the device syncs with its cloud. The checked device had **0 rows** despite reading on four books in the previous two days. It would be complete only on devices that never cloud-sync, or where users install a trigger that blocks the deletion. Bartleby opens the database read-only and must not install that trigger. |
+| `Event` (`EventType`, `FirstOccurrence`, `LastOccurrence`, `EventCount`, `ContentID`, `ExtraData`, `Checksum`) | One aggregate row per book and event type, with history back about a year on the checked device. | **No.** These are counters with first and last times, not durations, and `ExtraData` was empty in sampled rows. The event type codes are undocumented. |
 | Calibre "bookstats" (`StoreTimeToReadLowerEstimate`, `StoreTimeToReadUpperEstimate`, `StorePages`, `StoreWordCount`) | Store-supplied size and time-to-read estimates. | **No.** They are publisher estimates, not reading. Word and page counts could fill book metadata separately. |
 
 ## Interpretation
