@@ -30,8 +30,6 @@ function providerControls() {
     const CHECK = syncActionButton("Check now");
     const ACTIONS = syncElement("div");
     ACTIONS.className = "sync-actions";
-    const STATUS = syncElement("p");
-    STATUS.setAttribute("role", "status");
     ACTIONS.append(BROWSE, CHECK);
     PANEL.append(FILE, ACTIONS);
     return {
@@ -39,8 +37,17 @@ function providerControls() {
         check: CHECK,
         file: FILE,
         panel: PANEL,
-        status: STATUS,
+        status: providerStatus(),
     };
+}
+
+/** Keeps connection changes and recovery messages in one accessible badge. */
+function providerStatus(): HTMLParagraphElement {
+    const STATUS = syncElement("p");
+    STATUS.className = "kobo-status";
+    STATUS.setAttribute("role", "status");
+    STATUS.setAttribute("aria-atomic", "true");
+    return STATUS;
 }
 
 /** Populates the Sync tab without exposing device controls on browser-only hosts. */
@@ -49,8 +56,16 @@ export function createKoboSettings(preferences: Preferences) {
     SECTION.className = "kobo-settings";
     const SWITCH = providerSwitch(koboSyncEnabled(preferences));
     const CONTROLS = providerControls();
-    SECTION.append(SWITCH.label, CONTROLS.panel, CONTROLS.status);
-    document.getElementById("syncProviders")?.append(SECTION);
+    const HEADER = syncElement("div");
+    HEADER.className = "kobo-provider-header";
+    HEADER.append(SWITCH.label, CONTROLS.status);
+    const HINT = syncElement("p", "Usually located at ");
+    HINT.className = "kobo-location-hint";
+    HINT.append(syncElement("code", "device/.kobo/KoboReader.sqlite"));
+    SECTION.append(HEADER, HINT, CONTROLS.panel);
+    const COMING_SOON = syncElement("p", "More coming soon!");
+    COMING_SOON.className = "sync-coming-soon";
+    document.getElementById("syncProviders")?.append(SECTION, COMING_SOON);
     const TAB = document.getElementById("syncSettingsTab");
     if (TAB !== null) {
         TAB.hidden = false;
@@ -74,5 +89,12 @@ export function renderKoboSettings(
         "No file selected";
     NODES.file.title = preferences.koboDatabasePath ?? "";
     NODES.check.disabled = !preferences.koboDatabasePath;
-    NODES.status.textContent = "";
+    setKoboStatus(NODES.status, "");
+}
+
+/** Styles a confirmed connection distinctly while keeping recovery messages readable. */
+export function setKoboStatus(status: HTMLElement, message: string): void {
+    const STATUS = status;
+    STATUS.textContent = message;
+    STATUS.classList.toggle("is-connected", message === "Connected");
 }

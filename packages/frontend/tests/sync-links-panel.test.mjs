@@ -97,11 +97,19 @@ test("each link shows its provider, device, source book, and reading state", (t)
     assert.equal(FORM.children[0], panel());
     const ITEMS = panel().querySelectorAll("li");
     assert.equal(ITEMS.length, 2);
-    const TEXT = ITEMS[0].children.map((node) => node.textContent).join(" ");
-    assert.match(TEXT, /Kobo \(N418A\)/);
-    assert.match(TEXT, /A Wizard of Earthsea — Ursula K\. Le Guin/);
-    assert.match(TEXT, /40%/);
-    assert.match(TEXT, /Source ID: earthsea/);
+    assert.equal(
+        ITEMS[0].querySelector(".sync-link-source").textContent,
+        "Kobo (N418A)",
+    );
+    assert.equal(
+        ITEMS[0].querySelector(".sync-link-title").textContent,
+        "A Wizard of Earthsea — Ursula K. Le Guin",
+    );
+    const DETAILS = ITEMS[0].querySelector(".sync-link-details");
+    assert.equal(DETAILS.children[0].textContent, "40% read");
+    assert.match(DETAILS.children[1].textContent, /Last read .+2026/);
+    assert.equal(ITEMS[0].querySelector("small"), null);
+    assert.equal(ITEMS[0].children.length, 4);
 });
 
 test("new, bulk, and unlinked books hide the section", (t) => {

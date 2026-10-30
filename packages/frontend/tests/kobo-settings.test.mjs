@@ -14,6 +14,7 @@ import {
     createKoboSettings,
     koboSyncEnabled,
     renderKoboSettings,
+    setKoboStatus,
 } from "../dist/renderer/kobo/settings.js";
 import { installFakeDom } from "./helpers/fake-dom.mjs";
 
@@ -31,9 +32,37 @@ function fixture(t) {
         },
         state: { preferences: { ...DEFAULT_PREFERENCES } },
     };
+    document.body.append(DOM.createElement("div", "syncProviders"));
     const NODES = createKoboSettings(CONTEXT.state.preferences);
     return { context: CONTEXT, nodes: NODES };
 }
+
+test("Kobo shows the usual device location and future-provider note while disabled", (t) => {
+    const { nodes: NODES } = fixture(t);
+    const PROVIDERS = document.getElementById("syncProviders");
+    const HINT = PROVIDERS.querySelector(".kobo-location-hint");
+    assert.equal(
+        HINT.querySelector("code").textContent,
+        "device/.kobo/KoboReader.sqlite",
+    );
+    assert.equal(HINT.parentElement.hidden, false);
+    assert.equal(NODES.panel.hidden, true);
+    assert.equal(PROVIDERS.children[1].textContent, "More coming soon!");
+});
+
+test("only a confirmed connection gets the connection badge styling", (t) => {
+    const { context: CONTEXT, nodes: NODES } = fixture(t);
+    assert.equal(NODES.status.attributes.get("role"), "status");
+    setKoboStatus(NODES.status, "Connected");
+    assert.equal(NODES.status.classList.contains("is-connected"), true);
+    setKoboStatus(NODES.status, "Kobo disconnected or file unavailable.");
+    assert.equal(NODES.status.classList.contains("is-connected"), false);
+    assert.match(NODES.status.textContent, /disconnected/);
+    setKoboStatus(NODES.status, "Connected");
+    renderKoboSettings(NODES, CONTEXT.state.preferences);
+    assert.equal(NODES.status.textContent, "");
+    assert.equal(NODES.status.classList.contains("is-connected"), false);
+});
 
 test("Kobo checkbox reveals controls and disabling retains the chosen file", (t) => {
     const { context: CONTEXT, nodes: NODES } = fixture(t);

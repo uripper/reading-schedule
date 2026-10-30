@@ -6,7 +6,7 @@ import type {
 import type { createKoboMonitor } from "./monitor.ts";
 import { koboErrorMessage } from "./monitor.ts";
 import type { createKoboSettings } from "./settings.ts";
-import { renderKoboSettings } from "./settings.ts";
+import { renderKoboSettings, setKoboStatus } from "./settings.ts";
 
 // audit-allow-local-types: DOM controls and monitor belong to this renderer only.
 type ConfigurationControls = Parameters<typeof bindKoboConfiguration>[1];
@@ -60,7 +60,7 @@ async function configure(
         renderKoboSettings(controls.nodes, context.state.preferences);
     } catch (error) {
         renderKoboSettings(controls.nodes, context.state.preferences);
-        controls.nodes.status.textContent = koboErrorMessage(error);
+        setKoboStatus(controls.nodes.status, koboErrorMessage(error));
     } finally {
         setBusy(controls, false);
         controls.nodes.check.disabled =
@@ -95,8 +95,7 @@ function run(
     controls: ConfigurationControls,
 ): void {
     action().catch((error: unknown) => {
-        const STATUS = controls.nodes.status;
-        STATUS.textContent = koboErrorMessage(error);
+        setKoboStatus(controls.nodes.status, koboErrorMessage(error));
     });
 }
 

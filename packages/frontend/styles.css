@@ -15,6 +15,7 @@
 @import "./styles/settings-support.css";
 @import "./styles/components/kobo.css";
 @import "./styles/components/sync.css";
+@import "./styles/components/sync-links.css";
 @import "./styles/calendar.css";
 @import "./styles/calendar-session-tidy.css";
 @import "./styles/books-grid.css";

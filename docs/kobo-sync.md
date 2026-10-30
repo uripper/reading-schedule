@@ -2,7 +2,9 @@
 
 Open **Settings → Sync** and check **Kobo** to reveal its controls.
 Connect the Kobo over USB, choose **Browse…**, and select
-`.kobo/KoboReader.sqlite` in the system file picker. The selection saves
+`device/.kobo/KoboReader.sqlite` in the system file picker, where `device` is
+the mounted reader. The provider panel shows this usual location and a
+connection badge when the database is available. The selection saves
 automatically. Hidden folders may need to be shown to locate `.kobo`.
 Cancelling the picker keeps the previous selection.
 
@@ -82,7 +84,8 @@ by the next Kobo that syncs that book.
 
 Open a book with **Edit** to see **Synced sources** above Save and Cancel. Each
 link shows its provider and device serial when known, the source title and
-author, the last imported percentage and reading date, and the source ID.
+author, and the last imported percentage and reading date. Source IDs stay
+internal and are not displayed in the card.
 **Unlink** asks for confirmation, then removes only that link and saves
 immediately. The book, its progress, finish date, history, and other links are
 kept. Unlinking does not ignore the source book: it appears in the next review

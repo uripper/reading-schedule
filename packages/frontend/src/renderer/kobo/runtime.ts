@@ -23,7 +23,11 @@ import { bindKoboConfiguration } from "./configuration.ts";
 import { ignoreKoboRecord } from "./ignored.ts";
 import { createKoboMonitor, startKoboMonitor } from "./monitor.ts";
 import { koboSyncRecords } from "./records.ts";
-import { createKoboSettings, koboSyncEnabled } from "./settings.ts";
+import {
+    createKoboSettings,
+    koboSyncEnabled,
+    setKoboStatus,
+} from "./settings.ts";
 
 const KOBO_SOURCE_LABEL = "Kobo";
 
@@ -134,8 +138,7 @@ function koboMonitor(
             presentSnapshot(context, snapshot, manual),
         read,
         status: (message) => {
-            const NODES = nodes;
-            NODES.status.textContent = message;
+            setKoboStatus(nodes.status, message);
         },
     });
 }
