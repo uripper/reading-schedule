@@ -1,3 +1,4 @@
+/** Applies shared library edits while preserving source history and progress timestamps. */
 import type {
     Book,
     BookDialogSubmitPayload,
@@ -5,6 +6,7 @@ import type {
     BulkBookSubmitPayload,
 } from "../../types/types.ts";
 import { normalizeBook } from "./model-normalize.ts";
+import { withProgressHistory } from "./progress-history.ts";
 import { BOOK_STATUS_READ } from "./status_catalog.ts";
 
 const COMPLETE_PROGRESS_PERCENT = 100;
@@ -45,7 +47,10 @@ function mergedBulkBook(book: Book, updates: BookInput): Book {
     if (updates.status === BOOK_STATUS_READ) {
         nextBook = { ...nextBook, ...completedProgressFields(nextBook) };
     }
-    return normalizeBook(protectSelfBlocker(BOOK_ID, nextBook));
+    return withProgressHistory(
+        book,
+        normalizeBook(protectSelfBlocker(BOOK_ID, nextBook)),
+    );
 }
 
 function protectedBulkUpdates(updates: BookInput): BookInput {

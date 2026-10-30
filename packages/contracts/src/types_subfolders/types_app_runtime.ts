@@ -100,6 +100,8 @@ export interface PersistQueueArgs
         SessionReader {
     /** Appends a diagnostic message to the in-app log. */
     addLog(this: void, message: string): void;
+    /** Reports every completed save attempt to the runtime error surface. */
+    onPersistResult?(this: void, saved: boolean): void;
     /** Planner API subset used to persist serialized draft state. */
     plannerApi: Pick<PlannerApi, "saveState">;
     /** Mutable runtime state consumed and updated by this module. */
@@ -186,4 +188,15 @@ export interface AutoPlanController {
     queueAutoPlan(): void;
     /** Rebuilds today's unfinished schedule without discarding completed sessions. */
     replanToday(): void;
+}
+
+/** Independent operations whose errors must not clear one another. */
+export type CriticalErrorSource = "persistence" | "planner";
+
+/** Renderer-independent interface for reporting persistent operation errors. */
+export interface CriticalErrors {
+    /** Clears only the resolved operation's error. */
+    clear(source: CriticalErrorSource): void;
+    /** Shows an operation error until explicitly resolved. */
+    show(source: CriticalErrorSource, message: string): void;
 }

@@ -2,6 +2,7 @@
     "dependencies": {
         "@reading-schedule/contracts": "workspace:*",
         "@tauri-apps/api": "2.11.1",
+        "@tauri-apps/plugin-dialog": "2.7.3",
         "@tauri-apps/plugin-opener": "2.5.4",
         "@tauri-apps/plugin-process": "2.3.1",
         "@tauri-apps/plugin-updater": "2.10.1"
@@ -29,5 +30,5 @@
         "typecheck": "pnpm run prepare:app && pnpm --dir ../.. exec tsc -p apps/bartleby/tsconfig.json --noEmit"
     },
     "type": "module",
-    "version": "0.1.6-alpha"
+    "version": "0.1.7-alpha"
 }

@@ -18,6 +18,7 @@ import {
 import { convertFileSrc, invoke, isTauri } from "@tauri-apps/api/core";
 import type { TauriPlannerCommand } from "./tauri-commands.ts";
 import { TAURI_COMMANDS } from "./tauri-commands.ts";
+import { pickKoboDatabase, readKoboProgress } from "./tauri-kobo-api.ts";
 import { createSearchApi } from "./tauri-search-api.ts";
 
 const FILE_PROTOCOL = "file:";
@@ -248,6 +249,8 @@ function createZoomApi(): Pick<PlannerApi, "zoomIn" | "zoomOut" | "zoomReset"> {
 
 function createTauriPlannerApi(): PlannerApi {
     return {
+        pickKoboDatabase,
+        readKoboProgress,
         ...createDataTransferApi(),
         ...createCoverApi(),
         ...createPlanApi(),

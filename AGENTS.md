@@ -41,9 +41,9 @@ These are enforced standards from `STYLEGUIDE.md`.
 - Keep object shorthand properties contiguous (top or bottom of object literal).
 - Avoid circular dependencies.
 
-## 4) TypeScript / Sonar Rules
+## 4) TypeScript
 
-- Treat lint/Sonar findings in touched files as merge blockers.
+- Treat lint findings in touched files as merge blockers.
 - Default to `packages/contracts` for shared TypeScript types and inference-backed contract shapes; do not duplicate or re-derive cross-application contracts in app-local folders.
 - If a type could reasonably be shared by another application without pulling in app-specific runtime dependencies, move it into `packages/contracts` now instead of waiting for a second consumer.
 - Do not commit `console.error`, `console.warn`, `console.log`, or `console.debug`.
@@ -99,19 +99,16 @@ If a required command fails, the change is not done.
 - Add/adjust tests for new behavior and bug fixes (regression tests when practical).
 - Update docs in the same change when behavior, command, config, or contract changes.
 - When introducing or changing a shared or potentially reusable contract, update `packages/contracts` first and treat app-local copies as a design smell unless the type is transient implementation state or depends on app-specific runtime libraries.
-- For UI changes, include screenshots in PR/hand-off notes when applicable.
+- Do not add screenshots to the repository. Keep any UI captures outside the repository and share them in hand-off notes when applicable.
 - If you add new tooling checks, wire them into required commands in the same change.
 
-## 8) Sonar / Config Consistency
 
-- Keep Sonar project key consistent:
-  - `sonar-project.properties` `sonar.projectKey`
-  - `.vscode/settings.json` `sonarlint.connectedMode.project.projectKey`
-- Keep scanner scope entries current when adding roots/tsconfig files:
-  - `sonar.sources`
-  - `sonar.exclusions`
-  - `sonar.typescript.tsconfigPaths`
-- Use `sonar.token` auth; do not add deprecated `sonar.login` usage.
+## 8) Design
+
+- Keep the existing design with new CSS.
+- Make sure that new code follows the Neobrutalist theming and design principles.
+- Do not introduce new buttons, windows, or interactive elements without specific design approval.
+- Reuse existing design patterns and components whenever possible.
 
 ## 9) Completion Checklist
 

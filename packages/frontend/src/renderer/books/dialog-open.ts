@@ -1,4 +1,5 @@
 import type { Book, OpenBookDialogArgs } from "../../types/types.ts";
+import { renderSyncLinks } from "../sync/links-panel.ts";
 import { fillBulkEditForm } from "./bulk-edit-fill.ts";
 import { resetBookDialogSubmitState } from "./dialog_submit.ts";
 import {
@@ -60,21 +61,26 @@ function selectedShelfForDialog(args: OpenBookDialogArgs): string {
 function applyDialogBookState(args: {
     allBooks: Book[];
     book: Book | null;
+    initialBook?: Book;
     bulkBooks: Book[];
     refs: ReturnType<typeof getBookFormRefs>;
 }): void {
     const FORM_REFS = args.refs;
+    renderSyncLinks(singleBook(args.book, args.bulkBooks));
     FORM_REFS.dialogTitle.textContent = "Add Book";
     if (args.bulkBooks.length > 0) {
         FORM_REFS.dialogTitle.textContent = `Edit ${args.bulkBooks.length} Books`;
         fillBulkEditForm(FORM_REFS, args.bulkBooks, args.allBooks);
         return;
     }
-    if (args.book === null) {
+    const BOOK = args.book ?? args.initialBook;
+    if (BOOK === undefined) {
         return;
     }
-    FORM_REFS.dialogTitle.textContent = "Edit Book";
-    fillForm(FORM_REFS, args.book);
+    if (args.book !== null) {
+        FORM_REFS.dialogTitle.textContent = "Edit Book";
+    }
+    fillForm(FORM_REFS, BOOK);
 }
 
 function focusOpenedDialog(args: InternalOpenBookDialogArgs): void {
@@ -90,7 +96,6 @@ export function unlockBookDialogScroll(): void {
 }
 
 export function openBookDialog(args: InternalOpenBookDialogArgs): void {
-    const FORM_REFS = args.refs;
     const { book } = args;
     const ALL_BOOKS = args.getBooks();
     const BULK_BOOKS = selectedBulkBooks(
@@ -100,17 +105,29 @@ export function openBookDialog(args: InternalOpenBookDialogArgs): void {
     const SCROLL_POSITION = currentViewportScroll();
     syncDialogSessionState(args.sessionState, book, args.dialogOptions);
     args.dialogFocus.rememberOpener();
-    clearForm(FORM_REFS, args.lookupControl);
+    clearForm(args.refs, args.lookupControl);
     openAfterBookPicker(args, book);
-    renderShelfPicker(FORM_REFS, ALL_BOOKS, selectedShelfForDialog(args));
+    renderShelfPicker(args.refs, ALL_BOOKS, selectedShelfForDialog(args));
     applyDialogBookState({
         allBooks: ALL_BOOKS,
         book,
         bulkBooks: BULK_BOOKS,
-        refs: FORM_REFS,
+        initialBook: args.dialogOptions.initialBook,
+        refs: args.refs,
     });
     finishBookDialogOpen(args);
     restoreViewportScroll(SCROLL_POSITION);
+}
+
+/** Sync links describe one saved book, never a bulk selection or a draft. */
+function singleBook(
+    book: Book | null,
+    bulkBooks: readonly Book[],
+): Book | null {
+    if (bulkBooks.length > 0) {
+        return null;
+    }
+    return book;
 }
 
 function openAfterBookPicker(

@@ -10,6 +10,7 @@ import type {
     PlannerSettings,
     RunPlanGenerationArgs,
 } from "../../types/types.ts";
+import { PLAN_FAILURE_MESSAGE } from "../errors/index.ts";
 import { todayDayKey } from "./date_keys.ts";
 import {
     normalizePlannerEndDate,
@@ -33,11 +34,7 @@ interface PlanSuccessArgs {
     addLog(message: string): void;
     announce(message: string, politeness?: "polite" | "assertive"): void;
     data: Awaited<ReturnType<RunPlanGenerationArgs["plannerApi"]["generate"]>>;
-    onSuccess(
-        data: Awaited<
-            ReturnType<RunPlanGenerationArgs["plannerApi"]["generate"]>
-        >,
-    ): Promise<void>;
+    onSuccess: RunPlanGenerationArgs["onSuccess"];
     setStatus: RunPlanGenerationArgs["setStatus"];
     statusSuccessMessage: string;
     successAnnouncement: string;
@@ -72,6 +69,7 @@ function buildPlanPayload(args: BuildPlanPayloadArgs): PlanGeneratePayload {
     });
 }
 
+/** Publishes success only after applying and durably saving the generated plan. */
 async function handlePlanSuccess({
     addLog,
     announce,
@@ -81,7 +79,10 @@ async function handlePlanSuccess({
     statusSuccessMessage,
     successAnnouncement,
 }: PlanSuccessArgs): Promise<void> {
-    await onSuccess(data);
+    const SAVED = await onSuccess(data);
+    if (SAVED === false) {
+        return;
+    }
     logPlanSummary(data.summary, data.schedule, addLog);
     logDebug("Planner payload resolved successfully.", {
         scheduleRows: data.schedule.length,
@@ -100,7 +101,7 @@ function handlePlanFailure({
     error,
     setStatus,
 }: PlanFailureArgs): void {
-    const MESSAGE = "Failed to generate plan";
+    const MESSAGE = PLAN_FAILURE_MESSAGE;
 
     setStatus(MESSAGE, true, "error");
     addLog(`Plan generation error: ${errorMessage(error)}`);
@@ -137,7 +138,10 @@ async function handleNoSchedulableBooks(args: {
     if (!currentRunFromCallback(args.isRunCurrent)) {
         return;
     }
-    await args.onSuccess({ schedule: [], summary: null });
+    const SAVED = await args.onSuccess({ schedule: [], summary: null });
+    if (SAVED === false) {
+        return;
+    }
     args.setStatus("No schedulable books to plan.", false, "success");
 }
 

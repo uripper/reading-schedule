@@ -346,6 +346,15 @@
             >
               Experience
             </button>
+            <button
+              id="syncSettingsTab"
+              class="settings-section-tab"
+              type="button"
+              data-settings-section-target="sync"
+              hidden
+            >
+              Sync
+            </button>
           </nav>
           <div class="settings-layout">
             <article class="settings-card" data-settings-section="plan-budget">
@@ -401,6 +410,10 @@
               </div>
               <h3>Books Display</h3>
               <div id="displayGrid" class="settings-grid"></div>
+            </article>
+            <article class="settings-card" data-settings-section="sync" hidden>
+              <h2>Sync</h2>
+              <div id="syncProviders"></div>
             </article>
           </div>
         </div>

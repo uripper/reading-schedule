@@ -6,6 +6,16 @@ use crate::{
 use serde_json::Value;
 use std::time::Instant;
 
+/// Reads mounted Kobo progress off the UI thread; no device writes are performed.
+#[tauri::command]
+pub async fn kobo_read_progress(
+    database_path: String,
+) -> Result<crate::kobo::KoboSnapshot, String> {
+    tauri::async_runtime::spawn_blocking(move || crate::kobo::read_progress(&database_path))
+        .await
+        .map_err(|error| format!("Kobo read task failed: {error}"))?
+}
+
 #[tauri::command]
 pub fn app_data_export(app: tauri::AppHandle) -> Result<data_archive::AppDataExport, String> {
     data_archive::export_app_data(&app)

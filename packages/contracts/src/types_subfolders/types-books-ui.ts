@@ -56,6 +56,8 @@ export interface BookFormRefs {
     shelfPromptInput: HTMLInputElement;
     shelfSelectInput: HTMLSelectElement;
     statusSelectInput: HTMLSelectElement;
+    /** Persistent assertive error area independent of book lookup feedback. */
+    submitError: HTMLElement;
     titleInput: HTMLInputElement;
     wordsInput: HTMLInputElement;
 }
@@ -75,6 +77,8 @@ export interface AfterBookPickerControl {
 export interface OpenDialogOptions {
     bulkBookIds?: string[];
     defaultShelf?: string;
+    /** Prefills a new book without changing the dialog into edit mode. */
+    initialBook?: Book;
     mode?: "single" | "bulk";
     navigationBookIds?: string[];
 }

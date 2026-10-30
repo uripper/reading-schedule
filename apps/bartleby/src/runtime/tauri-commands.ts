@@ -7,6 +7,7 @@ export const TAURI_COMMANDS = {
     booksSearch: "books_search",
     coverDownload: "cover_download",
     coverImport: "cover_import",
+    koboReadProgress: "kobo_read_progress",
     planGenerate: "plan_generate",
     planSample: "plan_sample",
     stateLoad: "state_load",

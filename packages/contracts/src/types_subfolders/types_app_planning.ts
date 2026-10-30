@@ -120,8 +120,11 @@ export interface RunPlanGenerationArgs extends PlanCommonArgs {
     isRunCurrent?(this: void): boolean;
     /** Earliest date the planner may use for this run. */
     minimumStartDate?: string;
-    /** Runs after successful generation to apply the generated schedule. */
-    onSuccess(this: void, data: PlannerRunData): Promise<void>;
+    /** Applies generated data; returning false suppresses success feedback after a failed save. */
+    onSuccess(
+        this: void,
+        data: PlannerRunData,
+    ): Promise<void> | Promise<boolean>;
     /** Transient constraints merged into settings only for this planner request. */
     settingsOverrides?: PlannerSettings;
     /** Optional status text shown while plan generation is in progress. */

@@ -1,5 +1,10 @@
+/** Hydrates book covers and preserves progress ordering across dialog saves. */
 import type { Book } from "../../types/types.ts";
 import { getPlannerApi } from "../app/planner_api.ts";
+import {
+    withInitialProgressHistory,
+    withProgressHistory,
+} from "./progress-history.ts";
 
 const COVER_DOWNLOAD_TIMEOUT_MS = 4_000;
 const COVER_DOWNLOAD_TIMEOUT_MESSAGE = "Timed out downloading the book cover.";
@@ -63,9 +68,12 @@ export async function hydrateBookCover(book: Book): Promise<Book> {
 export function upsertBookById(books: Book[], nextBook: Book): Book[] {
     const INDEX = books.findIndex((row) => row.book_id === nextBook.book_id);
     if (INDEX < 0) {
-        return [...books, nextBook];
+        return [...books, withInitialProgressHistory(nextBook)];
     }
     const NEXT_BOOKS = [...books];
-    NEXT_BOOKS[INDEX] = nextBook;
+    const CURRENT = books[INDEX];
+    if (CURRENT !== undefined) {
+        NEXT_BOOKS[INDEX] = withProgressHistory(CURRENT, nextBook);
+    }
     return NEXT_BOOKS;
 }

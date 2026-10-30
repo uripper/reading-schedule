@@ -1,0 +1,52 @@
+.critical-error-message {
+    padding: var(--token-space-3);
+    margin: var(--token-space-2) 0;
+    font-weight: var(--token-typography-weight-bold);
+    color: #111;
+    overflow-wrap: anywhere;
+    background: var(--app-danger);
+    border: var(--neo-panel-border);
+    border-radius: 0;
+    box-shadow: var(--neo-brutalist-shadow);
+}
+
+.critical-error-message:empty {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    box-shadow: none;
+}
+
+.critical-errors {
+    margin-inline: var(--token-space-3);
+}
+
+.critical-error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-space-2);
+}
+
+.critical-error-actions .btn {
+    font-weight: var(--token-typography-weight-bold);
+    color: #111;
+    background: var(--neo-section-settings);
+    border: var(--neo-panel-border);
+    border-radius: 0;
+    box-shadow: var(--neo-brutalist-shadow);
+}
+
+.critical-error-actions .btn[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.critical-error-actions > button[hidden],
+.critical-error-message:empty + .critical-error-help {
+    display: none;
+}
+
+.book-submit-error {
+    position: sticky;
+    bottom: 0;
+}
