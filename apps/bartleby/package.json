@@ -30,5 +30,5 @@
         "typecheck": "pnpm run prepare:app && pnpm --dir ../.. exec tsc -p apps/bartleby/tsconfig.json --noEmit"
     },
     "type": "module",
-    "version": "0.1.6-alpha"
+    "version": "0.1.7-alpha"
 }
