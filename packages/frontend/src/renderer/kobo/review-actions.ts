@@ -48,9 +48,13 @@ function startAction(action: () => Promise<void>, host: ActionHost): void {
 async function addBook(
     row: ReviewRow,
     options: KoboReviewPresentation,
+    rows: readonly ReviewRow[],
 ): Promise<void> {
     const BOOK = await options.addBook(row.record);
     if (BOOK !== null) {
+        for (const ROW of rows) {
+            ROW.registerBook(BOOK);
+        }
         row.setBook(BOOK);
     }
 }
@@ -78,7 +82,7 @@ export function bindKoboRowActions(
         ROW.bindActions({
             add: () => {
                 startAction(async () => {
-                    await addBook(ROW, options);
+                    await addBook(ROW, options, rows);
                 }, host);
             },
             ignore: () => {

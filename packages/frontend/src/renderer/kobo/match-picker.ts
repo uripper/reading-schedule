@@ -18,9 +18,7 @@ function selectBook(
     book: Book,
 ): void {
     const SELECT = select;
-    if (!library.some((candidate) => candidate.book_id === book.book_id)) {
-        library.push(book);
-    }
+    registerBook(library, book);
     if (
         ![...SELECT.querySelectorAll<HTMLOptionElement>("option")].some(
             (option) => option.value === book.book_id,
@@ -30,6 +28,13 @@ function selectBook(
     }
     SELECT.value = book.book_id;
     SELECT.dispatchEvent(new Event("change"));
+}
+
+/** Makes a newly saved book searchable without changing the row's chosen match. */
+function registerBook(library: Book[], book: Book): void {
+    if (!library.some((candidate) => candidate.book_id === book.book_id)) {
+        library.push(book);
+    }
 }
 
 /** Starts with the highest ranked option, retaining all candidate choices. */
@@ -65,6 +70,9 @@ export function createKoboMatchPicker(
     return {
         addBook: (book: Book): void => {
             selectBook(SELECT, LIBRARY, book);
+        },
+        registerBook: (book: Book): void => {
+            registerBook(LIBRARY, book);
         },
         search: SEARCH.element,
         searchInput: SEARCH.input,

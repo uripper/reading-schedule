@@ -110,8 +110,7 @@ async function applyChoices(
     const NODES = nodes;
     const CHOICES = NODES.rows.flatMap((row) => row.choice(all));
     if (CHOICES.length === 0) {
-        NODES.status.textContent =
-            "Choose at least one eligible book to update.";
+        NODES.status.textContent = "Select a book to sync.";
         return;
     }
     setBusy(nodes, true);

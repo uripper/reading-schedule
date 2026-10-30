@@ -21,7 +21,13 @@ function koboPreference(raw: PreferencesInput): Partial<Preferences> {
         PREFERENCES.koboSyncEnabled = raw.koboSyncEnabled;
     }
     if (Array.isArray(raw.koboIgnoredContentIds)) {
-        PREFERENCES.koboIgnoredContentIds = [...new Set(raw.koboIgnoredContentIds.filter((id) => typeof id === "string" && id.trim() !== ""))];
+        PREFERENCES.koboIgnoredContentIds = [
+            ...new Set(
+                raw.koboIgnoredContentIds.filter(
+                    (id) => typeof id === "string" && id.trim() !== "",
+                ),
+            ),
+        ];
     }
     return PREFERENCES;
 }

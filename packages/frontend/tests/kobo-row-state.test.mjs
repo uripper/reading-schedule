@@ -59,19 +59,28 @@ test("returning from Add Book keeps the new match enabled and approved", (t) => 
     assert.equal(ROW.choice(false)[0].bookId, BOOK.book_id);
 });
 
+test("a new book becomes searchable without changing another row's match", (t) => {
+    setup(t);
+    const ROW = createKoboReviewRow(matchKoboRecord(RECORD, [BOOK]));
+    const NEW_BOOK = normalizeBook({ book_id: "new", title: "New book" });
+    ROW.registerBook(NEW_BOOK);
+    assert.equal(ROW.choice(false)[0].bookId, BOOK.book_id);
+    const SEARCH = ROW.element
+        .querySelectorAll("input")
+        .find((input) => input.type === "search");
+    SEARCH.value = "New book";
+    SEARCH.dispatch("input");
+    assert.ok(
+        ROW.element
+            .querySelectorAll("li")
+            .some((item) => item.textContent.includes("New book")),
+    );
+    assert.equal(ROW.element.querySelector("select").value, BOOK.book_id);
+});
+
 test("live collision messages name the other record without duplicating progress text", (t) => {
     setup(t);
-    const OTHER_BOOK = normalizeBook({ book_id: "other", title: "Other" });
-    const OTHER_RECORD = { ...RECORD, contentId: "two", title: "Other" };
-    const FIRST = createKoboReviewRow(matchKoboRecord(RECORD, [BOOK]), [
-        BOOK,
-        OTHER_BOOK,
-    ]);
-    const SECOND = createKoboReviewRow(
-        matchKoboRecord(OTHER_RECORD, [OTHER_BOOK]),
-        [BOOK, OTHER_BOOK],
-    );
-    bindKoboRowCollisions([FIRST, SECOND]);
+    const { first: FIRST, second: SECOND } = collisionRows();
     SECOND.setBook(BOOK);
     SECOND.setBook(BOOK);
     const TEXT = FIRST.element
@@ -84,3 +93,19 @@ test("live collision messages name the other record without duplicating progress
     assert.equal(SECOND.choice(true).length, 0);
     assert.equal(FIRST.element.querySelectorAll("p")[1].textContent, "");
 });
+
+/** Creates two independent rows before manually assigning them to one library book. */
+function collisionRows() {
+    const OTHER_BOOK = normalizeBook({ book_id: "other", title: "Other" });
+    const OTHER_RECORD = { ...RECORD, contentId: "two", title: "Other" };
+    const FIRST = createKoboReviewRow(matchKoboRecord(RECORD, [BOOK]), [
+        BOOK,
+        OTHER_BOOK,
+    ]);
+    const SECOND = createKoboReviewRow(
+        matchKoboRecord(OTHER_RECORD, [OTHER_BOOK]),
+        [BOOK, OTHER_BOOK],
+    );
+    bindKoboRowCollisions([FIRST, SECOND]);
+    return { first: FIRST, second: SECOND };
+}

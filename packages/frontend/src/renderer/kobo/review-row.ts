@@ -53,7 +53,6 @@ function rowController(nodes: RowNodes) {
         bindActions: (actions: { add(): void; ignore(): void }): void => {
             appendActions(NODES, actions);
         },
-        choice: (all: boolean): KoboImportChoice[] => rowChoice(NODES, all),
         conflicts: (records: KoboReviewEntry["conflictingRecords"]): void => {
             updateConflicts(NODES, records);
         },
@@ -66,14 +65,26 @@ function rowController(nodes: RowNodes) {
             NODES.picker.select.addEventListener("change", handler);
         },
         record: NODES.entry.record,
+        registerBook: (book: Book): void => {
+            NODES.picker.registerBook(book);
+        },
+        setBook: (book: Book): void => {
+            setAddedBook(NODES, book);
+        },
+        ...approvalControls(NODES),
+    };
+}
+
+/** Groups approval controls shared by individual and bulk review actions. */
+function approvalControls(nodes: RowNodes) {
+    const NODES = nodes;
+    return {
+        choice: (all: boolean): KoboImportChoice[] => rowChoice(NODES, all),
         refresh: (): void => {
             refreshApproval(NODES);
         },
         selectSafe: (selected: boolean): void => {
             NODES.check.checked = selected && isSafeChoice(NODES);
-        },
-        setBook: (book: Book): void => {
-            setAddedBook(NODES, book);
         },
     };
 }
