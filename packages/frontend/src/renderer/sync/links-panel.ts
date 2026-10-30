@@ -131,7 +131,7 @@ export function renderSyncLinks(book: Book | null, message = ""): void {
     PANEL.replaceChildren(...CONTENT, STATUS);
 }
 
-/** Lists links under a heading, or nothing for new, bulk, or unlinked books. */
+/** Collapses source cards by default; keeps them open after an unlink confirmation. */
 function panelContent(book: Book | null, status: HTMLElement): HTMLElement[] {
     const LINKS = book?.sync_links ?? [];
     if (book === null || LINKS.length === 0) {
@@ -139,5 +139,10 @@ function panelContent(book: Book | null, status: HTMLElement): HTMLElement[] {
     }
     const LIST = syncElement("ul");
     LIST.append(...LINKS.map((link) => linkItem(book, link, status)));
-    return [syncElement("h3", "Synced sources"), LIST];
+    const DETAILS = syncElement("details");
+    DETAILS.open = status.textContent !== "";
+    const SUMMARY = syncElement("summary");
+    SUMMARY.append(syncElement("h3", "Synced sources"));
+    DETAILS.append(SUMMARY, LIST);
+    return [DETAILS];
 }

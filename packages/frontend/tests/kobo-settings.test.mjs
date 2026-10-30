@@ -37,7 +37,7 @@ function fixture(t) {
     return { context: CONTEXT, nodes: NODES };
 }
 
-test("Kobo shows the usual device location and future-provider note while disabled", (t) => {
+test("Kobo collapses the device location with its controls and keeps the future-provider note", (t) => {
     const { nodes: NODES } = fixture(t);
     const PROVIDERS = document.getElementById("syncProviders");
     const HINT = PROVIDERS.querySelector(".kobo-location-hint");
@@ -45,7 +45,8 @@ test("Kobo shows the usual device location and future-provider note while disabl
         HINT.querySelector("code").textContent,
         "device/.kobo/KoboReader.sqlite",
     );
-    assert.equal(HINT.parentElement.hidden, false);
+    assert.equal(HINT.parentElement, NODES.panel);
+    assert.equal(HINT.parentElement.hidden, true);
     assert.equal(NODES.panel.hidden, true);
     assert.equal(PROVIDERS.children[1].textContent, "More coming soon!");
 });
@@ -75,6 +76,10 @@ test("Kobo checkbox reveals controls and disabling retains the chosen file", (t)
     renderKoboSettings(NODES, CONTEXT.state.preferences);
     assert.equal(NODES.enable.checked, true);
     assert.equal(NODES.panel.hidden, false);
+    assert.equal(
+        NODES.panel.querySelector(".kobo-location-hint").parentElement.hidden,
+        false,
+    );
     assert.equal(NODES.file.textContent, "KoboReader.sqlite");
     renderKoboSettings(NODES, {
         ...CONTEXT.state.preferences,

@@ -18,6 +18,7 @@ import {
     hasSyncUpdates,
     syncReviewEntries,
 } from "../sync/model.ts";
+import { showSyncNotice } from "../sync/notice.ts";
 import { showSyncReview } from "../sync/review-dialog.ts";
 import { bindKoboConfiguration } from "./configuration.ts";
 import { ignoreKoboRecord } from "./ignored.ts";
@@ -76,7 +77,13 @@ function presentSnapshot(
             collectAllBooks(),
         ),
     );
-    if (ENTRIES.length === 0 || !(manual || hasSyncUpdates(ENTRIES))) {
+    if (ENTRIES.length === 0) {
+        if (manual) {
+            showSyncNotice("All books up to date!");
+        }
+        return false;
+    }
+    if (!(manual || hasSyncUpdates(ENTRIES))) {
         return false;
     }
     showSyncReview(reviewPresentation(context, snapshot, ENTRIES));

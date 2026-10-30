@@ -90,6 +90,20 @@ async function settle() {
     });
 }
 
+test("source cards start collapsed on every book opening", (t) => {
+    const { state: STATE } = setup(t);
+    renderSyncLinks(STATE.books[0]);
+    const DETAILS = panel().querySelector("details");
+    assert.equal(DETAILS.open, false);
+    assert.equal(
+        DETAILS.querySelector("summary").querySelector("h3").textContent,
+        "Synced sources",
+    );
+    DETAILS.open = true;
+    renderSyncLinks(STATE.books[0]);
+    assert.equal(panel().querySelector("details").open, false);
+});
+
 test("each link shows its provider, device, source book, and reading state", (t) => {
     const { form: FORM, state: STATE } = setup(t);
     renderSyncLinks(STATE.books[0]);
@@ -133,6 +147,7 @@ test("unlinking removes one device's link and keeps the book and its history", a
     assert.equal(AFTER.progress_percent, BEFORE.progress_percent);
     assert.equal(AFTER.progress_updated_at, BEFORE.progress_updated_at);
     assert.equal(panel().querySelectorAll("li").length, 1);
+    assert.equal(panel().querySelector("details").open, true);
     assert.match(
         panel().querySelector("p").textContent,
         /Unlinked Kobo \(N418A\)/,

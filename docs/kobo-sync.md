@@ -1,6 +1,6 @@
 # Kobo reading-progress sync
 
-Open **Settings → Sync** and check **Kobo** to reveal its controls.
+Open **Settings → Sync** and check **Kobo** to reveal its controls and file-location hint.
 Connect the Kobo over USB, choose **Browse…**, and select
 `device/.kobo/KoboReader.sqlite` in the system file picker, where `device` is
 the mounted reader. The provider panel shows this usual location and a
@@ -10,7 +10,10 @@ Cancelling the picker keeps the previous selection.
 
 While enabled and Bartleby is open, the configured file is checked every five
 seconds, including at startup. **Check now** retries or reopens review after
-dismissal. Uncheck **Kobo** to pause checks while keeping the selected file.
+dismissal. When a manual check finds nothing to sync, an **All books up to date!**
+popup appears; dismiss it with **OK** or Escape. The **Connected** badge stays
+unchanged. Uncheck **Kobo** to pause checks and collapse the
+controls and hint while keeping the selected file.
 If the device mounts at a different path, choose **Browse…** again.
 
 The review lists device titles and authors, suggested library matches, and
@@ -82,7 +85,8 @@ for the other; the newest reading time still decides whether progress can be
 imported. Links saved before device tracking have no device and are taken over
 by the next Kobo that syncs that book.
 
-Open a book with **Edit** to see **Synced sources** above Save and Cancel. Each
+Open a book with **Edit** to see the collapsed **Synced sources** disclosure
+above Save and Cancel. Select its heading or arrow to expand the cards. Each
 link shows its provider and device serial when known, the source title and
 author, and the last imported percentage and reading date. Source IDs stay
 internal and are not displayed in the card.

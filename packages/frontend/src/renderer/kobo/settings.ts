@@ -31,7 +31,7 @@ function providerControls() {
     const ACTIONS = syncElement("div");
     ACTIONS.className = "sync-actions";
     ACTIONS.append(BROWSE, CHECK);
-    PANEL.append(FILE, ACTIONS);
+    PANEL.append(fileLocationHint(), FILE, ACTIONS);
     return {
         browse: BROWSE,
         check: CHECK,
@@ -39,6 +39,14 @@ function providerControls() {
         panel: PANEL,
         status: providerStatus(),
     };
+}
+
+/** Keeps the expected device path inside the provider's collapsible controls. */
+function fileLocationHint(): HTMLParagraphElement {
+    const HINT = syncElement("p", "Usually located at ");
+    HINT.className = "kobo-location-hint";
+    HINT.append(syncElement("code", "device/.kobo/KoboReader.sqlite"));
+    return HINT;
 }
 
 /** Keeps connection changes and recovery messages in one accessible badge. */
@@ -59,10 +67,7 @@ export function createKoboSettings(preferences: Preferences) {
     const HEADER = syncElement("div");
     HEADER.className = "kobo-provider-header";
     HEADER.append(SWITCH.label, CONTROLS.status);
-    const HINT = syncElement("p", "Usually located at ");
-    HINT.className = "kobo-location-hint";
-    HINT.append(syncElement("code", "device/.kobo/KoboReader.sqlite"));
-    SECTION.append(HEADER, HINT, CONTROLS.panel);
+    SECTION.append(HEADER, CONTROLS.panel);
     const COMING_SOON = syncElement("p", "More coming soon!");
     COMING_SOON.className = "sync-coming-soon";
     document.getElementById("syncProviders")?.append(SECTION, COMING_SOON);
