@@ -6,7 +6,7 @@
 
 Problem:
 
-A scoped `jscpd` run against the repository source roots reported 0.96% duplicated lines, which is well above the current 0.1% duplication budget. The largest hotspot is `packages/contracts/src/types_subfolders/types_app.ts`, and there are additional renderer and planner duplicates in areas such as calendar session rendering, book lookup keyboard handling, date-key helpers, and schedule helpers.
+A historical jscpd run reported 0.96% duplicated lines against a 0.1% target. Its source roots and temporary report predate the current layout, so that figure and its hotspot ranking are not a current baseline. The dependency is installed, but no root script or hosted check enforces the target. Remeasure the current source roots before choosing extractions, including whether Rust is covered by the selected tool.
 
 Expected:
 
@@ -14,7 +14,7 @@ Repository duplication should be reduced to 0.1% or lower, and clone-rate enforc
 
 Definition of done:
 
-- Prioritize the highest-value duplicate hotspots first.
+- Establish a reproducible baseline for apps, packages, and mobile source, excluding generated output and dependencies, then prioritize the highest-value current hotspots.
 - Extract shared types, helpers, or constants instead of copy-pasting near-identical branches.
 - Avoid fake abstractions that only move duplication sideways.
 - Add a documented `jscpd` command to repository validation.
@@ -23,9 +23,10 @@ Definition of done:
 Context:
 
 - `packages/contracts/src/types_subfolders/types_app.ts`
-- `electron/renderer/calendar/details_session_today.ts`
-- `electron/renderer/calendar/details_session_past.ts`
-- `electron/renderer/book_lookup/keyboard.ts`
-- `electron/renderer/app/date_keys.ts`
+- `packages/frontend/src/renderer/calendar/details_session_today.ts`
+- `packages/frontend/src/renderer/calendar/details_session_past.ts`
+- `packages/frontend/src/renderer/book_lookup/keyboard.ts`
+- `packages/frontend/src/renderer/app/date_keys.ts`
 - `mobile/src/features/today/use_today_data.ts`
-- `/tmp/jscpd-reading-schedule/jscpd-report.json`
+- `package.json`
+- `scripts/style_audit/config.mjs`

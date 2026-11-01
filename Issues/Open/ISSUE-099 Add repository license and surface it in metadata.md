@@ -16,14 +16,17 @@ Definition of done:
 
 - Choose and add a root `LICENSE` file.
 - Reflect the license in package metadata where relevant.
-- Mention the license in `README.md`.
+- Record the license in existing repository documentation; raise proposed README changes in chat, as required by AGENTS.md.
 - Confirm the chosen license is compatible with bundled dependencies and intended distribution plans.
 
 Context:
 
-- `README.md`
 - `package.json`
-- `electron/package.json`
+- `apps/bartleby/package.json`
+- `apps/bartleby/src-tauri/Cargo.toml`
+- `packages/planner/Cargo.toml`
+- `packages/contracts/package.json`
+- `packages/frontend/package.json`
+- `apps/website/package.json`
 - `mobile/package.json`
-- `pyproject.toml`
-
+- `AGENTS.md`

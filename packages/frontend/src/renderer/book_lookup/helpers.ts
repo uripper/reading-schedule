@@ -4,6 +4,7 @@ import type {
     ProgressField,
     ProgressSyncInputs,
 } from "../../types/types.ts";
+import { lookupLanguageLabel } from "./language.ts";
 
 const PLACEHOLDER_SVG = [
     '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="160" viewBox="0 0 120 160">',
@@ -39,10 +40,15 @@ export function placeholderCoverSvg(): string {
 /**
  * Builds a user-facing description for a selected lookup result.
  * @param item - Selected lookup item.
- * @returns Description text including source/author/year when available.
+ * @returns Description text including source/author/year/edition language when available.
  */
 export function describeLookup(item: BookLookupItem): string {
-    const BITS = [item.source, item.author, item.year]
+    const BITS = [
+        item.source,
+        item.author,
+        item.year,
+        lookupLanguageLabel(item.language),
+    ]
         .map((value) => String(value ?? "").trim())
         .filter((bit) => bit.length > 0);
 

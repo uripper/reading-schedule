@@ -2,61 +2,46 @@
 import type { Book } from "../../types/types.ts";
 import { getPlannerApi } from "../app/planner_api.ts";
 import {
+    coverUploadDataUrl,
+    stagedCoverUpload,
+} from "./cover-upload-staging.ts";
+import {
     withInitialProgressHistory,
     withProgressHistory,
 } from "./progress-history.ts";
 
-const COVER_DOWNLOAD_TIMEOUT_MS = 4_000;
-const COVER_DOWNLOAD_TIMEOUT_MESSAGE = "Timed out downloading the book cover.";
-
-/**
- * Resolves a promise within a bounded time window.
- * @param operation - Promise to await.
- * @param timeoutMs - Maximum wait time in milliseconds.
- * @returns Resolved operation value when it finishes in time.
- */
-async function promiseWithTimeout<T>(
-    operation: Promise<T>,
-    timeoutMs: number,
-): Promise<T> {
-    let timeoutId: ReturnType<typeof globalThis.setTimeout> | null = null;
-    const TIMEOUT_PROMISE = new Promise<never>((_resolve, reject) => {
-        timeoutId = globalThis.setTimeout(() => {
-            reject(new Error(COVER_DOWNLOAD_TIMEOUT_MESSAGE));
-        }, timeoutMs);
-    });
-
-    try {
-        return await Promise.race([operation, TIMEOUT_PROMISE]);
-    } finally {
-        if (timeoutId !== null) {
-            globalThis.clearTimeout(timeoutId);
-        }
+/** Processes a captured cover source after the book has been saved. */
+export async function hydrateBookCover(book: Book): Promise<Book> {
+    const UPLOAD = stagedCoverUpload(book.cover_local_path);
+    let localCover = "";
+    if (UPLOAD !== undefined) {
+        const DATA_URL = await coverUploadDataUrl(UPLOAD);
+        localCover = await getPlannerApi().saveUploadedCover(
+            DATA_URL,
+            book.book_id,
+        );
+    } else if (book.cover_url && !book.cover_local_path) {
+        localCover = await getPlannerApi().downloadCover(
+            book.cover_url,
+            book.book_id,
+        );
+    } else {
+        return book;
     }
+    if (!localCover) {
+        throw new Error(
+            "No cover image was returned. Select the cover again to retry.",
+        );
+    }
+    return { ...book, cover_local_path: localCover };
 }
 
-/**
- * Downloads remote cover art for a book when no local cover exists yet.
- * @param book - Source book model.
- * @returns Original book or cloned book with `cover_local_path` populated.
- */
-export async function hydrateBookCover(book: Book): Promise<Book> {
-    if (!book.cover_url || book.cover_local_path) {
+/** Keeps renderer-only blob URLs out of persisted book snapshots. */
+export function bookWithoutTransientCover(book: Book): Book {
+    if (stagedCoverUpload(book.cover_local_path) === undefined) {
         return book;
     }
-
-    try {
-        const LOCAL_COVER = await promiseWithTimeout(
-            getPlannerApi().downloadCover(book.cover_url, book.book_id),
-            COVER_DOWNLOAD_TIMEOUT_MS,
-        );
-        if (LOCAL_COVER) {
-            return { ...book, cover_local_path: LOCAL_COVER };
-        }
-        return book;
-    } catch {
-        return book;
-    }
+    return { ...book, cover_local_path: "" };
 }
 
 /**

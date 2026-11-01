@@ -1,3 +1,4 @@
+/** Applies lookup metadata and staged upload previews to the book form. */
 import type {
     BookFormRefs,
     BookLookupItem,
@@ -7,6 +8,7 @@ import {
     noteFromLookup,
     syncProgressAndPages,
 } from "../book_lookup/helpers.ts";
+import { releaseCoverUpload } from "./cover-upload-staging.ts";
 import { CUSTOM_COVER_NOTE, setCoverPreview } from "./form-state-helpers.ts";
 import { toOptionalInt } from "./utils.ts";
 
@@ -43,6 +45,7 @@ export function applyLookupItem(
     FORM_REFS.titleInput.value = item.title ?? FORM_REFS.titleInput.value;
     FORM_REFS.searchInput.value = item.title ?? FORM_REFS.searchInput.value;
     FORM_REFS.author.value = item.author ?? FORM_REFS.author.value;
+    releaseCoverUpload(FORM_REFS.coverLocal.value);
     FORM_REFS.coverUrl.value = item.cover_url ?? "";
     FORM_REFS.coverLocal.value = "";
 
@@ -78,6 +81,7 @@ export function applyUploadedCover(
     if (!NORMALIZED_PATH) {
         throw new Error("Could not save the uploaded cover.");
     }
+    releaseCoverUpload(FORM_REFS.coverLocal.value);
     FORM_REFS.coverLocal.value = NORMALIZED_PATH;
     FORM_REFS.coverUrl.value = "";
 

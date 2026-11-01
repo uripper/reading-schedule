@@ -14,7 +14,7 @@ import { bindBookLookup } from "../book_lookup/search.ts";
 import { bindDateInput } from "../date_control.ts";
 import { createAfterBookPicker } from "./after_book_picker.ts";
 import { bindBulkEditDirtyTracking } from "./bulk-edit-form.ts";
-import { bindCoverUpload } from "./cover_upload.ts";
+import { bindCoverUpload } from "./cover-upload.ts";
 import { bindBookDialogProgressSync } from "./dialog_progress_sync.ts";
 import { bindBookDialogSubmit } from "./dialog_submit.ts";
 import type { BookDialogNavigationRefs } from "./dialog-navigation.ts";

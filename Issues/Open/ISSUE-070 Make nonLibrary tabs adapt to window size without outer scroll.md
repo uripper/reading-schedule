@@ -10,7 +10,7 @@ Outside the Library area, the app relies too heavily on global scroll behavior i
 
 Expected:
 
-Today, Schedule, Recommendations, Stats, and Settings should reflow to fit smaller window sizes without depending on an outer app scrollbar for routine use.
+Today, Schedule, Stats, and Settings should reflow to fit smaller window sizes without depending on an outer app scrollbar for routine use.
 
 Definition of done:
 
@@ -21,8 +21,8 @@ Definition of done:
 
 Context:
 
-- `electron/index.html`
-- `electron/styles/base.css`
-- `electron/styles/stats.css`
-- `electron/styles/settings.css`
-- `electron/styles/today-carousel.css`
+- `packages/frontend/index.html`
+- `packages/frontend/styles/base.css`
+- `packages/frontend/styles/stats.css`
+- `packages/frontend/styles/settings.css`
+- `packages/frontend/styles/today-carousel.css`

@@ -22,9 +22,9 @@ Definition of done:
 
 Context:
 
-- `electron/main/book_lookup/search_text.ts`
-- `electron/main/book_lookup/search_transport.ts`
-- `electron/main/book_lookup/search_scoring.ts`
-- `electron/main/book_lookup/search_author_scoring.ts`
-- `electron/main/book_lookup/index.ts`
-
+- `apps/bartleby/src-tauri/src/book_search/spelling_fallback.rs`
+- `apps/bartleby/src-tauri/src/book_search/display_author.rs`
+- `apps/bartleby/src-tauri/src/book_search/transliteration.rs`
+- `apps/bartleby/src-tauri/src/book_search/scoring.rs`
+- `apps/bartleby/src-tauri/src/book_search/title_author.rs`
+- `docs/book-search.md`
