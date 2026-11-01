@@ -6,7 +6,7 @@
 
 Problem:
 
-Several important code-quality standards are still mostly subjective in this repository. Current tooling does not reliably measure self-documenting names, boolean-prefix naming, single-letter variable exceptions, TypeScript commented-out dead code, file and folder naming consistency, explicit return-type expectations outside current scopes, or consistency in async and error-handling patterns.
+Biome already checks identifier casing, warns about filename conventions, and rejects floating/misused promises and several unsafe patterns. The style audit also checks documentation and other structural rules. Remaining judgment-based areas include semantic naming, boolean prefixes, single-letter exceptions, folder naming, commented-out code, explicit return-type scope, and contextual recovery in catch blocks. Inventory these gaps against the enabled commands rather than adding duplicate rules or treating an unused configuration as an enforced check.
 
 Expected:
 

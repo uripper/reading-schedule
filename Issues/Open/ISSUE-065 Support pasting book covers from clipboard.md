@@ -22,9 +22,9 @@ Definition of done:
 
 Context:
 
-- `electron/renderer/books/cover_upload.ts`
-- `electron/renderer/books/dialog.ts`
-- `electron/renderer/books/form_refs.ts`
-- `electron/main/book_lookup/index.ts`
-- `electron/index.html`
-
+- `packages/frontend/src/renderer/books/cover-upload.ts`
+- `packages/frontend/src/renderer/books/cover-upload-staging.ts`
+- `packages/frontend/src/renderer/books/dialog.ts`
+- `packages/frontend/src/renderer/books/form_refs.ts`
+- `apps/bartleby/src-tauri/src/cover_store/`
+- `packages/frontend/index.html`

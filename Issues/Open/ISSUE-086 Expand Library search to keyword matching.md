@@ -10,17 +10,17 @@ Library search is effectively title or author today. That is too narrow for user
 
 Expected:
 
-Library search behaves like a keyword search field rather than only a title or authorfilter.
+Library search behaves like a keyword search field rather than only a title or author filter.
 
 Definition of done:
 
-- Define which fields participate in keyword matching.
+- Define which persisted fields participate in keyword matching. Series is not currently a book field; do not imply series search works without an explicit schema change.
 - Update matching logic and UI copy so the control reflects its broader behavior.
 - Keep matching performant for the current desktop data model.
 - Add regression coverage for representative keyword searches.
 
 Context:
 
-- `electron/renderer/books/controller_render_helpers.ts`
-- `electron/renderer/books/toolbar_dom.ts`
-- `electron/renderer/title_filter.ts`
+- `packages/frontend/src/renderer/books/controller_render_helpers.ts`
+- `packages/frontend/src/renderer/books/toolbar_dom.ts`
+- `packages/frontend/src/renderer/title_filter.ts`

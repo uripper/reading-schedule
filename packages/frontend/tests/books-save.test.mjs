@@ -1,89 +1,66 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
+// biome-ignore-all lint/correctness/noUnresolvedImports: tests import built shared frontend artifacts.
+/** Verifies saving books stays independent of remote cover latency and failures. */
 import assert from "node:assert/strict";
 import test from "node:test";
-
+import { nextBooksAfterDialogSave } from "../dist/renderer/books/controller-save.js";
+import { normalizeBook } from "../dist/renderer/books/model-normalize.js";
 import { hydrateBookCover } from "../dist/renderer/books/save.js";
 
-const BASE_BOOK = {
+const BASE_BOOK = normalizeBook({
     book_id: "book-1",
-    cover_local_path: "",
     cover_url: "https://example.com/cover.jpg",
-};
-
-function restorePlannerApi(previousPlannerApi) {
-    if (previousPlannerApi === undefined) {
-        delete globalThis.plannerApi;
-        return;
-    }
-    globalThis.plannerApi = previousPlannerApi;
-}
-
-async function withPlannerApi(downloadCover, action) {
-    const ORIGINAL_PLANNER_API = globalThis.plannerApi;
-    globalThis.plannerApi = { downloadCover };
-    try {
-        return await action();
-    } finally {
-        restorePlannerApi(ORIGINAL_PLANNER_API);
-    }
-}
-
-function installTimeoutHarness() {
-    const ORIGINAL_SET_TIMEOUT = globalThis.setTimeout;
-    const ORIGINAL_CLEAR_TIMEOUT = globalThis.clearTimeout;
-    const STATE = {
-        clearedTimeoutId: null,
-        timeoutCallback: null,
-    };
-    globalThis.setTimeout = (callback) => {
-        STATE.timeoutCallback = callback;
-        return 77;
-    };
-    globalThis.clearTimeout = (timeoutId) => {
-        STATE.clearedTimeoutId = timeoutId;
-    };
-    return {
-        restore() {
-            globalThis.setTimeout = ORIGINAL_SET_TIMEOUT;
-            globalThis.clearTimeout = ORIGINAL_CLEAR_TIMEOUT;
-        },
-        state: STATE,
-    };
-}
-
-test("hydrateBookCover returns a cloned book with the downloaded cover path", async () => {
-    await withPlannerApi(
-        () => Promise.resolve("/tmp/cover.jpg"),
-        async () => {
-            const RESULT = await hydrateBookCover(BASE_BOOK);
-
-            assert.notEqual(RESULT, BASE_BOOK);
-            assert.equal(RESULT.cover_local_path, "/tmp/cover.jpg");
-            assert.equal(RESULT.cover_url, BASE_BOOK.cover_url);
-        },
-    );
+    pages_total: 200,
+    title: "Cover test",
 });
 
-test("hydrateBookCover falls back to the original book when cover download times out", async () => {
-    const HARNESS = installTimeoutHarness();
+test("dialog save commits a usable book without invoking slow cover processing", () => {
+    const PREVIOUS = globalThis.plannerApi;
+    let calls = 0;
+    globalThis.plannerApi = {
+        downloadCover() {
+            calls += 1;
+            return Promise.withResolvers().promise;
+        },
+    };
     try {
-        await withPlannerApi(
-            async () => {
-                return await new Promise((_resolve, _reject) => {
-                    return undefined;
-                });
-            },
-            async () => {
-                const RESULT_PROMISE = hydrateBookCover(BASE_BOOK);
-                assert.equal(typeof HARNESS.state.timeoutCallback, "function");
-                HARNESS.state.timeoutCallback();
-                const RESULT = await RESULT_PROMISE;
+        const RESULT = nextBooksAfterDialogSave([], { book: BASE_BOOK });
+        assert.equal(RESULT.length, 1);
+        assert.equal(RESULT[0].title, BASE_BOOK.title);
+        assert.equal(RESULT[0].cover_local_path, "");
+        assert.equal(RESULT[0].cover_url, BASE_BOOK.cover_url);
+        assert.equal(calls, 0);
+    } finally {
+        globalThis.plannerApi = PREVIOUS;
+    }
+});
 
-                assert.equal(RESULT, BASE_BOOK);
-                assert.equal(HARNESS.state.clearedTimeoutId, 77);
-            },
+test("hydration returns a cloned book with a completed remote cover", async () => {
+    const PREVIOUS = globalThis.plannerApi;
+    globalThis.plannerApi = {
+        downloadCover: async () => "/tmp/cover.jpg",
+    };
+    try {
+        const RESULT = await hydrateBookCover(BASE_BOOK);
+        assert.notEqual(RESULT, BASE_BOOK);
+        assert.equal(RESULT.cover_local_path, "/tmp/cover.jpg");
+    } finally {
+        globalThis.plannerApi = PREVIOUS;
+    }
+});
+
+test("hydration exposes failures to the background recovery path", async () => {
+    const PREVIOUS = globalThis.plannerApi;
+    globalThis.plannerApi = {
+        downloadCover: () => Promise.reject(new Error("decode failed")),
+    };
+    try {
+        await assert.rejects(hydrateBookCover(BASE_BOOK), /decode failed/);
+        globalThis.plannerApi.downloadCover = async () => "";
+        await assert.rejects(
+            hydrateBookCover(BASE_BOOK),
+            /Select the cover again/,
         );
     } finally {
-        HARNESS.restore();
+        globalThis.plannerApi = PREVIOUS;
     }
 });

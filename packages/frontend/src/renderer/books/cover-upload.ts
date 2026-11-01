@@ -1,5 +1,10 @@
+/** Validates cover selections and stages a transient preview for background processing. */
 import type { BookFormRefs } from "../../types/types.ts";
-import { getPlannerApi } from "../app/planner_api.ts";
+import { registerCoverForm } from "./cover-form-sync.ts";
+import {
+    releaseCoverUpload,
+    stageCoverUpload,
+} from "./cover-upload-staging.ts";
 import { applyUploadedCover } from "./form-state-lookup.ts";
 
 const COVER_MIME_PNG = "image/png";
@@ -75,36 +80,6 @@ function selectedCoverFile(refs: BookFormRefs): File | null {
 }
 
 /**
- * Reads a file as a data URL for planner cover upload transport.
- * @param file - Cover image file to read.
- * @returns Data URL string produced by `FileReader`.
- */
-async function readFileAsDataUrl(file: File): Promise<string> {
-    return await new Promise((resolve, reject) => {
-        const READER = new FileReader();
-
-        const ON_LOAD = (): void => {
-            const { result } = READER;
-            if (typeof result !== "string" || !result) {
-                reject(new Error(ERROR_UPLOAD_FAILED));
-                return;
-            }
-
-            const DATA_URL = result;
-            resolve(DATA_URL);
-        };
-
-        const ON_ERROR = (): void => {
-            reject(new Error(ERROR_UPLOAD_FAILED));
-        };
-
-        READER.addEventListener("load", ON_LOAD, { once: true });
-        READER.addEventListener("error", ON_ERROR, { once: true });
-        READER.readAsDataURL(file);
-    });
-}
-
-/**
  * Opens the native file picker for the cover upload input.
  * @param refs - Book form references containing the upload input.
  */
@@ -147,10 +122,10 @@ function clearCoverUploadInput(refs: BookFormRefs): void {
 }
 
 /**
- * Validates, uploads, and applies currently selected custom cover file.
+ * Stages the selected file immediately; save starts native cover processing.
  * @param refs - Book form references containing upload and metadata controls.
  */
-async function saveSelectedCover(refs: BookFormRefs): Promise<void> {
+function saveSelectedCover(refs: BookFormRefs): void {
     const FILE = selectedCoverFile(refs);
     if (!FILE) {
         throw new Error(ERROR_MISSING_FILE);
@@ -159,22 +134,17 @@ async function saveSelectedCover(refs: BookFormRefs): Promise<void> {
         throw new Error(ERROR_UNSUPPORTED_FILE);
     }
 
-    const DATA_URL = await readFileAsDataUrl(FILE);
-    const LOCAL_COVER = await getPlannerApi().saveUploadedCover(
-        DATA_URL,
-        refs.bookId.value,
-    );
-    applyUploadedCover(refs, LOCAL_COVER, FILE.name);
+    applyUploadedCover(refs, stageCoverUpload(FILE), FILE.name);
 }
 
 /**
  * Runs cover upload flow and reports any user-facing error message.
  * @param refs - Book form references containing upload and metadata controls.
  */
-async function handleCoverUploadChange(refs: BookFormRefs): Promise<void> {
+function handleCoverUploadChange(refs: BookFormRefs): void {
     const { lookupMeta } = refs;
     try {
-        await saveSelectedCover(refs);
+        saveSelectedCover(refs);
     } catch (error: unknown) {
         lookupMeta.textContent = uploadErrorMessage(error);
     } finally {
@@ -187,12 +157,12 @@ async function handleCoverUploadChange(refs: BookFormRefs): Promise<void> {
  * @param refs - Book form references containing upload and panel controls.
  */
 export function bindCoverUpload(refs: BookFormRefs): void {
-    const { lookupMeta } = refs;
+    registerCoverForm(refs);
+    refs.dialog.addEventListener("close", () => {
+        releaseCoverUpload(refs.coverLocal.value);
+    });
     const RUN_UPLOAD_CHANGE = (): void => {
-        handleCoverUploadChange(refs).catch((error: unknown) => {
-            lookupMeta.textContent = uploadErrorMessage(error);
-            clearCoverUploadInput(refs);
-        });
+        handleCoverUploadChange(refs);
     };
 
     refs.coverPanel.addEventListener("click", (event) => {

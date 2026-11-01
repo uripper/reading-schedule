@@ -1,7 +1,9 @@
 use crate::book_search::models::{SearchDiagnostic, SearchDoc, SearchResponse};
 
 pub const REQUEST_KIND_AUTHOR: &str = "author";
+pub const REQUEST_KIND_AUTHOR_SPELLING: &str = "author_spelling";
 pub const REQUEST_KIND_QUERY: &str = "query";
+pub const REQUEST_KIND_QUERY_ALL_LANGUAGES: &str = "query_all_languages";
 pub const REQUEST_KIND_TITLE: &str = "title";
 pub const REQUEST_KIND_TITLE_AUTHOR: &str = "title_author";
 const REQUEST_KIND_VALIDATION: &str = "validation";

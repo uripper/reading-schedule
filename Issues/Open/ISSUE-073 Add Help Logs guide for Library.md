@@ -16,11 +16,11 @@ Definition of done:
 
 - Document how to add, edit, and manage books from Library.
 - Explain filtering, grouping, sorting, and status concepts in plain language.
-- Clarify how Library changes affect scheduling and recommendations.
+- Clarify how Library changes affect scheduling, progress, and statistics.
 - Keep the guide concise enough to scan while still covering common user tasks.
 
 Context:
 
-- `electron/renderer/help.ts`
-- `electron/index.html`
-- `electron/renderer/books/`
+- `packages/frontend/src/renderer/help.ts`
+- `packages/frontend/index.html`
+- `packages/frontend/src/renderer/books/`

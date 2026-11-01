@@ -6,7 +6,7 @@
 
 Problem:
 
-Current repository tooling does not provide reliable answers for several basic security concerns. There is no automated secret scanning, no automated CVE check for Node and Python dependencies, and no repository-wide inventory of external input boundaries or tests that user-facing errors avoid leaking internal details.
+Current repository tooling does not provide reliable answers for several basic security concerns. There is no automated secret scanning, no automated CVE check for Node and Rust dependencies, and no repository-wide inventory of external input boundaries or tests that user-facing errors avoid leaking internal details.
 
 Expected:
 
@@ -15,7 +15,7 @@ Security-sensitive areas should have concrete verification paths, with automatio
 Definition of done:
 
 - Add secret scanning for committed files and pull requests.
-- Add dependency vulnerability scanning for Node and Python.
+- Add dependency vulnerability scanning for Node and Rust.
 - Add an update policy or automation path for dependency freshness.
 - Inventory external input boundaries and document the validation mechanism used at each boundary.
 - Add regression coverage for user-facing error redaction where appropriate.
@@ -23,7 +23,13 @@ Definition of done:
 Context:
 
 - `package.json`
-- `pyproject.toml`
-- `src/reading_plan/http_api.py`
-- `electron/main/book_lookup/`
+- `pnpm-lock.yaml`
+- `packages/planner/Cargo.toml`
+- `packages/planner/Cargo.lock`
+- `apps/bartleby/src-tauri/Cargo.toml`
+- `apps/bartleby/src-tauri/Cargo.lock`
+- `apps/bartleby/src-tauri/src/commands.rs`
+- `apps/bartleby/src-tauri/src/book_search/`
+- `apps/bartleby/src-tauri/src/cover_store/`
+- `apps/bartleby/src-tauri/src/kobo.rs`
 - `mobile/src/config/mobile_env.ts`

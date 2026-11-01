@@ -47,12 +47,12 @@ pub async fn cover_download(
 }
 
 #[tauri::command]
-pub fn cover_import(
+pub async fn cover_import(
     app: tauri::AppHandle,
     data_url: Option<String>,
     book_id: Option<String>,
 ) -> Result<String, String> {
-    cover_store::import_cover(&app, data_url, book_id)
+    cover_store::import_cover(&app, data_url, book_id).await
 }
 
 #[tauri::command]

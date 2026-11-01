@@ -10,7 +10,7 @@ Users often take notes, highlight passages, and reflect on their reading session
 
 Expected:
 
-Users can connect their Bartleby account with note-taking tools to export session data. This could include:
+Users can configure note-taking integrations or local export destinations in Bartleby to export session data. This could include:
 
 - Exporting session notes, reflections, highlights, and tags to Obsidian or Notion.
 - Providing options for export format (e.g., markdown, plain text) and organization (e.g., by book, by date).

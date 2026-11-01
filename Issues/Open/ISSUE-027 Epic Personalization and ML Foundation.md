@@ -14,7 +14,8 @@ Personalization and ML foundation work is tracked as a single epic with clear de
 
 Definition of done:
 
-- Track dependent implementation issues for telemetry schema, adaptive speed calibration, migration support, and schedule stress testing.
+- Track ISSUE-029 through ISSUE-032 for telemetry schema, adaptive speed calibration, migration support, and schedule stress testing.
+- Build on the existing shared Rust planner and snapshot migration mechanism; this epic does not require restoring the removed planner runtime.
 - Define milestone-aligned success metrics and guardrails for each dependent issue.
 - Keep advanced experimentation scoped behind telemetry and privacy readiness gates.
 
@@ -22,5 +23,6 @@ Context:
 
 - `ROADMAP.md`
 - `ISSUES.md`
-- `src/reading_plan/`
-- `electron/renderer/app/`
+- `packages/planner/src/`
+- `packages/contracts/src/`
+- `packages/frontend/src/renderer/app/`

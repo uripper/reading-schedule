@@ -22,8 +22,8 @@ Definition of done:
 
 Context:
 
-- `electron/renderer/books/shelf.ts`
-- `electron/renderer/books/controller.ts`
-- `electron/renderer/books/dialog.ts`
-- `electron/renderer/books/toolbar_dom.ts`
-- `electron/styles/books-grid.css`
+- `packages/frontend/src/renderer/books/shelf.ts`
+- `packages/frontend/src/renderer/books/controller.ts`
+- `packages/frontend/src/renderer/books/dialog.ts`
+- `packages/frontend/src/renderer/books/toolbar_dom.ts`
+- `packages/frontend/styles/books-grid.css`

@@ -1,14 +1,15 @@
+//! Canonical cover assets, legacy path migration, and orphan cleanup.
 use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use reqwest::Client;
 use serde_json::Value;
-use tauri::AppHandle;
 
 use crate::app_paths;
 
 mod data_url;
+mod processing;
+pub use processing::{download_cover, import_cover};
 mod normalization;
 mod remote;
 #[cfg(test)]
@@ -20,51 +21,9 @@ const EXTENSION_JPG: &str = ".jpg";
 const EXTENSION_PNG: &str = ".png";
 const EXTENSION_WEBP: &str = ".webp";
 const SHA256_HEX_LENGTH: usize = 64;
-const MAX_REMOTE_COVER_REDIRECTS: usize = 5;
 
 struct CoverAsset<'a> {
     bytes: &'a [u8],
-}
-
-pub async fn download_cover(
-    app: &AppHandle,
-    url: Option<String>,
-    book_id: Option<String>,
-) -> Result<String, String> {
-    let Some(parsed_url) = remote::parsed_http_cover_url(url.as_deref()) else {
-        return Ok(String::new());
-    };
-    let client = Client::builder()
-        .redirect(reqwest::redirect::Policy::none())
-        .build()
-        .map_err(|error| format!("Unable to build cover download client: {error}"))?;
-    let Some((_resolved_url, bytes, _content_type)) =
-        remote::fetch_remote_cover(&client, parsed_url, MAX_REMOTE_COVER_REDIRECTS).await?
-    else {
-        return Ok(String::new());
-    };
-    let data_directory = app_paths::canonical_data_directory(app)?;
-    persist_cover_bytes(
-        &data_directory,
-        book_id.as_deref(),
-        CoverAsset { bytes: &bytes },
-    )
-}
-
-pub fn import_cover(
-    app: &AppHandle,
-    data_url: Option<String>,
-    book_id: Option<String>,
-) -> Result<String, String> {
-    let Some((bytes, _extension)) = data_url::parse_cover_data_url(data_url.as_deref()) else {
-        return Ok(String::new());
-    };
-    let data_directory = app_paths::canonical_data_directory(app)?;
-    persist_cover_bytes(
-        &data_directory,
-        book_id.as_deref(),
-        CoverAsset { bytes: &bytes },
-    )
 }
 
 pub fn normalize_state_cover_paths(state: &Value, data_directory: &Path) -> Result<Value, String> {

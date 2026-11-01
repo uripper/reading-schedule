@@ -6,7 +6,7 @@
 
 Problem:
 
-The repository has a local `ci:local` command, but it does not currently have hosted CI or CD workflows under `.github/workflows`. Branch safety depends on local discipline alone, and there is no shared automation path for validating or releasing changes.
+The Desktop Release workflow already validates and publishes versioned desktop releases on qualifying pushes to main. It does not run pull-request validation, and its validation job is skipped when the canonical desktop version is unchanged. The local ci:local command is also narrower than the required full checks. Pull-request checks and required-status policy still need to be established; branch-protection settings must be inspected on GitHub before asserting whether they are configured.
 
 Expected:
 
@@ -14,14 +14,15 @@ Pull requests and pushes should run required validation in hosted CI, and suppor
 
 Definition of done:
 
-- Add hosted workflows for lint, typecheck, tests, and builds that match repository policy.
+- Add pull-request and ordinary-push validation for lint, typecheck, tests, and builds that match repository policy, including supported shared packages and the website.
 - Surface pass or fail status in pull requests.
 - Mark core validation jobs as required checks.
-- Add release automation for the supported targets or explicitly document why release automation is deferred.
+- Reuse the existing desktop release workflow and retain its signed Windows/macOS updater checks; do not create a duplicate release pipeline.
 - Keep workflow commands aligned with `STYLEGUIDE.md` and root scripts.
 
 Context:
 
+- `.github/workflows/desktop-release.yml`
+- `docs/desktop-updates.md`
 - `package.json`
-- `README.md`
 - `STYLEGUIDE.md`

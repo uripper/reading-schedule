@@ -24,6 +24,6 @@ Definition of done:
 Context:
 
 - Follow-up to closed ISSUE-112, Library add-book save freeze; cover-related lag remains.
-- `packages/frontend/src/renderer/books/cover_upload.ts`
+- `packages/frontend/src/renderer/books/cover-upload.ts`
 - `apps/bartleby/src-tauri/src/cover_store/`
 - `apps/bartleby/src-tauri/src/state_store/cover_normalization.rs`

@@ -21,6 +21,6 @@ Definition of done:
 
 Context:
 
-- `electron/index.html`
-- `electron/styles/base.css`
-- `electron/styles/today-header.css`
+- `packages/frontend/index.html`
+- `packages/frontend/styles/base.css`
+- `packages/frontend/styles/today-header.css`

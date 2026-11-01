@@ -1,6 +1,8 @@
+/** Opens a fresh dialog session and releases its previous transient cover preview. */
 import type { Book, OpenBookDialogArgs } from "../../types/types.ts";
 import { renderSyncLinks } from "../sync/links-panel.ts";
 import { fillBulkEditForm } from "./bulk-edit-fill.ts";
+import { releaseCoverUpload } from "./cover-upload-staging.ts";
 import { resetBookDialogSubmitState } from "./dialog_submit.ts";
 import {
     applyBookDialogDisplayMode,
@@ -103,6 +105,7 @@ export function openBookDialog(args: InternalOpenBookDialogArgs): void {
         ALL_BOOKS,
     );
     const SCROLL_POSITION = currentViewportScroll();
+    releaseCoverUpload(args.refs.coverLocal.value);
     syncDialogSessionState(args.sessionState, book, args.dialogOptions);
     args.dialogFocus.rememberOpener();
     clearForm(args.refs, args.lookupControl);
@@ -115,8 +118,7 @@ export function openBookDialog(args: InternalOpenBookDialogArgs): void {
         initialBook: args.dialogOptions.initialBook,
         refs: args.refs,
     });
-    finishBookDialogOpen(args);
-    restoreViewportScroll(SCROLL_POSITION);
+    finishBookDialogOpen(args, SCROLL_POSITION);
 }
 
 /** Sync links describe one saved book, never a bulk selection or a draft. */
@@ -141,7 +143,10 @@ function openAfterBookPicker(
     args.afterBookPicker.openForBook(book);
 }
 
-function finishBookDialogOpen(args: InternalOpenBookDialogArgs): void {
+function finishBookDialogOpen(
+    args: InternalOpenBookDialogArgs,
+    position: ViewportScrollPosition,
+): void {
     const FORM_REFS = args.refs;
     resetBookDialogSubmitState(FORM_REFS);
     applyBookDialogDisplayMode(FORM_REFS, args.dialogOptions);
@@ -153,4 +158,5 @@ function finishBookDialogOpen(args: InternalOpenBookDialogArgs): void {
     lockBookDialogScroll();
     showBookDialog(FORM_REFS.dialog);
     focusOpenedDialog(args);
+    restoreViewportScroll(position);
 }

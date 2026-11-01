@@ -21,7 +21,9 @@ Definition of done:
 
 Context:
 
-- `electron/main.ts`
-- `electron/main/state_store.ts`
-- `electron/renderer/settings.ts`
-- `electron/renderer/settings/config.ts`
+- `apps/bartleby/src-tauri/src/lib.rs`
+- `apps/bartleby/src-tauri/tauri.conf.json`
+- `apps/bartleby/src-tauri/src/state_store/`
+- `packages/frontend/src/renderer/settings.ts`
+- `packages/frontend/src/renderer/settings/config.ts`
+- `packages/contracts/src/types_subfolders/types_experience.ts`
