@@ -6,11 +6,11 @@
 
 Problem:
 
-Library search is effectively title-only today. That is too narrow for users who expect generic keyword search across title, author, series, shelves, and other relevant metadata.
+Library search is effectively title or author today. That is too narrow for users who expect generic keyword search across title, author, series, shelves, pages, and other relevant metadata.
 
 Expected:
 
-Library search behaves like a keyword search field rather than only a title filter.
+Library search behaves like a keyword search field rather than only a title or authorfilter.
 
 Definition of done:
 
