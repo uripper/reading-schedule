@@ -110,6 +110,11 @@ fn push_distinct(key: &mut String, character: char) {
 }
 
 /// Returns whether two name tokens are spellings of the same name.
+///
+/// Tokens that still differ after folding must share a consonant skeleton and
+/// be close spellings: short skeletons collide (`markham` and `murakamy` both
+/// reduce to `mrkm`), so the edit distance may be at most a third of the longer
+/// folded spelling.
 pub fn tokens_match(left: &str, right: &str) -> bool {
     if left == right {
         return true;
@@ -122,23 +127,17 @@ pub fn tokens_match(left: &str, right: &str) -> bool {
     if left_folded == right_folded {
         return true;
     }
-    let left_key = transliteration_key(&left_folded);
-    left_key.len() >= MIN_SKELETON_LENGTH && left_key == transliteration_key(&right_folded)
+    skeletons_match(&left_folded, &right_folded) && is_close_spelling(&left_folded, &right_folded)
 }
 
-/// Returns whether two tokens match and their folded spellings are close.
-///
-/// Stricter than [`tokens_match`]: short skeletons collide (`markham` and
-/// `murakamy` both reduce to `mrkm`), so loose wildcard hits also need an edit
-/// distance of at most a third of the longer spelling.
-pub fn tokens_closely_match(left: &str, right: &str) -> bool {
-    if !tokens_match(left, right) {
-        return false;
-    }
-    let left_folded = folded_token(left);
-    let right_folded = folded_token(right);
+fn skeletons_match(left_folded: &str, right_folded: &str) -> bool {
+    let left_key = transliteration_key(left_folded);
+    left_key.len() >= MIN_SKELETON_LENGTH && left_key == transliteration_key(right_folded)
+}
+
+fn is_close_spelling(left_folded: &str, right_folded: &str) -> bool {
     let longest = left_folded.len().max(right_folded.len());
-    edit_distance(&left_folded, &right_folded) <= longest.div_ceil(MAX_EDIT_DISTANCE_DIVISOR)
+    edit_distance(left_folded, right_folded) <= longest.div_ceil(MAX_EDIT_DISTANCE_DIVISOR)
 }
 
 /// Returns whether a skeleton is long enough to be trusted for matching.
@@ -189,9 +188,7 @@ fn folded_replacement(character: char) -> Option<&'static str> {
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        edit_distance, folded_token, tokens_closely_match, tokens_match, transliteration_key,
-    };
+    use super::{edit_distance, folded_token, tokens_match, transliteration_key};
 
     #[test]
     fn folded_token_strips_diacritics_and_modifier_marks() {
@@ -221,13 +218,16 @@ mod tests {
         assert!(tokens_match("chekhov", "Чехов"));
         assert!(tokens_match("nietzsche", "nietzche"));
         assert!(tokens_match("kierkegaard", "kirkegaard"));
+        assert!(tokens_match("dostoevsky", "Dostojewski"));
+        assert!(tokens_match("dostoevsky", "Достоевский"));
+        assert!(tokens_match("dostoevsky", "Dostoïeffsky"));
+        assert!(tokens_match("solzenitsin", "Solzhenitsyn"));
     }
 
     #[test]
-    fn tokens_closely_match_rejects_distant_spellings_with_shared_skeletons() {
-        assert!(tokens_closely_match("doestoevsky", "Dostoievski"));
-        assert!(tokens_closely_match("solzenitsin", "Solzhenitsyn"));
-        assert!(!tokens_closely_match("murakamy", "Markham"));
+    fn tokens_match_rejects_distant_spellings_with_shared_skeletons() {
+        assert!(tokens_match("doestoevsky", "Dostoievski"));
+        assert!(!tokens_match("murakamy", "Markham"));
     }
 
     #[test]

@@ -2,15 +2,26 @@
 /** Verifies large uploads stay out of saved state until native processing finishes. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { nextBooksAfterDialogSave } from "../dist/renderer/books/controller-save.js";
-import { BookCoverJobs } from "../dist/renderer/books/cover-jobs.js";
+import {
+    fillBooks,
+    getBookById,
+    saveBook,
+    setBookCommitHook,
+} from "../dist/renderer/books/controller.js";
 import { bindCoverUpload } from "../dist/renderer/books/cover-upload.js";
 import {
     releaseCoverUpload,
     stageCoverUpload,
     stagedCoverUpload,
 } from "../dist/renderer/books/cover-upload-staging.js";
+import { bindBookDialogSubmit } from "../dist/renderer/books/dialog_submit.js";
 import { normalizeBook } from "../dist/renderer/books/model-normalize.js";
+import {
+    createRefs,
+    fakeFormElement,
+    fakeHtmlElement,
+    flushMicrotasks,
+} from "./helpers/books-dialog-submit.mjs";
 
 const LARGE_UPLOAD_BYTES = 8 * 1024 * 1024;
 
@@ -69,6 +80,7 @@ function uploadRuntime(context) {
         },
     };
     context.after(() => {
+        STATE.pending.resolve("/covers/cleanup.jpg");
         globalThis.FileReader = PREVIOUS_READER;
         globalThis.plannerApi = PREVIOUS_API;
     });
@@ -85,69 +97,76 @@ function largeUpload(context) {
         book_id: "upload",
         cover_local_path: SOURCE,
     });
-    const STATE = { books: nextBooksAfterDialogSave([], { book: DRAFT }) };
-    const JOBS = new BookCoverJobs(
-        () => STATE.books,
-        (completed) => {
-            STATE.books = [completed];
-        },
-    );
-    return { draft: DRAFT, jobs: JOBS, source: SOURCE, state: STATE };
+    return createSaveScenario(context, DRAFT);
 }
 
-test("large upload saves a placeholder before file reading or native normalization completes", async (context) => {
+function installSaveScenario(context) {
+    const PREVIOUS = {
+        element: globalThis.HTMLElement,
+        select: globalThis.HTMLSelectElement,
+    };
+    globalThis.HTMLElement = fakeHtmlElement;
+    globalThis.HTMLSelectElement = fakeHtmlElement;
+    fillBooks([]);
+    context.after(() => restoreSaveScenario(PREVIOUS));
+}
+
+function createSaveScenario(context, draft) {
+    installSaveScenario(context);
+    const FORM = new fakeFormElement();
+    const REFS = createRefs(FORM, {
+        bookId: { value: draft.book_id },
+        coverLocal: { value: draft.cover_local_path },
+    });
+    const STATE = {
+        closed: false,
+        committed: [],
+        completed: Promise.withResolvers(),
+    };
+    setBookCommitHook((books) => recordCommit(STATE, books));
+    bindBookDialogSubmit({
+        form: FORM,
+        onComplete: () => {
+            STATE.closed = true;
+            releaseCoverUpload(draft.cover_local_path);
+        },
+        onSubmit: saveBook,
+        refs: REFS,
+    });
+    return { form: FORM, state: STATE };
+}
+
+function recordCommit(state, books) {
+    state.committed.push(structuredClone(books));
+    if (books[0]?.cover_local_path) {
+        state.completed.resolve();
+    }
+}
+
+function restoreSaveScenario(previous) {
+    fillBooks([]);
+    setBookCommitHook();
+    globalThis.HTMLElement = previous.element;
+    globalThis.HTMLSelectElement = previous.select;
+}
+
+test("dialog save queues a staged upload after committing metadata and applies its completed cover", async (context) => {
     const RUNTIME = uploadRuntime(context);
     const UPLOAD = largeUpload(context);
-    assert.equal(structuredClone(UPLOAD.state.books)[0].cover_local_path, "");
-    assert.equal(RUNTIME.calls, 0);
-    assert.equal(RUNTIME.readers.length, 0);
-    const WORK = UPLOAD.jobs.queue(UPLOAD.draft);
-    releaseCoverUpload(UPLOAD.source);
+    UPLOAD.form.submit();
+    await flushMicrotasks();
+    assert.equal(UPLOAD.state.committed[0][0].cover_local_path, "");
+    assert.equal(UPLOAD.state.closed, true);
     assert.equal(RUNTIME.readers[0].file.size, LARGE_UPLOAD_BYTES);
     RUNTIME.readers[0].result = "data:image/png;base64,fixture";
     RUNTIME.readers[0].onload();
-    await Promise.resolve();
-    assert.equal(UPLOAD.state.books[0].cover_local_path, "");
-    RUNTIME.pending.resolve("/covers/normalized.jpg");
-    await WORK;
+    await flushMicrotasks();
     assert.equal(RUNTIME.calls, 1);
+    assert.equal(getBookById("upload").cover_local_path, "");
+    RUNTIME.pending.resolve("/covers/normalized.jpg");
+    await UPLOAD.state.completed.promise;
     assert.equal(
-        UPLOAD.state.books[0].cover_local_path,
+        getBookById("upload").cover_local_path,
         "/covers/normalized.jpg",
     );
-});
-
-test("completion updates an open pending-cover edit form so a later save keeps the asset", async () => {
-    const { applyCompletedCoverToForm } = await import(
-        "../dist/renderer/books/cover-form-sync.js"
-    );
-    const REFS = uploadRefs(null);
-    REFS.dialog.open = true;
-    bindCoverUpload(REFS);
-    const EXPECTED = normalizeBook({ book_id: "draft" });
-    const COMPLETED = {
-        ...EXPECTED,
-        cover_local_path: "/covers/completed.jpg",
-    };
-    applyCompletedCoverToForm(EXPECTED, COMPLETED);
-    assert.equal(REFS.coverLocal.value, COMPLETED.cover_local_path);
-    assert.equal(REFS.coverPreview.src, COMPLETED.cover_local_path);
-});
-
-test("completion leaves a newer selection and another dialog book untouched", async () => {
-    const { applyCompletedCoverToForm } = await import(
-        "../dist/renderer/books/cover-form-sync.js"
-    );
-    const REFS = uploadRefs(null);
-    REFS.dialog.open = true;
-    bindCoverUpload(REFS);
-    const EXPECTED = normalizeBook({ book_id: "draft" });
-    const COMPLETED = { ...EXPECTED, cover_local_path: "/covers/old.jpg" };
-    REFS.coverLocal.value = "/covers/new.jpg";
-    applyCompletedCoverToForm(EXPECTED, COMPLETED);
-    assert.equal(REFS.coverLocal.value, "/covers/new.jpg");
-    REFS.coverLocal.value = "";
-    REFS.bookId.value = "other";
-    applyCompletedCoverToForm(EXPECTED, COMPLETED);
-    assert.equal(REFS.coverLocal.value, "");
 });

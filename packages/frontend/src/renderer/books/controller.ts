@@ -140,7 +140,7 @@ export function updateBookProgress(
  * Commits dialog edits first and starts cover processing independently.
  * @param payload - Book save payload including optional shelf-day propagation flag.
  */
-function saveBook(payload: BookDialogSubmitPayload): void {
+export function saveBook(payload: BookDialogSubmitPayload): void {
     setBooks(nextBooksAfterDialogSave(books, payload));
     render();
     onBooksChanged();

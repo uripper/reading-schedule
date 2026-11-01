@@ -76,15 +76,28 @@ fn works_without_edition_metadata_fall_back_to_work_titles() {
 }
 
 #[test]
-fn misspelled_author_queries_rank_matching_spellings() {
-    let doc = SearchDoc {
+fn misspelled_author_queries_rank_only_matching_spellings() {
+    let dostoevsky = SearchDoc {
         author_alternative_name: Some(vec!["Fyodor Dostoevsky".to_string()]),
         author_name: Some(vec!["Фёдор Михайлович Достоевский".to_string()]),
         key: Some("/works/OL166894W".to_string()),
         title: Some("Crime and Punishment".to_string()),
         ..SearchDoc::default()
     };
-    let ranked = ranked_docs(vec![doc], "doestoevsky", true);
+    let markham = SearchDoc {
+        author_name: Some(vec!["Beryl Markham".to_string()]),
+        key: Some("/works/OL2W".to_string()),
+        title: Some("West with the Night".to_string()),
+        ..SearchDoc::default()
+    };
 
-    assert_eq!(ranked.len(), 1);
+    let dostoevsky_ranked = ranked_docs(vec![dostoevsky, markham.clone()], "doestoevsky", true);
+    let murakamy_ranked = ranked_docs(vec![markham], "murakamy", true);
+
+    assert_eq!(dostoevsky_ranked.len(), 1);
+    assert_eq!(
+        dostoevsky_ranked[0].doc.key.as_deref(),
+        Some("/works/OL166894W")
+    );
+    assert!(murakamy_ranked.is_empty());
 }

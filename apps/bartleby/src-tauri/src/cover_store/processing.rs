@@ -1,7 +1,6 @@
 //! Runs cover transport decoding, image transforms, and storage away from UI/async threads.
-use super::{data_url, persist_cover_bytes, remote, CoverAsset};
+use super::{data_url, persist_cover_bytes, remote, resolver, CoverAsset};
 use crate::app_paths;
-use reqwest::Client;
 use tauri::AppHandle;
 
 const MAX_REMOTE_COVER_REDIRECTS: usize = 5;
@@ -17,10 +16,7 @@ pub async fn download_cover(
     let Some(parsed_url) = remote::parsed_http_cover_url(url.as_deref()) else {
         return Ok(String::new());
     };
-    let client = Client::builder()
-        .redirect(reqwest::redirect::Policy::none())
-        .build()
-        .map_err(|error| format!("Unable to build cover download client: {error}"))?;
+    let client = resolver::cover_client()?;
     let Some((_resolved_url, bytes, _content_type)) =
         remote::fetch_remote_cover(&client, parsed_url, MAX_REMOTE_COVER_REDIRECTS).await?
     else {

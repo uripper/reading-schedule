@@ -11,7 +11,9 @@ mod data_url;
 mod processing;
 pub use processing::{download_cover, import_cover};
 mod normalization;
+mod public_addresses;
 mod remote;
+mod resolver;
 #[cfg(test)]
 mod tests;
 

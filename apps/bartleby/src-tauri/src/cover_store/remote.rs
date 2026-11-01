@@ -1,5 +1,8 @@
+//! Validates cover URLs and handles bounded manual redirects and image responses.
+use super::resolver::COVER_NETWORK_TIMEOUT;
 use std::net::IpAddr;
 use std::path::Path;
+use std::time::Instant;
 
 use reqwest::header::{CONTENT_LENGTH, CONTENT_TYPE, LOCATION};
 use reqwest::{Client, StatusCode, Url};
@@ -35,13 +38,15 @@ pub async fn fetch_remote_cover(
     starting_url: Url,
     remaining_redirects: usize,
 ) -> Result<Option<RemoteCover>, String> {
+    let deadline = Instant::now() + COVER_NETWORK_TIMEOUT;
     let mut current_url = starting_url;
     let mut redirects_left = remaining_redirects;
     loop {
-        let next_url = match fetch_cover_outcome(client, &current_url, redirects_left).await? {
-            FetchOutcome::Completed(result) => return Ok(result),
-            FetchOutcome::Redirect(next_url) => next_url,
-        };
+        let next_url =
+            match fetch_cover_outcome(client, &current_url, (redirects_left, deadline)).await? {
+                FetchOutcome::Completed(result) => return Ok(result),
+                FetchOutcome::Redirect(next_url) => next_url,
+            };
         redirects_left -= 1;
         current_url = next_url;
     }
@@ -50,11 +55,24 @@ pub async fn fetch_remote_cover(
 async fn fetch_cover_outcome(
     client: &Client,
     current_url: &Url,
-    redirects_left: usize,
+    request_budget: (usize, Instant),
 ) -> Result<FetchOutcome, String> {
-    let response = match client.get(current_url.clone()).send().await {
+    let (redirects_left, deadline) = request_budget;
+    let remaining = deadline
+        .checked_duration_since(Instant::now())
+        .ok_or_else(|| "Cover download timed out. Select the cover again to retry.".to_string())?;
+    let response = match client
+        .get(current_url.clone())
+        .timeout(remaining)
+        .send()
+        .await
+    {
         Ok(response) => response,
-        Err(_) => return Ok(FetchOutcome::Completed(None)),
+        Err(error) => {
+            return Err(format!(
+                "Cover download failed. Select the cover again to retry: {error}"
+            ))
+        }
     };
     if let Some(next_url) = next_redirect_url(&response, current_url, redirects_left) {
         return Ok(FetchOutcome::Redirect(next_url));

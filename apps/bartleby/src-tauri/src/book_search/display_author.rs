@@ -14,7 +14,18 @@ use super::{
     transliteration::folded_token,
 };
 
-const LATIN_SCRIPT_END: char = '\u{0300}';
+/// Unicode blocks holding Latin letters, including IPA and modifier letters
+/// (`ʹ`) and Latin Extended Additional (`ễ`, `ḥ`).
+const LATIN_LETTER_RANGES: &[(char, char)] = &[
+    ('\u{0041}', '\u{024F}'),
+    ('\u{0250}', '\u{02FF}'),
+    ('\u{1D00}', '\u{1DBF}'),
+    ('\u{1E00}', '\u{1EFF}'),
+    ('\u{2C60}', '\u{2C7F}'),
+    ('\u{A720}', '\u{A7FF}'),
+    ('\u{AB30}', '\u{AB6F}'),
+    ('\u{FB00}', '\u{FB06}'),
+];
 const MIN_NAME_WORDS: usize = 2;
 
 type NameRank = (usize, usize, usize, bool, bool);
@@ -44,7 +55,13 @@ pub fn display_author(doc: &SearchDoc) -> String {
 
 fn is_latin_script(name: &str) -> bool {
     name.chars()
-        .all(|character| !character.is_alphabetic() || character < LATIN_SCRIPT_END)
+        .all(|character| !character.is_alphabetic() || is_latin_letter(character))
+}
+
+fn is_latin_letter(character: char) -> bool {
+    LATIN_LETTER_RANGES
+        .iter()
+        .any(|(start, end)| (*start..=*end).contains(&character))
 }
 
 fn latin_alternatives(doc: &SearchDoc) -> Vec<String> {
@@ -118,6 +135,15 @@ mod tests {
         let gogol = doc("Nikolaĭ Vasilʹevich  Gogolʹ", &["Nikolai Gogol"]);
 
         assert_eq!(display_author(&gogol), "Nikolaĭ Vasilʹevich  Gogolʹ");
+    }
+
+    #[test]
+    fn latin_extended_additional_names_are_kept() {
+        let mahfouz = doc("Najīb Maḥfūẓ", &["Naguib Mahfouz", "Naguib Mahfouz"]);
+        let nguyen = doc("Nguyễn Du", &["Nguyen Du"]);
+
+        assert_eq!(display_author(&mahfouz), "Najīb Maḥfūẓ");
+        assert_eq!(display_author(&nguyen), "Nguyễn Du");
     }
 
     #[test]

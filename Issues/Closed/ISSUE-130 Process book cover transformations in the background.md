@@ -27,3 +27,13 @@ Context:
 - `packages/frontend/src/renderer/books/cover-upload.ts`
 - `apps/bartleby/src-tauri/src/cover_store/`
 - `apps/bartleby/src-tauri/src/state_store/cover_normalization.rs`
+
+Cover processing safeguards:
+
+- Cover DNS results must contain only public Internet addresses, and connections
+  use those validated results for initial requests and redirects. Cover requests
+  bypass proxies and share a 20-second network deadline across redirects.
+- Background cover jobs expire after 30 seconds, release their retry state, and
+  ignore late results. Upload failures can be retried by selecting the file again.
+- Regression coverage submits an uploaded cover through the actual dialog and
+  controller save flow, verifying metadata commits before the completed cover.

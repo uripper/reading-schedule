@@ -11,7 +11,7 @@
 use super::{
     models::{author_names, SearchDoc},
     scoring::normalize_search_text,
-    transliteration::{folded_token, has_reliable_key, tokens_closely_match},
+    transliteration::{folded_token, has_reliable_key, tokens_match},
 };
 
 const FALLBACK_TOKEN_LIMIT: usize = 2;
@@ -46,7 +46,7 @@ fn name_matches_any_token(name: &str, query_tokens: &[&str]) -> bool {
     name_norm.split_whitespace().any(|name_token| {
         query_tokens
             .iter()
-            .any(|query_token| tokens_closely_match(name_token, query_token))
+            .any(|query_token| tokens_match(name_token, query_token))
     })
 }
 

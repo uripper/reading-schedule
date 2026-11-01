@@ -10,10 +10,11 @@ State is local-only; no sync across devices.
 
 Expected:
 
-Opt-in sync model for books, settings, schedule completions, and sessions.
+Opt-in sync model for books, settings, schedule completions, and sessions, tied to a Bartleby account so progress follows the user across devices.
 
 Definition of done:
 
+- Let users create a Bartleby account and sign in on each device to sync their progress.
 - Draft architecture and conflict-resolution approach.
 - Define security/privacy requirements before implementation.
 

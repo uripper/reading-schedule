@@ -2,6 +2,7 @@
 import type { Book } from "../../types/types.ts";
 import { errorMessage } from "../app/plan-errors.ts";
 import { addLog } from "../help.ts";
+import { withCoverDeadline } from "./cover-deadline.ts";
 import { applyCompletedCoverToForm } from "./cover-form-sync.ts";
 import { stagedCoverUpload } from "./cover-upload-staging.ts";
 import { bookWithoutTransientCover, hydrateBookCover } from "./save.ts";
@@ -64,7 +65,7 @@ export class BookCoverJobs {
         }
         const EXPECTED = bookWithoutTransientCover(source);
         this.jobs.set(source.book_id, EXPECTED);
-        return hydrateBookCover(source)
+        return withCoverDeadline(hydrateBookCover(source))
             .then((hydrated) => this.applyCover(EXPECTED, hydrated))
             .catch((error: unknown) => this.reportFailure(EXPECTED, error))
             .finally(() => this.finish(EXPECTED));
