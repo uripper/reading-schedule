@@ -144,7 +144,7 @@ function applyOpenMinutesEditor(
     const INPUT = input;
     const EDIT_BUTTON = editButton;
     INPUT.value = valueText;
-    EDIT_BUTTON.textContent = "✓";
+    EDIT_BUTTON.dataset.mode = "save";
     EDIT_BUTTON.setAttribute("aria-label", "Save planned minutes");
     if (globalThis.document.activeElement !== INPUT) {
         INPUT.focus();
@@ -154,7 +154,7 @@ function applyOpenMinutesEditor(
 
 function applyClosedMinutesEditor(editButton: HTMLButtonElement): void {
     const EDIT_BUTTON = editButton;
-    EDIT_BUTTON.textContent = "✎";
+    EDIT_BUTTON.dataset.mode = "edit";
     EDIT_BUTTON.setAttribute("aria-label", "Edit planned minutes");
 }
 

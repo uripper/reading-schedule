@@ -77,15 +77,21 @@
 }
 
 .neo-metric-icon {
+    display: grid;
+    place-items: center;
     width: 40px;
     height: 40px;
-    object-fit: contain;
+    color: #fff;
     border-radius: 999px;
     transition:
         background-color var(--token-motion-duration-fast)
         var(--token-motion-easing-standard),
         box-shadow var(--token-motion-duration-fast)
         var(--token-motion-easing-standard);
+}
+
+.neo-metric-icon .icon {
+    --icon-size: 30px;
 }
 
 #headerStreakFlame.is-goal-complete {
@@ -147,11 +153,9 @@
 }
 
 .neo-metric-indicator.is-complete {
-    background-color: transparent;
-    background-image: url("../assets/checkbox_complete.svg");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 92% 92%;
+    color: #20df80;
+    background: currentcolor;
+    mask: var(--icon-square-check) center / 92% no-repeat;
 }
 
 .neo-session-dots {

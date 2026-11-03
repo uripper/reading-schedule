@@ -30,13 +30,9 @@
       </div>
       <div class="neo-metrics" aria-label="Today Metrics">
         <section id="headerStreakMetric" class="neo-metric neo-metric-streak">
-          <img
-            id="headerStreakFlame"
-            class="neo-metric-icon"
-            src="assets/flame.svg"
-            alt=""
-            aria-hidden="true"
-          />
+          <span id="headerStreakFlame" class="neo-metric-icon" aria-hidden="true">
+            <span class="icon icon-flame"></span>
+          </span>
           <p id="streakText" class="neo-metric-streak-value">
             <span class="neo-metric-streak-value">0</span>
             <span class="neo-metric-streak-text">Day Streak</span>
@@ -155,7 +151,7 @@
               type="button"
               aria-label="Previous book"
             >
-              <img src="assets/arrows.svg" alt="" aria-hidden="true" />
+              <span class="icon icon-chevron-left" aria-hidden="true"></span>
             </button>
             <div
               id="todayCarouselTrack"
@@ -170,7 +166,7 @@
               type="button"
               aria-label="Next book"
             >
-              <img src="assets/arrows.svg" alt="" aria-hidden="true" />
+              <span class="icon icon-chevron-right" aria-hidden="true"></span>
             </button>
           </div>
           <p id="todayCarouselEmpty" class="hint-text" hidden>
@@ -199,9 +195,8 @@
                   class="btn today-minutes-edit-btn"
                   type="button"
                   aria-label="Edit planned minutes"
-                >
-                  &#9998;
-                </button>
+                  data-mode="edit"
+                ></button>
                 <span class="today-minutes-unit" aria-hidden="true">min</span>
               </div>
               <p id="todayAfterSessionText" class="today-after-session-text">

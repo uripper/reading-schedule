@@ -48,7 +48,7 @@ export function setMinutesEditDisabled(disabled: boolean): void {
     const EDIT_BUTTON = el<HTMLButtonElement>("todayMinutesEditBtn");
     EDIT_BUTTON.disabled = disabled;
     if (disabled) {
-        EDIT_BUTTON.textContent = "✎";
+        EDIT_BUTTON.dataset.mode = "edit";
         EDIT_BUTTON.setAttribute("aria-label", EDIT_MINUTES_LABEL);
     }
 }
