@@ -97,11 +97,3 @@
     padding: 0;
     margin: 0;
 }
-
-#tab-settings .kobo-provider-switch input[type="checkbox"]:checked::after {
-    inset: 0;
-    display: grid;
-    place-items: center;
-    font-size: 1.2rem;
-    line-height: 1;
-}

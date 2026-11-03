@@ -56,14 +56,11 @@
     right: 58px;
 }
 
-.today-carousel-nav img {
-    width: 60px;
-    height: 90px;
-    opacity: 0.95;
-}
+.today-carousel-nav .icon {
+    --icon-size: 48px;
 
-#todayCarouselPrev img {
-    transform: rotate(180deg);
+    color: #fff;
+    opacity: 0.95;
 }
 
 .today-carousel-track {
@@ -239,9 +236,8 @@
         height: 62px;
     }
 
-    .today-carousel-nav img {
-        width: 18px;
-        height: 62px;
+    .today-carousel-nav .icon {
+        --icon-size: 18px;
     }
 
     .today-active-book-bar {
@@ -264,9 +260,8 @@
         height: 84px;
     }
 
-    .today-carousel-nav img {
-        width: 14px;
-        height: 52px;
+    .today-carousel-nav .icon {
+        --icon-size: 24px;
     }
 
     #todayCarouselPrev {

@@ -1,7 +1,7 @@
 .books-mass-edit-btn {
+    --icon: var(--icon-layers);
+
     min-width: clamp(190px, 16vw, 240px);
-    color: #111;
-    background: #f2d14c;
 }
 
 .books-mass-edit-add-btn {
@@ -13,11 +13,12 @@
     opacity: 0.62;
 }
 
-.books-mass-edit-btn.is-mass-editing {
+.books-toolbar-actions .books-mass-edit-btn.is-mass-editing {
+    --icon: var(--icon-x);
+
     min-width: clamp(236px, 22vw, 320px);
-    color: #111;
     background: #b9e2ba;
-    box-shadow: 5px 5px 0 #000;
+    box-shadow: 4px 4px 0 #13213a;
 }
 
 .books-mass-edit-floating {
