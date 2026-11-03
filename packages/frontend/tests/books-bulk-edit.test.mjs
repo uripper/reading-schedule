@@ -112,9 +112,6 @@ test("wrappedBookDialogIndex wraps visible edit navigation", () => {
 
 test("isBulkDialogMode treats multi-book selections as bulk edits", () => {
     assert.equal(isBulkDialogMode({ mode: "bulk" }), true);
-    assert.equal(
-        isBulkDialogMode({ bulkBookIds: ["book-1", "book-2"] }),
-        true,
-    );
+    assert.equal(isBulkDialogMode({ bulkBookIds: ["book-1", "book-2"] }), true);
     assert.equal(isBulkDialogMode({ bulkBookIds: ["book-1"] }), false);
 });

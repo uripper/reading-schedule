@@ -1,4 +1,4 @@
-/** Validates cover selections and stages a transient preview for background processing. */
+/** Validates cover images and stages a transient preview for background processing. */
 import type { BookFormRefs } from "../../types/types.ts";
 import { registerCoverForm } from "./cover-form-sync.ts";
 import {
@@ -105,7 +105,7 @@ function onCoverPanelKeydown(event: KeyboardEvent, refs: BookFormRefs): void {
  * @param error - Unknown error value from upload flow.
  * @returns Safe error message for the form metadata area.
  */
-function uploadErrorMessage(error: unknown): string {
+export function uploadErrorMessage(error: unknown): string {
     if (error instanceof Error && error.message) {
         return error.message;
     }
@@ -122,19 +122,33 @@ function clearCoverUploadInput(refs: BookFormRefs): void {
 }
 
 /**
- * Stages the selected file immediately; save starts native cover processing.
+ * Validates and stages a cover image; save starts native cover processing.
+ * Shared by file selection and clipboard paste.
+ * @param refs - Book form references containing upload and metadata controls.
+ * @param file - Candidate cover image, or `null` when none was provided.
+ * @param fileName - Name shown in the custom-cover note.
+ */
+export function stageCoverFile(
+    refs: BookFormRefs,
+    file: File | null,
+    fileName: string,
+): void {
+    if (!file) {
+        throw new Error(ERROR_MISSING_FILE);
+    }
+    if (!fileIsSupported(file)) {
+        throw new Error(ERROR_UNSUPPORTED_FILE);
+    }
+    applyUploadedCover(refs, stageCoverUpload(file), fileName);
+}
+
+/**
+ * Stages the file chosen in the upload input.
  * @param refs - Book form references containing upload and metadata controls.
  */
 function saveSelectedCover(refs: BookFormRefs): void {
     const FILE = selectedCoverFile(refs);
-    if (!FILE) {
-        throw new Error(ERROR_MISSING_FILE);
-    }
-    if (!fileIsSupported(FILE)) {
-        throw new Error(ERROR_UNSUPPORTED_FILE);
-    }
-
-    applyUploadedCover(refs, stageCoverUpload(FILE), FILE.name);
+    stageCoverFile(refs, FILE, FILE?.name ?? "");
 }
 
 /**

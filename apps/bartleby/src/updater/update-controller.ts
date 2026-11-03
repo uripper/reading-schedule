@@ -10,6 +10,7 @@ import type {
     AppUpdateDownloadEvent,
     AppUpdateProgress,
 } from "@reading-schedule/contracts";
+import { plainReleaseNotes } from "./release-notes-text.ts";
 
 // audit-allow-local-types: Controller state is transient desktop orchestration state.
 interface UpdateControllerState {
@@ -88,7 +89,7 @@ function updatePresentation(
 ): AppUpdateDialogPresentation {
     return {
         currentVersion: candidate.currentVersion,
-        notes: candidate.body ?? "A newer Bartleby release is available.",
+        notes: plainReleaseNotes(candidate.body),
         onInstall: async (report): Promise<void> => {
             await installCandidate(options, candidate, report);
         },

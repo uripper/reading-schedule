@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { plainReleaseNotes } from "../src/updater/release-notes-text.ts";
 import { createAppUpdateController } from "../src/updater/update-controller.ts";
 
 const CURRENT_VERSION = "0.1.2-alpha";
@@ -103,4 +104,22 @@ test("install stops when the latest state cannot be saved", async () => {
     await assert.rejects(PRESENTATION.onInstall(() => undefined));
     assert.deepEqual(FIXTURE.state.events, ["save"]);
     assert.deepEqual(EVENTS, []);
+});
+
+test("release notes render as plain text in the update dialog", () => {
+    const NOTES = plainReleaseNotes(
+        "## New\n\n- **Paste** covers.\n  * See [docs](https://example.com).",
+    );
+    assert.equal(NOTES, "New\n\n• Paste covers.\n  • See docs.");
+});
+
+test("missing release notes fall back to a generic message", () => {
+    assert.equal(
+        plainReleaseNotes(undefined),
+        "A newer Bartleby release is available.",
+    );
+    assert.equal(
+        plainReleaseNotes("  "),
+        "A newer Bartleby release is available.",
+    );
 });

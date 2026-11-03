@@ -1,6 +1,7 @@
+/** Builds full book card DOM nodes: cover, metadata, stats, and actions. */
 import type { Book, CardRenderContext } from "../../types/types.ts";
-import { afterBookLinkButton } from "./card_navigation_buttons.ts";
 import { scrollToBookCard } from "./card_scroll_target.ts";
+import { afterBookLinkButton } from "./card-navigation-buttons.ts";
 import {
     cardActionsNode,
     cardHeadingNode,
@@ -20,6 +21,7 @@ const PRE_LINE_WHITESPACE = "pre-line";
 const MASS_EDITABLE_CLASS = "is-mass-editable";
 const MASS_SELECTED_CLASS = "is-mass-selected";
 
+// audit-allow-local-types: These shapes are private card render arguments.
 type CardMetaNodeArgs = {
     book: Book;
     title: string;
@@ -40,7 +42,6 @@ type CardStatLine = {
  */
 function baseMetaText(book: Book, context: CardRenderContext): string {
     return metaLabel(book, {
-        finishDateByBookId: context.finishDateByBookId,
         showBlockerMeta: false,
         showShelfMeta: context.showShelfMeta,
         titleById: context.titleById,
@@ -164,6 +165,12 @@ function cardMetaNode({
     return META;
 }
 
+/**
+ * Creates the mass-edit selection checkbox when mass edit is active.
+ * @param bookId - Book identifier bound to the checkbox.
+ * @param context - Shared render context holding mass-edit state.
+ * @returns Configured checkbox label or `null` when mass edit is inactive.
+ */
 function massEditSelectNode(
     bookId: string,
     context: CardRenderContext,
@@ -185,6 +192,12 @@ function massEditSelectNode(
     return LABEL;
 }
 
+/**
+ * Toggles mass-edit classes on a card root.
+ * @param card - Card root element to update.
+ * @param bookId - Book identifier used for selection lookup.
+ * @param context - Shared render context holding mass-edit state.
+ */
 function applyMassEditState(
     card: HTMLElement,
     bookId: string,

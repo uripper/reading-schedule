@@ -24,11 +24,11 @@ function currentDayBookIds(args: BuildManualSessionAddPanelArgs): Set<string> {
 
 function availableBooks(args: BuildManualSessionAddPanelArgs) {
     const DAY_BOOK_IDS = currentDayBookIds(args);
-    return sortedManualBooks(args.interactionHandlers.listSessionBooks()).filter(
-        (book) => {
-            return !DAY_BOOK_IDS.has(book.bookId);
-        },
-    );
+    return sortedManualBooks(
+        args.interactionHandlers.listSessionBooks(),
+    ).filter((book) => {
+        return !DAY_BOOK_IDS.has(book.bookId);
+    });
 }
 
 function overlayOptions(args: BuildManualSessionAddPanelArgs) {
@@ -46,7 +46,10 @@ function overlayOptions(args: BuildManualSessionAddPanelArgs) {
     });
 }
 
-function addBookToDay(args: BuildManualSessionAddPanelArgs, bookId: string): void {
+function addBookToDay(
+    args: BuildManualSessionAddPanelArgs,
+    bookId: string,
+): void {
     const ADDED = args.interactionHandlers.onManualSessionAdded({
         bookId,
         completed: false,
@@ -75,7 +78,9 @@ function createManualAddPanel(): HTMLElement {
     return PANEL;
 }
 
-function addBookButton(args: BuildManualSessionAddPanelArgs): HTMLButtonElement {
+function addBookButton(
+    args: BuildManualSessionAddPanelArgs,
+): HTMLButtonElement {
     const BUTTON = document.createElement("button");
     BUTTON.type = "button";
     BUTTON.className = "btn btn-primary";
@@ -99,7 +104,9 @@ export function buildManualSessionAddPanel(
     args: BuildManualSessionAddPanelArgs,
 ): HTMLElement {
     const PANEL = createManualAddPanel();
-    const BOOKS = sortedManualBooks(args.interactionHandlers.listSessionBooks());
+    const BOOKS = sortedManualBooks(
+        args.interactionHandlers.listSessionBooks(),
+    );
     if (BOOKS.length === 0) {
         PANEL.append(hintNode(EMPTY_LIBRARY_TEXT));
         return PANEL;
