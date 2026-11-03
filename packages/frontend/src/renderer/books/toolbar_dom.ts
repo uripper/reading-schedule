@@ -1,5 +1,10 @@
+/** Builds the Library toolbar controls: keyword search, filters, and sorting. */
 import type { OptionDefinition } from "../../types/types.ts";
+import { hintDot } from "../hint-dot.ts";
+import { KEYWORD_SEARCH_HINT } from "./keyword-search.ts";
 import { GROUP_OPTIONS_BASE, SORT_OPTIONS } from "./toolbar_options.ts";
+
+const SEARCH_PLACEHOLDER = "Search title, author, etc...";
 
 /**
  * Creates a standard `<option>` element.
@@ -41,25 +46,43 @@ function createLabeledSelect(
 }
 
 /**
+ * Creates label text with an optional `?` hint kept on the same line.
+ * @param labelText - Visible label text.
+ * @param hint - Help text revealed by the hint marker.
+ * @returns Label text element.
+ */
+function labelTextWithHint(labelText: string, hint: string): HTMLSpanElement {
+    const TEXT = document.createElement("span");
+    TEXT.className = "books-control-label";
+    TEXT.textContent = labelText;
+    const DOT = hintDot(hint);
+    if (DOT !== null) {
+        TEXT.append(DOT);
+    }
+    return TEXT;
+}
+
+/**
  * Creates a labeled toolbar keyword-filter `<input>` control.
  * @param labelText - Visible label text.
  * @param inputId - DOM id assigned to input element.
+ * @param hint - Help text listing what the search matches.
  * @returns Label/input pair ready for toolbar insertion.
  */
 function createLabeledSearchInput(
     labelText: string,
     inputId: string,
+    hint: string,
 ): { label: HTMLLabelElement; input: HTMLInputElement } {
     const LABEL = document.createElement("label");
     LABEL.className = "books-control books-control-search";
-    LABEL.textContent = labelText;
     const INPUT = document.createElement("input");
     INPUT.type = "search";
     INPUT.id = inputId;
     INPUT.autocomplete = "off";
     INPUT.className = "books-control-input";
-    INPUT.placeholder = "Search title or author";
-    LABEL.append(INPUT);
+    INPUT.placeholder = SEARCH_PLACEHOLDER;
+    LABEL.append(labelTextWithHint(labelText, hint), INPUT);
     return { input: INPUT, label: LABEL };
 }
 
@@ -79,6 +102,10 @@ function createControlsWrap(toolbar: HTMLElement): HTMLElement {
     return WRAP;
 }
 
+/**
+ * Creates the sort direction toggle button.
+ * @returns Configured button element.
+ */
 function sortDirectionButton(): HTMLButtonElement {
     const BUTTON = document.createElement("button");
     BUTTON.type = "button";
@@ -87,10 +114,15 @@ function sortDirectionButton(): HTMLButtonElement {
     return BUTTON;
 }
 
+/**
+ * Creates the keyword, status, and shelf filter controls.
+ * @returns Labeled filter controls.
+ */
 function filterControls() {
     const TITLE_FILTER = createLabeledSearchInput(
         "Keyword",
         "booksTitleFilterInput",
+        KEYWORD_SEARCH_HINT,
     );
     const SHELF = createLabeledSelect("Shelf", "booksShelfFilterSelect", []);
     const STATUS = createLabeledSelect("Status", "booksStatusFilterSelect", []);
@@ -101,6 +133,10 @@ function filterControls() {
     };
 }
 
+/**
+ * Creates the sort and grouping controls.
+ * @returns Labeled sorting controls.
+ */
 function sortingControls() {
     const SORT_BY = createLabeledSelect(
         "Sort",
@@ -119,6 +155,10 @@ function sortingControls() {
     };
 }
 
+/**
+ * Creates every Library toolbar control.
+ * @returns Filter and sorting controls.
+ */
 function toolbarControls() {
     return {
         ...filterControls(),
@@ -126,6 +166,11 @@ function toolbarControls() {
     };
 }
 
+/**
+ * Replaces the toolbar wrapper contents with the given controls.
+ * @param wrap - Toolbar controls wrapper.
+ * @param controls - Controls to render.
+ */
 function replaceToolbarChildren(
     wrap: HTMLElement,
     controls: ReturnType<typeof toolbarControls>,
@@ -140,6 +185,11 @@ function replaceToolbarChildren(
     );
 }
 
+/**
+ * Extracts the interactive elements the controller reads from the toolbar.
+ * @param controls - Rendered toolbar controls.
+ * @returns Toolbar element references.
+ */
 function toolbarControlRefs(controls: ReturnType<typeof toolbarControls>): {
     groupBySelect: HTMLSelectElement;
     shelfFilterSelect: HTMLSelectElement;

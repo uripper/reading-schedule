@@ -14,6 +14,7 @@ import { bindBookLookup } from "../book_lookup/search.ts";
 import { bindDateInput } from "../date_control.ts";
 import { createAfterBookPicker } from "./after_book_picker.ts";
 import { bindBulkEditDirtyTracking } from "./bulk-edit-form.ts";
+import { bindCoverPaste } from "./cover-paste.ts";
 import { bindCoverUpload } from "./cover-upload.ts";
 import { bindBookDialogProgressSync } from "./dialog_progress_sync.ts";
 import { bindBookDialogSubmit } from "./dialog_submit.ts";
@@ -69,6 +70,10 @@ function bindBookDialogCloseHandlers(
     });
 }
 
+/**
+ * Prepares form layout and resolves the book dialog element references.
+ * @returns Book form references.
+ */
 function initializeBookDialogRefs(): ReturnType<typeof getBookFormRefs> {
     ensureBookFormLayoutFields();
     const REFS = getBookFormRefs();
@@ -80,10 +85,16 @@ function initializeBookDialogRefs(): ReturnType<typeof getBookFormRefs> {
     });
     bindShelfPicker(REFS);
     bindCoverUpload(REFS);
+    bindCoverPaste(REFS);
     bindBulkEditDirtyTracking(REFS);
     return REFS;
 }
 
+/**
+ * Binds Open Library lookup to the dialog search field.
+ * @param refs - Book form references.
+ * @returns Lookup control for the dialog.
+ */
 function createLookupControl(
     refs: ReturnType<typeof getBookFormRefs>,
 ): ReturnType<typeof bindBookLookup> {
@@ -97,6 +108,11 @@ function createLookupControl(
     });
 }
 
+/**
+ * Builds the handler that opens the dialog for a new or existing book.
+ * @param options - Dialog collaborators shared by the open flow.
+ * @returns Dialog open handler.
+ */
 function createOpenHandler(options: {
     afterBookPicker: ReturnType<typeof createAfterBookPicker>;
     dialogFocus: ReturnType<typeof bindDialogFocus>;
@@ -124,6 +140,11 @@ function createOpenHandler(options: {
     };
 }
 
+/**
+ * Builds the dialog open and close handlers.
+ * @param options - Dialog collaborators and session state.
+ * @returns Open and close handlers.
+ */
 function createBookDialogHandlers(options: {
     getBooks: () => Book[];
     onSubmit: (payload: BookDialogSubmitPayload) => Promise<void> | void;
@@ -156,6 +177,10 @@ function createBookDialogHandlers(options: {
     return { close: CLOSE, open: OPEN };
 }
 
+/**
+ * Binds previous/next book navigation inside the dialog.
+ * @param options - Dialog collaborators and session state.
+ */
 function bindNavigationHandler(options: {
     getBooks: () => Book[];
     navigation: BookDialogNavigationRefs;
@@ -178,6 +203,10 @@ function bindNavigationHandler(options: {
     });
 }
 
+/**
+ * Binds submit and close interactions for the dialog form.
+ * @param options - Dialog collaborators and callbacks.
+ */
 function bindDialogInteractions(options: {
     close: () => void;
     createPayload: () => BookDialogSubmitPayload;

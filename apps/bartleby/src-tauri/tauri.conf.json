@@ -39,6 +39,7 @@
             "icons/icon.icns",
             "icons/icon.ico"
         ],
+        "licenseFile": "../../../LICENSE",
         "targets": "all"
     },
     "identifier": "com.bartleby.app",

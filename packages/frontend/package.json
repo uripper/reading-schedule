@@ -9,6 +9,7 @@
         "esbuild": "^0.28.1",
         "typescript": "^5.9.3"
     },
+    "license": "0BSD",
     "name": "@reading-schedule/frontend",
     "private": true,
     "scripts": {

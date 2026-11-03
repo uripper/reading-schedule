@@ -1,6 +1,7 @@
 [package]
 name = "bartleby_planner"
 version = "0.1.0"
+license = "0BSD"
 edition = "2021"
 description = "Shared Bartleby scheduling core for desktop and browser hosts"
 

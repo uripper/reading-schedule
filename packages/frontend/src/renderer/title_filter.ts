@@ -34,6 +34,24 @@ export function anyFieldMatchesNormalizedQuery(
 }
 
 /**
+ * Checks whether every whitespace-separated keyword appears in some field.
+ * @param fields - Candidate text fields to test.
+ * @param normalizedQuery - Query text already normalized for matching.
+ * @returns `true` when query is empty or each keyword matches at least one field.
+ */
+export function allKeywordsMatchFields(
+    fields: ReadonlyArray<string | null | undefined>,
+    normalizedQuery: string,
+): boolean {
+    const KEYWORDS = normalizedQuery.split(/\s+/u).filter((word) => {
+        return word !== "";
+    });
+    return KEYWORDS.every((keyword) => {
+        return anyFieldMatchesNormalizedQuery(fields, keyword);
+    });
+}
+
+/**
  * Checks whether title text contains a pre-normalized query substring.
  * @param title - Candidate title text.
  * @param normalizedQuery - Query text already normalized for matching.

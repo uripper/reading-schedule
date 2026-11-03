@@ -31,6 +31,7 @@ jobs:
     outputs:
       changed: ${{ steps.version.outputs.changed }}
       current: ${{ steps.version.outputs.current }}
+      notes: ${{ steps.notes.outputs.notes }}
 
     steps:
       - name: Checkout repository
@@ -69,6 +70,21 @@ jobs:
           fi
           echo "changed=true" >> "${GITHUB_OUTPUT}"
           echo "Desktop version changed from ${PREVIOUS_VERSION} to ${CURRENT_VERSION}."
+
+      - name: Read desktop release notes
+        id: notes
+        if: steps.version.outputs.changed == 'true'
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.current }}
+        run: |
+          set -euo pipefail
+          NOTES="$(node ./scripts/release-notes.mjs print desktop "${RELEASE_VERSION}")"
+          {
+            echo "notes<<BARTLEBY_RELEASE_NOTES_EOF"
+            echo "${NOTES}"
+            echo "BARTLEBY_RELEASE_NOTES_EOF"
+          } >> "${GITHUB_OUTPUT}"
 
   validate-desktop:
     name: Validate desktop release
@@ -125,7 +141,9 @@ jobs:
 
   release-desktop:
     name: Release ${{ matrix.label }}
-    needs: validate-desktop
+    needs:
+      - detect-version
+      - validate-desktop
     runs-on: ${{ matrix.os }}
     timeout-minutes: 75
     strategy:
@@ -191,7 +209,7 @@ jobs:
           owner: uripper
           projectPath: apps/bartleby
           releaseAssetNamePattern: ${{ matrix.asset_name }}
-          releaseBody: Download the installer for your platform from the assets below.
+          releaseBody: ${{ needs.detect-version.outputs.notes }}
           releaseCommitish: main
           releaseDraft: true
           releaseName: Bartleby __VERSION__

@@ -1,5 +1,6 @@
 import type { FieldDefinition } from "../../types/types.ts";
 import { el } from "../dom.ts";
+import { hintDot } from "../hint-dot.ts";
 
 type InputFieldDefinition = Extract<
     FieldDefinition,
@@ -11,20 +12,6 @@ const INTEGER_STEP = "1";
 const INTEGER_INPUT_INVALID_KEYS = new Set(["+", "-", ".", ",", "e", "E"]);
 const READING_SPEED_FIELD_ID = "wpm_base";
 const READING_SPEED_TEST_URL = "https://www.readinglength.com/wpm";
-
-function hintDot(text?: string): HTMLSpanElement | null {
-    const NORMALIZED_TEXT = String(text ?? "").trim();
-    if (NORMALIZED_TEXT.length === 0) {
-        return null;
-    }
-    const DOT = document.createElement("span");
-    DOT.className = "hint-dot";
-    DOT.tabIndex = 0;
-    DOT.setAttribute("role", "note");
-    DOT.dataset.tip = NORMALIZED_TEXT;
-    DOT.textContent = "?";
-    return DOT;
-}
 
 function isIntegerField(field: FieldDefinition): boolean {
     return field.type === "number" && field.step === INTEGER_STEP;

@@ -12,6 +12,7 @@
         "typescript": "^5.9.3",
         "vite": "8.2.0"
     },
+    "license": "0BSD",
     "name": "bartleby-app",
     "private": true,
     "scripts": {
