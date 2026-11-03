@@ -62,7 +62,6 @@
     z-index: 1;
     pointer-events: none;
     content: "";
-
     background-image:
         radial-gradient(
             140% 140% at var(--pointer-x) var(--pointer-y),
@@ -89,16 +88,13 @@
         center,
         calc(100% - var(--bg-shift-x)) var(--bg-shift-y),
         center;
-
     background-size:
         100% 100%,
         180% 180%,
         100% 100%;
-
     background-blend-mode: screen, soft-light, normal;
     mix-blend-mode: normal;
     opacity: calc(var(--holo-opacity) + (var(--holo-active) * 0.16));
-
     filter: brightness(1.02) saturate(1.02);
     transition:
         opacity 180ms var(--token-motion-easing-standard),
@@ -111,7 +107,6 @@
     z-index: 2;
     pointer-events: none;
     content: "";
-
     background-image:
         radial-gradient(
             80% 80% at var(--pointer-x) var(--pointer-y),
@@ -131,21 +126,16 @@
     background-position:
         center,
         calc(100% - var(--bg-shift-x)) var(--bg-shift-y);
-
     background-size:
         100% 100%,
         170% 170%;
-
     box-shadow:
         inset 0 0 0 1px color-mix(in srgb, rgb(120, 88, 24) 12%, transparent),
         inset 0 0 0 999px color-mix(in srgb, rgb(212, 165, 54) 6%, transparent);
-
     background-blend-mode: screen, soft-light;
     mix-blend-mode: soft-light;
     opacity: calc(var(--glare-opacity) + (var(--holo-active) * 0.14));
-
     filter: brightness(1.02) saturate(1.03);
-
     transition:
         opacity 180ms var(--token-motion-easing-standard),
         filter 180ms var(--token-motion-easing-standard);
