@@ -6,7 +6,7 @@
 
 Problem:
 
-Existing Python and desktop tests pass, but several important testing expectations remain hard to verify with current tooling: whether new code always gets tests, whether critical paths have integration coverage, whether edge cases and failure modes are covered, and whether repeated test setup should be extracted into shared helpers.
+The current test surfaces are shared frontend Node tests, desktop adapter tests, and native Rust planner/runtime unit tests. The style audit already measures test-file/source-file ratios and attempts frontend execution coverage, but that is not a critical-path integration or end-to-end coverage map. The audit currently fails its coverage gates, so do not assume all quality checks pass or that a historical browser-test configuration still exists.
 
 Expected:
 
@@ -16,14 +16,16 @@ Definition of done:
 
 - Define the critical paths that require unit, integration, or end-to-end coverage.
 - Map current tests to those paths and identify the gaps.
-- Add a coverage or change-review mechanism that makes missing test support visible.
+- Repair and extend the existing coverage audit and add a change-review mechanism for missing behavior tests; distinguish source-file ratios from executed line/branch coverage.
 - Extract repeated setup into shared fixtures or helpers where duplication is real.
 - Document the policy in contributor or testing docs.
 
 Context:
 
-- `tests/`
-- `electron/tests/`
-- `electron/playwright.config.ts`
-- `README.md`
+- `packages/frontend/tests/`
+- `apps/bartleby/tests/`
+- `apps/bartleby/src-tauri/src/state_store_tests.rs`
+- `packages/planner/src/native_planner/tests.rs`
+- `scripts/style_audit/coverage.mjs`
+- `scripts/style_audit/config.mjs`
 - `STYLEGUIDE.md`

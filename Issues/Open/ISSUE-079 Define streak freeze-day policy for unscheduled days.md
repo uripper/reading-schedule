@@ -6,7 +6,7 @@
 
 Problem:
 
-The streak model does not have a clearly defined policy for days when no reading is scheduled. That creates ambiguity around weekends, skipped planning days, and whether a user should be penalized for days the app did not ask them to read.
+The current streak calculation counts consecutive calendar days that meet the reading goal and does not receive schedule-day information. A missed goal therefore breaks the streak even on an unscheduled day; there is no explicit freeze-day policy. That creates ambiguity around weekends, skipped planning days, and whether a user should be penalized for days the app did not ask them to read.
 
 Expected:
 
@@ -21,7 +21,7 @@ Definition of done:
 
 Context:
 
-- `electron/renderer/activity/day_minutes.ts`
-- `electron/renderer/app/today/today.ts`
-- `electron/renderer/stats/model.ts`
-- `src/reading_plan/`
+- `packages/frontend/src/renderer/activity/day-minutes.ts`
+- `packages/frontend/src/renderer/app/today/today.ts`
+- `packages/frontend/src/renderer/stats/model.ts`
+- `packages/planner/src/`

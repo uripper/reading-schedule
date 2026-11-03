@@ -1,15 +1,15 @@
 .book-dialog {
     position: relative;
-    overflow: auto;
     width: min(1240px, 97vw);
     max-height: min(97vh, 1180px);
     padding: 20px 24px 24px;
+    overflow: auto;
+    overscroll-behavior: contain;
     color: #111;
     background: #f3ba78;
     border: 4px solid #000;
     border-radius: 0;
     box-shadow: 12px 12px 0 #000;
-    overscroll-behavior: contain;
 }
 
 .book-dialog::backdrop {
@@ -123,8 +123,8 @@
     font-size: 0.8rem;
     font-weight: 900;
     color: #111;
-    letter-spacing: 0.05em;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .book-dialog input,
@@ -226,9 +226,9 @@
 
 .book-cover-panel {
     position: relative;
+    justify-self: end;
     width: 100%;
     max-width: 220px;
-    justify-self: end;
     min-height: 260px;
     overflow: hidden;
     cursor: pointer;

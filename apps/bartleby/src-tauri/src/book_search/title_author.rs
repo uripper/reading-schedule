@@ -1,6 +1,7 @@
 use super::{
-    models::{primary_author, SearchDoc},
+    models::{author_names, SearchDoc},
     scoring::normalize_search_text,
+    transliteration::tokens_match,
 };
 
 pub const TITLE_AUTHOR_REQUEST_LIMIT: usize = 2;
@@ -47,7 +48,11 @@ fn append_by_candidate(candidates: &mut Vec<TitleAuthorCandidate>, tokens: &[&st
     else {
         return;
     };
-    push_candidate_from_split(candidates, tokens, split_index);
+    push_candidate_from_split(
+        candidates,
+        &tokens[..split_index],
+        &tokens[split_index + 1..],
+    );
 }
 
 fn append_suffix_candidate(candidates: &mut Vec<TitleAuthorCandidate>, tokens: &[&str]) {
@@ -58,19 +63,19 @@ fn append_suffix_candidate(candidates: &mut Vec<TitleAuthorCandidate>, tokens: &
     if !looks_like_author_suffix(&tokens[split_index..]) {
         return;
     }
-    push_candidate_from_split(candidates, tokens, split_index);
+    push_candidate_from_split(candidates, &tokens[..split_index], &tokens[split_index..]);
 }
 
 fn push_candidate_from_split(
     candidates: &mut Vec<TitleAuthorCandidate>,
-    tokens: &[&str],
-    split_index: usize,
+    title_tokens: &[&str],
+    author_tokens: &[&str],
 ) {
-    if split_index < MIN_TITLE_TOKEN_COUNT || split_index >= tokens.len() {
+    if title_tokens.len() < MIN_TITLE_TOKEN_COUNT || author_tokens.is_empty() {
         return;
     }
-    let title = tokens[..split_index].join(" ");
-    let author = tokens[split_index..].join(" ");
+    let title = title_tokens.join(" ");
+    let author = author_tokens.join(" ");
     push_candidate(candidates, &title, &author);
 }
 
@@ -127,12 +132,16 @@ fn title_match_score(title_norm: &str, candidate: &TitleAuthorCandidate) -> i64 
 }
 
 fn author_matches_candidate(doc: &SearchDoc, candidate: &TitleAuthorCandidate) -> bool {
-    let author_norm = normalize_search_text(&primary_author(doc));
+    author_names(doc).any(|name| author_name_matches_candidate(name, candidate))
+}
+
+fn author_name_matches_candidate(name: &str, candidate: &TitleAuthorCandidate) -> bool {
+    let author_norm = normalize_search_text(name);
     let author_tokens = author_norm.split_whitespace().collect::<Vec<_>>();
     candidate.author_tokens.iter().all(|token| {
         author_tokens
             .iter()
-            .any(|author_token| author_token == token)
+            .any(|author_token| tokens_match(author_token, token))
     })
 }
 
@@ -156,49 +165,5 @@ fn candidate_from_parts(title: &str, author: &str) -> Option<TitleAuthorCandidat
 }
 
 #[cfg(test)]
-mod tests {
-    use crate::book_search::models::SearchDoc;
-
-    use super::{title_author_candidates, title_author_match_score};
-
-    fn search_doc(title: &str, author: &str) -> SearchDoc {
-        SearchDoc {
-            author_name: Some(vec![author.to_string()]),
-            cover_i: None,
-            edition_count: None,
-            first_publish_year: None,
-            key: None,
-            language: None,
-            number_of_pages_median: None,
-            title: Some(title.to_string()),
-        }
-    }
-
-    #[test]
-    fn suffix_candidate_uses_trailing_author_tokens() {
-        let candidates = title_author_candidates("Death and the King's Horseman Wole Soyinka");
-
-        assert_eq!(candidates[0].title, "Death and the King's Horseman");
-        assert_eq!(candidates[0].author, "Wole Soyinka");
-    }
-
-    #[test]
-    fn suffix_candidate_rejects_plain_title_endings() {
-        let candidates = title_author_candidates("Death and the King's Horseman");
-
-        assert!(candidates.is_empty());
-    }
-
-    #[test]
-    fn match_score_requires_title_and_author() {
-        let candidates = title_author_candidates("Death and the King's Horseman Wole Soyinka");
-        let book = search_doc("Death and the King's Horseman", "Wole Soyinka");
-        let criticism = search_doc(
-            "Death and the King's Horseman and Wole Soyinka's Theater",
-            "Jane Scholar",
-        );
-
-        assert!(title_author_match_score(&book, &candidates) > 0);
-        assert_eq!(title_author_match_score(&criticism, &candidates), 0);
-    }
-}
+#[path = "title_author_tests.rs"]
+mod tests;

@@ -17,7 +17,8 @@
 }
 
 .book-actions .btn,
-.book-estimated-finish-btn {
+.book-estimated-finish-btn,
+.book-finished-btn {
     min-height: 42px;
     padding: 9px 12px;
     font-size: 0.82rem;
@@ -34,7 +35,9 @@
 .book-actions .btn:hover,
 .book-actions .btn:focus-visible,
 .book-estimated-finish-btn:hover,
-.book-estimated-finish-btn:focus-visible {
+.book-estimated-finish-btn:focus-visible,
+.book-finished-btn:hover,
+.book-finished-btn:focus-visible {
     filter: brightness(1.04);
     transform: translate(-2px, -2px);
 }
@@ -141,71 +144,43 @@
     box-shadow: 3px 3px 0 #000;
 }
 
+/*
+ * Status icons are Material Icons glyphs (pause, play_arrow, check, close),
+ * Apache License 2.0, https://github.com/google/material-design-icons.
+ * They are inlined as masks so they work offline and follow currentColor.
+ */
 .book-status-pill::before {
     display: block;
-    width: 14px;
-    height: 14px;
+    flex: none;
+    width: 18px;
+    height: 18px;
     content: "";
-    background: #111;
-    border: 2px solid #111;
+    background: currentcolor;
+    mask: var(--status-icon) center / contain no-repeat;
 }
 
 .book-status-pill.is-to_read {
+    --status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 19h4V5H6v14zm8-14v14h4V5h-4z'/%3E%3C/svg%3E");
+
     background: #9fbbe0;
 }
 
-.book-status-pill.is-to_read::before {
-    background: linear-gradient(
-        90deg,
-        #111 0 4px,
-        transparent 4px 7px,
-        #111 7px 11px,
-        transparent 11px 14px
-    );
-    border: 0;
-}
-
 .book-status-pill.is-in_progress {
+    --status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E");
+
     background: #f1c96f;
 }
 
-.book-status-pill.is-in_progress::before {
-    width: 0;
-    height: 0;
-    background: transparent;
-    border: 0;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
-    border-left: 14px solid #111;
-}
-
 .book-status-pill.is-read {
+    --status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+
     background: #b9e2ba;
 }
 
-.book-status-pill.is-read::before {
-    width: 16px;
-    height: 10px;
-    background: transparent;
-    border-top: 0;
-    border-right: 0;
-    border-bottom: 4px solid #111;
-    border-left: 4px solid #111;
-    transform: rotate(-45deg);
-    transform-origin: center;
-}
-
 .book-status-pill.is-dropped {
-    background: #e89f97;
-}
+    --status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/%3E%3C/svg%3E");
 
-.book-status-pill.is-dropped::before {
-    width: 14px;
-    height: 14px;
-    background:
-        linear-gradient(45deg, transparent 39%, #111 39% 61%, transparent 61%),
-        linear-gradient(-45deg, transparent 39%, #111 39% 61%, transparent 61%);
-    border: 0;
+    background: #e89f97;
 }
 
 .book-stats {

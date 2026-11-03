@@ -6,7 +6,7 @@
 
 Problem:
 
-The app lacks a versioned, explicit event contract for deriving adherence and plan-realism metrics from local behavior data.
+The app lacks a versioned, explicit domain-event contract for deriving adherence and plan-realism metrics from local behavior data. The existing SQLite recovery journal stores saved snapshots; it is not a session/completion/replan event stream.
 
 Expected:
 
@@ -21,7 +21,7 @@ Definition of done:
 
 Context:
 
-- `electron/renderer/app/persistence.ts`
-- `electron/renderer/app/load_state.ts`
-- `electron/state_store.ts`
+- `packages/frontend/src/renderer/app/persistence.ts`
+- `packages/frontend/src/renderer/app/load_state.ts`
+- `apps/bartleby/src-tauri/src/state_store/`
 - `ROADMAP.md`

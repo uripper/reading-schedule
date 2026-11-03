@@ -1,6 +1,10 @@
+/** Builds the shell nodes of a book card: root, cover, heading, and actions. */
 import type { Book, CardRenderContext } from "../../types/types.ts";
 import { bindReadCardHolo } from "./card_holo.ts";
-import { estimatedFinishButton } from "./card_navigation_buttons.ts";
+import {
+    estimatedFinishButton,
+    finishedDateButton,
+} from "./card-navigation-buttons.ts";
 import { bookCoverSrc } from "./model-normalize.ts";
 import { subtitle } from "./presenters.ts";
 import {
@@ -27,26 +31,30 @@ export function cardClassNameForStatus(status: Book["status"]): string {
 }
 
 /**
- * Resolves estimated finish date shown as interactive card control.
+ * Builds the finish-date node shown beside the card command stack.
  * @param book - Book model to inspect.
- * @param finishDateByBookId - Finish date lookup keyed by `book_id`.
- * @returns Estimated finish day key or `null` when not applicable.
+ * @param context - Shared render context for finish dates and navigation.
+ * @returns Finished-date control for read books, estimated-finish control
+ * for schedulable books, or `null` when no finish date applies.
  */
-function estimatedFinishDate(
+function finishDateNode(
     book: Book,
-    finishDateByBookId: Record<string, string>,
-): string | null {
-    if (
-        book.status !== BOOK_STATUS_IN_PROGRESS &&
-        book.status !== BOOK_STATUS_TO_READ
-    ) {
-        return null;
-    }
-    const FINISH_DATE = finishDateByBookId[book.book_id];
+    context: CardRenderContext,
+): HTMLElement | null {
+    const FINISH_DATE = context.finishDateByBookId[book.book_id];
     if (!FINISH_DATE) {
         return null;
     }
-    return FINISH_DATE;
+    if (book.status === BOOK_STATUS_READ) {
+        return finishedDateButton(FINISH_DATE, context);
+    }
+    if (
+        book.status === BOOK_STATUS_IN_PROGRESS ||
+        book.status === BOOK_STATUS_TO_READ
+    ) {
+        return estimatedFinishButton(FINISH_DATE, context);
+    }
+    return null;
 }
 
 /**
@@ -216,9 +224,9 @@ export function cardActionsNode(
 ): HTMLDivElement {
     const ACTIONS = document.createElement("div");
     ACTIONS.className = "book-actions";
-    const FINISH_DATE = estimatedFinishDate(book, context.finishDateByBookId);
-    if (FINISH_DATE !== null) {
-        ACTIONS.append(estimatedFinishButton(FINISH_DATE, context));
+    const FINISH_NODE = finishDateNode(book, context);
+    if (FINISH_NODE !== null) {
+        ACTIONS.append(FINISH_NODE);
     }
     ACTIONS.append(cardCommandStackNode(bookId));
     return ACTIONS;

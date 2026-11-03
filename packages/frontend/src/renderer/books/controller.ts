@@ -1,24 +1,28 @@
+/** Owns live library edits and applies completed covers without delaying dialog saves. */
 import type {
     BindBooksUIOptions,
     Book,
     BookDialogController,
     BookDialogSubmitPayload,
     BookProgressUpdates,
-    BooksControllerRefs,
-    BooksViewState,
     PlannerScheduleRow,
     UpdateBookProgressOptions,
 } from "../../types/types.ts";
 import { el } from "../dom.ts";
 import { configureAddBookFlow } from "./add-book-flow.ts";
+import { isBulkBookSubmitPayload } from "./bulk-edit-updates.ts";
 import { bindToolbarEvents } from "./controller_bindings.ts";
 import { renderBooksController } from "./controller_render.ts";
 import { defaultShelfForAddDialog } from "./controller_types.ts";
 import { bindControllerMassEdit } from "./controller-mass-edit.ts";
 import { updatedProgressBook } from "./controller-progress.ts";
 import { nextBooksAfterDialogSave } from "./controller-save.ts";
+import {
+    createBooksControllerRefs,
+    createBooksViewState,
+} from "./controller-state-defaults.ts";
+import { BookCoverJobs, reportCoverCommitError } from "./cover-jobs.ts";
 import { createBookDialog } from "./dialog.ts";
-import { GROUP_BY_NONE } from "./grouping.ts";
 import type { MassEditController } from "./mass-edit-controller.ts";
 import { normalizeBook } from "./model-normalize.ts";
 import {
@@ -26,12 +30,11 @@ import {
     hasSchedulableLength,
     toPayloadBook,
 } from "./model-payload.ts";
-import { SORT_BY_ESTIMATED_FINISH } from "./sort.ts";
 import { schedulableBook } from "./status.ts";
-import { BOOK_STATUS_FILTER_ALL } from "./status_catalog.ts";
-import { ensureBooksToolbarControls, SORT_DIRECTION_ASC } from "./toolbar.ts";
+import { ensureBooksToolbarControls } from "./toolbar.ts";
 
 let books: Book[] = [];
+const COVER_JOBS = new BookCoverJobs(() => books, commitBookCover);
 let scheduleRows: PlannerScheduleRow[] = [];
 const DEFAULT_ON_BOOKS_CHANGED = (): void => {
     // No-op default callback.
@@ -49,27 +52,8 @@ let onEstimatedFinishNavigate: (dateKey: string) => void =
 let dialog: BookDialogController | null = null;
 let massEdit: MassEditController | null = null;
 
-const REFS: BooksControllerRefs = {
-    addBtn: null,
-    empty: null,
-    grid: null,
-    groupBySelect: null,
-    shelfFilterSelect: null,
-    sortBySelect: null,
-    sortDirectionBtn: null,
-    statusFilterSelect: null,
-    titleFilterInput: null,
-    toolbar: null,
-};
-
-const VIEW_STATE: BooksViewState = {
-    groupBy: GROUP_BY_NONE,
-    shelfFilter: "",
-    sortBy: SORT_BY_ESTIMATED_FINISH,
-    sortDirection: SORT_DIRECTION_ASC,
-    statusFilter: BOOK_STATUS_FILTER_ALL,
-    titleFilter: "",
-};
+const REFS = createBooksControllerRefs();
+const VIEW_STATE = createBooksViewState();
 
 /**
  * Replaces the in-memory books collection used by the books controller.
@@ -77,6 +61,7 @@ const VIEW_STATE: BooksViewState = {
  */
 function setBooks(nextBooks: Book[]): void {
     books = nextBooks;
+    COVER_JOBS.retain(books);
     onBooksCommitted(books);
 }
 
@@ -152,12 +137,28 @@ export function updateBookProgress(
 }
 
 /**
- * Persists an edited book, including optional cover hydration, then rerenders.
+ * Commits dialog edits first and starts cover processing independently.
  * @param payload - Book save payload including optional shelf-day propagation flag.
  */
-async function saveBook(payload: BookDialogSubmitPayload): Promise<void> {
-    books = await nextBooksAfterDialogSave(books, payload);
-    onBooksCommitted(books);
+export function saveBook(payload: BookDialogSubmitPayload): void {
+    setBooks(nextBooksAfterDialogSave(books, payload));
+    render();
+    onBooksChanged();
+    if (!isBulkBookSubmitPayload(payload)) {
+        COVER_JOBS.queue(payload.book).catch(reportCoverCommitError);
+    }
+}
+
+/** Applies only the completed cover to the current book and queues persistence. */
+function commitBookCover(book: Book): void {
+    setBooks(
+        books.map((current) => {
+            if (current.book_id === book.book_id) {
+                return book;
+            }
+            return current;
+        }),
+    );
     render();
     onBooksChanged();
 }
@@ -167,6 +168,7 @@ async function saveBook(payload: BookDialogSubmitPayload): Promise<void> {
  * @param nextBooks - Raw books to normalize and render.
  */
 export function fillBooks(nextBooks: Book[] = []): void {
+    COVER_JOBS.reset();
     books = nextBooks.map(normalizeBook);
     onBooksCommitted(books);
     render();

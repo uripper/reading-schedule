@@ -41,6 +41,17 @@
     min-width: min(240px, 100%);
 }
 
+.books-control-label {
+    display: inline-flex;
+    align-items: center;
+}
+
+.books-control .hint-dot::after {
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
 .books-control-input {
     margin-top: 0;
 }

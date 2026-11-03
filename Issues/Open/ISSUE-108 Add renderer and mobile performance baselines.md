@@ -6,7 +6,7 @@
 
 Problem:
 
-The current toolchain does not measure key performance risks such as unnecessary re-renders, hot-path recomputation, lazy-loading effectiveness, or render cost in the busiest desktop and mobile views. Reviewers can only estimate performance quality from code inspection.
+The shared Rust planner already has a production benchmark and stage timings, and frontend responsiveness tests cover some orchestration paths. Repeatable desktop WebView and mobile rendering baselines are still missing for unnecessary re-renders, hot-path recomputation, lazy-loading effectiveness, and busy-view render cost; the planner benchmark excludes Tauri transport, storage, and UI.
 
 Expected:
 
@@ -22,7 +22,10 @@ Definition of done:
 
 Context:
 
-- `electron/renderer/app/today/`
-- `electron/renderer/calendar/`
-- `electron/renderer/book_lookup/`
+- `packages/frontend/src/renderer/app/today/`
+- `packages/frontend/src/renderer/calendar/`
+- `packages/frontend/src/renderer/book_lookup/`
+- `packages/frontend/tests/planner-responsiveness.test.mjs`
 - `mobile/src/features/today/`
+- `packages/planner/src/native_planner/benchmark/`
+- `docs/planner-benchmark.md`

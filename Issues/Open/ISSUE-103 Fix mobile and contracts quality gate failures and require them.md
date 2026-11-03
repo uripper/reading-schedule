@@ -6,7 +6,7 @@
 
 Problem:
 
-Repository quality gates are not passing consistently across supported targets. `pnpm run lint:mobile` fails with formatting and function-size violations, `pnpm run typecheck:mobile` fails because `mobile/src/api/planner_client.ts` does not satisfy the `PlannerApi` contract, and `pnpm run lint:packages` fails across the shared contracts package. These checks are also absent from `ci:local`, so they are easy to miss.
+Repository quality gates are not passing consistently across supported targets. `pnpm run lint:mobile` reports current lint errors, `pnpm run typecheck:mobile` fails because `mobile/src/api/planner_client.ts` omits the required `PlannerApi.resolveCoverSrc` method, and `pnpm run lint:packages` also reports errors across package sources. These checks are also absent from `ci:local`, so they are easy to miss.
 
 Expected:
 
@@ -19,6 +19,7 @@ Definition of done:
 - Fix current `pnpm run lint:packages` failures.
 - Add these commands to the required local and hosted validation path.
 - Keep the target support matrix aligned with the checks that actually run.
+- Account for the mobile HTTP adapter still targeting /api routes without a server implementation in this repository; choose a supported transport instead of treating the removed backend as available.
 
 Context:
 

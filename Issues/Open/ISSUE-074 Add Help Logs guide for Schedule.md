@@ -21,7 +21,7 @@ Definition of done:
 
 Context:
 
-- `electron/renderer/help.ts`
-- `electron/index.html`
-- `electron/renderer/app/calendar_interactions/`
-- `electron/renderer/calendar/`
+- `packages/frontend/src/renderer/help.ts`
+- `packages/frontend/index.html`
+- `packages/frontend/src/renderer/app/calendar_interactions/`
+- `packages/frontend/src/renderer/calendar/`

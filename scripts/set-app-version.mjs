@@ -5,6 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { releaseNotesPath, scaffoldReleaseNotes } from "./release-notes.mjs";
 
 const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(SCRIPT_DIRECTORY, "..");
@@ -22,6 +23,7 @@ const JSON_VERSION_FILES = [
 ];
 const CARGO_MANIFEST_PATH = "apps/bartleby/src-tauri/Cargo.toml";
 const CARGO_LOCK_PATH = "apps/bartleby/src-tauri/Cargo.lock";
+const DESKTOP_NOTES_TARGET = "desktop";
 const CARGO_LOCK_VERSION_PATTERN =
     /(?<=\[\[package\]\]\nname = "bartleby_app"\nversion = ")[^"]+(?=")/;
 
@@ -154,12 +156,28 @@ function updateCargoLock(version) {
     fs.writeFileSync(LOCK_PATH, NEXT_LOCKFILE, "utf8");
 }
 
-/** Updates every version source and verifies the result. */
+/** Creates the desktop release-notes draft for a new version. */
+function prepareDesktopReleaseNotes(version) {
+    const NOTES_PATH = path.relative(
+        REPOSITORY_ROOT,
+        releaseNotesPath(DESKTOP_NOTES_TARGET, version),
+    );
+    if (scaffoldReleaseNotes(DESKTOP_NOTES_TARGET, version)) {
+        process.stdout.write(
+            `Created ${NOTES_PATH}; fill it in before pushing the release.\n`,
+        );
+        return;
+    }
+    process.stdout.write(`Using existing release notes ${NOTES_PATH}.\n`);
+}
+
+/** Updates every version source, verifies the result, and prepares notes. */
 function setVersion(version) {
     updateJsonVersions(version);
     updateCargoManifest(version);
     updateCargoLock(version);
     checkVersions(version);
+    prepareDesktopReleaseNotes(version);
 }
 
 /** Runs either consistency checking or a version update. */

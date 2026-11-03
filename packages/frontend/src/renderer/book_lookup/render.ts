@@ -1,4 +1,5 @@
 import type { BookLookupItem } from "../../types/types.ts";
+import { lookupLanguageLabel } from "./language.ts";
 
 interface RenderLookupResultsArgs {
     activeIndex: number;
@@ -111,6 +112,10 @@ function metaTextParts(item: BookLookupItem): string[] {
     const YEAR_TEXT = String(item.year ?? "").trim();
     if (YEAR_TEXT.length > 0) {
         META_PARTS.push(YEAR_TEXT);
+    }
+    const LANGUAGE_TEXT = lookupLanguageLabel(item.language);
+    if (LANGUAGE_TEXT.length > 0) {
+        META_PARTS.push(LANGUAGE_TEXT);
     }
     return META_PARTS;
 }

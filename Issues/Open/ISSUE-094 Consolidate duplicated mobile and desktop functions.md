@@ -6,7 +6,7 @@
 
 Problem:
 
-Some functions are duplicated across mobile and desktop implementations. That increases maintenance cost and makes it easier for behavior to drift between clients.
+Potential duplication remains across mobile and the shared frontend. The planner already lives in a shared Rust crate with desktop and WebAssembly entrypoints, and shared TypeScript contracts already exist; audit remaining duplication rather than extracting another planner or copying platform-specific adapters.
 
 Expected:
 
@@ -22,5 +22,8 @@ Definition of done:
 Context:
 
 - `mobile/src/`
-- `electron/renderer/`
+- `packages/frontend/src/renderer/`
 - `packages/contracts/src/`
+- `packages/planner/src/lib.rs`
+- `packages/planner/src/wasm.rs`
+- `apps/bartleby/src/runtime/`

@@ -6,7 +6,7 @@
 
 Problem:
 
-Personalization parameters will become part of persisted state but currently have no versioning/migration strategy.
+Core snapshots already have a state version and native migration mechanism. Future personalization parameters have no persisted schema or migration steps yet; extend the existing mechanism rather than creating a second migration framework.
 
 Expected:
 
@@ -21,7 +21,8 @@ Definition of done:
 
 Context:
 
-- `electron/state_store.ts`
-- `electron/renderer/app/load_state.ts`
-- `electron/renderer/app/persistence.ts`
-- `ISSUES.md`
+- `apps/bartleby/src-tauri/src/state_store/migrations.rs`
+- `packages/contracts/src/`
+- `packages/frontend/src/renderer/app/load_state.ts`
+- `packages/frontend/src/renderer/app/persistence.ts`
+- `apps/bartleby/src-tauri/src/state_store_tests.rs`

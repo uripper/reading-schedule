@@ -10,7 +10,7 @@ Many users already track their reading progress, book lists, and notes in extern
 
 Expected:
 
-Users can connect their Bartleby account with external reading trackers to synchronize their book lists, reading progress, and notes. This could include:
+Users can connect external tracker accounts or import supported tracker files from Bartleby to synchronize their book lists, reading progress, and notes. This could include:
 
 - Importing book lists and metadata from external services.
 - Syncing reading progress and session notes back to those platforms.

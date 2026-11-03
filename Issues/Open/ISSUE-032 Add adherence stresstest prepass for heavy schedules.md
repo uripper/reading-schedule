@@ -14,14 +14,15 @@ Before finalizing a schedule, the planner can detect low-adherence risk patterns
 
 Definition of done:
 
-- Define a pre-pass scoring model using available scheduling-time features.
+- Define a pre-pass scoring model using available scheduling-time features while preserving the current shared Rust greedy-planner architecture.
 - Reduce per-session load or switching pressure when risk thresholds are exceeded.
 - Surface transparent UI messaging when stress-test adjustments are applied.
 - Add tests for threshold behavior and unchanged output when risk is low.
 
 Context:
 
-- `src/reading_plan/solve.py`
-- `src/reading_plan/heuristics.py`
-- `electron/renderer/app/plan.ts`
-- `electron/tests/`
+- `packages/planner/src/native_planner/solve.rs`
+- `packages/planner/src/native_planner/greedy_support.rs`
+- `packages/frontend/src/renderer/app/plan.ts`
+- `packages/frontend/tests/`
+- `packages/planner/src/native_planner/regression_tests.rs`

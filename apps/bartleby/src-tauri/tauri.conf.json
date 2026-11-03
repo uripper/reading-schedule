@@ -39,6 +39,7 @@
             "icons/icon.icns",
             "icons/icon.ico"
         ],
+        "licenseFile": "../../../LICENSE",
         "targets": "all"
     },
     "identifier": "com.bartleby.app",
@@ -54,5 +55,5 @@
         }
     },
     "productName": "Bartleby",
-    "version": "0.1.7-alpha"
+    "version": "0.1.8-alpha"
 }

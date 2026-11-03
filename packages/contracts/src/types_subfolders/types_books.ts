@@ -61,7 +61,6 @@ export interface BookProgressUpdates {
 }
 
 export interface BookMetaOptions {
-    finishDateByBookId?: Record<string, string>;
     showBlockerMeta?: boolean;
     showShelfMeta?: boolean;
     showWordCount?: boolean;

@@ -1,4 +1,7 @@
-use super::models::{primary_author, SearchDoc};
+use super::{
+    models::{author_names, primary_author, SearchDoc},
+    transliteration::tokens_match,
+};
 
 const OPEN_LIBRARY_LANGUAGE_ENGLISH: &str = "eng";
 const SCORE_EXACT_TITLE: i64 = 960;
@@ -66,7 +69,37 @@ fn base_title_score(title_norm: &str, query_norm: &str) -> i64 {
     score
 }
 
-fn token_match_score(title_norm: &str, author_norm: &str, token: &str) -> i64 {
+struct DocAuthorText {
+    primary_norm: String,
+    tokens: Vec<String>,
+}
+
+fn doc_author_text(doc: &SearchDoc) -> DocAuthorText {
+    let tokens = author_names(doc)
+        .flat_map(|name| {
+            normalize_search_text(name)
+                .split_whitespace()
+                .map(str::to_string)
+                .collect::<Vec<_>>()
+        })
+        .collect();
+    DocAuthorText {
+        primary_norm: normalize_search_text(&primary_author(doc)),
+        tokens,
+    }
+}
+
+fn author_contains_token(author: &DocAuthorText, token: &str) -> bool {
+    if author.primary_norm.contains(token) {
+        return true;
+    }
+    author
+        .tokens
+        .iter()
+        .any(|author_token| tokens_match(author_token, token))
+}
+
+fn token_match_score(title_norm: &str, author: &DocAuthorText, token: &str) -> i64 {
     if title_norm.starts_with(token) {
         return SCORE_TOKEN_PREFIX;
     }
@@ -74,15 +107,15 @@ fn token_match_score(title_norm: &str, author_norm: &str, token: &str) -> i64 {
     if title_norm.contains(token) {
         score += SCORE_TOKEN_CONTAINS;
     }
-    if author_norm.contains(token) {
+    if author_contains_token(author, token) {
         score += SCORE_TOKEN_AUTHOR;
     }
     score
 }
 
-fn token_score(title_norm: &str, author_norm: &str, tokens: &[String]) -> i64 {
+fn token_score(title_norm: &str, author: &DocAuthorText, tokens: &[String]) -> i64 {
     tokens.iter().fold(0, |score, token| {
-        score + token_match_score(title_norm, author_norm, token)
+        score + token_match_score(title_norm, author, token)
     })
 }
 
@@ -109,7 +142,7 @@ fn author_match_score(author_norm: &str, query_norm: &str, tokens: &[String]) ->
         .filter(|token| {
             author_tokens
                 .iter()
-                .any(|author_token| author_token == token)
+                .any(|author_token| tokens_match(author_token, token))
         })
         .count();
     let minimum_matches = if tokens.len() >= 2 { 2 } else { 1 };
@@ -134,9 +167,15 @@ fn metadata_score(doc: &SearchDoc) -> i64 {
     score
 }
 
+fn best_author_match_score(doc: &SearchDoc, query_norm: &str, tokens: &[String]) -> i64 {
+    author_names(doc)
+        .map(|name| author_match_score(&normalize_search_text(name), query_norm, tokens))
+        .max()
+        .unwrap_or_default()
+}
+
 fn author_only_score(doc: &SearchDoc, query_norm: &str, tokens: &[String]) -> i64 {
-    let author_norm = normalize_search_text(&primary_author(doc));
-    let author_score = author_match_score(&author_norm, query_norm, tokens);
+    let author_score = best_author_match_score(doc, query_norm, tokens);
     if author_score <= 0 {
         return 0;
     }
@@ -150,9 +189,9 @@ pub fn score_doc(doc: &SearchDoc, query: &str, author_only: bool) -> i64 {
         return author_only_score(doc, &query_norm, &tokens);
     }
     let title_norm = normalize_search_text(doc.title.as_deref().unwrap_or_default());
-    let author_norm = normalize_search_text(&primary_author(doc));
-    let text_score = base_title_score(&title_norm, &query_norm)
-        + token_score(&title_norm, &author_norm, &tokens);
+    let author = doc_author_text(doc);
+    let text_score =
+        base_title_score(&title_norm, &query_norm) + token_score(&title_norm, &author, &tokens);
     if title_norm.is_empty() && text_score <= 0 {
         return 0;
     }
@@ -160,127 +199,5 @@ pub fn score_doc(doc: &SearchDoc, query: &str, author_only: bool) -> i64 {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::{
-        has_english_language, normalize_search_text, primary_author, query_tokens, score_doc,
-        SearchDoc,
-    };
-
-    #[test]
-    fn page_counts_raise_ranked_score() {
-        let with_pages = SearchDoc {
-            author_name: Some(vec!["Frank Herbert".to_string()]),
-            cover_i: Some(12),
-            edition_count: Some(4),
-            first_publish_year: Some(1965),
-            key: Some("/works/OL1W".to_string()),
-            language: Some(vec!["eng".to_string()]),
-            number_of_pages_median: Some(412),
-            title: Some("Dune".to_string()),
-        };
-        let without_pages = SearchDoc {
-            number_of_pages_median: None,
-            ..with_pages.clone()
-        };
-
-        assert!(score_doc(&with_pages, "dune", false) > score_doc(&without_pages, "dune", false));
-    }
-
-    #[test]
-    fn author_only_queries_reject_unrelated_authors() {
-        let doc = SearchDoc {
-            author_name: Some(vec!["Toni Morrison".to_string()]),
-            cover_i: None,
-            edition_count: Some(1),
-            first_publish_year: Some(1970),
-            key: Some("/works/OL2W".to_string()),
-            language: Some(vec!["eng".to_string()]),
-            number_of_pages_median: Some(220),
-            title: Some("Sula".to_string()),
-        };
-
-        assert_eq!(score_doc(&doc, "octavia butler", true), 0);
-    }
-
-    #[test]
-    fn normalize_search_text_lowercases_and_strips_punctuation_noise() {
-        assert_eq!(
-            normalize_search_text("  L'etranger: A Novel?!  "),
-            "l etranger a novel"
-        );
-    }
-
-    #[test]
-    fn query_tokens_returns_only_normalized_non_empty_tokens() {
-        assert_eq!(query_tokens("  Deep   Work!!!  "), vec!["deep", "work"]);
-    }
-
-    #[test]
-    fn primary_author_returns_first_author_and_handles_missing_authors() {
-        let doc = SearchDoc {
-            author_name: Some(vec!["Cal Newport".to_string(), "Ghost".to_string()]),
-            cover_i: None,
-            edition_count: None,
-            first_publish_year: None,
-            key: None,
-            language: None,
-            number_of_pages_median: None,
-            title: None,
-        };
-        assert_eq!(primary_author(&doc), "Cal Newport");
-        assert!(primary_author(&SearchDoc {
-            author_name: Some(Vec::new()),
-            cover_i: None,
-            edition_count: None,
-            first_publish_year: None,
-            key: None,
-            language: None,
-            number_of_pages_median: None,
-            title: None,
-        })
-        .is_empty());
-    }
-
-    #[test]
-    fn has_english_language_recognizes_canonical_and_namespaced_tags() {
-        assert!(has_english_language(&SearchDoc {
-            author_name: None,
-            cover_i: None,
-            edition_count: None,
-            first_publish_year: None,
-            key: None,
-            language: Some(vec!["eng".to_string()]),
-            number_of_pages_median: None,
-            title: None,
-        }));
-        assert!(has_english_language(&SearchDoc {
-            author_name: None,
-            cover_i: None,
-            edition_count: None,
-            first_publish_year: None,
-            key: None,
-            language: Some(vec!["/languages/eng".to_string()]),
-            number_of_pages_median: None,
-            title: None,
-        }));
-    }
-
-    #[test]
-    fn score_doc_keeps_author_token_matches_when_title_is_missing() {
-        let score = score_doc(
-            &SearchDoc {
-                author_name: Some(vec!["George Orwell".to_string()]),
-                cover_i: None,
-                edition_count: Some(3),
-                first_publish_year: None,
-                key: None,
-                language: Some(vec!["eng".to_string()]),
-                number_of_pages_median: None,
-                title: None,
-            },
-            "George Orwell",
-            false,
-        );
-        assert!(score > 0);
-    }
-}
+#[path = "scoring_tests.rs"]
+mod tests;

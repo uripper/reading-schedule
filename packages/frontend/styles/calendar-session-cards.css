@@ -52,8 +52,8 @@
 .day-session-status {
     font-size: 0.75rem;
     font-weight: 900;
-    letter-spacing: 0.06em;
     text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
 .day-session-estimate {
@@ -164,15 +164,15 @@
 }
 
 .day-progress-form .btn {
-    min-height: var(--token-size-target-minimum);
     width: 100%;
+    min-height: var(--token-size-target-minimum);
 }
 
 .day-progress-form label {
     font-size: 0.74rem;
     font-weight: 800;
-    letter-spacing: 0.04em;
     text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .day-progress-field {

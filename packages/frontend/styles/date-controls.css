@@ -2,11 +2,11 @@
 
 .date-input-shell {
     position: relative;
+    z-index: 0;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--token-space-2);
     align-items: center;
-    z-index: 0;
 }
 
 .date-input-shell.is-open {
@@ -35,11 +35,11 @@
     top: calc(100% + var(--token-space-1));
     left: 0;
     display: none;
+    visibility: hidden;
     width: min(23rem, calc(100vw - 2rem));
     padding: 12px;
     color: #111;
     text-align: center;
-    visibility: hidden;
     background: #f8f4e8;
     border: 3px solid #000;
     border-radius: 12px;
@@ -48,9 +48,9 @@
 
 .flatpickr-calendar.open,
 .flatpickr-calendar.inline {
+    z-index: 720;
     display: inline-block;
     visibility: visible;
-    z-index: 720;
 }
 
 .flatpickr-calendar.static {
@@ -73,8 +73,8 @@
 
 .flatpickr-months .flatpickr-month {
     position: relative;
-    flex: 1;
     display: flex;
+    flex: 1;
     align-items: center;
     justify-content: center;
     height: 2.75rem;
@@ -85,19 +85,19 @@
 .flatpickr-months .flatpickr-next-month {
     position: absolute;
     top: 0;
+    z-index: 3;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-height: 2.75rem;
     padding: var(--token-space-2) var(--token-space-3);
     color: #111;
+    text-decoration: none;
     cursor: pointer;
     user-select: none;
-    text-decoration: none;
     background: #fff;
     border: 2px solid #000;
     border-radius: 10px;
-    z-index: 3;
 }
 
 .flatpickr-months .flatpickr-prev-month {
@@ -226,21 +226,21 @@
 }
 
 span.flatpickr-weekday {
-    flex: 1;
     display: block;
+    flex: 1;
     font-size: var(--token-typography-size-xs);
     font-weight: var(--token-typography-weight-semibold);
-    color: #554b3e;
     line-height: 1;
+    color: #554b3e;
     text-align: center;
     text-transform: uppercase;
 }
 
 .flatpickr-day {
     display: inline-flex;
+    flex: 0 0 calc(100% / 7);
     align-items: center;
     justify-content: center;
-    flex: 0 0 calc(100% / 7);
     max-width: calc(100% / 7);
     min-height: 2.75rem;
     margin: 0;
@@ -282,10 +282,10 @@ span.flatpickr-weekday {
 .flatpickr-day.flatpickr-disabled,
 .flatpickr-day.flatpickr-disabled:hover {
     color: rgb(17 17 17 / 28%);
-    opacity: 1;
     cursor: not-allowed;
     background: #f1ebe0;
     border-color: #e0d2c1;
+    opacity: 1;
 }
 
 @media (width <= 700px) {

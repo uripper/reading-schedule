@@ -247,7 +247,7 @@ dependencies = [
 
 [[package]]
 name = "bartleby_app"
-version = "0.1.7-alpha"
+version = "0.1.8-alpha"
 dependencies = [
  "bartleby_planner",
  "base64 0.22.1",

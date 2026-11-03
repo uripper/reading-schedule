@@ -12,6 +12,7 @@
         "typescript": "^5.9.3",
         "vite": "8.2.0"
     },
+    "license": "0BSD",
     "name": "bartleby-app",
     "private": true,
     "scripts": {
@@ -30,5 +31,5 @@
         "typecheck": "pnpm run prepare:app && pnpm --dir ../.. exec tsc -p apps/bartleby/tsconfig.json --noEmit"
     },
     "type": "module",
-    "version": "0.1.7-alpha"
+    "version": "0.1.8-alpha"
 }

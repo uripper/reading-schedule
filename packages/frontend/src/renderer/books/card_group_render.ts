@@ -1,5 +1,5 @@
 import type { Book, BookGroup, CardRenderContext } from "../../types/types.ts";
-import { createCardNode } from "./card_nodes.ts";
+import { createCardNode } from "./card-nodes.ts";
 
 /**
  * Creates a grouped section of book cards with heading and row container.

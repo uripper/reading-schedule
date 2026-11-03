@@ -1,6 +1,10 @@
 export interface BookLookupItem {
     author?: string;
     cover_url?: string;
+    /** Open Library edition key when the result came from a matched edition. */
+    edition_key?: string;
+    /** MARC language code of the matched edition, such as `spa` or `fre`. */
+    language?: string;
     pages_estimate?: number;
     source?: string;
     title?: string;
@@ -119,6 +123,8 @@ export interface SearchResponseDocsShape {
 export interface SearchItem {
     author: string;
     cover_url: string;
+    edition_key?: string;
+    language?: string;
     openlibrary_key: string;
     pages_estimate: number | null;
     source: string;

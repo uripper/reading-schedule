@@ -1,7 +1,4 @@
-import {
-    SORT_DIRECTION_ASC,
-    SORT_DIRECTION_DESC,
-} from "./sort.ts";
+import { SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from "./sort.ts";
 import { ensureBooksToolbarControls } from "./toolbar_dom.ts";
 import {
     updateGroupByOptions,

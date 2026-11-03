@@ -166,16 +166,15 @@ test("sortBooks by estimated finish includes finished read books in date order",
     );
 });
 
-test("metaLabel shows finished date for read books", () => {
+test("metaLabel leaves finished date to the card actions badge", () => {
     const BOOK = baseBook({
         book_id: "book-1",
         finished_at: "2026-01-20",
         status: "read",
     });
-    const FINISH_DATES = { "book-1": "2026-01-20" };
 
-    const LABEL = metaLabel(BOOK, { finishDateByBookId: FINISH_DATES });
-    assert.equal(LABEL.includes("Finished 2026-01-20"), true);
+    const LABEL = metaLabel(BOOK);
+    assert.equal(LABEL.includes("Finished"), false);
     assert.equal(LABEL.includes("Est. finish"), false);
 });
 
