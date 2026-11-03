@@ -28,6 +28,11 @@ licensed under the Apache License, Version 2.0
 (`Apache-2.0-material-icons.txt`). Source:
 https://github.com/google/material-design-icons
 
+The UI icons in `packages/frontend/public/assets/icons/` (wired up in
+`packages/frontend/styles/icons.css`) are Lucide icons, stroke width
+increased, licensed under the ISC License (`ISC-lucide.txt`); portions are
+from Feather (MIT). Source: https://lucide.dev
+
 ## Package dependencies
 
 npm and Cargo dependencies keep the licenses declared in their own package

@@ -187,12 +187,10 @@
 
 #tab-settings input[type="checkbox"]:checked::after {
     position: absolute;
-    top: -6px;
-    left: 3px;
-    font-size: 1.4rem;
-    font-weight: 900;
-    color: #000;
-    content: "\2713";
+    inset: 1px;
+    content: "";
+    background: #000;
+    mask: var(--icon-check) center / contain no-repeat;
 }
 
 .weekday-custom-grid {

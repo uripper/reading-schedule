@@ -139,9 +139,65 @@ jobs:
             --manifest-path apps/bartleby/src-tauri/Cargo.toml \
             -- -D warnings
 
+  # Creates the one draft every platform build uploads into. Letting each
+  # matrix job create its own draft races: parallel jobs that finish together
+  # each create a separate draft, splitting assets and latest.json between them.
+  create-release:
+    name: Create draft release
+    needs:
+      - detect-version
+      - validate-desktop
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    outputs:
+      id: ${{ steps.draft.outputs.id }}
+    env:
+      GH_TOKEN: ${{ secrets.BARTLEBY_RELEASE_TOKEN }}
+      RELEASE_NOTES: ${{ needs.detect-version.outputs.notes }}
+      RELEASE_TAG: Bartleby-v${{ needs.detect-version.outputs.current }}
+      RELEASE_VERSION: ${{ needs.detect-version.outputs.current }}
+
+    steps:
+      - name: Create or reuse draft release
+        id: draft
+        shell: bash
+        run: |
+          set -euo pipefail
+          MATCHES="$(
+            gh api --paginate repos/uripper/Bartleby/releases \
+              --jq ".[] | select(.tag_name == \"${RELEASE_TAG}\") | {id, draft}"
+          )"
+          if jq --exit-status --slurp 'any(.draft == false)' <<< "${MATCHES}" > /dev/null; then
+            echo "::error::${RELEASE_TAG} is already published; bump the version instead."
+            exit 1
+          fi
+          DRAFT_COUNT="$(jq --slurp 'length' <<< "${MATCHES}")"
+          if (( DRAFT_COUNT > 1 )); then
+            echo "::error::Found ${DRAFT_COUNT} drafts for ${RELEASE_TAG} in uripper/Bartleby; delete them and re-run."
+            exit 1
+          fi
+          if (( DRAFT_COUNT == 1 )); then
+            RELEASE_ID="$(jq --slurp '.[0].id' <<< "${MATCHES}")"
+            echo "Reusing draft release ${RELEASE_ID} for ${RELEASE_TAG}."
+          else
+            RELEASE_ID="$(
+              gh api repos/uripper/Bartleby/releases \
+                -f tag_name="${RELEASE_TAG}" \
+                -f target_commitish=main \
+                -f name="Bartleby ${RELEASE_VERSION}" \
+                -f body="${RELEASE_NOTES}" \
+                -F draft=true \
+                -F prerelease=false \
+                --jq '.id'
+            )"
+            echo "Created draft release ${RELEASE_ID} for ${RELEASE_TAG}."
+          fi
+          echo "id=${RELEASE_ID}" >> "${GITHUB_OUTPUT}"
+
   release-desktop:
     name: Release ${{ matrix.label }}
     needs:
+      - create-release
       - detect-version
       - validate-desktop
     runs-on: ${{ matrix.os }}
@@ -198,7 +254,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build signed update and draft release
+      # Uploads installers and updater signatures only. latest.json is built
+      # once in publish-release, after every platform has uploaded, because
+      # parallel jobs merging into it can overwrite each other's entries.
+      - name: Build signed update into draft release
         uses: tauri-apps/tauri-action@v1
         env:
           APPLE_SIGNING_IDENTITY: ${{ matrix.apple_signing_identity }}
@@ -209,40 +268,75 @@ jobs:
           owner: uripper
           projectPath: apps/bartleby
           releaseAssetNamePattern: ${{ matrix.asset_name }}
-          releaseBody: ${{ needs.detect-version.outputs.notes }}
-          releaseCommitish: main
-          releaseDraft: true
-          releaseName: Bartleby __VERSION__
-          prerelease: false
+          releaseId: ${{ needs.create-release.outputs.id }}
           repo: Bartleby
           retryAttempts: 2
-          tagName: Bartleby-v__VERSION__
           tauriScript: pnpm tauri
-          updaterJsonPreferNsis: true
-          uploadUpdaterJson: true
+          uploadUpdaterJson: false
 
   publish-release:
     name: Publish complete desktop update
     needs:
+      - create-release
       - detect-version
       - release-desktop
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     env:
       GH_TOKEN: ${{ secrets.BARTLEBY_RELEASE_TOKEN }}
-      RELEASE_TAG: Bartleby-v${{ needs.detect-version.outputs.current }}
+      RELEASE_ID: ${{ needs.create-release.outputs.id }}
+      RELEASE_NOTES: ${{ needs.detect-version.outputs.notes }}
       RELEASE_VERSION: ${{ needs.detect-version.outputs.current }}
 
     steps:
-      - name: Download updater manifest
+      # Each updater platform maps to the tarball/installer tauri-action
+      # uploads for it; the matching .sig asset holds its signature. Asset API
+      # URLs match what tauri-action writes and work for draft releases.
+      - name: Build updater manifest
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p "${RUNNER_TEMP}/bartleby-release"
-          gh release download "${RELEASE_TAG}" \
-            --repo uripper/Bartleby \
-            --pattern latest.json \
-            --dir "${RUNNER_TEMP}/bartleby-release"
+          WORK_DIR="${RUNNER_TEMP}/bartleby-release"
+          mkdir -p "${WORK_DIR}"
+          gh api "repos/uripper/Bartleby/releases/${RELEASE_ID}/assets" \
+            --paginate > "${WORK_DIR}/assets.json"
+          PLATFORMS='{}'
+          while read -r ASSET_NAME PLATFORM_KEYS; do
+            ASSET_URL="$(
+              jq --raw-output --arg name "${ASSET_NAME}" \
+                '.[] | select(.name == $name) | .url' "${WORK_DIR}/assets.json"
+            )"
+            SIGNATURE_ID="$(
+              jq --raw-output --arg name "${ASSET_NAME}.sig" \
+                '.[] | select(.name == $name) | .id' "${WORK_DIR}/assets.json"
+            )"
+            if [[ -z "${ASSET_URL}" || -z "${SIGNATURE_ID}" ]]; then
+              echo "::error::Draft ${RELEASE_ID} is missing ${ASSET_NAME} or its .sig."
+              exit 1
+            fi
+            SIGNATURE="$(
+              gh api -H "Accept: application/octet-stream" \
+                "repos/uripper/Bartleby/releases/assets/${SIGNATURE_ID}"
+            )"
+            for PLATFORM_KEY in ${PLATFORM_KEYS}; do
+              PLATFORMS="$(
+                jq --arg key "${PLATFORM_KEY}" --arg url "${ASSET_URL}" \
+                  --arg signature "${SIGNATURE}" \
+                  '.[$key] = {signature: $signature, url: $url}' <<< "${PLATFORMS}"
+              )"
+            done
+          done <<'BARTLEBY_UPDATER_ASSETS'
+          Bartleby.Setup.exe windows-x86_64 windows-x86_64-nsis
+          Bartleby.aarch64.app.tar.gz darwin-aarch64 darwin-aarch64-app
+          Bartleby.x64.app.tar.gz darwin-x86_64 darwin-x86_64-app
+          BARTLEBY_UPDATER_ASSETS
+          jq --null-input \
+            --arg version "${RELEASE_VERSION}" \
+            --arg notes "${RELEASE_NOTES}" \
+            --arg pubDate "$(date --utc +%Y-%m-%dT%H:%M:%S.000Z)" \
+            --argjson platforms "${PLATFORMS}" \
+            '{version: $version, notes: $notes, pub_date: $pubDate, platforms: $platforms}' \
+            > "${WORK_DIR}/latest.json"
 
       - name: Verify updater platforms
         shell: bash
@@ -261,10 +355,26 @@ jobs:
             ' \
             "${RUNNER_TEMP}/bartleby-release/latest.json"
 
+      - name: Upload updater manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXISTING_ID="$(
+            gh api "repos/uripper/Bartleby/releases/${RELEASE_ID}/assets" \
+              --paginate --jq '.[] | select(.name == "latest.json") | .id'
+          )"
+          if [[ -n "${EXISTING_ID}" ]]; then
+            gh api -X DELETE "repos/uripper/Bartleby/releases/assets/${EXISTING_ID}"
+          fi
+          gh api -X POST \
+            -H "Content-Type: application/json" \
+            --input "${RUNNER_TEMP}/bartleby-release/latest.json" \
+            "https://uploads.github.com/repos/uripper/Bartleby/releases/${RELEASE_ID}/assets?name=latest.json"
+
       - name: Publish latest release
         run: |
-          gh release edit "${RELEASE_TAG}" \
-            --repo uripper/Bartleby \
-            --draft=false \
-            --prerelease=false \
-            --latest
+          gh api -X PATCH "repos/uripper/Bartleby/releases/${RELEASE_ID}" \
+            -F draft=false \
+            -F prerelease=false \
+            -f make_latest=true \
+            --silent

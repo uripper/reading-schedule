@@ -1,6 +1,7 @@
 @import "./styles/fonts-local.css";
 @import "./styles/generated/tokens.css";
 @import "./styles/base.css";
+@import "./styles/icons.css";
 @import "./styles/desktop-sections.css";
 @import "./styles/today-header.css";
 @import "./styles/today-carousel.css";
@@ -18,6 +19,7 @@
 @import "./styles/components/sync-links.css";
 @import "./styles/calendar.css";
 @import "./styles/calendar-session-tidy.css";
+@import "./styles/books-toolbar.css";
 @import "./styles/books-grid.css";
 @import "./styles/books-mass-edit.css";
 @import "./styles/books-card.css";

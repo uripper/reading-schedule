@@ -15,7 +15,7 @@ import {
 } from "./toolbar_options.ts";
 
 /**
- * Updates sort direction button label from current direction state.
+ * Marks the active half of the sort direction toggle and updates its label.
  * @param sortDirectionBtn - Sort direction toggle button.
  * @param sortDirection - Active sort direction value.
  */
@@ -24,10 +24,13 @@ export function updateSortDirectionButton(
     sortDirection: SortDirection,
 ): void {
     const NEXT_SORT_DIRECTION_BUTTON = sortDirectionBtn;
-    NEXT_SORT_DIRECTION_BUTTON.textContent = "Ascending";
+    let label = "Sort ascending";
     if (sortDirection === SORT_DIRECTION_DESC) {
-        NEXT_SORT_DIRECTION_BUTTON.textContent = "Descending";
+        label = "Sort descending";
     }
+    NEXT_SORT_DIRECTION_BUTTON.dataset.direction = sortDirection;
+    NEXT_SORT_DIRECTION_BUTTON.setAttribute("aria-label", label);
+    NEXT_SORT_DIRECTION_BUTTON.title = label;
 }
 
 /**

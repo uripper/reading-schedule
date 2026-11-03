@@ -1,0 +1,56 @@
+/*
+ * Shared UI icons. The SVGs in assets/icons are Lucide icons
+ * (ISC License, https://lucide.dev) with a heavier stroke. They are applied
+ * as masks so every icon follows currentColor.
+ *
+ * Markup: <span class="icon icon-flame" aria-hidden="true"></span>.
+ * Pseudo-elements: set `mask: var(--icon-<name>) center / contain no-repeat`
+ * with `background: currentcolor`.
+ */
+:root {
+    --icon-arrow-down: url("../assets/icons/arrow-down.svg");
+    --icon-arrow-up: url("../assets/icons/arrow-up.svg");
+    --icon-book-open: url("../assets/icons/book-open.svg");
+    --icon-check: url("../assets/icons/check.svg");
+    --icon-chevron-down: url("../assets/icons/chevron-down.svg");
+    --icon-chevron-left: url("../assets/icons/chevron-left.svg");
+    --icon-chevron-right: url("../assets/icons/chevron-right.svg");
+    --icon-circle-alert: url("../assets/icons/circle-alert.svg");
+    --icon-circle-check: url("../assets/icons/circle-check.svg");
+    --icon-flame: url("../assets/icons/flame.svg");
+    --icon-layers: url("../assets/icons/layers.svg");
+    --icon-pencil: url("../assets/icons/pencil.svg");
+    --icon-search: url("../assets/icons/search.svg");
+    --icon-square-check: url("../assets/icons/square-check-big.svg");
+    --icon-x: url("../assets/icons/x.svg");
+}
+
+.icon {
+    display: inline-block;
+    flex: none;
+    width: var(--icon-size, 1.25em);
+    height: var(--icon-size, 1.25em);
+    vertical-align: middle;
+    background: currentcolor;
+    mask: var(--icon) center / contain no-repeat;
+}
+
+.icon-arrow-down {
+    --icon: var(--icon-arrow-down);
+}
+
+.icon-arrow-up {
+    --icon: var(--icon-arrow-up);
+}
+
+.icon-chevron-left {
+    --icon: var(--icon-chevron-left);
+}
+
+.icon-chevron-right {
+    --icon: var(--icon-chevron-right);
+}
+
+.icon-flame {
+    --icon: var(--icon-flame);
+}

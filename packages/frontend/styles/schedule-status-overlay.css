@@ -48,25 +48,13 @@
 
 .schedule-status-overlay.is-updated .schedule-status-overlay-icon,
 .schedule-status-overlay.is-failed .schedule-status-overlay-icon {
-    display: grid;
-    place-items: center;
-    border-color: currentColor;
+    background: currentcolor;
+    border: 0;
+    mask: var(--icon-circle-check) center / contain no-repeat;
 }
 
-.schedule-status-overlay.is-updated .schedule-status-overlay-icon::before {
-    width: 0.35rem;
-    height: 0.6rem;
-    content: "";
-    border-right: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
-    transform: rotate(40deg);
-}
-
-.schedule-status-overlay.is-failed .schedule-status-overlay-icon::before {
-    font-size: var(--token-typography-size-xs);
-    font-weight: var(--token-typography-weight-bold);
-    line-height: 1;
-    content: "!";
+.schedule-status-overlay.is-failed .schedule-status-overlay-icon {
+    mask-image: var(--icon-circle-alert);
 }
 
 .schedule-status-overlay-text {
