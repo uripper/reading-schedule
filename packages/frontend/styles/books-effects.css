@@ -17,7 +17,8 @@
     border-color: color-mix(in srgb, rgb(212, 165, 54) 34%, var(--app-border));
 }
 
-.book-estimated-finish-btn {
+.book-estimated-finish-btn,
+.book-finished-btn {
     align-self: end;
     justify-self: start;
     max-width: 100%;
@@ -28,7 +29,9 @@
 }
 
 .book-estimated-finish-btn:hover,
-.book-estimated-finish-btn:focus-visible {
+.book-estimated-finish-btn:focus-visible,
+.book-finished-btn:hover,
+.book-finished-btn:focus-visible {
     color: #ffffff;
 }
 

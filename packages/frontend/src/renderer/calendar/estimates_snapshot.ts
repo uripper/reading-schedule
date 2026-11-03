@@ -65,9 +65,7 @@ function estimateBookContext(
     };
 }
 
-function wordsReadFromScheduler(
-    context: EstimateBookContext,
-): number | null {
+function wordsReadFromScheduler(context: EstimateBookContext): number | null {
     if (
         context.remainingWords <= 0 ||
         context.remainingWords >= context.fullWords

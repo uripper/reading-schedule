@@ -1,7 +1,7 @@
+/** Formats book card text: progress, word counts, metadata, and subtitles. */
 import type { BlockerMeta, Book, BookMetaOptions } from "../../types/types.ts";
 import { WORDS_PER_PAGE } from "./constants.ts";
 import { shelfLabelForBook } from "./shelf.ts";
-import { BOOK_STATUS_READ } from "./status_catalog.ts";
 import { formatInt } from "./utils.ts";
 
 /**
@@ -17,25 +17,10 @@ function hasPositiveNumber(value: number | null | undefined): boolean {
 }
 
 /**
- * Builds status-sensitive finish metadata text for one book.
+ * Builds due-date metadata text for one book.
  * @param book - Book to describe.
- * @param finishDateByBookId - Finish date lookup keyed by `book_id`.
- * @returns Metadata text or `null` when no finish text should be shown.
+ * @returns Due-date text or `null` when no deadline is set.
  */
-function finishMetaPart(
-    book: Book,
-    finishDateByBookId: Record<string, string>,
-): string | null {
-    const FINISH_DATE = finishDateByBookId[book.book_id];
-    if (!FINISH_DATE) {
-        return null;
-    }
-    if (book.status === BOOK_STATUS_READ) {
-        return `Finished ${FINISH_DATE}`;
-    }
-    return null;
-}
-
 function dueMetaPart(book: Book): string | null {
     if (book.deadline !== null && book.deadline !== "") {
         return `Due: ${book.deadline}`;
@@ -43,6 +28,12 @@ function dueMetaPart(book: Book): string | null {
     return null;
 }
 
+/**
+ * Builds shelf metadata text when shelf metadata is enabled.
+ * @param book - Book to describe.
+ * @param showShelfMeta - Whether shelf metadata should be shown.
+ * @returns Shelf text or `null` when hidden.
+ */
 function shelfMetaPart(
     book: Book,
     showShelfMeta: boolean | undefined,
@@ -53,6 +44,11 @@ function shelfMetaPart(
     return null;
 }
 
+/**
+ * Appends a metadata part when it is present.
+ * @param bits - Metadata parts collected so far.
+ * @param value - Candidate metadata part.
+ */
 function pushMetaPart(bits: string[], value: string | null): void {
     if (value !== null) {
         bits.push(value);
@@ -134,16 +130,14 @@ export function wordsLabel(book: Book): string {
 }
 
 /**
- * Builds metadata line including status, completion date, due date, and blockers.
+ * Builds metadata line including due date, blockers, and shelf.
  * @param book - Book to present.
- * @param options - Optional context used to resolve titles and finish dates.
+ * @param options - Optional context used to resolve titles.
  * @returns Joined metadata text for card subtitle line.
  */
 export function metaLabel(book: Book, options: BookMetaOptions = {}): string {
     const TITLE_BY_ID = options.titleById ?? {};
-    const FINISH_DATE_BY_BOOK_ID = options.finishDateByBookId ?? {};
     const BITS: string[] = [];
-    pushMetaPart(BITS, finishMetaPart(book, FINISH_DATE_BY_BOOK_ID));
     pushMetaPart(BITS, dueMetaPart(book));
     if (options.showBlockerMeta !== false) {
         pushMetaPart(BITS, blockerMetaPart(book, TITLE_BY_ID));

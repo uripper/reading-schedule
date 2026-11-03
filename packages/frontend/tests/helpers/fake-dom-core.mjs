@@ -124,9 +124,10 @@ export class FakeElement {
                 continue;
             }
             if (NODE.parentElement !== null) {
-                NODE.parentElement.children = NODE.parentElement.children.filter(
-                    (child) => child !== NODE,
-                );
+                NODE.parentElement.children =
+                    NODE.parentElement.children.filter(
+                        (child) => child !== NODE,
+                    );
             }
             NODE.parentElement = this;
             this.children.push(NODE);

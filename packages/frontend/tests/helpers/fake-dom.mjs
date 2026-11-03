@@ -15,6 +15,8 @@ function windowEvent(type, props = {}) {
 
 export function installFakeDom() {
     const ORIGINALS = {
+        addEventListener: globalThis.addEventListener,
+        document: globalThis.document,
         Element: globalThis.Element,
         HTMLButtonElement: globalThis.HTMLButtonElement,
         HTMLDialogElement: globalThis.HTMLDialogElement,
@@ -22,11 +24,9 @@ export function installFakeDom() {
         HTMLElement: globalThis.HTMLElement,
         HTMLInputElement: globalThis.HTMLInputElement,
         HTMLSpanElement: globalThis.HTMLSpanElement,
-        Node: globalThis.Node,
-        addEventListener: globalThis.addEventListener,
-        document: globalThis.document,
         innerHeight: globalThis.innerHeight,
         innerWidth: globalThis.innerWidth,
+        Node: globalThis.Node,
         scrollY: globalThis.scrollY,
     };
     const DOCUMENT = new FakeDocument();
@@ -56,7 +56,6 @@ export function installFakeDom() {
             }
             return ELEMENT;
         },
-        document: DOCUMENT,
         dispatchDocument(type, props = {}) {
             return DOCUMENT.dispatch(type, props);
         },
@@ -68,6 +67,7 @@ export function installFakeDom() {
             }
             return EVENT;
         },
+        document: DOCUMENT,
         restore() {
             globalThis.document = ORIGINALS.document;
             globalThis.HTMLElement = ORIGINALS.HTMLElement;

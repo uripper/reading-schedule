@@ -29,7 +29,9 @@ interface OverlayState {
 let state: OverlayState | null = null;
 
 function lowerText(value: string): string {
-    return String(value || EMPTY_TEXT).trim().toLowerCase();
+    return String(value || EMPTY_TEXT)
+        .trim()
+        .toLowerCase();
 }
 
 function createDialogShell(): HTMLDialogElement {
@@ -140,7 +142,6 @@ function rowNode(
     return ROW;
 }
 
-
 function normalizedActiveIndex(activeIndex: number, total: number): number {
     if (total <= 0) {
         return -1;
@@ -160,7 +161,10 @@ function renderRows(refs: OverlayDomRefs): void {
         refs.results.replaceChildren(noResultsRow());
         return;
     }
-    const ACTIVE_INDEX = normalizedActiveIndex(currentState().activeIndex, VISIBLE.length);
+    const ACTIVE_INDEX = normalizedActiveIndex(
+        currentState().activeIndex,
+        VISIBLE.length,
+    );
     const NODES = VISIBLE.map((option, index) => {
         return rowNode(refs, option, index === ACTIVE_INDEX);
     });
@@ -183,7 +187,10 @@ function movedIndex(activeIndex: number, delta: number, total: number): number {
 
 function selectActive(refs: OverlayDomRefs): void {
     const VISIBLE = visibleOptions(refs.queryInput);
-    const INDEX = normalizedActiveIndex(currentState().activeIndex, VISIBLE.length);
+    const INDEX = normalizedActiveIndex(
+        currentState().activeIndex,
+        VISIBLE.length,
+    );
     const ACTIVE = VISIBLE[INDEX];
     if (ACTIVE === undefined) {
         return;
@@ -194,7 +201,11 @@ function selectActive(refs: OverlayDomRefs): void {
 function handleArrowDown(refs: OverlayDomRefs, event: KeyboardEvent): void {
     event.preventDefault();
     const VISIBLE = visibleOptions(refs.queryInput);
-    const NEXT_INDEX = movedIndex(currentState().activeIndex, 1, VISIBLE.length);
+    const NEXT_INDEX = movedIndex(
+        currentState().activeIndex,
+        1,
+        VISIBLE.length,
+    );
     state = { ...currentState(), activeIndex: NEXT_INDEX };
     renderRows(refs);
 }
@@ -202,7 +213,11 @@ function handleArrowDown(refs: OverlayDomRefs, event: KeyboardEvent): void {
 function handleArrowUp(refs: OverlayDomRefs, event: KeyboardEvent): void {
     event.preventDefault();
     const VISIBLE = visibleOptions(refs.queryInput);
-    const NEXT_INDEX = movedIndex(currentState().activeIndex, -1, VISIBLE.length);
+    const NEXT_INDEX = movedIndex(
+        currentState().activeIndex,
+        -1,
+        VISIBLE.length,
+    );
     state = { ...currentState(), activeIndex: NEXT_INDEX };
     renderRows(refs);
 }

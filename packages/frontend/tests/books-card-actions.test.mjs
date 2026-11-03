@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { bindCardEvents } from "../dist/renderer/books/card_events.js";
-import { createCardNode } from "../dist/renderer/books/card_nodes.js";
+import { createCardNode } from "../dist/renderer/books/card-nodes.js";
 import { installFakeDom } from "./helpers/fake-dom.mjs";
 
 const BOOK_ID = "book-1";
@@ -28,11 +28,11 @@ function bookFixture() {
     };
 }
 
-function cardContext() {
+function cardContext(navigatedDates = []) {
     return {
         finishDateByBookId: { [BOOK_ID]: FINISH_DATE },
-        onEstimatedFinishNavigate() {
-            return undefined;
+        onEstimatedFinishNavigate(dateKey) {
+            navigatedDates.push(dateKey);
         },
         showBlockerMeta: false,
         showShelfMeta: false,
@@ -108,6 +108,40 @@ test("book cards render stacked edit and remove actions", () => {
         clickCardActions(NODES);
         assert.deepEqual(EVENTS.edited, [BOOK_ID, BOOK_ID]);
         assert.deepEqual(EVENTS.removed, [BOOK_ID]);
+    } finally {
+        ENVIRONMENT.restore();
+    }
+});
+
+test("read cards show a clickable finished date in the actions row", () => {
+    const ENVIRONMENT = installFakeDom();
+    try {
+        const BOOK = { ...bookFixture(), status: "read" };
+        const NAVIGATED_DATES = [];
+        const CARD = createCardNode(BOOK, cardContext(NAVIGATED_DATES));
+        const ACTIONS = CARD.querySelector(".book-actions");
+        const BADGE = ACTIONS.querySelector(".book-finished-btn");
+        assert.ok(BADGE);
+        BADGE.click();
+        assert.deepEqual(NAVIGATED_DATES, [FINISH_DATE]);
+        assert.equal(
+            BADGE.textContent.includes(`Finished ${FINISH_DATE}`),
+            true,
+        );
+        assert.equal(ACTIONS.querySelector(".book-estimated-finish-btn"), null);
+        assert.equal(ACTIONS.children[0], BADGE);
+    } finally {
+        ENVIRONMENT.restore();
+    }
+});
+
+test("to-read cards show the estimated finish control instead of a badge", () => {
+    const ENVIRONMENT = installFakeDom();
+    try {
+        const CARD = createCardNode(bookFixture(), cardContext());
+        const ACTIONS = CARD.querySelector(".book-actions");
+        assert.ok(ACTIONS.querySelector(".book-estimated-finish-btn"));
+        assert.equal(ACTIONS.querySelector(".book-finished-btn"), null);
     } finally {
         ENVIRONMENT.restore();
     }

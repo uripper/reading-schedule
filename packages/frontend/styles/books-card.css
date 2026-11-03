@@ -17,7 +17,8 @@
 }
 
 .book-actions .btn,
-.book-estimated-finish-btn {
+.book-estimated-finish-btn,
+.book-finished-btn {
     min-height: 42px;
     padding: 9px 12px;
     font-size: 0.82rem;
@@ -34,7 +35,9 @@
 .book-actions .btn:hover,
 .book-actions .btn:focus-visible,
 .book-estimated-finish-btn:hover,
-.book-estimated-finish-btn:focus-visible {
+.book-estimated-finish-btn:focus-visible,
+.book-finished-btn:hover,
+.book-finished-btn:focus-visible {
     filter: brightness(1.04);
     transform: translate(-2px, -2px);
 }

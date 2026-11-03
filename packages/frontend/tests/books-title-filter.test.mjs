@@ -10,7 +10,10 @@ const BOOK = (title, author = "") => {
 
 function assertKeywordMatch(query, expected) {
     assert.equal(
-        matchesTitleFilter(BOOK("Against Interpretation", "Susan Sontag"), query),
+        matchesTitleFilter(
+            BOOK("Against Interpretation", "Susan Sontag"),
+            query,
+        ),
         expected,
     );
 }

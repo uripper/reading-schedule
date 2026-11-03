@@ -69,8 +69,8 @@
 }
 
 .stats-section-heading {
-    margin: 0;
     padding-bottom: 12px;
+    margin: 0;
     font-family: var(--header-font);
     font-size: 1.25rem;
     color: #111;
@@ -142,8 +142,8 @@
 }
 
 .month-bar-track {
-    display: flex;
     position: relative;
+    display: flex;
     align-items: flex-end;
     width: 100%;
     height: 220px;
@@ -186,8 +186,8 @@
     font-size: 0.82rem;
     font-weight: 900;
     color: #111;
-    letter-spacing: 0.08em;
     text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
 
 @media (max-width: 1280px) {
