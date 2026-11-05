@@ -7,28 +7,28 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--token-space-3);
     padding: var(--token-space-3);
-    color: #111;
-    background: #f7efab;
-    border: 3px solid #000;
-    box-shadow: 6px 6px 0 #000;
+    color: var(--color-ink);
+    background: var(--color-butter-pale);
+    border: 3px solid var(--color-black);
+    box-shadow: 6px 6px 0 var(--color-black);
 }
 
 .day-details-item.is-finish {
-    background: #ffd77f;
+    background: var(--color-sun-glow-soft);
 }
 
 .day-details-item.is-complete {
-    background: #c9efb8;
+    background: var(--color-pistachio);
 }
 
 .day-details-item.is-finish.is-complete {
     background:
         radial-gradient(
             circle at top right,
-            color-mix(in srgb, #f4ffd6 78%, transparent),
+            color-mix(in srgb, var(--color-lime-cream) 78%, transparent),
             transparent 56%
         ),
-        #c9efb8;
+        var(--color-pistachio);
 }
 
 .day-session-header,
@@ -42,7 +42,7 @@
     gap: var(--token-space-2);
     align-items: start;
     padding-bottom: var(--token-space-2);
-    border-bottom: 2px solid #000;
+    border-bottom: 2px solid var(--color-black);
 }
 
 .day-session-heading {
@@ -66,12 +66,12 @@
     padding: 2px var(--token-space-2);
     font-size: 11px;
     font-weight: var(--token-typography-weight-bold);
-    color: color-mix(in srgb, var(--app-warning) 90%, var(--app-text));
+    color: color-mix(in srgb, var(--color-amber) 90%, var(--color-porcelain));
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    background: color-mix(in srgb, var(--app-warning) 18%, var(--app-surface));
+    background: color-mix(in srgb, var(--color-amber) 18%, var(--color-night));
     border: 1px solid
-        color-mix(in srgb, var(--app-warning) 82%, var(--app-border));
+        color-mix(in srgb, var(--color-amber) 82%, var(--color-storm));
     border-radius: var(--token-radius-pill);
 }
 
@@ -79,17 +79,17 @@
     0% {
         transform: translateY(0) scale(1);
         box-shadow: 0 0 0 0
-            color-mix(in srgb, var(--app-warning) 40%, transparent);
+            color-mix(in srgb, var(--color-amber) 40%, transparent);
     }
     45% {
         transform: translateY(-1px) scale(1.01);
         box-shadow: 0 0 0 6px
-            color-mix(in srgb, var(--app-warning) 20%, transparent);
+            color-mix(in srgb, var(--color-amber) 20%, transparent);
     }
     100% {
         transform: translateY(0) scale(1);
         box-shadow: 0 0 0 0
-            color-mix(in srgb, var(--app-warning) 0%, transparent);
+            color-mix(in srgb, var(--color-amber) 0%, transparent);
     }
 }
 
@@ -123,24 +123,6 @@
     font-size: var(--token-typography-size-sm);
 }
 
-.btn-session-edit,
-.btn-session-remove {
-    display: grid;
-    place-items: center;
-    inline-size: 28px;
-    block-size: 28px;
-    padding: 0;
-    font: inherit;
-    cursor: pointer;
-}
-
-.btn-session-edit {
-    color: #13213a;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: var(--token-radius-sm);
-}
-
 .btn-session-edit::before {
     inline-size: 1rem;
     block-size: 1rem;
@@ -149,36 +131,12 @@
     mask: var(--icon-pencil) center / contain no-repeat;
 }
 
-.btn-session-edit:hover {
-    border-color: currentcolor;
-}
-
-.btn-session-remove {
-    font-weight: var(--token-typography-weight-bold);
-    color: #8d2f2f;
-    background: #f3c5cc;
-    border: 2px solid #000;
-    border-radius: var(--token-radius-sm);
-}
-
-.btn-session-remove:hover {
-    background: #f8dbe0;
-}
-
 .day-session-menu {
     position: relative;
 }
 
 .day-session-menu .day-session-menu-trigger {
-    display: grid;
-    place-items: center;
-    inline-size: 36px;
-    min-height: 36px;
-    padding: 0;
-    font-size: var(--token-typography-size-lg);
     list-style: none;
-    cursor: pointer;
-    border-radius: var(--token-radius-sm);
 }
 
 .day-session-menu-trigger::-webkit-details-marker {
@@ -190,11 +148,7 @@
     z-index: 1;
     inset-block-start: calc(100% + var(--token-space-1));
     inset-inline-end: 0;
-    padding: var(--token-space-2);
-    font-size: var(--token-typography-size-xs);
     white-space: nowrap;
-    border-radius: var(--token-radius-sm);
-    box-shadow: 3px 3px 0 #000;
 }
 
 @container (max-width: 230px) {

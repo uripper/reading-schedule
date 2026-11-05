@@ -26,10 +26,10 @@ export interface BookSearchResponse {
     items: BookLookupItem[];
 }
 
+/** Tracks visible lookup results and identifies the current request. */
 export interface LookupSearchState {
     activeIndex: number;
     currentItems: BookLookupItem[];
-    timer: ReturnType<typeof setTimeout> | null;
     token: number;
 }
 
@@ -42,6 +42,7 @@ export interface BindBookLookupOptions {
     metaEl: HTMLElement;
     onPick(this: void, item: BookLookupItem): void;
     resultsEl: HTMLElement;
+    searchButton: HTMLButtonElement;
     searchInput: HTMLInputElement;
 }
 
@@ -53,7 +54,8 @@ export interface ProgressSyncInputs {
 
 export type ProgressField = "pages" | "progress";
 
-export interface LookupInputHandlerArgs {
+/** Collaborators for submitting and clearing Open Library queries. */
+export interface LookupQueryArgs {
     clearResults(this: void): void;
     metaEl: HTMLElement;
     refreshResults(this: void): void;
@@ -73,6 +75,7 @@ export interface HandleLookupKeydownArgs {
     searchInput: HTMLInputElement;
     selectItem: SelectItem;
     setActiveIndex: SetActiveIndex;
+    submitQuery(this: void): void;
 }
 
 export interface LookupRenderState {

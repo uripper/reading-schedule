@@ -68,7 +68,7 @@ function ensureAddVisibleButton(toolbar: HTMLElement): HTMLButtonElement {
     const BUTTON = document.createElement("button");
     BUTTON.id = ADD_VISIBLE_BUTTON_ID;
     BUTTON.type = "button";
-    BUTTON.className = "btn books-mass-edit-add-btn";
+    BUTTON.className = "btn btn-add-book books-mass-edit-add-btn";
     BUTTON.hidden = true;
     toolbar.append(BUTTON);
     return BUTTON;
@@ -82,7 +82,7 @@ function ensureFloatingButton(): HTMLButtonElement {
     const BUTTON = document.createElement("button");
     BUTTON.id = FLOATING_BUTTON_ID;
     BUTTON.type = "button";
-    BUTTON.className = "btn books-mass-edit-floating";
+    BUTTON.className = "btn btn-primary books-mass-edit-floating";
     BUTTON.hidden = true;
     document.body.append(BUTTON);
     return BUTTON;
@@ -127,6 +127,7 @@ function setToolbarButtonState(
         TOOLBAR.textContent = ACTIVE_LABEL;
     }
     TOOLBAR.classList.toggle(ACTIVE_CLASS, state.active);
+    TOOLBAR.classList.toggle("btn-cancel", state.active);
 }
 
 function setAddVisibleButtonState(

@@ -1,5 +1,4 @@
 :root {
-    --neo-header-border-color: #000;
     --neo-header-height: 8vh;
     --neo-header-gap: 0.5vw;
     --neo-header-padding-x: 1vw;
@@ -22,9 +21,9 @@
     padding: var(--neo-header-padding-y) var(--neo-header-padding-x);
     margin: 0;
     background: var(--neo-header-color);
-    border-top: 2px solid var(--neo-header-border-color);
-    border-bottom: 2px solid var(--neo-header-border-color);
-    box-shadow: 0 4px 0 #000;
+    border-top: 2px solid var(--neo-header-border);
+    border-bottom: 2px solid var(--neo-header-border);
+    box-shadow: 0 4px 0 var(--color-black);
     backdrop-filter: none;
 }
 
@@ -52,7 +51,7 @@
     font-size: 4rem;
     font-weight: 800;
     line-height: 1;
-    color: #f3f3f3;
+    color: var(--color-smoke);
     letter-spacing: 0.03em;
 }
 
@@ -73,7 +72,7 @@
     align-items: center;
     min-width: 0;
     min-height: 2rem;
-    color: #f9f9f9;
+    color: var(--color-snow-bright);
 }
 
 .neo-metric-icon {
@@ -81,7 +80,7 @@
     place-items: center;
     width: 40px;
     height: 40px;
-    color: #fff;
+    color: var(--color-white);
     border-radius: 999px;
     transition:
         background-color var(--token-motion-duration-fast)
@@ -95,8 +94,9 @@
 }
 
 #headerStreakFlame.is-goal-complete {
-    background: #d21830;
-    box-shadow: 0 0 0 5px color-mix(in srgb, #d21830 35%, transparent);
+    background: var(--color-crimson);
+    box-shadow: 0 0 0 5px
+        color-mix(in srgb, var(--color-crimson) 35%, transparent);
 }
 
 .neo-metric-copy {
@@ -119,7 +119,7 @@
     font-size: clamp(1.2rem, 2.2vw, 2.7rem);
     font-weight: 600;
     line-height: 0.95;
-    color: #fff;
+    color: var(--color-white);
 }
 
 .neo-metric-value,
@@ -128,7 +128,7 @@
     font-family: var(--sub-header-font);
     font-size: clamp(1.2rem, 2.05vw, 2.7rem);
     line-height: 1;
-    color: #f8f8f8;
+    color: var(--color-snow);
 }
 .neo-metric-streak-text {
     margin: 0;
@@ -136,7 +136,7 @@
     font-size: clamp(1.2rem, 2.05vw, 2.7rem);
     font-weight: 100;
     line-height: 1;
-    color: #f8f8f8;
+    color: var(--color-snow);
 }
 
 .neo-metric-streak-value {
@@ -153,7 +153,7 @@
 }
 
 .neo-metric-indicator.is-complete {
-    color: #20df80;
+    color: var(--color-spring);
     background: currentcolor;
     mask: var(--icon-square-check) center / 92% no-repeat;
 }
@@ -169,13 +169,13 @@
 .neo-session-dot {
     width: var(--neo-dot-size);
     height: var(--neo-dot-size);
-    border: 2px solid rgba(255, 255, 255, 0.95);
+    border: 2px solid color-mix(in srgb, var(--color-white) 95%, transparent);
     border-radius: 999px;
 }
 
 .neo-session-dot.is-complete {
-    background: #fff;
-    border-color: #fff;
+    background: var(--color-white);
+    border-color: var(--color-white);
 }
 
 .neo-header-actions {
@@ -185,22 +185,10 @@
 }
 
 .neo-help-btn {
-    min-height: 2rem;
-    padding: 10px 24px;
-    font-family: var(--main-font);
+    min-height: var(--button-prominent-height);
+    padding: var(--token-space-2) var(--token-space-6);
     font-size: 2rem;
-    font-weight: 600;
-    line-height: 1;
-    color: #000;
-    background: #d9d9d9;
-    border: 3px solid #000;
-    border-radius: 0;
-    box-shadow: 4px 4px 0 #000;
-}
-
-.neo-help-btn:hover {
-    text-decoration: none;
-    border-color: #000;
+    white-space: nowrap;
 }
 
 @media (max-width: 1280px) {
@@ -253,9 +241,7 @@
     }
 
     .neo-help-btn {
-        min-height: 2vh;
-        padding: 8px 14px;
-        font-size: 1rem;
-        box-shadow: 2px 2px 0 #000;
+        padding-inline: var(--token-space-3);
+        font-size: var(--button-prominent-text);
     }
 }

@@ -7,14 +7,20 @@
 
 #calendarControls {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--token-space-2);
     align-items: center;
     padding: 18px;
     margin-bottom: 0;
-    background: #8fdda4;
-    border: 3px solid #000;
+    background: var(--color-mint-soft);
+    border: 3px solid var(--color-black);
     border-radius: 0;
-    box-shadow: 7px 7px 0 #000;
+    box-shadow: 7px 7px 0 var(--color-black);
+}
+
+#calendarControls .btn {
+    min-height: var(--token-size-target-minimum);
+    font-size: var(--button-prominent-text);
 }
 
 #calendarControls strong {
@@ -22,16 +28,7 @@
     font-family: var(--token-typography-family-heading);
     font-size: var(--token-typography-size-lg);
     line-height: var(--token-typography-lineHeight-tight);
-    color: #111;
-}
-
-#calendarControls .btn-calendar-today {
-    background: color-mix(in srgb, var(--app-brand) 18%, var(--app-surface));
-    border-color: color-mix(
-        in srgb,
-        var(--app-brandStrong) 58%,
-        var(--app-border)
-    );
+    color: var(--color-ink);
 }
 
 .calendar {
@@ -44,12 +41,12 @@
     padding: var(--token-space-1) var(--token-space-2);
     font-size: var(--token-typography-size-xs);
     font-weight: 900;
-    color: #fff;
+    color: var(--color-white);
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    background: #111;
-    border: 2px solid #000;
+    background: var(--color-ink);
+    border: 2px solid var(--color-black);
 }
 
 .calendar-grid {
@@ -65,12 +62,12 @@
     align-content: start;
     min-height: 164px;
     padding: 14px;
-    color: #111;
+    color: var(--color-ink);
     text-align: left;
-    background: #bfecc7;
-    border: 3px solid #000;
+    background: var(--color-mint-pale);
+    border: 3px solid var(--color-black);
     border-radius: 0;
-    box-shadow: 6px 6px 0 #000;
+    box-shadow: 6px 6px 0 var(--color-black);
     transition:
         border-color var(--token-motion-duration-fast)
             var(--token-motion-easing-standard),
@@ -81,8 +78,8 @@
 }
 
 .day:hover {
-    background: #d6f5dc;
-    border-color: #000;
+    background: var(--color-mint-mist);
+    border-color: var(--color-black);
     transform: translate(-4px, -4px);
 }
 
@@ -91,18 +88,18 @@
 }
 
 .day.is-past {
-    background: #9db39f;
-    border-color: #000;
+    background: var(--color-sage);
+    border-color: var(--color-black);
     opacity: 0.9;
 }
 
 .day.is-today {
     outline: 0;
-    background: #f4f08c;
-    border-color: #000;
+    background: var(--color-canary);
+    border-color: var(--color-black);
     box-shadow:
-        6px 6px 0 #000,
-        inset 0 0 0 3px #111;
+        6px 6px 0 var(--color-black),
+        inset 0 0 0 3px var(--color-ink);
     opacity: 1;
 }
 
@@ -114,38 +111,38 @@
 
 .day-event-count {
     font-size: var(--token-typography-size-xs);
-    color: #000;
+    color: var(--color-black);
 }
 
 .day.is-today .day-date {
-    color: #111;
+    color: var(--color-ink);
 }
 
 .day.is-today .day-event-count {
-    color: #000;
+    color: var(--color-black);
 }
 
 .day.has-finish {
-    background: #ffd67d;
-    border-color: #000;
+    background: var(--color-sun-glow);
+    border-color: var(--color-black);
 }
 
 .day.has-finish .day-event-count {
-    color: #000;
+    color: var(--color-black);
 }
 
 .day.is-selected {
-    background: #9fd7ff;
-    border-color: #000;
+    background: var(--color-powder-blue);
+    border-color: var(--color-black);
     box-shadow:
-        6px 6px 0 #000,
-        inset 0 0 0 3px #111;
+        6px 6px 0 var(--color-black),
+        inset 0 0 0 3px var(--color-ink);
 }
 
 .day.is-today.is-selected {
     box-shadow:
-        6px 6px 0 #000,
-        inset 0 0 0 3px #2d67a3;
+        6px 6px 0 var(--color-black),
+        inset 0 0 0 3px var(--color-denim);
 }
 
 .day-chip {
@@ -154,18 +151,18 @@
     text-overflow: ellipsis;
     font-size: 0.72rem;
     font-weight: 800;
-    color: #111;
+    color: var(--color-ink);
     white-space: nowrap;
-    background: #edfced;
-    border: 2px solid #000;
+    background: var(--color-mint-frost);
+    border: 2px solid var(--color-black);
     border-radius: 0;
 }
 
 .day-chip.finish {
     font-weight: 900;
-    color: #111;
-    background: #ffe798;
-    border-color: #000;
+    color: var(--color-ink);
+    background: var(--color-banana-pale);
+    border-color: var(--color-black);
 }
 
 .day-chip.is-more {

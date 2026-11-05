@@ -1,11 +1,11 @@
 :root {
-    --neo-panel-surface: #181413;
-    --neo-panel-shadow: 10px 10px 0 #000;
-    --neo-panel-border: 3px solid #000;
-    --neo-section-books: #ff8f3f;
-    --neo-section-schedule: #50c878;
-    --neo-section-stats: #58b8ff;
-    --neo-section-settings: #f2d14c;
+    --neo-panel-surface: var(--color-espresso);
+    --neo-panel-shadow: 10px 10px 0 var(--color-black);
+    --neo-panel-border: 3px solid var(--color-black);
+    --neo-section-books: var(--color-tangerine);
+    --neo-section-schedule: var(--color-emerald);
+    --neo-section-stats: var(--color-sky);
+    --neo-section-settings: var(--color-yellow);
 }
 
 .neo-screen-panel {
@@ -24,7 +24,7 @@
     height: 14px;
     content: "";
     background: var(--neo-section-accent, var(--neo-section-books));
-    border-bottom: 3px solid #000;
+    border-bottom: 3px solid var(--color-black);
 }
 
 .neo-screen-books {

@@ -16,7 +16,7 @@ function closeOnBlur(menu: HTMLDetailsElement, event: FocusEvent): void {
 /** Builds the keyboard-accessible trigger for the disclosure. */
 function menuTrigger(): HTMLElement {
     const TRIGGER = document.createElement("summary");
-    TRIGGER.className = "btn day-session-menu-trigger";
+    TRIGGER.className = "btn btn-icon btn-quiet day-session-menu-trigger";
     TRIGGER.setAttribute("aria-label", "Session actions");
     TRIGGER.textContent = "⋯";
     return TRIGGER;
@@ -29,7 +29,7 @@ function libraryAction(
 ): HTMLButtonElement {
     const LIBRARY = document.createElement("button");
     LIBRARY.type = "button";
-    LIBRARY.className = "btn day-session-library";
+    LIBRARY.className = "btn btn-primary day-session-library";
     LIBRARY.textContent = "See book in library";
     const MENU = menu;
     LIBRARY.onclick = () => {

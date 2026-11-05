@@ -24,7 +24,7 @@ function createNavigationButton(
     const BUTTON = document.createElement("button");
     BUTTON.id = id;
     BUTTON.type = "button";
-    BUTTON.className = "btn book-dialog-nav-btn";
+    BUTTON.className = "btn btn-compact book-dialog-nav-btn";
     BUTTON.setAttribute("aria-label", label);
     BUTTON.textContent = text;
     return BUTTON;

@@ -62,6 +62,10 @@ export function applyLookupItem(
         pagesTotalInput: FORM_REFS.pagesTotalInput,
         progressInput: FORM_REFS.progressInput,
     };
+    if (FORM_REFS.pagesReadInput.value === "") {
+        syncProgressAndPages(PROGRESS_SYNC_REFS, "progress");
+        return;
+    }
     syncProgressAndPages(PROGRESS_SYNC_REFS, "pages");
 }
 

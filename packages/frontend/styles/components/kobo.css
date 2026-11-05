@@ -4,10 +4,10 @@
     gap: 16px;
     padding: 18px;
     margin: 0 4px 4px 0;
-    color: #111;
-    background: #fff7da;
-    border: 3px solid #000;
-    box-shadow: 4px 4px 0 #000;
+    color: var(--color-ink);
+    background: var(--color-cream);
+    border: 3px solid var(--color-black);
+    box-shadow: 4px 4px 0 var(--color-black);
 }
 
 .kobo-provider-header {
@@ -34,7 +34,7 @@
     gap: 16px;
     min-width: 0;
     padding-top: 16px;
-    border-top: 2px solid #000;
+    border-top: 2px solid var(--color-black);
 }
 
 .kobo-sync-controls[hidden] {
@@ -68,9 +68,9 @@
     font-weight: 900;
     line-height: 1.5;
     overflow-wrap: anywhere;
-    background: #ffe58a;
-    border: 2px solid #000;
-    box-shadow: 3px 3px 0 #000;
+    background: var(--color-banana-bright);
+    border: 2px solid var(--color-black);
+    box-shadow: 3px 3px 0 var(--color-black);
 }
 
 .kobo-status:empty {
@@ -80,14 +80,14 @@
 .kobo-status.is-connected {
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    background: #9bdeac;
+    background: var(--color-sage-mint);
 }
 
 .sync-coming-soon {
     margin: 24px 0 0;
     font-size: 1.2rem;
     font-weight: 800;
-    color: #3d3521;
+    color: var(--color-umber);
 }
 
 #tab-settings .kobo-provider-switch input[type="checkbox"] {

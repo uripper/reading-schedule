@@ -191,7 +191,7 @@ function editBookButton(bookId: string): HTMLButtonElement {
  */
 function removeBookButton(bookId: string): HTMLButtonElement {
     const REMOVE_BTN = document.createElement("button");
-    REMOVE_BTN.className = "btn rm-btn remove-book-btn";
+    REMOVE_BTN.className = "btn btn-remove rm-btn remove-book-btn";
     REMOVE_BTN.type = "button";
     REMOVE_BTN.dataset.bookId = bookId;
     REMOVE_BTN.textContent = "Remove";

@@ -4,9 +4,9 @@
     left: var(--token-space-3);
     z-index: 300;
     padding: var(--token-space-2) var(--token-space-3);
-    color: var(--app-text);
-    background: var(--app-bgElevated);
-    border: 1px solid var(--app-border);
+    color: var(--color-porcelain);
+    background: var(--color-night);
+    border: 1px solid var(--color-storm);
     border-radius: var(--token-radius-sm);
     transform: translateY(-140%);
     transition: transform var(--token-motion-duration-fast)
@@ -49,7 +49,7 @@
 .brand-eyebrow {
     margin: 0;
     font-size: var(--token-typography-size-xs);
-    color: var(--app-textMuted);
+    color: var(--color-black);
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
@@ -64,8 +64,8 @@
     justify-content: space-between;
     padding: var(--token-space-2) var(--token-space-4);
     overflow-x: auto;
-    background: #ffffff;
-    border: 1px solid var(--app-border);
+    background: var(--color-white);
+    border: 1px solid var(--color-storm);
     box-shadow: var(--neo-brutalist-shadow);
 }
 
@@ -77,7 +77,7 @@
     font-size: clamp(1.2rem, 2.2vw, 2.2rem);
     font-weight: var(--token-typography-weight-bold);
     line-height: 1;
-    color: #000;
+    color: var(--color-black);
     white-space: nowrap;
     appearance: none;
     cursor: pointer;
@@ -106,8 +106,8 @@ main {
 .panel {
     display: none;
     padding: var(--token-space-4);
-    background: color-mix(in srgb, var(--app-surface) 92%, transparent);
-    border: 1px solid var(--app-border);
+    background: color-mix(in srgb, var(--color-night) 92%, transparent);
+    border: 1px solid var(--color-storm);
     border-radius: var(--token-radius-lg);
     box-shadow: var(--token-elevation-sm);
 }
@@ -120,8 +120,8 @@ main {
     display: grid;
     gap: var(--token-space-2);
     padding: var(--token-space-4);
-    background: color-mix(in srgb, var(--app-surfaceMuted) 86%, transparent);
-    border: 1px solid var(--app-border);
+    background: color-mix(in srgb, var(--color-twilight) 86%, transparent);
+    border: 1px solid var(--color-storm);
     border-radius: var(--token-radius-md);
 }
 
@@ -154,8 +154,8 @@ main {
         grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: var(--token-space-1);
         padding: var(--token-space-2);
-        background: color-mix(in srgb, var(--app-bgElevated) 94%, transparent);
-        border-top: 1px solid var(--app-border);
+        background: color-mix(in srgb, var(--color-night) 94%, transparent);
+        border-top: 1px solid var(--color-storm);
         backdrop-filter: blur(12px);
     }
 

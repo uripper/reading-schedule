@@ -100,9 +100,10 @@ export function sessionCompletionButton(
 ): HTMLButtonElement {
     const BUTTON = document.createElement("button");
     BUTTON.type = "button";
-    BUTTON.className = "btn btn-session-completion";
-    BUTTON.textContent = "Mark session complete";
+    BUTTON.className = "btn btn-complete btn-session-completion";
+    BUTTON.textContent = "Complete session";
     if (completed) {
+        BUTTON.classList.add("is-complete");
         BUTTON.textContent = "Mark session incomplete";
     }
     BUTTON.onclick = () => {
@@ -130,7 +131,7 @@ function removeSessionButton(
 ): HTMLButtonElement {
     const REMOVE_BUTTON = document.createElement("button");
     REMOVE_BUTTON.type = "button";
-    REMOVE_BUTTON.className = "btn-session-remove";
+    REMOVE_BUTTON.className = "btn btn-icon btn-remove btn-session-remove";
     REMOVE_BUTTON.textContent = "×";
     REMOVE_BUTTON.setAttribute("aria-label", REMOVE_SESSION_LABEL);
     REMOVE_BUTTON.title = REMOVE_SESSION_LABEL;

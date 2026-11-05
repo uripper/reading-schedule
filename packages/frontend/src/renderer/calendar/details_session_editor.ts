@@ -62,7 +62,7 @@ export function bindSessionNumberEditor(
     editor: SessionNumberEditor,
 ): () => void {
     const ACTION = document.createElement("button");
-    ACTION.className = "btn-session-edit";
+    ACTION.className = "btn btn-icon btn-quiet btn-session-edit";
     ACTION.onclick = (event) => {
         if (editor.input.hidden) {
             event.preventDefault();

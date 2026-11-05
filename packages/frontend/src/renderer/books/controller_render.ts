@@ -236,7 +236,7 @@ function renderFilteredEmptyState(args: RenderBooksControllerArgs): void {
     MESSAGE.textContent = "No books found with current filters.";
     const BUTTON = document.createElement("button");
     BUTTON.type = "button";
-    BUTTON.className = "books-empty-clear";
+    BUTTON.className = "btn books-empty-clear";
     BUTTON.textContent = "Clear Filters";
     BUTTON.onclick = () => {
         clearBookFilters(args.refs, args.viewState);

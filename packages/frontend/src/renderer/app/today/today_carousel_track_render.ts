@@ -12,7 +12,7 @@ const MAX_VISIBLE_OFFSET = 2;
 const ADD_BOOK_ITEM_ID = "__today-add-book__";
 const ADD_BOOK_ONLY_TRACK_CLASS = "is-add-book-only";
 const ADD_BOOK_LABEL = "Add book to Today";
-const ADD_BOOK_SYMBOL = "+";
+const ADD_BOOK_TEXT = "Add Book";
 
 type TodayCarouselTrackBook = TodayCarouselModel["books"][number];
 
@@ -86,7 +86,7 @@ function hasSameTrackOrder(
 function buildAddBookItem(onAddBook: () => void): HTMLButtonElement {
     const ITEM = document.createElement("button");
     ITEM.type = "button";
-    ITEM.className = "today-carousel-item is-add-book";
+    ITEM.className = "btn btn-primary btn-add-book today-carousel-add-book";
     ITEM.dataset.bookId = ADD_BOOK_ITEM_ID;
     ITEM.setAttribute("role", "option");
     ITEM.setAttribute("aria-label", ADD_BOOK_LABEL);
@@ -94,10 +94,7 @@ function buildAddBookItem(onAddBook: () => void): HTMLButtonElement {
         onAddBook();
     };
 
-    const SYMBOL = document.createElement("span");
-    SYMBOL.className = "today-carousel-fallback";
-    SYMBOL.textContent = ADD_BOOK_SYMBOL;
-    ITEM.append(SYMBOL);
+    ITEM.textContent = ADD_BOOK_TEXT;
     return ITEM;
 }
 

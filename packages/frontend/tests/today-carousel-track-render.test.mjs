@@ -31,7 +31,7 @@ function baseTrackBook(overrides = {}) {
     };
 }
 
-test("renderTrackState centers the add-book card when Today has no books", () => {
+test("renderTrackState centers the Add Book tile when Today has no books", () => {
     const DOM = installFakeDom();
     try {
         withFakeAnimationFrame(() => {
@@ -50,18 +50,22 @@ test("renderTrackState centers the add-book card when Today has no books", () =>
 
             assert.equal(TRACK.classList.contains("is-add-book-only"), true);
             assert.equal(TRACK.children.length, 1);
+            const ADD_BOOK = TRACK.children[0];
+            assert.ok(ADD_BOOK.classList.contains("btn-add-book"));
+            assert.equal(ADD_BOOK.textContent, "Add Book");
         });
     } finally {
         DOM.restore();
     }
 });
 
-test("renderTrackState keeps the regular layout when Today already has books", () => {
+test("renderTrackState appends the Add Book tile after scheduled covers", () => {
     const DOM = installFakeDom();
     try {
         withFakeAnimationFrame(() => {
             const TRACK = DOM.createElement("div", "todayCarouselTrack");
             DOM.document.body.append(TRACK);
+            let addBookCalls = 0;
 
             renderTrackState(
                 {
@@ -70,11 +74,18 @@ test("renderTrackState keeps the regular layout when Today already has books", (
                     selectedBookId: "book-1",
                 },
                 NOOP,
-                NOOP,
+                () => {
+                    addBookCalls += 1;
+                },
             );
 
             assert.equal(TRACK.classList.contains("is-add-book-only"), false);
             assert.equal(TRACK.children.length, 2);
+            const [COVER, ADD_BOOK] = TRACK.children;
+            assert.ok(COVER.classList.contains("is-selected"));
+            assert.ok(ADD_BOOK.classList.contains("today-carousel-add-book"));
+            ADD_BOOK.click();
+            assert.equal(addBookCalls, 1);
         });
     } finally {
         DOM.restore();

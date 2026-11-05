@@ -9,18 +9,6 @@
     <script type="module" src="/src/main.ts"></script>
   </head>
   <body>
-    <div id="splashScreen" class="splash-screen" aria-hidden="true">
-      <div class="splash-inner">
-        <div class="splash-title-wrap">
-          <h1 class="splash-title">
-            <span class="splash-title-text">BARTLEBY</span>
-          </h1>
-        </div>
-
-        <img class="splash-logo" src="assets/logo.svg" alt="" />
-      </div>
-    </div>
-
     <a class="skip-link" href="#mainContent">Skip to main content</a>
 
     <header class="app-header" role="banner">
@@ -65,7 +53,7 @@
         </section>
       </div>
       <div class="neo-header-actions">
-        <button id="helpBtn" class="btn neo-help-btn" type="button">
+        <button id="helpBtn" class="btn btn-primary neo-help-btn" type="button">
           Help/Logs
         </button>
         <output id="status" class="visually-hidden" aria-live="polite"></output>
@@ -147,7 +135,7 @@
           <div class="today-carousel-row">
             <button
               id="todayCarouselPrev"
-              class="btn today-carousel-nav"
+              class="btn btn-compact today-carousel-nav"
               type="button"
               aria-label="Previous book"
             >
@@ -162,7 +150,7 @@
             ></div>
             <button
               id="todayCarouselNext"
-              class="btn today-carousel-nav"
+              class="btn btn-compact today-carousel-nav"
               type="button"
               aria-label="Next book"
             >
@@ -192,7 +180,7 @@
                 />
                 <button
                   id="todayMinutesEditBtn"
-                  class="btn today-minutes-edit-btn"
+                  class="btn btn-icon btn-quiet today-minutes-edit-btn"
                   type="button"
                   aria-label="Edit planned minutes"
                   data-mode="edit"
@@ -261,7 +249,7 @@
             <div class="today-focus-actions">
               <button
                 id="todayReplanBtn"
-                class="btn today-replan-btn"
+                class="btn btn-replan today-replan-btn"
                 type="button"
                 title="Rebuild unfinished sessions for today"
               >
@@ -274,14 +262,14 @@
               >
                 <button
                   id="todayRemoveSessionBtn"
-                  class="btn today-remove-session-btn"
+                  class="btn btn-remove today-remove-session-btn"
                   type="button"
                 >
                   Remove session
                 </button>
                 <button
                   id="todayLogSessionBtn"
-                  class="btn today-log-session-btn"
+                  class="btn btn-complete today-log-session-btn"
                   type="button"
                   aria-pressed="false"
                 >
@@ -364,7 +352,7 @@
             </article>
             <article class="settings-card" data-settings-section="days-off" hidden>
               <h2>Days Off</h2>
-              <div class="row wrap-row">
+              <div class="day-off-actions">
                 <input id="dayOffPicker" type="text" />
                 <button id="addDayOffBtn" class="btn" type="button">
                   Add Days Off
@@ -427,7 +415,7 @@
             <div class="books-toolbar-actions">
               <button
                 id="addBookBtn"
-                class="btn books-toolbar-add-btn"
+                class="btn btn-primary btn-add-book books-toolbar-add-btn"
                 type="button"
               >
                 Add Book
@@ -518,7 +506,7 @@
       <h3>Logs</h3>
       <pre id="logOutput"></pre>
       <div class="row">
-        <button id="closeHelpBtn" class="btn" type="button">Close</button>
+        <button id="closeHelpBtn" class="btn btn-cancel" type="button">Close</button>
       </div>
     </dialog>
 
@@ -528,68 +516,85 @@
       aria-labelledby="bookDialogTitle"
     >
       <form id="bookForm" class="book-form" method="dialog" novalidate>
-        <h2 id="bookDialogTitle">Add Book</h2>
+        <header class="book-dialog-header">
+          <h2 id="bookDialogTitle">Add Book</h2>
+        </header>
         <input id="bookFormId" type="hidden" />
         <input id="bookFormCoverUrl" type="hidden" />
         <input id="bookFormCoverLocal" type="hidden" />
-        <div class="book-form-layout">
-          <section class="book-search-panel">
-            <label for="bookSearchInput">Find Book (Open Library)</label>
+        <section class="book-form-section" aria-labelledby="bookDetailsHeading">
+          <h3 id="bookDetailsHeading">Book Details</h3>
+          <div class="book-details-layout">
+            <button
+              id="bookCoverPanel"
+              class="book-cover-panel"
+              type="button"
+              tabindex="0"
+              aria-label="Upload custom cover, or paste an image"
+            >
+              <img id="bookCoverPreview" alt="Book cover preview" src="" />
+              <p class="book-cover-upload-hint">
+                Click cover to upload your own image, or paste one
+              </p>
+            </button>
             <input
-              id="bookSearchInput"
-              type="text"
-              autocomplete="off"
-              placeholder="Search by title or author"
-              role="combobox"
-              aria-autocomplete="list"
-              aria-expanded="false"
-              aria-controls="bookSearchResults"
-              aria-haspopup="listbox"
+              id="bookCoverUploadInput"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              hidden
             />
-            <datalist
-              id="bookSearchResults"
-              class="book-search-results"
-              aria-label="Book suggestions"
-            ></datalist>
-            <p id="bookLookupMeta" class="lookup-meta"></p>
-          </section>
-          <button
-            id="bookCoverPanel"
-            class="book-cover-panel"
-            type="button"
-            tabindex="0"
-            aria-label="Upload custom cover, or paste an image"
-          >
-            <img id="bookCoverPreview" alt="Book cover preview" src="" />
-            <p class="book-cover-upload-hint">
-              Click cover to upload your own image, or paste one
-            </p>
-          </button>
-          <input
-            id="bookCoverUploadInput"
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            hidden
-          />
-          <section class="book-fields">
-            <div class="settings-grid">
-              <label
-                >Title<input
-                  id="bookTitleInput"
-                  required
-                  placeholder="Book title"
-              /></label>
-              <label
-                >Author<input id="bookFormAuthor" placeholder="Author name"
-              /></label>
-              <label
-                >Estimated Words<input
-                  id="bookWordsInput"
-                  type="number"
-                  min="1"
-                  step="1"
-                  placeholder="e.g. 85000"
-              /></label>
+            <div class="book-details-fields">
+              <div class="book-search-panel">
+                <label for="bookSearchInput">Find Book (Open Library)</label>
+                <div class="book-search-controls">
+                  <input
+                    id="bookSearchInput"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="Search by title or author"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-expanded="false"
+                    aria-controls="bookSearchResults"
+                    aria-haspopup="listbox"
+                  />
+                  <button
+                    id="bookSearchBtn"
+                    class="btn btn-compact btn-icon btn-quiet"
+                    type="button"
+                    aria-label="Search Open Library"
+                  >
+                    <span class="icon icon-search" aria-hidden="true"></span>
+                  </button>
+                </div>
+                <datalist
+                  id="bookSearchResults"
+                  class="book-search-results"
+                  aria-label="Book suggestions"
+                ></datalist>
+                <p id="bookLookupMeta" class="lookup-meta" role="status"></p>
+              </div>
+              <div id="bookDetailsFields" class="book-field-grid">
+                <label
+                  >Title<input
+                    id="bookTitleInput"
+                    required
+                    placeholder="Book title"
+                /></label>
+                <label
+                  >Author<input id="bookFormAuthor" placeholder="Author name"
+                /></label>
+              </div>
+            </div>
+          </div>
+        </section>
+        <details id="bookProgressSection" class="book-form-section" open>
+          <summary class="book-section-toggle">
+            <h3>Reading Progress <span id="bookProgressValue">0%</span></h3>
+          </summary>
+          <div class="book-section-body">
+            <progress id="bookProgressMeter" aria-label="Reading progress" max="100" value="0"></progress>
+            <div class="book-field-grid book-progress-fields">
               <label
                 >Total Pages<input
                   id="bookPagesTotalInput"
@@ -598,47 +603,73 @@
                   step="1"
                   placeholder="e.g. 300"
               /></label>
+              <div class="book-progress-edit">
+                <div class="book-progress-units" role="group" aria-label="Progress unit">
+                  <button id="bookProgressPagesBtn" class="btn btn-compact" type="button" aria-pressed="true">Pages</button>
+                  <button id="bookProgressPercentBtn" class="btn btn-compact" type="button" aria-label="Percent" aria-pressed="false">%</button>
+                </div>
+                <label id="bookPagesReadField"
+                  >Pages Read<input
+                    id="bookPagesReadInput"
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="e.g. 125"
+                /></label>
+                <label id="bookProgressPercentField" hidden
+                  >Progress %<input
+                    id="bookProgressInput"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    value="0"
+                /></label>
+              </div>
+            </div>
+          </div>
+        </details>
+        <details id="bookSchedulingSection" class="book-form-section" open>
+          <summary class="book-section-toggle"><h3>Scheduling</h3></summary>
+          <div id="bookSchedulingFields" class="book-section-body book-field-grid">
+            <label
+              >Max minutes / day<input
+                id="bookMaxMinutesInput"
+                type="number"
+                min="1"
+            /></label>
+            <label
+              >Priority (1 highest, 5 lowest)<input
+                id="bookPriorityInput"
+                type="number"
+                min="1"
+                max="5"
+                value="3"
+            /></label>
+            <label
+              >Difficulty (1-10)<input
+                id="bookDifficultyInput"
+                type="number"
+                min="1"
+                max="10"
+                value="3"
+            /></label>
+            <label
+              >Deadline<input id="bookDeadlineInput" type="text"
+            /></label>
+          </div>
+        </details>
+        <details id="bookOptionsSection" class="book-form-section" open>
+          <summary class="book-section-toggle"><h3>Additional Options</h3></summary>
+          <div class="book-section-body">
+            <div class="book-field-grid">
               <label
-                >Pages Read<input
-                  id="bookPagesReadInput"
+                >Estimated Words<input
+                  id="bookWordsInput"
                   type="number"
-                  min="0"
+                  min="1"
                   step="1"
-                  placeholder="e.g. 125"
-              /></label>
-              <label
-                >Progress %<input
-                  id="bookProgressInput"
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="0.1"
-                  value="0"
-              /></label>
-              <label
-                >Priority (1 highest, 5 lowest)<input
-                  id="bookPriorityInput"
-                  type="number"
-                  min="1"
-                  max="5"
-                  value="3"
-              /></label>
-              <label
-                >Difficulty (1-10)<input
-                  id="bookDifficultyInput"
-                  type="number"
-                  min="1"
-                  max="10"
-                  value="3"
-              /></label>
-              <label
-                >Max min/day<input
-                  id="bookMaxMinutesInput"
-                  type="number"
-                  min="1"
-              /></label>
-              <label
-                >Deadline<input id="bookDeadlineInput" type="text"
+                  placeholder="e.g. 85000"
               /></label>
               <label class="book-after-book-picker"
                 >After Book
@@ -661,10 +692,11 @@
                 ></datalist>
               </label>
             </div>
-          </section>
-        </div>
-        <div class="row wrap-row">
-          <button id="cancelBookBtn" class="btn" type="button">Cancel</button>
+            <section id="bookSyncLinks" class="sync-links" aria-label="Synced sources" hidden></section>
+          </div>
+        </details>
+        <div class="row wrap-row book-form-actions">
+          <button id="cancelBookBtn" class="btn btn-cancel" type="button">Cancel</button>
           <button id="saveBookBtn" class="btn btn-primary" type="submit">
             Save Book
           </button>
@@ -690,7 +722,7 @@
         <div class="row wrap-row">
           <button
             id="bookShelfPromptCancelBtn"
-            class="btn"
+            class="btn btn-cancel"
             type="submit"
             value="cancel"
           >

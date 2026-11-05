@@ -48,7 +48,7 @@ function createDialogShell(): HTMLDialogElement {
         <input id="${QUERY_INPUT_ID}" class="today-add-query" type="search" autocomplete="off" placeholder="Start typing a title" />
         <div id="${RESULTS_ID}" class="today-add-results" role="listbox" aria-label="Books to add"></div>
         <footer class="today-add-footer">
-          <button id="${CLOSE_BUTTON_ID}" class="btn" type="button">Cancel</button>
+          <button id="${CLOSE_BUTTON_ID}" class="btn btn-cancel" type="button">Cancel</button>
         </footer>
       </form>
     `;

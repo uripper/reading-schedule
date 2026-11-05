@@ -17,7 +17,7 @@ export function renderDayOffs(
     const LIST = el("dayOffList");
     const BUTTONS = dayOffs.map((day) => {
         const BUTTON = document.createElement("button");
-        BUTTON.className = "chip-btn";
+        BUTTON.className = "btn btn-remove chip-btn";
         BUTTON.type = "button";
         BUTTON.dataset.day = day;
         BUTTON.textContent = `${day} x`;

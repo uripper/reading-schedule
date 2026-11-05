@@ -2,9 +2,9 @@
     padding: var(--token-space-3);
     margin: var(--token-space-2) 0;
     font-weight: var(--token-typography-weight-bold);
-    color: #111;
+    color: var(--color-ink);
     overflow-wrap: anywhere;
-    background: var(--app-danger);
+    background: var(--color-watermelon);
     border: var(--neo-panel-border);
     border-radius: 0;
     box-shadow: var(--neo-brutalist-shadow);
@@ -25,20 +25,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--token-space-2);
-}
-
-.critical-error-actions .btn {
-    font-weight: var(--token-typography-weight-bold);
-    color: #111;
-    background: var(--neo-section-settings);
-    border: var(--neo-panel-border);
-    border-radius: 0;
-    box-shadow: var(--neo-brutalist-shadow);
-}
-
-.critical-error-actions .btn[aria-disabled="true"] {
-    cursor: not-allowed;
-    opacity: 0.65;
 }
 
 .critical-error-actions > button[hidden],

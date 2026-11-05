@@ -230,6 +230,7 @@ function bindReplanTodayAction(): void {
 function handleReplanTodayClick(): void {
     confirmAction({
         cancelLabel: "CANCEL",
+        confirmStyle: "replan",
         confirmLabel: "REPLAN TODAY",
         message: REPLAN_TODAY_MESSAGE,
         title: "Replan Today",

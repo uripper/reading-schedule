@@ -4,6 +4,7 @@ import test from "node:test";
 
 import { configureAppCalendarInteractions } from "../dist/renderer/app/calendar_interactions/calendar-interactions.js";
 import { withUpdatedProgress } from "../dist/renderer/books/progress.js";
+import { buildManualSessionAddPanel } from "../dist/renderer/calendar/details_manual_add.js";
 import { minutesFormForSession } from "../dist/renderer/calendar/details_minutes_form.js";
 import { buildTodaySessionItem } from "../dist/renderer/calendar/details_session_today.js";
 import { installFakeDom } from "./helpers/fake-dom.mjs";
@@ -19,6 +20,20 @@ const ROW = {
 };
 
 const NOOP = () => undefined;
+
+test("Schedule uses the shared Add Book button for manual sessions", (context) => {
+    const DOM = installFakeDom();
+    context.after(() => DOM.restore());
+    const PANEL = buildManualSessionAddPanel({
+        existingBookIds: [],
+        interactionHandlers: {
+            getBookById: () => null,
+            listSessionBooks: () => [{ bookId: ROW.book_id, title: ROW.title }],
+        },
+    });
+
+    assert.equal(PANEL.querySelector(".btn-add-book").textContent, "Add Book");
+});
 
 function calendarHandlers() {
     const STATE = { scheduleCompletions: {} };
@@ -95,7 +110,10 @@ test("ending percent edits inline and completion uses its own action", (context)
     assert.deepEqual(HANDLERS.getBookById(ROW.book_id).pages_read, 120);
     assert.equal(HANDLERS.isSessionCompleted("2026-11-05|1|book-1"), false);
 
-    CARD.querySelector(".btn-session-completion").click();
+    const COMPLETION = CARD.querySelector(".btn-session-completion");
+    assert.ok(COMPLETION.classList.contains("btn-complete"));
+    assert.equal(COMPLETION.textContent, "Complete session");
+    COMPLETION.click();
     assert.equal(HANDLERS.isSessionCompleted("2026-11-05|1|book-1"), true);
 });
 

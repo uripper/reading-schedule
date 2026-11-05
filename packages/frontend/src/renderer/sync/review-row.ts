@@ -148,10 +148,11 @@ function appendActions(
 ): void {
     const ACTIONS = syncElement("div");
     ACTIONS.className = "sync-row-actions";
-    ACTIONS.append(
-        syncButton("Add book", actions.add),
-        syncButton("Ignore", actions.ignore),
-    );
+    const ADD = syncButton("Add book", actions.add);
+    ADD.classList.add("btn-add-book");
+    const IGNORE = syncButton("Ignore", actions.ignore);
+    IGNORE.classList.add("btn-remove");
+    ACTIONS.append(ADD, IGNORE);
     nodes.row.append(ACTIONS);
 }
 

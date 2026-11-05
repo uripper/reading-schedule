@@ -1,6 +1,8 @@
 @import "./styles/fonts-local.css";
 @import "./styles/generated/tokens.css";
+@import "./styles/palette.css";
 @import "./styles/base.css";
+@import "./styles/buttons.css";
 @import "./styles/icons.css";
 @import "./styles/desktop-sections.css";
 @import "./styles/today-header.css";
@@ -28,6 +30,7 @@
 @import "./styles/stats.css";
 @import "./styles/stats-interactions.css";
 @import "./styles/book-dialog.css";
+@import "./styles/book-dialog-layout.css";
 @import "./styles/book-dialog-controls.css";
 @import "./styles/book-dialog-position.css";
 @import "./styles/action-confirm.css";

@@ -9,10 +9,6 @@ const INDEX_HTML = readFileSync(
     new URL("../index.html", import.meta.url),
     "utf8",
 );
-const FOCUS_ACTIONS_CSS = readFileSync(
-    new URL("../styles/today-focus-actions.css", import.meta.url),
-    "utf8",
-);
 const NOOP = () => undefined;
 const REPLAN_MESSAGE =
     "Rebuild today's unfinished sessions and the future schedule using your current library and reading budget. Completed sessions stay in place. Removed books can be scheduled again, and unfinished sessions you added manually may be replaced. If no books are eligible today, today may be left empty.";
@@ -67,14 +63,19 @@ function assertReplanDialogCopy(dialog) {
         dialog.querySelector(".action-confirm-accept").textContent,
         "REPLAN TODAY",
     );
+    assert.ok(
+        dialog
+            .querySelector(".action-confirm-accept")
+            .classList.contains("btn-replan"),
+    );
 }
 
-test("Today includes a labeled neobrutalist replan action", () => {
-    assert.match(INDEX_HTML, /id="todayReplanBtn"/u);
+test("Today uses the pale replan variant for its labeled replan action", () => {
+    assert.match(
+        INDEX_HTML,
+        /id="todayReplanBtn"\s+class="btn btn-replan today-replan-btn"/u,
+    );
     assert.match(INDEX_HTML, />\s*Replan Today\s*</u);
-    assert.match(FOCUS_ACTIONS_CSS, /\.today-replan-btn\s*\{/u);
-    assert.match(FOCUS_ACTIONS_CSS, /border:\s*3px solid #000/u);
-    assert.match(FOCUS_ACTIONS_CSS, /box-shadow:\s*4px 4px 0 #000/u);
     const REPLAN_INDEX = INDEX_HTML.indexOf('id="todayReplanBtn"');
     const FOCUS_PANEL_INDEX = INDEX_HTML.indexOf('id="todayFocusPanel"');
     const REMOVE_INDEX = INDEX_HTML.indexOf('id="todayRemoveSessionBtn"');

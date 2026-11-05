@@ -50,9 +50,10 @@ export function renderCalendarControls(args: {
         return;
     }
 
-    const PREV = controlButton("btn", "Prev");
-    const TODAY = controlButton("btn btn-calendar-today", "Today");
-    const NEXT = controlButton("btn", "Next");
+    const PREV = controlButton("btn btn-compact", "Prev");
+    const TODAY = controlButton("btn btn-primary", "Today");
+    TODAY.title = "Jump to today";
+    const NEXT = controlButton("btn btn-compact", "Next");
 
     PREV.onclick = () => {
         CALENDAR_STATE.index = shiftedIndex(CALENDAR_STATE, -1);

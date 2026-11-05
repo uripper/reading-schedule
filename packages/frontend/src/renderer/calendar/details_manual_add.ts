@@ -83,7 +83,7 @@ function addBookButton(
 ): HTMLButtonElement {
     const BUTTON = document.createElement("button");
     BUTTON.type = "button";
-    BUTTON.className = "btn btn-primary";
+    BUTTON.className = "btn btn-primary btn-add-book";
     BUTTON.textContent = ADD_BOOK_BUTTON_TEXT;
     BUTTON.onclick = () => {
         const OPTIONS = overlayOptions(args);

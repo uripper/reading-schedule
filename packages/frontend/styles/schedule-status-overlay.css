@@ -9,10 +9,14 @@
     max-width: min(320px, calc(100vw - var(--token-space-8)));
     min-height: var(--token-size-target-minimum);
     padding: var(--token-space-2) var(--token-space-3);
-    color: var(--app-text);
+    color: var(--color-porcelain);
     pointer-events: none;
-    background: color-mix(in srgb, var(--app-surface) 94%, var(--app-brand) 6%);
-    border: 1px solid var(--app-border);
+    background: color-mix(
+        in srgb,
+        var(--color-night) 94%,
+        var(--color-glacier) 6%
+    );
+    border: 1px solid var(--color-storm);
     border-radius: var(--token-radius-sm);
     box-shadow: var(--token-elevation-md);
     opacity: 1;

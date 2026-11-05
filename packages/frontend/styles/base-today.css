@@ -13,7 +13,7 @@
 .today-session-counts {
     margin: 0;
     font-size: var(--token-typography-size-sm);
-    color: var(--app-textMuted);
+    color: var(--color-black);
 }
 
 .today-scheduled-books {
@@ -33,17 +33,21 @@
     color: inherit;
     text-align: left;
     cursor: pointer;
-    background: color-mix(in srgb, var(--app-surface) 74%, transparent);
-    border: 1px solid var(--app-border);
+    background: color-mix(in srgb, var(--color-night) 74%, transparent);
+    border: 1px solid var(--color-storm);
     border-radius: var(--token-radius-sm);
 }
 
 .today-scheduled-book:hover {
-    background: color-mix(in srgb, var(--app-brand) 12%, var(--app-surface));
+    background: color-mix(
+        in srgb,
+        var(--color-glacier) 12%,
+        var(--color-night)
+    );
     border-color: color-mix(
         in srgb,
-        var(--app-brandStrong) 62%,
-        var(--app-border)
+        var(--color-azure) 62%,
+        var(--color-storm)
     );
 }
 
@@ -51,16 +55,16 @@
     outline: none;
     border-color: color-mix(
         in srgb,
-        var(--app-focusRing) 72%,
-        var(--app-border)
+        var(--color-glacier) 72%,
+        var(--color-storm)
     );
     box-shadow: 0 0 0 2px
-        color-mix(in srgb, var(--app-focusRing) 44%, transparent);
+        color-mix(in srgb, var(--color-glacier) 44%, transparent);
 }
 
 .today-scheduled-book.is-complete {
-    background: color-mix(in srgb, var(--app-success) 14%, var(--app-surface));
-    border-color: color-mix(in srgb, var(--app-success) 48%, var(--app-border));
+    background: color-mix(in srgb, var(--color-jade) 14%, var(--color-night));
+    border-color: color-mix(in srgb, var(--color-jade) 48%, var(--color-storm));
 }
 
 .today-scheduled-cover {
@@ -69,8 +73,12 @@
     width: 64px;
     height: 96px;
     overflow: hidden;
-    background: color-mix(in srgb, var(--app-bg) 42%, var(--app-surface));
-    border: 1px solid var(--app-border);
+    background: color-mix(
+        in srgb,
+        var(--color-deep-space) 42%,
+        var(--color-night)
+    );
+    border: 1px solid var(--color-storm);
     border-radius: var(--token-radius-sm);
 }
 
@@ -83,7 +91,7 @@
 .today-scheduled-cover span {
     font-family: var(--token-typography-family-heading);
     font-size: var(--token-typography-size-lg);
-    color: var(--app-textMuted);
+    color: var(--color-black);
 }
 
 .today-scheduled-meta {
@@ -98,7 +106,7 @@
 
 .today-scheduled-note {
     font-size: var(--token-typography-size-xs);
-    color: var(--app-textMuted);
+    color: var(--color-black);
 }
 
 .today-focus-mode {
@@ -106,9 +114,13 @@
     gap: var(--token-space-2);
     padding: var(--token-space-3);
     margin-top: var(--token-space-2);
-    background: color-mix(in srgb, var(--app-brand) 10%, var(--app-surface));
+    background: color-mix(
+        in srgb,
+        var(--color-glacier) 10%,
+        var(--color-night)
+    );
     border: 1px solid
-        color-mix(in srgb, var(--app-brandStrong) 48%, var(--app-border));
+        color-mix(in srgb, var(--color-azure) 48%, var(--color-storm));
     border-radius: var(--token-radius-sm);
 }
 
@@ -138,20 +150,28 @@
     overflow: hidden;
     -webkit-appearance: none;
     appearance: none;
-    background: color-mix(in srgb, var(--app-bg) 40%, var(--app-surface));
-    border: 1px solid var(--app-border);
+    background: color-mix(
+        in srgb,
+        var(--color-deep-space) 40%,
+        var(--color-night)
+    );
+    border: 1px solid var(--color-storm);
     border-radius: var(--token-radius-pill);
 }
 
 .progress-track::-webkit-progress-bar {
-    background: color-mix(in srgb, var(--app-bg) 40%, var(--app-surface));
+    background: color-mix(
+        in srgb,
+        var(--color-deep-space) 40%,
+        var(--color-night)
+    );
 }
 
 .progress-track::-webkit-progress-value {
     background: linear-gradient(
         90deg,
-        color-mix(in srgb, var(--app-brandStrong) 86%, var(--app-bg) 14%),
-        color-mix(in srgb, var(--app-success) 80%, var(--app-brand) 20%)
+        color-mix(in srgb, var(--color-azure) 86%, var(--color-deep-space) 14%),
+        color-mix(in srgb, var(--color-jade) 80%, var(--color-glacier) 20%)
     );
     border-radius: var(--token-radius-pill);
     transition: width var(--token-motion-duration-base)
@@ -161,8 +181,8 @@
 .progress-track::-moz-progress-bar {
     background: linear-gradient(
         90deg,
-        color-mix(in srgb, var(--app-brandStrong) 86%, var(--app-bg) 14%),
-        color-mix(in srgb, var(--app-success) 80%, var(--app-brand) 20%)
+        color-mix(in srgb, var(--color-azure) 86%, var(--color-deep-space) 14%),
+        color-mix(in srgb, var(--color-jade) 80%, var(--color-glacier) 20%)
     );
     border-radius: var(--token-radius-pill);
 }
@@ -176,14 +196,14 @@
     display: grid;
     gap: var(--token-space-1);
     padding: var(--token-space-3);
-    background: color-mix(in srgb, var(--app-surface) 70%, transparent);
-    border: 1px solid var(--app-border);
+    background: color-mix(in srgb, var(--color-night) 70%, transparent);
+    border: 1px solid var(--color-storm);
     border-radius: var(--token-radius-sm);
 }
 
 .session-entry-meta {
     font-size: var(--token-typography-size-xs);
-    color: var(--app-textMuted);
+    color: var(--color-black);
 }
 
 @media (max-width: 1200px) {
