@@ -85,7 +85,7 @@ function isTitleLetterGroup(letter: string): boolean {
  * @returns Group metadata keyed by title letter or misc bucket.
  */
 function titleLetterMetaForBook(book: Book): GroupMeta {
-    const FIRST = titleInitialLetter(book.title) ?? "";
+    const FIRST = titleInitialLetter(book.title);
     if (!isTitleLetterGroup(FIRST)) {
         return miscTitleLetterMeta();
     }

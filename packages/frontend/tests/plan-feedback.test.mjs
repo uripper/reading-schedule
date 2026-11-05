@@ -94,7 +94,7 @@ test("a failed schedule save suppresses success status and announcements", async
     await runPlanGeneration(
         planArgs({
             announce: (message) => ANNOUNCEMENTS.push(message),
-            onSuccess: async () => false,
+            onSuccess: () => Promise.resolve(false),
             setStatus: (...args) => STATUSES.push(args),
             successAnnouncement: "Plan generated and schedule updated.",
         }),
@@ -111,7 +111,7 @@ test("an empty library also suppresses success when its updated state is unsaved
     await runPlanGeneration(
         planArgs({
             collectBooks: () => [],
-            onSuccess: async () => false,
+            onSuccess: () => Promise.resolve(false),
             setStatus: (...args) => STATUSES.push(args),
         }),
     );

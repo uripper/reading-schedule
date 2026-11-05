@@ -17,7 +17,7 @@ type TodayAddBookBindings = Pick<
     TodayCarouselActionBindings,
     "listSessionBooks" | "onManualSessionAdded"
 > & {
-    rerender(): void;
+    rerender(this: void): void;
     setStatus(message: string, isError?: boolean): void;
 };
 

@@ -74,6 +74,7 @@ test("duplicate titles require both a chosen match and an explicit check", () =>
     withDom(() => {
         const OTHER = { ...BOOK, book_id: "other" };
         const ROW = createSyncReviewRow({
+            conflictingRecords: [],
             matches: [BOOK, OTHER],
             record: SOURCE,
         });

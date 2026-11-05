@@ -69,7 +69,7 @@ function hasBulkUpdates(updates: BookInput): boolean {
 export function isBulkBookSubmitPayload(
     payload: BookDialogSubmitPayload,
 ): payload is BulkBookSubmitPayload {
-    return "type" in payload && payload.type === "bulk_books";
+    return "type" in payload;
 }
 
 export function applyBulkBookUpdates(

@@ -12,7 +12,7 @@ interface DayRolloverDocument {
 type DayRolloverOptions = {
     document?: DayRolloverDocument;
     now?: () => Date;
-    onDayChanged(): void;
+    onDayChanged(this: void): void;
     readDayKey?: () => string;
     clearTimeout?: typeof globalThis.clearTimeout;
     setTimeout?: typeof globalThis.setTimeout;
@@ -21,7 +21,7 @@ type DayRolloverOptions = {
 type ResolvedDayRolloverOptions = {
     document: DayRolloverDocument;
     now: () => Date;
-    onDayChanged(): void;
+    onDayChanged(this: void): void;
     readDayKey: () => string;
     clearTimeout: typeof globalThis.clearTimeout;
     setTimeout: typeof globalThis.setTimeout;
@@ -82,8 +82,8 @@ function resolvedSetTimeout(
     if (setTimeoutImpl !== undefined) {
         return setTimeoutImpl;
     }
-    return ((...args: Parameters<typeof globalThis.setTimeout>) => {
-        return globalThis.setTimeout(...args);
+    return ((callback: () => void, delay?: number) => {
+        return globalThis.setTimeout(callback, delay);
     }) as typeof globalThis.setTimeout;
 }
 

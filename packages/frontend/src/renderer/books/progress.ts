@@ -109,7 +109,7 @@ function reconcilePercentFromPages(book: Book, totals: ProgressTotals): Book {
 }
 
 function finiteProgressPercent(book: Book): number {
-    const PROGRESS_PERCENT = Number(book.progress_percent ?? 0);
+    const PROGRESS_PERCENT = Number(book.progress_percent);
     if (!Number.isFinite(PROGRESS_PERCENT)) {
         return STARTED_PROGRESS_PERCENT;
     }

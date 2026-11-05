@@ -53,7 +53,7 @@ async function settle() {
 /** Installs an enabled reader without starting a real polling timer. */
 async function setup(t) {
     const DOM = installFakeDom();
-    t.after(DOM.restore);
+    t.after(() => DOM.restore());
     installDialogLifecycle(DOM);
     t.mock.method(globalThis, "setInterval", () => 0);
     document.body.append(DOM.createElement("div", "syncProviders"));

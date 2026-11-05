@@ -57,25 +57,24 @@ function renderProgress(
     progress: AppUpdateProgress,
 ): void {
     const NODES = nodes;
-    if (progress.phase === "preparing") {
-        NODES.status.textContent = "Saving your latest changes…";
-        return;
+    switch (progress.phase) {
+        case "preparing":
+            NODES.status.textContent = "Saving your latest changes…";
+            return;
+        case "downloading":
+            renderDownloadProgress(NODES, progress);
+            return;
+        case "installing":
+            NODES.progress.hidden = false;
+            NODES.progress.value = PERCENT_COMPLETE;
+            NODES.status.textContent = "Installing update…";
+            return;
+        case "restarting":
+            NODES.status.textContent = "Restarting Bartleby…";
+            return;
+        default:
+            assertUnreachableProgress(progress);
     }
-    if (progress.phase === "downloading") {
-        renderDownloadProgress(NODES, progress);
-        return;
-    }
-    if (progress.phase === "installing") {
-        NODES.progress.hidden = false;
-        NODES.progress.value = PERCENT_COMPLETE;
-        NODES.status.textContent = "Installing update…";
-        return;
-    }
-    if (progress.phase === "restarting") {
-        NODES.status.textContent = "Restarting Bartleby…";
-        return;
-    }
-    assertUnreachableProgress(progress);
 }
 
 /** Normalizes an unknown install failure for display. */

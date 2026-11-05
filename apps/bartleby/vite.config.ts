@@ -1,15 +1,8 @@
 /** Configures the webview build and the dev server used by Tauri. */
 import { defineConfig } from "vite-plus";
 
-interface ProcessLike {
-    env?: Record<string, string | undefined>;
-}
-
 function tauriDevHost(): string | undefined {
-    const PROCESS_LIKE = globalThis as typeof globalThis & {
-        process?: ProcessLike;
-    };
-    return PROCESS_LIKE.process?.env?.TAURI_DEV_HOST;
+    return globalThis.process.env.TAURI_DEV_HOST;
 }
 
 function hmrConfig(host: string | undefined) {
@@ -26,7 +19,7 @@ function hmrConfig(host: string | undefined) {
 const TAURI_DEV_HOST = tauriDevHost();
 
 // https://vite.dev/config/
-export default defineConfig(async () => ({
+export default defineConfig(() => ({
     base: "./",
 
     // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`

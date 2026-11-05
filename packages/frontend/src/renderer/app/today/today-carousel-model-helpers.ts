@@ -14,8 +14,8 @@ const EMPTY_TEXT = "";
 const DEFAULT_TITLE = "Untitled";
 const UNKNOWN_AUTHOR = "Unknown Author";
 
-function normalizedBookId(value: unknown): string {
-    return String(value || EMPTY_TEXT).trim();
+function normalizedBookId(value: string): string {
+    return value.trim();
 }
 
 export function booksById(books: Book[]): Map<string, Book> {
@@ -34,7 +34,7 @@ function resolveBookTitle(
     row: PlannerScheduleRow,
     book: Book | undefined,
 ): string {
-    const FROM_BOOK = String(book?.title || EMPTY_TEXT).trim();
+    const FROM_BOOK = String(book?.title ?? EMPTY_TEXT).trim();
     if (FROM_BOOK !== EMPTY_TEXT) {
         return FROM_BOOK;
     }
@@ -46,7 +46,7 @@ function resolveBookTitle(
 }
 
 function resolveAuthor(book: Book | undefined): string {
-    const AUTHOR = String(book?.author || EMPTY_TEXT).trim();
+    const AUTHOR = String(book?.author ?? EMPTY_TEXT).trim();
     if (AUTHOR !== EMPTY_TEXT) {
         return AUTHOR;
     }

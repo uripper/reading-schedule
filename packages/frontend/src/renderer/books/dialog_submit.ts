@@ -75,7 +75,7 @@ function setBookDialogSavingState(refs: BookFormRefs, busy: boolean): void {
     const SAVE_BUTTON = refs.saveBtn;
     SAVE_BUTTON.disabled = busy;
     SAVE_BUTTON.textContent = SAVE_BUTTON_IDLE_LABEL;
-    if (SAVE_BUTTON.dataset?.idleLabel !== undefined) {
+    if (SAVE_BUTTON.dataset.idleLabel !== undefined) {
         SAVE_BUTTON.textContent = SAVE_BUTTON.dataset.idleLabel;
     }
     if (busy) {

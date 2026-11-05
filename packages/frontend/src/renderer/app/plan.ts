@@ -31,8 +31,12 @@ interface GeneratePayloadArgs {
 }
 
 interface PlanSuccessArgs {
-    addLog(message: string): void;
-    announce(message: string, politeness?: "polite" | "assertive"): void;
+    addLog(this: void, message: string): void;
+    announce(
+        this: void,
+        message: string,
+        politeness?: "polite" | "assertive",
+    ): void;
     data: Awaited<ReturnType<RunPlanGenerationArgs["plannerApi"]["generate"]>>;
     onSuccess: RunPlanGenerationArgs["onSuccess"];
     setStatus: RunPlanGenerationArgs["setStatus"];
@@ -41,8 +45,12 @@ interface PlanSuccessArgs {
 }
 
 interface PlanFailureArgs {
-    addLog(message: string): void;
-    announce(message: string, politeness?: "polite" | "assertive"): void;
+    addLog(this: void, message: string): void;
+    announce(
+        this: void,
+        message: string,
+        politeness?: "polite" | "assertive",
+    ): void;
     error: unknown;
     setStatus: RunPlanGenerationArgs["setStatus"];
 }

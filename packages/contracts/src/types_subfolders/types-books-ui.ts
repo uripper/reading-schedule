@@ -67,7 +67,7 @@ export interface BookDialogOptions {
 }
 
 export interface LookupControl {
-    clearResults(): void;
+    clearResults(this: void): void;
 }
 
 export interface AfterBookPickerControl {
@@ -126,7 +126,7 @@ export interface PickerState {
 }
 
 export interface BindingArgs {
-    clearResults(): void;
+    clearResults(this: void): void;
     refreshFiltered(clearChangedSelection: boolean): void;
     refs: BookFormRefs;
     render(): void;
@@ -157,14 +157,14 @@ export interface CardNavigationActions {
 }
 
 export interface CardHandlers {
-    onEdit(bookId: string): void;
+    onEdit(this: void, bookId: string): void;
     onMassEditSelection?(bookId: string, selected: boolean): void;
-    onRemove(bookId: string): void;
+    onRemove(this: void, bookId: string): void;
 }
 
 export interface BookMassEditOptions {
     active: boolean;
-    onBookSelectionChange(bookId: string, selected: boolean): void;
+    onBookSelectionChange(this: void, bookId: string, selected: boolean): void;
     selectedBookIds: ReadonlySet<string>;
 }
 
@@ -192,9 +192,9 @@ export interface RenderBookGridOptions {
     grid: HTMLElement;
     groups?: BookGroup[];
     massEdit?: BookMassEditOptions;
-    onEdit(bookId: string): void;
+    onEdit(this: void, bookId: string): void;
     onEstimatedFinishNavigate(dateKey: string): void;
-    onRemove(bookId: string): void;
+    onRemove(this: void, bookId: string): void;
     showBlockerMeta?: boolean;
     showShelfMeta?: boolean;
     showWordCount?: boolean;
@@ -237,7 +237,7 @@ export interface BooksViewState {
 
 export interface BindToolbarEventsArgs {
     refs: BooksControllerRefs;
-    rerender(): void;
+    rerender(this: void): void;
     viewState: BooksViewState;
 }
 
@@ -261,7 +261,7 @@ export interface RenderBooksControllerArgs {
     onBooksChanged(): void;
     onEstimatedFinishNavigate(dateKey: string): void;
     refs: BooksControllerRefs;
-    rerender(): void;
+    rerender(this: void): void;
     scheduleRows: PlannerScheduleRow[];
     setBooks(nextBooks: Book[]): void;
     viewState: BooksViewState;

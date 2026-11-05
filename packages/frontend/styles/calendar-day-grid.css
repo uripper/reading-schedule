@@ -196,8 +196,4 @@
     .day {
         min-height: 130px;
     }
-
-    .day-progress-form {
-        grid-template-columns: 1fr;
-    }
 }

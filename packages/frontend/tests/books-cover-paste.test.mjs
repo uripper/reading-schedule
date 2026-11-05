@@ -36,6 +36,12 @@ function clipboardData(file) {
     };
 }
 
+/**
+ * Builds a paste event carrying the given clipboard file.
+ * @param {File | null} file - Clipboard file, or null for an empty paste.
+ * @param {EventTarget | null} [target] - Optional event target override.
+ * @returns {Event} Paste event.
+ */
 function pasteEvent(file, target = null) {
     const EVENT = new Event("paste", { cancelable: true });
     Object.defineProperty(EVENT, "clipboardData", {

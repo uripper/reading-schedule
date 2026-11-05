@@ -113,7 +113,7 @@ function payloadRemainingWords(book: Book): number | null {
     }
     const PROGRESS = Math.max(
         0,
-        Math.min(PROGRESS_MAX, Number(book.progress_percent ?? 0)),
+        Math.min(PROGRESS_MAX, Number(book.progress_percent)),
     );
     return Math.round(((PROGRESS_MAX - PROGRESS) / PROGRESS_MAX) * WORDS_TOTAL);
 }

@@ -28,7 +28,7 @@ export interface MassEditController extends BookMassEditOptions {
 interface CreateMassEditControllerArgs {
     onBulkEdit(bookIds: string[]): void;
     onSingleEdit(bookId: string, navigationBookIds: string[]): void;
-    rerender(): void;
+    rerender(this: void): void;
     toolbar: HTMLElement;
 }
 

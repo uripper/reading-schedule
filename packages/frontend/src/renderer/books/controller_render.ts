@@ -11,6 +11,7 @@ import { collectSettings } from "../settings.ts";
 import { booksAfterRemovingBook } from "./blocker-lineage.ts";
 import { renderBookGrid } from "./card_view.ts";
 import {
+    clearBookFilters,
     resolveRenderableRefs,
     visibleBooksForView,
 } from "./controller_render_helpers.ts";
@@ -145,7 +146,8 @@ function buildRenderBookGridArgs(
         groups: params.groups,
         massEdit: args.massEdit,
         onEdit: createEditHandler(args, params.visibleBooks),
-        onEstimatedFinishNavigate: args.onEstimatedFinishNavigate,
+        onEstimatedFinishNavigate: (dateKey) =>
+            args.onEstimatedFinishNavigate(dateKey),
         onRemove: createRemoveHandler(args),
         showBlockerMeta: params.showBlockerMeta,
         showShelfMeta: params.showShelfMeta,
@@ -225,17 +227,6 @@ function hasActiveFilters(viewState: BooksViewState): boolean {
     return viewState.statusFilter !== BOOK_STATUS_FILTER_ALL;
 }
 
-function resetBookFilters(args: RenderBooksControllerArgs): void {
-    const NEXT_VIEW_STATE = args.viewState;
-    NEXT_VIEW_STATE.titleFilter = "";
-    NEXT_VIEW_STATE.shelfFilter = SHELF_FILTER_ALL;
-    NEXT_VIEW_STATE.statusFilter = BOOK_STATUS_FILTER_ALL;
-    if (args.refs.titleFilterInput) {
-        args.refs.titleFilterInput.value = "";
-    }
-    args.rerender();
-}
-
 function renderFilteredEmptyState(args: RenderBooksControllerArgs): void {
     const EMPTY = args.refs.empty;
     if (!EMPTY) {
@@ -248,7 +239,8 @@ function renderFilteredEmptyState(args: RenderBooksControllerArgs): void {
     BUTTON.className = "books-empty-clear";
     BUTTON.textContent = "Clear Filters";
     BUTTON.onclick = () => {
-        resetBookFilters(args);
+        clearBookFilters(args.refs, args.viewState);
+        args.rerender();
     };
     EMPTY.replaceChildren(MESSAGE, BUTTON);
 }

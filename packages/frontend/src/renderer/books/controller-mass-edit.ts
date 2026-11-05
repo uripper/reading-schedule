@@ -5,7 +5,7 @@ import { createMassEditController } from "./mass-edit-controller.ts";
 interface BindControllerMassEditArgs {
     findBook(bookId: string): Book | null;
     getDialog(): BookDialogController | null;
-    rerender(): void;
+    rerender(this: void): void;
     toolbar: HTMLElement;
 }
 

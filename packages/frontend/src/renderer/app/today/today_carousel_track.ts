@@ -16,8 +16,8 @@ const STEP_NEXT = 1;
 type SelectTodayBook = (bookId: string) => void;
 
 type TrackNavigationActions = {
-    selectPrevious(): void;
-    selectNext(): void;
+    selectPrevious(this: void): void;
+    selectNext(this: void): void;
 };
 
 /**

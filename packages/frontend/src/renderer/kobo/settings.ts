@@ -2,6 +2,8 @@
 import type { Preferences } from "@reading-schedule/contracts";
 import { syncActionButton, syncElement } from "../sync/dom.ts";
 
+const NO_KOBO_FILE_LABEL = "No file selected";
+
 /** Keeps existing configured readers enabled when upgrading from path-only settings. */
 export function koboSyncEnabled(preferences: Partial<Preferences>): boolean {
     return preferences.koboSyncEnabled ?? Boolean(preferences.koboDatabasePath);
@@ -80,6 +82,15 @@ export function createKoboSettings(preferences: Preferences) {
     return NODES;
 }
 
+/** Shows the selected database file name, or a placeholder when none is chosen. */
+function koboFileLabel(databasePath: string | undefined): string {
+    const FILE_NAME = databasePath?.split(/[\\/]/).at(-1) ?? "";
+    if (FILE_NAME === "") {
+        return NO_KOBO_FILE_LABEL;
+    }
+    return FILE_NAME;
+}
+
 /** Restores the persisted configuration after saves and cancelled file selections. */
 export function renderKoboSettings(
     nodes: ReturnType<typeof createKoboSettings>,
@@ -89,9 +100,7 @@ export function renderKoboSettings(
     NODES.enable.checked = koboSyncEnabled(preferences);
     NODES.enable.setAttribute("aria-expanded", String(NODES.enable.checked));
     NODES.panel.hidden = !NODES.enable.checked;
-    NODES.file.textContent =
-        preferences.koboDatabasePath?.split(/[\\/]/).at(-1) ||
-        "No file selected";
+    NODES.file.textContent = koboFileLabel(preferences.koboDatabasePath);
     NODES.file.title = preferences.koboDatabasePath ?? "";
     NODES.check.disabled = !preferences.koboDatabasePath;
     setKoboStatus(NODES.status, "");

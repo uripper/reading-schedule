@@ -34,7 +34,7 @@ export interface LookupSearchState {
 }
 
 export interface LookupBinding {
-    clearResults(): void;
+    clearResults(this: void): void;
     destroy(): void;
 }
 
@@ -67,7 +67,7 @@ export type SelectItem = (index: number) => void;
 
 export interface HandleLookupKeydownArgs {
     activeIndex: number;
-    clearResults(): void;
+    clearResults(this: void): void;
     currentItems: readonly BookLookupItem[];
     event: KeyboardEvent;
     searchInput: HTMLInputElement;
@@ -90,7 +90,7 @@ export interface CreateLookupStateControllerArgs {
 }
 
 export interface LookupStateController {
-    clearResults(): void;
+    clearResults(this: void): void;
     refreshResults(): void;
     selectItem(index: number): void;
     setActiveIndex(index: number): void;

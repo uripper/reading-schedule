@@ -66,7 +66,7 @@ interface TodayInteractionBindings {
     onSessionMinutesUpdated: TodayCarouselActionBindings["onSessionMinutesUpdated"];
     onSessionProgressUpdated: TodayCarouselActionBindings["onSessionProgressUpdated"];
     onSessionRemoved: TodayCarouselActionBindings["onSessionRemoved"];
-    rerender(): void;
+    rerender(this: void): void;
     setStatus(message: string, isError?: boolean): void;
 }
 let interactions: TodayInteractionBindings | null = null;
@@ -171,11 +171,7 @@ function applyMinutesEditorVisibility(active: TodayCarouselActiveItem): void {
     VALUE.hidden = IS_EDIT_OPEN;
     INPUT.hidden = !IS_EDIT_OPEN;
     if (IS_EDIT_OPEN) {
-        applyOpenMinutesEditor(
-            INPUT,
-            EDIT_BUTTON,
-            EDIT_STATE?.valueText ?? EMPTY_TEXT,
-        );
+        applyOpenMinutesEditor(INPUT, EDIT_BUTTON, EDIT_STATE.valueText);
         return;
     }
     applyClosedMinutesEditor(EDIT_BUTTON);

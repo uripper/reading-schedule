@@ -22,7 +22,7 @@ interface OverlayDomRefs {
 
 interface OverlayState {
     activeIndex: number;
-    onPick(bookId: string): void;
+    onPick(this: void, bookId: string): void;
     options: TodayAddBookOption[];
 }
 
@@ -267,7 +267,7 @@ function bindOverlayHandlers(refs: OverlayDomRefs): void {
 }
 
 export function openTodayAddBookOverlay(args: {
-    onPick(bookId: string): void;
+    onPick(this: void, bookId: string): void;
     options: TodayAddBookOption[];
 }): void {
     const REFS = overlayRefs();

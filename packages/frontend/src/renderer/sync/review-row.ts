@@ -144,7 +144,7 @@ function refreshSession(nodes: RowNodes): void {
 /** Keeps add and ignore available even when a progress change cannot be applied. */
 function appendActions(
     nodes: RowNodes,
-    actions: { add(): void; ignore(): void },
+    actions: { add(this: void): void; ignore(this: void): void },
 ): void {
     const ACTIONS = syncElement("div");
     ACTIONS.className = "sync-row-actions";

@@ -29,7 +29,7 @@ export interface TodayCarouselActionBindings {
     onSessionMinutesUpdated: CalendarHandlers["onSessionMinutesUpdated"];
     onSessionProgressUpdated: CalendarHandlers["onSessionProgressUpdated"];
     onSessionRemoved: CalendarHandlers["onSessionRemoved"];
-    rerender(): void;
+    rerender(this: void): void;
     setStatus(message: string, isError?: boolean): void;
 }
 

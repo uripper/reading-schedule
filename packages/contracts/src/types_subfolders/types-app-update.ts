@@ -70,7 +70,7 @@ export interface AppUpdateControllerOptions {
     /** Presents available update actions. */
     dialog: AppUpdateDialog;
     /** Persists the latest state before installation. */
-    flushPendingState(): Promise<boolean>;
+    flushPendingState(this: void): Promise<boolean>;
     /** Restarts the application after installation. */
     relaunchApp(): Promise<void>;
     /** Records a recoverable updater error. */

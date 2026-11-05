@@ -36,7 +36,7 @@ test("dialog save commits a usable book without invoking slow cover processing",
 test("hydration returns a cloned book with a completed remote cover", async () => {
     const PREVIOUS = globalThis.plannerApi;
     globalThis.plannerApi = {
-        downloadCover: async () => "/tmp/cover.jpg",
+        downloadCover: () => Promise.resolve("/tmp/cover.jpg"),
     };
     try {
         const RESULT = await hydrateBookCover(BASE_BOOK);
@@ -54,7 +54,7 @@ test("hydration exposes failures to the background recovery path", async () => {
     };
     try {
         await assert.rejects(hydrateBookCover(BASE_BOOK), /decode failed/);
-        globalThis.plannerApi.downloadCover = async () => "";
+        globalThis.plannerApi.downloadCover = () => Promise.resolve("");
         await assert.rejects(
             hydrateBookCover(BASE_BOOK),
             /Select the cover again/,

@@ -182,7 +182,7 @@ export async function loadStateAndBindTodayActions(
             queueAutoPlanIfReady: context.runtime.queueAutoPlanIfReady.bind(
                 context.runtime,
             ),
-            queuePersist: context.queuePersist.bind(context),
+            queuePersist: context.queuePersist,
             setStatus: context.setStatus.bind(context),
             state: context.state,
             updateTodayView: context.dashboards.updateDashboards.bind(

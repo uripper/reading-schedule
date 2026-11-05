@@ -159,17 +159,17 @@ export interface PlanController {
     /** Applies a loaded planner result and refreshes dependent runtime/UI state. */
     applyLoadedResult(savedResult: PlannerResult | null): void;
     /** Queues an automatic plan run if one is needed. */
-    queueAutoPlan(): void;
+    queueAutoPlan(this: void): void;
     /** Rebuilds unfinished work for today while retaining completed sessions. */
-    replanToday(): void;
+    replanToday(this: void): void;
 }
 
 /** Minimal contract for queueing automatic plan runs. */
 export interface AutoPlanRunner {
     /** Queues auto plan work for deferred execution. */
-    queueAutoPlan(): void;
+    queueAutoPlan(this: void): void;
     /** Queues an explicit same-day replan that retains completed sessions. */
-    replanToday(): void;
+    replanToday(this: void): void;
 }
 
 /** Mutable flags tracking automatic-plan queue and execution state. */
@@ -257,7 +257,7 @@ export interface CreateLoadStateArgsInput {
     /** Queues auto-planning when startup data is ready for generation. */
     queueAutoPlanIfReady(): void;
     /** Queues persistence after load-related mutations. */
-    queuePersist(): void;
+    queuePersist(this: void): void;
     /** Status callback used to publish user-visible loading or error messages. */
     setStatus: SetStatus;
     /** Mutable runtime state consumed and updated by this module. */
@@ -279,9 +279,9 @@ export interface FinalizeInitialLoadArgs {
     /** Metadata returned by state loading that describes load outcome. */
     loadResult: PlannerStateLoadResult;
     /** Queues auto plan after startup data has been finalized. */
-    queueAutoPlan(): void;
+    queueAutoPlan(this: void): void;
     /** Queues persistence for any load-time state normalization changes. */
-    queuePersist(): void;
+    queuePersist(this: void): void;
     /** Raw saved payload returned from persistence, used for final load decisions. */
     saved: { last_result?: PlannerResult | null } | null | undefined;
     /** Marks runtime state as ready for normal user interaction. */

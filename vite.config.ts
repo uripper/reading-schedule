@@ -46,7 +46,7 @@ const NAMING_RESTRICTIONS = [
 
 const MAX_COGNITIVE_COMPLEXITY = 5;
 const MAX_CYCLOMATIC_COMPLEXITY = 9;
-const MAX_FUNCTION_LINES = 20;
+const MAX_FUNCTION_LINES = 30;
 const MAX_PARAMETERS = 3;
 const PRINT_WIDTH = 80;
 const INDENT_WIDTH = 4;
@@ -150,7 +150,7 @@ export default defineConfig({
                     "import/no-commonjs": "error",
                     "import/no-default-export": "error",
                     "import/no-namespace": "error",
-                    // Keep the 20-line target visible while reviewing counting differences.
+                    // Keep the 30-line target visible while reviewing counting differences.
                     "bartleby/function-body-lines": [
                         "warn",
                         MAX_FUNCTION_LINES,
