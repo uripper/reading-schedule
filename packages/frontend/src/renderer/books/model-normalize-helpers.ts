@@ -157,14 +157,9 @@ function normalizedPagesRead(
     if (!pageState.hasPagesTotal) {
         return pagesRead;
     }
-    let nextPagesRead = pagesRead;
-    if (nextPagesRead === null) {
-        nextPagesRead = pagesReadFromProgress(
-            progressRaw,
-            pageState.totalPages,
-        );
-    }
-    return clamp(nextPagesRead, 0, pageState.totalPages);
+    const NEXT_PAGES_READ =
+        pagesRead ?? pagesReadFromProgress(progressRaw, pageState.totalPages);
+    return clamp(NEXT_PAGES_READ, 0, pageState.totalPages);
 }
 
 function normalizedProgress(

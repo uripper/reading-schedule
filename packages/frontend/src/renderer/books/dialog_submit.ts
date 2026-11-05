@@ -6,9 +6,9 @@ import type {
     BookFormRefs,
     BookSubmitPayload,
 } from "../../types/types.ts";
-import { focusFirstError } from "../accessibility/a11y.ts";
 import { BOOK_SAVE_FAILURE_MESSAGE } from "../errors/index.ts";
 import { addLog } from "../help.ts";
+import { showBookProgressUnit } from "./dialog_progress_sync.ts";
 import { parseFormBook } from "./form-state.ts";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
 
@@ -75,7 +75,7 @@ function setBookDialogSavingState(refs: BookFormRefs, busy: boolean): void {
     const SAVE_BUTTON = refs.saveBtn;
     SAVE_BUTTON.disabled = busy;
     SAVE_BUTTON.textContent = SAVE_BUTTON_IDLE_LABEL;
-    if (SAVE_BUTTON.dataset?.idleLabel !== undefined) {
+    if (SAVE_BUTTON.dataset.idleLabel !== undefined) {
         SAVE_BUTTON.textContent = SAVE_BUTTON.dataset.idleLabel;
     }
     if (busy) {
@@ -130,6 +130,24 @@ function hasSelectedScheduledDay(refs: BookFormRefs): boolean {
     }
     return false;
 }
+/** Opens the disclosure and selects the progress unit needed to reach a field. */
+function focusBookField(field: HTMLElement | null): void {
+    if (field === null) {
+        return;
+    }
+    const SECTION = field.closest<HTMLDetailsElement>("details");
+    if (SECTION !== null) {
+        SECTION.open = true;
+    }
+    if (field.id === "bookProgressInput") {
+        showBookProgressUnit(false);
+    }
+    if (field.id === "bookPagesReadInput") {
+        showBookProgressUnit(true);
+    }
+    field.focus();
+}
+
 /**
  * Focuses the most relevant custom-validation control when native validity does not identify one.
  * @param refs - Resolved DOM references for the book dialog.
@@ -139,12 +157,11 @@ function focusCustomValidationTarget(refs: BookFormRefs): void {
     const MISSING_PAGES_TOTAL =
         refs.pagesTotalInput.value.trim() === EMPTY_TEXT;
     if (MISSING_WORDS && MISSING_PAGES_TOTAL) {
-        refs.wordsInput.focus();
+        focusBookField(refs.wordsInput);
         return;
     }
     if (!hasSelectedScheduledDay(refs)) {
-        const FIRST_INPUT = firstScheduledDayInput(refs);
-        FIRST_INPUT?.focus();
+        focusBookField(firstScheduledDayInput(refs));
         return;
     }
     if (refs.shelfSelectInput.value === SHELF_SELECT_CREATE_NEW) {
@@ -171,7 +188,9 @@ export function showSubmitError(
         return;
     }
     FORM_REFS.submitError.textContent = saveErrorMessage(error);
-    if (focusFirstError(FORM_REFS.form)) {
+    const INVALID = FORM_REFS.form.querySelector(":invalid");
+    if (INVALID instanceof HTMLElement) {
+        focusBookField(INVALID);
         return;
     }
     focusCustomValidationTarget(FORM_REFS);

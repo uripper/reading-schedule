@@ -35,6 +35,7 @@ function unlinkedBooks(
 export async function confirmSyncUnlink(link: SyncRecord): Promise<boolean> {
     return await confirmAction({
         confirmLabel: "Unlink",
+        confirmStyle: "remove",
         message: `Unlink “${syncRecordName(link)}” from ${syncSourceLabel(link)}?`,
         title: "Unlink synced source?",
         warning:

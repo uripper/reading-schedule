@@ -23,11 +23,11 @@ interface StaticDatePickerArgs {
     host: HTMLElement;
     input: HTMLInputElement;
     minimumDate: string | undefined;
-    onChange(): void;
-    onClose(): void;
-    onOpen(): void;
+    onChange(this: void): void;
+    onClose(this: void): void;
+    onOpen(this: void): void;
     onReady(): void;
-    onValueUpdate(): void;
+    onValueUpdate(this: void): void;
     positionElement: HTMLElement;
     selectionMode: DatePickerSelectionMode;
 }

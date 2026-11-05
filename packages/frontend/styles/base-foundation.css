@@ -2,37 +2,25 @@
     --layout-max-width: 1720px;
 
     /* Colors */
-    --neo-app-background: #e87ddb;
-    --neo-active-color: #ff4911;
-    --neo-header-color: #2c0066;
-    --neo-header-border: #000000;
-    --app-selectControlBorder: var(--app-border);
-    --app-selectControlSurface: var(--app-surface);
-    --app-selectControlText: var(--app-text);
+    --neo-app-background: var(--color-orchid);
+    --neo-active-color: var(--color-vermilion);
+    --neo-header-color: var(--color-indigo);
+    --neo-header-border: var(--color-black);
+    --app-selectControlBorder: var(--color-black);
+    --app-selectControlSurface: var(--color-black);
+    --app-selectControlText: var(--color-white);
     --app-selectMenuBorder: color-mix(
         in srgb,
-        var(--app-border) 72%,
+        var(--color-black) 72%,
         transparent
     );
     --app-selectMenuSurface: color-mix(
         in srgb,
-        var(--token-color-neutral-0) 96%,
-        var(--app-bg) 4%
+        var(--color-white) 96%,
+        var(--color-black) 4%
     );
-    --app-selectMenuText: color-mix(
-        in srgb,
-        var(--token-color-neutral-950) 94%,
-        black 6%
-    );
+    --app-selectMenuText: var(--color-black);
 
-    /* Fonts */
-    --main-font: "Archivo", sans-serif;
-    --header-font: "Plus Jakarta Sans", sans-serif;
-    --sub-header-font: "Poppins", sans-serif;
-    --silly-font: "Poor Story", cursive;
-
-    /* Effects */
-    --neo-brutalist-shadow: 6px 8px 0 #000;
     color-scheme: dark;
 }
 
@@ -47,11 +35,11 @@ body {
 
 body {
     margin: 0;
-    font-family: var(--main-font);
+    font-family: var(--token-typography-family-body);
     font-size: var(--token-typography-size-md);
     -webkit-font-smoothing: antialiased;
     line-height: var(--token-typography-lineHeight-base);
-    color: var(--app-text);
+    color: var(--color-white);
     background: var(--neo-app-background);
 }
 
@@ -92,7 +80,7 @@ body::before {
 
 h1 {
     margin: 0;
-    font-family: var(--header-font);
+    font-family: var(--token-typography-family-heading);
     font-size: var(--token-typography-size-xl);
     font-weight: var(--token-typography-weight-bold);
     line-height: var(--token-typography-lineHeight-tight);
@@ -100,16 +88,16 @@ h1 {
 
 h2 {
     margin: 0 0 var(--token-space-2);
-    font-family: var(--header-font);
+    font-family: var(--token-typography-family-heading);
     font-size: var(--token-typography-size-lg);
     line-height: var(--token-typography-lineHeight-tight);
 }
 
 h3 {
     margin: var(--token-space-3) 0 var(--token-space-2);
-    font-size: var(--token-typography-size-sm);
+    font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-medium);
-    color: var(--app-textMuted);
+    color: var(--color-black);
 }
 
 p {
@@ -122,7 +110,7 @@ p {
 
 .body-text {
     margin-bottom: var(--token-space-4);
-    color: var(--app-textMuted);
+    color: var(--color-black);
 }
 
 .actions,
@@ -136,49 +124,6 @@ p {
     flex-wrap: wrap;
 }
 
-.btn {
-    min-height: var(--token-size-target-minimum);
-    padding: var(--token-space-2) var(--token-space-3);
-    font: inherit;
-    font-size: var(--token-typography-size-sm);
-    color: var(--app-text);
-    background: var(--app-surface);
-    border: 1px solid var(--app-border);
-    border-radius: var(--token-radius-md);
-    transition:
-        border-color var(--token-motion-duration-fast)
-            var(--token-motion-easing-standard),
-        transform var(--token-motion-duration-fast)
-            var(--token-motion-easing-standard),
-        background-color var(--token-motion-duration-fast)
-            var(--token-motion-easing-standard);
-}
-
-.btn:hover {
-    cursor: pointer;
-    border-color: color-mix(in srgb, var(--app-brand) 70%, var(--app-border));
-}
-
-.btn:active {
-    transform: translateY(1px);
-}
-
-.btn:disabled {
-    cursor: not-allowed;
-    opacity: 0.65;
-}
-
-.btn-primary {
-    font-weight: var(--token-typography-weight-bold);
-    color: color-mix(in srgb, var(--app-bg) 92%, var(--app-text) 8%);
-    background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--app-brandStrong) 88%, var(--app-bg) 12%),
-        color-mix(in srgb, var(--app-brand) 92%, var(--app-bg) 8%)
-    );
-    border-color: transparent;
-}
-
 input,
 textarea,
 select {
@@ -187,10 +132,10 @@ select {
     padding: var(--token-space-2) var(--token-space-3);
     margin-top: var(--token-space-1);
     font: inherit;
-    font-size: var(--token-typography-size-sm);
-    color: var(--app-text);
-    background: var(--app-surface);
-    border: 1px solid var(--app-border);
+    font-size: var(--token-typography-size-md);
+    color: var(--color-white);
+    background: var(--color-black);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: var(--token-radius-sm);
 }
 
@@ -212,8 +157,8 @@ textarea {
 
 label {
     display: block;
-    font-size: var(--token-typography-size-sm);
-    color: var(--app-textMuted);
+    font-size: var(--token-typography-size-md);
+    color: var(--color-black);
 }
 
 button:focus-visible,
@@ -222,7 +167,7 @@ textarea:focus-visible,
 select:focus-visible,
 .tab:focus-visible,
 .skip-link:focus-visible {
-    outline: 3px solid var(--app-focusRing);
+    outline: var(--border-thick) solid var(--color-glacier);
     outline-offset: 2px;
 }
 
@@ -251,13 +196,13 @@ select:focus-visible,
 }
 
 .hint-text {
-    font-size: var(--token-typography-size-sm);
-    color: #fff;
+    font-size: var(--token-typography-size-md);
+    color: var(--color-white);
 }
 
 #status {
-    font-size: var(--token-typography-size-sm);
-    color: var(--app-textMuted);
+    font-size: var(--token-typography-size-md);
+    color: var(--color-black);
 }
 
 :root[data-reduce-motion="true"] *,

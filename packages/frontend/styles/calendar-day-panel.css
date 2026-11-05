@@ -7,29 +7,29 @@
     max-height: calc(100dvh - 132px);
     padding: 16px;
     overflow: auto;
-    color: #111;
-    background: #d9f0c3;
-    border: 3px solid #000;
+    color: var(--color-black);
+    background: var(--color-pistachio);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 7px 7px 0 #000;
+    box-shadow: var(--shadow-md);
 }
 
 .day-details > h2 {
     padding-bottom: 12px;
     margin: 0;
-    font-family: var(--header-font);
+    font-family: var(--token-typography-family-heading);
     text-transform: uppercase;
-    border-bottom: 3px solid #000;
+    border-bottom: var(--border-thick) solid var(--color-black);
 }
 
 .day-finished-summary {
     padding: var(--token-space-1) var(--token-space-2);
     margin: 0;
-    font-size: var(--token-typography-size-sm);
+    font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-medium);
-    color: #111;
-    background: #ffe38b;
-    border: 2px solid #000;
+    color: var(--color-black);
+    background: var(--color-banana);
+    border: var(--border-regular) solid var(--color-black);
     border-radius: 0;
 }
 
@@ -48,11 +48,11 @@
 
 .day-scheduled-book-item {
     padding: 8px 10px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #111;
-    background: #eef9da;
-    border: 2px solid #000;
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-bold);
+    color: var(--color-black);
+    background: var(--color-pistachio);
+    border: var(--border-regular) solid var(--color-black);
     border-radius: 0;
 }
 
@@ -60,17 +60,17 @@
     display: grid;
     gap: 12px;
     padding: 14px;
-    background: #f3e77d;
-    border: 3px solid #000;
+    background: var(--color-banana);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 6px 6px 0 #000;
+    box-shadow: var(--shadow-md);
 }
 
 .day-manual-add > h3 {
     margin: 0;
-    font-size: 1rem;
-    font-weight: 900;
-    color: #111;
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-extrabold);
+    color: var(--color-black);
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
@@ -94,8 +94,8 @@
     display: flex;
     gap: var(--token-space-2);
     align-items: center;
-    font-size: var(--token-typography-size-sm);
-    color: #111;
+    font-size: var(--token-typography-size-md);
+    color: var(--color-black);
 }
 
 .day-complete-toggle input[type="checkbox"] {
@@ -108,29 +108,20 @@
     min-height: var(--token-size-target-minimum);
 }
 
-.day-manual-add-form .btn {
-    min-height: var(--token-size-target-minimum);
-}
-
 .day-progress-field {
     display: grid;
     gap: var(--token-space-1);
-    font-size: var(--token-typography-size-xs);
-    color: #111;
+    font-size: var(--token-typography-size-md);
+    color: var(--color-black);
 }
 
 .day-details input,
 .day-details select,
-.day-details textarea,
-.day-details .btn {
-    color: #f8f4e8;
-    background: #13213a;
-    border: 3px solid #000;
+.day-details textarea {
+    color: var(--color-paper);
+    background: var(--color-black);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 16px;
-}
-
-.day-details .btn {
-    font-weight: 800;
 }
 
 .day-progress-field input {
@@ -143,19 +134,18 @@
 }
 
 .day-details .hint-text {
-    color: #fff;
+    color: var(--color-white);
 }
 
 .day-details input:focus-visible,
 .day-details select:focus-visible,
-.day-details textarea:focus-visible,
-.day-details .btn:hover {
+.day-details textarea:focus-visible {
     filter: brightness(1.08);
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1320px) {
     .schedule-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .day-details {

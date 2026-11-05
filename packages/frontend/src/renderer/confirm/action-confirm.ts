@@ -3,6 +3,7 @@
 interface ActionConfirmOptions {
     cancelLabel?: string;
     confirmLabel: string;
+    confirmStyle?: "remove" | "replan";
     message: string;
     title: string;
     warning?: string;
@@ -74,13 +75,16 @@ function dialogActions(options: ActionConfirmOptions): {
     const ACTIONS = document.createElement("footer");
     ACTIONS.className = "action-confirm-actions";
     const CANCEL_BUTTON = buttonNode(
-        "action-confirm-btn action-confirm-cancel",
+        "btn btn-cancel action-confirm-btn action-confirm-cancel",
         options.cancelLabel ?? CANCEL_LABEL,
     );
     const CONFIRM_BUTTON = buttonNode(
-        "action-confirm-btn action-confirm-accept",
+        "btn btn-primary action-confirm-btn action-confirm-accept",
         options.confirmLabel,
     );
+    if (options.confirmStyle !== undefined) {
+        CONFIRM_BUTTON.classList.add(`btn-${options.confirmStyle}`);
+    }
     ACTIONS.append(CANCEL_BUTTON, CONFIRM_BUTTON);
     return {
         actions: ACTIONS,
@@ -96,7 +100,10 @@ function createConfirmDialog(
     DIALOG.className = "action-confirm-dialog";
     DIALOG.setAttribute("aria-labelledby", TITLE_ID);
     const TITLE_BAR = titleBar(options.title);
-    const CLOSE_BUTTON = buttonNode("action-confirm-close", "X");
+    const CLOSE_BUTTON = buttonNode(
+        "btn btn-icon btn-cancel action-confirm-close",
+        "X",
+    );
     CLOSE_BUTTON.setAttribute("aria-label", "Cancel");
     TITLE_BAR.append(CLOSE_BUTTON);
     const BODY = dialogBody(options);
@@ -192,6 +199,7 @@ export function confirmDestructiveAction(
 ): Promise<boolean> {
     return confirmAction({
         ...options,
+        confirmStyle: "remove",
         warning: DESTRUCTIVE_WARNING,
     });
 }

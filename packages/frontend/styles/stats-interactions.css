@@ -7,7 +7,8 @@
 }
 
 .month-bar-track:focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--app-focusRing) 70%, transparent);
+    outline: var(--border-regular) solid
+        color-mix(in srgb, var(--color-glacier) 70%, transparent);
     outline-offset: 2px;
 }
 
@@ -15,9 +16,9 @@
     position: absolute;
     top: 10px;
     left: 50%;
-    font-size: var(--token-typography-size-sm);
+    font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-semibold);
-    color: #000;
+    color: var(--color-black);
     pointer-events: none;
     opacity: 0;
     transform: translate(-50%, -6px);

@@ -42,10 +42,8 @@ function commonValue<T>(
 
 function originalPlaceholder(input: HTMLInputElement): string {
     const INPUT = input;
-    if (INPUT.dataset[BULK_PLACEHOLDER] === undefined) {
-        INPUT.dataset[BULK_PLACEHOLDER] = INPUT.placeholder;
-    }
-    return INPUT.dataset[BULK_PLACEHOLDER] ?? "";
+    INPUT.dataset[BULK_PLACEHOLDER] ??= INPUT.placeholder;
+    return INPUT.dataset[BULK_PLACEHOLDER];
 }
 
 function setMixedPlaceholder(

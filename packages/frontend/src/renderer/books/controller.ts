@@ -9,8 +9,10 @@ import type {
     UpdateBookProgressOptions,
 } from "../../types/types.ts";
 import { el } from "../dom.ts";
+import { activateTab } from "../tabs.ts";
 import { configureAddBookFlow } from "./add-book-flow.ts";
 import { isBulkBookSubmitPayload } from "./bulk-edit-updates.ts";
+import { scrollToBookCard } from "./card_scroll_target.ts";
 import { bindControllerMassEdit } from "./controller-mass-edit.ts";
 import { updatedProgressBook } from "./controller-progress.ts";
 import { nextBooksAfterDialogSave } from "./controller-save.ts";
@@ -20,6 +22,7 @@ import {
 } from "./controller-state-defaults.ts";
 import { bindToolbarEvents } from "./controller_bindings.ts";
 import { renderBooksController } from "./controller_render.ts";
+import { clearBookFilters } from "./controller_render_helpers.ts";
 import { defaultShelfForAddDialog } from "./controller_types.ts";
 import { BookCoverJobs, reportCoverCommitError } from "./cover-jobs.ts";
 import { createBookDialog } from "./dialog.ts";
@@ -55,21 +58,14 @@ let massEdit: MassEditController | null = null;
 const REFS = createBooksControllerRefs();
 const VIEW_STATE = createBooksViewState();
 
-/**
- * Replaces the in-memory books collection used by the books controller.
- * @param nextBooks - Books to render and edit in the current session.
- */
+/** Replaces the in-memory books collection used by the books controller. */
 function setBooks(nextBooks: Book[]): void {
     books = nextBooks;
     COVER_JOBS.retain(books);
     onBooksCommitted(books);
 }
 
-/**
- * Finds a mutable in-memory book by id.
- * @param bookId - Stable `book_id` to locate.
- * @returns Matching book instance when present; otherwise `null`.
- */
+/** Finds a mutable in-memory book by id. */
 function findBook(bookId: string): Book | null {
     return books.find((book) => book.book_id === bookId) ?? null;
 }
@@ -93,11 +89,21 @@ function render(): void {
     });
 }
 
-/**
- * Reads a book by id and returns a defensive copy for callers.
- * @param bookId - Stable `book_id` to locate.
- * @returns Cloned book when found; otherwise `null`.
- */
+/** Opens Library and reveals the exact book, clearing filters if they hide it. */
+export function revealBookInLibrary(bookId: string): void {
+    if (findBook(bookId) === null) {
+        return;
+    }
+    activateTab("books", { focusPanel: true });
+    if (scrollToBookCard(bookId)) {
+        return;
+    }
+    clearBookFilters(REFS, VIEW_STATE);
+    render();
+    scrollToBookCard(bookId);
+}
+
+/** Reads a book by id and returns a defensive copy for callers. */
 export function getBookById(bookId: string): Book | null {
     const BOOK = findBook(bookId);
     if (!BOOK) {
@@ -106,13 +112,7 @@ export function getBookById(bookId: string): Book | null {
     return { ...BOOK };
 }
 
-/**
- * Applies progress field updates to a single book and refreshes the UI.
- * @param bookId - Stable `book_id` to update.
- * @param updates - Partial progress values to merge into the current book.
- * @param options - Behavioral flags such as change notification control.
- * @returns Updated cloned book when found; otherwise `null`.
- */
+/** Applies progress field updates to a single book and refreshes the UI. */
 export function updateBookProgress(
     bookId: string,
     updates: BookProgressUpdates = {},
@@ -136,10 +136,7 @@ export function updateBookProgress(
     return getBookById(bookId);
 }
 
-/**
- * Commits dialog edits first and starts cover processing independently.
- * @param payload - Book save payload including optional shelf-day propagation flag.
- */
+/** Commits dialog edits first and starts cover processing independently. */
 export function saveBook(payload: BookDialogSubmitPayload): void {
     setBooks(nextBooksAfterDialogSave(books, payload));
     render();
@@ -163,10 +160,7 @@ function commitBookCover(book: Book): void {
     onBooksChanged();
 }
 
-/**
- * Replaces controller books from persisted payload data.
- * @param nextBooks - Raw books to normalize and render.
- */
+/** Replaces controller books from persisted payload data. */
 export function fillBooks(nextBooks: Book[] = []): void {
     COVER_JOBS.reset();
     books = nextBooks.map(normalizeBook);
@@ -174,19 +168,13 @@ export function fillBooks(nextBooks: Book[] = []): void {
     render();
 }
 
-/**
- * Stores planner schedule rows used for finish-date and grouping metadata.
- * @param rows - Schedule rows aligned to the current reading plan.
- */
+/** Stores planner schedule rows used for finish-date and grouping metadata. */
 export function setBookScheduleRows(rows: PlannerScheduleRow[] = []): void {
     scheduleRows = [...rows];
     render();
 }
 
-/**
- * Collects books that should be sent to planner scheduling logic.
- * @returns Normalized planner payload books that are title-complete and schedulable.
- */
+/** Collects books that should be sent to planner scheduling logic. */
 export function collectBooks(): Book[] {
     const SCHEDULABLE_BOOKS = books.map(toPayloadBook).filter((book) => {
         const NORMALIZED_TITLE = book.title.trim();
@@ -199,10 +187,7 @@ export function collectBooks(): Book[] {
     return clearMissingBlockedBy(SCHEDULABLE_BOOKS);
 }
 
-/**
- * Collects every titled book for persistence regardless of schedulable state.
- * @returns Normalized payload books with non-empty titles.
- */
+/** Collects every titled book for persistence regardless of schedulable state. */
 export function collectAllBooks(): Book[] {
     return books.map(toPayloadBook).filter((book) => {
         return book.title.trim().length > 0;
@@ -250,11 +235,7 @@ function bindAddBookButton(addButton: HTMLButtonElement): void {
     };
 }
 
-/**
- * Binds books toolbar, dialog, and grid events for interactive editing.
- * @param onChanged - Callback fired after persisted book list mutations.
- * @param options - Optional UI behavior hooks.
- */
+/** Binds books toolbar, dialog, and grid events for interactive editing. */
 export function bindBooksUI(
     onChanged: () => void = DEFAULT_ON_BOOKS_CHANGED,
     options: BindBooksUIOptions = {},
@@ -283,10 +264,7 @@ export function bindBooksUI(
     render();
 }
 
-/**
- * Registers callback invoked after in-memory book collection mutations.
- * @param hook - Observer callback for committed in-memory book list.
- */
+/** Registers callback invoked after in-memory book collection mutations. */
 export function setBookCommitHook(hook?: (books: Book[]) => void): void {
     if (typeof hook === "function") {
         onBooksCommitted = hook;

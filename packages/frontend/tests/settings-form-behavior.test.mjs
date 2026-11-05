@@ -8,6 +8,7 @@ const HARNESS = installFakeDom();
 const { FIELDS, WEEKDAYS, weekdayMinutesEnabledId, weekdayMinutesInputId } =
     await import("../dist/renderer/settings/config.js");
 const { parseSettings } = await import("@reading-schedule/contracts");
+const { initSettingsGrid } = await import("../dist/renderer/settings.js");
 const { collectSettingsForm } =
     await import("../dist/renderer/settings/serialize_collect.js");
 const { fillSettingsForm } =
@@ -69,6 +70,33 @@ function installSettingsDom() {
         appendNode("input", weekdayMinutesInputId(KEY), "text");
     }
 }
+
+test("Days Off places Clear and Add Days Off in the same date-control grid", (context) => {
+    context.mock.getter(globalThis, "navigator", () => undefined);
+    const DOCUMENT = HARNESS.document;
+    DOCUMENT.querySelectorAll = (selector) =>
+        DOCUMENT.body.querySelectorAll(selector);
+    context.after(() => {
+        delete DOCUMENT.querySelectorAll;
+    });
+    installSettingsDom();
+    for (const ID of [
+        "planGrid",
+        "minutesGrid",
+        "displayGrid",
+        "weekdayGrid",
+    ]) {
+        appendNode("div", ID);
+    }
+
+    initSettingsGrid();
+
+    const PICKER = HARNESS.document.getElementById("dayOffPicker");
+    const ADD = HARNESS.document.getElementById("addDayOffBtn");
+    const SHELL = PICKER.closest(".date-input-shell");
+    assert.equal(SHELL.querySelector(".date-input-clear").parentElement, SHELL);
+    assert.equal(ADD.parentElement, SHELL);
+});
 
 test("settings fill shows core planning defaults when unset", () => {
     installSettingsDom();

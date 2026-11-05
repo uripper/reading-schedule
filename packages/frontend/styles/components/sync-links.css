@@ -11,29 +11,15 @@
 }
 
 .sync-links h3 {
-    display: inline;
-    margin: 0;
-    font-size: 0.8rem;
-    font-weight: 900;
-    color: #111;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.sync-links summary {
-    min-height: var(--token-size-target-minimum);
-    padding: 10px 0;
-    color: #111;
-    cursor: pointer;
-}
-
-.sync-links summary:focus-visible {
-    outline: 3px solid #111;
-    outline-offset: 2px;
+    font-size: var(--book-text-size);
 }
 
 .sync-links details[open] summary {
-    margin-bottom: 12px;
+    margin-bottom: var(--token-space-1);
+}
+
+.sync-links details > p {
+    font-size: var(--token-typography-size-md);
 }
 
 .sync-links ul {
@@ -48,10 +34,10 @@
     gap: 10px 20px;
     align-items: center;
     padding: 16px;
-    color: #111;
-    background: #fff7da;
-    border: 3px solid #000;
-    box-shadow: 4px 4px 0 #000;
+    color: var(--color-black);
+    background: var(--color-paper);
+    border: var(--border-thick) solid var(--color-black);
+    box-shadow: var(--shadow-sm);
 }
 
 .sync-links li > :not(button) {
@@ -63,17 +49,17 @@
 .sync-link-source {
     justify-self: start;
     padding: 4px 8px;
-    font-size: 0.72rem;
-    font-weight: 900;
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-extrabold);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    background: #ffe58a;
-    border: 2px solid #000;
+    background: var(--color-banana);
+    border: var(--border-regular) solid var(--color-black);
 }
 
 .sync-link-title {
-    font-size: 1rem;
-    font-weight: 800;
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-extrabold);
     line-height: 1.4;
 }
 
@@ -82,19 +68,17 @@
     flex-wrap: wrap;
     gap: 8px 16px;
     align-items: center;
-    font-size: 0.82rem;
+    font-size: var(--token-typography-size-md);
     line-height: 1.5;
 }
 
 .sync-link-progress {
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
 }
 
 .book-dialog .sync-links .btn {
     grid-row: 1 / span 3;
     grid-column: 2;
-    border-radius: 0;
-    box-shadow: 3px 3px 0 #000;
 }
 
 .sync-links [role="status"]:empty {

@@ -2,12 +2,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { nextRowsWithUpdatedMinutes } from "../dist/renderer/app/calendar_interactions/calendar_interactions_minutes_rows.js";
-import {
-    MINUTES_EDITOR_OPEN_BY_DEFAULT,
-    minutesSummaryVisible,
-    nextMinutesEditorOpenState,
-    plannedMinutesSummaryText,
-} from "../dist/renderer/calendar/details_minutes_form_helpers.js";
 
 /**
  * Builds schedule row fixture with override support.
@@ -75,27 +69,4 @@ test("nextRowsWithUpdatedMinutes returns null when target row is missing", () =>
     const UPDATED = updatedMinutesResult([], row(), 20);
 
     assert.equal(UPDATED, null);
-});
-
-test("planned minutes editor starts closed", () => {
-    assert.equal(MINUTES_EDITOR_OPEN_BY_DEFAULT, false);
-});
-
-test("planned minutes editor opens only after explicit edit action", () => {
-    const OPEN_FROM_EDIT = nextMinutesEditorOpenState("edit");
-    const OPEN_FROM_CANCEL = nextMinutesEditorOpenState("cancel");
-    const OPEN_FROM_SAVE = nextMinutesEditorOpenState("saved");
-
-    assert.equal(OPEN_FROM_EDIT, true);
-    assert.equal(OPEN_FROM_CANCEL, false);
-    assert.equal(OPEN_FROM_SAVE, false);
-});
-
-test("minutes summary visibility mirrors editor open state", () => {
-    assert.equal(minutesSummaryVisible(true), false);
-    assert.equal(minutesSummaryVisible(false), true);
-});
-
-test("plannedMinutesSummaryText renders current planned minutes", () => {
-    assert.equal(plannedMinutesSummaryText(25), "25 minutes");
 });

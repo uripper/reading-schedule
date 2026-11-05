@@ -56,6 +56,8 @@ test("file selection stages a preview immediately and cancellation releases it",
     assert.equal(stagedCoverUpload(SOURCE), FILE);
     assert.equal(REFS.coverPreview.src, SOURCE);
     assert.equal(REFS.coverUploadInput.value, "");
+    assert.equal(REFS.lookupMeta.textContent, "");
+    assert.equal(REFS.lookupMeta.dataset.lookupNote, undefined);
     REFS.dialog.dispatchEvent(new Event("close"));
     assert.equal(stagedCoverUpload(SOURCE), undefined);
 });

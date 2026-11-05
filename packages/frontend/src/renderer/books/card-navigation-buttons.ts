@@ -29,7 +29,7 @@ function finishDateButton(
 ): HTMLButtonElement {
     const BUTTON = document.createElement("button");
     BUTTON.type = "button";
-    BUTTON.className = spec.className;
+    BUTTON.className = `btn btn-compact ${spec.className}`;
     BUTTON.dataset.finishDate = spec.dateKey;
     BUTTON.setAttribute(
         "aria-label",

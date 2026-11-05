@@ -1,34 +1,6 @@
 {
     "$description": "Reading Schedule design tokens (DTCG style)",
     "$schema": "https://www.designtokens.org/schema.json",
-    "color": {
-        "brand": {
-            "300": { "$type": "color", "$value": "#8dd0ff" },
-            "500": { "$type": "color", "$value": "#3f9ef4" }
-        },
-        "danger": {
-            "400": { "$type": "color", "$value": "#ff7f92" }
-        },
-        "neutral": {
-            "0": { "$type": "color", "$value": "#ffffff" },
-            "50": { "$type": "color", "$value": "#f5f8fc" },
-            "300": { "$type": "color", "$value": "#000000" },
-            "500": { "$type": "color", "$value": "#70829f" },
-            "700": { "$type": "color", "$value": "#32435d" },
-            "850": { "$type": "color", "$value": "#1d2940" },
-            "900": { "$type": "color", "$value": "#131d2f" },
-            "950": { "$type": "color", "$value": "#0c1321" }
-        },
-        "overlay": {
-            "60": { "$type": "color", "$value": "rgba(5, 10, 18, 0.6)" }
-        },
-        "success": {
-            "400": { "$type": "color", "$value": "#3ecf8e" }
-        },
-        "warning": {
-            "500": { "$type": "color", "$value": "#f3ad3d" }
-        }
-    },
     "elevation": {
         "md": {
             "$type": "shadow",
@@ -55,25 +27,6 @@
         "pill": { "$type": "dimension", "$value": "999px" },
         "sm": { "$type": "dimension", "$value": "8px" }
     },
-    "semantic": {
-        "bg": { "$type": "color", "$value": "{color.neutral.950}" },
-        "bgElevated": { "$type": "color", "$value": "{color.neutral.900}" },
-        "border": { "$type": "color", "$value": "{color.neutral.700}" },
-        "brand": { "$type": "color", "$value": "{color.brand.300}" },
-        "brandStrong": { "$type": "color", "$value": "{color.brand.500}" },
-        "danger": { "$type": "color", "$value": "{color.danger.400}" },
-        "focusRing": { "$type": "color", "$value": "{color.brand.300}" },
-        "overlay": { "$type": "color", "$value": "{color.overlay.60}" },
-        "success": { "$type": "color", "$value": "{color.success.400}" },
-        "surface": { "$type": "color", "$value": "{color.neutral.900}" },
-        "surfaceMuted": {
-            "$type": "color",
-            "$value": "{color.neutral.850}"
-        },
-        "text": { "$type": "color", "$value": "{color.neutral.50}" },
-        "textMuted": { "$type": "color", "$value": "{color.neutral.300}" },
-        "warning": { "$type": "color", "$value": "{color.warning.500}" }
-    },
     "size": {
         "header": {
             "height": { "$type": "dimension", "$value": "72px" }
@@ -95,17 +48,17 @@
     },
     "typography": {
         "family": {
+            "body": {
+                "$type": "fontFamily",
+                "$value": "\"Archivo\", sans-serif"
+            },
             "heading": {
                 "$type": "fontFamily",
-                "$value": "\"Space Grotesk\", \"Plus Jakarta Sans\", sans-serif"
+                "$value": "\"Plus Jakarta Sans\", sans-serif"
             },
             "mono": {
                 "$type": "fontFamily",
                 "$value": "\"Space Mono\", monospace"
-            },
-            "sans": {
-                "$type": "fontFamily",
-                "$value": "\"Plus Jakarta Sans\", \"Archivo\", sans-serif"
             }
         },
         "lineHeight": {
@@ -113,16 +66,32 @@
             "tight": { "$type": "number", "$value": "1.2" }
         },
         "size": {
+            "display": {
+                "$type": "fontSize",
+                "$value": "clamp(3rem, 6vw, 4.25rem)"
+            },
+            "heading-lg": {
+                "$type": "fontSize",
+                "$value": "clamp(2rem, 3vw, 2.8rem)"
+            },
+            "heading-md": {
+                "$type": "fontSize",
+                "$value": "clamp(1.2rem, 2.2vw, 2.7rem)"
+            },
+            "heading-sm": {
+                "$type": "fontSize",
+                "$value": "clamp(1.2rem, 2vw, 1.6rem)"
+            },
             "lg": { "$type": "fontSize", "$value": "1.2rem" },
             "md": { "$type": "fontSize", "$value": "1rem" },
-            "sm": { "$type": "fontSize", "$value": "0.875rem" },
-            "xl": { "$type": "fontSize", "$value": "1.6rem" },
-            "xs": { "$type": "fontSize", "$value": "0.75rem" }
+            "xl": { "$type": "fontSize", "$value": "1.6rem" }
         },
         "weight": {
             "bold": { "$type": "fontWeight", "$value": "700" },
+            "extrabold": { "$type": "fontWeight", "$value": "800" },
             "medium": { "$type": "fontWeight", "$value": "500" },
-            "regular": { "$type": "fontWeight", "$value": "400" }
+            "regular": { "$type": "fontWeight", "$value": "400" },
+            "semibold": { "$type": "fontWeight", "$value": "600" }
         }
     }
 }

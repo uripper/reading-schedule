@@ -36,7 +36,10 @@ function appendVisibleRowChips(
     for (const ROW of rows.slice(0, 2)) {
         const CHIP = document.createElement("span");
         CHIP.className = chipClassNameForRow(ROW);
-        CHIP.textContent = `${ROW.title ?? "Untitled"} - ${Number(ROW.minutes ?? 0)}m`;
+        const TITLE = document.createElement("span");
+        TITLE.className = "day-chip-title";
+        TITLE.textContent = ROW.title ?? "Untitled";
+        CHIP.append(TITLE);
         dayButton.append(CHIP);
     }
 }

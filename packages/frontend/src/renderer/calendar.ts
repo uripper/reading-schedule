@@ -153,7 +153,7 @@ function renderControlsView(): void {
 }
 
 function previousMonthKey(): string {
-    return STATE.months[STATE.index] || "";
+    return STATE.months[STATE.index] ?? "";
 }
 
 function restoreCalendarIndex(previousMonthKeyValue: string): void {

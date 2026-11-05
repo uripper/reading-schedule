@@ -29,26 +29,12 @@ function linkedBook() {
     });
 }
 
-/** Adds the one insertion method the shared fake DOM does not model. */
-function withInsertBefore(node) {
-    const NODE = node;
-    NODE.insertBefore = (child, reference) => {
-        NODE.append(child);
-        NODE.children = NODE.children.filter((item) => item !== child);
-        NODE.children.splice(NODE.children.indexOf(reference), 0, child);
-        return child;
-    };
-    return NODE;
-}
-
-/** Builds the book form that hosts the panel above its action buttons. */
-function bookForm(dom) {
-    const FORM = withInsertBefore(dom.createElement("form", "bookForm"));
-    const ACTIONS = dom.createElement("div");
-    ACTIONS.append(dom.createElement("button", "cancelBookBtn"));
-    FORM.append(ACTIONS);
-    document.body.append(FORM);
-    return FORM;
+/** Mirrors the nested host for synced sources in the shared shell. */
+function optionsSection(dom) {
+    const OPTIONS = dom.createElement("details", "bookOptionsSection");
+    OPTIONS.append(dom.createElement("section", "bookSyncLinks"));
+    document.body.append(OPTIONS);
+    return OPTIONS;
 }
 
 /** Models the library store and the book form that hosts the panel. */
@@ -57,7 +43,7 @@ function setup(t, saveOk = true) {
     t.after(() => {
         DOM.restore();
     });
-    const FORM = bookForm(DOM);
+    const OPTIONS = optionsSection(DOM);
     const STATE = { books: [linkedBook()], changed: 0, saved: 0 };
     configureSyncLinks(
         {
@@ -76,7 +62,7 @@ function setup(t, saveOk = true) {
         },
         async () => await Promise.resolve(true),
     );
-    return { form: FORM, state: STATE };
+    return { options: OPTIONS, state: STATE };
 }
 
 function panel() {
@@ -104,10 +90,10 @@ test("source cards start collapsed on every book opening", (t) => {
 });
 
 test("each link shows its provider, device, source book, and reading state", (t) => {
-    const { form: FORM, state: STATE } = setup(t);
+    const { options: OPTIONS, state: STATE } = setup(t);
     renderSyncLinks(STATE.books[0]);
     assert.equal(panel().hidden, false);
-    assert.equal(FORM.children[0], panel());
+    assert.equal(OPTIONS.children[0], panel());
     const ITEMS = panel().querySelectorAll("li");
     assert.equal(ITEMS.length, 2);
     assert.equal(
@@ -125,12 +111,15 @@ test("each link shows its provider, device, source book, and reading state", (t)
     assert.equal(ITEMS[0].children.length, 4);
 });
 
-test("new, bulk, and unlinked books hide the section", (t) => {
+test("new and bulk forms hide synced sources, and unlinked books show the empty state", (t) => {
     setup(t);
     renderSyncLinks(null);
     assert.equal(panel().hidden, true);
     renderSyncLinks(normalizeBook({ book_id: "plain", title: "Plain" }));
-    assert.equal(panel().hidden, true);
+    assert.equal(panel().hidden, false);
+    const DETAILS = panel().querySelector("details");
+    assert.equal(DETAILS.open, true);
+    assert.equal(DETAILS.querySelector("p").textContent, "No synced sources");
 });
 
 test("unlinking removes one device's link and keeps the book and its history", async (t) => {

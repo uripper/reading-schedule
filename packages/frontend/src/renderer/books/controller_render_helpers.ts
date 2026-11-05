@@ -10,9 +10,10 @@ import {
     normalizeTitleFilterQuery,
 } from "../title_filter.ts";
 import { bookKeywordFields } from "./keyword-search.ts";
-import { shelfFilterMatches } from "./shelf.ts";
+import { SHELF_FILTER_ALL, shelfFilterMatches } from "./shelf.ts";
 import { sortBooks } from "./sort.ts";
 import { statusFilterMatches } from "./status.ts";
+import { BOOK_STATUS_FILTER_ALL } from "./status_catalog.ts";
 
 /**
  * Checks whether a book matches the active case-insensitive keyword filter.
@@ -109,4 +110,18 @@ export function visibleBooksForView(
         }
         return statusFilterMatches(book, viewState.statusFilter);
     });
+}
+
+/** Restores the unfiltered Library view and its search field. */
+export function clearBookFilters(
+    refs: BooksControllerRefs,
+    viewState: BooksViewState,
+): void {
+    const STATE = viewState;
+    STATE.titleFilter = "";
+    STATE.shelfFilter = SHELF_FILTER_ALL;
+    STATE.statusFilter = BOOK_STATUS_FILTER_ALL;
+    if (refs.titleFilterInput) {
+        refs.titleFilterInput.value = "";
+    }
 }

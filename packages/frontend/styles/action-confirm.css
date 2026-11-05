@@ -1,50 +1,28 @@
 .action-confirm-dialog {
     width: min(430px, 92vw);
     padding: 0;
-    color: #111;
-    background: #c0c0c0;
-    border: 3px solid #000;
+    color: var(--color-black);
+    background: var(--color-gray-light);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 8px 8px 0 #000;
+    box-shadow: var(--shadow-lg);
 }
 
 .action-confirm-dialog::backdrop {
-    background: rgb(0 0 0 / 58%);
+    background: color-mix(in srgb, var(--color-black) 58%, transparent);
 }
 
 .action-confirm-titlebar {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 26px;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px;
     align-items: center;
     min-height: 32px;
-    padding: 3px 4px 3px 8px;
+    padding: var(--token-space-2);
     font-family: var(--token-typography-family-heading);
-    color: #fff;
-    background: #000080;
-    border-bottom: 3px solid #000;
-}
-
-.action-confirm-close,
-.action-confirm-btn {
-    font: inherit;
-    font-weight: 900;
-    color: #111;
-    cursor: pointer;
-    background: #c0c0c0;
-    border-color: #fff #404040 #404040 #fff;
-    border-style: solid;
-    border-width: 3px;
-    border-radius: 0;
-}
-
-.action-confirm-close {
-    display: grid;
-    place-items: center;
-    inline-size: 24px;
-    block-size: 22px;
-    padding: 0;
-    line-height: 1;
+    color: var(--color-white);
+    background: var(--color-indigo);
+    border-bottom: var(--border-thick) solid var(--color-black);
 }
 
 .action-confirm-body {
@@ -52,7 +30,7 @@
     gap: 10px;
     padding: 20px 18px 12px;
     font-family: var(--token-typography-family-body);
-    border: 3px solid #fff;
+    border: var(--border-thick) solid var(--color-white);
     border-top: 0;
 }
 
@@ -63,7 +41,7 @@
 }
 
 .action-confirm-warning {
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
 }
 
 .action-confirm-actions {
@@ -72,31 +50,9 @@
     gap: 10px;
     justify-content: flex-end;
     padding: 12px 16px 16px;
-    border-top: 2px solid #808080;
+    border-top: var(--border-regular) solid var(--color-gray);
 }
 
 .action-confirm-btn {
     min-width: 132px;
-    min-height: 38px;
-    padding: 6px 14px;
-    text-transform: uppercase;
-    letter-spacing: 0;
-}
-
-.action-confirm-accept {
-    background: #f07e67;
-}
-
-.action-confirm-btn:hover,
-.action-confirm-btn:focus-visible,
-.action-confirm-close:hover,
-.action-confirm-close:focus-visible {
-    outline: 2px dotted #111;
-    outline-offset: -5px;
-    filter: brightness(1.04);
-}
-
-.action-confirm-btn:active,
-.action-confirm-close:active {
-    border-color: #404040 #fff #fff #404040;
 }

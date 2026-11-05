@@ -1,7 +1,7 @@
 .settings-shell {
     display: grid;
     gap: 18px;
-    color: #111;
+    color: var(--color-black);
 }
 
 .settings-section-tabs {
@@ -9,29 +9,29 @@
     flex-wrap: wrap;
     gap: 12px;
     padding: 18px;
-    background: #f0cb58;
-    border: 3px solid #000;
+    background: var(--color-yellow);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 7px 7px 0 #000;
+    box-shadow: var(--shadow-md);
 }
 
 .settings-section-tab {
     min-height: var(--token-size-target-minimum);
     padding: 10px 16px;
     font: inherit;
-    font-size: 0.85rem;
-    font-weight: 900;
-    color: #111;
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-extrabold);
+    color: var(--color-black);
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    background: #ffe58a;
-    border: 3px solid #000;
+    background: var(--color-banana);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 4px 4px 0 #000;
+    box-shadow: var(--shadow-sm);
 }
 
 .settings-section-tab.is-active {
-    background: #f2d14c;
+    background: var(--color-yellow);
 }
 
 .settings-layout {
@@ -45,34 +45,34 @@
     align-content: start;
     width: 100%;
     padding: 22px;
-    background: #f7de72;
-    border: 3px solid #000;
+    background: var(--color-yellow);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 8px 8px 0 #000;
+    box-shadow: var(--shadow-lg);
 }
 
 .settings-card > h2 {
     padding-bottom: 12px;
     margin: 0;
-    font-family: var(--header-font);
-    font-size: clamp(1.2rem, 2vw, 1.6rem);
-    color: #111;
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-heading-sm);
+    color: var(--color-black);
     text-transform: uppercase;
-    border-bottom: 3px solid #000;
+    border-bottom: var(--border-thick) solid var(--color-black);
 }
 
 .settings-card > h3 {
     margin: 0;
-    font-size: 0.82rem;
-    font-weight: 900;
-    color: #111;
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-extrabold);
+    color: var(--color-black);
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
 
 .settings-card .hint-text {
     margin-top: calc(var(--token-space-2) * -1);
-    color: #3d3521;
+    color: var(--color-umber);
 }
 
 .settings-grid {
@@ -91,8 +91,8 @@
     gap: 6px;
     align-content: start;
     margin: 0;
-    font-weight: 800;
-    color: #111;
+    font-weight: var(--token-typography-weight-extrabold);
+    color: var(--color-black);
 }
 
 .settings-field-checkbox,
@@ -101,7 +101,7 @@
     gap: var(--token-space-2);
     align-items: center;
     min-height: var(--token-size-target-minimum);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
 }
 
 .settings-field-label-row {
@@ -109,21 +109,21 @@
     gap: 10px;
     align-items: center;
     justify-content: space-between;
-    color: #000;
+    color: var(--color-black);
 }
 
 .settings-field-link {
-    font-size: 0.9rem;
-    font-weight: 900;
-    color: #111;
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-extrabold);
+    color: var(--color-black);
     text-decoration-thickness: 3px;
     text-underline-offset: 4px;
 }
 
 .settings-divider {
     height: 4px;
-    background: #000;
-    box-shadow: 0 6px 0 #f0cb58;
+    background: var(--color-black);
+    box-shadow: 0 6px 0 var(--color-yellow);
 }
 
 .settings-card .settings-grid > label[hidden] {
@@ -138,13 +138,13 @@
 .settings-details > summary {
     min-height: var(--token-size-target-minimum);
     padding: 10px 14px;
-    font-weight: 900;
-    color: #111;
+    font-weight: var(--token-typography-weight-extrabold);
+    color: var(--color-black);
     cursor: pointer;
-    background: #ffe58a;
-    border: 3px solid #000;
+    background: var(--color-banana);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 4px 4px 0 #000;
+    box-shadow: var(--shadow-sm);
 }
 
 .settings-details[open] > summary {
@@ -157,16 +157,16 @@
     min-height: var(--token-size-target-minimum);
     padding: 10px 14px;
     margin-top: 0;
-    color: #f8f4e8;
-    background: #13213a;
-    border: 3px solid #000;
+    color: var(--color-paper);
+    background: var(--color-black);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 4px 4px 0 #000;
+    box-shadow: var(--shadow-sm);
 }
 
 #tab-settings input:disabled {
-    color: #111;
-    background: #d8c86a;
+    color: var(--color-black);
+    background: var(--color-yellow);
     opacity: 1;
 }
 
@@ -178,18 +178,18 @@
     padding: 0;
     appearance: none;
     cursor: pointer;
-    background: #fff8d6;
+    background: var(--color-parchment);
 }
 
 #tab-settings input[type="checkbox"]:checked {
-    background: #9bdeac;
+    background: var(--color-emerald);
 }
 
 #tab-settings input[type="checkbox"]:checked::after {
     position: absolute;
     inset: 1px;
     content: "";
-    background: #000;
+    background: var(--color-black);
     mask: var(--icon-check) center / contain no-repeat;
 }
 
@@ -212,16 +212,11 @@
     align-items: center;
     min-height: var(--token-size-target-minimum);
     margin: 0;
-    font-weight: 900;
-    color: #111;
+    font-weight: var(--token-typography-weight-extrabold);
+    color: var(--color-black);
 }
 
 #tab-settings .row.wrap-row {
     gap: var(--token-space-2);
     align-items: flex-end;
-}
-
-#dayOffPicker {
-    flex: 0 1 220px;
-    max-width: 220px;
 }

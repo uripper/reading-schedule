@@ -139,7 +139,6 @@ test("runPlanGeneration surfaces incomplete plans as errors", async () => {
     ]);
 });
 
-// oxlint-disable-next-line bartleby/function-body-lines -- Assertions stay with the async setup they verify.
 test("runPlanGeneration ignores superseded planner errors", async () => {
     const Logs = [];
     const Statuses = [];
@@ -186,7 +185,7 @@ test("auto plan starts a newer request while the previous one is still pending",
             getLastResult: () => null,
             getScheduleCompletions: () => ({}),
             getSessions: () => [],
-            persistDraft: async () => true,
+            persistDraft: () => Promise.resolve(true),
             plannerApi: {
                 generate: async () => {
                     const DEFERRED = deferred();
@@ -224,7 +223,6 @@ test("auto plan starts a newer request while the previous one is still pending",
     }
 });
 
-// oxlint-disable-next-line bartleby/function-body-lines -- DOM setup and assertions are intentionally adjacent.
 test("schedule status overlay is nonblocking and keeps the live region separate", () => {
     const HARNESS = installFakeDom();
     const TIMEOUTS = installTimeoutHarness();

@@ -12,10 +12,6 @@ import {
     updateSessionRowMinutes,
 } from "./calendar_interactions_schedule_updates.ts";
 
-const NO_OP = (): void => {
-    // Intentionally empty fallback callback.
-};
-
 function createSharedScheduleBindings(
     args: AppCalendarInteractionArgs,
 ): SharedScheduleBindings {
@@ -24,7 +20,7 @@ function createSharedScheduleBindings(
         collectSettings: args.collectSettings,
         getBookById: args.getBookById,
         onProgressUpdated: args.onProgressUpdated,
-        onScheduleRowsUpdated: args.onScheduleRowsUpdated ?? NO_OP,
+        onScheduleRowsUpdated: args.onScheduleRowsUpdated,
         queuePersist: args.queuePersist,
         renderCalendar: args.renderCalendar,
         setBookScheduleRows: args.setBookScheduleRows,

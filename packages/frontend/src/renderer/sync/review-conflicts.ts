@@ -19,7 +19,7 @@ export function syncReadDateLabel(value: string): string {
 
 /** Identifies each other source title, percentage, and read time targeting the same book. */
 function sourceConflicts(entry: SyncReviewEntry, book: Book): string {
-    const OTHERS = entry.conflictingRecords ?? [];
+    const OTHERS = entry.conflictingRecords;
     if (OTHERS.length === 0) {
         return "";
     }

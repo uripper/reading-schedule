@@ -1,10 +1,11 @@
 :root {
-    --neo-today-green: #7edc85;
-    --neo-today-yellow: #ecd73a;
+    --neo-today-green: var(--color-emerald);
+    --neo-today-yellow: var(--color-yellow);
     --neo-cover-height: 20vh;
     --neo-cover-hero-height: 40vh;
     --neo-cover-hero-width: 15vw;
     --neo-cover-width: 7vw;
+    --neo-cover-offset: 50px;
     --neo-carousel-gap: 8vw;
     --neo-carousel-top-padding: 18px;
 }
@@ -36,15 +37,9 @@
     position: absolute;
     top: calc(var(--neo-carousel-top-padding) + (var(--neo-cover-height) / 2));
     z-index: 3;
-    display: grid;
-    place-items: center;
     width: 60px;
     height: 90px;
     padding: 0;
-    background: color-mix(in srgb, #130820 60%, transparent);
-    border: 1px solid color-mix(in srgb, #fff 30%, transparent);
-    border-radius: 4px;
-    box-shadow: none;
     transform: scale(0.85);
 }
 
@@ -58,9 +53,6 @@
 
 .today-carousel-nav .icon {
     --icon-size: 48px;
-
-    color: #fff;
-    opacity: 0.95;
 }
 
 .today-carousel-track {
@@ -95,20 +87,24 @@
     background: transparent;
 }
 
-.today-carousel-item {
-    position: relative;
+.today-carousel-item,
+.today-carousel-add-book {
     flex: 0 0 var(--neo-cover-width);
     width: var(--neo-cover-width);
     height: var(--neo-cover-height);
+    scroll-snap-align: center;
+    transform: translateY(var(--neo-cover-offset));
+}
+
+.today-carousel-item {
+    position: relative;
     padding: 0;
     overflow: hidden;
     cursor: pointer;
-    scroll-snap-align: center;
-    background: #fff;
-    border: 1px solid #000;
+    background: var(--color-white);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: 2px;
-    box-shadow: 8px 8px 4px rgba(0, 0, 0, 1);
-    transform: translateY(50px);
+    box-shadow: 8px 8px 4px var(--color-black);
     transition:
         width 420ms var(--token-motion-easing-standard),
         height 420ms var(--token-motion-easing-standard),
@@ -117,10 +113,13 @@
     will-change: transform, width, height, flex-basis;
 }
 
-.today-carousel-item.is-add-book {
-    background: var(--neo-today-yellow);
-    border: 2px solid #000;
-    box-shadow: 10px 10px 0 #000;
+.today-carousel-add-book {
+    flex-direction: column;
+    padding-inline: var(--token-space-1);
+}
+
+.today-carousel-add-book::before {
+    width: var(--button-book-icon-size);
 }
 
 .today-carousel-item img {
@@ -143,38 +142,28 @@
     width: 100%;
     height: 100%;
     padding: 12px;
-    font-family: var(--header-font);
-    font-size: clamp(2rem, 4vw, 4rem);
-    font-weight: 800;
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-display);
+    font-weight: var(--token-typography-weight-extrabold);
     line-height: 1;
-    color: #000000;
+    color: var(--color-black);
     text-transform: uppercase;
-    background: color-mix(in srgb, var(--neo-today-green) 74%, #ffffff);
-}
-
-.today-carousel-item.is-add-book > .today-carousel-fallback {
-    font-size: clamp(3rem, 5vw, 4.5rem);
-    font-weight: 900;
-    background: var(--neo-today-yellow);
+    background: color-mix(
+        in srgb,
+        var(--neo-today-green) 74%,
+        var(--color-white)
+    );
 }
 
 .today-carousel-track.is-add-book-only {
+    align-items: center;
     justify-content: center;
     padding-inline: 0;
     scroll-padding-inline: 0;
 }
 
-.today-carousel-track.is-add-book-only .today-carousel-item.is-add-book {
-    flex-basis: var(--neo-cover-hero-width);
-    width: var(--neo-cover-hero-width);
-    height: var(--neo-cover-hero-height);
-    transform: translateY(0);
-}
-
-.today-carousel-track.is-add-book-only
-    .today-carousel-item.is-add-book
-    > .today-carousel-fallback {
-    font-size: clamp(4rem, 8vw, 6rem);
+.is-add-book-only .today-carousel-add-book {
+    transform: none;
 }
 
 .today-carousel-item > img,
@@ -186,9 +175,9 @@
 
 #todayCarouselEmpty {
     margin: 0 auto;
-    font-family: var(--main-font);
-    font-size: clamp(1rem, 1vw, 1.2rem);
-    color: #ffffff;
+    font-family: var(--token-typography-family-body);
+    font-size: var(--token-typography-size-md);
+    color: var(--color-white);
 }
 
 .today-active-book-bar {
@@ -201,16 +190,16 @@
     margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: var(--header-font);
-    font-size: clamp(2rem, 2.8vw, 3.3rem);
-    font-weight: 800;
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-heading-lg);
+    font-weight: var(--token-typography-weight-extrabold);
     line-height: 1.1;
-    color: #000000;
+    color: var(--color-black);
     text-align: center;
     white-space: nowrap;
     background: var(--neo-today-green);
-    border-block: 1px solid #000000;
-    box-shadow: 0 4px 4px #000000;
+    border-block: var(--border-thin) solid var(--color-black);
+    box-shadow: 0 4px 4px var(--color-black);
 }
 
 @media (max-width: 1200px) {
@@ -241,7 +230,7 @@
     }
 
     .today-active-book-bar {
-        font-size: clamp(1.5rem, 4vw, 2.4rem);
+        font-size: var(--token-typography-size-heading-lg);
     }
 }
 

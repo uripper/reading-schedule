@@ -100,15 +100,15 @@ function bookCardById(bookId: string): HTMLElement | null {
  * Scrolls to a rendered book card and applies temporary target emphasis.
  * @param bookId - Stable book id to find and reveal.
  */
-export function scrollToBookCard(bookId: string): void {
+export function scrollToBookCard(bookId: string): boolean {
     const CARD = bookCardById(bookId);
     if (CARD === null) {
-        return;
+        return false;
     }
     const TOKEN = startScrollToken(CARD);
     if (!shouldScrollCardIntoView(CARD)) {
         highlightTargetCard(CARD);
-        return;
+        return true;
     }
     CARD.scrollIntoView({
         behavior: "smooth",
@@ -124,4 +124,5 @@ export function scrollToBookCard(bookId: string): void {
             highlightTargetCard(CARD);
         },
     );
+    return true;
 }

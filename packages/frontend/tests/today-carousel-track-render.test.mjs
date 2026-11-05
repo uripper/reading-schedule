@@ -31,7 +31,7 @@ function baseTrackBook(overrides = {}) {
     };
 }
 
-test("renderTrackState centers the add-book card when Today has no books", () => {
+test("renderTrackState centers the Add Book tile when Today has no books", () => {
     const DOM = installFakeDom();
     try {
         withFakeAnimationFrame(() => {
@@ -50,13 +50,49 @@ test("renderTrackState centers the add-book card when Today has no books", () =>
 
             assert.equal(TRACK.classList.contains("is-add-book-only"), true);
             assert.equal(TRACK.children.length, 1);
+            const ADD_BOOK = TRACK.children[0];
+            assert.ok(ADD_BOOK.classList.contains("btn-add-book"));
+            assert.equal(ADD_BOOK.textContent, "Add Book");
         });
     } finally {
         DOM.restore();
     }
 });
 
-test("renderTrackState keeps the regular layout when Today already has books", () => {
+test("renderTrackState appends the Add Book tile after scheduled covers", () => {
+    const DOM = installFakeDom();
+    try {
+        withFakeAnimationFrame(() => {
+            const TRACK = DOM.createElement("div", "todayCarouselTrack");
+            DOM.document.body.append(TRACK);
+            let addBookCalls = 0;
+
+            renderTrackState(
+                {
+                    active: null,
+                    books: [baseTrackBook()],
+                    selectedBookId: "book-1",
+                },
+                NOOP,
+                () => {
+                    addBookCalls += 1;
+                },
+            );
+
+            assert.equal(TRACK.classList.contains("is-add-book-only"), false);
+            assert.equal(TRACK.children.length, 2);
+            const [COVER, ADD_BOOK] = TRACK.children;
+            assert.ok(COVER.classList.contains("is-selected"));
+            assert.ok(ADD_BOOK.classList.contains("today-carousel-add-book"));
+            ADD_BOOK.click();
+            assert.equal(addBookCalls, 1);
+        });
+    } finally {
+        DOM.restore();
+    }
+});
+
+test("renderTrackState loads only the selected cover eagerly at high priority", () => {
     const DOM = installFakeDom();
     try {
         withFakeAnimationFrame(() => {
@@ -66,15 +102,25 @@ test("renderTrackState keeps the regular layout when Today already has books", (
             renderTrackState(
                 {
                     active: null,
-                    books: [baseTrackBook()],
-                    selectedBookId: "book-1",
+                    books: [
+                        baseTrackBook({ coverSrc: "cover-1.jpg" }),
+                        baseTrackBook({
+                            bookId: "book-2",
+                            coverSrc: "cover-2.jpg",
+                        }),
+                    ],
+                    selectedBookId: "book-2",
                 },
-                NOOP,
                 NOOP,
             );
 
-            assert.equal(TRACK.classList.contains("is-add-book-only"), false);
-            assert.equal(TRACK.children.length, 2);
+            const [UNSELECTED, SELECTED] = TRACK.children;
+            const UNSELECTED_IMAGE = UNSELECTED.children[0];
+            const SELECTED_IMAGE = SELECTED.children[0];
+            assert.equal(UNSELECTED_IMAGE.loading, "lazy");
+            assert.notEqual(UNSELECTED_IMAGE.fetchPriority, "high");
+            assert.equal(SELECTED_IMAGE.loading, "eager");
+            assert.equal(SELECTED_IMAGE.fetchPriority, "high");
         });
     } finally {
         DOM.restore();

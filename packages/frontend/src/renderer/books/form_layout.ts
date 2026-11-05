@@ -1,3 +1,5 @@
+/** Builds the book form controls whose choices come from the library model. */
+import { el } from "../dom.ts";
 import { BOOK_WEEKDAYS } from "./scheduled_days.ts";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
 import { statusOptions } from "./status_catalog.ts";
@@ -81,7 +83,7 @@ function createScheduledDaysField(): HTMLFieldSetElement {
 
     for (const WEEKDAY of BOOK_WEEKDAYS) {
         const LABEL = document.createElement("label");
-        LABEL.className = "book-scheduled-day";
+        LABEL.className = "btn btn-compact book-scheduled-day";
 
         const INPUT = document.createElement("input");
         INPUT.type = "checkbox";
@@ -118,7 +120,7 @@ function createApplyScheduledDaysToShelfLabel(): HTMLLabelElement {
 }
 
 /**
- * Ensures dynamic book form fields are present in the settings grid.
+ * Places the dynamic fields in their corresponding dialog sections.
  */
 export function ensureBookFormLayoutFields(): void {
     const EXISTING = document.getElementById("bookShelfSelectInput");
@@ -126,17 +128,12 @@ export function ensureBookFormLayoutFields(): void {
         return;
     }
 
-    const GRID = document.querySelector(
-        "#bookForm .book-fields .settings-grid",
-    );
-    if (!(GRID instanceof HTMLElement)) {
-        return;
-    }
-
-    GRID.append(
+    el("bookDetailsFields").append(
         createStatusSelectLabel(),
-        createFinishedAtLabel(),
         createShelfSelectLabel(),
+        createFinishedAtLabel(),
+    );
+    el("bookSchedulingFields").append(
         createScheduledDaysField(),
         createApplyScheduledDaysToShelfLabel(),
     );

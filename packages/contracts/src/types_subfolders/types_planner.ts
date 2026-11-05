@@ -1,6 +1,5 @@
 /** Planner request, schedule, result, and settings contract types. */
 
-import type { UUID } from "node:crypto";
 import type { KoboSnapshot } from "../kobo.ts";
 import type { Book } from "./types_books.ts";
 import type { JsonValue, Session } from "./types_core.ts";
@@ -14,7 +13,7 @@ export interface PlannerScheduleRow {
     /**
      * The UUID of the book
      */
-    book_id: UUID | string;
+    book_id: string;
     /**
      * The date it is planned for, in YYYY-MM-DD format
      */
@@ -238,9 +237,12 @@ export interface PlannerApi {
     /** False when the host leaves zoom shortcuts to the browser itself. */
     nativeZoom?: boolean;
     /** Opens the host file picker; cancellation leaves the saved database unchanged. */
-    pickKoboDatabase?(databasePath?: string): Promise<string | null>;
+    pickKoboDatabase?(
+        this: void,
+        databasePath?: string,
+    ): Promise<string | null>;
     /** Available only on hosts that can read a locally mounted Kobo database. */
-    readKoboProgress?(databasePath: string): Promise<KoboSnapshot>;
+    readKoboProgress?(this: void, databasePath: string): Promise<KoboSnapshot>;
     resolveCoverSrc(src: string | undefined): string;
     sample(): Promise<Pick<PlannerStateSnapshot, "settings" | "books">>;
     saveState(state: PlannerStateSnapshot): Promise<PlannerSaveResult>;

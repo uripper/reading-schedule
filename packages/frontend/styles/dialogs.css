@@ -3,19 +3,19 @@
 .help-dialog {
     width: min(980px, 92vw);
     padding: var(--token-space-4);
-    color: var(--app-text);
-    background: var(--app-surface);
-    border: 1px solid var(--app-border);
+    color: var(--color-white);
+    background: var(--color-black);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: var(--token-radius-lg);
     box-shadow: var(--token-elevation-md);
 }
 
 .help-dialog::backdrop {
-    background: var(--app-overlay);
+    background: color-mix(in srgb, var(--color-black) 60%, transparent);
 }
 
 .help-dialog h3 {
-    color: var(--app-text);
+    color: var(--color-white);
 }
 
 .help-dialog-actions {
@@ -28,9 +28,9 @@ pre {
     margin: var(--token-space-2) 0;
     overflow: auto;
     font-family: var(--token-typography-family-mono);
-    font-size: var(--token-typography-size-xs);
-    color: var(--app-text);
-    background: var(--app-surface);
-    border: 1px solid var(--app-border);
+    font-size: var(--token-typography-size-md);
+    color: var(--color-white);
+    background: var(--color-black);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: var(--token-radius-sm);
 }

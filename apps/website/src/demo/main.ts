@@ -27,5 +27,4 @@ bootstrapDemo().catch((error: unknown) => {
     showDemoNotice(
         `The demo could not start. Reload or reset the demo to retry.${detail}`,
     );
-    globalThis.document.getElementById("splashScreen")?.remove();
 });

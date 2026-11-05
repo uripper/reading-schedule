@@ -1,192 +1,61 @@
-import type {
-    Book,
-    CalendarRowWithFinish,
-    CalendarStateSubset,
-    DetailInteractionHandlers,
-} from "../../types/types.ts";
-import { fallbackBookForRow } from "./details_fallback_book.ts";
+/** Renders Schedule cards for today's sessions. */
+import type { Book } from "../../types/types.ts";
 import { minutesFormForSession } from "./details_minutes_form.ts";
-import { progressFormForToday } from "./details_progress_form.ts";
+import { endingMetric } from "./details_session_ending.ts";
+import type { EndingMetricValues } from "./details_session_ending.ts";
+import type { SessionCardWithEstimateArgs } from "./details_session_shared.ts";
 import {
     baseSessionItem,
-    COMPLETE_ITEM_CLASS,
-    COMPLETE_TOGGLE_LABEL,
-    DAY_DETAILS_META_CLASS,
-    removeSessionButton,
+    sessionCompletionButton,
+    sessionEstimate,
 } from "./details_session_shared.ts";
-import { estimateProgressLabel } from "./estimates.ts";
 import { sessionKeyFor } from "./utils.ts";
 
-export interface BuildTodaySessionItemArgs {
-    interactionHandlers: DetailInteractionHandlers;
-    rerenderDetails: () => void;
-    row: CalendarRowWithFinish;
-    state: CalendarStateSubset;
+/** Saves the recorded ending value through the existing progress mutation. */
+function saveEndingValue(
+    args: SessionCardWithEstimateArgs,
+    values: EndingMetricValues,
+): EndingMetricValues | null {
+    const UPDATED = args.interactionHandlers.onSessionProgressUpdated({
+        bookId: args.row.book_id,
+        pagesRead: values.pages,
+        progressPercent: values.percent,
+        row: args.row,
+    });
+    if (UPDATED === null) {
+        return null;
+    }
+    return { pages: UPDATED.pages_read, percent: UPDATED.progress_percent };
 }
 
-interface CompletionUi {
-    checkbox: HTMLInputElement;
-    label: HTMLElement;
-    sessionKey: string;
-}
-
-interface CompletionChangeArgs {
-    interactionHandlers: DetailInteractionHandlers;
-    item: HTMLElement;
-    rerenderDetails: () => void;
-    row: CalendarRowWithFinish;
-    sessionKey: string;
-}
-
-type CompletionUiArgs = Omit<CompletionChangeArgs, "sessionKey">;
-
-interface AppendTodaySessionEditorsArgs extends CompletionChangeArgs {
-    book: Book;
-    checkbox: HTMLInputElement;
-}
-
-function completionToggle(
-    interactionHandlers: DetailInteractionHandlers,
-    sessionKey: string,
-): CompletionUi {
-    const LABEL = document.createElement("label");
-    LABEL.className = "day-complete-toggle";
-    const CHECKBOX = document.createElement("input");
-    CHECKBOX.type = "checkbox";
-    CHECKBOX.checked = Boolean(
-        interactionHandlers.isSessionCompleted(sessionKey),
-    );
-    LABEL.append(CHECKBOX, COMPLETE_TOGGLE_LABEL);
-    return { checkbox: CHECKBOX, label: LABEL, sessionKey };
-}
-
-function notifyCompletionChange(
-    args: CompletionChangeArgs,
+/** Keeps the projection visible until the session is completed. */
+function todayProgressEditor(
+    args: SessionCardWithEstimateArgs,
+    book: Book,
     completed: boolean,
-): void {
-    args.item.classList.toggle(COMPLETE_ITEM_CLASS, completed);
-    args.interactionHandlers.onSessionCompletionChanged({
-        completed,
-        row: args.row,
-        sessionKey: args.sessionKey,
-    });
-    args.rerenderDetails();
-}
-
-function createCompletionUi(args: CompletionUiArgs): CompletionUi {
-    const SESSION_KEY = sessionKeyFor(args.row);
-    const TOGGLE = completionToggle(args.interactionHandlers, SESSION_KEY);
-    args.item.classList.toggle(COMPLETE_ITEM_CLASS, TOGGLE.checkbox.checked);
-    TOGGLE.checkbox.onchange = () => {
-        notifyCompletionChange(
-            { ...args, sessionKey: SESSION_KEY },
-            Boolean(TOGGLE.checkbox.checked),
-        );
-    };
-    return { ...TOGGLE, sessionKey: SESSION_KEY };
-}
-
-function markSessionComplete(args: AppendTodaySessionEditorsArgs): void {
-    const CHECKBOX = args.checkbox;
-    if (CHECKBOX.checked) {
-        return;
-    }
-    CHECKBOX.checked = true;
-    notifyCompletionChange(args, true);
-}
-
-function todaySessionBook(args: BuildTodaySessionItemArgs) {
-    return (
-        args.interactionHandlers.getBookById(args.row.book_id) ??
-        fallbackBookForRow(args.row)
-    );
-}
-
-function progressEditor(
-    args: AppendTodaySessionEditorsArgs,
-): ReturnType<typeof progressFormForToday> {
-    return progressFormForToday({
-        book: args.book,
-        interactionHandlers: args.interactionHandlers,
-        onProgressApplied: () => {
-            markSessionComplete(args);
-        },
-        row: args.row,
-    });
-}
-
-function appendTodaySessionEditors(args: AppendTodaySessionEditorsArgs): void {
-    args.item.append(
-        minutesFormForSession(
-            args.row,
-            args.interactionHandlers,
-            args.rerenderDetails,
-        ),
-    );
-    args.item.append(progressEditor(args));
-}
-
-function estimateElement(
-    args: BuildTodaySessionItemArgs,
-): HTMLParagraphElement {
-    const ESTIMATE = document.createElement("p");
-    ESTIMATE.className = `${DAY_DETAILS_META_CLASS} day-session-estimate`;
-    ESTIMATE.textContent = estimateProgressLabel({
-        getBookById: args.interactionHandlers.getBookById,
-        isSessionCompleted: args.interactionHandlers.isSessionCompleted,
-        row: args.row,
-        state: args.state,
-    });
-    return ESTIMATE;
-}
-
-function appendEstimateIfIncomplete(options: {
-    completionUi: CompletionUi;
-    estimate: HTMLParagraphElement;
-    interactionHandlers: DetailInteractionHandlers;
-    item: HTMLElement;
-}): void {
-    const IS_COMPLETED = options.interactionHandlers.isSessionCompleted(
-        options.completionUi.sessionKey,
-    );
-    if (!IS_COMPLETED) {
-        options.item.append(options.estimate);
-    }
-}
-
-function appendTodaySessionContent(
-    args: BuildTodaySessionItemArgs,
-    completionUi: CompletionUi,
-    item: HTMLElement,
-): void {
-    item.append(completionUi.label);
-    appendTodaySessionEditors({
-        ...args,
-        book: todaySessionBook(args),
-        checkbox: completionUi.checkbox,
-        item,
-        sessionKey: completionUi.sessionKey,
-    });
-    item.append(
-        removeSessionButton(
-            args.row,
-            args.interactionHandlers,
-            args.rerenderDetails,
-        ),
-    );
-}
-
-export function buildTodaySessionItem(
-    args: BuildTodaySessionItemArgs,
 ): HTMLElement {
-    const ITEM = baseSessionItem(args.row);
-    const COMPLETION_UI = createCompletionUi({ ...args, item: ITEM });
-    appendTodaySessionContent(args, COMPLETION_UI, ITEM);
-    appendEstimateIfIncomplete({
-        completionUi: COMPLETION_UI,
-        estimate: estimateElement(args),
-        interactionHandlers: args.interactionHandlers,
-        item: ITEM,
-    });
+    let values = sessionEstimate(args);
+    if (completed) {
+        values = { pages: book.pages_read, percent: book.progress_percent };
+    }
+    return endingMetric(values, (updated) => saveEndingValue(args, updated));
+}
+
+/** Shows editable duration and progress alongside the completion action. */
+export function buildTodaySessionItem(
+    args: SessionCardWithEstimateArgs,
+): HTMLElement {
+    const { row, interactionHandlers } = args;
+    const BOOK = interactionHandlers.getBookById(row.book_id);
+    const ITEM = baseSessionItem(args, BOOK);
+    const COMPLETED = interactionHandlers.isSessionCompleted(
+        sessionKeyFor(row),
+    );
+    ITEM.classList.toggle("is-complete", COMPLETED);
+    ITEM.append(minutesFormForSession(args));
+    if (BOOK !== null) {
+        ITEM.append(todayProgressEditor(args, BOOK, COMPLETED));
+    }
+    ITEM.append(sessionCompletionButton(args, COMPLETED));
     return ITEM;
 }

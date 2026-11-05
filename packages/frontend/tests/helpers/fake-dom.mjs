@@ -13,75 +13,89 @@ function windowEvent(type, props = {}) {
     };
 }
 
-export function installFakeDom() {
-    const ORIGINALS = {
-        addEventListener: globalThis.addEventListener,
-        document: globalThis.document,
-        Element: globalThis.Element,
-        HTMLButtonElement: globalThis.HTMLButtonElement,
-        HTMLDialogElement: globalThis.HTMLDialogElement,
-        HTMLDivElement: globalThis.HTMLDivElement,
-        HTMLElement: globalThis.HTMLElement,
-        HTMLInputElement: globalThis.HTMLInputElement,
-        HTMLSpanElement: globalThis.HTMLSpanElement,
-        innerHeight: globalThis.innerHeight,
-        innerWidth: globalThis.innerWidth,
-        Node: globalThis.Node,
-        scrollY: globalThis.scrollY,
-    };
-    const DOCUMENT = new FakeDocument();
-    const WINDOW_HANDLERS = new Map();
-    globalThis.document = DOCUMENT;
-    globalThis.HTMLElement = FakeElement;
-    globalThis.HTMLInputElement = FakeElement;
-    globalThis.HTMLButtonElement = FakeElement;
-    globalThis.HTMLDialogElement = FakeElement;
-    globalThis.HTMLDivElement = FakeElement;
-    globalThis.HTMLSpanElement = FakeElement;
-    globalThis.Element = FakeElement;
-    globalThis.Node = FakeElement;
-    globalThis.innerHeight = 900;
-    globalThis.innerWidth = 1440;
-    globalThis.scrollY = 0;
-    globalThis.addEventListener = (type, handler) => {
-        const HANDLERS = WINDOW_HANDLERS.get(type) ?? [];
+const ELEMENT_GLOBALS = [
+    "Element",
+    "HTMLButtonElement",
+    "HTMLDialogElement",
+    "HTMLDivElement",
+    "HTMLElement",
+    "HTMLInputElement",
+    "HTMLSpanElement",
+    "Node",
+];
+const VIEWPORT_DEFAULTS = { innerHeight: 900, innerWidth: 1440, scrollY: 0 };
+const SWAPPED_GLOBALS = [
+    ...ELEMENT_GLOBALS,
+    ...Object.keys(VIEWPORT_DEFAULTS),
+    "addEventListener",
+    "document",
+];
+
+/** Captures every global the fake DOM replaces so it can be restored. */
+function snapshotGlobals() {
+    return Object.fromEntries(
+        SWAPPED_GLOBALS.map((name) => [name, globalThis[name]]),
+    );
+}
+
+/** Puts back the globals captured by `snapshotGlobals`. */
+function restoreGlobals(originals) {
+    for (const NAME of SWAPPED_GLOBALS) {
+        globalThis[NAME] = originals[NAME];
+    }
+}
+
+/** Records window listeners by event type instead of touching a real window. */
+function windowListenerRecorder(windowHandlers) {
+    return (type, handler) => {
+        const HANDLERS = windowHandlers.get(type) ?? [];
         HANDLERS.push(handler);
-        WINDOW_HANDLERS.set(type, HANDLERS);
+        windowHandlers.set(type, HANDLERS);
     };
+}
+
+/** Points DOM constructors, document, viewport, and window listeners at fakes. */
+function installGlobals(document, windowHandlers) {
+    globalThis.document = document;
+    for (const NAME of ELEMENT_GLOBALS) {
+        globalThis[NAME] = FakeElement;
+    }
+    Object.assign(globalThis, VIEWPORT_DEFAULTS);
+    globalThis.addEventListener = windowListenerRecorder(windowHandlers);
+}
+
+/** Builds the test-facing controls for an installed fake DOM. */
+function fakeDomControls(document, windowHandlers, originals) {
     return {
         createElement(tagName, id = "") {
-            const ELEMENT = DOCUMENT.createElement(tagName);
+            const ELEMENT = document.createElement(tagName);
             if (id !== "") {
                 ELEMENT.id = id;
             }
             return ELEMENT;
         },
         dispatchDocument(type, props = {}) {
-            return DOCUMENT.dispatch(type, props);
+            return document.dispatch(type, props);
         },
         dispatchWindow(type, props = {}) {
-            const HANDLERS = WINDOW_HANDLERS.get(type) ?? [];
+            const HANDLERS = windowHandlers.get(type) ?? [];
             const EVENT = windowEvent(type, props);
             for (const HANDLER of HANDLERS) {
                 HANDLER(EVENT);
             }
             return EVENT;
         },
-        document: DOCUMENT,
+        document,
         restore() {
-            globalThis.document = ORIGINALS.document;
-            globalThis.HTMLElement = ORIGINALS.HTMLElement;
-            globalThis.HTMLInputElement = ORIGINALS.HTMLInputElement;
-            globalThis.HTMLButtonElement = ORIGINALS.HTMLButtonElement;
-            globalThis.HTMLDialogElement = ORIGINALS.HTMLDialogElement;
-            globalThis.HTMLDivElement = ORIGINALS.HTMLDivElement;
-            globalThis.HTMLSpanElement = ORIGINALS.HTMLSpanElement;
-            globalThis.Element = ORIGINALS.Element;
-            globalThis.Node = ORIGINALS.Node;
-            globalThis.addEventListener = ORIGINALS.addEventListener;
-            globalThis.innerHeight = ORIGINALS.innerHeight;
-            globalThis.innerWidth = ORIGINALS.innerWidth;
-            globalThis.scrollY = ORIGINALS.scrollY;
+            restoreGlobals(originals);
         },
     };
+}
+
+export function installFakeDom() {
+    const ORIGINALS = snapshotGlobals();
+    const DOCUMENT = new FakeDocument();
+    const WINDOW_HANDLERS = new Map();
+    installGlobals(DOCUMENT, WINDOW_HANDLERS);
+    return fakeDomControls(DOCUMENT, WINDOW_HANDLERS, ORIGINALS);
 }

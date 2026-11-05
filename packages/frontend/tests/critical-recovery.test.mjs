@@ -43,7 +43,7 @@ test("Retry save uses the latest state and preserves a separate planner error", 
         const QUEUE = recoveryQueue(FLOW, SNAPSHOTS, () => [
             { book_id: "book-1", title },
         ]);
-        FLOW.bindRetrySave(QUEUE.flushPendingState);
+        FLOW.bindRetrySave(() => QUEUE.flushPendingState());
         await QUEUE.persistDraft();
         FLOW.errors.show("planner", "Plan incomplete.");
         title = "Edited after failure";

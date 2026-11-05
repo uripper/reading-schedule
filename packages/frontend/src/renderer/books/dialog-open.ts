@@ -11,6 +11,7 @@ import type { BookDialogNavigationRefs } from "./dialog-navigation.ts";
 import { updateBookDialogNavigation } from "./dialog-navigation.ts";
 import type { DialogSessionState } from "./dialog-session.ts";
 import { selectedBulkBooks, syncDialogSessionState } from "./dialog-session.ts";
+import { resetBookDialogProgress } from "./dialog_progress_sync.ts";
 import { resetBookDialogSubmitState } from "./dialog_submit.ts";
 import { clearForm, fillForm } from "./form-state.ts";
 import type { getBookFormRefs } from "./form_refs.ts";
@@ -149,6 +150,7 @@ function finishBookDialogOpen(
 ): void {
     const FORM_REFS = args.refs;
     resetBookDialogSubmitState(FORM_REFS);
+    resetBookDialogProgress(FORM_REFS);
     applyBookDialogDisplayMode(FORM_REFS, args.dialogOptions);
     updateBookDialogNavigation(
         args.navigation,
