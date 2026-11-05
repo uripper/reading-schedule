@@ -83,6 +83,7 @@ async function executeAutoPlan(
     run: AutoPlanRun,
 ): Promise<void> {
     const POLICY = replanPolicy({
+        blockedDayBooks: args.getBlockedDayBooks(),
         completions: args.getScheduleCompletions(),
         explicitToday: run.explicitToday,
         previousRows: args.getLastResult()?.schedule ?? [],

@@ -252,7 +252,7 @@ test("Replan Today keeps completed rows and replaces incomplete rows", () => {
     );
 });
 
-test("mergeScheduleRows ignores legacy blocks from manual removals", () => {
+test("mergeScheduleRows drops generated rows for removed day-book pairs", () => {
     const { tomorrow } = todayRange();
     const BLOCKED_KEY = `${tomorrow}|book-1`;
     const NEXT_ROWS = [
@@ -265,7 +265,7 @@ test("mergeScheduleRows ignores legacy blocks from manual removals", () => {
         },
         nextRows: NEXT_ROWS,
     });
-    assert.deepEqual(MERGED, NEXT_ROWS);
+    assert.deepEqual(MERGED, [NEXT_ROWS[1]]);
 });
 
 test("mergeScheduleRows does not lock malformed day keys from previous rows", () => {

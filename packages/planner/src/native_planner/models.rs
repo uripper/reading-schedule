@@ -9,6 +9,7 @@ pub type DifficultyMultiplier = HashMap<i64, f64>;
 pub type MinutesByWeekday = HashMap<String, i64>;
 pub type ReservedBookIdsByDate = HashMap<NaiveDate, HashSet<String>>;
 pub type ReservedCountsByDate = HashMap<NaiveDate, i64>;
+pub type ReservedWordsByBookId = HashMap<String, i64>;
 
 pub const DEFAULT_DIFFICULTY: i64 = 1;
 pub const DEFAULT_MIN_BLOCKS_PER_SESSION: i64 = 2;
@@ -46,6 +47,7 @@ pub struct Settings {
     pub days_off: HashSet<NaiveDate>,
     pub difficulty_multiplier: DifficultyMultiplier,
     pub end_date: NaiveDate,
+    pub excluded_book_ids_by_date: ReservedBookIdsByDate,
     pub max_blocks_per_book_per_day: i64,
     pub max_books_per_day: i64,
     pub max_sessions_per_day: i64,
@@ -55,6 +57,7 @@ pub struct Settings {
     pub reserved_book_ids_by_date: ReservedBookIdsByDate,
     pub reserved_minutes_by_date: ReservedCountsByDate,
     pub reserved_sessions_by_date: ReservedCountsByDate,
+    pub reserved_words_by_book_id: ReservedWordsByBookId,
     pub solver_profile: SolverProfile,
     pub start_date: NaiveDate,
     pub time_quantum_minutes: i64,

@@ -25,6 +25,11 @@ export interface PlannerScheduleRow {
      */
     finish?: boolean;
     /**
+     * Whether the user added or edited this session. Replans keep locked
+     * sessions on their day and plan the remaining budget around them.
+     */
+    locked?: boolean;
+    /**
      * Number of minutes planned for this book on this date
      */
     minutes: number;
@@ -139,9 +144,11 @@ export type PlannerSettings = {
     books_show_blocker_meta?: boolean;
     books_show_shelf_meta?: boolean;
     planner_solver_profile?: PlannerSolverProfile;
+    excluded_book_ids_by_date?: Record<string, string[]>;
     reserved_book_ids_by_date?: Record<string, string[]>;
     reserved_minutes_by_date?: Record<string, number>;
     reserved_sessions_by_date?: Record<string, number>;
+    reserved_words_by_book_id?: Record<string, number>;
 } & Record<string, JsonValue>;
 
 export interface PlannerStateSnapshot {

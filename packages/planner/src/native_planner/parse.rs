@@ -14,9 +14,7 @@ use crate::native_planner::models::{
     DEFAULT_MIN_BLOCKS_PER_SESSION, DEFAULT_PRIORITY, DEFAULT_SOLVER_PROFILE,
     PLAN_MODE_FINISH_SOON, PLAN_MODE_SPREAD_OUT,
 };
-use crate::native_planner::parse_reservations::{
-    reserved_book_ids_by_date, reserved_minutes_by_date, reserved_sessions_by_date,
-};
+use crate::native_planner::parse_reservations as reservations;
 use crate::native_planner::validate::{validate_blockers, validate_book, validate_settings};
 use crate::native_planner::word_stats::word_stats_from_data;
 
@@ -37,9 +35,10 @@ pub fn planner_input(payload: Value) -> Result<PlannerInput, String> {
     let settings_raw = payload
         .get("settings")
         .ok_or_else(|| "payload requires books[] and settings object".to_string())?;
-    let books = parse_books(as_array(books_raw, "books")?)?;
+    let mut books = parse_books(as_array(books_raw, "books")?)?;
     let settings = parse_settings(as_object(settings_raw, "settings")?)?;
     validate_blockers(&books)?;
+    reservations::apply_reserved_words(&mut books, &settings);
     Ok(PlannerInput { books, settings })
 }
 
@@ -83,6 +82,7 @@ fn parse_settings(data: &Map<String, Value>) -> Result<Settings, String> {
         days_off: days_off(data)?,
         difficulty_multiplier: difficulty_multiplier(data)?,
         end_date: parse_date(&required_string_field(data, "end_date")?)?,
+        excluded_book_ids_by_date: reservations::excluded_book_ids_by_date(data)?,
         max_blocks_per_book_per_day: int_with_default(
             data,
             "max_blocks_per_book_per_day",
@@ -97,9 +97,10 @@ fn parse_settings(data: &Map<String, Value>) -> Result<Settings, String> {
         minutes_by_weekday,
         minutes_per_day: Some(minutes_per_day),
         plan_mode: plan_mode(data),
-        reserved_book_ids_by_date: reserved_book_ids_by_date(data)?,
-        reserved_minutes_by_date: reserved_minutes_by_date(data)?,
-        reserved_sessions_by_date: reserved_sessions_by_date(data)?,
+        reserved_book_ids_by_date: reservations::reserved_book_ids_by_date(data)?,
+        reserved_minutes_by_date: reservations::reserved_minutes_by_date(data)?,
+        reserved_sessions_by_date: reservations::reserved_sessions_by_date(data)?,
+        reserved_words_by_book_id: reservations::reserved_words_by_book_id(data)?,
         solver_profile: solver_profile(data),
         start_date: start_date(data)?,
         time_quantum_minutes: int_with_default(
