@@ -149,7 +149,9 @@ details[open] > .book-section-toggle::after {
 }
 
 .book-search-controls > input {
-    padding-inline-end: calc(var(--button-compact-height) + var(--token-space-3));
+    padding-inline-end: calc(
+        var(--button-compact-height) + var(--token-space-3)
+    );
 }
 
 .book-search-controls > .btn {

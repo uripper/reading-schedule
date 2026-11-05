@@ -14,7 +14,10 @@ export function clearLookupQuery(args: LookupQueryArgs): void {
 }
 
 /** Updates the result list after a successful query. */
-function showLookupResults(args: LookupQueryArgs, items: BookLookupItem[]): void {
+function showLookupResults(
+    args: LookupQueryArgs,
+    items: BookLookupItem[],
+): void {
     args.searchInput.removeAttribute("aria-busy");
     if (items.length === 0) {
         args.metaEl.textContent = "No matches found.";
@@ -39,7 +42,8 @@ function fetchLookupResults(args: LookupQueryArgs, query: string): void {
         .catch(() => {
             if (TOKEN === args.state.token) {
                 clearLookupQuery(args);
-                args.metaEl.textContent = "Lookup unavailable. Try again or enter details manually.";
+                args.metaEl.textContent =
+                    "Lookup unavailable. Try again or enter details manually.";
             }
         });
 }
