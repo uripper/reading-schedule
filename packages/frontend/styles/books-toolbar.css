@@ -196,6 +196,7 @@
 
 .books-sort-direction-segment {
     --icon-size: 22px;
+    
     display: grid;
     place-items: center;
     width: 46px;

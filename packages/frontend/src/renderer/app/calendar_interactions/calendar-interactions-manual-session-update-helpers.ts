@@ -10,6 +10,7 @@ import {
     wordsPlannedForManualSession,
 } from "./calendar_interactions_manual_helpers.ts";
 import { nextSessionIndexForDate } from "./calendar_interactions_row_helpers.ts";
+import { rowsWithManualSession } from "./calendar-interactions-manual-session-merge.ts";
 import {
     applyNextResult,
     finishScheduleUpdate,
@@ -44,6 +45,8 @@ interface BuildRowArgs {
 }
 
 interface ManualSessionAddResult {
+    addedMinutes: number;
+    merged: boolean;
     nextResult: ReturnType<typeof nextResultWithRows>;
     normalizedDate: string;
     row: PlannerScheduleRow;
@@ -126,6 +129,7 @@ function buildManualSessionRow(args: BuildRowArgs): PlannerScheduleRow {
     const NORMALIZED_MINUTES = normalizedManualMinutes(args.minutes);
     return {
         ...manualSessionRowBase(args, NORMALIZED_MINUTES),
+        locked: true,
         words_planned: manualSessionWordsPlanned(args, NORMALIZED_MINUTES),
     };
 }
@@ -147,15 +151,15 @@ function manualSessionRowArgs(
 function manualSessionAddOutcome(
     previousResult: ReturnType<typeof emptyPlannerResult>,
     validated: ManualSessionValidation,
-    row: PlannerScheduleRow,
+    added: PlannerScheduleRow,
 ): ManualSessionAddResult {
+    const NEXT = rowsWithManualSession(previousResult.schedule, added);
     return {
-        nextResult: nextResultWithRows(previousResult, [
-            ...previousResult.schedule,
-            row,
-        ]),
+        addedMinutes: added.minutes,
+        merged: NEXT.merged,
+        nextResult: nextResultWithRows(previousResult, NEXT.rows),
         normalizedDate: validated.normalizedDate,
-        row,
+        row: NEXT.row,
     };
 }
 
@@ -203,6 +207,9 @@ function markManualSessionBookStarted(
 }
 
 function addedManualSessionMessage(result: ManualSessionAddResult): string {
+    if (result.merged) {
+        return `Added ${result.addedMinutes} minutes to "${result.row.title}" on ${result.normalizedDate}.`;
+    }
     return `Added ${result.row.minutes} minute session for "${result.row.title}" on ${result.normalizedDate}.`;
 }
 

@@ -5,6 +5,7 @@ const PLANNER_SCHEDULE_ROW_SCHEMA = z.looseObject({
     book_id: z.string(),
     date: z.string(),
     finish: z.boolean().optional(),
+    locked: z.boolean().optional(),
     minutes: z.number(),
     session_index: z.number(),
     title: z.string(),

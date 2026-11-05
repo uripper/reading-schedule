@@ -2,8 +2,8 @@ use serde_json::{json, Value};
 
 use super::generate_plan;
 use super::test_support::{
-    book, planner_settings, HIGHEST_PRIORITY, LOWEST_PRIORITY, MONDAY_DATE, TUESDAY_DATE,
-    WORDS_FOR_ONE_BLOCK,
+    book, planner_settings, HIGHEST_PRIORITY, LOWEST_PRIORITY, MINUTES_FOR_ONE_BLOCK, MONDAY_DATE,
+    TUESDAY_DATE, WORDS_FOR_ONE_BLOCK,
 };
 
 #[test]
@@ -42,6 +42,57 @@ fn completed_today_capacity_is_reserved_during_same_day_replan() {
     assert_eq!(rows.len(), 2);
     assert_row(&rows[0], "replacement", MONDAY_DATE, 2);
     assert_row(&rows[1], "continuing", TUESDAY_DATE, 1);
+}
+
+#[test]
+fn excluded_books_stay_off_their_day_without_using_a_book_slot() {
+    let mut settings = planner_settings(MONDAY_DATE, TUESDAY_DATE, MINUTES_FOR_ONE_BLOCK);
+    settings
+        .as_object_mut()
+        .expect("expected planner settings object")
+        .insert(
+            "excluded_book_ids_by_date".to_string(),
+            json!({ (MONDAY_DATE): ["removed"] }),
+        );
+    let rows = schedule_rows(json!({
+        "books": [
+            book("removed", "Removed", HIGHEST_PRIORITY, WORDS_FOR_ONE_BLOCK),
+            book("other", "Other", LOWEST_PRIORITY, WORDS_FOR_ONE_BLOCK),
+        ],
+        "settings": settings,
+    }));
+
+    assert_eq!(rows.len(), 2);
+    assert_row(&rows[0], "other", MONDAY_DATE, 1);
+    assert_row(&rows[1], "removed", TUESDAY_DATE, 1);
+}
+
+#[test]
+fn reserved_words_are_not_planned_again() {
+    let mut settings = planner_settings(MONDAY_DATE, TUESDAY_DATE, MINUTES_FOR_ONE_BLOCK);
+    settings
+        .as_object_mut()
+        .expect("expected planner settings object")
+        .insert(
+            "reserved_words_by_book_id".to_string(),
+            json!({ "partly": WORDS_FOR_ONE_BLOCK }),
+        );
+    let rows = schedule_rows(json!({
+        "books": [book("partly", "Partly", HIGHEST_PRIORITY, 2 * WORDS_FOR_ONE_BLOCK)],
+        "settings": settings,
+    }));
+
+    assert_eq!(rows.len(), 1);
+    assert_row(&rows[0], "partly", MONDAY_DATE, 1);
+}
+
+fn schedule_rows(payload: Value) -> Vec<Value> {
+    generate_plan(payload)
+        .expect("expected generated plan")
+        .get("schedule")
+        .and_then(Value::as_array)
+        .cloned()
+        .expect("expected schedule rows")
 }
 
 fn assert_row(row: &Value, book_id: &str, date: &str, session_index: i64) {

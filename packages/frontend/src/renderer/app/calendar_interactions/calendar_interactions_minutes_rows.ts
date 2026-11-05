@@ -37,6 +37,7 @@ function plannedWordsForUpdatedMinutes(args: UpdatedMinutesArgs): number {
 function updatedRowWithMinutes(args: UpdatedMinutesArgs): PlannerScheduleRow {
     return {
         ...args.row,
+        locked: true,
         minutes: args.normalizedMinutes,
         words_planned: plannedWordsForUpdatedMinutes(args),
     };
@@ -70,6 +71,7 @@ function updatedRowsResult(args: UpdatedMinutesArgs): UpdatedRowsResult {
 /**
  * Calculates the updated schedule rows when a session's planned minutes are manually changed.
  * It normalizes the input minutes, recalculates the words planned for that session, and returns the updated rows.
+ * The edited row is locked so replans keep it and plan around it.
  * @param root0 - The input parameters for calculating the updated rows.
  * @param collectSettings - Function to collect the current planner settings.
  * @param getBookById - Function to retrieve a book by its ID.
