@@ -26,15 +26,15 @@ export interface BookSearchResponse {
     items: BookLookupItem[];
 }
 
+/** Tracks visible lookup results and identifies the current request. */
 export interface LookupSearchState {
     activeIndex: number;
     currentItems: BookLookupItem[];
-    timer: ReturnType<typeof setTimeout> | null;
     token: number;
 }
 
 export interface LookupBinding {
-    clearResults(): void;
+    clearResults(this: void): void;
     destroy(): void;
 }
 
@@ -42,6 +42,7 @@ export interface BindBookLookupOptions {
     metaEl: HTMLElement;
     onPick(this: void, item: BookLookupItem): void;
     resultsEl: HTMLElement;
+    searchButton: HTMLButtonElement;
     searchInput: HTMLInputElement;
 }
 
@@ -53,7 +54,8 @@ export interface ProgressSyncInputs {
 
 export type ProgressField = "pages" | "progress";
 
-export interface LookupInputHandlerArgs {
+/** Collaborators for submitting and clearing Open Library queries. */
+export interface LookupQueryArgs {
     clearResults(this: void): void;
     metaEl: HTMLElement;
     refreshResults(this: void): void;
@@ -67,12 +69,13 @@ export type SelectItem = (index: number) => void;
 
 export interface HandleLookupKeydownArgs {
     activeIndex: number;
-    clearResults(): void;
+    clearResults(this: void): void;
     currentItems: readonly BookLookupItem[];
     event: KeyboardEvent;
     searchInput: HTMLInputElement;
     selectItem: SelectItem;
     setActiveIndex: SetActiveIndex;
+    submitQuery(this: void): void;
 }
 
 export interface LookupRenderState {
@@ -90,10 +93,10 @@ export interface CreateLookupStateControllerArgs {
 }
 
 export interface LookupStateController {
-    clearResults(): void;
-    refreshResults(): void;
-    selectItem(index: number): void;
-    setActiveIndex(index: number): void;
+    clearResults(this: void): void;
+    refreshResults(this: void): void;
+    selectItem(this: void, index: number): void;
+    setActiveIndex(this: void, index: number): void;
 }
 
 export type CoverExtension = ".jpg" | ".png" | ".webp";

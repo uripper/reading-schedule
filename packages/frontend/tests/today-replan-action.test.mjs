@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -8,10 +7,6 @@ import { installFakeDom } from "./helpers/fake-dom.mjs";
 
 const INDEX_HTML = readFileSync(
     new URL("../index.html", import.meta.url),
-    "utf8",
-);
-const FOCUS_ACTIONS_CSS = readFileSync(
-    new URL("../styles/today-focus-actions.css", import.meta.url),
     "utf8",
 );
 const NOOP = () => undefined;
@@ -68,14 +63,19 @@ function assertReplanDialogCopy(dialog) {
         dialog.querySelector(".action-confirm-accept").textContent,
         "REPLAN TODAY",
     );
+    assert.ok(
+        dialog
+            .querySelector(".action-confirm-accept")
+            .classList.contains("btn-replan"),
+    );
 }
 
-test("Today includes a labeled neobrutalist replan action", () => {
-    assert.match(INDEX_HTML, /id="todayReplanBtn"/u);
+test("Today uses the pale replan variant for its labeled replan action", () => {
+    assert.match(
+        INDEX_HTML,
+        /id="todayReplanBtn"\s+class="btn btn-replan today-replan-btn"/u,
+    );
     assert.match(INDEX_HTML, />\s*Replan Today\s*</u);
-    assert.match(FOCUS_ACTIONS_CSS, /\.today-replan-btn\s*\{/u);
-    assert.match(FOCUS_ACTIONS_CSS, /border:\s*3px solid #000/u);
-    assert.match(FOCUS_ACTIONS_CSS, /box-shadow:\s*4px 4px 0 #000/u);
     const REPLAN_INDEX = INDEX_HTML.indexOf('id="todayReplanBtn"');
     const FOCUS_PANEL_INDEX = INDEX_HTML.indexOf('id="todayFocusPanel"');
     const REMOVE_INDEX = INDEX_HTML.indexOf('id="todayRemoveSessionBtn"');

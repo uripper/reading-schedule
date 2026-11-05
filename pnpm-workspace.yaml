@@ -1,7 +1,20 @@
 packages:
   - "apps/*"
-  - "mobile"
   - "packages/*"
 
+catalog:
+  vite-plus: 1.5.0
+  vite: npm:@voidzero-dev/vite-plus-core@1.5.0
+
 onlyBuiltDependencies:
+  - "esbuild"
   - "inotify"
+
+peerDependencyRules:
+  allowedVersions:
+    # Vite+ Core provides the vite peer for bundled Vitest under this version.
+    vite: '*'
+  allowAny:
+    - vite
+overrides:
+  vite@*: 'catalog:'

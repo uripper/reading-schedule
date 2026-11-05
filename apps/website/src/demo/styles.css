@@ -7,7 +7,7 @@
     gap: 0.75rem 1.25rem;
     align-items: center;
     padding: 0.75rem 1.25rem;
-    font-size: 0.85rem;
+    font-size: var(--token-typography-size-md);
     color: #f7f1df;
     background: #171a20;
     border-bottom: 1px solid #5e6853;

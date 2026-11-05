@@ -105,7 +105,7 @@ function createLookupMeta() {
 }
 
 function createSaveButton() {
-    return { disabled: false, textContent: "Save Book" };
+    return { dataset: {}, disabled: false, textContent: "Save Book" };
 }
 
 function createIdentityRefs() {
@@ -163,7 +163,6 @@ export {
     flushMicrotasks,
     withFakeHtmlElement,
     fakeInput,
-    checkedScheduledDaysField,
     createLookupMeta,
     createSaveButton,
     createRefs,

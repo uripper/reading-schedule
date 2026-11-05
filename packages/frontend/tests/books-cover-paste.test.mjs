@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: tests import built shared frontend artifacts.
 /** Verifies clipboard paste in the book dialog stages covers like file upload. */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -37,6 +36,12 @@ function clipboardData(file) {
     };
 }
 
+/**
+ * Builds a paste event carrying the given clipboard file.
+ * @param {File | null} file - Clipboard file, or null for an empty paste.
+ * @param {EventTarget | null} [target] - Optional event target override.
+ * @returns {Event} Paste event.
+ */
 function pasteEvent(file, target = null) {
     const EVENT = new Event("paste", { cancelable: true });
     Object.defineProperty(EVENT, "clipboardData", {
@@ -57,11 +62,15 @@ function bindAndPaste(refs, event) {
 test("pasting an image stages it as the custom cover", (context) => {
     const FILE = new File(["png"], "image.png", { type: "image/png" });
     const REFS = pasteRefs();
+    const LOOKUP_NOTE = "Selected from Open Library · Aristotle";
+    REFS.lookupMeta.dataset.lookupNote = LOOKUP_NOTE;
     const EVENT = bindAndPaste(REFS, pasteEvent(FILE));
     context.after(() => releaseCoverUpload(REFS.coverLocal.value));
     assert.equal(EVENT.defaultPrevented, true);
     assert.equal(stagedCoverUpload(REFS.coverLocal.value), FILE);
     assert.equal(REFS.coverPreview.src, REFS.coverLocal.value);
+    assert.equal(REFS.lookupMeta.textContent, LOOKUP_NOTE);
+    assert.equal(REFS.lookupMeta.dataset.lookupNote, LOOKUP_NOTE);
 });
 
 test("pasting an unsupported image type reports a clear error", () => {

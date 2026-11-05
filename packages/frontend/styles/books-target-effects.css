@@ -2,37 +2,37 @@
     0% {
         transform: translateY(0) scale(1);
         box-shadow: 0 0 0 3px
-            color-mix(in srgb, var(--app-brand) 30%, transparent);
+            color-mix(in srgb, var(--color-glacier) 30%, transparent);
     }
     14% {
         transform: translateY(-9px) scale(1.02);
         box-shadow: 0 0 0 6px
-            color-mix(in srgb, var(--app-brandStrong) 42%, transparent);
+            color-mix(in srgb, var(--color-azure) 42%, transparent);
     }
     28% {
         transform: translateY(0) scale(1);
         box-shadow: 0 0 0 3px
-            color-mix(in srgb, var(--app-brand) 30%, transparent);
+            color-mix(in srgb, var(--color-glacier) 30%, transparent);
     }
     44% {
         transform: translateY(-7px) scale(1.016);
         box-shadow: 0 0 0 5px
-            color-mix(in srgb, var(--app-brandStrong) 36%, transparent);
+            color-mix(in srgb, var(--color-azure) 36%, transparent);
     }
     60% {
         transform: translateY(0) scale(1);
         box-shadow: 0 0 0 3px
-            color-mix(in srgb, var(--app-brand) 30%, transparent);
+            color-mix(in srgb, var(--color-glacier) 30%, transparent);
     }
     76% {
         transform: translateY(-4px) scale(1.01);
         box-shadow: 0 0 0 4px
-            color-mix(in srgb, var(--app-brandStrong) 32%, transparent);
+            color-mix(in srgb, var(--color-azure) 32%, transparent);
     }
     100% {
         transform: translateY(0) scale(1);
         box-shadow: 0 0 0 3px
-            color-mix(in srgb, var(--app-brand) 30%, transparent);
+            color-mix(in srgb, var(--color-glacier) 30%, transparent);
     }
 }
 
@@ -40,10 +40,11 @@
     z-index: 2;
     border-color: color-mix(
         in srgb,
-        var(--app-brandStrong) 72%,
-        var(--app-border)
+        var(--color-azure) 72%,
+        var(--color-black)
     );
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-brand) 30%, transparent);
+    box-shadow: 0 0 0 3px
+        color-mix(in srgb, var(--color-glacier) 30%, transparent);
     opacity: 1;
     filter: brightness(1);
     animation: book-card-after-target-pulse 1800ms

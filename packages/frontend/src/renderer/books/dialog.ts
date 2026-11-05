@@ -12,27 +12,31 @@ import type {
 import { bindDialogFocus } from "../accessibility/a11y.ts";
 import { bindBookLookup } from "../book_lookup/search.ts";
 import { bindDateInput } from "../date_control.ts";
+import { el } from "../dom.ts";
 import { createAfterBookPicker } from "./after_book_picker.ts";
 import { bindBulkEditDirtyTracking } from "./bulk-edit-form.ts";
 import { bindCoverPaste } from "./cover-paste.ts";
 import { bindCoverUpload } from "./cover-upload.ts";
-import { bindBookDialogProgressSync } from "./dialog_progress_sync.ts";
-import { bindBookDialogSubmit } from "./dialog_submit.ts";
+import { navigateVisibleBook } from "./dialog-navigation-flow.ts";
 import type { BookDialogNavigationRefs } from "./dialog-navigation.ts";
 import {
     bindBookDialogNavigation,
     ensureBookDialogNavigation,
 } from "./dialog-navigation.ts";
-import { navigateVisibleBook } from "./dialog-navigation-flow.ts";
 import { openBookDialog, unlockBookDialogScroll } from "./dialog-open.ts";
 import type { DialogSessionState } from "./dialog-session.ts";
 import {
     createDialogSessionState,
     dialogSubmitPayload,
 } from "./dialog-session.ts";
+import {
+    bindBookDialogProgressSync,
+    renderBookDialogProgress,
+} from "./dialog_progress_sync.ts";
+import { bindBookDialogSubmit } from "./dialog_submit.ts";
+import { applyLookupItem } from "./form-state-lookup.ts";
 import { ensureBookFormLayoutFields } from "./form_layout.ts";
 import { getBookFormRefs } from "./form_refs.ts";
-import { applyLookupItem } from "./form-state-lookup.ts";
 import { bindShelfPicker } from "./shelf_picker.ts";
 
 /**
@@ -78,7 +82,7 @@ function initializeBookDialogRefs(): ReturnType<typeof getBookFormRefs> {
     ensureBookFormLayoutFields();
     const REFS = getBookFormRefs();
     bindDateInput(REFS.deadlineInput, {
-        placeholder: "No deadline selected",
+        placeholder: "No deadline",
     });
     bindDateInput(REFS.finishedAtInput, {
         placeholder: "No finish date selected",
@@ -102,8 +106,10 @@ function createLookupControl(
         metaEl: refs.lookupMeta,
         onPick: (item) => {
             applyLookupItem(refs, item);
+            renderBookDialogProgress(refs);
         },
         resultsEl: refs.searchResults,
+        searchButton: el<HTMLButtonElement>("bookSearchBtn"),
         searchInput: refs.searchInput,
     });
 }
@@ -162,6 +168,7 @@ function createBookDialogHandlers(options: {
     const LOOKUP_CONTROL = createLookupControl(REFS);
     const NAVIGATION = ensureBookDialogNavigation(REFS);
     const CLOSE = (): void => {
+        LOOKUP_CONTROL.clearResults();
         DIALOG_FOCUS.closeAndReturnFocus();
     };
     const OPEN = createOpenHandler({

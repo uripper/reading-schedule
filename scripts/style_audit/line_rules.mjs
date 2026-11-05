@@ -191,7 +191,7 @@ const isMinimumLineCountExempt = (relativePath) => {
 	return path.basename(relativePath) === "__init__.py";
 };
 
-export const isBarrelModule = (content, extension) => {
+const isBarrelModule = (content, extension) => {
 	if (!JS_TS_EXTENSIONS.has(extension)) {
 		return false;
 	}

@@ -22,9 +22,7 @@ import type { PlannerApi, PlannerResult } from "./types_planner.ts";
 
 /** State snapshot consumed by the persistence queue. */
 export interface PersistQueueState
-    extends BlockedDayBookState,
-        PlannerResultState,
-        ScheduleCompletionState {
+    extends BlockedDayBookState, PlannerResultState, ScheduleCompletionState {
     /** Normalized feature flags controlling optional runtime behavior. */
     featureFlags: FeatureFlags;
     /** Normalized user experience preferences applied by the renderer. */
@@ -83,7 +81,8 @@ export type AppStateMutation =
 
 /** Dependencies used to build a draft payload before saving state. */
 export interface DraftDataParams
-    extends BlockedDayBookState,
+    extends
+        BlockedDayBookState,
         PlannerInputCollectors,
         PlannerResultState,
         ScheduleCompletionState,
@@ -96,8 +95,7 @@ export interface DraftDataParams
 
 /** Dependencies required to create the persistence queue. */
 export interface PersistQueueArgs
-    extends PlannerInputCollectors,
-        SessionReader {
+    extends PlannerInputCollectors, SessionReader {
     /** Appends a diagnostic message to the in-app log. */
     addLog(this: void, message: string): void;
     /** Reports every completed save attempt to the runtime error surface. */
@@ -111,13 +109,13 @@ export interface PersistQueueArgs
 /** Persistence queue API used by runtime modules. */
 export interface PersistQueue {
     /** Flushes queued and active work, then persists the newest state snapshot. */
-    flushPendingState(): Promise<boolean>;
+    flushPendingState(this: void): Promise<boolean>;
     /** Attempts an immediate draft save and resolves true on success. */
-    persistDraft(): Promise<boolean>;
+    persistDraft(this: void): Promise<boolean>;
     /** Cancels queued draft saves and waits for any active save before replacing state externally. */
     prepareForStateImport(): Promise<void>;
     /** Enqueues a debounced draft save. */
-    queuePersist(): void;
+    queuePersist(this: void): void;
 }
 
 /** Dashboard actions exposed to bootstrap and runtime flows. */
@@ -147,7 +145,7 @@ export interface InitRuntimeArgs {
     /** Moves keyboard focus to calendar today. */
     focusCalendarToday(): void;
     /** Queues persist work for deferred execution. */
-    queuePersist(): void;
+    queuePersist(this: void): void;
     /** Mutable runtime state consumed and updated by this module. */
     state: AppRuntimeState;
     /** Updates dashboards after related state changes. */
@@ -165,15 +163,15 @@ export interface AppBootstrapContext {
     /** Dashboard runtime used to refresh dashboard views. */
     dashboards: DashboardRuntime;
     /** Flushes pending persistence before an app lifecycle transition. */
-    flushPendingState(): Promise<boolean>;
+    flushPendingState(this: void): Promise<boolean>;
     /** Persists draft state to durable storage. */
-    persistDraft(): Promise<boolean>;
+    persistDraft(this: void): Promise<boolean>;
     /** Planner API dependency used to call planner-side operations. */
     plannerApi: PlannerApi;
     /** Waits for autosave to settle before importing an external state archive. */
-    prepareForDataImport(): Promise<void>;
+    prepareForDataImport(this: void): Promise<void>;
     /** Queues persist work for deferred execution. */
-    queuePersist(): void;
+    queuePersist(this: void): void;
     /** Initialization runtime handlers used by bootstrap wiring. */
     runtime: InitRuntime;
     /** Status callback used to publish user-visible loading or error messages. */
@@ -185,9 +183,9 @@ export interface AppBootstrapContext {
 /** Public auto-plan controller interface. */
 export interface AutoPlanController {
     /** Queues auto plan work for deferred execution. */
-    queueAutoPlan(): void;
+    queueAutoPlan(this: void): void;
     /** Rebuilds today's unfinished schedule without discarding completed sessions. */
-    replanToday(): void;
+    replanToday(this: void): void;
 }
 
 /** Independent operations whose errors must not clear one another. */

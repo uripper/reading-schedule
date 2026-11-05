@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Covers the optional per-book session checkbox, input validation, and approval state. */
 import assert from "node:assert/strict";
 import test from "node:test";

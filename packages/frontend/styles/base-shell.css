@@ -4,9 +4,9 @@
     left: var(--token-space-3);
     z-index: 300;
     padding: var(--token-space-2) var(--token-space-3);
-    color: var(--app-text);
-    background: var(--app-bgElevated);
-    border: 1px solid var(--app-border);
+    color: var(--color-white);
+    background: var(--color-black);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: var(--token-radius-sm);
     transform: translateY(-140%);
     transition: transform var(--token-motion-duration-fast)
@@ -29,7 +29,7 @@
     min-height: var(--token-size-header-height);
     padding: var(--token-space-3) var(--token-space-4);
     background: var(--neo-header-color);
-    border-bottom: 1px solid var(--neo-header-border);
+    border-bottom: var(--border-thin) solid var(--neo-header-border);
     backdrop-filter: blur(12px);
 }
 
@@ -48,8 +48,8 @@
 
 .brand-eyebrow {
     margin: 0;
-    font-size: var(--token-typography-size-xs);
-    color: var(--app-textMuted);
+    font-size: var(--token-typography-size-md);
+    color: var(--color-black);
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
@@ -64,20 +64,20 @@
     justify-content: space-between;
     padding: var(--token-space-2) var(--token-space-4);
     overflow-x: auto;
-    background: #ffffff;
-    border: 1px solid var(--app-border);
-    box-shadow: var(--neo-brutalist-shadow);
+    background: var(--color-white);
+    border: var(--border-thin) solid var(--color-black);
+    box-shadow: var(--shadow-lg);
 }
 
 .tab {
     min-height: var(--token-size-target-minimum);
     padding: var(--token-space-3) var(--token-space-6);
     font: inherit;
-    font-family: var(--main-font);
-    font-size: clamp(1.2rem, 2.2vw, 2.2rem);
+    font-family: var(--token-typography-family-body);
+    font-size: var(--token-typography-size-heading-md);
     font-weight: var(--token-typography-weight-bold);
     line-height: 1;
-    color: #000;
+    color: var(--color-black);
     white-space: nowrap;
     appearance: none;
     cursor: pointer;
@@ -106,8 +106,8 @@ main {
 .panel {
     display: none;
     padding: var(--token-space-4);
-    background: color-mix(in srgb, var(--app-surface) 92%, transparent);
-    border: 1px solid var(--app-border);
+    background: color-mix(in srgb, var(--color-black) 92%, transparent);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: var(--token-radius-lg);
     box-shadow: var(--token-elevation-sm);
 }
@@ -120,8 +120,8 @@ main {
     display: grid;
     gap: var(--token-space-2);
     padding: var(--token-space-4);
-    background: color-mix(in srgb, var(--app-surfaceMuted) 86%, transparent);
-    border: 1px solid var(--app-border);
+    background: color-mix(in srgb, var(--color-black) 86%, transparent);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: var(--token-radius-md);
 }
 
@@ -154,14 +154,14 @@ main {
         grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: var(--token-space-1);
         padding: var(--token-space-2);
-        background: color-mix(in srgb, var(--app-bgElevated) 94%, transparent);
-        border-top: 1px solid var(--app-border);
+        background: color-mix(in srgb, var(--color-black) 94%, transparent);
+        border-top: var(--border-thin) solid var(--color-black);
         backdrop-filter: blur(12px);
     }
 
     .mobile-tab {
         padding: var(--token-space-2) var(--token-space-1);
-        font-size: var(--token-typography-size-xs);
+        font-size: var(--token-typography-size-md);
         border-radius: var(--token-radius-sm);
     }
 }

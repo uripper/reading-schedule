@@ -113,7 +113,7 @@ function shouldQueueSettingMutation(
 function clickedDayOffControl(target: HTMLElement): boolean {
     const ADD_DAY_OFF = target.closest("#addDayOffBtn");
     const REMOVE_DAY_OFF = target.closest("#dayOffList .chip-btn");
-    return Boolean(ADD_DAY_OFF || REMOVE_DAY_OFF);
+    return ADD_DAY_OFF !== null || REMOVE_DAY_OFF !== null;
 }
 
 function shouldQueueSettingClick(

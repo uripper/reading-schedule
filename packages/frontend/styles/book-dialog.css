@@ -1,158 +1,42 @@
 .book-dialog {
     position: relative;
-    width: min(1240px, 97vw);
-    max-height: min(97vh, 1180px);
-    padding: 20px 24px 24px;
+    width: min(960px, 96vw);
+    max-height: 95dvh;
+    padding: var(--token-space-2) var(--token-space-3) var(--token-space-3);
     overflow: auto;
     overscroll-behavior: contain;
-    color: #111;
-    background: #f3ba78;
-    border: 4px solid #000;
-    border-radius: 0;
-    box-shadow: 12px 12px 0 #000;
+    color: var(--color-black);
+    background: var(--color-peach);
+    border: var(--border-thick) solid var(--color-black);
+    border-radius: var(--button-radius);
+    box-shadow: var(--shadow-xl);
 }
 
 .book-dialog::backdrop {
-    background: rgb(8 11 18 / 82%);
+    background: color-mix(in srgb, var(--color-black) 82%, transparent);
 }
 
 .book-shelf-prompt-dialog {
     width: min(380px, 92vw);
     padding: var(--token-space-3);
-    color: var(--app-text);
-    background: var(--app-bgElevated);
-    border: 1px solid var(--app-border);
+    color: var(--color-white);
+    background: var(--color-black);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: var(--token-radius-md);
     box-shadow: var(--token-elevation-md);
 }
 
 .book-shelf-prompt-dialog::backdrop {
-    background: color-mix(in srgb, var(--app-overlay) 70%, transparent);
+    background: color-mix(
+        in srgb,
+        color-mix(in srgb, var(--color-black) 60%, transparent) 70%,
+        transparent
+    );
 }
 
 .book-shelf-prompt-form {
     display: grid;
     gap: var(--token-space-2);
-}
-
-.book-form {
-    display: grid;
-    gap: var(--token-space-2);
-}
-
-.book-form > h2 {
-    padding-bottom: 12px;
-    margin: 0;
-    font-family: var(--header-font);
-    font-size: clamp(1.45rem, 2vw, 1.9rem);
-    color: #111;
-    text-transform: uppercase;
-    border-bottom: 4px solid #000;
-}
-
-.book-form-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 220px;
-    gap: var(--token-space-2);
-    align-items: start;
-}
-
-.book-fields {
-    grid-column: 1 / -1;
-}
-
-.book-fields .settings-grid {
-    gap: 12px 10px;
-}
-
-.book-scheduled-days {
-    display: grid;
-    gap: 10px;
-    min-width: 0;
-    padding: 10px 12px;
-    margin: 0;
-    border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
-    border-radius: var(--token-radius-md);
-}
-
-.book-scheduled-days > legend {
-    padding: 0 var(--token-space-1);
-    font-size: var(--token-typography-size-xs);
-    color: var(--app-textMuted);
-}
-
-.book-scheduled-days-grid {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: var(--token-space-1) var(--token-space-2);
-}
-
-.book-scheduled-day {
-    display: flex;
-    gap: var(--token-space-1);
-    align-items: center;
-    font-size: var(--token-typography-size-sm);
-}
-
-.book-scheduled-day input[type="checkbox"] {
-    width: auto;
-    min-height: 0;
-    margin: 0;
-}
-
-.book-apply-days-toggle {
-    grid-column: 1 / -1;
-}
-
-.book-after-book-picker {
-    position: relative;
-    display: grid;
-    gap: var(--token-space-1);
-}
-
-.book-search-panel {
-    position: relative;
-    display: grid;
-    gap: var(--token-space-2);
-}
-
-.book-search-panel > label,
-.book-fields label,
-.book-after-book-picker,
-.book-scheduled-days > legend {
-    font-size: 0.8rem;
-    font-weight: 900;
-    color: #111;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.book-dialog input,
-.book-dialog select,
-.book-dialog textarea,
-.book-dialog .btn {
-    color: #f8f4e8;
-    background: #13213a;
-    border: 3px solid #000;
-    border-radius: 16px;
-    box-shadow: none;
-}
-
-.book-dialog .btn {
-    font-weight: 900;
-}
-
-.book-dialog input:focus-visible,
-.book-dialog select:focus-visible,
-.book-dialog textarea:focus-visible,
-.book-dialog .btn:hover {
-    border-color: #000;
-    filter: brightness(1.08);
-}
-
-.book-dialog .btn-primary {
-    color: #111;
-    background: #f2d14c;
 }
 
 .book-search-results {
@@ -164,10 +48,10 @@
     display: none;
     max-height: 320px;
     overflow: auto;
-    background: #13213a;
-    border: 3px solid #000;
+    background: var(--color-black);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 20px;
-    box-shadow: 8px 8px 0 #000;
+    box-shadow: var(--shadow-lg);
 }
 
 .book-search-results.has-items {
@@ -181,11 +65,12 @@
     align-items: center;
     width: 100%;
     padding: var(--token-space-2);
-    color: #f8f4e8;
+    color: var(--color-paper);
     text-align: left;
     background: transparent;
     border: 0;
-    border-bottom: 1px solid rgb(248 244 232 / 18%);
+    border-bottom: var(--border-thin) solid
+        color-mix(in srgb, var(--color-paper) 18%, transparent);
 }
 
 .book-result:last-child {
@@ -196,7 +81,7 @@
 .book-result:focus-visible,
 .book-result.is-active {
     cursor: pointer;
-    background: rgb(242 209 76 / 18%);
+    background: color-mix(in srgb, var(--color-yellow) 18%, transparent);
 }
 
 .book-result-inline {
@@ -207,103 +92,56 @@
     width: 44px;
     height: 58px;
     object-fit: cover;
-    background: #24314e;
-    border: 2px solid #000;
+    background: var(--color-black);
+    border: var(--border-regular) solid var(--color-black);
     border-radius: 8px;
 }
 
 .book-result-title {
     display: block;
     margin-bottom: 2px;
-    font-size: var(--token-typography-size-sm);
+    font-size: var(--token-typography-size-md);
     line-height: var(--token-typography-lineHeight-tight);
 }
 
 .book-result-meta {
-    font-size: var(--token-typography-size-xs);
-    color: #d4dce8;
+    font-size: var(--token-typography-size-md);
+    color: var(--color-frost);
+}
+
+.book-cover-field:has(> .book-cover-panel[hidden]) {
+    display: none;
 }
 
 .book-cover-panel {
-    position: relative;
-    justify-self: end;
     width: 100%;
-    max-width: 220px;
-    min-height: 260px;
+    padding: 0;
     overflow: hidden;
     cursor: pointer;
-    background: #13213a;
-    border: 4px solid #000;
+    background: var(--color-black);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 8px 8px 0 #000;
-    transition:
-        border-color var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard),
-        transform var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard);
 }
 
-.book-cover-panel:hover {
-    border-color: #000;
-    transform: translate(-3px, -3px);
-}
-
-.book-cover-panel:focus-visible {
-    outline: 3px solid var(--app-focusRing);
-    outline-offset: 2px;
+.book-cover-panel:enabled:hover {
+    filter: brightness(1.12);
 }
 
 .book-cover-panel img {
     display: block;
     width: 100%;
-    height: 100%;
-    min-height: 260px;
+    aspect-ratio: 148 / 205;
     object-fit: cover;
 }
 
 .book-cover-panel img.is-empty {
     padding: var(--token-space-4);
     object-fit: contain;
-    opacity: 0.85;
-}
-
-@media (max-width: 900px) {
-    .book-form-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .book-cover-panel {
-        justify-self: start;
-    }
 }
 
 .book-cover-upload-hint {
-    position: absolute;
-    right: var(--token-space-2);
-    bottom: var(--token-space-2);
-    left: var(--token-space-2);
-    padding: var(--token-space-1) var(--token-space-2);
-    margin: 0;
-    font-size: var(--token-typography-size-xs);
-    font-weight: 800;
-    color: #f8f4e8;
-    text-align: center;
-    pointer-events: none;
-    background: rgb(19 33 58 / 92%);
-    border: 2px solid #000;
-    border-radius: 12px;
-}
-
-@media (max-width: 1100px) {
-    .book-form-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .book-cover-panel {
-        max-width: 280px;
-    }
-
-    .book-scheduled-days-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
+    margin-block-start: var(--token-space-1);
+    font-size: var(--token-typography-size-md);
+    line-height: var(--token-typography-lineHeight-tight);
+    color: var(--color-umber);
 }

@@ -67,10 +67,10 @@ function createPersistActions(
     plannerApi: PlannerApi,
     onPersistResult: (saved: boolean) => void,
 ): {
-    flushPendingState(): Promise<boolean>;
-    persistDraft(): Promise<boolean>;
-    prepareForDataImport(): Promise<void>;
-    queuePersist(): void;
+    flushPendingState(this: void): Promise<boolean>;
+    persistDraft(this: void): Promise<boolean>;
+    prepareForDataImport(this: void): Promise<void>;
+    queuePersist(this: void): void;
 } {
     const PERSIST_QUEUE = createPersistQueue({
         addLog,

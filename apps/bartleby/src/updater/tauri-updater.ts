@@ -15,7 +15,7 @@ const UPDATE_REQUEST_TIMEOUT_MS = 15_000;
 // audit-allow-local-types: This dependency is private to the Tauri host.
 /** Dependencies supplied by the fully initialized frontend runtime. */
 interface TauriUpdaterOptions {
-    flushPendingState(): Promise<boolean>;
+    flushPendingState(this: void): Promise<boolean>;
 }
 
 /** Routes updater failures to the shared application logger. */

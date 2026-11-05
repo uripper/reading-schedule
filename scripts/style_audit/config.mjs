@@ -3,7 +3,6 @@ export const SOURCE_ROOTS = [
 	"apps",
 	"packages",
 	"scripts",
-	"mobile/src",
 ];
 
 export const CODE_EXTENSIONS = new Set([
@@ -40,7 +39,7 @@ export const IGNORED_DIRECTORIES = new Set([
 	"target",
 ]);
 
-export const IGNORED_FILES = new Set(["eslint.config.mjs", "style_audit.mjs"]);
+export const IGNORED_FILES = new Set(["style_audit.mjs"]);
 
 export const SOFT_LINE_LIMIT = 200;
 export const HARD_LINE_LIMIT = 300;
@@ -55,7 +54,6 @@ export const CONTRACTS_ROOT = "packages/contracts/";
 export const CONTRACTS_FIRST_AUDIT_PREFIXES = [
 	"apps/bartleby/src/",
 	"apps/website/src/",
-	"mobile/src/",
 	"packages/frontend/src/",
 ];
 
@@ -88,11 +86,6 @@ export const TEST_COVERAGE_AREAS = [
 		label: "Website",
 		sourcePrefixes: ["apps/website/src/"],
 		testPrefixes: ["apps/website/tests/"],
-	},
-	{
-		label: "Mobile app",
-		sourcePrefixes: ["mobile/src/"],
-		testPrefixes: ["mobile/src/", "mobile/tests/"],
 	},
 ];
 

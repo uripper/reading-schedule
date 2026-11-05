@@ -136,7 +136,7 @@ function decorateInput(
     let clear: HTMLButtonElement | null = null;
     if (options.allowEmpty) {
         clear = document.createElement("button");
-        clear.className = "btn date-input-clear";
+        clear.className = "btn btn-compact date-input-clear";
         clear.type = "button";
         clear.textContent = CLEAR_BUTTON_LABEL;
         clear.setAttribute("aria-label", "Clear selected date");

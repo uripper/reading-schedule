@@ -126,29 +126,15 @@ function clearCoverUploadInput(refs: BookFormRefs): void {
  * Shared by file selection and clipboard paste.
  * @param refs - Book form references containing upload and metadata controls.
  * @param file - Candidate cover image, or `null` when none was provided.
- * @param fileName - Name shown in the custom-cover note.
  */
-export function stageCoverFile(
-    refs: BookFormRefs,
-    file: File | null,
-    fileName: string,
-): void {
+export function stageCoverFile(refs: BookFormRefs, file: File | null): void {
     if (!file) {
         throw new Error(ERROR_MISSING_FILE);
     }
     if (!fileIsSupported(file)) {
         throw new Error(ERROR_UNSUPPORTED_FILE);
     }
-    applyUploadedCover(refs, stageCoverUpload(file), fileName);
-}
-
-/**
- * Stages the file chosen in the upload input.
- * @param refs - Book form references containing upload and metadata controls.
- */
-function saveSelectedCover(refs: BookFormRefs): void {
-    const FILE = selectedCoverFile(refs);
-    stageCoverFile(refs, FILE, FILE?.name ?? "");
+    applyUploadedCover(refs, stageCoverUpload(file));
 }
 
 /**
@@ -158,7 +144,7 @@ function saveSelectedCover(refs: BookFormRefs): void {
 function handleCoverUploadChange(refs: BookFormRefs): void {
     const { lookupMeta } = refs;
     try {
-        saveSelectedCover(refs);
+        stageCoverFile(refs, selectedCoverFile(refs));
     } catch (error: unknown) {
         lookupMeta.textContent = uploadErrorMessage(error);
     } finally {

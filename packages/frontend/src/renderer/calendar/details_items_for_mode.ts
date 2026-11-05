@@ -9,7 +9,7 @@ import type {
 } from "../../types/types.ts";
 import { buildFutureSessionItem } from "./details_session_future.ts";
 import { buildPastSessionItem } from "./details_session_past.ts";
-import type { BuildTodaySessionItemArgs } from "./details_session_today.ts";
+import type { SessionCardWithEstimateArgs } from "./details_session_shared.ts";
 import { buildTodaySessionItem } from "./details_session_today.ts";
 
 /**
@@ -27,7 +27,7 @@ interface DetailsItemBuilders<TNode> {
         interactionHandlers: DetailInteractionHandlers,
         rerenderDetails: () => void,
     ): TNode;
-    today(args: BuildTodaySessionItemArgs): TNode;
+    today(args: SessionCardWithEstimateArgs): TNode;
 }
 
 interface BuildSessionItemsArgs<TNode> {

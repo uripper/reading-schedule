@@ -10,9 +10,7 @@ import type { PlannerSettings } from "./types_planner.ts";
 
 /** Schedule fields staged together when a sync also records completed reading time. */
 export interface SyncSessionState
-    extends BlockedDayBookState,
-        PlannerResultState,
-        ScheduleCompletionState {}
+    extends BlockedDayBookState, PlannerResultState, ScheduleCompletionState {}
 
 /** Accepted source choices and library metadata used to log their completed sessions. */
 export interface SyncSessionImport {
@@ -38,10 +36,10 @@ export interface SyncLibraryMatch {
 
 export interface SyncReviewPresentation {
     addBook(record: SyncRecord): Promise<Book | null>;
-    apply(choices: SyncImportChoice[]): Promise<string>;
+    apply(this: void, choices: SyncImportChoice[]): Promise<string>;
     books: readonly Book[];
     entries: readonly SyncReviewEntry[];
-    ignore(record: SyncRecord): Promise<boolean>;
+    ignore(this: void, record: SyncRecord): Promise<boolean>;
     invalidRows: number;
     /** Names the source in the title, comparisons, and errors, such as "Kobo". */
     sourceLabel: string;
@@ -50,7 +48,7 @@ export interface SyncReviewPresentation {
 export interface SyncLibrarySearchOptions {
     author?: string;
     getBooks(): readonly Book[];
-    onPick(book: Book): void;
+    onPick(this: void, book: Book): void;
     title: string;
 }
 

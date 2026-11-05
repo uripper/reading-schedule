@@ -1,0 +1,49 @@
+/*
+ * Color palette: every literal color used by the frontend stylesheets.
+ * One variable per color value; other stylesheets reference these instead of
+ * writing hex/rgb/hsl literals. Translucent variants are built with
+ * color-mix(in srgb, var(--color-*) N%, transparent).
+ * The generated tokens.css (from tokens/dtcg.tokens.json) holds no colors;
+ * this file is the single source for every color value.
+ */
+:root {
+    /* Neutrals */
+    --color-black: #000;
+    --color-gray: #666666;
+    --color-gray-light: #d6d6d6;
+    --color-white: #ffffff;
+
+    /* Warm neutrals */
+    --color-umber: #3d3521;
+    --color-tan: #d6c4ad;
+    --color-paper: #f8f4e8;
+
+    /* Pinks and purples */
+    --color-orchid: #e87ddb;
+    --color-orchid-pale: #f6d6f0;
+    --color-indigo: #2c0066;
+
+    /* Reds and oranges */
+    --color-vermilion: #ff4911;
+    --color-coral: #fa836b;
+    --color-salmon: #ff9b84;
+    --color-tangerine: #ff8f3f;
+    --color-peach: #f7cb94;
+
+    /* Yellows */
+    --color-amber: #f3ad3d;
+    --color-yellow: #f2d14c;
+    --color-banana: #ffe58a;
+    --color-parchment: #fff1b4;
+
+    /* Greens */
+    --color-forest: #105b44;
+    --color-emerald: #50c878;
+    --color-pistachio: #c9efb8;
+
+    /* Blues */
+    --color-cobalt: #1b48b4;
+    --color-azure: #3f9ef4;
+    --color-glacier: #8dd0ff;
+    --color-frost: #edf7ff;
+}

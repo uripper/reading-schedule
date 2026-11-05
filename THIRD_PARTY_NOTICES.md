@@ -15,9 +15,6 @@ file is `packages/frontend/public/assets/licenses/OFL-<family>.txt`.
 | Archivo Black | `ArchivoBlack*` | `OFL-archivoblack.txt` |
 | Archivo Narrow | `ArchivoNarrow*` | `OFL-archivonarrow.txt` |
 | Plus Jakarta Sans | `PlusJakartaSans*` | `OFL-plusjakartasans.txt` |
-| Poor Story | `PoorStory*` | `OFL-poorstory.txt` |
-| Poppins | `Poppins*` | `OFL-poppins.txt` |
-| Space Grotesk | `SpaceGrotesk*` | `OFL-spacegrotesk.txt` |
 | Space Mono | `SpaceMono*` | `OFL-spacemono.txt` |
 
 ## Icons

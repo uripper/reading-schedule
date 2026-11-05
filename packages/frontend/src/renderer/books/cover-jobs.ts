@@ -11,7 +11,7 @@ import { bookWithoutTransientCover, hydrateBookCover } from "./save.ts";
 function hasSameCover(first: Book, second: Book | undefined): boolean {
     return (
         first.cover_url === second?.cover_url &&
-        first.cover_local_path === second?.cover_local_path
+        first.cover_local_path === second.cover_local_path
     );
 }
 

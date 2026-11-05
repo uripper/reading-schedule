@@ -5,7 +5,7 @@
     align-items: center;
     justify-content: space-between;
     padding-top: 1rem;
-    border-top: 3px solid #000;
+    border-top: var(--border-thick) solid var(--color-black);
 }
 
 .today-session-actions {
@@ -18,49 +18,14 @@
 .today-replan-btn,
 .today-log-session-btn,
 .today-remove-session-btn {
-    min-height: 3rem;
-    padding: 0.7rem 1.25rem;
-    font-family: var(--main-font);
-    font-size: 1rem;
-    font-weight: 800;
-    color: #000;
-    border: 3px solid #000;
-    border-radius: 0.35rem;
-    box-shadow: 4px 4px 0 #000;
-}
-
-.today-replan-btn {
-    background: #fff6c7;
-}
-
-.today-replan-btn:hover {
-    background: var(--neo-today-yellow);
-    box-shadow: 5px 5px 0 #000;
-    transform: translate(-1px, -1px);
-}
-
-.today-replan-btn:active {
-    box-shadow: 2px 2px 0 #000;
-    transform: translate(2px, 2px);
+    min-height: var(--button-prominent-height);
+    padding-inline: var(--button-prominent-padding);
+    font-size: var(--button-prominent-text);
+    font-weight: var(--token-typography-weight-extrabold);
 }
 
 .today-log-session-btn {
     min-width: 12rem;
-    font-size: 1.05rem;
-    background: var(--neo-today-yellow);
-}
-
-.today-remove-session-btn {
-    background: #ff9b84;
-}
-
-.today-remove-session-btn:hover:not(:disabled) {
-    background: #ff7f67;
-}
-
-.today-focus-panel :is(input, button):focus-visible {
-    outline: 3px solid #2458d3;
-    outline-offset: 3px;
 }
 
 .today-minutes-inline-input::-webkit-outer-spin-button,
@@ -73,20 +38,10 @@
     appearance: none;
 }
 
-.today-focus-actions .btn:disabled,
-.today-minutes-edit-btn:disabled {
-    cursor: not-allowed;
-    opacity: 0.55;
-}
-
-.today-log-session-btn.is-complete {
-    background: color-mix(in srgb, var(--neo-today-green) 82%, #fff);
-}
-
 .today-focus-panel.is-complete #todayPagesInput,
 .today-focus-panel.is-complete #todayPercentInput {
-    color: #000;
-    -webkit-text-fill-color: #000;
+    color: var(--color-black);
+    -webkit-text-fill-color: var(--color-black);
     pointer-events: none;
     cursor: not-allowed;
     opacity: 1;

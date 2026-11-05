@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: tests import built shared frontend artifacts.
 /** Verifies large uploads stay out of saved state until native processing finishes. */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -8,12 +7,12 @@ import {
     saveBook,
     setBookCommitHook,
 } from "../dist/renderer/books/controller.js";
-import { bindCoverUpload } from "../dist/renderer/books/cover-upload.js";
 import {
     releaseCoverUpload,
     stageCoverUpload,
     stagedCoverUpload,
 } from "../dist/renderer/books/cover-upload-staging.js";
+import { bindCoverUpload } from "../dist/renderer/books/cover-upload.js";
 import { bindBookDialogSubmit } from "../dist/renderer/books/dialog_submit.js";
 import { normalizeBook } from "../dist/renderer/books/model-normalize.js";
 import {
@@ -57,6 +56,8 @@ test("file selection stages a preview immediately and cancellation releases it",
     assert.equal(stagedCoverUpload(SOURCE), FILE);
     assert.equal(REFS.coverPreview.src, SOURCE);
     assert.equal(REFS.coverUploadInput.value, "");
+    assert.equal(REFS.lookupMeta.textContent, "");
+    assert.equal(REFS.lookupMeta.dataset.lookupNote, undefined);
     REFS.dialog.dispatchEvent(new Event("close"));
     assert.equal(stagedCoverUpload(SOURCE), undefined);
 });

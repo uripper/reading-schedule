@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: tests exercise built frontend artifacts.
 /** Covers failed saves, snapshot collection, and recovery through the real queue. */
 import assert from "node:assert/strict";
 import test from "node:test";

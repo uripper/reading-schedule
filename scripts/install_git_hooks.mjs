@@ -1,8 +1,9 @@
 /**
  * Installs repository git hooks using a cross-platform Node entrypoint.
  */
-import fs from "node:fs";
+
 import { spawnSync } from "node:child_process";
+import fs from "node:fs";
 
 const GIT_HOOKS_PATH = ".githooks";
 const PRE_PUSH_HOOK_PATH = `${GIT_HOOKS_PATH}/pre-push`;

@@ -59,8 +59,11 @@ test("website ships the copied app icon asset", () => {
 });
 
 test("windows download card uses the GitHub release installer url", () => {
-    assert.equal(DOWNLOAD_CARDS[0]?.platform, "Windows");
-    assert.equal(DOWNLOAD_CARDS[0]?.actions[0]?.href, WINDOWS_DOWNLOAD_URL);
+    assert.equal(DOWNLOAD_CARDS.at(0)?.platform, "Windows");
+    assert.equal(
+        DOWNLOAD_CARDS.at(0)?.actions.at(0)?.href,
+        WINDOWS_DOWNLOAD_URL,
+    );
 });
 
 test("macOS download card links both supported architectures", () => {

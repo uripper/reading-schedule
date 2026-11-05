@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Covers equal-percent row controls and live conflict refreshes. */
 import assert from "node:assert/strict";
 import test from "node:test";

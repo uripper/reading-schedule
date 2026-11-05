@@ -5,7 +5,7 @@
 
 .stats-intro {
     margin: 0;
-    color: var(--app-textMuted);
+    color: var(--color-black);
 }
 
 #statsDashboard {
@@ -23,17 +23,17 @@
     display: grid;
     gap: 8px;
     padding: 20px;
-    background: #8fd1ff;
-    border: 3px solid #000;
+    background: var(--color-glacier);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 8px 8px 0 #000;
+    box-shadow: var(--shadow-lg);
 }
 
 .stats-card h2 {
     margin: 0;
-    font-size: 0.82rem;
-    font-weight: 900;
-    color: #111;
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-extrabold);
+    color: var(--color-black);
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
@@ -41,15 +41,15 @@
 .stats-value {
     margin: 0;
     font-family: var(--token-typography-family-heading);
-    font-size: clamp(2rem, 3vw, 2.6rem);
-    color: #111;
+    font-size: var(--token-typography-size-heading-lg);
+    color: var(--color-black);
 }
 
 .stats-note {
     margin: 0;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #163850;
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-bold);
+    color: var(--color-black);
 }
 
 .stats-secondary-grid {
@@ -62,20 +62,20 @@
     display: grid;
     gap: 14px;
     padding: 20px;
-    background: #cae8ff;
-    border: 3px solid #000;
+    background: var(--color-frost);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 8px 8px 0 #000;
+    box-shadow: var(--shadow-lg);
 }
 
 .stats-section-heading {
     padding-bottom: 12px;
     margin: 0;
-    font-family: var(--header-font);
-    font-size: 1.25rem;
-    color: #111;
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-lg);
+    color: var(--color-black);
     text-transform: uppercase;
-    border-bottom: 3px solid #000;
+    border-bottom: var(--border-thick) solid var(--color-black);
 }
 
 .status-list {
@@ -92,16 +92,16 @@
 
 .status-label,
 .status-count {
-    font-size: 1rem;
-    font-weight: 800;
-    color: #111;
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-extrabold);
+    color: var(--color-black);
 }
 
 .status-bar-wrap {
     height: 20px;
     overflow: hidden;
-    background: #edf7ff;
-    border: 3px solid #000;
+    background: var(--color-frost);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
 }
 
@@ -111,19 +111,27 @@
 }
 
 .status-bar.is-to_read {
-    background: color-mix(in srgb, var(--app-brand) 68%, var(--app-surface));
+    background: color-mix(
+        in srgb,
+        var(--color-glacier) 68%,
+        var(--color-black)
+    );
 }
 
 .status-bar.is-in_progress {
-    background: color-mix(in srgb, var(--app-warning) 72%, var(--app-surface));
+    background: color-mix(in srgb, var(--color-amber) 72%, var(--color-black));
 }
 
 .status-bar.is-read {
-    background: color-mix(in srgb, var(--app-success) 74%, var(--app-surface));
+    background: color-mix(
+        in srgb,
+        var(--color-emerald) 74%,
+        var(--color-black)
+    );
 }
 
 .status-bar.is-dropped {
-    background: color-mix(in srgb, var(--app-danger) 70%, var(--app-surface));
+    background: color-mix(in srgb, var(--color-coral) 70%, var(--color-black));
 }
 
 .month-bars {
@@ -138,7 +146,7 @@
     grid-template-rows: 220px auto;
     gap: var(--token-space-2);
     justify-items: center;
-    color: #111;
+    color: var(--color-black);
 }
 
 .month-bar-track {
@@ -148,8 +156,8 @@
     width: 100%;
     height: 220px;
     overflow: hidden;
-    background: #edf7ff;
-    border: 3px solid #000;
+    background: var(--color-frost);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
 }
 
@@ -158,8 +166,8 @@
     height: 0;
     background: linear-gradient(
         180deg,
-        color-mix(in srgb, var(--app-brandStrong) 92%, var(--app-surface)),
-        color-mix(in srgb, var(--app-success) 84%, var(--app-brand))
+        color-mix(in srgb, var(--color-azure) 92%, var(--color-black)),
+        color-mix(in srgb, var(--color-emerald) 84%, var(--color-glacier))
     );
     border-radius: 0;
     transition: height var(--token-motion-duration-base)
@@ -171,11 +179,11 @@
     top: 8px;
     left: 8px;
     padding: 2px 6px;
-    font-size: 0.72rem;
-    font-weight: 900;
-    color: #111;
-    background: #cae8ff;
-    border: 2px solid #000;
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-extrabold);
+    color: var(--color-black);
+    background: var(--color-frost);
+    border: var(--border-regular) solid var(--color-black);
 }
 
 .month-bar-fill.is-zero {
@@ -183,9 +191,9 @@
 }
 
 .month-bar-label {
-    font-size: 0.82rem;
-    font-weight: 900;
-    color: #111;
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-extrabold);
+    color: var(--color-black);
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }

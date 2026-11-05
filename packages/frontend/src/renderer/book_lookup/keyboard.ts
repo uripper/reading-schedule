@@ -12,13 +12,6 @@ interface LookupNavigationArgs {
     setActiveIndex: SetActiveIndex;
 }
 
-interface LookupSelectionArgs {
-    activeIndex: number;
-    currentItems: readonly BookLookupItem[];
-    event: KeyboardEvent;
-    selectItem: HandleLookupKeydownArgs["selectItem"];
-}
-
 type ArrowStep = {
     initialIndex: number;
     indexDelta: number;
@@ -70,19 +63,17 @@ function handleArrowDown(args: LookupNavigationArgs): void {
     });
 }
 
-/**
- * Selects the currently highlighted lookup result when Enter is pressed.
- * @param event - Keyboard event for the lookup input.
- * @param currentItems - Current result list shown in the lookup menu.
- * @param activeIndex - Currently highlighted index, or -1 when none is active.
- * @param selectItem - Callback used to commit the selected item.
- */
-function handleEnter(args: LookupSelectionArgs): void {
-    if (args.activeIndex < 0 || !args.currentItems.length) {
+/** Submits a query or selects an active result, keeping Enter inside the lookup. */
+function handleEnter(args: HandleLookupKeydownArgs): void {
+    args.event.preventDefault();
+    if (args.event.repeat) {
         return;
     }
-    args.event.preventDefault();
-    args.selectItem(args.activeIndex);
+    if (args.activeIndex >= 0 && args.currentItems.length > 0) {
+        args.selectItem(args.activeIndex);
+        return;
+    }
+    args.submitQuery();
 }
 
 /**
@@ -123,12 +114,7 @@ function handleLookupArrowKey(args: HandleLookupKeydownArgs): boolean {
 
 function handleLookupActionKey(args: HandleLookupKeydownArgs): boolean {
     if (args.event.key === "Enter") {
-        handleEnter({
-            activeIndex: args.activeIndex,
-            currentItems: args.currentItems,
-            event: args.event,
-            selectItem: args.selectItem,
-        });
+        handleEnter(args);
         return true;
     }
     if (args.event.key === "Escape") {
@@ -150,6 +136,9 @@ function handleLookupActionKey(args: HandleLookupKeydownArgs): boolean {
  * @param searchInput - Lookup search input element.
  */
 export function handleLookupKeydown(args: HandleLookupKeydownArgs): void {
+    if (args.event.isComposing) {
+        return;
+    }
     if (handleLookupArrowKey(args)) {
         return;
     }

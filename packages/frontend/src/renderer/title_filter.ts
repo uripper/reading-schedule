@@ -50,20 +50,3 @@ export function allKeywordsMatchFields(
         return anyFieldMatchesNormalizedQuery(fields, keyword);
     });
 }
-
-/**
- * Checks whether title text contains a pre-normalized query substring.
- * @param title - Candidate title text.
- * @param normalizedQuery - Query text already normalized for matching.
- * @returns `true` when query is empty or title contains query substring.
- */
-export function titleMatchesNormalizedQuery(
-    title: string | null | undefined,
-    normalizedQuery: string,
-): boolean {
-    if (normalizedQuery === "") {
-        return true;
-    }
-    const NORMALIZED_TITLE = String(title ?? "").toLocaleLowerCase();
-    return NORMALIZED_TITLE.includes(normalizedQuery);
-}

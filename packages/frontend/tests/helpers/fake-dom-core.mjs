@@ -143,6 +143,7 @@ export class FakeElement {
     }
 
     closest(selector) {
+        /** @type {FakeElement | null} */
         let current = this;
         while (current !== null) {
             if (matchesSelector(current, selector)) {

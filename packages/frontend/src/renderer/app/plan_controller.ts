@@ -13,12 +13,12 @@ import type {
     RunPlanGenerationArgs,
 } from "../../types/types.ts";
 import { PLAN_FAILURE_MESSAGE } from "../errors/index.ts";
+import { replanPolicy } from "./plan-replan-policy.ts";
 import { runPlanGeneration } from "./plan.ts";
 import {
     applyLoadedResult,
     applyPlannedData,
 } from "./plan_controller_apply.ts";
-import { replanPolicy } from "./plan-replan-policy.ts";
 
 const AUTO_PLAN_DELAY_MS = 450;
 const AUTO_PLAN_FAILURE_MESSAGE = PLAN_FAILURE_MESSAGE;

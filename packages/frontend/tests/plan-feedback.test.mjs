@@ -1,15 +1,12 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
 const { runPlanGeneration } = await import("../dist/renderer/app/plan.js");
-const { applyPlannedData } = await import(
-    "../dist/renderer/app/plan_controller_apply.js"
-);
+const { applyPlannedData } =
+    await import("../dist/renderer/app/plan_controller_apply.js");
 
-const { todayDayKey, nextDayKey } = await import(
-    "../dist/renderer/app/date_keys.js"
-);
+const { todayDayKey, nextDayKey } =
+    await import("../dist/renderer/app/date_keys.js");
 const TODAY = todayDayKey();
 
 const BOOKS = [{ book_id: "book-1", title: "Book 1" }];
@@ -97,7 +94,7 @@ test("a failed schedule save suppresses success status and announcements", async
     await runPlanGeneration(
         planArgs({
             announce: (message) => ANNOUNCEMENTS.push(message),
-            onSuccess: async () => false,
+            onSuccess: () => Promise.resolve(false),
             setStatus: (...args) => STATUSES.push(args),
             successAnnouncement: "Plan generated and schedule updated.",
         }),
@@ -114,7 +111,7 @@ test("an empty library also suppresses success when its updated state is unsaved
     await runPlanGeneration(
         planArgs({
             collectBooks: () => [],
-            onSuccess: async () => false,
+            onSuccess: () => Promise.resolve(false),
             setStatus: (...args) => STATUSES.push(args),
         }),
     );

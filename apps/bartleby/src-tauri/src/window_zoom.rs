@@ -6,7 +6,7 @@ use std::sync::Mutex;
 use crate::app_paths;
 use tauri::{AppHandle, Manager, State, WebviewWindow};
 
-const DEFAULT_UI_SCALE: f64 = 0.9;
+const DEFAULT_UI_SCALE: f64 = 1.0;
 const MIN_UI_SCALE: f64 = 0.7;
 const MAX_UI_SCALE: f64 = 3.0;
 const UI_SCALE_STEP: f64 = 0.1;
@@ -207,6 +207,11 @@ mod tests {
         let _ = fs::remove_dir_all(&directory);
         fs::create_dir_all(&directory).expect("expected temp zoom directory");
         directory
+    }
+
+    #[test]
+    fn initial_zoom_without_overrides_is_one_hundred_percent() {
+        assert_eq!(initial_zoom_factor_from_values(None, None), 1.0);
     }
 
     #[test]

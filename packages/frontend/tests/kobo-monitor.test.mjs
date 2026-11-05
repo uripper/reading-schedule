@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Covers connection transitions, popup suppression, and serialized async scans. */
 import assert from "node:assert/strict";
 import test from "node:test";

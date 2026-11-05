@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Verifies dropdown keyboard selection and Escape containment. */
 import assert from "node:assert/strict";
 import test from "node:test";

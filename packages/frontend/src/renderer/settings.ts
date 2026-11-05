@@ -2,6 +2,7 @@ import { parseSettings, safeParseSettings } from "@reading-schedule/contracts";
 import { logDebug } from "../types/logger.ts";
 import type { PlannerSettings } from "../types/types.ts";
 import { bindDateInput } from "./date_control.ts";
+import { el } from "./dom.ts";
 import { FIELDS } from "./settings/config_fields.ts";
 import { bindDayOffAddButton, renderDayOffs } from "./settings/day_offs.ts";
 import { renderGrid } from "./settings/render.ts";
@@ -22,10 +23,12 @@ function setDayOffs(nextDayOffs: string[]): void {
 }
 
 function bindSettingsDateInputs(): void {
-    bindDateInput(document.getElementById("dayOffPicker") as HTMLInputElement, {
+    const PICKER = el<HTMLInputElement>("dayOffPicker");
+    bindDateInput(PICKER, {
         placeholder: "Add date or date range",
         selectionMode: "range",
     });
+    PICKER.closest(".date-input-shell")?.append(el("addDayOffBtn"));
 }
 
 /**

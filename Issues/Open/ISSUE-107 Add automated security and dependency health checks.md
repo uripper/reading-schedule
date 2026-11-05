@@ -32,4 +32,3 @@ Context:
 - `apps/bartleby/src-tauri/src/book_search/`
 - `apps/bartleby/src-tauri/src/cover_store/`
 - `apps/bartleby/src-tauri/src/kobo.rs`
-- `mobile/src/config/mobile_env.ts`

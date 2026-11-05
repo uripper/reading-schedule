@@ -53,7 +53,11 @@ function runNativeFixture(fixture) {
         ],
         { cwd: fileURLToPath(ROOT), encoding: "utf8", timeout: 60_000 },
     );
-    assert.equal(RESULT.status, 0, RESULT.stderr ?? RESULT.error?.message);
+    assert.equal(
+        RESULT.status,
+        0,
+        [RESULT.stderr, RESULT.error?.message].join("\n"),
+    );
     return JSON.parse(RESULT.stdout);
 }
 

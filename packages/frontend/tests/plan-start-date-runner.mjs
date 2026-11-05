@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 import { runPlanGeneration } from "../dist/renderer/app/plan.js";
 
 const BOOKS = [{ book_id: "book-1", title: "Book 1" }];
@@ -27,8 +26,8 @@ export function recordingGenerate(calls, result = DEFAULT_RESULT) {
  * @param {object} root0 - Dependency overrides.
  * @param {(payload: unknown) => Promise<unknown>} root0.generate - Planner generate fn.
  * @param {() => Record<string, unknown>} root0.collectSettings - Settings collector.
- * @param {(status: string) => void} root0.setStatus - Status sink.
- * @param {(message: string) => void} root0.addLog - Log sink.
+ * @param {(status: string) => void} [root0.setStatus] - Status sink.
+ * @param {(message: string) => void} [root0.addLog] - Log sink.
  * @param {string | undefined} root0.minimumStartDate - Earliest allowed date.
  * @param {Record<string, unknown> | undefined} root0.settingsOverrides - Transient settings.
  * @returns {Promise<void>} Promise that resolves when generation completes.

@@ -263,7 +263,7 @@ function monthBars(snapshot: StatsSnapshot): HTMLElement {
     const BARS = document.createElement("div");
     BARS.className = "month-bars";
     const MAX_COUNT = Math.max(...snapshot.monthlyFinishes, 1);
-    snapshot.monthlyFinishes.forEach((count: number, index: number) => {
+    for (const [index, count] of snapshot.monthlyFinishes.entries()) {
         BARS.append(
             monthBarItem({
                 count,
@@ -272,7 +272,7 @@ function monthBars(snapshot: StatsSnapshot): HTMLElement {
                 year: snapshot.year,
             }),
         );
-    });
+    }
     return BARS;
 }
 

@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -37,6 +36,15 @@ function plusDays(key, delta) {
  * @param {Record<string, unknown>} overrides - Row field overrides.
  * @returns {Record<string, unknown>} Row fixture.
  */
+/**
+ * Builds the legacy `date|book_id` completion key for a row.
+ * @param {{ date: string, book_id: string }} entry - Schedule row.
+ * @returns {string} Day-book completion key.
+ */
+function dayBookKey(entry) {
+    return `${entry.date}|${entry.book_id}`;
+}
+
 function row(overrides = {}) {
     return {
         book_id: "book-1",
@@ -164,26 +172,26 @@ test("pruneScheduleCompletions keeps day-book fallback keys for rows that still 
     });
     const COMPLETIONS = {
         [sessionKeyFor(KEPT_ROW)]: true,
-        [`${KEPT_ROW.date}|${KEPT_ROW.book_id}`]: true,
+        [dayBookKey(KEPT_ROW)]: true,
         [sessionKeyFor(DROPPED_ROW)]: true,
-        [`${DROPPED_ROW.date}|${DROPPED_ROW.book_id}`]: true,
+        [dayBookKey(DROPPED_ROW)]: true,
     };
     const PRUNED = pruneScheduleCompletions(COMPLETIONS, [KEPT_ROW]);
     assert.deepEqual(PRUNED, {
         [sessionKeyFor(KEPT_ROW)]: true,
-        [`${KEPT_ROW.date}|${KEPT_ROW.book_id}`]: true,
+        [dayBookKey(KEPT_ROW)]: true,
     });
 });
 
 test("pruneScheduleCompletions removes stale day-book keys when matching row no longer exists", () => {
     const KEEP_ROW = row();
     const COMPLETIONS = {
-        [`${KEEP_ROW.date}|${KEEP_ROW.book_id}`]: true,
+        [dayBookKey(KEEP_ROW)]: true,
         "2026-02-25|book-missing": true,
     };
     const PRUNED = pruneScheduleCompletions(COMPLETIONS, [KEEP_ROW]);
     assert.deepEqual(PRUNED, {
-        [`${KEEP_ROW.date}|${KEEP_ROW.book_id}`]: true,
+        [dayBookKey(KEEP_ROW)]: true,
     });
 });
 

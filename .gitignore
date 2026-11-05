@@ -42,21 +42,6 @@ services/*/dist/
 apps/client/.vite/
 /.scratch/
 
-# Capacitor / mobile build outputs
-apps/mobile/android/.gradle/
-apps/mobile/android/**/build/
-apps/mobile/ios/**/build/
-apps/mobile/ios/DerivedData/
-
-# Expo mobile workspace outputs
-mobile/.expo/
-mobile/.expo-shared/
-mobile/android/.gradle/
-mobile/android/**/build/
-mobile/ios/**/build/
-mobile/ios/DerivedData/
-mobile/web-build/
-
 # Runtime artifacts
 *.log
 *.pid
@@ -90,3 +75,4 @@ __pycache__
 *.egg-info
 .python-version
 .fallow
+report/

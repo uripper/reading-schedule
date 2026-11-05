@@ -16,8 +16,8 @@ import {
 import { rowsWithoutSession } from "./calendar_interactions_row_helpers.ts";
 
 interface UpdatedMinutesArgs {
-    collectSettings(): PlannerSettings;
-    getBookById(bookId: string): Book | null;
+    collectSettings(this: void): PlannerSettings;
+    getBookById(this: void, bookId: string): Book | null;
     normalizedMinutes: number;
     row: PlannerScheduleRow;
     rowsExcludingTarget: PlannerScheduleRow[];

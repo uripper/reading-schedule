@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: tests use the built shared frontend.
 /** Verifies same-day replanning explains empty days without losing warnings. */
 
 import assert from "node:assert/strict";

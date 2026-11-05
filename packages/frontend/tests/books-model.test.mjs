@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 import { normalizeBook } from "../dist/renderer/books/model-normalize.js";
@@ -65,4 +64,20 @@ test("normalizeBook preserves fine-grained priorities", () => {
     });
 
     assert.equal(NORMALIZED.priority, FINE_GRAINED_PRIORITY);
+});
+
+test("normalizeBook clears legacy cover notes but preserves lookup provenance", () => {
+    const COVER_NOTE = "Custom cover uploaded.";
+    const LOOKUP_NOTE = "Selected from Open Library · Aristotle";
+    const LEGACY_BOOK = normalizeBook({
+        cover_local_path: "/covers/metaphysics.jpg",
+        lookup_note: `${COVER_NOTE} original-filename.jpg`,
+    });
+    assert.equal(LEGACY_BOOK.lookup_note, "");
+    assert.equal(LEGACY_BOOK.cover_local_path, "/covers/metaphysics.jpg");
+    assert.equal(normalizeBook({ lookup_note: COVER_NOTE }).lookup_note, "");
+    assert.equal(
+        normalizeBook({ lookup_note: LOOKUP_NOTE }).lookup_note,
+        LOOKUP_NOTE,
+    );
 });

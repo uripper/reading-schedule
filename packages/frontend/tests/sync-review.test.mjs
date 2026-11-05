@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Exercises approval controls using the shared DOM fixture. */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -75,6 +74,7 @@ test("duplicate titles require both a chosen match and an explicit check", () =>
     withDom(() => {
         const OTHER = { ...BOOK, book_id: "other" };
         const ROW = createSyncReviewRow({
+            conflictingRecords: [],
             matches: [BOOK, OTHER],
             record: SOURCE,
         });

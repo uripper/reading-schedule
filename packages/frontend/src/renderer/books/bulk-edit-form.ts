@@ -5,12 +5,12 @@ import type {
     BookWeekday,
     BulkBookSubmitPayload,
 } from "../../types/types.ts";
-import { readScheduledDaySelection } from "./form_scheduled_days.ts";
 import {
     DEFAULT_DIFFICULTY,
     DEFAULT_PRIORITY,
     DEFAULT_PROGRESS,
 } from "./form-state-helpers.ts";
+import { readScheduledDaySelection } from "./form_scheduled_days.ts";
 import { toOptionalInt } from "./utils.ts";
 
 const BULK_DIRTY = "bulkDirty";

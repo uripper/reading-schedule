@@ -6,7 +6,7 @@
 /** Actions required when the active local calendar day changes. */
 interface LocalDayRolloverActions {
     /** Queues a planner run after the existing schedule has been rendered. */
-    queueAutoPlan(): void;
+    queueAutoPlan(this: void): void;
     /** Renders the currently persisted schedule for the new active day. */
     renderCurrentSchedule(): void;
     /** Clears day-specific carousel interaction state. */

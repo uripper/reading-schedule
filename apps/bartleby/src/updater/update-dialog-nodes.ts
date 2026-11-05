@@ -32,7 +32,7 @@ function textNode(
 /** Creates a themed button element. */
 function buttonNode(className: string, label: string): HTMLButtonElement {
     const BUTTON = document.createElement("button");
-    BUTTON.className = className;
+    BUTTON.className = `btn ${className}`;
     BUTTON.textContent = label;
     BUTTON.type = "button";
     return BUTTON;
@@ -47,7 +47,10 @@ function dialogHeader(): {
     HEADER.className = "app-update-dialog-header";
     const TITLE = textNode("h2", "app-update-dialog-title", "UPDATE AVAILABLE");
     TITLE.id = DIALOG_TITLE_ID;
-    const CLOSE_BUTTON = buttonNode("app-update-dialog-close", "×");
+    const CLOSE_BUTTON = buttonNode(
+        "btn-icon btn-cancel app-update-dialog-close",
+        "×",
+    );
     CLOSE_BUTTON.setAttribute("aria-label", "Remind me later");
     HEADER.append(TITLE, CLOSE_BUTTON);
     return { closeButton: CLOSE_BUTTON, header: HEADER };
@@ -113,11 +116,11 @@ function dialogActions(): {
     const ACTIONS = document.createElement("footer");
     ACTIONS.className = "app-update-dialog-actions";
     const LATER_BUTTON = buttonNode(
-        "app-update-dialog-button app-update-dialog-later",
+        "btn-cancel app-update-dialog-later",
         "Later",
     );
     const INSTALL_BUTTON = buttonNode(
-        "app-update-dialog-button app-update-dialog-install",
+        "btn-primary app-update-dialog-install",
         "Download and install",
     );
     ACTIONS.append(LATER_BUTTON, INSTALL_BUTTON);

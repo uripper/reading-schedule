@@ -8,11 +8,10 @@ import type {
 import {
     dayBookCompletionKey,
     dayBookCompletionKeyFromSession,
-    sessionKeyFor,
 } from "../../calendar/utils.ts";
+import { markBookStartedForCompletedRow } from "./calendar-interactions-completion-books.ts";
 import { manualSessionBooks } from "./calendar_interactions_helpers.ts";
 import { BUILD_SCHEDULE_MUTATION_HANDLERS } from "./calendar_interactions_schedule_handlers.ts";
-import { markBookStartedForCompletedRow } from "./calendar-interactions-completion-books.ts";
 
 interface CompletionStateUpdateArgs {
     completed: boolean;
@@ -147,28 +146,6 @@ function notifySessionCompletionUpdated(
     args.onSessionCompletionUpdated(payload);
 }
 
-function markProgressRowCompleted(
-    args: AppCalendarInteractionArgs,
-    row: ProgressUpdateInput["row"],
-): void {
-    if (row === undefined) {
-        return;
-    }
-    const COMPLETION_STATE = { ...args.state.scheduleCompletions };
-    SET_COMPLETION_STATE({
-        completed: true,
-        completionState: COMPLETION_STATE,
-        keys: completionKeys(
-            sessionKeyFor(row),
-            dayBookCompletionKey(row.date, row.book_id),
-        ),
-    });
-    args.applyStateMutation({
-        scheduleCompletions: COMPLETION_STATE,
-        type: "set_schedule_completions",
-    });
-}
-
 function progressStatusMessage(
     updatedBook: Exclude<
         ReturnType<AppCalendarInteractionArgs["updateBookProgress"]>,
@@ -200,7 +177,6 @@ const HANDLE_PROGRESS_UPDATED = (
         args.setStatus("Could not find that book to update progress.", true);
         return null;
     }
-    markProgressRowCompleted(args, payload.row);
     args.setStatus(progressStatusMessage(UPDATED_BOOK));
     args.queuePersist();
     if (args.onProgressUpdated !== undefined) {

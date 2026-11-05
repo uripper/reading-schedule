@@ -40,9 +40,9 @@ export function renderCalendarControls(args: {
     state: CalendarControlsState;
 }): void {
     const CALENDAR_STATE = args.state;
-    const KEY = CALENDAR_STATE.months[CALENDAR_STATE.index] || "";
+    const KEY = CALENDAR_STATE.months[CALENDAR_STATE.index] ?? "";
     const CONTROLS = el("calendarControls");
-    const TITLE = document.createElement("strong");
+    const TITLE = document.createElement("h2");
     TITLE.textContent = monthLabel(KEY);
 
     if (!KEY) {
@@ -50,9 +50,10 @@ export function renderCalendarControls(args: {
         return;
     }
 
-    const PREV = controlButton("btn", "Prev");
-    const TODAY = controlButton("btn btn-calendar-today", "Today");
-    const NEXT = controlButton("btn", "Next");
+    const PREV = controlButton("btn btn-compact", "Prev");
+    const TODAY = controlButton("btn btn-primary", "Today");
+    TODAY.title = "Jump to today";
+    const NEXT = controlButton("btn btn-compact", "Next");
 
     PREV.onclick = () => {
         CALENDAR_STATE.index = shiftedIndex(CALENDAR_STATE, -1);

@@ -29,7 +29,7 @@
     .today-focus-panel {
         padding: 1rem;
         margin-top: 0.5rem;
-        box-shadow: 6px 6px 0 #000;
+        box-shadow: var(--shadow-md);
     }
 
     .today-progress-heading {
@@ -54,30 +54,5 @@
     .today-log-session-btn,
     .today-remove-session-btn {
         width: 100%;
-    }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-    .today-log-session-btn,
-    .today-minutes-edit-btn,
-    .today-replan-btn,
-    .today-remove-session-btn {
-        transition:
-            transform 120ms ease,
-            box-shadow 120ms ease,
-            background-color 120ms ease;
-    }
-
-    .today-log-session-btn:hover:not(:disabled),
-    .today-minutes-edit-btn:hover:not(:disabled),
-    .today-replan-btn:hover:not(:disabled) {
-        transform: translate(-1px, -1px);
-    }
-
-    .today-log-session-btn:active:not(:disabled),
-    .today-minutes-edit-btn:active:not(:disabled),
-    .today-replan-btn:active:not(:disabled) {
-        box-shadow: 1px 1px 0 #000;
-        transform: translate(2px, 2px);
     }
 }

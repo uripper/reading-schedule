@@ -12,14 +12,14 @@ import type {
 } from "../../types/types.ts";
 import { PLAN_FAILURE_MESSAGE } from "../errors/index.ts";
 import { todayDayKey } from "./date_keys.ts";
-import {
-    normalizePlannerEndDate,
-    normalizePlannerStartDate,
-} from "./plan_normalize.ts";
 import { errorMessage, isPlannerSupersededError } from "./plan-errors.ts";
 import type { PlanMessages } from "./plan-feedback.ts";
 import { logPlanSummary, resolvedPlanMessages } from "./plan-feedback.ts";
 import { applyPlanResultStatus } from "./plan-status.ts";
+import {
+    normalizePlannerEndDate,
+    normalizePlannerStartDate,
+} from "./plan_normalize.ts";
 
 // audit-allow-local-types: These shapes are private planner request orchestration.
 
@@ -31,8 +31,12 @@ interface GeneratePayloadArgs {
 }
 
 interface PlanSuccessArgs {
-    addLog(message: string): void;
-    announce(message: string, politeness?: "polite" | "assertive"): void;
+    addLog(this: void, message: string): void;
+    announce(
+        this: void,
+        message: string,
+        politeness?: "polite" | "assertive",
+    ): void;
     data: Awaited<ReturnType<RunPlanGenerationArgs["plannerApi"]["generate"]>>;
     onSuccess: RunPlanGenerationArgs["onSuccess"];
     setStatus: RunPlanGenerationArgs["setStatus"];
@@ -41,8 +45,12 @@ interface PlanSuccessArgs {
 }
 
 interface PlanFailureArgs {
-    addLog(message: string): void;
-    announce(message: string, politeness?: "polite" | "assertive"): void;
+    addLog(this: void, message: string): void;
+    announce(
+        this: void,
+        message: string,
+        politeness?: "polite" | "assertive",
+    ): void;
     error: unknown;
     setStatus: RunPlanGenerationArgs["setStatus"];
 }

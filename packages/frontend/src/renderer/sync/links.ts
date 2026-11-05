@@ -37,7 +37,7 @@ export function isSameSyncSource(
 }
 
 /** Same device as well; a legacy link without a device belongs to the next device to sync it. */
-export function isSameSyncLink(link: SyncRecord, record: SyncRecord): boolean {
+function isSameSyncLink(link: SyncRecord, record: SyncRecord): boolean {
     return (
         isSameSyncSource(link, record) &&
         (link.deviceId === undefined || link.deviceId === record.deviceId)

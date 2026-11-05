@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -33,7 +32,10 @@ test("destructive confirmation resolves true only after confirm action", async (
             DIALOG.querySelector(".action-confirm-warning").textContent,
             "This action cannot be undone.",
         );
-        DIALOG.querySelector(".action-confirm-accept").click();
+        const ACCEPT = DIALOG.querySelector(".action-confirm-accept");
+        assert.ok(ACCEPT.classList.contains("btn-remove"));
+        assert.ok(ACCEPT.classList.contains("btn-primary"));
+        ACCEPT.click();
         assert.equal(await CONFIRMATION, true);
         assert.equal(
             ENVIRONMENT.document.body.querySelector(".action-confirm-dialog"),
@@ -52,7 +54,9 @@ test("destructive confirmation cancel resolves false", async () => {
         const DIALOG = ENVIRONMENT.document.body.querySelector(
             ".action-confirm-dialog",
         );
-        DIALOG.querySelector(".action-confirm-cancel").click();
+        const CANCEL = DIALOG.querySelector(".action-confirm-cancel");
+        assert.ok(CANCEL.classList.contains("btn-cancel"));
+        CANCEL.click();
         assert.equal(await CONFIRMATION, false);
     } finally {
         ENVIRONMENT.restore();

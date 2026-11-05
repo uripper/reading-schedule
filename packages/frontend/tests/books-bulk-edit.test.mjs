@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -86,13 +85,13 @@ test("applyBulkBookUpdates prevents a selected book from blocking itself", () =>
     assert.equal(RESULT[1].blocked_by, "book-1");
 });
 
-test("bulk scheduled-day edits stay scoped to selected books", async () => {
+test("bulk scheduled-day edits stay scoped to selected books", () => {
     const BOOKS = [
         book({ book_id: "book-1", shelf: "Shared" }),
         book({ book_id: "book-2", shelf: "Shared" }),
     ];
 
-    const RESULT = await nextBooksAfterDialogSave(BOOKS, {
+    const RESULT = nextBooksAfterDialogSave(BOOKS, {
         bookIds: ["book-1"],
         type: "bulk_books",
         updates: { scheduled_days: ["Fri"] },

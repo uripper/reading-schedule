@@ -5,8 +5,8 @@ import type {
     OpenDialogOptions,
 } from "../../types/types.ts";
 import { createBulkBookSubmitPayload } from "./bulk-edit-form.ts";
-import { createBookSubmitPayload } from "./dialog_submit.ts";
 import { isBulkDialogMode } from "./dialog-display.ts";
+import { createBookSubmitPayload } from "./dialog_submit.ts";
 
 export interface DialogSessionState {
     bulkBookIds: string[];

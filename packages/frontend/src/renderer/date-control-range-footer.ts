@@ -16,7 +16,7 @@ function existingFooter(calendar: HTMLElement): HTMLElement | null {
 
 function doneButton(picker: RangePickerFooterInstance): HTMLButtonElement {
     const BUTTON = document.createElement("button");
-    BUTTON.className = `btn ${DONE_BUTTON_CLASS}`;
+    BUTTON.className = `btn btn-primary ${DONE_BUTTON_CLASS}`;
     BUTTON.type = "button";
     BUTTON.textContent = DONE_BUTTON_LABEL;
     BUTTON.addEventListener("click", () => {

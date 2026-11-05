@@ -93,9 +93,9 @@ function renderCodexPosition(): void {
     const LAST_SCENE_INDEX = codexScenes.length - COMPLETE_TURN;
     const POSITION = codexProgress() * LAST_SCENE_INDEX;
 
-    codexScenes.forEach((scene, index) => {
+    for (const [index, scene] of codexScenes.entries()) {
         updateScene(scene, sceneTurn(POSITION, index));
-    });
+    }
 }
 
 function requestCodexRender(): void {

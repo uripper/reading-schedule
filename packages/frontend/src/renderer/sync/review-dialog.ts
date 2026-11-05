@@ -38,7 +38,7 @@ function dialogHeader(
     const CLOSE = syncButton("X", () => {
         dialog.close();
     });
-    CLOSE.className = "action-confirm-close sync-review-close";
+    CLOSE.classList.add("btn-cancel", "btn-icon", "sync-review-close");
     CLOSE.setAttribute("aria-label", `Close ${sourceLabel} sync`);
     HEADER.append(title, CLOSE);
     return HEADER;

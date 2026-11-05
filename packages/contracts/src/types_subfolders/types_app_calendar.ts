@@ -57,18 +57,16 @@ export type UpdatedBook = Book;
 
 /** Minimal runtime snapshot used by schedule row mutation helpers. */
 export interface SharedUpdateState
-    extends BlockedDayBookState,
-        PlannerResultState,
-        ScheduleCompletionState {}
+    extends BlockedDayBookState, PlannerResultState, ScheduleCompletionState {}
 
 /** Base dependencies for schedule row mutation operations. */
 export interface SharedUpdateArgs extends PlannerCalendarBindings {
     /** Applies state mutation to runtime or UI state. */
-    applyStateMutation(mutation: AppStateMutation): void;
+    applyStateMutation(this: void, mutation: AppStateMutation): void;
     /** Notifies listeners after shared update helpers mutate rows. */
-    onScheduleRowsUpdated(): void;
+    onScheduleRowsUpdated(this: void): void;
     /** Queues persist work for deferred execution. */
-    queuePersist(): void;
+    queuePersist(this: void): void;
     /** Status callback used to publish user-visible loading or error messages. */
     setStatus: SetStatus;
     /** Mutable runtime state consumed and updated by this module. */
@@ -80,17 +78,18 @@ export interface AppCalendarInteractionArgs extends SharedUpdateArgs {
     /** Collects all books from UI or runtime state. */
     collectAllBooks(): Book[];
     /** Collects settings from UI or runtime state. */
-    collectSettings(): PlannerSettings;
+    collectSettings(this: void): PlannerSettings;
     /** Registers calendar handlers for schedule and progress interactions. */
     configureCalendarInteractions(handlers?: Partial<CalendarHandlers>): void;
     /** Returns book by id from current runtime state. */
-    getBookById(bookId: string): Book | null;
+    getBookById(this: void, bookId: string): Book | null;
     /** Optional callback fired after book progress has been updated. */
-    onProgressUpdated?(book: UpdatedBook): void;
+    onProgressUpdated?(this: void, book: UpdatedBook): void;
     /** Optional callback fired when a session completion toggle is applied. */
     onSessionCompletionUpdated?(payload: CompletionUpdate): void;
     /** Applies progress updates to a book and returns the updated book if found. */
     updateBookProgress(
+        this: void,
         bookId: string,
         updates: BookProgressUpdates,
         options: UpdateBookProgressOptions,
@@ -112,7 +111,7 @@ export interface SharedScheduleBindings {
     /** Shared book lookup used by schedule mutation handlers. */
     getBookById: AppCalendarInteractionArgs["getBookById"];
     /** Optional callback fired after book progress has been updated. */
-    onProgressUpdated?(book: UpdatedBook): void;
+    onProgressUpdated?(this: void, book: UpdatedBook): void;
     /** Notifies listeners that schedule rows have changed. */
     onScheduleRowsUpdated(this: void): void;
     /** Queues persist work for deferred execution. */
@@ -148,7 +147,7 @@ export interface AddManualSessionArgs extends SharedUpdateArgs {
     /** Session duration in minutes. */
     minutes: number;
     /** Optional callback fired after book progress has been updated. */
-    onProgressUpdated?(book: UpdatedBook): void;
+    onProgressUpdated?(this: void, book: UpdatedBook): void;
     /** Applies progress updates to a book and returns the updated book if found. */
     updateBookProgress: AppCalendarInteractionArgs["updateBookProgress"];
 }

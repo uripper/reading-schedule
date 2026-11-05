@@ -2,7 +2,6 @@
 import type { BookFormRefs } from "../../types/types.ts";
 import { stageCoverFile, uploadErrorMessage } from "./cover-upload.ts";
 
-const PASTED_COVER_NAME = "Pasted image";
 const ERROR_NO_CLIPBOARD_IMAGE = "Clipboard has no image to use as a cover.";
 const EDITABLE_SELECTOR = "input, textarea, select, [contenteditable]";
 const FILE_ITEM_KIND = "file";
@@ -63,7 +62,7 @@ function pasteTargetIsEditable(target: EventTarget | null): boolean {
 function stagePastedCover(refs: BookFormRefs, file: File): void {
     const { lookupMeta } = refs;
     try {
-        stageCoverFile(refs, file, file.name || PASTED_COVER_NAME);
+        stageCoverFile(refs, file);
     } catch (error: unknown) {
         lookupMeta.textContent = uploadErrorMessage(error);
     }

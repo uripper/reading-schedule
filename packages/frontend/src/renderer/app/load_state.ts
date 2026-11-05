@@ -232,7 +232,7 @@ export async function loadInitialData(args: LoadStateArgs): Promise<void> {
         applySessionAndResultData(SAVED, args);
         args.onLoaded(SAVED, LOAD_RESULT);
     } catch (error) {
-        const ErrorMessage = `Failed to load initial data. \n ${error}`;
+        const ErrorMessage = `Failed to load initial data. \n ${String(error)}`;
         args.setStatus(ErrorMessage, true);
     }
 }

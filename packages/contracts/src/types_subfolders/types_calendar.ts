@@ -139,7 +139,7 @@ export interface ManualSessionAddPayload {
 }
 
 export interface DetailInteractionHandlers {
-    getBookById(bookId: string): Book | null;
+    getBookById(this: void, bookId: string): Book | null;
     isSessionCompleted(sessionKey: string): boolean;
     listSessionBooks(): ManualSessionBook[];
     onManualSessionAdded(payload: ManualSessionAddPayload): boolean;

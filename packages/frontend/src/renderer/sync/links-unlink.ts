@@ -18,7 +18,7 @@ function withLinks(book: Book, links: SyncRecord[]): Book {
 }
 
 /** Returns the library with one link removed from one book. */
-export function unlinkedBooks(
+function unlinkedBooks(
     books: readonly Book[],
     bookId: string,
     link: SyncRecord,
@@ -35,6 +35,7 @@ export function unlinkedBooks(
 export async function confirmSyncUnlink(link: SyncRecord): Promise<boolean> {
     return await confirmAction({
         confirmLabel: "Unlink",
+        confirmStyle: "remove",
         message: `Unlink “${syncRecordName(link)}” from ${syncSourceLabel(link)}?`,
         title: "Unlink synced source?",
         warning:

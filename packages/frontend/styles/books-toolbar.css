@@ -1,10 +1,8 @@
 /* Library toolbar: actions row, then labeled search/filter/sort fields. */
 .books-toolbar {
-    --books-toolbar-ink: #13213a;
-    --books-toolbar-paper: #FFF1B4;
-    --books-toolbar-field: #fff;
-    --books-toolbar-primary: #17785a;
-    --books-toolbar-primary-ink: #f9f4e8;
+    --books-toolbar-ink: var(--color-black);
+    --books-toolbar-paper: var(--color-parchment);
+    --books-toolbar-field: var(--color-white);
     --books-toolbar-radius: 14px;
     --books-toolbar-control-height: 52px;
 
@@ -16,9 +14,9 @@
     margin-bottom: var(--token-space-1);
     color: var(--books-toolbar-ink);
     background: var(--books-toolbar-paper);
-    border: 3px solid var(--books-toolbar-ink);
+    border: var(--border-thick) solid var(--books-toolbar-ink);
     border-radius: 20px;
-    box-shadow: 6px 6px 0 var(--books-toolbar-ink);
+    box-shadow: var(--shadow-md);
 }
 
 .books-toolbar-actions {
@@ -41,8 +39,8 @@
     display: grid;
     gap: 8px;
     min-width: 0;
-    font-size: 0.82rem;
-    font-weight: 900;
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--books-toolbar-ink);
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -58,7 +56,7 @@
 }
 
 .books-control .hint-dot::after {
-    font-weight: 700;
+    font-weight: var(--token-typography-weight-bold);
     text-transform: none;
     letter-spacing: normal;
 }
@@ -98,13 +96,13 @@
     min-height: var(--books-toolbar-control-height);
     padding: 10px 14px;
     margin-top: 0;
-    font-size: 0.98rem;
-    font-weight: 800;
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--books-toolbar-ink);
     text-transform: none;
     letter-spacing: normal;
     background: var(--books-toolbar-field);
-    border: 3px solid var(--books-toolbar-ink);
+    border: var(--border-thick) solid var(--books-toolbar-ink);
     border-radius: var(--books-toolbar-radius);
     box-shadow: none;
 }
@@ -114,8 +112,8 @@
 }
 
 .books-control-input::placeholder {
-    font-weight: 600;
-    color: #5b6476;
+    font-weight: var(--token-typography-weight-semibold);
+    color: var(--color-gray);
 }
 
 .books-control-select {
@@ -129,34 +127,15 @@
 .books-control-select:hover,
 .books-control-input:focus-visible,
 .books-control-select:focus-visible {
-    background: #fffdf5;
+    background: var(--color-white);
     border-color: var(--books-toolbar-ink);
 }
 
-.books-toolbar .btn[hidden] {
-    display: none;
-}
-
 .books-toolbar-actions .btn {
-    display: inline-flex;
     flex: 0 1 auto;
-    gap: 12px;
-    align-items: center;
-    justify-content: center;
     width: auto;
-    min-height: 56px;
-    padding: 10px 26px;
-    margin-top: 0;
-    font-size: 1.15rem;
-    font-weight: 900;
-    color: var(--books-toolbar-ink);
-    background: var(--books-toolbar-paper);
-    border: 3px solid var(--books-toolbar-ink);
-    border-radius: var(--books-toolbar-radius);
-    box-shadow: none;
 }
 
-.books-toolbar-add-btn::before,
 .books-mass-edit-btn::before {
     width: 26px;
     height: 26px;
@@ -166,56 +145,33 @@
 }
 
 .books-toolbar-actions .books-toolbar-add-btn {
-    --icon: var(--icon-book-open);
-
     min-width: clamp(168px, 13vw, 200px);
-    color: var(--books-toolbar-primary-ink);
-    background: var(--books-toolbar-primary);
-    box-shadow: 4px 4px 0 var(--books-toolbar-ink);
-}
-
-.books-toolbar-actions .btn:hover,
-.books-toolbar-actions .btn:focus-visible {
-    border-color: var(--books-toolbar-ink);
-    filter: brightness(1.06);
 }
 
 .books-sort-direction-btn {
-    display: inline-flex;
+    gap: 0;
     align-items: stretch;
     min-height: var(--books-toolbar-control-height);
     padding: 0;
-    margin-top: 0;
     overflow: hidden;
-    color: var(--books-toolbar-ink);
-    background: var(--books-toolbar-field);
-    border: 3px solid var(--books-toolbar-ink);
-    border-radius: var(--books-toolbar-radius);
-    box-shadow: none;
 }
 
 .books-sort-direction-segment {
     --icon-size: 22px;
-    
+
     display: grid;
     place-items: center;
     width: 46px;
 }
 
 .books-sort-direction-segment + .books-sort-direction-segment {
-    border-left: 3px solid var(--books-toolbar-ink);
+    border-inline-start: var(--border-regular) solid var(--button-ink);
 }
 
 .books-sort-direction-btn[data-direction="asc"] .is-asc,
 .books-sort-direction-btn[data-direction="desc"] .is-desc {
-    color: var(--books-toolbar-primary-ink);
-    background: var(--books-toolbar-primary);
-}
-
-.books-sort-direction-btn:hover,
-.books-sort-direction-btn:focus-visible {
-    border-color: var(--books-toolbar-ink);
-    filter: brightness(1.06);
+    color: var(--button-green-ink);
+    background: var(--button-blue-ink);
 }
 
 .books-toolbar > .hint-text {

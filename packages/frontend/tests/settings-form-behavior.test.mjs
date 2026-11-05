@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test, { after } from "node:test";
@@ -9,24 +8,21 @@ const HARNESS = installFakeDom();
 const { FIELDS, WEEKDAYS, weekdayMinutesEnabledId, weekdayMinutesInputId } =
     await import("../dist/renderer/settings/config.js");
 const { parseSettings } = await import("@reading-schedule/contracts");
-const { collectSettingsForm } = await import(
-    "../dist/renderer/settings/serialize_collect.js"
-);
-const { fillSettingsForm } = await import(
-    "../dist/renderer/settings/serialize_fill.js"
-);
+const { initSettingsGrid } = await import("../dist/renderer/settings.js");
+const { collectSettingsForm } =
+    await import("../dist/renderer/settings/serialize_collect.js");
+const { fillSettingsForm } =
+    await import("../dist/renderer/settings/serialize_fill.js");
 const { renderGrid } = await import("../dist/renderer/settings/render.js");
-const { renderWeekdayGrid } = await import(
-    "../dist/renderer/settings/weekday-minutes.js"
-);
+const { renderWeekdayGrid } =
+    await import("../dist/renderer/settings/weekday-minutes.js");
 const {
     DEFAULT_MAX_BLOCKS_PER_BOOK_PER_DAY,
     DEFAULT_PLAN_MODE,
     DEFAULT_TIME_QUANTUM_MINUTES,
 } = await import("../dist/renderer/settings/defaults.js");
-const { minimumPlannerStartDate } = await import(
-    "../dist/renderer/settings/start_date.js"
-);
+const { minimumPlannerStartDate } =
+    await import("../dist/renderer/settings/start_date.js");
 
 after(() => {
     HARNESS.restore();
@@ -74,6 +70,33 @@ function installSettingsDom() {
         appendNode("input", weekdayMinutesInputId(KEY), "text");
     }
 }
+
+test("Days Off places Clear and Add Days Off in the same date-control grid", (context) => {
+    context.mock.getter(globalThis, "navigator", () => undefined);
+    const DOCUMENT = HARNESS.document;
+    DOCUMENT.querySelectorAll = (selector) =>
+        DOCUMENT.body.querySelectorAll(selector);
+    context.after(() => {
+        delete DOCUMENT.querySelectorAll;
+    });
+    installSettingsDom();
+    for (const ID of [
+        "planGrid",
+        "minutesGrid",
+        "displayGrid",
+        "weekdayGrid",
+    ]) {
+        appendNode("div", ID);
+    }
+
+    initSettingsGrid();
+
+    const PICKER = HARNESS.document.getElementById("dayOffPicker");
+    const ADD = HARNESS.document.getElementById("addDayOffBtn");
+    const SHELL = PICKER.closest(".date-input-shell");
+    assert.equal(SHELL.querySelector(".date-input-clear").parentElement, SHELL);
+    assert.equal(ADD.parentElement, SHELL);
+});
 
 test("settings fill shows core planning defaults when unset", () => {
     installSettingsDom();

@@ -11,7 +11,6 @@ Applies to all code and docs in:
 - `packages/`
 - `services/`
 - `scripts/`
-- `mobile/`
 - `docs/`
 
 ## Non-Negotiable Rules (MUST)
@@ -91,11 +90,11 @@ A PR must not merge if any of the following is true:
 - Prefer more precise alternatives to broad string types for constrained values (literal unions, template literal types, branded/distinct types when justified).
 - Use `Record<...>` for exhaustive key-to-value mappings (labels, status renderers, config maps) when the keyspace is known and should stay in sync.
 - Prefer `interface` for object-shaped types when either `type` or `interface` would work; use `type` when you need unions/intersections/tuples/aliases or when it is more ergonomic.
-- Default to `packages/contracts` for TypeScript types and reusable inference-backed contract shapes so desktop, mobile, website, and future applications import the same source of truth.
+- Default to `packages/contracts` for TypeScript types and reusable inference-backed contract shapes so desktop, website, and future applications import the same source of truth.
 - If a type can be expressed without application-specific runtime dependencies, promote it into `packages/contracts` even if it currently has only one consumer.
 - Keep a type local only when it is purely transient implementation state or when moving it into `packages/contracts` would force the shared package to depend on app-specific platform/runtime libraries.
 - Do not duplicate or re-derive cross-application shapes in app code; centralize them in `packages/contracts` first and import them outward.
-- For any new `.d.ts` files under `mobile/src/`, `apps/`, or other app folders, explicitly decide whether each type belongs in `packages/contracts`. If you keep a type app-local, add a brief comment in that file explaining why it is not shared (for example, because it depends on React Native or Tauri runtime/platform types).
+- For new `.d.ts` files under `apps/`, decide whether each type belongs in `packages/contracts`. If a type stays app-local, document the reason in that file, such as a dependency on Tauri runtime types.
 
 ### Runtime and Platform Safety
 
@@ -172,7 +171,7 @@ A PR must not merge if any of the following is true:
 - After changing lint/parser config, run the target command once on representative files and confirm there are no parser crashes.
 - Prefer ECMAScript runtime features over TypeScript-only language features when both solve the problem and the runtime target supports the ECMAScript version.
 - Track repository type coverage and prevent regressions (for example via `type-coverage` in CI/local validation).
-- Enable and enforce exhaustiveness checking in lint (`@typescript-eslint/switch-exhaustiveness-check`) in TypeScript code that uses discriminated unions.
+- Enforce exhaustiveness checking for discriminated unions with Oxlint's `typescript/switch-exhaustiveness-check` rule.
 
 ## Documentation Policy
 
@@ -205,6 +204,28 @@ Line comments must always appear on the line immediately above the code they des
 ## Required Validation Commands
 
 Run all commands relevant to touched areas before merge.
+
+### TypeScript workspace tooling
+
+Install the pinned tools with `pnpm install --frozen-lockfile` from the
+workspace root. Use Node 22.18+ on the Node 22 line, Node 24.11+ on the Node 24
+line, or Node 26+. The workspace provides the Vite+ CLI through `pnpm exec vp`.
+
+- `pnpm run check:typescript` runs type-aware Oxlint through Vite+.
+  `pnpm run format:typescript` applies Oxfmt and sorts imports.
+- `ci:local` builds the shared contracts before running type-aware Oxlint so
+  workspace consumers can resolve their declarations. It checks formatting,
+  CSS through Stylelint, and HTML through HTML Validate. The shared shell and
+  its desktop derivative use stable markup for host generation and are
+  validated as HTML.
+- Oxlint enforces declaration naming and cognitive and cyclomatic complexity.
+  Function length and several rules with broader diagnostics, including
+  nullish coalescing and unnecessary conditions, report warnings. Review
+  object keys, interface members, and attribute ordering manually.
+- Root scripts use Vite+ to dispatch package tasks. The desktop webview,
+  website, and shared renderer bundle build through `vp build`.
+- Keep the package-specific TypeScript checks and Node test commands below.
+  The shared packages also use `tsc` to emit modules and declarations.
 
 ### Desktop
 

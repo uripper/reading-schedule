@@ -22,7 +22,7 @@ interface OverlayDomRefs {
 
 interface OverlayState {
     activeIndex: number;
-    onPick(bookId: string): void;
+    onPick(this: void, bookId: string): void;
     options: TodayAddBookOption[];
 }
 
@@ -48,7 +48,7 @@ function createDialogShell(): HTMLDialogElement {
         <input id="${QUERY_INPUT_ID}" class="today-add-query" type="search" autocomplete="off" placeholder="Start typing a title" />
         <div id="${RESULTS_ID}" class="today-add-results" role="listbox" aria-label="Books to add"></div>
         <footer class="today-add-footer">
-          <button id="${CLOSE_BUTTON_ID}" class="btn" type="button">Cancel</button>
+          <button id="${CLOSE_BUTTON_ID}" class="btn btn-cancel" type="button">Cancel</button>
         </footer>
       </form>
     `;
@@ -267,7 +267,7 @@ function bindOverlayHandlers(refs: OverlayDomRefs): void {
 }
 
 export function openTodayAddBookOverlay(args: {
-    onPick(bookId: string): void;
+    onPick(this: void, bookId: string): void;
     options: TodayAddBookOption[];
 }): void {
     const REFS = overlayRefs();

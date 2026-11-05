@@ -3,7 +3,6 @@ import type { Book, OpenBookDialogArgs } from "../../types/types.ts";
 import { renderSyncLinks } from "../sync/links-panel.ts";
 import { fillBulkEditForm } from "./bulk-edit-fill.ts";
 import { releaseCoverUpload } from "./cover-upload-staging.ts";
-import { resetBookDialogSubmitState } from "./dialog_submit.ts";
 import {
     applyBookDialogDisplayMode,
     isBulkDialogMode,
@@ -12,8 +11,10 @@ import type { BookDialogNavigationRefs } from "./dialog-navigation.ts";
 import { updateBookDialogNavigation } from "./dialog-navigation.ts";
 import type { DialogSessionState } from "./dialog-session.ts";
 import { selectedBulkBooks, syncDialogSessionState } from "./dialog-session.ts";
-import type { getBookFormRefs } from "./form_refs.ts";
+import { resetBookDialogProgress } from "./dialog_progress_sync.ts";
+import { resetBookDialogSubmitState } from "./dialog_submit.ts";
 import { clearForm, fillForm } from "./form-state.ts";
+import type { getBookFormRefs } from "./form_refs.ts";
 import { renderShelfPicker } from "./shelf_picker.ts";
 
 const BOOK_DIALOG_OPEN_CLASS = "book-dialog-open";
@@ -149,6 +150,7 @@ function finishBookDialogOpen(
 ): void {
     const FORM_REFS = args.refs;
     resetBookDialogSubmitState(FORM_REFS);
+    resetBookDialogProgress(FORM_REFS);
     applyBookDialogDisplayMode(FORM_REFS, args.dialogOptions);
     updateBookDialogNavigation(
         args.navigation,

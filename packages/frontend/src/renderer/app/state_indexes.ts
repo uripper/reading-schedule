@@ -38,7 +38,7 @@ function indexSessions(
 }
 
 function sessionDayKey(session: Session): string {
-    return localDayKeyFromIso(session.ended_at) ?? "";
+    return localDayKeyFromIso(session.ended_at);
 }
 
 function sessionBookKey(session: Session): string {

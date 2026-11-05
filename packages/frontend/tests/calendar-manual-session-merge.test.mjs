@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 /**
  * Verifies manual sessions are locked and keep one session per book per day.
  */

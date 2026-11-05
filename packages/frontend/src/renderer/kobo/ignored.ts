@@ -18,9 +18,10 @@ export function visibleKoboRecords(
 }
 
 /** Shows the lasting consequence before saving an exclusion. */
-export async function confirmKoboIgnore(record: SyncRecord): Promise<boolean> {
+async function confirmKoboIgnore(record: SyncRecord): Promise<boolean> {
     return await confirmAction({
         confirmLabel: "Ignore book",
+        confirmStyle: "remove",
         message: `Ignore “${record.title}”?`,
         title: "Ignore Kobo book?",
         warning:

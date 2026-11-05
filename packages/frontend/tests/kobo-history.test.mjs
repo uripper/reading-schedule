@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Ensures all editing and persistence paths retain progress ordering metadata. */
 import assert from "node:assert/strict";
 import test from "node:test";

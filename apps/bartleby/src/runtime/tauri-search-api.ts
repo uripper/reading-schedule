@@ -52,14 +52,28 @@ function optionalString(value: unknown): string | undefined {
     return value;
 }
 
+/** Reads a diagnostic text field, falling back when the field is absent. */
+function diagnosticText(value: unknown, fallback: string): string {
+    if (value === undefined || value === null) {
+        return fallback;
+    }
+    if (typeof value === "string") {
+        return value;
+    }
+    return JSON.stringify(value);
+}
+
 function diagnosticFromRecord(
     diagnostic: Record<string, unknown>,
 ): BookSearchDiagnostic {
     return {
-        detail: String(diagnostic.detail ?? ""),
+        detail: diagnosticText(diagnostic.detail, ""),
         elapsed_ms: optionalNumber(diagnostic.elapsed_ms),
-        reason: String(diagnostic.reason ?? UNKNOWN_RESPONSE_REASON),
-        request_kind: String(diagnostic.request_kind ?? UNKNOWN_RESPONSE_KIND),
+        reason: diagnosticText(diagnostic.reason, UNKNOWN_RESPONSE_REASON),
+        request_kind: diagnosticText(
+            diagnostic.request_kind,
+            UNKNOWN_RESPONSE_KIND,
+        ),
         retry_after: optionalString(diagnostic.retry_after),
         status: optionalNumber(diagnostic.status),
     };

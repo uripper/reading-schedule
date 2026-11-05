@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Covers manual empty-sync feedback without changing the connection badge. */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -54,7 +53,7 @@ async function settle() {
 /** Installs an enabled reader without starting a real polling timer. */
 async function setup(t) {
     const DOM = installFakeDom();
-    t.after(DOM.restore);
+    t.after(() => DOM.restore());
     installDialogLifecycle(DOM);
     t.mock.method(globalThis, "setInterval", () => 0);
     document.body.append(DOM.createElement("div", "syncProviders"));

@@ -1,3 +1,4 @@
+/** Resolves projected end-of-session progress for calendar displays. */
 import type {
     BookGetter,
     CompletionChecker,
@@ -14,7 +15,7 @@ import { estimateSnapshotForRow } from "./estimates_snapshot.ts";
 
 type EstimateDisplayRow = EstimateRow & { finish?: boolean };
 
-type EstimateProgressLabelArgs = {
+export type EstimateProgressLabelArgs = {
     row: EstimateDisplayRow;
     state: EstimateState;
     getBookById: BookGetter;
@@ -29,7 +30,7 @@ function labelForSnapshot(snapshot: EstimateSnapshot): string {
 }
 
 function finishSnapshot(args: EstimateProgressLabelArgs): EstimateSnapshot {
-    const BOOK = args.getBookById(String(args.row.book_id ?? ""));
+    const BOOK = args.getBookById(args.row.book_id);
     const END_PAGES = Number(BOOK?.pages_total ?? 0) || null;
     return {
         changedInSession: true,
@@ -40,31 +41,26 @@ function finishSnapshot(args: EstimateProgressLabelArgs): EstimateSnapshot {
     };
 }
 
-function finishRowLabel(args: EstimateProgressLabelArgs): string {
-    return labelForSnapshot(finishSnapshot(args));
-}
-
-function estimateSnapshotLabel(args: EstimateProgressLabelArgs): string {
-    const SNAPSHOT = estimateSnapshotForRow({
+/** Resolves the projection used by the Ending Page metric. */
+export function sessionProgressEstimate(
+    args: EstimateProgressLabelArgs,
+): EstimateSnapshot | null {
+    if (args.row.finish === true) {
+        return finishSnapshot(args);
+    }
+    return estimateSnapshotForRow({
         getBookById: args.getBookById,
         isSessionCompleted: args.isSessionCompleted ?? (() => false),
         row: args.row,
         state: args.state,
     });
+}
+
+/** Formats the projected progress as a sentence. */
+export function estimateProgressLabel(args: EstimateProgressLabelArgs): string {
+    const SNAPSHOT = sessionProgressEstimate(args);
     if (!SNAPSHOT) {
         return NO_ESTIMATE_LABEL;
     }
     return labelForSnapshot(SNAPSHOT);
-}
-
-/**
- * Builds end-of-session progress estimate label for a calendar row.
- * @param args - Estimate-label inputs for the target row.
- * @returns Human-readable estimate label.
- */
-export function estimateProgressLabel(args: EstimateProgressLabelArgs): string {
-    if (args.row.finish === true) {
-        return finishRowLabel(args);
-    }
-    return estimateSnapshotLabel(args);
 }

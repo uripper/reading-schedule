@@ -1,21 +1,5 @@
+/** Orders the books offered by the calendar's manual add panel. */
 import type { ManualSessionBook } from "../../types/types.ts";
-import {
-    normalizeTitleFilterQuery,
-    titleMatchesNormalizedQuery,
-} from "../title_filter.ts";
-
-/**
- * Returns default string value for manual minutes input field.
- * @param defaultMinutes - Optional prefilled minutes value.
- * @returns Positive integer text with fallback of `"10"`.
- */
-export function minuteValueForManualInput(defaultMinutes?: number): string {
-    const PARSED = Number(defaultMinutes ?? 0);
-    if (Number.isFinite(PARSED) && PARSED > 0) {
-        return String(Math.max(1, Math.round(PARSED)));
-    }
-    return "10";
-}
 
 /**
  * Returns session books sorted alphabetically by title.
@@ -31,24 +15,5 @@ export function sortedManualBooks(
             undefined,
             { sensitivity: "base" },
         );
-    });
-}
-
-/**
- * Filters manual-session books by case-insensitive title substring.
- * @param books - Available manual-session books.
- * @param query - User-entered title query text.
- * @returns Books whose title contains the query text.
- */
-export function booksMatchingTitleQuery(
-    books: ManualSessionBook[],
-    query: string,
-): ManualSessionBook[] {
-    const NORMALIZED_QUERY = normalizeTitleFilterQuery(query);
-    if (NORMALIZED_QUERY === "") {
-        return [...books];
-    }
-    return books.filter((book) => {
-        return titleMatchesNormalizedQuery(book.title, NORMALIZED_QUERY);
     });
 }

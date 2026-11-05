@@ -48,7 +48,7 @@ function nextProgress(
     progressByBookId: Record<string, number>,
 ): number {
     const NEXT_PROGRESS_BY_BOOK_ID = progressByBookId;
-    const PREVIOUS_PROGRESS = Number(NEXT_PROGRESS_BY_BOOK_ID[bookId] || 0);
+    const PREVIOUS_PROGRESS = Number(NEXT_PROGRESS_BY_BOOK_ID[bookId] ?? 0);
     const NEXT = PREVIOUS_PROGRESS + plannedWords;
     NEXT_PROGRESS_BY_BOOK_ID[bookId] = NEXT;
     return NEXT;
@@ -63,7 +63,7 @@ function nextProgress(
  * @returns `true` when this row should receive finish badge.
  */
 function canFinishRow(args: FinishRowArgs): boolean {
-    const TOTAL_WORDS = Number(args.totals[args.bookId] || 0);
+    const TOTAL_WORDS = Number(args.totals[args.bookId] ?? 0);
     return (
         args.bookId !== "" &&
         TOTAL_WORDS > 0 &&

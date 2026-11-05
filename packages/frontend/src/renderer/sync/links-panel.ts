@@ -5,8 +5,8 @@ import type {
     SyncRecord,
 } from "@reading-schedule/contracts";
 import { syncButton, syncElement } from "./dom.ts";
-import { syncSourceLabel } from "./links.ts";
 import { confirmSyncUnlink, unlinkSyncSource } from "./links-unlink.ts";
+import { syncSourceLabel } from "./links.ts";
 import { syncReadDateLabel, syncRecordName } from "./review-conflicts.ts";
 
 const PANEL_ID = "bookSyncLinks";
@@ -28,25 +28,6 @@ export function configureSyncLinks(
     configuredFlow = { confirm, store };
 }
 
-/** Places the section just above the dialog's Save and Cancel buttons. */
-function panelNode(): HTMLElement | null {
-    const EXISTING = document.getElementById(PANEL_ID);
-    if (EXISTING !== null) {
-        return EXISTING;
-    }
-    const FORM = document.getElementById("bookForm");
-    if (FORM === null) {
-        return null;
-    }
-    const PANEL = syncElement("section");
-    PANEL.id = PANEL_ID;
-    PANEL.className = "sync-links";
-    PANEL.setAttribute("aria-label", "Synced sources");
-    const ACTIONS = FORM.querySelector("#cancelBookBtn")?.parentElement;
-    FORM.insertBefore(PANEL, ACTIONS ?? null);
-    return PANEL;
-}
-
 /** Shows provider, device, source title, and the last imported reading state. */
 function linkItem(
     book: Book,
@@ -61,6 +42,7 @@ function linkItem(
     const UNLINK = syncButton("Unlink", () => {
         startUnlink(book.book_id, link, status);
     });
+    UNLINK.classList.add("btn-remove");
     UNLINK.setAttribute("aria-label", `Unlink ${syncSourceLabel(link)}`);
     ITEM.append(SOURCE, TITLE, readingDetails(link), UNLINK);
     return ITEM;
@@ -118,31 +100,36 @@ function startUnlink(
     });
 }
 
-/** Renders the current book's links; hides the section for new, bulk, or unlinked books. */
+/** Renders saved sources or an empty state for a single existing book. */
 export function renderSyncLinks(book: Book | null, message = ""): void {
-    const PANEL = panelNode();
+    const PANEL = document.getElementById(PANEL_ID);
     if (PANEL === null) {
         return;
     }
     const STATUS = syncElement("p", message);
     STATUS.setAttribute("role", "status");
-    const CONTENT = panelContent(book, STATUS);
-    PANEL.hidden = CONTENT.length === 0 && message === "";
-    PANEL.replaceChildren(...CONTENT, STATUS);
+    PANEL.hidden = book === null && message === "";
+    PANEL.replaceChildren(panelContent(book, STATUS), STATUS);
 }
 
-/** Collapses source cards by default; keeps them open after an unlink confirmation. */
-function panelContent(book: Book | null, status: HTMLElement): HTMLElement[] {
+/** Collapses source cards by default and opens the empty state for unlinked books. */
+function panelContent(book: Book | null, status: HTMLElement): HTMLElement {
+    const DETAILS = syncElement("details");
+    DETAILS.open = !book?.sync_links?.length || status.textContent !== "";
+    const SUMMARY = syncElement("summary");
+    SUMMARY.className = "book-section-toggle";
+    SUMMARY.append(syncElement("h3", "Synced sources"));
+    DETAILS.append(SUMMARY, sourceList(book, status));
+    return DETAILS;
+}
+
+/** Shows the source cards or the empty state inside the disclosure. */
+function sourceList(book: Book | null, status: HTMLElement): HTMLElement {
     const LINKS = book?.sync_links ?? [];
     if (book === null || LINKS.length === 0) {
-        return [];
+        return syncElement("p", "No synced sources");
     }
     const LIST = syncElement("ul");
     LIST.append(...LINKS.map((link) => linkItem(book, link, status)));
-    const DETAILS = syncElement("details");
-    DETAILS.open = status.textContent !== "";
-    const SUMMARY = syncElement("summary");
-    SUMMARY.append(syncElement("h3", "Synced sources"));
-    DETAILS.append(SUMMARY, LIST);
-    return [DETAILS];
+    return LIST;
 }
