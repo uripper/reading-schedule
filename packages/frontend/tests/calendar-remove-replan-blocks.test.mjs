@@ -1,6 +1,7 @@
 // biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 /**
- * Verifies removals delete current entries without preventing later replanning.
+ * Verifies removals delete current entries and keep the book off that day
+ * through later replans.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -120,14 +121,14 @@ function mergeReplannedRows(state, rows) {
     });
 }
 
-test("removed sessions can be scheduled again by Replan Today", () => {
+test("removed sessions stay off their day after Replan Today", () => {
     const SCENARIO = createScenarioRows();
     const STATE = createRemovalState(SCENARIO.removedRow, SCENARIO.keepRow);
     const COUNTER = { count: 0 };
     const REMOVED = removeRowFromState(STATE, SCENARIO.removedRow, COUNTER);
 
     assert.equal(REMOVED, true);
-    assert.deepEqual(STATE.blockedDayBooks, {});
+    assert.deepEqual(STATE.blockedDayBooks, { [`${TODAY}|book-1`]: true });
     assert.deepEqual(STATE.lastResult.schedule, [SCENARIO.keepRow]);
     assert.ok(COUNTER.count > 0);
 
@@ -140,14 +141,15 @@ test("removed sessions can be scheduled again by Replan Today", () => {
         MERGED.some(
             (entry) => entry.date === TODAY && entry.book_id === "book-1",
         ),
-        true,
+        false,
     );
+    assert.deepEqual(MERGED, [SCENARIO.keepRow]);
 });
 
-test("legacy saved removal blocks do not discard a regenerated session", () => {
+test("saved removal blocks keep a regenerated session off that day", () => {
     const SCENARIO = createScenarioRows();
     const STATE = createRemovalState(SCENARIO.removedRow, SCENARIO.keepRow);
     STATE.blockedDayBooks[`${TODAY}|book-1`] = true;
     const MERGED = mergeReplannedRows(STATE, [SCENARIO.removedRow]);
-    assert.deepEqual(MERGED, [SCENARIO.removedRow]);
+    assert.deepEqual(MERGED, []);
 });

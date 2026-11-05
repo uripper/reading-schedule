@@ -141,6 +141,7 @@ export function finalizeRemovedSession(
         type: "set_schedule_completions",
     });
     applyNextResult(options, result.nextResult);
+    setBlockedDayBook(options.applyStateMutation, options.row, true);
     finishScheduleUpdate(
         options,
         `Removed session for "${options.row.title}" on ${options.row.date}.`,

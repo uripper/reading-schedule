@@ -5,16 +5,22 @@
 import type {
     MergeScheduleRowsArgs,
     PlannerScheduleRow,
+    ScheduleCompletions,
     SchedulePreservationMode,
 } from "../../types/types.ts";
 import {
     dayBookCompletionKey,
-    isScheduleRowCompleted,
     sessionKeyFor,
     sortRowsByDateAndSession,
 } from "../calendar/utils.ts";
 import { dayKeyFromDate } from "./date_keys.ts";
 import { isOnOrBeforeDay, isValidDayKey } from "./day_keys_compare.ts";
+import {
+    dayBookKeyForRow,
+    hasBlockedBooksOnDay,
+    isBlockedRow,
+    isUserOwnedRow,
+} from "./schedule_user_rows.ts";
 
 const DEFAULT_PRESERVATION_MODE: SchedulePreservationMode = "through_today";
 
@@ -36,60 +42,59 @@ function isPastDay(row: PlannerScheduleRow, todayKey: string): boolean {
     return isOnOrBeforeDay(row.date, todayKey);
 }
 
-function preservePreviousRow(options: {
-    completions: Record<string, boolean>;
+// audit-allow-local-types: Private option bags for merge predicates.
+interface PreserveRowOptions {
+    completions: ScheduleCompletions;
     mode: SchedulePreservationMode;
     row: PlannerScheduleRow;
     todayKey: string;
-}): boolean {
+}
+
+interface AcceptRowOptions {
+    args: Required<MergeScheduleRowsArgs>;
+    lockToday: boolean;
+    occupiedDayBooks: Set<string>;
+    row: PlannerScheduleRow;
+    todayKey: string;
+}
+
+/** Decides whether an existing row survives the replan. */
+function preservePreviousRow(options: PreserveRowOptions): boolean {
     if (isPastDay(options.row, options.todayKey)) {
+        return true;
+    }
+    if (isUserOwnedRow(options.row, options.completions)) {
         return true;
     }
     if (options.row.date !== options.todayKey) {
         return false;
     }
-    if (options.mode === "through_today") {
-        return true;
-    }
-    return isScheduleRowCompleted(options.row, options.completions);
+    return options.mode === "through_today";
 }
 
-function acceptPlannedRow(options: {
-    lockToday: boolean;
-    mode: SchedulePreservationMode;
-    row: PlannerScheduleRow;
-    todayKey: string;
-}): boolean {
-    if (!isValidDayKey(options.row.date)) {
+/** Decides whether a generated row's date is open for replanning. */
+function acceptsPlannedDate(options: AcceptRowOptions): boolean {
+    const { row, todayKey } = options;
+    if (!isValidDayKey(row.date)) {
         return false;
     }
-    if (options.mode === "completed_today") {
-        return !isPastDay(options.row, options.todayKey);
+    if (options.args.preservationMode === "completed_today") {
+        return !isPastDay(row, todayKey);
     }
-    if (options.row.date === options.todayKey) {
+    if (row.date === todayKey) {
         return !options.lockToday;
     }
-    return !isOnOrBeforeDay(options.row.date, options.todayKey);
+    return !isOnOrBeforeDay(row.date, todayKey);
 }
 
-function appendAcceptedNextRows(
-    args: Required<MergeScheduleRowsArgs>,
-    todayKey: string,
-    merged: Map<string, PlannerScheduleRow>,
-): void {
-    const LOCK_TODAY = locksToday(args, todayKey);
-    for (const ROW of args.nextRows) {
-        if (
-            acceptPlannedRow({
-                lockToday: LOCK_TODAY,
-                mode: args.preservationMode,
-                row: ROW,
-                todayKey,
-            })
-        ) {
-            merged.set(sessionKeyFor(ROW), ROW);
-        }
+function acceptPlannedRow(options: AcceptRowOptions): boolean {
+    if (!acceptsPlannedDate(options)) {
+        return false;
     }
+    if (options.occupiedDayBooks.has(dayBookKeyForRow(options.row))) {
+        return false;
+    }
+    return !isBlockedRow(options.args.blockedDayBooks, options.row);
 }
 
 function locksToday(
@@ -99,35 +104,56 @@ function locksToday(
     if (args.preservationMode !== "through_today") {
         return false;
     }
-    return args.previousRows.some((row) => row.date === todayKey);
+    if (args.previousRows.some((row) => row.date === todayKey)) {
+        return true;
+    }
+    return hasBlockedBooksOnDay(args.blockedDayBooks, todayKey);
 }
 
-function appendPreservedPreviousRows(
+function preservedPreviousRows(
     args: Required<MergeScheduleRowsArgs>,
     todayKey: string,
-    merged: Map<string, PlannerScheduleRow>,
-): void {
-    for (const ROW of args.previousRows) {
-        if (
-            preservePreviousRow({
-                completions: args.scheduleCompletions,
-                mode: args.preservationMode,
-                row: ROW,
-                todayKey,
-            })
-        ) {
-            merged.set(sessionKeyFor(ROW), ROW);
-        }
-    }
+): PlannerScheduleRow[] {
+    return args.previousRows.filter((row) =>
+        preservePreviousRow({
+            completions: args.scheduleCompletions,
+            mode: args.preservationMode,
+            row,
+            todayKey,
+        }),
+    );
+}
+
+function acceptedNextRows(
+    args: Required<MergeScheduleRowsArgs>,
+    todayKey: string,
+    preserved: PlannerScheduleRow[],
+): PlannerScheduleRow[] {
+    const OCCUPIED_DAY_BOOKS = new Set(preserved.map(dayBookKeyForRow));
+    const LOCK_TODAY = locksToday(args, todayKey);
+    return args.nextRows.filter((row) =>
+        acceptPlannedRow({
+            args,
+            lockToday: LOCK_TODAY,
+            occupiedDayBooks: OCCUPIED_DAY_BOOKS,
+            row,
+            todayKey,
+        }),
+    );
 }
 
 function mergedRowsByKey(
     args: Required<MergeScheduleRowsArgs>,
 ): Map<string, PlannerScheduleRow> {
     const TODAY_KEY = dayKeyFromDate(new Date());
+    const PRESERVED = preservedPreviousRows(args, TODAY_KEY);
     const MERGED = new Map<string, PlannerScheduleRow>();
-    appendAcceptedNextRows(args, TODAY_KEY, MERGED);
-    appendPreservedPreviousRows(args, TODAY_KEY, MERGED);
+    for (const ROW of acceptedNextRows(args, TODAY_KEY, PRESERVED)) {
+        MERGED.set(sessionKeyFor(ROW), ROW);
+    }
+    for (const ROW of PRESERVED) {
+        MERGED.set(sessionKeyFor(ROW), ROW);
+    }
     return MERGED;
 }
 
@@ -145,9 +171,11 @@ function resolvedArgs(
 
 /**
  * Merges generated rows with schedule history selected by the replan policy.
- * Past rows always survive. Automatic runs retain all of today, while an
- * explicit Today replan retains only completed sessions from today.
- * Legacy removal blocks are ignored so removed books can be scheduled again.
+ * Past rows and user-owned rows (locked or completed) always survive.
+ * Automatic runs also retain all of today, while an explicit Today replan
+ * retains only today's user-owned sessions. A generated row is dropped when
+ * its book already has a kept session that day, so each book has at most one
+ * session per day, or when the user removed that book from that day.
  * @param args - Existing rows, generated rows, completion state, and policy.
  * @returns Sorted merged rows with preserved rows winning identity conflicts.
  */

@@ -49,6 +49,7 @@ export interface AutoPlanRun {
 
 /** Inputs used to derive the schedule policy for one replan. */
 export interface ReplanPolicyArgs {
+    blockedDayBooks?: BlockedDayBooks;
     completions: ScheduleCompletions;
     explicitToday: boolean;
     previousRows: PlannerScheduleRow[];

@@ -58,11 +58,7 @@ pub fn plan_greedy(
                 cap,
                 daily_book_cap,
                 day,
-                reserved_book_ids: settings
-                    .reserved_book_ids_by_date
-                    .get(&day)
-                    .cloned()
-                    .unwrap_or_default(),
+                reserved_book_ids: unavailable_book_ids(settings, day),
                 unfinished_count: &mut unfinished_count,
                 used: Vec::new(),
                 weekday_bit: day_weekday_bit(day),
@@ -75,6 +71,20 @@ pub fn plan_greedy(
         .into_iter()
         .filter(|(_, blocks)| *blocks > 0)
         .collect())
+}
+
+/// Books the planner must not start on a day: those already reserved by
+/// kept sessions and those the user removed from that day.
+fn unavailable_book_ids(settings: &Settings, day: NaiveDate) -> HashSet<String> {
+    let mut book_ids = settings
+        .reserved_book_ids_by_date
+        .get(&day)
+        .cloned()
+        .unwrap_or_default();
+    if let Some(excluded) = settings.excluded_book_ids_by_date.get(&day) {
+        book_ids.extend(excluded.iter().cloned());
+    }
+    book_ids
 }
 
 fn available_book_slots(settings: &Settings, day: NaiveDate) -> i64 {
