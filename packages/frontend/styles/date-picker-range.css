@@ -4,8 +4,8 @@
 .date-picker-range .flatpickr-day.prevMonthDay.inRange,
 .date-picker-range .flatpickr-day.nextMonthDay.inRange {
     color: var(--color-ink);
-    background: var(--color-parchment-soft);
-    border-color: var(--color-mustard);
+    background: var(--color-parchment);
+    border-color: var(--color-amber);
     border-radius: 2px;
     box-shadow:
         inset 0 2px 0 var(--color-yellow),
@@ -32,7 +32,7 @@
     justify-content: flex-end;
     padding-top: var(--token-space-3);
     margin-top: var(--token-space-3);
-    border-top: 2px solid var(--color-tan);
+    border-top: var(--border-regular) solid var(--color-tan);
 }
 
 .date-picker-range-done {

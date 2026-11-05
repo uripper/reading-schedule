@@ -27,9 +27,9 @@
     color: var(--color-ink);
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    background: var(--color-honey);
-    border: 3px solid var(--color-black);
-    box-shadow: 5px 5px 0 var(--color-black);
+    background: var(--color-amber);
+    border: var(--border-thick) solid var(--color-black);
+    box-shadow: var(--shadow-sm);
 }
 
 .books-group-row {
@@ -47,5 +47,5 @@
     font-weight: 700;
     color: var(--color-ink);
     background: var(--color-peach);
-    border: 3px dashed var(--color-black);
+    border: var(--border-thick) dashed var(--color-black);
 }

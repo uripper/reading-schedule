@@ -8,7 +8,7 @@
     --neo-header-border: var(--color-black);
     --app-selectControlBorder: var(--color-storm);
     --app-selectControlSurface: var(--color-night);
-    --app-selectControlText: var(--color-porcelain);
+    --app-selectControlText: var(--color-white);
     --app-selectMenuBorder: color-mix(
         in srgb,
         var(--color-storm) 72%,
@@ -31,8 +31,6 @@
     --sub-header-font: "Poppins", sans-serif;
     --silly-font: "Poor Story", cursive;
 
-    /* Effects */
-    --neo-brutalist-shadow: 6px 8px 0 var(--color-black);
     color-scheme: dark;
 }
 
@@ -51,7 +49,7 @@ body {
     font-size: var(--token-typography-size-md);
     -webkit-font-smoothing: antialiased;
     line-height: var(--token-typography-lineHeight-base);
-    color: var(--color-porcelain);
+    color: var(--color-white);
     background: var(--neo-app-background);
 }
 
@@ -107,7 +105,7 @@ h2 {
 
 h3 {
     margin: var(--token-space-3) 0 var(--token-space-2);
-    font-size: var(--token-typography-size-sm);
+    font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-medium);
     color: var(--color-black);
 }
@@ -144,10 +142,10 @@ select {
     padding: var(--token-space-2) var(--token-space-3);
     margin-top: var(--token-space-1);
     font: inherit;
-    font-size: var(--token-typography-size-sm);
-    color: var(--color-porcelain);
+    font-size: var(--token-typography-size-md);
+    color: var(--color-white);
     background: var(--color-night);
-    border: 1px solid var(--color-storm);
+    border: var(--border-thin) solid var(--color-storm);
     border-radius: var(--token-radius-sm);
 }
 
@@ -169,7 +167,7 @@ textarea {
 
 label {
     display: block;
-    font-size: var(--token-typography-size-sm);
+    font-size: var(--token-typography-size-md);
     color: var(--color-black);
 }
 
@@ -179,7 +177,7 @@ textarea:focus-visible,
 select:focus-visible,
 .tab:focus-visible,
 .skip-link:focus-visible {
-    outline: 3px solid var(--color-glacier);
+    outline: var(--border-thick) solid var(--color-glacier);
     outline-offset: 2px;
 }
 
@@ -208,12 +206,12 @@ select:focus-visible,
 }
 
 .hint-text {
-    font-size: var(--token-typography-size-sm);
+    font-size: var(--token-typography-size-md);
     color: var(--color-white);
 }
 
 #status {
-    font-size: var(--token-typography-size-sm);
+    font-size: var(--token-typography-size-md);
     color: var(--color-black);
 }
 

@@ -11,10 +11,14 @@
 .book-card.is-read-card {
     background: linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-gold) 8%, var(--color-twilight)) 0%,
-        color-mix(in srgb, var(--color-bronze) 4%, var(--color-twilight)) 100%
+        color-mix(in srgb, var(--color-amber) 8%, var(--color-twilight)) 0%,
+        color-mix(in srgb, var(--color-umber) 4%, var(--color-twilight)) 100%
     );
-    border-color: color-mix(in srgb, var(--color-gold) 34%, var(--color-storm));
+    border-color: color-mix(
+        in srgb,
+        var(--color-amber) 34%,
+        var(--color-storm)
+    );
 }
 
 .book-estimated-finish-btn,
@@ -56,23 +60,23 @@
     background-image:
         radial-gradient(
             140% 140% at var(--pointer-x) var(--pointer-y),
-            color-mix(in srgb, var(--color-holo-ivory) 22%, transparent) 0%,
-            color-mix(in srgb, var(--color-holo-gold-soft) 12%, transparent) 18%,
+            color-mix(in srgb, var(--color-parchment) 22%, transparent) 0%,
+            color-mix(in srgb, var(--color-amber) 12%, transparent) 18%,
             transparent 52%
         ),
         linear-gradient(
             118deg,
             transparent 16%,
-            color-mix(in srgb, var(--color-holo-amber) 10%, transparent) 34%,
-            color-mix(in srgb, var(--color-holo-butter) 16%, transparent) 50%,
-            color-mix(in srgb, var(--color-holo-amber) 10%, transparent) 66%,
+            color-mix(in srgb, var(--color-amber) 10%, transparent) 34%,
+            color-mix(in srgb, var(--color-banana) 16%, transparent) 50%,
+            color-mix(in srgb, var(--color-amber) 10%, transparent) 66%,
             transparent 84%
         ),
         linear-gradient(
             180deg,
-            color-mix(in srgb, var(--color-holo-sand) 6%, transparent) 0%,
+            color-mix(in srgb, var(--color-amber) 6%, transparent) 0%,
             transparent 42%,
-            color-mix(in srgb, var(--color-holo-bronze) 5%, transparent) 100%
+            color-mix(in srgb, var(--color-umber) 5%, transparent) 100%
         );
     background-repeat: no-repeat, no-repeat, no-repeat;
     background-position:
@@ -101,16 +105,16 @@
     background-image:
         radial-gradient(
             80% 80% at var(--pointer-x) var(--pointer-y),
-            color-mix(in srgb, var(--color-holo-lemon) 32%, transparent) 0%,
-            color-mix(in srgb, var(--color-holo-gold) 14%, transparent) 12%,
+            color-mix(in srgb, var(--color-banana) 32%, transparent) 0%,
+            color-mix(in srgb, var(--color-amber) 14%, transparent) 12%,
             transparent 34%
         ),
         linear-gradient(
             122deg,
             transparent 30%,
-            color-mix(in srgb, var(--color-holo-cream) 4%, transparent) 43%,
-            color-mix(in srgb, var(--color-holo-butter) 10%, transparent) 50%,
-            color-mix(in srgb, var(--color-holo-cream) 4%, transparent) 57%,
+            color-mix(in srgb, var(--color-parchment) 4%, transparent) 43%,
+            color-mix(in srgb, var(--color-banana) 10%, transparent) 50%,
+            color-mix(in srgb, var(--color-parchment) 4%, transparent) 57%,
             transparent 70%
         );
     background-repeat: no-repeat, no-repeat;
@@ -121,8 +125,8 @@
         100% 100%,
         170% 170%;
     box-shadow:
-        inset 0 0 0 1px color-mix(in srgb, var(--color-bronze) 12%, transparent),
-        inset 0 0 0 999px color-mix(in srgb, var(--color-gold) 6%, transparent);
+        inset 0 0 0 1px color-mix(in srgb, var(--color-umber) 12%, transparent),
+        inset 0 0 0 999px color-mix(in srgb, var(--color-amber) 6%, transparent);
     background-blend-mode: screen, soft-light;
     mix-blend-mode: soft-light;
     opacity: calc(var(--glare-opacity) + (var(--holo-active) * 0.14));
@@ -139,8 +143,8 @@
 }
 
 .book-card.is-read-card .book-cover-btn.has-cover:focus-visible {
-    outline: 2px solid
-        color-mix(in srgb, var(--color-sunflower) 72%, transparent);
+    outline: var(--border-regular) solid
+        color-mix(in srgb, var(--color-amber) 72%, transparent);
     outline-offset: -2px;
 }
 

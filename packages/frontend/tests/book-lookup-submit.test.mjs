@@ -4,9 +4,8 @@ import test from "node:test";
 import { bindBookLookup } from "../dist/renderer/book_lookup/search.js";
 import { installFakeDom } from "./helpers/fake-dom.mjs";
 
-/** Wires the search controls to a planner API with manually resolved requests. */
-function setup(t) {
-    const DOM = installFakeDom();
+/** Installs a planner bridge with manually resolved requests. */
+function mockLookupRequests(t) {
     const ORIGINAL_PLANNER = globalThis.plannerApi;
     const REQUESTS = [];
     globalThis.plannerApi = {
@@ -17,21 +16,34 @@ function setup(t) {
         },
     };
     t.after(() => {
-        DOM.restore();
         globalThis.plannerApi = ORIGINAL_PLANNER;
     });
+    return REQUESTS;
+}
 
-    const SEARCH_INPUT = DOM.createElement("input");
-    SEARCH_INPUT.removeAttribute = (name) => {
-        SEARCH_INPUT.attributes.delete(name);
+/** Provides the attribute removal used by the combobox and busy state. */
+function searchInput(dom) {
+    const INPUT = dom.createElement("input");
+    INPUT.removeAttribute = (name) => {
+        INPUT.attributes.delete(name);
     };
+    return INPUT;
+}
+
+/** Wires the search controls to the fake planner bridge. */
+function setup(t) {
+    const DOM = installFakeDom();
+    t.after(() => {
+        DOM.restore();
+    });
+    const REQUESTS = mockLookupRequests(t);
+    const SEARCH_INPUT = searchInput(DOM);
     const SEARCH_BUTTON = DOM.createElement("button");
-    const ICON = DOM.createElement("span");
-    SEARCH_BUTTON.append(ICON);
+    SEARCH_BUTTON.append(DOM.createElement("span"));
     const RESULTS = DOM.createElement("datalist", "lookup-results");
     const META = DOM.createElement("p");
     const PICKED = [];
-    const BINDING = bindBookLookup({
+    bindBookLookup({
         metaEl: META,
         onPick(item) {
             PICKED.push(item);
@@ -41,9 +53,7 @@ function setup(t) {
         searchInput: SEARCH_INPUT,
     });
     return {
-        binding: BINDING,
         dom: DOM,
-        icon: ICON,
         input: SEARCH_INPUT,
         meta: META,
         picked: PICKED,
@@ -83,7 +93,9 @@ test("clicking the magnifier submits and changing the query discards late result
     LOOKUP.meta.dataset.lookupNote = "Custom cover uploaded.";
     LOOKUP.input.value = "Metaphysics";
     LOOKUP.searchButton.click();
-    LOOKUP.dom.dispatchDocument("click", { target: LOOKUP.icon });
+    LOOKUP.dom.dispatchDocument("click", {
+        target: LOOKUP.searchButton.children[0],
+    });
     await settle();
     assert.equal(LOOKUP.meta.textContent, "Searching Open Library...");
     assert.equal(LOOKUP.requests[0].query, "Metaphysics");

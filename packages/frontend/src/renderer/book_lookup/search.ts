@@ -46,20 +46,21 @@ function bindOutsideClick(
     clearResults: () => void,
     signal: AbortSignal,
 ): void {
+    const CONTROLS = [
+        options.searchInput,
+        options.searchButton,
+        options.resultsEl,
+    ];
     document.addEventListener(
         "click",
         (event) => {
             const TARGET = event.target;
-            if (!(TARGET instanceof Node) || TARGET === options.searchInput) {
-                return;
-            }
             if (
-                options.searchButton.contains(TARGET) ||
-                options.resultsEl.contains(TARGET)
+                TARGET instanceof Node &&
+                !CONTROLS.some((control) => control.contains(TARGET))
             ) {
-                return;
+                clearResults();
             }
-            clearResults();
         },
         { signal },
     );
@@ -73,12 +74,8 @@ function bindLookupControls(args: {
     signal: AbortSignal;
 }): void {
     const { controller, options, query, signal } = args;
-    const CLEAR = () => {
-        clearLookupQuery(query);
-    };
-    const SUBMIT = () => {
-        submitLookupQuery(query);
-    };
+    const CLEAR = () => clearLookupQuery(query);
+    const SUBMIT = () => submitLookupQuery(query);
     options.searchInput.addEventListener("input", CLEAR, { signal });
     options.searchButton.addEventListener(
         "click",
@@ -90,22 +87,17 @@ function bindLookupControls(args: {
     );
     options.searchInput.addEventListener(
         "keydown",
-        (event) => {
+        (event) =>
             handleLookupKeydown({
                 event,
                 activeIndex: query.state.activeIndex,
                 clearResults: CLEAR,
                 currentItems: query.state.currentItems,
                 searchInput: options.searchInput,
-                selectItem: (index) => {
-                    controller.selectItem(index);
-                },
-                setActiveIndex: (index) => {
-                    controller.setActiveIndex(index);
-                },
+                selectItem: controller.selectItem,
+                setActiveIndex: controller.setActiveIndex,
                 submitQuery: SUBMIT,
-            });
-        },
+            }),
         { signal },
     );
     bindOutsideClick(options, CLEAR, signal);
@@ -137,9 +129,7 @@ export function bindBookLookup(options: BindBookLookupOptions): LookupBinding {
     const QUERY: LookupQueryArgs = {
         clearResults: CONTROLLER.clearResults,
         metaEl: options.metaEl,
-        refreshResults: () => {
-            CONTROLLER.refreshResults();
-        },
+        refreshResults: CONTROLLER.refreshResults,
         searchInput: options.searchInput,
         state: STATE,
     };

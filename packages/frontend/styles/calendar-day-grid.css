@@ -12,10 +12,10 @@
     align-items: center;
     padding: 18px;
     margin-bottom: 0;
-    background: var(--color-mint-soft);
-    border: 3px solid var(--color-black);
+    background: var(--color-emerald);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 7px 7px 0 var(--color-black);
+    box-shadow: var(--shadow-md);
 }
 
 #calendarControls .btn {
@@ -39,14 +39,14 @@
 
 .calendar-weekday {
     padding: var(--token-space-1) var(--token-space-2);
-    font-size: var(--token-typography-size-xs);
+    font-size: var(--token-typography-size-md);
     font-weight: 900;
     color: var(--color-white);
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     background: var(--color-ink);
-    border: 2px solid var(--color-black);
+    border: var(--border-regular) solid var(--color-black);
 }
 
 .calendar-grid {
@@ -64,10 +64,10 @@
     padding: 14px;
     color: var(--color-ink);
     text-align: left;
-    background: var(--color-mint-pale);
-    border: 3px solid var(--color-black);
+    background: var(--color-pistachio);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 6px 6px 0 var(--color-black);
+    box-shadow: var(--shadow-md);
     transition:
         border-color var(--token-motion-duration-fast)
             var(--token-motion-easing-standard),
@@ -78,7 +78,7 @@
 }
 
 .day:hover {
-    background: var(--color-mint-mist);
+    background: var(--color-pistachio);
     border-color: var(--color-black);
     transform: translate(-4px, -4px);
 }
@@ -88,17 +88,17 @@
 }
 
 .day.is-past {
-    background: var(--color-sage);
+    background: var(--color-emerald);
     border-color: var(--color-black);
     opacity: 0.9;
 }
 
 .day.is-today {
     outline: 0;
-    background: var(--color-canary);
+    background: var(--color-banana);
     border-color: var(--color-black);
     box-shadow:
-        6px 6px 0 var(--color-black),
+        var(--shadow-md),
         inset 0 0 0 3px var(--color-ink);
     opacity: 1;
 }
@@ -110,7 +110,7 @@
 }
 
 .day-event-count {
-    font-size: var(--token-typography-size-xs);
+    font-size: var(--token-typography-size-md);
     color: var(--color-black);
 }
 
@@ -123,7 +123,7 @@
 }
 
 .day.has-finish {
-    background: var(--color-sun-glow);
+    background: var(--color-amber);
     border-color: var(--color-black);
 }
 
@@ -132,36 +132,36 @@
 }
 
 .day.is-selected {
-    background: var(--color-powder-blue);
+    background: var(--color-glacier);
     border-color: var(--color-black);
     box-shadow:
-        6px 6px 0 var(--color-black),
+        var(--shadow-md),
         inset 0 0 0 3px var(--color-ink);
 }
 
 .day.is-today.is-selected {
     box-shadow:
-        6px 6px 0 var(--color-black),
-        inset 0 0 0 3px var(--color-denim);
+        var(--shadow-md),
+        inset 0 0 0 3px var(--color-cobalt);
 }
 
 .day-chip {
     padding: 6px 8px;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 0.72rem;
+    font-size: var(--token-typography-size-md);
     font-weight: 800;
     color: var(--color-ink);
     white-space: nowrap;
-    background: var(--color-mint-frost);
-    border: 2px solid var(--color-black);
+    background: var(--color-pistachio);
+    border: var(--border-regular) solid var(--color-black);
     border-radius: 0;
 }
 
 .day-chip.finish {
     font-weight: 900;
     color: var(--color-ink);
-    background: var(--color-banana-pale);
+    background: var(--color-banana);
     border-color: var(--color-black);
 }
 

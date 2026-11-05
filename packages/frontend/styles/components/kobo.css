@@ -5,9 +5,9 @@
     padding: 18px;
     margin: 0 4px 4px 0;
     color: var(--color-ink);
-    background: var(--color-cream);
-    border: 3px solid var(--color-black);
-    box-shadow: 4px 4px 0 var(--color-black);
+    background: var(--color-paper);
+    border: var(--border-thick) solid var(--color-black);
+    box-shadow: var(--shadow-sm);
 }
 
 .kobo-provider-header {
@@ -34,7 +34,7 @@
     gap: 16px;
     min-width: 0;
     padding-top: 16px;
-    border-top: 2px solid var(--color-black);
+    border-top: var(--border-regular) solid var(--color-black);
 }
 
 .kobo-sync-controls[hidden] {
@@ -43,20 +43,20 @@
 
 .kobo-selected-file {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: var(--token-typography-size-md);
     font-weight: 800;
     overflow-wrap: anywhere;
 }
 
 .kobo-location-hint {
     margin: 0;
-    font-size: 0.85rem;
+    font-size: var(--token-typography-size-md);
     line-height: 1.6;
 }
 
 .kobo-location-hint code {
     font-family: var(--token-typography-family-mono);
-    font-size: 0.85em;
+    font-size: var(--token-typography-size-md);
     overflow-wrap: anywhere;
 }
 
@@ -64,13 +64,13 @@
     max-width: 100%;
     padding: 6px 10px;
     margin: 0;
-    font-size: 0.78rem;
+    font-size: var(--token-typography-size-md);
     font-weight: 900;
     line-height: 1.5;
     overflow-wrap: anywhere;
-    background: var(--color-banana-bright);
-    border: 2px solid var(--color-black);
-    box-shadow: 3px 3px 0 var(--color-black);
+    background: var(--color-banana);
+    border: var(--border-regular) solid var(--color-black);
+    box-shadow: var(--shadow-sm);
 }
 
 .kobo-status:empty {
@@ -80,7 +80,7 @@
 .kobo-status.is-connected {
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    background: var(--color-sage-mint);
+    background: var(--color-emerald);
 }
 
 .sync-coming-soon {

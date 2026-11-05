@@ -9,14 +9,14 @@
     max-width: min(320px, calc(100vw - var(--token-space-8)));
     min-height: var(--token-size-target-minimum);
     padding: var(--token-space-2) var(--token-space-3);
-    color: var(--color-porcelain);
+    color: var(--color-white);
     pointer-events: none;
     background: color-mix(
         in srgb,
         var(--color-night) 94%,
         var(--color-glacier) 6%
     );
-    border: 1px solid var(--color-storm);
+    border: var(--border-thin) solid var(--color-storm);
     border-radius: var(--token-radius-sm);
     box-shadow: var(--token-elevation-md);
     opacity: 1;
@@ -41,7 +41,7 @@
     flex: 0 0 auto;
     width: 3rem;
     height: 3rem;
-    border: 2px solid currentColor;
+    border: var(--border-regular) solid currentColor;
     border-radius: 999px;
 }
 

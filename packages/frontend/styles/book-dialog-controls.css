@@ -12,7 +12,7 @@
 .book-dialog-nav-btn {
     min-width: 48px;
     padding: 8px 12px;
-    font-size: 1rem;
+    font-size: var(--token-typography-size-md);
 }
 
 .book-dialog-nav-status {
@@ -68,13 +68,13 @@
     height: 0.75rem;
     overflow: hidden;
     appearance: none;
-    background-color: var(--color-khaki);
+    background-color: var(--color-tan);
     border: 0;
     border-radius: var(--button-radius);
 }
 
 #bookProgressMeter::-webkit-progress-bar {
-    background-color: var(--color-khaki);
+    background-color: var(--color-tan);
 }
 
 #bookProgressMeter::-webkit-progress-value {

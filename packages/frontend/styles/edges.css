@@ -1,0 +1,18 @@
+/*
+ * Edge scale: border widths and the hard offset shadows that give the
+ * neobrutalist look. Stylesheets use these instead of typed-in pixel values.
+ * Shape tricks (CSS triangles, rotated checkmarks) and soft glow or focus-ring
+ * effects keep their own values because they are drawings, not edges.
+ */
+:root {
+    /* Border widths */
+    --border-thin: 1px;
+    --border-regular: 2px;
+    --border-thick: 3px;
+
+    /* Hard offset shadows: small controls, cards, panels, dialogs */
+    --shadow-sm: 4px 4px 0 var(--color-black);
+    --shadow-md: 6px 6px 0 var(--color-black);
+    --shadow-lg: 8px 8px 0 var(--color-black);
+    --shadow-xl: 12px 12px 0 var(--color-black);
+}

@@ -1,27 +1,27 @@
 .book-dialog {
     position: relative;
-    width: min(780px, 96vw);
+    width: min(960px, 96vw);
     max-height: 95dvh;
     padding: var(--token-space-2) var(--token-space-3) var(--token-space-3);
     overflow: auto;
     overscroll-behavior: contain;
     color: var(--color-ink);
-    background: var(--color-apricot);
-    border: 4px solid var(--color-black);
+    background: var(--color-peach);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: var(--button-radius);
-    box-shadow: 12px 12px 0 var(--color-black);
+    box-shadow: var(--shadow-xl);
 }
 
 .book-dialog::backdrop {
-    background: color-mix(in srgb, var(--color-abyss) 82%, transparent);
+    background: color-mix(in srgb, var(--color-deep-space) 82%, transparent);
 }
 
 .book-shelf-prompt-dialog {
     width: min(380px, 92vw);
     padding: var(--token-space-3);
-    color: var(--color-porcelain);
+    color: var(--color-white);
     background: var(--color-night);
-    border: 1px solid var(--color-storm);
+    border: var(--border-thin) solid var(--color-storm);
     border-radius: var(--token-radius-md);
     box-shadow: var(--token-elevation-md);
 }
@@ -29,7 +29,7 @@
 .book-shelf-prompt-dialog::backdrop {
     background: color-mix(
         in srgb,
-        color-mix(in srgb, var(--color-void) 60%, transparent) 70%,
+        color-mix(in srgb, var(--color-deep-space) 60%, transparent) 70%,
         transparent
     );
 }
@@ -48,10 +48,10 @@
     display: none;
     max-height: 320px;
     overflow: auto;
-    background: var(--color-navy-ink);
-    border: 3px solid var(--color-black);
+    background: var(--color-night);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 20px;
-    box-shadow: 8px 8px 0 var(--color-black);
+    box-shadow: var(--shadow-lg);
 }
 
 .book-search-results.has-items {
@@ -69,7 +69,7 @@
     text-align: left;
     background: transparent;
     border: 0;
-    border-bottom: 1px solid
+    border-bottom: var(--border-thin) solid
         color-mix(in srgb, var(--color-paper) 18%, transparent);
 }
 
@@ -92,21 +92,21 @@
     width: 44px;
     height: 58px;
     object-fit: cover;
-    background: var(--color-slate-navy);
-    border: 2px solid var(--color-black);
+    background: var(--color-twilight);
+    border: var(--border-regular) solid var(--color-black);
     border-radius: 8px;
 }
 
 .book-result-title {
     display: block;
     margin-bottom: 2px;
-    font-size: var(--token-typography-size-sm);
+    font-size: var(--token-typography-size-md);
     line-height: var(--token-typography-lineHeight-tight);
 }
 
 .book-result-meta {
-    font-size: var(--token-typography-size-xs);
-    color: var(--color-cloud);
+    font-size: var(--token-typography-size-md);
+    color: var(--color-frost);
 }
 
 .book-cover-panel {
@@ -115,8 +115,8 @@
     padding: 0;
     overflow: hidden;
     cursor: pointer;
-    background: var(--color-navy-ink);
-    border: 3px solid var(--color-black);
+    background: var(--color-night);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
 }
 
@@ -142,10 +142,10 @@
     bottom: 0;
     left: 0;
     padding: var(--token-space-1);
-    font-size: var(--token-typography-size-xs);
+    font-size: var(--token-typography-size-md);
     font-weight: 800;
     color: var(--color-paper);
     text-align: center;
     pointer-events: none;
-    background: color-mix(in srgb, var(--color-navy-ink) 92%, transparent);
+    background: color-mix(in srgb, var(--color-night) 92%, transparent);
 }

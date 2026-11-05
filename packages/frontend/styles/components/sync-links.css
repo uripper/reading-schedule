@@ -19,7 +19,7 @@
 }
 
 .sync-links details > p {
-    font-size: var(--token-typography-size-sm);
+    font-size: var(--token-typography-size-md);
 }
 
 .sync-links ul {
@@ -35,9 +35,9 @@
     align-items: center;
     padding: 16px;
     color: var(--color-ink);
-    background: var(--color-cream);
-    border: 3px solid var(--color-black);
-    box-shadow: 4px 4px 0 var(--color-black);
+    background: var(--color-paper);
+    border: var(--border-thick) solid var(--color-black);
+    box-shadow: var(--shadow-sm);
 }
 
 .sync-links li > :not(button) {
@@ -49,16 +49,16 @@
 .sync-link-source {
     justify-self: start;
     padding: 4px 8px;
-    font-size: 0.72rem;
+    font-size: var(--token-typography-size-md);
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    background: var(--color-banana-bright);
-    border: 2px solid var(--color-black);
+    background: var(--color-banana);
+    border: var(--border-regular) solid var(--color-black);
 }
 
 .sync-link-title {
-    font-size: 1rem;
+    font-size: var(--token-typography-size-md);
     font-weight: 800;
     line-height: 1.4;
 }
@@ -68,7 +68,7 @@
     flex-wrap: wrap;
     gap: 8px 16px;
     align-items: center;
-    font-size: 0.82rem;
+    font-size: var(--token-typography-size-md);
     line-height: 1.5;
 }
 

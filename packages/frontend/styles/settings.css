@@ -9,25 +9,25 @@
     flex-wrap: wrap;
     gap: 12px;
     padding: 18px;
-    background: var(--color-marigold);
-    border: 3px solid var(--color-black);
+    background: var(--color-yellow);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 7px 7px 0 var(--color-black);
+    box-shadow: var(--shadow-md);
 }
 
 .settings-section-tab {
     min-height: var(--token-size-target-minimum);
     padding: 10px 16px;
     font: inherit;
-    font-size: 0.85rem;
+    font-size: var(--token-typography-size-md);
     font-weight: 900;
     color: var(--color-ink);
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    background: var(--color-banana-bright);
-    border: 3px solid var(--color-black);
+    background: var(--color-banana);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 4px 4px 0 var(--color-black);
+    box-shadow: var(--shadow-sm);
 }
 
 .settings-section-tab.is-active {
@@ -45,10 +45,10 @@
     align-content: start;
     width: 100%;
     padding: 22px;
-    background: var(--color-butter);
-    border: 3px solid var(--color-black);
+    background: var(--color-yellow);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 8px 8px 0 var(--color-black);
+    box-shadow: var(--shadow-lg);
 }
 
 .settings-card > h2 {
@@ -58,12 +58,12 @@
     font-size: clamp(1.2rem, 2vw, 1.6rem);
     color: var(--color-ink);
     text-transform: uppercase;
-    border-bottom: 3px solid var(--color-black);
+    border-bottom: var(--border-thick) solid var(--color-black);
 }
 
 .settings-card > h3 {
     margin: 0;
-    font-size: 0.82rem;
+    font-size: var(--token-typography-size-md);
     font-weight: 900;
     color: var(--color-ink);
     text-transform: uppercase;
@@ -113,7 +113,7 @@
 }
 
 .settings-field-link {
-    font-size: 0.9rem;
+    font-size: var(--token-typography-size-md);
     font-weight: 900;
     color: var(--color-ink);
     text-decoration-thickness: 3px;
@@ -123,7 +123,7 @@
 .settings-divider {
     height: 4px;
     background: var(--color-black);
-    box-shadow: 0 6px 0 var(--color-marigold);
+    box-shadow: 0 6px 0 var(--color-yellow);
 }
 
 .settings-card .settings-grid > label[hidden] {
@@ -141,10 +141,10 @@
     font-weight: 900;
     color: var(--color-ink);
     cursor: pointer;
-    background: var(--color-banana-bright);
-    border: 3px solid var(--color-black);
+    background: var(--color-banana);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 4px 4px 0 var(--color-black);
+    box-shadow: var(--shadow-sm);
 }
 
 .settings-details[open] > summary {
@@ -158,15 +158,15 @@
     padding: 10px 14px;
     margin-top: 0;
     color: var(--color-paper);
-    background: var(--color-navy-ink);
-    border: 3px solid var(--color-black);
+    background: var(--color-night);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 4px 4px 0 var(--color-black);
+    box-shadow: var(--shadow-sm);
 }
 
 #tab-settings input:disabled {
     color: var(--color-ink);
-    background: var(--color-olive-gold);
+    background: var(--color-yellow);
     opacity: 1;
 }
 
@@ -178,11 +178,11 @@
     padding: 0;
     appearance: none;
     cursor: pointer;
-    background: var(--color-cream-yellow);
+    background: var(--color-parchment);
 }
 
 #tab-settings input[type="checkbox"]:checked {
-    background: var(--color-sage-mint);
+    background: var(--color-emerald);
 }
 
 #tab-settings input[type="checkbox"]:checked::after {

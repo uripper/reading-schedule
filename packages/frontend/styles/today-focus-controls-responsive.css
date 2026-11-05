@@ -29,7 +29,7 @@
     .today-focus-panel {
         padding: 1rem;
         margin-top: 0.5rem;
-        box-shadow: 6px 6px 0 var(--color-black);
+        box-shadow: var(--shadow-md);
     }
 
     .today-progress-heading {

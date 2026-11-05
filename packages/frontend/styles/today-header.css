@@ -21,8 +21,8 @@
     padding: var(--neo-header-padding-y) var(--neo-header-padding-x);
     margin: 0;
     background: var(--neo-header-color);
-    border-top: 2px solid var(--neo-header-border);
-    border-bottom: 2px solid var(--neo-header-border);
+    border-top: var(--border-regular) solid var(--neo-header-border);
+    border-bottom: var(--border-regular) solid var(--neo-header-border);
     box-shadow: 0 4px 0 var(--color-black);
     backdrop-filter: none;
 }
@@ -51,7 +51,7 @@
     font-size: 4rem;
     font-weight: 800;
     line-height: 1;
-    color: var(--color-smoke);
+    color: var(--color-white);
     letter-spacing: 0.03em;
 }
 
@@ -72,7 +72,7 @@
     align-items: center;
     min-width: 0;
     min-height: 2rem;
-    color: var(--color-snow-bright);
+    color: var(--color-white);
 }
 
 .neo-metric-icon {
@@ -94,9 +94,9 @@
 }
 
 #headerStreakFlame.is-goal-complete {
-    background: var(--color-crimson);
+    background: var(--color-vermilion);
     box-shadow: 0 0 0 5px
-        color-mix(in srgb, var(--color-crimson) 35%, transparent);
+        color-mix(in srgb, var(--color-vermilion) 35%, transparent);
 }
 
 .neo-metric-copy {
@@ -128,7 +128,7 @@
     font-family: var(--sub-header-font);
     font-size: clamp(1.2rem, 2.05vw, 2.7rem);
     line-height: 1;
-    color: var(--color-snow);
+    color: var(--color-white);
 }
 .neo-metric-streak-text {
     margin: 0;
@@ -136,7 +136,7 @@
     font-size: clamp(1.2rem, 2.05vw, 2.7rem);
     font-weight: 100;
     line-height: 1;
-    color: var(--color-snow);
+    color: var(--color-white);
 }
 
 .neo-metric-streak-value {
@@ -153,7 +153,7 @@
 }
 
 .neo-metric-indicator.is-complete {
-    color: var(--color-spring);
+    color: var(--color-emerald);
     background: currentcolor;
     mask: var(--icon-square-check) center / 92% no-repeat;
 }
@@ -169,7 +169,8 @@
 .neo-session-dot {
     width: var(--neo-dot-size);
     height: var(--neo-dot-size);
-    border: 2px solid color-mix(in srgb, var(--color-white) 95%, transparent);
+    border: var(--border-regular) solid
+        color-mix(in srgb, var(--color-white) 95%, transparent);
     border-radius: 999px;
 }
 
@@ -232,7 +233,7 @@
     }
 
     .neo-brand-text {
-        font-size: min(8vh, 8vw);
+        font-size: max(var(--token-typography-size-md), min(8vh, 8vw));
     }
 
     .neo-metrics {

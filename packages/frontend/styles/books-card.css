@@ -5,7 +5,7 @@
     align-items: end;
     padding-top: 14px;
     margin-top: auto;
-    border-top: 3px solid var(--color-black);
+    border-top: var(--border-thick) solid var(--color-black);
 }
 
 .book-card-command-stack {
@@ -20,10 +20,10 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: var(--color-peach-light);
-    border: 3px solid var(--color-black);
+    background: var(--color-peach);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 8px 8px 0 var(--color-black);
+    box-shadow: var(--shadow-lg);
     transition:
         filter 150ms ease,
         opacity 150ms ease,
@@ -48,9 +48,9 @@
     padding: 0;
     margin: 0;
     cursor: pointer;
-    background: var(--color-midnight);
+    background: var(--color-deep-space);
     border: 0;
-    border-bottom: 3px solid var(--color-black);
+    border-bottom: var(--border-thick) solid var(--color-black);
 }
 
 .book-cover-btn img {
@@ -65,7 +65,7 @@
     place-content: center;
     height: 300px;
     padding: var(--token-space-3);
-    font-size: var(--token-typography-size-sm);
+    font-size: var(--token-typography-size-md);
     color: var(--color-white);
     text-align: center;
 }
@@ -76,7 +76,7 @@
     grid-template-rows: auto auto auto minmax(0, 1fr) auto;
     gap: 8px;
     padding: 18px;
-    background: var(--color-peach-pale);
+    background: var(--color-peach);
 }
 
 .book-title {
@@ -89,9 +89,9 @@
 
 .book-subtitle {
     margin: 0;
-    font-size: 0.95rem;
+    font-size: var(--token-typography-size-md);
     font-weight: 700;
-    color: var(--color-graphite);
+    color: var(--color-ink);
 }
 
 .book-status-pill {
@@ -100,14 +100,14 @@
     align-items: center;
     justify-self: start;
     padding: 6px 10px;
-    font-size: 0.68rem;
+    font-size: var(--token-typography-size-md);
     font-weight: 900;
     color: var(--color-ink);
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    border: 2px solid var(--color-black);
+    border: var(--border-regular) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 3px 3px 0 var(--color-black);
+    box-shadow: var(--shadow-sm);
 }
 
 /*
@@ -128,31 +128,31 @@
 .book-status-pill.is-to_read {
     --status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 19h4V5H6v14zm8-14v14h4V5h-4z'/%3E%3C/svg%3E");
 
-    background: var(--color-steel-blue);
+    background: var(--color-glacier);
 }
 
 .book-status-pill.is-in_progress {
     --status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E");
 
-    background: var(--color-honey);
+    background: var(--color-amber);
 }
 
 .book-status-pill.is-read {
     --status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
 
-    background: var(--color-celadon);
+    background: var(--color-pistachio);
 }
 
 .book-status-pill.is-dropped {
     --status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/%3E%3C/svg%3E");
 
-    background: var(--color-rose);
+    background: var(--color-salmon);
 }
 
 .book-stats {
     display: grid;
     gap: 4px;
-    font-size: 0.8rem;
+    font-size: var(--token-typography-size-md);
     font-weight: 700;
     color: var(--color-ink);
     white-space: pre-line;
@@ -173,5 +173,5 @@
 
 .book-after-link-btn:hover,
 .book-after-link-btn:focus-visible {
-    color: var(--color-ocean-deep);
+    color: var(--color-cobalt);
 }

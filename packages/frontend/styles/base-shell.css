@@ -4,9 +4,9 @@
     left: var(--token-space-3);
     z-index: 300;
     padding: var(--token-space-2) var(--token-space-3);
-    color: var(--color-porcelain);
+    color: var(--color-white);
     background: var(--color-night);
-    border: 1px solid var(--color-storm);
+    border: var(--border-thin) solid var(--color-storm);
     border-radius: var(--token-radius-sm);
     transform: translateY(-140%);
     transition: transform var(--token-motion-duration-fast)
@@ -29,7 +29,7 @@
     min-height: var(--token-size-header-height);
     padding: var(--token-space-3) var(--token-space-4);
     background: var(--neo-header-color);
-    border-bottom: 1px solid var(--neo-header-border);
+    border-bottom: var(--border-thin) solid var(--neo-header-border);
     backdrop-filter: blur(12px);
 }
 
@@ -48,7 +48,7 @@
 
 .brand-eyebrow {
     margin: 0;
-    font-size: var(--token-typography-size-xs);
+    font-size: var(--token-typography-size-md);
     color: var(--color-black);
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -65,8 +65,8 @@
     padding: var(--token-space-2) var(--token-space-4);
     overflow-x: auto;
     background: var(--color-white);
-    border: 1px solid var(--color-storm);
-    box-shadow: var(--neo-brutalist-shadow);
+    border: var(--border-thin) solid var(--color-storm);
+    box-shadow: var(--shadow-lg);
 }
 
 .tab {
@@ -107,7 +107,7 @@ main {
     display: none;
     padding: var(--token-space-4);
     background: color-mix(in srgb, var(--color-night) 92%, transparent);
-    border: 1px solid var(--color-storm);
+    border: var(--border-thin) solid var(--color-storm);
     border-radius: var(--token-radius-lg);
     box-shadow: var(--token-elevation-sm);
 }
@@ -121,7 +121,7 @@ main {
     gap: var(--token-space-2);
     padding: var(--token-space-4);
     background: color-mix(in srgb, var(--color-twilight) 86%, transparent);
-    border: 1px solid var(--color-storm);
+    border: var(--border-thin) solid var(--color-storm);
     border-radius: var(--token-radius-md);
 }
 
@@ -155,13 +155,13 @@ main {
         gap: var(--token-space-1);
         padding: var(--token-space-2);
         background: color-mix(in srgb, var(--color-night) 94%, transparent);
-        border-top: 1px solid var(--color-storm);
+        border-top: var(--border-thin) solid var(--color-storm);
         backdrop-filter: blur(12px);
     }
 
     .mobile-tab {
         padding: var(--token-space-2) var(--token-space-1);
-        font-size: var(--token-typography-size-xs);
+        font-size: var(--token-typography-size-md);
         border-radius: var(--token-radius-sm);
     }
 }

@@ -4,10 +4,10 @@
     font-weight: var(--token-typography-weight-bold);
     color: var(--color-ink);
     overflow-wrap: anywhere;
-    background: var(--color-watermelon);
+    background: var(--color-coral);
     border: var(--neo-panel-border);
     border-radius: 0;
-    box-shadow: var(--neo-brutalist-shadow);
+    box-shadow: var(--shadow-lg);
 }
 
 .critical-error-message:empty {

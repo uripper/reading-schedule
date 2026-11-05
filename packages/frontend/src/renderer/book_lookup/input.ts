@@ -10,7 +10,10 @@ export function clearLookupQuery(args: LookupQueryArgs): void {
     args.state.token += 1;
     args.clearResults();
     args.searchInput.removeAttribute("aria-busy");
-    args.metaEl.textContent = args.metaEl.dataset.lookupNote ?? "";
+    const NOTE = args.metaEl.dataset.lookupNote ?? "";
+    if (args.metaEl.textContent !== NOTE) {
+        args.metaEl.textContent = NOTE;
+    }
 }
 
 /** Updates the result list after a successful query. */

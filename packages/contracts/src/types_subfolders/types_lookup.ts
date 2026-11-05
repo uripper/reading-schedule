@@ -94,9 +94,9 @@ export interface CreateLookupStateControllerArgs {
 
 export interface LookupStateController {
     clearResults(this: void): void;
-    refreshResults(): void;
-    selectItem(index: number): void;
-    setActiveIndex(index: number): void;
+    refreshResults(this: void): void;
+    selectItem(this: void, index: number): void;
+    setActiveIndex(this: void, index: number): void;
 }
 
 export type CoverExtension = ".jpg" | ".png" | ".webp";

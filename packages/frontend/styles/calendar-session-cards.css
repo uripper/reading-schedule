@@ -8,13 +8,13 @@
     gap: var(--token-space-3);
     padding: var(--token-space-3);
     color: var(--color-ink);
-    background: var(--color-butter-pale);
-    border: 3px solid var(--color-black);
-    box-shadow: 6px 6px 0 var(--color-black);
+    background: var(--color-parchment);
+    border: var(--border-thick) solid var(--color-black);
+    box-shadow: var(--shadow-md);
 }
 
 .day-details-item.is-finish {
-    background: var(--color-sun-glow-soft);
+    background: var(--color-amber);
 }
 
 .day-details-item.is-complete {
@@ -25,7 +25,7 @@
     background:
         radial-gradient(
             circle at top right,
-            color-mix(in srgb, var(--color-lime-cream) 78%, transparent),
+            color-mix(in srgb, var(--color-pistachio) 78%, transparent),
             transparent 56%
         ),
         var(--color-pistachio);
@@ -42,7 +42,7 @@
     gap: var(--token-space-2);
     align-items: start;
     padding-bottom: var(--token-space-2);
-    border-bottom: 2px solid var(--color-black);
+    border-bottom: var(--border-regular) solid var(--color-black);
 }
 
 .day-session-heading {
@@ -58,19 +58,19 @@
 }
 
 .day-session-author {
-    font-size: var(--token-typography-size-sm);
+    font-size: var(--token-typography-size-md);
 }
 
 .day-finish-badge {
     justify-self: start;
     padding: 2px var(--token-space-2);
-    font-size: 11px;
+    font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-bold);
-    color: color-mix(in srgb, var(--color-amber) 90%, var(--color-porcelain));
+    color: color-mix(in srgb, var(--color-amber) 90%, var(--color-white));
     text-transform: uppercase;
     letter-spacing: 0.04em;
     background: color-mix(in srgb, var(--color-amber) 18%, var(--color-night));
-    border: 1px solid
+    border: var(--border-thin) solid
         color-mix(in srgb, var(--color-amber) 82%, var(--color-storm));
     border-radius: var(--token-radius-pill);
 }
@@ -113,14 +113,14 @@
     align-content: center;
     block-size: 100%;
     margin: 0;
-    font-size: var(--token-typography-size-xs);
+    font-size: var(--token-typography-size-md);
     font-weight: 700;
     text-transform: uppercase;
 }
 
 .day-session-metric-value {
     padding-block: var(--token-space-1);
-    font-size: var(--token-typography-size-sm);
+    font-size: var(--token-typography-size-md);
 }
 
 .btn-session-edit::before {
@@ -177,8 +177,8 @@
     min-block-size: 28px;
     margin: 0;
     padding: 0 var(--token-space-1);
-    font-size: var(--token-typography-size-sm);
-    border-width: 2px;
+    font-size: var(--token-typography-size-md);
+    border-width: var(--border-regular);
     border-radius: var(--token-radius-sm);
 }
 

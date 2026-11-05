@@ -9,141 +9,48 @@
 :root {
     /* Neutrals */
     --color-black: #000000;
-    --color-black-matte: #020202;
-    --color-abyss: #080b12;
-    --color-midnight: #101820;
     --color-ink: #111111;
-    --color-onyx: #121212;
-    --color-espresso: #181413;
-    --color-graphite: #1d1d1d;
-    --color-graphite-soft: #1e1e1e;
-    --color-gray-dark: #666666;
-    --color-gray: #808080;
-    --color-silver: #c0c0c0;
+    --color-gray: #666666;
     --color-gray-light: #d6d6d6;
-    --color-gray-pale: #dddddd;
-    --color-smoke: #f3f3f3;
-    --color-snow: #f8f8f8;
-    --color-snow-bright: #f9f9f9;
     --color-white: #ffffff;
-    --color-porcelain: #f5f8fc;
 
-    /* Blues */
-    --color-navy: #000080;
-    --color-ocean-deep: #0e3d7a;
-    --color-navy-ink: #13213a;
-    --color-harbor: #163850;
-    --color-slate-navy: #24314e;
-    --color-cobalt: #1b48b4;
-    --color-denim: #2d67a3;
-    --color-slate: #5b6476;
-    --color-sky: #58b8ff;
-    --color-cornflower: #77b0ff;
-    --color-ice-blue: #7fd1ff;
-    --color-ice-blue-soft: #8fd1ff;
-    --color-periwinkle: #84b5fa;
-    --color-steel-blue: #9fbbe0;
-    --color-powder-blue: #9fd7ff;
-    --color-powder-blue-bright: #9fdcff;
-    --color-mist-blue: #cae8ff;
-    --color-cloud: #d4dce8;
-    --color-cloud-blue: #dbe4f0;
-    --color-frost: #edf7ff;
-
-    --color-glacier: #8dd0ff;
-    --color-azure: #3f9ef4;
-    --color-storm: #32435d;
-    --color-twilight: #1d2940;
-    --color-night: #131d2f;
-    --color-deep-space: #0c1321;
-    --color-void: #050a12;
-
-    /* Greens */
-    --color-forest: #105b44;
-    --color-jade: #3ecf8e;
-    --color-emerald-deep: #127859;
-    --color-spring: #20df80;
-    --color-emerald: #50c878;
-    --color-mint: #7edc85;
-    --color-mint-soft: #8fdda4;
-    --color-sage-mint: #9bdeac;
-    --color-sage: #9db39f;
-    --color-celadon: #b9e2ba;
-    --color-mint-pale: #bfecc7;
-    --color-pistachio: #c9efb8;
-    --color-mint-mist: #d6f5dc;
-    --color-lime-pale: #d9f0c3;
-    --color-lime-mist: #eef9da;
-    --color-mint-frost: #edfced;
-    --color-lime-cream: #f4ffd6;
-
-    /* Yellows and golds */
-    --color-bronze: #785818;
-    --color-amber: #f3ad3d;
-    --color-mustard: #c9a937;
-    --color-gold: #d4a536;
-    --color-olive-gold: #d8c86a;
-    --color-khaki: #e0d299;
-    --color-lemon: #ecd73a;
-    --color-marigold: #f0cb58;
-    --color-honey: #f1c96f;
-    --color-yellow: #f2d14c;
-    --color-lemon-soft: #f3e77d;
-    --color-canary: #f4f08c;
-    --color-butter: #f7de72;
-    --color-butter-pale: #f7efab;
-    --color-sunflower: #ffd25f;
-    --color-sun-glow: #ffd67d;
-    --color-sun-glow-soft: #ffd77f;
-    --color-banana: #ffe38b;
-    --color-banana-bright: #ffe58a;
-    --color-banana-pale: #ffe798;
-    --color-parchment: #fff0b4;
-    --color-parchment-bright: #fff1b4;
-    --color-parchment-soft: #fff0b8;
-    --color-vanilla: #fff6c7;
-    --color-cream: #fff7da;
-    --color-cream-yellow: #fff8d6;
-    --color-ivory: #fffdf2;
-    --color-ivory-soft: #fffdf5;
-
-    /* Holographic card glints (kept as HSL) */
-    --color-holo-bronze: hsl(30 60% 40%);
-    --color-holo-amber: hsl(35 88% 62%);
-    --color-holo-sand: hsl(42 70% 70%);
-    --color-holo-gold: hsl(42 95% 74%);
-    --color-holo-gold-soft: hsl(43 90% 74%);
-    --color-holo-cream: hsl(45 100% 90%);
-    --color-holo-butter: hsl(46 100% 84%);
-    --color-holo-ivory: hsl(46 100% 92%);
-    --color-holo-lemon: hsl(48 100% 88%);
-
-    /* Browns and beiges */
+    /* Warm neutrals */
     --color-umber: #3d3521;
-    --color-taupe-dark: #554b3e;
-    --color-olive-brown: #655b3a;
-    --color-olive-tan: #8d7e4b;
     --color-tan: #d6c4ad;
-    --color-sand: #e0d2c1;
-    --color-linen: #efe6d7;
-    --color-linen-light: #f1ebe0;
-    --color-bone: #f4f0df;
     --color-paper: #f8f4e8;
-    --color-paper-warm: #f9f4e8;
 
-    /* Oranges, reds, pinks, and purples */
-    --color-vermilion: #ff4911;
-    --color-watermelon: #ff7f92;
-    --color-tangerine: #ff8f3f;
-    --color-apricot: #f3ba78;
-    --color-peach: #f7cb94;
-    --color-peach-light: #f9d7b0;
-    --color-peach-pale: #f7dfbf;
-    --color-salmon: #ff9b84;
-    --color-coral: #fa836b;
-    --color-rose: #e89f97;
-    --color-crimson: #d21830;
+    /* Dark surfaces */
+    --color-deep-space: #0c1321;
+    --color-night: #131d2f;
+    --color-twilight: #1d2940;
+    --color-storm: #32435d;
+
+    /* Pinks and purples */
     --color-orchid: #e87ddb;
     --color-orchid-pale: #f6d6f0;
     --color-indigo: #2c0066;
+
+    /* Reds and oranges */
+    --color-vermilion: #ff4911;
+    --color-coral: #fa836b;
+    --color-salmon: #ff9b84;
+    --color-tangerine: #ff8f3f;
+    --color-peach: #f7cb94;
+
+    /* Yellows */
+    --color-amber: #f3ad3d;
+    --color-yellow: #f2d14c;
+    --color-banana: #ffe58a;
+    --color-parchment: #fff1b4;
+
+    /* Greens */
+    --color-forest: #105b44;
+    --color-emerald: #50c878;
+    --color-pistachio: #c9efb8;
+
+    /* Blues */
+    --color-cobalt: #1b48b4;
+    --color-azure: #3f9ef4;
+    --color-glacier: #8dd0ff;
+    --color-frost: #edf7ff;
 }

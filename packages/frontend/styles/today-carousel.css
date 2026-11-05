@@ -1,6 +1,6 @@
 :root {
-    --neo-today-green: var(--color-mint);
-    --neo-today-yellow: var(--color-lemon);
+    --neo-today-green: var(--color-emerald);
+    --neo-today-yellow: var(--color-yellow);
     --neo-cover-height: 20vh;
     --neo-cover-hero-height: 40vh;
     --neo-cover-hero-width: 15vw;
@@ -102,7 +102,7 @@
     overflow: hidden;
     cursor: pointer;
     background: var(--color-white);
-    border: 1px solid var(--color-black);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: 2px;
     box-shadow: 8px 8px 4px var(--color-black);
     transition:
@@ -198,7 +198,7 @@
     text-align: center;
     white-space: nowrap;
     background: var(--neo-today-green);
-    border-block: 1px solid var(--color-black);
+    border-block: var(--border-thin) solid var(--color-black);
     box-shadow: 0 4px 4px var(--color-black);
 }
 

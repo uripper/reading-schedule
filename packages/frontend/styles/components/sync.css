@@ -12,9 +12,9 @@
     padding: 1.5rem;
     overflow: hidden;
     color: var(--color-ink);
-    background: var(--color-cream);
-    border: 4px solid var(--color-black);
-    box-shadow: 12px 12px 0 var(--color-black);
+    background: var(--color-paper);
+    border: var(--border-thick) solid var(--color-black);
+    box-shadow: var(--shadow-xl);
 }
 
 .sync-review::backdrop {
@@ -51,7 +51,7 @@
 
 .sync-review li {
     padding: 1rem 0;
-    border-top: 1px solid currentcolor;
+    border-top: var(--border-thin) solid currentcolor;
 }
 
 .sync-review label {
@@ -104,8 +104,8 @@
     gap: 0.75rem;
     padding: 0.75rem;
     margin-top: 0.75rem;
-    background: var(--color-banana-bright);
-    border: 2px solid var(--color-black);
+    background: var(--color-banana);
+    border: var(--border-regular) solid var(--color-black);
 }
 
 .sync-review .sync-session-minutes {
@@ -113,7 +113,7 @@
     flex-wrap: wrap;
     gap: 0.75rem;
     align-items: center;
-    font-size: 0.85rem;
+    font-size: var(--token-typography-size-md);
 }
 
 .sync-review .sync-session-minutes[hidden] {
@@ -126,10 +126,10 @@
     padding: 0.5rem;
     font: inherit;
     color: var(--color-ink);
-    background: var(--color-cream);
-    border: 2px solid var(--color-black);
+    background: var(--color-paper);
+    border: var(--border-regular) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 3px 3px 0 var(--color-black);
+    box-shadow: var(--shadow-sm);
 }
 
 .sync-library-search {
@@ -145,9 +145,9 @@
     max-height: 14rem;
     margin: 0;
     color: var(--color-ink);
-    background: var(--color-cream);
-    border: 3px solid var(--color-black);
-    box-shadow: 4px 4px 0 var(--color-black);
+    background: var(--color-paper);
+    border: var(--border-thick) solid var(--color-black);
+    box-shadow: var(--shadow-sm);
 }
 
 .sync-library-results[hidden],
@@ -168,5 +168,5 @@
 
 .sync-library-results > [aria-selected="true"],
 .sync-library-results > li:hover {
-    background: var(--color-banana-bright);
+    background: var(--color-banana);
 }

@@ -8,10 +8,10 @@
     padding: 16px;
     overflow: auto;
     color: var(--color-ink);
-    background: var(--color-lime-pale);
-    border: 3px solid var(--color-black);
+    background: var(--color-pistachio);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 7px 7px 0 var(--color-black);
+    box-shadow: var(--shadow-md);
 }
 
 .day-details > h2 {
@@ -19,17 +19,17 @@
     margin: 0;
     font-family: var(--header-font);
     text-transform: uppercase;
-    border-bottom: 3px solid var(--color-black);
+    border-bottom: var(--border-thick) solid var(--color-black);
 }
 
 .day-finished-summary {
     padding: var(--token-space-1) var(--token-space-2);
     margin: 0;
-    font-size: var(--token-typography-size-sm);
+    font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-medium);
     color: var(--color-ink);
     background: var(--color-banana);
-    border: 2px solid var(--color-black);
+    border: var(--border-regular) solid var(--color-black);
     border-radius: 0;
 }
 
@@ -48,11 +48,11 @@
 
 .day-scheduled-book-item {
     padding: 8px 10px;
-    font-size: 0.9rem;
+    font-size: var(--token-typography-size-md);
     font-weight: 700;
     color: var(--color-ink);
-    background: var(--color-lime-mist);
-    border: 2px solid var(--color-black);
+    background: var(--color-pistachio);
+    border: var(--border-regular) solid var(--color-black);
     border-radius: 0;
 }
 
@@ -60,15 +60,15 @@
     display: grid;
     gap: 12px;
     padding: 14px;
-    background: var(--color-lemon-soft);
-    border: 3px solid var(--color-black);
+    background: var(--color-banana);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
-    box-shadow: 6px 6px 0 var(--color-black);
+    box-shadow: var(--shadow-md);
 }
 
 .day-manual-add > h3 {
     margin: 0;
-    font-size: 1rem;
+    font-size: var(--token-typography-size-md);
     font-weight: 900;
     color: var(--color-ink);
     text-transform: uppercase;
@@ -94,7 +94,7 @@
     display: flex;
     gap: var(--token-space-2);
     align-items: center;
-    font-size: var(--token-typography-size-sm);
+    font-size: var(--token-typography-size-md);
     color: var(--color-ink);
 }
 
@@ -111,7 +111,7 @@
 .day-progress-field {
     display: grid;
     gap: var(--token-space-1);
-    font-size: var(--token-typography-size-xs);
+    font-size: var(--token-typography-size-md);
     color: var(--color-ink);
 }
 
@@ -119,8 +119,8 @@
 .day-details select,
 .day-details textarea {
     color: var(--color-paper);
-    background: var(--color-navy-ink);
-    border: 3px solid var(--color-black);
+    background: var(--color-night);
+    border: var(--border-thick) solid var(--color-black);
     border-radius: 16px;
 }
 

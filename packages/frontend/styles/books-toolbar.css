@@ -1,7 +1,7 @@
 /* Library toolbar: actions row, then labeled search/filter/sort fields. */
 .books-toolbar {
-    --books-toolbar-ink: var(--color-navy-ink);
-    --books-toolbar-paper: var(--color-parchment-bright);
+    --books-toolbar-ink: var(--color-night);
+    --books-toolbar-paper: var(--color-parchment);
     --books-toolbar-field: var(--color-white);
     --books-toolbar-radius: 14px;
     --books-toolbar-control-height: 52px;
@@ -14,9 +14,9 @@
     margin-bottom: var(--token-space-1);
     color: var(--books-toolbar-ink);
     background: var(--books-toolbar-paper);
-    border: 3px solid var(--books-toolbar-ink);
+    border: var(--border-thick) solid var(--books-toolbar-ink);
     border-radius: 20px;
-    box-shadow: 6px 6px 0 var(--books-toolbar-ink);
+    box-shadow: var(--shadow-md);
 }
 
 .books-toolbar-actions {
@@ -39,7 +39,7 @@
     display: grid;
     gap: 8px;
     min-width: 0;
-    font-size: 0.82rem;
+    font-size: var(--token-typography-size-md);
     font-weight: 900;
     color: var(--books-toolbar-ink);
     text-transform: uppercase;
@@ -96,13 +96,13 @@
     min-height: var(--books-toolbar-control-height);
     padding: 10px 14px;
     margin-top: 0;
-    font-size: 0.98rem;
+    font-size: var(--token-typography-size-md);
     font-weight: 800;
     color: var(--books-toolbar-ink);
     text-transform: none;
     letter-spacing: normal;
     background: var(--books-toolbar-field);
-    border: 3px solid var(--books-toolbar-ink);
+    border: var(--border-thick) solid var(--books-toolbar-ink);
     border-radius: var(--books-toolbar-radius);
     box-shadow: none;
 }
@@ -113,7 +113,7 @@
 
 .books-control-input::placeholder {
     font-weight: 600;
-    color: var(--color-slate);
+    color: var(--color-gray);
 }
 
 .books-control-select {
@@ -127,7 +127,7 @@
 .books-control-select:hover,
 .books-control-input:focus-visible,
 .books-control-select:focus-visible {
-    background: var(--color-ivory-soft);
+    background: var(--color-white);
     border-color: var(--books-toolbar-ink);
 }
 
@@ -165,7 +165,7 @@
 }
 
 .books-sort-direction-segment + .books-sort-direction-segment {
-    border-inline-start: 2px solid var(--button-ink);
+    border-inline-start: var(--border-regular) solid var(--button-ink);
 }
 
 .books-sort-direction-btn[data-direction="asc"] .is-asc,

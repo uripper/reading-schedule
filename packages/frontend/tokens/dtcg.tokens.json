@@ -68,14 +68,13 @@
         "size": {
             "lg": { "$type": "fontSize", "$value": "1.2rem" },
             "md": { "$type": "fontSize", "$value": "1rem" },
-            "sm": { "$type": "fontSize", "$value": "0.875rem" },
-            "xl": { "$type": "fontSize", "$value": "1.6rem" },
-            "xs": { "$type": "fontSize", "$value": "0.75rem" }
+            "xl": { "$type": "fontSize", "$value": "1.6rem" }
         },
         "weight": {
             "bold": { "$type": "fontWeight", "$value": "700" },
             "medium": { "$type": "fontWeight", "$value": "500" },
-            "regular": { "$type": "fontWeight", "$value": "400" }
+            "regular": { "$type": "fontWeight", "$value": "400" },
+            "semibold": { "$type": "fontWeight", "$value": "600" }
         }
     }
 }

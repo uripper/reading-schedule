@@ -5,7 +5,7 @@
     align-items: center;
     justify-content: space-between;
     padding-top: 1rem;
-    border-top: 3px solid var(--color-black);
+    border-top: var(--border-thick) solid var(--color-black);
 }
 
 .today-session-actions {
