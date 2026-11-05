@@ -3,9 +3,10 @@
  *
  * Targets are `desktop`, `website`, and `mobile`. Each file holds the notes
  * body only (no version title): the release name already carries the version.
- * Write user-facing changes grouped under `## New`, `## Improvements`, and
- * `## Fixes`; the desktop file becomes the GitHub release body and the notes
- * shown in the in-app update dialog.
+ * Write user-facing changes grouped under `## New`, `## Improvements`,
+ * `## Fixes`, and `## Chores` (maintenance with no visible effect); the
+ * desktop file becomes the GitHub release body and the notes shown in the
+ * in-app update dialog.
  *
  * Usage:
  *   node scripts/release-notes.mjs scaffold <target> [version]

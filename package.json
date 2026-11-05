@@ -32,7 +32,7 @@
         "build:frontend": "vp run --fail-if-no-match --filter @reading-schedule/frontend build",
         "build:website": "vp run --fail-if-no-match --filter reading-schedule-website build",
         "check:typescript": "vp lint . --format unix",
-        "ci:local": "pnpm run version:check && pnpm run release-notes:check && pnpm run deps:check && pnpm run check:typescript && pnpm run format:check && pnpm run lint:web-assets && pnpm run typecheck:contracts && pnpm run typecheck:desktop",
+        "ci:local": "pnpm run version:check && pnpm run release-notes:check && pnpm run deps:check && pnpm run build:contracts && pnpm run check:typescript && pnpm run format:check && pnpm run lint:web-assets && pnpm run typecheck:contracts && pnpm run typecheck:desktop",
         "ci:local:extended": "pnpm run ci:local && pnpm run typecheck:website && pnpm run lint:website && pnpm run lint:desktop && pnpm run build:website && pnpm run build:desktop && pnpm run test:website && pnpm run test:desktop && pnpm run styleaudit",
         "deps:check": "node ./scripts/check-dependency-versions.mjs",
         "dev:app": "pnpm -C apps/bartleby run tauri dev",

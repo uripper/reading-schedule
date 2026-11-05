@@ -213,9 +213,11 @@ line, or Node 26+. The workspace provides the Vite+ CLI through `pnpm exec vp`.
 
 - `pnpm run check:typescript` runs type-aware Oxlint through Vite+.
   `pnpm run format:typescript` applies Oxfmt and sorts imports.
-- `ci:local` checks formatting, CSS through Stylelint, and HTML through
-  HTML Validate. The shared shell and its desktop derivative use stable
-  markup for host generation and are validated as HTML.
+- `ci:local` builds the shared contracts before running type-aware Oxlint so
+  workspace consumers can resolve their declarations. It checks formatting,
+  CSS through Stylelint, and HTML through HTML Validate. The shared shell and
+  its desktop derivative use stable markup for host generation and are
+  validated as HTML.
 - Oxlint enforces declaration naming and cognitive and cyclomatic complexity.
   Function length and several rules with broader diagnostics, including
   nullish coalescing and unnecessary conditions, report warnings. Review
