@@ -91,3 +91,38 @@ test("renderTrackState appends the Add Book tile after scheduled covers", () => 
         DOM.restore();
     }
 });
+
+test("renderTrackState loads only the selected cover eagerly at high priority", () => {
+    const DOM = installFakeDom();
+    try {
+        withFakeAnimationFrame(() => {
+            const TRACK = DOM.createElement("div", "todayCarouselTrack");
+            DOM.document.body.append(TRACK);
+
+            renderTrackState(
+                {
+                    active: null,
+                    books: [
+                        baseTrackBook({ coverSrc: "cover-1.jpg" }),
+                        baseTrackBook({
+                            bookId: "book-2",
+                            coverSrc: "cover-2.jpg",
+                        }),
+                    ],
+                    selectedBookId: "book-2",
+                },
+                NOOP,
+            );
+
+            const [UNSELECTED, SELECTED] = TRACK.children;
+            const UNSELECTED_IMAGE = UNSELECTED.children[0];
+            const SELECTED_IMAGE = SELECTED.children[0];
+            assert.equal(UNSELECTED_IMAGE.loading, "lazy");
+            assert.notEqual(UNSELECTED_IMAGE.fetchPriority, "high");
+            assert.equal(SELECTED_IMAGE.loading, "eager");
+            assert.equal(SELECTED_IMAGE.fetchPriority, "high");
+        });
+    } finally {
+        DOM.restore();
+    }
+});

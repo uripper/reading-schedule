@@ -131,23 +131,44 @@ function expectedTrackIds(
 }
 
 /**
+ * Loads the selected cover eagerly at high priority because it is the
+ * largest paint on the Today tab; other covers stay lazy.
+ * @param image - Cover image element.
+ * @param isSelected - Whether the cover belongs to the selected book.
+ */
+function applyCoverLoadPriority(
+    image: HTMLImageElement,
+    isSelected: boolean,
+): void {
+    const IMAGE = image;
+    if (isSelected) {
+        IMAGE.loading = "eager";
+        IMAGE.fetchPriority = "high";
+        return;
+    }
+    IMAGE.loading = "lazy";
+}
+
+/**
  * Builds a single clickable carousel item for a book.
  * @param book - Book model shown in the carousel.
  * @param selectBook - Selection callback for the item.
+ * @param isSelected - Whether the book is the selected carousel item.
  * @returns Button element for the carousel track.
  */
 function buildCarouselItem(
     book: TodayCarouselTrackBook,
     selectBook: (bookId: string) => void,
+    isSelected: boolean,
 ): HTMLButtonElement {
     const ITEM = document.createElement("button");
     setCarouselItems(ITEM, book, selectBook);
 
     if (book.coverSrc !== "") {
         const IMG = document.createElement("img");
+        applyCoverLoadPriority(IMG, isSelected);
         IMG.src = book.coverSrc;
         IMG.alt = `Cover of ${book.title}`;
-        IMG.loading = "lazy";
         ITEM.append(IMG);
         return ITEM;
     }
@@ -179,10 +200,12 @@ function setCarouselItems(
  * @param track - Carousel track element.
  * @param books - Current carousel book list.
  * @param selectBook - Selection callback for items.
+ * @param selectedBookId - Selected book id, whose cover loads first.
  */
 function renderTrackItems(options: {
     onAddBook?: () => void;
     selectBook: (bookId: string) => void;
+    selectedBookId: string;
     books: TodayCarouselTrackBook[];
     track: HTMLElement;
 }): void {
@@ -192,7 +215,11 @@ function renderTrackItems(options: {
         return;
     }
     const NODES = options.books.map((book) => {
-        return buildCarouselItem(book, options.selectBook);
+        return buildCarouselItem(
+            book,
+            options.selectBook,
+            book.bookId === options.selectedBookId,
+        );
     });
     if (options.onAddBook !== undefined) {
         NODES.push(buildAddBookItem(options.onAddBook));
@@ -242,9 +269,10 @@ export function renderTrackState(
     const TRACK = el<HTMLElement>("todayCarouselTrack");
     renderTrackItems({
         books: model.books,
+        selectedBookId: model.selectedBookId,
+        track: TRACK,
         onAddBook,
         selectBook,
-        track: TRACK,
     });
     syncTrackLayout(TRACK, model, onAddBook);
 
