@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: tests exercise built frontend artifacts.
 /** Verifies dialog errors retain entered data, survive lookup updates, and recover. */
 import assert from "node:assert/strict";
 import test from "node:test";

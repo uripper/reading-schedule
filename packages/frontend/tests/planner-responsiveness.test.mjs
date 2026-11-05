@@ -1,23 +1,18 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { installFakeDom } from "./helpers/fake-dom.mjs";
 
-const { createPlanController } = await import(
-    "../dist/renderer/app/plan_controller.js"
-);
-const { PLANNER_SUPERSEDED_MESSAGE } = await import(
-    "../dist/renderer/app/plan-errors.js"
-);
+const { createPlanController } =
+    await import("../dist/renderer/app/plan_controller.js");
+const { PLANNER_SUPERSEDED_MESSAGE } =
+    await import("../dist/renderer/app/plan-errors.js");
 const { runPlanGeneration } = await import("../dist/renderer/app/plan.js");
-const { createStatusSetter } = await import(
-    "../dist/renderer/app/runtime_helpers.js"
-);
-const { createScheduleStatusOverlay } = await import(
-    "../dist/renderer/app/schedule-status-overlay.js"
-);
+const { createStatusSetter } =
+    await import("../dist/renderer/app/runtime_helpers.js");
+const { createScheduleStatusOverlay } =
+    await import("../dist/renderer/app/schedule-status-overlay.js");
 
 const BOOKS = [{ book_id: "book-1", title: "Book 1" }];
 const SETTINGS = {
@@ -144,7 +139,7 @@ test("runPlanGeneration surfaces incomplete plans as errors", async () => {
     ]);
 });
 
-// biome-ignore lint/complexity/noExcessiveLinesPerFunction: Assertions stay with the async setup they verify.
+// oxlint-disable-next-line bartleby/function-body-lines -- Assertions stay with the async setup they verify.
 test("runPlanGeneration ignores superseded planner errors", async () => {
     const Logs = [];
     const Statuses = [];
@@ -176,7 +171,7 @@ test("runPlanGeneration ignores superseded planner errors", async () => {
     ]);
 });
 
-// biome-ignore lint/complexity/noExcessiveLinesPerFunction: The request lifecycle is clearer as one flow.
+// oxlint-disable-next-line bartleby/function-body-lines -- The request lifecycle is clearer as one flow.
 test("auto plan starts a newer request while the previous one is still pending", async () => {
     const HARNESS = installTimeoutHarness();
     const DeferredCalls = [];
@@ -229,7 +224,7 @@ test("auto plan starts a newer request while the previous one is still pending",
     }
 });
 
-// biome-ignore lint/complexity/noExcessiveLinesPerFunction: DOM setup and assertions are intentionally adjacent.
+// oxlint-disable-next-line bartleby/function-body-lines -- DOM setup and assertions are intentionally adjacent.
 test("schedule status overlay is nonblocking and keeps the live region separate", () => {
     const HARNESS = installFakeDom();
     const TIMEOUTS = installTimeoutHarness();

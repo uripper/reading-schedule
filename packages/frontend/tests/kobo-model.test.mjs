@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Covers Kobo matching, freshness, source replays, and approved progress mutations. */
 import assert from "node:assert/strict";
 import test from "node:test";

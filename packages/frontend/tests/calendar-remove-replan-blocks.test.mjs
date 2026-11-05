@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 /**
  * Verifies removals delete current entries and keep the book off that day
  * through later replans.

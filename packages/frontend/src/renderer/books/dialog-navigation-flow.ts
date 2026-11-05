@@ -5,14 +5,14 @@ import type {
     BookFormRefs,
     BookSubmitPayload,
 } from "../../types/types.ts";
+import type { BookDialogNavigationDirection } from "./dialog-navigation.ts";
+import { wrappedBookDialogIndex } from "./dialog-navigation.ts";
+import type { DialogSessionState } from "./dialog-session.ts";
 import {
     createBookSubmitPayload,
     showSubmitError,
     submitBookDialogPayload,
 } from "./dialog_submit.ts";
-import type { BookDialogNavigationDirection } from "./dialog-navigation.ts";
-import { wrappedBookDialogIndex } from "./dialog-navigation.ts";
-import type { DialogSessionState } from "./dialog-session.ts";
 
 function bookById(books: Book[], bookId: string): Book | null {
     return books.find((book) => String(book.book_id) === bookId) ?? null;

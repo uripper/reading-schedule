@@ -147,11 +147,11 @@ p {
     border-radius: var(--token-radius-md);
     transition:
         border-color var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard),
+            var(--token-motion-easing-standard),
         transform var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard),
+            var(--token-motion-easing-standard),
         background-color var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard);
+            var(--token-motion-easing-standard);
 }
 
 .btn:hover {

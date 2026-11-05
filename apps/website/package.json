@@ -3,19 +3,19 @@
         "@reading-schedule/contracts": "workspace:*"
     },
     "devDependencies": {
-        "vite": "8.2.0"
+        "vite-plus": "catalog:"
     },
     "license": "0BSD",
     "name": "reading-schedule-website",
     "private": true,
     "scripts": {
-        "build": "pnpm run clean && pnpm run prepare:demo && vite build",
+        "build": "pnpm run clean && pnpm run prepare:demo && vp build",
         "build:test": "pnpm run prepare:demo && pnpm --dir ../.. exec tsc -p apps/website/tsconfig.tests.json",
         "clean": "node -e \"const fs = require('node:fs'); fs.rmSync('dist', { recursive: true, force: true }); fs.rmSync('dist-tests', { recursive: true, force: true })\"",
         "dev": "pnpm run dev:static",
-        "dev:hot": "pnpm run prepare:demo && vite",
-        "dev:static": "pnpm run build && vite preview",
-        "lint": "pnpm run prepare:demo && pnpm --dir ../.. exec biome check apps/website && cargo clippy --locked --lib --manifest-path ../../packages/planner/Cargo.toml --target wasm32-unknown-unknown -- -D warnings",
+        "dev:hot": "pnpm run prepare:demo && vp dev",
+        "dev:static": "pnpm run build && vp preview",
+        "lint": "pnpm run prepare:demo && pnpm --dir ../.. exec vp lint apps/website --format unix && pnpm --dir ../.. exec vp fmt apps/website --check && pnpm --dir ../.. run lint:web-assets && cargo clippy --locked --lib --manifest-path ../../packages/planner/Cargo.toml --target wasm32-unknown-unknown -- -D warnings",
         "prepare:demo": "pnpm -C ../../packages/frontend run build && node ./scripts/prepare-demo.mjs",
         "test": "pnpm run build:test && node --test dist-tests/tests/*.test.js && node --test tests/*.test.mjs",
         "typecheck": "pnpm run prepare:demo && pnpm --dir ../.. exec tsc -p apps/website/tsconfig.json --noEmit"

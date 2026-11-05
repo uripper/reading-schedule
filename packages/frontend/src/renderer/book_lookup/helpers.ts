@@ -36,7 +36,6 @@ export function placeholderCoverSvg(): string {
     return PLACEHOLDER;
 }
 
-// TODO: Double check changes here
 /**
  * Builds a user-facing description for a selected lookup result.
  * @param item - Selected lookup item.

@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: tests import built shared frontend artifacts.
 /** Exercises late cover results against live library changes and serialized snapshots. */
 import assert from "node:assert/strict";
 import test from "node:test";

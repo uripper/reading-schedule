@@ -14,7 +14,7 @@ The repository should define architectural boundaries clearly and enforce the pa
 
 Definition of done:
 
-- Enforce supported boundaries between the shared Rust planner, native Tauri commands/storage, desktop host adapters, shared frontend, contracts, website, and mobile.
+- Enforce supported boundaries between the shared Rust planner, native Tauri commands/storage, desktop host adapters, shared frontend, contracts, and website.
 - Add dependency-graph or import-boundary checks where practical.
 - Define an adapter policy for persistence, external services, and third-party APIs.
 - Add an architecture review template or ADR expectation for boundary changes.
@@ -30,5 +30,4 @@ Context:
 - `apps/bartleby/src/runtime/`
 - `packages/frontend/src/renderer/`
 - `apps/website/src/`
-- `mobile/src/`
 - `scripts/style_audit/config.mjs`

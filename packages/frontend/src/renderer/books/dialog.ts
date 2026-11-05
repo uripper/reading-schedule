@@ -16,23 +16,23 @@ import { createAfterBookPicker } from "./after_book_picker.ts";
 import { bindBulkEditDirtyTracking } from "./bulk-edit-form.ts";
 import { bindCoverPaste } from "./cover-paste.ts";
 import { bindCoverUpload } from "./cover-upload.ts";
-import { bindBookDialogProgressSync } from "./dialog_progress_sync.ts";
-import { bindBookDialogSubmit } from "./dialog_submit.ts";
+import { navigateVisibleBook } from "./dialog-navigation-flow.ts";
 import type { BookDialogNavigationRefs } from "./dialog-navigation.ts";
 import {
     bindBookDialogNavigation,
     ensureBookDialogNavigation,
 } from "./dialog-navigation.ts";
-import { navigateVisibleBook } from "./dialog-navigation-flow.ts";
 import { openBookDialog, unlockBookDialogScroll } from "./dialog-open.ts";
 import type { DialogSessionState } from "./dialog-session.ts";
 import {
     createDialogSessionState,
     dialogSubmitPayload,
 } from "./dialog-session.ts";
+import { bindBookDialogProgressSync } from "./dialog_progress_sync.ts";
+import { bindBookDialogSubmit } from "./dialog_submit.ts";
+import { applyLookupItem } from "./form-state-lookup.ts";
 import { ensureBookFormLayoutFields } from "./form_layout.ts";
 import { getBookFormRefs } from "./form_refs.ts";
-import { applyLookupItem } from "./form-state-lookup.ts";
 import { bindShelfPicker } from "./shelf_picker.ts";
 
 /**

@@ -1,9 +1,8 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { bindCardEvents } from "../dist/renderer/books/card_events.js";
 import { createCardNode } from "../dist/renderer/books/card-nodes.js";
+import { bindCardEvents } from "../dist/renderer/books/card_events.js";
 import { installFakeDom } from "./helpers/fake-dom.mjs";
 
 const BOOK_ID = "book-1";

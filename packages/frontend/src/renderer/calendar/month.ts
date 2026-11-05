@@ -5,9 +5,9 @@ import type {
     MonthActions,
 } from "../../types/types.ts";
 import { el } from "../dom.ts";
+import { mergeDisplayRows } from "./month-rows.ts";
 import { createDayButton, createWeekdayHeader } from "./month_day_button.ts";
 import { handleDayKeydown } from "./month_keyboard.ts";
-import { mergeDisplayRows } from "./month-rows.ts";
 import { dayKey, monthCells, monthLabel } from "./utils.ts";
 
 /**

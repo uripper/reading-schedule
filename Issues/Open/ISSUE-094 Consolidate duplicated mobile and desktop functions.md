@@ -6,7 +6,7 @@
 
 Problem:
 
-Potential duplication remains across mobile and the shared frontend. The planner already lives in a shared Rust crate with desktop and WebAssembly entrypoints, and shared TypeScript contracts already exist; audit remaining duplication rather than extracting another planner or copying platform-specific adapters.
+When the next mobile client is available, audit duplication with the shared frontend. The planner already lives in a shared Rust crate with desktop and WebAssembly entrypoints, and shared TypeScript contracts already exist.
 
 Expected:
 
@@ -21,7 +21,7 @@ Definition of done:
 
 Context:
 
-- `mobile/src/`
+- ISSUE-132 tracks the next mobile client.
 - `packages/frontend/src/renderer/`
 - `packages/contracts/src/`
 - `packages/planner/src/lib.rs`

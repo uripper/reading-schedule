@@ -1,7 +1,7 @@
 import type { Book, BookFormRefs } from "../../types/types.ts";
 import { optionLabel } from "./after_book_picker_helpers.ts";
-import { fillScheduledDayControls } from "./form_scheduled_days.ts";
 import { setOptionalDateInputValue } from "./form-state-helpers.ts";
+import { fillScheduledDayControls } from "./form_scheduled_days.ts";
 import { normalizeScheduledDays } from "./scheduled_days.ts";
 
 const BULK_DIRTY = "bulkDirty";

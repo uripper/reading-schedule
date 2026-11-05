@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test, { after } from "node:test";
@@ -9,24 +8,20 @@ const HARNESS = installFakeDom();
 const { FIELDS, WEEKDAYS, weekdayMinutesEnabledId, weekdayMinutesInputId } =
     await import("../dist/renderer/settings/config.js");
 const { parseSettings } = await import("@reading-schedule/contracts");
-const { collectSettingsForm } = await import(
-    "../dist/renderer/settings/serialize_collect.js"
-);
-const { fillSettingsForm } = await import(
-    "../dist/renderer/settings/serialize_fill.js"
-);
+const { collectSettingsForm } =
+    await import("../dist/renderer/settings/serialize_collect.js");
+const { fillSettingsForm } =
+    await import("../dist/renderer/settings/serialize_fill.js");
 const { renderGrid } = await import("../dist/renderer/settings/render.js");
-const { renderWeekdayGrid } = await import(
-    "../dist/renderer/settings/weekday-minutes.js"
-);
+const { renderWeekdayGrid } =
+    await import("../dist/renderer/settings/weekday-minutes.js");
 const {
     DEFAULT_MAX_BLOCKS_PER_BOOK_PER_DAY,
     DEFAULT_PLAN_MODE,
     DEFAULT_TIME_QUANTUM_MINUTES,
 } = await import("../dist/renderer/settings/defaults.js");
-const { minimumPlannerStartDate } = await import(
-    "../dist/renderer/settings/start_date.js"
-);
+const { minimumPlannerStartDate } =
+    await import("../dist/renderer/settings/start_date.js");
 
 after(() => {
     HARNESS.restore();

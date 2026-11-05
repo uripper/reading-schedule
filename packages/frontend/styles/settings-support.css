@@ -64,9 +64,9 @@
     box-shadow: 3px 3px 0 #000;
     transition:
         background-color var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard),
+            var(--token-motion-easing-standard),
         border-color var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard);
+            var(--token-motion-easing-standard);
 }
 
 .chip-btn:hover {

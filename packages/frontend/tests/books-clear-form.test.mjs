@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: tests use built frontend artifacts.
 /** Retains optional-date reset regression coverage separately from submit flows. */
 import assert from "node:assert/strict";
 import test from "node:test";

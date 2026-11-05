@@ -220,11 +220,11 @@
     border-radius: 0;
     transition:
         border-color var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard),
+            var(--token-motion-easing-standard),
         background-color var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard),
+            var(--token-motion-easing-standard),
         color var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard);
+            var(--token-motion-easing-standard);
 }
 
 .btn-session-remove:hover {

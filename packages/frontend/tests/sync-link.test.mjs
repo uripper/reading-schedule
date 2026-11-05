@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Covers equal-progress confirmations without changing reading history. */
 import assert from "node:assert/strict";
 import test from "node:test";

@@ -1,7 +1,7 @@
 /* Library toolbar: actions row, then labeled search/filter/sort fields. */
 .books-toolbar {
     --books-toolbar-ink: #13213a;
-    --books-toolbar-paper: #FFF1B4;
+    --books-toolbar-paper: #fff1b4;
     --books-toolbar-field: #fff;
     --books-toolbar-primary: #17785a;
     --books-toolbar-primary-ink: #f9f4e8;
@@ -196,7 +196,7 @@
 
 .books-sort-direction-segment {
     --icon-size: 22px;
-    
+
     display: grid;
     place-items: center;
     width: 46px;

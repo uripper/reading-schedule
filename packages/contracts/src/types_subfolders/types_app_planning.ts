@@ -75,7 +75,8 @@ export interface MergeScheduleRowsArgs {
 
 /** Dependencies used when applying generated planner output to runtime state. */
 export interface ApplyPlannedDataArgs
-    extends BlockedDayBookReader,
+    extends
+        BlockedDayBookReader,
         PlannerCalendarBindings,
         PlannerStateReaders,
         ScheduleCompletionWriter {
@@ -138,7 +139,8 @@ export interface RunPlanGenerationArgs extends PlanCommonArgs {
 
 /** Dependencies required to build the plan controller. */
 export interface PlanControllerArgs
-    extends BlockedDayBookReader,
+    extends
+        BlockedDayBookReader,
         PlanCommonArgs,
         PlannerCalendarBindings,
         PlannerStateReaders,

@@ -16,7 +16,7 @@ const PACKAGE_MANIFEST_PATHS = [
     "packages/frontend/package.json",
 ];
 const DEPENDENCY_SECTIONS = ["dependencies", "devDependencies"];
-const SHARED_DEPENDENCIES = ["@types/node", "tslog", "typescript", "vite"];
+const SHARED_DEPENDENCIES = ["@types/node", "tslog", "typescript", "vite-plus"];
 const CARGO_MANIFEST_PATH = "apps/bartleby/src-tauri/Cargo.toml";
 const CARGO_LOCK_PATH = "apps/bartleby/src-tauri/Cargo.lock";
 const TAURI_PACKAGE_PATH = "apps/bartleby/package.json";

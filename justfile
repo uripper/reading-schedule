@@ -11,15 +11,6 @@ dev:
 desktop:
   pnpm run dev:desktop
 
-mobile:
-  pnpm run dev:mobile
-
-android:
-  pnpm run dev:mobile:android
-
-ios:
-  pnpm run dev:mobile:ios
-
 windows:
   pnpm run dev:windows
 
@@ -37,9 +28,6 @@ build-contracts:
 build-desktop:
   pnpm run build:desktop
 
-build-mobile:
-  pnpm run build:mobile
-
 # Lint / format
 lint:
   just lint-ts
@@ -47,7 +35,6 @@ lint:
 lint-ts:
   pnpm run lint:desktop
   pnpm run lint:packages
-  pnpm run lint:mobile
 
 fix:
   just fix-ts
@@ -65,7 +52,6 @@ typecheck:
 typecheck-ts:
   pnpm run typecheck:contracts
   pnpm run typecheck:desktop
-  pnpm run typecheck:mobile
 
 typecov:
   pnpm run typecov

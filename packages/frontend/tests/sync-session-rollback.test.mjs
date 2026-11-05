@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Covers session rollback alongside concurrent calendar activity and multi-book imports. */
 import assert from "node:assert/strict";
 import test from "node:test";

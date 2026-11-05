@@ -4,12 +4,6 @@ import type {
     PlannerScheduleRow,
     PlannerSettings,
 } from "../../../types/types.ts";
-import { emptyPlannerResult } from "./calendar_interactions_helpers.ts";
-import {
-    normalizedManualMinutes,
-    wordsPlannedForManualSession,
-} from "./calendar_interactions_manual_helpers.ts";
-import { nextSessionIndexForDate } from "./calendar_interactions_row_helpers.ts";
 import { rowsWithManualSession } from "./calendar-interactions-manual-session-merge.ts";
 import {
     applyNextResult,
@@ -18,6 +12,12 @@ import {
     nextResultWithRows,
     setBlockedDayBook,
 } from "./calendar-interactions-schedule-update-helpers.ts";
+import { emptyPlannerResult } from "./calendar_interactions_helpers.ts";
+import {
+    normalizedManualMinutes,
+    wordsPlannedForManualSession,
+} from "./calendar_interactions_manual_helpers.ts";
+import { nextSessionIndexForDate } from "./calendar_interactions_row_helpers.ts";
 
 type ManualSessionDateOptions = Pick<
     AddManualSessionArgs,

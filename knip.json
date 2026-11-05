@@ -1,4 +1,5 @@
 {
+    "exclude": ["devDependencies"],
     "treatConfigHintsAsErrors": true,
     "workspaces": {
         ".": {
@@ -18,20 +19,6 @@
         "apps/bartleby": {
             "entry": ["src/main.ts", "src/runtime/*.ts", "scripts/*.mjs"],
             "project": ["src/**/*.ts", "scripts/**/*.mjs", "!node_modules/**"]
-        },
-        "mobile": {
-            "entry": ["src/**/*.ts", "src/**/*.tsx"],
-            "paths": {
-                "@api/*": ["./src/api/*"],
-                "@config/*": ["./src/config/*"],
-                "@features/*": ["./src/features/*"]
-            },
-            "project": [
-                "App.tsx",
-                "src/**/*.ts",
-                "src/**/*.tsx",
-                "!node_modules/**"
-            ]
         },
         "packages/frontend": {
             "entry": ["src/renderer/app.ts", "scripts/*.mjs", "tests/*.mjs"],

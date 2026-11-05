@@ -12,7 +12,16 @@
         "**/*.css",
         "**/*.sh",
         "**/style_audit.mjs",
-        "**/scripts/**"
+        "**/scripts/**",
+        "**/report/**",
+        "*.html",
+        "*.txt",
+        "*.svg",
+        "*.yaml",
+        "*.yml",
+        "*.csv",
+        "*.json",
+        "*.toml"
     ],
     "mode": "strict",
     "reporters": ["html", "markdown"],

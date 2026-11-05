@@ -14,7 +14,7 @@ Repository duplication should be reduced to 0.1% or lower, and clone-rate enforc
 
 Definition of done:
 
-- Establish a reproducible baseline for apps, packages, and mobile source, excluding generated output and dependencies, then prioritize the highest-value current hotspots.
+- Establish a reproducible baseline for apps and packages, excluding generated output and dependencies, then prioritize the highest-value current hotspots.
 - Extract shared types, helpers, or constants instead of copy-pasting near-identical branches.
 - Avoid fake abstractions that only move duplication sideways.
 - Add a documented `jscpd` command to repository validation.
@@ -27,6 +27,5 @@ Context:
 - `packages/frontend/src/renderer/calendar/details_session_past.ts`
 - `packages/frontend/src/renderer/book_lookup/keyboard.ts`
 - `packages/frontend/src/renderer/app/date_keys.ts`
-- `mobile/src/features/today/use_today_data.ts`
 - `package.json`
 - `scripts/style_audit/config.mjs`

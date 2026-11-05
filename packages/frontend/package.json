@@ -2,21 +2,21 @@
     "dependencies": {
         "@reading-schedule/contracts": "workspace:*",
         "flatpickr": "^4.6.13",
-        "tslog": "^4.11.0"
+        "tslog": "^5.4.0"
     },
     "devDependencies": {
-        "@types/node": "^25.9.5",
-        "esbuild": "^0.28.1",
-        "typescript": "^5.9.3"
+        "@types/node": "^25.9.9",
+        "typescript": "^5.9.3",
+        "vite-plus": "catalog:"
     },
     "license": "0BSD",
     "name": "@reading-schedule/frontend",
     "private": true,
     "scripts": {
-        "build": "pnpm -C ../contracts run build && pnpm run build:tokens && pnpm run clean:dist && pnpm --dir ../.. exec tsc -p packages/frontend/tsconfig.json && node ./scripts/bundle-renderer.mjs && node ./scripts/copy-static.mjs",
+        "build": "pnpm -C ../contracts run build && pnpm run build:tokens && pnpm run clean:dist && pnpm --dir ../.. exec tsc -p packages/frontend/tsconfig.json && vp build && node ./scripts/copy-static.mjs",
         "build:tokens": "node ./scripts/build_tokens.mjs",
         "clean:dist": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
-        "lint": "pnpm --dir ../.. exec biome check packages/frontend",
+        "lint": "pnpm --dir ../.. exec vp lint packages/frontend --format unix && pnpm --dir ../.. exec vp fmt packages/frontend --check",
         "test": "pnpm run build && node --test tests/*.test.mjs",
         "typecheck": "pnpm -C ../contracts run build && pnpm --dir ../.. exec tsc -p packages/frontend/tsconfig.json --noEmit"
     },

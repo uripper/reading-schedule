@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Covers displaying, unlinking, and restoring synced source links in book details. */
 import assert from "node:assert/strict";
 import test from "node:test";

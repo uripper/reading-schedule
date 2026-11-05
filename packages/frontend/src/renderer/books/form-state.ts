@@ -10,11 +10,6 @@ import type {
 } from "../../types/types.ts";
 import { uid } from "../dom.ts";
 import {
-    fillScheduledDayControls,
-    readScheduledDaySelection,
-    resetScheduledDayControls,
-} from "./form_scheduled_days.ts";
-import {
     clearOptionalDateInputValue,
     DEFAULT_DIFFICULTY,
     DEFAULT_MIN_BLOCKS,
@@ -32,6 +27,11 @@ import {
     validatedShelfSelection,
     validatedStatusSelection,
 } from "./form-state-helpers.ts";
+import {
+    fillScheduledDayControls,
+    readScheduledDaySelection,
+    resetScheduledDayControls,
+} from "./form_scheduled_days.ts";
 import { bookCoverSrc, normalizeBook } from "./model-normalize.ts";
 import { BOOK_STATUS_READ } from "./status_catalog.ts";
 import { toOptionalInt } from "./utils.ts";

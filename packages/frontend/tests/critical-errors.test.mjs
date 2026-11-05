@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: tests exercise built frontend artifacts.
 /** Verifies persistent, independent errors without focus theft or unsafe markup. */
 import assert from "node:assert/strict";
 import test from "node:test";

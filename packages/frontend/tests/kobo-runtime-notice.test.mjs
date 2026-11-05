@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Covers manual empty-sync feedback without changing the connection badge. */
 import assert from "node:assert/strict";
 import test from "node:test";

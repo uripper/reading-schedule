@@ -44,9 +44,8 @@ function startStateMaintenance(): void {
 /** Installs native adapters and starts the shared frontend runtime. */
 async function bootstrapApp(): Promise<void> {
     installTauriPlannerApi();
-    const FRONTEND = await import(
-        "../../../packages/frontend/src/renderer/app.ts"
-    );
+    const FRONTEND =
+        await import("../../../packages/frontend/src/renderer/app.ts");
     startTauriUpdater({
         flushPendingState: FRONTEND.flushPendingState,
     });

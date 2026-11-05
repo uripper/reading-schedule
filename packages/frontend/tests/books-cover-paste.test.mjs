@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: tests import built shared frontend artifacts.
 /** Verifies clipboard paste in the book dialog stages covers like file upload. */
 import assert from "node:assert/strict";
 import test from "node:test";

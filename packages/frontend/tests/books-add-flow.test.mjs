@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Exercises prefilled add-book requests through the normal controller boundary. */
 import assert from "node:assert/strict";
 import test from "node:test";

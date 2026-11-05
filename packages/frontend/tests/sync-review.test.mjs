@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Exercises approval controls using the shared DOM fixture. */
 import assert from "node:assert/strict";
 import test from "node:test";
