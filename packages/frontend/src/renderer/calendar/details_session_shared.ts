@@ -57,38 +57,35 @@ export function baseSessionItem(
     HEADER.className = "day-session-header";
     HEADER.append(
         removeSessionButton(row, interactionHandlers, rerenderDetails),
-        sessionHeading(row, book?.author ?? ""),
+        sessionHeading(row.title, book?.author ?? ""),
     );
     if (book !== null) {
         HEADER.append(sessionMenu(row.book_id));
+    }
+    if (row.finish) {
+        const BADGE = document.createElement("span");
+        BADGE.className = "day-finish-badge";
+        BADGE.textContent = FINISH_BADGE_TEXT;
+        HEADER.append(BADGE);
     }
     ITEM.append(HEADER);
     ITEM.classList.toggle("is-finish", row.finish === true);
     return ITEM;
 }
 
-/** Keeps the title, author, and finish badge together as the title wraps. */
-function sessionHeading(
-    row: CalendarRowWithFinish,
-    author: string,
-): HTMLElement {
+/** Keeps the title and author together as the title wraps. */
+function sessionHeading(title: string, author: string): HTMLElement {
     const HEADING = document.createElement("div");
     HEADING.className = "day-session-heading";
     const TITLE = document.createElement("strong");
     TITLE.className = "day-session-title";
-    TITLE.textContent = row.title;
+    TITLE.textContent = title;
     HEADING.append(TITLE);
     if (author.trim() !== "") {
         const AUTHOR = document.createElement("span");
         AUTHOR.className = "day-session-author";
         AUTHOR.textContent = author;
         HEADING.append(AUTHOR);
-    }
-    if (row.finish) {
-        const BADGE = document.createElement("span");
-        BADGE.className = "day-finish-badge";
-        BADGE.textContent = FINISH_BADGE_TEXT;
-        HEADING.append(BADGE);
     }
     return HEADING;
 }

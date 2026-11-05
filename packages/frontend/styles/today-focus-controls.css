@@ -34,9 +34,9 @@
 
 .today-control-label {
     margin: 0;
-    font-family: var(--main-font);
-    font-size: 1.1rem;
-    font-weight: 800;
+    font-family: var(--token-typography-family-body);
+    font-size: var(--token-typography-size-lg);
+    font-weight: var(--token-typography-weight-extrabold);
     line-height: 1.2;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -53,9 +53,9 @@
 .today-minutes-inline-input {
     min-width: 2.5ch;
     margin: 0;
-    font-family: var(--sub-header-font);
-    font-size: clamp(3rem, 6vw, 4.25rem);
-    font-weight: 700;
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-display);
+    font-weight: var(--token-typography-weight-bold);
     line-height: 1;
     color: var(--color-black);
     text-align: left;
@@ -76,9 +76,9 @@
 .today-minutes-unit {
     align-self: flex-end;
     margin-bottom: 0.55rem;
-    font-family: var(--main-font);
-    font-size: 1.15rem;
-    font-weight: 800;
+    font-family: var(--token-typography-family-body);
+    font-size: var(--token-typography-size-lg);
+    font-weight: var(--token-typography-weight-extrabold);
 }
 
 .today-minutes-edit-btn {
@@ -115,18 +115,18 @@
 }
 
 .today-after-session-label {
-    font-family: var(--main-font);
+    font-family: var(--token-typography-family-body);
     font-size: var(--token-typography-size-md);
-    font-weight: 800;
+    font-weight: var(--token-typography-weight-extrabold);
     line-height: 1.2;
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
 
 .today-after-session-values {
-    font-family: var(--main-font);
-    font-size: 1.2rem;
-    font-weight: 800;
+    font-family: var(--token-typography-family-body);
+    font-size: var(--token-typography-size-lg);
+    font-weight: var(--token-typography-weight-extrabold);
     line-height: 1.25;
     white-space: pre-line;
 }
@@ -155,9 +155,9 @@
 
 .today-progress-heading > span {
     padding: 0.25rem 0.45rem;
-    font-family: var(--main-font);
+    font-family: var(--token-typography-family-body);
     font-size: var(--token-typography-size-md);
-    font-weight: 700;
+    font-weight: var(--token-typography-weight-bold);
     color: var(--color-black);
     background: var(--color-white);
     border: var(--border-regular) solid var(--color-black);
@@ -173,9 +173,9 @@
     display: grid;
     gap: 0.4rem;
     min-width: 0;
-    font-family: var(--main-font);
-    font-size: 1.05rem;
-    font-weight: 800;
+    font-family: var(--token-typography-family-body);
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-extrabold);
 }
 
 .today-progress-chip {
@@ -184,9 +184,9 @@
     min-width: 0;
     min-height: 3.25rem;
     padding: 0 0.85rem;
-    font-family: var(--main-font);
-    font-size: 1.4rem;
-    font-weight: 800;
+    font-family: var(--token-typography-family-body);
+    font-size: var(--token-typography-size-xl);
+    font-weight: var(--token-typography-weight-extrabold);
     line-height: 1;
     background: var(--color-white);
     border: var(--border-thick) solid var(--color-black);
@@ -236,7 +236,7 @@
 .today-progress-pages-separator,
 .today-progress-percent-suffix,
 #todayProgressPagesTotalText {
-    font-weight: 800;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-black);
 }
 

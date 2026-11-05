@@ -18,8 +18,8 @@
 
 .book-dialog-header > h2 {
     margin: 0;
-    font-family: var(--header-font);
-    font-size: clamp(1.3rem, 3vw, 1.6rem);
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-heading-sm);
     color: inherit;
     text-transform: uppercase;
 }
@@ -35,7 +35,7 @@
 .book-form-section h3 {
     margin: 0;
     font-size: var(--token-typography-size-lg);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: inherit;
     text-transform: uppercase;
 }
@@ -49,7 +49,7 @@
     gap: var(--token-space-2);
     align-items: center;
     min-height: var(--token-size-target-minimum);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     cursor: pointer;
     list-style: none;
 }
@@ -116,7 +116,7 @@ details[open] > .book-section-toggle::after {
 .book-form-section label,
 .book-scheduled-days > legend {
     font-size: var(--book-text-size);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: inherit;
     text-transform: uppercase;
     letter-spacing: 0.02em;
@@ -127,7 +127,7 @@ details[open] > .book-section-toggle::after {
     min-height: var(--token-size-target-minimum);
     padding-block: var(--token-space-1);
     font-size: var(--book-text-size);
-    font-weight: 500;
+    font-weight: var(--token-typography-weight-medium);
     color: var(--color-ink);
     background-color: var(--color-frost);
     border: var(--border-thin) solid var(--color-gray);

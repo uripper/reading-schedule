@@ -30,7 +30,8 @@
     justify-content: center;
     min-height: var(--button-height);
     padding: var(--token-space-1) var(--token-space-3);
-    font: 700 var(--token-typography-size-md)/1.3 var(--main-font);
+    font: 700 var(--token-typography-size-md)/1.3
+        var(--token-typography-family-body);
     color: var(--button-ink);
     text-align: center;
     cursor: pointer;

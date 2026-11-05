@@ -23,9 +23,9 @@
 .app-update-dialog-title {
     padding: 14px 18px;
     margin: 0;
-    font-family: var(--header-font);
+    font-family: var(--token-typography-family-heading);
     font-size: var(--token-typography-size-lg);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-black);
 }
 
@@ -41,9 +41,9 @@
 }
 
 .app-update-dialog-version {
-    font-family: var(--header-font);
+    font-family: var(--token-typography-family-heading);
     font-size: var(--token-typography-size-xl);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
 }
 
 .app-update-dialog-current {
@@ -60,7 +60,7 @@
 
 .app-update-dialog-status {
     min-height: 24px;
-    font-weight: 800;
+    font-weight: var(--token-typography-weight-extrabold);
 }
 
 .app-update-dialog-progress {

@@ -21,7 +21,7 @@
     min-height: var(--button-prominent-height);
     padding-inline: var(--button-prominent-padding);
     font-size: var(--button-prominent-text);
-    font-weight: 800;
+    font-weight: var(--token-typography-weight-extrabold);
 }
 
 .today-log-session-btn {

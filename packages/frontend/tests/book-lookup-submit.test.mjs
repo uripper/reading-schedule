@@ -90,7 +90,7 @@ test("typing waits for Enter, and Enter selects a result without saving the book
 
 test("clicking the magnifier submits and changing the query discards late results", async (t) => {
     const LOOKUP = setup(t);
-    LOOKUP.meta.dataset.lookupNote = "Custom cover uploaded.";
+    LOOKUP.meta.dataset.lookupNote = "Selected from Open Library · Aristotle";
     LOOKUP.input.value = "Metaphysics";
     LOOKUP.searchButton.click();
     LOOKUP.dom.dispatchDocument("click", {
@@ -105,7 +105,10 @@ test("clicking the magnifier submits and changing the query discards late result
     await settle();
     assert.equal(LOOKUP.results.children.length, 0);
     assert.equal(LOOKUP.requests.length, 1);
-    assert.equal(LOOKUP.meta.textContent, "Custom cover uploaded.");
+    assert.equal(
+        LOOKUP.meta.textContent,
+        "Selected from Open Library · Aristotle",
+    );
     assert.equal(LOOKUP.input.attributes.has("aria-busy"), false);
 });
 

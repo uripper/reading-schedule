@@ -69,6 +69,19 @@ function cardFixture(handlers) {
     });
 }
 
+test("the expected finish badge gets its own row in the card header", (context) => {
+    const DOM = installFakeDom();
+    context.after(() => DOM.restore());
+    const CARD = cardFixture(calendarHandlers());
+    const BADGE = CARD.querySelector(".day-finish-badge");
+
+    assert.equal(BADGE.textContent, "Expected finish");
+    assert.equal(
+        BADGE.parentElement,
+        CARD.querySelector(".day-session-header"),
+    );
+});
+
 function editorNodes(form) {
     const INPUT = form.querySelector("input");
     INPUT.select = NOOP;

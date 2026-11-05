@@ -26,7 +26,7 @@
 
 .today-add-title {
     margin: 0;
-    font-family: var(--header-font);
+    font-family: var(--token-typography-family-heading);
 }
 
 .today-add-preview {
@@ -65,16 +65,16 @@
 
 .today-add-preview-title {
     margin: 0;
-    font-family: var(--header-font);
-    font-size: 1.1rem;
-    font-weight: 800;
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-lg);
+    font-weight: var(--token-typography-weight-extrabold);
     line-height: 1.25;
 }
 
 .today-add-preview-label {
     margin: 0 0 4px;
     font-size: var(--token-typography-size-md);
-    font-weight: 800;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-glacier);
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -114,9 +114,9 @@
 .today-add-cover-fallback {
     display: grid;
     place-items: center;
-    font-family: var(--header-font);
-    font-size: 1.3rem;
-    font-weight: 900;
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-lg);
+    font-weight: var(--token-typography-weight-extrabold);
     background: var(--neo-today-yellow);
 }
 
@@ -124,7 +124,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: var(--token-typography-size-md);
-    font-weight: 700;
+    font-weight: var(--token-typography-weight-bold);
     white-space: nowrap;
 }
 
@@ -132,7 +132,7 @@
     padding: 14px 12px;
     margin: 0;
     font-size: var(--token-typography-size-md);
-    font-weight: 700;
+    font-weight: var(--token-typography-weight-bold);
     background: var(--color-ink);
     border: var(--border-regular) dashed var(--color-paper);
 }

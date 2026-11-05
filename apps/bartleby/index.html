@@ -525,24 +525,26 @@
         <section class="book-form-section" aria-labelledby="bookDetailsHeading">
           <h3 id="bookDetailsHeading">Book Details</h3>
           <div class="book-details-layout">
-            <button
-              id="bookCoverPanel"
-              class="book-cover-panel"
-              type="button"
-              tabindex="0"
-              aria-label="Upload custom cover, or paste an image"
-            >
-              <img id="bookCoverPreview" alt="Book cover preview" src="" />
+            <div class="book-cover-field">
+              <button
+                id="bookCoverPanel"
+                class="book-cover-panel"
+                type="button"
+                tabindex="0"
+                aria-label="Upload custom cover, or paste an image"
+              >
+                <img id="bookCoverPreview" alt="Book cover preview" src="" />
+              </button>
               <p class="book-cover-upload-hint">
-                Click cover to upload your own image, or paste one
+                Click the cover to upload, or paste an image.
               </p>
-            </button>
-            <input
-              id="bookCoverUploadInput"
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              hidden
-            />
+              <input
+                id="bookCoverUploadInput"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                hidden
+              />
+            </div>
             <div class="book-details-fields">
               <div class="book-search-panel">
                 <label for="bookSearchInput">Find Book (Open Library)</label>

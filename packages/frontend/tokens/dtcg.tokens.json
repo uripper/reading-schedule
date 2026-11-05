@@ -48,17 +48,17 @@
     },
     "typography": {
         "family": {
+            "body": {
+                "$type": "fontFamily",
+                "$value": "\"Archivo\", sans-serif"
+            },
             "heading": {
                 "$type": "fontFamily",
-                "$value": "\"Space Grotesk\", \"Plus Jakarta Sans\", sans-serif"
+                "$value": "\"Plus Jakarta Sans\", sans-serif"
             },
             "mono": {
                 "$type": "fontFamily",
                 "$value": "\"Space Mono\", monospace"
-            },
-            "sans": {
-                "$type": "fontFamily",
-                "$value": "\"Plus Jakarta Sans\", \"Archivo\", sans-serif"
             }
         },
         "lineHeight": {
@@ -66,12 +66,29 @@
             "tight": { "$type": "number", "$value": "1.2" }
         },
         "size": {
+            "display": {
+                "$type": "fontSize",
+                "$value": "clamp(3rem, 6vw, 4.25rem)"
+            },
+            "heading-lg": {
+                "$type": "fontSize",
+                "$value": "clamp(2rem, 3vw, 2.8rem)"
+            },
+            "heading-md": {
+                "$type": "fontSize",
+                "$value": "clamp(1.2rem, 2.2vw, 2.7rem)"
+            },
+            "heading-sm": {
+                "$type": "fontSize",
+                "$value": "clamp(1.2rem, 2vw, 1.6rem)"
+            },
             "lg": { "$type": "fontSize", "$value": "1.2rem" },
             "md": { "$type": "fontSize", "$value": "1rem" },
             "xl": { "$type": "fontSize", "$value": "1.6rem" }
         },
         "weight": {
             "bold": { "$type": "fontWeight", "$value": "700" },
+            "extrabold": { "$type": "fontWeight", "$value": "800" },
             "medium": { "$type": "fontWeight", "$value": "500" },
             "regular": { "$type": "fontWeight", "$value": "400" },
             "semibold": { "$type": "fontWeight", "$value": "600" }

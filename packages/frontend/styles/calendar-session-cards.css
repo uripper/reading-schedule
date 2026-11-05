@@ -52,7 +52,7 @@
 }
 
 .day-session-title {
-    font-family: var(--header-font);
+    font-family: var(--token-typography-family-heading);
     font-size: var(--token-typography-size-lg);
     line-height: var(--token-typography-lineHeight-tight);
 }
@@ -62,10 +62,12 @@
 }
 
 .day-finish-badge {
+    grid-column: 1 / -1;
     justify-self: start;
     padding: 2px var(--token-space-2);
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-bold);
+    line-height: var(--token-typography-lineHeight-tight);
     color: color-mix(in srgb, var(--color-amber) 90%, var(--color-white));
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -114,7 +116,7 @@
     block-size: 100%;
     margin: 0;
     font-size: var(--token-typography-size-md);
-    font-weight: 700;
+    font-weight: var(--token-typography-weight-bold);
     text-transform: uppercase;
 }
 
@@ -151,7 +153,7 @@
     white-space: nowrap;
 }
 
-@container (max-width: 230px) {
+@container (max-width: 320px) {
     .day-details-item {
         grid-template-columns: minmax(0, 1fr);
     }

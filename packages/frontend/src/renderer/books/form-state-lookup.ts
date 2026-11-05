@@ -9,7 +9,7 @@ import {
     syncProgressAndPages,
 } from "../book_lookup/helpers.ts";
 import { releaseCoverUpload } from "./cover-upload-staging.ts";
-import { CUSTOM_COVER_NOTE, setCoverPreview } from "./form-state-helpers.ts";
+import { setCoverPreview } from "./form-state-helpers.ts";
 import { toOptionalInt } from "./utils.ts";
 
 /**
@@ -70,15 +70,13 @@ export function applyLookupItem(
 }
 
 /**
- * Applies uploaded local cover metadata and updates preview/note fields.
+ * Shows a staged cover and clears any transient upload error.
  * @param refs - Book form references to update.
  * @param localCoverPath - Planner-saved local cover path.
- * @param fileName - Optional original file name for display note.
  */
 export function applyUploadedCover(
     refs: BookFormRefs,
     localCoverPath: string,
-    fileName = "",
 ): void {
     const FORM_REFS = refs;
     const NORMALIZED_PATH = String(localCoverPath).trim();
@@ -89,13 +87,7 @@ export function applyUploadedCover(
     FORM_REFS.coverLocal.value = NORMALIZED_PATH;
     FORM_REFS.coverUrl.value = "";
 
-    let note = CUSTOM_COVER_NOTE;
-    const NORMALIZED_FILE_NAME = String(fileName).trim();
-    if (NORMALIZED_FILE_NAME) {
-        note = `${CUSTOM_COVER_NOTE} ${NORMALIZED_FILE_NAME}`;
-    }
-
-    FORM_REFS.lookupMeta.dataset.lookupNote = note;
-    FORM_REFS.lookupMeta.textContent = note;
+    FORM_REFS.lookupMeta.textContent =
+        FORM_REFS.lookupMeta.dataset.lookupNote ?? "";
     setCoverPreview(FORM_REFS, NORMALIZED_PATH);
 }

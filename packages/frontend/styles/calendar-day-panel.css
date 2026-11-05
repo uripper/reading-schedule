@@ -17,7 +17,7 @@
 .day-details > h2 {
     padding-bottom: 12px;
     margin: 0;
-    font-family: var(--header-font);
+    font-family: var(--token-typography-family-heading);
     text-transform: uppercase;
     border-bottom: var(--border-thick) solid var(--color-black);
 }
@@ -49,7 +49,7 @@
 .day-scheduled-book-item {
     padding: 8px 10px;
     font-size: var(--token-typography-size-md);
-    font-weight: 700;
+    font-weight: var(--token-typography-weight-bold);
     color: var(--color-ink);
     background: var(--color-pistachio);
     border: var(--border-regular) solid var(--color-black);
@@ -69,7 +69,7 @@
 .day-manual-add > h3 {
     margin: 0;
     font-size: var(--token-typography-size-md);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-ink);
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -143,9 +143,9 @@
     filter: brightness(1.08);
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1320px) {
     .schedule-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .day-details {

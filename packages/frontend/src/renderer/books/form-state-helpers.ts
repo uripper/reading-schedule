@@ -17,8 +17,6 @@ export const DEFAULT_DIFFICULTY = "3";
 export const DEFAULT_MIN_BLOCKS = "1";
 export const DEFAULT_STATUS = BOOK_STATUS_TO_READ;
 
-export const CUSTOM_COVER_NOTE = "Custom cover uploaded.";
-
 const PROGRESS_MAX = 100;
 const PROGRESS_DECIMAL_SCALE = 10;
 

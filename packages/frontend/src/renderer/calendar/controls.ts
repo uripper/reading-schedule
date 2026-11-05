@@ -42,7 +42,7 @@ export function renderCalendarControls(args: {
     const CALENDAR_STATE = args.state;
     const KEY = CALENDAR_STATE.months[CALENDAR_STATE.index] ?? "";
     const CONTROLS = el("calendarControls");
-    const TITLE = document.createElement("strong");
+    const TITLE = document.createElement("h2");
     TITLE.textContent = monthLabel(KEY);
 
     if (!KEY) {

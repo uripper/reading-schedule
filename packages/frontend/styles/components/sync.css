@@ -58,7 +58,7 @@
     display: flex;
     gap: 0.75rem;
     align-items: center;
-    font-weight: bold;
+    font-weight: var(--token-typography-weight-bold);
     color: inherit;
 }
 

@@ -126,7 +126,7 @@
     justify-content: center;
     min-width: 0;
     padding: 0 4.25rem;
-    font-family: var(--header-font);
+    font-family: var(--token-typography-family-heading);
     font-size: var(--token-typography-size-lg);
     font-weight: var(--token-typography-weight-semibold);
     color: var(--color-ink);

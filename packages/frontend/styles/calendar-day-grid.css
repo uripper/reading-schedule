@@ -1,17 +1,24 @@
+main:has(> .neo-screen-schedule.is-active) {
+    --layout-max-width: 1920px;
+}
+
+.neo-screen-schedule > .neo-screen-content {
+    padding-inline: clamp(12px, 1.25vw, 24px);
+}
+
 .schedule-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(250px, 314px);
+    grid-template-columns: minmax(0, 1fr) clamp(376px, 24vw, 420px);
     gap: 20px;
     align-items: start;
 }
 
 #calendarControls {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
     gap: var(--token-space-2);
     align-items: center;
     padding: 18px;
-    margin-bottom: 0;
     background: var(--color-emerald);
     border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
@@ -23,12 +30,17 @@
     font-size: var(--button-prominent-text);
 }
 
-#calendarControls strong {
-    margin: 0 auto;
+#calendarControls h2 {
+    margin: 0;
     font-family: var(--token-typography-family-heading);
-    font-size: var(--token-typography-size-lg);
+    font-size: var(--token-typography-size-heading-lg);
     line-height: var(--token-typography-lineHeight-tight);
     color: var(--color-ink);
+    text-align: center;
+}
+
+#calendarControls h2:only-child {
+    grid-column: 1 / -1;
 }
 
 .calendar {
@@ -40,7 +52,7 @@
 .calendar-weekday {
     padding: var(--token-space-1) var(--token-space-2);
     font-size: var(--token-typography-size-md);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-white);
     text-align: center;
     text-transform: uppercase;
@@ -58,10 +70,11 @@
 
 .day {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--token-space-1);
     align-content: start;
     min-height: 164px;
-    padding: 14px;
+    padding: clamp(8px, 0.8vw, 14px);
     color: var(--color-ink);
     text-align: left;
     background: var(--color-pistachio);
@@ -146,20 +159,18 @@
 }
 
 .day-chip {
-    padding: 6px 8px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    padding: var(--token-space-1);
     font-size: var(--token-typography-size-md);
-    font-weight: 800;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-ink);
-    white-space: nowrap;
+    overflow-wrap: anywhere;
     background: var(--color-pistachio);
     border: var(--border-regular) solid var(--color-black);
     border-radius: 0;
 }
 
 .day-chip.finish {
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-ink);
     background: var(--color-banana);
     border-color: var(--color-black);
@@ -173,6 +184,17 @@
 @media (max-width: 1450px) {
     .day {
         min-height: 144px;
+    }
+}
+
+@media (width <= 560px) {
+    #calendarControls {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+
+    #calendarControls h2 {
+        grid-row: 1;
+        grid-column: 1 / -1;
     }
 }
 

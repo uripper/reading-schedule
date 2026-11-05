@@ -32,7 +32,7 @@
 .stats-card h2 {
     margin: 0;
     font-size: var(--token-typography-size-md);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-ink);
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -41,14 +41,14 @@
 .stats-value {
     margin: 0;
     font-family: var(--token-typography-family-heading);
-    font-size: clamp(2rem, 3vw, 2.6rem);
+    font-size: var(--token-typography-size-heading-lg);
     color: var(--color-ink);
 }
 
 .stats-note {
     margin: 0;
     font-size: var(--token-typography-size-md);
-    font-weight: 700;
+    font-weight: var(--token-typography-weight-bold);
     color: var(--color-night);
 }
 
@@ -71,8 +71,8 @@
 .stats-section-heading {
     padding-bottom: 12px;
     margin: 0;
-    font-family: var(--header-font);
-    font-size: 1.25rem;
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-lg);
     color: var(--color-ink);
     text-transform: uppercase;
     border-bottom: var(--border-thick) solid var(--color-black);
@@ -93,7 +93,7 @@
 .status-label,
 .status-count {
     font-size: var(--token-typography-size-md);
-    font-weight: 800;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-ink);
 }
 
@@ -180,7 +180,7 @@
     left: 8px;
     padding: 2px 6px;
     font-size: var(--token-typography-size-md);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-ink);
     background: var(--color-frost);
     border: var(--border-regular) solid var(--color-black);
@@ -192,7 +192,7 @@
 
 .month-bar-label {
     font-size: var(--token-typography-size-md);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-ink);
     text-transform: uppercase;
     letter-spacing: 0.08em;

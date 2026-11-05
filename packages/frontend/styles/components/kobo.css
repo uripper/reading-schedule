@@ -24,8 +24,8 @@
     align-items: center;
     min-height: var(--token-size-target-minimum);
     margin: 0;
-    font-size: 1.1rem;
-    font-weight: 800;
+    font-size: var(--token-typography-size-lg);
+    font-weight: var(--token-typography-weight-extrabold);
     color: inherit;
 }
 
@@ -44,7 +44,7 @@
 .kobo-selected-file {
     margin: 0;
     font-size: var(--token-typography-size-md);
-    font-weight: 800;
+    font-weight: var(--token-typography-weight-extrabold);
     overflow-wrap: anywhere;
 }
 
@@ -65,7 +65,7 @@
     padding: 6px 10px;
     margin: 0;
     font-size: var(--token-typography-size-md);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     line-height: 1.5;
     overflow-wrap: anywhere;
     background: var(--color-banana);
@@ -85,8 +85,8 @@
 
 .sync-coming-soon {
     margin: 24px 0 0;
-    font-size: 1.2rem;
-    font-weight: 800;
+    font-size: var(--token-typography-size-lg);
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-umber);
 }
 

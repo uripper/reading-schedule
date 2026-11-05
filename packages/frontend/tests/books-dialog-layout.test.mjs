@@ -1,5 +1,6 @@
-/** Covers progress input modes and validation recovery inside the dialog sections. */
+/** Covers the book form layout, progress input modes, and validation recovery. */
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
     bindBookDialogProgressSync,
@@ -90,4 +91,15 @@ test("missing reading length opens Additional Options and focuses Estimated Word
     assert.equal(OPTIONS.open, true);
     assert.equal(WORDS.focusCalls, 1);
     assert.equal(REFS.submitError.textContent, MESSAGE);
+});
+
+test("the cover upload hint sits below the cover button", () => {
+    const SHELL = readFileSync(
+        new URL("../index.html", import.meta.url),
+        "utf8",
+    );
+    assert.match(
+        SHELL,
+        /id="bookCoverPanel"[^>]*>\s*<img id="bookCoverPreview"[^>]*>\s*<\/button>\s*<p class="book-cover-upload-hint">/u,
+    );
 });

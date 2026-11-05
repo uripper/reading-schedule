@@ -50,7 +50,7 @@
     justify-self: start;
     padding: 4px 8px;
     font-size: var(--token-typography-size-md);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     background: var(--color-banana);
@@ -59,7 +59,7 @@
 
 .sync-link-title {
     font-size: var(--token-typography-size-md);
-    font-weight: 800;
+    font-weight: var(--token-typography-weight-extrabold);
     line-height: 1.4;
 }
 
@@ -73,7 +73,7 @@
 }
 
 .sync-link-progress {
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
 }
 
 .book-dialog .sync-links .btn {

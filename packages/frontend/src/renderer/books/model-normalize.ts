@@ -23,6 +23,7 @@ import { statusFromRaw } from "./status.ts";
 import { clamp, toOptionalDate, toOptionalInt } from "./utils.ts";
 
 const PROGRESS_MAX = 100;
+const LEGACY_COVER_NOTE = "Custom cover uploaded.";
 
 type NormalizedBookState = {
     wordsTotal: number | null;
@@ -73,6 +74,18 @@ function normalizedBookState(book: BookInput): NormalizedBookState {
     };
 }
 
+/** Filters legacy upload messages while preserving book lookup provenance. */
+function normalizedLookupNote(value: BookInput["lookup_note"]): string {
+    const NOTE = toTrimmedText(value);
+    if (
+        NOTE === LEGACY_COVER_NOTE ||
+        NOTE.startsWith(`${LEGACY_COVER_NOTE} `)
+    ) {
+        return "";
+    }
+    return NOTE;
+}
+
 function normalizedTextFields(
     book: BookInput,
     status: BookStatus,
@@ -85,7 +98,7 @@ function normalizedTextFields(
         cover_url: toTrimmedText(book.cover_url),
         deadline: toOptionalDate(book.deadline),
         finished_at: finishedAtForStatus(status, book.finished_at),
-        lookup_note: toTrimmedText(book.lookup_note),
+        lookup_note: normalizedLookupNote(book.lookup_note),
         shelf: normalizeShelfName(book.shelf),
         status,
         title: toTrimmedText(book.title),

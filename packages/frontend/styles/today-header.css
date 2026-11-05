@@ -47,9 +47,9 @@
 
 .neo-brand-text {
     margin: 0;
-    font-family: var(--header-font);
-    font-size: 4rem;
-    font-weight: 800;
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-display);
+    font-weight: var(--token-typography-weight-extrabold);
     line-height: 1;
     color: var(--color-white);
     letter-spacing: 0.03em;
@@ -115,9 +115,9 @@
 
 .neo-metric-title {
     margin: 0;
-    font-family: var(--sub-header-font);
-    font-size: clamp(1.2rem, 2.2vw, 2.7rem);
-    font-weight: 600;
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-heading-md);
+    font-weight: var(--token-typography-weight-semibold);
     line-height: 0.95;
     color: var(--color-white);
 }
@@ -125,23 +125,23 @@
 .neo-metric-value,
 .neo-metric-streak-value {
     margin: 0;
-    font-family: var(--sub-header-font);
-    font-size: clamp(1.2rem, 2.05vw, 2.7rem);
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-heading-md);
     line-height: 1;
     color: var(--color-white);
 }
 .neo-metric-streak-text {
     margin: 0;
-    font-family: var(--sub-header-font);
-    font-size: clamp(1.2rem, 2.05vw, 2.7rem);
-    font-weight: 100;
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-heading-md);
+    font-weight: var(--token-typography-weight-regular);
     line-height: 1;
     color: var(--color-white);
 }
 
 .neo-metric-streak-value {
-    font-size: clamp(1.2rem, 2.05vw, 2.7rem);
-    font-weight: 800;
+    font-size: var(--token-typography-size-heading-md);
+    font-weight: var(--token-typography-weight-extrabold);
 }
 
 .neo-metric-indicator {
@@ -188,7 +188,7 @@
 .neo-help-btn {
     min-height: var(--button-prominent-height);
     padding: var(--token-space-2) var(--token-space-6);
-    font-size: 2rem;
+    font-size: var(--token-typography-size-heading-lg);
     white-space: nowrap;
 }
 
@@ -198,12 +198,12 @@
     }
 
     .neo-metric-title {
-        font-size: clamp(1.3rem, 1.9vw, 1.85rem);
+        font-size: var(--token-typography-size-heading-sm);
     }
 
     .neo-metric-value,
     .neo-metric-streak-value {
-        font-size: clamp(1.2rem, 1.75vw, 1.6rem);
+        font-size: var(--token-typography-size-heading-sm);
     }
 }
 

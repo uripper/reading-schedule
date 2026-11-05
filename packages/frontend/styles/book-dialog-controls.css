@@ -18,7 +18,7 @@
 .book-dialog-nav-status {
     min-width: 72px;
     font-size: var(--token-typography-size-md);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-ink);
     text-align: center;
     text-transform: uppercase;

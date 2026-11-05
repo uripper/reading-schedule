@@ -109,8 +109,11 @@
     color: var(--color-frost);
 }
 
+.book-cover-field:has(> .book-cover-panel[hidden]) {
+    display: none;
+}
+
 .book-cover-panel {
-    position: relative;
     width: 100%;
     padding: 0;
     overflow: hidden;
@@ -137,15 +140,8 @@
 }
 
 .book-cover-upload-hint {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    padding: var(--token-space-1);
+    margin-block-start: var(--token-space-1);
     font-size: var(--token-typography-size-md);
-    font-weight: 800;
-    color: var(--color-paper);
-    text-align: center;
-    pointer-events: none;
-    background: color-mix(in srgb, var(--color-night) 92%, transparent);
+    line-height: var(--token-typography-lineHeight-tight);
+    color: var(--color-umber);
 }

@@ -73,8 +73,8 @@
     min-height: var(--token-size-target-minimum);
     padding: var(--token-space-3) var(--token-space-6);
     font: inherit;
-    font-family: var(--main-font);
-    font-size: clamp(1.2rem, 2.2vw, 2.2rem);
+    font-family: var(--token-typography-family-body);
+    font-size: var(--token-typography-size-heading-md);
     font-weight: var(--token-typography-weight-bold);
     line-height: 1;
     color: var(--color-black);

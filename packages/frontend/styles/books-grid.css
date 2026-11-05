@@ -21,9 +21,9 @@
     justify-self: start;
     padding: 8px 12px;
     margin: 0;
-    font-family: var(--header-font);
-    font-size: 1.05rem;
-    font-weight: 900;
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-ink);
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -44,7 +44,7 @@
     place-items: center start;
     padding: 18px;
     margin-top: var(--token-space-2);
-    font-weight: 700;
+    font-weight: var(--token-typography-weight-bold);
     color: var(--color-ink);
     background: var(--color-peach);
     border: var(--border-thick) dashed var(--color-black);

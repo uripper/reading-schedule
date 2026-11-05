@@ -40,7 +40,7 @@
     gap: 8px;
     min-width: 0;
     font-size: var(--token-typography-size-md);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--books-toolbar-ink);
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -56,7 +56,7 @@
 }
 
 .books-control .hint-dot::after {
-    font-weight: 700;
+    font-weight: var(--token-typography-weight-bold);
     text-transform: none;
     letter-spacing: normal;
 }
@@ -97,7 +97,7 @@
     padding: 10px 14px;
     margin-top: 0;
     font-size: var(--token-typography-size-md);
-    font-weight: 800;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--books-toolbar-ink);
     text-transform: none;
     letter-spacing: normal;
@@ -112,7 +112,7 @@
 }
 
 .books-control-input::placeholder {
-    font-weight: 600;
+    font-weight: var(--token-typography-weight-semibold);
     color: var(--color-gray);
 }
 

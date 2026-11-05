@@ -20,7 +20,7 @@
     padding: 10px 16px;
     font: inherit;
     font-size: var(--token-typography-size-md);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-ink);
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -54,8 +54,8 @@
 .settings-card > h2 {
     padding-bottom: 12px;
     margin: 0;
-    font-family: var(--header-font);
-    font-size: clamp(1.2rem, 2vw, 1.6rem);
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-heading-sm);
     color: var(--color-ink);
     text-transform: uppercase;
     border-bottom: var(--border-thick) solid var(--color-black);
@@ -64,7 +64,7 @@
 .settings-card > h3 {
     margin: 0;
     font-size: var(--token-typography-size-md);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-ink);
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -91,7 +91,7 @@
     gap: 6px;
     align-content: start;
     margin: 0;
-    font-weight: 800;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-ink);
 }
 
@@ -101,7 +101,7 @@
     gap: var(--token-space-2);
     align-items: center;
     min-height: var(--token-size-target-minimum);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
 }
 
 .settings-field-label-row {
@@ -114,7 +114,7 @@
 
 .settings-field-link {
     font-size: var(--token-typography-size-md);
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-ink);
     text-decoration-thickness: 3px;
     text-underline-offset: 4px;
@@ -138,7 +138,7 @@
 .settings-details > summary {
     min-height: var(--token-size-target-minimum);
     padding: 10px 14px;
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-ink);
     cursor: pointer;
     background: var(--color-banana);
@@ -212,7 +212,7 @@
     align-items: center;
     min-height: var(--token-size-target-minimum);
     margin: 0;
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
     color: var(--color-ink);
 }
 

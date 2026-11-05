@@ -29,7 +29,7 @@
     display: grid;
     gap: 10px;
     padding: 20px 18px 12px;
-    font-family: var(--main-font);
+    font-family: var(--token-typography-family-body);
     border: var(--border-thick) solid var(--color-white);
     border-top: 0;
 }
@@ -41,7 +41,7 @@
 }
 
 .action-confirm-warning {
-    font-weight: 900;
+    font-weight: var(--token-typography-weight-extrabold);
 }
 
 .action-confirm-actions {
