@@ -41,7 +41,7 @@
     border-color: color-mix(
         in srgb,
         var(--color-azure) 72%,
-        var(--color-storm)
+        var(--color-black)
     );
     box-shadow: 0 0 0 3px
         color-mix(in srgb, var(--color-glacier) 30%, transparent);

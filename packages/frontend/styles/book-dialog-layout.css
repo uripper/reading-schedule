@@ -13,7 +13,7 @@
     align-items: center;
     justify-content: space-between;
     padding-block-end: var(--token-space-3);
-    border-bottom: var(--border-thick) solid var(--color-ink);
+    border-bottom: var(--border-thick) solid var(--color-black);
 }
 
 .book-dialog-header > h2 {
@@ -28,7 +28,7 @@
     min-width: 0;
     padding: var(--token-space-2) var(--token-space-3);
     background: var(--book-section-surface);
-    border: var(--border-regular) solid var(--color-ink);
+    border: var(--border-regular) solid var(--color-black);
     border-radius: var(--button-radius);
 }
 
@@ -128,7 +128,7 @@ details[open] > .book-section-toggle::after {
     padding-block: var(--token-space-1);
     font-size: var(--book-text-size);
     font-weight: var(--token-typography-weight-medium);
-    color: var(--color-ink);
+    color: var(--color-black);
     background-color: var(--color-frost);
     border: var(--border-thin) solid var(--color-gray);
     border-radius: 999px;

@@ -34,19 +34,21 @@ test("chipClassNameForRow keeps base style for normal rows", () => {
     assert.equal(CLASS_NAME, "day-chip");
 });
 
-test("calendar chips show titles without session minutes", (context) => {
+test("calendar chips keep the full title in a separate element for visual clamping", (context) => {
     const DOM = installFakeDom();
     context.after(() => DOM.restore());
     const DAY = DOM.createElement("button");
+    const LONG_TITLE = "Beyond Cracking the Coding Interview";
     appendDayButtonSummary(DAY, [
-        { title: "Practical SQL", minutes: 60, finish: true },
+        { title: LONG_TITLE, minutes: 60, finish: true },
         { title: "Metaphysics", minutes: 30 },
         { title: "Earthsea", minutes: 15 },
     ]);
-    const CHIPS = DAY.querySelectorAll(".day-chip");
+    const TITLES = DAY.querySelectorAll(".day-chip-title");
     assert.deepEqual(
-        CHIPS.map((chip) => chip.textContent),
-        ["Practical SQL", "Metaphysics", "+1 more"],
+        TITLES.map((title) => title.textContent),
+        [LONG_TITLE, "Metaphysics"],
     );
-    assert.ok(CHIPS[0].classList.contains("finish"));
+    assert.equal(DAY.querySelector(".is-more").textContent, "+1 more");
+    assert.ok(DAY.querySelector(".day-chip").classList.contains("finish"));
 });

@@ -1,5 +1,5 @@
 :root {
-    --neo-panel-surface: var(--color-ink);
+    --neo-panel-surface: var(--color-black);
     --neo-panel-border: var(--border-thick) solid var(--color-black);
     --neo-section-books: var(--color-tangerine);
     --neo-section-schedule: var(--color-emerald);

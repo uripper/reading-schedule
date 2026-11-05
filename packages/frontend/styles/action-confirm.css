@@ -1,7 +1,7 @@
 .action-confirm-dialog {
     width: min(430px, 92vw);
     padding: 0;
-    color: var(--color-ink);
+    color: var(--color-black);
     background: var(--color-gray-light);
     border: var(--border-thick) solid var(--color-black);
     border-radius: 0;

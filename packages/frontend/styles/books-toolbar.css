@@ -1,6 +1,6 @@
 /* Library toolbar: actions row, then labeled search/filter/sort fields. */
 .books-toolbar {
-    --books-toolbar-ink: var(--color-night);
+    --books-toolbar-ink: var(--color-black);
     --books-toolbar-paper: var(--color-parchment);
     --books-toolbar-field: var(--color-white);
     --books-toolbar-radius: 14px;

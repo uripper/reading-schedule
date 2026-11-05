@@ -4,14 +4,14 @@
     width: min(980px, 92vw);
     padding: var(--token-space-4);
     color: var(--color-white);
-    background: var(--color-night);
-    border: var(--border-thin) solid var(--color-storm);
+    background: var(--color-black);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: var(--token-radius-lg);
     box-shadow: var(--token-elevation-md);
 }
 
 .help-dialog::backdrop {
-    background: color-mix(in srgb, var(--color-deep-space) 60%, transparent);
+    background: color-mix(in srgb, var(--color-black) 60%, transparent);
 }
 
 .help-dialog h3 {
@@ -30,7 +30,7 @@ pre {
     font-family: var(--token-typography-family-mono);
     font-size: var(--token-typography-size-md);
     color: var(--color-white);
-    background: var(--color-night);
-    border: var(--border-thin) solid var(--color-storm);
+    background: var(--color-black);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: var(--token-radius-sm);
 }

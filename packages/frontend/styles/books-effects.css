@@ -11,13 +11,13 @@
 .book-card.is-read-card {
     background: linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-amber) 8%, var(--color-twilight)) 0%,
-        color-mix(in srgb, var(--color-umber) 4%, var(--color-twilight)) 100%
+        color-mix(in srgb, var(--color-amber) 8%, var(--color-black)) 0%,
+        color-mix(in srgb, var(--color-umber) 4%, var(--color-black)) 100%
     );
     border-color: color-mix(
         in srgb,
         var(--color-amber) 34%,
-        var(--color-storm)
+        var(--color-black)
     );
 }
 

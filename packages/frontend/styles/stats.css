@@ -33,7 +33,7 @@
     margin: 0;
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-extrabold);
-    color: var(--color-ink);
+    color: var(--color-black);
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
@@ -42,14 +42,14 @@
     margin: 0;
     font-family: var(--token-typography-family-heading);
     font-size: var(--token-typography-size-heading-lg);
-    color: var(--color-ink);
+    color: var(--color-black);
 }
 
 .stats-note {
     margin: 0;
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-bold);
-    color: var(--color-night);
+    color: var(--color-black);
 }
 
 .stats-secondary-grid {
@@ -73,7 +73,7 @@
     margin: 0;
     font-family: var(--token-typography-family-heading);
     font-size: var(--token-typography-size-lg);
-    color: var(--color-ink);
+    color: var(--color-black);
     text-transform: uppercase;
     border-bottom: var(--border-thick) solid var(--color-black);
 }
@@ -94,7 +94,7 @@
 .status-count {
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-extrabold);
-    color: var(--color-ink);
+    color: var(--color-black);
 }
 
 .status-bar-wrap {
@@ -114,24 +114,24 @@
     background: color-mix(
         in srgb,
         var(--color-glacier) 68%,
-        var(--color-night)
+        var(--color-black)
     );
 }
 
 .status-bar.is-in_progress {
-    background: color-mix(in srgb, var(--color-amber) 72%, var(--color-night));
+    background: color-mix(in srgb, var(--color-amber) 72%, var(--color-black));
 }
 
 .status-bar.is-read {
     background: color-mix(
         in srgb,
         var(--color-emerald) 74%,
-        var(--color-night)
+        var(--color-black)
     );
 }
 
 .status-bar.is-dropped {
-    background: color-mix(in srgb, var(--color-coral) 70%, var(--color-night));
+    background: color-mix(in srgb, var(--color-coral) 70%, var(--color-black));
 }
 
 .month-bars {
@@ -146,7 +146,7 @@
     grid-template-rows: 220px auto;
     gap: var(--token-space-2);
     justify-items: center;
-    color: var(--color-ink);
+    color: var(--color-black);
 }
 
 .month-bar-track {
@@ -166,7 +166,7 @@
     height: 0;
     background: linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-azure) 92%, var(--color-night)),
+        color-mix(in srgb, var(--color-azure) 92%, var(--color-black)),
         color-mix(in srgb, var(--color-emerald) 84%, var(--color-glacier))
     );
     border-radius: 0;
@@ -181,7 +181,7 @@
     padding: 2px 6px;
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-extrabold);
-    color: var(--color-ink);
+    color: var(--color-black);
     background: var(--color-frost);
     border: var(--border-regular) solid var(--color-black);
 }
@@ -193,7 +193,7 @@
 .month-bar-label {
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-extrabold);
-    color: var(--color-ink);
+    color: var(--color-black);
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }

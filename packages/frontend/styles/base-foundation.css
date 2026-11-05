@@ -6,24 +6,20 @@
     --neo-active-color: var(--color-vermilion);
     --neo-header-color: var(--color-indigo);
     --neo-header-border: var(--color-black);
-    --app-selectControlBorder: var(--color-storm);
-    --app-selectControlSurface: var(--color-night);
+    --app-selectControlBorder: var(--color-black);
+    --app-selectControlSurface: var(--color-black);
     --app-selectControlText: var(--color-white);
     --app-selectMenuBorder: color-mix(
         in srgb,
-        var(--color-storm) 72%,
+        var(--color-black) 72%,
         transparent
     );
     --app-selectMenuSurface: color-mix(
         in srgb,
         var(--color-white) 96%,
-        var(--color-deep-space) 4%
+        var(--color-black) 4%
     );
-    --app-selectMenuText: color-mix(
-        in srgb,
-        var(--color-deep-space) 94%,
-        var(--color-black) 6%
-    );
+    --app-selectMenuText: var(--color-black);
 
     color-scheme: dark;
 }
@@ -138,8 +134,8 @@ select {
     font: inherit;
     font-size: var(--token-typography-size-md);
     color: var(--color-white);
-    background: var(--color-night);
-    border: var(--border-thin) solid var(--color-storm);
+    background: var(--color-black);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: var(--token-radius-sm);
 }
 

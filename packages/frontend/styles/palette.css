@@ -8,8 +8,7 @@
  */
 :root {
     /* Neutrals */
-    --color-black: #000000;
-    --color-ink: #111111;
+    --color-black: #000;
     --color-gray: #666666;
     --color-gray-light: #d6d6d6;
     --color-white: #ffffff;
@@ -18,12 +17,6 @@
     --color-umber: #3d3521;
     --color-tan: #d6c4ad;
     --color-paper: #f8f4e8;
-
-    /* Dark surfaces */
-    --color-deep-space: #0c1321;
-    --color-night: #131d2f;
-    --color-twilight: #1d2940;
-    --color-storm: #32435d;
 
     /* Pinks and purples */
     --color-orchid: #e87ddb;

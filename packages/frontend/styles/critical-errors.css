@@ -2,7 +2,7 @@
     padding: var(--token-space-3);
     margin: var(--token-space-2) 0;
     font-weight: var(--token-typography-weight-bold);
-    color: var(--color-ink);
+    color: var(--color-black);
     overflow-wrap: anywhere;
     background: var(--color-coral);
     border: var(--neo-panel-border);

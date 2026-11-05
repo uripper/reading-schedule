@@ -24,7 +24,7 @@
     font-family: var(--token-typography-family-heading);
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-extrabold);
-    color: var(--color-ink);
+    color: var(--color-black);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     background: var(--color-amber);
@@ -45,7 +45,7 @@
     padding: 18px;
     margin-top: var(--token-space-2);
     font-weight: var(--token-typography-weight-bold);
-    color: var(--color-ink);
+    color: var(--color-black);
     background: var(--color-peach);
     border: var(--border-thick) dashed var(--color-black);
 }

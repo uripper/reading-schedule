@@ -5,8 +5,8 @@
     z-index: 300;
     padding: var(--token-space-2) var(--token-space-3);
     color: var(--color-white);
-    background: var(--color-night);
-    border: var(--border-thin) solid var(--color-storm);
+    background: var(--color-black);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: var(--token-radius-sm);
     transform: translateY(-140%);
     transition: transform var(--token-motion-duration-fast)
@@ -65,7 +65,7 @@
     padding: var(--token-space-2) var(--token-space-4);
     overflow-x: auto;
     background: var(--color-white);
-    border: var(--border-thin) solid var(--color-storm);
+    border: var(--border-thin) solid var(--color-black);
     box-shadow: var(--shadow-lg);
 }
 
@@ -106,8 +106,8 @@ main {
 .panel {
     display: none;
     padding: var(--token-space-4);
-    background: color-mix(in srgb, var(--color-night) 92%, transparent);
-    border: var(--border-thin) solid var(--color-storm);
+    background: color-mix(in srgb, var(--color-black) 92%, transparent);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: var(--token-radius-lg);
     box-shadow: var(--token-elevation-sm);
 }
@@ -120,8 +120,8 @@ main {
     display: grid;
     gap: var(--token-space-2);
     padding: var(--token-space-4);
-    background: color-mix(in srgb, var(--color-twilight) 86%, transparent);
-    border: var(--border-thin) solid var(--color-storm);
+    background: color-mix(in srgb, var(--color-black) 86%, transparent);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: var(--token-radius-md);
 }
 
@@ -154,8 +154,8 @@ main {
         grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: var(--token-space-1);
         padding: var(--token-space-2);
-        background: color-mix(in srgb, var(--color-night) 94%, transparent);
-        border-top: var(--border-thin) solid var(--color-storm);
+        background: color-mix(in srgb, var(--color-black) 94%, transparent);
+        border-top: var(--border-thin) solid var(--color-black);
         backdrop-filter: blur(12px);
     }
 

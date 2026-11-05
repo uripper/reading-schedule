@@ -1,7 +1,7 @@
 .settings-shell {
     display: grid;
     gap: 18px;
-    color: var(--color-ink);
+    color: var(--color-black);
 }
 
 .settings-section-tabs {
@@ -21,7 +21,7 @@
     font: inherit;
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-extrabold);
-    color: var(--color-ink);
+    color: var(--color-black);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     background: var(--color-banana);
@@ -56,7 +56,7 @@
     margin: 0;
     font-family: var(--token-typography-family-heading);
     font-size: var(--token-typography-size-heading-sm);
-    color: var(--color-ink);
+    color: var(--color-black);
     text-transform: uppercase;
     border-bottom: var(--border-thick) solid var(--color-black);
 }
@@ -65,7 +65,7 @@
     margin: 0;
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-extrabold);
-    color: var(--color-ink);
+    color: var(--color-black);
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
@@ -92,7 +92,7 @@
     align-content: start;
     margin: 0;
     font-weight: var(--token-typography-weight-extrabold);
-    color: var(--color-ink);
+    color: var(--color-black);
 }
 
 .settings-field-checkbox,
@@ -115,7 +115,7 @@
 .settings-field-link {
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-extrabold);
-    color: var(--color-ink);
+    color: var(--color-black);
     text-decoration-thickness: 3px;
     text-underline-offset: 4px;
 }
@@ -139,7 +139,7 @@
     min-height: var(--token-size-target-minimum);
     padding: 10px 14px;
     font-weight: var(--token-typography-weight-extrabold);
-    color: var(--color-ink);
+    color: var(--color-black);
     cursor: pointer;
     background: var(--color-banana);
     border: var(--border-thick) solid var(--color-black);
@@ -158,14 +158,14 @@
     padding: 10px 14px;
     margin-top: 0;
     color: var(--color-paper);
-    background: var(--color-night);
+    background: var(--color-black);
     border: var(--border-thick) solid var(--color-black);
     border-radius: 0;
     box-shadow: var(--shadow-sm);
 }
 
 #tab-settings input:disabled {
-    color: var(--color-ink);
+    color: var(--color-black);
     background: var(--color-yellow);
     opacity: 1;
 }
@@ -213,7 +213,7 @@
     min-height: var(--token-size-target-minimum);
     margin: 0;
     font-weight: var(--token-typography-weight-extrabold);
-    color: var(--color-ink);
+    color: var(--color-black);
 }
 
 #tab-settings .row.wrap-row {

@@ -3,7 +3,7 @@
 .date-picker-range .flatpickr-day.inRange,
 .date-picker-range .flatpickr-day.prevMonthDay.inRange,
 .date-picker-range .flatpickr-day.nextMonthDay.inRange {
-    color: var(--color-ink);
+    color: var(--color-black);
     background: var(--color-parchment);
     border-color: var(--color-amber);
     border-radius: 2px;

@@ -1,7 +1,7 @@
 .app-update-dialog {
     width: min(560px, 92vw);
     padding: 0;
-    color: var(--color-ink);
+    color: var(--color-black);
     background: var(--color-paper);
     border: var(--border-thick) solid var(--color-black);
     border-radius: 0;

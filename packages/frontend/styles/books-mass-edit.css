@@ -50,7 +50,7 @@
     width: 20px;
     min-height: 20px;
     margin: 0;
-    accent-color: var(--color-night);
+    accent-color: var(--color-black);
 }
 
 .book-mass-select-indicator {

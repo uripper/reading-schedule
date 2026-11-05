@@ -2,7 +2,7 @@
     width: min(760px, 92vw);
     padding: 0;
     color: var(--color-paper);
-    background: var(--color-ink);
+    background: var(--color-black);
     border: var(--border-thick) solid var(--color-paper);
     box-shadow: var(--shadow-xl);
 }
@@ -39,7 +39,7 @@
     padding: 10px;
     text-align: left;
     cursor: pointer;
-    background: var(--color-deep-space);
+    background: var(--color-black);
     border: var(--border-regular) solid var(--color-paper);
 }
 
@@ -99,7 +99,7 @@
     color: var(--color-paper);
     text-align: left;
     cursor: pointer;
-    background: var(--color-ink);
+    background: var(--color-black);
     border: var(--border-regular) solid var(--color-paper);
     box-shadow: var(--shadow-sm);
 }
@@ -133,7 +133,7 @@
     margin: 0;
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-bold);
-    background: var(--color-ink);
+    background: var(--color-black);
     border: var(--border-regular) dashed var(--color-paper);
 }
 

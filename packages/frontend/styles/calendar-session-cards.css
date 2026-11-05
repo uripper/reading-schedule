@@ -7,7 +7,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--token-space-3);
     padding: var(--token-space-3);
-    color: var(--color-ink);
+    color: var(--color-black);
     background: var(--color-parchment);
     border: var(--border-thick) solid var(--color-black);
     box-shadow: var(--shadow-md);
@@ -71,9 +71,9 @@
     color: color-mix(in srgb, var(--color-amber) 90%, var(--color-white));
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    background: color-mix(in srgb, var(--color-amber) 18%, var(--color-night));
+    background: color-mix(in srgb, var(--color-amber) 18%, var(--color-black));
     border: var(--border-thin) solid
-        color-mix(in srgb, var(--color-amber) 82%, var(--color-storm));
+        color-mix(in srgb, var(--color-amber) 82%, var(--color-black));
     border-radius: var(--token-radius-pill);
 }
 

@@ -13,6 +13,7 @@ const PALETTE_CSS = readFileSync(
 );
 const ENHANCED_CONTRAST = 7;
 const MAX_CHANNEL = 255;
+const SHORT_HEX_LENGTH = 3;
 const PERCENT_BASE = 100;
 const CHANNEL_WEIGHTS = [0.2126, 0.7152, 0.0722];
 const LUMINANCE_OFFSET = 0.05;
@@ -44,10 +45,23 @@ function paletteName(token) {
 
 function channels(token) {
     const NAME = paletteName(token);
-    const PATTERN = new RegExp(`--color-${NAME}: #([0-9a-f]{6});`, "u");
+    const PATTERN = new RegExp(
+        `--color-${NAME}: #([0-9a-f]{6}|[0-9a-f]{3});`,
+        "u",
+    );
     const HEX = PALETTE_CSS.match(PATTERN)?.[1];
     assert.ok(HEX, `Missing palette color ${NAME} for ${token}`);
-    return Array.from(Buffer.from(HEX, "hex"), (byte) => byte / MAX_CHANNEL);
+    return Array.from(
+        Buffer.from(expandShortHex(HEX), "hex"),
+        (byte) => byte / MAX_CHANNEL,
+    );
+}
+
+function expandShortHex(hex) {
+    if (hex.length === SHORT_HEX_LENGTH) {
+        return [...hex].map((digit) => digit + digit).join("");
+    }
+    return hex;
 }
 
 function linearize(channel) {

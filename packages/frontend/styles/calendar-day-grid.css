@@ -35,7 +35,7 @@ main:has(> .neo-screen-schedule.is-active) {
     font-family: var(--token-typography-family-heading);
     font-size: var(--token-typography-size-heading-lg);
     line-height: var(--token-typography-lineHeight-tight);
-    color: var(--color-ink);
+    color: var(--color-black);
     text-align: center;
 }
 
@@ -57,7 +57,7 @@ main:has(> .neo-screen-schedule.is-active) {
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    background: var(--color-ink);
+    background: var(--color-black);
     border: var(--border-regular) solid var(--color-black);
 }
 
@@ -75,7 +75,7 @@ main:has(> .neo-screen-schedule.is-active) {
     align-content: start;
     min-height: 164px;
     padding: clamp(8px, 0.8vw, 14px);
-    color: var(--color-ink);
+    color: var(--color-black);
     text-align: left;
     background: var(--color-pistachio);
     border: var(--border-thick) solid var(--color-black);
@@ -112,7 +112,7 @@ main:has(> .neo-screen-schedule.is-active) {
     border-color: var(--color-black);
     box-shadow:
         var(--shadow-md),
-        inset 0 0 0 3px var(--color-ink);
+        inset 0 0 0 3px var(--color-black);
     opacity: 1;
 }
 
@@ -128,7 +128,7 @@ main:has(> .neo-screen-schedule.is-active) {
 }
 
 .day.is-today .day-date {
-    color: var(--color-ink);
+    color: var(--color-black);
 }
 
 .day.is-today .day-event-count {
@@ -149,7 +149,7 @@ main:has(> .neo-screen-schedule.is-active) {
     border-color: var(--color-black);
     box-shadow:
         var(--shadow-md),
-        inset 0 0 0 3px var(--color-ink);
+        inset 0 0 0 3px var(--color-black);
 }
 
 .day.is-today.is-selected {
@@ -162,16 +162,23 @@ main:has(> .neo-screen-schedule.is-active) {
     padding: var(--token-space-1);
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-extrabold);
-    color: var(--color-ink);
+    color: var(--color-black);
     overflow-wrap: anywhere;
     background: var(--color-pistachio);
     border: var(--border-regular) solid var(--color-black);
     border-radius: 0;
 }
 
+.day-chip-title {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
 .day-chip.finish {
     font-weight: var(--token-typography-weight-extrabold);
-    color: var(--color-ink);
+    color: var(--color-black);
     background: var(--color-banana);
     border-color: var(--color-black);
 }

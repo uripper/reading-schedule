@@ -11,7 +11,7 @@
     max-height: 85dvh;
     padding: 1.5rem;
     overflow: hidden;
-    color: var(--color-ink);
+    color: var(--color-black);
     background: var(--color-paper);
     border: var(--border-thick) solid var(--color-black);
     box-shadow: var(--shadow-xl);
@@ -125,7 +125,7 @@
     min-height: var(--token-size-target-minimum);
     padding: 0.5rem;
     font: inherit;
-    color: var(--color-ink);
+    color: var(--color-black);
     background: var(--color-paper);
     border: var(--border-regular) solid var(--color-black);
     border-radius: 0;
@@ -144,7 +144,7 @@
     z-index: 2;
     max-height: 14rem;
     margin: 0;
-    color: var(--color-ink);
+    color: var(--color-black);
     background: var(--color-paper);
     border: var(--border-thick) solid var(--color-black);
     box-shadow: var(--shadow-sm);

@@ -13,10 +13,10 @@
     pointer-events: none;
     background: color-mix(
         in srgb,
-        var(--color-night) 94%,
+        var(--color-black) 94%,
         var(--color-glacier) 6%
     );
-    border: var(--border-thin) solid var(--color-storm);
+    border: var(--border-thin) solid var(--color-black);
     border-radius: var(--token-radius-sm);
     box-shadow: var(--token-elevation-md);
     opacity: 1;

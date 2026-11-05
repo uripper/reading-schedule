@@ -48,7 +48,7 @@
     padding: 0;
     margin: 0;
     cursor: pointer;
-    background: var(--color-deep-space);
+    background: var(--color-black);
     border: 0;
     border-bottom: var(--border-thick) solid var(--color-black);
 }
@@ -91,7 +91,7 @@
     margin: 0;
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-bold);
-    color: var(--color-ink);
+    color: var(--color-black);
 }
 
 .book-status-pill {
@@ -102,7 +102,7 @@
     padding: 6px 10px;
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-extrabold);
-    color: var(--color-ink);
+    color: var(--color-black);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     border: var(--border-regular) solid var(--color-black);
@@ -154,7 +154,7 @@
     gap: 4px;
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-bold);
-    color: var(--color-ink);
+    color: var(--color-black);
     white-space: pre-line;
 }
 
