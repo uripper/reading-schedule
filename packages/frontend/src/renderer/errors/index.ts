@@ -9,8 +9,8 @@ export const PLAN_FAILURE_MESSAGE =
     "The plan could not be generated. Try again or open Help/Logs for details.";
 export const BOOK_SAVE_FAILURE_MESSAGE =
     "The book could not be saved. Try again or open Help/Logs for details";
-export const RETRY_SAVE_LABEL = "Retry save";
-export const HELP_LOGS_LABEL = "Help/Logs";
+const RETRY_SAVE_LABEL = "Retry save";
+const HELP_LOGS_LABEL = "Help/Logs";
 
 /** Creates an initially empty alert without moving keyboard focus. */
 export function createErrorMessage(): HTMLParagraphElement {

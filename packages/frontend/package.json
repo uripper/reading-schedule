@@ -2,10 +2,10 @@
     "dependencies": {
         "@reading-schedule/contracts": "workspace:*",
         "flatpickr": "^4.6.13",
-        "tslog": "^4.11.0"
+        "tslog": "^5.4.0"
     },
     "devDependencies": {
-        "@types/node": "^25.9.5",
+        "@types/node": "^25.9.9",
         "typescript": "^5.9.3",
         "vite-plus": "catalog:"
     },

@@ -16,5 +16,4 @@ export type * from "./types_subfolders/types_main.js";
 export type * from "./types_subfolders/types_planner.js";
 export type * from "./types_subfolders/types_stats.js";
 export type * from "./types_subfolders/types-books-ui.js";
-export type * from "./types_subfolders/types-mobile-today.js";
 export type * from "./types_subfolders/types-sync.js";

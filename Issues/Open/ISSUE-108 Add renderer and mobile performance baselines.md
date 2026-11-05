@@ -14,7 +14,7 @@ Critical flows should have documented hotspots, repeatable profiling steps, and 
 
 Definition of done:
 
-- Identify the main performance-sensitive flows for desktop and mobile.
+- Identify the main performance-sensitive desktop flows and extend the baseline to mobile when the next client is available.
 - Add a repeatable profiling or benchmark procedure for those flows.
 - Capture baseline measurements and document acceptable regression thresholds.
 - Add lightweight instrumentation where it helps make regressions visible.
@@ -26,6 +26,6 @@ Context:
 - `packages/frontend/src/renderer/calendar/`
 - `packages/frontend/src/renderer/book_lookup/`
 - `packages/frontend/tests/planner-responsiveness.test.mjs`
-- `mobile/src/features/today/`
+- ISSUE-132 tracks the next mobile client.
 - `packages/planner/src/native_planner/benchmark/`
 - `docs/planner-benchmark.md`

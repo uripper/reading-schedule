@@ -173,8 +173,8 @@ function Test-DevToolchain {
       Path = Join-Path $Root 'node_modules\typescript\bin\tsc'
     },
     @{
-      Label = 'Bartleby Vite command'
-      Path = Join-Path $Root 'apps\bartleby\node_modules\.bin\vite.cmd'
+      Label = 'Bartleby Vite+ command'
+      Path = Join-Path $Root 'apps\bartleby\node_modules\.bin\vp.cmd'
     },
     @{
       Label = 'Bartleby Tauri command'

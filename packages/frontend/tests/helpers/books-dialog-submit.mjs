@@ -163,7 +163,6 @@ export {
     flushMicrotasks,
     withFakeHtmlElement,
     fakeInput,
-    checkedScheduledDaysField,
     createLookupMeta,
     createSaveButton,
     createRefs,

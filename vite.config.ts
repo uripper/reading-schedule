@@ -81,7 +81,7 @@ export default defineConfig({
             { name: "eslint-js", specifier: "oxlint-plugin-eslint" },
         ],
         options: { typeAware: true },
-        plugins: ["import", "node", "oxc", "react", "typescript", "unicorn"],
+        plugins: ["import", "node", "oxc", "typescript", "unicorn"],
         rules: {
             curly: "error",
             "no-console": [
@@ -128,7 +128,6 @@ export default defineConfig({
             {
                 files: [
                     "apps/**/*.{js,mjs,ts,tsx}",
-                    "mobile/**/*.{js,mjs,ts,tsx}",
                     "packages/**/*.{js,mjs,ts,tsx}",
                 ],
                 rules: {
@@ -172,8 +171,6 @@ export default defineConfig({
                     "oxc/no-barrel-file": "error",
                     "prefer-exponentiation-operator": "error",
                     "prefer-object-spread": "error",
-                    "react/immutability": "error",
-                    "react/static-components": "warn",
                     "require-await": "warn",
                     "symbol-description": "error",
                     "typescript/consistent-type-exports": "warn",
@@ -216,11 +213,7 @@ export default defineConfig({
                 },
             },
             {
-                files: [
-                    "apps/**/*.{js,mjs,ts}",
-                    "mobile/**/*.{js,mjs,ts}",
-                    "packages/**/*.{js,mjs,ts}",
-                ],
+                files: ["apps/**/*.{js,mjs,ts}", "packages/**/*.{js,mjs,ts}"],
                 rules: {
                     "eslint-js/no-restricted-syntax": [
                         "error",
@@ -230,11 +223,7 @@ export default defineConfig({
                 },
             },
             {
-                files: [
-                    "apps/**/*.{ts,tsx}",
-                    "mobile/**/*.{ts,tsx}",
-                    "packages/**/*.{ts,tsx}",
-                ],
+                files: ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}"],
                 rules: { "typescript/explicit-member-accessibility": "error" },
             },
             {

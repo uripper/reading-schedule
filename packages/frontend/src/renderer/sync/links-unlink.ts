@@ -18,7 +18,7 @@ function withLinks(book: Book, links: SyncRecord[]): Book {
 }
 
 /** Returns the library with one link removed from one book. */
-export function unlinkedBooks(
+function unlinkedBooks(
     books: readonly Book[],
     bookId: string,
     link: SyncRecord,

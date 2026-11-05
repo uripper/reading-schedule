@@ -98,11 +98,3 @@ export interface TodayScheduleSnapshot {
     /** Total sessions scheduled in the summarized scope. */
     scheduledSessions: number;
 }
-
-/** Callbacks used by today cards to navigate to a specific book. */
-export interface TodayBookNavigationActions {
-    /** Switches UI to the books tab before scrolling to a book card. */
-    activateBooksTab(): void;
-    /** Scrolls the books view to the target book card. */
-    scrollToBook(bookId: string): void;
-}

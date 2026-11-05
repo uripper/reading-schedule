@@ -12,8 +12,6 @@ export const WEEKDAYS: [string, string][] = [
     ["Sun", "Sunday"],
 ];
 
-export const DEFAULT_DIFFICULTY_MULTIPLIER = 1;
-
 export function weekdayMinutesEnabledId(key: string): string {
     return `minutes_${key}_enabled`;
 }

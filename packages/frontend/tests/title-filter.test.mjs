@@ -4,27 +4,11 @@ import test from "node:test";
 import {
     anyFieldMatchesNormalizedQuery,
     normalizeTitleFilterQuery,
-    titleMatchesNormalizedQuery,
 } from "../dist/renderer/title_filter.js";
 
 test("normalizeTitleFilterQuery trims and lowercases query text", () => {
     const NORMALIZED = normalizeTitleFilterQuery("  AGAINST  ");
     assert.equal(NORMALIZED, "against");
-});
-
-test("titleMatchesNormalizedQuery supports empty query and substring matching", () => {
-    assert.equal(
-        titleMatchesNormalizedQuery("Against Interpretation", ""),
-        true,
-    );
-    assert.equal(
-        titleMatchesNormalizedQuery("Against Interpretation", "terpret"),
-        true,
-    );
-    assert.equal(
-        titleMatchesNormalizedQuery("Against Interpretation", "orwell"),
-        false,
-    );
 });
 
 test("anyFieldMatchesNormalizedQuery matches across multiple candidate fields", () => {
