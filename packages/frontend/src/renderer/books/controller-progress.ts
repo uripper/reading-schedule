@@ -6,8 +6,8 @@ import type {
 } from "../../types/types.ts";
 import { withSyncLink } from "../sync/links.ts";
 import { normalizeBook } from "./model-normalize.ts";
-import { withUpdatedProgress } from "./progress.ts";
 import { withProgressHistory } from "./progress-history.ts";
+import { withUpdatedProgress } from "./progress.ts";
 import {
     BOOK_STATUS_IN_PROGRESS,
     BOOK_STATUS_READ,

@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: tests exercise built frontend artifacts.
 /** Exercises visible retry controls with real persistence and scoped recovery. */
 import assert from "node:assert/strict";
 import test from "node:test";

@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Covers ranked suggestions and searching the entire local library. */
 import assert from "node:assert/strict";
 import test from "node:test";

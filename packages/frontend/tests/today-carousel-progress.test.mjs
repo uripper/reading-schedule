@@ -1,16 +1,15 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import {
+    finalizedPercentDraftText,
+    normalizedPercentValue,
+} from "../dist/renderer/app/today/today-progress-percent.js";
 import {
     boundedTodayProgressDraft,
     buildTodayProgressInputViewModel,
     formatPagesTotalText,
 } from "../dist/renderer/app/today/today_carousel_progress.js";
-import {
-    finalizedPercentDraftText,
-    normalizedPercentValue,
-} from "../dist/renderer/app/today/today-progress-percent.js";
 
 test("formatPagesTotalText renders known total", () => {
     assert.equal(formatPagesTotalText(328), "328");

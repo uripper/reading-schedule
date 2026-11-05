@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Covers the review's bulk controls and dismissal without importing unchecked rows. */
 import assert from "node:assert/strict";
 import test from "node:test";

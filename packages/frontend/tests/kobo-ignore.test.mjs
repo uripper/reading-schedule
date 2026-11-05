@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Covers lasting exclusions, cancellation, and failed exclusion saves. */
 import assert from "node:assert/strict";
 import test from "node:test";

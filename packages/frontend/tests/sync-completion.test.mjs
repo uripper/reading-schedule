@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Covers finish dates taken from completed Kobo records, including local day boundaries. */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -14,7 +13,7 @@ import {
     syncReviewEntries,
 } from "../dist/renderer/sync/model.js";
 
-// biome-ignore lint/style/noProcessEnv: Pins the timezone so local day boundaries are deterministic.
+// oxlint-disable-next-line node/no-process-env -- Pins the timezone so local day boundaries are deterministic.
 process.env.TZ = "America/New_York";
 
 const RECORD = {

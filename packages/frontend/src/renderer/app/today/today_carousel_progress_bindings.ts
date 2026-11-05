@@ -2,6 +2,7 @@
  * Binds Today progress inputs to row-local draft and visual state.
  */
 import { el } from "../../dom.ts";
+import { finalizedPercentDraftText } from "./today-progress-percent.ts";
 import type { TodayCarouselActiveItem } from "./today_carousel_model.ts";
 import type { TodayProgressDraft } from "./today_carousel_progress.ts";
 import {
@@ -9,7 +10,6 @@ import {
     buildTodayProgressInputViewModel,
 } from "./today_carousel_progress.ts";
 import { progressDraft, setProgressDraft } from "./today_carousel_state.ts";
-import { finalizedPercentDraftText } from "./today-progress-percent.ts";
 
 const EMPTY_TEXT = "";
 const PROGRESS_ENTRY_CLASS = "has-progress-entry";

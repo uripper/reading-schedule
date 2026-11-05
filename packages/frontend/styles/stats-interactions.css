@@ -23,9 +23,9 @@
     transform: translate(-50%, -6px);
     transition:
         opacity var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard),
+            var(--token-motion-easing-standard),
         transform var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard);
+            var(--token-motion-easing-standard);
 }
 
 .month-bar-track:hover .month-bar-value,

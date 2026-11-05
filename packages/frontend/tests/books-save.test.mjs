@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: tests import built shared frontend artifacts.
 /** Verifies saving books stays independent of remote cover latency and failures. */
 import assert from "node:assert/strict";
 import test from "node:test";

@@ -25,10 +25,10 @@ import { configureAppCalendarInteractions } from "../calendar_interactions/calen
 import { bindExperienceSettings } from "../experience/bindings.ts";
 import { totalsFromSummary } from "../runtime_helpers.ts";
 import { applyAppStateMutation } from "../state_mutations.ts";
+import { refreshForLocalDayRollover } from "../today/today-rollover-refresh.ts";
 import { configureTodayInteractions } from "../today/today_carousel_render.ts";
 import { resetTodayCarouselUiState } from "../today/today_carousel_state.ts";
 import { bindTodayDayRollover } from "../today/today_rollover.ts";
-import { refreshForLocalDayRollover } from "../today/today-rollover-refresh.ts";
 import { loadStateAndBindTodayActions } from "./init-app-load.ts";
 import { setupSkipLink } from "./init-helpers.ts";
 import { buildPlanController } from "./init-plan-controller.ts";

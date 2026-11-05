@@ -238,9 +238,9 @@
     box-shadow: 8px 8px 0 #000;
     transition:
         border-color var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard),
+            var(--token-motion-easing-standard),
         transform var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard);
+            var(--token-motion-easing-standard);
 }
 
 .book-cover-panel:hover {

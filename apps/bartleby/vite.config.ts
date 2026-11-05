@@ -1,4 +1,5 @@
-import { defineConfig } from "vite";
+/** Configures the webview build and the dev server used by Tauri. */
+import { defineConfig } from "vite-plus";
 
 interface ProcessLike {
     env?: Record<string, string | undefined>;
@@ -25,7 +26,6 @@ function hmrConfig(host: string | undefined) {
 const TAURI_DEV_HOST = tauriDevHost();
 
 // https://vite.dev/config/
-// biome-ignore lint/style/noDefaultExport: Vite loads config files from the default export.
 export default defineConfig(async () => ({
     base: "./",
 

@@ -11,9 +11,6 @@ import type {
 import { el } from "../dom.ts";
 import { configureAddBookFlow } from "./add-book-flow.ts";
 import { isBulkBookSubmitPayload } from "./bulk-edit-updates.ts";
-import { bindToolbarEvents } from "./controller_bindings.ts";
-import { renderBooksController } from "./controller_render.ts";
-import { defaultShelfForAddDialog } from "./controller_types.ts";
 import { bindControllerMassEdit } from "./controller-mass-edit.ts";
 import { updatedProgressBook } from "./controller-progress.ts";
 import { nextBooksAfterDialogSave } from "./controller-save.ts";
@@ -21,6 +18,9 @@ import {
     createBooksControllerRefs,
     createBooksViewState,
 } from "./controller-state-defaults.ts";
+import { bindToolbarEvents } from "./controller_bindings.ts";
+import { renderBooksController } from "./controller_render.ts";
+import { defaultShelfForAddDialog } from "./controller_types.ts";
 import { BookCoverJobs, reportCoverCommitError } from "./cover-jobs.ts";
 import { createBookDialog } from "./dialog.ts";
 import type { MassEditController } from "./mass-edit-controller.ts";

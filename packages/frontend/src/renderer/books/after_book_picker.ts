@@ -9,6 +9,14 @@ import type {
     GetBooks,
     PickerState,
 } from "../../types/types.ts";
+import type {
+    BindPickerEventsArgs,
+    CreateRefreshFilteredArgs,
+    OpenForBookArgs,
+    PickerActionDeps,
+    PickerActions,
+    SelectBookArgs,
+} from "./after-book-picker-types.ts";
 import { bindAfterBookPickerEvents } from "./after_book_picker_bindings.ts";
 import {
     compareBooks,
@@ -23,14 +31,6 @@ import {
     renderAfterBookResults,
     selectedBook,
 } from "./after_book_picker_render.ts";
-import type {
-    BindPickerEventsArgs,
-    CreateRefreshFilteredArgs,
-    OpenForBookArgs,
-    PickerActionDeps,
-    PickerActions,
-    SelectBookArgs,
-} from "./after-book-picker-types.ts";
 
 /** Returns sorted picker candidates other than the book currently being edited. */
 function availablePickerOptions(

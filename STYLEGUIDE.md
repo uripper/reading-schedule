@@ -172,7 +172,7 @@ A PR must not merge if any of the following is true:
 - After changing lint/parser config, run the target command once on representative files and confirm there are no parser crashes.
 - Prefer ECMAScript runtime features over TypeScript-only language features when both solve the problem and the runtime target supports the ECMAScript version.
 - Track repository type coverage and prevent regressions (for example via `type-coverage` in CI/local validation).
-- Enable and enforce exhaustiveness checking in lint (`@typescript-eslint/switch-exhaustiveness-check`) in TypeScript code that uses discriminated unions.
+- Enforce exhaustiveness checking for discriminated unions with Oxlint's `typescript/switch-exhaustiveness-check` rule.
 
 ## Documentation Policy
 
@@ -205,6 +205,27 @@ Line comments must always appear on the line immediately above the code they des
 ## Required Validation Commands
 
 Run all commands relevant to touched areas before merge.
+
+### TypeScript workspace tooling
+
+Install the pinned tools with `pnpm install --frozen-lockfile` from the
+workspace root. Use Node 22.18+ on the Node 22 line, Node 24.11+ on the Node 24
+line, or Node 26+. The workspace provides the Vite+ CLI through `pnpm exec vp`.
+
+- `pnpm run check:typescript` runs type-aware Oxlint through Vite+.
+  `pnpm run format:typescript` applies Oxfmt and sorts imports.
+- `ci:local` checks formatting, CSS through Stylelint, and HTML through
+  HTML Validate. The shared shell and its desktop derivative use stable
+  markup for host generation and are validated as HTML.
+- Oxlint enforces declaration naming and cognitive and cyclomatic complexity.
+  Function length and several rules with broader diagnostics, including
+  nullish coalescing and unnecessary conditions, report warnings. Review
+  object keys, interface members, and attribute ordering manually.
+- Root scripts use Vite+ to dispatch package tasks. The desktop webview,
+  website, and shared renderer bundle build through `vp build`.
+- Keep the package-specific TypeScript checks and Node test commands below.
+  The shared packages also use `tsc` to emit modules and declarations. Mobile
+  development uses Expo and Metro.
 
 ### Desktop
 

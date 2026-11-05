@@ -57,9 +57,7 @@ export type UpdatedBook = Book;
 
 /** Minimal runtime snapshot used by schedule row mutation helpers. */
 export interface SharedUpdateState
-    extends BlockedDayBookState,
-        PlannerResultState,
-        ScheduleCompletionState {}
+    extends BlockedDayBookState, PlannerResultState, ScheduleCompletionState {}
 
 /** Base dependencies for schedule row mutation operations. */
 export interface SharedUpdateArgs extends PlannerCalendarBindings {

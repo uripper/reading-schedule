@@ -1,10 +1,10 @@
 /** Builds the shell nodes of a book card: root, cover, heading, and actions. */
 import type { Book, CardRenderContext } from "../../types/types.ts";
-import { bindReadCardHolo } from "./card_holo.ts";
 import {
     estimatedFinishButton,
     finishedDateButton,
 } from "./card-navigation-buttons.ts";
+import { bindReadCardHolo } from "./card_holo.ts";
 import { bookCoverSrc } from "./model-normalize.ts";
 import { subtitle } from "./presenters.ts";
 import {

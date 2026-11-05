@@ -5,8 +5,8 @@ import type {
     SyncRecord,
 } from "@reading-schedule/contracts";
 import { syncButton, syncElement } from "./dom.ts";
-import { syncSourceLabel } from "./links.ts";
 import { confirmSyncUnlink, unlinkSyncSource } from "./links-unlink.ts";
+import { syncSourceLabel } from "./links.ts";
 import { syncReadDateLabel, syncRecordName } from "./review-conflicts.ts";
 
 const PANEL_ID = "bookSyncLinks";

@@ -19,9 +19,9 @@
     transform: translateY(0);
     transition:
         opacity var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard),
+            var(--token-motion-easing-standard),
         transform var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard);
+            var(--token-motion-easing-standard);
 }
 
 .schedule-status-overlay[hidden] {

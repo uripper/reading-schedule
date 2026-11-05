@@ -16,7 +16,8 @@ import type { PlannerScheduleRow } from "./types_planner.js";
 
 /** Inputs used to rebuild today dashboard state from runtime data. */
 export interface TodayDashboardPayload
-    extends BookCollectionState,
+    extends
+        BookCollectionState,
         PlannerResultState,
         ScheduleCompletionState,
         SessionState {

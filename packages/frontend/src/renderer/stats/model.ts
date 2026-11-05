@@ -6,13 +6,13 @@ import {
     totalMinutes,
 } from "../activity/day-minutes.ts";
 import { plannedFinishesForUnreadBooks } from "./finish-summary.ts";
-import { readBooksFinishedThisYear, statusBreakdown } from "./helpers.ts";
 import {
     averageProgress,
     completionStats,
     monthlyFinishCounts,
     plannedFinishBookIds,
 } from "./helpers-metrics.ts";
+import { readBooksFinishedThisYear, statusBreakdown } from "./helpers.ts";
 
 const MIN_GOAL_MINUTES = 1;
 

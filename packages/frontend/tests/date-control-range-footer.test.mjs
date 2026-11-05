@@ -1,13 +1,11 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: this test intentionally imports built shared frontend artifacts from dist.
 import assert from "node:assert/strict";
 import test, { after } from "node:test";
 
 import { installFakeDom } from "./helpers/fake-dom.mjs";
 
 const HARNESS = installFakeDom();
-const { attachRangePickerFooter } = await import(
-    "../dist/renderer/date-control-range-footer.js"
-);
+const { attachRangePickerFooter } =
+    await import("../dist/renderer/date-control-range-footer.js");
 
 after(() => {
     HARNESS.restore();

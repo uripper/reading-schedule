@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: tests import built frontend artifacts.
 /** Verifies that late covers update only the still-matching open book form. */
 import assert from "node:assert/strict";
 import test from "node:test";

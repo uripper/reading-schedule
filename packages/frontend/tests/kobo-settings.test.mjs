@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: Regression tests import built frontend artifacts.
 /** Covers provider enablement, persisted settings, and cancelling the native picker. */
 import assert from "node:assert/strict";
 import test from "node:test";

@@ -22,9 +22,7 @@ import type { PlannerApi, PlannerResult } from "./types_planner.ts";
 
 /** State snapshot consumed by the persistence queue. */
 export interface PersistQueueState
-    extends BlockedDayBookState,
-        PlannerResultState,
-        ScheduleCompletionState {
+    extends BlockedDayBookState, PlannerResultState, ScheduleCompletionState {
     /** Normalized feature flags controlling optional runtime behavior. */
     featureFlags: FeatureFlags;
     /** Normalized user experience preferences applied by the renderer. */
@@ -83,7 +81,8 @@ export type AppStateMutation =
 
 /** Dependencies used to build a draft payload before saving state. */
 export interface DraftDataParams
-    extends BlockedDayBookState,
+    extends
+        BlockedDayBookState,
         PlannerInputCollectors,
         PlannerResultState,
         ScheduleCompletionState,
@@ -96,8 +95,7 @@ export interface DraftDataParams
 
 /** Dependencies required to create the persistence queue. */
 export interface PersistQueueArgs
-    extends PlannerInputCollectors,
-        SessionReader {
+    extends PlannerInputCollectors, SessionReader {
     /** Appends a diagnostic message to the in-app log. */
     addLog(this: void, message: string): void;
     /** Reports every completed save attempt to the runtime error surface. */

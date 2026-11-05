@@ -1,4 +1,3 @@
-// biome-ignore-all lint/correctness/noUnresolvedImports: tests import built frontend artifacts.
 /** Covers deadline cleanup, retries, and late results without real waiting. */
 import assert from "node:assert/strict";
 import test from "node:test";

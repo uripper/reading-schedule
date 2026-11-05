@@ -1,6 +1,5 @@
 /** Builds full book card DOM nodes: cover, metadata, stats, and actions. */
 import type { Book, CardRenderContext } from "../../types/types.ts";
-import { scrollToBookCard } from "./card_scroll_target.ts";
 import { afterBookLinkButton } from "./card-navigation-buttons.ts";
 import {
     cardActionsNode,
@@ -10,6 +9,7 @@ import {
     cardSubtitleNode,
     coverButtonForBook,
 } from "./card-node-shell.ts";
+import { scrollToBookCard } from "./card_scroll_target.ts";
 import {
     blockerMeta,
     metaLabel,

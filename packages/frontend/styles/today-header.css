@@ -85,9 +85,9 @@
     border-radius: 999px;
     transition:
         background-color var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard),
+            var(--token-motion-easing-standard),
         box-shadow var(--token-motion-duration-fast)
-        var(--token-motion-easing-standard);
+            var(--token-motion-easing-standard);
 }
 
 .neo-metric-icon .icon {

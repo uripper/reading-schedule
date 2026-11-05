@@ -40,7 +40,7 @@ export const IGNORED_DIRECTORIES = new Set([
 	"target",
 ]);
 
-export const IGNORED_FILES = new Set(["eslint.config.mjs", "style_audit.mjs"]);
+export const IGNORED_FILES = new Set(["style_audit.mjs"]);
 
 export const SOFT_LINE_LIMIT = 200;
 export const HARD_LINE_LIMIT = 300;

@@ -10,9 +10,7 @@ import type { PlannerSettings } from "./types_planner.ts";
 
 /** Schedule fields staged together when a sync also records completed reading time. */
 export interface SyncSessionState
-    extends BlockedDayBookState,
-        PlannerResultState,
-        ScheduleCompletionState {}
+    extends BlockedDayBookState, PlannerResultState, ScheduleCompletionState {}
 
 /** Accepted source choices and library metadata used to log their completed sessions. */
 export interface SyncSessionImport {

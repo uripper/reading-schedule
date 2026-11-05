@@ -129,7 +129,8 @@ export interface DailyGoalState {
 
 /** Shared dashboard stats payload built from the current runtime state. */
 export interface DashboardStatsPayload
-    extends BookCollectionState,
+    extends
+        BookCollectionState,
         DailyGoalState,
         PlannerResultState,
         ScheduleCompletionState,
@@ -146,9 +147,7 @@ export type DayMinutesMap = Map<string, number>;
 
 /** Inputs used to compute minute totals for a specific year. */
 export interface DayMinutesArgs
-    extends PlannerResultState,
-        ScheduleCompletionState,
-        SessionState {
+    extends PlannerResultState, ScheduleCompletionState, SessionState {
     /** Target calendar year used when grouping minute totals. */
     year: number | null;
 }
