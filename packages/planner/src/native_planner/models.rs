@@ -4,7 +4,6 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 use chrono::NaiveDate;
 
 pub type Assignments = HashMap<(String, NaiveDate), i64>;
-pub type CalendarMinutes = HashMap<NaiveDate, i64>;
 pub type DifficultyMultiplier = HashMap<i64, f64>;
 pub type MinutesByWeekday = HashMap<String, i64>;
 pub type ReservedBookIdsByDate = HashMap<NaiveDate, HashSet<String>>;
@@ -46,7 +45,8 @@ pub struct Book {
 pub struct Settings {
     pub days_off: HashSet<NaiveDate>,
     pub difficulty_multiplier: DifficultyMultiplier,
-    pub end_date: NaiveDate,
+    /// Optional hard stop; when absent the planner sizes the horizon from the reading load.
+    pub end_date: Option<NaiveDate>,
     pub excluded_book_ids_by_date: ReservedBookIdsByDate,
     pub max_blocks_per_book_per_day: i64,
     pub max_books_per_day: i64,
@@ -78,6 +78,9 @@ pub struct PlannerInput {
 pub struct PlanResult {
     pub assignments: Assignments,
     pub deprecation_notice: Option<String>,
+    /// The configured `end_date`, or the last day planned when uncapped;
+    /// bounds available-minute totals.
+    pub horizon_end: NaiveDate,
     pub note: String,
     pub objective: Option<i64>,
     pub planner: String,

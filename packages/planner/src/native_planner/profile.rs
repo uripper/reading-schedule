@@ -32,10 +32,14 @@ fn fast_profile_result(
     should_cancel: &CancellationCheck<'_>,
 ) -> Result<PlanResult, String> {
     fail_if_cancelled(should_cancel)?;
-    let assignments = plan_greedy(books, settings, should_cancel)?;
+    let plan = plan_greedy(books, settings, should_cancel)?;
+    // A capped plan reports availability through its configured end, even
+    // when every book finishes earlier; an uncapped one ends with the plan.
+    let horizon_end = settings.end_date.unwrap_or(plan.last_day);
     Ok(PlanResult {
-        assignments,
+        assignments: plan.assignments,
         deprecation_notice: deprecation_notice(settings),
+        horizon_end,
         note: FAST_MODE_NOTE.to_string(),
         objective: None,
         planner: GREEDY_PLANNER_NAME.to_string(),

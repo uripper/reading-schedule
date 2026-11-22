@@ -100,6 +100,17 @@ function checkedScheduledDaysField() {
     };
 }
 
+function emptyCollectionChips() {
+    return {
+        querySelector() {
+            return null;
+        },
+        querySelectorAll() {
+            return [];
+        },
+    };
+}
+
 function createLookupMeta() {
     return { dataset: { lookupNote: "" }, textContent: "" };
 }
@@ -148,6 +159,7 @@ function createRefs(form, overrides = {}) {
         ...createPlanningRefs(),
         ...createProgressRefs(),
         applyScheduledDaysToShelfInput: { checked: false },
+        collectionChips: emptyCollectionChips(),
         form,
         lookupMeta: LOOKUP_META,
         saveBtn: SAVE_BUTTON,

@@ -9,6 +9,10 @@ import {
     allKeywordsMatchFields,
     normalizeTitleFilterQuery,
 } from "../title_filter.ts";
+import {
+    COLLECTION_FILTER_ALL,
+    collectionFilterMatches,
+} from "./collection.ts";
 import { bookKeywordFields } from "./keyword-search.ts";
 import { SHELF_FILTER_ALL, shelfFilterMatches } from "./shelf.ts";
 import { sortBooks } from "./sort.ts";
@@ -34,6 +38,9 @@ export function matchesTitleFilter(book: Book, titleFilter: string): boolean {
  */
 function hasRenderableToolbarRefs(refs: BooksControllerRefs): boolean {
     if (!(refs.shelfFilterSelect instanceof HTMLSelectElement)) {
+        return false;
+    }
+    if (!(refs.collectionFilterSelect instanceof HTMLSelectElement)) {
         return false;
     }
     if (!(refs.groupBySelect instanceof HTMLSelectElement)) {
@@ -74,6 +81,8 @@ export function resolveRenderableRefs(
         return null;
     }
     return {
+        collectionFilterSelect:
+            refs.collectionFilterSelect as HTMLSelectElement,
         empty: refs.empty as HTMLElement,
         grid: refs.grid as HTMLElement,
         groupBySelect: refs.groupBySelect as HTMLSelectElement,
@@ -82,6 +91,28 @@ export function resolveRenderableRefs(
         sortDirectionBtn: refs.sortDirectionBtn as HTMLButtonElement,
         statusFilterSelect: refs.statusFilterSelect as HTMLSelectElement,
     };
+}
+
+/**
+ * Checks a book against every active Library filter.
+ * @param book - Book to test.
+ * @param viewState - Active keyword, shelf, collection, and status filters.
+ * @returns `true` when the book passes all filters.
+ */
+function bookMatchesViewFilters(
+    book: Book,
+    viewState: BooksViewState,
+): boolean {
+    if (!matchesTitleFilter(book, viewState.titleFilter)) {
+        return false;
+    }
+    if (!shelfFilterMatches(book, viewState.shelfFilter)) {
+        return false;
+    }
+    if (!collectionFilterMatches(book, viewState.collectionFilter)) {
+        return false;
+    }
+    return statusFilterMatches(book, viewState.statusFilter);
 }
 
 /**
@@ -101,15 +132,7 @@ export function visibleBooksForView(
         finishDateByBookId,
         sortBy: viewState.sortBy,
         sortDirection: viewState.sortDirection,
-    }).filter((book) => {
-        if (!matchesTitleFilter(book, viewState.titleFilter)) {
-            return false;
-        }
-        if (!shelfFilterMatches(book, viewState.shelfFilter)) {
-            return false;
-        }
-        return statusFilterMatches(book, viewState.statusFilter);
-    });
+    }).filter((book) => bookMatchesViewFilters(book, viewState));
 }
 
 /** Restores the unfiltered Library view and its search field. */
@@ -120,6 +143,7 @@ export function clearBookFilters(
     const STATE = viewState;
     STATE.titleFilter = "";
     STATE.shelfFilter = SHELF_FILTER_ALL;
+    STATE.collectionFilter = COLLECTION_FILTER_ALL;
     STATE.statusFilter = BOOK_STATUS_FILTER_ALL;
     if (refs.titleFilterInput) {
         refs.titleFilterInput.value = "";

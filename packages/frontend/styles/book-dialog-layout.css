@@ -139,7 +139,8 @@ details[open] > .book-section-toggle::after {
 }
 
 .book-search-panel,
-.book-after-book-picker {
+.book-after-book-picker,
+.book-collection-picker {
     position: relative;
     min-width: 0;
 }

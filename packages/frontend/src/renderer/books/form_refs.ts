@@ -52,6 +52,15 @@ function coverRefs() {
     };
 }
 
+function collectionRefs() {
+    return {
+        collectionChips: el("bookCollectionChips"),
+        collectionInput: el<HTMLInputElement>("bookCollectionInput"),
+        collectionResults: el("bookCollectionResults"),
+        collectionsField: el("bookCollectionsField"),
+    };
+}
+
 function scheduleRefs() {
     return {
         deadlineInput: el<HTMLInputElement>("bookDeadlineInput"),
@@ -91,6 +100,7 @@ export function getBookFormRefs(): BookFormRefs {
         ...pickerRefs(),
         ...identityRefs(),
         ...coverRefs(),
+        ...collectionRefs(),
         ...scheduleRefs(),
         ...dialogRefs(),
     };

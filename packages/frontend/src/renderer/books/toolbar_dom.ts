@@ -158,7 +158,7 @@ function sortDirectionButton(): HTMLButtonElement {
 }
 
 /**
- * Creates the keyword, status, and shelf filter controls.
+ * Creates the keyword, status, shelf, and collection filter controls.
  * @returns Labeled filter controls.
  */
 function filterControls() {
@@ -168,8 +168,14 @@ function filterControls() {
         KEYWORD_SEARCH_HINT,
     );
     const SHELF = createLabeledSelect("Shelf", "booksShelfFilterSelect", []);
+    const COLLECTION = createLabeledSelect(
+        "Collection",
+        "booksCollectionFilterSelect",
+        [],
+    );
     const STATUS = createLabeledSelect("Status", "booksStatusFilterSelect", []);
     return {
+        collection: COLLECTION,
         shelf: SHELF,
         status: STATUS,
         titleFilter: TITLE_FILTER,
@@ -221,6 +227,7 @@ function replaceToolbarChildren(
     wrap.replaceChildren(
         controls.titleFilter.label,
         controls.shelf.label,
+        controls.collection.label,
         controls.status.label,
         controls.sortBy.label,
         controls.groupBy.label,
@@ -234,6 +241,7 @@ function replaceToolbarChildren(
  * @returns Toolbar element references.
  */
 function toolbarControlRefs(controls: ReturnType<typeof toolbarControls>): {
+    collectionFilterSelect: HTMLSelectElement;
     groupBySelect: HTMLSelectElement;
     shelfFilterSelect: HTMLSelectElement;
     sortBySelect: HTMLSelectElement;
@@ -242,6 +250,7 @@ function toolbarControlRefs(controls: ReturnType<typeof toolbarControls>): {
     titleFilterInput: HTMLInputElement;
 } {
     return {
+        collectionFilterSelect: controls.collection.select,
         groupBySelect: controls.groupBy.select,
         shelfFilterSelect: controls.shelf.select,
         sortBySelect: controls.sortBy.select,
@@ -266,14 +275,9 @@ export function createOption(value: string, label: string): HTMLOptionElement {
  * @param toolbar - Toolbar root element.
  * @returns Toolbar control references used by controller wiring.
  */
-export function ensureBooksToolbarControls(toolbar: HTMLElement): {
-    groupBySelect: HTMLSelectElement;
-    shelfFilterSelect: HTMLSelectElement;
-    sortBySelect: HTMLSelectElement;
-    sortDirectionBtn: HTMLButtonElement;
-    statusFilterSelect: HTMLSelectElement;
-    titleFilterInput: HTMLInputElement;
-} {
+export function ensureBooksToolbarControls(
+    toolbar: HTMLElement,
+): ReturnType<typeof toolbarControlRefs> {
     const WRAP = createControlsWrap(toolbar);
     const CONTROLS = toolbarControls();
     replaceToolbarChildren(WRAP, CONTROLS);

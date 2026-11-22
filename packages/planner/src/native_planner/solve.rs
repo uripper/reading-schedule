@@ -1,15 +1,15 @@
-use std::cmp::Ordering;
 use std::collections::HashSet;
 
 use chrono::NaiveDate;
 
-use crate::native_planner::calendar::{date_range, day_capacity_blocks};
+use crate::native_planner::book_order::BookOrder;
+use crate::native_planner::calendar::day_capacity_blocks;
 use crate::native_planner::greedy_support::{
-    active_book, active_book_chunk, assign_blocks, day_weekday_bit, deadline_sort_key,
-    indexed_books, next_book, progress_order, reset_day_state, start_blocks_for_book,
-    GreedyBookState,
+    active_book, active_book_chunk, assign_blocks, day_weekday_bit, indexed_books, next_book,
+    reset_day_state, start_blocks_for_book, GreedyBookState,
 };
-use crate::native_planner::models::{priority_order, Assignments, Book, Settings};
+use crate::native_planner::horizon::Horizon;
+use crate::native_planner::models::{Assignments, Book, Settings};
 use crate::native_planner::{fail_if_cancelled, CancellationCheck};
 
 const MAX_FILL_DAY_ITERATIONS: i64 = 10000;
@@ -26,51 +26,59 @@ pub struct DayState<'books, 'state> {
     pub weekday_bit: u8,
 }
 
-struct OrderedBookContext<'a> {
-    books: &'a [GreedyBookState<'a>],
+/// Greedy assignments plus the last calendar day the planner examined.
+pub struct GreedyPlan {
+    pub assignments: Assignments,
+    pub last_day: NaiveDate,
 }
 
+/// Walks days until every book is finished, the optional end date, or a stall.
 pub fn plan_greedy(
     books: &[Book],
     settings: &Settings,
     should_cancel: &CancellationCheck<'_>,
-) -> Result<Assignments, String> {
-    let days = date_range(settings.start_date, settings.end_date)?;
+) -> Result<GreedyPlan, String> {
     let mut assignments = Assignments::new();
     let mut book_states = indexed_books(books, settings);
     let mut unfinished_count = book_states
         .iter()
         .filter(|book_state| book_state.remaining > 0.0)
         .count();
-    let mut day_index = 0;
-    while day_index < days.len() && unfinished_count > 0 {
+    let mut order = BookOrder::new(&book_states);
+    let mut horizon = Horizon::new(settings);
+    let mut last_day = settings.start_date;
+    let mut next_day = Some(settings.start_date);
+    while let Some(day) = next_day.filter(|day| unfinished_count > 0 && horizon.includes(*day)) {
         fail_if_cancelled(should_cancel)?;
-        let day = days[day_index];
-        reset_day_state(&mut book_states);
-        let ordered = ordered_books(&book_states);
-        let cap = day_capacity_blocks(settings, day).max(0);
-        let daily_book_cap = available_book_slots(settings, day);
-        plan_day_with_cap(
-            &ordered,
-            DayState {
-                assignments: &mut assignments,
-                books: &mut book_states,
-                cap,
-                daily_book_cap,
-                day,
-                reserved_book_ids: unavailable_book_ids(settings, day),
-                unfinished_count: &mut unfinished_count,
-                used: Vec::new(),
-                weekday_bit: day_weekday_bit(day),
-            },
-            should_cancel,
-        )?;
-        day_index += 1;
+        let mut state = DayState {
+            assignments: &mut assignments,
+            books: &mut book_states,
+            cap: day_capacity_blocks(settings, day).max(0),
+            daily_book_cap: available_book_slots(settings, day),
+            day,
+            reserved_book_ids: unavailable_book_ids(settings, day),
+            unfinished_count: &mut unfinished_count,
+            used: Vec::new(),
+            weekday_bit: day_weekday_bit(day),
+        };
+        plan_day_with_cap(order.indexes(), &mut state, should_cancel)?;
+        let read_today = state.used;
+        let progressed = read_today
+            .iter()
+            .any(|index| book_states[*index].assigned_today > 0);
+        horizon.record_day(day, progressed);
+        order.update(&book_states, &read_today);
+        reset_day_state(&mut book_states, &read_today);
+        last_day = day;
+        next_day = day.succ_opt();
     }
-    Ok(assignments
-        .into_iter()
-        .filter(|(_, blocks)| *blocks > 0)
-        .collect())
+    Ok(GreedyPlan {
+        assignments: assignments
+            .into_iter()
+            .filter(|(_, blocks)| *blocks > 0)
+            .collect(),
+        last_day,
+    })
 }
 
 /// Books the planner must not start on a day: those already reserved by
@@ -103,14 +111,6 @@ fn available_book_slots(settings: &Settings, day: NaiveDate) -> i64 {
     book_slots.min(session_slots).max(0)
 }
 
-fn plan_day(
-    ordered: &[usize],
-    mut state: DayState<'_, '_>,
-    should_cancel: &CancellationCheck<'_>,
-) -> Result<(), String> {
-    fill_day(ordered, &mut state, should_cancel)
-}
-
 fn fill_day(
     ordered: &[usize],
     state: &mut DayState<'_, '_>,
@@ -125,17 +125,6 @@ fn fill_day(
         iterations += 1;
     }
     Ok(())
-}
-
-fn ordered_books(books: &[GreedyBookState<'_>]) -> Vec<usize> {
-    let mut ordered = books
-        .iter()
-        .enumerate()
-        .map(|(index, _)| index)
-        .collect::<Vec<_>>();
-    let context = OrderedBookContext { books };
-    ordered.sort_by(|left, right| context.compare(left, right));
-    ordered
 }
 
 fn start_next_book(state: &mut DayState<'_, '_>, next_book_index: usize) {
@@ -167,40 +156,16 @@ fn fill_day_step(ordered: &[usize], state: &mut DayState<'_, '_>) -> bool {
 
 fn plan_day_with_cap(
     ordered: &[usize],
-    state: DayState<'_, '_>,
+    state: &mut DayState<'_, '_>,
     should_cancel: &CancellationCheck<'_>,
 ) -> Result<(), String> {
     if state.cap <= 0 {
         return Ok(());
     }
-    plan_day(ordered, state, should_cancel)
+    fill_day(ordered, state, should_cancel)
 }
 
 fn fill_day_iteration(ordered: &[usize], state: &mut DayState<'_, '_>) -> bool {
     let previous_cap = state.cap;
     fill_day_step(ordered, state) && state.cap != previous_cap
-}
-
-impl OrderedBookContext<'_> {
-    fn compare(&self, left: &usize, right: &usize) -> Ordering {
-        let left_state = &self.books[*left];
-        let right_state = &self.books[*right];
-        let left_book = left_state.book;
-        let right_book = right_state.book;
-        let deadline_order =
-            deadline_sort_key(left_book.deadline).cmp(&deadline_sort_key(right_book.deadline));
-        let progress_comparison = progress_order(
-            (left_book, left_state.remaining),
-            (right_book, right_state.remaining),
-        );
-        let remaining_order = left_state
-            .remaining
-            .partial_cmp(&right_state.remaining)
-            .unwrap_or(Ordering::Equal);
-        priority_order(left_book.priority, right_book.priority)
-            .then(progress_comparison)
-            .then(deadline_order)
-            .then(remaining_order)
-            .then_with(|| left_book.book_id.cmp(&right_book.book_id))
-    }
 }

@@ -1,5 +1,6 @@
 /** Builds initial library controller references and view preferences. */
 import type { BooksControllerRefs, BooksViewState } from "../../types/types.ts";
+import { COLLECTION_FILTER_ALL } from "./collection.ts";
 import { GROUP_BY_NONE } from "./grouping.ts";
 import { SORT_BY_ESTIMATED_FINISH } from "./sort.ts";
 import { BOOK_STATUS_FILTER_ALL } from "./status_catalog.ts";
@@ -9,6 +10,7 @@ import { SORT_DIRECTION_ASC } from "./toolbar.ts";
 export function createBooksControllerRefs(): BooksControllerRefs {
     return {
         addBtn: null,
+        collectionFilterSelect: null,
         empty: null,
         grid: null,
         groupBySelect: null,
@@ -24,6 +26,7 @@ export function createBooksControllerRefs(): BooksControllerRefs {
 /** Sets the existing library sort, grouping, and filter defaults. */
 export function createBooksViewState(): BooksViewState {
     return {
+        collectionFilter: COLLECTION_FILTER_ALL,
         groupBy: GROUP_BY_NONE,
         shelfFilter: "",
         sortBy: SORT_BY_ESTIMATED_FINISH,

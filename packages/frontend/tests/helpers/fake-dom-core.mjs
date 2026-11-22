@@ -224,6 +224,14 @@ export class FakeElement {
         this.ownerDocument.register(node);
     }
 
+    getAttribute(name) {
+        return this.attributes.get(name) ?? null;
+    }
+
+    removeAttribute(name) {
+        this.attributes.delete(name);
+    }
+
     setAttribute(name, value) {
         if (name === "id") {
             this.id = String(value);

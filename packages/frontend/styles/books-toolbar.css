@@ -29,7 +29,8 @@
 
 .books-controls {
     display: grid;
-    grid-template-columns: minmax(0, 1.8fr) repeat(4, minmax(0, 1fr)) auto;
+    /* Search, then Shelf, Collection, Status, Sort, Group By, sort direction. */
+    grid-template-columns: minmax(0, 1.8fr) repeat(5, minmax(0, 1fr)) auto;
     gap: 16px;
     align-items: end;
     min-width: 0;
@@ -178,7 +179,7 @@
     display: none;
 }
 
-@media (width <= 1380px) {
+@media (width <= 1600px) {
     .books-controls {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }

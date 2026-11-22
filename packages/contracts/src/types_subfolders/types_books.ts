@@ -29,6 +29,8 @@ export interface Book {
     author: string;
     blocked_by: string | null;
     book_id: string;
+    /** Collection names; unlike `shelf`, a book can belong to any number. */
+    collections: string[];
     cover_local_path: string;
     cover_url: string;
     deadline: string | null;

@@ -1,10 +1,11 @@
 /** Builds the searchable text fields used by Library keyword search. */
 import type { Book } from "../../types/types.ts";
+import { normalizeCollections } from "./collection.ts";
 import { shelfLabelForBook } from "./shelf.ts";
 import { statusLabel } from "./status_catalog.ts";
 
 export const KEYWORD_SEARCH_HINT =
-    "Searches title, author, shelf, status, lookup note, due date, finished date, and page count.";
+    "Searches title, author, shelf, collections, status, lookup note, due date, finished date, and page count.";
 
 /**
  * Formats an optional positive count as searchable text.
@@ -30,6 +31,7 @@ export function bookKeywordFields(book: Book): Array<string | null> {
         book.title,
         book.author,
         shelfLabelForBook(book),
+        ...normalizeCollections(book.collections),
         statusLabel(book.status),
         book.lookup_note,
         book.deadline,

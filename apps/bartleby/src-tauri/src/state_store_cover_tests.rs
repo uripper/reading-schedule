@@ -172,3 +172,26 @@ fn state_maintenance_repairs_orphaned_blockers() {
     );
     let _ = fs::remove_dir_all(&canonical_directory);
 }
+
+#[test]
+fn state_round_trip_keeps_book_collections() {
+    let canonical_directory = temp_state_directory("state-book-collections");
+    save_state_to_directory(
+        &canonical_directory,
+        &json!({
+            "books": [
+                { "book_id": "book-a", "shelf": "Home", "collections": ["Classics", "Summer"] }
+            ],
+            "settings": { "start_date": "2026-04-03" }
+        }),
+    )
+    .expect("expected canonical state write");
+    run_state_maintenance(&canonical_directory).expect("expected background maintenance");
+    let load_result = load_canonical_state_for_test(&canonical_directory);
+    assert_eq!(
+        load_result.state["books"][0]["collections"],
+        json!(["Classics", "Summer"]),
+    );
+    assert_eq!(load_result.state["books"][0]["shelf"], "Home");
+    let _ = fs::remove_dir_all(&canonical_directory);
+}

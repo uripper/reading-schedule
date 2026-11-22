@@ -170,3 +170,10 @@
 .sync-library-results > li:hover {
     background: var(--color-banana);
 }
+
+/* Primary review action shares Add Book's green without its book icon. */
+.sync-review .sync-update-selected {
+    color: var(--button-green-ink);
+    background-color: var(--button-green);
+    box-shadow: var(--button-shadow);
+}

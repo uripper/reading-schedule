@@ -108,15 +108,13 @@ test("repeated source records cannot log duplicate sessions", async () => {
     assert.equal(STATE.runtime.lastResult.schedule.length, 1);
 });
 
-test("stale and missing targets never add sessions", async () => {
+test("blocked and missing targets never add sessions", async () => {
     const { state: STATE, store: STORE } = fixture();
-    STATE.books[0] = {
-        ...STATE.books[0],
-        progress_percent: 80,
-        progress_updated_at: "2026-02-02T12:00:00Z",
-    };
     const RESULT = await applySyncImport(STORE, [
-        CHOICE,
+        {
+            ...CHOICE,
+            record: { ...RECORD, dateLastRead: "2999-02-02T12:00:00Z" },
+        },
         {
             ...CHOICE,
             bookId: "missing",
