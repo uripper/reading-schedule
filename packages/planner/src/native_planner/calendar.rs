@@ -41,8 +41,8 @@ pub fn minutes_for_day(settings: &Settings, day: NaiveDate) -> i64 {
     settings.minutes_per_day.unwrap_or(0)
 }
 
-pub fn calendar_minutes(settings: &Settings) -> Result<CalendarMinutes, String> {
-    let days = date_range(settings.start_date, settings.end_date)?;
+pub fn calendar_minutes(settings: &Settings, end: NaiveDate) -> Result<CalendarMinutes, String> {
+    let days = date_range(settings.start_date, end)?;
     Ok(days
         .into_iter()
         .map(|day| (day, available_minutes_for_day(settings, day)))

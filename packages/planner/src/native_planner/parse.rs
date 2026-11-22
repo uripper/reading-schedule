@@ -81,7 +81,9 @@ fn parse_settings(data: &Map<String, Value>) -> Result<Settings, String> {
     let settings = Settings {
         days_off: days_off(data)?,
         difficulty_multiplier: difficulty_multiplier(data)?,
-        end_date: parse_date(&required_string_field(data, "end_date")?)?,
+        end_date: optional_string_field(data, "end_date")?
+            .map(|end_date| parse_date(&end_date))
+            .transpose()?,
         excluded_book_ids_by_date: reservations::excluded_book_ids_by_date(data)?,
         max_blocks_per_book_per_day: int_with_default(
             data,

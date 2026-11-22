@@ -86,7 +86,10 @@ pub fn validate_book(book: &Book) -> Result<(), String> {
 }
 
 pub fn validate_settings(settings: &Settings) -> Result<(), String> {
-    if settings.start_date > settings.end_date {
+    if settings
+        .end_date
+        .is_some_and(|end_date| settings.start_date > end_date)
+    {
         return Err("end_date must be on or after start_date".to_string());
     }
     if settings.minutes_per_day.unwrap_or(0) <= 0 && settings.minutes_by_weekday.is_empty() {

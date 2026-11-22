@@ -3,12 +3,13 @@ use std::collections::HashSet;
 
 use chrono::NaiveDate;
 
-use crate::native_planner::calendar::{date_range, day_capacity_blocks};
+use crate::native_planner::calendar::day_capacity_blocks;
 use crate::native_planner::greedy_support::{
     active_book, active_book_chunk, assign_blocks, day_weekday_bit, deadline_sort_key,
     indexed_books, next_book, progress_order, reset_day_state, start_blocks_for_book,
     GreedyBookState,
 };
+use crate::native_planner::horizon::Horizon;
 use crate::native_planner::models::{priority_order, Assignments, Book, Settings};
 use crate::native_planner::{fail_if_cancelled, CancellationCheck};
 
@@ -30,22 +31,29 @@ struct OrderedBookContext<'a> {
     books: &'a [GreedyBookState<'a>],
 }
 
+/// Greedy assignments plus the last calendar day the planner examined.
+pub struct GreedyPlan {
+    pub assignments: Assignments,
+    pub last_day: NaiveDate,
+}
+
+/// Walks days until every book is finished, the optional end date, or a stall.
 pub fn plan_greedy(
     books: &[Book],
     settings: &Settings,
     should_cancel: &CancellationCheck<'_>,
-) -> Result<Assignments, String> {
-    let days = date_range(settings.start_date, settings.end_date)?;
+) -> Result<GreedyPlan, String> {
     let mut assignments = Assignments::new();
     let mut book_states = indexed_books(books, settings);
     let mut unfinished_count = book_states
         .iter()
         .filter(|book_state| book_state.remaining > 0.0)
         .count();
-    let mut day_index = 0;
-    while day_index < days.len() && unfinished_count > 0 {
+    let mut horizon = Horizon::new(settings);
+    let mut last_day = settings.start_date;
+    let mut next_day = Some(settings.start_date);
+    while let Some(day) = next_day.filter(|day| unfinished_count > 0 && horizon.includes(*day)) {
         fail_if_cancelled(should_cancel)?;
-        let day = days[day_index];
         reset_day_state(&mut book_states);
         let ordered = ordered_books(&book_states);
         let cap = day_capacity_blocks(settings, day).max(0);
@@ -65,12 +73,22 @@ pub fn plan_greedy(
             },
             should_cancel,
         )?;
-        day_index += 1;
+        if book_states
+            .iter()
+            .any(|book_state| book_state.assigned_today > 0)
+        {
+            horizon.record_progress(day);
+        }
+        last_day = day;
+        next_day = day.succ_opt();
     }
-    Ok(assignments
-        .into_iter()
-        .filter(|(_, blocks)| *blocks > 0)
-        .collect())
+    Ok(GreedyPlan {
+        assignments: assignments
+            .into_iter()
+            .filter(|(_, blocks)| *blocks > 0)
+            .collect(),
+        last_day,
+    })
 }
 
 /// Books the planner must not start on a day: those already reserved by

@@ -5,6 +5,9 @@ pub mod benchmark;
 mod calendar;
 mod coerce;
 mod greedy_support;
+mod horizon;
+#[cfg(test)]
+mod horizon_tests;
 mod models;
 #[cfg(test)]
 mod order_tests;

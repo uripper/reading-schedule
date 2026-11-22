@@ -56,7 +56,9 @@ pub fn build_output(
     let sessions = sessions(books, settings, &result.assignments)?;
     let per_book_totals = per_book_totals(books, &sessions);
     let total_planned_minutes = sessions.iter().map(|session| session.minutes).sum::<i64>();
-    let total_available_minutes = calendar_minutes(settings)?.values().sum::<i64>();
+    let total_available_minutes = calendar_minutes(settings, result.horizon_end)?
+        .values()
+        .sum::<i64>();
     let total_required_minutes = required_total_minutes(books, settings);
     let incomplete_books = incomplete_books(books, &per_book_totals);
     let feasibility_warning = feasibility_warning(FeasibilityWarningContext {
