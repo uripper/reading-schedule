@@ -2,6 +2,7 @@
 import type { Book, OpenBookDialogArgs } from "../../types/types.ts";
 import { renderSyncLinks } from "../sync/links-panel.ts";
 import { fillBulkEditForm } from "./bulk-edit-fill.ts";
+import { renderCollectionPicker } from "./collection_picker.ts";
 import { releaseCoverUpload } from "./cover-upload-staging.ts";
 import {
     applyBookDialogDisplayMode,
@@ -61,6 +62,26 @@ function selectedShelfForDialog(args: OpenBookDialogArgs): string {
     return SELECTED_SHELF;
 }
 
+/**
+ * Chooses the collections shown when the dialog opens: the edited or
+ * prefilled book's own, otherwise the active Library collection filter.
+ * @param args - Dialog open arguments.
+ * @returns Collection names to check.
+ */
+function selectedCollectionsForDialog(args: OpenBookDialogArgs): string[] {
+    const BOOK = args.book ?? args.dialogOptions.initialBook;
+    if (BOOK !== undefined) {
+        return BOOK.collections;
+    }
+    const DEFAULT_COLLECTION = String(
+        args.dialogOptions.defaultCollection ?? "",
+    ).trim();
+    if (DEFAULT_COLLECTION === "") {
+        return [];
+    }
+    return [DEFAULT_COLLECTION];
+}
+
 function applyDialogBookState(args: {
     allBooks: Book[];
     book: Book | null;
@@ -112,6 +133,11 @@ export function openBookDialog(args: InternalOpenBookDialogArgs): void {
     clearForm(args.refs, args.lookupControl);
     openAfterBookPicker(args, book);
     renderShelfPicker(args.refs, ALL_BOOKS, selectedShelfForDialog(args));
+    renderCollectionPicker(
+        args.refs,
+        ALL_BOOKS,
+        selectedCollectionsForDialog(args),
+    );
     applyDialogBookState({
         allBooks: ALL_BOOKS,
         book,

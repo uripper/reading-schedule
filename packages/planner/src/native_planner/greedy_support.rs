@@ -175,10 +175,11 @@ pub fn start_blocks_for_book(state: &DayState<'_, '_>, book_index: usize) -> i64
     min_blocks.min(remaining_blocks).max(MIN_START_BLOCKS)
 }
 
-pub fn reset_day_state(books: &mut [GreedyBookState<'_>]) {
-    for book in books {
-        book.assigned_today = 0;
-        book.used_today = false;
+/// Clears per-day counters; only books read that day can have set them.
+pub fn reset_day_state(books: &mut [GreedyBookState<'_>], read_today: &[usize]) {
+    for index in read_today {
+        books[*index].assigned_today = 0;
+        books[*index].used_today = false;
     }
 }
 

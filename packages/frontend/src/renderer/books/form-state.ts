@@ -9,6 +9,7 @@ import type {
     LookupControl,
 } from "../../types/types.ts";
 import { uid } from "../dom.ts";
+import { readCollectionSelection } from "./collection_picker.ts";
 import {
     clearOptionalDateInputValue,
     DEFAULT_DIFFICULTY,
@@ -285,6 +286,7 @@ function normalizedIdentityFields(refs: BookFormRefs): Partial<Book> {
         author: refs.author.value.trim(),
         blocked_by: refs.blockedByInput.value,
         book_id: refs.bookId.value || uid(),
+        collections: readCollectionSelection(refs),
         cover_local_path: refs.coverLocal.value.trim(),
         cover_url: refs.coverUrl.value.trim(),
         deadline: refs.deadlineInput.value,

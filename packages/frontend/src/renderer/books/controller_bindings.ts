@@ -11,6 +11,7 @@ type ToolbarControls = {
     titleFilterInput: HTMLInputElement;
     sortBySelect: HTMLSelectElement;
     shelfFilterSelect: HTMLSelectElement;
+    collectionFilterSelect: HTMLSelectElement;
     statusFilterSelect: HTMLSelectElement;
     groupBySelect: HTMLSelectElement;
     sortDirectionBtn: HTMLButtonElement;
@@ -51,6 +52,10 @@ function toolbarTitleFilterControl(
 function toolbarFilterControls(refs: BooksControllerRefs) {
     return {
         ...toolbarTitleFilterControl(refs),
+        collectionFilterSelect: requiredSelect(
+            refs.collectionFilterSelect,
+            "Books toolbar collection-filter control is missing or invalid.",
+        ),
         groupBySelect: requiredSelect(
             refs.groupBySelect,
             "Books toolbar group-by control is missing or invalid.",
@@ -140,6 +145,11 @@ function bindFilterSelectEvents(args: {
     });
     bindSelectChange(args.controls.shelfFilterSelect, () => {
         VIEW_STATE.shelfFilter = args.controls.shelfFilterSelect.value;
+        args.rerender();
+    });
+    bindSelectChange(args.controls.collectionFilterSelect, () => {
+        VIEW_STATE.collectionFilter =
+            args.controls.collectionFilterSelect.value;
         args.rerender();
     });
     bindSelectChange(args.controls.statusFilterSelect, () => {

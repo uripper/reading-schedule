@@ -56,6 +56,23 @@ export function isSyncRecordImported(record: SyncRecord, book: Book): boolean {
     );
 }
 
+/** Older source progress may still replace Bartleby's, but only by deliberate approval. */
+const NEWER_LOCAL_PROGRESS_REASON =
+    "Bartleby has a newer reading-progress update. Updating replaces it with the synced progress and time.";
+
+/** True when Bartleby recorded progress after the source's last reading time. */
+export function isBartlebyProgressNewer(
+    record: SyncRecord,
+    book: Book,
+): boolean {
+    const SOURCE_TIME = syncReadTime(record.dateLastRead);
+    const LOCAL_TIME = syncReadTime(book.progress_updated_at ?? "");
+    if (SOURCE_TIME === null || LOCAL_TIME === null) {
+        return false;
+    }
+    return SOURCE_TIME < LOCAL_TIME;
+}
+
 /** Explains unsafe time comparisons before any progress can be applied. */
 function timeAssessment(record: SyncRecord, book: Book): SyncAssessment | null {
     const SOURCE_TIME = syncReadTime(record.dateLastRead);
@@ -85,8 +102,8 @@ function compareProgressTimes(
     }
     if (sourceTime < LOCAL_TIME) {
         return {
-            kind: "blocked",
-            reason: "Bartleby has a newer reading-progress update.",
+            kind: "review",
+            reason: NEWER_LOCAL_PROGRESS_REASON,
         };
     }
     if (sourceTime === LOCAL_TIME) {
@@ -160,10 +177,13 @@ export function actionableSyncEntries(
     });
 }
 
-/** Automatic popups require an importable change, including one needing review. */
+/** Automatic popups require an importable change; older source progress waits for a manual sync. */
 export function hasSyncUpdates(entries: readonly SyncReviewEntry[]): boolean {
     return entries.some((entry) =>
         entry.matches.some((book) => {
+            if (isBartlebyProgressNewer(entry.record, book)) {
+                return false;
+            }
             const KIND = assessSyncProgress(entry.record, book).kind;
             return KIND === "ready" || KIND === "link" || KIND === "review";
         }),

@@ -23,7 +23,10 @@ import {
 import { bindToolbarEvents } from "./controller_bindings.ts";
 import { renderBooksController } from "./controller_render.ts";
 import { clearBookFilters } from "./controller_render_helpers.ts";
-import { defaultShelfForAddDialog } from "./controller_types.ts";
+import {
+    defaultCollectionForAddDialog,
+    defaultShelfForAddDialog,
+} from "./controller_types.ts";
 import { BookCoverJobs, reportCoverCommitError } from "./cover-jobs.ts";
 import { createBookDialog } from "./dialog.ts";
 import type { MassEditController } from "./mass-edit-controller.ts";
@@ -215,6 +218,7 @@ function initializeBooksUiRefs(toolbar: HTMLElement): HTMLButtonElement {
     const TOOLBAR_CONTROLS = ensureBooksToolbarControls(toolbar);
     REFS.titleFilterInput = TOOLBAR_CONTROLS.titleFilterInput;
     REFS.shelfFilterSelect = TOOLBAR_CONTROLS.shelfFilterSelect;
+    REFS.collectionFilterSelect = TOOLBAR_CONTROLS.collectionFilterSelect;
     REFS.statusFilterSelect = TOOLBAR_CONTROLS.statusFilterSelect;
     REFS.sortBySelect = TOOLBAR_CONTROLS.sortBySelect;
     REFS.groupBySelect = TOOLBAR_CONTROLS.groupBySelect;
@@ -230,6 +234,9 @@ function bindAddBookButton(addButton: HTMLButtonElement): void {
             return;
         }
         dialog.open(null, {
+            defaultCollection: defaultCollectionForAddDialog(
+                VIEW_STATE.collectionFilter,
+            ),
             defaultShelf: defaultShelfForAddDialog(VIEW_STATE.shelfFilter),
         });
     };

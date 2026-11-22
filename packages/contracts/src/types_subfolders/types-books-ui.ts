@@ -29,6 +29,12 @@ export interface BookFormRefs {
     blockedByInput: HTMLInputElement;
     bookId: HTMLInputElement;
     cancelBtn: HTMLButtonElement;
+    /** Selected collections, shown as removable chips under the search box. */
+    collectionChips: HTMLElement;
+    /** Combobox that searches existing collections or names a new one. */
+    collectionInput: HTMLInputElement;
+    collectionResults: HTMLElement;
+    collectionsField: HTMLElement;
     coverLocal: HTMLInputElement;
     coverPanel: HTMLElement;
     coverPreview: HTMLImageElement;
@@ -62,6 +68,20 @@ export interface BookFormRefs {
     wordsInput: HTMLInputElement;
 }
 
+/** One entry in the collection combobox: an existing name or a new one to create. */
+export interface CollectionOption {
+    isNew: boolean;
+    name: string;
+}
+
+/** Collection combobox state; the chosen names live in the chip list. */
+export interface CollectionPickerState {
+    activeIndex: number;
+    available: string[];
+    open: boolean;
+    options: CollectionOption[];
+}
+
 export interface BookDialogOptions {
     getBooks?(): Book[];
 }
@@ -76,6 +96,8 @@ export interface AfterBookPickerControl {
 
 export interface OpenDialogOptions {
     bulkBookIds?: string[];
+    /** Collection preselected for a new book, e.g. the active Library filter. */
+    defaultCollection?: string;
     defaultShelf?: string;
     /** Prefills a new book without changing the dialog into edit mode. */
     initialBook?: Book;
@@ -211,6 +233,7 @@ export interface BindBooksUIOptions {
 
 export interface BooksControllerRefs {
     addBtn: HTMLButtonElement | null;
+    collectionFilterSelect: HTMLSelectElement | null;
     empty: HTMLElement | null;
     grid: HTMLElement | null;
     groupBySelect: HTMLSelectElement | null;
@@ -227,6 +250,7 @@ export interface BookDialogController {
 }
 
 export interface BooksViewState {
+    collectionFilter: string;
     groupBy: BookGroupBy;
     shelfFilter: string;
     sortBy: SortBy;
@@ -242,6 +266,7 @@ export interface BindToolbarEventsArgs {
 }
 
 export interface RenderableBooksRefs {
+    collectionFilterSelect: HTMLSelectElement;
     empty: HTMLElement;
     grid: HTMLElement;
     groupBySelect: HTMLSelectElement;

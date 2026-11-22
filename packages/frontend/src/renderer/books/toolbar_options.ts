@@ -1,5 +1,11 @@
 import type { Book, OptionDefinition } from "../../types/types.ts";
 import {
+    COLLECTION_FILTER_ALL,
+    COLLECTION_FILTER_NONE,
+    NO_COLLECTION_LABEL,
+    uniqueCollections,
+} from "./collection.ts";
+import {
     GROUP_BY_AUTHOR,
     GROUP_BY_FINISH_DATE,
     GROUP_BY_NONE,
@@ -79,6 +85,23 @@ export function shelfFilterOptions(books: Book[]): OptionDefinition[] {
 
     for (const SHELF_NAME of uniqueShelves(books)) {
         OPTIONS.push({ label: SHELF_NAME, value: SHELF_NAME });
+    }
+    return OPTIONS;
+}
+
+/**
+ * Builds collection filter options from collections used in the library.
+ * @param books - Books to scan for collection names.
+ * @returns Collection filter option definitions for toolbar render.
+ */
+export function collectionFilterOptions(books: Book[]): OptionDefinition[] {
+    const OPTIONS: OptionDefinition[] = [
+        { label: "All Collections", value: COLLECTION_FILTER_ALL },
+        { label: NO_COLLECTION_LABEL, value: COLLECTION_FILTER_NONE },
+    ];
+
+    for (const COLLECTION_NAME of uniqueCollections(books)) {
+        OPTIONS.push({ label: COLLECTION_NAME, value: COLLECTION_NAME });
     }
     return OPTIONS;
 }

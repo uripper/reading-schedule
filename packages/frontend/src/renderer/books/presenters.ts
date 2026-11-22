@@ -1,5 +1,6 @@
 /** Formats book card text: progress, word counts, metadata, and subtitles. */
 import type { BlockerMeta, Book, BookMetaOptions } from "../../types/types.ts";
+import { normalizeCollections } from "./collection.ts";
 import { WORDS_PER_PAGE } from "./constants.ts";
 import { shelfLabelForBook } from "./shelf.ts";
 import { formatInt } from "./utils.ts";
@@ -42,6 +43,19 @@ function shelfMetaPart(
         return `Shelf: ${shelfLabelForBook(book)}`;
     }
     return null;
+}
+
+/**
+ * Builds collection metadata text for books in at least one collection.
+ * @param book - Book to describe.
+ * @returns Comma-separated collections, or `null` when there are none.
+ */
+function collectionsMetaPart(book: Book): string | null {
+    const COLLECTIONS = normalizeCollections(book.collections);
+    if (COLLECTIONS.length === 0) {
+        return null;
+    }
+    return `Collections: ${COLLECTIONS.join(", ")}`;
 }
 
 /**
@@ -130,7 +144,7 @@ export function wordsLabel(book: Book): string {
 }
 
 /**
- * Builds metadata line including due date, blockers, and shelf.
+ * Builds metadata lines: due date, blockers, shelf, and collections.
  * @param book - Book to present.
  * @param options - Optional context used to resolve titles.
  * @returns Joined metadata text for card subtitle line.
@@ -143,6 +157,7 @@ export function metaLabel(book: Book, options: BookMetaOptions = {}): string {
         pushMetaPart(BITS, blockerMetaPart(book, TITLE_BY_ID));
     }
     pushMetaPart(BITS, shelfMetaPart(book, options.showShelfMeta));
+    pushMetaPart(BITS, collectionsMetaPart(book));
     return BITS.join("\n");
 }
 

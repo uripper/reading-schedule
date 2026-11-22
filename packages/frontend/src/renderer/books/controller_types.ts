@@ -1,4 +1,5 @@
 import type { BookGroupBy, SortBy } from "../../types/types.ts";
+import { COLLECTION_FILTER_ALL, COLLECTION_FILTER_NONE } from "./collection.ts";
 import {
     GROUP_BY_AUTHOR,
     GROUP_BY_FINISH_DATE,
@@ -82,4 +83,21 @@ export function defaultShelfForAddDialog(currentShelfFilter: string): string {
         return "";
     }
     return currentShelfFilter;
+}
+
+/**
+ * Resolves which collection should be preselected for a new book.
+ * @param currentCollectionFilter - Active collection filter in the toolbar.
+ * @returns Collection name, or empty string when no single collection is active.
+ */
+export function defaultCollectionForAddDialog(
+    currentCollectionFilter: string,
+): string {
+    if (
+        currentCollectionFilter === COLLECTION_FILTER_ALL ||
+        currentCollectionFilter === COLLECTION_FILTER_NONE
+    ) {
+        return "";
+    }
+    return currentCollectionFilter;
 }
