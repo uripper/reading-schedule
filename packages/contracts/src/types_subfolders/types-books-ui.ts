@@ -78,6 +78,8 @@ export interface CollectionOption {
 export interface CollectionPickerState {
     activeIndex: number;
     available: string[];
+    /** Chips shown when the form opened; mass edit saves the difference. */
+    initial: string[];
     open: boolean;
     options: CollectionOption[];
 }
@@ -120,8 +122,16 @@ export interface BookSubmitPayload {
     book: Book;
 }
 
+/** Collections a mass edit adds to, or removes from, every selected book. */
+export interface CollectionChanges {
+    added: string[];
+    removed: string[];
+}
+
 export interface BulkBookSubmitPayload {
     bookIds: string[];
+    /** Applied per book, so collections only some books share are kept. */
+    collectionChanges?: CollectionChanges;
     type: "bulk_books";
     updates: BookInput;
 }

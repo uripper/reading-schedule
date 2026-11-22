@@ -5,7 +5,7 @@ import type {
     BookSubmitPayload,
 } from "../../types/types.ts";
 import {
-    applyBulkBookUpdates,
+    applyBulkBookSave,
     isBulkBookSubmitPayload,
 } from "./bulk-edit-updates.ts";
 import { bookWithoutTransientCover, upsertBookById } from "./save.ts";
@@ -29,7 +29,7 @@ function nextBooksAfterBulkSave(
     books: Book[],
     payload: Extract<BookDialogSubmitPayload, { type: "bulk_books" }>,
 ): Book[] {
-    return applyBulkBookUpdates(books, payload.bookIds, payload.updates);
+    return applyBulkBookSave(books, payload);
 }
 
 /** Computes the saved library snapshot without image work. */

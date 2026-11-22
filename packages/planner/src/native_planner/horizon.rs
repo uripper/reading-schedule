@@ -14,6 +14,10 @@
 //! weekday on ordinary days, no later day can make progress, however far away
 //! the last override is. Overridden days do not count toward the stall, so a
 //! long run of days off (a multi-year break) still plans the reading after it.
+//!
+//! A load that keeps making progress is still bounded by a safety ceiling far
+//! beyond any real reading list, so an absurd word count (bad or crafted data)
+//! ends as an incomplete plan instead of exhausting memory.
 
 use std::collections::HashSet;
 
@@ -25,11 +29,14 @@ use crate::native_planner::models::Settings;
 /// cannot be scheduled. Any count covering every weekday is enough; a year is
 /// a generous margin.
 const STALL_DAYS: i64 = 366;
+/// Most days an open-ended plan may walk: five centuries, longer than any reader needs.
+const MAX_PLAN_DAYS: i64 = 182_625;
 
 pub struct Horizon {
     cap: Option<NaiveDate>,
     override_days: HashSet<NaiveDate>,
     stalled_days: i64,
+    walked_days: i64,
 }
 
 impl Horizon {
@@ -38,11 +45,13 @@ impl Horizon {
             cap: settings.end_date,
             override_days: override_days(settings),
             stalled_days: 0,
+            walked_days: 0,
         }
     }
 
     /// Records the outcome of a planned day; `progressed` means a book received reading time.
     pub fn record_day(&mut self, day: NaiveDate, progressed: bool) {
+        self.walked_days += 1;
         if progressed {
             self.stalled_days = 0;
             return;
@@ -57,7 +66,7 @@ impl Horizon {
         if self.cap.is_some_and(|cap| day > cap) {
             return false;
         }
-        self.stalled_days < STALL_DAYS
+        self.stalled_days < STALL_DAYS && self.walked_days < MAX_PLAN_DAYS
     }
 }
 

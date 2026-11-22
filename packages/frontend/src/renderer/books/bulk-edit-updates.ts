@@ -4,7 +4,9 @@ import type {
     BookDialogSubmitPayload,
     BookInput,
     BulkBookSubmitPayload,
+    CollectionChanges,
 } from "../../types/types.ts";
+import { withCollectionChanges } from "./collection_bulk.ts";
 import { normalizeBook } from "./model-normalize.ts";
 import { withProgressHistory } from "./progress-history.ts";
 import { BOOK_STATUS_READ } from "./status_catalog.ts";
@@ -41,9 +43,38 @@ function protectSelfBlocker(bookId: string, book: BookInput): BookInput {
     return { ...book, blocked_by: null };
 }
 
-function mergedBulkBook(book: Book, updates: BookInput): Book {
+/**
+ * Adds a book's own collections, after mass-edit changes, to its updates.
+ * @param book - Book being edited.
+ * @param updates - Shared field updates.
+ * @param changes - Collections added and removed for every selected book.
+ * @returns Updates for this book.
+ */
+function bookBulkUpdates(
+    book: Book,
+    updates: BookInput,
+    changes: CollectionChanges | undefined,
+): BookInput {
+    const EDITABLE_UPDATES = protectedBulkUpdates(updates);
+    if (changes === undefined) {
+        return EDITABLE_UPDATES;
+    }
+    return {
+        ...EDITABLE_UPDATES,
+        collections: withCollectionChanges(book.collections, changes),
+    };
+}
+
+function mergedBulkBook(
+    book: Book,
+    updates: BookInput,
+    changes: CollectionChanges | undefined,
+): Book {
     const BOOK_ID = normalizedBookId(book);
-    let nextBook: BookInput = { ...book, ...protectedBulkUpdates(updates) };
+    let nextBook: BookInput = {
+        ...book,
+        ...bookBulkUpdates(book, updates, changes),
+    };
     if (updates.status === BOOK_STATUS_READ) {
         nextBook = { ...nextBook, ...completedProgressFields(nextBook) };
     }
@@ -72,19 +103,40 @@ export function isBulkBookSubmitPayload(
     return "type" in payload;
 }
 
+/**
+ * Applies a mass edit: shared field updates plus per-book collection changes.
+ * @param books - Library books.
+ * @param payload - Selected book ids, field updates, and collection changes.
+ * @returns Books with the selected ones updated.
+ */
+export function applyBulkBookSave(
+    books: Book[],
+    payload: Omit<BulkBookSubmitPayload, "type">,
+): Book[] {
+    const CHANGES = payload.collectionChanges;
+    if (!hasBulkUpdates(payload.updates) && CHANGES === undefined) {
+        return books;
+    }
+    const SELECTED_IDS = new Set(payload.bookIds);
+    return books.map((book) => {
+        if (!SELECTED_IDS.has(normalizedBookId(book))) {
+            return book;
+        }
+        return mergedBulkBook(book, payload.updates, CHANGES);
+    });
+}
+
+/**
+ * Applies shared field updates to the selected books.
+ * @param books - Library books.
+ * @param bookIds - Selected book ids.
+ * @param updates - Field updates for every selected book.
+ * @returns Books with the selected ones updated.
+ */
 export function applyBulkBookUpdates(
     books: Book[],
     bookIds: string[],
     updates: BookInput,
 ): Book[] {
-    if (!hasBulkUpdates(updates)) {
-        return books;
-    }
-    const SELECTED_IDS = new Set(bookIds);
-    return books.map((book) => {
-        if (!SELECTED_IDS.has(normalizedBookId(book))) {
-            return book;
-        }
-        return mergedBulkBook(book, updates);
-    });
+    return applyBulkBookSave(books, { bookIds, updates });
 }
