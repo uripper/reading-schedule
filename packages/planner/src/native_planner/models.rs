@@ -4,7 +4,6 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 use chrono::NaiveDate;
 
 pub type Assignments = HashMap<(String, NaiveDate), i64>;
-pub type CalendarMinutes = HashMap<NaiveDate, i64>;
 pub type DifficultyMultiplier = HashMap<i64, f64>;
 pub type MinutesByWeekday = HashMap<String, i64>;
 pub type ReservedBookIdsByDate = HashMap<NaiveDate, HashSet<String>>;

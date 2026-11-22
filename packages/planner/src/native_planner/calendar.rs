@@ -1,22 +1,6 @@
 use chrono::{Datelike, Local, NaiveDate};
 
-use crate::native_planner::models::{Book, CalendarMinutes, Settings, WEEKDAYS};
-
-pub fn date_range(start: NaiveDate, end: NaiveDate) -> Result<Vec<NaiveDate>, String> {
-    if end < start {
-        return Err("end_date must be on or after start_date".to_string());
-    }
-    let mut days = Vec::new();
-    let mut current = start;
-    days.push(current);
-    while current < end {
-        current = current
-            .succ_opt()
-            .ok_or_else(|| "Unable to advance calendar day range.".to_string())?;
-        days.push(current);
-    }
-    Ok(days)
-}
+use crate::native_planner::models::{Book, Settings, WEEKDAYS};
 
 pub fn parse_date(value: &str) -> Result<NaiveDate, String> {
     NaiveDate::parse_from_str(value, "%Y-%m-%d")
@@ -41,12 +25,17 @@ pub fn minutes_for_day(settings: &Settings, day: NaiveDate) -> i64 {
     settings.minutes_per_day.unwrap_or(0)
 }
 
-pub fn calendar_minutes(settings: &Settings, end: NaiveDate) -> Result<CalendarMinutes, String> {
-    let days = date_range(settings.start_date, end)?;
-    Ok(days
-        .into_iter()
-        .map(|day| (day, available_minutes_for_day(settings, day)))
-        .collect())
+/// Sums reading minutes from the start date through `end` without storing every day.
+pub fn total_available_minutes(settings: &Settings, end: NaiveDate) -> Result<i64, String> {
+    if end < settings.start_date {
+        return Err("end_date must be on or after start_date".to_string());
+    }
+    Ok(settings
+        .start_date
+        .iter_days()
+        .take_while(|day| *day <= end)
+        .map(|day| available_minutes_for_day(settings, day))
+        .sum())
 }
 
 pub fn day_capacity_blocks(settings: &Settings, day: NaiveDate) -> i64 {

@@ -3,7 +3,7 @@
 use chrono::Days;
 use serde_json::{json, Value};
 
-use super::config::{Config, BLOCKS_PER_DAY, MINUTES_PER_DAY, QUANTUM_MINUTES, WORDS_PER_MINUTE};
+use super::config::{Config, BOOKS_PER_DAY, QUANTUM_MINUTES, WORDS_PER_MINUTE};
 use super::random::Random;
 use crate::native_planner::models::WEEKDAYS;
 
@@ -16,6 +16,8 @@ const PERCENT_SCALE: u64 = 100;
 const MAX_PRIORITY: u64 = 5;
 const MAX_DIFFICULTY: u64 = 10;
 const MAX_MINIMUM_BLOCKS: u64 = 4;
+/// Matches the app's per-book daily block limit when a book sets none.
+const MAX_BLOCKS_PER_BOOK_PER_DAY: i64 = 1440;
 const ALL_WEEKDAY_BITS: u64 = (1 << WEEKDAYS.len()) - 1;
 const OPTIONAL_FIELD_ODDS: u64 = 5;
 const PROGRESS_VARIANTS: usize = 4;
@@ -39,20 +41,24 @@ pub(super) fn payload(config: &Config, count: usize) -> Result<Value, String> {
     Ok(json!({"books": books, "settings": settings(config)}))
 }
 
+/// Mirrors the app's settings; an end date is sent only for an explicit --years cap.
 fn settings(config: &Config) -> Value {
-    json!({
+    let mut settings = json!({
         "start_date": config.start_date().to_string(),
-        "end_date": config.end_date().to_string(),
-        "minutes_per_day": MINUTES_PER_DAY,
+        "minutes_per_day": config.minutes_per_day,
         "time_quantum_minutes": QUANTUM_MINUTES,
-        "max_blocks_per_book_per_day": BLOCKS_PER_DAY,
-        "max_books_per_day": BLOCKS_PER_DAY,
-        "max_sessions_per_day": BLOCKS_PER_DAY,
+        "max_blocks_per_book_per_day": MAX_BLOCKS_PER_BOOK_PER_DAY,
+        "max_books_per_day": BOOKS_PER_DAY,
+        "max_sessions_per_day": BOOKS_PER_DAY,
         "wpm_base": WORDS_PER_MINUTE,
         "solver_profile": "fast",
         "plan_mode": "finish_soon",
         "days_off": [],
-    })
+    });
+    if let Some(end_date) = config.end_date() {
+        settings["end_date"] = json!(end_date.to_string());
+    }
+    settings
 }
 
 /// Keeps page/word totals and progress consistent while varying scheduling rules.
@@ -71,7 +77,7 @@ fn book(random: &mut Random, config: &Config, index: usize) -> Value {
         "min_blocks_per_session": random.between(1, MAX_MINIMUM_BLOCKS),
         "scheduled_days": scheduled_days(random),
         "deadline": deadline(random, config),
-        "max_minutes_per_day": daily_limit(random),
+        "max_minutes_per_day": daily_limit(random, config),
         "blocked_by": blocker(random, index),
     });
     set_progress(
@@ -100,22 +106,23 @@ fn scheduled_days(random: &mut Random) -> Vec<&'static str> {
         .collect()
 }
 
-/// Mixes undated books with deadlines inside the requested horizon.
+/// Mixes undated books with deadlines inside the deadline window.
 fn deadline(random: &mut Random, config: &Config) -> Option<String> {
     if random.between(1, OPTIONAL_FIELD_ODDS) != 1 {
         return None;
     }
-    let last_day = (config.end_date() - config.start_date()).num_days() as u64;
+    let last_day = (config.deadline_end() - config.start_date()).num_days() as u64;
     let day = config.start_date() + Days::new(random.between(0, last_day));
     Some(day.to_string())
 }
 
 /// Optional daily limits always allow even the largest minimum session.
-fn daily_limit(random: &mut Random) -> Option<i64> {
+fn daily_limit(random: &mut Random, config: &Config) -> Option<i64> {
     if random.between(1, OPTIONAL_FIELD_ODDS) != 1 {
         return None;
     }
-    let blocks = random.between(MAX_MINIMUM_BLOCKS, BLOCKS_PER_DAY as u64) as i64;
+    let day_blocks = (config.minutes_per_day / QUANTUM_MINUTES) as u64;
+    let blocks = random.between(MAX_MINIMUM_BLOCKS, day_blocks.max(MAX_MINIMUM_BLOCKS)) as i64;
     Some(blocks * QUANTUM_MINUTES)
 }
 

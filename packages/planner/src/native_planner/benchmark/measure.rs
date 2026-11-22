@@ -20,6 +20,8 @@ pub(super) struct Measurement {
     pub assigned_books: usize,
     pub finished_books: usize,
     pub sessions: usize,
+    /// Date of the last planned session, or empty when nothing was planned.
+    pub last_session: String,
     pub samples: usize,
     pub greedy_time: Duration,
     pub parse_time: Duration,
@@ -88,6 +90,12 @@ fn counts(output: &Value) -> Result<Measurement, String> {
             .filter(|book| book["finished"] == true)
             .count(),
         sessions: sessions.len(),
+        last_session: sessions
+            .iter()
+            .filter_map(|session| session["date"].as_str())
+            .max()
+            .unwrap_or_default()
+            .to_string(),
         samples: 1,
         ..Measurement::default()
     })
@@ -99,6 +107,7 @@ impl Measurement {
         self.assigned_books = sample.assigned_books;
         self.finished_books = sample.finished_books;
         self.sessions = sample.sessions;
+        self.last_session.clone_from(&sample.last_session);
         self.samples += 1;
         self.parse_time = self.parse_time.max(sample.parse_time);
         self.greedy_time = self.greedy_time.max(sample.greedy_time);

@@ -2,6 +2,9 @@
 
 #[cfg(not(target_arch = "wasm32"))]
 pub mod benchmark;
+mod book_order;
+#[cfg(test)]
+mod book_order_tests;
 mod calendar;
 mod coerce;
 mod greedy_support;
@@ -17,6 +20,9 @@ mod profile;
 #[cfg(test)]
 mod regression_tests;
 mod report;
+mod report_sessions;
+#[cfg(test)]
+mod report_sessions_tests;
 mod report_status;
 #[cfg(test)]
 mod reservation_tests;

@@ -3,11 +3,11 @@
 use std::io::{self, Write};
 use std::time::Duration;
 
-use super::config::{Config, MINUTES_PER_DAY, WORDS_PER_MINUTE};
+use super::config::{Config, BOOKS_PER_DAY, WORDS_PER_MINUTE};
 use super::measure::{Measurement, STOP_TIME};
 use super::search::Search;
 
-const TABLE_WIDTH: usize = 108;
+const TABLE_WIDTH: usize = 120;
 const BAR_WIDTH: usize = 20;
 const DIGIT_GROUP: usize = 3;
 const SECONDS_TO_MILLISECONDS: f64 = 1000.0;
@@ -16,14 +16,12 @@ const SECONDS_TO_MILLISECONDS: f64 = 1000.0;
 pub(super) fn header(writer: &mut impl Write, config: &Config) -> io::Result<()> {
     writeln!(writer, "\nBARTLEBY — GREEDY PLANNER BENCHMARK")?;
     writeln!(writer, "{}", "═".repeat(TABLE_WIDTH))?;
+    plan_line(writer, config)?;
     writeln!(
         writer,
-        "Plan: {} through {} ({} years)",
-        config.start_date(),
-        config.end_date(),
-        config.years
+        "Reading: {} minutes every day, up to {BOOKS_PER_DAY} books a day; base speed: {WORDS_PER_MINUTE} words/minute",
+        config.minutes_per_day
     )?;
-    writeln!(writer, "Reading: 24 hours every day ({MINUTES_PER_DAY} minutes); base speed: {WORDS_PER_MINUTE} words/minute")?;
     writeln!(
         writer,
         "Random seed: {} | Up to {} runs per count; times show the slowest run",
@@ -44,11 +42,35 @@ pub(super) fn header(writer: &mut impl Write, config: &Config) -> io::Result<()>
     table_header(writer)
 }
 
+/// States whether the plan length comes from the reading load or a --years cap.
+fn plan_line(writer: &mut impl Write, config: &Config) -> io::Result<()> {
+    let start = config.start_date();
+    match (config.end_date(), config.years) {
+        (Some(end), Some(years)) => {
+            writeln!(
+                writer,
+                "Plan: {start} through {end} (capped at {years} years)"
+            )
+        }
+        _ => writeln!(
+            writer,
+            "Plan: from {start} until every book is finished (no end date, as in the app)"
+        ),
+    }
+}
+
 pub(super) fn table_header(writer: &mut impl Write) -> io::Result<()> {
     writeln!(
         writer,
-        "{:>12} {:>10} {:>10} {:>10} {:>4} {:>10} {:>11}  Greedy time",
-        "Input books", "Assigned", "Finished", "Sessions", "Runs", "Greedy", "Whole plan"
+        "{:>12} {:>10} {:>10} {:>10} {:>11} {:>4} {:>10} {:>11}  Greedy time",
+        "Input books",
+        "Assigned",
+        "Finished",
+        "Sessions",
+        "Plan ends",
+        "Runs",
+        "Greedy",
+        "Whole plan"
     )?;
     writeln!(writer, "{}", "─".repeat(TABLE_WIDTH))
 }
@@ -57,11 +79,12 @@ pub(super) fn table_header(writer: &mut impl Write) -> io::Result<()> {
 pub(super) fn row(writer: &mut impl Write, row: &Measurement) -> io::Result<()> {
     writeln!(
         writer,
-        "{:>12} {:>10} {:>10} {:>10} {:>4} {:>9.3}s {:>10.3}s  {}",
+        "{:>12} {:>10} {:>10} {:>10} {:>11} {:>4} {:>9.3}s {:>10.3}s  {}",
         grouped(row.input_books),
         grouped(row.assigned_books),
         grouped(row.finished_books),
         grouped(row.sessions),
+        row.last_session,
         row.samples,
         row.greedy_time.as_secs_f64(),
         row.total_time.as_secs_f64(),
@@ -87,10 +110,11 @@ pub(super) fn summary(writer: &mut impl Write, search: &Search) -> io::Result<()
     )?;
     writeln!(
         writer,
-        "{} books assigned | {} books finished | {} reading sessions",
+        "{} books assigned | {} books finished | {} reading sessions | plan ends {}",
         grouped(best.assigned_books),
         grouped(best.finished_books),
-        grouped(best.sessions)
+        grouped(best.sessions),
+        best.last_session
     )?;
     writeln!(
         writer,

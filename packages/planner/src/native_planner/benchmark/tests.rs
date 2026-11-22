@@ -4,14 +4,15 @@ use std::time::Duration;
 
 use serde_json::Value;
 
-use super::config::{Config, BLOCKS_PER_DAY, MAX_YEARS, MINUTES_PER_DAY};
+use super::config::{Config, QUANTUM_MINUTES};
 use super::data::payload;
 use super::measure::{measure, Measurement, ONE_SECOND, STOP_TIME};
 use super::output::{grouped, time_bar};
 use super::search::{next_count, Search};
 use crate::native_planner::{calendar, parse};
 
-const EXPECTED_DEFAULT_YEARS: u32 = 10;
+const EXPECTED_DEFAULT_MINUTES: i64 = 30;
+const CAPPED_MINUTES: i64 = 45;
 const TEST_BOOKS: usize = 1000;
 const PREFIX_BOOKS: usize = 20;
 const DIFFERENT_SEED: u64 = 123;
@@ -31,6 +32,8 @@ fn rejects_invalid_and_incomplete_options() {
         vec!["--years", "0"],
         vec!["--years", "1001"],
         vec!["--years", "1.5"],
+        vec!["--minutes-per-day", "0"],
+        vec!["--minutes-per-day", "1441"],
         vec!["--seed", "-1"],
         vec!["--start-books", "0"],
         vec!["--samples", "0"],
@@ -92,26 +95,39 @@ fn assert_coherent_book(book: &Value) -> Result<(), String> {
 }
 
 #[test]
-fn horizon_has_full_daily_capacity_including_leap_days() -> Result<(), String> {
+fn default_plan_has_no_end_date_and_app_reading_time() -> Result<(), String> {
     let config = Config::default();
-    assert_eq!(config.years, EXPECTED_DEFAULT_YEARS);
-    assert!(config.years <= MAX_YEARS);
-    let input = parse::planner_input(payload(&config, PREFIX_BOOKS)?)?;
-    let days = calendar::date_range(config.start_date(), config.end_date())?;
-    let expected_days = (config.end_date() - config.start_date()).num_days() + 1;
-    assert_eq!(days.len() as i64, expected_days);
-    for day in days {
-        assert_eq!(
-            calendar::minutes_for_day(&input.settings, day),
-            MINUTES_PER_DAY
-        );
-        assert_eq!(
-            calendar::day_capacity_blocks(&input.settings, day),
-            BLOCKS_PER_DAY
-        );
-    }
-    let shorter = Config::parse(&options(&["--years", "1"]))?;
-    assert!(shorter.end_date() < config.end_date());
+    assert_eq!(config.years, None);
+    assert_eq!(config.minutes_per_day, EXPECTED_DEFAULT_MINUTES);
+    let generated = payload(&config, PREFIX_BOOKS)?;
+    assert!(generated["settings"].get("end_date").is_none());
+    let input = parse::planner_input(generated)?;
+    assert_eq!(input.settings.end_date, None);
+    let day = config.start_date();
+    assert_eq!(
+        calendar::minutes_for_day(&input.settings, day),
+        EXPECTED_DEFAULT_MINUTES
+    );
+    assert_eq!(
+        calendar::day_capacity_blocks(&input.settings, day),
+        EXPECTED_DEFAULT_MINUTES / QUANTUM_MINUTES
+    );
+    Ok(())
+}
+
+#[test]
+fn years_option_caps_the_plan_and_deadlines() -> Result<(), String> {
+    let minutes = CAPPED_MINUTES.to_string();
+    let capped = Config::parse(&options(&["--years", "1", "--minutes-per-day", &minutes]))?;
+    let input = parse::planner_input(payload(&capped, TEST_BOOKS)?)?;
+    assert_eq!(input.settings.end_date, capped.end_date());
+    assert_eq!(input.settings.minutes_per_day, Some(CAPPED_MINUTES));
+    assert!(capped.deadline_end() < Config::default().deadline_end());
+    assert!(input
+        .books
+        .iter()
+        .filter_map(|book| book.deadline)
+        .all(|deadline| deadline <= capped.deadline_end()));
     Ok(())
 }
 
