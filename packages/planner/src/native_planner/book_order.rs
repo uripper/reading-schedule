@@ -2,11 +2,13 @@
 //!
 //! A book's place in the order depends only on fixed book fields and its
 //! remaining words, and remaining words change only for books read that day.
-//! So after each day the order drops finished books and re-inserts just the
-//! books read that day, instead of sorting the whole library again. Finished
-//! books can never be started, so leaving them out does not change any plan.
+//! So after each day the order drops the books read that day, sorts just those
+//! that are unfinished, and merges them back in one linear pass, instead of
+//! sorting the whole library again. Finished books can never be started, so
+//! leaving them out does not change any plan.
 
 use std::cmp::Ordering;
+use std::collections::HashSet;
 
 use crate::native_planner::greedy_support::{deadline_sort_key, progress_order, GreedyBookState};
 use crate::native_planner::models::priority_order;
@@ -34,17 +36,33 @@ impl BookOrder {
         if read_today.is_empty() {
             return;
         }
-        self.indexes.retain(|index| !read_today.contains(index));
-        for index in read_today.iter().copied() {
-            if books[index].remaining <= 0.0 {
-                continue;
-            }
-            let position = self
-                .indexes
-                .partition_point(|other| compare_books(books, *other, index) == Ordering::Less);
-            self.indexes.insert(position, index);
-        }
+        let read: HashSet<usize> = read_today.iter().copied().collect();
+        let kept = std::mem::take(&mut self.indexes)
+            .into_iter()
+            .filter(|index| !read.contains(index))
+            .collect::<Vec<_>>();
+        let mut moved = read
+            .into_iter()
+            .filter(|index| books[*index].remaining > 0.0)
+            .collect::<Vec<_>>();
+        moved.sort_by(|left, right| compare_books(books, *left, *right));
+        self.indexes = merge_orders(books, kept, moved);
     }
+}
+
+/// Merges two lists already in planner order into one, in linear time.
+fn merge_orders(books: &[GreedyBookState<'_>], kept: Vec<usize>, moved: Vec<usize>) -> Vec<usize> {
+    let mut merged = Vec::with_capacity(kept.len() + moved.len());
+    let mut kept = kept.into_iter().peekable();
+    let mut moved = moved.into_iter().peekable();
+    while let (Some(left), Some(right)) = (kept.peek(), moved.peek()) {
+        let take_moved = compare_books(books, *right, *left) == Ordering::Less;
+        let next = if take_moved { moved.next() } else { kept.next() };
+        merged.extend(next);
+    }
+    merged.extend(kept);
+    merged.extend(moved);
+    merged
 }
 
 /// Priority, then progress, deadline, remaining words and ID; the ID makes the order total.

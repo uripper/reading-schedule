@@ -5,6 +5,11 @@ import type {
     BookWeekday,
     BulkBookSubmitPayload,
 } from "../../types/types.ts";
+import { collectionChanges } from "./collection_bulk.ts";
+import {
+    collectionPickerState,
+    readCollectionSelection,
+} from "./collection_picker.ts";
 import {
     DEFAULT_DIFFICULTY,
     DEFAULT_PRIORITY,
@@ -148,5 +153,17 @@ export function createBulkBookSubmitPayload(
         ...dateUpdates(refs),
         ...selectUpdates(refs),
     };
-    return { bookIds, type: "bulk_books", updates: UPDATES };
+    const PAYLOAD: BulkBookSubmitPayload = {
+        bookIds,
+        type: "bulk_books",
+        updates: UPDATES,
+    };
+    const CHANGES = collectionChanges(
+        collectionPickerState(refs).initial,
+        readCollectionSelection(refs),
+    );
+    if (CHANGES !== null) {
+        PAYLOAD.collectionChanges = CHANGES;
+    }
+    return PAYLOAD;
 }

@@ -18,6 +18,10 @@ const MAX_STALLED_YEARS: i64 = 2;
 const CAPPED_PLAN_DAYS: i64 = 30;
 const LOAD_YEARS: i64 = 12;
 const OLD_FIXED_HORIZON_YEARS: i64 = 10;
+/// The planner's safety ceiling for open-ended plans, in years.
+const MAX_PLAN_YEARS: i64 = 500;
+/// A word count no reader could finish within the safety ceiling.
+const ABSURD_REMAINING_WORDS: i64 = i64::MAX / 2;
 /// Below one 5-minute block, so the book can never receive reading time.
 const SUB_BLOCK_DAILY_MINUTES: i64 = 1;
 
@@ -105,6 +109,22 @@ fn unschedulable_load_stops_instead_of_walking_forever() {
     .expect("expected generated plan");
 
     assert_eq!(summary_status(&generated), Some("INCOMPLETE"));
+}
+
+#[test]
+fn absurd_word_count_ends_as_incomplete_plan_within_ceiling() {
+    let generated = generate_plan(serde_json::json!({
+        "books": [book_with(&[
+            ("remaining_words", ABSURD_REMAINING_WORDS),
+            ("words_total", ABSURD_REMAINING_WORDS),
+        ])],
+        "settings": settings_without_end_date(),
+    }))
+    .expect("expected generated plan");
+    let elapsed_days = (last_scheduled_date(&generated) - start_date()).num_days();
+
+    assert_eq!(summary_status(&generated), Some("INCOMPLETE"));
+    assert!(elapsed_days < (DAYS_PER_YEAR + 1) * MAX_PLAN_YEARS);
 }
 
 #[test]
