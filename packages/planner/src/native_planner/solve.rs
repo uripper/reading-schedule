@@ -63,12 +63,10 @@ pub fn plan_greedy(
         };
         plan_day_with_cap(order.indexes(), &mut state, should_cancel)?;
         let read_today = state.used;
-        if read_today
+        let progressed = read_today
             .iter()
-            .any(|index| book_states[*index].assigned_today > 0)
-        {
-            horizon.record_progress(day);
-        }
+            .any(|index| book_states[*index].assigned_today > 0);
+        horizon.record_day(day, progressed);
         order.update(&book_states, &read_today);
         reset_day_state(&mut book_states, &read_today);
         last_day = day;

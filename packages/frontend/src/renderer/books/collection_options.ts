@@ -5,6 +5,7 @@
 import type { CollectionOption } from "../../types/types.ts";
 import {
     compareCollectionNames,
+    foldCollectionName,
     normalizeCollectionName,
 } from "./collection.ts";
 
@@ -36,35 +37,35 @@ export function canonicalCollectionName(names: string[], name: string): string {
 /**
  * Checks whether a collection name contains the typed text.
  * @param name - Collection name.
- * @param query - Lowercased search text.
+ * @param foldedQuery - Search text folded by {@link foldCollectionName}.
  * @returns `true` when the query is empty or found in the name.
  */
-function matchesCollectionQuery(name: string, query: string): boolean {
-    if (query === "") {
+function matchesCollectionQuery(name: string, foldedQuery: string): boolean {
+    if (foldedQuery === "") {
         return true;
     }
-    return name.toLowerCase().includes(query);
+    return foldCollectionName(name).includes(foldedQuery);
 }
 
 /**
  * Decides whether to offer creating the typed name as a new collection.
  * @param available - Every known collection.
  * @param selected - Collections the book already belongs to.
- * @param query - Trimmed search text.
+ * @param name - Normalized typed name; empty when blank or reserved.
  * @returns `true` when the text names a collection that does not exist yet.
  */
 function offersCreate(
     available: string[],
     selected: string[],
-    query: string,
+    name: string,
 ): boolean {
-    if (query === "") {
+    if (name === "") {
         return false;
     }
-    if (includesCollectionName(available, query)) {
+    if (includesCollectionName(available, name)) {
         return false;
     }
-    return !includesCollectionName(selected, query);
+    return !includesCollectionName(selected, name);
 }
 
 /**
@@ -79,14 +80,14 @@ export function collectionOptions(
     selected: string[],
     rawQuery: string,
 ): CollectionOption[] {
-    const QUERY = normalizeCollectionName(rawQuery);
-    const LOWER_QUERY = QUERY.toLowerCase();
+    const FOLDED_QUERY = foldCollectionName(rawQuery.trim());
+    const NEW_NAME = normalizeCollectionName(rawQuery);
     const OPTIONS: CollectionOption[] = available
         .filter((name) => !includesCollectionName(selected, name))
-        .filter((name) => matchesCollectionQuery(name, LOWER_QUERY))
+        .filter((name) => matchesCollectionQuery(name, FOLDED_QUERY))
         .map((name) => ({ isNew: false, name }));
-    if (offersCreate(available, selected, QUERY)) {
-        OPTIONS.push({ isNew: true, name: QUERY });
+    if (offersCreate(available, selected, NEW_NAME)) {
+        OPTIONS.push({ isNew: true, name: NEW_NAME });
     }
     return OPTIONS;
 }

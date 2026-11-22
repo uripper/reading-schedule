@@ -10,6 +10,12 @@ use super::test_support::{
 };
 
 const DAYS_PER_YEAR: i64 = 365;
+/// A dated override far past any real reading plan, as imported data may hold.
+const FAR_FUTURE_OVERRIDE_DATE: &str = "9999-12-31";
+const BREAK_YEARS: i64 = 3;
+/// Generous bound on days walked once reading stalls: two years of ordinary days.
+const MAX_STALLED_YEARS: i64 = 2;
+const CAPPED_PLAN_DAYS: i64 = 30;
 const LOAD_YEARS: i64 = 12;
 const OLD_FIXED_HORIZON_YEARS: i64 = 10;
 /// Below one 5-minute block, so the book can never receive reading time.
@@ -36,6 +42,25 @@ fn book_with(fields: &[(&str, i64)]) -> Value {
         object.insert((*field).to_string(), Value::from(*number));
     }
     value
+}
+
+fn start_date() -> NaiveDate {
+    NaiveDate::parse_from_str(MONDAY_DATE, "%Y-%m-%d").expect("expected date")
+}
+
+fn set_setting(settings: &mut Value, field: &str, value: Value) {
+    settings
+        .as_object_mut()
+        .expect("expected settings object")
+        .insert(field.to_string(), value);
+}
+
+fn summary_number(generated: &Value, field: &str) -> i64 {
+    generated
+        .get("summary")
+        .and_then(|summary| summary.get(field))
+        .and_then(Value::as_i64)
+        .expect("expected numeric summary field")
 }
 
 fn summary_status(generated: &Value) -> Option<&str> {
@@ -65,8 +90,7 @@ fn load_longer_than_ten_years_is_fully_scheduled_without_end_date() {
         "settings": settings_without_end_date(),
     }))
     .expect("expected generated plan");
-    let start = NaiveDate::parse_from_str(MONDAY_DATE, "%Y-%m-%d").expect("expected date");
-    let elapsed_days = (last_scheduled_date(&generated) - start).num_days();
+    let elapsed_days = (last_scheduled_date(&generated) - start_date()).num_days();
 
     assert_eq!(summary_status(&generated), Some("FEASIBLE"));
     assert!(elapsed_days > DAYS_PER_YEAR * OLD_FIXED_HORIZON_YEARS);
@@ -81,4 +105,65 @@ fn unschedulable_load_stops_instead_of_walking_forever() {
     .expect("expected generated plan");
 
     assert_eq!(summary_status(&generated), Some("INCOMPLETE"));
+}
+
+#[test]
+fn far_future_override_does_not_extend_an_unschedulable_plan() {
+    let mut settings = settings_without_end_date();
+    set_setting(
+        &mut settings,
+        "days_off",
+        serde_json::json!([FAR_FUTURE_OVERRIDE_DATE]),
+    );
+    let generated = generate_plan(serde_json::json!({
+        "books": [book_with(&[("max_minutes_per_day", SUB_BLOCK_DAILY_MINUTES)])],
+        "settings": settings,
+    }))
+    .expect("expected generated plan");
+    let walked_minutes_bound = MINUTES_PER_SINGLE_BLOCK_DAY * DAYS_PER_YEAR * MAX_STALLED_YEARS;
+
+    assert_eq!(summary_status(&generated), Some("INCOMPLETE"));
+    assert!(summary_number(&generated, "total_available_minutes") < walked_minutes_bound);
+}
+
+#[test]
+fn multi_year_break_still_schedules_reading_after_it() {
+    let break_end = start_date() + chrono::Days::new((DAYS_PER_YEAR * BREAK_YEARS) as u64);
+    let days_off = start_date()
+        .iter_days()
+        .take_while(|day| *day < break_end)
+        .map(|day| day.format("%Y-%m-%d").to_string())
+        .collect::<Vec<_>>();
+    let mut settings = settings_without_end_date();
+    set_setting(&mut settings, "days_off", serde_json::json!(days_off));
+    let generated = generate_plan(serde_json::json!({
+        "books": [book_with(&[])],
+        "settings": settings,
+    }))
+    .expect("expected generated plan");
+
+    assert_eq!(summary_status(&generated), Some("FEASIBLE"));
+    assert_eq!(last_scheduled_date(&generated), break_end);
+}
+
+#[test]
+fn capped_plan_reports_availability_through_end_date() {
+    let end_date = start_date() + chrono::Days::new(CAPPED_PLAN_DAYS as u64);
+    let settings = planner_settings(
+        MONDAY_DATE,
+        &end_date.format("%Y-%m-%d").to_string(),
+        MINUTES_PER_SINGLE_BLOCK_DAY,
+    );
+    let generated = generate_plan(serde_json::json!({
+        "books": [book_with(&[])],
+        "settings": settings,
+    }))
+    .expect("expected generated plan");
+    let planned_days = CAPPED_PLAN_DAYS + 1;
+
+    assert_eq!(last_scheduled_date(&generated), start_date());
+    assert_eq!(
+        summary_number(&generated, "total_available_minutes"),
+        MINUTES_PER_SINGLE_BLOCK_DAY * planned_days
+    );
 }

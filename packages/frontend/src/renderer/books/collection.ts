@@ -4,11 +4,16 @@
  */
 import type { Book } from "../../types/types.ts";
 
-/** Filter value that shows every book; never a valid collection name. */
+/** Filter value that shows every book; reserved, never a collection name. */
 export const COLLECTION_FILTER_ALL = "__all_collections__";
-/** Filter value that shows only books outside every collection. */
+/** Filter value that shows only books outside every collection; reserved. */
 export const COLLECTION_FILTER_NONE = "__no_collection__";
 export const NO_COLLECTION_LABEL = "No Collection";
+const RESERVED_COLLECTION_NAMES = [
+    COLLECTION_FILTER_ALL,
+    COLLECTION_FILTER_NONE,
+];
+const COMBINING_MARKS = /\p{M}/gu;
 
 /**
  * Compares collection names alphabetically, ignoring case and accents.
@@ -21,15 +26,42 @@ export function compareCollectionNames(left: string, right: string): number {
 }
 
 /**
+ * Folds a name for substring search, dropping case and accents so matching
+ * agrees with {@link compareCollectionNames}.
+ * @param name - Collection name or search text.
+ * @returns Lowercased name without combining marks.
+ */
+export function foldCollectionName(name: string): string {
+    return name.normalize("NFD").replaceAll(COMBINING_MARKS, "").toLowerCase();
+}
+
+/**
+ * Checks whether a name collides with a toolbar filter sentinel value.
+ * @param name - Trimmed collection name.
+ * @returns `true` when the name is reserved for filtering.
+ */
+function isReservedCollectionName(name: string): boolean {
+    return RESERVED_COLLECTION_NAMES.some((reserved) => {
+        return compareCollectionNames(reserved, name) === 0;
+    });
+}
+
+/**
  * Trims a raw collection name and normalizes nullish values to empty string.
+ * Names equal to a filter sentinel are rejected so the toolbar filter can
+ * never confuse a collection with "all" or "none".
  * @param rawName - Collection text from storage or form input.
- * @returns Normalized collection name.
+ * @returns Normalized collection name, or empty string when unusable.
  */
 export function normalizeCollectionName(rawName: unknown): string {
     if (typeof rawName !== "string") {
         return "";
     }
-    return rawName.trim();
+    const NAME = rawName.trim();
+    if (isReservedCollectionName(NAME)) {
+        return "";
+    }
+    return NAME;
 }
 
 /**

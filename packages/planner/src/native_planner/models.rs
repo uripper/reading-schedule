@@ -78,7 +78,8 @@ pub struct PlannerInput {
 pub struct PlanResult {
     pub assignments: Assignments,
     pub deprecation_notice: Option<String>,
-    /// Last calendar day the planner examined; bounds available-minute totals.
+    /// The configured `end_date`, or the last day planned when uncapped;
+    /// bounds available-minute totals.
     pub horizon_end: NaiveDate,
     pub note: String,
     pub objective: Option<i64>,
