@@ -1,3 +1,4 @@
+/** Name prompt dialog used to create a new shelf from the book form. */
 import type { BookFormRefs } from "../../types/types.ts";
 
 const DIALOG_CONFIRM_VALUE = "confirm";

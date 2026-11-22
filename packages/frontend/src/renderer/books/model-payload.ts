@@ -1,5 +1,6 @@
 /** Serializes books for persistence and planning while retaining progress history. */
 import type { Book } from "../../types/types.ts";
+import { normalizeCollections } from "./collection.ts";
 import { WORDS_PER_PAGE } from "./constants.ts";
 import { withNullableString } from "./model-normalize-helpers.ts";
 import { progressHistory } from "./progress-history.ts";
@@ -126,6 +127,7 @@ function payloadTextFields(
         author: withDefaultString(book.author),
         blocked_by: withNullableString(book.blocked_by),
         book_id: book.book_id,
+        collections: normalizeCollections(book.collections),
         cover_local_path: withDefaultString(book.cover_local_path),
         cover_url: withDefaultString(book.cover_url),
         deadline: withNullableString(book.deadline),

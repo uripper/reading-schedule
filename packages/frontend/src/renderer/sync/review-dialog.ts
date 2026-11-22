@@ -157,12 +157,11 @@ function bindActions(
     apply: (choices: SyncImportChoice[]) => Promise<string>,
 ): void {
     const NODES = nodes;
-    NODES.actions.append(
-        ...selectionButtons(NODES),
-        syncButton("Update selected", () => {
-            runApply(NODES, apply);
-        }),
-    );
+    const UPDATE = syncButton("Update selected", () => {
+        runApply(NODES, apply);
+    });
+    UPDATE.classList.add("sync-update-selected");
+    NODES.actions.append(UPDATE, ...selectionButtons(NODES));
     NODES.dialog.addEventListener("cancel", (event) => {
         if (NODES.dialog.dataset.busy === "true") {
             event.preventDefault();

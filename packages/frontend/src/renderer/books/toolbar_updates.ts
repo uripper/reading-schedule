@@ -2,6 +2,7 @@ import type {
     Book,
     BookGroupBy,
     BookStatusFilter,
+    OptionDefinition,
     SortBy,
     SortDirection,
 } from "../../types/types.ts";
@@ -10,6 +11,7 @@ import { SORT_DIRECTION_DESC } from "./sort.ts";
 import { normalizeStatusFilter, statusFilterOptions } from "./status.ts";
 import { createOption } from "./toolbar_dom.ts";
 import {
+    collectionFilterOptions,
     groupOptionsForShelfFilter,
     shelfFilterOptions,
 } from "./toolbar_options.ts";
@@ -34,6 +36,34 @@ export function updateSortDirectionButton(
 }
 
 /**
+ * Replaces filter options and keeps the selection when it is still offered.
+ * @param select - Filter select element.
+ * @param options - Options to render; the first one is the fallback.
+ * @param selectedValue - Previously selected filter value.
+ * @returns Selected filter value after options refresh.
+ */
+function replaceFilterOptions(
+    select: HTMLSelectElement,
+    options: OptionDefinition[],
+    selectedValue: string,
+): string {
+    const NEXT_SELECT = select;
+    NEXT_SELECT.replaceChildren(
+        ...options.map((option) => createOption(option.value, option.label)),
+    );
+    let nextValue = selectedValue;
+    const FIRST_OPTION = options[0];
+    if (FIRST_OPTION !== undefined) {
+        nextValue = FIRST_OPTION.value;
+    }
+    if (options.some((option) => option.value === selectedValue)) {
+        nextValue = selectedValue;
+    }
+    NEXT_SELECT.value = nextValue;
+    return nextValue;
+}
+
+/**
  * Rebuilds shelf filter options and returns the selected normalized value.
  * @param shelfFilterSelect - Shelf filter select element.
  * @param books - Books used to derive shelf options.
@@ -45,21 +75,31 @@ export function updateShelfFilterOptions(
     books: Book[],
     selectedValue: string,
 ): string {
-    const NEXT_SHELF_FILTER_SELECT = shelfFilterSelect;
-    const OPTIONS = shelfFilterOptions(books);
-    NEXT_SHELF_FILTER_SELECT.replaceChildren(
-        ...OPTIONS.map((option) => createOption(option.value, option.label)),
+    return replaceFilterOptions(
+        shelfFilterSelect,
+        shelfFilterOptions(books),
+        selectedValue,
     );
-    let nextValue = selectedValue;
-    const FIRST_OPTION = OPTIONS[0];
-    if (FIRST_OPTION !== undefined) {
-        nextValue = FIRST_OPTION.value;
-    }
-    if (OPTIONS.some((option) => option.value === selectedValue)) {
-        nextValue = selectedValue;
-    }
-    NEXT_SHELF_FILTER_SELECT.value = nextValue;
-    return nextValue;
+}
+
+/**
+ * Rebuilds collection filter options and returns the selected value. A
+ * selection whose collection no longer exists falls back to all collections.
+ * @param collectionFilterSelect - Collection filter select element.
+ * @param books - Books used to derive collection options.
+ * @param selectedValue - Previously selected collection filter.
+ * @returns Selected collection filter after options refresh.
+ */
+export function updateCollectionFilterOptions(
+    collectionFilterSelect: HTMLSelectElement,
+    books: Book[],
+    selectedValue: string,
+): string {
+    return replaceFilterOptions(
+        collectionFilterSelect,
+        collectionFilterOptions(books),
+        selectedValue,
+    );
 }
 
 /**

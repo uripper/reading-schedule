@@ -7,6 +7,7 @@ import { prepareSyncImport } from "../dist/renderer/sync/import.js";
 import {
     actionableSyncEntries,
     assessSyncProgress,
+    hasSyncUpdates,
     syncReviewEntries,
 } from "../dist/renderer/sync/model.js";
 
@@ -58,10 +59,10 @@ test("multiple Kobo records targeting one library book require source review", (
     assert.ok(ENTRIES.every((entry) => entry.requiresSourceReview));
 });
 
-test("first imports are eligible while older and invalid source times are blocked", () => {
+test("first imports are eligible, older source times need review, invalid ones are blocked", () => {
     assert.equal(assessSyncProgress(SOURCE, book()).kind, "ready");
     const NEWER = book({ progress_updated_at: "2026-02-03T12:00:00Z" });
-    assert.equal(assessSyncProgress(SOURCE, NEWER).kind, "blocked");
+    assert.equal(assessSyncProgress(SOURCE, NEWER).kind, "review");
     for (const DATE of [
         "invalid",
         "2026-02-30T12:00:00Z",
@@ -124,16 +125,20 @@ test("replays remain ignored after local progress changes and Kobo page rounding
     );
 });
 
-test("only chosen valid books update; missing and newly stale choices are reported", () => {
-    const OTHER = book({
-        book_id: "other",
-        progress_updated_at: "2026-02-03T12:00:00Z",
-    });
+test("only chosen valid books update; missing and blocked choices are reported", () => {
+    const OTHER = book({ book_id: "other" });
     const RESULT = prepareSyncImport(
         [book(), OTHER],
         [
             { bookId: "book-1", record: SOURCE },
-            { bookId: "other", record: { ...SOURCE, sourceId: "other" } },
+            {
+                bookId: "other",
+                record: {
+                    ...SOURCE,
+                    dateLastRead: "2999-02-02T12:00:00Z",
+                    sourceId: "other",
+                },
+            },
             { bookId: "missing", record: { ...SOURCE, sourceId: "missing" } },
         ],
     );
@@ -172,4 +177,24 @@ test("validates native responses and rejects invalid percentage ranges", () => {
             status: "connected",
         }),
     );
+});
+
+test("older source progress can overwrite newer Bartleby progress and time", () => {
+    const NEWER = book({
+        pages_read: 160,
+        progress_percent: 80,
+        progress_updated_at: "2026-02-03T12:00:00Z",
+    });
+    const PREPARED = prepareSyncImport(
+        [NEWER],
+        [{ bookId: NEWER.book_id, record: SOURCE }],
+    );
+    const UPDATED = PREPARED.books[0];
+    assert.equal(UPDATED.progress_percent, SOURCE.percentRead);
+    assert.equal(UPDATED.progress_updated_at, READ_TIME);
+});
+
+test("older source progress does not open the review automatically", () => {
+    const NEWER = book({ progress_updated_at: "2026-02-03T12:00:00Z" });
+    assert.equal(hasSyncUpdates(syncReviewEntries([SOURCE], [NEWER])), false);
 });

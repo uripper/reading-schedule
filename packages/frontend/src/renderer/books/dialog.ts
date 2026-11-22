@@ -15,6 +15,7 @@ import { bindDateInput } from "../date_control.ts";
 import { el } from "../dom.ts";
 import { createAfterBookPicker } from "./after_book_picker.ts";
 import { bindBulkEditDirtyTracking } from "./bulk-edit-form.ts";
+import { bindCollectionPicker } from "./collection_picker_bindings.ts";
 import { bindCoverPaste } from "./cover-paste.ts";
 import { bindCoverUpload } from "./cover-upload.ts";
 import { navigateVisibleBook } from "./dialog-navigation-flow.ts";
@@ -88,6 +89,7 @@ function initializeBookDialogRefs(): ReturnType<typeof getBookFormRefs> {
         placeholder: "No finish date selected",
     });
     bindShelfPicker(REFS);
+    bindCollectionPicker(REFS);
     bindCoverUpload(REFS);
     bindCoverPaste(REFS);
     bindBulkEditDirtyTracking(REFS);

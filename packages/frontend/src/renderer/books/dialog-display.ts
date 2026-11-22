@@ -40,6 +40,7 @@ function setBulkOnlyFieldState(refs: BookFormRefs, bulkMode: boolean): void {
     const APPLY_DAYS =
         refs.applyScheduledDaysToShelfInput.closest<HTMLElement>("label");
     applyHiddenState(APPLY_DAYS, bulkMode);
+    applyHiddenState(refs.collectionsField, bulkMode);
 }
 
 export function isBulkDialogMode(options: OpenDialogOptions): boolean {

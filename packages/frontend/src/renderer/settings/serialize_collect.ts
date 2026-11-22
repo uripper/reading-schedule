@@ -8,7 +8,6 @@ import {
     weekdayMinutesInputId,
 } from "./config.ts";
 import {
-    automaticPlannerEndDate,
     DEFAULT_MAX_BLOCKS_PER_BOOK_PER_DAY,
     DEFAULT_MAX_BOOKS_PER_DAY,
     DEFAULT_MINUTES_PER_DAY,
@@ -153,7 +152,8 @@ function applyHiddenPlannerDefaults(settings: PlannerSettings): void {
     const SETTINGS = settings;
     const START_DATE = normalizePlannerStartDate(SETTINGS.start_date);
     const MAX_BOOKS_PER_DAY = normalizedMaxBooksPerDay(SETTINGS);
-    SETTINGS.end_date = automaticPlannerEndDate(START_DATE);
+    // The planner sizes its horizon from the reading load, so no end date is sent.
+    delete SETTINGS.end_date;
     SETTINGS.max_blocks_per_book_per_day = DEFAULT_MAX_BLOCKS_PER_BOOK_PER_DAY;
     SETTINGS.max_books_per_day = MAX_BOOKS_PER_DAY;
     SETTINGS.max_sessions_per_day = MAX_BOOKS_PER_DAY;

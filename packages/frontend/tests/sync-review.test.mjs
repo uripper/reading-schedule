@@ -90,15 +90,26 @@ test("duplicate titles require both a chosen match and an explicit check", () =>
     });
 });
 
-test("unmatched and stale records cannot be approved", () => {
+test("unmatched and blocked records cannot be approved", () => {
     withDom(() => {
         const MISSING = createSyncReviewRow(matchSyncRecord(SOURCE, []));
         MISSING.selectSafe(true);
         assert.equal(MISSING.choice().length, 0);
+        const FUTURE = { ...SOURCE, dateLastRead: "2999-02-02T12:00:00Z" };
+        const BLOCKED = createSyncReviewRow(matchSyncRecord(FUTURE, [BOOK]));
+        BLOCKED.element.querySelector("input").checked = true;
+        assert.equal(BLOCKED.choice().length, 0);
+    });
+});
+
+test("older source progress needs individual approval to overwrite Bartleby", () => {
+    withDom(() => {
         const NEWER = { ...BOOK, progress_updated_at: "2026-02-03T12:00:00Z" };
-        const STALE = createSyncReviewRow(matchSyncRecord(SOURCE, [NEWER]));
-        STALE.element.querySelector("input").checked = true;
-        assert.equal(STALE.choice().length, 0);
+        const ROW = createSyncReviewRow(matchSyncRecord(SOURCE, [NEWER]));
+        ROW.selectSafe(true);
+        assert.equal(ROW.choice().length, 0);
+        ROW.element.querySelector("input").checked = true;
+        assert.equal(ROW.choice().length, 1);
     });
 });
 

@@ -26,6 +26,54 @@ function createShelfSelectLabel(): HTMLLabelElement {
 }
 
 /**
+ * Creates the collection combobox input.
+ * @returns Input that searches existing collections or names a new one.
+ */
+function createCollectionInput(): HTMLInputElement {
+    const INPUT = document.createElement("input");
+    INPUT.id = "bookCollectionInput";
+    INPUT.type = "text";
+    INPUT.placeholder = "Search or create a collection";
+    INPUT.autocomplete = "off";
+    INPUT.setAttribute("role", "combobox");
+    INPUT.setAttribute("aria-autocomplete", "list");
+    INPUT.setAttribute("aria-expanded", "false");
+    INPUT.setAttribute("aria-controls", "bookCollectionResults");
+    INPUT.setAttribute("aria-haspopup", "listbox");
+    return INPUT;
+}
+
+/**
+ * Creates the collections field: a searchable dropdown with the book's
+ * collections listed underneath as removable chips.
+ * @returns Container holding the combobox, its options, and the chips.
+ */
+function createCollectionsField(): HTMLDivElement {
+    const FIELD = document.createElement("div");
+    FIELD.id = "bookCollectionsField";
+    FIELD.className = "book-collections";
+
+    const LABEL = document.createElement("label");
+    LABEL.className = "book-collection-picker";
+    LABEL.textContent = "Collections";
+    const RESULTS = document.createElement("div");
+    RESULTS.id = "bookCollectionResults";
+    RESULTS.className = "book-search-results";
+    RESULTS.setAttribute("role", "listbox");
+    RESULTS.setAttribute("aria-label", "Collection options");
+    LABEL.append(createCollectionInput(), RESULTS);
+
+    const CHIPS = document.createElement("div");
+    CHIPS.id = "bookCollectionChips";
+    CHIPS.className = "book-collection-chips";
+    CHIPS.setAttribute("role", "group");
+    CHIPS.setAttribute("aria-label", "Selected collections");
+
+    FIELD.append(LABEL, CHIPS);
+    return FIELD;
+}
+
+/**
  * Creates status select field populated from supported status options.
  * @returns Labeled status select node for form grid insertion.
  */
@@ -130,8 +178,11 @@ export function ensureBookFormLayoutFields(): void {
 
     el("bookDetailsFields").append(
         createStatusSelectLabel(),
-        createShelfSelectLabel(),
         createFinishedAtLabel(),
+    );
+    el("bookShelfCollectionsFields").append(
+        createShelfSelectLabel(),
+        createCollectionsField(),
     );
     el("bookSchedulingFields").append(
         createScheduledDaysField(),

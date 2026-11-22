@@ -130,6 +130,7 @@ test("collectSettingsForm applies hidden planner defaults", () => {
     );
     assert.equal(SETTINGS.plan_mode, DEFAULT_PLAN_MODE);
     assert.equal(SETTINGS.time_quantum_minutes, DEFAULT_TIME_QUANTUM_MINUTES);
+    assert.equal(SETTINGS.end_date, undefined);
 });
 
 test("collectSettingsForm only saves checked custom weekday minutes", () => {

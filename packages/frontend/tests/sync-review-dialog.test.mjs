@@ -85,13 +85,18 @@ function labels(dialog) {
         .children.map((node) => node.textContent);
 }
 
-test("the review offers only selection controls and Update selected", (t) => {
+test("the review offers Update selected first, then selection controls", (t) => {
     const { dialog: DIALOG } = setup(t);
     assert.deepEqual(labels(DIALOG), [
+        "Update selected",
         "Select all",
         "Deselect all",
-        "Update selected",
     ]);
+    assert.ok(
+        button(DIALOG, "Update selected").classList.contains(
+            "sync-update-selected",
+        ),
+    );
     assert.equal(button(DIALOG, "Update all"), undefined);
     assert.equal(button(DIALOG, "Not now"), undefined);
 });

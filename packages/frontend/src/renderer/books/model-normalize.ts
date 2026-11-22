@@ -1,5 +1,6 @@
 /** Normalizes library book fields and validated optional progress history. */
 import type { Book, BookInput, BookStatus } from "../../types/types.ts";
+import { normalizeCollections } from "./collection.ts";
 import { resolveCoverSource } from "./cover-source.ts";
 import {
     DEFAULT_DIFFICULTY,
@@ -94,6 +95,7 @@ function normalizedTextFields(
         author: toTrimmedText(book.author),
         blocked_by: withNullableString(toTrimmedText(book.blocked_by)),
         book_id: toBookId(book.book_id),
+        collections: normalizeCollections(book.collections),
         cover_local_path: toTrimmedText(book.cover_local_path),
         cover_url: toTrimmedText(book.cover_url),
         deadline: toOptionalDate(book.deadline),

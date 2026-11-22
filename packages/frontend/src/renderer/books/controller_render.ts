@@ -10,6 +10,7 @@ import type {
 import { collectSettings } from "../settings.ts";
 import { booksAfterRemovingBook } from "./blocker-lineage.ts";
 import { renderBookGrid } from "./card_view.ts";
+import { COLLECTION_FILTER_ALL } from "./collection.ts";
 import {
     clearBookFilters,
     resolveRenderableRefs,
@@ -23,6 +24,7 @@ import { SHELF_FILTER_ALL } from "./shelf.ts";
 import { SORT_BY_ESTIMATED_FINISH } from "./sort.ts";
 import { BOOK_STATUS_FILTER_ALL } from "./status_catalog.ts";
 import {
+    updateCollectionFilterOptions,
     updateGroupByOptions,
     updateShelfFilterOptions,
     updateSortBySelection,
@@ -47,6 +49,11 @@ function updateBooksViewFilters(
         refs.shelfFilterSelect,
         books,
         viewState.shelfFilter,
+    );
+    NEXT_VIEW_STATE.collectionFilter = updateCollectionFilterOptions(
+        refs.collectionFilterSelect,
+        books,
+        viewState.collectionFilter,
     );
     NEXT_VIEW_STATE.statusFilter = updateStatusFilterOptions(
         refs.statusFilterSelect,
@@ -222,6 +229,9 @@ function hasActiveFilters(viewState: BooksViewState): boolean {
         return true;
     }
     if (viewState.shelfFilter !== SHELF_FILTER_ALL) {
+        return true;
+    }
+    if (viewState.collectionFilter !== COLLECTION_FILTER_ALL) {
         return true;
     }
     return viewState.statusFilter !== BOOK_STATUS_FILTER_ALL;
