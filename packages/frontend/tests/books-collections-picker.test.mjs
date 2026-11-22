@@ -118,14 +118,39 @@ test("typing a new name and pressing Enter creates the collection", () => {
     });
 });
 
-test("arrow keys pick an option and clicking an option adds it", () => {
+function activeOption(refs) {
+    return refs.collectionInput.getAttribute("aria-activedescendant");
+}
+
+test("Enter adds the option highlighted with the arrow keys", () => {
     withCollectionPicker([], (refs) => {
         press(refs, "ArrowDown");
         press(refs, "ArrowDown");
-        assert.equal(
-            refs.collectionInput.getAttribute("aria-activedescendant"),
-            "book-collection-option-1",
-        );
+        assert.equal(activeOption(refs), "book-collection-option-1");
+        press(refs, "Enter");
+        assert.deepEqual(readCollectionSelection(refs), ["Summer"]);
+    });
+});
+
+test("Arrow Up with nothing highlighted lands on the last option", () => {
+    withCollectionPicker([], (refs) => {
+        refs.collectionInput.dispatch("focus");
+        press(refs, "ArrowUp");
+        assert.equal(activeOption(refs), "book-collection-option-1");
+    });
+});
+
+test("Arrow Down reopening a search keeps the top suggestion highlighted", () => {
+    withCollectionPicker([], (refs) => {
+        typeAndPress(refs, "s", "Escape");
+        press(refs, "ArrowDown");
+        assert.equal(activeOption(refs), "book-collection-option-0");
+    });
+});
+
+test("clicking an option adds it", () => {
+    withCollectionPicker([], (refs) => {
+        refs.collectionInput.dispatch("focus");
         refs.collectionResults.dispatch("click", {
             target: refs.collectionResults.children[0],
         });

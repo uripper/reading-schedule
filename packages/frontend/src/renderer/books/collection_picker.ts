@@ -45,6 +45,7 @@ export function collectionPickerState(
     const STATE: CollectionPickerState = {
         activeIndex: NO_ACTIVE_OPTION,
         available: [],
+        initial: [],
         open: false,
         options: [],
     };
@@ -120,9 +121,11 @@ export function renderCollectionPicker(
     selected: string[],
 ): void {
     const FORM_REFS = refs;
-    collectionPickerState(FORM_REFS).available = uniqueCollections(books);
+    const STATE = collectionPickerState(FORM_REFS);
+    STATE.available = uniqueCollections(books);
+    STATE.initial = normalizeCollections(selected);
     FORM_REFS.collectionInput.value = "";
-    renderCollectionChips(FORM_REFS, normalizeCollections(selected));
+    renderCollectionChips(FORM_REFS, STATE.initial);
     setCollectionOptionsOpen(FORM_REFS, false);
 }
 

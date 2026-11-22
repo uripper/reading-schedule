@@ -1,104 +1,23 @@
 /**
- * Keyboard and pointer handling for the collection combobox: arrows move the
- * highlight, Enter adds, Escape closes, Backspace on an empty search removes the
- * last chip, and clicking a chip removes that collection.
+ * Pointer and focus handling for the collection combobox: focus, clicks, and
+ * typing open the list, clicking an option adds it, clicking a chip removes
+ * that collection, and clicking elsewhere closes the list. Keys are handled in
+ * `collection_picker_keys.ts`.
  */
 import type { BookFormRefs } from "../../types/types.ts";
 import {
     chooseCollectionOption,
     collectionPickerState,
-    readCollectionSelection,
     removeCollectionFromForm,
     setCollectionOptionsOpen,
 } from "./collection_picker.ts";
+import { handleCollectionKey } from "./collection_picker_keys.ts";
 import {
     CHIP_CLASS,
     CHIP_NAME_KEY,
-    NO_ACTIVE_OPTION,
     OPTION_INDEX_KEY,
     renderCollectionResults,
 } from "./collection_picker_render.ts";
-
-const STEP_DOWN = 1;
-const STEP_UP = -1;
-
-/**
- * Moves the highlight through the options, wrapping at either end, and opens
- * the dropdown when it was closed.
- * @param refs - Book form references for the collection controls.
- * @param step - `1` for down, `-1` for up.
- */
-function moveHighlight(refs: BookFormRefs, step: number): void {
-    const STATE = collectionPickerState(refs);
-    if (!STATE.open) {
-        setCollectionOptionsOpen(refs, true);
-    }
-    const COUNT = STATE.options.length;
-    if (COUNT === 0) {
-        return;
-    }
-    const START = Math.max(STATE.activeIndex, NO_ACTIVE_OPTION);
-    STATE.activeIndex = (((START + step) % COUNT) + COUNT) % COUNT;
-    renderCollectionResults(refs, STATE);
-}
-
-/**
- * Adds the highlighted option. Enter never submits the book form from here.
- * @param refs - Book form references for the collection controls.
- * @param event - Enter key event.
- */
-function onEnter(refs: BookFormRefs, event: KeyboardEvent): void {
-    event.preventDefault();
-    const STATE = collectionPickerState(refs);
-    if (!STATE.open) {
-        return;
-    }
-    chooseCollectionOption(refs, STATE.activeIndex);
-}
-
-/**
- * Closes an open dropdown without closing the book dialog.
- * @param refs - Book form references for the collection controls.
- * @param event - Escape key event.
- */
-function onEscape(refs: BookFormRefs, event: KeyboardEvent): void {
-    if (!collectionPickerState(refs).open) {
-        return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-    setCollectionOptionsOpen(refs, false);
-}
-
-/**
- * Removes the last chip when Backspace is pressed in an empty search.
- * @param refs - Book form references for the collection controls.
- */
-function onBackspace(refs: BookFormRefs): void {
-    if (refs.collectionInput.value !== "") {
-        return;
-    }
-    const LAST = readCollectionSelection(refs).at(-1);
-    if (LAST !== undefined) {
-        removeCollectionFromForm(refs, LAST);
-    }
-}
-
-const KEY_HANDLERS: Partial<
-    Record<string, (refs: BookFormRefs, event: KeyboardEvent) => void>
-> = {
-    ArrowDown: (refs, event) => {
-        event.preventDefault();
-        moveHighlight(refs, STEP_DOWN);
-    },
-    ArrowUp: (refs, event) => {
-        event.preventDefault();
-        moveHighlight(refs, STEP_UP);
-    },
-    Backspace: onBackspace,
-    Enter: onEnter,
-    Escape: onEscape,
-};
 
 /**
  * Reads the option position from a pointer event inside the dropdown.
@@ -129,7 +48,7 @@ function bindInputEvents(refs: BookFormRefs): void {
     refs.collectionInput.addEventListener("click", OPEN);
     refs.collectionInput.addEventListener("input", OPEN);
     refs.collectionInput.addEventListener("keydown", (event) => {
-        KEY_HANDLERS[event.key]?.(refs, event);
+        handleCollectionKey(refs, event);
     });
 }
 

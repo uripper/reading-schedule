@@ -2,6 +2,7 @@
 import type { Book, OpenBookDialogArgs } from "../../types/types.ts";
 import { renderSyncLinks } from "../sync/links-panel.ts";
 import { fillBulkEditForm } from "./bulk-edit-fill.ts";
+import { sharedCollections } from "./collection_bulk.ts";
 import { renderCollectionPicker } from "./collection_picker.ts";
 import { releaseCoverUpload } from "./cover-upload-staging.ts";
 import {
@@ -63,12 +64,20 @@ function selectedShelfForDialog(args: OpenBookDialogArgs): string {
 }
 
 /**
- * Chooses the collections shown when the dialog opens: the edited or
- * prefilled book's own, otherwise the active Library collection filter.
+ * Chooses the collections shown when the dialog opens: those shared by every
+ * mass-edited book, the edited or prefilled book's own, otherwise the active
+ * Library collection filter.
  * @param args - Dialog open arguments.
- * @returns Collection names to check.
+ * @param bulkBooks - Books selected for mass edit, if any.
+ * @returns Collection names to show as chips.
  */
-function selectedCollectionsForDialog(args: OpenBookDialogArgs): string[] {
+function selectedCollectionsForDialog(
+    args: OpenBookDialogArgs,
+    bulkBooks: Book[],
+): string[] {
+    if (bulkBooks.length > 0) {
+        return sharedCollections(bulkBooks);
+    }
     const BOOK = args.book ?? args.dialogOptions.initialBook;
     if (BOOK !== undefined) {
         return BOOK.collections;
@@ -136,7 +145,7 @@ export function openBookDialog(args: InternalOpenBookDialogArgs): void {
     renderCollectionPicker(
         args.refs,
         ALL_BOOKS,
-        selectedCollectionsForDialog(args),
+        selectedCollectionsForDialog(args, BULK_BOOKS),
     );
     applyDialogBookState({
         allBooks: ALL_BOOKS,
