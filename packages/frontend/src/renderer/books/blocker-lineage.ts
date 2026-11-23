@@ -109,3 +109,69 @@ export function booksAfterRemovingBook(
         );
     });
 }
+
+/**
+ * Follows one book's "after" chain and reports whether it reaches a target.
+ * @param startId - Book whose chain is followed.
+ * @param targetId - Book being looked for.
+ * @param blockerById - Each book's `blocked_by`, keyed by book id.
+ * @returns `true` when the chain reaches the target.
+ */
+function chainReaches(
+    startId: string,
+    targetId: string,
+    blockerById: Map<string, string>,
+): boolean {
+    const SEEN = new Set<string>();
+    let current = startId;
+    while (current !== "" && !SEEN.has(current)) {
+        if (current === targetId) {
+            return true;
+        }
+        SEEN.add(current);
+        current = blockerById.get(current) ?? "";
+    }
+    return false;
+}
+
+/**
+ * Maps each book id to the id of the book it comes after.
+ * @param books - Library books.
+ * @returns `blocked_by` by book id; empty text when none.
+ */
+function blockerIdsByBook(books: Book[]): Map<string, string> {
+    return new Map(
+        books.map((book) => [
+            normalizedBookId(book.book_id),
+            normalizedBookId(book.blocked_by),
+        ]),
+    );
+}
+
+/**
+ * Lists books that already come after a book, directly or through others.
+ * Choosing any of them as that book's "after" target would create a cycle.
+ * @param books - Library books.
+ * @param bookId - Book being edited.
+ * @returns Ids of books whose chain leads back to the book.
+ */
+export function blockedDescendantIds(
+    books: Book[],
+    bookId: string,
+): Set<string> {
+    const TARGET_ID = normalizedBookId(bookId);
+    const DESCENDANTS = new Set<string>();
+    if (TARGET_ID === "") {
+        return DESCENDANTS;
+    }
+    const BLOCKER_BY_ID = blockerIdsByBook(books);
+    for (const [ID, BLOCKER_ID] of BLOCKER_BY_ID) {
+        if (
+            ID !== TARGET_ID &&
+            chainReaches(BLOCKER_ID, TARGET_ID, BLOCKER_BY_ID)
+        ) {
+            DESCENDANTS.add(ID);
+        }
+    }
+    return DESCENDANTS;
+}

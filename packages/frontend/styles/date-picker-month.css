@@ -24,8 +24,8 @@
     cursor: pointer;
     user-select: none;
     background: var(--color-white);
-    border: var(--border-regular) solid var(--color-black);
-    border-radius: 10px;
+    border: var(--token-control-borderWidth) solid var(--app-control-border);
+    border-radius: var(--token-control-radius);
 }
 
 .flatpickr-months .flatpickr-prev-month:hover,
@@ -61,31 +61,25 @@
     opacity: 0.88;
 }
 
+/* Year spinner arrows: Lucide chevrons drawn as masks. */
 .flatpickr-current-month .numInputWrapper span::after {
     position: absolute;
-    left: 50%;
+    inset: 0;
     content: "";
-    border-right: 4px solid transparent;
-    border-left: 4px solid transparent;
-    transform: translateX(-50%);
+    background: var(--app-control-ink);
+    mask: var(--spinner-icon) center / contain no-repeat;
 }
 
 .flatpickr-current-month .numInputWrapper .arrowUp {
+    --spinner-icon: var(--icon-chevron-up);
+
     top: 4px;
 }
 
-.flatpickr-current-month .numInputWrapper .arrowUp::after {
-    top: 2px;
-    border-bottom: 6px solid var(--color-black);
-}
-
 .flatpickr-current-month .numInputWrapper .arrowDown {
-    bottom: 4px;
-}
+    --spinner-icon: var(--icon-chevron-down);
 
-.flatpickr-current-month .numInputWrapper .arrowDown::after {
-    bottom: 2px;
-    border-top: 6px solid var(--color-black);
+    bottom: 4px;
 }
 
 .flatpickr-current-month .flatpickr-monthDropdown-months,
@@ -97,8 +91,8 @@
     margin: 0;
     color: var(--color-black);
     background: var(--color-white);
-    border: var(--border-regular) solid var(--color-black);
-    border-radius: 10px;
+    border: var(--token-control-borderWidth) solid var(--app-control-border);
+    border-radius: var(--token-control-radius);
 }
 
 .flatpickr-current-month input.cur-year {

@@ -47,23 +47,62 @@ function typeAndPress(refs, text, key) {
     return press(refs, key);
 }
 
+const NEW_ROW = "New collection…";
+
 function optionLabels(refs) {
-    return refs.collectionResults.children.map((option) => option.textContent);
+    return refs.collectionResults.children.map(
+        (option) => option.dataset.optionLabel,
+    );
 }
 
-test("collection search lists unchosen matches and offers to create new names", () => {
+function selectedLabels(refs) {
+    return refs.collectionResults.children
+        .filter((option) => option.getAttribute("aria-selected") === "true")
+        .map((option) => option.dataset.optionLabel);
+}
+
+function row(name, selected = false, match = null) {
+    return { kind: "existing", match, name, selected };
+}
+
+function action(kind, name = "") {
+    return { kind, match: null, name, selected: false };
+}
+
+test("collection search keeps chosen rows, marks them, and ends with explicit create rows", () => {
     const AVAILABLE = ["Classics", "Summer"];
     assert.deepEqual(collectionOptions(AVAILABLE, ["Summer"], ""), [
-        { isNew: false, name: "Classics" },
+        row("Classics"),
+        row("Summer", true),
+        action("new"),
     ]);
     assert.deepEqual(collectionOptions(AVAILABLE, [], "SUM"), [
-        { isNew: false, name: "Summer" },
-        { isNew: true, name: "SUM" },
+        row("Summer", false, { end: 3, start: 0 }),
+        action("create", "SUM"),
+        action("new"),
     ]);
     assert.deepEqual(collectionOptions(AVAILABLE, [], " summer "), [
-        { isNew: false, name: "Summer" },
+        row("Summer", false, { end: 6, start: 0 }),
+        action("new"),
     ]);
-    assert.deepEqual(collectionOptions(AVAILABLE, ["Summer"], "summer"), []);
+});
+
+test("word-start matches rank before matches inside a word", () => {
+    const OPTIONS = collectionOptions(
+        ["Gardening", "Dening Notes", "Zen"],
+        [],
+        "den",
+    );
+    assert.deepEqual(
+        OPTIONS.filter((option) => option.kind === "existing").map((option) => [
+            option.name,
+            option.match,
+        ]),
+        [
+            ["Dening Notes", { end: 3, start: 0 }],
+            ["Gardening", { end: 6, start: 3 }],
+        ],
+    );
 });
 
 test("the book's collections show as chips and are what the form saves", () => {
@@ -87,10 +126,11 @@ test("the book's collections show as chips and are what the form saves", () => {
     });
 });
 
-test("focusing the search opens every collection the book is not in", () => {
+test("focusing the search lists every collection with the chosen ones checked", () => {
     withCollectionPicker(["Summer"], (refs) => {
         refs.collectionInput.dispatch("focus");
-        assert.deepEqual(optionLabels(refs), ["Classics"]);
+        assert.deepEqual(optionLabels(refs), ["Classics", "Summer", NEW_ROW]);
+        assert.deepEqual(selectedLabels(refs), ["Summer"]);
         assert.equal(
             refs.collectionInput.getAttribute("aria-expanded"),
             "true",
@@ -104,17 +144,39 @@ test("Enter adds the first match, keeping the library's spelling", () => {
         assert.equal(EVENT.defaultPrevented, true);
         assert.deepEqual(readCollectionSelection(refs), ["Summer"]);
         assert.equal(refs.collectionInput.value, "");
-        assert.deepEqual(optionLabels(refs), ["Classics"]);
+        assert.deepEqual(selectedLabels(refs), ["Summer"]);
     });
 });
 
-test("typing a new name and pressing Enter creates the collection", () => {
+test("choosing a chosen collection again removes it", () => {
+    withCollectionPicker(["Summer"], (refs) => {
+        typeAndPress(refs, "summ", "Enter");
+        assert.deepEqual(readCollectionSelection(refs), []);
+    });
+});
+
+test("typing a new name offers Create and Enter creates and selects it", () => {
     withCollectionPicker(["Summer"], (refs) => {
         refs.collectionInput.value = "Poetry";
         refs.collectionInput.dispatch("input");
-        assert.deepEqual(optionLabels(refs), ['Create "Poetry"']);
+        assert.deepEqual(optionLabels(refs), ['Create "Poetry"', NEW_ROW]);
         typeAndPress(refs, "Poetry", "Enter");
         assert.deepEqual(readCollectionSelection(refs), ["Poetry", "Summer"]);
+    });
+});
+
+test("New collection… with nothing typed asks for a name, then Enter creates it", () => {
+    withCollectionPicker([], (refs) => {
+        refs.collectionInput.dispatch("focus");
+        press(refs, "ArrowUp");
+        press(refs, "Enter");
+        assert.match(
+            refs.collectionInput.placeholder,
+            /Name the new collection/u,
+        );
+        typeAndPress(refs, "Poetry", "Enter");
+        assert.deepEqual(readCollectionSelection(refs), ["Poetry"]);
+        assert.doesNotMatch(refs.collectionInput.placeholder, /Name the new/u);
     });
 });
 
@@ -132,11 +194,11 @@ test("Enter adds the option highlighted with the arrow keys", () => {
     });
 });
 
-test("Arrow Up with nothing highlighted lands on the last option", () => {
+test("Arrow Up with nothing highlighted lands on the pinned last row", () => {
     withCollectionPicker([], (refs) => {
         refs.collectionInput.dispatch("focus");
         press(refs, "ArrowUp");
-        assert.equal(activeOption(refs), "book-collection-option-1");
+        assert.equal(activeOption(refs), "book-collection-option-2");
     });
 });
 
@@ -169,6 +231,17 @@ test("chips and Backspace remove collections; Escape only closes the list", () =
         refs.collectionInput.dispatch("focus");
         const EVENT = typeAndPress(refs, "", "Escape");
         assert.equal(EVENT.defaultPrevented, true);
+        assert.equal(
+            refs.collectionInput.getAttribute("aria-expanded"),
+            "false",
+        );
+    });
+});
+
+test("leaving the field closes the menu", () => {
+    withCollectionPicker([], (refs) => {
+        refs.collectionInput.dispatch("focus");
+        refs.collectionInput.dispatch("blur");
         assert.equal(
             refs.collectionInput.getAttribute("aria-expanded"),
             "false",

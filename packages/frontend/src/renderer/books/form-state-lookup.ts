@@ -10,7 +10,7 @@ import {
 } from "../book_lookup/helpers.ts";
 import { releaseCoverUpload } from "./cover-upload-staging.ts";
 import { setCoverPreview } from "./form-state-helpers.ts";
-import { toOptionalInt } from "./utils.ts";
+import { formatWordsInput, parseWordCount } from "./form_controls.ts";
 
 /**
  * Applies a positive lookup estimate to an input only when current value is missing.
@@ -22,7 +22,7 @@ function applyEstimateWhenMissing(
     estimate: number | undefined,
 ): void {
     const TARGET_INPUT = input;
-    const CURRENT_VALUE = toOptionalInt(TARGET_INPUT.value);
+    const CURRENT_VALUE = parseWordCount(TARGET_INPUT.value);
     if (typeof CURRENT_VALUE === "number" && CURRENT_VALUE > 0) {
         return;
     }
@@ -50,6 +50,7 @@ export function applyLookupItem(
     FORM_REFS.coverLocal.value = "";
 
     applyEstimateWhenMissing(FORM_REFS.wordsInput, item.words_estimate);
+    formatWordsInput(FORM_REFS.wordsInput);
     applyEstimateWhenMissing(FORM_REFS.pagesTotalInput, item.pages_estimate);
 
     const LOOKUP_NOTE = noteFromLookup(item);

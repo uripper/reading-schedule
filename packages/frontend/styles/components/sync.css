@@ -125,11 +125,6 @@
     min-height: var(--token-size-target-minimum);
     padding: 0.5rem;
     font: inherit;
-    color: var(--color-black);
-    background: var(--color-paper);
-    border: var(--border-regular) solid var(--color-black);
-    border-radius: 0;
-    box-shadow: var(--shadow-sm);
 }
 
 .sync-library-search {
@@ -142,22 +137,25 @@
     right: 0;
     left: 0;
     z-index: 2;
-    max-height: 14rem;
+    max-height: var(--token-control-menuMaxHeight);
+    padding: 0;
     margin: 0;
-    color: var(--color-black);
-    background: var(--color-paper);
-    border: var(--border-thick) solid var(--color-black);
-    box-shadow: var(--shadow-sm);
+    overflow: auto;
+    color: var(--app-control-ink);
+    background: var(--app-menu-surface);
+    border: var(--token-control-borderWidth) solid var(--app-control-border);
+    border-radius: var(--token-control-radius);
+    box-shadow: var(--app-menu-shadow);
+}
+
+.sync-library-results[popover] {
+    position: fixed;
+    inset: auto;
 }
 
 .sync-library-results[hidden],
 .sync-review li[hidden] {
     display: none;
-}
-
-.sync-library-results.opens-up {
-    top: auto;
-    bottom: 100%;
 }
 
 .sync-library-results > li {
@@ -168,7 +166,7 @@
 
 .sync-library-results > [aria-selected="true"],
 .sync-library-results > li:hover {
-    background: var(--color-banana);
+    background: var(--app-menu-highlight);
 }
 
 /* Primary review action shares Add Book's green without its book icon. */

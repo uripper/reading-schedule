@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { formatFinishDate } from "../dist/renderer/books/card-navigation-buttons.js";
 import { createCardNode } from "../dist/renderer/books/card-nodes.js";
 import { bindCardEvents } from "../dist/renderer/books/card_events.js";
 import { installFakeDom } from "./helpers/fake-dom.mjs";
@@ -68,49 +69,87 @@ function renderedMassEditCard(environment) {
 }
 
 function bindAndCaptureEvents(root) {
-    const EVENTS = { edited: [], removed: [] };
+    const EVENTS = { edited: [] };
     bindCardEvents(root, {
         onEdit(bookId) {
             EVENTS.edited.push(bookId);
-        },
-        onRemove(bookId) {
-            EVENTS.removed.push(bookId);
         },
     });
     return EVENTS;
 }
 
-function cardActionNodes(card) {
-    const STACK = card.querySelector(".book-card-command-stack");
-    return {
-        coverButton: card.querySelector(".book-cover-btn"),
-        editButton: STACK.querySelector(".edit-book-btn"),
-        removeButton: STACK.querySelector(".remove-book-btn"),
-        stack: STACK,
-    };
-}
-
-function clickCardActions(nodes) {
-    nodes.editButton.click();
-    nodes.coverButton.click();
-    nodes.removeButton.click();
-}
-
-test("book cards render stacked edit and remove actions", () => {
+test("book cards keep Edit as the only command; Remove lives in the dialog", () => {
     const ENVIRONMENT = installFakeDom();
     try {
         const { card, root } = renderedCard(ENVIRONMENT);
         const EVENTS = bindAndCaptureEvents(root);
-        const NODES = cardActionNodes(card);
-        assert.equal(NODES.stack.children[0], NODES.editButton);
-        assert.equal(NODES.stack.children[1], NODES.removeButton);
-        clickCardActions(NODES);
+        const STACK = card.querySelector(".book-card-command-stack");
+        const EDIT = STACK.querySelector(".edit-book-btn");
+        assert.deepEqual(STACK.children, [EDIT]);
+        assert.equal(card.querySelector(".remove-book-btn"), null);
+        EDIT.click();
+        card.querySelector(".book-cover-btn").click();
         assert.deepEqual(EVENTS.edited, [BOOK_ID, BOOK_ID]);
-        assert.deepEqual(EVENTS.removed, [BOOK_ID]);
     } finally {
         ENVIRONMENT.restore();
     }
 });
+
+function statLines(card) {
+    return card
+        .querySelector(".book-stats")
+        .children.map((child) => child.textContent);
+}
+
+test("to-read cards hide progress; in-progress cards show the bar and pages", () => {
+    const ENVIRONMENT = installFakeDom();
+    try {
+        const TO_READ = createCardNode(bookFixture(), cardContext());
+        assert.equal(TO_READ.querySelector(".book-card-progress"), null);
+        assert.equal(
+            statLines(TO_READ).some((line) => line.includes("%")),
+            false,
+        );
+        const READING = createCardNode(
+            {
+                ...bookFixture(),
+                pages_read: 42,
+                progress_percent: 40,
+                status: "in_progress",
+            },
+            cardContext(),
+        );
+        assert.equal(READING.querySelector(".book-card-progress").value, 40);
+        assert.ok(
+            statLines(READING).some((line) => line.includes("42/105 pages")),
+        );
+    } finally {
+        ENVIRONMENT.restore();
+    }
+});
+
+test("the After link is short with the full title in its tooltip", () => {
+    const ENVIRONMENT = installFakeDom();
+    try {
+        const CARD = createCardNode(
+            { ...bookFixture(), blocked_by: "book-0" },
+            {
+                ...cardContext(),
+                showBlockerMeta: true,
+                titleById: { "book-0": "Dune: Messiah of the Desert" },
+            },
+        );
+        const LINK = CARD.querySelector(".book-after-link-btn");
+        assert.equal(LINK.textContent, "After: Dune");
+        assert.equal(LINK.title, "After: Dune: Messiah of the Desert");
+    } finally {
+        ENVIRONMENT.restore();
+    }
+});
+
+function chipLines(chip) {
+    return chip.children.map((line) => line.textContent);
+}
 
 test("read cards show a clickable finished date in the actions row", () => {
     const ENVIRONMENT = installFakeDom();
@@ -123,10 +162,10 @@ test("read cards show a clickable finished date in the actions row", () => {
         assert.ok(BADGE);
         BADGE.click();
         assert.deepEqual(NAVIGATED_DATES, [FINISH_DATE]);
-        assert.equal(
-            BADGE.textContent.includes(`Finished ${FINISH_DATE}`),
-            true,
-        );
+        assert.deepEqual(chipLines(BADGE), [
+            "Finished",
+            formatFinishDate(FINISH_DATE),
+        ]);
         assert.equal(ACTIONS.querySelector(".book-estimated-finish-btn"), null);
         assert.equal(ACTIONS.children[0], BADGE);
     } finally {
@@ -139,7 +178,13 @@ test("to-read cards show the estimated finish control instead of a badge", () =>
     try {
         const CARD = createCardNode(bookFixture(), cardContext());
         const ACTIONS = CARD.querySelector(".book-actions");
-        assert.ok(ACTIONS.querySelector(".book-estimated-finish-btn"));
+        const ESTIMATE = ACTIONS.querySelector(".book-estimated-finish-btn");
+        assert.ok(ESTIMATE);
+        assert.deepEqual(chipLines(ESTIMATE), [
+            "Est. Finish",
+            formatFinishDate(FINISH_DATE),
+        ]);
+        assert.match(ESTIMATE.getAttribute("aria-label"), /14.*2026/u);
         assert.equal(ACTIONS.querySelector(".book-finished-btn"), null);
     } finally {
         ENVIRONMENT.restore();
@@ -155,9 +200,6 @@ test("mass-edit cards clear selected highlight when a checkbox is unchecked", ()
                 return undefined;
             },
             onMassEditSelection() {
-                return undefined;
-            },
-            onRemove() {
                 return undefined;
             },
         });

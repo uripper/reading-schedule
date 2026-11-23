@@ -3,7 +3,6 @@
     --books-toolbar-ink: var(--color-black);
     --books-toolbar-paper: var(--color-parchment);
     --books-toolbar-field: var(--color-white);
-    --books-toolbar-radius: 14px;
     --books-toolbar-control-height: 52px;
 
     display: grid;
@@ -86,6 +85,23 @@
     mask: var(--icon-search) center / contain no-repeat;
 }
 
+.books-control-field-collection::after {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+    content: "";
+    background: currentcolor;
+    mask: var(--icon-layers) center / contain no-repeat;
+    transform: translateY(-50%);
+}
+
+.books-control-field-collection > .books-control-select {
+    padding-left: 42px;
+}
+
 .books-control-field-select::before {
     right: 14px;
     mask: var(--icon-chevron-down) center / contain no-repeat;
@@ -103,9 +119,6 @@
     text-transform: none;
     letter-spacing: normal;
     background: var(--books-toolbar-field);
-    border: var(--border-thick) solid var(--books-toolbar-ink);
-    border-radius: var(--books-toolbar-radius);
-    box-shadow: none;
 }
 
 .books-control-input {
@@ -124,12 +137,10 @@
     cursor: pointer;
 }
 
-.books-control-input:hover,
-.books-control-select:hover,
-.books-control-input:focus-visible,
-.books-control-select:focus-visible {
-    background: var(--color-white);
-    border-color: var(--books-toolbar-ink);
+/* An active filter takes the accent so it is easy to spot in the toolbar. */
+.books-control-select.is-filtered {
+    color: var(--app-accent-ink);
+    background: var(--app-accent);
 }
 
 .books-toolbar-actions .btn {

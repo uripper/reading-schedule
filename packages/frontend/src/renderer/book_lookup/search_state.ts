@@ -2,6 +2,7 @@ import type {
     CreateLookupStateControllerArgs,
     LookupStateController,
 } from "../../types/types.ts";
+import { syncFloatingMenu } from "../floating_menu.ts";
 import { describeLookup } from "./helpers.ts";
 import { renderLookupResults, updateComboboxA11y } from "./render.ts";
 
@@ -23,7 +24,7 @@ function clearRenderedLookupResults(
     searchInput: HTMLInputElement,
 ): void {
     const RESULTS_EL = resultsEl;
-    RESULTS_EL.classList.remove("has-items");
+    syncFloatingMenu(RESULTS_EL, searchInput, false);
     RESULTS_EL.replaceChildren();
     updateComboboxA11y({
         activeIndex: -1,
@@ -50,7 +51,7 @@ function renderLookupItems(deps: LookupControllerDeps): void {
         placeholder: deps.placeholder,
         resultsEl: RESULTS_EL,
     });
-    RESULTS_EL.classList.add("has-items");
+    syncFloatingMenu(RESULTS_EL, deps.searchInput, true);
     updateRenderedLookupA11y(deps);
 }
 

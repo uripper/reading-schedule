@@ -21,6 +21,7 @@ import {
     createBooksViewState,
 } from "./controller-state-defaults.ts";
 import { bindToolbarEvents } from "./controller_bindings.ts";
+import { removeBookAfterConfirm } from "./controller_remove.ts";
 import { renderBooksController } from "./controller_render.ts";
 import { clearBookFilters } from "./controller_render_helpers.ts";
 import {
@@ -105,6 +106,16 @@ export function revealBookInLibrary(bookId: string): void {
     render();
     scrollToBookCard(bookId);
 }
+
+const REMOVE_DEPS = {
+    findBook,
+    getBooks: () => books,
+    onRemoved: (nextBooks: Book[]): void => {
+        setBooks(nextBooks);
+        render();
+        onBooksChanged();
+    },
+};
 
 /** Reads a book by id and returns a defensive copy for callers. */
 export function getBookById(bookId: string): Book | null {
@@ -255,7 +266,10 @@ export function bindBooksUI(
     }
     const ADD_BUTTON = initializeBooksUiRefs(TOOLBAR);
     bindToolbarEvents({ refs: REFS, rerender: render, viewState: VIEW_STATE });
-    dialog = createBookDialog(saveBook, { getBooks: () => books });
+    dialog = createBookDialog(saveBook, {
+        getBooks: () => books,
+        onRemove: (bookId) => removeBookAfterConfirm(REMOVE_DEPS, bookId),
+    });
     configureAddBookFlow({
         element: el<HTMLDialogElement>("bookDialog"),
         getBook: getBookById,

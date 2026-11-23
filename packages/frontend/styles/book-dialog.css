@@ -39,23 +39,36 @@
     gap: var(--token-space-2);
 }
 
+/*
+ * Combobox menus. Open menus are promoted to the top layer (Popover API) and
+ * placed by floating-ui, so dialogs and scroll containers never clip them.
+ */
 .book-search-results {
     position: absolute;
-    top: calc(100% + var(--token-space-1));
+    top: calc(100% + var(--token-control-menuOffset));
     right: 0;
     left: 0;
     z-index: 30;
     display: none;
-    max-height: 320px;
+    max-height: var(--token-control-menuMaxHeight);
+    padding: 0;
+    margin: 0;
     overflow: auto;
-    background: var(--color-black);
-    border: var(--border-thick) solid var(--color-black);
-    border-radius: 20px;
-    box-shadow: var(--shadow-lg);
+    overscroll-behavior: contain;
+    color: var(--app-control-ink);
+    background: var(--app-menu-surface);
+    border: var(--token-control-borderWidth) solid var(--app-control-border);
+    border-radius: var(--token-control-radius);
+    box-shadow: var(--app-menu-shadow);
 }
 
 .book-search-results.has-items {
     display: block;
+}
+
+.book-search-results[popover] {
+    position: fixed;
+    inset: auto;
 }
 
 .book-result {
@@ -65,12 +78,13 @@
     align-items: center;
     width: 100%;
     padding: var(--token-space-2);
-    color: var(--color-paper);
+    font: inherit;
+    color: inherit;
     text-align: left;
     background: transparent;
     border: 0;
     border-bottom: var(--border-thin) solid
-        color-mix(in srgb, var(--color-paper) 18%, transparent);
+        color-mix(in srgb, var(--app-control-border) 20%, transparent);
 }
 
 .book-result:last-child {
@@ -81,11 +95,26 @@
 .book-result:focus-visible,
 .book-result.is-active {
     cursor: pointer;
-    background: color-mix(in srgb, var(--color-yellow) 18%, transparent);
+    color: var(--app-accent-ink);
+    background: var(--app-menu-highlight);
+    outline: none;
+}
+
+.book-result.is-active {
+    box-shadow: inset var(--token-control-focusOffset) 0 0
+        var(--app-control-border);
 }
 
 .book-result-inline {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.book-result mark {
+    font-weight: var(--token-typography-weight-extrabold);
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: var(--token-control-borderWidth);
+    background: transparent;
 }
 
 .book-result-cover {
@@ -94,7 +123,7 @@
     object-fit: cover;
     background: var(--color-black);
     border: var(--border-regular) solid var(--color-black);
-    border-radius: 8px;
+    border-radius: var(--token-control-radius);
 }
 
 .book-result-title {
@@ -106,7 +135,7 @@
 
 .book-result-meta {
     font-size: var(--token-typography-size-md);
-    color: var(--color-frost);
+    color: var(--color-umber);
 }
 
 .book-cover-field:has(> .book-cover-panel[hidden]) {

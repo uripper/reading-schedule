@@ -3,19 +3,6 @@ import { COVER_PLACEHOLDER } from "./constants.ts";
 
 const MASS_SELECTED_CLASS = "is-mass-selected";
 
-function bindRemoveButtons(
-    rootNode: HTMLElement,
-    handlers: CardHandlers,
-): void {
-    for (const BUTTON of rootNode.querySelectorAll<HTMLButtonElement>(
-        ".remove-book-btn",
-    )) {
-        BUTTON.addEventListener("click", () => {
-            handlers.onRemove(BUTTON.dataset.bookId ?? "");
-        });
-    }
-}
-
 function bindEditButtons(rootNode: HTMLElement, handlers: CardHandlers): void {
     for (const BUTTON of rootNode.querySelectorAll<HTMLButtonElement>(
         ".edit-book-btn",
@@ -59,7 +46,7 @@ function bindFallbackCovers(rootNode: HTMLElement): void {
 }
 
 /**
- * Wires edit/remove/fallback-cover handlers for rendered book cards.
+ * Wires edit/mass-select/fallback-cover handlers for rendered book cards.
  * @param rootNode - Root container containing card elements.
  * @param handlers - Callback handlers for card actions.
  */
@@ -67,7 +54,6 @@ export function bindCardEvents(
     rootNode: HTMLElement,
     handlers: CardHandlers,
 ): void {
-    bindRemoveButtons(rootNode, handlers);
     bindEditButtons(rootNode, handlers);
     bindMassEditInputs(rootNode, handlers);
     bindFallbackCovers(rootNode);

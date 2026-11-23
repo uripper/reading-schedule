@@ -1,5 +1,6 @@
 {
     "dependencies": {
+        "@floating-ui/dom": "^1.8.0",
         "@reading-schedule/contracts": "workspace:*",
         "flatpickr": "^4.6.13",
         "tslog": "^5.4.0"
@@ -21,5 +22,5 @@
         "typecheck": "pnpm -C ../contracts run build && pnpm --dir ../.. exec tsc -p packages/frontend/tsconfig.json --noEmit"
     },
     "type": "module",
-    "version": "0.2.3-alpha"
+    "version": "0.2.4-alpha"
 }

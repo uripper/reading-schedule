@@ -1,13 +1,15 @@
 /**
- * Builds the collection combobox options: existing collections that match the
- * typed text and are not already chosen, then a "create" entry for a new name.
+ * Builds the collection combobox rows: every collection matching the typed
+ * text (word-start matches first, chosen ones kept and marked), then a
+ * `Create "<text>"` action for a new name, then the pinned "New collection…"
+ * action. Creating is always an explicit choice.
  */
 import type { CollectionOption } from "../../types/types.ts";
 import {
     compareCollectionNames,
-    foldCollectionName,
     normalizeCollectionName,
 } from "./collection.ts";
+import { matchText } from "./text_match.ts";
 
 /**
  * Checks whether a list holds a name, ignoring case and accents.
@@ -35,16 +37,37 @@ export function canonicalCollectionName(names: string[], name: string): string {
 }
 
 /**
- * Checks whether a collection name contains the typed text.
- * @param name - Collection name.
- * @param foldedQuery - Search text folded by {@link foldCollectionName}.
- * @returns `true` when the query is empty or found in the name.
+ * Lists existing collections that match the search, best matches first.
+ * @param available - Every known collection, already sorted.
+ * @param selected - Collections the book belongs to.
+ * @param rawQuery - Text typed in the combobox.
+ * @returns Existing-collection rows.
  */
-function matchesCollectionQuery(name: string, foldedQuery: string): boolean {
-    if (foldedQuery === "") {
-        return true;
+function existingOptions(
+    available: string[],
+    selected: string[],
+    rawQuery: string,
+): CollectionOption[] {
+    const QUERY_IS_BLANK = rawQuery.trim() === "";
+    const ROWS: Array<CollectionOption & { rank: number }> = [];
+    for (const NAME of available) {
+        const MATCH = matchText(NAME, rawQuery);
+        if (MATCH === null && !QUERY_IS_BLANK) {
+            continue;
+        }
+        ROWS.push({
+            kind: "existing",
+            match: MATCH?.range ?? null,
+            name: NAME,
+            rank: MATCH?.rank ?? 0,
+            selected: includesCollectionName(selected, NAME),
+        });
     }
-    return foldCollectionName(name).includes(foldedQuery);
+    return ROWS.toSorted((left, right) => left.rank - right.rank).map(
+        ({ kind, match, name, selected: isSelected }) => {
+            return { kind, match, name, selected: isSelected };
+        },
+    );
 }
 
 /**
@@ -69,25 +92,52 @@ function offersCreate(
 }
 
 /**
- * Lists combobox options for the current search text.
- * @param available - Every known collection.
+ * Builds an action row.
+ * @param kind - `create` or `new`.
+ * @param name - Typed name for `create`; empty for `new`.
+ * @returns Action option.
+ */
+function actionOption(
+    kind: CollectionOption["kind"],
+    name: string,
+): CollectionOption {
+    return { kind, match: null, name, selected: false };
+}
+
+/**
+ * Lists combobox rows for the current search text.
+ * @param available - Every known collection, already sorted.
  * @param selected - Collections the book already belongs to.
  * @param rawQuery - Text typed in the combobox.
- * @returns Matching unchosen collections, then a create entry when useful.
+ * @returns Matching collections, then the create and new actions.
  */
 export function collectionOptions(
     available: string[],
     selected: string[],
     rawQuery: string,
 ): CollectionOption[] {
-    const FOLDED_QUERY = foldCollectionName(rawQuery.trim());
     const NEW_NAME = normalizeCollectionName(rawQuery);
-    const OPTIONS: CollectionOption[] = available
-        .filter((name) => !includesCollectionName(selected, name))
-        .filter((name) => matchesCollectionQuery(name, FOLDED_QUERY))
-        .map((name) => ({ isNew: false, name }));
+    const OPTIONS = existingOptions(available, selected, rawQuery);
     if (offersCreate(available, selected, NEW_NAME)) {
-        OPTIONS.push({ isNew: true, name: NEW_NAME });
+        OPTIONS.push(actionOption("create", NEW_NAME));
     }
+    OPTIONS.push(actionOption("new", ""));
     return OPTIONS;
+}
+
+/**
+ * Narrows the rows while the user names a new collection: no pinned "New
+ * collection…" row, and nothing at all until a name is typed.
+ * @param options - Rows from {@link collectionOptions}.
+ * @param rawQuery - Text typed in the combobox.
+ * @returns Rows to show in naming mode.
+ */
+export function namingOptions(
+    options: CollectionOption[],
+    rawQuery: string,
+): CollectionOption[] {
+    if (rawQuery.trim() === "") {
+        return [];
+    }
+    return options.filter((option) => option.kind !== "new");
 }

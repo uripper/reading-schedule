@@ -129,7 +129,10 @@ function removeSessionButton(
     const REMOVE_BUTTON = document.createElement("button");
     REMOVE_BUTTON.type = "button";
     REMOVE_BUTTON.className = "btn btn-icon btn-remove btn-session-remove";
-    REMOVE_BUTTON.textContent = "×";
+    const ICON = document.createElement("span");
+    ICON.className = "icon icon-x";
+    ICON.setAttribute("aria-hidden", "true");
+    REMOVE_BUTTON.append(ICON);
     REMOVE_BUTTON.setAttribute("aria-label", REMOVE_SESSION_LABEL);
     REMOVE_BUTTON.title = REMOVE_SESSION_LABEL;
     REMOVE_BUTTON.onclick = () => {

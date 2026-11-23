@@ -2,6 +2,7 @@ import type { BookFormRefs, BookStatus } from "@reading-schedule/contracts";
 import { setDateInputValue, syncDateInputDisabled } from "../date_control.ts";
 import { COVER_PLACEHOLDER, WORDS_PER_PAGE } from "./constants.ts";
 import { resolveCoverSource } from "./cover-source.ts";
+import { parseWordCount } from "./form_controls.ts";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
 import {
     BOOK_STATUS_DROPPED,
@@ -171,7 +172,7 @@ function lengthInputs(refs: BookFormRefs): {
         pagesRead: toOptionalInt(refs.pagesReadInput.value),
         pagesTotal: toOptionalInt(refs.pagesTotalInput.value),
         progress: clamp(Number(refs.progressInput.value), 0, PROGRESS_MAX),
-        wordsTotal: toOptionalInt(refs.wordsInput.value),
+        wordsTotal: parseWordCount(refs.wordsInput.value),
     };
 }
 

@@ -11,40 +11,35 @@ import type {
 } from "../../types/types.ts";
 import type {
     BindPickerEventsArgs,
-    CreateRefreshFilteredArgs,
     OpenForBookArgs,
     PickerActionDeps,
     PickerActions,
     SelectBookArgs,
 } from "./after-book-picker-types.ts";
 import { bindAfterBookPickerEvents } from "./after_book_picker_bindings.ts";
-import {
-    compareBooks,
-    labelsMatch,
-    matchesQuery,
-    optionLabel,
-} from "./after_book_picker_helpers.ts";
+import { createRefreshFiltered } from "./after_book_picker_filter.ts";
+import { compareBooks, optionLabel } from "./after_book_picker_helpers.ts";
 import { initializePickerForBook } from "./after_book_picker_open.ts";
 import {
-    FIRST_RESULT_INDEX,
     NO_ACTIVE_INDEX,
     renderAfterBookResults,
-    selectedBook,
 } from "./after_book_picker_render.ts";
+import { excludedAfterBookIds } from "./after_book_ranking.ts";
 
-/** Returns sorted picker candidates other than the book currently being edited. */
+/**
+ * Returns the books the edited book may come after: never itself, and never
+ * a book that already comes after it (that would make a cycle).
+ */
 function availablePickerOptions(
     currentBookId: string,
     getBooks: GetBooks,
 ): Book[] {
-    const AVAILABLE_BOOKS = getBooks().filter((book) => {
+    const BOOKS = getBooks();
+    const EXCLUDED = excludedAfterBookIds(BOOKS, currentBookId);
+    return BOOKS.filter((book) => {
         const BOOK_ID = String(book.book_id || "");
-        if (BOOK_ID === "") {
-            return false;
-        }
-        return BOOK_ID !== currentBookId;
-    });
-    return AVAILABLE_BOOKS.toSorted(compareBooks);
+        return BOOK_ID !== "" && !EXCLUDED.has(BOOK_ID);
+    }).toSorted(compareBooks);
 }
 
 /** Refreshes the cached option list from the latest bookshelf snapshot. */
@@ -63,54 +58,9 @@ function pickerActionDeps(args: PickerActionDeps): PickerActionDeps {
     return args;
 }
 
-/** Filters the available options with the current query string. */
-function nextFilteredBooks(options: Book[], query: string): Book[] {
-    return options.filter((book) => matchesQuery(book, query));
-}
-
-/** Chooses the next highlighted result index for the current filtered list. */
-function nextActiveIndex(filtered: Book[]): number {
-    if (filtered.length === 0) {
-        return NO_ACTIVE_INDEX;
-    }
-    return FIRST_RESULT_INDEX;
-}
-
 function dispatchBlockedByChange(refs: BookFormRefs): void {
     refs.blockedByInput.dispatchEvent(new Event("input", { bubbles: true }));
     refs.blockedByInput.dispatchEvent(new Event("change", { bubbles: true }));
-}
-
-/** Decides whether a query change invalidates the current selection. */
-function shouldClearChangedSelection(
-    args: CreateRefreshFilteredArgs,
-    clearChangedSelection: boolean,
-    query: string,
-): boolean {
-    if (!clearChangedSelection) {
-        return false;
-    }
-    const CURRENT = selectedBook(args.state);
-    if (!(query && CURRENT && labelsMatch(query, optionLabel(CURRENT)))) {
-        return true;
-    }
-    return false;
-}
-
-/** Creates the query-refresh handler used by typing and picker navigation. */
-function createRefreshFiltered(
-    args: CreateRefreshFilteredArgs,
-): (clearChangedSelection: boolean) => void {
-    return (clearChangedSelection: boolean): void => {
-        const QUERY = args.refs.afterBookInput.value.trim();
-        if (shouldClearChangedSelection(args, clearChangedSelection, QUERY)) {
-            args.clearSelection();
-        }
-        const STATE = args.state;
-        STATE.filtered = nextFilteredBooks(STATE.options, QUERY);
-        STATE.activeIndex = nextActiveIndex(STATE.filtered);
-        args.render();
-    };
 }
 
 /** Creates the mutable picker state for a book form session. */
@@ -194,6 +144,7 @@ function createOpenForBook(
 function bindPickerEvents(args: BindPickerEventsArgs): void {
     bindAfterBookPickerEvents({
         clearResults: args.clearResults,
+        clearSelection: args.clearSelection,
         refreshFiltered: args.refreshFiltered,
         refs: args.refs,
         render: args.render,
@@ -252,6 +203,7 @@ function createPickerActionDeps(
 function pickerActionsFor(args: PickerActionDeps): PickerActions {
     return pickerActionsResult({
         clearResults: args.clearResults,
+        clearSelection: args.clearSelection,
         openForBook: createPickerOpenForBookAction(args),
         refreshFiltered: createPickerRefreshFilteredAction(args),
         render: args.render,

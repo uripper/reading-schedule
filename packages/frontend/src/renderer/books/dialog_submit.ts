@@ -10,9 +10,12 @@ import { BOOK_SAVE_FAILURE_MESSAGE } from "../errors/index.ts";
 import { addLog } from "../help.ts";
 import { showBookProgressUnit } from "./dialog_progress_sync.ts";
 import { parseFormBook } from "./form-state.ts";
+import {
+    readScheduledDaySelection,
+    scheduledDayButtons,
+} from "./form_scheduled_days.ts";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
 
-const SCHEDULED_DAY_SELECTOR = 'input[type="checkbox"][data-book-weekday]';
 const SAVE_BUTTON_IDLE_LABEL = "Save Book";
 const SAVE_BUTTON_BUSY_LABEL = "Saving...";
 const EMPTY_TEXT = "";
@@ -104,32 +107,14 @@ function restoreLookupMetaText(refs: BookFormRefs): void {
     LOOKUP_META.textContent = LOOKUP_NOTE;
 }
 /**
- * Returns the first scheduled-day checkbox input in the dialog when present.
+ * Returns the first weekday toggle in the dialog when present.
  * @param refs - Resolved DOM references for the book dialog.
- * @returns First scheduled-day checkbox or `null` when unavailable.
+ * @returns First weekday toggle or `null` when unavailable.
  */
-function firstScheduledDayInput(refs: BookFormRefs): HTMLInputElement | null {
-    return refs.scheduledDaysField.querySelector<HTMLInputElement>(
-        SCHEDULED_DAY_SELECTOR,
-    );
+function firstScheduledDayButton(refs: BookFormRefs): HTMLElement | null {
+    return scheduledDayButtons(refs)[0] ?? null;
 }
 
-/**
- * Returns true when the user has selected at least one scheduled day.
- * @param refs - Resolved DOM references for the book dialog.
- * @returns `true` when any weekday checkbox is checked.
- */
-function hasSelectedScheduledDay(refs: BookFormRefs): boolean {
-    const INPUTS = refs.scheduledDaysField.querySelectorAll<HTMLInputElement>(
-        SCHEDULED_DAY_SELECTOR,
-    );
-    for (const INPUT of INPUTS) {
-        if (INPUT.checked) {
-            return true;
-        }
-    }
-    return false;
-}
 /** Opens the disclosure and selects the progress unit needed to reach a field. */
 function focusBookField(field: HTMLElement | null): void {
     if (field === null) {
@@ -160,8 +145,8 @@ function focusCustomValidationTarget(refs: BookFormRefs): void {
         focusBookField(refs.wordsInput);
         return;
     }
-    if (!hasSelectedScheduledDay(refs)) {
-        focusBookField(firstScheduledDayInput(refs));
+    if (readScheduledDaySelection(refs).length === 0) {
+        focusBookField(firstScheduledDayButton(refs));
         return;
     }
     if (refs.shelfSelectInput.value === SHELF_SELECT_CREATE_NEW) {

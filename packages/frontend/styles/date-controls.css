@@ -21,13 +21,10 @@
     white-space: nowrap;
 }
 
-.date-input-shell.is-open .date-input-field,
-.date-input-shell.is-open .date-input-clear {
-    border-color: color-mix(
-        in srgb,
-        var(--color-azure) 65%,
-        var(--color-black)
-    );
+.date-input-shell.is-open .date-input-field {
+    box-shadow:
+        inset 0 0 0 1px var(--app-control-border),
+        var(--app-control-focus-shadow);
 }
 
 .date-input-shell > .flatpickr-wrapper {
@@ -45,10 +42,10 @@
     padding: 12px;
     color: var(--color-black);
     text-align: center;
-    background: var(--color-paper);
-    border: var(--border-thick) solid var(--color-black);
-    border-radius: 12px;
-    box-shadow: var(--shadow-md);
+    background: var(--app-menu-surface);
+    border: var(--token-control-borderWidth) solid var(--app-control-border);
+    border-radius: var(--token-control-radius);
+    box-shadow: var(--app-menu-shadow);
 }
 
 dialog .flatpickr-calendar {
@@ -123,15 +120,20 @@ span.flatpickr-weekday {
     line-height: 1;
     color: var(--color-black);
     cursor: pointer;
-    background: var(--color-white);
+    background: var(--app-control-surface);
     border: var(--border-thin) solid var(--color-tan);
-    border-radius: 10px;
+    border-radius: var(--token-control-radius);
 }
 
 .flatpickr-day:hover,
 .flatpickr-day:focus-visible {
-    background: var(--color-paper);
-    border-color: var(--color-black);
+    background: var(--app-menu-highlight);
+    border-color: var(--app-control-border);
+}
+
+.flatpickr-day:focus-visible {
+    outline: var(--token-control-borderWidth) solid var(--app-control-border);
+    outline-offset: 0;
 }
 
 .flatpickr-day.today {
@@ -142,9 +144,9 @@ span.flatpickr-weekday {
 .flatpickr-day.startRange,
 .flatpickr-day.endRange {
     font-weight: var(--token-typography-weight-bold);
-    color: var(--color-black);
-    background: var(--color-yellow);
-    border-color: var(--color-black);
+    color: var(--app-accent-ink);
+    background: var(--app-accent);
+    border: var(--token-control-borderWidth) solid var(--app-control-border);
 }
 
 .flatpickr-day.prevMonthDay,
