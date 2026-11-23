@@ -15,9 +15,9 @@ import {
     DEFAULT_PRIORITY,
     DEFAULT_PROGRESS,
 } from "./form-state-helpers.ts";
-import { parseWordCount } from "./form_controls.ts";
 import { readScheduledDaySelection } from "./form_scheduled_days.ts";
 import { toOptionalInt } from "./utils.ts";
+import { parseWordCount } from "./word_count.ts";
 
 const BULK_DIRTY = "bulkDirty";
 const DIRTY_VALUE = "true";

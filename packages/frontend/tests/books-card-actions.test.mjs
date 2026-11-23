@@ -8,6 +8,10 @@ import { installFakeDom } from "./helpers/fake-dom.mjs";
 
 const BOOK_ID = "book-1";
 const FINISH_DATE = "2026-06-14";
+// Built independently of the formatter under test: June is month index 5.
+const FINISH_DATE_TEXT = new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+}).format(new Date(2026, 5, 14));
 
 function bookFixture() {
     return {
@@ -147,6 +151,20 @@ test("the After link is short with the full title in its tooltip", () => {
     }
 });
 
+test("finish dates format the day key as a medium local date", () => {
+    assert.equal(formatFinishDate(FINISH_DATE), FINISH_DATE_TEXT);
+    assert.equal(formatFinishDate("not-a-date"), "not-a-date");
+});
+
+test("finish dates read as a US date in an en-US locale", (context) => {
+    const LOCALE = new Intl.DateTimeFormat().resolvedOptions().locale;
+    if (LOCALE !== "en-US") {
+        context.skip(`default locale is ${LOCALE}`);
+        return;
+    }
+    assert.equal(formatFinishDate(FINISH_DATE), "Jun 14, 2026");
+});
+
 function chipLines(chip) {
     return chip.children.map((line) => line.textContent);
 }
@@ -162,10 +180,7 @@ test("read cards show a clickable finished date in the actions row", () => {
         assert.ok(BADGE);
         BADGE.click();
         assert.deepEqual(NAVIGATED_DATES, [FINISH_DATE]);
-        assert.deepEqual(chipLines(BADGE), [
-            "Finished",
-            formatFinishDate(FINISH_DATE),
-        ]);
+        assert.deepEqual(chipLines(BADGE), ["Finished", FINISH_DATE_TEXT]);
         assert.equal(ACTIONS.querySelector(".book-estimated-finish-btn"), null);
         assert.equal(ACTIONS.children[0], BADGE);
     } finally {
@@ -182,7 +197,7 @@ test("to-read cards show the estimated finish control instead of a badge", () =>
         assert.ok(ESTIMATE);
         assert.deepEqual(chipLines(ESTIMATE), [
             "Est. Finish",
-            formatFinishDate(FINISH_DATE),
+            FINISH_DATE_TEXT,
         ]);
         assert.match(ESTIMATE.getAttribute("aria-label"), /14.*2026/u);
         assert.equal(ACTIONS.querySelector(".book-finished-btn"), null);

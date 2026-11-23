@@ -2,7 +2,6 @@ import type { BookFormRefs, BookStatus } from "@reading-schedule/contracts";
 import { setDateInputValue, syncDateInputDisabled } from "../date_control.ts";
 import { COVER_PLACEHOLDER, WORDS_PER_PAGE } from "./constants.ts";
 import { resolveCoverSource } from "./cover-source.ts";
-import { parseWordCount } from "./form_controls.ts";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
 import {
     BOOK_STATUS_DROPPED,
@@ -11,6 +10,7 @@ import {
     BOOK_STATUS_TO_READ,
 } from "./status_catalog.ts";
 import { clamp, toOptionalInt } from "./utils.ts";
+import { parseWordCount } from "./word_count.ts";
 
 export const DEFAULT_PROGRESS = "0";
 export const DEFAULT_PRIORITY = "3";

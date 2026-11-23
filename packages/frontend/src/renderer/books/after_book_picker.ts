@@ -160,14 +160,22 @@ function createPickerSelectBookAction(
     return createSelectBook(args);
 }
 
-/** Builds the filter-refresh action from the shared picker dependencies. */
+/**
+ * Builds the filter-refresh action. Each refresh reloads candidates from the
+ * latest library so a book that became a descendant since the dialog opened
+ * is never offered.
+ */
 function createPickerRefreshFilteredAction(
     args: Pick<
         PickerActionDeps,
-        "clearSelection" | "refs" | "render" | "state"
+        "clearSelection" | "getBooks" | "refs" | "render" | "state"
     >,
 ): (clearChangedSelection: boolean) => void {
-    return createRefreshFiltered(args);
+    const REFRESH = createRefreshFiltered(args);
+    return (clearChangedSelection: boolean): void => {
+        refreshPickerOptions(args.state, args.getBooks);
+        REFRESH(clearChangedSelection);
+    };
 }
 
 /** Builds the open-for-book action and refreshes options on each open. */

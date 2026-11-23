@@ -40,6 +40,10 @@ function onArrow(args: BindingArgs, event: KeyboardEvent, step: number): void {
     event.preventDefault();
     if (!isOpen(args)) {
         args.refreshFiltered(false);
+        if (step === STEP_UP && isOpen(args)) {
+            args.state.activeIndex = args.state.filtered.length - 1;
+            args.render();
+        }
         return;
     }
     const STATE = args.state;

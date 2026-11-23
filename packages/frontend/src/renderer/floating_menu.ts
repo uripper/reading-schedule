@@ -5,6 +5,10 @@
  * edges, and shrinks to the room left in the window. Menus take the anchor's
  * width unless `data-floating-width="content"` is set. Browsers without the
  * Popover API fall back to the in-flow `has-items` menu.
+ *
+ * Each open period gets a generation number so a placement started before a
+ * close never lands after a reopen, and tracking stops by itself when a
+ * rerender removes the menu or its anchor without closing it.
  */
 import {
     autoUpdate,
@@ -26,10 +30,18 @@ const MAX_HEIGHT_TOKEN = "--token-control-menuMaxHeight";
 const FALLBACK_OFFSET_PX = 4;
 const FALLBACK_PADDING_PX = 8;
 const FALLBACK_MAX_HEIGHT_PX = 320;
-const MIN_MENU_HEIGHT_PX = 96;
 /** `data-floating-width` value that sizes a menu to its content. */
 export const CONTENT_WIDTH = "content";
 const STOP_TRACKING = new WeakMap<HTMLElement, () => void>();
+const GENERATION = new WeakMap<HTMLElement, number>();
+
+// audit-allow-local-types: Private arguments for one placement pass.
+type Placement = {
+    anchor: HTMLElement;
+    isCurrent: () => boolean;
+    matchAnchorWidth: boolean;
+    menu: HTMLElement;
+};
 
 // audit-allow-local-types: Private placement inputs read once per update.
 type MenuMetrics = {
@@ -77,16 +89,50 @@ function menuMetrics(menu: HTMLElement): MenuMetrics {
 }
 
 /**
- * Places the menu under its anchor, or above it when there is more room.
- * @param anchor - Field the menu belongs to.
- * @param menu - Open menu element.
- * @param matchAnchorWidth - Whether the menu takes the anchor's width.
+ * Starts a new open period so pending placements from older ones are ignored.
+ * @param menu - Menu element.
+ * @returns Check that is `true` while this period is still the current one.
  */
-async function placeMenu(
-    anchor: HTMLElement,
-    menu: HTMLElement,
-    matchAnchorWidth: boolean,
-): Promise<void> {
+function nextGeneration(menu: HTMLElement): () => boolean {
+    const CURRENT = (GENERATION.get(menu) ?? 0) + 1;
+    GENERATION.set(menu, CURRENT);
+    return () => GENERATION.get(menu) === CURRENT;
+}
+
+/**
+ * Caps the menu to the room left in the window, never past it.
+ * @param placement - Anchor, menu, width mode, and generation check.
+ * @param metrics - Height cap and viewport padding.
+ * @returns `size` middleware for this placement pass.
+ */
+function fitToViewport(placement: Placement, metrics: MenuMetrics) {
+    const { isCurrent, matchAnchorWidth, menu } = placement;
+    return size({
+        apply({ availableHeight, availableWidth, rects }) {
+            if (!isCurrent()) {
+                return;
+            }
+            const HEIGHT = Math.min(
+                metrics.maxHeightPx,
+                Math.max(0, availableHeight),
+            );
+            menu.style.maxHeight = `${HEIGHT}px`;
+            menu.style.maxWidth = `${availableWidth}px`;
+            if (matchAnchorWidth) {
+                menu.style.width = `${Math.min(rects.reference.width, availableWidth)}px`;
+            }
+        },
+        padding: metrics.paddingPx,
+    });
+}
+
+/**
+ * Places the menu under its anchor, or above it when there is more room.
+ * Results from a closed or replaced open period are dropped.
+ * @param placement - Anchor, menu, width mode, and generation check.
+ */
+async function placeMenu(placement: Placement): Promise<void> {
+    const { anchor, isCurrent, menu } = placement;
     const METRICS = menuMetrics(menu);
     const PADDING = METRICS.paddingPx;
     const POSITION = await computePosition(anchor, menu, {
@@ -94,24 +140,14 @@ async function placeMenu(
             offset(METRICS.offsetPx),
             flip({ padding: PADDING }),
             shift({ padding: PADDING }),
-            size({
-                apply({ availableHeight, availableWidth, rects }) {
-                    const HEIGHT = Math.min(
-                        METRICS.maxHeightPx,
-                        availableHeight,
-                    );
-                    menu.style.maxHeight = `${Math.max(MIN_MENU_HEIGHT_PX, HEIGHT)}px`;
-                    menu.style.maxWidth = `${availableWidth}px`;
-                    if (matchAnchorWidth) {
-                        menu.style.width = `${Math.min(rects.reference.width, availableWidth)}px`;
-                    }
-                },
-                padding: PADDING,
-            }),
+            fitToViewport(placement, METRICS),
         ],
         placement: "bottom-start",
         strategy: "fixed",
     });
+    if (!isCurrent()) {
+        return;
+    }
     menu.style.left = `${POSITION.x}px`;
     menu.style.top = `${POSITION.y}px`;
 }
@@ -145,8 +181,18 @@ function showMenu(
     if (STOP_TRACKING.has(menu)) {
         return;
     }
+    const IS_CURRENT = nextGeneration(menu);
     const UPDATE = (): void => {
-        placeMenu(anchor, menu, matchAnchorWidth).catch((error: unknown) => {
+        if (!menu.isConnected || !anchor.isConnected) {
+            hideMenu(menu);
+            return;
+        }
+        placeMenu({
+            anchor,
+            isCurrent: IS_CURRENT,
+            matchAnchorWidth,
+            menu,
+        }).catch((error: unknown) => {
             logError("Could not position the menu.", error);
         });
     };
@@ -158,6 +204,7 @@ function showMenu(
  * @param menu - Menu element.
  */
 function hideMenu(menu: HTMLElement): void {
+    nextGeneration(menu);
     STOP_TRACKING.get(menu)?.();
     STOP_TRACKING.delete(menu);
     if (menu.matches(POPOVER_OPEN_SELECTOR)) {

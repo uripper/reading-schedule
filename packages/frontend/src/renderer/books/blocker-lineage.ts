@@ -175,3 +175,38 @@ export function blockedDescendantIds(
     }
     return DESCENDANTS;
 }
+
+/**
+ * Checks whether a book's After Book changed between two library snapshots.
+ * @param book - Book in the new snapshot.
+ * @param previous - `blocked_by` by book id before the change.
+ * @returns `true` when the link is new or different.
+ */
+function blockerChanged(book: Book, previous: Map<string, string>): boolean {
+    const ID = normalizedBookId(book.book_id);
+    return previous.get(ID) !== normalizedBookId(book.blocked_by);
+}
+
+/**
+ * Rejects a save whose new After Book links make books wait on each other.
+ * The check runs against the latest library, so a choice that was valid when
+ * the picker opened but became a cycle since is still caught.
+ * @param before - Library before the save.
+ * @param after - Library the save would commit.
+ * @throws {Error} When a changed link closes a loop.
+ */
+export function assertNoNewBlockerCycle(before: Book[], after: Book[]): void {
+    const PREVIOUS = blockerIdsByBook(before);
+    const NEXT = blockerIdsByBook(after);
+    for (const BOOK of after) {
+        if (!blockerChanged(BOOK, PREVIOUS)) {
+            continue;
+        }
+        const ID = normalizedBookId(BOOK.book_id);
+        if (chainReaches(NEXT.get(ID) ?? "", ID, NEXT)) {
+            throw new Error(
+                `"${BOOK.title}" can't come after a book that already comes after it. Choose another After Book.`,
+            );
+        }
+    }
+}

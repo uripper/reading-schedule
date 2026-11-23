@@ -6,49 +6,12 @@
  */
 import type { BookFormRefs } from "../../types/types.ts";
 
+import { formatWordsInput } from "./word_count.ts";
+
 const PRESSED_ATTR = "aria-pressed";
 const PRIORITY_SEGMENTS_ID = "bookPrioritySegments";
 const DIFFICULTY_STEPPER_ID = "bookDifficultyStepper";
 const STEP_SELECTOR = "[data-step]";
-const NON_DIGITS = /\D/gu;
-const WORD_COUNT_FORMAT = new Intl.NumberFormat(undefined, {
-    maximumFractionDigits: 0,
-});
-
-/**
- * Reads a word count typed with or without thousands separators.
- * @param text - Field text such as `192,000` or `192000`.
- * @returns Whole number, or `null` when no digits were typed.
- */
-export function parseWordCount(text: string): number | null {
-    const DIGITS = String(text).replaceAll(NON_DIGITS, "");
-    if (DIGITS === "") {
-        return null;
-    }
-    return Number(DIGITS);
-}
-
-/**
- * Formats a word count with thousands separators for display.
- * @param value - Stored word count.
- * @returns Grouped number, or empty text when unset.
- */
-export function formatWordCount(value: number | null): string {
-    if (value === null || !Number.isFinite(value)) {
-        return "";
-    }
-    return WORD_COUNT_FORMAT.format(value);
-}
-
-/**
- * Rewrites the words field with thousands separators.
- * @param input - Estimated-words input.
- */
-export function formatWordsInput(input: HTMLInputElement): void {
-    const FIELD = input;
-    FIELD.value = formatWordCount(parseWordCount(FIELD.value));
-}
-
 /**
  * Tells listeners, such as mass-edit dirty tracking, that a value changed.
  * @param input - Input whose value was set by a control.
