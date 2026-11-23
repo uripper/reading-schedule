@@ -10,7 +10,25 @@ import {
 } from "../book_lookup/helpers.ts";
 import { releaseCoverUpload } from "./cover-upload-staging.ts";
 import { setCoverPreview } from "./form-state-helpers.ts";
-import { toOptionalInt } from "./utils.ts";
+import {
+    formatWordsInput,
+    isValidWordCount,
+    parseWordCount,
+} from "./word_count.ts";
+
+/**
+ * Checks whether a field already holds a positive count worth keeping.
+ * Invalid text counts as missing so a lookup estimate can replace it.
+ * @param text - Field text.
+ * @returns `true` when the field holds a positive count.
+ */
+function hasPositiveCount(text: string): boolean {
+    if (!isValidWordCount(text)) {
+        return false;
+    }
+    const VALUE = parseWordCount(text);
+    return VALUE !== null && VALUE > 0;
+}
 
 /**
  * Applies a positive lookup estimate to an input only when current value is missing.
@@ -22,8 +40,7 @@ function applyEstimateWhenMissing(
     estimate: number | undefined,
 ): void {
     const TARGET_INPUT = input;
-    const CURRENT_VALUE = toOptionalInt(TARGET_INPUT.value);
-    if (typeof CURRENT_VALUE === "number" && CURRENT_VALUE > 0) {
+    if (hasPositiveCount(TARGET_INPUT.value)) {
         return;
     }
     if (typeof estimate !== "number" || estimate <= 0) {
@@ -50,6 +67,7 @@ export function applyLookupItem(
     FORM_REFS.coverLocal.value = "";
 
     applyEstimateWhenMissing(FORM_REFS.wordsInput, item.words_estimate);
+    formatWordsInput(FORM_REFS.wordsInput);
     applyEstimateWhenMissing(FORM_REFS.pagesTotalInput, item.pages_estimate);
 
     const LOOKUP_NOTE = noteFromLookup(item);

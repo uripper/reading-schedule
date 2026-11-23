@@ -1,6 +1,9 @@
 import type { BookLookupItem } from "../../types/types.ts";
 import { lookupLanguageLabel } from "./language.ts";
 
+/** Options are reached with the arrow keys from the input, never with Tab. */
+const OPTION_TAB_INDEX = -1;
+
 interface RenderLookupResultsArgs {
     activeIndex: number;
     items: readonly BookLookupItem[];
@@ -171,6 +174,7 @@ function createLookupResultButton(options: {
     BUTTON.dataset.resultIndex = String(options.index);
     BUTTON.id = optionId(options.resultsEl, options.index);
     BUTTON.setAttribute("role", "option");
+    BUTTON.tabIndex = OPTION_TAB_INDEX;
     setResultActiveState(BUTTON, options.active);
     BUTTON.append(
         createCoverElement(options.item, options.placeholder),

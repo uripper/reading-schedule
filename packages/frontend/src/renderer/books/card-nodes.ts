@@ -16,8 +16,10 @@ import {
     progressLabel,
     wordsLabel,
 } from "./presenters.ts";
+import { BOOK_STATUS_TO_READ } from "./status_catalog.ts";
 
 const PRE_LINE_WHITESPACE = "pre-line";
+const PROGRESS_MAX_PERCENT = 100;
 const MASS_EDITABLE_CLASS = "is-mass-editable";
 const MASS_SELECTED_CLASS = "is-mass-selected";
 
@@ -49,6 +51,29 @@ function baseMetaText(book: Book, context: CardRenderContext): string {
 }
 
 /**
+ * Progress shows from In Progress onward; a To Read book has none to show.
+ * @param book - Book model.
+ * @returns `true` when the progress bar and page count belong on the card.
+ */
+function showsProgress(book: Book): boolean {
+    return book.status !== BOOK_STATUS_TO_READ;
+}
+
+/**
+ * Creates the card's progress bar.
+ * @param book - Book model.
+ * @returns Progress element.
+ */
+function cardProgressNode(book: Book): HTMLProgressElement {
+    const BAR = document.createElement("progress");
+    BAR.className = "book-card-progress";
+    BAR.max = PROGRESS_MAX_PERCENT;
+    BAR.value = Number(book.progress_percent) || 0;
+    BAR.setAttribute("aria-label", "Reading progress");
+    return BAR;
+}
+
+/**
  * Builds the list of stat lines shown inside a card.
  * @param book - Book model used for progress and word labels.
  * @param metaText - Meta label text already resolved for the card.
@@ -60,9 +85,10 @@ function cardStatLines(
     metaText: string,
     showWordCount: boolean,
 ): CardStatLine[] {
-    const LINES: CardStatLine[] = [
-        { preserveLineBreaks: false, text: progressLabel(book) },
-    ];
+    const LINES: CardStatLine[] = [];
+    if (showsProgress(book)) {
+        LINES.push({ preserveLineBreaks: false, text: progressLabel(book) });
+    }
     if (showWordCount) {
         LINES.push({ preserveLineBreaks: false, text: wordsLabel(book) });
     }
@@ -118,13 +144,7 @@ function appendBlockerButton(
     if (BLOCKER === null) {
         return;
     }
-    stats.append(
-        afterBookLinkButton(
-            BLOCKER.label,
-            BLOCKER.blockerBookId,
-            scrollToBookCard,
-        ),
-    );
+    stats.append(afterBookLinkButton(BLOCKER, scrollToBookCard));
 }
 /**
  * Builds the stats section for one book card.
@@ -137,6 +157,9 @@ function cardStatsNode(book: Book, context: CardRenderContext): HTMLDivElement {
     STATS.className = "book-stats";
     const META_TEXT = baseMetaText(book, context);
     const STAT_LINES = cardStatLines(book, META_TEXT, context.showWordCount);
+    if (showsProgress(book)) {
+        STATS.append(cardProgressNode(book));
+    }
     appendCardStatLines(STATS, STAT_LINES);
     appendBlockerButton(STATS, book, context);
     return STATS;

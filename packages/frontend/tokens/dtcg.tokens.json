@@ -93,5 +93,51 @@
             "regular": { "$type": "fontWeight", "$value": "400" },
             "semibold": { "$type": "fontWeight", "$value": "600" }
         }
+    },
+    "control": {
+        "$description": "Shared shape for inputs, selects, comboboxes, chips, toggles and menus.",
+        "borderWidth": { "$type": "dimension", "$value": "2px" },
+        "chipGap": { "$type": "dimension", "$value": "4px" },
+        "focusOffset": { "$type": "dimension", "$value": "4px" },
+        "menuMaxHeight": { "$type": "dimension", "$value": "320px" },
+        "menuOffset": { "$type": "dimension", "$value": "4px" },
+        "menuViewportPadding": { "$type": "dimension", "$value": "8px" },
+        "radius": { "$type": "dimension", "$value": "4px" },
+        "thumbHeight": { "$type": "dimension", "$value": "48px" },
+        "thumbWidth": { "$type": "dimension", "$value": "32px" }
+    },
+    "semantic": {
+        "$description": "Role-based aliases emitted as --app-*; colors reference palette.css variables.",
+        "accent": { "$type": "string", "$value": "var(--color-glacier)" },
+        "accent-ink": { "$type": "string", "$value": "var(--color-black)" },
+        "control-border": { "$type": "string", "$value": "var(--color-black)" },
+        "control-ink": { "$type": "string", "$value": "var(--color-black)" },
+        "control-placeholder": {
+            "$type": "string",
+            "$value": "var(--color-umber)"
+        },
+        "control-surface": {
+            "$type": "string",
+            "$value": "var(--color-white)"
+        },
+        "control-surface-muted": {
+            "$type": "string",
+            "$value": "var(--color-paper)"
+        },
+        "control-disabled-surface": {
+            "$type": "string",
+            "$value": "var(--color-gray-light)"
+        },
+        "control-focus-shadow": {
+            "$type": "string",
+            "$value": "var(--token-control-focusOffset) var(--token-control-focusOffset) 0 var(--color-black)"
+        },
+        "danger": { "$type": "string", "$value": "var(--color-salmon)" },
+        "menu-highlight": {
+            "$type": "string",
+            "$value": "var(--color-glacier)"
+        },
+        "menu-shadow": { "$type": "string", "$value": "var(--shadow-md)" },
+        "menu-surface": { "$type": "string", "$value": "var(--color-paper)" }
     }
 }

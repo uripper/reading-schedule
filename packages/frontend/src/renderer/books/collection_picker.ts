@@ -1,7 +1,9 @@
 /**
- * Book-form collection picker. A searchable dropdown adds existing or new
- * collections, and the book's collections sit underneath as removable chips,
- * which are the source of truth for what gets saved.
+ * Book-form collection picker. The book's collections show as removable
+ * chips inside the field, which are the source of truth for what gets saved.
+ * The menu lists every matching collection, marks the chosen ones, and ends
+ * with explicit create actions. Choosing a row is handled in
+ * `collection_picker_choose.ts`.
  */
 import type {
     Book,
@@ -18,6 +20,7 @@ import {
     canonicalCollectionName,
     collectionOptions,
     includesCollectionName,
+    namingOptions,
 } from "./collection_options.ts";
 import {
     CHIP_CLASS,
@@ -28,6 +31,8 @@ import {
 } from "./collection_picker_render.ts";
 
 const FIRST_OPTION = 0;
+/** Placeholder while searching collections. */
+export const COLLECTION_SEARCH_PLACEHOLDER = "Search or add collections";
 const STATE_BY_FIELD = new WeakMap<HTMLElement, CollectionPickerState>();
 
 /**
@@ -46,6 +51,7 @@ export function collectionPickerState(
         activeIndex: NO_ACTIVE_OPTION,
         available: [],
         initial: [],
+        naming: false,
         open: false,
         options: [],
     };
@@ -87,11 +93,15 @@ function defaultActiveIndex(refs: BookFormRefs, optionCount: number): number {
  */
 export function refreshCollectionOptions(refs: BookFormRefs): void {
     const STATE = collectionPickerState(refs);
+    const QUERY = refs.collectionInput.value;
     STATE.options = collectionOptions(
         STATE.available,
         readCollectionSelection(refs),
-        refs.collectionInput.value,
+        QUERY,
     );
+    if (STATE.naming) {
+        STATE.options = namingOptions(STATE.options, QUERY);
+    }
     STATE.activeIndex = defaultActiveIndex(refs, STATE.options.length);
     renderCollectionResults(refs, STATE);
 }
@@ -124,7 +134,9 @@ export function renderCollectionPicker(
     const STATE = collectionPickerState(FORM_REFS);
     STATE.available = uniqueCollections(books);
     STATE.initial = normalizeCollections(selected);
+    STATE.naming = false;
     FORM_REFS.collectionInput.value = "";
+    FORM_REFS.collectionInput.placeholder = COLLECTION_SEARCH_PLACEHOLDER;
     renderCollectionChips(FORM_REFS, STATE.initial);
     setCollectionOptionsOpen(FORM_REFS, false);
 }
@@ -147,7 +159,9 @@ export function addCollectionToForm(refs: BookFormRefs, rawName: string): void {
     }
     const SELECTED = [...readCollectionSelection(FORM_REFS), CANONICAL];
     renderCollectionChips(FORM_REFS, normalizeCollections(SELECTED));
+    STATE.naming = false;
     FORM_REFS.collectionInput.value = "";
+    FORM_REFS.collectionInput.placeholder = COLLECTION_SEARCH_PLACEHOLDER;
     refreshCollectionOptions(FORM_REFS);
 }
 
@@ -165,20 +179,4 @@ export function removeCollectionFromForm(
     });
     renderCollectionChips(refs, REMAINING);
     refreshCollectionOptions(refs);
-}
-
-/**
- * Adds the option at a position, as when it is clicked or chosen with Enter.
- * @param refs - Book form references for the collection controls.
- * @param index - Option position.
- */
-export function chooseCollectionOption(
-    refs: BookFormRefs,
-    index: number,
-): void {
-    const OPTION = collectionPickerState(refs).options[index];
-    if (OPTION === undefined) {
-        return;
-    }
-    addCollectionToForm(refs, OPTION.name);
 }

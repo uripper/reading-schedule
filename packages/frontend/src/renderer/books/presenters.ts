@@ -1,9 +1,11 @@
 /** Formats book card text: progress, word counts, metadata, and subtitles. */
 import type { BlockerMeta, Book, BookMetaOptions } from "../../types/types.ts";
-import { normalizeCollections } from "./collection.ts";
 import { WORDS_PER_PAGE } from "./constants.ts";
 import { shelfLabelForBook } from "./shelf.ts";
 import { formatInt } from "./utils.ts";
+
+/** Separator between a main title and its subtitle: a colon or a spaced dash. */
+const SUBTITLE_SEPARATOR = /:|\s[-–—]\s/u;
 
 /**
  * Checks whether an optional numeric value is a positive finite number.
@@ -46,19 +48,6 @@ function shelfMetaPart(
 }
 
 /**
- * Builds collection metadata text for books in at least one collection.
- * @param book - Book to describe.
- * @returns Comma-separated collections, or `null` when there are none.
- */
-function collectionsMetaPart(book: Book): string | null {
-    const COLLECTIONS = normalizeCollections(book.collections);
-    if (COLLECTIONS.length === 0) {
-        return null;
-    }
-    return `Collections: ${COLLECTIONS.join(", ")}`;
-}
-
-/**
  * Appends a metadata part when it is present.
  * @param bits - Metadata parts collected so far.
  * @param value - Candidate metadata part.
@@ -67,6 +56,20 @@ function pushMetaPart(bits: string[], value: string | null): void {
     if (value !== null) {
         bits.push(value);
     }
+}
+
+/**
+ * Shortens a title for the card's "After:" line by dropping a subtitle after
+ * a colon or dash. The card truncates whatever is left with an ellipsis.
+ * @param title - Full book title.
+ * @returns Main title.
+ */
+export function shortBookTitle(title: string): string {
+    const MAIN = title.split(SUBTITLE_SEPARATOR)[0]?.trim() ?? "";
+    if (MAIN === "") {
+        return title.trim();
+    }
+    return MAIN;
 }
 
 /**
@@ -90,7 +93,8 @@ export function blockerMeta(
     }
     return {
         blockerBookId: BLOCKER_BOOK_ID,
-        label: `After: ${blockerLabel}`,
+        fullTitle: blockerLabel,
+        label: `After: ${shortBookTitle(blockerLabel)}`,
     };
 }
 
@@ -144,7 +148,8 @@ export function wordsLabel(book: Book): string {
 }
 
 /**
- * Builds metadata lines: due date, blockers, shelf, and collections.
+ * Builds metadata lines: due date, blockers, and shelf. Collections are left
+ * to the Library's collection filter.
  * @param book - Book to present.
  * @param options - Optional context used to resolve titles.
  * @returns Joined metadata text for card subtitle line.
@@ -157,7 +162,6 @@ export function metaLabel(book: Book, options: BookMetaOptions = {}): string {
         pushMetaPart(BITS, blockerMetaPart(book, TITLE_BY_ID));
     }
     pushMetaPart(BITS, shelfMetaPart(book, options.showShelfMeta));
-    pushMetaPart(BITS, collectionsMetaPart(book));
     return BITS.join("\n");
 }
 

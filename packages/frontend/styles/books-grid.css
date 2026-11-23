@@ -49,3 +49,24 @@
     background: var(--color-peach);
     border: var(--border-thick) dashed var(--color-black);
 }
+
+/*
+ * Cards in one grid row share row tracks (subgrid), so cover, title, author,
+ * status, stats, and the Est. Finish/Edit footer line up across the row no
+ * matter how long each title is. A card spans six rows: the cover plus the
+ * five `.book-meta` rows. Without subgrid, cards keep their own flex layout.
+ */
+@supports (grid-template-rows: subgrid) {
+    :is(.books-grid:not(.is-grouped), .books-group-row) > .book-card {
+        display: grid;
+        grid-row: span 6;
+        grid-template-rows: subgrid;
+        row-gap: 0;
+    }
+
+    :is(.books-grid:not(.is-grouped), .books-group-row) .book-meta {
+        grid-row: span 5;
+        grid-template-rows: subgrid;
+        row-gap: var(--token-space-2);
+    }
+}

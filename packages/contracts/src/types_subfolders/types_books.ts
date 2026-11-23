@@ -108,6 +108,9 @@ export interface BookGroup {
 
 export interface BlockerMeta {
     blockerBookId: string;
+    /** Full title of the book this one comes after, for its tooltip. */
+    fullTitle: string;
+    /** Short card text, such as `After: Dune`. */
     label: string;
 }
 

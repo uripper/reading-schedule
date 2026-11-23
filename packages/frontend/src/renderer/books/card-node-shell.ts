@@ -185,20 +185,6 @@ function editBookButton(bookId: string): HTMLButtonElement {
 }
 
 /**
- * Creates the remove button for a book card.
- * @param bookId - Book identifier used by card actions.
- * @returns Configured remove button element.
- */
-function removeBookButton(bookId: string): HTMLButtonElement {
-    const REMOVE_BTN = document.createElement("button");
-    REMOVE_BTN.className = "btn btn-remove rm-btn remove-book-btn";
-    REMOVE_BTN.type = "button";
-    REMOVE_BTN.dataset.bookId = bookId;
-    REMOVE_BTN.textContent = "Remove";
-    return REMOVE_BTN;
-}
-
-/**
  * Creates the stacked card command buttons.
  * @param bookId - Book identifier used by card actions.
  * @returns Configured command stack element.
@@ -206,7 +192,7 @@ function removeBookButton(bookId: string): HTMLButtonElement {
 function cardCommandStackNode(bookId: string): HTMLDivElement {
     const STACK = document.createElement("div");
     STACK.className = "book-card-command-stack";
-    STACK.append(editBookButton(bookId), removeBookButton(bookId));
+    STACK.append(editBookButton(bookId));
     return STACK;
 }
 

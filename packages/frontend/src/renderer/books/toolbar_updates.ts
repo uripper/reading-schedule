@@ -16,6 +16,8 @@ import {
     shelfFilterOptions,
 } from "./toolbar_options.ts";
 
+const FILTERED_CLASS = "is-filtered";
+
 /**
  * Marks the active half of the sort direction toggle and updates its label.
  * @param sortDirectionBtn - Sort direction toggle button.
@@ -60,7 +62,17 @@ function replaceFilterOptions(
         nextValue = selectedValue;
     }
     NEXT_SELECT.value = nextValue;
+    markFiltered(NEXT_SELECT, nextValue !== FIRST_OPTION?.value);
     return nextValue;
+}
+
+/**
+ * Gives an active filter the accent so it stands out in the toolbar.
+ * @param select - Filter select element.
+ * @param filtered - Whether the filter narrows the library.
+ */
+function markFiltered(select: HTMLSelectElement, filtered: boolean): void {
+    select.classList.toggle(FILTERED_CLASS, filtered);
 }
 
 /**
@@ -128,6 +140,7 @@ export function updateStatusFilterOptions(
         nextValue = SELECTED.value;
     }
     NEXT_STATUS_FILTER_SELECT.value = nextValue;
+    markFiltered(NEXT_STATUS_FILTER_SELECT, nextValue !== FIRST_OPTION?.value);
     return nextValue;
 }
 

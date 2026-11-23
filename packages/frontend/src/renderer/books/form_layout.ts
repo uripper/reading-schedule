@@ -1,8 +1,13 @@
 /** Builds the book form controls whose choices come from the library model. */
 import { el } from "../dom.ts";
-import { BOOK_WEEKDAYS } from "./scheduled_days.ts";
+import {
+    createApplyScheduledDaysToShelfLabel,
+    createScheduledDaysField,
+} from "./form_layout_schedule.ts";
 import { SHELF_SELECT_CREATE_NEW } from "./shelf.ts";
 import { statusOptions } from "./status_catalog.ts";
+
+const SHELF_HELP_ID = "bookShelfCollectionsHelp";
 
 /**
  * Creates shelf select field with built-in create-shelf option.
@@ -14,6 +19,7 @@ function createShelfSelectLabel(): HTMLLabelElement {
 
     const SELECT = document.createElement("select");
     SELECT.id = "bookShelfSelectInput";
+    SELECT.setAttribute("aria-describedby", SHELF_HELP_ID);
     const UNSHELVED_OPTION = document.createElement("option");
     UNSHELVED_OPTION.value = "";
     UNSHELVED_OPTION.textContent = "Unshelved";
@@ -33,44 +39,67 @@ function createCollectionInput(): HTMLInputElement {
     const INPUT = document.createElement("input");
     INPUT.id = "bookCollectionInput";
     INPUT.type = "text";
-    INPUT.placeholder = "Search or create a collection";
     INPUT.autocomplete = "off";
     INPUT.setAttribute("role", "combobox");
     INPUT.setAttribute("aria-autocomplete", "list");
     INPUT.setAttribute("aria-expanded", "false");
     INPUT.setAttribute("aria-controls", "bookCollectionResults");
     INPUT.setAttribute("aria-haspopup", "listbox");
+    INPUT.setAttribute("aria-describedby", SHELF_HELP_ID);
     return INPUT;
 }
 
 /**
- * Creates the collections field: a searchable dropdown with the book's
- * collections listed underneath as removable chips.
- * @returns Container holding the combobox, its options, and the chips.
+ * Creates the field box that holds the chips and the search input, styled
+ * as one input.
+ * @returns Combobox field box.
  */
-function createCollectionsField(): HTMLDivElement {
-    const FIELD = document.createElement("div");
-    FIELD.id = "bookCollectionsField";
-    FIELD.className = "book-collections";
-
-    const LABEL = document.createElement("label");
-    LABEL.className = "book-collection-picker";
-    LABEL.textContent = "Collections";
-    const RESULTS = document.createElement("div");
-    RESULTS.id = "bookCollectionResults";
-    RESULTS.className = "book-search-results";
-    RESULTS.setAttribute("role", "listbox");
-    RESULTS.setAttribute("aria-label", "Collection options");
-    LABEL.append(createCollectionInput(), RESULTS);
-
+function createCollectionBox(): HTMLDivElement {
+    const BOX = document.createElement("div");
+    BOX.className = "combobox-field control-focus-ring";
     const CHIPS = document.createElement("div");
     CHIPS.id = "bookCollectionChips";
     CHIPS.className = "book-collection-chips";
     CHIPS.setAttribute("role", "group");
     CHIPS.setAttribute("aria-label", "Selected collections");
+    BOX.append(CHIPS, createCollectionInput());
+    return BOX;
+}
 
-    FIELD.append(LABEL, CHIPS);
+/**
+ * Creates the collections field: chips inside a searchable field, with the
+ * menu promoted to the top layer when open.
+ * @returns Container holding the label, field, and menu.
+ */
+function createCollectionsField(): HTMLDivElement {
+    const FIELD = document.createElement("div");
+    FIELD.id = "bookCollectionsField";
+    FIELD.className = "book-collections book-collection-picker";
+    const LABEL = document.createElement("label");
+    LABEL.className = "book-field-label";
+    LABEL.htmlFor = "bookCollectionInput";
+    LABEL.textContent = "Collections";
+    const RESULTS = document.createElement("div");
+    RESULTS.id = "bookCollectionResults";
+    RESULTS.className = "book-search-results";
+    RESULTS.setAttribute("role", "listbox");
+    RESULTS.setAttribute("aria-multiselectable", "true");
+    RESULTS.setAttribute("aria-label", "Collection options");
+    FIELD.append(LABEL, createCollectionBox(), RESULTS);
     return FIELD;
+}
+
+/**
+ * Creates the note explaining shelves versus collections.
+ * @returns Helper paragraph.
+ */
+function createShelfCollectionsHelp(): HTMLParagraphElement {
+    const HELP = document.createElement("p");
+    HELP.id = SHELF_HELP_ID;
+    HELP.className = "book-field-help";
+    HELP.textContent =
+        "A book lives on one shelf but can be in any number of collections.";
+    return HELP;
 }
 
 /**
@@ -114,60 +143,6 @@ function createFinishedAtLabel(): HTMLLabelElement {
 }
 
 /**
- * Creates the scheduled-days fieldset with weekday checkbox controls.
- * @returns Fieldset node for selecting per-book scheduled weekdays.
- */
-function createScheduledDaysField(): HTMLFieldSetElement {
-    const FIELDSET = document.createElement("fieldset");
-    FIELDSET.id = "bookScheduledDaysField";
-    FIELDSET.className = "book-scheduled-days";
-
-    const LEGEND = document.createElement("legend");
-    LEGEND.textContent = "Scheduled Days";
-    FIELDSET.append(LEGEND);
-
-    const DAYS = document.createElement("div");
-    DAYS.className = "book-scheduled-days-grid";
-
-    for (const WEEKDAY of BOOK_WEEKDAYS) {
-        const LABEL = document.createElement("label");
-        LABEL.className = "btn btn-compact book-scheduled-day";
-
-        const INPUT = document.createElement("input");
-        INPUT.type = "checkbox";
-        INPUT.value = WEEKDAY;
-        INPUT.checked = true;
-        INPUT.dataset.bookWeekday = "1";
-
-        LABEL.append(INPUT, document.createTextNode(WEEKDAY));
-        DAYS.append(LABEL);
-    }
-
-    FIELDSET.append(DAYS);
-
-    return FIELDSET;
-}
-
-/**
- * Creates a toggle used to apply weekday changes across same-shelf books.
- * @returns Labeled checkbox node for shelf-wide weekday propagation.
- */
-function createApplyScheduledDaysToShelfLabel(): HTMLLabelElement {
-    const LABEL = document.createElement("label");
-    LABEL.className = "toggle-row book-apply-days-toggle";
-
-    const INPUT = document.createElement("input");
-    INPUT.id = "bookApplyScheduledDaysToShelfInput";
-    INPUT.type = "checkbox";
-
-    const TEXT = document.createElement("span");
-    TEXT.textContent = "Apply scheduled days to all books on this shelf";
-
-    LABEL.append(INPUT, TEXT);
-    return LABEL;
-}
-
-/**
  * Places the dynamic fields in their corresponding dialog sections.
  */
 export function ensureBookFormLayoutFields(): void {
@@ -183,6 +158,7 @@ export function ensureBookFormLayoutFields(): void {
     el("bookShelfCollectionsFields").append(
         createShelfSelectLabel(),
         createCollectionsField(),
+        createShelfCollectionsHelp(),
     );
     el("bookSchedulingFields").append(
         createScheduledDaysField(),

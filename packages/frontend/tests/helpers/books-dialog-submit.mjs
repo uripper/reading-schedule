@@ -88,14 +88,29 @@ function fakeInput(value = "") {
     return INPUT;
 }
 
+/** Weekday toggle buttons store their state in `aria-pressed`. */
+function pressedDayButton(value) {
+    const ATTRIBUTES = new Map([["aria-pressed", "true"]]);
+    return {
+        focus() {},
+        getAttribute(name) {
+            return ATTRIBUTES.get(name) ?? null;
+        },
+        setAttribute(name, next) {
+            ATTRIBUTES.set(name, String(next));
+        },
+        value,
+    };
+}
+
 function checkedScheduledDaysField() {
-    const CHECKBOX = { checked: true, value: "Mon" };
+    const BUTTON = pressedDayButton("Mon");
     return {
         querySelector() {
-            return CHECKBOX;
+            return BUTTON;
         },
         querySelectorAll() {
-            return [CHECKBOX];
+            return [BUTTON];
         },
     };
 }

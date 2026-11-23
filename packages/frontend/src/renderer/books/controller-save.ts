@@ -4,6 +4,7 @@ import type {
     BookDialogSubmitPayload,
     BookSubmitPayload,
 } from "../../types/types.ts";
+import { assertNoNewBlockerCycle } from "./blocker-lineage.ts";
 import {
     applyBulkBookSave,
     isBulkBookSubmitPayload,
@@ -32,13 +33,24 @@ function nextBooksAfterBulkSave(
     return applyBulkBookSave(books, payload);
 }
 
-/** Computes the saved library snapshot without image work. */
+/**
+ * Computes the saved library snapshot without image work, rejecting After
+ * Book links that would loop in the current library.
+ * @param books - Latest library books.
+ * @param payload - Dialog submit payload.
+ * @returns Next library books.
+ * @throws {Error} When the save would create an After Book cycle.
+ */
 export function nextBooksAfterDialogSave(
     books: Book[],
     payload: BookDialogSubmitPayload,
 ): Book[] {
+    let nextBooks: Book[];
     if (isBulkBookSubmitPayload(payload)) {
-        return nextBooksAfterBulkSave(books, payload);
+        nextBooks = nextBooksAfterBulkSave(books, payload);
+    } else {
+        nextBooks = nextBooksAfterSingleSave(books, payload);
     }
-    return nextBooksAfterSingleSave(books, payload);
+    assertNoNewBlockerCycle(books, nextBooks);
+    return nextBooks;
 }

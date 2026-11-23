@@ -4,13 +4,12 @@ import type {
     SyncLibrarySearchOptions,
 } from "@reading-schedule/contracts";
 import { uid } from "../dom.ts";
+import { syncFloatingMenu } from "../floating_menu.ts";
 import { syncElement } from "./dom.ts";
 import { rankSyncLibrary } from "./matching.ts";
 import { bindSyncSearchKeys } from "./search-keys.ts";
 
 const MAX_SEARCH_RESULTS = 20;
-const MIN_RESULT_SPACE_PX = 96;
-const DROPDOWN_EDGE_GAP_PX = 8;
 // audit-allow-local-types: Derived DOM references and dropdown state are renderer-private.
 type SearchNodes = ReturnType<typeof searchNodes>;
 
@@ -99,26 +98,8 @@ function showResults(
     }
     NODES.results.hidden = false;
     NODES.input.setAttribute("aria-expanded", "true");
-    positionResults(NODES);
+    syncFloatingMenu(NODES.results, NODES.input, true);
     highlightResult(NODES, false);
-}
-
-/** Opens upward near the bottom of the scrolling review instead of clipping results. */
-function positionResults(nodes: SearchNodes): void {
-    const FIELD = nodes.input.getBoundingClientRect();
-    const BOUNDS = nodes.root
-        .closest<HTMLElement>(".sync-review-list")
-        ?.getBoundingClientRect();
-    const BELOW = (BOUNDS?.bottom ?? globalThis.innerHeight) - FIELD.bottom;
-    const ABOVE = FIELD.top - (BOUNDS?.top ?? 0);
-    const OPEN_UP = BELOW < MIN_RESULT_SPACE_PX && ABOVE > BELOW;
-    let available = BELOW;
-    if (OPEN_UP) {
-        available = ABOVE;
-    }
-    nodes.results.classList.toggle("opens-up", OPEN_UP);
-    const RESULTS = nodes.results;
-    RESULTS.style.maxHeight = `min(14rem, ${Math.max(available - DROPDOWN_EDGE_GAP_PX, MIN_RESULT_SPACE_PX)}px)`;
 }
 
 /** Keeps the active result visible and reflected in screen-reader selection state. */
@@ -142,6 +123,7 @@ function highlightResult(nodes: SearchNodes, scroll: boolean): void {
 /** Closes the dropdown without dismissing the surrounding sync dialog. */
 function hideResults(nodes: SearchNodes): void {
     const NODES = nodes;
+    syncFloatingMenu(NODES.results, NODES.input, false);
     NODES.results.hidden = true;
     NODES.input.setAttribute("aria-expanded", "false");
     NODES.input.setAttribute("aria-activedescendant", "");

@@ -1,0 +1,192 @@
+/*
+ * Shared neobrutalist form controls built from the control tokens: segmented
+ * toggles, the stepper, unit suffixes, a field with an inline action, and the
+ * chip-holding combobox field. Unselected = white, black border and text;
+ * selected = the accent fill.
+ */
+
+/* Segmented control: buttons joined into one bordered strip. */
+.segmented {
+    display: inline-flex;
+    min-width: 0;
+    margin-top: var(--token-space-1);
+    overflow: hidden;
+    background: var(--app-control-surface);
+    border: var(--token-control-borderWidth) solid var(--app-control-border);
+    border-radius: var(--token-control-radius);
+}
+
+.segmented-option {
+    flex: 1 1 0;
+    min-width: var(--button-compact-height);
+    min-height: var(--button-compact-height);
+    padding: 0 var(--token-space-2);
+    font: inherit;
+    font-weight: var(--token-typography-weight-extrabold);
+    color: var(--app-control-ink);
+    cursor: pointer;
+    background: var(--app-control-surface);
+    border: 0;
+    border-inline-start: var(--token-control-borderWidth) solid
+        var(--app-control-border);
+}
+
+.segmented-option:first-child {
+    border-inline-start: 0;
+}
+
+.segmented-option[aria-pressed="true"] {
+    color: var(--app-accent-ink);
+    background: var(--app-accent);
+}
+
+.segmented-option:focus-visible {
+    position: relative;
+    outline: var(--border-thick) solid var(--app-control-border);
+    outline-offset: calc(-1 * var(--border-thick));
+}
+
+/* Stepper: minus, the value, plus. */
+.stepper {
+    display: grid;
+    grid-template-columns: auto minmax(3ch, 1fr) auto;
+    gap: var(--token-space-1);
+    align-items: center;
+    margin-top: var(--token-space-1);
+}
+
+.stepper > input {
+    margin: 0;
+    text-align: center;
+    appearance: textfield;
+}
+
+.stepper > input::-webkit-inner-spin-button,
+.stepper > input::-webkit-outer-spin-button {
+    appearance: none;
+}
+
+.stepper-btn {
+    min-height: var(--token-size-target-minimum);
+    inline-size: var(--token-size-target-minimum);
+    background-color: var(--app-control-surface);
+}
+
+/* A unit (such as "min") shown inside the end of a field. */
+.input-suffix-field,
+.input-action-field {
+    position: relative;
+    display: block;
+}
+
+.input-suffix-field > input {
+    padding-inline-end: calc(var(--token-space-3) + 4ch);
+}
+
+.input-suffix {
+    position: absolute;
+    inset-block: var(--token-space-1) 0;
+    inset-inline-end: var(--token-space-3);
+    display: flex;
+    align-items: center;
+    font-weight: var(--token-typography-weight-bold);
+    color: var(--app-control-placeholder);
+    text-transform: none;
+    pointer-events: none;
+}
+
+/* A field with an icon button (such as clear) at its end. */
+.input-action-field > input {
+    padding-inline-end: calc(
+        var(--button-compact-height) + var(--token-space-3)
+    );
+}
+
+.input-action-field > .btn {
+    position: absolute;
+    inset-block-start: calc(50% + var(--token-space-1) / 2);
+    inset-inline-end: var(--token-space-1);
+    transform: translateY(-50%);
+}
+
+/* Combobox field: chips and the search input inside one input-like box. */
+.combobox-field {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-control-chipGap);
+    align-items: center;
+    min-height: var(--token-size-target-minimum);
+    padding: var(--token-space-1) var(--token-space-2);
+    margin-top: var(--token-space-1);
+    cursor: text;
+    background: var(--app-control-surface);
+    border: var(--token-control-borderWidth) solid var(--app-control-border);
+    border-radius: var(--token-control-radius);
+}
+
+.combobox-field > input,
+.book-form-section .combobox-field > input:not([type="hidden"]) {
+    flex: 1 1 10ch;
+    width: auto;
+    min-height: var(--button-compact-height);
+    padding: 0 var(--token-space-1);
+    margin: 0;
+    background: transparent;
+    border: 0;
+}
+
+.combobox-field > input:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.book-result-icon {
+    --icon-size: 1.1em;
+}
+
+.book-result.book-collection-option {
+    grid-template-columns: auto minmax(0, 1fr);
+}
+
+.book-collection-option.is-existing[aria-selected="false"] .book-result-icon {
+    visibility: hidden;
+}
+
+.book-collection-option.is-create,
+.book-collection-option.is-new {
+    font-weight: var(--token-typography-weight-extrabold);
+}
+
+/* "New collection…" is pinned to the bottom of the scrolling menu. */
+.book-collection-option.is-new {
+    position: sticky;
+    bottom: 0;
+    background: var(--app-menu-surface);
+    border-top: var(--token-control-borderWidth) solid var(--app-control-border);
+}
+
+.book-collection-option.is-new.is-active,
+.book-collection-option.is-new:hover {
+    background: var(--app-menu-highlight);
+}
+
+.book-result.after-book-option {
+    grid-template-columns: var(--token-control-thumbWidth) minmax(0, 1fr);
+}
+
+.book-result-thumb {
+    width: var(--token-control-thumbWidth);
+    height: var(--token-control-thumbHeight);
+    object-fit: contain;
+    background: var(--color-black);
+    border: var(--border-thin) solid var(--app-control-border);
+    border-radius: var(--token-control-radius);
+}
+
+.after-book-option .book-result-title,
+.after-book-option .book-result-meta {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

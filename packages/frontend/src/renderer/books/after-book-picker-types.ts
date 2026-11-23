@@ -29,6 +29,7 @@ export interface OpenForBookArgs {
 
 export interface BindPickerEventsArgs {
     clearResults: () => void;
+    clearSelection: () => void;
     refreshFiltered: (clearChangedSelection: boolean) => void;
     refs: BookFormRefs;
     render: () => void;
@@ -38,6 +39,7 @@ export interface BindPickerEventsArgs {
 
 export interface PickerActions {
     clearResults: () => void;
+    clearSelection: () => void;
     openForBook: (book?: Book | null) => void;
     refreshFiltered: (clearChangedSelection: boolean) => void;
     render: () => void;

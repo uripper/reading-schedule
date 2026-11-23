@@ -41,12 +41,14 @@ function setShellOpen(input: HTMLInputElement, isOpen: boolean): void {
     inputShell(input)?.classList.toggle(OPEN_CLASS, isOpen);
 }
 
+/** Shows Clear only while the field holds a date it may clear. */
 function syncClearButton(input: HTMLInputElement): void {
     const BUTTON = clearButton(input);
     if (BUTTON === null) {
         return;
     }
     BUTTON.disabled = input.disabled || input.value.trim() === "";
+    BUTTON.hidden = BUTTON.disabled;
 }
 
 function dispatchDateChange(input: HTMLInputElement): void {
@@ -218,6 +220,7 @@ function bindBrowserPickerEvents(
     clearButton?.addEventListener("click", () => {
         clearDateInputValue(input);
         closeDatePicker(input);
+        input.focus();
     });
     bindInputKeys(input, options, () => {
         openDatePicker(input);
@@ -281,10 +284,7 @@ export function syncDateInputDisabled(
 ): void {
     const TARGET_INPUT = input;
     TARGET_INPUT.disabled = disabled;
-    const CLEAR = clearButton(TARGET_INPUT);
-    if (CLEAR !== null) {
-        CLEAR.disabled = disabled || input.value.trim() === "";
-    }
+    syncClearButton(TARGET_INPUT);
     syncDatePickerDisabled(TARGET_INPUT, disabled);
     if (disabled) {
         return;

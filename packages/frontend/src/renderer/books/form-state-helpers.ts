@@ -10,6 +10,7 @@ import {
     BOOK_STATUS_TO_READ,
 } from "./status_catalog.ts";
 import { clamp, toOptionalInt } from "./utils.ts";
+import { parseWordCount } from "./word_count.ts";
 
 export const DEFAULT_PROGRESS = "0";
 export const DEFAULT_PRIORITY = "3";
@@ -171,7 +172,7 @@ function lengthInputs(refs: BookFormRefs): {
         pagesRead: toOptionalInt(refs.pagesReadInput.value),
         pagesTotal: toOptionalInt(refs.pagesTotalInput.value),
         progress: clamp(Number(refs.progressInput.value), 0, PROGRESS_MAX),
-        wordsTotal: toOptionalInt(refs.wordsInput.value),
+        wordsTotal: parseWordCount(refs.wordsInput.value),
     };
 }
 

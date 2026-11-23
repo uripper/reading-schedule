@@ -17,6 +17,7 @@ import {
 } from "./form-state-helpers.ts";
 import { readScheduledDaySelection } from "./form_scheduled_days.ts";
 import { toOptionalInt } from "./utils.ts";
+import { parseWordCount } from "./word_count.ts";
 
 const BULK_DIRTY = "bulkDirty";
 const DIRTY_VALUE = "true";
@@ -67,7 +68,7 @@ function textUpdates(refs: BookFormRefs): BookInput {
 function numericUpdates(refs: BookFormRefs): BookInput {
     const UPDATES: BookInput = {};
     if (isDirty(refs.wordsInput)) {
-        UPDATES.words_total = toOptionalInt(refs.wordsInput.value);
+        UPDATES.words_total = parseWordCount(refs.wordsInput.value);
     }
     if (isDirty(refs.pagesTotalInput)) {
         UPDATES.pages_total = toOptionalInt(refs.pagesTotalInput.value);

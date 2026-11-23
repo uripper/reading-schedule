@@ -1,5 +1,6 @@
 /** Builds the Schedule card’s Library disclosure. */
 import { revealBookInLibrary } from "../books/controller.ts";
+import { CONTENT_WIDTH, syncFloatingMenu } from "../floating_menu.ts";
 
 /** Closes the disclosure when focus leaves its trigger and action. */
 function closeOnBlur(menu: HTMLDetailsElement, event: FocusEvent): void {
@@ -18,7 +19,10 @@ function menuTrigger(): HTMLElement {
     const TRIGGER = document.createElement("summary");
     TRIGGER.className = "btn btn-icon btn-quiet day-session-menu-trigger";
     TRIGGER.setAttribute("aria-label", "Session actions");
-    TRIGGER.textContent = "⋯";
+    const ICON = document.createElement("span");
+    ICON.className = "icon icon-ellipsis";
+    ICON.setAttribute("aria-hidden", "true");
+    TRIGGER.append(ICON);
     return TRIGGER;
 }
 
@@ -53,6 +57,11 @@ export function sessionMenu(bookId: string): HTMLDetailsElement {
             TRIGGER.focus();
         }
     };
-    MENU.append(TRIGGER, libraryAction(bookId, MENU));
+    const ACTION = libraryAction(bookId, MENU);
+    ACTION.dataset.floatingWidth = CONTENT_WIDTH;
+    MENU.addEventListener("toggle", () => {
+        syncFloatingMenu(ACTION, TRIGGER, MENU.open);
+    });
+    MENU.append(TRIGGER, ACTION);
     return MENU;
 }

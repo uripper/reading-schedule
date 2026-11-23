@@ -142,7 +142,7 @@ test("toolbar collection filter falls back when its collection disappears", () =
     });
 });
 
-test("book cards list a book's collections", () => {
-    assert.match(metaLabel(LIBRARY[0]), /Collections: Classics, Summer/);
+test("book cards leave collections to the Library filter", () => {
+    assert.equal(metaLabel(LIBRARY[0]).includes("Collections"), false);
     assert.equal(metaLabel(LIBRARY[2]).includes("Collections"), false);
 });

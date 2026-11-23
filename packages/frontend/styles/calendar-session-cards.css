@@ -153,6 +153,14 @@
     white-space: nowrap;
 }
 
+/* In the top layer, floating-ui places it; drop the in-flow offsets. */
+.day-session-menu .day-session-library[popover] {
+    position: fixed;
+    inset: auto;
+    width: max-content;
+    margin: 0;
+}
+
 @container (max-width: 320px) {
     .day-details-item {
         grid-template-columns: minmax(0, 1fr);
@@ -180,8 +188,7 @@
     margin: 0;
     padding: 0 var(--token-space-1);
     font-size: var(--token-typography-size-md);
-    border-width: var(--border-regular);
-    border-radius: var(--token-radius-sm);
+    border-width: var(--token-control-borderWidth);
 }
 
 .btn-session-edit.is-saving::before {
