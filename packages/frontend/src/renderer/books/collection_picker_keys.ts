@@ -1,16 +1,18 @@
 /**
  * Keyboard handling for the collection combobox: arrows move the highlight,
- * Enter adds, Escape closes, and Backspace on an empty search removes the last
- * chip.
+ * typing filters (type-ahead), Enter applies the highlighted row, Escape
+ * closes the menu (and leaves naming mode), and Backspace on an empty search
+ * removes the last chip.
  */
 import type { BookFormRefs } from "../../types/types.ts";
 import {
-    chooseCollectionOption,
+    COLLECTION_SEARCH_PLACEHOLDER,
     collectionPickerState,
     readCollectionSelection,
     removeCollectionFromForm,
     setCollectionOptionsOpen,
 } from "./collection_picker.ts";
+import { chooseCollectionOption } from "./collection_picker_choose.ts";
 import {
     NO_ACTIVE_OPTION,
     renderCollectionResults,
@@ -85,11 +87,14 @@ function onEnter(refs: BookFormRefs, event: KeyboardEvent): void {
  * @param event - Escape key event.
  */
 function onEscape(refs: BookFormRefs, event: KeyboardEvent): void {
-    if (!collectionPickerState(refs).open) {
+    const STATE = collectionPickerState(refs);
+    if (!STATE.open && !STATE.naming) {
         return;
     }
     event.preventDefault();
     event.stopPropagation();
+    STATE.naming = false;
+    refs.collectionInput.placeholder = COLLECTION_SEARCH_PLACEHOLDER;
     setCollectionOptionsOpen(refs, false);
 }
 

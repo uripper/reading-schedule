@@ -1,16 +1,17 @@
 /**
  * Pointer and focus handling for the collection combobox: focus, clicks, and
- * typing open the list, clicking an option adds it, clicking a chip removes
- * that collection, and clicking elsewhere closes the list. Keys are handled in
+ * typing open the menu, clicking a row applies it, clicking a chip removes
+ * that collection, clicking the field's empty space focuses the search, and
+ * clicking elsewhere or tabbing away closes the menu. Keys are handled in
  * `collection_picker_keys.ts`.
  */
 import type { BookFormRefs } from "../../types/types.ts";
 import {
-    chooseCollectionOption,
     collectionPickerState,
     removeCollectionFromForm,
     setCollectionOptionsOpen,
 } from "./collection_picker.ts";
+import { chooseCollectionOption } from "./collection_picker_choose.ts";
 import { handleCollectionKey } from "./collection_picker_keys.ts";
 import {
     CHIP_CLASS,
@@ -49,6 +50,11 @@ function bindInputEvents(refs: BookFormRefs): void {
     refs.collectionInput.addEventListener("input", OPEN);
     refs.collectionInput.addEventListener("keydown", (event) => {
         handleCollectionKey(refs, event);
+    });
+    refs.collectionInput.addEventListener("blur", () => {
+        if (collectionPickerState(refs).open) {
+            setCollectionOptionsOpen(refs, false);
+        }
     });
 }
 
@@ -94,6 +100,11 @@ function bindChipEvents(refs: BookFormRefs): void {
             refs.collectionInput.focus();
         }
     });
+    refs.collectionChips.parentElement?.addEventListener("click", (event) => {
+        if (event.target === event.currentTarget) {
+            refs.collectionInput.focus();
+        }
+    });
 }
 
 /**
@@ -107,6 +118,7 @@ function bindChipEvents(refs: BookFormRefs): void {
 function isPickerClick(refs: BookFormRefs, event: MouseEvent): boolean {
     const PATH = event.composedPath();
     return [
+        refs.collectionsField,
         refs.collectionInput,
         refs.collectionResults,
         refs.collectionChips,

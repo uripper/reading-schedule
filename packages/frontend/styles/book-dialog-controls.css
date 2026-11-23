@@ -39,28 +39,17 @@
     align-items: end;
 }
 
+/* Pages Read (or Progress %) with the small Pages / % toggle beside it. */
 .book-progress-edit {
-    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--token-space-2);
+    align-items: end;
     min-width: 0;
-    padding-block-start: var(--token-space-2);
 }
 
 .book-progress-units {
-    position: absolute;
-    inset-block-start: 0;
-    inset-inline-end: 0;
-    display: flex;
-    gap: var(--token-space-1);
-}
-
-.book-progress-units .btn {
-    min-height: var(--button-compact-height);
-    padding: 0 var(--token-space-1);
-    font-size: var(--token-typography-size-md);
-}
-
-.book-progress-units .btn[aria-pressed="true"] {
-    background-color: var(--button-blue);
+    height: var(--token-size-target-minimum);
 }
 
 #bookProgressMeter {
@@ -115,54 +104,72 @@
 }
 
 .book-collection-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--token-space-1);
-}
-
-.book-collection-chips:empty {
-    display: none;
+    display: contents;
 }
 
 .book-collection-chip {
     gap: var(--token-space-1);
     max-width: 100%;
-    font-size: var(--book-text-size);
-    color: var(--button-ink);
-    background-color: var(--button-blue);
+    min-height: calc(var(--button-compact-height) - var(--token-space-1));
+    padding-inline: var(--token-space-2);
+    font-size: var(--token-typography-size-md);
+    color: var(--app-accent-ink);
+    text-transform: none;
+    background-color: var(--app-accent);
 }
 
-.book-collection-create-option {
-    font-style: italic;
+.book-collection-chip .icon {
+    --icon-size: 1em;
 }
 
+.book-field-label,
+.book-control-field {
+    min-width: 0;
+}
+
+.book-field-help {
+    grid-column: 1 / -1;
+    font-size: var(--token-typography-size-md);
+    color: var(--color-umber);
+}
+
+/* Weekday toggles: cream and black when off, accent with a check when on. */
 .book-scheduled-days .book-scheduled-day {
-    position: relative;
+    gap: var(--token-space-1);
     padding-inline: var(--token-space-1);
     font-size: var(--book-text-size);
-    color: var(--button-green-ink);
-    background-color: var(--button-ink);
+    color: var(--app-control-ink);
+    background-color: var(--app-control-surface-muted);
+    border-color: var(--app-control-border);
 }
 
-.book-scheduled-days .book-scheduled-day:has(input:checked) {
-    color: var(--button-ink);
-    background-color: var(--button-blue);
+.book-scheduled-days .book-scheduled-day[aria-pressed="true"] {
+    color: var(--app-accent-ink);
+    background-color: var(--app-accent);
 }
 
-.book-scheduled-day input {
-    position: absolute;
-    inset: 0;
-    height: 100%;
-    min-height: 0;
-    margin: 0;
-    cursor: inherit;
-    opacity: 0;
+.book-scheduled-day-check {
+    --icon-size: 1em;
 }
 
-.book-apply-days-toggle input {
-    width: auto;
-    min-height: auto;
-    margin-inline-end: var(--token-space-1);
+.book-scheduled-day[aria-pressed="false"] .book-scheduled-day-check {
+    display: none;
+}
+
+.book-form-section .book-apply-days-toggle {
+    text-transform: none;
+}
+
+/* Remove book: a quiet danger action, away from Save and Cancel. */
+.book-form-actions > .book-remove-btn {
+    margin-inline-end: auto;
+    color: var(--app-control-ink);
+    text-decoration: underline;
+}
+
+.book-form-actions > .book-remove-btn:hover {
+    background: var(--app-danger);
+    border-color: var(--app-control-border);
 }
 
 @media (width <= 560px) {

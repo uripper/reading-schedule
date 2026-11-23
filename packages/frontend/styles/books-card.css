@@ -44,7 +44,12 @@
     transform: translate(-4px, -4px);
 }
 
+/* Covers sit in a fixed 2:3 frame and are never cropped. */
 .book-cover-btn {
+    --book-cover-height: 300px;
+
+    display: grid;
+    place-items: center;
     padding: 0;
     margin: 0;
     cursor: pointer;
@@ -53,17 +58,22 @@
     border-bottom: var(--border-thick) solid var(--color-black);
 }
 
+.book-cover-btn img,
+.book-cover-btn .cover-fallback {
+    width: auto;
+    max-width: 100%;
+    height: var(--book-cover-height);
+    aspect-ratio: 2 / 3;
+}
+
 .book-cover-btn img {
     display: block;
-    width: 100%;
-    height: 300px;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .book-cover-btn .cover-fallback {
     display: grid;
     place-content: center;
-    height: 300px;
     padding: var(--token-space-3);
     font-size: var(--token-typography-size-md);
     color: var(--color-white);
@@ -110,11 +120,7 @@
     box-shadow: var(--shadow-sm);
 }
 
-/*
- * Status icons are Material Icons glyphs (pause, play_arrow, check, close),
- * Apache License 2.0, https://github.com/google/material-design-icons.
- * They are inlined as masks so they work offline and follow currentColor.
- */
+/* Status icons are vendored Lucide masks (see styles/icons.css). */
 .book-status-pill::before {
     display: block;
     flex: none;
@@ -126,25 +132,25 @@
 }
 
 .book-status-pill.is-to_read {
-    --status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 19h4V5H6v14zm8-14v14h4V5h-4z'/%3E%3C/svg%3E");
+    --status-icon: var(--icon-bookmark);
 
     background: var(--color-glacier);
 }
 
 .book-status-pill.is-in_progress {
-    --status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E");
+    --status-icon: var(--icon-book-open);
 
     background: var(--color-amber);
 }
 
 .book-status-pill.is-read {
-    --status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+    --status-icon: var(--icon-book-check);
 
     background: var(--color-pistachio);
 }
 
 .book-status-pill.is-dropped {
-    --status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/%3E%3C/svg%3E");
+    --status-icon: var(--icon-circle-x);
 
     background: var(--color-salmon);
 }
@@ -152,13 +158,42 @@
 .book-stats {
     display: grid;
     gap: 4px;
+    align-content: start;
     font-size: var(--token-typography-size-md);
     font-weight: var(--token-typography-weight-bold);
     color: var(--color-black);
     white-space: pre-line;
 }
 
+.book-card-progress {
+    width: 100%;
+    height: 0.75rem;
+    overflow: hidden;
+    appearance: none;
+    background: var(--app-control-surface);
+    border: var(--token-control-borderWidth) solid var(--app-control-border);
+    border-radius: var(--token-control-radius);
+}
+
+.book-card-progress::-webkit-progress-bar {
+    background: var(--app-control-surface);
+}
+
+.book-card-progress::-webkit-progress-value {
+    background: var(--color-forest);
+}
+
+.book-card-progress::-moz-progress-bar {
+    background: var(--color-forest);
+}
+
+/* Short "After:" link, cut with an ellipsis; the tooltip has the full title. */
 .book-after-link-btn {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     padding: 0;
     margin: 0;
     font: inherit;

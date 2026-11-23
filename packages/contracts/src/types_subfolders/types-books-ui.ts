@@ -68,10 +68,34 @@ export interface BookFormRefs {
     wordsInput: HTMLInputElement;
 }
 
-/** One entry in the collection combobox: an existing name or a new one to create. */
+/**
+ * Kind of collection combobox row: an existing collection, the "Create
+ * <typed name>" action, or the always-present "New collection…" action.
+ */
+export type CollectionOptionKind = "existing" | "create" | "new";
+
+/** Characters of a name that matched the search, as a half-open range. */
+export interface TextMatchRange {
+    end: number;
+    start: number;
+}
+
+/** A search hit: where it is in the original text and how well it ranks. */
+export interface TextMatch {
+    range: TextMatchRange;
+    /** Lower sorts first: a word-start hit outranks a mid-word one. */
+    rank: number;
+}
+
+/** One row in the collection combobox. */
 export interface CollectionOption {
-    isNew: boolean;
+    kind: CollectionOptionKind;
+    /** Matched characters to highlight, or `null` when nothing was typed. */
+    match: TextMatchRange | null;
+    /** Collection name; the typed name for "create", empty for "new". */
     name: string;
+    /** Whether the book is already in this collection. */
+    selected: boolean;
 }
 
 /** Collection combobox state; the chosen names live in the chip list. */
@@ -80,12 +104,19 @@ export interface CollectionPickerState {
     available: string[];
     /** Chips shown when the form opened; mass edit saves the difference. */
     initial: string[];
+    /** Set after choosing "New collection…" with nothing typed yet. */
+    naming: boolean;
     open: boolean;
     options: CollectionOption[];
 }
 
 export interface BookDialogOptions {
     getBooks?(): Book[];
+    /**
+     * Asks to remove a book (with confirmation) from the edit dialog.
+     * Resolves `true` when the book was removed.
+     */
+    onRemove?: (bookId: string) => Promise<boolean>;
 }
 
 export interface LookupControl {
@@ -149,6 +180,16 @@ export interface OptionDefinition {
     value: string;
 }
 
+/** What the After Book picker knows about the book being edited. */
+export interface AfterBookRankContext {
+    /** Collections currently chosen in the form. */
+    collections: string[];
+    /** Ids that must not be offered: the book itself and cycle-makers. */
+    excludedIds: ReadonlySet<string>;
+    /** Shelf currently chosen in the form; empty when unshelved. */
+    shelf: string;
+}
+
 export interface PickerState {
     activeIndex: number;
     currentBookId: string;
@@ -159,16 +200,12 @@ export interface PickerState {
 
 export interface BindingArgs {
     clearResults(this: void): void;
+    clearSelection(this: void): void;
     refreshFiltered(clearChangedSelection: boolean): void;
     refs: BookFormRefs;
     render(): void;
     selectBook(book: Book | null | undefined): void;
     state: PickerState;
-}
-
-export interface PickerInteraction {
-    targetIsInput: boolean;
-    targetIsInResults: boolean;
 }
 
 export type GetBooks = () => Book[];
@@ -191,7 +228,6 @@ export interface CardNavigationActions {
 export interface CardHandlers {
     onEdit(this: void, bookId: string): void;
     onMassEditSelection?(bookId: string, selected: boolean): void;
-    onRemove(this: void, bookId: string): void;
 }
 
 export interface BookMassEditOptions {
@@ -226,7 +262,6 @@ export interface RenderBookGridOptions {
     massEdit?: BookMassEditOptions;
     onEdit(this: void, bookId: string): void;
     onEstimatedFinishNavigate(dateKey: string): void;
-    onRemove(this: void, bookId: string): void;
     showBlockerMeta?: boolean;
     showShelfMeta?: boolean;
     showWordCount?: boolean;
@@ -253,6 +288,13 @@ export interface BooksControllerRefs {
     statusFilterSelect: HTMLSelectElement | null;
     titleFilterInput: HTMLInputElement | null;
     toolbar: HTMLElement | null;
+}
+
+/** Library hooks needed to remove a book from outside the grid. */
+export interface RemoveBookDeps {
+    findBook(bookId: string): Book | null;
+    getBooks(): Book[];
+    onRemoved(nextBooks: Book[]): void;
 }
 
 export interface BookDialogController {

@@ -6,6 +6,8 @@ import { SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from "./sort.ts";
 import { GROUP_OPTIONS_BASE, SORT_OPTIONS } from "./toolbar_options.ts";
 
 const SEARCH_PLACEHOLDER = "Search title, author, etc...";
+/** Adds the collections icon so the filter is easy to find. */
+const COLLECTION_FIELD_CLASS = "books-control-field-collection";
 
 /**
  * Creates a standard `<option>` element.
@@ -169,10 +171,11 @@ function filterControls() {
     );
     const SHELF = createLabeledSelect("Shelf", "booksShelfFilterSelect", []);
     const COLLECTION = createLabeledSelect(
-        "Collection",
+        "Collections",
         "booksCollectionFilterSelect",
         [],
     );
+    COLLECTION.select.parentElement?.classList.add(COLLECTION_FIELD_CLASS);
     const STATUS = createLabeledSelect("Status", "booksStatusFilterSelect", []);
     return {
         collection: COLLECTION,

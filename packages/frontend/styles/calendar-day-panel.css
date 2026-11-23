@@ -115,15 +115,6 @@
     color: var(--color-black);
 }
 
-.day-details input,
-.day-details select,
-.day-details textarea {
-    color: var(--color-paper);
-    background: var(--color-black);
-    border: var(--border-thick) solid var(--color-black);
-    border-radius: 16px;
-}
-
 .day-progress-field input {
     margin-top: 0;
 }
@@ -135,12 +126,6 @@
 
 .day-details .hint-text {
     color: var(--color-white);
-}
-
-.day-details input:focus-visible,
-.day-details select:focus-visible,
-.day-details textarea:focus-visible {
-    filter: brightness(1.08);
 }
 
 @media (max-width: 1320px) {

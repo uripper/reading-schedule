@@ -34,10 +34,13 @@ import {
     bindBookDialogProgressSync,
     renderBookDialogProgress,
 } from "./dialog_progress_sync.ts";
+import { bindBookDialogRemove } from "./dialog_remove.ts";
 import { bindBookDialogSubmit } from "./dialog_submit.ts";
 import { applyLookupItem } from "./form-state-lookup.ts";
+import { bindBookFormControls } from "./form_controls.ts";
 import { ensureBookFormLayoutFields } from "./form_layout.ts";
 import { getBookFormRefs } from "./form_refs.ts";
+import { bindScheduledDayToggles } from "./form_scheduled_days.ts";
 import { bindShelfPicker } from "./shelf_picker.ts";
 
 /**
@@ -219,6 +222,7 @@ function bindNavigationHandler(options: {
 function bindDialogInteractions(options: {
     close: () => void;
     createPayload: () => BookDialogSubmitPayload;
+    onRemove: BookDialogOptions["onRemove"];
     onSubmit: (payload: BookDialogSubmitPayload) => Promise<void> | void;
     refs: ReturnType<typeof getBookFormRefs>;
 }): void {
@@ -235,6 +239,9 @@ function bindDialogInteractions(options: {
         options.close,
     );
     bindBookDialogProgressSync(options.refs);
+    bindBookFormControls(options.refs);
+    bindScheduledDayToggles(options.refs);
+    bindBookDialogRemove(options.refs, options.onRemove, options.close);
 }
 
 /**
@@ -259,6 +266,7 @@ export function createBookDialog(
     bindDialogInteractions({
         close: HANDLERS.close,
         createPayload: () => dialogSubmitPayload(REFS, SESSION_STATE),
+        onRemove: options.onRemove,
         onSubmit,
         refs: REFS,
     });

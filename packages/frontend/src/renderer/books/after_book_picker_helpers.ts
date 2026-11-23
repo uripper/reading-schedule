@@ -1,4 +1,4 @@
-import type { Book, PickerInteraction } from "../../types/types.ts";
+import type { Book } from "../../types/types.ts";
 
 const NO_ACTIVE_INDEX = -1;
 
@@ -52,19 +52,6 @@ export function wrapIndex(index: number, length: number): number {
 }
 
 /**
- * Checks whether a book option matches the current picker query.
- * @param book - Book option.
- * @param query - Current input query.
- * @returns True when query is empty or label includes query text.
- */
-export function matchesQuery(book: Book, query: string): boolean {
-    if (!query) {
-        return true;
-    }
-    return optionLabel(book).toLowerCase().includes(query.toLowerCase());
-}
-
-/**
  * Resolves the picker result button element from an event target.
  * @param event - Mouse/keyboard event from picker UI.
  * @returns Matched result element or null.
@@ -84,24 +71,4 @@ export function lookupResultTarget(event: Event): HTMLElement | null {
  */
 export function labelsMatch(left: string, right: string): boolean {
     return left.trim().toLowerCase() === right.trim().toLowerCase();
-}
-
-/**
- * Determines whether picker dropdown should remain open for a click target.
- * @param root0 - Interaction location flags.
- * @param targetIsInput - True when click target is the picker input.
- * @param targetIsInResults - True when click target is inside result list.
- * @returns True when picker should stay open.
- */
-export function shouldKeepPickerOpen({
-    targetIsInput,
-    targetIsInResults,
-}: PickerInteraction): boolean {
-    if (targetIsInput) {
-        return true;
-    }
-    if (targetIsInResults) {
-        return true;
-    }
-    return false;
 }

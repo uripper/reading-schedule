@@ -51,21 +51,17 @@ function bindBookActions(args: {
     grid: HTMLElement;
     massEdit: RenderBookGridOptions["massEdit"];
     onEdit: RenderBookGridOptions["onEdit"];
-    onRemove: RenderBookGridOptions["onRemove"];
 }): void {
     bindCardEvents(args.grid, {
         onEdit: (bookId: string): void => {
             args.onEdit(bookId);
         },
         onMassEditSelection: args.massEdit?.onBookSelectionChange,
-        onRemove: (bookId: string): void => {
-            args.onRemove(bookId);
-        },
     });
 }
 
 /**
- * Renders book cards (grouped or flat) and wires edit/remove handlers.
+ * Renders book cards (grouped or flat) and wires edit handlers.
  * @param args - Render options and callbacks.
  */
 export function renderBookGrid(args: RenderBookGridOptions): void {
@@ -83,6 +79,5 @@ export function renderBookGrid(args: RenderBookGridOptions): void {
         grid: args.grid,
         massEdit: args.massEdit,
         onEdit: args.onEdit,
-        onRemove: args.onRemove,
     });
 }

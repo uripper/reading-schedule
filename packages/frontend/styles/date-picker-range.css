@@ -24,7 +24,7 @@
 
 .date-picker-range .flatpickr-day.startRange.endRange,
 .date-picker-range .flatpickr-day.selected {
-    border-radius: 10px;
+    border-radius: var(--token-control-radius);
 }
 
 .date-picker-range-footer {

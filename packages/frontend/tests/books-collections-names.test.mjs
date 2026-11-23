@@ -50,7 +50,7 @@ test("collection picker never offers to create a sentinel name", () => {
     for (const SENTINEL of SENTINELS) {
         const OPTIONS = collectionOptions(["Classics"], [], SENTINEL);
         assert.equal(
-            OPTIONS.some((option) => option.isNew),
+            OPTIONS.some((option) => option.kind === "create"),
             false,
         );
     }
@@ -62,14 +62,19 @@ test("folding drops case and accents", () => {
 });
 
 test("collection search ignores accents and case like name comparison", () => {
-    assert.deepEqual(collectionOptions(["Café"], [], "cafe"), [
-        { isNew: false, name: "Café" },
+    const NAMES = (options) =>
+        options.map((option) => [option.kind, option.name, option.match]);
+    assert.deepEqual(NAMES(collectionOptions(["Café"], [], "cafe")), [
+        ["existing", "Café", { end: 4, start: 0 }],
+        ["new", "", null],
     ]);
-    assert.deepEqual(collectionOptions(["cafe"], [], "CAFÉ"), [
-        { isNew: false, name: "cafe" },
+    assert.deepEqual(NAMES(collectionOptions(["cafe"], [], "CAFÉ")), [
+        ["existing", "cafe", { end: 4, start: 0 }],
+        ["new", "", null],
     ]);
-    assert.deepEqual(collectionOptions(["Café", "Summer"], [], "caf"), [
-        { isNew: false, name: "Café" },
-        { isNew: true, name: "caf" },
+    assert.deepEqual(NAMES(collectionOptions(["Café", "Summer"], [], "caf")), [
+        ["existing", "Café", { end: 3, start: 0 }],
+        ["create", "caf", null],
+        ["new", "", null],
     ]);
 });

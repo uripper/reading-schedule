@@ -1,18 +1,21 @@
 /**
- * Draws the collection combobox: its option list (styled like the After Book
- * picker) and the chosen collections as removable chips underneath.
+ * Draws the collection combobox: its menu (shown in the top layer next to
+ * the field) and the chosen collections as removable chips inside the field.
  */
 import type {
     BookFormRefs,
     CollectionOption,
     CollectionPickerState,
 } from "../../types/types.ts";
+import { syncFloatingMenu } from "../floating_menu.ts";
+import { highlightedLabel } from "./text_match.ts";
 
 export const NO_ACTIVE_OPTION = -1;
 export const OPTION_INDEX_KEY = "collectionOptionIndex";
 export const CHIP_NAME_KEY = "collectionName";
 export const CHIP_CLASS = "book-collection-chip";
 const ACTIVE_DESCENDANT_ATTR = "aria-activedescendant";
+const NEW_COLLECTION_LABEL = "New collection…";
 
 /**
  * Builds the DOM id of one option so the input can point at it.
@@ -24,23 +27,43 @@ function optionId(index: number): string {
 }
 
 /**
- * Describes an option for its button text.
- * @param option - Existing or new collection option.
- * @returns Visible option text.
+ * Describes a row in words.
+ * @param option - Collection row.
+ * @returns Visible row text.
  */
 export function collectionOptionLabel(option: CollectionOption): string {
-    if (option.isNew) {
+    if (option.kind === "create") {
         return `Create "${option.name}"`;
+    }
+    if (option.kind === "new") {
+        return NEW_COLLECTION_LABEL;
     }
     return option.name;
 }
 
 /**
- * Creates one option button in the dropdown.
- * @param option - Option to show.
- * @param index - Option position.
- * @param activeIndex - Highlighted option position.
- * @returns Option button.
+ * Creates the row icon: a check for collections (shown when chosen) and a
+ * plus for the create actions.
+ * @param option - Collection row.
+ * @returns Decorative icon.
+ */
+function optionIcon(option: CollectionOption): HTMLSpanElement {
+    const ICON = document.createElement("span");
+    let name = "icon-plus";
+    if (option.kind === "existing") {
+        name = "icon-check";
+    }
+    ICON.className = `icon book-result-icon ${name}`;
+    ICON.setAttribute("aria-hidden", "true");
+    return ICON;
+}
+
+/**
+ * Creates one row in the menu.
+ * @param option - Row to show.
+ * @param index - Row position.
+ * @param activeIndex - Highlighted row position.
+ * @returns Row button.
  */
 function optionButton(
     option: CollectionOption,
@@ -48,17 +71,17 @@ function optionButton(
     activeIndex: number,
 ): HTMLButtonElement {
     const BUTTON = document.createElement("button");
-    const IS_ACTIVE = index === activeIndex;
+    const TEXT = collectionOptionLabel(option);
     BUTTON.type = "button";
-    BUTTON.className = "book-result book-result-inline";
-    BUTTON.classList.toggle("book-collection-create-option", option.isNew);
-    BUTTON.classList.toggle("is-active", IS_ACTIVE);
+    BUTTON.className = `book-result book-collection-option is-${option.kind}`;
+    BUTTON.classList.toggle("is-active", index === activeIndex);
     BUTTON.id = optionId(index);
     BUTTON.tabIndex = -1;
     BUTTON.dataset[OPTION_INDEX_KEY] = String(index);
+    BUTTON.dataset.optionLabel = TEXT;
     BUTTON.setAttribute("role", "option");
-    BUTTON.setAttribute("aria-selected", String(IS_ACTIVE));
-    BUTTON.textContent = collectionOptionLabel(option);
+    BUTTON.setAttribute("aria-selected", String(option.selected));
+    BUTTON.append(optionIcon(option), highlightedLabel(TEXT, option.match));
     return BUTTON;
 }
 
@@ -79,9 +102,24 @@ function syncActiveDescendant(
 }
 
 /**
- * Shows the open dropdown's options, or hides it when closed or empty.
+ * Scrolls the highlighted row into view inside the menu.
  * @param refs - Book form references for the collection controls.
- * @param state - Picker state with options and the highlighted option.
+ * @param activeIndex - Highlighted row position.
+ */
+function revealActiveOption(refs: BookFormRefs, activeIndex: number): void {
+    const ROW = refs.collectionResults.children[activeIndex];
+    if (
+        ROW instanceof HTMLElement &&
+        typeof ROW.scrollIntoView === "function"
+    ) {
+        ROW.scrollIntoView({ block: "nearest" });
+    }
+}
+
+/**
+ * Shows the open menu's rows, or hides it when closed or empty.
+ * @param refs - Book form references for the collection controls.
+ * @param state - Picker state with rows and the highlighted row.
  */
 export function renderCollectionResults(
     refs: BookFormRefs,
@@ -92,11 +130,13 @@ export function renderCollectionResults(
         return optionButton(option, index, state.activeIndex);
     });
     refs.collectionResults.replaceChildren(...BUTTONS);
-    refs.collectionResults.classList.toggle("has-items", IS_OPEN);
+    const ANCHOR = refs.collectionChips.parentElement ?? refs.collectionInput;
+    syncFloatingMenu(refs.collectionResults, ANCHOR, IS_OPEN);
     refs.collectionInput.setAttribute("aria-expanded", String(IS_OPEN));
     let activeIndex = NO_ACTIVE_OPTION;
     if (IS_OPEN) {
         activeIndex = state.activeIndex;
+        revealActiveOption(refs, activeIndex);
     }
     syncActiveDescendant(refs.collectionInput, activeIndex);
 }
@@ -121,7 +161,7 @@ function collectionChip(name: string): HTMLButtonElement {
 }
 
 /**
- * Lists the book's collections as chips under the combobox.
+ * Lists the book's collections as chips inside the combobox field.
  * @param refs - Book form references for the collection controls.
  * @param names - Collections the book belongs to, already sorted.
  */

@@ -11,7 +11,7 @@
     --button-gray: var(--color-gray-light);
     --button-replan: var(--color-parchment);
     --button-completed: var(--color-pistachio);
-    --button-radius: 4px;
+    --button-radius: var(--token-control-radius);
     --button-height: 40px;
     --button-compact-height: 32px;
     --button-prominent-height: 3rem;
@@ -36,7 +36,7 @@
     text-align: center;
     cursor: pointer;
     background: var(--button-blue);
-    border: var(--border-regular) solid var(--button-ink);
+    border: var(--token-control-borderWidth) solid var(--button-ink);
     border-radius: var(--button-radius);
 }
 
