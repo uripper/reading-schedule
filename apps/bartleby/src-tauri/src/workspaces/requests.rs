@@ -60,9 +60,6 @@ pub struct TransferRequest {
 #[serde(rename_all = "camelCase")]
 pub struct SaveRequest {
     pub expected_revision: Option<u64>,
-    /// Revisions per workspace, sent by saves from the All Workspaces view.
-    #[serde(default)]
-    pub expected_revisions: Option<std::collections::HashMap<String, u64>>,
     pub state: Value,
     pub workspace_id: Option<String>,
 }

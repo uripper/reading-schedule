@@ -9,8 +9,7 @@ use uuid::Uuid;
 
 use super::requests::{DependencyPolicy, ShelfPolicy};
 use super::{
-    create, load, load_all, save_snapshot, select, CreateRequest, SaveRequest, TransferRequest,
-    WorkspaceLoad,
+    create, load, save_snapshot, select, CreateRequest, SaveRequest, TransferRequest, WorkspaceLoad,
 };
 use crate::state_store;
 use crate::workspace_model::{self, DEFAULT_WORKSPACE_ID, KEY_SNAPSHOT};
@@ -74,7 +73,6 @@ pub fn planner_snapshot(books: Vec<Value>) -> Value {
 pub fn save_request(workspace_id: Option<&str>, snapshot: Value) -> SaveRequest {
     SaveRequest {
         expected_revision: None,
-        expected_revisions: None,
         state: snapshot,
         workspace_id: workspace_id.map(str::to_string),
     }
@@ -162,10 +160,4 @@ pub fn active_snapshot(state: &Value) -> Value {
 pub fn activate(directory: &Path, workspace_id: &str) -> Result<WorkspaceLoad, String> {
     select(directory, workspace_id)?;
     load(directory, workspace_id)
-}
-
-/// Opens the All Workspaces view the way the renderer does.
-pub fn activate_all(directory: &Path) -> Result<WorkspaceLoad, String> {
-    select(directory, workspace_model::ALL_WORKSPACES_ID)?;
-    load_all(directory)
 }

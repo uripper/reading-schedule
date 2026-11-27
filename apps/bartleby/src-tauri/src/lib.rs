@@ -65,7 +65,6 @@ pub fn run() {
             workspace_commands::workspace_delete,
             workspace_commands::workspace_list,
             workspace_commands::workspace_load,
-            workspace_commands::workspace_load_all,
             workspace_commands::workspace_rename,
             workspace_commands::workspace_select,
             workspace_commands::workspace_set_archived,

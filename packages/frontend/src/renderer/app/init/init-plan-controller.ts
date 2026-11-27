@@ -4,7 +4,6 @@
 
 import type {
     AppBootstrapContext,
-    PlanControllerArgs,
     PlannerResult,
 } from "../../../types/types.ts";
 import { collectBooks, setBookScheduleRows } from "../../books/controller.ts";
@@ -50,15 +49,13 @@ function stateSelectors(appContext: AppBootstrapContext) {
 }
 
 /**
- * Collects the runtime-bound plan controller dependencies.
+ * Creates the runtime-bound plan controller used by automatic and Today replans.
  * @param appContext - Shared renderer context.
- * @returns Arguments for one plan controller.
+ * @returns Configured plan controller.
  */
-export function planControllerArgs(
-    appContext: AppBootstrapContext,
-): PlanControllerArgs {
+export function buildPlanController(appContext: AppBootstrapContext) {
     const BINDINGS = stateBindings(appContext);
-    return {
+    return createAppPlanControllerInstance({
         addLog,
         announce: (message, politeness): void => {
             appContext.announceForPlanController(message, politeness);
@@ -76,14 +73,5 @@ export function planControllerArgs(
         totalsFromSummary,
         updateTodayView: BINDINGS.updateTodayView,
         ...stateSelectors(appContext),
-    };
-}
-
-/**
- * Creates the runtime-bound plan controller used by automatic and Today replans.
- * @param appContext - Shared renderer context.
- * @returns Configured plan controller.
- */
-export function buildPlanController(appContext: AppBootstrapContext) {
-    return createAppPlanControllerInstance(planControllerArgs(appContext));
+    });
 }

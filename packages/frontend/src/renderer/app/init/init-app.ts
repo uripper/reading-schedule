@@ -21,10 +21,7 @@ import { startKoboSync } from "../../kobo/runtime.ts";
 import { collectSettings, initSettingsGrid } from "../../settings.ts";
 import { bindDesktopShortcuts } from "../../shortcuts/desktop_shortcuts.ts";
 import { activateTab, bindTabs } from "../../tabs.ts";
-import {
-    createWorkspacePlanController,
-    initWorkspaces,
-} from "../../workspaces/index.ts";
+import { initWorkspaces } from "../../workspaces/index.ts";
 import { configureAppCalendarInteractions } from "../calendar_interactions/calendar-interactions.ts";
 import { bindExperienceSettings } from "../experience/bindings.ts";
 import { totalsFromSummary } from "../runtime_helpers.ts";
@@ -186,10 +183,7 @@ export async function initApp(context: AppBootstrapContext): Promise<void> {
     bindHelpDialog({
         beforeImport: context.prepareForDataImport,
     });
-    const PLAN_CONTROLLER = createWorkspacePlanController(
-        context,
-        buildPlanController(context),
-    );
+    const PLAN_CONTROLLER = buildPlanController(context);
     context.runtime.setPlanController(PLAN_CONTROLLER);
     bindExperienceSettings((): void => {
         context.dashboards.applyExperienceSettings();

@@ -19,9 +19,6 @@ pub const STALE_REVISION_PREFIX: &str = "STALE_WORKSPACE_REVISION";
 pub struct SaveOutcome {
     pub ok: bool,
     pub revision: u64,
-    /// Revision of every workspace after an All Workspaces save.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub revisions: Option<std::collections::HashMap<String, u64>>,
     pub workspace_id: String,
 }
 
@@ -31,14 +28,9 @@ pub fn apply_save(current_state: &Value, request: &SaveRequest) -> Result<Applie
         return first_save(request);
     }
     let mut state = workspace_model::ensure_app_state(current_state)?;
-    if request.workspace_id.as_deref() == Some(workspace_model::ALL_WORKSPACES_ID) {
-        let revisions = super::combined_split::apply_combined_save(&mut state, request)?;
-        let mut combined_outcome = outcome(workspace_model::ALL_WORKSPACES_ID.to_string(), 0);
-        combined_outcome.revisions = Some(revisions);
-        return Ok((state, combined_outcome));
-    }
     let workspace_id = target_workspace_id(&state, request)?;
     check_revision(&state, &workspace_id, request.expected_revision)?;
+    super::save_guard::check_single_save(&state, &workspace_id, &request.state)?;
     workspace_model::store_snapshot(&mut state, &workspace_id, &request.state)?;
     let revision = bump(&mut state, &workspace_id)?;
     Ok((state, outcome(workspace_id, revision)))
@@ -99,7 +91,6 @@ fn outcome(workspace_id: String, revision: u64) -> SaveOutcome {
     SaveOutcome {
         ok: true,
         revision,
-        revisions: None,
         workspace_id,
     }
 }

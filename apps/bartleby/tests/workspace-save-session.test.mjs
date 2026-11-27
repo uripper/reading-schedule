@@ -35,7 +35,7 @@ function meta(workspaceId, revision) {
     };
 }
 
-test("saves send the loaded workspace and revision, then track the new revision", async () => {
+test("saves go to the workspace named on the data, with its last known revision", async () => {
     rememberLoadedWorkspace(meta(CAREER_ID, LOADED_REVISION));
     const CALLS = [];
     const INVOKE = (command, args) => {
@@ -46,11 +46,12 @@ test("saves send the loaded workspace and revision, then track the new revision"
             workspaceId: CAREER_ID,
         });
     };
-    assert.deepEqual(await saveWorkspaceState(INVOKE, { books: [] }), {
+    const CAREER_DATA = { books: [], workspace_id: CAREER_ID };
+    assert.deepEqual(await saveWorkspaceState(INVOKE, CAREER_DATA), {
         ok: true,
         warningMessage: undefined,
     });
-    await saveWorkspaceState(INVOKE, { books: [] });
+    await saveWorkspaceState(INVOKE, CAREER_DATA);
     assert.equal(CALLS[0].command, "state_save");
     assert.equal(CALLS[0].args.request.workspaceId, CAREER_ID);
     assert.equal(CALLS[0].args.request.expectedRevision, LOADED_REVISION);
@@ -68,7 +69,7 @@ test("native rejections become recoverable save failures with the native message
     assert.match(RESULT.error, /STALE_WORKSPACE_REVISION/u);
 });
 
-test("opening a workspace points later saves at it; aggregate reads do not", async () => {
+test("loading another workspace never redirects data that belongs to the first", async () => {
     rememberLoadedWorkspace(meta(CAREER_ID, LOADED_REVISION));
     const SAVES = [];
     const INVOKE = (command, args) => {
@@ -78,22 +79,19 @@ test("opening a workspace points later saves at it; aggregate reads do not", asy
                 state: { books: [] },
             });
         }
-        if (command === "workspace_snapshots") {
-            return Promise.resolve([]);
-        }
         SAVES.push(args.request);
         return Promise.resolve({
             ok: true,
-            revision: 2,
+            revision: SAVED_REVISION,
             workspaceId: args.request.workspaceId,
         });
     };
     const API = createWorkspaceApi(INVOKE);
-    await API.snapshots();
-    await saveWorkspaceState(INVOKE, { books: [] });
     await API.load(FRENCH_ID);
-    await saveWorkspaceState(INVOKE, { books: [] });
+    await saveWorkspaceState(INVOKE, { books: [], workspace_id: CAREER_ID });
+    await saveWorkspaceState(INVOKE, { books: [], workspace_id: FRENCH_ID });
     assert.equal(SAVES[0].workspaceId, CAREER_ID);
+    assert.equal(SAVES[0].expectedRevision, LOADED_REVISION);
     assert.equal(SAVES[1].workspaceId, FRENCH_ID);
     assert.equal(SAVES[1].expectedRevision, 1);
 });

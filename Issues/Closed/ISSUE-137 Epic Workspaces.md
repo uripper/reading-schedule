@@ -10,7 +10,7 @@ Bartleby holds one library, one daily goal, one planner configuration, and one s
 
 Expected:
 
-Workspaces are independent reading and planning environments. Each workspace has its own library and shelves, planner settings, schedule, completions, manual exclusions, and reading history. One daily goal covers every workspace. Theme, accessibility, time zone, feature flags, window state, covers, backups, and the last selected view stay app-level. The All Workspaces view shows every workspace together on every tab.
+Workspaces are independent reading and planning environments. Each workspace has its own library and shelves, planner settings, schedule, completions, manual exclusions, and reading history. One daily goal covers every workspace. Theme, accessibility, time zone, feature flags, window state, covers, backups, and the last selected workspace stay app-level.
 
 Definition of done:
 
@@ -18,9 +18,8 @@ Definition of done:
 - ISSUE-139: Workspace runtime isolation and switching (Phase 2).
 - ISSUE-140: Workspace selector and management UI (Phase 3).
 - ISSUE-141: Move books between workspaces (Phase 4).
-- ISSUE-142: All Workspaces view (Phase 5).
-- ISSUE-143: All Workspaces on Library, Schedule, and Stats.
-- Deferred follow-ups tracked in ISSUE-144, ISSUE-145, ISSUE-146, and ISSUE-147.
+- ISSUE-142: All Workspaces view (Phase 5) — deferred; see the issue for the safety requirements.
+- Deferred follow-ups tracked in ISSUE-142, ISSUE-144, ISSUE-145, ISSUE-146, and ISSUE-147.
 
 Architecture decision:
 
@@ -35,8 +34,7 @@ Invariants:
 - Each book belongs to exactly one workspace.
 - A per-workspace `revision` makes stale renderer saves fail instead of overwriting newer data.
 - Every preference, including the single daily goal, and the feature flags live in the envelope.
-- The renderer loads one workspace, or every workspace merged (All Workspaces). A merged save is split natively by owner in one transaction; keyed records stay in the workspace that already stores them, and books added there need an explicit destination.
-- In All Workspaces each workspace still plans with its own books and settings; planner requests carry the workspace as their scope, so workspaces never cancel each other's plans.
+- The renderer shows one workspace at a time. Every save names the workspace its data came from (set only once that data is fully on screen), and the native side refuses a save that names another workspace, lists a book twice, or contains a book stored in another workspace. A refused out-of-date save reloads the workspace instead of retrying.
 - Reading history (sessions, completions, and completed or past schedule rows) never moves with a book.
 - `blocked_by` (After Book) links never cross workspaces.
 - Planner results are discarded when the workspace changed while planning (plan-run versioning), and switching saves pending edits first. Opening a workspace reads without writing; the choice for next launch is saved in the background.

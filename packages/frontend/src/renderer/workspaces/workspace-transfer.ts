@@ -1,6 +1,5 @@
 /**
- * Moves books to another workspace, with undo. Each book leaves the workspace it is
- * in, so the All Workspaces view can move books from several workspaces at once.
+ * Moves books from the workspace on screen to another one, with undo.
  *
  * Pending saves are flushed first so the host transfers exactly what is on screen;
  * the active workspace is then reloaded from the host, which also refreshes its save
@@ -16,7 +15,7 @@ import { withAppLoading } from "../app/app-loading.ts";
 import { todayDayKey } from "../app/date_keys.ts";
 import { confirmAction } from "../confirm/action-confirm.ts";
 import {
-    bookWorkspaceId,
+    activeWorkspaceId,
     setWorkspaceCatalog,
     workspaceById,
 } from "./workspace-store.ts";
@@ -161,20 +160,16 @@ async function offerUndo(
     }
 }
 
-/** Groups books by the workspace they are in, skipping ones already in the target. */
+/** The books to move, keyed by the workspace on screen they leave. */
 function booksBySource(
     bookIds: readonly string[],
     targetWorkspaceId: WorkspaceId,
 ): Map<WorkspaceId, string[]> {
-    const GROUPS = new Map<WorkspaceId, string[]>();
-    for (const BOOK_ID of bookIds) {
-        const SOURCE_ID = bookWorkspaceId(BOOK_ID);
-        if (SOURCE_ID === null || SOURCE_ID === targetWorkspaceId) {
-            continue;
-        }
-        GROUPS.set(SOURCE_ID, [...(GROUPS.get(SOURCE_ID) ?? []), BOOK_ID]);
+    const SOURCE_ID = activeWorkspaceId();
+    if (SOURCE_ID === null || SOURCE_ID === targetWorkspaceId) {
+        return new Map();
     }
-    return GROUPS;
+    return new Map([[SOURCE_ID, [...bookIds]]]);
 }
 
 /** Transfers each source group in turn; stops when the user cancels a group. */

@@ -15,7 +15,7 @@ import { createAppErrorSurface } from "../errors/index.ts";
 import { addLog } from "../help.ts";
 import { collectSettings } from "../settings.ts";
 import { updateStatsView } from "../stats.ts";
-import { newBookWorkspaces } from "../workspaces/index.ts";
+import { appliedWorkspaceId, handleRejectedSave } from "../workspaces/index.ts";
 import {
     createCriticalStatusSetter,
     createPersistFeedback,
@@ -76,7 +76,8 @@ function createPersistActions(
 } {
     const PERSIST_QUEUE = createPersistQueue({
         addLog,
-        collectBookWorkspaces: newBookWorkspaces,
+        collectWorkspaceId: appliedWorkspaceId,
+        onSaveRejected: handleRejectedSave,
         collectBooks: collectAllBooks,
         collectSettings,
         getSessions: () => state.sessions,
