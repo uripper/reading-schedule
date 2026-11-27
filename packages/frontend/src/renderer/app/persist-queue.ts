@@ -44,7 +44,7 @@ function persistTimerState(): PersistTimerState {
 function persistDraftPayload(args: PersistQueueArgs) {
     return draftData({
         blockedDayBooks: args.state.blockedDayBooks,
-        bookWorkspaces: args.collectBookWorkspaces?.(),
+        workspaceId: args.collectWorkspaceId?.() ?? undefined,
         collectBooks: args.collectBooks,
         collectSettings: args.collectSettings,
         featureFlags: args.state.featureFlags,
@@ -89,12 +89,17 @@ async function persistAfterPrevious(
 
 /** Converts snapshot-collection errors into recoverable save failures as well. */
 async function persistCurrentDraft(args: PersistQueueArgs): Promise<boolean> {
+    // Null means a workspace is still being put on screen: the data is incomplete, so
+    // saving it could mix two workspaces. The save waits for the next change instead.
+    if (args.collectWorkspaceId?.() === null) {
+        args.addLog("Save held back while a workspace is opening.");
+        return false;
+    }
     try {
-        return await saveStateSafe(
-            args.plannerApi,
-            persistDraftPayload(args),
-            args.addLog,
-        );
+        return await saveStateSafe(args.plannerApi, persistDraftPayload(args), {
+            addLog: args.addLog,
+            onRejected: args.onSaveRejected,
+        });
     } catch (error) {
         persistDraftFailure(args.addLog);
         args.addLog(errorMessage(error));

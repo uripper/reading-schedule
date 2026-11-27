@@ -10,9 +10,8 @@ import type { WorkspaceRuntime } from "../../types/types.ts";
 import { onMassEditSelectionChanged } from "../books/mass-edit-selection.ts";
 import { fillWorkspaceOptions } from "./workspace-selector.ts";
 import {
-    bookWorkspaceId,
-    moveDestinations,
     onWorkspaceCatalogChanged,
+    otherUsableWorkspaces,
 } from "./workspace-store.ts";
 
 const WRAP_CLASS = "books-mass-edit-move";
@@ -39,18 +38,9 @@ function promptText(count: number): string {
     return `Move ${count} Books to…`;
 }
 
-/** The one workspace every selected book is in, or null for a mixed selection. */
-function commonSource(bookIds: readonly string[]): string | null {
-    const SOURCES = new Set(bookIds.map((bookId) => bookWorkspaceId(bookId)));
-    if (SOURCES.size !== 1) {
-        return null;
-    }
-    return [...SOURCES][0] ?? null;
-}
-
 /** Lists destinations under the prompt; hides the control when nothing applies. */
 function render(select: HTMLSelectElement, bookIds: readonly string[]): void {
-    const DESTINATIONS = moveDestinations(commonSource(bookIds));
+    const DESTINATIONS = otherUsableWorkspaces();
     fillWorkspaceOptions(select, DESTINATIONS, null);
     const PROMPT = document.createElement("option");
     PROMPT.value = "";

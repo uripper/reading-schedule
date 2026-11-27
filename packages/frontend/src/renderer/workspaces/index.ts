@@ -1,4 +1,4 @@
 /** Public entry points of the workspaces feature. */
 export { initWorkspaces } from "./workspace-init.ts";
-export { createWorkspacePlanController } from "./workspace-plan-controller.ts";
-export { newBookWorkspaces } from "./workspace-store.ts";
+export { handleRejectedSave } from "./workspace-save-recovery.ts";
+export { appliedWorkspaceId } from "./workspace-store.ts";

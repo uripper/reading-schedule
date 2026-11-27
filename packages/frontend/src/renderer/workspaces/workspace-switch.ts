@@ -1,4 +1,3 @@
-import { ALL_WORKSPACES_ID } from "@reading-schedule/contracts";
 /**
  * Switches the renderer between workspaces without reloading the application.
  *
@@ -8,6 +7,10 @@ import { ALL_WORKSPACES_ID } from "@reading-schedule/contracts";
  * to the destination; then the destination snapshot is applied through the same
  * loader used at startup. Runs are invalidated again after applying, because a run
  * scheduled during the native round trip would still hold the source's data.
+ *
+ * While a snapshot is being applied the screen holds no complete workspace, so saves
+ * are held back; if applying fails, the previous workspace is restored rather than
+ * leaving one workspace's data on screen under another workspace's name.
  */
 import type {
     WorkspaceId,
@@ -18,16 +21,15 @@ import { withAppLoading } from "../app/app-loading.ts";
 import { localDayKeyFromIso, todayDayKey } from "../app/date_keys.ts";
 import {
     activeWorkspaceId,
-    canViewAllWorkspaces,
-    isViewingAllWorkspaces,
+    appliedWorkspaceId,
+    beginApplyingWorkspace,
+    finishApplyingWorkspace,
     loadedWorkspaceNeedsReplan,
     setLoadedWorkspace,
-    shownWorkspaceId,
     workspaceById,
 } from "./workspace-store.ts";
 
 const OPEN_DIALOG_SELECTOR = "dialog[open]";
-const ALL_WORKSPACES_NAME = "All Workspaces";
 
 /** Prevents overlapping switches from interleaving their saves and loads. */
 let switchInFlight = false;
@@ -68,8 +70,10 @@ export async function applyWorkspaceLoad(
     STATE.ready = false;
     deps.planController.invalidatePendingRuns();
     deps.resetTransientUi();
+    beginApplyingWorkspace();
     setLoadedWorkspace(loaded);
     await deps.applyState(loaded.state);
+    finishApplyingWorkspace(loaded.workspaceId);
     deps.planController.invalidatePendingRuns();
     STATE.ready = true;
     if (shouldReplan(loaded)) {
@@ -102,22 +106,8 @@ function hasOpenEditor(deps: WorkspaceSwitchDeps): boolean {
     return true;
 }
 
-/** Reads a workspace, or every workspace merged, without changing the saved choice. */
-async function readView(
-    deps: WorkspaceSwitchDeps,
-    workspaceId: WorkspaceId,
-): Promise<WorkspaceLoad> {
-    if (workspaceId === ALL_WORKSPACES_ID) {
-        return await deps.api.loadAll();
-    }
-    return await deps.api.load(workspaceId);
-}
-
-/** Display name of a workspace or of the All Workspaces view. */
+/** Display name of a workspace for messages. */
 function viewName(workspaceId: WorkspaceId): string {
-    if (workspaceId === ALL_WORKSPACES_ID) {
-        return ALL_WORKSPACES_NAME;
-    }
     return workspaceById(workspaceId)?.name ?? "workspace";
 }
 
@@ -134,6 +124,30 @@ function rememberSelection(
     });
 }
 
+/** Reads a workspace and puts it on screen. */
+async function openWorkspace(
+    deps: WorkspaceSwitchDeps,
+    workspaceId: WorkspaceId,
+): Promise<void> {
+    await applyWorkspaceLoad(deps, await deps.api.load(workspaceId));
+}
+
+/** Puts the previous workspace back after a failed switch; true when that worked. */
+async function restorePrevious(
+    deps: WorkspaceSwitchDeps,
+    previousId: WorkspaceId | null,
+): Promise<boolean> {
+    if (previousId === null) {
+        return false;
+    }
+    try {
+        await openWorkspace(deps, previousId);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 /** Saves pending edits, isolates planning, then reads and applies the destination. */
 async function performSwitch(
     deps: WorkspaceSwitchDeps,
@@ -146,38 +160,56 @@ async function performSwitch(
     await withAppLoading(`Opening ${NAME}…`, async () => {
         deps.context.state.ready = false;
         deps.planController.invalidatePendingRuns();
-        await applyWorkspaceLoad(deps, await readView(deps, workspaceId));
+        await openWorkspace(deps, workspaceId);
     });
     rememberSelection(deps, workspaceId);
     deps.context.announce(`Opened ${NAME}.`);
     return true;
 }
 
+/** Reports a failed switch after putting the previous workspace back when possible. */
+async function recoverFailedSwitch(
+    deps: WorkspaceSwitchDeps,
+    previousId: WorkspaceId | null,
+    error: unknown,
+): Promise<void> {
+    // When the failure came before anything was replaced, the screen is still intact.
+    const UNTOUCHED =
+        previousId !== null && appliedWorkspaceId() === previousId;
+    const RESTORED = UNTOUCHED || (await restorePrevious(deps, previousId));
+    let advice = "Restart Bartleby before making changes.";
+    if (RESTORED) {
+        advice = `Bartleby stayed in ${viewName(previousId ?? "")}.`;
+        deps.context.state.ready = true;
+    }
+    deps.context.setStatus(
+        `Could not open that workspace: ${errorText(error)} ${advice}`,
+        true,
+    );
+}
+
 /**
- * Opens another workspace, or All Workspaces, while keeping the current tab.
+ * Opens another workspace while keeping the current tab.
  * @param deps - Renderer wiring used for saving, planning, and applying state.
- * @param workspaceId - Destination workspace id or `ALL_WORKSPACES_ID`.
+ * @param workspaceId - Destination workspace id.
  * @returns True when the destination is now shown.
  */
 export async function switchWorkspace(
     deps: WorkspaceSwitchDeps,
     workspaceId: WorkspaceId,
 ): Promise<boolean> {
-    if (workspaceId === shownWorkspaceId()) {
+    if (workspaceId === activeWorkspaceId()) {
         return true;
     }
     if (switchInFlight || hasOpenEditor(deps)) {
         return false;
     }
     switchInFlight = true;
+    const PREVIOUS_ID = activeWorkspaceId();
     try {
         return await performSwitch(deps, workspaceId);
     } catch (error) {
-        deps.context.state.ready = true;
-        deps.context.setStatus(
-            `Could not open that workspace: ${errorText(error)}`,
-            true,
-        );
+        await recoverFailedSwitch(deps, PREVIOUS_ID, error);
         return false;
     } finally {
         switchInFlight = false;
@@ -185,24 +217,16 @@ export async function switchWorkspace(
 }
 
 /**
- * Re-reads what is shown after a native change such as a book transfer. When All
- * Workspaces no longer has two workspaces to show, it falls back to the active one.
+ * Re-reads the shown workspace after a native change such as a book transfer, or
+ * after a save was refused because storage changed underneath it.
  * @param deps - Renderer wiring used to apply state.
  */
 export async function reloadActiveWorkspace(
     deps: WorkspaceSwitchDeps,
 ): Promise<void> {
-    if (isViewingAllWorkspaces() && canViewAllWorkspaces()) {
-        await applyWorkspaceLoad(deps, await deps.api.loadAll());
-        return;
-    }
     const ACTIVE_ID = activeWorkspaceId();
     if (ACTIVE_ID === null) {
         return;
     }
-    const WAS_ALL = isViewingAllWorkspaces();
-    await applyWorkspaceLoad(deps, await deps.api.load(ACTIVE_ID));
-    if (WAS_ALL) {
-        rememberSelection(deps, ACTIVE_ID);
-    }
+    await openWorkspace(deps, ACTIVE_ID);
 }

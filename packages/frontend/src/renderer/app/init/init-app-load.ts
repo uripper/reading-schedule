@@ -10,7 +10,10 @@ import type {
 import { applyPreferencesToDocument } from "../../accessibility/a11y.ts";
 import { fillBooks } from "../../books/controller.ts";
 import { fillSettings } from "../../settings.ts";
-import { setLoadedWorkspace } from "../../workspaces/workspace-store.ts";
+import {
+    finishApplyingWorkspace,
+    setLoadedWorkspace,
+} from "../../workspaces/workspace-store.ts";
 import { fillPreferencesUI as fillPreferencesUi } from "../experience/fill_ui.ts";
 import {
     normalizeFeatureFlags,
@@ -20,6 +23,13 @@ import { normalizeScheduleCompletions } from "../experience/schedule_completions
 import { applySavedPlannerState, loadInitialData } from "../load_state.ts";
 import { applyAppStateMutation } from "../state_mutations.ts";
 import { finalizeInitialLoad } from "./init-helpers.ts";
+
+/** Tags saves with the workspace the startup load just put on screen. */
+function markStartupWorkspaceApplied(workspaceId: string | undefined): void {
+    if (workspaceId !== undefined) {
+        finishApplyingWorkspace(workspaceId);
+    }
+}
 
 function applyLoadedResult(
     args: CreateLoadStateArgsInput,
@@ -108,6 +118,7 @@ function createRuntimeLoadStateArgs(
         normalizeScheduleCompletions,
         onLoaded: (saved, loadResult) => {
             setLoadedWorkspace(loadResult.workspace);
+            markStartupWorkspaceApplied(loadResult.workspace?.workspaceId);
             finalizeLoad(args, loadResult, saved);
         },
         plannerApi: args.context.plannerApi,

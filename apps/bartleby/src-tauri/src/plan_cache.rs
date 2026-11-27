@@ -1,4 +1,4 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::VecDeque;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
@@ -43,25 +43,19 @@ impl RecentPlanCache {
     }
 }
 
-/// Latest request id per plan scope.
-type ScopeRequestIds = HashMap<String, Arc<AtomicU64>>;
-
-/// Shared plan cache plus "newest request wins" counters. Each plan scope (one per
-/// workspace in the All Workspaces view; a single empty scope otherwise) supersedes
-/// only its own older requests, so workspaces can plan side by side.
 #[derive(Clone, Debug, Default)]
 pub struct PlanCacheState {
     cache: Arc<Mutex<RecentPlanCache>>,
-    scopes: Arc<Mutex<ScopeRequestIds>>,
+    latest_request_id: Arc<AtomicU64>,
 }
 
 impl PlanCacheState {
-    pub(crate) fn latest_request_id(&self, scope: &str) -> Result<Arc<AtomicU64>, String> {
-        let mut scopes = self
-            .scopes
-            .lock()
-            .map_err(|_| "Plan request lock poisoned".to_string())?;
-        Ok(Arc::clone(scopes.entry(scope.to_string()).or_default()))
+    pub(crate) fn latest_request_id(&self) -> Arc<AtomicU64> {
+        Arc::clone(&self.latest_request_id)
+    }
+
+    pub(crate) fn next_request_id(&self) -> u64 {
+        self.latest_request_id.fetch_add(1, Ordering::AcqRel) + 1
     }
 
     pub(crate) fn shared(&self) -> Arc<Mutex<RecentPlanCache>> {
@@ -223,18 +217,5 @@ mod tests {
                 "result": PLAN_CACHE_LIMIT,
             }))
         );
-    }
-
-    #[test]
-    fn plan_scopes_only_supersede_their_own_requests() {
-        let state = super::PlanCacheState::default();
-        let career = state.latest_request_id("career").expect("expected scope");
-        let french = state.latest_request_id("french").expect("expected scope");
-        let career_request = career.fetch_add(1, std::sync::atomic::Ordering::AcqRel) + 1;
-        french.fetch_add(1, std::sync::atomic::Ordering::AcqRel);
-        let request = PlanRequest::new(&career, career_request);
-        assert!(request.ensure_current().is_ok());
-        career.fetch_add(1, std::sync::atomic::Ordering::AcqRel);
-        assert!(request.ensure_current().is_err());
     }
 }

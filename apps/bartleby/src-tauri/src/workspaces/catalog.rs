@@ -26,9 +26,6 @@ pub struct WorkspaceCatalog {
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceLoad {
     pub catalog: WorkspaceCatalog,
-    /// Present only for the All Workspaces view.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub combined: Option<super::combined::CombinedMeta>,
     pub needs_replan: bool,
     pub revision: u64,
     pub state: Value,
@@ -75,7 +72,6 @@ pub fn workspace_load(state: &Value, workspace_id: &str) -> Result<WorkspaceLoad
         .ok_or_else(|| format!("Workspace {workspace_id} does not exist."))?;
     Ok(WorkspaceLoad {
         catalog: catalog(state),
-        combined: None,
         needs_replan: workspace_model::needs_replan(entry),
         revision: workspace_model::revision(entry),
         state: workspace_model::project_snapshot(state, entry),

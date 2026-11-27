@@ -87,12 +87,18 @@ export interface DraftDataParams
         PlannerResultState,
         ScheduleCompletionState,
         SessionState {
-    /** Destinations of books added in the All Workspaces view, when there are any. */
-    bookWorkspaces?: Record<string, string>;
+    /** Workspace the renderer's data came from, on hosts with workspaces. */
+    workspaceId?: string;
     /** Normalized feature flags controlling optional runtime behavior. */
     featureFlags: FeatureFlags;
     /** Normalized user experience preferences applied by the renderer. */
     preferences: Preferences;
+}
+
+/** Where a save reports problems: the log, and optionally the host's refusal. */
+export interface SaveFeedback {
+    addLog: AddLog;
+    onRejected?(this: void, error: string): void;
 }
 
 /** Dependencies required to create the persistence queue. */
@@ -100,10 +106,15 @@ export interface PersistQueueArgs
     extends PlannerInputCollectors, SessionReader {
     /** Appends a diagnostic message to the in-app log. */
     addLog(this: void, message: string): void;
-    /** Destinations of books added in the All Workspaces view, if any. */
-    collectBookWorkspaces?(this: void): Record<string, string> | undefined;
+    /**
+     * Workspace whose data is on screen: undefined on hosts without workspaces, and
+     * null while a workspace is being opened (saves then wait).
+     */
+    collectWorkspaceId?(this: void): string | null | undefined;
     /** Reports every completed save attempt to the runtime error surface. */
     onPersistResult?(this: void, saved: boolean): void;
+    /** Receives the host's reason when it refuses a save. */
+    onSaveRejected?(this: void, error: string): void;
     /** Planner API subset used to persist serialized draft state. */
     plannerApi: Pick<PlannerApi, "saveState">;
     /** Mutable runtime state consumed and updated by this module. */

@@ -37,11 +37,6 @@ pub fn workspace_snapshots(
 }
 
 #[tauri::command]
-pub fn workspace_load_all(app: tauri::AppHandle) -> Result<workspaces::WorkspaceLoad, String> {
-    workspaces::load_all(&app_paths::canonical_data_directory(&app)?)
-}
-
-#[tauri::command]
 pub fn workspace_select(app: tauri::AppHandle, workspace_id: String) -> Result<(), String> {
     workspaces::select(&app_paths::canonical_data_directory(&app)?, &workspace_id)
 }

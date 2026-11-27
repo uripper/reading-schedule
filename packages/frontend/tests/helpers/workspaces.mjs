@@ -1,7 +1,6 @@
 /** Fixtures for workspace switching, transfer, and isolation tests. */
 export const SOURCE_ID = "workspace-source";
 export const TARGET_ID = "workspace-target";
-export const ALL_WORKSPACES_ID = "all-workspaces";
 
 /** Builds a catalog whose active workspace is `activeId`. */
 export function catalog(activeId) {
@@ -60,15 +59,6 @@ function fakePlanController(calls) {
     };
 }
 
-/** Builds a host payload for the All Workspaces view. */
-export function combinedLoad(bookWorkspaces = {}) {
-    return {
-        ...workspaceLoad(ALL_WORKSPACES_ID),
-        catalog: catalog(SOURCE_ID),
-        combined: { bookWorkspaces, revisions: {}, settings: {} },
-    };
-}
-
 /** Records switch dependencies calls in order. */
 export function switchDeps(overrides = {}) {
     const CALLS = [];
@@ -80,10 +70,6 @@ export function switchDeps(overrides = {}) {
                 return Promise.resolve(
                     overrides.load ?? workspaceLoad(workspaceId),
                 );
-            },
-            loadAll: () => {
-                CALLS.push("loadAll");
-                return Promise.resolve(overrides.load ?? combinedLoad());
             },
             select: (workspaceId) => {
                 CALLS.push(`select:${workspaceId}`);

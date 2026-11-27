@@ -27,10 +27,6 @@ pub use envelope::{
 pub use globals::{project_snapshot, store_snapshot};
 
 pub const APP_STATE_VERSION: i64 = 2;
-/// Pseudo workspace id of the All Workspaces view; generated ids never take this form.
-pub const ALL_WORKSPACES_ID: &str = "all-workspaces";
-/// True while the renderer shows every workspace at once; restored on launch.
-pub const KEY_ALL_WORKSPACES_VIEW: &str = "all_workspaces_view";
 pub const DEFAULT_WORKSPACE_ID: &str = "workspace-default";
 pub const DEFAULT_WORKSPACE_NAME: &str = "My Reading";
 pub const KEY_ACTIVE_WORKSPACE_ID: &str = "active_workspace_id";
@@ -190,13 +186,4 @@ pub fn snapshot_has_bootstrap_shape(snapshot: &Value) -> bool {
         return false;
     };
     snapshot_object.contains_key("books") && snapshot_object.contains_key("settings")
-}
-
-/// True when the All Workspaces view is selected and there is more than one workspace.
-pub fn is_all_workspaces_view(state: &Value) -> bool {
-    let is_selected = state
-        .get(KEY_ALL_WORKSPACES_VIEW)
-        .and_then(Value::as_bool)
-        .unwrap_or(false);
-    is_selected && usable_workspace_count(state) > 1
 }

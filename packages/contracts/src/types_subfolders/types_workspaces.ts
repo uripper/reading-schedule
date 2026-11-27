@@ -26,20 +26,9 @@ export interface WorkspaceCatalog {
     workspaces: WorkspaceSummary[];
 }
 
-/** Ownership and per-workspace data of the All Workspaces view. */
-export interface WorkspaceCombinedMeta {
-    /** Owning workspace of every book in the merged snapshot. */
-    bookWorkspaces: Record<string, WorkspaceId>;
-    revisions: Record<WorkspaceId, number>;
-    /** Each workspace's own planner settings; planning stays per workspace. */
-    settings: Record<WorkspaceId, unknown>;
-}
-
 /** Identifies the workspace a planner snapshot was loaded from. */
 export interface WorkspaceLoadMeta {
     catalog: WorkspaceCatalog;
-    /** Present when the snapshot merges every workspace (All Workspaces view). */
-    combined?: WorkspaceCombinedMeta;
     /** True when books moved in or out since this workspace last planned. */
     needsReplan: boolean;
     revision: number;
@@ -60,8 +49,6 @@ export interface WorkspaceSnapshotEntry {
 export interface WorkspaceSaveOutcome {
     ok: true;
     revision: number;
-    /** Every workspace's revision after an All Workspaces save. */
-    revisions?: Record<WorkspaceId, number>;
     warningMessage?: string;
     workspaceId: WorkspaceId;
 }
@@ -143,9 +130,7 @@ export interface WorkspaceCompletionRequest {
 export interface WorkspaceApi {
     /** Reads a workspace for the renderer to show; later saves target it. */
     load(this: void, workspaceId: WorkspaceId): Promise<WorkspaceLoad>;
-    /** Reads every workspace merged (All Workspaces); later saves split by owner. */
-    loadAll(this: void): Promise<WorkspaceLoad>;
-    /** Records the workspace, or `ALL_WORKSPACES_ID`, that reopens on next launch. */
+    /** Records the workspace that reopens on next launch. */
     select(this: void, workspaceId: WorkspaceId): Promise<void>;
     create(
         this: void,

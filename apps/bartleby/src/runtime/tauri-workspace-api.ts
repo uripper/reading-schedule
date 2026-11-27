@@ -1,12 +1,12 @@
 // audit-allow-local-types: Save session and invoke signature depend on app-local Tauri command names.
 /**
- * Tauri-backed workspace API and the save session that guards against stale writes.
+ * Tauri-backed workspace API and the revision bookkeeping that guards saves.
  *
- * The session remembers which workspace the renderer currently shows and the
- * revision it was loaded at. Every save carries both, so the native runtime rejects
- * a save aimed at a deleted workspace or one that raced a newer write, such as a
- * book transfer. Only loads the renderer applies (the startup load, `load`, `loadAll`)
- * move the session; plain reads for aggregate views never do.
+ * A save goes to the workspace named on the data itself (`workspace_id`, set by the
+ * renderer only after that workspace's data is on screen), never to whichever
+ * workspace was loaded last, so loading one workspace can never redirect the data of
+ * another. Each save also carries the revision that workspace was loaded or last
+ * saved at, so the native runtime rejects saves that raced a newer write.
  */
 
 import type {
@@ -31,30 +31,28 @@ import { TAURI_COMMANDS } from "./tauri-commands.ts";
 /** Invokes one typed Tauri command; matches the planner adapter's helper. */
 type InvokeCommand = HostInvoke<TauriPlannerCommand>;
 
-/** Workspace and revision the renderer's next save targets. */
-interface WorkspaceSaveSession {
-    revision: number | null;
-    /** Per-workspace revisions while the All Workspaces view is open. */
-    revisions: Record<string, number> | null;
-    workspaceId: string | null;
-}
+/** Revision of each workspace as of the last load or save the renderer saw. */
+const REVISIONS = new Map<string, number>();
+/** Workspace the host opened at startup; used for saves of untagged data. */
+let startupWorkspaceId: string | null = null;
 
-const SESSION: WorkspaceSaveSession = {
-    revision: null,
-    revisions: null,
-    workspaceId: null,
-};
-
-/** Points future saves at the workspace whose snapshot the renderer just applied. */
+/** Records the revision of a workspace the renderer just loaded. */
 export function rememberLoadedWorkspace(
     meta: WorkspaceLoadMeta | undefined,
 ): void {
     if (meta === undefined) {
         return;
     }
-    SESSION.revision = meta.revision;
-    SESSION.revisions = meta.combined?.revisions ?? null;
-    SESSION.workspaceId = meta.workspaceId;
+    REVISIONS.set(meta.workspaceId, meta.revision);
+    startupWorkspaceId ??= meta.workspaceId;
+}
+
+/** Known revision of a workspace, or null when none was loaded yet. */
+function revisionOf(workspaceId: string | null): number | null {
+    if (workspaceId === null) {
+        return null;
+    }
+    return REVISIONS.get(workspaceId) ?? null;
 }
 
 /** Turns an invoke rejection (usually a string) into readable text. */
@@ -68,31 +66,30 @@ function errorText(error: unknown): string {
     return "Unknown state persistence error";
 }
 
-/** Saves the active workspace and reports native rejections as recoverable results. */
+/** Saves the workspace the data belongs to; native rejections become save failures. */
 export async function saveWorkspaceState(
     invokeCommand: InvokeCommand,
     state: PlannerStateSnapshot,
 ): Promise<PlannerSaveResult> {
+    const WORKSPACE_ID = state.workspace_id ?? startupWorkspaceId;
     try {
         const RESULT = await invokeCommand<unknown>(TAURI_COMMANDS.stateSave, {
             request: {
-                expectedRevision: SESSION.revision,
-                expectedRevisions: SESSION.revisions,
+                expectedRevision: revisionOf(WORKSPACE_ID),
                 state,
-                workspaceId: SESSION.workspaceId,
+                workspaceId: WORKSPACE_ID,
             },
         });
         const OUTCOME = parseWorkspaceSaveOutcome(RESULT);
-        SESSION.revision = OUTCOME.revision;
-        SESSION.revisions = OUTCOME.revisions ?? null;
-        SESSION.workspaceId = OUTCOME.workspaceId;
+        REVISIONS.set(OUTCOME.workspaceId, OUTCOME.revision);
+        startupWorkspaceId ??= OUTCOME.workspaceId;
         return { ok: true, warningMessage: OUTCOME.warningMessage };
     } catch (error) {
         return { error: errorText(error), ok: false };
     }
 }
 
-/** Reads a workspace (or every workspace) the renderer will show; saves follow it. */
+/** Reads a workspace the renderer will show and records its revision. */
 async function loadShownWorkspace(
     invokeCommand: InvokeCommand,
     command: TauriPlannerCommand,
@@ -181,11 +178,6 @@ export function createWorkspaceApi(invokeCommand: InvokeCommand): WorkspaceApi {
                 {
                     workspaceId,
                 },
-            ),
-        loadAll: async () =>
-            await loadShownWorkspace(
-                invokeCommand,
-                TAURI_COMMANDS.workspaceLoadAll,
             ),
         select: async (workspaceId) => {
             await invokeCommand<null>(TAURI_COMMANDS.workspaceSelect, {
