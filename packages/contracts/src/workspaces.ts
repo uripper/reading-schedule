@@ -13,17 +13,6 @@ import type {
 
 const WORKSPACE_ID_SCHEMA = z.string().min(1);
 
-/** Pseudo workspace id of the All Workspaces view; generated ids never match it. */
-export const ALL_WORKSPACES_ID = "all-workspaces";
-
-const REVISIONS_SCHEMA = z.record(z.string(), z.number().int().nonnegative());
-
-const WORKSPACE_COMBINED_SCHEMA = z.object({
-    bookWorkspaces: z.record(z.string(), WORKSPACE_ID_SCHEMA),
-    revisions: REVISIONS_SCHEMA,
-    settings: z.record(z.string(), z.unknown()),
-});
-
 const WORKSPACE_SUMMARY_SCHEMA = z.object({
     archived: z.boolean(),
     bookCount: z.number().int().nonnegative(),
@@ -40,9 +29,6 @@ const WORKSPACE_CATALOG_SCHEMA = z.object({
 
 const WORKSPACE_LOAD_META_SCHEMA = z.object({
     catalog: WORKSPACE_CATALOG_SCHEMA,
-    combined: WORKSPACE_COMBINED_SCHEMA.nullish().transform(
-        (value) => value ?? undefined,
-    ),
     needsReplan: z.boolean(),
     revision: z.number().int().nonnegative(),
     workspaceId: WORKSPACE_ID_SCHEMA,
@@ -97,7 +83,6 @@ const TRANSFER_RESULT_SCHEMA = z.object({
 const WORKSPACE_SAVE_OUTCOME_SCHEMA = z.object({
     ok: z.literal(true),
     revision: z.number().int().nonnegative(),
-    revisions: REVISIONS_SCHEMA.optional(),
     warningMessage: z.string().optional(),
     workspaceId: WORKSPACE_ID_SCHEMA,
 });

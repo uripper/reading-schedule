@@ -159,7 +159,7 @@ fn transfer_moves_only_future_exclusions_of_moved_books() {
 #[test]
 fn transfer_rejects_invalid_requests() {
     let directory = TestDirectory::new("transfer-invalid");
-    let target_snapshot = planner_snapshot(vec![book("book-b", "Emma")]);
+    let target_snapshot = planner_snapshot(vec![book("book-c", "Middlemarch")]);
     let target_id = seed_two(&directory.path, history_snapshot(), target_snapshot);
     let cases = [
         (
@@ -170,7 +170,6 @@ fn transfer_rejects_invalid_requests() {
             transfer_request(&target_id, &["book-z"]),
             "not in the source",
         ),
-        (transfer_request(&target_id, &["book-b"]), "already exists"),
         (transfer_request(&target_id, &[]), "at least one"),
         (
             transfer_request("workspace-missing", &["book-a"]),

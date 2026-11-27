@@ -127,18 +127,6 @@ pub fn activate(state: &mut Value, workspace_id: &str) -> Result<(), String> {
         return Err("Restore this workspace before opening it.".to_string());
     }
     state[KEY_ACTIVE_WORKSPACE_ID] = Value::String(workspace_id.to_string());
-    state[workspace_model::KEY_ALL_WORKSPACES_VIEW] = Value::Bool(false);
-    Ok(())
-}
-
-/// Opens the All Workspaces view, restored on next launch.
-pub fn activate_all(state: &mut Value) -> Result<(), String> {
-    if workspace_model::usable_workspace_count(state) < 2 {
-        return Err(
-            "All Workspaces needs at least two workspaces that are not archived.".to_string(),
-        );
-    }
-    state[workspace_model::KEY_ALL_WORKSPACES_VIEW] = Value::Bool(true);
     Ok(())
 }
 

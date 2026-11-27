@@ -10,7 +10,7 @@ import type {
 } from "./types_app_planning.ts";
 import type { AppBootstrapContext } from "./types_app_runtime.ts";
 import type { CalendarHandlers } from "./types_calendar.ts";
-import type { LoadedPlannerState, PlannerSettings } from "./types_planner.ts";
+import type { LoadedPlannerState } from "./types_planner.ts";
 import type {
     WorkspaceApi,
     WorkspaceCatalog,
@@ -57,14 +57,6 @@ export type WorkspaceCatalogListener = (catalog: WorkspaceCatalog) => void;
 
 /** Runs after the book dialog commits a save, e.g. to move the saved books. */
 export type BookSaveHook = (payload: BookDialogSubmitPayload) => void;
-
-/** One workspace's share of the All Workspaces view, planned on its own. */
-export interface WorkspacePlanScope {
-    ownsBook(this: void, bookId: string): boolean;
-    /** The workspace's own planner settings. */
-    settings(this: void): PlannerSettings;
-    workspaceId: WorkspaceId;
-}
 
 /** Host command bridge, parameterized by the host's command-name union. */
 export type HostInvoke<Command extends string> = <T>(

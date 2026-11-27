@@ -153,8 +153,6 @@ export type PlannerSettings = {
 
 export interface PlannerStateSnapshot {
     blocked_day_books: Record<string, boolean>;
-    /** Destinations of books added in the All Workspaces view, by book id. */
-    book_workspaces?: Record<string, string>;
     books: Book[];
     feature_flags: FeatureFlags;
     last_result: PlannerResult | null;
@@ -163,6 +161,8 @@ export interface PlannerStateSnapshot {
     sessions: Session[];
     settings: PlannerSettings;
     state_version: number;
+    /** Workspace this data was loaded from; the host refuses it for any other workspace. */
+    workspace_id?: string;
 }
 
 export interface LoadedPlannerState {
@@ -179,8 +179,6 @@ export interface LoadedPlannerState {
 
 export interface PlanGeneratePayload {
     books: Book[];
-    /** Planning scope (a workspace id); newer requests only supersede the same scope. */
-    plan_scope?: string;
     settings: PlannerSettings;
 }
 

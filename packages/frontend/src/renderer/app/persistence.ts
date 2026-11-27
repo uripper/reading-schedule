@@ -1,8 +1,8 @@
 import type {
-    AddLog,
     DraftDataParams,
     PlannerApi,
     PlannerStateSnapshot,
+    SaveFeedback,
 } from "../../types/types.ts";
 
 const CURRENT_STATE_VERSION = 1;
@@ -32,8 +32,8 @@ export function draftData(args: DraftDataParams): PlannerStateSnapshot {
         settings: args.collectSettings(),
         state_version: CURRENT_STATE_VERSION,
     };
-    if (args.bookWorkspaces !== undefined) {
-        SNAPSHOT.book_workspaces = args.bookWorkspaces;
+    if (args.workspaceId !== undefined) {
+        SNAPSHOT.workspace_id = args.workspaceId;
     }
     return SNAPSHOT;
 }
@@ -42,25 +42,25 @@ export function draftData(args: DraftDataParams): PlannerStateSnapshot {
  * Attempts to save planner state and reports recoverable errors through log output.
  * @param plannerApi - API adapter exposing persistence methods.
  * @param payload - Snapshot payload to persist.
- * @param addLog - Log sink for user-visible persistence failures.
+ * @param feedback - Log sink, plus a handler for saves the host refused.
  * @returns True when save succeeds, false when save fails.
  */
 export async function saveStateSafe(
     plannerApi: Pick<PlannerApi, "saveState">,
     payload: PlannerStateSnapshot,
-    addLog: AddLog,
+    feedback: SaveFeedback,
 ): Promise<boolean> {
     try {
         const RESULT = await plannerApi.saveState(payload);
         if (RESULT.ok === false) {
-            addLog(
-                `Save failed: ${RESULT.error ?? "Unknown state persistence error"}`,
-            );
+            const ERROR = RESULT.error ?? "Unknown state persistence error";
+            feedback.addLog(`Save failed: ${ERROR}`);
+            feedback.onRejected?.(ERROR);
             return false;
         }
         return true;
     } catch {
-        addLog("Save failed: unexpected state persistence error.");
+        feedback.addLog("Save failed: unexpected state persistence error.");
         return false;
     }
 }

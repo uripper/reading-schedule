@@ -6,19 +6,15 @@
 //! persists it in one journal transaction, so creation, deletion, archival, and book
 //! transfers are all-or-nothing. See `workspace_model` for the storage decision.
 mod catalog;
-mod combined;
-mod combined_owners;
-mod combined_split;
 mod completion;
 mod lifecycle;
 mod requests;
 mod save;
+mod save_guard;
 #[cfg(test)]
 pub(crate) mod test_support;
 #[cfg(test)]
 mod tests;
-#[cfg(test)]
-mod tests_combined;
 #[cfg(test)]
 mod tests_save;
 #[cfg(test)]
@@ -63,11 +59,10 @@ pub fn project_active_load(load_result: LoadResult) -> Result<Value, String> {
     let active_id = workspace_model::active_workspace_id(&state)
         .unwrap_or_default()
         .to_string();
-    let workspace = current_view_load(&state, &active_id)?;
+    let workspace = catalog::workspace_load(&state, &active_id)?;
     let mut payload = load_result.with_state(workspace.state).into_value();
     payload["workspace"] = json!({
         "catalog": workspace.catalog,
-        "combined": workspace.combined,
         "needsReplan": workspace.needs_replan,
         "revision": workspace.revision,
         "workspaceId": workspace.workspace_id,
@@ -75,30 +70,8 @@ pub fn project_active_load(load_result: LoadResult) -> Result<Value, String> {
     Ok(payload)
 }
 
-/// Loads the All Workspaces view when it is selected, otherwise the active workspace.
-fn current_view_load(state: &Value, active_id: &str) -> Result<WorkspaceLoad, String> {
-    if workspace_model::is_all_workspaces_view(state) {
-        return Ok(combined::combined_load(state));
-    }
-    catalog::workspace_load(state, active_id)
-}
-
-/// Reads the All Workspaces view without changing the saved selection.
-pub fn load_all(data_directory: &Path) -> Result<WorkspaceLoad, String> {
-    read(data_directory, combined_view)
-}
-
-fn combined_view(state: &Value) -> Result<WorkspaceLoad, String> {
-    if workspace_model::usable_workspace_count(state) < 2 {
-        return Err(
-            "All Workspaces needs at least two workspaces that are not archived.".to_string(),
-        );
-    }
-    Ok(combined::combined_load(state))
-}
-
-/// Records which workspace (or All Workspaces) reopens on next launch. Opening reads
-/// with `load`/`load_all` first, so this write stays off the switching path.
+/// Records which workspace reopens on next launch. Opening reads with `load` first,
+/// so this write stays off the switching path.
 pub fn select(data_directory: &Path, workspace_id: &str) -> Result<(), String> {
     mutate_when(data_directory, |state| {
         let changed = apply_selection(state, workspace_id)?;
@@ -108,14 +81,9 @@ pub fn select(data_directory: &Path, workspace_id: &str) -> Result<(), String> {
 
 /// Applies a selection and reports whether it differs from the saved one.
 fn apply_selection(state: &mut Value, workspace_id: &str) -> Result<bool, String> {
-    let was_all = workspace_model::is_all_workspaces_view(state);
     let previous_id = workspace_model::active_workspace_id(state).map(str::to_string);
-    if workspace_id == workspace_model::ALL_WORKSPACES_ID {
-        lifecycle::activate_all(state)?;
-        return Ok(!was_all);
-    }
     lifecycle::activate(state, workspace_id)?;
-    Ok(was_all || previous_id.as_deref() != Some(workspace_id))
+    Ok(previous_id.as_deref() != Some(workspace_id))
 }
 
 /// Saves the renderer snapshot into its workspace after revision checks.

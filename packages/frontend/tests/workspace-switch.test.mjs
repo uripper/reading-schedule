@@ -12,7 +12,7 @@ import {
 
 const { switchWorkspace } =
     await import("../dist/renderer/workspaces/workspace-switch.js");
-const { activeWorkspaceId, setLoadedWorkspace } =
+const { activeWorkspaceId, finishApplyingWorkspace, setLoadedWorkspace } =
     await import("../dist/renderer/workspaces/workspace-store.js");
 
 /** Shows the source workspace, as after loading it. */
@@ -23,6 +23,7 @@ function startInSource() {
         revision: 1,
         workspaceId: SOURCE_ID,
     });
+    finishApplyingWorkspace(SOURCE_ID);
 }
 
 test("switching flushes, isolates planner runs, and applies the destination", async () => {

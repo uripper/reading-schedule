@@ -227,3 +227,39 @@ fn unchecking_a_session_clears_its_day_book_completion() {
         .get(day_key.as_str())
         .is_none());
 }
+
+#[test]
+fn saves_never_copy_books_from_another_workspace() {
+    let directory = TestDirectory::new("save-guard");
+    let target_id = seed_two(
+        &directory.path,
+        planner_snapshot(vec![book("book-a", "Dune")]),
+        planner_snapshot(vec![book("book-b", "Emma")]),
+    );
+    let revision_before = stored_revision(&directory.path, &target_id);
+    let copied = planner_snapshot(vec![book("book-b", "Emma"), book("book-a", "Dune")]);
+    let error = save_snapshot(&directory.path, &save_request(Some(&target_id), copied))
+        .expect_err("expected a cross-workspace save to be refused");
+    assert!(error.starts_with("WORKSPACE_OUT_OF_SYNC"), "{error}");
+    assert!(
+        error.contains("\"Dune\" belongs to another workspace"),
+        "{error}"
+    );
+    assert_eq!(
+        stored_revision(&directory.path, &target_id),
+        revision_before
+    );
+    let twice = planner_snapshot(vec![book("book-b", "Emma"), book("book-b", "Emma")]);
+    let error = save_snapshot(&directory.path, &save_request(Some(&target_id), twice))
+        .expect_err("expected a duplicated book to be refused");
+    assert!(error.contains("appears twice"), "{error}");
+    let mut mislabeled = planner_snapshot(vec![book("book-b", "Emma")]);
+    mislabeled["workspace_id"] = serde_json::json!(DEFAULT_WORKSPACE_ID);
+    let error = save_snapshot(&directory.path, &save_request(Some(&target_id), mislabeled))
+        .expect_err("expected data from another workspace to be refused");
+    assert!(error.contains("different workspace"), "{error}");
+    assert_eq!(
+        stored_revision(&directory.path, &target_id),
+        revision_before
+    );
+}

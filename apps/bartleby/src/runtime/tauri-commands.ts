@@ -21,7 +21,6 @@ export const TAURI_COMMANDS = {
     workspaceDelete: "workspace_delete",
     workspaceList: "workspace_list",
     workspaceLoad: "workspace_load",
-    workspaceLoadAll: "workspace_load_all",
     workspaceRename: "workspace_rename",
     workspaceSelect: "workspace_select",
     workspaceSetArchived: "workspace_set_archived",

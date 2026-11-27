@@ -13,7 +13,7 @@ import { applyWorkspacePlannerState } from "../app/init/init-app-load.ts";
 import { resetTodayCarouselUiState } from "../app/today/today_carousel_state.ts";
 import { bindBookDialogWorkspaceField } from "./book-dialog-workspace-field.ts";
 import { bindLibraryMoveControl } from "./library-move-control.ts";
-import { bindPlanSettingsLock } from "./workspace-plan-settings-lock.ts";
+import { bindSaveRecovery } from "./workspace-save-recovery.ts";
 import { bindWorkspaceSelector } from "./workspace-selector.ts";
 import { bindWorkspaceSettings } from "./workspace-settings.ts";
 import { setWorkspaceCatalog, workspaceCatalog } from "./workspace-store.ts";
@@ -50,7 +50,7 @@ export function initWorkspaces(
     bindWorkspaceSettings(RUNTIME);
     bindBookDialogWorkspaceField(RUNTIME.moveBooks);
     bindLibraryMoveControl(RUNTIME.moveBooks);
-    bindPlanSettingsLock();
+    bindSaveRecovery(RUNTIME);
     if (workspaceCatalog() === null) {
         RUNTIME.refreshCatalog().catch((): void => {
             context.addLog("Workspaces become available after the first save.");
