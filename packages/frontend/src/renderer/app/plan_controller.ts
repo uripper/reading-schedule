@@ -12,7 +12,7 @@ import type {
     RunAutoPlanFactoryArgs,
     RunPlanGenerationArgs,
 } from "../../types/types.ts";
-import { PLAN_FAILURE_MESSAGE } from "../errors/index.ts";
+import { createAutoPlanScheduler } from "./plan-auto-scheduler.ts";
 import { replanPolicy } from "./plan-replan-policy.ts";
 import { runPlanGeneration } from "./plan.ts";
 import {
@@ -20,8 +20,6 @@ import {
     applyPlannedData,
 } from "./plan_controller_apply.ts";
 
-const AUTO_PLAN_DELAY_MS = 450;
-const AUTO_PLAN_FAILURE_MESSAGE = PLAN_FAILURE_MESSAGE;
 const AUTO_PLAN_GENERATING_MESSAGE = "Updating Schedule";
 const AUTO_PLAN_SUCCESS_ANNOUNCEMENT = "";
 const DEFAULT_LAST_RESULT: PlannerResult = {
@@ -132,39 +130,6 @@ function autoPlanRunIsCurrent(
     return state.autoRunVersion === runVersion;
 }
 
-function autoPlanFailureHandler(
-    addLog: PlanControllerArgs["addLog"],
-    setStatus: PlanControllerArgs["setStatus"],
-): (_error: unknown) => void {
-    return (_error: unknown): void => {
-        addLog(AUTO_PLAN_FAILURE_MESSAGE);
-        setStatus(AUTO_PLAN_FAILURE_MESSAGE, true, "error");
-    };
-}
-
-function runScheduledAutoPlan(
-    runner: () => Promise<void>,
-    onFailure: (_error: unknown) => void,
-): void {
-    runner().catch(onFailure);
-}
-
-function createScheduleAutoPlan(
-    addLog: PlanControllerArgs["addLog"],
-    setStatus: PlanControllerArgs["setStatus"],
-): RunAutoPlanFactoryArgs["scheduleAutoPlan"] {
-    let autoTimer: ReturnType<typeof setTimeout> | null = null;
-    const ON_FAILURE = autoPlanFailureHandler(addLog, setStatus);
-    return (runner: () => Promise<void>): void => {
-        if (autoTimer !== null) {
-            clearTimeout(autoTimer);
-        }
-        autoTimer = setTimeout((): void => {
-            runScheduledAutoPlan(runner, ON_FAILURE);
-        }, AUTO_PLAN_DELAY_MS);
-    };
-}
-
 function autoPlanState(): AutoPlanState {
     return {
         activeRunCount: 0,
@@ -187,22 +152,31 @@ function createRunAutoPlan(args: RunAutoPlanFactoryArgs): () => Promise<void> {
     };
 }
 
+/** Makes every queued or in-flight run stale so its result is never applied. */
+function invalidateAutoPlanRuns(state: AutoPlanState): void {
+    const STATE = state;
+    STATE.autoRunVersion += 1;
+    STATE.autoRunPending = false;
+    STATE.replanTodayPending = false;
+}
+
 function createAutoPlanRunner(args: PlanControllerArgs): AutoPlanRunner {
-    const SCHEDULE_AUTO_PLAN = createScheduleAutoPlan(
-        args.addLog,
-        args.setStatus,
-    );
+    const SCHEDULER = createAutoPlanScheduler(args.addLog, args.setStatus);
     const RUN_AUTO_PLAN_ARGS = {
         ...args,
-        scheduleAutoPlan: SCHEDULE_AUTO_PLAN,
+        scheduleAutoPlan: SCHEDULER.schedule,
         state: autoPlanState(),
     };
     const RUN_AUTO_PLAN = createRunAutoPlan(RUN_AUTO_PLAN_ARGS);
     const QUEUE = (explicitToday: boolean): void => {
         markAutoPlanQueued(RUN_AUTO_PLAN_ARGS.state, explicitToday);
-        SCHEDULE_AUTO_PLAN(RUN_AUTO_PLAN);
+        SCHEDULER.schedule(RUN_AUTO_PLAN);
     };
     return {
+        invalidatePendingRuns: (): void => {
+            SCHEDULER.cancel();
+            invalidateAutoPlanRuns(RUN_AUTO_PLAN_ARGS.state);
+        },
         queueAutoPlan: (): void => {
             QUEUE(false);
         },
@@ -235,6 +209,7 @@ export function createPlanController(
         applyLoadedResult: (savedResult: PlannerResult | null): void => {
             applySavedResult(root0, savedResult);
         },
+        invalidatePendingRuns: AUTO_PLAN_RUNNER.invalidatePendingRuns,
         queueAutoPlan: AUTO_PLAN_RUNNER.queueAutoPlan,
         replanToday: AUTO_PLAN_RUNNER.replanToday,
     };

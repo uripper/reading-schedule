@@ -10,6 +10,12 @@
   </head>
   <body>
     <a class="skip-link" href="#mainContent">Skip to main content</a>
+    <div id="appLoadingOverlay" class="app-loading-overlay" role="status" aria-live="polite">
+      <div class="app-loading-card">
+        <span class="icon app-loading-icon" aria-hidden="true"></span>
+        <span id="appLoadingText" class="app-loading-text">Loading Bartleby…</span>
+      </div>
+    </div>
 
     <header class="app-header" role="banner">
       <div class="neo-brand-wrap">
@@ -53,6 +59,10 @@
         </section>
       </div>
       <div class="neo-header-actions">
+        <label id="workspaceSelectWrap" class="workspace-select-wrap" hidden>
+          <span class="workspace-select-label">Workspace</span>
+          <select id="workspaceSelect" class="workspace-select"></select>
+        </label>
         <button id="helpBtn" class="btn btn-primary neo-help-btn" type="button">
           Help/Logs
         </button>
@@ -323,6 +333,15 @@
               Days Off
             </button>
             <button
+              id="workspacesSettingsTab"
+              class="settings-section-tab"
+              type="button"
+              data-settings-section-target="workspaces"
+              hidden
+            >
+              Workspaces
+            </button>
+            <button
               class="settings-section-tab"
               type="button"
               data-settings-section-target="experience"
@@ -359,6 +378,47 @@
                 </button>
               </div>
               <div id="dayOffList" class="chip-list"></div>
+            </article>
+            <article
+              class="settings-card"
+              data-settings-section="workspaces"
+              hidden
+            >
+              <h2>Workspaces</h2>
+              <p id="workspaceSettingsEmpty" class="hint-text" hidden>
+                Workspaces become available after the first save.
+              </p>
+              <ul
+                id="workspaceSettingsList"
+                class="workspace-settings-list"
+                aria-label="Workspaces"
+              ></ul>
+              <h3>New Workspace</h3>
+              <form id="workspaceCreateForm" class="workspace-create-form">
+                <div class="settings-grid">
+                  <label
+                    >Name<input
+                      id="workspaceCreateName"
+                      type="text"
+                      maxlength="80"
+                      autocomplete="off"
+                      required
+                  /></label>
+                  <label
+                    >Start with plan settings from<select
+                      id="workspaceCreateSource"
+                    ></select
+                  ></label>
+                </div>
+                <button
+                  id="workspaceCreateSubmit"
+                  class="btn btn-primary"
+                  type="submit"
+                >
+                  <span class="icon icon-plus" aria-hidden="true"></span>
+                  Create Workspace
+                </button>
+              </form>
             </article>
             <article
               class="settings-card"

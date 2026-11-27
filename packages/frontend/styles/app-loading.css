@@ -1,0 +1,54 @@
+/*
+ * Blocking loading state for app start and workspace changes: a hard-shadow card
+ * with the Lucide loader icon spinning, over a dimmed backdrop that also stops
+ * clicks while data is being swapped.
+ */
+.app-loading-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--color-black) 35%, transparent);
+}
+
+.app-loading-overlay[hidden] {
+    display: none;
+}
+
+.app-loading-card {
+    display: inline-flex;
+    gap: var(--token-space-3);
+    align-items: center;
+    padding: var(--token-space-4) var(--token-space-6);
+    color: var(--color-black);
+    background: var(--color-yellow);
+    border: var(--border-thick) solid var(--color-black);
+    border-radius: 0.65rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.app-loading-icon {
+    --icon: var(--icon-loader-circle);
+    --icon-size: 2.5rem;
+
+    animation: app-loading-spin 900ms linear infinite;
+}
+
+.app-loading-text {
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-heading-sm);
+    font-weight: var(--token-typography-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+@keyframes app-loading-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+:root[data-reduce-motion="true"] .app-loading-icon {
+    animation-duration: 0ms;
+}

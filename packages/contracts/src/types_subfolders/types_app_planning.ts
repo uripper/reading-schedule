@@ -158,6 +158,8 @@ export type CreatePlanControllerArgs = PlanControllerArgs;
 export interface PlanController {
     /** Applies a loaded planner result and refreshes dependent runtime/UI state. */
     applyLoadedResult(savedResult: PlannerResult | null): void;
+    /** Cancels queued runs and discards in-flight results, e.g. on workspace switch. */
+    invalidatePendingRuns(this: void): void;
     /** Queues an automatic plan run if one is needed. */
     queueAutoPlan(this: void): void;
     /** Rebuilds unfinished work for today while retaining completed sessions. */
@@ -168,6 +170,8 @@ export interface PlanController {
 export interface AutoPlanRunner {
     /** Queues auto plan work for deferred execution. */
     queueAutoPlan(this: void): void;
+    /** Cancels queued runs and discards results of runs already in flight. */
+    invalidatePendingRuns(this: void): void;
     /** Queues an explicit same-day replan that retains completed sessions. */
     replanToday(this: void): void;
 }

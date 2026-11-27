@@ -87,6 +87,8 @@ export interface DraftDataParams
         PlannerResultState,
         ScheduleCompletionState,
         SessionState {
+    /** Destinations of books added in the All Workspaces view, when there are any. */
+    bookWorkspaces?: Record<string, string>;
     /** Normalized feature flags controlling optional runtime behavior. */
     featureFlags: FeatureFlags;
     /** Normalized user experience preferences applied by the renderer. */
@@ -98,6 +100,8 @@ export interface PersistQueueArgs
     extends PlannerInputCollectors, SessionReader {
     /** Appends a diagnostic message to the in-app log. */
     addLog(this: void, message: string): void;
+    /** Destinations of books added in the All Workspaces view, if any. */
+    collectBookWorkspaces?(this: void): Record<string, string> | undefined;
     /** Reports every completed save attempt to the runtime error surface. */
     onPersistResult?(this: void, saved: boolean): void;
     /** Planner API subset used to persist serialized draft state. */
@@ -110,6 +114,8 @@ export interface PersistQueueArgs
 export interface PersistQueue {
     /** Flushes queued and active work, then persists the newest state snapshot. */
     flushPendingState(this: void): Promise<boolean>;
+    /** Saves only when an edit is still queued or saving; true when nothing is unsaved. */
+    flushPendingChanges(this: void): Promise<boolean>;
     /** Attempts an immediate draft save and resolves true on success. */
     persistDraft(this: void): Promise<boolean>;
     /** Cancels queued draft saves and waits for any active save before replacing state externally. */
@@ -164,6 +170,8 @@ export interface AppBootstrapContext {
     dashboards: DashboardRuntime;
     /** Flushes pending persistence before an app lifecycle transition. */
     flushPendingState(this: void): Promise<boolean>;
+    /** Saves only when an edit is still queued or saving; true when nothing is unsaved. */
+    flushPendingChanges(this: void): Promise<boolean>;
     /** Persists draft state to durable storage. */
     persistDraft(this: void): Promise<boolean>;
     /** Planner API dependency used to call planner-side operations. */

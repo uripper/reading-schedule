@@ -6,6 +6,8 @@ use image::{DynamicImage, ImageBuffer, ImageFormat, Rgb};
 use serde_json::Value;
 use uuid::Uuid;
 
+use crate::workspaces::test_support::active_snapshot;
+
 use crate::app_paths::canonical_cover_directory;
 use crate::data_archive::{export_archive_json_for_test, import_archive_json_for_test};
 use crate::state_store::{load_state_value_from_directory, save_state_to_directory};
@@ -153,7 +155,7 @@ fn import_archive_json_replaces_existing_data() {
     assert_eq!(import_result.schedule_rows_restored, 1);
     assert_eq!(import_result.sessions_restored, 1);
     assert_eq!(import_result.completion_entries_restored, 1);
-    let imported_state = load_state_value_from_directory(&target_directory);
+    let imported_state = active_snapshot(&load_state_value_from_directory(&target_directory));
     let imported_cover_path = first_book_cover_path(&imported_state);
     let target_path_prefix = target_directory.to_string_lossy().into_owned();
     assert!(imported_cover_path.starts_with(&target_path_prefix));
@@ -255,7 +257,7 @@ fn import_archive_json_rewrites_cover_paths_for_new_directory() {
         .expect("expected portable archive import");
     assert_eq!(import_result.directories_restored, 1);
     assert_eq!(import_result.books_restored, 1);
-    let imported_state = load_state_value_from_directory(&target_directory);
+    let imported_state = active_snapshot(&load_state_value_from_directory(&target_directory));
     let imported_cover_path = first_book_cover_path(&imported_state);
     let target_path_prefix = target_directory.to_string_lossy().into_owned();
     assert!(imported_cover_path.starts_with(&target_path_prefix));

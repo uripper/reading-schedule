@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 const JSON_STATE_BACKUP_FILE_NAME: &str = "planner_state.json.bak";
 const JSON_STATE_FILE_NAME: &str = "planner_state.json";
 const JSON_STATE_TEMP_FILE_NAME: &str = "planner_state.json.tmp";
+const PRE_WORKSPACE_BACKUP_FILE_NAME: &str = "planner_state.pre_workspaces.json";
 const LEGACY_MIGRATION_MARKER_FILE_NAME: &str = "legacy_migration.done";
 const SQLITE_SHM_FILE_NAME: &str = "planner_state.sqlite3-shm";
 const SQLITE_STATE_FILE_NAME: &str = "planner_state.sqlite3";
@@ -34,4 +35,9 @@ pub fn sqlite_state_path(data_directory: &Path) -> PathBuf {
 
 pub fn sqlite_wal_path(data_directory: &Path) -> PathBuf {
     data_directory.join(SQLITE_WAL_FILE_NAME)
+}
+
+/// Copy of the last single-library state, written once before the workspace migration.
+pub fn pre_workspace_backup_path(data_directory: &Path) -> PathBuf {
+    data_directory.join(PRE_WORKSPACE_BACKUP_FILE_NAME)
 }

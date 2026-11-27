@@ -9,6 +9,7 @@ use super::paths::{
     json_state_backup_path, json_state_path, sqlite_shm_path, sqlite_state_path, sqlite_wal_path,
 };
 use super::sqlite_store::{read_state_from_sqlite_path, write_state_to_sqlite};
+use crate::workspace_model;
 
 pub struct RecoveryCounts {
     pub books: usize,
@@ -65,30 +66,36 @@ fn backup_targets(user_data_dir: &Path) -> Result<Vec<String>, String> {
 }
 
 fn count_entities(state: &Value) -> RecoveryCounts {
+    let snapshots = workspace_model::snapshots(state);
     RecoveryCounts {
-        books: state
-            .get("books")
-            .and_then(Value::as_array)
-            .map(Vec::len)
-            .unwrap_or(0),
-        schedule_completions: state
-            .get("schedule_completions")
-            .and_then(Value::as_object)
-            .map(|value| value.len())
-            .unwrap_or(0),
-        schedule_rows: state
-            .get("last_result")
-            .and_then(Value::as_object)
-            .and_then(|value| value.get("schedule"))
-            .and_then(Value::as_array)
-            .map(Vec::len)
-            .unwrap_or(0),
-        sessions: state
-            .get("sessions")
-            .and_then(Value::as_array)
-            .map(Vec::len)
-            .unwrap_or(0),
+        books: snapshots
+            .iter()
+            .map(|snapshot| array_len(snapshot, "books"))
+            .sum(),
+        schedule_completions: snapshots
+            .iter()
+            .map(|snapshot| object_len(snapshot, "schedule_completions"))
+            .sum(),
+        schedule_rows: snapshots
+            .iter()
+            .map(|snapshot| array_len(&snapshot["last_result"], "schedule"))
+            .sum(),
+        sessions: snapshots
+            .iter()
+            .map(|snapshot| array_len(snapshot, "sessions"))
+            .sum(),
     }
+}
+
+fn array_len(value: &Value, key: &str) -> usize {
+    value.get(key).and_then(Value::as_array).map_or(0, Vec::len)
+}
+
+fn object_len(value: &Value, key: &str) -> usize {
+    value
+        .get(key)
+        .and_then(Value::as_object)
+        .map_or(0, serde_json::Map::len)
 }
 
 fn load_input_state(input_path: &Path) -> Result<LoadedInputState, String> {
@@ -124,6 +131,13 @@ fn target_exists(user_data_dir: &Path) -> bool {
 }
 
 fn validate_recovered_state(state: &Value) -> Result<(), String> {
+    if workspace_model::is_app_state(state) {
+        return workspace_model::validate_app_state(state).map(|_| ());
+    }
+    validate_recovered_snapshot(state)
+}
+
+fn validate_recovered_snapshot(state: &Value) -> Result<(), String> {
     let Some(state_object) = state.as_object() else {
         return Err("Recovered payload must be an object.".to_string());
     };

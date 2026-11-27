@@ -4,6 +4,8 @@ use std::fs;
 use serde_json::json;
 use uuid::Uuid;
 
+use crate::workspaces::test_support::active_snapshot;
+
 use crate::state_store::paths::{
     json_state_backup_path, json_state_path, legacy_migration_marker_path, sqlite_state_path,
 };
@@ -107,8 +109,7 @@ fn load_preferred_state_prefers_canonical_after_data_exists() {
             .into_owned()
     );
     assert_eq!(
-        load_result
-            .state
+        active_snapshot(&load_result.state)
             .get("settings")
             .and_then(|settings| settings.get("start_date"))
             .and_then(serde_json::Value::as_str),
@@ -152,8 +153,7 @@ fn load_preferred_state_prefers_canonical_sqlite_after_data_exists() {
             .into_owned()
     );
     assert_eq!(
-        load_result
-            .state
+        active_snapshot(&load_result.state)
             .get("settings")
             .and_then(|settings| settings.get("start_date"))
             .and_then(serde_json::Value::as_str),
@@ -195,8 +195,7 @@ fn load_preferred_state_uses_legacy_json_when_sqlite_fails() {
         .unwrap_or_default()
         .contains("loaded JSON fallback"));
     assert_eq!(
-        load_result
-            .state
+        active_snapshot(&load_result.state)
             .get("settings")
             .and_then(|settings| settings.get("start_date"))
             .and_then(serde_json::Value::as_str),
