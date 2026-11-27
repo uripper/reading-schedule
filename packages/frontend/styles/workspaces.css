@@ -1,0 +1,118 @@
+/*
+ * Workspace selector in the app header. It reuses the base select treatment and
+ * the header metric typography so the active workspace reads like a header metric.
+ */
+.neo-header-actions {
+    gap: var(--token-space-4);
+    align-items: center;
+}
+
+.workspace-select-wrap {
+    display: grid;
+    gap: var(--token-space-1);
+    min-width: 0;
+}
+
+.workspace-select-wrap[hidden] {
+    display: none;
+}
+
+.workspace-select-label {
+    font-family: var(--token-typography-family-heading);
+    font-size: var(--token-typography-size-heading-sm);
+    font-weight: var(--token-typography-weight-semibold);
+    line-height: 1;
+    color: var(--color-white);
+}
+
+.workspace-select {
+    max-width: 16rem;
+    min-height: var(--button-prominent-height);
+    font-weight: var(--token-typography-weight-semibold);
+}
+
+/*
+ * Settings → Workspaces list. Rows reuse the settings card border and shadow
+ * scale; the status badge spells out "Active" or "Archived" so state never
+ * relies on color alone. Rows wrap on narrow widths.
+ */
+.workspace-settings-list {
+    display: grid;
+    gap: var(--token-space-3);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.workspace-settings-row {
+    display: grid;
+    gap: var(--token-space-2);
+    padding: var(--token-space-3);
+    background: var(--color-banana);
+    border: var(--border-thick) solid var(--color-black);
+    border-radius: 0;
+    box-shadow: var(--shadow-sm);
+}
+
+.workspace-settings-row.is-archived {
+    background: var(--color-paper);
+}
+
+.workspace-settings-row-header,
+.workspace-settings-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-space-2);
+    align-items: center;
+}
+
+.workspace-settings-name {
+    flex: 1 1 14rem;
+    min-width: 0;
+    font-weight: var(--token-typography-weight-extrabold);
+}
+
+.workspace-settings-status {
+    padding: var(--token-space-1) var(--token-space-2);
+    font-size: var(--token-typography-size-md);
+    font-weight: var(--token-typography-weight-extrabold);
+    color: var(--color-black);
+    text-transform: uppercase;
+    background: var(--color-white);
+    border: var(--border-thick) solid var(--color-black);
+}
+
+.workspace-settings-info {
+    margin: 0;
+    font-weight: var(--token-typography-weight-semibold);
+    color: var(--color-black);
+}
+
+.workspace-settings-actions .btn[hidden] {
+    display: none;
+}
+
+.workspace-create-form {
+    display: grid;
+    gap: var(--token-space-3);
+    justify-items: start;
+}
+
+.workspace-create-form .settings-grid {
+    width: 100%;
+}
+
+@media (width <= 560px) {
+    .workspace-create-form .settings-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Per-workspace plan settings are read-only while All Workspaces is shown. */
+.settings-card.is-workspace-locked {
+    opacity: 0.55;
+}
+
+.workspace-plan-settings-note[hidden] {
+    display: none;
+}

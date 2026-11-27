@@ -1,4 +1,3 @@
-/** Owns live library edits and applies completed covers without delaying dialog saves. */
 import type {
     BindBooksUIOptions,
     Book,
@@ -11,6 +10,8 @@ import type {
 import { el } from "../dom.ts";
 import { activateTab } from "../tabs.ts";
 import { configureAddBookFlow } from "./add-book-flow.ts";
+/** Owns live library edits and applies completed covers without delaying dialog saves. */
+import { notifyBookSaved, prepareBookSave } from "./book-save-hook.ts";
 import { isBulkBookSubmitPayload } from "./bulk-edit-updates.ts";
 import { scrollToBookCard } from "./card_scroll_target.ts";
 import { bindControllerMassEdit } from "./controller-mass-edit.ts";
@@ -152,12 +153,13 @@ export function updateBookProgress(
 
 /** Commits dialog edits first and starts cover processing independently. */
 export function saveBook(payload: BookDialogSubmitPayload): void {
-    setBooks(nextBooksAfterDialogSave(books, payload));
+    setBooks(nextBooksAfterDialogSave(books, prepareBookSave(payload)));
     render();
     onBooksChanged();
     if (!isBulkBookSubmitPayload(payload)) {
         COVER_JOBS.queue(payload.book).catch(reportCoverCommitError);
     }
+    notifyBookSaved(payload);
 }
 
 /** Applies only the completed cover to the current book and queues persistence. */

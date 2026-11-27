@@ -10,9 +10,11 @@ import type {
     PlannerSaveResult,
     PlannerStateLoadResult,
     PlannerStateSnapshot,
+    WorkspaceLoadMeta,
 } from "@reading-schedule/contracts";
 import {
     parsePlanGenerateResult,
+    parseWorkspaceLoadMeta,
     parseSamplePayload,
 } from "@reading-schedule/contracts";
 import { convertFileSrc, invoke, isTauri } from "@tauri-apps/api/core";
@@ -20,6 +22,11 @@ import type { TauriPlannerCommand } from "./tauri-commands.ts";
 import { TAURI_COMMANDS } from "./tauri-commands.ts";
 import { pickKoboDatabase, readKoboProgress } from "./tauri-kobo-api.ts";
 import { createSearchApi } from "./tauri-search-api.ts";
+import {
+    createWorkspaceApi,
+    rememberLoadedWorkspace,
+    saveWorkspaceState,
+} from "./tauri-workspace-api.ts";
 
 const FILE_PROTOCOL = "file:";
 const LOCAL_WINDOWS_PATH_PATTERN = /^[a-zA-Z]:[\\/]/;
@@ -213,22 +220,27 @@ function createPlanApi(): Pick<PlannerApi, "generate" | "sample"> {
     };
 }
 
+/** Validates workspace metadata of a startup load, when the host sent any. */
+function parsedLoadMeta(meta: unknown): WorkspaceLoadMeta | undefined {
+    if (meta === undefined || meta === null) {
+        return undefined;
+    }
+    return parseWorkspaceLoadMeta(meta);
+}
+
 function createStateApi(): Pick<PlannerApi, "loadState" | "saveState"> {
     return {
         async loadState(): Promise<PlannerStateLoadResult> {
-            return await invokeCommand<PlannerStateLoadResult>(
+            const RESULT = await invokeCommand<PlannerStateLoadResult>(
                 TAURI_COMMANDS.stateLoad,
             );
+            rememberLoadedWorkspace(parsedLoadMeta(RESULT.workspace));
+            return RESULT;
         },
         async saveState(
             state: PlannerStateSnapshot,
         ): Promise<PlannerSaveResult> {
-            return await invokeCommand<PlannerSaveResult>(
-                TAURI_COMMANDS.stateSave,
-                {
-                    state,
-                },
-            );
+            return await saveWorkspaceState(invokeCommand, state);
         },
     };
 }
@@ -257,6 +269,7 @@ function createTauriPlannerApi(): PlannerApi {
         ...createSearchApi(invokeCommand),
         ...createStateApi(),
         ...createZoomApi(),
+        workspaces: createWorkspaceApi(invokeCommand),
     };
 }
 

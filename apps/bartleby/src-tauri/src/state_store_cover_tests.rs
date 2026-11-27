@@ -6,6 +6,8 @@ use image::{DynamicImage, ImageBuffer, ImageFormat, Rgb};
 use serde_json::json;
 use uuid::Uuid;
 
+use crate::workspaces::test_support::active_snapshot;
+
 use crate::state_store::paths::json_state_path;
 use crate::state_store::{
     load_canonical_state_for_test, load_preferred_state_for_test, run_state_maintenance,
@@ -64,8 +66,7 @@ fn load_preferred_state_defers_legacy_cover_extension_mismatch() {
         .as_deref()
         .unwrap_or_default()
         .contains("skipped cover migration"));
-    let loaded_cover_path = load_result
-        .state
+    let loaded_cover_path = active_snapshot(&load_result.state)
         .get("books")
         .and_then(serde_json::Value::as_array)
         .and_then(|books| books.first())
@@ -81,8 +82,7 @@ fn load_preferred_state_defers_legacy_cover_extension_mismatch() {
         run_state_maintenance(&canonical_directory).expect("expected background maintenance");
     assert!(maintenance_result.changed);
     let canonical_result = load_canonical_state_for_test(&canonical_directory);
-    let migrated_cover_path = canonical_result
-        .state
+    let migrated_cover_path = active_snapshot(&canonical_result.state)
         .get("books")
         .and_then(serde_json::Value::as_array)
         .and_then(|books| books.first())
@@ -93,8 +93,7 @@ fn load_preferred_state_defers_legacy_cover_extension_mismatch() {
     assert!(migrated_cover_path.ends_with(".jpg"));
     assert!(fs::exists(std::path::Path::new(&migrated_cover_path)).unwrap_or(false));
     assert_eq!(
-        load_result
-            .state
+        active_snapshot(&load_result.state)
             .get("settings")
             .and_then(|settings| settings.get("start_date"))
             .and_then(serde_json::Value::as_str),
@@ -124,8 +123,8 @@ fn load_canonical_state_defers_existing_cover_normalization() {
     )
     .expect("expected canonical state write");
     let load_result = load_canonical_state_for_test(&canonical_directory);
-    let loaded_cover_path = load_result
-        .state
+    let loaded_state = active_snapshot(&load_result.state);
+    let loaded_cover_path = loaded_state
         .get("books")
         .and_then(serde_json::Value::as_array)
         .and_then(|books| books.first())
@@ -159,15 +158,18 @@ fn state_maintenance_repairs_orphaned_blockers() {
     assert!(maintenance_result.state_repaired);
     let load_result = load_canonical_state_for_test(&canonical_directory);
     assert_eq!(
-        load_result.state["books"][0]["blocked_by"],
+        active_snapshot(&load_result.state)["books"][0]["blocked_by"],
         serde_json::Value::Null,
     );
-    assert_eq!(load_result.state["books"][1]["blocked_by"], "book-a");
-    assert!(load_result.state["blocked_day_books"]
+    assert_eq!(
+        active_snapshot(&load_result.state)["books"][1]["blocked_by"],
+        "book-a"
+    );
+    assert!(active_snapshot(&load_result.state)["blocked_day_books"]
         .get("2026-04-03|missing-book")
         .is_none());
     assert_eq!(
-        load_result.state["blocked_day_books"]["2026-04-03|book-a"],
+        active_snapshot(&load_result.state)["blocked_day_books"]["2026-04-03|book-a"],
         true,
     );
     let _ = fs::remove_dir_all(&canonical_directory);
@@ -189,9 +191,12 @@ fn state_round_trip_keeps_book_collections() {
     run_state_maintenance(&canonical_directory).expect("expected background maintenance");
     let load_result = load_canonical_state_for_test(&canonical_directory);
     assert_eq!(
-        load_result.state["books"][0]["collections"],
+        active_snapshot(&load_result.state)["books"][0]["collections"],
         json!(["Classics", "Summer"]),
     );
-    assert_eq!(load_result.state["books"][0]["shelf"], "Home");
+    assert_eq!(
+        active_snapshot(&load_result.state)["books"][0]["shelf"],
+        "Home"
+    );
     let _ = fs::remove_dir_all(&canonical_directory);
 }

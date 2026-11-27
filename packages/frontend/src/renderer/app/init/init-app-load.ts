@@ -2,6 +2,7 @@ import type {
     AppBootstrapContext,
     CreateLoadStateArgsInput,
     FinalizeInitialLoadArgs,
+    LoadedPlannerState,
     LoadedResultController,
     LoadStateArgs,
     PlannerResult,
@@ -9,13 +10,14 @@ import type {
 import { applyPreferencesToDocument } from "../../accessibility/a11y.ts";
 import { fillBooks } from "../../books/controller.ts";
 import { fillSettings } from "../../settings.ts";
+import { setLoadedWorkspace } from "../../workspaces/workspace-store.ts";
 import { fillPreferencesUI as fillPreferencesUi } from "../experience/fill_ui.ts";
 import {
     normalizeFeatureFlags,
     normalizePreferences,
 } from "../experience/model.ts";
 import { normalizeScheduleCompletions } from "../experience/schedule_completions.ts";
-import { loadInitialData } from "../load_state.ts";
+import { applySavedPlannerState, loadInitialData } from "../load_state.ts";
 import { applyAppStateMutation } from "../state_mutations.ts";
 import { finalizeInitialLoad } from "./init-helpers.ts";
 
@@ -105,6 +107,7 @@ function createRuntimeLoadStateArgs(
         normalizePreferences,
         normalizeScheduleCompletions,
         onLoaded: (saved, loadResult) => {
+            setLoadedWorkspace(loadResult.workspace);
             finalizeLoad(args, loadResult, saved);
         },
         plannerApi: args.context.plannerApi,
@@ -165,6 +168,44 @@ function createLoadStateArgs(args: CreateLoadStateArgsInput): LoadStateArgs {
     return LOAD_STATE_ARGS;
 }
 
+/** Collects the bindings both startup loads and workspace switches apply state with. */
+function loadStateInput(
+    context: AppBootstrapContext,
+    planController: LoadedResultController,
+): CreateLoadStateArgsInput {
+    return {
+        context,
+        planController,
+        queueAutoPlanIfReady: context.runtime.queueAutoPlanIfReady.bind(
+            context.runtime,
+        ),
+        queuePersist: context.queuePersist,
+        setStatus: context.setStatus.bind(context),
+        state: context.state,
+        updateTodayView: context.dashboards.updateDashboards.bind(
+            context.dashboards,
+        ),
+    };
+}
+
+/**
+ * Applies a workspace's planner snapshot through the same bindings as startup.
+ * @param context - Application bootstrap context.
+ * @param planController - Controller that renders the snapshot's saved schedule.
+ * @param saved - Workspace snapshot returned by the host.
+ * @returns Promise that resolves once the snapshot is on screen.
+ */
+export async function applyWorkspacePlannerState(
+    context: AppBootstrapContext,
+    planController: LoadedResultController,
+    saved: LoadedPlannerState,
+): Promise<void> {
+    await applySavedPlannerState(
+        saved,
+        createLoadStateArgs(loadStateInput(context, planController)),
+    );
+}
+
 /**
  * Loads the initial state of the application and applies it to runtime context.
  * @param context - Application bootstrap context containing APIs and state management functions
@@ -176,18 +217,6 @@ export async function loadStateAndBindTodayActions(
     planController: LoadedResultController,
 ): Promise<void> {
     await loadInitialData(
-        createLoadStateArgs({
-            context,
-            planController,
-            queueAutoPlanIfReady: context.runtime.queueAutoPlanIfReady.bind(
-                context.runtime,
-            ),
-            queuePersist: context.queuePersist,
-            setStatus: context.setStatus.bind(context),
-            state: context.state,
-            updateTodayView: context.dashboards.updateDashboards.bind(
-                context.dashboards,
-            ),
-        }),
+        createLoadStateArgs(loadStateInput(context, planController)),
     );
 }

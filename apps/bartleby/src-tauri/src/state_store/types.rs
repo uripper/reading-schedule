@@ -13,6 +13,9 @@ pub const WARNING_MIGRATED_STATE_VERSION: &str = "MIGRATED_STATE_VERSION";
 pub const WARNING_RECOVERED_FROM_BACKUP: &str = "RECOVERED_FROM_BACKUP";
 pub const WARNING_RECOVERED_FROM_JOURNAL: &str = "RECOVERED_FROM_JOURNAL";
 pub const WARNING_STATE_RESET_FRESH: &str = "STATE_RESET_FRESH";
+/// Saved data exists but cannot be used safely (for example a newer format), so writes
+/// are refused until the user updates Bartleby or restores a backup.
+pub const WARNING_STATE_WRITE_BLOCKED: &str = "STATE_WRITE_BLOCKED";
 
 #[derive(Clone, Debug)]
 pub struct LoadResult {

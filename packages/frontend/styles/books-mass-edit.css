@@ -70,3 +70,21 @@
         width: auto;
     }
 }
+
+/* Move-to-workspace control stacked above the floating Edit Books button. */
+.books-mass-edit-move {
+    position: fixed;
+    right: 24px;
+    bottom: calc(24px + 64px + var(--token-space-3));
+    z-index: 420;
+    min-width: clamp(220px, 22vw, 320px);
+}
+
+.books-mass-edit-move[hidden] {
+    display: none;
+}
+
+.books-mass-edit-move select {
+    width: 100%;
+    min-height: 56px;
+}

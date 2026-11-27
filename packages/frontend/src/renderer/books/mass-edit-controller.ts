@@ -1,8 +1,11 @@
 import type { Book, BookMassEditOptions } from "../../types/types.ts";
+import {
+    ensureAddVisibleButton,
+    ensureFloatingButton,
+    ensureToolbarButton,
+} from "./mass-edit-buttons.ts";
+import { publishMassEditSelection } from "./mass-edit-selection.ts";
 
-const ADD_VISIBLE_BUTTON_ID = "booksMassEditAddVisibleBtn";
-const MASS_EDIT_BUTTON_ID = "booksMassEditBtn";
-const FLOATING_BUTTON_ID = "booksMassEditFloatingBtn";
 const ACTIVE_CLASS = "is-mass-editing";
 const ADD_VISIBLE_LABEL_SINGLE = "Add 1 Book";
 const SELECTED_LABEL_SINGLE = "Edit 1 Book";
@@ -44,48 +47,6 @@ function toolbarActions(toolbar: HTMLElement): HTMLElement {
         return EXISTING;
     }
     return toolbar;
-}
-
-function ensureToolbarButton(toolbar: HTMLElement): HTMLButtonElement {
-    const EXISTING = document.getElementById(MASS_EDIT_BUTTON_ID);
-    if (EXISTING instanceof HTMLButtonElement) {
-        return EXISTING;
-    }
-    const BUTTON = document.createElement("button");
-    BUTTON.id = MASS_EDIT_BUTTON_ID;
-    BUTTON.type = "button";
-    BUTTON.className = "btn books-mass-edit-btn";
-    BUTTON.textContent = INACTIVE_LABEL;
-    toolbar.append(BUTTON);
-    return BUTTON;
-}
-
-function ensureAddVisibleButton(toolbar: HTMLElement): HTMLButtonElement {
-    const EXISTING = document.getElementById(ADD_VISIBLE_BUTTON_ID);
-    if (EXISTING instanceof HTMLButtonElement) {
-        return EXISTING;
-    }
-    const BUTTON = document.createElement("button");
-    BUTTON.id = ADD_VISIBLE_BUTTON_ID;
-    BUTTON.type = "button";
-    BUTTON.className = "btn btn-add-book books-mass-edit-add-btn";
-    BUTTON.hidden = true;
-    toolbar.append(BUTTON);
-    return BUTTON;
-}
-
-function ensureFloatingButton(): HTMLButtonElement {
-    const EXISTING = document.getElementById(FLOATING_BUTTON_ID);
-    if (EXISTING instanceof HTMLButtonElement) {
-        return EXISTING;
-    }
-    const BUTTON = document.createElement("button");
-    BUTTON.id = FLOATING_BUTTON_ID;
-    BUTTON.type = "button";
-    BUTTON.className = "btn btn-primary books-mass-edit-floating";
-    BUTTON.hidden = true;
-    document.body.append(BUTTON);
-    return BUTTON;
 }
 
 function selectedVisibleBookIds(state: MassEditState): string[] {
@@ -155,6 +116,7 @@ function updateButtons(state: MassEditState, buttons: MassEditButtons): void {
     setToolbarButtonState(state, buttons);
     setAddVisibleButtonState(state, buttons);
     setFloatingButtonState(state, buttons);
+    publishMassEditSelection(state.active, selectedVisibleBookIds(state));
 }
 
 function pruneHiddenSelections(state: MassEditState): void {

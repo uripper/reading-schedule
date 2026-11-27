@@ -1,4 +1,5 @@
 import { logDebug, setLogLevel } from "../types/logger.ts";
+import { finishAppStartLoading } from "./app/app-loading.ts";
 import { createAppBootstrapContext } from "./app/bootstrap-runtime.ts";
 import { initApp } from "./app/init/init-app.ts";
 
@@ -9,7 +10,11 @@ logDebug("Renderer runtime log level initialized.", {
 
 const CONTEXT = createAppBootstrapContext();
 
-await initApp(CONTEXT);
+try {
+    await initApp(CONTEXT);
+} finally {
+    finishAppStartLoading();
+}
 
 /**
  * Flushes the latest renderer state before the desktop host restarts the app.

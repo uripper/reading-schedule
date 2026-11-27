@@ -4,6 +4,7 @@ use crate::{
     window_zoom,
 };
 use serde_json::Value;
+use std::sync::atomic::Ordering;
 use std::time::Instant;
 
 /// Reads mounted Kobo progress off the UI thread; no device writes are performed.
@@ -26,7 +27,7 @@ pub fn app_data_import(
     app: tauri::AppHandle,
     payload_json: String,
 ) -> Result<data_archive::AppDataImportResult, String> {
-    data_archive::import_app_data(&app, &payload_json)
+    state_store::with_state_write_lock(|| data_archive::import_app_data(&app, &payload_json))
 }
 
 #[tauri::command]
@@ -61,7 +62,7 @@ pub async fn state_run_maintenance(
 ) -> Result<state_store::StateMaintenanceResult, String> {
     let data_directory = app_paths::canonical_data_directory(&app)?;
     tauri::async_runtime::spawn_blocking(move || {
-        state_store::run_state_maintenance(&data_directory)
+        state_store::with_state_write_lock(|| state_store::run_state_maintenance(&data_directory))
     })
     .await
     .map_err(|error| format!("State maintenance task join error: {error}"))?
@@ -74,8 +75,12 @@ pub async fn plan_generate(
 ) -> Result<Value, String> {
     let command_started_at = Instant::now();
     let shared_cache = plan_cache_state.shared();
-    let latest_request_id = plan_cache_state.latest_request_id();
-    let request_id = plan_cache_state.next_request_id();
+    let scope = payload
+        .get("plan_scope")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    let latest_request_id = plan_cache_state.latest_request_id(scope)?;
+    let request_id = latest_request_id.fetch_add(1, Ordering::AcqRel) + 1;
     let mut result = tauri::async_runtime::spawn_blocking(move || {
         let request = plan_cache::PlanRequest::new(&latest_request_id, request_id);
         plan_cache::generate_plan(&shared_cache, request, payload)
@@ -93,16 +98,6 @@ pub async fn plan_generate(
 #[tauri::command]
 pub fn plan_sample() -> Result<Value, String> {
     native_planner::sample_payload()
-}
-
-#[tauri::command]
-pub fn state_load(app: tauri::AppHandle) -> Result<Value, String> {
-    state_store::load_state(&app)
-}
-
-#[tauri::command]
-pub fn state_save(app: tauri::AppHandle, state: Value) -> Result<Value, String> {
-    state_store::save_state(&app, &state)
 }
 
 #[tauri::command]

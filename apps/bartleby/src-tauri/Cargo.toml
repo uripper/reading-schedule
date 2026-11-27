@@ -1,6 +1,6 @@
 [package]
 name = "bartleby_app"
-version = "0.2.4-alpha"
+version = "0.3.0-alpha"
 license = "0BSD"
 description = "Bartleby is a reading schedule optimizer"
 authors = ["uripper"]

@@ -4,7 +4,7 @@ use std::path::Path;
 use serde::Serialize;
 use serde_json::Value;
 
-use crate::cover_store;
+use crate::{cover_store, workspace_model};
 
 use super::{has_bootstrap_state, load_canonical_state, persist_state_to_directory, sqlite_store};
 
@@ -33,8 +33,10 @@ type CoverPathIndex = HashMap<String, String>;
 
 pub fn run_state_maintenance(data_directory: &Path) -> Result<StateMaintenanceResult, String> {
     let maintained_state = maintained_state(data_directory)?;
-    let covers_deleted =
-        cover_store::remove_orphaned_covers(&maintained_state.state, data_directory)?;
+    let covers_deleted = cover_store::remove_orphaned_covers(
+        &workspace_model::combined_books_state(&maintained_state.state),
+        data_directory,
+    )?;
     let sqlite_journal_rows_deleted = sqlite_store::maintain_sqlite_storage(data_directory)?;
     Ok(StateMaintenanceResult {
         changed: maintained_state.changed || covers_deleted > 0 || sqlite_journal_rows_deleted > 0,
@@ -49,13 +51,20 @@ fn maintained_state(data_directory: &Path) -> Result<MaintainedState, String> {
     if !has_bootstrap_state(&initial_result.state) {
         return Ok(maintained_state_result(initial_result.state, false, false));
     }
-    let normalized_state =
-        cover_store::normalize_state_cover_paths(&initial_result.state, data_directory)?;
-    let cover_changes = cover_path_changes(&initial_result.state, &normalized_state);
+    let normalized_state = workspace_model::map_snapshots(&initial_result.state, |snapshot| {
+        cover_store::normalize_state_cover_paths(snapshot, data_directory)
+    })?;
+    let cover_changes = cover_path_changes(
+        &workspace_model::combined_books_state(&initial_result.state),
+        &workspace_model::combined_books_state(&normalized_state),
+    );
     let latest_result = load_canonical_state(data_directory);
     let mut next_state = latest_result.state;
-    let cover_paths_changed = apply_cover_path_changes(&mut next_state, &cover_changes);
-    let references_repaired = repair_state_references(&mut next_state);
+    let cover_paths_changed = workspace_model::for_each_snapshot_mut(&mut next_state, |snapshot| {
+        apply_cover_path_changes(snapshot, &cover_changes)
+    });
+    let references_repaired =
+        workspace_model::for_each_snapshot_mut(&mut next_state, repair_state_references);
     let changed = cover_paths_changed || references_repaired;
     if changed {
         persist_state_to_directory(data_directory, &next_state)?;

@@ -1,13 +1,17 @@
+//! Upgrades saved state to the version 2 application envelope.
 use serde_json::Value;
 
 use super::types::{LoadResult, WARNING_MIGRATED_STATE_VERSION};
+use crate::workspace_model::{self, APP_STATE_VERSION};
 
-const CURRENT_STATE_VERSION: i64 = 1;
 const LEGACY_STATE_VERSION: i64 = 0;
+const PLANNER_SNAPSHOT_VERSION: i64 = 1;
 const MIGRATION_MESSAGE: &str = "Migrated saved data to the current state snapshot version.";
 
 pub struct MigrationResult {
     pub migrated_state: Value,
+    /// True when the source predates workspaces and must be backed up before rewriting.
+    pub replaces_legacy_snapshot: bool,
     pub should_rewrite: bool,
 }
 
@@ -19,25 +23,24 @@ pub fn migrate_loaded_state(state: &Value) -> Result<Option<MigrationResult>, St
         return Err("Saved state must be an object.".to_string());
     };
     let version = state_version(state_object)?;
-    if version == CURRENT_STATE_VERSION {
+    if version == APP_STATE_VERSION {
+        let migrated_state = workspace_model::validate_app_state(state)?;
+        let should_rewrite = migrated_state != *state;
         return Ok(Some(MigrationResult {
-            migrated_state: state.clone(),
-            should_rewrite: false,
+            migrated_state,
+            replaces_legacy_snapshot: false,
+            should_rewrite,
         }));
     }
-    if version == LEGACY_STATE_VERSION {
-        let mut migrated_state = state_object.clone();
-        migrated_state.insert(
-            "state_version".to_string(),
-            Value::Number(CURRENT_STATE_VERSION.into()),
-        );
+    if version == LEGACY_STATE_VERSION || version == PLANNER_SNAPSHOT_VERSION {
         return Ok(Some(MigrationResult {
-            migrated_state: Value::Object(migrated_state),
+            migrated_state: workspace_model::migrate_to_app_state(state)?,
+            replaces_legacy_snapshot: true,
             should_rewrite: true,
         }));
     }
     Err(format!(
-        "Unsupported saved state version: {version}. Try updating the app or resetting the saved planner state."
+        "Unsupported saved state version: {version}. Update Bartleby to a version that supports it, or restore an older backup."
     ))
 }
 
