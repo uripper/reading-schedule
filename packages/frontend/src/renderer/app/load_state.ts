@@ -105,6 +105,14 @@ function reportRecoveryStatus(
         );
         return;
     }
+    if (loadResult.warningCode === "STATE_WRITE_BLOCKED") {
+        setStatus(
+            loadResult.warningMessage ??
+                "Saved data needs a newer Bartleby. Changes will not be saved.",
+            true,
+        );
+        return;
+    }
     if (
         loadResult.source === "fresh" &&
         loadResult.warningCode === "STATE_RESET_FRESH"
@@ -210,6 +218,29 @@ function applyExperienceData(
 }
 
 /**
+ * Applies one planner snapshot to the running UI and runtime state. Used for the
+ * startup load and for workspace switches, so both rebuild identical derived state.
+ * @param saved - Snapshot to apply; sample data fills in when it cannot boot alone.
+ * @param args - Runtime dependencies for normalizing and applying state.
+ */
+export async function applySavedPlannerState(
+    saved: LoadedPlannerState | null | undefined,
+    args: LoadStateArgs,
+): Promise<void> {
+    const SAVED_RECORD = toSavedRecord(saved);
+    const SOURCE = await resolveInitialSource(args.plannerApi, saved);
+    applyLoadedData(saved, SOURCE, args);
+    const PREFERENCES = args.normalizePreferences(saved?.preferences ?? {});
+    const FEATURE_FLAGS = args.normalizeFeatureFlags(
+        readFeatureFlags(saved, SAVED_RECORD),
+    );
+    args.setPreferences(PREFERENCES);
+    args.setFeatureFlags(FEATURE_FLAGS);
+    applyExperienceData(args, PREFERENCES, FEATURE_FLAGS);
+    applySessionAndResultData(saved, args);
+}
+
+/**
  * Loads persisted planner state and applies it to the running UI/runtime state.
  * @param args - Runtime dependencies for loading, normalizing, and applying state.
  * @returns Promise that resolves after load/init flow finishes.
@@ -218,18 +249,8 @@ export async function loadInitialData(args: LoadStateArgs): Promise<void> {
     try {
         const LOAD_RESULT = await args.plannerApi.loadState();
         const SAVED = LOAD_RESULT.state;
-        const SAVED_RECORD = toSavedRecord(SAVED);
         reportLoadRecovery(LOAD_RESULT, args);
-        const SOURCE = await resolveInitialSource(args.plannerApi, SAVED);
-        applyLoadedData(SAVED, SOURCE, args);
-        const PREFERENCES = args.normalizePreferences(SAVED?.preferences ?? {});
-        const FEATURE_FLAGS = args.normalizeFeatureFlags(
-            readFeatureFlags(SAVED, SAVED_RECORD),
-        );
-        args.setPreferences(PREFERENCES);
-        args.setFeatureFlags(FEATURE_FLAGS);
-        applyExperienceData(args, PREFERENCES, FEATURE_FLAGS);
-        applySessionAndResultData(SAVED, args);
+        await applySavedPlannerState(SAVED, args);
         args.onLoaded(SAVED, LOAD_RESULT);
     } catch (error) {
         const ErrorMessage = `Failed to load initial data. \n ${String(error)}`;

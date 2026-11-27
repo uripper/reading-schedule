@@ -16,6 +16,18 @@ export const TAURI_COMMANDS = {
     windowZoomIn: "window_zoom_in",
     windowZoomOut: "window_zoom_out",
     windowZoomReset: "window_zoom_reset",
+
+    workspaceCreate: "workspace_create",
+    workspaceDelete: "workspace_delete",
+    workspaceList: "workspace_list",
+    workspaceLoad: "workspace_load",
+    workspaceLoadAll: "workspace_load_all",
+    workspaceRename: "workspace_rename",
+    workspaceSelect: "workspace_select",
+    workspaceSetArchived: "workspace_set_archived",
+    workspaceSetSessionCompletion: "workspace_set_session_completion",
+    workspaceSnapshots: "workspace_snapshots",
+    workspaceTransferBooks: "workspace_transfer_books",
 } as const;
 
 export type TauriPlannerCommand =

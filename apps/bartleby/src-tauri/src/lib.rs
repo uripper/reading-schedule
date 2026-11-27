@@ -9,6 +9,9 @@ mod plan_cache;
 mod state_recover_cli;
 mod state_store;
 mod window_zoom;
+mod workspace_commands;
+mod workspace_model;
+mod workspaces;
 
 pub use native_planner::benchmark::run_planner_benchmark;
 pub use state_recover_cli::recover_state_from_args;
@@ -20,6 +23,10 @@ mod data_archive_tests;
 mod state_store_cover_tests;
 #[cfg(test)]
 mod state_store_tests;
+#[cfg(test)]
+mod workspace_migration_tests;
+#[cfg(test)]
+mod workspace_storage_tests;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 // Tauri expands this macro into generated support code we do not own.
@@ -49,11 +56,22 @@ pub fn run() {
             commands::plan_generate,
             commands::plan_sample,
             commands::state_run_maintenance,
-            commands::state_load,
-            commands::state_save,
             commands::window_zoom_in,
             commands::window_zoom_out,
             commands::window_zoom_reset,
+            workspace_commands::state_load,
+            workspace_commands::state_save,
+            workspace_commands::workspace_create,
+            workspace_commands::workspace_delete,
+            workspace_commands::workspace_list,
+            workspace_commands::workspace_load,
+            workspace_commands::workspace_load_all,
+            workspace_commands::workspace_rename,
+            workspace_commands::workspace_select,
+            workspace_commands::workspace_set_archived,
+            workspace_commands::workspace_set_session_completion,
+            workspace_commands::workspace_snapshots,
+            workspace_commands::workspace_transfer_books,
         ])
         .run(context)
         .expect("error while running tauri application");

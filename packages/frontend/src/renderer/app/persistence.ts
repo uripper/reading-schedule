@@ -21,7 +21,7 @@ const CURRENT_STATE_VERSION = 1;
  * @returns Snapshot payload expected by planner state APIs.
  */
 export function draftData(args: DraftDataParams): PlannerStateSnapshot {
-    return {
+    const SNAPSHOT: PlannerStateSnapshot = {
         blocked_day_books: args.blockedDayBooks,
         books: args.collectBooks(),
         feature_flags: args.featureFlags,
@@ -32,6 +32,10 @@ export function draftData(args: DraftDataParams): PlannerStateSnapshot {
         settings: args.collectSettings(),
         state_version: CURRENT_STATE_VERSION,
     };
+    if (args.bookWorkspaces !== undefined) {
+        SNAPSHOT.book_workspaces = args.bookWorkspaces;
+    }
+    return SNAPSHOT;
 }
 
 /**

@@ -15,6 +15,7 @@ import { createAppErrorSurface } from "../errors/index.ts";
 import { addLog } from "../help.ts";
 import { collectSettings } from "../settings.ts";
 import { updateStatsView } from "../stats.ts";
+import { newBookWorkspaces } from "../workspaces/index.ts";
 import {
     createCriticalStatusSetter,
     createPersistFeedback,
@@ -67,6 +68,7 @@ function createPersistActions(
     plannerApi: PlannerApi,
     onPersistResult: (saved: boolean) => void,
 ): {
+    flushPendingChanges(this: void): Promise<boolean>;
     flushPendingState(this: void): Promise<boolean>;
     persistDraft(this: void): Promise<boolean>;
     prepareForDataImport(this: void): Promise<void>;
@@ -74,6 +76,7 @@ function createPersistActions(
 } {
     const PERSIST_QUEUE = createPersistQueue({
         addLog,
+        collectBookWorkspaces: newBookWorkspaces,
         collectBooks: collectAllBooks,
         collectSettings,
         getSessions: () => state.sessions,
@@ -83,6 +86,8 @@ function createPersistActions(
     });
 
     return {
+        flushPendingChanges: async (): Promise<boolean> =>
+            await PERSIST_QUEUE.flushPendingChanges(),
         flushPendingState: async (): Promise<boolean> =>
             await PERSIST_QUEUE.flushPendingState(),
         persistDraft: async (): Promise<boolean> =>
@@ -170,6 +175,7 @@ function buildBootstrapContext(options: {
         announce: options.announce,
         announceForPlanController: options.announceForPlanController,
         dashboards: options.dashboards,
+        flushPendingChanges: options.persistActions.flushPendingChanges,
         flushPendingState: options.persistActions.flushPendingState,
         persistDraft: options.persistActions.persistDraft,
         plannerApi: options.plannerApi,

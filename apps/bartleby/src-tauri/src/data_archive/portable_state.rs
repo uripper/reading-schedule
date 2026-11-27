@@ -2,7 +2,7 @@ use std::path::Path;
 
 use serde_json::Value;
 
-use crate::{app_paths, state_store};
+use crate::{app_paths, state_store, workspace_model};
 
 pub fn prepare_directory_for_export(data_directory: &Path) -> Result<(), String> {
     state_store::run_state_maintenance(data_directory).map(|_| ())
@@ -12,7 +12,14 @@ pub fn load_imported_state(data_directory: &Path) -> Result<Value, String> {
     state_store::load_imported_state_value_from_directory(data_directory)
 }
 
+/// Points every workspace's cover paths at this device's canonical cover directory.
 pub fn repaired_cover_paths(state: &Value, data_directory: &Path) -> Result<Value, String> {
+    workspace_model::map_snapshots(state, |snapshot| {
+        repaired_snapshot_cover_paths(snapshot, data_directory)
+    })
+}
+
+fn repaired_snapshot_cover_paths(state: &Value, data_directory: &Path) -> Result<Value, String> {
     let Some(state_object) = state.as_object() else {
         return Ok(state.clone());
     };

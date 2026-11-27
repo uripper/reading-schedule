@@ -5,6 +5,7 @@ import type { Book } from "./types_books.ts";
 import type { JsonValue, Session } from "./types_core.ts";
 import type { FeatureFlags, Preferences } from "./types_experience.ts";
 import type { BookLookupItem } from "./types_lookup.ts";
+import type { WorkspaceApi, WorkspaceLoadMeta } from "./types_workspaces.ts";
 
 /**
  * A reading session projected by the planner.
@@ -152,6 +153,8 @@ export type PlannerSettings = {
 
 export interface PlannerStateSnapshot {
     blocked_day_books: Record<string, boolean>;
+    /** Destinations of books added in the All Workspaces view, by book id. */
+    book_workspaces?: Record<string, string>;
     books: Book[];
     feature_flags: FeatureFlags;
     last_result: PlannerResult | null;
@@ -176,6 +179,8 @@ export interface LoadedPlannerState {
 
 export interface PlanGeneratePayload {
     books: Book[];
+    /** Planning scope (a workspace id); newer requests only supersede the same scope. */
+    plan_scope?: string;
     settings: PlannerSettings;
 }
 
@@ -191,6 +196,7 @@ export type PlannerStateLoadWarningCode =
     | "RECOVERED_FROM_BACKUP"
     | "RECOVERED_FROM_JOURNAL"
     | "STATE_RESET_FRESH"
+    | "STATE_WRITE_BLOCKED"
     | "MIGRATED_JSON_TO_SQLITE"
     | "MIGRATED_STATE_VERSION";
 
@@ -200,6 +206,8 @@ export interface PlannerStateLoadResult {
     state: LoadedPlannerState | null;
     warningCode?: PlannerStateLoadWarningCode;
     warningMessage?: string;
+    /** Present on hosts with workspaces; identifies the workspace `state` belongs to. */
+    workspace?: WorkspaceLoadMeta;
 }
 
 export interface PlannerSaveResult {
@@ -254,4 +262,6 @@ export interface PlannerApi {
     zoomIn(): Promise<number>;
     zoomOut(): Promise<number>;
     zoomReset(): Promise<number>;
+    /** Present on hosts that support multiple workspaces. */
+    workspaces?: WorkspaceApi;
 }

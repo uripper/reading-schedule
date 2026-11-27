@@ -137,7 +137,8 @@ fn apply_staged_archive(
     let verification = import_verify::verify_imported_state(&imported_state)?;
     state_store::save_state_to_directory(data_directory, &imported_state)?;
     import_verify::verify_persisted_state(data_directory, verification)?;
-    Ok(verification)
+    let persisted_state = state_store::load_state_value_from_directory(data_directory);
+    Ok(import_verify::active_workspace_counts(&persisted_state))
 }
 
 fn stage_directory_path(data_directory: &Path) -> Result<PathBuf, String> {

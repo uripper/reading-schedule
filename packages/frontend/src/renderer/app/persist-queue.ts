@@ -26,6 +26,7 @@ export function createPersistQueue(args: PersistQueueArgs): PersistQueue {
         timerState: TIMER_STATE,
     });
     return {
+        flushPendingChanges: flushPendingChangesFn(TIMER_STATE, PERSIST_DRAFT),
         flushPendingState: flushPendingStateFn(TIMER_STATE, PERSIST_DRAFT),
         persistDraft: PERSIST_DRAFT,
         prepareForStateImport: prepareForStateImportFn(TIMER_STATE),
@@ -43,6 +44,7 @@ function persistTimerState(): PersistTimerState {
 function persistDraftPayload(args: PersistQueueArgs) {
     return draftData({
         blockedDayBooks: args.state.blockedDayBooks,
+        bookWorkspaces: args.collectBookWorkspaces?.(),
         collectBooks: args.collectBooks,
         collectSettings: args.collectSettings,
         featureFlags: args.state.featureFlags,
@@ -137,6 +139,23 @@ function flushPendingStateFn(
         clearPersistTimer(timerState);
         await waitForActivePersists(timerState);
         return await persistDraft();
+    };
+}
+
+/**
+ * Saves only when an edit is queued or a save is running. Every state change either
+ * queues a save or saves directly, so an idle queue means storage already matches
+ * the screen and a workspace switch can skip a full rewrite.
+ */
+function flushPendingChangesFn(
+    timerState: PersistTimerState,
+    persistDraft: PersistDraftFn,
+): FlushPendingStateFn {
+    return async (): Promise<boolean> => {
+        if (timerState.timer === null && timerState.activePersist === null) {
+            return true;
+        }
+        return await flushPendingStateFn(timerState, persistDraft)();
     };
 }
 
