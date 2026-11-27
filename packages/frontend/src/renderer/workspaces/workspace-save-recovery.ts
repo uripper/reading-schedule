@@ -6,7 +6,9 @@
  * saves once to confirm storage and screen agree again, which clears the error.
  */
 import type { WorkspaceRuntime } from "../../types/types.ts";
+import { reloadAfterRefusedSave } from "./workspace-switch.ts";
 
+const OPEN_DIALOG_SELECTOR = "dialog[open]";
 const OUT_OF_SYNC_PREFIXES = [
     "STALE_WORKSPACE_REVISION",
     "WORKSPACE_OUT_OF_SYNC",
@@ -22,11 +24,29 @@ function isOutOfSync(error: string): boolean {
     return OUT_OF_SYNC_PREFIXES.some((prefix) => error.startsWith(prefix));
 }
 
-/** Reloads the workspace, then saves once so the save error clears. */
+/**
+ * Reloads the workspace, then saves once so the save error clears. That save keeps
+ * any pending replan request: the host clears it only when a new plan is saved.
+ */
 async function reloadAfterRefusal(runtime: WorkspaceRuntime): Promise<void> {
-    await runtime.reloadActive();
+    if (!(await reloadAfterRefusedSave(runtime.deps))) {
+        return;
+    }
     await runtime.deps.context.persistDraft();
     runtime.deps.context.setStatus(RELOADED_MESSAGE, true);
+}
+
+/** Waits for an open dialog to close so its unsaved edits are not replaced. */
+function afterOpenDialogCloses(run: () => void): boolean {
+    const DIALOG =
+        globalThis.document.querySelector<HTMLDialogElement>(
+            OPEN_DIALOG_SELECTOR,
+        );
+    if (DIALOG === null) {
+        return false;
+    }
+    DIALOG.addEventListener("close", run, { once: true });
+    return true;
 }
 
 /**
@@ -46,16 +66,25 @@ export function bindSaveRecovery(runtime: WorkspaceRuntime): void {
         if (!isOutOfSync(error) || isReloading) {
             return;
         }
-        isReloading = true;
-        reloadAfterRefusal(runtime)
-            .catch((): void => {
-                runtime.deps.context.setStatus(
-                    "Bartleby could not reload this workspace. Restart Bartleby before making more changes.",
-                    true,
-                );
-            })
-            .finally((): void => {
-                isReloading = false;
-            });
+        // An open dialog may hold unsaved edits; reload only once it closes.
+        if (afterOpenDialogCloses(() => recover?.(error))) {
+            return;
+        }
+        startRecovery(runtime);
     };
+}
+
+/** Runs one recovery at a time and reports a failed reload. */
+function startRecovery(runtime: WorkspaceRuntime): void {
+    isReloading = true;
+    reloadAfterRefusal(runtime)
+        .catch((): void => {
+            runtime.deps.context.setStatus(
+                "Bartleby could not reload this workspace. Restart Bartleby before making more changes.",
+                true,
+            );
+        })
+        .finally((): void => {
+            isReloading = false;
+        });
 }

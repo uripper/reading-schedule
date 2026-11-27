@@ -30,6 +30,8 @@ import {
 } from "./workspace-store.ts";
 
 const OPEN_DIALOG_SELECTOR = "dialog[open]";
+const RELOADING_MESSAGE = "Reloading saved data…";
+const BLOCK_INPUT_AT_ONCE_MS = 0;
 
 /** Prevents overlapping switches from interleaving their saves and loads. */
 let switchInFlight = false;
@@ -229,4 +231,52 @@ export async function reloadActiveWorkspace(
         return;
     }
     await openWorkspace(deps, ACTIVE_ID);
+}
+
+/** Reloads the shown workspace with input blocked; restores readiness on failure. */
+async function performRecoveryReload(
+    deps: WorkspaceSwitchDeps,
+    workspaceId: WorkspaceId,
+): Promise<void> {
+    deps.context.state.ready = false;
+    deps.planController.invalidatePendingRuns();
+    try {
+        await withAppLoading(
+            RELOADING_MESSAGE,
+            async () => {
+                await openWorkspace(deps, workspaceId);
+            },
+            BLOCK_INPUT_AT_ONCE_MS,
+        );
+    } catch (error) {
+        // A failed read replaced nothing, so the screen can be used again.
+        if (appliedWorkspaceId() === workspaceId) {
+            deps.context.state.ready = true;
+        }
+        throw error;
+    }
+}
+
+/**
+ * Reloads the shown workspace after the host refused a save as out of date. It
+ * takes the same lock as switching, so a switch and a recovery reload can never
+ * overlap and apply each other's workspace, and it blocks input before the read
+ * starts, so no edit is made to data that is about to be replaced.
+ * @param deps - Renderer wiring used to apply state.
+ * @returns False when a switch is already loading fresh data and no reload ran.
+ */
+export async function reloadAfterRefusedSave(
+    deps: WorkspaceSwitchDeps,
+): Promise<boolean> {
+    const ACTIVE_ID = activeWorkspaceId();
+    if (switchInFlight || ACTIVE_ID === null) {
+        return false;
+    }
+    switchInFlight = true;
+    try {
+        await performRecoveryReload(deps, ACTIVE_ID);
+        return true;
+    } finally {
+        switchInFlight = false;
+    }
 }

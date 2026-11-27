@@ -124,29 +124,105 @@ test("saves carry the workspace on screen and wait while none is", async () => {
     assert.equal(SAVED[0].workspace_id, TARGET_ID);
 });
 
-test("a save refused as out of date reloads the workspace instead of failing forever", async () => {
-    const CALLS = [];
-    bindSaveRecovery({
-        deps: {
-            context: {
-                persistDraft: () => {
-                    CALLS.push("save");
-                    return Promise.resolve(true);
-                },
-                setStatus: (message) => CALLS.push(`status:${message}`),
-            },
-        },
-        reloadActive: () => {
-            CALLS.push("reload");
-            return Promise.resolve();
-        },
+function deferred() {
+    let resolve;
+    const PROMISE = new Promise((resolvePromise) => {
+        resolve = resolvePromise;
     });
-    handleRejectedSave("Disk is full.");
-    await flushAsync();
-    assert.deepEqual(CALLS, []);
-    handleRejectedSave("WORKSPACE_OUT_OF_SYNC: Nothing was saved.");
-    handleRejectedSave("STALE_WORKSPACE_REVISION: Reload first.");
-    await flushAsync();
-    assert.deepEqual(CALLS.slice(0, 2), ["reload", "save"]);
-    assert.equal(CALLS.filter((call) => call === "reload").length, 1);
+    return { promise: PROMISE, resolve };
+}
+
+/** Recovery runtime over the shared switch fixtures. */
+function recoveryRuntime(overrides = {}) {
+    const FIXTURE = switchDeps(overrides);
+    FIXTURE.DEPS.context.persistDraft = () => {
+        FIXTURE.CALLS.push("save");
+        return Promise.resolve(true);
+    };
+    bindSaveRecovery({ deps: FIXTURE.DEPS });
+    return FIXTURE;
+}
+
+test("a save refused as out of date reloads the workspace instead of failing forever", async () => {
+    startInSource();
+    const RESTORE = installDialogDocument();
+    try {
+        const { CALLS } = recoveryRuntime();
+        handleRejectedSave("Disk is full.");
+        await flushAsync();
+        assert.equal(CALLS.length, 0);
+        handleRejectedSave("WORKSPACE_OUT_OF_SYNC: Nothing was saved.");
+        handleRejectedSave("STALE_WORKSPACE_REVISION: Reload first.");
+        await flushAsync();
+        assert.equal(
+            CALLS.filter((call) => call === `load:${SOURCE_ID}`).length,
+            1,
+        );
+        assert.equal(CALLS.includes("save"), true);
+    } finally {
+        RESTORE();
+    }
+});
+
+test("input is blocked before the recovery read starts", async () => {
+    startInSource();
+    let readyDuringRead = "unset";
+    const RESTORE = installDialogDocument();
+    try {
+        const { DEPS } = recoveryRuntime();
+        const LOAD = DEPS.api.load;
+        DEPS.api.load = (workspaceId) => {
+            readyDuringRead = DEPS.context.state.ready;
+            return LOAD(workspaceId);
+        };
+        handleRejectedSave("STALE_WORKSPACE_REVISION: Reload first.");
+        await flushAsync();
+        assert.equal(readyDuringRead, false);
+        assert.equal(DEPS.context.state.ready, true);
+    } finally {
+        RESTORE();
+    }
+});
+
+test("a recovery reload and a workspace switch never overlap", async () => {
+    startInSource();
+    const PENDING = deferred();
+    const RESTORE = installDialogDocument();
+    try {
+        const { CALLS, DEPS } = recoveryRuntime();
+        DEPS.api.load = (workspaceId) => {
+            CALLS.push(`load:${workspaceId}`);
+            return PENDING.promise.then(() => workspaceLoad(workspaceId));
+        };
+        handleRejectedSave("STALE_WORKSPACE_REVISION: Reload first.");
+        await flushAsync();
+        assert.equal(await switchWorkspace(DEPS, TARGET_ID), false);
+        PENDING.resolve();
+        await flushAsync();
+        assert.equal(CALLS.includes(`load:${TARGET_ID}`), false);
+        assert.equal(STORE.activeWorkspaceId(), SOURCE_ID);
+    } finally {
+        RESTORE();
+    }
+});
+
+test("recovery waits while a dialog holds unsaved edits", async () => {
+    startInSource();
+    const LISTENERS = [];
+    const PREVIOUS = globalThis.document;
+    globalThis.document = {
+        getElementById: () => null,
+        querySelector: () => ({
+            addEventListener: (type, listener) => LISTENERS.push(listener),
+        }),
+    };
+    try {
+        const { CALLS } = recoveryRuntime();
+        handleRejectedSave("STALE_WORKSPACE_REVISION: Reload first.");
+        await flushAsync();
+        assert.equal(CALLS.length, 0);
+        assert.equal(LISTENERS.length, 1);
+    } finally {
+        globalThis.document = PREVIOUS;
+    }
 });

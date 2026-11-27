@@ -120,22 +120,26 @@ fn saves_to_archived_or_deleted_workspaces_are_rejected() {
 }
 
 #[test]
-fn save_clears_needs_replan_set_by_transfer() {
+fn only_a_new_plan_clears_the_replan_request() {
     let directory = TestDirectory::new("save-replan");
     let source = planner_snapshot(vec![book("book-a", "Dune")]);
     let target_id = seed_two(&directory.path, source, planner_snapshot(vec![]));
     transfer_books(&directory.path, &transfer_request(&target_id, &["book-a"]))
         .expect("expected transfer");
-    assert!(
-        load(&directory.path, &target_id)
-            .expect("load")
-            .needs_replan
-    );
-    let request = save_request(
-        Some(&target_id),
-        stored_snapshot(&directory.path, &target_id),
-    );
-    save_snapshot(&directory.path, &request).expect("expected save");
+    let mut snapshot = stored_snapshot(&directory.path, &target_id);
+    save_snapshot(
+        &directory.path,
+        &save_request(Some(&target_id), snapshot.clone()),
+    )
+    .expect("expected an edit save");
+    assert!(stored_needs_replan(&directory.path, &target_id));
+    snapshot["last_result"] = serde_json::json!({
+        "created_at": "2099-01-01T00:00:00Z",
+        "schedule": [],
+        "summary": null,
+    });
+    save_snapshot(&directory.path, &save_request(Some(&target_id), snapshot))
+        .expect("expected a planned save");
     assert!(!stored_needs_replan(&directory.path, &target_id));
     assert!(
         !load(&directory.path, &target_id)

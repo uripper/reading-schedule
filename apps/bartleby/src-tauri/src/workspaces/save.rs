@@ -31,8 +31,12 @@ pub fn apply_save(current_state: &Value, request: &SaveRequest) -> Result<Applie
     let workspace_id = target_workspace_id(&state, request)?;
     check_revision(&state, &workspace_id, request.expected_revision)?;
     super::save_guard::check_single_save(&state, &workspace_id, &request.state)?;
+    let is_new_plan = saves_new_plan(&state, &workspace_id, &request.state);
     workspace_model::store_snapshot(&mut state, &workspace_id, &request.state)?;
     let revision = bump(&mut state, &workspace_id)?;
+    if is_new_plan {
+        clear_needs_replan(&mut state, &workspace_id);
+    }
     Ok((state, outcome(workspace_id, revision)))
 }
 
@@ -83,8 +87,28 @@ fn bump(state: &mut Value, workspace_id: &str) -> Result<u64, String> {
     let entry = workspace_model::find_workspace_mut(state, workspace_id)
         .ok_or_else(|| format!("Workspace {workspace_id} does not exist."))?;
     workspace_model::bump_revision(entry);
-    entry[workspace_model::KEY_NEEDS_REPLAN] = Value::Bool(false);
     Ok(workspace_model::revision(entry))
+}
+
+/// True when the save carries a schedule planned after the stored one. Only then has
+/// the replan requested by a book transfer happened; other saves (edits, or the save
+/// confirming a reload) must keep the request so the next launch still replans.
+fn saves_new_plan(state: &Value, workspace_id: &str, snapshot: &Value) -> bool {
+    let stored_plan_time = workspace_model::find_workspace(state, workspace_id)
+        .and_then(|entry| entry.pointer("/snapshot/last_result/created_at"))
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    let saved_plan_time = snapshot
+        .pointer("/last_result/created_at")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    saved_plan_time > stored_plan_time
+}
+
+fn clear_needs_replan(state: &mut Value, workspace_id: &str) {
+    if let Some(entry) = workspace_model::find_workspace_mut(state, workspace_id) {
+        entry[workspace_model::KEY_NEEDS_REPLAN] = Value::Bool(false);
+    }
 }
 
 fn outcome(workspace_id: String, revision: u64) -> SaveOutcome {
